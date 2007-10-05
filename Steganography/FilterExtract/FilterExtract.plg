@@ -1,0 +1,205 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: AutomateGraphing - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+AutomateGraphing.8li - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AutomateGraphing - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+AutomateGraphing.8li - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterATM - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterATM - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterAW - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterAW.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterAW - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterAW.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEnergy - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterEnergy.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEnergy - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterEnergy.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExport - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterExport.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExport - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterExport.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExtract - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterExtract.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExtract - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterExtract.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterOrphans - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterOrphans.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterOrphans - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterOrphans.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterVariance - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterVariance.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterVariance - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterVariance.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterWavelet - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterWavelet.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterWavelet - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterWavelet.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: PluginWizard - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+PluginWizard.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: PluginWizard - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+PluginWizard.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

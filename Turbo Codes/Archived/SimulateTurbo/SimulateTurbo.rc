@@ -1,0 +1,313 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\SimulateTurbo.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\SimulateTurbo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About SimulateTurbo"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "SimulateTurbo Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2001",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_SIMULATETURBO_DIALOG DIALOGEX 0, 0, 349, 249
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Simulate Turbo Code"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,292,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,292,23,50,14
+    EDITTEXT        IDC_CONFIDENCE,64,21,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ACCURACY,64,39,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SNR_MIN,64,56,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SNR_MAX,64,74,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SNR_STEP,64,92,40,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_CHANNEL,55,134,50,70,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_MODULATION,55,151,50,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_ITERATIONS,63,193,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Parallel Decoding:",IDC_PARALLEL,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,30,212,73,10
+    COMBOBOX        IDC_CODETYPE,169,19,50,70,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    EDITTEXT        IDC_INPUTS,169,35,36,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS,207,35,11,14
+    EDITTEXT        IDC_OUTPUTS,169,53,36,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN3,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS,207,53,11,14
+    EDITTEXT        IDC_MEMORY,169,71,36,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS,207,71,11,14
+    GROUPBOX        "Simulation Parameters",IDC_STATIC,7,7,105,108
+    LTEXT           "SNR Min:",IDC_STATIC,25,59,32,8
+    LTEXT           "SNR Max:",IDC_STATIC,23,77,34,8
+    LTEXT           "SNR Step:",IDC_STATIC,22,95,35,8
+    LTEXT           "Confidence:",IDC_STATIC,18,24,39,8
+    LTEXT           "Accuracy:",IDC_STATIC,24,42,33,8
+    GROUPBOX        "Decoder Parameters",IDC_STATIC,7,181,105,61
+    LTEXT           "Iterations:",IDC_STATIC,23,196,32,8
+    GROUPBOX        "Channel Parameters",IDC_STATIC,7,121,105,52
+    LTEXT           "Channel:",IDC_STATIC,23,136,29,8
+    GROUPBOX        "Constituent Codes",IDC_STATIC,122,7,105,119
+    LTEXT           "Modulation:",IDC_STATIC,14,153,38,8
+    LTEXT           "Type:",IDC_STATIC,144,21,19,8
+    LTEXT           "Inputs:",IDC_STATIC,141,38,22,8
+    LTEXT           "Outputs:",IDC_STATIC,135,56,28,8
+    LTEXT           "Memory:",IDC_STATIC,135,74,28,8
+    EDITTEXT        IDC_GENERATORS,130,90,88,27,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL
+    GROUPBOX        "Turbo Construction",IDC_STATIC,122,132,105,110
+    EDITTEXT        IDC_SETS,179,163,40,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER
+    CONTROL         "Terminated:",IDC_ENDATZERO,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,127,200,53,10
+    LTEXT           "Sets:",IDC_STATIC,157,166,17,8
+    CONTROL         "Simile:",IDC_TERMSIMILE,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,183,200,36,10
+    EDITTEXT        IDC_TAU,179,181,40,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER
+    LTEXT           "Size:",IDC_STATIC,158,184,16,8
+    PUSHBUTTON      "Load",IDC_LOAD,191,144,28,14
+    CONTROL         "Fast Algorithm:",IDC_FAST,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,41,227,62,10
+    COMBOBOX        IDC_PUNCTURING,171,225,50,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Puncturing:",IDC_STATIC,129,227,37,8
+    PUSHBUTTON      "Start",IDC_START,244,53,43,14
+    PUSHBUTTON      "Stop",IDC_STOP,293,53,43,14
+    GROUPBOX        "Status",IDC_STATIC,237,41,105,201
+    CONTROL         "Progress2",IDC_PROGRESS_TOTAL,"msctls_progress32",
+                    PBS_SMOOTH,243,220,92,14
+    CONTROL         "Progress2",IDC_PROGRESS_CURRENT,"msctls_progress32",
+                    PBS_SMOOTH,243,202,92,14
+    CONTROL         "Custom1",IDC_GRAPH1,"StatusGraph",WS_TABSTOP,243,101,92,
+                    39
+    CONTROL         "Custom1",IDC_GRAPH2,"StatusGraph",WS_TABSTOP,243,159,92,
+                    39
+    LTEXT           "Accuracy:",IDC_STATIC,243,87,33,8
+    LTEXT           "10.1%",IDC_DISP_ACCURACY,281,86,54,11,0,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Mean:",IDC_STATIC,243,145,21,8
+    LTEXT           "0.125",IDC_DISP_MEAN,274,144,61,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "Passes:",IDC_STATIC,243,72,26,8
+    LTEXT           "128",IDC_DISP_PASSES,281,71,54,11,0,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Save",IDC_SAVE,244,23,43,14
+    EDITTEXT        IDC_PATHNAME,128,144,59,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "JPL:",IDC_TERMJPL,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,189,213,30,10
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "SimulateTurbo MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "SimulateTurbo\0"
+            VALUE "LegalCopyright", "Copyright (C) 2001\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "SimulateTurbo.EXE\0"
+            VALUE "ProductName", "SimulateTurbo Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_SIMULATETURBO_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 342
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 242
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_SIMULATETURBO_DIALOG DLGINIT
+BEGIN
+    IDC_CHANNEL, 0x403, 5, 0
+0x5741, 0x4e47, "\000" 
+    IDC_CHANNEL, 0x403, 10, 0
+0x614c, 0x6c70, 0x6361, 0x6169, 0x006e, 
+    IDC_MODULATION, 0x403, 5, 0
+0x5042, 0x4b53, "\000" 
+    IDC_MODULATION, 0x403, 5, 0
+0x5051, 0x4b53, "\000" 
+    IDC_CODETYPE, 0x403, 5, 0
+0x5352, 0x4343, "\000" 
+    IDC_CODETYPE, 0x403, 5, 0
+0x524e, 0x4343, "\000" 
+    IDC_PUNCTURING, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    IDC_PUNCTURING, 0x403, 8, 0
+0x7453, 0x7069, 0x6c70, 0x0065, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About SimulateTurbo..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\SimulateTurbo.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

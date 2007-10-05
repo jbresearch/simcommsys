@@ -1,0 +1,44 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPEC.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterEmbed.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterEmbed\FilterEmbed.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPEC.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPED.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterEmbed.8bf" /implib:"Debug/FilterEmbed.lib" 
+.\Debug\ComputeStrengthDlg.obj
+.\Debug\FilterEmbed.obj
+.\Debug\FilterEmbedDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterEmbed.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+\Johann\Programming\Libraries\LibComm\Debug\LibComm.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPED.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterEmbed.cpp
+Linking...
+   Creating library Debug/FilterEmbed.lib and object Debug/FilterEmbed.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterEmbed.bsc"  .\Debug\StdAfx.sbr .\Debug\ComputeStrengthDlg.sbr .\Debug\FilterEmbed.sbr .\Debug\FilterEmbedDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

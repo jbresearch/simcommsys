@@ -1,0 +1,1188 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: AutomateEmbedding - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7B8.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/AutomateEmbedding.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateEmbedding\AutomateEmbedding.cpp"
+"D:\Documents\Johann\Programming\Steganography\AutomateEmbedding\AutomateEmbeddingDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7B8.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7B9.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/AutomateEmbedding.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateEmbedding\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7B9.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7BA.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\AutomateEmbedding.8li" /implib:"Release/AutomateEmbedding.lib" 
+.\Release\AutomateEmbedding.obj
+.\Release\AutomateEmbeddingDlg.obj
+.\Release\StdAfx.obj
+.\Release\AutomateEmbedding.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7BA.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+AutomateEmbedding.cpp
+AutomateEmbeddingDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/AutomateEmbedding.lib and object Release/AutomateEmbedding.exp
+
+
+
+<h3>Results</h3>
+AutomateEmbedding.8li - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AutomateEmbedding - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7BE.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/AutomateEmbedding.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateEmbedding\AutomateEmbedding.cpp"
+"D:\Documents\Johann\Programming\Steganography\AutomateEmbedding\AutomateEmbeddingDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7BE.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7BF.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/AutomateEmbedding.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateEmbedding\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7BF.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C0.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\AutomateEmbedding.8li" /implib:"Debug/AutomateEmbedding.lib" 
+.\Debug\AutomateEmbedding.obj
+.\Debug\AutomateEmbeddingDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\AutomateEmbedding.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C0.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+AutomateEmbedding.cpp
+Generating Code...
+Skipping... (no relevant changes detected)
+AutomateEmbeddingDlg.cpp
+Linking...
+   Creating library Debug/AutomateEmbedding.lib and object Debug/AutomateEmbedding.exp
+
+
+
+<h3>Results</h3>
+AutomateEmbedding.8li - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AutomateGraphing - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C4.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/AutomateGraphing.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateGraphing\AutomateGraphing.cpp"
+"D:\Documents\Johann\Programming\Steganography\AutomateGraphing\AutomateGraphingDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C4.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C5.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/AutomateGraphing.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateGraphing\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C5.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C6.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\AutomateGraphing.8li" /implib:"Release/AutomateGraphing.lib" 
+.\Release\AutomateGraphing.obj
+.\Release\AutomateGraphingDlg.obj
+.\Release\StdAfx.obj
+.\Release\AutomateGraphing.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7C6.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+AutomateGraphing.cpp
+AutomateGraphingDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/AutomateGraphing.lib and object Release/AutomateGraphing.exp
+
+
+
+<h3>Results</h3>
+AutomateGraphing.8li - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AutomateGraphing - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7CA.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/AutomateGraphing.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateGraphing\AutomateGraphing.cpp"
+"D:\Documents\Johann\Programming\Steganography\AutomateGraphing\AutomateGraphingDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7CA.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7CB.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/AutomateGraphing.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\AutomateGraphing\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7CB.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7CC.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\AutomateGraphing.8li" /implib:"Debug/AutomateGraphing.lib" 
+.\Debug\AutomateGraphing.obj
+.\Debug\AutomateGraphingDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\AutomateGraphing.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7CC.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+AutomateGraphing.cpp
+Generating Code...
+Skipping... (no relevant changes detected)
+AutomateGraphingDlg.cpp
+Linking...
+   Creating library Debug/AutomateGraphing.lib and object Debug/AutomateGraphing.exp
+
+
+
+<h3>Results</h3>
+AutomateGraphing.8li - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterATM - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D0.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterATM.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterATM\FilterATM.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterATM\FilterATMDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D0.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D1.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterATM.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterATM\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D1.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D2.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterATM.8bf" /implib:"Release/FilterATM.lib" 
+.\Release\FilterATM.obj
+.\Release\FilterATMDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterATM.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D2.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterATM.cpp
+FilterATMDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterATM.lib and object Release/FilterATM.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterATM.bsc"  .\Release\StdAfx.sbr .\Release\FilterATM.sbr .\Release\FilterATMDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterATM - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D6.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterATM.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterATM\FilterATM.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterATM\FilterATMDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D6.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D7.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterATM.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterATM\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D7.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D8.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterATM.8bf" /implib:"Debug/FilterATM.lib" 
+.\Debug\FilterATM.obj
+.\Debug\FilterATMDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterATM.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7D8.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterATM.cpp
+FilterATMDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterATM.lib and object Debug/FilterATM.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterATM.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterATM.sbr .\Debug\FilterATMDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterAW - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7DC.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterAW.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterAW\FilterAW.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterAW\FilterAWDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7DC.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7DD.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterAW.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterAW\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7DD.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7DE.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterAW.8bf" /implib:"Release/FilterAW.lib" 
+.\Release\FilterAW.obj
+.\Release\FilterAWDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterAW.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7DE.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterAW.cpp
+FilterAWDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterAW.lib and object Release/FilterAW.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterAW.bsc"  .\Release\StdAfx.sbr .\Release\FilterAW.sbr .\Release\FilterAWDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterAW.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterAW - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E2.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterAW.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterAW\FilterAW.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterAW\FilterAWDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E2.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E3.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterAW.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterAW\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E3.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E4.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterAW.8bf" /implib:"Debug/FilterAW.lib" 
+.\Debug\FilterAW.obj
+.\Debug\FilterAWDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterAW.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E4.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterAWDlg.cpp
+Generating Code...
+Compiling...
+FilterAW.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterAW.lib and object Debug/FilterAW.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterAW.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterAW.sbr .\Debug\FilterAWDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterAW.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E8.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterEmbed.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\ComputeStrengthDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\FilterEmbed.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\FilterEmbedDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E8.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E9.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterEmbed.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7E9.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7EA.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterEmbed.8bf" /implib:"Release/FilterEmbed.lib" 
+.\Release\ComputeStrengthDlg.obj
+.\Release\FilterEmbed.obj
+.\Release\FilterEmbedDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterEmbed.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+\Documents\Johann\Programming\Libraries\LibComm\Release\LibComm.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7EA.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+ComputeStrengthDlg.cpp
+FilterEmbed.cpp
+FilterEmbedDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterEmbed.lib and object Release/FilterEmbed.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterEmbed.bsc"  .\Release\StdAfx.sbr .\Release\ComputeStrengthDlg.sbr .\Release\FilterEmbed.sbr .\Release\FilterEmbedDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7EE.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterEmbed.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\ComputeStrengthDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\FilterEmbed.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\FilterEmbedDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7EE.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7EF.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterEmbed.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEmbed\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7EF.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F0.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterEmbed.8bf" /implib:"Debug/FilterEmbed.lib" 
+.\Debug\ComputeStrengthDlg.obj
+.\Debug\FilterEmbed.obj
+.\Debug\FilterEmbedDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterEmbed.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+\Documents\Johann\Programming\Libraries\LibComm\Debug\LibComm.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F0.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+ComputeStrengthDlg.cpp
+FilterEmbed.cpp
+FilterEmbedDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterEmbed.lib and object Debug/FilterEmbed.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterEmbed.bsc"  .\Debug\StdAfx.sbr .\Debug\ComputeStrengthDlg.sbr .\Debug\FilterEmbed.sbr .\Debug\FilterEmbedDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEnergy - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F4.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterEnergy.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEnergy\FilterEnergy.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterEnergy\FilterEnergyDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F4.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F5.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterEnergy.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEnergy\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F5.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F6.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterEnergy.8bf" /implib:"Release/FilterEnergy.lib" 
+.\Release\FilterEnergy.obj
+.\Release\FilterEnergyDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterEnergy.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7F6.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterEnergy.cpp
+FilterEnergyDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterEnergy.lib and object Release/FilterEnergy.exp
+
+
+
+<h3>Results</h3>
+FilterEnergy.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEnergy - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7FA.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterEnergy.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEnergy\FilterEnergy.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterEnergy\FilterEnergyDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7FA.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7FB.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterEnergy.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterEnergy\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7FB.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7FC.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterEnergy.8bf" /implib:"Debug/FilterEnergy.lib" 
+.\Debug\FilterEnergy.obj
+.\Debug\FilterEnergyDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterEnergy.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP7FC.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterEnergy.cpp
+Generating Code...
+Compiling...
+FilterEnergyDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterEnergy.lib and object Debug/FilterEnergy.exp
+
+
+
+<h3>Results</h3>
+FilterEnergy.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExport - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP800.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterExport.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExport\FilterExport.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExport\FilterExportDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP800.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP801.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterExport.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExport\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP801.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP802.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterExport.8bf" /implib:"Release/FilterExport.lib" 
+.\Release\FilterExport.obj
+.\Release\FilterExportDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterExport.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP802.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterExport.cpp
+FilterExportDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterExport.lib and object Release/FilterExport.exp
+
+
+
+<h3>Results</h3>
+FilterExport.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExport - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP806.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterExport.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExport\FilterExport.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExport\FilterExportDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP806.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP807.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterExport.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExport\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP807.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP808.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterExport.8bf" /implib:"Debug/FilterExport.lib" 
+.\Debug\FilterExport.obj
+.\Debug\FilterExportDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterExport.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP808.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterExport.cpp
+FilterExportDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterExport.lib and object Debug/FilterExport.exp
+
+
+
+<h3>Results</h3>
+FilterExport.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExtract - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP80C.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterExtract.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\ComputeStrengthDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\DisplayResultsDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\FilterExtract.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\FilterExtractDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP80C.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP80D.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterExtract.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP80D.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP80E.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterExtract.8bf" /implib:"Release/FilterExtract.lib" 
+.\Release\ComputeStrengthDlg.obj
+.\Release\DisplayResultsDlg.obj
+.\Release\FilterExtract.obj
+.\Release\FilterExtractDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterExtract.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibComm\Release\LibComm.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP80E.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+ComputeStrengthDlg.cpp
+DisplayResultsDlg.cpp
+FilterExtract.cpp
+FilterExtractDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterExtract.lib and object Release/FilterExtract.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterExtract.bsc"  .\Release\StdAfx.sbr .\Release\ComputeStrengthDlg.sbr .\Release\DisplayResultsDlg.sbr .\Release\FilterExtract.sbr .\Release\FilterExtractDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterExtract.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExtract - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP812.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterExtract.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\ComputeStrengthDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\DisplayResultsDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\FilterExtract.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\FilterExtractDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP812.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP813.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterExtract.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterExtract\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP813.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP814.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterExtract.8bf" /implib:"Debug/FilterExtract.lib" 
+.\Debug\ComputeStrengthDlg.obj
+.\Debug\DisplayResultsDlg.obj
+.\Debug\FilterExtract.obj
+.\Debug\FilterExtractDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterExtract.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibComm\Debug\LibComm.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP814.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+ComputeStrengthDlg.cpp
+Generating Code...
+Compiling...
+DisplayResultsDlg.cpp
+FilterExtract.cpp
+FilterExtractDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterExtract.lib and object Debug/FilterExtract.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterExtract.bsc"  .\Debug\StdAfx.sbr .\Debug\ComputeStrengthDlg.sbr .\Debug\DisplayResultsDlg.sbr .\Debug\FilterExtract.sbr .\Debug\FilterExtractDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterExtract.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterLevels - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP818.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterLevels.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\DisplayResultsDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\FilterLevels.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\FilterLevelsDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP818.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP819.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterLevels.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP819.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP81A.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterLevels.8bf" /implib:"Release/FilterLevels.lib" 
+.\Release\DisplayResultsDlg.obj
+.\Release\FilterLevels.obj
+.\Release\FilterLevelsDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterLevels.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP81A.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+DisplayResultsDlg.cpp
+FilterLevels.cpp
+FilterLevelsDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterLevels.lib and object Release/FilterLevels.exp
+
+
+
+<h3>Results</h3>
+FilterLevels.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterLevels - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP81E.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterLevels.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\DisplayResultsDlg.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\FilterLevels.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\FilterLevelsDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP81E.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP81F.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterLevels.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterLevels\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP81F.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP820.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterLevels.8bf" /implib:"Debug/FilterLevels.lib" 
+.\Debug\DisplayResultsDlg.obj
+.\Debug\FilterLevels.obj
+.\Debug\FilterLevelsDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterLevels.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP820.tmp"
+<h3>Output Window</h3>
+Compiling...
+Skipping... (no relevant changes detected)
+StdAfx.cpp
+Compiling...
+Skipping... (no relevant changes detected)
+DisplayResultsDlg.cpp
+FilterLevels.cpp
+FilterLevelsDlg.cpp
+Linking...
+   Creating library Debug/FilterLevels.lib and object Debug/FilterLevels.exp
+
+
+
+<h3>Results</h3>
+FilterLevels.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterOrphans - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP824.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterOrphans.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterOrphans\FilterOrphans.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterOrphans\FilterOrphansDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP824.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP825.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterOrphans.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterOrphans\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP825.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP826.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterOrphans.8bf" /implib:"Release/FilterOrphans.lib" 
+.\Release\FilterOrphans.obj
+.\Release\FilterOrphansDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterOrphans.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP826.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterOrphans.cpp
+FilterOrphansDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterOrphans.lib and object Release/FilterOrphans.exp
+
+
+
+<h3>Results</h3>
+FilterOrphans.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterOrphans - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP82A.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterOrphans.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterOrphans\FilterOrphans.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterOrphans\FilterOrphansDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP82A.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP82B.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterOrphans.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterOrphans\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP82B.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP82C.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterOrphans.8bf" /implib:"Debug/FilterOrphans.lib" 
+.\Debug\FilterOrphans.obj
+.\Debug\FilterOrphansDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterOrphans.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP82C.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterOrphans.cpp
+FilterOrphansDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterOrphans.lib and object Debug/FilterOrphans.exp
+
+
+
+<h3>Results</h3>
+FilterOrphans.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterVariance - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP830.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterVariance.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterVariance\FilterVariance.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterVariance\FilterVarianceDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP830.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP831.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterVariance.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterVariance\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP831.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP832.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterVariance.8bf" /implib:"Release/FilterVariance.lib" 
+.\Release\FilterVariance.obj
+.\Release\FilterVarianceDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterVariance.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP832.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterVariance.cpp
+FilterVarianceDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterVariance.lib and object Release/FilterVariance.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterVariance.bsc"  .\Release\StdAfx.sbr .\Release\FilterVariance.sbr .\Release\FilterVarianceDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterVariance.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterVariance - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP836.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterVariance.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterVariance\FilterVariance.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterVariance\FilterVarianceDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP836.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP837.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterVariance.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterVariance\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP837.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP838.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterVariance.8bf" /implib:"Debug/FilterVariance.lib" 
+.\Debug\FilterVariance.obj
+.\Debug\FilterVarianceDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterVariance.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP838.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterVariance.cpp
+FilterVarianceDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterVariance.lib and object Debug/FilterVariance.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterVariance.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterVariance.sbr .\Debug\FilterVarianceDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterVariance.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterWavelet - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP83C.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterWavelet.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterWavelet\FilterWavelet.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterWavelet\FilterWaveletDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP83C.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP83D.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterWavelet.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\FilterWavelet\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP83D.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP83E.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterWavelet.8bf" /implib:"Release/FilterWavelet.lib" 
+.\Release\FilterWavelet.obj
+.\Release\FilterWaveletDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterWavelet.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP83E.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterWavelet.cpp
+FilterWaveletDlg.cpp
+Generating Code...
+Linking...
+   Creating library Release/FilterWavelet.lib and object Release/FilterWavelet.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterWavelet.bsc"  .\Release\StdAfx.sbr .\Release\FilterWavelet.sbr .\Release\FilterWaveletDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterWavelet.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterWavelet - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP842.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterWavelet.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterWavelet\FilterWavelet.cpp"
+"D:\Documents\Johann\Programming\Steganography\FilterWavelet\FilterWaveletDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP842.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP843.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterWavelet.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\FilterWavelet\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP843.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP844.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterWavelet.8bf" /implib:"Debug/FilterWavelet.lib" 
+.\Debug\FilterWavelet.obj
+.\Debug\FilterWaveletDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterWavelet.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Documents\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Documents\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP844.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+FilterWavelet.cpp
+FilterWaveletDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterWavelet.lib and object Debug/FilterWavelet.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterWavelet.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterWavelet.sbr .\Debug\FilterWaveletDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterWavelet.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: PluginWizard - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP848.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Release/" /Fp"Release/PluginWizard.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\PluginWizard\PluginWizard.cpp"
+"D:\Documents\Johann\Programming\Steganography\PluginWizard\PluginWizardDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP848.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP849.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Release/" /Fp"Release/PluginWizard.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Documents\Johann\Programming\Steganography\PluginWizard\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP849.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84A.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/PluginWizard.exe" 
+.\Release\PluginWizard.obj
+.\Release\PluginWizardDlg.obj
+.\Release\StdAfx.obj
+.\Release\PluginWizard.res
+\Documents\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84A.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+PluginWizard.cpp
+PluginWizardDlg.cpp
+Generating Code...
+Linking...
+Creating command line "bscmake.exe /nologo /o"Release/PluginWizard.bsc"  .\Release\StdAfx.sbr .\Release\PluginWizard.sbr .\Release\PluginWizardDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+PluginWizard.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: PluginWizard - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84C.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/PluginWizard.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\PluginWizard\PluginWizard.cpp"
+"D:\Documents\Johann\Programming\Steganography\PluginWizard\PluginWizardDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84C.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84D.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/PluginWizard.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Documents\Johann\Programming\Steganography\PluginWizard\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84D.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84E.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Debug/PluginWizard.exe" 
+.\Debug\PluginWizard.obj
+.\Debug\PluginWizardDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\PluginWizard.res
+\Documents\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP84E.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+PluginWizard.cpp
+PluginWizardDlg.cpp
+Generating Code...
+Linking...
+Creating command line "bscmake.exe /nologo /o"Debug/PluginWizard.bsc"  .\Debug\StdAfx.sbr .\Debug\PluginWizard.sbr .\Debug\PluginWizardDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+PluginWizard.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

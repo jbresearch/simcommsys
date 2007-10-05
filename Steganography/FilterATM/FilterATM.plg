@@ -1,0 +1,94 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: LibWin - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP25E.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/LibWin.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Libraries\LibWin\PSAutomate.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP25E.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP25F.tmp" with contents
+[
+/nologo /out:"Debug\LibWin.lib" 
+.\Debug\ArchiveStreamBuf.obj
+.\Debug\FolderDialog.obj
+.\Debug\Histogram2D.obj
+.\Debug\MBoxStreamBuf.obj
+.\Debug\PSAutomate.obj
+.\Debug\PSPlugIn.obj
+.\Debug\StatusGraph.obj
+.\Debug\StdAfx.obj
+.\Debug\StringStreamBuf.obj
+.\Debug\TraceStreamBuf.obj
+.\Debug\WorkerThread.obj
+]
+Creating command line "link.exe -lib @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP25F.tmp"
+<h3>Output Window</h3>
+Compiling...
+PSAutomate.cpp
+Creating library...
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP260.tmp" with contents
+[
+/nologo /o"Debug/LibWin.bsc" 
+.\Debug\StdAfx.sbr
+.\Debug\ArchiveStreamBuf.sbr
+.\Debug\FolderDialog.sbr
+.\Debug\Histogram2D.sbr
+.\Debug\MBoxStreamBuf.sbr
+.\Debug\PSAutomate.sbr
+.\Debug\PSPlugIn.sbr
+.\Debug\StatusGraph.sbr
+.\Debug\StringStreamBuf.sbr
+.\Debug\TraceStreamBuf.sbr
+.\Debug\WorkerThread.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP260.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+<h3>
+--------------------Configuration: FilterATM - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP261.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterATM.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterATM\FilterATM.cpp"
+"D:\Johann\Programming\Steganography\FilterATM\FilterATMDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP261.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP262.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterATM.8bf" /implib:"Debug/FilterATM.lib" 
+.\Debug\FilterATM.obj
+.\Debug\FilterATMDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterATM.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP262.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterATM.cpp
+Generating Code...
+Compiling...
+FilterATMDlg.cpp
+Generating Code...
+Linking...
+   Creating library Debug/FilterATM.lib and object Debug/FilterATM.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterATM.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterATM.sbr .\Debug\FilterATMDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

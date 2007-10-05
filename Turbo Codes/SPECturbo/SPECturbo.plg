@@ -1,0 +1,598 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: AnalyseInterleaver - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP337.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/AnalyseInterleaver.exe" 
+".\Release\AnalyseInterleaver.obj"
+".\Release\AnalyseInterleaverDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\AnalyseInterleaver.res"
+"\Programming\Libraries\LibBase\Release\LibBase.lib"
+"\Programming\Libraries\LibComm\Release\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Release\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP337.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+AnalyseInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: LibBase - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP339.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/LibBase.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"Z:\Programming\Libraries\LibBase\Source\cmpi.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP339.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33A.tmp" with contents
+[
+/nologo /out:"Debug\LibBase.lib" 
+.\Debug\bitfield.obj
+.\Debug\bstream.obj
+.\Debug\cmpi.obj
+.\Debug\config.obj
+.\Debug\fastsecant.obj
+.\Debug\fbstream.obj
+.\Debug\histogram.obj
+.\Debug\itfunc.obj
+.\Debug\logreal.obj
+.\Debug\logrealfast.obj
+.\Debug\matrix.obj
+.\Debug\matrix3.obj
+.\Debug\mpgnu.obj
+.\Debug\mpreal.obj
+.\Debug\randgen.obj
+.\Debug\rvstatistics.obj
+.\Debug\secant.obj
+.\Debug\serializer.obj
+.\Debug\timer.obj
+.\Debug\vcs.obj
+.\Debug\vector.obj
+]
+Creating command line "link.exe -lib @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33A.tmp"
+<h3>Output Window</h3>
+Compiling...
+cmpi.cpp
+Creating library...
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33B.tmp" with contents
+[
+/nologo /o"Debug/LibBase.bsc" 
+.\Debug\bitfield.sbr
+.\Debug\bstream.sbr
+.\Debug\cmpi.sbr
+.\Debug\config.sbr
+.\Debug\fastsecant.sbr
+.\Debug\fbstream.sbr
+.\Debug\histogram.sbr
+.\Debug\itfunc.sbr
+.\Debug\logreal.sbr
+.\Debug\logrealfast.sbr
+.\Debug\matrix.sbr
+.\Debug\matrix3.sbr
+.\Debug\mpgnu.sbr
+.\Debug\mpreal.sbr
+.\Debug\randgen.sbr
+.\Debug\rvstatistics.sbr
+.\Debug\secant.sbr
+.\Debug\serializer.sbr
+.\Debug\timer.sbr
+.\Debug\vcs.sbr
+.\Debug\vector.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33B.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+<h3>
+--------------------Configuration: LibComm - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33C.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/LibComm.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"Z:\Programming\Libraries\LibComm\Source\montecarlo.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33C.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33D.tmp" with contents
+[
+/nologo /out:"Debug\LibComm.lib" 
+.\Debug\anneal_interleaver.obj
+.\Debug\anneal_puncturing.obj
+.\Debug\anneal_system.obj
+.\Debug\annealer.obj
+.\Debug\awgn.obj
+.\Debug\bcjr.obj
+.\Debug\berrou.obj
+.\Debug\channel.obj
+.\Debug\codec.obj
+.\Debug\commsys.obj
+.\Debug\commsys_bitprofiler.obj
+.\Debug\commsys_profiler.obj
+.\Debug\crypt.obj
+.\Debug\diffturbo.obj
+.\Debug\dvbcrsc.obj
+.\Debug\experiment.obj
+.\Debug\file_lut.obj
+.\Debug\flat.obj
+.\Debug\fsm.obj
+.\Debug\gcc.obj
+.\Debug\helical.obj
+.\Debug\interleaver.obj
+.\Debug\laplacian.obj
+.\Debug\lut_interleaver.obj
+.\Debug\mapcc.obj
+.\Debug\md5.obj
+.\Debug\modulator.obj
+.\Debug\montecarlo.obj
+.\Debug\mpsk.obj
+.\Debug\named_lut.obj
+.\Debug\nrcc.obj
+.\Debug\onetimepad.obj
+.\Debug\padded.obj
+.\Debug\plmod.obj
+.\Debug\puncture.obj
+.\Debug\puncture_file.obj
+.\Debug\puncture_null.obj
+.\Debug\puncture_stipple.obj
+.\Debug\rand_lut.obj
+.\Debug\rc4.obj
+.\Debug\rectangular.obj
+.\Debug\rscc.obj
+.\Debug\serializer_libcomm.obj
+.\Debug\sha.obj
+.\Debug\shift_lut.obj
+.\Debug\sigspace.obj
+.\Debug\stream_lut.obj
+.\Debug\turbo.obj
+.\Debug\uncoded.obj
+.\Debug\uniform_lut.obj
+.\Debug\vale96int.obj
+\Programming\Libraries\LibBase\Debug\LibBase.lib
+]
+Creating command line "link.exe -lib @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33D.tmp"
+<h3>Output Window</h3>
+Compiling...
+montecarlo.cpp
+Creating library...
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33E.tmp" with contents
+[
+/nologo /o"Debug/LibComm.bsc" 
+.\Debug\anneal_interleaver.sbr
+.\Debug\anneal_puncturing.sbr
+.\Debug\anneal_system.sbr
+.\Debug\annealer.sbr
+.\Debug\awgn.sbr
+.\Debug\bcjr.sbr
+.\Debug\berrou.sbr
+.\Debug\channel.sbr
+.\Debug\codec.sbr
+.\Debug\commsys.sbr
+.\Debug\commsys_bitprofiler.sbr
+.\Debug\commsys_profiler.sbr
+.\Debug\crypt.sbr
+.\Debug\diffturbo.sbr
+.\Debug\dvbcrsc.sbr
+.\Debug\experiment.sbr
+.\Debug\file_lut.sbr
+.\Debug\flat.sbr
+.\Debug\fsm.sbr
+.\Debug\gcc.sbr
+.\Debug\helical.sbr
+.\Debug\interleaver.sbr
+.\Debug\laplacian.sbr
+.\Debug\lut_interleaver.sbr
+.\Debug\mapcc.sbr
+.\Debug\md5.sbr
+.\Debug\modulator.sbr
+.\Debug\montecarlo.sbr
+.\Debug\mpsk.sbr
+.\Debug\named_lut.sbr
+.\Debug\nrcc.sbr
+.\Debug\onetimepad.sbr
+.\Debug\padded.sbr
+.\Debug\plmod.sbr
+.\Debug\puncture.sbr
+.\Debug\puncture_file.sbr
+.\Debug\puncture_null.sbr
+.\Debug\puncture_stipple.sbr
+.\Debug\rand_lut.sbr
+.\Debug\rc4.sbr
+.\Debug\rectangular.sbr
+.\Debug\rscc.sbr
+.\Debug\serializer_libcomm.sbr
+.\Debug\sha.sbr
+.\Debug\shift_lut.sbr
+.\Debug\sigspace.sbr
+.\Debug\stream_lut.sbr
+.\Debug\turbo.sbr
+.\Debug\uncoded.sbr
+.\Debug\uniform_lut.sbr
+.\Debug\vale96int.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33E.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+<h3>
+--------------------Configuration: AnalyseInterleaver - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33F.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Debug/AnalyseInterleaver.exe" 
+".\Debug\AnalyseInterleaver.obj"
+".\Debug\AnalyseInterleaverDlg.obj"
+".\Debug\StdAfx.obj"
+".\Debug\AnalyseInterleaver.res"
+"\Programming\Libraries\LibBase\Debug\LibBase.lib"
+"\Programming\Libraries\LibComm\Debug\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Debug\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP33F.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+AnalyseInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AnnealInterleaver - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP341.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/AnnealInterleaver.exe" 
+".\Release\AnnealInterleaver.obj"
+".\Release\AnnealInterleaverDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\AnnealInterleaver.res"
+"\Programming\Libraries\LibBase\Release\LibBase.lib"
+"\Programming\Libraries\LibComm\Release\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Release\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP341.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+AnnealInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AnnealInterleaver - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP343.tmp" with contents
+[
+libcomm.lib libbase.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:"Debug/AnnealInterleaver.exe" /libpath:"..\..\Libraries\LibBase\Debug" /libpath:"..\..\Libraries\LibComm\Debug" 
+".\Debug\AnnealInterleaver.obj"
+".\Debug\AnnealInterleaverDlg.obj"
+".\Debug\StdAfx.obj"
+".\Debug\AnnealInterleaver.res"
+"\Programming\Libraries\LibBase\Debug\LibBase.lib"
+"\Programming\Libraries\LibComm\Debug\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Debug\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP343.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+AnnealInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: CreateCodec - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP345.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/CreateCodec.exe" 
+".\Release\CreateCodec.obj"
+".\Release\CreateCodecDoc.obj"
+".\Release\CreateCodecView.obj"
+".\Release\MainFrm.obj"
+".\Release\SelectBoolDlg.obj"
+".\Release\SelectCodecDlg.obj"
+".\Release\SelectEncoderDlg.obj"
+".\Release\SelectGeneratorDlg.obj"
+".\Release\SelectIntDlg.obj"
+".\Release\SelectInterleaverDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\CreateCodec.res"
+"\Programming\Libraries\LibBase\Release\LibBase.lib"
+"\Programming\Libraries\LibComm\Release\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Release\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP345.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+CreateCodec.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: CreateCodec - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP347.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Debug/CreateCodec.exe" 
+".\Debug\CreateCodec.obj"
+".\Debug\CreateCodecDoc.obj"
+".\Debug\CreateCodecView.obj"
+".\Debug\MainFrm.obj"
+".\Debug\SelectBoolDlg.obj"
+".\Debug\SelectCodecDlg.obj"
+".\Debug\SelectEncoderDlg.obj"
+".\Debug\SelectGeneratorDlg.obj"
+".\Debug\SelectIntDlg.obj"
+".\Debug\SelectInterleaverDlg.obj"
+".\Debug\StdAfx.obj"
+".\Debug\CreateCodec.res"
+"\Programming\Libraries\LibBase\Debug\LibBase.lib"
+"\Programming\Libraries\LibComm\Debug\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Debug\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP347.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+CreateCodec.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SPECturbo - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SPECturbo.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SPECturbo - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP349.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/SPECturbo.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"Z:\Programming\Turbo Codes\SPECturbo\SPECturbo.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP349.tmp" 
+Creating command line "link.exe /nologo /subsystem:console /profile /debug /machine:I386 /out:"Debug/SPECturbo.exe"  ".\Debug\SPECturbo.obj" "\Programming\Libraries\LibBase\Debug\LibBase.lib" "\Programming\Libraries\LibComm\Debug\LibComm.lib" "
+<h3>Output Window</h3>
+Compiling...
+SPECturbo.cpp
+Linking...
+Creating command line "bscmake.exe /nologo /o"Debug/SPECturbo.bsc"  ".\Debug\SPECturbo.sbr""
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+SPECturbo.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SRandomInterleaver - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP34B.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/SRandomInterleaver.exe" 
+".\Release\SRandomInterleaver.obj"
+".\Release\SRandomInterleaverDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\SRandomInterleaver.res"
+"\Programming\Libraries\LibBase\Release\LibBase.lib"
+"\Programming\LIBRARIES\LibWin\Release\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP34B.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+SRandomInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SRandomInterleaver - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP34D.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Debug/SRandomInterleaver.exe" 
+".\Debug\SRandomInterleaver.obj"
+".\Debug\SRandomInterleaverDlg.obj"
+".\Debug\StdAfx.obj"
+".\Debug\SRandomInterleaver.res"
+"\Programming\Libraries\LibBase\Debug\LibBase.lib"
+"\Programming\LIBRARIES\LibWin\Debug\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP34D.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+SRandomInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SimTurbo - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP34F.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "_AFXDLL" /Fp"Release/SimTurbo.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"Z:\Programming\Turbo Codes\SimTurbo\simturbo.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP34F.tmp" 
+Creating command line "link.exe /nologo /subsystem:console /incremental:no /pdb:"Release/SimTurbo.pdb" /machine:I386 /out:"Release/SimTurbo.exe"  ".\Release\simturbo.obj" "\Programming\Libraries\LibBase\Release\LibBase.lib" "\Programming\Libraries\LibComm\Release\LibComm.lib" "
+<h3>Output Window</h3>
+Compiling...
+simturbo.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+SimTurbo.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SimTurbo - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP351.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "_AFXDLL" /Fp"Debug/SimTurbo.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"Z:\Programming\Turbo Codes\SimTurbo\simturbo.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP351.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP352.tmp" with contents
+[
+/nologo /subsystem:console /incremental:yes /pdb:"Debug/SimTurbo.pdb" /debug /machine:I386 /out:"Debug/SimTurbo.exe" /pdbtype:sept 
+".\Debug\simturbo.obj"
+"\Programming\Libraries\LibBase\Debug\LibBase.lib"
+"\Programming\Libraries\LibComm\Debug\LibComm.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP352.tmp"
+<h3>Output Window</h3>
+Compiling...
+simturbo.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+SimTurbo.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SimulateCommsys - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP354.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Release/" /Fp"Release/SimulateCommsys.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"Z:\Programming\Turbo Codes\SimulateCommsys\MainFrm.cpp"
+"Z:\Programming\Turbo Codes\SimulateCommsys\SimulateCommsys.cpp"
+"Z:\Programming\Turbo Codes\SimulateCommsys\SimulateCommsysView.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP354.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP355.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/SimulateCommsys.exe" 
+".\Release\BenchmarkDlg.obj"
+".\Release\MainFrm.obj"
+".\Release\SelectAccuracyDlg.obj"
+".\Release\SelectChannelDlg.obj"
+".\Release\SelectModulatorDlg.obj"
+".\Release\SelectRangeDlg.obj"
+".\Release\SimulateCommsys.obj"
+".\Release\SimulateCommsysDoc.obj"
+".\Release\SimulateCommsysView.obj"
+".\Release\StdAfx.obj"
+".\Release\SimulateCommsys.res"
+"\Programming\Libraries\LibBase\Release\LibBase.lib"
+"\Programming\Libraries\LibComm\Release\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Release\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP355.tmp"
+<h3>Output Window</h3>
+Compiling...
+MainFrm.cpp
+SimulateCommsys.cpp
+SimulateCommsysView.cpp
+Generating Code...
+Linking...
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP357.tmp" with contents
+[
+/nologo /o"Release/SimulateCommsys.bsc" 
+".\Release\StdAfx.sbr"
+".\Release\BenchmarkDlg.sbr"
+".\Release\MainFrm.sbr"
+".\Release\SelectAccuracyDlg.sbr"
+".\Release\SelectChannelDlg.sbr"
+".\Release\SelectModulatorDlg.sbr"
+".\Release\SelectRangeDlg.sbr"
+".\Release\SimulateCommsys.sbr"
+".\Release\SimulateCommsysDoc.sbr"
+".\Release\SimulateCommsysView.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP357.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+SimulateCommsys.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SimulateCommsys - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP358.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/SimulateCommsys.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"Z:\Programming\Turbo Codes\SimulateCommsys\MainFrm.cpp"
+"Z:\Programming\Turbo Codes\SimulateCommsys\SimulateCommsys.cpp"
+"Z:\Programming\Turbo Codes\SimulateCommsys\SimulateCommsysView.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP358.tmp" 
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP359.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Debug/SimulateCommsys.exe" 
+".\Debug\BenchmarkDlg.obj"
+".\Debug\MainFrm.obj"
+".\Debug\SelectAccuracyDlg.obj"
+".\Debug\SelectChannelDlg.obj"
+".\Debug\SelectModulatorDlg.obj"
+".\Debug\SelectRangeDlg.obj"
+".\Debug\SimulateCommsys.obj"
+".\Debug\SimulateCommsysDoc.obj"
+".\Debug\SimulateCommsysView.obj"
+".\Debug\StdAfx.obj"
+".\Debug\SimulateCommsys.res"
+"\Programming\Libraries\LibBase\Debug\LibBase.lib"
+"\Programming\Libraries\LibComm\Debug\LibComm.lib"
+"\Programming\LIBRARIES\LibWin\Debug\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP359.tmp"
+<h3>Output Window</h3>
+Compiling...
+MainFrm.cpp
+Generating Code...
+Skipping... (no relevant changes detected)
+SimulateCommsys.cpp
+SimulateCommsysView.cpp
+Linking...
+Creating temporary file "C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP35B.tmp" with contents
+[
+/nologo /o"Debug/SimulateCommsys.bsc" 
+".\Debug\StdAfx.sbr"
+".\Debug\BenchmarkDlg.sbr"
+".\Debug\MainFrm.sbr"
+".\Debug\SelectAccuracyDlg.sbr"
+".\Debug\SelectChannelDlg.sbr"
+".\Debug\SelectModulatorDlg.sbr"
+".\Debug\SelectRangeDlg.sbr"
+".\Debug\SimulateCommsys.sbr"
+".\Debug\SimulateCommsysDoc.sbr"
+".\Debug\SimulateCommsysView.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\JOHANN~1\LOCALS~1\Temp\RSP35B.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+SimulateCommsys.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

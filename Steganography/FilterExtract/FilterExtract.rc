@@ -1,0 +1,370 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#ifdef _DEBUG\r\n"
+    "#include ""Debug\\FilterExtract.pipl""\r\n"
+    "#else //_DEBUG\r\n"
+    "#include ""Release\\FilterExtract.pipl""\r\n"
+    "#endif //_DEBUG\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "FilterExtract DLL\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "FilterExtract\0"
+            VALUE "LegalCopyright", "Copyright (C) 1999\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "FilterExtract.DLL\0"
+            VALUE "ProductName", "FilterExtract Dynamic Link Library\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOG DISCARDABLE  0, 0, 482, 292
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Extract File"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,369,271,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,425,271,50,14
+    CONTROL         "Use pre-set strength",IDC_PRESET_STRENGTH,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,150,190,79,10
+    EDITTEXT        IDC_EMBED_STRENGTH,61,188,36,14,ES_AUTOHSCROLL
+    LTEXT           "Source Size:",IDC_STATIC,15,229,41,8
+    LTEXT           "Filename:",IDC_STATIC,27,39,31,8
+    EDITTEXT        IDC_SOURCE,62,36,104,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Load",IDC_LOAD_SOURCE,203,36,25,14
+    LTEXT           "Strength:",IDC_STATIC,27,191,30,8
+    EDITTEXT        IDC_INFO_FILESIZE,61,227,59,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Data Rate:",IDC_STATIC,21,266,36,8
+    EDITTEXT        IDC_INFO_USAGE,169,262,59,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Capacity:",IDC_STATIC,27,248,30,8
+    EDITTEXT        IDC_INFO_CAPACITY,61,245,59,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    EDITTEXT        IDC_INTERLEAVER_DENSITY,61,132,36,14,ES_AUTOHSCROLL
+    LTEXT           "Density:",IDC_STATIC,31,135,26,8
+    GROUPBOX        "Information:",IDC_STATIC,7,214,231,71
+    LTEXT           "Codec:",IDC_STATIC,34,79,24,8
+    EDITTEXT        IDC_CODEC,62,76,104,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Puncturing:",IDC_STATIC,21,97,37,8
+    EDITTEXT        IDC_PUNCTURE,62,94,104,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Load",IDC_LOAD_CODEC,203,76,25,14
+    PUSHBUTTON      "Load",IDC_LOAD_PUNCTURE,203,94,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_SOURCE,172,36,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_CODEC,172,76,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_PUNCTURE,172,94,25,14
+    CONTROL         "Interleave",IDC_INTERLEAVE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,177,135,47,10
+    PUSHBUTTON      "Compute",IDC_COMPUTE_STRENGTH,105,188,38,14
+    LTEXT           "Usable:",IDC_STATIC,139,248,25,8
+    EDITTEXT        IDC_INFO_USABLE,169,245,59,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Code Size:",IDC_STATIC,129,229,35,8
+    EDITTEXT        IDC_INFO_CODESIZE,169,227,59,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Usage:",IDC_STATIC,139,266,24,8
+    EDITTEXT        IDC_INFO_DATARATE,61,262,59,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER
+    LTEXT           "Type:",IDC_STATIC,39,21,19,8
+    COMBOBOX        IDC_SOURCE_TYPE,62,18,76,68,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_INTERLEAVER_SEED,129,132,36,14,ES_AUTOHSCROLL
+    LTEXT           "Seed:",IDC_STATIC,105,135,20,8
+    EDITTEXT        IDC_SOURCE_SEED,172,18,56,14,ES_AUTOHSCROLL
+    LTEXT           "Seed:",IDC_STATIC,146,21,20,8
+    GROUPBOX        "Source (for comparison):",IDC_STATIC,7,7,231,53
+    GROUPBOX        "Error-Control Coding:",IDC_STATIC,7,63,231,54
+    GROUPBOX        "Interleaver:",IDC_STATIC,7,120,231,34
+    GROUPBOX        "Embedding:",IDC_STATIC,7,156,231,54
+    EDITTEXT        IDC_EMBED_SEED,61,168,36,14,ES_AUTOHSCROLL
+    LTEXT           "Seed:",IDC_STATIC,37,171,20,8
+    LTEXT           "Bandwidth Expansion:",IDC_STATIC,116,171,71,8
+    EDITTEXT        IDC_EMBED_RATE,193,168,36,14,ES_AUTOHSCROLL
+    GROUPBOX        "Save Results:",IDC_STATIC,244,7,231,230
+    LTEXT           "Embedded:",IDC_STATIC,257,153,37,8
+    EDITTEXT        IDC_EMBEDDED,298,150,104,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_EMBEDDED,440,150,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_EMBEDDED,409,150,25,14
+    LTEXT           "Extracted:",IDC_STATIC,261,170,33,8
+    LTEXT           "Uniform Mod:",IDC_STATIC,251,194,43,8
+    LTEXT           "Decoded:",IDC_STATIC,262,213,32,8
+    EDITTEXT        IDC_EXTRACTED,298,167,104,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_EXTRACTED,440,167,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_EXTRACTED,409,167,25,14
+    EDITTEXT        IDC_UNIFORM,298,192,104,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_UNIFORM,440,192,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_UNIFORM,409,192,25,14
+    EDITTEXT        IDC_DECODED,298,210,104,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_DECODED,440,210,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_DECODED,409,210,25,14
+    CONTROL         "BER",IDC_PRINT_BER,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,298,44,31,10
+    CONTROL         "SNR",IDC_PRINT_SNR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,333,44,31,10
+    LTEXT           "Results:",IDC_STATIC,268,63,26,8
+    EDITTEXT        IDC_RESULTS,298,60,104,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_RESULTS,440,60,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_RESULTS,409,60,25,14
+    COMBOBOX        IDC_FEEDBACK,298,22,104,69,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Print:",IDC_STATIC,277,44,17,8
+    LTEXT           "Feedback:",IDC_STATIC,259,25,35,8
+    CONTROL         "Estimate",IDC_PRINT_ESTIMATE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,368,44,43,10
+    CONTROL         "Chi Square",IDC_PRINT_CHI_SQUARE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,415,44,51,10
+    LTEXT           "Signal-Space:",IDC_STATIC,298,136,45,8
+    LTEXT           "Embedded:",IDC_STATIC,257,100,37,8
+    EDITTEXT        IDC_EMBEDDED_IMAGE,298,97,104,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_EMBEDDED_IMAGE,440,97,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_EMBEDDED_IMAGE,409,97,25,14
+    LTEXT           "Extracted:",IDC_STATIC,261,117,33,8
+    EDITTEXT        IDC_EXTRACTED_IMAGE,298,114,104,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Save",IDC_SAVE_EXTRACTED_IMAGE,440,114,25,14
+    PUSHBUTTON      "Clear",IDC_CLEAR_EXTRACTED_IMAGE,409,114,25,14
+    LTEXT           "Image Domain:",IDC_STATIC,298,83,48,8
+END
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 192, 47
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About FilterExtract"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "FilterExtract Version 1.0",-1,7,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (c) 2001 Johann Briffa",-1,7,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,135,7,50,14,WS_GROUP
+END
+
+IDD_COMPUTE_STRENGTH DIALOG DISCARDABLE  0, 0, 186, 54
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Enter Stego-Signal Power"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    EDITTEXT        IDC_POWER,43,7,52,14,ES_AUTOHSCROLL
+    LTEXT           "Power:",IDC_STATIC,13,10,23,8
+END
+
+IDD_DISPLAY_RESULTS DIALOGEX 0, 0, 240, 103
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Channel Parameters"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,183,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,183,24,50,14
+    LTEXT           "SNR Estimate:",IDC_STATIC,20,44,47,8
+    LTEXT           "SNR Actual:",IDC_STATIC,27,27,40,8
+    LTEXT           "BER Actual:",IDC_STATIC,27,10,40,8
+    LTEXT           "Code Rate:",IDC_STATIC,30,78,37,8
+    LTEXT           "Static",IDC_SNR_EST,73,41,90,14,SS_CENTERIMAGE,
+                    WS_EX_STATICEDGE
+    LTEXT           "Static",IDC_SNR,73,24,90,14,SS_CENTERIMAGE,
+                    WS_EX_STATICEDGE
+    LTEXT           "Static",IDC_BER,73,7,90,14,SS_CENTERIMAGE,
+                    WS_EX_STATICEDGE
+    LTEXT           "Static",IDC_RATE,73,75,90,14,SS_CENTERIMAGE,
+                    WS_EX_STATICEDGE
+    LTEXT           "Chi Square:",IDC_STATIC,29,61,38,8
+    LTEXT           "Static",IDC_CHI_SQUARE,73,58,90,14,SS_CENTERIMAGE,
+                    WS_EX_STATICEDGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 475
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 285
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
+
+    IDD_COMPUTE_STRENGTH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 47
+    END
+
+    IDD_DISPLAY_RESULTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 96
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DIALOG1 DLGINIT
+BEGIN
+    IDC_SOURCE_TYPE, 0x403, 9, 0
+0x6c41, 0x2d6c, 0x655a, 0x6f72, "\000" 
+    IDC_SOURCE_TYPE, 0x403, 8, 0
+0x6c41, 0x2d6c, 0x6e4f, 0x0065, 
+    IDC_SOURCE_TYPE, 0x403, 7, 0
+0x6152, 0x646e, 0x6d6f, "\000" 
+    IDC_SOURCE_TYPE, 0x403, 8, 0
+0x6946, 0x656c, 0x2e2e, 0x002e, 
+    IDC_FEEDBACK, 0x403, 12, 0
+0x6f4e, 0x4620, 0x6565, 0x6264, 0x6361, 0x006b, 
+    IDC_FEEDBACK, 0x403, 14, 0
+0x6843, 0x6e61, 0x656e, 0x206c, 0x7245, 0x6f72, 0x0072, 
+    IDC_FEEDBACK, 0x403, 15, 0
+0x6241, 0x6f73, 0x756c, 0x6574, 0x4520, 0x7272, 0x726f, "\000" 
+    IDC_FEEDBACK, 0x403, 18, 0
+0x7250, 0x626f, 0x6261, 0x6c69, 0x7469, 0x2079, 0x6152, 0x6974, 0x006f, 
+
+    0
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "afxres.rc"         // Standard components
+#ifdef _DEBUG
+#include "Debug\FilterExtract.pipl"
+#else //_DEBUG
+#include "Release\FilterExtract.pipl"
+#endif //_DEBUG
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

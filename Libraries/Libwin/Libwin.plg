@@ -1,0 +1,115 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: AnalyseInterleaver - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+AnalyseInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AnalyseInterleaver - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+AnalyseInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AnnealInterleaver - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+AnnealInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: AnnealInterleaver - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+AnnealInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: CreateCodec - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+CreateCodec.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: CreateCodec - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+CreateCodec.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SPECturbo - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SPECturbo.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SPECturbo - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SPECturbo.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SRandomInterleaver - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SRandomInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SRandomInterleaver - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SRandomInterleaver.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SimulateCommsys - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SimulateCommsys.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SimulateCommsys - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+SimulateCommsys.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

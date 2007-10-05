@@ -1,0 +1,437 @@
+// FilterExtract.cpp : Defines the initialization routines for the DLL.
+//
+
+#include "stdafx.h"
+#include "FilterExtract.h"
+#include "FilterExtractDlg.h"
+#include <math.h>
+#include "rvstatistics.h"
+#include "randgen.h"
+#include "fastsecant.h"
+#include "itfunc.h"
+#include "plmod.h"
+#include "bitfield.h"
+#include "fbstream.h"
+#include <fstream>
+using namespace std;
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+// CFilterExtractApp
+
+BEGIN_MESSAGE_MAP(CFilterExtractApp, CWinApp)
+//{{AFX_MSG_MAP(CFilterExtractApp)
+// NOTE - the ClassWizard will add and remove mapping macros here.
+//    DO NOT EDIT what you see in these blocks of generated code!
+//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CFilterExtractApp construction
+
+CFilterExtractApp::CFilterExtractApp() : CPSPlugIn(sizeof(SFilterExtractData), 121)
+   {
+   // TODO: add construction code here,
+   // Place all significant initialization in InitInstance
+   }
+
+/////////////////////////////////////////////////////////////////////////////
+// CFilterExtractApp filter selector functions
+
+// show the about dialog here
+void CFilterExtractApp::FilterAbout(void)
+   {
+   CAboutDlg dlg;
+   dlg.DoModal();
+   }
+
+void CFilterExtractApp::FilterStart(void)
+   {
+   // ask for the whole image at once
+   SetTileWidth(GetImageWidth());
+   SetTileHeight(GetImageHeight());
+   
+   CPSPlugIn::FilterStart();
+
+   // do processing that can be done for whole image
+   const int nRawImage = GetImageWidth() * GetImageHeight() * GetPlanes();
+   const int nRawSize = int(floor(nRawImage * m_sData->dDensity));
+   m_vdMessage.init(nRawSize);
+
+   // create variable-density interleaver
+   if(m_sData->bInterleave)
+      {
+      m_viIndex.init(nRawImage);
+      m_viIndex = -1;
+      randgen r;
+      r.seed(0);
+      for(int i=0; i<nRawSize; i++)
+         {
+         int index;
+         do {
+            index = r.ival(nRawImage);
+            } while(m_viIndex(index) >= 0);
+         m_viIndex(index) = i;
+         }
+      }
+   }
+
+void CFilterExtractApp::FilterContinue(void)
+   {
+   // update progress counter
+   DisplayTileProgress(0, 100, 0, 2);
+
+   // convert tile to matrix
+   matrix<double> m;
+   GetPixelMatrix(m);
+
+   // extract from image
+   int k = GetCurrentPlane() * GetImageWidth() * GetImageHeight();
+   if(m_sData->bInterleave)
+      {
+      for(int j=0; j<m.ysize(); j++)
+         for(int i=0; i<m.xsize(); i++)
+            {
+            const int index = m_viIndex(k++);
+            if(index >= 0)
+               m_vdMessage(index) = m(i,j);
+            }
+      }
+   else
+      {
+      for(int j=0; j<m.ysize(); j++)
+         for(int i=0; i<m.xsize(); i++)
+            m_vdMessage(k++) = m(i,j);
+      }
+
+   // select the next rectangle based on the given tile suggestions
+   CPSPlugIn::FilterContinue();
+   }
+
+void CFilterExtractApp::FilterFinish(void)
+   {
+   const int nRawSize = m_vdMessage.size();
+
+   // temporary variables
+   int i;
+
+   // rescale message to be gaussian with mean 0 and var 1
+   vector<double> v = m_vdMessage;
+   const double dMeanEst = v.mean();
+   const double dSigmaEst = v.sigma();
+   cerr.precision(4);
+   cerr << "Embedding estimate: mean = " << dMeanEst << ", strength = " << 20*log10(dSigmaEst) << "dB\n";
+   if(m_sData->bPresetStrength)
+      {
+      const double scale = pow(10.0, m_sData->dStrength/20);
+      v -= dMeanEst;
+      v /= scale;
+      }
+   else
+      {
+      v -= dMeanEst;
+      v /= dSigmaEst;
+      }
+
+   // convert to uniform
+   for(i=0; i<nRawSize; i++)
+      v(i) = (cerf(v(i)/sqrt(2))+1.0)/2.0;
+
+   // re-create pseudo-noise sequence (as used in source)
+   vector<double> u(nRawSize);
+   randgen r(0);
+   for(i=0; i<nRawSize; i++)
+      u(i) = r.fval();
+
+   // de-modulate sequence (re-build sigspace vector)
+   // and estimate channel SNR
+   mpsk modem(2);
+   vector<sigspace> s(nRawSize);
+   rvstatistics rv, rr;
+   for(i=0; i<nRawSize; i++)
+      {
+      const double d = (v(i) - u(i)) / (plmod(u(i)) - u(i));
+      s(i) = modem[0] + d*(modem[1] - modem[0]);
+      // use only outer side-lobes to estimate SNR
+      if(d < 0)
+         rv.insert(d);
+      else if(d > 1)
+         rv.insert(d-1);
+      // assuming we did no embedding:
+      rr.insert(d);
+      }
+   const double dSNRest = -20*log10(4*rv.sigma()/sqrt(2.0));
+   const double dSNRreal = -20*log10(4*rr.sigma()/sqrt(2.0));
+   cerr << "Channel estimate: mean = " << rv.mean() << ", sigma = " << rv.sigma() << ", SNR = " << dSNRest << "dB\r";
+   cerr << "Channel real: mean = " << rr.mean() << ", sigma = " << rr.sigma() << ", SNR = " << dSNRreal << "dB\n";
+
+   // load encoder and puncturing pattern
+   codec *pCodec = NULL;
+   puncture *pPuncture = NULL;
+   if(strlen(m_sData->sCodec) != 0)
+      {
+      ifstream file(m_sData->sCodec);
+      file >> pCodec;
+      if(strlen(m_sData->sPuncture) != 0)
+         {
+         ifstream file(m_sData->sPuncture);
+         file >> pPuncture;
+         if(pPuncture->get_inputs() != pCodec->output_bits())
+            throw("Codec and Puncturing mismatch");
+         }
+      }
+   const int nOutputSize = (pCodec == NULL) ? 1 : (pPuncture == NULL) ? pCodec->output_bits() : pPuncture->get_outputs();
+   const int nInputSize = (pCodec == NULL) ? 1 : pCodec->input_bits();
+   const int nBlocks = nRawSize / nOutputSize;
+   const int nDataWidth = (pCodec == NULL) ? 1 : log2(pCodec->num_inputs());
+   const int nDataSize = nBlocks * nInputSize / nDataWidth;
+
+   // decode it
+   bitfield::setdefsize(nDataWidth);
+   vector<bitfield> d(nDataSize);
+   if(pCodec != NULL)
+      {
+      const int tau = pCodec->block_size();
+      const int m = pCodec->tail_length();
+      vector<sigspace> signal(nOutputSize);
+      matrix<double> ptable1, ptable2;
+      vector<int> decoded;
+      laplacian chan;
+      chan.set_eb(modem.bit_energy());
+      chan.set_snr(dSNRest);
+      for(int k=0; k<nBlocks; k++)
+         {
+         DisplayTotalProgress(k, nBlocks, 1, 2);
+         // build signal block
+         for(i=0; i<nOutputSize; i++)
+            signal(i) = s(k*nOutputSize+i);
+         // demodulate (build probability table) & unpuncture
+         if(pPuncture != NULL)
+            {
+            modem.demodulate(chan, signal, ptable2);
+            pPuncture->inverse(ptable2, ptable1);
+            }
+         else
+            modem.demodulate(chan, signal, ptable1);
+         // decode
+         pCodec->translate(ptable1);
+         for(int i=0; i<pCodec->num_iter(); i++)
+            pCodec->decode(decoded);
+         // write into output stream
+         for(i=0; i<tau-m; i++)
+            d(k*(tau-m)+i) = decoded(i);
+         }
+      }
+   else
+      for(i=0; i<nRawSize; i++)
+         d(i) = modem.demodulate(s(i));
+
+   // compare with original data file
+   if(strlen(m_sData->sPathName) != 0)
+      {
+      bitfield::setdefsize(nDataWidth);
+      //vector<double> e(nDataSize);
+      //rvstatistics r;   // channel soft-error statistics
+      bitfield b;
+      int count = 0;    // number of hard errors
+      ifbstream file(m_sData->sPathName);
+      for(i=0; i<nDataSize && !(file.eof() && file.buffer_bits()==0); i++)
+         {
+         file >> b;
+         count += weight(d(i) ^ b);
+         //e(i) = v(i) - (b ? plmod(u(i)) : u(i));
+         //r.insert(e(i));
+         }
+      file.close();
+      const int length = i * nDataWidth;
+      /*
+      // save channel error statistics
+      if(AfxMessageBox("Do you want to save the channel error data?", MB_YESNO) == IDYES)
+         {
+         CFileDialog dlg(FALSE, NULL, "*.*");
+         if(dlg.DoModal() == IDOK)
+            {
+            ofstream file(dlg.GetPathName());
+            for(i=0; i<length; i++)
+               file << e(i) << "\n";
+            file.close();
+            }
+         }
+      */
+      // output some basic channel statistics
+      cerr.precision(4);
+      cerr << "Hard errors: " << count << "/" << i << " = " << 100*count/double(i) << "%\n";
+      //cerr << "Channel SNR: " << -20*log10(8*r.sigma()/sqrt(2.0)) << "dB + " << 10/log2(10) << "dB / halving of rate\n";
+      }
+   else
+      {
+      int count = 0;    // number of hard errors
+      for(i=0; i<nDataSize; i++)
+         count += weight(d(i));
+      const int length = i * nDataWidth;
+      // output some basic channel statistics
+      cerr.precision(4);
+      cerr << "Hard errors: " << count << "/" << i << " = " << 100*count/double(i) << "%\n";
+      //cerr << "Channel SNR: " << -20*log10(8*r.sigma()/sqrt(2.0)) << "dB + " << 10/log2(10) << "dB / halving of rate\n";
+      }
+
+   // save data file
+   if(strlen(m_sData->sPathName) != 0 && AfxMessageBox("Do you want to save the extracted data?", MB_YESNO) == IDYES)
+      {
+      CFileDialog dlg(FALSE, NULL, "*.*");
+      if(dlg.DoModal() == IDOK)
+         {
+         ofbstream file(dlg.GetPathName());
+         for(i=0; i<nDataSize; i++)
+            file << d(i);
+         file.close();
+         }
+      }
+
+   // save extracted message
+   if(AfxMessageBox("Do you want to save the signal-space data?", MB_YESNO) == IDYES)
+      {
+      CFileDialog dlg(FALSE, NULL, "*.*");
+      if(dlg.DoModal() == IDOK)
+         {
+         ofstream file(dlg.GetPathName());
+         for(i=0; i<nRawSize; i++)
+            file << s(i).i() << "\n";
+         file.close();
+         }
+      }
+
+   // save uniform random sequence
+   if(AfxMessageBox("Do you want to save the uniform random modulator?", MB_YESNO) == IDYES)
+      {
+      CFileDialog dlg(FALSE, NULL, "*.*");
+      if(dlg.DoModal() == IDOK)
+         {
+         ofstream file(dlg.GetPathName());
+         for(i=0; i<nRawSize; i++)
+            file << u(i) << "\n";
+         file.close();
+         }
+      }
+
+   // clean up memory usage
+   m_vdMessage.init(0);
+   // stop timer & show final progress indication
+   CPSPlugIn::FilterFinish();
+   }
+
+/////////////////////////////////////////////////////////////////////////////
+// CFilterExtractApp helper functions
+
+void CFilterExtractApp::ShowDialog(void)
+   {
+   CFilterExtractDlg   dlg;
+
+   dlg.m_pPSPlugIn = this;
+
+   dlg.m_dStrength = m_sData->dStrength;
+   dlg.m_bPresetStrength = m_sData->bPresetStrength;
+   dlg.m_dDensity = m_sData->dDensity;
+   dlg.m_bInterleave = m_sData->bInterleave;
+   dlg.m_sPathName = m_sData->sPathName;
+   dlg.m_sCodec = m_sData->sCodec;
+   dlg.m_sPuncture = m_sData->sPuncture;
+
+   int err = dlg.DoModal();
+   if(err != IDOK)
+      throw((short)userCanceledErr);
+
+   m_sData->dStrength = dlg.m_dStrength;
+   m_sData->bPresetStrength = dlg.m_bPresetStrength != 0;
+   m_sData->dDensity = dlg.m_dDensity;
+   m_sData->bInterleave = dlg.m_bInterleave != 0;
+   strcpy(m_sData->sPathName, dlg.m_sPathName);
+   strcpy(m_sData->sCodec, dlg.m_sCodec);
+   strcpy(m_sData->sPuncture, dlg.m_sPuncture);
+   SetShowDialog(false);
+   }
+
+void CFilterExtractApp::InitPointer(char* sData)
+   {
+   m_sData = (SFilterExtractData *) sData;
+   }
+
+void CFilterExtractApp::InitParameters()
+   {
+   strcpy(m_sData->sPathName, "");
+   strcpy(m_sData->sCodec, "");
+   strcpy(m_sData->sPuncture, "");
+   m_sData->dDensity = 1.0;
+   m_sData->bInterleave = true;
+   m_sData->dStrength = -30;
+   m_sData->bPresetStrength = false;
+   }
+
+/////////////////////////////////////////////////////////////////////////////
+// The one and only CFilterExtractApp object
+
+CFilterExtractApp theApp;
+
+DLLExport SPAPI void PluginMain(const short selector, FilterRecord* filterParamBlock, long* data, short* result)
+   {
+   AFX_MANAGE_STATE(AfxGetStaticModuleState());
+   try
+      {
+      theApp.Entry(filterParamBlock, data);
+      
+      switch( selector )
+         {
+         case filterSelectorAbout:
+            theApp.FilterAbout();
+            break;
+         case filterSelectorParameters:
+            theApp.FilterParameters();
+            break;
+         case filterSelectorPrepare:
+            theApp.FilterPrepare();
+            break;
+         case filterSelectorStart:
+            theApp.FilterStart();
+            break;
+         case filterSelectorContinue:
+            theApp.FilterContinue();
+            break;
+         case filterSelectorFinish:
+            theApp.FilterFinish();
+            break;
+         }
+      
+      theApp.Exit();
+      }
+   
+   catch(char* inErrorString)
+      {
+      OutputDebugString(inErrorString);
+      char *pErrorString = (char*)filterParamBlock->errorString;
+      if (pErrorString != NULL)
+         {
+         *pErrorString = strlen(inErrorString);
+         for (int a=0; a < pErrorString[0]; a++)
+            {
+            *++pErrorString = *inErrorString++;
+            }
+         *pErrorString = '\0';
+         }
+      *result = errReportString;
+      }
+   
+   catch(short inError)
+      {
+      *result = inError;
+      }
+   
+   catch(...)
+      {
+      *result = -1;
+      }
+   }

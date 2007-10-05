@@ -1,0 +1,260 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#ifdef _DEBUG\r\n"
+    "#include ""Debug\\FilterWavelet.pipl""\r\n"
+    "#else //_DEBUG\r\n"
+    "#include ""Release\\FilterWavelet.pipl""\r\n"
+    "#endif //_DEBUG\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "FilterWavelet DLL\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "FilterWavelet\0"
+            VALUE "LegalCopyright", "Copyright (C) 1999\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "FilterWavelet.DLL\0"
+            VALUE "ProductName", "FilterWavelet Dynamic Link Library\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOG DISCARDABLE  0, 0, 265, 153
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Wavelet Filter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,208,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,208,24,50,14
+    EDITTEXT        IDC_WAVELET_LEVEL,161,18,29,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "Level:",IDC_STATIC,137,21,20,8
+    LTEXT           "Type:",IDC_STATIC,25,20,19,8
+    COMBOBOX        IDC_WAVELET_TYPE,49,18,76,51,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_THRESH_CUTOFF,161,87,29,14,ES_AUTOHSCROLL
+    LTEXT           "Cutoff:",IDC_STATIC,135,90,22,8
+    CONTROL         "Keep Noise",IDC_KEEPNOISE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,205,125,53,10
+    EDITTEXT        IDC_TILEX,49,123,29,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Tile Size:",IDC_STATIC,14,127,30,8
+    EDITTEXT        IDC_TILEY,95,123,29,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "by",IDC_STATIC,83,127,8,8
+    CONTROL         "Whole Image",IDC_WHOLEIMAGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,133,125,58,10
+    LTEXT           "Type:",IDC_STATIC,25,72,19,8
+    COMBOBOX        IDC_THRESH_TYPE,49,70,76,51,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Selector:",IDC_STATIC,15,89,29,8
+    COMBOBOX        IDC_THRESH_SELECTOR,49,89,76,51,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Wavelet basis:",IDC_STATIC,7,7,192,51
+    GROUPBOX        "Thresholding:",IDC_STATIC,7,59,192,51
+    GROUPBOX        "Tiling:",IDC_STATIC,7,112,192,33
+    COMBOBOX        IDC_WAVELET_PAR,65,36,60,51,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Parameter:",IDC_STATIC,25,38,35,8
+END
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 192, 47
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About FilterWavelet"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "FilterWavelet Version 1.0",-1,7,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (c) 2001 Johann Briffa",-1,7,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,135,7,50,14,WS_GROUP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 258
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 146
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DIALOG1 DLGINIT
+BEGIN
+    IDC_WAVELET_TYPE, 0x403, 5, 0
+0x6148, 0x7261, "\000" 
+    IDC_WAVELET_TYPE, 0x403, 8, 0
+0x6542, 0x6c79, 0x696b, 0x006e, 
+    IDC_WAVELET_TYPE, 0x403, 8, 0
+0x6f43, 0x6669, 0x656c, 0x0074, 
+    IDC_WAVELET_TYPE, 0x403, 11, 0
+0x6144, 0x6275, 0x6365, 0x6968, 0x7365, "\000" 
+    IDC_WAVELET_TYPE, 0x403, 8, 0
+0x7953, 0x6d6d, 0x656c, 0x0074, 
+    IDC_WAVELET_TYPE, 0x403, 13, 0
+0x6156, 0x6469, 0x6179, 0x616e, 0x6874, 0x6e61, "\000" 
+    IDC_WAVELET_TYPE, 0x403, 15, 0
+0x6142, 0x7474, 0x656c, 0x4c2d, 0x6d65, 0x7261, 0x6569, "\000" 
+    IDC_THRESH_TYPE, 0x403, 5, 0
+0x6148, 0x6472, "\000" 
+    IDC_THRESH_TYPE, 0x403, 5, 0
+0x6f53, 0x7466, "\000" 
+    IDC_THRESH_SELECTOR, 0x403, 18, 0
+0x2025, 0x666f, 0x6320, 0x656f, 0x6666, 0x6369, 0x6569, 0x746e, 0x0073, 
+
+    IDC_THRESH_SELECTOR, 0x403, 5, 0
+0x6956, 0x7573, "\000" 
+    IDC_THRESH_SELECTOR, 0x403, 8, 0
+0x694d, 0x696e, 0x614d, 0x0078, 
+    IDC_THRESH_SELECTOR, 0x403, 5, 0
+0x5553, 0x4552, "\000" 
+    IDC_THRESH_SELECTOR, 0x403, 8, 0
+0x7948, 0x7262, 0x6469, 0x002b, 
+    IDC_WAVELET_PAR, 0x403, 4, 0
+0x2e2e, 0x002e, 
+    0
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "afxres.rc"         // Standard components
+#ifdef _DEBUG
+#include "Debug\FilterWavelet.pipl"
+#else //_DEBUG
+#include "Release\FilterWavelet.pipl"
+#endif //_DEBUG
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

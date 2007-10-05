@@ -1,0 +1,310 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\AnnealInterleaver.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\AnnealInterleaver.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About AnnealInterleaver"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "AnnealInterleaver Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2001 Johann Briffa",IDC_STATIC,40,25,119,
+                    8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_ANNEALINTERLEAVER_DIALOG DIALOGEX 0, 0, 327, 315
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Anneal Interleaver"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_SETS,99,23,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    EDITTEXT        IDC_TAU,99,42,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    EDITTEXT        IDC_M,99,61,48,14,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    COMBOBOX        IDC_TYPE,99,81,48,147,CBS_DROPDOWNLIST | WS_GROUP | 
+                    WS_TABSTOP
+    CONTROL         "",IDC_TERM,"Button",BS_AUTOCHECKBOX | WS_GROUP | 
+                    WS_TABSTOP,99,102,16,8
+    EDITTEXT        IDC_SEED,257,23,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    PUSHBUTTON      "Start",IDC_START,19,158,42,14
+    PUSHBUTTON      "Stop",IDC_STOP,71,158,42,14
+    PUSHBUTTON      "Quit",IDCANCEL,285,157,27,14
+    LTEXT           "Number of Sets",IDC_STATIC,37,26,50,8
+    LTEXT           "Interleaver Size (Tau)",IDC_STATIC,19,45,68,8
+    LTEXT           "Encoder Memory (m)",IDC_STATIC,21,64,66,8
+    LTEXT           "Interleaver Type",IDC_STATIC,35,83,52,8
+    LTEXT           "Terminated",IDC_STATIC,51,102,36,8
+    LTEXT           "Random Seed",IDC_STATIC,199,26,46,8
+    GROUPBOX        "Interleaver Parameters",IDC_STATIC,7,7,152,132
+    GROUPBOX        "Annealer",IDC_STATIC,7,145,313,163
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH,
+                    147,285,125,14,WS_EX_CLIENTEDGE
+    LTEXT           "Temperature:",IDC_STATIC,17,198,43,8
+    LTEXT           "High:",IDC_STATIC,43,236,18,8
+    LTEXT           "Low:",IDC_STATIC,45,249,16,8
+    LTEXT           "0",IDC_TEMP,71,197,67,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "0",IDC_HI,71,236,67,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "0",IDC_LO,71,249,67,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "Percentage:",IDC_STATIC,21,262,40,8
+    LTEXT           "0",IDC_PERCENT,71,262,67,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "Mean:",IDC_STATIC,39,210,21,8
+    LTEXT           "SD:",IDC_STATIC,47,224,13,8
+    LTEXT           "0",IDC_MEAN,71,210,67,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "0",IDC_SD,71,223,67,11,0,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Save",IDC_SAVE,285,179,27,14
+    LTEXT           "0 days, 00:00:00",IDC_TIME,71,275,67,11,0,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Time Elapsed:",IDC_STATIC,15,276,46,8
+    GROUPBOX        "Process Parameters",IDC_STATIC,168,7,152,132
+    EDITTEXT        IDC_INITTEMP,257,42,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    LTEXT           "Initial Temperature",IDC_STATIC,186,45,59,8
+    EDITTEXT        IDC_FINALTEMP,257,61,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    LTEXT           "Final Temperature",IDC_STATIC,187,64,58,8
+    EDITTEXT        IDC_MINITER,257,80,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    LTEXT           "Minimum Iterations",IDC_STATIC,186,83,59,8
+    EDITTEXT        IDC_MINCHANGES,257,99,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    LTEXT           "Minimum Changes",IDC_STATIC,187,102,58,8
+    EDITTEXT        IDC_RATE,257,118,48,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    LTEXT           "Annealing Rate",IDC_STATIC,195,121,50,8
+    CONTROL         "Custom1",IDC_GRAPH2,"StatusGraph",WS_TABSTOP,147,241,
+                    125,39
+    CONTROL         "Custom1",IDC_GRAPH1,"StatusGraph",WS_TABSTOP,147,197,
+                    125,39
+    PUSHBUTTON      "Suspend",IDC_SUSPEND,19,176,42,14
+    PUSHBUTTON      "Resume",IDC_RESUME,71,176,42,14
+    LTEXT           "0%",IDC_CPU,71,288,67,11,0,WS_EX_CLIENTEDGE
+    LTEXT           "CPU Usage:",IDC_STATIC,21,289,40,8
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "AnnealInterleaver MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "AnnealInterleaver\0"
+            VALUE "LegalCopyright", "Copyright (C) 2001\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "AnnealInterleaver.EXE\0"
+            VALUE "ProductName", "AnnealInterleaver Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_ANNEALINTERLEAVER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 320
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 308
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_ANNEALINTERLEAVER_DIALOG DLGINIT
+BEGIN
+    IDC_TYPE, 0x403, 2, 0
+0x0032, 
+    IDC_TYPE, 0x403, 2, 0
+0x0033, 
+    IDC_TYPE, 0x403, 2, 0
+0x0034, 
+    IDC_TYPE, 0x403, 2, 0
+0x0035, 
+    IDC_TYPE, 0x403, 2, 0
+0x0036, 
+    IDC_TYPE, 0x403, 2, 0
+0x0037, 
+    IDC_TYPE, 0x403, 2, 0
+0x0038, 
+    IDC_TYPE, 0x403, 2, 0
+0x0039, 
+    IDC_TYPE, 0x403, 3, 0
+0x3031, "\000" 
+    IDC_TYPE, 0x403, 3, 0
+0x3131, "\000" 
+    IDC_TYPE, 0x403, 3, 0
+0x3231, "\000" 
+    IDC_TYPE, 0x403, 3, 0
+0x3331, "\000" 
+    IDC_TYPE, 0x403, 3, 0
+0x3431, "\000" 
+    IDC_TYPE, 0x403, 3, 0
+0x3531, "\000" 
+    IDC_TYPE, 0x403, 3, 0
+0x3631, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About AnnealInterleaver..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\AnnealInterleaver.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

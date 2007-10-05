@@ -1,0 +1,53 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: SimulateTurbo - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPBC.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Release/" /Fp"Release/SimulateTurbo.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurbo.cpp"
+"D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurboDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPBC.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPBD.tmp" with contents
+[
+/nologo /subsystem:windows /profile /debug /machine:I386 /out:"Release/SimulateTurbo.exe" 
+".\Release\SimulateTurbo.obj"
+".\Release\SimulateTurboDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\SimulateTurbo.res"
+"\Johann\Programming\Libraries\LibBase\Release\LibBase.lib"
+"\Johann\Programming\Libraries\LibComm\Release\LibComm.lib"
+"\Johann\Programming\LIBRARIES\LibWin\Release\LibWin.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPBD.tmp"
+<h3>Output Window</h3>
+Compiling...
+SimulateTurbo.cpp
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurbo.cpp(4) : error C2220: warning treated as error - no object file generated
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurbo.cpp(4) : warning C4652: compiler option 'C++ Run-Time Type Identification Data' inconsistent with precompiled header; current command-line option will override that defined in the precompiled header
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurbo.cpp(4) : warning C4651: '/D_CPPRTTI' specified for precompiled header but not for current compile
+SimulateTurboDlg.cpp
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurboDlg.cpp(4) : error C2220: warning treated as error - no object file generated
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurboDlg.cpp(4) : warning C4652: compiler option 'C++ Run-Time Type Identification Data' inconsistent with precompiled header; current command-line option will override that defined in the precompiled header
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurboDlg.cpp(4) : warning C4651: '/D_CPPRTTI' specified for precompiled header but not for current compile
+D:\Johann\Programming\Turbo Codes\SimulateTurbo\SimulateTurboDlg.cpp(12) : fatal error C1083: Cannot open include file: 'bpsk.h': No such file or directory
+Generating Code...
+Error executing cl.exe.
+Creating command line "bscmake.exe /nologo /o"Release/SimulateTurbo.bsc"  ".\Release\StdAfx.sbr" ".\Release\SimulateTurbo.sbr" ".\Release\SimulateTurboDlg.sbr""
+Creating browse info file...
+BSCMAKE: error BK1506 : cannot open file '.\Release\SimulateTurboDlg.sbr': No such file or directory
+Error executing bscmake.exe.
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+SimulateTurbo.exe - 4 error(s), 4 warning(s)
+</pre>
+</body>
+</html>

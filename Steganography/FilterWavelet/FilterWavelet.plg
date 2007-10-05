@@ -1,0 +1,758 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: FilterATM - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPFB.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterATM.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Steganography\FilterATM\FilterATM.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPFB.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPFC.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterATM.8bf" /implib:"Release/FilterATM.lib" 
+.\Release\FilterATM.obj
+.\Release\FilterATMDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterATM.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSPFC.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterATM.cpp
+Linking...
+   Creating library Release/FilterATM.lib and object Release/FilterATM.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterATM.bsc"  .\Release\StdAfx.sbr .\Release\FilterATM.sbr .\Release\FilterATMDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterATM - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP100.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterATM.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterATM\FilterATM.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP100.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP101.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterATM.8bf" /implib:"Debug/FilterATM.lib" 
+.\Debug\FilterATM.obj
+.\Debug\FilterATMDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterATM.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP101.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterATM.cpp
+Linking...
+   Creating library Debug/FilterATM.lib and object Debug/FilterATM.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterATM.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterATM.sbr .\Debug\FilterATMDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterATM.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterAW - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP105.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterAW.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Steganography\FilterAW\FilterAW.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP105.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP106.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterAW.8bf" /implib:"Release/FilterAW.lib" 
+.\Release\FilterAW.obj
+.\Release\FilterAWDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterAW.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP106.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterAW.cpp
+Linking...
+   Creating library Release/FilterAW.lib and object Release/FilterAW.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterAW.bsc"  .\Release\StdAfx.sbr .\Release\FilterAW.sbr .\Release\FilterAWDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterAW.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterAW - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP10A.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterAW.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterAW\FilterAW.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP10A.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP10B.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterAW.8bf" /implib:"Debug/FilterAW.lib" 
+.\Debug\FilterAW.obj
+.\Debug\FilterAWDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterAW.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP10B.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterAW.cpp
+Linking...
+   Creating library Debug/FilterAW.lib and object Debug/FilterAW.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterAW.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterAW.sbr .\Debug\FilterAWDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterAW.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP10F.bat" with contents
+[
+@echo off
+cl /EP /D "NDEBUG" /DWIN32=1 /Tc.\FilterEmbed.r > .\Release\FilterEmbed.rr
+cnvtpipl.exe .\Release\FilterEmbed.rr .\Release\FilterEmbed.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP10F.bat"
+Creating command line "rc.exe /l 0x409 /fo"Release/FilterEmbed.res" /d "NDEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterEmbed\FilterEmbed.rc"" 
+Performing Custom Build Step on .\FilterEmbed.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterEmbed.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP110.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterEmbed.8bf" /implib:"Release/FilterEmbed.lib" 
+.\Release\ComputeStrengthDlg.obj
+.\Release\FilterEmbed.obj
+.\Release\FilterEmbedDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterEmbed.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+\Johann\Programming\Libraries\LibComm\Release\LibComm.lib
+\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP110.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Linking...
+   Creating library Release/FilterEmbed.lib and object Release/FilterEmbed.exp
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEmbed - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP114.bat" with contents
+[
+@echo off
+cl /EP /D "_DEBUG" /DWIN32=1 /Tc.\FilterEmbed.r > .\Debug\FilterEmbed.rr
+cnvtpipl.exe .\Debug\FilterEmbed.rr .\Debug\FilterEmbed.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP114.bat"
+Creating command line "rc.exe /l 0x409 /fo"Debug/FilterEmbed.res" /d "_DEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterEmbed\FilterEmbed.rc"" 
+Performing Custom Build Step on .\FilterEmbed.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterEmbed.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP115.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterEmbed.8bf" /implib:"Debug/FilterEmbed.lib" 
+.\Debug\ComputeStrengthDlg.obj
+.\Debug\FilterEmbed.obj
+.\Debug\FilterEmbedDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterEmbed.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+\Johann\Programming\Libraries\LibComm\Debug\LibComm.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP115.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Linking...
+   Creating library Debug/FilterEmbed.lib and object Debug/FilterEmbed.exp
+
+
+
+<h3>Results</h3>
+FilterEmbed.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEnergy - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP119.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterEnergy.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Steganography\FilterEnergy\FilterEnergy.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP119.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP11A.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterEnergy.8bf" /implib:"Release/FilterEnergy.lib" 
+.\Release\FilterEnergy.obj
+.\Release\FilterEnergyDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterEnergy.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP11A.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterEnergy.cpp
+Linking...
+   Creating library Release/FilterEnergy.lib and object Release/FilterEnergy.exp
+
+
+
+<h3>Results</h3>
+FilterEnergy.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterEnergy - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP11E.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterEnergy.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterEnergy\FilterEnergy.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP11E.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP11F.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterEnergy.8bf" /implib:"Debug/FilterEnergy.lib" 
+.\Debug\FilterEnergy.obj
+.\Debug\FilterEnergyDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterEnergy.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP11F.tmp"
+<h3>Output Window</h3>
+Compiling...
+FilterEnergy.cpp
+Linking...
+   Creating library Debug/FilterEnergy.lib and object Debug/FilterEnergy.exp
+
+
+
+<h3>Results</h3>
+FilterEnergy.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExport - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP123.bat" with contents
+[
+@echo off
+cl /EP /D "NDEBUG" /DWIN32=1 /Tc.\FilterExport.r > .\Release\FilterExport.rr
+cnvtpipl.exe .\Release\FilterExport.rr .\Release\FilterExport.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP123.bat"
+Creating command line "rc.exe /l 0x409 /fo"Release/FilterExport.res" /d "NDEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterExport\FilterExport.rc"" 
+Performing Custom Build Step on .\FilterExport.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterExport.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP124.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterExport.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Steganography\FilterExport\FilterExport.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP124.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP125.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterExport.8bf" /implib:"Release/FilterExport.lib" 
+.\Release\FilterExport.obj
+.\Release\FilterExportDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterExport.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP125.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterExport.cpp
+Linking...
+   Creating library Release/FilterExport.lib and object Release/FilterExport.exp
+
+
+
+<h3>Results</h3>
+FilterExport.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExport - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP129.bat" with contents
+[
+@echo off
+cl /EP /D "_DEBUG" /DWIN32=1 /Tc.\FilterExport.r > .\Debug\FilterExport.rr
+cnvtpipl.exe .\Debug\FilterExport.rr .\Debug\FilterExport.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP129.bat"
+Creating command line "rc.exe /l 0x409 /fo"Debug/FilterExport.res" /d "_DEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterExport\FilterExport.rc"" 
+Performing Custom Build Step on .\FilterExport.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterExport.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP12A.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterExport.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterExport\FilterExport.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP12A.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP12B.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterExport.8bf" /implib:"Debug/FilterExport.lib" 
+.\Debug\FilterExport.obj
+.\Debug\FilterExportDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterExport.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP12B.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterExport.cpp
+Linking...
+   Creating library Debug/FilterExport.lib and object Debug/FilterExport.exp
+
+
+
+<h3>Results</h3>
+FilterExport.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExtract - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP12F.bat" with contents
+[
+@echo off
+cl /EP /D "NDEBUG" /DWIN32=1 /Tc.\FilterExtract.r > .\Release\FilterExtract.rr
+cnvtpipl.exe .\Release\FilterExtract.rr .\Release\FilterExtract.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP12F.bat"
+Creating command line "rc.exe /l 0x409 /fo"Release/FilterExtract.res" /d "NDEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterExtract\FilterExtract.rc"" 
+Performing Custom Build Step on .\FilterExtract.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterExtract.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP130.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterExtract.8bf" /implib:"Release/FilterExtract.lib" 
+.\Release\ComputeStrengthDlg.obj
+.\Release\DisplayResultsDlg.obj
+.\Release\FilterExtract.obj
+.\Release\FilterExtractDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterExtract.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibComm\Release\LibComm.lib
+\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP130.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Linking...
+   Creating library Release/FilterExtract.lib and object Release/FilterExtract.exp
+
+
+
+<h3>Results</h3>
+FilterExtract.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterExtract - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP134.bat" with contents
+[
+@echo off
+cl /EP /D "_DEBUG" /DWIN32=1 /Tc.\FilterExtract.r > .\Debug\FilterExtract.rr
+cnvtpipl.exe .\Debug\FilterExtract.rr .\Debug\FilterExtract.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP134.bat"
+Creating command line "rc.exe /l 0x409 /fo"Debug/FilterExtract.res" /d "_DEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterExtract\FilterExtract.rc"" 
+Performing Custom Build Step on .\FilterExtract.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterExtract.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP139.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterExtract.8bf" /implib:"Debug/FilterExtract.lib" 
+.\Debug\ComputeStrengthDlg.obj
+.\Debug\DisplayResultsDlg.obj
+.\Debug\FilterExtract.obj
+.\Debug\FilterExtractDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterExtract.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibComm\Debug\LibComm.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP139.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Linking...
+   Creating library Debug/FilterExtract.lib and object Debug/FilterExtract.exp
+
+
+
+<h3>Results</h3>
+FilterExtract.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterOrphans - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP13D.bat" with contents
+[
+@echo off
+cl /EP /D "NDEBUG" /DWIN32=1 /Tc.\FilterOrphans.r > .\Release\FilterOrphans.rr
+cnvtpipl.exe .\Release\FilterOrphans.rr .\Release\FilterOrphans.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP13D.bat"
+Creating command line "rc.exe /l 0x409 /fo"Release/FilterOrphans.res" /d "NDEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterOrphans\FilterOrphans.rc"" 
+Performing Custom Build Step on .\FilterOrphans.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterOrphans.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP13E.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterOrphans.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Steganography\FilterOrphans\FilterOrphans.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP13E.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP13F.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterOrphans.8bf" /implib:"Release/FilterOrphans.lib" 
+.\Release\FilterOrphans.obj
+.\Release\FilterOrphansDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterOrphans.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP13F.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterOrphans.cpp
+Linking...
+   Creating library Release/FilterOrphans.lib and object Release/FilterOrphans.exp
+
+
+
+<h3>Results</h3>
+FilterOrphans.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterOrphans - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP143.bat" with contents
+[
+@echo off
+cl /EP /D "_DEBUG" /DWIN32=1 /Tc.\FilterOrphans.r > .\Debug\FilterOrphans.rr
+cnvtpipl.exe .\Debug\FilterOrphans.rr .\Debug\FilterOrphans.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP143.bat"
+Creating command line "rc.exe /l 0x409 /fo"Debug/FilterOrphans.res" /d "_DEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterOrphans\FilterOrphans.rc"" 
+Performing Custom Build Step on .\FilterOrphans.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterOrphans.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP144.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterOrphans.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterOrphans\FilterOrphans.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP144.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP145.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterOrphans.8bf" /implib:"Debug/FilterOrphans.lib" 
+.\Debug\FilterOrphans.obj
+.\Debug\FilterOrphansDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterOrphans.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP145.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterOrphans.cpp
+Linking...
+   Creating library Debug/FilterOrphans.lib and object Debug/FilterOrphans.exp
+
+
+
+<h3>Results</h3>
+FilterOrphans.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterVariance - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP149.bat" with contents
+[
+@echo off
+cl /EP /D "NDEBUG" /DWIN32=1 /Tc.\FilterVariance.r > .\Release\FilterVariance.rr
+cnvtpipl.exe .\Release\FilterVariance.rr .\Release\FilterVariance.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP149.bat"
+Creating command line "rc.exe /l 0x409 /fo"Release/FilterVariance.res" /d "NDEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterVariance\FilterVariance.rc"" 
+Performing Custom Build Step on .\FilterVariance.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterVariance.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP14A.tmp" with contents
+[
+/nologo /MD /W3 /WX /vd0 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Release/" /Fp"Release/FilterVariance.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\Johann\Programming\Steganography\FilterVariance\FilterVariance.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP14A.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP14B.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Release\FilterVariance.8bf" /implib:"Release/FilterVariance.lib" 
+.\Release\FilterVariance.obj
+.\Release\FilterVarianceDlg.obj
+.\Release\StdAfx.obj
+.\Release\FilterVariance.res
+\Johann\Programming\Libraries\LibBase\Release\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Release\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Release\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP14B.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterVariance.cpp
+Linking...
+   Creating library Release/FilterVariance.lib and object Release/FilterVariance.exp
+Creating command line "bscmake.exe /nologo /o"Release/FilterVariance.bsc"  .\Release\StdAfx.sbr .\Release\FilterVariance.sbr .\Release\FilterVarianceDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterVariance.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterVariance - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP14F.bat" with contents
+[
+@echo off
+cl /EP /D "_DEBUG" /DWIN32=1 /Tc.\FilterVariance.r > .\Debug\FilterVariance.rr
+cnvtpipl.exe .\Debug\FilterVariance.rr .\Debug\FilterVariance.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP14F.bat"
+Creating command line "rc.exe /l 0x409 /fo"Debug/FilterVariance.res" /d "_DEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterVariance\FilterVariance.rc"" 
+Performing Custom Build Step on .\FilterVariance.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterVariance.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP150.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterVariance.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterVariance\FilterVariance.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP150.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP151.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterVariance.8bf" /implib:"Debug/FilterVariance.lib" 
+.\Debug\FilterVariance.obj
+.\Debug\FilterVarianceDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterVariance.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP151.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterVariance.cpp
+Linking...
+   Creating library Debug/FilterVariance.lib and object Debug/FilterVariance.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterVariance.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterVariance.sbr .\Debug\FilterVarianceDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterVariance.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterWavelet - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+FilterWavelet.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: FilterWavelet - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP155.bat" with contents
+[
+@echo off
+cl /EP /D "_DEBUG" /DWIN32=1 /Tc.\FilterWavelet.r > .\Debug\FilterWavelet.rr
+cnvtpipl.exe .\Debug\FilterWavelet.rr .\Debug\FilterWavelet.pipl
+]
+Creating command line "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP155.bat"
+Creating command line "rc.exe /l 0x409 /fo"Debug/FilterWavelet.res" /d "_DEBUG" /d "_AFXDLL" "D:\Johann\Programming\Steganography\FilterWavelet\FilterWavelet.rc"" 
+Performing Custom Build Step on .\FilterWavelet.r
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+
+FilterWavelet.r
+CnvtPiPL. Release Version 6.0.0, 3/2/2000.
+Copyright 1992-2000 Adobe Systems Incorporated.
+All rights reserved.
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP156.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /vd0 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_WINDLL" /D "_AFXDLL" /FR"Debug/" /Fp"Debug/FilterWavelet.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Johann\Programming\Steganography\FilterWavelet\FilterWavelet.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP156.tmp" 
+Creating temporary file "C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP157.tmp" with contents
+[
+/nologo /subsystem:windows /dll /profile /debug /machine:I386 /out:"Debug\FilterWavelet.8bf" /implib:"Debug/FilterWavelet.lib" 
+.\Debug\FilterWavelet.obj
+.\Debug\FilterWaveletDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\FilterWavelet.res
+\Johann\Programming\Libraries\LibBase\Debug\LibBase.lib
+\Johann\Programming\Libraries\LibImage\Debug\LibImage.lib
+\Johann\Programming\Libraries\LibWin\Debug\LibWin.lib
+]
+Creating command line "link.exe @C:\DOCUME~1\jabriffa\LOCALS~1\Temp\RSP157.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+FilterWavelet.cpp
+Linking...
+   Creating library Debug/FilterWavelet.lib and object Debug/FilterWavelet.exp
+Creating command line "bscmake.exe /nologo /o"Debug/FilterWavelet.bsc"  .\Debug\StdAfx.sbr .\Debug\FilterWavelet.sbr .\Debug\FilterWaveletDlg.sbr"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+FilterWavelet.8bf - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: PluginWizard - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+PluginWizard.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: PluginWizard - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+PluginWizard.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
