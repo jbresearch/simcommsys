@@ -3,10 +3,51 @@
 
 namespace libcomm {
 
+// LUT creation
+
+template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suffix, int w)
+   {
+   // stop here if we've reached the end
+   if(i >= lut.size())
+      return i;
+   // otherwise, it all depends on the weight we're considering
+   using libbase::bitfield;
+   using libbase::trace;
+   bitfield b;
+   trace << "Starting fill with:\t" << suffix << "\t" << w << "\n";
+   if(w == 0)
+      lut(i++) = suffix;
+   else
+      {
+      w--;
+      if(suffix.size() == 0)
+         i = fill(i,suffix,w);
+      for(b="1"; b.size()+suffix.size()+w <= n; b=b+bitfield("0"))
+         i = fill(i,b+suffix,w);
+      }
+   return i;
+   }
+   
 // initialization / de-allocation
 
 template <class real> void watermarkcode<real>::init()
    {
+   using libbase::weight;
+   lut.init(num_inputs());
+   fill(0,"",n);
+   r.seed(s);
+#ifndef NDEBUG
+   // Display LUT when debugging
+   using libbase::trace;
+   trace << "LUT (k=" << k << ", n=" << n << "):\n";
+   libbase::bitfield b;
+   b.resize(n);
+   for(int i=0; i<lut.size(); i++)
+      {
+      b = lut(i);
+      trace << i << "\t" << b << "\t" << weight(b) << "\n";
+      }
+#endif
    }
 
 template <class real> void watermarkcode<real>::free()
@@ -19,16 +60,37 @@ template <class real> watermarkcode<real>::watermarkcode()
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int tau)
+template <class real> watermarkcode<real>::watermarkcode(const int N, const int n, const int k, const int s)
    {
-   watermarkcode::tau = tau;
+   watermarkcode::N = N;
+   watermarkcode::n = n;
+   watermarkcode::k = k;
+   watermarkcode::s = s;
    init();
    }
 
+// implementations of channel-specific metrics for fba
+
+template <class real> double watermarkcode<real>::P(const int a, const int b)
+   {
+   return 0;
+   }
+   
+template <class real> double watermarkcode<real>::Q(const int a, const int b, const int i, const int s)
+   {
+   return 0;
+   }
+   
 // encoding and decoding functions
 
 template <class real> void watermarkcode<real>::encode(libbase::vector<int>& source, libbase::vector<int>& encoded)
    {
+   // Initialise result vector
+   encoded.init(N);
+   // Encode source stream
+   assert(source.size() == N);
+   for(int i=0; i<N; i++)
+      encoded(i) = lut(source(i)) ^ r.ival(num_outputs());
    }
 
 template <class real> void watermarkcode<real>::translate(const libbase::matrix<double>& ptable)
@@ -36,6 +98,10 @@ template <class real> void watermarkcode<real>::translate(const libbase::matrix<
    }
 
 template <class real> void watermarkcode<real>::decode(libbase::vector<int>& decoded)
+   {
+   }
+
+template <class real> void watermarkcode<real>::decode(libbase::matrix<double>& decoded)
    {
    }
 
@@ -52,7 +118,10 @@ template <class real> std::string watermarkcode<real>::description() const
 
 template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream& sout) const
    {
-   sout << tau << "\n";
+   sout << N << "\n";
+   sout << n << "\n";
+   sout << k << "\n";
+   sout << s << "\n";
    return sout;
    }
 
@@ -61,7 +130,10 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
 template <class real> std::istream& watermarkcode<real>::serialize(std::istream& sin)
    {
    free();
-   sin >> tau;
+   sin >> N;
+   sin >> n;
+   sin >> k;
+   sin >> s;
    init();
    return sin;
    }

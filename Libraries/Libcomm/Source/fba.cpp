@@ -71,7 +71,7 @@ template <class real, class dbl> void fba<real,dbl>::work_forward(const vector<i
          {
          F(j,y+n-1) = 0;
          for(int a=y-I; a<=y+1; a++)
-            F(j,y+n-1) += F(j-1,a+n-1) * P(a,y) * Q(a,y,j-1,r(j+y-1));
+            F(j,y+n-1) += F(j-1,a+n-1) * real( P(a,y) * Q(a,y,j-1,r(j+y-1)) );
          }
    }
 
@@ -82,7 +82,7 @@ template <class real, class dbl> void fba<real,dbl>::work_backward(const vector<
          {
          B(j,y+n-1) = 0;
          for(int b=y-1; b<=y+I; b++)
-            B(j,y+n-1) += B(j+1,b+n-1) * P(y,b) * Q(y,b,j+1,r(j+y+1));
+            B(j,y+n-1) += B(j+1,b+n-1) * real( P(y,b) * Q(y,b,j+1,r(j+y+1)) );
          }
    }
 
