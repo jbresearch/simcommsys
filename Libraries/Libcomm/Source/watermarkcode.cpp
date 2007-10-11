@@ -33,12 +33,12 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
 template <class real> void watermarkcode<real>::init()
    {
    using libbase::weight;
+   using libbase::trace;
+   // Create LUT with the lowest weight codewords
    lut.init(num_inputs());
    fill(0,"",n);
-   r.seed(s);
 #ifndef NDEBUG
    // Display LUT when debugging
-   using libbase::trace;
    trace << "LUT (k=" << k << ", n=" << n << "):\n";
    libbase::bitfield b;
    b.resize(n);
@@ -48,6 +48,16 @@ template <class real> void watermarkcode<real>::init()
       trace << i << "\t" << b << "\t" << weight(b) << "\n";
       }
 #endif
+   // Compute the mean density
+   libbase::vector<int> w = lut;
+   w.apply(weight);
+   f = w.sum()/double(n * w.size());
+   trace << "Watermark code density = " << f << "\n";
+   // Compute shorthand channel probabilities
+   Pt = 1 - Pd - Pi;
+   Pf = f*(1-Ps) + (1-f)*Ps;
+   // Seed the watermark generator
+   r.seed(s);
    }
 
 template <class real> void watermarkcode<real>::free()
@@ -110,7 +120,7 @@ template <class real> void watermarkcode<real>::decode(libbase::matrix<double>& 
 template <class real> std::string watermarkcode<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Watermark Code (" << output_bits() << "," << input_bits() << "), ";
+   sout << "Watermark Code (" << output_bits() << "," << input_bits() << ")";
    return sout.str();
    }
 

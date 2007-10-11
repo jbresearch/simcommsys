@@ -28,8 +28,11 @@ template <class real> class watermarkcode : public codec, private fba<libbase::l
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
 private:
-   // code parameters
-   int   N, n, k, s;
+   // user-defined parameters
+   int      N, n, k, s;    // code parameters
+   double   Ps, Pd, Pi;    // channel parameters
+   // computed parameters
+   double   f, Pf, Pt;
    // watermark sequence generator
    libbase::randgen r;
    // sparsifier LUT
