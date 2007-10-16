@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.50);
+const libbase::vcs channel::version("Channel Base module (channel)", 1.51);
 
 // constructors / destructors
 
@@ -77,6 +77,18 @@ std::istream& operator>>(std::istream& sin, channel*& x)
       exit(1);
       }
    x->serialize(sin);
+   return sin;
+   }
+
+// object serialization
+
+std::ostream& channel::serialize(std::ostream& sout) const
+   {
+   return sout;
+   }
+
+std::istream& channel::serialize(std::istream& sin)
+   {
    return sin;
    }
 

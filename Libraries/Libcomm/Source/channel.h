@@ -54,6 +54,11 @@
     - consequently, various variables have now moved to this class, together with their getters
     - random generator has also moved into this class, together with its seeding functions
   * updated channel model to allow for insertions and deletions, as well as substitution errors.
+  
+  Version 1.51 (16 Oct 2007)
+  * refactored further to simplify inheritance:
+    - serialization functions are no longer pure virtual; this removes the need for derived classes
+      to supply these, unless there is something specific to serialize.
 */
 
 namespace libcomm {
@@ -93,10 +98,10 @@ public:
    // description output
    virtual std::string description() const = 0;
    // object serialization - saving
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
+   virtual std::ostream& serialize(std::ostream& sout) const;
    friend std::ostream& operator<<(std::ostream& sout, const channel* x);
    // object serialization - loading
-   virtual std::istream& serialize(std::istream& sin) = 0;
+   virtual std::istream& serialize(std::istream& sin);
    friend std::istream& operator>>(std::istream& sin, channel*& x);
 };
 

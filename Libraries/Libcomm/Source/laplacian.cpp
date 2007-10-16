@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.40);
+const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.41);
 
 const libbase::serializer laplacian::shelper("channel", "laplacian", laplacian::create);
 
@@ -35,20 +35,6 @@ double laplacian::pdf(const sigspace& tx, const sigspace& rx) const
 std::string laplacian::description() const
    {
    return "Laplacian channel";
-   }
-
-// object serialization - saving
-
-std::ostream& laplacian::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
-
-// object serialization - loading
-
-std::istream& laplacian::serialize(std::istream& sin)
-   {
-   return sin;
    }
 
 }; // end namespace

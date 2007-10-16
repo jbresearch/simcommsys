@@ -34,6 +34,9 @@
 
   Version 1.40 (16 Oct 2007)
   changed class to conform with channel 1.50.
+
+  Version 1.41 (16 Oct 2007)
+  changed class to conform with channel 1.51.
 */
 
 namespace libcomm {
@@ -62,9 +65,6 @@ public:
 
    // description output
    std::string description() const;
-   // object serialization
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
 };
 
 }; // end namespace
