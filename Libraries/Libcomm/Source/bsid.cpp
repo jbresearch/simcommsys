@@ -11,40 +11,16 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
 bsid::bsid()
    {
-   bsid::Eb = 1;
-   bsid::set_snr(0);
-   bsid::seed(0);
    }
 
-// internal helper functions
+// handle functions
 
-void bsid::compute_parameters()
+void bsid::compute_parameters(const double Eb, const double No)
    {
-   //sigma = sqrt(Eb*No);
    Ps = 0.5*erfc(1/sqrt(Eb*No*2));
    }
    
 // channel functions
-   
-void bsid::seed(const libbase::int32u s)
-   {
-   r.seed(s);
-   }
-
-void bsid::set_eb(const double Eb)
-   {
-   // Eb is the signal energy for each bit duration
-   bsid::Eb = Eb;
-   compute_parameters();
-   }
-
-void bsid::set_snr(const double snr_db)
-   {
-   bsid::snr_db = snr_db;
-   // No is half the noise energy/modulation symbol for a normalised signal
-   No = 0.5*exp(-snr_db/10.0 * log(10.0));
-   compute_parameters();
-   }
    
 sigspace bsid::corrupt(const sigspace& s)
    {

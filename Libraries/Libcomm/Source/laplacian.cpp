@@ -2,43 +2,20 @@
 
 namespace libcomm {
 
-const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.30);
+const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.40);
 
 const libbase::serializer laplacian::shelper("channel", "laplacian", laplacian::create);
 
 
-// constructors / destructors
+// handle functions
 
-laplacian::laplacian()
+void laplacian::compute_parameters(const double Eb, const double No)
    {
-   laplacian::Eb = 1;
-   laplacian::set_snr(0);
-   laplacian::seed(0);
+   const double sigma = sqrt(Eb*No);
+   lambda = sigma/sqrt(double(2));
    }
    
 // channel functions
-   
-void laplacian::seed(const libbase::int32u s)
-   {
-   r.seed(s);
-   }
-
-void laplacian::set_eb(const double Eb)
-   {
-   // Eb is the signal energy for each bit duration
-   laplacian::Eb = Eb;
-   const double sigma = sqrt(Eb*No);
-   lambda = sigma/sqrt(double(2));
-   }
-
-void laplacian::set_snr(const double snr_db)
-   {
-   laplacian::snr_db = snr_db;
-   // No is half the noise energy/modulation symbol for a normalised signal
-   No = 0.5*exp(-snr_db/10.0 * log(10.0));
-   const double sigma = sqrt(Eb*No);
-   lambda = sigma/sqrt(double(2));
-   }
    
 sigspace laplacian::corrupt(const sigspace& s)
    {

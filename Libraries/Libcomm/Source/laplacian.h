@@ -31,6 +31,9 @@
 
   Version 1.30 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
+
+  Version 1.40 (16 Oct 2007)
+  changed class to conform with channel 1.50.
 */
 
 namespace libcomm {
@@ -39,24 +42,27 @@ class laplacian : public channel {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new laplacian; };
-   libbase::randgen  r;
-   double   lambda, Eb, No, snr_db;
+   // channel paremeters
+   double   lambda;
+private:
+   // internal helper functions
    double f(const double x) const { return 1/(2*lambda) * exp(-fabs(x)/lambda); };
    double Finv(const double y) const { return (y < 0.5) ? lambda*log(2*y) : -lambda*log(2*(1-y)); };
+protected:
+   // handle functions
+   void compute_parameters(const double Eb, const double No);
 public:
-   laplacian();
-
-   channel *clone() const { return new laplacian(*this); };		// cloning operation
+   // object handling
+   channel *clone() const { return new laplacian(*this); };
    const char* name() const { return shelper.name(); };
 
-   void seed(const libbase::int32u s);
-   void set_eb(const double Eb);
-   void set_snr(const double snr_db);
-   double get_snr() const { return snr_db; };
+   // channel functions
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 
+   // description output
    std::string description() const;
+   // object serialization
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };

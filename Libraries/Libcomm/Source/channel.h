@@ -5,6 +5,7 @@
 #include "vcs.h"
 #include "vector.h"
 
+#include "randgen.h"
 #include "sigspace.h"
 
 #include <iostream>
@@ -45,21 +46,44 @@
   Version 1.40 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+  
+  Version 1.50 (16 Oct 2007)
+  * refactored the class to simplify inheritance:
+    - set_eb() and set_snr() are now defined in this class, and call compute_parameters(), which
+    is defined in derived classes.
+    - consequently, various variables have now moved to this class, together with their getters
+    - random generator has also moved into this class, together with its seeding functions
+  * updated channel model to allow for insertions and deletions, as well as substitution errors.
 */
 
 namespace libcomm {
 
 class channel {
    static const libbase::vcs version;
+private:
+   // channel paremeters
+   double   Eb, No, snr_db;
+   // internal helper functions
+   void compute_noise();
+protected:
+   // objects used by the derived channel
+   libbase::randgen  r;
+   // handle functions
+   virtual void compute_parameters(const double Eb, const double No) {};
 public:
+   // object handling
+   channel();                             // constructor
    virtual ~channel() {};                 // virtual destructor
    virtual channel *clone() const = 0;		// cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
-   virtual void seed(const libbase::int32u s) = 0;
-   virtual void set_eb(const double Eb) = 0;
-   virtual void set_snr(const double snr_db) = 0;
-   virtual double get_snr() const = 0;
+   // reset function for random generator
+   void seed(const libbase::int32u s);
+
+   // setting and getting overall channel SNR
+   void set_eb(const double Eb);
+   void set_snr(const double snr_db);
+   double get_snr() const { return snr_db; };
 
    virtual sigspace corrupt(const sigspace& s) = 0;
    virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;

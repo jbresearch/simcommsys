@@ -4,7 +4,6 @@
 #include "config.h"
 #include "vcs.h"
 #include "channel.h"
-#include "randgen.h"
 #include "itfunc.h"
 #include "serializer.h"
 #include <math.h>
@@ -15,6 +14,10 @@
 
   Version 1.10 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
+
+  Version 1.20 (16 Oct 2007)
+  * changed class to conform with channel 1.50.
+  * TODO: this class is still unfinished, and only implements the plain Gaussian channel right now
 */
 
 namespace libcomm {
@@ -23,22 +26,24 @@ class lapgauss : public channel {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new lapgauss; };
-   libbase::randgen		r;
-   double		sigma, Eb, No, snr_db;
+   // channel paremeters
+   double		sigma;
+protected:
+   // handle functions
+   void compute_parameters(const double Eb, const double No);
 public:
+   // object handling
    lapgauss();
-
-   channel *clone() const { return new lapgauss(*this); };		// cloning operation
+   channel *clone() const { return new lapgauss(*this); };
    const char* name() const { return shelper.name(); };
 
-   void seed(const libbase::int32u s);
-   void set_eb(const double Eb);
-   void set_snr(const double snr_db);
-   double get_snr() const { return snr_db; };
+   // channel functions
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 
+   // description output
    std::string description() const;
+   // object serialization
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };

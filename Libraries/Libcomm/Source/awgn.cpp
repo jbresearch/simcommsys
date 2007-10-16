@@ -2,41 +2,19 @@
 
 namespace libcomm {
 
-const libbase::vcs awgn::version("Additive White Gaussian Noise Channel module (awgn)", 1.40);
+const libbase::vcs awgn::version("Additive White Gaussian Noise Channel module (awgn)", 1.50);
 
 const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
 
 
-// constructors / destructors
+// handle functions
 
-awgn::awgn()
+void awgn::compute_parameters(const double Eb, const double No)
    {
-   awgn::Eb = 1;
-   awgn::set_snr(0);
-   awgn::seed(0);
+   sigma = sqrt(Eb*No);
    }
-
-// channel functions
    
-void awgn::seed(const libbase::int32u s)
-   {
-   r.seed(s);
-   }
-
-void awgn::set_eb(const double Eb)
-   {
-   // Eb is the signal energy for each bit duration
-   awgn::Eb = Eb;
-   sigma = sqrt(Eb*No);
-   }
-
-void awgn::set_snr(const double snr_db)
-   {
-   awgn::snr_db = snr_db;
-   // No is half the noise energy/modulation symbol for a normalised signal
-   No = 0.5*exp(-snr_db/10.0 * log(10.0));
-   sigma = sqrt(Eb*No);
-   }
+// channel functions
    
 sigspace awgn::corrupt(const sigspace& s)
    {

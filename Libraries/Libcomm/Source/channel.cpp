@@ -3,7 +3,48 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.40);
+const libbase::vcs channel::version("Channel Base module (channel)", 1.50);
+
+// constructors / destructors
+
+channel::channel()
+   {
+   channel::Eb = 1;
+   channel::set_snr(0);
+   channel::seed(0);
+   }
+
+// reset function for random generator
+   
+void channel::seed(const libbase::int32u s)
+   {
+   r.seed(s);
+   }
+
+// setting and getting overall channel SNR
+
+void channel::compute_noise()
+   {
+   // No is half the noise energy/modulation symbol for a normalised signal
+   // TODO: Eb should get into this equation!!!
+   No = 0.5*exp(-snr_db/10.0 * log(10.0));
+   // call derived class handle
+   compute_parameters(Eb,No);
+   }
+   
+void channel::set_eb(const double Eb)
+   {
+   // Eb is the signal energy for each bit duration, obtained from modulator
+   channel::Eb = Eb;
+   compute_noise();
+   }
+
+void channel::set_snr(const double snr_db)
+   {
+   // snr_db is equal to 10 log_10 (Eb/No), obtained from user
+   channel::snr_db = snr_db;
+   compute_noise();
+   }
 
 // transmission function
 

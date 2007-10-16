@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs lapgauss::version("Additive Laplacian-Gaussian Channel module (lapgauss)", 1.10);
+const libbase::vcs lapgauss::version("Additive Laplacian-Gaussian Channel module (lapgauss)", 1.20);
 
 const libbase::serializer lapgauss::shelper("channel", "lapgauss", lapgauss::create);
 
@@ -11,32 +11,16 @@ const libbase::serializer lapgauss::shelper("channel", "lapgauss", lapgauss::cre
 
 lapgauss::lapgauss()
    {
-   lapgauss::Eb = 1;
-   lapgauss::set_snr(0);
-   lapgauss::seed(0);
    }
 
-// channel functions
+// handle functions
+
+void lapgauss::compute_parameters(const double Eb, const double No)
+   {
+   sigma = sqrt(Eb*No);
+   }
    
-void lapgauss::seed(const libbase::int32u s)
-   {
-   r.seed(s);
-   }
-
-void lapgauss::set_eb(const double Eb)
-   {
-   // Eb is the signal energy for each bit duration
-   lapgauss::Eb = Eb;
-   sigma = sqrt(Eb*No);
-   }
-
-void lapgauss::set_snr(const double snr_db)
-   {
-   lapgauss::snr_db = snr_db;
-   // No is half the noise energy/modulation symbol for a normalised signal
-   No = 0.5*exp(-snr_db/10.0 * log(10.0));
-   sigma = sqrt(Eb*No);
-   }
+// channel functions
    
 sigspace lapgauss::corrupt(const sigspace& s)
    {
@@ -56,7 +40,7 @@ double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
 
 std::string lapgauss::description() const
    {
-   return "AWGN channel";
+   return "Laplacian-Gaussian channel";
    }
 
 // object serialization - saving
