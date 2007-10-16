@@ -53,9 +53,10 @@ template <class real> void watermarkcode<real>::init()
    w.apply(weight);
    f = w.sum()/double(n * w.size());
    trace << "Watermark code density = " << f << "\n";
-   // Compute shorthand channel probabilities
+   // Compute shorthand channel probability parameters
    Pt = 1 - Pd - Pi;
    Pf = f*(1-Ps) + (1-f)*Ps;
+   alphaI = 1/(1 - pow(Pi,I));
    // Seed the watermark generator
    r.seed(s);
    }
@@ -70,12 +71,22 @@ template <class real> watermarkcode<real>::watermarkcode()
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int N, const int n, const int k, const int s)
+template <class real> watermarkcode<real>::watermarkcode(const int N, const int n, const int k, const int s, \
+      const int I, const int xmax, const double Ps, const double Pd, const double Pi)
    {
+   // code parameters
    watermarkcode::N = N;
    watermarkcode::n = n;
    watermarkcode::k = k;
    watermarkcode::s = s;
+   // decoder parameters
+   watermarkcode::I = I;
+   watermarkcode::xmax = xmax;
+   // channel parameters
+   watermarkcode::Ps = Ps;
+   watermarkcode::Pd = Pd;
+   watermarkcode::Pi = Pi;
+   // initialize everything else that depends on the above parameters
    init();
    }
 

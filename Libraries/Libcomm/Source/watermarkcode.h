@@ -15,7 +15,7 @@
 #include <math.h>
 
 /*
-  Version 1.00 (1-9 Oct 2007)
+  Version 1.00 (1-12 Oct 2007)
   initial version; implements Watermark Codes as described by Davey in "Reliable
   Communication over Channels with Insertions, Deletions, and Substitutions", Trans. IT,
   Feb 2001.
@@ -30,9 +30,10 @@ template <class real> class watermarkcode : public codec, private fba<libbase::l
 private:
    // user-defined parameters
    int      N, n, k, s;    // code parameters
+   int      I, xmax;       // decoder parameters
    double   Ps, Pd, Pi;    // channel parameters
    // computed parameters
-   double   f, Pf, Pt;
+   double   f, Pf, Pt, alphaI;
    // watermark sequence generator
    libbase::randgen r;
    // sparsifier LUT
@@ -47,7 +48,8 @@ protected:
    void free();
    watermarkcode();
 public:
-   watermarkcode(const int N, const int n, const int k, const int s);
+   watermarkcode(const int N, const int n, const int k, const int s, \
+      const int I, const int xmax, const double Ps, const double Pd, const double Pi);
    ~watermarkcode() { free(); };
 
    codec *clone() const { return new watermarkcode(*this); };		// cloning operation

@@ -19,6 +19,6 @@ int main(int argc, char *argv[])
       n = atoi(argv[1]);
       k = atoi(argv[2]);
       }
-   watermarkcode<logrealfast> c(N,n,k,0);
+   watermarkcode<logrealfast> c(N,n,k,0, 10,50, 0.01,0.01,0.01);
    cout << c.description() << "\n";
    }

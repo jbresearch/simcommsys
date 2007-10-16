@@ -15,7 +15,7 @@
 #include <fstream>
 
 /*
-  Version 1.00 (1-9 Oct 2007)
+  Version 1.00 (1-11 Oct 2007)
   * Initial version, implementing Forward-Backward Algorithm for a HMM. This is based on the paper by Davey & McKay,
     "Watermark Codes: Reliable communication over Insertion/Deletion channels", Trans. IT, 47(2), Feb 2001.
   * Implements algorithm on a single block; in the case of Davey's Watermark codes, each block is N elements of n-bit in
