@@ -59,6 +59,17 @@
   * refactored further to simplify inheritance:
     - serialization functions are no longer pure virtual; this removes the need for derived classes
       to supply these, unless there is something specific to serialize.
+  
+  Version 1.52 (17 Oct 2007)
+  * started direct work on implementing support for insertion/deletion:
+    - observed that the channel base function corrupt() is only called from within this class (in the
+      implementation of transmit(); similarly, pdf() is only called from within the modulator base
+      class, in the implementation of demodulate().
+    - corrupt() function has been moved into protected space; transmit() has been made virtual, and
+      the default implementation still makes use of the corrupt() function from derived classes.
+      What this means in practice is that derived classes implementing a DMC can simply implement
+      corrupt() and rely on this class to make transmit() available to clients. This is exactly as they
+      are doing so far.
 */
 
 namespace libcomm {
@@ -75,6 +86,8 @@ protected:
    libbase::randgen  r;
    // handle functions
    virtual void compute_parameters(const double Eb, const double No) {};
+   // channel handle functions
+   virtual sigspace corrupt(const sigspace& s) = 0;
 public:
    // object handling
    channel();                             // constructor
@@ -90,10 +103,11 @@ public:
    void set_snr(const double snr_db);
    double get_snr() const { return snr_db; };
 
-   virtual sigspace corrupt(const sigspace& s) = 0;
+   // channel functions:
+   // base functions implemented by derived classes
    virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;
-
-   void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
+   // functions implemented through handle functions, or alternatively implemented by derived classes
+   virtual void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
 
    // description output
    virtual std::string description() const = 0;

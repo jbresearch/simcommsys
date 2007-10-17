@@ -37,6 +37,9 @@
 
   Version 1.41 (16 Oct 2007)
   changed class to conform with channel 1.51.
+
+  Version 1.42 (17 Oct 2007)
+  changed class to conform with channel 1.52.
 */
 
 namespace libcomm {
@@ -54,13 +57,14 @@ private:
 protected:
    // handle functions
    void compute_parameters(const double Eb, const double No);
+   // channel handle functions
+   sigspace corrupt(const sigspace& s);
 public:
    // object handling
    channel *clone() const { return new laplacian(*this); };
    const char* name() const { return shelper.name(); };
 
    // channel functions
-   sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 
    // description output

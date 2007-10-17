@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs awgn::version("Additive White Gaussian Noise Channel module (awgn)", 1.51);
+const libbase::vcs awgn::version("Additive White Gaussian Noise Channel module (awgn)", 1.52);
 
 const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
 
@@ -14,7 +14,7 @@ void awgn::compute_parameters(const double Eb, const double No)
    sigma = sqrt(Eb*No);
    }
    
-// channel functions
+// channel handle functions
    
 sigspace awgn::corrupt(const sigspace& s)
    {
@@ -22,6 +22,8 @@ sigspace awgn::corrupt(const sigspace& s)
    const double y = r.gval(sigma);
    return s + sigspace(x, y);
    }
+
+// channel functions
 
 double awgn::pdf(const sigspace& tx, const sigspace& rx) const
    {      

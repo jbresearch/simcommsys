@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs lapgauss::version("Additive Laplacian-Gaussian Channel module (lapgauss)", 1.20);
+const libbase::vcs lapgauss::version("Additive Laplacian-Gaussian Channel module (lapgauss)", 1.21);
 
 const libbase::serializer lapgauss::shelper("channel", "lapgauss", lapgauss::create);
 
@@ -20,8 +20,8 @@ void lapgauss::compute_parameters(const double Eb, const double No)
    sigma = sqrt(Eb*No);
    }
    
-// channel functions
-   
+// channel handle functions
+
 sigspace lapgauss::corrupt(const sigspace& s)
    {
    const double x = r.gval(sigma);
@@ -29,6 +29,8 @@ sigspace lapgauss::corrupt(const sigspace& s)
    return s + sigspace(x, y);
    }
 
+// channel functions
+   
 double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
    {      
    using libbase::gauss;

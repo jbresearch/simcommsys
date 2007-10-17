@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.51);
+const libbase::vcs channel::version("Channel Base module (channel)", 1.52);
 
 // constructors / destructors
 
@@ -46,7 +46,7 @@ void channel::set_snr(const double snr_db)
    compute_noise();
    }
 
-// transmission function
+// channel functions
 
 void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
    {

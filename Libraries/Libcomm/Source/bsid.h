@@ -12,6 +12,9 @@
   Version 1.00 (12-16 Oct 2007)
   Initial version; implementation of a binary substitution, insertion, and deletion channel.
   * TODO: this class is still unfinished, and only implements the BSC channel right now
+
+  Version 1.01 (17 Oct 2007)
+  changed class to conform with channel 1.52.
 */
 
 namespace libcomm {
@@ -25,6 +28,8 @@ class bsid : public channel {
 protected:
    // handle functions
    void compute_parameters(const double Eb, const double No);
+   // channel handle functions
+   sigspace corrupt(const sigspace& s);
 public:
    // object handling
    bsid();
@@ -32,7 +37,6 @@ public:
    const char* name() const { return shelper.name(); };
 
    // channel functions
-   sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 
    // description output

@@ -18,6 +18,9 @@
   Version 1.20 (16 Oct 2007)
   * changed class to conform with channel 1.50.
   * TODO: this class is still unfinished, and only implements the plain Gaussian channel right now
+
+  Version 1.21 (17 Oct 2007)
+  changed class to conform with channel 1.52.
 */
 
 namespace libcomm {
@@ -31,6 +34,8 @@ class lapgauss : public channel {
 protected:
    // handle functions
    void compute_parameters(const double Eb, const double No);
+   // channel handle functions
+   sigspace corrupt(const sigspace& s);
 public:
    // object handling
    lapgauss();
@@ -38,7 +43,6 @@ public:
    const char* name() const { return shelper.name(); };
 
    // channel functions
-   sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 
    // description output

@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.41);
+const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.42);
 
 const libbase::serializer laplacian::shelper("channel", "laplacian", laplacian::create);
 
@@ -15,8 +15,8 @@ void laplacian::compute_parameters(const double Eb, const double No)
    lambda = sigma/sqrt(double(2));
    }
    
-// channel functions
-   
+// channel handle functions
+
 sigspace laplacian::corrupt(const sigspace& s)
    {
    const double x = Finv(r.fval());
@@ -24,6 +24,8 @@ sigspace laplacian::corrupt(const sigspace& s)
    return s + sigspace(x, y);
    }
 
+// channel functions
+   
 double laplacian::pdf(const sigspace& tx, const sigspace& rx) const
    {      
    sigspace n = rx - tx;

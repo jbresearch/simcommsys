@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.00);
+const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.01);
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
@@ -20,8 +20,8 @@ void bsid::compute_parameters(const double Eb, const double No)
    Ps = 0.5*erfc(1/sqrt(Eb*No*2));
    }
    
-// channel functions
-   
+// channel handle functions
+
 sigspace bsid::corrupt(const sigspace& s)
    {
    const double p = r.fval();
@@ -30,6 +30,8 @@ sigspace bsid::corrupt(const sigspace& s)
    return s;
    }
 
+// channel functions
+   
 double bsid::pdf(const sigspace& tx, const sigspace& rx) const
    {      
    if(tx != rx)
