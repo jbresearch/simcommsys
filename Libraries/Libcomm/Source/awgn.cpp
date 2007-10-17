@@ -23,8 +23,6 @@ sigspace awgn::corrupt(const sigspace& s)
    return s + sigspace(x, y);
    }
 
-// channel functions
-
 double awgn::pdf(const sigspace& tx, const sigspace& rx) const
    {      
    sigspace n = rx - tx;

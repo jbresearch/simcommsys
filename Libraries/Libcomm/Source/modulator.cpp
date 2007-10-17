@@ -5,7 +5,7 @@
 
 namespace libcomm {
 
-const libbase::vcs modulator::version("Modulator Base module (modulator)", 1.40);
+const libbase::vcs modulator::version("Modulator Base module (modulator)", 1.41);
 
 
 // modulation/demodulation - atomic operations
@@ -54,13 +54,12 @@ void modulator::demodulate(const channel& chan, const libbase::vector<sigspace>&
    {
    // Compute sizes
    const int M = map.size();
-   const int tau = rx.size();
-   // Initialize results vector
-   ptable.init(tau, M);
+   // Create a matrix of all possible transmitted symbols
+   libbase::matrix<sigspace> tx(1,M);
+   for(int x=0; x<M; x++)
+      tx(0,x) = modulate(x);
    // Work out the probabilities of each possible signal
-   for(int t=0; t<tau; t++)
-      for(int x=0; x<M; x++)
-         ptable(t,x) = chan.pdf(modulate(x), rx(t));
+   chan.receive(tx, rx, ptable);
    }
 
 // information functions

@@ -30,6 +30,7 @@ protected:
    void compute_parameters(const double Eb, const double No);
    // channel handle functions
    sigspace corrupt(const sigspace& s);
+   double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
    // object handling
    bsid();
@@ -37,7 +38,6 @@ public:
    const char* name() const { return shelper.name(); };
 
    // channel functions
-   double pdf(const sigspace& tx, const sigspace& rx) const;
 
    // description output
    std::string description() const;

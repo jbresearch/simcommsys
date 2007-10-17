@@ -57,6 +57,24 @@ void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigs
       rx(i) = corrupt(tx(i));
    }
 
+void channel::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
+   {
+   // Compute sizes
+   const int tau = rx.size();
+   const int M = tx.ysize();
+   // This implementation only works for substitution channels
+   assert(tx.xsize() == tau || tx.xsize() == 1);
+   // Initialize results vector
+   ptable.init(tau, M);
+   // Work out the probabilities of each possible signal
+   for(int t=0; t<tau; t++)
+      {
+      const int tt = (tx.xsize() == 1) ? 0 : t;
+      for(int x=0; x<M; x++)
+         ptable(t,x) = pdf(tx(tt,x), rx(t));
+      }
+   }
+
 // serialization functions
 
 std::ostream& operator<<(std::ostream& sout, const channel* x)

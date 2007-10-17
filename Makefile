@@ -54,7 +54,7 @@ TARGETS := Turbo\ Codes
 
 .PHONY:	clean clean-dist clean-depend
 
-all:     release debug
+all:     debug release
 
 release:
 	@$(MAKE) RELEASE=Release alltargets

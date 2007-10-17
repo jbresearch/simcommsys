@@ -30,8 +30,6 @@ sigspace bsid::corrupt(const sigspace& s)
    return s;
    }
 
-// channel functions
-   
 double bsid::pdf(const sigspace& tx, const sigspace& rx) const
    {      
    if(tx != rx)
@@ -39,6 +37,8 @@ double bsid::pdf(const sigspace& tx, const sigspace& rx) const
    return 1-Ps;
    }
 
+// channel functions
+   
 // description output
 
 std::string bsid::description() const

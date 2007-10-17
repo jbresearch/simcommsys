@@ -4,6 +4,7 @@
 #include "config.h"
 #include "vcs.h"
 #include "vector.h"
+#include "matrix.h"
 
 #include "randgen.h"
 #include "sigspace.h"
@@ -69,7 +70,14 @@
       the default implementation still makes use of the corrupt() function from derived classes.
       What this means in practice is that derived classes implementing a DMC can simply implement
       corrupt() and rely on this class to make transmit() available to clients. This is exactly as they
-      are doing so far.
+      are doing so far. On the other hand, to implement classes with insertions and deletions, the
+      transmit() class can be overridden such that the 'rx' vector doesn't have to be the same length
+      as the 'tx' vector.
+    - pdf() function has also been moved into protected space, and a new virtual function receive()
+      has been created as an interface with clients. The new function receive() provides support for
+      channels with insertion and deletion; just as with transmit(), this is not a pure virtual function,
+      and a default implementation is given which calls pdf() for every corresponding pair [most of
+      this functionality has been moved from modulator.demodulate().
 */
 
 namespace libcomm {
@@ -88,6 +96,7 @@ protected:
    virtual void compute_parameters(const double Eb, const double No) {};
    // channel handle functions
    virtual sigspace corrupt(const sigspace& s) = 0;
+   virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;
 public:
    // object handling
    channel();                             // constructor
@@ -104,10 +113,8 @@ public:
    double get_snr() const { return snr_db; };
 
    // channel functions:
-   // base functions implemented by derived classes
-   virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;
-   // functions implemented through handle functions, or alternatively implemented by derived classes
    virtual void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
+   virtual void receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
 
    // description output
    virtual std::string description() const = 0;

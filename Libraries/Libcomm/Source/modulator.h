@@ -61,6 +61,9 @@
   Version 1.40 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.41 (17 Oct 2007)
+  changed class to conform with channel 1.52.
 */
 
 namespace libcomm {

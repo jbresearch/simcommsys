@@ -29,8 +29,6 @@ sigspace lapgauss::corrupt(const sigspace& s)
    return s + sigspace(x, y);
    }
 
-// channel functions
-   
 double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
    {      
    using libbase::gauss;
