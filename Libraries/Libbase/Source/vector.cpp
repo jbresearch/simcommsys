@@ -2,6 +2,6 @@
 
 namespace libbase {
 
-const vcs vector_version("Generic vector module (vector)", 1.80);
+const vcs vector_version("Generic vector module (vector)", 1.81);
 
 }; // end namespace

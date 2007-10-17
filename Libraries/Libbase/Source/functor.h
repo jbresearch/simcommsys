@@ -5,6 +5,9 @@
   Version 1.00 (25 Apr 2007)
   * Initial version, defining a functor class for functions that take no argmuents
     and return nothing.
+
+  Version 1.01 (17 Oct 2007)
+  * Added virtual destructor for functor (should have done that before).
 */
 
 namespace libbase {
@@ -12,6 +15,7 @@ namespace libbase {
 // abstract base class
 class functor {
 public:
+   virtual ~functor() {};            // virtual destructor
    virtual void operator()(void)=0;  // call using operator
    virtual void call(void)=0;        // call using function
 };

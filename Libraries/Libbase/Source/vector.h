@@ -121,6 +121,9 @@
   Version 1.80 (26 Oct 2006)
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.81 (17 Oct 2007)
+  * modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 */
 
 namespace libbase {
@@ -222,6 +225,8 @@ template <class T> inline void vector<T>::alloc(const int x)
    m_xsize = x;
    if(x > 0)
       m_data = new T[x];
+   else
+      m_data = NULL;
    }
 
 template <class T> inline void vector<T>::free()

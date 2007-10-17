@@ -121,6 +121,9 @@
   Version 1.70 (26 Oct 2006)
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.71 (17 Oct 2007)
+  * modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 */
 
 namespace libbase {
@@ -269,6 +272,7 @@ template <class T> inline void matrix<T>::alloc(const int x, const int y)
       {
       m_xsize = 0;
       m_ysize = 0;
+      m_data = NULL;
       }
    else
       {
