@@ -20,6 +20,7 @@
   * added transmit() and receive() functions to actually handle insertions and deletions
   * kept corrupt() and pdf() to be used internally for dealing with substitution errors
   * added specification of Pd and Pi during creation, defaulting to zero (effectively gives a BSC)
+  * added serialization of Pd and Pi
 */
 
 namespace libcomm {

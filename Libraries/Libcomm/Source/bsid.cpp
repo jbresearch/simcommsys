@@ -87,22 +87,16 @@ void bsid::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspac
 
 void bsid::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
-   /*
    // Compute sizes
    const int tau = rx.size();
    const int M = tx.ysize();
-   // This implementation only works for substitution channels
-   assert(tx.xsize() == tau || tx.xsize() == 1);
+   // This implementation only works one transmission step at a time
+   assert(tx.xsize() == 1);
    // Initialize results vector
-   ptable.init(tau, M);
+   ptable.init(1, M);
    // Work out the probabilities of each possible signal
-   for(int t=0; t<tau; t++)
-      {
-      const int tt = (tx.xsize() == 1) ? 0 : t;
-      for(int x=0; x<M; x++)
-         ptable(t,x) = pdf(tx(tt,x), rx(t));
-      }
-      */
+   for(int x=0; x<M; x++)
+      ptable(0,x) = pdf(tx(0,x), rx(tau-1));
    }
 
 // description output
@@ -116,6 +110,8 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
+   sout << Pd << "\n";
+   sout << Pi << "\n";
    return sout;
    }
 
@@ -123,6 +119,8 @@ std::ostream& bsid::serialize(std::ostream& sout) const
 
 std::istream& bsid::serialize(std::istream& sin)
    {
+   sin >> Pd;
+   sin >> Pi;
    return sin;
    }
 
