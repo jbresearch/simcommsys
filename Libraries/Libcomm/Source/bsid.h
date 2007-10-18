@@ -15,6 +15,11 @@
 
   Version 1.01 (17 Oct 2007)
   changed class to conform with channel 1.52.
+  
+  Version 1.10 (18 Oct 2007)
+  * added transmit() and receive() functions to actually handle insertions and deletions
+  * kept corrupt() and pdf() to be used internally for dealing with substitution errors
+  * added specification of Pd and Pi during creation, defaulting to zero (effectively gives a BSC)
 */
 
 namespace libcomm {
@@ -33,11 +38,13 @@ protected:
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
    // object handling
-   bsid();
+   bsid(const double Pd=0, const double Pi=0);
    channel *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
 
    // channel functions
+   void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
+   void receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
 
    // description output
    std::string description() const;
