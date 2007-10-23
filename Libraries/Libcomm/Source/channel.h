@@ -78,6 +78,12 @@
       channels with insertion and deletion; just as with transmit(), this is not a pure virtual function,
       and a default implementation is given which calls pdf() for every corresponding pair [most of
       this functionality has been moved from modulator.demodulate().
+      
+  Version 1.53 (23 Oct 2007)
+  * added a function for direct setting of 'No';
+    - automatically updates the SNR value
+    - automatically calls inherited class compute_parameters()
+  * added functions to get values of Eb and No
 */
 
 namespace libcomm {
@@ -109,7 +115,10 @@ public:
 
    // setting and getting overall channel SNR
    void set_eb(const double Eb);
+   void set_no(const double No);
    void set_snr(const double snr_db);
+   double get_eb() const { return Eb; };
+   double get_no() const { return No; };
    double get_snr() const { return snr_db; };
 
    // channel functions:

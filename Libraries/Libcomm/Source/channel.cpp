@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.52);
+const libbase::vcs channel::version("Channel Base module (channel)", 1.53);
 
 // constructors / destructors
 
@@ -26,8 +26,8 @@ void channel::seed(const libbase::int32u s)
 void channel::compute_noise()
    {
    // No is half the noise energy/modulation symbol for a normalised signal
-   // TODO: Eb should get into this equation!!!
-   No = 0.5*exp(-snr_db/10.0 * log(10.0));
+   // TODO: check the validity of this equation!!!
+   No = 0.5*Eb*pow(10.0, -snr_db/10.0);
    // call derived class handle
    compute_parameters(Eb,No);
    }
@@ -36,6 +36,13 @@ void channel::set_eb(const double Eb)
    {
    // Eb is the signal energy for each bit duration, obtained from modulator
    channel::Eb = Eb;
+   compute_noise();
+   }
+
+void channel::set_no(const double No)
+   {
+   // No is half the noise energy/modulation symbol for a normalised signal
+   snr_db = 10.0*log10(Eb/(2*No));
    compute_noise();
    }
 

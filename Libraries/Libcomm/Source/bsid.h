@@ -21,6 +21,12 @@
   * kept corrupt() and pdf() to be used internally for dealing with substitution errors
   * added specification of Pd and Pi during creation, defaulting to zero (effectively gives a BSC)
   * added serialization of Pd and Pi
+  
+  Version 1.20 (23 Oct 2007)
+  * added functions to set channel parameters directly (as Ps, Pd, Pi)
+  * implemented the receive() function to return Q_m(s) as defined by Davey; one will need to
+    first update Ps, depending on whether the receive() is operating wrt the actual channel (ie the
+    actual substitution error) or wrt the sparse vector (ie the vector average density).
 */
 
 namespace libcomm {
@@ -43,6 +49,11 @@ public:
    channel *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
 
+   // channel parameter updates
+   void set_ps(const double Ps);
+   void set_pd(const double Pd);
+   void set_pi(const double Pi);
+   
    // channel functions
    void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
    void receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
