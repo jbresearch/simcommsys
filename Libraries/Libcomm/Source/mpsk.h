@@ -3,7 +3,7 @@
       
 #include "config.h"
 #include "vcs.h"
-#include "modulator.h"
+#include "lut_modulator.h"
 #include "serializer.h"
 
 /*
@@ -33,11 +33,15 @@
   
   Version 2.11 (24 Apr 2007)
   * fixed a bug in serialization code; final newline was not appended
+
+  Version 2.12 (25 Oct 2007)
+  * modified to comply with modulator 1.50
+  * this class now inherits the functionality of lut_modulator
 */
 
 namespace libcomm {
 
-class mpsk : public modulator {
+class mpsk : public lut_modulator {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new mpsk; };

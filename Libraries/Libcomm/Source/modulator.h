@@ -64,34 +64,36 @@
 
   Version 1.41 (17 Oct 2007)
   changed class to conform with channel 1.52.
+
+  Version 1.50 (25 Oct 2007)
+  * extracted functionality of static LUT modulators by creating a new class lut_modulator
+  * this class now better reflects its role as a generic base class for the modem layer
 */
 
 namespace libcomm {
 
 class modulator {
    static const libbase::vcs version;
-protected:
-   libbase::vector<sigspace> map; // Array of modulation symbols
 public:
    virtual ~modulator() {};               // virtual destructor
    virtual modulator *clone() const = 0;	// cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    // modulation/demodulation - atomic operations
-   const sigspace modulate(const int index) const { return map(index); };
-   const int demodulate(const sigspace& signal) const;
+   virtual const sigspace modulate(const int index) const = 0;
+   virtual const int demodulate(const sigspace& signal) const = 0;
    const sigspace operator[](const int index) const { return modulate(index); };
    const int operator[](const sigspace& signal) const { return demodulate(signal); };
 
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const;
-   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const = 0;
+   virtual void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const = 0;
 
    // information functions
-   int num_symbols() const { return map.size(); };
-   double energy() const;                                   // average energy per symbol
-   double bit_energy() const { return energy()/libbase::log2(map.size()); };  // average energy per bit
+   virtual int num_symbols() const = 0;
+   virtual double energy() const = 0;  // average energy per symbol
+   double bit_energy() const { return energy()/libbase::log2(num_symbols()); };  // average energy per bit
 
    // description output
    virtual std::string description() const = 0;
