@@ -5,8 +5,10 @@
 #include "vcs.h"
 
 #include "modulator.h"
-#include "logrealfast.h"
+#include "mpsk.h"
 #include "fba.h"
+#include "logrealfast.h"
+
 #include "bitfield.h"
 #include "randgen.h"
 #include "itfunc.h"
@@ -23,19 +25,21 @@
   Version 1.10 (25 Oct 2007)
   * made class a 'modulator' rather than a 'modulator' as this better reflects its position within
     the communication model's stack
+  * removed 'N' from a code parameter - this is simply the size of the block currently being demodulated
+  * removed 'const' restriction on modulate and demodulate vector functions, as in modulator 1.50
 */
 
 namespace libcomm {
 
-template <class real> class watermarkcode : public modulator, private fba<libbase::logrealfast> {
+template <class real> class watermarkcode : public mpsk, private fba<libbase::logrealfast> {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
 private:
    // user-defined parameters
-   int      N, n, k, s;    // code parameters
-   int      I, xmax;       // decoder parameters
-   double   Ps, Pd, Pi;    // channel parameters
+   int      n, k, s;    // code parameters: #bits in sparse (output) symbol, message (input) symbol; generator seed
+   int      I, xmax;    // decoder parameters
+   double   Ps, Pd, Pi; // channel parameters
    // computed parameters
    double   f, Pf, Pt, alphaI;
    // internally-used objects
@@ -51,7 +55,7 @@ protected:
    void free();
    watermarkcode();
 public:
-   watermarkcode(const int N, const int n, const int k, const int s, \
+   watermarkcode(const int n, const int k, const int s, \
       const int I, const int xmax, const double Ps, const double Pd, const double Pi);
    ~watermarkcode() { free(); };
 
@@ -59,13 +63,13 @@ public:
    const char* name() const { return shelper.name(); };
 
    // modulation/demodulation - atomic operations
-   const sigspace modulate(const int index) const { return sigspace(0,0); };
-   const int demodulate(const sigspace& signal) const { return 0; };
+   // const sigspace modulate(const int index) const { return sigspace(0,0); };
+   // const int demodulate(const sigspace& signal) const { return 0; };
 
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const;
-   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
+   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
 
    // information functions
    int num_symbols() const { return 1<<k; };

@@ -25,7 +25,7 @@ const int lut_modulator::demodulate(const sigspace& signal) const
 
 // modulation/demodulation - vector operations
 
-void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const
+void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
    {
    // Compute factors / sizes & check validity	
    const int M = lut.size();
@@ -40,13 +40,13 @@ void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, l
       }
    // Initialize results vector
    tx.init(tau*s);
-   // Modulate encoded stream
+   // Modulate encoded stream (least-significant first)
    for(int t=0, k=0; t<tau; t++)
       for(int i=0, x = encoded(t); i<s; i++, k++, x /= M)
          tx(k) = modulate(x % M);
    }
 
-void lut_modulator::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
+void lut_modulator::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
    // Compute sizes
    const int M = lut.size();

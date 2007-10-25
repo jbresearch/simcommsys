@@ -7,6 +7,7 @@
   Version 1.00 (25 Oct 2007)
   * initial version - contains LUT modulator implementation from modulator.h 1.41
   * refactored - renamed 'map' to 'lut' to better reflect the contents of the variable
+  * removed 'const' restriction on modulate and demodulate vector functions, as in modulator 1.50
 */
 
 namespace libcomm {
@@ -24,8 +25,8 @@ public:
 
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const;
-   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
+   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
 
    // information functions
    int num_symbols() const { return lut.size(); };

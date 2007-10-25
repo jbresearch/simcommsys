@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
    // create a watermark codec
    using libbase::logrealfast;
    using libcomm::watermarkcode;
-   int N=100, n=5, k=3;
+   int n=5, k=3;
    if(argc < 3)
       cerr << "Usage: " << argv[0] << " [<n> <k>]\n";
    else
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
       n = atoi(argv[1]);
       k = atoi(argv[2]);
       }
-   watermarkcode<logrealfast> modem(N,n,k,0, 10,50, 0.01,0.01,0.01);
+   watermarkcode<logrealfast> modem(n,k,0, 10,50, 0.01,0.01,0.01);
    cout << modem.description() << "\n";
    
    using libbase::vector;

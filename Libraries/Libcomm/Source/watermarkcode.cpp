@@ -71,11 +71,10 @@ template <class real> watermarkcode<real>::watermarkcode()
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int N, const int n, const int k, const int s, \
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, \
       const int I, const int xmax, const double Ps, const double Pd, const double Pi)
    {
    // code parameters
-   watermarkcode::N = N;
    watermarkcode::n = n;
    watermarkcode::k = k;
    watermarkcode::s = s;
@@ -88,6 +87,8 @@ template <class real> watermarkcode<real>::watermarkcode(const int N, const int 
    watermarkcode::Pi = Pi;
    // initialize everything else that depends on the above parameters
    init();
+   // initialize the low-level mpsk modulator
+   mpsk::init(2);
    }
 
 // implementations of channel-specific metrics for fba
@@ -104,21 +105,34 @@ template <class real> double watermarkcode<real>::Q(const int a, const int b, co
    
 // encoding and decoding functions
 
-template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const
+template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
    {
-   /*
-   // Initialise result vector
-   tx.init(watermarkcode::N);
+   // we assume that each 'encoded' symbol can be fitted in one sparse vector
+   assert(N == (1<<k));
+   const int tau = encoded.size();
+   // Initialise result vector (one bit per sparse vector
+   tx.init(n * tau);
    // Encode source stream
-   assert(encoded.size() == watermarkcode::N);
-   for(int i=0; i<N; i++)
-      tx(i) = lut(encoded(i)) ^ r.ival(num_outputs());
-      */
+   for(int i=0; i<tau; i++)
+      {
+      const int s = lut(encoded(i));   // sparse vector
+      const int w = r.ival(1<<n);      // watermark vector
+      for(int j=0, t=s^w; j<n; j++, t >>= 1)
+         tx(i+j) = mpsk::modulate(t&1);
+      }
    }
 
-template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
+template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
-   }
+/*    // Compute sizes
+   const int q = 1<<k;
+   // Create a matrix of all possible transmitted symbols
+   libbase::matrix<sigspace> tx(1,q);
+   for(int x=0; x<q; x++)
+      tx(0,x) = modulate(x);
+   // Work out the probabilities of each possible signal
+   chan.receive(tx, rx, ptable);
+ */   }
    
 // description output
 
@@ -133,7 +147,6 @@ template <class real> std::string watermarkcode<real>::description() const
 
 template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream& sout) const
    {
-   sout << N << "\n";
    sout << n << "\n";
    sout << k << "\n";
    sout << s << "\n";
@@ -145,7 +158,6 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
 template <class real> std::istream& watermarkcode<real>::serialize(std::istream& sin)
    {
    free();
-   sin >> N;
    sin >> n;
    sin >> k;
    sin >> s;

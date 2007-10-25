@@ -68,6 +68,9 @@
   Version 1.50 (25 Oct 2007)
   * extracted functionality of static LUT modulators by creating a new class lut_modulator
   * this class now better reflects its role as a generic base class for the modem layer
+  * removed 'const' restriction on modulate and demodulate vector functions, to cater for watermark codes
+    (where the random generator is updated during these functions); this also introduces support for other
+    time-variant modulation schemes.
 */
 
 namespace libcomm {
@@ -87,8 +90,8 @@ public:
 
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
-   virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const = 0;
-   virtual void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const = 0;
+   virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) = 0;
+   virtual void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) = 0;
 
    // information functions
    virtual int num_symbols() const = 0;
