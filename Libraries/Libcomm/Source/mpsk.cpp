@@ -13,14 +13,14 @@ const libbase::serializer mpsk::shelper("modulator", "mpsk", mpsk::create);
 
 void mpsk::init(const int m)
    {
-   map.init(m);
+   lut.init(m);
    // allocate symbols sequentially - this has to be changed
    // to use set-partitioning (for error-minimization)
    for(int i=0; i<m; i++)
       {
       const double r = 1;
       const double theta = i * (2*libbase::PI/m);
-      map(i) = sigspace(r*cos(theta), r*sin(theta));
+      lut(i) = sigspace(r*cos(theta), r*sin(theta));
       }
    }
 
@@ -29,7 +29,7 @@ void mpsk::init(const int m)
 std::string mpsk::description() const
    {
    std::ostringstream sout;
-   switch(map.size())
+   switch(lut.size())
       {
       case 2:
          sout << "BPSK modulator";
@@ -38,7 +38,7 @@ std::string mpsk::description() const
          sout << "QPSK modulator";
          break;
       default:
-         sout << map.size() << "PSK modulator";
+         sout << lut.size() << "PSK modulator";
          break;
       }
    return sout.str();
@@ -48,7 +48,7 @@ std::string mpsk::description() const
 
 std::ostream& mpsk::serialize(std::ostream& sout) const
    {
-   sout << map.size() << "\n";
+   sout << lut.size() << "\n";
    return sout;
    }
 

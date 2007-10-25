@@ -35,8 +35,9 @@
   * fixed a bug in serialization code; final newline was not appended
 
   Version 2.12 (25 Oct 2007)
-  * modified to comply with modulator 1.50
+  * modified to comply with modulator 1.50 & lut_modulator 1.00
   * this class now inherits the functionality of lut_modulator
+  * the LUT is now held in 'lut' rather than 'map'
 */
 
 namespace libcomm {

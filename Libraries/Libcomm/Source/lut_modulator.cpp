@@ -8,12 +8,12 @@ const libbase::vcs lut_modulator::version("LUT Modulator module (lut_modulator)"
 
 const int lut_modulator::demodulate(const sigspace& signal) const
    {
-   const int M = map.size();
+   const int M = lut.size();
    int best_i = 0;
-   double best_d = signal - map(0);
+   double best_d = signal - lut(0);
    for(int i=1; i<M; i++)
       {
-      double d = signal - map(i);
+      double d = signal - lut(i);
       if(d < best_d)
          {
          best_d = d;
@@ -28,7 +28,7 @@ const int lut_modulator::demodulate(const sigspace& signal) const
 void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const
    {
    // Compute factors / sizes & check validity	
-   const int M = map.size();
+   const int M = lut.size();
    const int tau = encoded.size();
    const int s = int(libbase::round(log(double(N))/log(double(M))));
    if(N != pow(double(M), s))
@@ -49,7 +49,7 @@ void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, l
 void lut_modulator::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
-   const int M = map.size();
+   const int M = lut.size();
    // Create a matrix of all possible transmitted symbols
    libbase::matrix<sigspace> tx(1,M);
    for(int x=0; x<M; x++)
@@ -62,10 +62,10 @@ void lut_modulator::demodulate(const channel& chan, const libbase::vector<sigspa
 
 double lut_modulator::energy() const
    {
-   const int M = map.size();
+   const int M = lut.size();
    double e = 0;
    for(int i=0; i<M; i++)
-      e += map(i).r() * map(i).r();
+      e += lut(i).r() * lut(i).r();
    return e/double(M);
    }
 
