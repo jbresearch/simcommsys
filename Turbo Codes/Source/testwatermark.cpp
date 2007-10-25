@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
       n = atoi(argv[1]);
       k = atoi(argv[2]);
       }
-   watermarkcode<logrealfast> codec(N,n,k,0, 10,50, 0.01,0.01,0.01);
-   cout << codec.description() << "\n";
+   watermarkcode<logrealfast> modem(N,n,k,0, 10,50, 0.01,0.01,0.01);
+   cout << modem.description() << "\n";
    
    using libbase::vector;
    using libcomm::bsid;

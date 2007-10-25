@@ -35,7 +35,7 @@ template <class real> void watermarkcode<real>::init()
    using libbase::weight;
    using libbase::trace;
    // Create LUT with the lowest weight codewords
-   lut.init(num_inputs());
+   lut.init(num_symbols());
    fill(0,"",n);
 #ifndef NDEBUG
    // Display LUT when debugging
@@ -104,34 +104,28 @@ template <class real> double watermarkcode<real>::Q(const int a, const int b, co
    
 // encoding and decoding functions
 
-template <class real> void watermarkcode<real>::encode(libbase::vector<int>& source, libbase::vector<int>& encoded)
+template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const
    {
+   /*
    // Initialise result vector
-   encoded.init(N);
+   tx.init(watermarkcode::N);
    // Encode source stream
-   assert(source.size() == N);
+   assert(encoded.size() == watermarkcode::N);
    for(int i=0; i<N; i++)
-      encoded(i) = lut(source(i)) ^ r.ival(num_outputs());
+      tx(i) = lut(encoded(i)) ^ r.ival(num_outputs());
+      */
    }
 
-template <class real> void watermarkcode<real>::translate(const libbase::matrix<double>& ptable)
+template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    }
-
-template <class real> void watermarkcode<real>::decode(libbase::vector<int>& decoded)
-   {
-   }
-
-template <class real> void watermarkcode<real>::decode(libbase::matrix<double>& decoded)
-   {
-   }
-
+   
 // description output
 
 template <class real> std::string watermarkcode<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Watermark Code (" << output_bits() << "," << input_bits() << ")";
+   sout << "Watermark Code (" << n << "," << k << "," << s << ")";
    return sout.str();
    }
 
@@ -178,22 +172,22 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.00
+#define VERSION 1.10
 
 template class watermarkcode<mpreal>;
-template <> const serializer watermarkcode<mpreal>::shelper = serializer("codec", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);
+template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);
 template <> const vcs watermarkcode<mpreal>::version = vcs("Watermark Codec module (watermarkcode<mpreal>)", VERSION);
 
 template class watermarkcode<mpgnu>;
-template <> const serializer watermarkcode<mpgnu>::shelper = serializer("codec", "watermarkcode<mpgnu>", watermarkcode<mpgnu>::create);
+template <> const serializer watermarkcode<mpgnu>::shelper = serializer("modulator", "watermarkcode<mpgnu>", watermarkcode<mpgnu>::create);
 template <> const vcs watermarkcode<mpgnu>::version = vcs("Watermark Codec module (watermarkcode<mpgnu>)", VERSION);
 
 template class watermarkcode<logreal>;
-template <> const serializer watermarkcode<logreal>::shelper = serializer("codec", "watermarkcode<logreal>", watermarkcode<logreal>::create);
+template <> const serializer watermarkcode<logreal>::shelper = serializer("modulator", "watermarkcode<logreal>", watermarkcode<logreal>::create);
 template <> const vcs watermarkcode<logreal>::version = vcs("Watermark Codec module (watermarkcode<logreal>)", VERSION);
 
 template class watermarkcode<logrealfast>;
-template <> const serializer watermarkcode<logrealfast>::shelper = serializer("codec", "watermarkcode<logrealfast>", watermarkcode<logrealfast>::create);
+template <> const serializer watermarkcode<logrealfast>::shelper = serializer("modulator", "watermarkcode<logrealfast>", watermarkcode<logrealfast>::create);
 template <> const vcs watermarkcode<logrealfast>::version = vcs("Watermark Codec module (watermarkcode<logrealfast>)", VERSION);
 
 }; // end namespace

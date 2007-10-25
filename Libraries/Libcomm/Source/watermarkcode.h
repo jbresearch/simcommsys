@@ -4,7 +4,7 @@
 #include "config.h"
 #include "vcs.h"
 
-#include "codec.h"
+#include "modulator.h"
 #include "logrealfast.h"
 #include "fba.h"
 #include "bitfield.h"
@@ -19,11 +19,15 @@
   initial version; implements Watermark Codes as described by Davey in "Reliable
   Communication over Channels with Insertions, Deletions, and Substitutions", Trans. IT,
   Feb 2001.
+  
+  Version 1.10 (25 Oct 2007)
+  * made class a 'modulator' rather than a 'modulator' as this better reflects its position within
+    the communication model's stack
 */
 
 namespace libcomm {
 
-template <class real> class watermarkcode : public codec, private fba<libbase::logrealfast> {
+template <class real> class watermarkcode : public modulator, private fba<libbase::logrealfast> {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
@@ -34,10 +38,9 @@ private:
    double   Ps, Pd, Pi;    // channel parameters
    // computed parameters
    double   f, Pf, Pt, alphaI;
-   // watermark sequence generator
-   libbase::randgen r;
-   // sparsifier LUT
-   libbase::vector<int> lut;
+   // internally-used objects
+   libbase::randgen r;        // watermark sequence generator
+   libbase::vector<int> lut;  // sparsifier LUT
    // LUT creation
    int fill(int i, libbase::bitfield suffix, int weight);
    // implementations of channel-specific metrics for fba
@@ -52,19 +55,21 @@ public:
       const int I, const int xmax, const double Ps, const double Pd, const double Pi);
    ~watermarkcode() { free(); };
 
-   codec *clone() const { return new watermarkcode(*this); };		// cloning operation
+   modulator *clone() const { return new watermarkcode(*this); };		// cloning operation
    const char* name() const { return shelper.name(); };
 
-   void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
-   void translate(const libbase::matrix<double>& ptable);
-   void decode(libbase::vector<int>& decoded);
-   void decode(libbase::matrix<double>& decoded);
-   
-   int block_size() const { return N; };
-   int num_inputs() const { return 1<<k; };
-   int num_outputs() const { return 1<<n; };
-   int tail_length() const { return 0; };
-   int num_iter() const { return 1; };
+   // modulation/demodulation - atomic operations
+   const sigspace modulate(const int index) const { return sigspace(0,0); };
+   const int demodulate(const sigspace& signal) const { return 0; };
+
+   // modulation/demodulation - vector operations
+   //    N - the number of possible values of each encoded element
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) const;
+   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+
+   // information functions
+   int num_symbols() const { return 1<<k; };
+   double energy() const { return 1<<n; };  // average energy per symbol
 
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
