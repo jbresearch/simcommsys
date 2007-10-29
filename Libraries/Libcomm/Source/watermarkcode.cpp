@@ -75,13 +75,21 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
       const int I, const int xmax, const double Ps, const double Pd, const double Pi)
    {
    // code parameters
+   assert(n <= 32);
+   assert(k <= n);
    watermarkcode::n = n;
    watermarkcode::k = k;
    watermarkcode::s = s;
    // decoder parameters
+   assert(I > 0);
+   assert(xmax > 0);
    watermarkcode::I = I;
    watermarkcode::xmax = xmax;
    // channel parameters
+   assert(Ps >= 0 && Ps <= 1);
+   assert(Pd >= 0 && Pd <= 1);
+   assert(Pi >= 0 && Pi <= 1);
+   assert(Pi+Pd >=0 && Pi+Pd <= 1);
    watermarkcode::Ps = Ps;
    watermarkcode::Pd = Pd;
    watermarkcode::Pi = Pi;
@@ -95,6 +103,11 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
 
 template <class real> double watermarkcode<real>::P(const int a, const int b)
    {
+   const int m = b-a;
+   if(m == -1)
+      return Pd;
+   else if(m >= 0)
+      return pow(Pi,m)*(1-Pi)*(1-Pd);
    return 0;
    }
    
@@ -124,7 +137,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 
 template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
-/*    // Compute sizes
+   // Compute sizes
    const int q = 1<<k;
    // Create a matrix of all possible transmitted symbols
    libbase::matrix<sigspace> tx(1,q);
@@ -132,7 +145,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
       tx(0,x) = modulate(x);
    // Work out the probabilities of each possible signal
    chan.receive(tx, rx, ptable);
- */   }
+   }
    
 // description output
 

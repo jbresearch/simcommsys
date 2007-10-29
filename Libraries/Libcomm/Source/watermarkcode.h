@@ -31,6 +31,9 @@
   * added private inheritance from bsid channel (to access the transmit and receive functions there)
   * updated clone() to return type 'watermarkcode' instead of 'modulator'; this avoids a derivation ambiguity
     problem introduced with the inheritance from bsid, which is a channel, not a modulator. [cf. Stroustrup 15.6.2]
+  * added assertions during initialization
+  * started implementations of P(), Q() and demodulate()
+    TODO: finish demodulation and test
 */
 
 namespace libcomm {

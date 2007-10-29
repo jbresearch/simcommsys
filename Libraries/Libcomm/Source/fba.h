@@ -22,6 +22,11 @@
     length, and is the size of the sparsifier's output for a single LDPC codeword. Typical values of n were 5,6,7. With
     watermark codes, N was typically in the range 500-1000. For other examples of LDPC codes, Davey used N up to
     about 16000.
+
+  Version 1.10 (29 Oct 2007)
+  * made P() and Q() functions protected (rather then private) and virtual, as these are meant to be defined by derived
+    classes. Also made these pure virtual, to ensure they do get defined by a derived class.
+  * made the destructor virtual since this class now has virtual functions.
 */
 
 namespace libcomm {
@@ -40,10 +45,10 @@ template <class real, class dbl=double> class fba {
    // internal procedures
    void work_forward(const libbase::vector<int>& r);
    void work_backward(const libbase::vector<int>& r);
-   // handles for channel-specific metrics - to be implemented by derived classes
-   dbl P(const int a, const int b) { return 0; };
-   dbl Q(const int a, const int b, const int i, const int s) { return 0; };
 protected:
+   // handles for channel-specific metrics - to be implemented by derived classes
+   virtual dbl P(const int a, const int b) = 0;
+   virtual dbl Q(const int a, const int b, const int i, const int s) = 0;
    // main initialization routine - constructor essentially just calls this
    void init(const int n, const int I);
    // reset start- and end-state probabilities
@@ -52,7 +57,7 @@ protected:
 public:
    // constructor & destructor
    fba(const int n, const int I);
-   ~fba();
+   virtual ~fba();
    // decode functions
    void decode(const libbase::vector<int>& r, libbase::matrix<dbl>& p);
 };

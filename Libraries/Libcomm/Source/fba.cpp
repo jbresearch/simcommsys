@@ -25,7 +25,6 @@ template <class real, class dbl> void fba<real,dbl>::reset()
       allocate();
       return;
       }
-
    }
 
 // Memory allocation
@@ -86,7 +85,6 @@ template <class real, class dbl> void fba<real,dbl>::work_backward(const vector<
          }
    }
 
-
 // User procedures
 
 template <class real, class dbl> void fba<real,dbl>::decode(const vector<int>& r, matrix<dbl>& p)
@@ -121,7 +119,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.00
+#define VERSION 1.10
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);
