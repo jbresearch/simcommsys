@@ -75,8 +75,8 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
       const int I, const int xmax, const double Ps, const double Pd, const double Pi)
    {
    // code parameters
-   assert(n <= 32);
-   assert(k <= n);
+   assert(n >= 1 && n <= 32);
+   assert(k >= 1 && k <= n);
    watermarkcode::n = n;
    watermarkcode::k = k;
    watermarkcode::s = s;

@@ -27,6 +27,7 @@
   * made P() and Q() functions protected (rather then private) and virtual, as these are meant to be defined by derived
     classes. Also made these pure virtual, to ensure they do get defined by a derived class.
   * made the destructor virtual since this class now has virtual functions.
+  * added xmax
 */
 
 namespace libcomm {
@@ -35,7 +36,8 @@ template <class real, class dbl=double> class fba {
    static const libbase::vcs version;
    // internal variables
    int   n;    // n is the size of the block, on the input side
-   int   I;    // I is the (artificial) maximum number of insertions before every transmission
+   int   I;    // I is the maximum number of insertions considered before every transmission
+   int   xmax; // xmax is the maximum allowed drift
    bool  initialised;   // Initially false, becomes true after the first call to "decode" when memory is allocated
    // working matrices
    libbase::matrix<real>   F; // Forward recursion metric
@@ -50,13 +52,13 @@ protected:
    virtual dbl P(const int a, const int b) = 0;
    virtual dbl Q(const int a, const int b, const int i, const int s) = 0;
    // main initialization routine - constructor essentially just calls this
-   void init(const int n, const int I);
+   void init(const int n, const int I, const int xmax);
    // reset start- and end-state probabilities
    void reset();
    fba();
 public:
    // constructor & destructor
-   fba(const int n, const int I);
+   fba(const int n, const int I, const int xmax);
    virtual ~fba();
    // decode functions
    void decode(const libbase::vector<int>& r, libbase::matrix<dbl>& p);

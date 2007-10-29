@@ -72,10 +72,6 @@ public:
    watermarkcode *clone() const { return new watermarkcode(*this); };		// cloning operation
    const char* name() const { return shelper.name(); };
 
-   // modulation/demodulation - atomic operations
-   // const sigspace modulate(const int index) const { return sigspace(0,0); };
-   // const int demodulate(const sigspace& signal) const { return 0; };
-
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);

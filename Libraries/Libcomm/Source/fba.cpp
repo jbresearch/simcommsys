@@ -7,11 +7,16 @@ using libbase::vector;
 
 // Initialization
 
-template <class real, class dbl> void fba<real,dbl>::init(const int n, const int I)
+template <class real, class dbl> void fba<real,dbl>::init(const int n, const int I, const int xmax)
    {
-   // copy constants
+   // code parameters
+   assert(n >= 1 && n <= 32);
    fba::n = n;
+   // decoder parameters
+   assert(I > 0);
+   assert(xmax > 0);
    fba::I = I;
+   fba::xmax = xmax;
    // set flag as necessary
    initialised = false;
    }
@@ -31,10 +36,10 @@ template <class real, class dbl> void fba<real,dbl>::reset()
 
 template <class real, class dbl> void fba<real,dbl>::allocate()
    {
-   // F & B need indices (j,y) where j in [0, n-1] and y in [-(n-1), (n-1)I]
-   // to satisfy indexing requirements, instead of using y we use y+(n-1), which is in [0, (n-1)(I+1)]
-   F.init(n, (n-1)*(I+1)+1);
-   B.init(n, (n-1)*(I+1)+1);
+   // F & B need indices (j,y) where j in [0, n-1] and y in [-(n-1), xmax]
+   // to satisfy indexing requirements, instead of using y we use y+(n-1), which is in [0, xmax+n-1]
+   F.init(n, xmax+n);
+   B.init(n, xmax+n);
 
    // flag the state of the arrays
    initialised = true;
@@ -51,9 +56,9 @@ template <class real, class dbl> fba<real,dbl>::fba()
    initialised = false;
    }
 
-template <class real, class dbl> fba<real,dbl>::fba(const int n, const int I)
+template <class real, class dbl> fba<real,dbl>::fba(const int n, const int I, const int xmax)
    {
-   init(n, I);
+   init(n, I, xmax);
    }
 
 template <class real, class dbl> fba<real,dbl>::~fba()
