@@ -38,6 +38,9 @@
   * modified to comply with modulator 1.50 & lut_modulator 1.00
   * this class now inherits the functionality of lut_modulator
   * the LUT is now held in 'lut' rather than 'map'
+
+  Version 2.13 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -53,7 +56,7 @@ public:
    mpsk(const int m) { init(m); };
    ~mpsk() {};
 
-   modulator *clone() const { return new mpsk(*this); };		// cloning operation
+   mpsk *clone() const { return new mpsk(*this); };		// cloning operation
    const char* name() const { return shelper.name(); };
 
    std::string description() const;

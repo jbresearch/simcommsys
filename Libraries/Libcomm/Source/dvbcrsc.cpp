@@ -4,7 +4,7 @@
 
 namespace libcomm {
 
-const libbase::vcs dvbcrsc::version("DVB-Standard Circular Recursive Systematic Convolutional Coder module (dvbcrsc)", 1.10);
+const libbase::vcs dvbcrsc::version("DVB-Standard Circular Recursive Systematic Convolutional Coder module (dvbcrsc)", 1.11);
 
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
 

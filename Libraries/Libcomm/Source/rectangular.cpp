@@ -4,7 +4,7 @@
 
 namespace libcomm {
 
-const libbase::vcs rectangular::version("Rectangular Interleaver module (rectangular)", 1.40);
+const libbase::vcs rectangular::version("Rectangular Interleaver module (rectangular)", 1.41);
 
 const libbase::serializer rectangular::shelper("interleaver", "rectangular", rectangular::create);
 

@@ -6,7 +6,7 @@ namespace libcomm {
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::vcs padded::version("Padded Interleaver module (padded)", 1.60);
+const libbase::vcs padded::version("Padded Interleaver module (padded)", 1.61);
 
 const libbase::serializer padded::shelper("interleaver", "padded", padded::create);
 

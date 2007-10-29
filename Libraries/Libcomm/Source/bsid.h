@@ -27,6 +27,9 @@
   * implemented the receive() function to return Q_m(s) as defined by Davey; one will need to
     first update Ps, depending on whether the receive() is operating wrt the actual channel (ie the
     actual substitution error) or wrt the sparse vector (ie the vector average density).
+
+  Version 1.21 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -46,7 +49,7 @@ protected:
 public:
    // object handling
    bsid(const double Pd=0, const double Pi=0);
-   channel *clone() const { return new bsid(*this); };
+   bsid *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
 
    // channel parameter updates

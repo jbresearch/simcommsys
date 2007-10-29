@@ -21,6 +21,9 @@
 
   Version 1.21 (17 Oct 2007)
   changed class to conform with channel 1.52.
+
+  Version 1.22 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -40,7 +43,7 @@ protected:
 public:
    // object handling
    lapgauss();
-   channel *clone() const { return new lapgauss(*this); };
+   lapgauss *clone() const { return new lapgauss(*this); };
    const char* name() const { return shelper.name(); };
 
    // description output

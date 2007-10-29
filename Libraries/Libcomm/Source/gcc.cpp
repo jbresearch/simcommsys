@@ -4,7 +4,7 @@
 
 namespace libcomm {
 
-const libbase::vcs gcc::version("Generalized Convolutional Coder module (gcc)", 1.00);
+const libbase::vcs gcc::version("Generalized Convolutional Coder module (gcc)", 1.11);
 
 const libbase::serializer gcc::shelper("fsm", "gcc", gcc::create);
 

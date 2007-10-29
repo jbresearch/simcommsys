@@ -499,7 +499,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 2.50
+#define VERSION 2.51
 
 template class turbo<double>;
 template <> const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);

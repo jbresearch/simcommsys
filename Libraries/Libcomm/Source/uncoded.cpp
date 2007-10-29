@@ -5,7 +5,7 @@ namespace libcomm {
 
 using std::cerr;
 
-const libbase::vcs uncoded::version("Uncoded transmission module (uncoded)", 1.40);
+const libbase::vcs uncoded::version("Uncoded transmission module (uncoded)", 1.41);
 
 const libbase::serializer uncoded::shelper("codec", "uncoded", uncoded::create);
 

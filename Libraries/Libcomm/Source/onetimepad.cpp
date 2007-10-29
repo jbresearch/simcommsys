@@ -8,7 +8,7 @@ using std::cerr;
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::vcs onetimepad::version("One Time Pad Interleaver module (onetimepad)", 1.60);
+const libbase::vcs onetimepad::version("One Time Pad Interleaver module (onetimepad)", 1.61);
 
 const libbase::serializer onetimepad::shelper("interleaver", "onetimepad", onetimepad::create);
 

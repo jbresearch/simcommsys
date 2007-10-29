@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs shift_lut::version("Barrel-Shifting LUT Interleaver module (shift_lut)", 1.40);
+const libbase::vcs shift_lut::version("Barrel-Shifting LUT Interleaver module (shift_lut)", 1.41);
 
 const libbase::serializer shift_lut::shelper("interleaver", "shift", shift_lut::create);
 

@@ -6,7 +6,7 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs rscc::version("Recursive Systematic Convolutional Coder module (rscc)", 1.50);
+const libbase::vcs rscc::version("Recursive Systematic Convolutional Coder module (rscc)", 1.51);
 
 const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 

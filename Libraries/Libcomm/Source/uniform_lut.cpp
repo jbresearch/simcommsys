@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs uniform_lut::version("Uniform Interleaver module (uniform_lut)", 1.50);
+const libbase::vcs uniform_lut::version("Uniform Interleaver module (uniform_lut)", 1.51);
 
 const libbase::serializer uniform_lut::shelper("interleaver", "uniform", uniform_lut::create);
 

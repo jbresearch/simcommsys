@@ -145,7 +145,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.50
+#define VERSION 1.51
 
 template class mapcc<mpreal>;
 template <> const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);

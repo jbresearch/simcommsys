@@ -40,6 +40,9 @@
 
   Version 1.42 (17 Oct 2007)
   changed class to conform with channel 1.52.
+
+  Version 1.43 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -62,7 +65,7 @@ protected:
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
    // object handling
-   channel *clone() const { return new laplacian(*this); };
+   laplacian *clone() const { return new laplacian(*this); };
    const char* name() const { return shelper.name(); };
 
    // description output

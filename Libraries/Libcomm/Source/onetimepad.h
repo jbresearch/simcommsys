@@ -80,6 +80,9 @@
   Version 1.60 (6 Nov 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.61 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -99,7 +102,7 @@ public:
    onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable);
    onetimepad(const onetimepad& x);
    ~onetimepad();
-   interleaver* clone() const { return new onetimepad(*this); };
+   onetimepad* clone() const { return new onetimepad(*this); };
    const char* name() const { return shelper.name(); };
 
    void seed(const int s);

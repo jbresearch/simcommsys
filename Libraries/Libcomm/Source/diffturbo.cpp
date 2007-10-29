@@ -181,7 +181,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 2.50
+#define VERSION 2.51
 
 template class diffturbo<mpreal>;
 template <> const serializer diffturbo<mpreal>::shelper = serializer("codec", "diffturbo<mpreal>", diffturbo<mpreal>::create);

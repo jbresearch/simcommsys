@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs puncture_null::version("Null Puncturing System module (puncture_null)", 2.30);
+const libbase::vcs puncture_null::version("Null Puncturing System module (puncture_null)", 2.31);
 
 const libbase::serializer puncture_null::shelper("puncture", "null", puncture_null::create);
 

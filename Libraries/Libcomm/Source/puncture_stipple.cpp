@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs puncture_stipple::version("Stippled Puncturing System module (puncture_stipple)", 2.30);
+const libbase::vcs puncture_stipple::version("Stippled Puncturing System module (puncture_stipple)", 2.31);
 
 const libbase::serializer puncture_stipple::shelper("puncture", "stipple", puncture_stipple::create);
 

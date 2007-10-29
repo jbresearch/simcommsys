@@ -39,6 +39,9 @@
   Version 2.30 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 2.31 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -56,7 +59,7 @@ public:
    puncture_stipple(const int tau, const int sets) { init(tau, sets); };
    ~puncture_stipple() {};
 
-   puncture *clone() const { return new puncture_stipple(*this); };		// cloning operation
+   puncture_stipple *clone() const { return new puncture_stipple(*this); };		// cloning operation
    const char* name() const { return shelper.name(); };
 
    std::string description() const;

@@ -50,6 +50,9 @@
   Version 1.40 (6 Nov 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.41 (29 Oct 2007)
+  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 namespace libcomm {
@@ -65,7 +68,7 @@ protected:
 public:
    shift_lut(const int amount, const int tau) { init(amount, tau); };
    ~shift_lut() {};
-   interleaver* clone() const { return new shift_lut(*this); };
+   shift_lut* clone() const { return new shift_lut(*this); };
    const char* name() const { return shelper.name(); };
 
    std::string description() const;
