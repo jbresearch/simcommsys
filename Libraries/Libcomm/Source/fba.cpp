@@ -7,11 +7,14 @@ using libbase::vector;
 
 // Initialization
 
-template <class real, class dbl> void fba<real,dbl>::init(const int n, const int I, const int xmax)
+template <class real, class dbl, class sig> void fba<real,dbl,sig>::init(const int N, const int q, const int I, const int xmax)
    {
    // code parameters
-   assert(n >= 1 && n <= 32);
-   fba::n = n;
+   //assert(n >= 1 && n <= 32);
+   assert(N > 0);
+   assert(q > 0);
+   fba::N = N;
+   fba::q = q;
    // decoder parameters
    assert(I > 0);
    assert(xmax > 0);
@@ -23,23 +26,32 @@ template <class real, class dbl> void fba<real,dbl>::init(const int n, const int
 
 // Reset start- and end-state probabilities
 
-template <class real, class dbl> void fba<real,dbl>::reset()
+template <class real, class dbl, class sig> void fba<real,dbl,sig>::reset()
    {
    if(!initialised)
       {
       allocate();
       return;
       }
+
+   // initialise F and B arrays:
+   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
+   F = real(0);
+   F(0, 0+N-1) = real(1);
+   // we also know x[N] = equiprobable, since there will be no tail to speak of
+   B = real(0);
+   for(int y=-(N-1); y<=xmax; y++)
+      B(N, y+N-1) = real(1);
    }
 
 // Memory allocation
 
-template <class real, class dbl> void fba<real,dbl>::allocate()
+template <class real, class dbl, class sig> void fba<real,dbl,sig>::allocate()
    {
-   // F & B need indices (j,y) where j in [0, n-1] and y in [-(n-1), xmax]
-   // to satisfy indexing requirements, instead of using y we use y+(n-1), which is in [0, xmax+n-1]
-   F.init(n, xmax+n);
-   B.init(n, xmax+n);
+   // F & B need indices (j,y) where j in [0, N-1] ([0, N] for B) and y in [-(N-1), xmax]
+   // to satisfy indexing requirements, instead of using y we use y+(N-1), which is in [0, xmax+N-1]
+   F.init(N, xmax+N);
+   B.init(N+1, xmax+N);
 
    // flag the state of the arrays
    initialised = true;
@@ -51,48 +63,48 @@ template <class real, class dbl> void fba<real,dbl>::allocate()
 
 // Creation/Destruction routines
 
-template <class real, class dbl> fba<real,dbl>::fba()
+template <class real, class dbl, class sig> fba<real,dbl,sig>::fba()
    {
    initialised = false;
    }
 
-template <class real, class dbl> fba<real,dbl>::fba(const int n, const int I, const int xmax)
+template <class real, class dbl, class sig> fba<real,dbl,sig>::fba(const int N, const int q, const int I, const int xmax)
    {
-   init(n, I, xmax);
+   init(N, q, I, xmax);
    }
 
-template <class real, class dbl> fba<real,dbl>::~fba()
+template <class real, class dbl, class sig> fba<real,dbl,sig>::~fba()
    {
    }
 
    
 // Internal procedures
 
-template <class real, class dbl> void fba<real,dbl>::work_forward(const vector<int>& r)
+template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward(const vector<sig>& r)
    {
-   for(int j=1; j<n; j++)
-      for(int y=-j; y<=j*I; y++)
+   for(int j=1; j<N; j++)
+      for(int y=-j; y<=xmax; y++)
          {
-         F(j,y+n-1) = 0;
-         for(int a=y-I; a<=y+1; a++)
-            F(j,y+n-1) += F(j-1,a+n-1) * real( P(a,y) * Q(a,y,j-1,r(j+y-1)) );
+         F(j,y+N-1) = 0;
+         for(int a=y-I; a<=y+1 && y-a<=xmax; a++)
+            F(j,y+N-1) += F(j-1,a+N-1) * real( P(a,y) * Q(a,y,j-1,r(j+y-1)) );
          }
    }
 
-template <class real, class dbl> void fba<real,dbl>::work_backward(const vector<int>& r)
+template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backward(const vector<sig>& r)
    {
-   for(int j=n-2; j>=0; j--)
-      for(int y=-j; y<=j*I; y++)
+   for(int j=N-1; j>=0; j--)
+      for(int y=-j; y<=xmax; y++)
          {
-         B(j,y+n-1) = 0;
-         for(int b=y-1; b<=y+I; b++)
-            B(j,y+n-1) += B(j+1,b+n-1) * real( P(y,b) * Q(y,b,j+1,r(j+y+1)) );
+         B(j,y+N-1) = 0;
+         for(int b=y-1; b<=y+I && b-y<=xmax; b++)
+            B(j,y+N-1) += B(j+1,b+N-1) * real( P(y,b) * Q(y,b,j+1,r(j+y+1)) );
          }
    }
 
 // User procedures
 
-template <class real, class dbl> void fba<real,dbl>::decode(const vector<int>& r, matrix<dbl>& p)
+template <class real, class dbl, class sig> void fba<real,dbl,sig>::decode(const vector<sig>& r, matrix<dbl>& p)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -103,6 +115,8 @@ template <class real, class dbl> void fba<real,dbl>::decode(const vector<int>& r
    work_backward(r);
    
    // compute results
+   // Initialise result vector (one sparse symbol per timestep)
+   p.init(N, q);
    // p(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    }
 

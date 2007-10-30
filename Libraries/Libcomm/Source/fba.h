@@ -23,19 +23,26 @@
     watermark codes, N was typically in the range 500-1000. For other examples of LDPC codes, Davey used N up to
     about 16000.
 
-  Version 1.10 (29 Oct 2007)
+  Version 1.10 (29-30 Oct 2007)
   * made P() and Q() functions protected (rather then private) and virtual, as these are meant to be defined by derived
     classes. Also made these pure virtual, to ensure they do get defined by a derived class.
   * made the destructor virtual since this class now has virtual functions.
   * added xmax
+  * changed definition of received vector to be a vector of signal-space symbols; the actual type
+    is a template parameter. This change affects the definitions of decode(), Q(), and word_forward()
+    and work_backward().
+  * renamed 'n' to 'N' to be consistent with notes & papers.
+  * added 'q' to class initialization (this is needed when we come to decode)
+  * implemented reset().
 */
 
 namespace libcomm {
 
-template <class real, class dbl=double> class fba {
+template <class real, class dbl=double, class sig=sigspace> class fba {
    static const libbase::vcs version;
    // internal variables
-   int   n;    // n is the size of the block, on the input side
+   int   N;    // N is the block size, i.e. number of q-ary symbols
+   int   q;    // q is the symbol alphabet size, i.e. the number of different sparse vectors
    int   I;    // I is the maximum number of insertions considered before every transmission
    int   xmax; // xmax is the maximum allowed drift
    bool  initialised;   // Initially false, becomes true after the first call to "decode" when memory is allocated
@@ -45,23 +52,23 @@ template <class real, class dbl=double> class fba {
    // memory allocation
    void allocate();
    // internal procedures
-   void work_forward(const libbase::vector<int>& r);
-   void work_backward(const libbase::vector<int>& r);
+   void work_forward(const libbase::vector<sig>& r);
+   void work_backward(const libbase::vector<sig>& r);
 protected:
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual dbl P(const int a, const int b) = 0;
-   virtual dbl Q(const int a, const int b, const int i, const int s) = 0;
+   virtual dbl Q(const int a, const int b, const int i, const sig s) = 0;
    // main initialization routine - constructor essentially just calls this
-   void init(const int n, const int I, const int xmax);
+   void init(const int N, const int q, const int I, const int xmax);
    // reset start- and end-state probabilities
    void reset();
    fba();
 public:
    // constructor & destructor
-   fba(const int n, const int I, const int xmax);
+   fba(const int N, const int q, const int I, const int xmax);
    virtual ~fba();
    // decode functions
-   void decode(const libbase::vector<int>& r, libbase::matrix<dbl>& p);
+   void decode(const libbase::vector<sig>& r, libbase::matrix<dbl>& p);
 };
    
 }; // end namespace

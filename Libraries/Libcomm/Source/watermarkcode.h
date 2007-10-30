@@ -7,7 +7,6 @@
 #include "modulator.h"
 #include "mpsk.h"
 #include "fba.h"
-#include "logrealfast.h"
 #include "bsid.h"
 
 #include "bitfield.h"
@@ -23,7 +22,7 @@
   Communication over Channels with Insertions, Deletions, and Substitutions", Trans. IT,
   Feb 2001.
   
-  Version 1.10 (25-29 Oct 2007)
+  Version 1.10 (25-30 Oct 2007)
   * made class a 'modulator' rather than a 'modulator' as this better reflects its position within
     the communication model's stack
   * removed 'N' from a code parameter - this is simply the size of the block currently being demodulated
@@ -34,11 +33,18 @@
   * added assertions during initialization
   * started implementations of P(), Q() and demodulate()
     TODO: finish demodulation and test
+  * added support for keeping track of the last transmitted block; this assumes a cyclic
+    modulation/demodulation system, as is presently being used in the commsys class.
+    TODO: make demodulation independent of the previous modulation step.
+    - added member variable that keeps the last transmitted block
+    - added functions to create last transmitted block
+  * updated to conform with fba 1.10.
+  * changed derivation to fba<real> from fba<logrealfast>.
 */
 
 namespace libcomm {
 
-template <class real> class watermarkcode : public mpsk, private bsid, private fba<libbase::logrealfast> {
+template <class real> class watermarkcode : public mpsk, private bsid, private fba<real> {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
@@ -51,12 +57,14 @@ private:
    double   f, Pf, Pt, alphaI;
    // internally-used objects
    libbase::randgen r;        // watermark sequence generator
+   libbase::vector<int> ws;   // watermark sequence
    libbase::vector<int> lut;  // sparsifier LUT
-   // LUT creation
-   int fill(int i, libbase::bitfield suffix, int weight);
+   // internally-used functions
+   int fill(int i, libbase::bitfield suffix, int weight);   // sparse vector LUT creation
+   void createsequence(const int tau);                      // watermark sequence creator
    // implementations of channel-specific metrics for fba
    double P(const int a, const int b);
-   double Q(const int a, const int b, const int i, const int s);
+   double Q(const int a, const int b, const int i, const sigspace s);
    // modulation/demodulation - atomic operations (private as these should never be used)
    const sigspace modulate(const int index) const { return sigspace(0,0); };
    const int demodulate(const sigspace& signal) const { return 0; };
