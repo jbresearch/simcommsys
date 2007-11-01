@@ -32,7 +32,6 @@
     problem introduced with the inheritance from bsid, which is a channel, not a modulator. [cf. Stroustrup 15.6.2]
   * added assertions during initialization
   * started implementations of P(), Q() and demodulate()
-    TODO: finish demodulation and test
   * added support for keeping track of the last transmitted block; this assumes a cyclic
     modulation/demodulation system, as is presently being used in the commsys class.
     TODO: make demodulation independent of the previous modulation step.
@@ -46,6 +45,7 @@
   * implemented Q()
   * implemented demodulate()
   * updated constructor to initialize bsid
+  * updated serialization to include all parameters
 */
 
 namespace libcomm {

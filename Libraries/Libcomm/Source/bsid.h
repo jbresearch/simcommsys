@@ -11,7 +11,7 @@
 /*
   Version 1.00 (12-16 Oct 2007)
   Initial version; implementation of a binary substitution, insertion, and deletion channel.
-  * TODO: this class is still unfinished, and only implements the BSC channel right now
+  * Note: this class is still unfinished, and only implements the BSC channel right now
 
   Version 1.01 (17 Oct 2007)
   changed class to conform with channel 1.52.
@@ -40,7 +40,7 @@
   * added protected default constructor for use by create()
   * changed constructor to use internal functions for setting parameters.
   * added getters for channel parameters
-  * TODO: update serialization to include all parameters
+  * updated serialization to include all parameters
 */
 
 namespace libcomm {

@@ -220,6 +220,11 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
    sout << n << "\n";
    sout << k << "\n";
    sout << s << "\n";
+   sout << I << "\n";
+   sout << xmax << "\n";
+   sout << Ps << "\n";
+   sout << Pd << "\n";
+   sout << Pi << "\n";
    return sout;
    }
 
@@ -231,6 +236,11 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
    sin >> n;
    sin >> k;
    sin >> s;
+   sin >> I;
+   sin >> xmax;
+   sin >> Ps;
+   sin >> Pd;
+   sin >> Pi;
    init();
    return sin;
    }

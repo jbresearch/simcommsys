@@ -211,6 +211,8 @@ std::ostream& bsid::serialize(std::ostream& sout) const
    {
    sout << Pd << "\n";
    sout << Pi << "\n";
+   sout << I << "\n";
+   sout << xmax << "\n";
    return sout;
    }
 
@@ -220,6 +222,8 @@ std::istream& bsid::serialize(std::istream& sin)
    {
    sin >> Pd;
    sin >> Pi;
+   sin >> I;
+   sin >> xmax;
    return sin;
    }
 
