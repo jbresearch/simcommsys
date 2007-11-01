@@ -40,6 +40,11 @@
     - added functions to create last transmitted block
   * updated to conform with fba 1.10.
   * changed derivation to fba<real> from fba<logrealfast>.
+  
+  Version 1.20 (31 Oct - 1 Nov 2007)
+  * updated definition of Q() to conform with fba 1.20
+  * implemented Q()
+  * implemented demodulate()
 */
 
 namespace libcomm {
@@ -64,7 +69,7 @@ private:
    void createsequence(const int tau);                      // watermark sequence creator
    // implementations of channel-specific metrics for fba
    double P(const int a, const int b);
-   double Q(const int a, const int b, const int i, const sigspace s);
+   double Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s);
    // modulation/demodulation - atomic operations (private as these should never be used)
    const sigspace modulate(const int index) const { return sigspace(0,0); };
    const int demodulate(const sigspace& signal) const { return 0; };

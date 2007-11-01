@@ -69,6 +69,10 @@ template <class real> void watermarkcode<real>::init()
    ws.init(0);
    // initialize the mpsk modulator & forward-backward algorithm
    mpsk::init(2);
+   // initialize probabilities for underlying BSID channel
+   bsid::set_ps(Pf);
+   bsid::set_pd(Pd);
+   bsid::set_pi(Pi);
    }
 
 template <class real> void watermarkcode<real>::free()
@@ -119,9 +123,20 @@ template <class real> double watermarkcode<real>::P(const int a, const int b)
    return 0;
    }
    
-template <class real> double watermarkcode<real>::Q(const int a, const int b, const int i, const sigspace s)
+template <class real> double watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
    {
-   return 0;
+   // 'a' and 'b' are redundant because 's' already contains the difference
+   assert(s.size() == b-a+1);
+   // 'tx' is a matrix of all possible transmitted symbols
+   // we know exactly what was transmitted at this timestep
+   libbase::matrix<sigspace> tx(1,1);
+   const int word = i/n;
+   const int bit  = i%n;
+   tx(0,0) = mpsk::modulate((ws(word) >> bit) & 1);
+   // compute the conditional probability
+   libbase::matrix<double> ptable;
+   bsid::receive(tx, s, ptable);
+   return ptable(0,0);
    }
    
 // encoding and decoding functions
@@ -139,6 +154,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
       {
       const int s = lut(encoded(i));   // sparse vector
       const int w = ws(i);             // watermark vector
+      // NOTE: we transmit the low-order bits first
       for(int j=0, t=s^w; j<n; j++, t >>= 1)
          tx(i+j) = mpsk::modulate(t&1);
       }
@@ -148,24 +164,48 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    {
    // Inherit block size from last modulation step
    const int q = 1<<k;
-   const int tau = ws.size();
-   assert(tau > 0);
+   const int N = ws.size();
+   assert(N > 0);
    // Initialize & perform forward-backward algorithm
-   fba<real>::init(tau, q, I, xmax);
-   fba<real>::decode(rx, ptable);
-
-   // Create a matrix of all possible transmitted symbols
-   //libbase::matrix<sigspace> tx(1,q);
-   //for(int x=0; x<q; x++)
-   //   tx(0,x) = modulate(x);
-   // Work out the probabilities of each possible signal
-   //for(int t=0; t<tau; t++)
-   //   {
-   //   for(int x=0; x<q; x++)
-   //      ptable(t,x) = pdf(tx(t,x), rx(t));
-   //   }
-   // Work out the probabilities of each possible signal
-   //chan.receive(tx, rx, ptable);
+   fba<real>::init(N*n, I, xmax);
+   fba<real>::prepare(rx);
+   // Initialise result vector (one sparse symbol per timestep)
+   ptable.init(N, q);
+   // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
+   for(int i=0; i<N; i++)
+      for(int d=0; d<q; d++)
+         {
+         ptable(i,d) = 0;
+         for(int x1=-(N*n-1); x1<=xmax; x1++)
+            for(int x2=-(N*n-1); x2<=xmax; x2++)
+               {
+               // skip out-of-bounds cases
+               if(x2-x1+1 < 0)   // received vector size must be >= 0
+                  continue;
+               if(n*i+x1 < 0)    // first bit of received vector must exist
+                  continue;
+               if(n*i+x2 >= rx.size())    // last bit of received vector must exist
+                  break;
+               // create received vector in consideration
+               libbase::vector<sigspace> s(x2-x1+1);
+               for(int j=n*i+x1, k=0; j<=n*i+x2; j++, k++)
+                  s(k) = rx(j);
+               // create the considered transmitted signal
+               libbase::matrix<sigspace> tx(n,1);
+               for(int j=0; j<n; j++)
+                  tx(j,0) = mpsk::modulate(((ws(i)^d) >> j) & 1);
+               // compute the conditional probability
+               libbase::matrix<double> p;
+               chan.receive(tx, s, p);
+               double P = 1;
+               for(int j=0; j<n; j++)
+                  P *= p(j,0);
+               // include the probability for this particular sequence
+               const real F = fba<real>::getF(n*i,x1);
+               const real B = fba<real>::getB(n*(i+1),x2);
+               ptable(i,d) += P * double(F * B);
+               }
+         }
    }
    
 // description output
@@ -218,7 +258,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.10
+#define VERSION 1.20
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

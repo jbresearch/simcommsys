@@ -34,6 +34,19 @@
   * renamed 'n' to 'N' to be consistent with notes & papers.
   * added 'q' to class initialization (this is needed when we come to decode)
   * implemented reset().
+
+  Version 1.20 (31 Oct - 1 Nov 2007)
+  * decided to make fba operate at bit-level only, without knowledge of the watermarkcode and
+    therefore without the possibility of doing the final decode stage.
+    - renamed 'N' to 'tau' to avoid confusion with the symbol-level block size; this is also
+      consistent with prior work.
+    - removed 'q' as this is no longer necessary.
+    - changed decode() to prepare(); made this a protected function as this is meant for use
+      by derived classes.
+    - renamed F and B matrices and provided protected getters with index-shifting; private
+      getters provide index-shifting for internal use. Names had to be different due to an
+      ambiguity in use by derived classes.
+    - redefined Q() so that the whole received vector is passed (rather than just the last bit)
 */
 
 namespace libcomm {
@@ -41,14 +54,16 @@ namespace libcomm {
 template <class real, class dbl=double, class sig=sigspace> class fba {
    static const libbase::vcs version;
    // internal variables
-   int   N;    // N is the block size, i.e. number of q-ary symbols
-   int   q;    // q is the symbol alphabet size, i.e. the number of different sparse vectors
+   int   tau;  // tau is the (transmitted) block size in bits
    int   I;    // I is the maximum number of insertions considered before every transmission
    int   xmax; // xmax is the maximum allowed drift
    bool  initialised;   // Initially false, becomes true after the first call to "decode" when memory is allocated
    // working matrices
-   libbase::matrix<real>   F; // Forward recursion metric
-   libbase::matrix<real>   B; // Backward recursion metric
+   libbase::matrix<real>   mF; // Forward recursion metric
+   libbase::matrix<real>   mB; // Backward recursion metric
+   // index-shifting access internal use
+   real& F(const int j, const int y) { return mF(j,y+tau-1); };
+   real& B(const int j, const int y) { return mB(j,y+tau-1); };
    // memory allocation
    void allocate();
    // internal procedures
@@ -57,18 +72,21 @@ template <class real, class dbl=double, class sig=sigspace> class fba {
 protected:
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual dbl P(const int a, const int b) = 0;
-   virtual dbl Q(const int a, const int b, const int i, const sig s) = 0;
+   virtual dbl Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
+   // getters for forward and backward metrics
+   real getF(const int j, const int y) const { return mF(j,y+tau-1); };
+   real getB(const int j, const int y) const { return mB(j,y+tau-1); };
+   // decode functions
+   void prepare(const libbase::vector<sig>& r);
    // main initialization routine - constructor essentially just calls this
-   void init(const int N, const int q, const int I, const int xmax);
+   void init(const int tau, const int I, const int xmax);
    // reset start- and end-state probabilities
    void reset();
    fba();
 public:
    // constructor & destructor
-   fba(const int N, const int q, const int I, const int xmax);
+   fba(const int tau, const int I, const int xmax);
    virtual ~fba();
-   // decode functions
-   void decode(const libbase::vector<sig>& r, libbase::matrix<dbl>& p);
 };
    
 }; // end namespace
