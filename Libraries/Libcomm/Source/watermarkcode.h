@@ -45,6 +45,7 @@
   * updated definition of Q() to conform with fba 1.20
   * implemented Q()
   * implemented demodulate()
+  * updated constructor to initialize bsid
 */
 
 namespace libcomm {
@@ -78,8 +79,7 @@ protected:
    void free();
    watermarkcode();
 public:
-   watermarkcode(const int n, const int k, const int s, \
-      const int I, const int xmax, const double Ps, const double Pd, const double Pi);
+   watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const double Ps, const double Pd, const double Pi);
    ~watermarkcode() { free(); };
 
    watermarkcode *clone() const { return new watermarkcode(*this); };		// cloning operation

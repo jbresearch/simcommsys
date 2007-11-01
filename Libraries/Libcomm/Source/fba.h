@@ -47,6 +47,7 @@
       getters provide index-shifting for internal use. Names had to be different due to an
       ambiguity in use by derived classes.
     - redefined Q() so that the whole received vector is passed (rather than just the last bit)
+  * promoted getF, getB, prepare and init to public functions
 */
 
 namespace libcomm {
@@ -73,13 +74,6 @@ protected:
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual dbl P(const int a, const int b) = 0;
    virtual dbl Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
-   // getters for forward and backward metrics
-   real getF(const int j, const int y) const { return mF(j,y+tau-1); };
-   real getB(const int j, const int y) const { return mB(j,y+tau-1); };
-   // decode functions
-   void prepare(const libbase::vector<sig>& r);
-   // main initialization routine - constructor essentially just calls this
-   void init(const int tau, const int I, const int xmax);
    // reset start- and end-state probabilities
    void reset();
    fba();
@@ -87,6 +81,13 @@ public:
    // constructor & destructor
    fba(const int tau, const int I, const int xmax);
    virtual ~fba();
+   // getters for forward and backward metrics
+   real getF(const int j, const int y) const { return mF(j,y+tau-1); };
+   real getB(const int j, const int y) const { return mB(j,y+tau-1); };
+   // decode functions
+   void prepare(const libbase::vector<sig>& r);
+   // main initialization routine - constructor essentially just calls this
+   void init(const int tau, const int I, const int xmax);
 };
    
 }; // end namespace

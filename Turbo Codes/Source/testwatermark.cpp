@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
    // create a watermark codec
    using libbase::logrealfast;
    using libcomm::watermarkcode;
+   const int I=10, xmax=50;
    int n=5, k=3;
    if(argc < 3)
       cerr << "Usage: " << argv[0] << " [<n> <k>]\n";
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
       n = atoi(argv[1]);
       k = atoi(argv[2]);
       }
-   watermarkcode<logrealfast> modem(n,k,0, 10,50, 0.01,0.01,0.01);
+   watermarkcode<logrealfast> modem(n,k,0, I,xmax, 0.01,0.01,0.01);
    cout << modem.description() << "\n";
    
    using libbase::vector;
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
       tx(i) = sigspace((i%2) ? -1 : 1, 0);
    // pass that through the channel
    vector<sigspace> rx1, rx2;
-   bsid channel1, channel2(0.3,0.3);
+   bsid channel1(I,xmax), channel2(I,xmax,0.3,0.3);
    // channel1 is a substitution-only channel
    channel1.seed(1);
    channel1.set_snr(-12);

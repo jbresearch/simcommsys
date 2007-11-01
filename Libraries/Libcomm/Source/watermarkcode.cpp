@@ -85,8 +85,7 @@ template <class real> watermarkcode<real>::watermarkcode()
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, \
-      const int I, const int xmax, const double Ps, const double Pd, const double Pi)
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const double Ps, const double Pd, const double Pi) : bsid(I, xmax)
    {
    // code parameters
    assert(n >= 1 && n <= 32);
@@ -197,13 +196,10 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                // compute the conditional probability
                libbase::matrix<double> p;
                chan.receive(tx, s, p);
-               double P = 1;
-               for(int j=0; j<n; j++)
-                  P *= p(j,0);
                // include the probability for this particular sequence
                const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
-               ptable(i,d) += P * double(F * B);
+               ptable(i,d) += p(0,0) * double(F * B);
                }
          }
    }
