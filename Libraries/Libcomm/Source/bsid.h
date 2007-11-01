@@ -1,5 +1,5 @@
-#ifndef __awgn_h
-#define __awgn_h
+#ifndef __bsid_h
+#define __bsid_h
 
 #include "config.h"
 #include "vcs.h"
@@ -41,6 +41,7 @@
   * changed constructor to use internal functions for setting parameters.
   * added getters for channel parameters
   * updated serialization to include all parameters
+  * fixed include-once definition
 */
 
 namespace libcomm {

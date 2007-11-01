@@ -1,5 +1,5 @@
-#ifndef __bcjr_h
-#define __bcjr_h
+#ifndef __fba_h
+#define __fba_h
 
 #include "config.h"
 #include "vcs.h"
@@ -48,6 +48,7 @@
       ambiguity in use by derived classes.
     - redefined Q() so that the whole received vector is passed (rather than just the last bit)
   * promoted getF, getB, prepare and init to public functions
+  * fixed include-once definition
 */
 
 namespace libcomm {

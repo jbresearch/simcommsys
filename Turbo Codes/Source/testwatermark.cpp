@@ -23,6 +23,9 @@ int main(int argc, char *argv[])
       }
    watermarkcode<logrealfast> modem(n,k,0, I,xmax, 0.01,0.01,0.01);
    cout << modem.description() << "\n";
+   cout << "Serialization: [";
+   modem.serialize(cout);
+   cout << "]\n";
    
    using libbase::vector;
    using libcomm::bsid;

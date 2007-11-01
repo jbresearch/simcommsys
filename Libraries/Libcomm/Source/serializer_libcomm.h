@@ -7,10 +7,12 @@
 #include "channel.h"
 #include "awgn.h"
 #include "laplacian.h"
+#include "bsid.h"
 
 // Modulators
 #include "modulator.h"
 #include "mpsk.h"
+#include "watermarkcode.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -63,14 +65,17 @@
 
   Version 2.10 (6 Nov 2006)
   * defined class and associated data within "libcomm" namespace.
+
+  Version 2.20 (1 Nov 2007)
+  * added bsid and watermarkcode.
 */
 
 namespace libcomm {
 
 // Serialization support
 class serializer_libcomm : private
-   awgn, laplacian,
-   mpsk,
+   awgn, laplacian, bsid,
+   mpsk, watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
