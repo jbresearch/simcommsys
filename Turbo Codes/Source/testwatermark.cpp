@@ -37,7 +37,9 @@ int main(int argc, char *argv[])
       tx(i) = sigspace((i%2) ? -1 : 1, 0);
    // pass that through the channel
    vector<sigspace> rx1, rx2;
-   bsid channel1(I,xmax), channel2(I,xmax,0.3,0.3);
+   bsid channel1(I,xmax), channel2(I,xmax);
+   channel2.set_pi(0.3);
+   channel2.set_pd(0.3);
    // channel1 is a substitution-only channel
    channel1.seed(1);
    channel1.set_snr(-12);

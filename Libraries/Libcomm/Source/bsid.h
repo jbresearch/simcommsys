@@ -42,6 +42,14 @@
   * added getters for channel parameters
   * updated serialization to include all parameters
   * fixed include-once definition
+
+  Version 1.22 (2 Nov 2007)
+  * removed Pd and Pi from serialization and from construction
+  * now setting defaults for Ps,Pd,Pi to zero in all constructors, through a new
+    function init()
+  * added boolean construction parameters varyPs, varyPd, varyPi, to indicate
+    what should be changed when the SNR is updated; all default to true; these
+    are held by protected variables, so that they can be accessed by derived classes.
 */
 
 namespace libcomm {
@@ -53,9 +61,13 @@ class bsid : public channel {
    // user-defined parameters
    double   Ps, Pd, Pi; // channel parameters
    int      I, xmax;    // fba decoder parameters
+   // internal functions
+   void init();
 protected:
+   // user-defined parameters accessible by derived classes
+   bool     varyPs, varyPd, varyPi; // channel update flags
    // default constructor
-   bsid() {};
+   bsid() { init(); };
    // handle functions
    void compute_parameters(const double Eb, const double No);
    // channel handle functions
@@ -63,7 +75,7 @@ protected:
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
    // object handling
-   bsid(const int I, const int xmax, const double Pd=0, const double Pi=0);
+   bsid(const int I, const int xmax, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    bsid *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
 

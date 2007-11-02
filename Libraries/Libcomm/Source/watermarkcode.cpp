@@ -60,19 +60,11 @@ template <class real> void watermarkcode<real>::init()
    w.apply(weight);
    f = w.sum()/double(n * w.size());
    trace << "Watermark code density = " << f << "\n";
-   // Compute shorthand channel probability parameters
-   Pt = 1 - Pd - Pi;
-   Pf = f*(1-Ps) + (1-f)*Ps;
-   alphaI = 1/(1 - pow(Pi,I));
    // Seed the watermark generator and clear the sequence
    r.seed(s);
    ws.init(0);
    // initialize the mpsk modulator & forward-backward algorithm
    mpsk::init(2);
-   // initialize probabilities for underlying BSID channel
-   bsid::set_ps(Pf);
-   bsid::set_pd(Pd);
-   bsid::set_pi(Pi);
    }
 
 template <class real> void watermarkcode<real>::free()
@@ -85,7 +77,7 @@ template <class real> watermarkcode<real>::watermarkcode()
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const double Ps, const double Pd, const double Pi) : bsid(I, xmax)
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs, const bool varyPd, const bool varyPi) : bsid(I, xmax, varyPs, varyPd, varyPi)
    {
    // code parameters
    assert(n >= 1 && n <= 32);
@@ -98,14 +90,6 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
    assert(xmax > 0);
    watermarkcode::I = I;
    watermarkcode::xmax = xmax;
-   // channel parameters
-   assert(Ps >= 0 && Ps <= 1);
-   assert(Pd >= 0 && Pd <= 1);
-   assert(Pi >= 0 && Pi <= 1);
-   assert(Pi+Pd >=0 && Pi+Pd <= 1);
-   watermarkcode::Ps = Ps;
-   watermarkcode::Pd = Pd;
-   watermarkcode::Pi = Pi;
    // initialize everything else that depends on the above parameters
    init();
    }
@@ -114,6 +98,8 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
 
 template <class real> double watermarkcode<real>::P(const int a, const int b)
    {
+   const double Pd = get_pd();
+   const double Pi = get_pi();
    const int m = b-a;
    if(m == -1)
       return Pd;
@@ -165,6 +151,11 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    const int q = 1<<k;
    const int N = ws.size();
    assert(N > 0);
+   // Set channel parameters used in FBA same as one being simulated
+   bsid::set_eb(chan.get_eb());
+   bsid::set_no(chan.get_no());
+   const double Ps = bsid::get_ps();
+   bsid::set_ps(Ps*(1-f) + (1-Ps)*f);
    // Initialize & perform forward-backward algorithm
    fba<real>::init(N*n, I, xmax);
    fba<real>::prepare(rx);
@@ -222,9 +213,9 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
    sout << s << "\n";
    sout << I << "\n";
    sout << xmax << "\n";
-   sout << Ps << "\n";
-   sout << Pd << "\n";
-   sout << Pi << "\n";
+   sout << bsid::varyPs << "\n";
+   sout << bsid::varyPd << "\n";
+   sout << bsid::varyPi << "\n";
    return sout;
    }
 
@@ -238,9 +229,9 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
    sin >> s;
    sin >> I;
    sin >> xmax;
-   sin >> Ps;
-   sin >> Pd;
-   sin >> Pi;
+   sin >> bsid::varyPs;
+   sin >> bsid::varyPd;
+   sin >> bsid::varyPi;
    init();
    return sin;
    }
@@ -264,7 +255,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.20
+#define VERSION 1.21
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

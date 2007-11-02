@@ -26,7 +26,6 @@ void channel::seed(const libbase::int32u s)
 void channel::compute_noise()
    {
    // No is half the noise energy/modulation symbol for a normalised signal
-   // TODO: check the validity of this equation!!!
    No = 0.5*pow(10.0, -snr_db/10.0);
    // call derived class handle
    compute_parameters(Eb,No);

@@ -46,6 +46,14 @@
   * implemented demodulate()
   * updated constructor to initialize bsid
   * updated serialization to include all parameters
+  
+  Version 1.21 (2 Nov 2007)
+  * removed Ps, Pd and Pi from serialization and from construction; also removed
+    the variables, as the values should be obtained through the bsid object.
+  * now setting defaults for Ps,Pd,Pi to zero in all constructors, through init()
+  * added boolean construction parameters varyPs, varyPd, varyPi, as required by
+    the bsid class.
+  * removed Pf, Pt, alphaI
 */
 
 namespace libcomm {
@@ -58,9 +66,8 @@ private:
    // user-defined parameters
    int      n, k, s;    // code parameters: #bits in sparse (output) symbol, message (input) symbol; generator seed
    int      I, xmax;    // decoder parameters
-   double   Ps, Pd, Pi; // channel parameters
    // computed parameters
-   double   f, Pf, Pt, alphaI;
+   double   f;
    // internally-used objects
    libbase::randgen r;        // watermark sequence generator
    libbase::vector<int> ws;   // watermark sequence
@@ -79,7 +86,7 @@ protected:
    void free();
    watermarkcode();
 public:
-   watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const double Ps, const double Pd, const double Pi);
+   watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    ~watermarkcode() { free(); };
 
    watermarkcode *clone() const { return new watermarkcode(*this); };		// cloning operation

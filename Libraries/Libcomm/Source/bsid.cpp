@@ -9,28 +9,40 @@ const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion C
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
 
+// internal functions
+
+void bsid::init()
+   {
+   // channel parameters
+   Ps = 0;
+   Pd = 0;
+   Pi = 0;
+   }
+
 // constructors / destructors
 
-bsid::bsid(const int I, const int xmax, const double Pd, const double Pi)
+bsid::bsid(const int I, const int xmax, const bool varyPs, const bool varyPd, const bool varyPi)
    {
    // fba decoder parameters
    bsid::I = I;
    bsid::xmax = xmax;
-   // channel parameters
-   bsid::Pd = 0;
-   bsid::Pi = 0;
-   set_pd(Pd);
-   set_pi(Pi);
+   // channel update flags
+   bsid::varyPs = varyPs;
+   bsid::varyPd = varyPd;
+   bsid::varyPi = varyPi;
+   // other initialization
+   init();
    }
 
 // channel parameter updates
 void bsid::set_ps(const double Ps)
    {
    assert(Ps >=0 && Ps <= 0.5);
-   libbase::secant Qinv(libbase::Q);
-   const double x = Qinv(Ps);
-   const double No = 1/(get_eb()*x*x);
-   set_no(No);
+   bsid::Ps = Ps;
+   //libbase::secant Qinv(libbase::Q);
+   //const double x = Qinv(Ps);
+   //const double No = 1/(get_eb()*x*x);
+   //set_no(No);
    }
    
 void bsid::set_pd(const double Pd)
@@ -52,10 +64,14 @@ void bsid::set_pi(const double Pi)
 void bsid::compute_parameters(const double Eb, const double No)
    {
    // computes substitution probability assuming Eb/No describes an AWGN channel with hard-decision demodulation
-   Ps = libbase::Q(1/sqrt(Eb*No));
-   libbase::trace << "DEBUG (bsid): Ps = " << Ps << "\n";
-   // probabilities of insertion and deletion have to be specified at creation time
-   // or else using the class-specific update functions
+   const double p = libbase::Q(1/sqrt(Eb*No));
+   if(varyPs)
+      Ps = p;
+   if(varyPd)
+      Pd = p;
+   if(varyPi)
+      Pi = p;
+   libbase::trace << "DEBUG (bsid): Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
    }
    
 // channel handle functions
@@ -209,10 +225,11 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
-   sout << Pd << "\n";
-   sout << Pi << "\n";
    sout << I << "\n";
    sout << xmax << "\n";
+   sout << varyPs << "\n";
+   sout << varyPd << "\n";
+   sout << varyPi << "\n";
    return sout;
    }
 
@@ -220,10 +237,11 @@ std::ostream& bsid::serialize(std::ostream& sout) const
 
 std::istream& bsid::serialize(std::istream& sin)
    {
-   sin >> Pd;
-   sin >> Pi;
    sin >> I;
    sin >> xmax;
+   sin >> varyPs;
+   sin >> varyPd;
+   sin >> varyPi;
    return sin;
    }
 
