@@ -3,25 +3,29 @@
 SOURCES := $(wildcard Source/*.cpp)
 OBJECTS := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%.o)
 DEPEND := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%.d)
-TARGETS := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%)
+TARGETS := $(SOURCES:Source/%.cpp=$(BINDIR)/%.$(RELEASE))
 
 # Master targets
 
 .PHONY:	clean clean-dist clean-depend
 
-all:	$(BUILDDIR) $(TARGETS)
+all:	$(BUILDDIR) $(BINDIR) $(TARGETS)
 
 clean:
 	$(RM) $(BUILDDIR)
+	$(RM) $(BINDIR)/*.$(RELEASE)
 
 # Manual targets
 
 $(BUILDDIR):
 	@$(MKDIR) $(BUILDDIR)
 
+$(BINDIR):
+	@$(MKDIR) $(BINDIR)
+
 # Pattern-matched targets
 
-$(TARGETS):	%:	%.o $(LIBS)
+$(BINDIR)/%.$(RELEASE):	$(BUILDDIR)/%.o $(LIBS)
 	@echo "Linking $* [$(RELEASE)]"
 	@$(LD) $(LDflags) -o $@ $< $(LDlibs)
 

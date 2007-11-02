@@ -1,4 +1,4 @@
 #!/bin/bash
 
-( sleep 1; ./Turbo\ Codes/Arch/Linux-i386/Release/SPECturbo localhost:9999 >/dev/null 2>&1 )&
-./Turbo\ Codes/Arch/Linux-i386/Release/SPECturbo :9999
+( sleep 1; SPECturbo.Release localhost:9999 >/dev/null 2>&1 )&
+SPECturbo.Release :9999

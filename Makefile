@@ -3,9 +3,11 @@
 # Root folder for package
 export ROOTDIR := $(PWD)
 
-# Directory where the binaries are placed
-export OSNAME := $(shell uname -s)-$(shell uname -i)
-export BUILDDIR = Arch/$(OSNAME)/$(RELEASE)
+# Directory where the object files and binaries are placed
+export OSNAME := $(shell uname -s)
+export OSARCH := $(shell uname -m)
+export BUILDDIR = Arch/$(OSNAME).$(OSARCH)/$(RELEASE)
+export BINDIR = ~/bin.$(OSARCH)
 
 # Linker settings
 export LDlibusr := -lcomm -lbase
