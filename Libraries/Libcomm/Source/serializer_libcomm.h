@@ -68,6 +68,7 @@
 
   Version 2.20 (1 Nov 2007)
   * added bsid and watermarkcode.
+  * TODO: resolve ambiguity with bsid and mpsk direct bases.
 */
 
 namespace libcomm {

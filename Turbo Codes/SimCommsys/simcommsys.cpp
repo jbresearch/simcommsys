@@ -1,6 +1,4 @@
 
-#include "mpsk.h"
-#include "awgn.h"
 #include "randgen.h"
 #include "serializer_libcomm.h"
 #include "commsys.h"
@@ -29,6 +27,10 @@
   * updated to conform with montecarlo 1.31
   * refactored codec creation to occur within a separate function and to create
     all system components on the heap.
+  
+  Version 1.22 (2 Nov 2007)
+  * modified input scheme so that the file also contains the channel and modem
+    before the codec; as a result, previous codec files cannot be used directly.
 */
 
 using std::cout;
@@ -45,14 +47,16 @@ public:
 
 libcomm::commsys createsystem(const char *filename)
    {
-   // Channel Codec
    std::ifstream file(filename);
+   // Channel Model
+   libcomm::channel *chan;
+   file >> chan;
+   // Modulation scheme
+   libcomm::modulator *modem;
+   file >> modem;
+   // Channel Codec
    libcomm::codec *codec;
    file >> codec;
-   // Modulation scheme
-   libcomm::mpsk *modem = new libcomm::mpsk(2);
-   // Channel Model
-   libcomm::awgn *chan = new libcomm::awgn;
    // Source Generator
    libbase::randgen *src = new libbase::randgen;
    // The complete communication system
@@ -70,7 +74,7 @@ int main(int argc, char *argv[])
    // Simulation parameters
    if(argc < 5)
       {
-      cerr << "Usage: " << argv[0] << " SNRmin SNRmax SNRstep Codec\n";
+      cerr << "Usage: " << argv[0] << " SNRmin SNRmax SNRstep System\n";
       exit(1);
       }
    const double SNRmin = atof(argv[1]);
