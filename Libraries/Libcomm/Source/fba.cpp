@@ -38,17 +38,17 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::reset()
    // we also know x[tau] = equiprobable, since there will be no tail to speak of
    mB = real(0);
    for(int y=-xmax; y<=xmax; y++)
-      B(tau, y) = real(1);
+      B(tau-1, y) = real(1);
    }
 
 // Memory allocation
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::allocate()
    {
-   // F & B need indices (j,y) where j in [0, tau-1] ([0, tau] for B) and y in [-xmax, xmax]
+   // F & B need indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
    // to satisfy indexing requirements, instead of using y we use y+xmax, which is in [0, 2*xmax]
    mF.init(tau, 2*xmax+1);
-   mB.init(tau+1, 2*xmax+1);
+   mB.init(tau, 2*xmax+1);
 
    // flag the state of the arrays
    initialised = true;
@@ -100,7 +100,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backward(const vector<sig>& r)
    {
-   for(int j=tau-1; j>=0; j--)
+   for(int j=tau-2; j>=0; j--)
       for(int y=-xmax; y<=xmax; y++)
          {
          B(j,y) = 0;

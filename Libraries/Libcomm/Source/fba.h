@@ -50,11 +50,14 @@
   * promoted getF, getB, prepare and init to public functions
   * fixed include-once definition
 
-  Version 1.21 (5 Nov 2007)
+  Version 1.21 (5-6 Nov 2007)
   * reduced memory requirements for F and B matrices; instead of catering for all possible
     symbols deleted, we now limit the lowest state to -xmax.
   * fixed error in computing forward and backward metrics: conditions which do not fit the
     given received vector are now skipped (i.e. left at probability zero).
+  * fixed error in computing the backward metrics, where we initially needed to access the
+    next received bit (ie. beyond the frame).
+    TODO: we still need to confirm that this is the right way to do things.
 */
 
 namespace libcomm {

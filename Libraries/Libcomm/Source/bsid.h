@@ -51,7 +51,7 @@
     what should be changed when the SNR is updated; all default to true; these
     are held by protected variables, so that they can be accessed by derived classes.
 
-  Version 1.23 (5 Nov 2007)
+  Version 1.23 (5-6 Nov 2007)
   * updated transmit() to cater for the usual case where the tx and rx vectors
     are actually the same.
   * fixed error in receive(), when tau=1, where the special case of m=-1 was
@@ -61,6 +61,7 @@
     class's serialization routines as needed.
   * added getters for I and xmax (watermarkcode needs them to set up fba)
     TODO: this should probably change, separating or integrating bsid & fba
+  * fixed ptable and getF indexing errors in receive() for M=1.
 */
 
 namespace libcomm {

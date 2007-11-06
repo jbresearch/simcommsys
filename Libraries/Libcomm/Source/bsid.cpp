@@ -214,7 +214,7 @@ void bsid::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<si
       f.attach(this);
       f.settx(tx);
       f.prepare(rx);
-      ptable(1,1) = f.getF(tau+1,m);
+      ptable(0,0) = f.getF(tau,m);
       }
    else
       {
