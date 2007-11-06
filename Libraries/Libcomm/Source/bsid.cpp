@@ -1,10 +1,11 @@
 #include "bsid.h"
 #include "fba.h"
 #include "secant.h"
+#include <sstream>
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.22);
+const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.23);
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
@@ -71,7 +72,7 @@ void bsid::compute_parameters(const double Eb, const double No)
       Pd = p;
    if(varyPi)
       Pi = p;
-   libbase::trace << "DEBUG (bsid): Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
+   libbase::trace << "DEBUG (bsid): Eb = " << Eb << ", No = " << No << " -> Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
    }
    
 // channel handle functions
@@ -120,15 +121,18 @@ void bsid::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspac
       libbase::trace << "DEBUG (bsid): insertions = " << insertions << "\n";
       }
 #endif
-   rx.init(transmit.sum() + insertions.sum());
+   libbase::vector<sigspace> newrx;
+   newrx.init(transmit.sum() + insertions.sum());
    // Corrupt the modulation symbols (simulate the channel)
    for(int i=0, j=0; i<tau; i++)
       {
       while(insertions(i)--)
-         rx(j++) = (r.fval() < 0.5) ? sigspace(1,0) : sigspace(-1,0);
+         newrx(j++) = (r.fval() < 0.5) ? sigspace(1,0) : sigspace(-1,0);
       if(transmit(i))
-         rx(j++) = corrupt(tx(i));
+         newrx(j++) = corrupt(tx(i));
       }
+   // copy results back
+   rx = newrx;
    }
 
 /********************************* FBA sub-class object *********************************/
@@ -189,14 +193,19 @@ void bsid::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<si
    const int m = rx.size()-tau;
    // Initialize results vector
    ptable.init(1, M);
-   if(tau == 1)   // Selection of possible transmitted symbols for one transmission step
+   if(tau == 1)   // 1 or more possible transmitted symbols for one transmission step
       {
-      // Work out the probabilities of each possible signal
-      for(int x=0; x<M; x++)
-         ptable(0,x) = pdf(tx(0,x), rx(m));
-      ptable *= (1-Pi-Pd);
-      ptable += 0.5*Pi*Pd;
-      ptable /= (1<<m)*(1-Pi)*(1-Pd);
+      if(m == -1) // just a deletion, no symbols received
+         ptable = Pd;
+      else
+         {
+         // Work out the probabilities of each possible signal
+         for(int x=0; x<M; x++)
+            ptable(0,x) = pdf(tx(0,x), rx(m));
+         ptable *= (1-Pi-Pd);
+         ptable += 0.5*Pi*Pd;
+         ptable /= (1<<m)*(1-Pi)*(1-Pd);
+         }
       }
    else if(M == 1)   // One possible sequence of transmitted symbols
       {
@@ -218,7 +227,9 @@ void bsid::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<si
 
 std::string bsid::description() const
    {
-   return "BSID channel";
+   std::ostringstream sout;
+   sout << "BSID channel (" << I << "," << xmax << "," << varyPs << varyPd << varyPi << ")";
+   return sout.str();
    }
 
 // object serialization - saving

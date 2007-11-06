@@ -50,6 +50,17 @@
   * added boolean construction parameters varyPs, varyPd, varyPi, to indicate
     what should be changed when the SNR is updated; all default to true; these
     are held by protected variables, so that they can be accessed by derived classes.
+
+  Version 1.23 (5 Nov 2007)
+  * updated transmit() to cater for the usual case where the tx and rx vectors
+    are actually the same.
+  * fixed error in receive(), when tau=1, where the special case of m=-1 was
+    not handled.
+  * changed varyPx variables from protected to private; these are only changed
+    on initialization or serialization - derived classes should delegate to this
+    class's serialization routines as needed.
+  * added getters for I and xmax (watermarkcode needs them to set up fba)
+    TODO: this should probably change, separating or integrating bsid & fba
 */
 
 namespace libcomm {
@@ -61,11 +72,10 @@ class bsid : public channel {
    // user-defined parameters
    double   Ps, Pd, Pi; // channel parameters
    int      I, xmax;    // fba decoder parameters
+   bool     varyPs, varyPd, varyPi; // channel update flags
    // internal functions
    void init();
 protected:
-   // user-defined parameters accessible by derived classes
-   bool     varyPs, varyPd, varyPi; // channel update flags
    // default constructor
    bsid() { init(); };
    // handle functions
@@ -87,6 +97,9 @@ public:
    double get_ps() const { return Ps; };
    double get_pd() const { return Pd; };
    double get_pi() const { return Pi; };
+   // fba decoder parameters
+   int get_I() const { return I; };
+   int get_xmax() const { return xmax; };
 
    // channel functions
    void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);

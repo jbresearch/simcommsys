@@ -54,6 +54,13 @@
   * added boolean construction parameters varyPs, varyPd, varyPi, as required by
     the bsid class.
   * removed Pf, Pt, alphaI
+
+  Version 1.22 (5 Nov 2007)
+  * updated according to the reduced memory usage of F and B matrices, as in
+    fba 1.21.
+  * updated serialization routines to also serialize the bsid variables (was causing
+    problems with I and xmax not being initialized.
+  * fixed error in energy(), which was incorrectly returning 1<<n instead of n.
 */
 
 namespace libcomm {
@@ -99,7 +106,7 @@ public:
 
    // information functions
    int num_symbols() const { return 1<<k; };
-   double energy() const { return 1<<n; };  // average energy per symbol
+   double energy() const { return n; };  // average energy per symbol
 
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;

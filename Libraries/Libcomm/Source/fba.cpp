@@ -37,7 +37,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::reset()
    F(0, 0) = real(1);
    // we also know x[tau] = equiprobable, since there will be no tail to speak of
    mB = real(0);
-   for(int y=-(tau-1); y<=xmax; y++)
+   for(int y=-xmax; y<=xmax; y++)
       B(tau, y) = real(1);
    }
 
@@ -45,10 +45,10 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::reset()
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::allocate()
    {
-   // F & B need indices (j,y) where j in [0, tau-1] ([0, tau] for B) and y in [-(tau-1), xmax]
-   // to satisfy indexing requirements, instead of using y we use y+(tau-1), which is in [0, xmax+tau-1]
-   mF.init(tau, xmax+tau);
-   mB.init(tau+1, xmax+tau);
+   // F & B need indices (j,y) where j in [0, tau-1] ([0, tau] for B) and y in [-xmax, xmax]
+   // to satisfy indexing requirements, instead of using y we use y+xmax, which is in [0, 2*xmax]
+   mF.init(tau, 2*xmax+1);
+   mB.init(tau+1, 2*xmax+1);
 
    // flag the state of the arrays
    initialised = true;
@@ -80,14 +80,19 @@ template <class real, class dbl, class sig> fba<real,dbl,sig>::~fba()
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward(const vector<sig>& r)
    {
    for(int j=1; j<tau; j++)
-      for(int y=-j; y<=xmax; y++)
+      for(int y=-xmax; y<=xmax; y++)
          {
          F(j,y) = 0;
-         for(int a=y-I; a<=y+1 && y-a<=xmax; a++)
+         for(int a=max(y-I,-xmax); a<=min(y+1,xmax); a++)
             {
+            // skip event if this does not fit the received sequence
+            if(j-1+a < 0 || j-1+y >= r.size())
+               continue;
+            // copy over the received sequence corresponding to this event
             vector<sig> s(y-a+1);
             for(int i=j-1+a, k=0; i<=j-1+y; i++, k++)
                s(k) = r(i);
+            // add the probability of this event
             F(j,y) += F(j-1,a) * real( P(a,y) * Q(a,y,j-1,s) );
             }
          }
@@ -96,14 +101,19 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backward(const vector<sig>& r)
    {
    for(int j=tau-1; j>=0; j--)
-      for(int y=-j; y<=xmax; y++)
+      for(int y=-xmax; y<=xmax; y++)
          {
          B(j,y) = 0;
-         for(int b=y-1; b<=y+I && b-y<=xmax; b++)
+         for(int b=max(y-1,-xmax); b<=min(y+I,xmax); b++)
             {
+            // skip event if this does not fit the received sequence
+            if(j+1+y < 0 || j+1+b >= r.size())
+               continue;
+            // copy over the received sequence corresponding to this event
             vector<sig> s(b-y+1);
             for(int i=j+1+y, k=0; i<=j+1+b; i++, k++)
                s(k) = r(i);
+            // add the probability of this event
             B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j+1,s) );
             }
          }
@@ -140,7 +150,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.20
+#define VERSION 1.21
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);

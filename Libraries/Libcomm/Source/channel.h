@@ -84,6 +84,9 @@
     - automatically updates the SNR value
     - automatically calls inherited class compute_parameters()
   * added functions to get values of Eb and No
+      
+  Version 1.54 (5 Nov 2007)
+  * fixed error in set_no(), where snr_db was incorrectly assumed to depend on Eb as well
 */
 
 namespace libcomm {

@@ -82,6 +82,10 @@
   Version 1.31 (17 Jul 2007)
   * changed references to isinf() and isnan() back to global namespace, in accord with
     config.h 3.23.
+
+  Version 1.32 (5 Nov 2007)
+  * updated convertfromdouble() so that warnings are not repeated every time.
+  * also changed warning messages to display on trace rather than clog.
 */
 
 namespace libbase {

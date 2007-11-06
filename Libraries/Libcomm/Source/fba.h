@@ -49,6 +49,12 @@
     - redefined Q() so that the whole received vector is passed (rather than just the last bit)
   * promoted getF, getB, prepare and init to public functions
   * fixed include-once definition
+
+  Version 1.21 (5 Nov 2007)
+  * reduced memory requirements for F and B matrices; instead of catering for all possible
+    symbols deleted, we now limit the lowest state to -xmax.
+  * fixed error in computing forward and backward metrics: conditions which do not fit the
+    given received vector are now skipped (i.e. left at probability zero).
 */
 
 namespace libcomm {
@@ -64,8 +70,8 @@ template <class real, class dbl=double, class sig=sigspace> class fba {
    libbase::matrix<real>   mF; // Forward recursion metric
    libbase::matrix<real>   mB; // Backward recursion metric
    // index-shifting access internal use
-   real& F(const int j, const int y) { return mF(j,y+tau-1); };
-   real& B(const int j, const int y) { return mB(j,y+tau-1); };
+   real& F(const int j, const int y) { return mF(j,y+xmax); };
+   real& B(const int j, const int y) { return mB(j,y+xmax); };
    // memory allocation
    void allocate();
    // internal procedures
@@ -83,8 +89,8 @@ public:
    fba(const int tau, const int I, const int xmax);
    virtual ~fba();
    // getters for forward and backward metrics
-   real getF(const int j, const int y) const { return mF(j,y+tau-1); };
-   real getB(const int j, const int y) const { return mB(j,y+tau-1); };
+   real getF(const int j, const int y) const { return mF(j,y+xmax); };
+   real getB(const int j, const int y) const { return mB(j,y+xmax); };
    // decode functions
    void prepare(const libbase::vector<sig>& r);
    // main initialization routine - constructor essentially just calls this

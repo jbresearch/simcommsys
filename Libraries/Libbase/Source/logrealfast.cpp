@@ -2,7 +2,7 @@
 
 namespace libbase {
 
-const vcs logrealfast::version("Fast Logarithm Arithmetic module (logrealfast)", 1.31);
+const vcs logrealfast::version("Fast Logarithm Arithmetic module (logrealfast)", 1.32);
 
 const int logrealfast::lutsize = 1<<17;
 const double logrealfast::lutrange = 12.0;
@@ -30,20 +30,27 @@ void logrealfast::buildlut()
 
 double logrealfast::convertfromdouble(const double m)
    {
-   using std::clog;
    // trap infinity
    const int inf = isinf(m);
    if(inf < 0)
       {
 #ifdef DEBUG
-      clog << "WARNING (logrealfast): -Infinity values cannot be represented (" << m << "); assuming infinitesimally small value.\n";
+      static int warningcount = 10;
+      if(--warningcount > 0)
+         trace << "WARNING (logrealfast): -Infinity values cannot be represented (" << m << "); assuming infinitesimally small value.\n";
+      else if(warningcount == 0)
+         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
 #endif
       return DBL_MAX;
       }
    else if(inf > 0)
       {
 #ifdef DEBUG
-      clog << "WARNING (logrealfast): +Infinity values cannot be represented (" << m << "); assuming infinitesimally large value.\n";
+      static int warningcount = 10;
+      if(--warningcount > 0)
+         trace << "WARNING (logrealfast): +Infinity values cannot be represented (" << m << "); assuming infinitesimally large value.\n";
+      else if(warningcount == 0)
+         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
 #endif
       return -DBL_MAX;
       }
@@ -51,7 +58,11 @@ double logrealfast::convertfromdouble(const double m)
    else if(isnan(m))
       {
 #ifdef DEBUG
-      clog << "WARNING (logrealfast): NaN values cannot be represented (" << m << "); assuming infinitesimally small value.\n";
+      static int warningcount = 10;
+      if(--warningcount > 0)
+         trace << "WARNING (logrealfast): NaN values cannot be represented (" << m << "); assuming infinitesimally small value.\n";
+      else if(warningcount == 0)
+         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
 #endif
       return DBL_MAX;
       }
@@ -59,7 +70,11 @@ double logrealfast::convertfromdouble(const double m)
    else if(m <= 0)
       {
 #ifdef DEBUG
-      clog << "WARNING (logrealfast): Negative numbers and zero cannot be represented (" << m << "); assuming infinitesimally small value.\n";
+      static int warningcount = 10;
+      if(--warningcount > 0)
+         trace << "WARNING (logrealfast): Non-positive numbers cannot be represented (" << m << "); assuming infinitesimally small value.\n";
+      else if(warningcount == 0)
+         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
 #endif
       return DBL_MAX;
       }

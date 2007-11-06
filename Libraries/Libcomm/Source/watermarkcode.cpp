@@ -157,7 +157,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    const double Ps = bsid::get_ps();
    bsid::set_ps(Ps*(1-f) + (1-Ps)*f);
    // Initialize & perform forward-backward algorithm
-   fba<real>::init(N*n, I, xmax);
+   const int xmax = bsid::get_xmax();
+   fba<real>::init(N*n, bsid::get_I(), xmax);
    fba<real>::prepare(rx);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
@@ -166,8 +167,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
       for(int d=0; d<q; d++)
          {
          ptable(i,d) = 0;
-         for(int x1=-(N*n-1); x1<=xmax; x1++)
-            for(int x2=-(N*n-1); x2<=xmax; x2++)
+         for(int x1=-xmax; x1<=xmax; x1++)
+            for(int x2=-xmax; x2<=xmax; x2++)
                {
                // skip out-of-bounds cases
                if(x2-x1+1 < 0)   // received vector size must be >= 0
@@ -200,7 +201,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
 template <class real> std::string watermarkcode<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Watermark Code (" << n << "," << k << "," << s << ")";
+   sout << "Watermark Code (" << n << "," << k << "," << s << ",[" << bsid::description() << "])";
    return sout.str();
    }
 
@@ -211,11 +212,7 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
    sout << n << "\n";
    sout << k << "\n";
    sout << s << "\n";
-   sout << I << "\n";
-   sout << xmax << "\n";
-   sout << bsid::varyPs << "\n";
-   sout << bsid::varyPd << "\n";
-   sout << bsid::varyPi << "\n";
+   bsid::serialize(sout);
    return sout;
    }
 
@@ -227,11 +224,7 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
    sin >> n;
    sin >> k;
    sin >> s;
-   sin >> I;
-   sin >> xmax;
-   sin >> bsid::varyPs;
-   sin >> bsid::varyPd;
-   sin >> bsid::varyPi;
+   bsid::serialize(sin);
    init();
    return sin;
    }
@@ -255,7 +248,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.21
+#define VERSION 1.22
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

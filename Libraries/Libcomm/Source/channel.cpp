@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.53);
+const libbase::vcs channel::version("Channel Base module (channel)", 1.54);
 
 // constructors / destructors
 
@@ -41,7 +41,7 @@ void channel::set_eb(const double Eb)
 void channel::set_no(const double No)
    {
    // No is half the noise energy/modulation symbol for a normalised signal
-   snr_db = 10.0*log10(Eb/(2*No));
+   snr_db = -10.0*log10(2*No);
    compute_noise();
    }
 
