@@ -79,7 +79,17 @@ template <class real, class dbl, class sig> fba<real,dbl,sig>::~fba()
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward(const vector<sig>& r)
    {
+   using libbase::trace;
+#ifndef NDEBUG
+   if(tau > 32)
+      trace << "DEBUG (fba): computing forward metrics...\n";
+#endif
    for(int j=1; j<tau; j++)
+      {
+#ifndef NDEBUG
+      if(tau > 32)
+         trace << libbase::pacifier(100*(j-1)/(tau-1));
+#endif
       for(int y=-xmax; y<=xmax; y++)
          {
          F(j,y) = 0;
@@ -96,11 +106,26 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
             F(j,y) += F(j-1,a) * real( P(a,y) * Q(a,y,j-1,s) );
             }
          }
+      }
+#ifndef NDEBUG
+   if(tau > 32)
+      trace << "DEBUG (fba): forward metrics done.\n";
+#endif
    }
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backward(const vector<sig>& r)
    {
+   using libbase::trace;
+#ifndef NDEBUG
+   if(tau > 32)
+      trace << "DEBUG (fba): computing backward metrics...\n";
+#endif
    for(int j=tau-2; j>=0; j--)
+      {
+#ifndef NDEBUG
+      if(tau > 32)
+         trace << libbase::pacifier(100*(tau-2-j)/(tau-1));
+#endif
       for(int y=-xmax; y<=xmax; y++)
          {
          B(j,y) = 0;
@@ -117,6 +142,11 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
             B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j+1,s) );
             }
          }
+      }
+#ifndef NDEBUG
+   if(tau > 32)
+      trace << "DEBUG (fba): backward metrics done.\n";
+#endif
    }
 
 // User procedures
@@ -150,7 +180,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.21
+#define VERSION 1.22
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);

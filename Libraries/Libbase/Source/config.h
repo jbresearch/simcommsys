@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <string>
 #include <math.h>
 #ifdef WIN32
 #  include <float.h>
@@ -112,6 +113,10 @@
   * moved pow(double,int) upgrade to pow(double,double) to be before pow(int,int)
 	upgrade to pow(double,int).
   * moved isinf() and isnan() back to global namespace.
+
+  Version 3.30 (7 Nov 2007)
+  * added pacifier() function, which returns a string according to an input
+    percentage value.
 */
 
 // *** Global namespace ***
@@ -198,6 +203,9 @@ int readkey(void);
 
 // Interrupt-signal handling function
 bool interrupted(void);
+
+// Pacifier output
+std::string pacifier(int percent);
 
 }; // end namespace
 

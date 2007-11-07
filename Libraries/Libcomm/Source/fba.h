@@ -58,6 +58,9 @@
   * fixed error in computing the backward metrics, where we initially needed to access the
     next received bit (ie. beyond the frame).
     TODO: we still need to confirm that this is the right way to do things.
+
+  Version 1.22 (7 Nov 2007)
+  * added debug-mode progress reporting
 */
 
 namespace libcomm {

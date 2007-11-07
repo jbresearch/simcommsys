@@ -147,6 +147,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 
 template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
+   using libbase::trace;
    // Inherit block size from last modulation step
    const int q = 1<<k;
    const int N = ws.size();
@@ -163,7 +164,10 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
+   trace << "DEBUG (watermarkcode::demodulate): computing ptable...\n";
    for(int i=0; i<N; i++)
+      {
+      trace << libbase::pacifier(100*i/N);
       for(int d=0; d<q; d++)
          {
          ptable(i,d) = 0;
@@ -172,6 +176,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                {
                // skip out-of-bounds cases
                if(x2-x1+1 < 0)   // received vector size must be >= 0
+                  continue;
+               if(abs(x2-x1) > xmax)   // drift introduced in this section must be within bounds
                   continue;
                if(n*i+x1 < 0)    // first bit of received vector must exist
                   continue;
@@ -194,6 +200,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                ptable(i,d) += p(0,0) * double(F * B);
                }
          }
+      }
+   trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
    }
    
 // description output
@@ -248,7 +256,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.22
+#define VERSION 1.23
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

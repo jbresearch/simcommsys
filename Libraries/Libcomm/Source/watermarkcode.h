@@ -64,6 +64,9 @@
 
   Version 1.23 (7 Nov 2007)
   * changed bsid from a class derivation to an included object.
+  * added debug-mode progress reporting
+  * fixed error in demodulate, where the drift introduced by the considered
+    sparse symbol was out of bounds.
 */
 
 namespace libcomm {

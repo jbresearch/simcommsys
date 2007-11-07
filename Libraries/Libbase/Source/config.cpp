@@ -158,4 +158,27 @@ bool interrupted(void)
    return interrupt_caught;
    }
 
+// Pacifier output
+
+std::string pacifier(int percent)
+   {
+   static int last = 0;
+   int value = 80*percent/100;
+
+   // reset if we detect that we've started from zero again
+   if(value < last)
+      last = 0;
+   // return a blank if there is no change
+   if(value == last)
+      return "";
+
+   // create the required length string
+   std::string s = "";
+   for(int i=1; i<=value; i++)
+      s += (i % 5) ? "-" : "+";
+   s += "\n";
+   last = value;
+   return s;
+   }
+
 }; // end namespace

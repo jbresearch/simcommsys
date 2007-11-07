@@ -1,7 +1,9 @@
 #ifndef __logrealfast_h
 #define __logrealfast_h
 
-//#define DEBUG
+#ifndef NDEBUG
+//#define DEBUGFILE
+#endif
 
 #include "config.h"
 #include "vcs.h"
@@ -10,7 +12,7 @@
 #include <float.h>
 #include <stdlib.h>
 #include <iostream>
-#ifdef DEBUG
+#ifdef DEBUGFILE
 #  include <fstream>
 #endif
 
@@ -86,6 +88,11 @@
   Version 1.32 (5 Nov 2007)
   * updated convertfromdouble() so that warnings are not repeated every time.
   * also changed warning messages to display on trace rather than clog.
+
+  Version 1.33 (7 Nov 2007)
+  * modified such that file output only occurs when DEBUGFILE is defined, rather
+    than in all debug builds.
+  * modified other debug warnings to occur when NDEBUG is not defined.
 */
 
 namespace libbase {
@@ -96,7 +103,7 @@ class logrealfast {
    static const double lutrange;
    static double  *lut;
    static bool    lutready;
-#ifdef DEBUG
+#ifdef DEBUGFILE
    static std::ofstream file;
 #endif
 private:
@@ -204,7 +211,7 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
    if(a.logval < logval)
       logval = a.logval;
 
-#ifdef DEBUG
+#ifdef DEBUGFILE
    const double offset = log(1 + exp(-diff));
    logval -= offset;
 #endif
@@ -213,11 +220,11 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
       {
       const int index = int(round(diff*lutinvstep));
       logval -= lut[index];
-#ifdef DEBUG
+#ifdef DEBUGFILE
       file << diff << "\t" << offset - lut[index] << "\n";
 #endif
       }
-#ifdef DEBUG
+#ifdef DEBUGFILE
    else
       file << diff << "\t" << offset << "\n";
 #endif

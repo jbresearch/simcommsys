@@ -2,13 +2,13 @@
 
 namespace libbase {
 
-const vcs logrealfast::version("Fast Logarithm Arithmetic module (logrealfast)", 1.32);
+const vcs logrealfast::version("Fast Logarithm Arithmetic module (logrealfast)", 1.33);
 
 const int logrealfast::lutsize = 1<<17;
 const double logrealfast::lutrange = 12.0;
 double *logrealfast::lut;
 bool logrealfast::lutready = false;
-#ifdef DEBUG
+#ifdef DEBUGFILE
 std::ofstream logrealfast::file;
 #endif
 
@@ -20,7 +20,7 @@ void logrealfast::buildlut()
    for(int i=0; i<lutsize; i++)
       lut[i] = log(1 + exp(-lutrange*i/(lutsize-1)));
    lutready = true;
-#ifdef DEBUG
+#ifdef DEBUGFILE
    file.open("logrealfast-table.txt");
    file.precision(6);
 #endif
@@ -34,7 +34,7 @@ double logrealfast::convertfromdouble(const double m)
    const int inf = isinf(m);
    if(inf < 0)
       {
-#ifdef DEBUG
+#ifndef NDEBUG
       static int warningcount = 10;
       if(--warningcount > 0)
          trace << "WARNING (logrealfast): -Infinity values cannot be represented (" << m << "); assuming infinitesimally small value.\n";
@@ -45,7 +45,7 @@ double logrealfast::convertfromdouble(const double m)
       }
    else if(inf > 0)
       {
-#ifdef DEBUG
+#ifndef NDEBUG
       static int warningcount = 10;
       if(--warningcount > 0)
          trace << "WARNING (logrealfast): +Infinity values cannot be represented (" << m << "); assuming infinitesimally large value.\n";
@@ -57,7 +57,7 @@ double logrealfast::convertfromdouble(const double m)
    // trap NaN
    else if(isnan(m))
       {
-#ifdef DEBUG
+#ifndef NDEBUG
       static int warningcount = 10;
       if(--warningcount > 0)
          trace << "WARNING (logrealfast): NaN values cannot be represented (" << m << "); assuming infinitesimally small value.\n";
@@ -69,7 +69,7 @@ double logrealfast::convertfromdouble(const double m)
    // trap negative numbers & zero
    else if(m <= 0)
       {
-#ifdef DEBUG
+#ifndef NDEBUG
       static int warningcount = 10;
       if(--warningcount > 0)
          trace << "WARNING (logrealfast): Non-positive numbers cannot be represented (" << m << "); assuming infinitesimally small value.\n";
