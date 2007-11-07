@@ -27,8 +27,6 @@
 
 // additional headers used by this library
 #define USING_MFC
-#include "PIFilter.h"
-#include "PIUIHooksSuite.h"
 #include <afxsock.h>
 
 //{{AFX_INSERT_LOCATION}}

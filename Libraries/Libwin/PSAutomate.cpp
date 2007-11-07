@@ -2,6 +2,8 @@
 #include "PSAutomate.h"
 #include "ScriptingKeys.h"
 
+#ifdef ADOBESDK
+
 #include "PIGeneral.h"
 #include "PIActions.h"
 #include "PIActionsPlugIn.h"
@@ -756,3 +758,5 @@ void CPSAutomate::PlayeventRevert()
    }
 
 }; // end namespace
+
+#endif

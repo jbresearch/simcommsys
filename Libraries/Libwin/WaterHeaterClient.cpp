@@ -65,7 +65,7 @@ double CWaterHeaterClient::KVolt(double T) const
 
 CWaterHeaterClient::CWaterHeaterClient(CString sPort)
    {
-   trace << "Opening port (" << sPort << ").\n");
+   trace << "Opening port (" << sPort << ").\n";
    m_hComm = CreateFile(sPort, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
    if(m_hComm == INVALID_HANDLE_VALUE)
       {
@@ -99,13 +99,13 @@ CWaterHeaterClient::~CWaterHeaterClient()
 
 // User functions
 
-   {
-   const int nBufLen = 1024;
-   char pBuf[nBufLen+1];
-   
-   DWORD dwBytes;
-   WriteFile(m_hComm, pBuf, nBytes, &dwBytes, NULL);
-   ReadFile(m_hComm, pBuf, nBufLen, &dwBytes, NULL);
-   }
+   //{
+   //const int nBufLen = 1024;
+   //char pBuf[nBufLen+1];
+   //
+   //DWORD dwBytes;
+   //WriteFile(m_hComm, pBuf, nBytes, &dwBytes, NULL);
+   //ReadFile(m_hComm, pBuf, nBufLen, &dwBytes, NULL);
+   //}
 
 }; // end namespace

@@ -6,6 +6,11 @@
 #include "timer.h"
 #include <math.h>
 
+#ifdef ADOBESDK
+
+#include "PIFilter.h"
+#include "PIUIHooksSuite.h"
+
 // Create a definition for exported functions
 #ifndef DLLExport
 #   define DLLExport extern "C" __declspec(dllexport)
@@ -165,6 +170,10 @@
 
   Version 1.61 (10 Nov 2006)
   * made class a derivative of CRoutedIO.
+
+  Version 1.62 (7 Nov 2007)
+  * moved Adobe SDK includes here from stdafx.h.
+  * made this module compile only when ADOBESDK is defined.
 */
 
 namespace libwin {
@@ -297,5 +306,7 @@ public:
 };
 
 }; // end namespace
+
+#endif
 
 #endif

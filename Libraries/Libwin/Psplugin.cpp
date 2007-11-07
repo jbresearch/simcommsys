@@ -2,6 +2,8 @@
 #include "PSPlugIn.h"
 #include "itfunc.h"
 
+#ifdef ADOBESDK
+
 namespace libwin {
 
 using libbase::round;
@@ -573,3 +575,5 @@ bool CPSPlugIn::GetBoolean(PIReadDescriptor token, bool *data)
    }
 
 }; // end namespace
+
+#endif

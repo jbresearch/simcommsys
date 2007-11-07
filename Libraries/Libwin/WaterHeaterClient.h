@@ -5,7 +5,7 @@
 
 /*
   Version 1.00 (25 Dec 2006)
-  Initial version
+  * Initial version, uncompleted
 */
 
 namespace libwin {
@@ -14,7 +14,6 @@ class CWaterHeaterClient
 {
 private:
    HANDLE   m_hComm;
-   double   m_d
 private:
    double KTemp(double V, double Vcjc) const;
    double KVolt(double T) const;

@@ -369,7 +369,7 @@ void CSRandomInterleaverDlg::OnSave()
       file << "#% Time Taken: " << m_tDuration << "\n";
       file << "#\n";
       for(int i=0; i<m_viInterleaver.size(); i++)
-         file << i << "\t" << m_viInterleaver(i) << "\n";
+         file << m_viInterleaver(i) << "\n";
       file.close();
       }
    }
