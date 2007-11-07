@@ -43,6 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\LibBase\Source"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -119,6 +120,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\LibBase\Source"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -316,6 +318,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\bsid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\channel.cpp"
 				>
 				<FileConfiguration
@@ -496,6 +502,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\fba.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\file_lut.cpp"
 				>
 				<FileConfiguration
@@ -674,6 +684,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Source\lut_modulator.cpp"
+				>
 			</File>
 			<File
 				RelativePath="Source\mapcc.cpp"
@@ -1219,6 +1233,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Source\watermarkcode.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1250,6 +1268,10 @@
 			</File>
 			<File
 				RelativePath="Source\berrou.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\bsid.h"
 				>
 			</File>
 			<File
@@ -1289,6 +1311,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\fba.h"
+				>
+			</File>
+			<File
 				RelativePath="Source\file_lut.h"
 				>
 			</File>
@@ -1322,6 +1348,10 @@
 			</File>
 			<File
 				RelativePath="Source\lut_interleaver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\lut_modulator.h"
 				>
 			</File>
 			<File
@@ -1434,6 +1464,10 @@
 			</File>
 			<File
 				RelativePath="Source\vale96int.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\watermarkcode.h"
 				>
 			</File>
 		</Filter>

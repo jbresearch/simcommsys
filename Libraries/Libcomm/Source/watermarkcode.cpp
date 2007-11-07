@@ -73,11 +73,11 @@ template <class real> void watermarkcode<real>::free()
 
 // constructor / destructor
 
-template <class real> watermarkcode<real>::watermarkcode()
+template <class real> watermarkcode<real>::watermarkcode() : mychan(0,0,0,0,0)
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs, const bool varyPd, const bool varyPi) : bsid(I, xmax, varyPs, varyPd, varyPi)
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(I, xmax, varyPs, varyPd, varyPi)
    {
    // code parameters
    assert(n >= 1 && n <= 32);
@@ -98,8 +98,8 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
 
 template <class real> double watermarkcode<real>::P(const int a, const int b)
    {
-   const double Pd = get_pd();
-   const double Pi = get_pi();
+   const double Pd = mychan.get_pd();
+   const double Pi = mychan.get_pi();
    const int m = b-a;
    if(m == -1)
       return Pd;
@@ -120,7 +120,7 @@ template <class real> double watermarkcode<real>::Q(const int a, const int b, co
    tx(0,0) = mpsk::modulate((ws(word) >> bit) & 1);
    // compute the conditional probability
    libbase::matrix<double> ptable;
-   bsid::receive(tx, s, ptable);
+   mychan.receive(tx, s, ptable);
    return ptable(0,0);
    }
    
@@ -152,13 +152,13 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    const int N = ws.size();
    assert(N > 0);
    // Set channel parameters used in FBA same as one being simulated
-   bsid::set_eb(chan.get_eb());
-   bsid::set_no(chan.get_no());
-   const double Ps = bsid::get_ps();
-   bsid::set_ps(Ps*(1-f) + (1-Ps)*f);
+   mychan.set_eb(chan.get_eb());
+   mychan.set_no(chan.get_no());
+   const double Ps = mychan.get_ps();
+   mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
    // Initialize & perform forward-backward algorithm
-   const int xmax = bsid::get_xmax();
-   fba<real>::init(N*n, bsid::get_I(), xmax);
+   const int xmax = mychan.get_xmax();
+   fba<real>::init(N*n, mychan.get_I(), xmax);
    fba<real>::prepare(rx);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
@@ -201,7 +201,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
 template <class real> std::string watermarkcode<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Watermark Code (" << n << "," << k << "," << s << ",[" << bsid::description() << "])";
+   sout << "Watermark Code (" << n << "," << k << "," << s << ",[" << mychan.description() << "])";
    return sout.str();
    }
 
@@ -212,7 +212,7 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
    sout << n << "\n";
    sout << k << "\n";
    sout << s << "\n";
-   bsid::serialize(sout);
+   mychan.serialize(sout);
    return sout;
    }
 
@@ -224,7 +224,7 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
    sin >> n;
    sin >> k;
    sin >> s;
-   bsid::serialize(sin);
+   mychan.serialize(sin);
    init();
    return sin;
    }

@@ -68,15 +68,18 @@
 
   Version 2.20 (1 Nov 2007)
   * added bsid and watermarkcode.
-  * TODO: resolve ambiguity with bsid and mpsk direct bases.
+
+  Version 2.21 (7 Nov 2007)
+  * resolved ambiguity with bsid and mpsk direct bases, by removing the
+    direct base.
 */
 
 namespace libcomm {
 
 // Serialization support
 class serializer_libcomm : private
-   awgn, laplacian, bsid,
-   mpsk, watermarkcode<libbase::logrealfast>,
+   awgn, laplacian,
+   watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,

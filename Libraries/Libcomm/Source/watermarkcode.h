@@ -61,11 +61,14 @@
   * updated serialization routines to also serialize the bsid variables (was causing
     problems with I and xmax not being initialized.
   * fixed error in energy(), which was incorrectly returning 1<<n instead of n.
+
+  Version 1.23 (7 Nov 2007)
+  * changed bsid from a class derivation to an included object.
 */
 
 namespace libcomm {
 
-template <class real> class watermarkcode : public mpsk, private bsid, private fba<real> {
+template <class real> class watermarkcode : public mpsk, private fba<real> {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
@@ -76,6 +79,7 @@ private:
    // computed parameters
    double   f;
    // internally-used objects
+   bsid	mychan;
    libbase::randgen r;        // watermark sequence generator
    libbase::vector<int> ws;   // watermark sequence
    libbase::vector<int> lut;  // sparsifier LUT
