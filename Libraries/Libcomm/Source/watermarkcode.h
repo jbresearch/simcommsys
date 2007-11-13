@@ -67,6 +67,11 @@
   * added debug-mode progress reporting
   * fixed error in demodulate, where the drift introduced by the considered
     sparse symbol was out of bounds.
+
+  Version 1.24 (12-13 Nov 2007)
+  * fixed error in modulate(), where it was assumed that each encoded symbol fits
+    exactly in a sparse symbol. In fact, each encoded symbol needs to be made up
+    of an integral number of sparse symbols.
 */
 
 namespace libcomm {

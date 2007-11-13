@@ -21,40 +21,18 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::init(const i
    initialised = false;
    }
 
-// Reset start- and end-state probabilities
-
-template <class real, class dbl, class sig> void fba<real,dbl,sig>::reset()
-   {
-   if(!initialised)
-      {
-      allocate();
-      return;
-      }
-
-   // initialise F and B arrays:
-   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   mF = real(0);
-   F(0, 0) = real(1);
-   // we also know x[tau] = equiprobable, since there will be no tail to speak of
-   mB = real(0);
-   for(int y=-xmax; y<=xmax; y++)
-      B(tau-1, y) = real(1);
-   }
-
 // Memory allocation
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::allocate()
    {
-   // F & B need indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
+   // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
+   // B needs indices (j,y) where j in [0, tau] and y in [-xmax, xmax]
    // to satisfy indexing requirements, instead of using y we use y+xmax, which is in [0, 2*xmax]
    mF.init(tau, 2*xmax+1);
-   mB.init(tau, 2*xmax+1);
+   mB.init(tau+1, 2*xmax+1);
 
    // flag the state of the arrays
    initialised = true;
-
-   // set initial conditions
-   reset();
    }
 
 
@@ -84,6 +62,12 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
    if(tau > 32)
       trace << "DEBUG (fba): computing forward metrics...\n";
 #endif
+
+   // initialise array:
+   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
+   mF = real(0);
+   F(0,0) = real(1);
+   // compute remaining matrix values
    for(int j=1; j<tau; j++)
       {
 #ifndef NDEBUG
@@ -120,7 +104,15 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
    if(tau > 32)
       trace << "DEBUG (fba): computing backward metrics...\n";
 #endif
-   for(int j=tau-2; j>=0; j--)
+
+   // initialise array:
+   // we also know x[tau] = r.size()-tau;
+   // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
+   mB = real(0);
+   assert(abs(r.size()-tau) <= xmax);
+   B(tau,r.size()-tau) = real(1);
+   // compute remaining matrix values
+   for(int j=tau-1; j>=0; j--)
       {
 #ifndef NDEBUG
       if(tau > 32)
@@ -139,7 +131,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
             for(int i=j+1+y, k=0; i<=j+1+b; i++, k++)
                s(k) = r(i);
             // add the probability of this event
-            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j+1,s) );
+            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j,s) );
             }
          }
       }
@@ -180,7 +172,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.22
+#define VERSION 1.23
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);

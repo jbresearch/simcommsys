@@ -30,6 +30,7 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
    
 template <class real> void watermarkcode<real>::createsequence(const int tau)
    {
+   // creates 'tau' elements of 'n' bits each
    ws.init(tau);
    for(int i=0; i<tau; i++)
       ws(i) = r.ival(1<<n);
@@ -128,21 +129,25 @@ template <class real> double watermarkcode<real>::Q(const int a, const int b, co
 
 template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
    {
-   // We assume that each 'encoded' symbol can be fitted in one sparse vector
-   assert(N == (1<<k));
+   // Inherit sizes
+   const int q = 1<<k;
    const int tau = encoded.size();
+   // We assume that each 'encoded' symbol can be fitted in an integral number of sparse vectors
+   const int p = int(libbase::round(log(double(N))/log(double(q))));
+   assert(N == pow(q, p));
    // Initialise result vector (one bit per sparse vector) and watermark sequence
-   tx.init(n * tau);
-   createsequence(tau);
+   tx.init(n*p*tau);
+   createsequence(p*tau);
    // Encode source stream
-   for(int i=0; i<tau; i++)
-      {
-      const int s = lut(encoded(i));   // sparse vector
-      const int w = ws(i);             // watermark vector
-      // NOTE: we transmit the low-order bits first
-      for(int j=0, t=s^w; j<n; j++, t >>= 1)
-         tx(i+j) = mpsk::modulate(t&1);
-      }
+   // NOTE: we transmit the low-order bits first
+   for(int i=0, ii=0; i<tau; i++)
+      for(int j=0, x=encoded(i); j<p; j++, ii++, x >>= k)
+         {
+         const int s = lut(x & (q-1));    // sparse vector
+         const int w = ws(ii);            // watermark vector
+         for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
+            tx(ii*n+j) = mpsk::modulate(t&1);
+         }
    }
 
 template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
@@ -256,7 +261,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.23
+#define VERSION 1.24
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

@@ -57,10 +57,19 @@
     given received vector are now skipped (i.e. left at probability zero).
   * fixed error in computing the backward metrics, where we initially needed to access the
     next received bit (ie. beyond the frame).
-    TODO: we still need to confirm that this is the right way to do things.
 
   Version 1.22 (7 Nov 2007)
   * added debug-mode progress reporting
+
+  Version 1.23 (12 Nov 2007)
+  * moved initialization of forward and backward matrices to the functions that compute them
+  * removed reset() as it is no longer necessary
+  * fixed error in the way backward metrics were handled; the initial condition is the
+    drift _after_ transmitting bit t[tau-1], ie before t[tau]. The size of the matrix must
+    therefore increase by one, as in the original design.
+  * the error fixed in v1.21, where Q() was accessing the next received bit, has now been
+    fixed in a more appropriate way, where the backward matrix computation no longer refers
+    to bit j+1 but to bit j. TODO: still need to confirm this is right.
 */
 
 namespace libcomm {
@@ -87,8 +96,7 @@ protected:
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual dbl P(const int a, const int b) = 0;
    virtual dbl Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
-   // reset start- and end-state probabilities
-   void reset();
+   // default constructor
    fba();
 public:
    // constructor & destructor

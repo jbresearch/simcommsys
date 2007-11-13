@@ -93,6 +93,9 @@
   * modified such that file output only occurs when DEBUGFILE is defined, rather
     than in all debug builds.
   * modified other debug warnings to occur when NDEBUG is not defined.
+
+  Version 1.34 (13 Nov 2007)
+  * updated ensurefinite() so that warnings stop showing if they are repeated often.
 */
 
 namespace libbase {
@@ -149,12 +152,24 @@ inline void logrealfast::ensurefinite(double& x)
    if(inf < 0)
       {
       x = -DBL_MAX;
-      trace << "WARNING (logrealfast): negative infinity.\n";
+#ifndef NDEBUG
+      static int warningcount = 10;
+      if(--warningcount > 0)
+         trace << "WARNING (logrealfast): negative infinity.\n";
+      else if(warningcount == 0)
+         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+#endif
       }
    else if(inf > 0)
       {
       x = DBL_MAX;
-      trace << "WARNING (logrealfast): positive infinity.\n";
+#ifndef NDEBUG
+      static int warningcount = 10;
+      if(--warningcount > 0)
+         trace << "WARNING (logrealfast): positive infinity.\n";
+      else if(warningcount == 0)
+         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+#endif
       }
    }
 
