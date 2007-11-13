@@ -16,9 +16,14 @@ LDlibsys := -lm -lstdc++
 #LDlibmpi := -lpmpich++ -lmpich
 LDlibmpi :=
 export LDlibs := $(LDlibusr) $(LDlibsys) $(LDlibmpi)
-export LDflags = $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
+# Define linking flags
+export LDflagProfile := -pg
+export LDflagRelease := 
+export LDflagDebug   := 
+export LDflags = $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
 # Compiler settings
+CCprfopt := -pg -O3 -DNDEBUG
 CCrelopt := -O3 -DNDEBUG
 CCdbgopt := -g -DDEBUG
 CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%/Source)
@@ -27,8 +32,9 @@ CClang := -Wall -Wno-non-template-friend
 #CCmpi := -DUSEMPI -DUSE_STDARG -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDARG_H=1 -DUSE_STDARG=1 -DMALLOC_RET_VOID=1
 CCmpi :=
 # Define compiling flags
+export CCflagProfile := $(CCprfopt) $(CClibs) $(CClang) $(CCmpi)
 export CCflagRelease := $(CCrelopt) $(CClibs) $(CClang) $(CCmpi)
-export CCflagDebug := $(CCdbgopt) $(CClibs) $(CClang) $(CCmpi)
+export CCflagDebug   := $(CCdbgopt) $(CClibs) $(CClang) $(CCmpi)
 export CCflags = $(CCflag$(RELEASE))
 export CCdepend := -MM
 
@@ -57,7 +63,10 @@ TARGETS := Turbo\ Codes
 
 .PHONY:	clean clean-dist clean-depend
 
-all:     debug release
+all:     debug release profile
+
+profile:
+	@$(MAKE) RELEASE=Profile alltargets
 
 release:
 	@$(MAKE) RELEASE=Release alltargets
