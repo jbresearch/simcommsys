@@ -1,4 +1,5 @@
 #include "watermarkcode.h"
+#include "timer.h"
 #include <sstream>
 
 namespace libcomm {
@@ -175,19 +176,16 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
       trace << libbase::pacifier(100*i/N);
       for(int d=0; d<q; d++)
          {
+         libbase::timer t1;
          ptable(i,d) = 0;
-         for(int x1=-xmax; x1<=xmax; x1++)
-            for(int x2=-xmax; x2<=xmax; x2++)
+         // In loop below skip out-of-bounds cases:
+         // 1. received vector size: x2-x1+1 >= 0
+         // 2. drift introduced in this section: abs(x2-x1) <= xmax
+         // 3. first bit of received vector must exist: n*i+x1 >= 0
+         // 4. last bit of received vector must exist: n*i+x2 < rx.size()
+         for(int x1=max(-xmax,-n*i); x1<=xmax; x1++)
+            for(int x2=max(-xmax,x1-1); x2<=min(min(xmax,x1+xmax),rx.size()-n*i-1); x2++)
                {
-               // skip out-of-bounds cases
-               if(x2-x1+1 < 0)   // received vector size must be >= 0
-                  continue;
-               if(abs(x2-x1) > xmax)   // drift introduced in this section must be within bounds
-                  continue;
-               if(n*i+x1 < 0)    // first bit of received vector must exist
-                  continue;
-               if(n*i+x2 >= rx.size())    // last bit of received vector must exist
-                  break;
                // create received vector in consideration
                libbase::vector<sigspace> s(x2-x1+1);
                for(int j=n*i+x1, k=0; j<=n*i+x2; j++, k++)
@@ -261,7 +259,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.24
+#define VERSION 1.25
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

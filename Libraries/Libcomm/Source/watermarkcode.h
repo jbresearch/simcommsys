@@ -72,6 +72,9 @@
   * fixed error in modulate(), where it was assumed that each encoded symbol fits
     exactly in a sparse symbol. In fact, each encoded symbol needs to be made up
     of an integral number of sparse symbols.
+
+  Version 1.25 (13 Nov 2007)
+  * optimization of demodulate()
 */
 
 namespace libcomm {
