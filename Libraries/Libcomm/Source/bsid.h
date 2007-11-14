@@ -62,6 +62,9 @@
   * added getters for I and xmax (watermarkcode needs them to set up fba)
     TODO: this should probably change, separating or integrating bsid & fba
   * fixed ptable and getF indexing errors in receive() for M=1.
+
+  Version 1.24 (14 Nov 2007)
+  * optimized receive() for the case when tau=1
 */
 
 namespace libcomm {

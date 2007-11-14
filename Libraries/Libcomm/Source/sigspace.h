@@ -24,6 +24,7 @@
 
   Version 1.30 (14 Nov 2007)
   * added equality and inequality operators.
+  * moved most functions here and made them inline.
 */
 
 namespace libcomm {
@@ -32,6 +33,7 @@ class sigspace {
    static const libbase::vcs version;
    double	inphase, quad;
 public:
+   // creator / destructor
    sigspace(const double i=0, const double q=0);
 
    double i() const { return inphase; };
@@ -40,9 +42,11 @@ public:
    double p() const { return atan2(q(), i()); };
    operator double() const { return r(); };
 
+   // comparison operations
    bool operator==(const sigspace& a);
    bool operator!=(const sigspace& a);
 
+   // arithmetic operations
    sigspace& operator+=(const sigspace& a);
    sigspace& operator-=(const sigspace& a);
    sigspace& operator*=(const double a);
@@ -54,9 +58,104 @@ public:
    friend sigspace operator*(const double a, const sigspace& b);
    friend sigspace operator/(const double a, const sigspace& b);
 
+   // stream input / output
    friend std::ostream& operator<<(std::ostream& s, const sigspace& x);
    friend std::istream& operator>>(std::istream& s, sigspace& x);
 };
+
+// creator / destructor
+
+inline sigspace::sigspace(const double i, const double q)
+   {
+   inphase = i;
+   quad = q;
+   }   
+
+// comparison operations
+
+inline bool sigspace::operator==(const sigspace& a)
+   {
+   return(inphase == a.inphase && quad == a.quad);
+   }
+
+inline bool sigspace::operator!=(const sigspace& a)
+   {
+   return(inphase != a.inphase || quad != a.quad);
+   }
+
+// arithmetic operations
+
+inline sigspace& sigspace::operator+=(const sigspace& a)
+   {
+   inphase += a.inphase;
+   quad += a.quad;
+   return *this;
+   }
+
+inline sigspace& sigspace::operator-=(const sigspace& a)
+   {
+   inphase -= a.inphase;
+   quad -= a.quad;
+   return *this;
+   }
+
+inline sigspace& sigspace::operator*=(const double a)
+   {
+   inphase *= a;
+   quad *= a;
+   return *this;
+   }
+
+inline sigspace& sigspace::operator/=(const double a)
+   {
+   inphase /= a;
+   quad /= a;
+   return *this;
+   }
+
+// arithmetic operations - friends
+
+inline sigspace operator+(const sigspace& a, const sigspace& b)
+   {
+   sigspace c = a;
+   c += b;
+   return c;
+   }
+   
+inline sigspace operator-(const sigspace& a, const sigspace& b)
+   {
+   sigspace c = a;
+   c -= b;
+   return c;
+   }
+   
+inline sigspace operator*(const sigspace& a, const double b)
+   {
+   sigspace c = a;
+   c *= b;
+   return c;
+   }
+   
+inline sigspace operator/(const sigspace& a, const double b)
+   {
+   sigspace c = a;
+   c /= b;
+   return c;
+   }
+
+inline sigspace operator*(const double a, const sigspace& b)
+   {
+   sigspace c = b;
+   c *= a;
+   return c;
+   }
+   
+inline sigspace operator/(const double a, const sigspace& b)
+   {
+   sigspace c = b;
+   c /= a;
+   return c;
+   }
 
 }; // end namespace
 

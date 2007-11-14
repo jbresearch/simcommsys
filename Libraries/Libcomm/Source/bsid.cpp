@@ -5,7 +5,7 @@
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.23);
+const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.24);
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
@@ -200,11 +200,11 @@ void bsid::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<si
       else
          {
          // Work out the probabilities of each possible signal
+         const double a1 = (1-Pi-Pd);
+         const double a2 = 0.5*Pi*Pd;
+         const double a3 = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
          for(int x=0; x<M; x++)
-            ptable(0,x) = pdf(tx(0,x), rx(m));
-         ptable *= (1-Pi-Pd);
-         ptable += 0.5*Pi*Pd;
-         ptable /= (1<<m)*(1-Pi)*(1-Pd);
+            ptable(0,x) = (a1 * pdf(tx(0,x),rx(m)) + a2) * a3;
          }
       }
    else if(M == 1)   // One possible sequence of transmitted symbols
