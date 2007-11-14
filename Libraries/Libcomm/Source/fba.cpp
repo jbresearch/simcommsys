@@ -74,14 +74,14 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
       if(tau > 32)
          trace << libbase::pacifier(100*(j-1)/(tau-1));
 #endif
-      for(int y=-xmax; y<=xmax; y++)
+      // event must fit the received sequence - requirements:
+      // 1. j-1+a >= 0
+      // 2. j-1+y < r.size()
+      for(int y=-xmax; y<=min(xmax,r.size()-j); y++)
          {
          F(j,y) = 0;
-         for(int a=max(y-I,-xmax); a<=min(y+1,xmax); a++)
+         for(int a=max(max(y-I,-xmax),1-j); a<=min(y+1,xmax); a++)
             {
-            // skip event if this does not fit the received sequence
-            if(j-1+a < 0 || j-1+y >= r.size())
-               continue;
             // copy over the received sequence corresponding to this event
             vector<sig> s(y-a+1);
             for(int i=j-1+a, k=0; i<=j-1+y; i++, k++)
@@ -118,14 +118,14 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
       if(tau > 32)
          trace << libbase::pacifier(100*(tau-2-j)/(tau-1));
 #endif
-      for(int y=-xmax; y<=xmax; y++)
+      // event must fit the received sequence - requirements:
+      // 1. j+1+y >= 0
+      // 2. j+1+b < r.size()
+      for(int y=max(-xmax,-j-1); y<=xmax; y++)
          {
          B(j,y) = 0;
-         for(int b=max(y-1,-xmax); b<=min(y+I,xmax); b++)
+         for(int b=max(y-1,-xmax); b<=min(min(y+I,xmax),r.size()-j-2); b++)
             {
-            // skip event if this does not fit the received sequence
-            if(j+1+y < 0 || j+1+b >= r.size())
-               continue;
             // copy over the received sequence corresponding to this event
             vector<sig> s(b-y+1);
             for(int i=j+1+y, k=0; i<=j+1+b; i++, k++)
@@ -172,7 +172,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.23
+#define VERSION 1.24
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);

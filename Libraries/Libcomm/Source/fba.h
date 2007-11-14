@@ -70,6 +70,9 @@
   * the error fixed in v1.21, where Q() was accessing the next received bit, has now been
     fixed in a more appropriate way, where the backward matrix computation no longer refers
     to bit j+1 but to bit j. TODO: still need to confirm this is right.
+
+  Version 1.24 (14 Nov 2007)
+  * optimized work_forward() and work_backward()
 */
 
 namespace libcomm {
