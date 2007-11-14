@@ -21,6 +21,9 @@
   Version 1.20 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.30 (14 Nov 2007)
+  * added equality and inequality operators.
 */
 
 namespace libcomm {
@@ -36,6 +39,9 @@ public:
    double r() const { return sqrt(i()*i() + q()*q()); };
    double p() const { return atan2(q(), i()); };
    operator double() const { return r(); };
+
+   bool operator==(const sigspace& a);
+   bool operator!=(const sigspace& a);
 
    sigspace& operator+=(const sigspace& a);
    sigspace& operator-=(const sigspace& a);

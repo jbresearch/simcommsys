@@ -173,12 +173,12 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    trace << "DEBUG (watermarkcode::demodulate): computing ptable...\n";
    for(int i=0; i<N; i++)
       {
+#ifndef NDEBUG
+      libbase::timer t1;
+#endif
       trace << libbase::pacifier(100*i/N);
       for(int d=0; d<q; d++)
          {
-#ifndef NDEBUG
-         libbase::timer t1;
-#endif
          ptable(i,d) = 0;
          // In loop below skip out-of-bounds cases:
          // 1. received vector size: x2-x1+1 >= 0

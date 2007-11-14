@@ -2,7 +2,7 @@
 
 namespace libcomm {
 
-const libbase::vcs sigspace::version("Signal Space module (sigspace)", 1.20);
+const libbase::vcs sigspace::version("Signal Space module (sigspace)", 1.30);
 
 
 // creator / destructor
@@ -12,6 +12,18 @@ sigspace::sigspace(const double i, const double q)
    inphase = i;
    quad = q;
    }   
+
+// comparison operations
+
+bool sigspace::operator==(const sigspace& a)
+   {
+   return(inphase == a.inphase && quad == a.quad);
+   }
+
+bool sigspace::operator!=(const sigspace& a)
+   {
+   return(inphase != a.inphase || quad != a.quad);
+   }
 
 // arithmetic operations
 
