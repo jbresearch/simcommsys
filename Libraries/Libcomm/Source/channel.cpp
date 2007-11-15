@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.54);
+const libbase::vcs channel::version("Channel Base module (channel)", 1.60);
 
 // constructors / destructors
 
@@ -63,22 +63,38 @@ void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigs
       rx(i) = corrupt(tx(i));
    }
 
-void channel::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
+void channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
    const int tau = rx.size();
-   const int M = tx.ysize();
-   // This implementation only works for substitution channels
-   assert(tx.xsize() == tau || tx.xsize() == 1);
+   const int M = tx.size();
    // Initialize results vector
    ptable.init(tau, M);
    // Work out the probabilities of each possible signal
    for(int t=0; t<tau; t++)
-      {
-      const int tt = (tx.xsize() == 1) ? 0 : t;
       for(int x=0; x<M; x++)
-         ptable(t,x) = pdf(tx(tt,x), rx(t));
-      }
+         ptable(t,x) = pdf(tx(x), rx(t));
+   }
+
+double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const
+   {
+   // Compute sizes
+   const int tau = rx.size();
+   // This implementation only works for substitution channels
+   assert(tx.size() == tau);
+   // Work out the combined probability of the sequence
+   double p = 1;
+   for(int t=0; t<tau; t++)
+      p *= pdf(tx(t), rx(t));
+   return p;
+   }
+
+double channel::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
+   {
+   // This implementation only works for substitution channels
+   assert(rx.size() == 1);
+   // Work out the probability of receiving the particular symbol
+   return pdf(tx, rx(0));
    }
 
 // serialization functions

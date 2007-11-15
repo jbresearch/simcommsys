@@ -51,9 +51,9 @@ void lut_modulator::demodulate(const channel& chan, const libbase::vector<sigspa
    // Compute sizes
    const int M = lut.size();
    // Create a matrix of all possible transmitted symbols
-   libbase::matrix<sigspace> tx(1,M);
+   libbase::vector<sigspace> tx(M);
    for(int x=0; x<M; x++)
-      tx(0,x) = modulate(x);
+      tx(x) = modulate(x);
    // Work out the probabilities of each possible signal
    chan.receive(tx, rx, ptable);
    }

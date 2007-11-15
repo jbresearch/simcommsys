@@ -8,6 +8,9 @@
   * initial version - contains LUT modulator implementation from modulator.h 1.41
   * refactored - renamed 'map' to 'lut' to better reflect the contents of the variable
   * removed 'const' restriction on modulate and demodulate vector functions, as in modulator 1.50
+
+  Version 1.10 (15 Nov 2007)
+  * modified demodulate() according to refactoring changes in channel 1.60
 */
 
 namespace libcomm {

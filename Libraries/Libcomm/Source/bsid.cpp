@@ -5,7 +5,7 @@
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.24);
+const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.30);
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
@@ -175,52 +175,59 @@ double myfba::Q(const int a, const int b, const int i, const libbase::vector<sig
    assert(s.size() == b-a+1);
    // 'tx' is a matrix of all possible transmitted symbols
    // we know exactly what was transmitted at this timestep
-   libbase::matrix<sigspace> tx(1,1);
-   tx(0,0) = myfba::tx(i);
    // compute the conditional probability
-   libbase::matrix<double> ptable;
-   channel->receive(tx, s, ptable);
-   return ptable(0,0);
+   return channel->receive(myfba::tx(i), s);
    }
    
 /********************************* END FBA *********************************/
 
-void bsid::receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
+void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
-   const int tau = tx.xsize();
-   const int M = tx.ysize();
-   const int m = rx.size()-tau;
+   const int M = tx.size();
+   const int m = rx.size()-1;
    // Initialize results vector
    ptable.init(1, M);
-   if(tau == 1)   // 1 or more possible transmitted symbols for one transmission step
-      {
-      if(m == -1) // just a deletion, no symbols received
-         ptable = Pd;
-      else
-         {
-         // Work out the probabilities of each possible signal
-         const double a1 = (1-Pi-Pd);
-         const double a2 = 0.5*Pi*Pd;
-         const double a3 = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
-         for(int x=0; x<M; x++)
-            ptable(0,x) = (a1 * pdf(tx(0,x),rx(m)) + a2) * a3;
-         }
-      }
-   else if(M == 1)   // One possible sequence of transmitted symbols
-      {
-      myfba f;
-      f.init(tau+1, I, xmax);
-      f.attach(this);
-      f.settx(tx);
-      f.prepare(rx);
-      ptable(0,0) = f.getF(tau,m);
-      }
+   // set of possible transmitted symbols for one transmission step
+   if(m == -1) // just a deletion, no symbols received
+      ptable = Pd;
    else
       {
-      std::cerr << "ERROR (bsid): cannot handle " << M << " possibilities over " << tau << " time steps.\n";
-      exit(1);
+      // Work out the probabilities of each possible signal
+      const double a1 = (1-Pi-Pd);
+      const double a2 = 0.5*Pi*Pd;
+      const double a3 = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
+      for(int x=0; x<M; x++)
+         ptable(0,x) = (a1 * pdf(tx(x),rx(m)) + a2) * a3;
       }
+   }
+
+double bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const
+   {
+   // Compute sizes
+   const int tau = tx.size();
+   const int m = rx.size()-tau;
+   // One possible sequence of transmitted symbols
+   myfba f;
+   f.init(tau+1, I, xmax);
+   f.attach(this);
+   f.settx(tx);
+   f.prepare(rx);
+   return f.getF(tau,m);
+   }
+
+double bsid::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
+   {
+   // Compute sizes
+   const int m = rx.size()-1;
+   // set of possible transmitted symbols for one transmission step
+   if(m == -1) // just a deletion, no symbols received
+      return Pd;
+   // Work out the probabilities of each possible signal
+   const double a1 = (1-Pi-Pd);
+   const double a2 = 0.5*Pi*Pd;
+   const double a3 = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
+   return (a1 * pdf(tx,rx(m)) + a2) * a3;
    }
 
 // description output

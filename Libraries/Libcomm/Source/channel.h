@@ -87,6 +87,20 @@
       
   Version 1.54 (5 Nov 2007)
   * fixed error in set_no(), where snr_db was incorrectly assumed to depend on Eb as well
+      
+  Version 1.60 (15 Nov 2007)
+  * refactored the transmit/receive interface: the functionality of receive is now divided
+    between overloaded functions, distinguished by the parameters set:
+    - receive(tx,rx,ptable) is for the traditional case, used to determine the likelihoods
+      (as a matrix) of each of a set of possible transmitted symbols (as a vector) at each
+      timestep; the argument list has changed in this case so that the transmitted sequence
+      is a vector.
+    - receive(tx,rx) is for determining the likelihood of a particular transmitted sequence;
+      in this case the argument representing the transmitted sequence is a vector, while the
+      likelihood is passed back as a return value, rather than through a ptable.
+    - receive(tx,rx) is for determining the likelihood of a particular transmitted symbol;
+      in this case the argument representing the transmitted symbol is a signal-space point,
+      while the likelihood is passed back as a return value.
 */
 
 namespace libcomm {
@@ -110,7 +124,7 @@ public:
    // object handling
    channel();                             // constructor
    virtual ~channel() {};                 // virtual destructor
-   virtual channel *clone() const = 0;		// cloning operation
+   virtual channel *clone() const = 0;	  // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    // reset function for random generator
@@ -126,7 +140,9 @@ public:
 
    // channel functions:
    virtual void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
-   virtual void receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   virtual void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   virtual double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
+   virtual double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
 
    // description output
    virtual std::string description() const = 0;

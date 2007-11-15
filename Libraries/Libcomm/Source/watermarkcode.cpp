@@ -116,14 +116,11 @@ template <class real> double watermarkcode<real>::Q(const int a, const int b, co
    assert(s.size() == b-a+1);
    // 'tx' is a matrix of all possible transmitted symbols
    // we know exactly what was transmitted at this timestep
-   libbase::matrix<sigspace> tx(1,1);
    const int word = i/n;
    const int bit  = i%n;
-   tx(0,0) = mpsk::modulate((ws(word) >> bit) & 1);
+   sigspace tx = mpsk::modulate((ws(word) >> bit) & 1);
    // compute the conditional probability
-   libbase::matrix<double> ptable;
-   mychan.receive(tx, s, ptable);
-   return ptable(0,0);
+   return mychan.receive(tx, s);
    }
    
 // encoding and decoding functions
@@ -192,17 +189,16 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                libbase::vector<sigspace> s(x2-x1+1);
                for(int j=n*i+x1, k=0; j<=n*i+x2; j++, k++)
                   s(k) = rx(j);
-               // create the considered transmitted signal
-               libbase::matrix<sigspace> tx(n,1);
+               // create the considered transmitted sequence
+               libbase::vector<sigspace> tx(n);
                for(int j=0; j<n; j++)
-                  tx(j,0) = mpsk::modulate(((ws(i)^d) >> j) & 1);
+                  tx(j) = mpsk::modulate(((ws(i)^d) >> j) & 1);
                // compute the conditional probability
-               libbase::matrix<double> p;
-               chan.receive(tx, s, p);
+               const double p = chan.receive(tx, s);
                // include the probability for this particular sequence
                const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
-               ptable(i,d) += p(0,0) * double(F * B);
+               ptable(i,d) += p * double(F * B);
                }
          }
       }

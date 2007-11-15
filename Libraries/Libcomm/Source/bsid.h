@@ -65,6 +65,9 @@
 
   Version 1.24 (14 Nov 2007)
   * optimized receive() for the case when tau=1
+
+  Version 1.30 (15 Nov 2007)
+  * implemented refactoring changes in channel 1.60
 */
 
 namespace libcomm {
@@ -107,7 +110,9 @@ public:
 
    // channel functions
    void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
-   void receive(const libbase::matrix<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
+   double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
 
    // description output
    std::string description() const;
