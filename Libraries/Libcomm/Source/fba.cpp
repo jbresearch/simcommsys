@@ -77,17 +77,21 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
       // event must fit the received sequence - requirements:
       // 1. j-1+a >= 0
       // 2. j-1+y < r.size()
-      for(int y=-xmax; y<=min(xmax,r.size()-j); y++)
+      const int ymin = -xmax;
+      const int ymax = min(xmax,r.size()-j);
+      for(int y=ymin; y<=ymax; y++)
          {
          F(j,y) = 0;
-         for(int a=max(max(y-I,-xmax),1-j); a<=min(y+1,xmax); a++)
+         const int amin = max(max(y-I,-xmax),1-j);
+         const int amax = min(y+1,xmax);
+         for(int a=amin; a<=amax; a++)
             {
             // copy over the received sequence corresponding to this event
-            vector<sig> s(y-a+1);
-            for(int i=j-1+a, k=0; i<=j-1+y; i++, k++)
-               s(k) = r(i);
+            //vector<sig> s(y-a+1);
+            //for(int i=j-1+a, k=0; i<=j-1+y; i++, k++)
+            //   s(k) = r(i);
             // add the probability of this event
-            F(j,y) += F(j-1,a) * real( P(a,y) * Q(a,y,j-1,s) );
+            F(j,y) += F(j-1,a) * real( P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1)) );
             }
          }
       }
@@ -131,11 +135,11 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
          for(int b=bmin; b<=bmax; b++)
             {
             // copy over the received sequence corresponding to this event
-            vector<sig> s(b-y+1);
-            for(int i=j+1+y, k=0; i<=j+1+b; i++, k++)
-               s(k) = r(i);
+            //vector<sig> s(b-y+1);
+            //for(int i=j+1+y, k=0; i<=j+1+b; i++, k++)
+            //   s(k) = r(i);
             // add the probability of this event
-            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j,s) );
+            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j,r.extract(j+1+y,b-y+1)) );
             }
          }
       }

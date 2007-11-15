@@ -74,7 +74,7 @@
   * added pre-computed parameters, to reduce work in single-symbol receive();
     also updated single-timestep receive() accordingly.
   * updated compute_parameters() to use set_ps/i/d instead of direct-access
-  * added pre-computer parameter to reduce work in myfba::P()
+  * added pre-computed parameter to reduce work in myfba::P()
 */
 
 namespace libcomm {

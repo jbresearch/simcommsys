@@ -124,6 +124,11 @@
 
   Version 1.81 (17 Oct 2007)
   * modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
+
+  Version 1.90 (15 Nov 2007)
+  * added facility for sub-vector referencing, enabling access to the sub-vector data without
+    array copying; this needed the introduction of a flag m_root, which indicates vectors
+    containing their own allocated memory.
 */
 
 namespace libbase {
@@ -137,6 +142,7 @@ template <class T> std::istream& operator>>(std::istream& s, vector<T>& x);
 
 template <class T> class vector {
 protected:
+   bool  m_root;
    int   m_xsize;
    T     *m_data;
 protected:
@@ -158,6 +164,9 @@ public:
    vector<T>& copyfrom(const vector<T>& x);
    vector<T>& operator=(const vector<T>& x);
    vector<T>& operator=(const T x);
+
+   // sub-vector access
+   const vector<T> extract(const int start, const int n) const;
 
    // index operators (perform boundary checking)
    T& operator()(const int x);
@@ -223,6 +232,7 @@ public:
 template <class T> inline void vector<T>::alloc(const int x)
    {
    m_xsize = x;
+   m_root = true;
    if(x > 0)
       m_data = new T[x];
    else
@@ -231,7 +241,7 @@ template <class T> inline void vector<T>::alloc(const int x)
 
 template <class T> inline void vector<T>::free()
    {
-   if(m_xsize > 0)
+   if(m_root && m_xsize > 0)
       delete[] m_data;
    }
 
@@ -302,6 +312,18 @@ template <class T> inline vector<T>& vector<T>::operator=(const T x)
    for(int i=0; i<m_xsize; i++)
       m_data[i] = x;
    return *this;
+   }
+
+// sub-vector access
+
+template <class T> inline const vector<T> vector<T>::extract(const int start, const int n) const
+   {
+   vector<T> r;
+   r.m_root = false;
+   r.m_xsize = n;
+   assert(m_xsize >= start+n);
+   r.m_data = &m_data[start];
+   return r;
    }
 
 // index operators (perform boundary checking)

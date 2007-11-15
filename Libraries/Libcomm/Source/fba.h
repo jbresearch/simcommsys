@@ -76,7 +76,12 @@
 
   Version 1.25 (15 Nov 2007)
   * further optimized work_backward(), by pre-computing loop limits for y,b
+  * ditto for work_forward()
   * added protected getters for I and xmax
+  * optimized work_forward() and work_backward() by removing the copying operation on the
+    received sequence; this required the provision of sub-vector extraction in vector class
+  * TODO: observed that the argument 'j' in Q() as accessed from work_backward() should
+    probably be 'j+1'.
 */
 
 namespace libcomm {
