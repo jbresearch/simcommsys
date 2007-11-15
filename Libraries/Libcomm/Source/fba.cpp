@@ -121,10 +121,14 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
       // event must fit the received sequence - requirements:
       // 1. j+1+y >= 0
       // 2. j+1+b < r.size()
-      for(int y=max(-xmax,-j-1); y<=xmax; y++)
+      const int ymin = max(-xmax,-j-1);
+      const int ymax = xmax;
+      for(int y=ymin; y<=ymax; y++)
          {
          B(j,y) = 0;
-         for(int b=max(y-1,-xmax); b<=min(min(y+I,xmax),r.size()-j-2); b++)
+         const int bmin = max(y-1,-xmax);
+         const int bmax = min(min(y+I,xmax),r.size()-j-2);
+         for(int b=bmin; b<=bmax; b++)
             {
             // copy over the received sequence corresponding to this event
             vector<sig> s(b-y+1);
@@ -172,7 +176,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.24
+#define VERSION 1.25
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);

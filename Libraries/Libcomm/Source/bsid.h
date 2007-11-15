@@ -68,6 +68,13 @@
 
   Version 1.30 (15 Nov 2007)
   * implemented refactoring changes in channel 1.60
+  * inlined the single-symbol receive() and pdf()
+  * inlined myfba::P and Q
+  * reduced pdf() using ternary operator
+  * added pre-computed parameters, to reduce work in single-symbol receive();
+    also updated single-timestep receive() accordingly.
+  * updated compute_parameters() to use set_ps/i/d instead of direct-access
+  * added pre-computer parameter to reduce work in myfba::P()
 */
 
 namespace libcomm {
@@ -80,8 +87,12 @@ class bsid : public channel {
    double   Ps, Pd, Pi; // channel parameters
    int      I, xmax;    // fba decoder parameters
    bool     varyPs, varyPd, varyPi; // channel update flags
+   // pre-computed parameters
+   double   a1, a2;
+   libbase::vector<double> a3;
    // internal functions
    void init();
+   void precompute();
 protected:
    // default constructor
    bsid() { init(); };
@@ -120,6 +131,22 @@ public:
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };
+
+inline double bsid::pdf(const sigspace& tx, const sigspace& rx) const
+   {      
+   return (tx != rx) ? Ps : 1-Ps;
+   }
+
+inline double bsid::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
+   {
+   // Compute sizes
+   const int m = rx.size()-1;
+   // set of possible transmitted symbols for one transmission step
+   if(m == -1) // just a deletion, no symbols received
+      return Pd;
+   // Work out the probabilities of each possible signal
+   return (a1 * pdf(tx,rx(m)) + a2) * a3(m);
+   }
 
 }; // end namespace
 

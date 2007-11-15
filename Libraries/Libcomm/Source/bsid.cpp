@@ -18,6 +18,16 @@ void bsid::init()
    Ps = 0;
    Pd = 0;
    Pi = 0;
+   precompute();
+   }
+
+void bsid::precompute()
+   {
+   a1 = (1-Pi-Pd);
+   a2 = 0.5*Pi*Pd;
+   a3.init(xmax+1);
+   for(int m=0; m<=xmax; m++)
+      a3(m) = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
    }
 
 // constructors / destructors
@@ -51,6 +61,7 @@ void bsid::set_pd(const double Pd)
    assert(Pd >=0 && Pd <= 1);
    assert(Pi+Pd >=0 && Pi+Pd <= 1);
    bsid::Pd = Pd;
+   precompute();
    }
    
 void bsid::set_pi(const double Pi)
@@ -58,6 +69,7 @@ void bsid::set_pi(const double Pi)
    assert(Pi >=0 && Pi <= 1);
    assert(Pi+Pd >=0 && Pi+Pd <= 1);
    bsid::Pi = Pi;
+   precompute();
    }
 
 // handle functions
@@ -67,11 +79,11 @@ void bsid::compute_parameters(const double Eb, const double No)
    // computes substitution probability assuming Eb/No describes an AWGN channel with hard-decision demodulation
    const double p = libbase::Q(1/sqrt(Eb*No));
    if(varyPs)
-      Ps = p;
+      set_ps(p);
    if(varyPd)
-      Pd = p;
+      set_pd(p);
    if(varyPi)
-      Pi = p;
+      set_pi(p);
    libbase::trace << "DEBUG (bsid): Eb = " << Eb << ", No = " << No << " -> Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
    }
    
@@ -84,13 +96,6 @@ sigspace bsid::corrupt(const sigspace& s)
    if(p < Ps)
       return -s;
    return s;
-   }
-
-double bsid::pdf(const sigspace& tx, const sigspace& rx) const
-   {      
-   if(tx != rx)
-      return Ps;
-   return 1-Ps;
    }
 
 // channel functions
@@ -141,6 +146,8 @@ class myfba : public fba<double> {
    // user-defined parameters
    libbase::vector<sigspace>  tx;   // presumed transmitted sequence
    const bsid* channel;
+   // pre-computed parameters
+   libbase::vector<double> Ptable;
    // implementations of channel-specific metrics for fba
    double P(const int a, const int b);
    double Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s);
@@ -149,27 +156,20 @@ public:
    myfba() {};
    ~myfba() {};
    // set transmitted sequence
-   void settx(const libbase::vector<sigspace>& tx) { myfba::tx.init(tx.size()+1); myfba::tx.copyfrom(tx); };
+   void settx(const libbase::vector<sigspace>& tx);
    // attach channel
-   void attach(const bsid* channel) { myfba::channel = channel; };
-
+   void attach(const bsid* channel);
 };
 
 // implementations of channel-specific metrics for fba
 
-double myfba::P(const int a, const int b)
+inline double myfba::P(const int a, const int b)
    {
-   const double Pd = channel->get_pd();
-   const double Pi = channel->get_pi();
    const int m = b-a;
-   if(m == -1)
-      return Pd;
-   else if(m >= 0)
-      return pow(Pi,m)*(1-Pi)*(1-Pd);
-   return 0;
+   return Ptable(m+1);
    }
    
-double myfba::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
+inline double myfba::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -179,6 +179,29 @@ double myfba::Q(const int a, const int b, const int i, const libbase::vector<sig
    return channel->receive(myfba::tx(i), s);
    }
    
+// set transmitted sequence
+
+inline void myfba::settx(const libbase::vector<sigspace>& tx)
+   {
+   myfba::tx.init(tx.size()+1);
+   myfba::tx.copyfrom(tx);
+   }
+
+// attach channel
+
+inline void myfba::attach(const bsid* channel)
+   {
+   myfba::channel = channel;
+   // pre-compute table
+   const double Pd = channel->get_pd();
+   const double Pi = channel->get_pi();
+   const int xmax = get_xmax();
+   Ptable.init(xmax+2);
+   Ptable(0) = Pd;   // for m = -1
+   for(int m=0; m<=xmax; m++)
+      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
+   };
+
 /********************************* END FBA *********************************/
 
 void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
@@ -194,11 +217,8 @@ void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<si
    else
       {
       // Work out the probabilities of each possible signal
-      const double a1 = (1-Pi-Pd);
-      const double a2 = 0.5*Pi*Pd;
-      const double a3 = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
       for(int x=0; x<M; x++)
-         ptable(0,x) = (a1 * pdf(tx(x),rx(m)) + a2) * a3;
+         ptable(0,x) = (a1 * pdf(tx(x),rx(m)) + a2) * a3(m);
       }
    }
 
@@ -214,20 +234,6 @@ double bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<
    f.settx(tx);
    f.prepare(rx);
    return f.getF(tau,m);
-   }
-
-double bsid::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
-   {
-   // Compute sizes
-   const int m = rx.size()-1;
-   // set of possible transmitted symbols for one transmission step
-   if(m == -1) // just a deletion, no symbols received
-      return Pd;
-   // Work out the probabilities of each possible signal
-   const double a1 = (1-Pi-Pd);
-   const double a2 = 0.5*Pi*Pd;
-   const double a3 = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
-   return (a1 * pdf(tx,rx(m)) + a2) * a3;
    }
 
 // description output

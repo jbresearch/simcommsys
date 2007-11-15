@@ -73,6 +73,10 @@
 
   Version 1.24 (14 Nov 2007)
   * optimized work_forward() and work_backward()
+
+  Version 1.25 (15 Nov 2007)
+  * further optimized work_backward(), by pre-computing loop limits for y,b
+  * added protected getters for I and xmax
 */
 
 namespace libcomm {
@@ -96,6 +100,9 @@ template <class real, class dbl=double, class sig=sigspace> class fba {
    void work_forward(const libbase::vector<sig>& r);
    void work_backward(const libbase::vector<sig>& r);
 protected:
+   // getters for parameters
+   int get_I() const { return I; };
+   int get_xmax() const { return xmax; };
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual dbl P(const int a, const int b) = 0;
    virtual dbl Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;

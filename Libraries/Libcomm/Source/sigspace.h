@@ -22,9 +22,10 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.30 (14 Nov 2007)
-  * added equality and inequality operators.
+  Version 1.30 (14-15 Nov 2007)
   * moved most functions here and made them inline.
+  * added equality and inequality operators.
+  * added unary '-' operator
 */
 
 namespace libcomm {
@@ -42,15 +43,15 @@ public:
    double p() const { return atan2(q(), i()); };
    operator double() const { return r(); };
 
-   // comparison operations
-   bool operator==(const sigspace& a);
-   bool operator!=(const sigspace& a);
-
    // arithmetic operations
    sigspace& operator+=(const sigspace& a);
    sigspace& operator-=(const sigspace& a);
    sigspace& operator*=(const double a);
    sigspace& operator/=(const double a);
+   // arithmetic operations - friends
+   friend bool operator==(const sigspace& a, const sigspace& b);
+   friend bool operator!=(const sigspace& a, const sigspace& b);
+   friend sigspace operator-(const sigspace& a);
    friend sigspace operator+(const sigspace& a, const sigspace& b);
    friend sigspace operator-(const sigspace& a, const sigspace& b);
    friend sigspace operator*(const sigspace& a, const double b);
@@ -70,18 +71,6 @@ inline sigspace::sigspace(const double i, const double q)
    inphase = i;
    quad = q;
    }   
-
-// comparison operations
-
-inline bool sigspace::operator==(const sigspace& a)
-   {
-   return(inphase == a.inphase && quad == a.quad);
-   }
-
-inline bool sigspace::operator!=(const sigspace& a)
-   {
-   return(inphase != a.inphase || quad != a.quad);
-   }
 
 // arithmetic operations
 
@@ -111,6 +100,25 @@ inline sigspace& sigspace::operator/=(const double a)
    inphase /= a;
    quad /= a;
    return *this;
+   }
+
+// comparison operations
+
+inline bool operator==(const sigspace& a, const sigspace& b)
+   {
+   return(a.inphase == b.inphase && a.quad == b.quad);
+   }
+
+inline bool operator!=(const sigspace& a, const sigspace& b)
+   {
+   return(a.inphase != b.inphase || a.quad != b.quad);
+   }
+
+// arithmetic operations - unary
+
+inline sigspace operator-(const sigspace& a)
+   {
+   return sigspace(-a.inphase, -a.quad);
    }
 
 // arithmetic operations - friends
