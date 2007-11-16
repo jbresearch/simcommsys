@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="AnnealInterleaver"
 	ProjectGUID="{B3B60BCE-5D9E-4F1F-B5B0-254B96A1707D}"
+	RootNamespace="AnnealInterleaver"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -49,6 +50,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -146,6 +148,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

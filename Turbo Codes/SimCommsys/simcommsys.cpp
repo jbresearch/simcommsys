@@ -31,11 +31,15 @@
   Version 1.22 (2 Nov 2007)
   * modified input scheme so that the file also contains the channel and modem
     before the codec; as a result, previous codec files cannot be used directly.
+  
+  Version 1.23 (16 Nov 2007)
+  * added output flushing to guarantee
 */
 
 using std::cout;
 using std::cerr;
 using std::setprecision;
+using std::flush;
 
 const libcomm::serializer_libcomm g_serializer_libcomm;
 
@@ -98,7 +102,7 @@ int main(int argc, char *argv[])
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";
-   cout << "#\n";
+   cout << "#\n" << flush;
 
    // Work out the following for every SNR value required
    for(double SNR = SNRmin; SNR <= SNRmax && !estimator.interrupt(); SNR += SNRstep)
@@ -116,7 +120,7 @@ int main(int argc, char *argv[])
       cout << SNR;
       for(int i=0; i<system.count(); i++)
          cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
-      cout << "\t" << estimator.get_samplecount() << "\n";
+      cout << "\t" << estimator.get_samplecount() << "\n" << flush;
       }
 
    return 0;

@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="SimulateCommsys"
 	ProjectGUID="{CD0976D8-AADC-45E7-91AB-629AE4DBA391}"
+	RootNamespace="SimulateCommsys"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -48,6 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -147,6 +149,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="2"

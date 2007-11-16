@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="CreateCodec"
 	ProjectGUID="{B42C7F61-5F6D-49F2-9F1B-179AC565CBD8}"
+	RootNamespace="CreateCodec"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -49,6 +50,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -146,6 +148,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

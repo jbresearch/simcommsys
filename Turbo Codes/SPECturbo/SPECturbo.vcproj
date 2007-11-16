@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="SPECturbo"
 	ProjectGUID="{7777AB22-FDBF-436B-9A14-34DD498A2E5E}"
+	RootNamespace="SPECturbo"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -44,6 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -137,6 +139,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="2"

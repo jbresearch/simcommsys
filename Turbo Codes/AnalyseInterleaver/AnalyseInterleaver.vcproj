@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="AnalyseInterleaver"
 	ProjectGUID="{33AF05B0-BD59-4695-B1E0-DD22A2A826A9}"
+	RootNamespace="AnalyseInterleaver"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -48,6 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -147,6 +149,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase\Source;..\..\Libraries\Libcomm\Source;..\..\Libraries\Libwin"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="2"
