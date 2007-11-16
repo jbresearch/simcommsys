@@ -20,7 +20,7 @@ export LDlibs := $(LDlibusr) $(LDlibsys) $(LDlibmpi)
 export LDflagProfile := -pg
 export LDflagRelease := 
 export LDflagDebug   := 
-export LDflags = $(LDflag$(RELEASE)) -static $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
+export LDflags = $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
 # Compiler settings
 CCprfopt := -pg -O3 -DNDEBUG
