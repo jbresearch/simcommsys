@@ -117,6 +117,9 @@
   Version 3.30 (7 Nov 2007)
   * added pacifier() function, which returns a string according to an input
     percentage value.
+
+  Version 3.31 (19 Nov 2007)
+  * added error report when interrupt signal is caught.
 */
 
 // *** Global namespace ***

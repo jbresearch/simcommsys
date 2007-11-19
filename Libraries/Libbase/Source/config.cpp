@@ -147,7 +147,10 @@ static void catch_signal(int sig_num)
    signal(sig_num, catch_signal);
    // update variables accordingly
    if(sig_num == SIGINT)
+      {
+      std::cerr << "Caught interrupt...\n";
       interrupt_caught = true;
+      }
    }
 
 bool interrupted(void)
