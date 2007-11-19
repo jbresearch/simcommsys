@@ -290,4 +290,3 @@ bool socket::insistread(void *buf, size_t len)
    };
 
 }; // end namespace
-
