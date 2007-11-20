@@ -12,14 +12,17 @@
 
 namespace libbase {
 
-const vcs truerand::version("True Random Number provider module (truerand)", 1.10);
+const vcs truerand::version("True Random Number provider module (truerand)", 1.11);
 
 truerand::truerand()
    {
 #ifdef WIN32
-   if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, 0)) 
+   if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) 
       {
-      std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context.\n";
+      TCHAR buf[80];
+      DWORD code = GetLastError(); 
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, NULL, buf, 80, NULL);
+      std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << buf << " (" << std::hex << code << std::dec << ").\n";
       exit(1);
       }
 #else
