@@ -63,6 +63,13 @@
   * updated to conform with the changes in masterslave 1.10, where the slave
     functions are no longer static, and the class is meant to be instantiated
     by derivation
+  
+  Version 1.32 (20 Nov 2007)
+  * added timeout when waiting for an event from the slaves in estimate()
+  * modified control structure in estimate() by removing the infinite loop when
+    parallel execution is enabled; this means that each run of the outer loop does
+    not necessarily mean that a new result set is available. This condition is
+    handled by a new variable within the loop.
 */
 
 namespace libcomm {

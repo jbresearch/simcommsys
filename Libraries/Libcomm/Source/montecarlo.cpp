@@ -201,86 +201,98 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    int passes = 0;
    while(!accuracy_reached || (isenabled() && anyoneworking()))
       {
+      bool results_available = false;
       // repeat the experiment
       if(isenabled())
          {
-         while(true)
+         // first initialize any new slaves
+         while(slave *s = newslave())
             {
-            while(slave *s = newslave())
+            trace << "DEBUG (estimate): New slave found (" << s << "), initializing.\n";
+            if(!call(s, "slave_getcode"))
+               continue;
+            if(!send(s, systemstring))
+               continue;
+            if(!call(s, "slave_getsnr"))
+               continue;
+            if(!send(s, system->get()))
+               continue;
+            trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
+            }
+         // get idle slaves to work if we're not yet done
+         if(!accuracy_reached)
+            {
+            trace << "DEBUG (estimate): Checking for idle slaves.\n";
+            while(slave *s = idleslave())
                {
-               trace << "DEBUG (estimate): New slave found (" << s << "), initializing.\n";
-               if(!call(s, "slave_getcode"))
-                  continue;
-               if(!send(s, systemstring))
-                  continue;
-               if(!call(s, "slave_getsnr"))
-                  continue;
-               if(!send(s, system->get()))
-                  continue;
-               trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
+               trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
+               call(s, "slave_work");
                }
-            if(!accuracy_reached)
+            }
+         // wait for results, but not indefinitely - this allows user to break
+         trace << "DEBUG (estimate): Waiting for event.\n";
+         waitforevent(true, 0.5);
+         // get set of results from the first pending slave, if any
+         if(slave *s = pendingslave())
+            {
+            trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
+            int sc;
+            if(receive(s, est) && receive(s, sc))
                {
-               trace << "DEBUG (estimate): Checking for idle slaves.\n";
-               while(slave *s = idleslave())
-                  {
-                  trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
-                  call(s, "slave_work");
-                  }
-               }
-            trace << "DEBUG (estimate): Waiting for event.\n";
-            waitforevent();
-            if(slave *s = pendingslave())
-               {
-               trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
-               int sc;
-               if(receive(s, est) && receive(s, sc))
-                  {
-                  trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
-                  samplecount += sc;
-                  updatecputime(s);
-                  break;
-                  }
+               trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
+               samplecount += sc;
+               updatecputime(s);
+               results_available = true;
                }
             }
          }
       else
-         system->sample(est, samplecount);
-      // update the number of passes
-      passes++;
-      // for each result:
-      double acc = 0;
-      for(int i=0; i<count; i++)
          {
-         // update the running totals
-         sum(i) += est(i);
-         sumsq(i) += est(i)*est(i);
-         // work mean and sd
-         double mean = sum(i)/double(passes);
-         double sd = sqrt((sumsq(i)/double(passes) - mean*mean)/double(passes-1));
-         // update results
-         result(i) = mean;
-         if(mean > 0)
-            {
-            tolerance(i) = cfactor*sd/mean;
-            if(est(i) > 0)
-               nonzero(i)++;
-            // If we arrived here, nonzero(i) must be >0 because mean>0.
-            // We won't take this tolerance into account if the ratio of the number of
-            // non-zero estimates is less than 1/max_passes.
-            // We set max_passes = 0 to indicate that we won't use this bailout facility
-            if(tolerance(i) > acc && (max_passes==0 || passes < nonzero(i)*max_passes))
-               acc = tolerance(i);
-            }
+         system->sample(est, samplecount);
+         results_available = true;
          }
-      // check if we are ready (this happens if we reach the required accuracy,
-      // or else if the user has interrupted the processing).
-      if(samplecount >= min_samples && acc <= accuracy && acc != 0)
-         accuracy_reached = true;
+      // if we did get any results, update the statistics
+      if(results_available)
+         {
+         // update the number of passes
+         passes++;
+         // for each result:
+         double acc = 0;
+         for(int i=0; i<count; i++)
+            {
+            // update the running totals
+            sum(i) += est(i);
+            sumsq(i) += est(i)*est(i);
+            // work mean and sd
+            double mean = sum(i)/double(passes);
+            double sd = sqrt((sumsq(i)/double(passes) - mean*mean)/double(passes-1));
+            // update results
+            result(i) = mean;
+            if(mean > 0)
+               {
+               tolerance(i) = cfactor*sd/mean;
+               if(est(i) > 0)
+                  nonzero(i)++;
+               // If we arrived here, nonzero(i) must be >0 because mean>0.
+               // We won't take this tolerance into account if the ratio of the number of
+               // non-zero estimates is less than 1/max_passes.
+               // We set max_passes = 0 to indicate that we won't use this bailout facility
+               if(tolerance(i) > acc && (max_passes==0 || passes < nonzero(i)*max_passes))
+                  acc = tolerance(i);
+               }
+            }
+         // check if we have reached the required accuracy
+         if(acc <= accuracy && acc != 0)
+            accuracy_reached = true;
+         // print something to inform the user of our progress
+         display(passes, (acc<1 ? 100*acc : 99), result(0));
+         }
+      // independently of the accuracy reached, we have a minimum number of samples to do
+      if(samplecount < min_samples)
+         accuracy_reached = false;
+      // consider our work done if the user has interrupted the processing (this overrides everything)
       if(interrupt())
          accuracy_reached = true;
-      // print something to inform the user of our progress
-      display(passes, (acc<1 ? 100*acc : 99), result(0));
       }
 
    t.stop();

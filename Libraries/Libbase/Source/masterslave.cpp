@@ -17,7 +17,7 @@
 
 namespace libbase {
 
-const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.10);
+const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.21);
 
 using std::cerr;
 using std::clog;
@@ -385,7 +385,7 @@ bool masterslave::anyoneworking()
    return false;
    }
    
-void masterslave::waitforevent(const bool acceptnew)
+void masterslave::waitforevent(const bool acceptnew, const double timeout)
    {
    static bool firsttime = true;
    if(firsttime)
@@ -401,7 +401,7 @@ void masterslave::waitforevent(const bool acceptnew)
    for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
       sl.push_back(i->second->sock);
    
-   al = socket::select(sl);
+   al = socket::select(sl, timeout);
    for(std::list<socket *>::iterator i=al.begin(); i != al.end(); ++i)
       {
       if((*i)->islistener() && acceptnew)

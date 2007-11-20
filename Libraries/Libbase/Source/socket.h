@@ -32,6 +32,9 @@
   
   Version 1.20 (8 May 2007)
   * Ported class to Windows, using Winsock2 API
+  
+  Version 1.21 (20 Nov 2007)
+  * Added timeout facility to select(), defaulting to no-timeout
  */
 
 namespace libbase {
@@ -62,7 +65,7 @@ public:
    bool islistener() const { return listener; };
    // wait for client connects
    bool bind(int16u port);
-   static std::list<socket *> select(std::list<socket *> sl);
+   static std::list<socket *> select(std::list<socket *> sl, const double timeout=0);
    socket *accept();
    // open connection to server
    bool connect(std::string hostname, int16u port);

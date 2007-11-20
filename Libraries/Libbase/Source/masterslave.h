@@ -50,6 +50,9 @@
   Version 1.20 (8 May 2007)
   * Ported to Windows, using Winsock2 API
   * TODO: make setting priority effective on Windows
+  
+  Version 1.21 (20 Nov 2007)
+  * Added timeout facility to waitforevent(), defaulting to no-timeout.
 */
 
 namespace libbase {
@@ -128,7 +131,7 @@ public:
    slave *idleslave();
    slave *pendingslave();
    bool anyoneworking();
-   void waitforevent(const bool acceptnew=true);
+   void waitforevent(const bool acceptnew=true, const double timeout=0);
    void resetslaves();
    // master -> slave communication
    bool send(slave *s, const void *buf, const size_t len);

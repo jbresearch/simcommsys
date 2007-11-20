@@ -23,7 +23,7 @@ namespace libbase {
 
 using std::cerr;
    
-const vcs socket::version("Networking sockets module (socket)", 1.20);
+const vcs socket::version("Networking sockets module (socket)", 1.21);
 
 // constant values
 
@@ -175,7 +175,7 @@ bool socket::bind(int16u port)
    return true;
    }
 
-std::list<socket *> socket::select(std::list<socket *> sl)
+std::list<socket *> socket::select(std::list<socket *> sl, const double timeout)
    {
    fd_set rfds;
    FD_ZERO(&rfds);
@@ -189,7 +189,10 @@ std::list<socket *> socket::select(std::list<socket *> sl)
       }
    ++max;
   
-   ::select(max, &rfds, NULL, NULL, NULL);
+   struct timeval s_timeout;
+   s_timeout.tv_sec = int(floor(timeout));
+   s_timeout.tv_usec = int((timeout-floor(timeout)) * 1E6);
+   ::select(max, &rfds, NULL, NULL, timeout==0 ? NULL : &s_timeout);
    
    std::list<socket *> al;
    for(std::list<socket *>::iterator i=sl.begin(); i!=sl.end(); ++i)
