@@ -85,14 +85,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
          const int amin = max(max(y-I,-xmax),1-j);
          const int amax = min(y+1,xmax);
          for(int a=amin; a<=amax; a++)
-            {
-            // copy over the received sequence corresponding to this event
-            //vector<sig> s(y-a+1);
-            //for(int i=j-1+a, k=0; i<=j-1+y; i++, k++)
-            //   s(k) = r(i);
-            // add the probability of this event
             F(j,y) += F(j-1,a) * real( P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1)) );
-            }
          }
       }
 #ifndef NDEBUG
@@ -123,24 +116,17 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
          trace << libbase::pacifier(100*(tau-2-j)/(tau-1));
 #endif
       // event must fit the received sequence - requirements:
-      // 1. j+1+y >= 0
-      // 2. j+1+b < r.size()
-      const int ymin = max(-xmax,-j-1);
+      // 1. j+y >= 0
+      // 2. j+b < r.size()
+      const int ymin = max(-xmax,-j);
       const int ymax = xmax;
       for(int y=ymin; y<=ymax; y++)
          {
          B(j,y) = 0;
          const int bmin = max(y-1,-xmax);
-         const int bmax = min(min(y+I,xmax),r.size()-j-2);
+         const int bmax = min(min(y+I,xmax),r.size()-j-1);
          for(int b=bmin; b<=bmax; b++)
-            {
-            // copy over the received sequence corresponding to this event
-            //vector<sig> s(b-y+1);
-            //for(int i=j+1+y, k=0; i<=j+1+b; i++, k++)
-            //   s(k) = r(i);
-            // add the probability of this event
-            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j,r.extract(j+1+y,b-y+1)) );
-            }
+            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1)) );
          }
       }
 #ifndef NDEBUG
@@ -180,7 +166,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.25
+#define VERSION 1.26
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);
