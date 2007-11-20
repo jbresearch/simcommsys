@@ -28,11 +28,10 @@
     function, and the method taking a parameter 'm' should be provided by the superclass.
 
   Version 1.11 (20 Nov 2007)
-  * added error code printing in Win32 when acquiring CryptoAPI
+  * added error code printing in Win32 when acquiring and releasing CryptoAPI
   * using CRYPT_VERIFYCONTEXT when acquiring CryptoAPI, since we don't need access
     to private keys - this allows use as grid clients, when there is no user profile
     available.
-  * TODO: error code translation should be done in a more general context
 */
 
 namespace libbase {

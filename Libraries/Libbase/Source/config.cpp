@@ -7,9 +7,11 @@
 #  include <unistd.h>
 #  include <termios.h>
 #  include <sys/ioctl.h>
+#  include <errno.h>
 #endif
 #include <signal.h>
 #include <string>
+#include <sstream>
 
 namespace libbase {
 
@@ -182,6 +184,22 @@ std::string pacifier(int percent)
    s += "\n";
    last = value;
    return s;
+   }
+
+// System error message reporting
+
+std::string getlasterror()
+   {
+   std::ostringstream sout;
+#ifdef WIN32
+   TCHAR buf[80];
+   DWORD code = GetLastError();
+   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, NULL, buf, 80, NULL);
+   sout << buf << " (" << std::hex << code << std::dec << ")";
+#else
+   sout << strerror(errno) << " (" << std::hex << errno << std::dec << ")";
+#endif
+   return sout.str();
    }
 
 }; // end namespace

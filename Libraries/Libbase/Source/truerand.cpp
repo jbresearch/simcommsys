@@ -19,10 +19,7 @@ truerand::truerand()
 #ifdef WIN32
    if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) 
       {
-      TCHAR buf[80];
-      DWORD code = GetLastError(); 
-      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, NULL, buf, 80, NULL);
-      std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << buf << " (" << std::hex << code << std::dec << ").\n";
+      std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << getlasterror() << ".\n";
       exit(1);
       }
 #else
@@ -41,7 +38,7 @@ truerand::~truerand()
    assert(hCryptProv);
    if(!CryptReleaseContext(hCryptProv, 0))
       {
-      std::cerr << "ERROR (truerand): cannot release CryptoAPI context.\n";
+      std::cerr << "ERROR (truerand): cannot release CryptoAPI context - " << getlasterror() << ".\n";
       exit(1);
       }
 #else

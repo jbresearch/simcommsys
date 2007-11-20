@@ -120,6 +120,9 @@
 
   Version 3.31 (19 Nov 2007)
   * added error report when interrupt signal is caught.
+
+  Version 3.32 (20 Nov 2007)
+  * added getlasterror() function, for use in POSIX and Win32
 */
 
 // *** Global namespace ***
@@ -209,6 +212,9 @@ bool interrupted(void);
 
 // Pacifier output
 std::string pacifier(int percent);
+
+// System error message reporting
+std::string getlasterror();
 
 }; // end namespace
 
