@@ -197,9 +197,13 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    else
       system->seed(0);
 
-   // Repeat the experiment until we get the accuracy we need
+   // Repeat the experiment until all the following are true:
+   // 1) We have the accuracy we need
+   // 2) We have enough samples for the accuracy to be meaningful
+   // 3) No slaves are still working
+   // An interrupt from the user overrides everything...
    int passes = 0;
-   while(!accuracy_reached || (isenabled() && anyoneworking()))
+   while(!accuracy_reached || samplecount < min_samples || (isenabled() && anyoneworking()))
       {
       bool results_available = false;
       // repeat the experiment
@@ -223,7 +227,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          if(!accuracy_reached)
             {
             trace << "DEBUG (estimate): Checking for idle slaves.\n";
-            while(slave *s = idleslave())
+            for(slave *s; (s = idleslave()) && samplecount+workingslaves() < min_samples; )
                {
                trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
                call(s, "slave_work");
@@ -287,12 +291,9 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          // print something to inform the user of our progress
          display(passes, (acc<1 ? 100*acc : 99), result(0));
          }
-      // independently of the accuracy reached, we have a minimum number of samples to do
-      if(samplecount < min_samples)
-         accuracy_reached = false;
       // consider our work done if the user has interrupted the processing (this overrides everything)
       if(interrupt())
-         accuracy_reached = true;
+         break;
       }
 
    t.stop();

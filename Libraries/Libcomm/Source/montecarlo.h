@@ -70,6 +70,15 @@
     parallel execution is enabled; this means that each run of the outer loop does
     not necessarily mean that a new result set is available. This condition is
     handled by a new variable within the loop.
+  * modified ending-logic, so that:
+    - all end conditions are clearly specified in the loop condition
+    - a user interrupt now overrides everything, we don't even wait for slaves
+      to finish any pending work
+  * modified slave-handling logic, so that new work only gets posted if the sum
+    of samples already aggregated and the number of pending slaves is less than
+    the minimum threshold; this assumes that only one sample is returned per slave,
+    and allows an earlier exit during fast result convergence in large clusters.
+    Clearly this only applies when the actual accuracy has already been reached.
 */
 
 namespace libcomm {

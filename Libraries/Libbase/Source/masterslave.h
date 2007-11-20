@@ -53,6 +53,8 @@
   
   Version 1.21 (20 Nov 2007)
   * Added timeout facility to waitforevent(), defaulting to no-timeout.
+  * Modified anyoneworking(), making it a const function.
+  * Added workingslaves(), returning the number of slaves currently working.
 */
 
 namespace libbase {
@@ -130,7 +132,8 @@ public:
    slave *newslave();
    slave *idleslave();
    slave *pendingslave();
-   bool anyoneworking();
+   int workingslaves() const;
+   bool anyoneworking() const;
    void waitforevent(const bool acceptnew=true, const double timeout=0);
    void resetslaves();
    // master -> slave communication

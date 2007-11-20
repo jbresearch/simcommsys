@@ -377,9 +377,18 @@ masterslave::slave *masterslave::pendingslave()
    return NULL;
    }
    
-bool masterslave::anyoneworking()
+int masterslave::workingslaves() const
    {
-   for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
+   int count = 0;
+   for(std::map<socket *, slave *>::const_iterator i=smap.begin(); i != smap.end(); ++i)
+      if(i->second->state == slave::WORKING)
+         count++;
+   return count;
+   }
+   
+bool masterslave::anyoneworking() const
+   {
+   for(std::map<socket *, slave *>::const_iterator i=smap.begin(); i != smap.end(); ++i)
       if(i->second->state == slave::WORKING)
          return true;
    return false;
