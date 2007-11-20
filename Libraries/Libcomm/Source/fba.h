@@ -83,6 +83,9 @@
 
   Version 1.26 (20 Nov 2007)
   * changed references to 'j+1' in Q() as accessed from work_backward() to 'j'.
+  * made work_forward() and work_backward() publicly accessible, so that bsid channel can
+    avoid computing the backward metrics unnecessarily. Memory allocation checks are now
+    done during forward and backward functions.
 */
 
 namespace libcomm {
@@ -102,9 +105,6 @@ template <class real, class dbl=double, class sig=sigspace> class fba {
    real& B(const int j, const int y) { return mB(j,y+xmax); };
    // memory allocation
    void allocate();
-   // internal procedures
-   void work_forward(const libbase::vector<sig>& r);
-   void work_backward(const libbase::vector<sig>& r);
 protected:
    // getters for parameters
    int get_I() const { return I; };
@@ -122,6 +122,8 @@ public:
    real getF(const int j, const int y) const { return mF(j,y+xmax); };
    real getB(const int j, const int y) const { return mB(j,y+xmax); };
    // decode functions
+   void work_forward(const libbase::vector<sig>& r);
+   void work_backward(const libbase::vector<sig>& r);
    void prepare(const libbase::vector<sig>& r);
    // main initialization routine - constructor essentially just calls this
    void init(const int tau, const int I, const int xmax);

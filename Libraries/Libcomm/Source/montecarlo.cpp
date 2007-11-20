@@ -224,19 +224,16 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
             trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
             }
          // get idle slaves to work if we're not yet done
-         if(!accuracy_reached)
+         for(slave *s; (!accuracy_reached || samplecount+workingslaves() < min_samples) && (s = idleslave()); )
             {
-            trace << "DEBUG (estimate): Checking for idle slaves.\n";
-            for(slave *s; (s = idleslave()) && samplecount+workingslaves() < min_samples; )
-               {
-               trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
-               call(s, "slave_work");
-               }
+            trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
+            call(s, "slave_work");
             }
          // wait for results, but not indefinitely - this allows user to break
          trace << "DEBUG (estimate): Waiting for event.\n";
          waitforevent(true, 0.5);
-         // get set of results from the first pending slave, if any
+         // get set of results from the pending slave, if any
+         // *** we assume here that waitforevent() only returns one pending slave at most ***
          if(slave *s = pendingslave())
             {
             trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";

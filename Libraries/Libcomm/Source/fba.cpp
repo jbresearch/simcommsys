@@ -63,6 +63,10 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
       trace << "DEBUG (fba): computing forward metrics...\n";
 #endif
 
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    mF = real(0);
@@ -102,6 +106,10 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
       trace << "DEBUG (fba): computing backward metrics...\n";
 #endif
 
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+
    // initialise array:
    // we also know x[tau] = r.size()-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
@@ -139,10 +147,6 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
 
 template <class real, class dbl, class sig> void fba<real,dbl,sig>::prepare(const vector<sig>& r)
    {
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
-
    // compute forwards and backwards passes
    work_forward(r);
    work_backward(r);

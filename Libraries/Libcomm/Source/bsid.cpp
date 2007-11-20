@@ -232,7 +232,7 @@ double bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<
    f.init(tau+1, I, xmax);
    f.attach(this);
    f.settx(tx);
-   f.prepare(rx);
+   f.work_forward(rx);
    return f.getF(tau,m);
    }
 
