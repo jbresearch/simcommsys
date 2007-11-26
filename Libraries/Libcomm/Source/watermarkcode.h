@@ -80,6 +80,7 @@
   * fixed a bug in watermarkcode modulation
   * added debugging information printing during modulation, when working with small blocks
   * added debugging information printing during demodulation, when working with small blocks
+  * optimized demodulate() by removing the copying operation on the received sequence
 */
 
 namespace libcomm {

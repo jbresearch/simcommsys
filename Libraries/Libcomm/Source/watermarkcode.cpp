@@ -206,16 +206,12 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
          for(int x1=max(-xmax,-n*i); x1<=xmax; x1++)
             for(int x2=max(-xmax,x1-1); x2<=min(min(xmax,x1+xmax),rx.size()-n*i-1); x2++)
                {
-               // create received vector in consideration
-               libbase::vector<sigspace> s(x2-x1+1);
-               for(int j=n*i+x1, k=0; j<=n*i+x2; j++, k++)
-                  s(k) = rx(j);
                // create the considered transmitted sequence
                libbase::vector<sigspace> tx(n);
                for(int j=0; j<n; j++)
                   tx(j) = mpsk::modulate(((ws(i)^d) >> j) & 1);
                // compute the conditional probability
-               const double p = chan.receive(tx, s);
+               const double p = chan.receive(tx, rx.extract(n*i+x1,x2-x1+1));
                // include the probability for this particular sequence
                const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
