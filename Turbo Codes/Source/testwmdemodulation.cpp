@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // common parameters
-   const int I=10, xmax=50;
+   const int I=3, xmax=5;
    const int n=3, k=2;
 
    // create a watermark codec
