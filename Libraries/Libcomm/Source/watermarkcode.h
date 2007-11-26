@@ -79,6 +79,7 @@
   Version 1.26 (26 Nov 2007)
   * fixed a bug in watermarkcode modulation
   * added debugging information printing during modulation, when working with small blocks
+  * added debugging information printing during demodulation, when working with small blocks
 */
 
 namespace libcomm {

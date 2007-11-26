@@ -182,6 +182,11 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    ptable.init(N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    trace << "DEBUG (watermarkcode::demodulate): computing ptable...\n";
+#ifndef NDEBUG
+   using std::string;
+   libbase::bitfield b;
+   b.resize(k);
+#endif
    for(int i=0; i<N; i++)
       {
 #ifndef NDEBUG
@@ -213,6 +218,17 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
                ptable(i,d) += p * double(F * B);
+#ifndef NDEBUG
+               if(N < 20)
+                  {
+                  trace << "DEBUG (watermarkcode::demodulate): bit " << i << "\t";
+                  b = d;
+                  trace << "d = " << string(b) << "\t";
+                  trace << "F = " << F << "\t";
+                  trace << "B = " << B << "\t";
+                  trace << "p = " << p << "\n";
+                  }
+#endif
                }
          }
       }
