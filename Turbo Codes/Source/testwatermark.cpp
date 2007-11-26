@@ -9,49 +9,15 @@ int main(int argc, char *argv[])
    using std::cout;
    using std::cerr;
 
+   // common parameters
+   const int I=10, xmax=50;
+   const int n=5, k=3;
+
    // create a watermark codec
    using libbase::logrealfast;
    using libcomm::watermarkcode;
-   const int I=10, xmax=50;
-   int n=5, k=3;
-   if(argc < 3)
-      cerr << "Usage: " << argv[0] << " [<n> <k>]\n";
-   else
-      {
-      n = atoi(argv[1]);
-      k = atoi(argv[2]);
-      }
-   watermarkcode<logrealfast> modem(n,k,0, I,xmax, 0.01,0.01,0.01);
+   watermarkcode<logrealfast> modem(n,k,0, I,xmax);
    cout << modem.description() << "\n";
-   cout << "Serialization: [";
-   modem.serialize(cout);
-   cout << "]\n";
-   
-   using libbase::vector;
-   using libcomm::bsid;
-   using libcomm::sigspace;
-   // define an alternating input sequence
-   const int tau = 5;
-   vector<sigspace> tx(tau);
-   for(int i=0; i<tau; i++)
-      tx(i) = sigspace((i%2) ? -1 : 1, 0);
-   // pass that through the channel
-   vector<sigspace> rx1, rx2;
-   bsid channel1(I,xmax), channel2(I,xmax);
-   channel2.set_pi(0.3);
-   channel2.set_pd(0.3);
-   // channel1 is a substitution-only channel
-   channel1.seed(1);
-   channel1.set_snr(-12);
-   channel1.transmit(tx, rx1);
-   // channel1 is an insdel-only channel
-   channel2.seed(1);
-   channel2.set_snr(12);
-   channel2.transmit(tx, rx2);
-   // display all sequences
-   cout << tx << "\n";
-   cout << rx1 << "\n";
-   cout << rx2 << "\n";
    
    return 0;
    }
