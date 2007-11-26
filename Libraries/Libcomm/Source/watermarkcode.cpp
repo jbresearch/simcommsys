@@ -137,7 +137,12 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
    tx.init(n*p*tau);
    createsequence(p*tau);
    // Encode source stream
-   // NOTE: we transmit the low-order bits first
+#ifndef NDEBUG
+   using libbase::trace;
+   using std::string;
+   libbase::bitfield b;
+   b.resize(n);
+#endif
    for(int i=0, ii=0; i<tau; i++)
       for(int j=0, x=encoded(i); j<p; j++, ii++, x >>= k)
          {
@@ -146,10 +151,6 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 #ifndef NDEBUG
          if(tau < 10)
             {
-            using libbase::trace;
-            using std::string;
-            libbase::bitfield b;
-            b.resize(n);
             trace << "DEBUG (watermarkcode::modulate): word " << i << "\t";
             b = s;
             trace << "s = " << string(b) << "\t";
@@ -157,6 +158,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
             trace << "w = " << string(b) << "\n";
             }
 #endif
+         // NOTE: we transmit the low-order bits first
          for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
             tx(ii*n+bit) = mpsk::modulate(t&1);
          }
