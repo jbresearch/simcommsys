@@ -77,10 +77,12 @@
   * optimization of demodulate()
 
   Version 1.26 (26 Nov 2007)
-  * fixed a bug in watermarkcode modulation
+  * fixed a bug in modulation, where the incorrect index was applied to the tx vector
   * added debugging information printing during modulation, when working with small blocks
   * added debugging information printing during demodulation, when working with small blocks
   * optimized demodulate() by removing the copying operation on the received sequence
+  * fixed a bug in demodulation, where the received vector being considered was
+    incorrectly assumed to consist of one bit rather than 'n'.
 */
 
 namespace libcomm {
