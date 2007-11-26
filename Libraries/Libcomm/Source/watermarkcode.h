@@ -75,6 +75,10 @@
 
   Version 1.25 (13 Nov 2007)
   * optimization of demodulate()
+
+  Version 1.26 (26 Nov 2007)
+  * fixed a bug in watermarkcode modulation
+  * added debugging information printing during modulation, when working with small blocks
 */
 
 namespace libcomm {

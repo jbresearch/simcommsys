@@ -143,8 +143,22 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
          {
          const int s = lut(x & (q-1));    // sparse vector
          const int w = ws(ii);            // watermark vector
+#ifndef NDEBUG
+         if(tau < 10)
+            {
+            using libbase::trace;
+            using std::string;
+            libbase::bitfield b;
+            b.resize(n);
+            trace << "DEBUG (watermarkcode::modulate): word " << i << "\t";
+            b = s;
+            trace << "s = " << string(b) << "\t";
+            b = w;
+            trace << "w = " << string(b) << "\n";
+            }
+#endif
          for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
-            tx(ii*n+j) = mpsk::modulate(t&1);
+            tx(ii*n+bit) = mpsk::modulate(t&1);
          }
    }
 
@@ -257,7 +271,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.25
+#define VERSION 1.26
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);
