@@ -79,6 +79,9 @@
     the minimum threshold; this assumes that only one sample is returned per slave,
     and allows an earlier exit during fast result convergence in large clusters.
     Clearly this only applies when the actual accuracy has already been reached.
+  
+  Version 1.33 (26 Nov 2007)
+  * optimized display routine, so that updates are rate-limited
 */
 
 namespace libcomm {

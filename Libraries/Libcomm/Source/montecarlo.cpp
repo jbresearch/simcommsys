@@ -13,7 +13,7 @@ using std::cerr;
 using libbase::trace;
 using libbase::vector;
 
-const libbase::vcs montecarlo::version("Monte Carlo Estimator module (montecarlo)", 1.31);
+const libbase::vcs montecarlo::version("Monte Carlo Estimator module (montecarlo)", 1.33);
 
 const int montecarlo::min_samples = 128;
 
@@ -79,8 +79,14 @@ void montecarlo::destroyfunctors(void)
 
 void montecarlo::display(const int pass, const double cur_accuracy, const double cur_mean)
    {
-   std::clog << "MC: " << t << " elapsed, " << getnumslaves() << " clients, " \
-      << getcputime()/t.elapsed() << " speedup, pass " << pass << ", accuracy = " << cur_accuracy << "%, [" << cur_mean << "] \r" << std::flush;
+   static libbase::timer tupdate;
+   if(tupdate.elapsed() > 0.5)
+      {
+      std::clog << "MC: " << t << " elapsed, " << getnumslaves() << " clients, " \
+      << getcputime()/t.elapsed() << " speedup, pass " << pass << ", accuracy = " << cur_accuracy << "%, " \
+      << "[" << cur_mean << "] \r" << std::flush;
+      tupdate.start();
+      }
    }
 
 // constructor/destructor
