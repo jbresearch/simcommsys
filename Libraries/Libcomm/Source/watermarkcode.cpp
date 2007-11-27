@@ -204,12 +204,13 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
          // 3. received vector size: x2-x1+n >= 0
          // 4. drift introduced in this section: -n <= x2-x1 <= n*I
          //    [first part corresponds to requirement 3]
+         // 5. drift introduced in this section: -xmax <= x2-x1 <= xmax
          const int x1min = max(-xmax,-n*i);
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
             {
-            const int x2min = max(-xmax,x1-n);
-            const int x2max = min(min(xmax,x1+n*I),rx.size()-n*(i+1));
+            const int x2min = max(-xmax,x1-min(n,xmax));
+            const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,xmax));
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // create the considered transmitted sequence
