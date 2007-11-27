@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
    // create a watermark codec
    using libbase::logrealfast;
    using libcomm::watermarkcode;
-   watermarkcode<logrealfast> modem(n,k,0, I,xmax);
+   const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
+   watermarkcode<logrealfast> modem(n,k,seed, I,xmax);
    cout << modem.description() << "\n";
    
    // define an alternating encoded sequence
