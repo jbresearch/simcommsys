@@ -199,12 +199,18 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
          {
          ptable(i,d) = 0;
          // In loop below skip out-of-bounds cases:
-         // 1. received vector size: x2-x1+n >= 0
-         // 2. drift introduced in this section: abs(x2-x1) <= xmax
-         // 3. first bit of received vector must exist: n*i+x1 >= 0
-         // 4. last bit of received vector must exist: n*(i+1)+x2 <= rx.size()
-         for(int x1=max(-xmax,-n*i); x1<=xmax; x1++)
-            for(int x2=max(-xmax,x1-n); x2<=min(min(xmax,x1+xmax),rx.size()-n*(i+1)); x2++)
+         // 1. first bit of received vector must exist: n*i+x1 >= 0
+         // 2. last bit of received vector must exist: n*(i+1)+x2-1 <= rx.size()-1
+         // 3. received vector size: x2-x1+n >= 0
+         // 4. drift introduced in this section: -n <= x2-x1 <= n*I
+         //    [first part corresponds to requirement 3]
+         const int x1min = max(-xmax,-n*i);
+         const int x1max = xmax;
+         for(int x1=x1min; x1<=x1max; x1++)
+            {
+            const int x2min = max(-xmax,x1-n);
+            const int x2max = min(min(xmax,x1+n*I),rx.size()-n*(i+1));
+            for(int x2=x2min; x2<=x2max; x2++)
                {
                // create the considered transmitted sequence
                libbase::vector<sigspace> tx(n);
@@ -228,6 +234,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                   }
 #endif
                }
+            }
          }
       }
    trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
