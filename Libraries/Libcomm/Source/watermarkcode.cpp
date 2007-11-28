@@ -87,11 +87,6 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
    watermarkcode::n = n;
    watermarkcode::k = k;
    watermarkcode::s = s;
-   // decoder parameters
-   assert(I > 0);
-   assert(xmax > 0);
-   watermarkcode::I = I;
-   watermarkcode::xmax = xmax;
    // initialize everything else that depends on the above parameters
    init();
    }
@@ -177,8 +172,9 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
    // Initialize & perform forward-backward algorithm
+   const int I    = mychan.get_I();
    const int xmax = mychan.get_xmax();
-   fba<real>::init(N*n, mychan.get_I(), xmax);
+   fba<real>::init(N*n, I, xmax);
    fba<real>::prepare(rx);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);

@@ -93,6 +93,7 @@
   * updated to conform with fba 1.30, changing the return type of P() and Q()
     to 'real'.
   * in demodulate(), moved the creation of tx vector two loops outwards, and cleaned it up
+  * removed I, xmax from this class, since they are held (and should be only) in bsid channel 
 */
 
 namespace libcomm {
@@ -104,7 +105,6 @@ template <class real> class watermarkcode : public mpsk, private fba<real> {
 private:
    // user-defined parameters
    int      n, k, s;    // code parameters: #bits in sparse (output) symbol, message (input) symbol; generator seed
-   int      I, xmax;    // decoder parameters
    // computed parameters
    double   f;
    // internally-used objects
