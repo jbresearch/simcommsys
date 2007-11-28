@@ -246,7 +246,10 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
       const real scale = p.sum();
 #ifndef NDEBUG
       if(scale == real(0))
+         {
          trace << "WARNING (watermarkcode::demodulate): likely numerical underflow for i = " << i << ".\n";
+         exit(1);
+         }
 #endif
       p /= scale;
       for(int d=0; d<q; d++)
