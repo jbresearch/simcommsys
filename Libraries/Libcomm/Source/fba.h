@@ -86,11 +86,16 @@
   * made work_forward() and work_backward() publicly accessible, so that bsid channel can
     avoid computing the backward metrics unnecessarily. Memory allocation checks are now
     done during forward and backward functions.
+
+  Version 1.30 (28 Nov 2007)
+  * removed template parameter 'dbl', which used to represent the return type for the P()
+    and Q() functions; instead the return type is now 'real'. Reason for this is that using
+    a lower-range type 'dbl' is very likely to cause a numerical underflow.
 */
 
 namespace libcomm {
 
-template <class real, class dbl=double, class sig=sigspace> class fba {
+template <class real, class sig=sigspace> class fba {
    static const libbase::vcs version;
    // internal variables
    int   tau;  // tau is the (transmitted) block size in bits
@@ -110,8 +115,8 @@ protected:
    int get_I() const { return I; };
    int get_xmax() const { return xmax; };
    // handles for channel-specific metrics - to be implemented by derived classes
-   virtual dbl P(const int a, const int b) = 0;
-   virtual dbl Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
+   virtual real P(const int a, const int b) = 0;
+   virtual real Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
    // default constructor
    fba();
 public:

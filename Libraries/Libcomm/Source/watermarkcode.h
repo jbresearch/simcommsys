@@ -89,6 +89,9 @@
     copied over after normalization.
   * fixed a serious error in demodulate(), where the data element being considered was
     not sparsified before adding to the watermark sequence.
+  * added check for numerical underflow in demodulate (debug build).
+  * updated to conform with fba 1.30, changing the return type of P() and Q()
+    to 'real'.
 */
 
 namespace libcomm {
@@ -112,8 +115,8 @@ private:
    int fill(int i, libbase::bitfield suffix, int weight);   // sparse vector LUT creation
    void createsequence(const int tau);                      // watermark sequence creator
    // implementations of channel-specific metrics for fba
-   double P(const int a, const int b);
-   double Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s);
+   real P(const int a, const int b);
+   real Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s);
    // modulation/demodulation - atomic operations (private as these should never be used)
    const sigspace modulate(const int index) const { return sigspace(0,0); };
    const int demodulate(const sigspace& signal) const { return 0; };

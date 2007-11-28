@@ -98,7 +98,7 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
 
 // implementations of channel-specific metrics for fba
 
-template <class real> double watermarkcode<real>::P(const int a, const int b)
+template <class real> real watermarkcode<real>::P(const int a, const int b)
    {
    const double Pd = mychan.get_pd();
    const double Pi = mychan.get_pi();
@@ -110,7 +110,7 @@ template <class real> double watermarkcode<real>::P(const int a, const int b)
    return 0;
    }
    
-template <class real> double watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
+template <class real> real watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -243,7 +243,12 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
             }
          }
       // normalize and copy results
-      p /= p.sum();
+      const real scale = p.sum();
+#ifndef NDEBUG
+      if(scale == real(0))
+         trace << "WARNING (watermarkcode::demodulate): likely numerical underflow for i = " << i << ".\n";
+#endif
+      p /= scale;
       for(int d=0; d<q; d++)
          ptable(i,d) = p(d);
       }

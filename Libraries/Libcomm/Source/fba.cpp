@@ -7,7 +7,7 @@ using libbase::vector;
 
 // Initialization
 
-template <class real, class dbl, class sig> void fba<real,dbl,sig>::init(const int tau, const int I, const int xmax)
+template <class real, class sig> void fba<real,sig>::init(const int tau, const int I, const int xmax)
    {
    // code parameters
    assert(tau > 0);
@@ -23,7 +23,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::init(const i
 
 // Memory allocation
 
-template <class real, class dbl, class sig> void fba<real,dbl,sig>::allocate()
+template <class real, class sig> void fba<real,sig>::allocate()
    {
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
    // B needs indices (j,y) where j in [0, tau] and y in [-xmax, xmax]
@@ -38,24 +38,24 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::allocate()
 
 // Creation/Destruction routines
 
-template <class real, class dbl, class sig> fba<real,dbl,sig>::fba()
+template <class real, class sig> fba<real,sig>::fba()
    {
    initialised = false;
    }
 
-template <class real, class dbl, class sig> fba<real,dbl,sig>::fba(const int tau, const int I, const int xmax)
+template <class real, class sig> fba<real,sig>::fba(const int tau, const int I, const int xmax)
    {
    init(tau, I, xmax);
    }
 
-template <class real, class dbl, class sig> fba<real,dbl,sig>::~fba()
+template <class real, class sig> fba<real,sig>::~fba()
    {
    }
 
    
 // Internal procedures
 
-template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward(const vector<sig>& r)
+template <class real, class sig> void fba<real,sig>::work_forward(const vector<sig>& r)
    {
    using libbase::trace;
 #ifndef NDEBUG
@@ -89,7 +89,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
          const int amin = max(max(y-I,-xmax),1-j);
          const int amax = min(y+1,xmax);
          for(int a=amin; a<=amax; a++)
-            F(j,y) += F(j-1,a) * real( P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1)) );
+            F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
          }
       }
 #ifndef NDEBUG
@@ -98,7 +98,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_forward
 #endif
    }
 
-template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backward(const vector<sig>& r)
+template <class real, class sig> void fba<real,sig>::work_backward(const vector<sig>& r)
    {
    using libbase::trace;
 #ifndef NDEBUG
@@ -134,7 +134,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
          const int bmin = max(y-1,-xmax);
          const int bmax = min(min(y+I,xmax),r.size()-j-1);
          for(int b=bmin; b<=bmax; b++)
-            B(j,y) += B(j+1,b) * real( P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1)) );
+            B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
          }
       }
 #ifndef NDEBUG
@@ -145,7 +145,7 @@ template <class real, class dbl, class sig> void fba<real,dbl,sig>::work_backwar
 
 // User procedures
 
-template <class real, class dbl, class sig> void fba<real,dbl,sig>::prepare(const vector<sig>& r)
+template <class real, class sig> void fba<real,sig>::prepare(const vector<sig>& r)
    {
    // compute forwards and backwards passes
    work_forward(r);
@@ -170,7 +170,7 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.26
+#define VERSION 1.30
 
 template class fba<double>;
 template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);
