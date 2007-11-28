@@ -87,6 +87,8 @@
   * fixed a bug in loop limits, since drift limits were incorrect
   * modified demodulate() so that ptable is internally computed as type 'real', and then
     copied over after normalization.
+  * fixed a serious error in demodulate(), where the data element being considered was
+    not sparsified before adding to the watermark sequence.
 */
 
 namespace libcomm {

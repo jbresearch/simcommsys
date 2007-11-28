@@ -218,7 +218,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                // create the considered transmitted sequence
                libbase::vector<sigspace> tx(n);
                for(int j=0; j<n; j++)
-                  tx(j) = mpsk::modulate(((ws(i)^d) >> j) & 1);
+                  tx(j) = mpsk::modulate(((ws(i)^lut(d)) >> j) & 1);
                // compute the conditional probability
                const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
                // include the probability for this particular sequence
