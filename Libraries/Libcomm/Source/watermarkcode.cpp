@@ -233,9 +233,9 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                   trace << "DEBUG (watermarkcode::demodulate): ptable(" << i << ", " << string(b) << ")";
                   trace << " = " << p(d) << "\t";
                   //trace << " = " << ptable(i,d) << "\t";
-                  //trace << "F = " << F << "\t";
-                  //trace << "B = " << B << "\t";
-                  //trace << "p = " << p << "\n";
+                  trace << "F = " << F << "\t";
+                  trace << "B = " << B << "\t";
+                  trace << "P = " << P << "\t";
                   trace << "[" << x1 << ", " << x2 << "]\n";
                   }
 #endif
