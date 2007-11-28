@@ -75,6 +75,9 @@
     also updated single-timestep receive() accordingly.
   * updated compute_parameters() to use set_ps/i/d instead of direct-access
   * added pre-computed parameter to reduce work in myfba::P()
+
+  Version 1.31 (28 Nov 2007)
+  * moved call to init() from default constructor to end of serialization input
 */
 
 namespace libcomm {
@@ -95,7 +98,7 @@ class bsid : public channel {
    void precompute();
 protected:
    // default constructor
-   bsid() { init(); };
+   bsid() {};
    // handle functions
    void compute_parameters(const double Eb, const double No);
    // channel handle functions

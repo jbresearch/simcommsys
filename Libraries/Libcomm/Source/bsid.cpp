@@ -5,7 +5,7 @@
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.30);
+const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.31);
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
@@ -266,6 +266,7 @@ std::istream& bsid::serialize(std::istream& sin)
    sin >> varyPs;
    sin >> varyPd;
    sin >> varyPi;
+   init();
    return sin;
    }
 
