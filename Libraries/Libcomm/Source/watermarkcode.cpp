@@ -200,6 +200,10 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
       for(int d=0; d<q; d++)
          {
          //ptable(i,d) = 0;
+         // create the considered transmitted sequence
+         libbase::vector<sigspace> tx(n);
+         for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
+            tx(j) = mpsk::modulate(t&1);
          // In loop below skip out-of-bounds cases:
          // 1. first bit of received vector must exist: n*i+x1 >= 0
          // 2. last bit of received vector must exist: n*(i+1)+x2-1 <= rx.size()-1
@@ -215,10 +219,6 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
             const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,xmax));
             for(int x2=x2min; x2<=x2max; x2++)
                {
-               // create the considered transmitted sequence
-               libbase::vector<sigspace> tx(n);
-               for(int j=0; j<n; j++)
-                  tx(j) = mpsk::modulate(((ws(i)^lut(d)) >> j) & 1);
                // compute the conditional probability
                const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
                // include the probability for this particular sequence

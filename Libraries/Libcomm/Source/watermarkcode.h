@@ -92,6 +92,7 @@
   * added check for numerical underflow in demodulate (debug build).
   * updated to conform with fba 1.30, changing the return type of P() and Q()
     to 'real'.
+  * in demodulate(), moved the creation of tx vector two loops outwards, and cleaned it up
 */
 
 namespace libcomm {
