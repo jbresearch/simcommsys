@@ -51,7 +51,7 @@ int CFolderDialog::DoModal()
       m_sPrompt,
       BIF_RETURNONLYFSDIRS, // + 0x40 for new style
       BrowseCallbackProc,  // callback proc
-      (long) sPath,        // parameter passed to callback proc
+      (LONG_PTR) sPath,    // parameter passed to callback proc
       0                    // variable to receive image
       };
    ITEMIDLIST *itemList = SHBrowseForFolder(&browseInfo);

@@ -45,6 +45,10 @@
   * updated to use library namespaces.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
   * made class a derivative of CRoutedIO.
+  
+  Version 1.05 (28 Nov 2007)
+  * modifications to silence 64-bit portability warnings
+    - changed response type from int to INT_PTR in InitInstance()
 */
 class CSRandomInterleaverApp : public CWinApp, libwin::CRoutedIO
 {

@@ -17,7 +17,7 @@
 
 namespace libbase {
 
-const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.21);
+const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.22);
 
 using std::cerr;
 using std::clog;
@@ -74,7 +74,7 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
    (*argv)[*argc-1] = NULL;
    (*argc)--;
    // dissect endpoint into hostname:port
-   const int n = endpoint.find(':');
+   const size_t n = endpoint.find(':');
    const std::string hostname = endpoint.substr(0,n);
    int port;
    std::istringstream(endpoint.substr(n+1)) >> port;
@@ -251,7 +251,7 @@ bool masterslave::send(const vector<double>& x)
 
 bool masterslave::send(const std::string& x)
    {
-   int len = x.length();
+   int len = int(x.length());
    if(!send(len))
       return false;
    return send(x.c_str(), len);
@@ -460,7 +460,7 @@ bool masterslave::send(slave *s, const double x)
 
 bool masterslave::send(slave *s, const std::string& x)
    {
-   int len = x.length();
+   int len = int(x.length());
    if(!send(s, len))
       return false;
    return send(s, x.c_str(), len);

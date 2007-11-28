@@ -21,6 +21,10 @@
   * removed pragma once directive, as this is unnecessary
   * changed unique define to conform with that used in other libraries
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+  
+  Version 1.21 (28 Nov 2007)
+  * modifications to silence 64-bit portability warnings
+    - changed type cast from int to UINT_PTR in Insert()
 */
 
 namespace libwin {

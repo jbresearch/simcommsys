@@ -110,7 +110,7 @@ bool CHistogram2D::RegisterWndClass(HINSTANCE hInstance)
 
 void CHistogram2D::UpdateData(CWnd *pWnd, libbase::matrix<int>& m)
    {
-   pWnd->SendMessage(WM_USER, (int) &m);
+   pWnd->SendMessage(WM_USER, (UINT_PTR) &m);
    }
 
 }; // end namespace

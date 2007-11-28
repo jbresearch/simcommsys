@@ -23,7 +23,7 @@ namespace libbase {
 
 using std::cerr;
    
-const vcs socket::version("Networking sockets module (socket)", 1.21);
+const vcs socket::version("Networking sockets module (socket)", 1.22);
 
 // constant values
 
@@ -48,7 +48,7 @@ template <class T> ssize_t socket::io(T buf, size_t len)
 template <> ssize_t socket::io(const void *buf, size_t len)
    {
 #ifdef WIN32
-   return send(sd, (const char *)buf, len, 0);
+   return send(sd, (const char *)buf, int(len), 0);
 #else
    return ::write(sd, buf, len);
 #endif
@@ -57,7 +57,7 @@ template <> ssize_t socket::io(const void *buf, size_t len)
 template <> ssize_t socket::io(void *buf, size_t len)
    {
 #ifdef WIN32
-   return recv(sd, (char *)buf, len, 0);
+   return recv(sd, (char *)buf, int(len), 0);
 #else
    return ::read(sd, buf, len);
 #endif
@@ -137,7 +137,7 @@ socket::~socket()
 
 bool socket::bind(int16u port)
    {
-   if((sd = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+   if((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
       {
       cerr << "ERROR (bind): Failed to create socket descriptor\n";
       return false;
@@ -209,7 +209,7 @@ socket *socket::accept()
    socket *s = new socket;
    socklen_t len = sizeof(struct sockaddr_in);
    struct sockaddr_in clnt;
-   s->sd = ::accept(sd, (struct sockaddr *) &clnt, &len);
+   s->sd = (int)::accept(sd, (struct sockaddr *) &clnt, &len);
    if(s->sd < 0)
       {
       cerr << "ERROR (accept): Failure on listening for connections\n";
@@ -226,7 +226,7 @@ socket *socket::accept()
 
 bool socket::connect(std::string hostname, int16u port)
    {
-   if((sd = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+   if((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
       {
       cerr << "ERROR (connect): Failed to create socket descriptor\n";
       return false;

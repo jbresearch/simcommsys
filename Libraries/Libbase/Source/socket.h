@@ -35,7 +35,12 @@
   
   Version 1.21 (20 Nov 2007)
   * Added timeout facility to select(), defaulting to no-timeout
- */
+  
+  Version 1.22 (28 Nov 2007)
+  * modifications to silence 64-bit portability warnings
+    - explicit conversion from size_t to int in io()
+    - ditto in bind(), accept() and connect()
+*/
 
 namespace libbase {
 

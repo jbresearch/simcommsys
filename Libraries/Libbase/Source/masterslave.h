@@ -55,6 +55,11 @@
   * Added timeout facility to waitforevent(), defaulting to no-timeout.
   * Modified anyoneworking(), making it a const function.
   * Added workingslaves(), returning the number of slaves currently working.
+  
+  Version 1.22 (28 Nov 2007)
+  * modifications to silence 64-bit portability warnings
+    - changed getnumslaves() return type from int to size_t
+    - similar changes in enable() and send() functions
 */
 
 namespace libbase {
@@ -91,7 +96,7 @@ public:
    // informative functions
    bool isenabled() const { return initialized; };
    double getcputime() const { return cputimeused; };
-   int getnumslaves() const { return smap.size(); };
+   size_t getnumslaves() const { return smap.size(); };
 
 // items for use by slaves
 private:

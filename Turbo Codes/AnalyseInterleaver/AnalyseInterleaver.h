@@ -30,6 +30,10 @@
   Version 1.02 (10 Nov 2006)
   * updated to use library namespaces.
   * made class a derivative of CRoutedIO.
+  
+  Version 1.03 (28 Nov 2007)
+  * modifications to silence 64-bit portability warnings
+    - changed response type from int to INT_PTR in InitInstance()
 */
 
 class CAnalyseInterleaverApp : public CWinApp, libwin::CRoutedIO
