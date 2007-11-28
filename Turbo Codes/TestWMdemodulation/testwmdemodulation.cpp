@@ -9,15 +9,14 @@ int main(int argc, char *argv[])
    using std::cout;
    using std::cerr;
 
-   // common parameters
+   // fixed parameters
    const int I=3, xmax=5;
-   const int n=3, k=2;
-
-   // create a watermark codec
-   using libbase::logrealfast;
-   using libcomm::watermarkcode;
+   // user-defined parameters
    const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
-   watermarkcode<logrealfast> modem(n,k,seed, I,xmax);
+   const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
+   const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
+   // create a watermark codec
+   libcomm::watermarkcode<libbase::logrealfast> modem(n,k,seed, I,xmax);
    cout << modem.description() << "\n";
    
    // define an alternating encoded sequence
