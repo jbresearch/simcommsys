@@ -189,15 +189,17 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    libbase::bitfield b;
    b.resize(k);
 #endif
+   libbase::vector<real> p(q);
    for(int i=0; i<N; i++)
       {
 #ifndef NDEBUG
       libbase::timer t1;
 #endif
       trace << libbase::pacifier(100*i/N);
+      p = real(0);
       for(int d=0; d<q; d++)
          {
-         ptable(i,d) = 0;
+         //ptable(i,d) = 0;
          // In loop below skip out-of-bounds cases:
          // 1. first bit of received vector must exist: n*i+x1 >= 0
          // 2. last bit of received vector must exist: n*(i+1)+x2-1 <= rx.size()-1
@@ -218,17 +220,19 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                for(int j=0; j<n; j++)
                   tx(j) = mpsk::modulate(((ws(i)^d) >> j) & 1);
                // compute the conditional probability
-               const double p = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
+               const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
                // include the probability for this particular sequence
                const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
-               ptable(i,d) += p * double(F * B);
+               //ptable(i,d) += p * double(F * B);
+               p(d) += P * F * B;
 #ifndef NDEBUG
                if(N < 20)
                   {
                   b = d;
                   trace << "DEBUG (watermarkcode::demodulate): ptable(" << i << ", " << string(b) << ")";
-                  trace << " = " << ptable(i,d) << "\t";
+                  trace << " = " << p(d) << "\t";
+                  //trace << " = " << ptable(i,d) << "\t";
                   //trace << "F = " << F << "\t";
                   //trace << "B = " << B << "\t";
                   //trace << "p = " << p << "\n";
@@ -238,6 +242,10 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                }
             }
          }
+      // normalize and copy results
+      p /= p.sum();
+      for(int d=0; d<q; d++)
+         ptable(i,d) = p(d);
       }
    trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
    }

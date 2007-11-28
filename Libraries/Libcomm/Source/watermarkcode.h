@@ -76,7 +76,7 @@
   Version 1.25 (13 Nov 2007)
   * optimization of demodulate()
 
-  Version 1.26 (26-27 Nov 2007)
+  Version 1.26 (26-28 Nov 2007)
   * fixed a bug in modulation, where the incorrect index was applied to the tx vector
   * added debugging information printing during modulation, when working with small blocks
   * added debugging information printing during demodulation, when working with small blocks
@@ -85,6 +85,8 @@
     incorrectly assumed to consist of one bit rather than 'n'.
   * optimized demodulate() by pre-computing loop limits
   * fixed a bug in loop limits, since drift limits were incorrect
+  * modified demodulate() so that ptable is internally computed as type 'real', and then
+    copied over after normalization.
 */
 
 namespace libcomm {
