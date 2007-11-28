@@ -129,6 +129,9 @@
   * added facility for sub-vector referencing, enabling access to the sub-vector data without
     array copying; this needed the introduction of a flag m_root, which indicates vectors
     containing their own allocated memory.
+
+  Version 1.91 (28 Nov 2007)
+  * defined alternate vector copy for non-root vectors (to avoid copying the data)
 */
 
 namespace libbase {
@@ -263,9 +266,18 @@ template <class T> inline vector<T>::vector(const int x)
 
 template <class T> inline vector<T>::vector(const vector<T>& x)
    {
-   alloc(x.m_xsize);
-   for(int i=0; i<m_xsize; i++)
-      m_data[i] = x.m_data[i];
+   if(x.m_root)
+      {
+      alloc(x.m_xsize);
+      for(int i=0; i<m_xsize; i++)
+         m_data[i] = x.m_data[i];
+      }
+   else
+      {
+      m_root = x.m_root;
+      m_xsize = x.m_xsize;
+      m_data = x.m_data;
+      }
    }
 
 template <class T> inline vector<T>::~vector()
