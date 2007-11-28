@@ -12,16 +12,19 @@ int main(int argc, char *argv[])
    // fixed parameters
    const int I=3, xmax=5;
    // user-defined parameters
+   if(argc == 1)
+      cout << "Usage: " << argv[0] << " [seed [n [k [tau]]]]\n";
    const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
    const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
    const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
+   const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
+
    // create a watermark codec
    libcomm::watermarkcode<libbase::logrealfast> modem(n,k,seed, I,xmax);
    cout << modem.description() << "\n";
    
    // define an alternating encoded sequence
    using libbase::vector;
-   const int tau = 5;
    const int N = 1<<k;
    vector<int> encoded(tau);
    for(int i=0; i<tau; i++)
