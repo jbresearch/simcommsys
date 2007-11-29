@@ -94,6 +94,12 @@
     to 'real'.
   * in demodulate(), moved the creation of tx vector two loops outwards, and cleaned it up
   * removed I, xmax from this class, since they are held (and should be only) in bsid channel 
+  *** first version that actually decodes in a usable way ***
+
+  Version 1.30 (30 Nov 2007)
+  * changed normalization method, so that we normalize over the whole block instead of
+    independently for each timestep. This should be equivalent to no-normalization, and is
+    a precursor to a change in the architecture to allow higher-range ptables.
 */
 
 namespace libcomm {

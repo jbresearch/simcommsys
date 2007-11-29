@@ -178,6 +178,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    fba<real>::prepare(rx);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
+   libbase::matrix<real> p(N,q);
+   p = real(0);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    trace << "DEBUG (watermarkcode::demodulate): computing ptable...\n";
 #ifndef NDEBUG
@@ -185,14 +187,12 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    libbase::bitfield b;
    b.resize(k);
 #endif
-   libbase::vector<real> p(q);
    for(int i=0; i<N; i++)
       {
 #ifndef NDEBUG
       libbase::timer t1;
 #endif
       trace << libbase::pacifier(100*i/N);
-      p = real(0);
       for(int d=0; d<q; d++)
          {
          //ptable(i,d) = 0;
@@ -217,17 +217,17 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                {
                // compute the conditional probability
                const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
-               // include the probability for this particular sequence
+               // extract the relevant forward and backward metrics
                const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
-               //ptable(i,d) += p * double(F * B);
-               p(d) += P * F * B;
+               // include the probability for this particular sequence
+               p(i,d) += P * F * B;
 #ifndef NDEBUG
                if(N < 20)
                   {
                   b = d;
                   trace << "DEBUG (watermarkcode::demodulate): ptable(" << i << ", " << string(b) << ")";
-                  trace << " = " << p(d) << "\t";
+                  trace << " = " << p(i,d) << "\t";
                   //trace << " = " << ptable(i,d) << "\t";
                   trace << "F = " << F << "\t";
                   trace << "B = " << B << "\t";
@@ -238,19 +238,20 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                }
             }
          }
-      // normalize and copy results
-      const real scale = p.sum();
-#ifndef NDEBUG
-      if(scale == real(0))
-         {
-         trace << "WARNING (watermarkcode::demodulate): likely numerical underflow for i = " << i << ".\n";
-         exit(1);
-         }
-#endif
-      p /= scale;
-      for(int d=0; d<q; d++)
-         ptable(i,d) = p(d);
       }
+   // normalize and copy results
+   const real scale = p.max();
+#ifndef NDEBUG
+   if(scale == real(0))
+      {
+      trace << "WARNING (watermarkcode::demodulate): likely numerical underflow.\n";
+      exit(1);
+      }
+#endif
+   p /= scale;
+   for(int i=0; i<N; i++)
+      for(int d=0; d<q; d++)
+         ptable(i,d) = p(i,d);
    trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
    }
    
@@ -306,7 +307,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.26
+#define VERSION 1.30
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);
