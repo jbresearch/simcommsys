@@ -1,4 +1,3 @@
-
 #include "randgen.h"
 #include "serializer_libcomm.h"
 #include "commsys.h"
@@ -33,7 +32,10 @@
     before the codec; as a result, previous codec files cannot be used directly.
   
   Version 1.23 (16 Nov 2007)
-  * added output flushing to guarantee
+  * added output flushing to guarantee results are always on file.
+  
+  Version 1.24 (29 Nov 2007)
+  * added printing of Code and Modulation rates.
 */
 
 using std::cout;
@@ -99,6 +101,8 @@ int main(int argc, char *argv[])
       
    // Print information on the statistical accuracy of results being worked
    cout << "#% " << system.description() << "\n"; 
+   cout << "#% Code Rate: " << system.getcodec()->rate() << "\n"; 
+   cout << "#% Modulation Rate: " << system.getmodem()->energy() << "\n"; 
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";

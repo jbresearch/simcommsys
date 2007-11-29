@@ -82,6 +82,9 @@
 
   Version 1.61 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+  Version 1.62 (30 Nov 2007)
+  * added getters for internal objects
 */
 
 namespace libcomm {
@@ -124,6 +127,12 @@ public:
    void set(double x) { chan->set_snr(x); };
    double get() { return chan->get_snr(); };
    void sample(libbase::vector<double>& result, int& samplecount);
+
+   // component object getters
+   const codec     *getcodec() const { return cdc; };
+   const modulator *getmodem() const { return modem; };
+   const puncture  *getpunc() const { return punc; };
+   const channel   *getchan() const { return chan; };
 
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
