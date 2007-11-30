@@ -60,6 +60,10 @@
   * modifications to silence 64-bit portability warnings
     - changed getnumslaves() return type from int to size_t
     - similar changes in enable() and send() functions
+  
+  Version 1.23 (30 Nov 2007)
+  * refactoring work
+    - extracted method dowork()
 */
 
 namespace libbase {
@@ -109,6 +113,7 @@ private:
    int gettag();
    void sendname();
    void sendcputime();
+   void dowork();
    void slaveprocess(const std::string& hostname, const int16u port, const int priority);
 public:
    // slave -> master communication

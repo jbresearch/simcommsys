@@ -17,7 +17,7 @@
 
 namespace libbase {
 
-const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.22);
+const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.23);
 
 using std::cerr;
 using std::clog;
@@ -174,6 +174,18 @@ void masterslave::sendcputime()
     trace << "send usage [" << cputime << "]\n" << flush;
 	}
        
+void masterslave::dowork()
+   {
+   std::string key;
+   if(!receive(key))
+      {
+      cerr << "Connection failed waiting for function reference, dying here...\n";
+      exit(1);
+      }
+   trace << "system working\n" << flush;
+   fcall(key);
+   }
+
 void masterslave::slaveprocess(const std::string& hostname, const int16u port, const int priority)
    {
    setpriority(priority);
@@ -189,20 +201,10 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port, c
             sendname();
             break;
          case tag_getcputime:
-         	sendcputime();
+            sendcputime();
             break;
          case tag_work:
-            // TODO: Move this to a separate function
-            {
-            std::string key;
-            if(!receive(key))
-               {
-               cerr << "Connection failed waiting for function reference, dying here...\n";
-               exit(1);
-               }
-            trace << "system working\n" << flush;
-            fcall(key);
-            }
+            dowork();
             break;
          case tag_die:
             t.stop();
