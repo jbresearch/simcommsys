@@ -82,6 +82,9 @@
   
   Version 1.33 (26 Nov 2007)
   * optimized display routine, so that updates are rate-limited
+  
+  Version 1.34 (30 Nov 2007)
+  * added error checking on assigning work to slaves
 */
 
 namespace libcomm {
