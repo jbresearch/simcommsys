@@ -83,7 +83,7 @@
   Version 1.61 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 
-  Version 1.62 (30 Nov 2007)
+  Version 1.62 (29 Nov 2007)
   * added getters for internal objects
 */
 

@@ -5,7 +5,7 @@
 
 namespace libcomm {
 
-const libbase::vcs modulator::version("Modulator Base module (modulator)", 1.50);
+const libbase::vcs modulator::version("Modulator Base module (modulator)", 1.51);
 
 
 // serialization functions

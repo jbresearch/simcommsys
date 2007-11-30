@@ -34,7 +34,7 @@
   Version 1.23 (16 Nov 2007)
   * added output flushing to guarantee results are always on file.
   
-  Version 1.24 (29 Nov 2007)
+  Version 1.24 (29-30 Nov 2007)
   * added printing of Code and Modulation rates.
 */
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
    // Print information on the statistical accuracy of results being worked
    cout << "#% " << system.description() << "\n"; 
    cout << "#% Code Rate: " << system.getcodec()->rate() << "\n"; 
-   cout << "#% Modulation Rate: " << system.getmodem()->energy() << "\n"; 
+   cout << "#% Modulation Rate: " << system.getmodem()->rate() << "\n"; 
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";
