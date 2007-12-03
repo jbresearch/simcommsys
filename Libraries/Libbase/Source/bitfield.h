@@ -52,36 +52,46 @@ public:
    bitfield();
    bitfield(const char *s) { init(s); };
 
+   // Type conversion to integer/string
    operator int32u() const { return field; };
    operator std::string() const;
    
+   // Field size methods
    int size() const { return bits; };
    void resize(const int b);
    static void setdefsize(const int b);
    
+   // Copy and Assignment
    bitfield& operator=(const bitfield& x);
    bitfield& operator=(const int32u x);
 
+   // Partial extraction and indexed access
    bitfield extract(const int hi, const int lo) const;
    bitfield extract(const int b) const;
    bitfield operator[](const int b) const { return extract(b); };
    
+   // Logical operators - OR, AND, XOR
    friend bitfield operator|(const bitfield& a, const bitfield& b);
    friend bitfield operator&(const bitfield& a, const bitfield& b);
    friend bitfield operator^(const bitfield& a, const bitfield& b);
-   friend bitfield operator*(const bitfield& a, const bitfield& b);
    bitfield& operator|=(const bitfield& x);
    bitfield& operator&=(const bitfield& x);
    bitfield& operator^=(const bitfield& x);
-   
+
+   // Convolution operator
+   friend bitfield operator*(const bitfield& a, const bitfield& b);
+   // Concatenation operator
    friend bitfield operator+(const bitfield& a, const bitfield& b);
+   // Shift-register operators - sequence shift-in
    friend bitfield operator<<(const bitfield& a, const bitfield& b);
    friend bitfield operator>>(const bitfield& a, const bitfield& b);
-   bitfield& operator<<=(const int x);
-   bitfield& operator>>=(const int x);
+   // Shift-register operators - zero shift-in
    friend bitfield operator<<(const bitfield& a, const int b);
    friend bitfield operator>>(const bitfield& a, const int b);
+   bitfield& operator<<=(const int x);
+   bitfield& operator>>=(const int x);
 
+   // Stream I/O
    friend std::ostream& operator<<(std::ostream& s, const bitfield& b);
    friend std::istream& operator>>(std::istream& s, bitfield& b);
 };
