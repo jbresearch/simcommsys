@@ -69,6 +69,9 @@
   Version 1.60 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.70 (3 Dec 2007)
+  * Updated output() so that the input value is a const and the function is also a const
 */
 
 namespace libcomm {
@@ -83,12 +86,13 @@ public:
    virtual fsm *clone() const = 0;        // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
-   // FSM operations (reset/advance/step/state)
-   virtual void reset(int state=0) = 0;   // resets the FSM to a specified state
+   // FSM resetting
+   virtual void reset(int state=0) = 0;   // reset to a specified state
    virtual void resetcircular(int zerostate, int n) = 0; // resets, given zero-state solution and number of time-steps
    virtual void resetcircular() = 0;      // as above, assuming we have just run through the zero-state zero-input
+   // FSM operations (advance/step/state)
    virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
-   virtual int output(int& input) = 0;    // computes the output for the given input and the present state
+   virtual int output(const int& input) const = 0; // computes the output for the given input and the present state
    virtual int step(int& input) = 0;      // feeds the specified input and returns the corresponding output
    virtual int state() const = 0;         // returns the current state
 

@@ -137,7 +137,7 @@ void gcc::advance(int& input)
    reg = newstate;
    }
 
-int gcc::output(int& input)
+int gcc::output(const int& input) const
    {
    // process input
    bitfield ip;

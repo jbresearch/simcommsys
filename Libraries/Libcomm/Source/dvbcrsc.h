@@ -17,6 +17,9 @@
 
   Version 1.11 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+  Version 1.20 (3 Dec 2007)
+  * Updated output() as per fsm 1.70
 */
 
 namespace libcomm {
@@ -42,20 +45,21 @@ public:
    dvbcrsc *clone() const { return new dvbcrsc(*this); };               // cloning operation
    const char* name() const { return shelper.name(); };
 
-   // FSM operations (reset/advance/step/state)
-   void reset(int state=0);     // resets the FSM to a specified state
-   void resetcircular(int zerostate, int n); // resets the FSM, given the zero-state solution and the number of time-steps
-   void resetcircular();
-   void advance(int& input);  // feeds the specified input and advances the state
-   int output(int& input);         // computes the output for the given input and the present state
-   int step(int& input);        // feeds the specified input and returns the corresponding output
-   int state() const;           // returns the current state
+   // FSM resetting
+   void reset(int state=0);                  // reset to a specified state
+   void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
+   void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
+   // FSM operations (advance/step/state)
+   void advance(int& input);                 // feeds the specified input and advances the state
+   int output(const int& input) const;       // computes the output for the given input and the present state
+   int step(int& input);                     // feeds the specified input and returns the corresponding output
+   int state() const;                        // returns the current state
 
    // informative functions
-   int num_states() const { return 1<<nu; };    // returns the number of defined states
-   int num_inputs() const { return 1<<k; };     // returns the number of valid inputs
-   int num_outputs() const { return 1<<n; };    // returns the number of valid outputs
-   int mem_order() const { return nu; };           // memory order (length of tail)
+   int num_states() const { return 1<<nu; }; // returns the number of defined states
+   int num_inputs() const { return 1<<k; };  // returns the number of valid inputs
+   int num_outputs() const { return 1<<n; }; // returns the number of valid outputs
+   int mem_order() const { return nu; };     // memory order (length of tail)
 
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;

@@ -6,7 +6,7 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs rscc::version("Recursive Systematic Convolutional Coder module (rscc)", 1.51);
+const libbase::vcs rscc::version("Recursive Systematic Convolutional Coder module (rscc)", 1.60);
 
 const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
@@ -111,7 +111,7 @@ void rscc::advance(int& input)
    assert("Function not implemented.");
    }
 
-int rscc::output(int& input)
+int rscc::output(const int& input) const
    {
    assert("Function not implemented.");
    return 0;

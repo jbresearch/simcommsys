@@ -6,7 +6,7 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs nrcc::version("Non-Recursive Convolutional Coder module (nrcc)", 1.51);
+const libbase::vcs nrcc::version("Non-Recursive Convolutional Coder module (nrcc)", 1.60);
 
 const libbase::serializer nrcc::shelper("fsm", "nrcc", nrcc::create);
 
@@ -111,7 +111,7 @@ void nrcc::advance(int& input)
    assert("Function not implemented.");
    }
 
-int nrcc::output(int& input)
+int nrcc::output(const int& input) const
    {
    assert("Function not implemented.");
    return 0;
