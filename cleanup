@@ -1,0 +1,8 @@
+#!/bin/bash
+
+FILE=$1
+TMPFILE=$FILE.tmp
+
+cp "$FILE" "$TMPFILE"
+expand "$TMPFILE" >"$FILE"
+rm "$TMPFILE"
