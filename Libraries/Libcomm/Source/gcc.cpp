@@ -35,10 +35,10 @@ void gcc::init(const vector<bitfield>& A, const vector<bitfield>& B, const vecto
    for(i=0; i<nu; i++)
       assert(B(i).size() == k);
    assert(C.size() == n);
-   for(i=0; i<nu; i++)
+   for(i=0; i<n; i++)
       assert(C(i).size() == nu);
    assert(D.size() == n);
-   for(i=0; i<nu; i++)
+   for(i=0; i<n; i++)
       assert(D(i).size() == k);
    }
 

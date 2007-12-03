@@ -17,6 +17,9 @@
 
   Version 1.11 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+  Version 1.12 (3 Dec 2007)
+  * fixed a bug in init() where C and D were not being tested completely
 */
 
 namespace libcomm {
