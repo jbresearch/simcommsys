@@ -286,8 +286,8 @@ public:
 
 public:
    // creation / destruction
-	CPSPlugIn(const int nDataSize, const int nDataVersion);
-	virtual ~CPSPlugIn();
+        CPSPlugIn(const int nDataSize, const int nDataVersion);
+        virtual ~CPSPlugIn();
 
    // plug-in main function
    void Main(const short nSelector, FilterRecord* pFilterRecord, long* pData, short* pResult);

@@ -1,6 +1,6 @@
 // stdafx.cpp : source file that includes just the standard includes
-//	AnnealInterleaver.pch will be the pre-compiled header
-//	stdafx.obj will contain the pre-compiled type information
+//      AnnealInterleaver.pch will be the pre-compiled header
+//      stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"
 

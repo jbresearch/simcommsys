@@ -124,7 +124,7 @@ public:
    // object handling
    channel();                             // constructor
    virtual ~channel() {};                 // virtual destructor
-   virtual channel *clone() const = 0;	  // cloning operation
+   virtual channel *clone() const = 0;    // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    // reset function for random generator

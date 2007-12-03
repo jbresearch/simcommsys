@@ -19,8 +19,8 @@
 class CSimulateCommsysDoc : public CDocument
 {
 protected: // create from serialization only
-	CSimulateCommsysDoc();
-	DECLARE_DYNCREATE(CSimulateCommsysDoc)
+        CSimulateCommsysDoc();
+        DECLARE_DYNCREATE(CSimulateCommsysDoc)
 
 // Attributes
 public:
@@ -29,20 +29,20 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CSimulateCommsysDoc)
-	public:
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CSimulateCommsysDoc)
+        public:
+        virtual BOOL OnNewDocument();
+        virtual void Serialize(CArchive& ar);
+        //}}AFX_VIRTUAL
 
 // Implementation
 public:
    // system components
    void SetCodec(libcomm::codec *pCodec);
-	void SetPuncture(libcomm::puncture *pPuncture);
-	void SetModulator(libcomm::modulator *pModulator);
-	void SetChannel(libcomm::channel *pChannel);
+        void SetPuncture(libcomm::puncture *pPuncture);
+        void SetModulator(libcomm::modulator *pModulator);
+        void SetChannel(libcomm::channel *pChannel);
    libcomm::codec *GetCodec() const { return m_pCodec; };
    libcomm::puncture *GetPuncture() const { return m_pPuncture; };
    libcomm::modulator *GetModulator() const { return m_pModulator; };
@@ -57,10 +57,10 @@ public:
    void InsertResults(const double dSNR, const int iSamples, const libbase::vector<double>& vdEstimate, const libbase::vector<double>& vdError, const double dElapsed);
    bool ResultsPresent() const { return !m_lsResults.empty(); };
    // destructor
-	virtual ~CSimulateCommsysDoc();
+        virtual ~CSimulateCommsysDoc();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+        virtual void AssertValid() const;
+        virtual void Dump(CDumpContext& dc) const;
 #endif
 
 protected:
@@ -85,11 +85,11 @@ protected:
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CSimulateCommsysDoc)
-		// NOTE - the ClassWizard will add and remove member functions here.
-		//    DO NOT EDIT what you see in these blocks of generated code !
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        //{{AFX_MSG(CSimulateCommsysDoc)
+                // NOTE - the ClassWizard will add and remove member functions here.
+                //    DO NOT EDIT what you see in these blocks of generated code !
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 /////////////////////////////////////////////////////////////////////////////

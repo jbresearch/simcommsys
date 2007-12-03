@@ -66,13 +66,13 @@ class md5 {
 #endif
 public:
    // basic constructor/destructor
-	md5();
-	virtual ~md5();
+        md5();
+        virtual ~md5();
    // conversion to/from strings
    md5(const std::string& s);
    operator std::string() const;
    // public interface for computing digest
-	void reset();
+        void reset();
    void process(const libbase::vector<libbase::int32u>& M);
    void process(const char *buf, const int size);
    void process(std::istream& sin);

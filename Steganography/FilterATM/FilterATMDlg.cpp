@@ -37,10 +37,10 @@ CFilterATMDlg::CFilterATMDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterATMDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterATMDlg)
-	m_nAlpha = 0;
-	m_nRadius = 0;
-	m_bKeepNoise = FALSE;
-	//}}AFX_DATA_INIT
+        m_nAlpha = 0;
+        m_nRadius = 0;
+        m_bKeepNoise = FALSE;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -48,20 +48,20 @@ void CFilterATMDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterATMDlg)
-	DDX_Control(pDX, IDC_SLIDER, m_scSlider);
-	DDX_Text(pDX, IDC_ALPHA, m_nAlpha);
-	DDX_Text(pDX, IDC_RADIUS, m_nRadius);
-	DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
-	//}}AFX_DATA_MAP
+        DDX_Control(pDX, IDC_SLIDER, m_scSlider);
+        DDX_Text(pDX, IDC_ALPHA, m_nAlpha);
+        DDX_Text(pDX, IDC_RADIUS, m_nRadius);
+        DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterATMDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterATMDlg)
-	ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
-	ON_EN_CHANGE(IDC_ALPHA, OnChangeAlpha)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER, OnCustomdrawSlider)
-	//}}AFX_MSG_MAP
+        ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
+        ON_EN_CHANGE(IDC_ALPHA, OnChangeAlpha)
+        ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER, OnCustomdrawSlider)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

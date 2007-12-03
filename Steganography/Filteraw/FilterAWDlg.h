@@ -40,12 +40,12 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CFilterAWDlg)
-	enum { IDD = IDD_DIALOG1 };
-	int		m_nRadius;
-	BOOL	m_bKeepNoise;
-	double	m_dNoise;
-	BOOL	m_bAuto;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        int             m_nRadius;
+        BOOL    m_bKeepNoise;
+        double  m_dNoise;
+        BOOL    m_bAuto;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -60,9 +60,9 @@ protected:
    // Generated message map functions
    //{{AFX_MSG(CFilterAWDlg)
    virtual BOOL OnInitDialog();
-	afx_msg void OnAuto();
-	afx_msg void OnChangeRadius();
-	//}}AFX_MSG
+        afx_msg void OnAuto();
+        afx_msg void OnChangeRadius();
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

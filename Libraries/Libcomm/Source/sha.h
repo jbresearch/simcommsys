@@ -47,13 +47,13 @@ class sha {
 #endif
 public:
    // basic constructor/destructor
-	sha();
-	virtual ~sha();
+        sha();
+        virtual ~sha();
    // conversion to/from strings
    sha(const std::string& s);
    operator std::string() const;
    // public interface for computing digest
-	void reset();
+        void reset();
    void process(const libbase::vector<libbase::int32u>& M);
    void process(const char *buf, const int size);
    void process(std::istream& sin);
@@ -64,9 +64,9 @@ public:
    bool operator!=(const sha& x) const;
 protected:
    // nonlinear functions
-	static libbase::int32u f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z);
+        static libbase::int32u f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z);
    // circular shift
-	static libbase::int32u cshift(const libbase::int32u x, const int s);
+        static libbase::int32u cshift(const libbase::int32u x, const int s);
    // message expander
    static void expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libbase::int32u>& W);
    // stream input/output

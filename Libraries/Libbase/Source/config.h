@@ -4,16 +4,16 @@
 // Enable secure function overload for CRT in Win32
 
 #ifdef WIN32
-#	if defined(_CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES)
-#		undef _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES
-#		undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
-#		undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT
-#		undef _CRT_SECURE_NO_DEPRECATE
-#	endif
-#	define _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES 1
-#	define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#	define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT 1
-#	define _CRT_SECURE_NO_DEPRECATE 1
+#       if defined(_CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES)
+#               undef _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES
+#               undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
+#               undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT
+#               undef _CRT_SECURE_NO_DEPRECATE
+#       endif
+#       define _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES 1
+#       define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
+#       define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT 1
+#       define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
 // include files
@@ -111,7 +111,7 @@
 
   Version 3.23 (17 Jul 2007)
   * moved pow(double,int) upgrade to pow(double,double) to be before pow(int,int)
-	upgrade to pow(double,int).
+        upgrade to pow(double,int).
   * moved isinf() and isnan() back to global namespace.
 
   Version 3.30 (7 Nov 2007)
@@ -181,17 +181,17 @@ extern std::ostream trace;
 
 // Names for integer types
 
-typedef unsigned char	   int8u;
+typedef unsigned char      int8u;
 typedef signed char        int8s;
-typedef unsigned short	   int16u;
+typedef unsigned short     int16u;
 typedef signed short       int16s;
-typedef unsigned int 	   int32u;
-typedef signed int		   int32s;
+typedef unsigned int       int32u;
+typedef signed int                 int32s;
 #ifdef WIN32
-typedef unsigned __int64	int64u;
-typedef signed __int64	   int64s;
+typedef unsigned __int64        int64u;
+typedef signed __int64     int64s;
 #else
-typedef unsigned long long	int64u;
+typedef unsigned long long      int64u;
 typedef signed long long   int64s;
 #endif
 

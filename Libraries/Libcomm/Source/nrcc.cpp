@@ -125,8 +125,8 @@ int nrcc::step(int& input)
    // Handle tailing out
    if(input != fsm::tail)
       ip = input;
-   else		// ip is the default of zero;
-      input = 0;	// update the given input
+   else         // ip is the default of zero;
+      input = 0;        // update the given input
    // Compute output
    for(int j=0; j<n; j++)
       {

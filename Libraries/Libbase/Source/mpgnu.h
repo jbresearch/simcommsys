@@ -27,7 +27,7 @@ class mpgnu {
    static void init();
 #ifdef GMP
    static mpf_t dblmin, dblmax;
-   mpf_t	value;
+   mpf_t        value;
 #endif
 public:
    ~mpgnu();

@@ -16,27 +16,27 @@ static char THIS_FILE[] = __FILE__;
 
 
 CSelectChannelDlg::CSelectChannelDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CSelectChannelDlg::IDD, pParent)
+        : CDialog(CSelectChannelDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CSelectChannelDlg)
-	m_nType = -1;
-	//}}AFX_DATA_INIT
+        //{{AFX_DATA_INIT(CSelectChannelDlg)
+        m_nType = -1;
+        //}}AFX_DATA_INIT
 }
 
 
 void CSelectChannelDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CSelectChannelDlg)
-	DDX_CBIndex(pDX, IDC_TYPE, m_nType);
-	//}}AFX_DATA_MAP
+        CDialog::DoDataExchange(pDX);
+        //{{AFX_DATA_MAP(CSelectChannelDlg)
+        DDX_CBIndex(pDX, IDC_TYPE, m_nType);
+        //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CSelectChannelDlg, CDialog)
-	//{{AFX_MSG_MAP(CSelectChannelDlg)
-		// NOTE: the ClassWizard will add message map macros here
-	//}}AFX_MSG_MAP
+        //{{AFX_MSG_MAP(CSelectChannelDlg)
+                // NOTE: the ClassWizard will add message map macros here
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

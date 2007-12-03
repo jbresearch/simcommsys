@@ -40,22 +40,22 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CAutomateGraphingDlg)
-	enum { IDD = IDD_DIALOG1 };
-	int		m_nJpegMin;
-	int		m_nJpegMax;
-	double	m_dStrengthMax;
-	double	m_dStrengthMin;
-	BOOL	m_bJpeg;
-	int		m_nJpegStep;
-	double	m_dStrengthStep;
-	CString	m_sParameters;
-	CString	m_sResults;
-	BOOL	m_bPresetStrength;
-	BOOL	m_bPrintBER;
-	BOOL	m_bPrintChiSquare;
-	BOOL	m_bPrintEstimate;
-	BOOL	m_bPrintSNR;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        int             m_nJpegMin;
+        int             m_nJpegMax;
+        double  m_dStrengthMax;
+        double  m_dStrengthMin;
+        BOOL    m_bJpeg;
+        int             m_nJpegStep;
+        double  m_dStrengthStep;
+        CString m_sParameters;
+        CString m_sResults;
+        BOOL    m_bPresetStrength;
+        BOOL    m_bPrintBER;
+        BOOL    m_bPrintChiSquare;
+        BOOL    m_bPrintEstimate;
+        BOOL    m_bPrintSNR;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -70,11 +70,11 @@ protected:
    // Generated message map functions
    //{{AFX_MSG(CAutomateGraphingDlg)
    virtual BOOL OnInitDialog();
-	afx_msg void OnParametersBrowse();
-	afx_msg void OnResultsBrowse();
-	afx_msg void OnJpeg();
-	virtual void OnOK();
-	//}}AFX_MSG
+        afx_msg void OnParametersBrowse();
+        afx_msg void OnResultsBrowse();
+        afx_msg void OnJpeg();
+        virtual void OnOK();
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

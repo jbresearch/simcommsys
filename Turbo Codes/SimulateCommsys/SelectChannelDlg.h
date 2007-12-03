@@ -14,30 +14,30 @@ class CSelectChannelDlg : public CDialog
 {
 // Construction
 public:
-	CSelectChannelDlg(CWnd* pParent = NULL);   // standard constructor
+        CSelectChannelDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CSelectChannelDlg)
-	enum { IDD = IDD_CHANNEL };
-	int		m_nType;
-	//}}AFX_DATA
+        //{{AFX_DATA(CSelectChannelDlg)
+        enum { IDD = IDD_CHANNEL };
+        int             m_nType;
+        //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CSelectChannelDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CSelectChannelDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(CSelectChannelDlg)
-		// NOTE: the ClassWizard will add member functions here
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        // Generated message map functions
+        //{{AFX_MSG(CSelectChannelDlg)
+                // NOTE: the ClassWizard will add member functions here
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

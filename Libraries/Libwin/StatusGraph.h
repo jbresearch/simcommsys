@@ -33,7 +33,7 @@ class CStatusGraph : public CWnd
 {
 // Construction
 public:
-	CStatusGraph();
+        CStatusGraph();
 
 // Attributes
 public:
@@ -42,28 +42,28 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CStatusGraph)
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CStatusGraph)
+        //}}AFX_VIRTUAL
 
 // Implementation
 public:
-	virtual ~CStatusGraph();
-	static bool RegisterWndClass(HINSTANCE hInstance);
-	static void Reset(CWnd* pWnd);
-	static void Insert(CWnd* pWnd, const double x);
+        virtual ~CStatusGraph();
+        static bool RegisterWndClass(HINSTANCE hInstance);
+        static void Reset(CWnd* pWnd);
+        static void Insert(CWnd* pWnd, const double x);
 
-	// Generated message map functions
+        // Generated message map functions
 protected:
    CList<double,double> m_data;
    double m_maxval;
-	//{{AFX_MSG(CStatusGraph)
-	afx_msg void OnPaint();
+        //{{AFX_MSG(CStatusGraph)
+        afx_msg void OnPaint();
    afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	//}}AFX_MSG
+        //}}AFX_MSG
    afx_msg void OnReset(WPARAM wParam, LPARAM lParam);
    afx_msg void OnInsert(WPARAM wParam, LPARAM lParam);
-	DECLARE_MESSAGE_MAP()
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

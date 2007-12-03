@@ -60,7 +60,7 @@ public:
    puncture_file(const char *fname, const int tau, const int sets);
    ~puncture_file() {};
 
-   puncture_file *clone() const { return new puncture_file(*this); };		// cloning operation
+   puncture_file *clone() const { return new puncture_file(*this); };           // cloning operation
    const char* name() const { return shelper.name(); };
 
    std::string description() const;

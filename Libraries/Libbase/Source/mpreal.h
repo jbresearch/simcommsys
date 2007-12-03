@@ -30,8 +30,8 @@ namespace libbase {
 class mpreal {
    static const vcs version;
    static const double base;
-   int32s	exponent;
-   long double	mantissa;
+   int32s       exponent;
+   long double  mantissa;
    void normalise();
 public:
    mpreal(const double m=0);

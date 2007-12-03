@@ -98,8 +98,8 @@ class montecarlo : public libbase::masterslave {
    experiment *system;
    // internal variables
    int      max_passes;             // max # of passes (with 1 non-zero result) affecting acceptance
-   double   cfactor;	               // factor dependent on confidence level
-   double   accuracy;	            // accuracy level required
+   double   cfactor;                   // factor dependent on confidence level
+   double   accuracy;               // accuracy level required
    int      samplecount;            // number of samples taken to produce the result (updated by experiment module to allow for dynamic sampling)
    libbase::timer t;
    // slave processes
@@ -126,12 +126,12 @@ public:
    void finalise();
    // simulation parameters
    void set_confidence(const double confidence);   // say, 0.95 => 95% probability
-   void set_accuracy(const double accuracy);	      // say, 0.10 => 10% of mean
+   void set_accuracy(const double accuracy);          // say, 0.10 => 10% of mean
    void set_bailout(const int passes);             // say, 1000 => at least 1 in 1000 non-zero estimates (0 to disable)
    // simulation results
    int get_samplecount() { return samplecount; };  // returns the number of samples taken to produce the result
    // main process
-   void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);		// get an estimate with given accuracy & confidence
+   void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);          // get an estimate with given accuracy & confidence
    // information getters
    const libbase::timer& get_timer() { return t; }; 
 };

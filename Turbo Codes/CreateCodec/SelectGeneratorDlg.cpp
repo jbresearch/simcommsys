@@ -37,10 +37,10 @@ void CSelectGeneratorDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CSelectGeneratorDlg, CDialog)
 //{{AFX_MSG_MAP(CSelectGeneratorDlg)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_INPUT, OnReleasedcaptureInput)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_OUTPUT, OnReleasedcaptureOutput)
-	ON_EN_UPDATE(IDC_VALUE, OnUpdateValue)
-	//}}AFX_MSG_MAP
+        ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_INPUT, OnReleasedcaptureInput)
+        ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_OUTPUT, OnReleasedcaptureOutput)
+        ON_EN_UPDATE(IDC_VALUE, OnUpdateValue)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

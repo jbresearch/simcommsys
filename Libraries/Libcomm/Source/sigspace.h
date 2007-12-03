@@ -32,7 +32,7 @@ namespace libcomm {
 
 class sigspace {
    static const libbase::vcs version;
-   double	inphase, quad;
+   double       inphase, quad;
 public:
    // creator / destructor
    sigspace(const double i=0, const double q=0);

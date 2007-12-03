@@ -27,7 +27,7 @@ const int lut_modulator::demodulate(const sigspace& signal) const
 
 void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
    {
-   // Compute factors / sizes & check validity	
+   // Compute factors / sizes & check validity  
    const int M = lut.size();
    const int tau = encoded.size();
    const int s = int(libbase::round(log(double(N))/log(double(M))));

@@ -19,8 +19,8 @@ class CTraceStreamBuf : public std::streambuf
 protected:
    CString buffer;
 public:
-	CTraceStreamBuf();
-	virtual ~CTraceStreamBuf();
+        CTraceStreamBuf();
+        virtual ~CTraceStreamBuf();
    int underflow();
    int overflow(int nCh = EOF);
 };

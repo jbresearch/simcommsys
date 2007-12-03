@@ -14,30 +14,30 @@ class CSelectIntDlg : public CDialog
 {
 // Construction
 public:
-	CSelectIntDlg(CWnd* pParent = NULL);   // standard constructor
+        CSelectIntDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CSelectIntDlg)
-	enum { IDD = IDD_INT };
-	int		m_nValue;
-	//}}AFX_DATA
+        //{{AFX_DATA(CSelectIntDlg)
+        enum { IDD = IDD_INT };
+        int             m_nValue;
+        //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CSelectIntDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CSelectIntDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(CSelectIntDlg)
-		// NOTE: the ClassWizard will add member functions here
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        // Generated message map functions
+        //{{AFX_MSG(CSelectIntDlg)
+                // NOTE: the ClassWizard will add member functions here
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

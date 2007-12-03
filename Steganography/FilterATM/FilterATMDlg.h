@@ -40,12 +40,12 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CFilterATMDlg)
-	enum { IDD = IDD_DIALOG1 };
-	CSliderCtrl	m_scSlider;
-	int		m_nAlpha;
-	int		m_nRadius;
-	BOOL	m_bKeepNoise;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        CSliderCtrl     m_scSlider;
+        int             m_nAlpha;
+        int             m_nRadius;
+        BOOL    m_bKeepNoise;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -60,10 +60,10 @@ protected:
    // Generated message map functions
    //{{AFX_MSG(CFilterATMDlg)
    virtual BOOL OnInitDialog();
-	afx_msg void OnChangeRadius();
-	afx_msg void OnChangeAlpha();
-	afx_msg void OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult);
-	//}}AFX_MSG
+        afx_msg void OnChangeRadius();
+        afx_msg void OnChangeAlpha();
+        afx_msg void OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult);
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

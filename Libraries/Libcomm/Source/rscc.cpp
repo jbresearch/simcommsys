@@ -136,7 +136,7 @@ int rscc::step(int& input)
       op.resize(0);
       for(int i=0; i<k; i++)
          op = ((ip[i] + reg[i]) * gen(i, i)) + op;
-      input = op;		// update given input as necessary
+      input = op;               // update given input as necessary
       }
    // Compute output
    for(int j=k; j<n; j++)

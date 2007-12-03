@@ -102,7 +102,7 @@ protected:
    puncture    *punc;
    channel     *chan;
    // working variables (data heap)
-   int	tau, m, N, K, k, iter;
+   int  tau, m, N, K, k, iter;
    libbase::vector<int> source, encoded, decoded;
    libbase::vector<sigspace>  signal1, signal2;
    libbase::matrix<double> ptable1, ptable2;

@@ -40,8 +40,8 @@ class rc4 {
    libbase::int8u x,y;
 public:
    // basic constructor/destructor
-	rc4();
-	virtual ~rc4();
+        rc4();
+        virtual ~rc4();
    // public functions
    void init(std::string key);
    std::string encrypt(const std::string plaintext);

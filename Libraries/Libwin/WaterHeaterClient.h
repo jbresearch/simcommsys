@@ -19,8 +19,8 @@ private:
    double KVolt(double T) const;
 public:
    // Constructor/destructor
-	CWaterHeaterClient(CString sPort);
-	virtual ~CWaterHeaterClient();
+        CWaterHeaterClient(CString sPort);
+        virtual ~CWaterHeaterClient();
    // User functions
 };
 

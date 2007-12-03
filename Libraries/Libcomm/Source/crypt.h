@@ -40,8 +40,8 @@ class crypt {
    char schluessel[16][48];
 public:
    // basic constructor/destructor
-	crypt();
-	virtual ~crypt();
+        crypt();
+        virtual ~crypt();
    // public functions
    void encrypt(char *nachr, int decr);
    void setkey(char *schl);

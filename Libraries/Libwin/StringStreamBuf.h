@@ -19,8 +19,8 @@ class CStringStreamBuf : public std::streambuf
 protected:
    CString *buffer;
 public:
-	CStringStreamBuf(CString *string);
-	virtual ~CStringStreamBuf();
+        CStringStreamBuf(CString *string);
+        virtual ~CStringStreamBuf();
    int underflow();
    int overflow(int nCh = EOF);
 };

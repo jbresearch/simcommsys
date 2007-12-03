@@ -39,15 +39,15 @@ CAutomateEmbeddingDlg::CAutomateEmbeddingDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CAutomateEmbeddingDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CAutomateEmbeddingDlg)
-	m_nJpegMin = 0;
-	m_nJpegMax = 0;
-	m_dStrengthMax = 0.0;
-	m_dStrengthMin = 0.0;
-	m_bJpeg = FALSE;
-	m_nJpegStep = 0;
-	m_dStrengthStep = 0.0;
-	m_sOutput = _T("");
-	//}}AFX_DATA_INIT
+        m_nJpegMin = 0;
+        m_nJpegMax = 0;
+        m_dStrengthMax = 0.0;
+        m_dStrengthMin = 0.0;
+        m_bJpeg = FALSE;
+        m_nJpegStep = 0;
+        m_dStrengthStep = 0.0;
+        m_sOutput = _T("");
+        //}}AFX_DATA_INIT
    }
 
 
@@ -55,23 +55,23 @@ void CAutomateEmbeddingDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CAutomateEmbeddingDlg)
-	DDX_Text(pDX, IDC_JPEGQ_MIN, m_nJpegMin);
-	DDX_Text(pDX, IDC_JPEGQ_MAX, m_nJpegMax);
-	DDX_Text(pDX, IDC_STRENGTH_MAX, m_dStrengthMax);
-	DDX_Text(pDX, IDC_STRENGTH_MIN, m_dStrengthMin);
-	DDX_Check(pDX, IDC_JPEG, m_bJpeg);
-	DDX_Text(pDX, IDC_JPEGQ_STEP, m_nJpegStep);
-	DDX_Text(pDX, IDC_STRENGTH_STEP, m_dStrengthStep);
-	DDX_Text(pDX, IDC_OUTPUT, m_sOutput);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_JPEGQ_MIN, m_nJpegMin);
+        DDX_Text(pDX, IDC_JPEGQ_MAX, m_nJpegMax);
+        DDX_Text(pDX, IDC_STRENGTH_MAX, m_dStrengthMax);
+        DDX_Text(pDX, IDC_STRENGTH_MIN, m_dStrengthMin);
+        DDX_Check(pDX, IDC_JPEG, m_bJpeg);
+        DDX_Text(pDX, IDC_JPEGQ_STEP, m_nJpegStep);
+        DDX_Text(pDX, IDC_STRENGTH_STEP, m_dStrengthStep);
+        DDX_Text(pDX, IDC_OUTPUT, m_sOutput);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CAutomateEmbeddingDlg, CDialog)
 //{{AFX_MSG_MAP(CAutomateEmbeddingDlg)
-	ON_BN_CLICKED(IDC_JPEG, OnJpeg)
-	ON_BN_CLICKED(IDC_OUTPUT_BROWSE, OnOutputBrowse)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_JPEG, OnJpeg)
+        ON_BN_CLICKED(IDC_OUTPUT_BROWSE, OnOutputBrowse)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

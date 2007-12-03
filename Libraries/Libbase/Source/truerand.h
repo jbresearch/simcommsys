@@ -46,7 +46,7 @@ class truerand {
 public:
    truerand();
    ~truerand();
-   inline int32u ival(int32u m);	// return unsigned integer modulo 'm'
+   inline int32u ival(int32u m);        // return unsigned integer modulo 'm'
 };
 
 inline int32u truerand::ival(int32u m)

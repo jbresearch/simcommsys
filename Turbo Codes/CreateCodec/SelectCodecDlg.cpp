@@ -38,7 +38,7 @@ void CSelectCodecDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSelectCodecDlg, CDialog)
 //{{AFX_MSG_MAP(CSelectCodecDlg)
 ON_CBN_SELCHANGE(IDC_TYPE, OnSelchangeType)
-	//}}AFX_MSG_MAP
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -65,8 +65,8 @@ void CSelectCodecDlg::OnOK()
    UpdateData(true);
    if(m_nType < 0)
       MessageBox("Invalid codec type!", NULL, MB_ICONWARNING | MB_OK);
-	else if(m_nType > 0 && m_nMath < 0)
+        else if(m_nType > 0 && m_nMath < 0)
       MessageBox("Invalid arithmetic type!", NULL, MB_ICONWARNING | MB_OK);
    else
-	   CDialog::OnOK();
+           CDialog::OnOK();
    }

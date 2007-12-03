@@ -174,8 +174,8 @@ public:
 
 public:
    // creation / destruction
-	CPSAutomate();
-	virtual ~CPSAutomate();
+        CPSAutomate();
+        virtual ~CPSAutomate();
 
    // plug-in main function
    SPErr Main(const char* sCaller, const char* sSelector, void* pData);

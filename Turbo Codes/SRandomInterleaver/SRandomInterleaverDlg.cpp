@@ -47,24 +47,24 @@ template <class T> void DerivedVector<T>::sequence()
 class CAboutDlg : public CDialog
 {
 public:
-	CAboutDlg();
+        CAboutDlg();
 
 // Dialog Data
-	//{{AFX_DATA(CAboutDlg)
-	enum { IDD = IDD_ABOUTBOX };
-	//}}AFX_DATA
+        //{{AFX_DATA(CAboutDlg)
+        enum { IDD = IDD_ABOUTBOX };
+        //}}AFX_DATA
 
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CAboutDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
-	//{{AFX_MSG(CAboutDlg)
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        //{{AFX_MSG(CAboutDlg)
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
@@ -94,11 +94,11 @@ CSRandomInterleaverDlg::CSRandomInterleaverDlg(CWnd* pParent /*=NULL*/)
    {
    //{{AFX_DATA_INIT(CSRandomInterleaverDlg)
    m_nSpread = 0;
-	m_nTau = 0;
-	m_nSeed = 0;
-	m_nAttempts = 0;
-	m_nUsedSeed = 0;
-	//}}AFX_DATA_INIT
+        m_nTau = 0;
+        m_nSeed = 0;
+        m_nAttempts = 0;
+        m_nUsedSeed = 0;
+        //}}AFX_DATA_INIT
    // Note that LoadIcon does not require a subsequent DestroyIcon in Win32
    m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
    }
@@ -111,14 +111,14 @@ void CSRandomInterleaverDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CSRandomInterleaverDlg)
-	DDX_Control(pDX, IDC_PROGRESS_ATTEMPT, m_pcAttempt);
+        DDX_Control(pDX, IDC_PROGRESS_ATTEMPT, m_pcAttempt);
    DDX_Control(pDX, IDC_PROGRESS, m_pcProgress);
    DDX_Text(pDX, IDC_SPREAD, m_nSpread);
-	DDX_Text(pDX, IDC_TAU, m_nTau);
-	DDX_Text(pDX, IDC_SEED, m_nSeed);
-	DDX_Text(pDX, IDC_ATTEMPTS, m_nAttempts);
-	DDX_Text(pDX, IDC_USED_SEED, m_nUsedSeed);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_TAU, m_nTau);
+        DDX_Text(pDX, IDC_SEED, m_nSeed);
+        DDX_Text(pDX, IDC_ATTEMPTS, m_nAttempts);
+        DDX_Text(pDX, IDC_USED_SEED, m_nUsedSeed);
+        //}}AFX_DATA_MAP
    }
 
 BEGIN_MESSAGE_MAP(CSRandomInterleaverDlg, CDialog)
@@ -126,11 +126,11 @@ BEGIN_MESSAGE_MAP(CSRandomInterleaverDlg, CDialog)
 ON_WM_SYSCOMMAND()
 ON_WM_PAINT()
 ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_SUGGEST, OnSuggest)
-	ON_BN_CLICKED(IDC_SAVE, OnSave)
-	ON_BN_CLICKED(IDC_START, OnStart)
-	ON_BN_CLICKED(IDC_STOP, OnStop)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_SUGGEST, OnSuggest)
+        ON_BN_CLICKED(IDC_SAVE, OnSave)
+        ON_BN_CLICKED(IDC_START, OnStart)
+        ON_BN_CLICKED(IDC_STOP, OnStop)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -160,8 +160,8 @@ BOOL CSRandomInterleaverDlg::OnInitDialog()
    
    // Set the icon for this dialog.  The framework does this automatically
    //  when the application's main window is not a dialog
-   SetIcon(m_hIcon, TRUE);			// Set big icon
-   SetIcon(m_hIcon, FALSE);		// Set small icon
+   SetIcon(m_hIcon, TRUE);                      // Set big icon
+   SetIcon(m_hIcon, FALSE);             // Set small icon
    
    // TODO: Add extra initialization here
    m_nSeed = 0;

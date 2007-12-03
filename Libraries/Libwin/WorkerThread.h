@@ -34,24 +34,24 @@ namespace libwin {
 class CWorkerThread  
 {
 private:
-	static UINT ThreadProcRedirect(LPVOID pParam);
+        static UINT ThreadProcRedirect(LPVOID pParam);
    bool m_bWorking;
    bool m_bInterrupted;
    CEvent m_eventDone;
    CWinThread *m_pThread;
 protected:
-	virtual void ThreadProc() = 0;
+        virtual void ThreadProc() = 0;
    bool ThreadWorking() const { return m_bWorking; };
    bool ThreadInterrupted() const { return m_bInterrupted; };
-	void ThreadStart(int nPriority=THREAD_PRIORITY_LOWEST);
-	void ThreadStop();
-	void ThreadKill();
+        void ThreadStart(int nPriority=THREAD_PRIORITY_LOWEST);
+        void ThreadStop();
+        void ThreadKill();
    void ThreadSuspend();
    void ThreadResume();
-	void ThreadWaitFinish();
+        void ThreadWaitFinish();
 public:
-	CWorkerThread();
-	virtual ~CWorkerThread();
+        CWorkerThread();
+        virtual ~CWorkerThread();
 };
 
 }; // end namespace

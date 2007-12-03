@@ -114,7 +114,7 @@ class CFilterWaveletApp : public CWinApp, public libwin::CPSPlugIn, private libi
 {
 protected:
    SFilterWaveletData* m_sData;
-	int m_nIteration;
+        int m_nIteration;
 
 protected:
    // filter overrides

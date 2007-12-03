@@ -45,7 +45,7 @@ anneal_puncturing::anneal_puncturing(const char *fname, const int tau, const int
    {
    for(int i=0; i<s; i++)
       for(int j=0; j<tau; j++)
-	       if(!pattern(i, j))
+               if(!pattern(i, j))
             energy_function(1, i, j);
    }
    // work out the system's initial energy

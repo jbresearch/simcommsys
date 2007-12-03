@@ -66,7 +66,7 @@ class CFilterVarianceApp : public CWinApp, public libwin::CPSPlugIn
 {
 protected:
    SFilterVarianceData* m_sData;
-	int m_nIteration;
+        int m_nIteration;
    double m_dScale;
 
 protected:

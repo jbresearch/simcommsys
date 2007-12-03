@@ -226,14 +226,14 @@ template <class real, class dbl=double> class turbo : public codec, private bcjr
    static void* create() { return new turbo<real,dbl>; };
 private:
    libbase::vector<interleaver *> inter;
-   fsm		  *encoder;
+   fsm            *encoder;
    double     rate;
-   int		  tau;
+   int            tau;
    int        sets;
    bool       simile, endatzero, parallel, circular;
    int        iter;
-   int		  M, K, N, P;    // # of states, inputs, outputs, parity symbols (respectively)
-   int		  m;             // memory order of encoder
+   int            M, K, N, P;    // # of states, inputs, outputs, parity symbols (respectively)
+   int            m;             // memory order of encoder
    // A Priori statistics (intrinsic source, intrinsic encoded, extrinsic source)
    libbase::vector< libbase::matrix<dbl> > r, R, ra;
    // A Posteriori statistics
@@ -259,7 +259,7 @@ public:
       const int iter, const bool simile, const bool endatzero, const bool parallel=false, const bool circular=false);
    ~turbo() { free(); };
 
-   turbo *clone() const { return new turbo(*this); };		// cloning operation
+   turbo *clone() const { return new turbo(*this); };           // cloning operation
    const char* name() const { return shelper.name(); };
 
    void seed(const int s);

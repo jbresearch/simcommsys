@@ -79,7 +79,7 @@ protected:
    void init(const libbase::matrix<bool>& pattern);  // fill-in all members from the pattern matrix
 public:
    virtual ~puncture() {};                // virtual destructor
-   virtual puncture *clone() const = 0;	// cloning operation
+   virtual puncture *clone() const = 0; // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    void transform(const libbase::vector<sigspace>& in, libbase::vector<sigspace>& out) const;

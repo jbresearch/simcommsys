@@ -40,11 +40,11 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CFilterOrphansDlg)
-	enum { IDD = IDD_DIALOG1 };
-	CSliderCtrl	m_scSlider;
-	BOOL	m_bKeepNoise;
-	int		m_nWeight;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        CSliderCtrl     m_scSlider;
+        BOOL    m_bKeepNoise;
+        int             m_nWeight;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -59,9 +59,9 @@ protected:
    // Generated message map functions
    //{{AFX_MSG(CFilterOrphansDlg)
    virtual BOOL OnInitDialog();
-	afx_msg void OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnChangeWeight();
-	//}}AFX_MSG
+        afx_msg void OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult);
+        afx_msg void OnChangeWeight();
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

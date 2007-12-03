@@ -8,7 +8,7 @@ using libbase::matrix;
 
 /*!
 \brief   Creator for class 'bcjr'.
-\param	encoder     The finite state machine used to encode the source.
+\param  encoder     The finite state machine used to encode the source.
 \param   tau         The block length of decoder (including tail bits).
 \param   startatzero True if the trellis for the underlying code is known to start at state zero.
 \param   endatzero   True if the trellis for the underlying code is known to end at state zero.
@@ -295,8 +295,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& 
    ro = dbl(0);
    // Work out final results
    for(int t=1; t<=tau; t++)
-      for(int mdash=0; mdash<M; mdash++)	// for each possible state at time t-1
-         for(int i=0; i<K; i++)	// for each possible input, given the state we were in
+      for(int mdash=0; mdash<M; mdash++)        // for each possible state at time t-1
+         for(int i=0; i<K; i++) // for each possible input, given the state we were in
             {
             int X = lut_X(mdash, i);
             dbl delta = sigma(t, mdash, i)/Py;
@@ -321,12 +321,12 @@ template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& 
       Py += lambda(tau, mdash);
    // Work out final results
    for(int t=1; t<=tau; t++)
-      for(int i=0; i<K; i++)	// for each possible input, given the state we were in
+      for(int i=0; i<K; i++)    // for each possible input, given the state we were in
          {
          // initialise results (we divide on every increment as division is faster 
          // than addition for logreal - this makes other representations slower)
          dbl delta = 0;
-         for(int mdash=0; mdash<M; mdash++)	// for each possible state at time t-1
+         for(int mdash=0; mdash<M; mdash++)     // for each possible state at time t-1
             delta += dbl(sigma(t, mdash, i)/Py);
          // copy results into their final place
          ri(t-1, i) = delta;
@@ -361,8 +361,8 @@ template <class real, class dbl> void bcjr<real,dbl>::normalize(matrix<dbl>& r)
 /*!
 \brief   Wrapping function for decoding a block.
 \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t, having transmitted X
-\param   ri 	ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
-\param   ro 	ro(t-1, X) = (result) a posteriori probability of having transmitted (output value) X at time t (result)
+\param   ri     ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
+\param   ro     ro(t-1, X) = (result) a posteriori probability of having transmitted (output value) X at time t (result)
 */
 template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& ro)
    {
@@ -385,8 +385,8 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 \brief   Wrapping function for decoding a block.
 \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t, having transmitted X
 \param   app   app(t-1, i) is the 'a priori' probability of having transmitted (input value) i at time t
-\param   ri 	ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
-\param   ro 	ro(t-1, X) = (result) a posteriori probability of having transmitted (output value) X at time t (result)
+\param   ri     ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
+\param   ro     ro(t-1, X) = (result) a posteriori probability of having transmitted (output value) X at time t (result)
 */
 template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri, matrix<dbl>& ro)
    {
@@ -408,7 +408,7 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 /*!
 \brief   Wrapping function for faster decoding of a block.
 \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t, having transmitted X
-\param   ri 	ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
+\param   ri     ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
 */
 template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
    {
@@ -431,7 +431,7 @@ template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>&
 \brief   Wrapping function for faster decoding of a block.
 \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t, having transmitted X
 \param   app   app(t-1, i) is the 'a priori' probability of having transmitted (input value) i at time t
-\param   ri 	ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
+\param   ri     ri(t-1, i) is the a posteriori probability of having transmitted (input value) i at time t (result)
 */
 template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri)
    {

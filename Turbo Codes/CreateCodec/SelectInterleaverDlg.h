@@ -17,30 +17,30 @@ class CSelectInterleaverDlg : public CDialog
 // Construction
 public:
    libcomm::interleaver* m_pInterleaver;
-	CSelectInterleaverDlg(CWnd* pParent = NULL);   // standard constructor
+        CSelectInterleaverDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CSelectInterleaverDlg)
-	enum { IDD = IDD_INTERLEAVER };
-	int		m_nType;
-	//}}AFX_DATA
+        //{{AFX_DATA(CSelectInterleaverDlg)
+        enum { IDD = IDD_INTERLEAVER };
+        int             m_nType;
+        //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CSelectInterleaverDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CSelectInterleaverDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(CSelectInterleaverDlg)
-	afx_msg void OnSelchangeType();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        // Generated message map functions
+        //{{AFX_MSG(CSelectInterleaverDlg)
+        afx_msg void OnSelchangeType();
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

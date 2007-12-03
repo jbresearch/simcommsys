@@ -49,7 +49,7 @@ protected:
 
 protected:
    SFilterLevelsData* m_sData;
-	int               m_nIteration;
+        int               m_nIteration;
    double            m_dWhite, m_dBlack;
    libbase::vector<int>       m_viHistogram;
    libbase::matrix<int>       m_miNeighbors;

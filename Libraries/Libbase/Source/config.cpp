@@ -75,14 +75,14 @@ int keypressed(void)
 #ifdef WIN32
    return _kbhit();
 #else
-   int		  count = 0;
-   int		  error;
+   int            count = 0;
+   int            error;
    struct timespec tv;
    struct termios  otty, ntty;
    
    tcgetattr(STDIN_FILENO, &otty);
    ntty = otty;
-   ntty.c_lflag 	 &= ~ICANON; /* raw mode */
+   ntty.c_lflag          &= ~ICANON; /* raw mode */
    
    if (0 == (error = tcsetattr(STDIN_FILENO, TCSANOW, &ntty)))
       {
@@ -105,21 +105,21 @@ int readkey(void)
 #ifdef WIN32
    return _getch();
 #else
-   unsigned char		ch;
-   int 		error;
-   struct termios	otty, ntty;
+   unsigned char                ch;
+   int          error;
+   struct termios       otty, ntty;
    
    fflush(stdout);
    tcgetattr(STDIN_FILENO, &otty);
    ntty = otty;
    
-   ntty.c_lflag &= ~ICANON;   /* line settings	 */
+   ntty.c_lflag &= ~ICANON;   /* line settings   */
    
    /* disable echoing the char as it is typed */
-   ntty.c_lflag &= ~ECHO;	  /* disable echo 	 */
+   ntty.c_lflag &= ~ECHO;         /* disable echo        */
    
-   ntty.c_cc[VMIN]  = 1; 	  /* block for input  */
-   ntty.c_cc[VTIME] = 0; 	  /* timer is ignored */
+   ntty.c_cc[VMIN]  = 1;          /* block for input  */
+   ntty.c_cc[VTIME] = 0;          /* timer is ignored */
    
    // flush the input buffer before blocking for new input
    //#define FLAG TCSAFLUSH

@@ -43,9 +43,9 @@ CHistogram2D::~CHistogram2D()
 
 
 BEGIN_MESSAGE_MAP(CHistogram2D, CWnd)
-	//{{AFX_MSG_MAP(CHistogram2D)
-	ON_WM_PAINT()
-	//}}AFX_MSG_MAP
+        //{{AFX_MSG_MAP(CHistogram2D)
+        ON_WM_PAINT()
+        //}}AFX_MSG_MAP
     //ON_MESSAGE(WM_USER, OnUser)
 END_MESSAGE_MAP()
 
@@ -55,8 +55,8 @@ END_MESSAGE_MAP()
 
 void CHistogram2D::OnPaint() 
    {
-	CPaintDC dc(this); // device context for painting
-	
+        CPaintDC dc(this); // device context for painting
+        
    CRect rectClient;
    GetClientRect(rectClient);
    const int xsize = rectClient.Width();
@@ -81,7 +81,7 @@ void CHistogram2D::OnPaint()
    CRect rectWindow;
    GetWindowRect(rectWindow);
    dc.DrawEdge(rectWindow,EDGE_SUNKEN,BF_RECT);
-	// Do not call CWnd::OnPaint() for painting messages
+        // Do not call CWnd::OnPaint() for painting messages
    }
 
 void CHistogram2D::OnUser(WPARAM wParam, LPARAM lParam)

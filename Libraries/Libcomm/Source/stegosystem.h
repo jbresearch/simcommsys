@@ -71,8 +71,8 @@ private:
 
 public:
    // creation/destruction
-	stegosystem();
-	virtual ~stegosystem();
+        stegosystem();
+        virtual ~stegosystem();
 
    // required functions in derived class
    virtual int GetImagePixels() const = 0;

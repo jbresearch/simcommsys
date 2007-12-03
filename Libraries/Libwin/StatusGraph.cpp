@@ -43,10 +43,10 @@ CStatusGraph::~CStatusGraph()
 
 
 BEGIN_MESSAGE_MAP(CStatusGraph, CWnd)
-	//{{AFX_MSG_MAP(CStatusGraph)
-	ON_WM_PAINT()
+        //{{AFX_MSG_MAP(CStatusGraph)
+        ON_WM_PAINT()
    ON_WM_LBUTTONDOWN()
-	//}}AFX_MSG_MAP
+        //}}AFX_MSG_MAP
    //ON_MESSAGE(WM_STATUSGRAPH_RESET, OnReset)
    //ON_MESSAGE(WM_STATUSGRAPH_INSERT, OnInsert)
 END_MESSAGE_MAP()
@@ -57,8 +57,8 @@ END_MESSAGE_MAP()
 
 void CStatusGraph::OnPaint() 
    {
-	CPaintDC dc(this); // device context for painting
-	
+        CPaintDC dc(this); // device context for painting
+        
    CRect rectClient;
    GetClientRect(rectClient);
    const int xsize = rectClient.Width();
@@ -75,7 +75,7 @@ void CStatusGraph::OnPaint()
    CRect rectWindow;
    GetWindowRect(rectWindow);
    dc.DrawEdge(rectWindow,EDGE_SUNKEN,BF_RECT);
-	// Do not call CWnd::OnPaint() for painting messages
+        // Do not call CWnd::OnPaint() for painting messages
    }
 
 void CStatusGraph::OnLButtonDown(UINT nFlags, CPoint point)

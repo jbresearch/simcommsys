@@ -40,16 +40,16 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CAutomateEmbeddingDlg)
-	enum { IDD = IDD_DIALOG1 };
-	int		m_nJpegMin;
-	int		m_nJpegMax;
-	double	m_dStrengthMax;
-	double	m_dStrengthMin;
-	BOOL	m_bJpeg;
-	int		m_nJpegStep;
-	double	m_dStrengthStep;
-	CString	m_sOutput;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        int             m_nJpegMin;
+        int             m_nJpegMax;
+        double  m_dStrengthMax;
+        double  m_dStrengthMin;
+        BOOL    m_bJpeg;
+        int             m_nJpegStep;
+        double  m_dStrengthStep;
+        CString m_sOutput;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -64,10 +64,10 @@ protected:
    // Generated message map functions
    //{{AFX_MSG(CAutomateEmbeddingDlg)
    virtual BOOL OnInitDialog();
-	afx_msg void OnJpeg();
-	virtual void OnOK();
-	afx_msg void OnOutputBrowse();
-	//}}AFX_MSG
+        afx_msg void OnJpeg();
+        virtual void OnOK();
+        afx_msg void OnOutputBrowse();
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

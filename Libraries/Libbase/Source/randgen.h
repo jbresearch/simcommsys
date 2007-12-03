@@ -40,24 +40,24 @@ namespace libbase {
 
 class randgen {
    static const vcs version;
-   static const int32s	mbig;
-   static const int32s	mseed;
-   int32s	next, nextp;
-   int32s	ma[56], mj;
+   static const int32s  mbig;
+   static const int32s  mseed;
+   int32s       next, nextp;
+   int32s       ma[56], mj;
    inline void advance(void);
    bool ready;
    double next_gval;
 #ifdef DEBUG   
-   int32u	counter;
+   int32u       counter;
 #endif
 public:
    randgen(int32u s =0);
    ~randgen();
    void seed(int32u s);
-   inline int32u ival(int32u m);	// return unsigned integer modulo 'm'
-   inline double fval();		// return floating point value in [0,1]
-   inline double gval();		// return gaussian-distributed double (zero mean, unit variance)
-   inline double gval(const double sigma);	// as gval(), but set std dev to given sigma
+   inline int32u ival(int32u m);        // return unsigned integer modulo 'm'
+   inline double fval();                // return floating point value in [0,1]
+   inline double gval();                // return gaussian-distributed double (zero mean, unit variance)
+   inline double gval(const double sigma);      // as gval(), but set std dev to given sigma
 };
 
 inline void randgen::advance()

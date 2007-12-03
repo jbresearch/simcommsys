@@ -21,23 +21,23 @@ class CBenchmarkDlg : public CDialog, private libwin::CWorkerThread
 {
 // Construction
 public:
-	CBenchmarkDlg(CWnd* pParent = NULL);   // standard constructor
+        CBenchmarkDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CBenchmarkDlg)
-	enum { IDD = IDD_BENCHMARK };
-	CProgressCtrl	m_pcProgress;
-	double	m_dSNR;
-	double	m_dTime;
-	CString	m_sBER;
-	CString	m_sChannel;
-	CString	m_sElapsed;
-	CString	m_sFrames;
-	CString	m_sModulator;
-	CString	m_sPuncture;
-	CString	m_sSpeed;
-	CString	m_sCodec;
-	//}}AFX_DATA
+        //{{AFX_DATA(CBenchmarkDlg)
+        enum { IDD = IDD_BENCHMARK };
+        CProgressCtrl   m_pcProgress;
+        double  m_dSNR;
+        double  m_dTime;
+        CString m_sBER;
+        CString m_sChannel;
+        CString m_sElapsed;
+        CString m_sFrames;
+        CString m_sModulator;
+        CString m_sPuncture;
+        CString m_sSpeed;
+        CString m_sCodec;
+        //}}AFX_DATA
    libcomm::codec *m_pCodec;
    libcomm::puncture *m_pPuncture;
    libcomm::modulator *m_pModulator;
@@ -45,23 +45,23 @@ public:
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CBenchmarkDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CBenchmarkDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
    void ThreadProc();
 
-	// Generated message map functions
-	//{{AFX_MSG(CBenchmarkDlg)
-	virtual void OnOK();
-	virtual void OnCancel();
-	virtual BOOL OnInitDialog();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        // Generated message map functions
+        //{{AFX_MSG(CBenchmarkDlg)
+        virtual void OnOK();
+        virtual void OnCancel();
+        virtual BOOL OnInitDialog();
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -37,9 +37,9 @@ CFilterLevelsDlg::CFilterLevelsDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterLevelsDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterLevelsDlg)
-	m_bKeepNoise = FALSE;
-	m_nWeight = 0;
-	//}}AFX_DATA_INIT
+        m_bKeepNoise = FALSE;
+        m_nWeight = 0;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -47,19 +47,19 @@ void CFilterLevelsDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterLevelsDlg)
-	DDX_Control(pDX, IDC_SLIDER, m_scSlider);
-	DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
-	DDX_Text(pDX, IDC_WEIGHT, m_nWeight);
-	DDV_MinMaxInt(pDX, m_nWeight, 0, 8);
-	//}}AFX_DATA_MAP
+        DDX_Control(pDX, IDC_SLIDER, m_scSlider);
+        DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
+        DDX_Text(pDX, IDC_WEIGHT, m_nWeight);
+        DDV_MinMaxInt(pDX, m_nWeight, 0, 8);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterLevelsDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterLevelsDlg)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER, OnCustomdrawSlider)
-	ON_EN_CHANGE(IDC_WEIGHT, OnChangeWeight)
-	//}}AFX_MSG_MAP
+        ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER, OnCustomdrawSlider)
+        ON_EN_CHANGE(IDC_WEIGHT, OnChangeWeight)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

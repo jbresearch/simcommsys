@@ -19,7 +19,7 @@ class CArchiveStreamBuf : public std::streambuf
 protected:
    CArchive *ar;
 public:
-	CArchiveStreamBuf(CArchive* ar);
+        CArchiveStreamBuf(CArchive* ar);
    virtual ~CArchiveStreamBuf() {};
    int underflow();
    int overflow(int nCh = EOF);

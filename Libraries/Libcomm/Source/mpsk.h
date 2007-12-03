@@ -56,7 +56,7 @@ public:
    mpsk(const int m) { init(m); };
    ~mpsk() {};
 
-   mpsk *clone() const { return new mpsk(*this); };		// cloning operation
+   mpsk *clone() const { return new mpsk(*this); };             // cloning operation
    const char* name() const { return shelper.name(); };
 
    std::string description() const;

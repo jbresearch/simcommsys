@@ -38,31 +38,31 @@ CFilterExtractDlg::CFilterExtractDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterExtractDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterExtractDlg)
-	m_sPuncture = _T("");
-	m_sCodec = _T("");
-	m_bInterleave = FALSE;
-	m_bPresetStrength = FALSE;
-	m_nEmbedRate = 0;
-	m_nEmbedSeed = 0;
-	m_dEmbedStrength = 0.0;
-	m_sEmbedded = _T("");
-	m_sExtracted = _T("");
-	m_nInterleaverSeed = 0;
-	m_dInterleaverDensity = 0.0;
-	m_sSource = _T("");
-	m_nSourceSeed = 0;
-	m_nSourceType = -1;
-	m_sUniform = _T("");
-	m_sDecoded = _T("");
-	m_sResults = _T("");
-	m_nFeedback = -1;
-	m_bPrintBER = FALSE;
-	m_bPrintSNR = FALSE;
-	m_bPrintEstimate = FALSE;
-	m_bPrintChiSquare = FALSE;
-	m_sEmbeddedImage = _T("");
-	m_sExtractedImage = _T("");
-	//}}AFX_DATA_INIT
+        m_sPuncture = _T("");
+        m_sCodec = _T("");
+        m_bInterleave = FALSE;
+        m_bPresetStrength = FALSE;
+        m_nEmbedRate = 0;
+        m_nEmbedSeed = 0;
+        m_dEmbedStrength = 0.0;
+        m_sEmbedded = _T("");
+        m_sExtracted = _T("");
+        m_nInterleaverSeed = 0;
+        m_dInterleaverDensity = 0.0;
+        m_sSource = _T("");
+        m_nSourceSeed = 0;
+        m_nSourceType = -1;
+        m_sUniform = _T("");
+        m_sDecoded = _T("");
+        m_sResults = _T("");
+        m_nFeedback = -1;
+        m_bPrintBER = FALSE;
+        m_bPrintSNR = FALSE;
+        m_bPrintEstimate = FALSE;
+        m_bPrintChiSquare = FALSE;
+        m_sEmbeddedImage = _T("");
+        m_sExtractedImage = _T("");
+        //}}AFX_DATA_INIT
    }
 
 
@@ -70,63 +70,63 @@ void CFilterExtractDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterExtractDlg)
-	DDX_Text(pDX, IDC_PUNCTURE, m_sPuncture);
-	DDX_Text(pDX, IDC_CODEC, m_sCodec);
-	DDX_Check(pDX, IDC_INTERLEAVE, m_bInterleave);
-	DDX_Check(pDX, IDC_PRESET_STRENGTH, m_bPresetStrength);
-	DDX_Text(pDX, IDC_EMBED_RATE, m_nEmbedRate);
-	DDX_Text(pDX, IDC_EMBED_SEED, m_nEmbedSeed);
-	DDX_Text(pDX, IDC_EMBED_STRENGTH, m_dEmbedStrength);
-	DDX_Text(pDX, IDC_EMBEDDED, m_sEmbedded);
-	DDX_Text(pDX, IDC_EXTRACTED, m_sExtracted);
-	DDX_Text(pDX, IDC_INTERLEAVER_SEED, m_nInterleaverSeed);
-	DDX_Text(pDX, IDC_INTERLEAVER_DENSITY, m_dInterleaverDensity);
-	DDX_Text(pDX, IDC_SOURCE, m_sSource);
-	DDX_Text(pDX, IDC_SOURCE_SEED, m_nSourceSeed);
-	DDX_CBIndex(pDX, IDC_SOURCE_TYPE, m_nSourceType);
-	DDX_Text(pDX, IDC_UNIFORM, m_sUniform);
-	DDX_Text(pDX, IDC_DECODED, m_sDecoded);
-	DDX_Text(pDX, IDC_RESULTS, m_sResults);
-	DDX_CBIndex(pDX, IDC_FEEDBACK, m_nFeedback);
-	DDX_Check(pDX, IDC_PRINT_BER, m_bPrintBER);
-	DDX_Check(pDX, IDC_PRINT_SNR, m_bPrintSNR);
-	DDX_Check(pDX, IDC_PRINT_ESTIMATE, m_bPrintEstimate);
-	DDX_Check(pDX, IDC_PRINT_CHI_SQUARE, m_bPrintChiSquare);
-	DDX_Text(pDX, IDC_EMBEDDED_IMAGE, m_sEmbeddedImage);
-	DDX_Text(pDX, IDC_EXTRACTED_IMAGE, m_sExtractedImage);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_PUNCTURE, m_sPuncture);
+        DDX_Text(pDX, IDC_CODEC, m_sCodec);
+        DDX_Check(pDX, IDC_INTERLEAVE, m_bInterleave);
+        DDX_Check(pDX, IDC_PRESET_STRENGTH, m_bPresetStrength);
+        DDX_Text(pDX, IDC_EMBED_RATE, m_nEmbedRate);
+        DDX_Text(pDX, IDC_EMBED_SEED, m_nEmbedSeed);
+        DDX_Text(pDX, IDC_EMBED_STRENGTH, m_dEmbedStrength);
+        DDX_Text(pDX, IDC_EMBEDDED, m_sEmbedded);
+        DDX_Text(pDX, IDC_EXTRACTED, m_sExtracted);
+        DDX_Text(pDX, IDC_INTERLEAVER_SEED, m_nInterleaverSeed);
+        DDX_Text(pDX, IDC_INTERLEAVER_DENSITY, m_dInterleaverDensity);
+        DDX_Text(pDX, IDC_SOURCE, m_sSource);
+        DDX_Text(pDX, IDC_SOURCE_SEED, m_nSourceSeed);
+        DDX_CBIndex(pDX, IDC_SOURCE_TYPE, m_nSourceType);
+        DDX_Text(pDX, IDC_UNIFORM, m_sUniform);
+        DDX_Text(pDX, IDC_DECODED, m_sDecoded);
+        DDX_Text(pDX, IDC_RESULTS, m_sResults);
+        DDX_CBIndex(pDX, IDC_FEEDBACK, m_nFeedback);
+        DDX_Check(pDX, IDC_PRINT_BER, m_bPrintBER);
+        DDX_Check(pDX, IDC_PRINT_SNR, m_bPrintSNR);
+        DDX_Check(pDX, IDC_PRINT_ESTIMATE, m_bPrintEstimate);
+        DDX_Check(pDX, IDC_PRINT_CHI_SQUARE, m_bPrintChiSquare);
+        DDX_Text(pDX, IDC_EMBEDDED_IMAGE, m_sEmbeddedImage);
+        DDX_Text(pDX, IDC_EXTRACTED_IMAGE, m_sExtractedImage);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterExtractDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterExtractDlg)
-	ON_BN_CLICKED(IDC_LOAD_SOURCE, OnLoadSource)
-	ON_BN_CLICKED(IDC_LOAD_CODEC, OnLoadCodec)
-	ON_BN_CLICKED(IDC_LOAD_PUNCTURE, OnLoadPuncture)
-	ON_BN_CLICKED(IDC_CLEAR_SOURCE, OnClearSource)
-	ON_BN_CLICKED(IDC_CLEAR_CODEC, OnClearCodec)
-	ON_BN_CLICKED(IDC_CLEAR_PUNCTURE, OnClearPuncture)
-	ON_BN_CLICKED(IDC_COMPUTE_STRENGTH, OnComputeStrength)
-	ON_BN_CLICKED(IDC_INTERLEAVE, OnInterleave)
-	ON_CBN_SELCHANGE(IDC_SOURCE_TYPE, OnSelchangeSourceType)
-	ON_EN_CHANGE(IDC_INTERLEAVER_DENSITY, OnChangeInterleaverDensity)
-	ON_EN_CHANGE(IDC_EMBED_RATE, OnChangeEmbedRate)
-	ON_BN_CLICKED(IDC_PRESET_STRENGTH, OnPresetStrength)
-	ON_BN_CLICKED(IDC_SAVE_EMBEDDED, OnSaveEmbedded)
-	ON_BN_CLICKED(IDC_SAVE_EXTRACTED, OnSaveExtracted)
-	ON_BN_CLICKED(IDC_SAVE_UNIFORM, OnSaveUniform)
-	ON_BN_CLICKED(IDC_CLEAR_EMBEDDED, OnClearEmbedded)
-	ON_BN_CLICKED(IDC_CLEAR_EXTRACTED, OnClearExtracted)
-	ON_BN_CLICKED(IDC_CLEAR_UNIFORM, OnClearUniform)
-	ON_BN_CLICKED(IDC_CLEAR_DECODED, OnClearDecoded)
-	ON_BN_CLICKED(IDC_SAVE_DECODED, OnSaveDecoded)
-	ON_BN_CLICKED(IDC_CLEAR_RESULTS, OnClearResults)
-	ON_BN_CLICKED(IDC_SAVE_RESULTS, OnSaveResults)
-	ON_BN_CLICKED(IDC_CLEAR_EMBEDDED_IMAGE, OnClearEmbeddedImage)
-	ON_BN_CLICKED(IDC_SAVE_EMBEDDED_IMAGE, OnSaveEmbeddedImage)
-	ON_BN_CLICKED(IDC_CLEAR_EXTRACTED_IMAGE, OnClearExtractedImage)
-	ON_BN_CLICKED(IDC_SAVE_EXTRACTED_IMAGE, OnSaveExtractedImage)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_LOAD_SOURCE, OnLoadSource)
+        ON_BN_CLICKED(IDC_LOAD_CODEC, OnLoadCodec)
+        ON_BN_CLICKED(IDC_LOAD_PUNCTURE, OnLoadPuncture)
+        ON_BN_CLICKED(IDC_CLEAR_SOURCE, OnClearSource)
+        ON_BN_CLICKED(IDC_CLEAR_CODEC, OnClearCodec)
+        ON_BN_CLICKED(IDC_CLEAR_PUNCTURE, OnClearPuncture)
+        ON_BN_CLICKED(IDC_COMPUTE_STRENGTH, OnComputeStrength)
+        ON_BN_CLICKED(IDC_INTERLEAVE, OnInterleave)
+        ON_CBN_SELCHANGE(IDC_SOURCE_TYPE, OnSelchangeSourceType)
+        ON_EN_CHANGE(IDC_INTERLEAVER_DENSITY, OnChangeInterleaverDensity)
+        ON_EN_CHANGE(IDC_EMBED_RATE, OnChangeEmbedRate)
+        ON_BN_CLICKED(IDC_PRESET_STRENGTH, OnPresetStrength)
+        ON_BN_CLICKED(IDC_SAVE_EMBEDDED, OnSaveEmbedded)
+        ON_BN_CLICKED(IDC_SAVE_EXTRACTED, OnSaveExtracted)
+        ON_BN_CLICKED(IDC_SAVE_UNIFORM, OnSaveUniform)
+        ON_BN_CLICKED(IDC_CLEAR_EMBEDDED, OnClearEmbedded)
+        ON_BN_CLICKED(IDC_CLEAR_EXTRACTED, OnClearExtracted)
+        ON_BN_CLICKED(IDC_CLEAR_UNIFORM, OnClearUniform)
+        ON_BN_CLICKED(IDC_CLEAR_DECODED, OnClearDecoded)
+        ON_BN_CLICKED(IDC_SAVE_DECODED, OnSaveDecoded)
+        ON_BN_CLICKED(IDC_CLEAR_RESULTS, OnClearResults)
+        ON_BN_CLICKED(IDC_SAVE_RESULTS, OnSaveResults)
+        ON_BN_CLICKED(IDC_CLEAR_EMBEDDED_IMAGE, OnClearEmbeddedImage)
+        ON_BN_CLICKED(IDC_SAVE_EMBEDDED_IMAGE, OnSaveEmbeddedImage)
+        ON_BN_CLICKED(IDC_CLEAR_EXTRACTED_IMAGE, OnClearExtractedImage)
+        ON_BN_CLICKED(IDC_SAVE_EXTRACTED_IMAGE, OnSaveExtractedImage)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

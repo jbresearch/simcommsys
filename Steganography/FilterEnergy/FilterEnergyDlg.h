@@ -40,14 +40,14 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CFilterEnergyDlg)
-	enum { IDD = IDD_DIALOG1 };
-	BOOL	m_bAppend;
-	BOOL	m_bDisplayEnergy;
-	BOOL	m_bDisplayPixelCount;
-	BOOL	m_bDisplayVariance;
-	CString	m_sFileName;
-	BOOL	m_bScreenOnly;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        BOOL    m_bAppend;
+        BOOL    m_bDisplayEnergy;
+        BOOL    m_bDisplayPixelCount;
+        BOOL    m_bDisplayVariance;
+        CString m_sFileName;
+        BOOL    m_bScreenOnly;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -62,9 +62,9 @@ protected:
    // Generated message map functions
    //{{AFX_MSG(CFilterEnergyDlg)
    virtual BOOL OnInitDialog();
-	afx_msg void OnScreenOnly();
-	afx_msg void OnBrowse();
-	//}}AFX_MSG
+        afx_msg void OnScreenOnly();
+        afx_msg void OnBrowse();
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

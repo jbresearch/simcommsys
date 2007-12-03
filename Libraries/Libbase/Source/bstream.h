@@ -23,8 +23,8 @@ namespace libbase {
 class bstream {
    static const vcs version;
 protected:
-   bitfield	buffer;	// a 32-bit buffer for read/write operations
-   int		ptr;		// points to the first unused/unread bit
+   bitfield     buffer; // a 32-bit buffer for read/write operations
+   int          ptr;            // points to the first unused/unread bit
 public:
    bstream();
 };

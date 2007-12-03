@@ -37,8 +37,8 @@ IMPLEMENT_DYNCREATE(CCreateCodecView, CTreeView)
 
 BEGIN_MESSAGE_MAP(CCreateCodecView, CTreeView)
 //{{AFX_MSG_MAP(CCreateCodecView)
-	ON_NOTIFY_REFLECT(NM_DBLCLK, OnDblclk)
-	//}}AFX_MSG_MAP
+        ON_NOTIFY_REFLECT(NM_DBLCLK, OnDblclk)
+        //}}AFX_MSG_MAP
 // Standard printing commands
 ON_COMMAND(ID_FILE_PRINT, CTreeView::OnFilePrint)
 ON_COMMAND(ID_FILE_PRINT_DIRECT, CTreeView::OnFilePrint)

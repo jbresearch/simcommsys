@@ -27,9 +27,9 @@ namespace libbase {
 
 class secant {
    static const vcs version;
-   double	(*f)(double);
-   double	init_x1, init_x2, min_dx;
-   int		max_iter;
+   double       (*f)(double);
+   double       init_x1, init_x2, min_dx;
+   int          max_iter;
 public:
    secant(double (*func)(double) = NULL);
    void bind(double (*func)(double)) { f = func; };

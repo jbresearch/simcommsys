@@ -162,7 +162,7 @@ void masterslave::sendname()
    }
 
 void masterslave::sendcputime()
-	{
+        {
     const double cputime = t.cputime();
     t.start();
     if(!send(cputime))
@@ -172,7 +172,7 @@ void masterslave::sendcputime()
        }
     cputimeused += cputime;
     trace << "send usage [" << cputime << "]\n" << flush;
-	}
+        }
        
 void masterslave::dowork()
    {

@@ -232,7 +232,7 @@ class CFilterExtractApp : public CWinApp, public libwin::CPSPlugIn, protected li
 {
 protected:
    SFilterExtractData* m_sData;
-	int               m_nIteration;
+        int               m_nIteration;
    double            m_dBER, m_dSNRreal, m_dSNRest, m_dChiSquare;
    int               m_nCount, m_nLength;
    libbase::vector<double>    m_vdMessage;

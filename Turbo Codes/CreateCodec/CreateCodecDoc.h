@@ -18,8 +18,8 @@
 class CCreateCodecDoc : public CDocument
 {
 protected: // create from serialization only
-	CCreateCodecDoc();
-	DECLARE_DYNCREATE(CCreateCodecDoc)
+        CCreateCodecDoc();
+        DECLARE_DYNCREATE(CCreateCodecDoc)
 
 // Attributes
 public:
@@ -28,45 +28,45 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CCreateCodecDoc)
-	public:
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CCreateCodecDoc)
+        public:
+        virtual BOOL OnNewDocument();
+        virtual void Serialize(CArchive& ar);
+        //}}AFX_VIRTUAL
 
 // Implementation
 public:
    libcomm::codec* CreateCodec();
-	CString GetStringBool(const CString& sName);
-	CString GetStringInt(const CString& sName);
+        CString GetStringBool(const CString& sName);
+        CString GetStringInt(const CString& sName);
    CString GetStringInterleaver(const libcomm::interleaver *pInterleaver);
-	CString GetStringGenerator();
-	CString GetStringEncoder();
-	CString GetStringCodec();
-	void ResizeGenerator(const int nInputs, const int nOutputs);
-	void AddInterleaver(libcomm::interleaver *pInterleaver);
-	void DeleteInterleavers();
-	void SetIntValue(const CString& sName, const int nValue);
-	void SetBoolValue(const CString& sName, const bool bValue);
+        CString GetStringGenerator();
+        CString GetStringEncoder();
+        CString GetStringCodec();
+        void ResizeGenerator(const int nInputs, const int nOutputs);
+        void AddInterleaver(libcomm::interleaver *pInterleaver);
+        void DeleteInterleavers();
+        void SetIntValue(const CString& sName, const int nValue);
+        void SetBoolValue(const CString& sName, const bool bValue);
    void SetGenerator(const libbase::matrix<libbase::bitfield>& mbGenerator);
-	void SetArithmetic(const int nType);
-	void SetCodecType(const int nType);
-	void SetEncoderType(const int nType);
-	int GetIntValue(const CString& sName) const;
-	bool GetBoolValue(const CString& sName) const;
+        void SetArithmetic(const int nType);
+        void SetCodecType(const int nType);
+        void SetEncoderType(const int nType);
+        int GetIntValue(const CString& sName) const;
+        bool GetBoolValue(const CString& sName) const;
    libbase::matrix<libbase::bitfield> GetGenerator() const { return m_mbGenerator; };
    int GetArithmetic() const { return m_nArithmetic; };
    int GetCodecType() const { return m_nCodecType; };
    int GetEncoderType() const { return m_nEncoderType; };
-	virtual ~CCreateCodecDoc();
+        virtual ~CCreateCodecDoc();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+        virtual void AssertValid() const;
+        virtual void Dump(CDumpContext& dc) const;
 #endif
 
 protected:
-	int m_nCodecType, m_nArithmetic;
+        int m_nCodecType, m_nArithmetic;
    int m_nTau, m_nIterations;
    bool m_bSimile, m_bTerminated, m_bParallel;
    int m_nEncoderType;
@@ -75,11 +75,11 @@ protected:
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CCreateCodecDoc)
-		// NOTE - the ClassWizard will add and remove member functions here.
-		//    DO NOT EDIT what you see in these blocks of generated code !
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        //{{AFX_MSG(CCreateCodecDoc)
+                // NOTE - the ClassWizard will add and remove member functions here.
+                //    DO NOT EDIT what you see in these blocks of generated code !
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 /////////////////////////////////////////////////////////////////////////////

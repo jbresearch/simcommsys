@@ -30,7 +30,7 @@ namespace libbase {
 
 class logreal {
    static const vcs version;
-   double	logval;
+   double       logval;
    logreal& operator-();
    logreal& operator-=(const logreal& a);
 public:

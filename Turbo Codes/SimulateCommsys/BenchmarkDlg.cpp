@@ -20,45 +20,45 @@ static char THIS_FILE[] = __FILE__;
 
 
 CBenchmarkDlg::CBenchmarkDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CBenchmarkDlg::IDD, pParent)
+        : CDialog(CBenchmarkDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CBenchmarkDlg)
-	m_dSNR = 0.0;
-	m_dTime = 0.0;
-	m_sBER = _T("");
-	m_sChannel = _T("");
-	m_sElapsed = _T("");
-	m_sFrames = _T("");
-	m_sModulator = _T("");
-	m_sPuncture = _T("");
-	m_sSpeed = _T("");
-	m_sCodec = _T("");
-	//}}AFX_DATA_INIT
+        //{{AFX_DATA_INIT(CBenchmarkDlg)
+        m_dSNR = 0.0;
+        m_dTime = 0.0;
+        m_sBER = _T("");
+        m_sChannel = _T("");
+        m_sElapsed = _T("");
+        m_sFrames = _T("");
+        m_sModulator = _T("");
+        m_sPuncture = _T("");
+        m_sSpeed = _T("");
+        m_sCodec = _T("");
+        //}}AFX_DATA_INIT
 }
 
 
 void CBenchmarkDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CBenchmarkDlg)
-	DDX_Control(pDX, IDC_PROGRESS, m_pcProgress);
-	DDX_Text(pDX, IDC_SNR, m_dSNR);
-	DDX_Text(pDX, IDC_TIME, m_dTime);
-	DDX_Text(pDX, IDC_BER, m_sBER);
-	DDX_Text(pDX, IDC_CHANNEL, m_sChannel);
-	DDX_Text(pDX, IDC_ELAPSED, m_sElapsed);
-	DDX_Text(pDX, IDC_FRAMES, m_sFrames);
-	DDX_Text(pDX, IDC_MODULATOR, m_sModulator);
-	DDX_Text(pDX, IDC_PUNCTURE, m_sPuncture);
-	DDX_Text(pDX, IDC_SPEED, m_sSpeed);
-	DDX_Text(pDX, IDC_CODEC, m_sCodec);
-	//}}AFX_DATA_MAP
+        CDialog::DoDataExchange(pDX);
+        //{{AFX_DATA_MAP(CBenchmarkDlg)
+        DDX_Control(pDX, IDC_PROGRESS, m_pcProgress);
+        DDX_Text(pDX, IDC_SNR, m_dSNR);
+        DDX_Text(pDX, IDC_TIME, m_dTime);
+        DDX_Text(pDX, IDC_BER, m_sBER);
+        DDX_Text(pDX, IDC_CHANNEL, m_sChannel);
+        DDX_Text(pDX, IDC_ELAPSED, m_sElapsed);
+        DDX_Text(pDX, IDC_FRAMES, m_sFrames);
+        DDX_Text(pDX, IDC_MODULATOR, m_sModulator);
+        DDX_Text(pDX, IDC_PUNCTURE, m_sPuncture);
+        DDX_Text(pDX, IDC_SPEED, m_sSpeed);
+        DDX_Text(pDX, IDC_CODEC, m_sCodec);
+        //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CBenchmarkDlg, CDialog)
-	//{{AFX_MSG_MAP(CBenchmarkDlg)
-	//}}AFX_MSG_MAP
+        //{{AFX_MSG_MAP(CBenchmarkDlg)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

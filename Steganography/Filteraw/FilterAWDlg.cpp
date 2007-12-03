@@ -37,11 +37,11 @@ CFilterAWDlg::CFilterAWDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterAWDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterAWDlg)
-	m_nRadius = 0;
-	m_bKeepNoise = FALSE;
-	m_dNoise = 0.0;
-	m_bAuto = FALSE;
-	//}}AFX_DATA_INIT
+        m_nRadius = 0;
+        m_bKeepNoise = FALSE;
+        m_dNoise = 0.0;
+        m_bAuto = FALSE;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -49,19 +49,19 @@ void CFilterAWDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterAWDlg)
-	DDX_Text(pDX, IDC_RADIUS, m_nRadius);
-	DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
-	DDX_Text(pDX, IDC_NOISE, m_dNoise);
-	DDX_Check(pDX, IDC_AUTO, m_bAuto);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_RADIUS, m_nRadius);
+        DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
+        DDX_Text(pDX, IDC_NOISE, m_dNoise);
+        DDX_Check(pDX, IDC_AUTO, m_bAuto);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterAWDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterAWDlg)
-	ON_BN_CLICKED(IDC_AUTO, OnAuto)
-	ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_AUTO, OnAuto)
+        ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

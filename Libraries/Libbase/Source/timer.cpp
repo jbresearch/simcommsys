@@ -26,7 +26,7 @@ double timer::_cputime() const
 
 double timer::_wallclock() const
    {
-   struct timeval	  tv;
+   struct timeval         tv;
    struct timezone  tz;
 
    gettimeofday(&tv, &tz);
@@ -36,8 +36,8 @@ double timer::_wallclock() const
  
 double timer::_cputime() const
    {
-   struct rusage	usage;
-   double		cpu;
+   struct rusage        usage;
+   double               cpu;
 
    getrusage(RUSAGE_SELF, &usage);
    cpu = convert(usage.ru_utime);

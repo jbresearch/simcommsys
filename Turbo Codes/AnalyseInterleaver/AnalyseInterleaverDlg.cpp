@@ -69,8 +69,8 @@ CAnalyseInterleaverDlg::CAnalyseInterleaverDlg(CWnd* pParent /*=NULL*/)
    m_sPathName = _T("");
    m_nTau = 0;
    m_nSpread = 0;
-	m_nMaxDist = 0;
-	//}}AFX_DATA_INIT
+        m_nMaxDist = 0;
+        //}}AFX_DATA_INIT
    // Note that LoadIcon does not require a subsequent DestroyIcon in Win32
    m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
    }
@@ -83,8 +83,8 @@ void CAnalyseInterleaverDlg::DoDataExchange(CDataExchange* pDX)
    DDX_Text(pDX, IDC_PATHNAME, m_sPathName);
    DDX_Text(pDX, IDC_TAU, m_nTau);
    DDX_Text(pDX, IDC_SPREAD, m_nSpread);
-	DDX_Text(pDX, IDC_MAXDIST, m_nMaxDist);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_MAXDIST, m_nMaxDist);
+        //}}AFX_DATA_MAP
    }
 
 BEGIN_MESSAGE_MAP(CAnalyseInterleaverDlg, CDialog)
@@ -94,7 +94,7 @@ ON_WM_PAINT()
 ON_WM_QUERYDRAGICON()
 ON_BN_CLICKED(IDC_LOAD, OnLoad)
 ON_BN_CLICKED(IDC_ANALYSE, OnAnalyse)
-	//}}AFX_MSG_MAP
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -124,8 +124,8 @@ BOOL CAnalyseInterleaverDlg::OnInitDialog()
    
    // Set the icon for this dialog.  The framework does this automatically
    //  when the application's main window is not a dialog
-   SetIcon(m_hIcon, TRUE);			// Set big icon
-   SetIcon(m_hIcon, FALSE);		// Set small icon
+   SetIcon(m_hIcon, TRUE);                      // Set big icon
+   SetIcon(m_hIcon, FALSE);             // Set small icon
    
    // TODO: Add extra initialization here
    m_pInterleaver = NULL;

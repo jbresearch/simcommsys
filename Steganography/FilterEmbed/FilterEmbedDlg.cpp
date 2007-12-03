@@ -41,18 +41,18 @@ CFilterEmbedDlg::CFilterEmbedDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterEmbedDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterEmbedDlg)
-	m_sCodec = _T("");
-	m_sPuncture = _T("");
-	m_sSource = _T("");
-	m_nSourceSeed = 0;
-	m_nSourceType = -1;
-	m_bInterleave = FALSE;
-	m_nInterleaverSeed = 0;
-	m_dInterleaverDensity = 0.0;
-	m_nEmbedSeed = 0;
-	m_dEmbedStrength = 0.0;
-	m_nEmbedRate = 0;
-	//}}AFX_DATA_INIT
+        m_sCodec = _T("");
+        m_sPuncture = _T("");
+        m_sSource = _T("");
+        m_nSourceSeed = 0;
+        m_nSourceType = -1;
+        m_bInterleave = FALSE;
+        m_nInterleaverSeed = 0;
+        m_dInterleaverDensity = 0.0;
+        m_nEmbedSeed = 0;
+        m_dEmbedStrength = 0.0;
+        m_nEmbedRate = 0;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -60,35 +60,35 @@ void CFilterEmbedDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterEmbedDlg)
-	DDX_Text(pDX, IDC_CODEC, m_sCodec);
-	DDX_Text(pDX, IDC_PUNCTURE, m_sPuncture);
-	DDX_Text(pDX, IDC_SOURCE, m_sSource);
-	DDX_Text(pDX, IDC_SOURCE_SEED, m_nSourceSeed);
-	DDX_CBIndex(pDX, IDC_SOURCE_TYPE, m_nSourceType);
-	DDX_Check(pDX, IDC_INTERLEAVE, m_bInterleave);
-	DDX_Text(pDX, IDC_INTERLEAVER_SEED, m_nInterleaverSeed);
-	DDX_Text(pDX, IDC_INTERLEAVER_DENSITY, m_dInterleaverDensity);
-	DDX_Text(pDX, IDC_EMBED_SEED, m_nEmbedSeed);
-	DDX_Text(pDX, IDC_EMBED_STRENGTH, m_dEmbedStrength);
-	DDX_Text(pDX, IDC_EMBED_RATE, m_nEmbedRate);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_CODEC, m_sCodec);
+        DDX_Text(pDX, IDC_PUNCTURE, m_sPuncture);
+        DDX_Text(pDX, IDC_SOURCE, m_sSource);
+        DDX_Text(pDX, IDC_SOURCE_SEED, m_nSourceSeed);
+        DDX_CBIndex(pDX, IDC_SOURCE_TYPE, m_nSourceType);
+        DDX_Check(pDX, IDC_INTERLEAVE, m_bInterleave);
+        DDX_Text(pDX, IDC_INTERLEAVER_SEED, m_nInterleaverSeed);
+        DDX_Text(pDX, IDC_INTERLEAVER_DENSITY, m_dInterleaverDensity);
+        DDX_Text(pDX, IDC_EMBED_SEED, m_nEmbedSeed);
+        DDX_Text(pDX, IDC_EMBED_STRENGTH, m_dEmbedStrength);
+        DDX_Text(pDX, IDC_EMBED_RATE, m_nEmbedRate);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterEmbedDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterEmbedDlg)
-	ON_BN_CLICKED(IDC_LOAD_SOURCE, OnLoadSource)
-	ON_BN_CLICKED(IDC_LOAD_CODEC, OnLoadCodec)
-	ON_BN_CLICKED(IDC_LOAD_PUNCTURE, OnLoadPuncture)
-	ON_BN_CLICKED(IDC_CLEAR_SOURCE, OnClearSource)
-	ON_BN_CLICKED(IDC_CLEAR_CODEC, OnClearCodec)
-	ON_BN_CLICKED(IDC_CLEAR_PUNCTURE, OnClearPuncture)
-	ON_BN_CLICKED(IDC_COMPUTE_STRENGTH, OnComputeStrength)
-	ON_BN_CLICKED(IDC_INTERLEAVE, OnInterleave)
-	ON_CBN_SELCHANGE(IDC_SOURCE_TYPE, OnSelchangeSourceType)
-	ON_EN_CHANGE(IDC_INTERLEAVER_DENSITY, OnChangeInterleaverDensity)
-	ON_EN_CHANGE(IDC_EMBED_RATE, OnChangeEmbedRate)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_LOAD_SOURCE, OnLoadSource)
+        ON_BN_CLICKED(IDC_LOAD_CODEC, OnLoadCodec)
+        ON_BN_CLICKED(IDC_LOAD_PUNCTURE, OnLoadPuncture)
+        ON_BN_CLICKED(IDC_CLEAR_SOURCE, OnClearSource)
+        ON_BN_CLICKED(IDC_CLEAR_CODEC, OnClearCodec)
+        ON_BN_CLICKED(IDC_CLEAR_PUNCTURE, OnClearPuncture)
+        ON_BN_CLICKED(IDC_COMPUTE_STRENGTH, OnComputeStrength)
+        ON_BN_CLICKED(IDC_INTERLEAVE, OnInterleave)
+        ON_CBN_SELCHANGE(IDC_SOURCE_TYPE, OnSelchangeSourceType)
+        ON_EN_CHANGE(IDC_INTERLEAVER_DENSITY, OnChangeInterleaverDensity)
+        ON_EN_CHANGE(IDC_EMBED_RATE, OnChangeEmbedRate)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

@@ -14,32 +14,32 @@ class CSelectRangeDlg : public CDialog
 {
 // Construction
 public:
-	CSelectRangeDlg(CWnd* pParent = NULL);   // standard constructor
+        CSelectRangeDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CSelectRangeDlg)
-	enum { IDD = IDD_RANGE };
-	double	m_dSNRmax;
-	double	m_dSNRmin;
-	double	m_dSNRstep;
-	//}}AFX_DATA
+        //{{AFX_DATA(CSelectRangeDlg)
+        enum { IDD = IDD_RANGE };
+        double  m_dSNRmax;
+        double  m_dSNRmin;
+        double  m_dSNRstep;
+        //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CSelectRangeDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CSelectRangeDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(CSelectRangeDlg)
-	virtual void OnOK();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        // Generated message map functions
+        //{{AFX_MSG(CSelectRangeDlg)
+        virtual void OnOK();
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -141,9 +141,9 @@ template <class real, class dbl=double> class bcjr {
    bool  endatzero;     //!< True to indicate that the trellis ends in state zero
    bool  circular;      //!< True to indicate circular trellis decoding
    // working matrices
-   libbase::matrix<real>	alpha;   //!< Forward recursion metric: alpha(t,m) = Pr{S(t)=m, Y(1..t)}
+   libbase::matrix<real>        alpha;   //!< Forward recursion metric: alpha(t,m) = Pr{S(t)=m, Y(1..t)}
    libbase::matrix<real>   beta;    //!< Backward recursion metric: beta(t,m) = Pr{Y(t+1..tau) | S(t)=m}
-   libbase::matrix3<real>	gamma;   //!< Receiver metric: gamma(t-1,m',i) = Pr{S(t)=m(m',i), Y(t) | S(t-1)=m'}
+   libbase::matrix3<real>       gamma;   //!< Receiver metric: gamma(t-1,m',i) = Pr{S(t)=m(m',i), Y(t) | S(t-1)=m'}
    // temporary arrays/matrices
    libbase::matrix<int>    lut_X;   //!< lut_X(m,i) = encoder output if system was in state 'm' and given input 'i'
    libbase::matrix<int>    lut_m;   //!< lut_m(m,i) = next state of encoder if system was in state 'm' and given input 'i'

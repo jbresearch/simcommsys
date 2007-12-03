@@ -42,17 +42,17 @@ CFilterWaveletDlg::CFilterWaveletDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterWaveletDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterWaveletDlg)
-	m_bKeepNoise = FALSE;
-	m_nTileX = 0;
-	m_nTileY = 0;
-	m_bWholeImage = FALSE;
-	m_dThreshCutoff = 0.0;
-	m_nThreshSelector = -1;
-	m_nThreshType = -1;
-	m_nWaveletType = -1;
-	m_nWaveletLevel = 0;
-	m_nWaveletPar = -1;
-	//}}AFX_DATA_INIT
+        m_bKeepNoise = FALSE;
+        m_nTileX = 0;
+        m_nTileY = 0;
+        m_bWholeImage = FALSE;
+        m_dThreshCutoff = 0.0;
+        m_nThreshSelector = -1;
+        m_nThreshType = -1;
+        m_nWaveletType = -1;
+        m_nWaveletLevel = 0;
+        m_nWaveletPar = -1;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -60,26 +60,26 @@ void CFilterWaveletDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterWaveletDlg)
-	DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
-	DDX_Text(pDX, IDC_TILEX, m_nTileX);
-	DDX_Text(pDX, IDC_TILEY, m_nTileY);
-	DDX_Check(pDX, IDC_WHOLEIMAGE, m_bWholeImage);
-	DDX_Text(pDX, IDC_THRESH_CUTOFF, m_dThreshCutoff);
-	DDX_CBIndex(pDX, IDC_THRESH_SELECTOR, m_nThreshSelector);
-	DDX_CBIndex(pDX, IDC_THRESH_TYPE, m_nThreshType);
-	DDX_CBIndex(pDX, IDC_WAVELET_TYPE, m_nWaveletType);
-	DDX_Text(pDX, IDC_WAVELET_LEVEL, m_nWaveletLevel);
-	DDX_CBIndex(pDX, IDC_WAVELET_PAR, m_nWaveletPar);
-	//}}AFX_DATA_MAP
+        DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
+        DDX_Text(pDX, IDC_TILEX, m_nTileX);
+        DDX_Text(pDX, IDC_TILEY, m_nTileY);
+        DDX_Check(pDX, IDC_WHOLEIMAGE, m_bWholeImage);
+        DDX_Text(pDX, IDC_THRESH_CUTOFF, m_dThreshCutoff);
+        DDX_CBIndex(pDX, IDC_THRESH_SELECTOR, m_nThreshSelector);
+        DDX_CBIndex(pDX, IDC_THRESH_TYPE, m_nThreshType);
+        DDX_CBIndex(pDX, IDC_WAVELET_TYPE, m_nWaveletType);
+        DDX_Text(pDX, IDC_WAVELET_LEVEL, m_nWaveletLevel);
+        DDX_CBIndex(pDX, IDC_WAVELET_PAR, m_nWaveletPar);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterWaveletDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterWaveletDlg)
-	ON_BN_CLICKED(IDC_WHOLEIMAGE, OnWholeimage)
-	ON_CBN_SELCHANGE(IDC_THRESH_SELECTOR, OnSelchangeThreshSelector)
-	ON_CBN_SELCHANGE(IDC_WAVELET_TYPE, OnSelchangeWaveletType)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_WHOLEIMAGE, OnWholeimage)
+        ON_CBN_SELCHANGE(IDC_THRESH_SELECTOR, OnSelchangeThreshSelector)
+        ON_CBN_SELCHANGE(IDC_WAVELET_TYPE, OnSelchangeWaveletType)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

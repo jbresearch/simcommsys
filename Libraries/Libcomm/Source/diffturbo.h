@@ -101,7 +101,7 @@ public:
       const int iter, const bool simile, const bool endatzero, const bool parallel=false);
    ~diffturbo() {};
   
-   diffturbo *clone() const { return new diffturbo(*this); };		// cloning operation
+   diffturbo *clone() const { return new diffturbo(*this); };           // cloning operation
    const char* name() const { return shelper.name(); };
 
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);

@@ -37,13 +37,13 @@ CFilterEnergyDlg::CFilterEnergyDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterEnergyDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterEnergyDlg)
-	m_bAppend = FALSE;
-	m_bDisplayEnergy = FALSE;
-	m_bDisplayPixelCount = FALSE;
-	m_bDisplayVariance = FALSE;
-	m_sFileName = _T("");
-	m_bScreenOnly = FALSE;
-	//}}AFX_DATA_INIT
+        m_bAppend = FALSE;
+        m_bDisplayEnergy = FALSE;
+        m_bDisplayPixelCount = FALSE;
+        m_bDisplayVariance = FALSE;
+        m_sFileName = _T("");
+        m_bScreenOnly = FALSE;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -51,21 +51,21 @@ void CFilterEnergyDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterEnergyDlg)
-	DDX_Check(pDX, IDC_APPEND, m_bAppend);
-	DDX_Check(pDX, IDC_DISPLAY_ENERGY, m_bDisplayEnergy);
-	DDX_Check(pDX, IDC_DISPLAY_PIXELCOUNT, m_bDisplayPixelCount);
-	DDX_Check(pDX, IDC_DISPLAY_VARIANCE, m_bDisplayVariance);
-	DDX_Text(pDX, IDC_FILENAME, m_sFileName);
-	DDX_Check(pDX, IDC_SCREENONLY, m_bScreenOnly);
-	//}}AFX_DATA_MAP
+        DDX_Check(pDX, IDC_APPEND, m_bAppend);
+        DDX_Check(pDX, IDC_DISPLAY_ENERGY, m_bDisplayEnergy);
+        DDX_Check(pDX, IDC_DISPLAY_PIXELCOUNT, m_bDisplayPixelCount);
+        DDX_Check(pDX, IDC_DISPLAY_VARIANCE, m_bDisplayVariance);
+        DDX_Text(pDX, IDC_FILENAME, m_sFileName);
+        DDX_Check(pDX, IDC_SCREENONLY, m_bScreenOnly);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterEnergyDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterEnergyDlg)
-	ON_BN_CLICKED(IDC_SCREENONLY, OnScreenOnly)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
-	//}}AFX_MSG_MAP
+        ON_BN_CLICKED(IDC_SCREENONLY, OnScreenOnly)
+        ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

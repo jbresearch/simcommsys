@@ -23,41 +23,41 @@ class CAnnealInterleaverDlg : public CDialog, private libcomm::annealer, libwin:
 {
 // Construction
 public:
-	void ResetDisplay();
-	void UpdateButtons(const bool bWorking);
-	CAnnealInterleaverDlg(CWnd* pParent = NULL);	// standard constructor
+        void ResetDisplay();
+        void UpdateButtons(const bool bWorking);
+        CAnnealInterleaverDlg(CWnd* pParent = NULL);    // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CAnnealInterleaverDlg)
-	enum { IDD = IDD_ANNEALINTERLEAVER_DIALOG };
-	CProgressCtrl	m_pcProgress;
-	int		m_nM;
-	int		m_nSeed;
-	int		m_nSets;
-	int		m_nTau;
-	BOOL	m_bTerm;
-	int		m_nType;
-	int		m_nMinChanges;
-	int		m_nMinIter;
-	double	m_dFinalTemp;
-	double	m_dInitTemp;
-	double	m_dRate;
-	//}}AFX_DATA
+        //{{AFX_DATA(CAnnealInterleaverDlg)
+        enum { IDD = IDD_ANNEALINTERLEAVER_DIALOG };
+        CProgressCtrl   m_pcProgress;
+        int             m_nM;
+        int             m_nSeed;
+        int             m_nSets;
+        int             m_nTau;
+        BOOL    m_bTerm;
+        int             m_nType;
+        int             m_nMinChanges;
+        int             m_nMinIter;
+        double  m_dFinalTemp;
+        double  m_dInitTemp;
+        double  m_dRate;
+        //}}AFX_DATA
 
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAnnealInterleaverDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CAnnealInterleaverDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);        // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
-	void ThreadProc();
-	HICON m_hIcon;
+        void ThreadProc();
+        HICON m_hIcon;
    libbase::timer m_tSetup;
    libbase::timer m_tSimulation;
-	bool m_bSystemPresent;
-	libcomm::anneal_interleaver *m_system;
+        bool m_bSystemPresent;
+        libcomm::anneal_interleaver *m_system;
 
    double m_dTemp;
    double m_dMean;
@@ -67,26 +67,26 @@ protected:
    double m_dPercent;
 
    bool interrupt();
-	void display(const double T, const double percent, const libbase::rvstatistics E);
+        void display(const double T, const double percent, const libbase::rvstatistics E);
 
-	// Generated message map functions
-	//{{AFX_MSG(CAnnealInterleaverDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnStart();
-	virtual void OnOK();
-	virtual void OnCancel();
-	afx_msg void OnStop();
-	afx_msg void OnSave();
-	afx_msg void OnTimer(UINT nIDEvent);
-	afx_msg void OnSuspend();
-	afx_msg void OnResume();
-	//}}AFX_MSG
+        // Generated message map functions
+        //{{AFX_MSG(CAnnealInterleaverDlg)
+        virtual BOOL OnInitDialog();
+        afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+        afx_msg void OnPaint();
+        afx_msg HCURSOR OnQueryDragIcon();
+        afx_msg void OnStart();
+        virtual void OnOK();
+        virtual void OnCancel();
+        afx_msg void OnStop();
+        afx_msg void OnSave();
+        afx_msg void OnTimer(UINT nIDEvent);
+        afx_msg void OnSuspend();
+        afx_msg void OnResume();
+        //}}AFX_MSG
    afx_msg LONG OnThreadDisplay(WPARAM wParam, LPARAM lParam);
    afx_msg LONG OnThreadFinish(WPARAM wParam, LPARAM lParam);
-	DECLARE_MESSAGE_MAP()
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

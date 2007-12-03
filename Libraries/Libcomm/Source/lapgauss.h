@@ -33,7 +33,7 @@ class lapgauss : public channel {
    static const libbase::serializer shelper;
    static void* create() { return new lapgauss; };
    // channel paremeters
-   double		sigma;
+   double               sigma;
 protected:
    // handle functions
    void compute_parameters(const double Eb, const double No);

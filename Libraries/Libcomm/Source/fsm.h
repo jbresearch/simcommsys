@@ -76,27 +76,27 @@ namespace libcomm {
 class fsm {
    static const libbase::vcs version;
 public:
-   static const int tail;				      // a special input to use when tailing out
+   static const int tail;                 // a special input to use when tailing out
    
    // class management (construction/cloning/naming)
-   virtual ~fsm() {};					      // virtual destructor
-   virtual fsm *clone() const = 0;			// cloning operation
+   virtual ~fsm() {};                     // virtual destructor
+   virtual fsm *clone() const = 0;        // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    // FSM operations (reset/advance/step/state)
-   virtual void reset(int state=0) = 0;	// resets the FSM to a specified state
-   virtual void resetcircular(int zerostate, int n) = 0; // resets the FSM, given the zero-state solution and the number of time-steps
-   virtual void resetcircular() = 0;
+   virtual void reset(int state=0) = 0;   // resets the FSM to a specified state
+   virtual void resetcircular(int zerostate, int n) = 0; // resets, given zero-state solution and number of time-steps
+   virtual void resetcircular() = 0;      // as above, assuming we have just run through the zero-state zero-input
    virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
-   virtual int output(int& input) = 0;		// computes the output for the given input and the present state
-   virtual int step(int& input) = 0;		// feeds the specified input and returns the corresponding output
-   virtual int state() const = 0;		   // returns the current state
+   virtual int output(int& input) = 0;    // computes the output for the given input and the present state
+   virtual int step(int& input) = 0;      // feeds the specified input and returns the corresponding output
+   virtual int state() const = 0;         // returns the current state
 
    // informative functions
-   virtual int num_states() const = 0;	   // returns the number of defined states
-   virtual int num_inputs() const = 0;	   // returns the number of valid inputs
-   virtual int num_outputs() const = 0;	// returns the number of valid outputs
-   virtual int mem_order() const = 0;	   // memory order (length of tail)
+   virtual int num_states() const = 0;    // returns the number of defined states
+   virtual int num_inputs() const = 0;    // returns the number of valid inputs
+   virtual int num_outputs() const = 0;   // returns the number of valid outputs
+   virtual int mem_order() const = 0;     // memory order (length of tail)
 
    // description output
    virtual std::string description() const = 0;

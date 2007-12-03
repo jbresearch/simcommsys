@@ -57,7 +57,7 @@ public:
    puncture_null(const int tau) { init(tau); };
    ~puncture_null() {};
 
-   puncture_null *clone() const { return new puncture_null(*this); };		// cloning operation
+   puncture_null *clone() const { return new puncture_null(*this); };           // cloning operation
    const char* name() const { return shelper.name(); };
 
    std::string description() const;

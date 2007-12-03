@@ -82,7 +82,7 @@ class modulator {
    static const libbase::vcs version;
 public:
    virtual ~modulator() {};               // virtual destructor
-   virtual modulator *clone() const = 0;	// cloning operation
+   virtual modulator *clone() const = 0;        // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    // modulation/demodulation - atomic operations

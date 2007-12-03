@@ -242,7 +242,7 @@ bitfield& bitfield::operator<<=(const int x)
 
 bitfield& bitfield::operator>>=(const int x)
    {
-   if(x >= 32)	// avoid a subtle bug in gcc (or the Pentium, not sure which...)
+   if(x >= 32)  // avoid a subtle bug in gcc (or the Pentium, not sure which...)
       field = 0;
    else
       {

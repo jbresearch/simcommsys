@@ -58,8 +58,8 @@ private:
 
 public:
    // Constructor / Destructor
-	CSSISsimulator();
-	virtual ~CSSISsimulator();
+        CSSISsimulator();
+        virtual ~CSSISsimulator();
    // Main interface functions
    void InterpretParameters(int argc, char *argv[]);
    int MainProcess();

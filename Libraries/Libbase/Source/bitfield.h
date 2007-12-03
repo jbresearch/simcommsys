@@ -41,9 +41,9 @@ namespace libbase {
 
 class bitfield {
    static const vcs version;
-   static int	defsize;	// default size
-   int32u		field;	// bit field
-   int			bits;		// number of bits
+   static int   defsize;        // default size
+   int32u               field;  // bit field
+   int                  bits;           // number of bits
    int32u mask() const;
    void check_range(int32u f) const;
    static void check_fieldsize(int b);

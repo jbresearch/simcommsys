@@ -28,18 +28,18 @@ namespace libwin {
 class CFolderDialog  
 {
 public:
-	CFolderDialog(const CString sPrompt, const CString sFolder, HWND hWnd=NULL);
-	virtual ~CFolderDialog();
+        CFolderDialog(const CString sPrompt, const CString sFolder, HWND hWnd=NULL);
+        virtual ~CFolderDialog();
 
-	int DoModal();
-	CString GetFolder();
+        int DoModal();
+        CString GetFolder();
 
 protected:
    static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 
 protected:
-	CString m_sPrompt;
-	CString m_sFolder;
+        CString m_sPrompt;
+        CString m_sFolder;
    HWND m_hWnd;
 };
 

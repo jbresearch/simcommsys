@@ -59,7 +59,7 @@ public:
    puncture_stipple(const int tau, const int sets) { init(tau, sets); };
    ~puncture_stipple() {};
 
-   puncture_stipple *clone() const { return new puncture_stipple(*this); };		// cloning operation
+   puncture_stipple *clone() const { return new puncture_stipple(*this); };             // cloning operation
    const char* name() const { return shelper.name(); };
 
    std::string description() const;

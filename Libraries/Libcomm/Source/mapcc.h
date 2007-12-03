@@ -88,11 +88,11 @@ template <class real> class mapcc : public codec, private bcjr<real> {
    static const libbase::serializer shelper;
    static void* create() { return new mapcc<real>; };
 private:
-   fsm	      *encoder;
+   fsm        *encoder;
    double      rate;
-   int	      tau, m;		// block length, and encoder memory order
-   int	      M, K, N;		// # of states, inputs and outputs (respectively)
-   libbase::matrix<double> R, ri, ro;	// BCJR statistics
+   int        tau, m;           // block length, and encoder memory order
+   int        M, K, N;          // # of states, inputs and outputs (respectively)
+   libbase::matrix<double> R, ri, ro;   // BCJR statistics
 protected:
    void init();
    void free();
@@ -101,7 +101,7 @@ public:
    mapcc(const fsm& encoder, const int tau);
    ~mapcc() { free(); };
 
-   mapcc *clone() const { return new mapcc(*this); };		// cloning operation
+   mapcc *clone() const { return new mapcc(*this); };           // cloning operation
    const char* name() const { return shelper.name(); };
 
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);

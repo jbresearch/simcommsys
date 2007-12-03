@@ -37,10 +37,10 @@ CFilterVarianceDlg::CFilterVarianceDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CFilterVarianceDlg::IDD, pParent)
    {
    //{{AFX_DATA_INIT(CFilterVarianceDlg)
-	m_nRadius = 0;
-	m_nScale = 0;
-	m_bAutoScale = FALSE;
-	//}}AFX_DATA_INIT
+        m_nRadius = 0;
+        m_nScale = 0;
+        m_bAutoScale = FALSE;
+        //}}AFX_DATA_INIT
    }
 
 
@@ -48,18 +48,18 @@ void CFilterVarianceDlg::DoDataExchange(CDataExchange* pDX)
    {
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CFilterVarianceDlg)
-	DDX_Text(pDX, IDC_RADIUS, m_nRadius);
-	DDX_Text(pDX, IDC_SCALE, m_nScale);
-	DDX_Check(pDX, IDC_AUTOSCALE, m_bAutoScale);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_RADIUS, m_nRadius);
+        DDX_Text(pDX, IDC_SCALE, m_nScale);
+        DDX_Check(pDX, IDC_AUTOSCALE, m_bAutoScale);
+        //}}AFX_DATA_MAP
    }
 
 
 BEGIN_MESSAGE_MAP(CFilterVarianceDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterVarianceDlg)
-	ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
-	ON_BN_CLICKED(IDC_AUTOSCALE, OnAutoscale)
-	//}}AFX_MSG_MAP
+        ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
+        ON_BN_CLICKED(IDC_AUTOSCALE, OnAutoscale)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

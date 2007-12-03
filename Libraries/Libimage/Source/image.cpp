@@ -18,10 +18,10 @@ image::freeimage image::library;
 image::freeimage::freeimage()
    {
    assert(!initialized);
-	// call this ONLY when linking with FreeImage as a static library
+        // call this ONLY when linking with FreeImage as a static library
 #ifdef FREEIMAGE_LIB
    //trace << "DEBUG (image): Initialising FreeImage library.\n";
-	FreeImage_Initialise();
+        FreeImage_Initialise();
 #endif // FREEIMAGE_LIB
    initialized = true;
    // fill in I/O structures
@@ -37,10 +37,10 @@ image::freeimage::freeimage()
 
 image::freeimage::~freeimage()
    {
-	// call this ONLY when linking with FreeImage as a static library
+        // call this ONLY when linking with FreeImage as a static library
 #ifdef FREEIMAGE_LIB
    //trace << "DEBUG (image): DeInitialising FreeImage library.\n";
-	FreeImage_DeInitialise();
+        FreeImage_DeInitialise();
 #endif // FREEIMAGE_LIB
    }
 

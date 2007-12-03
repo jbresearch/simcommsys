@@ -23,7 +23,7 @@ template <class real, class dbl> void turbo<real,dbl>::init()
    M = encoder->num_states();
    K = encoder->num_inputs();
    N = encoder->num_outputs();
-   P = N/K;		// this *must* be an integer (for any binary code, at least)
+   P = N/K;             // this *must* be an integer (for any binary code, at least)
 
    seed(0);
    initialised = false;

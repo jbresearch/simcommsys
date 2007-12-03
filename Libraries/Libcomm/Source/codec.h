@@ -79,7 +79,7 @@ class codec {
    static const libbase::vcs version;
 public:
    virtual ~codec() {};                   // virtual destructor
-   virtual codec *clone() const = 0;	   // cloning operation
+   virtual codec *clone() const = 0;       // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
    virtual void seed(const int s) {};

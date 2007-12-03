@@ -15,7 +15,7 @@
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
   * Integrated code from worker pool project by:
-  	  * Johann Briffa   <j.briffa@ieee.org>
+          * Johann Briffa   <j.briffa@ieee.org>
      * Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
   * Currently supports POSIX; eventually need to port to Windows
   

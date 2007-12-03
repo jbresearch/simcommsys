@@ -21,42 +21,42 @@ class CAnalyseInterleaverDlg : public CDialog
 {
 // Construction
 public:
-	CAnalyseInterleaverDlg(CWnd* pParent = NULL);	// standard constructor
+        CAnalyseInterleaverDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CAnalyseInterleaverDlg)
-	enum { IDD = IDD_ANALYSEINTERLEAVER_DIALOG };
-	CProgressCtrl	m_pcProgress;
-	CString	m_sPathName;
-	int		m_nTau;
-	int		m_nSpread;
-	int		m_nMaxDist;
-	//}}AFX_DATA
+        //{{AFX_DATA(CAnalyseInterleaverDlg)
+        enum { IDD = IDD_ANALYSEINTERLEAVER_DIALOG };
+        CProgressCtrl   m_pcProgress;
+        CString m_sPathName;
+        int             m_nTau;
+        int             m_nSpread;
+        int             m_nMaxDist;
+        //}}AFX_DATA
 
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAnalyseInterleaverDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CAnalyseInterleaverDlg)
+        protected:
+        virtual void DoDataExchange(CDataExchange* pDX);        // DDX/DDV support
+        //}}AFX_VIRTUAL
 
 // Implementation
 protected:
    libcomm::interleaver* m_pInterleaver;
    libbase::matrix<int> m_miIOSS;
-	HICON m_hIcon;
+        HICON m_hIcon;
 
-	// Generated message map functions
-	//{{AFX_MSG(CAnalyseInterleaverDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnLoad();
-	afx_msg void OnAnalyse();
-	virtual void OnOK();
-	virtual void OnCancel();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        // Generated message map functions
+        //{{AFX_MSG(CAnalyseInterleaverDlg)
+        virtual BOOL OnInitDialog();
+        afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+        afx_msg void OnPaint();
+        afx_msg HCURSOR OnQueryDragIcon();
+        afx_msg void OnLoad();
+        afx_msg void OnAnalyse();
+        virtual void OnOK();
+        virtual void OnCancel();
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

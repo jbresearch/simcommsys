@@ -44,7 +44,7 @@ namespace libcomm {
 class anneal_puncturing : public virtual anneal_system {
    static const libbase::vcs version;
    libbase::matrix3<double> contrib;
-   libbase::matrix<bool>	pattern;
+   libbase::matrix<bool>        pattern;
    libbase::vector<double> res;
    libbase::randgen     r;
    int         tau, s;

@@ -39,19 +39,19 @@ public:
 
 // Dialog Data
    //{{AFX_DATA(CFilterEmbedDlg)
-	enum { IDD = IDD_DIALOG1 };
-	CString	m_sCodec;
-	CString	m_sPuncture;
-	CString	m_sSource;
-	int		m_nSourceSeed;
-	int		m_nSourceType;
-	BOOL	m_bInterleave;
-	int		m_nInterleaverSeed;
-	double	m_dInterleaverDensity;
-	int		m_nEmbedSeed;
-	double	m_dEmbedStrength;
-	int		m_nEmbedRate;
-	//}}AFX_DATA
+        enum { IDD = IDD_DIALOG1 };
+        CString m_sCodec;
+        CString m_sPuncture;
+        CString m_sSource;
+        int             m_nSourceSeed;
+        int             m_nSourceType;
+        BOOL    m_bInterleave;
+        int             m_nInterleaverSeed;
+        double  m_dInterleaverDensity;
+        int             m_nEmbedSeed;
+        double  m_dEmbedStrength;
+        int             m_nEmbedRate;
+        //}}AFX_DATA
 
 // Overrides
    // ClassWizard generated virtual function overrides
@@ -69,24 +69,24 @@ protected:
    void ComputeFileData();
    void ComputeCodecData();
    void ComputePunctureData();
-	void UpdateDisplay();
+        void UpdateDisplay();
 
    // Generated message map functions
    //{{AFX_MSG(CFilterEmbedDlg)
    virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnLoadSource();
-	afx_msg void OnLoadCodec();
-	afx_msg void OnLoadPuncture();
-	afx_msg void OnClearSource();
-	afx_msg void OnClearCodec();
-	afx_msg void OnClearPuncture();
-	afx_msg void OnComputeStrength();
-	afx_msg void OnInterleave();
-	afx_msg void OnSelchangeSourceType();
-	afx_msg void OnChangeInterleaverDensity();
-	afx_msg void OnChangeEmbedRate();
-	//}}AFX_MSG
+        virtual void OnOK();
+        afx_msg void OnLoadSource();
+        afx_msg void OnLoadCodec();
+        afx_msg void OnLoadPuncture();
+        afx_msg void OnClearSource();
+        afx_msg void OnClearCodec();
+        afx_msg void OnClearPuncture();
+        afx_msg void OnComputeStrength();
+        afx_msg void OnInterleave();
+        afx_msg void OnSelchangeSourceType();
+        afx_msg void OnChangeInterleaverDensity();
+        afx_msg void OnChangeEmbedRate();
+        //}}AFX_MSG
    DECLARE_MESSAGE_MAP()
 };
 

@@ -114,7 +114,7 @@ private:
    // computed parameters
    double   f;
    // internally-used objects
-   bsid	mychan;
+   bsid mychan;
    libbase::randgen r;        // watermark sequence generator
    libbase::vector<int> ws;   // watermark sequence
    libbase::vector<int> lut;  // sparsifier LUT
@@ -135,7 +135,7 @@ public:
    watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    ~watermarkcode() { free(); };
 
-   watermarkcode *clone() const { return new watermarkcode(*this); };		// cloning operation
+   watermarkcode *clone() const { return new watermarkcode(*this); };           // cloning operation
    const char* name() const { return shelper.name(); };
 
    // modulation/demodulation - vector operations

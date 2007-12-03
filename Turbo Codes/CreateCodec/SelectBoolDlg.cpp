@@ -16,26 +16,26 @@ static char THIS_FILE[] = __FILE__;
 
 
 CSelectBoolDlg::CSelectBoolDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CSelectBoolDlg::IDD, pParent)
+        : CDialog(CSelectBoolDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CSelectBoolDlg)
-	m_nValue = -1;
-	//}}AFX_DATA_INIT
+        //{{AFX_DATA_INIT(CSelectBoolDlg)
+        m_nValue = -1;
+        //}}AFX_DATA_INIT
 }
 
 
 void CSelectBoolDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CSelectBoolDlg)
-	DDX_Radio(pDX, IDC_NAY, m_nValue);
-	//}}AFX_DATA_MAP
+        CDialog::DoDataExchange(pDX);
+        //{{AFX_DATA_MAP(CSelectBoolDlg)
+        DDX_Radio(pDX, IDC_NAY, m_nValue);
+        //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CSelectBoolDlg, CDialog)
-	//{{AFX_MSG_MAP(CSelectBoolDlg)
-	//}}AFX_MSG_MAP
+        //{{AFX_MSG_MAP(CSelectBoolDlg)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

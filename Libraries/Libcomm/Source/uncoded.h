@@ -69,9 +69,9 @@ class uncoded : public codec {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new uncoded; };
-   fsm		   *encoder;
-   int			tau;	   	// block length
-   int			K, N;		   // # of inputs and outputs (respectively)
+   fsm             *encoder;
+   int                  tau;            // block length
+   int                  K, N;              // # of inputs and outputs (respectively)
    libbase::vector<int> lut;
    libbase::matrix<double> R;
 protected:
@@ -82,7 +82,7 @@ public:
    uncoded(const fsm& encoder, const int tau);
    ~uncoded() { free(); };
 
-   uncoded *clone() const { return new uncoded(*this); };		// cloning operation
+   uncoded *clone() const { return new uncoded(*this); };               // cloning operation
    const char* name() const { return shelper.name(); };
 
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);

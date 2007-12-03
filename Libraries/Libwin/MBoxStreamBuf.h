@@ -23,8 +23,8 @@ namespace libwin {
 protected:
    CString buffer;
 public:
-	CMBoxStreamBuf();
-	virtual ~CMBoxStreamBuf();
+        CMBoxStreamBuf();
+        virtual ~CMBoxStreamBuf();
    int underflow();
    int overflow(int nCh = EOF);
 };

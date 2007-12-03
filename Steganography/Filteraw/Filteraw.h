@@ -94,7 +94,7 @@ class CFilterAWApp : public CWinApp, public libwin::CPSPlugIn, private libimage:
 {
 protected:
    SFilterAWData* m_sData;
-	int m_nIteration;
+        int m_nIteration;
 
 protected:
    // filter overrides

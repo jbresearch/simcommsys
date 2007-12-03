@@ -63,9 +63,9 @@ CPluginWizardDlg::CPluginWizardDlg(CWnd* pParent /*=NULL*/)
    {
    //{{AFX_DATA_INIT(CPluginWizardDlg)
    m_nType = 0;
-	m_sNewName = _T("");
-	m_sOldName = _T("");
-	//}}AFX_DATA_INIT
+        m_sNewName = _T("");
+        m_sOldName = _T("");
+        //}}AFX_DATA_INIT
    // Note that LoadIcon does not require a subsequent DestroyIcon in Win32
    m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
    }
@@ -75,9 +75,9 @@ void CPluginWizardDlg::DoDataExchange(CDataExchange* pDX)
    CDialog::DoDataExchange(pDX);
    //{{AFX_DATA_MAP(CPluginWizardDlg)
    DDX_CBIndex(pDX, IDC_TYPE, m_nType);
-	DDX_Text(pDX, IDC_NEWNAME, m_sNewName);
-	DDX_Text(pDX, IDC_OLDNAME, m_sOldName);
-	//}}AFX_DATA_MAP
+        DDX_Text(pDX, IDC_NEWNAME, m_sNewName);
+        DDX_Text(pDX, IDC_OLDNAME, m_sOldName);
+        //}}AFX_DATA_MAP
    }
 
 BEGIN_MESSAGE_MAP(CPluginWizardDlg, CDialog)
@@ -85,8 +85,8 @@ BEGIN_MESSAGE_MAP(CPluginWizardDlg, CDialog)
 ON_WM_SYSCOMMAND()
 ON_WM_PAINT()
 ON_WM_QUERYDRAGICON()
-	ON_CBN_SELCHANGE(IDC_TYPE, OnSelchangeType)
-	//}}AFX_MSG_MAP
+        ON_CBN_SELCHANGE(IDC_TYPE, OnSelchangeType)
+        //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -116,8 +116,8 @@ BOOL CPluginWizardDlg::OnInitDialog()
    
    // Set the icon for this dialog.  The framework does this automatically
    //  when the application's main window is not a dialog
-   SetIcon(m_hIcon, TRUE);			// Set big icon
-   SetIcon(m_hIcon, FALSE);		// Set small icon
+   SetIcon(m_hIcon, TRUE);                      // Set big icon
+   SetIcon(m_hIcon, FALSE);             // Set small icon
    
    // Extra initialization
    GetDlgItem(IDC_OLDNAME)->EnableWindow(m_nType >= 2);
