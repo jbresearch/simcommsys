@@ -22,17 +22,17 @@ void rscc::init(const libbase::matrix<bitfield>& generator)
    // set default value to the rest
    m = 0;
    // check that the generator matrix is valid (correct sizes) and create shift registers
-   reg = new bitfield[k];
+   reg.init(k);
    K = 0;
    for(int i=0; i<k; i++)
       {
       // assume with of register of input 'i' from its generator's denominator
-      int m = gen(i, 0).size() - 1;
-      reg[i].resize(m);
+      int m = gen(i,0).size() - 1;
+      reg(i).resize(m);
       K += m;
       // check that the gen. seq. for all outputs are the same length
       for(int j=1; j<n; j++)
-         if(gen(i, j).size() != m+1)
+         if(gen(i,j).size() != m+1)
             {
             std::cerr << "FATAL ERROR (rscc): Generator sequence must have constant width for each input bit.\n";
             exit(1);
@@ -47,7 +47,6 @@ void rscc::init(const libbase::matrix<bitfield>& generator)
 
 rscc::rscc()
    {
-   reg = NULL;
    }
 
 rscc::rscc(const libbase::matrix<bitfield>& generator)
@@ -63,16 +62,11 @@ rscc::rscc(const rscc& x)
    K = x.K;
    m = x.m;
    gen = x.gen;
-   // do the rest manually
-   reg = new bitfield[k];
-   for(int i=0; i<k; i++)
-      reg[i] = x.reg[i];
+   reg = x.reg;
    }
    
 rscc::~rscc()
    {
-   if(reg != NULL)
-      delete[] reg;
    }
    
 // finite state machine functions - resetting
@@ -84,11 +78,11 @@ void rscc::reset(int state)
    newstate = state;
    for(int i=0; i<k; i++)
       {
-      int size = reg[i].size();
+      int size = reg(i).size();
       // check for case where no memory is associated with the input bit
       if(size > 0)
          {
-         reg[i] = newstate.extract(size-1, 0);
+         reg(i) = newstate.extract(size-1, 0);
          newstate >>= size;
          }
       }
@@ -128,14 +122,14 @@ int rscc::step(int& input)
       op.resize(k);
       op = input;
       for(int i=0; i<k; i++)
-         ip = ((op[i] + reg[i]) * gen(i, i)) + ip;
+         ip = ((op[i] + reg(i)) * gen(i,i)) + ip;
       }
    else // Handle tailing out
       {
       ip.resize(k);
       op.resize(0);
       for(int i=0; i<k; i++)
-         op = ((ip[i] + reg[i]) * gen(i, i)) + op;
+         op = ((ip[i] + reg(i)) * gen(i,i)) + op;
       input = op;               // update given input as necessary
       }
    // Compute output
@@ -144,12 +138,12 @@ int rscc::step(int& input)
       bitfield thisop;
       thisop.resize(1);
       for(int i=0; i<k; i++)
-         thisop ^= (ip[i] + reg[i]) * gen(i, j);
+         thisop ^= (ip[i] + reg(i)) * gen(i,j);
       op = thisop + op;
       }
    // Compute next state
    for(int i=0; i<k; i++)
-      reg[i] = ip[i] >> reg[i];
+      reg(i) = ip[i] >> reg(i);
    return op;
    }
 
@@ -158,7 +152,7 @@ int rscc::state() const
    bitfield newstate;
    newstate.resize(0);
    for(int i=0; i<k; i++)
-      newstate = reg[i] + newstate;
+      newstate = reg(i) + newstate;
    return newstate;
    }
 
@@ -187,8 +181,6 @@ std::ostream& rscc::serialize(std::ostream& sout) const
 std::istream& rscc::serialize(std::istream& sin)
    {
    sin >> gen;
-   if(reg != NULL)
-      delete[] reg;
    init(gen);
    return sin;
    }

@@ -5,6 +5,7 @@
 #include "fsm.h"
 #include "bitfield.h"
 #include "matrix.h"
+#include "vector.h"
 #include "serializer.h"
 
 /*
@@ -62,8 +63,9 @@
   Version 1.51 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 
-  Version 1.60 (3 Dec 2007)
-  * Updated output() as per fsm 1.70
+  Version 1.60 (3-4 Dec 2007)
+  * updated output() as per fsm 1.70
+  * changed register set from array to vector
 */
 
 namespace libcomm {
@@ -75,7 +77,7 @@ class rscc : public fsm {
    int k, n;   // number of input and output bits, respectively
    int K;      // number of memory elements (constraint length)
    int m;      // memory order (longest input register)
-   libbase::bitfield *reg;                   // shift registers (one for each input bit)
+   libbase::vector<libbase::bitfield> reg;   // shift registers (one for each input bit)
    libbase::matrix<libbase::bitfield> gen;   // generator sequence
 protected:
    void init(const libbase::matrix<libbase::bitfield>& generator);
