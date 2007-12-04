@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ $# != 1 ]]; then
+   echo "Usage: $0 <command>"
+   exit
+fi
+
+find . -name '*.cpp' -or -name '*.h' |xargs -d '\n' $1
