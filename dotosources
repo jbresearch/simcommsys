@@ -5,4 +5,4 @@ if [[ $# != 1 ]]; then
    exit
 fi
 
-find . -name '*.cpp' -or -name '*.h' |xargs -d '\n' $1
+find . -type f \( -name '*.cpp' -or -name '*.h' \) |xargs -d '\n' $1
