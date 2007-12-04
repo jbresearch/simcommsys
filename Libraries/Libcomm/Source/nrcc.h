@@ -65,6 +65,7 @@
   Version 1.60 (3-4 Dec 2007)
   * updated output() as per fsm 1.70
   * changed register set from array to vector
+  * implemented advance() and output(), and changed step() to use them
 */
 
 namespace libcomm {

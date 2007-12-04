@@ -102,16 +102,19 @@ void nrcc::resetcircular()
 
 void nrcc::advance(int& input)
    {
-   assert("Function not implemented.");
+   bitfield ip;
+   ip.resize(k);
+   // Handle tailing out
+   if(input != fsm::tail)
+      ip = input;
+   else         // ip is the default of zero;
+      input = 0;        // update the given input
+   // Compute next state
+   for(int i=0; i<k; i++)
+      reg(i) = ip[i] >> reg(i);
    }
 
 int nrcc::output(const int& input) const
-   {
-   assert("Function not implemented.");
-   return 0;
-   }
-
-int nrcc::step(int& input)
    {
    bitfield ip, op;
    ip.resize(k);
@@ -119,8 +122,6 @@ int nrcc::step(int& input)
    // Handle tailing out
    if(input != fsm::tail)
       ip = input;
-   else         // ip is the default of zero;
-      input = 0;        // update the given input
    // Compute output
    for(int j=0; j<n; j++)
       {
@@ -130,9 +131,13 @@ int nrcc::step(int& input)
          thisop ^= (ip[i] + reg(i)) * gen(i,j);
       op = thisop + op;
       }
-   // Compute next state
-   for(int i=0; i<k; i++)
-      reg(i) = ip[i] >> reg(i);
+   return op;
+   }
+
+int nrcc::step(int& input)
+   {
+   int op = output(input);
+   advance(input);
    return op;
    }
 
