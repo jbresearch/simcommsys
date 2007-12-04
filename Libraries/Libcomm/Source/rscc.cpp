@@ -102,17 +102,6 @@ void rscc::resetcircular()
 
 void rscc::advance(int& input)
    {
-   assert("Function not implemented.");
-   }
-
-int rscc::output(const int& input) const
-   {
-   assert("Function not implemented.");
-   return 0;
-   }
-
-int rscc::step(int& input)
-   {
    bitfield ip, op;
    // For RSC, ip holds the value after the adder, not the actual i/p
    // and the first (low-order) k bits of the o/p are merely copies of the i/p
@@ -132,6 +121,31 @@ int rscc::step(int& input)
          op = ((ip[i] + reg(i)) * gen(i,i)) + op;
       input = op;               // update given input as necessary
       }
+   // Compute next state
+   for(int i=0; i<k; i++)
+      reg(i) = ip[i] >> reg(i);
+   }
+
+int rscc::output(const int& input) const
+   {
+   bitfield ip, op;
+   // For RSC, ip holds the value after the adder, not the actual i/p
+   // and the first (low-order) k bits of the o/p are merely copies of the i/p
+   if(input != fsm::tail)
+      {
+      ip.resize(0);
+      op.resize(k);
+      op = input;
+      for(int i=0; i<k; i++)
+         ip = ((op[i] + reg(i)) * gen(i,i)) + ip;
+      }
+   else // Handle tailing out
+      {
+      ip.resize(k);
+      op.resize(0);
+      for(int i=0; i<k; i++)
+         op = ((ip[i] + reg(i)) * gen(i,i)) + op;
+      }
    // Compute output
    for(int j=k; j<n; j++)
       {
@@ -141,9 +155,13 @@ int rscc::step(int& input)
          thisop ^= (ip[i] + reg(i)) * gen(i,j);
       op = thisop + op;
       }
-   // Compute next state
-   for(int i=0; i<k; i++)
-      reg(i) = ip[i] >> reg(i);
+   return op;
+   }
+
+int rscc::step(int& input)
+   {
+   int op = output(input);
+   advance(input);
    return op;
    }
 
