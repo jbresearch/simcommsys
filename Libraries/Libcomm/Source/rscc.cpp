@@ -158,13 +158,6 @@ int rscc::output(const int& input) const
    return op;
    }
 
-int rscc::step(int& input)
-   {
-   int op = output(input);
-   advance(input);
-   return op;
-   }
-
 int rscc::state() const
    {
    bitfield newstate;

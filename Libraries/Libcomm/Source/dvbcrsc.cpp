@@ -106,13 +106,6 @@ int dvbcrsc::output(const int& input) const
    return op;
    }
 
-int dvbcrsc::step(int& input)
-   {
-   int op = output(input);
-   advance(input);
-   return op;
-   }
-
 int dvbcrsc::state() const
    {
    return reg;

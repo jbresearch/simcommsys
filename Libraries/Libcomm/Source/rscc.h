@@ -67,6 +67,7 @@
   * updated output() as per fsm 1.70
   * changed register set from array to vector
   * implemented advance() and output(), and changed step() to use them
+  * removed implementation of step() in favor of the default provided by fsm
 */
 
 namespace libcomm {
@@ -100,7 +101,6 @@ public:
    // FSM operations (advance/step/state)
    void advance(int& input);                 // feeds the specified input and advances the state
    int output(const int& input) const;       // computes the output for the given input and the present state
-   int step(int& input);                     // feeds the specified input and returns the corresponding output
    int state() const;                        // returns the current state
 
    // informative functions

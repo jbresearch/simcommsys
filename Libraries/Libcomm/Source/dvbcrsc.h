@@ -18,8 +18,9 @@
   Version 1.11 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 
-  Version 1.20 (3 Dec 2007)
-  * Updated output() as per fsm 1.70
+  Version 1.20 (3-4 Dec 2007)
+  * updated output() as per fsm 1.70
+  * removed implementation of step() in favor of the default provided by fsm
 */
 
 namespace libcomm {
@@ -52,7 +53,6 @@ public:
    // FSM operations (advance/step/state)
    void advance(int& input);                 // feeds the specified input and advances the state
    int output(const int& input) const;       // computes the output for the given input and the present state
-   int step(int& input);                     // feeds the specified input and returns the corresponding output
    int state() const;                        // returns the current state
 
    // informative functions

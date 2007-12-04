@@ -134,13 +134,6 @@ int nrcc::output(const int& input) const
    return op;
    }
 
-int nrcc::step(int& input)
-   {
-   int op = output(input);
-   advance(input);
-   return op;
-   }
-
 int nrcc::state() const
    {
    bitfield newstate;

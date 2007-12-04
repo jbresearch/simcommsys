@@ -70,8 +70,9 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.70 (3 Dec 2007)
+  Version 1.70 (3-4 Dec 2007)
   * Updated output() so that the input value is a const and the function is also a const
+  * provided a default implementation of step() using output() and advance()
 */
 
 namespace libcomm {
@@ -93,7 +94,7 @@ public:
    // FSM operations (advance/step/state)
    virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
    virtual int output(const int& input) const = 0; // computes the output for the given input and the present state
-   virtual int step(int& input) = 0;      // feeds the specified input and returns the corresponding output
+   virtual int step(int& input);          // feeds the specified input and returns the corresponding output
    virtual int state() const = 0;         // returns the current state
 
    // informative functions

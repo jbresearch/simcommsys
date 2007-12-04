@@ -7,6 +7,15 @@ const libbase::vcs fsm::version("Finite State Machine module (fsm)", 1.70);
 
 const int fsm::tail = -1;
 
+// FSM operations
+
+int fsm::step(int& input)
+   {
+   int op = output(input);
+   advance(input);
+   return op;
+   }
+
 // serialization functions
 
 std::ostream& operator<<(std::ostream& sout, const fsm* x)
