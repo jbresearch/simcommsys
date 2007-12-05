@@ -74,6 +74,7 @@
   * refactored output()
   * extracted advance() to ccbfsm
   * made determineinput() and determinefeedin() protected, like the virtual members they implement
+  * cleaned up order of members and documentation
 */
 
 namespace libcomm {
@@ -89,17 +90,17 @@ protected:
 public:
    // class management (construction/destruction)
    rscc(const libbase::matrix<libbase::bitfield>& generator);
-   rscc(const rscc& x);         // copy constructor
+   rscc(const rscc& x);
    ~rscc();
    
    // class management (cloning/naming)
-   rscc *clone() const { return new rscc(*this); };             // cloning operation
+   rscc *clone() const { return new rscc(*this); };
    const char* name() const { return shelper.name(); };
 
-   // FSM resetting
+   // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
-   // FSM operations (advance/step/state)
+   // FSM operations (advance/output/step)
    int output(const int& input) const;       // computes the output for the given input and the present state
 
    // description output

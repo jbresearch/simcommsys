@@ -66,7 +66,18 @@ ccbfsm::~ccbfsm()
    {
    }
 
-// finite state machine functions - resetting
+// FSM state operations (getting and resetting)
+
+int ccbfsm::state() const
+   {
+   bitfield newstate;
+   newstate.resize(0);
+   for(int i=0; i<k; i++)
+      {
+      newstate = reg(i) + newstate;
+      }
+   return newstate;
+   }
 
 void ccbfsm::reset(int state)
    {
@@ -85,7 +96,7 @@ void ccbfsm::reset(int state)
       }
    }
 
-// finite state machine functions - state advance etc.
+// FSM operations (advance/output/step)
 
 void ccbfsm::advance(int& input)
    {
@@ -96,17 +107,6 @@ void ccbfsm::advance(int& input)
    // Compute next state
    for(int i=0; i<k; i++)
       reg(i) = sin[i] >> reg(i);
-   }
-
-int ccbfsm::state() const
-   {
-   bitfield newstate;
-   newstate.resize(0);
-   for(int i=0; i<k; i++)
-      {
-      newstate = reg(i) + newstate;
-      }
-   return newstate;
    }
 
 // description output
@@ -121,15 +121,13 @@ std::string ccbfsm::description() const
    return sout.str();
    }
 
-// object serialization - saving
+// object serialization
 
 std::ostream& ccbfsm::serialize(std::ostream& sout) const
    {
    sout << gen;
    return sout;
    }
-
-// object serialization - loading
 
 std::istream& ccbfsm::serialize(std::istream& sin)
    {

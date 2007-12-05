@@ -11,6 +11,7 @@
   Version 1.00 (5 Dec 2007)
   * initial version; implements common elements of a controller-canonical binary fsm
   * added determineinput() and determinefeedin() pure virtual functions
+  * cleaned up order of members and documentation
 */
 
 namespace libcomm {
@@ -32,20 +33,20 @@ protected:
 public:
    // class management (construction/destruction)
    ccbfsm(const libbase::matrix<libbase::bitfield>& generator);
-   ccbfsm(const ccbfsm& x);         // copy constructor
+   ccbfsm(const ccbfsm& x);
    ~ccbfsm();
    
-   // FSM resetting
-   void reset(int state=0);                  // reset to a specified state
-   // FSM operations (advance/step/state)
-   void advance(int& input);                 // feeds the specified input and advances the state
+   // FSM state operations (getting and resetting)
    int state() const;                        // returns the current state
+   void reset(int state=0);                  // reset to a specified state
+   // FSM operations (advance/output/step)
+   void advance(int& input);                 // feeds the specified input and advances the state
 
    // informative functions
+   int mem_order() const { return m; };      // memory order (length of tail)
    int num_states() const { return 1<<nu; }; // returns the number of defined states
    int num_inputs() const { return 1<<k; };  // returns the number of valid inputs
    int num_outputs() const { return 1<<n; }; // returns the number of valid outputs
-   int mem_order() const { return m; };      // memory order (length of tail)
 
    // description output - common part only, must be preceded by specific name
    std::string description() const;

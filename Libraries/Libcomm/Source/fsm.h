@@ -70,9 +70,11 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.70 (3-4 Dec 2007)
+  Version 1.70 (3-5 Dec 2007)
   * Updated output() so that the input value is a const and the function is also a const
   * provided a default implementation of step() using output() and advance()
+  * cleaned up order of members and documentation
+  * removed friend status of stream output operators
 */
 
 namespace libcomm {
@@ -87,31 +89,32 @@ public:
    virtual fsm *clone() const = 0;        // cloning operation
    virtual const char* name() const = 0;  // derived object's name
 
-   // FSM resetting
+   // FSM state operations (getting and resetting)
+   virtual int state() const = 0;         // returns the current state
    virtual void reset(int state=0) = 0;   // reset to a specified state
    virtual void resetcircular(int zerostate, int n) = 0; // resets, given zero-state solution and number of time-steps
    virtual void resetcircular() = 0;      // as above, assuming we have just run through the zero-state zero-input
-   // FSM operations (advance/step/state)
-   virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
+   // FSM operations (advance/output/step)
    virtual int output(const int& input) const = 0; // computes the output for the given input and the present state
+   virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
    virtual int step(int& input);          // feeds the specified input and returns the corresponding output
-   virtual int state() const = 0;         // returns the current state
 
    // informative functions
+   virtual int mem_order() const = 0;     // memory order (length of tail)
    virtual int num_states() const = 0;    // returns the number of defined states
    virtual int num_inputs() const = 0;    // returns the number of valid inputs
    virtual int num_outputs() const = 0;   // returns the number of valid outputs
-   virtual int mem_order() const = 0;     // memory order (length of tail)
 
    // description output
    virtual std::string description() const = 0;
-   // object serialization - saving
+   // object serialization
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const fsm* x);
-   // object serialization - loading
    virtual std::istream& serialize(std::istream& sin) = 0;
-   friend std::istream& operator>>(std::istream& sin, fsm*& x);
 };
+
+// stream output operators
+std::ostream& operator<<(std::ostream& sout, const fsm* x);
+std::istream& operator>>(std::istream& sin, fsm*& x);
 
 }; // end namespace
 

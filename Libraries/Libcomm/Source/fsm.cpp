@@ -16,7 +16,7 @@ int fsm::step(int& input)
    return op;
    }
 
-// serialization functions
+// stream output operators
 
 std::ostream& operator<<(std::ostream& sout, const fsm* x)
    {

@@ -29,7 +29,7 @@ nrcc::~nrcc()
    {
    }
 
-// finite state machine functions - resetting
+// FSM state operations (getting and resetting)
 
 void nrcc::resetcircular(int zerostate, int n)
    {
@@ -41,7 +41,7 @@ void nrcc::resetcircular()
    assert("Function not implemented.");
    }
 
-// finite state machine functions - state advance etc.
+// FSM helper operations
 
 bitfield nrcc::determineinput(const int input) const
    {
@@ -56,6 +56,8 @@ bitfield nrcc::determinefeedin(const int input) const
    assert(input != fsm::tail);
    return bitfield(input,k);
    }
+
+// FSM operations (advance/output/step)
 
 int nrcc::output(const int& input) const
    {
