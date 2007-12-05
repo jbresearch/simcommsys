@@ -69,6 +69,7 @@
 
   Version 1.70 (5 Dec 2007)
   * derived class from the newly-formed ccbfsm
+  * extracted determinefeedin()
 */
 
 namespace libcomm {
@@ -93,6 +94,7 @@ public:
    void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
    // FSM operations (advance/step/state)
+   libbase::bitfield determinefeedin(int &input);
    void advance(int& input);                 // feeds the specified input and advances the state
    int output(const int& input) const;       // computes the output for the given input and the present state
 

@@ -43,7 +43,7 @@ void nrcc::resetcircular()
 
 // finite state machine functions - state advance etc.
 
-void nrcc::advance(int& input)
+bitfield nrcc::determinefeedin(int &input)
    {
    bitfield ip;
    ip.resize(k);
@@ -52,6 +52,12 @@ void nrcc::advance(int& input)
       ip = input;
    else         // ip is the default of zero;
       input = 0;        // update the given input
+   return ip;
+   }
+
+void nrcc::advance(int& input)
+   {
+   bitfield ip = determinefeedin(input);
    // Compute next state
    for(int i=0; i<k; i++)
       reg(i) = ip[i] >> reg(i);
