@@ -61,24 +61,6 @@ bitfield rscc::determinefeedin(const int input) const
    return sin;
    }
 
-// FSM operations (advance/output/step)
-
-int rscc::output(const int& input) const
-   {
-   bitfield ip = determineinput(input);
-   bitfield sin = determinefeedin(ip);
-   // Compute output
-   bitfield op = ip;
-   for(int j=k; j<n; j++)
-      {
-      bitfield thisop(0,1);
-      for(int i=0; i<k; i++)
-         thisop ^= (sin[i] + reg(i)) * gen(i,j);
-      op = thisop + op;
-      }
-   return op;
-   }
-
 // description output
 
 std::string rscc::description() const

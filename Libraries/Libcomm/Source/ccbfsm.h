@@ -41,6 +41,7 @@ public:
    void reset(int state=0);                  // reset to a specified state
    // FSM operations (advance/output/step)
    void advance(int& input);                 // feeds the specified input and advances the state
+   int output(const int& input) const;       // computes the output for the given input and the present state
 
    // informative functions
    int mem_order() const { return m; };      // memory order (length of tail)

@@ -49,24 +49,6 @@ bitfield nrcc::determinefeedin(const int input) const
    return bitfield(input,k);
    }
 
-// FSM operations (advance/output/step)
-
-int nrcc::output(const int& input) const
-   {
-   bitfield ip = determineinput(input);
-   bitfield sin = determinefeedin(ip);
-   // Compute output
-   bitfield op(0,0);
-   for(int j=0; j<n; j++)
-      {
-      bitfield thisop(0,1);
-      for(int i=0; i<k; i++)
-         thisop ^= (sin[i] + reg(i)) * gen(i,j);
-      op = thisop + op;
-      }
-   return op;
-   }
-
 // description output
 
 std::string nrcc::description() const

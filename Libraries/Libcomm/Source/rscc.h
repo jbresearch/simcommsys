@@ -72,7 +72,7 @@
   * extracted determinefeedin()
   * created determineinput() and modified advance() & output() to use it
   * refactored output()
-  * extracted advance() to ccbfsm
+  * extracted advance() and output() to ccbfsm
   * made determineinput() and determinefeedin() protected, like the virtual members they implement
   * cleaned up order of members and documentation
 */
@@ -100,8 +100,6 @@ public:
    // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
-   // FSM operations (advance/output/step)
-   int output(const int& input) const;       // computes the output for the given input and the present state
 
    // description output
    std::string description() const;
