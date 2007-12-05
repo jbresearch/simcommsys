@@ -103,7 +103,7 @@ int ccbfsm::state() const
 std::string ccbfsm::description() const
    {
    std::ostringstream sout;
-   sout << " (nu=" << nu << ", rate " << k << "/" << n << ", G=[";
+   sout << "(nu=" << nu << ", rate " << k << "/" << n << ", G=[";
    for(int i=0; i<k; i++)
       for(int j=0; j<n; j++)
          sout << gen(i,j) << (j==n-1 ? (i==k-1 ? "])" : "; ") : ", ");

@@ -2,9 +2,7 @@
 #define __nrcc_h
 
 #include "vcs.h"
-#include "fsm.h"
-#include "bitfield.h"
-#include "matrix.h"
+#include "ccbfsm.h"
 #include "serializer.h"
 
 /*
@@ -68,21 +66,18 @@
   * implemented advance() and output(), and changed step() to use them
   * removed implementation of step() in favor of the default provided by fsm
   * renamed constraint length from K to nu, in favor of convention in Lin & Costello, 2004
+
+  Version 1.70 (5 Dec 2007)
+  * derived class from the newly-formed ccbfsm
 */
 
 namespace libcomm {
 
-class nrcc : public fsm {
+class nrcc : public ccbfsm {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new nrcc; };
-   int k, n;   // number of input and output bits, respectively
-   int nu;     // number of memory elements (constraint length)
-   int m;      // memory order (longest input register)
-   libbase::vector<libbase::bitfield> reg;   // shift registers (one for each input bit)
-   libbase::matrix<libbase::bitfield> gen;   // generator sequence
 protected:
-   void init(const libbase::matrix<libbase::bitfield>& generator);
    nrcc();
 public:
    // class management (construction/destruction)
@@ -95,19 +90,11 @@ public:
    const char* name() const { return shelper.name(); };
 
    // FSM resetting
-   void reset(int state=0);                  // reset to a specified state
    void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
    // FSM operations (advance/step/state)
    void advance(int& input);                 // feeds the specified input and advances the state
    int output(const int& input) const;       // computes the output for the given input and the present state
-   int state() const;                        // returns the current state
-
-   // informative functions
-   int num_states() const { return 1<<nu; };  // returns the number of defined states
-   int num_inputs() const { return 1<<k; };  // returns the number of valid inputs
-   int num_outputs() const { return 1<<n; }; // returns the number of valid outputs
-   int mem_order() const { return m; };      // memory order (length of tail)
 
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;

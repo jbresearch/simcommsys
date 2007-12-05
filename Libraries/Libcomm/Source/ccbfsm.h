@@ -16,13 +16,15 @@ namespace libcomm {
 
 class ccbfsm : public fsm {
    static const libbase::vcs version;
+protected:
    int k, n;   // number of input and output bits, respectively
    int nu;     // number of memory elements (constraint length)
    int m;      // memory order (longest input register)
    libbase::vector<libbase::bitfield> reg;   // shift registers (one for each input bit)
    libbase::matrix<libbase::bitfield> gen;   // generator sequence
-protected:
+private:
    void init(const libbase::matrix<libbase::bitfield>& generator);
+protected:
    ccbfsm();
 public:
    // class management (construction/destruction)
