@@ -71,6 +71,7 @@
   * derived class from the newly-formed ccbfsm
   * extracted determinefeedin()
   * created determineinput() and modified advance() & output() to use it
+  * refactored output()
 */
 
 namespace libcomm {

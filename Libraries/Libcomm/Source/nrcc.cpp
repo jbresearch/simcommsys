@@ -68,16 +68,15 @@ void nrcc::advance(int& input)
 
 int nrcc::output(const int& input) const
    {
-   bitfield op = determineinput(input);
-   bitfield ip = determinefeedin(op);
+   bitfield ip = determineinput(input);
+   bitfield sin = determinefeedin(ip);
    // Compute output
-   op.resize(0);
+   bitfield op(0,0);
    for(int j=0; j<n; j++)
       {
-      bitfield thisop;
-      thisop.resize(1);
+      bitfield thisop(0,1);
       for(int i=0; i<k; i++)
-         thisop ^= (ip[i] + reg(i)) * gen(i,j);
+         thisop ^= (sin[i] + reg(i)) * gen(i,j);
       op = thisop + op;
       }
    return op;
