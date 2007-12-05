@@ -95,7 +95,7 @@ public:
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
    // FSM operations (advance/step/state)
    libbase::bitfield determinefeedin(int &input);
-   void determinefeedin(const int input, libbase::bitfield &ip, libbase::bitfield &op) const;
+   libbase::bitfield determinefeedin(const int input, libbase::bitfield &op) const;
    void advance(int& input);                 // feeds the specified input and advances the state
    int output(const int& input) const;       // computes the output for the given input and the present state
 
