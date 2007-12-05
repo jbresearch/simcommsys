@@ -67,17 +67,8 @@ bitfield rscc::determinefeedin(int &input)
    return ip;
    }
 
-void rscc::advance(int& input)
+void rscc::determinefeedin(const int input, bitfield &ip, bitfield &op) const
    {
-   bitfield ip = determinefeedin(input);
-   // Compute next state
-   for(int i=0; i<k; i++)
-      reg(i) = ip[i] >> reg(i);
-   }
-
-int rscc::output(const int& input) const
-   {
-   bitfield ip, op;
    // For RSC, ip holds the value after the adder, not the actual i/p
    // and the first (low-order) k bits of the o/p are merely copies of the i/p
    if(input != fsm::tail)
@@ -95,6 +86,21 @@ int rscc::output(const int& input) const
       for(int i=0; i<k; i++)
          op = ((ip[i] + reg(i)) * gen(i,i)) + op;
       }
+   }
+
+void rscc::advance(int& input)
+   {
+   bitfield ip = determinefeedin(input);
+   // Compute next state
+   for(int i=0; i<k; i++)
+      reg(i) = ip[i] >> reg(i);
+   }
+
+int rscc::output(const int& input) const
+   {
+   bitfield ip;
+   bitfield op;
+   determinefeedin(input, ip, op);
    // Compute output
    for(int j=k; j<n; j++)
       {
