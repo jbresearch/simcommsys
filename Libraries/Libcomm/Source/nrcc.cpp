@@ -71,6 +71,7 @@ int nrcc::output(const int& input) const
    bitfield op = determineinput(input);
    bitfield ip = determinefeedin(op);
    // Compute output
+   op.resize(0);
    for(int j=0; j<n; j++)
       {
       bitfield thisop;
