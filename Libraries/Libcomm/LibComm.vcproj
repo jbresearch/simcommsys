@@ -325,6 +325,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\ccbfsm.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\channel.cpp"
 				>
 				<FileConfiguration
@@ -1255,6 +1259,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\bsid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ccbfsm.h"
 				>
 			</File>
 			<File
