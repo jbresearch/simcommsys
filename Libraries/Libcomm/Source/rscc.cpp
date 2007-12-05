@@ -43,7 +43,7 @@ void rscc::resetcircular()
 
 // finite state machine functions - state advance etc.
 
-void rscc::advance(int& input)
+bitfield rscc::determinefeedin(int &input)
    {
    bitfield ip, op;
    // For RSC, ip holds the value after the adder, not the actual i/p
@@ -64,6 +64,12 @@ void rscc::advance(int& input)
          op = ((ip[i] + reg(i)) * gen(i,i)) + op;
       input = op;               // update given input as necessary
       }
+   return ip;
+   }
+
+void rscc::advance(int& input)
+   {
+   bitfield ip = determinefeedin(input);
    // Compute next state
    for(int i=0; i<k; i++)
       reg(i) = ip[i] >> reg(i);
