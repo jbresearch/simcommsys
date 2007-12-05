@@ -43,20 +43,23 @@ void nrcc::resetcircular()
 
 // finite state machine functions - state advance etc.
 
-bitfield nrcc::determinefeedin(int &input)
+bitfield nrcc::determineinput(const int input) const
    {
-   bitfield ip;
-   ip.resize(k);
-   // Handle tailing out
+   bitfield ip(0,k);
    if(input != fsm::tail)
       ip = input;
-   else         // ip is the default of zero;
-      input = 0;        // update the given input
    return ip;
+   }
+
+bitfield nrcc::determinefeedin(const int input) const
+   {
+   assert(input != fsm::tail);
+   return bitfield(input,k);
    }
 
 void nrcc::advance(int& input)
    {
+   input = determineinput(input);
    bitfield ip = determinefeedin(input);
    // Compute next state
    for(int i=0; i<k; i++)
@@ -65,12 +68,8 @@ void nrcc::advance(int& input)
 
 int nrcc::output(const int& input) const
    {
-   bitfield ip, op;
-   ip.resize(k);
-   op.resize(0);
-   // Handle tailing out
-   if(input != fsm::tail)
-      ip = input;
+   bitfield op = determineinput(input);
+   bitfield ip = determinefeedin(op);
    // Compute output
    for(int j=0; j<n; j++)
       {
