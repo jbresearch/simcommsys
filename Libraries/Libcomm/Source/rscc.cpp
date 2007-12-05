@@ -6,42 +6,10 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs rscc::version("Recursive Systematic Convolutional Coder module (rscc)", 1.60);
+const libbase::vcs rscc::version("Recursive Systematic Convolutional Coder module (rscc)", 1.70);
 
 const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
-
-// initialization
-
-void rscc::init(const libbase::matrix<bitfield>& generator)
-   {
-   // copy automatically what we can
-   gen = generator;
-   k = gen.xsize();
-   n = gen.ysize();
-   // set default value to the rest
-   m = 0;
-   // check that the generator matrix is valid (correct sizes) and create shift registers
-   reg.init(k);
-   nu = 0;
-   for(int i=0; i<k; i++)
-      {
-      // assume with of register of input 'i' from its generator's denominator
-      int m = gen(i,0).size() - 1;
-      reg(i).resize(m);
-      nu += m;
-      // check that the gen. seq. for all outputs are the same length
-      for(int j=1; j<n; j++)
-         if(gen(i,j).size() != m+1)
-            {
-            std::cerr << "FATAL ERROR (rscc): Generator sequence must have constant width for each input bit.\n";
-            exit(1);
-            }
-      // update memory order
-      if(m > rscc::m)
-         rscc::m = m;
-      }
-   }
 
 // constructors / destructors
 
@@ -49,20 +17,12 @@ rscc::rscc()
    {
    }
 
-rscc::rscc(const libbase::matrix<bitfield>& generator)
+rscc::rscc(const libbase::matrix<bitfield>& generator) : ccbfsm(generator)
    {
-   init(generator);
    }
 
-rscc::rscc(const rscc& x)
+rscc::rscc(const rscc& x) : ccbfsm(x)
    {
-   // copy automatically what we can
-   k = x.k;
-   n = x.n;
-   nu = x.nu;
-   m = x.m;
-   gen = x.gen;
-   reg = x.reg;
    }
    
 rscc::~rscc()
@@ -70,23 +30,6 @@ rscc::~rscc()
    }
    
 // finite state machine functions - resetting
-
-void rscc::reset(int state)
-   {
-   bitfield newstate;
-   newstate.resize(nu);
-   newstate = state;
-   for(int i=0; i<k; i++)
-      {
-      int size = reg(i).size();
-      // check for case where no memory is associated with the input bit
-      if(size > 0)
-         {
-         reg(i) = newstate.extract(size-1, 0);
-         newstate >>= size;
-         }
-      }
-   }
 
 void rscc::resetcircular(int zerostate, int n)
    {
@@ -158,24 +101,12 @@ int rscc::output(const int& input) const
    return op;
    }
 
-int rscc::state() const
-   {
-   bitfield newstate;
-   newstate.resize(0);
-   for(int i=0; i<k; i++)
-      newstate = reg(i) + newstate;
-   return newstate;
-   }
-
 // description output
 
 std::string rscc::description() const
    {
    std::ostringstream sout;
-   sout << "RSC code (K=" << m+1 << ", rate " << k << "/" << n << ", G=[";
-   for(int i=0; i<k; i++)
-      for(int j=0; j<n; j++)
-         sout << gen(i, j) << (j==n-1 ? (i==k-1 ? "])" : "; ") : ", ");
+   sout << "RSC code " << ccbfsm::description();
    return sout.str();
    }
 
@@ -183,17 +114,14 @@ std::string rscc::description() const
 
 std::ostream& rscc::serialize(std::ostream& sout) const
    {
-   sout << gen;
-   return sout;
+   return ccbfsm::serialize(sout);
    }
 
 // object serialization - loading
 
 std::istream& rscc::serialize(std::istream& sin)
    {
-   sin >> gen;
-   init(gen);
-   return sin;
+   return ccbfsm::serialize(sin);
    }
 
 }; // end namespace
