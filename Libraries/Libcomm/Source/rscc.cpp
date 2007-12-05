@@ -43,55 +43,35 @@ void rscc::resetcircular()
 
 // finite state machine functions - state advance etc.
 
-bitfield rscc::determinefeedin(int &input)
+bitfield rscc::determineinput(const int input) const
    {
-   bitfield ip, op;
-   // For RSC, ip holds the value after the adder, not the actual i/p
-   // and the first (low-order) k bits of the o/p are merely copies of the i/p
+   bitfield ip;
    if(input != fsm::tail)
       {
-      ip.resize(0);
-      op.resize(k);
-      op = input;
-      for(int i=0; i<k; i++)
-         ip = ((op[i] + reg(i)) * gen(i,i)) + ip;
+      ip.resize(k);
+      ip = input;
       }
    else // Handle tailing out
       {
-      ip.resize(k);
-      op.resize(0);
+      ip.resize(0);
       for(int i=0; i<k; i++)
-         op = ((ip[i] + reg(i)) * gen(i,i)) + op;
-      input = op;               // update given input as necessary
+         ip = ((bitfield(0,1) + reg(i)) * gen(i,i)) + ip;
       }
    return ip;
    }
 
-bitfield rscc::determinefeedin(const int input, bitfield &op) const
+bitfield rscc::determinefeedin(const int input) const
    {
-   bitfield ip;
-   // For RSC, ip holds the value after the adder, not the actual i/p
-   // and the first (low-order) k bits of the o/p are merely copies of the i/p
-   if(input != fsm::tail)
-      {
-      ip.resize(0);
-      op.resize(k);
-      op = input;
-      for(int i=0; i<k; i++)
-         ip = ((op[i] + reg(i)) * gen(i,i)) + ip;
-      }
-   else // Handle tailing out
-      {
-      ip.resize(k);
-      op.resize(0);
-      for(int i=0; i<k; i++)
-         op = ((ip[i] + reg(i)) * gen(i,i)) + op;
-      }
-   return ip;
+   assert(input != fsm::tail);
+   bitfield sin(0,0), ip(input,k);
+   for(int i=0; i<k; i++)
+      sin = ((ip[i] + reg(i)) * gen(i,i)) + sin;
+   return sin;
    }
 
 void rscc::advance(int& input)
    {
+   input = determineinput(input);
    bitfield ip = determinefeedin(input);
    // Compute next state
    for(int i=0; i<k; i++)
@@ -100,8 +80,8 @@ void rscc::advance(int& input)
 
 int rscc::output(const int& input) const
    {
-   bitfield op;
-   bitfield ip = determinefeedin(input, op);
+   bitfield op = determineinput(input);
+   bitfield ip = determinefeedin(op);
    // Compute output
    for(int j=k; j<n; j++)
       {
