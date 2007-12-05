@@ -7,7 +7,7 @@ namespace libbase {
 
 using std::cerr;
 
-const vcs bitfield::version("Bitfield module (bitfield)", 1.30);
+const vcs bitfield::version("Bitfield module (bitfield)", 1.31);
               
 // Static Members
                      
@@ -70,6 +70,12 @@ bitfield::bitfield()
    {
    bits = defsize;
    field = 0;
+   }
+
+bitfield::bitfield(const int32u field, const int bits)
+   {
+   bitfield::bits = bits;
+   bitfield::field = field;
    }
 
 // Resizing Operations

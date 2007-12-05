@@ -35,15 +35,20 @@
   Version 1.30 (26 Oct 2006)
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+  Version 1.31 (5 Dec 2007)
+  * added constructor to directly convert an integer at a specified width
 */
 
 namespace libbase {
 
 class bitfield {
    static const vcs version;
-   static int   defsize;        // default size
-   int32u               field;  // bit field
-   int                  bits;           // number of bits
+   static int   defsize;   // default size
+   // member variables
+   int32u field;           // bit field
+   int    bits;            // number of bits
+private:
    int32u mask() const;
    void check_range(int32u f) const;
    static void check_fieldsize(int b);
@@ -51,6 +56,7 @@ class bitfield {
 public:
    bitfield();
    bitfield(const char *s) { init(s); };
+   bitfield(const int32u field, const int bits);
 
    // Type conversion to integer/string
    operator int32u() const { return field; };
