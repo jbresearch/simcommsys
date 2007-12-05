@@ -69,15 +69,6 @@ bitfield rscc::determinefeedin(const int input) const
    return sin;
    }
 
-void rscc::advance(int& input)
-   {
-   input = determineinput(input);
-   bitfield ip = determinefeedin(input);
-   // Compute next state
-   for(int i=0; i<k; i++)
-      reg(i) = ip[i] >> reg(i);
-   }
-
 int rscc::output(const int& input) const
    {
    bitfield ip = determineinput(input);

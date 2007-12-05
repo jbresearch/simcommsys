@@ -72,6 +72,8 @@
   * extracted determinefeedin()
   * created determineinput() and modified advance() & output() to use it
   * refactored output()
+  * extracted advance() to ccbfsm
+  * made determineinput() and determinefeedin() protected, like the virtual members they implement
 */
 
 namespace libcomm {
@@ -81,6 +83,8 @@ class nrcc : public ccbfsm {
    static const libbase::serializer shelper;
    static void* create() { return new nrcc; };
 protected:
+   libbase::bitfield determineinput(const int input) const;
+   libbase::bitfield determinefeedin(const int input) const;
    nrcc();
 public:
    // class management (construction/destruction)
@@ -96,9 +100,6 @@ public:
    void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
    // FSM operations (advance/step/state)
-   libbase::bitfield determineinput(const int input) const;
-   libbase::bitfield determinefeedin(const int input) const;
-   void advance(int& input);                 // feeds the specified input and advances the state
    int output(const int& input) const;       // computes the output for the given input and the present state
 
    // description output

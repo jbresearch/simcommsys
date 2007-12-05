@@ -87,6 +87,17 @@ void ccbfsm::reset(int state)
 
 // finite state machine functions - state advance etc.
 
+void ccbfsm::advance(int& input)
+   {
+   bitfield ip = determineinput(input);
+   bitfield sin = determinefeedin(ip);
+   // Update input
+   input = ip;
+   // Compute next state
+   for(int i=0; i<k; i++)
+      reg(i) = sin[i] >> reg(i);
+   }
+
 int ccbfsm::state() const
    {
    bitfield newstate;

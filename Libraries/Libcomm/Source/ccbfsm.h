@@ -10,6 +10,7 @@
 /*
   Version 1.00 (5 Dec 2007)
   * initial version; implements common elements of a controller-canonical binary fsm
+  * added determineinput() and determinefeedin() pure virtual functions
 */
 
 namespace libcomm {
@@ -25,6 +26,8 @@ protected:
 private:
    void init(const libbase::matrix<libbase::bitfield>& generator);
 protected:
+   virtual libbase::bitfield determineinput(const int input) const = 0;
+   virtual libbase::bitfield determinefeedin(const int input) const = 0;
    ccbfsm();
 public:
    // class management (construction/destruction)
@@ -35,6 +38,7 @@ public:
    // FSM resetting
    void reset(int state=0);                  // reset to a specified state
    // FSM operations (advance/step/state)
+   void advance(int& input);                 // feeds the specified input and advances the state
    int state() const;                        // returns the current state
 
    // informative functions

@@ -57,15 +57,6 @@ bitfield nrcc::determinefeedin(const int input) const
    return bitfield(input,k);
    }
 
-void nrcc::advance(int& input)
-   {
-   input = determineinput(input);
-   bitfield ip = determinefeedin(input);
-   // Compute next state
-   for(int i=0; i<k; i++)
-      reg(i) = ip[i] >> reg(i);
-   }
-
 int nrcc::output(const int& input) const
    {
    bitfield ip = determineinput(input);
