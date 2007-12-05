@@ -63,11 +63,12 @@
   Version 1.51 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 
-  Version 1.60 (3-4 Dec 2007)
+  Version 1.60 (3-5 Dec 2007)
   * updated output() as per fsm 1.70
   * changed register set from array to vector
   * implemented advance() and output(), and changed step() to use them
   * removed implementation of step() in favor of the default provided by fsm
+  * renamed constraint length from K to nu, in favor of convention in Lin & Costello, 2004
 */
 
 namespace libcomm {
@@ -77,7 +78,7 @@ class rscc : public fsm {
    static const libbase::serializer shelper;
    static void* create() { return new rscc; };
    int k, n;   // number of input and output bits, respectively
-   int K;      // number of memory elements (constraint length)
+   int nu;     // number of memory elements (constraint length)
    int m;      // memory order (longest input register)
    libbase::vector<libbase::bitfield> reg;   // shift registers (one for each input bit)
    libbase::matrix<libbase::bitfield> gen;   // generator sequence
@@ -104,7 +105,7 @@ public:
    int state() const;                        // returns the current state
 
    // informative functions
-   int num_states() const { return 1<<K; };  // returns the number of defined states
+   int num_states() const { return 1<<nu; };  // returns the number of defined states
    int num_inputs() const { return 1<<k; };  // returns the number of valid inputs
    int num_outputs() const { return 1<<n; }; // returns the number of valid outputs
    int mem_order() const { return m; };      // memory order (length of tail)

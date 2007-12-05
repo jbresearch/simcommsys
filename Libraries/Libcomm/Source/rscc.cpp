@@ -23,13 +23,13 @@ void rscc::init(const libbase::matrix<bitfield>& generator)
    m = 0;
    // check that the generator matrix is valid (correct sizes) and create shift registers
    reg.init(k);
-   K = 0;
+   nu = 0;
    for(int i=0; i<k; i++)
       {
       // assume with of register of input 'i' from its generator's denominator
       int m = gen(i,0).size() - 1;
       reg(i).resize(m);
-      K += m;
+      nu += m;
       // check that the gen. seq. for all outputs are the same length
       for(int j=1; j<n; j++)
          if(gen(i,j).size() != m+1)
@@ -59,7 +59,7 @@ rscc::rscc(const rscc& x)
    // copy automatically what we can
    k = x.k;
    n = x.n;
-   K = x.K;
+   nu = x.nu;
    m = x.m;
    gen = x.gen;
    reg = x.reg;
@@ -74,7 +74,7 @@ rscc::~rscc()
 void rscc::reset(int state)
    {
    bitfield newstate;
-   newstate.resize(K);
+   newstate.resize(nu);
    newstate = state;
    for(int i=0; i<k; i++)
       {
