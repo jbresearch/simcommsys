@@ -13,19 +13,11 @@ const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
 // constructors / destructors
 
-rscc::rscc()
-   {
-   }
-
 rscc::rscc(const libbase::matrix<bitfield>& generator) : ccbfsm(generator)
    {
    }
 
 rscc::rscc(const rscc& x) : ccbfsm(x)
-   {
-   }
-   
-rscc::~rscc()
    {
    }
    

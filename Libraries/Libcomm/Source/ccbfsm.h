@@ -29,12 +29,12 @@ private:
 protected:
    virtual libbase::bitfield determineinput(const int input) const = 0;
    virtual libbase::bitfield determinefeedin(const int input) const = 0;
-   ccbfsm();
+   ccbfsm() {};
 public:
    // class management (construction/destruction)
    ccbfsm(const libbase::matrix<libbase::bitfield>& generator);
    ccbfsm(const ccbfsm& x);
-   ~ccbfsm();
+   ~ccbfsm() {};
    
    // FSM state operations (getting and resetting)
    int state() const;                        // returns the current state

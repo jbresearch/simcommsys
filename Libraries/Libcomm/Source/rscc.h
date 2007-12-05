@@ -86,12 +86,12 @@ class rscc : public ccbfsm {
 protected:
    libbase::bitfield determineinput(const int input) const;
    libbase::bitfield determinefeedin(const int input) const;
-   rscc();
+   rscc() {};
 public:
    // class management (construction/destruction)
    rscc(const libbase::matrix<libbase::bitfield>& generator);
    rscc(const rscc& x);
-   ~rscc();
+   ~rscc() {};
    
    // class management (cloning/naming)
    rscc *clone() const { return new rscc(*this); };

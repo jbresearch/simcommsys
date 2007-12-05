@@ -86,12 +86,12 @@ class nrcc : public ccbfsm {
 protected:
    libbase::bitfield determineinput(const int input) const;
    libbase::bitfield determinefeedin(const int input) const;
-   nrcc();
+   nrcc() {};
 public:
    // class management (construction/destruction)
    nrcc(const libbase::matrix<libbase::bitfield>& generator);
    nrcc(const nrcc& x);
-   ~nrcc();
+   ~nrcc() {};
    
    // class management (cloning/naming)
    nrcc *clone() const { return new nrcc(*this); };

@@ -13,19 +13,11 @@ const libbase::serializer nrcc::shelper("fsm", "nrcc", nrcc::create);
 
 // constructors / destructors
 
-nrcc::nrcc()
-   {
-   }
-
 nrcc::nrcc(const libbase::matrix<bitfield>& generator) : ccbfsm(generator)
    {
    }
 
 nrcc::nrcc(const nrcc& x) : ccbfsm(x)
-   {
-   }
-
-nrcc::~nrcc()
    {
    }
 

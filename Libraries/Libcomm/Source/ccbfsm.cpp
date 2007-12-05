@@ -42,10 +42,6 @@ void ccbfsm::init(const libbase::matrix<bitfield>& generator)
 
 // constructors / destructors
 
-ccbfsm::ccbfsm()
-   {
-   }
-
 ccbfsm::ccbfsm(const libbase::matrix<bitfield>& generator)
    {
    init(generator);
@@ -60,10 +56,6 @@ ccbfsm::ccbfsm(const ccbfsm& x)
    m = x.m;
    gen = x.gen;
    reg = x.reg;
-   }
-
-ccbfsm::~ccbfsm()
-   {
    }
 
 // FSM state operations (getting and resetting)
