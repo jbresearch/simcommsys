@@ -10,13 +10,13 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // common parameters
-   const int I=10, xmax=50;
+   const int N=10;
    const int n=5, k=3;
 
    // create a watermark codec
    using libbase::logrealfast;
    using libcomm::watermarkcode;
-   watermarkcode<logrealfast> modem(n,k,0, I,xmax);
+   watermarkcode<logrealfast> modem(n,k,0, N);
    cout << modem.description() << "\n";
    
    return 0;

@@ -78,6 +78,13 @@
 
   Version 1.31 (28 Nov 2007)
   * moved call to init() from default constructor to end of serialization input
+
+  Version 1.40 (6 Dec 2007)
+  * removed I and xmax from user-defined parameters, instead determining the value
+    from the current channel parameters; this allows much smaller values (and
+    therefore faster simulations) at low error rates.
+  * added N as a user-defined parameter, since this is required to determine
+    I and xmax
 */
 
 namespace libcomm {
@@ -88,11 +95,12 @@ class bsid : public channel {
    static void* create() { return new bsid; };
    // user-defined parameters
    double   Ps, Pd, Pi; // channel parameters
-   int      I, xmax;    // fba decoder parameters
+   int      N;          // fba decoder parameter
    bool     varyPs, varyPd, varyPi; // channel update flags
    // pre-computed parameters
-   double   a1, a2;
-   libbase::vector<double> a3;
+   int      I, xmax;    // fba decoder parameters
+   double   a1, a2;     // receiver coefficients
+   libbase::vector<double> a3;   // receiver coefficients
    // internal functions
    void init();
    void precompute();
@@ -106,7 +114,7 @@ protected:
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
    // object handling
-   bsid(const int I, const int xmax, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    bsid *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
 

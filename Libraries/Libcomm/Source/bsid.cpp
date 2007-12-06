@@ -5,7 +5,7 @@
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.31);
+const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.40);
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
@@ -23,6 +23,11 @@ void bsid::init()
 
 void bsid::precompute()
    {
+   // fba decoder parameters
+   I = max(int(ceil((log(1e-12) - log(double(N))) / log(Pd))) - 1, 1);
+   xmax = max(int(ceil(5 * sqrt(N*Pd*(1-Pd)))), I);
+   libbase::trace << "DEBUG (bsid): using I = " << I << ", xmax = " << xmax << ".\n";
+   // receiver coefficients
    a1 = (1-Pi-Pd);
    a2 = 0.5*Pi*Pd;
    a3.init(xmax+1);
@@ -32,11 +37,11 @@ void bsid::precompute()
 
 // constructors / destructors
 
-bsid::bsid(const int I, const int xmax, const bool varyPs, const bool varyPd, const bool varyPi)
+bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
    {
-   // fba decoder parameters
-   bsid::I = I;
-   bsid::xmax = xmax;
+   // fba decoder parameter
+   assert(N > 0);
+   bsid::N = N;
    // channel update flags
    bsid::varyPs = varyPs;
    bsid::varyPd = varyPd;
@@ -241,7 +246,7 @@ double bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<
 std::string bsid::description() const
    {
    std::ostringstream sout;
-   sout << "BSID channel (" << I << "," << xmax << "," << varyPs << varyPd << varyPi << ")";
+   sout << "BSID channel (" << N << "," << varyPs << varyPd << varyPi << ")";
    return sout.str();
    }
 
@@ -249,8 +254,7 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
-   sout << I << "\n";
-   sout << xmax << "\n";
+   sout << N << "\n";
    sout << varyPs << "\n";
    sout << varyPd << "\n";
    sout << varyPi << "\n";
@@ -261,8 +265,7 @@ std::ostream& bsid::serialize(std::ostream& sout) const
 
 std::istream& bsid::serialize(std::istream& sin)
    {
-   sin >> I;
-   sin >> xmax;
+   sin >> N;
    sin >> varyPs;
    sin >> varyPd;
    sin >> varyPi;

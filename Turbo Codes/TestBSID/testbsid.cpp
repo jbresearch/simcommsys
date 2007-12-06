@@ -9,9 +9,6 @@ int main(int argc, char *argv[])
    using std::cout;
    using std::cerr;
 
-   // common parameters
-   const int I=10, xmax=50;
-
    // create a test sequence and test BSID transmission
    using libbase::vector;
    using libcomm::bsid;
@@ -25,14 +22,14 @@ int main(int argc, char *argv[])
    // pass that through the channel
    vector<sigspace> rx1, rx2;
    // channel1 is a substitution-only channel
-   bsid channel1(I,xmax);
+   bsid channel1(tau);
    channel1.seed(1);
    channel1.set_snr(12);
    channel1.set_ps(0.3);
    channel1.transmit(tx, rx1);
    cout << "Rx1: " << rx1 << "\n";
    // channel1 is an insdel-only channel
-   bsid channel2(I,xmax);
+   bsid channel2(tau);
    channel2.seed(1);
    channel2.set_snr(12);
    channel2.set_pi(0.3);

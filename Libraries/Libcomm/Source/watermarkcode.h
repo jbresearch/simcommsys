@@ -100,6 +100,9 @@
   * changed normalization method, so that we normalize over the whole block instead of
     independently for each timestep. This should be equivalent to no-normalization, and is
     a precursor to a change in the architecture to allow higher-range ptables.
+
+  Version 1.40 (6 Dec 2007)
+  * removed I and xmax from user-defined parameters, as in bsid 1.40
 */
 
 namespace libcomm {
@@ -132,7 +135,7 @@ protected:
    void free();
    watermarkcode();
 public:
-   watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   watermarkcode(const int n, const int k, const int s, const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    ~watermarkcode() { free(); };
 
    watermarkcode *clone() const { return new watermarkcode(*this); };           // cloning operation
@@ -147,7 +150,9 @@ public:
    int num_symbols() const { return 1<<k; };
    double energy() const { return n; };  // average energy per symbol
 
+   // description output
    std::string description() const;
+   // object serialization
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };

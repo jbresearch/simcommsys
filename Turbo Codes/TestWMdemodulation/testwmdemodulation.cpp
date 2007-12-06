@@ -9,8 +9,6 @@ int main(int argc, char *argv[])
    using std::cout;
    using std::cerr;
 
-   // fixed parameters
-   const int I=3, xmax=5;
    // user-defined parameters
    if(argc == 1)
       cout << "Usage: " << argv[0] << " [seed [n [k [tau]]]]\n";
@@ -20,7 +18,7 @@ int main(int argc, char *argv[])
    const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
 
    // create a watermark codec
-   libcomm::watermarkcode<libbase::logrealfast> modem(n,k,seed, I,xmax);
+   libcomm::watermarkcode<libbase::logrealfast> modem(n,k,seed, tau*n);
    cout << modem.description() << "\n";
    
    // define an alternating encoded sequence
@@ -41,7 +39,7 @@ int main(int argc, char *argv[])
 
    // assume an error-free transmission
    using libcomm::bsid;
-   bsid chan(I,xmax);
+   bsid chan(tau*n);
    chan.seed(1);
    chan.set_snr(12);
    // demodulate an error-free version

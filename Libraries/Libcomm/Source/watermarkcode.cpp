@@ -75,11 +75,11 @@ template <class real> void watermarkcode<real>::free()
 
 // constructor / destructor
 
-template <class real> watermarkcode<real>::watermarkcode() : mychan(0,0,0,0,0)
+template <class real> watermarkcode<real>::watermarkcode() : mychan(1,0,0,0)
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int I, const int xmax, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(I, xmax, varyPs, varyPd, varyPi)
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int N, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(N, varyPs, varyPd, varyPi)
    {
    // code parameters
    assert(n >= 1 && n <= 32);
@@ -307,7 +307,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.30
+#define VERSION 1.40
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);
