@@ -85,6 +85,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -100,7 +101,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/AnnealInterleaver.bsc"
+				OutputFile="$(OutDir)/$(ProjectName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -186,7 +187,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\Libraries\LibBase\Debug,..\..\Libraries\LibComm\Debug"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/AnnealInterleaver.pdb"
+				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -202,7 +203,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/AnnealInterleaver.bsc"
+				OutputFile="$(OutDir)/$(ProjectName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/LibBase.bsc"
+				OutputFile="$(OutDir)/$(ProjectName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -161,7 +161,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/LibBase.bsc"
+				OutputFile="$(OutDir)/$(ProjectName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
