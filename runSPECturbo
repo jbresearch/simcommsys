@@ -1,4 +1,14 @@
 #!/bin/bash
 
-( sleep 1; SPECturbo.Release localhost:9999 >/dev/null 2>&1 )&
-SPECturbo.Release :9999
+PORT=9998
+
+# start slave processes (one/CPU)
+declare -i i
+for (( i=0; $i < $CPUS; i++ )); do
+   echo Starting slave $i
+   ( sleep 1; SPECturbo.Release localhost:$PORT >/dev/null 2>&1 )&
+done
+
+# start master process
+echo Starting master
+SPECturbo.Release :$PORT
