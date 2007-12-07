@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [[ $# != 1 ]]; then
-   echo "Usage: $0 <command>"
+if [[ $# < 1 ]]; then
+   echo "Usage: $0 <command> ..."
    exit
 fi
 
-find . -type f \( -name '*.cpp' -or -name '*.h' \) |xargs -d '\n' $1
+find . -type f \( -name '*.cpp' -or -name '*.h' \) |xargs -d '\n' "$@"
