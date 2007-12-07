@@ -14,9 +14,10 @@ namespace libcomm {
    \brief   Binary substitution/insertion/deletion channel.
    \author  Johann Briffa
 
-   $ Revision $
-   $ Date $
-   $ Author $
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
 
    \version 1.00 (12-16 Oct 2007)
    - Initial version; implementation of a binary substitution, insertion, and deletion channel.
