@@ -9,9 +9,14 @@ const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion C
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
+// Internal functions
 
-// internal functions
+/*!
+   \brief Initialization
 
+   Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
+   of the parameters not flagged to change with channel SNR will remain zero.
+*/
 void bsid::init()
    {
    // channel parameters
@@ -21,6 +26,13 @@ void bsid::init()
    precompute();
    }
 
+/*!
+   \brief Sets up pre-computed values
+
+   This function computes all cached quantities used within actual channel operations.
+   Since these values depend on the channel conditions, this function should be called
+   any time a channel parameter is changed.
+*/
 void bsid::precompute()
    {
    // fba decoder parameters
@@ -35,8 +47,18 @@ void bsid::precompute()
       a3(m) = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
    }
 
-// constructors / destructors
+// Constructors / Destructors
 
+/*!
+   \brief Principal constructor
+   \param   N        Block size in bits over which we need to synchronize; typically this is
+                     the size of the outer codeword.
+   \param   varyPs   Flag to indicate that \f$ P_s \f$ should change with SNR
+   \param   varyPd   Flag to indicate that \f$ P_d \f$ should change with SNR
+   \param   varyPi   Flag to indicate that \f$ P_i \f$ should change with SNR
+
+   \sa init()
+*/
 bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
    {
    // fba decoder parameter
@@ -50,7 +72,8 @@ bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
    init();
    }
 
-// channel parameter updates
+// Channel parameter setters
+
 void bsid::set_ps(const double Ps)
    {
    assert(Ps >=0 && Ps <= 0.5);
@@ -77,8 +100,31 @@ void bsid::set_pi(const double Pi)
    precompute();
    }
 
-// handle functions
+// Channel function overrides
 
+/*!
+   \brief Determine channel-specific parameters based on given SNR
+   \param   Eb    Average signal energy per information bit \f$ E_b \f$. Depends on modulation
+                  symbol energy, modulation rate, and overall coding rate.
+   \param   No    Half the noise energy/modulation symbol for a normalised signal \f$ N_0 \f$.
+
+   \note \f$ E_b \f$ is fixed by the overall modulation and coding system. The simulator
+         determines \f$ N_0 \f$ according to the given SNR (assuming unit signal energy), so
+         that the actual band-limited noise energy is given by \f$ E_b N_0 \f$.
+
+   There is no real relationship between SNR and the insertion/deletion probabilities.
+   However, the simulator uses SNR as its common channel-quality measure, so that a functional
+   relationship has to be chosen.
+
+   For the purposes of this channel, SNR and the error probabilities are related by:
+      \f[ p = Q(1/\sigma) \f]
+   where \f$ \sigma^2 = E_b N_0 \f$ would be the variance if the channel represented additive
+   Gaussian noise. The probabilities \f$ P_s, P_d, P_i \f$ are set to \f$ p \f$ if the corresponding
+   flag is set, or left at zero otherwise.
+
+   \note Effectively, if only \f$ P_s \f$ is set to be varied, this channel becomes equivalent to
+   a BSC model for a hard-decision AWGN channel.
+*/
 void bsid::compute_parameters(const double Eb, const double No)
    {
    // computes substitution probability assuming Eb/No describes an AWGN channel with hard-decision demodulation
@@ -92,8 +138,19 @@ void bsid::compute_parameters(const double Eb, const double No)
    libbase::trace << "DEBUG (bsid): Eb = " << Eb << ", No = " << No << " -> Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
    }
    
-// channel handle functions
+/*!
+   \brief Pass a single modulation symbol through the substitution channel
+   \param   s  Input (Tx) modulation symbol
+   \return  Output (Rx) modulation symbol
 
+   \note Due to limitations of the interface, which was designed for substitution channels,
+         only the substitution part of the channel model is handled here.
+
+   For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
+   This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
+   modulation. For MPSK modulation, this causes the output to be the symbol farthest away
+   from the input.
+*/
 sigspace bsid::corrupt(const sigspace& s)
    {
    const double p = r.fval();
@@ -103,12 +160,46 @@ sigspace bsid::corrupt(const sigspace& s)
    return s;
    }
 
-// channel functions
+// Channel functions
 
+/*!
+   \brief Pass a sequence of modulation symbols through the channel
+   \param[in]  tx  Transmitted sequence of modulation symbols
+   \param[out] rx  Received sequence of modulation symbols
+
+   The channel model implemented is described by the following state diagram:
+   \dot
+   digraph channel {
+      // state definitions
+      this [ shape=circle, color=gray, style=filled, label="t_i" ];
+      next [ shape=circle, color=gray, style=filled, label="t_i+1" ];
+      // path definitions
+      this -> Insert [ label="P_i" ];
+      Insert -> this;
+      this -> Delete [ label="P_d" ];
+      Delete -> next;
+      this -> Transmit [ label="1-P_i-P_d" ];
+      Transmit -> next [ label="1-P_s" ];
+      Transmit -> Substitute [ label="P_s" ];
+      Substitute -> next;
+   }
+   \enddot
+
+   \note We have initially no idea how long the received sequence will be, so we first determine
+         the state sequence at every timestep keeping track of
+            - the number of insertions \e before given position, and 
+            - whether the given position is transmitted or deleted.
+
+   \note It is possible that the \c tx and \c rx parameters actually point to the same
+         vector. Unlike substitution channels, where this does not cause any problems, we
+         here have to make sure that we don't corrupt the vector we're reading from;
+         therefore, the result is first created as a new vector and only copied over at
+         the end.
+
+   \sa corrupt()
+*/
 void bsid::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
    {
-   // We have initially no idea how long the received sequence will be, so we first determine the state sequence at every timestep
-   // keeping track of (a) the number of insertions *before* given position, and (b) whether the given position is transmitted or deleted
    const int tau = tx.size();
    libbase::vector<int> insertions(tau);
    insertions = 0;
@@ -209,6 +300,13 @@ inline void myfba::attach(const bsid* channel)
 
 /********************************* END FBA *********************************/
 
+/*!
+   \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
+          corresponding to one transmission step
+   \param[in]  tx       Set of possible transmitted symbols
+   \param[in]  rx       Received sequence of modulation symbols
+   \param[out] ptable   Likelihoods corresponding to each possible transmitted symbol
+*/
 void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
@@ -216,7 +314,7 @@ void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<si
    const int m = rx.size()-1;
    // Initialize results vector
    ptable.init(1, M);
-   // set of possible transmitted symbols for one transmission step
+   // Compute results
    if(m == -1) // just a deletion, no symbols received
       ptable = Pd;
    else

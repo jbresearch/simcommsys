@@ -14,6 +14,10 @@ namespace libcomm {
    \brief   Binary substitution/insertion/deletion channel.
    \author  Johann Briffa
 
+   $ Revision $
+   $ Date $
+   $ Author $
+
    \version 1.00 (12-16 Oct 2007)
    - Initial version; implementation of a binary substitution, insertion, and deletion channel.
    - \b Note: this class is still unfinished, and only implements the BSC channel right now
@@ -65,7 +69,7 @@ namespace libcomm {
      on initialization or serialization - derived classes should delegate to this
      class's serialization routines as needed.
    - added getters for I and xmax (watermarkcode needs them to set up fba)
-     @b TODO: this should probably change, separating or integrating bsid & fba
+     \b TODO: this should probably change, separating or integrating bsid & fba
    - fixed ptable and getF indexing errors in receive() for M=1.
 
    \version 1.24 (14 Nov 2007)
@@ -96,53 +100,103 @@ class bsid : public channel {
    static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new bsid; };
-   // user-defined parameters
-   double   Ps, Pd, Pi; // channel parameters
-   int      N;          // fba decoder parameter
-   bool     varyPs, varyPd, varyPi; // channel update flags
-   // pre-computed parameters
-   int      I, xmax;    // fba decoder parameters
-   double   a1, a2;     // receiver coefficients
-   libbase::vector<double> a3;   // receiver coefficients
-   // internal functions
+private:
+   /*! \name User-defined parameters */
+   double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
+   double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
+   double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
+   int      N;          //!< Block size in bits over which we want to synchronize
+   bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with SNR
+   bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with SNR
+   bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with SNR
+   // @}
+   /*! \name Pre-computed parameters */
+   //! Assumed limit for insertions between two time-steps
+   /*!
+   \f[ I = \left\lceil \frac{ \log{P_r} - \log N }{ \log p } \right\rceil - 1 \f]
+   where \f$ P_r \f$ is an arbitrary probability of having a block of size \f$ N \f$
+   with at least one event of more than \f$ I \f$ insertions between successive
+   time-steps. In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+   \note The smallest allowed value is \f$ I = 1 \f$
+   */
+   int      I;          
+   //! Assumed maximum drift over a whole \c N -bit block
+   /*!
+   \f[ x_{max} = 5 \sqrt{N p (1-p)} \f]
+   where \f$ p = P_i = P_d \f$. This is based directly on Davey's suggestion that
+   \f$ x_{max} \f$ should be "several times larger" than the standard deviation of
+   the synchronization drift over one block, given by \f$ \sigma = \sqrt{N p (1-p)} \f$
+   \note The smallest allowed value is \f$ x_{max} = I \f$
+   */
+   int      xmax;
+   //! Receiver coefficient \f$ a_1 = 1-P_i-P_d \f$
+   double   a1;
+   //! Receiver coefficient \f$ a_2 = \frac{1}{2} P_i P_d \f$
+   double   a2;
+   //! Receiver coefficient set
+   /*!
+   \f[ a_3(m) = \frac{1}{2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+   */
+   libbase::vector<double> a3;
+   // @}
+private:
+   /*! \name Internal functions */
    void init();
    void precompute();
+   // @}
 protected:
-   // default constructor
+   /*! \name Constructors / Destructors */
+   //! Default constructor
    bsid() {};
-   // handle functions
+   // @}
+   /*! \name Channel function overrides */
    void compute_parameters(const double Eb, const double No);
-   // channel handle functions
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
+   // @}
 public:
-   // object handling
+   /*! \name Constructors / Destructors */
    bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   // @}
+   /*! \name Serialization Support */
    bsid *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
+   // @}
 
-   // channel parameter updates
+   /*! \name Channel parameter setters */
+   //! Set the bit-substitution probability
    void set_ps(const double Ps);
+   //! Set the bit-deletion probability
    void set_pd(const double Pd);
+   //! Set the bit-insertion probability
    void set_pi(const double Pi);
-   // channel parameters getters
+
+   /*! \name Channel parameter getters */
+   //! Get the current bit-substitution probability
    double get_ps() const { return Ps; };
+   //! Get the current bit-deletion probability
    double get_pd() const { return Pd; };
+   //! Get the current bit-insertion probability
    double get_pi() const { return Pi; };
-   // fba decoder parameters
+
+   /*! \name FBA decoder parameter getters */
+   //! Get the current assumed limit for insertions between two time-steps
    int get_I() const { return I; };
+   //! Get the current assumed maximum drift over a whole N-bit block
    int get_xmax() const { return xmax; };
 
-   // channel functions
+   /*! \name Channel functions */
    void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
    void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
    double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
    double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
 
-   // description output
+   /*! \name Description & Serialization */
+   //! Object description output
    std::string description() const;
-   // object serialization
+   //! Object serialization ouput
    std::ostream& serialize(std::ostream& sout) const;
+   //! Object serialization input
    std::istream& serialize(std::istream& sin);
 };
 
