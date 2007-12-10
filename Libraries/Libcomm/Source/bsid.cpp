@@ -171,16 +171,16 @@ sigspace bsid::corrupt(const sigspace& s)
    \dot
    digraph channel {
       // state definitions
-      this [ shape=circle, color=gray, style=filled, label="t_i" ];
-      next [ shape=circle, color=gray, style=filled, label="t_i+1" ];
+      this [ shape=circle, color=gray, style=filled, label="t(i)" ];
+      next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
       // path definitions
-      this -> Insert [ label="P_i" ];
+      this -> Insert [ label="Pi" ];
       Insert -> this;
-      this -> Delete [ label="P_d" ];
+      this -> Delete [ label="Pd" ];
       Delete -> next;
-      this -> Transmit [ label="1-P_i-P_d" ];
-      Transmit -> next [ label="1-P_s" ];
-      Transmit -> Substitute [ label="P_s" ];
+      this -> Transmit [ label="1-Pi-Pd" ];
+      Transmit -> next [ label="1-Ps" ];
+      Transmit -> Substitute [ label="Ps" ];
       Substitute -> next;
    }
    \enddot
