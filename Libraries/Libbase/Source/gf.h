@@ -19,7 +19,7 @@ namespace libbase {
    - This is the first class where we're not using the vcs version-printing class.
 */
 
-template <int n, int poly> class gf {
+template <int m, int poly> class gf {
 private:
    /*! \name Object representation */
    //! Representation of this element by its polynomial coefficients
