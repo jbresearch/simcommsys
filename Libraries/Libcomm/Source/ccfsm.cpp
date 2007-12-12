@@ -49,6 +49,30 @@ template <class G> void ccfsm<G>::init(const libbase::matrix<vector<G>>& generat
       }
    }
 
+/*! \brief Conversion from vector spaces to integer
+*/
+template <class G> int ccfsm<G>::convert(vector<G>& x, int y) const
+   {
+   for(int i=x.size()-1; i>=0; i--)
+      {
+      y *= G::elements();
+      y += x(i);
+      }
+   return y;
+   }
+
+/*! \brief Conversion from integer to vector space
+*/
+template <class G> int ccfsm<G>::convert(int x, vector<G>& y) const
+   {
+   for(int i=y.size()-1; i>=0; i--)
+      {
+      y(i) = x % G::elements();
+      x /= G::elements();
+      }
+   return x;
+   }
+
 
 // Constructors / Destructors
 
@@ -89,12 +113,8 @@ template <class G> int ccfsm<G>::state() const
    {
    int state = 0;
    for(int i=k-1; i>=0; i--)
-      for(int j=reg(i).size()-1; j>=0; j--)
-         {
-         state *= G::elements();
-         state += reg(i)(j);
-         }
-   assert(state>=0 && state<num_states());
+      state = convert(reg(i), state);
+   assert(state >= 0 && state < num_states());
    return state;
    }
 
@@ -106,13 +126,10 @@ template <class G> int ccfsm<G>::state() const
 */
 template <class G> void ccfsm<G>::reset(int state)
    {
-   assert(state>=0 && state<num_states());
+   assert(state >= 0 && state < num_states());
    for(int i=k-1; i>=0; i--)
-      for(int j=reg(i).size()-1; j>=0; j--)
-         {
-         reg(i)(j) = state % G::elements();
-         state /= G::elements();
-         }
+      state = convert(state, reg(i));
+   assert(state == 0);
    }
 
 

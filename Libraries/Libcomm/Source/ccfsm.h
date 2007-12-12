@@ -17,10 +17,11 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (11 Dec 2007)
+   \version 1.00 (11-12 Dec 2007)
    - Initial version; implements common elements of a controller-canonical fsm,
      where each coefficient is an element in a finite field.
    - The finite field is specified as a template parameter.
+   - Added internal functions to convert from vector spaces in G to integer form
 */
 
 template <class G> class ccfsm : public fsm {
@@ -36,6 +37,8 @@ protected:
 private:
    /*! \name Internal functions */
    void init(const libbase::matrix<libbase::vector<G>>& generator);
+   int convert(libbase::vector<G>& x, int y=0) const;
+   int convert(int x, libbase::vector<G>& y) const;
    // @}
 protected:
    /*! \name Implementation-dependent functions */
