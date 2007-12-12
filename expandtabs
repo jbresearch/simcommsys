@@ -1,4 +1,7 @@
 #!/bin/bash
+# $Author$
+# $Revision$
+# $Date$
 
 while [[ $# > 0 ]]; do
    FILE=$1

@@ -1,3 +1,7 @@
+# $Author$
+# $Revision$
+# $Date$
+
 # Exported variables:
 
 # Root folder for package

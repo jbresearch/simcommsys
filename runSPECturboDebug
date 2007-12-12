@@ -1,4 +1,7 @@
 #!/bin/bash
+# $Author$
+# $Revision$
+# $Date$
 
 ( sleep 1; SPECturbo.Debug localhost:9999 >/dev/null )&
 SPECturbo.Debug :9999
