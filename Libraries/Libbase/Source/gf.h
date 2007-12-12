@@ -23,9 +23,16 @@ namespace libbase {
    - Defined conversions: to integer, to string.
    - Defined stream functions: output
    - Realizations: gf<8,283> Rijndael, gf<2>..gf<10> Lin & Costello
+   - Added number of elements in the field as a static function
 */
 
 template <int m, int poly> class gf {
+public:
+   /*! \name Class parameters */
+   //! Number of elements in the field
+   static int elements() { return 1<<m; };
+   // @}
+
 private:
    /*! \name Object representation */
    //! Representation of this element by its polynomial coefficients

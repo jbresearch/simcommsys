@@ -1,8 +1,3 @@
-#include "gf.h"
-
-#include <stdlib.h>
-#include <string>
-
 /*!
    \file
 
@@ -11,6 +6,11 @@
    - $Date$
    - $Author$
 */
+
+#include "gf.h"
+
+#include <stdlib.h>
+#include <string>
 
 namespace libbase {
 
