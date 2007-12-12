@@ -66,11 +66,11 @@ public:
    //! Memory order (length of tail)
    int mem_order() const { return m; };
    //! Number of defined states
-   int num_states() const { return 1<<nu; };
-   //! Number of valid inputs
-   int num_inputs() const { return 1<<k; };
-   //! Number of valid outputs
-   int num_outputs() const { return 1<<n; };
+   int num_states() const { return G::elements()<<(nu-1); };
+   //! Number of valid input combinations
+   int num_inputs() const { return G::elements()<<(k-1); };
+   //! Number of valid output combinations
+   int num_outputs() const { return G::elements()<<(n-1); };
    // @}
 
    /*! \name Description & Serialization */
