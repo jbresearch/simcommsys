@@ -137,6 +137,20 @@ template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,
 
 // Explicit Realizations
 
-template class gf<8,283>;
+// cf. Lin & Costello, 2004, App. A
+
+template class gf<2,0x7>;     // 1 { 11 }
+template class gf<3,0xB>;     // 1 { 011 }
+template class gf<4,0x13>;    // 1 { 0011 }
+template class gf<5,0x25>;    // 1 { 0 0101 }
+template class gf<6,0x43>;    // 1 { 00 0011 }
+template class gf<7,0x89>;    // 1 { 000 1001 }
+template class gf<8,0x11D>;   // 1 { 0001 1101 }
+template class gf<9,0x211>;   // 1 { 0 0001 0001 }
+template class gf<10,0x409>;   // 1 { 00 0000 1001 }
+
+// Rijndael field cf. Gladman, 2003, p.5
+
+template class gf<8,0x11B>;   // 1 { 0001 1011 }
 
 }; // end namespace

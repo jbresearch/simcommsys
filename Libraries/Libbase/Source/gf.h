@@ -22,7 +22,7 @@ namespace libbase {
    - Defined operations: addition and multiplication.
    - Defined conversions: to integer, to string.
    - Defined stream functions: output
-   - Realizations: gf<8,283> Rijndael field
+   - Realizations: gf<8,283> Rijndael, gf<2>..gf<10> Lin & Costello
 */
 
 template <int m, int poly> class gf {
