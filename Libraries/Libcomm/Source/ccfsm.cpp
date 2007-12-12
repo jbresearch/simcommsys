@@ -75,14 +75,26 @@ template <class G> ccfsm<G>::ccfsm(const ccfsm& x)
 
 // FSM state operations (getting and resetting)
 
-/*! \brief Returns the current state
+/*! \brief The current state
+    \return A unique integer representation of the current state
+
+    \note Lower-order inputs get lower-order positions within the state representation.
+
+    \note Left-most register positions (ie. those closest to the input junction) get
+          higher-order positions within the state representation.
+
+    \invariant The state value should always be between 0 and num_states()-1
 */
 template <class G> int ccfsm<G>::state() const
    {
-   vector<G> newstate;
-   newstate.init(0);
-   for(int i=0; i<k; i++)
-      newstate = reg(i) + newstate;
+   int newstate = 0;
+   for(int i=k-1; i>=0; i--)
+      for(int j=reg(i).size()-1; j>=0; j--)
+         {
+         newstate *= G::elements();
+         newstate += reg(i)(j);
+         }
+   assert(newstate>=0 && newstate<num_states());
    return newstate;
    }
 
