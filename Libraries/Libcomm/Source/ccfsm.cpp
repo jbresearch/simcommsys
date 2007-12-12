@@ -87,15 +87,15 @@ template <class G> ccfsm<G>::ccfsm(const ccfsm& x)
 */
 template <class G> int ccfsm<G>::state() const
    {
-   int newstate = 0;
+   int state = 0;
    for(int i=k-1; i>=0; i--)
       for(int j=reg(i).size()-1; j>=0; j--)
          {
-         newstate *= G::elements();
-         newstate += reg(i)(j);
+         state *= G::elements();
+         state += reg(i)(j);
          }
-   assert(newstate>=0 && newstate<num_states());
-   return newstate;
+   assert(state>=0 && state<num_states());
+   return state;
    }
 
 /*! \brief Reset to a specified state
