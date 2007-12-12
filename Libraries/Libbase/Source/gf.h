@@ -3,13 +3,10 @@
 
 #include "config.h"
 
-#include <iostream>
-#include <string>
-
 namespace libbase {
 
 /*!
-   \brief   Galois Field.
+   \brief   Galois Field Element.
    \author  Johann Briffa
 
    \par Version Control:
@@ -24,9 +21,14 @@ namespace libbase {
 
 template <int n, int poly> class gf {
 private:
+   /*! \name Object representation */
+   //! Representation of this element by its polynomial coefficients
+   int32u value;
+   // @}
+
 public:
    /*! \name Constructors / Destructors */
-   gf();
+   gf(int32u value=0);
    // @}
 
 };

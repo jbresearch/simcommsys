@@ -1,0 +1,13 @@
+#!/bin/bash
+# $Author$
+# $Revision$
+# $Date$
+
+while [[ $# > 0 ]]; do
+   FILE=$1
+
+   svn ps svn:keywords "Revision Author Date" "$FILE"
+   svn ps svn:eol-style "LF" "$FILE"
+
+   shift
+done
