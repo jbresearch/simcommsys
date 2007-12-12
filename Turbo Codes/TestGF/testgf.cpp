@@ -2,9 +2,9 @@
    \file
 
    \par Version Control:
-   - $Revision: 158 $
-   - $Date: 2007-12-12 12:09:52 +0000 (Wed, 12 Dec 2007) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 */
 
 #include "gf.h"
