@@ -3,6 +3,15 @@
 #include <stdlib.h>
 #include <string>
 
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 namespace libbase {
 
 using std::cerr;
