@@ -301,6 +301,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\gf.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\histogram.cpp"
 				>
 				<FileConfiguration
@@ -643,6 +647,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\functor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\gf.h"
 				>
 			</File>
 			<File
