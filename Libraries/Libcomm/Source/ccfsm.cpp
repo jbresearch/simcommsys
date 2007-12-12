@@ -99,22 +99,20 @@ template <class G> int ccfsm<G>::state() const
    }
 
 /*! \brief Reset to a specified state
+    \param state  A unique integer representation of the state we want to set to; this 
+                  can be any value between 0 and num_states()-1
+
+    \cf state()
 */
 template <class G> void ccfsm<G>::reset(int state)
    {
-   vector<G> newstate;
-   newstate.resize(nu);
-   newstate = state;
-   for(int i=0; i<k; i++)
-      {
-      int size = reg(i).size();
-      // check for case where no memory is associated with the input bit
-      if(size > 0)
+   assert(state>=0 && state<num_states());
+   for(int i=k-1; i>=0; i--)
+      for(int j=reg(i).size()-1; j>=0; j--)
          {
-         reg(i) = newstate.extract(size-1, 0);
-         newstate >>= size;
+         reg(i)(j) = state % G::elements();
+         state /= G::elements();
          }
-      }
    }
 
 
