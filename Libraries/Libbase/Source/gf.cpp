@@ -40,6 +40,17 @@ template <int m, int poly> gf<m,poly>::gf(int32u value)
    }
 
 
+// Conversion operations
+
+template <int m, int poly> gf<m,poly>::operator std::string() const
+   {
+   std::string sTemp;
+   for(int i=m-1; i>=0; i--)
+      sTemp += '0' + ((value >> i) & 1);
+   return sTemp;
+   }
+
+
 // Arithmetic operations
 
 /*!
@@ -75,7 +86,7 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& 
    // Initialize result
    value = 0;
    // Loop over all bits in multiplicand
-   for(int i=0; i<m || B==0; i++)
+   for(int i=0; i<m && B!=0; i++)
       {
       // If the corresponding bit in the multiplicand is set,
       // add (XOR) the shifted multiplier
@@ -106,5 +117,26 @@ template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,
    gf<m,poly> c = a;
    return c *= b;
    }
+
+// Stream Input/Output
+
+template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b)
+   {
+   s << std::string(b);
+   return s;
+   }
+
+//template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b)
+//   {
+//   std::string str;
+//   s >> str;
+//   b.init(str.c_str());
+//   return s;
+//   }
+
+
+// Explicit Realizations
+
+template class gf<8,283>;
 
 }; // end namespace
