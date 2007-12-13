@@ -16,27 +16,44 @@ namespace libbase {
 
 using std::cerr;
 
-// Constructors / Destructors
+
+// Internal functions
 
 /*!
-   \brief Principal constructor
-   \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
-   \param   poly  Primitive polynomial used to define the field elements
+   \brief Initialization
    \param   value Representation of element by its polynomial coefficients
-
-   In both \c poly and \c value, higher-order bits in the integer represent higher-order
-   powers of the polynomial representation. For example:
-   \f[ x^6 + x^4 + x^2 + x^1 + 1 = \{ 01010111 \}_2 = \{ 57 \}_16 = \{ 87 \}_10 \f]
-
-   \warning Due to the internal representation, this class is limited to \f$ GF(2^31) \f$.
 
    \todo Validate \c poly - this should be a primitive polynomial [cf. Lin & Costello, 2004, p.41]
 */
-template <int m, int poly> gf<m,poly>::gf(int32u value)
+template <int m, int poly> void gf<m,poly>::init(int32u value)
    {
    assert(m < 32);
    assert(value < (1<<m));
    gf::value = value;
+   }
+
+
+// Constructors / Destructors
+
+/*!
+   \brief Conversion from string
+   \param   s     String representation of element by its polynomial coefficients (binary)
+
+   This constructor converts the string to an integer and calls init().
+   The string must only contain 1's and 0's.
+*/
+template <int m, int poly> gf<m,poly>::gf(const char *s)
+   {
+   int32u value = 0;
+   const char *p;
+   for(p=s; *p=='1' || *p=='0'; p++)
+      {
+      value <<= 1;
+      if(*p == '1')
+         value |= 1;
+      }
+   assert(*p != '\0');
+   init(value);
    }
 
 
@@ -126,13 +143,13 @@ template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,
    return s;
    }
 
-//template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b)
-//   {
-//   std::string str;
-//   s >> str;
-//   b.init(str.c_str());
-//   return s;
-//   }
+template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b)
+   {
+   std::string str;
+   s >> str;
+   b.init(str.c_str());
+   return s;
+   }
 
 
 // Explicit Realizations

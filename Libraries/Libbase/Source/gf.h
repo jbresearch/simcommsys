@@ -16,14 +16,26 @@ namespace libbase {
    - $Date$
    - $Author$
 
-   \version 1.00 (11-12 Dec 2007)
+   \version 1.00 (11-13 Dec 2007)
    - Initial version; implements extensions of the binary field: \f$ GF(2^n) \f$.
    - This is the first class where we're not using the vcs version-printing class.
    - Defined operations: addition and multiplication.
-   - Defined conversions: to integer, to string.
-   - Defined stream functions: output
+   - Defined conversions: to integer, to string, from integer, from string.
+   - Defined stream functions: output, input.
    - Realizations: gf<8,283> Rijndael, gf<2>..gf<10> Lin & Costello
    - Added number of elements in the field as a static function
+   - Created initialization routine to convert from integer
+   - Moved class-specific documentation here
+
+   
+   \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
+   \param   poly  Primitive polynomial used to define the field elements
+
+   In integer representations of polynomials (e.g \c poly), higher-order bits in the integer
+   represent higher-order powers of the polynomial representation. For example:
+   \f[ x^6 + x^4 + x^2 + x^1 + 1 = \{ 01010111 \}_2 = \{ 57 \}_16 = \{ 87 \}_10 \f]
+
+   \warning Due to the internal representation, this class is limited to \f$ GF(2^31) \f$.
 */
 
 template <int m, int poly> class gf {
@@ -39,9 +51,15 @@ private:
    int32u value;
    // @}
 
+   /*! \name Internal functions */
+   void init(int32u value);
+   // @}
+
 public:
    /*! \name Constructors / Destructors */
-   gf(int32u value=0);
+   //! Principal constructor
+   gf(int32u value=0) { init(value); };
+   gf(const char *s);
    // @}
 
    /*! \name Type conversion */
@@ -63,7 +81,7 @@ template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,
 
 /*! \name Stream Input/Output */
 template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b);
-//template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b);
+template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b);
 // @}
 
 }; // end namespace
