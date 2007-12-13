@@ -18,6 +18,12 @@ using libbase::vector;
 // Internal functions
 
 /*! \brief Initialization
+    \param  generator   Generator matrix of size \f$ k \times n \f$
+
+    Each generator matrix element is a vector over G, laid out in the same format
+    as the internal registers - lower index positions are considered to lie on the
+    right, and correspond with register positions farther away from the input
+    junction.
 */
 template <class G> void ccfsm<G>::init(const libbase::matrix<vector<G>>& generator)
    {
@@ -104,8 +110,9 @@ template <class G> ccfsm<G>::ccfsm(const ccfsm& x)
 
     \note Lower-order inputs get lower-order positions within the state representation.
 
-    \note Left-most register positions (ie. those closest to the input junction) get
-          higher-order positions within the state representation.
+    \note Left-most register positions (ie. those closest to the input junction) are
+          represented by higher index positions, and get higher-order positions within
+          the state representation.
 
     \invariant The state value should always be between 0 and num_states()-1
 */
@@ -136,32 +143,50 @@ template <class G> void ccfsm<G>::reset(int state)
 // FSM operations (advance/output/step)
 
 /*! \brief Feeds the specified input and advances the state
+    \param[in,out]   input    Integer representation of current input; if this is the
+                              'tail' value, it will be updated
 */
 template <class G> void ccfsm<G>::advance(int& input)
    {
    input = determineinput(input);
    vector<G> sin = determinefeedin(input);
-   // Compute next state
+   // Compute next state for each input register
    for(int i=0; i<k; i++)
-      reg(i) = sin[i] >> reg(i);
+      {
+      const int m = reg(i).size();
+      // Shift entries to the right (ie. down)
+      for(int j=1; j<m; j++)
+         reg(i)(j-1) = reg(i)(j);
+      // Left-most entry gets the shift-in value
+      reg(i)(m-1) = sin(i);
+      }
    }
 
 /*! \brief Computes the output for the given input and the present state
+    \param  input    Integer representation of current input; may be the 'tail' value
+    \return Integer representation of the output
 */
 template <class G> int ccfsm<G>::output(int input) const
    {
    input = determineinput(input);
    vector<G> sin = determinefeedin(input);
    // Compute output
-   vector<G> op(0,0);
+   vector<G> op(n);
    for(int j=0; j<n; j++)
       {
-      vector<G> thisop(0,1);
+      G thisop;
       for(int i=0; i<k; i++)
-         thisop ^= (sin[i] + reg(i)) * gen(i,j);
-      op = thisop + op;
+         {
+         // Convolve the shift-in value with corresponding generator polynomial
+         int m = reg(i).size();
+         thisop = sin(i) * gen(i,j)(m)
+         // Convolve register with corresponding generator polynomial
+         for(m--; m>=0; m--)
+            thisop += reg(i)(m) * gen(i,j)(m);
+         }
+      op(j) = thisop;
       }
-   return op;
+   return convert(op);
    }
 
 
