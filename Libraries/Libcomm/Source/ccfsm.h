@@ -26,6 +26,7 @@ namespace libcomm {
    - Modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
    - Added function to compute convolution
    - Made convert() and convolve() protected, to make them available to derived classes
+   - Modified definition of first convert() so that vector parameter is a const
 */
 
 template <class G> class ccfsm : public fsm {
@@ -44,7 +45,7 @@ private:
    // @}
 protected:
    /*! \name Helper functions */
-   int convert(libbase::vector<G>& x, int y=0) const;
+   int convert(const libbase::vector<G>& x, int y=0) const;
    int convert(int x, libbase::vector<G>& y) const;
    G convolve(const G& s, const libbase::vector<G>& r, const libbase::vector<G>& g) const;
    // @}

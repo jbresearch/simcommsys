@@ -61,7 +61,7 @@ template <class G> void ccfsm<G>::init(const matrix< vector<G> >& generator)
 
 /*! \brief Conversion from vector spaces to integer
 */
-template <class G> int ccfsm<G>::convert(vector<G>& x, int y) const
+template <class G> int ccfsm<G>::convert(const vector<G>& x, int y) const
    {
    for(int i=x.size()-1; i>=0; i--)
       {
