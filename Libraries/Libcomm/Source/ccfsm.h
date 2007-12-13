@@ -34,12 +34,12 @@ protected:
    int n;   //!< Number of outputs (symbols per time-step)
    int nu;  //!< Total number of memory elements (constraint length)
    int m;   //!< Memory order (longest input register)
-   libbase::vector<libbase::vector<G>> reg;  //!< Shift registers (one for each input)
-   libbase::matrix<libbase::vector<G>> gen;  //!< Generator sequence
+   libbase::vector< libbase::vector<G> > reg;  //!< Shift registers (one for each input)
+   libbase::matrix< libbase::vector<G> > gen;  //!< Generator sequence
    // @}
 private:
    /*! \name Internal functions */
-   void init(const libbase::matrix<libbase::vector<G>>& generator);
+   void init(const libbase::matrix< libbase::vector<G> >& generator);
    int convert(libbase::vector<G>& x, int y=0) const;
    int convert(int x, libbase::vector<G>& y) const;
    // @}
@@ -54,7 +54,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   ccfsm(const libbase::matrix<libbase::vector<G>>& generator);
+   ccfsm(const libbase::matrix< libbase::vector<G> >& generator);
    ccfsm(const ccfsm& x);
    ~ccfsm() {};
    // @}

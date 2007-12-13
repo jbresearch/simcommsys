@@ -25,7 +25,7 @@ using libbase::vector;
     right, and correspond with register positions farther away from the input
     junction.
 */
-template <class G> void ccfsm<G>::init(const libbase::matrix<vector<G>>& generator)
+template <class G> void ccfsm<G>::init(const libbase::matrix< vector<G> >& generator)
    {
    // copy automatically what we can
    gen = generator;
@@ -84,7 +84,7 @@ template <class G> int ccfsm<G>::convert(int x, vector<G>& y) const
 
 /*! \brief Principal constructor
 */
-template <class G> ccfsm<G>::ccfsm(const libbase::matrix<vector<G>>& generator)
+template <class G> ccfsm<G>::ccfsm(const libbase::matrix< vector<G> >& generator)
    {
    init(generator);
    }
