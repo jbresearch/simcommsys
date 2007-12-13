@@ -54,6 +54,9 @@ template <class G> void grscc<G>::resetcircular()
 /*! \brief Determine the actual input that will be applied (resolve tail as necessary)
     \param  input    Requested input - can be any valid input or the special 'tail' value
     \return Either the given value, or the value that must be applied to tail out
+   
+    \warning I don't know why but GCC complains if I don't explicitly refer to member
+             variables using this-> or grscc<G>::
 */
 template <class G> int grscc<G>::determineinput(int input) const
    {
@@ -61,9 +64,9 @@ template <class G> int grscc<G>::determineinput(int input) const
       return input;
    // Handle tailing out
    const G zero;
-   vector<G> ip(k);
-   for(int i=0; i<k; i++)
-      ip(i) = convolve(zero, reg(i), gen(i,i));
+   vector<G> ip(this->k);
+   for(int i=0; i<this->k; i++)
+      ip(i) = convolve(zero, this->reg(i), this->gen(i,i));
    return convert(ip);
    }
 
@@ -71,17 +74,20 @@ template <class G> int grscc<G>::determineinput(int input) const
     \param  input    Requested input - can only be a valid input
     \return Vector representation of the shift-in value - lower index positions
             correspond to lower-index inputs
+   
+    \warning I don't know why but GCC complains if I don't explicitly refer to member
+             variables using this-> or grscc<G>::
 */
 template <class G> vector<G> grscc<G>::determinefeedin(int input) const
    {
    assert(input != fsm::tail);
    // Convert input to vector representation
-   vector<G> ip(k);
+   vector<G> ip(this->k);
    convert(input, ip);
    // Determine the shift-in values by convolution
-   vector<G> sin(k);
-   for(int i=0; i<k; i++)
-      sin(i) = convolve(ip(i), reg(i), gen(i,i));
+   vector<G> sin(this->k);
+   for(int i=0; i<this->k; i++)
+      sin(i) = convolve(ip(i), this->reg(i), this->gen(i,i));
    return sin;
    }
 
