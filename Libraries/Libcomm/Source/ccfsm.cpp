@@ -237,3 +237,17 @@ template <class G> std::istream& ccfsm<G>::serialize(std::istream& sin)
    }
 
 }; // end namespace
+
+// Explicit Realizations
+
+#include "gf.h"
+
+namespace libcomm {
+
+using libbase::gf;
+
+// cf. Lin & Costello, 2004, App. A
+
+template class ccfsm< gf<4,0x13> >;
+
+}; // end namespace

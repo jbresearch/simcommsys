@@ -60,9 +60,10 @@ template <class G> int grscc<G>::determineinput(int input) const
    if(input != fsm::tail)
       return input;
    // Handle tailing out
+   const G zero;
    vector<G> ip(k);
    for(int i=0; i<k; i++)
-      ip(i) = convolve(G(0), reg(i), gen(i,i));
+      ip(i) = convolve(zero, reg(i), gen(i,i));
    return convert(ip);
    }
 
@@ -106,5 +107,22 @@ template <class G> std::istream& grscc<G>::serialize(std::istream& sin)
    {
    return ccfsm<G>::serialize(sin);
    }
+
+}; // end namespace
+
+// Explicit Realizations
+
+#include "gf.h"
+#include "serializer.h"
+
+namespace libcomm {
+
+using libbase::gf;
+using libbase::serializer;
+
+// cf. Lin & Costello, 2004, App. A
+
+template class grscc< gf<4,0x13> >;
+template <> const serializer grscc< gf<4,0x13> >::shelper = serializer("fsm", "grscc<gf<4,0x13>>", grscc< gf<4,0x13> >::create);
 
 }; // end namespace
