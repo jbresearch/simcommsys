@@ -51,8 +51,8 @@ template <class G> void ccfsm<G>::init(const matrix< vector<G> >& generator)
             exit(1);
             }
       // update memory order
-      if(m > ccfsm::m)
-         ccfsm::m = m;
+      if(m > ccfsm<G>::m)
+         ccfsm<G>::m = m;
       }
    }
 
@@ -114,7 +114,7 @@ template <class G> ccfsm<G>::ccfsm(const matrix< vector<G> >& generator)
 
 /*! \brief Copy constructor
 */
-template <class G> ccfsm<G>::ccfsm(const ccfsm& x)
+template <class G> ccfsm<G>::ccfsm(const ccfsm<G>& x)
    {
    // copy automatically what we can
    k = x.k;
