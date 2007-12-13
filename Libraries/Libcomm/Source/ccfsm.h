@@ -1,7 +1,6 @@
 #ifndef __ccfsm_h
 #define __ccfsm_h
 
-#include "vcs.h"
 #include "fsm.h"
 #include "matrix.h"
 #include "vector.h"

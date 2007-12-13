@@ -1,7 +1,6 @@
-#ifndef __rscc_h
-#define __rscc_h
+#ifndef __grscc_h
+#define __grscc_h
 
-#include "vcs.h"
 #include "ccfsm.h"
 #include "serializer.h"
 
