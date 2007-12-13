@@ -179,7 +179,7 @@ template <class G> int ccfsm<G>::output(int input) const
          {
          // Convolve the shift-in value with corresponding generator polynomial
          int m = reg(i).size();
-         thisop = sin(i) * gen(i,j)(m)
+         thisop = sin(i) * gen(i,j)(m);
          // Convolve register with corresponding generator polynomial
          for(m--; m>=0; m--)
             thisop += reg(i)(m) * gen(i,j)(m);
