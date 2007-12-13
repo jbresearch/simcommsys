@@ -44,6 +44,14 @@ int main(int argc, char *argv[])
    cout << "Generator matrix:\n";
    cout << gen;
 
+   // Create RSC code from this generator matrix
+   RSC cc(gen);
+   // Show code description
+   cout << "Code description:\n";
+   cout << cc.description() << "\n";
+   // Show code serialization
+   cout << "Code serialization: [" << &cc << "]\n";
+
    // Compute and display exponential table using {03} as a multiplier
    // using the tabular format in Gladman.
    //for(int x=0; x<16; x++)
