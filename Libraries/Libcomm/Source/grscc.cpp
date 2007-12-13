@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "grscc.h"
 #include <iostream>
 #include <sstream>
@@ -65,9 +74,11 @@ template <class G> int grscc<G>::determineinput(int input) const
 template <class G> vector<G> grscc<G>::determinefeedin(int input) const
    {
    assert(input != fsm::tail);
-   vector<G> sin(k);
+   // Convert input to vector representation
    vector<G> ip(k);
    convert(input, ip);
+   // Determine the shift-in values by convolution
+   vector<G> sin(k);
    for(int i=0; i<k; i++)
       sin(i) = convolve(ip(i), reg(i), gen(i,i));
    return sin;
