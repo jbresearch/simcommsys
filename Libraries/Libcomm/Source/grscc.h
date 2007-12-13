@@ -11,9 +11,9 @@ namespace libcomm {
    \author  Johann Briffa
 
    \par Version Control:
-   - $Revision: 174 $
-   - $Date: 2007-12-13 11:57:09 +0000 (Thu, 13 Dec 2007) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 
    \version 1.00 (13 Dec 2007)
    - Initial version; implements RSCC where polynomial coefficients are elements
