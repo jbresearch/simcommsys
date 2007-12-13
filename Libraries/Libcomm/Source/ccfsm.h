@@ -44,9 +44,9 @@ private:
    int convert(int x, libbase::vector<G>& y) const;
    // @}
 protected:
-   /*! \name Implementation-dependent functions */
-   virtual int determineinput(const int input) const = 0;
-   virtual libbase::vector<G> determinefeedin(const int input) const = 0;
+   /*! \name FSM helper operations */
+   virtual int determineinput(int input) const = 0;
+   virtual libbase::vector<G> determinefeedin(int input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
