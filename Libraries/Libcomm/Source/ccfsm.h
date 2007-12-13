@@ -25,6 +25,8 @@ namespace libcomm {
    - Added internal functions to convert from vector spaces in G to integer form
    - Modified return type for determineinput() to integer.
    - Modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
+   - Added function to compute convolution
+   - Made convert() and convolve() protected, to make them available to derived classes
 */
 
 template <class G> class ccfsm : public fsm {
@@ -40,10 +42,13 @@ protected:
 private:
    /*! \name Internal functions */
    void init(const libbase::matrix< libbase::vector<G> >& generator);
-   int convert(libbase::vector<G>& x, int y=0) const;
-   int convert(int x, libbase::vector<G>& y) const;
    // @}
 protected:
+   /*! \name Helper functions */
+   int convert(libbase::vector<G>& x, int y=0) const;
+   int convert(int x, libbase::vector<G>& y) const;
+   G convolve(const G& s, const libbase::vector<G>& r, const libbase::vector<G>& g) const;
+   // @}
    /*! \name FSM helper operations */
    virtual int determineinput(int input) const = 0;
    virtual libbase::vector<G> determinefeedin(int input) const = 0;

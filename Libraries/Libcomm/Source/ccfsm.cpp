@@ -55,6 +55,9 @@ template <class G> void ccfsm<G>::init(const libbase::matrix< vector<G> >& gener
       }
    }
 
+
+// Helper functions
+
 /*! \brief Conversion from vector spaces to integer
 */
 template <class G> int ccfsm<G>::convert(vector<G>& x, int y) const
@@ -77,6 +80,25 @@ template <class G> int ccfsm<G>::convert(int x, vector<G>& y) const
       x /= G::elements();
       }
    return x;
+   }
+
+/*! \brief Convolves the shift-in value and register with a generator polynomial
+    \param  s  The value at the left shift-in of the register
+    \param  r  The register
+    \param  g  The corresponding generator polynomial
+    \return The output
+
+    \todo Document this function with a diagram.
+*/
+template <class G> G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
+   {
+   // Convolve the shift-in value with corresponding generator polynomial
+   int m = r.size();
+   G thisop = s * g(m);
+   // Convolve register with corresponding generator polynomial
+   for(m--; m>=0; m--)
+      thisop += r(m) * g(m);
+   return thisop;
    }
 
 
@@ -176,14 +198,7 @@ template <class G> int ccfsm<G>::output(int input) const
       {
       G thisop;
       for(int i=0; i<k; i++)
-         {
-         // Convolve the shift-in value with corresponding generator polynomial
-         int m = reg(i).size();
-         thisop = sin(i) * gen(i,j)(m);
-         // Convolve register with corresponding generator polynomial
-         for(m--; m>=0; m--)
-            thisop += reg(i)(m) * gen(i,j)(m);
-         }
+         thisop += convolve(sin(i), reg(i), gen(i,j));
       op(j) = thisop;
       }
    return convert(op);
