@@ -32,17 +32,14 @@ template <int m, int poly> void gf<m,poly>::init(int32u value)
    gf::value = value;
    }
 
-
-// Constructors / Destructors
-
 /*!
    \brief Conversion from string
    \param   s     String representation of element by its polynomial coefficients (binary)
 
-   This constructor converts the string to an integer and calls init().
+   This function converts the string to an integer and calls init().
    The string must only contain 1's and 0's.
 */
-template <int m, int poly> gf<m,poly>::gf(const char *s)
+template <int m, int poly> void gf<m,poly>::init(const char *s)
    {
    int32u value = 0;
    const char *p;
@@ -52,7 +49,7 @@ template <int m, int poly> gf<m,poly>::gf(const char *s)
       if(*p == '1')
          value |= 1;
       }
-   assert(*p != '\0');
+   assert(*p == '\0');
    init(value);
    }
 
@@ -133,22 +130,6 @@ template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,
    {
    gf<m,poly> c = a;
    return c *= b;
-   }
-
-// Stream Input/Output
-
-template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b)
-   {
-   s << std::string(b);
-   return s;
-   }
-
-template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b)
-   {
-   std::string str;
-   s >> str;
-   b.init(str.c_str());
-   return s;
    }
 
 

@@ -26,6 +26,8 @@ namespace libbase {
    - Added number of elements in the field as a static function
    - Created initialization routine to convert from integer
    - Moved class-specific documentation here
+   - Moved stream I/O functions here
+   - Moved string conversion routine from constructor to a new init function
 
    
    \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
@@ -53,13 +55,14 @@ private:
 
    /*! \name Internal functions */
    void init(int32u value);
+   void init(const char *s);
    // @}
 
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
    gf(int32u value=0) { init(value); };
-   gf(const char *s);
+   gf(const char *s) { init(s); };
    // @}
 
    /*! \name Type conversion */
@@ -80,8 +83,21 @@ template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,
 // @}
 
 /*! \name Stream Input/Output */
-template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b);
-template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b);
+
+template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b)
+   {
+   s << std::string(b);
+   return s;
+   }
+
+template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b)
+   {
+   std::string str;
+   s >> str;
+   b = str.c_str();
+   return s;
+   }
+
 // @}
 
 }; // end namespace
