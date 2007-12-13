@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // Create a value in the Rijndael field GF(2^8): m(x) = 1 { 0001 1011 }
-   typedef libbase::gf<8,283> G;
+   typedef libbase::gf<8,0x11B> G;
    G E = 1;
 
    // Compute and display exponential table using {03} as a multiplier
