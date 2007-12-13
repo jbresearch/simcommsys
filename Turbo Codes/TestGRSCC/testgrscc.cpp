@@ -2,9 +2,9 @@
    \file
 
    \par Version Control:
-   - $Revision: 161 $
-   - $Date: 2007-12-12 14:24:47 +0000 (Wed, 12 Dec 2007) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 */
 
 #include "grscc.h"
