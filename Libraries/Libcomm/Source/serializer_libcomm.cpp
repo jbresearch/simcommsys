@@ -2,6 +2,6 @@
 
 namespace libcomm {
 
-const libbase::vcs serializer_libcomm::version("Communications Library Serializer module (serializer_libcomm)", 2.21);
+const libbase::vcs serializer_libcomm::version("Communications Library Serializer module (serializer_libcomm)", 2.22);
 
 }; // end namespace
