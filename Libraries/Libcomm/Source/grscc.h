@@ -44,7 +44,7 @@ public:
    // @}
    
    /*! \name Class management (cloning/naming) */
-   grscc *clone() const { return new grscc<G>(*this); };
+   grscc<G> *clone() const { return new grscc<G>(*this); };
    const char* name() const { return shelper.name(); };
    // @}
 
