@@ -116,22 +116,6 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& 
    return *this;
    }
 
-// *** Non-member functions
-
-// Arithmetic operations
-
-template <int m, int poly> gf<m,poly> operator+(const gf<m,poly>& a, const gf<m,poly>& b)
-   {
-   gf<m,poly> c = a;
-   return c += b;
-   }
-
-template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,poly>& b)
-   {
-   gf<m,poly> c = a;
-   return c *= b;
-   }
-
 
 // Explicit Realizations
 

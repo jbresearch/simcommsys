@@ -28,6 +28,7 @@ namespace libbase {
    - Moved class-specific documentation here
    - Moved stream I/O functions here
    - Moved string conversion routine from constructor to a new init function
+   - Moved non-member arithmetic ops here
 
    
    \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
@@ -78,8 +79,19 @@ public:
 };
 
 /*! \name Arithmetic operations */
-template <int m, int poly> gf<m,poly> operator+(const gf<m,poly>& a, const gf<m,poly>& b);
-template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,poly>& b);
+
+template <int m, int poly> gf<m,poly> operator+(const gf<m,poly>& a, const gf<m,poly>& b)
+   {
+   gf<m,poly> c = a;
+   return c += b;
+   }
+
+template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,poly>& b)
+   {
+   gf<m,poly> c = a;
+   return c *= b;
+   }
+
 // @}
 
 /*! \name Stream Input/Output */
