@@ -14,6 +14,7 @@
 namespace libcomm {
 
 using libbase::vector;
+using libbase::matrix;
 
 // Internal functions
 
@@ -25,7 +26,7 @@ using libbase::vector;
     right, and correspond with register positions farther away from the input
     junction.
 */
-template <class G> void ccfsm<G>::init(const libbase::matrix< vector<G> >& generator)
+template <class G> void ccfsm<G>::init(const matrix< vector<G> >& generator)
    {
    // copy automatically what we can
    gen = generator;
@@ -106,7 +107,7 @@ template <class G> G ccfsm<G>::convolve(const G& s, const vector<G>& r, const ve
 
 /*! \brief Principal constructor
 */
-template <class G> ccfsm<G>::ccfsm(const libbase::matrix< vector<G> >& generator)
+template <class G> ccfsm<G>::ccfsm(const matrix< vector<G> >& generator)
    {
    init(generator);
    }
