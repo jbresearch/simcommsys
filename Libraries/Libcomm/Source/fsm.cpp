@@ -3,7 +3,7 @@
 
 namespace libcomm {
 
-const libbase::vcs fsm::version("Finite State Machine module (fsm)", 1.70);
+const libbase::vcs fsm::version("Finite State Machine module (fsm)", 1.71);
 
 const int fsm::tail = -1;
 

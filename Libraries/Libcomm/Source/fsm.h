@@ -75,6 +75,9 @@
   * provided a default implementation of step() using output() and advance()
   * cleaned up order of members and documentation
   * removed friend status of stream output operators
+
+  Version 1.71 (13 Dec 2007)
+  * modified parameter type for output from "const int&" to "int"
 */
 
 namespace libcomm {
@@ -95,7 +98,7 @@ public:
    virtual void resetcircular(int zerostate, int n) = 0; // resets, given zero-state solution and number of time-steps
    virtual void resetcircular() = 0;      // as above, assuming we have just run through the zero-state zero-input
    // FSM operations (advance/output/step)
-   virtual int output(const int& input) const = 0; // computes the output for the given input and the present state
+   virtual int output(int input) const = 0; // computes the output for the given input and the present state
    virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
    virtual int step(int& input);          // feeds the specified input and returns the corresponding output
 

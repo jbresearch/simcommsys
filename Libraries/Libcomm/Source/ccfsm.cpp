@@ -139,10 +139,8 @@ template <class G> void ccfsm<G>::reset(int state)
 */
 template <class G> void ccfsm<G>::advance(int& input)
    {
-   vector<G> ip = determineinput(input);
-   vector<G> sin = determinefeedin(ip);
-   // Update input
-   input = ip;
+   input = determineinput(input);
+   vector<G> sin = determinefeedin(input);
    // Compute next state
    for(int i=0; i<k; i++)
       reg(i) = sin[i] >> reg(i);
@@ -150,10 +148,10 @@ template <class G> void ccfsm<G>::advance(int& input)
 
 /*! \brief Computes the output for the given input and the present state
 */
-template <class G> int ccfsm<G>::output(const int& input) const
+template <class G> int ccfsm<G>::output(int input) const
    {
-   vector<G> ip = determineinput(input);
-   vector<G> sin = determinefeedin(ip);
+   input = determineinput(input);
+   vector<G> sin = determinefeedin(input);
    // Compute output
    vector<G> op(0,0);
    for(int j=0; j<n; j++)

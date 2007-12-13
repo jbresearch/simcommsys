@@ -21,6 +21,9 @@
   Version 1.20 (3-4 Dec 2007)
   * updated output() as per fsm 1.70
   * removed implementation of step() in favor of the default provided by fsm
+
+  Version 1.21 (13 Dec 2007)
+  * modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
 
 namespace libcomm {
@@ -52,7 +55,7 @@ public:
    void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
    // FSM operations (advance/step/state)
    void advance(int& input);                 // feeds the specified input and advances the state
-   int output(const int& input) const;       // computes the output for the given input and the present state
+   int output(int input) const;              // computes the output for the given input and the present state
    int state() const;                        // returns the current state
 
    // informative functions

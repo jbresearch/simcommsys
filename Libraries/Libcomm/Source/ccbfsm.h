@@ -12,6 +12,9 @@
   * initial version; implements common elements of a controller-canonical binary fsm
   * added determineinput() and determinefeedin() pure virtual functions
   * cleaned up order of members and documentation
+
+  Version 1.01 (13 Dec 2007)
+  * modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
 
 namespace libcomm {
@@ -41,7 +44,7 @@ public:
    void reset(int state=0);                  // reset to a specified state
    // FSM operations (advance/output/step)
    void advance(int& input);                 // feeds the specified input and advances the state
-   int output(const int& input) const;       // computes the output for the given input and the present state
+   int output(int input) const;              // computes the output for the given input and the present state
 
    // informative functions
    int mem_order() const { return m; };      // memory order (length of tail)

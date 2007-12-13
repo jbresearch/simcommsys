@@ -17,11 +17,14 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (11-12 Dec 2007)
+   \version 1.00 (11-13 Dec 2007)
    - Initial version; implements common elements of a controller-canonical fsm,
      where each coefficient is an element in a finite field.
+   - Derived from ccbfsm 1.00
    - The finite field is specified as a template parameter.
    - Added internal functions to convert from vector spaces in G to integer form
+   - Modified return type for determineinput() to integer.
+   - Modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
 
 template <class G> class ccfsm : public fsm {
@@ -42,7 +45,7 @@ private:
    // @}
 protected:
    /*! \name Implementation-dependent functions */
-   virtual libbase::vector<G> determineinput(const int input) const = 0;
+   virtual int determineinput(const int input) const = 0;
    virtual libbase::vector<G> determinefeedin(const int input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
@@ -62,7 +65,7 @@ public:
    // @}
    /*! \name FSM operations (advance/output/step) */
    void advance(int& input);
-   int output(const int& input) const;
+   int output(int input) const;
    // @}
 
    /*! \name FSM information functions */

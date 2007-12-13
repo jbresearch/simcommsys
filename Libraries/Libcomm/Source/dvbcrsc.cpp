@@ -4,7 +4,7 @@
 
 namespace libcomm {
 
-const libbase::vcs dvbcrsc::version("DVB-Standard Circular Recursive Systematic Convolutional Coder module (dvbcrsc)", 1.20);
+const libbase::vcs dvbcrsc::version("DVB-Standard Circular Recursive Systematic Convolutional Coder module (dvbcrsc)", 1.21);
 
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
 
@@ -84,7 +84,7 @@ void dvbcrsc::advance(int& input)
    N++;
    }
 
-int dvbcrsc::output(const int& input) const
+int dvbcrsc::output(int input) const
    {
    using libbase::bitfield;
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)

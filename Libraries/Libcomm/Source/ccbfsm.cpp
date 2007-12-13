@@ -6,7 +6,7 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs ccbfsm::version("Controller-Canonical Binary FSM module (ccbfsm)", 1.00);
+const libbase::vcs ccbfsm::version("Controller-Canonical Binary FSM module (ccbfsm)", 1.01);
 
 // initialization
 
@@ -101,7 +101,7 @@ void ccbfsm::advance(int& input)
       reg(i) = sin[i] >> reg(i);
    }
 
-int ccbfsm::output(const int& input) const
+int ccbfsm::output(int input) const
    {
    bitfield ip = determineinput(input);
    bitfield sin = determinefeedin(ip);
