@@ -27,7 +27,7 @@ using libcomm::rscc;
 typedef gf<1,0x3>  GF2;
 typedef gf<4,0x13> GF16;
 
-matrix<vector<GF16>> GetGeneratorGF16()
+matrix< vector<GF16> > GetGeneratorGF16()
    {
    // Create generator matrix for a R=1/3 code
    matrix< vector<GF16> > gen(1,3);
@@ -49,7 +49,7 @@ matrix<vector<GF16>> GetGeneratorGF16()
    return gen;
    }
 
-matrix<vector<GF2>> GetGeneratorGF2()
+matrix< vector<GF2> > GetGeneratorGF2()
    {
    // Create generator matrix for a R=1/2 code
    matrix< vector<GF2> > gen(1,2);
@@ -101,17 +101,18 @@ int main(int argc, char *argv[])
    for(int q=0; q<cc_old.num_states(); q++)
       for(int i=0; i<cc_old.num_inputs(); i++)
          {
-         cout << q << '\t';
-         cout << i << '\t';
          cc_old.reset(q);
          const int out = cc_old.step(i);
          const int ns = cc_old.state();
-         cout << ns << '\t';
-         cout << out << '\n';
          cc_new.reset(q);
-         assert(q == cc_new.state());
+         const int n_ps = cc_new.state();
          const int n_out = cc_new.step(i);
          const int n_ns = cc_new.state();
+         cout << q << '-' << n_ps << '\t';
+         cout << i << '\t';
+         cout << ns << '-' << n_ns << '\t';
+         cout << out << '-' << n_out << '\n';
+         assert(q == n_ps);
          assert(out == n_out);
          assert(ns == n_ns);
          }
