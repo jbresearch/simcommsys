@@ -7,9 +7,9 @@ namespace libcomm {
 
 template <class real> void mapcc<real>::init()
    {
-   bcjr<real>::init(*encoder, tau, true, true);
+   bcjr<real>::init(*encoder, tau, !circular, endatzero, circular);
 
-   m = encoder->mem_order();
+   m = endatzero ? encoder->mem_order() : 0;
    M = encoder->num_states();
    K = encoder->num_inputs();
    N = encoder->num_outputs();
@@ -28,10 +28,12 @@ template <class real> mapcc<real>::mapcc()
    encoder = NULL;
    }
 
-template <class real> mapcc<real>::mapcc(const fsm& encoder, const int tau)
+template <class real> mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
    {
    mapcc::encoder = encoder.clone();
    mapcc::tau = tau;
+   mapcc::endatzero = endatzero;
+   mapcc::circular = circular;
    init();
    }
 
@@ -41,8 +43,17 @@ template <class real> void mapcc<real>::encode(libbase::vector<int>& source, lib
    {
    // Initialise result vector
    encoded.init(tau);
-   // Encode source stream
+   // Reset the encoder to zero state
    encoder->reset(0);
+   // When dealing with a circular system, perform first pass to determine end state,
+   // then reset to the corresponding circular state.
+   if(circular)
+      {
+      for(int t=0; t<tau; t++)
+         encoder->advance(source(t));
+      encoder->resetcircular();
+      }
+   // Encode source stream
    for(int t=0; t<tau; t++)
       encoded(t) = encoder->step(source(t));
    }
@@ -101,7 +112,9 @@ template <class real> void mapcc<real>::decode(libbase::vector<int>& decoded)
 template <class real> std::string mapcc<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Terminated Convolutional Code (" << output_bits() << "," << input_bits() << ") - ";
+   sout << (endatzero ? "Terminated, " : "Unterminated, ");
+   sout << (circular ? "Circular, " : "Non-circular, ");
+   sout << "MAP-decoded Convolutional Code (" << output_bits() << "," << input_bits() << ") - ";
    sout << encoder->description();
    return sout.str();
    }
@@ -112,6 +125,8 @@ template <class real> std::ostream& mapcc<real>::serialize(std::ostream& sout) c
    {
    sout << encoder;
    sout << tau << "\n";
+   sout << int(endatzero) << "\n";
+   sout << int(circular) << "\n";
    return sout;
    }
 
@@ -119,9 +134,14 @@ template <class real> std::ostream& mapcc<real>::serialize(std::ostream& sout) c
 
 template <class real> std::istream& mapcc<real>::serialize(std::istream& sin)
    {
+   int temp;
    free();
    sin >> encoder;
    sin >> tau;
+   sin >> temp;
+   endatzero = temp != 0;
+   sin >> temp;
+   circular = temp != 0;
    init();
    return sin;
    }

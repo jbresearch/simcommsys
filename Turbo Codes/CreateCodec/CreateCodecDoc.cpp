@@ -337,16 +337,16 @@ libcomm::codec* CCreateCodecDoc::CreateCodec()
          switch(m_nArithmetic)
             {
             case 0:
-               cdc = new libcomm::mapcc<libbase::logreal>(*encoder, m_nTau);
+               cdc = new libcomm::mapcc<libbase::logreal>(*encoder, m_nTau, m_bTerminated);
                break;
             case 1:
-               cdc = new libcomm::mapcc<libbase::logrealfast>(*encoder, m_nTau);
+               cdc = new libcomm::mapcc<libbase::logrealfast>(*encoder, m_nTau, m_bTerminated);
                break;
             case 2:
-               cdc = new libcomm::mapcc<libbase::mpreal>(*encoder, m_nTau);
+               cdc = new libcomm::mapcc<libbase::mpreal>(*encoder, m_nTau, m_bTerminated);
                break;
             case 3:
-               cdc = new libcomm::mapcc<libbase::mpgnu>(*encoder, m_nTau);
+               cdc = new libcomm::mapcc<libbase::mpgnu>(*encoder, m_nTau, m_bTerminated);
                break;
             }
          break;
