@@ -117,6 +117,11 @@ namespace libcomm {
 using libbase::gf;
 using libbase::serializer;
 
+// Degenerate case GF(2)
+
+template class gnrcc< gf<2,0x3> >;
+template <> const serializer gnrcc< gf<2,0x3> >::shelper = serializer("fsm", "gnrcc<gf<2,0x3>>", gnrcc< gf<2,0x3> >::create);
+
 // cf. Lin & Costello, 2004, App. A
 
 template class gnrcc< gf<4,0x13> >;

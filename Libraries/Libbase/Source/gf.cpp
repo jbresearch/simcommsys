@@ -119,6 +119,10 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& 
 
 // Explicit Realizations
 
+// Degenerate case GF(2)
+
+template class gf<1,0x3>;     // 1 { 1 }
+
 // cf. Lin & Costello, 2004, App. A
 
 template class gf<2,0x7>;     // 1 { 11 }

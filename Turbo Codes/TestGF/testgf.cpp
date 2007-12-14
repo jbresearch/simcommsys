@@ -36,12 +36,24 @@ int main(int argc, char *argv[])
    using std::cout;
    using std::cerr;
 
+   // Create values in the Binary field GF(2): m(x) = 1 { 1 }
+   typedef libbase::gf<1,0x3> Binary;
+   // Compute and display addition & multiplication tables
+   cout << "Addition table:\n";
+   for(int x=0; x<2; x++)
+      for(int y=0; y<2; y++)
+         cout << Binary(x)+Binary(y) << (y==1 ? '\n' : '\t');
+   cout << "Multiplication table:\n";
+   for(int x=0; x<2; x++)
+      for(int y=0; y<2; y++)
+         cout << Binary(x)*Binary(y) << (y==1 ? '\n' : '\t');
+
    // Create a value in the Rijndael field GF(2^8): m(x) = 1 { 0001 1011 }
-   typedef libbase::gf<8,0x11B> G;
-   G E = 1;
+   libbase::gf<8,0x11B> E = 1;
 
    // Compute and display exponential table using {03} as a multiplier
    // using the tabular format in Gladman.
+   cout << "Rijndael GF(2^8) exponentiation table:\n";
    for(int x=0; x<16; x++)
       for(int y=0; y<16; y++)
          {
