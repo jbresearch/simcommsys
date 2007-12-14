@@ -79,6 +79,9 @@
 
   Version 1.51 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+  Version 1.52 (14 Dec 2007)
+  * fixed minor error in description output
 */
 
 namespace libcomm {

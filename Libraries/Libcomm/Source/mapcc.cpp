@@ -102,7 +102,7 @@ template <class real> std::string mapcc<real>::description() const
    {
    std::ostringstream sout;
    sout << "Terminated Convolutional Code (" << output_bits() << "," << input_bits() << ") - ";
-   sout << encoder->description() << ", ";
+   sout << encoder->description();
    return sout.str();
    }
 
@@ -145,7 +145,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.51
+#define VERSION 1.52
 
 template class mapcc<mpreal>;
 template <> const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);

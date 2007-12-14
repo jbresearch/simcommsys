@@ -214,9 +214,15 @@ template <class G> std::string ccfsm<G>::description() const
    {
    std::ostringstream sout;
    sout << "GF(" << G::elements() << "): (nu=" << nu << ", rate " << k << "/" << n << ", G=[";
+   // Loop over all generator matrix elements
    for(int i=0; i<k; i++)
       for(int j=0; j<n; j++)
-         sout << gen(i,j) << (j==n-1 ? (i==k-1 ? "])" : "; ") : ", ");
+         {
+         // Loop over polynomial
+         for(int x=gen(i,j).size()-1; x>=0; x--)
+            sout << "{" << gen(i,j)(x) << "}";
+         sout << (j==n-1 ? (i==k-1 ? "])" : "; ") : ", ");
+         }
    return sout.str();
    }
 

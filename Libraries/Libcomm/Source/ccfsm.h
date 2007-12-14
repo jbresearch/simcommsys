@@ -16,7 +16,7 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (11-13 Dec 2007)
+   \version 1.00 (11-14 Dec 2007)
    - Initial version; implements common elements of a controller-canonical fsm,
      where each coefficient is an element in a finite field.
    - Derived from ccbfsm 1.00
@@ -27,6 +27,7 @@ namespace libcomm {
    - Added function to compute convolution
    - Made convert() and convolve() protected, to make them available to derived classes
    - Modified definition of first convert() so that vector parameter is a const
+   - Implemented correct description output
 */
 
 template <class G> class ccfsm : public fsm {
