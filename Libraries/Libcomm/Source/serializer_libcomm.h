@@ -23,6 +23,7 @@
 #include "rscc.h"
 #include "dvbcrsc.h"
 #include "grscc.h"
+#include "gnrcc.h"
 
 // Interleavers
 #include "interleaver.h"
@@ -77,8 +78,9 @@
   * resolved ambiguity with bsid and mpsk direct bases, by removing the
     direct base.
 
-  Version 2.22 (13 Dec 2007)
+  Version 2.22 (13-14 Dec 2007)
   * added grscc<> variants for GF(2^4)
+  * added gnrcc<> variants for GF(2^4)
 */
 
 namespace libcomm {
@@ -87,7 +89,9 @@ namespace libcomm {
 class serializer_libcomm : private
    awgn, laplacian,
    watermarkcode<libbase::logrealfast>,
-   nrcc, rscc, dvbcrsc, grscc< libbase::gf<4,0x13> >,
+   nrcc, rscc, dvbcrsc,
+   grscc< libbase::gf<4,0x13> >,
+   gnrcc< libbase::gf<4,0x13> >,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    puncture_file, puncture_null, puncture_stipple
