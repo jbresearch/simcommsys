@@ -60,6 +60,14 @@ template <class G> void ccfsm<G>::init(const matrix< vector<G> >& generator)
 // Helper functions
 
 /*! \brief Conversion from vector spaces to integer
+    \param[in]  x  Input in vector representation
+    \param[in]  y  Initial integer value (set to zero if this is the first vector)
+    \return Value of \c x in integer representation; any prior value \c y is
+            shifted to the left before adding the conversion of \c x
+
+    \note Left-most register positions (ie. those closest to the input junction) are
+          represented by higher index positions, and get higher-order positions within
+          the integer representation.
 */
 template <class G> int ccfsm<G>::convert(const vector<G>& x, int y) const
    {
@@ -72,10 +80,17 @@ template <class G> int ccfsm<G>::convert(const vector<G>& x, int y) const
    }
 
 /*! \brief Conversion from integer to vector space
+    \param[in]  x  Input in integer representation
+    \param[out] y  Pre-allocated vector for storing result - must be of correct size
+    \return Any remaining (shifted) higher-order value from \c x
+
+    \note Left-most register positions (ie. those closest to the input junction) are
+          represented by higher index positions, and get higher-order positions within
+          the integer representation.
 */
 template <class G> int ccfsm<G>::convert(int x, vector<G>& y) const
    {
-   for(int i=y.size()-1; i>=0; i--)
+   for(int i=0; i<y.size(); i++)
       {
       y(i) = x % G::elements();
       x /= G::elements();
