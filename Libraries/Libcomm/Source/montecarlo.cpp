@@ -82,9 +82,9 @@ void montecarlo::display(const int pass, const double cur_accuracy, const double
    static libbase::timer tupdate;
    if(tupdate.elapsed() > 0.5)
       {
-      std::clog << "MC: " << t << " elapsed, " << getnumslaves() << " clients, " \
-      << getcputime()/t.elapsed() << " speedup, pass " << pass << ", accuracy = " << cur_accuracy << "%, " \
-      << "[" << cur_mean << "] \r" << std::flush;
+      std::clog << "Timer: " << t << ", " << getnumslaves() << " clients, " \
+      << getcputime()/t.elapsed() << "x speedup, pass " << pass << ", " \
+      << "[" << cur_mean << " +/- " << cur_accuracy << "%] \r" << std::flush;
       tupdate.start();
       }
    }
