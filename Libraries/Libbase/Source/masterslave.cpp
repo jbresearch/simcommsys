@@ -162,18 +162,18 @@ void masterslave::sendname()
    }
 
 void masterslave::sendcputime()
-        {
-    const double cputime = t.cputime();
-    t.start();
-    if(!send(cputime))
-       {
-       cerr << "Connection failed sending CPU time, dying here...\n";
-       exit(1);
-       }
-    cputimeused += cputime;
-    trace << "send usage [" << cputime << "]\n" << flush;
-        }
-       
+   {
+   const double cputime = t.cputime();
+   t.start();
+   if(!send(cputime))
+      {
+      cerr << "Connection failed sending CPU time, dying here...\n";
+      exit(1);
+      }
+   cputimeused += cputime;
+   trace << "send usage [" << cputime << "]\n" << flush;
+   }
+
 void masterslave::dowork()
    {
    std::string key;
