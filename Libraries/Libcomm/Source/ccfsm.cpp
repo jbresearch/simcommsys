@@ -253,6 +253,10 @@ namespace libcomm {
 
 using libbase::gf;
 
+// Degenerate case GF(2)
+
+template class ccfsm< gf<1,0x3> >;
+
 // cf. Lin & Costello, 2004, App. A
 
 template class ccfsm< gf<4,0x13> >;

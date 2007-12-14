@@ -128,8 +128,8 @@ using libbase::serializer;
 
 // Degenerate case GF(2)
 
-template class grscc< gf<2,0x3> >;
-template <> const serializer grscc< gf<2,0x3> >::shelper = serializer("fsm", "grscc<gf<2,0x3>>", grscc< gf<2,0x3> >::create);
+template class grscc< gf<1,0x3> >;
+template <> const serializer grscc< gf<1,0x3> >::shelper = serializer("fsm", "grscc<gf<1,0x3>>", grscc< gf<1,0x3> >::create);
 
 // cf. Lin & Costello, 2004, App. A
 
