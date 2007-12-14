@@ -18,7 +18,7 @@ namespace libcomm {
    \version 1.00 (13 Dec 2007)
    - Initial version; implements RSCC where polynomial coefficients are elements
      of a finite field.
-   - Derived from grscc 1.70
+   - Derived from rscc 1.70
    - The finite field is specified as a template parameter.
 */
 
