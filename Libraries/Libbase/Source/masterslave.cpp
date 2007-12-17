@@ -26,8 +26,6 @@
 
 namespace libbase {
 
-const vcs masterslave::version("Socket-based Master-Slave computation module (masterslave)", 1.23);
-
 using std::cerr;
 using std::clog;
 using std::flush;

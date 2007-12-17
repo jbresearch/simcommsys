@@ -16,8 +16,6 @@ namespace libbase {
 using std::cerr;
 using std::string;
 
-const vcs itfunc_version("Information Theory Functions module (itfunc)", 1.10);
-
 double gammln(double xx)
    {
    double x,y,tmp,ser;

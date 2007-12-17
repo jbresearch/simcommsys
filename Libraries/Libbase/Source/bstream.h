@@ -2,7 +2,6 @@
 #define __bstream_h
 
 #include "config.h"
-#include "vcs.h"
 #include "bitfield.h"
 
 namespace libbase {
@@ -29,7 +28,6 @@ namespace libbase {
 */
 
 class bstream {
-   static const vcs version;
 protected:
    bitfield     buffer; // a 32-bit buffer for read/write operations
    int          ptr;            // points to the first unused/unread bit

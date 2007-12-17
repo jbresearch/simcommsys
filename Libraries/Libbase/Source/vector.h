@@ -2,7 +2,6 @@
 #define __vector_h
 
 #include "config.h"
-#include "vcs.h"
 #include <stdlib.h>
 #include <iostream>
 
@@ -145,8 +144,6 @@ namespace libbase {
 */
 
 template <class T> class vector;
-
-extern const vcs vector_version;
 
 template <class T> std::ostream& operator<<(std::ostream& s, const vector<T>& x);
 template <class T> std::istream& operator>>(std::istream& s, vector<T>& x);

@@ -12,9 +12,6 @@
 
 namespace libbase {
 
-const vcs histogram::version("Histogram module (histogram)", 1.30);
-
-
 void histogram::initbins(const double min, const double max, const int n)
    {
    step = (max-min)/double(n);

@@ -2,7 +2,6 @@
 #define __truerand_h
 
 #include "config.h"
-#include "vcs.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -45,7 +44,6 @@ namespace libbase {
 */
 
 class truerand {
-   static const vcs version;
 #ifdef WIN32
    HCRYPTPROV   hCryptProv;
 #else

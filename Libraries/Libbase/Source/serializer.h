@@ -2,7 +2,6 @@
 #define __serializer_h
 
 #include "config.h"
-#include "vcs.h"
 
 #include <map>
 #include <string>
@@ -77,7 +76,6 @@ class serializer {
 public:
    typedef void*(*fptr)();
 private:
-   static const vcs version;
    static std::map<std::string,fptr>* cmap;
    static int count;
    std::string classname;

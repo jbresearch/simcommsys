@@ -32,8 +32,6 @@ namespace libbase {
 
 using std::cerr;
    
-const vcs socket::version("Networking sockets module (socket)", 1.22);
-
 // constant values
 
 const int socket::connect_tries = 4;

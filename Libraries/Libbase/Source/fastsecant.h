@@ -2,7 +2,6 @@
 #define __fastsecant_h
 
 #include "config.h"
-#include "vcs.h"
 #include "secant.h"
 #include "vector.h"
 
@@ -33,7 +32,6 @@ namespace libbase {
 */
 
 class fastsecant : public secant {
-   static const vcs version;
    vector<double> m_vdCache;
    double   m_dMin, m_dMax, m_dStep;
 public:

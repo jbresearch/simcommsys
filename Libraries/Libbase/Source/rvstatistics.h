@@ -2,7 +2,6 @@
 #define __rvstatistics_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "matrix.h"
 #include <math.h>
@@ -44,7 +43,6 @@ namespace libbase {
 */
 
 class rvstatistics {
-   static const vcs version;
    double m_sum, m_sumsq;
    double m_hi, m_lo;
    int m_n;

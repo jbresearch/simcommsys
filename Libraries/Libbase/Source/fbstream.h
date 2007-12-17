@@ -2,7 +2,6 @@
 #define __fbstream_h
 
 #include "config.h"
-#include "vcs.h"
 #include "bstream.h"
 #include <fstream>
 
@@ -39,7 +38,6 @@ namespace libbase {
 */
 
 class fbstream {
-   static const vcs version;
 };
 
 class ofbstream : virtual public obstream, public fbstream {

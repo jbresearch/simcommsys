@@ -13,8 +13,6 @@
 
 namespace libbase {
 
-const vcs fastsecant::version("Semi-cached root-finding by Secant method module (fastsecant)", 1.10);
-
 // exported functions
 
 fastsecant::fastsecant(double (*func)(double)) : secant(func)

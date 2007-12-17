@@ -2,7 +2,6 @@
 #define __mpgnu_h
 
 #include "config.h"
-#include "vcs.h"
 #include <float.h>
 #include <iostream>
 
@@ -31,7 +30,6 @@ namespace libbase {
 */
 
 class mpgnu {
-   static const vcs version;
    static void init();
 #ifdef GMP
    static mpf_t dblmin, dblmax;

@@ -2,7 +2,6 @@
 #define __bitfield_h
 
 #include "config.h"
-#include "vcs.h"
 
 #include <iostream>
 #include <string>
@@ -51,7 +50,6 @@ namespace libbase {
 */
 
 class bitfield {
-   static const vcs version;
    static int   defsize;   // default size
    // member variables
    int32u field;           // bit field

@@ -19,13 +19,6 @@
 
 namespace libbase {
 
-#define VERSION 2.41
-#ifndef MPI_VERSION
-const vcs cmpi::version("Dummy MPI Multi-Computer Environment module (cmpi)", VERSION);
-#else
-const vcs cmpi::version("MPI Multi-Computer Environment module (cmpi)", VERSION);
-#endif
-
 // Constants
 
 const int cmpi::tag_base = 0;

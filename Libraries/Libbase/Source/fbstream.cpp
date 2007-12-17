@@ -12,8 +12,6 @@
 
 namespace libbase {
 
-const vcs fbstream::version("Bitstream File-handling module (fbstream)", 1.10);
-                    
 void ofbstream::write_buffer()
    {
    // align first bit to write to lsb

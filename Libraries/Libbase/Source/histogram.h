@@ -2,7 +2,6 @@
 #define __histogram_h
       
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "matrix.h"
 #include <math.h>
@@ -47,7 +46,6 @@ namespace libbase {
 */
 
 class histogram {
-   static const vcs version;
    double step, mean, var;
    vector<double> x;
    vector<int> y;

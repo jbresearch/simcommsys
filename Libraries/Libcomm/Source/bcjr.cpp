@@ -494,8 +494,6 @@ using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
-using libbase::vcs;
-
 template class bcjr<double>;
 template class bcjr<mpreal>;
 template class bcjr<mpgnu>;

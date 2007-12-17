@@ -19,8 +19,6 @@ using std::hex;
 using std::dec;
 using std::flush;
 
-const vcs serializer::version("Serialization helper module (serializer)", 1.20);
-
 // static variables
 
 std::map<std::string,serializer::fptr>* serializer::cmap = NULL;

@@ -2,7 +2,6 @@
 #define __matrix3_h
 
 #include "config.h"
-#include "vcs.h"
 #include <stdlib.h>
 #include <iostream>
 
@@ -119,8 +118,6 @@ namespace libbase {
 */
 
 template <class T> class matrix3;
-
-extern const vcs matrix3_version;
 
 template <class T> std::ostream& operator<<(std::ostream& s, const matrix3<T>& x);
 template <class T> std::istream& operator>>(std::istream& s, matrix3<T>& x);

@@ -11,8 +11,6 @@
 
 namespace libbase {
 
-const vcs bstream::version("Bitstream Base module (bstream)", 1.10);
-
 bstream::bstream()
    {
    buffer.resize(32);

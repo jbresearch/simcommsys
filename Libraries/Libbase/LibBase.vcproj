@@ -577,10 +577,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\vcs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="Source\vector.cpp"
 				>
 				<FileConfiguration
@@ -699,10 +695,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\truerand.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\vcs.h"
 				>
 			</File>
 			<File

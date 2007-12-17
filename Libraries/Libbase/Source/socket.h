@@ -2,7 +2,6 @@
 #define __socket_h
 
 #include "config.h"
-#include "vcs.h"
 
 #include <string>
 #include <list>
@@ -53,7 +52,6 @@ namespace libbase {
 */
 
 class socket {
-   static const vcs version;
    // constant values - client
    static const int connect_tries;
    static const int connect_delay;

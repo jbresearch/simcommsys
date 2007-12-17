@@ -2,7 +2,6 @@
 #define __itfunc_h
 
 #include "config.h"
-#include "vcs.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string>
@@ -49,8 +48,6 @@
 */
 
 namespace libbase {
-
-extern const vcs itfunc_version;
 
 // gamma functions (cf. Numerical Recipes in C, p.216-219)
 double gammln(double xx);

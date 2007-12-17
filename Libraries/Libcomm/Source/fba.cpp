@@ -177,8 +177,6 @@ using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
-using libbase::vcs;
-
 template class fba<double>;
 template class fba<mpreal>;
 template class fba<mpgnu>;

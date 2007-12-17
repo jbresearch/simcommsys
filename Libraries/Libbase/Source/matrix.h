@@ -2,7 +2,6 @@
 #define __matrix_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include <stdlib.h>
 #include <iostream>
@@ -138,8 +137,6 @@ namespace libbase {
 
 template <class T> class matrix;
 template <class T> class masked_matrix;
-
-extern const vcs matrix_version;
 
 template <class T> std::ostream& operator<<(std::ostream& s, const matrix<T>& x);
 template <class T> std::istream& operator>>(std::istream& s, matrix<T>& x);

@@ -2,7 +2,6 @@
 #define __mpreal_h
 
 #include "config.h"
-#include "vcs.h"
 #include <iostream>
 
 namespace libbase {
@@ -36,7 +35,6 @@ namespace libbase {
 */
 
 class mpreal {
-   static const vcs version;
    static const double base;
    int32s       exponent;
    long double  mantissa;

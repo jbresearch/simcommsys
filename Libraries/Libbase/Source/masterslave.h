@@ -2,7 +2,6 @@
 #define __masterslave_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "socket.h"
 #include "timer.h"
@@ -77,7 +76,6 @@ namespace libbase {
 */
 
 class masterslave {
-   static const vcs version;
    // constants (tags)
    static const int tag_getname;
    static const int tag_getcputime;

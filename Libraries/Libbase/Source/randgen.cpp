@@ -14,8 +14,6 @@ namespace libbase {
 using std::clog;
 using std::flush;
 
-const vcs randgen::version("Random Generator module (randgen)", 1.10);
-
 const int32s randgen::mbig = 1000000000L;
 const int32s randgen::mseed = 161803398L;
 

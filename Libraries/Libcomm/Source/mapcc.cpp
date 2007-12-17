@@ -172,7 +172,6 @@ using libbase::logreal;
 using libbase::logrealfast;
 
 using libbase::serializer;
-using libbase::vcs;
 
 template class mapcc<mpreal>;
 template <> const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);

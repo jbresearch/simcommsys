@@ -13,8 +13,6 @@
 
 namespace libbase {
 
-const vcs timer::version("Timer module (timer)", 1.50);
-
 // system-dependent functions
 
 #ifdef WIN32

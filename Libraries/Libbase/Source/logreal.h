@@ -2,7 +2,6 @@
 #define __logreal_h
 
 #include "config.h"
-#include "vcs.h"
 #include <math.h>
 #include <float.h>
 #include <stdlib.h>
@@ -37,7 +36,6 @@ namespace libbase {
 */
 
 class logreal {
-   static const vcs version;
    double       logval;
    logreal& operator-();
    logreal& operator-=(const logreal& a);

@@ -12,8 +12,6 @@
 
 namespace libbase {
 
-const vcs mpgnu::version("GNU Multi-Precision Arithmetic module (mpgnu)", 1.10);
-
 #ifdef GMP
 mpf_t mpgnu::dblmin;
 mpf_t mpgnu::dblmax;

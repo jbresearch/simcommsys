@@ -16,8 +16,6 @@ namespace libbase {
 
 using std::cerr;
 
-const vcs bitfield::version("Bitfield module (bitfield)", 1.31);
-              
 // Static Members
                      
 int bitfield::defsize = 0;

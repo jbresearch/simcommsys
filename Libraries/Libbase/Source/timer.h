@@ -8,7 +8,6 @@
 #define __timer_h
 
 #include "config.h"
-#include "vcs.h"
 #include <time.h>
 #ifdef WIN32
 #  include <sys/types.h>
@@ -116,7 +115,6 @@ namespace libbase {
 */
 
 class timer {
-   static const vcs version;
    std::string name;
    double wall, cpu;
    bool running;

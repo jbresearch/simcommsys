@@ -12,8 +12,6 @@
 
 namespace libbase {
 
-const vcs rvstatistics::version("Random Variable Statistics module (rvstatistics)", 1.10);
-
 void rvstatistics::reset()
    {
    m_n = 0;

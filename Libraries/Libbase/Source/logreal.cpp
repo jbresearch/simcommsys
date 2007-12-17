@@ -11,8 +11,6 @@
 
 namespace libbase {
 
-const vcs logreal::version("Logarithm Arithmetic module (logreal)", 1.11);
-
 // Input/Output Operations
 
 std::ostream& operator<<(std::ostream& s, const logreal& x)

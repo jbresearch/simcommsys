@@ -11,8 +11,6 @@
 
 namespace libbase {
 
-const vcs logrealfast::version("Fast Logarithm Arithmetic module (logrealfast)", 1.34);
-
 const int logrealfast::lutsize = 1<<17;
 const double logrealfast::lutrange = 12.0;
 double *logrealfast::lut;

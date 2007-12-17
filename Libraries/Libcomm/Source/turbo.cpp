@@ -506,7 +506,6 @@ using libbase::logreal;
 using libbase::logrealfast;
 
 using libbase::serializer;
-using libbase::vcs;
 
 template class turbo<double>;
 template <> const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);

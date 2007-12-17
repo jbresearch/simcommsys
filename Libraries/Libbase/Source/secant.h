@@ -2,7 +2,6 @@
 #define __secant_h
 
 #include "config.h"
-#include "vcs.h"
 #include <iostream>
 
 namespace libbase {
@@ -34,7 +33,6 @@ namespace libbase {
 */
 
 class secant {
-   static const vcs version;
    double       (*f)(double);
    double       init_x1, init_x2, min_dx;
    int          max_iter;

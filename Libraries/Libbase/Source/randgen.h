@@ -2,7 +2,6 @@
 #define __randgen_h
 
 #include "config.h"
-#include "vcs.h"
 #include <math.h>
 #include <iostream>
 
@@ -44,7 +43,6 @@ namespace libbase {
 */
 
 class randgen {
-   static const vcs version;
    static const int32s  mbig;
    static const int32s  mseed;
    int32s       next, nextp;

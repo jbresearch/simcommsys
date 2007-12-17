@@ -6,7 +6,6 @@
 #endif
 
 #include "config.h"
-#include "vcs.h"
 #include "itfunc.h"
 #include <math.h>
 #include <float.h>
@@ -109,7 +108,6 @@ namespace libbase {
 */
 
 class logrealfast {
-   static const vcs version;
    static const int  lutsize;
    static const double lutrange;
    static double  *lut;

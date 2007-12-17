@@ -15,8 +15,6 @@
 
 namespace libbase {
 
-const vcs secant::version("Root-finding by Secant method module (secant)", 1.10);
-
 // exported functions
 
 secant::secant(double (*func)(double))

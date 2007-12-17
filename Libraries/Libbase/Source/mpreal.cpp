@@ -13,8 +13,6 @@
 
 namespace libbase {
 
-const vcs mpreal::version("Multi-Precision Arithmetic module (mpreal)", 1.11);
-
 const double mpreal::base = 10.0;
 
 inline void mpreal::normalise()

@@ -21,8 +21,6 @@
 
 namespace libbase {
 
-const vcs truerand::version("True Random Number provider module (truerand)", 1.11);
-
 truerand::truerand()
    {
 #ifdef WIN32

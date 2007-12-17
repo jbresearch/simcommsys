@@ -314,7 +314,6 @@ using libbase::logreal;
 using libbase::logrealfast;
 
 using libbase::serializer;
-using libbase::vcs;
 
 template class watermarkcode<mpreal>;
 template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);

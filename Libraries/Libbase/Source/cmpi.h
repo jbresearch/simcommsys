@@ -2,7 +2,6 @@
 #define __cmpi_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 
 #ifdef USEMPI
@@ -81,7 +80,6 @@ namespace libbase {
 */
 
 class cmpi {
-   static const vcs version;
 
 // constants
 private:
