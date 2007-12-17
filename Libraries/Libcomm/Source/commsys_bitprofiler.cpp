@@ -17,8 +17,6 @@
 
 namespace libcomm {
 
-const libbase::vcs commsys_bitprofiler::version("Communication System Bit Profiler module (commsys_bitprofiler)", 1.40);
-
 // constructor / destructor
 
 commsys_bitprofiler::commsys_bitprofiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan) : \

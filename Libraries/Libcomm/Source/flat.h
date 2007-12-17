@@ -2,7 +2,6 @@
 #define __flat_h
 
 #include "config.h"
-#include "vcs.h"
 #include "lut_interleaver.h"
 #include "serializer.h"
 
@@ -64,7 +63,6 @@ namespace libcomm {
 */
 
 class flat : public lut_interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new flat; };
 protected:

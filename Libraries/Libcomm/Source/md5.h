@@ -2,7 +2,6 @@
 #define __md5_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 
 #include <string>
@@ -55,7 +54,6 @@ namespace libcomm {
 */
 
 class md5 {
-   static const libbase::vcs version;
    // static variables
    static bool tested;
    // additive constants

@@ -11,8 +11,6 @@
 
 namespace libcomm {
 
-const libbase::vcs lut_modulator::version("LUT Modulator module (lut_modulator)", 1.00);
-
 // modulation/demodulation - atomic operations
 
 const int lut_modulator::demodulate(const sigspace& signal) const

@@ -179,21 +179,10 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 1.30
-
 template class fba<double>;
-template <> const vcs fba<double>::version = vcs("Forward-Backward Algorithm module (fba<double>)", VERSION);
-
 template class fba<mpreal>;
-template <> const vcs fba<mpreal>::version = vcs("Forward-Backward Algorithm module (fba<mpreal>)", VERSION);
-
 template class fba<mpgnu>;
-template <> const vcs fba<mpgnu>::version = vcs("Forward-Backward Algorithm module (fba<mpgnu>)", VERSION);
-
 template class fba<logreal>;
-template <> const vcs fba<logreal>::version = vcs("Forward-Backward Algorithm module (fba<logreal>)", VERSION);
-
 template class fba<logrealfast>;
-template <> const vcs fba<logrealfast>::version = vcs("Forward-Backward Algorithm module (fba<logrealfast>)", VERSION);
 
 }; // end namespace

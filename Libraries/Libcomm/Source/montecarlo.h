@@ -2,7 +2,6 @@
 #define __montecarlo_h
 
 #include "config.h"
-#include "vcs.h"
 
 #include "timer.h"
 #include "experiment.h"
@@ -101,7 +100,6 @@
 namespace libcomm {
 
 class montecarlo : public libbase::masterslave {
-   static const libbase::vcs version;
    // constants
    static const int  min_samples;   // minimum number of samples to assume gaussian distribution
    // bound objects

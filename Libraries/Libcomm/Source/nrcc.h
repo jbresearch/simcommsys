@@ -1,7 +1,6 @@
 #ifndef __nrcc_h
 #define __nrcc_h
 
-#include "vcs.h"
 #include "ccbfsm.h"
 #include "serializer.h"
 
@@ -88,7 +87,6 @@ namespace libcomm {
 */
 
 class nrcc : public ccbfsm {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new nrcc; };
 protected:

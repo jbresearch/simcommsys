@@ -13,8 +13,6 @@
 
 namespace libcomm {
 
-const libbase::vcs berrou::version("Berrou's Original Interleaver module (berrou)", 1.41);
-
 const libbase::serializer berrou::shelper("interleaver", "berrou", berrou::create);
 
 // initialization

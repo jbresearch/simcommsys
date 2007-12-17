@@ -11,9 +11,6 @@
 
 namespace libcomm {
             
-const libbase::vcs stream_lut::version("Pre-stored LUT Interleaver module (stream_lut)", 1.40);
-
-
 // creation/destruction functions
 
 stream_lut::stream_lut(const char *filename, FILE *file, const int tau, const int m)

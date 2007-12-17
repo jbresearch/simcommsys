@@ -12,8 +12,6 @@
 
 namespace libcomm {
 
-const libbase::vcs named_lut::version("Named LUT Interleaver module (named_lut)", 1.21);
-
 const libbase::serializer named_lut::shelper("interleaver", "named", named_lut::create);
 
 // description output

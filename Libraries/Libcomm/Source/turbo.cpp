@@ -508,30 +508,22 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 2.51
-
 template class turbo<double>;
 template <> const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);
-template <> const vcs turbo<double>::version = vcs("Base Turbo Decoder module (turbo<double>)", VERSION);
 
 template class turbo<mpreal>;
 template <> const serializer turbo<mpreal>::shelper = serializer("codec", "turbo<mpreal>", turbo<mpreal>::create);
-template <> const vcs turbo<mpreal>::version = vcs("Base Turbo Decoder module (turbo<mpreal>)", VERSION);
 
 template class turbo<mpgnu>;
 template <> const serializer turbo<mpgnu>::shelper = serializer("codec", "turbo<mpgnu>", turbo<mpgnu>::create);
-template <> const vcs turbo<mpgnu>::version = vcs("Base Turbo Decoder module (turbo<mpgnu>)", VERSION);
 
 template class turbo<logreal>;
 template <> const serializer turbo<logreal>::shelper = serializer("codec", "turbo<logreal>", turbo<logreal>::create);
-template <> const vcs turbo<logreal>::version = vcs("Base Turbo Decoder module (turbo<logreal>)", VERSION);
 
 template class turbo<logrealfast>;
 template <> const serializer turbo<logrealfast>::shelper = serializer("codec", "turbo<logrealfast>", turbo<logrealfast>::create);
-template <> const vcs turbo<logrealfast>::version = vcs("Base Turbo Decoder module (turbo<logrealfast>)", VERSION);
 
 template class turbo<logrealfast,logrealfast>;
 template <> const serializer turbo<logrealfast,logrealfast>::shelper = serializer("codec", "turbo<logrealfast,logrealfast>", turbo<logrealfast,logrealfast>::create);
-template <> const vcs turbo<logrealfast,logrealfast>::version = vcs("Base Turbo Decoder module (turbo<logrealfast,logrealfast>)", VERSION);
 
 }; // end namespace

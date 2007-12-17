@@ -2,7 +2,6 @@
 #define __helical_h
 
 #include "config.h"
-#include "vcs.h"
 #include "lut_interleaver.h"
 #include "serializer.h"
 
@@ -69,7 +68,6 @@ namespace libcomm {
 */
 
 class helical : public lut_interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new helical; };
    int rows, cols;

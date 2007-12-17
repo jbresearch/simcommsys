@@ -17,8 +17,6 @@
 
 namespace libcomm {
 
-const libbase::vcs commsys_profiler::version("Communication System Profiler module (commsys_profiler)", 1.50);
-
 // constructor / destructor
 
 commsys_profiler::commsys_profiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan) : \

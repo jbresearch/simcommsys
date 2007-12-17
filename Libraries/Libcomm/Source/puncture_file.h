@@ -2,7 +2,6 @@
 #define __puncture_file_h
 
 #include "config.h"
-#include "vcs.h"
 #include "puncture.h"
 #include "serializer.h"
 #include <string>
@@ -56,7 +55,6 @@ namespace libcomm {
 */
 
 class puncture_file : public puncture {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new puncture_file; };
 private:

@@ -2,7 +2,6 @@
 #define __anneal_puncturing_h
 
 #include "config.h"
-#include "vcs.h"
 #include "randgen.h"
 #include "vector.h"
 #include "matrix.h"
@@ -50,7 +49,6 @@ namespace libcomm {
 */
 
 class anneal_puncturing : public virtual anneal_system {
-   static const libbase::vcs version;
    libbase::matrix3<double> contrib;
    libbase::matrix<bool>        pattern;
    libbase::vector<double> res;

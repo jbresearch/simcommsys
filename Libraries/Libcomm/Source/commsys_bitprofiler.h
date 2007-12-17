@@ -2,7 +2,6 @@
 #define __commsys_bitprofiler_h
 
 #include "config.h"
-#include "vcs.h"
 #include "commsys.h"
 
 namespace libcomm {
@@ -48,7 +47,6 @@ namespace libcomm {
 */
 
 class commsys_bitprofiler : public commsys {
-   static const libbase::vcs version;
 protected:
    void cycleonce(libbase::vector<double>& result);
 public:

@@ -1,7 +1,6 @@
 #ifndef __dvbcrsc_h
 #define __dvbcrsc_h
 
-#include "vcs.h"
 #include "fsm.h"
 #include "bitfield.h"
 #include "matrix.h"
@@ -37,7 +36,6 @@ namespace libcomm {
 */
 
 class dvbcrsc : public fsm {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new dvbcrsc; };
    static const int csct[7][8];  // circulation state correspondence table

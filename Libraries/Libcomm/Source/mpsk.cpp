@@ -13,10 +13,7 @@
 
 namespace libcomm {
 
-const libbase::vcs mpsk::version("M-PSK Modulator module (mpsk)", 2.13);
-
 const libbase::serializer mpsk::shelper("modulator", "mpsk", mpsk::create);
-
 
 // initialization
 

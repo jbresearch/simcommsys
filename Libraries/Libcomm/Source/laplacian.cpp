@@ -11,10 +11,7 @@
 
 namespace libcomm {
 
-const libbase::vcs laplacian::version("Additive Laplacian Noise Channel module (laplacian)", 1.43);
-
 const libbase::serializer laplacian::shelper("channel", "laplacian", laplacian::create);
-
 
 // handle functions
 

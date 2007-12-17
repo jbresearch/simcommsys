@@ -15,10 +15,7 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs nrcc::version("Non-Recursive Convolutional Coder module (nrcc)", 1.70);
-
 const libbase::serializer nrcc::shelper("fsm", "nrcc", nrcc::create);
-
 
 // constructors / destructors
 

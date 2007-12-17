@@ -2,7 +2,6 @@
 #define __bcjr_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "matrix.h"
 #include "matrix3.h"
@@ -134,7 +133,6 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double> class bcjr {
-   static const libbase::vcs version;
    // internal variables
    int   tau;  //!< Block size in symbols (including any tail bits)
    int   K;    //!< Number of possible input to encoder at any time instant (equals 2^k)

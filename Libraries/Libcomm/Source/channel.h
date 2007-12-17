@@ -2,7 +2,6 @@
 #define __channel_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "matrix.h"
 
@@ -114,7 +113,6 @@ namespace libcomm {
 */
 
 class channel {
-   static const libbase::vcs version;
 private:
    // channel paremeters
    double   Eb, No, snr_db;

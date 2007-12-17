@@ -2,7 +2,6 @@
 #define __stream_lut_h
 
 #include "config.h"
-#include "vcs.h"
 #include "named_lut.h"
 #include <stdio.h>
 
@@ -74,7 +73,6 @@ namespace libcomm {
 */
 
 class stream_lut : public named_lut {
-   static const libbase::vcs version;
 public:
    stream_lut(const char *filename, FILE *file, const int tau, const int m);
    ~stream_lut() {};

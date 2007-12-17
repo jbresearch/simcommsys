@@ -13,8 +13,6 @@
 
 namespace libcomm {
 
-const libbase::vcs flat::version("Flat Interleaver module (flat)", 1.41);
-
 const libbase::serializer flat::shelper("interleaver", "flat", flat::create);
 
 // initialization

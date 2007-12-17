@@ -11,10 +11,7 @@
 
 namespace libcomm {
 
-const libbase::vcs lapgauss::version("Additive Laplacian-Gaussian Channel module (lapgauss)", 1.22);
-
 const libbase::serializer lapgauss::shelper("channel", "lapgauss", lapgauss::create);
-
 
 // constructors / destructors
 

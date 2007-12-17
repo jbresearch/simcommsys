@@ -2,7 +2,6 @@
 #define __interleaver_h
 
 #include "config.h"
-#include "vcs.h"
 #include "matrix.h"
 #include "vector.h"
 #include "logrealfast.h"
@@ -96,7 +95,6 @@ namespace libcomm {
 */
 
 class interleaver {
-   static const libbase::vcs version;
 public:
    virtual ~interleaver() {};
    virtual interleaver* clone() const = 0;

@@ -11,9 +11,6 @@
 
 namespace libcomm {
 
-const libbase::vcs vale96int::version("Matt Valenti's Interleaver module (vale96int)", 1.30);
-
-
 // initialisation functions
 
 vale96int::vale96int()

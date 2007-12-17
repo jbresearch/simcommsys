@@ -2,7 +2,6 @@
 #define __rand_lut_h
 
 #include "config.h"
-#include "vcs.h"
 #include "lut_interleaver.h"
 #include "serializer.h"
 #include "randgen.h"
@@ -78,7 +77,6 @@ namespace libcomm {
 */
 
 class rand_lut : public lut_interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new rand_lut; };
    int      p;

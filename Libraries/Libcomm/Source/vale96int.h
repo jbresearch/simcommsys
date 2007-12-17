@@ -2,7 +2,6 @@
 #define __vale96int_h
 
 #include "config.h"
-#include "vcs.h"
 #include "named_lut.h"
 
 namespace libcomm {
@@ -63,7 +62,6 @@ namespace libcomm {
 */
 
 class vale96int : public named_lut {
-   static const libbase::vcs version;
 public:
    vale96int();
    ~vale96int() {};

@@ -13,8 +13,6 @@
 
 namespace libcomm {
 
-const libbase::vcs anneal_puncturing::version("Simulated Annealing Puncturing Pattern Design module (anneal_puncturing)", 1.20);
-
 anneal_puncturing::anneal_puncturing(const char *fname, const int tau, const int s)
    {
    // store user parameters

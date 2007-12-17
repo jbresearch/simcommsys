@@ -2,7 +2,6 @@
 #define __rc4_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 
 #include <string>
@@ -40,7 +39,6 @@ namespace libcomm {
 */
 
 class rc4 {
-   static const libbase::vcs version;
    // static variables
    static bool tested;
    // working spaces

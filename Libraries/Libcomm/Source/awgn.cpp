@@ -11,10 +11,7 @@
 
 namespace libcomm {
 
-const libbase::vcs awgn::version("Additive White Gaussian Noise Channel module (awgn)", 1.53);
-
 const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
-
 
 // handle functions
 

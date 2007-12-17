@@ -15,8 +15,6 @@ namespace libcomm {
 
 using libbase::bitfield;
 
-const libbase::vcs ccbfsm::version("Controller-Canonical Binary FSM module (ccbfsm)", 1.01);
-
 // initialization
 
 void ccbfsm::init(const libbase::matrix<bitfield>& generator)

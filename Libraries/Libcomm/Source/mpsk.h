@@ -2,7 +2,6 @@
 #define __mpsk_h
       
 #include "config.h"
-#include "vcs.h"
 #include "lut_modulator.h"
 #include "serializer.h"
 
@@ -54,7 +53,6 @@ namespace libcomm {
 */
 
 class mpsk : public lut_modulator {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new mpsk; };
 protected:

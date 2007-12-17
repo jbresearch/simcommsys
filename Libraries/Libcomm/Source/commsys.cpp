@@ -18,8 +18,6 @@
 
 namespace libcomm {
 
-const libbase::vcs commsys::version("Communication System module (commsys)", 1.62);
-
 const libbase::serializer commsys::shelper("experiment", "commsys", commsys::create);
 
 // internal functions

@@ -2,7 +2,6 @@
 #define __sha_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 
 #include <string>
@@ -42,7 +41,6 @@ namespace libcomm {
 */
 
 class sha {
-   static const libbase::vcs version;
    // additive constants
    static const libbase::int32u K[];
    // current hash value

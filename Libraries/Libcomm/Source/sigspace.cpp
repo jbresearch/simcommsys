@@ -11,9 +11,6 @@
 
 namespace libcomm {
 
-const libbase::vcs sigspace::version("Signal Space module (sigspace)", 1.30);
-
-
 // stream input / output
 
 std::ostream& operator<<(std::ostream& s, const sigspace& x)

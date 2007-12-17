@@ -13,8 +13,6 @@
 
 namespace libcomm {
 
-const libbase::vcs helical::version("Helical Interleaver module (helical)", 1.41);
-
 const libbase::serializer helical::shelper("interleaver", "helical", helical::create);
 
 // initialisation functions

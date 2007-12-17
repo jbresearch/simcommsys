@@ -2,7 +2,6 @@
 #define __commsys_h
 
 #include "config.h"
-#include "vcs.h"
 #include "experiment.h"
 #include "randgen.h"
 #include "codec.h"
@@ -98,7 +97,6 @@ namespace libcomm {
 */
 
 class commsys : public experiment {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new commsys; };
 protected:

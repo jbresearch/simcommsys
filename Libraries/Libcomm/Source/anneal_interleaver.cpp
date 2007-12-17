@@ -15,8 +15,6 @@
 
 namespace libcomm {
 
-const libbase::vcs anneal_interleaver::version("Simulated Annealing Interleaver Design module (anneal_interleaver)", 3.30);
-
 anneal_interleaver::anneal_interleaver(const int sets, const int tau, const int m, const int type, const bool term, const int seed)
    {
    // store user parameters

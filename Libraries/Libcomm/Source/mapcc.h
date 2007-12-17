@@ -2,7 +2,6 @@
 #define __mapcc_h
 
 #include "config.h"
-#include "vcs.h"
 
 #include "codec.h"
 #include "fsm.h"
@@ -97,7 +96,6 @@ namespace libcomm {
 */
 
 template <class real> class mapcc : public codec, private bcjr<real> {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new mapcc<real>; };
 private:

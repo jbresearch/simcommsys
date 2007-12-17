@@ -2,7 +2,6 @@
 #define __puncture_h
 
 #include "config.h"
-#include "vcs.h"
 #include "matrix.h"
 #include "vector.h"
 #include "sigspace.h"
@@ -79,7 +78,6 @@ namespace libcomm {
 */
 
 class puncture {
-   static const libbase::vcs version;
 private:
    int inputs, outputs;
    libbase::vector<int> pos;

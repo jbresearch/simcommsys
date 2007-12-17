@@ -14,10 +14,7 @@
 
 namespace libcomm {
 
-const libbase::vcs rand_lut::version("Random LUT Interleaver module (rand_lut)", 1.41);
-
 const libbase::serializer rand_lut::shelper("interleaver", "random", rand_lut::create);
-
 
 // initialisation
 

@@ -2,7 +2,6 @@
 #define __annealer_h
 
 #include "config.h"
-#include "vcs.h"
 #include "anneal_system.h"
 #include "randgen.h"
 #include "rvstatistics.h"
@@ -40,7 +39,6 @@ namespace libcomm {
 */
 
 class annealer {
-   static const libbase::vcs version;
 protected:
    anneal_system *system;
    libbase::randgen  r;

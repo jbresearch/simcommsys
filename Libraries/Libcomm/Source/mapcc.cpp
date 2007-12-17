@@ -174,22 +174,16 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 1.52
-
 template class mapcc<mpreal>;
 template <> const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);
-template <> const vcs mapcc<mpreal>::version = vcs("Maximum A-Posteriori Decoder module (mapcc<mpreal>)", VERSION);
 
 template class mapcc<mpgnu>;
 template <> const serializer mapcc<mpgnu>::shelper = serializer("codec", "mapcc<mpgnu>", mapcc<mpgnu>::create);
-template <> const vcs mapcc<mpgnu>::version = vcs("Maximum A-Posteriori Decoder module (mapcc<mpgnu>)", VERSION);
 
 template class mapcc<logreal>;
 template <> const serializer mapcc<logreal>::shelper = serializer("codec", "mapcc<logreal>", mapcc<logreal>::create);
-template <> const vcs mapcc<logreal>::version = vcs("Maximum A-Posteriori Decoder module (mapcc<logreal>)", VERSION);
 
 template class mapcc<logrealfast>;
 template <> const serializer mapcc<logrealfast>::shelper = serializer("codec", "mapcc<logrealfast>", mapcc<logrealfast>::create);
-template <> const vcs mapcc<logrealfast>::version = vcs("Maximum A-Posteriori Decoder module (mapcc<logrealfast>)", VERSION);
 
 }; // end namespace

@@ -2,7 +2,6 @@
 #define __anneal_interleaver_h
 
 #include "config.h"
-#include "vcs.h"
 #include "matrix.h"
 #include "randgen.h"
 #include "anneal_system.h"
@@ -106,7 +105,6 @@ namespace libcomm {
 */
 
 class anneal_interleaver : public virtual anneal_system {
-   static const libbase::vcs version;
    libbase::matrix<int> lut;
    libbase::randgen     r;
    bool        term;

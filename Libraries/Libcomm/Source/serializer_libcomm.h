@@ -1,7 +1,6 @@
 #ifndef __serializer_libcomm_h
 #define __serializer_libcomm_h
 
-#include "vcs.h"
 
 // Utilities
 #include "gf.h"
@@ -104,7 +103,6 @@ class serializer_libcomm : private
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    puncture_file, puncture_null, puncture_stipple
 {
-   static const libbase::vcs version;
 public:
    serializer_libcomm() {};
 };

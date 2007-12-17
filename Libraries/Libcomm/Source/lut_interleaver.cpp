@@ -13,8 +13,6 @@
 
 namespace libcomm {
 
-const libbase::vcs lut_interleaver::version("Lookup Table Interleaver module (lut_interleaver)", 1.60);
-
 // static members
 
 const int lut_interleaver::tail = -1;

@@ -2,7 +2,6 @@
 #define __experiment_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 
 #include <iostream>
@@ -37,7 +36,6 @@ namespace libcomm {
 */
 
 class experiment {
-   static const libbase::vcs version;
 public:
    virtual ~experiment() {};                 // virtual destructor
    virtual experiment *clone() const = 0;    // cloning operation

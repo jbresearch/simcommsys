@@ -2,7 +2,6 @@
 #define __file_lut_h
 
 #include "config.h"
-#include "vcs.h"
 #include "named_lut.h"
 
 namespace libcomm {
@@ -65,7 +64,6 @@ namespace libcomm {
 */
 
 class file_lut : public named_lut {
-   static const libbase::vcs version;
 public:
    file_lut(const char *filename, const int tau, const int m);
    ~file_lut() {};

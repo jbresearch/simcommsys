@@ -2,7 +2,6 @@
 #define __onetimepad_h
 
 #include "config.h"
-#include "vcs.h"
 #include "interleaver.h"
 #include "serializer.h"
 #include "fsm.h"
@@ -96,7 +95,6 @@ namespace libcomm {
 */
 
 class onetimepad : public interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new onetimepad; };
    bool terminated, renewable;

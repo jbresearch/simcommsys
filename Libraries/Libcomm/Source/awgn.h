@@ -2,7 +2,6 @@
 #define __awgn_h
 
 #include "config.h"
-#include "vcs.h"
 #include "channel.h"
 #include "itfunc.h"
 #include "serializer.h"
@@ -55,7 +54,6 @@ namespace libcomm {
 */
 
 class awgn : public channel {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new awgn; };
    // channel paremeters

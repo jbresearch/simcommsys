@@ -17,9 +17,6 @@ using std::cerr;
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::vcs puncture::version("Base Puncturing System module (puncture)", 2.30);
-
-
 // initialization function
 
 void puncture::init(const matrix<bool>& pattern)

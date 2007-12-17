@@ -13,8 +13,6 @@
 
 namespace libcomm {
 
-const libbase::vcs annealer::version("Simulated Annealing Algorithm module (annealer)", 1.10);
-
 void annealer::attach_system(anneal_system& system)
    {
    annealer::system = &system;

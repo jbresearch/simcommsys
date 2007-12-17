@@ -2,7 +2,6 @@
 #define __turbo_h
 
 #include "config.h"
-#include "vcs.h"
 #include "serializer.h"
 
 #include "codec.h"
@@ -227,7 +226,6 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new turbo<real,dbl>; };
 private:

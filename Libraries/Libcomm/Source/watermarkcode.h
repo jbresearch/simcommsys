@@ -2,7 +2,6 @@
 #define __watermarkcode_h
 
 #include "config.h"
-#include "vcs.h"
 
 #include "modulator.h"
 #include "mpsk.h"
@@ -116,7 +115,6 @@ namespace libcomm {
 */
 
 template <class real> class watermarkcode : public mpsk, private fba<real> {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
 private:

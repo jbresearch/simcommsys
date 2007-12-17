@@ -2,7 +2,6 @@
 #define __stegosystem_h
 
 #include "config.h"
-#include "vcs.h"
 #include "serializer_libcomm.h"
 
 namespace libcomm {
@@ -72,7 +71,6 @@ namespace libcomm {
 class stegosystem  
 {
 private:
-   static const libbase::vcs version;
    const serializer_libcomm m_serializer_libcomm;
    codec*            m_pCodec;
    puncture*         m_pPuncture;

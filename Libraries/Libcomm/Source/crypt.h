@@ -2,7 +2,6 @@
 #define __crypt_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 
 #include <string>
@@ -32,7 +31,6 @@ namespace libcomm {
 */
 
 class crypt {
-   static const libbase::vcs version;
    // constants - scalars
    static const int BS, BS2, KS, KS2, IS, IS2;
    // constants - vectors & matrices

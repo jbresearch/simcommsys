@@ -22,8 +22,6 @@ using std::cerr;
 using libbase::trace;
 using libbase::vector;
 
-const libbase::vcs montecarlo::version("Monte Carlo Estimator module (montecarlo)", 1.35);
-
 const int montecarlo::min_samples = 128;
 
 // worker processes

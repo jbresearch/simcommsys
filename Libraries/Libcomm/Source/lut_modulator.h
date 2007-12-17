@@ -24,7 +24,6 @@ namespace libcomm {
 */
 
 class lut_modulator : public modulator {
-   static const libbase::vcs version;
 protected:
    libbase::vector<sigspace> lut;   // Array of modulation symbols
 public:

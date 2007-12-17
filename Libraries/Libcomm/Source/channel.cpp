@@ -12,8 +12,6 @@
 
 namespace libcomm {
 
-const libbase::vcs channel::version("Channel Base module (channel)", 1.60);
-
 // constructors / destructors
 
 channel::channel()

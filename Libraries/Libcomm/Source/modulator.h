@@ -2,7 +2,6 @@
 #define __modulator_h
       
 #include "config.h"
-#include "vcs.h"
 #include "sigspace.h"
 #include "itfunc.h"
 #include "vector.h"
@@ -87,7 +86,6 @@ namespace libcomm {
 */
 
 class modulator {
-   static const libbase::vcs version;
 public:
    virtual ~modulator() {};               // virtual destructor
    virtual modulator *clone() const = 0;        // cloning operation

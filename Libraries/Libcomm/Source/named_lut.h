@@ -2,7 +2,6 @@
 #define __named_lut_h
 
 #include "config.h"
-#include "vcs.h"
 #include "lut_interleaver.h"
 #include "serializer.h"
 #include <string>
@@ -38,7 +37,6 @@ namespace libcomm {
 */
 
 class named_lut : public lut_interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new named_lut; };
 protected:

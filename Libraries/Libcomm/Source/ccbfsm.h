@@ -1,7 +1,6 @@
 #ifndef __ccbfsm_h
 #define __ccbfsm_h
 
-#include "vcs.h"
 #include "fsm.h"
 #include "bitfield.h"
 #include "matrix.h"
@@ -28,7 +27,6 @@ namespace libcomm {
 */
 
 class ccbfsm : public fsm {
-   static const libbase::vcs version;
 protected:
    int k, n;   // number of input and output bits, respectively
    int nu;     // number of memory elements (constraint length)

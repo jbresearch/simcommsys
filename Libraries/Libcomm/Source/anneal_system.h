@@ -2,7 +2,6 @@
 #define __anneal_system_h
 
 #include "config.h"
-#include "vcs.h"
 #include <iostream>
 
 namespace libcomm {
@@ -45,7 +44,6 @@ namespace libcomm {
 */
 
 class anneal_system {
-   static const libbase::vcs version;
 public:
    virtual ~anneal_system() {};
    //! Seeds all random generators used in the annealer

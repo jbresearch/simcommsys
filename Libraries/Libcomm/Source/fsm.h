@@ -2,7 +2,6 @@
 #define __fsm_h
 
 #include "config.h"
-#include "vcs.h"
 #include <iostream>
 #include <string>
 
@@ -91,7 +90,6 @@ namespace libcomm {
 */
 
 class fsm {
-   static const libbase::vcs version;
 public:
    static const int tail;                 // a special input to use when tailing out
    

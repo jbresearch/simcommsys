@@ -190,22 +190,16 @@ using libbase::logrealfast;
 using libbase::serializer;
 using libbase::vcs;
 
-#define VERSION 2.51
-
 template class diffturbo<mpreal>;
 template <> const serializer diffturbo<mpreal>::shelper = serializer("codec", "diffturbo<mpreal>", diffturbo<mpreal>::create);
-template <> const vcs diffturbo<mpreal>::version = vcs("Diffused-Input Turbo Decoder module (diffturbo<mpreal>)", VERSION);
 
 template class diffturbo<mpgnu>;
 template <> const serializer diffturbo<mpgnu>::shelper = serializer("codec", "diffturbo<mpgnu>", diffturbo<mpgnu>::create);
-template <> const vcs diffturbo<mpgnu>::version = vcs("Diffused-Input Turbo Decoder module (diffturbo<mpgnu>)", VERSION);
 
 template class diffturbo<logreal>;
 template <> const serializer diffturbo<logreal>::shelper = serializer("codec", "diffturbo<logreal>", diffturbo<logreal>::create);
-template <> const vcs diffturbo<logreal>::version = vcs("Diffused-Input Turbo Decoder module (diffturbo<logreal>)", VERSION);
 
 template class diffturbo<logrealfast>;
 template <> const serializer diffturbo<logrealfast>::shelper = serializer("codec", "diffturbo<logrealfast>", diffturbo<logrealfast>::create);
-template <> const vcs diffturbo<logrealfast>::version = vcs("Diffused-Input Turbo Decoder module (diffturbo<logrealfast>)", VERSION);
 
 }; // end namespace

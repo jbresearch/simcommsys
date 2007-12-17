@@ -2,7 +2,6 @@
 #define __rectangular_h
 
 #include "config.h"
-#include "vcs.h"
 #include "lut_interleaver.h"
 #include "serializer.h"
 
@@ -69,7 +68,6 @@ namespace libcomm {
 */
 
 class rectangular : public lut_interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new rectangular; };
    int rows, cols;

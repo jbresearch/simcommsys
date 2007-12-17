@@ -2,7 +2,6 @@
 #define __lut_interleaver_h
 
 #include "config.h"
-#include "vcs.h"
 #include "interleaver.h"
 #include "serializer.h"
 #include "fsm.h"
@@ -76,7 +75,6 @@ namespace libcomm {
 */
 
 class lut_interleaver : public interleaver {
-   static const libbase::vcs version;
 protected:
    lut_interleaver() {};
    static const int tail; // a special LUT entry to signify a forced tail

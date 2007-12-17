@@ -12,8 +12,6 @@
 
 namespace libcomm {
 
-const libbase::vcs interleaver::version("Interleaver Base module (interleaver)", 1.60);
-
 // serialization functions
 
 std::ostream& operator<<(std::ostream& sout, const interleaver* x)

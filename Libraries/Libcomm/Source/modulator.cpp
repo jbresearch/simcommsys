@@ -14,9 +14,6 @@
 
 namespace libcomm {
 
-const libbase::vcs modulator::version("Modulator Base module (modulator)", 1.51);
-
-
 // serialization functions
 
 std::ostream& operator<<(std::ostream& sout, const modulator* x)

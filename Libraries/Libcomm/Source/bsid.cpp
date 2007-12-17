@@ -14,8 +14,6 @@
 
 namespace libcomm {
 
-const libbase::vcs bsid::version("Binary Substitution, Insertion, and Deletion Channel module (bsid)", 1.40);
-
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
 // Internal functions

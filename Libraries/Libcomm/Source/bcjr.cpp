@@ -496,24 +496,11 @@ using libbase::logrealfast;
 
 using libbase::vcs;
 
-#define VERSION 2.60
-
 template class bcjr<double>;
-template <> const vcs bcjr<double>::version = vcs("Bahl-Cocke-Jelinek-Raviv Algorithm module (bcjr<double>)", VERSION);
-
 template class bcjr<mpreal>;
-template <> const vcs bcjr<mpreal>::version = vcs("Bahl-Cocke-Jelinek-Raviv Algorithm module (bcjr<mpreal>)", VERSION);
-
 template class bcjr<mpgnu>;
-template <> const vcs bcjr<mpgnu>::version = vcs("Bahl-Cocke-Jelinek-Raviv Algorithm module (bcjr<mpgnu>)", VERSION);
-
 template class bcjr<logreal>;
-template <> const vcs bcjr<logreal>::version = vcs("Bahl-Cocke-Jelinek-Raviv Algorithm module (bcjr<logreal>)", VERSION);
-
 template class bcjr<logrealfast>;
-template <> const vcs bcjr<logrealfast>::version = vcs("Bahl-Cocke-Jelinek-Raviv Algorithm module (bcjr<logrealfast>)", VERSION);
-
 template class bcjr<logrealfast,logrealfast>;
-template <> const vcs bcjr<logrealfast,logrealfast>::version = vcs("Bahl-Cocke-Jelinek-Raviv Algorithm module (bcjr<logrealfast,logrealfast>)", VERSION);
 
 }; // end namespace

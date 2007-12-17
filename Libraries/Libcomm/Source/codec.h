@@ -2,7 +2,6 @@
 #define __codec_h
 
 #include "config.h"
-#include "vcs.h"
 #include "matrix.h"
 #include "vector.h"
 #include "itfunc.h"
@@ -84,7 +83,6 @@ namespace libcomm {
 */
 
 class codec {
-   static const libbase::vcs version;
 public:
    virtual ~codec() {};                   // virtual destructor
    virtual codec *clone() const = 0;       // cloning operation

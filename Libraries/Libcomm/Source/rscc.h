@@ -1,7 +1,6 @@
 #ifndef __rscc_h
 #define __rscc_h
 
-#include "vcs.h"
 #include "ccbfsm.h"
 #include "serializer.h"
 
@@ -88,7 +87,6 @@ namespace libcomm {
 */
 
 class rscc : public ccbfsm {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new rscc; };
 protected:

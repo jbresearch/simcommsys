@@ -2,7 +2,6 @@
 #define __sigspace_h
       
 #include "config.h"
-#include "vcs.h"
 #include <math.h>
 #include <iostream>
 
@@ -39,7 +38,6 @@ namespace libcomm {
 */
 
 class sigspace {
-   static const libbase::vcs version;
    double       inphase, quad;
 public:
    // creator / destructor

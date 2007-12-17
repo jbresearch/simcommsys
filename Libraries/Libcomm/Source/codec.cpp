@@ -12,8 +12,6 @@
 
 namespace libcomm {
 
-const libbase::vcs codec::version("Channel Codec Base module (codec)", 1.60);
-
 // serialization functions
 
 std::ostream& operator<<(std::ostream& sout, const codec* x)

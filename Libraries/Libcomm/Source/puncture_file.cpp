@@ -14,10 +14,7 @@
 
 namespace libcomm {
 
-const libbase::vcs puncture_file::version("Filed Puncturing System module (puncture_file)", 2.31);
-
 const libbase::serializer puncture_file::shelper("puncture", "file", puncture_file::create);
-
 
 // constructor / destructor
 

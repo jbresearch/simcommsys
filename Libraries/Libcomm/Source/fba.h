@@ -2,7 +2,6 @@
 #define __fba_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "matrix.h"
 #include "matrix3.h"
@@ -104,7 +103,6 @@ namespace libcomm {
 */
 
 template <class real, class sig=sigspace> class fba {
-   static const libbase::vcs version;
    // internal variables
    int   tau;  // tau is the (transmitted) block size in bits
    int   I;    // I is the maximum number of insertions considered before every transmission

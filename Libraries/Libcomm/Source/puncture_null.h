@@ -2,7 +2,6 @@
 #define __puncture_null_h
 
 #include "config.h"
-#include "vcs.h"
 #include "puncture.h"
 #include "serializer.h"
 
@@ -55,7 +54,6 @@ namespace libcomm {
 */
 
 class puncture_null : public puncture {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new puncture_null; };
 protected:

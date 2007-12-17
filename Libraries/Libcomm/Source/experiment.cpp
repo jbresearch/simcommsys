@@ -12,8 +12,6 @@
 
 namespace libcomm {
 
-const libbase::vcs experiment::version("Generic experiment module (experiment)", 1.30);
-
 // serialization functions
 
 std::ostream& operator<<(std::ostream& sout, const experiment* x)

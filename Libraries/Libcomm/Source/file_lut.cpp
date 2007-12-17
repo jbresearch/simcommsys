@@ -12,9 +12,6 @@
 
 namespace libcomm {
 
-const libbase::vcs file_lut::version("Pre-stored LUT Interleaver module (file_lut)", 1.40);
-
-
 // creation/destruction functions
 
 file_lut::file_lut(const char *filename, const int tau, const int m)

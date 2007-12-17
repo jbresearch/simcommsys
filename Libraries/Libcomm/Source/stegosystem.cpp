@@ -25,8 +25,6 @@ using libbase::matrix;
 using libbase::round;
 using libbase::randgen;
 
-const libbase::vcs stegosystem::version("Stegosystem encoder/decoder module (stegosystem)", 1.20);
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////

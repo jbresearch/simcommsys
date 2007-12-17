@@ -2,7 +2,6 @@
 #define __padded_h
 
 #include "config.h"
-#include "vcs.h"
 #include "interleaver.h"
 #include "onetimepad.h"
 #include "serializer.h"
@@ -95,7 +94,6 @@ namespace libcomm {
 */
 
 class padded : public interleaver {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new padded; };
    interleaver *otp;

@@ -2,7 +2,6 @@
 #define __diffturbo_h
 
 #include "config.h"
-#include "vcs.h"
 #include "serializer.h"
 
 #include "turbo.h"
@@ -91,7 +90,6 @@ namespace libcomm {
 */
 
 template <class real> class diffturbo : public turbo<real> {
-   static const libbase::vcs version;
    static const libbase::serializer shelper;
    static void* create() { return new diffturbo<real>; };
 private:
