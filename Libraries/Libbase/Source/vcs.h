@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+namespace libbase {
+
 /*
   Version 1.01 (29 Oct 2001)
   redirected the output to clog instead of cout
@@ -22,8 +24,6 @@
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libbase {
 
 class vcs {
    static const vcs version;

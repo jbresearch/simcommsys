@@ -16,7 +16,17 @@
 #  include <fstream>
 #endif
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Fast Logarithm Arithmetic.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (21 Feb 2002)
   Fixed some bugs in the LUT working of the system; also added hooks to allow debugging
   by printing to a file the difference values and the errors for all LUT access.
@@ -97,8 +107,6 @@
   Version 1.34 (13 Nov 2007)
   * updated ensurefinite() so that warnings stop showing if they are repeated often.
 */
-
-namespace libbase {
 
 class logrealfast {
    static const vcs version;

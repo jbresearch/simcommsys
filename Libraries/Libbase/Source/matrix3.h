@@ -6,7 +6,17 @@
 #include <stdlib.h>
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Generic 3D Matrix.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (31 Oct 2001)
   separated 3D matrix class from the 2D matrix header.
   Created arithmetic functions as part of the matrix class. These are only created
@@ -108,11 +118,9 @@
   * modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 */
 
-namespace libbase {
+template <class T> class matrix3;
 
 extern const vcs matrix3_version;
-
-template <class T> class matrix3;
 
 template <class T> std::ostream& operator<<(std::ostream& s, const matrix3<T>& x);
 template <class T> std::istream& operator>>(std::istream& s, matrix3<T>& x);

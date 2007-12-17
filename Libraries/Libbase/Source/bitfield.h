@@ -7,7 +7,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Bitfield.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (27 Nov 2001)
   made setdefsize a static member (this should have been so anyway) and also
   check_fieldsize since this is called from it. Also made check_range a const member.
@@ -39,8 +49,6 @@
   Version 1.31 (5 Dec 2007)
   * added constructor to directly convert an integer at a specified width
 */
-
-namespace libbase {
 
 class bitfield {
    static const vcs version;

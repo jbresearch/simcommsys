@@ -11,7 +11,17 @@
 #include <unistd.h>
 #endif
 
-/*
+namespace libbase {
+
+/*!
+   \brief   True Random Number provider.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (20 Apr 2007)
   * created class to provide true random numbers (through OS routines), to facilitate
     seeding slave workers in the master-slave mode
@@ -33,8 +43,6 @@
     to private keys - this allows use as grid clients, when there is no user profile
     available.
 */
-
-namespace libbase {
 
 class truerand {
    static const vcs version;

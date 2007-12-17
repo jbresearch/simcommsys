@@ -20,7 +20,17 @@
 #include <string>
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Timer.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (6 Mar 1999)
   added a new function elapsed(), which returns the number of seconds elapsed.
 
@@ -104,8 +114,6 @@
   * added public function to obtain cputime used
   * refactored affected functions
 */
-
-namespace libbase {
 
 class timer {
    static const vcs version;

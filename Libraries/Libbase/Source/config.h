@@ -27,7 +27,15 @@
 #  include <basetsd.h>
 #endif
 
-/*
+/*!
+   \file    Main Configuration.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 2.01 (11 Jun 2002)
   * removed the definition of swap() from this file for gcc (before was only removed for
   Win32), since this is defined in <algorithm>

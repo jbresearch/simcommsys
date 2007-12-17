@@ -577,24 +577,8 @@
 				>
 			</File>
 			<File
-				RelativePath="Source\vcs.cpp"
+				RelativePath=".\Source\vcs.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="Source\vector.cpp"
@@ -718,7 +702,7 @@
 				>
 			</File>
 			<File
-				RelativePath="Source\vcs.h"
+				RelativePath=".\Source\vcs.h"
 				>
 			</File>
 			<File

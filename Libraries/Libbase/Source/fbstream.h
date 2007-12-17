@@ -6,7 +6,17 @@
 #include "bstream.h"
 #include <fstream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Bitstream File-handling.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (27 Nov 2001)
   added a function which returns the number of bits left in the buffer for ifbstream.
   Also made eof, fail, bad, good, all const functions. Also made the filename for open
@@ -27,8 +37,6 @@
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libbase {
 
 class fbstream {
    static const vcs version;

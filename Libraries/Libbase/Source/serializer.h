@@ -7,7 +7,17 @@
 #include <map>
 #include <string>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Serialization helper.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (28 Feb -> 6 Mar 2002)
   original version - created to allow the implementation of serialization functions
   similar to MFC's. Created the vcs version control variable within the class - if this
@@ -62,9 +72,6 @@
   * moved typedef createfunc to be defined as a public element of the class
   * refactored, renaming it to fptr 
 */
-
-namespace libbase {
-
 
 class serializer {
 public:

@@ -7,7 +7,17 @@
 #include <stdlib.h>
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Generic 2D Matrix.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (31 Oct 2001)
   created arithmetic functions as part of the matrix class. These are only created
   for an instantiation in which they are used, so it should not pose a problem anyway.
@@ -126,12 +136,10 @@
   * modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 */
 
-namespace libbase {
+template <class T> class matrix;
+template <class T> class masked_matrix;
 
 extern const vcs matrix_version;
-
-template <class T> class masked_matrix;
-template <class T> class matrix;
 
 template <class T> std::ostream& operator<<(std::ostream& s, const matrix<T>& x);
 template <class T> std::istream& operator>>(std::istream& s, matrix<T>& x);

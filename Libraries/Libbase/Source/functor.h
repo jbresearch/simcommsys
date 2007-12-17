@@ -1,7 +1,17 @@
 #ifndef __functor_h
 #define __functor_h
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Galois Field Element.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (25 Apr 2007)
   * Initial version, defining a functor class for functions that take no argmuents
     and return nothing.
@@ -9,8 +19,6 @@
   Version 1.01 (17 Oct 2007)
   * Added virtual destructor for functor (should have done that before).
 */
-
-namespace libbase {
 
 // abstract base class
 class functor {

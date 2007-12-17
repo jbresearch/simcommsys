@@ -1,17 +1,3 @@
-/* randgen
- * ~~~~~~~
- * a class which returns a double precision (64-bit) random value between
- * 0.0 and 1.0 (both inclusive) generated using the subtractive technique
- * due to Knuth. This algorithm was found to give very good results in the
- * communications lab during the third year.
- *
- * notes:
- *   the subtractive algorithm has a very long period (necessary for low
- *   bit error rates in the tested data stream)
- *   it also does not suffer from low-order correlations (facilitating its
- *   use with a variable number of bits/code in the data stream)
- */
-
 #ifndef __randgen_h
 #define __randgen_h
 
@@ -20,7 +6,28 @@
 #include <math.h>
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Random Generator.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   A class which returns a double precision (64-bit) random value between
+   0.0 and 1.0 (both inclusive) generated using the subtractive technique
+   due to Knuth. This algorithm was found to give very good results in the
+   communications lab during the third year.
+
+   \note
+   - The subtractive algorithm has a very long period (necessary for low
+     bit error rates in the tested data stream)
+   - It also does not suffer from low-order correlations (facilitating its
+     use with a variable number of bits/code in the data stream)
+
   Version 1.01 (16 Nov 2001)
   moved 'ready' and 'next_gval' from static objects within gval() to member objects.
 
@@ -35,8 +42,6 @@
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libbase {
 
 class randgen {
    static const vcs version;

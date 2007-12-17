@@ -6,7 +6,17 @@
 #include <stdlib.h>
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Generic Vector.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (29 Oct 2001)
   reinstated arithmetic functions as part of the vector class. These are only created
   for an instantiation in which they are used, so it should not pose a problem anyway.
@@ -134,11 +144,9 @@
   * defined alternate vector copy for non-root vectors (to avoid copying the data)
 */
 
-namespace libbase {
+template <class T> class vector;
 
 extern const vcs vector_version;
-
-template <class T> class vector;
 
 template <class T> std::ostream& operator<<(std::ostream& s, const vector<T>& x);
 template <class T> std::istream& operator>>(std::istream& s, vector<T>& x);

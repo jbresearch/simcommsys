@@ -10,7 +10,17 @@
 #include <gmp.h>
 #endif
 
-/*
+namespace libbase {
+
+/*!
+   \brief   GNU Multi-Precision Arithmetic.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
@@ -19,8 +29,6 @@
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libbase {
 
 class mpgnu {
    static const vcs version;

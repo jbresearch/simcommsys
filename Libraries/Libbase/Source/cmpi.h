@@ -9,7 +9,17 @@
 #  include <mpi.h>
 #endif
 
-/*
+namespace libbase {
+
+/*!
+   \brief   MPI Multi-Computer Environment.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (5 Mar 1999)
   updated mpi child functions to print the latency between jobs.
 
@@ -69,8 +79,6 @@
   Version 2.41 (28 Sep 2007)
   modified so that compilation as a Dummy MPI module occurs when USEMPI is not defined.
 */
-
-namespace libbase {
 
 class cmpi {
    static const vcs version;

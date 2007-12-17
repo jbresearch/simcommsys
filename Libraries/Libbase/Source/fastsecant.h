@@ -6,7 +6,17 @@
 #include "secant.h"
 #include "vector.h"
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Semi-cached root-finding by Secant method.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (30 Nov 2001)
   speeded-up version of the secant method module - we build a cache on seeding
   which we then use to initialise the starting points for the algorithm.
@@ -21,8 +31,6 @@
   Version 1.10 (26 Oct 2006)
   * defined class and associated data within "libbase" namespace.
 */
-
-namespace libbase {
 
 class fastsecant : public secant {
    static const vcs version;

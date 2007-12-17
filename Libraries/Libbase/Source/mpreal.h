@@ -5,7 +5,17 @@
 #include "vcs.h"
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Multi-Precision Arithmetic.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
@@ -24,8 +34,6 @@
   * changed references to isinf() and isnan() back to global namespace, in accord with
     config.h 3.23.
 */
-
-namespace libbase {
 
 class mpreal {
    static const vcs version;

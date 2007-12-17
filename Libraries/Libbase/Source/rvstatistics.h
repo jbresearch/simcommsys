@@ -7,7 +7,17 @@
 #include "matrix.h"
 #include <math.h>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Random Variable Statistics.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00
   a class which gathers statistics about a random variable
 
@@ -32,8 +42,6 @@
   Version 1.80 (26 Oct 2006)
   * defined class and associated data within "libbase" namespace.
 */
-
-namespace libbase {
 
 class rvstatistics {
    static const vcs version;

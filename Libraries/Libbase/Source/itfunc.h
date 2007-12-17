@@ -7,7 +7,15 @@
 #include <stdlib.h>
 #include <string>
 
-/*
+/*!
+   \file    Information Theory Functions.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (6 Mar 2002)
   changed use of iostream from global to std namespace.
 

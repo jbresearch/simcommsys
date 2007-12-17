@@ -7,7 +7,17 @@
 #include <string>
 #include <list>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Networking sockets.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (27 Jun 2002)
   original version; just a placeholder
 
@@ -41,8 +51,6 @@
     - explicit conversion from size_t to int in io()
     - ditto in bind(), accept() and connect()
 */
-
-namespace libbase {
 
 class socket {
    static const vcs version;

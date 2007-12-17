@@ -8,7 +8,17 @@
 #include <math.h>
 #include <iostream>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Histogram.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (8 Jun 2000)
   Initial version - computes the histogram of the values in a vector or
   matrix with the user-supplied number of bins.
@@ -35,8 +45,6 @@
   * defined class and associated data within "libbase" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libbase {
 
 class histogram {
    static const vcs version;

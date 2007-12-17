@@ -9,7 +9,17 @@
 #include "functor.h"
 #include <map>
 
-/*
+namespace libbase {
+
+/*!
+   \brief   Socket-based Master-Slave computation.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (20-21 Apr 2007)
   * new class to support socket-based master-slave relationship
   * derived from cmpi 2.40
@@ -65,8 +75,6 @@
   * refactoring work
     - extracted method dowork()
 */
-
-namespace libbase {
 
 class masterslave {
    static const vcs version;
