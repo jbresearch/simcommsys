@@ -14,7 +14,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Communication System.
    \author  Johann Briffa
 
    \par Version Control:

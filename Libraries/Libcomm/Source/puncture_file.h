@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Filed Puncturing System.
    \author  Johann Briffa
 
    \par Version Control:

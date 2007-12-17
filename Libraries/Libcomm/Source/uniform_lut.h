@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Uniform Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

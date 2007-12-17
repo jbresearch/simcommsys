@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Padded Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

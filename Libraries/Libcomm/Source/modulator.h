@@ -14,7 +14,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Modulator Base.
    \author  Johann Briffa
 
    \par Version Control:

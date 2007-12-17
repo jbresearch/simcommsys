@@ -67,7 +67,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Communications Library Serializer.
    \author  Johann Briffa
 
    \par Version Control:

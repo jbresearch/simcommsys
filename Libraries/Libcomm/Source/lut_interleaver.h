@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Lookup Table Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

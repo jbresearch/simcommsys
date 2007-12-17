@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   DVB-Standard Circular Recursive Systematic Convolutional Coder.
    \author  Johann Briffa
 
    \par Version Control:

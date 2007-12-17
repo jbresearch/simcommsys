@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Null Puncturing System.
    \author  Johann Briffa
 
    \par Version Control:

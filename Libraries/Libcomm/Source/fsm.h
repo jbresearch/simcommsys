@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Finite State Machine.
    \author  Johann Briffa
 
    \par Version Control:

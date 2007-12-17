@@ -8,7 +8,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Matt Valenti's Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

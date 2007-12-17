@@ -17,7 +17,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Forward-Backward Algorithm.
    \author  Johann Briffa
 
    \par Version Control:

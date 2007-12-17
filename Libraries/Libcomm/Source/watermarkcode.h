@@ -19,7 +19,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Davey's Watermark Code.
    \author  Johann Briffa
 
    \par Version Control:

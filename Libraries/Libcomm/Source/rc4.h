@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   RSA RC4 Algorithm.
    \author  Johann Briffa
 
    \par Version Control:

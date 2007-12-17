@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Stippled Puncturing System.
    \author  Johann Briffa
 
    \par Version Control:

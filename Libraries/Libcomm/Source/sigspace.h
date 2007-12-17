@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Signal Space point.
    \author  Johann Briffa
 
    \par Version Control:

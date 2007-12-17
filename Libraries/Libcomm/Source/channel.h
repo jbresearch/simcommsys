@@ -15,7 +15,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Channel Base.
    \author  Johann Briffa
 
    \par Version Control:

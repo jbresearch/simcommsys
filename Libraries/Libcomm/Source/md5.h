@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Message Digest MD5 Algorithm.
    \author  Johann Briffa
 
    \par Version Control:

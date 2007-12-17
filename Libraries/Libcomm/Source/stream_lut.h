@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Stream-loaded LUT Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

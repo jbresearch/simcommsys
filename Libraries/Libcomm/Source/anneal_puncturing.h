@@ -12,7 +12,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Simulated Annealing Puncturing Pattern Design.
    \author  Johann Briffa
 
    \par Version Control:

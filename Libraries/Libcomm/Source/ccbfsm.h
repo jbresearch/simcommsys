@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Controller-Canonical Binary Finite State Machine.
    \author  Johann Briffa
 
    \par Version Control:

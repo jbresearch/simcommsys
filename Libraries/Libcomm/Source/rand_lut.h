@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Random LUT Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

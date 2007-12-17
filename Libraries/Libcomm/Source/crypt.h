@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   UNIX Crypt Algorithm.
    \author  Johann Briffa
 
    \par Version Control:

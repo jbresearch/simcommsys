@@ -6,7 +6,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   LUT Modulator.
    \author  Johann Briffa
 
    \par Version Control:

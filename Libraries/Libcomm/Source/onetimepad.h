@@ -12,7 +12,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   One Time Pad Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

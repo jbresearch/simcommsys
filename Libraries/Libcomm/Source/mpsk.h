@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   M-PSK Modulator.
    \author  Johann Briffa
 
    \par Version Control:

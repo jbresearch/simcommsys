@@ -16,7 +16,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Class implementing the Turbo decoding algorithm.
+   \brief   Turbo decoding algorithm.
    \author  Johann Briffa
 
    \par Version Control:

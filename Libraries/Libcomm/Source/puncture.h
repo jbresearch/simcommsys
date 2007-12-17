@@ -12,7 +12,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Base Puncturing System.
    \author  Johann Briffa
 
    \par Version Control:

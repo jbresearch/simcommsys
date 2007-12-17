@@ -12,7 +12,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Additive Laplacian Noise Channel.
    \author  Johann Briffa
 
    \par Version Control:

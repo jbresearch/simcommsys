@@ -11,6 +11,11 @@ namespace libcomm {
    \brief   Simulated Annealing System base.
    \author  Johann Briffa
 
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
    \version 1.00 (10 Jul 1998)
 
    \version 1.10 (11 Oct 2001)

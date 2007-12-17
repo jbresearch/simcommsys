@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Simulated Annealing Algorithm.
    \author  Johann Briffa
 
    \par Version Control:

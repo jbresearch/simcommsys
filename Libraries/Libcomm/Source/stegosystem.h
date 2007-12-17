@@ -8,7 +8,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Stegosystem encoder/decoder.
    \author  Johann Briffa
 
    \par Version Control:

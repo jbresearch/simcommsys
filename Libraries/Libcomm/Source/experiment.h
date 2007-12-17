@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Generic experiment.
    \author  Johann Briffa
 
    \par Version Control:

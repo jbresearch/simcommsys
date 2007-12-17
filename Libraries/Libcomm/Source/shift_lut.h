@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Barrel-Shifting LUT Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

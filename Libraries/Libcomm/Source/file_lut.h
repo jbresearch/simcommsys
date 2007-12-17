@@ -8,7 +8,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   File-loaded LUT Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

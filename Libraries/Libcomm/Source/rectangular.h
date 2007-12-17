@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Rectangular Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

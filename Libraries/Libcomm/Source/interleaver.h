@@ -13,7 +13,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Interleaver Base.
    \author  Johann Briffa
 
    \par Version Control:

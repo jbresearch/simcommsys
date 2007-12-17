@@ -13,7 +13,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Uncoded transmission.
    \author  Johann Briffa
 
    \par Version Control:

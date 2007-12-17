@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Additive White Gaussian Noise Channel.
    \author  Johann Briffa
 
    \par Version Control:

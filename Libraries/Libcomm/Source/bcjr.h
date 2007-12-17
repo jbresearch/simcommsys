@@ -17,8 +17,13 @@
 namespace libcomm {
 
 /*!
-   \brief   Class implementing the BCJR decoding algorithm.
+   \brief   Bahl-Cocke-Jelinek-Raviv (BCJR) decoding algorithm.
    \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
 
    All internal metrics are held as type 'real', which is user-defined. This allows internal working
    at any required level of accuracy. This is required because the internal matrics have a very wide

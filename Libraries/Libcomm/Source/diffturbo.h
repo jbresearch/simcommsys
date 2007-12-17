@@ -13,7 +13,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Diffused-Input Turbo Decoder.
    \author  Johann Briffa
 
    \par Version Control:

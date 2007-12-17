@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Berrou's Original Interleaver.
    \author  Johann Briffa
 
    \par Version Control:

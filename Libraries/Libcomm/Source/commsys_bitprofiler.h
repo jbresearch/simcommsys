@@ -8,7 +8,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Communication System Bit Profiler.
    \author  Johann Briffa
 
    \par Version Control:

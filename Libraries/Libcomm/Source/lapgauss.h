@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Additive Laplacian-Gaussian Channel.
    \author  Johann Briffa
 
    \par Version Control:

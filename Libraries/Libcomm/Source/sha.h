@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   .
+   \brief   Secure Hash Algorithm.
    \author  Johann Briffa
 
    \par Version Control:
