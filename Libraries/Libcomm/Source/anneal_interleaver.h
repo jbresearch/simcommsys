@@ -7,7 +7,17 @@
 #include "randgen.h"
 #include "anneal_system.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00
   Six different energy functions were used, as detailed in my Feb 1 report "On the importance
   of the interleaver in parallel concatenated turbo codes".
@@ -94,8 +104,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class anneal_interleaver : public virtual anneal_system {
    static const libbase::vcs version;

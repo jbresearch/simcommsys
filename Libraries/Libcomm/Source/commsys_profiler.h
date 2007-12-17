@@ -5,7 +5,17 @@
 #include "vcs.h"
 #include "commsys.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (7 Jun 1999)
   modified the system to comply with codec 1.10.
 
@@ -37,8 +47,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class commsys_profiler : public commsys {
    static const libbase::vcs version;

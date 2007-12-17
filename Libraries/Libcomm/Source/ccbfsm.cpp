@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "ccbfsm.h"
 #include <iostream>
 #include <sstream>

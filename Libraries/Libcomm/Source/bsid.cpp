@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "bsid.h"
 #include "fba.h"
 #include "secant.h"

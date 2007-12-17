@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "annealer.h"
 #include <math.h>
 #include <iostream>

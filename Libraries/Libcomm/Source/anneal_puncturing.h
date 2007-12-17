@@ -9,7 +9,17 @@
 #include "matrix3.h"
 #include "anneal_system.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (5 Jun 1999)
   In this version, we load the contribution of each data and parity bit from a file; then we try to
   create a turbo code with the smallest variance of decoded-bit confidence. The restrictions are that
@@ -38,8 +48,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class anneal_puncturing : public virtual anneal_system {
    static const libbase::vcs version;

@@ -11,7 +11,17 @@
 #include "channel.h"
 #include "serializer.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00
 
   Version 1.10 (7 Jun 1999)
@@ -86,8 +96,6 @@
   Version 1.62 (29 Nov 2007)
   * added getters for internal objects
 */
-
-namespace libcomm {
 
 class commsys : public experiment {
    static const libbase::vcs version;

@@ -12,7 +12,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (5 Mar 1999)
   renamed the mem_order() function to tail_length(), which is more indicative of the true
   use of this function.
@@ -72,8 +82,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class codec {
    static const libbase::vcs version;

@@ -5,7 +5,17 @@
 #include "vcs.h"
 #include "named_lut.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (31 Aug 1999)
   modified the file interleaver to allow JPL termination.
 
@@ -53,8 +63,6 @@
   Version 1.40 (30 Oct 2006)
   * defined class and associated data within "libcomm" namespace.
 */
-
-namespace libcomm {
 
 class file_lut : public named_lut {
    static const libbase::vcs version;

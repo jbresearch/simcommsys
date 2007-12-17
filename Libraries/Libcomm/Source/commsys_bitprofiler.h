@@ -5,7 +5,17 @@
 #include "vcs.h"
 #include "commsys.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (17 Jun 1999)
 
   Version 1.10 (2 Sep 1999)
@@ -36,8 +46,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class commsys_bitprofiler : public commsys {
    static const libbase::vcs version;

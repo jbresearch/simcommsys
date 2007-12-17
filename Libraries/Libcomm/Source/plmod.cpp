@@ -1,4 +1,15 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "plmod.h"
+
+namespace libcomm {
 
 double plmod(const double u)
    {
@@ -9,3 +20,5 @@ double plmod(const double u)
    else
       return 0;
    }
+
+}; // end namespace

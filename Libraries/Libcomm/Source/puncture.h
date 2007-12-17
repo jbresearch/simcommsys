@@ -9,7 +9,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (7 Jun 1999)
   initial version, base class with three implementations (unpunctured, odd/even, and from file).
 
@@ -67,8 +77,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class puncture {
    static const libbase::vcs version;

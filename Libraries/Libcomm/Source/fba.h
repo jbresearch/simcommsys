@@ -14,7 +14,17 @@
 #include <iostream>
 #include <fstream>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (1-11 Oct 2007)
   * Initial version, implementing Forward-Backward Algorithm for a HMM. This is based on the paper by Davey & McKay,
     "Watermark Codes: Reliable communication over Insertion/Deletion channels", Trans. IT, 47(2), Feb 2001.
@@ -92,8 +102,6 @@
     and Q() functions; instead the return type is now 'real'. Reason for this is that using
     a lower-range type 'dbl' is very likely to cause a numerical underflow.
 */
-
-namespace libcomm {
 
 template <class real, class sig=sigspace> class fba {
    static const libbase::vcs version;

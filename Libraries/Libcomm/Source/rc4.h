@@ -7,7 +7,17 @@
 
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (03 Jul 2003)
   initial version - class that implements RSA RC4 Algorithm, as specified in
   Schneier, "Applied Cryptography", 1996, pp.397-398.
@@ -28,8 +38,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class rc4 {
    static const libbase::vcs version;

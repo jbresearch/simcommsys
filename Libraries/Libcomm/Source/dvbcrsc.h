@@ -7,7 +7,17 @@
 #include "matrix.h"
 #include "serializer.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (13-14 Jul 2006)
   original version, made to conform with fsm 1.50.
 
@@ -25,8 +35,6 @@
   Version 1.21 (13 Dec 2007)
   * modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
-
-namespace libcomm {
 
 class dvbcrsc : public fsm {
    static const libbase::vcs version;

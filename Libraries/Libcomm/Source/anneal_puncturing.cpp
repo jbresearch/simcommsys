@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "anneal_puncturing.h"
 #include <stdio.h>
 #include <iostream>

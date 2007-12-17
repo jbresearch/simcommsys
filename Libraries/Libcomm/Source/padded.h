@@ -8,7 +8,17 @@
 #include "serializer.h"
 #include <iostream>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (27 Feb 1999)
   allowed client control of OTP (should it be terminated and renewable)
   
@@ -83,8 +93,6 @@
   Version 1.61 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class padded : public interleaver {
    static const libbase::vcs version;

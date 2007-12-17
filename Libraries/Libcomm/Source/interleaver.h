@@ -10,7 +10,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (26 Oct 2001)
   Added empty virtual destroy function - this is required so that any derived interleavers
   classes can have objects successfully deleted in the following situation:
@@ -84,8 +94,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class interleaver {
    static const libbase::vcs version;

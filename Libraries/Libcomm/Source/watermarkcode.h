@@ -16,7 +16,17 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (1-12 Oct 2007)
   initial version; implements Watermark Codes as described by Davey in "Reliable
   Communication over Channels with Insertions, Deletions, and Substitutions", Trans. IT,
@@ -104,8 +114,6 @@
   Version 1.40 (6 Dec 2007)
   * removed I and xmax from user-defined parameters, as in bsid 1.40
 */
-
-namespace libcomm {
 
 template <class real> class watermarkcode : public mpsk, private fba<real> {
    static const libbase::vcs version;

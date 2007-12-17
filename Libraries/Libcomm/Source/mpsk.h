@@ -6,7 +6,17 @@
 #include "lut_modulator.h"
 #include "serializer.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
 
@@ -42,8 +52,6 @@
   Version 2.13 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class mpsk : public lut_modulator {
    static const libbase::vcs version;

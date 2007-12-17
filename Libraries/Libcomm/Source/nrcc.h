@@ -5,7 +5,17 @@
 #include "ccbfsm.h"
 #include "serializer.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (4 Nov 2001)
   added a function which outputs details on the finite state machine (in accordance 
   with fsm 1.10)
@@ -76,8 +86,6 @@
   * made determineinput() and determinefeedin() protected, like the virtual members they implement
   * cleaned up order of members and documentation
 */
-
-namespace libcomm {
 
 class nrcc : public ccbfsm {
    static const libbase::vcs version;

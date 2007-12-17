@@ -7,7 +7,17 @@
 #include "serializer.h"
 #include "fsm.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (29 Aug 1999)
   introduced concept of forced tail interleavers (as in divs95)
 
@@ -64,8 +74,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class lut_interleaver : public interleaver {
    static const libbase::vcs version;

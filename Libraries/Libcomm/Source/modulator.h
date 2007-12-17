@@ -11,7 +11,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (26 Oct 2001)
   added a virtual destroy function (see interleaver.h)
 
@@ -75,8 +85,6 @@
   Version 1.51 (30 Nov 2007)
   * added method to get modulation rate.
 */
-
-namespace libcomm {
 
 class modulator {
    static const libbase::vcs version;

@@ -5,7 +5,17 @@
 #include "vcs.h"
 #include "named_lut.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (4 Nov 2001)
   added a function which outputs details on the interleaving scheme (in accordance 
   with interleaver 1.10)
@@ -51,8 +61,6 @@
   Version 1.30 (6 Nov 2006)
   * defined class and associated data within "libcomm" namespace.
 */
-
-namespace libcomm {
 
 class vale96int : public named_lut {
    static const libbase::vcs version;

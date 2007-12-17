@@ -6,7 +6,17 @@
 #include "named_lut.h"
 #include <stdio.h>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (14 Mar 2000)
 
   Version 1.01 (4 Nov 2001)
@@ -62,8 +72,6 @@
   Version 1.40 (6 Nov 2006)
   * defined class and associated data within "libcomm" namespace.
 */
-
-namespace libcomm {
 
 class stream_lut : public named_lut {
    static const libbase::vcs version;

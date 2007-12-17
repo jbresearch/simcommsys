@@ -8,7 +8,17 @@
 #include "randgen.h"
 #include <iostream>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (31 Aug 1999)
   modified the uniform interleaver to allow JPL termination.
 
@@ -54,8 +64,6 @@
   Version 1.51 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class uniform_lut : public lut_interleaver {
    static const libbase::vcs version;

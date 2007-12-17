@@ -8,7 +8,17 @@
 #include <string>
 #include <iostream>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 0.01 (28 Feb 2003)
   initial version - class that implements UNIX Crypt Algorithm, built by
   following the Cygwin (GNU) sources; intended for major upgrade.
@@ -20,8 +30,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class crypt {
    static const libbase::vcs version;

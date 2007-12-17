@@ -6,7 +6,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (4 Nov 2001)
   added a virtual function which outputs details on the finite state machine (this was 
   only done before in a non-standard print routine). Added a stream << operator too.
@@ -79,8 +89,6 @@
   Version 1.71 (13 Dec 2007)
   * modified parameter type for output from "const int&" to "int"
 */
-
-namespace libcomm {
 
 class fsm {
    static const libbase::vcs version;

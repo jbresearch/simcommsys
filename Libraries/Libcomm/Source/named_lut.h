@@ -8,7 +8,17 @@
 #include <string>
 #include <iostream>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (13 Mar 2002)
   original version. Intended as a base class to implement any interleaver which is
   specified directly by its LUT, which is externally generated (say by Simulated Annealing
@@ -26,8 +36,6 @@
   Version 1.21 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class named_lut : public lut_interleaver {
    static const libbase::vcs version;

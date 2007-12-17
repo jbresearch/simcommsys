@@ -10,7 +10,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (8 Jun 1999)
   modified to comply with turbo 1.60 (new handling of puncturing)
 
@@ -79,8 +89,6 @@
   Version 2.51 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 template <class real> class diffturbo : public turbo<real> {
    static const libbase::vcs version;

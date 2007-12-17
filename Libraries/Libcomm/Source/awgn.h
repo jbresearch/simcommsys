@@ -8,7 +8,17 @@
 #include "serializer.h"
 #include <math.h>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (15 Apr 1999)
   Changed the definition of set_snr to avoid using the pow() function.
   This was causing an unexplained SEGV with optimised code
@@ -43,8 +53,6 @@
   Version 1.53 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class awgn : public channel {
    static const libbase::vcs version;

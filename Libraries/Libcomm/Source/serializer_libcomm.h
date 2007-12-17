@@ -64,7 +64,17 @@
 #include "logreal.h"
 #include "logrealfast.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 2.00 (13 Oct 2006)
   * added version object to make this class accessible.
 
@@ -82,8 +92,6 @@
   * added grscc<> variants for GF(2), GF(2^4)
   * added gnrcc<> variants for GF(2), GF(2^4)
 */
-
-namespace libcomm {
 
 // Serialization support
 class serializer_libcomm : private

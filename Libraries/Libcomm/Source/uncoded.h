@@ -10,7 +10,17 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (5 Mar 1999)
   renamed the mem_order() function to tail_length(), which is more indicative of the true
   use of this function (complies with codec 1.01).
@@ -62,8 +72,6 @@
   Version 1.41 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class uncoded : public codec {
    static const libbase::vcs version;

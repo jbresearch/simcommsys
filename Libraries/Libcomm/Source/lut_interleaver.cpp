@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "lut_interleaver.h"
 #include <stdlib.h>
 #include <iostream>

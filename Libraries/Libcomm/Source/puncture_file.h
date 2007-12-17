@@ -7,7 +7,17 @@
 #include "serializer.h"
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (7 Jun 1999)
   initial version, implementing a puncturing pattern read from file.
 
@@ -44,8 +54,6 @@
   Version 2.31 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class puncture_file : public puncture {
    static const libbase::vcs version;

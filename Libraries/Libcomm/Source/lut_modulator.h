@@ -3,7 +3,17 @@
       
 #include "modulator.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (25 Oct 2007)
   * initial version - contains LUT modulator implementation from modulator.h 1.41
   * refactored - renamed 'map' to 'lut' to better reflect the contents of the variable
@@ -12,8 +22,6 @@
   Version 1.10 (15 Nov 2007)
   * modified demodulate() according to refactoring changes in channel 1.60
 */
-
-namespace libcomm {
 
 class lut_modulator : public modulator {
    static const libbase::vcs version;

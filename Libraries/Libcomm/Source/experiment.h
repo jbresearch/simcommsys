@@ -8,7 +8,17 @@
 #include <iostream>
 #include <string>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (2 Sep 1999)
   added a hook for clients to know the number of frames simulated in a particular run.
 
@@ -25,8 +35,6 @@
   * added serialization facility requirement, to facilitate passing the experiment
     over the network pipe for masterslave implementation.
 */
-
-namespace libcomm {
 
 class experiment {
    static const libbase::vcs version;

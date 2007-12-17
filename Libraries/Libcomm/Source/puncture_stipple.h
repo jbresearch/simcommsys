@@ -6,7 +6,17 @@
 #include "puncture.h"
 #include "serializer.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (7 Jun 1999)
   initial version, implementing an odd/even punctured system.
 
@@ -43,8 +53,6 @@
   Version 2.31 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class puncture_stipple : public puncture {
    static const libbase::vcs version;

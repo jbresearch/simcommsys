@@ -5,7 +5,17 @@
 #include "vcs.h"
 #include "serializer_libcomm.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (15 Nov 2002)
   initial version - created by moving embedding/extraction routines from the embed/extract
   filters - this makes the code for the embed/extract filters leaner, and also simplifies
@@ -58,8 +68,6 @@
   * although not according to library practice, the function names have been left as
   they are (camel case).
 */
-
-namespace libcomm {
 
 class stegosystem  
 {

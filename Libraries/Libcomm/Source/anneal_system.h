@@ -8,7 +8,7 @@
 namespace libcomm {
 
 /*!
-   \brief   A virtual class defining a simulated annealing system.
+   \brief   Simulated Annealing System base.
    \author  Johann Briffa
 
    \version 1.00 (10 Jul 1998)

@@ -7,7 +7,17 @@
 #include "matrix.h"
 #include "vector.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.00 (5 Dec 2007)
   * initial version; implements common elements of a controller-canonical binary fsm
   * added determineinput() and determinefeedin() pure virtual functions
@@ -16,8 +26,6 @@
   Version 1.01 (13 Dec 2007)
   * modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
-
-namespace libcomm {
 
 class ccbfsm : public fsm {
    static const libbase::vcs version;

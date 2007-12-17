@@ -8,7 +8,17 @@
 #include <stdio.h>
 #include <iostream>
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (4 Nov 2001)
   added a function which outputs details on the interleaving scheme (in accordance 
   with interleaver 1.10)
@@ -54,8 +64,6 @@
   Version 1.41 (29 Oct 2007)
   * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
-
-namespace libcomm {
 
 class shift_lut : public lut_interleaver {
    static const libbase::vcs version;

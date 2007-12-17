@@ -7,7 +7,17 @@
 #include "randgen.h"
 #include "rvstatistics.h"
 
-/*
+namespace libcomm {
+
+/*!
+   \brief   .
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.01 (10 Oct 2001)
   added a virtual display function, to facilitate deriving from the class to produce a
   windowed GUI (by using custom display routines), and also added a virtual interrupt
@@ -28,8 +38,6 @@
   * defined class and associated data within "libcomm" namespace.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
-
-namespace libcomm {
 
 class annealer {
    static const libbase::vcs version;
