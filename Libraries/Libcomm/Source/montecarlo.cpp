@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "montecarlo.h"
 
 #include "fsm.h"
@@ -13,7 +22,7 @@ using std::cerr;
 using libbase::trace;
 using libbase::vector;
 
-const libbase::vcs montecarlo::version("Monte Carlo Estimator module (montecarlo)", 1.33);
+const libbase::vcs montecarlo::version("Monte Carlo Estimator module (montecarlo)", 1.35);
 
 const int montecarlo::min_samples = 128;
 
@@ -35,13 +44,15 @@ void montecarlo::slave_getcode(void)
 void montecarlo::slave_getsnr(void)
    {
    libbase::truerand r;
-   system->seed(r.ival(1<<16));
+   const libbase::int32u seed = r.ival(1<<16);
+   system->seed(seed);
    double x;
    if(!receive(x))
       exit(1);
    system->set(x);
 
    cerr << "Date: " << libbase::timer::date() << "\n";
+   cerr << "Seed: " << seed << "\n";
    cerr << "Simulating system at Eb/No = " << system->get() << "\n";
    }
 
