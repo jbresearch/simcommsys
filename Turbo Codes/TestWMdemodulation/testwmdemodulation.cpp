@@ -1,3 +1,12 @@
+/*!
+   \file
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "logrealfast.h"
 #include "watermarkcode.h"
 #include "bsid.h"

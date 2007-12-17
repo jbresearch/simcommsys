@@ -10,7 +10,15 @@
 #include <iostream>
 #include <iomanip>
 
-/*
+/*!
+   \file    SimCommSys.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 1.10 (30 Oct 2006)
   * updated to use library namespaces.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.

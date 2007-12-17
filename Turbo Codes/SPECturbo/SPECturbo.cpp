@@ -20,7 +20,15 @@
 #include <iostream>
 #include <iomanip>
 
-/*
+/*!
+   \file    SPECturbo.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
   Version 2.44 (7 Apr 2002)
   in order to allow profiling with more accuracy, modified the main simulation loop
   to stop after two conditions are satisfied: the first is the existing time condition
