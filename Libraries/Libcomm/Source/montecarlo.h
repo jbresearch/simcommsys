@@ -108,6 +108,8 @@
    - Modified updateresults() so that it is no longer given the number of passes,
      but instead uses the (already updated) samplecount; also made this function
      const, as it should not be updating any class members.
+   - Extracted reading and accumulation of results from pending slaves.
+   - Reads as many results as are pending, not merely the first one.
    - Removed bail-out facility
    \todo Cause minimum granularity to be handled in slave_work, passing the
          requisite sample count and sum of squares accordingly.
@@ -141,6 +143,7 @@ private:
    double updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, const libbase::vector<double>& sum, const libbase::vector<double>& sumsq) const;
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool accuracy_reached);
+   bool readpendingslaves(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
 protected:
    // overrideable user-interface functions
    virtual bool interrupt() { return false; };

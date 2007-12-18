@@ -276,6 +276,35 @@ void montecarlo::workidleslaves(bool accuracy_reached)
    }
 
 /*!
+   \brief Read and accumulate results from any pending slaves
+   \param[in,out] sum         Sum of results (to be updated)
+   \param[in,out] sumsq       Sum of squares of results (to be updated)
+   \return  True if any new results have been added, false otherwise
+
+   If there are any slaves in the EVENT_PENDING state, read their results. Values
+   returned are accumulated into the running totals.
+*/
+bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
+   {
+   assert(sumsq.size() == sum.size());
+   const int count = sum.size();
+   bool results_available = false;
+   while(slave *s = pendingslave())
+      {
+      trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
+      vector<double> est(count);
+      if(!receive(s, est))
+         continue;
+      samplecount++;
+      accumulateresults(sum, sumsq, est);
+      updatecputime(s);
+      results_available = true;
+      trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
+      }
+   return results_available;
+   }
+
+/*!
    \brief Simulate the system until convergence to given accuracy & confidence,
           and return estimated results
    \param[out] result      Vector of results
@@ -292,7 +321,8 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    tolerance.init(count);
 
    // Running values
-   vector<double> est(count), sum(count), sumsq(count);
+   vector<double> sum(count);
+   vector<double> sumsq(count);
    bool accuracy_reached = false;
 
    // Initialise running values
@@ -330,23 +360,12 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          // wait for results, but not indefinitely - this allows user to break
          trace << "DEBUG (estimate): Waiting for event.\n";
          waitforevent(true, 0.5);
-         // get set of results from the pending slave, if any
-         // *** we assume here that waitforevent() only returns one pending slave at most ***
-         if(slave *s = pendingslave())
-            {
-            trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
-            if(receive(s, est))
-               {
-               trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
-               samplecount++;
-               accumulateresults(sum, sumsq, est);
-               updatecputime(s);
-               results_available = true;
-               }
-            }
+         // accumulate results from any pending slaves
+         results_available = readpendingslaves(sum, sumsq);
          }
       else
          {
+         vector<double> est(count);
          system->sample(est);
          samplecount++;
          accumulateresults(sum, sumsq, est);
