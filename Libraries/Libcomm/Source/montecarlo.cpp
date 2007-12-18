@@ -149,7 +149,6 @@ void montecarlo::initialise(experiment *system)
    // set default parameter settings
    set_confidence(0.95);
    set_accuracy(0.10);
-   set_bailout(0);
    }
 
 void montecarlo::finalise()
@@ -180,16 +179,6 @@ void montecarlo::set_accuracy(const double accuracy)
    montecarlo::accuracy = accuracy;
    }
 
-void montecarlo::set_bailout(const int passes)
-   {
-   if(passes < 0)
-      {
-      cerr << "ERROR: trying to set invalid bailout level of 1 in " << passes << "\n";
-      return;
-      }
-   montecarlo::max_passes = passes;
-   }
-
 // main process
 
 /*!
@@ -207,7 +196,7 @@ void montecarlo::set_bailout(const int passes)
          result's tolerance into account if the ratio of the number of non-zero estimates
          is less than 1/max_passes. This bail-out is avoided by setting max_passes = 0.
 */
-double montecarlo::updateresults(int &passes, vector<double>& result, vector<double>& tolerance, vector<double>& sum, vector<double>& sumsq, vector<int>& nonzero, const vector<double>& est)
+double montecarlo::updateresults(int &passes, vector<double>& result, vector<double>& tolerance, vector<double>& sum, vector<double>& sumsq, const vector<double>& est)
    {
    const int count = result.size();
    // update the number of passes
@@ -227,10 +216,7 @@ double montecarlo::updateresults(int &passes, vector<double>& result, vector<dou
       if(mean > 0)
          {
          tolerance(i) = cfactor*sd/mean;
-         if(est(i) > 0)
-            nonzero(i)++;
-         // If we arrived here, nonzero(i) must be >0 because mean>0.
-         if(tolerance(i) > acc && (max_passes==0 || passes < nonzero(i)*max_passes))
+         if(tolerance(i) > acc)
             acc = tolerance(i);
          }
       }
@@ -238,7 +224,8 @@ double montecarlo::updateresults(int &passes, vector<double>& result, vector<dou
    }
 
 /*!
-   \brief Simulate the system until convergence, and return estimated results
+   \brief Simulate the system until convergence to given accuracy & confidence,
+          and return estimated results
    \param[out] result      Vector of results
    \param[out] tolerance   Vector of corresponding result accuracy (at given confidence level)
 */
@@ -250,12 +237,11 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    // Running values
    const int count = system->count();
    vector<double> est(count), sum(count), sumsq(count);
-   vector<int> nonzero(count);
    bool accuracy_reached = false;
 
    // Initialise running values
    for(int i=0; i<count; i++)
-      sum(i) = sumsq(i) = nonzero(i) = 0;
+      sum(i) = sumsq(i) = 0;
 
    // Initialise results
    result.init(count);
@@ -334,7 +320,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       // if we did get any results, update the statistics
       if(results_available)
          {
-         double acc = updateresults(passes, result, tolerance, sum, sumsq, nonzero, est);
+         double acc = updateresults(passes, result, tolerance, sum, sumsq, est);
          // check if we have reached the required accuracy
          if(acc <= accuracy && acc != 0)
             accuracy_reached = true;
