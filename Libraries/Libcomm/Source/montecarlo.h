@@ -95,6 +95,12 @@
 
    \version 1.35 (17 Dec 2007)
    - added printing of seed when generated
+
+   \version 1.40 (18 Dec 2007)
+   - Updated according to the new definition of experiment::sample(), which only
+     returns a single pass.
+   \todo Cause minimum granularity to be handled in slave_work, passing the
+         requisite sample count and sum of squares accordingly.
 */
 
 namespace libcomm {

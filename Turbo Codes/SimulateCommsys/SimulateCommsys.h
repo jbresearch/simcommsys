@@ -38,6 +38,9 @@
   * updated to use library namespaces.
   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
   * made class a derivative of CRoutedIO.
+
+  Version 1.13 (18 Dec 2007)
+  * updated BenchmarkDlg so that call to experiment::sample is only for a single frame.
 */
 
 class CSimulateCommsysApp : public CWinApp, libwin::CRoutedIO

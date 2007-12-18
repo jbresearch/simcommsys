@@ -58,10 +58,22 @@ void montecarlo::slave_work(void)
    {
    const int count = system->count();
    vector<double> est(count);
-   int sc = 0;
-   system->sample(est, sc);
-   if(!send(est) || !send(sc))
+   system->sample(est);
+   if(!send(est))
       exit(1);
+
+   //// iterate for 500ms, which is a good compromise between efficiency and usability
+   //int passes=0;
+   //libbase::timer t;
+   //while(t.elapsed() < 0.5)
+   //   {
+   //   cycleonce(result);   // will update result
+   //   passes++;
+   //   samplecount++;
+   //   }
+   //t.stop();   // to avoid expiry
+   //// update result
+   //result /= double(passes);
    }
 
 // helper functions
@@ -254,11 +266,10 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          if(slave *s = pendingslave())
             {
             trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
-            int sc;
-            if(receive(s, est) && receive(s, sc))
+            if(receive(s, est))
                {
                trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
-               samplecount += sc;
+               samplecount++;
                updatecputime(s);
                results_available = true;
                }
@@ -266,7 +277,8 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          }
       else
          {
-         system->sample(est, samplecount);
+         system->sample(est);
+         samplecount++;
          results_available = true;
          }
       // if we did get any results, update the statistics

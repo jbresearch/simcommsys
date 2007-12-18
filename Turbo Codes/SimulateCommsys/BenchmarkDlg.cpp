@@ -128,7 +128,8 @@ void CBenchmarkDlg::ThreadProc()
    main_timer.start();
    while(main_timer.elapsed() < m_dTime)
       {
-      system.sample(est, frames);
+      system.sample(est);
+      frames++;
       sum += est;
       passes++;
       m_pcProgress.SetPos(int(100*main_timer.elapsed()/m_dTime));

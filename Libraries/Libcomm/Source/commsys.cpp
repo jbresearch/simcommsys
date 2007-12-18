@@ -51,6 +51,18 @@ void commsys::transmitandreceive()
    cdc->translate(ptable1);
    }
 
+/*!
+   \brief Perform a complete encode->transmit->receive cycle
+   \param[out] result   Vector containing the set of results to be updated
+
+   Results are organized as (BER,FER), repeated for every iteration that needs
+   to be performed.
+
+   \note It is assumed that the result vector serves as an accumulator, so that
+         every cycle effectively adds to this result. The caller is responsible
+         to divide by the appropriate amount at the end to compute a meaningful
+         average.
+*/
 void commsys::cycleonce(libbase::vector<double>& result)
    {
    // Create source stream
@@ -156,25 +168,17 @@ void commsys::seed(int s)
    chan->seed(s);
    }
 
-void commsys::sample(libbase::vector<double>& result, int& samplecount)
+/*!
+   \copydoc experiment::sample
+*/
+void commsys::sample(libbase::vector<double>& result)
    {
    // initialise result vector
    result.init(count());
    result = 0;
 
-   // iterate for 500ms, which is a good compromise between efficiency and usability
-   int passes=0;
-   libbase::timer t;
-   while(t.elapsed() < 0.5)
-      {
-      cycleonce(result);   // will update result
-      passes++;
-      samplecount++;
-      }
-   t.stop();   // to avoid expiry
-
-   // update result
-   result /= double(passes);
+   // compute a single cycle
+   cycleonce(result);
    }
 
 // description output
