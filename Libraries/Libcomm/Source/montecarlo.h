@@ -99,6 +99,7 @@
    \version 1.40 (18 Dec 2007)
    - Updated according to the new definition of experiment::sample(), which only
      returns a single pass.
+   - Extracted result accumulation to updateresults()
    \todo Cause minimum granularity to be handled in slave_work, passing the
          requisite sample count and sum of squares accordingly.
 */
@@ -127,6 +128,8 @@ private:
    // helper functions
    void createfunctors(void);
    void destroyfunctors(void);
+   // main estimator helper functions
+   double updateresults(int &passes, libbase::vector<double>& result, libbase::vector<double>& tolerance, libbase::vector<double>& sum, libbase::vector<double>& sumsq, libbase::vector<int>& nonzero, const libbase::vector<double>& est);
 protected:
    // overrideable user-interface functions
    virtual bool interrupt() { return false; };
@@ -146,7 +149,7 @@ public:
    // simulation results
    int get_samplecount() { return samplecount; };  // returns the number of samples taken to produce the result
    // main process
-   void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);          // get an estimate with given accuracy & confidence
+   void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);   // get an estimate with given accuracy & confidence
    // information getters
    const libbase::timer& get_timer() { return t; }; 
 };

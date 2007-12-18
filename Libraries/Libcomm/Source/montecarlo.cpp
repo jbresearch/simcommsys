@@ -192,6 +192,56 @@ void montecarlo::set_bailout(const int passes)
 
 // main process
 
+/*!
+   \brief Update overall estimate, given last sample
+   \param[in,out] passes      Number of passes, to be updated
+   \param[in,out] result      Results to be updated
+   \param[in,out] tolerance   Corresponding result accuracy to be updated
+   \param[in,out] sum         Sum of results (to be updated)
+   \param[in,out] sumsq       Sum of squares of results (to be updated)
+   \param[in,out] nonzero     Count of passes where corresponding result was non-zero
+   \param[in]     est         Last sample
+   \return  Accuracy reached (worst accuracy over result set)
+
+   \note There is a "bail-out" facility included, whereby we won't take a particular
+         result's tolerance into account if the ratio of the number of non-zero estimates
+         is less than 1/max_passes. This bail-out is avoided by setting max_passes = 0.
+*/
+double montecarlo::updateresults(int &passes, vector<double>& result, vector<double>& tolerance, vector<double>& sum, vector<double>& sumsq, vector<int>& nonzero, const vector<double>& est)
+   {
+   const int count = result.size();
+   // update the number of passes
+   passes++;
+   // for each result:
+   double acc = 0;
+   for(int i=0; i<count; i++)
+      {
+      // update the running totals
+      sum(i) += est(i);
+      sumsq(i) += est(i)*est(i);
+      // work mean and sd
+      double mean = sum(i)/double(passes);
+      double sd = sqrt((sumsq(i)/double(passes) - mean*mean)/double(passes-1));
+      // update results
+      result(i) = mean;
+      if(mean > 0)
+         {
+         tolerance(i) = cfactor*sd/mean;
+         if(est(i) > 0)
+            nonzero(i)++;
+         // If we arrived here, nonzero(i) must be >0 because mean>0.
+         if(tolerance(i) > acc && (max_passes==0 || passes < nonzero(i)*max_passes))
+            acc = tolerance(i);
+         }
+      }
+   return acc;
+   }
+
+/*!
+   \brief Simulate the system until convergence, and return estimated results
+   \param[out] result      Vector of results
+   \param[out] tolerance   Vector of corresponding result accuracy (at given confidence level)
+*/
 void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    {
    const int prec = std::clog.precision(3);
@@ -284,33 +334,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       // if we did get any results, update the statistics
       if(results_available)
          {
-         // update the number of passes
-         passes++;
-         // for each result:
-         double acc = 0;
-         for(int i=0; i<count; i++)
-            {
-            // update the running totals
-            sum(i) += est(i);
-            sumsq(i) += est(i)*est(i);
-            // work mean and sd
-            double mean = sum(i)/double(passes);
-            double sd = sqrt((sumsq(i)/double(passes) - mean*mean)/double(passes-1));
-            // update results
-            result(i) = mean;
-            if(mean > 0)
-               {
-               tolerance(i) = cfactor*sd/mean;
-               if(est(i) > 0)
-                  nonzero(i)++;
-               // If we arrived here, nonzero(i) must be >0 because mean>0.
-               // We won't take this tolerance into account if the ratio of the number of
-               // non-zero estimates is less than 1/max_passes.
-               // We set max_passes = 0 to indicate that we won't use this bailout facility
-               if(tolerance(i) > acc && (max_passes==0 || passes < nonzero(i)*max_passes))
-                  acc = tolerance(i);
-               }
-            }
+         double acc = updateresults(passes, result, tolerance, sum, sumsq, nonzero, est);
          // check if we have reached the required accuracy
          if(acc <= accuracy && acc != 0)
             accuracy_reached = true;
