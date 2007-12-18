@@ -182,43 +182,53 @@ void montecarlo::set_accuracy(const double accuracy)
 // main process
 
 /*!
+   \brief Accumulate running totals, given last sample
+   \param[in,out] sum         Sum of results (to be updated)
+   \param[in,out] sumsq       Sum of squares of results (to be updated)
+   \param[in]     est         Last sample
+*/
+void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, vector<double> est) const
+   {
+   assert(sum.size() == est.size());
+   assert(sumsq.size() == est.size());
+   // accumulate results
+   sum += est;
+   est *= est;
+   sumsq += est;
+   }
+
+/*!
    \brief Update overall estimate, given last sample
    \param[in,out] passes      Number of passes, to be updated
    \param[in,out] result      Results to be updated
    \param[in,out] tolerance   Corresponding result accuracy to be updated
-   \param[in,out] sum         Sum of results (to be updated)
-   \param[in,out] sumsq       Sum of squares of results (to be updated)
-   \param[in,out] nonzero     Count of passes where corresponding result was non-zero
-   \param[in]     est         Last sample
-   \return  Accuracy reached (worst accuracy over result set)
-
-   \note There is a "bail-out" facility included, whereby we won't take a particular
-         result's tolerance into account if the ratio of the number of non-zero estimates
-         is less than 1/max_passes. This bail-out is avoided by setting max_passes = 0.
+   \param[in]     sum         Sum of results
+   \param[in]     sumsq       Sum of squares of results
+   \return  Accuracy reached (worst accuracy over result set); zero is a special value,
+            indicating that accuracy cannot be computed yet (there has been no error event)
 */
-double montecarlo::updateresults(int &passes, vector<double>& result, vector<double>& tolerance, vector<double>& sum, vector<double>& sumsq, const vector<double>& est)
+double montecarlo::updateresults(int &passes, vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq)
    {
-   const int count = result.size();
+   assert(tolerance.size() == result.size());
+   assert(sum.size() == result.size());
+   assert(sumsq.size() == result.size());
    // update the number of passes
    passes++;
    // for each result:
    double acc = 0;
-   for(int i=0; i<count; i++)
+   for(int i=0; i<result.size(); i++)
       {
-      // update the running totals
-      sum(i) += est(i);
-      sumsq(i) += est(i)*est(i);
       // work mean and sd
       double mean = sum(i)/double(passes);
       double sd = sqrt((sumsq(i)/double(passes) - mean*mean)/double(passes-1));
       // update results
       result(i) = mean;
       if(mean > 0)
-         {
          tolerance(i) = cfactor*sd/mean;
-         if(tolerance(i) > acc)
-            acc = tolerance(i);
-         }
+      else
+         tolerance(i) = 0;
+      if(tolerance(i) > acc)
+         acc = tolerance(i);
       }
    return acc;
    }
@@ -333,6 +343,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
                {
                trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
                samplecount++;
+               accumulateresults(sum, sumsq, est);
                updatecputime(s);
                results_available = true;
                }
@@ -342,12 +353,13 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          {
          system->sample(est);
          samplecount++;
+         accumulateresults(sum, sumsq, est);
          results_available = true;
          }
       // if we did get any results, update the statistics
       if(results_available)
          {
-         double acc = updateresults(passes, result, tolerance, sum, sumsq, est);
+         double acc = updateresults(passes, result, tolerance, sum, sumsq);
          // check if we have reached the required accuracy
          if(acc <= accuracy && acc != 0)
             accuracy_reached = true;
