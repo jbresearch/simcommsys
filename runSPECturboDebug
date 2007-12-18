@@ -3,5 +3,7 @@
 # $Revision$
 # $Date$
 
-( sleep 1; SPECturbo.Debug localhost:9999 >/dev/null )&
-SPECturbo.Debug :9999
+PORT=9998
+
+( sleep 1; SPECturbo.Debug localhost:$PORT >/dev/null 2>&1 )&
+SPECturbo.Debug :$PORT
