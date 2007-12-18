@@ -100,6 +100,8 @@
    - Updated according to the new definition of experiment::sample(), which only
      returns a single pass.
    - Extracted result accumulation to updateresults()
+   - Extracted initialization of new slaves
+   - Extracted getting idle slaves to work
    - Removed bail-out facility
    \todo Cause minimum granularity to be handled in slave_work, passing the
          requisite sample count and sum of squares accordingly.
@@ -130,6 +132,8 @@ private:
    void destroyfunctors(void);
    // main estimator helper functions
    double updateresults(int &passes, libbase::vector<double>& result, libbase::vector<double>& tolerance, libbase::vector<double>& sum, libbase::vector<double>& sumsq, const libbase::vector<double>& est);
+   void initnewslaves(std::string systemstring);
+   void workidleslaves(bool accuracy_reached);
 protected:
    // overrideable user-interface functions
    virtual bool interrupt() { return false; };

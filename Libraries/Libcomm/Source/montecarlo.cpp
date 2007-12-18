@@ -224,6 +224,51 @@ double montecarlo::updateresults(int &passes, vector<double>& result, vector<dou
    }
 
 /*!
+   \brief Initialize any new slaves
+   \param   systemstring   Serialized system description
+
+   If there are any slaves in the NEW state, initialize them by sending the system
+   being simulated and the current simulation parameters.
+*/
+void montecarlo::initnewslaves(std::string systemstring)
+   {
+   while(slave *s = newslave())
+      {
+      trace << "DEBUG (estimate): New slave found (" << s << "), initializing.\n";
+      if(!call(s, "slave_getcode"))
+         continue;
+      if(!send(s, systemstring))
+         continue;
+      if(!call(s, "slave_getsnr"))
+         continue;
+      if(!send(s, system->get()))
+         continue;
+      trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
+      }
+   }
+
+/*!
+   \brief Get idle slaves to work if we're not yet done
+   \param   accuracy_reached  Flag to indicate if we have already reached required accuracy
+
+   If there are any slaves in the IDLE state, ask them to start working. If the target
+   accuracy is not yet reached, we ask *all* IDLE slaves to work. Otherwise, we only ask
+   the necessary number so that when they're done we will have reached the minimum samples
+   limit. This avoids having to wait for more slaves to finish once all necessary conditions
+   (ie. target accuracy and minimum number of samples) are met.
+*/
+void montecarlo::workidleslaves(bool accuracy_reached)
+   {
+   for(slave *s; (!accuracy_reached || samplecount+workingslaves() < min_samples) && (s = idleslave()); )
+      {
+      trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
+      if(!call(s, "slave_work"))
+         continue;
+      trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok.\n";
+      }
+   }
+
+/*!
    \brief Simulate the system until convergence to given accuracy & confidence,
           and return estimated results
    \param[out] result      Vector of results
@@ -234,19 +279,19 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    const int prec = std::clog.precision(3);
    t.start();
 
-   // Running values
+   // Initialise space for results
    const int count = system->count();
+   result.init(count);
+   tolerance.init(count);
+
+   // Running values
    vector<double> est(count), sum(count), sumsq(count);
    bool accuracy_reached = false;
 
    // Initialise running values
-   for(int i=0; i<count; i++)
-      sum(i) = sumsq(i) = 0;
-
-   // Initialise results
-   result.init(count);
-   tolerance.init(count);
    samplecount = 0;
+   sum = 0;
+   sumsq = 0;
 
    // Seed the experiment
    std::string systemstring;
@@ -273,27 +318,9 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       if(isenabled())
          {
          // first initialize any new slaves
-         while(slave *s = newslave())
-            {
-            trace << "DEBUG (estimate): New slave found (" << s << "), initializing.\n";
-            if(!call(s, "slave_getcode"))
-               continue;
-            if(!send(s, systemstring))
-               continue;
-            if(!call(s, "slave_getsnr"))
-               continue;
-            if(!send(s, system->get()))
-               continue;
-            trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
-            }
+         initnewslaves(systemstring);
          // get idle slaves to work if we're not yet done
-         for(slave *s; (!accuracy_reached || samplecount+workingslaves() < min_samples) && (s = idleslave()); )
-            {
-            trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
-            if(!call(s, "slave_work"))
-               continue;
-            trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok.\n";
-            }
+         workidleslaves(accuracy_reached);
          // wait for results, but not indefinitely - this allows user to break
          trace << "DEBUG (estimate): Waiting for event.\n";
          waitforevent(true, 0.5);
