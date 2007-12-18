@@ -1,9 +1,0 @@
-#!/bin/bash
-# $Author$
-# $Revision$
-# $Date$
-
-PORT=9998
-
-( sleep 1; SPECturbo.Debug localhost:$PORT >/dev/null 2>&1 )&
-SPECturbo.Debug :$PORT
