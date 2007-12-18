@@ -3,11 +3,23 @@
 # $Revision$
 # $Date$
 
-PORT=9998
+# Usage: runSPECturbo [Port [Count]]
+
+if [[ $# > 0 ]]; then
+   PORT=$1
+else
+   PORT=9998
+fi
+
+if [[ $# > 1 ]]; then
+   COUNT=$2
+else
+   COUNT=$CPUS
+fi
 
 # start slave processes (one/CPU)
 declare -i i
-for (( i=0; $i < $CPUS; i++ )); do
+for (( i=0; $i < $COUNT; i++ )); do
    echo Starting slave $i
    ( sleep 1; SPECturbo.Release localhost:$PORT >/dev/null 2>&1 )&
 done
