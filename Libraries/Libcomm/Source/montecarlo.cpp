@@ -199,7 +199,6 @@ void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, v
 
 /*!
    \brief Update overall estimate, given last sample
-   \param[in,out] passes      Number of passes, to be updated
    \param[in,out] result      Results to be updated
    \param[in,out] tolerance   Corresponding result accuracy to be updated
    \param[in]     sum         Sum of results
@@ -207,20 +206,18 @@ void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, v
    \return  Accuracy reached (worst accuracy over result set); zero is a special value,
             indicating that accuracy cannot be computed yet (there has been no error event)
 */
-double montecarlo::updateresults(int &passes, vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq)
+double montecarlo::updateresults(vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq) const
    {
    assert(tolerance.size() == result.size());
    assert(sum.size() == result.size());
    assert(sumsq.size() == result.size());
-   // update the number of passes
-   passes++;
    // for each result:
    double acc = 0;
    for(int i=0; i<result.size(); i++)
       {
       // work mean and sd
-      double mean = sum(i)/double(passes);
-      double sd = sqrt((sumsq(i)/double(passes) - mean*mean)/double(passes-1));
+      double mean = sum(i)/double(samplecount);
+      double sd = sqrt((sumsq(i)/double(samplecount) - mean*mean)/double(samplecount-1));
       // update results
       result(i) = mean;
       if(mean > 0)
@@ -320,7 +317,6 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    // 2) We have enough samples for the accuracy to be meaningful
    // 3) No slaves are still working
    // An interrupt from the user overrides everything...
-   int passes = 0;
    while(!accuracy_reached || samplecount < min_samples || (isenabled() && anyoneworking()))
       {
       bool results_available = false;
@@ -359,12 +355,12 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       // if we did get any results, update the statistics
       if(results_available)
          {
-         double acc = updateresults(passes, result, tolerance, sum, sumsq);
+         double acc = updateresults(result, tolerance, sum, sumsq);
          // check if we have reached the required accuracy
          if(acc <= accuracy && acc != 0)
             accuracy_reached = true;
          // print something to inform the user of our progress
-         display(passes, (acc<1 ? 100*acc : 99), result(0));
+         display(samplecount, (acc<1 ? 100*acc : 99), result(0));
          }
       // consider our work done if the user has interrupted the processing (this overrides everything)
       if(interrupt())
