@@ -31,7 +31,7 @@ CCprfopt := -pg -O3 -DNDEBUG
 CCrelopt := -O3 -DNDEBUG
 CCdbgopt := -g -DDEBUG
 CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%/Source)
-CClang := -Wall -Wno-non-template-friend
+CClang := -Wall -Wno-non-template-friend -Woverloaded-virtual
 #CCmpi := -DUSEMPI `mpic++ -showme:compile`
 #CCmpi := -DUSEMPI -DUSE_STDARG -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDARG_H=1 -DUSE_STDARG=1 -DMALLOC_RET_VOID=1
 CCmpi :=
