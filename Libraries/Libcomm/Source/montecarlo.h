@@ -111,8 +111,11 @@
    - Extracted reading and accumulation of results from pending slaves.
    - Reads as many results as are pending, not merely the first one.
    - Removed bail-out facility
-   \todo Cause minimum granularity to be handled in slave_work, passing the
-         requisite sample count and sum of squares accordingly.
+   - Extracted computing a single sample and accumulating result
+   - Added handling of minimum granularity in slave_work; this requires the slaves
+     to perform result accumulation. Therefore slaves no longer return just a single
+     estimate vector, but rather the sample count and also vectors with sample sums,
+     and sums of squares.
 */
 
 namespace libcomm {
@@ -139,6 +142,7 @@ private:
    void createfunctors(void);
    void destroyfunctors(void);
    // main estimator helper functions
+   void sampleandaccumulate(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
    void accumulateresults(libbase::vector<double>& sum, libbase::vector<double>& sumsq, libbase::vector<double> est) const;
    double updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, const libbase::vector<double>& sum, const libbase::vector<double>& sumsq) const;
    void initnewslaves(std::string systemstring);

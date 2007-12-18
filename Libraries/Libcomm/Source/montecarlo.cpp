@@ -57,23 +57,23 @@ void montecarlo::slave_getsnr(void)
 void montecarlo::slave_work(void)
    {
    const int count = system->count();
-   vector<double> est(count);
-   system->sample(est);
-   if(!send(est))
-      exit(1);
+   // Running values
+   vector<double> sum(count);
+   vector<double> sumsq(count);
+   // Initialise running values
+   samplecount = 0;
+   sum = 0;
+   sumsq = 0;
 
-   //// iterate for 500ms, which is a good compromise between efficiency and usability
-   //int passes=0;
-   //libbase::timer t;
-   //while(t.elapsed() < 0.5)
-   //   {
-   //   cycleonce(result);   // will update result
-   //   passes++;
-   //   samplecount++;
-   //   }
-   //t.stop();   // to avoid expiry
-   //// update result
-   //result /= double(passes);
+   // Iterate for 500ms, which is a good compromise between efficiency and usability
+   libbase::timer t;
+   while(t.elapsed() < 0.5)
+      sampleandaccumulate(sum, sumsq);
+   t.stop();   // to avoid expiry
+
+   // Send accumulated results back to master
+   if(!send(sum) || !send(sumsq) || !send(samplecount))
+      exit(1);
    }
 
 // helper functions
@@ -180,6 +180,23 @@ void montecarlo::set_accuracy(const double accuracy)
    }
 
 // main process
+
+/*!
+   \brief Compute a single sample and accumulate results
+   \param[in,out] sum         Sum of results (to be updated)
+   \param[in,out] sumsq       Sum of squares of results (to be updated)
+
+   This function also updates the samplecount member variable.
+*/
+void montecarlo::sampleandaccumulate(vector<double>& sum, vector<double>& sumsq)
+   {
+   assert(sumsq.size() == sum.size());
+   const int count = sum.size();
+   vector<double> est(count);
+   system->sample(est);
+   samplecount++;
+   accumulateresults(sum, sumsq, est);
+   }
 
 /*!
    \brief Accumulate running totals, given last sample
@@ -292,11 +309,18 @@ bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
    while(slave *s = pendingslave())
       {
       trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
-      vector<double> est(count);
-      if(!receive(s, est))
+      // set up space for results that need to be returned
+      vector<double> estsum(count);
+      vector<double> estsumsq(count);
+      int estsamplecount;
+      // get results
+      if(!receive(s, estsum) || !receive(s, estsumsq) || !receive(s, estsamplecount))
          continue;
-      samplecount++;
-      accumulateresults(sum, sumsq, est);
+      // accumulate
+      samplecount += estsamplecount;
+      sum += estsum;
+      sumsq += estsumsq;
+      // update usage information and return flag
       updatecputime(s);
       results_available = true;
       trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded.\n";
@@ -324,7 +348,6 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    vector<double> sum(count);
    vector<double> sumsq(count);
    bool accuracy_reached = false;
-
    // Initialise running values
    samplecount = 0;
    sum = 0;
@@ -365,10 +388,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          }
       else
          {
-         vector<double> est(count);
-         system->sample(est);
-         samplecount++;
-         accumulateresults(sum, sumsq, est);
+         sampleandaccumulate(sum, sumsq);
          results_available = true;
          }
       // if we did get any results, update the statistics
