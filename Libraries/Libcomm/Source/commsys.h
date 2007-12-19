@@ -95,6 +95,11 @@ namespace libcomm {
 
    \version 1.70 (18 Dec 2007)
    - Modified sample() as in experiment 1.40
+
+   \version 1.80 (19 Dec 2007)
+   - Added computation and return of symbol error rate (always performed, even if
+     symbols are binary and therefore SER=BER). Note that this breaks previous plotting
+     programs which assumed the sequence to be (BER,FER) repeated for all iterations.
 */
 
 class commsys : public experiment {
@@ -116,6 +121,8 @@ protected:
 protected:
    void createsource();
    void transmitandreceive();
+   int countbiterrors() const;
+   int countsymerrors() const;
    virtual void cycleonce(libbase::vector<double>& result);
    void init();
    void clear();
@@ -129,7 +136,7 @@ public:
    commsys *clone() const { return new commsys(*this); };      // cloning operation
    const char* name() const { return shelper.name(); };
 
-   int count() const { return 2*iter; };
+   int count() const { return 3*iter; };
    void seed(int s);
    void set(double x) { chan->set_snr(x); };
    double get() { return chan->get_snr(); };

@@ -52,11 +52,40 @@ void commsys::transmitandreceive()
    }
 
 /*!
+   \brief Count the number of bit errors in the last encode/decode cycle
+   \return Error count in bits
+
+   \note This error count is dependent on the binary mapping for q-ary symbols.
+*/
+int commsys::countbiterrors() const
+   {
+   int biterrors = 0;
+   for(int t=0; t<tau-m; t++)
+      biterrors += libbase::weight(source(t) ^ decoded(t));
+   return biterrors;
+   }
+
+/*!
+   \brief Count the number of symbol errors in the last encode/decode cycle
+   \return Error count in mismatched symbols
+
+   \note This is equal to the bit error rate for binary alphabets.
+*/
+int commsys::countsymerrors() const
+   {
+   int symerrors = 0;
+   for(int t=0; t<tau-m; t++)
+      if(source(t) != decoded(t))
+         symerrors++;
+   return symerrors;
+   }
+
+/*!
    \brief Perform a complete encode->transmit->receive cycle
    \param[out] result   Vector containing the set of results to be updated
 
-   Results are organized as (BER,FER), repeated for every iteration that needs
-   to be performed.
+   Results are organized as (BER,SER,FER), repeated for every iteration that
+   needs to be performed.
 
    \note It is assumed that the result vector serves as an accumulator, so that
          every cycle effectively adds to this result. The caller is responsible
@@ -69,21 +98,19 @@ void commsys::cycleonce(libbase::vector<double>& result)
    createsource();
    // Full cycle from Encode through Demodulate
    transmitandreceive();
-
    // For every iteration
-   int delta = 0;
    for(int i=0; i<iter; i++)
       {
-      // Decode
+      // Decode & count errors
       cdc->decode(decoded);
-      // Count the number of errors
-      delta = 0;
-      for(int t=0; t<tau-m; t++)
-         delta += libbase::weight(source(t) ^ decoded(t));
+      int biterrors = countbiterrors();
+      int symerrors = countsymerrors();
       // Estimate the BER
-      result(2*i + 0) += delta / double((tau-m)*k);
+      result(3*i + 0) += biterrors / double((tau-m)*k);
+      // Estimate the SER
+      result(3*i + 1) += symerrors / double((tau-m));
       // Estimate the FER (Frame Error Rate)
-      result(2*i + 1) += delta ? 1 : 0;
+      result(3*i + 2) += symerrors ? 1 : 0;
       }
    }
 
@@ -176,7 +203,6 @@ void commsys::sample(libbase::vector<double>& result)
    // initialise result vector
    result.init(count());
    result = 0;
-
    // compute a single cycle
    cycleonce(result);
    }
