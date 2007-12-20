@@ -64,6 +64,19 @@ int commsys::countbiterrors() const
    }
 
 /*!
+   \brief Count the number of symbol errors in the last encode/decode cycle
+   \return Error count in symbols
+*/
+int commsys::countsymerrors()
+   {
+   int symerrors = 0;
+   for(int t=0; t<tau-m; t++)
+      if(source(t) != decoded(t))
+         symerrors++;
+   return symerrors;
+   }
+
+/*!
    \brief Perform a complete encode->transmit->receive cycle
    \param[out] result   Vector containing the set of results to be updated
 
@@ -75,14 +88,6 @@ int commsys::countbiterrors() const
          to divide by the appropriate amount at the end to compute a meaningful
          average.
 */
-int commsys::GetSymerrors()
-   {
-   int symerrors = 0;
-   for(int t=0; t<tau-m; t++)
-      if(source(t) != decoded(t))
-         symerrors++;
-   return symerrors;
-   }
 void commsys::cycleonce(libbase::vector<double>& result)
    {
    // Create source stream
@@ -92,18 +97,14 @@ void commsys::cycleonce(libbase::vector<double>& result)
    // For every iteration
    for(int i=0; i<iter; i++)
       {
-      // Decode
+      // Decode & count errors
       cdc->decode(decoded);
-      // Count the number of bit errors
       int biterrors = countbiterrors();
-      // Count the number of symbol errors
-      int symerrors = GetSymerrors();
-      // Estimate the BER
+      int symerrors = countsymerrors();
+      // Estimate the BER, SER, FER
       result(3*i + 0) += biterrors / double((tau-m)*k);
-      // Estimate the SER
       result(3*i + 1) += symerrors / double((tau-m));
-      // Estimate the FER (Frame Error Rate)
-      result(3*i + 2) += biterrors ? 1 : 0;
+      result(3*i + 2) += symerrors ? 1 : 0;
       }
    }
 
@@ -150,11 +151,6 @@ void commsys::free()
    clear();
    }
 
-commsys::commsys()
-   {
-   clear();
-   }
-
 // public constructor / destructor
 
 commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan)
@@ -188,9 +184,6 @@ void commsys::seed(int s)
    chan->seed(s);
    }
 
-/*!
-   \copydoc experiment::sample
-*/
 void commsys::sample(libbase::vector<double>& result)
    {
    // initialise result vector
@@ -241,6 +234,7 @@ std::istream& commsys::serialize(std::istream& sin)
    if(ispunctured != 0)
       sin >> punc;
    sin >> chan;
+   internallyallocated = true;
    init();
    return sin;
    }

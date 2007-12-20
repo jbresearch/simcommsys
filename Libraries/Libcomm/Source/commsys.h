@@ -99,6 +99,11 @@ namespace libcomm {
    \version 1.80 (19 Dec 2007)
    - Added computation and return of symbol error rate (always performed, even if
      symbols are binary and therefore SER=BER).
+
+   \version 1.81 (20 Dec 2007)
+   - Fixed memory leak, where dynamically allocated objects were not being deleted
+     on object destruction.
+   - Cleaned up refactoring work on SER computation
 */
 
 class commsys : public experiment {
@@ -121,17 +126,16 @@ protected:
    void createsource();
    void transmitandreceive();
    int countbiterrors() const;
+   int countsymerrors();
    virtual void cycleonce(libbase::vector<double>& result);
-   int GetSymerrors();
-
    void init();
    void clear();
    void free();
-   commsys();
+   commsys() { clear(); };
 public:
    commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan);
    commsys(const commsys& c);
-   ~commsys() {};
+   ~commsys() { free(); };
 
    commsys *clone() const { return new commsys(*this); };      // cloning operation
    const char* name() const { return shelper.name(); };
