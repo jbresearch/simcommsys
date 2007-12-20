@@ -28,10 +28,10 @@ const int montecarlo::min_samples = 128;
 
 void montecarlo::slave_getcode(void)
    {
+   delete system;
    std::string systemstring;
    if(!receive(systemstring))
       exit(1);
-   delete system;
    std::istringstream is(systemstring);
    is >> system;
 
@@ -129,6 +129,8 @@ montecarlo::~montecarlo()
    {
    if(init)
       finalise();
+   else
+      delete system;
    destroyfunctors();
    }
 

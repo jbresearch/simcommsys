@@ -118,30 +118,43 @@ namespace libcomm {
      to perform result accumulation. Therefore slaves no longer return just a single
      estimate vector, but rather the sample count and also vectors with sample sums,
      and sums of squares.
+
+   \version 1.41 (20 Dec 2007)
+   - Fixed memory leak where system was not deleted in slaves.
+   - Made getters const members
 */
 
 class montecarlo : public libbase::masterslave {
-   // constants
-   static const int  min_samples;   // minimum number of samples to assume gaussian distribution
-   // bound objects
-   bool init;
-   experiment *system;
-   // internal variables
-   double   cfactor;                   // factor dependent on confidence level
-   double   accuracy;               // accuracy level required
-   int      samplecount;            // number of samples taken to produce the result (updated by experiment module to allow for dynamic sampling)
+   /*! \name Object-wide constants */
+   static const int  min_samples;   //!< minimum number of samples to assume gaussian distribution
+   // @}
+   /*! \name Bound objects */
+   /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
+             object at this address. This should be deleted when no longer necessary.
+   */
+   bool init;                 //!< Flag to indicate that a system has been bound (only done in master)
+   experiment *system;        //!< System being sampled            
+   // @}
+   /*! \name Internal variables */
+   double   cfactor;          //!< factor dependent on confidence level
+   double   accuracy;         //!< accuracy level required
+   int      samplecount;      //!< number of samples taken to produce the result
    libbase::timer t;
-   // slave processes
+   // @}
+   /*! \name Slave process functions & their functors */
    void slave_getcode(void);
    void slave_getsnr(void);
    void slave_work(void);
-   // their functors
-   libbase::specificfunctor<montecarlo> *fgetcode, *fgetsnr, *fwork;
+   libbase::specificfunctor<montecarlo> *fgetcode;
+   libbase::specificfunctor<montecarlo> *fgetsnr;
+   libbase::specificfunctor<montecarlo> *fwork;
+   // @}
 private:
-   // helper functions
+   /*! \name Helper functions */
    void createfunctors(void);
    void destroyfunctors(void);
-   // main estimator helper functions
+   // @}
+   /*! \name Main estimator helper functions */
    void sampleandaccumulate(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
    void accumulateresults(libbase::vector<double>& sum, libbase::vector<double>& sumsq, libbase::vector<double> est) const;
    double updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, const libbase::vector<double>& sum, const libbase::vector<double>& sumsq) const;
@@ -149,26 +162,32 @@ private:
    void workidleslaves(bool accuracy_reached);
    bool readpendingslaves(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
 protected:
-   // overrideable user-interface functions
+   // @}
+   /*! \name Overrideable user-interface functions */
    virtual bool interrupt() { return false; };
    virtual void display(const int pass, const double cur_accuracy, const double cur_mean);
+   // @}
 public:
-   // constructor/destructor
+   /*! \name Constructor/destructor */
    montecarlo(experiment *system);
    montecarlo();
    virtual ~montecarlo();
-   // simulation initialization/finalization
+   // @}
+   /*! \name Simulation initialization/finalization */
    void initialise(experiment *system);
    void finalise();
-   // simulation parameters
-   void set_confidence(const double confidence);   // say, 0.95 => 95% probability
-   void set_accuracy(const double accuracy);       // say, 0.10 => 10% of mean
-   // simulation results
-   int get_samplecount() { return samplecount; };  // returns the number of samples taken to produce the result
-   // main process
+   // @}
+   /*! \name Simulation parameters */
+   void set_confidence(const double confidence);   //!< Set confidence limit, say, 0.95 => 95% probability
+   void set_accuracy(const double accuracy);       //!< Set target accuracy, say, 0.10 => 10% of mean
+   // @}
+   /*! \name Simulation results */
+   int get_samplecount() const { return samplecount; };     //!< Number of samples taken to produce the result
+   const libbase::timer& get_timer() const { return t; };   //!< Time taken to produce the result
+   // @}
+   /*! \name Main process */
    void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);
-   // information getters
-   const libbase::timer& get_timer() { return t; };
+   // @}
 };
 
 }; // end namespace
