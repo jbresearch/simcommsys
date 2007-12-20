@@ -150,6 +150,16 @@ int weight(int cw)
    return w;
    }
 
+// Inverse Gray code
+
+int32u igray(int32u n)
+   {
+   int32u r = n;
+   for(int i=1; i<32; i<<=1)
+      r ^= r >> i;
+   return r;
+   }
+
 // combinatorial statistics functions
 
 int factorial(int x)

@@ -8,6 +8,7 @@
 */
 
 #include "mpsk.h"
+#include "itfunc.h"
 #include <math.h>
 #include <sstream>
 
@@ -20,13 +21,13 @@ const libbase::serializer mpsk::shelper("modulator", "mpsk", mpsk::create);
 void mpsk::init(const int m)
    {
    lut.init(m);
-   // allocate symbols sequentially - this has to be changed
-   // to use set-partitioning (for error-minimization)
+   // allocate symbols using a Gray code sequence
+   using libbase::gray;
    for(int i=0; i<m; i++)
       {
       const double r = 1;
       const double theta = i * (2*libbase::PI/m);
-      lut(i) = sigspace(r*cos(theta), r*sin(theta));
+      lut(gray(i)) = sigspace(r*cos(theta), r*sin(theta));
       }
    }
 
@@ -41,10 +42,10 @@ std::string mpsk::description() const
          sout << "BPSK modulator";
          break;
       case 4:
-         sout << "QPSK modulator";
+         sout << "Gray QPSK modulator";
          break;
       default:
-         sout << lut.size() << "PSK modulator";
+         sout << "Gray " << lut.size() << "PSK modulator";
          break;
       }
    return sout.str();
