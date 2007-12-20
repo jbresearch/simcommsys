@@ -45,7 +45,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CSelectRangeDlg message handlers
 
-void CSelectRangeDlg::OnOK() 
+void CSelectRangeDlg::OnOK()
    {
    // TODO: Add extra validation here
    if(m_dSNRmin > m_dSNRmax)
@@ -58,6 +58,6 @@ void CSelectRangeDlg::OnOK()
       MessageBox("SNR step must be a positive value.", NULL, MB_OK | MB_ICONWARNING);
       return;
       }
-   
+
    CDialog::OnOK();
    }

@@ -46,7 +46,7 @@ public:
    virtual ~experiment() {};                 // virtual destructor
    virtual experiment *clone() const = 0;    // cloning operation
    virtual const char* name() const = 0;     // derived object's name
-   
+
    virtual int count() const = 0;
    virtual void seed(int s) = 0;
    virtual void set(double x) = 0;
@@ -56,7 +56,7 @@ public:
    \param[out] result   Vector containing the set of results for the experiment
    */
    virtual void sample(libbase::vector<double>& result) = 0;
-   
+
    // description output
    virtual std::string description() const = 0;
    // object serialization - saving

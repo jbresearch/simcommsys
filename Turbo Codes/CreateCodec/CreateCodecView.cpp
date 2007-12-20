@@ -51,7 +51,7 @@ END_MESSAGE_MAP()
 CCreateCodecView::CCreateCodecView()
    {
    // TODO: add construction code here
-   
+
    }
 
 CCreateCodecView::~CCreateCodecView()
@@ -63,7 +63,7 @@ BOOL CCreateCodecView::PreCreateWindow(CREATESTRUCT& cs)
    // TODO: Modify the Window class or styles here by modifying
    //  the CREATESTRUCT cs
    cs.style |= TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS;
-   
+
    return CTreeView::PreCreateWindow(cs);
    }
 
@@ -80,7 +80,7 @@ void CCreateCodecView::OnDraw(CDC* pDC)
 void CCreateCodecView::OnInitialUpdate()
    {
    CTreeView::OnInitialUpdate();
-   
+
    // TODO: You may populate your TreeView with items by directly accessing
    //  its tree control through a call to GetTreeCtrl().
    CCreateCodecDoc* pDoc = GetDocument();
@@ -139,7 +139,7 @@ void CCreateCodecView::DeleteChildren(HTREEITEM hItem)
       GetTreeCtrl().DeleteItem(hChild);
    }
 
-void CCreateCodecView::OnDblclk(NMHDR* pNMHDR, LRESULT* pResult) 
+void CCreateCodecView::OnDblclk(NMHDR* pNMHDR, LRESULT* pResult)
    {
    // Get position in client coordinates
    DWORD dwPos = ::GetMessagePos();
@@ -149,7 +149,7 @@ void CCreateCodecView::OnDblclk(NMHDR* pNMHDR, LRESULT* pResult)
    HTREEITEM hItem = GetTreeCtrl().HitTest(point);
    int nImage;
    GetTreeCtrl().GetItemImage(hItem, nImage, nImage);
-   
+
    switch(nImage)
       {
       case image_static:
@@ -304,7 +304,7 @@ void CCreateCodecView::SelectInt(HTREEITEM hItem)
    // find out what value we're trying to edit
    CString sTemp = GetTreeCtrl().GetItemText(hItem);
    CString sName = sTemp.Left(sTemp.Find(':'));
-   
+
    CSelectIntDlg dlg;
    dlg.m_nValue = pDoc->GetIntValue(sName);
    if(dlg.DoModal() == IDOK)
@@ -322,7 +322,7 @@ void CCreateCodecView::SelectBool(HTREEITEM hItem)
    // find out what value we're trying to edit
    CString sTemp = GetTreeCtrl().GetItemText(hItem);
    CString sName = sTemp.Left(sTemp.Find(':'));
-   
+
    // toggle its value and update display
    pDoc->SetBoolValue(sName, !pDoc->GetBoolValue(sName));
    GetTreeCtrl().SetItemText(hItem, pDoc->GetStringBool(sName));

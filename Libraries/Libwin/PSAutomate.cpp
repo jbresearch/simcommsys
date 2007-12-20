@@ -76,7 +76,7 @@ SPErr CPSAutomate::Main(const char* sCaller, const char* sSelector, void* pData)
          }
       else
          trace << "Error: Unknown caller \'" << sCaller << "\'.\n";
-   
+
       // release suites and return
       Exit();
       return kSPNoError;
@@ -106,7 +106,7 @@ void CPSAutomate::Entry(void* pData)
 
    // get pointer to basic suite
    SPMessageData *pMessageData = (SPMessageData *)m_pData;
-   m_pBasic = pMessageData->basic; 
+   m_pBasic = pMessageData->basic;
 
    // acquire suites
    if(m_pBasic->AcquireSuite(kPSActionDescriptorSuite, kPSActionDescriptorSuiteVersion, (void **)&m_pActionDescriptor))
@@ -629,7 +629,7 @@ void CPSAutomate::PlayeventOpen(const char *sPathName)
    Handle alias = MakeAlias(sPathName);
    PutAlias(descriptor, keyNull, alias);
    // play event
-   try 
+   try
       {
       PIActionDescriptor result = PlayEvent(eventOpen, descriptor, plugInDialogSilent);
       FreeDescriptor(result);
@@ -670,7 +670,7 @@ void CPSAutomate::PlayeventSelectState(int nOffset)
    PutOffset(reference, classHistoryState, nOffset);
    PutReference(descriptor, keyNull, reference);
    // play event
-   try 
+   try
       {
       PIActionDescriptor result = PlayEvent(eventSelect, descriptor, plugInDialogSilent);
       FreeDescriptor(result);
@@ -688,7 +688,7 @@ void CPSAutomate::PlayeventSaveJPEG(int nJpegQ, const char *sPathName, bool bCop
    PIActionDescriptor descriptor = MakeDescriptor();
    PIActionDescriptor settings = MakeDescriptor();
    Handle alias = MakeAlias(sPathName);
-   try 
+   try
       {
       // insert parameters
       PutEnumerated(settings, keyByteOrder, typePlatform, enumIBMPC);
@@ -722,7 +722,7 @@ void CPSAutomate::PlayeventSaveLZW(const char *sPathName, bool bCopy)
    PIActionDescriptor descriptor = MakeDescriptor();
    PIActionDescriptor settings = MakeDescriptor();
    Handle alias = MakeAlias(sPathName);
-   try 
+   try
       {
       // insert parameters
       PutEnumerated(settings, keyByteOrder, typePlatform, enumIBMPC);

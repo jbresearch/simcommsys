@@ -27,18 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -103,7 +103,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
@@ -162,7 +162,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE
 BEGIN
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
@@ -176,7 +176,7 @@ BEGIN
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
-    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
 END
 
@@ -207,7 +207,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,165,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,165,24,50,14
     LTEXT           "Type:",IDC_STATIC,22,10,19,8
-    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
 END
 
@@ -219,7 +219,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,165,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,165,24,50,14
     LTEXT           "Type:",IDC_STATIC,22,10,19,8
-    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
 END
 
@@ -273,24 +273,24 @@ BEGIN
     LTEXT           "Frames:",IDC_STATIC,174,204,26,8
     LTEXT           "Speed:",IDC_STATIC,176,225,24,8
     LTEXT           "BER:",IDC_STATIC,182,162,18,8
-    LTEXT           "Static",IDC_PUNCTURE,64,74,226,12,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_PUNCTURE,64,74,226,12,SS_CENTERIMAGE |
                     SS_SUNKEN
-    LTEXT           "Static",IDC_MODULATOR,64,90,226,12,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_MODULATOR,64,90,226,12,SS_CENTERIMAGE |
                     SS_SUNKEN
-    LTEXT           "Static",IDC_CHANNEL,64,106,226,12,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_CHANNEL,64,106,226,12,SS_CENTERIMAGE |
                     SS_SUNKEN
     GROUPBOX        "System:",IDC_STATIC,7,7,296,125
     GROUPBOX        "Results:",IDC_STATIC,160,138,143,110
     GROUPBOX        "Simulation:",IDC_STATIC,7,138,143,110
-    LTEXT           "Static",IDC_BER,206,159,84,14,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_BER,206,159,84,14,SS_CENTERIMAGE |
                     SS_SUNKEN
-    LTEXT           "Static",IDC_ELAPSED,206,180,84,14,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_ELAPSED,206,180,84,14,SS_CENTERIMAGE |
                     SS_SUNKEN
-    LTEXT           "Static",IDC_FRAMES,206,201,84,14,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_FRAMES,206,201,84,14,SS_CENTERIMAGE |
                     SS_SUNKEN
-    LTEXT           "Static",IDC_SPEED,206,222,84,14,SS_CENTERIMAGE | 
+    LTEXT           "Static",IDC_SPEED,206,222,84,14,SS_CENTERIMAGE |
                     SS_SUNKEN
-    EDITTEXT        IDC_CODEC,64,23,226,48,ES_MULTILINE | ES_AUTOVSCROLL | 
+    EDITTEXT        IDC_CODEC,64,23,226,48,ES_MULTILINE | ES_AUTOVSCROLL |
                     ES_READONLY | NOT WS_BORDER | WS_VSCROLL,
                     WS_EX_STATICEDGE
 END
@@ -345,7 +345,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -406,18 +406,18 @@ END
 IDD_CHANNEL DLGINIT
 BEGIN
     IDC_TYPE, 0x403, 5, 0
-0x5741, 0x4e47, "\000" 
+0x5741, 0x4e47, "\000"
     IDC_TYPE, 0x403, 10, 0
-0x614c, 0x6c70, 0x6361, 0x6169, 0x006e, 
+0x614c, 0x6c70, 0x6361, 0x6169, 0x006e,
     0
 END
 
 IDD_MODULATOR DLGINIT
 BEGIN
     IDC_TYPE, 0x403, 5, 0
-0x5042, 0x4b53, "\000" 
+0x5042, 0x4b53, "\000"
     IDC_TYPE, 0x403, 5, 0
-0x5051, 0x4b53, "\000" 
+0x5051, 0x4b53, "\000"
     0
 END
 
@@ -427,18 +427,18 @@ END
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE PRELOAD DISCARDABLE
 BEGIN
     IDR_MAINFRAME           "SimulateCommsys\n\nSimula\n\n\nSimulateCommsys.Document\nSimula Document"
 END
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE PRELOAD DISCARDABLE
 BEGIN
     AFX_IDS_APP_TITLE       "SimulateCommsys"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -448,7 +448,7 @@ BEGIN
     ID_INDICATOR_REC        "REC"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -461,13 +461,13 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
     ID_FILE_MRU_FILE2       "Open this document"
@@ -487,18 +487,18 @@ BEGIN
     ID_FILE_MRU_FILE16      "Open this document"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -513,13 +513,13 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
@@ -530,18 +530,18 @@ BEGIN
     AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_SIMULATION_START     "Start simulation\nStart"
     ID_SIMULATION_STOP      "Stop simulation\nStop"
@@ -553,7 +553,7 @@ BEGIN
     ID_SIMULATION_ACCURACY  "Select statistical accuracy and confidence\nAccuracy"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_INDICATOR_SNR        "\tSNR = 00.0"
     ID_INDICATOR_PROGRESS   "\t100.0%"

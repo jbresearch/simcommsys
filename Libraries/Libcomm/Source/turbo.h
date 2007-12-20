@@ -27,7 +27,7 @@ namespace libcomm {
    at any required level of accuracy. This is required because the internal matrics have a very wide
    dynamic range, which increases exponentially with block size 'tau'. Actually, the required range
    is within [1,0), but very large exponents are required. (For BCJR sub-component)
- 
+
    \version 1.10 (4 Mar 1999)
    updated intialisation of a priori statistics (now they are 1/K instead of 1).
 
@@ -38,38 +38,38 @@ namespace libcomm {
    \version 1.20 (5 Mar 1999)
    modified tail_length() to return 0 when the turbo codes is defined with endatzero==false.
    This makes the turbo module handle untailed sequences correctly.
-    
+
    \version 1.30 (8 Mar 1999)
    modified to use the faster BCJR decode routine (does not compute output statistics).
-     
+
    \version 1.40 (20 Apr 1999)
    removed the reinitialisation of data probabilities in the tail section for non-simile
    interleavers. The data is always valid input, whether the tails are the same or not.
-      
+
    \version 1.41 (22 Apr 1999)
    made turbo allocate memory on first call to demodulate/decode
-       
+
    \version 1.50 (7 Jun 1999)
    modified the system to comply with codec 1.10.
-        
+
    \version 1.60 (7 Jun 1999)
    revamped handling of puncturing with the use of an additional class.
-         
+
    \version 1.70 (15 Mar 2000)
    changed passing of interleaver from an array to a vector; also removed the
    redundant passing of (tau) [not yet] and sets, since these can be taken from the
    interleaver.
-           
+
    \version 1.80 (15 Mar 2000)
    modified decoder to allow parallel decoding as well as serial (serial slightly
    changed, since order of de-int/int is done differently, but this should not
    change any results)
-             
+
    \version 1.81 (6 Jun 2000)
    reinstated the a posteriori statistics as part of the class rather than the decode
    function. This simplifies the construction of derived classes that make use of this
    information.
-               
+
    \version 1.82 (21 Oct 2001)
    moved most functions to the cpp file rather than the header, in order to be able to
    compile the header with Microsoft Extensions. Naturally compilation is faster, but this
@@ -80,7 +80,7 @@ namespace libcomm {
    modified parallel decoder to solve a bug that was crashing the simulator when working
    with parallel codes using more than 2 parallel decoders (ie more than 1 interleaver).
    For stability, when working the new set of a priori information for the next stage, we
-   now divide the sum of extrinsic information from all other decoders by the number of 
+   now divide the sum of extrinsic information from all other decoders by the number of
    elements making it up (that is, in practice we work the average not the sum). This seems
    to be working fine now from preliminary simulations.
 
@@ -103,7 +103,7 @@ namespace libcomm {
    \version 1.91 (23 Feb 2002)
    added flushes to all end-of-line clog outputs, to clean up text user interface.
 
-   \version 1.92 (1 Mar 2002)   
+   \version 1.92 (1 Mar 2002)
    edited the classes to be compileable with Microsoft extensions enabled - in practice,
    the major change is in for() loops, where MS defines scope differently from ANSI.
    Rather than taking the loop variables into function scope, we chose to wrap around the
@@ -131,7 +131,7 @@ namespace libcomm {
    In the process, removed the use of puncturing from within this class, and also
    the information functions block_inbits, block_outbits and block_rate, since these
    are defined (with different names, though) in codec 1.41. Since puncturing is no
-   longer handled within the codec, for the moment, the modification for stipple 
+   longer handled within the codec, for the moment, the modification for stipple
    puncturing with simile interleavers is not performed.
    Also, removed the clog & cerr information output during initialization.
 
@@ -174,11 +174,11 @@ namespace libcomm {
    \version 2.42 (21 Jul 2006)
    attempting to solve a presumed bug relating to circular decoding (since performance of
    these codes is not as good as expected; it is also, strangely, worse for large blocks)
-   * documented bcjr_wrap
-   * added debugging assertions in encode process to verify that the circulation state
+   - documented bcjr_wrap
+   - added debugging assertions in encode process to verify that the circulation state
    was set up properly.
-   * updated init to pass 'circular' flag to bcjr module
-   * updated translate to reset the start- and end-state probability tables for the
+   - updated init to pass 'circular' flag to bcjr module
+   - updated translate to reset the start- and end-state probability tables for the
    BCJR algorithm
 
    \version 2.43 (25 Jul 2006)
@@ -202,26 +202,26 @@ namespace libcomm {
    \version 2.46 (2 Aug 2006)
    following the addition of normalization within the BCJR alpha and beta metric
    computation routines, a similar approach is adopted here by normalizing:
-   * the channel-derived (intrinsic) probabilities 'r' and 'R' in translate
+   - the channel-derived (intrinsic) probabilities 'r' and 'R' in translate
     [note: in this function the a-priori probabilities are now created normalized]
-   * the extrinsic probabilities in decode_serial and decode_parallel
+   - the extrinsic probabilities in decode_serial and decode_parallel
    Also modified the description routine to print the names of all interleavers.
 
    \version 2.47 (3 Aug 2006)
-   * modified internal wrapping functions 'work_extrinsic', 'bcjr_wrap', 'hard_decision'
+   - modified internal wrapping functions 'work_extrinsic', 'bcjr_wrap', 'hard_decision'
    to indicate within the prototype which parameters are input (by making them const).
    While this should not change any results, it is a forward step to simplify debugging,
 
    \version 2.48 (6 Oct 2006)
    modified for compatibility with VS .NET 2005:
-   * in num_outputs & translate, modified use of pow to avoid ambiguity
+   - in num_outputs & translate, modified use of pow to avoid ambiguity
 
    \version 2.50 (30 Oct 2006)
-   * defined class and associated data within "libcomm" namespace.
-   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
    \version 2.51 (29 Oct 2007)
-   * updated clone() to return this object's type, rather than its base class type.
+   - updated clone() to return this object's type, rather than its base class type.
      [cf. Stroustrup 15.6.2]
 */
 
@@ -267,11 +267,11 @@ public:
    const char* name() const { return shelper.name(); };
 
    void seed(const int s);
-   
+
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
-   
+
    int block_size() const { return tau; };
    int num_inputs() const { return K; };
    int num_outputs() const { return int(K*pow(double(P),sets)); };

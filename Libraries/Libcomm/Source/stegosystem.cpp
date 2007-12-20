@@ -81,7 +81,7 @@ double stegosystem::GetCodeRate() const
    }
 
 /////////////////////////////////////////////////////////////////////////////
-// 
+//
 
 void stegosystem::LoadErrorControl(const char* sCodec, const char* sPuncture)
    {
@@ -157,7 +157,7 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
       m_pCodec->encode(source, encoded);
       // modulate
       modem.modulate(m_pCodec->num_outputs(), encoded, signal);
-      // puncture 
+      // puncture
       if(m_pPuncture != NULL)
          {
          vector<sigspace> signalcopy = signal;
@@ -438,7 +438,7 @@ void stegosystem::BandwidthExpander(const int nRate, const vector<int>& viIn, ve
    for(int k=viIn.size()*nRate; k<viOut.size(); k++)
       viOut(k) = 0;
    }
-   
+
 void stegosystem::BandwidthExpander(const int nRate, const vector<double>& viIn, vector<double>& viOut)
    {
    for(int i=0; i<viIn.size(); i++)
@@ -447,7 +447,7 @@ void stegosystem::BandwidthExpander(const int nRate, const vector<double>& viIn,
    for(int k=viIn.size()*nRate; k<viOut.size(); k++)
       viOut(k) = 0.5;
    }
-   
+
 void stegosystem::BandwidthExpander(const int nRate, const vector<sigspace>& viIn, vector<sigspace>& viOut)
    {
    for(int i=0; i<viIn.size(); i++)

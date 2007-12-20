@@ -20,7 +20,7 @@ void laplacian::compute_parameters(const double Eb, const double No)
    const double sigma = sqrt(Eb*No);
    lambda = sigma/sqrt(double(2));
    }
-   
+
 // channel handle functions
 
 sigspace laplacian::corrupt(const sigspace& s)
@@ -31,7 +31,7 @@ sigspace laplacian::corrupt(const sigspace& s)
    }
 
 double laplacian::pdf(const sigspace& tx, const sigspace& rx) const
-   {      
+   {
    sigspace n = rx - tx;
    return f(n.i()) * f(n.q());
    }

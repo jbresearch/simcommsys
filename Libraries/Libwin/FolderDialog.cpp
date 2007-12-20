@@ -68,7 +68,7 @@ int CFolderDialog::DoModal()
 
 CString CFolderDialog::GetFolder()
    {
-   return m_sFolder;   
+   return m_sFolder;
    }
 
 }; // end namespace

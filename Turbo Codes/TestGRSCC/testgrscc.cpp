@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
    rscc cc_old(GetGeneratorBinary());
    cout << "Classic Code description:\n";
    cout << cc_old.description() << "\n";
-   
+
    grscc<GF2> cc_new(GetGeneratorGF2());
    cout << "New Code description:\n";
    cout << cc_new.description() << "\n";

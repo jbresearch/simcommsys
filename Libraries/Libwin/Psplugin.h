@@ -17,10 +17,10 @@
 #endif
 
 /*
-  Version 1.10 (27 Nov 2001)
+   \version 1.10 (27 Nov 2001)
   added informative functions (image size/planes, tile size, number of tiles, etc)
 
-  Version 1.20 (28 Nov 2001)
+   \version 1.20 (28 Nov 2001)
   made tile manipulation functions private. Derived classes should use the pre-defined
   plug-in interface routines to get the job done.
   Also re-directed 'cerr' for all PSPlugIn-derived programs to MessageBox.
@@ -34,20 +34,20 @@
   the required version, we re-allocate). This allows changes to the data block specification
   without reloading Photoshop.
 
-  Version 1.30 (30 Nov 2001)
+   \version 1.30 (30 Nov 2001)
   added tile & total progress display functions.
 
-  Version 1.31 (2 Dec 2001)
+   \version 1.31 (2 Dec 2001)
   added function to get ShowDialog flag - this is to allow user to call ShowDialog himself
   in FilterStart, allowing him to set up tiling information based on user info.
 
-  Version 1.32 (3 Dec 2001)
+   \version 1.32 (3 Dec 2001)
   made pFilterRecord and pData as private members again - access to Photoshop info should
   be done through PSPlugIn functions only; Dialog classes can be passed a pointer to the
   PSPlugIn class rather than pFilterRecord and pData. Also added functions to set tile
   width / height, and made image & tile info functions public.
 
-  Version 1.40 (5 Apr 2002)
+   \version 1.40 (5 Apr 2002)
   added protected functions to allow user to restart processing tile by tile. The first
   function IterationDone() returns true if all tiles have been processed in any given
   iteration (this should be called in FilterContinue only *after* the base FilterContinue
@@ -67,13 +67,13 @@
   Also uncommented the informational output on current tile etc, and changed it to a
   TRACE function, so that progress can be monitored in debug builds.
 
-  Version 1.41 (6 Apr 2002)
+   \version 1.41 (6 Apr 2002)
   removed automatic progress display from TileUpdate, since this would not work well
   in multi-pass filters. The user is requested to call one of the ProgressDisplay
   functions himself while processing the current tile. If only updated once, this
   should be done at the beginning of the tile processing, not at the end.
 
-  Version 1.42 (7 Apr 2002)
+   \version 1.42 (7 Apr 2002)
   modified DisplayTileProgress to utilise DisplayTotalProgress for output (in order to
   centralize the code to compute the progress over several iterations). Also added
   protected functions that return current-tile coordinates for use in PSPlugIn or
@@ -90,34 +90,34 @@
   display to be performed at any time during the cycle (ie removed the need for it to
   be at the start).
 
-  Version 1.43 (7 Apr 2002)
+   \version 1.43 (7 Apr 2002)
   removed the member variable that keeps count of the number of calls to the plug-in.
   This was only used earlier for debugging purposes, to determine the calling convention
   for PhotoShop and particularly to determine when the plugin itself was reloaded.
 
-  Version 1.44 (12 Apr 2002)
+   \version 1.44 (12 Apr 2002)
   updated tracing information (during TileWrite) so that the tile pixel ranges are
   both inclusive, and that current tile counts start from 1 rather than 0. Also, added
   trace information in most filter entry/exit points to help keep track of what is
   happening.
 
-  Version 1.45 (12 Apr 2002)
+   \version 1.45 (12 Apr 2002)
   fixed a bug in FilterFinish, which was causing PhotoShop to complain about an error
   in the program; I was passing the timer duration as a string object (rather than a
   C-style string) to the TRACE operation. Also added a newline in that TRACE statement,
   which was missing.
 
-  Version 1.46 (12 Apr 2002)
+   \version 1.46 (12 Apr 2002)
   fixed an obscure bug in SetPixelMatrix: when working with overlapped tiles, we do not
   really want to copy the whole tile back into the image, but only the central section.
   The exception is on the image borders, where we actually will be copying back data
   from the original image.
 
-  Version 1.47 (29 Apr 2002)
+   \version 1.47 (29 Apr 2002)
   made DisplayProgress operations const functions - otherwise this would not allow
   their use in otherwise const classes.
 
-  Version 1.48 (4 May 2002)
+   \version 1.48 (4 May 2002)
   fixed a bug that applies to 16-bit modes: in Photoshop it seems that the 16-bit
   modes actually store pixels in the range 0->32768 rather than 0->32767 as I thought
   (or 0->65535 as they should!). This was noted by L. Chang in an email to the SDK
@@ -128,52 +128,52 @@
   double to int (for 8 & 16-bit) to do a rounding operation rather than straight
   conversion (which might truncate data).
 
-  Version 1.50 (1 Nov 2002)
+   \version 1.50 (1 Nov 2002)
   added functions for scripting support - since pFilterRecord was made private in
-  version 1.32, derived classes need a way to access the Descriptor Suite. The
+   version 1.32, derived classes need a way to access the Descriptor Suite. The
   parameters are read from scripting during FilterStart, and written back during
   FilterFinish; also made GetShowDialog a const member.
 
-  Version 1.51 (2 Nov 2002)
+   \version 1.51 (2 Nov 2002)
   added more functions for scripting support - in order to simplify reading/writing
   of descriptor key/value pairs, we added functions to do so, and convert between
   STL or MFC types (which we usually use) and the Adobe SDK types required by the
   scripting system; also changed low-level scripting routines to private, and made
   low-level read/write script parameters non-virtual.
 
-  Version 1.52 (8 Nov 2002)
+   \version 1.52 (8 Nov 2002)
   added Main function which contains the standard PluginMain routine for filter
   plugins - this reduces the amount of copying between different plugins and ensures
   better uniformity.
 
-  Version 1.53 (8 Nov 2002)
+   \version 1.53 (8 Nov 2002)
   bug fix: moved memory allocation for data block to a new private function, which is
   now called from both FilterPrepare and FilterParameters, as necessary, since the
   latter isn't called when the filter is invoked through the scripting system. Thus,
   if the filter is invoked through scripting without first being invoked (at least
   once) directly by the user, then memory would never be allocated, causing an error.
 
-  Version 1.54 (12 Nov 2002)
+   \version 1.54 (12 Nov 2002)
   added tracing for read/write script parameters and data allocation; removed data
   allocation from FilterParameters, since it is totally redundant there.
 
-  Version 1.55 (19 Feb 2003)
+   \version 1.55 (19 Feb 2003)
   added definition for DLLExport - this was previously being taken from PIDefines, which
   is part of the SDK sample code and not of the API itself. This removes all need for
   including files from the sample code.
 
-  Version 1.60 (6 Nov 2006)
-  * defined class and associated data within "libwin" namespace.
-  * removed pragma once directive, as this is unnecessary
-  * changed unique define to conform with that used in other libraries
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.60 (6 Nov 2006)
+   - defined class and associated data within "libwin" namespace.
+   - removed pragma once directive, as this is unnecessary
+   - changed unique define to conform with that used in other libraries
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.61 (10 Nov 2006)
-  * made class a derivative of CRoutedIO.
+   \version 1.61 (10 Nov 2006)
+   - made class a derivative of CRoutedIO.
 
-  Version 1.62 (7 Nov 2007)
-  * moved Adobe SDK includes here from stdafx.h.
-  * made this module compile only when ADOBESDK is defined.
+   \version 1.62 (7 Nov 2007)
+   - moved Adobe SDK includes here from stdafx.h.
+   - made this module compile only when ADOBESDK is defined.
 */
 
 namespace libwin {
@@ -203,7 +203,7 @@ private:
    void TileSetEmpty();
    void TileWrite();
    void TileUpdate();
-   
+
    // descriptor suite - low-level access
    PIDescriptorParameters* GetDescParams() { return m_pFilterRecord->descriptorParameters; };
    WriteDescriptorProcs* GetWriteDescProcs() { return GetDescParams()->writeDescriptorProcs; };

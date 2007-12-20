@@ -27,18 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -103,7 +103,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
@@ -145,7 +145,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE
 BEGIN
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
@@ -159,7 +159,7 @@ BEGIN
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
-    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
 END
 
@@ -214,7 +214,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,165,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,165,24,50,14
     LTEXT           "Type:",IDC_STATIC,22,10,19,8
-    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
 END
 
@@ -229,9 +229,9 @@ BEGIN
     LTEXT           "Value:",IDC_STATIC,20,66,21,8
     LTEXT           "Input:",IDC_STATIC,22,13,19,8
     LTEXT           "Output:",IDC_STATIC,17,41,24,8
-    CONTROL         "Slider1",IDC_INPUT,"msctls_trackbar32",TBS_AUTOTICKS | 
+    CONTROL         "Slider1",IDC_INPUT,"msctls_trackbar32",TBS_AUTOTICKS |
                     TBS_TOP | WS_TABSTOP,50,7,104,20
-    CONTROL         "Slider1",IDC_OUTPUT,"msctls_trackbar32",TBS_AUTOTICKS | 
+    CONTROL         "Slider1",IDC_OUTPUT,"msctls_trackbar32",TBS_AUTOTICKS |
                     TBS_TOP | WS_TABSTOP,50,35,104,20
 END
 
@@ -243,10 +243,10 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,165,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,165,24,50,14
     LTEXT           "Type:",IDC_STATIC,22,10,19,8
-    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
     LTEXT           "Arithmetic:",IDC_STATIC,7,27,34,8
-    COMBOBOX        IDC_MATH,49,25,104,58,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_MATH,49,25,104,58,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
 END
 
@@ -258,7 +258,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,165,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,165,24,50,14
     LTEXT           "Type:",IDC_STATIC,22,10,19,8
-    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TYPE,50,8,104,59,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
 END
 
@@ -312,7 +312,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -381,64 +381,64 @@ END
 IDD_ENCODER DLGINIT
 BEGIN
     IDC_TYPE, 0x403, 14, 0
-0x6f4e, 0x2d6e, 0x6552, 0x7563, 0x7372, 0x7669, 0x0065, 
+0x6f4e, 0x2d6e, 0x6552, 0x7563, 0x7372, 0x7669, 0x0065,
     IDC_TYPE, 0x403, 21, 0
-0x6552, 0x7563, 0x7372, 0x7669, 0x2065, 0x7953, 0x7473, 0x6d65, 0x7461, 
-0x6369, "\000" 
+0x6552, 0x7563, 0x7372, 0x7669, 0x2065, 0x7953, 0x7473, 0x6d65, 0x7461,
+0x6369, "\000"
     0
 END
 
 IDD_CODEC DLGINIT
 BEGIN
     IDC_TYPE, 0x403, 21, 0
-0x6e55, 0x6f63, 0x6564, 0x2064, 0x202f, 0x6552, 0x6570, 0x6974, 0x6974, 
-0x6e6f, "\000" 
+0x6e55, 0x6f63, 0x6564, 0x2064, 0x202f, 0x6552, 0x6570, 0x6974, 0x6974,
+0x6e6f, "\000"
     IDC_TYPE, 0x403, 18, 0
-0x414d, 0x2050, 0x6f43, 0x766e, 0x6c6f, 0x7475, 0x6f69, 0x616e, 0x006c, 
+0x414d, 0x2050, 0x6f43, 0x766e, 0x6c6f, 0x7475, 0x6f69, 0x616e, 0x006c,
 
     IDC_TYPE, 0x403, 6, 0
-0x7554, 0x6272, 0x006f, 
+0x7554, 0x6272, 0x006f,
     IDC_TYPE, 0x403, 15, 0
-0x6944, 0x6666, 0x7375, 0x6465, 0x5420, 0x7275, 0x6f62, "\000" 
+0x6944, 0x6666, 0x7375, 0x6465, 0x5420, 0x7275, 0x6f62, "\000"
     IDC_MATH, 0x403, 10, 0
-0x6f4c, 0x2d67, 0x6353, 0x6c61, 0x0065, 
+0x6f4c, 0x2d67, 0x6353, 0x6c61, 0x0065,
     IDC_MATH, 0x403, 22, 0
-0x6f4c, 0x2d67, 0x6353, 0x6c61, 0x2065, 0x4f28, 0x7470, 0x6d69, 0x7a69, 
-0x6465, 0x0029, 
+0x6f4c, 0x2d67, 0x6353, 0x6c61, 0x2065, 0x4f28, 0x7470, 0x6d69, 0x7a69,
+0x6465, 0x0029,
     IDC_MATH, 0x403, 23, 0
-0x3233, 0x622d, 0x7469, 0x4520, 0x7078, 0x6e6f, 0x6e65, 0x2074, 0x6f44, 
-0x6275, 0x656c, "\000" 
+0x3233, 0x622d, 0x7469, 0x4520, 0x7078, 0x6e6f, 0x6e65, 0x2074, 0x6f44,
+0x6275, 0x656c, "\000"
     IDC_MATH, 0x403, 20, 0
-0x4e47, 0x2055, 0x754d, 0x746c, 0x2d69, 0x7250, 0x6365, 0x7369, 0x6f69, 
-0x006e, 
+0x4e47, 0x2055, 0x754d, 0x746c, 0x2d69, 0x7250, 0x6365, 0x7369, 0x6f69,
+0x006e,
     0
 END
 
 IDD_INTERLEAVER DLGINIT
 BEGIN
     IDC_TYPE, 0x403, 13, 0
-0x6e4f, 0x2d65, 0x6954, 0x656d, 0x5020, 0x6461, "\000" 
+0x6e4f, 0x2d65, 0x6954, 0x656d, 0x5020, 0x6461, "\000"
     IDC_TYPE, 0x403, 7, 0
-0x6150, 0x6464, 0x6465, "\000" 
+0x6150, 0x6464, 0x6465, "\000"
     IDC_TYPE, 0x403, 5, 0
-0x6c46, 0x7461, "\000" 
+0x6c46, 0x7461, "\000"
     IDC_TYPE, 0x403, 6, 0
-0x6853, 0x6669, 0x0074, 
+0x6853, 0x6669, 0x0074,
     IDC_TYPE, 0x403, 12, 0
-0x6552, 0x7463, 0x6e61, 0x7567, 0x616c, 0x0072, 
+0x6552, 0x7463, 0x6e61, 0x7567, 0x616c, 0x0072,
     IDC_TYPE, 0x403, 8, 0
-0x6548, 0x696c, 0x6163, 0x006c, 
+0x6548, 0x696c, 0x6163, 0x006c,
     IDC_TYPE, 0x403, 7, 0
-0x6542, 0x7272, 0x756f, "\000" 
+0x6542, 0x7272, 0x756f, "\000"
     IDC_TYPE, 0x403, 26, 0
-0x6152, 0x646e, 0x6d6f, 0x2820, 0x6573, 0x666c, 0x742d, 0x7265, 0x696d, 
-0x616e, 0x6974, 0x676e, 0x0029, 
+0x6152, 0x646e, 0x6d6f, 0x2820, 0x6573, 0x666c, 0x742d, 0x7265, 0x696d,
+0x616e, 0x6974, 0x676e, 0x0029,
     IDC_TYPE, 0x403, 8, 0
-0x6e55, 0x6669, 0x726f, 0x006d, 
+0x6e55, 0x6669, 0x726f, 0x006d,
     IDC_TYPE, 0x403, 10, 0
-0x6156, 0x656c, 0x746e, 0x3969, 0x0036, 
+0x6156, 0x656c, 0x746e, 0x3969, 0x0036,
     IDC_TYPE, 0x403, 8, 0
-0x6946, 0x656c, 0x2e2e, 0x002e, 
+0x6946, 0x656c, 0x2e2e, 0x002e,
     0
 END
 
@@ -448,18 +448,18 @@ END
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE PRELOAD DISCARDABLE
 BEGIN
     IDR_MAINFRAME           "CreateCodec\n\nCreate\n\n\nCreateCodec.Document\nCreate Document"
 END
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE PRELOAD DISCARDABLE
 BEGIN
     AFX_IDS_APP_TITLE       "CreateCodec"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -469,7 +469,7 @@ BEGIN
     ID_INDICATOR_REC        "REC"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -482,13 +482,13 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
     ID_FILE_MRU_FILE2       "Open this document"
@@ -508,18 +508,18 @@ BEGIN
     ID_FILE_MRU_FILE16      "Open this document"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -534,13 +534,13 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
@@ -551,13 +551,13 @@ BEGIN
     AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
 END

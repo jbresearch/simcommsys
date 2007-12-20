@@ -37,7 +37,7 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
       }
    return i;
    }
-   
+
 template <class real> void watermarkcode<real>::createsequence(const int tau)
    {
    // creates 'tau' elements of 'n' bits each
@@ -113,7 +113,7 @@ template <class real> real watermarkcode<real>::P(const int a, const int b)
       return pow(Pi,m)*(1-Pi)*(1-Pd);
    return 0;
    }
-   
+
 template <class real> real watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
@@ -126,7 +126,7 @@ template <class real> real watermarkcode<real>::Q(const int a, const int b, cons
    // compute the conditional probability
    return mychan.receive(tx, s);
    }
-   
+
 // encoding and decoding functions
 
 template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
@@ -263,7 +263,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
          ptable(i,d) = p(i,d);
    trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
    }
-   
+
 // description output
 
 template <class real> std::string watermarkcode<real>::description() const

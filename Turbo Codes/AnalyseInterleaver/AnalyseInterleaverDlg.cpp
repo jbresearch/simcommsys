@@ -21,18 +21,18 @@ class CAboutDlg : public CDialog
 {
 public:
    CAboutDlg();
-   
+
    // Dialog Data
    //{{AFX_DATA(CAboutDlg)
    enum { IDD = IDD_ABOUTBOX };
    //}}AFX_DATA
-   
+
    // ClassWizard generated virtual function overrides
    //{{AFX_VIRTUAL(CAboutDlg)
 protected:
    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
    //}}AFX_VIRTUAL
-   
+
    // Implementation
 protected:
    //{{AFX_MSG(CAboutDlg)
@@ -103,13 +103,13 @@ END_MESSAGE_MAP()
 BOOL CAnalyseInterleaverDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // Add "About..." menu item to system menu.
-   
+
    // IDM_ABOUTBOX must be in the system command range.
    ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
    ASSERT(IDM_ABOUTBOX < 0xF000);
-   
+
    CMenu* pSysMenu = GetSystemMenu(FALSE);
    if (pSysMenu != NULL)
       {
@@ -121,17 +121,17 @@ BOOL CAnalyseInterleaverDlg::OnInitDialog()
          pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
          }
       }
-   
+
    // Set the icon for this dialog.  The framework does this automatically
    //  when the application's main window is not a dialog
    SetIcon(m_hIcon, TRUE);                      // Set big icon
    SetIcon(m_hIcon, FALSE);             // Set small icon
-   
+
    // TODO: Add extra initialization here
    m_pInterleaver = NULL;
    m_nMaxDist = 100;
    UpdateData(false);
-   
+
    return TRUE;  // return TRUE  unless you set the focus to a control
    }
 
@@ -152,14 +152,14 @@ void CAnalyseInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CAnalyseInterleaverDlg::OnPaint() 
+void CAnalyseInterleaverDlg::OnPaint()
    {
    if (IsIconic())
       {
       CPaintDC dc(this); // device context for painting
-      
+
       SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
-      
+
       // Center icon in client rectangle
       int cxIcon = GetSystemMetrics(SM_CXICON);
       int cyIcon = GetSystemMetrics(SM_CYICON);
@@ -167,7 +167,7 @@ void CAnalyseInterleaverDlg::OnPaint()
       GetClientRect(&rect);
       int x = (rect.Width() - cxIcon + 1) / 2;
       int y = (rect.Height() - cyIcon + 1) / 2;
-      
+
       // Draw the icon
       dc.DrawIcon(x, y, m_hIcon);
       }
@@ -185,7 +185,7 @@ HCURSOR CAnalyseInterleaverDlg::OnQueryDragIcon()
    return (HCURSOR) m_hIcon;
    }
 
-void CAnalyseInterleaverDlg::OnLoad() 
+void CAnalyseInterleaverDlg::OnLoad()
    {
    CFileDialog dlg(TRUE, "txt", "*.txt");
    if(dlg.DoModal() == IDOK)
@@ -197,9 +197,9 @@ void CAnalyseInterleaverDlg::OnLoad()
          fscanf(file, "%[^\n]\n", buf);
          } while(strstr(buf,"Tau") == NULL);
       m_nTau = atoi(strchr(buf,'=')+1);
-      
+
       UpdateData(false);
-      
+
       if(m_pInterleaver != NULL)
          delete m_pInterleaver;
       m_pInterleaver = new libcomm::stream_lut(m_sPathName, file, m_nTau, 0);
@@ -207,23 +207,23 @@ void CAnalyseInterleaverDlg::OnLoad()
       }
    }
 
-void CAnalyseInterleaverDlg::OnAnalyse() 
+void CAnalyseInterleaverDlg::OnAnalyse()
    {
    GetDlgItem(IDC_ANALYSE)->EnableWindow(false);
    GetDlgItem(IDC_MAXDIST)->EnableWindow(false);
-   
+
    UpdateData(true);
 
    int i,j;
    m_miIOSS.init(m_nMaxDist,m_nMaxDist);
    m_miIOSS = 0;
-      
+
    // Generate LUT from the interleaver
    libbase::vector<int> in(m_nTau), out(m_nTau);
    for(i=0; i<m_nTau; i++)
       in(i) = i;
    m_pInterleaver->transform(in, out);
-      
+
    // Construct IOSS from LUT
    m_nSpread = m_nMaxDist;
    for(i=0; i<m_nTau; i++)
@@ -240,20 +240,20 @@ void CAnalyseInterleaverDlg::OnAnalyse()
       m_pcProgress.SetPos(int(floor(100*i/double(m_nTau))));
       }
    UpdateData(false);
-   
+
    // Update display
    libwin::CHistogram2D::UpdateData(GetDlgItem(IDC_HISTOGRAM), m_miIOSS);
-      
+
    GetDlgItem(IDC_ANALYSE)->EnableWindow(true);
    GetDlgItem(IDC_MAXDIST)->EnableWindow(true);
    }
 
-void CAnalyseInterleaverDlg::OnOK() 
+void CAnalyseInterleaverDlg::OnOK()
    {
    //CDialog::OnOK();
    }
 
-void CAnalyseInterleaverDlg::OnCancel() 
+void CAnalyseInterleaverDlg::OnCancel()
    {
    CDialog::OnCancel();
    }

@@ -64,10 +64,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CBenchmarkDlg message handlers
 
-BOOL CBenchmarkDlg::OnInitDialog() 
+BOOL CBenchmarkDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // TODO: Add extra initialization here
    if(m_pCodec != NULL)
       m_sCodec = m_pCodec->description().c_str();
@@ -80,12 +80,12 @@ BOOL CBenchmarkDlg::OnInitDialog()
    UpdateData(false);
 
    m_pcProgress.SetRange(0, 100);
-   
+
    return TRUE;  // return TRUE unless you set the focus to a control
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CBenchmarkDlg::OnOK() 
+void CBenchmarkDlg::OnOK()
    {
    UpdateData(true);
    ASSERT(m_pCodec != NULL);
@@ -101,12 +101,12 @@ void CBenchmarkDlg::OnOK()
    ThreadStart(THREAD_PRIORITY_NORMAL);
    }
 
-void CBenchmarkDlg::OnCancel() 
+void CBenchmarkDlg::OnCancel()
    {
    CDialog::OnCancel();
    }
 
-void CBenchmarkDlg::ThreadProc() 
+void CBenchmarkDlg::ThreadProc()
    {
    // Source Generator
    libbase::randgen src;

@@ -42,7 +42,7 @@ mpreal::operator double() const
    {
    return mantissa * pow(base, exponent);
    }
-   
+
 // Base Operations
 
 mpreal& mpreal::operator-()
@@ -50,7 +50,7 @@ mpreal& mpreal::operator-()
    mantissa = -mantissa;
    return *this;
    }
-   
+
 mpreal& mpreal::operator+=(const mpreal& a)
    {
    if(mantissa == 0)
@@ -61,8 +61,8 @@ mpreal& mpreal::operator+=(const mpreal& a)
       }
    if(a.mantissa == 0)
       return *this;
-      
-   if(exponent == a.exponent)    
+
+   if(exponent == a.exponent)
       mantissa += a.mantissa;
    else if(exponent > a.exponent)
       mantissa += a.mantissa * pow(base, a.exponent - exponent);
@@ -75,14 +75,14 @@ mpreal& mpreal::operator+=(const mpreal& a)
    normalise();
    return *this;
    }
-   
+
 mpreal& mpreal::operator-=(const mpreal& a)
    {
    mpreal x = a;
    *this += -x;
    return *this;
    }
-   
+
 mpreal& mpreal::operator*=(const mpreal& a)
    {
    mantissa *= a.mantissa;
@@ -90,7 +90,7 @@ mpreal& mpreal::operator*=(const mpreal& a)
    normalise();
    return *this;
    }
-   
+
 mpreal& mpreal::operator/=(const mpreal& a)
    {
    mantissa /= a.mantissa;
@@ -102,7 +102,7 @@ mpreal& mpreal::operator/=(const mpreal& a)
 // Input/Output Operations
 
 std::ostream& operator<<(std::ostream& s, const mpreal& x)
-   {        
+   {
    using std::ios;
 
    const ios::fmtflags flags = s.flags();
@@ -116,5 +116,5 @@ std::ostream& operator<<(std::ostream& s, const mpreal& x)
    s.flags(flags);
    return s;
    }
-   
+
 }; // end namespace

@@ -17,22 +17,22 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.00 (13-14 Jul 2006)
+   \version 1.00 (13-14 Jul 2006)
   original version, made to conform with fsm 1.50.
 
-  Version 1.10 (30 Oct 2006)
-  * defined class and associated data within "libcomm" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.10 (30 Oct 2006)
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.11 (29 Oct 2007)
-  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+   \version 1.11 (29 Oct 2007)
+   - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 
-  Version 1.20 (3-4 Dec 2007)
-  * updated output() as per fsm 1.70
-  * removed implementation of step() in favor of the default provided by fsm
+   \version 1.20 (3-4 Dec 2007)
+   - updated output() as per fsm 1.70
+   - removed implementation of step() in favor of the default provided by fsm
 
-  Version 1.21 (13 Dec 2007)
-  * modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
+   \version 1.21 (13 Dec 2007)
+   - modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
 
 class dvbcrsc : public fsm {
@@ -50,7 +50,7 @@ public:
    // class management (construction/destruction)
    dvbcrsc(const dvbcrsc& x);           // copy constructor
    ~dvbcrsc();
-   
+
    // class management (cloning/naming)
    dvbcrsc *clone() const { return new dvbcrsc(*this); };               // cloning operation
    const char* name() const { return shelper.name(); };

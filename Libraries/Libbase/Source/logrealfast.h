@@ -26,85 +26,85 @@ namespace libbase {
    - $Date$
    - $Author$
 
-  Version 1.10 (21 Feb 2002)
+   \version 1.10 (21 Feb 2002)
   Fixed some bugs in the LUT working of the system; also added hooks to allow debugging
   by printing to a file the difference values and the errors for all LUT access.
 
-  Version 1.11 (22 Feb 2002)
+   \version 1.11 (22 Feb 2002)
   Optimised the choice of LUT size and range (to 128k entries over [0,12]). Also slightly
   speeded up some other routines in minor ways.
 
-  Version 1.12 (23 Feb 2002)
+   \version 1.12 (23 Feb 2002)
   Other minor speed enhancement changes.
 
-  Version 1.13 (6 Mar 2002)
+   \version 1.13 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
 
-  Version 1.14 (29 Mar 2002)
+   \version 1.14 (29 Mar 2002)
   modified constructor to trap infinite values and NaN; also moved constructor to
   implementation file, since it has become too large to be defined inline.
 
-  Version 1.15 (4 Apr 2002)
+   \version 1.15 (4 Apr 2002)
   modified constructor to trap zero values first; since zero is the default argument, there
   are many more calls with this value than any other, so this should improve performance.
 
-  Version 1.16 (4 Apr 2002)
+   \version 1.16 (4 Apr 2002)
   added default constructor to avoid going through the lengthy constructor for default.
   Also moved the LUT building code into a separate (private) function.
 
-  Version 1.17 (6 Apr 2002)
+   \version 1.17 (6 Apr 2002)
   added assignment from double, as this would otherwise have to make use of the
   constructor, with an additional member copy. Also added a private conversion
   function that returns the logval representing a double, and modified the constructor
   to make use of that function. Also added copy constructors and copy assignment
   operators although the default (member-wise copy) will do anyway.
 
-  Version 1.18 (15 Jun 2002)
+   \version 1.18 (15 Jun 2002)
   changed 'flags' variable in implementation file from type int to type
   ios::fmtflags, as it's supposed to be.
 
-  Version 1.20 (19 Apr 2005)
+   \version 1.20 (19 Apr 2005)
   added specialized pow() function, to avoid conversion to double.
 
-  Version 1.21 (17 Jul 2006)
+   \version 1.21 (17 Jul 2006)
   added explicit conversion of round's output to integer, following the change in
   itfunc 1.07
 
-  Version 1.22 (28 Jul 2006)
+   \version 1.22 (28 Jul 2006)
   added a private helper function to perform the re-used operation where a double is
   checked for infinity and converted to a DBL_MAX of the correct sign. This makes it
   easier to monitor whenever this happens. Also made 'convertfromdouble' a static
   function.
 
-  Version 1.23 (31 Jul 2006)
-  * added comparison operators between variables of this kind - these are required by
+   \version 1.23 (31 Jul 2006)
+   - added comparison operators between variables of this kind - these are required by
   the turbo decoder when taking a hard decision (actually it only uses the greater-than
   operator, but all comparisons are defined here). When these were not supplied, the
   comparison was performed _after_ a conversion to double, which can easily cause
   under- or over-flow, leading to a useless comparison.
-  * note that binary arithmetic operators were already provided.
-  * added the binary minus operator as private, so no-one uses it.
+   - note that binary arithmetic operators were already provided.
+   - added the binary minus operator as private, so no-one uses it.
 
-  Version 1.30 (26 Oct 2006)
-  * defined class and associated data within "libbase" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.30 (26 Oct 2006)
+   - defined class and associated data within "libbase" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.31 (17 Jul 2007)
-  * changed references to isinf() and isnan() back to global namespace, in accord with
+   \version 1.31 (17 Jul 2007)
+   - changed references to isinf() and isnan() back to global namespace, in accord with
     config.h 3.23.
 
-  Version 1.32 (5 Nov 2007)
-  * updated convertfromdouble() so that warnings are not repeated every time.
-  * also changed warning messages to display on trace rather than clog.
+   \version 1.32 (5 Nov 2007)
+   - updated convertfromdouble() so that warnings are not repeated every time.
+   - also changed warning messages to display on trace rather than clog.
 
-  Version 1.33 (7 Nov 2007)
-  * modified such that file output only occurs when DEBUGFILE is defined, rather
+   \version 1.33 (7 Nov 2007)
+   - modified such that file output only occurs when DEBUGFILE is defined, rather
     than in all debug builds.
-  * modified other debug warnings to occur when NDEBUG is not defined.
+   - modified other debug warnings to occur when NDEBUG is not defined.
 
-  Version 1.34 (13 Nov 2007)
-  * updated ensurefinite() so that warnings stop showing if they are repeated often.
+   \version 1.34 (13 Nov 2007)
+   - updated ensurefinite() so that warnings stop showing if they are repeated often.
 */
 
 class logrealfast {
@@ -252,14 +252,14 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
 
    return *this;
    }
-   
+
 inline logrealfast& logrealfast::operator*=(const logrealfast& a)
    {
    logval += a.logval;
    ensurefinite(logval);
    return *this;
    }
-   
+
 inline logrealfast& logrealfast::operator/=(const logrealfast& a)
    {
    logval -= a.logval;
@@ -281,8 +281,8 @@ inline logrealfast operator*(const logrealfast& a, const logrealfast& b)
    logrealfast result = a;
    result *= b;
    return result;
-   }       
-   
+   }
+
 inline logrealfast operator/(const logrealfast& a, const logrealfast& b)
    {
    logrealfast result = a;

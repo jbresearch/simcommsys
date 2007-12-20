@@ -27,19 +27,19 @@ namespace libbase {
    - It also does not suffer from low-order correlations (facilitating its
      use with a variable number of bits/code in the data stream)
 
-  Version 1.01 (16 Nov 2001)
+   \version 1.01 (16 Nov 2001)
   moved 'ready' and 'next_gval' from static objects within gval() to member objects.
 
-  Version 1.02 (23 Feb 2002)
+   \version 1.02 (23 Feb 2002)
   added flushes to all end-of-line clog outputs, to clean up text user interface.
 
-  Version 1.03 (6 Mar 2002)
+   \version 1.03 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
 
-  Version 1.10 (26 Oct 2006)
-  * defined class and associated data within "libbase" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.10 (26 Oct 2006)
+   - defined class and associated data within "libbase" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 class randgen {
@@ -50,7 +50,7 @@ class randgen {
    inline void advance(void);
    bool ready;
    double next_gval;
-#ifdef DEBUG   
+#ifdef DEBUG
    int32u       counter;
 #endif
 public:
@@ -70,13 +70,13 @@ inline void randgen::advance()
    mj = ma[next] - ma[nextp];
    if(mj < 0) mj += mbig;
    ma[next] = mj;
-#ifdef DEBUG   
+#ifdef DEBUG
    counter++;
    if(counter == 0)
       std::clog << "DEBUG: randgen (" << this << ") counter looped ***.\n" << std::flush;
 #endif
    }
-   
+
 inline int32u randgen::ival(int32u m)
    {
    advance();
@@ -92,7 +92,7 @@ inline double randgen::fval()
 inline double randgen::gval()
    {
    if(!ready)
-      {  
+      {
       double v1, v2, rsq;
       do {
          v1 = 2.0 * fval() - 1.0;
@@ -104,7 +104,7 @@ inline double randgen::gval()
       ready = true;
       return (v1 * fac);
       }
-      
+
    ready = false;
    return next_gval;
    }

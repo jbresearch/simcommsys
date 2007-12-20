@@ -29,51 +29,51 @@
    - $Date$
    - $Author$
 
-  Version 2.44 (7 Apr 2002)
+   \version 2.44 (7 Apr 2002)
   in order to allow profiling with more accuracy, modified the main simulation loop
   to stop after two conditions are satisfied: the first is the existing time condition
   (wall-clock), and the second is the minimum number of frames to simulate. This ensures
   that the profiling information is more valid since a better proportion of executable
   time will be in the simulation loop.
 
-  Version 2.45 (12 Jun 2002)
+   \version 2.45 (12 Jun 2002)
   added a second command-line parameter "-q" which forces the program to output nothing
   to stdout except for the final speed metric.
 
-  Version 2.46 (25 Jul 2006)
+   \version 2.46 (25 Jul 2006)
   after fixing a bug introduced recently in the turbo 'encode' process, the official
   list of standard results has now been updated so that a 0% deviation is expected
   (rather than the -5% on BER that was expected in the earlier version).
 
-  Version 2.50 (27 Jul 2006)
+   \version 2.50 (27 Jul 2006)
   first version based on montecarlo class, rather than direct sampling of the commsys
   class. The most notable improvement is that this automatically incorporates the use
   of MPI for benchmarking clusters / multi-processor systems. Notably here, the final
   benchmark of frames/CPUsec has now become frames/sec, as scaling by usage is no
   longer meaningful.
 
-  Version 2.51 (1 Aug 2006)
+   \version 2.51 (1 Aug 2006)
   following the update to bcjr, where the alpha and beta metrics are normalized, this
-  version of SPECturbo now uses the double-precision based turbo and bcjr algorithms,
+   version of SPECturbo now uses the double-precision based turbo and bcjr algorithms,
   resulting in more than 6x increase in speed. Consequently, the simulation tolerance
   limits had to be tightened.
 
-  Version 2.52 (30 Oct 2006)
-  * updated to use library namespaces.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 2.52 (30 Oct 2006)
+   - updated to use library namespaces.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 2.53 (10 Nov 2006)
-  * removed use of "using namespace" for libbase and libcomm.
-  
-  Version 2.60 (20 Apr 2007)
-  * converted to use masterslave instead of cmpi
-  * TODO: fix argument handling (masterslave should do its thing before the main function)
-  * TODO: fix system so that it can work in single-task mode ?
-  
-  Version 2.61 (24-25 Apr 2007)
-  * removed call to masterslave::disable(), to conform with masterslave 1.10
-  * updated to conform with montecarlo 1.31
-  * refactored codec creation to occur within a separate function and to create
+   \version 2.53 (10 Nov 2006)
+   - removed use of "using namespace" for libbase and libcomm.
+
+   \version 2.60 (20 Apr 2007)
+   - converted to use masterslave instead of cmpi
+   - TODO: fix argument handling (masterslave should do its thing before the main function)
+   - TODO: fix system so that it can work in single-task mode ?
+
+   \version 2.61 (24-25 Apr 2007)
+   - removed call to masterslave::disable(), to conform with masterslave 1.10
+   - updated to conform with montecarlo 1.31
+   - refactored codec creation to occur within a separate function and to create
     all system components on the heap.
 */
 
@@ -115,13 +115,13 @@ libcomm::commsys createsystem()
    // The complete communication system
    return libcomm::commsys(src, codec, modem, punc, chan);
    }
-   
+
 int main(int argc, char *argv[])
    {
    // Create estimator object and initilize cluster, default priority
    mymontecarlo estimator;
    estimator.enable(&argc, &argv);
-      
+
    // Simulation parameters
    const double SNR = 0.5;
    const double simtime = argc > 1 ? atoi(argv[1]) : 60;
@@ -133,14 +133,14 @@ int main(int argc, char *argv[])
    estimator.initialise(&system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
-   
+
    // Write some information on the code
    if(!quiet)
       {
       cout << "\n";
       cout << "System Used:\n";
       cout << "~~~~~~~~~~~~\n";
-      cout << system.description() << "\n"; 
+      cout << system.description() << "\n";
       cout << "Tolerance: " << 100*accuracy << "%\n";
       cout << "Confidence: " << 100*confidence << "%\n";
       cout << "Date: " << libbase::timer::date() << "\n";

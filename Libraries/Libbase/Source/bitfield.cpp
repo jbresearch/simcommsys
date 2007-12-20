@@ -17,7 +17,7 @@ namespace libbase {
 using std::cerr;
 
 // Static Members
-                     
+
 int bitfield::defsize = 0;
 
 // Private functions
@@ -72,7 +72,7 @@ bitfield::operator std::string() const
    }
 
 // Creation and Destruction
-   
+
 bitfield::bitfield()
    {
    bits = defsize;
@@ -86,7 +86,7 @@ bitfield::bitfield(const int32u field, const int bits)
    }
 
 // Resizing Operations
-   
+
 void bitfield::resize(const int b)
    {
    check_fieldsize(b);
@@ -108,7 +108,7 @@ bitfield& bitfield::operator=(const bitfield& x)
    field = x.field;
    return *this;
    }
-   
+
 bitfield& bitfield::operator=(const int32u x)
    {
    check_range(x);
@@ -180,7 +180,7 @@ bitfield& bitfield::operator^=(const bitfield& x)
    }
 
 // Logic Operations - friends
-   
+
 bitfield operator|(const bitfield& a, const bitfield& b)
    {
    bitfield c = a;

@@ -26,7 +26,7 @@ rscc::rscc(const libbase::matrix<bitfield>& generator) : ccbfsm(generator)
 rscc::rscc(const rscc& x) : ccbfsm(x)
    {
    }
-   
+
 // FSM state operations (getting and resetting)
 
 void rscc::resetcircular(int zerostate, int n)

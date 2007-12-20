@@ -35,11 +35,11 @@ namespace libcomm {
    \version 1.30 (2 Sep 1999)
    added a hook for clients to know the number of frames simulated in a particular run.
 
-   \version 1.31 (1 Mar 2002)   
+   \version 1.31 (1 Mar 2002)
    edited the classes to be compileable with Microsoft extensions enabled - in practice,
    the major change is in for() loops, where MS defines scope differently from ANSI.
    Rather than taking the loop variables into function scope, we chose to avoid having
-   more than one loop per function, by defining private helper functions (or doing away 
+   more than one loop per function, by defining private helper functions (or doing away
    with them if there are better ways of doing the same operation).
 
    \version 1.32 (6 Mar 2002)
@@ -98,8 +98,7 @@ namespace libcomm {
 
    \version 1.80 (19 Dec 2007)
    - Added computation and return of symbol error rate (always performed, even if
-     symbols are binary and therefore SER=BER). Note that this breaks previous plotting
-     programs which assumed the sequence to be (BER,FER) repeated for all iterations.
+     symbols are binary and therefore SER=BER).
 */
 
 class commsys : public experiment {
@@ -122,8 +121,9 @@ protected:
    void createsource();
    void transmitandreceive();
    int countbiterrors() const;
-   int countsymerrors() const;
    virtual void cycleonce(libbase::vector<double>& result);
+   int GetSymerrors();
+
    void init();
    void clear();
    void free();
@@ -132,7 +132,7 @@ public:
    commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan);
    commsys(const commsys& c);
    ~commsys() {};
-   
+
    commsys *clone() const { return new commsys(*this); };      // cloning operation
    const char* name() const { return shelper.name(); };
 

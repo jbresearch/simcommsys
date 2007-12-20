@@ -4,13 +4,13 @@
 #include "matrix.h"
 
 /*
-  Version 1.10 (6 Nov 2006)
-  * defined class and associated data within "libwin" namespace.
-  * removed pragma once directive, as this is unnecessary
-  * changed unique define to conform with that used in other libraries
-  
-  Version 1.11 (28 Nov 2007)
-  * modifications to silence 64-bit portability warnings
+   \version 1.10 (6 Nov 2006)
+   - defined class and associated data within "libwin" namespace.
+   - removed pragma once directive, as this is unnecessary
+   - changed unique define to conform with that used in other libraries
+
+   \version 1.11 (28 Nov 2007)
+   - modifications to silence 64-bit portability warnings
     - changed type cast from int to UINT_PTR in UpdateData()
 */
 

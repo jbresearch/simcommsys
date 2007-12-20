@@ -16,20 +16,20 @@
 #endif
 
 /*
-  Version 1.00 (8 Nov 2002)
+   \version 1.00 (8 Nov 2002)
   initial version; based initially on PSPlugIn 1.52.
 
-  Version 1.01 (9 Nov 2002)
+   \version 1.01 (9 Nov 2002)
   finished off writing the high-level event playback functions for the streganography
   and binary suites.
 
-  Version 1.02 (11 Nov 2002)
+   \version 1.02 (11 Nov 2002)
   bug fix: moved memory allocation for data block to a new private function, which is
   now called from Reload; added version checking for data block; removed de-allocation
   from Unload. [interim version - never used]
 
-  Version 1.10 (12 Nov 2002)
-  * based on Don Ashe's suggestions, and also following the Listener plugin as a sample,
+   \version 1.10 (12 Nov 2002)
+   - based on Don Ashe's suggestions, and also following the Listener plugin as a sample,
   parameters are now only "stored" between calls through the scripting system. Thus, all
   data-block related code has been removed, and high-level routines for handling the
   scripting system have been added (similar to PSPlugIn). Derived classes are now
@@ -39,43 +39,43 @@
   constructor/destructor respectively, or 3) by allocating/deallocating memory in the
   Reload/Unload calls, as specified by the photoshop API. It seems to me that option 2
   allows for the greatest flexibility with minimal overhead.
-  * added a new virtual function Execute, which is called when the Photoshop DoIt
+   - added a new virtual function Execute, which is called when the Photoshop DoIt
   message is received. This encapsulates all that needs to be done at that stage,
   including reading/writing script parameters, showing the dialog, and calling Process.
-  * changed the pData parameter in PluginMain from const void* to void*
+   - changed the pData parameter in PluginMain from const void* to void*
 
-  Version 1.11 (14 Nov 2002)
-  * added Photoshop event playback for the following events: Open, Close, ConvertMode
+   \version 1.11 (14 Nov 2002)
+   - added Photoshop event playback for the following events: Open, Close, ConvertMode
   SelectState, SaveJPEG, Revert.
-  * added support for handling alias and reference values (had only descriptors before).
-  * added acquire/release of Handle Suite (needed for handling aliases)
+   - added support for handling alias and reference values (had only descriptors before).
+   - added acquire/release of Handle Suite (needed for handling aliases)
 
-  Version 1.12 (16 Nov 2002)
+   \version 1.12 (16 Nov 2002)
   modified PlayeventExtract to conform with the changes in FilterExtract 1.41.
 
-  Version 1.13 (19 Feb 2003)
+   \version 1.13 (19 Feb 2003)
   removed inclusion of PIDefines, which is part of the SDK sample code, and not the API
   itself.
 
-  Version 1.14 (13 Oct 2003)
-  * added definition for DLLExport - this was previously being taken from PIDefines, which
+   \version 1.14 (13 Oct 2003)
+   - added definition for DLLExport - this was previously being taken from PIDefines, which
   is part of the SDK sample code and not of the API itself. Compilations of automation
   classes were broken since v1.13 when PIDefines was removed; somehow this has not been
   detected earlier.
-  * added PlayeventSaveLZW for TIFF/LZW compressed save.
+   - added PlayeventSaveLZW for TIFF/LZW compressed save.
 
-  Version 1.20 (6 Nov 2006)
-  * defined class and associated data within "libwin" namespace.
-  * removed pragma once directive, as this is unnecessary
-  * changed unique define to conform with that used in other libraries
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.20 (6 Nov 2006)
+   - defined class and associated data within "libwin" namespace.
+   - removed pragma once directive, as this is unnecessary
+   - changed unique define to conform with that used in other libraries
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.21 (10 Nov 2006)
-  * made class a derivative of CRoutedIO.
+   \version 1.21 (10 Nov 2006)
+   - made class a derivative of CRoutedIO.
 
-  Version 1.22 (7 Nov 2007)
-  * moved Adobe SDK includes here from stdafx.h.
-  * made this module compile only when ADOBESDK is defined.
+   \version 1.22 (7 Nov 2007)
+   - moved Adobe SDK includes here from stdafx.h.
+   - made this module compile only when ADOBESDK is defined.
 */
 
 namespace libwin {
@@ -133,7 +133,7 @@ protected:
    bool GetFloat(PIActionDescriptor descriptor, DescriptorKeyID key, double *data);
    bool GetBoolean(PIActionDescriptor descriptor, DescriptorKeyID key, bool *data);
    bool GetString(PIActionDescriptor descriptor, DescriptorKeyID key, char *data);
-   
+
    // high-level access - event playback
    PIActionDescriptor PlayEvent(DescriptorEventID event, PIActionDescriptor descriptor, PIDialogPlayOptions options);
 

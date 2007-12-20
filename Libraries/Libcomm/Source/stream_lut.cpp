@@ -10,7 +10,7 @@
 #include "stream_lut.h"
 
 namespace libcomm {
-            
+
 // creation/destruction functions
 
 stream_lut::stream_lut(const char *filename, FILE *file, const int tau, const int m)

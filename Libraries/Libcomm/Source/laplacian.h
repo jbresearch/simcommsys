@@ -19,14 +19,14 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.00 (15 Apr 2001)
+   \version 1.00 (15 Apr 2001)
   First version - note that as with the Gaussian channel, the distribution
   has zero mean even in this case.
 
-  Version 1.01 (6 Mar 2002)
+   \version 1.01 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
 
-  Version 1.10 (13 Mar 2002)
+   \version 1.10 (13 Mar 2002)
   updated the system to conform with the completed serialization protocol (in conformance
   with channel 1.10), by adding the necessary name() function, and also by adding a static
   serializer member and initialize it with this class's name and the static constructor
@@ -35,23 +35,23 @@ namespace libcomm {
   the class (causing access violations). Also moved most functions into the implementation
   file rather than here.
 
-  Version 1.20 (27 Mar 2002)
+   \version 1.20 (27 Mar 2002)
   changed descriptive output function to conform with channel 1.30.
 
-  Version 1.30 (30 Oct 2006)
-  * defined class and associated data within "libcomm" namespace.
+   \version 1.30 (30 Oct 2006)
+   - defined class and associated data within "libcomm" namespace.
 
-  Version 1.40 (16 Oct 2007)
+   \version 1.40 (16 Oct 2007)
   changed class to conform with channel 1.50.
 
-  Version 1.41 (16 Oct 2007)
+   \version 1.41 (16 Oct 2007)
   changed class to conform with channel 1.51.
 
-  Version 1.42 (17 Oct 2007)
+   \version 1.42 (17 Oct 2007)
   changed class to conform with channel 1.52.
 
-  Version 1.43 (29 Oct 2007)
-  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+   \version 1.43 (29 Oct 2007)
+   - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 class laplacian : public channel {

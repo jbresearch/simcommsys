@@ -19,34 +19,34 @@ namespace libbase {
    - $Date$
    - $Author$
 
-  Version 1.00 (20-21 Apr 2007)
-  * new class to support socket-based master-slave relationship
-  * derived from cmpi 2.40
-  * supports dynamic slave list
-  * meant to replace cmpi in montecarlo
-  * TODO (2): serialize to network byte order always...
-  * TODO (3): eventually cmpi will be modified to support this class interface model,
+   \version 1.00 (20-21 Apr 2007)
+   - new class to support socket-based master-slave relationship
+   - derived from cmpi 2.40
+   - supports dynamic slave list
+   - meant to replace cmpi in montecarlo
+   - TODO (2): serialize to network byte order always...
+   - TODO (3): eventually cmpi will be modified to support this class interface model,
     and a new abstract class created to encapsulate both models
-  
-  Version 1.10 (23-25 Apr 2007)
-  * Modified all send/receive functions to use network byte order, allowing
+
+   \version 1.10 (23-25 Apr 2007)
+   - Modified all send/receive functions to use network byte order, allowing
     heterogenous usage
-  * Added functions to send/receive byte-wide buffers & strings
-  * Changed collection of CPU usage to CPU time
-  * Modified waitforevent() by adding a bool parameter, to be able to disable the
+   - Added functions to send/receive byte-wide buffers & strings
+   - Changed collection of CPU usage to CPU time
+   - Modified waitforevent() by adding a bool parameter, to be able to disable the
     acceptance of new connections
-  * Changed disable() from a static function to a regular member, and added automatic
+   - Changed disable() from a static function to a regular member, and added automatic
     calling from the object destructor
-  * Fixed CPU usage information reporting, by implementing the transfer between slaves
+   - Fixed CPU usage information reporting, by implementing the transfer between slaves
     and master, through a new function called updatecputime()
-  * Left passing of priority to enable function as default priority, but this can
+   - Left passing of priority to enable function as default priority, but this can
     now be overridden by a command-line parameter
-  * Changed usage model so that client functions are not statics, and so that users
+   - Changed usage model so that client functions are not statics, and so that users
     of this class now declare themselves as derived classes, rather than instantiating
     and object; this is tied with the requirements for RPC functions.
-  * TODO: In view of above, most functions are now protected rather than public, since
+   - TODO: In view of above, most functions are now protected rather than public, since
     only enable/disable are required by other than the derived classes.
-  * Changed function-call model so that we don't have to pass pointers; this was
+   - Changed function-call model so that we don't have to pass pointers; this was
     in great part necessitated by the above change, since the current model only supports
     global pointers. Instead, function calls are now done by passing a string reference,
     which is used as a key in a map list. Two new functions have been added:
@@ -54,24 +54,24 @@ namespace libbase {
     - fcall() to actually call them
     Since this class cannot know the exact type of the function pointers, these are held
     by functors, implemented as an abstract base class and a templated derived one.
-  * Heavily refactored
-  
-  Version 1.20 (8 May 2007)
-  * Ported to Windows, using Winsock2 API
-  * TODO: make setting priority effective on Windows
-  
-  Version 1.21 (20 Nov 2007)
-  * Added timeout facility to waitforevent(), defaulting to no-timeout.
-  * Modified anyoneworking(), making it a const function.
-  * Added workingslaves(), returning the number of slaves currently working.
-  
-  Version 1.22 (28 Nov 2007)
-  * modifications to silence 64-bit portability warnings
+   - Heavily refactored
+
+   \version 1.20 (8 May 2007)
+   - Ported to Windows, using Winsock2 API
+   - TODO: make setting priority effective on Windows
+
+   \version 1.21 (20 Nov 2007)
+   - Added timeout facility to waitforevent(), defaulting to no-timeout.
+   - Modified anyoneworking(), making it a const function.
+   - Added workingslaves(), returning the number of slaves currently working.
+
+   \version 1.22 (28 Nov 2007)
+   - modifications to silence 64-bit portability warnings
     - changed getnumslaves() return type from int to size_t
     - similar changes in enable() and send() functions
-  
-  Version 1.23 (30 Nov 2007)
-  * refactoring work
+
+   \version 1.23 (30 Nov 2007)
+   - refactoring work
     - extracted method dowork()
 */
 
@@ -98,7 +98,7 @@ private:
    double cputimeused;
    timer t;
 protected:
-   void fregister(const std::string& name, functor *f); 
+   void fregister(const std::string& name, functor *f);
    void fcall(const std::string& name);
 public:
    // global enable of cluster system

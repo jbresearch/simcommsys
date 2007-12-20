@@ -118,7 +118,7 @@ private:
    time-steps. In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
    \note The smallest allowed value is \f$ I = 1 \f$
    */
-   int      I;          
+   int      I;
    //! Assumed maximum drift over a whole \c N -bit block
    /*!
    \f[ x_{max} = 5 \sqrt{N p (1-p)} \f]
@@ -200,7 +200,7 @@ public:
 };
 
 inline double bsid::pdf(const sigspace& tx, const sigspace& rx) const
-   {      
+   {
    return (tx != rx) ? Ps : 1-Ps;
    }
 

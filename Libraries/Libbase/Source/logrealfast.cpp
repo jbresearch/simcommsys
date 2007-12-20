@@ -86,14 +86,14 @@ double logrealfast::convertfromdouble(const double m)
       return DBL_MAX;
       }
    // finally convert (value must be ok)
-   else 
+   else
       return -log(m);
    }
 
 // Input/Output Operations
 
 std::ostream& operator<<(std::ostream& s, const logrealfast& x)
-   {        
+   {
    using std::ios;
 
    const double lg = -x.logval/log(10.0);

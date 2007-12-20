@@ -21,18 +21,18 @@
 //
 
 /*
-  Version 1.01 (9 Oct 2006)
+   \version 1.01 (9 Oct 2006)
   modified redirection of cerr/clog/cout to used read-buffer manipulation instead of
   direct assignment. This was necessitated in VS .NET 2005, but the code was not
   written to be compiler-dependent in the hope that this should still work on older
   Visual compilers.
 
-  Version 1.02 (10 Nov 2006)
-  * updated to use library namespaces.
-  * made class a derivative of CRoutedIO.
-  
-  Version 1.03 (28 Nov 2007)
-  * modifications to silence 64-bit portability warnings
+   \version 1.02 (10 Nov 2006)
+   - updated to use library namespaces.
+   - made class a derivative of CRoutedIO.
+
+   \version 1.03 (28 Nov 2007)
+   - modifications to silence 64-bit portability warnings
     - changed response type from int to INT_PTR in InitInstance()
 */
 

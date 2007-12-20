@@ -64,7 +64,7 @@ public:
    ccfsm(const ccfsm& x);
    ~ccfsm() {};
    // @}
-   
+
    /*! \name FSM state operations (getting and resetting) */
    int state() const;
    void reset(int state=0);

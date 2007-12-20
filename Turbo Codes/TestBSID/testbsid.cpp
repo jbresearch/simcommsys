@@ -45,6 +45,6 @@ int main(int argc, char *argv[])
    channel2.set_pd(0.3);
    channel2.transmit(tx, rx2);
    cout << "Rx2: " << rx2 << "\n";
-   
+
    return 0;
    }

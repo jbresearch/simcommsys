@@ -40,7 +40,7 @@ void rectangular::init(const int tau, const int rows, const int cols)
    for(i=blklen; i<tau; i++)
       lut(i) = i;
    }
-   
+
 // description output
 
 std::string rectangular::description() const

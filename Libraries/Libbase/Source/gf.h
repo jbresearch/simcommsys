@@ -30,7 +30,7 @@ namespace libbase {
    - Moved string conversion routine from constructor to a new init function
    - Moved non-member arithmetic ops here
 
-   
+
    \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
    \param   poly  Primitive polynomial used to define the field elements
 

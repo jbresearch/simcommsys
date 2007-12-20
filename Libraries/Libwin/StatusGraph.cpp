@@ -15,9 +15,9 @@ namespace libwin {
 LRESULT CALLBACK AFX_EXPORT CStatusGraphWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
    {
    AFX_MANAGE_STATE(AfxGetStaticModuleState());
-   
+
    CWnd* pWnd;
-   
+
    pWnd = CWnd::FromHandlePermanent(hWnd);
    if (pWnd == NULL) {
       // Assume that client created a CStatusGraph window
@@ -55,10 +55,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CStatusGraph message handlers
 
-void CStatusGraph::OnPaint() 
+void CStatusGraph::OnPaint()
    {
         CPaintDC dc(this); // device context for painting
-        
+
    CRect rectClient;
    GetClientRect(rectClient);
    const int xsize = rectClient.Width();

@@ -12,12 +12,12 @@ namespace libbase {
    - $Date$
    - $Author$
 
-  Version 1.00 (25 Apr 2007)
-  * Initial version, defining a functor class for functions that take no argmuents
+   \version 1.00 (25 Apr 2007)
+   - Initial version, defining a functor class for functions that take no argmuents
     and return nothing.
 
-  Version 1.01 (17 Oct 2007)
-  * Added virtual destructor for functor (should have done that before).
+   \version 1.01 (17 Oct 2007)
+   - Added virtual destructor for functor (should have done that before).
 */
 
 // abstract base class

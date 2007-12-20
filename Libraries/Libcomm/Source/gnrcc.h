@@ -42,7 +42,7 @@ public:
    gnrcc(const gnrcc<G>& x);
    ~gnrcc() {};
    // @}
-   
+
    /*! \name Class management (cloning/naming) */
    gnrcc<G> *clone() const { return new gnrcc<G>(*this); };
    const char* name() const { return shelper.name(); };

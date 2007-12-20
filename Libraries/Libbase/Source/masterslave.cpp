@@ -45,7 +45,7 @@ void masterslave::fregister(const std::string& name, functor *f)
    fmap[name] = f;
    trace << fmap.size() << " functions registered, done.\n";
    }
-    
+
 void masterslave::fcall(const std::string& name)
    {
    trace << "DEBUG: Call function \"" << name << "\" - ";
@@ -94,14 +94,14 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
       (*argv)[*argc-2] = NULL;
       (*argc)-=2;
       }
-   
+
    // If the hostname part isn't empty, it's a slave process
    if(hostname.length() > 0)
       slaveprocess(hostname, port, actualpriority);
    // Otherwise, this must be the master process.
    master = new socket;
    if(!master->bind(port))
-      exit(1);      
+      exit(1);
    trace << "Master system bound to port " << port << "\n";
    }
 
@@ -123,7 +123,7 @@ void masterslave::setpriority(const int priority)
    ::setpriority(PRIO_PROCESS, PRIO_CURRENT, priority);
 #endif
    }
-   
+
 void masterslave::connect(const std::string& hostname, const int16u port)
    {
    cerr << "Connecting to " << hostname << ":" << port << "\n";
@@ -134,7 +134,7 @@ void masterslave::connect(const std::string& hostname, const int16u port)
       exit(1);
       }
    }
-   
+
 std::string masterslave::gethostname()
    {
    const int len = HOST_NAME_MAX+1;
@@ -142,7 +142,7 @@ std::string masterslave::gethostname()
    ::gethostname(hostname, len);
    return hostname;
    }
-   
+
 int masterslave::gettag()
    {
    timer t;
@@ -224,7 +224,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port, c
             exit(1);
          }
    }
-   
+
 // slave -> master communication
 
 bool masterslave::send(const void *buf, const size_t len)
@@ -265,7 +265,7 @@ bool masterslave::send(const std::string& x)
       return false;
    return send(x.c_str(), len);
    }
-   
+
 bool masterslave::receive(void *buf, const size_t len)
    {
    if(!master->insistread(buf, len))
@@ -275,7 +275,7 @@ bool masterslave::receive(void *buf, const size_t len)
       }
    return true;
    }
-   
+
 bool masterslave::receive(int& x)
    {
    return receive(&x, sizeof(x));
@@ -310,7 +310,7 @@ void masterslave::close(slave *s)
    delete s;
    cerr << ", currently have " << smap.size() << " clients\n";
    }
-   
+
 // creation and destruction
 
 masterslave::masterslave()
@@ -363,7 +363,7 @@ masterslave::slave *masterslave::newslave()
          }
    return NULL;
    }
-   
+
 masterslave::slave *masterslave::idleslave()
    {
    for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
@@ -374,7 +374,7 @@ masterslave::slave *masterslave::idleslave()
          }
    return NULL;
    }
-   
+
 masterslave::slave *masterslave::pendingslave()
    {
    for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
@@ -385,7 +385,7 @@ masterslave::slave *masterslave::pendingslave()
          }
    return NULL;
    }
-   
+
 int masterslave::workingslaves() const
    {
    int count = 0;
@@ -394,7 +394,7 @@ int masterslave::workingslaves() const
          count++;
    return count;
    }
-   
+
 bool masterslave::anyoneworking() const
    {
    for(std::map<socket *, slave *>::const_iterator i=smap.begin(); i != smap.end(); ++i)
@@ -402,7 +402,7 @@ bool masterslave::anyoneworking() const
          return true;
    return false;
    }
-   
+
 void masterslave::waitforevent(const bool acceptnew, const double timeout)
    {
    static bool firsttime = true;
@@ -411,14 +411,14 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
       cerr << "Master system ready; waiting for clients.\n";
       firsttime = false;
       }
-      
-   // create list of sockets and select 
+
+   // create list of sockets and select
    std::list<socket *> sl, al;
-   
+
    sl.push_back(master);
    for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
       sl.push_back(i->second->sock);
-   
+
    al = socket::select(sl, timeout);
    for(std::list<socket *>::iterator i=al.begin(); i != al.end(); ++i)
       {
@@ -435,7 +435,7 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
          slave *j = smap[*i];
          j->state = slave::EVENT_PENDING;
          }
-      } 
+      }
    }
 
 void masterslave::resetslaves()
@@ -446,7 +446,7 @@ void masterslave::resetslaves()
    }
 
 // master -> slave communication
-   
+
 bool masterslave::send(slave *s, const void *buf, const size_t len)
    {
    if(!s->sock->insistwrite(buf, len))
@@ -456,7 +456,7 @@ bool masterslave::send(slave *s, const void *buf, const size_t len)
       }
    return true;
    }
-   
+
 bool masterslave::send(slave *s, const int x)
    {
    return send(s, &x, sizeof(x));

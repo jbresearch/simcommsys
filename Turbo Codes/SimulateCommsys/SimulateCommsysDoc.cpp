@@ -50,7 +50,7 @@ BOOL CSimulateCommsysDoc::OnNewDocument()
    {
    if (!CDocument::OnNewDocument())
       return FALSE;
-   
+
    // Note: SDI documents reuse this document
    Free();
    m_pChannel = new libcomm::awgn;
@@ -62,7 +62,7 @@ BOOL CSimulateCommsysDoc::OnNewDocument()
    m_dConfidence = 0.90;
 
    ClearResults();
-   
+
    return TRUE;
    }
 
@@ -89,7 +89,7 @@ void CSimulateCommsysDoc::Serialize(CArchive& ar)
          file << "#% Puncturing: " << m_pPuncture->description() << "\n";
       file << "#% Channel: " << m_pChannel->description() << "\n";
       file << "#\n";
-      
+
       // Print the results
       file.precision(6);
       for(std::list<SResult>::iterator p=m_lsResults.begin(); p != m_lsResults.end(); p++)

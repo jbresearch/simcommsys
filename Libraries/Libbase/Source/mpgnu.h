@@ -20,13 +20,13 @@ namespace libbase {
    - $Date$
    - $Author$
 
-  Version 1.01 (6 Mar 2002)
+   \version 1.01 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
 
-  Version 1.10 (26 Oct 2006)
-  * defined class and associated data within "libbase" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.10 (26 Oct 2006)
+   - defined class and associated data within "libbase" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 class mpgnu {
@@ -120,7 +120,7 @@ inline mpgnu& mpgnu::operator-()
 #endif
    return *this;
    }
-   
+
 inline mpgnu& mpgnu::operator+=(const mpgnu& a)
    {
 #ifdef GMP
@@ -128,7 +128,7 @@ inline mpgnu& mpgnu::operator+=(const mpgnu& a)
 #endif
    return *this;
    }
-   
+
 inline mpgnu& mpgnu::operator-=(const mpgnu& a)
    {
 #ifdef GMP
@@ -136,7 +136,7 @@ inline mpgnu& mpgnu::operator-=(const mpgnu& a)
 #endif
    return *this;
    }
-   
+
 inline mpgnu& mpgnu::operator*=(const mpgnu& a)
    {
 #ifdef GMP
@@ -144,7 +144,7 @@ inline mpgnu& mpgnu::operator*=(const mpgnu& a)
 #endif
    return *this;
    }
-   
+
 inline mpgnu& mpgnu::operator/=(const mpgnu& a)
    {
 #ifdef GMP
@@ -180,8 +180,8 @@ inline mpgnu operator*(const mpgnu& a, const mpgnu& b)
    mpf_mul(result.value, a.value, b.value);
 #endif
    return result;
-   }       
-   
+   }
+
 inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
    {
    mpgnu result;
@@ -194,7 +194,7 @@ inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
 // Input/Output Operations
 
 inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
-   {        
+   {
 #ifdef GMP
    using std::ios;
 

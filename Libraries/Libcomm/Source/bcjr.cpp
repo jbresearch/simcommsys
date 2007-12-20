@@ -7,7 +7,7 @@
    - $Author$
 */
 
-#include "bcjr.h"     
+#include "bcjr.h"
 
 namespace libcomm {
 
@@ -32,7 +32,7 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
       std::cerr << "FATAL ERROR (bcjr): MAP decoder block size too small (" << tau << ")\n";
       exit(1);
       }
-    
+
    bcjr::tau = tau;
 
    // Initialise constants
@@ -48,7 +48,6 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
    lut_i.init(M);
    for(int mdash=0; mdash<M; mdash++)
       {
-      {
       for(int i=0; i<K; i++)
          {
          encoder.reset(mdash);
@@ -56,7 +55,6 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
          lut_X(mdash, i) = encoder.step(input);
          lut_m(mdash, i) = encoder.state();
          }
-      }
       // we should not need the following if the trellis does not end at zero
       if(endatzero)
          {
@@ -68,7 +66,7 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
          lut_i(mdash) = i;
          }
       }
-   
+
    // memory is only allocated in the first decode call, so we have to store the
    // startatzero and endatzero conditions for the intialisation time
    bcjr::startatzero = startatzero;
@@ -91,7 +89,7 @@ template <class real, class dbl> void bcjr<real,dbl>::reset()
       return;
       }
 
-   // initialise alpha and beta arrays    
+   // initialise alpha and beta arrays
    alpha(0, 0) = startatzero ? 1 : 1.0/double(M);
    beta(tau, 0) = endatzero ? 1 : 1.0/double(M);
    for(int m=1; m<M; m++)
@@ -114,7 +112,7 @@ template <class real, class dbl> void bcjr<real,dbl>::allocate()
    // flag the state of the arrays
    initialised = true;
 
-   // initialise alpha and beta arrays    
+   // initialise alpha and beta arrays
    reset();
    }
 
@@ -143,7 +141,7 @@ template <class real, class dbl> real bcjr<real,dbl>::lambda(const int t, const 
    {
    return alpha(t, m) * beta(t, m);
    }
-   
+
 //! Transition probability metric - sigma(t,m,i) = Pr{S(t-1)=m, S(t)=m(m,i), Y[1..tau]}
 template <class real, class dbl> real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
    {
@@ -222,7 +220,7 @@ template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
       for(int mdash=0; mdash<M; mdash++)
          for(int i=0; i<K; i++)
             {
-            int m = lut_m(mdash, i); 
+            int m = lut_m(mdash, i);
             alpha(t, m) += alpha(t-1, mdash) * gamma(t-1, mdash, i);
             }
       // normalize
@@ -262,7 +260,7 @@ template <class real, class dbl> void bcjr<real,dbl>::work_beta()
          beta(t, m) = 0;
          for(int i=0; i<K; i++)
             {
-            int mdash = lut_m(m, i); 
+            int mdash = lut_m(m, i);
             beta(t, m) += beta(t+1, mdash) * gamma(t, m, i);
             }
          }
@@ -339,7 +337,7 @@ template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& 
    for(int t=1; t<=tau; t++)
       for(int i=0; i<K; i++)    // for each possible input, given the state we were in
          {
-         // initialise results (we divide on every increment as division is faster 
+         // initialise results (we divide on every increment as division is faster
          // than addition for logreal - this makes other representations slower)
          dbl delta = 0;
          for(int mdash=0; mdash<M; mdash++)     // for each possible state at time t-1
@@ -395,7 +393,7 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 
    // backward pass
    work_beta();
-   
+
    // Work out final results
    work_results(ri, ro);
    }
@@ -423,7 +421,7 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 
    // backward pass
    work_beta();
-   
+
    // Work out final results
    work_results(ri, ro);
    }
@@ -447,7 +445,7 @@ template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>&
 
    // backward pass
    work_beta();
-   
+
    // Work out final results
    work_results(ri);
    }
@@ -473,7 +471,7 @@ template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>&
 
    // backward pass
    work_beta();
-   
+
    // Work out final results
    work_results(ri);
    }

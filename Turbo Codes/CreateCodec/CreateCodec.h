@@ -20,8 +20,8 @@
 //
 
 /*
-  Version 1.10 (10 Nov 2006)
-  * updated to use library namespaces.
+   \version 1.10 (10 Nov 2006)
+   - updated to use library namespaces.
 */
 
 class CCreateCodecApp : public CWinApp

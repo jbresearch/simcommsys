@@ -288,7 +288,7 @@ bool md5::verify(const string message, const string hash)
 
 int32u md5::cshift(const int32u x, const int s)
    {
-   return (x << s) | (x >> (32-s));   
+   return (x << s) | (x >> (32-s));
    }
 
 //////////////////////////////////////////////////////////////////////

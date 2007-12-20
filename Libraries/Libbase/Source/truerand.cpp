@@ -24,7 +24,7 @@ namespace libbase {
 truerand::truerand()
    {
 #ifdef WIN32
-   if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) 
+   if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
       {
       std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << getlasterror() << ".\n";
       exit(1);
@@ -38,7 +38,7 @@ truerand::truerand()
       }
 #endif
    }
-   
+
 truerand::~truerand()
    {
 #ifdef WIN32

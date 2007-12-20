@@ -19,9 +19,9 @@ void awgn::compute_parameters(const double Eb, const double No)
    {
    sigma = sqrt(Eb*No);
    }
-   
+
 // channel handle functions
-   
+
 sigspace awgn::corrupt(const sigspace& s)
    {
    const double x = r.gval(sigma);
@@ -30,7 +30,7 @@ sigspace awgn::corrupt(const sigspace& s)
    }
 
 double awgn::pdf(const sigspace& tx, const sigspace& rx) const
-   {      
+   {
    sigspace n = rx - tx;
    using libbase::gauss;
    return gauss(n.i() / sigma) * gauss(n.q() / sigma);

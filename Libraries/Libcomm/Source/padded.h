@@ -18,27 +18,27 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.10 (27 Feb 1999)
+   \version 1.10 (27 Feb 1999)
   allowed client control of OTP (should it be terminated and renewable)
-  
-  Version 1.11 (4 Nov 2001)
-  added a function which outputs details on the interleaving scheme (in accordance 
+
+   \version 1.11 (4 Nov 2001)
+  added a function which outputs details on the interleaving scheme (in accordance
   with interleaver 1.10)
 
-  Version 1.20 (27 Feb 2002)
+   \version 1.20 (27 Feb 2002)
   moved contruction and transform functions into the implementation file rather than inline.
   added serialization facility (in accordance with interleaver 1.20).
   changed the definition of output() to be virtual.
 
-  Version 1.21 (28 Feb 2002)
+   \version 1.21 (28 Feb 2002)
   changed output and serialize to be non-virtual functions - it doesn't quite
   make sense to keep these virtual while the transform functions are not.
 
-  Version 1.22 (6 Mar 2002)
+   \version 1.22 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
 
-  Version 1.30 (7 Mar - 8 Mar 2002)
+   \version 1.30 (7 Mar - 8 Mar 2002)
   updated the system to conform with the completed serialization protocol for interleaver
   (in conformance with interleaver 1.32), by adding the necessary name() function, and
   also by removing the class name reading/writing in serialize(); this is now done only
@@ -53,17 +53,17 @@ namespace libcomm {
   us to create an empty "padded" class without access to onetimepad's default constructor
   (which is private for that class).
 
-  Version 1.31 (8 Mar 2002)
+   \version 1.31 (8 Mar 2002)
   changed the name() function to use the serializer's name(), introduced in serializer
   1.03, in order to improve consistency between what's written on saving the class
   and what the class is classified as with serializer.
 
-  Version 1.32 (10 Mar 2002)
+   \version 1.32 (10 Mar 2002)
   changed the otp member to be a pointer to interleaver, not a pointer to onetimepad.
   This was done to avoid converting from type interleaver* to onetimepad* when assigning
   the newly created object from the stream.
 
-  Version 1.33 (11 Mar 2002)
+   \version 1.33 (11 Mar 2002)
   changed access level of default constructor to protected - this should facilitate
   the creation of derived classes. Also, changed createandload to an inline function
   create() which simply allocates a new object and returns its pointer. This makes the
@@ -71,26 +71,26 @@ namespace libcomm {
   Added public cloning function, and made all parameters to the constructor const; the
   constructor clones those elements that it needs.
 
-  Version 1.34 (14 Mar 2002)
+   \version 1.34 (14 Mar 2002)
   added the necessary copy constructor (this needs to clone the heap members).
 
-  Version 1.40 (27 Mar 2002)
+   \version 1.40 (27 Mar 2002)
   changed descriptive output function to conform with interleaver 1.40.
 
-  Version 1.50 (19 Apr 2005)
+   \version 1.50 (19 Apr 2005)
   added 'transform' and 'inverse' for matrices of type 'logreal', in accordance with
   interleaver 1.50.
 
-  Version 1.51 (3 Aug 2006)
+   \version 1.51 (3 Aug 2006)
   modified functions 'transform' & 'inverse' to indicate within the prototype which
   parameters are input (by making them const), in accordance with interleaver 1.51.
 
-  Version 1.60 (6 Nov 2006)
-  * defined class and associated data within "libcomm" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.60 (6 Nov 2006)
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.61 (29 Oct 2007)
-  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+   \version 1.61 (29 Oct 2007)
+   - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 class padded : public interleaver {

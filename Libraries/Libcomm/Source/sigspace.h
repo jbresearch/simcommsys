@@ -1,6 +1,6 @@
 #ifndef __sigspace_h
 #define __sigspace_h
-      
+
 #include "config.h"
 #include <math.h>
 #include <iostream>
@@ -16,25 +16,25 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.01 (6 Mar 2002)
+   \version 1.01 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
 
-  Version 1.02 (13 Mar 2002)
+   \version 1.02 (13 Mar 2002)
   moved most functions to the implementation file instead of here.
 
-  Version 1.10 (27 Mar 2002)
+   \version 1.10 (27 Mar 2002)
   added two functions to make multiplication with double commutative. Also, made
   passing of all double parameters direct, not by reference.
 
-  Version 1.20 (30 Oct 2006)
-  * defined class and associated data within "libcomm" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.20 (30 Oct 2006)
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.30 (14-15 Nov 2007)
-  * moved most functions here and made them inline.
-  * added equality and inequality operators.
-  * added unary '-' operator
+   \version 1.30 (14-15 Nov 2007)
+   - moved most functions here and made them inline.
+   - added equality and inequality operators.
+   - added unary '-' operator
 */
 
 class sigspace {
@@ -76,7 +76,7 @@ inline sigspace::sigspace(const double i, const double q)
    {
    inphase = i;
    quad = q;
-   }   
+   }
 
 // arithmetic operations
 
@@ -135,21 +135,21 @@ inline sigspace operator+(const sigspace& a, const sigspace& b)
    c += b;
    return c;
    }
-   
+
 inline sigspace operator-(const sigspace& a, const sigspace& b)
    {
    sigspace c = a;
    c -= b;
    return c;
    }
-   
+
 inline sigspace operator*(const sigspace& a, const double b)
    {
    sigspace c = a;
    c *= b;
    return c;
    }
-   
+
 inline sigspace operator/(const sigspace& a, const double b)
    {
    sigspace c = a;
@@ -163,7 +163,7 @@ inline sigspace operator*(const double a, const sigspace& b)
    c *= a;
    return c;
    }
-   
+
 inline sigspace operator/(const double a, const sigspace& b)
    {
    sigspace c = b;

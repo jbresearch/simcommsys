@@ -1,6 +1,6 @@
 #ifndef __lut_modulator_h
 #define __lut_modulator_h
-      
+
 #include "modulator.h"
 
 namespace libcomm {
@@ -14,13 +14,13 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.00 (25 Oct 2007)
-  * initial version - contains LUT modulator implementation from modulator.h 1.41
-  * refactored - renamed 'map' to 'lut' to better reflect the contents of the variable
-  * removed 'const' restriction on modulate and demodulate vector functions, as in modulator 1.50
+   \version 1.00 (25 Oct 2007)
+   - initial version - contains LUT modulator implementation from modulator.h 1.41
+   - refactored - renamed 'map' to 'lut' to better reflect the contents of the variable
+   - removed 'const' restriction on modulate and demodulate vector functions, as in modulator 1.50
 
-  Version 1.10 (15 Nov 2007)
-  * modified demodulate() according to refactoring changes in channel 1.60
+   \version 1.10 (15 Nov 2007)
+   - modified demodulate() according to refactoring changes in channel 1.60
 */
 
 class lut_modulator : public modulator {

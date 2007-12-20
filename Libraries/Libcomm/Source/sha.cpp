@@ -229,7 +229,7 @@ int32u sha::f(const int t, const int32u X, const int32u Y, const int32u Z)
 
 int32u sha::cshift(const int32u x, const int s)
    {
-   return (x << s) | (x >> (32-s));   
+   return (x << s) | (x >> (32-s));
    }
 
 //////////////////////////////////////////////////////////////////////

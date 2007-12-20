@@ -25,7 +25,7 @@ randgen::randgen(int32u s)
 #endif
    seed(s);
    }
-   
+
 randgen::~randgen()
    {
 #ifdef DEBUG

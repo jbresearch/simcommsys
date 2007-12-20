@@ -67,7 +67,7 @@
    process must be sent the INT signal directly - the root can be identified as being
    the one that is not nice'd on UNIX. The interrupt handler does not work on Win32
    anyway.
-   - Note that the signal handler is set the first time that interrupted() is called - 
+   - Note that the signal handler is set the first time that interrupted() is called -
    this means that the mechanism is not activated until the first time it is called,
    which generally works fine as this function is meant to be used within a loop as
    part of the condition statement.

@@ -21,26 +21,26 @@
 //
 
 /*
-  Version 1.10 (18 Apr 2002)
+   \version 1.10 (18 Apr 2002)
   modified Benchmark dialog - now uses a worker thread to do the benchmark. Note that
   worker thread operates at priority_normal (rather than the default _lowest) to ensure
   good results while not impacting responsiveness too much.
   also made the default "document" to have an AWGN channel and BPSK modulation, rather
   than nothing.
 
-  Version 1.11 (9 Oct 2006)
+   \version 1.11 (9 Oct 2006)
   modified redirection of cerr/clog/cout to used read-buffer manipulation instead of
   direct assignment. This was necessitated in VS .NET 2005, but the code was not
   written to be compiler-dependent in the hope that this should still work on older
   Visual compilers.
 
-  Version 1.12 (10 Nov 2006)
-  * updated to use library namespaces.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
-  * made class a derivative of CRoutedIO.
+   \version 1.12 (10 Nov 2006)
+   - updated to use library namespaces.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   - made class a derivative of CRoutedIO.
 
-  Version 1.13 (18 Dec 2007)
-  * updated BenchmarkDlg so that call to experiment::sample is only for a single frame.
+   \version 1.13 (18 Dec 2007)
+   - updated BenchmarkDlg so that call to experiment::sample is only for a single frame.
 */
 
 class CSimulateCommsysApp : public CWinApp, libwin::CRoutedIO

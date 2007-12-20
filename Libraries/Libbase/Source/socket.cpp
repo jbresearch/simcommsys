@@ -31,7 +31,7 @@ typedef int socklen_t;
 namespace libbase {
 
 using std::cerr;
-   
+
 // constant values
 
 const int socket::connect_tries = 4;
@@ -51,7 +51,7 @@ template <class T> ssize_t socket::io(T buf, size_t len)
    exit(1);
    return 0;
    }
-   
+
 template <> ssize_t socket::io(const void *buf, size_t len)
    {
 #ifdef WIN32
@@ -60,7 +60,7 @@ template <> ssize_t socket::io(const void *buf, size_t len)
    return ::write(sd, buf, len);
 #endif
    }
-   
+
 template <> ssize_t socket::io(void *buf, size_t len)
    {
 #ifdef WIN32
@@ -69,7 +69,7 @@ template <> ssize_t socket::io(void *buf, size_t len)
    return ::read(sd, buf, len);
 #endif
    }
-   
+
 template <class T> ssize_t socket::insistio(T buf, size_t len)
    {
    const char *b = (const char *)buf;
@@ -88,7 +88,7 @@ template <class T> ssize_t socket::insistio(T buf, size_t len)
 
    return len;
    }
-   
+
 // constructor/destructor
 
 socket::socket()
@@ -115,7 +115,7 @@ socket::socket()
    objectcount++;
 #endif
    }
-   
+
 socket::~socket()
    {
    if(sd >= 0)
@@ -139,7 +139,7 @@ socket::~socket()
       }
 #endif
    }
-   
+
 // wait for client connects
 
 bool socket::bind(int16u port)
@@ -178,7 +178,7 @@ bool socket::bind(int16u port)
 
    // The socket is now ready to accept() connections
    trace << "DEBUG (bind): Bound to socket, ready to accept connections\n";
-   
+
    return true;
    }
 
@@ -195,22 +195,22 @@ std::list<socket *> socket::select(std::list<socket *> sl, const double timeout)
          max = (*i)->sd;
       }
    ++max;
-  
+
    struct timeval s_timeout;
    s_timeout.tv_sec = int(floor(timeout));
    s_timeout.tv_usec = int((timeout-floor(timeout)) * 1E6);
    ::select(max, &rfds, NULL, NULL, timeout==0 ? NULL : &s_timeout);
-   
+
    std::list<socket *> al;
    for(std::list<socket *>::iterator i=sl.begin(); i!=sl.end(); ++i)
       {
       if(FD_ISSET((*i)->sd, &rfds))
          al.push_back(*i);
       }
-      
+
    return al;
    }
-   
+
 socket *socket::accept()
    {
    socket *s = new socket;
@@ -228,7 +228,7 @@ socket *socket::accept()
    trace << "DEBUG (accept): Accepted new client from " << s->ip << ":" << s->port << "\n";
    return s;
    }
-   
+
 // open connection to server
 
 bool socket::connect(std::string hostname, int16u port)
@@ -283,7 +283,7 @@ ssize_t socket::write(const void *buf, size_t len)
    {
    return io(buf, len);
    };
-   
+
 ssize_t socket::read(void *buf, size_t len)
    {
    return io(buf, len);
@@ -293,7 +293,7 @@ bool socket::insistwrite(const void *buf, size_t len)
    {
    return insistio(buf, len) == ssize_t(len);
    };
-   
+
 bool socket::insistread(void *buf, size_t len)
    {
    return insistio(buf, len) == ssize_t(len);

@@ -32,7 +32,7 @@ void lut_interleaver::transform(const libbase::vector<int>& in, libbase::vector<
          out(t) = fsm::tail;
       else
          out(t) = in(lut(t));
-   }   
+   }
 
 void lut_interleaver::transform(const libbase::matrix<double>& in, libbase::matrix<double>& out) const
    {

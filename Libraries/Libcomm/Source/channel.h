@@ -22,13 +22,13 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.01 (26 Oct 2001)
+   \version 1.01 (26 Oct 2001)
   added a virtual destroy function (see interleaver.h)
 
-  Version 1.02 (6 Mar 2002)
+   \version 1.02 (6 Mar 2002)
   changed vcs version variable from a global to a static class variable.
 
-  Version 1.10 (13 Mar 2002)
+   \version 1.10 (13 Mar 2002)
   added a virtual function which outputs details on the channel, together with a stream
   << operator too. Also added serialization facility. Created serialize and stream << and
   >> functions to conform with the new serializer protocol, as defined in serializer 1.10.
@@ -38,40 +38,40 @@ namespace libcomm {
   serialize::call) creates a new object of the appropriate type and calls its serialize()
   function to get the relevant data. Also added cloning function.
 
-  Version 1.20 (17 Mar 2002)
+   \version 1.20 (17 Mar 2002)
   added a function which corrupts a vector of signals (called transmit). This implements
   the separation of functions from the codec block (as defined in codec 1.40), since
   transmission depends only on the channel, it should be implemented here.
 
-  Version 1.30 (27 Mar 2002)
+   \version 1.30 (27 Mar 2002)
   removed the descriptive output() and related stream << output functions, and replaced
   them by a function description() which returns a string. This provides the same
   functionality but in a different format, so that now the only stream << output
   functions are for serialization. This should make the notation much clearer while
   also simplifying description display in objects other than streams.
 
-  Version 1.31 (13 Apr 2002)
+   \version 1.31 (13 Apr 2002)
   changed vector resizing operation in transmit() to use the new format (vector 1.50).
 
-  Version 1.40 (30 Oct 2006)
-  * defined class and associated data within "libcomm" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
-  
-  Version 1.50 (16 Oct 2007)
-  * refactored the class to simplify inheritance:
+   \version 1.40 (30 Oct 2006)
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+   \version 1.50 (16 Oct 2007)
+   - refactored the class to simplify inheritance:
     - set_eb() and set_snr() are now defined in this class, and call compute_parameters(), which
     is defined in derived classes.
     - consequently, various variables have now moved to this class, together with their getters
     - random generator has also moved into this class, together with its seeding functions
-  * updated channel model to allow for insertions and deletions, as well as substitution errors.
-  
-  Version 1.51 (16 Oct 2007)
-  * refactored further to simplify inheritance:
+   - updated channel model to allow for insertions and deletions, as well as substitution errors.
+
+   \version 1.51 (16 Oct 2007)
+   - refactored further to simplify inheritance:
     - serialization functions are no longer pure virtual; this removes the need for derived classes
       to supply these, unless there is something specific to serialize.
-  
-  Version 1.52 (17 Oct 2007)
-  * started direct work on implementing support for insertion/deletion:
+
+   \version 1.52 (17 Oct 2007)
+   - started direct work on implementing support for insertion/deletion:
     - observed that the channel base function corrupt() is only called from within this class (in the
       implementation of transmit(); similarly, pdf() is only called from within the modulator base
       class, in the implementation of demodulate().
@@ -87,18 +87,18 @@ namespace libcomm {
       channels with insertion and deletion; just as with transmit(), this is not a pure virtual function,
       and a default implementation is given which calls pdf() for every corresponding pair [most of
       this functionality has been moved from modulator.demodulate().
-      
-  Version 1.53 (23 Oct 2007)
-  * added a function for direct setting of 'No';
+
+   \version 1.53 (23 Oct 2007)
+   - added a function for direct setting of 'No';
     - automatically updates the SNR value
     - automatically calls inherited class compute_parameters()
-  * added functions to get values of Eb and No
-      
-  Version 1.54 (5 Nov 2007)
-  * fixed error in set_no(), where snr_db was incorrectly assumed to depend on Eb as well
-      
-  Version 1.60 (15 Nov 2007)
-  * refactored the transmit/receive interface: the functionality of receive is now divided
+   - added functions to get values of Eb and No
+
+   \version 1.54 (5 Nov 2007)
+   - fixed error in set_no(), where snr_db was incorrectly assumed to depend on Eb as well
+
+   \version 1.60 (15 Nov 2007)
+   - refactored the transmit/receive interface: the functionality of receive is now divided
     between overloaded functions, distinguished by the parameters set:
     - receive(tx,rx,ptable) is for the traditional case, used to determine the likelihoods
       (as a matrix) of each of a set of possible transmitted symbols (as a vector) at each

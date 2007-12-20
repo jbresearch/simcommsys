@@ -46,16 +46,16 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CSelectGeneratorDlg message handlers
 
-BOOL CSelectGeneratorDlg::OnInitDialog() 
+BOOL CSelectGeneratorDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    m_scInput.SetRange(0, m_mbGenerator.xsize()-1);
    m_scOutput.SetRange(0, m_mbGenerator.ysize()-1);
    m_scInput.SetPos(0);
    m_scOutput.SetPos(0);
    UpdateValue();
-   
+
    return TRUE;  // return TRUE unless you set the focus to a control
    // EXCEPTION: OCX Property Pages should return FALSE
    }
@@ -66,19 +66,19 @@ void CSelectGeneratorDlg::UpdateValue()
    UpdateData(false);
    }
 
-void CSelectGeneratorDlg::OnReleasedcaptureInput(NMHDR* pNMHDR, LRESULT* pResult) 
+void CSelectGeneratorDlg::OnReleasedcaptureInput(NMHDR* pNMHDR, LRESULT* pResult)
    {
    UpdateValue();
    *pResult = 0;
    }
 
-void CSelectGeneratorDlg::OnReleasedcaptureOutput(NMHDR* pNMHDR, LRESULT* pResult) 
+void CSelectGeneratorDlg::OnReleasedcaptureOutput(NMHDR* pNMHDR, LRESULT* pResult)
    {
    UpdateValue();
    *pResult = 0;
    }
 
-void CSelectGeneratorDlg::OnUpdateValue() 
+void CSelectGeneratorDlg::OnUpdateValue()
    {
    UpdateData(true);
    m_mbGenerator(m_scInput.GetPos(), m_scOutput.GetPos()) = libbase::bitfield(m_sValue);

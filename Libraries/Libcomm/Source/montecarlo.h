@@ -7,6 +7,8 @@
 #include "experiment.h"
 #include "masterslave.h"
 
+namespace libcomm {
+
 /*!
    \brief   Monte Carlo Estimator.
    \author  Johann Briffa
@@ -76,7 +78,7 @@
    - modified control structure in estimate() by removing the infinite loop when
     parallel execution is enabled; this means that each run of the outer loop does
     not necessarily mean that a new result set is available. This condition is
-   versiond by a new variable within the loop.
+   controlled by a new variable within the loop.
    - modified ending-logic, so that:
     - all end conditions are clearly specified in the loop condition
     - a user interrupt now overrides everything, we don't even wait for slaves
@@ -117,8 +119,6 @@
      estimate vector, but rather the sample count and also vectors with sample sums,
      and sums of squares.
 */
-
-namespace libcomm {
 
 class montecarlo : public libbase::masterslave {
    // constants
@@ -168,7 +168,7 @@ public:
    // main process
    void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);
    // information getters
-   const libbase::timer& get_timer() { return t; }; 
+   const libbase::timer& get_timer() { return t; };
 };
 
 }; // end namespace

@@ -5,8 +5,8 @@
 #include "TraceStreamBuf.h"
 
 /*
-  Version 1.00 (10 Nov 2006)
-  * Initial version - this class encapsulates the routing of standard I/O streams to
+   \version 1.00 (10 Nov 2006)
+   - Initial version - this class encapsulates the routing of standard I/O streams to
   the debug trace (for clog/cout) and to a message box (for cerr). This makes any
   derivative of this class automatically take over these facilities.
 */

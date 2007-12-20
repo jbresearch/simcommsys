@@ -8,22 +8,22 @@
 // CStatusGraph window
 
 /*
-  Version 1.10 (26 Feb 2002)
+   \version 1.10 (26 Feb 2002)
   noticed that the user messages were interfering with those of other classes. Started
   keeping track of user message allocation in a separate file in LibWin.
 
-  Version 1.11 (7 Oct 2006)
+   \version 1.11 (7 Oct 2006)
   changed include fstream.h to fstream, and added usage of namespace std, to conform
   with modern library usage.
 
-  Version 1.20 (6 Nov 2006)
-  * defined class and associated data within "libwin" namespace.
-  * removed pragma once directive, as this is unnecessary
-  * changed unique define to conform with that used in other libraries
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
-  
-  Version 1.21 (28 Nov 2007)
-  * modifications to silence 64-bit portability warnings
+   \version 1.20 (6 Nov 2006)
+   - defined class and associated data within "libwin" namespace.
+   - removed pragma once directive, as this is unnecessary
+   - changed unique define to conform with that used in other libraries
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+   \version 1.21 (28 Nov 2007)
+   - modifications to silence 64-bit portability warnings
     - changed type cast from int to UINT_PTR in Insert()
 */
 

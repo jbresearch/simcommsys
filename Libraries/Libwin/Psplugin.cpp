@@ -37,7 +37,7 @@ void CPSPlugIn::Main(const short nSelector, FilterRecord* pFilterRecord, long* p
    try
       {
       Entry(pFilterRecord, pData);
-      
+
       switch(nSelector)
          {
          case filterSelectorAbout:
@@ -59,10 +59,10 @@ void CPSPlugIn::Main(const short nSelector, FilterRecord* pFilterRecord, long* p
             FilterFinish();
             break;
          }
-      
+
       Exit();
       }
-   
+
    catch(char* inErrorString)
       {
       OutputDebugString(inErrorString);
@@ -78,12 +78,12 @@ void CPSPlugIn::Main(const short nSelector, FilterRecord* pFilterRecord, long* p
          }
       *pResult = errReportString;
       }
-   
+
    catch(short inError)
       {
       *pResult = inError;
       }
-   
+
    catch(...)
       {
       *pResult = -1;
@@ -312,7 +312,7 @@ void CPSPlugIn::TileUpdate()
    TileWrite();
 
    // see if the user cancelled
-   if(m_pFilterRecord->abortProc()) 
+   if(m_pFilterRecord->abortProc())
       {
       TileSetEmpty();
       throw((short)userCanceledErr);

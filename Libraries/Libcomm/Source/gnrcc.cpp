@@ -30,7 +30,7 @@ template <class G> gnrcc<G>::gnrcc(const matrix< vector<G> >& generator) : ccfsm
 template <class G> gnrcc<G>::gnrcc(const gnrcc<G>& x) : ccfsm<G>(x)
    {
    }
-   
+
 
 // FSM state operations (getting and resetting)
 
@@ -54,7 +54,7 @@ template <class G> void gnrcc<G>::resetcircular()
 /*! \brief Determine the actual input that will be applied (resolve tail as necessary)
     \param  input    Requested input - can be any valid input or the special 'tail' value
     \return Either the given value, or the value that must be applied to tail out
-   
+
     \warning I don't know why but GCC complains if I don't explicitly refer to member
              variables using this-> or gnrcc<G>::
 */
@@ -69,7 +69,7 @@ template <class G> int gnrcc<G>::determineinput(int input) const
     \param  input    Requested input - can only be a valid input
     \return Vector representation of the shift-in value - lower index positions
             correspond to lower-index inputs
-   
+
     \warning I don't know why but GCC complains if I don't explicitly refer to member
              variables using this-> or gnrcc<G>::
 */

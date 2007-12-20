@@ -19,31 +19,31 @@
    - $Date$
    - $Author$
 
-  Version 1.10 (30 Oct 2006)
-  * updated to use library namespaces.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.10 (30 Oct 2006)
+   - updated to use library namespaces.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-  Version 1.11 (10 Nov 2006)
-  * removed use of "using namespace" for libbase and libcomm.
+   \version 1.11 (10 Nov 2006)
+   - removed use of "using namespace" for libbase and libcomm.
 
-  Version 1.20 (20 Apr 2007)
-  * updated to use masterslave instead of cmpi class, to support socket-based model
-  
-  Version 1.21 (24-25 Apr 2007)
-  * removed call to masterslave::disable(), to conform with masterslave 1.10
-  * updated to conform with montecarlo 1.31
-  * refactored codec creation to occur within a separate function and to create
+   \version 1.20 (20 Apr 2007)
+   - updated to use masterslave instead of cmpi class, to support socket-based model
+
+   \version 1.21 (24-25 Apr 2007)
+   - removed call to masterslave::disable(), to conform with masterslave 1.10
+   - updated to conform with montecarlo 1.31
+   - refactored codec creation to occur within a separate function and to create
     all system components on the heap.
-  
-  Version 1.22 (2 Nov 2007)
-  * modified input scheme so that the file also contains the channel and modem
+
+   \version 1.22 (2 Nov 2007)
+   - modified input scheme so that the file also contains the channel and modem
     before the codec; as a result, previous codec files cannot be used directly.
-  
-  Version 1.23 (16 Nov 2007)
-  * added output flushing to guarantee results are always on file.
-  
-  Version 1.24 (29-30 Nov 2007)
-  * added printing of Code and Modulation rates.
+
+   \version 1.23 (16 Nov 2007)
+   - added output flushing to guarantee results are always on file.
+
+   \version 1.24 (29-30 Nov 2007)
+   - added printing of Code and Modulation rates.
 */
 
 using std::cout;
@@ -80,7 +80,7 @@ libcomm::commsys createsystem(const char *filename)
 int main(int argc, char *argv[])
    {
    libbase::timer tmain("Main timer");
-   
+
    // Create estimator object and initilize cluster, default priority
    mymontecarlo estimator;
    estimator.enable(&argc, &argv);
@@ -106,11 +106,11 @@ int main(int argc, char *argv[])
    estimator.initialise(&system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
-      
+
    // Print information on the statistical accuracy of results being worked
-   cout << "#% " << system.description() << "\n"; 
-   cout << "#% Code Rate: " << system.getcodec()->rate() << "\n"; 
-   cout << "#% Modulation Rate: " << system.getmodem()->rate() << "\n"; 
+   cout << "#% " << system.description() << "\n";
+   cout << "#% Code Rate: " << system.getcodec()->rate() << "\n";
+   cout << "#% Modulation Rate: " << system.getmodem()->rate() << "\n";
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
       cerr << "Simulating system at Eb/No = " << SNR << "\n";
       libbase::vector<double> estimate, tolerance;
       estimator.estimate(estimate, tolerance);
-      
+
       cerr << "Statistics: " << setprecision(4) \
          << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - " \
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";

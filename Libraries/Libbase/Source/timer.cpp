@@ -40,7 +40,7 @@ double timer::_wallclock() const
 
    return convert(tv);
    }
- 
+
 double timer::_cputime() const
    {
    struct rusage        usage;
@@ -80,14 +80,14 @@ timer::~timer()
       clog << " expired after " << *this << "\n" << std::flush;
       }
    }
-   
+
 void timer::start()
    {
    wall = _wallclock();
    cpu = _cputime();
    running = true;
-   }  
-   
+   }
+
 void timer::stop()
    {
    if(!running)
@@ -99,7 +99,7 @@ void timer::stop()
    cpu = _cputime() - cpu;
    running = false;
    }
-   
+
 double timer::elapsed() const
    {
    if(running)

@@ -31,14 +31,14 @@ obstream& obstream::operator<<(const bitfield& b)
          write_buffer();
       left -= cur;
       }
-   
+
    return *this;
    }
 
 ibstream& ibstream::operator>>(bitfield& b)
    {
    int left = b.size();
-   
+
    while(left)
       {
       if(ptr > 0)

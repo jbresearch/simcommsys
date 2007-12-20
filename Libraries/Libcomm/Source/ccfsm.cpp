@@ -164,7 +164,7 @@ template <class G> int ccfsm<G>::state() const
    }
 
 /*! \brief Reset to a specified state
-    \param state  A unique integer representation of the state we want to set to; this 
+    \param state  A unique integer representation of the state we want to set to; this
                   can be any value between 0 and num_states()-1
 
     \cf state()

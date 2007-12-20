@@ -18,16 +18,16 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 0.01 (28 Feb 2003)
+   \version 0.01 (28 Feb 2003)
   initial version - class that implements UNIX Crypt Algorithm, built by
   following the Cygwin (GNU) sources; intended for major upgrade.
 
-  Version 0.02 (17 Jul 2006)
+   \version 0.02 (17 Jul 2006)
   in crypt_main, made explicit conversion from char to int of array subscript.
 
-  Version 1.00 (30 Oct 2006)
-  * defined class and associated data within "libcomm" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.00 (30 Oct 2006)
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 class crypt {

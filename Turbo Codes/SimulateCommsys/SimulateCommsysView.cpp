@@ -81,7 +81,7 @@ BOOL CSimulateCommsysView::PreCreateWindow(CREATESTRUCT& cs)
    //  the CREATESTRUCT cs
    cs.style &= ~LVS_TYPEMASK;
    cs.style |= LVS_REPORT;
-   
+
    return CListView::PreCreateWindow(cs);
    }
 
@@ -98,7 +98,7 @@ void CSimulateCommsysView::OnDraw(CDC* pDC)
 void CSimulateCommsysView::OnInitialUpdate()
    {
    CListView::OnInitialUpdate();
-   
+
    // TODO: You may populate your ListView with items by directly accessing
    //  its list control through a call to GetListCtrl().
 
@@ -155,7 +155,7 @@ CSimulateCommsysDoc* CSimulateCommsysView::GetDocument() // non-debug version is
 /////////////////////////////////////////////////////////////////////////////
 // CSimulateCommsysView message handlers
 
-void CSimulateCommsysView::OnSystemChannel() 
+void CSimulateCommsysView::OnSystemChannel()
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -175,7 +175,7 @@ void CSimulateCommsysView::OnSystemChannel()
       }
    }
 
-void CSimulateCommsysView::OnSystemModulation() 
+void CSimulateCommsysView::OnSystemModulation()
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -195,7 +195,7 @@ void CSimulateCommsysView::OnSystemModulation()
       }
    }
 
-void CSimulateCommsysView::OnSystemPuncturing() 
+void CSimulateCommsysView::OnSystemPuncturing()
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -210,7 +210,7 @@ void CSimulateCommsysView::OnSystemPuncturing()
       }
    }
 
-void CSimulateCommsysView::OnSystemCodec() 
+void CSimulateCommsysView::OnSystemCodec()
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -225,7 +225,7 @@ void CSimulateCommsysView::OnSystemCodec()
       }
    }
 
-void CSimulateCommsysView::OnSimulationAccuracy() 
+void CSimulateCommsysView::OnSimulationAccuracy()
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -240,7 +240,7 @@ void CSimulateCommsysView::OnSimulationAccuracy()
       }
    }
 
-void CSimulateCommsysView::OnSimulationRange() 
+void CSimulateCommsysView::OnSimulationRange()
    {
    CSelectRangeDlg dlg;
    dlg.m_dSNRmin = m_dSNRmin;
@@ -254,17 +254,17 @@ void CSimulateCommsysView::OnSimulationRange()
       }
    }
 
-void CSimulateCommsysView::OnSimulationStart() 
+void CSimulateCommsysView::OnSimulationStart()
    {
    ThreadStart();
    }
 
-void CSimulateCommsysView::OnSimulationStop() 
+void CSimulateCommsysView::OnSimulationStop()
    {
    ThreadStop();
    }
 
-void CSimulateCommsysView::OnSimulationBenchmark() 
+void CSimulateCommsysView::OnSimulationBenchmark()
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -281,7 +281,7 @@ void CSimulateCommsysView::OnSimulationBenchmark()
 
 // menu update functions
 
-void CSimulateCommsysView::OnUpdateSystemChannel(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSystemChannel(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -289,7 +289,7 @@ void CSimulateCommsysView::OnUpdateSystemChannel(CCmdUI* pCmdUI)
    pCmdUI->Enable(!ThreadWorking() && !pDoc->ResultsPresent());
    }
 
-void CSimulateCommsysView::OnUpdateSystemModulation(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSystemModulation(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -297,7 +297,7 @@ void CSimulateCommsysView::OnUpdateSystemModulation(CCmdUI* pCmdUI)
    pCmdUI->Enable(!ThreadWorking() && !pDoc->ResultsPresent());
    }
 
-void CSimulateCommsysView::OnUpdateSystemPuncturing(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSystemPuncturing(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -305,7 +305,7 @@ void CSimulateCommsysView::OnUpdateSystemPuncturing(CCmdUI* pCmdUI)
    pCmdUI->Enable(!ThreadWorking() && !pDoc->ResultsPresent());
    }
 
-void CSimulateCommsysView::OnUpdateSystemCodec(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSystemCodec(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -313,45 +313,45 @@ void CSimulateCommsysView::OnUpdateSystemCodec(CCmdUI* pCmdUI)
    pCmdUI->Enable(!ThreadWorking() && !pDoc->ResultsPresent());
    }
 
-void CSimulateCommsysView::OnUpdateSimulationAccuracy(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSimulationAccuracy(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
    pCmdUI->Enable(!ThreadWorking() && !pDoc->ResultsPresent());
    }
 
-void CSimulateCommsysView::OnUpdateSimulationRange(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSimulationRange(CCmdUI* pCmdUI)
    {
    pCmdUI->Enable(!ThreadWorking());
    }
 
-void CSimulateCommsysView::OnUpdateSimulationStart(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSimulationStart(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
    pCmdUI->Enable(!ThreadWorking() && pDoc->GetCodec() != NULL && pDoc->GetModulator() != NULL && pDoc->GetChannel() != NULL);
    }
 
-void CSimulateCommsysView::OnUpdateSimulationStop(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSimulationStop(CCmdUI* pCmdUI)
    {
    pCmdUI->Enable(ThreadWorking());
    }
 
-void CSimulateCommsysView::OnUpdateSimulationBenchmark(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateSimulationBenchmark(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
    pCmdUI->Enable(!ThreadWorking() && pDoc->GetCodec() != NULL && pDoc->GetModulator() != NULL && pDoc->GetChannel() != NULL);
    }
 
-void CSimulateCommsysView::OnUpdateFileSave(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateFileSave(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
    pCmdUI->Enable(pDoc->ResultsPresent());
    }
 
-void CSimulateCommsysView::OnUpdateFileSaveAs(CCmdUI* pCmdUI) 
+void CSimulateCommsysView::OnUpdateFileSaveAs(CCmdUI* pCmdUI)
    {
    CSimulateCommsysDoc* pDoc = GetDocument();
    ASSERT_VALID(pDoc);
@@ -446,7 +446,7 @@ void CSimulateCommsysView::ThreadProc()
       libbase::vector<double> est, tol;
       estimate(est, tol);
       tSimulation.stop();
-      
+
       pDoc->InsertResults(m_dSNR, get_samplecount(), est, tol, tSimulation.elapsed());
       InsertResults(m_dSNR, get_samplecount(), est, tol, tSimulation.elapsed());
       }

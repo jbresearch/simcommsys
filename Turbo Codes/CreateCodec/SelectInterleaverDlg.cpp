@@ -42,6 +42,6 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CSelectInterleaverDlg message handlers
 
-void CSelectInterleaverDlg::OnSelchangeType() 
+void CSelectInterleaverDlg::OnSelchangeType()
    {
    }

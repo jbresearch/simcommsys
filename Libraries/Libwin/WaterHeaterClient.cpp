@@ -72,13 +72,13 @@ CWaterHeaterClient::CWaterHeaterClient(CString sPort)
       cerr << "Port access failed (" << sPort << ").\n";
       exit(1);
       }
-   
+
    COMMTIMEOUTS CommTimeouts;
-   CommTimeouts.ReadIntervalTimeout = 500; 
-   CommTimeouts.ReadTotalTimeoutMultiplier = 0; 
-   CommTimeouts.ReadTotalTimeoutConstant = 1000; 
-   CommTimeouts.WriteTotalTimeoutMultiplier = 0; 
-   CommTimeouts.WriteTotalTimeoutConstant = 1000; 
+   CommTimeouts.ReadIntervalTimeout = 500;
+   CommTimeouts.ReadTotalTimeoutMultiplier = 0;
+   CommTimeouts.ReadTotalTimeoutConstant = 1000;
+   CommTimeouts.WriteTotalTimeoutMultiplier = 0;
+   CommTimeouts.WriteTotalTimeoutConstant = 1000;
    SetCommTimeouts(m_hComm, &CommTimeouts);
 
    DCB dcb = {0};

@@ -139,13 +139,13 @@ END_MESSAGE_MAP()
 BOOL CSRandomInterleaverDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // Add "About..." menu item to system menu.
-   
+
    // IDM_ABOUTBOX must be in the system command range.
    ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
    ASSERT(IDM_ABOUTBOX < 0xF000);
-   
+
    CMenu* pSysMenu = GetSystemMenu(FALSE);
    if (pSysMenu != NULL)
       {
@@ -157,12 +157,12 @@ BOOL CSRandomInterleaverDlg::OnInitDialog()
          pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
          }
       }
-   
+
    // Set the icon for this dialog.  The framework does this automatically
    //  when the application's main window is not a dialog
    SetIcon(m_hIcon, TRUE);                      // Set big icon
    SetIcon(m_hIcon, FALSE);             // Set small icon
-   
+
    // TODO: Add extra initialization here
    m_nSeed = 0;
    m_nTau = 1024;
@@ -171,7 +171,7 @@ BOOL CSRandomInterleaverDlg::OnInitDialog()
    UpdateData(false);
    m_bValidResults = false;
    UpdateButtons(false);
-   
+
    return TRUE;  // return TRUE  unless you set the focus to a control
    }
 
@@ -192,14 +192,14 @@ void CSRandomInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CSRandomInterleaverDlg::OnPaint() 
+void CSRandomInterleaverDlg::OnPaint()
    {
    if (IsIconic())
       {
       CPaintDC dc(this); // device context for painting
-      
+
       SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
-      
+
       // Center icon in client rectangle
       int cxIcon = GetSystemMetrics(SM_CXICON);
       int cyIcon = GetSystemMetrics(SM_CYICON);
@@ -207,7 +207,7 @@ void CSRandomInterleaverDlg::OnPaint()
       GetClientRect(&rect);
       int x = (rect.Width() - cxIcon + 1) / 2;
       int y = (rect.Height() - cyIcon + 1) / 2;
-      
+
       // Draw the icon
       dc.DrawIcon(x, y, m_hIcon);
       }
@@ -224,18 +224,18 @@ HCURSOR CSRandomInterleaverDlg::OnQueryDragIcon()
    return (HCURSOR) m_hIcon;
    }
 
-void CSRandomInterleaverDlg::OnStart() 
+void CSRandomInterleaverDlg::OnStart()
    {
    UpdateData(true);
    ThreadStart();
    }
 
-void CSRandomInterleaverDlg::OnStop() 
+void CSRandomInterleaverDlg::OnStop()
    {
    ThreadStop();
    }
 
-void CSRandomInterleaverDlg::OnSuggest() 
+void CSRandomInterleaverDlg::OnSuggest()
    {
    UpdateData(true);
    m_nSpread = int(floor(sqrt(m_nTau/double(2))));
@@ -245,7 +245,7 @@ void CSRandomInterleaverDlg::OnSuggest()
 void CSRandomInterleaverDlg::ThreadProc()
    {
    UpdateButtons(true);
-   
+
    m_bValidResults = false;
    m_tDuration.start();
    m_viInterleaver.init(m_nTau);
@@ -349,7 +349,7 @@ void CSRandomInterleaverDlg::UpdateButtons(const bool bWorking)
    GetDlgItem(IDC_ATTEMPTS)->EnableWindow(!bWorking);
    }
 
-void CSRandomInterleaverDlg::OnSave() 
+void CSRandomInterleaverDlg::OnSave()
    {
    CString fname;
    fname.Format("sri-%d-spread%d-seed%d.txt", m_nTau, m_nSpread, m_nUsedSeed);
@@ -374,12 +374,12 @@ void CSRandomInterleaverDlg::OnSave()
       }
    }
 
-void CSRandomInterleaverDlg::OnOK() 
+void CSRandomInterleaverDlg::OnOK()
    {
    //CDialog::OnOK();
    }
 
-void CSRandomInterleaverDlg::OnCancel() 
+void CSRandomInterleaverDlg::OnCancel()
    {
    if(ThreadWorking())
       {

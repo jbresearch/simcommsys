@@ -90,7 +90,7 @@ void bsid::set_ps(const double Ps)
    //const double No = 1/(get_eb()*x*x);
    //set_no(No);
    }
-   
+
 void bsid::set_pd(const double Pd)
    {
    assert(Pd >=0 && Pd <= 1);
@@ -98,7 +98,7 @@ void bsid::set_pd(const double Pd)
    bsid::Pd = Pd;
    precompute();
    }
-   
+
 void bsid::set_pi(const double Pi)
    {
    assert(Pi >=0 && Pi <= 1);
@@ -144,7 +144,7 @@ void bsid::compute_parameters(const double Eb, const double No)
       set_pi(p);
    libbase::trace << "DEBUG (bsid): Eb = " << Eb << ", No = " << No << " -> Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
    }
-   
+
 /*!
    \brief Pass a single modulation symbol through the substitution channel
    \param   s  Input (Tx) modulation symbol
@@ -194,7 +194,7 @@ sigspace bsid::corrupt(const sigspace& s)
 
    \note We have initially no idea how long the received sequence will be, so we first determine
          the state sequence at every timestep keeping track of
-            - the number of insertions \e before given position, and 
+            - the number of insertions \e before given position, and
             - whether the given position is transmitted or deleted.
 
    \note It is possible that the \c tx and \c rx parameters actually point to the same
@@ -271,7 +271,7 @@ inline double myfba::P(const int a, const int b)
    const int m = b-a;
    return Ptable(m+1);
    }
-   
+
 inline double myfba::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
@@ -281,7 +281,7 @@ inline double myfba::Q(const int a, const int b, const int i, const libbase::vec
    // compute the conditional probability
    return channel->receive(myfba::tx(i), s);
    }
-   
+
 // set transmitted sequence
 
 inline void myfba::settx(const libbase::vector<sigspace>& tx)

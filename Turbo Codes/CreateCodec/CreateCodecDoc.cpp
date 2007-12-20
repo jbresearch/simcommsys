@@ -45,7 +45,7 @@ BOOL CCreateCodecDoc::OnNewDocument()
    {
    if (!CDocument::OnNewDocument())
       return FALSE;
-   
+
    // TODO: add reinitialization code here
    // (SDI documents will reuse this document)
    m_nArithmetic = -1;
@@ -58,7 +58,7 @@ BOOL CCreateCodecDoc::OnNewDocument()
    m_nEncoderType = -1;
    m_mbGenerator.init(1,1);
    DeleteInterleavers();
-   
+
    return TRUE;
    }
 

@@ -4,8 +4,8 @@
 #include "StdAfx.h"
 
 /*
-  Version 1.00 (25 Dec 2006)
-  * Initial version, uncompleted
+   \version 1.00 (25 Dec 2006)
+   - Initial version, uncompleted
 */
 
 namespace libwin {

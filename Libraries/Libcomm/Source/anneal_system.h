@@ -39,8 +39,8 @@ namespace libcomm {
    added empty definition for virtual destructor.
 
    \version 1.30 (27 Oct 2006)
-   * defined class and associated data within "libcomm" namespace.
-   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 class anneal_system {

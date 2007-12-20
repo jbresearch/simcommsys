@@ -15,36 +15,36 @@
    - $Date$
    - $Author$
 
-  Version 1.01 (6 Mar 2002)
+   \version 1.01 (6 Mar 2002)
   changed use of iostream from global to std namespace.
 
-  Version 1.02 (17 Mar 2002)
+   \version 1.02 (17 Mar 2002)
   added function for rounding numbers.
 
-  Version 1.03 (21 Apr 2002)
+   \version 1.03 (21 Apr 2002)
   added function for rounding numbers to specified resolution.
   also added alternative error function routines based on Chebychev fitting to an
   inspired guess as to the functional form (cf. Numerical Recipes in C, p.221).
 
-  Version 1.04 (12 Jun 2002)
+   \version 1.04 (12 Jun 2002)
   modified all functions so that parameters are non-const; since we are not passing
   the arguments by reference, this does not make any difference and allows us
   greater flexibility in using the functions.
 
-  Version 1.05 (16 Nov 2002)
+   \version 1.05 (16 Nov 2002)
   added function for limiting numbers between a high and low limit.
 
-  Version 1.06 (5 Jul 2003)
+   \version 1.06 (5 Jul 2003)
   added functions for converting between a string and its hex representation
 
-  Version 1.07 (17 Jul 2006)
+   \version 1.07 (17 Jul 2006)
   changed int round(double x) to double round(double x) to conform with gcc's version.
   changed the loop variable type from int to size_t in hexify and dehexify, to avoid
   a gcc warning about comparisons between signed and unsigned types.
 
-  Version 1.10 (26 Oct 2006)
-  * defined class and associated data within "libbase" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.10 (26 Oct 2006)
+   - defined class and associated data within "libbase" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 namespace libbase {

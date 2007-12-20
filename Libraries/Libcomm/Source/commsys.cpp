@@ -54,8 +54,6 @@ void commsys::transmitandreceive()
 /*!
    \brief Count the number of bit errors in the last encode/decode cycle
    \return Error count in bits
-
-   \note This error count is dependent on the binary mapping for q-ary symbols.
 */
 int commsys::countbiterrors() const
    {
@@ -63,21 +61,6 @@ int commsys::countbiterrors() const
    for(int t=0; t<tau-m; t++)
       biterrors += libbase::weight(source(t) ^ decoded(t));
    return biterrors;
-   }
-
-/*!
-   \brief Count the number of symbol errors in the last encode/decode cycle
-   \return Error count in mismatched symbols
-
-   \note This is equal to the bit error rate for binary alphabets.
-*/
-int commsys::countsymerrors() const
-   {
-   int symerrors = 0;
-   for(int t=0; t<tau-m; t++)
-      if(source(t) != decoded(t))
-         symerrors++;
-   return symerrors;
    }
 
 /*!
@@ -92,6 +75,14 @@ int commsys::countsymerrors() const
          to divide by the appropriate amount at the end to compute a meaningful
          average.
 */
+int commsys::GetSymerrors()
+   {
+   int symerrors = 0;
+   for(int t=0; t<tau-m; t++)
+      if(source(t) != decoded(t))
+         symerrors++;
+   return symerrors;
+   }
 void commsys::cycleonce(libbase::vector<double>& result)
    {
    // Create source stream
@@ -101,16 +92,18 @@ void commsys::cycleonce(libbase::vector<double>& result)
    // For every iteration
    for(int i=0; i<iter; i++)
       {
-      // Decode & count errors
+      // Decode
       cdc->decode(decoded);
+      // Count the number of bit errors
       int biterrors = countbiterrors();
-      int symerrors = countsymerrors();
+      // Count the number of symbol errors
+      int symerrors = GetSymerrors();
       // Estimate the BER
       result(3*i + 0) += biterrors / double((tau-m)*k);
       // Estimate the SER
       result(3*i + 1) += symerrors / double((tau-m));
       // Estimate the FER (Frame Error Rate)
-      result(3*i + 2) += symerrors ? 1 : 0;
+      result(3*i + 2) += biterrors ? 1 : 0;
       }
    }
 
@@ -161,7 +154,7 @@ commsys::commsys()
    {
    clear();
    }
-   
+
 // public constructor / destructor
 
 commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan)

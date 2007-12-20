@@ -25,7 +25,7 @@ void lapgauss::compute_parameters(const double Eb, const double No)
    {
    sigma = sqrt(Eb*No);
    }
-   
+
 // channel handle functions
 
 sigspace lapgauss::corrupt(const sigspace& s)
@@ -36,7 +36,7 @@ sigspace lapgauss::corrupt(const sigspace& s)
    }
 
 double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
-   {      
+   {
    using libbase::gauss;
    sigspace n = rx - tx;
    return gauss(n.i() / sigma) * gauss(n.q() / sigma);

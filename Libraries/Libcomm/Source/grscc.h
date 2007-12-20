@@ -42,7 +42,7 @@ public:
    grscc(const grscc<G>& x);
    ~grscc() {};
    // @}
-   
+
    /*! \name Class management (cloning/naming) */
    grscc<G> *clone() const { return new grscc<G>(*this); };
    const char* name() const { return shelper.name(); };

@@ -21,33 +21,33 @@
 //
 
 /*
-  Version 1.00 (undated)
+   \version 1.00 (undated)
   initial version
 
-  Version 1.01 (22 Apr 2002)
+   \version 1.01 (22 Apr 2002)
   updated thread function so that progress indicator is only shown every 100ms, and
   not any faster - added this after I realised that most time was being spent in
   kernel functions.
 
-  Version 1.02 (23 Apr 2002)
+   \version 1.02 (23 Apr 2002)
   added a box to display currently used seed; also updated the progress indicators to
   use the 32-bit range functions to allow seeds and tau values greater than 32k. Finally,
   updated the save function to suggest the filename based on the actual seed used, not
   the starting seed.
 
-  Version 1.03 (9 Oct 2006)
+   \version 1.03 (9 Oct 2006)
   modified redirection of cerr/clog/cout to used read-buffer manipulation instead of
   direct assignment. This was necessitated in VS .NET 2005, but the code was not
   written to be compiler-dependent in the hope that this should still work on older
   Visual compilers.
 
-  Version 1.04 (10 Nov 2006)
-  * updated to use library namespaces.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
-  * made class a derivative of CRoutedIO.
-  
-  Version 1.05 (28 Nov 2007)
-  * modifications to silence 64-bit portability warnings
+   \version 1.04 (10 Nov 2006)
+   - updated to use library namespaces.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   - made class a derivative of CRoutedIO.
+
+   \version 1.05 (28 Nov 2007)
+   - modifications to silence 64-bit portability warnings
     - changed response type from int to INT_PTR in InitInstance()
 */
 class CSRandomInterleaverApp : public CWinApp, libwin::CRoutedIO

@@ -22,7 +22,7 @@ channel::channel()
    }
 
 // reset function for random generator
-   
+
 void channel::seed(const libbase::int32u s)
    {
    r.seed(s);
@@ -37,7 +37,7 @@ void channel::compute_noise()
    // call derived class handle
    compute_parameters(Eb,No);
    }
-   
+
 void channel::set_eb(const double Eb)
    {
    // Eb is the signal energy for each bit duration, obtained from modulator

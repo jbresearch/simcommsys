@@ -18,26 +18,26 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.00 (19 Sep 2002)
+   \version 1.00 (19 Sep 2002)
   initial version - class that implements Secure Hash Algorithm, as specified in
   Schneier, "Applied Cryptography", 1996, pp.442-445.
 
-  Version 1.01 (20 Sep 2002)
+   \version 1.01 (20 Sep 2002)
   added comparison functions; added conversion to/from strings.
 
-  Version 1.02 (03 Jul 2003)
+   \version 1.02 (03 Jul 2003)
   cleaned up nonlinear function implementation - now everything is done in function
   'f', instead of calling one of four functions from there.
 
-  Version 1.03 (04 Jul 2003)
+   \version 1.03 (04 Jul 2003)
   fixed bug in string() operator.
 
-  Version 1.04 (5 Jul 2003)
-  * fixed an obscure bug in the conversion from (signed) char to int32u
+   \version 1.04 (5 Jul 2003)
+   - fixed an obscure bug in the conversion from (signed) char to int32u
 
-  Version 1.10 (6 Nov 2006)
-  * defined class and associated data within "libcomm" namespace.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   \version 1.10 (6 Nov 2006)
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 class sha {

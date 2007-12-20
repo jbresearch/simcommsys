@@ -7,7 +7,7 @@
    - $Author$
 */
 
-#include "fba.h"     
+#include "fba.h"
 
 namespace libcomm {
 
@@ -61,7 +61,7 @@ template <class real, class sig> fba<real,sig>::~fba()
    {
    }
 
-   
+
 // Internal procedures
 
 template <class real, class sig> void fba<real,sig>::work_forward(const vector<sig>& r)

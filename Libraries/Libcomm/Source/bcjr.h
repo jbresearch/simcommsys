@@ -66,7 +66,7 @@ namespace libcomm {
    \version 2.42 (23 Feb 2002)
    made some minor changes to work_results(ri) to speed up things a little.
 
-   \version 2.43 (1 Mar 2002)   
+   \version 2.43 (1 Mar 2002)
    edited the classes to be compileable with Microsoft extensions enabled - in practice,
    the major change is in for() loops, where MS defines scope differently from ANSI.
    Rather than taking the loop variables into function scope, we chose to wrap around the
@@ -111,12 +111,12 @@ namespace libcomm {
    experienced in multiple (sets>2) Turbo codes.
 
    \version 2.53 (2 Aug 2006)
-   * modified internal normalization - rather than dividing by the value for the first
+   - modified internal normalization - rather than dividing by the value for the first
    symbol, we now determine the maximum value over all symbols and divide by that. This
    should avoid problems when the metric for the first symbol is very small.
-   * modified work_results functions, so that internal results are worked out as type
+   - modified work_results functions, so that internal results are worked out as type
    'dbl' rather than 'double'. It is clear that this was meant to be so all along.
-   * added normalization function for use by derived classes (such as turbo);
+   - added normalization function for use by derived classes (such as turbo);
    rather than normalizing the a-priori and a-posteriori probabilities here, this
    is left for derived classes to do - the reason behind this is that this class
    should not be responsible for its inputs, but whoever is providing them is.
@@ -128,8 +128,8 @@ namespace libcomm {
    forward step to simplify debugging, This was necessitated by turbo 2.47.
 
    \version 2.60 (30 Oct 2006)
-   * defined class and associated data within "libcomm" namespace.
-   * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+   - defined class and associated data within "libcomm" namespace.
+   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 */
 
 template <class real, class dbl=double> class bcjr {
@@ -181,7 +181,7 @@ public:
    void fdecode(const libbase::matrix<dbl>& R, libbase::matrix<dbl>& ri);
    void fdecode(const libbase::matrix<dbl>& R, const libbase::matrix<dbl>& app, libbase::matrix<dbl>& ri);
 };
-   
+
 }; // end namespace
 
 #endif

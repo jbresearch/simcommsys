@@ -43,7 +43,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CSelectAccuracyDlg message handlers
 
-void CSelectAccuracyDlg::OnOK() 
+void CSelectAccuracyDlg::OnOK()
    {
    // TODO: Add extra validation here
    if(!(m_dAccuracy > 0.0 && m_dAccuracy < 1.0))

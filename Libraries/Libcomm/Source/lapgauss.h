@@ -18,21 +18,21 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.00 (10 Aug 2006)
+   \version 1.00 (10 Aug 2006)
   Initial version - implementation of the additive Laplacian-Gaussian channel model.
 
-  Version 1.10 (30 Oct 2006)
-  * defined class and associated data within "libcomm" namespace.
+   \version 1.10 (30 Oct 2006)
+   - defined class and associated data within "libcomm" namespace.
 
-  Version 1.20 (16 Oct 2007)
-  * changed class to conform with channel 1.50.
-  * TODO: this class is still unfinished, and only implements the plain Gaussian channel right now
+   \version 1.20 (16 Oct 2007)
+   - changed class to conform with channel 1.50.
+   - TODO: this class is still unfinished, and only implements the plain Gaussian channel right now
 
-  Version 1.21 (17 Oct 2007)
+   \version 1.21 (17 Oct 2007)
   changed class to conform with channel 1.52.
 
-  Version 1.22 (29 Oct 2007)
-  * updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+   \version 1.22 (29 Oct 2007)
+   - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
 class lapgauss : public channel {

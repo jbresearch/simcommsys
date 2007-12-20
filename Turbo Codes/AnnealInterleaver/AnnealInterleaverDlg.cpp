@@ -146,7 +146,7 @@ BOOL CAnnealInterleaverDlg::OnInitDialog()
         //  when the application's main window is not a dialog
         SetIcon(m_hIcon, TRUE);                 // Set big icon
         SetIcon(m_hIcon, FALSE);                // Set small icon
-        
+
         // TODO: Add extra initialization here
         m_bSystemPresent = false;
    m_nSets = 1;
@@ -184,7 +184,7 @@ void CAnnealInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CAnnealInterleaverDlg::OnPaint() 
+void CAnnealInterleaverDlg::OnPaint()
    {
         if (IsIconic())
            {
@@ -220,12 +220,12 @@ HCURSOR CAnnealInterleaverDlg::OnQueryDragIcon()
 /////////////////////////////////////////////////////////////////////////////
 // User Interface main functions
 
-void CAnnealInterleaverDlg::OnOK() 
+void CAnnealInterleaverDlg::OnOK()
    {
         //CDialog::OnOK();
    }
 
-void CAnnealInterleaverDlg::OnCancel() 
+void CAnnealInterleaverDlg::OnCancel()
    {
    if(ThreadWorking())
       {
@@ -246,7 +246,7 @@ void CAnnealInterleaverDlg::OnCancel()
    CDialog::OnCancel();
    }
 
-void CAnnealInterleaverDlg::OnSave() 
+void CAnnealInterleaverDlg::OnSave()
    {
    CString fname;
    fname.Format("sai-%d_%d-type%d_%d-%s-seed%d.txt", m_nTau, m_nM, m_nType+2, m_nSets, m_bTerm ? "term" : "noterm", m_nSeed);
@@ -280,7 +280,7 @@ void CAnnealInterleaverDlg::OnSave()
 /////////////////////////////////////////////////////////////////////////////
 // User Interface message functions
 
-void CAnnealInterleaverDlg::OnTimer(UINT nIDEvent) 
+void CAnnealInterleaverDlg::OnTimer(UINT nIDEvent)
    {
    CString sTemp;
 
@@ -292,11 +292,11 @@ void CAnnealInterleaverDlg::OnTimer(UINT nIDEvent)
          GetDlgItem(IDC_CPU)->SetWindowText(sTemp);
          break;
       }
-        
+
         //CDialog::OnTimer(nIDEvent);
    }
 
-LONG CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam) 
+LONG CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
    {
    CString sTemp;
 
@@ -418,7 +418,7 @@ void CAnnealInterleaverDlg::ThreadProc()
 /////////////////////////////////////////////////////////////////////////////
 // Thread control functions
 
-void CAnnealInterleaverDlg::OnStart() 
+void CAnnealInterleaverDlg::OnStart()
    {
    UpdateData(true);
    UpdateButtons(true);
@@ -426,19 +426,19 @@ void CAnnealInterleaverDlg::OnStart()
    ThreadStart();
    }
 
-void CAnnealInterleaverDlg::OnStop() 
+void CAnnealInterleaverDlg::OnStop()
    {
    ThreadStop();
    }
 
-void CAnnealInterleaverDlg::OnSuspend() 
+void CAnnealInterleaverDlg::OnSuspend()
    {
    GetDlgItem(IDC_SUSPEND)->EnableWindow(false);
    GetDlgItem(IDC_RESUME)->EnableWindow(true);
         ThreadSuspend();
    }
 
-void CAnnealInterleaverDlg::OnResume() 
+void CAnnealInterleaverDlg::OnResume()
    {
    GetDlgItem(IDC_SUSPEND)->EnableWindow(true);
    GetDlgItem(IDC_RESUME)->EnableWindow(false);

@@ -44,7 +44,7 @@ void commsys_profiler::cycleonce(libbase::vector<double>& result)
       int delta = 0;
       for(int t=0; t<tau-m; t++)
          delta += libbase::weight(source(t) ^ decoded(t));
-      
+
       // Update the count for that number of bit errors
       result(skip*i + delta)++;
       }

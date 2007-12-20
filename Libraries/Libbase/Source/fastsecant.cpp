@@ -18,7 +18,7 @@ namespace libbase {
 fastsecant::fastsecant(double (*func)(double)) : secant(func)
    {
    }
-                        
+
 void fastsecant::seed(const double x1, const double x2, const int n)
    {
    m_dMin = x1;
@@ -32,7 +32,7 @@ void fastsecant::seed(const double x1, const double x2, const int n)
       x += m_dStep;
       }
    }
-   
+
 double fastsecant::solve(const double y)
    {
    const int i = int(floor((y-m_dMin)/m_dStep));

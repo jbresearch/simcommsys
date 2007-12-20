@@ -74,22 +74,22 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 2.00 (13 Oct 2006)
-  * added version object to make this class accessible.
+   \version 2.00 (13 Oct 2006)
+   - added version object to make this class accessible.
 
-  Version 2.10 (6 Nov 2006)
-  * defined class and associated data within "libcomm" namespace.
+   \version 2.10 (6 Nov 2006)
+   - defined class and associated data within "libcomm" namespace.
 
-  Version 2.20 (1 Nov 2007)
-  * added bsid and watermarkcode.
+   \version 2.20 (1 Nov 2007)
+   - added bsid and watermarkcode.
 
-  Version 2.21 (7 Nov 2007)
-  * resolved ambiguity with bsid and mpsk direct bases, by removing the
+   \version 2.21 (7 Nov 2007)
+   - resolved ambiguity with bsid and mpsk direct bases, by removing the
     direct base.
 
-  Version 2.22 (13-14 Dec 2007)
-  * added grscc<> variants for GF(2), GF(2^4)
-  * added gnrcc<> variants for GF(2), GF(2^4)
+   \version 2.22 (13-14 Dec 2007)
+   - added grscc<> variants for GF(2), GF(2^4)
+   - added gnrcc<> variants for GF(2), GF(2^4)
 */
 
 // Serialization support

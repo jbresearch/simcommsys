@@ -13,9 +13,9 @@ namespace libwin {
 LRESULT CALLBACK AFX_EXPORT CHistogram2DWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
    {
    AFX_MANAGE_STATE(AfxGetStaticModuleState());
-   
+
    CWnd* pWnd;
-   
+
    pWnd = CWnd::FromHandlePermanent(hWnd);
    if (pWnd == NULL) {
       // Assume that client created a CHistogram2D window
@@ -53,10 +53,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CHistogram2D message handlers
 
-void CHistogram2D::OnPaint() 
+void CHistogram2D::OnPaint()
    {
         CPaintDC dc(this); // device context for painting
-        
+
    CRect rectClient;
    GetClientRect(rectClient);
    const int xsize = rectClient.Width();

@@ -34,9 +34,9 @@ void montecarlo::slave_getcode(void)
    delete system;
    std::istringstream is(systemstring);
    is >> system;
-   
+
    cerr << "Date: " << libbase::timer::date() << "\n";
-   cerr << system->description() << "\n"; 
+   cerr << system->description() << "\n";
    }
 
 void montecarlo::slave_getsnr(void)

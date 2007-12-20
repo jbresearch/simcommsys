@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
    // create a watermark codec
    libcomm::watermarkcode<libbase::logrealfast> modem(n,k,seed, tau*n);
    cout << modem.description() << "\n";
-   
+
    // define an alternating encoded sequence
    using libbase::vector;
    const int N = 1<<k;

@@ -17,13 +17,13 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-  Version 1.00 (5 Dec 2007)
-  * initial version; implements common elements of a controller-canonical binary fsm
-  * added determineinput() and determinefeedin() pure virtual functions
-  * cleaned up order of members and documentation
+   \version 1.00 (5 Dec 2007)
+   - initial version; implements common elements of a controller-canonical binary fsm
+   - added determineinput() and determinefeedin() pure virtual functions
+   - cleaned up order of members and documentation
 
-  Version 1.01 (13 Dec 2007)
-  * modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
+   \version 1.01 (13 Dec 2007)
+   - modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
 */
 
 class ccbfsm : public fsm {
@@ -44,7 +44,7 @@ public:
    ccbfsm(const libbase::matrix<libbase::bitfield>& generator);
    ccbfsm(const ccbfsm& x);
    ~ccbfsm() {};
-   
+
    // FSM state operations (getting and resetting)
    int state() const;                        // returns the current state
    void reset(int state=0);                  // reset to a specified state

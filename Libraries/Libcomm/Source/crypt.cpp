@@ -173,7 +173,7 @@ void crypt::crypt_main(char *nachr_l, char *nachr_r, char *schl)
    char *tp = tmp;
    const char *e = E;
    int i, j;
-   
+
    for(i = 0; i < 8; i++)
       {
       for(j = 0, sbval = 0; j < 6; j++)
@@ -183,7 +183,7 @@ void crypt::crypt_main(char *nachr_l, char *nachr_r, char *schl)
          *--tp = sbval & 1;
       tp += 4;
       }
-   
+
    e = PERM;
    for(i = 0; i < BS2; i++)
       *nachr_l++ ^= tmp[int(*e++)];
@@ -198,9 +198,9 @@ void crypt::encrypt(char *nachr, int decr)
    char(*schl)[KS] = decr ? schluessel + 15 : schluessel;
    char tmp[BS];
    int i;
-   
+
    perm(tmp, nachr, IP, BS);
-   
+
    for(i = 8; i--;)
       {
       crypt_main(tmp, tmp + BS2, *schl);
@@ -214,7 +214,7 @@ void crypt::encrypt(char *nachr, int decr)
       else
          schl++;
       }
-   
+
    perm(nachr, tmp, EP, BS);
    }
 
@@ -225,10 +225,10 @@ void crypt::setkey(char *schl)
    int i, j, k;
    int shval = 0;
    char *akt_schl;
-   
+
    memcpy(E, E0, KS);
    perm(tmp1, schl, PC1, IS);
-   
+
    for(i = 0; i < 16; i++)
       {
       shval += 1 +(ls & 1);
@@ -254,11 +254,11 @@ char *crypt::crypttext(const char *wort, const char *salt)
    char *k;
    int tmp, keybyte;
    int i, j;
-   
+
    // declare and initialize key
    char key[BS+2];
    memset(key, 0, BS+2);
-   
+
    for(k=key, i=0; i<BS; i++)
       {
       // get next letter & quit if the end has been reached
@@ -272,10 +272,10 @@ char *crypt::crypttext(const char *wort, const char *salt)
          }
       k += 8;
       }
-   
+
    setkey(key);
    memset(key, 0, BS + 2);
-   
+
    static char retkey[14];
    for(k = E, i = 0; i < 2; i++)
       {
@@ -285,7 +285,7 @@ char *crypt::crypttext(const char *wort, const char *salt)
       if(keybyte > '9')
          keybyte -= 'A' - '9' - 1;
       keybyte -= '.';
-      
+
       for(j = 0; j < 6; j++, keybyte >>= 1, k++)
          {
          if(!(keybyte & 1))
@@ -295,10 +295,10 @@ char *crypt::crypttext(const char *wort, const char *salt)
          k[24] = tmp;
          }
       }
-   
+
    for(i = 0; i < 25; i++)
       encrypt(key, 0);
-   
+
    for(k = key, i = 0; i < 11; i++)
       {
       for(j = keybyte = 0; j < 6; j++)
@@ -306,7 +306,7 @@ char *crypt::crypttext(const char *wort, const char *salt)
          keybyte <<= 1;
          keybyte |= *k++;
          }
-      
+
       keybyte += '.';
       if(keybyte > '9')
          keybyte += 'A' - '9' - 1;
@@ -314,12 +314,12 @@ char *crypt::crypttext(const char *wort, const char *salt)
          keybyte += 'a' - 'Z' - 1;
       retkey[i + 2] = keybyte;
       }
-   
+
    retkey[i + 2] = 0;
-   
+
    if(!retkey[1])
       retkey[1] = *retkey;
-   
+
    return retkey;
    }
 

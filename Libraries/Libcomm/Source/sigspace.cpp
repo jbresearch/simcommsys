@@ -24,14 +24,14 @@ std::ostream& operator<<(std::ostream& s, const sigspace& x)
    s << x.quad << ']';
    return s;
    }
-   
+
 std::istream& operator>>(std::istream& s, sigspace& x)
    {
    using std::ios;
 
    double i = 0, q = 0;
    char c = 0;
-   
+
    s >> c;
    if(c == '[')
       {
@@ -45,10 +45,10 @@ std::istream& operator>>(std::istream& s, sigspace& x)
       }
    else
       s.clear(ios::badbit);
-   
+
    if(s)
       x = sigspace(i, q);
-      
+
    return s;
    }
 

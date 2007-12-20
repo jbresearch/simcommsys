@@ -246,7 +246,7 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
          // Create interleaved version of source
          inter(set-1)->transform(source, source2);
          }
-   
+
       // Reset the encoder to zero state
       encoder->reset(0);
 
@@ -410,7 +410,7 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
    // Reset start- and end-state probabilities
    bcjr<real,dbl>::reset();
    }
-   
+
 template <class real, class dbl> void turbo<real,dbl>::decode(vector<int>& decoded)
    {
    // Initialise result vector

@@ -44,23 +44,23 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CSelectCodecDlg message handlers
 
-BOOL CSelectCodecDlg::OnInitDialog() 
+BOOL CSelectCodecDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    GetDlgItem(IDC_MATH)->EnableWindow(m_nType > 0);
-   
+
    return TRUE;  // return TRUE unless you set the focus to a control
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CSelectCodecDlg::OnSelchangeType() 
+void CSelectCodecDlg::OnSelchangeType()
    {
    UpdateData(true);
    GetDlgItem(IDC_MATH)->EnableWindow(m_nType > 0);
    }
 
-void CSelectCodecDlg::OnOK() 
+void CSelectCodecDlg::OnOK()
    {
    UpdateData(true);
    if(m_nType < 0)

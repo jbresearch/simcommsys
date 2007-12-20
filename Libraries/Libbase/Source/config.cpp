@@ -88,11 +88,11 @@ int keypressed(void)
    int            error;
    struct timespec tv;
    struct termios  otty, ntty;
-   
+
    tcgetattr(STDIN_FILENO, &otty);
    ntty = otty;
    ntty.c_lflag          &= ~ICANON; /* raw mode */
-   
+
    if (0 == (error = tcsetattr(STDIN_FILENO, TCSANOW, &ntty)))
       {
       error        += ioctl(STDIN_FILENO, FIONREAD, &count);
@@ -102,7 +102,7 @@ int keypressed(void)
       tv.tv_nsec    = 10;
       nanosleep(&tv, NULL);
       }
-   
+
    return error == 0 ? count : -1;
 #endif
    }
@@ -117,32 +117,32 @@ int readkey(void)
    unsigned char                ch;
    int          error;
    struct termios       otty, ntty;
-   
+
    fflush(stdout);
    tcgetattr(STDIN_FILENO, &otty);
    ntty = otty;
-   
+
    ntty.c_lflag &= ~ICANON;   /* line settings   */
-   
+
    /* disable echoing the char as it is typed */
    ntty.c_lflag &= ~ECHO;         /* disable echo        */
-   
+
    ntty.c_cc[VMIN]  = 1;          /* block for input  */
    ntty.c_cc[VTIME] = 0;          /* timer is ignored */
-   
+
    // flush the input buffer before blocking for new input
    //#define FLAG TCSAFLUSH
    // return a char from the current input buffer, or block if no input is waiting.
    #define FLAG TCSANOW
-   
+
    if (0 == (error = tcsetattr(STDIN_FILENO, FLAG, &ntty)))
       {
       /* get a single character from stdin */
       error  = read(STDIN_FILENO, &ch, 1 );
       /* restore old settings */
-      error += tcsetattr(STDIN_FILENO, FLAG, &otty); 
+      error += tcsetattr(STDIN_FILENO, FLAG, &otty);
       }
-   
+
    return (error == 1 ? (int) ch : -1 );
 #endif
    }
