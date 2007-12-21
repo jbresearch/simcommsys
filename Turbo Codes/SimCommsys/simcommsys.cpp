@@ -44,6 +44,9 @@
 
    \version 1.24 (29-30 Nov 2007)
    - added printing of Code and Modulation rates.
+
+   \version 1.25 (21 Dec 2007)
+   - added minimum error rate cutoff, including command-line parameter
 */
 
 using std::cout;
@@ -86,9 +89,9 @@ int main(int argc, char *argv[])
    estimator.enable(&argc, &argv);
 
    // Simulation parameters
-   if(argc < 5)
+   if(argc < 6)
       {
-      cerr << "Usage: " << argv[0] << " SNRmin SNRmax SNRstep System\n";
+      cerr << "Usage: " << argv[0] << " SNRmin SNRmax SNRstep ERmin System\n";
       exit(1);
       }
    const double SNRmin = atof(argv[1]);
@@ -99,10 +102,11 @@ int main(int argc, char *argv[])
       cerr << "Invalid SNR parameters: " << SNRmin << ", " << SNRmax << ", " << SNRstep << "\n";
       exit(1);
       }
+   const double ERmin = atof(argv[4]);
    const double confidence = 0.90;
    const double accuracy = 0.15;
    // Set up the estimator
-   libcomm::commsys system = createsystem(argv[4]);
+   libcomm::commsys system = createsystem(argv[5]);
    estimator.initialise(&system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
@@ -117,7 +121,7 @@ int main(int argc, char *argv[])
    cout << "#\n" << flush;
 
    // Work out the following for every SNR value required
-   for(double SNR = SNRmin; SNR <= SNRmax && !estimator.interrupt(); SNR += SNRstep)
+   for(double SNR = SNRmin; SNR <= SNRmax; SNR += SNRstep)
       {
       system.set(SNR);
 
@@ -133,6 +137,10 @@ int main(int argc, char *argv[])
       for(int i=0; i<system.count(); i++)
          cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
       cout << "\t" << estimator.get_samplecount() << "\n" << flush;
+
+      // handle pre-mature breaks
+      if(estimator.interrupt() || estimate.min()<ERmin)
+         break;
       }
 
    return 0;
