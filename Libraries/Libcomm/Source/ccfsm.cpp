@@ -274,6 +274,8 @@ template class ccfsm< gf<1,0x3> >;
 
 // cf. Lin & Costello, 2004, App. A
 
+template class ccfsm< gf<2,0x7> >;
+template class ccfsm< gf<3,0xB> >;
 template class ccfsm< gf<4,0x13> >;
 
 }; // end namespace
