@@ -54,14 +54,13 @@ template <class real, class dbl> turbo<real,dbl>::turbo()
    }
 
 template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
-   const vector<interleaver *>& inter, const int iter, const bool simile, \
+   const vector<interleaver *>& inter, const int iter, \
    const bool endatzero, const bool parallel, const bool circular)
    {
    turbo::encoder = encoder.clone();
    turbo::tau = tau;
    turbo::sets = inter.size()+1;
    turbo::inter = inter;
-   turbo::simile = simile;
    turbo::endatzero = endatzero;
    turbo::parallel = parallel;
    turbo::circular = circular;
@@ -336,7 +335,6 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
             r(0)(t, x) *= ptable(t*s+i, thisx % S);
          }
       // Parity bits [all sets]
-      {
       for(int x=0; x<P; x++)
          for(int set=0, offset=sk; set<sets; set++)
             {
@@ -346,43 +344,6 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
             offset += sp;
             }
       }
-      }
-
-   // Handle tail parity for simile interleavers
-   static bool shown = false;
-   if(simile && !shown)
-      {
-      cerr << "WARNING: code for handling simile interleavers is commented out.\n";
-      shown = true;
-      }
-      /*
-      {
-      // check if the puncturing pattern is odd/even in the tail section
-      bool is_stippled = true;
-      for(int t=tau-m; t<tau; t++)
-         for(int set=1; set<sets; set++)
-            if(punc->transmit(set,t) != ((set-1)%(s-1) == t%(s-1)))
-               is_stippled = false;
-
-      // copy over the probabilities for the punctured bits from unpunctured ones
-      if(is_stippled)
-         {
-         static bool print_debug = false;
-         if(!print_debug)
-            {
-            cerr << "DEBUG: doing modifier for simile interleavers with stippled puncturing.\n";
-            print_debug = true;
-            }
-         for(int t=tau-m; t<tau; t++)
-            {
-            int base = t%sets;
-            for(int set=1; set<sets; set++)
-               for(int x=0; x<P; x++)
-                  p((base+set)%sets, t, x) = p(base, t, x);
-            }
-         }
-      }
-      */
 
    // Initialise a priori probabilities (extrinsic)
    for(int set=0; set<(parallel ? sets : 1); set++)
@@ -441,7 +402,6 @@ template <class real, class dbl> std::string turbo<real,dbl>::description() cons
    for(int i=0; i<inter.size(); i++)
       sout << inter(i)->description() << ", ";
    sout << (endatzero ? "Terminated, " : "Unterminated, ");
-   sout << (simile ? "Simile, " : "Non-simile, ");
    sout << (circular ? "Circular, " : "Non-circular, ");
    sout << (parallel ? "Parallel Decoding, " : "Serial Decoding, ");
    sout << iter << " iterations";
@@ -457,7 +417,6 @@ template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::o
    sout << sets << "\n";
    for(int i=0; i<inter.size(); i++)
       sout << inter(i);
-   sout << int(simile) << "\n";
    sout << int(endatzero) << "\n";
    sout << int(circular) << "\n";
    sout << int(parallel) << "\n";
@@ -477,8 +436,6 @@ template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::i
    inter.init(sets-1);
    for(int i=0; i<inter.size(); i++)
       sin >> inter(i);
-   sin >> temp;
-   simile = temp != 0;
    sin >> temp;
    endatzero = temp != 0;
    sin >> temp;

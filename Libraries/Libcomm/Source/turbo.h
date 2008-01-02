@@ -223,6 +223,11 @@ namespace libcomm {
    \version 2.51 (29 Oct 2007)
    - updated clone() to return this object's type, rather than its base class type.
      [cf. Stroustrup 15.6.2]
+
+   \version 2.52 (2 Jan 2008)
+   - made check for correct termination fatal
+   - made check for circulation state occur in all builds (was debug only)
+   - removed support for simile interleavers
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
@@ -234,7 +239,7 @@ private:
    double   rate;
    int      tau;
    int      sets;
-   bool     simile, endatzero, parallel, circular;
+   bool     endatzero, parallel, circular;
    int      iter;
    int      M, K, N, P;    // # of states, inputs, outputs, parity symbols (respectively)
    int      m;             // memory order of encoder
@@ -260,7 +265,7 @@ protected:
    turbo();
 public:
    turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver *>& inter, \
-      const int iter, const bool simile, const bool endatzero, const bool parallel=false, const bool circular=false);
+      const int iter, const bool endatzero, const bool parallel=false, const bool circular=false);
    ~turbo() { free(); };
 
    turbo *clone() const { return new turbo(*this); };           // cloning operation
