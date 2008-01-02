@@ -8,10 +8,18 @@
 */
 
 #include "gf.h"
+#include "bitfield.h"
+#include "itfunc.h"
 #include <iostream>
+
+using libbase::gf;
+using libbase::bitfield;
+using libbase::log2;
 
 using std::cout;
 using std::cerr;
+using std::hex;
+using std::dec;
 
 // Exponential table entries for base {03}
 // cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
@@ -37,7 +45,7 @@ const libbase::int32u aestable[] = {
 void TestBinaryField()
    {
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
-   typedef libbase::gf<1,0x3> Binary;
+   typedef gf<1,0x3> Binary;
    // Compute and display addition & multiplication tables
    cout << "Addition table:\n";
    for(int x=0; x<2; x++)
@@ -52,23 +60,40 @@ void TestBinaryField()
 void TestRijndaelField()
    {
    // Create a value in the Rijndael field GF(2^8): m(x) = 1 { 0001 1011 }
-   libbase::gf<8,0x11B> E = 1;
+   gf<8,0x11B> E = 1;
    // Compute and display exponential table using {03} as a multiplier
    // using the tabular format in Gladman.
    cout << "Rijndael GF(2^8) exponentiation table:\n";
+   cout << hex;
    for(int x=0; x<16; x++)
       for(int y=0; y<16; y++)
          {
          assert(E == aestable[(x<<4)+y]);
-         cout << std::hex << int(E) << (y==15 ? '\n' : '\t');
+         cout << int(E) << (y==15 ? '\n' : '\t');
          E *= 3;
          }
+   cout << dec;
+   }
+
+template <int m, int poly> void ListField()
+   {
+   // Compute and display exponential table using {2} as a multiplier
+   cout << "GF(" << m << ",0x" << hex << poly << ") table:\n";
+   cout << 0 << '\t' << 0 << '\t' << bitfield(0,m) << '\n';
+   gf<m,poly> E = 1;
+   for(int x=1; x<(1<<m); x++)
+      {
+      cout << x << "\ta" << x-1 << '\t' << bitfield(E,m) << dec << '\n';
+      E *= 2;
+      }
    }
 
 int main(int argc, char *argv[])
    {
    TestBinaryField();
    TestRijndaelField();
-
+   ListField<2,0x7>();
+   ListField<3,0xB>();
+   ListField<4,0x13>();
    return 0;
    }
