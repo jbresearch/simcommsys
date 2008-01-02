@@ -252,17 +252,13 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
 
       // When dealing with a circular system, perform first pass to determine end state,
       // then reset to the corresponding circular state.
-#ifdef DEBUG
       int cstate;
-#endif
       if(circular)
          {
          for(int t=0; t<tau; t++)
             encoder->advance(source2(t));
          encoder->resetcircular();
-#ifdef DEBUG
          cstate = encoder->state();
-#endif
          }
 
       // Encode source (non-interleaved must be done first to determine tail bit values)
@@ -274,14 +270,19 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
       if(set == 0)
          source = source2;
 
-#ifdef DEBUG
-      if(circular)
-         assert(cstate == encoder->state());
-#endif
+      // check that encoder finishes in circulation state (applies for all interleavers)
+      if(circular && encoder->state() != cstate)
+         {
+         cerr << "FATAL ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << " (should be " << cstate << ")\n";
+         exit(1);
+         }
 
       // check that encoder finishes in state zero (applies for all interleavers)
       if(endatzero && encoder->state() != 0)
-         cerr << "DEBUG ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << "\n";
+         {
+         cerr << "FATAL ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << "\n";
+         exit(1);
+         }
       }
    }
 
