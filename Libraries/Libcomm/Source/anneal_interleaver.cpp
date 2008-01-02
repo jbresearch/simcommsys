@@ -225,7 +225,7 @@ std::ostream& anneal_interleaver::output(std::ostream& sout) const
       {
       sout << "#% Set " << s << "\n";
       for(int i=0; i<tau; i++)
-         sout << i << "\t" << lut(s,i) << "\n";
+         sout << lut(s,i) << "\n";
       }
    return sout;
    }
