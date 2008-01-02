@@ -9,12 +9,10 @@
 
 #include "gf.h"
 #include "bitfield.h"
-#include "itfunc.h"
 #include <iostream>
 
 using libbase::gf;
 using libbase::bitfield;
-using libbase::log2;
 
 using std::cout;
 using std::cerr;
