@@ -29,13 +29,8 @@ stream_lut::stream_lut(const char *filename, FILE *file, const int tau, const in
       do {
          fscanf(file, "%[^\n]\n", buf);
          } while(buf[0] == '#');
-      int x, y;
-      sscanf(buf, "%d%d", &x, &y);
-      if(x != i)
-         {
-         std::cerr << "FATAL ERROR (stream_lut): unexpected entry for line " << i << ": " << x << ", " << y << "\n";
-         exit(1);
-         }
+      int y;
+      sscanf(buf, "%d", &y);
       lut(i) = y;
       }
    for(int t=tau-m; t<tau; t++)
