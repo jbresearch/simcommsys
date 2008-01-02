@@ -20,34 +20,34 @@ class CHistogram2D : public CWnd
 {
 // Construction
 public:
-        CHistogram2D();
+   CHistogram2D();
 
-// Attributes
+   // Attributes
 public:
 
-// Operations
+   // Operations
 public:
 
-// Overrides
-        // ClassWizard generated virtual function overrides
-        //{{AFX_VIRTUAL(CHistogram2D)
-        //}}AFX_VIRTUAL
+   // Overrides
+   // ClassWizard generated virtual function overrides
+   //{{AFX_VIRTUAL(CHistogram2D)
+   //}}AFX_VIRTUAL
 
-// Implementation
+   // Implementation
 public:
-        virtual ~CHistogram2D();
-        static bool RegisterWndClass(HINSTANCE hInstance);
+   virtual ~CHistogram2D();
+   static bool RegisterWndClass(HINSTANCE hInstance);
    static void UpdateData(CWnd* pWnd, libbase::matrix<int>& m);
 
-        // Generated message map functions
+   // Generated message map functions
 protected:
-        libbase::matrix<int> m_data;
+   libbase::matrix<int> m_data;
    int m_maxval;
-        //{{AFX_MSG(CHistogram2D)
-        afx_msg void OnPaint();
-        //}}AFX_MSG
+   //{{AFX_MSG(CHistogram2D)
+   afx_msg void OnPaint();
+   //}}AFX_MSG
    afx_msg void OnUser(WPARAM wParam, LPARAM lParam);
-        DECLARE_MESSAGE_MAP()
+   DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

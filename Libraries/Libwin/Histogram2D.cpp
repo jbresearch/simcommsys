@@ -43,10 +43,10 @@ CHistogram2D::~CHistogram2D()
 
 
 BEGIN_MESSAGE_MAP(CHistogram2D, CWnd)
-        //{{AFX_MSG_MAP(CHistogram2D)
-        ON_WM_PAINT()
-        //}}AFX_MSG_MAP
-    //ON_MESSAGE(WM_USER, OnUser)
+   //{{AFX_MSG_MAP(CHistogram2D)
+   ON_WM_PAINT()
+   //}}AFX_MSG_MAP
+   //ON_MESSAGE(WM_USER, OnUser)
 END_MESSAGE_MAP()
 
 
@@ -55,7 +55,7 @@ END_MESSAGE_MAP()
 
 void CHistogram2D::OnPaint()
    {
-        CPaintDC dc(this); // device context for painting
+   CPaintDC dc(this); // device context for painting
 
    CRect rectClient;
    GetClientRect(rectClient);
@@ -81,14 +81,18 @@ void CHistogram2D::OnPaint()
    CRect rectWindow;
    GetWindowRect(rectWindow);
    dc.DrawEdge(rectWindow,EDGE_SUNKEN,BF_RECT);
-        // Do not call CWnd::OnPaint() for painting messages
+   // Do not call CWnd::OnPaint() for painting messages
    }
 
 void CHistogram2D::OnUser(WPARAM wParam, LPARAM lParam)
    {
+   using libbase::trace;
    libbase::matrix<int> *data = (libbase::matrix<int> *) wParam;
+   trace << "DEBUG (Histogram2D): received matrix at " << data << "\n";
    m_data = *data;
+   trace << "DEBUG (Histogram2D): copied matrix " << m_data.xsize() << "x" << m_data.ysize() << "\n";
    m_maxval = m_data.max();
+   trace << "DEBUG (Histogram2D): max value = " << m_maxval << "\n";
    Invalidate(false);
    }
 

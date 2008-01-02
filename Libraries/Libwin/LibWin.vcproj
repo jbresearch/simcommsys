@@ -480,5 +480,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="\Programming\Turbo Codes\AnalyseInterleaver\AnalyseInterleaver.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
