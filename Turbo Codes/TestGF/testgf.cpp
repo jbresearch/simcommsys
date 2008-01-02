@@ -10,9 +10,12 @@
 #include "gf.h"
 #include <iostream>
 
+using std::cout;
+using std::cerr;
+
 // Exponential table entries for base {03}
 // cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
-const libbase::int32u table[] = {
+const libbase::int32u aestable[] = {
    0x01, 0x03, 0x05, 0x0f, 0x11, 0x33, 0x55, 0xff, 0x1a, 0x2e, 0x72, 0x96, 0xa1, 0xf8, 0x13, 0x35,
    0x5f, 0xe1, 0x38, 0x48, 0xd8, 0x73, 0x95, 0xa4, 0xf7, 0x02, 0x06, 0x0a, 0x1e, 0x22, 0x66, 0xaa,
    0xe5, 0x34, 0x5c, 0xe4, 0x37, 0x59, 0xeb, 0x26, 0x6a, 0xbe, 0xd9, 0x70, 0x90, 0xab, 0xe6, 0x31,
@@ -31,11 +34,8 @@ const libbase::int32u table[] = {
    0x39, 0x4b, 0xdd, 0x7c, 0x84, 0x97, 0xa2, 0xfd, 0x1c, 0x24, 0x6c, 0xb4, 0xc7, 0x52, 0xf6, 0x01
    };
 
-int main(int argc, char *argv[])
+void TestBinaryField()
    {
-   using std::cout;
-   using std::cerr;
-
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
    typedef libbase::gf<1,0x3> Binary;
    // Compute and display addition & multiplication tables
@@ -47,20 +47,28 @@ int main(int argc, char *argv[])
    for(int x=0; x<2; x++)
       for(int y=0; y<2; y++)
          cout << Binary(x)*Binary(y) << (y==1 ? '\n' : '\t');
+   }
 
+void TestRijndaelField()
+   {
    // Create a value in the Rijndael field GF(2^8): m(x) = 1 { 0001 1011 }
    libbase::gf<8,0x11B> E = 1;
-
    // Compute and display exponential table using {03} as a multiplier
    // using the tabular format in Gladman.
    cout << "Rijndael GF(2^8) exponentiation table:\n";
    for(int x=0; x<16; x++)
       for(int y=0; y<16; y++)
          {
-         assert(E == table[(x<<4)+y]);
+         assert(E == aestable[(x<<4)+y]);
          cout << std::hex << int(E) << (y==15 ? '\n' : '\t');
          E *= 3;
          }
+   }
+
+int main(int argc, char *argv[])
+   {
+   TestBinaryField();
+   TestRijndaelField();
 
    return 0;
    }
