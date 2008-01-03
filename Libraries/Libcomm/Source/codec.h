@@ -4,7 +4,6 @@
 #include "config.h"
 #include "matrix.h"
 #include "vector.h"
-#include "itfunc.h"
 
 #include "sigspace.h"
 

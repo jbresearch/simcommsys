@@ -12,7 +12,6 @@
 #include "rvstatistics.h"
 #include "randgen.h"
 #include "fastsecant.h"
-#include "itfunc.h"
 #include "plmod.h"
 #include "bitfield.h"
 #include "fbstream.h"

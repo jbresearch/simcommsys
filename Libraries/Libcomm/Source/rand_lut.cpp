@@ -8,7 +8,6 @@
 */
 
 #include "rand_lut.h"
-#include "itfunc.h"
 #include "vector.h"
 #include <sstream>
 
