@@ -251,7 +251,7 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
 
       // When dealing with a circular system, perform first pass to determine end state,
       // then reset to the corresponding circular state.
-      int cstate;
+      int cstate = 0;
       if(circular)
          {
          for(int t=0; t<tau; t++)
