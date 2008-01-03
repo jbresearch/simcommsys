@@ -30,6 +30,18 @@ void TestMPSK(int m)
    assert(m == 1<<bits);
    mpsk modem(m);
    cout << '\n' << modem.description() << '\n';
+   cout << "Average Energy/symbol: " << modem.energy() << '\n';
+   for(int i=0; i<m; i++)
+      cout << bitfield(gray(i),bits) << '\t' << modem.modulate(gray(i)) << '\n';
+   }
+
+void TestQAM(int m)
+   {
+   const int bits = int(log2(m));
+   assert(m == 1<<bits);
+   qam modem(m);
+   cout << '\n' << modem.description() << '\n';
+   cout << "Average Energy/symbol: " << modem.energy() << '\n';
    for(int i=0; i<m; i++)
       cout << bitfield(gray(i),bits) << '\t' << modem.modulate(gray(i)) << '\n';
    }
@@ -39,5 +51,7 @@ int main(int argc, char *argv[])
    TestMPSK(2);
    TestMPSK(4);
    TestMPSK(8);
+   TestQAM(4);
+   TestQAM(16);
    return 0;
    }
