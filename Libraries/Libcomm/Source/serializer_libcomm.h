@@ -14,6 +14,7 @@
 // Modulators
 #include "modulator.h"
 #include "mpsk.h"
+#include "qam.h"
 #include "watermarkcode.h"
 
 // Convolutional Encoders
@@ -90,12 +91,15 @@ namespace libcomm {
    \version 2.22 (13-14 Dec 2007)
    - added grscc<> variants for GF(2), GF(2^4)
    - added gnrcc<> variants for GF(2), GF(2^4)
+
+   \version 2.23 (3 Jan 2008)
+   - added qam
 */
 
 // Serialization support
 class serializer_libcomm : private
    awgn, laplacian,
-   watermarkcode<libbase::logrealfast>,
+   qam, watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
