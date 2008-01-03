@@ -12,9 +12,9 @@ namespace libcomm {
    \author  Johann Briffa
 
    \par Version Control:
-   - $Revision: 245 $
-   - $Date: 2007-12-20 11:38:46 +0000 (Thu, 20 Dec 2007) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 
    \version 1.00 (3 Jan 2008)
    - Initial version, implements square QAM with Gray-coded mapping

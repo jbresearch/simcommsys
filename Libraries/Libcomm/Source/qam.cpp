@@ -2,9 +2,9 @@
    \file
 
    \par Version Control:
-   - $Revision: 245 $
-   - $Date: 2007-12-20 11:38:46 +0000 (Thu, 20 Dec 2007) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 */
 
 #include "qam.h"
