@@ -13,6 +13,7 @@
 #include "itfunc.h"
 #include <iostream>
 
+using libcomm::modulator;
 using libcomm::mpsk;
 using libcomm::qam;
 
@@ -24,26 +25,27 @@ using std::cerr;
 using std::hex;
 using std::dec;
 
-void TestMPSK(int m)
+void TestModem(modulator &modem)
    {
+   const int m = modem.num_symbols();
    const int bits = int(log2(m));
    assert(m == 1<<bits);
-   mpsk modem(m);
    cout << '\n' << modem.description() << '\n';
    cout << "Average Energy/symbol: " << modem.energy() << '\n';
    for(int i=0; i<m; i++)
       cout << bitfield(gray(i),bits) << '\t' << modem.modulate(gray(i)) << '\n';
    }
 
+void TestMPSK(int m)
+   {
+   mpsk modem(m);
+   TestModem(modem);
+   }
+
 void TestQAM(int m)
    {
-   const int bits = int(log2(m));
-   assert(m == 1<<bits);
    qam modem(m);
-   cout << '\n' << modem.description() << '\n';
-   cout << "Average Energy/symbol: " << modem.energy() << '\n';
-   for(int i=0; i<m; i++)
-      cout << bitfield(gray(i),bits) << '\t' << modem.modulate(gray(i)) << '\n';
+   TestModem(modem);
    }
 
 int main(int argc, char *argv[])
