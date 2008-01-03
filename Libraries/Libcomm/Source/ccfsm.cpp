@@ -192,6 +192,8 @@ template <class G> void ccfsm<G>::advance(int& input)
    for(int i=0; i<k; i++)
       {
       const int m = reg(i).size();
+      if(m == 0)
+         continue;
       // Shift entries to the right (ie. down)
       for(int j=1; j<m; j++)
          reg(i)(j-1) = reg(i)(j);

@@ -28,6 +28,9 @@ namespace libcomm {
    - Made convert() and convolve() protected, to make them available to derived classes
    - Modified definition of first convert() so that vector parameter is a const
    - Implemented correct description output
+
+   \version 1.01 (3 Jan 2008)
+   - fixed bug in advance() with memoryless systems
 */
 
 template <class G> class ccfsm : public fsm {
