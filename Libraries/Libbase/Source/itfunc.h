@@ -48,6 +48,10 @@
 
    \version 1.11 (20 Dec 2007)
    - added functions to compute Gray code and its inverse
+
+   \version 1.12 (3 Jan 2008)
+   - moved log2() and round() to config file in global namespace, in order to use platform
+     implementation when compiling with gcc. Also, these functions aren't really IT-related.
 */
 
 namespace libbase {
@@ -74,10 +78,6 @@ inline double erffc(double x) { return x < 0.0 ? 1.0+gammp(0.5,x*x) : 1.0-gammp(
 
 inline double Q(double x) { return 0.5 * erffc(x / sqrt(2.0)); }
 inline double gauss(double x) { return exp(-0.5 * x * x)/sqrt(2.0 * PI); }
-
-inline double log2(double x) { return log(x)/log(double(2)); }
-inline double round(double x) { return (floor(x + 0.5)); }
-inline double round(double x, double r) { return round(x/r)*r; }
 
 template <class T> inline T limit(const T x, const T lo, const T hi) { return max(lo, min(hi, x)); };
 

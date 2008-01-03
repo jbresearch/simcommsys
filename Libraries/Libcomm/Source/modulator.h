@@ -105,7 +105,7 @@ public:
    // information functions
    virtual int num_symbols() const = 0;
    virtual double energy() const = 0;  // average energy per symbol
-   double bit_energy() const { return energy()/libbase::log2(num_symbols()); };  // average energy per bit
+   double bit_energy() const { return energy()/log2(num_symbols()); };  // average energy per bit
    double rate() const { return 1.0/bit_energy(); };  // modulation rate in bits/unit energy
 
    // description output

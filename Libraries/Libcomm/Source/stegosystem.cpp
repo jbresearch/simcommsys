@@ -22,7 +22,6 @@ namespace libcomm {
 using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
-using libbase::round;
 using libbase::randgen;
 
 //////////////////////////////////////////////////////////////////////
@@ -71,7 +70,7 @@ int stegosystem::GetDataSize(double dInterleaverDensity, int nEmbedRate) const
 // returns the width of each data element as passed to the encoder (in bits)
 int stegosystem::GetDataWidth() const
    {
-   return (m_pCodec == NULL) ? 1 : int(round(libbase::log2(m_pCodec->num_inputs())));
+   return (m_pCodec == NULL) ? 1 : int(round(log2(m_pCodec->num_inputs())));
    }
 
 // returns the code rate

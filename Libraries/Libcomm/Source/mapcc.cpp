@@ -72,7 +72,7 @@ template <class real> void mapcc<real>::translate(const libbase::matrix<double>&
    using std::cerr;
    // Compute factors / sizes & check validity
    const int S = ptable.ysize();
-   const int s = int(libbase::round(log(double(N))/log(double(S))));
+   const int s = int(round(log(double(N))/log(double(S))));
    if(N != pow(double(S), s))
       {
       cerr << "FATAL ERROR (mapcc): each encoder output (" << N << ") must be";

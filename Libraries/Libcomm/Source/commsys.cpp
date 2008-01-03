@@ -114,7 +114,7 @@ void commsys::init()
    m = cdc->tail_length();
    N = cdc->num_outputs();
    K = cdc->num_inputs();
-   k = int(libbase::round(libbase::log2(double(K))));
+   k = int(round(log2(double(K))));
    if(K != 1<<k)
       {
       std::cerr << "FATAL ERROR (commsys): can only estimate BER for a q-ary source (" << k << ", " << K << ").\n";

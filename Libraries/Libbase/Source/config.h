@@ -138,9 +138,22 @@
    - Modified integer type names to use compiler-specific versions in Win32 and
      C99 versions in anything else. Eventually, all references will be replaced
      by the C99 equivalent.
+
+   \version 3.34 (3 Jan 2008)
+   - moved log2() and round() from itfunc file.
+   - defining these in global namespace, in order to use platform implementation
+     when compiling with gcc. Also, these functions aren't really IT-related.
 */
 
 // *** Global namespace ***
+
+// Implemented log2 and round if these are not already available
+
+#ifdef WIN32
+inline double log2(double x) { return log(x)/log(double(2)); }
+inline double round(double x) { return (floor(x + 0.5)); }
+#endif
+inline double round(double x, double r) { return round(x/r)*r; }
 
 // Automatic upgrade of various math functions from int to double parameter
 

@@ -300,8 +300,8 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
    {
    // Compute factors / sizes & check validity
    const int S = ptable.ysize();
-   const int sp = int(libbase::round(log(double(P))/log(double(S))));
-   const int sk = int(libbase::round(log(double(K))/log(double(S))));
+   const int sp = int(round(log(double(P))/log(double(S))));
+   const int sk = int(round(log(double(K))/log(double(S))));
    const int s = sk + sets*sp;
    if(P != pow(double(S), sp) || K != pow(double(S), sk))
       {

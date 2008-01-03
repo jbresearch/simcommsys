@@ -135,7 +135,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
    const int q = 1<<k;
    const int tau = encoded.size();
    // We assume that each 'encoded' symbol can be fitted in an integral number of sparse vectors
-   const int p = int(libbase::round(log(double(N))/log(double(q))));
+   const int p = int(round(log(double(N))/log(double(q))));
    assert(N == pow(q, p));
    // Initialise result vector (one bit per sparse vector) and watermark sequence
    tx.init(n*p*tau);

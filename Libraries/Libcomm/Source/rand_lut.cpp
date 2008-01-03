@@ -61,7 +61,7 @@ void rand_lut::advance()
 std::string rand_lut::description() const
    {
    std::ostringstream sout;
-   sout << "Random Interleaver (self-terminating for m=" << int(libbase::log2(p+1)) << ")";
+   sout << "Random Interleaver (self-terminating for m=" << int(log2(p+1)) << ")";
    return sout.str();
    }
 
@@ -70,7 +70,7 @@ std::string rand_lut::description() const
 std::ostream& rand_lut::serialize(std::ostream& sout) const
    {
    sout << lut.size() << "\n";
-   sout << int(libbase::log2(p+1)) << "\n";
+   sout << int(log2(p+1)) << "\n";
    return sout;
    }
 

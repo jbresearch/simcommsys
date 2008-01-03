@@ -100,8 +100,8 @@ public:
    virtual int tail_length() const = 0;
    virtual int num_iter() const = 0;
 
-   double input_bits() const { return libbase::log2(num_inputs())*(block_size() - tail_length()); };
-   double output_bits() const { return libbase::log2(num_outputs())*block_size(); };
+   double input_bits() const { return log2(num_inputs())*(block_size() - tail_length()); };
+   double output_bits() const { return log2(num_outputs())*block_size(); };
    double rate() const { return input_bits()/output_bits(); };
 
    // description output

@@ -37,7 +37,7 @@ void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, l
    // Compute factors / sizes & check validity
    const int M = lut.size();
    const int tau = encoded.size();
-   const int s = int(libbase::round(log(double(N))/log(double(M))));
+   const int s = int(round(log(double(N))/log(double(M))));
    if(N != pow(double(M), s))
       {
       std::cerr << "FATAL ERROR (modulator): each encoder output (" << N << ") must be";
