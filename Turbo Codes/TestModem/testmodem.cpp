@@ -2,9 +2,9 @@
    \file
 
    \par Version Control:
-   - $Revision: 280 $
-   - $Date: 2008-01-02 15:10:32 +0000 (Wed, 02 Jan 2008) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 */
 
 #include "mpsk.h"
