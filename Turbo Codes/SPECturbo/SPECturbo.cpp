@@ -30,33 +30,33 @@
    - $Author$
 
    \version 2.44 (7 Apr 2002)
-  in order to allow profiling with more accuracy, modified the main simulation loop
-  to stop after two conditions are satisfied: the first is the existing time condition
-  (wall-clock), and the second is the minimum number of frames to simulate. This ensures
-  that the profiling information is more valid since a better proportion of executable
-  time will be in the simulation loop.
+   in order to allow profiling with more accuracy, modified the main simulation loop
+   to stop after two conditions are satisfied: the first is the existing time condition
+   (wall-clock), and the second is the minimum number of frames to simulate. This ensures
+   that the profiling information is more valid since a better proportion of executable
+   time will be in the simulation loop.
 
    \version 2.45 (12 Jun 2002)
-  added a second command-line parameter "-q" which forces the program to output nothing
-  to stdout except for the final speed metric.
+   added a second command-line parameter "-q" which forces the program to output nothing
+   to stdout except for the final speed metric.
 
    \version 2.46 (25 Jul 2006)
-  after fixing a bug introduced recently in the turbo 'encode' process, the official
-  list of standard results has now been updated so that a 0% deviation is expected
-  (rather than the -5% on BER that was expected in the earlier version).
+   after fixing a bug introduced recently in the turbo 'encode' process, the official
+   list of standard results has now been updated so that a 0% deviation is expected
+   (rather than the -5% on BER that was expected in the earlier version).
 
    \version 2.50 (27 Jul 2006)
-  first version based on montecarlo class, rather than direct sampling of the commsys
-  class. The most notable improvement is that this automatically incorporates the use
-  of MPI for benchmarking clusters / multi-processor systems. Notably here, the final
-  benchmark of frames/CPUsec has now become frames/sec, as scaling by usage is no
-  longer meaningful.
+   first version based on montecarlo class, rather than direct sampling of the commsys
+   class. The most notable improvement is that this automatically incorporates the use
+   of MPI for benchmarking clusters / multi-processor systems. Notably here, the final
+   benchmark of frames/CPUsec has now become frames/sec, as scaling by usage is no
+   longer meaningful.
 
    \version 2.51 (1 Aug 2006)
-  following the update to bcjr, where the alpha and beta metrics are normalized, this
+   following the update to bcjr, where the alpha and beta metrics are normalized, this
    version of SPECturbo now uses the double-precision based turbo and bcjr algorithms,
-  resulting in more than 6x increase in speed. Consequently, the simulation tolerance
-  limits had to be tightened.
+   resulting in more than 6x increase in speed. Consequently, the simulation tolerance
+   limits had to be tightened.
 
    \version 2.52 (30 Oct 2006)
    - updated to use library namespaces.
@@ -75,7 +75,13 @@
    - updated to conform with montecarlo 1.31
    - refactored codec creation to occur within a separate function and to create
     all system components on the heap.
+
+   \version 2.62 (24-25 Apr 2007)
+   - added VERSION constant
+   - modified turbo codec creation parameters (removed simile flag)
 */
+
+const char *VERSION = "2.62";
 
 using std::cout;
 using std::setprecision;
@@ -101,8 +107,8 @@ libcomm::commsys createsystem()
    // Helical interleaver (from matrix size, hence block size)
    libbase::vector<libcomm::interleaver *> inter(1);
    inter(0) = new libcomm::helical(tau, rows, cols);
-   // Channel Codec (punctured, iterations, simile, endatzero)
-   libcomm::turbo<double> *codec = new libcomm::turbo<double>(encoder, tau, inter, 10, true, true, false);
+   // Channel Codec (punctured, iterations, endatzero)
+   libcomm::turbo<double> *codec = new libcomm::turbo<double>(encoder, tau, inter, 10, true);
    // Stipple puncturing
    const int sets = inter.size()+1;
    libcomm::puncture_stipple *punc = new libcomm::puncture_stipple(tau, k+sets*(n-k));
@@ -187,7 +193,7 @@ int main(int argc, char *argv[])
    const int frames = estimator.get_samplecount();
    if(!quiet)
       {
-      cout << "SPECturbo Version 2.61\n";
+      cout << "SPECturbo Version " << VERSION << "\n";
       cout << "Statistics: " << frames << " frames in " << estimator.get_timer() << ".\n";
       }
    cout << "SPECturbo: " << setprecision(4) << frames/estimator.get_timer().elapsed() << " frames/sec\n";
