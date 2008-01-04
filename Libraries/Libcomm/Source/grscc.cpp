@@ -19,22 +19,30 @@ using libbase::matrix;
 
 // FSM state operations (getting and resetting)
 
-/*! \brief Resets for circular trellis, given zero-state solution and number of time-steps
+/*!
+   \copydoc fsm::resetcircular(int zerostate, int n)
+
+   \note Circulation state is obtainable only if the sequence length is not
+         a multiple of the period
 */
 template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    {
+   assert(zerostate >= 0 && zerostate < num_states());
+   //assert(n%7 != 0);
+   //reset(csct[n%7][zerostate]);
    assertalways("Function not implemented.");
    }
 
 
 // FSM helper operations
 
-/*! \brief Determine the actual input that will be applied (resolve tail as necessary)
-    \param  input    Requested input - can be any valid input or the special 'tail' value
-    \return Either the given value, or the value that must be applied to tail out
+/*!
+   \brief Determine the actual input that will be applied (resolve tail as necessary)
+   \param  input    Requested input - can be any valid input or the special 'tail' value
+   \return Either the given value, or the value that must be applied to tail out
 
-    \warning I don't know why but GCC complains if I don't explicitly refer to member
-             variables using this-> or grscc<G>::
+   \warning I don't know why but GCC complains if I don't explicitly refer to member
+            variables using this-> or grscc<G>::
 */
 template <class G> int grscc<G>::determineinput(int input) const
    {
@@ -48,13 +56,14 @@ template <class G> int grscc<G>::determineinput(int input) const
    return convert(ip);
    }
 
-/*! \brief Determine the value that will be shifted into the register
-    \param  input    Requested input - can only be a valid input
-    \return Vector representation of the shift-in value - lower index positions
-            correspond to lower-index inputs
+/*!
+   \brief Determine the value that will be shifted into the register
+   \param  input    Requested input - can only be a valid input
+   \return Vector representation of the shift-in value - lower index positions
+           correspond to lower-index inputs
 
-    \warning I don't know why but GCC complains if I don't explicitly refer to member
-             variables using this-> or grscc<G>::
+   \warning I don't know why but GCC complains if I don't explicitly refer to member
+            variables using this-> or grscc<G>::
 */
 template <class G> vector<G> grscc<G>::determinefeedin(int input) const
    {
