@@ -32,7 +32,13 @@ template <class real, class dbl> void turbo<real,dbl>::init()
    M = encoder->num_states();
    K = encoder->num_inputs();
    N = encoder->num_outputs();
-   P = N/K;             // this *must* be an integer (for any binary code, at least)
+   P = N/K;
+   assertalways(N%K == 0);
+   assertalways(tau > 0);
+   assertalways(sets > 0);
+   // TODO: check interleavers
+   assertalways(!endatzero || !circular);
+   assertalways(iter > 0);
 
    seed(0);
    initialised = false;
