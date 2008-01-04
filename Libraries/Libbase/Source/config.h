@@ -143,9 +143,17 @@
    - moved log2() and round() from itfunc file.
    - defining these in global namespace, in order to use platform implementation
      when compiling with gcc. Also, these functions aren't really IT-related.
+
+   \version 3.35 (4 Jan 2008)
+   - added assertalways() in global namespace
+   - added fail() in libbase namespace to implement error printout and bailout
 */
 
 // *** Global namespace ***
+
+// An assertion that is implemented even in release builds
+
+#define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::fail(#_Expression, __FILE__, __LINE__), 0) )
 
 // Implemented log2 and round if these are not already available
 
@@ -216,8 +224,9 @@ typedef unsigned __int64   uint64_t;
 
 namespace libbase {
 
-// Debugging tools (assert and trace; also includes standard streams)
+// Debugging tools
 
+extern void fail(const char *expression, const char *file, int line);
 extern std::ostream trace;
 
 // Names for integer types

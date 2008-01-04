@@ -26,6 +26,11 @@ namespace libbase {
 
 // Debugging tools
 
+void fail(const char *expression, const char *file, int line)
+   {
+   std::cerr << "ERROR (" << file << " line " << line << "): assertion " << expression << " failed.\n";
+   }
+
 class tracestreambuf : public std::streambuf {
 protected:
    std::string buffer;
