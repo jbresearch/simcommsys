@@ -79,6 +79,7 @@
    \version 2.62 (24-25 Apr 2007)
    - added VERSION constant
    - modified turbo codec creation parameters (removed simile flag)
+   - added consideration of SER
 */
 
 const char *VERSION = "2.62";
@@ -162,29 +163,31 @@ int main(int argc, char *argv[])
    estimator.estimate(estimate, tolerance);
 
    // Tabulate standard results
-   const double std[] = {0.0924156, 0.993763, \
-                         0.073373, 0.894948, \
-                         0.0671458, 0.798102, \
-                         0.0646009, 0.740787, \
-                         0.0634388, 0.70745, \
-                         0.0628046, 0.690988, \
-                         0.0622686, 0.679999, \
-                         0.0620079, 0.670621, \
-                         0.0619153, 0.666856, \
-                         0.0618174, 0.662668};
+   const double std[] = {0.0924156, 0.0924156, 0.993763, \
+                         0.073373, 0.073373, 0.894948, \
+                         0.0671458, 0.0671458, 0.798102, \
+                         0.0646009, 0.0646009, 0.740787, \
+                         0.0634388, 0.0634388, 0.70745, \
+                         0.0628046, 0.0628046, 0.690988, \
+                         0.0622686, 0.0622686, 0.679999, \
+                         0.0620079, 0.0620079, 0.670621, \
+                         0.0619153, 0.0619153, 0.666856, \
+                         0.0618174, 0.0618174, 0.662668};
 
    // Print results (for confirming accuracy)
    if(!quiet)
       {
       cout << "\n";
-      cout << "Results: (BER, FER)\n";
-      cout << "~~~~~~~~~~~~~~~~~~~\n";
-      for(int j=0; j<system.count(); j+=2)
+      cout << "Results: (BER, SER, FER)\n";
+      cout << "~~~~~~~~~~~~~~~~~~~~~~~~\n";
+      for(int j=0; j<system.count(); j+=3)
          {
          cout << setprecision(6) << estimate(j) << " (";
          cout << setprecision(3) << 100*(estimate(j)-std[j])/std[j] << "%)\t";
          cout << setprecision(6) << estimate(j+1) << " (";
-         cout << setprecision(3) << 100*(estimate(j+1)-std[j+1])/std[j+1] << "%)\n";
+         cout << setprecision(3) << 100*(estimate(j+1)-std[j+1])/std[j+1] << "%)\t";
+         cout << setprecision(6) << estimate(j+2) << " (";
+         cout << setprecision(3) << 100*(estimate(j+2)-std[j+2])/std[j+2] << "%)\n";
          }
       cout << "\n";
       }
