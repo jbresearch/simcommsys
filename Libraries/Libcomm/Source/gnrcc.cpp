@@ -38,14 +38,14 @@ template <class G> gnrcc<G>::gnrcc(const gnrcc<G>& x) : ccfsm<G>(x)
 */
 template <class G> void gnrcc<G>::resetcircular(int zerostate, int n)
    {
-   assert("Function not implemented.");
+   assertalways("Function not implemented.");
    }
 
 /*! \brief Resets for circular trellis, assuming we have just run through the zero-state zero-input
 */
 template <class G> void gnrcc<G>::resetcircular()
    {
-   assert("Function not implemented.");
+   assertalways("Function not implemented.");
    }
 
 

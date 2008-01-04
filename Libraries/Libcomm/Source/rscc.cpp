@@ -31,12 +31,12 @@ rscc::rscc(const rscc& x) : ccbfsm(x)
 
 void rscc::resetcircular(int zerostate, int n)
    {
-   assert("Function not implemented.");
+   assertalways("Function not implemented.");
    }
 
 void rscc::resetcircular()
    {
-   assert("Function not implemented.");
+   assertalways("Function not implemented.");
    }
 
 // FSM helper operations
