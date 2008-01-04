@@ -80,6 +80,7 @@ int ccbfsm::state() const
 
 void ccbfsm::reset(int state)
    {
+   fsm::reset(state);
    bitfield newstate;
    newstate.resize(nu);
    newstate = state;
@@ -99,6 +100,7 @@ void ccbfsm::reset(int state)
 
 void ccbfsm::advance(int& input)
    {
+   fsm::advance(input);
    bitfield ip = determineinput(input);
    bitfield sin = determinefeedin(ip);
    // Update input

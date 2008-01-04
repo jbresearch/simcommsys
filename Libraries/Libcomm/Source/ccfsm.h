@@ -31,6 +31,9 @@ namespace libcomm {
 
    \version 1.01 (3 Jan 2008)
    - fixed bug in advance() with memoryless systems
+
+   \version 1.02 (4 Jan 2008)
+   - added calls to underlying functions in reset() and advance()
 */
 
 template <class G> class ccfsm : public fsm {

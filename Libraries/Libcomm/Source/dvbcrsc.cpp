@@ -42,8 +42,8 @@ dvbcrsc::dvbcrsc(const dvbcrsc& x)
 
 void dvbcrsc::reset(int state)
    {
+   fsm::reset(state);
    reg = state;
-   N = 0;
    }
 
 void dvbcrsc::resetcircular(int zerostate, int n)
@@ -56,15 +56,11 @@ void dvbcrsc::resetcircular(int zerostate, int n)
    reset(csct[n%7][zerostate]);
    }
 
-void dvbcrsc::resetcircular()
-   {
-   resetcircular(state(),N);
-   }
-
 // finite state machine functions - state advance etc.
 
 void dvbcrsc::advance(int& input)
    {
+   fsm::advance(input);
    using libbase::bitfield;
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)
    // ip[0] = A, ip[1] = B
@@ -79,8 +75,6 @@ void dvbcrsc::advance(int& input)
    reg = lsi >> reg;
    // apply the second input
    reg ^= (bitfield("0") + ip[1] + ip[1]);
-   // increment the sequence counter
-   N++;
    }
 
 int dvbcrsc::output(int input) const

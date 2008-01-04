@@ -169,6 +169,7 @@ template <class G> int ccfsm<G>::state() const
 
 template <class G> void ccfsm<G>::reset(int state)
    {
+   fsm::reset(state);
    assert(state >= 0 && state < num_states());
    for(int i=k-1; i>=0; i--)
       state = convert(state, reg(i));
@@ -180,6 +181,7 @@ template <class G> void ccfsm<G>::reset(int state)
 
 template <class G> void ccfsm<G>::advance(int& input)
    {
+   fsm::advance(input);
    input = determineinput(input);
    vector<G> sin = determinefeedin(input);
    // Compute next state for each input register

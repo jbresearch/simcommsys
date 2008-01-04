@@ -24,11 +24,6 @@ void nrcc::resetcircular(int zerostate, int n)
    assertalways("Function not implemented.");
    }
 
-void nrcc::resetcircular()
-   {
-   assertalways("Function not implemented.");
-   }
-
 // FSM helper operations
 
 bitfield nrcc::determineinput(const int input) const

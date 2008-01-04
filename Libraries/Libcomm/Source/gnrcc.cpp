@@ -26,13 +26,6 @@ template <class G> void gnrcc<G>::resetcircular(int zerostate, int n)
    assertalways("Function not implemented.");
    }
 
-/*! \brief Resets for circular trellis, assuming we have just run through the zero-state zero-input
-*/
-template <class G> void gnrcc<G>::resetcircular()
-   {
-   assertalways("Function not implemented.");
-   }
-
 
 // FSM helper operations
 

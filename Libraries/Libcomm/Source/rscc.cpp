@@ -24,11 +24,6 @@ void rscc::resetcircular(int zerostate, int n)
    assertalways("Function not implemented.");
    }
 
-void rscc::resetcircular()
-   {
-   assertalways("Function not implemented.");
-   }
-
 // FSM helper operations
 
 bitfield rscc::determineinput(const int input) const

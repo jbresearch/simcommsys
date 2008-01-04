@@ -87,11 +87,21 @@ namespace libcomm {
 
    \version 1.71 (13 Dec 2007)
    - modified parameter type for output from "const int&" to "int"
+
+   \version 1.80 (4 Jan 2008)
+   - made step() non-virtual since we don't want to re-implement it elsewhere
+   - made resetcircular() non-virtual since we don't want to re-implement it elsewhere
+   - implemented resetcircular() here; this required the addition of member N and related
+     code in reset() and advance(). This also means that reset() and advance() now have
+     to be called by each function re-implementing them.
 */
 
 class fsm {
 public:
-   static const int tail;                 //!< A special input value to use when tailing out
+   /*! \name Object representation */
+   static const int tail;        //!< A special input value to use when tailing out
+   int N;                        //!< Sequence length since last reset;
+   // @}
 
    /*! \name Constructors / Destructors */
    //! Virtual destructor
@@ -118,18 +128,19 @@ public:
       \invariant The state value should always be between 0 and num_states()-1
       \cf state()
    */
-   virtual void reset(int state=0) = 0;
+   virtual void reset(int state=0);
    /*!
       \brief Reset to the circulation state
       \param zerostate  The final state for the input sequence, if we start at the zero-state
       \param n  The number of time-steps in the input sequence
+      \note This function has to be called once by each function re-implementing it.
    */
    virtual void resetcircular(int zerostate, int n) = 0;
    /*!
       \brief Reset to the circulation state, assuming we have just run through the
              input sequence, starting with the zero-state 
    */
-   virtual void resetcircular() = 0;
+   void resetcircular();
    // @}
 
    /*! \name FSM operations (advance/output/step) */
@@ -137,8 +148,9 @@ public:
       \brief Feeds the specified input and advances the state
       \param[in,out]   input    Integer representation of current input; if this is the
                                 'tail' value, it will be updated
+      \note This function has to be called once by each function re-implementing it.
    */
-   virtual void advance(int& input) = 0;
+   virtual void advance(int& input);
    /*!
       \brief Computes the output for the given input and the present state
       \param  input    Integer representation of current input; may be the 'tail' value
@@ -153,7 +165,7 @@ public:
       \return Integer representation of the output
       \note Equivalent to output() followed by advance()
    */
-   virtual int step(int& input);
+   int step(int& input);
    // @}
 
    /*! \name FSM information functions */

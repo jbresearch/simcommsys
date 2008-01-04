@@ -84,6 +84,10 @@ namespace libcomm {
    - extracted advance() and output() to ccbfsm
    - made determineinput() and determinefeedin() protected, like the virtual members they implement
    - cleaned up order of members and documentation
+
+   \version 1.71 (4 Jan 2008)
+   - removed serialization functions, which were redundant
+   - removed resetcircular(), which is now implemented in fsm()
 */
 
 class nrcc : public ccbfsm {
@@ -106,7 +110,6 @@ public:
 
    // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n);
-   void resetcircular();
 
    // Description & Serialization
    std::string description() const;

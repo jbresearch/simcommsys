@@ -24,6 +24,9 @@ namespace libcomm {
 
    \version 1.01 (13 Dec 2007)
    - modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
+
+   \version 1.02 (4 Jan 2008)
+   - added calls to underlying functions in reset() and advance()
 */
 
 class ccbfsm : public fsm {

@@ -33,6 +33,11 @@ namespace libcomm {
 
    \version 1.21 (13 Dec 2007)
    - modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
+
+   \version 1.22 (4 Jan 2008)
+   - removed resetcircular(), which is now implemented in fsm()
+   - consequently, also removed N and related code in reset() and advance()
+   - added calls to underlying functions in reset() and advance()
 */
 
 class dvbcrsc : public fsm {
@@ -45,7 +50,6 @@ class dvbcrsc : public fsm {
    static const int k, n;        //!< Number of input and output bits, respectively
    static const int nu;          //!< Number of memory elements (constraint length)
    libbase::bitfield reg;        //!< Present state (shift register)
-   int N;                        //!< Sequence length since last reset;
    // @}
 protected:
    /*! \name Internal functions */
@@ -69,7 +73,6 @@ public:
    int state() const;
    void reset(int state=0);
    void resetcircular(int zerostate, int n);
-   void resetcircular();
    // FSM operations (advance/output/step)
    void advance(int& input);
    int output(int input) const;
