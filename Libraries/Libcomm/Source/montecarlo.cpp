@@ -344,6 +344,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
 
    // Initialise space for results
    const int count = system->count();
+   assert(count > 0);
    result.init(count);
    tolerance.init(count);
 
