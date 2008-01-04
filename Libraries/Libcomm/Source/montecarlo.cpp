@@ -227,6 +227,7 @@ void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, v
 */
 double montecarlo::updateresults(vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq) const
    {
+   assert(result.size() > 0);
    assert(tolerance.size() == result.size());
    assert(sum.size() == result.size());
    assert(sumsq.size() == result.size());
