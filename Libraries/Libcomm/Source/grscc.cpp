@@ -45,21 +45,24 @@ using libbase::matrix;
    feedforward and feedback paths for the next-state generation; thus the polynomials
    corresponding to the output generation have no bearing. Similarly, the taps
    corresponding to the inputs also are irrelevant.
+
+   \warning I don't know why but GCC complains if I don't explicitly refer to member
+            variables from parent class ccfm<G> using this-> or grscc<G>::
 */
 template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    {
-   assert(zerostate >= 0 && zerostate < num_states());
+   assert(zerostate >= 0 && zerostate < this->num_states());
    // Create generator matrix in required format
    matrix<G> stategen(nu,nu);
    stategen = 0;
    // Consider each input in turn
-   for(int i=0, row=0; i<k; i++, row++)
+   for(int i=0, row=0; i<this->k; i++, row++)
       {
       // First row describes the shift-input taps
-      for(int j=gen(i,i).size()-1, col=0; j>=0; j--, col++)
-         stategen(col,row) = gen(i,i)(j);
+      for(int j=this->gen(i,i).size()-1, col=0; j>=0; j--, col++)
+         stategen(col,row) = this->gen(i,i)(j);
       // Successive rows describe the simple right-shift taps
-      for(int j=1; j<reg(i).size(); j++)
+      for(int j=1; j<this->reg(i).size(); j++)
          stategen(j-1,++row) = 1;
       }
    trace << "DEBUG (grscc): state-generator matrix = \n";
@@ -78,7 +81,7 @@ template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    \return Either the given value, or the value that must be applied to tail out
 
    \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables using this-> or grscc<G>::
+            variables from parent class ccfm<G> using this-> or grscc<G>::
 */
 template <class G> int grscc<G>::determineinput(int input) const
    {
@@ -99,7 +102,7 @@ template <class G> int grscc<G>::determineinput(int input) const
            correspond to lower-index inputs
 
    \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables using this-> or grscc<G>::
+            variables from parent class ccfm<G> using this-> or grscc<G>::
 */
 template <class G> vector<G> grscc<G>::determinefeedin(int input) const
    {
