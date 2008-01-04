@@ -127,13 +127,43 @@ public:
       \param state  A unique integer representation of the state we want to set to
       \invariant The state value should always be between 0 and num_states()-1
       \cf state()
+      \note This function has to be called once by each function re-implementing it.
    */
    virtual void reset(int state=0);
    /*!
       \brief Reset to the circulation state
       \param zerostate  The final state for the input sequence, if we start at the zero-state
       \param n  The number of time-steps in the input sequence
-      \note This function has to be called once by each function re-implementing it.
+
+      Consider a convolutional code where the state \f$ S_i \f$ at timestep \f$ i \f$ is
+      related to state \f$ S_{i-1} \f$ and input \f$ X_i \f$ by the relation:
+      \f[ S_i = G \mdot S_{i-1} + X_i \f]
+
+      Therefore, after \f$ N \f$ timesteps, the state is given by:
+      \f[ S_N = G^N \mdot S_0 + \sum_{i=1}^{N} G^{N-i} \mdot X_i \f]
+
+      Thus, the circulation state, defined such that \f$ S_c = S_N = S_0 \f$ is
+      derived from the equation:
+      \f[ S_c = \langle I + G^N \rangle ^{-1} \sum_{i=1}^{N} G^{N-i} \mdot X_i \f]
+
+      and is obtainable only if \f$ I + G^N \f$ is invertible. It is worth noting
+      that not all \f$ G \f$ matrices are suitable; also, the sequence length \f$ N \f$
+      must not be a multiple of the period \f$ L \f$ of the recursive generator, defined
+      by \f$ G^L = I \f$.
+
+      Consider starting at the zero-intial-state and pre-encoding the input sequence;
+      this gives us a final state:
+      \f[ S_N^0 = \sum_{i=1}^{N} G^{N-i} \mdot X_i \f]
+
+      Combining this with the equation for the circulation state, we get:
+      \f[ S_c = \langle I + G^N \rangle ^{-1} S_N^0 \f]
+
+      Note, however, that because of the periodicity of the system, this equation
+      can be reduced to:
+      \f[ S_c = \langle I + G^P \rangle ^{-1} S_N^0 \f]
+
+      where \f$ P = N \mod L \f$. This can be obtained by a lookup table containing
+      all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
    */
    virtual void resetcircular(int zerostate, int n) = 0;
    /*!
