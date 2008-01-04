@@ -31,6 +31,10 @@ template <class G> class grscc : public ccfsm<G> {
    static const libbase::serializer shelper;
    static void* create() { return new grscc<G>; };
    // @}
+private:
+   /*! \name Internal functions */
+   libbase::matrix<G> getstategen() const;
+   // @}
 protected:
    /*! \name FSM helper operations */
    int determineinput(int input) const;

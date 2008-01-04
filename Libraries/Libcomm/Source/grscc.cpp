@@ -5,6 +5,9 @@
    - $Revision$
    - $Date$
    - $Author$
+
+   \warning I don't know why but GCC complains if I don't explicitly refer to member
+            variables from parent class ccfm<G> using this-> or grscc<G>::
 */
 
 #include "grscc.h"
@@ -16,6 +19,57 @@ namespace libcomm {
 using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
+
+
+// Internal functions
+
+template <class G> matrix<G> grscc<G>::getstategen() const
+   {
+   // Create generator matrix in required format
+   matrix<G> stategen(this->nu,this->nu);
+   stategen = G(libbase::int32u(0));
+   // Consider each input in turn
+   for(int i=0, row=0; i<this->k; i++, row++)
+      {
+      // First row describes the shift-input taps
+      for(int j=this->gen(i,i).size()-1, col=0; j>=0; j--, col++)
+         stategen(col,row) = this->gen(i,i)(j);
+      // Successive rows describe the simple right-shift taps
+      for(int j=1; j<this->reg(i).size(); j++)
+         stategen(j-1,++row) = 1;
+      }
+   trace << "DEBUG (grscc): state-generator matrix = \n";
+   stategen.serialize(trace);
+   return stategen;
+   }
+
+
+// FSM helper operations
+
+template <class G> int grscc<G>::determineinput(int input) const
+   {
+   if(input != fsm::tail)
+      return input;
+   // Handle tailing out
+   const G zero;
+   vector<G> ip(this->k);
+   for(int i=0; i<this->k; i++)
+      ip(i) = convolve(zero, this->reg(i), this->gen(i,i));
+   return convert(ip);
+   }
+
+template <class G> vector<G> grscc<G>::determinefeedin(int input) const
+   {
+   assert(input != fsm::tail);
+   // Convert input to vector representation
+   vector<G> ip(this->k);
+   convert(input, ip);
+   // Determine the shift-in values by convolution
+   vector<G> sin(this->k);
+   for(int i=0; i<this->k; i++)
+      sin(i) = convolve(ip(i), this->reg(i), this->gen(i,i));
+   return sin;
+   }
 
 
 // FSM state operations (getting and resetting)
@@ -45,77 +99,16 @@ using libbase::matrix;
    feedforward and feedback paths for the next-state generation; thus the polynomials
    corresponding to the output generation have no bearing. Similarly, the taps
    corresponding to the inputs also are irrelevant.
-
-   \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables from parent class ccfm<G> using this-> or grscc<G>::
 */
 template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    {
    assert(zerostate >= 0 && zerostate < this->num_states());
-   // Create generator matrix in required format
-   matrix<G> stategen(this->nu,this->nu);
-   stategen = G(libbase::int32u(0));
-   // Consider each input in turn
-   for(int i=0, row=0; i<this->k; i++, row++)
-      {
-      // First row describes the shift-input taps
-      for(int j=this->gen(i,i).size()-1, col=0; j>=0; j--, col++)
-         stategen(col,row) = this->gen(i,i)(j);
-      // Successive rows describe the simple right-shift taps
-      for(int j=1; j<this->reg(i).size(); j++)
-         stategen(j-1,++row) = 1;
-      }
-   trace << "DEBUG (grscc): state-generator matrix = \n";
-   stategen.serialize(trace);
+   matrix<G> stategen = getstategen();
    //assert(n%7 != 0);
    //reset(csct[n%7][zerostate]);
    assertalways("Function not implemented.");
    }
 
-
-// FSM helper operations
-
-/*!
-   \brief Determine the actual input that will be applied (resolve tail as necessary)
-   \param  input    Requested input - can be any valid input or the special 'tail' value
-   \return Either the given value, or the value that must be applied to tail out
-
-   \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables from parent class ccfm<G> using this-> or grscc<G>::
-*/
-template <class G> int grscc<G>::determineinput(int input) const
-   {
-   if(input != fsm::tail)
-      return input;
-   // Handle tailing out
-   const G zero;
-   vector<G> ip(this->k);
-   for(int i=0; i<this->k; i++)
-      ip(i) = convolve(zero, this->reg(i), this->gen(i,i));
-   return convert(ip);
-   }
-
-/*!
-   \brief Determine the value that will be shifted into the register
-   \param  input    Requested input - can only be a valid input
-   \return Vector representation of the shift-in value - lower index positions
-           correspond to lower-index inputs
-
-   \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables from parent class ccfm<G> using this-> or grscc<G>::
-*/
-template <class G> vector<G> grscc<G>::determinefeedin(int input) const
-   {
-   assert(input != fsm::tail);
-   // Convert input to vector representation
-   vector<G> ip(this->k);
-   convert(input, ip);
-   // Determine the shift-in values by convolution
-   vector<G> sin(this->k);
-   for(int i=0; i<this->k; i++)
-      sin(i) = convolve(ip(i), this->reg(i), this->gen(i,i));
-   return sin;
-   }
 
 // description output
 

@@ -5,6 +5,9 @@
    - $Revision$
    - $Date$
    - $Author$
+
+   \warning I don't know why but GCC complains if I don't explicitly refer to member
+            variables from parent class ccfm<G> using this-> or gnrcc<G>::
 */
 
 #include "gnrcc.h"
@@ -17,25 +20,8 @@ using libbase::vector;
 using libbase::matrix;
 
 
-// FSM state operations (getting and resetting)
-
-/*! \brief Resets for circular trellis, given zero-state solution and number of time-steps
-*/
-template <class G> void gnrcc<G>::resetcircular(int zerostate, int n)
-   {
-   assertalways("Function not implemented.");
-   }
-
-
 // FSM helper operations
 
-/*! \brief Determine the actual input that will be applied (resolve tail as necessary)
-    \param  input    Requested input - can be any valid input or the special 'tail' value
-    \return Either the given value, or the value that must be applied to tail out
-
-    \warning I don't know why but GCC complains if I don't explicitly refer to member
-             variables using this-> or gnrcc<G>::
-*/
 template <class G> int gnrcc<G>::determineinput(int input) const
    {
    if(input != fsm::tail)
@@ -43,14 +29,6 @@ template <class G> int gnrcc<G>::determineinput(int input) const
    return 0;
    }
 
-/*! \brief Determine the value that will be shifted into the register
-    \param  input    Requested input - can only be a valid input
-    \return Vector representation of the shift-in value - lower index positions
-            correspond to lower-index inputs
-
-    \warning I don't know why but GCC complains if I don't explicitly refer to member
-             variables using this-> or gnrcc<G>::
-*/
 template <class G> vector<G> gnrcc<G>::determinefeedin(int input) const
    {
    assert(input != fsm::tail);
@@ -59,6 +37,15 @@ template <class G> vector<G> gnrcc<G>::determinefeedin(int input) const
    convert(input, ip);
    return ip;
    }
+
+
+// FSM state operations (getting and resetting)
+
+template <class G> void gnrcc<G>::resetcircular(int zerostate, int n)
+   {
+   assertalways("Function not implemented.");
+   }
+
 
 // description output
 
