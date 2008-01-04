@@ -17,16 +17,6 @@ using libbase::bitfield;
 
 const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
-// constructors / destructors
-
-rscc::rscc(const libbase::matrix<bitfield>& generator) : ccbfsm(generator)
-   {
-   }
-
-rscc::rscc(const rscc& x) : ccbfsm(x)
-   {
-   }
-
 // FSM state operations (getting and resetting)
 
 void rscc::resetcircular(int zerostate, int n)
@@ -74,20 +64,6 @@ std::string rscc::description() const
    std::ostringstream sout;
    sout << "RSC code " << ccbfsm::description();
    return sout.str();
-   }
-
-// object serialization - saving
-
-std::ostream& rscc::serialize(std::ostream& sout) const
-   {
-   return ccbfsm::serialize(sout);
-   }
-
-// object serialization - loading
-
-std::istream& rscc::serialize(std::istream& sin)
-   {
-   return ccbfsm::serialize(sin);
    }
 
 }; // end namespace

@@ -177,9 +177,10 @@ public:
    // @}
 };
 
-// stream output operators
+/*! \name Stream Output */
 std::ostream& operator<<(std::ostream& sout, const fsm* x);
 std::istream& operator>>(std::istream& sin, fsm*& x);
+// @}
 
 }; // end namespace
 

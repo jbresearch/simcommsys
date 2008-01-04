@@ -17,21 +17,6 @@ using libbase::vector;
 using libbase::matrix;
 
 
-// Constructors / Destructors
-
-/*! \brief Principal constructor
-*/
-template <class G> grscc<G>::grscc(const matrix< vector<G> >& generator) : ccfsm<G>(generator)
-   {
-   }
-
-/*! \brief Copy constructor
-*/
-template <class G> grscc<G>::grscc(const grscc<G>& x) : ccfsm<G>(x)
-   {
-   }
-
-
 // FSM state operations (getting and resetting)
 
 /*! \brief Resets for circular trellis, given zero-state solution and number of time-steps
@@ -98,20 +83,6 @@ template <class G> std::string grscc<G>::description() const
    std::ostringstream sout;
    sout << "RSC code " << ccfsm<G>::description();
    return sout.str();
-   }
-
-// object serialization - saving
-
-template <class G> std::ostream& grscc<G>::serialize(std::ostream& sout) const
-   {
-   return ccfsm<G>::serialize(sout);
-   }
-
-// object serialization - loading
-
-template <class G> std::istream& grscc<G>::serialize(std::istream& sin)
-   {
-   return ccfsm<G>::serialize(sin);
    }
 
 }; // end namespace

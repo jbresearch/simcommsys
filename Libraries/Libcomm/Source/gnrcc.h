@@ -38,8 +38,8 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   gnrcc(const libbase::matrix< libbase::vector<G> >& generator);
-   gnrcc(const gnrcc<G>& x);
+   gnrcc(const libbase::matrix< libbase::vector<G> >& generator) : ccfsm<G>(generator) {};
+   gnrcc(const gnrcc<G>& x) : ccfsm<G>(x) {};
    ~gnrcc() {};
    // @}
 
@@ -53,8 +53,6 @@ public:
 
    // Description & Serialization
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
 };
 
 }; // end namespace

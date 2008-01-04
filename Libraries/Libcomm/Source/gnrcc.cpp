@@ -17,21 +17,6 @@ using libbase::vector;
 using libbase::matrix;
 
 
-// Constructors / Destructors
-
-/*! \brief Principal constructor
-*/
-template <class G> gnrcc<G>::gnrcc(const matrix< vector<G> >& generator) : ccfsm<G>(generator)
-   {
-   }
-
-/*! \brief Copy constructor
-*/
-template <class G> gnrcc<G>::gnrcc(const gnrcc<G>& x) : ccfsm<G>(x)
-   {
-   }
-
-
 // FSM state operations (getting and resetting)
 
 /*! \brief Resets for circular trellis, given zero-state solution and number of time-steps
@@ -89,20 +74,6 @@ template <class G> std::string gnrcc<G>::description() const
    std::ostringstream sout;
    sout << "NRC code " << ccfsm<G>::description();
    return sout.str();
-   }
-
-// object serialization - saving
-
-template <class G> std::ostream& gnrcc<G>::serialize(std::ostream& sout) const
-   {
-   return ccfsm<G>::serialize(sout);
-   }
-
-// object serialization - loading
-
-template <class G> std::istream& gnrcc<G>::serialize(std::istream& sin)
-   {
-   return ccfsm<G>::serialize(sin);
    }
 
 }; // end namespace

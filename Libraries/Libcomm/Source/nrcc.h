@@ -95,8 +95,8 @@ protected:
    nrcc() {};
 public:
    /*! \name Constructors / Destructors */
-   nrcc(const libbase::matrix<libbase::bitfield>& generator);
-   nrcc(const nrcc& x);
+   nrcc(libbase::matrix<libbase::bitfield> const &generator) : ccbfsm(generator) {};
+   nrcc(nrcc const &x) : ccbfsm(x) {};
    ~nrcc() {};
    // @}
 
@@ -110,8 +110,6 @@ public:
 
    // Description & Serialization
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
 };
 
 }; // end namespace

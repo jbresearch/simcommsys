@@ -95,8 +95,8 @@ protected:
    rscc() {};
 public:
    /*! \name Constructors / Destructors */
-   rscc(const libbase::matrix<libbase::bitfield>& generator);
-   rscc(const rscc& x);
+   rscc(libbase::matrix<libbase::bitfield> const &generator) : ccbfsm(generator) {};
+   rscc(rscc const &x) : ccbfsm(x) {};
    ~rscc() {};
    // @}
 
@@ -110,8 +110,6 @@ public:
 
    // Description & Serialization
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
 };
 
 }; // end namespace
