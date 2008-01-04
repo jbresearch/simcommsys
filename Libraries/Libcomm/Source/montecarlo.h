@@ -122,6 +122,11 @@ namespace libcomm {
    \version 1.41 (20 Dec 2007)
    - Fixed memory leak where system was not deleted in slaves.
    - Made getters const members
+
+   \version 1.42 (4 Jan 2008)
+   - Modified accumulateresults() to use vector apply() rather than multiplication,
+     when squaring the estimates. This change became necessary when vector mul was
+     made private to avoid ambiguity.
 */
 
 class montecarlo : public libbase::masterslave {

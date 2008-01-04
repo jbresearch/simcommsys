@@ -141,6 +141,10 @@ namespace libbase {
 
    \version 1.91 (28 Nov 2007)
    - defined alternate vector copy for non-root vectors (to avoid copying the data)
+
+   \version 2.00 (4 Jan 2008)
+   - hid vector multiplication and division as private functions to make sure they
+     are not being used anywhere.
 */
 
 template <class T> class vector;
@@ -192,8 +196,10 @@ public:
    // arithmetic operations - unary
    vector<T>& operator+=(const vector<T>& x);
    vector<T>& operator-=(const vector<T>& x);
+private:
    vector<T>& operator*=(const vector<T>& x);
    vector<T>& operator/=(const vector<T>& x);
+public:
    vector<T>& operator+=(const T x);
    vector<T>& operator-=(const T x);
    vector<T>& operator*=(const T x);
@@ -202,8 +208,10 @@ public:
    // arithmetic operations - binary
    vector<T> operator+(const vector<T>& x) const;
    vector<T> operator-(const vector<T>& x) const;
+private:
    vector<T> operator*(const vector<T>& x) const;
    vector<T> operator/(const vector<T>& x) const;
+public:
    vector<T> operator+(const T x) const;
    vector<T> operator-(const T x) const;
    vector<T> operator*(const T x) const;

@@ -212,7 +212,7 @@ void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, v
    assert(sumsq.size() == est.size());
    // accumulate results
    sum += est;
-   est *= est;
+   est.apply(square);
    sumsq += est;
    }
 

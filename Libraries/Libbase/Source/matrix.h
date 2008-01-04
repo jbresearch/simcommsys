@@ -133,6 +133,10 @@ namespace libbase {
 
    \version 1.71 (17 Oct 2007)
    - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
+
+   \version 1.80 (4 Jan 2008)
+   - hid matrix multiplication and division as private functions to make sure they
+     are not being used anywhere.
 */
 
 template <class T> class matrix;
@@ -209,8 +213,10 @@ public:
    // arithmetic operations - unary
    matrix<T>& operator+=(const matrix<T>& x);
    matrix<T>& operator-=(const matrix<T>& x);
+private:
    matrix<T>& operator*=(const matrix<T>& x);
    matrix<T>& operator/=(const matrix<T>& x);
+public:
    matrix<T>& operator+=(const T x);
    matrix<T>& operator-=(const T x);
    matrix<T>& operator*=(const T x);
@@ -219,8 +225,10 @@ public:
    // arithmetic operations - binary
    matrix<T> operator+(const matrix<T>& x) const;
    matrix<T> operator-(const matrix<T>& x) const;
+private:
    matrix<T> operator*(const matrix<T>& x) const;
    matrix<T> operator/(const matrix<T>& x) const;
+public:
    matrix<T> operator+(const T x) const;
    matrix<T> operator-(const T x) const;
    matrix<T> operator*(const T x) const;
@@ -841,8 +849,10 @@ public:
    // arithmetic operations - unary
    masked_matrix<T>& operator+=(const matrix<T>& x);
    masked_matrix<T>& operator-=(const matrix<T>& x);
+private:
    masked_matrix<T>& operator*=(const matrix<T>& x);
    masked_matrix<T>& operator/=(const matrix<T>& x);
+public:
    masked_matrix<T>& operator+=(const T x);
    masked_matrix<T>& operator-=(const T x);
    masked_matrix<T>& operator*=(const T x);

@@ -147,6 +147,7 @@
    \version 3.35 (4 Jan 2008)
    - added assertalways() in global namespace
    - added fail() in libbase namespace to implement error printout and bailout
+   - added square() function
 */
 
 // *** Global namespace ***
@@ -171,6 +172,10 @@ inline double log(int x) { return log(double(x)); };
 inline double pow(double x, int y) { return pow(x,double(y)); };
 #endif //ifdef WIN32
 inline double pow(int x, int y) { return pow(double(x),y); };
+
+// Define a function that returns the square of the input
+
+template <class T> inline T square(const T x) { return x*x; };
 
 // Remove any macros for min/max and define as inline templates
 
