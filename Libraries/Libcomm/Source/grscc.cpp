@@ -13,6 +13,7 @@
 
 namespace libcomm {
 
+using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 
@@ -22,12 +23,47 @@ using libbase::matrix;
 /*!
    \copydoc fsm::resetcircular(int zerostate, int n)
 
-   \note Circulation state is obtainable only if the sequence length is not
-         a multiple of the period
+   Similarly to convention, define the state vector as a column vector, as follows:
+   \f[ S_i = \begin{pmatrix}
+                  S_{1,1} \\ S_{2,1} \\ \vdots \\ S_{\nu_1,1} \\
+                  S_{1,2} \\ S_{2,2} \\ \vdots \\ S_{\nu_2,2} \\
+                  \vdots \\ S_{\nu_k,k}
+             \end{pmatrix} \f]
+
+   where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
+   memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$ 
+   is the left-most memory element for input \f$ i \f$, and therefore the one to which
+   the shift-in is applied. It can be seen that the total length of the state vector
+   is equal to the total number of memory elements in the system, \f$ \nu \f$.
+
+   Consequently, the size of state-generator matrix \f$ G \f$ is
+   \f$ \nu \times \nu \f$ elements. Each row contains the multipliers corresponding
+   to a particular memory element's input. In turn, each column contains the multiplier
+   (weight) corresponding to successive present-state memory elements.
+
+   Note that by definition, \f$ G \f$ contains only the taps corresponding to the
+   feedforward and feedback paths for the next-state generation; thus the polynomials
+   corresponding to the output generation have no bearing. Similarly, the taps
+   corresponding to the inputs also are irrelevant.
 */
 template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    {
    assert(zerostate >= 0 && zerostate < num_states());
+   // Create generator matrix in required format
+   matrix<G> stategen(nu,nu);
+   stategen = 0;
+   // Consider each input in turn
+   for(int i=0, row=0; i<k; i++, row++)
+      {
+      // First row describes the shift-input taps
+      for(int j=gen(i,i).size()-1, col=0; j>=0; j--, col++)
+         stategen(col,row) = gen(i,i)(j);
+      // Successive rows describe the simple right-shift taps
+      for(int j=1; j<reg(i).size(); j++)
+         stategen(j-1,++row) = 1;
+      }
+   trace << "DEBUG (grscc): state-generator matrix = \n";
+   stategen.serialize(trace);
    //assert(n%7 != 0);
    //reset(csct[n%7][zerostate]);
    assertalways("Function not implemented.");
