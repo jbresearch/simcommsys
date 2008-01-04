@@ -28,39 +28,49 @@ namespace libcomm {
 
 class ccbfsm : public fsm {
 protected:
-   int k, n;   // number of input and output bits, respectively
-   int nu;     // number of memory elements (constraint length)
-   int m;      // memory order (longest input register)
-   libbase::vector<libbase::bitfield> reg;   // shift registers (one for each input bit)
-   libbase::matrix<libbase::bitfield> gen;   // generator sequence
+   /*! \name Object representation */
+   int k;   //!< Number of input bits
+   int n;   //!< Number of output bits
+   int nu;  //!< Number of memory elements (constraint length)
+   int m;   //!< Memory order (longest input register)
+   libbase::vector<libbase::bitfield> reg;   //!< Shift registers (one for each input bit)
+   libbase::matrix<libbase::bitfield> gen;   //!< Generator sequence
+   // @}
 private:
+   /*! \name Internal functions */
    void init(const libbase::matrix<libbase::bitfield>& generator);
+   // @}
 protected:
+   /*! \name FSM helper operations */
    virtual libbase::bitfield determineinput(const int input) const = 0;
    virtual libbase::bitfield determinefeedin(const int input) const = 0;
+   // @}
+   /*! \name Constructors / Destructors */
+   //! Default constructor
    ccbfsm() {};
+   // @}
 public:
-   // class management (construction/destruction)
+   /*! \name Constructors / Destructors */
    ccbfsm(const libbase::matrix<libbase::bitfield>& generator);
    ccbfsm(const ccbfsm& x);
    ~ccbfsm() {};
+   // @}
 
    // FSM state operations (getting and resetting)
-   int state() const;                        // returns the current state
-   void reset(int state=0);                  // reset to a specified state
+   int state() const;
+   void reset(int state=0);
    // FSM operations (advance/output/step)
-   void advance(int& input);                 // feeds the specified input and advances the state
-   int output(int input) const;              // computes the output for the given input and the present state
+   void advance(int& input);
+   int output(int input) const;
 
-   // informative functions
-   int mem_order() const { return m; };      // memory order (length of tail)
-   int num_states() const { return 1<<nu; }; // returns the number of defined states
-   int num_inputs() const { return 1<<k; };  // returns the number of valid inputs
-   int num_outputs() const { return 1<<n; }; // returns the number of valid outputs
+   // FSM information functions
+   int mem_order() const { return m; };
+   int num_states() const { return 1<<nu; };
+   int num_inputs() const { return 1<<k; };
+   int num_outputs() const { return 1<<n; };
 
-   // description output - common part only, must be preceded by specific name
+   // Description & Serialization
    std::string description() const;
-   // object serialization
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };

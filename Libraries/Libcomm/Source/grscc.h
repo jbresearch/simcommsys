@@ -43,21 +43,18 @@ public:
    ~grscc() {};
    // @}
 
-   /*! \name Class management (cloning/naming) */
+   // Serialization Support
    grscc<G> *clone() const { return new grscc<G>(*this); };
    const char* name() const { return shelper.name(); };
-   // @}
 
-   /*! \name FSM state operations (getting and resetting) */
+   // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n);
    void resetcircular();
-   // @}
 
-   /*! \name Description & Serialization */
+   // Description & Serialization
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
-   // @}
 };
 
 }; // end namespace

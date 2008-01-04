@@ -32,18 +32,10 @@ void dvbcrsc::init()
 
 // constructors / destructors
 
-dvbcrsc::dvbcrsc()
-   {
-   }
-
 dvbcrsc::dvbcrsc(const dvbcrsc& x)
    {
    // copy automatically what we can
    reg = x.reg;
-   }
-
-dvbcrsc::~dvbcrsc()
-   {
    }
 
 // finite state machine functions - resetting

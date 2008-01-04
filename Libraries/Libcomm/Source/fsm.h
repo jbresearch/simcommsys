@@ -17,63 +17,63 @@ namespace libcomm {
    - $Author$
 
    \version 1.10 (4 Nov 2001)
-  added a virtual function which outputs details on the finite state machine (this was
-  only done before in a non-standard print routine). Added a stream << operator too.
+   added a virtual function which outputs details on the finite state machine (this was
+   only done before in a non-standard print routine). Added a stream << operator too.
 
    \version 1.20 (28 Feb 2002)
-  added serialization facility
+   added serialization facility
 
    \version 1.21 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+   changed vcs version variable from a global to a static class variable.
+   also changed use of iostream from global to std namespace.
 
    \version 1.22 (11 Mar 2002)
-  changed the definition of the cloning operation to be a const member.
+   changed the definition of the cloning operation to be a const member.
 
    \version 1.30 (11 Mar 2002)
-  changed the stream << and >> functions to conform with the new serializer protocol,
-  as defined in serializer 1.10. The stream << output function first writes the name
-  of the derived class, then calls its serialize() to output the data. The name is
-  obtained from the virtual name() function. The stream >> input function first gets
-  the name from the stream, then (via serialize::call) creates a new object of the
-  appropriate type and calls its serialize() function to get the relevant data. Also,
-  changed the definition of stream << output to take the pointer to the fsm class
-  directly, not by reference.
+   changed the stream << and >> functions to conform with the new serializer protocol,
+   as defined in serializer 1.10. The stream << output function first writes the name
+   of the derived class, then calls its serialize() to output the data. The name is
+   obtained from the virtual name() function. The stream >> input function first gets
+   the name from the stream, then (via serialize::call) creates a new object of the
+   appropriate type and calls its serialize() function to get the relevant data. Also,
+   changed the definition of stream << output to take the pointer to the fsm class
+   directly, not by reference.
 
    \version 1.40 (27 Mar 2002)
-  removed the descriptive output() and related stream << output functions, and replaced
-  them by a function description() which returns a string. This provides the same
-  functionality but in a different format, so that now the only stream << output
-  functions are for serialization. This should make the notation much clearer while
-  also simplifying description display in objects other than streams.
+   removed the descriptive output() and related stream << output functions, and replaced
+   them by a function description() which returns a string. This provides the same
+   functionality but in a different format, so that now the only stream << output
+   functions are for serialization. This should make the notation much clearer while
+   also simplifying description display in objects other than streams.
 
    \version 1.50 (8 Jan 2006)
-  updated class to allow consistent support for circular trellis encoding (tail-biting)
-  and also for the use of rate m/(m+1) LFSR codes. In practice this has been achieved
-  by creating a generalized convolutional code class that uses state-space techniques
-  to represent the system - the required codes, such as rate m/(m+1) LFSR including
-  the DVB duo-binary codes can be easily derived. The following virtual functions
-  were added to allow this:
+   updated class to allow consistent support for circular trellis encoding (tail-biting)
+   and also for the use of rate m/(m+1) LFSR codes. In practice this has been achieved
+   by creating a generalized convolutional code class that uses state-space techniques
+   to represent the system - the required codes, such as rate m/(m+1) LFSR including
+   the DVB duo-binary codes can be easily derived. The following virtual functions
+   were added to allow this:
    - advance(input) - this performs the state-change without also computing the output;
-    it is provided as a faster version of step(), since the output doesn't need to be
-    computed in the first iteration.
+     it is provided as a faster version of step(), since the output doesn't need to be
+     computed in the first iteration.
    - output(input) - this is added for completeness, and calculates the output, given
-    the present state and input.
+     the present state and input.
    - resetcircular(zerostate, N) - this performs the initial state computation (and
-    setting) for circular encoding. It is assumed that this will be called after a
-    sequence of the form [reset(); loop step()/advance()] which the calling class
-    uses to determine the zero-state solution. N is the number of time-steps involved.
+     setting) for circular encoding. It is assumed that this will be called after a
+     sequence of the form [reset(); loop step()/advance()] which the calling class
+     uses to determine the zero-state solution. N is the number of time-steps involved.
    - resetcircular() - is a convenient form of the above function, where the fsm-derived
-    class must keep track of the number of time-steps since the last reset operation
-    as well as the final state value. The calling class must ensure that this is
-    consistent with the requirements - that is, the initial reset must be to state zero
-    and the input sequence given since the last reset must be the same as the one that
-    will be used now.
-  It was elected to make all the above functions pure virtual - this requires that all
-  derived classes must be updates accordingly; it is considered advantageous because
-  there are just two derived classes which can therefore be easily updated. This avoids
-  adding dependance complexity in the fsm class (there is less risk of unexpected
-  behaviour).
+     class must keep track of the number of time-steps since the last reset operation
+     as well as the final state value. The calling class must ensure that this is
+     consistent with the requirements - that is, the initial reset must be to state zero
+     and the input sequence given since the last reset must be the same as the one that
+     will be used now.
+   It was elected to make all the above functions pure virtual - this requires that all
+   derived classes must be updates accordingly; it is considered advantageous because
+   there are just two derived classes which can therefore be easily updated. This avoids
+   adding dependance complexity in the fsm class (there is less risk of unexpected
+   behaviour).
 
    \version 1.60 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
@@ -91,34 +91,90 @@ namespace libcomm {
 
 class fsm {
 public:
-   static const int tail;                 // a special input to use when tailing out
+   static const int tail;                 //!< A special input value to use when tailing out
 
-   // class management (construction/cloning/naming)
-   virtual ~fsm() {};                     // virtual destructor
-   virtual fsm *clone() const = 0;        // cloning operation
-   virtual const char* name() const = 0;  // derived object's name
+   /*! \name Constructors / Destructors */
+   //! Virtual destructor
+   virtual ~fsm() {};
+   // @}
 
-   // FSM state operations (getting and resetting)
-   virtual int state() const = 0;         // returns the current state
-   virtual void reset(int state=0) = 0;   // reset to a specified state
-   virtual void resetcircular(int zerostate, int n) = 0; // resets, given zero-state solution and number of time-steps
-   virtual void resetcircular() = 0;      // as above, assuming we have just run through the zero-state zero-input
-   // FSM operations (advance/output/step)
-   virtual int output(int input) const = 0; // computes the output for the given input and the present state
-   virtual void advance(int& input) = 0;  // feeds the specified input and advances the state
-   virtual int step(int& input);          // feeds the specified input and returns the corresponding output
+   /*! \name Serialization Support */
+   //! Cloning operation
+   virtual fsm *clone() const = 0;
+   //! Derived object's name
+   virtual const char* name() const = 0;
+   // @}
 
-   // informative functions
-   virtual int mem_order() const = 0;     // memory order (length of tail)
-   virtual int num_states() const = 0;    // returns the number of defined states
-   virtual int num_inputs() const = 0;    // returns the number of valid inputs
-   virtual int num_outputs() const = 0;   // returns the number of valid outputs
+   /*! \name FSM state operations (getting and resetting) */
+   /*!
+      \brief The current state
+      \return A unique integer representation of the current state
+      \invariant The state value should always be between 0 and num_states()-1
+   */
+   virtual int state() const = 0;
+   /*!
+      \brief Reset to a specified state
+      \param state  A unique integer representation of the state we want to set to
+      \invariant The state value should always be between 0 and num_states()-1
+      \cf state()
+   */
+   virtual void reset(int state=0) = 0;
+   /*!
+      \brief Reset to the circulation state
+      \param zerostate  The final state for the input sequence, if we start at the zero-state
+      \param n  The number of time-steps in the input sequence
+   */
+   virtual void resetcircular(int zerostate, int n) = 0;
+   /*!
+      \brief Reset to the circulation state, assuming we have just run through the
+             input sequence, starting with the zero-state 
+   */
+   virtual void resetcircular() = 0;
+   // @}
 
-   // description output
+   /*! \name FSM operations (advance/output/step) */
+   /*!
+      \brief Feeds the specified input and advances the state
+      \param[in,out]   input    Integer representation of current input; if this is the
+                                'tail' value, it will be updated
+   */
+   virtual void advance(int& input) = 0;
+   /*!
+      \brief Computes the output for the given input and the present state
+      \param  input    Integer representation of current input; may be the 'tail' value
+      \return Integer representation of the output
+   */
+   virtual int output(int input) const = 0;
+   /*!
+      \brief Feeds the specified input and returns the corresponding output,
+             advancing the state in the process
+      \param[in,out]   input    Integer representation of current input; if this is the
+                                'tail' value, it will be updated
+      \return Integer representation of the output
+      \note Equivalent to output() followed by advance()
+   */
+   virtual int step(int& input);
+   // @}
+
+   /*! \name FSM information functions */
+   //! Memory order (length of tail)
+   virtual int mem_order() const = 0;
+   //! Number of defined states
+   virtual int num_states() const = 0;
+   //! Number of valid input combinations
+   virtual int num_inputs() const = 0;
+   //! Number of valid output combinations
+   virtual int num_outputs() const = 0;
+   // @}
+
+   /*! \name Description & Serialization */
+   //! Description output
    virtual std::string description() const = 0;
-   // object serialization
+   //! Serialization output
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
+   //! Serialization input
    virtual std::istream& serialize(std::istream& sin) = 0;
+   // @}
 };
 
 // stream output operators

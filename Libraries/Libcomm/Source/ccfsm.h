@@ -68,31 +68,23 @@ public:
    ~ccfsm() {};
    // @}
 
-   /*! \name FSM state operations (getting and resetting) */
+   // FSM state operations (getting and resetting)
    int state() const;
    void reset(int state=0);
-   // @}
-   /*! \name FSM operations (advance/output/step) */
+   // FSM operations (advance/output/step)
    void advance(int& input);
    int output(int input) const;
-   // @}
 
-   /*! \name FSM information functions */
-   //! Memory order (length of tail)
+   // FSM information functions
    int mem_order() const { return m; };
-   //! Number of defined states
    int num_states() const { return int(pow(G::elements(),nu)); };
-   //! Number of valid input combinations
    int num_inputs() const { return int(pow(G::elements(),k)); };
-   //! Number of valid output combinations
    int num_outputs() const { return int(pow(G::elements(),n)); };
-   // @}
 
-   /*! \name Description & Serialization */
+   // Description & Serialization
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
-   // @}
 };
 
 }; // end namespace

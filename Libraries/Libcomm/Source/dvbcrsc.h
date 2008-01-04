@@ -18,7 +18,7 @@ namespace libcomm {
    - $Author$
 
    \version 1.00 (13-14 Jul 2006)
-  original version, made to conform with fsm 1.50.
+   original version, made to conform with fsm 1.50.
 
    \version 1.10 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
@@ -36,40 +36,51 @@ namespace libcomm {
 */
 
 class dvbcrsc : public fsm {
+   /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new dvbcrsc; };
-   static const int csct[7][8];  // circulation state correspondence table
-   static const int k, n;        // number of input and output bits, respectively
-   static const int nu;               // number of memory elements (constraint length)
-   libbase::bitfield reg;  // present state (shift register)
-   int N;         // sequence length since last reset;
+   // @}
+   /*! \name Object representation */
+   static const int csct[7][8];  //!< Circulation state correspondence table
+   static const int k, n;        //!< Number of input and output bits, respectively
+   static const int nu;          //!< Number of memory elements (constraint length)
+   libbase::bitfield reg;        //!< Present state (shift register)
+   int N;                        //!< Sequence length since last reset;
+   // @}
 protected:
+   /*! \name Internal functions */
    void init();
-   dvbcrsc();
+   // @}
+   /*! \name Constructors / Destructors */
+   //! Default constructor
+   dvbcrsc() {};
+   // @}
 public:
-   // class management (construction/destruction)
-   dvbcrsc(const dvbcrsc& x);           // copy constructor
-   ~dvbcrsc();
+   /*! \name Constructors / Destructors */
+   dvbcrsc(const dvbcrsc& x);
+   ~dvbcrsc() {};
+   // @}
 
-   // class management (cloning/naming)
-   dvbcrsc *clone() const { return new dvbcrsc(*this); };               // cloning operation
+   // Serialization Support
+   dvbcrsc *clone() const { return new dvbcrsc(*this); };
    const char* name() const { return shelper.name(); };
 
-   // FSM resetting
-   void reset(int state=0);                  // reset to a specified state
-   void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
-   void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
-   // FSM operations (advance/step/state)
-   void advance(int& input);                 // feeds the specified input and advances the state
-   int output(int input) const;              // computes the output for the given input and the present state
-   int state() const;                        // returns the current state
+   // FSM state operations (getting and resetting)
+   int state() const;
+   void reset(int state=0);
+   void resetcircular(int zerostate, int n);
+   void resetcircular();
+   // FSM operations (advance/output/step)
+   void advance(int& input);
+   int output(int input) const;
 
-   // informative functions
-   int num_states() const { return 1<<nu; }; // returns the number of defined states
-   int num_inputs() const { return 1<<k; };  // returns the number of valid inputs
-   int num_outputs() const { return 1<<n; }; // returns the number of valid outputs
-   int mem_order() const { return nu; };     // memory order (length of tail)
+   // FSM information functions
+   int num_states() const { return 1<<nu; };
+   int num_inputs() const { return 1<<k; };
+   int num_outputs() const { return 1<<n; };
+   int mem_order() const { return nu; };
 
+   // Description & Serialization
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);

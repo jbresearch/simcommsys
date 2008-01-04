@@ -16,51 +16,51 @@ namespace libcomm {
    - $Author$
 
    \version 1.01 (4 Nov 2001)
-  added a function which outputs details on the finite state machine (in accordance
-  with fsm 1.10)
+   added a function which outputs details on the finite state machine (in accordance
+   with fsm 1.10)
 
    \version 1.10 (28 Feb 2002)
-  added serialization facility (in accordance with fsm 1.20)
+   added serialization facility (in accordance with fsm 1.20)
 
    \version 1.11 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
-  also modified system to use '+' instead of ',' for concatenating bitfields, to
-  conform with bitfield 1.11.
+   changed vcs version variable from a global to a static class variable.
+   also changed use of iostream from global to std namespace.
+   also modified system to use '+' instead of ',' for concatenating bitfields, to
+   conform with bitfield 1.11.
 
    \version 1.12 (11 Mar 2002)
-  changed the definition of the cloning operation to be a const member, to conform with
-  fsm 1.22. Also, made that function inline.
+   changed the definition of the cloning operation to be a const member, to conform with
+   fsm 1.22. Also, made that function inline.
 
    \version 1.20 (11 Mar 2002)
-  updated the system to conform with the completed serialization protocol (in conformance
-  with fsm 1.30), by adding the necessary name() function, and also by removing the class
-  name reading/writing in serialize(); this is now done only in the stream << and >>
-  functions. serialize() assumes that the correct class is being read/written. We also
-  add a static serializer member and initialize it with this class's name and the static
-  constructor (adding that too, together with the necessary private empty constructor).
-  Also made the fsm object a public base class, rather than a virtual public one, since
-  this was affecting the transfer of virtual functions within the class (causing access
-  violations). Also changed the access to the init() function to protected, which should
-  make deriving from this class a bit easier.
+   updated the system to conform with the completed serialization protocol (in conformance
+   with fsm 1.30), by adding the necessary name() function, and also by removing the class
+   name reading/writing in serialize(); this is now done only in the stream << and >>
+   functions. serialize() assumes that the correct class is being read/written. We also
+   add a static serializer member and initialize it with this class's name and the static
+   constructor (adding that too, together with the necessary private empty constructor).
+   Also made the fsm object a public base class, rather than a virtual public one, since
+   this was affecting the transfer of virtual functions within the class (causing access
+   violations). Also changed the access to the init() function to protected, which should
+   make deriving from this class a bit easier.
 
    \version 1.21 (14 Mar 2002)
-  fixed a bug in the copy constructor - 'm' was not copied.
+   fixed a bug in the copy constructor - 'm' was not copied.
 
    \version 1.22 (23 Mar 2002)
-  changed creation and init functions; number of inputs and outputs are no longer
-  specified directly, but are taken from the generator matrix size. Also changed the
-  serialization functions; now these do not read/write k & n but only the generator.
+   changed creation and init functions; number of inputs and outputs are no longer
+   specified directly, but are taken from the generator matrix size. Also changed the
+   serialization functions; now these do not read/write k & n but only the generator.
 
    \version 1.30 (27 Mar 2002)
-  changed descriptive output function to conform with fsm 1.40.
+   changed descriptive output function to conform with fsm 1.40.
 
    \version 1.31 (13 Apr 2002)
-  modified init() and constructor to take generator matrix by reference rather than
-  directly.
+   modified init() and constructor to take generator matrix by reference rather than
+   directly.
 
    \version 1.40 (8 Jan 2006)
-  modified class to conform with fsm 1.50.
+   modified class to conform with fsm 1.50.
 
    \version 1.50 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
@@ -94,22 +94,22 @@ protected:
    libbase::bitfield determinefeedin(const int input) const;
    rscc() {};
 public:
-   // class management (construction/destruction)
+   /*! \name Constructors / Destructors */
    rscc(const libbase::matrix<libbase::bitfield>& generator);
    rscc(const rscc& x);
    ~rscc() {};
+   // @}
 
-   // class management (cloning/naming)
+   // Serialization Support
    rscc *clone() const { return new rscc(*this); };
    const char* name() const { return shelper.name(); };
 
    // FSM state operations (getting and resetting)
-   void resetcircular(int zerostate, int n); // resets, given zero-state solution and number of time-steps
-   void resetcircular();                     // as above, assuming we have just run through the zero-state zero-input
+   void resetcircular(int zerostate, int n);
+   void resetcircular();
 
-   // description output
+   // Description & Serialization
    std::string description() const;
-   // object serialization
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };
