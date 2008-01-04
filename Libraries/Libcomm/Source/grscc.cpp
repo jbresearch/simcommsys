@@ -53,8 +53,8 @@ template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    {
    assert(zerostate >= 0 && zerostate < this->num_states());
    // Create generator matrix in required format
-   matrix<G> stategen(nu,nu);
-   stategen = 0;
+   matrix<G> stategen(this->nu,this->nu);
+   stategen = G(0);
    // Consider each input in turn
    for(int i=0, row=0; i<this->k; i++, row++)
       {
