@@ -15,6 +15,7 @@ using std::cout;
 
 void printsizes()
    {
+   cout << '\n';
    cout << "Type:      \tSize (bits):\n";
    cout << "~~~~~      \t~~~~~~~~~~~~\n";
 
@@ -31,6 +32,7 @@ void printsizes()
 
 void testmatrixmul()
    {
+   cout << "\nMatrix Multiplication:\n\n";
    matrix<int> A(3,2);
    A(0,0) = 1;
    A(1,0) = 0;
@@ -52,6 +54,7 @@ void testmatrixmul()
 
 void testmatrixinv()
    {
+   cout << "\nMatrix Inversion:\n\n";
    matrix<int> A(3,3);
    A(0,0) = 1;
    A(1,0) = 0;
@@ -64,6 +67,7 @@ void testmatrixinv()
    A(2,2) = 7;
    cout << "A = " << A;
    cout << "inv(A) = " << A.inverse();
+   cout << "inv(A).A = " << A.inverse()*A;
    }
 
 int main()
