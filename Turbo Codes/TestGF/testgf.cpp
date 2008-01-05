@@ -45,11 +45,11 @@ void TestBinaryField()
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
    typedef gf<1,0x3> Binary;
    // Compute and display addition & multiplication tables
-   cout << "Addition table:\n";
+   cout << "\nAddition table:\n";
    for(int x=0; x<2; x++)
       for(int y=0; y<2; y++)
          cout << Binary(x)+Binary(y) << (y==1 ? '\n' : '\t');
-   cout << "Multiplication table:\n";
+   cout << "\nMultiplication table:\n";
    for(int x=0; x<2; x++)
       for(int y=0; y<2; y++)
          cout << Binary(x)*Binary(y) << (y==1 ? '\n' : '\t');
@@ -61,7 +61,7 @@ void TestRijndaelField()
    gf<8,0x11B> E = 1;
    // Compute and display exponential table using {03} as a multiplier
    // using the tabular format in Gladman.
-   cout << "Rijndael GF(2^8) exponentiation table:\n";
+   cout << "\nRijndael GF(2^8) exponentiation table:\n";
    cout << hex;
    for(int x=0; x<16; x++)
       for(int y=0; y<16; y++)
@@ -76,12 +76,25 @@ void TestRijndaelField()
 template <int m, int poly> void ListField()
    {
    // Compute and display exponential table using {2} as a multiplier
-   cout << "GF(" << m << ",0x" << hex << poly << ") table:\n";
+   cout << "\nGF(" << m << ",0x" << hex << poly << dec << ") table:\n";
    cout << 0 << '\t' << 0 << '\t' << bitfield(0,m) << '\n';
    gf<m,poly> E = 1;
-   for(int x=1; x<(1<<m); x++)
+   for(int x=1; x < gf<m,poly>::elements(); x++)
       {
-      cout << x << "\ta" << x-1 << '\t' << bitfield(E,m) << dec << '\n';
+      cout << x << "\ta" << x-1 << '\t' << bitfield(E,m) << '\n';
+      E *= 2;
+      }
+   }
+
+template <int m, int poly> void TestMulDiv()
+   {
+   // Compute and display exponential table using {2} as a multiplier
+   cout << "\nGF(" << m << ",0x" << hex << poly << dec << ") multiplication/division:\n";
+   cout << "power\tvalue\tinverse\tmul\n";
+   gf<m,poly> E = 1;
+   for(int x=1; x < gf<m,poly>::elements(); x++)
+      {
+      cout << "a" << x-1 << '\t' << bitfield(E,m) << '\t' << bitfield(E.inverse(),m) << '\t' << bitfield(E.inverse()*E,m) << '\n';
       E *= 2;
       }
    }
@@ -93,5 +106,6 @@ int main(int argc, char *argv[])
    ListField<2,0x7>();
    ListField<3,0xB>();
    ListField<4,0x13>();
+   TestMulDiv<3,0xB>();
    return 0;
    }

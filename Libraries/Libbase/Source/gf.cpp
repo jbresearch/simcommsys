@@ -82,6 +82,21 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator+=(const gf<m,poly>& 
    }
 
 /*!
+   \brief Subtraction
+   \param   x  Field element we want to subtract from this one.
+
+   Subtraction within extensions of a field is the subtraction of the corresponding coefficients
+   in the polynomial representation. When the field characteristic is 2 (ie. for extensions
+   of a binary field), subtraction of the coefficients is equivalent to an XOR operation, and
+   therefore equivalent to addition.
+*/
+template <int m, int poly> gf<m,poly>& gf<m,poly>::operator-=(const gf<m,poly>& x)
+   {
+   value ^= x.value;
+   return *this;
+   }
+
+/*!
    \brief Multiplication
    \param   x  Field element we want to multiply to this one (ie. multiplicand).
 
@@ -114,6 +129,44 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& 
          A ^= poly;
       }
    return *this;
+   }
+
+/*!
+   \brief Division
+   \param   x  Field element we want to divide this one by (i.e. divisor).
+
+   Division in a finite field can be performed by:
+   - finding the multiplicative inverse, and multiplying by it
+   - obtaining the logarithms of the two values, performing a subtraction, and
+     then computing the inverse logarithm
+
+   In this implementation, we use the multiplicatve inverse method.
+*/
+template <int m, int poly> gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& x)
+   {
+   return *this *= inverse();
+   }
+
+/*!
+   \brief Multiplicative inverse
+
+   The multiplicative inverse \f$ b^{-1} \f$ of \f$ b \f$ is such that:
+   \f[ b^{-1} a = 1 \f$
+
+   In this implementation, we use the brute force search method.
+*/
+template <int m, int poly> gf<m,poly> gf<m,poly>::inverse() const
+   {
+   gf<m,poly> I = int32u(1);
+   gf<m,poly> r = int32u(1);
+   for(int i=1; i<elements(); i++)
+      {
+      if(r * *this == I)
+         break;
+      r *= 2;
+      }
+   assert(r * *this == I);
+   return r;
    }
 
 

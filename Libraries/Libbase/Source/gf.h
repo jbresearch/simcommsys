@@ -30,6 +30,11 @@ namespace libbase {
    - Moved string conversion routine from constructor to a new init function
    - Moved non-member arithmetic ops here
 
+   \version 1.01 (5 Jan 2008)
+   - Implemented subtraction (since this is characteristic 2 only, this performs
+     the same operation as addition)
+   - Implemented division
+
 
    \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
    \param   poly  Primitive polynomial used to define the field elements
@@ -73,7 +78,10 @@ public:
 
    /*! \name Arithmetic operations */
    gf& operator+=(const gf& x);
+   gf& operator-=(const gf& x);
    gf& operator*=(const gf& x);
+   gf& operator/=(const gf& x);
+   gf inverse() const;
    // @}
 
 };
@@ -86,10 +94,22 @@ template <int m, int poly> gf<m,poly> operator+(const gf<m,poly>& a, const gf<m,
    return c += b;
    }
 
+template <int m, int poly> gf<m,poly> operator-(const gf<m,poly>& a, const gf<m,poly>& b)
+   {
+   gf<m,poly> c = a;
+   return c -= b;
+   }
+
 template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,poly>& b)
    {
    gf<m,poly> c = a;
    return c *= b;
+   }
+
+template <int m, int poly> gf<m,poly> operator/(const gf<m,poly>& a, const gf<m,poly>& b)
+   {
+   gf<m,poly> c = a;
+   return c /= b;
    }
 
 // @}
