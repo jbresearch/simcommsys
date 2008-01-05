@@ -8,9 +8,12 @@
 */
 
 #include <iostream>
-using namespace std;
+#include <matrix.h>
 
-int main()
+using libbase::matrix;
+using std::cout;
+
+void printsizes()
    {
    cout << "Type:      \tSize (bits):\n";
    cout << "~~~~~      \t~~~~~~~~~~~~\n";
@@ -24,4 +27,31 @@ int main()
    cout << "float      \t" << sizeof(float)*8 << "\n";
    cout << "double     \t" << sizeof(double)*8 << "\n";
    cout << "long double\t" << sizeof(long double)*8 << "\n";
+   }
+
+void testmatrixmul()
+   {
+   matrix<int> A(3,2);
+   A(0,0) = 1;
+   A(1,0) = 0;
+   A(2,0) = 2;
+   A(0,1) = -1;
+   A(1,1) = 3;
+   A(2,1) = 1;
+   matrix<int> B(2,3);
+   B(0,0) = 3;
+   B(1,0) = 1;
+   B(0,1) = 2;
+   B(1,1) = 1;
+   B(0,2) = 1;
+   B(1,2) = 0;
+   cout << "A = " << A;
+   cout << "B = " << B;
+   cout << "AB = " << A*B;
+   }
+
+int main()
+   {
+   printsizes();
+   testmatrixmul();
    }

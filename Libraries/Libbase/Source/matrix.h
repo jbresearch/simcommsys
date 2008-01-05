@@ -137,6 +137,7 @@ namespace libbase {
    \version 1.80 (4 Jan 2008)
    - hid matrix multiplication and division as private functions to make sure they
      are not being used anywhere.
+   - implemented proper matrix multiplication
 */
 
 template <class T> class matrix;
@@ -213,8 +214,8 @@ public:
    // arithmetic operations - unary
    matrix<T>& operator+=(const matrix<T>& x);
    matrix<T>& operator-=(const matrix<T>& x);
-private:
    matrix<T>& operator*=(const matrix<T>& x);
+private:
    matrix<T>& operator/=(const matrix<T>& x);
 public:
    matrix<T>& operator+=(const T x);
@@ -225,8 +226,8 @@ public:
    // arithmetic operations - binary
    matrix<T> operator+(const matrix<T>& x) const;
    matrix<T> operator-(const matrix<T>& x) const;
-private:
    matrix<T> operator*(const matrix<T>& x) const;
+private:
    matrix<T> operator/(const matrix<T>& x) const;
 public:
    matrix<T> operator+(const T x) const;
@@ -596,14 +597,15 @@ template <class T> inline matrix<T>& matrix<T>::operator-=(const matrix<T>& x)
    return *this;
    }
 
+/*!
+   \brief Ordinary matrix multiplication
+   \param  x   Matrix to be multiplied to this one
+   \return The updated (multiplied-into) matrix
+*/
 template <class T> inline matrix<T>& matrix<T>::operator*=(const matrix<T>& x)
    {
-   assert(x.m_xsize == m_xsize);
-   assert(x.m_ysize == m_ysize);
-   for(int i=0; i<m_xsize; i++)
-      for(int j=0; j<m_ysize; j++)
-         m_data[i][j] *= x.m_data[i][j];
-   return *this;
+   matrix<T> r = *this * x;
+   return *this = r;
    }
 
 template <class T> inline matrix<T>& matrix<T>::operator/=(const matrix<T>& x)
@@ -664,10 +666,30 @@ template <class T> inline matrix<T> matrix<T>::operator-(const matrix<T>& x) con
    return r;
    }
 
+/*!
+   \brief Ordinary matrix multiplication
+   \param  x   Matrix to be multiplied to this one
+   \return The result of 'this' multiplied by 'x'
+   \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
+         rather than that used in the rest of this class.
+   \todo Change the convention for row/column in the rest of the class (note this will
+         require changes wherever this class is used!)
+*/
 template <class T> inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    {
-   matrix<T> r = *this;
-   r *= x;
+   // for A.B:
+   // The number of columns of A must be the same as the number of rows of B.
+   assert(m_xsize == x.m_ysize);
+   // If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an m-by-p matrix 
+   matrix<T> r(x.m_xsize,m_ysize);
+   // Element AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j}
+   for(int i=0; i<r.m_ysize; i++)
+      for(int j=0; j<r.m_xsize; j++)
+         {
+         r.m_data[j][i] = 0;
+         for(int k=0; k<m_xsize; k++)
+            r.m_data[j][i] += m_data[k][i] * x.m_data[j][k];
+         }
    return r;
    }
 
