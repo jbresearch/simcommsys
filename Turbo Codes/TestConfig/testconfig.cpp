@@ -50,8 +50,25 @@ void testmatrixmul()
    cout << "AB = " << A*B;
    }
 
+void testmatrixinv()
+   {
+   matrix<int> A(3,3);
+   A(0,0) = 1;
+   A(1,0) = 0;
+   A(2,0) = -2;
+   A(0,1) = 4;
+   A(1,1) = 1;
+   A(2,1) = 0;
+   A(0,2) = 1;
+   A(1,2) = 1;
+   A(2,2) = 7;
+   cout << "A = " << A;
+   cout << "inv(A) = " << A.inverse();
+   }
+
 int main()
    {
    printsizes();
    testmatrixmul();
+   testmatrixinv();
    }

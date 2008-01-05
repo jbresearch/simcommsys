@@ -134,10 +134,13 @@ namespace libbase {
    \version 1.71 (17 Oct 2007)
    - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 
-   \version 1.80 (4 Jan 2008)
+   \version 1.80 (4-5 Jan 2008)
    - hid matrix multiplication and division as private functions to make sure they
      are not being used anywhere.
+   - fixed matrix negation, which should not modify the object it's operating on
    - implemented proper matrix multiplication
+   - implemented identity matrix
+   - implemented matrix inversion by direct gaussian elimination
 */
 
 template <class T> class matrix;
@@ -235,19 +238,22 @@ public:
    matrix<T> operator*(const T x) const;
    matrix<T> operator/(const T x) const;
 
-   // boolean operations - unary
-   matrix<T>& operator!();
+   // boolean operations - modifying
    matrix<T>& operator&=(const matrix<T>& x);
    matrix<T>& operator|=(const matrix<T>& x);
    matrix<T>& operator^=(const matrix<T>& x);
 
-   // boolean operations - binary
+   // boolean operations - non-modifying
+   matrix<T> operator!() const;
    matrix<T> operator&(const matrix<T>& x) const;
    matrix<T> operator|(const matrix<T>& x) const;
    matrix<T> operator^(const matrix<T>& x) const;
 
    // user-defined operations
    matrix<T>& apply(T f(T));
+
+   // matrix-arithmetic operations
+   matrix<T> inverse() const;
 
    // statistical operations
    T min() const;
@@ -257,6 +263,9 @@ public:
    T mean() const { return sum()/T(size()); };
    T var() const;
    T sigma() const { return sqrt(var()); };
+
+   // static functions
+   static matrix<T> eye(int n);
 };
 
 // memory allocation functions
@@ -728,15 +737,7 @@ template <class T> inline matrix<T> matrix<T>::operator/(const T x) const
    return r;
    }
 
-// boolean operations - unary
-
-template <class T> inline matrix<T>& matrix<T>::operator!()
-   {
-   for(int i=0; i<m_xsize; i++)
-      for(int j=0; j<m_ysize; j++)
-         m_data[i][j] = !m_data[i][j];
-   return *this;
-   }
+// boolean operations - modifying
 
 template <class T> inline matrix<T>& matrix<T>::operator&=(const matrix<T>& x)
    {
@@ -768,7 +769,16 @@ template <class T> inline matrix<T>& matrix<T>::operator^=(const matrix<T>& x)
    return *this;
    }
 
-// boolean operations - binary
+// boolean operations - non-modifying
+
+template <class T> inline matrix<T> matrix<T>::operator!() const
+   {
+   matrix<T> r(*this);
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         r.m_data[i][j] = !m_data[i][j];
+   return r;
+   }
 
 template <class T> inline matrix<T> matrix<T>::operator&(const matrix<T>& x) const
    {
@@ -799,6 +809,50 @@ template <class T> inline matrix<T>& matrix<T>::apply(T f(T))
       for(int j=0; j<m_ysize; j++)
          m_data[i][j] = f(m_data[i][j]);
    return *this;
+   }
+
+// matrix-arithmetic operations
+
+/*!
+   \brief Matrix inversion, by direct Gauss-Jordan elimination
+   \return The inverse of this matrix
+   \invariant Matrix must be square
+   \note Template class must provide the subtraction, division, and multiplication
+*/
+template <class T> inline matrix<T> matrix<T>::inverse() const
+   {
+   assertalways(m_xsize == m_ysize);
+   const int n = m_xsize;
+   matrix<T> r = eye(n);
+   // create copy of rows of this matrix
+   vector< vector<T> > arows(n);
+   for(int i=0; i<n; i++)
+      extractrow(arows(i), i);
+   // create copy of rows of identity
+   vector< vector<T> > rrows(n);
+   for(int i=0; i<n; i++)
+      r.extractrow(rrows(i), i);
+   // perform Gauss-Jordan elimination
+   // repeat for all rows
+   for(int i=0; i<n; i++)
+      {
+      // make the pivot element 1
+      assert(arows(i)(i) != 0);
+      rrows(i) /= arows(i)(i);
+      arows(i) /= arows(i)(i);
+      // subtract the required amount from all other rows
+      for(int j=0; j<n; j++)
+         {
+         if(j == i)
+            continue;
+         rrows(j) -= rrows(i) * arows(j)(i);
+         arows(j) -= arows(i) * arows(j)(i);
+         }
+      }
+   // copy back rows of result
+   for(int i=0; i<n; i++)
+      r.insertrow(rrows(i), i);
+   return r;
    }
 
 // statistical operations
@@ -851,6 +905,19 @@ template <class T> inline T matrix<T>::var() const
    const T _var = sumsq()/T(size()) - _mean*_mean;
    return (_var > 0) ? _var : 0;
    }
+
+// static functions
+
+template <class T> inline matrix<T> matrix<T>::eye(int n)
+   {
+   assert(n > 0);
+   matrix<T> r(n,n);
+   r = 0;
+   for(int i=0; i<n; i++)
+      r(i,i) = 1;
+   return r;
+   }
+
 
 // *** masked matrix class ***
 
