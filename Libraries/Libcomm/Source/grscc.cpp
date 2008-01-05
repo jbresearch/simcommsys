@@ -23,6 +23,11 @@ using libbase::matrix;
 
 // Internal functions
 
+/*!
+   \brief Create state-generator matrix in the required format for
+          determining circulation state
+   \return State-generator matrix
+*/
 template <class G> matrix<G> grscc<G>::getstategen() const
    {
    // Create generator matrix in required format
