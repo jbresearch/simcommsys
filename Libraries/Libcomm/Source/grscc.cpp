@@ -98,8 +98,9 @@ template <class G> matrix<G> grscc<G>::getstategen() const
    // Consider each input in turn
    for(int i=0, row=0; i<this->k; i++, row++)
       {
-      // First row describes the shift-input taps
-      for(int j=this->gen(i,i).size()-1, col=0; j>=0; j--, col++)
+      // First row describes the shift-input taps, except for
+      // the first element, which corresponds to the shift-in quantity
+      for(int j=this->gen(i,i).size()-2, col=0; j>=0; j--, col++)
          stategen(col,row) = this->gen(i,i)(j);
       // Successive rows describe the simple right-shift taps
       for(int j=1; j<this->reg(i).size(); j++)
