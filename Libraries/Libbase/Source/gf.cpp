@@ -144,7 +144,7 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& 
 */
 template <int m, int poly> gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& x)
    {
-   return *this *= inverse();
+   return *this *= x.inverse();
    }
 
 /*!

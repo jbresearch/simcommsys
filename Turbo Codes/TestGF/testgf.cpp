@@ -9,10 +9,12 @@
 
 #include "gf.h"
 #include "bitfield.h"
+#include "matrix.h"
 #include <iostream>
 
 using libbase::gf;
 using libbase::bitfield;
+using libbase::matrix;
 
 using std::cout;
 using std::cerr;
@@ -45,11 +47,11 @@ void TestBinaryField()
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
    typedef gf<1,0x3> Binary;
    // Compute and display addition & multiplication tables
-   cout << "\nAddition table:\n";
+   cout << "\nBinary Addition table:\n";
    for(int x=0; x<2; x++)
       for(int y=0; y<2; y++)
          cout << Binary(x)+Binary(y) << (y==1 ? '\n' : '\t');
-   cout << "\nMultiplication table:\n";
+   cout << "\nBinary Multiplication table:\n";
    for(int x=0; x<2; x++)
       for(int y=0; y<2; y++)
          cout << Binary(x)*Binary(y) << (y==1 ? '\n' : '\t');
@@ -99,6 +101,26 @@ template <int m, int poly> void TestMulDiv()
       }
    }
 
+void TestGenPower()
+   {
+   cout << "\nBinary generator matrix power sequence:\n";
+   // Create values in the Binary field GF(2): m(x) = 1 { 1 }
+   typedef gf<1,0x3> Binary;
+   // Create generator matrix for DVB-CRSC code:
+   matrix<Binary> G(3,3);
+   G = 0;
+   G(0,0) = 1;
+   G(2,0) = 1;
+   G(0,1) = 1;
+   G(1,2) = 1;
+   // Compute and display first 8 powers of G
+   for(int i=0; i<8; i++)
+      {
+      cout << "G^" << i << " = \n";
+      pow(G,i).serialize(cout);
+      }
+   }
+
 int main(int argc, char *argv[])
    {
    TestBinaryField();
@@ -107,5 +129,6 @@ int main(int argc, char *argv[])
    ListField<3,0xB>();
    ListField<4,0x13>();
    TestMulDiv<3,0xB>();
+   TestGenPower();
    return 0;
    }
