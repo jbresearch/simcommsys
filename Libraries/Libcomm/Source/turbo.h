@@ -228,6 +228,9 @@ namespace libcomm {
    - made check for correct termination fatal
    - made check for circulation state occur in all builds (was debug only)
    - removed support for simile interleavers
+
+   \version 2.53 (6 Jan 2008)
+   - removed various redundant blocks, a remnant from old VS
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {

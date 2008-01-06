@@ -59,11 +59,9 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
       if(endatzero)
          {
          encoder.reset(mdash);
-         int i = fsm::tail;
-         int X = encoder.step(i);
-         lut_X(mdash, i) = X;
-         lut_m(mdash, i) = encoder.state();
-         lut_i(mdash) = i;
+         int input = fsm::tail;
+         encoder.advance(input);
+         lut_i(mdash) = input;
          }
       }
 
@@ -97,6 +95,12 @@ template <class real, class dbl> void bcjr<real,dbl>::reset()
       alpha(0, m) = startatzero ? 0 : 1.0/double(M);
       beta(tau, m) = endatzero ? 0 : 1.0/double(M);
       }
+   if(circular)
+      for(int m=0; m<M; m++)
+         {
+         alpha(tau, m) = 1.0/double(M);
+         beta(0, m) = 1.0/double(M);
+         }
    }
 
 // Memory allocation
@@ -127,10 +131,6 @@ template <class real, class dbl> bcjr<real,dbl>::bcjr()
 template <class real, class dbl> bcjr<real,dbl>::bcjr(fsm& encoder, const int tau, const bool startatzero, const bool endatzero, const bool circular)
    {
    init(encoder, tau, startatzero, endatzero, circular);
-   }
-
-template <class real, class dbl> bcjr<real,dbl>::~bcjr()
-   {
    }
 
 
@@ -207,14 +207,17 @@ template <class real, class dbl> void bcjr<real,dbl>::work_gamma(const matrix<db
 */
 template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
    {
+   // when using a circular trellis, re-initialize the start-state probabilities
+   // with the end-state probabilities from the previous turn
+   if(circular)
+      for(int m=0; m<M; m++)
+         alpha(0, m) = alpha(tau, m);
    // using the computed gamma values, work out all alpha values at time t
    for(int t=1; t<=tau; t++)
       {
       // first initialise the next set of alpha entries
-      {
       for(int m=0; m<M; m++)
          alpha(t, m) = 0;
-      }
       // now start computing the summations
       // tail conditions are automatically handled by zeros in the gamma matrix
       for(int mdash=0; mdash<M; mdash++)
@@ -225,22 +228,13 @@ template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
             }
       // normalize
       real scale = alpha(t, 0);
-      {
       for(int m=1; m<M; m++)
          if(alpha(t, m) > scale)
             scale = alpha(t, m);
-      }
-      {
       scale = real(1)/scale;
       for(int m=0; m<M; m++)
          alpha(t, m) *= scale;
       }
-      }
-   // when using a circular trellis, replace the start-state probabilities with the
-   // end-state probabilities (scaling has already been performed
-   if(circular)
-      for(int m=0; m<M; m++)
-         alpha(0, m) = alpha(tau, m);
    }
 
 /*!
@@ -252,6 +246,11 @@ template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
 */
 template <class real, class dbl> void bcjr<real,dbl>::work_beta()
    {
+   // when using a circular trellis, re-initialize the end-state probabilities
+   // with the start-state probabilities from the previous turn
+   if(circular)
+      for(int m=0; m<M; m++)
+         beta(tau, m) = beta(0, m);
    // evaluate all beta values
    for(int t=tau-1; t>=0; t--)
       {
@@ -273,11 +272,6 @@ template <class real, class dbl> void bcjr<real,dbl>::work_beta()
       for(int m=0; m<M; m++)
          beta(t, m) *= scale;
       }
-   // when using a circular trellis, replace the end-state probabilities with the
-   // start-state probabilities (scaling has already been performed
-   if(circular)
-      for(int m=0; m<M; m++)
-         beta(tau, m) = beta(0, m);
    }
 
 /*!
@@ -383,18 +377,11 @@ template <class real, class dbl> void bcjr<real,dbl>::normalize(matrix<dbl>& r)
 */
 template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& ro)
    {
-   // initialise memory if necessary
    if(!initialised)
       allocate();
-
-   // forward pass
    work_gamma(R);
    work_alpha();
-
-   // backward pass
    work_beta();
-
-   // Work out final results
    work_results(ri, ro);
    }
 
@@ -411,18 +398,11 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 */
 template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri, matrix<dbl>& ro)
    {
-   // initialise memory if necessary
    if(!initialised)
       allocate();
-
-   // forward pass
    work_gamma(R, app);
    work_alpha();
-
-   // backward pass
    work_beta();
-
-   // Work out final results
    work_results(ri, ro);
    }
 
@@ -435,18 +415,11 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 */
 template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
    {
-   // initialise memory if necessary
    if(!initialised)
       allocate();
-
-   // forward pass
    work_gamma(R);
    work_alpha();
-
-   // backward pass
    work_beta();
-
-   // Work out final results
    work_results(ri);
    }
 
@@ -461,18 +434,11 @@ template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>&
 */
 template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri)
    {
-   // initialise memory if necessary
    if(!initialised)
       allocate();
-
-   // forward pass
    work_gamma(R, app);
    work_alpha();
-
-   // backward pass
    work_beta();
-
-   // Work out final results
    work_results(ri);
    }
 

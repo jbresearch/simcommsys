@@ -197,25 +197,19 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
       for(int x=0; x<K; x++)
          {
          // work in ri the sum of all extrinsic information
-         {
          ri(t, x) = 1;
          for(int set=0; set<sets; set++)
             ri(t, x) *= ra(set)(t, x);
-         }
          // compute the next-stage a priori information by subtracting the extrinsic
          // information of the current stage from the sum of all extrinsic information.
-         {
          for(int set=0; set<sets; set++)
             ra(set)(t, x) = ri(t, x) / ra(set)(t, x);
-         }
          // add the channel information to the sum of extrinsic information
          ri(t, x) *= r(0)(t, x);
          }
    // normalize results
-   {
    for(int set=0; set<sets; set++)
       bcjr<real,dbl>::normalize(ra(set));
-   }
    bcjr<real,dbl>::normalize(ri);
    }
 
@@ -238,7 +232,6 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
    vector<int> source2(tau);
 
    // Consider sets in order
-   {
    for(int set=0; set<sets; set++)
       {
       // For first set, copy original source
@@ -289,7 +282,6 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
          exit(1);
          }
       }
-   }
 
    // Encode source stream
    for(int t=0; t<tau; t++)
@@ -358,14 +350,11 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
             ra(set)(t, x) = 1.0;
 
    // Normalize and compute a priori probabilities (intrinsic - source)
-   {
    bcjr<real,dbl>::normalize(r(0));
    for(int set=1; set<sets; set++)
       inter(set-1)->transform(r(0), r(set));
-   }
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
-   {
    for(int set=0; set<sets; set++)
       {
       for(int t=0; t<tau; t++)
@@ -373,7 +362,6 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
             R(set)(t, x) = r(set)(t, x%K) * p(set, t, x/K);
       bcjr<real,dbl>::normalize(R(set));
       }
-   }
 
    // Reset start- and end-state probabilities
    bcjr<real,dbl>::reset();

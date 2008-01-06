@@ -130,6 +130,14 @@ namespace libcomm {
    \version 2.60 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
    - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+   \version 2.53 (6 Jan 2008)
+   - removed various redundant blocks, a remnant from old VS
+   - modified decoding behaviour with circular trellises: instead of replacing the start-
+     state probabilities with the end-state probabilities at the end of the forward pass
+     (and similarly replacing the end-state with the start-state probabilities at the
+     end of the backward pass), we now do the exchange before we start the turn.
+     Consequently, this requires a slightly different metric initialization.
 */
 
 template <class real, class dbl=double> class bcjr {
@@ -174,7 +182,7 @@ protected:
 public:
    // constructor & destructor
    bcjr(fsm& encoder, const int tau, const bool startatzero =true, const bool endatzero =true, const bool circular =false);
-   ~bcjr();
+   ~bcjr() {};
    // decode functions
    void decode(const libbase::matrix<dbl>& R, libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro);
    void decode(const libbase::matrix<dbl>& R, const libbase::matrix<dbl>& app, libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro);
