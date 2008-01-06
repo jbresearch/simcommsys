@@ -101,7 +101,7 @@ template <int m, int poly> void TestMulDiv()
       }
    }
 
-void TestGenPower()
+void TestGenPowerGF2()
    {
    cout << "\nBinary generator matrix power sequence:\n";
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
@@ -121,6 +121,25 @@ void TestGenPower()
       }
    }
 
+void TestGenPowerGF8()
+   {
+   cout << "\nGF(8) generator matrix power sequence:\n";
+   // Create values in the field GF(8): m(x) = 1 { 011 }
+   typedef gf<3,0xB> GF8;
+   // Create generator matrix:
+   matrix<GF8> G(2,2);
+   G(0,0) = 1;
+   G(1,0) = 6;
+   G(0,1) = 1;
+   G(1,1) = 0;
+   // Compute and display first 16 powers of G
+   for(int i=0; i<16; i++)
+      {
+      cout << "G^" << i << " = \n";
+      pow(G,i).serialize(cout);
+      }
+   }
+
 int main(int argc, char *argv[])
    {
    TestBinaryField();
@@ -129,6 +148,7 @@ int main(int argc, char *argv[])
    ListField<3,0xB>();
    ListField<4,0x13>();
    TestMulDiv<3,0xB>();
-   TestGenPower();
+   TestGenPowerGF2();
+   TestGenPowerGF8();
    return 0;
    }
