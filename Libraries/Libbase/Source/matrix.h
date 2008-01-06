@@ -5,6 +5,7 @@
 #include "vector.h"
 #include <stdlib.h>
 #include <iostream>
+#include <algorithm>
 
 namespace libbase {
 
@@ -147,6 +148,7 @@ namespace libbase {
      otherwise there is an ambiguity implying a constructor given a _single_ integer
      parameter (i.e. x has a value, y takes its default)
    - updated allocator to detect invalid size values (either x or y being 0, but not both)
+   - updated inverse() to perform row pivoting when necessary
 
    \todo Change the convention for row/column in the class (note this will
          require changes wherever this class is used!)
@@ -835,6 +837,7 @@ template <class T> inline matrix<T>& matrix<T>::apply(T f(T))
    \return The inverse of this matrix
    \invariant Matrix must be square
    \note Template class must provide the subtraction, division, and multiplication
+   \note Template class must provide conversion to/from integer
 */
 template <class T> inline matrix<T> matrix<T>::inverse() const
    {
@@ -853,7 +856,22 @@ template <class T> inline matrix<T> matrix<T>::inverse() const
    // repeat for all rows
    for(int i=0; i<n; i++)
       {
-      // make the pivot element 1
+      //trace << "DEBUG (matrix): G-J elimination on row " << i << "\n";
+      //trace << "DEBUG (matrix): A = " << arows;
+      //trace << "DEBUG (matrix): R = " << rrows;
+      // find a suitable pivot element
+      if(arows(i)(i) == 0)
+         for(int j=i+1; j<n; j++)
+            if(arows(j)(i) != 0)
+               {
+               std::swap(rrows(i),rrows(j));
+               std::swap(arows(i),arows(j));
+               //trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << "\n";
+               //trace << "DEBUG (matrix): A = " << arows;
+               //trace << "DEBUG (matrix): R = " << rrows;
+               break;
+               }
+      // divide by pivot element
       rrows(i) /= arows(i)(i);
       arows(i) /= arows(i)(i);
       // subtract the required amount from all other rows
