@@ -49,7 +49,7 @@ template <class G> int grscc<G>::getstateval(const vector<G>& statevec) const
       stateval *= G::elements();
       stateval += statevec(i);
       }
-   assert(stateval >= 0 && stateval < num_states());
+   assert(stateval >= 0 && stateval < this->num_states());
    trace << "DEBUG (grscc): state value = " << stateval << "\n";
    return stateval;
    }
