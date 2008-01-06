@@ -35,6 +35,9 @@ namespace libbase {
      the same operation as addition)
    - Implemented division
 
+   \version 1.02 (6 Jan 2008)
+   - Replaced constructor from int32u to constructor from int; this avoids a lot
+     of needless explicit conversions
 
    \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
    \param   poly  Primitive polynomial used to define the field elements
@@ -60,14 +63,14 @@ private:
    // @}
 
    /*! \name Internal functions */
-   void init(int32u value);
+   void init(int value);
    void init(const char *s);
    // @}
 
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
-   gf(int32u value=0) { init(value); };
+   gf(int value=0) { init(value); };
    gf(const char *s) { init(s); };
    // @}
 

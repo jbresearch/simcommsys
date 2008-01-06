@@ -24,15 +24,77 @@ using libbase::matrix;
 // Internal functions
 
 /*!
+   \brief Determine unique value from state vector
+   \param statevec State vector in the required format for determining circulation state
+   \return Unique integer representation of state value
+
+   Similarly to convention, define the state vector as a column vector, as follows:
+   \f[ S_i = \begin{pmatrix}
+                  S_{1,1} \\ S_{2,1} \\ \vdots \\ S_{\nu_1,1} \\
+                  S_{1,2} \\ S_{2,2} \\ \vdots \\ S_{\nu_2,2} \\
+                  \vdots \\ S_{\nu_k,k}
+             \end{pmatrix} \f]
+
+   where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
+   memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$ 
+   is the left-most memory element for input \f$ i \f$, and therefore the one to which
+   the shift-in is applied. It can be seen that the total length of the state vector
+   is equal to the total number of memory elements in the system, \f$ \nu \f$.
+*/
+template <class G> int grscc<G>::getstateval(const vector<G>& statevec) const
+   {
+   int stateval = 0;
+   for(int i=0; i<this->nu; i++)
+      {
+      stateval *= G::elements();
+      stateval += statevec(i);
+      }
+   assert(stateval >= 0 && stateval < num_states());
+   trace << "DEBUG (grscc): state value = " << stateval << "\n";
+   return stateval;
+   }
+
+/*!
+   \brief Convert integer representation of state value to a vector in the required 
+          format for determining circulation state
+   \param stateval Unique integer representation of state value
+   \return State vector in the required format for determining circulation state
+*/
+template <class G> vector<G> grscc<G>::getstatevec(int stateval) const
+   {
+   // Create generator matrix in required format
+   vector<G> statevec(this->nu);
+   for(int i=this->nu-1; i>=0; i--)
+      {
+      statevec(i) = stateval % G::elements();
+      stateval /= G::elements();
+      }
+   assert(stateval == 0);
+   trace << "DEBUG (grscc): state vector = \n";
+   statevec.serialize(trace);
+   return statevec;
+   }
+
+/*!
    \brief Create state-generator matrix in the required format for
           determining circulation state
    \return State-generator matrix
+
+   The size of state-generator matrix \f$ G \f$ is \f$ \nu \times \nu \f$ elements.
+   Each row contains the multipliers corresponding to a particular memory element's
+   input. In turn, each column contains the multiplier (weight) corresponding to
+   successive present-state memory elements.
+
+   Note that by definition, \f$ G \f$ contains only the taps corresponding to the
+   feedforward and feedback paths for the next-state generation; thus the polynomials
+   corresponding to the output generation have no bearing. Similarly, the taps
+   corresponding to the inputs also are irrelevant.
 */
 template <class G> matrix<G> grscc<G>::getstategen() const
    {
    // Create generator matrix in required format
    matrix<G> stategen(this->nu,this->nu);
-   stategen = G(libbase::int32u(0));
+   stategen = G(0);
    // Consider each input in turn
    for(int i=0, row=0; i<this->k; i++, row++)
       {
@@ -46,6 +108,33 @@ template <class G> matrix<G> grscc<G>::getstategen() const
    trace << "DEBUG (grscc): state-generator matrix = \n";
    stategen.serialize(trace);
    return stategen;
+   }
+
+/*!
+   \brief Initialize circulation state correspondence table
+
+   \todo Assuming the feedback polynomial is primitive, the system should behave
+         as a maximal-length feedback shift register. This condition should be
+         verified by computing the necessary powers of the state-generator matrix.
+*/
+template <class G> void grscc<G>::initcsct()
+   {
+   const matrix<G> stategen = getstategen();
+   const matrix<G> eye = matrix<G>::eye(this->nu);
+   // for MLFSR, period is the list of all states, except zero
+   const int L = num_states()-1;
+   // correspondence table has first index for N%L, second index for S_N^0
+   csct.init(L,num_states());
+   // go through all combinations (except N%L=0, which is illegal) and fill in
+   for(int i=1; i<L; i++)
+      {
+      const matrix<G> A = (eye + pow(stategen,i)).inverse();
+      for(int j=0; j<num_states(); j++)
+         {
+         vector<G> statevec = A * getstatevec(j);
+         csct(i,j) = getstateval(statevec);
+         }
+      }
    }
 
 
@@ -79,39 +168,14 @@ template <class G> vector<G> grscc<G>::determinefeedin(int input) const
 
 // FSM state operations (getting and resetting)
 
-/*!
-   \copydoc fsm::resetcircular(int zerostate, int n)
-
-   Similarly to convention, define the state vector as a column vector, as follows:
-   \f[ S_i = \begin{pmatrix}
-                  S_{1,1} \\ S_{2,1} \\ \vdots \\ S_{\nu_1,1} \\
-                  S_{1,2} \\ S_{2,2} \\ \vdots \\ S_{\nu_2,2} \\
-                  \vdots \\ S_{\nu_k,k}
-             \end{pmatrix} \f]
-
-   where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
-   memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$ 
-   is the left-most memory element for input \f$ i \f$, and therefore the one to which
-   the shift-in is applied. It can be seen that the total length of the state vector
-   is equal to the total number of memory elements in the system, \f$ \nu \f$.
-
-   Consequently, the size of state-generator matrix \f$ G \f$ is
-   \f$ \nu \times \nu \f$ elements. Each row contains the multipliers corresponding
-   to a particular memory element's input. In turn, each column contains the multiplier
-   (weight) corresponding to successive present-state memory elements.
-
-   Note that by definition, \f$ G \f$ contains only the taps corresponding to the
-   feedforward and feedback paths for the next-state generation; thus the polynomials
-   corresponding to the output generation have no bearing. Similarly, the taps
-   corresponding to the inputs also are irrelevant.
-*/
 template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    {
    assert(zerostate >= 0 && zerostate < this->num_states());
-   matrix<G> stategen = getstategen();
-   //assert(n%7 != 0);
-   //reset(csct[n%7][zerostate]);
-   assertalways("Function not implemented.");
+   if(csct.size() == 0)
+      initcsct();
+   const int L = num_states()-1;
+   assert(n%L != 0);
+   reset(csct(n%L,zerostate));
    }
 
 

@@ -25,10 +25,10 @@ using std::cerr;
 
    \todo Validate \c poly - this should be a primitive polynomial [cf. Lin & Costello, 2004, p.41]
 */
-template <int m, int poly> void gf<m,poly>::init(int32u value)
+template <int m, int poly> void gf<m,poly>::init(int value)
    {
    assert(m < 32);
-   assert(value < (1<<m));
+   assert(value >=0 && value < (1<<m));
    gf::value = value;
    }
 

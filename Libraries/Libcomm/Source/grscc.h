@@ -21,9 +21,12 @@ namespace libcomm {
    - Derived from rscc 1.70
    - The finite field is specified as a template parameter.
 
-   \version 1.01 (4 Jan 2008)
+   \version 1.01 (4-6 Jan 2008)
    - removed serialization functions, which were redundant
    - removed resetcircular(), which is now implemented in fsm()
+   - implemented getstategen() which returns the state-generator matrix, and
+     getstatevec() which returns the state-vector, both in the format required
+     for computing the circulation state
 */
 
 template <class G> class grscc : public ccfsm<G> {
@@ -32,8 +35,14 @@ template <class G> class grscc : public ccfsm<G> {
    static void* create() { return new grscc<G>; };
    // @}
 private:
+   /*! \name Object representation */
+   libbase::matrix<int> csct;  //!< Circulation state correspondence table
+   // @}
    /*! \name Internal functions */
+   int getstateval(const libbase::vector<G>& statevec) const;
+   libbase::vector<G> getstatevec(int stateval) const;
    libbase::matrix<G> getstategen() const;
+   void initcsct();
    // @}
 protected:
    /*! \name FSM helper operations */
