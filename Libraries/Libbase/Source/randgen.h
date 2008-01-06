@@ -65,8 +65,8 @@ public:
 
 inline void randgen::advance()
    {
-   if(++next == 56) next = 1;
-   if(++nextp == 56) nextp = 1;
+   if(++next >= 56) next = 1;
+   if(++nextp >= 56) nextp = 1;
    mj = ma[next] - ma[nextp];
    if(mj < 0) mj += mbig;
    ma[next] = mj;
