@@ -38,6 +38,8 @@ namespace libbase {
    \version 1.02 (6 Jan 2008)
    - Replaced constructor from int32u to constructor from int; this avoids a lot
      of needless explicit conversions
+   - Replaced internal representation from int32u to int, and replaced conversion
+     accordingly
 
    \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
    \param   poly  Primitive polynomial used to define the field elements
@@ -59,7 +61,7 @@ public:
 private:
    /*! \name Object representation */
    //! Representation of this element by its polynomial coefficients
-   int32u value;
+   int value;
    // @}
 
    /*! \name Internal functions */
@@ -75,7 +77,7 @@ public:
    // @}
 
    /*! \name Type conversion */
-   operator int32u() const { return value; };
+   operator int() const { return value; };
    operator std::string() const;
    // @}
 
