@@ -142,9 +142,14 @@ namespace libbase {
    \version 1.91 (28 Nov 2007)
    - defined alternate vector copy for non-root vectors (to avoid copying the data)
 
-   \version 2.00 (4 Jan 2008)
+   \version 2.00 (4-6 Jan 2008)
    - hid vector multiplication and division as private functions to make sure they
      are not being used anywhere.
+   - updated allocator to detect invalid size values
+
+     
+   \todo This class needs to be re-designed in a manner that is consistent with
+         convention (esp. Matlab) and that is efficient
 */
 
 template <class T> class vector;
@@ -163,12 +168,12 @@ protected:
    void free();               // if there is memory allocated, free it
    void setsize(const int x); // set vector to given size, freeing if and as required
 public:
-   vector(const int x=0);        // constructor (does not initialise elements)
-   vector(const vector<T>& x);   // copy constructor
-   ~vector();
+   vector(const int x=0) { alloc(x); };  // constructor (does not initialise elements)
+   vector(const vector<T>& x);
+   ~vector() { free(); };
 
    // resizing operations
-   void init(const int x);
+   void init(const int x) { setsize(x); };
    template <class A> void init(const vector<A>& x) { init(x.size()); };
 
    // vector copy and value initialisation
@@ -247,6 +252,7 @@ public:
 
 template <class T> inline void vector<T>::alloc(const int x)
    {
+   assert(x >= 0);
    m_xsize = x;
    m_root = true;
    if(x > 0)
@@ -263,6 +269,7 @@ template <class T> inline void vector<T>::free()
 
 template <class T> inline void vector<T>::setsize(const int x)
    {
+   assert(x >= 0);
    if(x==m_xsize)
       return;
    free();
@@ -270,12 +277,6 @@ template <class T> inline void vector<T>::setsize(const int x)
    }
 
 // constructor / destructor functions
-
-template <class T> inline vector<T>::vector(const int x)
-   {
-   assert(x >= 0);
-   alloc(x);
-   }
 
 template <class T> inline vector<T>::vector(const vector<T>& x)
    {
@@ -291,19 +292,6 @@ template <class T> inline vector<T>::vector(const vector<T>& x)
       m_xsize = x.m_xsize;
       m_data = x.m_data;
       }
-   }
-
-template <class T> inline vector<T>::~vector()
-   {
-   free();
-   }
-
-// resizing operations
-
-template <class T> inline void vector<T>::init(const int x)
-   {
-   assert(x >= 0);
-   setsize(x);
    }
 
 // vector copy and value initialisation

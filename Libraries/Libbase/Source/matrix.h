@@ -134,13 +134,25 @@ namespace libbase {
    \version 1.71 (17 Oct 2007)
    - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 
-   \version 1.80 (4-5 Jan 2008)
+   \version 1.80 (4-6 Jan 2008)
    - hid matrix multiplication and division as private functions to make sure they
      are not being used anywhere.
    - fixed matrix negation, which should not modify the object it's operating on
    - implemented proper matrix multiplication
    - implemented identity matrix
    - implemented matrix inversion by direct gaussian elimination
+   - implemented multiplication by vector
+   - implemented power as repeated multiplication
+   - replaced default-values in principal constructor with a default constructor;
+     otherwise there is an ambiguity implying a constructor given a _single_ integer
+     parameter (i.e. x has a value, y takes its default)
+   - updated allocator to detect invalid size values (either x or y being 0, but not both)
+
+   \todo Change the convention for row/column in the class (note this will
+         require changes wherever this class is used!)
+   
+   \todo This class needs to be re-designed in a manner that is consistent with
+         convention (esp. Matlab) and that is efficient
 */
 
 template <class T> class matrix;
@@ -160,12 +172,13 @@ protected:
    void free();                            // if there is memory allocated, free it
    void setsize(const int x, const int y); // set matrix to given size, freeing if and as required
 public:
-   matrix(const int x=0, const int y=0);        // constructor (does not initialise elements)
-   matrix(const matrix<T>& m);                  // copy constructor
-   ~matrix();
+   matrix() { alloc(0,0); };
+   matrix(const int x, const int y) { alloc(x,y); }; // constructor (does not initialise elements)
+   matrix(const matrix<T>& m);
+   ~matrix() { free(); };
 
    // resizing operations
-   void init(const int x, const int y);
+   void init(const int x, const int y) { setsize(x,y); };
    template <class A> void init(const matrix<A>& x) { init(x.xsize(), x.ysize()); };
 
    // matrix copy and value initialisation
@@ -230,6 +243,7 @@ public:
    matrix<T> operator+(const matrix<T>& x) const;
    matrix<T> operator-(const matrix<T>& x) const;
    matrix<T> operator*(const matrix<T>& x) const;
+   vector<T> operator*(const vector<T>& x) const;
 private:
    matrix<T> operator/(const matrix<T>& x) const;
 public:
@@ -268,6 +282,7 @@ public:
    static matrix<T> eye(int n);
 };
 
+
 // memory allocation functions
 
 template <class T> inline void matrix<T>::free()
@@ -291,7 +306,7 @@ template <class T> inline void matrix<T>::setsize(const int x, const int y)
 
 template <class T> inline void matrix<T>::alloc(const int x, const int y)
    {
-   if(x==0 || y==0)
+   if(x==0 && y==0)
       {
       m_xsize = 0;
       m_ysize = 0;
@@ -299,6 +314,7 @@ template <class T> inline void matrix<T>::alloc(const int x, const int y)
       }
    else
       {
+      assertalways(x>0 && y>0);
       m_xsize = x;
       m_ysize = y;
       typedef T* Tp;
@@ -310,33 +326,12 @@ template <class T> inline void matrix<T>::alloc(const int x, const int y)
 
 // constructor / destructor functions
 
-template <class T> inline matrix<T>::matrix(const int x, const int y)
-   {
-   assert(x >= 0);
-   assert(y >= 0);
-   alloc(x,y);
-   }
-
 template <class T> inline matrix<T>::matrix(const matrix<T>& m)
    {
    alloc(m.m_xsize, m.m_ysize);
    for(int i=0; i<m_xsize; i++)
       for(int j=0; j<m_ysize; j++)
          m_data[i][j] = m.m_data[i][j];
-   }
-
-template <class T> inline matrix<T>::~matrix()
-   {
-   free();
-   }
-
-// resizing operations
-
-template <class T> inline void matrix<T>::init(const int x, const int y)
-   {
-   assert(x >= 0);
-   assert(y >= 0);
-   setsize(x,y);
    }
 
 // matrix copy and value initialisation
@@ -681,8 +676,6 @@ template <class T> inline matrix<T> matrix<T>::operator-(const matrix<T>& x) con
    \return The result of 'this' multiplied by 'x'
    \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
          rather than that used in the rest of this class.
-   \todo Change the convention for row/column in the rest of the class (note this will
-         require changes wherever this class is used!)
 */
 template <class T> inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    {
@@ -699,6 +692,30 @@ template <class T> inline matrix<T> matrix<T>::operator*(const matrix<T>& x) con
          for(int k=0; k<m_xsize; k++)
             r.m_data[j][i] += m_data[k][i] * x.m_data[j][k];
          }
+   return r;
+   }
+
+/*!
+   \brief Ordinary matrix multiplication by column vector
+   \param  x   Vector to be multiplied to this matrix
+   \return The result of 'this' multiplied by 'x'
+   \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
+         rather than that used in the rest of this class.
+*/
+template <class T> inline vector<T> matrix<T>::operator*(const vector<T>& x) const
+   {
+   // for A.B:
+   // The number of columns of A must be the same as the number of rows of B.
+   assert(m_xsize == x.size());
+   // If A is an m-by-n matrix and B is an n-by-1 vector, then the product is an m-by-1 matrix 
+   vector<T> r(m_ysize);
+   // Element AB_{i} = \sum_{k=1}^{n} a_{i,k} b_{k}
+   for(int i=0; i<r.size(); i++)
+      {
+      r(i) = 0;
+      for(int k=0; k<m_xsize; k++)
+         r(i) += m_data[k][i] * x(k);
+      }
    return r;
    }
 
@@ -918,6 +935,41 @@ template <class T> inline matrix<T> matrix<T>::eye(int n)
    return r;
    }
 
+}; // end namespace
+
+/*!
+   \brief Ordinary matrix power
+   \return The result of A^n using ordinary matrix multiplication
+   \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
+         rather than that used in the rest of this class.
+*/
+template <class T> inline libbase::matrix<T> pow(const libbase::matrix<T>& A, int n)
+   {
+   using libbase::matrix;
+   assert(A.xsize() == A.ysize());
+   // power by zero return identity
+   if(n == 0)
+      return matrix<T>::eye(A.xsize());
+   // handle negative powers as powers of the inverse
+   matrix<T> R;
+   if(n > 0)
+      R = A;
+   else
+      {
+      R = A.inverse();
+      n = -n;
+      }
+   // square for as long as possible
+   for(; n>0 && n%2==0; n/=2)
+      R *= R;
+   // repeatedly multiply by A for whatever remains
+   for(n--; n>0; n--)
+      R *= A;
+   return R;
+   }
+
+
+namespace libbase {
 
 // *** masked matrix class ***
 
