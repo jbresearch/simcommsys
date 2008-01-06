@@ -854,7 +854,6 @@ template <class T> inline matrix<T> matrix<T>::inverse() const
    for(int i=0; i<n; i++)
       {
       // make the pivot element 1
-      assert(arows(i)(i) != 0);
       rrows(i) /= arows(i)(i);
       arows(i) /= arows(i)(i);
       // subtract the required amount from all other rows

@@ -157,8 +157,8 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& 
 */
 template <int m, int poly> gf<m,poly> gf<m,poly>::inverse() const
    {
-   gf<m,poly> I = int32u(1);
-   gf<m,poly> r = int32u(1);
+   gf<m,poly> I = 1;
+   gf<m,poly> r = 1;
    for(int i=1; i<elements(); i++)
       {
       if(r * *this == I)
