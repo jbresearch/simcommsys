@@ -122,14 +122,14 @@ template <class G> void grscc<G>::initcsct()
    const matrix<G> stategen = getstategen();
    const matrix<G> eye = matrix<G>::eye(this->nu);
    // for MLFSR, period is the list of all states, except zero
-   const int L = num_states()-1;
+   const int L = this->num_states()-1;
    // correspondence table has first index for N%L, second index for S_N^0
-   csct.init(L,num_states());
+   csct.init(L,this->num_states());
    // go through all combinations (except N%L=0, which is illegal) and fill in
    for(int i=1; i<L; i++)
       {
       const matrix<G> A = (eye + pow(stategen,i)).inverse();
-      for(int j=0; j<num_states(); j++)
+      for(int j=0; j<this->num_states(); j++)
          {
          vector<G> statevec = A * getstatevec(j);
          csct(i,j) = getstateval(statevec);
@@ -173,7 +173,7 @@ template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    assert(zerostate >= 0 && zerostate < this->num_states());
    if(csct.size() == 0)
       initcsct();
-   const int L = num_states()-1;
+   const int L =  this->num_states()-1;
    assert(n%L != 0);
    reset(csct(n%L,zerostate));
    }
