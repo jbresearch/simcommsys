@@ -50,7 +50,7 @@ template <class G> int grscc<G>::getstateval(const vector<G>& statevec) const
       stateval += statevec(i);
       }
    assert(stateval >= 0 && stateval < this->num_states());
-   trace << "DEBUG (grscc): state value = " << stateval << "\n";
+   //trace << "DEBUG (grscc): state value = " << stateval << "\n";
    return stateval;
    }
 
@@ -70,8 +70,8 @@ template <class G> vector<G> grscc<G>::getstatevec(int stateval) const
       stateval /= G::elements();
       }
    assert(stateval == 0);
-   trace << "DEBUG (grscc): state vector = \n";
-   statevec.serialize(trace);
+   //trace << "DEBUG (grscc): state vector = ";
+   //statevec.serialize(trace);
    return statevec;
    }
 
@@ -114,22 +114,29 @@ template <class G> matrix<G> grscc<G>::getstategen() const
 /*!
    \brief Initialize circulation state correspondence table
 
-   \todo Assuming the feedback polynomial is primitive, the system should behave
-         as a maximal-length feedback shift register. This condition should be
-         verified by computing the necessary powers of the state-generator matrix.
+   If the feedback polynomial is primitive, the system behaves as a maximal-length
+   linear feedback shift register. We verify the period by computing the necessary
+   powers of the state-generator matrix.
 */
 template <class G> void grscc<G>::initcsct()
    {
    const matrix<G> stategen = getstategen();
    const matrix<G> eye = matrix<G>::eye(this->nu);
-   // for MLFSR, period is the list of all states, except zero
-   const int L = this->num_states()-1;
+   matrix<G> Gi;
+   // determine period
+   int L;
+   Gi = stategen;
+   for(L=1; (eye + Gi).max() > 0; L++)
+      Gi *= stategen;
+   trace << "DEBUG (grscc): period = " << L << "\n";
    // correspondence table has first index for N%L, second index for S_N^0
    csct.init(L,this->num_states());
    // go through all combinations (except N%L=0, which is illegal) and fill in
+   Gi = eye;
    for(int i=1; i<L; i++)
       {
-      const matrix<G> A = (eye + pow(stategen,i)).inverse();
+      Gi *= stategen;
+      const matrix<G> A = (eye + Gi).inverse();
       for(int j=0; j<this->num_states(); j++)
          {
          vector<G> statevec = A * getstatevec(j);
@@ -174,7 +181,7 @@ template <class G> void grscc<G>::resetcircular(int zerostate, int n)
    assert(zerostate >= 0 && zerostate < this->num_states());
    if(csct.size() == 0)
       initcsct();
-   const int L =  this->num_states()-1;
+   const int L = csct.xsize();
    assert(n%L != 0);
    reset(csct(n%L,zerostate));
    }

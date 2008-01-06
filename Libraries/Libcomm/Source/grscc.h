@@ -27,6 +27,9 @@ namespace libcomm {
    - implemented getstategen() which returns the state-generator matrix, and
      getstatevec() which returns the state-vector, both in the format required
      for computing the circulation state
+   - added circulation state correspondence table, and implemented initcsct()
+     which initializes it
+   - implemented resetcircular() using csct
 */
 
 template <class G> class grscc : public ccfsm<G> {
@@ -36,7 +39,7 @@ template <class G> class grscc : public ccfsm<G> {
    // @}
 private:
    /*! \name Object representation */
-   libbase::matrix<int> csct;  //!< Circulation state correspondence table
+   libbase::matrix<int> csct; //!< Circulation state correspondence table
    // @}
    /*! \name Internal functions */
    int getstateval(const libbase::vector<G>& statevec) const;

@@ -25,6 +25,7 @@ using libcomm::rscc;
 
 // Define types for binary and for GF(2^4): m(x) = 1 { 0011 }
 typedef gf<1,0x3>  GF2;
+typedef gf<3,0xB>  GF8;
 typedef gf<4,0x13> GF16;
 
 matrix< vector<GF16> > GetGeneratorGF16()
@@ -46,6 +47,23 @@ matrix< vector<GF16> > GetGeneratorGF16()
    gen(0,2)(2) = "0001";
    gen(0,2)(1) = "0100";
    gen(0,2)(0) = "1010";
+   return gen;
+   }
+
+matrix< vector<GF8> > GetGeneratorGF8()
+   {
+   // Create generator matrix for a R=1/2 code
+   matrix< vector<GF8> > gen(1,2);
+   // 1 + D + a^4 D^2
+   gen(0,0).init(3);
+   gen(0,0)(2) = "001";
+   gen(0,0)(1) = "001";
+   gen(0,0)(0) = "110";
+   // 1 + a D + a^4 D^2
+   gen(0,1).init(3);
+   gen(0,1)(2) = "001";
+   gen(0,1)(1) = "010";
+   gen(0,1)(0) = "110";
    return gen;
    }
 
@@ -77,16 +95,21 @@ matrix<bitfield> GetGeneratorBinary()
    return gen;
    }
 
-int main(int argc, char *argv[])
+void TestCreation()
    {
-   // Create RSC code from generator matrix for R=1/3, nu=3, GF(16)
+   cout << "\nTest code creation:\n";
+   // Create RSC code from generator matrix for R=1/3, nu=2, GF(16)
    grscc<GF16> cc(GetGeneratorGF16());
    // Show code description
    cout << "Code description:\n";
    cout << cc.description() << "\n";
    // Show code serialization
    cout << "Code serialization: [" << &cc << "]\n";
+   }
 
+void CompareCodes()
+   {
+   cout << "\nTest comparison of code with classic one:\n";
    // Compute, display, and compare the state table for an RSC with G = [111,101]
    // between the classic rscc and the grscc using the degenerate binary field
    rscc cc_old(GetGeneratorBinary());
@@ -116,6 +139,42 @@ int main(int argc, char *argv[])
          assert(out == n_out);
          assert(ns == n_ns);
          }
+   }
 
+void TestCirculation()
+   {
+   cout << "\nTest code circulation:\n";
+   // Create RSC code from generator matrix for R=1/2, nu=2, GF(8)
+   grscc<GF8> cc(GetGeneratorGF8());
+   // Show code description
+   cout << "Code description:\n";
+   cout << cc.description() << "\n";
+   // Encode a short all-zero sequence
+   //cc.reset();
+   //int ip = 0;
+   //for(int i=0; i<16; i++)
+   //   cc.advance(ip);
+   // Call circulation reset
+   //cc.resetcircular();
+   // Compute and display circulation state correspondence table
+   for(int S=0; S<cc.num_states(); S++)
+      cout << '\t' << S;
+   for(int N=1; N<7; N++)
+      {
+      cout << '\n' << N;
+      for(int S=0; S<cc.num_states(); S++)
+         {
+         cc.resetcircular(S,N);
+         cout << '\t' << cc.state();
+         }
+      }
+   cout << '\n';
+   }
+
+int main(int argc, char *argv[])
+   {
+   TestCreation();
+   CompareCodes();
+   TestCirculation();
    return 0;
    }
