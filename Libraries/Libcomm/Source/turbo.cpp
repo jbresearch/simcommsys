@@ -130,6 +130,11 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
       {
       ss.init(sets);
       se.init(sets);
+      for(int i=0; i<sets; i++)
+         {
+         ss(i).init(M);
+         se(i).init(M);
+         }
       }
 
    initialised = true;
