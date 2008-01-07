@@ -16,8 +16,8 @@ namespace libcomm {
 
 template <class real> void mapcc<real>::init()
    {
-   bcjr<real>::init(*encoder, tau, !circular, endatzero, circular);
-
+   bcjr<real>::init(*encoder, tau);
+   assert(!circular || !endatzero);
    m = endatzero ? encoder->mem_order() : 0;
    M = encoder->num_states();
    K = encoder->num_inputs();
@@ -28,6 +28,25 @@ template <class real> void mapcc<real>::free()
    {
    if(encoder != NULL)
       delete encoder;
+   }
+
+template <class real> void mapcc<real>::reset()
+   {
+   if(circular)
+      {
+      bcjr<real>::setstart();
+      bcjr<real>::setend();
+      }
+   else if(endatzero)
+      {
+      bcjr<real>::setstart(0);
+      bcjr<real>::setend(0);
+      }
+   else
+      {
+      bcjr<real>::setstart(0);
+      bcjr<real>::setend();
+      }
    }
 
 // constructor / destructor
@@ -96,6 +115,8 @@ template <class real> void mapcc<real>::translate(const libbase::matrix<double>&
          for(int i=0, thisx = x; i<s; i++, thisx /= S)
             R(t, x) *= ptable(t*s+i, thisx % S);
          }
+   // Reset start- and end-state probabilities
+   reset();
    }
 
 template <class real> void mapcc<real>::decode(libbase::vector<int>& decoded)

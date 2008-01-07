@@ -11,6 +11,7 @@
 
 namespace libcomm {
 
+using libbase::vector;
 using libbase::matrix;
 
 // Initialization
@@ -25,7 +26,7 @@ using libbase::matrix;
    Note that if the trellis is not defined as starting or ending at zero, then it is assumed that
    all starting and ending states (respectively) are equiprobable.
 */
-template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const int tau, const bool startatzero, const bool endatzero, const bool circular)
+template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const int tau)
    {
    if(tau < 1)
       {
@@ -39,15 +40,12 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
    K = encoder.num_inputs();
    N = encoder.num_outputs();
    M = encoder.num_states();
-   nu = endatzero ? encoder.mem_order() : 0;
 
    // initialise LUT's for state table
    // this must be done here or we will have to keep a copy of the encoder
    lut_X.init(M, K);
    lut_m.init(M, K);
-   lut_i.init(M);
    for(int mdash=0; mdash<M; mdash++)
-      {
       for(int i=0; i<K; i++)
          {
          encoder.reset(mdash);
@@ -55,52 +53,85 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
          lut_X(mdash, i) = encoder.step(input);
          lut_m(mdash, i) = encoder.state();
          }
-      // we should not need the following if the trellis does not end at zero
-      if(endatzero)
-         {
-         encoder.reset(mdash);
-         int input = fsm::tail;
-         encoder.advance(input);
-         lut_i(mdash) = input;
-         }
-      }
 
-   // memory is only allocated in the first decode call, so we have to store the
-   // startatzero and endatzero conditions for the intialisation time
-   bcjr::startatzero = startatzero;
-   bcjr::endatzero = endatzero;
-   // flag to denote circular decoding - note that this only really makes sense
-   // when the start/end state are unknown, hence the assertion
-   bcjr::circular = circular;
-   assert(!circular || (!startatzero && !endatzero));
    // set flag as necessary
    initialised = false;
    }
 
-// Reset start- and end-state probabilities
+// Get start- and end-state probabilities
 
-template <class real, class dbl> void bcjr<real,dbl>::reset()
+template <class real, class dbl> vector<dbl> bcjr<real,dbl>::getstart() const
+   {
+   vector<dbl> r(M);
+   for(int m=0; m<M; m++)
+      r(m) = beta(0, m);
+   return r;
+   }
+
+template <class real, class dbl> vector<dbl> bcjr<real,dbl>::getend() const
+   {
+   vector<dbl> r(M);
+   for(int m=0; m<M; m++)
+      r(m) = alpha(tau, m);
+   return r;
+   }
+
+// Set start- and end-state probabilities - equiprobable
+
+template <class real, class dbl> void bcjr<real,dbl>::setstart()
    {
    if(!initialised)
-      {
       allocate();
-      return;
-      }
+   for(int m=0; m<M; m++)
+      alpha(0, m) = 1.0/double(M);
+   }
 
-   // initialise alpha and beta arrays
-   alpha(0, 0) = startatzero ? 1 : 1.0/double(M);
-   beta(tau, 0) = endatzero ? 1 : 1.0/double(M);
-   for(int m=1; m<M; m++)
-      {
-      alpha(0, m) = startatzero ? 0 : 1.0/double(M);
-      beta(tau, m) = endatzero ? 0 : 1.0/double(M);
-      }
-   if(circular)
-      for(int m=0; m<M; m++)
-         {
-         alpha(tau, m) = 1.0/double(M);
-         beta(0, m) = 1.0/double(M);
-         }
+template <class real, class dbl> void bcjr<real,dbl>::setend()
+   {
+   if(!initialised)
+      allocate();
+   for(int m=0; m<M; m++)
+      beta(tau, m) = 1.0/double(M);
+   }
+
+// Set start- and end-state probabilities - known state
+
+template <class real, class dbl> void bcjr<real,dbl>::setstart(int state)
+   {
+   if(!initialised)
+      allocate();
+   for(int m=0; m<M; m++)
+      alpha(0, m) = 0;
+   alpha(0, state) = 1;
+   }
+
+template <class real, class dbl> void bcjr<real,dbl>::setend(int state)
+   {
+   if(!initialised)
+      allocate();
+   for(int m=0; m<M; m++)
+      beta(tau, m) = 0;
+   beta(tau, state) = 1;
+   }
+
+// Set start- and end-state probabilities - direct
+
+template <class real, class dbl> void bcjr<real,dbl>::setstart(const libbase::vector<dbl>& p)
+   {
+   assert(p.size() == M);
+   if(!initialised)
+      allocate();
+   for(int m=0; m<M; m++)
+      alpha(0, m) = p(m);
+   }
+
+template <class real, class dbl> void bcjr<real,dbl>::setend(const libbase::vector<dbl>& p)
+   {
+   assert(p.size() == M);
+   if(!initialised)
+      allocate();
+   for(int m=0; m<M; m++)
+      beta(tau, m) = p(m);
    }
 
 // Memory allocation
@@ -112,25 +143,8 @@ template <class real, class dbl> void bcjr<real,dbl>::allocate()
    alpha.init(tau+1, M);
    beta.init(tau+1, M);
    gamma.init(tau, M, K);
-
    // flag the state of the arrays
    initialised = true;
-
-   // initialise alpha and beta arrays
-   reset();
-   }
-
-
-// Creation/Destruction routines
-
-template <class real, class dbl> bcjr<real,dbl>::bcjr()
-   {
-   initialised = false;
-   }
-
-template <class real, class dbl> bcjr<real,dbl>::bcjr(fsm& encoder, const int tau, const bool startatzero, const bool endatzero, const bool circular)
-   {
-   init(encoder, tau, startatzero, endatzero, circular);
    }
 
 
@@ -207,11 +221,6 @@ template <class real, class dbl> void bcjr<real,dbl>::work_gamma(const matrix<db
 */
 template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
    {
-   // when using a circular trellis, re-initialize the start-state probabilities
-   // with the end-state probabilities from the previous turn
-   if(circular)
-      for(int m=0; m<M; m++)
-         alpha(0, m) = alpha(tau, m);
    // using the computed gamma values, work out all alpha values at time t
    for(int t=1; t<=tau; t++)
       {
@@ -246,11 +255,6 @@ template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
 */
 template <class real, class dbl> void bcjr<real,dbl>::work_beta()
    {
-   // when using a circular trellis, re-initialize the end-state probabilities
-   // with the start-state probabilities from the previous turn
-   if(circular)
-      for(int m=0; m<M; m++)
-         beta(tau, m) = beta(0, m);
    // evaluate all beta values
    for(int t=tau-1; t>=0; t--)
       {
@@ -377,8 +381,7 @@ template <class real, class dbl> void bcjr<real,dbl>::normalize(matrix<dbl>& r)
 */
 template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& ro)
    {
-   if(!initialised)
-      allocate();
+   assert(initialised);
    work_gamma(R);
    work_alpha();
    work_beta();
@@ -398,8 +401,7 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 */
 template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri, matrix<dbl>& ro)
    {
-   if(!initialised)
-      allocate();
+   assert(initialised);
    work_gamma(R, app);
    work_alpha();
    work_beta();
@@ -415,8 +417,7 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
 */
 template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
    {
-   if(!initialised)
-      allocate();
+   assert(initialised);
    work_gamma(R);
    work_alpha();
    work_beta();
@@ -434,8 +435,7 @@ template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>&
 */
 template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri)
    {
-   if(!initialised)
-      allocate();
+   assert(initialised);
    work_gamma(R, app);
    work_alpha();
    work_beta();

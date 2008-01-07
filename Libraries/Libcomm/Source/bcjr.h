@@ -131,13 +131,25 @@ namespace libcomm {
    - defined class and associated data within "libcomm" namespace.
    - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-   \version 2.53 (6 Jan 2008)
+   \version 2.60 (6 Jan 2008)
    - removed various redundant blocks, a remnant from old VS
    - modified decoding behaviour with circular trellises: instead of replacing the start-
      state probabilities with the end-state probabilities at the end of the forward pass
      (and similarly replacing the end-state with the start-state probabilities at the
      end of the backward pass), we now do the exchange before we start the turn.
      Consequently, this requires a slightly different metric initialization.
+   - observed bug in handling of circular decoding: since the same object is used over
+     different sets of the turbo structure, the probabilities copied over between end-
+     state and start-state were actually getting mixed up between iterations. Fixing this
+     as follows:
+      - removed flags startatzero, endatzero, and circular; these are actually properties
+        of the turbo code, rather than the bcjr object itself, and are only relevant for
+        two things: (i) initializing the metric endpoints and (ii) determining the length
+        of the tail sequence
+      - modified reset() and created similar new protected functions to cater for (i),
+        getting and setting the end-state probabilities, to be used by the turbo system
+      - removed the 'nu' variable, which held the length of the tail sequence, and the
+        'lut_i' table, since these are not really required.
 */
 
 template <class real, class dbl=double> class bcjr {
@@ -146,11 +158,7 @@ template <class real, class dbl=double> class bcjr {
    int   K;    //!< Number of possible input to encoder at any time instant (equals 2^k)
    int   N;    //!< Number of possible outputs of encoder at any time instant (equals 2^n)
    int   M;    //!< Number of possible states of the encoder
-   int   nu;   //!< Length of tail in symbols (derived from encoder's memoery order)
    bool  initialised;   //!< Initially false, becomes true after the first call to "decode" when memory is allocated
-   bool  startatzero;   //!< True to indicate that the trellis starts in state zero
-   bool  endatzero;     //!< True to indicate that the trellis ends in state zero
-   bool  circular;      //!< True to indicate circular trellis decoding
    // working matrices
    libbase::matrix<real>   alpha;   //!< Forward recursion metric: alpha(t,m) = Pr{S(t)=m, Y(1..t)}
    libbase::matrix<real>   beta;    //!< Backward recursion metric: beta(t,m) = Pr{Y(t+1..tau) | S(t)=m}
@@ -158,7 +166,6 @@ template <class real, class dbl=double> class bcjr {
    // temporary arrays/matrices
    libbase::matrix<int>    lut_X;   //!< lut_X(m,i) = encoder output if system was in state 'm' and given input 'i'
    libbase::matrix<int>    lut_m;   //!< lut_m(m,i) = next state of encoder if system was in state 'm' and given input 'i'
-   libbase::vector<int>    lut_i;   //!< lut_i(m) = required input to tail off a system in state 'm'
    // memory allocator (for internal use only)
    void allocate();
    // internal functions
@@ -175,13 +182,24 @@ protected:
    // normalization function for derived classes
    static void normalize(libbase::matrix<dbl>& r);
    // main initialization routine - constructor essentially just calls this
-   void init(fsm& encoder, const int tau, const bool startatzero, const bool endatzero, const bool circular =false);
-   // reset start- and end-state probabilities
-   void reset();
-   bcjr();
+   void init(fsm& encoder, const int tau);
+   // get start- and end-state probabilities
+   libbase::vector<dbl> getstart() const;
+   libbase::vector<dbl> getend() const;
+   // set start- and end-state probabilities - equiprobable
+   void setstart();
+   void setend();
+   // set start- and end-state probabilities - known state
+   void setstart(int state);
+   void setend(int state);
+   // set start- and end-state probabilities - direct
+   void setstart(const libbase::vector<dbl>& p);
+   void setend(const libbase::vector<dbl>& p);
+   // default constructor
+   bcjr() { initialised = false; };
 public:
    // constructor & destructor
-   bcjr(fsm& encoder, const int tau, const bool startatzero =true, const bool endatzero =true, const bool circular =false);
+   bcjr(fsm& encoder, const int tau) { init(encoder, tau); };
    ~bcjr() {};
    // decode functions
    void decode(const libbase::matrix<dbl>& R, libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro);

@@ -93,6 +93,9 @@ namespace libcomm {
    - fixed minor error in description output
    - added flags for terminated and circular trellises
    - NOTE: there is no check for both being set!
+
+   \version 1.60 (6 Jan 2008)
+   - updated to cater for changes in bcjr 2.60
 */
 
 template <class real> class mapcc : public codec, private bcjr<real> {
@@ -112,6 +115,7 @@ private:
 protected:
    void init();
    void free();
+   void reset();
    mapcc();
 public:
    mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular=false);

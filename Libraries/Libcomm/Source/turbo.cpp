@@ -26,7 +26,7 @@ using libbase::matrix3;
 
 template <class real, class dbl> void turbo<real,dbl>::init()
    {
-   bcjr<real,dbl>::init(*encoder, tau, !circular, endatzero, circular);
+   bcjr<real,dbl>::init(*encoder, tau);
 
    m = endatzero ? encoder->mem_order() : 0;
    M = encoder->num_states();
@@ -51,6 +51,30 @@ template <class real, class dbl> void turbo<real,dbl>::free()
    for(int i=0; i<inter.size(); i++)
       delete inter(i);
    }
+
+template <class real, class dbl> void turbo<real,dbl>::reset()
+   {
+   if(circular)
+      {
+      assert(initialised);
+      for(int set=0; set<sets; set++)
+         {
+         ss(set) = dbl(1.0/double(M));
+         se(set) = dbl(1.0/double(M));
+         }
+      }
+   else if(endatzero)
+      {
+      bcjr<real,dbl>::setstart(0);
+      bcjr<real,dbl>::setend(0);
+      }
+   else
+      {
+      bcjr<real,dbl>::setstart(0);
+      bcjr<real,dbl>::setend();
+      }
+   }
+
 
 // constructor / destructor
 
@@ -102,6 +126,12 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
       ra(0).init(tau, K);
       }
 
+   if(circular)
+      {
+      ss.init(sets);
+      se.init(sets);
+      }
+
    initialised = true;
    }
 
@@ -130,6 +160,13 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
    {
    trace << "DEBUG (turbo): bcjr_wrap - set=" << set << ", ra=" << &ra << ", ri=" << &ri << ", re=" << &re;
    trace << ", ra(mean) = " << ra.mean();
+   // when using a circular trellis, re-initialize the start- and end-state
+   // probabilities with the stored values from the previous turn
+   if(circular)
+      {
+      bcjr<real,dbl>::setstart(ss(set));
+      bcjr<real,dbl>::setend(se(set));
+      }
    // pass through BCJR algorithm
    // interleaving and de-interleaving is performed except for the first set
    if(set == 0)
@@ -146,6 +183,13 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
       inter(set-1)->inverse(rai, re);
       }
    trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
+   // when using a circular trellis, store the start- and end-state
+   // probabilities for the previous turn
+   if(circular)
+      {
+      ss(set) = bcjr<real,dbl>::getstart();
+      se(set) = bcjr<real,dbl>::getend();
+      }
    }
 
 template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matrix<dbl>& ri, vector<int>& decoded)
@@ -364,7 +408,7 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
       }
 
    // Reset start- and end-state probabilities
-   bcjr<real,dbl>::reset();
+   reset();
    }
 
 template <class real, class dbl> void turbo<real,dbl>::decode(vector<int>& decoded)

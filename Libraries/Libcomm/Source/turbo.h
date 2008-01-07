@@ -229,8 +229,11 @@ namespace libcomm {
    - made check for circulation state occur in all builds (was debug only)
    - removed support for simile interleavers
 
-   \version 2.53 (6 Jan 2008)
+   \version 2.60 (6 Jan 2008)
    - removed various redundant blocks, a remnant from old VS
+   - updated to cater for changes in bcjr 2.60; this required the addition of new
+     arrays to hold the intermediate values of start- and end-state probabilities
+     for circular trellises
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
@@ -252,6 +255,8 @@ private:
    libbase::matrix<dbl> ri;
    // Temporary statistics (interleaved versions of ra and ri)
    libbase::matrix<dbl> rai, rii;
+   // Holders for start- and end-state probabilities (used with circular trellises)
+   libbase::vector< libbase::vector<dbl> > ss, se;
    // memory allocator (for internal use only)
    bool initialised;             // Initially false, becomes true when memory is initialised
    void allocate();
@@ -265,6 +270,7 @@ protected:
    double aposteriori(const int t, const int i) const { return ri(t,i); };
    void init();
    void free();
+   void reset();
    turbo();
 public:
    turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver *>& inter, \
