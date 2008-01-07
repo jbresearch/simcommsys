@@ -244,7 +244,7 @@ double montecarlo::updateresults(vector<double>& result, vector<double>& toleran
          tolerance(i) = cfactor*sd/mean;
       else
          tolerance(i) = 0;
-      if(tolerance(i) > acc)
+      if(tolerance(i) > acc || tolerance(i) == 0)
          acc = tolerance(i);
       }
    return acc;
