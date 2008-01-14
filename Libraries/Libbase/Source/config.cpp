@@ -197,19 +197,17 @@ std::string pacifier(int complete, int total)
    // stop the timer if we're at the last step
    if(complete == total)
       t.stop();
-   // return a blank if there is no change
-   if(value == last)
+   // estimate how long this whole stage will take to complete
+   const double estimate = t.elapsed()/double(complete)*total;
+   // return a blank if there is no change or if this won't take long enough
+   if(value == last || estimate < 60)
       return "";
 
-   // create the required length string
-   //std::string s = "";
-   //for(int i=1; i<=value; i++)
-   //   s += (i % 5) ? "-" : "+";
-   //s += "\r";
+   // create the required string
    std::ostringstream sout;
    sout << "Completed: " << value << "%, elapsed " << t;
    if(complete > 0)
-      sout << " of estimated " << timer::format(t.elapsed()/double(complete)*total);
+      sout << " of estimated " << timer::format(estimate);
    sout << '\r';
    // update tracker
    last = value;

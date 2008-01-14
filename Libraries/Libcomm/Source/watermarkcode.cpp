@@ -198,7 +198,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
 #endif
    for(int i=0; i<N; i++)
       {
-      trace << libbase::pacifier(i, N);
+      std::cerr << libbase::pacifier(i, N);
       for(int d=0; d<q; d++)
          {
          //ptable(i,d) = 0;
