@@ -148,6 +148,14 @@
    - added assertalways() in global namespace
    - added fail() in libbase namespace to implement error printout and bailout
    - added square() function
+
+   \version 3.36 (14 Jan 2008)
+   - modified pacifier so that:
+     - it takes two parameters, such that we don't have to use a percentage,
+       but usage defaults that way
+     - the newline is replaced by a carriage return
+     - it keeps a timer that automatically resets and stops (at beginning and
+       end values respectively), to display estimated time remaining
 */
 
 // *** Global namespace ***
@@ -261,7 +269,7 @@ int readkey(void);
 bool interrupted(void);
 
 // Pacifier output
-std::string pacifier(int percent);
+std::string pacifier(int complete, int total=100);
 
 // System error message reporting
 std::string getlasterror();

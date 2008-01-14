@@ -22,6 +22,8 @@
 #include <string>
 #include <sstream>
 
+#include "timer.h"
+
 namespace libbase {
 
 // Debugging tools
@@ -179,25 +181,40 @@ bool interrupted(void)
 
 // Pacifier output
 
-std::string pacifier(int percent)
+std::string pacifier(int complete, int total)
    {
    static int last = 0;
-   int value = 80*percent/100;
+   //int value = int(80*complete/double(total));
+   int value = int(100*complete/double(total));
+   static timer t;
 
    // reset if we detect that we've started from zero again
-   if(value < last)
+   if(complete == 0 || value < last)
+      {
+      t.start();
       last = 0;
+      }
+   // stop the timer if we're at the last step
+   if(complete == total)
+      t.stop();
    // return a blank if there is no change
    if(value == last)
       return "";
 
    // create the required length string
-   std::string s = "";
-   for(int i=1; i<=value; i++)
-      s += (i % 5) ? "-" : "+";
-   s += "\n";
+   //std::string s = "";
+   //for(int i=1; i<=value; i++)
+   //   s += (i % 5) ? "-" : "+";
+   //s += "\r";
+   std::ostringstream sout;
+   sout << "Completed: " << value << "%, elapsed " << t;
+   if(complete > 0)
+      sout << " of estimated " << timer::format(t.elapsed()/double(complete)*total);
+   sout << '\r';
+   // update tracker
    last = value;
-   return s;
+   //return s;
+   return sout.str();
    }
 
 // System error message reporting

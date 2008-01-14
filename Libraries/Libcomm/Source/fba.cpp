@@ -85,7 +85,7 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       {
 #ifndef NDEBUG
       if(tau > 32)
-         trace << libbase::pacifier(100*(j-1)/(tau-1));
+         trace << libbase::pacifier(j-1, tau-1);
 #endif
       // event must fit the received sequence - requirements:
       // 1. j-1+a >= 0
@@ -130,7 +130,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
       {
 #ifndef NDEBUG
       if(tau > 32)
-         trace << libbase::pacifier(100*(tau-2-j)/(tau-1));
+         trace << libbase::pacifier(tau-2-j, tau-1);
 #endif
       // event must fit the received sequence - requirements:
       // 1. j+y >= 0
