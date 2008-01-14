@@ -195,7 +195,6 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    using std::string;
    libbase::bitfield b;
    b.resize(k);
-   libbase::timer t1;
 #endif
    for(int i=0; i<N; i++)
       {
@@ -245,14 +244,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
                }
             }
          }
-#ifndef NDEBUG
-      trace << "WM Decode: elapsed " << t1 << " of estimated " << libbase::timer::format(t1.elapsed()/double(i+1)*N) << '\n';
-#endif
       }
-#ifndef NDEBUG
-   t1.stop();
-   trace << "WM Decode: actual time elapsed " << t1 << '\n';
-#endif
    // normalize and copy results
    const real scale = p.max();
 #ifndef NDEBUG
