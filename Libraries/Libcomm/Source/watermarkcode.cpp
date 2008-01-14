@@ -199,7 +199,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    for(int i=0; i<N; i++)
       {
 #ifndef NDEBUG
-      libbase::timer t1;
+      libbase::timer t1("WM inner loop");
 #endif
       trace << libbase::pacifier(100*i/N);
       for(int d=0; d<q; d++)
