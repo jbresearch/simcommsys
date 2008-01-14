@@ -73,6 +73,9 @@ namespace libbase {
    \version 1.23 (30 Nov 2007)
    - refactoring work
     - extracted method dowork()
+
+   \version 1.24 (14 Jan 2008)
+   - updated enable() to allow option for local computation only
 */
 
 class masterslave {

@@ -64,7 +64,6 @@ void masterslave::fcall(const std::string& name)
 void masterslave::enable(int *argc, char **argv[], const int priority)
    {
    assert(!initialized);
-   initialized = true;
 
 #ifndef WIN32
    signal(SIGPIPE, SIG_IGN);
@@ -73,18 +72,25 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
    // parse command-line parameters and determine operating mode
    if(*argc < 2)
       {
-      cerr << "Usage (masterslave): " << (*argv)[0] << " [<normal parameters>] [-p <priority>] <hostname>:<port>\n";
-      exit(1);
+      cerr << "Usage (masterslave): " << (*argv)[0] << " [<normal parameters>] [-p <priority>] local|<hostname>:<port>\n";
+      return;
       }
    // get endpoint
    std::string endpoint = (*argv)[*argc-1];
-   (*argv)[*argc-1] = NULL;
-   (*argc)--;
-   // dissect endpoint into hostname:port
+   // hostname is the part before the ':', or the whole string if there is no ':'
    const size_t n = endpoint.find(':');
    const std::string hostname = endpoint.substr(0,n);
-   int port;
-   std::istringstream(endpoint.substr(n+1)) >> port;
+   // port is the part after the ':', if there was one
+   // if there is no port, hostname must be 'local'
+   // otherwise, the argument was not meant for us
+   int port=0;
+   if(n != std::string::npos)
+      std::istringstream(endpoint.substr(n+1)) >> port;
+   else if(hostname.compare("local") != 0)
+      return;
+   // if we got here, the argument was actually meant for us, so remove it
+   (*argv)[*argc-1] = NULL;
+   (*argc)--;
    // check for and get priority override
    int actualpriority = priority;
    if(*argc >= 3 && strcmp((*argv)[*argc-2],"-p")==0)
@@ -95,6 +101,9 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
       (*argc)-=2;
       }
 
+   // Handle option for local computation only
+   if(hostname.compare("local") == 0 && port == 0)
+      return;
    // If the hostname part isn't empty, it's a slave process
    if(hostname.length() > 0)
       slaveprocess(hostname, port, actualpriority);
@@ -103,6 +112,8 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
    if(!master->bind(port))
       exit(1);
    trace << "Master system bound to port " << port << "\n";
+
+   initialized = true;
    }
 
 
