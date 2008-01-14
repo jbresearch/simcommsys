@@ -96,10 +96,9 @@ int main(int argc, char *argv[])
    test_errorfree(seed, 15, 4, 100, 12.0, false);
    test_errorfree(seed, 15, 4, 1000, 12.0, false);
 
-   // try short,medium,large codes for benchmarking at low SNR
+   // try short,medium codes for benchmarking at low SNR
    test_errorfree(seed, 15, 4, 10, 1.0, false);
-   test_errorfree(seed, 15, 4, 100, 1.0, false);
-   test_errorfree(seed, 15, 4, 1000, 1.0, false);
+   test_errorfree(seed, 15, 4, 25, 1.0, false);
 
    return 0;
    }
