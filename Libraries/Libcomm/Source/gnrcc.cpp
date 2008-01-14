@@ -6,8 +6,7 @@
    - $Date$
    - $Author$
 
-   \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables from parent class ccfm<G> using this-> or gnrcc<G>::
+   \see grscc.cpp
 */
 
 #include "gnrcc.h"

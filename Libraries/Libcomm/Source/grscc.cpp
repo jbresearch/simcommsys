@@ -6,8 +6,30 @@
    - $Date$
    - $Author$
 
-   \warning I don't know why but GCC complains if I don't explicitly refer to member
-            variables from parent class ccfm<G> using this-> or grscc<G>::
+   \warning GCC complains if I don't explicitly refer to member variables from
+            parent class ccfm<G> using this-> or grscc<G>:: qualifiers. It turns
+            out this is a known "feature" of GCC:
+            (c.f. http://gcc.gnu.org/bugs.html#known)
+
+            \code
+            # This also affects members of base classes, see [14.6.2]:
+
+            template <typename> struct A
+               {
+               int i, j;
+               };
+
+            template <typename T> struct B : A<T>
+               {
+               int foo1() { return i; }       // error
+               int foo2() { return this->i; } // OK
+               int foo3() { return B<T>::i; } // OK
+               int foo4() { return A<T>::i; } // OK
+
+               using A<T>::j;
+               int foo5() { return j; }       // OK
+               };
+            \endcode
 */
 
 #include "grscc.h"
