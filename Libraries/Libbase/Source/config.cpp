@@ -19,6 +19,7 @@
 #  include <errno.h>
 #endif
 #include <signal.h>
+#include <stdlib.h>
 #include <string>
 #include <sstream>
 
@@ -31,6 +32,7 @@ namespace libbase {
 void fail(const char *expression, const char *file, int line)
    {
    std::cerr << "ERROR (" << file << " line " << line << "): assertion " << expression << " failed.\n";
+   exit(1);
    }
 
 class tracestreambuf : public std::streambuf {
