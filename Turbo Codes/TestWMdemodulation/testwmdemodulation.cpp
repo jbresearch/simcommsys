@@ -45,9 +45,9 @@ vector<int> create_encoded(int k, int tau, bool display=true)
    return encoded;
    }
 
-void print_signal(int n, vector<sigspace> tx)
+void print_signal(const char* desc, int n, vector<sigspace> tx)
    {
-   cout << "Tx:\n";
+   cout << desc << ":\n";
    for(int i=0; i<tx.size(); i++)
       cout << tx(i) << ((i%n == n-1) ? "\n" : "\t");
    }
@@ -57,7 +57,7 @@ vector<sigspace> modulate_encoded(int k, int n, modulator& modem, vector<int>& e
    vector<sigspace> tx;
    modem.modulate(1<<k, encoded, tx);
    if(display)
-      print_signal(n, tx);
+      print_signal("Tx", n, tx);
    return tx;
    }
 
@@ -66,7 +66,7 @@ vector<sigspace> transmit_modulated(int n, channel& chan, const vector<sigspace>
    vector<sigspace> rx;
    chan.transmit(tx, rx);
    if(display)
-      print_signal(n, rx);
+      print_signal("Rx", n, rx);
    return rx;
    }
 
