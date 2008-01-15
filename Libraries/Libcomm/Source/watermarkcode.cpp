@@ -244,7 +244,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
             }
          }
       }
-   std::cerr << libbase::pacifier("WM Demodulate", N, N);
+   if(N > 0)
+      std::cerr << libbase::pacifier("WM Demodulate", N, N);
    // normalize and copy results
    const real scale = p.max();
 #ifndef NDEBUG

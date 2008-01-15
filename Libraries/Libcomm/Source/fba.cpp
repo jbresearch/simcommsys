@@ -87,9 +87,9 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
          std::cerr << libbase::pacifier("FBA Forward Pass", j-1, tau-1);
       // determine the strongest path at this point
       real threshold = 0;
-      for(int i=-xmax; i<=xmax; i++)
-         if(F(j-1,i) > threshold)
-            threshold = F(j-1,i);
+      for(int a=-xmax; a<=xmax; a++)
+         if(F(j-1,a) > threshold)
+            threshold = F(j-1,a);
       threshold *= 1e-15;
       // event must fit the received sequence - requirements:
       // 1. j-1+a >= 0
@@ -143,9 +143,9 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
          std::cerr << libbase::pacifier("FBA Backward Pass", i, tau);
       // determine the strongest path at this point
       real threshold = 0;
-      for(int i=-xmax; i<=xmax; i++)
-         if(B(j+1,i) > threshold)
-            threshold = B(j+1,i);
+      for(int b=-xmax; b<=xmax; b++)
+         if(B(j+1,b) > threshold)
+            threshold = B(j+1,b);
       threshold *= 1e-15;
       // event must fit the received sequence - requirements:
       // 1. j+y >= 0
