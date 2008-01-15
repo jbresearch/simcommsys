@@ -183,10 +183,10 @@ bool interrupted(void)
 
 std::string pacifier(const std::string& description, int complete, int total)
    {
+   static timer t("pacifier");
    static int last = 0;
    static size_t characters = 0;
-   int value = int(100*complete/double(total));
-   static timer t;
+   const int value = int(100*complete/double(total));
 
    // reset if we detect that we've started from zero again
    if(complete == 0 || value < last)
@@ -194,6 +194,7 @@ std::string pacifier(const std::string& description, int complete, int total)
       t.start();
       last = 0;
       characters = 0;
+      return "";
       }
    // if we're at the last step, stop the timer
    // and return enough spaces to overwrite the last output
