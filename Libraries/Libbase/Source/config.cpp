@@ -188,11 +188,12 @@ std::string pacifier(const std::string& description, int complete, int total)
    static size_t characters = 0;
    const int value = int(100*complete/double(total));
 
-   // reset if we detect that we've started from zero again
+   // if we detect that we've started from zero again,
+   // reset the timer and don't print anything
    if(complete == 0 || value < last)
       {
       t.start();
-      last = 0;
+      last = value;
       characters = 0;
       return "";
       }
@@ -209,18 +210,16 @@ std::string pacifier(const std::string& description, int complete, int total)
          }
       return s;
       }
+   // otherwise we know we're someway in between...
    // estimate how long this whole stage will take to complete
    const double estimate = t.elapsed()/double(complete)*total;
    // return a blank if there is no change or if this won't take long enough
    if(value == last || estimate < 60)
       return "";
-
    // create the required string
    std::ostringstream sout;
-   sout << description << ": completed " << value << "%, elapsed " << t;
-   if(complete > 0)
-      sout << " of estimated " << timer::format(estimate);
-   sout << '\r';
+   sout << description << ": completed " << value << "%, elapsed " << t
+        << " of estimated " << timer::format(estimate) << '\r';
    // update tracker
    last = value;
    characters = sout.str().length();
