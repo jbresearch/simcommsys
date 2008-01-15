@@ -201,8 +201,11 @@ std::string pacifier(const std::string& description, int complete, int total)
       {
       t.stop();
       std::string s;
-      s.assign(characters,' ');
-      s += '\r';
+      if(characters > 0)
+         {
+         s.assign(characters,' ');
+         s += '\r';
+         }
       return s;
       }
    // estimate how long this whole stage will take to complete
