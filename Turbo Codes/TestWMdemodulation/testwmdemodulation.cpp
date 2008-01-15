@@ -72,18 +72,21 @@ vector<sigspace> transmit_modulated(int n, channel& chan, const vector<sigspace>
 
 matrix<double> demodulate_encoded(channel& chan, modulator& modem, const vector<sigspace>& rx, bool display=true)
    {
-   // demodulate received version
+   // demodulate received signal
    matrix<double> ptable;
+   timer t;
    modem.demodulate(chan, rx, ptable);
+   t.stop();
    if(display)
       cout << "Ptable: " << ptable << "\n";
+   cout << "Time taken: " << t << "\n";
    return ptable;
    }
 
 void testcycle(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
    {
    const int N = tau*n;
-   // create uncoded 'codec', modem, and channel
+   // create modem and channel
    watermarkcode<logrealfast> modem(n,k,seed, N);
    channel *chan = create_channel(N, snr);
    cout << modem.description() << "\n";
@@ -94,11 +97,9 @@ void testcycle(int const seed, int const n, int const k, int const tau, double s
    vector<sigspace> tx = modulate_encoded(k, n, modem, encoded, display);
    // pass it through the channel
    vector<sigspace> rx = transmit_modulated(n, *chan, tx, display);
-   // demodulate an error-free version
-   timer t;
-   demodulate_encoded(*chan, modem, rx, display);
-   t.stop();
-   cout << "Time taken: " << t << "\n";
+   // demodulate received signal
+   matrix<double> ptable = demodulate_encoded(*chan, modem, rx, display);
+
    delete chan;
    }
 
