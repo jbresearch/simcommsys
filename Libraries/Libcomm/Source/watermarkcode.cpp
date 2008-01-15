@@ -199,6 +199,12 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    for(int i=0; i<N; i++)
       {
       std::cerr << libbase::pacifier("WM Demodulate", i, N);
+      // determine the strongest path at this point
+      real threshold = 0;
+      for(int x1=-xmax; x1<=xmax; x1++)
+         if(fba<real>::getF(n*i,x1) > threshold)
+            threshold = fba<real>::getF(n*i,x1);
+      threshold *= 1e-6;
       for(int d=0; d<q; d++)
          {
          // create the considered transmitted sequence
@@ -216,14 +222,16 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
             {
+            const real F = fba<real>::getF(n*i,x1);
+            // ignore paths below a certain threshold
+            if(F < threshold)
+               continue;
             const int x2min = max(-xmax,x1-min(n,xmax));
             const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,xmax));
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
                const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
-               // extract the relevant forward and backward metrics
-               const real F = fba<real>::getF(n*i,x1);
                const real B = fba<real>::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p(i,d) += P * F * B;
