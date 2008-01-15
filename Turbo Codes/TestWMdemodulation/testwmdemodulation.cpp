@@ -100,7 +100,8 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
       if(d != encoded(i))
          count++;
       }
-   cout << "Symbol errors: " << count << '\n';
+   if(count > 0)
+      cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n";
    }
 
 void testcycle(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
