@@ -60,7 +60,9 @@ vector<sigspace> modulate_encoded(int k, int n, modulator& modem, vector<int>& e
 
 vector<sigspace> transmit_modulated(channel& chan, const vector<sigspace>& tx, bool display=true)
    {
-   return tx;
+   vector<sigspace> rx;
+   chan.transmit(tx, rx);
+   return rx;
    }
 
 matrix<double> demodulate_encoded(channel& chan, modulator& modem, const vector<sigspace>& rx, bool display=true)
@@ -114,7 +116,7 @@ int main(int argc, char *argv[])
 
    // try short,medium codes for benchmarking at low SNR
    testcycle(seed, 15, 4, 10, 1.0, false);
-   testcycle(seed, 15, 4, 25, 1.0, false);
+   testcycle(seed, 15, 4, 100, 1.0, false);
 
    return 0;
    }
