@@ -24,7 +24,16 @@ using libbase::logrealfast;
 
 using libcomm::sigspace;
 using libcomm::modulator;
+using libcomm::channel;
 using libcomm::watermarkcode;
+
+channel *create_channel(int N, double snr)
+   {
+   channel *chan = new libcomm::bsid(N);
+   chan->seed(1);
+   chan->set_snr(snr);
+   return chan;
+   }
 
 vector<int> create_encoded(int k, int tau, bool display=true)
    {
@@ -49,34 +58,41 @@ vector<sigspace> modulate_encoded(int k, int n, modulator& modem, vector<int>& e
    return tx;
    }
 
-void demodulate_encoded(int N, modulator& modem, vector<sigspace>& tx, double snr, bool display=true)
+vector<sigspace> transmit_modulated(channel& chan, const vector<sigspace>& tx, bool display=true)
    {
-   // assume an error-free transmission
-   libcomm::bsid chan(N);
-   chan.seed(1);
-   chan.set_snr(snr);
-   // demodulate an error-free version
-   matrix<double> ptable;
-   modem.demodulate(chan, tx, ptable);
-   if(display)
-      cout << "Ptable: " << ptable << "\n";
+   return tx;
    }
 
-void test_errorfree(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
+matrix<double> demodulate_encoded(channel& chan, modulator& modem, const vector<sigspace>& rx, bool display=true)
+   {
+   // demodulate received version
+   matrix<double> ptable;
+   modem.demodulate(chan, rx, ptable);
+   if(display)
+      cout << "Ptable: " << ptable << "\n";
+   return ptable;
+   }
+
+void testcycle(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
    {
    const int N = tau*n;
-   // create a watermark codec
+   // create codec & channel
    watermarkcode<logrealfast> modem(n,k,seed, N);
+   channel *chan = create_channel(N, snr);
    cout << modem.description() << "\n";
+
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
    // modulate it using the previously created watermarkcode
    vector<sigspace> tx = modulate_encoded(k, n, modem, encoded, display);
+   // pass it through the channel
+   vector<sigspace> rx = transmit_modulated(*chan, tx, display);
    // demodulate an error-free version
    timer t;
-   demodulate_encoded(N, modem, tx, snr, display);
+   demodulate_encoded(*chan, modem, rx, display);
    t.stop();
    cout << "Time taken: " << t << "\n";
+   delete chan;
    }
 
 int main(int argc, char *argv[])
@@ -89,16 +105,16 @@ int main(int argc, char *argv[])
    const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
    const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
    // do what the user asked for
-   test_errorfree(seed, n, k, tau);
+   testcycle(seed, n, k, tau);
 
    // try short,medium,large codes for benchmarking at high SNR
-   test_errorfree(seed, 15, 4, 10, 12.0, false);
-   test_errorfree(seed, 15, 4, 100, 12.0, false);
-   test_errorfree(seed, 15, 4, 1000, 12.0, false);
+   testcycle(seed, 15, 4, 10, 12.0, false);
+   testcycle(seed, 15, 4, 100, 12.0, false);
+   testcycle(seed, 15, 4, 1000, 12.0, false);
 
    // try short,medium codes for benchmarking at low SNR
-   test_errorfree(seed, 15, 4, 10, 1.0, false);
-   test_errorfree(seed, 15, 4, 25, 1.0, false);
+   testcycle(seed, 15, 4, 10, 1.0, false);
+   testcycle(seed, 15, 4, 25, 1.0, false);
 
    return 0;
    }
