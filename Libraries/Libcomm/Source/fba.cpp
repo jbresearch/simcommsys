@@ -85,6 +85,12 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       {
       if(tau > 32)
          std::cerr << libbase::pacifier("FBA Forward Pass", j-1, tau-1);
+      // determine the strongest path at this point
+      real threshold = 0;
+      for(int i=-xmax; i<=xmax; i++)
+         if(F(j-1,i) > threshold)
+            threshold = F(j-1,i);
+      threshold *= 1e-15;
       // event must fit the received sequence - requirements:
       // 1. j-1+a >= 0
       // 2. j-1+y < r.size()
@@ -92,11 +98,16 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       const int ymax = min(xmax,r.size()-j);
       for(int y=ymin; y<=ymax; y++)
          {
-         F(j,y) = 0;
+         //F(j,y) = 0;
          const int amin = max(max(y-I,-xmax),1-j);
          const int amax = min(y+1,xmax);
          for(int a=amin; a<=amax; a++)
+            {
+            // ignore paths below a certain threshold
+            if(F(j-1,a) < threshold)
+               continue;
             F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
+            }
          }
       }
    if(tau > 32)
@@ -130,6 +141,12 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
       {
       if(tau > 32)
          std::cerr << libbase::pacifier("FBA Backward Pass", i, tau);
+      // determine the strongest path at this point
+      real threshold = 0;
+      for(int i=-xmax; i<=xmax; i++)
+         if(B(j+1,i) > threshold)
+            threshold = B(j+1,i);
+      threshold *= 1e-15;
       // event must fit the received sequence - requirements:
       // 1. j+y >= 0
       // 2. j+b < r.size()
@@ -137,11 +154,16 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
       const int ymax = xmax;
       for(int y=ymin; y<=ymax; y++)
          {
-         B(j,y) = 0;
+         //B(j,y) = 0;
          const int bmin = max(y-1,-xmax);
          const int bmax = min(min(y+I,xmax),r.size()-j-1);
          for(int b=bmin; b<=bmax; b++)
+            {
+            // ignore paths below a certain threshold
+            if(B(j+1,b) < threshold)
+               continue;
             B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
+            }
          }
       }
    if(tau > 32)

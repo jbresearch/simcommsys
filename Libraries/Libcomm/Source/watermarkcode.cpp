@@ -201,7 +201,6 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
       std::cerr << libbase::pacifier("WM Demodulate", i, N);
       for(int d=0; d<q; d++)
          {
-         //ptable(i,d) = 0;
          // create the considered transmitted sequence
          libbase::vector<sigspace> tx(n);
          for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
