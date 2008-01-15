@@ -7,10 +7,10 @@
    - $Author$
 */
 
+#include "timer.h"
 #include "logrealfast.h"
 #include "watermarkcode.h"
 #include "bsid.h"
-#include "timer.h"
 
 #include <iostream>
 
@@ -45,23 +45,28 @@ vector<int> create_encoded(int k, int tau, bool display=true)
    return encoded;
    }
 
+void print_signal(int n, vector<sigspace> tx)
+   {
+   cout << "Tx:\n";
+   for(int i=0; i<tx.size(); i++)
+      cout << tx(i) << ((i%n == n-1) ? "\n" : "\t");
+   }
+
 vector<sigspace> modulate_encoded(int k, int n, modulator& modem, vector<int>& encoded, bool display=true)
    {
    vector<sigspace> tx;
    modem.modulate(1<<k, encoded, tx);
    if(display)
-      {
-      cout << "Tx:\n";
-      for(int i=0; i<tx.size(); i++)
-         cout << tx(i) << ((i%n == n-1) ? "\n" : "\t");
-      }
+      print_signal(n, tx);
    return tx;
    }
 
-vector<sigspace> transmit_modulated(channel& chan, const vector<sigspace>& tx, bool display=true)
+vector<sigspace> transmit_modulated(int n, channel& chan, const vector<sigspace>& tx, bool display=true)
    {
    vector<sigspace> rx;
    chan.transmit(tx, rx);
+   if(display)
+      print_signal(n, rx);
    return rx;
    }
 
@@ -78,7 +83,7 @@ matrix<double> demodulate_encoded(channel& chan, modulator& modem, const vector<
 void testcycle(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
    {
    const int N = tau*n;
-   // create codec & channel
+   // create uncoded 'codec', modem, and channel
    watermarkcode<logrealfast> modem(n,k,seed, N);
    channel *chan = create_channel(N, snr);
    cout << modem.description() << "\n";
@@ -88,7 +93,7 @@ void testcycle(int const seed, int const n, int const k, int const tau, double s
    // modulate it using the previously created watermarkcode
    vector<sigspace> tx = modulate_encoded(k, n, modem, encoded, display);
    // pass it through the channel
-   vector<sigspace> rx = transmit_modulated(*chan, tx, display);
+   vector<sigspace> rx = transmit_modulated(n, *chan, tx, display);
    // demodulate an error-free version
    timer t;
    demodulate_encoded(*chan, modem, rx, display);
