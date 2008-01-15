@@ -92,7 +92,10 @@ void timer::stop()
    {
    if(!running)
       {
-      std::cerr << "Warning: tried to stop a timer that was not running.\n";
+      std::cerr << "Warning: tried to stop a timer that was not running";
+      if(name != "")
+         std::cerr << " (" << name << ")";
+      std::cerr << ".\n";
       return;
       }
    wall = _wallclock() - wall;
