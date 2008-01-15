@@ -91,23 +91,23 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
          if(F(j-1,a) > threshold)
             threshold = F(j-1,a);
       threshold *= 1e-15;
-      // event must fit the received sequence - requirements:
+      // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y < r.size()
-      const int ymin = -xmax;
-      const int ymax = min(xmax,r.size()-j);
-      for(int y=ymin; y<=ymax; y++)
+      // limits on insertions and deletions must be respected:
+      // 3. y-a <= I
+      // 4. y-a >= -1
+      const int amin = max(-xmax,1-j);
+      const int amax = xmax;
+      for(int a=amin; a<=amax; a++)
          {
-         //F(j,y) = 0;
-         const int amin = max(max(y-I,-xmax),1-j);
-         const int amax = min(y+1,xmax);
-         for(int a=amin; a<=amax; a++)
-            {
-            // ignore paths below a certain threshold
-            if(F(j-1,a) < threshold)
-               continue;
+         // ignore paths below a certain threshold
+         if(F(j-1,a) < threshold)
+            continue;
+         const int ymin = max(-xmax,a-1);
+         const int ymax = min(min(xmax,a+I),r.size()-j);
+         for(int y=ymin; y<=ymax; y++)
             F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
-            }
          }
       }
    if(tau > 32)
@@ -147,23 +147,23 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
          if(B(j+1,b) > threshold)
             threshold = B(j+1,b);
       threshold *= 1e-15;
-      // event must fit the received sequence - requirements:
+      // event must fit the received sequence:
       // 1. j+y >= 0
       // 2. j+b < r.size()
-      const int ymin = max(-xmax,-j);
-      const int ymax = xmax;
-      for(int y=ymin; y<=ymax; y++)
+      // limits on insertions and deletions must be respected:
+      // 3. b-y <= I
+      // 4. b-y >= -1
+      const int bmin = -xmax;
+      const int bmax = min(xmax,r.size()-j-1);
+      for(int b=bmin; b<=bmax; b++)
          {
-         //B(j,y) = 0;
-         const int bmin = max(y-1,-xmax);
-         const int bmax = min(min(y+I,xmax),r.size()-j-1);
-         for(int b=bmin; b<=bmax; b++)
-            {
-            // ignore paths below a certain threshold
-            if(B(j+1,b) < threshold)
-               continue;
+         // ignore paths below a certain threshold
+         if(B(j+1,b) < threshold)
+            continue;
+         const int ymin = max(max(-xmax,b-I),-j);
+         const int ymax = min(xmax,b+1);
+         for(int y=ymin; y<=ymax; y++)
             B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
-            }
          }
       }
    if(tau > 32)
