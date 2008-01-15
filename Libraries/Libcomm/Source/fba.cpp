@@ -83,10 +83,8 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
    // compute remaining matrix values
    for(int j=1; j<tau; j++)
       {
-#ifndef NDEBUG
       if(tau > 32)
-         trace << libbase::pacifier(j-1, tau-1);
-#endif
+         std::cerr << libbase::pacifier("FBA Forward Pass", j-1, tau-1);
       // event must fit the received sequence - requirements:
       // 1. j-1+a >= 0
       // 2. j-1+y < r.size()
@@ -128,10 +126,8 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
    // compute remaining matrix values
    for(int j=tau-1; j>=0; j--)
       {
-#ifndef NDEBUG
       if(tau > 32)
-         trace << libbase::pacifier(tau-2-j, tau-1);
-#endif
+         std::cerr << libbase::pacifier("FBA Backward Pass", tau-2-j, tau-1);
       // event must fit the received sequence - requirements:
       // 1. j+y >= 0
       // 2. j+b < r.size()
