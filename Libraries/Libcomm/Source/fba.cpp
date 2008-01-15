@@ -99,6 +99,8 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
             F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
          }
       }
+   if(tau > 32)
+      std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
 #ifndef NDEBUG
    if(tau > 32)
       trace << "DEBUG (fba): forward metrics done.\n";
@@ -124,10 +126,10 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
    assert(abs(r.size()-tau) <= xmax);
    B(tau,r.size()-tau) = real(1);
    // compute remaining matrix values
-   for(int j=tau-1; j>=0; j--)
+   for(int i=0, j=tau-1; j>=0; i++, j--)
       {
       if(tau > 32)
-         std::cerr << libbase::pacifier("FBA Backward Pass", tau-2-j, tau-1);
+         std::cerr << libbase::pacifier("FBA Backward Pass", i, tau);
       // event must fit the received sequence - requirements:
       // 1. j+y >= 0
       // 2. j+b < r.size()
@@ -142,6 +144,8 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
             B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
          }
       }
+   if(tau > 32)
+      std::cerr << libbase::pacifier("FBA Backward Pass", tau-1, tau-1);
 #ifndef NDEBUG
    if(tau > 32)
       trace << "DEBUG (fba): backward metrics done.\n";
