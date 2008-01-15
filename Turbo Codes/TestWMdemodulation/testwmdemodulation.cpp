@@ -83,6 +83,26 @@ matrix<double> demodulate_encoded(channel& chan, modulator& modem, const vector<
    return ptable;
    }
 
+void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
+   {
+   const int tau = ptable.xsize();
+   const int n = ptable.ysize();
+   assert(encoded.size() == tau);
+   int count = 0;
+   for(int i=0; i<tau; i++)
+      {
+      // find the most likely candidate
+      int d=0;
+      for(int j=1; j<n; j++)
+         if(ptable(i,j) > ptable(i,d))
+            d = j;
+      // see if there is an error
+      if(d != encoded(i))
+         count++;
+      }
+   cout << "Symbol errors: " << count << '\n';
+   }
+
 void testcycle(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
    {
    const int N = tau*n;
@@ -99,6 +119,8 @@ void testcycle(int const seed, int const n, int const k, int const tau, double s
    vector<sigspace> rx = transmit_modulated(n, *chan, tx, display);
    // demodulate received signal
    matrix<double> ptable = demodulate_encoded(*chan, modem, rx, display);
+   // count errors
+   count_errors(encoded, ptable);
 
    delete chan;
    }
