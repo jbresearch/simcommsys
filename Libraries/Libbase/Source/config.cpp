@@ -181,7 +181,7 @@ bool interrupted(void)
 
 // Pacifier output
 
-std::string pacifier(int complete, int total)
+std::string pacifier(const std::string& description, int complete, int total)
    {
    static int last = 0;
    //int value = int(80*complete/double(total));
@@ -205,7 +205,7 @@ std::string pacifier(int complete, int total)
 
    // create the required string
    std::ostringstream sout;
-   sout << "Completed: " << value << "%, elapsed " << t;
+   sout << description << ": completed " << value << "%, elapsed " << t;
    if(complete > 0)
       sout << " of estimated " << timer::format(estimate);
    sout << '\r';
@@ -213,6 +213,11 @@ std::string pacifier(int complete, int total)
    last = value;
    //return s;
    return sout.str();
+   }
+
+std::string pacifier(int complete, int total)
+   {
+   return pacifier("Process", complete, total);
    }
 
 // System error message reporting
