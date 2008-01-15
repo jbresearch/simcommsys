@@ -47,7 +47,7 @@ void bsid::precompute()
    xmax = max(int(ceil(5 * sqrt(N*Pd*(1-Pd)))), I);
    libbase::trace << "DEBUG (bsid): suggested I = " << I << ", xmax = " << xmax << ".\n";
    I = min(I,4);
-   xmax = min(xmax,25);
+   //xmax = min(xmax,25);
    libbase::trace << "DEBUG (bsid): using I = " << I << ", xmax = " << xmax << ".\n";
    // receiver coefficients
    a1 = (1-Pi-Pd);
