@@ -162,7 +162,7 @@ public:
       can be reduced to:
       \f[ S_c = \langle I + G^P \rangle ^{-1} S_N^0 \f]
 
-      where \f$ P = N \mod L \f$. This can be obtained by a lookup table containing
+      where \f$ P = N \mathrm{mod} L \f$. This can be obtained by a lookup table containing
       all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
    */
    virtual void resetcircular(int zerostate, int n) = 0;
