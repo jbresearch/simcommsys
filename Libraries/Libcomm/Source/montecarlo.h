@@ -127,6 +127,11 @@ namespace libcomm {
    - Modified accumulateresults() to use vector apply() rather than multiplication,
      when squaring the estimates. This change became necessary when vector mul was
      made private to avoid ambiguity.
+
+   \version 1.43 (16 Jan 2008)
+   - Minor change in estimate() to show the smallest, rather than the first, result
+     when doing the real-time display. This is more indicative of the performance
+     of the system at this point.
 */
 
 class montecarlo : public libbase::masterslave {

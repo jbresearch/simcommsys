@@ -16,6 +16,11 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef min
+#  undef min
+#  undef max
+#endif
+
 namespace libcomm {
 
 using std::cerr;
@@ -403,9 +408,10 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          if(acc <= accuracy && acc != 0)
             accuracy_reached = true;
          // print something to inform the user of our progress
-         display(samplecount, (acc<1 ? 100*acc : 99), result(0));
+         display(samplecount, (acc<1 ? 100*acc : 99), result.min());
          }
-      // consider our work done if the user has interrupted the processing (this overrides everything)
+      // consider our work done if the user has interrupted the processing
+      // (note: this overrides everything)
       if(interrupt())
          break;
       }
