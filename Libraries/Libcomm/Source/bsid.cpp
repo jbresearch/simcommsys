@@ -46,7 +46,7 @@ void bsid::precompute()
    I = max(int(ceil((log(1e-12) - log(double(N))) / log(Pd))) - 1, 1);
    xmax = max(int(ceil(5 * sqrt(N*Pd*(1-Pd)))), I);
    libbase::trace << "DEBUG (bsid): suggested I = " << I << ", xmax = " << xmax << ".\n";
-   I = min(I,4);
+   I = min(I,2);
    //xmax = min(xmax,25);
    libbase::trace << "DEBUG (bsid): using I = " << I << ", xmax = " << xmax << ".\n";
    // receiver coefficients
