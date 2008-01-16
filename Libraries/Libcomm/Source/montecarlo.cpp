@@ -114,9 +114,12 @@ void montecarlo::display(const int pass, const double cur_accuracy, const double
    static libbase::timer tupdate;
    if(tupdate.elapsed() > 0.5)
       {
-      std::clog << "Timer: " << t << ", " << getnumslaves() << " clients, " \
-      << getcputime()/t.elapsed() << "x speedup, pass " << pass << ", " \
-      << "[" << cur_mean << " +/- " << cur_accuracy << "%] \r" << std::flush;
+      using std::clog;
+      const int prec = clog.precision(3);
+      clog << "Timer: " << t << ", " << getnumslaves() << " clients, " \
+         << getcputime()/t.elapsed() << "x speedup, pass " << pass << ", " \
+         << "[" << cur_mean << " +/- " << cur_accuracy << "%] \r" << std::flush;
+      clog.precision(prec);
       tupdate.start();
       }
    }
@@ -350,7 +353,6 @@ bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
 */
 void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    {
-   const int prec = std::clog.precision(3);
    t.start();
 
    // Initialise space for results
@@ -423,7 +425,6 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       }
 
    t.stop();
-   std::clog.precision(prec);
    }
 
 }; // end namespace
