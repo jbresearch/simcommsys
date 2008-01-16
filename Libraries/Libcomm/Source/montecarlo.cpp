@@ -79,6 +79,12 @@ void montecarlo::slave_work(void)
    // Send accumulated results back to master
    if(!send(sum) || !send(sumsq) || !send(samplecount))
       exit(1);
+
+   // print something to inform the user of our progress
+   vector<double> result(count);
+   vector<double> tolerance(count);
+   double acc = updateresults(result, tolerance, sum, sumsq);
+   display(samplecount, (acc<1 ? 100*acc : 99), result.min());
    }
 
 // helper functions

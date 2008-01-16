@@ -132,6 +132,7 @@ namespace libcomm {
    - Minor change in estimate() to show the smallest, rather than the first, result
      when doing the real-time display. This is more indicative of the performance
      of the system at this point.
+   - Modified slave_work() to compute its own result set and display progress
 */
 
 class montecarlo : public libbase::masterslave {
