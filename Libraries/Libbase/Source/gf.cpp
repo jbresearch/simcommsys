@@ -151,7 +151,7 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& 
    \brief Multiplicative inverse
 
    The multiplicative inverse \f$ b^{-1} \f$ of \f$ b \f$ is such that:
-   \f[ b^{-1} a = 1 \f$
+   \f[ b^{-1} a = 1 \f]
 
    In this implementation, we use the brute force search method.
 */

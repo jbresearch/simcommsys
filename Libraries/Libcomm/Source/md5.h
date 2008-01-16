@@ -19,21 +19,21 @@ namespace libcomm {
    - $Author$
 
    \version 1.00 (03 Jul 2003)
-  initial version - class that implements Message Digest MD5, as specified in
-  Schneier, "Applied Cryptography", 1996, pp.436-441.
-  Included comparison functions; added conversion to/from strings.
+   initial version - class that implements Message Digest MD5, as specified in
+   Schneier, "Applied Cryptography", 1996, pp.436-441.
+   Included comparison functions; added conversion to/from strings.
 
    \version 1.01 (04 Jul 2003)
-  fixed bug in string() operator.
+   fixed bug in string() operator.
 
    \version 1.02 (04 Jul 2003)
-  fixed bugs in Schneier's descriptions of MD5:
+   fixed bugs in Schneier's descriptions of MD5:
    - chaining variables should be initialised like SHA's
    - message length is low-order byte first
    - message is encoded into 32-bit words in low-order byte first
 
    \version 1.03 (05 Jul 2003)
-  added information function to return message size
+   added information function to return message size
 
    \version 1.04 (5 Jul 2003)
    - added self-testing on creation of the first object.
@@ -41,11 +41,11 @@ namespace libcomm {
 
    \version 1.05 (17 Jul 2006)
    - in verify, first create an istringstream object, then pass that on to process, since
-  this requires a pass by reference, which cannot be done by direct conversion.
+   this requires a pass by reference, which cannot be done by direct conversion.
    - in the constructor, made an explicit conversion of the output of floor to int32u.
 
    \version 1.06 (6 Oct 2006)
-  modified for compatibility with VS .NET 2005:
+   modified for compatibility with VS .NET 2005:
    - in constructor, modified use of pow to avoid ambiguity
 
    \version 1.10 (30 Oct 2006)
@@ -72,13 +72,13 @@ class md5 {
 #endif
 public:
    // basic constructor/destructor
-        md5();
-        virtual ~md5();
+   md5();
+   virtual ~md5() {};
    // conversion to/from strings
    md5(const std::string& s);
    operator std::string() const;
    // public interface for computing digest
-        void reset();
+   void reset();
    void process(const libbase::vector<libbase::int32u>& M);
    void process(const char *buf, const int size);
    void process(std::istream& sin);

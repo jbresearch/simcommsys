@@ -7,7 +7,8 @@
 #include <string>
 
 /*!
-   \file    Information Theory Functions.
+   \file
+   \brief   Information Theory Functions.
    \author  Johann Briffa
 
    \par Version Control:

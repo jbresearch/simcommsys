@@ -11,7 +11,8 @@
 #include <iomanip>
 
 /*!
-   \file    SimCommSys.
+   \file
+   \brief   Simulation of Communication Systems
    \author  Johann Briffa
 
    \par Version Control:

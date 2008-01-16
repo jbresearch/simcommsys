@@ -137,14 +137,14 @@ public:
 
       Consider a convolutional code where the state \f$ S_i \f$ at timestep \f$ i \f$ is
       related to state \f$ S_{i-1} \f$ and input \f$ X_i \f$ by the relation:
-      \f[ S_i = G \mdot S_{i-1} + X_i \f]
+      \f[ S_i = G \cdot S_{i-1} + X_i \f]
 
       Therefore, after \f$ N \f$ timesteps, the state is given by:
-      \f[ S_N = G^N \mdot S_0 + \sum_{i=1}^{N} G^{N-i} \mdot X_i \f]
+      \f[ S_N = G^N \cdot S_0 + \sum_{i=1}^{N} G^{N-i} \cdot X_i \f]
 
       Thus, the circulation state, defined such that \f$ S_c = S_N = S_0 \f$ is
       derived from the equation:
-      \f[ S_c = \langle I + G^N \rangle ^{-1} \sum_{i=1}^{N} G^{N-i} \mdot X_i \f]
+      \f[ S_c = \langle I + G^N \rangle ^{-1} \sum_{i=1}^{N} G^{N-i} \cdot X_i \f]
 
       and is obtainable only if \f$ I + G^N \f$ is invertible. It is worth noting
       that not all \f$ G \f$ matrices are suitable; also, the sequence length \f$ N \f$
@@ -153,7 +153,7 @@ public:
 
       Consider starting at the zero-intial-state and pre-encoding the input sequence;
       this gives us a final state:
-      \f[ S_N^0 = \sum_{i=1}^{N} G^{N-i} \mdot X_i \f]
+      \f[ S_N^0 = \sum_{i=1}^{N} G^{N-i} \cdot X_i \f]
 
       Combining this with the equation for the circulation state, we get:
       \f[ S_c = \langle I + G^N \rangle ^{-1} S_N^0 \f]

@@ -21,7 +21,8 @@
 #include <iomanip>
 
 /*!
-   \file    SPECturbo.
+   \file
+   \brief   SPECturbo benchmark
    \author  Johann Briffa
 
    \par Version Control:

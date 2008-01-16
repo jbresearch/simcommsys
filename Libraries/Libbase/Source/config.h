@@ -30,7 +30,8 @@
 #endif
 
 /*!
-   \file    Main Configuration.
+   \file
+   \brief   Main Configuration.
    \author  Johann Briffa
 
    \par Version Control:

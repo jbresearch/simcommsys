@@ -17,15 +17,15 @@ namespace libcomm {
    - $Author$
 
    \version 1.01 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+   changed vcs version variable from a global to a static class variable.
+   also changed use of iostream from global to std namespace.
 
    \version 1.02 (13 Mar 2002)
-  moved most functions to the implementation file instead of here.
+   moved most functions to the implementation file instead of here.
 
    \version 1.10 (27 Mar 2002)
-  added two functions to make multiplication with double commutative. Also, made
-  passing of all double parameters direct, not by reference.
+   added two functions to make multiplication with double commutative. Also, made
+   passing of all double parameters direct, not by reference.
 
    \version 1.20 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
