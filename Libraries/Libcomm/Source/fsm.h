@@ -126,7 +126,7 @@ public:
       \brief Reset to a specified state
       \param state  A unique integer representation of the state we want to set to
       \invariant The state value should always be between 0 and num_states()-1
-      \cf state()
+      \see state()
       \note This function has to be called once by each function re-implementing it.
    */
    virtual void reset(int state=0);
