@@ -185,6 +185,15 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    const int xmax = mychan.get_xmax();
    fba<real>::init(N*n, I, xmax);
    fba<real>::prepare(rx);
+   // Tell the user what settings are in use
+   static int last_I = 0;
+   static int last_xmax = 0;
+   if(last_I != I || last_xmax != xmax)
+      {
+      std::cerr << "Watermark Demodulation: I = " << I << ", xmax = " << xmax << ".\n";
+      last_I = I;
+      last_xmax = xmax;
+      }
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
    libbase::matrix<real> p(N,q);
