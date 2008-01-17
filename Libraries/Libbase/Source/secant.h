@@ -16,16 +16,16 @@ namespace libbase {
    - $Author$
 
    \version 1.01 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+   changed vcs version variable from a global to a static class variable.
+   also changed use of iostream from global to std namespace.
 
    \version 1.02 (11-12 Jun 2002)
-   - added <algorithm> to supply the definition of the swap() function (which has
-  been removed from config).
+   - added "algorithm" to supply the definition of the swap() function (which has
+   been removed from config).
    - modified the definition of 'f' so that its parameter is non-const; this does not
-  make any difference since the parameter is not passed by reference. It also allows
-  us greater flexibility in using the class, and was in fact necessitated by the
-  similar change in itfunc 1.04.
+   make any difference since the parameter is not passed by reference. It also allows
+   us greater flexibility in using the class, and was in fact necessitated by the
+   similar change in itfunc 1.04.
 
    \version 1.10 (26 Oct 2006)
    - defined class and associated data within "libbase" namespace.

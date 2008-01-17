@@ -91,7 +91,7 @@ namespace libcomm {
    also changed use of iostream from global to std namespace.
 
    \version 3.25 (11-12 Jun 2002)
-   - added <algorithm> to supply the definition of the swap() function (which has
+   - added "algorithm" to supply the definition of the swap() function (which has
      been removed from config).
    - moved the (empty) destructor to the definition file.
 

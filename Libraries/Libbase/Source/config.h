@@ -41,8 +41,8 @@
 
    \version 2.01 (11 Jun 2002)
    - removed the definition of swap() from this file for gcc (before was only removed for
-   Win32), since this is defined in <algorithm>
-   - also removed the inclusion of <ios> since this should not be necessary anyway.
+   Win32), since this is defined in "algorithm"
+   - also removed the inclusion of "ios" since this should not be necessary anyway.
 
    \version 2.02 (17 Jul 2006)
    - changed __int64 to long long for non-Win32 systems

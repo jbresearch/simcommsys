@@ -20,8 +20,6 @@ using libbase::matrix;
    \brief   Creator for class 'bcjr'.
    \param   encoder     The finite state machine used to encode the source.
    \param   tau         The block length of decoder (including tail bits).
-   \param   startatzero True if the trellis for the underlying code is known to start at state zero.
-   \param   endatzero   True if the trellis for the underlying code is known to end at state zero.
 
    Note that if the trellis is not defined as starting or ending at zero, then it is assumed that
    all starting and ending states (respectively) are equiprobable.

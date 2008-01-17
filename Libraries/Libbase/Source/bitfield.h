@@ -29,7 +29,7 @@ namespace libbase {
   changed vcs version variable from a global to a static class variable.
   also changed use of iostream from global to std namespace.
   also had to change the concatenation operator from ',' to '+' since this was
-  conflicting with something in <iostream>
+  conflicting with something in "iostream"
 
    \version 1.12 (13 Mar 2002)
   changed the stream input function to get the next word from the stream (as a string) and
