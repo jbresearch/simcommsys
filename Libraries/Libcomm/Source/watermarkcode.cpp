@@ -78,10 +78,6 @@ template <class real> void watermarkcode<real>::init()
    mpsk::init(2);
    }
 
-template <class real> void watermarkcode<real>::free()
-   {
-   }
-
 // constructor / destructor
 
 template <class real> watermarkcode<real>::watermarkcode() : mychan(1,0,0,0)

@@ -113,14 +113,7 @@ void bsid::set_pi(const double Pi)
 // Channel function overrides
 
 /*!
-   \brief Determine channel-specific parameters based on given SNR
-   \param   Eb    Average signal energy per information bit \f$ E_b \f$. Depends on modulation
-                  symbol energy, modulation rate, and overall coding rate.
-   \param   No    Half the noise energy/modulation symbol for a normalised signal \f$ N_0 \f$.
-
-   \note \f$ E_b \f$ is fixed by the overall modulation and coding system. The simulator
-         determines \f$ N_0 \f$ according to the given SNR (assuming unit signal energy), so
-         that the actual band-limited noise energy is given by \f$ E_b N_0 \f$.
+   \copydoc channel::compute_parameters()
 
    There is no real relationship between SNR and the insertion/deletion probabilities.
    However, the simulator uses SNR as its common channel-quality measure, so that a functional
@@ -149,9 +142,7 @@ void bsid::compute_parameters(const double Eb, const double No)
    }
 
 /*!
-   \brief Pass a single modulation symbol through the substitution channel
-   \param   s  Input (Tx) modulation symbol
-   \return  Output (Rx) modulation symbol
+   \copydoc channel::corrupt()
 
    \note Due to limitations of the interface, which was designed for substitution channels,
          only the substitution part of the channel model is handled here.

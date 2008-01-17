@@ -21,13 +21,6 @@ channel::channel()
    channel::seed(0);
    }
 
-// reset function for random generator
-
-void channel::seed(const libbase::int32u s)
-   {
-   r.seed(s);
-   }
-
 // setting and getting overall channel SNR
 
 void channel::compute_noise()

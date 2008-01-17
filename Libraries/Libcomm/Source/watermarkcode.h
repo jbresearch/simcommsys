@@ -138,7 +138,7 @@ private:
    const int demodulate(const sigspace& signal) const { return 0; };
 protected:
    void init();
-   void free();
+   void free() {};
    watermarkcode();
 public:
    watermarkcode(const int n, const int k, const int s, const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);

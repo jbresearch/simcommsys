@@ -120,11 +120,11 @@ namespace libcomm {
 class channel {
 private:
    /*! \name User-defined parameters */
-   double   snr_db;        //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
+   double   snr_db;  //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
    // @}
    /*! \name Internal representation */
-   double   Eb;            //!< The signal energy for each bit duration, obtained from modulator
-   double   No;            //!< Half the noise energy/modulation symbol for a normalised signal
+   double   Eb;      //!< Average signal energy per information bit \f$ E_b \f$
+   double   No;      //!< Half the noise energy/modulation symbol for a normalised signal \f$ N_0 \f$.
    // @}
 private:
    /*! \name Internal functions */
@@ -136,8 +136,26 @@ protected:
    // @}
 protected:
    /*! \name Channel function overrides */
+   /*!
+      \brief Determine channel-specific parameters based on given SNR
+
+      \note \f$ E_b \f$ is fixed by the overall modulation and coding system. The simulator
+            determines \f$ N_0 \f$ according to the given SNR (assuming unit signal energy), so
+            that the actual band-limited noise energy is given by \f$ E_b N_0 \f$.
+   */
    virtual void compute_parameters(const double Eb, const double No) {};
+   /*!
+      \brief Pass a single modulation symbol through the substitution channel
+      \param   s  Input (Tx) modulation symbol
+      \return  Output (Rx) modulation symbol
+   */
    virtual sigspace corrupt(const sigspace& s) = 0;
+   /*!
+      \brief Determine the conditional likelihood for the received symbol
+      \param   tx  Transmitted modulation symbol being considered
+      \param   rx  Received modulation symbol
+      \return  Likelihood \f$ P(rx|tx) \f$
+   */
    virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;
    // @}
 public:
@@ -150,18 +168,15 @@ public:
    virtual const char* name() const = 0;
    // @}
 
-   // reset function for random generator
-   void seed(const libbase::int32u s);
-
-   /*! \name Channel parameter setters */
+   /*! \name Channel parameter handling */
+   //! Reset function for random generator
+   void seed(libbase::int32u const s) { r.seed(s); };
    //! Set the bit-equivalent signal energy
    void set_eb(const double Eb);
    //! Set the normalized noise energy
    void set_no(const double No);
    //! Set the signal-to-noise ratio
    void set_parameter(const double snr_db);
-   // @}
-   /*! \name Channel parameter getters */
    //! Set the bit-equivalent signal energy
    //double get_eb() const { return Eb; };
    //! Set the normalized noise energy
