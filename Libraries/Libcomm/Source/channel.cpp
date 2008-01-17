@@ -32,7 +32,6 @@ void channel::seed(const libbase::int32u s)
 
 void channel::compute_noise()
    {
-   // No is half the noise energy/modulation symbol for a normalised signal
    No = 0.5*pow(10.0, -snr_db/10.0);
    // call derived class handle
    compute_parameters(Eb,No);
@@ -40,21 +39,18 @@ void channel::compute_noise()
 
 void channel::set_eb(const double Eb)
    {
-   // Eb is the signal energy for each bit duration, obtained from modulator
    channel::Eb = Eb;
    compute_noise();
    }
 
 void channel::set_no(const double No)
    {
-   // No is half the noise energy/modulation symbol for a normalised signal
    snr_db = -10.0*log10(2*No);
    compute_noise();
    }
 
 void channel::set_snr(const double snr_db)
    {
-   // snr_db is equal to 10 log_10 (Eb/No), obtained from user
    channel::snr_db = snr_db;
    compute_noise();
    }
@@ -124,18 +120,6 @@ std::istream& operator>>(std::istream& sin, channel*& x)
       exit(1);
       }
    x->serialize(sin);
-   return sin;
-   }
-
-// object serialization
-
-std::ostream& channel::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
-
-std::istream& channel::serialize(std::istream& sin)
-   {
    return sin;
    }
 

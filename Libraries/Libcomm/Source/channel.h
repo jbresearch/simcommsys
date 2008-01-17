@@ -114,51 +114,75 @@ namespace libcomm {
 
 class channel {
 private:
-   // channel paremeters
-   double   Eb, No, snr_db;
-   // internal helper functions
+   /*! \name User-defined parameters */
+   double   snr_db;        //!< Equal to \f$ 10 \log_{10} \( \frac{E_b}{N_0} \) \f$
+   // @}
+   /*! \name Internal representation */
+   double   Eb;            //!< The signal energy for each bit duration, obtained from modulator
+   double   No;            //!< Half the noise energy/modulation symbol for a normalised signal
+   // @}
+private:
+   /*! \name Internal functions */
    void compute_noise();
+   // @}
 protected:
-   // objects used by the derived channel
+   /*! \name Derived channel representation */
    libbase::randgen  r;
-   // handle functions
+   // @}
+protected:
+   /*! \name Channel function overrides */
    virtual void compute_parameters(const double Eb, const double No) {};
-   // channel handle functions
    virtual sigspace corrupt(const sigspace& s) = 0;
    virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;
+   // @}
 public:
-   // object handling
-   channel();                             // constructor
-   virtual ~channel() {};                 // virtual destructor
-   virtual channel *clone() const = 0;    // cloning operation
-   virtual const char* name() const = 0;  // derived object's name
+   /*! \name Constructors / Destructors */
+   channel();
+   virtual ~channel() {};
+   // @}
+   /*! \name Serialization Support */
+   virtual channel *clone() const = 0;
+   virtual const char* name() const = 0;
+   // @}
 
    // reset function for random generator
    void seed(const libbase::int32u s);
 
-   // setting and getting overall channel SNR
+   /*! \name Channel parameter setters */
+   //! Set the bit-equivalent signal energy
    void set_eb(const double Eb);
+   //! Set the normalized noise energy
    void set_no(const double No);
+   //! Set the signal-to-noise ratio
    void set_snr(const double snr_db);
+   // @}
+   /*! \name Channel parameter getters */
+   //! Set the bit-equivalent signal energy
    double get_eb() const { return Eb; };
+   //! Set the normalized noise energy
    double get_no() const { return No; };
+   //! Set the signal-to-noise ratio
    double get_snr() const { return snr_db; };
+   // @}
 
-   // channel functions:
+   /*! \name Channel functions */
    virtual void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
    virtual void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
    virtual double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
    virtual double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
+   // @}
 
-   // description output
+   /*! \name Description & Serialization */
    virtual std::string description() const = 0;
-   // object serialization - saving
-   virtual std::ostream& serialize(std::ostream& sout) const;
-   friend std::ostream& operator<<(std::ostream& sout, const channel* x);
-   // object serialization - loading
-   virtual std::istream& serialize(std::istream& sin);
-   friend std::istream& operator>>(std::istream& sin, channel*& x);
+   std::ostream& serialize(std::ostream &sout) const { return sout; };
+   std::istream& serialize(std::istream &sin) { return sin; };
+   // @}
 };
+
+/*! \name Serialization */
+std::ostream& operator<<(std::ostream& sout, const channel* x);
+std::istream& operator>>(std::istream& sin, channel*& x);
+// @}
 
 }; // end namespace
 

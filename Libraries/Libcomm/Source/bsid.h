@@ -97,8 +97,10 @@ namespace libcomm {
 */
 
 class bsid : public channel {
+   /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new bsid; };
+   // @}
 private:
    /*! \name User-defined parameters */
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
@@ -169,6 +171,7 @@ public:
    void set_pd(const double Pd);
    //! Set the bit-insertion probability
    void set_pi(const double Pi);
+   // @}
 
    /*! \name Channel parameter getters */
    //! Get the current bit-substitution probability
@@ -177,18 +180,21 @@ public:
    double get_pd() const { return Pd; };
    //! Get the current bit-insertion probability
    double get_pi() const { return Pi; };
+   // @}
 
    /*! \name FBA decoder parameter getters */
    //! Get the current assumed limit for insertions between two time-steps
    int get_I() const { return I; };
    //! Get the current assumed maximum drift over a whole N-bit block
    int get_xmax() const { return xmax; };
+   // @}
 
    /*! \name Channel functions */
    void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
    void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
    double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
    double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
+   // @}
 
    /*! \name Description & Serialization */
    //! Object description output
@@ -197,6 +203,7 @@ public:
    std::ostream& serialize(std::ostream& sout) const;
    //! Object serialization input
    std::istream& serialize(std::istream& sin);
+   // @}
 };
 
 inline double bsid::pdf(const sigspace& tx, const sigspace& rx) const
