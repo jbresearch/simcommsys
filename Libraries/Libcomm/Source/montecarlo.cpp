@@ -52,11 +52,11 @@ void montecarlo::slave_getsnr(void)
    double x;
    if(!receive(x))
       exit(1);
-   system->set(x);
+   system->set_parameter(x);
 
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << "Seed: " << seed << "\n";
-   cerr << "Simulating system at Eb/No = " << system->get() << "\n";
+   cerr << "Simulating system at Eb/No = " << system->get_parameter() << "\n";
    }
 
 void montecarlo::slave_work(void)
@@ -282,7 +282,7 @@ void montecarlo::initnewslaves(std::string systemstring)
          continue;
       if(!call(s, "slave_getsnr"))
          continue;
-      if(!send(s, system->get()))
+      if(!send(s, system->get_parameter()))
          continue;
       trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
       }

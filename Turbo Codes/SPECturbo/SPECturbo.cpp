@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
       }
 
    // Work out at the SNR value required
-   system.set(SNR);
+   system.set_parameter(SNR);
    // Time the simulation
    estimator.timeout = simtime;
    libbase::vector<double> estimate, tolerance;

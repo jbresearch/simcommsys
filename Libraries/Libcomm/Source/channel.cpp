@@ -17,7 +17,7 @@ namespace libcomm {
 channel::channel()
    {
    channel::Eb = 1;
-   channel::set_snr(0);
+   channel::set_parameter(0);
    channel::seed(0);
    }
 
@@ -49,7 +49,7 @@ void channel::set_no(const double No)
    compute_noise();
    }
 
-void channel::set_snr(const double snr_db)
+void channel::set_parameter(const double snr_db)
    {
    channel::snr_db = snr_db;
    compute_noise();

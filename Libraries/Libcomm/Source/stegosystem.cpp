@@ -188,7 +188,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
    // set up channel
    laplacian chan;
    chan.set_eb(modem.bit_energy());
-   chan.set_snr(dSNR);
+   chan.set_parameter(dSNR);
    // loop for all blocks
    int k=0;
    for(int j=0; j<d.size(); j+=(tau-m))

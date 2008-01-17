@@ -442,7 +442,7 @@ void CSimulateCommsysView::ThreadProc()
    for(m_dSNR=m_dSNRmin; m_dSNR<=m_dSNRmax && !ThreadInterrupted(); m_dSNR+=m_dSNRstep)
       {
       tSimulation.start();
-      pDoc->GetChannel()->set_snr(m_dSNR);
+      pDoc->GetChannel()->set_parameter(m_dSNR);
       libbase::vector<double> est, tol;
       estimate(est, tol);
       tSimulation.stop();

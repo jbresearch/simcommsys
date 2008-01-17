@@ -39,6 +39,9 @@ namespace libcomm {
      This is essential so that the moments of the results are meaningful and can
      be used to determine convergence/tolerance. Any multiple-sampling should be
      done elsewhere (e.g. in montecarlo::slave_work).
+
+   \version 1.41 (17 Jan 2008)
+   - Renamed set/get to set_parameter/get_parameter
 */
 
 class experiment {
@@ -49,8 +52,8 @@ public:
 
    virtual int count() const = 0;
    virtual void seed(int s) = 0;
-   virtual void set(double x) = 0;
-   virtual double get() = 0;
+   virtual void set_parameter(double x) = 0;
+   virtual double get_parameter() = 0;
    /*!
    \brief Perform the experiment and return a single sample
    \param[out] result   Vector containing the set of results for the experiment

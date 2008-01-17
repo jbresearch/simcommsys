@@ -110,6 +110,11 @@ namespace libcomm {
     - receive(tx,rx) is for determining the likelihood of a particular transmitted symbol;
       in this case the argument representing the transmitted symbol is a signal-space point,
       while the likelihood is passed back as a return value.
+
+   \version 1.61 (17 Jan 2008)
+   - Renamed set_snr/get_snr to set_parameter/get_parameter.
+   - Hid get_eb/get_no in preparation for abstracting the channel class from its dependance
+     on the signal-space representation.
 */
 
 class channel {
@@ -154,15 +159,15 @@ public:
    //! Set the normalized noise energy
    void set_no(const double No);
    //! Set the signal-to-noise ratio
-   void set_snr(const double snr_db);
+   void set_parameter(const double snr_db);
    // @}
    /*! \name Channel parameter getters */
    //! Set the bit-equivalent signal energy
-   double get_eb() const { return Eb; };
+   //double get_eb() const { return Eb; };
    //! Set the normalized noise energy
-   double get_no() const { return No; };
+   //double get_no() const { return No; };
    //! Set the signal-to-noise ratio
-   double get_snr() const { return snr_db; };
+   double get_parameter() const { return snr_db; };
    // @}
 
    /*! \name Channel functions */

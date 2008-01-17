@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
    // Work out the following for every SNR value required
    for(double SNR = SNRmin; SNR <= SNRmax; SNR += SNRstep)
       {
-      system.set(SNR);
+      system.set_parameter(SNR);
 
       cerr << "Simulating system at Eb/No = " << SNR << "\n";
       libbase::vector<double> estimate, tolerance;

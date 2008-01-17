@@ -142,8 +142,8 @@ public:
 
    int count() const { return 3*iter; };
    void seed(int s);
-   void set(double x) { chan->set_snr(x); };
-   double get() { return chan->get_snr(); };
+   void set_parameter(double x) { chan->set_parameter(x); };
+   double get_parameter() { return chan->get_parameter(); };
    void sample(libbase::vector<double>& result);
 
    // component object getters

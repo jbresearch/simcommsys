@@ -31,7 +31,7 @@ channel *create_channel(int N, double snr)
    {
    channel *chan = new libcomm::bsid(N);
    chan->seed(1);
-   chan->set_snr(snr);
+   chan->set_parameter(snr);
    return chan;
    }
 
