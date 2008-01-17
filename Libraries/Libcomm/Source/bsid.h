@@ -18,6 +18,24 @@ namespace libcomm {
    - $Date$
    - $Author$
 
+   The channel model implemented is described by the following state diagram:
+   \dot
+   digraph channel {
+      // state definitions
+      this [ shape=circle, color=gray, style=filled, label="t(i)" ];
+      next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
+      // path definitions
+      this -> Insert [ label="Pi" ];
+      Insert -> this;
+      this -> Delete [ label="Pd" ];
+      Delete -> next;
+      this -> Transmit [ label="1-Pi-Pd" ];
+      Transmit -> next [ label="1-Ps" ];
+      Transmit -> Substitute [ label="Ps" ];
+      Substitute -> next;
+   }
+   \enddot
+
    \version 1.00 (12-16 Oct 2007)
    - Initial version; implementation of a binary substitution, insertion, and deletion channel.
    - \b Note: this class is still unfinished, and only implements the BSC channel right now

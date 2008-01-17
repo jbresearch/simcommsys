@@ -92,7 +92,7 @@ void channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector
           a particular transmitted sequence
    \param[in]  tx       Transmitted sequence being considered
    \param[in]  rx       Received sequence of modulation symbols
-   \retrun              Likelihood \f$ P(rx|tx) \f$
+   \return              Likelihood \f$ P(rx|tx) \f$
 */
 double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const
    {
@@ -112,7 +112,7 @@ double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vect
           a particular transmitted symbol
    \param[in]  tx       Transmitted symbol being considered
    \param[in]  rx       Received sequence of modulation symbols
-   \retrun              Likelihood \f$ P(rx|tx) \f$
+   \return              Likelihood \f$ P(rx|tx) \f$
 */
 double channel::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
    {

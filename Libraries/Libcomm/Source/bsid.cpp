@@ -155,25 +155,7 @@ sigspace bsid::corrupt(const sigspace& s)
 // Channel functions
 
 /*!
-   \copydoc channel::transmit(tx,rx)
-
-   The channel model implemented is described by the following state diagram:
-   \dot
-   digraph channel {
-      // state definitions
-      this [ shape=circle, color=gray, style=filled, label="t(i)" ];
-      next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
-      // path definitions
-      this -> Insert [ label="Pi" ];
-      Insert -> this;
-      this -> Delete [ label="Pd" ];
-      Delete -> next;
-      this -> Transmit [ label="1-Pi-Pd" ];
-      Transmit -> next [ label="1-Ps" ];
-      Transmit -> Substitute [ label="Ps" ];
-      Substitute -> next;
-   }
-   \enddot
+   \copydoc channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
 
    \note We have initially no idea how long the received sequence will be, so we first determine
          the state sequence at every timestep keeping track of
