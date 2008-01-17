@@ -115,7 +115,7 @@ namespace libcomm {
 class channel {
 private:
    /*! \name User-defined parameters */
-   double   snr_db;        //!< Equal to \f$ 10 \log_{10} \( \frac{E_b}{N_0} \) \f$
+   double   snr_db;        //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
    // @}
    /*! \name Internal representation */
    double   Eb;            //!< The signal energy for each bit duration, obtained from modulator
