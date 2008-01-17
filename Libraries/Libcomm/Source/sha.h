@@ -19,18 +19,18 @@ namespace libcomm {
    - $Author$
 
    \version 1.00 (19 Sep 2002)
-  initial version - class that implements Secure Hash Algorithm, as specified in
-  Schneier, "Applied Cryptography", 1996, pp.442-445.
+   initial version - class that implements Secure Hash Algorithm, as specified in
+   Schneier, "Applied Cryptography", 1996, pp.442-445.
 
    \version 1.01 (20 Sep 2002)
-  added comparison functions; added conversion to/from strings.
+   added comparison functions; added conversion to/from strings.
 
    \version 1.02 (03 Jul 2003)
-  cleaned up nonlinear function implementation - now everything is done in function
-  'f', instead of calling one of four functions from there.
+   cleaned up nonlinear function implementation - now everything is done in function
+   'f', instead of calling one of four functions from there.
 
    \version 1.03 (04 Jul 2003)
-  fixed bug in string() operator.
+   fixed bug in string() operator.
 
    \version 1.04 (5 Jul 2003)
    - fixed an obscure bug in the conversion from (signed) char to int32u
@@ -53,13 +53,13 @@ class sha {
 #endif
 public:
    // basic constructor/destructor
-        sha();
-        virtual ~sha();
+   sha();
+   virtual ~sha();
    // conversion to/from strings
    sha(const std::string& s);
    operator std::string() const;
    // public interface for computing digest
-        void reset();
+   void reset();
    void process(const libbase::vector<libbase::int32u>& M);
    void process(const char *buf, const int size);
    void process(std::istream& sin);
@@ -70,9 +70,9 @@ public:
    bool operator!=(const sha& x) const;
 protected:
    // nonlinear functions
-        static libbase::int32u f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z);
+   static libbase::int32u f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z);
    // circular shift
-        static libbase::int32u cshift(const libbase::int32u x, const int s);
+   static libbase::int32u cshift(const libbase::int32u x, const int s);
    // message expander
    static void expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libbase::int32u>& W);
    // stream input/output
