@@ -57,6 +57,8 @@ void channel::set_parameter(const double snr_db)
 
    \note It is possible that the \c tx and \c rx parameters actually point to the same
          vector.
+
+   \callergraph
 */
 void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
    {
@@ -73,6 +75,8 @@ void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigs
    \param[in]  tx       Set of possible transmitted symbols
    \param[in]  rx       Received sequence of modulation symbols
    \param[out] ptable   Likelihoods corresponding to each possible transmitted symbol
+
+   \callergraph
 */
 void channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
@@ -93,6 +97,8 @@ void channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector
    \param[in]  tx       Transmitted sequence being considered
    \param[in]  rx       Received sequence of modulation symbols
    \return              Likelihood \f$ P(rx|tx) \f$
+
+   \callergraph
 */
 double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const
    {
@@ -113,6 +119,8 @@ double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vect
    \param[in]  tx       Transmitted symbol being considered
    \param[in]  rx       Received sequence of modulation symbols
    \return              Likelihood \f$ P(rx|tx) \f$
+
+   \callergraph
 */
 double channel::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
    {

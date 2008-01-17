@@ -124,8 +124,7 @@ private:
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
-   int      N;          //!< Block size in bits over which we want to synchronize;
-                        //!< typically this is the size of the outer codeword.
+   int      N;          //!< Block size in bits over which we want to synchronize
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with SNR
    bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with SNR
    bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with SNR
@@ -133,20 +132,20 @@ private:
    /*! \name Pre-computed parameters */
    //! Assumed limit for insertions between two time-steps
    /*!
-   \f[ I = \left\lceil \frac{ \log{P_r} - \log N }{ \log p } \right\rceil - 1 \f]
-   where \f$ P_r \f$ is an arbitrary probability of having a block of size \f$ N \f$
-   with at least one event of more than \f$ I \f$ insertions between successive
-   time-steps. In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
-   \note The smallest allowed value is \f$ I = 1 \f$
+      \f[ I = \left\lceil \frac{ \log{P_r} - \log N }{ \log p } \right\rceil - 1 \f]
+      where \f$ P_r \f$ is an arbitrary probability of having a block of size \f$ N \f$
+      with at least one event of more than \f$ I \f$ insertions between successive
+      time-steps. In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+      \note The smallest allowed value is \f$ I = 1 \f$
    */
    int      I;
    //! Assumed maximum drift over a whole \c N -bit block
    /*!
-   \f[ x_{max} = 5 \sqrt{N p (1-p)} \f]
-   where \f$ p = P_i = P_d \f$. This is based directly on Davey's suggestion that
-   \f$ x_{max} \f$ should be "several times larger" than the standard deviation of
-   the synchronization drift over one block, given by \f$ \sigma = \sqrt{N p (1-p)} \f$
-   \note The smallest allowed value is \f$ x_{max} = I \f$
+      \f[ x_{max} = 5 \sqrt{N p (1-p)} \f]
+      where \f$ p = P_i = P_d \f$. This is based directly on Davey's suggestion that
+      \f$ x_{max} \f$ should be "several times larger" than the standard deviation of
+      the synchronization drift over one block, given by \f$ \sigma = \sqrt{N p (1-p)} \f$
+      \note The smallest allowed value is \f$ x_{max} = I \f$
    */
    int      xmax;
    //! Receiver coefficient \f$ a_1 = 1-P_i-P_d \f$
@@ -155,7 +154,7 @@ private:
    double   a2;
    //! Receiver coefficient set
    /*!
-   \f[ a_3(m) = \frac{1}{2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+      \f[ a_3(m) = \frac{1}{2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
    */
    libbase::vector<double> a3;
    // @}
