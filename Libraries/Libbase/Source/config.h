@@ -118,7 +118,7 @@
    - updated pow(double,int) upgrade to pow(double,double) to be active only in gcc,
     as .NET2005 already has this defined.
    - added typedef for ssize_t
-   - TODO: change fixed integer types to use #include <inttypes.h>
+   - TODO: change fixed integer types to use "inttypes.h"
 
    \version 3.23 (17 Jul 2007)
    - moved pow(double,int) upgrade to pow(double,double) to be before pow(int,int)

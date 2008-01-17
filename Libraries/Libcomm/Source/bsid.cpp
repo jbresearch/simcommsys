@@ -61,11 +61,6 @@ void bsid::precompute()
 
 /*!
    \brief Principal constructor
-   \param   N        Block size in bits over which we need to synchronize; typically this is
-                     the size of the outer codeword.
-   \param   varyPs   Flag to indicate that \f$ P_s \f$ should change with SNR
-   \param   varyPd   Flag to indicate that \f$ P_d \f$ should change with SNR
-   \param   varyPi   Flag to indicate that \f$ P_i \f$ should change with SNR
 
    \sa init()
 */
@@ -88,10 +83,6 @@ void bsid::set_ps(const double Ps)
    {
    assert(Ps >=0 && Ps <= 0.5);
    bsid::Ps = Ps;
-   //libbase::secant Qinv(libbase::Q);
-   //const double x = Qinv(Ps);
-   //const double No = 1/(get_eb()*x*x);
-   //set_no(No);
    }
 
 void bsid::set_pd(const double Pd)
@@ -164,9 +155,7 @@ sigspace bsid::corrupt(const sigspace& s)
 // Channel functions
 
 /*!
-   \brief Pass a sequence of modulation symbols through the channel
-   \param[in]  tx  Transmitted sequence of modulation symbols
-   \param[out] rx  Received sequence of modulation symbols
+   \copydoc channel::transmit(tx,rx)
 
    The channel model implemented is described by the following state diagram:
    \dot
@@ -191,11 +180,9 @@ sigspace bsid::corrupt(const sigspace& s)
             - the number of insertions \e before given position, and
             - whether the given position is transmitted or deleted.
 
-   \note It is possible that the \c tx and \c rx parameters actually point to the same
-         vector. Unlike substitution channels, where this does not cause any problems, we
-         here have to make sure that we don't corrupt the vector we're reading from;
-         therefore, the result is first created as a new vector and only copied over at
-         the end.
+   \note We have to make sure that we don't corrupt the vector we're reading from (in
+         the case where tx and rx are the same vector); therefore, the result is first created
+         as a new vector and only copied over at the end.
 
    \sa corrupt()
 */
@@ -301,13 +288,6 @@ inline void myfba::attach(const bsid* channel)
 
 /********************************* END FBA *********************************/
 
-/*!
-   \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
-          corresponding to one transmission step
-   \param[in]  tx       Set of possible transmitted symbols
-   \param[in]  rx       Received sequence of modulation symbols
-   \param[out] ptable   Likelihoods corresponding to each possible transmitted symbol
-*/
 void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes

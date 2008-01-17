@@ -50,6 +50,14 @@ void channel::set_parameter(const double snr_db)
 
 // channel functions
 
+/*!
+   \brief Pass a sequence of modulation symbols through the channel
+   \param[in]  tx  Transmitted sequence of modulation symbols
+   \param[out] rx  Received sequence of modulation symbols
+
+   \note It is possible that the \c tx and \c rx parameters actually point to the same
+         vector.
+*/
 void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
    {
    // Initialize results vector
@@ -59,6 +67,13 @@ void channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigs
       rx(i) = corrupt(tx(i));
    }
 
+/*!
+   \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
+          corresponding to one transmission step
+   \param[in]  tx       Set of possible transmitted symbols
+   \param[in]  rx       Received sequence of modulation symbols
+   \param[out] ptable   Likelihoods corresponding to each possible transmitted symbol
+*/
 void channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
@@ -72,6 +87,13 @@ void channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector
          ptable(t,x) = pdf(tx(x), rx(t));
    }
 
+/*!
+   \brief Determine the likelihood of a sequence of received modulation symbols, given
+          a particular transmitted sequence
+   \param[in]  tx       Transmitted sequence being considered
+   \param[in]  rx       Received sequence of modulation symbols
+   \retrun              Likelihood \f$ P(rx|tx) \f$
+*/
 double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const
    {
    // Compute sizes
@@ -85,6 +107,13 @@ double channel::receive(const libbase::vector<sigspace>& tx, const libbase::vect
    return p;
    }
 
+/*!
+   \brief Determine the likelihood of a sequence of received modulation symbols, given
+          a particular transmitted symbol
+   \param[in]  tx       Transmitted symbol being considered
+   \param[in]  rx       Received sequence of modulation symbols
+   \retrun              Likelihood \f$ P(rx|tx) \f$
+*/
 double channel::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
    {
    // This implementation only works for substitution channels

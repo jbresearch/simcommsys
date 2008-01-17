@@ -106,7 +106,8 @@ private:
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
-   int      N;          //!< Block size in bits over which we want to synchronize
+   int      N;          //!< Block size in bits over which we want to synchronize;
+                        //!< typically this is the size of the outer codeword.
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with SNR
    bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with SNR
    bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with SNR
