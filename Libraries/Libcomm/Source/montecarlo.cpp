@@ -15,6 +15,7 @@
 #include "truerand.h"
 #include <iostream>
 #include <sstream>
+#include <limits.h>
 
 #ifdef min
 #  undef min
