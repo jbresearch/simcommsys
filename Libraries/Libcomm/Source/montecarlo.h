@@ -133,6 +133,11 @@ namespace libcomm {
      when doing the real-time display. This is more indicative of the performance
      of the system at this point.
    - Modified slave_work() to compute its own result set and display progress
+
+   \version 1.44 (21 Jan 2008)
+   - Modified so that no-error-event is held as DBL_MAX accuracy, rather than zero;
+     this makes it easier to distinguish from a genuine complete convergence, where
+     the simulator ought to stop earlier.
 */
 
 class montecarlo : public libbase::masterslave {

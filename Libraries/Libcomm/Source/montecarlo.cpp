@@ -236,8 +236,10 @@ void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, v
    \param[in,out] tolerance   Corresponding result accuracy to be updated
    \param[in]     sum         Sum of results
    \param[in]     sumsq       Sum of squares of results
-   \return  Accuracy reached (worst accuracy over result set); zero is a special value,
-            indicating that accuracy cannot be computed yet (there has been no error event)
+   \return  Accuracy reached (worst accuracy over result set)
+   
+   \note If the accuracy cannot be computed yet (there has been no error event), then the
+         accuracy reached takes the special value DBL_MAX.
 */
 double montecarlo::updateresults(vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq) const
    {
@@ -257,8 +259,8 @@ double montecarlo::updateresults(vector<double>& result, vector<double>& toleran
       if(mean > 0)
          tolerance(i) = cfactor*sd/mean;
       else
-         tolerance(i) = 0;
-      if(tolerance(i) > acc || tolerance(i) == 0)
+         tolerance(i) = DBL_MAX;
+      if(tolerance(i) > acc)
          acc = tolerance(i);
       }
    return acc;
@@ -413,7 +415,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          {
          double acc = updateresults(result, tolerance, sum, sumsq);
          // check if we have reached the required accuracy
-         if(acc <= accuracy && acc != 0)
+         if(acc <= accuracy)
             accuracy_reached = true;
          // print something to inform the user of our progress
          display(samplecount, (acc<1 ? 100*acc : 99), result.min());
