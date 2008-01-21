@@ -159,7 +159,9 @@ sigspace bsid::corrupt(const sigspace& s)
 
    The channel model implemented is described by the following state diagram:
    \dot
-   digraph channel {
+   digraph bsidstates {
+      // Make figure left-to-right
+      rankdir = LR;
       // state definitions
       this [ shape=circle, color=gray, style=filled, label="t(i)" ];
       next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
