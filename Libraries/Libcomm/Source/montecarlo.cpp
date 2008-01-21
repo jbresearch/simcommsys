@@ -15,7 +15,7 @@
 #include "truerand.h"
 #include <iostream>
 #include <sstream>
-#include <limits.h>
+#include <limits>
 
 #ifdef min
 #  undef min
@@ -240,7 +240,7 @@ void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, v
    \return  Accuracy reached (worst accuracy over result set)
    
    \note If the accuracy cannot be computed yet (there has been no error event), then the
-         accuracy reached takes the special value DBL_MAX.
+         accuracy reached takes the special largest-double value.
 */
 double montecarlo::updateresults(vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq) const
    {
@@ -260,7 +260,7 @@ double montecarlo::updateresults(vector<double>& result, vector<double>& toleran
       if(mean > 0)
          tolerance(i) = cfactor*sd/mean;
       else
-         tolerance(i) = DBL_MAX;
+         tolerance(i) = std::numeric_limits<double>::max();
       if(tolerance(i) > acc)
          acc = tolerance(i);
       }
