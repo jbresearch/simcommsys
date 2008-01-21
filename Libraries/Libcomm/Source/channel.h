@@ -118,6 +118,8 @@ namespace libcomm {
 
    \version 1.62 (17 Jan 2008)
    - Made serialization functions virtual again (fixed bug introduced in rev. 461
+   - Made get_eb/get_no available again, to allow their use in watermarkcode::demodulate();
+     TODO: this has to change when abstracting the channel class.
 */
 
 class channel {
@@ -181,9 +183,9 @@ public:
    //! Set the signal-to-noise ratio
    void set_parameter(const double snr_db);
    //! Set the bit-equivalent signal energy
-   //double get_eb() const { return Eb; };
+   double get_eb() const { return Eb; };
    //! Set the normalized noise energy
-   //double get_no() const { return No; };
+   double get_no() const { return No; };
    //! Set the signal-to-noise ratio
    double get_parameter() const { return snr_db; };
    // @}

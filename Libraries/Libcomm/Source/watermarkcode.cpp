@@ -173,9 +173,9 @@ template <class real> void watermarkcode<real>::demodulate(const channel& chan, 
    assert(N > 0);
    // Set channel parameters used in FBA same as one being simulated
    // TODO: replace by new interface
-   //mychan.set_eb(chan.get_eb());
-   //mychan.set_no(chan.get_no());
-   mychan.set_parameter(chan.get_parameter());
+   mychan.set_eb(chan.get_eb());
+   mychan.set_no(chan.get_no());
+   //mychan.set_parameter(chan.get_parameter());
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
    // Initialize & perform forward-backward algorithm
