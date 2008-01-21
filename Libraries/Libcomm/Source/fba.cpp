@@ -134,7 +134,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
    // we also know x[tau] = r.size()-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
    mB = real(0);
-   assert(abs(r.size()-tau) <= xmax);
+   assertalways(abs(r.size()-tau) <= xmax);
    B(tau,r.size()-tau) = real(1);
    // compute remaining matrix values
    for(int i=0, j=tau-1; j>=0; i++, j--)
