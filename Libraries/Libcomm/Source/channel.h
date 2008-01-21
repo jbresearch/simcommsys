@@ -115,6 +115,9 @@ namespace libcomm {
    - Renamed set_snr/get_snr to set_parameter/get_parameter.
    - Hid get_eb/get_no in preparation for abstracting the channel class from its dependance
      on the signal-space representation.
+
+   \version 1.62 (17 Jan 2008)
+   - Made serialization functions virtual again (fixed bug introduced in rev. 461
 */
 
 class channel {
@@ -194,8 +197,8 @@ public:
 
    /*! \name Description & Serialization */
    virtual std::string description() const = 0;
-   std::ostream& serialize(std::ostream &sout) const { return sout; };
-   std::istream& serialize(std::istream &sin) { return sin; };
+   virtual std::ostream& serialize(std::ostream &sout) const { return sout; };
+   virtual std::istream& serialize(std::istream &sin) { return sin; };
    // @}
 };
 
