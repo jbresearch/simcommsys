@@ -9,6 +9,7 @@
 #include "channel.h"
 #include "awgn.h"
 #include "laplacian.h"
+#include "lapgauss.h"
 #include "bsid.h"
 
 // Modulators
@@ -94,11 +95,15 @@ namespace libcomm {
 
    \version 2.23 (3 Jan 2008)
    - added qam
+
+   \version 2.24 (21 Jan 2008)
+   - Added bsid again (since this is no longer a base class of anything)
+   - Added lapgauss channel
 */
 
 // Serialization support
 class serializer_libcomm : private
-   awgn, laplacian,
+   awgn, laplacian, lapgauss, bsid,
    qam, watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,

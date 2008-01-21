@@ -1,5 +1,5 @@
-#ifndef __awgn_h
-#define __awgn_h
+#ifndef __lapgauss_h
+#define __lapgauss_h
 
 #include "config.h"
 #include "channel.h"
@@ -19,7 +19,7 @@ namespace libcomm {
    - $Author$
 
    \version 1.00 (10 Aug 2006)
-  Initial version - implementation of the additive Laplacian-Gaussian channel model.
+   Initial version - implementation of the additive Laplacian-Gaussian channel model.
 
    \version 1.10 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
@@ -29,10 +29,13 @@ namespace libcomm {
    - TODO: this class is still unfinished, and only implements the plain Gaussian channel right now
 
    \version 1.21 (17 Oct 2007)
-  changed class to conform with channel 1.52.
+   changed class to conform with channel 1.52.
 
    \version 1.22 (29 Oct 2007)
    - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+   \version 1.23 (21 Jan 2008)
+   - Fixed include-once definitions
 */
 
 class lapgauss : public channel {
