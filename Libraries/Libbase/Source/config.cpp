@@ -220,6 +220,9 @@ std::string pacifier(const std::string& description, int complete, int total)
       return "";
    // create the required string
    std::ostringstream sout;
+   // if this is the first time we're printing something, start on a new line
+   if(characters == 0)
+      sout << '\n';
    sout << description << ": completed " << value << "%, elapsed " << t
         << " of estimated " << timer::format(estimate) << '\r';
    // update tracker
