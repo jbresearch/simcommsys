@@ -117,22 +117,29 @@ namespace libcomm {
 */
 
 class commsys : public experiment {
+   /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new commsys; };
+   // @}
 protected:
-   // bound objects:
+   /*! \name Bound objects */
+   //! Flag to indicate whether the objects should be released on destruction
    bool        internallyallocated;
+   //! Random generator used to create the source data sequence
    libbase::randgen     *src;
-   codec       *cdc;
-   modulator   *modem;
-   puncture    *punc;
-   channel     *chan;
-   // working variables (data heap)
+   codec       *cdc;    //!< Error-control codec
+   modulator   *modem;  //!< Modulation scheme
+   puncture    *punc;   //!< Puncturing (operates on signal-space symbols)
+   channel     *chan;   //!< Channel model
+   // @}
+   /*! \name Working variables */
    int  tau, m, N, K, k, iter;
    libbase::vector<int> source, encoded, decoded;
    libbase::vector<sigspace>  signal1, signal2;
    libbase::matrix<double> ptable1, ptable2;
+   // @}
 protected:
+   /*! \name Internal functions */
    void createsource();
    void transmitandreceive();
    int countbiterrors() const;
@@ -141,27 +148,41 @@ protected:
    void init();
    void clear();
    void free();
+   // @}
 public:
+   /*! \name Constructors / Destructors */
    commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan);
    commsys(const commsys& c);
    commsys() { clear(); };
    ~commsys() { free(); };
+   // @}
 
-   commsys *clone() const { return new commsys(*this); };      // cloning operation
+   //*! \name Serialization Support */
+   commsys *clone() const { return new commsys(*this); };
    const char* name() const { return shelper.name(); };
+   // @}
 
-   int count() const { return 3*iter; };
+   // Experiment parameter handling
    void seed(int s);
    void set_parameter(double x) { chan->set_parameter(x); };
    double get_parameter() { return chan->get_parameter(); };
+
+   // Experiment handling
    void sample(libbase::vector<double>& result);
+   int count() const { return 3*iter; };
 
-   // component object getters
+   /*! \name Component object handles */
+   //! Get error-control codec
    const codec     *getcodec() const { return cdc; };
+   //! Get modulation scheme
    const modulator *getmodem() const { return modem; };
+   //! Get puncturing scheme
    const puncture  *getpunc() const { return punc; };
+   //! Get channel model
    const channel   *getchan() const { return chan; };
+   // @}
 
+   // Description & Serialization
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
