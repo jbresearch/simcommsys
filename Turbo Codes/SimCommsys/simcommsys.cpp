@@ -52,6 +52,8 @@
    \version 1.26 (22 Jan 2008)
    - modified createsystem() to return a pointer to a commsys object, created
      on the heap, rather than a copy created on the stack.
+   - modified createsystem() to use commsys serialization instead of manually
+     creating the components.
 */
 
 using std::cout;
@@ -70,19 +72,9 @@ public:
 libcomm::commsys *createsystem(const char *filename)
    {
    std::ifstream file(filename);
-   // Channel Model
-   libcomm::channel *chan;
-   file >> chan;
-   // Modulation scheme
-   libcomm::modulator *modem;
-   file >> modem;
-   // Channel Codec
-   libcomm::codec *codec;
-   file >> codec;
-   // Source Generator
-   libbase::randgen *src = new libbase::randgen;
-   // The complete communication system
-   return new libcomm::commsys(src, codec, modem, NULL, chan);
+   libcomm::commsys *system = new libcomm::commsys;
+   system->serialize(file);
+   return system;
    }
 
 int main(int argc, char *argv[])

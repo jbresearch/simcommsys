@@ -112,6 +112,8 @@ namespace libcomm {
       - we do not wish to break the format unnecessarily
       - support for puncturing needs to change anyway, from its current operation
         in signal-space to a more general mapper layer
+   - Made default constructor public, to allow direct serialization, rather than
+     just through 'experiment'.
 */
 
 class commsys : public experiment {
@@ -139,10 +141,10 @@ protected:
    void init();
    void clear();
    void free();
-   commsys() { clear(); };
 public:
    commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan);
    commsys(const commsys& c);
+   commsys() { clear(); };
    ~commsys() { free(); };
 
    commsys *clone() const { return new commsys(*this); };      // cloning operation
