@@ -26,7 +26,7 @@ int serializer::count = 0;
 void* serializer::call(const std::string& base, const std::string& derived)
    {
    fptr func = (*cmap)[base+":"+derived];
-   trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << ".\n";
+   //trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << ".\n";
    if(func == NULL)
       return NULL;
    return (*func)();
@@ -38,7 +38,7 @@ serializer::serializer(const std::string& base, const std::string& derived, fptr
    {
    if(cmap == NULL)
       cmap = new std::map<std::string,fptr>;
-   trace << "DEBUG (serializer): new map entry [" << count << "] for (" << base+":"+derived << ") = " << (void *)func << ".\n";
+   //trace << "DEBUG (serializer): new map entry [" << count << "] for (" << base+":"+derived << ") = " << (void *)func << ".\n";
    (*cmap)[base+":"+derived] = func;
    classname = derived;
    count++;
