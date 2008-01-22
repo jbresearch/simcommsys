@@ -53,7 +53,7 @@ class randgen {
    inline void advance(void);
    bool ready;
    double next_gval;
-#ifdef DEBUG
+#ifndef NDEBUG
    int32u       counter;
 #endif
 public:
@@ -73,7 +73,7 @@ inline void randgen::advance()
    mj = ma[next] - ma[nextp];
    if(mj < 0) mj += mbig;
    ma[next] = mj;
-#ifdef DEBUG
+#ifndef NDEBUG
    counter++;
    if(counter == 0)
       trace << "DEBUG: randgen (" << this << ") counter looped ***.\n" << std::flush;

@@ -10,10 +10,6 @@
 #include "turbo.h"
 #include <sstream>
 
-#ifdef _DEBUG
-#  define DEBUG
-#endif
-
 namespace libcomm {
 
 using std::cerr;
@@ -207,7 +203,7 @@ template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matri
          if(ri(t, i) > ri(t, decoded(t)))
             decoded(t) = i;
       }
-#ifdef DEBUG
+#ifndef NDEBUG
    static int iter=0;
    const int ones = decoded.sum();
    trace << "DEBUG (turbo): iter=" << iter \

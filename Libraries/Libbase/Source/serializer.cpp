@@ -10,8 +10,6 @@
 #include "serializer.h"
 #include <iostream>
 
-//#define DEBUG
-
 namespace libbase {
 
 using std::hex;

@@ -18,7 +18,7 @@ const int32s randgen::mseed = 161803398L;
 
 randgen::randgen(int32u s)
    {
-#ifdef DEBUG
+#ifndef NDEBUG
    counter = 0;
    trace << "DEBUG: randgen (" << this << ") created.\n" << flush;
 #endif
@@ -27,7 +27,7 @@ randgen::randgen(int32u s)
 
 randgen::~randgen()
    {
-#ifdef DEBUG
+#ifndef NDEBUG
    trace << "DEBUG: randgen (" << this << ") destroyed after " << counter << " steps.\n" << flush;
 #endif
    }
@@ -53,7 +53,7 @@ void randgen::seed(int32u s)
          ma[i] -= ma[1+(i+30)%55];
          if(ma[i] < 0) ma[i] += mbig;
          }
-#ifdef DEBUG
+#ifndef NDEBUG
    if(counter > 0)
        trace << "DEBUG: randgen (" << this << ") reseeded after " << counter << " steps.\n" << flush;
    counter = 0;
