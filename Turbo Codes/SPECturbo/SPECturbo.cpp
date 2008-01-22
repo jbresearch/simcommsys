@@ -81,9 +81,13 @@
    - added VERSION constant
    - modified turbo codec creation parameters (removed simile flag)
    - added consideration of SER
+
+   \version 2.63 (22 Jan 2008)
+   - changed createsystem to create the commsys object on the heap instead of
+     the stack.
 */
 
-const char *VERSION = "2.62";
+const char *VERSION = "2.63";
 
 using std::cout;
 using std::setprecision;
@@ -95,7 +99,7 @@ public:
    double   timeout;
 };
 
-libcomm::commsys createsystem()
+libcomm::commsys *createsystem()
    {
    // Encoder (from generator matrix)
    const int k=1, n=2, m=2;
@@ -121,7 +125,7 @@ libcomm::commsys createsystem()
    // Source Generator
    libbase::randgen *src = new libbase::randgen;
    // The complete communication system
-   return libcomm::commsys(src, codec, modem, punc, chan);
+   return new libcomm::commsys(src, codec, modem, punc, chan);
    }
 
 int main(int argc, char *argv[])
@@ -137,8 +141,8 @@ int main(int argc, char *argv[])
    const double confidence = 0.999;
    const double accuracy = 0.001;
    // Set up the estimator
-   libcomm::commsys system = createsystem();
-   estimator.initialise(&system);
+   libcomm::commsys *system = createsystem();
+   estimator.initialise(system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
 
@@ -148,7 +152,7 @@ int main(int argc, char *argv[])
       cout << "\n";
       cout << "System Used:\n";
       cout << "~~~~~~~~~~~~\n";
-      cout << system.description() << "\n";
+      cout << system->description() << "\n";
       cout << "Tolerance: " << 100*accuracy << "%\n";
       cout << "Confidence: " << 100*confidence << "%\n";
       cout << "Date: " << libbase::timer::date() << "\n";
@@ -157,7 +161,7 @@ int main(int argc, char *argv[])
       }
 
    // Work out at the SNR value required
-   system.set_parameter(SNR);
+   system->set_parameter(SNR);
    // Time the simulation
    estimator.timeout = simtime;
    libbase::vector<double> estimate, tolerance;
@@ -181,7 +185,7 @@ int main(int argc, char *argv[])
       cout << "\n";
       cout << "Results: (BER, SER, FER)\n";
       cout << "~~~~~~~~~~~~~~~~~~~~~~~~\n";
-      for(int j=0; j<system.count(); j+=3)
+      for(int j=0; j<system->count(); j+=3)
          {
          cout << setprecision(6) << estimate(j) << " (";
          cout << setprecision(3) << 100*(estimate(j)-std[j])/std[j] << "%)\t";
