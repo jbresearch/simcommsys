@@ -68,8 +68,8 @@ public:
 
    /*! \name Experiment handling */
    /*!
-   \brief Perform the experiment and return a single sample
-   \param[out] result   Vector containing the set of results for the experiment
+      \brief Perform the experiment and return a single sample
+      \param[out] result   Vector containing the set of results for the experiment
    */
    virtual void sample(libbase::vector<double>& result) = 0;
    //! Get the number of elements making up the sample
@@ -77,8 +77,11 @@ public:
    // @}
 
    /*! \name Description & Serialization */
+   //! Object description output
    virtual std::string description() const = 0;
+   //! Object serialization ouput
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
+   //! Object serialization input
    virtual std::istream& serialize(std::istream& sin) = 0;
    // @}
 };

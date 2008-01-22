@@ -82,40 +82,85 @@ namespace libcomm {
 
    \version 1.51 (30 Nov 2007)
    - added method to get modulation rate.
+
+   \version 1.52 (22 Jan 2008)
+   - Removed 'friend' declaration of stream operators.
 */
 
 class modulator {
 public:
-   virtual ~modulator() {};               // virtual destructor
-   virtual modulator *clone() const = 0;        // cloning operation
-   virtual const char* name() const = 0;  // derived object's name
+   /*! \name Constructors / Destructors */
+   virtual ~modulator() {};
+   // @}
+   /*! \name Serialization Support */
+   virtual modulator *clone() const = 0;
+   virtual const char* name() const = 0;
+   // @}
 
-   // modulation/demodulation - atomic operations
+   /*! \name Atomic modem operations */
+   /*!
+      \brief Modulate a single time-step
+      \param   index Index into the symbol alphabet
+      \return  Symbol corresponding to the given index
+   */
    virtual const sigspace modulate(const int index) const = 0;
+   /*!
+      \brief Demodulate a single time-step
+      \param   signal   Received signal
+      \return  Index corresponding symbol that is closest to the received signal
+   */
    virtual const int demodulate(const sigspace& signal) const = 0;
+   //! \copydoc modulate(index)
    const sigspace operator[](const int index) const { return modulate(index); };
+   //! \copydoc demodulate(signal)
    const int operator[](const sigspace& signal) const { return demodulate(signal); };
+   // @}
 
-   // modulation/demodulation - vector operations
-   //    N - the number of possible values of each encoded element
+   /*! \name Vector modem operations */
+   /*!
+      \brief Modulate a sequence of time-steps
+      \param[in]  N        The number of possible values of each encoded element
+      \param[in]  encoded  Sequence of values to be modulated
+      \param[out] tx       Sequence of symbols corresponding to the given input
+   */
    virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) = 0;
+   /*!
+      \brief Demodulate a sequence of time-steps
+      \param[in]  chan     The channel model (used to obtain likelihoods)
+      \param[in]  rx       Sequence of received symbols
+      \param[out] ptable   Table of likelihoods of possible transmitted symbols
+      
+      \note \c ptable(i,d) \c is the a posteriori probability of having transmitted 
+            symbol 'd' at time 'i'
+   */
    virtual void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) = 0;
+   // @}
 
-   // information functions
+   /*! \name Informative functions */
+   //! Symbol alphabet size
    virtual int num_symbols() const = 0;
-   virtual double energy() const = 0;  // average energy per symbol
-   double bit_energy() const { return energy()/log2(num_symbols()); };  // average energy per bit
-   double rate() const { return 1.0/bit_energy(); };  // modulation rate in bits/unit energy
+   //! Average energy per symbol
+   virtual double energy() const = 0;
+   //! Average energy per bit
+   double bit_energy() const { return energy()/log2(num_symbols()); };
+   //! Modulation rate (spectral efficiency) in bits/unit energy
+   double rate() const { return 1.0/bit_energy(); };
+   // @}
 
-   // description output
+   /*! \name Description & Serialization */
+   //! Object description output
    virtual std::string description() const = 0;
-   // object serialization - saving
+   //! Object serialization ouput
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const modulator* x);
-   // object serialization - loading
+   //! Object serialization input
    virtual std::istream& serialize(std::istream& sin) = 0;
-   friend std::istream& operator>>(std::istream& sin, modulator*& x);
+   // @}
 };
+
+/*! \name Serialization */
+std::ostream& operator<<(std::ostream& sout, const modulator* x);
+std::istream& operator>>(std::istream& sin, modulator*& x);
+// @}
 
 }; // end namespace
 
