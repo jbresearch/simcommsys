@@ -99,7 +99,7 @@ namespace libcomm {
 
    \version 1.60 (15 Nov 2007)
    - refactored the transmit/receive interface: the functionality of receive is now divided
-      between overloaded functions, distinguished by the parameters set:
+     between overloaded functions, distinguished by the parameters set:
       - receive(tx,rx,ptable) is for the traditional case, used to determine the likelihoods
         (as a matrix) of each of a set of possible transmitted symbols (as a vector) at each
         timestep; the argument list has changed in this case so that the transmitted sequence
