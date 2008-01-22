@@ -49,30 +49,44 @@ namespace libcomm {
 
 class experiment {
 public:
-   virtual ~experiment() {};                 // virtual destructor
-   virtual experiment *clone() const = 0;    // cloning operation
-   virtual const char* name() const = 0;     // derived object's name
+   /*! \name Constructors / Destructors */
+   virtual ~experiment() {};
+   // @}
+   /*! \name Serialization Support */
+   virtual experiment *clone() const = 0;
+   virtual const char* name() const = 0;
+   // @}
 
-   virtual int count() const = 0;
+   /*! \name Experiment parameter handling */
+   //! Reset function for random generator
    virtual void seed(int s) = 0;
+   //! Set the system parameter at which we want to simulate
    virtual void set_parameter(double x) = 0;
+   //! Get the system parameter at which we are simulating
    virtual double get_parameter() = 0;
+   // @}
+
+   /*! \name Experiment handling */
    /*!
    \brief Perform the experiment and return a single sample
    \param[out] result   Vector containing the set of results for the experiment
    */
    virtual void sample(libbase::vector<double>& result) = 0;
+   //! Get the number of elements making up the sample
+   virtual int count() const = 0;
+   // @}
 
-   // description output
+   /*! \name Description & Serialization */
    virtual std::string description() const = 0;
-   // object serialization - saving
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   // object serialization - loading
    virtual std::istream& serialize(std::istream& sin) = 0;
+   // @}
 };
 
+/*! \name Serialization */
 std::ostream& operator<<(std::ostream& sout, const experiment* x);
 std::istream& operator>>(std::istream& sin, experiment*& x);
+// @}
 
 }; // end namespace
 

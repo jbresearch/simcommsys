@@ -182,11 +182,11 @@ public:
    void set_no(const double No);
    //! Set the signal-to-noise ratio
    void set_parameter(const double snr_db);
-   //! Set the bit-equivalent signal energy
+   //! Get the bit-equivalent signal energy
    double get_eb() const { return Eb; };
-   //! Set the normalized noise energy
+   //! Get the normalized noise energy
    double get_no() const { return No; };
-   //! Set the signal-to-noise ratio
+   //! Get the signal-to-noise ratio
    double get_parameter() const { return snr_db; };
    // @}
 
