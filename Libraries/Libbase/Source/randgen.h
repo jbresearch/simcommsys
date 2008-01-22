@@ -28,18 +28,21 @@ namespace libbase {
      use with a variable number of bits/code in the data stream)
 
    \version 1.01 (16 Nov 2001)
-  moved 'ready' and 'next_gval' from static objects within gval() to member objects.
+   moved 'ready' and 'next_gval' from static objects within gval() to member objects.
 
    \version 1.02 (23 Feb 2002)
-  added flushes to all end-of-line clog outputs, to clean up text user interface.
+   added flushes to all end-of-line clog outputs, to clean up text user interface.
 
    \version 1.03 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+   changed vcs version variable from a global to a static class variable.
+   also changed use of iostream from global to std namespace.
 
    \version 1.10 (26 Oct 2006)
    - defined class and associated data within "libbase" namespace.
    - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+   \version 1.11 (22 Jan 2008)
+   - Changed debug output to go to trace instead of clog.
 */
 
 class randgen {
@@ -73,7 +76,7 @@ inline void randgen::advance()
 #ifdef DEBUG
    counter++;
    if(counter == 0)
-      std::clog << "DEBUG: randgen (" << this << ") counter looped ***.\n" << std::flush;
+      trace << "DEBUG: randgen (" << this << ") counter looped ***.\n" << std::flush;
 #endif
    }
 

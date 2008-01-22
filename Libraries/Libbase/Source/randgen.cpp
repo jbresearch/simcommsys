@@ -11,7 +11,6 @@
 
 namespace libbase {
 
-using std::clog;
 using std::flush;
 
 const int32s randgen::mbig = 1000000000L;
@@ -21,7 +20,7 @@ randgen::randgen(int32u s)
    {
 #ifdef DEBUG
    counter = 0;
-   clog << "DEBUG: randgen (" << this << ") created.\n" << flush;
+   trace << "DEBUG: randgen (" << this << ") created.\n" << flush;
 #endif
    seed(s);
    }
@@ -29,7 +28,7 @@ randgen::randgen(int32u s)
 randgen::~randgen()
    {
 #ifdef DEBUG
-   clog << "DEBUG: randgen (" << this << ") destroyed after " << counter << " steps.\n" << flush;
+   trace << "DEBUG: randgen (" << this << ") destroyed after " << counter << " steps.\n" << flush;
 #endif
    }
 
@@ -56,7 +55,7 @@ void randgen::seed(int32u s)
          }
 #ifdef DEBUG
    if(counter > 0)
-       clog << "DEBUG: randgen (" << this << ") reseeded after " << counter << " steps.\n" << flush;
+       trace << "DEBUG: randgen (" << this << ") reseeded after " << counter << " steps.\n" << flush;
    counter = 0;
 #endif
    ready = false;

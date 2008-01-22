@@ -35,9 +35,7 @@ onetimepad::onetimepad(const fsm& encoder, const int tau, const bool terminated,
    onetimepad::K = encoder.num_inputs();
    pad.init(tau);
    seed(0);
-#ifdef DEBUG
-   std::clog << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n" << std::flush;
-#endif
+   libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n";
    }
 
 onetimepad::onetimepad(const onetimepad& x)
