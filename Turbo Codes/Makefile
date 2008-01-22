@@ -8,14 +8,14 @@ FINAL := $(SOURCES:Source/%.cpp=$(BINDIR)/%.$(RELEASE))
 
 # Master targets
 
-.PHONY:	all install clean
-
 all:	$(TARGETS) $(BUILDDIR)
 
 install: $(FINAL) $(BINDIR)
 
 clean:
 	$(RM) $(BUILDDIR)
+
+.PHONY:	all install clean
 
 # Manual targets
 
@@ -27,20 +27,21 @@ $(BINDIR):
 
 # Pattern-matched targets
 
-$(BINDIR)/%.$(RELEASE):	$(BUILDDIR)/% $(BINDIR)
+$(BINDIR)/%.$(RELEASE):	$(BUILDDIR)/%
 	@echo "Installing $* [$(RELEASE)]"
 	@$(CP) $< $@
 
-$(BUILDDIR)/%:	$(BUILDDIR)/%.o $(BUILDDIR) $(LIBS)
+$(BUILDDIR)/%:	$(BUILDDIR)/%.o $(LIBS)
 	@echo "Linking $* [$(RELEASE)]"
 	@$(LD) $(LDflags) -o $@ $< $(LDlibs)
 
-$(BUILDDIR)/%.o:	Source/%.cpp $(BUILDDIR)
+$(BUILDDIR)/%.o:	Source/%.cpp
 	@echo "Compiling $< [$(RELEASE)]"
 	@$(CC) $(CCflags) -c $< -o $@
 
-$(BUILDDIR)/%.d:	Source/%.cpp $(BUILDDIR)
+$(BUILDDIR)/%.d:	Source/%.cpp
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
+	@$(MKDIR) $(BUILDDIR)
 	@$(CC) $(CCflags) $(CCdepend) $< | gawk 'BEGIN { FS = "$*.o" } { if( NF > 1 ) { print $$1, "$(BUILDDIR)/$*.d $(BUILDDIR)/$*.o", $$2 } else { print $$0 } }' > $@
 
 include $(DEPEND)

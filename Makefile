@@ -66,27 +66,25 @@ TARGETS := Turbo\ Codes
 
 # Master targets
 
-.PHONY:	all debug release profile alltargets install clean
-
 all:     debug release profile
 
 profile:
-	@$(MAKE) RELEASE=Profile DOTARGET=all alltargets
+	@$(MAKE) RELEASE=Profile DOTARGET=all $(TARGETS)
 
 release:
-	@$(MAKE) RELEASE=Release DOTARGET=all alltargets
+	@$(MAKE) RELEASE=Release DOTARGET=all $(TARGETS)
 
 debug:
-	@$(MAKE) RELEASE=Debug DOTARGET=all alltargets
-
-alltargets: $(TARGETS)
+	@$(MAKE) RELEASE=Debug DOTARGET=all $(TARGETS)
 
 install:
-	@$(MAKE) RELEASE=Release DOTARGET=install alltargets
+	@$(MAKE) RELEASE=Release DOTARGET=install $(TARGETS)
 
 clean:
 
 FORCE:
+
+.PHONY:	all debug release profile install clean
 
 # Manual targets
 
