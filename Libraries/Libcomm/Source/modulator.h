@@ -110,9 +110,9 @@ public:
       \return  Index corresponding symbol that is closest to the received signal
    */
    virtual const int demodulate(const sigspace& signal) const = 0;
-   //! \copydoc modulate(index)
+   /*! \copydoc modulate() */
    const sigspace operator[](const int index) const { return modulate(index); };
-   //! \copydoc demodulate(signal)
+   /*! \copydoc demodulate() */
    const int operator[](const sigspace& signal) const { return demodulate(signal); };
    // @}
 
