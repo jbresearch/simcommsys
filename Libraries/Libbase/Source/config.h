@@ -242,7 +242,7 @@ namespace libbase {
 
 // Debugging tools
 
-extern void fail(const char *expression, const char *file, int line);
+void fail(const char *expression, const char *file, int line);
 extern std::ostream trace;
 
 // Names for integer types
