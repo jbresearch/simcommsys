@@ -51,6 +51,7 @@ export LIBflags := ru
 # Define the names for commands
 export MKDIR := mkdir -p
 export RM := rm -rf
+export CP := cp
 export CC := gcc
 export LD := gcc
 export LIB := ar
@@ -65,20 +66,25 @@ TARGETS := Turbo\ Codes
 
 # Master targets
 
-.PHONY:	clean clean-dist clean-depend
+.PHONY:	all debug release profile alltargets install clean
 
 all:     debug release profile
 
 profile:
-	@$(MAKE) RELEASE=Profile alltargets
+	@$(MAKE) RELEASE=Profile DOTARGET=all alltargets
 
 release:
-	@$(MAKE) RELEASE=Release alltargets
+	@$(MAKE) RELEASE=Release DOTARGET=all alltargets
 
 debug:
-	@$(MAKE) RELEASE=Debug alltargets
+	@$(MAKE) RELEASE=Debug DOTARGET=all alltargets
 
 alltargets: $(TARGETS)
+
+install:
+	@$(MAKE) RELEASE=Release DOTARGET=install alltargets
+
+clean:
 
 FORCE:
 
@@ -86,7 +92,7 @@ FORCE:
 
 $(TARGETS):	$(LIBS) FORCE
 	@echo "----> Making target \"$(notdir $@)\" [$(RELEASE)]."
-	@$(MAKE) -C "$(ROOTDIR)/$@"
+	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
 # Pattern-matched targets
 
