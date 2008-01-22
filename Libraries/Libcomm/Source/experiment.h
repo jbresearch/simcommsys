@@ -42,6 +42,9 @@ namespace libcomm {
 
    \version 1.41 (17 Jan 2008)
    - Renamed set/get to set_parameter/get_parameter
+
+   \version 1.42 (22 Jan 2008)
+   - Removed 'friend' declaration of stream operators.
 */
 
 class experiment {
@@ -64,11 +67,12 @@ public:
    virtual std::string description() const = 0;
    // object serialization - saving
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const experiment* x);
    // object serialization - loading
    virtual std::istream& serialize(std::istream& sin) = 0;
-   friend std::istream& operator>>(std::istream& sin, experiment*& x);
 };
+
+std::ostream& operator<<(std::ostream& sout, const experiment* x);
+std::istream& operator>>(std::istream& sin, experiment*& x);
 
 }; // end namespace
 
