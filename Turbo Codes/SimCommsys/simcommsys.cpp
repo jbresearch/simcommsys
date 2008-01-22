@@ -48,6 +48,10 @@
 
    \version 1.25 (21 Dec 2007)
    - added minimum error rate cutoff, including command-line parameter
+
+   \version 1.25 (22 Jan 2008)
+   - modified createsystem() to return a pointer to a commsys object, created
+     on the heap, rather than a copy created on the stack.
 */
 
 using std::cout;
@@ -63,7 +67,7 @@ public:
    bool interrupt() { return libbase::keypressed()>0 || libbase::interrupted(); };
 };
 
-libcomm::commsys createsystem(const char *filename)
+libcomm::commsys *createsystem(const char *filename)
    {
    std::ifstream file(filename);
    // Channel Model
@@ -78,7 +82,7 @@ libcomm::commsys createsystem(const char *filename)
    // Source Generator
    libbase::randgen *src = new libbase::randgen;
    // The complete communication system
-   return libcomm::commsys(src, codec, modem, NULL, chan);
+   return new libcomm::commsys(src, codec, modem, NULL, chan);
    }
 
 int main(int argc, char *argv[])
@@ -107,15 +111,15 @@ int main(int argc, char *argv[])
    const double confidence = 0.90;
    const double accuracy = 0.15;
    // Set up the estimator
-   libcomm::commsys system = createsystem(argv[5]);
-   estimator.initialise(&system);
+   libcomm::commsys *system = createsystem(argv[5]);
+   estimator.initialise(system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
 
    // Print information on the statistical accuracy of results being worked
-   cout << "#% " << system.description() << "\n";
-   cout << "#% Code Rate: " << system.getcodec()->rate() << "\n";
-   cout << "#% Modulation Rate: " << system.getmodem()->rate() << "\n";
+   cout << "#% " << system->description() << "\n";
+   cout << "#% Code Rate: " << system->getcodec()->rate() << "\n";
+   cout << "#% Modulation Rate: " << system->getmodem()->rate() << "\n";
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";
@@ -124,7 +128,7 @@ int main(int argc, char *argv[])
    // Work out the following for every SNR value required
    for(double SNR = SNRmin; SNR <= SNRmax; SNR += SNRstep)
       {
-      system.set_parameter(SNR);
+      system->set_parameter(SNR);
 
       cerr << "Simulating system at Eb/No = " << SNR << "\n";
       libbase::vector<double> estimate, tolerance;
@@ -135,7 +139,7 @@ int main(int argc, char *argv[])
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
 
       cout << SNR;
-      for(int i=0; i<system.count(); i++)
+      for(int i=0; i<system->count(); i++)
          cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
       cout << "\t" << estimator.get_samplecount() << "\n" << flush;
 
