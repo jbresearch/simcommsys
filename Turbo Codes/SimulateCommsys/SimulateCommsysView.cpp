@@ -13,7 +13,6 @@
 #include "SelectRangeDlg.h"
 #include "BenchmarkDlg.h"
 
-#include "serializer_libcomm.h"
 #include "commsys.h"
 
 #include <fstream>
@@ -23,8 +22,6 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
-const libcomm::serializer_libcomm g_serializer_libcomm;
 
 /////////////////////////////////////////////////////////////////////////////
 // CSimulateCommsysView

@@ -10,10 +10,15 @@
 #endif // _MSC_VER > 1000
 
 #include "montecarlo.h"
+#include "serializer_libcomm.h"
 #include "WorkerThread.h"
 
 class CSimulateCommsysView : public CListView, private libcomm::montecarlo, libwin::CWorkerThread
 {
+private:
+        const libcomm::serializer_libcomm m_serializer_libcomm;
+
+
 protected: // create from serialization only
         CSimulateCommsysView();
         DECLARE_DYNCREATE(CSimulateCommsysView)

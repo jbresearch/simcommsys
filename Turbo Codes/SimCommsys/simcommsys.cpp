@@ -54,14 +54,15 @@
      on the heap, rather than a copy created on the stack.
    - modified createsystem() to use commsys serialization instead of manually
      creating the components.
+   - moved serializer_libcomm object from a global variable to a local one in
+     main; this resolves the possibility where the serializer_libcomm is
+     initialized before the trace object.
 */
 
 using std::cout;
 using std::cerr;
 using std::setprecision;
 using std::flush;
-
-const libcomm::serializer_libcomm g_serializer_libcomm;
 
 class mymontecarlo : public libcomm::montecarlo {
 public:
@@ -79,6 +80,8 @@ libcomm::commsys *createsystem(const char *filename)
 
 int main(int argc, char *argv[])
    {
+   const libcomm::serializer_libcomm my_serializer_libcomm;
+
    libbase::timer tmain("Main timer");
 
    // Create estimator object and initilize cluster, default priority
