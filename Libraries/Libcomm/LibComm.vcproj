@@ -1159,6 +1159,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\symbol.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\turbo.cpp"
 				>
 				<FileConfiguration
@@ -1469,6 +1473,10 @@
 			</File>
 			<File
 				RelativePath="Source\stream_lut.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\symbol.h"
 				>
 			</File>
 			<File
