@@ -104,6 +104,14 @@ namespace libcomm {
    - Fixed memory leak, where dynamically allocated objects were not being deleted
      on object destruction.
    - Cleaned up refactoring work on SER computation
+
+   \version 1.82 (22 Jan 2008)
+   - Modified serialization method, adopting the format used in simcommsys 1.26;
+     note that this does not support puncturing. This format was adopted in favor
+     of changing the file format used in current simulations because:
+      - we do not wish to break the format unnecessarily
+      - support for puncturing needs to change anyway, from its current operation
+        in signal-space to a more general mapper layer
 */
 
 class commsys : public experiment {

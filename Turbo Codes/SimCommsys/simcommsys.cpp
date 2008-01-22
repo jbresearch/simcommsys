@@ -49,7 +49,7 @@
    \version 1.25 (21 Dec 2007)
    - added minimum error rate cutoff, including command-line parameter
 
-   \version 1.25 (22 Jan 2008)
+   \version 1.26 (22 Jan 2008)
    - modified createsystem() to return a pointer to a commsys object, created
      on the heap, rather than a copy created on the stack.
 */

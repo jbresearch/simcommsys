@@ -211,13 +211,13 @@ std::string commsys::description() const
 
 std::ostream& commsys::serialize(std::ostream& sout) const
    {
-   sout << cdc;
-   sout << modem;
-   const bool ispunctured = (punc != NULL);
-   sout << int(ispunctured) << "\n";
-   if(ispunctured)
-      sout << punc;
    sout << chan;
+   sout << modem;
+   sout << cdc;
+   //const bool ispunctured = (punc != NULL);
+   //sout << int(ispunctured) << "\n";
+   //if(ispunctured)
+   //   sout << punc;
    return sout;
    }
 
@@ -227,13 +227,13 @@ std::istream& commsys::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
-   sin >> cdc;
-   sin >> modem;
-   int ispunctured;
-   sin >> ispunctured;
-   if(ispunctured != 0)
-      sin >> punc;
    sin >> chan;
+   sin >> modem;
+   sin >> cdc;
+   //int ispunctured;
+   //sin >> ispunctured;
+   //if(ispunctured != 0)
+   //   sin >> punc;
    internallyallocated = true;
    init();
    return sin;
