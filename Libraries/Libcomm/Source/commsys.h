@@ -114,6 +114,9 @@ namespace libcomm {
         in signal-space to a more general mapper layer
    - Made default constructor public, to allow direct serialization, rather than
      just through 'experiment'.
+   - Modified seed() so that different (but still deterministic seeds are used in
+     the various components; this ensures that the sequences do not just 'happen'
+     to be the same.
 */
 
 class commsys : public experiment {

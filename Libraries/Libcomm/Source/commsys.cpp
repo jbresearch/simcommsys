@@ -180,8 +180,8 @@ commsys::commsys(const commsys& c)
 void commsys::seed(int s)
    {
    src->seed(s);
-   cdc->seed(s);
-   chan->seed(s);
+   cdc->seed(s+1);
+   chan->seed(s+2);
    }
 
 void commsys::sample(libbase::vector<double>& result)
