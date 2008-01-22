@@ -198,8 +198,11 @@ public:
    // @}
 
    /*! \name Description & Serialization */
+   //! Object description output
    virtual std::string description() const = 0;
+   //! Object serialization ouput
    virtual std::ostream& serialize(std::ostream &sout) const { return sout; };
+   //! Object serialization input
    virtual std::istream& serialize(std::istream &sin) { return sin; };
    // @}
 };

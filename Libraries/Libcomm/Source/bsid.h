@@ -150,11 +150,10 @@ protected:
    //! Default constructor
    bsid() {};
    // @}
-   /*! \name Channel function overrides */
+   // Channel function overrides
    void compute_parameters(const double Eb, const double No);
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
-   // @}
 public:
    /*! \name Constructors / Destructors */
    bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
@@ -189,21 +188,16 @@ public:
    int get_xmax() const { return xmax; };
    // @}
 
-   /*! \name Channel functions */
+   // Channel functions
    void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
    void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
    double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
    double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
-   // @}
 
-   /*! \name Description & Serialization */
-   //! Object description output
+   // Description & Serialization
    std::string description() const;
-   //! Object serialization ouput
    std::ostream& serialize(std::ostream& sout) const;
-   //! Object serialization input
    std::istream& serialize(std::istream& sin);
-   // @}
 };
 
 inline double bsid::pdf(const sigspace& tx, const sigspace& rx) const
