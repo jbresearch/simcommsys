@@ -22,6 +22,12 @@ const libbase::serializer commsys::shelper("experiment", "commsys", commsys::cre
 
 // internal functions
 
+/*!
+   \brief Create source sequence to be encoded
+
+   The source sequence consists of uniformly random symbols followed by a
+   tail sequence if required by the given codec.
+*/
 void commsys::createsource()
    {
    int t;
@@ -32,6 +38,37 @@ void commsys::createsource()
       source(t) = fsm::tail;
    }
 
+/*!
+   \brief Perform a complete transmit/receive cycle, except for final decoding
+
+   The cycle consists of the steps depicted in the following diagram:
+   \dot
+   digraph txrxcycle {
+      // Make figure left-to-right
+      rankdir = LR;
+      // block definitions
+      encode [ label="Encode" ];
+      modulate [ label="Modulate" ];
+      puncture [ style=dotted,label="Puncture" ];
+      transmit [ label="Transmit" ];
+      demodulate [ label="Demodulate" ];
+      unpuncture [ style=dotted,label="Inverse Puncture" ];
+      translate [ label="Translate" ];
+      // path definitions
+      encode -> modulate;
+      modulate -> transmit;
+      transmit -> demodulate;
+      demodulate -> translate;
+      modulate -> puncture [ style=dotted ];
+      puncture -> transmit [ style=dotted ];
+      demodulate -> unpuncture [ style=dotted ];
+      unpuncture -> translate [ style=dotted ];
+   }
+   \enddot
+
+   The dotted lines and blocks indicate optional sections to support puncturing,
+   which is currently done in signal-space.
+*/
 void commsys::transmitandreceive()
    {
    cdc->encode(source, encoded);
