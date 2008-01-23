@@ -135,22 +135,35 @@ protected:
    puncture    *punc;   //!< Puncturing (operates on signal-space symbols)
    channel     *chan;   //!< Channel model
    // @}
+   /*! \name Computed parameters */
+   int  tau;   //!< Codec block size (in time-steps)
+   int  m;     //!< Tail length required by codec (may be zero)
+   int  N;     //!< Alphabet size for encoder output
+   int  K;     //!< Alphabet size for source data
+   int  k;     //!< Bit width for source data symbols (\f$ K = 2^k \f$)
+   int  iter;  //!< Number of iterations the decoder will do
+   // @}
    /*! \name Working variables */
-   int  tau, m, N, K, k, iter;
-   libbase::vector<int> source, encoded, decoded;
-   libbase::vector<sigspace>  signal1, signal2;
-   libbase::matrix<double> ptable1, ptable2;
+   libbase::vector<int>       source;  //!< Sequence of source data symbols
+   libbase::vector<int>       encoded; //!< Sequence of encoded symbols
+   libbase::vector<int>       decoded; //!< Sequence of decoded symbols
+   libbase::vector<sigspace>  signal1; //!< Sequence of modulated symbols
+   libbase::vector<sigspace>  signal2; //!< Sequence of punctured symbols (if puncturing)
+   libbase::matrix<double>    ptable1; //!< Full probability table read by decoder
+   libbase::matrix<double>    ptable2; //!< Punctured probability table (if puncturing)
    // @}
 protected:
+   /*! \name Setup functions */
+   void init();
+   void clear();
+   void free();
+   // @}
    /*! \name Internal functions */
    void createsource();
    void transmitandreceive();
    int countbiterrors() const;
    int countsymerrors();
    virtual void cycleonce(libbase::vector<double>& result);
-   void init();
-   void clear();
-   void free();
    // @}
 public:
    /*! \name Constructors / Destructors */

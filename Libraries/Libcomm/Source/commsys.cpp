@@ -20,7 +20,70 @@ namespace libcomm {
 
 const libbase::serializer commsys::shelper("experiment", "commsys", commsys::create);
 
-// internal functions
+// Setup functions
+
+/*!
+   \brief Initialize the communications system
+
+   This function performs two things:
+   - Setting up the values of the computed parameters (including any
+     necessary validation on their values)
+   - Sets the average energy per bit in the bound channel model
+*/
+void commsys::init()
+   {
+   tau = cdc->block_size();
+   m = cdc->tail_length();
+   N = cdc->num_outputs();
+   K = cdc->num_inputs();
+   k = int(round(log2(double(K))));
+   if(K != 1<<k)
+      {
+      std::cerr << "FATAL ERROR (commsys): can only estimate BER for a q-ary source (" << k << ", " << K << ").\n";
+      exit(1);
+      }
+   iter = cdc->num_iter();
+   // set up channel energy/bit (Eb)
+   double rate = cdc->rate();
+   if(punc != NULL)
+      rate /= punc->rate();
+   chan->set_eb(modem->bit_energy() / rate);
+   }
+
+/*!
+   \brief Sets up system with no bound objects.
+*/
+void commsys::clear()
+   {
+   src = NULL;
+   cdc = NULL;
+   modem = NULL;
+   punc = NULL;
+   chan = NULL;
+   internallyallocated = true;
+   }
+
+/*!
+   \brief Removes association with bound objects
+
+   This function performs two things:
+   - Deletes any internally-allocated bound objects
+   - Sets up the system with no bound objects
+*/
+void commsys::free()
+   {
+   if(internallyallocated)
+      {
+      delete src;
+      delete cdc;
+      delete modem;
+      delete punc;
+      delete chan;
+      }
+   clear();
+   }
+
+// Internal functions
 
 /*!
    \brief Create source sequence to be encoded
@@ -146,51 +209,13 @@ void commsys::cycleonce(libbase::vector<double>& result)
       }
    }
 
-void commsys::init()
-   {
-   tau = cdc->block_size();
-   m = cdc->tail_length();
-   N = cdc->num_outputs();
-   K = cdc->num_inputs();
-   k = int(round(log2(double(K))));
-   if(K != 1<<k)
-      {
-      std::cerr << "FATAL ERROR (commsys): can only estimate BER for a q-ary source (" << k << ", " << K << ").\n";
-      exit(1);
-      }
-   iter = cdc->num_iter();
-   // set up channel energy/bit (Eb)
-   double rate = cdc->rate();
-   if(punc != NULL)
-      rate /= punc->rate();
-   chan->set_eb(modem->bit_energy() / rate);
-   }
+// Constructors / Destructors
 
-void commsys::clear()
-   {
-   src = NULL;
-   cdc = NULL;
-   modem = NULL;
-   punc = NULL;
-   chan = NULL;
-   internallyallocated = true;
-   }
+/*!
+   \brief Main public constructor
 
-void commsys::free()
-   {
-   if(internallyallocated)
-      {
-      delete src;
-      delete cdc;
-      delete modem;
-      delete punc;
-      delete chan;
-      }
-   clear();
-   }
-
-// public constructor / destructor
-
+   Initializes system with bound objects as supplied by user.
+*/
 commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan)
    {
    commsys::src = src;
@@ -202,6 +227,11 @@ commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *
    init();
    }
 
+/*!
+   \brief Copy constructor
+
+   Initializes system with bound objects cloned from supplied system.
+*/
 commsys::commsys(const commsys& c)
    {
    commsys::src = new libbase::randgen;
@@ -213,7 +243,7 @@ commsys::commsys(const commsys& c)
    init();
    }
 
-// experiment functions
+// Experiment parameter handling
 
 void commsys::seed(int s)
    {
@@ -221,6 +251,8 @@ void commsys::seed(int s)
    cdc->seed(s+1);
    chan->seed(s+2);
    }
+
+// Experiment handling
 
 void commsys::sample(libbase::vector<double>& result)
    {
@@ -231,7 +263,7 @@ void commsys::sample(libbase::vector<double>& result)
    cycleonce(result);
    }
 
-// description output
+// Description & Serialization
 
 std::string commsys::description() const
    {
@@ -245,8 +277,6 @@ std::string commsys::description() const
    return sout.str();
    }
 
-// object serialization - saving
-
 std::ostream& commsys::serialize(std::ostream& sout) const
    {
    sout << chan;
@@ -258,8 +288,6 @@ std::ostream& commsys::serialize(std::ostream& sout) const
    //   sout << punc;
    return sout;
    }
-
-// object serialization - loading
 
 std::istream& commsys::serialize(std::istream& sin)
    {
