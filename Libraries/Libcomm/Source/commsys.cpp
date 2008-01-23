@@ -47,6 +47,7 @@ void commsys::createsource()
       // Make figure left-to-right
       rankdir = LR;
       // block definitions
+      node [ shape=box ];
       encode [ label="Encode" ];
       modulate [ label="Modulate" ];
       puncture [ style=dotted,label="Puncture" ];
