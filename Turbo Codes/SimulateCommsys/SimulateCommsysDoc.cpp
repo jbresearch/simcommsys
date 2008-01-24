@@ -144,7 +144,7 @@ void CSimulateCommsysDoc::Free()
 
 // system components
 
-void CSimulateCommsysDoc::SetChannel(libcomm::channel *pChannel)
+void CSimulateCommsysDoc::SetChannel(libcomm::channel<libcomm::sigspace> *pChannel)
    {
    ASSERT(!ResultsPresent());
    if(m_pChannel != NULL)

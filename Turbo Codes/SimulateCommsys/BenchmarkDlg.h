@@ -24,24 +24,24 @@ public:
         CBenchmarkDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-        //{{AFX_DATA(CBenchmarkDlg)
-        enum { IDD = IDD_BENCHMARK };
-        CProgressCtrl   m_pcProgress;
-        double  m_dSNR;
-        double  m_dTime;
-        CString m_sBER;
-        CString m_sChannel;
-        CString m_sElapsed;
-        CString m_sFrames;
-        CString m_sModulator;
-        CString m_sPuncture;
-        CString m_sSpeed;
-        CString m_sCodec;
-        //}}AFX_DATA
+   //{{AFX_DATA(CBenchmarkDlg)
+   enum { IDD = IDD_BENCHMARK };
+   CProgressCtrl   m_pcProgress;
+   double  m_dSNR;
+   double  m_dTime;
+   CString m_sBER;
+   CString m_sChannel;
+   CString m_sElapsed;
+   CString m_sFrames;
+   CString m_sModulator;
+   CString m_sPuncture;
+   CString m_sSpeed;
+   CString m_sCodec;
+   //}}AFX_DATA
    libcomm::codec *m_pCodec;
    libcomm::puncture *m_pPuncture;
    libcomm::modulator *m_pModulator;
-   libcomm::channel *m_pChannel;
+   libcomm::channel<libcomm::sigspace> *m_pChannel;
 
 
 // Overrides
