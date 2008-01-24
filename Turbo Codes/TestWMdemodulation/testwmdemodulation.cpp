@@ -27,9 +27,9 @@ using libcomm::modulator;
 using libcomm::channel;
 using libcomm::watermarkcode;
 
-channel *create_channel(int N, double snr)
+channel<sigspace> *create_channel(int N, double snr)
    {
-   channel *chan = new libcomm::bsid(N);
+   channel<sigspace> *chan = new libcomm::bsid(N);
    chan->seed(1);
    chan->set_parameter(snr);
    return chan;
@@ -61,7 +61,7 @@ vector<sigspace> modulate_encoded(int k, int n, modulator& modem, vector<int>& e
    return tx;
    }
 
-vector<sigspace> transmit_modulated(int n, channel& chan, const vector<sigspace>& tx, bool display=true)
+vector<sigspace> transmit_modulated(int n, channel<sigspace>& chan, const vector<sigspace>& tx, bool display=true)
    {
    vector<sigspace> rx;
    chan.transmit(tx, rx);
@@ -70,7 +70,7 @@ vector<sigspace> transmit_modulated(int n, channel& chan, const vector<sigspace>
    return rx;
    }
 
-matrix<double> demodulate_encoded(channel& chan, modulator& modem, const vector<sigspace>& rx, bool display=true)
+matrix<double> demodulate_encoded(channel<sigspace>& chan, modulator& modem, const vector<sigspace>& rx, bool display=true)
    {
    // demodulate received signal
    matrix<double> ptable;
@@ -109,7 +109,7 @@ void testcycle(int const seed, int const n, int const k, int const tau, double s
    const int N = tau*n;
    // create modem and channel
    watermarkcode<logrealfast> modem(n,k,seed, N);
-   channel *chan = create_channel(N, snr);
+   channel<sigspace> *chan = create_channel(N, snr);
    cout << modem.description() << "\n";
 
    // define an alternating encoded sequence
