@@ -252,15 +252,19 @@ double montecarlo::updateresults(vector<double>& result, vector<double>& toleran
    double acc = 0;
    for(int i=0; i<result.size(); i++)
       {
-      // work mean and sd
-      double mean = sum(i)/double(samplecount);
-      double sd = sqrt((sumsq(i)/double(samplecount) - mean*mean)/double(samplecount-1));
-      // update results
+      assert(samplecount > 0);
+      // updated mean becomes the new result
+      const double mean = sum(i)/double(samplecount);
       result(i) = mean;
-      if(mean > 0)
+      // compute tolerance only if this is meaningful
+      if(mean > 0 && samplecount > 1)
+         {
+         const double sd = sqrt((sumsq(i)/double(samplecount) - mean*mean)/double(samplecount-1));
          tolerance(i) = cfactor*sd/mean;
+         }
       else
          tolerance(i) = std::numeric_limits<double>::max();
+      // track the worst tolerance reached
       if(tolerance(i) > acc)
          acc = tolerance(i);
       }
