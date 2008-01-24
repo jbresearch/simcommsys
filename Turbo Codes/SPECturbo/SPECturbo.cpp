@@ -99,7 +99,7 @@ public:
    double   timeout;
 };
 
-libcomm::commsys *createsystem()
+libcomm::experiment *createsystem()
    {
    // Encoder (from generator matrix)
    const int k=1, n=2, m=2;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
    const double confidence = 0.999;
    const double accuracy = 0.001;
    // Set up the estimator
-   libcomm::commsys *system = createsystem();
+   libcomm::experiment *system = createsystem();
    estimator.initialise(system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
