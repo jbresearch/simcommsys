@@ -5,6 +5,13 @@
 // Utilities
 #include "gf.h"
 
+// Arithmetic Types
+#include "mpgnu.h"
+#include "mpreal.h"
+#include "logreal.h"
+#include "logrealfast.h"
+
+
 // Channels
 #include "channel.h"
 #include "awgn.h"
@@ -59,11 +66,9 @@
 #include "puncture_stipple.h"
 
 
-// Arithmetic Types
-#include "mpgnu.h"
-#include "mpreal.h"
-#include "logreal.h"
-#include "logrealfast.h"
+// Experiments
+#include "commsys.h"
+
 
 namespace libcomm {
 
@@ -99,6 +104,9 @@ namespace libcomm {
    \version 2.24 (21 Jan 2008)
    - Added bsid again (since this is no longer a base class of anything)
    - Added lapgauss channel
+
+   \version 2.25 (24 Jan 2008)
+   - Added commsys experiment type
 */
 
 // Serialization support
@@ -110,7 +118,8 @@ class serializer_libcomm : private
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
-   puncture_file, puncture_null, puncture_stipple
+   puncture_file, puncture_null, puncture_stipple,
+   commsys
 {
 public:
    serializer_libcomm() {};
