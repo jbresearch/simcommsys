@@ -13,20 +13,11 @@
 
 namespace libcomm {
 
-using libbase::int8u;
-using libbase::int32u;
-using libbase::vector;
-using std::string;
-
-//////////////////////////////////////////////////////////////////////
 // Const values
-//////////////////////////////////////////////////////////////////////
 
-const int32u sha::K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
+const libbase::int32u sha::K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
 
-//////////////////////////////////////////////////////////////////////
 // Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 sha::sha()
    {
@@ -37,36 +28,28 @@ sha::sha()
    m_hash = 0;
    }
 
-sha::~sha()
-   {
-   }
-
-//////////////////////////////////////////////////////////////////////
 // Conversion to/from strings
-//////////////////////////////////////////////////////////////////////
 
-sha::sha(const string& s)
+sha::sha(const std::string& s)
    {
    // reset size counter
    m_size = 0;
    // reset chaining variables
    m_hash.init(5);
-   // load from string
+   // load from std::string
    std::istringstream is(s);
    is >> *this;
    }
 
-sha::operator string() const
+sha::operator std::string() const
    {
-   // write into a string
+   // write into a std::string
    std::ostringstream sout;
    sout << *this;
    return sout.str();
    }
 
-//////////////////////////////////////////////////////////////////////
 // Public interface for computing digest
-//////////////////////////////////////////////////////////////////////
 
 void sha::reset()
    {
@@ -79,23 +62,23 @@ void sha::reset()
    m_hash(2) = 0x98badcfe;
    m_hash(3) = 0x10325476;
    m_hash(4) = 0xc3d2e1f0;
-#ifdef _DEBUG
+#ifndef NDEBUG
    // debugging
    m_padded = m_terminated = false;
 #endif
    }
 
-void sha::process(const vector<int32u>& M)
+void sha::process(const libbase::vector<libbase::int32u>& M)
    {
    // create expanded message block
-   vector<int32u> W;
+   libbase::vector<libbase::int32u> W;
    expand(M, W);
    // copy variables
-   vector<int32u> hash = m_hash;
+   libbase::vector<libbase::int32u> hash = m_hash;
    // main loop
    for(int t=0; t<80; t++)
       {
-      const int32u temp = cshift(hash(0),5) + f(t,hash(1),hash(2),hash(3)) + hash(4) + W(t) + K[t/20];
+      const libbase::int32u temp = cshift(hash(0),5) + f(t,hash(1),hash(2),hash(3)) + hash(4) + W(t) + K[t/20];
       hash(4) = hash(3);
       hash(3) = hash(2);
       hash(2) = cshift(hash(1), 30);
@@ -112,16 +95,16 @@ void sha::process(const char *buf, const int size)
    assert(size <= 64);
    //trace << "SHA: process block size " << size << "\n";
    // convert message block and process
-   vector<int32u> M(16);
+   libbase::vector<libbase::int32u> M(16);
    // initialize values
    M = 0;
    for(int i=0; i<size; i++)
-      M(i>>2) |= int8u(buf[i]) << 8*(3-(i & 3));
+      M(i>>2) |= libbase::int8u(buf[i]) << 8*(3-(i & 3));
    // add padding (1-bit followed by zeros) if it fits and is necessary
    if(size < 64 && (m_size % 64) == 0)
       {
-      M(size>>2) |= int8u(0x80) << 8*(3-(size & 3));
-#ifdef _DEBUG
+      M(size>>2) |= libbase::int8u(0x80) << 8*(3-(size & 3));
+#ifndef NDEBUG
       if(m_padded)
          libbase::trace << "SHA Error: Padding already added\n";
       m_padded = true;
@@ -134,9 +117,9 @@ void sha::process(const char *buf, const int size)
    // (note that we need to fit the 8-byte size AND 1 byte of padding)
    if(size < 64-8)
       {
-      M(14) = int32u(m_size >> 29);
-      M(15) = int32u(m_size << 3);
-#ifdef _DEBUG
+      M(14) = libbase::int32u(m_size >> 29);
+      M(15) = libbase::int32u(m_size << 3);
+#ifndef NDEBUG
       m_terminated = true;
       //trace << "SHA: adding file size " << hex << M(14) << " " << M(15) << dec << "\n";
 #endif
@@ -161,9 +144,7 @@ void sha::process(std::istream& sin)
       process(buf, 0);
    }
 
-//////////////////////////////////////////////////////////////////////
 // Comparison functions
-//////////////////////////////////////////////////////////////////////
 
 bool sha::operator>(const sha& x) const
    {
@@ -202,11 +183,9 @@ bool sha::operator!=(const sha& x) const
    return !operator==(x);
    }
 
-//////////////////////////////////////////////////////////////////////
 // SHA nonlinear function implementations
-//////////////////////////////////////////////////////////////////////
 
-int32u sha::f(const int t, const int32u X, const int32u Y, const int32u Z)
+libbase::int32u sha::f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z)
    {
    assert(t<80);
    switch(t/20)
@@ -223,20 +202,16 @@ int32u sha::f(const int t, const int32u X, const int32u Y, const int32u Z)
    return 0;
    }
 
-//////////////////////////////////////////////////////////////////////
 // Circular shift function
-//////////////////////////////////////////////////////////////////////
 
-int32u sha::cshift(const int32u x, const int s)
+libbase::int32u sha::cshift(const libbase::int32u x, const int s)
    {
    return (x << s) | (x >> (32-s));
    }
 
-//////////////////////////////////////////////////////////////////////
 // Message expansion function
-//////////////////////////////////////////////////////////////////////
 
-void sha::expand(const vector<int32u>& M, vector<int32u>& W)
+void sha::expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libbase::int32u>& W)
    {
    // check input size
    assert(M.size() == 16);
@@ -250,13 +225,11 @@ void sha::expand(const vector<int32u>& M, vector<int32u>& W)
       W(i) = cshift(W(i-3) ^ W(i-8) ^ W(i-14) ^ W(i-16), 1);
    }
 
-//////////////////////////////////////////////////////////////////////
 // Stream input/output
-//////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<<(std::ostream& sout, const sha& x)
    {
-#ifdef _DEBUG
+#ifndef NDEBUG
    if(!x.m_padded)
       libbase::trace << "SHA Error: Unpadded stream\n";
    if(!x.m_terminated)

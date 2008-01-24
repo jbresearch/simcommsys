@@ -66,7 +66,7 @@ class md5 {
    libbase::vector<libbase::int32u> m_hash;
    // size of message so far (used for termination)
    libbase::int64u m_size;
-#ifdef _DEBUG
+#ifndef NDEBUG
    // debugging variables
    bool m_padded, m_terminated;
 #endif

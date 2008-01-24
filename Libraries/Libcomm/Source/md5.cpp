@@ -14,22 +14,12 @@
 
 namespace libcomm {
 
-using std::string;
-using libbase::vector;
-using libbase::int8u;
-using libbase::int32u;
-
-//////////////////////////////////////////////////////////////////////
 // Static values
-//////////////////////////////////////////////////////////////////////
 
 bool md5::tested = false;
+libbase::vector<libbase::int32u> md5::t;
 
-vector<int32u> md5::t;
-
-//////////////////////////////////////////////////////////////////////
 // Const values
-//////////////////////////////////////////////////////////////////////
 
 const int md5::s[] = { 7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22, \
                        5, 9, 14, 20,   5, 9, 14, 20,   5, 9, 14, 20,   5, 9, 14, 20,  \
@@ -41,9 +31,7 @@ const int md5::ndx[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, \
                          5, 8, 11, 14, 1, 4, 7, 10, 13, 0, 3, 6, 9, 12, 15, 2, \
                          0, 7, 14, 5, 12, 3, 10, 1, 8, 15, 6, 13, 4, 11, 2, 9  };
 
-//////////////////////////////////////////////////////////////////////
 // Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 md5::md5()
    {
@@ -58,7 +46,7 @@ md5::md5()
       t.init(64);
       for(int i=0; i<64; i++)
          {
-         t(i) = int32u(floor(pow(double(2),32) * fabs(sin(double(i+1)))));
+         t(i) = libbase::int32u(floor(pow(double(2),32) * fabs(sin(double(i+1)))));
          //trace << "t(" << i << ") = " << hex << t(i) << dec << "\n";
          }
       }
@@ -67,32 +55,32 @@ md5::md5()
       {
       libbase::trace << "md5: Testing implementation\n";
       // http://www.faqs.org/rfcs/rfc1321.html
-      string sMessage, sHash;
-      // Test vector 0
+      std::string sMessage, sHash;
+      // Test libbase::vector 0
       sMessage = "";
       sHash = "d41d8cd98f00b204e9800998ecf8427e";
       assert(verify(sMessage,sHash));
-      // Test vector 1
+      // Test libbase::vector 1
       sMessage = "a";
       sHash = "0cc175b9c0f1b6a831c399e269772661";
       assert(verify(sMessage,sHash));
-      // Test vector 2
+      // Test libbase::vector 2
       sMessage = "abc";
       sHash = "900150983cd24fb0d6963f7d28e17f72";
       assert(verify(sMessage,sHash));
-      // Test vector 3
+      // Test libbase::vector 3
       sMessage = "message digest";
       sHash = "f96b697d7cb7938d525a2f31aaf161d0";
       assert(verify(sMessage,sHash));
-      // Test vector 4
+      // Test libbase::vector 4
       sMessage = "abcdefghijklmnopqrstuvwxyz";
       sHash = "c3fcd3d76192e4007dfb496cca67e13b";
       assert(verify(sMessage,sHash));
-      // Test vector 5
+      // Test libbase::vector 5
       sMessage = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
       sHash = "d174ab98d277d9f5a5611c2c9f419d9f";
       assert(verify(sMessage,sHash));
-      // Test vector 6
+      // Test libbase::vector 6
       sMessage = "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
       sHash = "57edf4a22be3c955ac49da2e2107b67a";
       assert(verify(sMessage,sHash));
@@ -101,32 +89,28 @@ md5::md5()
       }
    }
 
-//////////////////////////////////////////////////////////////////////
 // Conversion to/from strings
-//////////////////////////////////////////////////////////////////////
 
-md5::md5(const string& s)
+md5::md5(const std::string& s)
    {
    // reset size counter
    m_size = 0;
    // reset chaining variables
    m_hash.init(4);
-   // load from string
+   // load from std::string
    std::istringstream is(s);
    is >> *this;
    }
 
-md5::operator string() const
+md5::operator std::string() const
    {
-   // write into a string
+   // write into a std::string
    std::ostringstream sout;
    sout << *this;
    return sout.str();
    }
 
-//////////////////////////////////////////////////////////////////////
 // Public interface for computing digest
-//////////////////////////////////////////////////////////////////////
 
 void md5::reset()
    {
@@ -138,16 +122,16 @@ void md5::reset()
    m_hash(1) = 0xefcdab89;
    m_hash(2) = 0x98badcfe;
    m_hash(3) = 0x10325476;
-#ifdef _DEBUG
+#ifndef NDEBUG
    // debugging
    m_padded = m_terminated = false;
 #endif
    }
 
-void md5::process(const vector<int32u>& M)
+void md5::process(const libbase::vector<libbase::int32u>& M)
    {
    // copy variables
-   vector<int32u> hash = m_hash;
+   libbase::vector<libbase::int32u> hash = m_hash;
    // main loop
    for(int i=0; i<64; i++)
       {
@@ -167,25 +151,25 @@ void md5::process(const char *buf, const int size)
    assert(size <= 64);
    //trace << "MD5: process block size " << size << "\n";
    // convert message block and process
-   vector<int32u> M(16);
+   libbase::vector<libbase::int32u> M(16);
    // initialize values
    M = 0;
    trace << "md5: block input = " << std::hex;
    for(int i=0; i<size; i++)
       {
-      M(i>>2) |= int8u(buf[i]) << 8*(i & 3);
-#ifdef _DEBUG
+      M(i>>2) |= libbase::int8u(buf[i]) << 8*(i & 3);
+#ifndef NDEBUG
       trace.width(2);
       trace.fill('0');
-      trace << int(int8u(buf[i])) << " ";
+      trace << int(libbase::int8u(buf[i])) << " ";
 #endif
       }
    trace << std::dec << "\n";
    // add padding (1-bit followed by zeros) if it fits and is necessary
    if(size < 64 && (m_size % 64) == 0)
       {
-      M(size>>2) |= int8u(0x80) << 8*(size & 3);
-#ifdef _DEBUG
+      M(size>>2) |= libbase::int8u(0x80) << 8*(size & 3);
+#ifndef NDEBUG
       if(m_padded)
          trace << "MD5 Error: Padding already added\n";
       m_padded = true;
@@ -198,9 +182,9 @@ void md5::process(const char *buf, const int size)
    // (note that we need to fit the 8-byte size AND 1 byte of padding)
    if(size < 64-8)
       {
-      M(14) = int32u(m_size << 3);
-      M(15) = int32u(m_size >> 29);
-#ifdef _DEBUG
+      M(14) = libbase::int32u(m_size << 3);
+      M(15) = libbase::int32u(m_size >> 29);
+#ifndef NDEBUG
       m_terminated = true;
       //trace << "MD5: adding file size " << hex << M(14) << " " << M(15) << dec << "\n";
 #endif
@@ -225,9 +209,7 @@ void md5::process(std::istream& sin)
       process(buf, 0);
    }
 
-//////////////////////////////////////////////////////////////////////
 // Comparison functions
-//////////////////////////////////////////////////////////////////////
 
 bool md5::operator>(const md5& x) const
    {
@@ -266,32 +248,26 @@ bool md5::operator!=(const md5& x) const
    return !operator==(x);
    }
 
-//////////////////////////////////////////////////////////////////////
 // Verification function
-//////////////////////////////////////////////////////////////////////
 
-bool md5::verify(const string message, const string hash)
+bool md5::verify(const std::string message, const std::string hash)
    {
    reset();
    std::istringstream s(message);
    process(s);
-   return hash == string(*this);
+   return hash == std::string(*this);
    }
 
-//////////////////////////////////////////////////////////////////////
 // Circular shift function
-//////////////////////////////////////////////////////////////////////
 
-int32u md5::cshift(const int32u x, const int s)
+libbase::int32u md5::cshift(const libbase::int32u x, const int s)
    {
    return (x << s) | (x >> (32-s));
    }
 
-//////////////////////////////////////////////////////////////////////
 // MD5 nonlinear function implementations
-//////////////////////////////////////////////////////////////////////
 
-int32u md5::f(const int i, const int32u X, const int32u Y, const int32u Z)
+libbase::int32u md5::f(const int i, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z)
    {
    assert(i<64);
    switch(i/16)
@@ -308,22 +284,18 @@ int32u md5::f(const int i, const int32u X, const int32u Y, const int32u Z)
    return 0;
    }
 
-//////////////////////////////////////////////////////////////////////
 // Circular shift function
-//////////////////////////////////////////////////////////////////////
 
-int32u md5::op(const int i, const int32u a, const int32u b, const int32u c, const int32u d, const vector<int32u>& M)
+libbase::int32u md5::op(const int i, const libbase::int32u a, const libbase::int32u b, const libbase::int32u c, const libbase::int32u d, const libbase::vector<libbase::int32u>& M)
    {
    return b + cshift(a + f(i,b,c,d) + M(ndx[i]) + t(i), s[i]);
    }
 
-//////////////////////////////////////////////////////////////////////
 // Stream input/output
-//////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<<(std::ostream& sout, const md5& x)
    {
-#ifdef _DEBUG
+#ifndef NDEBUG
    using libbase::trace;
    if(!x.m_padded)
       trace << "MD5 Error: Unpadded stream\n";

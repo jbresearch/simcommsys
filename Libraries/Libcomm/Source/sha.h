@@ -47,14 +47,14 @@ class sha {
    libbase::vector<libbase::int32u> m_hash;
    // size of message so far (used for termination)
    libbase::int64u m_size;
-#ifdef _DEBUG
+#ifndef NDEBUG
    // debugging variables
    bool m_padded, m_terminated;
 #endif
 public:
    // basic constructor/destructor
    sha();
-   virtual ~sha();
+   virtual ~sha() {};
    // conversion to/from strings
    sha(const std::string& s);
    operator std::string() const;
@@ -69,11 +69,11 @@ public:
    bool operator==(const sha& x) const;
    bool operator!=(const sha& x) const;
 protected:
-   // nonlinear functions
+   // Nonlinear functions
    static libbase::int32u f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z);
-   // circular shift
+   // Circular shift
    static libbase::int32u cshift(const libbase::int32u x, const int s);
-   // message expander
+   // Message expander
    static void expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libbase::int32u>& W);
    // stream input/output
    friend std::ostream& operator<<(std::ostream& sout, const sha& x);
