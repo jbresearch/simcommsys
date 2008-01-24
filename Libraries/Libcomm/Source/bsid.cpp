@@ -104,7 +104,7 @@ void bsid::set_pi(const double Pi)
 // Channel function overrides
 
 /*!
-   \copydoc channel::compute_parameters()
+   \copydoc channel<sigspace>::compute_parameters()
 
    There is no real relationship between SNR and the insertion/deletion probabilities.
    However, the simulator uses SNR as its common channel-quality measure, so that a functional
@@ -155,7 +155,7 @@ sigspace bsid::corrupt(const sigspace& s)
 // Channel functions
 
 /*!
-   \copydoc channel::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
+   \copydoc channel::transmit()
 
    The channel model implemented is described by the following state diagram:
    \dot
