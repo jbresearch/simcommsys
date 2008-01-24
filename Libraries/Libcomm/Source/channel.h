@@ -2,6 +2,7 @@
 #define __channel_h
 
 #include "config.h"
+#include "serializer.h"
 #include "vector.h"
 #include "matrix.h"
 

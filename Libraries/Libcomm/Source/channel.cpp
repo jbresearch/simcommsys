@@ -8,7 +8,6 @@
 */
 
 #include "channel.h"
-#include "serializer.h"
 
 namespace libcomm {
 
