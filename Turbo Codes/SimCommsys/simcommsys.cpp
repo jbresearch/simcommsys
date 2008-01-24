@@ -57,6 +57,14 @@
    - moved serializer_libcomm object from a global variable to a local one in
      main; this resolves the possibility where the serializer_libcomm is
      initialized before the trace object.
+
+   \version 2.00 (24 Jan 2008)
+   - Modified createsystem() to return an experiment instead of a commsys,
+     generalizing this program to all simulation types; consequently, this
+     requires the addition of a line to system files specifying the system
+     type.
+   - Refactored, renaming variabled to indicate that the simulation parameter
+     is no longer tied to SNR values.
 */
 
 using std::cout;
@@ -70,11 +78,11 @@ public:
    bool interrupt() { return libbase::keypressed()>0 || libbase::interrupted(); };
 };
 
-libcomm::commsys *createsystem(const char *filename)
+libcomm::experiment *createsystem(const char *filename)
    {
    std::ifstream file(filename);
-   libcomm::commsys *system = new libcomm::commsys;
-   system->serialize(file);
+   libcomm::experiment *system;
+   file >> system;
    return system;
    }
 
@@ -89,43 +97,41 @@ int main(int argc, char *argv[])
    estimator.enable(&argc, &argv);
 
    // Simulation parameters
-   if(argc < 6)
+   if(argc < 7)
       {
-      cerr << "Usage: " << argv[0] << " SNRmin SNRmax SNRstep ERmin System\n";
+      cerr << "Usage: " << argv[0] << " <min> <max> <step> <min_error> <system>\n";
       exit(1);
       }
-   const double SNRmin = atof(argv[1]);
-   const double SNRmax = atof(argv[2]);
-   const double SNRstep = atof(argv[3]);
-   if(SNRmax < SNRmin || SNRstep <= 0)
+   const double Pmin = atof(argv[1]);
+   const double Pmax = atof(argv[2]);
+   const double Pstep = atof(argv[3]);
+   if(Pmax < Pmin || Pstep <= 0)
       {
-      cerr << "Invalid SNR parameters: " << SNRmin << ", " << SNRmax << ", " << SNRstep << "\n";
+      cerr << "Invalid Parameters: " << Pmin << ", " << Pmax << ", " << Pstep << "\n";
       exit(1);
       }
-   const double ERmin = atof(argv[4]);
+   const double min_error = atof(argv[4]);
    const double confidence = 0.90;
    const double accuracy = 0.15;
    // Set up the estimator
-   libcomm::commsys *system = createsystem(argv[5]);
+   libcomm::experiment *system = createsystem(argv[5]);
    estimator.initialise(system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
 
    // Print information on the statistical accuracy of results being worked
    cout << "#% " << system->description() << "\n";
-   cout << "#% Code Rate: " << system->getcodec()->rate() << "\n";
-   cout << "#% Modulation Rate: " << system->getmodem()->rate() << "\n";
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";
    cout << "#\n" << flush;
 
    // Work out the following for every SNR value required
-   for(double SNR = SNRmin; SNR <= SNRmax; SNR += SNRstep)
+   for(double P = Pmin; P <= Pmax; P += Pstep)
       {
-      system->set_parameter(SNR);
+      system->set_parameter(P);
 
-      cerr << "Simulating system at Eb/No = " << SNR << "\n";
+      cerr << "Simulating system at parameter = " << P << "\n";
       libbase::vector<double> estimate, tolerance;
       estimator.estimate(estimate, tolerance);
 
@@ -133,13 +139,13 @@ int main(int argc, char *argv[])
          << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - " \
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
 
-      cout << SNR;
+      cout << P;
       for(int i=0; i<system->count(); i++)
          cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
       cout << "\t" << estimator.get_samplecount() << "\n" << flush;
 
       // handle pre-mature breaks
-      if(estimator.interrupt() || estimate.min()<ERmin)
+      if(estimator.interrupt() || estimate.min()<min_error)
          break;
       }
 
