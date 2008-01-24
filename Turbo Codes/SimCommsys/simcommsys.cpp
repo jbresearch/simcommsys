@@ -78,12 +78,62 @@ public:
    bool interrupt() { return libbase::keypressed()>0 || libbase::interrupted(); };
 };
 
-libcomm::experiment *createsystem(const char *filename)
+const char *getlastargument(int *argc, char **argv[])
    {
-   std::ifstream file(filename);
+   // read & swallow argument
+   const char *a = (*argv)[*argc-1];
+   (*argv)[*argc-1] = NULL;
+   (*argc)--;
+   return a;
+   }
+
+libcomm::experiment *createsystem(int *argc, char **argv[])
+   {
+   if(*argc < 2)
+      {
+      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <system>\n";
+      exit(1);
+      }
+   // load system
+   std::ifstream file(getlastargument(argc, argv));
    libcomm::experiment *system;
    file >> system;
    return system;
+   }
+
+double getminerror(int *argc, char **argv[])
+   {
+   if(*argc < 2)
+      {
+      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <min_error>\n";
+      exit(1);
+      }
+   return atof(getlastargument(argc, argv));
+   }
+
+libbase::vector<double> getparameterset(int *argc, char **argv[])
+   {
+   if(*argc < 4)
+      {
+      cerr << "Usage: " << (*argv)[0] << " <min> <max> <step>\n";
+      exit(1);
+      }
+   // read range specification
+   const double Pstep = atof(getlastargument(argc, argv));
+   const double Pmax = atof(getlastargument(argc, argv));
+   const double Pmin = atof(getlastargument(argc, argv));
+   if(Pmax < Pmin || Pstep <= 0)
+      {
+      cerr << "Invalid Parameters: " << Pmin << ", " << Pmax << ", " << Pstep << "\n";
+      exit(1);
+      }
+   // create required range
+   const int count = int(floor((Pmax-Pmin)/Pstep));
+   libbase::vector<double> Pset(count);
+   Pset(0) = Pmin;
+   for(int i=1; i<count; i++)
+      Pset(i) = Pset(i-1) + Pstep;
+   return Pset;
    }
 
 int main(int argc, char *argv[])
@@ -95,29 +145,17 @@ int main(int argc, char *argv[])
    // Create estimator object and initilize cluster, default priority
    mymontecarlo estimator;
    estimator.enable(&argc, &argv);
-
-   // Simulation parameters
-   if(argc < 7)
-      {
-      cerr << "Usage: " << argv[0] << " <min> <max> <step> <min_error> <system>\n";
-      exit(1);
-      }
-   const double Pmin = atof(argv[1]);
-   const double Pmax = atof(argv[2]);
-   const double Pstep = atof(argv[3]);
-   if(Pmax < Pmin || Pstep <= 0)
-      {
-      cerr << "Invalid Parameters: " << Pmin << ", " << Pmax << ", " << Pstep << "\n";
-      exit(1);
-      }
-   const double min_error = atof(argv[4]);
+   // Set up fixed settings
    const double confidence = 0.90;
    const double accuracy = 0.15;
-   // Set up the estimator
-   libcomm::experiment *system = createsystem(argv[5]);
-   estimator.initialise(system);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
+
+   // Simulation system & parameters, in reverse order
+   libcomm::experiment *system = createsystem(&argc, &argv);
+   estimator.initialise(system);
+   const double min_error = getminerror(&argc, &argv);
+   libbase::vector<double> Pset = getparameterset(&argc, &argv);
 
    // Print information on the statistical accuracy of results being worked
    cout << "#% " << system->description() << "\n";
@@ -127,11 +165,11 @@ int main(int argc, char *argv[])
    cout << "#\n" << flush;
 
    // Work out the following for every SNR value required
-   for(double P = Pmin; P <= Pmax; P += Pstep)
+   for(int i=0; i<Pset.size(); i++)
       {
-      system->set_parameter(P);
+      system->set_parameter(Pset(i));
 
-      cerr << "Simulating system at parameter = " << P << "\n";
+      cerr << "Simulating system at parameter = " << Pset(i) << "\n";
       libbase::vector<double> estimate, tolerance;
       estimator.estimate(estimate, tolerance);
 
@@ -139,7 +177,7 @@ int main(int argc, char *argv[])
          << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - " \
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
 
-      cout << P;
+      cout << Pset(i);
       for(int i=0; i<system->count(); i++)
          cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
       cout << "\t" << estimator.get_samplecount() << "\n" << flush;
