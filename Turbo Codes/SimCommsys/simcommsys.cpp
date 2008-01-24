@@ -113,26 +113,45 @@ double getminerror(int *argc, char **argv[])
 
 libbase::vector<double> getparameterset(int *argc, char **argv[])
    {
-   if(*argc < 4)
+   if(*argc < 5)
       {
-      cerr << "Usage: " << (*argv)[0] << " <min> <max> <step>\n";
+      cerr << "Usage: " << (*argv)[0] << " <-lin|-log> <min> <max> <step>\n";
       exit(1);
       }
    // read range specification
+   const char *type = getlastargument(argc, argv);
    const double Pstep = atof(getlastargument(argc, argv));
    const double Pmax = atof(getlastargument(argc, argv));
    const double Pmin = atof(getlastargument(argc, argv));
-   if(Pmax < Pmin || Pstep <= 0)
+   // validate range
+   double steps = 0;
+   bool linear = true;
+   if(strcmp(type,"-lin")==0)
       {
-      cerr << "Invalid Parameters: " << Pmin << ", " << Pmax << ", " << Pstep << "\n";
+      steps = floor((Pmax-Pmin)/Pstep);
+      linear = true;
+      }
+   else if(strcmp(type,"-log")==0)
+      {
+      steps = floor((log(Pmax)-log(Pmin))/log(Pstep));
+      linear = false;
+      }
+   else
+      {
+      cerr << "Invalid range type: " << type << "\n";
+      exit(1);
+      }
+   if(!(steps >= 1 && steps <= 65535))
+      {
+      cerr << "Range does not converge: " << Pmin << ':' << Pstep << ':' << Pmax << '\n';
       exit(1);
       }
    // create required range
-   const int count = int(floor((Pmax-Pmin)/Pstep));
+   const int count = int(steps);
    libbase::vector<double> Pset(count);
    Pset(0) = Pmin;
    for(int i=1; i<count; i++)
-      Pset(i) = Pset(i-1) + Pstep;
+      Pset(i) = linear ? (Pset(i-1) + Pstep) : (Pset(i-1) * Pstep);
    return Pset;
    }
 
