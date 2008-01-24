@@ -119,10 +119,10 @@ libbase::vector<double> getparameterset(int *argc, char **argv[])
       exit(1);
       }
    // read range specification
-   const char *type = getlastargument(argc, argv);
    const double Pstep = atof(getlastargument(argc, argv));
    const double Pmax = atof(getlastargument(argc, argv));
    const double Pmin = atof(getlastargument(argc, argv));
+   const char *type = getlastargument(argc, argv);
    // validate range
    double steps = 0;
    bool linear = true;
