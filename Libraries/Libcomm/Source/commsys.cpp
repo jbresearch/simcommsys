@@ -231,6 +231,8 @@ commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *
    \brief Copy constructor
 
    Initializes system with bound objects cloned from supplied system.
+
+   \todo Fix cast when cloning channel: this should not be necessary.
 */
 commsys::commsys(const commsys& c)
    {
