@@ -85,6 +85,9 @@ namespace libcomm {
 
    \version 1.52 (22 Jan 2008)
    - Removed 'friend' declaration of stream operators.
+
+   \version 1.53 (24 Jan 2008)
+   - Changed reference from channel to channel<sigspace>
 */
 
 class modulator {
@@ -133,7 +136,7 @@ public:
       \note \c ptable(i,d) \c is the a posteriori probability of having transmitted 
             symbol 'd' at time 'i'
    */
-   virtual void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) = 0;
+   virtual void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) = 0;
    // @}
 
    /*! \name Informative functions */

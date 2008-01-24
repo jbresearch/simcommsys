@@ -21,6 +21,9 @@ namespace libcomm {
 
    \version 1.10 (15 Nov 2007)
    - modified demodulate() according to refactoring changes in channel 1.60
+
+   \version 1.11 (24 Jan 2008)
+   - Changed reference from channel to channel<sigspace>
 */
 
 class lut_modulator : public modulator {
@@ -36,7 +39,7 @@ public:
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
-   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
+   void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
 
    // information functions
    int num_symbols() const { return lut.size(); };

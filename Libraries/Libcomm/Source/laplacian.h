@@ -52,9 +52,12 @@ namespace libcomm {
 
    \version 1.43 (29 Oct 2007)
    - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+   \version 1.44 (24 Jan 2008)
+   - Changed derivation from channel to channel<sigspace>
 */
 
-class laplacian : public channel {
+class laplacian : public channel<sigspace> {
    static const libbase::serializer shelper;
    static void* create() { return new laplacian; };
    // channel paremeters

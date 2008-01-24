@@ -164,7 +164,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
          }
    }
 
-template <class real> void watermarkcode<real>::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
+template <class real> void watermarkcode<real>::demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
    // Inherit block size from last modulation step

@@ -117,6 +117,9 @@ namespace libcomm {
    - Modified seed() so that different (but still deterministic seeds are used in
      the various components; this ensures that the sequences do not just 'happen'
      to be the same.
+
+   \version 1.83 (24 Jan 2008)
+   - Changed reference from channel to channel<sigspace>
 */
 
 class commsys : public experiment {
@@ -127,13 +130,12 @@ class commsys : public experiment {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
-   bool        internallyallocated;
-   //! Random generator used to create the source data sequence
-   libbase::randgen     *src;
-   codec       *cdc;    //!< Error-control codec
-   modulator   *modem;  //!< Modulation scheme
-   puncture    *punc;   //!< Puncturing (operates on signal-space symbols)
-   channel     *chan;   //!< Channel model
+   bool  internallyallocated;
+   libbase::randgen     *src;    //!< Source data sequence generator
+   codec                *cdc;    //!< Error-control codec
+   modulator            *modem;  //!< Modulation scheme
+   puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
+   channel<sigspace>    *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
    int  tau;   //!< Codec block size (in time-steps)
@@ -167,7 +169,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan);
+   commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
    commsys(const commsys& c);
    commsys() { clear(); };
    ~commsys() { free(); };
@@ -189,13 +191,13 @@ public:
 
    /*! \name Component object handles */
    //! Get error-control codec
-   const codec     *getcodec() const { return cdc; };
+   const codec *getcodec() const { return cdc; };
    //! Get modulation scheme
    const modulator *getmodem() const { return modem; };
    //! Get puncturing scheme
-   const puncture  *getpunc() const { return punc; };
+   const puncture *getpunc() const { return punc; };
    //! Get channel model
-   const channel   *getchan() const { return chan; };
+   const channel<sigspace> *getchan() const { return chan; };
    // @}
 
    // Description & Serialization

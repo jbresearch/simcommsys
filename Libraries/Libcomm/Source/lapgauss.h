@@ -36,9 +36,12 @@ namespace libcomm {
 
    \version 1.23 (21 Jan 2008)
    - Fixed include-once definitions
+
+   \version 1.24 (24 Jan 2008)
+   - Changed derivation from channel to channel<sigspace>
 */
 
-class lapgauss : public channel {
+class lapgauss : public channel<sigspace> {
    static const libbase::serializer shelper;
    static void* create() { return new lapgauss; };
    // channel paremeters

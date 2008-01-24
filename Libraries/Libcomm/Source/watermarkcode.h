@@ -112,6 +112,9 @@ namespace libcomm {
 
    \version 1.40 (6 Dec 2007)
    - removed I and xmax from user-defined parameters, as in bsid 1.40
+
+   \version 1.41 (24 Jan 2008)
+   - Changed reference from channel to channel<sigspace>
 */
 
 template <class real> class watermarkcode : public mpsk, private fba<real> {
@@ -150,7 +153,7 @@ public:
    // modulation/demodulation - vector operations
    //    N - the number of possible values of each encoded element
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
-   void demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
+   void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
 
    // information functions
    int num_symbols() const { return 1<<k; };

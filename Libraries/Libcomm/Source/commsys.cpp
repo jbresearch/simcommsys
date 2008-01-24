@@ -216,7 +216,7 @@ void commsys::cycleonce(libbase::vector<double>& result)
 
    Initializes system with bound objects as supplied by user.
 */
-commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan)
+commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan)
    {
    commsys::src = src;
    commsys::cdc = cdc;
@@ -238,7 +238,7 @@ commsys::commsys(const commsys& c)
    commsys::cdc = c.cdc->clone();
    commsys::modem = c.modem->clone();
    commsys::punc = c.punc->clone();
-   commsys::chan = c.chan->clone();
+   commsys::chan = (channel<sigspace> *)c.chan->clone();
    internallyallocated = true;
    init();
    }

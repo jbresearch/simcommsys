@@ -51,9 +51,12 @@ namespace libcomm {
 
    \version 1.53 (29 Oct 2007)
    - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+
+   \version 1.54 (24 Jan 2008)
+   - Changed derivation from channel to channel<sigspace>
 */
 
-class awgn : public channel {
+class awgn : public channel<sigspace> {
    static const libbase::serializer shelper;
    static void* create() { return new awgn; };
    // channel paremeters

@@ -44,13 +44,16 @@ namespace libcomm {
    \version 1.40 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
    - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+   \version 1.41 (24 Jan 2008)
+   - Changed reference from channel to channel<sigspace>
 */
 
 class commsys_bitprofiler : public commsys {
 protected:
    void cycleonce(libbase::vector<double>& result);
 public:
-   commsys_bitprofiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel *chan);
+   commsys_bitprofiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
    ~commsys_bitprofiler() {};
    int count() const { return (tau-m)*iter; };
 };

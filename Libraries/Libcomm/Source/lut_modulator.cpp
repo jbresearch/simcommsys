@@ -53,7 +53,7 @@ void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, l
          tx(k) = modulate(x % M);
    }
 
-void lut_modulator::demodulate(const channel& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
+void lut_modulator::demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
    // Compute sizes
    const int M = lut.size();

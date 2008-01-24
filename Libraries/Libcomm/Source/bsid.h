@@ -94,9 +94,12 @@ namespace libcomm {
      therefore faster simulations) at low error rates.
    - added N as a user-defined parameter, since this is required to determine
      I and xmax
+
+   \version 1.41 (24 Jan 2008)
+   - Changed derivation from channel to channel<sigspace>
 */
 
-class bsid : public channel {
+class bsid : public channel<sigspace> {
    /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new bsid; };

@@ -14,6 +14,114 @@
 namespace libcomm {
 
 /*!
+   \brief   Common Channel Interface.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (24 Jan 2008)
+   - Contains common interface for channel classes.
+
+   \todo Think out and update cloning/serialization interface
+*/
+
+template <class S> class basic_channel {
+protected:
+   /*! \name Derived channel representation */
+   libbase::randgen  r;
+   // @}
+protected:
+   /*! \name Channel function overrides */
+   /*!
+      \brief Pass a single symbol through the substitution channel
+      \param   s  Input (Tx) symbol
+      \return  Output (Rx) symbol
+   */
+   virtual sigspace corrupt(const S& s) = 0;
+   /*!
+      \brief Determine the conditional likelihood for the received symbol
+      \param   tx  Transmitted symbol being considered
+      \param   rx  Received symbol
+      \return  Likelihood \f$ P(rx|tx) \f$
+   */
+   virtual double pdf(const S& tx, const S& rx) const = 0;
+   // @}
+public:
+   /*! \name Constructors / Destructors */
+   virtual ~basic_channel() {};
+   // @}
+   /*! \name Serialization Support */
+   virtual basic_channel *clone() const = 0;
+   virtual const char* name() const = 0;
+   // @}
+
+   /*! \name Channel parameter handling */
+   //! Reset function for random generator
+   void seed(libbase::int32u const s) { r.seed(s); };
+   //! Set the channel characteristic parameter
+   virtual void set_parameter(const double x) = 0;
+   //! Get the channel characteristic parameter
+   virtual double get_parameter() const = 0;
+   // @}
+
+   /*! \name Channel functions */
+   /*!
+      \brief Pass a sequence of modulation symbols through the channel
+      \param[in]  tx  Transmitted sequence of modulation symbols
+      \param[out] rx  Received sequence of modulation symbols
+
+      \note It is possible that the \c tx and \c rx parameters actually point to the same
+            vector.
+
+      \callergraph
+   */
+   virtual void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx) = 0;
+   /*!
+      \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
+             corresponding to one transmission step
+      \param[in]  tx       Set of possible transmitted symbols
+      \param[in]  rx       Received sequence of modulation symbols
+      \param[out] ptable   Likelihoods corresponding to each possible transmitted symbol
+
+      \callergraph
+   */
+   virtual void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const = 0;
+   /*!
+      \brief Determine the likelihood of a sequence of received modulation symbols, given
+             a particular transmitted sequence
+      \param[in]  tx       Transmitted sequence being considered
+      \param[in]  rx       Received sequence of modulation symbols
+      \return              Likelihood \f$ P(rx|tx) \f$
+
+      \callergraph
+   */
+   virtual double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const = 0;
+   /*!
+      \brief Determine the likelihood of a sequence of received modulation symbols, given
+             a particular transmitted symbol
+      \param[in]  tx       Transmitted symbol being considered
+      \param[in]  rx       Received sequence of modulation symbols
+      \return              Likelihood \f$ P(rx|tx) \f$
+
+      \callergraph
+   */
+   virtual double receive(const S& tx, const libbase::vector<S>& rx) const = 0;
+   // @}
+
+   /*! \name Description & Serialization */
+   //! Object description output
+   virtual std::string description() const = 0;
+   //! Object serialization ouput
+   virtual std::ostream& serialize(std::ostream &sout) const { return sout; };
+   //! Object serialization input
+   virtual std::istream& serialize(std::istream &sin) { return sin; };
+   // @}
+};
+
+/*!
    \brief   Channel Base.
    \author  Johann Briffa
 
@@ -120,9 +228,59 @@ namespace libcomm {
    - Made serialization functions virtual again (fixed bug introduced in rev. 461
    - Made get_eb/get_no available again, to allow their use in watermarkcode::demodulate();
      TODO: this has to change when abstracting the channel class.
+
+   \version 2.00 (24 Jan 2008)
+   - Abstracted channel class by templating, with the channel-symbol type as
+     template parameter; this is meant to allow the creation of channels that
+     are not tied to signal-space transmission (e.g. the binary symmetric
+     channel).
+   - Signal-space specific functions are moved to a class specialization.
+   - Common channel interface moved to basic_channel template.
 */
 
-class channel {
+template <class S> class channel : public basic_channel<S> {
+};
+
+/*! \name Serialization */
+
+template <class S> std::ostream& operator<<(std::ostream& sout, const channel<S>* x)
+   {
+   sout << x->name() << "\n";
+   x->serialize(sout);
+   return sout;
+   }
+
+template <class S> std::istream& operator>>(std::istream& sin, channel<S>*& x)
+   {
+   std::string name;
+   sin >> name;
+   x = (channel<S> *) libbase::serializer::call("channel", name);
+   if(x == NULL)
+      {
+      std::cerr << "FATAL ERROR (channel): Type \"" << name << "\" unknown.\n";
+      exit(1);
+      }
+   x->serialize(sin);
+   return sin;
+   }
+
+// @}
+
+/*!
+   \brief   Signal-Space Channel.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (24 Jan 2008)
+   - Elements specific to the signal-space channel model moved to this implementation
+     derived from the abstract class.
+*/
+
+template <> class channel<sigspace> : public basic_channel<sigspace> {
 private:
    /*! \name User-defined parameters */
    double   snr_db;  //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
@@ -136,10 +294,6 @@ private:
    void compute_noise();
    // @}
 protected:
-   /*! \name Derived channel representation */
-   libbase::randgen  r;
-   // @}
-protected:
    /*! \name Channel function overrides */
    /*!
       \brief Determine channel-specific parameters based on given SNR
@@ -149,68 +303,33 @@ protected:
             that the actual band-limited noise energy is given by \f$ E_b N_0 \f$.
    */
    virtual void compute_parameters(const double Eb, const double No) {};
-   /*!
-      \brief Pass a single modulation symbol through the substitution channel
-      \param   s  Input (Tx) modulation symbol
-      \return  Output (Rx) modulation symbol
-   */
-   virtual sigspace corrupt(const sigspace& s) = 0;
-   /*!
-      \brief Determine the conditional likelihood for the received symbol
-      \param   tx  Transmitted modulation symbol being considered
-      \param   rx  Received modulation symbol
-      \return  Likelihood \f$ P(rx|tx) \f$
-   */
-   virtual double pdf(const sigspace& tx, const sigspace& rx) const = 0;
    // @}
 public:
    /*! \name Constructors / Destructors */
    channel();
-   virtual ~channel() {};
-   // @}
-   /*! \name Serialization Support */
-   virtual channel *clone() const = 0;
-   virtual const char* name() const = 0;
    // @}
 
    /*! \name Channel parameter handling */
-   //! Reset function for random generator
-   void seed(libbase::int32u const s) { r.seed(s); };
    //! Set the bit-equivalent signal energy
    void set_eb(const double Eb);
    //! Set the normalized noise energy
    void set_no(const double No);
-   //! Set the signal-to-noise ratio
-   void set_parameter(const double snr_db);
    //! Get the bit-equivalent signal energy
    double get_eb() const { return Eb; };
    //! Get the normalized noise energy
    double get_no() const { return No; };
+   //! Set the signal-to-noise ratio
+   void set_parameter(const double snr_db);
    //! Get the signal-to-noise ratio
    double get_parameter() const { return snr_db; };
-   // @}
 
    /*! \name Channel functions */
-   virtual void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
-   virtual void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
-   virtual double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
-   virtual double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
-   // @}
-
-   /*! \name Description & Serialization */
-   //! Object description output
-   virtual std::string description() const = 0;
-   //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream &sout) const { return sout; };
-   //! Object serialization input
-   virtual std::istream& serialize(std::istream &sin) { return sin; };
+   void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
+   void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
+   double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
+   double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
    // @}
 };
-
-/*! \name Serialization */
-std::ostream& operator<<(std::ostream& sout, const channel* x);
-std::istream& operator>>(std::istream& sin, channel*& x);
-// @}
 
 }; // end namespace
 
