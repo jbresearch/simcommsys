@@ -122,7 +122,7 @@ class serializer_libcomm : private
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    puncture_file, puncture_null, puncture_stipple,
-   commsys<sigspace>
+   commsys<sigspace>, commsys<bool>
 {
 public:
    serializer_libcomm() {};

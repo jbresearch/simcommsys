@@ -13,7 +13,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Communication System.
+   \brief   Common Base for Communication Systems.
    \author  Johann Briffa
 
    \par Version Control:
@@ -132,13 +132,8 @@ namespace libcomm {
         derivation of the class for the purposes of collecting different result
         sets.
    - Abstracted commsys:
-      - Common elements, consisting of source, codec, and channel, created in base
-        templated class basic_commsys.
-      - General templated commsys derived from this base; this cannot be
-        instantiated, as it is still abstract.
-      - Explicit specialization for sigspace channel contains remaining objects
-        and functions, and is equivalent to the old commsys class; anything that
-        used to use 'commsys' can now use 'commsys<sigspace>'.
+      - Common elements, consisting of source, codec, and channel, created in this
+        base templated class basic_commsys.
 */
 
 template <class S> class basic_commsys : public experiment {
@@ -194,7 +189,7 @@ public:
    //! Get error-control codec
    const codec *getcodec() const { return cdc; };
    //! Get channel model
-   const channel<sigspace> *getchan() const { return chan; };
+   const channel<S> *getchan() const { return chan; };
    // @}
 
    // Description & Serialization
@@ -203,9 +198,39 @@ public:
    std::istream& serialize(std::istream& sin);
 };
 
+/*!
+   \brief   Base Communication System.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (25 Jan 2008)
+   - Abstracted commsys:
+      - General templated commsys derived from generic base; this cannot be
+        instantiated, as it is still abstract.
+*/
 template <class S> class commsys : public basic_commsys<S> {
 };
 
+/*!
+   \brief   Signal-Space Communication System.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (25 Jan 2008)
+   - Abstracted commsys:
+      - This explicit specialization for sigspace channel contains objects
+        and functions remaining from the templated base, and is equivalent
+        to the old commsys class; anything that used to use 'commsys' can
+        now use 'commsys<sigspace>'.
+*/
 template <> class commsys<sigspace> : public basic_commsys<sigspace> {
    /*! \name Serialization */
    static const libbase::serializer shelper;
@@ -249,6 +274,39 @@ public:
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
+};
+
+/*!
+   \brief   Binary Communication System.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (25 Jan 2008)
+   - Abstracted commsys:
+      - This explicit specialization for bool channel contains objects
+        and functions remaining from the templated base to create a
+        complete class.
+*/
+template <> class commsys<bool> : public basic_commsys<bool> {
+   /*! \name Serialization */
+   static const libbase::serializer shelper;
+   static void* create() { return new commsys<bool>; };
+   // @}
+protected:
+   /*! \name Internal functions */
+   void mapper(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
+   void unmapper(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+   void transmitandreceive(libbase::vector<int>& source);
+   // @}
+public:
+   //*! \name Serialization Support */
+   commsys *clone() const { return new commsys(*this); };
+   const char* name() const { return shelper.name(); };
+   // @}
 };
 
 }; // end namespace
