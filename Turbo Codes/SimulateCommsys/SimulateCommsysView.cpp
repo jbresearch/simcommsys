@@ -428,7 +428,7 @@ void CSimulateCommsysView::ThreadProc()
    // Source Generator
    libbase::randgen src;
    // The complete communication system
-   libcomm::commsys system(&src, pDoc->GetCodec(), pDoc->GetModulator(), pDoc->GetPuncture(), pDoc->GetChannel());
+   libcomm::commsys<libcomm::sigspace> system(&src, pDoc->GetCodec(), pDoc->GetModulator(), pDoc->GetPuncture(), pDoc->GetChannel());
    // The actual estimator - tie to the system and set up
    initialise(&system);
    set_confidence(pDoc->GetConfidence());

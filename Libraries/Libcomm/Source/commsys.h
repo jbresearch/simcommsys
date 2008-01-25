@@ -131,22 +131,24 @@ namespace libcomm {
         function, and made this virtual rather than cycleonce(); this facilitates
         derivation of the class for the purposes of collecting different result
         sets.
+   - Abstracted commsys:
+      - Common elements, consisting of source, codec, and channel, created in base
+        templated class basic_commsys.
+      - General templated commsys derived from this base; this cannot be
+        instantiated, as it is still abstract.
+      - Explicit specialization for sigspace channel contains remaining objects
+        and functions, and is equivalent to the old commsys class; anything that
+        used to use 'commsys' can now use 'commsys<sigspace>'.
 */
 
-class commsys : public experiment {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new commsys; };
-   // @}
+template <class S> class basic_commsys : public experiment {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
    bool  internallyallocated;
    libbase::randgen     *src;    //!< Source data sequence generator
    codec                *cdc;    //!< Error-control codec
-   modulator            *modem;  //!< Modulation scheme
-   puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
-   channel<sigspace>    *chan;   //!< Channel model
+   channel<S>           *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
    int  tau;   //!< Codec block size (in time-steps)
@@ -164,7 +166,8 @@ protected:
    // @}
    /*! \name Internal functions */
    libbase::vector<int> createsource();
-   void transmitandreceive(libbase::vector<int>& source);
+   //! Perform a complete transmit/receive cycle, except for final decoding
+   virtual void transmitandreceive(libbase::vector<int>& source) = 0;
    int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    virtual void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
@@ -172,15 +175,10 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
-   commsys(const commsys& c);
-   commsys() { clear(); };
-   ~commsys() { free(); };
-   // @}
-
-   //*! \name Serialization Support */
-   commsys *clone() const { return new commsys(*this); };
-   const char* name() const { return shelper.name(); };
+   basic_commsys(libbase::randgen *src, codec *cdc, channel<S> *chan);
+   basic_commsys(const basic_commsys<S>& c);
+   basic_commsys() { clear(); };
+   virtual ~basic_commsys() { free(); };
    // @}
 
    // Experiment parameter handling
@@ -195,12 +193,56 @@ public:
    /*! \name Component object handles */
    //! Get error-control codec
    const codec *getcodec() const { return cdc; };
+   //! Get channel model
+   const channel<sigspace> *getchan() const { return chan; };
+   // @}
+
+   // Description & Serialization
+   std::string description() const;
+   std::ostream& serialize(std::ostream& sout) const;
+   std::istream& serialize(std::istream& sin);
+};
+
+template <class S> class commsys : public basic_commsys<S> {
+};
+
+template <> class commsys<sigspace> : public basic_commsys<sigspace> {
+   /*! \name Serialization */
+   static const libbase::serializer shelper;
+   static void* create() { return new commsys<sigspace>; };
+   // @}
+protected:
+   /*! \name Bound objects */
+   modulator            *modem;  //!< Modulation scheme
+   puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
+   // @}
+protected:
+   /*! \name Setup functions */
+   void init();
+   void clear();
+   void free();
+   // @}
+   /*! \name Internal functions */
+   void transmitandreceive(libbase::vector<int>& source);
+   // @}
+public:
+   /*! \name Constructors / Destructors */
+   commsys<sigspace>(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
+   commsys<sigspace>(const commsys<sigspace>& c);
+   commsys<sigspace>() { clear(); };
+   virtual ~commsys<sigspace>() { free(); };
+   // @}
+
+   //*! \name Serialization Support */
+   commsys *clone() const { return new commsys(*this); };
+   const char* name() const { return shelper.name(); };
+   // @}
+
+   /*! \name Component object handles */
    //! Get modulation scheme
    const modulator *getmodem() const { return modem; };
    //! Get puncturing scheme
    const puncture *getpunc() const { return punc; };
-   //! Get channel model
-   const channel<sigspace> *getchan() const { return chan; };
    // @}
 
    // Description & Serialization

@@ -52,7 +52,7 @@ namespace libcomm {
    - Updated to conform with commsys 2.00
 */
 
-class commsys_bitprofiler : public commsys {
+class commsys_bitprofiler : public commsys<sigspace> {
 protected:
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
 public:

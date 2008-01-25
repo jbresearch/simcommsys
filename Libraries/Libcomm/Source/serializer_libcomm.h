@@ -107,6 +107,9 @@ namespace libcomm {
 
    \version 2.25 (24 Jan 2008)
    - Added commsys experiment type
+
+   \version 2.26 (25 Jan 2008)
+   - Modified commsys to commsys<sigspace>
 */
 
 // Serialization support
@@ -119,7 +122,7 @@ class serializer_libcomm : private
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    puncture_file, puncture_null, puncture_stipple,
-   commsys
+   commsys<sigspace>
 {
 public:
    serializer_libcomm() {};

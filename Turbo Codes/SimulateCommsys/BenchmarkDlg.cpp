@@ -111,7 +111,7 @@ void CBenchmarkDlg::ThreadProc()
    // Source Generator
    libbase::randgen src;
    // The complete communication system
-   libcomm::commsys system(&src, m_pCodec, m_pModulator, m_pPuncture, m_pChannel);
+   libcomm::commsys<libcomm::sigspace> system(&src, m_pCodec, m_pModulator, m_pPuncture, m_pChannel);
 
    // Work out at the SNR value required
    m_pChannel->set_parameter(m_dSNR);

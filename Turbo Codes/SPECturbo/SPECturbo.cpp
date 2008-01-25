@@ -85,6 +85,9 @@
    \version 2.63 (22 Jan 2008)
    - changed createsystem to create the commsys object on the heap instead of
      the stack.
+
+   \version 2.64 (25 Jan 2008)
+   - changed createsystem to create a commsys<sigspace>
 */
 
 const char *VERSION = "2.63";
@@ -125,7 +128,7 @@ libcomm::experiment *createsystem()
    // Source Generator
    libbase::randgen *src = new libbase::randgen;
    // The complete communication system
-   return new libcomm::commsys(src, codec, modem, punc, chan);
+   return new libcomm::commsys<libcomm::sigspace>(src, codec, modem, punc, chan);
    }
 
 int main(int argc, char *argv[])

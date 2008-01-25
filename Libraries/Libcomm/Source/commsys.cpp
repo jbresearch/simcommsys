@@ -18,19 +18,17 @@
 
 namespace libcomm {
 
-const libbase::serializer commsys::shelper("experiment", "commsys", commsys::create);
-
 // Setup functions
 
 /*!
-   \brief Initialize the communications system
+   \brief Initialize internal computed parameters
 
-   This function performs two things:
-   - Setting up the values of the computed parameters (including any
-     necessary validation on their values)
-   - Sets the average energy per bit in the bound channel model
+   \note This function is only responsible for initializing parameters
+         that are specific to this object/derivation. Anything else
+         should get done automatically when the base serializer or
+         constructor is called.
 */
-void commsys::init()
+template <class S> void basic_commsys<S>::init()
    {
    tau = cdc->block_size();
    m = cdc->tail_length();
@@ -43,22 +41,20 @@ void commsys::init()
       exit(1);
       }
    iter = cdc->num_iter();
-   // set up channel energy/bit (Eb)
-   double rate = cdc->rate();
-   if(punc != NULL)
-      rate /= punc->rate();
-   chan->set_eb(modem->bit_energy() / rate);
    }
 
 /*!
    \brief Sets up system with no bound objects.
+
+   \note This function is only responsible for clearing pointers to
+         objects that are specific to this object/derivation.
+         Anything else should get done automatically when the base
+         serializer or constructor is called.
 */
-void commsys::clear()
+template <class S> void basic_commsys<S>::clear()
    {
    src = NULL;
    cdc = NULL;
-   modem = NULL;
-   punc = NULL;
    chan = NULL;
    internallyallocated = true;
    }
@@ -69,15 +65,18 @@ void commsys::clear()
    This function performs two things:
    - Deletes any internally-allocated bound objects
    - Sets up the system with no bound objects
+
+   \note This function is only responsible for deleting bound
+         objects that are specific to this object/derivation.
+         Anything else should get done automatically when the base
+         serializer or constructor is called.
 */
-void commsys::free()
+template <class S> void basic_commsys<S>::free()
    {
    if(internallyallocated)
       {
       delete src;
       delete cdc;
-      delete modem;
-      delete punc;
       delete chan;
       }
    clear();
@@ -92,7 +91,7 @@ void commsys::free()
    The source sequence consists of uniformly random symbols followed by a
    tail sequence if required by the given codec.
 */
-libbase::vector<int> commsys::createsource()
+template <class S> libbase::vector<int> basic_commsys<S>::createsource()
    {
    libbase::vector<int> source(tau);
    for(int t=0; t<tau-m; t++)
@@ -103,7 +102,206 @@ libbase::vector<int> commsys::createsource()
    }
 
 /*!
-   \brief Perform a complete transmit/receive cycle, except for final decoding
+   \brief Count the number of bit errors in the last encode/decode cycle
+   \return Error count in bits
+*/
+template <class S> int basic_commsys<S>::countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   int biterrors = 0;
+   for(int t=0; t<tau-m; t++)
+      biterrors += libbase::weight(source(t) ^ decoded(t));
+   return biterrors;
+   }
+
+/*!
+   \brief Count the number of symbol errors in the last encode/decode cycle
+   \return Error count in symbols
+*/
+template <class S> int basic_commsys<S>::countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   int symerrors = 0;
+   for(int t=0; t<tau-m; t++)
+      if(source(t) != decoded(t))
+         symerrors++;
+   return symerrors;
+   }
+
+/*!
+   \brief Update result set
+   \param[out] result   Vector containing the set of results to be updated
+   \param[in]  i        Iteration just performed
+   \param[in]  source   Source data sequence
+   \param[in]  decoded  Decoded data sequence
+
+   Results are organized as (BER,SER,FER), repeated for every iteration that
+   needs to be performed.
+*/
+template <class S> void basic_commsys<S>::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   assert(i >= 0 && i < iter);
+   // Count errors
+   int biterrors = countbiterrors(source, decoded);
+   int symerrors = countsymerrors(source, decoded);
+   // Estimate the BER, SER, FER
+   result(3*i + 0) += biterrors / double((tau-m)*k);
+   result(3*i + 1) += symerrors / double((tau-m));
+   result(3*i + 2) += symerrors ? 1 : 0;
+   }
+
+/*!
+   \brief Perform a complete encode->transmit->receive cycle
+   \param[out] result   Vector containing the set of results to be updated
+
+   Results are organized as (BER,SER,FER), repeated for every iteration that
+   needs to be performed.
+
+   \note It is assumed that the result vector serves as an accumulator, so that
+         every cycle effectively adds to this result. The caller is responsible
+         to divide by the appropriate amount at the end to compute a meaningful
+         average.
+*/
+template <class S> void basic_commsys<S>::cycleonce(libbase::vector<double>& result)
+   {
+   assert(result.size() == count());
+   // Create source stream
+   libbase::vector<int> source = createsource();
+   // Full cycle from Encode through Demodulate
+   transmitandreceive(source);
+   // For every iteration
+   for(int i=0; i<iter; i++)
+      {
+      // Decode & update results
+      libbase::vector<int> decoded;
+      cdc->decode(decoded);
+      updateresults(result, i, source, decoded);
+      }
+   }
+
+// Constructors / Destructors
+
+/*!
+   \brief Main public constructor
+
+   Initializes system with bound objects as supplied by user.
+*/
+template <class S> basic_commsys<S>::basic_commsys(libbase::randgen *src, codec *cdc, channel<S> *chan)
+   {
+   basic_commsys<S>::src = src;
+   basic_commsys<S>::cdc = cdc;
+   basic_commsys<S>::chan = chan;
+   internallyallocated = false;
+   init();
+   }
+
+/*!
+   \brief Copy constructor
+
+   Initializes system with bound objects cloned from supplied system.
+
+   \todo Fix cast when cloning channel: this should not be necessary.
+*/
+template <class S> basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
+   {
+   basic_commsys<S>::src = new libbase::randgen;
+   basic_commsys<S>::cdc = c.cdc->clone();
+   basic_commsys<S>::chan = (channel<sigspace> *)c.chan->clone();
+   internallyallocated = true;
+   init();
+   }
+
+// Experiment parameter handling
+
+template <class S> void basic_commsys<S>::seed(int s)
+   {
+   src->seed(s);
+   cdc->seed(s+1);
+   chan->seed(s+2);
+   }
+
+// Experiment handling
+
+template <class S> void basic_commsys<S>::sample(libbase::vector<double>& result)
+   {
+   // initialise result vector
+   result.init(count());
+   result = 0;
+   // compute a single cycle
+   cycleonce(result);
+   }
+
+// Description & Serialization
+
+template <class S> std::string basic_commsys<S>::description() const
+   {
+   std::ostringstream sout;
+   sout << "Communication System: ";
+   sout << cdc->description() << ", ";
+   sout << chan->description();
+   return sout.str();
+   }
+
+template <class S> std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
+   {
+   sout << chan;
+   sout << cdc;
+   return sout;
+   }
+
+template <class S> std::istream& basic_commsys<S>::serialize(std::istream& sin)
+   {
+   free();
+   src = new libbase::randgen;
+   sin >> chan;
+   sin >> cdc;
+   internallyallocated = true;
+   init();
+   return sin;
+   }
+
+// *** Specific to commsys<sigspace> ***
+
+const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
+
+// Setup functions
+
+/*!
+   \copydoc basic_commsys<S>::init()
+
+   This function sets the average energy per data bit in the bound channel model.
+   The value depends on:
+   - Rate of codec
+   - Rate of puncturing
+   - Average energy per uncoded bit in the modulation scheme
+*/
+void commsys<sigspace>::init()
+   {
+   // set up channel energy/bit (Eb)
+   double rate = cdc->rate();
+   if(punc != NULL)
+      rate /= punc->rate();
+   chan->set_eb(modem->bit_energy() / rate);
+   }
+
+void commsys<sigspace>::clear()
+   {
+   modem = NULL;
+   punc = NULL;
+   }
+
+void commsys<sigspace>::free()
+   {
+   if(internallyallocated)
+      {
+      delete modem;
+      delete punc;
+      }
+   clear();
+   }
+
+// Internal functions
+
+/*!
+   \copydoc basic_commsys<S>::transmitandreceive()
 
    The cycle consists of the steps depicted in the following diagram:
    \dot
@@ -134,7 +332,7 @@ libbase::vector<int> commsys::createsource()
    The dotted lines and blocks indicate optional sections to support puncturing,
    which is currently done in signal-space.
 */
-void commsys::transmitandreceive(libbase::vector<int>& source)
+void commsys<sigspace>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    cdc->encode(source, encoded);
@@ -158,176 +356,54 @@ void commsys::transmitandreceive(libbase::vector<int>& source)
    cdc->translate(ptable1);
    }
 
-/*!
-   \brief Count the number of bit errors in the last encode/decode cycle
-   \return Error count in bits
-*/
-int commsys::countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   int biterrors = 0;
-   for(int t=0; t<tau-m; t++)
-      biterrors += libbase::weight(source(t) ^ decoded(t));
-   return biterrors;
-   }
-
-/*!
-   \brief Count the number of symbol errors in the last encode/decode cycle
-   \return Error count in symbols
-*/
-int commsys::countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   int symerrors = 0;
-   for(int t=0; t<tau-m; t++)
-      if(source(t) != decoded(t))
-         symerrors++;
-   return symerrors;
-   }
-
-/*!
-   \brief Update result set
-   \param[out] result   Vector containing the set of results to be updated
-   \param[in]  i        Iteration just performed
-   \param[in]  source   Source data sequence
-   \param[in]  decoded  Decoded data sequence
-
-   Results are organized as (BER,SER,FER), repeated for every iteration that
-   needs to be performed.
-*/
-void commsys::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   assert(i >= 0 && i < iter);
-   // Count errors
-   int biterrors = countbiterrors(source, decoded);
-   int symerrors = countsymerrors(source, decoded);
-   // Estimate the BER, SER, FER
-   result(3*i + 0) += biterrors / double((tau-m)*k);
-   result(3*i + 1) += symerrors / double((tau-m));
-   result(3*i + 2) += symerrors ? 1 : 0;
-   }
-
-/*!
-   \brief Perform a complete encode->transmit->receive cycle
-   \param[out] result   Vector containing the set of results to be updated
-
-   Results are organized as (BER,SER,FER), repeated for every iteration that
-   needs to be performed.
-
-   \note It is assumed that the result vector serves as an accumulator, so that
-         every cycle effectively adds to this result. The caller is responsible
-         to divide by the appropriate amount at the end to compute a meaningful
-         average.
-*/
-void commsys::cycleonce(libbase::vector<double>& result)
-   {
-   assert(result.size() == count());
-   // Create source stream
-   libbase::vector<int> source = createsource();
-   // Full cycle from Encode through Demodulate
-   transmitandreceive(source);
-   // For every iteration
-   for(int i=0; i<iter; i++)
-      {
-      // Decode & update results
-      libbase::vector<int> decoded;
-      cdc->decode(decoded);
-      updateresults(result, i, source, decoded);
-      }
-   }
-
 // Constructors / Destructors
 
-/*!
-   \brief Main public constructor
-
-   Initializes system with bound objects as supplied by user.
-*/
-commsys::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan)
+commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace>(src, cdc, chan)
    {
-   commsys::src = src;
-   commsys::cdc = cdc;
    commsys::modem = modem;
    commsys::punc = punc;
-   commsys::chan = chan;
-   internallyallocated = false;
    init();
    }
 
-/*!
-   \brief Copy constructor
-
-   Initializes system with bound objects cloned from supplied system.
-
-   \todo Fix cast when cloning channel: this should not be necessary.
-*/
-commsys::commsys(const commsys& c)
+commsys<sigspace>::commsys(const commsys& c) : basic_commsys<sigspace>(c)
    {
-   commsys::src = new libbase::randgen;
-   commsys::cdc = c.cdc->clone();
    commsys::modem = c.modem->clone();
    commsys::punc = c.punc->clone();
-   commsys::chan = (channel<sigspace> *)c.chan->clone();
-   internallyallocated = true;
    init();
-   }
-
-// Experiment parameter handling
-
-void commsys::seed(int s)
-   {
-   src->seed(s);
-   cdc->seed(s+1);
-   chan->seed(s+2);
-   }
-
-// Experiment handling
-
-void commsys::sample(libbase::vector<double>& result)
-   {
-   // initialise result vector
-   result.init(count());
-   result = 0;
-   // compute a single cycle
-   cycleonce(result);
    }
 
 // Description & Serialization
 
-std::string commsys::description() const
+std::string commsys<sigspace>::description() const
    {
    std::ostringstream sout;
-   sout << "Communication System: ";
-   sout << cdc->description() << ", ";
-   sout << modem->description() << ", ";
+   sout << basic_commsys<sigspace>::description() << ", ";
+   sout << modem->description();
    if(punc != NULL)
-      sout << punc->description() << ", ";
-   sout << chan->description();
+      sout << ", " << punc->description();
    return sout.str();
    }
 
-std::ostream& commsys::serialize(std::ostream& sout) const
+std::ostream& commsys<sigspace>::serialize(std::ostream& sout) const
    {
-   sout << chan;
    sout << modem;
-   sout << cdc;
    //const bool ispunctured = (punc != NULL);
    //sout << int(ispunctured) << "\n";
    //if(ispunctured)
    //   sout << punc;
+   basic_commsys<sigspace>::serialize(sout);
    return sout;
    }
 
-std::istream& commsys::serialize(std::istream& sin)
+std::istream& commsys<sigspace>::serialize(std::istream& sin)
    {
    free();
-   src = new libbase::randgen;
-   sin >> chan;
    sin >> modem;
-   sin >> cdc;
    //int ispunctured;
    //sin >> ispunctured;
    //if(ispunctured != 0)
    //   sin >> punc;
-   internallyallocated = true;
+   basic_commsys<sigspace>::serialize(sin);
    init();
    return sin;
    }
