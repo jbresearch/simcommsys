@@ -23,8 +23,9 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (24 Jan 2008)
+   \version 1.00 (24-25 Jan 2008)
    - Contains common interface for channel classes.
+   - Includes implementation of transmit/receive functions for substitution channel
 
    \todo Think out and update cloning/serialization interface
 */
@@ -79,7 +80,7 @@ public:
 
       \callergraph
    */
-   virtual void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx) = 0;
+   virtual void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx);
    /*!
       \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
              corresponding to one transmission step
@@ -89,7 +90,7 @@ public:
 
       \callergraph
    */
-   virtual void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const = 0;
+   virtual void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const;
    /*!
       \brief Determine the likelihood of a sequence of received modulation symbols, given
              a particular transmitted sequence
@@ -99,7 +100,7 @@ public:
 
       \callergraph
    */
-   virtual double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const = 0;
+   virtual double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const;
    /*!
       \brief Determine the likelihood of a sequence of received modulation symbols, given
              a particular transmitted symbol
@@ -109,7 +110,7 @@ public:
 
       \callergraph
    */
-   virtual double receive(const S& tx, const libbase::vector<S>& rx) const = 0;
+   virtual double receive(const S& tx, const libbase::vector<S>& rx) const;
    // @}
 
    /*! \name Description & Serialization */
@@ -121,6 +122,51 @@ public:
    virtual std::istream& serialize(std::istream &sin) { return sin; };
    // @}
 };
+
+// channel functions
+
+template <class S> void basic_channel<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
+   {
+   // Initialize results vector
+   rx.init(tx);
+   // Corrupt the modulation symbols (simulate the channel)
+   for(int i=0; i<tx.size(); i++)
+      rx(i) = corrupt(tx(i));
+   }
+
+template <class S> void basic_channel<S>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const
+   {
+   // Compute sizes
+   const int tau = rx.size();
+   const int M = tx.size();
+   // Initialize results vector
+   ptable.init(tau, M);
+   // Work out the probabilities of each possible signal
+   for(int t=0; t<tau; t++)
+      for(int x=0; x<M; x++)
+         ptable(t,x) = pdf(tx(x), rx(t));
+   }
+
+template <class S> double basic_channel<S>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const
+   {
+   // Compute sizes
+   const int tau = rx.size();
+   // This implementation only works for substitution channels
+   assert(tx.size() == tau);
+   // Work out the combined probability of the sequence
+   double p = 1;
+   for(int t=0; t<tau; t++)
+      p *= pdf(tx(t), rx(t));
+   return p;
+   }
+
+template <class S> double basic_channel<S>::receive(const S& tx, const libbase::vector<S>& rx) const
+   {
+   // This implementation only works for substitution channels
+   assert(rx.size() == 1);
+   // Work out the probability of receiving the particular symbol
+   return pdf(tx, rx(0));
+   }
 
 /*!
    \brief   Channel Base.
@@ -323,13 +369,6 @@ public:
    void set_parameter(const double snr_db);
    //! Get the signal-to-noise ratio
    double get_parameter() const { return snr_db; };
-
-   /*! \name Channel functions */
-   void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
-   void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
-   double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
-   double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
-   // @}
 };
 
 }; // end namespace
