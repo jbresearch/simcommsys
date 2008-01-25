@@ -23,9 +23,12 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (24-25 Jan 2008)
+   \version 1.00 (24 Jan 2008)
    - Contains common interface for channel classes.
-   - Includes implementation of transmit/receive functions for substitution channel
+
+   \version 1.01 (25 Jan 2008)
+   - Moved implementation of transmit/receive functions for substitution channel
+   - Fixed return type of corrupt()
 
    \todo Think out and update cloning/serialization interface
 */
@@ -42,7 +45,7 @@ protected:
       \param   s  Input (Tx) symbol
       \return  Output (Rx) symbol
    */
-   virtual sigspace corrupt(const S& s) = 0;
+   virtual S corrupt(const S& s) = 0;
    /*!
       \brief Determine the conditional likelihood for the received symbol
       \param   tx  Transmitted symbol being considered
