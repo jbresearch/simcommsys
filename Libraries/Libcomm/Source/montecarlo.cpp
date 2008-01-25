@@ -43,9 +43,8 @@ void montecarlo::slave_getcode(void)
    std::istringstream is(systemstring);
    is >> system;
    // Compute its digest
-   is.seekg(0, std::ios::beg);
    sysdigest.reset();
-   sysdigest.process(is);
+   sysdigest.process(systemstring.c_str(), int(systemstring.length()));
    // Tell the user what we've done
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << system->description() << "\n";
@@ -424,9 +423,14 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    std::string systemstring;
    if(isenabled())
       {
+      // create string representation of system
       std::ostringstream os;
       os << system;
       systemstring = os.str();
+      // compute its digest
+      sysdigest.reset();
+      sysdigest.process(systemstring.c_str(), int(systemstring.length()));
+      // reset timer and all slaves to 'new' state
       resetslaves();
       resetcputime();
       }
