@@ -120,6 +120,11 @@ namespace libcomm {
 
    \version 1.83 (24 Jan 2008)
    - Changed reference from channel to channel<sigspace>
+
+   \version 2.00 (25 Jan 2008)
+   - In order to facilitate abstraction of commsys beyond use on sigspace channels:
+      - Removed most working variables (except source/decoded) from memebers,
+        and placed them instead within transmitandreceive().
 */
 
 class commsys : public experiment {
@@ -147,12 +152,7 @@ protected:
    // @}
    /*! \name Working variables */
    libbase::vector<int>       source;  //!< Sequence of source data symbols
-   libbase::vector<int>       encoded; //!< Sequence of encoded symbols
    libbase::vector<int>       decoded; //!< Sequence of decoded symbols
-   libbase::vector<sigspace>  signal1; //!< Sequence of modulated symbols
-   libbase::vector<sigspace>  signal2; //!< Sequence of punctured symbols (if puncturing)
-   libbase::matrix<double>    ptable1; //!< Full probability table read by decoder
-   libbase::matrix<double>    ptable2; //!< Punctured probability table (if puncturing)
    // @}
 protected:
    /*! \name Setup functions */

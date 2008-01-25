@@ -135,12 +135,17 @@ void commsys::createsource()
 */
 void commsys::transmitandreceive()
    {
+   libbase::vector<int> encoded;
    cdc->encode(source, encoded);
+   libbase::vector<sigspace> signal1;
    modem->modulate(N, encoded, signal1);
+   libbase::matrix<double> ptable1;
    if(punc != NULL)
       {
+      libbase::vector<sigspace> signal2;
       punc->transform(signal1, signal2);
       chan->transmit(signal2, signal2);
+      libbase::matrix<double> ptable2;
       modem->demodulate(*chan, signal2, ptable2);
       punc->inverse(ptable2, ptable1);
       }
