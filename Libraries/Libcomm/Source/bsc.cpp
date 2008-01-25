@@ -2,9 +2,9 @@
    \file
 
    \par Version Control:
-   - $Revision: 526 $
-   - $Date: 2008-01-24 14:19:25 +0000 (Thu, 24 Jan 2008) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 */
 
 #include "bsc.h"

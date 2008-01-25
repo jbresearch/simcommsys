@@ -10,9 +10,9 @@ namespace libcomm {
    \author  Johann Briffa
 
    \par Version Control:
-   - $Revision: 444 $
-   - $Date: 2008-01-16 09:44:38 +0000 (Wed, 16 Jan 2008) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 
    \version 1.00 (22 Jan 2008)
    - Initial version.

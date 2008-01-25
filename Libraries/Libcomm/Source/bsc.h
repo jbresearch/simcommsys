@@ -13,9 +13,9 @@ namespace libcomm {
    \author  Johann Briffa
 
    \par Version Control:
-   - $Revision: 522 $
-   - $Date: 2008-01-24 13:49:24 +0000 (Thu, 24 Jan 2008) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 
    \version 1.00 (25 Jan 2008)
    - Initial version; implementation of a binary symmetric channel.
