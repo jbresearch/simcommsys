@@ -184,6 +184,28 @@ int commsys::countsymerrors(const libbase::vector<int>& source, const libbase::v
    }
 
 /*!
+   \brief Update result set
+   \param[out] result   Vector containing the set of results to be updated
+   \param[in]  i        Iteration just performed
+   \param[in]  source   Source data sequence
+   \param[in]  decoded  Decoded data sequence
+
+   Results are organized as (BER,SER,FER), repeated for every iteration that
+   needs to be performed.
+*/
+void commsys::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   assert(i >= 0 && i < iter);
+   // Count errors
+   int biterrors = countbiterrors(source, decoded);
+   int symerrors = countsymerrors(source, decoded);
+   // Estimate the BER, SER, FER
+   result(3*i + 0) += biterrors / double((tau-m)*k);
+   result(3*i + 1) += symerrors / double((tau-m));
+   result(3*i + 2) += symerrors ? 1 : 0;
+   }
+
+/*!
    \brief Perform a complete encode->transmit->receive cycle
    \param[out] result   Vector containing the set of results to be updated
 
@@ -197,6 +219,7 @@ int commsys::countsymerrors(const libbase::vector<int>& source, const libbase::v
 */
 void commsys::cycleonce(libbase::vector<double>& result)
    {
+   assert(result.size() == count());
    // Create source stream
    libbase::vector<int> source = createsource();
    // Full cycle from Encode through Demodulate
@@ -204,15 +227,10 @@ void commsys::cycleonce(libbase::vector<double>& result)
    // For every iteration
    for(int i=0; i<iter; i++)
       {
-      // Decode & count errors
+      // Decode & update results
       libbase::vector<int> decoded;
       cdc->decode(decoded);
-      int biterrors = countbiterrors(source, decoded);
-      int symerrors = countsymerrors(source, decoded);
-      // Estimate the BER, SER, FER
-      result(3*i + 0) += biterrors / double((tau-m)*k);
-      result(3*i + 1) += symerrors / double((tau-m));
-      result(3*i + 2) += symerrors ? 1 : 0;
+      updateresults(result, i, source, decoded);
       }
    }
 

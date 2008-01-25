@@ -127,6 +127,10 @@ namespace libcomm {
         and placed them instead within transmitandreceive(); this causes less than
         4% performance penalty, even on small (and therefore fast) codes.
       - Removed also source/decoded, refactoring internal functions as necessary.
+      - Extracted result-updating for accumulation of BER/SER/FER as a separate
+        function, and made this virtual rather than cycleonce(); this facilitates
+        derivation of the class for the purposes of collecting different result
+        sets.
 */
 
 class commsys : public experiment {
@@ -163,7 +167,8 @@ protected:
    void transmitandreceive(libbase::vector<int>& source);
    int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   virtual void cycleonce(libbase::vector<double>& result);
+   virtual void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   void cycleonce(libbase::vector<double>& result);
    // @}
 public:
    /*! \name Constructors / Destructors */

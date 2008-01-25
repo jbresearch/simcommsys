@@ -55,7 +55,7 @@ namespace libcomm {
 
 class commsys_profiler : public commsys {
 protected:
-   void cycleonce(libbase::vector<double>& result);
+   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
 public:
    commsys_profiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
    ~commsys_profiler();
