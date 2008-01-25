@@ -145,6 +145,9 @@ namespace libcomm {
      this corrects the error in computing speedup on master.
    - Added tracking of system under simulation by keeping a digest of its string
      description.
+   - Including system digest and current parameter with result set; this allows the
+     master to discard any invalid results.
+   - Extracted code to initialize a slave into a new function
 */
 
 class montecarlo : public libbase::masterslave {
@@ -182,6 +185,7 @@ private:
    void sampleandaccumulate(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
    void accumulateresults(libbase::vector<double>& sum, libbase::vector<double>& sumsq, libbase::vector<double> est) const;
    double updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, const libbase::vector<double>& sum, const libbase::vector<double>& sumsq) const;
+   void initslave(slave *s, std::string systemstring);
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool accuracy_reached);
    bool readpendingslaves(libbase::vector<double>& sum, libbase::vector<double>& sumsq);

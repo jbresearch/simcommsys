@@ -84,6 +84,9 @@ void montecarlo::slave_work(void)
       sampleandaccumulate(sum, sumsq);
    t.stop();   // to avoid expiry
 
+   // Send system digest and current parameter back to master
+   if(!send(sysdigest) || !send(system->get_parameter()))
+      exit(1);
    // Send accumulated results back to master
    if(!send(sum) || !send(sumsq) || !send(samplecount))
       exit(1);
@@ -283,6 +286,27 @@ double montecarlo::updateresults(vector<double>& result, vector<double>& toleran
    }
 
 /*!
+   \brief Initialize given slave
+   \param   s              Slave to be initialized
+   \param   systemstring   Serialized system description
+
+   Initialize given slave by sending the system being simulated and the
+   current simulation parameter.
+*/
+void montecarlo::initslave(slave *s, std::string systemstring)
+   {
+   if(!call(s, "slave_getcode"))
+      return;
+   if(!send(s, systemstring))
+      return;
+   if(!call(s, "slave_getsnr"))
+      return;
+   if(!send(s, system->get_parameter()))
+      return;
+   trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
+   }
+
+/*!
    \brief Initialize any new slaves
    \param   systemstring   Serialized system description
 
@@ -294,15 +318,7 @@ void montecarlo::initnewslaves(std::string systemstring)
    while(slave *s = newslave())
       {
       trace << "DEBUG (estimate): New slave found (" << s << "), initializing.\n";
-      if(!call(s, "slave_getcode"))
-         continue;
-      if(!send(s, systemstring))
-         continue;
-      if(!call(s, "slave_getsnr"))
-         continue;
-      if(!send(s, system->get_parameter()))
-         continue;
-      trace << "DEBUG (estimate): Slave (" << s << ") initialized ok.\n";
+      initslave(s, systemstring);
       }
    }
 
@@ -335,6 +351,10 @@ void montecarlo::workidleslaves(bool accuracy_reached)
 
    If there are any slaves in the EVENT_PENDING state, read their results. Values
    returned are accumulated into the running totals.
+
+   If any slave returns a result that does not correspond to the same system
+   or parameter that are now being simulated, this is discarded and the slave
+   is marked as 'new'.
 */
 bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
    {
@@ -344,6 +364,11 @@ bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
    while(slave *s = pendingslave())
       {
       trace << "DEBUG (estimate): Pending event from slave (" << s << "), trying to read.\n";
+      // get digest and parameter for simulated system
+      std::string simdigest;
+      double simparameter;
+      if(!receive(s, simdigest) || !receive(s, simparameter))
+         continue;
       // set up space for results that need to be returned
       vector<double> estsum(count);
       vector<double> estsumsq(count);
@@ -351,6 +376,13 @@ bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
       // get results
       if(!receive(s, estsum) || !receive(s, estsumsq) || !receive(s, estsamplecount))
          continue;
+      // check that results correspond to system under simulation
+      if(sysdigest != sha(simdigest) || simparameter != system->get_parameter())
+         {
+         trace << "DEBUG (estimate): Slave returned invalid results (" << s << "), re-initializing.\n";
+         resetslave(s);
+         continue;
+         }
       // accumulate
       samplecount += estsamplecount;
       sum += estsum;
