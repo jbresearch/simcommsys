@@ -40,11 +40,10 @@ void montecarlo::slave_getcode(void)
    if(!receive(systemstring))
       exit(1);
    // Create system object from serialization
-   std::istringstream is(systemstring);
-   is >> system;
+   std::istringstream(systemstring) >> system;
    // Compute its digest
    sysdigest.reset();
-   sysdigest.process(systemstring.c_str(), int(systemstring.length()));
+   sysdigest.process(std::istringstream(systemstring));
    // Tell the user what we've done
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << system->description() << "\n";
@@ -429,7 +428,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       systemstring = os.str();
       // compute its digest
       sysdigest.reset();
-      sysdigest.process(systemstring.c_str(), int(systemstring.length()));
+      sysdigest.process(std::istringstream(systemstring));
       // reset timer and all slaves to 'new' state
       resetslaves();
       resetcputime();
