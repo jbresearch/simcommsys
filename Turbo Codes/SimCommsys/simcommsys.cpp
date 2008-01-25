@@ -128,12 +128,12 @@ libbase::vector<double> getparameterset(int *argc, char **argv[])
    bool linear = true;
    if(strcmp(type,"-lin")==0)
       {
-      steps = floor((Pmax-Pmin)/Pstep);
+      steps = floor((Pmax-Pmin)/Pstep)+1;
       linear = true;
       }
    else if(strcmp(type,"-log")==0)
       {
-      steps = floor((log(Pmax)-log(Pmin))/log(Pstep));
+      steps = floor((log(Pmax)-log(Pmin))/log(Pstep))+1;
       linear = false;
       }
    else
