@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include "timer.h"
+#include "sha.h"
 #include "experiment.h"
 #include "masterslave.h"
 
@@ -142,6 +143,8 @@ namespace libcomm {
    \version 1.45 (25 Jan 2008)
    - Added reset of cpu-time accumulation for slaves when starting a new estimate;
      this corrects the error in computing speedup on master.
+   - Added tracking of system under simulation by keeping a digest of its string
+     description.
 */
 
 class montecarlo : public libbase::masterslave {
@@ -152,14 +155,15 @@ class montecarlo : public libbase::masterslave {
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
              object at this address. This should be deleted when no longer necessary.
    */
-   bool init;                 //!< Flag to indicate that a system has been bound (only done in master)
-   experiment *system;        //!< System being sampled            
+   bool           init;          //!< Flag to indicate that a system has been bound (only in master)
+   experiment     *system;       //!< System being sampled            
    // @}
    /*! \name Internal variables */
-   double   cfactor;          //!< factor dependent on confidence level
-   double   accuracy;         //!< accuracy level required
-   int      samplecount;      //!< number of samples taken to produce the result
-   libbase::timer t;
+   double         cfactor;       //!< factor dependent on confidence level
+   double         accuracy;      //!< accuracy level required
+   int            samplecount;   //!< number of samples taken to produce the result
+   libbase::timer t;             //!< timer to keep track of running estimate
+   sha            sysdigest;     //!< digest of the currently-simulated system
    // @}
    /*! \name Slave process functions & their functors */
    void slave_getcode(void);

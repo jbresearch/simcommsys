@@ -35,14 +35,21 @@ const int montecarlo::min_samples = 128;
 void montecarlo::slave_getcode(void)
    {
    delete system;
+   // Receive system as a string
    std::string systemstring;
    if(!receive(systemstring))
       exit(1);
+   // Create system object from serialization
    std::istringstream is(systemstring);
    is >> system;
-
+   // Compute its digest
+   is.seekg(0, std::ios::beg);
+   sysdigest.reset();
+   sysdigest.process(is);
+   // Tell the user what we've done
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << system->description() << "\n";
+   cerr << "Digest: " << sysdigest << "\n";
    }
 
 void montecarlo::slave_getsnr(void)
