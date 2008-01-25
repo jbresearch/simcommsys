@@ -258,6 +258,10 @@ template <class S> std::istream& basic_commsys<S>::serialize(std::istream& sin)
    return sin;
    }
 
+// Explicit Realizations
+
+template class basic_commsys<sigspace>;
+
 // *** Specific to commsys<sigspace> ***
 
 const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
