@@ -323,6 +323,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\bsc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\bsc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\bsid.cpp"
 				>
 			</File>
