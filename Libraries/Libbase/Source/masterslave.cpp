@@ -450,9 +450,18 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
    }
 
 /*!
-   \brief Reset all 'idle' slaves to the 'new' state
+   \brief Reset given slaves to the 'new' state
 
-   \todo Deal with pending slaves!
+   \note Slave must be in the 'idle' state
+*/
+void masterslave::resetslave(slave *s)
+   {
+   assertalways(s->state == slave::IDLE);
+   s->state = slave::NEW;
+   }
+
+/*!
+   \brief Reset all 'idle' slaves to the 'new' state
 */
 void masterslave::resetslaves()
    {

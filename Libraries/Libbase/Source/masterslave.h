@@ -79,6 +79,7 @@ namespace libbase {
 
    \version 1.25 (25 Jan 2008)
    - added function to reset cpu usage accumulation
+   - added function to reset a single slave to the 'new' state
 */
 
 class masterslave {
@@ -157,6 +158,7 @@ public:
    int workingslaves() const;
    bool anyoneworking() const;
    void waitforevent(const bool acceptnew=true, const double timeout=0);
+   void resetslave(slave *s);
    void resetslaves();
    // master -> slave communication
    bool send(slave *s, const void *buf, const size_t len);
