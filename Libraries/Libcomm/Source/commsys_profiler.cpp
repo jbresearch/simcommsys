@@ -29,24 +29,20 @@ commsys_profiler::commsys_profiler(libbase::randgen *src, codec *cdc, modulator 
 void commsys_profiler::cycleonce(libbase::vector<double>& result)
    {
    // Create source stream
-   createsource();
+   libbase::vector<int> source = createsource();
    // Full cycle from Encode through Demodulate
-   transmitandreceive();
-
-   // For every iteration possible
+   transmitandreceive(source);
+   // For every iteration
    const int skip = count()/iter;
    for(int i=0; i<iter; i++)
       {
-      // Decode
+      // Decode & count errors
+      libbase::vector<int> decoded;
       cdc->decode(decoded);
-
-      // Count the number of errors
-      int delta = 0;
-      for(int t=0; t<tau-m; t++)
-         delta += libbase::weight(source(t) ^ decoded(t));
-
+      int biterrors = countbiterrors(source, decoded);
+      //int symerrors = countsymerrors(source, decoded);
       // Update the count for that number of bit errors
-      result(skip*i + delta)++;
+      result(skip*i + biterrors)++;
       }
    }
 

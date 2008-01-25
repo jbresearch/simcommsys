@@ -87,18 +87,19 @@ void commsys::free()
 
 /*!
    \brief Create source sequence to be encoded
+   \return Source sequence of the required length
 
    The source sequence consists of uniformly random symbols followed by a
    tail sequence if required by the given codec.
 */
-void commsys::createsource()
+libbase::vector<int> commsys::createsource()
    {
-   int t;
-   source.init(tau);
-   for(t=0; t<tau-m; t++)
+   libbase::vector<int> source(tau);
+   for(int t=0; t<tau-m; t++)
       source(t) = src->ival(K);
-   for(t=tau-m; t<tau; t++)
+   for(int t=tau-m; t<tau; t++)
       source(t) = fsm::tail;
+   return source;
    }
 
 /*!
@@ -133,7 +134,7 @@ void commsys::createsource()
    The dotted lines and blocks indicate optional sections to support puncturing,
    which is currently done in signal-space.
 */
-void commsys::transmitandreceive()
+void commsys::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    cdc->encode(source, encoded);
@@ -161,7 +162,7 @@ void commsys::transmitandreceive()
    \brief Count the number of bit errors in the last encode/decode cycle
    \return Error count in bits
 */
-int commsys::countbiterrors() const
+int commsys::countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
    int biterrors = 0;
    for(int t=0; t<tau-m; t++)
@@ -173,7 +174,7 @@ int commsys::countbiterrors() const
    \brief Count the number of symbol errors in the last encode/decode cycle
    \return Error count in symbols
 */
-int commsys::countsymerrors()
+int commsys::countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
    int symerrors = 0;
    for(int t=0; t<tau-m; t++)
@@ -197,16 +198,17 @@ int commsys::countsymerrors()
 void commsys::cycleonce(libbase::vector<double>& result)
    {
    // Create source stream
-   createsource();
+   libbase::vector<int> source = createsource();
    // Full cycle from Encode through Demodulate
-   transmitandreceive();
+   transmitandreceive(source);
    // For every iteration
    for(int i=0; i<iter; i++)
       {
       // Decode & count errors
+      libbase::vector<int> decoded;
       cdc->decode(decoded);
-      int biterrors = countbiterrors();
-      int symerrors = countsymerrors();
+      int biterrors = countbiterrors(source, decoded);
+      int symerrors = countsymerrors(source, decoded);
       // Estimate the BER, SER, FER
       result(3*i + 0) += biterrors / double((tau-m)*k);
       result(3*i + 1) += symerrors / double((tau-m));

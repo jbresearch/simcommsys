@@ -124,7 +124,9 @@ namespace libcomm {
    \version 2.00 (25 Jan 2008)
    - In order to facilitate abstraction of commsys beyond use on sigspace channels:
       - Removed most working variables (except source/decoded) from memebers,
-        and placed them instead within transmitandreceive().
+        and placed them instead within transmitandreceive(); this causes less than
+        4% performance penalty, even on small (and therefore fast) codes.
+      - Removed also source/decoded, refactoring internal functions as necessary.
 */
 
 class commsys : public experiment {
@@ -150,10 +152,6 @@ protected:
    int  k;     //!< Bit width for source data symbols (\f$ K = 2^k \f$)
    int  iter;  //!< Number of iterations the decoder will do
    // @}
-   /*! \name Working variables */
-   libbase::vector<int>       source;  //!< Sequence of source data symbols
-   libbase::vector<int>       decoded; //!< Sequence of decoded symbols
-   // @}
 protected:
    /*! \name Setup functions */
    void init();
@@ -161,10 +159,10 @@ protected:
    void free();
    // @}
    /*! \name Internal functions */
-   void createsource();
-   void transmitandreceive();
-   int countbiterrors() const;
-   int countsymerrors();
+   libbase::vector<int> createsource();
+   void transmitandreceive(libbase::vector<int>& source);
+   int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    virtual void cycleonce(libbase::vector<double>& result);
    // @}
 public:
