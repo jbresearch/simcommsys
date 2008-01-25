@@ -138,6 +138,10 @@ namespace libcomm {
    - Modified so that no-error-event accuracy is held as the largest positive double
      value, rather than zero; this makes it easier to distinguish from a genuine
      complete convergence, where the simulator now stops earlier.
+
+   \version 1.45 (25 Jan 2008)
+   - Added reset of cpu-time accumulation for slaves when starting a new estimate;
+     this corrects the error in computing speedup on master.
 */
 
 class montecarlo : public libbase::masterslave {

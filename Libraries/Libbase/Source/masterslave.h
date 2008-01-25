@@ -76,6 +76,9 @@ namespace libbase {
 
    \version 1.24 (14 Jan 2008)
    - updated enable() to allow option for local computation only
+
+   \version 1.25 (25 Jan 2008)
+   - added function to reset cpu usage accumulation
 */
 
 class masterslave {
@@ -161,6 +164,7 @@ public:
    bool send(slave *s, const double x);
    bool send(slave *s, const std::string& x);
    bool call(slave *s, const std::string& x);
+   void resetcputime();
    bool updatecputime(slave *s);
    bool receive(slave *s, void *buf, const size_t len);
    bool receive(slave *s, int& x);

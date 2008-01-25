@@ -389,6 +389,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       os << system;
       systemstring = os.str();
       resetslaves();
+      resetcputime();
       }
    else
       system->seed(0);

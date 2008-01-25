@@ -449,11 +449,15 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
       }
    }
 
+/*!
+   \brief Reset all 'idle' slaves to the 'new' state
+
+   \todo Deal with pending slaves!
+*/
 void masterslave::resetslaves()
    {
    while(slave *s = idleslave())
       s->state = slave::NEW;
-   // TODO: check that there are no other pending slaves!
    }
 
 // master -> slave communication
@@ -491,6 +495,11 @@ bool masterslave::call(slave *s, const std::string& x)
    if(!send(s, tag_work) || !send(s, x) )
       return false;
    return true;
+   }
+
+void masterslave::resetcputime()
+   {
+   cputimeused = 0;
    }
 
 bool masterslave::updatecputime(slave *s)
