@@ -18,6 +18,7 @@
 #include "laplacian.h"
 #include "lapgauss.h"
 #include "bsid.h"
+#include "bsc.h"
 
 // Modulators
 #include "modulator.h"
@@ -110,11 +111,12 @@ namespace libcomm {
 
    \version 2.26 (25 Jan 2008)
    - Modified commsys to commsys<sigspace>
+   - Added BSC channel
 */
 
 // Serialization support
 class serializer_libcomm : private
-   awgn, laplacian, lapgauss, bsid,
+   awgn, laplacian, lapgauss, bsid, bsc,
    qam, watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
