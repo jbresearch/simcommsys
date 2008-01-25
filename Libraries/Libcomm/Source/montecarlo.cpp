@@ -117,8 +117,12 @@ void montecarlo::display(const int pass, const double cur_accuracy, const double
       {
       using std::clog;
       const int prec = clog.precision(3);
-      clog << "Timer: " << t << ", " << getnumslaves() << " clients, " \
-         << getcputime()/t.elapsed() << "x speedup, pass " << pass << ", " \
+      clog << "Timer: " << t << ", ";
+      if(isenabled())
+         clog << getnumslaves() << " clients, " << getcputime()/t.elapsed() << "x speedup, ";
+      else
+         clog << "local, " << t.cputime()/t.elapsed() << "x usage, ";
+      clog << "pass " << pass << ", "
          << "[" << cur_mean << " +/- " << cur_accuracy << "%] \r" << std::flush;
       clog.precision(prec);
       tupdate.start();
