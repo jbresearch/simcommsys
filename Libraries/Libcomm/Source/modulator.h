@@ -85,9 +85,9 @@ public:
    //! Object description output
    virtual std::string description() const = 0;
    //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
+   virtual std::ostream& serialize(std::ostream& sout) const  { return sout; };
    //! Object serialization input
-   virtual std::istream& serialize(std::istream& sin) = 0;
+   virtual std::istream& serialize(std::istream& sin) { return sin; };
    // @}
 };
 
@@ -175,6 +175,7 @@ public:
      use signal-space transmission.
    - Signal-space specific functions are moved to a class specialization.
    - Common modulator interface moved to basic_modulator template.
+   - This class cannot be instantiated as it is still abstract.
 */
 
 template <class S> class modulator : public basic_modulator<S> {
@@ -229,6 +230,43 @@ public:
    //! Modulation rate (spectral efficiency) in bits/unit energy
    double rate() const { return 1.0/bit_energy(); };
    // @}
+};
+
+/*!
+   \brief   Binary Modulator.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (24 Jan 2008)
+   - Elements specific to the binary channel moved to this implementation
+     derived from the abstract class.
+*/
+
+template <> class modulator<bool> : public basic_modulator<bool> {
+   static const libbase::serializer shelper;
+   static void* create() { return new modulator<bool>; };
+private:
+   // Atomic modem operations (private as these should never be used)
+   const bool modulate(const int index) const { return false; };
+   const int demodulate(const bool& signal) const { return 0; };
+public:
+   // Serialization Support
+   modulator<bool> *clone() const { return new modulator<bool>(*this); };
+   const char* name() const { return shelper.name(); };
+
+   // Vector modem operations
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
+   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+
+   // Informative functions
+   int num_symbols() const { return 2; };
+
+   // Description & Serialization
+   std::string description() const;
 };
 
 }; // end namespace

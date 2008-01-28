@@ -424,36 +424,6 @@ const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", 
 
 // Internal functions
 
-void commsys<bool>::mapper(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
-   {
-   // Compute factors / sizes & check validity
-   const int tau = encoded.size();
-   const int s = int(round(log2(double(N))));
-   if(N != (1<<s))
-      {
-      std::cerr << "FATAL ERROR (mapper): each encoder output (" << N << ") must be";
-      std::cerr << " represented by an integral number of bits.";
-      std::cerr << " Suggested number of mod. symbols/encoder output was " << s << ".\n";
-      exit(1);
-      }
-   // Initialize results vector
-   tx.init(tau*s);
-   // Modulate encoded stream (least-significant first)
-   for(int t=0, k=0; t<tau; t++)
-      for(int i=0, x = encoded(t); i<s; i++, k++, x>>=1)
-         tx(k) = (x & 1);
-   }
-
-void commsys<bool>::unmapper(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
-   {
-   // Create a matrix of all possible transmitted symbols
-   libbase::vector<bool> tx(2);
-   tx(0) = false;
-   tx(1) = true;
-   // Work out the probabilities of each possible signal
-   chan.receive(tx, rx, ptable);
-   }
-
 /*!
    \copydoc basic_commsys::transmitandreceive()
 
@@ -482,10 +452,11 @@ void commsys<bool>::transmitandreceive(libbase::vector<int>& source)
    libbase::vector<int> encoded;
    cdc->encode(source, encoded);
    libbase::vector<bool> signal;
-   mapper(N, encoded, signal);
+   modulator<bool> modem;
+   modem.modulate(N, encoded, signal);
    libbase::matrix<double> ptable;
    chan->transmit(signal, signal);
-   unmapper(*chan, signal, ptable);
+   modem.demodulate(*chan, signal, ptable);
    cdc->translate(ptable);
    }
 

@@ -301,8 +301,6 @@ template <> class commsys<bool> : public basic_commsys<bool> {
    // @}
 protected:
    /*! \name Internal functions */
-   void mapper(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
-   void unmapper(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
    void transmitandreceive(libbase::vector<int>& source);
    // @}
 public:
