@@ -176,8 +176,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    // Initialize & perform forward-backward algorithm
    const int I    = mychan.get_I();
    const int xmax = mychan.get_xmax();
-   fba::init(N*n, I, xmax);
-   fba::prepare(rx);
+   fba<real,bool>::init(N*n, I, xmax);
+   fba<real,bool>::prepare(rx);
    // Tell the user what settings are in use
    static int last_I = 0;
    static int last_xmax = 0;
@@ -204,8 +204,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
-         if(fba::getF(n*i,x1) > threshold)
-            threshold = fba::getF(n*i,x1);
+         if(fba<real,bool>::getF(n*i,x1) > threshold)
+            threshold = fba<real,bool>::getF(n*i,x1);
       threshold *= 1e-6;
       for(int d=0; d<q; d++)
          {
@@ -224,7 +224,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
             {
-            const real F = fba::getF(n*i,x1);
+            const real F = fba<real,bool>::getF(n*i,x1);
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
@@ -234,7 +234,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
                {
                // compute the conditional probability
                const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
-               const real B = fba::getB(n*(i+1),x2);
+               const real B = fba<real,bool>::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p(i,d) += P * F * B;
 #ifndef NDEBUG
