@@ -14,7 +14,7 @@ namespace libcomm {
 
 const libbase::serializer bsc::shelper("channel", "bsc", bsc::create);
 
-// Channel parameter setters
+// Channel parameter handling
 
 void bsc::set_parameter(const double Ps)
    {
