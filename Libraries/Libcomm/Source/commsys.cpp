@@ -363,16 +363,21 @@ void commsys<sigspace>::transmitandreceive(libbase::vector<int>& source)
 
 // Constructors / Destructors
 
-commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace>(src, cdc, chan)
+commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace>(src, cdc, chan)
    {
    commsys::modem = modem;
    commsys::punc = punc;
    init();
    }
 
+/*!
+   \copydoc basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
+
+   \todo Fix cast when cloning modem: this should not be necessary.
+*/
 commsys<sigspace>::commsys(const commsys<sigspace>& c) : basic_commsys<sigspace>(c)
    {
-   commsys::modem = c.modem->clone();
+   commsys::modem = (modulator<sigspace> *)c.modem->clone();
    commsys::punc = c.punc->clone();
    init();
    }

@@ -40,7 +40,7 @@ public:
    //}}AFX_DATA
    libcomm::codec *m_pCodec;
    libcomm::puncture *m_pPuncture;
-   libcomm::modulator *m_pModulator;
+   libcomm::modulator<libcomm::sigspace> *m_pModulator;
    libcomm::channel<libcomm::sigspace> *m_pChannel;
 
 

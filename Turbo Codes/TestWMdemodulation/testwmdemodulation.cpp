@@ -52,7 +52,7 @@ void print_signal(const char* desc, int n, vector<sigspace> tx)
       cout << tx(i) << ((i%n == n-1) ? "\n" : "\t");
    }
 
-vector<sigspace> modulate_encoded(int k, int n, modulator& modem, vector<int>& encoded, bool display=true)
+vector<sigspace> modulate_encoded(int k, int n, modulator<sigspace>& modem, vector<int>& encoded, bool display=true)
    {
    vector<sigspace> tx;
    modem.modulate(1<<k, encoded, tx);
@@ -70,7 +70,7 @@ vector<sigspace> transmit_modulated(int n, channel<sigspace>& chan, const vector
    return rx;
    }
 
-matrix<double> demodulate_encoded(channel<sigspace>& chan, modulator& modem, const vector<sigspace>& rx, bool display=true)
+matrix<double> demodulate_encoded(channel<sigspace>& chan, modulator<sigspace>& modem, const vector<sigspace>& rx, bool display=true)
    {
    // demodulate received signal
    matrix<double> ptable;

@@ -50,13 +50,16 @@ namespace libcomm {
 
    \version 1.42 (25 Jan 2008)
    - Updated to conform with commsys 2.00
+
+   \version 1.43 (28 Jan 2008)
+   - Changed reference from modulator to modulator<sigspace>
 */
 
 class commsys_bitprofiler : public commsys<sigspace> {
 protected:
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
 public:
-   commsys_bitprofiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
+   commsys_bitprofiler(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
    ~commsys_bitprofiler() {};
    int count() const { return (tau-m)*iter; };
 };

@@ -41,11 +41,11 @@ public:
    // system components
    void SetCodec(libcomm::codec *pCodec);
    void SetPuncture(libcomm::puncture *pPuncture);
-   void SetModulator(libcomm::modulator *pModulator);
+   void SetModulator(libcomm::modulator<libcomm::sigspace> *pModulator);
    void SetChannel(libcomm::channel<libcomm::sigspace> *pChannel);
    libcomm::codec *GetCodec() const { return m_pCodec; };
    libcomm::puncture *GetPuncture() const { return m_pPuncture; };
-   libcomm::modulator *GetModulator() const { return m_pModulator; };
+   libcomm::modulator<libcomm::sigspace> *GetModulator() const { return m_pModulator; };
    libcomm::channel<libcomm::sigspace> *GetChannel() const { return m_pChannel; };
    // simulation settings
    void SetAccuracy(const double dValue);
@@ -66,7 +66,7 @@ public:
 protected:
    // system components
    libcomm::channel<libcomm::sigspace> *m_pChannel;
-   libcomm::modulator *m_pModulator;
+   libcomm::modulator<libcomm::sigspace> *m_pModulator;
    libcomm::puncture *m_pPuncture;
    libcomm::codec *m_pCodec;
    // simulation settings

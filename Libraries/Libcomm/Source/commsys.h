@@ -230,6 +230,9 @@ template <class S> class commsys : public basic_commsys<S> {
         and functions remaining from the templated base, and is equivalent
         to the old commsys class; anything that used to use 'commsys' can
         now use this specialization.
+
+   \version 1.01 (28 Jan 2008)
+   - Changed reference from modulator to modulator<sigspace>
 */
 template <> class commsys<sigspace> : public basic_commsys<sigspace> {
    /*! \name Serialization */
@@ -238,7 +241,7 @@ template <> class commsys<sigspace> : public basic_commsys<sigspace> {
    // @}
 protected:
    /*! \name Bound objects */
-   modulator            *modem;  //!< Modulation scheme
+   modulator<sigspace>  *modem;  //!< Modulation scheme
    puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
    // @}
 protected:
@@ -252,7 +255,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys<sigspace>(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan);
+   commsys<sigspace>(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
    commsys<sigspace>(const commsys<sigspace>& c);
    commsys<sigspace>() { clear(); };
    virtual ~commsys<sigspace>() { free(); };
@@ -265,7 +268,7 @@ public:
 
    /*! \name Component object handles */
    //! Get modulation scheme
-   const modulator *getmodem() const { return modem; };
+   const modulator<sigspace> *getmodem() const { return modem; };
    //! Get puncturing scheme
    const puncture *getpunc() const { return punc; };
    // @}

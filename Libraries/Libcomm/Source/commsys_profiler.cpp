@@ -19,7 +19,7 @@ namespace libcomm {
 
 // constructor / destructor
 
-commsys_profiler::commsys_profiler(libbase::randgen *src, codec *cdc, modulator *modem, puncture *punc, channel<sigspace> *chan) : \
+commsys_profiler::commsys_profiler(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : \
    commsys<sigspace>(src, cdc, modem, punc, chan)
    {
    }

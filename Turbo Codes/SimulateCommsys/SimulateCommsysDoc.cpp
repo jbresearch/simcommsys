@@ -152,7 +152,7 @@ void CSimulateCommsysDoc::SetChannel(libcomm::channel<libcomm::sigspace> *pChann
    m_pChannel = pChannel;
    }
 
-void CSimulateCommsysDoc::SetModulator(libcomm::modulator *pModulator)
+void CSimulateCommsysDoc::SetModulator(libcomm::modulator<libcomm::sigspace> *pModulator)
    {
    ASSERT(!ResultsPresent());
    if(m_pModulator != NULL)

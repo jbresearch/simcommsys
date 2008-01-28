@@ -24,9 +24,12 @@ namespace libcomm {
 
    \version 1.11 (24 Jan 2008)
    - Changed reference from channel to channel<sigspace>
+
+   \version 1.12 (28 Jan 2008)
+   - Changed derivation from modulator to modulator<sigspace>
 */
 
-class lut_modulator : public modulator {
+class lut_modulator : public modulator<sigspace> {
 protected:
    libbase::vector<sigspace> lut;   // Array of modulation symbols
 public:

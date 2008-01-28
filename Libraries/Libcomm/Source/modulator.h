@@ -12,6 +12,86 @@
 namespace libcomm {
 
 /*!
+   \brief   Common Modulator Interface.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (24 Jan 2008)
+   - Contains common interface for modulator classes.
+*/
+
+template <class S> class basic_modulator {
+public:
+   /*! \name Constructors / Destructors */
+   virtual ~basic_modulator() {};
+   // @}
+   /*! \name Serialization Support */
+   virtual basic_modulator *clone() const = 0;
+   virtual const char* name() const = 0;
+   // @}
+
+   /*! \name Atomic modem operations */
+   /*!
+      \brief Modulate a single time-step
+      \param   index Index into the symbol alphabet
+      \return  Symbol corresponding to the given index
+   */
+   virtual const S modulate(const int index) const = 0;
+   /*!
+      \brief Demodulate a single time-step
+      \param   signal   Received signal
+      \return  Index corresponding symbol that is closest to the received signal
+   */
+   virtual const int demodulate(const S& signal) const = 0;
+   /*! \copydoc modulate() */
+   const S operator[](const int index) const { return modulate(index); };
+   /*! \copydoc demodulate() */
+   const int operator[](const S& signal) const { return demodulate(signal); };
+   // @}
+
+   /*! \name Vector modem operations */
+   /*!
+      \brief Modulate a sequence of time-steps
+      \param[in]  N        The number of possible values of each encoded element
+      \param[in]  encoded  Sequence of values to be modulated
+      \param[out] tx       Sequence of symbols corresponding to the given input
+
+      \todo Remove parameter N, replacing 'int' type for encoded vector with something
+            that also encodes the number of symbols in the alphabet
+   */
+   virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
+   /*!
+      \brief Demodulate a sequence of time-steps
+      \param[in]  chan     The channel model (used to obtain likelihoods)
+      \param[in]  rx       Sequence of received symbols
+      \param[out] ptable   Table of likelihoods of possible transmitted symbols
+      
+      \note \c ptable(i,d) \c is the a posteriori probability of having transmitted 
+            symbol 'd' at time 'i'
+   */
+   virtual void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) = 0;
+   // @}
+
+   /*! \name Informative functions */
+   //! Symbol alphabet size
+   virtual int num_symbols() const = 0;
+   // @}
+
+   /*! \name Description & Serialization */
+   //! Object description output
+   virtual std::string description() const = 0;
+   //! Object serialization ouput
+   virtual std::ostream& serialize(std::ostream& sout) const = 0;
+   //! Object serialization input
+   virtual std::istream& serialize(std::istream& sin) = 0;
+   // @}
+};
+
+/*!
    \brief   Modulator Base.
    \author  Johann Briffa
 
@@ -88,63 +168,60 @@ namespace libcomm {
 
    \version 1.53 (24 Jan 2008)
    - Changed reference from channel to channel<sigspace>
+
+   \version 2.00 (28 Jan 2008)
+   - Abstracted modulator class by templating, with the channel-symbol type as
+     template parameter; this is meant to allow the use of channels that do not
+     use signal-space transmission.
+   - Signal-space specific functions are moved to a class specialization.
+   - Common modulator interface moved to basic_modulator template.
 */
 
-class modulator {
+template <class S> class modulator : public basic_modulator<S> {
+};
+
+/*! \name Serialization */
+
+template <class S> std::ostream& operator<<(std::ostream& sout, const modulator<S>* x)
+   {
+   sout << x->name() << "\n";
+   x->serialize(sout);
+   return sout;
+   }
+
+template <class S> std::istream& operator>>(std::istream& sin, modulator<S>*& x)
+   {
+   std::string name;
+   sin >> name;
+   x = (modulator<S> *) libbase::serializer::call("modulator", name);
+   if(x == NULL)
+      {
+      std::cerr << "FATAL ERROR (modulator): Type \"" << name << "\" unknown.\n";
+      exit(1);
+      }
+   x->serialize(sin);
+   return sin;
+   }
+
+// @}
+
+/*!
+   \brief   Signal-Space Modulator.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (24 Jan 2008)
+   - Elements specific to the signal-space channel moved to this implementation
+     derived from the abstract class.
+*/
+
+template <> class modulator<sigspace> : public basic_modulator<sigspace> {
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~modulator() {};
-   // @}
-   /*! \name Serialization Support */
-   virtual modulator *clone() const = 0;
-   virtual const char* name() const = 0;
-   // @}
-
-   /*! \name Atomic modem operations */
-   /*!
-      \brief Modulate a single time-step
-      \param   index Index into the symbol alphabet
-      \return  Symbol corresponding to the given index
-   */
-   virtual const sigspace modulate(const int index) const = 0;
-   /*!
-      \brief Demodulate a single time-step
-      \param   signal   Received signal
-      \return  Index corresponding symbol that is closest to the received signal
-   */
-   virtual const int demodulate(const sigspace& signal) const = 0;
-   /*! \copydoc modulate() */
-   const sigspace operator[](const int index) const { return modulate(index); };
-   /*! \copydoc demodulate() */
-   const int operator[](const sigspace& signal) const { return demodulate(signal); };
-   // @}
-
-   /*! \name Vector modem operations */
-   /*!
-      \brief Modulate a sequence of time-steps
-      \param[in]  N        The number of possible values of each encoded element
-      \param[in]  encoded  Sequence of values to be modulated
-      \param[out] tx       Sequence of symbols corresponding to the given input
-
-      \todo Remove parameter N, replacing 'int' type for encoded vector with something
-            that also encodes the number of symbols in the alphabet
-   */
-   virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) = 0;
-   /*!
-      \brief Demodulate a sequence of time-steps
-      \param[in]  chan     The channel model (used to obtain likelihoods)
-      \param[in]  rx       Sequence of received symbols
-      \param[out] ptable   Table of likelihoods of possible transmitted symbols
-      
-      \note \c ptable(i,d) \c is the a posteriori probability of having transmitted 
-            symbol 'd' at time 'i'
-   */
-   virtual void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) = 0;
-   // @}
-
    /*! \name Informative functions */
-   //! Symbol alphabet size
-   virtual int num_symbols() const = 0;
    //! Average energy per symbol
    virtual double energy() const = 0;
    //! Average energy per bit
@@ -152,21 +229,7 @@ public:
    //! Modulation rate (spectral efficiency) in bits/unit energy
    double rate() const { return 1.0/bit_energy(); };
    // @}
-
-   /*! \name Description & Serialization */
-   //! Object description output
-   virtual std::string description() const = 0;
-   //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   //! Object serialization input
-   virtual std::istream& serialize(std::istream& sin) = 0;
-   // @}
 };
-
-/*! \name Serialization */
-std::ostream& operator<<(std::ostream& sout, const modulator* x);
-std::istream& operator>>(std::istream& sin, modulator*& x);
-// @}
 
 }; // end namespace
 
