@@ -47,11 +47,11 @@ namespace libcomm {
    - started implementations of P(), Q() and demodulate()
    - added support for keeping track of the last transmitted block; this assumes a cyclic
      modulation/demodulation system, as is presently being used in the commsys class.
-     \todo Make demodulation independent of the previous modulation step.
      - added member variable that keeps the last transmitted block
      - added functions to create last transmitted block
    - updated to conform with fba 1.10.
    - changed derivation to fba<real> from fba<logrealfast>.
+   \todo Make demodulation independent of the previous modulation step.
 
    \version 1.20 (31 Oct - 1 Nov 2007)
    - updated definition of Q() to conform with fba 1.20
@@ -111,8 +111,8 @@ namespace libcomm {
 
    \version 1.30 (29 Nov 2007)
    - changed normalization method, so that we normalize over the whole block instead of
-    independently for each timestep. This should be equivalent to no-normalization, and is
-    a precursor to a change in the architecture to allow higher-range ptables.
+     independently for each timestep. This should be equivalent to no-normalization, and is
+     a precursor to a change in the architecture to allow higher-range ptables.
 
    \version 1.40 (6 Dec 2007)
    - removed I and xmax from user-defined parameters, as in bsid 1.40
