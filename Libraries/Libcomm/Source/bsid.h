@@ -113,9 +113,9 @@ private:
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
    int      N;          //!< Block size in bits over which we want to synchronize
-   bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with SNR
-   bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with SNR
-   bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with SNR
+   bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
+   bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter
+   bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with parameter
    // @}
    /*! \name Pre-computed parameters */
    //! Assumed limit for insertions between two time-steps
