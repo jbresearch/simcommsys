@@ -249,14 +249,14 @@ public:
 template <> class modulator<bool> : public basic_modulator<bool> {
    static const libbase::serializer shelper;
    static void* create() { return new modulator<bool>; };
-private:
-   // Atomic modem operations (private as these should never be used)
-   const bool modulate(const int index) const { return false; };
-   const int demodulate(const bool& signal) const { return 0; };
 public:
    // Serialization Support
    modulator<bool> *clone() const { return new modulator<bool>(*this); };
    const char* name() const { return shelper.name(); };
+
+   // Atomic modem operations (private as these should never be used)
+   const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index != 0; };
+   const int demodulate(const bool& signal) const { return signal; };
 
    // Vector modem operations
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
