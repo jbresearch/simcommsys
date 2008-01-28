@@ -134,6 +134,11 @@ namespace libcomm {
    - Abstracted commsys:
       - Common elements, consisting of source, codec, and channel, created in this
         base templated class basic_commsys.
+
+   \version 2.10 (28 Jan 2008)
+   - Moved modulator object to the common class from the sigspace specialization;
+     the order of serialization is now changed back to what it used to be, where
+     the channel goes first, followed by the modulator, and finally the coded.
 */
 
 template <class S> class basic_commsys : public experiment {
@@ -143,6 +148,7 @@ protected:
    bool  internallyallocated;
    libbase::randgen     *src;    //!< Source data sequence generator
    codec                *cdc;    //!< Error-control codec
+   modulator<S>         *modem;  //!< Modulation scheme
    channel<S>           *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
@@ -170,7 +176,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(libbase::randgen *src, codec *cdc, channel<S> *chan);
+   basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan);
    basic_commsys(const basic_commsys<S>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };
@@ -188,6 +194,8 @@ public:
    /*! \name Component object handles */
    //! Get error-control codec
    const codec *getcodec() const { return cdc; };
+   //! Get modulation scheme
+   const modulator<S> *getmodem() const { return modem; };
    //! Get channel model
    const channel<S> *getchan() const { return chan; };
    // @}
@@ -241,7 +249,6 @@ template <> class commsys<sigspace> : public basic_commsys<sigspace> {
    // @}
 protected:
    /*! \name Bound objects */
-   modulator<sigspace>  *modem;  //!< Modulation scheme
    puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
    // @}
 protected:
@@ -267,8 +274,6 @@ public:
    // @}
 
    /*! \name Component object handles */
-   //! Get modulation scheme
-   const modulator<sigspace> *getmodem() const { return modem; };
    //! Get puncturing scheme
    const puncture *getpunc() const { return punc; };
    // @}

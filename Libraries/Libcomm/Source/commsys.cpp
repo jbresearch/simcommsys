@@ -55,6 +55,7 @@ template <class S> void basic_commsys<S>::clear()
    {
    src = NULL;
    cdc = NULL;
+   modem = NULL;
    chan = NULL;
    internallyallocated = true;
    }
@@ -77,6 +78,7 @@ template <class S> void basic_commsys<S>::free()
       {
       delete src;
       delete cdc;
+      delete modem;
       delete chan;
       }
    clear();
@@ -184,10 +186,11 @@ template <class S> void basic_commsys<S>::cycleonce(libbase::vector<double>& res
 
    Initializes system with bound objects as supplied by user.
 */
-template <class S> basic_commsys<S>::basic_commsys(libbase::randgen *src, codec *cdc, channel<S> *chan)
+template <class S> basic_commsys<S>::basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan)
    {
    basic_commsys<S>::src = src;
    basic_commsys<S>::cdc = cdc;
+   basic_commsys<S>::modem = modem;
    basic_commsys<S>::chan = chan;
    internallyallocated = false;
    init();
@@ -199,11 +202,13 @@ template <class S> basic_commsys<S>::basic_commsys(libbase::randgen *src, codec 
    Initializes system with bound objects cloned from supplied system.
 
    \todo Fix cast when cloning channel: this should not be necessary.
+   \todo Fix cast when cloning modem: this should not be necessary.
 */
 template <class S> basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
    {
    basic_commsys<S>::src = new libbase::randgen;
    basic_commsys<S>::cdc = c.cdc->clone();
+   basic_commsys<S>::modem = (modulator<S> *)c.modem->clone();
    basic_commsys<S>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
    init();
@@ -236,6 +241,7 @@ template <class S> std::string basic_commsys<S>::description() const
    std::ostringstream sout;
    sout << "Communication System: ";
    sout << cdc->description() << ", ";
+   sout << modem->description() << ", ";
    sout << chan->description();
    return sout.str();
    }
@@ -243,6 +249,7 @@ template <class S> std::string basic_commsys<S>::description() const
 template <class S> std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
    {
    sout << chan;
+   sout << modem;
    sout << cdc;
    return sout;
    }
@@ -252,6 +259,7 @@ template <class S> std::istream& basic_commsys<S>::serialize(std::istream& sin)
    free();
    src = new libbase::randgen;
    sin >> chan;
+   sin >> modem;
    sin >> cdc;
    internallyallocated = true;
    init();
@@ -289,7 +297,6 @@ void commsys<sigspace>::init()
 
 void commsys<sigspace>::clear()
    {
-   modem = NULL;
    punc = NULL;
    }
 
@@ -297,7 +304,6 @@ void commsys<sigspace>::free()
    {
    if(internallyallocated)
       {
-      delete modem;
       delete punc;
       }
    clear();
@@ -363,21 +369,14 @@ void commsys<sigspace>::transmitandreceive(libbase::vector<int>& source)
 
 // Constructors / Destructors
 
-commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace>(src, cdc, chan)
+commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace>(src, cdc, modem, chan)
    {
-   commsys::modem = modem;
    commsys::punc = punc;
    init();
    }
 
-/*!
-   \copydoc basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
-
-   \todo Fix cast when cloning modem: this should not be necessary.
-*/
 commsys<sigspace>::commsys(const commsys<sigspace>& c) : basic_commsys<sigspace>(c)
    {
-   commsys::modem = (modulator<sigspace> *)c.modem->clone();
    commsys::punc = c.punc->clone();
    init();
    }
@@ -387,8 +386,7 @@ commsys<sigspace>::commsys(const commsys<sigspace>& c) : basic_commsys<sigspace>
 std::string commsys<sigspace>::description() const
    {
    std::ostringstream sout;
-   sout << basic_commsys<sigspace>::description() << ", ";
-   sout << modem->description();
+   sout << basic_commsys<sigspace>::description();
    if(punc != NULL)
       sout << ", " << punc->description();
    return sout.str();
@@ -396,7 +394,6 @@ std::string commsys<sigspace>::description() const
 
 std::ostream& commsys<sigspace>::serialize(std::ostream& sout) const
    {
-   sout << modem;
    //const bool ispunctured = (punc != NULL);
    //sout << int(ispunctured) << "\n";
    //if(ispunctured)
@@ -408,7 +405,6 @@ std::ostream& commsys<sigspace>::serialize(std::ostream& sout) const
 std::istream& commsys<sigspace>::serialize(std::istream& sin)
    {
    free();
-   sin >> modem;
    //int ispunctured;
    //sin >> ispunctured;
    //if(ispunctured != 0)
@@ -435,15 +431,15 @@ const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", 
       // block definitions
       node [ shape=box ];
       encode [ label="Encode" ];
-      mapper [ label="Mapper" ];
+      modulate [ label="Modulate" ];
       transmit [ label="Transmit" ];
-      unmapper [ label="Unmapper" ];
+      demodulate [ label="Demodulate" ];
       translate [ label="Translate" ];
       // path definitions
-      encode -> mapper;
-      mapper -> transmit;
-      transmit -> unmapper;
-      unmapper -> translate;
+      encode -> modulate;
+      modulate -> transmit;
+      transmit -> demodulate;
+      demodulate -> translate;
    }
    \enddot
 */
@@ -452,11 +448,10 @@ void commsys<bool>::transmitandreceive(libbase::vector<int>& source)
    libbase::vector<int> encoded;
    cdc->encode(source, encoded);
    libbase::vector<bool> signal;
-   modulator<bool> modem;
-   modem.modulate(N, encoded, signal);
+   modem->modulate(N, encoded, signal);
    libbase::matrix<double> ptable;
    chan->transmit(signal, signal);
-   modem.demodulate(*chan, signal, ptable);
+   modem->demodulate(*chan, signal, ptable);
    cdc->translate(ptable);
    }
 
