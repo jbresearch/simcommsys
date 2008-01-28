@@ -9,7 +9,6 @@
 
 #include "modulator.h"
 #include "serializer.h"
-#include "itfunc.h"
 #include <stdlib.h>
 
 namespace libcomm {

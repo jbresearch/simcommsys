@@ -125,6 +125,9 @@ public:
       \param[in]  N        The number of possible values of each encoded element
       \param[in]  encoded  Sequence of values to be modulated
       \param[out] tx       Sequence of symbols corresponding to the given input
+
+      \todo Remove parameter N, replacing 'int' type for encoded vector with something
+            that also encodes the number of symbols in the alphabet
    */
    virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx) = 0;
    /*!
