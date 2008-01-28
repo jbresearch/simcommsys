@@ -70,11 +70,37 @@ bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
    assert(N > 0);
    bsid::N = N;
    // channel update flags
+   assert(varyPs || varyPd || varyPi);
    bsid::varyPs = varyPs;
    bsid::varyPd = varyPd;
    bsid::varyPi = varyPi;
    // other initialization
    init();
+   }
+
+// Channel parameter handling
+
+void bsid::set_parameter(const double p)
+   {
+   if(varyPs)
+      set_ps(p);
+   if(varyPd)
+      set_pd(p);
+   if(varyPi)
+      set_pi(p);
+   libbase::trace << "DEBUG (bsid): Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
+   }
+
+double bsid::get_parameter() const
+   {
+   if(varyPs)
+      return Ps;
+   if(varyPd)
+      return Pd;
+   if(varyPi)
+      return Pi;
+   std::cerr << "ERROR: BSID channel has no parameters\n";
+   exit(1);
    }
 
 // Channel parameter setters
@@ -104,35 +130,6 @@ void bsid::set_pi(const double Pi)
 // Channel function overrides
 
 /*!
-   \copydoc channel<sigspace>::compute_parameters()
-
-   There is no real relationship between SNR and the insertion/deletion probabilities.
-   However, the simulator uses SNR as its common channel-quality measure, so that a functional
-   relationship has to be chosen.
-
-   For the purposes of this channel, SNR and the error probabilities are related by:
-      \f[ p = Q(1/\sigma) \f]
-   where \f$ \sigma^2 = E_b N_0 \f$ would be the variance if the channel represented additive
-   Gaussian noise. The probabilities \f$ P_s, P_d, P_i \f$ are set to \f$ p \f$ if the corresponding
-   flag is set, or left at zero otherwise.
-
-   \note Effectively, if only \f$ P_s \f$ is set to be varied, this channel becomes equivalent to
-   a BSC model for a hard-decision AWGN channel.
-*/
-void bsid::compute_parameters(const double Eb, const double No)
-   {
-   // computes substitution probability assuming Eb/No describes an AWGN channel with hard-decision demodulation
-   const double p = libbase::Q(1/sqrt(Eb*No));
-   if(varyPs)
-      set_ps(p);
-   if(varyPd)
-      set_pd(p);
-   if(varyPi)
-      set_pi(p);
-   libbase::trace << "DEBUG (bsid): Eb = " << Eb << ", No = " << No << " -> Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
-   }
-
-/*!
    \copydoc channel::corrupt()
 
    \note Due to limitations of the interface, which was designed for substitution channels,
@@ -143,12 +140,11 @@ void bsid::compute_parameters(const double Eb, const double No)
    modulation. For MPSK modulation, this causes the output to be the symbol farthest away
    from the input.
 */
-sigspace bsid::corrupt(const sigspace& s)
+bool bsid::corrupt(const bool& s)
    {
    const double p = r.fval();
-   //libbase::trace << "DEBUG (bsid): p(s) = " << p << "\n";
    if(p < Ps)
-      return -s;
+      return !s;
    return s;
    }
 
@@ -188,7 +184,7 @@ sigspace bsid::corrupt(const sigspace& s)
 
    \sa corrupt()
 */
-void bsid::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx)
+void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
    {
    const int tau = tx.size();
    libbase::vector<int> insertions(tau);
@@ -212,13 +208,13 @@ void bsid::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspac
       libbase::trace << "DEBUG (bsid): insertions = " << insertions << "\n";
       }
 #endif
-   libbase::vector<sigspace> newrx;
+   libbase::vector<bool> newrx;
    newrx.init(transmit.sum() + insertions.sum());
    // Corrupt the modulation symbols (simulate the channel)
    for(int i=0, j=0; i<tau; i++)
       {
       while(insertions(i)--)
-         newrx(j++) = (r.fval() < 0.5) ? sigspace(1,0) : sigspace(-1,0);
+         newrx(j++) = (r.fval() < 0.5);
       if(transmit(i))
          newrx(j++) = corrupt(tx(i));
       }
@@ -228,21 +224,21 @@ void bsid::transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspac
 
 /********************************* FBA sub-class object *********************************/
 
-class myfba : public fba<double> {
+class myfba : public fba<double,bool> {
    // user-defined parameters
-   libbase::vector<sigspace>  tx;   // presumed transmitted sequence
+   libbase::vector<bool>  tx;   // presumed transmitted sequence
    const bsid* channel;
    // pre-computed parameters
    libbase::vector<double> Ptable;
    // implementations of channel-specific metrics for fba
    double P(const int a, const int b);
-   double Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s);
+   double Q(const int a, const int b, const int i, const libbase::vector<bool>& s);
 public:
    // constructor & destructor
    myfba() {};
    ~myfba() {};
    // set transmitted sequence
-   void settx(const libbase::vector<sigspace>& tx);
+   void settx(const libbase::vector<bool>& tx);
    // attach channel
    void attach(const bsid* channel);
 };
@@ -255,7 +251,7 @@ inline double myfba::P(const int a, const int b)
    return Ptable(m+1);
    }
 
-inline double myfba::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
+inline double myfba::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -267,7 +263,7 @@ inline double myfba::Q(const int a, const int b, const int i, const libbase::vec
 
 // set transmitted sequence
 
-inline void myfba::settx(const libbase::vector<sigspace>& tx)
+inline void myfba::settx(const libbase::vector<bool>& tx)
    {
    myfba::tx.init(tx.size()+1);
    myfba::tx.copyfrom(tx);
@@ -290,7 +286,7 @@ inline void myfba::attach(const bsid* channel)
 
 /********************************* END FBA *********************************/
 
-void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const
+void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
    const int M = tx.size();
@@ -308,7 +304,7 @@ void bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<si
       }
    }
 
-double bsid::receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const
+double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
    {
    // Compute sizes
    const int tau = tx.size();

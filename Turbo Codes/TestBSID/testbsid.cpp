@@ -24,12 +24,12 @@ int main(int argc, char *argv[])
    using libcomm::sigspace;
    // define an alternating input sequence
    const int tau = 5;
-   vector<sigspace> tx(tau);
+   vector<bool> tx(tau);
    for(int i=0; i<tau; i++)
-      tx(i) = sigspace((i%2) ? -1 : 1, 0);
+      tx(i) = (i&1);
    cout << "Tx: " << tx << "\n";
    // pass that through the channel
-   vector<sigspace> rx1, rx2;
+   vector<bool> rx1, rx2;
    // channel1 is a substitution-only channel
    bsid channel1(tau);
    channel1.seed(1);

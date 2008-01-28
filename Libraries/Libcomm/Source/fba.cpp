@@ -205,4 +205,10 @@ template class fba<mpgnu>;
 template class fba<logreal>;
 template class fba<logrealfast>;
 
+template class fba<double,bool>;
+template class fba<mpreal,bool>;
+template class fba<mpgnu,bool>;
+template class fba<logreal,bool>;
+template class fba<logrealfast,bool>;
+
 }; // end namespace

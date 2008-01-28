@@ -119,9 +119,12 @@ namespace libcomm {
 
    \version 1.41 (24 Jan 2008)
    - Changed reference from channel to channel<sigspace>
+
+   \version 2.00 (28 Jan 2008)
+   - Changed base from mpsk (and therefore modulator<sigspace>) to modulator<bool>
 */
 
-template <class real> class watermarkcode : public mpsk, private fba<real> {
+template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
    /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new watermarkcode<real>; };
@@ -150,10 +153,7 @@ private:
    // @}
    // Implementations of channel-specific metrics for fba
    real P(const int a, const int b);
-   real Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s);
-   // Atomic modulation/demodulation operations (private as these should never be used)
-   const sigspace modulate(const int index) const { return sigspace(0,0); };
-   const int demodulate(const sigspace& signal) const { return 0; };
+   real Q(const int a, const int b, const int i, const libbase::vector<bool>& s);
 protected:
    /*! \name Internal functions */
    void init();
@@ -174,8 +174,8 @@ public:
    // @}
 
    // Vector modem operations
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
-   void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
+   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
 
    // Informative functions
    int num_symbols() const { return 1<<k; };

@@ -74,8 +74,6 @@ template <class real> void watermarkcode<real>::init()
    // Seed the watermark generator and clear the sequence
    r.seed(s);
    ws.init(0);
-   // initialize the mpsk modulator & forward-backward algorithm
-   mpsk::init(2);
    }
 
 // constructor / destructor
@@ -110,7 +108,7 @@ template <class real> real watermarkcode<real>::P(const int a, const int b)
    return 0;
    }
 
-template <class real> real watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<sigspace>& s)
+template <class real> real watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -118,14 +116,14 @@ template <class real> real watermarkcode<real>::Q(const int a, const int b, cons
    // we know exactly what was transmitted at this timestep
    const int word = i/n;
    const int bit  = i%n;
-   sigspace tx = mpsk::modulate((ws(word) >> bit) & 1);
+   bool tx = ((ws(word) >> bit) & 1);
    // compute the conditional probability
    return mychan.receive(tx, s);
    }
 
 // encoding and decoding functions
 
-template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
+template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Inherit sizes
    const int q = 1<<k;
@@ -160,11 +158,11 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 #endif
          // NOTE: we transmit the low-order bits first
          for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
-            tx(ii*n+bit) = mpsk::modulate(t&1);
+            tx(ii*n+bit) = (t&1);
          }
    }
 
-template <class real> void watermarkcode<real>::demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
+template <class real> void watermarkcode<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
    // Inherit block size from last modulation step
@@ -172,17 +170,14 @@ template <class real> void watermarkcode<real>::demodulate(const channel<sigspac
    const int N = ws.size();
    assert(N > 0);
    // Set channel parameters used in FBA same as one being simulated
-   // TODO: replace by new interface
-   mychan.set_eb(chan.get_eb());
-   mychan.set_no(chan.get_no());
-   //mychan.set_parameter(chan.get_parameter());
+   mychan.set_parameter(chan.get_parameter());
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
    // Initialize & perform forward-backward algorithm
    const int I    = mychan.get_I();
    const int xmax = mychan.get_xmax();
-   fba<real>::init(N*n, I, xmax);
-   fba<real>::prepare(rx);
+   fba::init(N*n, I, xmax);
+   fba::prepare(rx);
    // Tell the user what settings are in use
    static int last_I = 0;
    static int last_xmax = 0;
@@ -209,15 +204,15 @@ template <class real> void watermarkcode<real>::demodulate(const channel<sigspac
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
-         if(fba<real>::getF(n*i,x1) > threshold)
-            threshold = fba<real>::getF(n*i,x1);
+         if(fba::getF(n*i,x1) > threshold)
+            threshold = fba::getF(n*i,x1);
       threshold *= 1e-6;
       for(int d=0; d<q; d++)
          {
          // create the considered transmitted sequence
-         libbase::vector<sigspace> tx(n);
+         libbase::vector<bool> tx(n);
          for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
-            tx(j) = mpsk::modulate(t&1);
+            tx(j) = (t&1);
          // In loop below skip out-of-bounds cases:
          // 1. first bit of received vector must exist: n*i+x1 >= 0
          // 2. last bit of received vector must exist: n*(i+1)+x2-1 <= rx.size()-1
@@ -229,7 +224,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<sigspac
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
             {
-            const real F = fba<real>::getF(n*i,x1);
+            const real F = fba::getF(n*i,x1);
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
@@ -239,7 +234,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<sigspac
                {
                // compute the conditional probability
                const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
-               const real B = fba<real>::getB(n*(i+1),x2);
+               const real B = fba::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p(i,d) += P * F * B;
 #ifndef NDEBUG

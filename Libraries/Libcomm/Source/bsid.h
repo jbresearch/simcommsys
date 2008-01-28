@@ -69,7 +69,7 @@ namespace libcomm {
      on initialization or serialization - derived classes should delegate to this
      class's serialization routines as needed.
    - added getters for I and xmax (watermarkcode needs them to set up fba)
-     \b TODO: this should probably change, separating or integrating bsid & fba
+     \todo Consider separating or integrating bsid & fba
    - fixed ptable and getF indexing errors in receive() for M=1.
 
    \version 1.24 (14 Nov 2007)
@@ -97,9 +97,12 @@ namespace libcomm {
 
    \version 1.41 (24 Jan 2008)
    - Changed derivation from channel to channel<sigspace>
+
+   \version 2.00 (28 Jan 2008)
+   - Changed channel type to channel<bool>
 */
 
-class bsid : public channel<sigspace> {
+class bsid : public channel<bool> {
    /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new bsid; };
@@ -154,9 +157,8 @@ protected:
    bsid() {};
    // @}
    // Channel function overrides
-   void compute_parameters(const double Eb, const double No);
-   sigspace corrupt(const sigspace& s);
-   double pdf(const sigspace& tx, const sigspace& rx) const;
+   bool corrupt(const bool& s);
+   double pdf(const bool& tx, const bool& rx) const;
 public:
    /*! \name Constructors / Destructors */
    bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
@@ -164,6 +166,13 @@ public:
    /*! \name Serialization Support */
    bsid *clone() const { return new bsid(*this); };
    const char* name() const { return shelper.name(); };
+   // @}
+
+   /*! \name Channel parameter handling */
+   //! Set the substitution probability
+   void set_parameter(const double p);
+   //! Get the substitution probability
+   double get_parameter() const;
    // @}
 
    /*! \name Channel parameter setters */
@@ -192,10 +201,10 @@ public:
    // @}
 
    // Channel functions
-   void transmit(const libbase::vector<sigspace>& tx, libbase::vector<sigspace>& rx);
-   void receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable) const;
-   double receive(const libbase::vector<sigspace>& tx, const libbase::vector<sigspace>& rx) const;
-   double receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const;
+   void transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx);
+   void receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable) const;
+   double receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const;
+   double receive(const bool& tx, const libbase::vector<bool>& rx) const;
 
    // Description & Serialization
    std::string description() const;
@@ -203,12 +212,12 @@ public:
    std::istream& serialize(std::istream& sin);
 };
 
-inline double bsid::pdf(const sigspace& tx, const sigspace& rx) const
+inline double bsid::pdf(const bool& tx, const bool& rx) const
    {
    return (tx != rx) ? Ps : 1-Ps;
    }
 
-inline double bsid::receive(const sigspace& tx, const libbase::vector<sigspace>& rx) const
+inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) const
    {
    // Compute sizes
    const int m = rx.size()-1;

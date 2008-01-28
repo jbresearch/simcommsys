@@ -22,16 +22,15 @@ using libbase::vector;
 using libbase::matrix;
 using libbase::logrealfast;
 
-using libcomm::sigspace;
 using libcomm::modulator;
 using libcomm::channel;
 using libcomm::watermarkcode;
 
-channel<sigspace> *create_channel(int N, double snr)
+channel<bool> *create_channel(int N, double Pe)
    {
-   channel<sigspace> *chan = new libcomm::bsid(N);
+   channel<bool> *chan = new libcomm::bsid(N);
    chan->seed(1);
-   chan->set_parameter(snr);
+   chan->set_parameter(Pe);
    return chan;
    }
 
@@ -45,32 +44,32 @@ vector<int> create_encoded(int k, int tau, bool display=true)
    return encoded;
    }
 
-void print_signal(const char* desc, int n, vector<sigspace> tx)
+void print_signal(const char* desc, int n, vector<bool> tx)
    {
    cout << desc << ":\n";
    for(int i=0; i<tx.size(); i++)
       cout << tx(i) << ((i%n == n-1) ? "\n" : "\t");
    }
 
-vector<sigspace> modulate_encoded(int k, int n, modulator<sigspace>& modem, vector<int>& encoded, bool display=true)
+vector<bool> modulate_encoded(int k, int n, modulator<bool>& modem, vector<int>& encoded, bool display=true)
    {
-   vector<sigspace> tx;
+   vector<bool> tx;
    modem.modulate(1<<k, encoded, tx);
    if(display)
       print_signal("Tx", n, tx);
    return tx;
    }
 
-vector<sigspace> transmit_modulated(int n, channel<sigspace>& chan, const vector<sigspace>& tx, bool display=true)
+vector<bool> transmit_modulated(int n, channel<bool>& chan, const vector<bool>& tx, bool display=true)
    {
-   vector<sigspace> rx;
+   vector<bool> rx;
    chan.transmit(tx, rx);
    if(display)
       print_signal("Rx", n, rx);
    return rx;
    }
 
-matrix<double> demodulate_encoded(channel<sigspace>& chan, modulator<sigspace>& modem, const vector<sigspace>& rx, bool display=true)
+matrix<double> demodulate_encoded(channel<bool>& chan, modulator<bool>& modem, const vector<bool>& rx, bool display=true)
    {
    // demodulate received signal
    matrix<double> ptable;
@@ -104,20 +103,20 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
       cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n";
    }
 
-void testcycle(int const seed, int const n, int const k, int const tau, double snr=12, bool display=true)
+void testcycle(int const seed, int const n, int const k, int const tau, double Pe=1e-10, bool display=true)
    {
    const int N = tau*n;
    // create modem and channel
    watermarkcode<logrealfast> modem(n,k,seed, N);
-   channel<sigspace> *chan = create_channel(N, snr);
+   channel<bool> *chan = create_channel(N, Pe);
    cout << modem.description() << "\n";
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
    // modulate it using the previously created watermarkcode
-   vector<sigspace> tx = modulate_encoded(k, n, modem, encoded, display);
+   vector<bool> tx = modulate_encoded(k, n, modem, encoded, display);
    // pass it through the channel
-   vector<sigspace> rx = transmit_modulated(n, *chan, tx, display);
+   vector<bool> rx = transmit_modulated(n, *chan, tx, display);
    // demodulate received signal
    matrix<double> ptable = demodulate_encoded(*chan, modem, rx, display);
    // count errors
@@ -138,14 +137,16 @@ int main(int argc, char *argv[])
    // do what the user asked for
    testcycle(seed, n, k, tau);
 
-   // try short,medium,large codes for benchmarking at high SNR
-   testcycle(seed, 15, 4, 10, 12.0, false);
-   testcycle(seed, 15, 4, 100, 12.0, false);
-   testcycle(seed, 15, 4, 1000, 12.0, false);
+   // try short,medium,large codes for benchmarking at low error probability
+   const double Plo = 9.00601e-09;
+   testcycle(seed, 15, 4, 10, Plo, false);
+   testcycle(seed, 15, 4, 100, Plo, false);
+   testcycle(seed, 15, 4, 1000, Plo, false);
 
-   // try short,medium codes for benchmarking at low SNR
-   testcycle(seed, 15, 4, 10, 1.0, false);
-   testcycle(seed, 15, 4, 100, 1.0, false);
+   // try short,medium codes for benchmarking at high error probability
+   const double Phi = 0.056282;
+   testcycle(seed, 15, 4, 10, Phi, false);
+   testcycle(seed, 15, 4, 100, Phi, false);
 
    return 0;
    }
