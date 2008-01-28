@@ -270,7 +270,7 @@ const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigs
 // Setup functions
 
 /*!
-   \copydoc basic_commsys<S>::init()
+   \copydoc basic_commsys::init()
 
    This function sets the average energy per data bit in the bound channel model.
    The value depends on:
@@ -306,7 +306,7 @@ void commsys<sigspace>::free()
 // Internal functions
 
 /*!
-   \copydoc basic_commsys<S>::transmitandreceive()
+   \copydoc basic_commsys::transmitandreceive()
 
    The cycle consists of the steps depicted in the following diagram:
    \dot
@@ -370,7 +370,7 @@ commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator *modem, 
    init();
    }
 
-commsys<sigspace>::commsys(const commsys& c) : basic_commsys<sigspace>(c)
+commsys<sigspace>::commsys(const commsys<sigspace>& c) : basic_commsys<sigspace>(c)
    {
    commsys::modem = c.modem->clone();
    commsys::punc = c.punc->clone();
@@ -450,7 +450,7 @@ void commsys<bool>::unmapper(const channel<bool>& chan, const libbase::vector<bo
    }
 
 /*!
-   \copydoc basic_commsys<S>::transmitandreceive()
+   \copydoc basic_commsys::transmitandreceive()
 
    The cycle consists of the steps depicted in the following diagram:
    \dot

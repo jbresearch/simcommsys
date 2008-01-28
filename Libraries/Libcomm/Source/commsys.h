@@ -229,7 +229,7 @@ template <class S> class commsys : public basic_commsys<S> {
       - This explicit specialization for sigspace channel contains objects
         and functions remaining from the templated base, and is equivalent
         to the old commsys class; anything that used to use 'commsys' can
-        now use 'commsys<sigspace>'.
+        now use this specialization.
 */
 template <> class commsys<sigspace> : public basic_commsys<sigspace> {
    /*! \name Serialization */
