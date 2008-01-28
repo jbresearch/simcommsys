@@ -327,10 +327,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsc.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\bsid.cpp"
 				>
 			</File>
@@ -1285,6 +1281,10 @@
 			</File>
 			<File
 				RelativePath="Source\berrou.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\bsc.h"
 				>
 			</File>
 			<File
