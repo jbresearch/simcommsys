@@ -254,7 +254,7 @@ public:
    modulator<bool> *clone() const { return new modulator<bool>(*this); };
    const char* name() const { return shelper.name(); };
 
-   // Atomic modem operations (private as these should never be used)
+   // Atomic modem operations
    const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index != 0; };
    const int demodulate(const bool& signal) const { return signal; };
 

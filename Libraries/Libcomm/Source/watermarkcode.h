@@ -154,6 +154,9 @@ private:
    // Implementations of channel-specific metrics for fba
    real P(const int a, const int b);
    real Q(const int a, const int b, const int i, const libbase::vector<bool>& s);
+   // Atomic modem operations (private as these should never be used)
+   const bool modulate(const int index) const { assert("Function should not be used."); return false; };
+   const int demodulate(const bool& signal) const { assert("Function should not be used."); return 0; };
 protected:
    /*! \name Internal functions */
    void init();
