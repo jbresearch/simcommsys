@@ -255,7 +255,7 @@ public:
    const char* name() const { return shelper.name(); };
 
    // Atomic modem operations
-   const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index != 0; };
+   const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index & 1; };
    const int demodulate(const bool& signal) const { return signal; };
 
    // Vector modem operations
