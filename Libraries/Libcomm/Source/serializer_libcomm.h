@@ -112,12 +112,15 @@ namespace libcomm {
    \version 2.26 (25 Jan 2008)
    - Modified commsys to commsys<sigspace>
    - Added BSC channel
+
+   \version 2.27 (28 Jan 2008)
+   - Added modulator<bool>
 */
 
 // Serialization support
 class serializer_libcomm : private
    awgn, laplacian, lapgauss, bsid, bsc,
-   qam, watermarkcode<libbase::logrealfast>,
+   modulator<bool>, qam, watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
