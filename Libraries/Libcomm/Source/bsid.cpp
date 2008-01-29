@@ -214,7 +214,7 @@ void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
    for(int i=0, j=0; i<tau; i++)
       {
       while(insertions(i)--)
-         newrx(j++) = (r.fval() < 0.5);
+         newrx(j++) = !(r.fval() < 0.5);
       if(transmit(i))
          newrx(j++) = corrupt(tx(i));
       }

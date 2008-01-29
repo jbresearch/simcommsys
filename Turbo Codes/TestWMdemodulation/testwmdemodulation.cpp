@@ -103,7 +103,7 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
       cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n";
    }
 
-void testcycle(int const seed, int const n, int const k, int const tau, double Pe=1e-10, bool display=true)
+void testcycle(int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
    {
    const int N = tau*n;
    // create modem and channel
@@ -134,17 +134,19 @@ int main(int argc, char *argv[])
    const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
    const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
    const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
+   // error probabilities corresponding to SNR = 12dB and 1dB respectively
+   const double Plo = 9.00601e-09;
+   const double Phi = 0.056282;
+
    // do what the user asked for
-   testcycle(seed, n, k, tau);
+   testcycle(seed, n, k, tau, Plo);
 
    // try short,medium,large codes for benchmarking at low error probability
-   const double Plo = 9.00601e-09;
    testcycle(seed, 15, 4, 10, Plo, false);
    testcycle(seed, 15, 4, 100, Plo, false);
    testcycle(seed, 15, 4, 1000, Plo, false);
 
    // try short,medium codes for benchmarking at high error probability
-   const double Phi = 0.056282;
    testcycle(seed, 15, 4, 10, Phi, false);
    testcycle(seed, 15, 4, 100, Phi, false);
 
