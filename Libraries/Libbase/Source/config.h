@@ -159,6 +159,9 @@
      end values respectively), to display estimated time remaining
    - it is overloaded with an optional first parameter containing a descriptive
      string, to be printed only if something is returned
+
+   \version 3.37 (29 Jan 2008)
+   - Added sign() function
 */
 
 // *** Global namespace ***
@@ -167,13 +170,14 @@
 
 #define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::fail(#_Expression, __FILE__, __LINE__), 0) )
 
-// Implemented log2 and round if these are not already available
+// Implemented log2, round, and sgn if these are not already available
 
 #ifdef WIN32
 inline double log2(double x) { return log(x)/log(double(2)); }
 inline double round(double x) { return (floor(x + 0.5)); }
 #endif
 inline double round(double x, double r) { return round(x/r)*r; }
+inline double sign(double x) {return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 
 // Automatic upgrade of various math functions from int to double parameter
 
