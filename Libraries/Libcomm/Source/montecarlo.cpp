@@ -141,25 +141,20 @@ void montecarlo::display(const int pass, const double cur_accuracy, const double
 
 // constructor/destructor
 
-montecarlo::montecarlo(experiment *system)
-   {
-   createfunctors();
-   initialise(system);
-   }
-
 montecarlo::montecarlo()
    {
    createfunctors();
-   init = false;
-   system = NULL;
+   reset();
+   // set default parameter settings
+   set_confidence(0.95);
+   set_accuracy(0.10);
    }
 
 montecarlo::~montecarlo()
    {
    if(init)
-      finalise();
-   else
-      delete system;
+      reset();
+   delete system;
    destroyfunctors();
    }
 
@@ -167,24 +162,17 @@ montecarlo::~montecarlo()
 
 void montecarlo::initialise(experiment *system)
    {
-   if(init)
-      {
-      cerr << "ERROR (montecarlo): object already initialized.\n";
-      exit(1);
-      }
    init = true;
    // bind sub-components
    montecarlo::system = system;
    // reset the count of samples
    samplecount = 0;
-   // set default parameter settings
-   set_confidence(0.95);
-   set_accuracy(0.10);
    }
 
-void montecarlo::finalise()
+void montecarlo::reset()
    {
    init = false;
+   system = NULL;
    }
 
 // simulation parameters

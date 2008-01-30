@@ -148,6 +148,11 @@ namespace libcomm {
    - Including system digest and current parameter with result set; this allows the
      master to discard any invalid results.
    - Extracted code to initialize a slave into a new function
+
+   \version 1.46 (30 Jan 2008)
+   - Fixed bug where initialise() was also setting tolerance limits
+   - Removed constructor that also initializes system
+   - Renamed finalise() to reset()
 */
 
 class montecarlo : public libbase::masterslave {
@@ -197,13 +202,12 @@ protected:
    // @}
 public:
    /*! \name Constructor/destructor */
-   montecarlo(experiment *system);
    montecarlo();
    virtual ~montecarlo();
    // @}
    /*! \name Simulation initialization/finalization */
    void initialise(experiment *system);
-   void finalise();
+   void reset();
    // @}
    /*! \name Simulation parameters */
    void set_confidence(const double confidence);   //!< Set confidence limit, say, 0.95 => 95% probability

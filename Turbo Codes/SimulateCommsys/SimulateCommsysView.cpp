@@ -449,5 +449,5 @@ void CSimulateCommsysView::ThreadProc()
       }
 
    // release the estimator so we can use it again
-   finalise();
+   reset();
    }
