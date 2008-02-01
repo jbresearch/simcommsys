@@ -237,19 +237,6 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
                const real B = fba<real,bool>::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p(i,d) += P * F * B;
-#ifndef NDEBUG
-               if(N < 20)
-                  {
-                  b = d;
-                  trace << "DEBUG (watermarkcode::demodulate): ptable(" << i << ", " << string(b) << ")";
-                  trace << " = " << p(i,d) << "\t";
-                  //trace << " = " << ptable(i,d) << "\t";
-                  trace << "F = " << F << "\t";
-                  trace << "B = " << B << "\t";
-                  trace << "P = " << P << "\t";
-                  trace << "[" << x1 << ", " << x2 << "]\n";
-                  }
-#endif
                }
             }
          }
