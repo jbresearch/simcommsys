@@ -26,10 +26,10 @@ using libcomm::modulator;
 using libcomm::channel;
 using libcomm::watermarkcode;
 
-channel<bool> *create_channel(int N, double Pe)
+channel<bool> *create_channel(int seed, int N, double Pe)
    {
    channel<bool> *chan = new libcomm::bsid(N);
-   chan->seed(1);
+   chan->seed(seed);
    chan->set_parameter(Pe);
    return chan;
    }
@@ -109,7 +109,7 @@ void testcycle(int const seed, int const n, int const k, int const tau, double P
    const int N = tau*n;
    // create modem and channel
    watermarkcode<logrealfast> modem(n,k,seed, N);
-   channel<bool> *chan = create_channel(N, Pe);
+   channel<bool> *chan = create_channel(seed, N, Pe);
    cout << modem.description() << "\n";
 
    // define an alternating encoded sequence
