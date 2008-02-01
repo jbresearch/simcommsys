@@ -179,22 +179,16 @@ void montecarlo::reset()
 
 void montecarlo::set_confidence(const double confidence)
    {
-   if(confidence <= 0.5 || confidence >= 1.0)
-      {
-      cerr << "ERROR: trying to set invalid confidence level of " << confidence << "\n";
-      return;
-      }
+   assertalways(confidence > 0.5 && confidence < 1.0);
+   trace << "DEBUG: setting confidence level of " << confidence << "\n";
    libbase::secant Qinv(libbase::Q);  // init Qinv as the inverse of Q(), using the secant method
    cfactor = Qinv((1.0-confidence)/2.0);
    }
 
 void montecarlo::set_accuracy(const double accuracy)
    {
-   if(accuracy <= 0 || accuracy >= 1.0)
-      {
-      cerr << "ERROR: trying to set invalid accuracy level of " << accuracy << "\n";
-      return;
-      }
+   assertalways(accuracy > 0 && accuracy < 1.0);
+   trace << "DEBUG: setting accuracy level of " << accuracy << "\n";
    montecarlo::accuracy = accuracy;
    }
 

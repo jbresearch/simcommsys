@@ -158,6 +158,7 @@ namespace libcomm {
    - Modified slave work-request behaviour: we now ask _all_ IDLE slaves to start
      working if the results have not yet converged.
    - Minor refactoring
+   - Added debug information when changing accuracy and tolerance levels
 */
 
 class montecarlo : public libbase::masterslave {
