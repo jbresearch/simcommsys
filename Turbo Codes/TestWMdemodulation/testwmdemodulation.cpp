@@ -40,7 +40,7 @@ vector<int> create_encoded(int k, int tau, bool display=true)
    for(int i=0; i<tau; i++)
       encoded(i) = (i%(1<<k));
    if(display)
-      cout << "Encoded: " << encoded << "\n";
+      cout << "Encoded: " << encoded << "\n" << std::flush;
    return encoded;
    }
 
@@ -48,7 +48,8 @@ void print_signal(const char* desc, int n, vector<bool> tx)
    {
    cout << desc << ":\n";
    for(int i=0; i<tx.size(); i++)
-      cout << tx(i) << ((i%n == n-1) ? "\n" : "\t");
+      cout << tx(i) << ((i%n == n-1 || i == tx.size()-1) ? "\n" : "\t");
+   cout << std::flush;
    }
 
 vector<bool> modulate_encoded(int k, int n, modulator<bool>& modem, vector<int>& encoded, bool display=true)
@@ -77,8 +78,8 @@ matrix<double> demodulate_encoded(channel<bool>& chan, modulator<bool>& modem, c
    modem.demodulate(chan, rx, ptable);
    t.stop();
    if(display)
-      cout << "Ptable: " << ptable << "\n";
-   cout << "Time taken: " << t << "\n";
+      cout << "Ptable: " << ptable << "\n" << std::flush;
+   cout << "Time taken: " << t << "\n" << std::flush;
    return ptable;
    }
 
@@ -100,7 +101,7 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
          count++;
       }
    if(count > 0)
-      cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n";
+      cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n" << std::flush;
    }
 
 void testcycle(int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
@@ -133,7 +134,7 @@ int main(int argc, char *argv[])
 
    // user-defined parameters
    if(argc == 1)
-      cout << "Usage: " << argv[0] << " [seed [n [k [tau [p]]]]]\n";
+      cout << "Usage: " << argv[0] << " [seed [n [k [tau [p]]]]]\n" << std::flush;
    const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
    const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
    const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
