@@ -78,7 +78,7 @@ template <class real> void watermarkcode<real>::init()
 
 // constructor / destructor
 
-template <class real> watermarkcode<real>::watermarkcode() : mychan(1,0,0,0)
+template <class real> watermarkcode<real>::watermarkcode() : mychan(1)
    {
    }
 

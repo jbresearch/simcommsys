@@ -122,6 +122,9 @@ namespace libcomm {
 
    \version 2.00 (28 Jan 2008)
    - Changed base from mpsk (and therefore modulator<sigspace>) to modulator<bool>
+
+   \version 2.01 (1 Feb 2008)
+   - Fixed initial bsid channel creation to use default varyPx values.
 */
 
 template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
