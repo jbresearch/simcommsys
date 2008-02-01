@@ -202,7 +202,7 @@ void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
       }
    // Initialize results vector
 #ifndef NDEBUG
-   if(tau < 10)
+   if(tau < 100)
       {
       libbase::trace << "DEBUG (bsid): transmit = " << transmit << "\n";
       libbase::trace << "DEBUG (bsid): insertions = " << insertions << "\n";
