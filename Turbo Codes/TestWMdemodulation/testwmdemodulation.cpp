@@ -29,7 +29,7 @@ using libcomm::watermarkcode;
 channel<bool> *create_channel(int seed, int N, double Pe)
    {
    channel<bool> *chan = new libcomm::bsid(N);
-   chan->seed(seed);
+   chan->seed(seed+1);
    chan->set_parameter(Pe);
    return chan;
    }
