@@ -127,19 +127,21 @@ void testcycle(int const seed, int const n, int const k, int const tau, double P
 
 int main(int argc, char *argv[])
    {
-   // user-defined parameters
-   if(argc == 1)
-      cout << "Usage: " << argv[0] << " [seed [n [k [tau]]]]\n";
-   const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
-   const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
-   const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
-   const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
    // error probabilities corresponding to SNR = 12dB and 1dB respectively
    const double Plo = 9.00601e-09;
    const double Phi = 0.056282;
 
+   // user-defined parameters
+   if(argc == 1)
+      cout << "Usage: " << argv[0] << " [seed [n [k [tau [p]]]]]\n";
+   const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
+   const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
+   const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
+   const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
+   const double p = ((argc > 5) ? atof(argv[5]) : Plo);
+
    // do what the user asked for
-   testcycle(seed, n, k, tau, Plo);
+   testcycle(seed, n, k, tau, p);
 
    // try short,medium,large codes for benchmarking at low error probability
    testcycle(seed, 15, 4, 10, Plo, false);
