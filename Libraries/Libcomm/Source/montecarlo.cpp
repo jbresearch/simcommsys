@@ -314,15 +314,17 @@ void montecarlo::initnewslaves(std::string systemstring)
    \brief Get idle slaves to work if we're not yet done
    \param   accuracy_reached  Flag to indicate if we have already reached required accuracy
 
-   If there are any slaves in the IDLE state, ask them to start working. If the target
-   accuracy is not yet reached, we ask *all* IDLE slaves to work. Otherwise, we only ask
-   the necessary number so that when they're done we will have reached the minimum samples
-   limit. This avoids having to wait for more slaves to finish once all necessary conditions
-   (ie. target accuracy and minimum number of samples) are met.
+   If there are any slaves in the IDLE state, ask them to start working. We ask *all* IDLE
+   slaves to work, as long as the results have not yet converged. Therefore, this happens
+   when the target accuracy is not yet reached or if the number of samples gathered is not
+   yet enough. This necessarily causes extraneous results to be computed; these will then
+   be discarded during the next turn. This method avoids the master hanging up waiting for
+   results from slaves that will never come (happens if the machine is locked up but the
+   TCP/IP stack is still running).
 */
-void montecarlo::workidleslaves(bool accuracy_reached)
+void montecarlo::workidleslaves(bool converged)
    {
-   for(slave *s; (!accuracy_reached || samplecount+workingslaves() < min_samples) && (s = idleslave()); )
+   for(slave *s; (!converged) && (s = idleslave()); )
       {
       trace << "DEBUG (estimate): Idle slave found (" << s << "), assigning work.\n";
       if(!call(s, "slave_work"))
@@ -402,7 +404,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    // Running values
    vector<double> sum(count);
    vector<double> sumsq(count);
-   bool accuracy_reached = false;
+   bool converged = false;
    // Initialise running values
    samplecount = 0;
    sum = 0;
@@ -430,9 +432,8 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    // Repeat the experiment until all the following are true:
    // 1) We have the accuracy we need
    // 2) We have enough samples for the accuracy to be meaningful
-   // 3) No slaves are still working
    // An interrupt from the user overrides everything...
-   while(!accuracy_reached || samplecount < min_samples || (isenabled() && anyoneworking()))
+   while(!converged)
       {
       bool results_available = false;
       // repeat the experiment
@@ -441,7 +442,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          // first initialize any new slaves
          initnewslaves(systemstring);
          // get idle slaves to work if we're not yet done
-         workidleslaves(accuracy_reached);
+         workidleslaves(converged);
          // wait for results, but not indefinitely - this allows user to break
          trace << "DEBUG (estimate): Waiting for event.\n";
          waitforevent(true, 0.5);
@@ -458,8 +459,8 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          {
          double acc = updateresults(result, tolerance, sum, sumsq);
          // check if we have reached the required accuracy
-         if(acc <= accuracy)
-            accuracy_reached = true;
+         if(acc <= accuracy && samplecount >= min_samples)
+            converged = true;
          // print something to inform the user of our progress
          display(samplecount, (acc<1 ? 100*acc : 99), result.min());
          }

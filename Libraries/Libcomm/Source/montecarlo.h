@@ -153,6 +153,11 @@ namespace libcomm {
    - Fixed bug where initialise() was also setting tolerance limits
    - Removed constructor that also initializes system
    - Renamed finalise() to reset()
+
+   \version 1.47 (1 Feb 2008)
+   - Modified slave work-request behaviour: we now ask _all_ IDLE slaves to start
+     working if the results have not yet converged.
+   - Minor refactoring
 */
 
 class montecarlo : public libbase::masterslave {
@@ -192,7 +197,7 @@ private:
    double updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, const libbase::vector<double>& sum, const libbase::vector<double>& sumsq) const;
    void initslave(slave *s, std::string systemstring);
    void initnewslaves(std::string systemstring);
-   void workidleslaves(bool accuracy_reached);
+   void workidleslaves(bool converged);
    bool readpendingslaves(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
 protected:
    // @}
