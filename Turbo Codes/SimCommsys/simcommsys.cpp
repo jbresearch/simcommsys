@@ -115,7 +115,7 @@ libbase::vector<double> getparameterset(int *argc, char **argv[])
    {
    if(*argc < 5)
       {
-      cerr << "Usage: " << (*argv)[0] << " <-lin|-log> <min> <max> <step>\n";
+      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <-lin|-log> <min> <max> <step>\n";
       exit(1);
       }
    // read range specification
@@ -155,6 +155,20 @@ libbase::vector<double> getparameterset(int *argc, char **argv[])
    return Pset;
    }
 
+double getconfidence(int *argc, char **argv[])
+   {
+   if(*argc < 2)
+      return 0.90;
+   return atof(getlastargument(argc, argv));
+   }
+
+double gettolerance(int *argc, char **argv[])
+   {
+   if(*argc < 2)
+      return 0.15;
+   return atof(getlastargument(argc, argv));
+   }
+
 int main(int argc, char *argv[])
    {
    const libcomm::serializer_libcomm my_serializer_libcomm;
@@ -164,17 +178,16 @@ int main(int argc, char *argv[])
    // Create estimator object and initilize cluster, default priority
    mymontecarlo estimator;
    estimator.enable(&argc, &argv);
-   // Set up fixed settings
-   const double confidence = 0.90;
-   const double accuracy = 0.15;
-   estimator.set_confidence(confidence);
-   estimator.set_accuracy(accuracy);
 
    // Simulation system & parameters, in reverse order
    libcomm::experiment *system = createsystem(&argc, &argv);
    estimator.initialise(system);
    const double min_error = getminerror(&argc, &argv);
    libbase::vector<double> Pset = getparameterset(&argc, &argv);
+   const double confidence = getconfidence(&argc, &argv);
+   const double accuracy = gettolerance(&argc, &argv);
+   estimator.set_confidence(confidence);
+   estimator.set_accuracy(accuracy);
 
    // Print information on the statistical accuracy of results being worked
    cout << "#% " << system->description() << "\n";
