@@ -306,7 +306,7 @@ void montecarlo::initnewslaves(std::string systemstring)
 
 /*!
    \brief Get idle slaves to work if we're not yet done
-   \param   accuracy_reached  Flag to indicate if we have already reached required accuracy
+   \param   converged  True if results have already converged
 
    If there are any slaves in the IDLE state, ask them to start working. We ask *all* IDLE
    slaves to work, as long as the results have not yet converged. Therefore, this happens
