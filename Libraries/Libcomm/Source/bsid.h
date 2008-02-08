@@ -100,6 +100,10 @@ namespace libcomm {
 
    \version 2.00 (28 Jan 2008)
    - Changed channel type to channel<bool>
+
+   \version 2.01 (7 Feb 2008)
+   - Modified set_parameter so that any of Ps/Pd/Pi that are not flagged to change
+     will now be set to zero.
 */
 
 class bsid : public channel<bool> {
@@ -169,9 +173,7 @@ public:
    // @}
 
    /*! \name Channel parameter handling */
-   //! Set the substitution probability
    void set_parameter(const double p);
-   //! Get the substitution probability
    double get_parameter() const;
    // @}
 

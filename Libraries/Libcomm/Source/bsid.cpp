@@ -80,17 +80,28 @@ bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
 
 // Channel parameter handling
 
+/*!
+   \brief Set channel parameter
+
+   This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
+   parameters that are not flagged to change will instead be set to zero. This ensures
+   that there is no leakage between successive uses of this class. (i.e. once this
+   function is called, the class will be in a known determined state).
+*/
 void bsid::set_parameter(const double p)
    {
-   if(varyPs)
-      set_ps(p);
-   if(varyPd)
-      set_pd(p);
-   if(varyPi)
-      set_pi(p);
+   set_ps(varyPs ? p : 0);
+   set_pd(varyPd ? p : 0);
+   set_pi(varyPi ? p : 0);
    libbase::trace << "DEBUG (bsid): Ps = " << Ps << ", Pd = " << Pd << ", Pi = " << Pi << "\n";
    }
 
+/*!
+   \brief Get channel parameter
+
+   This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
+   If none of these are flagged to change, this constitutes an error condition.
+*/
 double bsid::get_parameter() const
    {
    if(varyPs)
