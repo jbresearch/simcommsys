@@ -52,8 +52,6 @@ void visualtest()
 
 void testinsertion(int tau, double p)
    {
-   // define input sequence
-   vector<bool> tx(tau);
    // define insertion-only channel
    bsid channel(tau,false,false,true);
    channel.seed(0);
@@ -62,6 +60,8 @@ void testinsertion(int tau, double p)
    cout << "Testing insertions on an all-zero source:\n";
    cout << "      N:\t" << tau << "\n";
    cout << "      p:\t" << p << "\n";
+   // define input sequence
+   vector<bool> tx(tau);
    tx = bool(0);
    vector<bool> rx;
    libbase::rvstatistics drift, zeros, ones;
@@ -76,10 +76,10 @@ void testinsertion(int tau, double p)
       zeros.insert(rx.size()-count);
       }
    // show results
-   cout << "   Value\tExpect\tMean\tSigma\n";
-   cout << "  Drift:\t" << tau*p << "\t" << drift.mean() << "\t" << drift.sigma() << "\n";
-   cout << "  Zeros:\t" << tau*(1+p/2) << "\t" << zeros.mean() << "\t" << zeros.sigma() << "\n";
-   cout << "   Ones:\t" << tau*p/2 << "\t" << ones.mean() << "\t" << ones.sigma() << "\n";
+   cout << "   Value\tMean\tSigma\n";
+   cout << "  Drift:\t" drift.mean() << "\t" << drift.sigma() << "\n";
+   cout << "  Zeros:\t" zeros.mean() << "\t" << zeros.sigma() << "\n";
+   cout << "   Ones:\t" ones.mean() << "\t" << ones.sigma() << "\n";
    }
 
 int main(int argc, char *argv[])
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
    visualtest();
    // test error likelihoods and distribution
    testinsertion(1000, 0.01);
+   testinsertion(1000, 0.25);
 
    return 0;
    }
