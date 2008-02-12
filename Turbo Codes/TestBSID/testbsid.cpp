@@ -50,19 +50,24 @@ void visualtest()
    cout << "Rx2: " << rx2 << "\n";
    }
 
-void testinsertion(int tau, double p)
+void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    {
-   // define insertion-only channel
-   bsid channel(tau,false,false,true);
+   // define channel according to specifications
+   bsid channel(tau,sub,del,ins);
    channel.seed(0);
    channel.set_parameter(p);
    // run a number of transmissions with an all-zero source
-   cout << "Testing insertions on an all-zero source:\n";
+   cout << "Testing on an all-" << (src ? "one" : "zero") << " source:\n";
+   cout << "   type:\t";
+   if(ins) cout << "insertions ";
+   if(del) cout << "deletions ";
+   if(sub) cout << "substitutions";
+   cout << "\n";
    cout << "      N:\t" << tau << "\n";
    cout << "      p:\t" << p << "\n";
    // define input sequence
    vector<bool> tx(tau);
-   tx = bool(0);
+   tx = src;
    vector<bool> rx;
    libbase::rvstatistics drift, zeros, ones;
    for(int i=0; i<1000; i++)
@@ -77,18 +82,19 @@ void testinsertion(int tau, double p)
       }
    // show results
    cout << "   Value\tMean\tSigma\n";
-   cout << "  Drift:\t" drift.mean() << "\t" << drift.sigma() << "\n";
-   cout << "  Zeros:\t" zeros.mean() << "\t" << zeros.sigma() << "\n";
-   cout << "   Ones:\t" ones.mean() << "\t" << ones.sigma() << "\n";
+   cout << "  Drift:\t" << drift.mean() << "\t" << drift.sigma() << "\n";
+   cout << "  Zeros:\t" << zeros.mean() << "\t" << zeros.sigma() << "\n";
+   cout << "   Ones:\t" << ones.mean() << "\t" << ones.sigma() << "\n";
+   cout << "\n";
    }
 
 int main(int argc, char *argv[])
    {
    // create a test sequence and test BSID transmission
    visualtest();
-   // test error likelihoods and distribution
-   testinsertion(1000, 0.01);
-   testinsertion(1000, 0.25);
+   // test insertion-only channels
+   testtransmission(1000, 0.01, true, false, false, 0);
+   testtransmission(1000, 0.25, true, false, false, 0);
 
    return 0;
    }
