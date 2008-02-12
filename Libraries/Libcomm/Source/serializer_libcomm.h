@@ -116,6 +116,9 @@ namespace libcomm {
    \version 2.27 (28 Jan 2008)
    - Added modulator<bool>
    - Replace modulator<bool> by mpsk, due to change in watermarkcode inheritance
+
+   \version 2.28 (12 Feb 2008)
+   - Added GF(q) commsys classes
 */
 
 // Serialization support
@@ -128,6 +131,7 @@ class serializer_libcomm : private
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    puncture_file, puncture_null, puncture_stipple,
+   commsys< libbase::gf<1,0x3> >, commsys< libbase::gf<2,0x7> >, commsys< libbase::gf<3,0xB> >, commsys< libbase::gf<4,0x13> >,
    commsys<sigspace>, commsys<bool>
 {
 public:
