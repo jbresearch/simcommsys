@@ -104,6 +104,9 @@ namespace libcomm {
    \version 2.01 (7 Feb 2008)
    - Modified set_parameter so that any of Ps/Pd/Pi that are not flagged to change
      will now be set to zero.
+
+   \version 2.02 (12 Feb 2008)
+   - Fixed estimated value of xmax
 */
 
 class bsid : public channel<bool> {
@@ -133,10 +136,10 @@ private:
    int      I;
    //! Assumed maximum drift over a whole \c N -bit block
    /*!
-      \f[ x_{max} = 5 \sqrt{N p (1-p)} \f]
+      \f[ x_{max} = 5 \sqrt{\frac{N p}{1-p}} \f]
       where \f$ p = P_i = P_d \f$. This is based directly on Davey's suggestion that
       \f$ x_{max} \f$ should be "several times larger" than the standard deviation of
-      the synchronization drift over one block, given by \f$ \sigma = \sqrt{N p (1-p)} \f$
+      the synchronization drift over one block, given by \f$ \sigma = \sqrt{\frac{N p}{1-p}} \f$
       \note The smallest allowed value is \f$ x_{max} = I \f$
    */
    int      xmax;

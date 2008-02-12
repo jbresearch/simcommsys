@@ -39,12 +39,15 @@ void bsid::init()
    This function computes all cached quantities used within actual channel operations.
    Since these values depend on the channel conditions, this function should be called
    any time a channel parameter is changed.
+
+   \note While Davey advocates \f$ x_{max} = 5 \sigma \f$, we increase this to
+         \f$ 8 \sigma \f$, as we observed that Davey's estimates are off.
 */
 void bsid::precompute()
    {
    // fba decoder parameters
    I = max(int(ceil((log(1e-12) - log(double(N))) / log(Pd))) - 1, 1);
-   xmax = max(int(ceil(5 * sqrt(N*Pd*(1-Pd)))), I);
+   xmax = max(int(ceil(8 * sqrt(N*Pd/(1-Pd)))), I);
    libbase::trace << "DEBUG (bsid): suggested I = " << I << ", xmax = " << xmax << ".\n";
    I = min(I,2);
    //xmax = min(xmax,25);
