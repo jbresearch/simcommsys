@@ -305,19 +305,19 @@ template class basic_commsys<bool>;
 template <class S> void commsys<S>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
-   cdc->encode(source, encoded);
+   this->cdc->encode(source, encoded);
    libbase::vector<S> signal;
-   modem->modulate(N, encoded, signal);
+   this->modem->modulate(this->N, encoded, signal);
    libbase::matrix<double> ptable;
-   chan->transmit(signal, signal);
-   modem->demodulate(*chan, signal, ptable);
-   cdc->translate(ptable);
+   this->chan->transmit(signal, signal);
+   this->modem->demodulate(*this->chan, signal, ptable);
+   this->cdc->translate(ptable);
    }
 
 // Explicit Realizations
 
 template class commsys<bool>;
-const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
+template <> const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
 
 
 // *** Specific to commsys<sigspace> ***
