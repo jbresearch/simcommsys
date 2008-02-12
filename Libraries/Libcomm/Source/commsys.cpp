@@ -18,6 +18,9 @@
 
 namespace libcomm {
 
+
+// *** Templated Common Base ***
+
 // Setup functions
 
 /*!
@@ -271,6 +274,52 @@ template <class S> std::istream& basic_commsys<S>::serialize(std::istream& sin)
 template class basic_commsys<sigspace>;
 template class basic_commsys<bool>;
 
+
+// *** Templated Base ***
+
+// Internal functions
+
+/*!
+   \copydoc basic_commsys::transmitandreceive()
+
+   The cycle consists of the steps depicted in the following diagram:
+   \dot
+   digraph txrxcycle {
+      // Make figure left-to-right
+      rankdir = LR;
+      // block definitions
+      node [ shape=box ];
+      encode [ label="Encode" ];
+      modulate [ label="Modulate" ];
+      transmit [ label="Transmit" ];
+      demodulate [ label="Demodulate" ];
+      translate [ label="Translate" ];
+      // path definitions
+      encode -> modulate;
+      modulate -> transmit;
+      transmit -> demodulate;
+      demodulate -> translate;
+   }
+   \enddot
+*/
+template <class S> void commsys<S>::transmitandreceive(libbase::vector<int>& source)
+   {
+   libbase::vector<int> encoded;
+   cdc->encode(source, encoded);
+   libbase::vector<S> signal;
+   modem->modulate(N, encoded, signal);
+   libbase::matrix<double> ptable;
+   chan->transmit(signal, signal);
+   modem->demodulate(*chan, signal, ptable);
+   cdc->translate(ptable);
+   }
+
+// Explicit Realizations
+
+template class commsys<bool>;
+const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
+
+
 // *** Specific to commsys<sigspace> ***
 
 const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
@@ -412,47 +461,6 @@ std::istream& commsys<sigspace>::serialize(std::istream& sin)
    basic_commsys<sigspace>::serialize(sin);
    init();
    return sin;
-   }
-
-// *** Specific to commsys<bool> ***
-
-const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
-
-// Internal functions
-
-/*!
-   \copydoc basic_commsys::transmitandreceive()
-
-   The cycle consists of the steps depicted in the following diagram:
-   \dot
-   digraph txrxcycle {
-      // Make figure left-to-right
-      rankdir = LR;
-      // block definitions
-      node [ shape=box ];
-      encode [ label="Encode" ];
-      modulate [ label="Modulate" ];
-      transmit [ label="Transmit" ];
-      demodulate [ label="Demodulate" ];
-      translate [ label="Translate" ];
-      // path definitions
-      encode -> modulate;
-      modulate -> transmit;
-      transmit -> demodulate;
-      demodulate -> translate;
-   }
-   \enddot
-*/
-void commsys<bool>::transmitandreceive(libbase::vector<int>& source)
-   {
-   libbase::vector<int> encoded;
-   cdc->encode(source, encoded);
-   libbase::vector<bool> signal;
-   modem->modulate(N, encoded, signal);
-   libbase::matrix<double> ptable;
-   chan->transmit(signal, signal);
-   modem->demodulate(*chan, signal, ptable);
-   cdc->translate(ptable);
    }
 
 }; // end namespace

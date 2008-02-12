@@ -219,8 +219,27 @@ public:
    - Abstracted commsys:
       - General templated commsys derived from generic base; this cannot be
         instantiated, as it is still abstract.
+
+   \version 2.00 (12 Feb 2008)
+   - Integrated functionality of binary variant into this class.
+   - This class therefore can now be instantiated.
+   - An explicit instantiation for bool is present to replace the functionality
+     of the earlier specific specialization.
 */
 template <class S> class commsys : public basic_commsys<S> {
+   /*! \name Serialization */
+   static const libbase::serializer shelper;
+   static void* create() { return new commsys<S>; };
+   // @}
+protected:
+   /*! \name Internal functions */
+   void transmitandreceive(libbase::vector<int>& source);
+   // @}
+public:
+   //*! \name Serialization Support */
+   commsys *clone() const { return new commsys(*this); };
+   const char* name() const { return shelper.name(); };
+   // @}
 };
 
 /*!
@@ -282,37 +301,6 @@ public:
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
-};
-
-/*!
-   \brief   Binary Communication System.
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-
-   \version 1.00 (25 Jan 2008)
-   - Abstracted commsys:
-      - This explicit specialization for bool channel contains objects
-        and functions remaining from the templated base to create a
-        complete class.
-*/
-template <> class commsys<bool> : public basic_commsys<bool> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new commsys<bool>; };
-   // @}
-protected:
-   /*! \name Internal functions */
-   void transmitandreceive(libbase::vector<int>& source);
-   // @}
-public:
-   //*! \name Serialization Support */
-   commsys *clone() const { return new commsys(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
 };
 
 }; // end namespace
