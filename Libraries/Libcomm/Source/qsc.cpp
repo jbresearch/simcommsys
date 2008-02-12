@@ -2,9 +2,9 @@
    \file
 
    \par Version Control:
-   - $Revision: 561 $
-   - $Date: 2008-01-28 10:54:08 +0000 (Mon, 28 Jan 2008) $
-   - $Author: jabriffa $
+   - $Revision$
+   - $Date$
+   - $Author$
 */
 
 #include "qsc.h"
