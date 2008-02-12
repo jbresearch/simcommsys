@@ -95,6 +95,15 @@ int main(int argc, char *argv[])
    // test insertion-only channels
    testtransmission(1000, 0.01, true, false, false, 0);
    testtransmission(1000, 0.25, true, false, false, 0);
+   // test deletion-only channels
+   testtransmission(1000, 0.01, false, true, false, 0);
+   testtransmission(1000, 0.25, false, true, false, 0);
+   // test substitution-only channels
+   testtransmission(1000, 0.1, false, false, true, 0);
+   testtransmission(1000, 0.1, false, false, true, 1);
+   // test insertion-deletion channels
+   testtransmission(1000, 0.01, true, true, false, 0);
+   testtransmission(1000, 0.25, true, true, false, 0);
 
    return 0;
    }
