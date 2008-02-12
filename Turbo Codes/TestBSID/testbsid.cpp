@@ -10,11 +10,13 @@
 #include "logrealfast.h"
 #include "watermarkcode.h"
 #include "bsid.h"
+#include "rvstatistics.h"
 
 #include <iostream>
 
 using std::cout;
 using std::cerr;
+using std::flush;
 using libbase::vector;
 using libcomm::bsid;
 using libcomm::sigspace;
@@ -48,9 +50,44 @@ void visualtest()
    cout << "Rx2: " << rx2 << "\n";
    }
 
+void testinsertion(double p)
+   {
+   // define input sequence
+   const int tau = 1000;
+   vector<bool> tx(tau);
+   // define insertion-only channel
+   bsid channel(tau,false,false,true);
+   channel.seed(0);
+   channel.set_parameter(p);
+   // run a number of transmissions with an all-zero source
+   cout << "Testing insertions on an all-zero source:\n";
+   cout << "      N:\t" << tau << "\n";
+   cout << "      p:\t" << p << "\n";
+   tx = bool(0);
+   vector<bool> rx;
+   libbase::rvstatistics drift, zeros, ones;
+   for(int i=0; i<1000; i++)
+      {
+      channel.transmit(tx,rx);
+      drift.insert(rx.size()-tau);
+      int count = 0;
+      for(int j=0; j<rx.size(); j++)
+         count += rx(j);
+      ones.insert(count);
+      zeros.insert(rx.size()-count);
+      }
+   // show results
+   cout << "  Drift:\t" << drift.mean() << "\t" << drift.sigma() << "\n";
+   cout << "  Zeros:\t" << zeros.mean() << "\t" << zeros.sigma() << "\n";
+   cout << "   Ones:\t" << ones.mean() << "\t" << ones.sigma() << "\n";
+   }
+
 int main(int argc, char *argv[])
    {
    // create a test sequence and test BSID transmission
    visualtest();
+   // test error likelihoods and distribution
+   testinsertion(0.01);
+
    return 0;
    }
