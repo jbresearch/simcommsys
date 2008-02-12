@@ -46,9 +46,9 @@ template <class G> void qsc<G>::set_parameter(const double Ps)
 */
 template <class G> G qsc<G>::corrupt(const G& s)
    {
-   const double p = r.fval();
+   const double p = this->r.fval();
    if(p < Ps)
-      return s + (r.ival(G::elements()-1) + 1);
+      return s + (this->r.ival(G::elements()-1) + 1);
    return s;
    }
 
