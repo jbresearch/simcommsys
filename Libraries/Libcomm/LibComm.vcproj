@@ -979,6 +979,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\qsc.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\rand_lut.cpp"
 				>
 				<FileConfiguration
@@ -1441,6 +1445,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\qam.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\qsc.h"
 				>
 			</File>
 			<File

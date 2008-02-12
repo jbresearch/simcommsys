@@ -19,6 +19,7 @@
 #include "lapgauss.h"
 #include "bsid.h"
 #include "bsc.h"
+#include "qsc.h"
 
 // Modulators
 #include "modulator.h"
@@ -119,10 +120,12 @@ namespace libcomm {
 
    \version 2.28 (12 Feb 2008)
    - Added GF(q) commsys classes
+   - Added q-ary symmetric channel
 */
 
 // Serialization support
 class serializer_libcomm : private
+   qsc< libbase::gf<1,0x3> >, qsc< libbase::gf<2,0x7> >, qsc< libbase::gf<3,0xB> >, qsc< libbase::gf<4,0x13> >,
    awgn, laplacian, lapgauss, bsid, bsc,
    mpsk, qam, watermarkcode<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
