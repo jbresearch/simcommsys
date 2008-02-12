@@ -274,6 +274,10 @@ template <class S> std::istream& basic_commsys<S>::serialize(std::istream& sin)
 
 template class basic_commsys<sigspace>;
 template class basic_commsys<bool>;
+template class basic_commsys< libbase::gf<1,0x3> >;
+template class basic_commsys< libbase::gf<2,0x7> >;
+template class basic_commsys< libbase::gf<3,0xB> >;
+template class basic_commsys< libbase::gf<4,0x13> >;
 
 
 // *** Templated Base ***
