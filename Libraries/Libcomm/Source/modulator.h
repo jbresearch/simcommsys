@@ -176,9 +176,34 @@ public:
    - Signal-space specific functions are moved to a class specialization.
    - Common modulator interface moved to basic_modulator template.
    - This class cannot be instantiated as it is still abstract.
+
+   \version 2.01 (12 Feb 2008)
+   - Implemented as templated GF(q) modulator - template argument class must
+     provide a method elements() that returns the field size.
+   - Renamed template argument to G
 */
 
-template <class S> class modulator : public basic_modulator<S> {
+template <class G> class modulator : public basic_modulator<G> {
+   static const libbase::serializer shelper;
+   static void* create() { return new modulator<G>; };
+public:
+   // Serialization Support
+   modulator<G> *clone() const { return new modulator<G>(*this); };
+   const char* name() const { return shelper.name(); };
+
+   // Atomic modem operations
+   const G modulate(const int index) const { assert(index >= 0 && index < num_symbols()); return G(index); };
+   const int demodulate(const G& signal) const { return signal; };
+
+   // Vector modem operations
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx);
+   void demodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable);
+
+   // Informative functions
+   int num_symbols() const { return G::elements(); };
+
+   // Description & Serialization
+   std::string description() const;
 };
 
 /*! \name Serialization */
