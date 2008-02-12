@@ -24,7 +24,7 @@ template <class G> void modulator<G>::modulate(const int N, const libbase::vecto
    // Compute factors / sizes & check validity
    const int tau = encoded.size();
    const int s = int(round( log2(double(N)) / log2(double(num_symbols())) ));
-   if(N != (1<<s))
+   if(N != pow(num_symbols(),s))
       {
       std::cerr << "FATAL ERROR (mapper): each encoder output (" << N << ") must be";
       std::cerr << " represented by an integral number of symbols.";
