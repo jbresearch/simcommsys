@@ -50,10 +50,9 @@ void visualtest()
    cout << "Rx2: " << rx2 << "\n";
    }
 
-void testinsertion(double p)
+void testinsertion(int tau, double p)
    {
    // define input sequence
-   const int tau = 1000;
    vector<bool> tx(tau);
    // define insertion-only channel
    bsid channel(tau,false,false,true);
@@ -77,9 +76,10 @@ void testinsertion(double p)
       zeros.insert(rx.size()-count);
       }
    // show results
-   cout << "  Drift:\t" << drift.mean() << "\t" << drift.sigma() << "\n";
-   cout << "  Zeros:\t" << zeros.mean() << "\t" << zeros.sigma() << "\n";
-   cout << "   Ones:\t" << ones.mean() << "\t" << ones.sigma() << "\n";
+   cout << "   Value\tExpect\tMean\tSigma\n";
+   cout << "  Drift:\t" << tau*p << "\t" << drift.mean() << "\t" << drift.sigma() << "\n";
+   cout << "  Zeros:\t" << tau*(1+p/2) << "\t" << zeros.mean() << "\t" << zeros.sigma() << "\n";
+   cout << "   Ones:\t" << tau*p/2 << "\t" << ones.mean() << "\t" << ones.sigma() << "\n";
    }
 
 int main(int argc, char *argv[])
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
    // create a test sequence and test BSID transmission
    visualtest();
    // test error likelihoods and distribution
-   testinsertion(0.01);
+   testinsertion(1000, 0.01);
 
    return 0;
    }
