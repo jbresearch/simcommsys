@@ -225,6 +225,7 @@ public:
    - This class therefore can now be instantiated.
    - An explicit instantiation for bool is present to replace the functionality
      of the earlier specific specialization.
+   - Added explicit instantiations for gf types.
 */
 template <class S> class commsys : public basic_commsys<S> {
    /*! \name Serialization */

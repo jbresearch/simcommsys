@@ -10,6 +10,7 @@
 #include "commsys.h"
 
 #include "fsm.h"
+#include "gf.h"
 #include "itfunc.h"
 #include "secant.h"
 #include "timer.h"
@@ -318,6 +319,14 @@ template <class S> void commsys<S>::transmitandreceive(libbase::vector<int>& sou
 
 template class commsys<bool>;
 template <> const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
+template class commsys< libbase::gf<1,0x3> >;
+template <> const libbase::serializer commsys< libbase::gf<1,0x3> >::shelper("experiment", "commsys<gf<1,0x3>>", commsys< libbase::gf<1,0x3> >::create);
+template class commsys< libbase::gf<2,0x7> >;
+template <> const libbase::serializer commsys< libbase::gf<2,0x7> >::shelper("experiment", "commsys<gf<2,0x7>>", commsys< libbase::gf<2,0x7> >::create);
+template class commsys< libbase::gf<3,0xB> >;
+template <> const libbase::serializer commsys< libbase::gf<3,0xB> >::shelper("experiment", "commsys<gf<3,0xB>>", commsys< libbase::gf<3,0xB> >::create);
+template class commsys< libbase::gf<4,0x13> >;
+template <> const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("experiment", "commsys<gf<4,0x13>>", commsys< libbase::gf<4,0x13> >::create);
 
 
 // *** Specific to commsys<sigspace> ***
