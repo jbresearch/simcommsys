@@ -13,15 +13,14 @@
 
 #include <iostream>
 
-int main(int argc, char *argv[])
-   {
-   using std::cout;
-   using std::cerr;
+using std::cout;
+using std::cerr;
+using libbase::vector;
+using libcomm::bsid;
+using libcomm::sigspace;
 
-   // create a test sequence and test BSID transmission
-   using libbase::vector;
-   using libcomm::bsid;
-   using libcomm::sigspace;
+void visualtest()
+   {
    // define an alternating input sequence
    const int tau = 5;
    vector<bool> tx(tau);
@@ -47,6 +46,11 @@ int main(int argc, char *argv[])
    channel2.set_pd(0.3);
    channel2.transmit(tx, rx2);
    cout << "Rx2: " << rx2 << "\n";
+   }
 
+int main(int argc, char *argv[])
+   {
+   // create a test sequence and test BSID transmission
+   visualtest();
    return 0;
    }
