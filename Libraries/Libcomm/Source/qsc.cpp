@@ -18,7 +18,7 @@ namespace libcomm {
 template <class G> void qsc<G>::set_parameter(const double Ps)
    {
    const double q = G::elements();
-   assert(Ps >=0 && Ps < (1-q)/q);
+   assertalways(Ps >=0 && Ps < (1-q)/q);
    qsc::Ps = Ps;
    }
 

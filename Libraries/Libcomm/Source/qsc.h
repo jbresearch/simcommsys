@@ -23,6 +23,7 @@ namespace libcomm {
 
    \version 1.01 (13 Feb 2008)
    - Fixed check on range of Ps
+   - Changed assert to assertalways in range check
    - Fixed PDF result for erroneous symbols
 */
 
