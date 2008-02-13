@@ -20,6 +20,10 @@ namespace libcomm {
    \version 1.00 (12 Feb 2008)
    - Initial version; implementation of a q-ary symmetric channel as
      templated class.
+
+   \version 1.01 (13 Feb 2008)
+   - Fixed check on range of Ps
+   - Fixed PDF result for erroneous symbols
 */
 
 template <class G> class qsc : public channel<G> {
@@ -58,7 +62,7 @@ public:
 
 template <class G> inline double qsc<G>::pdf(const G& tx, const G& rx) const
    {
-   return (tx != rx) ? Ps : 1-Ps;
+   return (tx == rx) ? 1-Ps : Ps/G::elements();
    }
 
 }; // end namespace
