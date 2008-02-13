@@ -45,7 +45,7 @@ template <class G> void modulator<G>::demodulate(const channel<G>& chan, const l
    // Compute sizes
    const int M = num_symbols();
    // Create a matrix of all possible transmitted symbols
-   libbase::vector<sigspace> tx(M);
+   libbase::vector<G> tx(M);
    for(int x=0; x<M; x++)
       tx(x) = modulate(x);
    // Work out the probabilities of each possible signal
