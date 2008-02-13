@@ -22,12 +22,13 @@ namespace libcomm {
 template <class G> void modulator<G>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
    {
    // Compute factors / sizes & check validity
+   const int M = num_symbols();
    const int tau = encoded.size();
-   const int s = int(round( log2(double(N)) / log2(double(num_symbols())) ));
+   const int s = int(round( log2(double(N)) / log2(double(M)) ));
    if(N != pow(num_symbols(),s))
       {
       std::cerr << "FATAL ERROR (mapper): each encoder output (" << N << ") must be";
-      std::cerr << " represented by an integral number of symbols.";
+      std::cerr << " represented by an integral number of modulation symbols (" << M << ").";
       std::cerr << " Suggested number of mod. symbols/encoder output was " << s << ".\n";
       exit(1);
       }
@@ -35,16 +36,18 @@ template <class G> void modulator<G>::modulate(const int N, const libbase::vecto
    tx.init(tau*s);
    // Modulate encoded stream (least-significant first)
    for(int t=0, k=0; t<tau; t++)
-      for(int i=0, x = encoded(t); i<s; i++, k++, x>>=1)
-         tx(k) = (x & (num_symbols()-1));
+      for(int i=0, x = encoded(t); i<s; i++, k++, x /= M)
+         tx(k) = modulate(x % M);
    }
 
 template <class G> void modulator<G>::demodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
    {
+   // Compute sizes
+   const int M = num_symbols();
    // Create a matrix of all possible transmitted symbols
-   libbase::vector<G> tx(num_symbols());
-   for(int i=0; i<num_symbols(); i++)
-      tx(i) = G(i);
+   libbase::vector<sigspace> tx(M);
+   for(int x=0; x<M; x++)
+      tx(x) = modulate(x);
    // Work out the probabilities of each possible signal
    chan.receive(tx, rx, ptable);
    }

@@ -177,10 +177,14 @@ public:
    - Common modulator interface moved to basic_modulator template.
    - This class cannot be instantiated as it is still abstract.
 
-   \version 2.01 (12 Feb 2008)
+   \version 2.01 (12-13 Feb 2008)
    - Implemented as templated GF(q) modulator - template argument class must
      provide a method elements() that returns the field size.
    - Renamed template argument to G
+   - Fixed error in modulate function (symbol splitting was incorrect)
+   - Changed modulate and demodulate to be more similar to those in lut_modulator
+
+   \todo Merge modulate and demodulate between this function and lut_modulator
 */
 
 template <class G> class modulator : public basic_modulator<G> {
