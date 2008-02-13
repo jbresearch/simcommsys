@@ -65,6 +65,9 @@
      type.
    - Refactored, renaming variabled to indicate that the simulation parameter
      is no longer tied to SNR values.
+
+   \version 2.01 (13 Feb 2008)
+   - Added special parameter condition 0:x:0 for log plots
 */
 
 using std::cout;
@@ -133,7 +136,10 @@ libbase::vector<double> getparameterset(int *argc, char **argv[])
       }
    else if(strcmp(type,"-log")==0)
       {
-      steps = floor((log(Pmax)-log(Pmin))/log(Pstep))+1;
+      if(Pmax==0 && Pmin==0)
+         steps = 1;
+      else
+         steps = floor((log(Pmax)-log(Pmin))/log(Pstep))+1;
       linear = false;
       }
    else
