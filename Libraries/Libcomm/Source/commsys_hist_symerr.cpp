@@ -29,9 +29,9 @@ commsys_hist_symerr::commsys_hist_symerr(libbase::randgen *src, codec *cdc, modu
 void commsys_hist_symerr::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
    const int skip = count()/iter;
-   int biterrors = countbiterrors(source, decoded);
-   // Update the count for that number of bit errors
-   result(skip*i + biterrors)++;
+   int symerrors = countsymerrors(source, decoded);
+   // Update the count for that number of symbol errors (may be zero)
+   result(skip*i + symerrors)++;
    }
 
 }; // end namespace
