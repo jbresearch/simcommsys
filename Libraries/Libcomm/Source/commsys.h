@@ -39,6 +39,7 @@ protected:
    int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    // @}
 public:
+   virtual ~commsys_errorrates() {};
    /*! \name Public interface */
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    int count() const { return 3*get_iter(); };

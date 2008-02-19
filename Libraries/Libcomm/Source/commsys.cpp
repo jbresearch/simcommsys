@@ -182,7 +182,7 @@ template <class S, class R> void basic_commsys<S,R>::cycleonce(libbase::vector<d
       // Decode & update results
       libbase::vector<int> decoded;
       cdc->decode(decoded);
-      updateresults(result, i, source, decoded);
+      R::updateresults(result, i, source, decoded);
       }
    }
 
@@ -352,10 +352,10 @@ template <> const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("e
 template <class R> void commsys<sigspace,R>::init()
    {
    // set up channel energy/bit (Eb)
-   double rate = cdc->rate();
+   double rate = this->cdc->rate();
    if(punc != NULL)
       rate /= punc->rate();
-   chan->set_eb(modem->bit_energy() / rate);
+   this->chan->set_eb(this->modem->bit_energy() / rate);
    }
 
 template <class R> void commsys<sigspace,R>::clear()
@@ -365,7 +365,7 @@ template <class R> void commsys<sigspace,R>::clear()
 
 template <class R> void commsys<sigspace,R>::free()
    {
-   if(internallyallocated)
+   if(this->internallyallocated)
       {
       delete punc;
       }
@@ -409,25 +409,25 @@ template <class R> void commsys<sigspace,R>::free()
 template <class R> void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
-   cdc->encode(source, encoded);
+   this->cdc->encode(source, encoded);
    libbase::vector<sigspace> signal1;
-   modem->modulate(N, encoded, signal1);
+   this->modem->modulate(this->N, encoded, signal1);
    libbase::matrix<double> ptable1;
    if(punc != NULL)
       {
       libbase::vector<sigspace> signal2;
       punc->transform(signal1, signal2);
-      chan->transmit(signal2, signal2);
+      this->chan->transmit(signal2, signal2);
       libbase::matrix<double> ptable2;
-      modem->demodulate(*chan, signal2, ptable2);
+      this->modem->demodulate(*this->chan, signal2, ptable2);
       punc->inverse(ptable2, ptable1);
       }
    else
       {
-      chan->transmit(signal1, signal1);
-      modem->demodulate(*chan, signal1, ptable1);
+      this->chan->transmit(signal1, signal1);
+      this->modem->demodulate(*this->chan, signal1, ptable1);
       }
-   cdc->translate(ptable1);
+   this->cdc->translate(ptable1);
    }
 
 // Constructors / Destructors
