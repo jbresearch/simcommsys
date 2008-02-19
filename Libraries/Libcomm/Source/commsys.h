@@ -13,6 +13,39 @@
 namespace libcomm {
 
 /*!
+   \brief   CommSys Results - Bit/Symbol/Frame Error Rates.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (19 Feb 2008)
+   - Moved standard error rate calculators into this class
+*/
+class commsys_errorrates {
+protected:
+   /*! \name System Interface */
+   //! The number of decoding iterations performed
+   virtual int get_iter() const = 0;
+   //! The number of information symbols per block
+   virtual int get_symbolsperblock() const = 0;
+   //! The number of bits per information symbol
+   virtual int get_bitspersymbol() const = 0;
+   // @}
+   /*! \name Helper functions */
+   int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   // @}
+public:
+   /*! \name Public interface */
+   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   int count() const { return 3*get_iter(); };
+   // @}
+};
+
+/*!
    \brief   Common Base for Communication Systems.
    \author  Johann Briffa
 
@@ -139,9 +172,14 @@ namespace libcomm {
    - Moved modulator object to the common class from the sigspace specialization;
      the order of serialization is now changed back to what it used to be, where
      the channel goes first, followed by the modulator, and finally the coded.
+
+   \version 2.20 (19 Feb 2008)
+   - Moved standard error rate calculators into separate class
+   - Result set calculation now included as a template parameter
+   - Default result set is commsys_errorrates
 */
 
-template <class S> class basic_commsys : public experiment {
+template <class S, class R=commsys_errorrates> class basic_commsys : public experiment, public R {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
@@ -169,15 +207,17 @@ protected:
    libbase::vector<int> createsource();
    //! Perform a complete transmit/receive cycle, except for final decoding
    virtual void transmitandreceive(libbase::vector<int>& source) = 0;
-   int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   virtual void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    void cycleonce(libbase::vector<double>& result);
+   // @}
+   /*! \name System Interface for Results */
+   int get_iter() const { return iter; };
+   int get_symbolsperblock() const { return tau-m; };
+   int get_bitspersymbol() const { return k; };
    // @}
 public:
    /*! \name Constructors / Destructors */
    basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan);
-   basic_commsys(const basic_commsys<S>& c);
+   basic_commsys(const basic_commsys<S,R>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };
    // @}
@@ -189,7 +229,7 @@ public:
 
    // Experiment handling
    void sample(libbase::vector<double>& result);
-   int count() const { return 3*iter; };
+   int count() const { return R::count(); };
 
    /*! \name Component object handles */
    //! Get error-control codec
@@ -226,11 +266,15 @@ public:
    - An explicit instantiation for bool is present to replace the functionality
      of the earlier specific specialization.
    - Added explicit instantiations for gf types.
+
+   \version 2.10 (19 Feb 2008)
+   - Added result set calculation as a template parameter
+   - Default result set is commsys_errorrates
 */
-template <class S> class commsys : public basic_commsys<S> {
+template <class S, class R=commsys_errorrates> class commsys : public basic_commsys<S,R> {
    /*! \name Serialization */
    static const libbase::serializer shelper;
-   static void* create() { return new commsys<S>; };
+   static void* create() { return new commsys<S,R>; };
    // @}
 protected:
    /*! \name Internal functions */
@@ -262,10 +306,10 @@ public:
    \version 1.01 (28 Jan 2008)
    - Changed reference from modulator to modulator<sigspace>
 */
-template <> class commsys<sigspace> : public basic_commsys<sigspace> {
+template <class R> class commsys<sigspace,R> : public basic_commsys<sigspace,R> {
    /*! \name Serialization */
    static const libbase::serializer shelper;
-   static void* create() { return new commsys<sigspace>; };
+   static void* create() { return new commsys<sigspace,R>; };
    // @}
 protected:
    /*! \name Bound objects */
@@ -282,10 +326,10 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys<sigspace>(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
-   commsys<sigspace>(const commsys<sigspace>& c);
-   commsys<sigspace>() { clear(); };
-   virtual ~commsys<sigspace>() { free(); };
+   commsys<sigspace,R>(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
+   commsys<sigspace,R>(const commsys<sigspace,R>& c);
+   commsys<sigspace,R>() { clear(); };
+   virtual ~commsys<sigspace,R>() { free(); };
    // @}
 
    //*! \name Serialization Support */

@@ -20,6 +20,56 @@
 namespace libcomm {
 
 
+// *** Result Set ***
+
+/*!
+   \brief Count the number of bit errors in the last encode/decode cycle
+   \return Error count in bits
+*/
+int commsys_errorrates::countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   int biterrors = 0;
+   for(int t=0; t<get_symbolsperblock(); t++)
+      biterrors += libbase::weight(source(t) ^ decoded(t));
+   return biterrors;
+   }
+
+/*!
+   \brief Count the number of symbol errors in the last encode/decode cycle
+   \return Error count in symbols
+*/
+int commsys_errorrates::countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   int symerrors = 0;
+   for(int t=0; t<get_symbolsperblock(); t++)
+      if(source(t) != decoded(t))
+         symerrors++;
+   return symerrors;
+   }
+
+/*!
+   \brief Update result set
+   \param[out] result   Vector containing the set of results to be updated
+   \param[in]  i        Iteration just performed
+   \param[in]  source   Source data sequence
+   \param[in]  decoded  Decoded data sequence
+
+   Results are organized as (BER,SER,FER), repeated for every iteration that
+   needs to be performed.
+*/
+void commsys_errorrates::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
+   {
+   assert(i >= 0 && i < get_iter());
+   // Count errors
+   int biterrors = countbiterrors(source, decoded);
+   int symerrors = countsymerrors(source, decoded);
+   // Estimate the BER, SER, FER
+   result(3*i + 0) += biterrors / double(get_symbolsperblock()*get_bitspersymbol());
+   result(3*i + 1) += symerrors / double(get_symbolsperblock());
+   result(3*i + 2) += symerrors ? 1 : 0;
+   }
+
+
 // *** Templated Common Base ***
 
 // Setup functions
@@ -32,7 +82,7 @@ namespace libcomm {
          should get done automatically when the base serializer or
          constructor is called.
 */
-template <class S> void basic_commsys<S>::init()
+template <class S, class R> void basic_commsys<S,R>::init()
    {
    tau = cdc->block_size();
    m = cdc->tail_length();
@@ -55,7 +105,7 @@ template <class S> void basic_commsys<S>::init()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S> void basic_commsys<S>::clear()
+template <class S, class R> void basic_commsys<S,R>::clear()
    {
    src = NULL;
    cdc = NULL;
@@ -76,7 +126,7 @@ template <class S> void basic_commsys<S>::clear()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S> void basic_commsys<S>::free()
+template <class S, class R> void basic_commsys<S,R>::free()
    {
    if(internallyallocated)
       {
@@ -97,7 +147,7 @@ template <class S> void basic_commsys<S>::free()
    The source sequence consists of uniformly random symbols followed by a
    tail sequence if required by the given codec.
 */
-template <class S> libbase::vector<int> basic_commsys<S>::createsource()
+template <class S, class R> libbase::vector<int> basic_commsys<S,R>::createsource()
    {
    libbase::vector<int> source(tau);
    for(int t=0; t<tau-m; t++)
@@ -105,53 +155,6 @@ template <class S> libbase::vector<int> basic_commsys<S>::createsource()
    for(int t=tau-m; t<tau; t++)
       source(t) = fsm::tail;
    return source;
-   }
-
-/*!
-   \brief Count the number of bit errors in the last encode/decode cycle
-   \return Error count in bits
-*/
-template <class S> int basic_commsys<S>::countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   int biterrors = 0;
-   for(int t=0; t<tau-m; t++)
-      biterrors += libbase::weight(source(t) ^ decoded(t));
-   return biterrors;
-   }
-
-/*!
-   \brief Count the number of symbol errors in the last encode/decode cycle
-   \return Error count in symbols
-*/
-template <class S> int basic_commsys<S>::countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   int symerrors = 0;
-   for(int t=0; t<tau-m; t++)
-      if(source(t) != decoded(t))
-         symerrors++;
-   return symerrors;
-   }
-
-/*!
-   \brief Update result set
-   \param[out] result   Vector containing the set of results to be updated
-   \param[in]  i        Iteration just performed
-   \param[in]  source   Source data sequence
-   \param[in]  decoded  Decoded data sequence
-
-   Results are organized as (BER,SER,FER), repeated for every iteration that
-   needs to be performed.
-*/
-template <class S> void basic_commsys<S>::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   assert(i >= 0 && i < iter);
-   // Count errors
-   int biterrors = countbiterrors(source, decoded);
-   int symerrors = countsymerrors(source, decoded);
-   // Estimate the BER, SER, FER
-   result(3*i + 0) += biterrors / double((tau-m)*k);
-   result(3*i + 1) += symerrors / double((tau-m));
-   result(3*i + 2) += symerrors ? 1 : 0;
    }
 
 /*!
@@ -166,7 +169,7 @@ template <class S> void basic_commsys<S>::updateresults(libbase::vector<double>&
          to divide by the appropriate amount at the end to compute a meaningful
          average.
 */
-template <class S> void basic_commsys<S>::cycleonce(libbase::vector<double>& result)
+template <class S, class R> void basic_commsys<S,R>::cycleonce(libbase::vector<double>& result)
    {
    assert(result.size() == count());
    // Create source stream
@@ -190,12 +193,12 @@ template <class S> void basic_commsys<S>::cycleonce(libbase::vector<double>& res
 
    Initializes system with bound objects as supplied by user.
 */
-template <class S> basic_commsys<S>::basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan)
+template <class S, class R> basic_commsys<S,R>::basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan)
    {
-   basic_commsys<S>::src = src;
-   basic_commsys<S>::cdc = cdc;
-   basic_commsys<S>::modem = modem;
-   basic_commsys<S>::chan = chan;
+   basic_commsys<S,R>::src = src;
+   basic_commsys<S,R>::cdc = cdc;
+   basic_commsys<S,R>::modem = modem;
+   basic_commsys<S,R>::chan = chan;
    internallyallocated = false;
    init();
    }
@@ -208,19 +211,19 @@ template <class S> basic_commsys<S>::basic_commsys(libbase::randgen *src, codec 
    \todo Fix cast when cloning channel: this should not be necessary.
    \todo Fix cast when cloning modem: this should not be necessary.
 */
-template <class S> basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
+template <class S, class R> basic_commsys<S,R>::basic_commsys(const basic_commsys<S,R>& c)
    {
-   basic_commsys<S>::src = new libbase::randgen;
-   basic_commsys<S>::cdc = c.cdc->clone();
-   basic_commsys<S>::modem = (modulator<S> *)c.modem->clone();
-   basic_commsys<S>::chan = (channel<S> *)c.chan->clone();
+   basic_commsys<S,R>::src = new libbase::randgen;
+   basic_commsys<S,R>::cdc = c.cdc->clone();
+   basic_commsys<S,R>::modem = (modulator<S> *)c.modem->clone();
+   basic_commsys<S,R>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
    init();
    }
 
 // Experiment parameter handling
 
-template <class S> void basic_commsys<S>::seed(int s)
+template <class S, class R> void basic_commsys<S,R>::seed(int s)
    {
    src->seed(s);
    cdc->seed(s+1);
@@ -229,7 +232,7 @@ template <class S> void basic_commsys<S>::seed(int s)
 
 // Experiment handling
 
-template <class S> void basic_commsys<S>::sample(libbase::vector<double>& result)
+template <class S, class R> void basic_commsys<S,R>::sample(libbase::vector<double>& result)
    {
    // initialise result vector
    result.init(count());
@@ -240,7 +243,7 @@ template <class S> void basic_commsys<S>::sample(libbase::vector<double>& result
 
 // Description & Serialization
 
-template <class S> std::string basic_commsys<S>::description() const
+template <class S, class R> std::string basic_commsys<S,R>::description() const
    {
    std::ostringstream sout;
    sout << "Communication System: ";
@@ -250,7 +253,7 @@ template <class S> std::string basic_commsys<S>::description() const
    return sout.str();
    }
 
-template <class S> std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
+template <class S, class R> std::ostream& basic_commsys<S,R>::serialize(std::ostream& sout) const
    {
    sout << chan;
    sout << modem;
@@ -258,7 +261,7 @@ template <class S> std::ostream& basic_commsys<S>::serialize(std::ostream& sout)
    return sout;
    }
 
-template <class S> std::istream& basic_commsys<S>::serialize(std::istream& sin)
+template <class S, class R> std::istream& basic_commsys<S,R>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
@@ -307,7 +310,7 @@ template class basic_commsys< libbase::gf<4,0x13> >;
    }
    \enddot
 */
-template <class S> void commsys<S>::transmitandreceive(libbase::vector<int>& source)
+template <class S, class R> void commsys<S,R>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
@@ -335,8 +338,6 @@ template <> const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("e
 
 // *** Specific to commsys<sigspace> ***
 
-const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
-
 // Setup functions
 
 /*!
@@ -348,7 +349,7 @@ const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigs
    - Rate of puncturing
    - Average energy per uncoded bit in the modulation scheme
 */
-void commsys<sigspace>::init()
+template <class R> void commsys<sigspace,R>::init()
    {
    // set up channel energy/bit (Eb)
    double rate = cdc->rate();
@@ -357,12 +358,12 @@ void commsys<sigspace>::init()
    chan->set_eb(modem->bit_energy() / rate);
    }
 
-void commsys<sigspace>::clear()
+template <class R> void commsys<sigspace,R>::clear()
    {
    punc = NULL;
    }
 
-void commsys<sigspace>::free()
+template <class R> void commsys<sigspace,R>::free()
    {
    if(internallyallocated)
       {
@@ -405,7 +406,7 @@ void commsys<sigspace>::free()
    The dotted lines and blocks indicate optional sections to support puncturing,
    which is currently done in signal-space.
 */
-void commsys<sigspace>::transmitandreceive(libbase::vector<int>& source)
+template <class R> void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    cdc->encode(source, encoded);
@@ -431,13 +432,13 @@ void commsys<sigspace>::transmitandreceive(libbase::vector<int>& source)
 
 // Constructors / Destructors
 
-commsys<sigspace>::commsys(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace>(src, cdc, modem, chan)
+template <class R> commsys<sigspace,R>::commsys(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace,R>(src, cdc, modem, chan)
    {
    commsys::punc = punc;
    init();
    }
 
-commsys<sigspace>::commsys(const commsys<sigspace>& c) : basic_commsys<sigspace>(c)
+template <class R> commsys<sigspace,R>::commsys(const commsys<sigspace,R>& c) : basic_commsys<sigspace,R>(c)
    {
    commsys::punc = c.punc->clone();
    init();
@@ -445,35 +446,40 @@ commsys<sigspace>::commsys(const commsys<sigspace>& c) : basic_commsys<sigspace>
 
 // Description & Serialization
 
-std::string commsys<sigspace>::description() const
+template <class R> std::string commsys<sigspace,R>::description() const
    {
    std::ostringstream sout;
-   sout << basic_commsys<sigspace>::description();
+   sout << basic_commsys<sigspace,R>::description();
    if(punc != NULL)
       sout << ", " << punc->description();
    return sout.str();
    }
 
-std::ostream& commsys<sigspace>::serialize(std::ostream& sout) const
+template <class R> std::ostream& commsys<sigspace,R>::serialize(std::ostream& sout) const
    {
    //const bool ispunctured = (punc != NULL);
    //sout << int(ispunctured) << "\n";
    //if(ispunctured)
    //   sout << punc;
-   basic_commsys<sigspace>::serialize(sout);
+   basic_commsys<sigspace,R>::serialize(sout);
    return sout;
    }
 
-std::istream& commsys<sigspace>::serialize(std::istream& sin)
+template <class R> std::istream& commsys<sigspace,R>::serialize(std::istream& sin)
    {
    free();
    //int ispunctured;
    //sin >> ispunctured;
    //if(ispunctured != 0)
    //   sin >> punc;
-   basic_commsys<sigspace>::serialize(sin);
+   basic_commsys<sigspace,R>::serialize(sin);
    init();
    return sin;
    }
+
+// Explicit Realizations
+
+template class commsys<sigspace>;
+template <> const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
 
 }; // end namespace
