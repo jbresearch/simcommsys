@@ -57,15 +57,14 @@ namespace libcomm {
    \version 2.00 (19 Feb 2008)
    - Renamed to commsys_prof_pos, indicating its function as a profiler of error with
      respect to position within block
+   - Changed base class to commsys_errorrates
 */
 
-class commsys_prof_pos : public commsys<sigspace> {
-protected:
-   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+class commsys_prof_pos : public commsys_errorrates {
 public:
-   commsys_prof_pos(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
-   ~commsys_prof_pos() {};
-   int count() const { return (tau-m)*iter; };
+   // Public interface
+   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   int count() const { return get_symbolsperblock()*get_iter(); };
 };
 
 }; // end namespace

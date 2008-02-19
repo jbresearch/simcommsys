@@ -59,16 +59,15 @@ namespace libcomm {
    - Renamed to commsys_hist_symerr, indicating its function in computing histogram of
      symbol error count for each block simulated
    - Modified to count the number of symbol errors rather than the number of bit errors
+   - Changed base class to commsys_errorrates
 */
 
-class commsys_hist_symerr : public commsys<sigspace> {
-protected:
-   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+class commsys_hist_symerr : public commsys_errorrates {
 public:
-   commsys_hist_symerr(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
-   ~commsys_hist_symerr();
+   // Public interface
+   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    //! For each iteration, we count the frequency of each possible symbol-error count, including zero
-   int count() const { return ((tau-m)+1)*iter; };
+   int count() const { return (get_symbolsperblock()+1)*get_iter(); };
 };
 
 }; // end namespace

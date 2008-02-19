@@ -17,20 +17,13 @@
 
 namespace libcomm {
 
-// constructor / destructor
-
-commsys_prof_pos::commsys_prof_pos(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : \
-   commsys<sigspace>(src, cdc, modem, punc, chan)
-   {
-   }
-
 // commsys functions
 
 void commsys_prof_pos::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
-   const int skip = count()/iter;
+   const int skip = count()/get_iter();
    // Update the count for every bit in error
-   for(int t=0; t<tau-m; t++)
+   for(int t=0; t<get_symbolsperblock(); t++)
       if(source(t) != decoded(t))
          result(skip*i + t)++;
    }
