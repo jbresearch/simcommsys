@@ -23,6 +23,7 @@ namespace libcomm {
 
    \version 1.00 (19 Feb 2008)
    - Moved standard error rate calculators into this class
+   - Added get_alphabetsize()
 */
 class commsys_errorrates {
 protected:
@@ -31,6 +32,8 @@ protected:
    virtual int get_iter() const = 0;
    //! The number of information symbols per block
    virtual int get_symbolsperblock() const = 0;
+   //! The information symbol alphabet size
+   virtual int get_alphabetsize() const = 0;
    //! The number of bits per information symbol
    virtual int get_bitspersymbol() const = 0;
    // @}
@@ -178,6 +181,7 @@ public:
    - Moved standard error rate calculators into separate class
    - Result set calculation now included as a template parameter
    - Default result set is commsys_errorrates
+   - Added get_alphabetsize()
 */
 
 template <class S, class R=commsys_errorrates> class basic_commsys : public experiment, public R {
@@ -213,6 +217,7 @@ protected:
    /*! \name System Interface for Results */
    int get_iter() const { return iter; };
    int get_symbolsperblock() const { return tau-m; };
+   int get_alphabetsize() const { return K; };
    int get_bitspersymbol() const { return k; };
    // @}
 public:

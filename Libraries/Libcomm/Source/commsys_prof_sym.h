@@ -17,13 +17,14 @@ namespace libcomm {
 
    \version 1.00 (19 Feb 2008)
    - Initial version, derived from commsys_prof_pos 2.00
+   - Computes symbol-error histogram as dependent on source symbol value
 */
 
 class commsys_prof_sym : public commsys_errorrates {
 public:
    // Public interface
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   int count() const { return get_symbolsperblock()*get_iter(); };
+   int count() const { return get_alphabetsize()*get_iter(); };
 };
 
 }; // end namespace
