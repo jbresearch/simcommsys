@@ -70,6 +70,8 @@
 
 // Experiments
 #include "commsys.h"
+#include "commsys_prof_pos.h"
+#include "commsys_hist_symerr.h"
 
 
 namespace libcomm {
@@ -121,6 +123,9 @@ namespace libcomm {
    \version 2.28 (12 Feb 2008)
    - Added GF(q) commsys classes
    - Added q-ary symmetric channel
+
+   \version 2.29 (19 Feb 2008)
+   - Added symbol-error histogram and position profiler for commsys<bool>
 */
 
 // Serialization support
@@ -135,7 +140,9 @@ class serializer_libcomm : private
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    puncture_file, puncture_null, puncture_stipple,
    commsys< libbase::gf<1,0x3> >, commsys< libbase::gf<2,0x7> >, commsys< libbase::gf<3,0xB> >, commsys< libbase::gf<4,0x13> >,
-   commsys<sigspace>, commsys<bool>
+   commsys<sigspace>, commsys<bool>,
+   commsys<bool,commsys_prof_pos>,
+   commsys<bool,commsys_hist_symerr>
 {
 public:
    serializer_libcomm() {};
