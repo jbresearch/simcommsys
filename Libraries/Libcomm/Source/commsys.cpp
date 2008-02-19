@@ -9,6 +9,7 @@
 
 #include "commsys.h"
 #include "commsys_prof_pos.h"
+#include "commsys_prof_sym.h"
 #include "commsys_hist_symerr.h"
 
 #include "fsm.h"
@@ -285,6 +286,7 @@ template class basic_commsys< libbase::gf<3,0xB> >;
 template class basic_commsys< libbase::gf<4,0x13> >;
 
 template class basic_commsys<bool,commsys_prof_pos>;
+template class basic_commsys<bool,commsys_prof_sym>;
 template class basic_commsys<bool,commsys_hist_symerr>;
 
 
@@ -342,6 +344,8 @@ template <> const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("e
 
 template class commsys<bool,commsys_prof_pos>;
 template <> const libbase::serializer commsys<bool,commsys_prof_pos>::shelper("experiment", "commsys<bool,prof_pos>", commsys<bool,commsys_prof_pos>::create);
+template class commsys<bool,commsys_prof_sym>;
+template <> const libbase::serializer commsys<bool,commsys_prof_sym>::shelper("experiment", "commsys<bool,prof_sym>", commsys<bool,commsys_prof_sym>::create);
 template class commsys<bool,commsys_hist_symerr>;
 template <> const libbase::serializer commsys<bool,commsys_hist_symerr>::shelper("experiment", "commsys<bool,hist_symerr>", commsys<bool,commsys_hist_symerr>::create);
 

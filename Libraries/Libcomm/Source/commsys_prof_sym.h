@@ -1,5 +1,5 @@
-#ifndef __commsys_prof_pos_h
-#define __commsys_prof_pos_h
+#ifndef __commsys_prof_sym_h
+#define __commsys_prof_sym_h
 
 #include "config.h"
 #include "commsys.h"
@@ -7,7 +7,7 @@
 namespace libcomm {
 
 /*!
-   \brief   CommSys Results - Frame-Position Error Profile.
+   \brief   CommSys Results - Symbol-Value Error Profile.
    \author  Johann Briffa
 
    \par Version Control:
@@ -55,12 +55,12 @@ namespace libcomm {
    - Changed reference from modulator to modulator<sigspace>
 
    \version 2.00 (19 Feb 2008)
-   - Renamed to commsys_prof_pos, indicating its function as a profiler of error with
+   - Renamed to commsys_prof_sym, indicating its function as a profiler of error with
      respect to position within block
    - Changed base class to commsys_errorrates
 */
 
-class commsys_prof_pos : public commsys_errorrates {
+class commsys_prof_sym : public commsys_errorrates {
 public:
    // Public interface
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;

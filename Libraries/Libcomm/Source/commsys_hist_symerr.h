@@ -7,7 +7,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Communication System Profiler.
+   \brief   CommSys Results - Symbol-Error per Frame Histogram.
    \author  Johann Briffa
 
    \par Version Control:

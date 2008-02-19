@@ -272,6 +272,7 @@ public:
    - Added result set calculation as a template parameter
    - Default result set is commsys_errorrates
    - Added explicit realizations of hist_symerr and prof_pos variants for bool channel
+   - Added explicit realization of prof_sym variant for bool channel
 */
 template <class S, class R=commsys_errorrates> class commsys : public basic_commsys<S,R> {
    /*! \name Serialization */
