@@ -407,6 +407,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_prof_sym.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\crypt.cpp"
 				>
 				<FileConfiguration
@@ -1289,6 +1293,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\commsys_prof_pos.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\commsys_prof_sym.h"
 				>
 			</File>
 			<File
