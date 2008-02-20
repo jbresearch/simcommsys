@@ -15,7 +15,7 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (19 Feb 2008)
+   \version 1.00 (19-20 Feb 2008)
    - Initial version, derived from commsys_prof_pos 2.00
    - Computes symbol-error histogram as dependent on source symbol value
 */

@@ -54,7 +54,7 @@ namespace libcomm {
    \version 1.43 (28 Jan 2008)
    - Changed reference from modulator to modulator<sigspace>
 
-   \version 2.00 (19 Feb 2008)
+   \version 2.00 (19-20 Feb 2008)
    - Renamed to commsys_prof_pos, indicating its function as a profiler of error with
      respect to position within block
    - Changed base class to commsys_errorrates
