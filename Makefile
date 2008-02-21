@@ -16,6 +16,7 @@ export BINDIR = ~/bin.$(OSARCH)
 # Linker settings
 export LDlibusr := -lcomm -lbase
 LDlibsys := -lm -lstdc++
+#LDlibsys := -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic -lm
 #LDlibmpi := `mpic++ -showme:link`
 #LDlibmpi := -lpmpich++ -lmpich
 LDlibmpi :=
@@ -24,7 +25,9 @@ export LDlibs := $(LDlibusr) $(LDlibsys) $(LDlibmpi)
 export LDflagProfile := -pg
 export LDflagRelease := 
 export LDflagDebug   := 
-export LDflags = $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
+LDflagsCommon :=
+#LDflagsCommon := -static-libgcc
+export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
 # Compiler settings
 CCprfopt := -pg -O3 -DNDEBUG
