@@ -125,6 +125,10 @@ namespace libcomm {
 
    \version 2.01 (1 Feb 2008)
    - Fixed initial bsid channel creation to use default varyPx values.
+
+   \version 2.02 (21 Feb 2008)
+   - Added default values to fill().
+   - Moved call to fill() outside init().
 */
 
 template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
@@ -150,7 +154,7 @@ private:
 private:
    /*! \name Internal functions */
    //! Sparse vector LUT creation
-   int fill(int i, libbase::bitfield suffix, int weight);
+   int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    //! Watermark sequence creator
    void createsequence(const int tau);                      
    // @}

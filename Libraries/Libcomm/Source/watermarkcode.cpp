@@ -15,8 +15,17 @@ namespace libcomm {
 
 // internally-used functions
 
+/*! \brief Set up LUT with the lowest weight codewords
+*/
 template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suffix, int w)
    {
+   // set up if this is the first (root) call
+   if(i == 0 && w == -1)
+      {
+      lut.init(num_symbols());
+      suffix = "";
+      w = n;
+      }
    // stop here if we've reached the end
    if(i >= lut.size())
       return i;
@@ -52,9 +61,6 @@ template <class real> void watermarkcode<real>::init()
    {
    using libbase::weight;
    using libbase::trace;
-   // Create LUT with the lowest weight codewords
-   lut.init(num_symbols());
-   fill(0,"",n);
 #ifndef NDEBUG
    // Display LUT when debugging
    trace << "LUT (k=" << k << ", n=" << n << "):\n";
@@ -91,6 +97,7 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
    watermarkcode::k = k;
    watermarkcode::s = s;
    // initialize everything else that depends on the above parameters
+   fill();
    init();
    }
 
@@ -288,6 +295,7 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
    sin >> k;
    sin >> s;
    mychan.serialize(sin);
+   fill();
    init();
    return sin;
    }
