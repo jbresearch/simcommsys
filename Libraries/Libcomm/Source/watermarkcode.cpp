@@ -22,6 +22,7 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
       {
+      userspecified = false;
       lut.init(num_symbols());
       suffix = "";
       w = n;
@@ -72,6 +73,16 @@ template <class real> void watermarkcode<real>::init()
       trace << i << "\t" << b << "\t" << weight(b) << "\n";
       }
 #endif
+   // Validate LUT
+   assertalways(lut.size() == num_symbols());
+   for(int i=0; i<lut.size(); i++)
+      {
+      // all entries should be within size
+      assertalways(lut(i) >= 0 && lut(i) < (1<<n));
+      // all entries should be distinct
+      for(int j=0; j<i; j++)
+         assertalways(lut(i) != lut(j));
+      }
    // Compute the mean density
    libbase::vector<int> w = lut;
    w.apply(weight);
@@ -279,9 +290,21 @@ template <class real> std::string watermarkcode<real>::description() const
 
 template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream& sout) const
    {
-   sout << n << "\n";
-   sout << k << "\n";
-   sout << s << "\n";
+   if(userspecified)
+      {
+      sout << -1 << '\n';
+      sout << k << '\n';
+      sout << s << '\n';
+      assert(lut.size() == num_symbols());
+      for(int i=0; i<lut.size(); i++)
+         sout << libbase::bitfield(lut(i),n) << '\n';
+      }
+   else
+      {
+      sout << n << '\n';
+      sout << k << '\n';
+      sout << s << '\n';
+      }
    mychan.serialize(sout);
    return sout;
    }
@@ -292,10 +315,29 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
    {
    free();
    sin >> n;
-   sin >> k;
-   sin >> s;
+   if(n == -1)
+      {
+      userspecified = true;
+      sin >> k;
+      sin >> s;
+      lut.init(num_symbols());
+      libbase::bitfield b;
+      for(int i=0; i<lut.size(); i++)
+         {
+         sin >> b;
+         lut(i) = b;
+         if(n == -1)
+            n = b.size();
+         assertalways(n == b.size());
+         }
+      }
+   else
+      {
+      sin >> k;
+      sin >> s;
+      fill();
+      }
    mychan.serialize(sin);
-   fill();
    init();
    return sin;
    }

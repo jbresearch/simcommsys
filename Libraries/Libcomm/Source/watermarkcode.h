@@ -129,6 +129,8 @@ namespace libcomm {
    \version 2.02 (21 Feb 2008)
    - Added default values to fill().
    - Moved call to fill() outside init().
+   - Added serialization mode allowing user-specified LUT.
+   - Added LUT validation to init().
 */
 
 template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
@@ -150,6 +152,7 @@ private:
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
    libbase::vector<int> lut;  //!< sparsifier LUT
+   bool userspecified;        //!< flag indicating that LUT is supplied by user
    // @}
 private:
    /*! \name Internal functions */
