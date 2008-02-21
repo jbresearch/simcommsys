@@ -68,6 +68,9 @@
 
    \version 2.01 (13 Feb 2008)
    - Added special parameter condition 0:x:0 for log plots
+
+   \version 2.02 (21 Feb 2008)
+   - Modified to print results only if at least one sample was computed.
 */
 
 using std::cout;
@@ -215,10 +218,13 @@ int main(int argc, char *argv[])
          << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - " \
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
 
-      cout << Pset(i);
-      for(int i=0; i<system->count(); i++)
-         cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
-      cout << "\t" << estimator.get_samplecount() << "\n" << flush;
+      if(estimator.get_samplecount() > 0)
+         {
+         cout << Pset(i);
+         for(int i=0; i<system->count(); i++)
+            cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
+         cout << "\t" << estimator.get_samplecount() << "\n" << flush;
+         }
 
       // handle pre-mature breaks
       if(estimator.interrupt() || estimate.min()<min_error)
