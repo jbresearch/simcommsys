@@ -230,7 +230,8 @@ template <class S, class R> void basic_commsys<S,R>::seed(int s)
    {
    src->seed(s);
    cdc->seed(s+1);
-   chan->seed(s+2);
+   modem->seed(s+2);
+   chan->seed(s+3);
    }
 
 // Experiment handling

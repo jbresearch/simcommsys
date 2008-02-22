@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
    // create a watermark codec
    using libbase::logrealfast;
    using libcomm::watermarkcode;
-   watermarkcode<logrealfast> modem(n,k,0, N);
+   watermarkcode<logrealfast> modem(n,k, N);
    cout << modem.description() << "\n";
 
    return 0;

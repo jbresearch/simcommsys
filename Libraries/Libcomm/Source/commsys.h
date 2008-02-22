@@ -182,6 +182,9 @@ public:
    - Result set calculation now included as a template parameter
    - Default result set is commsys_errorrates
    - Added get_alphabetsize()
+
+   \version 2.21 (22 Feb 2008)
+   - Added seeding for modulator block
 */
 
 template <class S, class R=commsys_errorrates> class basic_commsys : public experiment, public R {

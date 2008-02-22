@@ -108,7 +108,8 @@ void testcycle(int const seed, int const n, int const k, int const tau, double P
    {
    const int N = tau*n;
    // create modem and channel
-   watermarkcode<logrealfast> modem(n,k,seed, N);
+   watermarkcode<logrealfast> modem(n,k, N);
+   modem.seed(seed);
    channel<bool> *chan = create_channel(seed, N, Pe);
    cout << modem.description() << "\n";
 

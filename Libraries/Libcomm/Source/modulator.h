@@ -22,6 +22,9 @@ namespace libcomm {
 
    \version 1.00 (24 Jan 2008)
    - Contains common interface for modulator classes.
+
+   \version 1.01 (22 Feb 2008)
+   - Added seed function.
 */
 
 template <class S> class basic_modulator {
@@ -74,6 +77,11 @@ public:
             symbol 'd' at time 'i'
    */
    virtual void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) = 0;
+   // @}
+
+   /*! \name Setup functions */
+   //! Reset function for random generator
+   virtual void seed(libbase::int32u const s) {};
    // @}
 
    /*! \name Informative functions */

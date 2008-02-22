@@ -23,6 +23,7 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
    if(i == 0 && w == -1)
       {
       userspecified = false;
+      lutname = "sequential";
       lut.init(num_symbols());
       suffix = "";
       w = n;
@@ -89,7 +90,7 @@ template <class real> void watermarkcode<real>::init()
    f = w.sum()/double(n * w.size());
    trace << "Watermark code density = " << f << "\n";
    // Seed the watermark generator and clear the sequence
-   r.seed(s);
+   r.seed(0);
    ws.init(0);
    }
 
@@ -99,14 +100,13 @@ template <class real> watermarkcode<real>::watermarkcode() : mychan(1)
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int s, const int N, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(N, varyPs, varyPd, varyPi)
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int N, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(N, varyPs, varyPd, varyPi)
    {
    // code parameters
    assert(n >= 1 && n <= 32);
    assert(k >= 1 && k <= n);
    watermarkcode::n = n;
    watermarkcode::k = k;
-   watermarkcode::s = s;
    // initialize everything else that depends on the above parameters
    fill();
    init();
@@ -282,7 +282,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
 template <class real> std::string watermarkcode<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Watermark Code (" << n << "," << k << "," << s << ",[" << mychan.description() << "])";
+   sout << "Watermark Code (" << n << "/" << k << ", " << lutname << " codebook, [" << mychan.description() << "])";
    return sout.str();
    }
 
@@ -290,20 +290,15 @@ template <class real> std::string watermarkcode<real>::description() const
 
 template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream& sout) const
    {
+   sout << n << '\n';
+   sout << k << '\n';
+   sout << int(userspecified) << '\n';
    if(userspecified)
       {
-      sout << -1 << '\n';
-      sout << k << '\n';
-      sout << s << '\n';
+      sout << lutname << '\n';
       assert(lut.size() == num_symbols());
       for(int i=0; i<lut.size(); i++)
          sout << libbase::bitfield(lut(i),n) << '\n';
-      }
-   else
-      {
-      sout << n << '\n';
-      sout << k << '\n';
-      sout << s << '\n';
       }
    mychan.serialize(sout);
    return sout;
@@ -313,13 +308,15 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
 
 template <class real> std::istream& watermarkcode<real>::serialize(std::istream& sin)
    {
+   int temp;
    free();
    sin >> n;
-   if(n == -1)
+   sin >> k;
+   sin >> temp;
+   userspecified = temp != 0;
+   if(userspecified)
       {
-      userspecified = true;
-      sin >> k;
-      sin >> s;
+      sin >> lutname;
       lut.init(num_symbols());
       libbase::bitfield b;
       for(int i=0; i<lut.size(); i++)
@@ -332,11 +329,7 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
          }
       }
    else
-      {
-      sin >> k;
-      sin >> s;
       fill();
-      }
    mychan.serialize(sin);
    init();
    return sin;

@@ -131,6 +131,15 @@ namespace libcomm {
    - Moved call to fill() outside init().
    - Added serialization mode allowing user-specified LUT.
    - Added LUT validation to init().
+
+   \version 2.03 (22 Feb 2008)
+   - Added seed function.
+   - Removed seed parameter from constructor & from member
+   - Changed serialization so that WS generator seed is not included;
+     its place is used to indicate whether the codebook is user-supplied or not.
+     This allows us to change only the definition of the user-supplied codebook
+     systems.
+   - Added name to describe codebook
 */
 
 template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
@@ -140,9 +149,10 @@ template <class real> class watermarkcode : public modulator<bool>, private fba<
    // @}
 private:
    /*! \name User-defined parameters */
-   int      n;    //!< number of bits in sparse (output) symbol
-   int      k;    //!< number of bits in message (input) symbol
-   int      s;    //!< watermark generator seed
+   int      n;                //!< number of bits in sparse (output) symbol
+   int      k;                //!< number of bits in message (input) symbol
+   bool     userspecified;    //!< flag indicating that LUT is supplied by user
+   std::string lutname;       //!< name to describe codebook
    // @}
    /*! \name Pre-computed parameters */
    double   f;    //!< average weight per bit of sparse symbol
@@ -152,7 +162,6 @@ private:
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
    libbase::vector<int> lut;  //!< sparsifier LUT
-   bool userspecified;        //!< flag indicating that LUT is supplied by user
    // @}
 private:
    /*! \name Internal functions */
@@ -178,7 +187,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   watermarkcode(const int n, const int k, const int s, const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   watermarkcode(const int n, const int k, const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    ~watermarkcode() { free(); };
    // @}
    /*! \name Serialization Support */
@@ -189,6 +198,9 @@ public:
    // Vector modem operations
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
    void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+
+   // Setup functions
+   void seed(libbase::int32u const s) { r.seed(s); };
 
    // Informative functions
    int num_symbols() const { return 1<<k; };
