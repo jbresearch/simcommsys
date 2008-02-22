@@ -323,8 +323,6 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
          {
          sin >> b;
          lut(i) = b;
-         if(n == -1)
-            n = b.size();
          assertalways(n == b.size());
          }
       }
