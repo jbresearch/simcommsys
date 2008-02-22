@@ -22,6 +22,8 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
       {
+      assert(n >= 1 && n <= 32);
+      assert(k >= 1 && k <= n);
       userspecified = false;
       lutname = "sequential";
       lut.init(num_symbols());
@@ -103,8 +105,6 @@ template <class real> watermarkcode<real>::watermarkcode() : mychan(1)
 template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int N, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(N, varyPs, varyPd, varyPi)
    {
    // code parameters
-   assert(n >= 1 && n <= 32);
-   assert(k >= 1 && k <= n);
    watermarkcode::n = n;
    watermarkcode::k = k;
    // initialize everything else that depends on the above parameters
