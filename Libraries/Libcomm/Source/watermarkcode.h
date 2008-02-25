@@ -140,6 +140,9 @@ namespace libcomm {
      This allows us to change only the definition of the user-supplied codebook
      systems.
    - Added name to describe codebook
+
+   \version 2.04 (25 Feb 2008)
+   - Added watermark-specific informative functions
 */
 
 template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
@@ -193,6 +196,12 @@ public:
    /*! \name Serialization Support */
    watermarkcode *clone() const { return new watermarkcode(*this); };
    const char* name() const { return shelper.name(); };
+   // @}
+
+   /*! \name Watermark-specific informative functions */
+   int get_n() const { return n; };
+   int get_k() const { return k; };
+   int get_lut(int i) const { return lut(i); };
    // @}
 
    // Vector modem operations
