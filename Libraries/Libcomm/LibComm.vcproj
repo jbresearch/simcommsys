@@ -403,6 +403,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_prof_burst.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\commsys_prof_pos.cpp"
 				>
 			</File>
@@ -1289,6 +1293,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\commsys_hist_symerr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\commsys_prof_burst.h"
 				>
 			</File>
 			<File

@@ -70,6 +70,7 @@
 
 // Experiments
 #include "commsys.h"
+#include "commsys_prof_burst.h"
 #include "commsys_prof_pos.h"
 #include "commsys_prof_sym.h"
 #include "commsys_hist_symerr.h"
@@ -128,6 +129,9 @@ namespace libcomm {
    \version 2.29 (19 Feb 2008)
    - Added symbol-error histogram and position profiler for commsys<bool>
    - Added symbol-value profiler for commsys<bool>
+
+   \version 2.30 (15 Apr2008)
+   - Added burst-error profiler for commsys<bool>
 */
 
 // Serialization support
@@ -143,6 +147,7 @@ class serializer_libcomm : private
    puncture_file, puncture_null, puncture_stipple,
    commsys< libbase::gf<1,0x3> >, commsys< libbase::gf<2,0x7> >, commsys< libbase::gf<3,0xB> >, commsys< libbase::gf<4,0x13> >,
    commsys<sigspace>, commsys<bool>,
+   commsys<bool,commsys_prof_burst>,
    commsys<bool,commsys_prof_pos>,
    commsys<bool,commsys_prof_sym>,
    commsys<bool,commsys_hist_symerr>
