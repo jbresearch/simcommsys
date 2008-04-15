@@ -203,6 +203,8 @@ int main(int argc, char *argv[])
    cout << "#% Tolerance: " << 100*accuracy << "%\n";
    cout << "#% Confidence: " << 100*confidence << "%\n";
    cout << "#% Date: " << libbase::timer::date() << "\n";
+   cout << "#% URL: " << __WCURL__ << "\n";
+   cout << "#% Version: " << __WCVER__ << "\n";
    cout << "#\n" << flush;
 
    // Work out the following for every SNR value required

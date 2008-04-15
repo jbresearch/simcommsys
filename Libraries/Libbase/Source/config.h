@@ -162,9 +162,20 @@
 
    \version 3.37 (29 Jan 2008)
    - Added sign() function
+
+   \version 3.38 (15 Apr 2008)
+   - Added dummy entries for version-control macros, currently useful only in
+     Windows builds; UNIX builds get the values automatically determined on build.
 */
 
 // *** Global namespace ***
+
+// Version-control information
+
+#ifndef __WCURL__
+#  define __WCURL__ "undefined"
+#  define __WCVER__ "undefined"
+#endif
 
 // An assertion that is implemented even in release builds
 

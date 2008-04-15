@@ -29,6 +29,10 @@ LDflagsCommon :=
 #LDflagsCommon := -static-libgcc
 export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
+# Version control information
+WCURL := $(shell svn info |gawk '/^URL/ { print $$2 }')
+WCVER := $(shell svnversion)
+
 # Compiler settings
 CCprfopt := -pg -O3 -DNDEBUG
 CCrelopt := -O3 -DNDEBUG
@@ -38,10 +42,11 @@ CClang := -Wall -Werror -Wno-non-template-friend -Woverloaded-virtual
 #CCmpi := -DUSEMPI `mpic++ -showme:compile`
 #CCmpi := -DUSEMPI -DUSE_STDARG -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDARG_H=1 -DUSE_STDARG=1 -DMALLOC_RET_VOID=1
 CCmpi :=
+CCsvn := -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 # Define compiling flags
-export CCflagProfile := $(CCprfopt) $(CClibs) $(CClang) $(CCmpi)
-export CCflagRelease := $(CCrelopt) $(CClibs) $(CClang) $(CCmpi)
-export CCflagDebug   := $(CCdbgopt) $(CClibs) $(CClang) $(CCmpi)
+export CCflagProfile := $(CCprfopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
+export CCflagRelease := $(CCrelopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
+export CCflagDebug   := $(CCdbgopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
 export CCflags = $(CCflag$(RELEASE))
 export CCdepend := -MM
 
