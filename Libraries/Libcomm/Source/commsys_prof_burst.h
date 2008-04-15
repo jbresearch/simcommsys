@@ -27,7 +27,7 @@ class commsys_prof_burst : public commsys_errorrates {
 public:
    // Public interface
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   int count() const { return 3*get_iter(); };
+   int count() const { return 4*get_iter(); };
 };
 
 }; // end namespace

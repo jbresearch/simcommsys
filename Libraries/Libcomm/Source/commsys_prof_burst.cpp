@@ -29,14 +29,18 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result, const in
       result(skip*i + 0) += 1.0;
    // For each remaining symbol
    for(int t=1; t<get_symbolsperblock(); t++)
+      {
+      if(source(t-1) != decoded(t-1))
+         result(skip*i + 3) += 1.0 / double(get_symbolsperblock()-1);
       if(source(t) != decoded(t))
          {
          // Keep separate counts, depending on whether the previous symbol was in error
-         if(source(t-1) == decoded(t-1))
-            result(skip*i + 1) += 1.0 / double(get_symbolsperblock()-1);
-         else
+         if(source(t-1) != decoded(t-1))
             result(skip*i + 2) += 1.0 / double(get_symbolsperblock()-1);
+         else
+            result(skip*i + 1) += 1.0 / double(get_symbolsperblock()-1);
          }
+      }
    }
 
 }; // end namespace
