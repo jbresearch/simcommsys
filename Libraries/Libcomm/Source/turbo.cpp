@@ -461,6 +461,12 @@ template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::i
    free();
    // get format version
    sin >> version;
+   // handle old-format files
+   if(sin.fail())
+      {
+      version = 0;
+      sin.clear();
+      }
    sin >> encoder;
    sin >> tau;
    sin >> sets;
