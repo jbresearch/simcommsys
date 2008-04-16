@@ -25,6 +25,9 @@ namespace libcomm {
    - Fixed check on range of Ps
    - Changed assert to assertalways in range check
    - Fixed PDF result for erroneous symbols
+
+   \version 1.02 (16 Apr 2008)
+   - Fixed computation in corrupt() to force addition within the field
 */
 
 template <class G> class qsc : public channel<G> {

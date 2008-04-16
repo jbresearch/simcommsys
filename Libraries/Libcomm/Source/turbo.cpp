@@ -298,22 +298,14 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
 
       // If this was the first (non-interleaved) set, copy back the source
       // to fix the tail bit values, if any
-      if(set == 0)
+      if(endatzero && set == 0)
          source = source2;
 
-      // check that encoder finishes in circulation state (applies for all interleavers)
-      if(circular && encoder->state() != cstate)
-         {
-         cerr << "FATAL ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << " (should be " << cstate << ")\n";
-         exit(1);
-         }
-
-      // check that encoder finishes in state zero (applies for all interleavers)
-      if(endatzero && encoder->state() != 0)
-         {
-         cerr << "FATAL ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << '\n';
-         exit(1);
-         }
+      // check that encoder finishes correctly
+      if(circular)
+         assertalways(encoder->state() == cstate);
+      if(endatzero)
+         assertalways(encoder->state() == 0);
       }
 
    // Encode source stream

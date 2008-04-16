@@ -248,6 +248,7 @@ namespace libcomm {
      de-interleaving
    - Replace loop data-setting and computation with vector/matrix form where possible
    - Replace stream-input of bools with direct form
+   - Fix terminated sequence encoding (implicitly assume a flat first interleaver)
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
