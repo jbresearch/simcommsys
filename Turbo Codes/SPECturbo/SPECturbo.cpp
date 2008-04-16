@@ -3,6 +3,7 @@
 #include "logrealfast.h"
 #include "rscc.h"
 
+#include "flat.h"
 #include "helical.h"
 #include "vector.h"
 #include "puncture_stipple.h"
@@ -113,13 +114,14 @@ libcomm::experiment *createsystem()
    // Block interleaver parameters
    const int rows = 13, cols = 12;
    const int tau = rows*cols + m;
-   // Helical interleaver (from matrix size, hence block size)
-   libbase::vector<libcomm::interleaver *> inter(1);
-   inter(0) = new libcomm::helical(tau, rows, cols);
+   // Flat and Helical interleavers (from matrix size, hence block size)
+   libbase::vector<libcomm::interleaver *> inter(2);
+   inter(0) = new libcomm::flat(tau);
+   inter(1) = new libcomm::helical(tau, rows, cols);
    // Channel Codec (punctured, iterations, endatzero)
    libcomm::turbo<double> *codec = new libcomm::turbo<double>(encoder, tau, inter, 10, true);
    // Stipple puncturing
-   const int sets = inter.size()+1;
+   const int sets = inter.size();
    libcomm::puncture_stipple *punc = new libcomm::puncture_stipple(tau, k+sets*(n-k));
    // Modulation scheme
    libcomm::mpsk *modem = new libcomm::mpsk(2);

@@ -8,6 +8,7 @@
 */
 
 #include "turbo.h"
+#include "flat.h"
 #include <sstream>
 
 namespace libcomm {
@@ -85,7 +86,7 @@ template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, cons
    {
    turbo::encoder = encoder.clone();
    turbo::tau = tau;
-   turbo::sets = inter.size()+1;
+   turbo::sets = inter.size();
    turbo::inter = inter;
    turbo::endatzero = endatzero;
    turbo::parallel = parallel;
@@ -106,6 +107,7 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
       R(i).init(tau, N);
       }
 
+   rp.init(tau, K);
    ri.init(tau, K);
    rai.init(tau, K);
    rii.init(tau, K);
@@ -169,20 +171,12 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
       bcjr<real,dbl>::setend(se(set));
       }
    // pass through BCJR algorithm
-   // interleaving and de-interleaving is performed except for the first set
-   if(set == 0)
-      {
-      bcjr<real,dbl>::fdecode(R(set), ra, ri);
-      work_extrinsic(ra, ri, r(set), re);
-      }
-   else
-      {
-      inter(set-1)->transform(ra, rai);
-      bcjr<real,dbl>::fdecode(R(set), rai, rii);
-      work_extrinsic(rai, rii, r(set), rai);
-      inter(set-1)->inverse(rii, ri);
-      inter(set-1)->inverse(rai, re);
-      }
+   // perform interleaving and de-interleaving
+   inter(set)->transform(ra, rai);
+   bcjr<real,dbl>::fdecode(R(set), rai, rii);
+   work_extrinsic(rai, rii, r(set), rai);
+   inter(set)->inverse(rii, ri);
+   inter(set)->inverse(rai, re);
    trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
    // when using a circular trellis, store the start- and end-state
    // probabilities for the previous turn
@@ -209,11 +203,11 @@ template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matri
    trace << "DEBUG (turbo): iter=" << iter \
       << ", decoded ones = " << ones << "/" << tau \
       << ", ri(mean) = " << ri.mean() \
-      << ", r(0)(mean) = " << r(0).mean() << "\n";
+      << ", rp(mean) = " << rp.mean() << '\n';
    if(fabs(ones/double(tau) - 0.5) > 0.05)
       {
-      trace << "DEBUG (turbo): decoded = " << decoded << "\n";
-      trace << "DEBUG (turbo): ri = " << ri << "\n";
+      trace << "DEBUG (turbo): decoded = " << decoded << '\n';
+      trace << "DEBUG (turbo): ri = " << ri << '\n';
       }
    iter++;
 #endif
@@ -250,7 +244,7 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
          for(int set=0; set<sets; set++)
             ra(set)(t, x) = ri(t, x) / ra(set)(t, x);
          // add the channel information to the sum of extrinsic information
-         ri(t, x) *= r(0)(t, x);
+         ri(t, x) *= rp(t, x);
          }
    // normalize results
    for(int set=0; set<sets; set++)
@@ -262,8 +256,8 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
 
 template <class real, class dbl> void turbo<real,dbl>::seed(const int s)
    {
-   for(int set=1; set<sets; set++)
-      inter(set-1)->seed(s+set);
+   for(int set=0; set<sets; set++)
+      inter(set)->seed(s+set);
    }
 
 template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)
@@ -279,16 +273,10 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
    // Consider sets in order
    for(int set=0; set<sets; set++)
       {
-      // For first set, copy original source
-      if(set == 0)
-         source2 = source;
-      else
-         {
-         // Advance interleaver to the next block
-         inter(set-1)->advance();
-         // Create interleaved version of source
-         inter(set-1)->transform(source, source2);
-         }
+      // Advance interleaver to the next block
+      inter(set)->advance();
+      // Create interleaved version of source
+      inter(set)->transform(source, source2);
 
       // Reset the encoder to zero state
       encoder->reset(0);
@@ -323,7 +311,7 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
       // check that encoder finishes in state zero (applies for all interleavers)
       if(endatzero && encoder->state() != 0)
          {
-         cerr << "FATAL ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << "\n";
+         cerr << "FATAL ERROR (turbo): Invalid finishing state for set " << set << " encoder - " << encoder->state() << '\n';
          exit(1);
          }
       }
@@ -373,9 +361,9 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
       // Input (data) bits [set 0 only]
       for(int x=0; x<K; x++)
          {
-         r(0)(t, x) = 1;
+         rp(t, x) = 1;
          for(int i=0, thisx = x; i<sk; i++, thisx /= S)
-            r(0)(t, x) *= ptable(t*s+i, thisx % S);
+            rp(t, x) *= ptable(t*s+i, thisx % S);
          }
       // Parity bits [all sets]
       for(int x=0; x<P; x++)
@@ -395,9 +383,9 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
             ra(set)(t, x) = 1.0;
 
    // Normalize and compute a priori probabilities (intrinsic - source)
-   bcjr<real,dbl>::normalize(r(0));
-   for(int set=1; set<sets; set++)
-      inter(set-1)->transform(r(0), r(set));
+   bcjr<real,dbl>::normalize(rp);
+   for(int set=0; set<sets; set++)
+      inter(set)->transform(rp, r(set));
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
    for(int set=0; set<sets; set++)
@@ -451,15 +439,17 @@ template <class real, class dbl> std::string turbo<real,dbl>::description() cons
 
 template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
    {
+   // format version
+   sout << 1 << '\n';
    sout << encoder;
-   sout << tau << "\n";
-   sout << sets << "\n";
+   sout << tau << '\n';
+   sout << sets << '\n';
    for(int i=0; i<inter.size(); i++)
       sout << inter(i);
-   sout << int(endatzero) << "\n";
-   sout << int(circular) << "\n";
-   sout << int(parallel) << "\n";
-   sout << iter << "\n";
+   sout << int(endatzero) << '\n';
+   sout << int(circular) << '\n';
+   sout << int(parallel) << '\n';
+   sout << iter << '\n';
    return sout;
    }
 
@@ -467,14 +457,25 @@ template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::o
 
 template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    {
-   int temp;
+   int version, temp;
    free();
+   // get format version
+   sin >> version;
    sin >> encoder;
    sin >> tau;
    sin >> sets;
-   inter.init(sets-1);
-   for(int i=0; i<inter.size(); i++)
-      sin >> inter(i);
+   inter.init(sets);
+   if(version == 0)
+      {
+      inter(0) = new flat(tau);
+      for(int i=1; i<inter.size(); i++)
+         sin >> inter(i);
+      }
+   else
+      {
+      for(int i=0; i<inter.size(); i++)
+         sin >> inter(i);
+      }
    sin >> temp;
    endatzero = temp != 0;
    sin >> temp;
