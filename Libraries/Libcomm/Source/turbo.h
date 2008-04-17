@@ -241,9 +241,12 @@ namespace libcomm {
      are interpreted as v.0; a flat interleaver is automatically used for the
      first encoder in these cases.
    
+   \version 2.71 (17 Apr 2008)
+   - Removed 'rate', as this was never used
+
    \todo
    - Replace 'sets' with interleaver.size()
-   - Remove temporary matrices (rai, rii) from class members
+   - Remove tau from user parameters, as this can be derived from interleavers
    - Remove pre-interleaved r() set, performing extrinsic computation after
      de-interleaving
    - Replace loop data-setting and computation with vector/matrix form where possible
@@ -257,30 +260,37 @@ template <class real, class dbl=double> class turbo : public codec, private bcjr
    static void* create() { return new turbo<real,dbl>; };
    // @}
 private:
+   /*! \name User-defined parameters */
    libbase::vector<interleaver *> inter;     //!< Set of interleavers, one per parity sequence
    fsm      *encoder;      //!< Encoder object (same for all parity sequences)
-   double   rate;
-   int      tau;
-   int      sets;          //!< Number of parity sequences
+   int      tau;           //!< Length of interleavers (information sequence + tail)
+   int      iter;          //!< Number of iterations to perform
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
    bool     parallel;      //!< Flag to enable parallel decoding algorithm (rather than serial)
    bool     circular;      //!< Flag to indicate trellis tailbiting
-   int      iter;          //!< Number of iterations to perform
+   // @}
+   /*! \name Computed parameters */
+   int      sets;          //!< Number of parity sequences
    int      M;             //!< Number of states
    int      K;             //!< Number of inputs
    int      N;             //!< Number of outputs
    int      P;             //!< Number of parity symbols
    int      m;             //!< Memory order of encoder
+   // @}
+   /*! \name Internal object representation */
+   bool initialised;       //!< Initially false, becomes true when memory is initialised
    libbase::matrix<dbl> rp;   //!< A priori intrinsic source statistics (natural)
    libbase::matrix<dbl> ri;   //!< A posteriori source statistics (natural)
    libbase::vector< libbase::matrix<dbl> > r;   //!< A priori intrinsic source statistics (interleaved)
    libbase::vector< libbase::matrix<dbl> > R;   //!< A priori intrinsic encoded statistics (interleaved)
    libbase::vector< libbase::matrix<dbl> > ra;  //!< A priori extrinsic source statistics
-   // Temporary statistics (interleaved versions of ra and ri)
-   libbase::matrix<dbl> rai, rii;
-   // Holders for start- and end-state probabilities (used with circular trellises)
-   libbase::vector< libbase::vector<dbl> > ss, se;
-   bool initialised;       //!< Initially false, becomes true when memory is initialised
+   libbase::vector< libbase::vector<dbl> > ss;  //!< Holder for start-state probabilities (used with circular trellises)
+   libbase::vector< libbase::vector<dbl> > se;  //!< Holder for end-state probabilities (used with circular trellises)
+   // @}
+   /*! \name Temporary variables */
+   libbase::matrix<dbl> rai;  //!< Temporary statistics (interleaved version of ra)
+   libbase::matrix<dbl> rii;  //!< Temporary statistics (interleaved version of ri)
+   // @}
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();
