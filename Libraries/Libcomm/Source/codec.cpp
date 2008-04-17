@@ -12,7 +12,7 @@
 
 namespace libcomm {
 
-// serialization functions
+// stream output operators
 
 std::ostream& operator<<(std::ostream& sout, const codec* x)
    {

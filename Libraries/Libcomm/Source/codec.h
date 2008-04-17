@@ -79,39 +79,97 @@ namespace libcomm {
    \version 1.60 (30 Oct 2006)
    - defined class and associated data within "libcomm" namespace.
    - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+
+   \version 1.61 (17 Apr 2008)
+   - removed friend status of stream output operators
 */
 
 class codec {
 public:
-   virtual ~codec() {};                   // virtual destructor
-   virtual codec *clone() const = 0;       // cloning operation
-   virtual const char* name() const = 0;  // derived object's name
+   /*! \name Constructors / Destructors */
+   //! Virtual destructor
+   virtual ~codec() {};
+   // @}
 
+   /*! \name Serialization Support */
+   //! Cloning operation
+   virtual codec *clone() const = 0;
+   //! Derived object's name
+   virtual const char* name() const = 0;
+   // @}
+
+   /*! \name Codec operations */
+   /*!
+      \brief Sets up any internal random number generators
+      \param s Seed value
+   */
    virtual void seed(const int s) {};
+   /*!
+      \brief Encoding process
+      \param[in,out] source Sequence of source symbols, one per timestep
+      \param[in,out] encoded Sequence of output (encoded) symbols, one per timestep
 
+      \note If the input or output symbols at every timestep represent the
+            aggregation of a set of symbols, the combination/division has to
+            be done externally.
+   */
    virtual void encode(libbase::vector<int>& source, libbase::vector<int>& encoded) = 0;
+   /*!
+      \brief Receiver translation process
+      \param[in] ptable Matrix representing the likelihoods of each possible
+                        modulation symbol at every (modulation) timestep
+      \note The number of possible modulation symbols does not necessarily
+            correspond to the number of encoder output symbols, and therefore
+            the number of modulation timesteps may be different from tau.
+   */
    virtual void translate(const libbase::matrix<double>& ptable) = 0;
+   /*!
+      \brief Encoding process
+      \param[out] decoded Most likely sequence of information symbols, one per timestep
+
+      \note Observe that this output necessarily constitutes a hard decision.
+            Also, each call to decode will perform a single iteration (with
+            respect to num_iter).
+   */
    virtual void decode(libbase::vector<int>& decoded) = 0;
+   // @}
 
+   /*! \name Codec information functions - fundamental */
+   //! Block size (input length in timesteps)
    virtual int block_size() const = 0;
+   //! Number of valid input combinations
    virtual int num_inputs() const = 0;
+   //! Number of valid output combinations
    virtual int num_outputs() const = 0;
+   //! Length of tail in timesteps
    virtual int tail_length() const = 0;
+   //! Number of iterations per decoding cycle
    virtual int num_iter() const = 0;
+   // @}
 
+   /*! \name Codec information functions - derived */
+   //! Length of information sequence in bits
    double input_bits() const { return log2(num_inputs())*(block_size() - tail_length()); };
+   //! Output block length in bits
    double output_bits() const { return log2(num_outputs())*block_size(); };
+   //! Overall code rate
    double rate() const { return input_bits()/output_bits(); };
+   // @}
 
-   // description output
+   /*! \name Description & Serialization */
+   //! Description output
    virtual std::string description() const = 0;
-   // object serialization - saving
+   //! Serialization output
    virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const codec* x);
-   // object serialization - loading
+   //! Serialization input
    virtual std::istream& serialize(std::istream& sin) = 0;
-   friend std::istream& operator>>(std::istream& sin, codec*& x);
+   // @}
 };
+
+/*! \name Stream Output */
+std::ostream& operator<<(std::ostream& sout, const codec* x);
+std::istream& operator>>(std::istream& sin, codec*& x);
+// @}
 
 }; // end namespace
 
