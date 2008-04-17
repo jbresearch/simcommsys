@@ -252,8 +252,10 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
+   /*! \name Serialization */
    static const libbase::serializer shelper;
    static void* create() { return new turbo<real,dbl>; };
+   // @}
 private:
    libbase::vector<interleaver *> inter;     //!< Set of interleavers, one per parity sequence
    fsm      *encoder;      //!< Encoder object (same for all parity sequences)
@@ -278,8 +280,9 @@ private:
    libbase::matrix<dbl> rai, rii;
    // Holders for start- and end-state probabilities (used with circular trellises)
    libbase::vector< libbase::vector<dbl> > ss, se;
-   // memory allocator (for internal use only)
    bool initialised;       //!< Initially false, becomes true when memory is initialised
+   /*! \name Internal functions */
+   //! Memory allocator (for internal use only)
    void allocate();
    // wrapping functions
    void work_extrinsic(const libbase::matrix<dbl>& ra, const libbase::matrix<dbl>& ri, const libbase::matrix<dbl>& r, libbase::matrix<dbl>& re);
@@ -287,32 +290,43 @@ private:
    void hard_decision(const libbase::matrix<dbl>& ri, libbase::vector<int>& decoded);
    void decode_serial(libbase::matrix<dbl>& ri);
    void decode_parallel(libbase::matrix<dbl>& ri);
+   // @}
 protected:
+   /*! \name Internal functions */
    double aposteriori(const int t, const int i) const { return ri(t,i); };
    void init();
    void free();
    void reset();
+   // @}
+   /*! \name Constructors / Destructors */
+   //! Default constructor
    turbo();
+   // @}
 public:
+   /*! \name Constructors / Destructors */
    turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver *>& inter, \
       const int iter, const bool endatzero, const bool parallel=false, const bool circular=false);
    ~turbo() { free(); };
+   // @}
 
-   turbo *clone() const { return new turbo(*this); };           // cloning operation
+   // Serialization Support
+   turbo *clone() const { return new turbo(*this); };
    const char* name() const { return shelper.name(); };
 
+   // Codec operations
    void seed(const int s);
-
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
 
+   // Codec information functions - fundamental
    int block_size() const { return tau; };
    int num_inputs() const { return K; };
    int num_outputs() const { return int(K*pow(double(P),sets)); };
    int tail_length() const { return m; };
    int num_iter() const { return iter; };
 
+   // Description & Serialization
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
