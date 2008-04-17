@@ -449,9 +449,10 @@ template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::o
 
 template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    {
-   int version, temp;
+   assertalways(sin.good());
    free();
    // get format version
+   int version;
    sin >> version;
    // handle old-format files
    if(sin.fail())
@@ -474,14 +475,12 @@ template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::i
       for(int i=0; i<inter.size(); i++)
          sin >> inter(i);
       }
-   sin >> temp;
-   endatzero = temp != 0;
-   sin >> temp;
-   circular = temp != 0;
-   sin >> temp;
-   parallel = temp != 0;
+   sin >> endatzero;
+   sin >> circular;
+   sin >> parallel;
    sin >> iter;
    init();
+   assertalways(sin.good());
    return sin;
    }
 

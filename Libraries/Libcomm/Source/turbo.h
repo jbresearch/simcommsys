@@ -243,6 +243,7 @@ namespace libcomm {
    
    \version 2.71 (17 Apr 2008)
    - Removed 'rate', as this was never used
+   - Replaced stream-input of bools with direct form
 
    \todo
    - Replace 'sets' with interleaver.size()
@@ -250,7 +251,6 @@ namespace libcomm {
    - Remove pre-interleaved r() set, performing extrinsic computation after
      de-interleaving
    - Replace loop data-setting and computation with vector/matrix form where possible
-   - Replace stream-input of bools with direct form
    - Fix terminated sequence encoding (implicitly assume a flat first interleaver)
 */
 
