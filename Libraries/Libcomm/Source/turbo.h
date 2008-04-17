@@ -245,10 +245,15 @@ namespace libcomm {
    - Removed 'rate', as this was never used
    - Replaced stream-input of bools with direct form
    - Replaced 'm' with tail_length() and moved computation there
+   - Replaced 'M' with enc_states() and moved computation there
+   - Replaced 'K' with num_inputs() and moved computation there
+   - Replaced 'N' with enc_outputs() and moved computation there
+   - Replaced 'P' with enc_parity() and moved computation there
+   - Replaced 'sets' with num_sets() and moved computation there
 
    \todo
-   - Replace 'sets' with interleaver.size()
    - Remove tau from user parameters, as this can be derived from interleavers
+     (requires a change to interleaver interface)
    - Remove pre-interleaved r() set, performing extrinsic computation after
      de-interleaving
    - Replace loop data-setting and computation with vector/matrix form where possible
@@ -269,13 +274,6 @@ private:
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
    bool     parallel;      //!< Flag to enable parallel decoding algorithm (rather than serial)
    bool     circular;      //!< Flag to indicate trellis tailbiting
-   // @}
-   /*! \name Computed parameters */
-   int      sets;          //!< Number of parity sequences
-   int      M;             //!< Number of states
-   int      K;             //!< Number of inputs
-   int      N;             //!< Number of outputs
-   int      P;             //!< Number of parity symbols
    // @}
    /*! \name Internal object representation */
    bool initialised;       //!< Initially false, becomes true when memory is initialised
@@ -331,10 +329,17 @@ public:
 
    // Codec information functions - fundamental
    int block_size() const { return tau; };
-   int num_inputs() const { return K; };
-   int num_outputs() const { return int(K*pow(double(P),sets)); };
+   int num_inputs() const { return encoder->num_inputs(); };
+   int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
    int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
+
+   /*! \name Codec information functions - internal */
+   int num_sets() const { return inter.size(); };
+   int enc_states() const { return encoder->num_states(); };
+   int enc_outputs() const { return encoder->num_outputs(); };
+   int enc_parity() const { return enc_outputs()/num_inputs(); };
+   // @}
 
    // Description & Serialization
    std::string description() const;

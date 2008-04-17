@@ -25,13 +25,9 @@ template <class real, class dbl> void turbo<real,dbl>::init()
    {
    bcjr<real,dbl>::init(*encoder, tau);
 
-   M = encoder->num_states();
-   K = encoder->num_inputs();
-   N = encoder->num_outputs();
-   P = N/K;
-   assertalways(N%K == 0);
+   assertalways(enc_parity()*num_inputs() == enc_outputs());
+   assertalways(num_sets() > 0);
    assertalways(tau > 0);
-   assertalways(sets > 0);
    // TODO: check interleavers
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
@@ -53,10 +49,10 @@ template <class real, class dbl> void turbo<real,dbl>::reset()
    if(circular)
       {
       assert(initialised);
-      for(int set=0; set<sets; set++)
+      for(int set=0; set<num_sets(); set++)
          {
-         ss(set) = dbl(1.0/double(M));
-         se(set) = dbl(1.0/double(M));
+         ss(set) = dbl(1.0/double(enc_states()));
+         se(set) = dbl(1.0/double(enc_states()));
          }
       }
    else if(endatzero)
@@ -85,7 +81,6 @@ template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, cons
    {
    turbo::encoder = encoder.clone();
    turbo::tau = tau;
-   turbo::sets = inter.size();
    turbo::inter = inter;
    turbo::endatzero = endatzero;
    turbo::parallel = parallel;
@@ -98,39 +93,39 @@ template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, cons
 
 template <class real, class dbl> void turbo<real,dbl>::allocate()
    {
-   r.init(sets);
-   R.init(sets);
-   for(int i=0; i<sets; i++)
+   r.init(num_sets());
+   R.init(num_sets());
+   for(int i=0; i<num_sets(); i++)
       {
-      r(i).init(tau, K);
-      R(i).init(tau, N);
+      r(i).init(tau, num_inputs());
+      R(i).init(tau, enc_outputs());
       }
 
-   rp.init(tau, K);
-   ri.init(tau, K);
-   rai.init(tau, K);
-   rii.init(tau, K);
+   rp.init(tau, num_inputs());
+   ri.init(tau, num_inputs());
+   rai.init(tau, num_inputs());
+   rii.init(tau, num_inputs());
 
    if(parallel)
       {
-      ra.init(sets);
-      for(int i=0; i<sets; i++)
-         ra(i).init(tau, K);
+      ra.init(num_sets());
+      for(int i=0; i<num_sets(); i++)
+         ra(i).init(tau, num_inputs());
       }
    else
       {
       ra.init(1);
-      ra(0).init(tau, K);
+      ra(0).init(tau, num_inputs());
       }
 
    if(circular)
       {
-      ss.init(sets);
-      se.init(sets);
-      for(int i=0; i<sets; i++)
+      ss.init(num_sets());
+      se.init(num_sets());
+      for(int i=0; i<num_sets(); i++)
          {
-         ss(i).init(M);
-         se(i).init(M);
+         ss(i).init(enc_states());
+         se(i).init(enc_states());
          }
       }
 
@@ -143,7 +138,7 @@ template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matr
    {
    // calculate extrinsic information
    for(int t=0; t<tau; t++)
-      for(int x=0; x<K; x++)
+      for(int x=0; x<num_inputs(); x++)
          if(ri(t, x) > dbl(0))
             re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
          else
@@ -192,7 +187,7 @@ template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matri
    for(int t=0; t<tau; t++)
       {
       decoded(t) = 0;
-      for(int i=1; i<K; i++)
+      for(int i=1; i<num_inputs(); i++)
          if(ri(t, i) > ri(t, decoded(t)))
             decoded(t) = i;
       }
@@ -216,7 +211,7 @@ template <class real, class dbl> void turbo<real,dbl>::decode_serial(matrix<dbl>
    {
    // after working all sets, ri is the intrinsic+extrinsic information
    // from the last stage decoder.
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       {
       bcjr_wrap(set, ra(0), ri, ra(0));
       bcjr<real,dbl>::normalize(ra(0));
@@ -228,25 +223,25 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
    {
    // here ri is only a temporary space
    // and ra(set) is updated with the extrinsic information for that set
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       bcjr_wrap(set, ra(set), ri, ra(set));
    // repeat, at each frame element, for each possible symbol
    for(int t=0; t<tau; t++)
-      for(int x=0; x<K; x++)
+      for(int x=0; x<num_inputs(); x++)
          {
          // work in ri the sum of all extrinsic information
          ri(t, x) = 1;
-         for(int set=0; set<sets; set++)
+         for(int set=0; set<num_sets(); set++)
             ri(t, x) *= ra(set)(t, x);
          // compute the next-stage a priori information by subtracting the extrinsic
          // information of the current stage from the sum of all extrinsic information.
-         for(int set=0; set<sets; set++)
+         for(int set=0; set<num_sets(); set++)
             ra(set)(t, x) = ri(t, x) / ra(set)(t, x);
          // add the channel information to the sum of extrinsic information
          ri(t, x) *= rp(t, x);
          }
    // normalize results
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       bcjr<real,dbl>::normalize(ra(set));
    bcjr<real,dbl>::normalize(ri);
    }
@@ -255,7 +250,7 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
 
 template <class real, class dbl> void turbo<real,dbl>::seed(const int s)
    {
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       inter(set)->seed(s+set);
    }
 
@@ -265,12 +260,12 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
    encoded.init(tau);
 
    // Allocate space for the encoder outputs
-   matrix<int> x(sets, tau);
+   matrix<int> x(num_sets(), tau);
    // Allocate space for the interleaved sources
    vector<int> source2(tau);
 
    // Consider sets in order
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       {
       // Advance interleaver to the next block
       inter(set)->advance();
@@ -293,7 +288,7 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
 
       // Encode source (non-interleaved must be done first to determine tail bit values)
       for(int t=0; t<tau; t++)
-         x(set, t) = encoder->step(source2(t)) / K;
+         x(set, t) = encoder->step(source2(t)) / num_inputs();
 
       // If this was the first (non-interleaved) set, copy back the source
       // to fix the tail bit values, if any
@@ -313,7 +308,7 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
       // data bits
       encoded(t) = source(t);
       // parity bits
-      for(int set=0, mul=K; set<sets; set++, mul*=P)
+      for(int set=0, mul=num_inputs(); set<num_sets(); set++, mul*=enc_parity())
          encoded(t) += x(set, t)*mul;
       }
    }
@@ -322,12 +317,12 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
    {
    // Compute factors / sizes & check validity
    const int S = ptable.ysize();
-   const int sp = int(round(log(double(P))/log(double(S))));
-   const int sk = int(round(log(double(K))/log(double(S))));
-   const int s = sk + sets*sp;
-   if(P != pow(double(S), sp) || K != pow(double(S), sk))
+   const int sp = int(round(log(double(enc_parity()))/log(double(S))));
+   const int sk = int(round(log(double(num_inputs()))/log(double(S))));
+   const int s = sk + num_sets()*sp;
+   if(enc_parity() != pow(double(S), sp) || num_inputs() != pow(double(S), sk))
       {
-      cerr << "FATAL ERROR (turbo): each encoder parity (" << P << ") and input (" << K << ")";
+      cerr << "FATAL ERROR (turbo): each encoder parity (" << enc_parity() << ") and input (" << num_inputs() << ")";
       cerr << " must be represented by an integral number of modulation symbols (" << S << ").";
       cerr << " Suggested number of mod. symbols/encoder input and parity were (" << sp << "," << sk << ").\n";
       exit(1);
@@ -344,21 +339,21 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
       allocate();
 
    // Allocate space for temporary matrices
-   matrix3<dbl> p(sets, tau, P);
+   matrix3<dbl> p(num_sets(), tau, enc_parity());
 
    // Get the necessary data from the channel
    for(int t=0; t<tau; t++)
       {
       // Input (data) bits [set 0 only]
-      for(int x=0; x<K; x++)
+      for(int x=0; x<num_inputs(); x++)
          {
          rp(t, x) = 1;
          for(int i=0, thisx = x; i<sk; i++, thisx /= S)
             rp(t, x) *= ptable(t*s+i, thisx % S);
          }
       // Parity bits [all sets]
-      for(int x=0; x<P; x++)
-         for(int set=0, offset=sk; set<sets; set++)
+      for(int x=0; x<enc_parity(); x++)
+         for(int set=0, offset=sk; set<num_sets(); set++)
             {
             p(set, t, x) = 1;
             for(int i=0, thisx = x; i<sp; i++, thisx /= S)
@@ -368,22 +363,22 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
       }
 
    // Initialise a priori probabilities (extrinsic)
-   for(int set=0; set<(parallel ? sets : 1); set++)
+   for(int set=0; set<(parallel ? num_sets() : 1); set++)
       for(int t=0; t<tau; t++)
-         for(int x=0; x<K; x++)
+         for(int x=0; x<num_inputs(); x++)
             ra(set)(t, x) = 1.0;
 
    // Normalize and compute a priori probabilities (intrinsic - source)
    bcjr<real,dbl>::normalize(rp);
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       inter(set)->transform(rp, r(set));
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
-   for(int set=0; set<sets; set++)
+   for(int set=0; set<num_sets(); set++)
       {
       for(int t=0; t<tau; t++)
-         for(int x=0; x<N; x++)
-            R(set)(t, x) = r(set)(t, x%K) * p(set, t, x/K);
+         for(int x=0; x<enc_outputs(); x++)
+            R(set)(t, x) = r(set)(t, x%num_inputs()) * p(set, t, x/num_inputs());
       bcjr<real,dbl>::normalize(R(set));
       }
 
@@ -434,7 +429,7 @@ template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::o
    sout << 1 << '\n';
    sout << encoder;
    sout << tau << '\n';
-   sout << sets << '\n';
+   sout << num_sets() << '\n';
    for(int i=0; i<inter.size(); i++)
       sout << inter(i);
    sout << int(endatzero) << '\n';
@@ -461,6 +456,7 @@ template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::i
       }
    sin >> encoder;
    sin >> tau;
+   int sets;
    sin >> sets;
    inter.init(sets);
    if(version == 0)
