@@ -71,6 +71,9 @@
 
    \version 2.02 (21 Feb 2008)
    - Modified to print results only if at least one sample was computed.
+
+   \version 2.03 (15 Apr 2008)
+   - Added printing of version control information with results.
 */
 
 using std::cout;

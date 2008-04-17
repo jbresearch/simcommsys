@@ -89,9 +89,11 @@
 
    \version 2.64 (25 Jan 2008)
    - changed createsystem to create a commsys<sigspace>
-*/
 
-const char *VERSION = "2.63";
+   \version 2.65 (17 Apr 2008)
+   - Removed old "VERSION" macro
+   - Added printing of version control information with results.
+*/
 
 using std::cout;
 using std::setprecision;
@@ -206,7 +208,8 @@ int main(int argc, char *argv[])
    const int frames = estimator.get_samplecount();
    if(!quiet)
       {
-      cout << "SPECturbo Version " << VERSION << "\n";
+      cout << "URL: " << __WCURL__ << "\n";
+      cout << "Version: " << __WCVER__ << "\n";
       cout << "Statistics: " << frames << " frames in " << estimator.get_timer() << ".\n";
       }
    cout << "SPECturbo: " << setprecision(4) << frames/estimator.get_timer().elapsed() << " frames/sec\n";
