@@ -25,7 +25,6 @@ template <class real, class dbl> void turbo<real,dbl>::init()
    {
    bcjr<real,dbl>::init(*encoder, tau);
 
-   m = endatzero ? encoder->mem_order() : 0;
    M = encoder->num_states();
    K = encoder->num_inputs();
    N = encoder->num_outputs();

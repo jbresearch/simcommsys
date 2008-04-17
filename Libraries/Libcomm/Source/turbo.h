@@ -244,6 +244,7 @@ namespace libcomm {
    \version 2.71 (17 Apr 2008)
    - Removed 'rate', as this was never used
    - Replaced stream-input of bools with direct form
+   - Replaced 'm' with tail_length() and moved computation there
 
    \todo
    - Replace 'sets' with interleaver.size()
@@ -275,7 +276,6 @@ private:
    int      K;             //!< Number of inputs
    int      N;             //!< Number of outputs
    int      P;             //!< Number of parity symbols
-   int      m;             //!< Memory order of encoder
    // @}
    /*! \name Internal object representation */
    bool initialised;       //!< Initially false, becomes true when memory is initialised
@@ -333,7 +333,7 @@ public:
    int block_size() const { return tau; };
    int num_inputs() const { return K; };
    int num_outputs() const { return int(K*pow(double(P),sets)); };
-   int tail_length() const { return m; };
+   int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
 
    // Description & Serialization
