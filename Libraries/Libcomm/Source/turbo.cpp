@@ -364,9 +364,7 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
 
    // Initialise a priori probabilities (extrinsic)
    for(int set=0; set<(parallel ? num_sets() : 1); set++)
-      for(int t=0; t<tau; t++)
-         for(int x=0; x<num_inputs(); x++)
-            ra(set)(t, x) = 1.0;
+      ra(set) = 1.0;
 
    // Normalize and compute a priori probabilities (intrinsic - source)
    bcjr<real,dbl>::normalize(rp);
