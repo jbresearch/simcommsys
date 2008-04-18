@@ -136,8 +136,7 @@ namespace libbase {
    - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 
    \version 1.80 (4-6 Jan 2008)
-   - hid matrix multiplication and division as private functions to make sure they
-     are not being used anywhere.
+   - hid matrix division as a private function to make sure it is not being used anywhere.
    - fixed matrix negation, which should not modify the object it's operating on
    - implemented proper matrix multiplication
    - implemented identity matrix
@@ -149,6 +148,12 @@ namespace libbase {
      parameter (i.e. x has a value, y takes its default)
    - updated allocator to detect invalid size values (either x or y being 0, but not both)
    - updated inverse() to perform row pivoting when necessary
+
+   \version 1.90 (18 Apr 2008)
+   - added array multiplication and division functions
+
+   \todo Implement matrix division using Gauss elimination (inversion),
+         and make publicly available again.
 
    \todo Change the convention for row/column in the class (note this will
          require changes wherever this class is used!)
@@ -236,6 +241,8 @@ public:
 private:
    matrix<T>& operator/=(const matrix<T>& x);
 public:
+   matrix<T>& multiplyby(const matrix<T>& x);
+   matrix<T>& divideby(const matrix<T>& x);
    matrix<T>& operator+=(const T x);
    matrix<T>& operator-=(const T x);
    matrix<T>& operator*=(const T x);
@@ -249,6 +256,8 @@ public:
 private:
    matrix<T> operator/(const matrix<T>& x) const;
 public:
+   matrix<T> times(const matrix<T>& x) const;
+   matrix<T> divide(const matrix<T>& x) const;
    matrix<T> operator+(const T x) const;
    matrix<T> operator-(const T x) const;
    matrix<T> operator*(const T x) const;
@@ -624,6 +633,40 @@ template <class T> inline matrix<T>& matrix<T>::operator/=(const matrix<T>& x)
    return *this;
    }
 
+/*!
+   \brief Array multiplication (element-by-element) of matrices
+   \param  x   Matrix to be multiplied to this one
+   \return The updated (multiplied-into) matrix
+*/
+template <class T> inline matrix<T>& matrix<T>::multiplyby(const matrix<T>& x)
+   {
+   // for A.*B:
+   // The size of A must be the same as the size of B.
+   assert(x.m_xsize == m_xsize);
+   assert(x.m_ysize == m_ysize);
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         m_data[i][j] *= x.m_data[i][j];
+   return *this;
+   }
+
+/*!
+   \brief Array division (element-by-element) of matrices
+   \param  x   Matrix to divide this one by
+   \return The updated (divided-into) matrix
+*/
+template <class T> inline matrix<T>& matrix<T>::divideby(const matrix<T>& x)
+   {
+   // for A./B:
+   // The size of A must be the same as the size of B.
+   assert(x.m_xsize == m_xsize);
+   assert(x.m_ysize == m_ysize);
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         m_data[i][j] /= x.m_data[i][j];
+   return *this;
+   }
+
 template <class T> inline matrix<T>& matrix<T>::operator+=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
@@ -725,6 +768,44 @@ template <class T> inline matrix<T> matrix<T>::operator/(const matrix<T>& x) con
    {
    matrix<T> r = *this;
    r /= x;
+   return r;
+   }
+
+/*!
+   \brief Array multiplication (element-by-element) of matrices
+   \param  x   Matrix to be multiplied to this one
+   \return The result of 'this' multiplied by 'x'
+*/
+template <class T> inline matrix<T> matrix<T>::times(const matrix<T>& x) const
+   {
+   // for A.*B:
+   // The size of A must be the same as the size of B.
+   assert(x.m_xsize == m_xsize);
+   assert(x.m_ysize == m_ysize);
+   // Result is same size
+   matrix<T> r(m_xsize,m_ysize);
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         r = m_data[i][j] * x.m_data[i][j];
+   return r;
+   }
+
+/*!
+   \brief Array division (element-by-element) of matrices
+   \param  x   Matrix to divide this one by
+   \return The result of 'this' divided by 'x'
+*/
+template <class T> inline matrix<T> matrix<T>::divide(const matrix<T>& x) const
+   {
+   // for A./B:
+   // The size of A must be the same as the size of B.
+   assert(x.m_xsize == m_xsize);
+   assert(x.m_ysize == m_ysize);
+   // Result is same size
+   matrix<T> r(m_xsize,m_ysize);
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         r = m_data[i][j] / x.m_data[i][j];
    return r;
    }
 
