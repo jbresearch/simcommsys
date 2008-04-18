@@ -10,7 +10,6 @@
 #include "turbo.h"
 #include "flat.h"
 #include <sstream>
-#include <limits>
 
 namespace libcomm {
 
@@ -346,19 +345,12 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
    const int sp = int(round(log(double(enc_parity()))/log(double(S))));
    const int sk = int(round(log(double(num_inputs()))/log(double(S))));
    const int s = sk + num_sets()*sp;
-   if(enc_parity() != pow(double(S), sp) || num_inputs() != pow(double(S), sk))
-      {
-      cerr << "FATAL ERROR (turbo): each encoder parity (" << enc_parity() << ") and input (" << num_inputs() << ")";
-      cerr << " must be represented by an integral number of modulation symbols (" << S << ").";
-      cerr << " Suggested number of mod. symbols/encoder input and parity were (" << sp << "," << sk << ").\n";
-      exit(1);
-      }
-   if(ptable.xsize() != tau*s)
-      {
-      cerr << "FATAL ERROR (turbo): demodulation table should have " << tau*s;
-      cerr << " symbols, not " << ptable.xsize() << ".\n";
-      exit(1);
-      }
+   // Confirm that encoder's parity and input symbols can be represented by
+   // an integral number of modulation symbols
+   assertalways(enc_parity() == pow(double(S), sp));
+   assertalways(num_inputs() == pow(double(S), sk));
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.xsize() == tau*s);
 
    // initialise memory if necessary
    if(!initialised)

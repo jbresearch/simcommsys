@@ -257,6 +257,8 @@ namespace libcomm {
    - Hid the few trace printouts so they only get compiled-in on debug runs
      (avoids evaluating what would have been printed, in some cases this would
      have involved various array/matrix computations)
+   - Removed unnecessary conditional in work_extrinsic
+   - Replaced error reporting in translate() with assertions
 
    \todo
    - Remove tau from user parameters, as this can be derived from interleavers
@@ -266,7 +268,6 @@ namespace libcomm {
    - Fix terminated sequence encoding (implicitly assume a flat first interleaver)
    - Move temporary matrix in translate() to a class member (consider if this
      will actually constitute a speedup)
-   - Replace error reporting in translate() with assertions
    - Standardize encoding/decoding of multiple symbols within a larger symbol
      space; this parallels what was done in ccfsm.
 */
