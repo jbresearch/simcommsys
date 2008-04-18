@@ -250,14 +250,25 @@ namespace libcomm {
    - Replaced 'N' with enc_outputs() and moved computation there
    - Replaced 'P' with enc_parity() and moved computation there
    - Replaced 'sets' with num_sets() and moved computation there
+   
+   \version 2.72 (18 Apr 2008)
+   - Replaced loop data-setting and computation with vector/matrix form where
+     possible (mostly decode_parallel).
+   - Hid the few trace printouts so they only get compiled-in on debug runs
+     (avoids evaluating what would have been printed, in some cases this would
+     have involved various array/matrix computations)
 
    \todo
    - Remove tau from user parameters, as this can be derived from interleavers
      (requires a change to interleaver interface)
    - Remove pre-interleaved r() set, performing extrinsic computation after
      de-interleaving
-   - Replace loop data-setting and computation with vector/matrix form where possible
    - Fix terminated sequence encoding (implicitly assume a flat first interleaver)
+   - Move temporary matrix in translate() to a class member (consider if this
+     will actually constitute a speedup)
+   - Replace error reporting in translate() with assertions
+   - Standardize encoding/decoding of multiple symbols within a larger symbol
+     space; this parallels what was done in ccfsm.
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
@@ -280,7 +291,7 @@ private:
    libbase::matrix<dbl> rp;   //!< A priori intrinsic source statistics (natural)
    libbase::matrix<dbl> ri;   //!< A posteriori source statistics (natural)
    libbase::vector< libbase::matrix<dbl> > r;   //!< A priori intrinsic source statistics (interleaved)
-   libbase::vector< libbase::matrix<dbl> > R;   //!< A priori intrinsic encoded statistics (interleaved)
+   libbase::vector< libbase::matrix<dbl> > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
    libbase::vector< libbase::matrix<dbl> > ra;  //!< A priori extrinsic source statistics
    libbase::vector< libbase::vector<dbl> > ss;  //!< Holder for start-state probabilities (used with circular trellises)
    libbase::vector< libbase::vector<dbl> > se;  //!< Holder for end-state probabilities (used with circular trellises)

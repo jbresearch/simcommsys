@@ -134,8 +134,28 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
 
 // wrapping functions
 
+/*!
+   \brief Computes extrinsic probabilities
+   \param[in]  set Parity sequence being decoded
+   \param[in]  ra  A-priori (extrinsic) probabilities of input values
+   \param[in]  ri  A-posteriori probabilities of input values
+   \param[in]  r   A-priori intrinsic probabilities of input values
+   \param[out] re  Extrinsic probabilities of input values
+
+   \note Before vectorizing this, the division was only computed at matrix
+         elements where the corresponding 'ri' was greater than zero.
+         We have no idea why this was done - will need to check old
+         documentation.
+   \warning See note above - this may affect results/speed.
+*/
 template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& ri, const matrix<dbl>& r, matrix<dbl>& re)
    {
+   // the following are repeated at each frame element, for each possible symbol
+   //matrix<bool> mask = (ri > 0);
+   //re = ri;
+   //re.mask(mask).divideby(ra);
+   //re.mask(mask).divideby(r);
+   //re.mask(!mask) = 0;
    // calculate extrinsic information
    for(int t=0; t<tau; t++)
       for(int x=0; x<num_inputs(); x++)
@@ -145,18 +165,23 @@ template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matr
             re(t, x) = 0;
    }
 
-// Static:
-// R(set) = table of probabilities of each possible encoder output at each timestep
-// Inputs:
-// ra = table of a-priori probabilities of input values at each timestep
-// Outputs:
-// ri = table of a-posteriori probabilities of input values at each timestep
-// re = table of extrinsic probabilities of input values at each timestep
-//      (these will be later used as the new 'a-priori' probabilities)
+/*!
+   \brief Complete BCJR decoding cycle
+   \param[in]  set Parity sequence being decoded
+   \param[in]  ra  A-priori (extrinsic) probabilities of input values
+   \param[out] ri  A-posteriori probabilities of input values
+   \param[out] re  Extrinsic probabilities of input values (will be used later
+                   as the new 'a-priori' probabilities)
+
+   This method performs a complete decoding cycle, including start/end state
+   probability settings for circular decoding, and any interleaving/de-interleaving.
+*/
 template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl>& ri, matrix<dbl>& re)
    {
+#ifndef NDEBUG
    trace << "DEBUG (turbo): bcjr_wrap - set=" << set << ", ra=" << &ra << ", ri=" << &ri << ", re=" << &re;
    trace << ", ra(mean) = " << ra.mean();
+#endif
    // when using a circular trellis, re-initialize the start- and end-state
    // probabilities with the stored values from the previous turn
    if(circular)
@@ -171,7 +196,9 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
    work_extrinsic(rai, rii, r(set), rai);
    inter(set)->inverse(rii, ri);
    inter(set)->inverse(rai, re);
+#ifndef NDEBUG
    trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
+#endif
    // when using a circular trellis, store the start- and end-state
    // probabilities for the previous turn
    if(circular)
@@ -225,21 +252,17 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
    // and ra(set) is updated with the extrinsic information for that set
    for(int set=0; set<num_sets(); set++)
       bcjr_wrap(set, ra(set), ri, ra(set));
-   // repeat, at each frame element, for each possible symbol
-   for(int t=0; t<tau; t++)
-      for(int x=0; x<num_inputs(); x++)
-         {
-         // work in ri the sum of all extrinsic information
-         ri(t, x) = 1;
-         for(int set=0; set<num_sets(); set++)
-            ri(t, x) *= ra(set)(t, x);
-         // compute the next-stage a priori information by subtracting the extrinsic
-         // information of the current stage from the sum of all extrinsic information.
-         for(int set=0; set<num_sets(); set++)
-            ra(set)(t, x) = ri(t, x) / ra(set)(t, x);
-         // add the channel information to the sum of extrinsic information
-         ri(t, x) *= rp(t, x);
-         }
+   // the following are repeated at each frame element, for each possible symbol
+   // work in ri the sum of all extrinsic information
+   ri = ra(0);
+   for(int set=1; set<num_sets(); set++)
+      ri.multiplyby(ra(set));
+   // compute the next-stage a priori information by subtracting the extrinsic
+   // information of the current stage from the sum of all extrinsic information.
+   for(int set=0; set<num_sets(); set++)
+      ra(set) = ri.divide(ra(set));
+   // add the channel information to the sum of extrinsic information
+   ri.multiplyby(rp);
    // normalize results
    for(int set=0; set<num_sets(); set++)
       bcjr<real,dbl>::normalize(ra(set));
