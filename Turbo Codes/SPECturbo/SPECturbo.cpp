@@ -83,8 +83,6 @@
 
    \version 2.70 (18 Apr 2008)
    - Replaced manual system object creation with serialization.
-   - <b>Simulation results changed with this version</b>, although created
-     object is identical to the one used before.
 */
 
 using std::cout;
@@ -123,7 +121,11 @@ libcomm::experiment *createsystem()
       "1\n"
       "0\n"
       "0\n"
-      "10\n";
+      "10\n"
+      "1\n"
+      "stipple\n"
+      "158\n"
+      "3\n";
 
    libcomm::experiment *system;
    std::istringstream is(systemstring);

@@ -476,22 +476,28 @@ template <class R> std::string commsys<sigspace,R>::description() const
 
 template <class R> std::ostream& commsys<sigspace,R>::serialize(std::ostream& sout) const
    {
-   //const bool ispunctured = (punc != NULL);
-   //sout << int(ispunctured) << "\n";
-   //if(ispunctured)
-   //   sout << punc;
    basic_commsys<sigspace,R>::serialize(sout);
+   const bool ispunctured = (punc != NULL);
+   sout << ispunctured << "\n";
+   if(ispunctured)
+      sout << punc;
    return sout;
    }
 
 template <class R> std::istream& commsys<sigspace,R>::serialize(std::istream& sin)
    {
    free();
-   //int ispunctured;
-   //sin >> ispunctured;
-   //if(ispunctured != 0)
-   //   sin >> punc;
    basic_commsys<sigspace,R>::serialize(sin);
+   bool ispunctured;
+   sin >> ispunctured;
+   // handle old-format files
+   if(sin.fail())
+      {
+      ispunctured = false;
+      sin.clear();
+      }
+   if(ispunctured)
+      sin >> punc;
    init();
    return sin;
    }

@@ -316,6 +316,13 @@ public:
 
    \version 1.01 (28 Jan 2008)
    - Changed reference from modulator to modulator<sigspace>
+
+   \version 1.10 (18 Apr 2008)
+   - Implemented serialization of puncturing system; the canonical form
+     requires the addition of a 'false' flag at the end of the stream to signal
+     that there is no puncturing. In order not to break current input files, the
+     flag is assumed to be false (with no error) if we have reached the end of the
+     stream.
 */
 template <class R> class commsys<sigspace,R> : public basic_commsys<sigspace,R> {
    /*! \name Serialization */
