@@ -73,6 +73,9 @@ namespace libbase {
 
    \version 1.22 (22 Jan 2008)
    - Changed debug output to go to trace instead of clog.
+
+   \todo Create macros to standardize functions declarations in serializable classes;
+         this mirrors what Microsoft do in MFC.
 */
 
 class serializer {

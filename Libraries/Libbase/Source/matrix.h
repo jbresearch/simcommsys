@@ -136,7 +136,8 @@ namespace libbase {
    - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
 
    \version 1.80 (4-6 Jan 2008)
-   - hid matrix division as a private function to make sure it is not being used anywhere.
+   - hid division as a private function to make sure it is not being used anywhere.
+   - hid multiplication and division as private functions in masked_matrix.
    - fixed matrix negation, which should not modify the object it's operating on
    - implemented proper matrix multiplication
    - implemented identity matrix
@@ -150,7 +151,8 @@ namespace libbase {
    - updated inverse() to perform row pivoting when necessary
 
    \version 1.90 (18 Apr 2008)
-   - added array multiplication and division functions
+   - added array multiplication and division functions to regular and masked
+     matrices.
 
    \todo Implement matrix division using Gauss elimination (inversion),
          and make publicly available again.
@@ -256,7 +258,7 @@ public:
 private:
    matrix<T> operator/(const matrix<T>& x) const;
 public:
-   matrix<T> times(const matrix<T>& x) const;
+   matrix<T> multiply(const matrix<T>& x) const;
    matrix<T> divide(const matrix<T>& x) const;
    matrix<T> operator+(const T x) const;
    matrix<T> operator-(const T x) const;
@@ -776,7 +778,7 @@ template <class T> inline matrix<T> matrix<T>::operator/(const matrix<T>& x) con
    \param  x   Matrix to be multiplied to this one
    \return The result of 'this' multiplied by 'x'
 */
-template <class T> inline matrix<T> matrix<T>::times(const matrix<T>& x) const
+template <class T> inline matrix<T> matrix<T>::multiply(const matrix<T>& x) const
    {
    // for A.*B:
    // The size of A must be the same as the size of B.
@@ -1092,6 +1094,8 @@ private:
    masked_matrix<T>& operator*=(const matrix<T>& x);
    masked_matrix<T>& operator/=(const matrix<T>& x);
 public:
+   masked_matrix<T>& multiplyby(const matrix<T>& x);
+   masked_matrix<T>& divideby(const matrix<T>& x);
    masked_matrix<T>& operator+=(const T x);
    masked_matrix<T>& operator-=(const T x);
    masked_matrix<T>& operator*=(const T x);
@@ -1184,6 +1188,50 @@ template <class T> inline masked_matrix<T>& masked_matrix<T>::operator*=(const m
 
 template <class T> inline masked_matrix<T>& masked_matrix<T>::operator/=(const matrix<T>& x)
    {
+   assert(x.m_xsize == m_data->m_xsize);
+   assert(x.m_ysize == m_data->m_ysize);
+   for(int i=0; i<m_data->m_xsize; i++)
+      for(int j=0; j<m_data->m_ysize; j++)
+         if(m_mask(i,j))
+            m_data->m_data[i][j] /= x.m_data[i][j];
+   return *this;
+   }
+
+/*!
+   \brief Array multiplication (element-by-element) of matrices
+   \param  x   Matrix to be multiplied to this one
+   \return The updated (multiplied-into) matrix
+
+   Masked elements (ie. where the mask is true) are multiplied by
+   the corresponding element in 'x'. Unmasked elements are left
+   untouched.
+*/
+template <class T> inline masked_matrix<T>& masked_matrix<T>::multiplyby(const matrix<T>& x)
+   {
+   // for A.*B:
+   // The size of A must be the same as the size of B.
+   assert(x.m_xsize == m_data->m_xsize);
+   assert(x.m_ysize == m_data->m_ysize);
+   for(int i=0; i<m_data->m_xsize; i++)
+      for(int j=0; j<m_data->m_ysize; j++)
+         if(m_mask(i,j))
+            m_data->m_data[i][j] *= x.m_data[i][j];
+   return *this;
+   }
+
+/*!
+   \brief Array division (element-by-element) of matrices
+   \param  x   Matrix to divide this one by
+   \return The updated (divided-into) matrix
+
+   Masked elements (ie. where the mask is true) are divided by
+   the corresponding element in 'x'. Unmasked elements are left
+   untouched.
+*/
+template <class T> inline masked_matrix<T>& masked_matrix<T>::divideby(const matrix<T>& x)
+   {
+   // for A./B:
+   // The size of A must be the same as the size of B.
    assert(x.m_xsize == m_data->m_xsize);
    assert(x.m_ysize == m_data->m_ysize);
    for(int i=0; i<m_data->m_xsize; i++)
