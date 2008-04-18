@@ -1,23 +1,10 @@
-#include "turbo.h"
-
-#include "logrealfast.h"
-#include "rscc.h"
-
-#include "flat.h"
-#include "helical.h"
-#include "vector.h"
-#include "puncture_stipple.h"
-#include "mpsk.h"
-#include "awgn.h"
-#include "randgen.h"
-#include "commsys.h"
+#include "serializer_libcomm.h"
 #include "montecarlo.h"
 #include "timer.h"
-#include "masterslave.h"
 
 #include <math.h>
 #include <string.h>
-#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 
@@ -93,6 +80,11 @@
    \version 2.65 (17 Apr 2008)
    - Removed old "VERSION" macro
    - Added printing of version control information with results.
+
+   \version 2.70 (18 Apr 2008)
+   - Replaced manual system object creation with serialization.
+   - <b>Simulation results changed with this version</b>, although created
+     object is identical to the one used before.
 */
 
 using std::cout;
@@ -107,32 +99,36 @@ public:
 
 libcomm::experiment *createsystem()
    {
-   // Encoder (from generator matrix)
-   const int k=1, n=2, m=2;
-   libbase::matrix<libbase::bitfield> gen(k, n);
-   gen(0, 0) = "111";
-   gen(0, 1) = "101";
-   libcomm::rscc encoder(gen);
-   // Block interleaver parameters
-   const int rows = 13, cols = 12;
-   const int tau = rows*cols + m;
-   // Flat and Helical interleavers (from matrix size, hence block size)
-   libbase::vector<libcomm::interleaver *> inter(2);
-   inter(0) = new libcomm::flat(tau);
-   inter(1) = new libcomm::helical(tau, rows, cols);
-   // Channel Codec (punctured, iterations, endatzero)
-   libcomm::turbo<double> *codec = new libcomm::turbo<double>(encoder, tau, inter, 10, true);
-   // Stipple puncturing
-   const int sets = inter.size();
-   libcomm::puncture_stipple *punc = new libcomm::puncture_stipple(tau, k+sets*(n-k));
-   // Modulation scheme
-   libcomm::mpsk *modem = new libcomm::mpsk(2);
-   // Channel Model
-   libcomm::awgn *chan = new libcomm::awgn;
-   // Source Generator
-   libbase::randgen *src = new libbase::randgen;
-   // The complete communication system
-   return new libcomm::commsys<libcomm::sigspace>(src, codec, modem, punc, chan);
+   const libcomm::serializer_libcomm my_serializer_libcomm;
+
+   const std::string systemstring = 
+      "commsys<sigspace>\n"
+      "awgn\n"
+      "mpsk\n"
+      "2\n"
+      "turbo<double>\n"
+      "1\n"
+      "rscc\n"
+      "1\t2\n"
+      "111\n"
+      "101\n"
+      "158\n"
+      "2\n"
+      "flat\n"
+      "158\n"
+      "helical\n"
+      "158\n"
+      "13\n"
+      "12\n"
+      "1\n"
+      "0\n"
+      "0\n"
+      "10\n";
+
+   libcomm::experiment *system;
+   std::istringstream is(systemstring);
+   is >> system;
+   return system;
    }
 
 int main(int argc, char *argv[])
