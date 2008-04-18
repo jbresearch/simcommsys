@@ -10,6 +10,7 @@
 #include "turbo.h"
 #include "flat.h"
 #include <sstream>
+#include <limits>
 
 namespace libcomm {
 
@@ -142,27 +143,29 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
    \param[in]  r   A-priori intrinsic probabilities of input values
    \param[out] re  Extrinsic probabilities of input values
 
-   \note Before vectorizing this, the division was only computed at matrix
-         elements where the corresponding 'ri' was greater than zero.
-         We have no idea why this was done - will need to check old
-         documentation.
-   \warning See note above - this may affect results/speed.
+   \note It is counter-productive to vectorize this, as it would require
+         many unnecessary temporary matrix creations.
+
+   \note Before the code review of v2.72, the division was only computed
+         at matrix elements where the corresponding 'ri' was greater than
+         zero. We have no idea why this was done - will need to check old
+         documentation. There seems to be marginal effect on results/speed,
+         so the natural (no-check) computation was restored. Old code has
+         been kept (commented-out) for any future review.
+
+   \warning The return matrix re may actually be one of the input matrices,
+            so one must be careful not to overwrite positions that still
+            need to be read.
 */
 template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& ri, const matrix<dbl>& r, matrix<dbl>& re)
    {
-   // the following are repeated at each frame element, for each possible symbol
-   //matrix<bool> mask = (ri > 0);
-   //re = ri;
-   //re.mask(mask).divideby(ra);
-   //re.mask(mask).divideby(r);
-   //re.mask(!mask) = 0;
-   // calculate extrinsic information
    for(int t=0; t<tau; t++)
       for(int x=0; x<num_inputs(); x++)
-         if(ri(t, x) > dbl(0))
-            re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
-         else
-            re(t, x) = 0;
+         re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
+   //      if(ri(t, x) > dbl(0))
+   //         re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
+   //      else
+   //         re(t, x) = 0;
    }
 
 /*!
