@@ -30,7 +30,9 @@ template <class G> void ShowHistogram(vector<G> &x)
    for(int i=0; i<N; i++)
       f(x(i))++;
    assertalways(f.sum() == N);
-   cout << f;
+   const double E = double(N)/double(q);
+   for(int i=0; i<q; i++)
+      cout << i << "\t" << f(i) << "\t[" << 100.0*(f(i)-E)/E << "%]\n";
    }
 
 template <class G> void TestChannel(channel<G> &chan, double p)
