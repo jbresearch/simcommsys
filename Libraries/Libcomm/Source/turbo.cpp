@@ -200,7 +200,7 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
    inter(set)->transform(ra, rai);
    bcjr<real,dbl>::fdecode(R(set), rai, rii);
    inter(set)->inverse(rii, ri);
-   work_extrinsic(ra, ri, r(0), re);
+   work_extrinsic(ra, ri, rp, re);
 #ifndef NDEBUG
    trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
 #endif
