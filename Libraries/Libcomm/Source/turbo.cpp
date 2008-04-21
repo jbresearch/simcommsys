@@ -93,13 +93,9 @@ template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, cons
 
 template <class real, class dbl> void turbo<real,dbl>::allocate()
    {
-   r.init(num_sets());
    R.init(num_sets());
    for(int i=0; i<num_sets(); i++)
-      {
-      r(i).init(tau, num_inputs());
       R(i).init(tau, enc_outputs());
-      }
 
    rp.init(tau, num_inputs());
    ri.init(tau, num_inputs());
@@ -387,17 +383,17 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
    for(int set=0; set<(parallel ? num_sets() : 1); set++)
       ra(set) = 1.0;
 
-   // Normalize and compute a priori probabilities (intrinsic - source)
+   // Normalize a priori probabilities (intrinsic - source)
    bcjr<real,dbl>::normalize(rp);
-   for(int set=0; set<num_sets(); set++)
-      inter(set)->transform(rp, r(set));
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
+   matrix<dbl> rpi(rp);
    for(int set=0; set<num_sets(); set++)
       {
+      inter(set)->transform(rp, rpi);
       for(int t=0; t<tau; t++)
          for(int x=0; x<enc_outputs(); x++)
-            R(set)(t, x) = r(set)(t, x%num_inputs()) * p(set, t, x/num_inputs());
+            R(set)(t, x) = rpi(t, x%num_inputs()) * p(set, t, x/num_inputs());
       bcjr<real,dbl>::normalize(R(set));
       }
 

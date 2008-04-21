@@ -261,12 +261,11 @@ namespace libcomm {
    - Replaced error reporting in translate() with assertions
    - Updated bcjr_wrap to perform extrinsic computation after de-interleaving;
      this removes the need for pre-interleaved r() sets in this function
+   - Removed pre-interleaved r() set
 
    \todo
    - Remove tau from user parameters, as this can be derived from interleavers
      (requires a change to interleaver interface)
-   - Remove pre-interleaved r() set, performing extrinsic computation after
-     de-interleaving
    - Fix terminated sequence encoding (implicitly assume a flat first interleaver)
    - Move temporary matrix in translate() to a class member (consider if this
      will actually constitute a speedup)
@@ -293,7 +292,6 @@ private:
    bool initialised;       //!< Initially false, becomes true when memory is initialised
    libbase::matrix<dbl> rp;   //!< A priori intrinsic source statistics (natural)
    libbase::matrix<dbl> ri;   //!< A posteriori source statistics (natural)
-   libbase::vector< libbase::matrix<dbl> > r;   //!< A priori intrinsic source statistics (interleaved)
    libbase::vector< libbase::matrix<dbl> > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
    libbase::vector< libbase::matrix<dbl> > ra;  //!< A priori extrinsic source statistics
    libbase::vector< libbase::vector<dbl> > ss;  //!< Holder for start-state probabilities (used with circular trellises)
