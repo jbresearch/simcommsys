@@ -259,6 +259,8 @@ namespace libcomm {
      have involved various array/matrix computations)
    - Removed unnecessary conditional in work_extrinsic
    - Replaced error reporting in translate() with assertions
+   - Updated bcjr_wrap to perform extrinsic computation after de-interleaving;
+     this removes the need for pre-interleaved r() sets in this function
 
    \todo
    - Remove tau from user parameters, as this can be derived from interleavers

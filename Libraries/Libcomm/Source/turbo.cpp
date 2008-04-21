@@ -177,6 +177,10 @@ template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matr
 
    This method performs a complete decoding cycle, including start/end state
    probability settings for circular decoding, and any interleaving/de-interleaving.
+
+   \warning The return matrix re may actually be the input matrix ra,
+            so one must be careful not to overwrite positions that still
+            need to be read.
 */
 template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl>& ri, matrix<dbl>& re)
    {
@@ -195,9 +199,8 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
    // perform interleaving and de-interleaving
    inter(set)->transform(ra, rai);
    bcjr<real,dbl>::fdecode(R(set), rai, rii);
-   work_extrinsic(rai, rii, r(set), rai);
    inter(set)->inverse(rii, ri);
-   inter(set)->inverse(rai, re);
+   work_extrinsic(ra, ri, r(0), re);
 #ifndef NDEBUG
    trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
 #endif
