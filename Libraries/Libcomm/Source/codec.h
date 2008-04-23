@@ -5,8 +5,6 @@
 #include "matrix.h"
 #include "vector.h"
 
-#include "sigspace.h"
-
 #include <iostream>
 #include <string>
 
@@ -82,6 +80,11 @@ namespace libcomm {
 
    \version 1.61 (17 Apr 2008)
    - removed friend status of stream output operators
+
+   \todo
+   Change class interface to better model the actual representation of input and
+   output sequences of the codec and to better separate this class from the
+   modulation class.
 */
 
 class codec {

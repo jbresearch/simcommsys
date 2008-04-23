@@ -691,6 +691,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\mapper.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\md5.cpp"
 				>
 				<FileConfiguration
@@ -1373,6 +1377,10 @@
 			</File>
 			<File
 				RelativePath="Source\mapcc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\mapper.h"
 				>
 			</File>
 			<File
