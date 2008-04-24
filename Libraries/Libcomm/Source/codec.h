@@ -4,8 +4,7 @@
 #include "config.h"
 #include "matrix.h"
 #include "vector.h"
-
-#include <iostream>
+#include "serializer.h"
 #include <string>
 
 namespace libcomm {
@@ -81,6 +80,9 @@ namespace libcomm {
    \version 1.61 (17 Apr 2008)
    - removed friend status of stream output operators
 
+   \version 1.62 (24 Apr 2008)
+   - replaced serialization support with macros
+
    \todo
    Change class interface to better model the actual representation of input and
    output sequences of the codec and to better separate this class from the
@@ -92,13 +94,6 @@ public:
    /*! \name Constructors / Destructors */
    //! Virtual destructor
    virtual ~codec() {};
-   // @}
-
-   /*! \name Serialization Support */
-   //! Cloning operation
-   virtual codec *clone() const = 0;
-   //! Derived object's name
-   virtual const char* name() const = 0;
    // @}
 
    /*! \name Codec operations */
@@ -159,20 +154,13 @@ public:
    double rate() const { return input_bits()/output_bits(); };
    // @}
 
-   /*! \name Description & Serialization */
+   /*! \name Description */
    //! Description output
    virtual std::string description() const = 0;
-   //! Serialization output
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   //! Serialization input
-   virtual std::istream& serialize(std::istream& sin) = 0;
    // @}
-};
 
-/*! \name Stream Output */
-std::ostream& operator<<(std::ostream& sout, const codec* x);
-std::istream& operator>>(std::istream& sin, codec*& x);
-// @}
+   DECLARE_BASE_SERIALIZER(codec)
+};
 
 }; // end namespace
 

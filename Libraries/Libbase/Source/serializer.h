@@ -2,9 +2,9 @@
 #define __serializer_h
 
 #include "config.h"
-
 #include <map>
 #include <string>
+#include <iostream>
 
 namespace libbase {
 
@@ -74,8 +74,11 @@ namespace libbase {
    \version 1.22 (22 Jan 2008)
    - Changed debug output to go to trace instead of clog.
 
-   \todo Create macros to standardize functions declarations in serializable classes;
-         this mirrors what Microsoft do in MFC.
+   \version 2.00 (24 Apr 2008)
+   - Created macros to standardize functions declarations in serializable classes;
+     this mirrors what Microsoft do in MFC.
+   - Added inclusion of <iostream> in this class, so derived classes shall
+     not need it
 */
 
 class serializer {
@@ -92,6 +95,46 @@ public:
    ~serializer();
    const char *name() const { return classname.c_str(); };
 };
+
+#define DECLARE_BASE_SERIALIZER( class_name ) \
+   public: \
+   virtual codec *clone() const = 0; \
+   virtual const char* name() const = 0; \
+   virtual std::ostream& serialize(std::ostream& sout) const = 0; \
+   virtual std::istream& serialize(std::istream& sin) = 0; \
+   friend std::ostream& operator<<(std::ostream& sout, const class_name* x); \
+   friend std::istream& operator>>(std::istream& sin, class_name*& x);
+
+#define IMPLEMENT_BASE_SERIALIZER( class_name ) \
+   std::ostream& operator<<(std::ostream& sout, const class_name* x) \
+      { \
+      sout << x->name() << "\n"; \
+      x->serialize(sout); \
+      return sout; \
+      } \
+   std::istream& operator>>(std::istream& sin, class_name*& x) \
+      { \
+      std::string name; \
+      sin >> name; \
+      x = (class_name*) libbase::serializer::call(#class_name, name); \
+      if(x == NULL) \
+         { \
+         std::cerr << "FATAL ERROR (" #class_name "): Type \"" << name << "\" unknown.\n"; \
+         exit(1); \
+         } \
+      x->serialize(sin); \
+      return sin; \
+      }
+
+#define DECLARE_SERIALIZER( class_name ) \
+   private: \
+   static const libbase::serializer shelper; \
+   static void* create() { return new class_name; }; \
+   public: \
+   class_name *clone() const { return new class_name(*this); }; \
+   const char* name() const { return shelper.name(); }; \
+   std::ostream& serialize(std::ostream& sout) const; \
+   std::istream& serialize(std::istream& sin);
 
 }; // end namespace
 

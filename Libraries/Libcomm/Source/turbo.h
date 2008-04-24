@@ -263,6 +263,9 @@ namespace libcomm {
      this removes the need for pre-interleaved r() sets in this function
    - Removed pre-interleaved r() set
 
+   \version 2.73 (24 Apr 2008)
+   - replaced serialization support with macros
+
    \todo
    - Remove tau from user parameters, as this can be derived from interleavers
      (requires a change to interleaver interface)
@@ -274,10 +277,6 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new turbo<real,dbl>; };
-   // @}
 private:
    /*! \name User-defined parameters */
    libbase::vector<interleaver *> inter;     //!< Set of interleavers, one per parity sequence
@@ -329,10 +328,6 @@ public:
    ~turbo() { free(); };
    // @}
 
-   // Serialization Support
-   turbo *clone() const { return new turbo(*this); };
-   const char* name() const { return shelper.name(); };
-
    // Codec operations
    void seed(const int s);
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
@@ -353,10 +348,10 @@ public:
    int enc_parity() const { return enc_outputs()/num_inputs(); };
    // @}
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   DECLARE_SERIALIZER(turbo)
 };
 
 }; // end namespace
