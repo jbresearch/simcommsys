@@ -4,7 +4,7 @@
 namespace libbase {
 
 /*!
-   \brief   Galois Field Element.
+   \brief   Function Pointer.
    \author  Johann Briffa
 
    \par Version Control:
