@@ -19,12 +19,13 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (21 Apr 2008)
+   \version 1.00 (21-24 Apr 2008)
    - Defines interface for mapper classes.
+   - Defined a straight symbol mapper with:
+      * forward transform from modulator
+      * inverse transform from the various codecs.
 
    \todo
-   - Define a straight symbol mapper, moving forward transform from modulator
-     and inverse transform from the various codecs.
    - Integrate within commsys as a layer between codec and modulator.
 */
 
@@ -55,11 +56,13 @@ public:
    /*!
       \brief Inverse-transform the received symbol probabilities to a decoder-comaptible set
       \param[in]  pin      Table of likelihoods of possible modulation symbols
+      \param[in]  N        The number of possible values of each encoder element
+                           (this is what the encoder would like)
       \param[out] pout     Table of likelihoods of possible encoder symbols
       
       \note \c pxxx(i,d) \c is the a posteriori probability of symbol 'd' at time 'i'
    */
-   virtual void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout);
+   virtual void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout);
    // @}
 
    /*! \name Setup functions */
