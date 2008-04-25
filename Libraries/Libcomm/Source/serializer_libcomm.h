@@ -61,6 +61,9 @@
 #include "turbo.h"
 #include "diffturbo.h"
 
+// Signal Mappers
+#include "mapper.h"
+
 // Puncture Patterns
 #include "puncture.h"
 #include "puncture_file.h"
@@ -130,8 +133,11 @@ namespace libcomm {
    - Added symbol-error histogram and position profiler for commsys<bool>
    - Added symbol-value profiler for commsys<bool>
 
-   \version 2.30 (15 Apr2008)
+   \version 2.30 (15 Apr 2008)
    - Added burst-error profiler for commsys<bool>
+
+   \version 2.31 (25 Apr 2008)
+   - Added signal mapper
 */
 
 // Serialization support
@@ -144,6 +150,7 @@ class serializer_libcomm : private
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
+   mapper,
    puncture_file, puncture_null, puncture_stipple,
    commsys< libbase::gf<1,0x3> >, commsys< libbase::gf<2,0x7> >, commsys< libbase::gf<3,0xB> >, commsys< libbase::gf<4,0x13> >,
    commsys<sigspace>, commsys<bool>,

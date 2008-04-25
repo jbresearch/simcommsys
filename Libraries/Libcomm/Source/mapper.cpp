@@ -17,7 +17,7 @@ namespace libcomm {
 
 // Serialization Support
 
-const libbase::serializer mapper::shelper("mapper", "straight", mapper::create);
+const libbase::serializer mapper::shelper("mapper", "mapper", mapper::create);
 
 // Vector mapper operations
 
@@ -59,7 +59,7 @@ void mapper::inverse(const libbase::matrix<double>& pin, const int N, libbase::m
          }
    }
 
-// Description & Serialization
+// Description
 
 std::string mapper::description() const
    {
@@ -68,5 +68,27 @@ std::string mapper::description() const
    return sout.str();
    }
 
+// Serialization
+
+std::ostream& operator<<(std::ostream& sout, const mapper* x)
+   {
+   sout << x->name() << "\n";
+   x->serialize(sout);
+   return sout;
+   }
+
+std::istream& operator>>(std::istream& sin, mapper*& x)
+   {
+   std::string name;
+   sin >> name;
+   x = (mapper *) libbase::serializer::call("mapper", name);
+   if(x == NULL)
+      {
+      std::cerr << "FATAL ERROR (mapper): Type \"" << name << "\" unknown.\n";
+      exit(1);
+      }
+   x->serialize(sin);
+   return sin;
+   }
 
 }; // end namespace

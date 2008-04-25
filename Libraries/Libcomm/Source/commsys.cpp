@@ -93,11 +93,8 @@ template <class S, class R> void basic_commsys<S,R>::init()
    N = cdc->num_outputs();
    K = cdc->num_inputs();
    k = int(round(log2(double(K))));
-   if(K != 1<<k)
-      {
-      std::cerr << "FATAL ERROR (commsys): can only estimate BER for a q-ary source (" << k << ", " << K << ").\n";
-      exit(1);
-      }
+   // confirm that source is representable in binary
+   assertalways(K == 1<<k);
    iter = cdc->num_iter();
    }
 
@@ -113,6 +110,7 @@ template <class S, class R> void basic_commsys<S,R>::clear()
    {
    src = NULL;
    cdc = NULL;
+   map = NULL;
    modem = NULL;
    chan = NULL;
    internallyallocated = true;
@@ -136,6 +134,7 @@ template <class S, class R> void basic_commsys<S,R>::free()
       {
       delete src;
       delete cdc;
+      delete map;
       delete modem;
       delete chan;
       }
@@ -197,10 +196,11 @@ template <class S, class R> void basic_commsys<S,R>::cycleonce(libbase::vector<d
 
    Initializes system with bound objects as supplied by user.
 */
-template <class S, class R> basic_commsys<S,R>::basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan)
+template <class S, class R> basic_commsys<S,R>::basic_commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan)
    {
    basic_commsys<S,R>::src = src;
    basic_commsys<S,R>::cdc = cdc;
+   basic_commsys<S,R>::map = map;
    basic_commsys<S,R>::modem = modem;
    basic_commsys<S,R>::chan = chan;
    internallyallocated = false;
@@ -219,6 +219,7 @@ template <class S, class R> basic_commsys<S,R>::basic_commsys(const basic_commsy
    {
    basic_commsys<S,R>::src = new libbase::randgen;
    basic_commsys<S,R>::cdc = c.cdc->clone();
+   basic_commsys<S,R>::map = c.map->clone();
    basic_commsys<S,R>::modem = (modulator<S> *)c.modem->clone();
    basic_commsys<S,R>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
@@ -231,8 +232,9 @@ template <class S, class R> void basic_commsys<S,R>::seed(int s)
    {
    src->seed(s);
    cdc->seed(s+1);
-   modem->seed(s+2);
-   chan->seed(s+3);
+   map->seed(s+2);
+   modem->seed(s+3);
+   chan->seed(s+4);
    }
 
 // Experiment handling
@@ -253,6 +255,7 @@ template <class S, class R> std::string basic_commsys<S,R>::description() const
    std::ostringstream sout;
    sout << "Communication System: ";
    sout << cdc->description() << ", ";
+   sout << map->description() << ", ";
    sout << modem->description() << ", ";
    sout << chan->description();
    return sout.str();
@@ -262,6 +265,7 @@ template <class S, class R> std::ostream& basic_commsys<S,R>::serialize(std::ost
    {
    sout << chan;
    sout << modem;
+   sout << map;
    sout << cdc;
    return sout;
    }
@@ -272,6 +276,7 @@ template <class S, class R> std::istream& basic_commsys<S,R>::serialize(std::ist
    src = new libbase::randgen;
    sin >> chan;
    sin >> modem;
+   sin >> map;
    sin >> cdc;
    internallyallocated = true;
    init();
@@ -451,7 +456,7 @@ template <class R> void commsys<sigspace,R>::transmitandreceive(libbase::vector<
 
 // Constructors / Destructors
 
-template <class R> commsys<sigspace,R>::commsys(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace,R>(src, cdc, modem, chan)
+template <class R> commsys<sigspace,R>::commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace,R>(src, cdc, map, modem, chan)
    {
    commsys::punc = punc;
    init();

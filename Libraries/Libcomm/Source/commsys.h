@@ -5,6 +5,7 @@
 #include "experiment.h"
 #include "randgen.h"
 #include "codec.h"
+#include "mapper.h"
 #include "modulator.h"
 #include "puncture.h"
 #include "channel.h"
@@ -185,6 +186,9 @@ public:
 
    \version 2.21 (22 Feb 2008)
    - Added seeding for modulator block
+
+   \version 2.30 (25 Feb 2008)
+   - Added mapper block between codec and modulator
 */
 
 template <class S, class R=commsys_errorrates> class basic_commsys : public experiment, public R {
@@ -194,6 +198,7 @@ protected:
    bool  internallyallocated;
    libbase::randgen     *src;    //!< Source data sequence generator
    codec                *cdc;    //!< Error-control codec
+   mapper               *map;     //!< Symbol-mapper (encoded output to transmitted symbols)
    modulator<S>         *modem;  //!< Modulation scheme
    channel<S>           *chan;   //!< Channel model
    // @}
@@ -225,7 +230,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(libbase::randgen *src, codec *cdc, modulator<S> *modem, channel<S> *chan);
+   basic_commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan);
    basic_commsys(const basic_commsys<S,R>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };
@@ -243,6 +248,8 @@ public:
    /*! \name Component object handles */
    //! Get error-control codec
    const codec *getcodec() const { return cdc; };
+   //! Get symbol mapper
+   const mapper *getmapper() const { return map; };
    //! Get modulation scheme
    const modulator<S> *getmodem() const { return modem; };
    //! Get channel model
@@ -344,7 +351,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys<sigspace,R>(libbase::randgen *src, codec *cdc, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
+   commsys<sigspace,R>(libbase::randgen *src, codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
    commsys<sigspace,R>(const commsys<sigspace,R>& c);
    commsys<sigspace,R>() { clear(); };
    virtual ~commsys<sigspace,R>() { free(); };

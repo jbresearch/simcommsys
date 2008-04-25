@@ -104,6 +104,7 @@ libcomm::experiment *createsystem()
       "awgn\n"
       "mpsk\n"
       "2\n"
+      "mapper\n"
       "turbo<double>\n"
       "1\n"
       "rscc\n"
