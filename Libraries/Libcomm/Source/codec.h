@@ -83,6 +83,10 @@ namespace libcomm {
    \version 1.62 (24 Apr 2008)
    - replaced serialization support with macros
 
+   \version 1.63 (25 Apr 2008)
+   - added information function to give the required transmission symbol
+     alphabet size (required by mapper); defaults to output alphabet size.
+
    \todo
    Change class interface to better model the actual representation of input and
    output sequences of the codec and to better separate this class from the
@@ -139,6 +143,8 @@ public:
    virtual int num_inputs() const = 0;
    //! Number of valid output combinations
    virtual int num_outputs() const = 0;
+   //! Output symbol alphabet size
+   virtual int output_alphabet() const { return num_outputs(); };
    //! Length of tail in timesteps
    virtual int tail_length() const = 0;
    //! Number of iterations per decoding cycle

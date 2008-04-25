@@ -8,6 +8,7 @@
 #include "fsm.h"
 #include "interleaver.h"
 #include "bcjr.h"
+#include "itfunc.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -266,6 +267,9 @@ namespace libcomm {
    \version 2.73 (24 Apr 2008)
    - replaced serialization support with macros
 
+   \version 2.74 (25 Apr 2008)
+   - implemented output alphabet size getter
+
    \todo
    - Remove tau from user parameters, as this can be derived from interleavers
      (requires a change to interleaver interface)
@@ -338,6 +342,7 @@ public:
    int block_size() const { return tau; };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
+   int output_alphabet() const { return libbase::gcd(num_inputs(),enc_parity()); };
    int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
 

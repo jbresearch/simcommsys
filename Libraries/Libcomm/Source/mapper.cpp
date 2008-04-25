@@ -8,8 +8,6 @@
 */
 
 #include "mapper.h"
-#include "gf.h"
-#include "serializer.h"
 #include <stdlib.h>
 #include <sstream>
 

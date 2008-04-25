@@ -313,28 +313,37 @@ template class basic_commsys<bool,commsys_hist_symerr>;
       // block definitions
       node [ shape=box ];
       encode [ label="Encode" ];
+      map [ label="Map" ];
       modulate [ label="Modulate" ];
       transmit [ label="Transmit" ];
       demodulate [ label="Demodulate" ];
+      unmap [ label="Inverse Map" ];
       translate [ label="Translate" ];
       // path definitions
-      encode -> modulate;
+      encode -> map;
+      map -> modulate;
       modulate -> transmit;
       transmit -> demodulate;
-      demodulate -> translate;
+      demodulate -> unmap;
+      unmap -> translate;
    }
    \enddot
 */
 template <class S, class R> void commsys<S,R>::transmitandreceive(libbase::vector<int>& source)
    {
+   const int M = this->modem->num_symbols();
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
+   libbase::vector<int> transmitted;
+   this->map->transform(this->N, encoded, M, transmitted);
    libbase::vector<S> signal;
-   this->modem->modulate(this->N, encoded, signal);
-   libbase::matrix<double> ptable;
+   this->modem->modulate(M, transmitted, signal);
    this->chan->transmit(signal, signal);
-   this->modem->demodulate(*this->chan, signal, ptable);
-   this->cdc->translate(ptable);
+   libbase::matrix<double> pin;
+   this->modem->demodulate(*this->chan, signal, pin);
+   libbase::matrix<double> pout;
+   this->map->inverse(pin, this->cdc->output_alphabet(), pout);
+   this->cdc->translate(pout);
    }
 
 // Explicit Realizations
@@ -409,21 +418,25 @@ template <class R> void commsys<sigspace,R>::free()
       // block definitions
       node [ shape=box ];
       encode [ label="Encode" ];
+      map [ label="Map" ];
       modulate [ label="Modulate" ];
       puncture [ style=dotted,label="Puncture" ];
       transmit [ label="Transmit" ];
       demodulate [ label="Demodulate" ];
       unpuncture [ style=dotted,label="Inverse Puncture" ];
+      unmap [ label="Inverse Map" ];
       translate [ label="Translate" ];
       // path definitions
-      encode -> modulate;
+      encode -> map;
+      map -> modulate;
       modulate -> transmit;
       transmit -> demodulate;
-      demodulate -> translate;
+      demodulate -> unmap;
+      unmap -> translate;
       modulate -> puncture [ style=dotted ];
       puncture -> transmit [ style=dotted ];
       demodulate -> unpuncture [ style=dotted ];
-      unpuncture -> translate [ style=dotted ];
+      unpuncture -> unmap [ style=dotted ];
    }
    \enddot
 
@@ -432,26 +445,31 @@ template <class R> void commsys<sigspace,R>::free()
 */
 template <class R> void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
    {
+   const int M = this->modem->num_symbols();
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
+   libbase::vector<int> transmitted;
+   this->map->transform(this->N, encoded, M, transmitted);
    libbase::vector<sigspace> signal1;
-   this->modem->modulate(this->N, encoded, signal1);
-   libbase::matrix<double> ptable1;
+   this->modem->modulate(M, transmitted, signal1);
+   libbase::matrix<double> pin;
    if(punc != NULL)
       {
       libbase::vector<sigspace> signal2;
       punc->transform(signal1, signal2);
       this->chan->transmit(signal2, signal2);
-      libbase::matrix<double> ptable2;
-      this->modem->demodulate(*this->chan, signal2, ptable2);
-      punc->inverse(ptable2, ptable1);
+      libbase::matrix<double> pchan;
+      this->modem->demodulate(*this->chan, signal2, pchan);
+      punc->inverse(pchan, pin);
       }
    else
       {
       this->chan->transmit(signal1, signal1);
-      this->modem->demodulate(*this->chan, signal1, ptable1);
+      this->modem->demodulate(*this->chan, signal1, pin);
       }
-   this->cdc->translate(ptable1);
+   libbase::matrix<double> pout;
+   this->map->inverse(pin, this->cdc->output_alphabet(), pout);
+   this->cdc->translate(pout);
    }
 
 // Constructors / Destructors
