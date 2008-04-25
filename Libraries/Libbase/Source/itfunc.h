@@ -53,6 +53,9 @@
    \version 1.12 (3 Jan 2008)
    - moved log2() and round() to config file in global namespace, in order to use platform
      implementation when compiling with gcc. Also, these functions aren't really IT-related.
+
+   \version 1.13 (25 Apr 2008)
+   - added GCD function based on Euclid's algorithm
 */
 
 namespace libbase {
@@ -82,12 +85,16 @@ inline double gauss(double x) { return exp(-0.5 * x * x)/sqrt(2.0 * PI); }
 
 template <class T> inline T limit(const T x, const T lo, const T hi) { return max(lo, min(hi, x)); };
 
+//! Hamming weight
 int weight(int cw);
 
 //! Gray code
 inline int32u gray(int32u n) { return n ^ (n >> 1); };
 //! Inverse Gray code
 int32u igray(int32u n);
+
+//! Greatest common divisor
+int gcd(int a, int b);
 
 int factorial(int x);
 int permutations(int n, int r);

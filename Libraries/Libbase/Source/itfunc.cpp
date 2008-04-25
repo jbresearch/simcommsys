@@ -160,6 +160,19 @@ int32u igray(int32u n)
    return r;
    }
 
+// Greatest common divisor
+
+int gcd(int a, int b)
+   {
+   while(b != 0)
+      {
+      int t = b;
+      b = a % b;
+      a = t;
+      }
+   return a;
+   }
+
 // combinatorial statistics functions
 
 int factorial(int x)
