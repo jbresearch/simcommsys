@@ -132,7 +132,6 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
 
 /*!
    \brief Computes extrinsic probabilities
-   \param[in]  set Parity sequence being decoded
    \param[in]  ra  A-priori (extrinsic) probabilities of input values
    \param[in]  ri  A-posteriori probabilities of input values
    \param[in]  r   A-priori intrinsic probabilities of input values

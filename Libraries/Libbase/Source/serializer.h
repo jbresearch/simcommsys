@@ -77,7 +77,7 @@ namespace libbase {
    \version 2.00 (24 Apr 2008)
    - Created macros to standardize functions declarations in serializable classes;
      this mirrors what Microsoft do in MFC.
-   - Added inclusion of <iostream> in this class, so derived classes shall
+   - Added inclusion of iostream in this class, so derived classes shall
      not need it
 */
 
@@ -98,12 +98,20 @@ public:
 
 #define DECLARE_BASE_SERIALIZER( class_name ) \
    public: \
-   virtual codec *clone() const = 0; \
+   /*! \name Serialization Support */ \
+   /*! \brief Cloning operation */ \
+   virtual class_name *clone() const = 0; \
+   /*! \brief Derived object's name */ \
    virtual const char* name() const = 0; \
+   /*! \brief Serialization output */ \
    virtual std::ostream& serialize(std::ostream& sout) const = 0; \
+   /*! \brief Serialization input */ \
    virtual std::istream& serialize(std::istream& sin) = 0; \
+   /*! \brief Stream output */ \
    friend std::ostream& operator<<(std::ostream& sout, const class_name* x); \
-   friend std::istream& operator>>(std::istream& sin, class_name*& x);
+   /*! \brief Stream input */ \
+   friend std::istream& operator>>(std::istream& sin, class_name*& x); \
+   /* @} */
 
 #define IMPLEMENT_BASE_SERIALIZER( class_name ) \
    std::ostream& operator<<(std::ostream& sout, const class_name* x) \
@@ -128,8 +136,12 @@ public:
 
 #define DECLARE_SERIALIZER( class_name ) \
    private: \
+   /*! \name Serialization Support */ \
+   /*! \brief Serialization helper object */ \
    static const libbase::serializer shelper; \
+   /*! \brief Heap creation function */ \
    static void* create() { return new class_name; }; \
+   /* @} */ \
    public: \
    class_name *clone() const { return new class_name(*this); }; \
    const char* name() const { return shelper.name(); }; \
