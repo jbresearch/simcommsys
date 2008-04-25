@@ -385,7 +385,7 @@ template <> const libbase::serializer commsys<bool,commsys_hist_symerr>::shelper
 template <class R> void commsys<sigspace,R>::init()
    {
    // set up channel energy/bit (Eb)
-   double rate = this->cdc->rate();
+   double rate = this->cdc->rate() * this->map->rate();
    if(punc != NULL)
       rate /= punc->rate();
    this->chan->set_eb(this->modem->bit_energy() / rate);
