@@ -671,6 +671,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\map_interleaved.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\map_straight.cpp"
 				>
 			</File>
@@ -1377,6 +1381,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\lut_modulator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\map_interleaved.h"
 				>
 			</File>
 			<File

@@ -1,7 +1,8 @@
-#ifndef __map_straight_h
-#define __map_straight_h
+#ifndef __map_interleaved_h
+#define __map_interleaved_h
 
-#include "mapper.h"
+#include "map_straight.h"
+#include "randgen.h"
 
 namespace libcomm {
 
@@ -15,22 +16,24 @@ namespace libcomm {
    - $Author$
 
    \version 1.00 (28 Apr 2008)
-   - Moved straight symbol mapper from base class.
+   - Created an interleaved version of the straight mapper.
 */
 
-class map_straight : public mapper {
+class map_interleaved : public map_straight {
+   libbase::vector<int> lut;
+   libbase::randgen r;
 public:
-   // Vector map_straight operations
+   // Vector map_interleaved operations
    void transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx);
    void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout);
 
-   // Informative functions
-   double rate() const { return 1; };
+   // Setup functions
+   void seed(libbase::int32u const s) { r.seed(s); };
 
    // Description
    std::string description() const;
 
-   DECLARE_SERIALIZER(map_straight)
+   DECLARE_SERIALIZER(map_interleaved)
 };
 
 }; // end namespace

@@ -64,6 +64,7 @@
 // Signal Mappers
 #include "mapper.h"
 #include "map_straight.h"
+#include "map_interleaved.h"
 
 // Puncture Patterns
 #include "puncture.h"
@@ -138,7 +139,7 @@ namespace libcomm {
    - Added burst-error profiler for commsys<bool>
 
    \version 2.31 (25-28 Apr 2008)
-   - Added signal mapper
+   - Added straight and interleaved signal mappers
 */
 
 // Serialization support
@@ -151,7 +152,7 @@ class serializer_libcomm : private
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
-   map_straight,
+   map_interleaved,
    puncture_file, puncture_null, puncture_stipple,
    commsys< libbase::gf<1,0x3> >, commsys< libbase::gf<2,0x7> >, commsys< libbase::gf<3,0xB> >, commsys< libbase::gf<4,0x13> >,
    commsys<sigspace>, commsys<bool>,
