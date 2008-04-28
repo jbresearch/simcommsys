@@ -64,7 +64,7 @@ void montecarlo::slave_getsnr(void)
 
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << "Seed: " << seed << "\n";
-   cerr << "Simulating system at Eb/No = " << system->get_parameter() << "\n";
+   cerr << "Simulating system at parameter = " << system->get_parameter() << "\n";
    }
 
 void montecarlo::slave_work(void)
