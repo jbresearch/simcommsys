@@ -12,6 +12,8 @@
 
 namespace libcomm {
 
+// Serialization Support
+
 IMPLEMENT_BASE_SERIALIZER(codec)
 
 }; // end namespace

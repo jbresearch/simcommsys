@@ -19,26 +19,19 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (21-24 Apr 2008)
+   \version 1.00 (21-28 Apr 2008)
    - Defines interface for mapper classes.
    - Defined a straight symbol mapper with:
       * forward transform from modulator
       * inverse transform from the various codecs.
-
-   \todo
-   - Integrate within commsys as a layer between codec and modulator.
+   - Integrated within commsys as a layer between codec and modulator.
+   - Moved straight mapper to a new class, making this one abstract.
 */
 
 class mapper {
-   static const libbase::serializer shelper;
-   static void* create() { return new mapper; };
 public:
    /*! \name Constructors / Destructors */
    virtual ~mapper() {};
-   // @}
-   /*! \name Serialization Support */
-   virtual mapper *clone() const { return new mapper(*this); };
-   virtual const char* name() const { return shelper.name(); };
    // @}
 
    /*! \name Vector mapper operations */
@@ -52,7 +45,7 @@ public:
       \todo Remove parameters N and M, replacing 'int' type for encoded vector with
             something that also encodes the number of symbols in the alphabet
    */
-   virtual void transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx);
+   virtual void transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx) = 0;
    /*!
       \brief Inverse-transform the received symbol probabilities to a decoder-comaptible set
       \param[in]  pin      Table of likelihoods of possible modulation symbols
@@ -62,7 +55,7 @@ public:
       
       \note \c pxxx(i,d) \c is the a posteriori probability of symbol 'd' at time 'i'
    */
-   virtual void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout);
+   virtual void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout) = 0;
    // @}
 
    /*! \name Setup functions */
@@ -72,25 +65,17 @@ public:
 
    /*! \name Informative functions */
    //! Overall mapper rate
-   virtual double rate() const { return 1; };
+   virtual double rate() const = 0;
    // @}
 
-   /*! \name Description & Serialization */
+   /*! \name Description */
    //! Object description output
-   virtual std::string description() const;
-   //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream& sout) const  { return sout; };
-   //! Object serialization input
-   virtual std::istream& serialize(std::istream& sin) { return sin; };
+   virtual std::string description() const = 0;
    // @}
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(mapper)
 };
-
-/*! \name Serialization */
-
-std::ostream& operator<<(std::ostream& sout, const mapper* x);
-std::istream& operator>>(std::istream& sin, mapper*& x);
-
-// @}
 
 }; // end namespace
 

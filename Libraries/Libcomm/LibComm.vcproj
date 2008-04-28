@@ -671,6 +671,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\map_straight.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\mapcc.cpp"
 				>
 				<FileConfiguration
@@ -1373,6 +1377,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\lut_modulator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\map_straight.h"
 				>
 			</File>
 			<File

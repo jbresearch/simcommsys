@@ -83,6 +83,9 @@
 
    \version 2.70 (18 Apr 2008)
    - Replaced manual system object creation with serialization.
+
+   \version 2.71 (25-28 Apr 2008)
+   - Added straight mapper to object specification.
 */
 
 using std::cout;
@@ -104,7 +107,7 @@ libcomm::experiment *createsystem()
       "awgn\n"
       "mpsk\n"
       "2\n"
-      "mapper\n"
+      "map_straight\n"
       "turbo<double>\n"
       "1\n"
       "rscc\n"

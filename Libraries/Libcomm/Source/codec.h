@@ -165,6 +165,7 @@ public:
    virtual std::string description() const = 0;
    // @}
 
+   // Serialization Support
    DECLARE_BASE_SERIALIZER(codec)
 };
 
