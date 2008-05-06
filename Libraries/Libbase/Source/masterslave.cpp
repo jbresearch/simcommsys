@@ -260,7 +260,11 @@ bool masterslave::send(const double x)
 
 bool masterslave::send(const vector<double>& x)
    {
+   // determine and send vector size first
    const int count = x.size();
+   if(!send(count))
+      return false;
+   // copy vector elements to an array and send at once
    double *a = new double[count];
    for(int i=0; i<count; i++)
       a[i] = x(i);
@@ -542,10 +546,15 @@ bool masterslave::receive(slave *s, double& x)
 
 bool masterslave::receive(slave *s, vector<double>& x)
    {
-   const int count = x.size();
+   // get vector size first
+   int count;
+   if(!receive(s, count))
+      return false;
+   // get vector elements
    double *a = new double[count];
    if(!receive(s, a, sizeof(double)*count))
       return false;
+   // initialize vector and copy elements over
    x.assign(a, count);
    delete[] a;
    return true;

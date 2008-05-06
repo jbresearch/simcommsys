@@ -80,6 +80,10 @@ namespace libbase {
    \version 1.25 (25 Jan 2008)
    - added function to reset cpu usage accumulation
    - added function to reset a single slave to the 'new' state
+
+   \version 1.26 (6 May 2008)
+   - updated send/receive vector to include vector size; this makes
+     foreknowledge of size and pre-initialization unnecessary.
 */
 
 class masterslave {
