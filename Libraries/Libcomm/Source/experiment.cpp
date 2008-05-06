@@ -123,7 +123,7 @@ void experiment_binomial::estimate(libbase::vector<double>& estimate, libbase::v
    // standard error is sqrt(p(1-p)/n)
    stderror.init(count());
    for(int i=0; i<count(); i++)
-      stderror(i) = sqrt( (estimate(i)*(1-estimate(i))) / double(get_samplecount()) );
+      stderror(i) = sqrt( (estimate(i)*(1-estimate(i))) / double(get_samplecount(i)) );
    }
 
 }; // end namespace

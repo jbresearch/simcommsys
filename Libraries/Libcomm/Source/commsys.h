@@ -47,6 +47,7 @@ public:
    /*! \name Public interface */
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
    int count() const { return 3*get_iter(); };
+   int get_multiplicity(int i) const;
    // @}
 };
 
@@ -245,6 +246,7 @@ public:
    // Experiment handling
    void sample(libbase::vector<double>& result);
    int count() const { return R::count(); };
+   int get_multiplicity(int i) const { return R::get_multiplicity(i); };
 
    /*! \name Component object handles */
    //! Get error-control codec

@@ -140,6 +140,14 @@ public:
       \brief The number of samples taken to produce the result
    */
    int get_samplecount() const { return samplecount; };
+   /*!
+      \brief The number of samples taken to produce result 'i'
+   */
+   int get_samplecount(int i) const { return get_samplecount() * get_multiplicity(i); };
+   /*!
+      \brief The number of elements/sample for result 'i'
+   */
+   virtual int get_multiplicity(int i) const = 0;
    // @}
 
    /*! \name Description */

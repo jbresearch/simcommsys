@@ -73,6 +73,21 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result, const in
    result(3*i + 2) += symerrors ? 1 : 0;
    }
 
+int commsys_errorrates::get_multiplicity(int i) const
+   {
+   switch(i % 3)
+      {
+      case 0:
+         return get_symbolsperblock() * get_bitspersymbol();
+      case 1:
+         return get_symbolsperblock();
+      case 2:
+         return 1;
+      }
+   // this never really happens
+   return 0;
+   }
+
 
 // *** Templated Common Base ***
 
