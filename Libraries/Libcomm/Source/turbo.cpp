@@ -179,7 +179,7 @@ template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matr
 */
 template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl>& ri, matrix<dbl>& re)
    {
-#ifndef NDEBUG
+#if DEBUG >= 2
    trace << "DEBUG (turbo): bcjr_wrap - set=" << set << ", ra=" << &ra << ", ri=" << &ri << ", re=" << &re;
    trace << ", ra(mean) = " << ra.mean();
 #endif
@@ -196,7 +196,7 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
    bcjr<real,dbl>::fdecode(R(set), rai, rii);
    inter(set)->inverse(rii, ri);
    work_extrinsic(ra, ri, rp, re);
-#ifndef NDEBUG
+#if DEBUG >= 2
    trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
 #endif
    // when using a circular trellis, store the start- and end-state
@@ -218,7 +218,7 @@ template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matri
          if(ri(t, i) > ri(t, decoded(t)))
             decoded(t) = i;
       }
-#ifndef NDEBUG
+#if DEBUG >= 2
    static int iter=0;
    const int ones = decoded.sum();
    trace << "DEBUG (turbo): iter=" << iter \
