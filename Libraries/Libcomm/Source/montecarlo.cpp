@@ -69,33 +69,29 @@ void montecarlo::slave_getsnr(void)
 
 void montecarlo::slave_work(void)
    {
-   const int count = system->count();
-   // Running values
-   vector<double> sum(count);
-   vector<double> sumsq(count);
    // Initialise running values
-   samplecount = 0;
-   sum = 0;
-   sumsq = 0;
+   system->reset();
 
    // Iterate for 500ms, which is a good compromise between efficiency and usability
    libbase::timer t;
    while(t.elapsed() < 0.5)
-      sampleandaccumulate(sum, sumsq);
+      sampleandaccumulate();
    t.stop();   // to avoid expiry
 
    // Send system digest and current parameter back to master
    if(!send(sysdigest) || !send(system->get_parameter()))
       exit(1);
    // Send accumulated results back to master
-   if(!send(sum) || !send(sumsq) || !send(samplecount))
+   libbase::vector<double> state;
+   system->get_state(state);
+   if(!send(system->get_samplecount()) || !send(state))
       exit(1);
 
    // print something to inform the user of our progress
-   vector<double> result(count);
-   vector<double> tolerance(count);
-   double acc = updateresults(result, tolerance, sum, sumsq);
-   display(samplecount, (acc<1 ? 100*acc : 99), result.min());
+   vector<double> result, tolerance;
+   updateresults(result, tolerance);
+   const double acc = tolerance.max();
+   display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result.min());
    }
 
 // helper functions
@@ -165,8 +161,6 @@ void montecarlo::initialise(experiment *system)
    init = true;
    // bind sub-components
    montecarlo::system = system;
-   // reset the count of samples
-   samplecount = 0;
    }
 
 void montecarlo::reset()
@@ -196,75 +190,34 @@ void montecarlo::set_accuracy(const double accuracy)
 
 /*!
    \brief Compute a single sample and accumulate results
-   \param[in,out] sum         Sum of results (to be updated)
-   \param[in,out] sumsq       Sum of squares of results (to be updated)
-
-   This function also updates the samplecount member variable.
 */
-void montecarlo::sampleandaccumulate(vector<double>& sum, vector<double>& sumsq)
+void montecarlo::sampleandaccumulate()
    {
-   assert(sumsq.size() == sum.size());
-   const int count = sum.size();
-   vector<double> est(count);
-   system->sample(est);
-   samplecount++;
-   accumulateresults(sum, sumsq, est);
+   vector<double> result;
+   system->sample(result);
+   system->accumulate(result);
    }
 
 /*!
-   \brief Accumulate running totals, given last sample
-   \param[in,out] sum         Sum of results (to be updated)
-   \param[in,out] sumsq       Sum of squares of results (to be updated)
-   \param[in]     est         Last sample
-*/
-void montecarlo::accumulateresults(vector<double>& sum, vector<double>& sumsq, vector<double> est) const
-   {
-   assert(sum.size() == est.size());
-   assert(sumsq.size() == est.size());
-   // accumulate results
-   sum += est;
-   est.apply(square);
-   sumsq += est;
-   }
-
-/*!
-   \brief Update overall estimate, given last sample
-   \param[in,out] result      Results to be updated
-   \param[in,out] tolerance   Corresponding result accuracy to be updated
-   \param[in]     sum         Sum of results
-   \param[in]     sumsq       Sum of squares of results
-   \return  Accuracy reached (worst accuracy over result set)
+   \brief Determine overall estimate from accumulated results
+   \param[out] result      Vector containing the set of estimates
+   \param[out] tolerance   Corresponding confidence interval as a fraction of estimate
    
    \note If the accuracy cannot be computed yet (there has been no error event), then the
          accuracy reached takes the special largest-double value.
 */
-double montecarlo::updateresults(vector<double>& result, vector<double>& tolerance, const vector<double>& sum, const vector<double>& sumsq) const
+void montecarlo::updateresults(vector<double>& result, vector<double>& tolerance) const
    {
-   assert(result.size() > 0);
-   assert(tolerance.size() == result.size());
-   assert(sum.size() == result.size());
-   assert(sumsq.size() == result.size());
-   // for each result:
-   double acc = 0;
+   system->estimate(result, tolerance);
+   assert(result.size() == tolerance.size());
+   // determine confidence interval from standard error
    for(int i=0; i<result.size(); i++)
       {
-      assert(samplecount > 0);
-      // updated mean becomes the new result
-      const double mean = sum(i)/double(samplecount);
-      result(i) = mean;
-      // compute tolerance only if this is meaningful
-      if(mean > 0 && samplecount > 1)
-         {
-         const double sd = sqrt((sumsq(i)/double(samplecount) - mean*mean)/double(samplecount-1));
-         tolerance(i) = cfactor*sd/mean;
-         }
+      if(result(i) > 0)
+         tolerance(i) *= cfactor/result(i);
       else
          tolerance(i) = std::numeric_limits<double>::max();
-      // track the worst tolerance reached
-      if(tolerance(i) > acc)
-         acc = tolerance(i);
       }
-   return acc;
    }
 
 /*!
@@ -329,8 +282,6 @@ void montecarlo::workidleslaves(bool converged)
 
 /*!
    \brief Read and accumulate results from any pending slaves
-   \param[in,out] sum         Sum of results (to be updated)
-   \param[in,out] sumsq       Sum of squares of results (to be updated)
    \return  True if any new results have been added, false otherwise
 
    If there are any slaves in the EVENT_PENDING state, read their results. Values
@@ -340,10 +291,8 @@ void montecarlo::workidleslaves(bool converged)
    or parameter that are now being simulated, this is discarded and the slave
    is marked as 'new'.
 */
-bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
+bool montecarlo::readpendingslaves()
    {
-   assert(sumsq.size() == sum.size());
-   const int count = sum.size();
    bool results_available = false;
    while(slave *s = pendingslave())
       {
@@ -354,11 +303,10 @@ bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
       if(!receive(s, simdigest) || !receive(s, simparameter))
          continue;
       // set up space for results that need to be returned
-      vector<double> estsum(count);
-      vector<double> estsumsq(count);
       int estsamplecount;
+      vector<double> eststate;
       // get results
-      if(!receive(s, estsum) || !receive(s, estsumsq) || !receive(s, estsamplecount))
+      if(!receive(s, estsamplecount) || !receive(s, eststate))
          continue;
       // check that results correspond to system under simulation
       if(sysdigest != sha(simdigest) || simparameter != system->get_parameter())
@@ -368,9 +316,7 @@ bool montecarlo::readpendingslaves(vector<double>& sum, vector<double>& sumsq)
          continue;
          }
       // accumulate
-      samplecount += estsamplecount;
-      sum += estsum;
-      sumsq += estsumsq;
+      system->accumulate_state(estsamplecount, eststate);
       // update usage information and return flag
       updatecputime(s);
       results_available = true;
@@ -389,22 +335,11 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    {
    t.start();
 
-   // Initialise space for results
-   const int count = system->count();
-   assert(count > 0);
-   result.init(count);
-   tolerance.init(count);
-
-   // Running values
-   vector<double> sum(count);
-   vector<double> sumsq(count);
-   bool converged = false;
    // Initialise running values
-   samplecount = 0;
-   sum = 0;
-   sumsq = 0;
+   system->reset();
 
-   // Seed the experiment
+   // Set up for master-slave system (if necessary)
+   // and seed the experiment
    std::string systemstring;
    if(isenabled())
       {
@@ -427,6 +362,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    // 1) We have the accuracy we need
    // 2) We have enough samples for the accuracy to be meaningful
    // An interrupt from the user overrides everything...
+   bool converged = false;
    while(!converged)
       {
       bool results_available = false;
@@ -441,22 +377,23 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          trace << "DEBUG (estimate): Waiting for event.\n";
          waitforevent(true, 0.5);
          // accumulate results from any pending slaves
-         results_available = readpendingslaves(sum, sumsq);
+         results_available = readpendingslaves();
          }
       else
          {
-         sampleandaccumulate(sum, sumsq);
+         sampleandaccumulate();
          results_available = true;
          }
       // if we did get any results, update the statistics
       if(results_available)
          {
-         double acc = updateresults(result, tolerance, sum, sumsq);
+         updateresults(result, tolerance);
+         const double acc = tolerance.max();
          // check if we have reached the required accuracy
-         if(acc <= accuracy && samplecount >= min_samples)
+         if(acc <= accuracy && system->get_samplecount() >= min_samples)
             converged = true;
          // print something to inform the user of our progress
-         display(samplecount, (acc<1 ? 100*acc : 99), result.min());
+         display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result.min());
          }
       // consider our work done if the user has interrupted the processing
       // (note: this overrides everything)

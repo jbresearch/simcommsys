@@ -191,14 +191,15 @@ public:
    - Added mapper block between codec and modulator
 */
 
-template <class S, class R=commsys_errorrates> class basic_commsys : public experiment, public R {
+template <class S, class R=commsys_errorrates> class basic_commsys
+   : public experiment_normal, public R {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
    bool  internallyallocated;
    libbase::randgen     *src;    //!< Source data sequence generator
    codec                *cdc;    //!< Error-control codec
-   mapper               *map;     //!< Symbol-mapper (encoded output to transmitted symbols)
+   mapper               *map;    //!< Symbol-mapper (encoded output to transmitted symbols)
    modulator<S>         *modem;  //!< Modulation scheme
    channel<S>           *chan;   //!< Channel model
    // @}

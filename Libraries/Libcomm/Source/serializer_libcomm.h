@@ -153,14 +153,19 @@ class serializer_libcomm : private
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
    map_interleaved,
-   puncture_file, puncture_null, puncture_stipple,
-   commsys< libbase::gf<1,0x3> >, commsys< libbase::gf<2,0x7> >, commsys< libbase::gf<3,0xB> >, commsys< libbase::gf<4,0x13> >,
-   commsys<sigspace>, commsys<bool>,
-   commsys<bool,commsys_prof_burst>,
-   commsys<bool,commsys_prof_pos>,
-   commsys<bool,commsys_prof_sym>,
-   commsys<bool,commsys_hist_symerr>
+   puncture_file, puncture_null, puncture_stipple
 {
+private:
+   commsys< libbase::gf<1,0x3> >    commsys_gf1;
+   commsys< libbase::gf<2,0x7> >    commsys_gf2;
+   commsys< libbase::gf<3,0xB> >    commsys_gf3;
+   commsys< libbase::gf<4,0x13> >   commsys_gf4;
+   commsys<sigspace>                commsys_sigspace;
+   commsys<bool>                    commsys_bool;
+   commsys<bool,commsys_prof_burst> commsys_bool_prof_burst;
+   commsys<bool,commsys_prof_pos>   commsys_bool_prof_pos;
+   commsys<bool,commsys_prof_sym>   commsys_bool_prof_sym;
+   commsys<bool,commsys_hist_symerr> commsys_bool_hist_symerr;
 public:
    serializer_libcomm() {};
 };

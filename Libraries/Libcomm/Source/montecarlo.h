@@ -175,7 +175,6 @@ class montecarlo : public libbase::masterslave {
    /*! \name Internal variables */
    double         cfactor;       //!< factor dependent on confidence level
    double         accuracy;      //!< accuracy level required
-   int            samplecount;   //!< number of samples taken to produce the result
    libbase::timer t;             //!< timer to keep track of running estimate
    sha            sysdigest;     //!< digest of the currently-simulated system
    // @}
@@ -193,13 +192,12 @@ private:
    void destroyfunctors(void);
    // @}
    /*! \name Main estimator helper functions */
-   void sampleandaccumulate(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
-   void accumulateresults(libbase::vector<double>& sum, libbase::vector<double>& sumsq, libbase::vector<double> est) const;
-   double updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, const libbase::vector<double>& sum, const libbase::vector<double>& sumsq) const;
+   void sampleandaccumulate();
+   void updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
    void initslave(slave *s, std::string systemstring);
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool converged);
-   bool readpendingslaves(libbase::vector<double>& sum, libbase::vector<double>& sumsq);
+   bool readpendingslaves();
 protected:
    // @}
    /*! \name Overrideable user-interface functions */
@@ -220,8 +218,10 @@ public:
    void set_accuracy(const double accuracy);       //!< Set target accuracy, say, 0.10 => 10% of mean
    // @}
    /*! \name Simulation results */
-   int get_samplecount() const { return samplecount; };     //!< Number of samples taken to produce the result
-   const libbase::timer& get_timer() const { return t; };   //!< Time taken to produce the result
+   //! Number of samples taken to produce the result
+   int get_samplecount() const { return system->get_samplecount(); };
+   //! Time taken to produce the result
+   const libbase::timer& get_timer() const { return t; };
    // @}
    /*! \name Main process */
    void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);

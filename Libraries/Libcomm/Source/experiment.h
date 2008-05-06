@@ -47,11 +47,37 @@ namespace libcomm {
    \version 1.42 (22 Jan 2008)
    - Removed 'friend' declaration of stream operators.
 
-   \version 1.43 (6 May 2008)
+   \version 1.50 (6 May 2008)
    - replaced serialization support with macros
+   - added function definitions for accumulating results and computing the
+     related estimates and standard error. This moves the responsibility for
+     doing this from montecarlo to the experiment object.
 */
 
 class experiment {
+private:
+   /*! \name Internal variables */
+   int   samplecount;               //!< Number of samples accumulated
+   // @}
+
+protected:
+   /*! \name Result accumulator interface */
+   /*!
+      \brief Reset accumulated results
+   */
+   virtual void derived_reset() = 0;
+   /*!
+      \brief Add the given sample results to the accumulated set
+      \param[in] result   Vector containing a set of results
+   */
+   virtual void derived_accumulate(const libbase::vector<double>& result) = 0;
+   /*!
+      \brief Add the complete state of results to the accumulated set
+      \param[in] state Vector set of accumulated results 
+   */
+   virtual void accumulate_state(const libbase::vector<double>& state) = 0;
+   // @}
+
 public:
    /*! \name Constructors / Destructors */
    virtual ~experiment() {};
@@ -72,8 +98,48 @@ public:
       \param[out] result   Vector containing the set of results for the experiment
    */
    virtual void sample(libbase::vector<double>& result) = 0;
-   //! Get the number of elements making up the sample
+   /*!
+      \brief The number of elements making up a sample
+      \note This getter is likely to be redundant, as the value may be
+            easily obtained from the size of result in sample()
+      \callergraph
+   */
    virtual int count() const = 0;
+   // @}
+
+   /*! \name Result accumulator interface */
+   /*!
+      \brief Reset accumulated results
+   */
+   void reset() { samplecount = 0; derived_reset(); };
+   /*!
+      \brief Add the given sample results to the accumulated set
+      \param[in] result   Vector containing a set of results
+   */
+   void accumulate(const libbase::vector<double>& result)
+      { samplecount++; derived_accumulate(result); };
+   /*!
+      \brief Add the complete state of results to the accumulated set
+      \param[in] samplecount The number of samples in the accumulated set
+      \param[in] state Vector set of accumulated results 
+   */
+   void accumulate_state(const int samplecount, const libbase::vector<double>& state)
+      { this->samplecount += samplecount; accumulate_state(state); };
+   /*!
+      \brief Get the complete state of accumulated results
+      \param[out] state Vector set of accumulated results 
+   */
+   virtual void get_state(libbase::vector<double>& state) const = 0;
+   /*!
+      \brief Determine result estimate based on accumulated set
+      \param[out] estimate Vector containing the set of estimates
+      \param[out] stderror Vector containing the corresponding standard error
+   */
+   virtual void estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const = 0;
+   /*!
+      \brief The number of samples taken to produce the result
+   */
+   int get_samplecount() const { return samplecount; };
    // @}
 
    /*! \name Description */
@@ -83,6 +149,45 @@ public:
 
    // Serialization Support
    DECLARE_BASE_SERIALIZER(experiment)
+};
+
+/*!
+   \brief   Experiment with normally distributed samples.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (6 May 2008)
+   - Initial version; implements the accumulator functions required by the
+     experiment class, moved from current implementation in montecarlo.
+*/
+
+class experiment_normal : public experiment {
+   /*! \name Internal variables */
+   libbase::vector<double> sum;     //!< Vector of result sums
+   libbase::vector<double> sumsq;   //!< Vector of result sum-of-squares
+   // @}
+
+protected:
+   /*! \name Accumulator functions */
+   //! \copydoc experiment::derived_reset()
+   void derived_reset();
+   //! \copydoc experiment::derived_accumulate()
+   void derived_accumulate(const libbase::vector<double>& result);
+   //! \copydoc experiment::accumulate_state()
+   void accumulate_state(const libbase::vector<double>& state);
+   // @}
+
+public:
+   /*! \name Accumulator functions */
+   //! \copydoc experiment::get_state()
+   void get_state(libbase::vector<double>& state) const;
+   //! \copydoc experiment::estimate()
+   void estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const;
+   // @}
 };
 
 }; // end namespace
