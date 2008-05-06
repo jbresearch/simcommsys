@@ -172,22 +172,48 @@ class experiment_normal : public experiment {
    // @}
 
 protected:
-   /*! \name Accumulator functions */
-   //! \copydoc experiment::derived_reset()
+   // Accumulator functions
    void derived_reset();
-   //! \copydoc experiment::derived_accumulate()
    void derived_accumulate(const libbase::vector<double>& result);
-   //! \copydoc experiment::accumulate_state()
    void accumulate_state(const libbase::vector<double>& state);
    // @}
 
 public:
-   /*! \name Accumulator functions */
-   //! \copydoc experiment::get_state()
+   // Accumulator functions
    void get_state(libbase::vector<double>& state) const;
-   //! \copydoc experiment::estimate()
    void estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const;
+};
+
+/*!
+   \brief   Experiment for estimation of a binomial proportion.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (6 May 2008)
+   - Initial version; implements the accumulator functions required by the
+     experiment class.
+*/
+
+class experiment_binomial : public experiment {
+   /*! \name Internal variables */
+   libbase::vector<double> sum;     //!< Vector of result sums
    // @}
+
+protected:
+   // Accumulator functions
+   void derived_reset();
+   void derived_accumulate(const libbase::vector<double>& result);
+   void accumulate_state(const libbase::vector<double>& state);
+   // @}
+
+public:
+   // Accumulator functions
+   void get_state(libbase::vector<double>& state) const;
+   void estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const;
 };
 
 }; // end namespace

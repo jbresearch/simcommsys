@@ -192,7 +192,7 @@ public:
 */
 
 template <class S, class R=commsys_errorrates> class basic_commsys
-   : public experiment_normal, public R {
+   : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction

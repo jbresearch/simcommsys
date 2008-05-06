@@ -16,7 +16,7 @@ namespace libcomm {
 
 IMPLEMENT_BASE_SERIALIZER(experiment)
 
-// Accumulator functions
+// Normally-distributed sample experiment
 
 void experiment_normal::derived_reset()
    {
@@ -79,6 +79,51 @@ void experiment_normal::estimate(libbase::vector<double>& estimate, libbase::vec
          stderror(i) = sqrt((sumsq(i)/double(get_samplecount()) - estimate(i)*estimate(i))/double(get_samplecount()-1));
    else
       stderror = std::numeric_limits<double>::max();
+   }
+
+// Experiment for estimation of a binomial proportion
+
+void experiment_binomial::derived_reset()
+   {
+   assert(count() > 0);
+   // Initialise space for running values
+   sum.init(count());
+   // Initialise running values
+   sum = 0;
+   }
+
+void experiment_binomial::derived_accumulate(const libbase::vector<double>& result)
+   {
+   assert(count() == result.size());
+   assert(count() == sum.size());
+   // accumulate results
+   sum += result;
+   }
+
+void experiment_binomial::accumulate_state(const libbase::vector<double>& state)
+   {
+   assert(count() == sum.size());
+   assert(count() == state.size());
+   // accumulate results from saved state
+   sum += state;
+   }
+
+void experiment_binomial::get_state(libbase::vector<double>& state) const
+   {
+   assert(count() == sum.size());
+   state = sum;
+   }
+
+void experiment_binomial::estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const
+   {
+   assert(count() == sum.size());
+   // estimate is the proportion
+   assert(get_samplecount() > 0);
+   estimate = sum/double(get_samplecount());
+   // standard error is sqrt(p(1-p)/n)
+   stderror.init(count());
+   for(int i=0; i<count(); i++)
+      stderror(i) = sqrt( (estimate(i)*(1-estimate(i))) / double(get_samplecount()) );
    }
 
 }; // end namespace
