@@ -16,6 +16,12 @@
 #  define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
+// Disable dominance warning
+
+//#ifdef WIN32
+//#  pragma warning( disable : 4250 )
+//#endif
+
 // include files
 
 #include <assert.h>
