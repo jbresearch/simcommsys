@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "vector.h"
+#include "serializer.h"
 
 #include <iostream>
 #include <string>
@@ -45,16 +46,15 @@ namespace libcomm {
 
    \version 1.42 (22 Jan 2008)
    - Removed 'friend' declaration of stream operators.
+
+   \version 1.43 (6 May 2008)
+   - replaced serialization support with macros
 */
 
 class experiment {
 public:
    /*! \name Constructors / Destructors */
    virtual ~experiment() {};
-   // @}
-   /*! \name Serialization Support */
-   virtual experiment *clone() const = 0;
-   virtual const char* name() const = 0;
    // @}
 
    /*! \name Experiment parameter handling */
@@ -76,20 +76,14 @@ public:
    virtual int count() const = 0;
    // @}
 
-   /*! \name Description & Serialization */
-   //! Object description output
+   /*! \name Description */
+   //! Description output
    virtual std::string description() const = 0;
-   //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   //! Object serialization input
-   virtual std::istream& serialize(std::istream& sin) = 0;
    // @}
-};
 
-/*! \name Serialization */
-std::ostream& operator<<(std::ostream& sout, const experiment* x);
-std::istream& operator>>(std::istream& sin, experiment*& x);
-// @}
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(experiment)
+};
 
 }; // end namespace
 
