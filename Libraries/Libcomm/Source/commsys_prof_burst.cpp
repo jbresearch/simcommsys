@@ -26,20 +26,42 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result, const in
    // Update the relevant count for every symbol in error
    // Check the first symbol first
    if(source(0) != decoded(0))
-      result(skip*i + 0) += 1.0;
+      result(skip*i + 0)++;
    // For each remaining symbol
    for(int t=1; t<get_symbolsperblock(); t++)
       {
       if(source(t-1) != decoded(t-1))
-         result(skip*i + 3) += 1.0 / double(get_symbolsperblock()-1);
+         result(skip*i + 3)++;
       if(source(t) != decoded(t))
          {
          // Keep separate counts, depending on whether the previous symbol was in error
          if(source(t-1) != decoded(t-1))
-            result(skip*i + 2) += 1.0 / double(get_symbolsperblock()-1);
+            result(skip*i + 2)++;
          else
-            result(skip*i + 1) += 1.0 / double(get_symbolsperblock()-1);
+            result(skip*i + 1)++;
          }
+      }
+   }
+
+/*!
+   \copydoc experiment::get_multiplicity()
+
+   For each iteration, we count respectively the number symbol errors:
+   - in the first frame symbol (at most 1/frame)
+   - in subsequent symbols, if the prior symbol was correct
+   - in subsequent symbols, if the prior symbol was in error
+   - in the prior symbol (required when applying Bayes' rule
+     to the above two counts)
+     (all three above: at most #symbols/frame - 1)
+*/
+int commsys_prof_burst::get_multiplicity(int i) const
+   {
+   switch(i % 4)
+      {
+      case 0:
+         return 1;
+      default:
+         return get_symbolsperblock()-1;
       }
    }
 

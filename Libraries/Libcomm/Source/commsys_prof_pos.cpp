@@ -26,7 +26,7 @@ void commsys_prof_pos::updateresults(libbase::vector<double>& result, const int 
    // Update the count for every symbol in error
    for(int t=0; t<get_symbolsperblock(); t++)
       if(source(t) != decoded(t))
-         result(skip*i + t) += 1.0 / double(get_symbolsperblock());
+         result(skip*i + t)++;
    }
 
 }; // end namespace

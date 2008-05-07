@@ -66,8 +66,15 @@ class commsys_hist_symerr : public commsys_errorrates {
 public:
    // Public interface
    void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   //! For each iteration, we count the frequency of each possible symbol-error count, including zero
+   /*! \copydoc experiment::count()
+       For each iteration, we count the frequency of each possible
+       symbol-error count, including zero
+   */
    int count() const { return (get_symbolsperblock()+1)*get_iter(); };
+   /*! \copydoc experiment::get_multiplicity()
+       Only one result can be incremented for every frame.
+   */
+   int get_multiplicity(int i) const { return 1; };
 };
 
 }; // end namespace

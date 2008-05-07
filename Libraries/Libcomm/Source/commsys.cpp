@@ -75,11 +75,9 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result, const in
    }
 
 /*!
-   \brief Sample size multiplicative factor
-   \param[in]  i  Result index
-   \return        Population size per sample for given result index
+   \copydoc experiment::get_multiplicity()
 
-   Since esults are organized as (bit,symbol,frame) error count, repeated for
+   Since results are organized as (bit,symbol,frame) error count, repeated for
    every iteration, the multiplicity is respectively the number of bits, the
    number of symbols and the number of frames (=1) per sample.
 */
@@ -97,7 +95,6 @@ int commsys_errorrates::get_multiplicity(int i) const
    // this never really happens
    return 0;
    }
-
 
 // *** Templated Common Base ***
 
