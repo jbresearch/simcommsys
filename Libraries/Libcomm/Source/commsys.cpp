@@ -58,8 +58,9 @@ int commsys_errorrates::countsymerrors(const libbase::vector<int>& source, const
    \param[in]  source   Source data sequence
    \param[in]  decoded  Decoded data sequence
 
-   Results are organized as (BER,SER,FER), repeated for every iteration that
-   needs to be performed.
+   Results are organized as (bit,symbol,frame) error count, repeated for
+   every iteration that needs to be performed. Eventually these will be
+   divided by the respective multiplicity to get the average error rates.
 */
 void commsys_errorrates::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
@@ -68,11 +69,20 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result, const in
    int biterrors = countbiterrors(source, decoded);
    int symerrors = countsymerrors(source, decoded);
    // Estimate the BER, SER, FER
-   result(3*i + 0) += biterrors / double(get_symbolsperblock()*get_bitspersymbol());
-   result(3*i + 1) += symerrors / double(get_symbolsperblock());
+   result(3*i + 0) += biterrors;
+   result(3*i + 1) += symerrors;
    result(3*i + 2) += symerrors ? 1 : 0;
    }
 
+/*!
+   \brief Sample size multiplicative factor
+   \param[in]  i  Result index
+   \return        Population size per sample for given result index
+
+   Since esults are organized as (bit,symbol,frame) error count, repeated for
+   every iteration, the multiplicity is respectively the number of bits, the
+   number of symbols and the number of frames (=1) per sample.
+*/
 int commsys_errorrates::get_multiplicity(int i) const
    {
    switch(i % 3)

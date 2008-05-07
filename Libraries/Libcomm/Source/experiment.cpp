@@ -117,13 +117,18 @@ void experiment_binomial::get_state(libbase::vector<double>& state) const
 void experiment_binomial::estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const
    {
    assert(count() == sum.size());
-   // estimate is the proportion
-   assert(get_samplecount() > 0);
-   estimate = sum/double(get_samplecount());
-   // standard error is sqrt(p(1-p)/n)
+   // initialize space for results
+   estimate.init(count());
    stderror.init(count());
+   // compute results
+   assert(get_samplecount() > 0);
    for(int i=0; i<count(); i++)
+      {
+      // estimate is the proportion
+      estimate(i) = sum(i)/double(get_samplecount(i));
+      // standard error is sqrt(p(1-p)/n)
       stderror(i) = sqrt( (estimate(i)*(1-estimate(i))) / double(get_samplecount(i)) );
+      }
    }
 
 }; // end namespace
