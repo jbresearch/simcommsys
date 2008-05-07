@@ -13,6 +13,7 @@
 #include "commsys_prof_sym.h"
 #include "commsys_hist_symerr.h"
 
+#include "map_straight.h"
 #include "fsm.h"
 #include "gf.h"
 #include "itfunc.h"
@@ -299,6 +300,12 @@ template <class S, class R> std::istream& basic_commsys<S,R>::serialize(std::ist
    sin >> chan;
    sin >> modem;
    sin >> map;
+   if(sin.fail())
+      {
+      assert(map == NULL);
+      map = new map_straight;
+      sin.clear();
+      }
    sin >> cdc;
    internallyallocated = true;
    init();

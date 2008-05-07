@@ -123,14 +123,16 @@ public:
    std::istream& operator>>(std::istream& sin, class_name*& x) \
       { \
       std::string name; \
+      std::streampos start = sin.tellg(); \
       sin >> name; \
       x = (class_name*) libbase::serializer::call(#class_name, name); \
       if(x == NULL) \
          { \
-         std::cerr << "FATAL ERROR (" #class_name "): Type \"" << name << "\" unknown.\n"; \
-         exit(1); \
+         sin.seekg( start ); \
+         sin.clear( std::ios::failbit ); \
          } \
-      x->serialize(sin); \
+      else \
+         x->serialize(sin); \
       return sin; \
       }
 
