@@ -9,12 +9,6 @@
 
 #include "commsys_prof_pos.h"
 
-#include "fsm.h"
-#include "itfunc.h"
-#include "secant.h"
-#include "timer.h"
-#include <iostream>
-
 namespace libcomm {
 
 // commsys functions
