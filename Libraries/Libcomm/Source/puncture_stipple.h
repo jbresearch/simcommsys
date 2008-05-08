@@ -54,8 +54,6 @@ namespace libcomm {
 */
 
 class puncture_stipple : public puncture {
-   static const libbase::serializer shelper;
-   static void* create() { return new puncture_stipple; };
 private:
    int tau, sets;
 protected:
@@ -65,12 +63,11 @@ public:
    puncture_stipple(const int tau, const int sets) { init(tau, sets); };
    ~puncture_stipple() {};
 
-   puncture_stipple *clone() const { return new puncture_stipple(*this); };             // cloning operation
-   const char* name() const { return shelper.name(); };
-
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(puncture_stipple)
 };
 
 }; // end namespace

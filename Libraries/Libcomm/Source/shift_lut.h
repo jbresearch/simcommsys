@@ -65,8 +65,6 @@ namespace libcomm {
 */
 
 class shift_lut : public lut_interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new shift_lut; };
    int amount;
 protected:
    void init(const int amount, const int tau);
@@ -74,12 +72,12 @@ protected:
 public:
    shift_lut(const int amount, const int tau) { init(amount, tau); };
    ~shift_lut() {};
-   shift_lut* clone() const { return new shift_lut(*this); };
-   const char* name() const { return shelper.name(); };
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(shift_lut)
 };
 
 }; // end namespace

@@ -46,13 +46,25 @@ template <class G> void gnrcc<G>::resetcircular(int zerostate, int n)
    }
 
 
-// description output
+// Description
 
 template <class G> std::string gnrcc<G>::description() const
    {
    std::ostringstream sout;
    sout << "NRC code " << ccfsm<G>::description();
    return sout.str();
+   }
+
+// Serialization Support
+
+template <class G> std::ostream& gnrcc<G>::serialize(std::ostream& sout) const
+   {
+   return ccfsm<G>::serialize(sout);
+   }
+
+template <class G> std::istream& gnrcc<G>::serialize(std::istream& sin)
+   {
+   return ccfsm<G>::serialize(sin);
    }
 
 }; // end namespace

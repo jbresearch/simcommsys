@@ -52,13 +52,25 @@ bitfield rscc::determinefeedin(const int input) const
    return sin;
    }
 
-// description output
+// Description
 
 std::string rscc::description() const
    {
    std::ostringstream sout;
    sout << "RSC code " << ccbfsm::description();
    return sout.str();
+   }
+
+// Serialization Support
+
+std::ostream& rscc::serialize(std::ostream& sout) const
+   {
+   return ccbfsm::serialize(sout);
+   }
+
+std::istream& rscc::serialize(std::istream& sin)
+   {
+   return ccbfsm::serialize(sin);
    }
 
 }; // end namespace

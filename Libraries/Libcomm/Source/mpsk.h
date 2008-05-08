@@ -58,8 +58,6 @@ namespace libcomm {
 */
 
 class mpsk : public lut_modulator {
-   static const libbase::serializer shelper;
-   static void* create() { return new mpsk; };
 protected:
    mpsk() {};
    void init(const int m);
@@ -67,12 +65,11 @@ public:
    mpsk(const int m) { init(m); };
    ~mpsk() {};
 
-   mpsk *clone() const { return new mpsk(*this); };             // cloning operation
-   const char* name() const { return shelper.name(); };
-
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(mpsk)
 };
 
 }; // end namespace

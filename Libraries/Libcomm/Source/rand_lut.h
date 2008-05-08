@@ -77,8 +77,6 @@ namespace libcomm {
 */
 
 class rand_lut : public lut_interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new rand_lut; };
    int      p;
    libbase::randgen  r;
 protected:
@@ -87,15 +85,15 @@ protected:
 public:
    rand_lut(const int tau, const int m) { init(tau, m); };
    ~rand_lut() {};
-   rand_lut* clone() const { return new rand_lut(*this); };
-   const char* name() const { return shelper.name(); };
 
    void seed(const int s);
    void advance();
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(rand_lut)
 };
 
 }; // end namespace

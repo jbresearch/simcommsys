@@ -54,8 +54,6 @@ namespace libcomm {
 */
 
 class puncture_null : public puncture {
-   static const libbase::serializer shelper;
-   static void* create() { return new puncture_null; };
 protected:
    void init(const int tau);
    puncture_null() {};
@@ -63,12 +61,11 @@ public:
    puncture_null(const int tau) { init(tau); };
    ~puncture_null() {};
 
-   puncture_null *clone() const { return new puncture_null(*this); };           // cloning operation
-   const char* name() const { return shelper.name(); };
-
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(puncture_null)
 };
 
 }; // end namespace

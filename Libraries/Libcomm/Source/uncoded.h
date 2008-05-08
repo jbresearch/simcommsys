@@ -73,8 +73,6 @@ namespace libcomm {
 */
 
 class uncoded : public codec {
-   static const libbase::serializer shelper;
-   static void* create() { return new uncoded; };
    fsm   *encoder;
    int   tau;  //!< block length
    int   K;    //!< number of input symbols
@@ -89,9 +87,6 @@ public:
    uncoded(const fsm& encoder, const int tau);
    ~uncoded() { free(); };
 
-   uncoded *clone() const { return new uncoded(*this); };               // cloning operation
-   const char* name() const { return shelper.name(); };
-
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
@@ -102,9 +97,11 @@ public:
    int tail_length() const { return 0; };
    int num_iter() const { return 1; };
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(uncoded)
 };
 
 }; // end namespace

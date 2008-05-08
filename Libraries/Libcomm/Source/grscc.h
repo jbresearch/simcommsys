@@ -33,10 +33,6 @@ namespace libcomm {
 */
 
 template <class G> class grscc : public ccfsm<G> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new grscc<G>; };
-   // @}
 private:
    /*! \name Object representation */
    libbase::matrix<int> csct; //!< Circulation state correspondence table
@@ -63,15 +59,14 @@ public:
    ~grscc() {};
    // @}
 
-   // Serialization Support
-   grscc<G> *clone() const { return new grscc<G>(*this); };
-   const char* name() const { return shelper.name(); };
-
    // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n);
 
-   // Description & Serialization
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(grscc)
 };
 
 }; // end namespace

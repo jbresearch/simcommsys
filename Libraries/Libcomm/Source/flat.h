@@ -63,20 +63,18 @@ namespace libcomm {
 */
 
 class flat : public lut_interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new flat; };
 protected:
    void init(const int tau);
    flat() {};
 public:
    flat(const int tau) { init(tau); };
    ~flat() {};
-   flat* clone() const { return new flat(*this); };
-   const char* name() const { return shelper.name(); };
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(flat)
 };
 
 }; // end namespace

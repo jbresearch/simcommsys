@@ -110,10 +110,6 @@ namespace libcomm {
 */
 
 class bsid : public channel<bool> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new bsid; };
-   // @}
 private:
    /*! \name User-defined parameters */
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
@@ -170,10 +166,6 @@ public:
    /*! \name Constructors / Destructors */
    bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    // @}
-   /*! \name Serialization Support */
-   bsid *clone() const { return new bsid(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
 
    /*! \name Channel parameter handling */
    void set_parameter(const double p);
@@ -211,10 +203,11 @@ public:
    double receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const;
    double receive(const bool& tx, const libbase::vector<bool>& rx) const;
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(bsid)
 };
 
 inline double bsid::pdf(const bool& tx, const bool& rx) const

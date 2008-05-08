@@ -55,8 +55,6 @@ namespace libcomm {
 */
 
 class puncture_file : public puncture {
-   static const libbase::serializer shelper;
-   static void* create() { return new puncture_file; };
 private:
    libbase::matrix<bool> pattern;
 protected:
@@ -66,12 +64,11 @@ public:
    puncture_file(const char *fname, const int tau, const int sets);
    ~puncture_file() {};
 
-   puncture_file *clone() const { return new puncture_file(*this); };           // cloning operation
-   const char* name() const { return shelper.name(); };
-
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(puncture_file)
 };
 
 }; // end namespace

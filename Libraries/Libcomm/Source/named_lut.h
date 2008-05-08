@@ -37,19 +37,16 @@ namespace libcomm {
 */
 
 class named_lut : public lut_interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new named_lut; };
 protected:
    std::string lutname;
    int m;
    named_lut() {};
 public:
-   named_lut* clone() const { return new named_lut(*this); };
-   const char* name() const { return shelper.name(); };
-
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(named_lut)
 };
 
 }; // end namespace

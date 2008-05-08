@@ -22,10 +22,6 @@ namespace libcomm {
 */
 
 class qam : public lut_modulator {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new qam; };
-   // @}
 protected:
    /*! \name Internal operations */
    void init(const int m);
@@ -40,16 +36,11 @@ public:
    ~qam() {};
    // @}
 
-   /*! \name Class management (cloning/naming) */
-   qam *clone() const { return new qam(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
-
-   /*! \name Description & Serialization */
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
-   // @}
+
+   // Serialization Support
+   DECLARE_SERIALIZER(qam)
 };
 
 }; // end namespace

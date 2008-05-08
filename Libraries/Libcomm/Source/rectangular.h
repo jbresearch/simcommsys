@@ -68,8 +68,6 @@ namespace libcomm {
 */
 
 class rectangular : public lut_interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new rectangular; };
    int rows, cols;
 protected:
    void init(const int tau, const int rows, const int cols);
@@ -77,12 +75,12 @@ protected:
 public:
    rectangular(const int tau, const int rows, const int cols) { init(tau, rows, cols); };
    ~rectangular() {};
-   rectangular* clone() const { return new rectangular(*this); };
-   const char* name() const { return shelper.name(); };
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(rectangular)
 };
 
 }; // end namespace

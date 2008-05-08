@@ -41,10 +41,6 @@ namespace libcomm {
 */
 
 class dvbcrsc : public fsm {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new dvbcrsc; };
-   // @}
    /*! \name Object representation */
    static const int csct[7][8];  //!< Circulation state correspondence table
    static const int k, n;        //!< Number of input and output bits, respectively
@@ -65,10 +61,6 @@ public:
    ~dvbcrsc() {};
    // @}
 
-   // Serialization Support
-   dvbcrsc *clone() const { return new dvbcrsc(*this); };
-   const char* name() const { return shelper.name(); };
-
    // FSM state operations (getting and resetting)
    int state() const;
    void reset(int state=0);
@@ -83,10 +75,11 @@ public:
    int num_outputs() const { return 1<<n; };
    int mem_order() const { return nu; };
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(dvbcrsc)
 };
 
 }; // end namespace

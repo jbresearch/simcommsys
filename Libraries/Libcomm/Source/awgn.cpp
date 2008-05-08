@@ -36,21 +36,19 @@ double awgn::pdf(const sigspace& tx, const sigspace& rx) const
    return gauss(n.i() / sigma) * gauss(n.q() / sigma);
    }
 
-// description output
+// Description
 
 std::string awgn::description() const
    {
    return "AWGN channel";
    }
 
-// object serialization - saving
+// Serialization Support
 
 std::ostream& awgn::serialize(std::ostream& sout) const
    {
    return sout;
    }
-
-// object serialization - loading
 
 std::istream& awgn::serialize(std::istream& sin)
    {

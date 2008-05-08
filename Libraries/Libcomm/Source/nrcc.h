@@ -91,8 +91,6 @@ namespace libcomm {
 */
 
 class nrcc : public ccbfsm {
-   static const libbase::serializer shelper;
-   static void* create() { return new nrcc; };
 protected:
    libbase::bitfield determineinput(const int input) const;
    libbase::bitfield determinefeedin(const int input) const;
@@ -104,15 +102,14 @@ public:
    ~nrcc() {};
    // @}
 
-   // Serialization Support
-   nrcc *clone() const { return new nrcc(*this); };
-   const char* name() const { return shelper.name(); };
-
    // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n);
 
-   // Description & Serialization
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(nrcc)
 };
 
 }; // end namespace

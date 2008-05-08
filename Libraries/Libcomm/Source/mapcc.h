@@ -99,8 +99,6 @@ namespace libcomm {
 */
 
 template <class real> class mapcc : public codec, private bcjr<real> {
-   static const libbase::serializer shelper;
-   static void* create() { return new mapcc<real>; };
 private:
    fsm      *encoder;
    double   rate;
@@ -121,9 +119,6 @@ public:
    mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular=false);
    ~mapcc() { free(); };
 
-   mapcc *clone() const { return new mapcc(*this); };           // cloning operation
-   const char* name() const { return shelper.name(); };
-
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
@@ -134,9 +129,11 @@ public:
    int tail_length() const { return m; };
    int num_iter() const { return 1; };
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(mapcc)
 };
 
 }; // end namespace

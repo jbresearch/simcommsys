@@ -42,8 +42,6 @@ namespace libcomm {
 */
 
 class lapgauss : public channel<sigspace> {
-   static const libbase::serializer shelper;
-   static void* create() { return new lapgauss; };
    // channel paremeters
    double               sigma;
 protected:
@@ -55,14 +53,12 @@ protected:
 public:
    // object handling
    lapgauss();
-   lapgauss *clone() const { return new lapgauss(*this); };
-   const char* name() const { return shelper.name(); };
 
-   // description output
+   // Description
    std::string description() const;
-   // object serialization
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(lapgauss)
 };
 
 }; // end namespace

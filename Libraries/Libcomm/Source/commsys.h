@@ -297,19 +297,13 @@ public:
    - Added explicit realization of prof_sym variant for bool channel
 */
 template <class S, class R=commsys_errorrates> class commsys : public basic_commsys<S,R> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new commsys<S,R>; };
-   // @}
 protected:
    /*! \name Internal functions */
    void transmitandreceive(libbase::vector<int>& source);
    // @}
 public:
-   //*! \name Serialization Support */
-   commsys *clone() const { return new commsys(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
+   // Serialization Support
+   DECLARE_SERIALIZER(commsys)
 };
 
 /*!
@@ -339,10 +333,6 @@ public:
      stream.
 */
 template <class R> class commsys<sigspace,R> : public basic_commsys<sigspace,R> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new commsys<sigspace,R>; };
-   // @}
 protected:
    /*! \name Bound objects */
    puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
@@ -364,20 +354,16 @@ public:
    virtual ~commsys<sigspace,R>() { free(); };
    // @}
 
-   //*! \name Serialization Support */
-   commsys *clone() const { return new commsys(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
-
    /*! \name Component object handles */
    //! Get puncturing scheme
    const puncture *getpunc() const { return punc; };
    // @}
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(commsys)
 };
 
 }; // end namespace

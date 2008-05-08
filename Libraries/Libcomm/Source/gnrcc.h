@@ -27,10 +27,6 @@ namespace libcomm {
 */
 
 template <class G> class gnrcc : public ccfsm<G> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new gnrcc<G>; };
-   // @}
 protected:
    /*! \name FSM helper operations */
    int determineinput(int input) const;
@@ -47,15 +43,14 @@ public:
    ~gnrcc() {};
    // @}
 
-   // Serialization Support
-   gnrcc<G> *clone() const { return new gnrcc<G>(*this); };
-   const char* name() const { return shelper.name(); };
-
    // FSM state operations (getting and resetting)
    void resetcircular(int zerostate, int n);
 
-   // Description & Serialization
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(gnrcc)
 };
 
 }; // end namespace

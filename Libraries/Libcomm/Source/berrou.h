@@ -64,8 +64,6 @@ namespace libcomm {
 */
 
 class berrou : public lut_interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new berrou; };
    int M;
 protected:
    void init(const int M);
@@ -73,12 +71,12 @@ protected:
 public:
    berrou(const int M) { init(M); };
    ~berrou() {};
-   berrou* clone() const { return new berrou(*this); };
-   const char* name() const { return shelper.name(); };
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(berrou)
 };
 
 }; // end namespace

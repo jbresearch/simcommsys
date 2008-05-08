@@ -375,6 +375,18 @@ template <class S, class R> void commsys<S,R>::transmitandreceive(libbase::vecto
    this->cdc->translate(pout);
    }
 
+// Serialization Support
+
+template <class S, class R> std::ostream& commsys<S,R>::serialize(std::ostream& sout) const
+   {
+   return basic_commsys<S,R>::serialize(sout);
+   }
+
+template <class S, class R> std::istream& commsys<S,R>::serialize(std::istream& sin)
+   {
+   return basic_commsys<S,R>::serialize(sin);
+   }
+
 // Explicit Realizations
 
 template class commsys<bool>;

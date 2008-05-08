@@ -40,13 +40,25 @@ bitfield nrcc::determinefeedin(const int input) const
    return bitfield(input,k);
    }
 
-// description output
+// Description
 
 std::string nrcc::description() const
    {
    std::ostringstream sout;
    sout << "NRC code " << ccbfsm::description();
    return sout.str();
+   }
+
+// Serialization Support
+
+std::ostream& nrcc::serialize(std::ostream& sout) const
+   {
+   return ccbfsm::serialize(sout);
+   }
+
+std::istream& nrcc::serialize(std::istream& sin)
+   {
+   return ccbfsm::serialize(sin);
    }
 
 }; // end namespace

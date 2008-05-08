@@ -146,10 +146,6 @@ namespace libcomm {
 */
 
 template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new watermarkcode<real>; };
-   // @}
 private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
@@ -193,10 +189,6 @@ public:
    watermarkcode(const int n, const int k, const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    ~watermarkcode() { free(); };
    // @}
-   /*! \name Serialization Support */
-   watermarkcode *clone() const { return new watermarkcode(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
 
    /*! \name Watermark-specific informative functions */
    int get_n() const { return n; };
@@ -215,10 +207,11 @@ public:
    int num_symbols() const { return 1<<k; };
    double energy() const { return n; };
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(watermarkcode)
 };
 
 }; // end namespace

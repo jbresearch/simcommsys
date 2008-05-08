@@ -94,8 +94,6 @@ namespace libcomm {
 */
 
 class padded : public interleaver {
-   static const libbase::serializer shelper;
-   static void* create() { return new padded; };
    interleaver *otp;
    interleaver *inter;
 protected:
@@ -104,9 +102,6 @@ public:
    padded(const interleaver& inter, const fsm& encoder, const int tau, const bool terminated, const bool renewable);
    padded(const padded& x);
    ~padded();
-
-   padded* clone() const { return new padded(*this); };
-   const char* name() const { return shelper.name(); };
 
    void seed(const int s);
    void advance();
@@ -117,9 +112,11 @@ public:
    void transform(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const;
    void inverse(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const;
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(padded)
 };
 
 }; // end namespace

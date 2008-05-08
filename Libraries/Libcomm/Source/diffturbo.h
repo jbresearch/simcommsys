@@ -90,8 +90,6 @@ namespace libcomm {
 */
 
 template <class real> class diffturbo : public turbo<real> {
-   static const libbase::serializer shelper;
-   static void* create() { return new diffturbo<real>; };
 private:
    std::string filename;
    libbase::vector<int> lut;
@@ -107,15 +105,14 @@ public:
       const int iter, const bool simile, const bool endatzero, const bool parallel=false);
    ~diffturbo() {};
 
-   diffturbo *clone() const { return new diffturbo(*this); };           // cloning operation
-   const char* name() const { return shelper.name(); };
-
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void decode(libbase::vector<int>& decoded);
 
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+
+   // Serialization Support
+   DECLARE_SERIALIZER(diffturbo)
 };
 
 }; // end namespace
