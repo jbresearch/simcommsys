@@ -43,4 +43,18 @@ std::string awgn::description() const
    return "AWGN channel";
    }
 
+// object serialization - saving
+
+std::ostream& awgn::serialize(std::ostream& sout) const
+   {
+   return sout;
+   }
+
+// object serialization - loading
+
+std::istream& awgn::serialize(std::istream& sin)
+   {
+   return sin;
+   }
+
 }; // end namespace

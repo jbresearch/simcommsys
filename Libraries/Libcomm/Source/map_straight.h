@@ -30,6 +30,7 @@ public:
    // Description
    std::string description() const;
 
+   // Serialization Support
    DECLARE_SERIALIZER(map_straight)
 };
 

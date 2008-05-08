@@ -58,8 +58,6 @@ namespace libcomm {
 */
 
 class laplacian : public channel<sigspace> {
-   static const libbase::serializer shelper;
-   static void* create() { return new laplacian; };
    // channel paremeters
    double   lambda;
 private:
@@ -73,12 +71,11 @@ protected:
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
-   // object handling
-   laplacian *clone() const { return new laplacian(*this); };
-   const char* name() const { return shelper.name(); };
-
-   // description output
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(laplacian)
 };
 
 }; // end namespace

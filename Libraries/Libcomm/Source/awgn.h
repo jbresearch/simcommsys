@@ -57,8 +57,6 @@ namespace libcomm {
 */
 
 class awgn : public channel<sigspace> {
-   static const libbase::serializer shelper;
-   static void* create() { return new awgn; };
    // channel paremeters
    double               sigma;
 protected:
@@ -68,12 +66,11 @@ protected:
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
-   // object handling
-   awgn *clone() const { return new awgn(*this); };
-   const char* name() const { return shelper.name(); };
-
-   // description output
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(awgn)
 };
 
 }; // end namespace

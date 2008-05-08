@@ -2,6 +2,7 @@
 #define __interleaver_h
 
 #include "config.h"
+#include "serializer.h"
 #include "matrix.h"
 #include "vector.h"
 #include "logrealfast.h"
@@ -97,9 +98,6 @@ namespace libcomm {
 class interleaver {
 public:
    virtual ~interleaver() {};
-   virtual interleaver* clone() const = 0;
-   // derived class/object  name
-   virtual const char* name() const = 0;
    // intra-frame operations
    virtual void seed(const int s) {};
    virtual void advance() {};
@@ -111,14 +109,13 @@ public:
    virtual void transform(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const = 0;
    virtual void inverse(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const = 0;
 
-   // description output
+   /*! \name Description */
+   //! Description output
    virtual std::string description() const = 0;
-   // object serialization - saving
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const interleaver* x);
-   // object serialization - loading
-   virtual std::istream& serialize(std::istream& sin) = 0;
-   friend std::istream& operator>>(std::istream& sin, interleaver*& x);
+   // @}
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(interleaver)
 };
 
 }; // end namespace

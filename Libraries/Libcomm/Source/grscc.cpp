@@ -223,7 +223,6 @@ template <class G> std::string grscc<G>::description() const
 // Explicit Realizations
 
 #include "gf.h"
-#include "serializer.h"
 
 namespace libcomm {
 

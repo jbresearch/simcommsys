@@ -60,7 +60,6 @@ template <class G> std::string gnrcc<G>::description() const
 // Explicit Realizations
 
 #include "gf.h"
-#include "serializer.h"
 
 namespace libcomm {
 

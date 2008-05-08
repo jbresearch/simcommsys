@@ -58,10 +58,6 @@ public:
    /*! \name Constructors / Destructors */
    virtual ~basic_channel() {};
    // @}
-   /*! \name Serialization Support */
-   virtual basic_channel *clone() const = 0;
-   virtual const char* name() const = 0;
-   // @}
 
    /*! \name Channel parameter handling */
    //! Reset function for random generator
@@ -116,13 +112,9 @@ public:
    virtual double receive(const S& tx, const libbase::vector<S>& rx) const;
    // @}
 
-   /*! \name Description & Serialization */
-   //! Object description output
+   /*! \name Description */
+   //! Description output
    virtual std::string description() const = 0;
-   //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream &sout) const { return sout; };
-   //! Object serialization input
-   virtual std::istream& serialize(std::istream &sin) { return sin; };
    // @}
 };
 
@@ -288,32 +280,9 @@ template <class S> double basic_channel<S>::receive(const S& tx, const libbase::
 */
 
 template <class S> class channel : public basic_channel<S> {
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(channel)
 };
-
-/*! \name Serialization */
-
-template <class S> std::ostream& operator<<(std::ostream& sout, const channel<S>* x)
-   {
-   sout << x->name() << "\n";
-   x->serialize(sout);
-   return sout;
-   }
-
-template <class S> std::istream& operator>>(std::istream& sin, channel<S>*& x)
-   {
-   std::string name;
-   sin >> name;
-   x = (channel<S> *) libbase::serializer::call("channel", name);
-   if(x == NULL)
-      {
-      std::cerr << "FATAL ERROR (channel): Type \"" << name << "\" unknown.\n";
-      exit(1);
-      }
-   x->serialize(sin);
-   return sin;
-   }
-
-// @}
 
 /*!
    \brief   Signal-Space Channel.
@@ -371,6 +340,9 @@ public:
    void set_parameter(const double snr_db);
    //! Get the signal-to-noise ratio
    double get_parameter() const { return snr_db; };
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(channel)
 };
 
 }; // end namespace

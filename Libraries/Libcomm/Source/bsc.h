@@ -22,10 +22,6 @@ namespace libcomm {
 */
 
 class bsc : public channel<bool> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new bsc; };
-   // @}
 private:
    /*! \name User-defined parameters */
    double   Ps;    //!< Bit-substitution probability \f$ P_s \f$
@@ -39,10 +35,6 @@ public:
    //! Default constructor
    bsc() {};
    // @}
-   /*! \name Serialization Support */
-   bsc *clone() const { return new bsc(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
 
    /*! \name Channel parameter handling */
    //! Set the substitution probability
@@ -51,8 +43,11 @@ public:
    double get_parameter() const { return Ps; };
    // @}
 
-   // Description & Serialization
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(bsc)
 };
 
 inline double bsc::pdf(const bool& tx, const bool& rx) const

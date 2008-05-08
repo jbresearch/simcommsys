@@ -2,6 +2,7 @@
 #define __puncture_h
 
 #include "config.h"
+#include "serializer.h"
 #include "matrix.h"
 #include "vector.h"
 #include "sigspace.h"
@@ -85,8 +86,6 @@ protected:
    void init(const libbase::matrix<bool>& pattern);  // fill-in all members from the pattern matrix
 public:
    virtual ~puncture() {};                // virtual destructor
-   virtual puncture *clone() const = 0; // cloning operation
-   virtual const char* name() const = 0;  // derived object's name
 
    void transform(const libbase::vector<sigspace>& in, libbase::vector<sigspace>& out) const;
    void inverse(const libbase::vector<sigspace>& in, libbase::vector<sigspace>& out) const;
@@ -96,14 +95,13 @@ public:
    int get_inputs() const { return inputs; };
    int get_outputs() const { return outputs; };
 
-   // description output
+   /*! \name Description */
+   //! Description output
    virtual std::string description() const = 0;
-   // object serialization - saving
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const puncture* x);
-   // object serialization - loading
-   virtual std::istream& serialize(std::istream& sin) = 0;
-   friend std::istream& operator>>(std::istream& sin, puncture*& x);
+   // @}
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(puncture)
 };
 
 }; // end namespace

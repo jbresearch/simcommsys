@@ -43,4 +43,18 @@ std::string laplacian::description() const
    return "Laplacian channel";
    }
 
+// object serialization - saving
+
+std::ostream& laplacian::serialize(std::ostream& sout) const
+   {
+   return sout;
+   }
+
+// object serialization - loading
+
+std::istream& laplacian::serialize(std::istream& sin)
+   {
+   return sin;
+   }
+
 }; // end namespace

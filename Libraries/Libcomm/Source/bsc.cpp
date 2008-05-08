@@ -57,4 +57,18 @@ std::string bsc::description() const
    return "BSC channel";
    }
 
+// object serialization - saving
+
+std::ostream& bsc::serialize(std::ostream& sout) const
+   {
+   return sout;
+   }
+
+// object serialization - loading
+
+std::istream& bsc::serialize(std::istream& sin)
+   {
+   return sin;
+   }
+
 }; // end namespace

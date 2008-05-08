@@ -2,6 +2,7 @@
 #define __modulator_h
 
 #include "config.h"
+#include "serializer.h"
 #include "sigspace.h"
 #include "vector.h"
 #include "matrix.h"
@@ -31,10 +32,6 @@ template <class S> class basic_modulator {
 public:
    /*! \name Constructors / Destructors */
    virtual ~basic_modulator() {};
-   // @}
-   /*! \name Serialization Support */
-   virtual basic_modulator *clone() const = 0;
-   virtual const char* name() const = 0;
    // @}
 
    /*! \name Atomic modem operations */
@@ -89,18 +86,58 @@ public:
    virtual int num_symbols() const = 0;
    // @}
 
-   /*! \name Description & Serialization */
-   //! Object description output
+   /*! \name Description */
+   //! Description output
    virtual std::string description() const = 0;
-   //! Object serialization ouput
-   virtual std::ostream& serialize(std::ostream& sout) const  { return sout; };
-   //! Object serialization input
-   virtual std::istream& serialize(std::istream& sin) { return sin; };
    // @}
 };
 
 /*!
    \brief   Modulator Base.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
+template <class S> class modulator : public basic_modulator<S> {
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(modulator)
+};
+
+/*!
+   \brief   Signal-Space Modulator Specialization.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \version 1.00 (24 Jan 2008)
+   - Elements specific to the signal-space channel moved to this implementation
+     derived from the abstract class.
+*/
+
+template <> class modulator<sigspace> : public basic_modulator<sigspace> {
+public:
+   /*! \name Informative functions */
+   //! Average energy per symbol
+   virtual double energy() const = 0;
+   //! Average energy per bit
+   double bit_energy() const { return energy()/log2(num_symbols()); };
+   //! Modulation rate (spectral efficiency) in bits/unit energy
+   double rate() const { return 1.0/bit_energy(); };
+   // @}
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(modulator)
+};
+
+/*!
+   \brief   Q-ary Modulator.
    \author  Johann Briffa
 
    \par Version Control:
@@ -195,14 +232,8 @@ public:
    \todo Merge modulate and demodulate between this function and lut_modulator
 */
 
-template <class G> class modulator : public basic_modulator<G> {
-   static const libbase::serializer shelper;
-   static void* create() { return new modulator<G>; };
+template <class G> class direct_modulator : public modulator<G> {
 public:
-   // Serialization Support
-   modulator<G> *clone() const { return new modulator<G>(*this); };
-   const char* name() const { return shelper.name(); };
-
    // Atomic modem operations
    const G modulate(const int index) const { assert(index >= 0 && index < num_symbols()); return G(index); };
    const int demodulate(const G& signal) const { return signal; };
@@ -214,59 +245,11 @@ public:
    // Informative functions
    int num_symbols() const { return G::elements(); };
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-};
 
-/*! \name Serialization */
-
-template <class S> std::ostream& operator<<(std::ostream& sout, const modulator<S>* x)
-   {
-   sout << x->name() << "\n";
-   x->serialize(sout);
-   return sout;
-   }
-
-template <class S> std::istream& operator>>(std::istream& sin, modulator<S>*& x)
-   {
-   std::string name;
-   sin >> name;
-   x = (modulator<S> *) libbase::serializer::call("modulator", name);
-   if(x == NULL)
-      {
-      std::cerr << "FATAL ERROR (modulator): Type \"" << name << "\" unknown.\n";
-      exit(1);
-      }
-   x->serialize(sin);
-   return sin;
-   }
-
-// @}
-
-/*!
-   \brief   Signal-Space Modulator.
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-
-   \version 1.00 (24 Jan 2008)
-   - Elements specific to the signal-space channel moved to this implementation
-     derived from the abstract class.
-*/
-
-template <> class modulator<sigspace> : public basic_modulator<sigspace> {
-public:
-   /*! \name Informative functions */
-   //! Average energy per symbol
-   virtual double energy() const = 0;
-   //! Average energy per bit
-   double bit_energy() const { return energy()/log2(num_symbols()); };
-   //! Modulation rate (spectral efficiency) in bits/unit energy
-   double rate() const { return 1.0/bit_energy(); };
-   // @}
+   // Serialization Support
+   DECLARE_SERIALIZER(direct_modulator)
 };
 
 /*!
@@ -283,14 +266,8 @@ public:
      derived from the abstract class.
 */
 
-template <> class modulator<bool> : public basic_modulator<bool> {
-   static const libbase::serializer shelper;
-   static void* create() { return new modulator<bool>; };
+template <> class direct_modulator<bool> : public modulator<bool> {
 public:
-   // Serialization Support
-   modulator<bool> *clone() const { return new modulator<bool>(*this); };
-   const char* name() const { return shelper.name(); };
-
    // Atomic modem operations
    const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index & 1; };
    const int demodulate(const bool& signal) const { return signal; };
@@ -302,8 +279,11 @@ public:
    // Informative functions
    int num_symbols() const { return 2; };
 
-   // Description & Serialization
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(direct_modulator)
 };
 
 }; // end namespace

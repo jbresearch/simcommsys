@@ -31,10 +31,6 @@ namespace libcomm {
 */
 
 template <class G> class qsc : public channel<G> {
-   /*! \name Serialization */
-   static const libbase::serializer shelper;
-   static void* create() { return new qsc<G>; };
-   // @}
 private:
    /*! \name User-defined parameters */
    double   Ps;    //!< Symbol-substitution probability \f$ P_s \f$
@@ -48,10 +44,6 @@ public:
    //! Default constructor
    qsc() {};
    // @}
-   /*! \name Serialization Support */
-   qsc *clone() const { return new qsc(*this); };
-   const char* name() const { return shelper.name(); };
-   // @}
 
    /*! \name Channel parameter handling */
    //! Set the substitution probability
@@ -60,8 +52,11 @@ public:
    double get_parameter() const { return Ps; };
    // @}
 
-   // Description & Serialization
+   // Description
    std::string description() const;
+
+   // Serialization Support
+   DECLARE_SERIALIZER(qsc)
 };
 
 template <class G> inline double qsc<G>::pdf(const G& tx, const G& rx) const

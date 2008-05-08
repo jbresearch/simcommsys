@@ -356,6 +356,7 @@ public:
    // Description
    std::string description() const;
 
+   // Serialization Support
    DECLARE_SERIALIZER(turbo)
 };
 

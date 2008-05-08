@@ -2,6 +2,7 @@
 #define __fsm_h
 
 #include "config.h"
+#include "serializer.h"
 #include <iostream>
 #include <string>
 
@@ -108,13 +109,6 @@ public:
    virtual ~fsm() {};
    // @}
 
-   /*! \name Serialization Support */
-   //! Cloning operation
-   virtual fsm *clone() const = 0;
-   //! Derived object's name
-   virtual const char* name() const = 0;
-   // @}
-
    /*! \name FSM state operations (getting and resetting) */
    /*!
       \brief The current state
@@ -209,20 +203,14 @@ public:
    virtual int num_outputs() const = 0;
    // @}
 
-   /*! \name Description & Serialization */
+   /*! \name Description */
    //! Description output
    virtual std::string description() const = 0;
-   //! Serialization output
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   //! Serialization input
-   virtual std::istream& serialize(std::istream& sin) = 0;
    // @}
-};
 
-/*! \name Stream Output */
-std::ostream& operator<<(std::ostream& sout, const fsm* x);
-std::istream& operator>>(std::istream& sin, fsm*& x);
-// @}
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(fsm)
+};
 
 }; // end namespace
 

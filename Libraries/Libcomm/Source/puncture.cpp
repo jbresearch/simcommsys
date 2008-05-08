@@ -8,7 +8,6 @@
 */
 
 #include "puncture.h"
-#include "serializer.h"
 
 namespace libcomm {
 
@@ -89,29 +88,6 @@ void puncture::inverse(const matrix<double>& in, matrix<double>& out) const
    for(int i=0; i<outputs; i++)
       for(int j=0; j<M; j++)
          out(pos(i),j) = in(i,j);
-   }
-
-// serialization functions
-
-std::ostream& operator<<(std::ostream& sout, const puncture* x)
-   {
-   sout << x->name() << "\n";
-   x->serialize(sout);
-   return sout;
-   }
-
-std::istream& operator>>(std::istream& sin, puncture*& x)
-   {
-   std::string name;
-   sin >> name;
-   x = (puncture*) libbase::serializer::call("puncture", name);
-   if(x == NULL)
-      {
-      cerr << "FATAL ERROR (puncture): Type \"" << name << "\" unknown.\n";
-      exit(1);
-      }
-   x->serialize(sin);
-   return sin;
    }
 
 }; // end namespace

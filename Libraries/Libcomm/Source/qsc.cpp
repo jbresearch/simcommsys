@@ -62,6 +62,20 @@ template <class G> std::string qsc<G>::description() const
    return sout.str();
    }
 
+// object serialization - saving
+
+template <class G> std::ostream& qsc<G>::serialize(std::ostream& sout) const
+   {
+   return sout;
+   }
+
+// object serialization - loading
+
+template <class G> std::istream& qsc<G>::serialize(std::istream& sin)
+   {
+   return sin;
+   }
+
 // Explicit Realizations
 
 template class qsc< libbase::gf<1,0x3> >;
