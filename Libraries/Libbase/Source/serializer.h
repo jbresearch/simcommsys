@@ -108,19 +108,14 @@ public:
    /*! \brief Serialization input */ \
    virtual std::istream& serialize(std::istream& sin) = 0; \
    /*! \brief Stream output */ \
-   friend std::ostream& operator<<(std::ostream& sout, const class_name* x); \
-   /*! \brief Stream input */ \
-   friend std::istream& operator>>(std::istream& sin, class_name*& x); \
-   /* @} */
-
-#define IMPLEMENT_BASE_SERIALIZER( class_name ) \
-   std::ostream& operator<<(std::ostream& sout, const class_name* x) \
+   friend std::ostream& operator<<(std::ostream& sout, const class_name* x) \
       { \
       sout << x->name() << "\n"; \
       x->serialize(sout); \
       return sout; \
       } \
-   std::istream& operator>>(std::istream& sin, class_name*& x) \
+   /*! \brief Stream input */ \
+   friend std::istream& operator>>(std::istream& sin, class_name*& x) \
       { \
       std::string name; \
       std::streampos start = sin.tellg(); \
@@ -134,7 +129,8 @@ public:
       else \
          x->serialize(sin); \
       return sin; \
-      }
+      } \
+   /* @} */
 
 #define DECLARE_SERIALIZER( class_name ) \
    private: \

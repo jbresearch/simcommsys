@@ -12,10 +12,6 @@
 
 namespace libcomm {
 
-// Serialization Support
-
-IMPLEMENT_BASE_SERIALIZER(experiment)
-
 // Normally-distributed sample experiment
 
 void experiment_normal::derived_reset()

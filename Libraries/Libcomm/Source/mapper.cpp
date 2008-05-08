@@ -11,8 +11,4 @@
 
 namespace libcomm {
 
-// Serialization Support
-
-IMPLEMENT_BASE_SERIALIZER(mapper)
-
 }; // end namespace
