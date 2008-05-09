@@ -333,7 +333,7 @@ public:
    // @}
 
    // Codec operations
-   void seed(const int s);
+   void seedfrom(libbase::random& r);
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);

@@ -396,13 +396,15 @@ void CAnnealInterleaverDlg::ThreadProc()
    if(m_bSystemPresent)
       delete m_system;
    m_bSystemPresent = true;
-   m_system = new libcomm::anneal_interleaver(m_nSets, m_nTau, m_nM, m_nType+2, m_bTerm!=0, m_nSeed);
+   m_system = new libcomm::anneal_interleaver(m_nSets, m_nTau, m_nM, m_nType+2, m_bTerm!=0);
    attach_system(*m_system);
    const double E = m_system->energy();
    set_temperature(E*m_dInitTemp, E*m_dFinalTemp);
    set_iterations(m_nMinIter*m_nTau, m_nMinChanges*m_nTau);
    set_schedule(m_dRate);
-   seed(m_nSeed);
+   libbase::randgen prng;
+   prng.seed(m_nSeed);
+   seedfrom(prng);
    m_tSetup.stop();
 
    // Anneal Process

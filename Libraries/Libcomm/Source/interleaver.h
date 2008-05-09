@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "serializer.h"
+#include "random.h"
 #include "matrix.h"
 #include "vector.h"
 #include "logrealfast.h"
@@ -99,7 +100,8 @@ class interleaver {
 public:
    virtual ~interleaver() {};
    // intra-frame operations
-   virtual void seed(const int s) {};
+   //! Seeds any random generators from a pseudo-random sequence
+   virtual void seedfrom(libbase::random& r) {};
    virtual void advance() {};
    // transform functions - note that 'in' and 'out' should NOT be the same!
    virtual void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;

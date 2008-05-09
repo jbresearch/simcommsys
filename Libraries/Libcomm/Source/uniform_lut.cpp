@@ -21,14 +21,13 @@ void uniform_lut::init(const int tau, const int m)
    uniform_lut::tau = tau;
    uniform_lut::m = m;
    lut.init(tau);
-   seed(0);
    }
 
 // intra-frame functions
 
-void uniform_lut::seed(const int s)
+void uniform_lut::seedfrom(libbase::random& r)
    {
-   r.seed(s);
+   this->r.seed(r.ival());
    advance();
    }
 

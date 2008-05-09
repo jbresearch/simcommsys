@@ -26,14 +26,13 @@ void rand_lut::init(const int tau, const int m)
       exit(1);
       }
    lut.init(tau);
-   seed(0);
    }
 
 // intra-frame functions
 
-void rand_lut::seed(const int s)
+void rand_lut::seedfrom(libbase::random& r)
    {
-   r.seed(s);
+   this->r.seed(r.ival());
    advance();
    }
 

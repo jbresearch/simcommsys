@@ -28,7 +28,7 @@ public:
    void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout);
 
    // Setup functions
-   void seed(libbase::int32u const s) { r.seed(s); };
+   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
 
    // Description
    std::string description() const;

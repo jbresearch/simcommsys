@@ -63,7 +63,7 @@ public:
    anneal_puncturing(const char *fname, const int tau, const int s);
    ~anneal_puncturing();
    // seeding for random generator
-   void seed(const int s);
+   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
    // perturb returns the difference in energy due to perturbation
    double perturb();
    void unperturb();

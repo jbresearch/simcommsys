@@ -18,8 +18,6 @@ anneal_puncturing::anneal_puncturing(const char *fname, const int tau, const int
    // store user parameters
    anneal_puncturing::tau = tau;
    anneal_puncturing::s = s;
-   // initialise random generator
-   seed(0);
    // initialise contribution matrix and load contribution matrix from file
    contrib.init(s, tau, tau);
    FILE *file = fopen(fname, "rb");
@@ -62,11 +60,6 @@ anneal_puncturing::anneal_puncturing(const char *fname, const int tau, const int
 anneal_puncturing::~anneal_puncturing()
    {
    output(std::cout);
-   }
-
-void anneal_puncturing::seed(const int s)
-   {
-   r.seed(s);
    }
 
 inline void anneal_puncturing::energy_function(const double factor, const int set, const int pos)

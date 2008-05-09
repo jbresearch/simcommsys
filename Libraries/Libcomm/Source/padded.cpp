@@ -47,9 +47,9 @@ padded::~padded()
 
 // inter-frame operations
 
-void padded::seed(const int s)
+void padded::seedfrom(libbase::random& r)
    {
-   otp->seed(s);
+   otp->seedfrom(r);
    }
 
 void padded::advance()

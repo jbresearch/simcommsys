@@ -77,8 +77,8 @@ public:
    // @}
 
    /*! \name Setup functions */
-   //! Reset function for random generator
-   virtual void seed(libbase::int32u const s) {};
+   //! Seeds any random generators from a pseudo-random sequence
+   virtual void seedfrom(libbase::random& r) {};
    // @}
 
    /*! \name Informative functions */

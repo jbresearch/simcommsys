@@ -188,6 +188,7 @@ class montecarlo : public libbase::masterslave {
    // @}
 private:
    /*! \name Helper functions */
+   void seed_experiment();
    void createfunctors(void);
    void destroyfunctors(void);
    // @}

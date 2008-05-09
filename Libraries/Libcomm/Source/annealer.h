@@ -50,7 +50,7 @@ protected:
    virtual void display(const double T, const double percent, const libbase::rvstatistics E);
 public:
    void attach_system(anneal_system& system);
-   void seed(const int s);
+   void seedfrom(libbase::random& r);
    void set_temperature(const double Tstart, const double Tstop);
    void set_schedule(const double rate);
    void set_iterations(const int min_iter, const int min_changes);

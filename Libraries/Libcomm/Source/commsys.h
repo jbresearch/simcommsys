@@ -243,7 +243,7 @@ public:
    // @}
 
    // Experiment parameter handling
-   void seed(int s);
+   void seedfrom(libbase::random& r);
    void set_parameter(double x) { chan->set_parameter(x); };
    double get_parameter() { return chan->get_parameter(); };
 

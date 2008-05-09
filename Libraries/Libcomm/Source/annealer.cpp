@@ -21,13 +21,12 @@ void annealer::attach_system(anneal_system& system)
    set_temperature(E, E*1E-7);
    set_schedule(0.90);
    set_iterations(int(1E5), int(1E3));
-   seed(0);
    }
 
-void annealer::seed(const int s)
+void annealer::seedfrom(libbase::random& r)
    {
-   r.seed(s);
-   system->seed(s);
+   this->r.seed(r.ival());
+   system->seedfrom(r);
    }
 
 void annealer::set_temperature(const double Tstart, const double Tstop)

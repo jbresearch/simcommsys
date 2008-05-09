@@ -103,7 +103,7 @@ public:
    padded(const padded& x);
    ~padded();
 
-   void seed(const int s);
+   void seedfrom(libbase::random& r);
    void advance();
 
    void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;

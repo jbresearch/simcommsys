@@ -15,9 +15,8 @@ namespace libcomm {
 
 channel<sigspace>::channel()
    {
-   channel::Eb = 1;
-   channel::set_parameter(0);
-   channel::seed(0);
+   Eb = 1;
+   set_parameter(0);
    }
 
 // setting and getting overall channel SNR

@@ -2,6 +2,7 @@
 #define __anneal_system_h
 
 #include "config.h"
+#include "random.h"
 #include <iostream>
 
 namespace libcomm {
@@ -46,8 +47,8 @@ namespace libcomm {
 class anneal_system {
 public:
    virtual ~anneal_system() {};
-   //! Seeds all random generators used in the annealer
-   virtual void seed(const int s) = 0;
+   //! Seeds any random generators from a pseudo-random sequence
+   virtual void seedfrom(libbase::random& r) = 0;
    //! Perturbs the state and returns the difference in energy due to perturbation
    virtual double perturb() = 0;
    //! Undoes the last perturbation (guaranteed only for one stage)

@@ -34,7 +34,6 @@ onetimepad::onetimepad(const fsm& encoder, const int tau, const bool terminated,
    onetimepad::m = encoder.mem_order();
    onetimepad::K = encoder.num_inputs();
    pad.init(tau);
-   seed(0);
    libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n";
    }
 
@@ -57,9 +56,9 @@ onetimepad::~onetimepad()
 
 // inter-frame operations
 
-void onetimepad::seed(const int s)
+void onetimepad::seedfrom(libbase::random& r)
    {
-   r.seed(s);
+   this->r.seed(r.ival());
    advance();
    }
 
@@ -220,7 +219,6 @@ std::istream& onetimepad::serialize(std::istream& sin)
    sin >> encoder;
    m = encoder->mem_order();
    K = encoder->num_inputs();
-   seed(0);
    return sin;
    }
 

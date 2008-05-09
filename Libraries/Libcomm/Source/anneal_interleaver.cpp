@@ -15,7 +15,7 @@
 
 namespace libcomm {
 
-anneal_interleaver::anneal_interleaver(const int sets, const int tau, const int m, const int type, const bool term, const int seed)
+anneal_interleaver::anneal_interleaver(const int sets, const int tau, const int m, const int type, const bool term)
    {
    // store user parameters
    anneal_interleaver::sets = sets;
@@ -30,7 +30,6 @@ anneal_interleaver::anneal_interleaver(const int sets, const int tau, const int 
    // initialise LUT and random generator
    lut.init(sets,tau);
    initialise();
-   anneal_interleaver::seed(seed);
    // work out the system's initial energy
    E = work_energy();
    }
@@ -57,11 +56,6 @@ void anneal_interleaver::initialise()
          lut(s,t) = tdash;
          }
       }
-   }
-
-void anneal_interleaver::seed(const int s)
-   {
-   r.seed(s);
    }
 
 inline double anneal_interleaver::energy_function(const int i, const int j)

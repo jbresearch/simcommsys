@@ -74,7 +74,7 @@ public:
    uniform_lut(const int tau, const int m) { init(tau, m); };
    ~uniform_lut() {};
 
-   void seed(const int s);
+   void seedfrom(libbase::random& r);
    void advance();
 
    // Description

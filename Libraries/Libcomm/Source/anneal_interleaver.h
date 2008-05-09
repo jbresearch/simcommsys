@@ -121,10 +121,10 @@ protected:
    double work_energy();
    double work_delta();
 public:
-   anneal_interleaver(const int sets, const int tau, const int m, const int type, const bool term, const int seed=0);
+   anneal_interleaver(const int sets, const int tau, const int m, const int type, const bool term);
    ~anneal_interleaver() {};
    // seeding for random generator
-   void seed(const int s);
+   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
    // perturb returns the difference in energy due to perturbation
    double perturb();
    void unperturb();

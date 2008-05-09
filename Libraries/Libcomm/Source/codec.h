@@ -5,6 +5,7 @@
 #include "matrix.h"
 #include "vector.h"
 #include "serializer.h"
+#include "random.h"
 #include <string>
 
 namespace libcomm {
@@ -101,11 +102,8 @@ public:
    // @}
 
    /*! \name Codec operations */
-   /*!
-      \brief Sets up any internal random number generators
-      \param s Seed value
-   */
-   virtual void seed(const int s) {};
+   //! Seeds any random generators from a pseudo-random sequence
+   virtual void seedfrom(libbase::random& r) {};
    /*!
       \brief Encoding process
       \param[in,out] source Sequence of source symbols, one per timestep

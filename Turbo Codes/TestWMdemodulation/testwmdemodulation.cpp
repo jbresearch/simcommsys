@@ -8,6 +8,7 @@
 */
 
 #include "timer.h"
+#include "randgen.h"
 #include "logrealfast.h"
 #include "watermarkcode.h"
 #include "bsid.h"
@@ -26,10 +27,10 @@ using libcomm::modulator;
 using libcomm::channel;
 using libcomm::watermarkcode;
 
-channel<bool> *create_channel(int seed, int N, double Pe)
+channel<bool> *create_channel(libbase::random& r, int N, double Pe)
    {
    channel<bool> *chan = new libcomm::bsid(N);
-   chan->seed(seed+1);
+   chan->seedfrom(r);
    chan->set_parameter(Pe);
    return chan;
    }
@@ -106,11 +107,14 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
 
 void testcycle(int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
    {
-   const int N = tau*n;
+   // create prng for seeding systems
+   libbase::randgen prng;
+   prng.seed(seed);
    // create modem and channel
+   const int N = tau*n;
    watermarkcode<logrealfast> modem(n,k, N);
-   modem.seed(seed);
-   channel<bool> *chan = create_channel(seed, N, Pe);
+   modem.seedfrom(prng);
+   channel<bool> *chan = create_channel(prng, N, Pe);
    cout << modem.description() << "\n";
 
    // define an alternating encoded sequence

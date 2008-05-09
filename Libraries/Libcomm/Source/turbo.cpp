@@ -32,7 +32,6 @@ template <class real, class dbl> void turbo<real,dbl>::init()
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
 
-   seed(0);
    initialised = false;
    }
 
@@ -271,10 +270,10 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
 
 // encoding and decoding functions
 
-template <class real, class dbl> void turbo<real,dbl>::seed(const int s)
+template <class real, class dbl> void turbo<real,dbl>::seedfrom(libbase::random& r)
    {
    for(int set=0; set<num_sets(); set++)
-      inter(set)->seed(s+set);
+      inter(set)->seedfrom(r);
    }
 
 template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)

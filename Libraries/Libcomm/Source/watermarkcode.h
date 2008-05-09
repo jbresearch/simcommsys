@@ -201,7 +201,7 @@ public:
    void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
 
    // Setup functions
-   void seed(libbase::int32u const s) { r.seed(s); };
+   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
 
    // Informative functions
    int num_symbols() const { return 1<<k; };

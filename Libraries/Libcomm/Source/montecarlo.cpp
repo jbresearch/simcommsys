@@ -13,6 +13,7 @@
 #include "itfunc.h"
 #include "secant.h"
 #include "truerand.h"
+#include "randgen.h"
 #include <iostream>
 #include <sstream>
 #include <limits>
@@ -54,16 +55,14 @@ void montecarlo::slave_getcode(void)
 
 void montecarlo::slave_getsnr(void)
    {
-   libbase::truerand r;
-   const libbase::int32u seed = r.ival(1<<16);
-   system->seed(seed);
+   cerr << "Date: " << libbase::timer::date() << "\n";
+
+   seed_experiment();
    double x;
    if(!receive(x))
       exit(1);
    system->set_parameter(x);
 
-   cerr << "Date: " << libbase::timer::date() << "\n";
-   cerr << "Seed: " << seed << "\n";
    cerr << "Simulating system at parameter = " << system->get_parameter() << "\n";
    }
 
@@ -95,6 +94,16 @@ void montecarlo::slave_work(void)
    }
 
 // helper functions
+
+void montecarlo::seed_experiment()
+   {
+   libbase::truerand trng;
+   libbase::randgen prng;
+   const libbase::int32u seed = trng.ival();
+   prng.seed(seed);
+   system->seedfrom(prng);
+   cerr << "Seed: " << seed << "\n";
+   }
 
 void montecarlo::createfunctors(void)
    {
@@ -356,7 +365,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       resetcputime();
       }
    else
-      system->seed(0);
+      seed_experiment();
 
    // Repeat the experiment until all the following are true:
    // 1) We have the accuracy we need

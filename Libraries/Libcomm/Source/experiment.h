@@ -4,6 +4,7 @@
 #include "config.h"
 #include "vector.h"
 #include "serializer.h"
+#include "random.h"
 
 #include <iostream>
 #include <string>
@@ -84,8 +85,8 @@ public:
    // @}
 
    /*! \name Experiment parameter handling */
-   //! Reset function for random generator
-   virtual void seed(int s) = 0;
+   //! Seeds any random generators from a pseudo-random sequence
+   virtual void seedfrom(libbase::random& r) = 0;
    //! Set the system parameter at which we want to simulate
    virtual void set_parameter(double x) = 0;
    //! Get the system parameter at which we are simulating

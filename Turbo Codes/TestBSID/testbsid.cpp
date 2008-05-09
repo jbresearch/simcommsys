@@ -10,6 +10,7 @@
 #include "logrealfast.h"
 #include "watermarkcode.h"
 #include "bsid.h"
+#include "randgen.h"
 #include "rvstatistics.h"
 
 #include <iostream>
@@ -18,6 +19,7 @@ using std::cout;
 using std::cerr;
 using std::flush;
 using libbase::vector;
+using libbase::randgen;
 using libcomm::bsid;
 using libcomm::sigspace;
 
@@ -33,16 +35,19 @@ void visualtest()
    vector<bool> rx1, rx2;
    // probability of error corresponding to SNR=12
    const double p = 9.00601e-09;
+   // seed generator
+   randgen prng;
+   prng.seed(0);
    // channel1 is a substitution-only channel
    bsid channel1(tau);
-   channel1.seed(1);
+   channel1.seedfrom(prng);
    channel1.set_parameter(p);
    channel1.set_ps(0.3);
    channel1.transmit(tx, rx1);
    cout << "Rx1: " << rx1 << "\n";
    // channel1 is an insdel-only channel
    bsid channel2(tau);
-   channel2.seed(1);
+   channel2.seedfrom(prng);
    channel2.set_parameter(p);
    channel2.set_pi(0.3);
    channel2.set_pd(0.3);
@@ -54,7 +59,9 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    {
    // define channel according to specifications
    bsid channel(tau,sub,del,ins);
-   channel.seed(0);
+   randgen prng;
+   prng.seed(0);
+   channel.seedfrom(prng);
    channel.set_parameter(p);
    // run a number of transmissions with an all-zero source
    cout << "Testing on an all-" << (src ? "one" : "zero") << " source:\n";

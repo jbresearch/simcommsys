@@ -251,13 +251,13 @@ template <class S, class R> basic_commsys<S,R>::basic_commsys(const basic_commsy
 
 // Experiment parameter handling
 
-template <class S, class R> void basic_commsys<S,R>::seed(int s)
+template <class S, class R> void basic_commsys<S,R>::seedfrom(libbase::random& r)
    {
-   src->seed(s);
-   cdc->seed(s+1);
-   map->seed(s+2);
-   modem->seed(s+3);
-   chan->seed(s+4);
+   src->seed(r.ival());
+   cdc->seedfrom(r);
+   map->seedfrom(r);
+   modem->seedfrom(r);
+   chan->seedfrom(r);
    }
 
 // Experiment handling

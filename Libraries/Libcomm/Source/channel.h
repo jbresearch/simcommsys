@@ -60,8 +60,8 @@ public:
    // @}
 
    /*! \name Channel parameter handling */
-   //! Reset function for random generator
-   void seed(libbase::int32u const s) { r.seed(s); };
+   //! Seeds any random generators from a pseudo-random sequence
+   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
    //! Set the channel characteristic parameter
    virtual void set_parameter(const double x) = 0;
    //! Get the channel characteristic parameter
