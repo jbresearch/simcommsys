@@ -53,11 +53,8 @@ public:
    // @}
 
    /*! \name Random generator interface */
-   /*! \brief Seed random generator
-       \param s Seed to use for initializing generator
-       \return Suggested seed to use with any subsequent generators
-   */
-   int32u seed(int32u s);
+   //! Seed random generator
+   void seed(int32u s);
    //! Return unsigned integer in [0, getmax()]
    int32u ival();
    //! Return unsigned integer modulo 'm'

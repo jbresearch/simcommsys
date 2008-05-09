@@ -27,7 +27,7 @@ random::~random()
 #endif
    }
 
-int32u random::seed(int32u s)
+void random::seed(int32u s)
    {
 #ifndef NDEBUG
    if(counter > 0)
@@ -38,8 +38,6 @@ int32u random::seed(int32u s)
    next_gval_available = false;
    // initialize underlying generator
    init(s);
-   // use the first generated value as suggested seed
-   return ival();
    }
 
 double random::gval()
