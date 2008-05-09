@@ -28,6 +28,8 @@ private:
 #ifndef NDEBUG
    //! Debug only: number of generator advances
    int32u   counter;
+   //! Debug only: flag to check for explicit seeding
+   bool     initialized;
 #endif
    //! Flag to indicate whether a Gaussian value is readily available
    bool     next_gval_available;
@@ -79,6 +81,8 @@ inline int32u random::ival()
    counter++;
    // check for counter roll-over (change to 64-bit counter if this ever happens)
    assert(counter != 0);
+   // check for explicit seeding prior to use
+   assert(initialized);
 #endif
    advance();
    return get_value();

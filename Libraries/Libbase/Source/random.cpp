@@ -16,6 +16,7 @@ random::random()
 #ifndef NDEBUG
    counter = 0;
    trace << "DEBUG: random (" << this << ") created.\n" << std::flush;
+   initialized = false;
 #endif
    next_gval_available = false;
    }
@@ -33,6 +34,7 @@ void random::seed(int32u s)
    if(counter > 0)
       trace << "DEBUG: random (" << this << ") reseeded after " << counter << " steps.\n" << std::flush;
    counter = 0;
+   initialized = true;
 #endif
    // this makes sure any stored gval is discarded
    next_gval_available = false;

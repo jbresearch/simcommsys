@@ -2,6 +2,7 @@
 #define __truerand_h
 
 #include "config.h"
+#include "random.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -13,7 +14,7 @@
 namespace libbase {
 
 /*!
-   \brief   True Random Number provider.
+   \brief   True Random Number Generator.
    \author  Johann Briffa
 
    \par Version Control:
@@ -21,54 +22,45 @@ namespace libbase {
    - $Date$
    - $Author$
 
-   \version 1.00 (20 Apr 2007)
-   - created class to provide true random numbers (through OS routines), to facilitate
-    seeding slave workers in the master-slave mode
+   Provide true random numbers (through OS routines), originally created
+   to facilitate seeding slave workers in the master-slave mode
+
+   \note
    - idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
-   - TODO: currently only returns ival; eventually a 'random' superclass needs to be
-    created, which can only be instantiated by deriving and providing the ival
-    routine. the new superclass can then provide gaussian and floating point
-    numbers by computation
-   - TODO: counter also removed, as this should be provided by the superclass
-
-   \version 1.10 (8 May 2007)
    - Win32 support provided through CryptoAPI
-   - TODO: when the superclass is created, each generator should only provide an ival()
-    function, and the method taking a parameter 'm' should be provided by the superclass.
-
-   \version 1.11 (20 Nov 2007)
-   - added error code printing in Win32 when acquiring and releasing CryptoAPI
-   - using CRYPT_VERIFYCONTEXT when acquiring CryptoAPI, since we don't need access
-    to private keys - this allows use as grid clients, when there is no user profile
-    available.
+   - UNIX support provided through /dev/random
 */
 
-class truerand {
+class truerand : public random {
+private:
+   /*! \name Object representation */
 #ifdef WIN32
    HCRYPTPROV   hCryptProv;
 #else
    int fd;
 #endif
+   //! Last generated random value
+   int32u x;
+   // @}
+
+protected:
+   // Interface with random
+   void init(int32u s) {};
+   void advance();
+   int32u get_value() const { return x; };
+
 public:
+   /*! \name Constructors / Destructors */
+   //! Principal constructor
    truerand();
    ~truerand();
-   inline int32u ival(int32u m);        // return unsigned integer modulo 'm'
-};
+   // @}
 
-inline int32u truerand::ival(int32u m)
-   {
-   int32u x = 0;
-#ifdef WIN32
-   if(!CryptGenRandom(hCryptProv, sizeof(x), (BYTE *)&x))
-#else
-   if(read(fd, &x, sizeof(x)) != sizeof(x))
-#endif
-      {
-      std::cerr << "ERROR (truerand): failed to obtain random sequence.\n";
-      exit(1);
-      }
-   return(x % m);
-   }
+   /*! \name Informative functions */
+   //! The largest returnable value
+   int32u get_max() const { return 0xffffffff; };
+   // @}
+};
 
 }; // end namespace
 

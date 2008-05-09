@@ -21,6 +21,8 @@
 
 namespace libbase {
 
+// Constructors / Destructors
+
 truerand::truerand()
    {
 #ifdef WIN32
@@ -37,6 +39,9 @@ truerand::truerand()
       exit(1);
       }
 #endif
+   // call seed to disable check for explicit seeding, since this generator
+   // may be used without any seeding at all.
+   seed(0);
    }
 
 truerand::~truerand()
@@ -50,6 +55,17 @@ truerand::~truerand()
       }
 #else
    close(fd);
+#endif
+   }
+
+// Interface with random
+
+inline void truerand::advance()
+   {
+#ifdef WIN32
+   assertalways(CryptGenRandom(hCryptProv, sizeof(x), (BYTE *)&x));
+#else
+   assertalways(read(fd, &x, sizeof(x)) == sizeof(x));
 #endif
    }
 
