@@ -354,7 +354,7 @@ void stegosystem::ConvertToGaussian(const vector<double>& v, vector<double>& g)
    assert(v.size() > 0);
    g.init(v.size());
    libbase::fastsecant erfinv(libbase::cerf);
-   erfinv.seed(-0.99, 0.99, 1000);
+   erfinv.init(-0.99, 0.99, 1000);
    for(int i=0; i<v.size(); i++)
       {
       if((i & 0xff) == 0)

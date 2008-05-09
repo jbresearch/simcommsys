@@ -39,7 +39,7 @@ class secant {
 public:
    secant(double (*func)(double) = NULL);
    void bind(double (*func)(double)) { f = func; };
-   void seed(const double x1, const double x2);
+   void init(const double x1, const double x2);
    void accuracy(const double dx) { min_dx = dx; };
    void maxiter(const int n) { max_iter = n; };
    double solve(const double y);

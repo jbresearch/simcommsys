@@ -20,12 +20,12 @@ namespace libbase {
 secant::secant(double (*func)(double))
    {
    bind(func);
-   seed(0, 1);
+   init(0, 1);
    accuracy(1e-10);
    maxiter(1000);
    }
 
-void secant::seed(const double x1, const double x2)
+void secant::init(const double x1, const double x2)
    {
    init_x1 = x1;
    init_x2 = x2;

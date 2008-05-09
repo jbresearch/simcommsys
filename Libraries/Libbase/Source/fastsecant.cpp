@@ -19,7 +19,7 @@ fastsecant::fastsecant(double (*func)(double)) : secant(func)
    {
    }
 
-void fastsecant::seed(const double x1, const double x2, const int n)
+void fastsecant::init(const double x1, const double x2, const int n)
    {
    m_dMin = x1;
    m_dMax = x2;
@@ -43,10 +43,10 @@ double fastsecant::solve(const double y)
       {
       const double x1 = m_vdCache(i);
       const double x2 = m_vdCache(j);
-      secant::seed(x1,x2);
+      secant::init(x1,x2);
       }
    else
-      secant::seed(-1,1);
+      secant::init(-1,1);
 
    return secant::solve(y);
    }

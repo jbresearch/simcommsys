@@ -36,7 +36,7 @@ class fastsecant : public secant {
    double   m_dMin, m_dMax, m_dStep;
 public:
    fastsecant(double (*func)(double) = NULL);
-   void seed(const double x1, const double x2, const int n);
+   void init(const double x1, const double x2, const int n);
    double solve(const double y);
    double operator()(const double y) { return solve(y); };
 };
