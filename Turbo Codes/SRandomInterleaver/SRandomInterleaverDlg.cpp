@@ -261,7 +261,8 @@ void CSRandomInterleaverDlg::ThreadProc()
       m_pcAttempt.SetPos(attempt);
       m_nUsedSeed = m_nSeed+attempt;
       UpdateData(false);
-      libbase::randgen src(m_nUsedSeed);
+      libbase::randgen src;
+      src.seed(m_nUsedSeed);
       DerivedVector<int> unused(m_nTau);
       unused.sequence();
       failed = false;

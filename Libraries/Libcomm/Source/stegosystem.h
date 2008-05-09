@@ -77,12 +77,12 @@ private:
 
 public:
    // creation/destruction
-        stegosystem();
-        virtual ~stegosystem();
+   stegosystem();
+   virtual ~stegosystem();
 
    // required functions in derived class
    virtual int GetImagePixels() const = 0;
-   virtual void DisplayProgress(const int nComplete, const int nTotal, const int nIteration, const int nTotalIterations) const = 0;
+   virtual void DisplayProgress(int nComplete, int nTotal, int nIteration, int nTotalIterations) const = 0;
 
    // informative functions
    int GetRawSize(double dInterleaverDensity) const;
@@ -95,26 +95,26 @@ public:
 
    void LoadErrorControl(const char* sCodec, const char* sPuncture);
    void FreeErrorControl();
-   void LoadDataFile(const char* sPathName, libbase::vector<int>& d, const int n);
+   void LoadDataFile(const char* sPathName, libbase::vector<int>& d, int n);
    void EncodeData(const libbase::vector<int>& d, libbase::vector<int>& e);
    void DecodeData(double dInterleaverDensity, int nEmbedRate, const double dSNR, const libbase::vector<sigspace>& s, libbase::vector<int>& d);
    void DemodulateData(const libbase::vector<sigspace>& s, libbase::vector<int>& d);
    double EstimateSNR(const double dRate, const libbase::vector<sigspace>& rx, const libbase::vector<sigspace>& tx, double* dSNRreal);
    double ComputeChiSquare(const libbase::vector<sigspace>& rx, const libbase::vector<sigspace>& tx, int nBins, double dSNR);
-   void GenerateSourceSequence(libbase::vector<int>& d, const int n, const int seed);
-   void GenerateEmbedSequence(libbase::vector<double>& u, const int seed);
+   void GenerateSourceSequence(libbase::vector<int>& d, int n, int seed);
+   void GenerateEmbedSequence(libbase::vector<double>& u, int seed);
    void DemodulateEmbedSequence(const libbase::vector<double>& v, const libbase::vector<double>& u, libbase::vector<sigspace>& s);
    void ModulateEmbedSequence(const libbase::vector<int>& d, const libbase::vector<double>& u, libbase::vector<double>& v);
    void ConvertToUniform(const libbase::vector<double>& g, libbase::vector<double>& v);
    void ConvertToGaussian(const libbase::vector<double>& v, libbase::vector<double>& g);
    void NormalizeGaussian(libbase::vector<double>& g, bool bPresetStrength, double dEmbedStrength);
-   void GenerateInterleaver(libbase::vector<int>& v, const int in, const int out, const int seed);
+   void GenerateInterleaver(libbase::vector<int>& v, int in, int out, int seed);
    void DeInterleaveMessage(const libbase::vector<int>& viIndex, const libbase::vector<double>& vdIn, libbase::vector<double>& vdOut);
    void InterleaveMessage(const libbase::vector<int>& viIndex, const libbase::vector<double>& vdIn, libbase::vector<double>& vdOut);
-   void BandwidthCompressor(const int nRate, const libbase::vector<sigspace>& viIn, libbase::vector<sigspace>& viOut);
-   void BandwidthExpander(const int nRate, const libbase::vector<int>& viIn, libbase::vector<int>& viOut);
-   void BandwidthExpander(const int nRate, const libbase::vector<double>& viIn, libbase::vector<double>& viOut);
-   void BandwidthExpander(const int nRate, const libbase::vector<sigspace>& viIn, libbase::vector<sigspace>& viOut);
+   void BandwidthCompressor(int nRate, const libbase::vector<sigspace>& viIn, libbase::vector<sigspace>& viOut);
+   void BandwidthExpander(int nRate, const libbase::vector<int>& viIn, libbase::vector<int>& viOut);
+   void BandwidthExpander(int nRate, const libbase::vector<double>& viIn, libbase::vector<double>& viOut);
+   void BandwidthExpander(int nRate, const libbase::vector<sigspace>& viIn, libbase::vector<sigspace>& viOut);
 };
 
 }; // end namespace

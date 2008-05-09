@@ -489,6 +489,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\random.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\rvstatistics.cpp"
 				>
 				<FileConfiguration
@@ -671,6 +675,10 @@
 			</File>
 			<File
 				RelativePath="Source\randgen.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\random.h"
 				>
 			</File>
 			<File

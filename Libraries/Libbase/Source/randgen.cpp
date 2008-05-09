@@ -11,28 +11,10 @@
 
 namespace libbase {
 
-using std::flush;
-
 const int32s randgen::mbig = 1000000000L;
 const int32s randgen::mseed = 161803398L;
 
-randgen::randgen(int32u s)
-   {
-#ifndef NDEBUG
-   counter = 0;
-   trace << "DEBUG: randgen (" << this << ") created.\n" << flush;
-#endif
-   seed(s);
-   }
-
-randgen::~randgen()
-   {
-#ifndef NDEBUG
-   trace << "DEBUG: randgen (" << this << ") destroyed after " << counter << " steps.\n" << flush;
-#endif
-   }
-
-void randgen::seed(int32u s)
+void randgen::init(int32u s)
    {
    next = 0L;
    nextp = 31L;
@@ -53,13 +35,15 @@ void randgen::seed(int32u s)
          ma[i] -= ma[1+(i+30)%55];
          if(ma[i] < 0) ma[i] += mbig;
          }
-#ifndef NDEBUG
-   if(counter > 0)
-       trace << "DEBUG: randgen (" << this << ") reseeded after " << counter << " steps.\n" << flush;
-   counter = 0;
-#endif
-   ready = false;
-   next_gval = 0.0;
+   }
+
+void randgen::advance()
+   {
+   if(++next >= 56) next = 1;
+   if(++nextp >= 56) nextp = 1;
+   mj = ma[next] - ma[nextp];
+   if(mj < 0) mj += mbig;
+   ma[next] = mj;
    }
 
 }; // end namespace

@@ -113,7 +113,7 @@ void stegosystem::FreeErrorControl()
       }
    }
 
-void stegosystem::LoadDataFile(const char* sPathName, vector<int>& d, const int n)
+void stegosystem::LoadDataFile(const char* sPathName, vector<int>& d, int n)
    {
    assert(strlen(sPathName) != 0);
    libbase::bitfield b;
@@ -299,18 +299,20 @@ double stegosystem::ComputeChiSquare(const vector<sigspace>& rx, const vector<si
    return chisq;
    }
 
-void stegosystem::GenerateSourceSequence(vector<int>& d, const int n, const int seed)
+void stegosystem::GenerateSourceSequence(vector<int>& d, int n, int seed)
    {
    assert(d.size() > 0);
-   randgen r(seed);
+   randgen r;
+   r.seed(seed);
    for(int i=0; i<d.size(); i++)
       d(i) = r.ival(1<<n);
    }
 
-void stegosystem::GenerateEmbedSequence(vector<double>& u, const int seed)
+void stegosystem::GenerateEmbedSequence(vector<double>& u, int seed)
    {
    assert(u.size() > 0);
-   randgen r(seed);
+   randgen r;
+   r.seed(seed);
    for(int i=0; i<u.size(); i++)
       u(i) = r.fval();
    }
@@ -381,11 +383,12 @@ void stegosystem::NormalizeGaussian(vector<double>& g, bool bPresetStrength, dou
       }
    }
 
-void stegosystem::GenerateInterleaver(vector<int>& v, const int in, const int out, const int seed)
+void stegosystem::GenerateInterleaver(vector<int>& v, int in, int out, int seed)
    {
    v.init(in);
    v = -1;
-   randgen r(seed);
+   randgen r;
+   r.seed(seed);
    for(int i=0; i<out; i++)
       {
       if((i & 0xff) == 0)
@@ -415,7 +418,7 @@ void stegosystem::InterleaveMessage(const vector<int>& viIndex, const vector<dou
          vdOut(i) = vdIn(viIndex(i));
    }
 
-void stegosystem::BandwidthCompressor(const int nRate, const vector<sigspace>& viIn, vector<sigspace>& viOut)
+void stegosystem::BandwidthCompressor(int nRate, const vector<sigspace>& viIn, vector<sigspace>& viOut)
    {
    viOut.init(viIn.size()/nRate);
    for(int i=0; i<viOut.size(); i++)
@@ -428,7 +431,7 @@ void stegosystem::BandwidthCompressor(const int nRate, const vector<sigspace>& v
       }
    }
 
-void stegosystem::BandwidthExpander(const int nRate, const vector<int>& viIn, vector<int>& viOut)
+void stegosystem::BandwidthExpander(int nRate, const vector<int>& viIn, vector<int>& viOut)
    {
    for(int i=0; i<viIn.size(); i++)
       for(int j=0; j<nRate; j++)
@@ -437,7 +440,7 @@ void stegosystem::BandwidthExpander(const int nRate, const vector<int>& viIn, ve
       viOut(k) = 0;
    }
 
-void stegosystem::BandwidthExpander(const int nRate, const vector<double>& viIn, vector<double>& viOut)
+void stegosystem::BandwidthExpander(int nRate, const vector<double>& viIn, vector<double>& viOut)
    {
    for(int i=0; i<viIn.size(); i++)
       for(int j=0; j<nRate; j++)
@@ -446,7 +449,7 @@ void stegosystem::BandwidthExpander(const int nRate, const vector<double>& viIn,
       viOut(k) = 0.5;
    }
 
-void stegosystem::BandwidthExpander(const int nRate, const vector<sigspace>& viIn, vector<sigspace>& viOut)
+void stegosystem::BandwidthExpander(int nRate, const vector<sigspace>& viIn, vector<sigspace>& viOut)
    {
    for(int i=0; i<viIn.size(); i++)
       for(int j=0; j<nRate; j++)
