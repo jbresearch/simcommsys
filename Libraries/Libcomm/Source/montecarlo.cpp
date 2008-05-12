@@ -312,7 +312,7 @@ bool montecarlo::readpendingslaves()
       if(!receive(s, simdigest) || !receive(s, simparameter))
          continue;
       // set up space for results that need to be returned
-      libbase::int64u estsamplecount;
+      libbase::int64u estsamplecount = 0;
       vector<double> eststate;
       // get results
       if(!receive(s, estsamplecount) || !receive(s, eststate))
