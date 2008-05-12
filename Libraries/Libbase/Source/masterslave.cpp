@@ -465,34 +465,12 @@ bool masterslave::send(slave *s, const void *buf, const size_t len)
    return true;
    }
 
-bool masterslave::send(slave *s, const int x)
-   {
-   return send(s, &x, sizeof(x));
-   }
-
-bool masterslave::send(slave *s, const double x)
-   {
-   return send(s, &x, sizeof(x));
-   }
-
 bool masterslave::send(slave *s, const std::string& x)
    {
    int len = int(x.length());
    if(!send(s, len))
       return false;
    return send(s, x.c_str(), len);
-   }
-
-bool masterslave::call(slave *s, const std::string& x)
-   {
-   if(!send(s, tag_work) || !send(s, x) )
-      return false;
-   return true;
-   }
-
-void masterslave::resetcputime()
-   {
-   cputimeused = 0;
    }
 
 bool masterslave::updatecputime(slave *s)
@@ -512,16 +490,6 @@ bool masterslave::receive(slave *s, void *buf, const size_t len)
       return false;
       }
    return true;
-   }
-
-bool masterslave::receive(slave *s, int& x)
-   {
-   return receive(s, &x, sizeof(x));
-   }
-
-bool masterslave::receive(slave *s, double& x)
-   {
-   return receive(s, &x, sizeof(x));
    }
 
 bool masterslave::receive(slave *s, vector<double>& x)

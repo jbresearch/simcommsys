@@ -168,15 +168,16 @@ public:
    void resetslaves();
    // master -> slave communication
    bool send(slave *s, const void *buf, const size_t len);
-   bool send(slave *s, const int x);
-   bool send(slave *s, const double x);
+   bool send(slave *s, const int x) { return send(s, &x, sizeof(x)); };
+   bool send(slave *s, const double x) { return send(s, &x, sizeof(x)); };
    bool send(slave *s, const std::string& x);
-   bool call(slave *s, const std::string& x);
-   void resetcputime();
+   bool call(slave *s, const std::string& x) { return send(s, tag_work) && send(s, x); };
+   void resetcputime() { cputimeused = 0; };
    bool updatecputime(slave *s);
    bool receive(slave *s, void *buf, const size_t len);
-   bool receive(slave *s, int& x);
-   bool receive(slave *s, double& x);
+   bool receive(slave *s, int& x) { return receive(s, &x, sizeof(x)); };
+   bool receive(slave *s, libbase::int64u& x) { return receive(s, &x, sizeof(x)); };
+   bool receive(slave *s, double& x) { return receive(s, &x, sizeof(x)); };
    bool receive(slave *s, vector<double>& x);
    bool receive(slave *s, std::string& x);
 };
