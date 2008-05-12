@@ -13,7 +13,7 @@
 using libbase::matrix;
 using std::cout;
 
-void printsizes()
+void print_standard_sizes()
    {
    cout << '\n';
    cout << "Type:      \tSize (bits):\n";
@@ -28,6 +28,23 @@ void printsizes()
    cout << "float      \t" << sizeof(float)*8 << "\n";
    cout << "double     \t" << sizeof(double)*8 << "\n";
    cout << "long double\t" << sizeof(long double)*8 << "\n";
+   }
+
+void print_new_sizes()
+   {
+   cout << '\n';
+   cout << "Type:      \tSize (bits):\n";
+   cout << "~~~~~      \t~~~~~~~~~~~~\n";
+
+   cout << "int8u      \t" << sizeof(libbase::int8u)*8 << "\n";
+   cout << "int16u     \t" << sizeof(libbase::int16u)*8 << "\n";
+   cout << "int32u     \t" << sizeof(libbase::int32u)*8 << "\n";
+   cout << "int64u     \t" << sizeof(libbase::int64u)*8 << "\n";
+
+   cout << "int8s      \t" << sizeof(libbase::int8s)*8 << "\n";
+   cout << "int16s     \t" << sizeof(libbase::int16s)*8 << "\n";
+   cout << "int32s     \t" << sizeof(libbase::int32s)*8 << "\n";
+   cout << "int64s     \t" << sizeof(libbase::int64s)*8 << "\n";
    }
 
 void testmatrixmul()
@@ -72,7 +89,8 @@ void testmatrixinv()
 
 int main()
    {
-   printsizes();
+   print_standard_sizes();
+   print_new_sizes();
    testmatrixmul();
    testmatrixinv();
    }
