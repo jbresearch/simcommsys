@@ -29,7 +29,7 @@ using std::cerr;
 using libbase::trace;
 using libbase::vector;
 
-const int montecarlo::min_samples = 128;
+const libbase::int64u montecarlo::min_samples = 128;
 
 // worker processes
 
@@ -125,7 +125,7 @@ void montecarlo::destroyfunctors(void)
 
 // overrideable user-interface functions
 
-void montecarlo::display(const int pass, const double cur_accuracy, const double cur_mean)
+void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_mean)
    {
    static libbase::timer tupdate;
    if(tupdate.elapsed() > 0.5)

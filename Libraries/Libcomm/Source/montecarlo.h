@@ -163,7 +163,7 @@ namespace libcomm {
 
 class montecarlo : public libbase::masterslave {
    /*! \name Object-wide constants */
-   static const int  min_samples;   //!< minimum number of samples to assume gaussian distribution
+   static const libbase::int64u  min_samples;   //!< minimum number of samples to assume gaussian distribution
    // @}
    /*! \name Bound objects */
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
@@ -203,7 +203,7 @@ protected:
    // @}
    /*! \name Overrideable user-interface functions */
    virtual bool interrupt() { return false; };
-   virtual void display(const int pass, const double cur_accuracy, const double cur_mean);
+   virtual void display(libbase::int64u pass, double cur_accuracy, double cur_mean);
    // @}
 public:
    /*! \name Constructor/destructor */
@@ -220,7 +220,7 @@ public:
    // @}
    /*! \name Simulation results */
    //! Number of samples taken to produce the result
-   int get_samplecount() const { return system->get_samplecount(); };
+   libbase::int64u get_samplecount() const { return system->get_samplecount(); };
    //! Time taken to produce the result
    const libbase::timer& get_timer() const { return t; };
    // @}

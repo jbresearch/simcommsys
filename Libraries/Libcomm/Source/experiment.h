@@ -58,7 +58,7 @@ namespace libcomm {
 class experiment {
 private:
    /*! \name Internal variables */
-   int   samplecount;               //!< Number of samples accumulated
+   libbase::int64u   samplecount;               //!< Number of samples accumulated
    // @}
 
 protected:
@@ -124,7 +124,7 @@ public:
       \param[in] samplecount The number of samples in the accumulated set
       \param[in] state Vector set of accumulated results 
    */
-   void accumulate_state(const int samplecount, const libbase::vector<double>& state)
+   void accumulate_state(libbase::int64u samplecount, const libbase::vector<double>& state)
       { this->samplecount += samplecount; accumulate_state(state); };
    /*!
       \brief Get the complete state of accumulated results
@@ -140,11 +140,11 @@ public:
    /*!
       \brief The number of samples taken to produce the result
    */
-   int get_samplecount() const { return samplecount; };
+   libbase::int64u get_samplecount() const { return samplecount; };
    /*!
       \brief The number of samples taken to produce result 'i'
    */
-   int get_samplecount(int i) const { return get_samplecount() * get_multiplicity(i); };
+   libbase::int64u get_samplecount(int i) const { return get_samplecount() * get_multiplicity(i); };
    /*!
       \brief The number of elements/sample for result 'i'
       \param[in]  i  Result index

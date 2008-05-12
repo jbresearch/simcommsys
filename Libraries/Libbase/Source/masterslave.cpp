@@ -248,16 +248,6 @@ bool masterslave::send(const void *buf, const size_t len)
    return true;
    }
 
-bool masterslave::send(const int x)
-   {
-   return send(&x, sizeof(x));
-   }
-
-bool masterslave::send(const double x)
-   {
-   return send(&x, sizeof(x));
-   }
-
 bool masterslave::send(const vector<double>& x)
    {
    // determine and send vector size first
@@ -289,16 +279,6 @@ bool masterslave::receive(void *buf, const size_t len)
       return false;
       }
    return true;
-   }
-
-bool masterslave::receive(int& x)
-   {
-   return receive(&x, sizeof(x));
-   }
-
-bool masterslave::receive(double& x)
-   {
-   return receive(&x, sizeof(x));
    }
 
 bool masterslave::receive(std::string& x)

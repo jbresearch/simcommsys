@@ -135,13 +135,15 @@ private:
 public:
    // slave -> master communication
    bool send(const void *buf, const size_t len);
-   bool send(const int x);
-   bool send(const double x);
+   bool send(const int x) { return send(&x, sizeof(x)); };
+   bool send(const int64u x) { return send(&x, sizeof(x)); };
+   bool send(const double x) { return send(&x, sizeof(x)); };
    bool send(const vector<double>& x);
    bool send(const std::string& x);
    bool receive(void *buf, const size_t len);
-   bool receive(int& x);
-   bool receive(double& x);
+   bool receive(int& x) { return receive(&x, sizeof(x)); };
+   bool receive(int64u& x) { return receive(&x, sizeof(x)); };
+   bool receive(double& x) { return receive(&x, sizeof(x)); };
    bool receive(std::string& x);
 
 // items for use by master

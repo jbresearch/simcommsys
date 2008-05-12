@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
       }
 
    // Output timing statistics
-   const int frames = estimator.get_samplecount();
+   const libbase::int64u frames = estimator.get_samplecount();
    if(!quiet)
       {
       cout << "URL: " << __WCURL__ << "\n";
