@@ -85,8 +85,13 @@ release:
 debug:
 	@$(MAKE) RELEASE=Debug DOTARGET=all $(TARGETS)
 
-install:
+install:	install-release install-debug
+
+install-release:
 	@$(MAKE) RELEASE=Release DOTARGET=install $(TARGETS)
+
+install-debug:
+	@$(MAKE) RELEASE=Debug DOTARGET=install $(TARGETS)
 
 clean:
 
