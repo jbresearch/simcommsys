@@ -5,19 +5,19 @@
 
 # Usage: runSPECturbo [Port [Count [Release]]]
 
-if [[ $# > 0 ]]; then
+if (( $# > 0 )); then
    PORT=$1
 else
    PORT=9998
 fi
 
-if [[ $# > 1 ]]; then
+if (( $# > 1 )); then
    COUNT=$2
 else
    COUNT=$CPUS
 fi
 
-if [[ $# > 2 ]]; then
+if (( $# > 2 )); then
    RELEASE=$3
 else
    RELEASE=Release
