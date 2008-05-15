@@ -106,6 +106,10 @@ public:
       \callergraph
    */
    virtual int count() const = 0;
+   /*!
+      \brief Title/description of result at index 'i'
+   */
+   virtual std::string result_description(int i) const = 0;
    // @}
 
    /*! \name Result accumulator interface */
@@ -154,7 +158,7 @@ public:
    // @}
 
    /*! \name Description */
-   //! Description output
+   //! Human-readable experiment description
    virtual std::string description() const = 0;
    // @}
 

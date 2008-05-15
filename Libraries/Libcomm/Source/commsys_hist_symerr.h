@@ -75,6 +75,7 @@ public:
        Only one result can be incremented for every frame.
    */
    int get_multiplicity(int i) const { return 1; };
+   std::string result_description(int i) const;
 };
 
 }; // end namespace

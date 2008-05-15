@@ -37,6 +37,7 @@ public:
    */
    int count() const { return 4*get_iter(); };
    int get_multiplicity(int i) const;
+   std::string result_description(int i) const;
 };
 
 }; // end namespace

@@ -8,6 +8,7 @@
 */
 
 #include "commsys_prof_burst.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -50,6 +51,7 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result, const in
 */
 int commsys_prof_burst::get_multiplicity(int i) const
    {
+   assert(i >= 0 && i < count());
    switch(i % 4)
       {
       case 0:
@@ -57,6 +59,35 @@ int commsys_prof_burst::get_multiplicity(int i) const
       default:
          return get_symbolsperblock()-1;
       }
+   }
+
+/*!
+   \copydoc experiment::result_description()
+
+   The description is a string XXX_Y, where 'XXX' is a string indicating
+   the probability represented. 'Y' is the iteration, starting at 1.
+*/
+std::string commsys_prof_burst::result_description(int i) const
+   {
+   assert(i >= 0 && i < count());
+   std::ostringstream sout;
+   switch(i % 4)
+      {
+      case 0:
+         sout << "P[e0]_";
+         break;
+      case 1:
+         sout << "P[ei|correct]_";
+         break;
+      case 2:
+         sout << "P[ei|error]_";
+         break;
+      default:
+         sout << "P[ei-1]_";
+         break;
+      }
+   sout << (i/4)+1;
+   return sout.str();
    }
 
 }; // end namespace

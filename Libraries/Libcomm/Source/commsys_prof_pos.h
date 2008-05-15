@@ -74,6 +74,7 @@ public:
        in every sample.
    */
    int get_multiplicity(int i) const { return get_symbolsperblock(); };
+   std::string result_description(int i) const;
 };
 
 }; // end namespace

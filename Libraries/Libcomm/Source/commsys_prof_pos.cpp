@@ -8,6 +8,7 @@
 */
 
 #include "commsys_prof_pos.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -21,6 +22,22 @@ void commsys_prof_pos::updateresults(libbase::vector<double>& result, const int 
    for(int t=0; t<get_symbolsperblock(); t++)
       if(source(t) != decoded(t))
          result(skip*i + t)++;
+   }
+
+/*!
+   \copydoc experiment::result_description()
+
+   The description is a string SER_X_Y, where 'X' is the symbol position
+   (starting at zero), and 'Y' is the iteration, starting at 1.
+*/
+std::string commsys_prof_pos::result_description(int i) const
+   {
+   assert(i >= 0 && i < count());
+   std::ostringstream sout;
+   const int x = i % get_symbolsperblock();
+   const int y = (i / get_symbolsperblock())+1;
+   sout << "SER_" << x << "_" << y;
+   return sout.str();
    }
 
 }; // end namespace

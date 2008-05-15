@@ -84,17 +84,43 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result, const in
 */
 int commsys_errorrates::get_multiplicity(int i) const
    {
+   assert(i >= 0 && i < count());
    switch(i % 3)
       {
       case 0:
          return get_symbolsperblock() * get_bitspersymbol();
       case 1:
          return get_symbolsperblock();
-      case 2:
+      default:
          return 1;
       }
-   // this never really happens
-   return 0;
+   }
+
+/*!
+   \copydoc experiment::result_description()
+
+   The description is a string XER_Y, where 'X' is B,S,F to indicate
+   bit, symbol, and frame error rates respectively. 'Y' is the iteration,
+   starting at 1.
+*/
+std::string commsys_errorrates::result_description(int i) const
+   {
+   assert(i >= 0 && i < count());
+   std::ostringstream sout;
+   switch(i % 3)
+      {
+      case 0:
+         sout << "BER_";
+         break;
+      case 1:
+         sout << "SER_";
+         break;
+      default:
+         sout << "FER_";
+         break;
+      }
+   sout << (i/3)+1;
+   return sout.str();
    }
 
 // *** Templated Common Base ***
