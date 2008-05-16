@@ -1,0 +1,26 @@
+commsys<sigspace>
+awgn
+mpsk
+2
+turbo<double>
+1
+rscc
+1	2
+111
+101
+158
+2
+flat
+158
+helical
+158
+13
+12
+1
+0
+0
+10
+1
+stipple
+158
+3
