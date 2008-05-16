@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
    cout << "# Par";
    for(int i=0; i<system->count(); i++)
       cout << "\t" << system->result_description(i);
-   cout << "\n" << flush;
+   cout << "\tSamples\n" << flush;
 
    // Work out the following for every SNR value required
    for(int i=0; i<Pset.size(); i++)
