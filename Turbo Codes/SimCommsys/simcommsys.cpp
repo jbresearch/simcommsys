@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
    // Print results header
    cout << "# Par";
    for(int i=0; i<system->count(); i++)
-      cout << "\t" << system->result_description(i);
-   cout << "\tSamples\n" << flush;
+      cout << "\t" << system->result_description(i) << "\tTol";
+   cout << "\tSamples\tCPUtime\n" << flush;
 
    // Work out the following for every SNR value required
    for(int i=0; i<Pset.size(); i++)
@@ -224,8 +224,8 @@ int main(int argc, char *argv[])
       libbase::vector<double> estimate, tolerance;
       estimator.estimate(estimate, tolerance);
 
-      cerr << "Statistics: " << setprecision(4) \
-         << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - " \
+      cerr << "Statistics: " << setprecision(4)
+         << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - "
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
 
       if(estimator.get_samplecount() > 0)
@@ -233,7 +233,8 @@ int main(int argc, char *argv[])
          cout << Pset(i);
          for(int i=0; i<system->count(); i++)
             cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
-         cout << "\t" << estimator.get_samplecount() << "\n" << flush;
+         cout << "\t" << estimator.get_samplecount();
+         cout << "\t" << estimator.getcputime() << "\n" << flush;
          }
 
       // handle pre-mature breaks

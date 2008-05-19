@@ -116,7 +116,7 @@ public:
    void enable(int *argc, char **argv[], const int priority=10);
    // informative functions
    bool isenabled() const { return initialized; };
-   double getcputime() const { return cputimeused; };
+   double getcputime() const { return initialized ? cputimeused : t.cputime(); };
    size_t getnumslaves() const { return smap.size(); };
 
 // items for use by slaves

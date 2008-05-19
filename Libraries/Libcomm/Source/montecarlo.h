@@ -180,10 +180,10 @@ class montecarlo : public libbase::masterslave {
    // @}
    /*! \name Slave process functions & their functors */
    void slave_getcode(void);
-   void slave_getsnr(void);
+   void slave_getparameter(void);
    void slave_work(void);
    libbase::specificfunctor<montecarlo> *fgetcode;
-   libbase::specificfunctor<montecarlo> *fgetsnr;
+   libbase::specificfunctor<montecarlo> *fgetparameter;
    libbase::specificfunctor<montecarlo> *fwork;
    // @}
 private:

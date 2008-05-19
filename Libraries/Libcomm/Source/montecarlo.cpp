@@ -53,7 +53,7 @@ void montecarlo::slave_getcode(void)
    cerr << "Digest: " << sysdigest << "\n";
    }
 
-void montecarlo::slave_getsnr(void)
+void montecarlo::slave_getparameter(void)
    {
    cerr << "Date: " << libbase::timer::date() << "\n";
 
@@ -78,13 +78,13 @@ void montecarlo::slave_work(void)
    t.stop();   // to avoid expiry
 
    // Send system digest and current parameter back to master
-   if(!send(sysdigest) || !send(system->get_parameter()))
-      exit(1);
+   assertalways(send(sysdigest));
+   assertalways(send(system->get_parameter()));
    // Send accumulated results back to master
    libbase::vector<double> state;
    system->get_state(state);
-   if(!send(system->get_samplecount()) || !send(state))
-      exit(1);
+   assertalways(send(system->get_samplecount()));
+   assertalways(send(state));
 
    // print something to inform the user of our progress
    vector<double> result, tolerance;
@@ -108,18 +108,18 @@ void montecarlo::seed_experiment()
 void montecarlo::createfunctors(void)
    {
    fgetcode = new libbase::specificfunctor<montecarlo>(this, &libcomm::montecarlo::slave_getcode);
-   fgetsnr = new libbase::specificfunctor<montecarlo>(this, &libcomm::montecarlo::slave_getsnr);
+   fgetparameter = new libbase::specificfunctor<montecarlo>(this, &libcomm::montecarlo::slave_getparameter);
    fwork = new libbase::specificfunctor<montecarlo>(this, &libcomm::montecarlo::slave_work);
    // register functions
    fregister("slave_getcode", fgetcode);
-   fregister("slave_getsnr", fgetsnr);
+   fregister("slave_getparameter", fgetparameter);
    fregister("slave_work", fwork);
    }
 
 void montecarlo::destroyfunctors(void)
    {
    delete fgetcode;
-   delete fgetsnr;
+   delete fgetparameter;
    delete fwork;
    }
 
@@ -243,7 +243,7 @@ void montecarlo::initslave(slave *s, std::string systemstring)
       return;
    if(!send(s, systemstring))
       return;
-   if(!call(s, "slave_getsnr"))
+   if(!call(s, "slave_getparameter"))
       return;
    if(!send(s, system->get_parameter()))
       return;
