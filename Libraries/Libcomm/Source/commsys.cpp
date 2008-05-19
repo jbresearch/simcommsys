@@ -59,7 +59,7 @@ int commsys_errorrates::countsymerrors(const libbase::vector<int>& source, const
    \param[in]  source   Source data sequence
    \param[in]  decoded  Decoded data sequence
 
-   Results are organized as (bit,symbol,frame) error count, repeated for
+   Results are organized as (symbol,frame) error count, repeated for
    every iteration that needs to be performed. Eventually these will be
    divided by the respective multiplicity to get the average error rates.
 */
@@ -67,59 +67,43 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result, const in
    {
    assert(i >= 0 && i < get_iter());
    // Count errors
-   int biterrors = countbiterrors(source, decoded);
    int symerrors = countsymerrors(source, decoded);
    // Estimate the BER, SER, FER
-   result(3*i + 0) += biterrors;
-   result(3*i + 1) += symerrors;
-   result(3*i + 2) += symerrors ? 1 : 0;
+   result(2*i + 0) += symerrors;
+   result(2*i + 1) += symerrors ? 1 : 0;
    }
 
 /*!
    \copydoc experiment::get_multiplicity()
 
-   Since results are organized as (bit,symbol,frame) error count, repeated for
-   every iteration, the multiplicity is respectively the number of bits, the
-   number of symbols and the number of frames (=1) per sample.
+   Since results are organized as (symbol,frame) error count, repeated for
+   every iteration, the multiplicity is respectively the number of symbols
+   and the number of frames (=1) per sample.
 */
 int commsys_errorrates::get_multiplicity(int i) const
    {
    assert(i >= 0 && i < count());
-   switch(i % 3)
-      {
-      case 0:
-         return get_symbolsperblock() * get_bitspersymbol();
-      case 1:
-         return get_symbolsperblock();
-      default:
-         return 1;
-      }
+   if(i % 2 == 0)
+      return get_symbolsperblock();
+   return 1;
    }
 
 /*!
    \copydoc experiment::result_description()
 
-   The description is a string XER_Y, where 'X' is B,S,F to indicate
-   bit, symbol, and frame error rates respectively. 'Y' is the iteration,
+   The description is a string XER_Y, where 'X' is S,F to indicate
+   symbol or frame error rates respectively. 'Y' is the iteration,
    starting at 1.
 */
 std::string commsys_errorrates::result_description(int i) const
    {
    assert(i >= 0 && i < count());
    std::ostringstream sout;
-   switch(i % 3)
-      {
-      case 0:
-         sout << "BER_";
-         break;
-      case 1:
-         sout << "SER_";
-         break;
-      default:
-         sout << "FER_";
-         break;
-      }
-   sout << (i/3)+1;
+   if(i % 2 == 0)
+      sout << "SER_";
+   else
+      sout << "FER_";
+   sout << (i/2)+1;
    return sout.str();
    }
 
