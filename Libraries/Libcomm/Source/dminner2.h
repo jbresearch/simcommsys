@@ -55,7 +55,7 @@ private:
    void createsequence(const int tau);                      
    // @}
    // Implementations of channel-specific metrics for fba2
-   real Q(int d, int i, const libbase::vector<bool>& r);
+   real Q(int d, int i, const libbase::vector<bool>& r) const;
    // Atomic modem operations (private as these should never be used)
    const bool modulate(const int index) const { assert("Function should not be used."); return false; };
    const int demodulate(const bool& signal) const { assert("Function should not be used."); return 0; };

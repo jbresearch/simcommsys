@@ -106,7 +106,7 @@ template <class real> dminner2<real>::dminner2(const int n, const int k)
 
 // implementations of channel-specific metrics for fba2
 
-template <class real> real dminner2<real>::Q(int d, int i, const libbase::vector<bool>& r)
+template <class real> real dminner2<real>::Q(int d, int i, const libbase::vector<bool>& r) const
    {
    // 'tx' is the vector of transmitted symbols that we're considering
    libbase::vector<bool> tx;

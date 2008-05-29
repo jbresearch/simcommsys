@@ -45,10 +45,12 @@ private:
    bool  initialised;   //!< Flag to indicate when memory is allocated
    libbase::matrix<real>   m_alpha;    //!< Forward recursion metric
    libbase::matrix<real>   m_beta;     //!< Backward recursion metric
-   libbase::matrix< libbase::matrix<real> >  m_gamma;    //!< Receiver metric
+   mutable libbase::matrix< libbase::matrix<real> >  m_gamma;    //!< Receiver metric
+   mutable libbase::matrix3<bool>  m_cached;    //!< Flag for caching of receiver metric
    // @}
 private:
    /*! \name Internal functions */
+   real compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const;
    // index-shifting access internal use
    real& alpha(int i, int x) { return m_alpha(i,x+xmax); };
    real& beta(int i, int x) { return m_beta(i,x+xmax); };
@@ -66,7 +68,7 @@ protected:
    int get_I() const { return I; };
    int get_xmax() const { return xmax; };
    // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real Q(int d, int i, const libbase::vector<sig>& r) = 0;
+   virtual real Q(int d, int i, const libbase::vector<sig>& r) const = 0;
    // decode functions
    void work_gamma(const libbase::vector<sig>& r);
    void work_alpha(const libbase::vector<sig>& r);
@@ -89,6 +91,17 @@ public:
    void prepare(const libbase::vector<sig>& r);
    void work_results(const libbase::vector<sig>& r, libbase::matrix<real>& ptable) const;
 };
+
+template <class real, class sig> real fba2<real,sig>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
+   {
+   if(!m_cached(i,x+xmax,deltax-dxmin))
+      {
+      m_cached(i,x+xmax,deltax-dxmin) = true;
+      for(int d=0; d<q; d++)
+         m_gamma(d,i)(x+xmax,deltax-dxmin) = Q(d,i,r.extract(n*i+x,n+deltax));
+      }
+   return m_gamma(d,i)(x+xmax,deltax-dxmin);
+   }
 
 }; // end namespace
 

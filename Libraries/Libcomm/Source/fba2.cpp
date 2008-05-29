@@ -31,6 +31,7 @@ template <class real, class sig> void fba2<real,sig>::allocate()
    for(int d=0; d<q; d++)
       for(int i=0; i<N; i++)
          m_gamma(d,i).init(2*xmax+1, dxmax-dxmin+1);
+   m_cached.init(N, 2*xmax+1, dxmax-dxmin+1);
    // flag the state of the arrays
    initialised = true;
    }
@@ -64,6 +65,9 @@ template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<si
    for(int d=0; d<q; d++)
       for(int i=0; i<N; i++)
          m_gamma(d,i) = real(0);
+   // initialize cache
+   m_cached = false;
+   return;
    // compute remaining matrix values
    for(int i=0; i<N; i++)
       {
@@ -132,7 +136,7 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
          const int x2max = min(min(xmax,dxmax+x1),r.size()-n*i);
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
-               alpha(i,x2) += alpha(i-1,x1) * gamma(d,i-1,x1,x2-x1);
+               alpha(i,x2) += alpha(i-1,x1) * compute_gamma(d,i-1,x1,x2-x1,r);
          }
       }
    std::cerr << libbase::pacifier("FBA Alpha", N-1, N-1);
@@ -180,7 +184,7 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
          const int x1max = min(xmax,x2-dxmin);
          for(int x1=x1min; x1<=x1max; x1++)
             for(int d=0; d<q; d++)
-               beta(i,x1) += beta(i+1,x2) * gamma(d,i,x1,x2-x1);
+               beta(i,x1) += beta(i+1,x2) * compute_gamma(d,i,x1,x2-x1,r);
          }
       }
    std::cerr << libbase::pacifier("FBA Beta", N, N);
@@ -239,7 +243,7 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
             const int x2min = max(-xmax,dxmin+x1);
             const int x2max = min(min(xmax,dxmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
-               p += alpha(i,x1) * gamma(d,i,x1,x2-x1) * beta(i,x2);
+               p += alpha(i,x1) * compute_gamma(d,i,x1,x2-x1,r) * beta(i,x2);
             }
          ptable(i,d) = p;
          }
