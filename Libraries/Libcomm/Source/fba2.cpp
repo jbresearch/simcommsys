@@ -18,16 +18,19 @@ using libbase::vector;
 
 template <class real, class sig> void fba2<real,sig>::allocate()
    {
+   // determine limits
+   dxmin = max(-n,-xmax);
+   dxmax = min(n*I,xmax);
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
-   // x in [-xmax, xmax], and deltax in [-n, nI]
+   // x in [-xmax, xmax], and deltax in [max(-n,-xmax), min(nI,xmax)]
    m_alpha.init(N, 2*xmax+1);
    m_beta.init(N+1, 2*xmax+1);
    m_gamma.init(q,N);
    for(int d=0; d<q; d++)
       for(int i=0; i<N; i++)
-         m_gamma(d,i).init(2*xmax+1, n*(I+1)+1);
+         m_gamma(d,i).init(2*xmax+1, dxmax-dxmin+1);
    // flag the state of the arrays
    initialised = true;
    }
@@ -66,20 +69,22 @@ template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<si
       {
       std::cerr << libbase::pacifier("FBA Gamma", i, N);
       // event must fit the received sequence:
+      // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
       // 2. n*(i+1)-1+x2 < r.size()
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
       // limits on introduced drift in this section:
+      // (necessary for forward recursion on extracted segment)
       // 5. x2-x1 <= xmax
       // 6. x2-x1 >= -xmax
       const int x1min = max(-xmax,-n*i);
       const int x1max = xmax;
       for(int x1=x1min; x1<=x1max; x1++)
          {
-         const int x2min = max(-xmax,max(x1-n,x1-xmax));
-         const int x2max = min(min(xmax,min(x1+n*I,x1+xmax)),r.size()-n*(i+1));
+         const int x2min = max(-xmax,dxmin+x1);
+         const int x2max = min(min(xmax,dxmax+x1),r.size()-n*(i+1));
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
                gamma(d,i,x1,x2-x1) = Q(d,i,r.extract(n*i+x1,n+x2-x1));
@@ -106,11 +111,16 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
             threshold = alpha(i-1,x1);
       threshold *= 1e-15;
       // event must fit the received sequence:
+      // (this is limited to start and end conditions)
       // 1. n*(i-1)+x1 >= 0
       // 2. n*i-1+x2 < r.size()
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
+      // limits on introduced drift in this section:
+      // (necessary for forward recursion on extracted segment)
+      // 5. x2-x1 <= xmax
+      // 6. x2-x1 >= -xmax
       const int x1min = max(-xmax,-n*(i-1));
       const int x1max = xmax;
       for(int x1=x1min; x1<=x1max; x1++)
@@ -118,8 +128,8 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
          // ignore paths below a certain threshold
          if(alpha(i-1,x1) < threshold)
             continue;
-         const int x2min = max(-xmax,x1-n);
-         const int x2max = min(min(xmax,x1+n*I),r.size()-n*i);
+         const int x2min = max(-xmax,dxmin+x1);
+         const int x2max = min(min(xmax,dxmax+x1),r.size()-n*i);
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
                alpha(i,x2) += alpha(i-1,x1) * gamma(d,i-1,x1,x2-x1);
@@ -149,11 +159,16 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
             threshold = beta(i+1,x2);
       threshold *= 1e-15;
       // event must fit the received sequence:
+      // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
       // 2. n*(i+1)-1+x2 < r.size()
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
+      // limits on introduced drift in this section:
+      // (necessary for forward recursion on extracted segment)
+      // 5. x2-x1 <= xmax
+      // 6. x2-x1 >= -xmax
       const int x2min = -xmax;
       const int x2max = min(xmax,r.size()-n*(i+1));
       for(int x2=x2min; x2<=x2max; x2++)
@@ -161,8 +176,8 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
          // ignore paths below a certain threshold
          if(beta(i+1,x2) < threshold)
             continue;
-         const int x1min = max(max(-xmax,x2-n*I),-n*i);
-         const int x1max = min(xmax,x2+n);
+         const int x1min = max(max(-xmax,x2-dxmax),-n*i);
+         const int x1max = min(xmax,x2-dxmin);
          for(int x1=x1min; x1<=x1max; x1++)
             for(int d=0; d<q; d++)
                beta(i,x1) += beta(i+1,x2) * gamma(d,i,x1,x2-x1);
@@ -204,11 +219,16 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
          {
          real p = 0;
          // event must fit the received sequence:
+         // (this is limited to start and end conditions)
          // 1. n*i+x1 >= 0
          // 2. n*(i+1)-1+x2 < r.size()
          // limits on insertions and deletions must be respected:
          // 3. x2-x1 <= n*I
          // 4. x2-x1 >= -n
+         // limits on introduced drift in this section:
+         // (necessary for forward recursion on extracted segment)
+         // 5. x2-x1 <= xmax
+         // 6. x2-x1 >= -xmax
          const int x1min = max(-xmax,-n*i);
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
@@ -216,8 +236,8 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
             // ignore paths below a certain threshold
             if(get_alpha(i,x1) < threshold)
                continue;
-            const int x2min = max(-xmax,x1-n);
-            const int x2max = min(min(xmax,x1+n*I),r.size()-n*(i+1));
+            const int x2min = max(-xmax,dxmin+x1);
+            const int x2max = min(min(xmax,dxmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
                p += get_alpha(i,x1) * get_gamma(d,i,x1,x2-x1) * get_beta(i,x2);
             }

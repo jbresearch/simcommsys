@@ -40,6 +40,8 @@ private:
    int   xmax; //!< The maximum allowed drift is \f$ \pm x_{max} \f$
    // @}
    /*! \name Internally-used objects */
+   int   dxmin;         //!< Offset for deltax index in gamma matrix
+   int   dxmax;         //!< Maximum value for deltax index in gamma matrix
    bool  initialised;   //!< Flag to indicate when memory is allocated
    libbase::matrix<real>   m_alpha;    //!< Forward recursion metric
    libbase::matrix<real>   m_beta;     //!< Backward recursion metric
@@ -50,7 +52,7 @@ private:
    // index-shifting access internal use
    real& alpha(int i, int x) { return m_alpha(i,x+xmax); };
    real& beta(int i, int x) { return m_beta(i,x+xmax); };
-   real& gamma(int d, int i, int x, int deltax) { return m_gamma(d,i)(x+xmax,deltax+n); };
+   real& gamma(int d, int i, int x, int deltax) { return m_gamma(d,i)(x+xmax,deltax-dxmin); };
    // memory allocation
    void allocate();
    // @}
@@ -82,7 +84,7 @@ public:
    // getters for forward and backward metrics
    real get_alpha(int i, int x) const { return m_alpha(i,x+xmax); };
    real get_beta(int i, int x) const { return m_beta(i,x+xmax); };
-   real get_gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax+n); };
+   real get_gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax-dxmin); };
    // decode functions
    void prepare(const libbase::vector<sig>& r);
    void work_results(const libbase::vector<sig>& r, libbase::matrix<real>& ptable) const;
