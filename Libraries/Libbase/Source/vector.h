@@ -190,7 +190,7 @@ public:
    T operator()(const int x) const;
 
    // information services
-   int size() const { return m_xsize; };     // total number of elements
+   int size() const { return m_xsize; };                 //!< Total number of elements
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;

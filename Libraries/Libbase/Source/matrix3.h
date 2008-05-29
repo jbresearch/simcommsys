@@ -154,10 +154,10 @@ public:
    T operator()(const int x, const int y, const int z) const;
 
    // information services
-   int xsize() const { return m_xsize; };          // size on dimension x
-   int ysize() const { return m_ysize; };          // size on dimension y
-   int zsize() const { return m_zsize; };          // size on dimension y
-   int size() const { return m_xsize * m_ysize * m_zsize; }; // total number of elements
+   int xsize() const { return m_xsize; };                //!< Size on dimension x
+   int ysize() const { return m_ysize; };                //!< Size on dimension y
+   int zsize() const { return m_zsize; };                //!< Size on dimension z
+   int size() const { return m_xsize * m_ysize * m_zsize; }; //!< Total number of elements
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;

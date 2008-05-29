@@ -8,6 +8,7 @@
 */
 
 #include "fba.h"
+#include <iomanip>
 
 namespace libcomm {
 
@@ -39,7 +40,15 @@ template <class real, class sig> void fba<real,sig>::allocate()
    // to satisfy indexing requirements, instead of using y we use y+xmax, which is in [0, 2*xmax]
    mF.init(tau, 2*xmax+1);
    mB.init(tau+1, 2*xmax+1);
-
+   // determine memory occupied and tell user
+   // (for larger blocks only)
+   if(tau > 32)
+      {
+      std::ios::fmtflags flags = std::cerr.flags();
+      std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
+      std::cerr << sizeof(real)*( mF.size() + mB.size() )/double(1<<20) << "MB\n";
+      std::cerr.setf(flags);
+      }
    // flag the state of the arrays
    initialised = true;
    }

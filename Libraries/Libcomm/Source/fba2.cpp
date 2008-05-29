@@ -8,6 +8,7 @@
 */
 
 #include "fba2.h"
+#include <iomanip>
 
 namespace libcomm {
 
@@ -32,6 +33,13 @@ template <class real, class sig> void fba2<real,sig>::allocate()
       for(int i=0; i<N; i++)
          m_gamma(d,i).init(2*xmax+1, dxmax-dxmin+1);
    m_cached.init(N, 2*xmax+1, dxmax-dxmin+1);
+   // determine memory occupied and tell user
+   std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
+   std::cerr << ( sizeof(bool)*m_cached.size() + 
+      sizeof(real)*( m_alpha.size() + m_beta.size() + m_gamma(0,0).size()*m_gamma.size() )
+      )/double(1<<20) << "MB\n";
+   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
    }

@@ -179,17 +179,6 @@ int main(int argc, char *argv[])
    // do what the user asked for
    testcycle(seed, n, k, tau, p);
 
-   //cout << "\n*** Classic Timing Cycle ***\n\n";
-
-   //// try short,medium,large codes for benchmarking at low error probability
-   //testcycle(seed, 15, 4, 10, Plo, false);
-   //testcycle(seed, 15, 4, 100, Plo, false);
-   //testcycle(seed, 15, 4, 1000, Plo, false);
-
-   //// try short,medium codes for benchmarking at high error probability
-   //testcycle(seed, 15, 4, 10, Phi, false);
-   //testcycle(seed, 15, 4, 100, Phi, false);
-
    cout << "\n*** Alternative Timing Cycle ***\n\n";
 
    // try short,medium,large codes for benchmarking at low error probability
@@ -200,6 +189,17 @@ int main(int argc, char *argv[])
    // try short,medium codes for benchmarking at high error probability
    testcycle2(seed, 15, 4, 10, Phi, false);
    testcycle2(seed, 15, 4, 100, Phi, false);
+
+   cout << "\n*** Classic Timing Cycle ***\n\n";
+
+   // try short,medium,large codes for benchmarking at low error probability
+   testcycle(seed, 15, 4, 10, Plo, false);
+   testcycle(seed, 15, 4, 100, Plo, false);
+   testcycle(seed, 15, 4, 1000, Plo, false);
+
+   // try short,medium codes for benchmarking at high error probability
+   testcycle(seed, 15, 4, 10, Phi, false);
+   testcycle(seed, 15, 4, 100, Phi, false);
 
    return 0;
    }

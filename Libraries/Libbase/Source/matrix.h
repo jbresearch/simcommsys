@@ -212,9 +212,9 @@ public:
    T operator()(const int x, const int y) const;
 
    // information services
-   int xsize() const { return m_xsize; };          // size on dimension x
-   int ysize() const { return m_ysize; };          // size on dimension y
-   int size() const { return m_xsize * m_ysize; }; // total number of elements
+   int xsize() const { return m_xsize; };                //!< Size on dimension x (rows)
+   int ysize() const { return m_ysize; };                //!< Size on dimension y (columns)
+   int size() const { return m_xsize * m_ysize; };       //!< Total number of elements
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;
