@@ -26,6 +26,7 @@
 #include "mpsk.h"
 #include "qam.h"
 #include "watermarkcode.h"
+#include "dminner2.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -91,62 +92,13 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
-
-   \version 2.00 (13 Oct 2006)
-   - added version object to make this class accessible.
-
-   \version 2.10 (6 Nov 2006)
-   - defined class and associated data within "libcomm" namespace.
-
-   \version 2.20 (1 Nov 2007)
-   - added bsid and watermarkcode.
-
-   \version 2.21 (7 Nov 2007)
-   - resolved ambiguity with bsid and mpsk direct bases, by removing the
-    direct base.
-
-   \version 2.22 (13-14 Dec 2007)
-   - added grscc<> variants for GF(2), GF(2^4)
-   - added gnrcc<> variants for GF(2), GF(2^4)
-
-   \version 2.23 (3 Jan 2008)
-   - added qam
-
-   \version 2.24 (21 Jan 2008)
-   - Added bsid again (since this is no longer a base class of anything)
-   - Added lapgauss channel
-
-   \version 2.25 (24 Jan 2008)
-   - Added commsys experiment type
-
-   \version 2.26 (25 Jan 2008)
-   - Modified commsys to commsys<sigspace>
-   - Added BSC channel
-
-   \version 2.27 (28 Jan 2008)
-   - Added modulator<bool>
-   - Replace modulator<bool> by mpsk, due to change in watermarkcode inheritance
-
-   \version 2.28 (12 Feb 2008)
-   - Added GF(q) commsys classes
-   - Added q-ary symmetric channel
-
-   \version 2.29 (19 Feb 2008)
-   - Added symbol-error histogram and position profiler for commsys<bool>
-   - Added symbol-value profiler for commsys<bool>
-
-   \version 2.30 (15 Apr 2008)
-   - Added burst-error profiler for commsys<bool>
-
-   \version 2.31 (25-28 Apr 2008)
-   - Added straight and interleaved signal mappers
 */
 
 // Serialization support
 class serializer_libcomm : private
    qsc< libbase::gf<1,0x3> >, qsc< libbase::gf<2,0x7> >, qsc< libbase::gf<3,0xB> >, qsc< libbase::gf<4,0x13> >,
    awgn, laplacian, lapgauss, bsid, bsc,
-   mpsk, qam, watermarkcode<libbase::logrealfast>,
+   mpsk, qam, watermarkcode<libbase::logrealfast>, dminner2<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,

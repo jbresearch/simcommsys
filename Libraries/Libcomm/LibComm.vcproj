@@ -455,6 +455,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\dminner2.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\dvbcrsc.cpp"
 				>
 				<FileConfiguration
@@ -496,6 +500,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\fba.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\fba2.cpp"
 				>
 			</File>
 			<File
@@ -1328,6 +1336,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\dminner2.h"
+				>
+			</File>
+			<File
 				RelativePath="Source\dvbcrsc.h"
 				>
 			</File>
@@ -1337,6 +1349,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\fba.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\fba2.h"
 				>
 			</File>
 			<File

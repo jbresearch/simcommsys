@@ -11,6 +11,7 @@
 #include "randgen.h"
 #include "logrealfast.h"
 #include "watermarkcode.h"
+#include "dminner2.h"
 #include "bsid.h"
 
 #include <iostream>
@@ -26,6 +27,7 @@ using libbase::logrealfast;
 using libcomm::modulator;
 using libcomm::channel;
 using libcomm::watermarkcode;
+using libcomm::dminner2;
 
 channel<bool> *create_channel(libbase::random& r, int N, double Pe)
    {
@@ -116,6 +118,34 @@ void testcycle(int const seed, int const n, int const k, int const tau, double P
    modem.seedfrom(prng);
    channel<bool> *chan = create_channel(prng, N, Pe);
    cout << modem.description() << "\n";
+   cout << chan->description() << "\n";
+
+   // define an alternating encoded sequence
+   vector<int> encoded = create_encoded(k, tau, display);
+   // modulate it using the previously created watermarkcode
+   vector<bool> tx = modulate_encoded(k, n, modem, encoded, display);
+   // pass it through the channel
+   vector<bool> rx = transmit_modulated(n, *chan, tx, display);
+   // demodulate received signal
+   matrix<double> ptable = demodulate_encoded(*chan, modem, rx, display);
+   // count errors
+   count_errors(encoded, ptable);
+
+   delete chan;
+   }
+
+void testcycle2(int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
+   {
+   // create prng for seeding systems
+   libbase::randgen prng;
+   prng.seed(seed);
+   // create modem and channel
+   const int N = tau*n;
+   dminner2<logrealfast> modem(n,k);
+   modem.seedfrom(prng);
+   channel<bool> *chan = create_channel(prng, N, Pe);
+   cout << modem.description() << "\n";
+   cout << chan->description() << "\n";
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
@@ -149,14 +179,27 @@ int main(int argc, char *argv[])
    // do what the user asked for
    testcycle(seed, n, k, tau, p);
 
+   //cout << "\n*** Classic Timing Cycle ***\n\n";
+
+   //// try short,medium,large codes for benchmarking at low error probability
+   //testcycle(seed, 15, 4, 10, Plo, false);
+   //testcycle(seed, 15, 4, 100, Plo, false);
+   //testcycle(seed, 15, 4, 1000, Plo, false);
+
+   //// try short,medium codes for benchmarking at high error probability
+   //testcycle(seed, 15, 4, 10, Phi, false);
+   //testcycle(seed, 15, 4, 100, Phi, false);
+
+   cout << "\n*** Alternative Timing Cycle ***\n\n";
+
    // try short,medium,large codes for benchmarking at low error probability
-   testcycle(seed, 15, 4, 10, Plo, false);
-   testcycle(seed, 15, 4, 100, Plo, false);
-   testcycle(seed, 15, 4, 1000, Plo, false);
+   testcycle2(seed, 15, 4, 10, Plo, false);
+   testcycle2(seed, 15, 4, 100, Plo, false);
+   testcycle2(seed, 15, 4, 1000, Plo, false);
 
    // try short,medium codes for benchmarking at high error probability
-   testcycle(seed, 15, 4, 10, Phi, false);
-   testcycle(seed, 15, 4, 100, Phi, false);
+   testcycle2(seed, 15, 4, 10, Phi, false);
+   testcycle2(seed, 15, 4, 100, Phi, false);
 
    return 0;
    }
