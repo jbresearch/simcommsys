@@ -161,6 +161,7 @@ private:
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
    libbase::vector<int> lut;  //!< sparsifier LUT
+   libbase::vector<double> Ptable;  //!< pre-computed values for P function
    // @}
 private:
    /*! \name Internal functions */

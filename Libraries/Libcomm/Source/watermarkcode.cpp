@@ -116,14 +116,8 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
 
 template <class real> real watermarkcode<real>::P(const int a, const int b)
    {
-   const double Pd = mychan.get_pd();
-   const double Pi = mychan.get_pi();
    const int m = b-a;
-   if(m == -1)
-      return Pd;
-   else if(m >= 0)
-      return pow(Pi,m)*(1-Pi)*(1-Pd);
-   return 0;
+   return Ptable(m+1);
    }
 
 template <class real> real watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
@@ -153,12 +147,6 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
    tx.init(n*p*tau);
    createsequence(p*tau);
    // Encode source stream
-#ifndef NDEBUG
-   using libbase::trace;
-   using std::string;
-   libbase::bitfield b;
-   b.resize(n);
-#endif
    for(int i=0, ii=0; i<tau; i++)
       for(int j=0, x=encoded(i); j<p; j++, ii++, x >>= k)
          {
@@ -167,11 +155,9 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 #ifndef NDEBUG
          if(tau < 10)
             {
-            trace << "DEBUG (watermarkcode::modulate): word " << i << "\t";
-            b = s;
-            trace << "s = " << string(b) << "\t";
-            b = w;
-            trace << "w = " << string(b) << "\n";
+            libbase::trace << "DEBUG (watermarkcode::modulate): word " << i << "\t";
+            libbase::trace << "s = " << libbase::bitfield(s,n) << "\t";
+            libbase::trace << "w = " << libbase::bitfield(w,n) << "\n";
             }
 #endif
          // NOTE: we transmit the low-order bits first
@@ -191,9 +177,16 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    mychan.set_parameter(chan.get_parameter());
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
+   // Pre-compute 'P' table
+   const int xmax = mychan.get_xmax();
+   const double Pd = mychan.get_pd();
+   const double Pi = mychan.get_pi();
+   Ptable.init(xmax+2);
+   Ptable(0) = Pd;   // for m = -1
+   for(int m=0; m<=xmax; m++)
+      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
    // Initialize & perform forward-backward algorithm
    const int I    = mychan.get_I();
-   const int xmax = mychan.get_xmax();
    fba<real,bool>::init(N*n, I, xmax);
    fba<real,bool>::prepare(rx);
    // Tell the user what settings are in use
@@ -211,11 +204,6 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    p = real(0);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    trace << "DEBUG (watermarkcode::demodulate): computing ptable...\n";
-#ifndef NDEBUG
-   using std::string;
-   libbase::bitfield b;
-   b.resize(k);
-#endif
    for(int i=0; i<N; i++)
       {
       std::cerr << libbase::pacifier("WM Demodulate", i, N);
