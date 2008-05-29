@@ -127,11 +127,11 @@ protected:
    virtual real P(const int a, const int b) = 0;
    virtual real Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
    // default constructor
-   fba();
+   fba() { initialised = false; };
 public:
    // constructor & destructor
-   fba(const int tau, const int I, const int xmax);
-   virtual ~fba();
+   fba(const int tau, const int I, const int xmax) { init(tau, I, xmax); };
+   virtual ~fba() {};
    // getters for forward and backward metrics
    real getF(const int j, const int y) const { return mF(j,y+xmax); };
    real getB(const int j, const int y) const { return mB(j,y+xmax); };

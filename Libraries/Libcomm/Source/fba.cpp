@@ -53,34 +53,10 @@ template <class real, class sig> void fba<real,sig>::allocate()
    initialised = true;
    }
 
-
-// Creation/Destruction routines
-
-template <class real, class sig> fba<real,sig>::fba()
-   {
-   initialised = false;
-   }
-
-template <class real, class sig> fba<real,sig>::fba(const int tau, const int I, const int xmax)
-   {
-   init(tau, I, xmax);
-   }
-
-template <class real, class sig> fba<real,sig>::~fba()
-   {
-   }
-
-
 // Internal procedures
 
 template <class real, class sig> void fba<real,sig>::work_forward(const vector<sig>& r)
    {
-   using libbase::trace;
-#ifndef NDEBUG
-   if(tau > 32)
-      trace << "DEBUG (fba): computing forward metrics...\n";
-#endif
-
    // initialise memory if necessary
    if(!initialised)
       allocate();
@@ -121,20 +97,10 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       }
    if(tau > 32)
       std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
-#ifndef NDEBUG
-   if(tau > 32)
-      trace << "DEBUG (fba): forward metrics done.\n";
-#endif
    }
 
 template <class real, class sig> void fba<real,sig>::work_backward(const vector<sig>& r)
    {
-   using libbase::trace;
-#ifndef NDEBUG
-   if(tau > 32)
-      trace << "DEBUG (fba): computing backward metrics...\n";
-#endif
-
    // initialise memory if necessary
    if(!initialised)
       allocate();
@@ -146,10 +112,10 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
    assertalways(abs(r.size()-tau) <= xmax);
    B(tau,r.size()-tau) = real(1);
    // compute remaining matrix values
-   for(int i=0, j=tau-1; j>=0; i++, j--)
+   for(int j=tau-1; j>=0; j--)
       {
       if(tau > 32)
-         std::cerr << libbase::pacifier("FBA Backward Pass", i, tau);
+         std::cerr << libbase::pacifier("FBA Backward Pass", tau-1-j, tau);
       // determine the strongest path at this point
       real threshold = 0;
       for(int b=-xmax; b<=xmax; b++)
@@ -176,11 +142,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
          }
       }
    if(tau > 32)
-      std::cerr << libbase::pacifier("FBA Backward Pass", tau-1, tau-1);
-#ifndef NDEBUG
-   if(tau > 32)
-      trace << "DEBUG (fba): backward metrics done.\n";
-#endif
+      std::cerr << libbase::pacifier("FBA Backward Pass", tau, tau);
    }
 
 // User procedures
@@ -196,28 +158,16 @@ template <class real, class sig> void fba<real,sig>::prepare(const vector<sig>& 
 
 // Explicit Realizations
 
-#include "mpreal.h"
-#include "mpgnu.h"
-#include "logreal.h"
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::mpreal;
-using libbase::mpgnu;
-using libbase::logreal;
 using libbase::logrealfast;
 
 template class fba<double>;
-template class fba<mpreal>;
-template class fba<mpgnu>;
-template class fba<logreal>;
 template class fba<logrealfast>;
 
 template class fba<double,bool>;
-template class fba<mpreal,bool>;
-template class fba<mpgnu,bool>;
-template class fba<logreal,bool>;
 template class fba<logrealfast,bool>;
 
 }; // end namespace

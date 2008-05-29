@@ -8,7 +8,6 @@
 */
 
 #include "bsid.h"
-#include "fba.h"
 #include "secant.h"
 #include <sstream>
 
@@ -236,100 +235,82 @@ void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
    rx = newrx;
    }
 
-/********************************* FBA sub-class object *********************************/
-
-class myfba : public fba<double,bool> {
-   // user-defined parameters
-   libbase::vector<bool>  tx;   // presumed transmitted sequence
-   const bsid* channel;
-   // pre-computed parameters
-   libbase::vector<double> Ptable;
-   // implementations of channel-specific metrics for fba
-   double P(const int a, const int b);
-   double Q(const int a, const int b, const int i, const libbase::vector<bool>& s);
-public:
-   // constructor & destructor
-   myfba() {};
-   ~myfba() {};
-   // set transmitted sequence
-   void settx(const libbase::vector<bool>& tx);
-   // attach channel
-   void attach(const bsid* channel);
-};
-
-// implementations of channel-specific metrics for fba
-
-inline double myfba::P(const int a, const int b)
-   {
-   const int m = b-a;
-   return Ptable(m+1);
-   }
-
-inline double myfba::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
-   {
-   // 'a' and 'b' are redundant because 's' already contains the difference
-   assert(s.size() == b-a+1);
-   // 'tx' is a matrix of all possible transmitted symbols
-   // we know exactly what was transmitted at this timestep
-   // compute the conditional probability
-   return channel->receive(myfba::tx(i), s);
-   }
-
-// set transmitted sequence
-
-inline void myfba::settx(const libbase::vector<bool>& tx)
-   {
-   myfba::tx.init(tx.size()+1);
-   myfba::tx.copyfrom(tx);
-   }
-
-// attach channel
-
-inline void myfba::attach(const bsid* channel)
-   {
-   myfba::channel = channel;
-   // pre-compute table
-   const double Pd = channel->get_pd();
-   const double Pi = channel->get_pi();
-   const int xmax = get_xmax();
-   Ptable.init(xmax+2);
-   Ptable(0) = Pd;   // for m = -1
-   for(int m=0; m<=xmax; m++)
-      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
-   };
-
-/********************************* END FBA *********************************/
-
 void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
    const int M = tx.size();
-   const int m = rx.size()-1;
    // Initialize results vector
    ptable.init(1, M);
-   // Compute results
-   if(m == -1) // just a deletion, no symbols received
-      ptable = Pd;
-   else
-      {
-      // Work out the probabilities of each possible signal
-      for(int x=0; x<M; x++)
-         ptable(0,x) = (a1 * pdf(tx(x),rx(m)) + a2) * a3(m);
-      }
+   // Compute results for each possible signal
+   for(int x=0; x<M; x++)
+      ptable(0,x) = receive(tx(x),rx);
    }
 
 double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
    {
+   // Pre-compute 'P' table
+   libbase::vector<double> Ptable;
+   Ptable.init(xmax+2);
+   Ptable(0) = Pd;   // for m = -1
+   for(int m=0; m<=xmax; m++)
+      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
    // Compute sizes
    const int tau = tx.size();
    const int m = rx.size()-tau;
-   // One possible sequence of transmitted symbols
-   myfba f;
-   f.init(tau+1, I, xmax);
-   f.attach(this);
-   f.settx(tx);
-   f.work_forward(rx);
-   return f.getF(tau,m);
+   // Set up forward matrix
+   libbase::matrix<double> Ftable;
+   Ftable.init(tau+1, 2*xmax+1);
+   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
+   Ftable = 0;
+   Ftable(0,0+xmax) = 1;
+   // compute remaining matrix values
+   for(int j=1; j<tau; j++)
+      {
+      // determine the strongest path at this point
+      double threshold = 0;
+      for(int a=-xmax; a<=xmax; a++)
+         if(Ftable(j-1,a+xmax) > threshold)
+            threshold = Ftable(j-1,a+xmax);
+      threshold *= 1e-15;
+      // event must fit the received sequence:
+      // 1. j-1+a >= 0
+      // 2. j-1+y < rx.size()
+      // limits on insertions and deletions must be respected:
+      // 3. y-a <= I
+      // 4. y-a >= -1
+      const int amin = max(-xmax,1-j);
+      const int amax = xmax;
+      for(int a=amin; a<=amax; a++)
+         {
+         // ignore paths below a certain threshold
+         if(Ftable(j-1,a+xmax) < threshold)
+            continue;
+         const int ymin = max(-xmax,a-1);
+         const int ymax = min(min(xmax,a+I),rx.size()-j);
+         for(int y=ymin; y<=ymax; y++)
+            Ftable(j,y+xmax) += Ftable(j-1,a+xmax) * Ptable(y-a+1) * receive(tx(j-1),rx.extract(j-1+a,y-a+1));
+         }
+      }
+   // Compute forward metric for known drift, and return
+   // determine the strongest path at this point
+   double threshold = 0;
+   for(int a=-xmax; a<=xmax; a++)
+      if(Ftable(tau-1,a+xmax) > threshold)
+         threshold = Ftable(tau-1,a+xmax);
+   threshold *= 1e-15;
+   // limits on insertions and deletions must be respected:
+   // 3. m-a <= I
+   // 4. m-a >= -1
+   const int amin = max(-xmax,max(1-tau,m-I));
+   const int amax = min(xmax,m+1);
+   for(int a=amin; a<=amax; a++)
+      {
+      // ignore paths below a certain threshold
+      if(Ftable(tau-1,a+xmax) < threshold)
+         continue;
+      Ftable(tau,m+xmax) += Ftable(tau-1,a+xmax) * Ptable(m-a+1) * receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
+      }
+   return Ftable(tau,m+xmax);
    }
 
 // description output

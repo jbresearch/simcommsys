@@ -263,13 +263,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
       std::cerr << libbase::pacifier("WM Demodulate", N, N);
    // normalize and copy results
    const real scale = p.max();
-#ifndef NDEBUG
-   if(scale == real(0))
-      {
-      trace << "WARNING (watermarkcode::demodulate): likely numerical underflow.\n";
-      exit(1);
-      }
-#endif
+   // check for likely numerical underflow
+   assert(scale != real(0));
    p /= scale;
    for(int i=0; i<N; i++)
       for(int d=0; d<q; d++)
@@ -337,28 +332,13 @@ template <class real> std::istream& watermarkcode<real>::serialize(std::istream&
 
 // Explicit Realizations
 
-#include "mpreal.h"
-#include "mpgnu.h"
-#include "logreal.h"
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::mpreal;
-using libbase::mpgnu;
-using libbase::logreal;
 using libbase::logrealfast;
 
 using libbase::serializer;
-
-template class watermarkcode<mpreal>;
-template <> const serializer watermarkcode<mpreal>::shelper = serializer("modulator", "watermarkcode<mpreal>", watermarkcode<mpreal>::create);
-
-template class watermarkcode<mpgnu>;
-template <> const serializer watermarkcode<mpgnu>::shelper = serializer("modulator", "watermarkcode<mpgnu>", watermarkcode<mpgnu>::create);
-
-template class watermarkcode<logreal>;
-template <> const serializer watermarkcode<logreal>::shelper = serializer("modulator", "watermarkcode<logreal>", watermarkcode<logreal>::create);
 
 template class watermarkcode<logrealfast>;
 template <> const serializer watermarkcode<logrealfast>::shelper = serializer("modulator", "watermarkcode<logrealfast>", watermarkcode<logrealfast>::create);
