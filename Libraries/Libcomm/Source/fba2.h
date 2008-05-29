@@ -53,6 +53,10 @@ private:
    real& alpha(int i, int x) { return m_alpha(i,x+xmax); };
    real& beta(int i, int x) { return m_beta(i,x+xmax); };
    real& gamma(int d, int i, int x, int deltax) { return m_gamma(d,i)(x+xmax,deltax-dxmin); };
+   // const versions of above
+   real alpha(int i, int x) const { return m_alpha(i,x+xmax); };
+   real beta(int i, int x) const { return m_beta(i,x+xmax); };
+   real gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax-dxmin); };
    // memory allocation
    void allocate();
    // @}
@@ -81,10 +85,6 @@ public:
    // main initialization routine - constructor essentially just calls this
    void init(int N, int n, int q, int I, int xmax);
 
-   // getters for forward and backward metrics
-   real get_alpha(int i, int x) const { return m_alpha(i,x+xmax); };
-   real get_beta(int i, int x) const { return m_beta(i,x+xmax); };
-   real get_gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax-dxmin); };
    // decode functions
    void prepare(const libbase::vector<sig>& r);
    void work_results(const libbase::vector<sig>& r, libbase::matrix<real>& ptable) const;

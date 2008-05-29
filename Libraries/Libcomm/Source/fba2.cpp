@@ -212,8 +212,8 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
-         if(get_alpha(i,x1) > threshold)
-            threshold = get_alpha(i,x1);
+         if(alpha(i,x1) > threshold)
+            threshold = alpha(i,x1);
       threshold *= 1e-6;
       for(int d=0; d<q; d++)
          {
@@ -234,12 +234,12 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
          for(int x1=x1min; x1<=x1max; x1++)
             {
             // ignore paths below a certain threshold
-            if(get_alpha(i,x1) < threshold)
+            if(alpha(i,x1) < threshold)
                continue;
             const int x2min = max(-xmax,dxmin+x1);
             const int x2max = min(min(xmax,dxmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
-               p += get_alpha(i,x1) * get_gamma(d,i,x1,x2-x1) * get_beta(i,x2);
+               p += alpha(i,x1) * gamma(d,i,x1,x2-x1) * beta(i,x2);
             }
          ptable(i,d) = p;
          }
