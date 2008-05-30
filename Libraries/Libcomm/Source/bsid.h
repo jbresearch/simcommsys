@@ -139,15 +139,16 @@ private:
       \note The smallest allowed value is \f$ x_{max} = I \f$
    */
    int      xmax;
-   //! Receiver coefficient \f$ a_1 = 1-P_i-P_d \f$
-   double   a1;
-   //! Receiver coefficient \f$ a_2 = \frac{1}{2} P_i P_d \f$
-   double   a2;
    //! Receiver coefficient set
    /*!
-      \f[ a_3(m) = \frac{1}{2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+      First row has elements where the last bit rx(m) == tx
+      \f[ ptable(0,m) = \frac{(1-P_i-P_d) * (1-Ps) + \frac{1}{2} P_i P_d}
+                             {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+      Second row has elements where the last bit rx(m) != tx
+      \f[ ptable(1,m) = \frac{(1-P_i-P_d) * Ps + \frac{1}{2} P_i P_d}
+                             {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
    */
-   libbase::vector<double> a3;
+   libbase::matrix<double> ptable;
    // @}
 private:
    /*! \name Internal functions */
@@ -219,11 +220,8 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
    {
    // Compute sizes
    const int m = rx.size()-1;
-   // set of possible transmitted symbols for one transmission step
-   if(m == -1) // just a deletion, no symbols received
-      return Pd;
-   // Work out the probabilities of each possible signal
-   return (a1 * pdf(tx,rx(m)) + a2) * a3(m);
+   // Return result from table
+   return (m < 0) ? Pd : ptable(tx != rx(m), m);
    }
 
 }; // end namespace

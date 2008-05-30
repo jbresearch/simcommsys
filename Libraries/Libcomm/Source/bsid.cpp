@@ -52,11 +52,15 @@ void bsid::precompute()
    //xmax = min(xmax,25);
    libbase::trace << "DEBUG (bsid): using I = " << I << ", xmax = " << xmax << ".\n";
    // receiver coefficients
-   a1 = (1-Pi-Pd);
-   a2 = 0.5*Pi*Pd;
-   a3.init(xmax+1);
+   ptable.init(2,xmax+1);
+   const double   a1 = (1-Pi-Pd);
+   const double   a2 = 0.5*Pi*Pd;
    for(int m=0; m<=xmax; m++)
-      a3(m) = 1.0 / ( (1<<m)*(1-Pi)*(1-Pd) );
+      {
+      const double a3 = (1<<m)*(1-Pi)*(1-Pd);
+      ptable(0,m) = (a1 * (1-Ps) + a2) / a3;
+      ptable(1,m) = (a1 * Ps + a2) / a3;
+      }
    }
 
 // Constructors / Destructors
