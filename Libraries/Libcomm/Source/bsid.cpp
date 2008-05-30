@@ -52,15 +52,20 @@ void bsid::precompute()
    //xmax = min(xmax,25);
    libbase::trace << "DEBUG (bsid): using I = " << I << ", xmax = " << xmax << ".\n";
    // receiver coefficients
-   ptable.init(2,xmax+1);
+   Rtable.init(2,xmax+1);
    const double   a1 = (1-Pi-Pd);
    const double   a2 = 0.5*Pi*Pd;
    for(int m=0; m<=xmax; m++)
       {
       const double a3 = (1<<m)*(1-Pi)*(1-Pd);
-      ptable(0,m) = (a1 * (1-Ps) + a2) / a3;
-      ptable(1,m) = (a1 * Ps + a2) / a3;
+      Rtable(0,m) = (a1 * (1-Ps) + a2) / a3;
+      Rtable(1,m) = (a1 * Ps + a2) / a3;
       }
+   // pre-compute 'P' table
+   Ptable.init(xmax+2);
+   Ptable(0) = Pd;   // for m = -1
+   for(int m=0; m<=xmax; m++)
+      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
    }
 
 // Constructors / Destructors
@@ -252,12 +257,6 @@ void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>&
 
 double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
    {
-   // Pre-compute 'P' table
-   libbase::vector<double> Ptable;
-   Ptable.init(xmax+2);
-   Ptable(0) = Pd;   // for m = -1
-   for(int m=0; m<=xmax; m++)
-      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
    // Compute sizes
    const int tau = tx.size();
    const int m = rx.size()-tau;

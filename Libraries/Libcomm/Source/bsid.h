@@ -148,7 +148,9 @@ private:
       \f[ ptable(1,m) = \frac{(1-P_i-P_d) * Ps + \frac{1}{2} P_i P_d}
                              {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
    */
-   libbase::matrix<double> ptable;
+   libbase::matrix<double> Rtable;
+   //! Forward recursion 'P' function lookup
+   libbase::vector<double> Ptable;
    // @}
 private:
    /*! \name Internal functions */
@@ -221,7 +223,7 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
    // Compute sizes
    const int m = rx.size()-1;
    // Return result from table
-   return (m < 0) ? Pd : ptable(tx != rx(m), m);
+   return (m < 0) ? Pd : Rtable(tx != rx(m), m);
    }
 
 }; // end namespace
