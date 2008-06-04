@@ -15,22 +15,6 @@ namespace libcomm {
 using libbase::matrix;
 using libbase::vector;
 
-// Initialization
-
-template <class real, class sig> void fba<real,sig>::init(const int tau, const int I, const int xmax)
-   {
-   // code parameters
-   assert(tau > 0);
-   fba::tau = tau;
-   // decoder parameters
-   assert(I > 0);
-   assert(xmax > 0);
-   fba::I = I;
-   fba::xmax = xmax;
-   // set flag as necessary
-   initialised = false;
-   }
-
 // Memory allocation
 
 template <class real, class sig> void fba<real,sig>::allocate()
@@ -47,6 +31,22 @@ template <class real, class sig> void fba<real,sig>::allocate()
    std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+   }
+
+// Initialization
+
+template <class real, class sig> void fba<real,sig>::init(int tau, int I, int xmax)
+   {
+   // code parameters
+   assert(tau > 0);
+   fba::tau = tau;
+   // decoder parameters
+   assert(I > 0);
+   assert(xmax > 0);
+   fba::I = I;
+   fba::xmax = xmax;
+   // set flag as necessary
+   initialised = false;
    }
 
 // Internal procedures
@@ -73,7 +73,7 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       threshold *= 1e-15;
       // event must fit the received sequence:
       // 1. j-1+a >= 0
-      // 2. j-1+y < r.size()
+      // 2. j-1+y <= r.size()-1
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
@@ -117,7 +117,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
       threshold *= 1e-15;
       // event must fit the received sequence:
       // 1. j+y >= 0
-      // 2. j+b < r.size()
+      // 2. j+b <= r.size()-1
       // limits on insertions and deletions must be respected:
       // 3. b-y <= I
       // 4. b-y >= -1

@@ -84,7 +84,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   watermarkcode(const int n, const int k, const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   watermarkcode(const int n, const int k, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    ~watermarkcode() { free(); };
    // @}
 

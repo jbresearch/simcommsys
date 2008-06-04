@@ -61,6 +61,11 @@ public:
    bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    // @}
 
+   /*! \name User-defined settings */
+   //! Set the block size
+   void set_blocksize(int N);
+   // @}
+
    /*! \name Channel parameter handling */
    void set_parameter(const double p);
    double get_parameter() const;

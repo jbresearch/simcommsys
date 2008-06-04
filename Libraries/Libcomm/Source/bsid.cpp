@@ -113,9 +113,9 @@ void bsid::init()
 /*!
    \brief Sets up pre-computed values
 
-   This function computes all cached quantities used within actual channel operations.
-   Since these values depend on the channel conditions, this function should be called
-   any time a channel parameter is changed.
+   This function computes all cached quantities used within actual channel
+   operations. Since these values depend on the channel conditions, this
+   function should be called any time a channel parameter is changed.
 */
 void bsid::precompute()
    {
@@ -147,6 +147,18 @@ bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
    bsid::varyPi = varyPi;
    // other initialization
    init();
+   }
+
+// User-defined settings
+
+void bsid::set_blocksize(int N)
+   {
+   if(N != bsid::N)
+      {
+      assert(N > 0);
+      bsid::N = N;
+      precompute();
+      }
    }
 
 // Channel parameter handling
@@ -322,6 +334,8 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    // Compute sizes
    const int tau = tx.size();
    const int m = rx.size()-tau;
+   assert(tau <= N);
+   assert(labs(m) <= xmax);
    // Set up forward matrix
    libbase::matrix<double> Ftable;
    Ftable.init(tau+1, 2*xmax+1);

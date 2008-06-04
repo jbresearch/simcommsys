@@ -20,8 +20,8 @@ using libbase::vector;
 template <class real, class sig> void fba2<real,sig>::allocate()
    {
    // determine limits
-   dxmin = max(-n,-xmax);
-   dxmax = min(n*I,xmax);
+   dmin = max(-n,-dxmax);
+   dmax = min(n*I,dxmax);
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
@@ -31,8 +31,8 @@ template <class real, class sig> void fba2<real,sig>::allocate()
    m_gamma.init(q,N);
    for(int d=0; d<q; d++)
       for(int i=0; i<N; i++)
-         m_gamma(d,i).init(2*xmax+1, dxmax-dxmin+1);
-   m_cached.init(N, 2*xmax+1, dxmax-dxmin+1);
+         m_gamma(d,i).init(2*xmax+1, dmax-dmin+1);
+   m_cached.init(N, 2*xmax+1, dmax-dmin+1);
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
@@ -46,7 +46,7 @@ template <class real, class sig> void fba2<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, int I, int xmax)
+template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax)
    {
    // code parameters
    assert(N > 0);
@@ -58,8 +58,10 @@ template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, 
    // decoder parameters
    assert(I > 0);
    assert(xmax > 0);
+   assert(dxmax > 0);
    fba2::I = I;
    fba2::xmax = xmax;
+   fba2::dxmax = dxmax;
    // set flag as necessary
    initialised = false;
    }
@@ -83,20 +85,20 @@ template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<si
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
-      // 2. n*(i+1)-1+x2 < r.size()
+      // 2. n*(i+1)-1+x2 <= r.size()-1
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= xmax
-      // 6. x2-x1 >= -xmax
+      // 5. x2-x1 <= dxmax
+      // 6. x2-x1 >= -dxmax
       const int x1min = max(-xmax,-n*i);
       const int x1max = xmax;
       for(int x1=x1min; x1<=x1max; x1++)
          {
-         const int x2min = max(-xmax,dxmin+x1);
-         const int x2max = min(min(xmax,dxmax+x1),r.size()-n*(i+1));
+         const int x2min = max(-xmax,dmin+x1);
+         const int x2max = min(min(xmax,dmax+x1),r.size()-n*(i+1));
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
                gamma(d,i,x1,x2-x1) = Q(d,i,r.extract(n*i+x1,n+x2-x1));
@@ -125,14 +127,14 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*(i-1)+x1 >= 0
-      // 2. n*i-1+x2 < r.size()
+      // 2. n*i-1+x2 <= r.size()-1
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= xmax
-      // 6. x2-x1 >= -xmax
+      // 5. x2-x1 <= dxmax
+      // 6. x2-x1 >= -dxmax
       const int x1min = max(-xmax,-n*(i-1));
       const int x1max = xmax;
       for(int x1=x1min; x1<=x1max; x1++)
@@ -140,8 +142,8 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
          // ignore paths below a certain threshold
          if(alpha(i-1,x1) < threshold)
             continue;
-         const int x2min = max(-xmax,dxmin+x1);
-         const int x2max = min(min(xmax,dxmax+x1),r.size()-n*i);
+         const int x2min = max(-xmax,dmin+x1);
+         const int x2max = min(min(xmax,dmax+x1),r.size()-n*i);
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
                alpha(i,x2) += alpha(i-1,x1) * compute_gamma(d,i-1,x1,x2-x1,r);
@@ -173,14 +175,14 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
-      // 2. n*(i+1)-1+x2 < r.size()
+      // 2. n*(i+1)-1+x2 <= r.size()-1
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= xmax
-      // 6. x2-x1 >= -xmax
+      // 5. x2-x1 <= dxmax
+      // 6. x2-x1 >= -dxmax
       const int x2min = -xmax;
       const int x2max = min(xmax,r.size()-n*(i+1));
       for(int x2=x2min; x2<=x2max; x2++)
@@ -188,8 +190,8 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
          // ignore paths below a certain threshold
          if(beta(i+1,x2) < threshold)
             continue;
-         const int x1min = max(max(-xmax,x2-dxmax),-n*i);
-         const int x1max = min(xmax,x2-dxmin);
+         const int x1min = max(max(-xmax,x2-dmax),-n*i);
+         const int x1max = min(xmax,x2-dmin);
          for(int x1=x1min; x1<=x1max; x1++)
             for(int d=0; d<q; d++)
                beta(i,x1) += beta(i+1,x2) * compute_gamma(d,i,x1,x2-x1,r);
@@ -233,14 +235,14 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
          // event must fit the received sequence:
          // (this is limited to start and end conditions)
          // 1. n*i+x1 >= 0
-         // 2. n*(i+1)-1+x2 < r.size()
+         // 2. n*(i+1)-1+x2 <= r.size()-1
          // limits on insertions and deletions must be respected:
          // 3. x2-x1 <= n*I
          // 4. x2-x1 >= -n
          // limits on introduced drift in this section:
          // (necessary for forward recursion on extracted segment)
-         // 5. x2-x1 <= xmax
-         // 6. x2-x1 >= -xmax
+         // 5. x2-x1 <= dxmax
+         // 6. x2-x1 >= -dxmax
          const int x1min = max(-xmax,-n*i);
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
@@ -248,8 +250,8 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
             // ignore paths below a certain threshold
             if(alpha(i,x1) < threshold)
                continue;
-            const int x2min = max(-xmax,dxmin+x1);
-            const int x2max = min(min(xmax,dxmax+x1),r.size()-n*(i+1));
+            const int x2min = max(-xmax,dmin+x1);
+            const int x2max = min(min(xmax,dmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
                p += alpha(i,x1) * compute_gamma(d,i,x1,x2-x1,r) * beta(i,x2);
             }

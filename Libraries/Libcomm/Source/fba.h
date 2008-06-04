@@ -106,23 +106,25 @@ namespace libcomm {
 */
 
 template <class real, class sig=sigspace> class fba {
-   // internal variables
-   int   tau;  // tau is the (transmitted) block size in bits
-   int   I;    // I is the maximum number of insertions considered before every transmission
-   int   xmax; // xmax is the maximum allowed drift
-   bool  initialised;   // Initially false, becomes true after the first call to "decode" when memory is allocated
-   // working matrices
-   libbase::matrix<real>   mF; // Forward recursion metric
-   libbase::matrix<real>   mB; // Backward recursion metric
+   /*! \name User-defined parameters */
+   int   tau;           //!< The (transmitted) block size in bits
+   int   I;             //!< The maximum number of insertions considered before every transmission
+   int   xmax;          //!< The maximum allowed drift overall
+   // @}
+   /*! \name Internally-used objects */
+   libbase::matrix<real>   mF; //!< Forward recursion metric
+   libbase::matrix<real>   mB; //!< Backward recursion metric
+   bool  initialised;   //!< Flag to indicate when memory is allocated
+   // @}
+private:
+   /*! \name Internal functions */
    // index-shifting access internal use
    real& F(const int j, const int y) { return mF(j,y+xmax); };
    real& B(const int j, const int y) { return mB(j,y+xmax); };
    // memory allocation
    void allocate();
+   // @}
 protected:
-   // getters for parameters
-   int get_I() const { return I; };
-   int get_xmax() const { return xmax; };
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual real P(const int a, const int b) = 0;
    virtual real Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
@@ -130,8 +132,10 @@ protected:
    fba() { initialised = false; };
 public:
    // constructor & destructor
-   fba(const int tau, const int I, const int xmax) { init(tau, I, xmax); };
+   fba(int tau, int I, int xmax) { init(tau, I, xmax); };
    virtual ~fba() {};
+   // main initialization routine
+   void init(int tau, int I, int xmax);
    // getters for forward and backward metrics
    real getF(const int j, const int y) const { return mF(j,y+xmax); };
    real getB(const int j, const int y) const { return mB(j,y+xmax); };
@@ -139,8 +143,6 @@ public:
    void work_forward(const libbase::vector<sig>& r);
    void work_backward(const libbase::vector<sig>& r);
    void prepare(const libbase::vector<sig>& r);
-   // main initialization routine - constructor essentially just calls this
-   void init(const int tau, const int I, const int xmax);
 };
 
 }; // end namespace

@@ -29,7 +29,26 @@ using libcomm::channel;
 using libcomm::watermarkcode;
 using libcomm::dminner2;
 
-channel<bool> *create_channel(libbase::random& r, int N, double Pe)
+modulator<bool>* create_modem(int const type, int const n, int const k, libbase::random& r)
+   {
+   modulator<bool> *modem = NULL;
+   switch(type)
+      {
+      case 1:
+         modem = new watermarkcode<logrealfast>(n,k);
+         break;
+      case 2:
+         modem = new dminner2<logrealfast>(n,k);
+         break;
+      default:
+         assertalways("Unknown decoder type.");
+         break;
+      }
+   modem->seedfrom(r);
+   return modem;
+   }
+
+channel<bool> *create_channel(int N, double Pe, libbase::random& r)
    {
    channel<bool> *chan = new libcomm::bsid(N);
    chan->seedfrom(r);
@@ -107,57 +126,30 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
       cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n" << std::flush;
    }
 
-void testcycle(int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
+void testcycle(int const type, int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
    {
    // create prng for seeding systems
    libbase::randgen prng;
    prng.seed(seed);
    // create modem and channel
-   const int N = tau*n;
-   watermarkcode<logrealfast> modem(n,k, N);
-   modem.seedfrom(prng);
-   channel<bool> *chan = create_channel(prng, N, Pe);
-   cout << modem.description() << "\n";
-   cout << chan->description() << "\n";
+   modulator<bool> *modem = create_modem(type, n, k, prng);
+   channel<bool> *chan = create_channel(n, Pe, prng);
+   cout << '\n';
+   cout << modem->description() << '\n';
+   cout << chan->description() << '\n';
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
    // modulate it using the previously created watermarkcode
-   vector<bool> tx = modulate_encoded(k, n, modem, encoded, display);
+   vector<bool> tx = modulate_encoded(k, n, *modem, encoded, display);
    // pass it through the channel
    vector<bool> rx = transmit_modulated(n, *chan, tx, display);
    // demodulate received signal
-   matrix<double> ptable = demodulate_encoded(*chan, modem, rx, display);
+   matrix<double> ptable = demodulate_encoded(*chan, *modem, rx, display);
    // count errors
    count_errors(encoded, ptable);
 
-   delete chan;
-   }
-
-void testcycle2(int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
-   {
-   // create prng for seeding systems
-   libbase::randgen prng;
-   prng.seed(seed);
-   // create modem and channel
-   const int N = tau*n;
-   dminner2<logrealfast> modem(n,k);
-   modem.seedfrom(prng);
-   channel<bool> *chan = create_channel(prng, N, Pe);
-   cout << modem.description() << "\n";
-   cout << chan->description() << "\n";
-
-   // define an alternating encoded sequence
-   vector<int> encoded = create_encoded(k, tau, display);
-   // modulate it using the previously created watermarkcode
-   vector<bool> tx = modulate_encoded(k, n, modem, encoded, display);
-   // pass it through the channel
-   vector<bool> rx = transmit_modulated(n, *chan, tx, display);
-   // demodulate received signal
-   matrix<double> ptable = demodulate_encoded(*chan, modem, rx, display);
-   // count errors
-   count_errors(encoded, ptable);
-
+   delete modem;
    delete chan;
    }
 
@@ -169,37 +161,48 @@ int main(int argc, char *argv[])
 
    // user-defined parameters
    if(argc == 1)
-      cout << "Usage: " << argv[0] << " [seed [n [k [tau [p]]]]]\n" << std::flush;
-   const int seed = ((argc > 1) ? atoi(argv[1]) : 0);
-   const int n    = ((argc > 2) ? atoi(argv[2]) : 3);
-   const int k    = ((argc > 3) ? atoi(argv[3]) : 2);
-   const int tau  = ((argc > 4) ? atoi(argv[4]) : 5);
-   const double p = ((argc > 5) ? atof(argv[5]) : Plo);
+      {
+      cout << "Usage: " << argv[0] << " <type> [k [n [seed [tau [p]]]]]\n";
+      cout << "Where: type = 0 for single-cycle with specified code\n";
+      cout << "       type = 1 for multiple-cycle with classic decoder\n";
+      cout << "       type = 2 for multiple-cycle with alternative decoder\n";
+      cout << "Code defaults to 4/15, seed 0\n";
+      exit(1);
+      }
 
-   // do what the user asked for
-   testcycle(seed, n, k, tau, p);
+   const int type = atoi(argv[1]);
+   const int seed = ((argc > 2) ? atoi(argv[2]) : 0);
+   const int k    = ((argc > 3) ? atoi(argv[3]) : 4);
+   const int n    = ((argc > 4) ? atoi(argv[4]) : 15);
+   const int tau  = ((argc > 5) ? atoi(argv[5]) : 5);
+   const double p = ((argc > 6) ? atof(argv[6]) : Plo);
 
    // show revision information
    cout << "URL: " << __WCURL__ << "\n";
    cout << "Version: " << __WCVER__ << "\n";
 
-   cout << "\n*** Alternative Timing Cycle ***\n\n";
-   // try short,medium,large codes for benchmarking at low error probability
-   testcycle2(seed, 15, 4, 10, Plo, false);
-   testcycle2(seed, 15, 4, 100, Plo, false);
-   testcycle2(seed, 15, 4, 1000, Plo, false);
-   // try short,medium codes for benchmarking at high error probability
-   testcycle2(seed, 15, 4, 10, Phi, false);
-   testcycle2(seed, 15, 4, 100, Phi, false);
+   // do what the user asked for
+   switch(type)
+      {
+      case 0:
+         testcycle(1, seed, n, k, tau, p);
+         break;
 
-   cout << "\n*** Classic Timing Cycle ***\n\n";
-   // try short,medium,large codes for benchmarking at low error probability
-   testcycle(seed, 15, 4, 10, Plo, false);
-   testcycle(seed, 15, 4, 100, Plo, false);
-   testcycle(seed, 15, 4, 1000, Plo, false);
-   // try short,medium codes for benchmarking at high error probability
-   testcycle(seed, 15, 4, 10, Phi, false);
-   testcycle(seed, 15, 4, 100, Phi, false);
+      case 1:
+      case 2:
+         // try short,medium,large codes for benchmarking at low error probability
+         testcycle(type, seed, 15, 4, 10, Plo, false);
+         testcycle(type, seed, 15, 4, 100, Plo, false);
+         testcycle(type, seed, 15, 4, 1000, Plo, false);
+         // try short,medium codes for benchmarking at high error probability
+         testcycle(type, seed, 15, 4, 10, Phi, false);
+         testcycle(type, seed, 15, 4, 100, Phi, false);
+         break;
+
+      default:
+         cout << "Unknown type = " << type << "\n";
+         break;
+      }
 
    return 0;
    }

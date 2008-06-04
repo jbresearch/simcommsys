@@ -195,9 +195,10 @@ template <class real> void dminner2<real>::demodulate(const channel<bool>& chan,
    const double Pd = chancopy.get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
+   const int dxmax = bsid::compute_xmax(n, Pd, bsid::compute_I(n, Pd));
    checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
-   fba2<real,bool>::init(N, n, q, I, xmax);
+   fba2<real,bool>::init(N, n, q, I, xmax, dxmax);
    fba2<real,bool>::prepare(rx);
    libbase::matrix<real> p;
    fba2<real,bool>::work_results(rx,p);

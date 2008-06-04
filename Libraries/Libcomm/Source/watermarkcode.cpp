@@ -115,7 +115,7 @@ template <class real> watermarkcode<real>::watermarkcode() : mychan(1)
    {
    }
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const int N, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(N, varyPs, varyPd, varyPi)
+template <class real> watermarkcode<real>::watermarkcode(const int n, const int k, const bool varyPs, const bool varyPd, const bool varyPi) : mychan(n, varyPs, varyPd, varyPi)
    {
    // code parameters
    watermarkcode::n = n;
@@ -189,12 +189,16 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    assert(N > 0);
    // Set channel parameters used in FBA same as one being simulated
    mychan.set_parameter(chan.get_parameter());
+   // Update substitution probability to take into account sparse addition
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
+   // Update block size to take into account the number of sparse symbols
+   mychan.set_blocksize(tau);
    // Determine required FBA parameter values
    const double Pd = mychan.get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
+   const int dxmax = bsid::compute_xmax(n, Pd, bsid::compute_I(n, Pd));
    checkforchanges(I, xmax);
    // Pre-compute 'P' table
    bsid::compute_Ptable(Ptable, xmax, mychan.get_pd(), mychan.get_pi());
@@ -222,13 +226,17 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
          libbase::vector<bool> tx(n);
          for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
             tx(j) = (t&1);
-         // In loop below skip out-of-bounds cases:
-         // 1. first bit of received vector must exist: n*i+x1 >= 0
-         // 2. last bit of received vector must exist: n*(i+1)+x2-1 <= rx.size()-1
-         // 3. received vector size: x2-x1+n >= 0
-         // 4. drift introduced in this section: -n <= x2-x1 <= n*I
-         //    [first part corresponds to requirement 3]
-         // 5. drift introduced in this section: -xmax <= x2-x1 <= xmax
+         // event must fit the received sequence:
+         // (this is limited to start and end conditions)
+         // 1. n*i+x1 >= 0
+         // 2. n*(i+1)-1+x2 <= r.size()-1
+         // limits on insertions and deletions must be respected:
+         // 3. x2-x1 <= n*I
+         // 4. x2-x1 >= -n
+         // limits on introduced drift in this section:
+         // (necessary for forward recursion on extracted segment)
+         // 5. x2-x1 <= dxmax
+         // 6. x2-x1 >= -dxmax
          const int x1min = max(-xmax,-n*i);
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
@@ -237,8 +245,8 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
-            const int x2min = max(-xmax,x1-min(n,xmax));
-            const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,xmax));
+            const int x2min = max(-xmax,x1-min(n,dxmax));
+            const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,dxmax));
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
