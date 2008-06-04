@@ -84,13 +84,6 @@ public:
    double get_pi() const { return Pi; };
    // @}
 
-   /*! \name FBA decoder parameter getters */
-   //! Get the current assumed limit for insertions between two time-steps
-   int get_I() const { return I; };
-   //! Get the current assumed maximum drift over a whole N-bit block
-   int get_xmax() const { return xmax; };
-   // @}
-
    // Channel functions
    void transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx);
    void receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable) const;
