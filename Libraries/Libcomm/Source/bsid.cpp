@@ -15,6 +15,83 @@ namespace libcomm {
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
+/// FBA decoder parameter computation
+
+/*!
+   \brief Determine limit for insertions between two time-steps
+
+   \f[ I = \left\lceil \frac{ \log{P_r} - \log N }{ \log p } \right\rceil - 1 \f]
+   where \f$ P_r \f$ is an arbitrary probability of having a block of size \f$ N \f$
+   with at least one event of more than \f$ I \f$ insertions between successive
+   time-steps. In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+
+   \note The smallest allowed value is \f$ I = 1 \f$
+*/
+int bsid::compute_I(int N, double p)
+   {
+   int I = max(int(ceil((log(1e-12) - log(double(N))) / log(p))) - 1, 1);
+   libbase::trace << "DEBUG (bsid): suggested I = " << I << ".\n";
+   I = min(I,2);
+   libbase::trace << "DEBUG (bsid): using I = " << I << ".\n";
+   return I;
+   }
+
+/*!
+   \brief Determine maximum drift over a whole N-bit block
+
+   \f[ x_{max} = 8 \sqrt{\frac{N p}{1-p}} \f]
+   where \f$ p = P_i = P_d \f$. This is based directly on Davey's suggestion that
+   \f$ x_{max} \f$ should be "several times larger" than the standard deviation of
+   the synchronization drift over one block, given by \f$ \sigma = \sqrt{\frac{N p}{1-p}} \f$
+
+   \note The smallest allowed value is \f$ x_{max} = I \f$
+
+   \note While Davey advocates \f$ x_{max} = 5 \sigma \f$, we increase this to
+         \f$ 8 \sigma \f$, as we observed that Davey's estimates are off.
+*/
+int bsid::compute_xmax(int N, double p, int I)
+   {
+   int xmax = max(int(ceil(8 * sqrt(N*p/(1-p)))), I);
+   libbase::trace << "DEBUG (bsid): suggested xmax = " << xmax << ".\n";
+   //xmax = min(xmax,25);
+   libbase::trace << "DEBUG (bsid): using xmax = " << xmax << ".\n";
+   return xmax;
+   }
+
+/*!
+   \brief Compute receiver coefficient set
+
+   First row has elements where the last bit rx(m) == tx
+   \f[ Rtable(0,m) = \frac{(1-P_i-P_d) * (1-Ps) + \frac{1}{2} P_i P_d}
+                          {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+   Second row has elements where the last bit rx(m) != tx
+   \f[ Rtable(1,m) = \frac{(1-P_i-P_d) * Ps + \frac{1}{2} P_i P_d}
+                          {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+*/
+void bsid::compute_Rtable(libbase::matrix<double>& Rtable, int xmax, double Ps, double Pd, double Pi)
+   {
+   Rtable.init(2,xmax+1);
+   const double a1 = (1-Pi-Pd);
+   const double a2 = 0.5*Pi*Pd;
+   for(int m=0; m<=xmax; m++)
+      {
+      const double a3 = (1<<m)*(1-Pi)*(1-Pd);
+      Rtable(0,m) = (a1 * (1-Ps) + a2) / a3;
+      Rtable(1,m) = (a1 * Ps + a2) / a3;
+      }
+   }
+
+/*!
+   \brief Compute forward recursion 'P' function
+*/
+void bsid::compute_Ptable(libbase::vector<double>& Ptable, int xmax, double Pd, double Pi)
+   {
+   Ptable.init(xmax+2);
+   Ptable(0) = Pd;   // for m = -1
+   for(int m=0; m<=xmax; m++)
+      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
+   }
+
 // Internal functions
 
 /*!
@@ -38,34 +115,17 @@ void bsid::init()
    This function computes all cached quantities used within actual channel operations.
    Since these values depend on the channel conditions, this function should be called
    any time a channel parameter is changed.
-
-   \note While Davey advocates \f$ x_{max} = 5 \sigma \f$, we increase this to
-         \f$ 8 \sigma \f$, as we observed that Davey's estimates are off.
 */
 void bsid::precompute()
    {
    // fba decoder parameters
-   I = max(int(ceil((log(1e-12) - log(double(N))) / log(Pd))) - 1, 1);
-   xmax = max(int(ceil(8 * sqrt(N*Pd/(1-Pd)))), I);
-   libbase::trace << "DEBUG (bsid): suggested I = " << I << ", xmax = " << xmax << ".\n";
-   I = min(I,2);
-   //xmax = min(xmax,25);
-   libbase::trace << "DEBUG (bsid): using I = " << I << ", xmax = " << xmax << ".\n";
+   assertalways(Pi == Pd);
+   I = compute_I(N, Pd);
+   xmax = compute_xmax(N, Pd, I);
    // receiver coefficients
-   Rtable.init(2,xmax+1);
-   const double   a1 = (1-Pi-Pd);
-   const double   a2 = 0.5*Pi*Pd;
-   for(int m=0; m<=xmax; m++)
-      {
-      const double a3 = (1<<m)*(1-Pi)*(1-Pd);
-      Rtable(0,m) = (a1 * (1-Ps) + a2) / a3;
-      Rtable(1,m) = (a1 * Ps + a2) / a3;
-      }
+   compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
    // pre-compute 'P' table
-   Ptable.init(xmax+2);
-   Ptable(0) = Pd;   // for m = -1
-   for(int m=0; m<=xmax; m++)
-      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
+   compute_Ptable(Ptable, xmax, Pd, Pi);
    }
 
 // Constructors / Destructors
