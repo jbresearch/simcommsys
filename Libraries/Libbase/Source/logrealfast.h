@@ -140,6 +140,7 @@ public:
    logrealfast& operator/=(const logrealfast& a);
    // comparison
    bool operator==(const logrealfast& a) const { return logval == a.logval; };
+   bool operator!=(const logrealfast& a) const { return logval != a.logval; };
    bool operator>=(const logrealfast& a) const { return logval <= a.logval; };
    bool operator<=(const logrealfast& a) const { return logval >= a.logval; };
    bool operator>(const logrealfast& a) const { return logval < a.logval; };
