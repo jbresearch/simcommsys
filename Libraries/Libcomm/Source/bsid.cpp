@@ -10,6 +10,7 @@
 #include "bsid.h"
 #include "secant.h"
 #include <sstream>
+#include <limits>
 
 namespace libcomm {
 
@@ -119,7 +120,6 @@ void bsid::init()
 void bsid::precompute()
    {
    // fba decoder parameters
-   assertalways(Pi == Pd);
    I = compute_I(N, Pd);
    xmax = compute_xmax(N, Pd, I);
    // receiver coefficients

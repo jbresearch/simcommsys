@@ -41,14 +41,10 @@ template <class real, class sig> void fba<real,sig>::allocate()
    mF.init(tau, 2*xmax+1);
    mB.init(tau+1, 2*xmax+1);
    // determine memory occupied and tell user
-   // (for larger blocks only)
-   if(tau > 32)
-      {
-      std::ios::fmtflags flags = std::cerr.flags();
-      std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
-      std::cerr << sizeof(real)*( mF.size() + mB.size() )/double(1<<20) << "MB\n";
-      std::cerr.setf(flags);
-      }
+   std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
+   std::cerr << sizeof(real)*( mF.size() + mB.size() )/double(1<<20) << "MB\n";
+   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
    }
@@ -68,8 +64,7 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
    // compute remaining matrix values
    for(int j=1; j<tau; j++)
       {
-      if(tau > 32)
-         std::cerr << libbase::pacifier("FBA Forward Pass", j-1, tau-1);
+      std::cerr << libbase::pacifier("FBA Forward Pass", j-1, tau-1);
       // determine the strongest path at this point
       real threshold = 0;
       for(int a=-xmax; a<=xmax; a++)
@@ -95,8 +90,7 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
             F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
          }
       }
-   if(tau > 32)
-      std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
+   std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
    }
 
 template <class real, class sig> void fba<real,sig>::work_backward(const vector<sig>& r)
@@ -114,8 +108,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
    // compute remaining matrix values
    for(int j=tau-1; j>=0; j--)
       {
-      if(tau > 32)
-         std::cerr << libbase::pacifier("FBA Backward Pass", tau-1-j, tau);
+      std::cerr << libbase::pacifier("FBA Backward Pass", tau-1-j, tau);
       // determine the strongest path at this point
       real threshold = 0;
       for(int b=-xmax; b<=xmax; b++)
@@ -141,8 +134,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
             B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
          }
       }
-   if(tau > 32)
-      std::cerr << libbase::pacifier("FBA Backward Pass", tau, tau);
+   std::cerr << libbase::pacifier("FBA Backward Pass", tau, tau);
    }
 
 // User procedures
