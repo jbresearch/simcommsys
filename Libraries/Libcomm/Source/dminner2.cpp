@@ -15,7 +15,8 @@ namespace libcomm {
 
 // internally-used functions
 
-/*! \brief Set up LUT with the lowest weight codewords
+/*!
+   \brief Set up LUT with the lowest weight codewords
 */
 template <class real> int dminner2<real>::fill(int i, libbase::bitfield suffix, int w)
    {
@@ -51,12 +52,28 @@ template <class real> int dminner2<real>::fill(int i, libbase::bitfield suffix, 
    return i;
    }
 
+//! Watermark sequence creator
+
 template <class real> void dminner2<real>::createsequence(const int tau)
    {
    // creates 'tau' elements of 'n' bits each
    ws.init(tau);
    for(int i=0; i<tau; i++)
       ws(i) = r.ival(1<<n);
+   }
+
+//! Inform user if I or xmax have changed
+
+template <class real> void dminner2<real>::checkforchanges(int I, int xmax)
+   {
+   static int last_I = 0;
+   static int last_xmax = 0;
+   if(last_I != I || last_xmax != xmax)
+      {
+      std::cerr << "Watermark Demodulation: I = " << I << ", xmax = " << xmax << ".\n";
+      last_I = I;
+      last_xmax = xmax;
+      }
    }
 
 // initialization / de-allocation
@@ -167,23 +184,18 @@ template <class real> void dminner2<real>::demodulate(const channel<bool>& chan,
    // Inherit block size from last modulation step
    const int q = 1<<k;
    const int N = ws.size();
+   const int tau = N*n;
    assert(N > 0);
    // Clone channel for access within Q()
    mychan = chan.clone();
-   // Determine parameters from channel being simulated
-   bsid chancopy(N*n);
+   // Set channel parameters used in FBA same as one being simulated
+   bsid chancopy(tau);
    chancopy.set_parameter(chan.get_parameter());
-   const int I    = chancopy.get_I();
-   const int xmax = chancopy.get_xmax();
-   // Tell the user what settings are in use
-   static int last_I = 0;
-   static int last_xmax = 0;
-   if(last_I != I || last_xmax != xmax)
-      {
-      std::cerr << "DM Inner Code: I = " << I << ", xmax = " << xmax << ".\n";
-      last_I = I;
-      last_xmax = xmax;
-      }
+   // Determine required FBA parameter values
+   const double Pd = chancopy.get_pd();
+   const int I = bsid::compute_I(tau, Pd);
+   const int xmax = bsid::compute_xmax(tau, Pd, I);
+   checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
    fba2<real,bool>::init(N, n, q, I, xmax);
    fba2<real,bool>::prepare(rx);

@@ -185,20 +185,22 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    // Inherit block size from last modulation step
    const int q = 1<<k;
    const int N = ws.size();
+   const int tau = N*n;
    assert(N > 0);
    // Set channel parameters used in FBA same as one being simulated
    mychan.set_parameter(chan.get_parameter());
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
+   // Determine required FBA parameter values
+   const double Pd = mychan.get_pd();
+   const int I = bsid::compute_I(tau, Pd);
+   const int xmax = bsid::compute_xmax(tau, Pd, I);
+   checkforchanges(I, xmax);
    // Pre-compute 'P' table
-   const int xmax = mychan.get_xmax();
    bsid::compute_Ptable(Ptable, xmax, mychan.get_pd(), mychan.get_pi());
    // Initialize & perform forward-backward algorithm
-   const int I = mychan.get_I();
-   fba<real,bool>::init(N*n, I, xmax);
+   fba<real,bool>::init(tau, I, xmax);
    fba<real,bool>::prepare(rx);
-   // Tell the user what settings are in use
-   checkforchanges(I, xmax);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
    libbase::matrix<real> p(N,q);

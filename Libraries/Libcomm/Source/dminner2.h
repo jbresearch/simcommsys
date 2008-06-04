@@ -49,10 +49,9 @@ private:
    // @}
 private:
    /*! \name Internal functions */
-   //! Sparse vector LUT creation
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
-   //! Watermark sequence creator
    void createsequence(const int tau);                      
+   void checkforchanges(int I, int xmax);                      
    // @}
    // Implementations of channel-specific metrics for fba2
    real Q(int d, int i, const libbase::vector<bool>& r) const;
