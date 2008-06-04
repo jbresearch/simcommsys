@@ -255,14 +255,16 @@ bool bsid::corrupt(const bool& s)
    }
    \enddot
 
-   \note We have initially no idea how long the received sequence will be, so we first determine
-         the state sequence at every timestep keeping track of
+   \note We have initially no idea how long the received sequence will be, so
+         we first determine the state sequence at every timestep, keeping
+         track of:
             - the number of insertions \e before given position, and
             - whether the given position is transmitted or deleted.
 
-   \note We have to make sure that we don't corrupt the vector we're reading from (in
-         the case where tx and rx are the same vector); therefore, the result is first created
-         as a new vector and only copied over at the end.
+   \note We have to make sure that we don't corrupt the vector we're reading
+         from (in the case where tx and rx are the same vector); therefore,
+         the result is first created as a new vector and only copied over at
+         the end.
 
    \sa corrupt()
 */

@@ -15,7 +15,8 @@ namespace libcomm {
 
 // internally-used functions
 
-/*! \brief Set up LUT with the lowest weight codewords
+/*!
+   \brief Set up LUT with the lowest weight codewords
 */
 template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suffix, int w)
    {
@@ -51,6 +52,8 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
    return i;
    }
 
+//! Watermark sequence creator
+
 template <class real> void watermarkcode<real>::createsequence(const int tau)
    {
    // creates 'tau' elements of 'n' bits each
@@ -59,22 +62,32 @@ template <class real> void watermarkcode<real>::createsequence(const int tau)
       ws(i) = r.ival(1<<n);
    }
 
+//! Inform user if I or xmax have changed
+
+template <class real> void watermarkcode<real>::checkforchanges(int I, int xmax)
+   {
+   static int last_I = 0;
+   static int last_xmax = 0;
+   if(last_I != I || last_xmax != xmax)
+      {
+      std::cerr << "Watermark Demodulation: I = " << I << ", xmax = " << xmax << ".\n";
+      last_I = I;
+      last_xmax = xmax;
+      }
+   }
+
 // initialization / de-allocation
 
 template <class real> void watermarkcode<real>::init()
    {
+   using libbase::bitfield;
    using libbase::weight;
    using libbase::trace;
 #ifndef NDEBUG
    // Display LUT when debugging
    trace << "LUT (k=" << k << ", n=" << n << "):\n";
-   libbase::bitfield b;
-   b.resize(n);
    for(int i=0; i<lut.size(); i++)
-      {
-      b = lut(i);
-      trace << i << "\t" << b << "\t" << weight(b) << "\n";
-      }
+      trace << i << "\t" << bitfield(lut(i),n) << "\t" << weight(lut(i)) << "\n";
 #endif
    // Validate LUT
    assertalways(lut.size() == num_symbols());
@@ -179,25 +192,13 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
    // Pre-compute 'P' table
    const int xmax = mychan.get_xmax();
-   const double Pd = mychan.get_pd();
-   const double Pi = mychan.get_pi();
-   Ptable.init(xmax+2);
-   Ptable(0) = Pd;   // for m = -1
-   for(int m=0; m<=xmax; m++)
-      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
+   bsid::compute_Ptable(Ptable, xmax, mychan.get_pd(), mychan.get_pi());
    // Initialize & perform forward-backward algorithm
-   const int I    = mychan.get_I();
+   const int I = mychan.get_I();
    fba<real,bool>::init(N*n, I, xmax);
    fba<real,bool>::prepare(rx);
    // Tell the user what settings are in use
-   static int last_I = 0;
-   static int last_xmax = 0;
-   if(last_I != I || last_xmax != xmax)
-      {
-      std::cerr << "Watermark Demodulation: I = " << I << ", xmax = " << xmax << ".\n";
-      last_I = I;
-      last_xmax = xmax;
-      }
+   checkforchanges(I, xmax);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
    libbase::matrix<real> p(N,q);

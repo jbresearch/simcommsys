@@ -63,13 +63,14 @@ template <class real> void dminner2<real>::createsequence(const int tau)
 
 template <class real> void dminner2<real>::init()
    {
+   using libbase::bitfield;
    using libbase::weight;
    using libbase::trace;
 #ifndef NDEBUG
    // Display LUT when debugging
    trace << "LUT (k=" << k << ", n=" << n << "):\n";
    for(int i=0; i<lut.size(); i++)
-      trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << weight(lut(i)) << "\n";
+      trace << i << "\t" << bitfield(lut(i),n) << "\t" << weight(lut(i)) << "\n";
 #endif
    // Validate LUT
    assertalways(lut.size() == num_symbols());
