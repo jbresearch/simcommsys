@@ -4,7 +4,7 @@ SOURCES := $(wildcard Source/*.cpp)
 OBJECTS := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%.o)
 DEPEND := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%.d)
 TARGETS := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%)
-FINAL := $(SOURCES:Source/%.cpp=$(BINDIR)/%.$(RELEASE))
+FINAL := $(SOURCES:Source/%.cpp=$(BINDIR)/%.$(WCTAG).$(RELEASE))
 
 # Master targets
 
@@ -27,7 +27,7 @@ $(BINDIR):
 
 # Pattern-matched targets
 
-$(BINDIR)/%.$(RELEASE):	$(BUILDDIR)/%
+$(BINDIR)/%.$(WCTAG).$(RELEASE):	$(BUILDDIR)/%
 	@echo "Installing $* [$(RELEASE)]"
 	@$(CP) $< $@
 

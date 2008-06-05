@@ -13,6 +13,11 @@ export OSARCH := $(shell uname -m)
 export BUILDDIR = Arch/$(OSNAME).$(OSARCH)/$(RELEASE)
 export BINDIR = ~/bin.$(OSARCH)
 
+# Version control information
+WCURL := $(shell svn info |gawk '/^URL/ { print $$2 }')
+WCVER := $(shell svnversion)
+export WCTAG := $(notdir $(PWD))
+
 # Linker settings
 export LDlibusr := -lcomm -lbase
 LDlibsys := -lm -lstdc++
@@ -28,10 +33,6 @@ export LDflagDebug   :=
 LDflagsCommon :=
 #LDflagsCommon := -static-libgcc
 export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
-
-# Version control information
-WCURL := $(shell svn info |gawk '/^URL/ { print $$2 }')
-WCVER := $(shell svnversion)
 
 # Compiler settings
 CCprfopt := -pg -O3 -DNDEBUG
