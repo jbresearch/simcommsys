@@ -28,16 +28,29 @@ template <class real, class sig> void fba2<real,sig>::allocate()
    // x in [-xmax, xmax], and deltax in [max(-n,-xmax), min(nI,xmax)]
    m_alpha.init(N, 2*xmax+1);
    m_beta.init(N+1, 2*xmax+1);
-   m_gamma.init(q,N);
-   for(int d=0; d<q; d++)
-      for(int i=0; i<N; i++)
-         m_gamma(d,i).init(2*xmax+1, dmax-dmin+1);
-   m_cached.init(N, 2*xmax+1, dmax-dmin+1);
+   // dynamically decide whether we want to use the gamma cache or not
+   // decision is hardwired: use if memory requirement < 750MB
+   cache_enabled = sizeof(real)*(q * N * (2*xmax+1) * (dmax-dmin+1)) < (750<<20);
+   if(cache_enabled)
+      {
+      m_gamma.init(q,N);
+      for(int d=0; d<q; d++)
+         for(int i=0; i<N; i++)
+            m_gamma(d,i).init(2*xmax+1, dmax-dmin+1);
+      m_cached.init(N, 2*xmax+1, dmax-dmin+1);
+      }
+   else
+      {
+      m_gamma.init(0,0);
+      m_cached.init(0,0,0);
+      std::cerr << "FBA Cache Disabled.\n";
+      }
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
    std::cerr << ( sizeof(bool)*m_cached.size() + 
-      sizeof(real)*( m_alpha.size() + m_beta.size() + m_gamma(0,0).size()*m_gamma.size() )
+      sizeof(real)*( m_alpha.size() + m_beta.size() + 
+      (m_gamma.size()==0 ? 0 : m_gamma(0,0).size()*m_gamma.size()) )
       )/double(1<<20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
@@ -71,40 +84,14 @@ template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, 
 template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<sig>& r)
    {
    assert(initialised);
-   // initialise array:
+   if(!cache_enabled)
+      return;
+   // initialise array
    for(int d=0; d<q; d++)
       for(int i=0; i<N; i++)
          m_gamma(d,i) = real(0);
    // initialize cache
    m_cached = false;
-   return;
-   // compute remaining matrix values
-   for(int i=0; i<N; i++)
-      {
-      std::cerr << libbase::pacifier("FBA Gamma", i, N);
-      // event must fit the received sequence:
-      // (this is limited to start and end conditions)
-      // 1. n*i+x1 >= 0
-      // 2. n*(i+1)-1+x2 <= r.size()-1
-      // limits on insertions and deletions must be respected:
-      // 3. x2-x1 <= n*I
-      // 4. x2-x1 >= -n
-      // limits on introduced drift in this section:
-      // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= dxmax
-      // 6. x2-x1 >= -dxmax
-      const int x1min = max(-xmax,-n*i);
-      const int x1max = xmax;
-      for(int x1=x1min; x1<=x1max; x1++)
-         {
-         const int x2min = max(-xmax,dmin+x1);
-         const int x2max = min(min(xmax,dmax+x1),r.size()-n*(i+1));
-         for(int x2=x2min; x2<=x2max; x2++)
-            for(int d=0; d<q; d++)
-               gamma(d,i,x1,x2-x1) = Q(d,i,r.extract(n*i+x1,n+x2-x1));
-         }
-      }
-   std::cerr << libbase::pacifier("FBA Gamma", N, N);
    }
 
 template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<sig>& r)
@@ -208,6 +195,12 @@ template <class real, class sig> void fba2<real,sig>::prepare(const vector<sig>&
    if(!initialised)
       allocate();
 
+#ifndef NDEBUG
+   // reset cache counters
+   gamma_calls = 0;
+   gamma_misses = 0;
+#endif
+
    // compute forwards and backwards passes
    work_gamma(r);
    work_alpha(r);
@@ -260,6 +253,11 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
       }
    if(N > 0)
       std::cerr << libbase::pacifier("FBA Results", N, N);
+#ifndef NDEBUG
+   // show cache statistics
+   std::cerr << "FBA Cache Usage: " << 100*gamma_misses/double(m_cached.size()) << "%\n";
+   std::cerr << "FBA Cache Reuse: " << gamma_calls/double(gamma_misses*q) << "x\n";
+#endif
    }
 
 }; // end namespace
