@@ -48,6 +48,10 @@ private:
    libbase::matrix<real>   m_beta;     //!< Backward recursion metric
    mutable libbase::matrix< libbase::matrix<real> >  m_gamma;    //!< Receiver metric
    mutable libbase::matrix3<bool>  m_cached;    //!< Flag for caching of receiver metric
+#ifndef NDEBUG
+   mutable int gamma_calls;   //!< Number of gamma computations
+   mutable int gamma_misses;  //!< Number of gamma computations causing a cache miss
+#endif
    // @}
 private:
    /*! \name Internal functions */
@@ -97,7 +101,14 @@ template <class real, class sig> real fba2<real,sig>::compute_gamma(int d, int i
       m_cached(i,x+xmax,deltax-dmin) = true;
       for(int d=0; d<q; d++)
          m_gamma(d,i)(x+xmax,deltax-dmin) = Q(d,i,r.extract(n*i+x,n+deltax));
+#ifndef NDEBUG
+      gamma_misses++;
+#endif
       }
+#ifndef NDEBUG
+   gamma_calls++;
+#endif
+
    return m_gamma(d,i)(x+xmax,deltax-dmin);
    }
 
