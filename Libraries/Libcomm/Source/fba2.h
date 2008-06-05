@@ -44,6 +44,7 @@ private:
    int   dmin;          //!< Offset for deltax index in gamma matrix
    int   dmax;          //!< Maximum value for deltax index in gamma matrix
    bool  initialised;   //!< Flag to indicate when memory is allocated
+   bool  cache_enabled; //!< Flag to indicate when cache is usable
    libbase::matrix<real>   m_alpha;    //!< Forward recursion metric
    libbase::matrix<real>   m_beta;     //!< Backward recursion metric
    mutable libbase::matrix< libbase::matrix<real> >  m_gamma;    //!< Receiver metric
@@ -59,11 +60,11 @@ private:
    // index-shifting access internal use
    real& alpha(int i, int x) { return m_alpha(i,x+xmax); };
    real& beta(int i, int x) { return m_beta(i,x+xmax); };
-   real& gamma(int d, int i, int x, int deltax) { return m_gamma(d,i)(x+xmax,deltax-dmin); };
+   //real& gamma(int d, int i, int x, int deltax) { return m_gamma(d,i)(x+xmax,deltax-dmin); };
    // const versions of above
    real alpha(int i, int x) const { return m_alpha(i,x+xmax); };
    real beta(int i, int x) const { return m_beta(i,x+xmax); };
-   real gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax-dmin); };
+   //real gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax-dmin); };
    // memory allocation
    void allocate();
    // @}
@@ -96,6 +97,9 @@ public:
 
 template <class real, class sig> real fba2<real,sig>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
    {
+   if(!cache_enabled)
+      return Q(d,i,r.extract(n*i+x,n+deltax));
+
    if(!m_cached(i,x+xmax,deltax-dmin))
       {
       m_cached(i,x+xmax,deltax-dmin) = true;
