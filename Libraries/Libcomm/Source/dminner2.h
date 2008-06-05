@@ -43,7 +43,7 @@ private:
    /*! \name Pre-computed parameters */
    // @}
    /*! \name Internally-used objects */
-   channel<bool> *mychan;     //!< bound channel object
+   bsid *mychan;              //!< bound channel object
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
    // @}

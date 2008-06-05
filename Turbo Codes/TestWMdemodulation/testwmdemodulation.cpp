@@ -137,6 +137,7 @@ void testcycle(int const type, int const seed, int const n, int const k, int con
    cout << '\n';
    cout << modem->description() << '\n';
    cout << chan->description() << '\n';
+   cout << "Block size: N = " << tau << '\n';
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
@@ -162,20 +163,23 @@ int main(int argc, char *argv[])
    // user-defined parameters
    if(argc == 1)
       {
-      cout << "Usage: " << argv[0] << " <type> [k [n [seed [tau [p]]]]]\n";
-      cout << "Where: type = 0 for single-cycle with specified code\n";
-      cout << "       type = 1 for multiple-cycle with classic decoder\n";
+      cout << "Usage: " << argv[0] << " <type> [seed [k [n [N [Pe]]]]]\n";
+      cout << "Where: type = 1 for multiple-cycle with classic decoder\n";
       cout << "       type = 2 for multiple-cycle with alternative decoder\n";
-      cout << "Code defaults to 4/15, seed 0\n";
+      cout << "       type = 11 for single-cycle with classic decoder\n";
+      cout << "       type = 12 for single-cycle with alternative decoder\n";
+      cout << "Code settings seed,n,k are used for all types;\n";
+      cout << "   Defaults to seed 0, k/n = 4/15\n";
+      cout << "Block size N and error probability Pe are for single-cycle.\n";
       exit(1);
       }
 
-   const int type = atoi(argv[1]);
-   const int seed = ((argc > 2) ? atoi(argv[2]) : 0);
-   const int k    = ((argc > 3) ? atoi(argv[3]) : 4);
-   const int n    = ((argc > 4) ? atoi(argv[4]) : 15);
-   const int tau  = ((argc > 5) ? atoi(argv[5]) : 5);
-   const double p = ((argc > 6) ? atof(argv[6]) : Plo);
+   const int type  = atoi(argv[1]);
+   const int seed  = ((argc > 2) ? atoi(argv[2]) : 0);
+   const int k     = ((argc > 3) ? atoi(argv[3]) : 4);
+   const int n     = ((argc > 4) ? atoi(argv[4]) : 15);
+   const int N     = ((argc > 5) ? atoi(argv[5]) : 5);
+   const double Pe = ((argc > 6) ? atof(argv[6]) : Plo);
 
    // show revision information
    cout << "URL: " << __WCURL__ << "\n";
@@ -184,19 +188,20 @@ int main(int argc, char *argv[])
    // do what the user asked for
    switch(type)
       {
-      case 0:
-         testcycle(1, seed, n, k, tau, p);
-         break;
-
       case 1:
       case 2:
          // try short,medium,large codes for benchmarking at low error probability
-         testcycle(type, seed, 15, 4, 10, Plo, false);
-         testcycle(type, seed, 15, 4, 100, Plo, false);
-         testcycle(type, seed, 15, 4, 1000, Plo, false);
+         testcycle(type, seed, n, k, 10, Plo, false);
+         testcycle(type, seed, n, k, 100, Plo, false);
+         testcycle(type, seed, n, k, 1000, Plo, false);
          // try short,medium codes for benchmarking at high error probability
-         testcycle(type, seed, 15, 4, 10, Phi, false);
-         testcycle(type, seed, 15, 4, 100, Phi, false);
+         testcycle(type, seed, n, k, 10, Phi, false);
+         testcycle(type, seed, n, k, 100, Phi, false);
+         break;
+
+      case 11:
+      case 12:
+         testcycle(type-10, seed, n, k, N, Pe);
          break;
 
       default:

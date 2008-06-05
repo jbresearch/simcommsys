@@ -50,15 +50,15 @@ private:
    int      k;                //!< number of bits in message (input) symbol
    bool     userspecified;    //!< flag indicating that LUT is supplied by user
    std::string lutname;       //!< name to describe codebook
+   libbase::vector<int> lut;  //!< sparsifier LUT
    // @}
    /*! \name Pre-computed parameters */
    double   f;    //!< average weight per bit of sparse symbol
    // @}
    /*! \name Internally-used objects */
-   bsid mychan;               //!< bound channel object
+   bsid *mychan;              //!< bound channel object
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
-   libbase::vector<int> lut;  //!< sparsifier LUT
    libbase::vector<double> Ptable;  //!< pre-computed values for P function
    // @}
 private:
@@ -76,15 +76,15 @@ private:
 protected:
    /*! \name Internal functions */
    void init();
-   void free() {};
+   void free();
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
-   watermarkcode();
+   watermarkcode() { mychan = NULL; };
    // @}
 public:
    /*! \name Constructors / Destructors */
-   watermarkcode(const int n, const int k, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   watermarkcode(const int n, const int k);
    ~watermarkcode() { free(); };
    // @}
 

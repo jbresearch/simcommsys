@@ -22,9 +22,8 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // create a watermark code to start with
-   int N=10;
    int n=5, k=3;
-   libcomm::watermarkcode<libbase::logrealfast> modem(n,k, N);
+   libcomm::watermarkcode<libbase::logrealfast> modem(n,k);
    cout << modem.description() << "\n";
 
    // get a new watermark from stdin

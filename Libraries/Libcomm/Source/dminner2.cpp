@@ -102,6 +102,8 @@ template <class real> void dminner2<real>::init()
    // Seed the watermark generator and clear the sequence
    r.seed(0);
    ws.init(0);
+   // Clear bound channel
+   mychan = NULL;
    }
 
 template <class real> void dminner2<real>::free()
@@ -187,12 +189,10 @@ template <class real> void dminner2<real>::demodulate(const channel<bool>& chan,
    const int tau = N*n;
    assert(N > 0);
    // Clone channel for access within Q()
-   mychan = chan.clone();
-   // Set channel parameters used in FBA same as one being simulated
-   bsid chancopy(tau);
-   chancopy.set_parameter(chan.get_parameter());
+   free();
+   assertalways(mychan = dynamic_cast<bsid *> (chan.clone()));
    // Determine required FBA parameter values
-   const double Pd = chancopy.get_pd();
+   const double Pd = mychan->get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
    const int dxmax = bsid::compute_xmax(n, Pd, bsid::compute_I(n, Pd));
