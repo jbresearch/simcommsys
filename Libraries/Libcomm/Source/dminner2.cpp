@@ -176,9 +176,6 @@ template <class real> void dminner2<real>::modulate(const int N, const libbase::
 /*! \copydoc modulator::demodulate()
 
    \todo Make demodulation independent of the previous modulation step.
-
-   \todo Find a way to obtain I/xmax directly from simulated channel, rather
-         than creating a copy that assumed all three parameters are varied.
 */
 template <class real> void dminner2<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {

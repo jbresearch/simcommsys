@@ -100,4 +100,3 @@ public:
 }; // end namespace
 
 #endif
-

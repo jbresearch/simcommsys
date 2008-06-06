@@ -183,6 +183,10 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
          }
    }
 
+/*! \copydoc modulator::demodulate()
+
+   \todo Make demodulation independent of the previous modulation step.
+*/
 template <class real> void watermarkcode<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
@@ -211,7 +215,6 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    fba<real,bool>::init(tau, I, xmax);
    fba<real,bool>::prepare(rx);
    // Initialise result vector (one sparse symbol per timestep)
-   ptable.init(N, q);
    libbase::matrix<real> p(N,q);
    p = real(0);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
@@ -265,15 +268,16 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
       }
    if(N > 0)
       std::cerr << libbase::pacifier("WM Demodulate", N, N);
-   // normalize and copy results
+   trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
+   // check for numerical underflow
    const real scale = p.max();
-   // check for likely numerical underflow
    assert(scale != real(0));
+   // normalize and copy results
    p /= scale;
+   ptable.init(N, q);
    for(int i=0; i<N; i++)
       for(int d=0; d<q; d++)
          ptable(i,d) = p(i,d);
-   trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
    }
 
 // description output
@@ -291,7 +295,7 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
    {
    sout << n << '\n';
    sout << k << '\n';
-   sout << int(userspecified) << '\n';
+   sout << userspecified << '\n';
    if(userspecified)
       {
       sout << lutname << '\n';
