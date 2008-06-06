@@ -48,7 +48,7 @@ namespace libcomm {
    - implemented reset().
 
    \version 1.20 (31 Oct - 1 Nov 2007)
-   - decided to make fba operate at bit-level only, without knowledge of the watermarkcode
+   - decided to make fba operate at bit-level only, without knowledge of the watermark code
      and therefore without the possibility of doing the final decode stage.
    - renamed 'N' to 'tau' to avoid confusion with the symbol-level block size; this is also
      consistent with prior work.

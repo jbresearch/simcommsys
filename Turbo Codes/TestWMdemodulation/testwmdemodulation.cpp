@@ -10,7 +10,7 @@
 #include "timer.h"
 #include "randgen.h"
 #include "logrealfast.h"
-#include "watermarkcode.h"
+#include "dminner.h"
 #include "dminner2.h"
 #include "bsid.h"
 
@@ -26,7 +26,7 @@ using libbase::logrealfast;
 
 using libcomm::modulator;
 using libcomm::channel;
-using libcomm::watermarkcode;
+using libcomm::dminner;
 using libcomm::dminner2;
 
 modulator<bool>* create_modem(int const type, int const n, int const k, libbase::random& r)
@@ -35,7 +35,7 @@ modulator<bool>* create_modem(int const type, int const n, int const k, libbase:
    switch(type)
       {
       case 1:
-         modem = new watermarkcode<logrealfast>(n,k);
+         modem = new dminner<logrealfast>(n,k);
          break;
       case 2:
          modem = new dminner2<logrealfast>(n,k);
@@ -141,7 +141,7 @@ void testcycle(int const type, int const seed, int const n, int const k, int con
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
-   // modulate it using the previously created watermarkcode
+   // modulate it using the previously created inner code
    vector<bool> tx = modulate_encoded(k, n, *modem, encoded, display);
    // pass it through the channel
    vector<bool> rx = transmit_modulated(n, *chan, tx, display);

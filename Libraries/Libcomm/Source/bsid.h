@@ -22,13 +22,15 @@ namespace libcomm {
 class bsid : public channel<bool> {
 private:
    /*! \name User-defined parameters */
+   bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
+   bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter
+   bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with parameter
+   // @}
+   /*! \name Channel-state parameters */
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
    int      N;          //!< Block size in bits over which we want to synchronize
-   bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
-   bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter
-   bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with parameter
    // @}
    /*! \name Pre-computed parameters */
    int      I;          //!< Assumed limit for insertions between two time-steps

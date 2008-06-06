@@ -268,7 +268,7 @@ template <class S> double basic_channel<S>::receive(const S& tx, const libbase::
 
    \version 1.62 (17 Jan 2008)
    - Made serialization functions virtual again (fixed bug introduced in rev. 461
-   - Made get_eb/get_no available again, to allow their use in watermarkcode::demodulate();
+   - Made get_eb/get_no available again, to allow their use in dminner::demodulate();
 
    \version 2.00 (24 Jan 2008)
    - Abstracted channel class by templating, with the channel-symbol type as

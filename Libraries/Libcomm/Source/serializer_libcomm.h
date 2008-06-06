@@ -25,7 +25,7 @@
 #include "modulator.h"
 #include "mpsk.h"
 #include "qam.h"
-#include "watermarkcode.h"
+#include "dminner.h"
 #include "dminner2.h"
 
 // Convolutional Encoders
@@ -98,7 +98,7 @@ namespace libcomm {
 class serializer_libcomm : private
    qsc< libbase::gf<1,0x3> >, qsc< libbase::gf<2,0x7> >, qsc< libbase::gf<3,0xB> >, qsc< libbase::gf<4,0x13> >,
    awgn, laplacian, lapgauss, bsid, bsc,
-   mpsk, qam, watermarkcode<libbase::logrealfast>, dminner2<libbase::logrealfast>,
+   mpsk, qam, dminner<libbase::logrealfast>, dminner2<libbase::logrealfast>,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,

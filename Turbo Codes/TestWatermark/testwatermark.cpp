@@ -8,7 +8,7 @@
 */
 
 #include "logrealfast.h"
-#include "watermarkcode.h"
+#include "dminner.h"
 #include "bsid.h"
 #include "itfunc.h"
 #include "bitfield.h"
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
    // create a watermark code to start with
    int n=5, k=3;
-   libcomm::watermarkcode<libbase::logrealfast> modem(n,k);
+   libcomm::dminner<libbase::logrealfast> modem(n,k);
    cout << modem.description() << "\n";
 
    // get a new watermark from stdin

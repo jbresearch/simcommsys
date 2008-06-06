@@ -43,7 +43,7 @@ namespace libcomm {
          architecture to allow higher-range ptables.
 */
 
-template <class real> class watermarkcode : public modulator<bool>, private fba<real,bool> {
+template <class real> class dminner : public modulator<bool>, private fba<real,bool> {
 private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
@@ -80,12 +80,12 @@ protected:
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
-   watermarkcode() { mychan = NULL; };
+   dminner() { mychan = NULL; };
    // @}
 public:
    /*! \name Constructors / Destructors */
-   watermarkcode(const int n, const int k);
-   ~watermarkcode() { free(); };
+   dminner(const int n, const int k);
+   ~dminner() { free(); };
    // @}
 
    /*! \name Watermark-specific informative functions */
@@ -109,7 +109,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(watermarkcode)
+   DECLARE_SERIALIZER(dminner)
 };
 
 }; // end namespace

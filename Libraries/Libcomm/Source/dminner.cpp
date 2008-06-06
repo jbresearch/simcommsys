@@ -7,7 +7,7 @@
    - $Author$
 */
 
-#include "watermarkcode.h"
+#include "dminner.h"
 #include "timer.h"
 #include <sstream>
 
@@ -18,7 +18,7 @@ namespace libcomm {
 /*!
    \brief Set up LUT with the lowest weight codewords
 */
-template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suffix, int w)
+template <class real> int dminner<real>::fill(int i, libbase::bitfield suffix, int w)
    {
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
@@ -54,7 +54,7 @@ template <class real> int watermarkcode<real>::fill(int i, libbase::bitfield suf
 
 //! Watermark sequence creator
 
-template <class real> void watermarkcode<real>::createsequence(const int tau)
+template <class real> void dminner<real>::createsequence(const int tau)
    {
    // creates 'tau' elements of 'n' bits each
    ws.init(tau);
@@ -64,7 +64,7 @@ template <class real> void watermarkcode<real>::createsequence(const int tau)
 
 //! Inform user if I or xmax have changed
 
-template <class real> void watermarkcode<real>::checkforchanges(int I, int xmax)
+template <class real> void dminner<real>::checkforchanges(int I, int xmax)
    {
    static int last_I = 0;
    static int last_xmax = 0;
@@ -78,7 +78,7 @@ template <class real> void watermarkcode<real>::checkforchanges(int I, int xmax)
 
 // initialization / de-allocation
 
-template <class real> void watermarkcode<real>::init()
+template <class real> void dminner<real>::init()
    {
    using libbase::bitfield;
    using libbase::weight;
@@ -111,7 +111,7 @@ template <class real> void watermarkcode<real>::init()
    mychan = NULL;
    }
 
-template <class real> void watermarkcode<real>::free()
+template <class real> void dminner<real>::free()
    {
    if(mychan != NULL)
       delete mychan;
@@ -119,11 +119,11 @@ template <class real> void watermarkcode<real>::free()
 
 // constructor / destructor
 
-template <class real> watermarkcode<real>::watermarkcode(const int n, const int k)
+template <class real> dminner<real>::dminner(const int n, const int k)
    {
    // code parameters
-   watermarkcode::n = n;
-   watermarkcode::k = k;
+   dminner::n = n;
+   dminner::k = k;
    // initialize everything else that depends on the above parameters
    fill();
    init();
@@ -131,13 +131,13 @@ template <class real> watermarkcode<real>::watermarkcode(const int n, const int 
 
 // implementations of channel-specific metrics for fba
 
-template <class real> real watermarkcode<real>::P(const int a, const int b)
+template <class real> real dminner<real>::P(const int a, const int b)
    {
    const int m = b-a;
    return Ptable(m+1);
    }
 
-template <class real> real watermarkcode<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
+template <class real> real dminner<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -152,7 +152,7 @@ template <class real> real watermarkcode<real>::Q(const int a, const int b, cons
 
 // encoding and decoding functions
 
-template <class real> void watermarkcode<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+template <class real> void dminner<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Inherit sizes
    const int q = 1<<k;
@@ -172,7 +172,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 #ifndef NDEBUG
          if(tau < 10)
             {
-            libbase::trace << "DEBUG (watermarkcode::modulate): word " << i << "\t";
+            libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
             libbase::trace << "s = " << libbase::bitfield(s,n) << "\t";
             libbase::trace << "w = " << libbase::bitfield(w,n) << "\n";
             }
@@ -187,7 +187,7 @@ template <class real> void watermarkcode<real>::modulate(const int N, const libb
 
    \todo Make demodulation independent of the previous modulation step.
 */
-template <class real> void watermarkcode<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+template <class real> void dminner<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
    // Inherit block size from last modulation step
@@ -218,7 +218,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
    libbase::matrix<real> p(N,q);
    p = real(0);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
-   trace << "DEBUG (watermarkcode::demodulate): computing ptable...\n";
+   trace << "DEBUG (dminner::demodulate): computing ptable...\n";
    for(int i=0; i<N; i++)
       {
       std::cerr << libbase::pacifier("WM Demodulate", i, N);
@@ -268,7 +268,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
       }
    if(N > 0)
       std::cerr << libbase::pacifier("WM Demodulate", N, N);
-   trace << "DEBUG (watermarkcode::demodulate): ptable done.\n";
+   trace << "DEBUG (dminner::demodulate): ptable done.\n";
    // check for numerical underflow
    const real scale = p.max();
    assert(scale != real(0));
@@ -282,7 +282,7 @@ template <class real> void watermarkcode<real>::demodulate(const channel<bool>& 
 
 // description output
 
-template <class real> std::string watermarkcode<real>::description() const
+template <class real> std::string dminner<real>::description() const
    {
    std::ostringstream sout;
    sout << "Watermark Code (" << n << "/" << k << ", " << lutname << " codebook)";
@@ -291,7 +291,7 @@ template <class real> std::string watermarkcode<real>::description() const
 
 // object serialization - saving
 
-template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream& sout) const
+template <class real> std::ostream& dminner<real>::serialize(std::ostream& sout) const
    {
    sout << n << '\n';
    sout << k << '\n';
@@ -308,7 +308,7 @@ template <class real> std::ostream& watermarkcode<real>::serialize(std::ostream&
 
 // object serialization - loading
 
-template <class real> std::istream& watermarkcode<real>::serialize(std::istream& sin)
+template <class real> std::istream& dminner<real>::serialize(std::istream& sin)
    {
    free();
    sin >> n;
@@ -344,7 +344,7 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
-template class watermarkcode<logrealfast>;
-template <> const serializer watermarkcode<logrealfast>::shelper = serializer("modulator", "watermarkcode<logrealfast>", watermarkcode<logrealfast>::create);
+template class dminner<logrealfast>;
+template <> const serializer dminner<logrealfast>::shelper = serializer("modulator", "dminner<logrealfast>", dminner<logrealfast>::create);
 
 }; // end namespace

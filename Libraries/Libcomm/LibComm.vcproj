@@ -455,6 +455,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\dminner.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\dminner2.cpp"
 				>
 			</File>
@@ -1246,10 +1250,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\Source\watermarkcode.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1333,6 +1333,10 @@
 			</File>
 			<File
 				RelativePath="Source\diffturbo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\dminner.h"
 				>
 			</File>
 			<File
@@ -1533,10 +1537,6 @@
 			</File>
 			<File
 				RelativePath="Source\vale96int.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\watermarkcode.h"
 				>
 			</File>
 		</Filter>
