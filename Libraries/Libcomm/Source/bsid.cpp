@@ -96,6 +96,24 @@ void bsid::compute_Ptable(libbase::vector<double>& Ptable, int xmax, double Pd, 
 // Internal functions
 
 /*!
+   \brief Sets up pre-computed values
+
+   This function computes all cached quantities used within actual channel
+   operations. Since these values depend on the channel conditions, this
+   function should be called any time a channel parameter is changed.
+*/
+void bsid::precompute() const
+   {
+   // fba decoder parameters
+   I = compute_I(N, Pd);
+   xmax = compute_xmax(N, Pd, I);
+   // receiver coefficients
+   compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
+   // pre-compute 'P' table
+   compute_Ptable(Ptable, xmax, Pd, Pi);
+   }
+
+/*!
    \brief Initialization
 
    Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
@@ -107,25 +125,8 @@ void bsid::init()
    Ps = 0;
    Pd = 0;
    Pi = 0;
+   N = 1;
    precompute();
-   }
-
-/*!
-   \brief Sets up pre-computed values
-
-   This function computes all cached quantities used within actual channel
-   operations. Since these values depend on the channel conditions, this
-   function should be called any time a channel parameter is changed.
-*/
-void bsid::precompute()
-   {
-   // fba decoder parameters
-   I = compute_I(N, Pd);
-   xmax = compute_xmax(N, Pd, I);
-   // receiver coefficients
-   compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
-   // pre-compute 'P' table
-   compute_Ptable(Ptable, xmax, Pd, Pi);
    }
 
 // Constructors / Destructors
@@ -135,11 +136,8 @@ void bsid::precompute()
 
    \sa init()
 */
-bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
+bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi)
    {
-   // fba decoder parameter
-   assert(N > 0);
-   bsid::N = N;
    // channel update flags
    assert(varyPs || varyPd || varyPi);
    bsid::varyPs = varyPs;
@@ -147,18 +145,6 @@ bsid::bsid(const int N, const bool varyPs, const bool varyPd, const bool varyPi)
    bsid::varyPi = varyPi;
    // other initialization
    init();
-   }
-
-// User-defined settings
-
-void bsid::set_blocksize(int N)
-   {
-   if(N != bsid::N)
-      {
-      assert(N > 0);
-      bsid::N = N;
-      precompute();
-      }
    }
 
 // Channel parameter handling
@@ -219,6 +205,16 @@ void bsid::set_pi(const double Pi)
    assert(Pi+Pd >=0 && Pi+Pd <= 1);
    bsid::Pi = Pi;
    precompute();
+   }
+
+void bsid::set_blocksize(int N) const
+   {
+   if(N != bsid::N)
+      {
+      assert(N > 0);
+      bsid::N = N;
+      precompute();
+      }
    }
 
 // Channel function overrides
@@ -397,7 +393,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
 std::string bsid::description() const
    {
    std::ostringstream sout;
-   sout << "BSID channel (" << N << "," << varyPs << varyPd << varyPi << ")";
+   sout << "BSID channel (" << varyPs << varyPd << varyPi << ")";
    return sout.str();
    }
 
@@ -405,7 +401,6 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
-   sout << N << "\n";
    sout << varyPs << "\n";
    sout << varyPd << "\n";
    sout << varyPi << "\n";
@@ -416,7 +411,6 @@ std::ostream& bsid::serialize(std::ostream& sout) const
 
 std::istream& bsid::serialize(std::istream& sin)
    {
-   sin >> N;
    sin >> varyPs;
    sin >> varyPd;
    sin >> varyPi;

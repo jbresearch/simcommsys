@@ -195,6 +195,9 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
    const int N = ws.size();
    const int tau = N*n;
    assert(N > 0);
+   // Set channel block size to q-ary symbol size
+   const bsid& chanref = dynamic_cast<const bsid &>(chan);
+   chanref.set_blocksize(n);
    // Clone channel for access within Q()
    free();
    assertalways(mychan = dynamic_cast<bsid *> (chan.clone()));

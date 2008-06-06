@@ -48,9 +48,9 @@ modulator<bool>* create_modem(int const type, int const n, int const k, libbase:
    return modem;
    }
 
-channel<bool> *create_channel(int N, double Pe, libbase::random& r)
+channel<bool> *create_channel(double Pe, libbase::random& r)
    {
-   channel<bool> *chan = new libcomm::bsid(N);
+   channel<bool> *chan = new libcomm::bsid;
    chan->seedfrom(r);
    chan->set_parameter(Pe);
    return chan;
@@ -133,7 +133,7 @@ void testcycle(int const type, int const seed, int const n, int const k, int con
    prng.seed(seed);
    // create modem and channel
    modulator<bool> *modem = create_modem(type, n, k, prng);
-   channel<bool> *chan = create_channel(n, Pe, prng);
+   channel<bool> *chan = create_channel(Pe, prng);
    cout << '\n';
    cout << modem->description() << '\n';
    cout << chan->description() << '\n';

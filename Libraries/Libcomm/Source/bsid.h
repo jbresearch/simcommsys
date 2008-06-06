@@ -30,13 +30,13 @@ private:
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
-   int      N;          //!< Block size in bits over which we want to synchronize
+   mutable int N;       //!< Block size in bits over which we want to synchronize
    // @}
    /*! \name Pre-computed parameters */
-   int      I;          //!< Assumed limit for insertions between two time-steps
-   int      xmax;       //!< Assumed maximum drift over a whole \c N -bit block
-   libbase::matrix<double> Rtable;     //!< Receiver coefficient set
-   libbase::vector<double> Ptable;     //!< Forward recursion 'P' function lookup
+   mutable int I;       //!< Assumed limit for insertions between two time-steps
+   mutable int xmax;    //!< Assumed maximum drift over a whole \c N -bit block
+   mutable libbase::matrix<double> Rtable;     //!< Receiver coefficient set
+   mutable libbase::vector<double> Ptable;     //!< Forward recursion 'P' function lookup
    // @}
 public:
    /*! \name FBA decoder parameter computation */
@@ -47,25 +47,16 @@ public:
    // @}
 private:
    /*! \name Internal functions */
+   void precompute() const;
    void init();
-   void precompute();
    // @}
 protected:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   bsid() {};
-   // @}
    // Channel function overrides
    bool corrupt(const bool& s);
    double pdf(const bool& tx, const bool& rx) const;
 public:
    /*! \name Constructors / Destructors */
-   bsid(const int N, const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
-   // @}
-
-   /*! \name User-defined settings */
-   //! Set the block size
-   void set_blocksize(int N);
+   bsid(const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    // @}
 
    /*! \name Channel parameter handling */
@@ -80,6 +71,8 @@ public:
    void set_pd(const double Pd);
    //! Set the bit-insertion probability
    void set_pi(const double Pi);
+   //! Set the block size
+   void set_blocksize(int N) const;
    // @}
 
    /*! \name Channel parameter getters */

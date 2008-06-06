@@ -58,7 +58,7 @@ void visualtest()
 void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    {
    // define channel according to specifications
-   bsid channel(tau,sub,del,ins);
+   bsid channel(sub,del,ins);
    randgen prng;
    prng.seed(0);
    channel.seedfrom(prng);
