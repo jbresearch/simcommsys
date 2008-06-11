@@ -154,7 +154,8 @@ void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_m
 montecarlo::montecarlo()
    {
    createfunctors();
-   reset();
+   bound = false;
+   system = NULL;
    // set default parameter settings
    set_confidence(0.95);
    set_accuracy(0.10);
@@ -162,41 +163,49 @@ montecarlo::montecarlo()
 
 montecarlo::~montecarlo()
    {
-   if(init)
-      reset();
+   release();
    delete system;
    destroyfunctors();
    }
 
 // simulation initialization/finalization
 
-void montecarlo::initialise(experiment *system)
+void montecarlo::bind(experiment *system)
    {
-   init = true;
-   // bind sub-components
+   release();
+   assert(system == NULL);
+   bound = true;
    montecarlo::system = system;
    }
 
-void montecarlo::reset()
+void montecarlo::release()
    {
-   init = false;
+   if(!bound)
+      return;
+   assert(system != NULL);
+   bound = false;
    system = NULL;
    }
 
 // simulation parameters
 
-void montecarlo::set_confidence(const double confidence)
+void montecarlo::set_confidence(double confidence)
    {
    assertalways(confidence > 0.5 && confidence < 1.0);
    trace << "DEBUG: setting confidence level of " << confidence << "\n";
    montecarlo::confidence = confidence;
    }
 
-void montecarlo::set_accuracy(const double accuracy)
+void montecarlo::set_accuracy(double accuracy)
    {
    assertalways(accuracy > 0 && accuracy < 1.0);
    trace << "DEBUG: setting accuracy level of " << accuracy << "\n";
    montecarlo::accuracy = accuracy;
+   }
+
+void montecarlo::set_resultsfile(const std::string& fname)
+   {
+   montecarlo::fname = fname;
    }
 
 // main process

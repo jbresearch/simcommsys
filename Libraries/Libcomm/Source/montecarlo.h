@@ -29,8 +29,9 @@ class montecarlo : public libbase::masterslave {
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
              object at this address. This should be deleted when no longer necessary.
    */
-   bool           init;          //!< Flag to indicate that a system has been bound (only in master)
-   experiment     *system;       //!< System being sampled            
+   bool           bound;         //!< Flag to indicate that a system has been bound (only in master)
+   experiment     *system;       //!< System being sampled
+   std::string    fname;         //!< Filename for associated results file
    // @}
    /*! \name Internal variables */
    double         confidence;    //!< confidence level required
@@ -70,15 +71,17 @@ public:
    montecarlo();
    virtual ~montecarlo();
    // @}
-   /*! \name Simulation initialization/finalization */
-   void initialise(experiment *system);
-   void reset();
+   /*! \name Simulation binding/releasing */
+   void bind(experiment *system);
+   void release();
    // @}
    /*! \name Simulation parameters */
    //! Set confidence limit, say, 0.95 => 95% probability
-   void set_confidence(const double confidence);
+   void set_confidence(double confidence);
    //! Set target accuracy, say, 0.10 => 10% of mean
-   void set_accuracy(const double accuracy);
+   void set_accuracy(double accuracy);
+   //! Associates with given results file
+   void set_resultsfile(const std::string& fname);
    // @}
    /*! \name Simulation results */
    //! Number of samples taken to produce the result
