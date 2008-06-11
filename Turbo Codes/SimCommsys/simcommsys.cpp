@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
    // Simulation system & parameters, in reverse order
    libcomm::experiment *system = createsystem(&argc, &argv);
-   estimator.initialise(system);
+   estimator.bind(system);
    const double min_error = getminerror(&argc, &argv);
    libbase::vector<double> Pset = getparameterset(&argc, &argv);
    const double confidence = getconfidence(&argc, &argv);
