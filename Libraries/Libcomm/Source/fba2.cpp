@@ -23,7 +23,8 @@ template <class real, class sig> void fba2<real,sig>::allocate()
    dmin = max(-n,-dxmax);
    dmax = min(n*I,dxmax);
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
-   // beta needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
+   // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
+   // (we actually waste i=0 to avoid index complications, for now)
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
    // x in [-xmax, xmax], and deltax in [max(-n,-xmax), min(nI,xmax)]
    m_alpha.init(N, 2*xmax+1);
@@ -150,9 +151,9 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
    assertalways(abs(r.size()-tau) <= xmax);
    beta(N,r.size()-tau) = real(1);
    // compute remaining matrix values
-   for(int i=N-1; i>=0; i--)
+   for(int i=N-1; i>0; i--)
       {
-      std::cerr << libbase::pacifier("FBA Beta", N-1-i, N);
+      std::cerr << libbase::pacifier("FBA Beta", N-1-i, N-1);
       // determine the strongest path at this point
       real threshold = 0;
       for(int x2=-xmax; x2<=xmax; x2++)
@@ -184,7 +185,7 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
                beta(i,x1) += beta(i+1,x2) * compute_gamma(d,i,x1,x2-x1,r);
          }
       }
-   std::cerr << libbase::pacifier("FBA Beta", N, N);
+   std::cerr << libbase::pacifier("FBA Beta", N-1, N-1);
    }
 
 // User procedures
@@ -246,7 +247,7 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
             const int x2min = max(-xmax,dmin+x1);
             const int x2max = min(min(xmax,dmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
-               p += alpha(i,x1) * compute_gamma(d,i,x1,x2-x1,r) * beta(i,x2);
+               p += alpha(i,x1) * compute_gamma(d,i,x1,x2-x1,r) * beta(i+1,x2);
             }
          ptable(i,d) = p;
          }
