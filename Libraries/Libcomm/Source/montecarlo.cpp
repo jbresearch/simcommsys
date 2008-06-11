@@ -125,6 +125,11 @@ void montecarlo::destroyfunctors(void)
 
 // overrideable user-interface functions
 
+/*!
+   \brief Default progress display routine.
+
+   \note Display updates are rate-limited
+*/
 void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_mean)
    {
    static libbase::timer tupdate;
