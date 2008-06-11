@@ -33,7 +33,7 @@ class montecarlo : public libbase::masterslave {
    experiment     *system;       //!< System being sampled            
    // @}
    /*! \name Internal variables */
-   double         cfactor;       //!< factor dependent on confidence level
+   double         confidence;    //!< confidence level required
    double         accuracy;      //!< accuracy level required
    libbase::timer t;             //!< timer to keep track of running estimate
    sha            sysdigest;     //!< digest of the currently-simulated system
@@ -85,6 +85,10 @@ public:
    libbase::int64u get_samplecount() const { return system->get_samplecount(); };
    //! Time taken to produce the result
    const libbase::timer& get_timer() const { return t; };
+   // @}
+   /*! \name Results file helper functions */
+   void writeheader(std::ostream& sout) const;
+   void writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
    // @}
    /*! \name Main process */
    void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);

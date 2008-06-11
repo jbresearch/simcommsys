@@ -24,7 +24,6 @@
 using std::cout;
 using std::cerr;
 using std::setprecision;
-using std::flush;
 
 class mymontecarlo : public libcomm::montecarlo {
 public:
@@ -145,20 +144,7 @@ int main(int argc, char *argv[])
    const double accuracy = gettolerance(&argc, &argv);
    estimator.set_confidence(confidence);
    estimator.set_accuracy(accuracy);
-
-   // Print information on the statistical accuracy of results being worked
-   cout << "#% " << system->description() << "\n";
-   cout << "#% Tolerance: " << 100*accuracy << "%\n";
-   cout << "#% Confidence: " << 100*confidence << "%\n";
-   cout << "#% Date: " << libbase::timer::date() << "\n";
-   cout << "#% URL: " << __WCURL__ << "\n";
-   cout << "#% Version: " << __WCVER__ << "\n";
-   cout << "#\n";
-   // Print results header
-   cout << "# Par";
-   for(int i=0; i<system->count(); i++)
-      cout << "\t" << system->result_description(i) << "\tTol";
-   cout << "\tSamples\tCPUtime\n" << flush;
+   estimator.writeheader(cout);
 
    // Work out the following for every SNR value required
    for(int i=0; i<Pset.size(); i++)
@@ -166,24 +152,17 @@ int main(int argc, char *argv[])
       system->set_parameter(Pset(i));
 
       cerr << "Simulating system at parameter = " << Pset(i) << "\n";
-      libbase::vector<double> estimate, tolerance;
-      estimator.estimate(estimate, tolerance);
+      libbase::vector<double> result, tolerance;
+      estimator.estimate(result, tolerance);
 
       cerr << "Statistics: " << setprecision(4)
          << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - "
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
 
-      if(estimator.get_samplecount() > 0)
-         {
-         cout << Pset(i);
-         for(int i=0; i<system->count(); i++)
-            cout << "\t" << estimate(i) << "\t" << estimate(i)*tolerance(i);
-         cout << "\t" << estimator.get_samplecount();
-         cout << "\t" << estimator.getcputime() << "\n" << flush;
-         }
+      estimator.writeresults(cout, result, tolerance);
 
       // handle pre-mature breaks
-      if(estimator.interrupt() || estimate.min()<min_error)
+      if(estimator.interrupt() || result.min()<min_error)
          break;
       }
 

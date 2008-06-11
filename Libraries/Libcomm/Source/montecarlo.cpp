@@ -189,8 +189,7 @@ void montecarlo::set_confidence(const double confidence)
    {
    assertalways(confidence > 0.5 && confidence < 1.0);
    trace << "DEBUG: setting confidence level of " << confidence << "\n";
-   libbase::secant Qinv(libbase::Q);  // init Qinv as the inverse of Q(), using the secant method
-   cfactor = Qinv((1.0-confidence)/2.0);
+   montecarlo::confidence = confidence;
    }
 
 void montecarlo::set_accuracy(const double accuracy)
@@ -222,6 +221,10 @@ void montecarlo::sampleandaccumulate()
 */
 void montecarlo::updateresults(vector<double>& result, vector<double>& tolerance) const
    {
+   // init Qinv as the inverse of Q(), using the secant method
+   libbase::secant Qinv(libbase::Q);
+   const double cfactor = Qinv((1.0-confidence)/2.0);
+   // determine a new estimate
    system->estimate(result, tolerance);
    assert(result.size() == tolerance.size());
    // determine confidence interval from standard error
@@ -338,6 +341,41 @@ bool montecarlo::readpendingslaves()
       }
    return results_available;
    }
+
+// Results file helper functions
+
+void montecarlo::writeheader(std::ostream& sout) const
+   {
+   assert(system);
+   // Print information on the statistical accuracy of results being worked
+   sout << "#% " << system->description() << "\n";
+   sout << "#% Tolerance: " << 100*accuracy << "%\n";
+   sout << "#% Confidence: " << 100*confidence << "%\n";
+   sout << "#% Date: " << libbase::timer::date() << "\n";
+   sout << "#% URL: " << __WCURL__ << "\n";
+   sout << "#% Version: " << __WCVER__ << "\n";
+   sout << "#\n";
+   // Print results header
+   sout << "# Par";
+   for(int i=0; i<system->count(); i++)
+      sout << "\t" << system->result_description(i) << "\tTol";
+   sout << "\tSamples\tCPUtime\n";
+   sout << std::flush;
+   }
+
+void montecarlo::writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const
+   {
+   if(get_samplecount() == 0)
+      return;
+   sout << system->get_parameter();
+   for(int i=0; i<system->count(); i++)
+      sout << '\t' << result(i) << '\t' << result(i)*tolerance(i);
+   sout << '\t' << get_samplecount();
+   sout << '\t' << getcputime() << '\n';
+   sout << std::flush;
+   }
+
+// Main process
 
 /*!
    \brief Simulate the system until convergence to given accuracy & confidence,
