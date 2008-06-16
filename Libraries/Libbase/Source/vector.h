@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <iostream>
 
+#ifdef min
+#  undef min
+#  undef max
+#endif
+
 namespace libbase {
 
 /*!

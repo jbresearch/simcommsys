@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="SimCommsys"
-	ProjectGUID="{72FBB4CF-2BC0-4290-9937-09C698F94C04}"
-	RootNamespace="SimCommsys"
+	Name="ShowErrorEvent"
+	ProjectGUID="{8A85E162-78EE-42FC-96B3-A6D37A48AB5E}"
+	RootNamespace="ShowErrorEvent"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/SimCommsys.tlb"
+				TypeLibraryName=".\Release/ShowErrorEvent.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/SimCommsys.tlb"
+				TypeLibraryName=".\Debug/ShowErrorEvent.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -213,7 +213,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="simcommsys.cpp"
+				RelativePath="showerrorevent.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
