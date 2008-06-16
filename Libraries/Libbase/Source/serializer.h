@@ -113,7 +113,7 @@ public:
       sout << x->name() << "\n"; \
       x->serialize(sout); \
       return sout; \
-      } \
+      }; \
    /*! \brief Stream input */ \
    friend std::istream& operator>>(std::istream& sin, class_name*& x) \
       { \
@@ -129,7 +129,7 @@ public:
       else \
          x->serialize(sin); \
       return sin; \
-      } \
+      }; \
    /* @} */
 
 #define DECLARE_SERIALIZER( class_name ) \

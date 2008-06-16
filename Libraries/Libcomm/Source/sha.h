@@ -63,6 +63,7 @@ public:
    void process(const libbase::vector<libbase::int32u>& M);
    void process(const char *buf, const int size);
    void process(std::istream& sin);
+   void process(std::string& s);
    // comparison functions
    bool operator>(const sha& x) const;
    bool operator<(const sha& x) const;

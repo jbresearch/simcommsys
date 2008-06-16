@@ -144,6 +144,12 @@ void sha::process(std::istream& sin)
       process(buf, 0);
    }
 
+void sha::process(std::string& s)
+   {
+   std::istringstream is(s);
+   process(is);
+   }
+
 // Comparison functions
 
 bool sha::operator>(const sha& x) const

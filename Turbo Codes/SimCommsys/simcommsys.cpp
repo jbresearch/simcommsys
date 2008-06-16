@@ -40,6 +40,16 @@ const char *getlastargument(int *argc, char **argv[])
    return a;
    }
 
+std::string getresultsfile(int *argc, char **argv[])
+   {
+   if(*argc < 2)
+      {
+      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <resultsfile>\n";
+      exit(1);
+      }
+   return getlastargument(argc, argv);
+   }
+
 libcomm::experiment *createsystem(int *argc, char **argv[])
    {
    if(*argc < 2)
@@ -136,15 +146,13 @@ int main(int argc, char *argv[])
    estimator.enable(&argc, &argv);
 
    // Simulation system & parameters, in reverse order
+   estimator.set_resultsfile(getresultsfile(&argc, &argv));
    libcomm::experiment *system = createsystem(&argc, &argv);
    estimator.bind(system);
    const double min_error = getminerror(&argc, &argv);
    libbase::vector<double> Pset = getparameterset(&argc, &argv);
-   const double confidence = getconfidence(&argc, &argv);
-   const double accuracy = gettolerance(&argc, &argv);
-   estimator.set_confidence(confidence);
-   estimator.set_accuracy(accuracy);
-   estimator.writeheader(cout);
+   estimator.set_confidence(getconfidence(&argc, &argv));
+   estimator.set_accuracy(gettolerance(&argc, &argv));
 
    // Work out the following for every SNR value required
    for(int i=0; i<Pset.size(); i++)
@@ -158,8 +166,6 @@ int main(int argc, char *argv[])
       cerr << "Statistics: " << setprecision(4)
          << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - "
          << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
-
-      estimator.writeresults(cout, result, tolerance);
 
       // handle pre-mature breaks
       if(estimator.interrupt() || result.min()<min_error)

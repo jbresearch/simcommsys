@@ -31,6 +31,10 @@ class montecarlo : public libbase::masterslave {
    */
    bool           bound;         //!< Flag to indicate that a system has been bound (only in master)
    experiment     *system;       //!< System being sampled
+   bool           headerwritten; //!< Flag to indicate that the results header has been written
+   std::streampos fileptr;       //!< Position in file where we should write the next result
+   sha            filedigest;    //!< Digest of file as at last update
+   libbase::timer tfile;         //!< timer to keep track of running estimate
    std::string    fname;         //!< Filename for associated results file
    // @}
    /*! \name Internal variables */
@@ -49,6 +53,7 @@ class montecarlo : public libbase::masterslave {
    // @}
 private:
    /*! \name Helper functions */
+   std::string get_systemstring();
    void seed_experiment();
    void createfunctors(void);
    void destroyfunctors(void);
@@ -60,6 +65,18 @@ private:
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool converged);
    bool readpendingslaves();
+   // @}
+   /*! \name Results file helper functions */
+   void setupfile();
+   void writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
+   void writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
+   void finishwithfile(std::fstream& file);
+   void truncate(std::streampos length);
+   void checkformodifications(std::fstream& file);
+   void writeheader(std::ostream& sout) const;
+   void writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
+   void writestate(std::ostream& sout) const;
+   void lookforstate(std::istream& sin);
    // @}
 protected:
    /*! \name Overrideable user-interface functions */
@@ -88,10 +105,6 @@ public:
    libbase::int64u get_samplecount() const { return system->get_samplecount(); };
    //! Time taken to produce the result
    const libbase::timer& get_timer() const { return t; };
-   // @}
-   /*! \name Results file helper functions */
-   void writeheader(std::ostream& sout) const;
-   void writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
    // @}
    /*! \name Main process */
    void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);
