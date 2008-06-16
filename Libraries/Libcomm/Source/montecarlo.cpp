@@ -435,7 +435,7 @@ void montecarlo::writefinalresults(libbase::vector<double>& result, libbase::vec
 
 void montecarlo::finishwithfile(std::fstream& file)
    {
-   std::streampos length = file.ftellp();
+   std::streampos length = file.tellp();
    // close and truncate file
    file.close();
    truncate(length);
