@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
    // Simulate, waiting for an error event
    libbase::vector<double> result;
    do {
+      cerr << "Simulating sample " << system->get_samplecount() << "\n";
       system->sample(result);
       system->accumulate(result);
       } while(result.min() == 0);
