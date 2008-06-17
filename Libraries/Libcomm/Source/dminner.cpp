@@ -230,7 +230,7 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
       for(int x1=-xmax; x1<=xmax; x1++)
          if(fba<real,bool>::getF(n*i,x1) > threshold)
             threshold = fba<real,bool>::getF(n*i,x1);
-      threshold *= 1e-6;
+      threshold *= fba<real,bool>::get_outerthreshold();
       for(int d=0; d<q; d++)
          {
          // create the considered transmitted sequence

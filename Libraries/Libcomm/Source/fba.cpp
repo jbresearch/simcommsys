@@ -15,6 +15,11 @@ namespace libcomm {
 using libbase::matrix;
 using libbase::vector;
 
+// Static parameters
+
+template <class real, class sig> const double  fba<real,sig>::threshold_inner = 1e-15;
+template <class real, class sig> const double  fba<real,sig>::threshold_outer = 1e-6;
+
 // Memory allocation
 
 template <class real, class sig> void fba<real,sig>::allocate()
@@ -70,7 +75,7 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       for(int a=-xmax; a<=xmax; a++)
          if(F(j-1,a) > threshold)
             threshold = F(j-1,a);
-      threshold *= 1e-15;
+      threshold *= threshold_inner;
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y <= r.size()-1
@@ -114,7 +119,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
       for(int b=-xmax; b<=xmax; b++)
          if(B(j+1,b) > threshold)
             threshold = B(j+1,b);
-      threshold *= 1e-15;
+      threshold *= threshold_inner;
       // event must fit the received sequence:
       // 1. j+y >= 0
       // 2. j+b <= r.size()-1

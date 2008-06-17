@@ -15,6 +15,11 @@ namespace libcomm {
 using libbase::matrix;
 using libbase::vector;
 
+// Static parameters
+
+template <class real, class sig> const double  fba2<real,sig>::threshold_inner = 1e-15;
+template <class real, class sig> const double  fba2<real,sig>::threshold_outer = 1e-6;
+
 // Memory allocation
 
 template <class real, class sig> void fba2<real,sig>::allocate()
@@ -111,7 +116,7 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
       for(int x1=-xmax; x1<=xmax; x1++)
          if(alpha(i-1,x1) > threshold)
             threshold = alpha(i-1,x1);
-      threshold *= 1e-15;
+      threshold *= threshold_inner;
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*(i-1)+x1 >= 0
@@ -159,7 +164,7 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
       for(int x2=-xmax; x2<=xmax; x2++)
          if(beta(i+1,x2) > threshold)
             threshold = beta(i+1,x2);
-      threshold *= 1e-15;
+      threshold *= threshold_inner;
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
@@ -222,7 +227,7 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
       for(int x1=-xmax; x1<=xmax; x1++)
          if(alpha(i,x1) > threshold)
             threshold = alpha(i,x1);
-      threshold *= 1e-6;
+      threshold *= threshold_outer;
       for(int d=0; d<q; d++)
          {
          real p = 0;

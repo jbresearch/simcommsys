@@ -32,6 +32,10 @@ namespace libcomm {
 
 template <class real, class sig=sigspace> class fba2 {
 private:
+   /*! \name Static parameters */
+   static const double  threshold_inner;
+   static const double  threshold_outer;
+   // @}
    /*! \name User-defined parameters */
    int   N;       //!< The transmitted block size in symbols
    int   n;       //!< The number of bits encoding each q-ary symbol
