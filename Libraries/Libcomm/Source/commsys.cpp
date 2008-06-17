@@ -213,12 +213,21 @@ template <class S, class R> void basic_commsys<S,R>::cycleonce(libbase::vector<d
    // Full cycle from Encode through Demodulate
    transmitandreceive(source);
    // For every iteration
+   libbase::vector<int> decoded;
    for(int i=0; i<iter; i++)
       {
       // Decode & update results
-      libbase::vector<int> decoded;
       cdc->decode(decoded);
       R::updateresults(result, i, source, decoded);
+      }
+   // Keep record of what we last simulated
+   assert(source.size() == tau);
+   assert(decoded.size() == tau);
+   last_event.init(2*tau);
+   for(int i=0; i<tau; i++)
+      {
+      last_event(i) = source(i);
+      last_event(i+tau) = decoded(i);
       }
    }
 

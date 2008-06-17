@@ -84,6 +84,12 @@ int main(int argc, char *argv[])
       system->sample(result);
       system->accumulate(result);
       } while(result.min() == 0);
+   cerr << "Event found after " << system->get_samplecount() << " samples\n";
+   // Display results
+   libbase::vector<int> last_event = system->get_event();
+   const int tau = last_event.size()/2;
+   for(int i=0; i<tau; i++)
+      cout << last_event(i) << '\t' << last_event(i+tau) << '\n';
 
    return 0;
    }

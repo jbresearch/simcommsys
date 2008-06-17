@@ -19,40 +19,6 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
-
-   \version 1.10 (2 Sep 1999)
-   added a hook for clients to know the number of frames simulated in a particular run.
-
-   \version 1.11 (26 Oct 2001)
-   added a virtual destroy function (see interleaver.h)
-
-   \version 1.12 (6 Mar 2002)
-   changed vcs version variable from a global to a static class variable.
-
-   \version 1.20 (30 Oct 2006)
-   - defined class and associated data within "libcomm" namespace.
-
-   \version 1.30 (24 Apr 2007)
-   - added serialization facility requirement, to facilitate passing the experiment
-    over the network pipe for masterslave implementation.
-
-   \version 1.40 (18 Dec 2007)
-   - Modified definition of sample() so that only a *single* sample is performed.
-     This is essential so that the moments of the results are meaningful and can
-     be used to determine convergence/tolerance. Any multiple-sampling should be
-     done elsewhere (e.g. in montecarlo::slave_work).
-
-   \version 1.41 (17 Jan 2008)
-   - Renamed set/get to set_parameter/get_parameter
-
-   \version 1.42 (22 Jan 2008)
-   - Removed 'friend' declaration of stream operators.
-
-   \version 1.50 (6 May 2008)
-   - replaced serialization support with macros
-   - added function definitions for accumulating results and computing the
-     related estimates and standard error. This moves the responsibility for
-     doing this from montecarlo to the experiment object.
 */
 
 class experiment {
@@ -96,7 +62,7 @@ public:
    /*! \name Experiment handling */
    /*!
       \brief Perform the experiment and return a single sample
-      \param[out] result   Vector containing the set of results for the experiment
+      \param[out] result   The set of results for the experiment
    */
    virtual void sample(libbase::vector<double>& result) = 0;
    /*!
@@ -110,6 +76,11 @@ public:
       \brief Title/description of result at index 'i'
    */
    virtual std::string result_description(int i) const = 0;
+   /*!
+      \brief Return the simulated event from the last sample
+      \return An experiment-specific description of the last event
+   */
+   virtual libbase::vector<int> get_event() const = 0;
    // @}
 
    /*! \name Result accumulator interface */
@@ -175,9 +146,8 @@ public:
    - $Date$
    - $Author$
 
-   \version 1.00 (6 May 2008)
-   - Initial version; implements the accumulator functions required by the
-     experiment class, moved from current implementation in montecarlo.
+   Implements the accumulator functions required by the experiment class,
+   moved from previous implementation in montecarlo.
 */
 
 class experiment_normal : public experiment {
@@ -208,9 +178,7 @@ public:
    - $Date$
    - $Author$
 
-   \version 1.00 (6 May 2008)
-   - Initial version; implements the accumulator functions required by the
-     experiment class.
+   Implements the accumulator functions required by the experiment class.
 */
 
 class experiment_binomial : public experiment {

@@ -86,6 +86,9 @@ protected:
    int  k;     //!< Bit width for source data symbols (\f$ K = 2^k \f$)
    int  iter;  //!< Number of iterations the decoder will do
    // @}
+   /*! \name Internal state */
+   libbase::vector<int> last_event;
+   // @}
 protected:
    /*! \name Setup functions */
    void init();
@@ -122,6 +125,7 @@ public:
    int count() const { return R::count(); };
    int get_multiplicity(int i) const { return R::get_multiplicity(i); };
    std::string result_description(int i) const { return R::result_description(i); };
+   libbase::vector<int> get_event() const { return last_event; };
 
    /*! \name Component object handles */
    //! Get error-control codec
