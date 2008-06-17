@@ -25,7 +25,7 @@ template <class real> int dminner2<real>::fill(int i, libbase::bitfield suffix, 
       {
       assert(n >= 1 && n <= 32);
       assert(k >= 1 && k <= n);
-      userspecified = false;
+      user_lut = false;
       lutname = "sequential";
       lut.init(num_symbols());
       suffix = "";
@@ -198,7 +198,7 @@ template <class real> void dminner2<real>::demodulate(const channel<bool>& chan,
    const int dxmax = bsid::compute_xmax(n, Pd, bsid::compute_I(n, Pd));
    checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
-   fba2<real,bool>::init(N, n, q, I, xmax, dxmax);
+   fba2<real,bool>::init(N, n, q, I, xmax, dxmax, th_inner, th_outer);
    fba2<real,bool>::prepare(rx);
    libbase::matrix<real> p;
    fba2<real,bool>::work_results(rx,p);
@@ -218,7 +218,10 @@ template <class real> void dminner2<real>::demodulate(const channel<bool>& chan,
 template <class real> std::string dminner2<real>::description() const
    {
    std::ostringstream sout;
-   sout << "DM Inner Code (" << n << "/" << k << ", " << lutname << " codebook)";
+   sout << "Alternative DM Inner Code (" << n << "/" << k << ", " << lutname << " codebook";
+   if(user_threshold)
+      sout << ", thresholds " << th_inner << "/" << th_outer;
+   sout << ")";
    return sout.str();
    }
 
@@ -226,10 +229,16 @@ template <class real> std::string dminner2<real>::description() const
 
 template <class real> std::ostream& dminner2<real>::serialize(std::ostream& sout) const
    {
+   sout << user_threshold << '\n';
+   if(user_threshold)
+      {
+      sout << th_inner << '\n';
+      sout << th_outer << '\n';
+      }
    sout << n << '\n';
    sout << k << '\n';
-   sout << userspecified << '\n';
-   if(userspecified)
+   sout << user_lut << '\n';
+   if(user_lut)
       {
       sout << lutname << '\n';
       assert(lut.size() == num_symbols());
@@ -244,10 +253,30 @@ template <class real> std::ostream& dminner2<real>::serialize(std::ostream& sout
 template <class real> std::istream& dminner2<real>::serialize(std::istream& sin)
    {
    free();
+   std::streampos start = sin.tellg();
+   sin >> user_threshold;
+   // deal with inexistent flag as 'false'
+   if(sin.fail())
+      {
+      sin.clear();
+      sin.seekg(start);
+      user_threshold = false;
+      }
+   // read or set default thresholds
+   if(user_threshold)
+      {
+      sin >> th_inner;
+      sin >> th_outer;
+      }
+   else
+      {
+      th_inner = 1e-15;
+      th_outer = 1e-6;
+      }
    sin >> n;
    sin >> k;
-   sin >> userspecified;
-   if(userspecified)
+   sin >> user_lut;
+   if(user_lut)
       {
       sin >> lutname;
       lut.init(num_symbols());

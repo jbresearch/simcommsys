@@ -43,14 +43,11 @@ namespace libcomm {
 */
 
 template <class real, class sig=sigspace> class fba {
-   /*! \name Static parameters */
-   static const double  threshold_inner;
-   static const double  threshold_outer;
-   // @}
    /*! \name User-defined parameters */
    int   tau;           //!< The (transmitted) block size in bits
    int   I;             //!< The maximum number of insertions considered before every transmission
    int   xmax;          //!< The maximum allowed drift overall
+   double th_inner;  //!< Threshold factor for inner cycle
    // @}
    /*! \name Internally-used objects */
    bool  initialised;   //!< Flag to indicate when memory is allocated
@@ -71,23 +68,18 @@ protected:
    virtual real P(const int a, const int b) = 0;
    virtual real Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
    // @}
+public:
    /*! \name Constructors / Destructors */
    //! Default constructor
    fba() { initialised = false; };
-   // @}
-public:
-   /*! \name Constructors / Destructors */
-   fba(int tau, int I, int xmax) { init(tau, I, xmax); };
    virtual ~fba() {};
    // @}
 
    // main initialization routine
-   void init(int tau, int I, int xmax);
+   void init(int tau, int I, int xmax, double th_inner);
    // getters for forward and backward metrics
    real getF(const int j, const int y) const { return mF(j,y+xmax); };
    real getB(const int j, const int y) const { return mB(j,y+xmax); };
-   // getter for threshold values
-   double get_outerthreshold() const { return threshold_outer; };
    // decode functions
    void work_forward(const libbase::vector<sig>& r);
    void work_backward(const libbase::vector<sig>& r);

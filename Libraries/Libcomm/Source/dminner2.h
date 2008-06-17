@@ -36,9 +36,12 @@ private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
    int      k;                //!< number of bits in message (input) symbol
-   bool     userspecified;    //!< flag indicating that LUT is supplied by user
+   bool     user_lut;         //!< flag indicating that LUT is supplied by user
    std::string lutname;       //!< name to describe codebook
    libbase::vector<int> lut;  //!< sparsifier LUT
+   bool     user_threshold;   //!< flag indicating that LUT is supplied by user
+   double   th_inner;         //!< Threshold factor for inner cycle
+   double   th_outer;         //!< Threshold factor for outer cycle
    // @}
    /*! \name Pre-computed parameters */
    // @}
