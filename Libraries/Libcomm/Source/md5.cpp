@@ -253,6 +253,8 @@ bool md5::operator!=(const md5& x) const
 bool md5::verify(const std::string message, const std::string hash)
    {
    reset();
+   // process requires a pass by reference, which cannot be done by
+   // direct conversion.
    std::istringstream s(message);
    process(s);
    return hash == std::string(*this);
