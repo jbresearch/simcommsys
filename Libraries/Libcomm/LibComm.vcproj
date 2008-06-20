@@ -455,6 +455,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\digest32.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\dminner.cpp"
 				>
 			</File>
@@ -1333,6 +1337,10 @@
 			</File>
 			<File
 				RelativePath="Source\diffturbo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\digest32.h"
 				>
 			</File>
 			<File

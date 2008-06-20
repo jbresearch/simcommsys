@@ -53,11 +53,12 @@ void montecarlo::slave_getcode(void)
    std::istringstream is(systemstring);
    is >> system;
    // Compute its digest
-   sysdigest.process(systemstring);
+   is.seekg(0);
+   sysdigest.process(is);
    // Tell the user what we've done
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << system->description() << "\n";
-   cerr << "Digest: " << sysdigest << "\n";
+   cerr << "Digest: " << std::string(sysdigest) << "\n";
    }
 
 void montecarlo::slave_getparameter(void)
@@ -351,7 +352,7 @@ bool montecarlo::readpendingslaves()
       if(!receive(s, estsamplecount) || !receive(s, eststate))
          continue;
       // check that results correspond to system under simulation
-      if(sysdigest != sha(simdigest) || simparameter != system->get_parameter())
+      if(std::string(sysdigest) != simdigest || simparameter != system->get_parameter())
          {
          trace << "DEBUG (estimate): Slave returned invalid results (" << s << "), re-initializing.\n";
          resetslave(s);
@@ -543,7 +544,7 @@ void montecarlo::lookforstate(std::istream& sin)
    {
    assert(sin.good());
    // state variables to read
-   sha digest;
+   std::string digest;
    double parameter = 0;
    libbase::int64u samplecount = 0;
    vector<double> state;
@@ -555,7 +556,7 @@ void montecarlo::lookforstate(std::istream& sin)
       std::string s;
       getline(sin, s);
       if(s.substr(0,10) == "## System:")
-         digest = sha(s.substr(10));
+         digest = s.substr(10);
       else if(s.substr(0,13) == "## Parameter:")
          std::istringstream(s.substr(13)) >> parameter;
       else if(s.substr(0,11) == "## Samples:")
@@ -573,7 +574,7 @@ void montecarlo::lookforstate(std::istream& sin)
    // reset file
    sin.clear();
    // check that results correspond to system under simulation
-   if(digest == sysdigest && parameter == system->get_parameter())
+   if(digest == std::string(sysdigest) && parameter == system->get_parameter())
       {
       cerr << "NOTICE: Reloading state with " << samplecount << " samples.\n";
       system->accumulate_state(samplecount, state);      
@@ -597,7 +598,8 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    // create string representation of system
    std::string systemstring = get_systemstring();
    // compute its digest
-   sysdigest.process(systemstring);
+   std::istringstream is(systemstring);
+   sysdigest.process(is);
 
    // Write results header if this hasn't been done yet
    if(!fname.empty() && !headerwritten)
