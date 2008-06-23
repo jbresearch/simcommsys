@@ -31,6 +31,7 @@ class digest32 {
 protected:
    /*! \name Internally-used objects */
    libbase::vector<libbase::int32u> m_hash;  //!< Current hash value
+   bool lsbfirst;             //!< Bytes are placed in least-significant byte positions first
    // @}
    /*! \name Digest-specific functions */
    virtual void derived_reset() = 0;

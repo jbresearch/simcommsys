@@ -40,8 +40,9 @@ void digest32::reset()
 /*!
    \brief Converts a 64-byte block and passes for processing
 
-   Bytes in the input buffer are placed in least-significant byte positions
-   of the 16x32-bit block first (ie. message block is little-endian).
+   Depending on flag, bytes in the input buffer are placed in least-
+   significant byte positions of the 16x32-bit block first (ie. message
+   block is little-endian).
 
    \note If there are less than 64 bytes, padding is applied
 
@@ -57,11 +58,11 @@ void digest32::process(const char *buf, int size)
    libbase::vector<libbase::int32u> M(16);
    M = 0;
    for(int i=0; i<size; i++)
-      M(i>>2) |= libbase::int8u(buf[i]) << 8*(i & 3);
+      M(i>>2) |= libbase::int8u(buf[i]) << 8*(lsbfirst ? (i & 3) : 3-(i & 3));
    // add padding (1-bit followed by zeros) if it fits and is necessary
    if(size < 64 && !m_padded)
       {
-      M(size>>2) |= libbase::int8u(0x80) << 8*(size & 3);
+      M(size>>2) |= libbase::int8u(0x80) << 8*(lsbfirst ? (size & 3) : 3-(size & 3));
       m_padded = true;
       }
    // update size counter
@@ -71,8 +72,8 @@ void digest32::process(const char *buf, int size)
    if(size < 64-8 && !m_terminated)
       {
       assert((m_size >> 61) == 0);
-      M(14) = libbase::int32u(m_size << 3);
-      M(15) = libbase::int32u(m_size >> 29);
+      M(lsbfirst ? 14 : 15) = libbase::int32u(m_size << 3);
+      M(lsbfirst ? 15 : 14) = libbase::int32u(m_size >> 29);
       m_terminated = true;
       }
    // go through the digest algorithm

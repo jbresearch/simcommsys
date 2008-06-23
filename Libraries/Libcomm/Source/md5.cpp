@@ -38,6 +38,8 @@ md5::md5()
    // reset chaining variables
    m_hash.init(4);
    m_hash = 0;
+   // set byte-order flag
+   lsbfirst = true;
    // initialise constants if not yet done
    if(t.size() == 0)
       {
@@ -83,39 +85,39 @@ void md5::process_block(const libbase::vector<libbase::int32u>& M)
 
 void md5::selftest()
    {
+   // set flag to avoid re-entry
+   tested = true;
    libbase::trace << "md5: Testing implementation\n";
    // http://www.faqs.org/rfcs/rfc1321.html
    std::string sMessage, sHash;
    // Test libbase::vector 0
    sMessage = "";
    sHash = "d41d8cd98f00b204e9800998ecf8427e";
-   assert(verify(sMessage,sHash));
+   assertalways(verify(sMessage,sHash));
    // Test libbase::vector 1
    sMessage = "a";
    sHash = "0cc175b9c0f1b6a831c399e269772661";
-   assert(verify(sMessage,sHash));
+   assertalways(verify(sMessage,sHash));
    // Test libbase::vector 2
    sMessage = "abc";
    sHash = "900150983cd24fb0d6963f7d28e17f72";
-   assert(verify(sMessage,sHash));
+   assertalways(verify(sMessage,sHash));
    // Test libbase::vector 3
    sMessage = "message digest";
    sHash = "f96b697d7cb7938d525a2f31aaf161d0";
-   assert(verify(sMessage,sHash));
+   assertalways(verify(sMessage,sHash));
    // Test libbase::vector 4
    sMessage = "abcdefghijklmnopqrstuvwxyz";
    sHash = "c3fcd3d76192e4007dfb496cca67e13b";
-   assert(verify(sMessage,sHash));
+   assertalways(verify(sMessage,sHash));
    // Test libbase::vector 5
    sMessage = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
    sHash = "d174ab98d277d9f5a5611c2c9f419d9f";
-   assert(verify(sMessage,sHash));
+   assertalways(verify(sMessage,sHash));
    // Test libbase::vector 6
    sMessage = "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
    sHash = "57edf4a22be3c955ac49da2e2107b67a";
-   assert(verify(sMessage,sHash));
-   // return ok
-   tested = true;
+   assertalways(verify(sMessage,sHash));
    }
 
 bool md5::verify(const std::string message, const std::string hash)

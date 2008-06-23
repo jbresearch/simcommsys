@@ -13,6 +13,10 @@
 
 namespace libcomm {
 
+// Static values
+
+bool sha::tested = false;
+
 // Const values
 
 const libbase::int32u sha::K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
@@ -24,6 +28,11 @@ sha::sha()
    // reset chaining variables
    m_hash.init(5);
    m_hash = 0;
+   // set byte-order flag
+   lsbfirst = false;
+   // perform implementation tests on algorithm, exit on failure
+   if(!tested)
+      selftest();
    }
 
 // Digest-specific functions
@@ -59,6 +68,52 @@ void sha::process_block(const libbase::vector<libbase::int32u>& M)
       }
    // add back variables
    m_hash += hash;
+   }
+
+// Verification function
+
+void sha::selftest()
+   {
+   // set flag to avoid re-entry
+   tested = true;
+   libbase::trace << "sha: Testing implementation\n";
+   // http://www.faqs.org/rfcs/rfc3174.html
+   std::string sMessage, sHash;
+   // Test libbase::vector 0
+   sMessage = "";
+   sHash = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 1
+   sMessage = "abc";
+   sHash = "a9993e364706816aba3e25717850c26c9cd0d89d";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 2
+   sMessage = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+   sHash = "84983e441c3bd26ebaae4aa1f95129e5e54670f1";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 3
+   sMessage = "";
+   for(int i=0; i<1000000; i++)
+      sMessage += "a";
+   sHash = "34aa973cd4c4daa4f61eeb2bdbad27316534016f";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 4
+   sMessage = "";
+   for(int i=0; i<10; i++)
+      sMessage += "0123456701234567012345670123456701234567012345670123456701234567";
+   sHash = "dea356a2cddd90c7a7ecedc5ebb563934f460452";
+   assertalways(verify(sMessage,sHash));
+   }
+
+bool sha::verify(const std::string message, const std::string hash)
+   {
+   sha d;
+   d.reset();
+   // process requires a pass by reference, which cannot be done by
+   // direct conversion.
+   std::istringstream s(message);
+   d.process(s);
+   return hash == std::string(d);
    }
 
 // SHA nonlinear function implementations

@@ -19,16 +19,21 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   Implements Secure Hash Algorithm, as specified in Schneier, "Applied
-   Cryptography", 1996, pp.442-445.
+   Implements Secure Hash Algorithm SHA-1 (160-bit), as specified in
+   Schneier, "Applied Cryptography", 1996, pp.442-445.
 */
 
 class sha : public digest32 {
    /*! \name Class-wide constants */
+   static bool tested;        //!< Flag to indicate self-test has been done
    static const libbase::int32u K[];         //!< Additive constants
    // @}
 protected:
    /*! \name Internal functions */
+   // self-test function
+   static void selftest();
+   // verification function
+   static bool verify(const std::string message, const std::string hash);
    // Nonlinear functions
    static libbase::int32u f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z);
    // Circular shift
