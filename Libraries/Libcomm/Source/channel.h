@@ -31,7 +31,8 @@ namespace libcomm {
    \todo Think out and update cloning/serialization interface
 */
 
-template <class S> class basic_channel {
+template <class S, template<class> class C>
+class basic_channel {
 protected:
    /*! \name Derived channel representation */
    libbase::randgen  r;
@@ -80,7 +81,7 @@ public:
 
       \callergraph
    */
-   virtual void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx);
+   virtual void transmit(const C<S>& tx, C<S>& rx);
    /*!
       \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
              corresponding to one transmission step
@@ -93,7 +94,7 @@ public:
 
       \callergraph
    */
-   virtual void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const;
+   virtual void receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const;
    /*!
       \brief Determine the likelihood of a sequence of received modulation symbols, given
              a particular transmitted sequence
@@ -103,7 +104,7 @@ public:
 
       \callergraph
    */
-   virtual double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const;
+   virtual double receive(const C<S>& tx, const C<S>& rx) const;
    /*!
       \brief Determine the likelihood of a sequence of received modulation symbols, given
              a particular transmitted symbol
@@ -113,7 +114,7 @@ public:
 
       \callergraph
    */
-   virtual double receive(const S& tx, const libbase::vector<S>& rx) const;
+   virtual double receive(const S& tx, const C<S>& rx) const;
    // @}
 
    /*! \name Description */
@@ -124,7 +125,8 @@ public:
 
 // channel functions
 
-template <class S> void basic_channel<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
+template <class S, template<class> class C>
+void basic_channel<S,C>::transmit(const C<S>& tx, C<S>& rx)
    {
    // Initialize results vector
    rx.init(tx);
@@ -133,7 +135,8 @@ template <class S> void basic_channel<S>::transmit(const libbase::vector<S>& tx,
       rx(i) = corrupt(tx(i));
    }
 
-template <class S> void basic_channel<S>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const
+template <class S, template<class> class C>
+void basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
    const int tau = rx.size();
@@ -146,7 +149,8 @@ template <class S> void basic_channel<S>::receive(const libbase::vector<S>& tx, 
          ptable(t,x) = pdf(tx(x), rx(t));
    }
 
-template <class S> double basic_channel<S>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const
+template <class S, template<class> class C>
+double basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx) const
    {
    // Compute sizes
    const int tau = rx.size();
@@ -159,7 +163,8 @@ template <class S> double basic_channel<S>::receive(const libbase::vector<S>& tx
    return p;
    }
 
-template <class S> double basic_channel<S>::receive(const S& tx, const libbase::vector<S>& rx) const
+template <class S, template<class> class C>
+double basic_channel<S,C>::receive(const S& tx, const C<S>& rx) const
    {
    // This implementation only works for substitution channels
    assert(rx.size() == 1);
@@ -179,7 +184,8 @@ template <class S> double basic_channel<S>::receive(const S& tx, const libbase::
    Templated base channel model.
 */
 
-template <class S> class channel : public basic_channel<S> {
+template <class S, template<class> class C=libbase::vector>
+class channel : public basic_channel<S,C> {
    // Serialization Support
    DECLARE_BASE_SERIALIZER(channel)
 };
@@ -197,7 +203,8 @@ template <class S> class channel : public basic_channel<S> {
    channel model.
 */
 
-template <> class channel<sigspace> : public basic_channel<sigspace> {
+template <>
+class channel<sigspace> : public basic_channel<sigspace,libbase::vector> {
 private:
    /*! \name User-defined parameters */
    double   snr_db;  //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
