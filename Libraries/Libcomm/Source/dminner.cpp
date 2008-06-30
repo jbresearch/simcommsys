@@ -289,8 +289,8 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
-            const int x2min = max(-xmax,x1-min(n,dxmax));
-            const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,dxmax));
+            const int x2min = max(-xmax,max(-n,-dxmax)+x1);
+            const int x2max = min(min(xmax,min(n*I,dxmax)+x1),rx.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
