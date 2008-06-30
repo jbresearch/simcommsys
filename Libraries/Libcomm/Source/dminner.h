@@ -43,7 +43,10 @@ namespace libcomm {
          architecture to allow higher-range ptables.
 */
 
+template <class real> class dminner2;
+
 template <class real> class dminner : public modulator<bool>, private fba<real,bool> {
+   friend class dminner2<real>;
 private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
@@ -68,7 +71,7 @@ private:
    /*! \name Internal functions */
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    void createsequence(const int tau);                      
-   void checkforchanges(int I, int xmax);                      
+   void checkforchanges(int I, int xmax) const;                      
    // @}
    // Implementations of channel-specific metrics for fba
    real P(const int a, const int b);

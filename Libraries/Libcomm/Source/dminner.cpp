@@ -65,7 +65,7 @@ template <class real> void dminner<real>::createsequence(const int tau)
 
 //! Inform user if I or xmax have changed
 
-template <class real> void dminner<real>::checkforchanges(int I, int xmax)
+template <class real> void dminner<real>::checkforchanges(int I, int xmax) const
    {
    static int last_I = 0;
    static int last_xmax = 0;
