@@ -29,16 +29,22 @@ using libcomm::channel;
 using libcomm::dminner;
 using libcomm::dminner2;
 
-modulator<bool>* create_modem(int const type, int const n, int const k, libbase::random& r)
+modulator<bool>* create_modem(int const type, int const n, int const k, bool deep, libbase::random& r)
    {
    modulator<bool> *modem = NULL;
    switch(type)
       {
       case 1:
-         modem = new dminner<logrealfast>(n,k);
+         if(deep)
+            modem = new dminner<logrealfast>(n,k,1e-21,1e-12);
+         else
+            modem = new dminner<logrealfast>(n,k);
          break;
       case 2:
-         modem = new dminner2<logrealfast>(n,k);
+         if(deep)
+            modem = new dminner2<logrealfast>(n,k,1e-21,1e-12);
+         else
+            modem = new dminner2<logrealfast>(n,k);
          break;
       default:
          assertalways("Unknown decoder type.");
@@ -126,13 +132,13 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
       cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n" << std::flush;
    }
 
-void testcycle(int const type, int const seed, int const n, int const k, int const tau, double Pe=0, bool display=true)
+void testcycle(int const type, int const seed, int const n, int const k, int const tau, double Pe=0, bool deep=false, bool display=true)
    {
    // create prng for seeding systems
    libbase::randgen prng;
    prng.seed(seed);
    // create modem and channel
-   modulator<bool> *modem = create_modem(type, n, k, prng);
+   modulator<bool> *modem = create_modem(type, n, k, deep, prng);
    channel<bool> *chan = create_channel(Pe, prng);
    cout << '\n';
    cout << modem->description() << '\n';
@@ -163,23 +169,25 @@ int main(int argc, char *argv[])
    // user-defined parameters
    if(argc == 1)
       {
-      cout << "Usage: " << argv[0] << " <type> [seed [k [n [N [Pe]]]]]\n";
+      cout << "Usage: " << argv[0] << " <type> [deep [seed [k [n [N [Pe]]]]]]\n";
       cout << "Where: type = 1 for multiple-cycle with classic decoder\n";
       cout << "       type = 2 for multiple-cycle with alternative decoder\n";
       cout << "       type = 11 for single-cycle with classic decoder\n";
       cout << "       type = 12 for single-cycle with alternative decoder\n";
-      cout << "Code settings seed,n,k are used for all types;\n";
-      cout << "   Defaults to seed 0, k/n = 4/15\n";
+      cout << "Code settings deep,seed,n,k are used for all types;\n";
+      cout << "   Defaults to deep 0, seed 0, k/n = 4/15\n";
       cout << "Block size N and error probability Pe are for single-cycle.\n";
       exit(1);
       }
 
-   const int type  = atoi(argv[1]);
-   const int seed  = ((argc > 2) ? atoi(argv[2]) : 0);
-   const int k     = ((argc > 3) ? atoi(argv[3]) : 4);
-   const int n     = ((argc > 4) ? atoi(argv[4]) : 15);
-   const int N     = ((argc > 5) ? atoi(argv[5]) : 5);
-   const double Pe = ((argc > 6) ? atof(argv[6]) : Plo);
+   int i = 1;
+   const int type  = atoi(argv[i]);
+   const bool deep = ((argc > ++i) ? atoi(argv[i]) : 0) != 0;
+   const int seed  = ((argc > ++i) ? atoi(argv[i]) : 0);
+   const int k     = ((argc > ++i) ? atoi(argv[i]) : 4);
+   const int n     = ((argc > ++i) ? atoi(argv[i]) : 15);
+   const int N     = ((argc > ++i) ? atoi(argv[i]) : 5);
+   const double Pe = ((argc > ++i) ? atof(argv[i]) : Plo);
 
    // show revision information
    cout << "URL: " << __WCURL__ << "\n";
@@ -191,17 +199,17 @@ int main(int argc, char *argv[])
       case 1:
       case 2:
          // try short,medium,large codes for benchmarking at low error probability
-         testcycle(type, seed, n, k, 10, Plo, false);
-         testcycle(type, seed, n, k, 100, Plo, false);
-         testcycle(type, seed, n, k, 1000, Plo, false);
+         testcycle(type, seed, n, k, 10, Plo, deep, false);
+         testcycle(type, seed, n, k, 100, Plo, deep, false);
+         testcycle(type, seed, n, k, 1000, Plo, deep, false);
          // try short,medium codes for benchmarking at high error probability
-         testcycle(type, seed, n, k, 10, Phi, false);
-         testcycle(type, seed, n, k, 100, Phi, false);
+         testcycle(type, seed, n, k, 10, Phi, deep, false);
+         testcycle(type, seed, n, k, 100, Phi, deep, false);
          break;
 
       case 11:
       case 12:
-         testcycle(type-10, seed, n, k, N, Pe);
+         testcycle(type-10, seed, n, k, N, Pe, deep);
          break;
 
       default:
