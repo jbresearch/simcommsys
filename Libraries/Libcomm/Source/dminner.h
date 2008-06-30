@@ -84,6 +84,7 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    dminner(const int n=2, const int k=1);
+   dminner(const int n, const int k, const double th_inner, const double th_outer);
    ~dminner() { free(); };
    // @}
 
