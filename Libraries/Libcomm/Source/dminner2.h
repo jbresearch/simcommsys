@@ -66,13 +66,9 @@ protected:
    void init();
    void free();
    // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   dminner2() { mychan = NULL; };
-   // @}
 public:
    /*! \name Constructors / Destructors */
-   dminner2(const int n, const int k);
+   dminner2(const int n=2, const int k=1);
    ~dminner2() { free(); };
    // @}
 
