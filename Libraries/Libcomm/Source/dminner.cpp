@@ -20,6 +20,7 @@ namespace libcomm {
 */
 template <class real> int dminner<real>::fill(int i, libbase::bitfield suffix, int w)
    {
+   assert(!user_lut);
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
       {
@@ -83,6 +84,9 @@ template <class real> void dminner<real>::init()
    using libbase::bitfield;
    using libbase::weight;
    using libbase::trace;
+   // Fill default LUT if necessary
+   if(!user_lut)
+      fill();
 #ifndef NDEBUG
    // Display LUT when debugging
    trace << "LUT (k=" << k << ", n=" << n << "):\n";
@@ -104,6 +108,12 @@ template <class real> void dminner<real>::init()
    w.apply(weight);
    f = w.sum()/double(n * w.size());
    trace << "Watermark code density = " << f << "\n";
+   // set default thresholds if necessary
+   if(!user_threshold)
+      {
+      th_inner = 1e-15;
+      th_outer = 1e-6;
+      }
    // Seed the watermark generator and clear the sequence
    r.seed(0);
    ws.init(0);
@@ -124,8 +134,10 @@ template <class real> dminner<real>::dminner(const int n, const int k)
    // code parameters
    dminner::n = n;
    dminner::k = k;
+   // default values
+   user_lut = false;
+   user_threshold = false;
    // initialize everything else that depends on the above parameters
-   fill();
    init();
    }
 
@@ -338,11 +350,6 @@ template <class real> std::istream& dminner<real>::serialize(std::istream& sin)
       sin >> th_inner;
       sin >> th_outer;
       }
-   else
-      {
-      th_inner = 1e-15;
-      th_outer = 1e-6;
-      }
    sin >> n;
    sin >> k;
    sin >> user_lut;
@@ -358,8 +365,6 @@ template <class real> std::istream& dminner<real>::serialize(std::istream& sin)
          assertalways(n == b.size());
          }
       }
-   else
-      fill();
    init();
    return sin;
    }
