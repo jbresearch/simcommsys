@@ -18,7 +18,8 @@ namespace libcomm {
 /*!
    \brief Set up LUT with the lowest weight codewords
 */
-template <class real> int dminner<real>::fill(int i, libbase::bitfield suffix, int w)
+template <class real>
+int dminner<real>::fill(int i, libbase::bitfield suffix, int w)
    {
    assert(!user_lut);
    // set up if this is the first (root) call
@@ -55,7 +56,8 @@ template <class real> int dminner<real>::fill(int i, libbase::bitfield suffix, i
 
 //! Watermark sequence creator
 
-template <class real> void dminner<real>::createsequence(const int tau)
+template <class real>
+void dminner<real>::createsequence(const int tau)
    {
    // creates 'tau' elements of 'n' bits each
    ws.init(tau);
@@ -65,7 +67,8 @@ template <class real> void dminner<real>::createsequence(const int tau)
 
 //! Inform user if I or xmax have changed
 
-template <class real> void dminner<real>::checkforchanges(int I, int xmax) const
+template <class real>
+void dminner<real>::checkforchanges(int I, int xmax) const
    {
    static int last_I = 0;
    static int last_xmax = 0;
@@ -79,7 +82,8 @@ template <class real> void dminner<real>::checkforchanges(int I, int xmax) const
 
 // initialization / de-allocation
 
-template <class real> void dminner<real>::init()
+template <class real>
+void dminner<real>::init()
    {
    using libbase::bitfield;
    using libbase::weight;
@@ -121,7 +125,8 @@ template <class real> void dminner<real>::init()
    mychan = NULL;
    }
 
-template <class real> void dminner<real>::free()
+template <class real>
+void dminner<real>::free()
    {
    if(mychan != NULL)
       delete mychan;
@@ -129,7 +134,8 @@ template <class real> void dminner<real>::free()
 
 // constructor / destructor
 
-template <class real> dminner<real>::dminner(const int n, const int k)
+template <class real>
+dminner<real>::dminner(const int n, const int k)
    {
    // code parameters
    assert(k >= 1);
@@ -143,7 +149,8 @@ template <class real> dminner<real>::dminner(const int n, const int k)
    init();
    }
 
-template <class real> dminner<real>::dminner(const int n, const int k, const double th_inner, const double th_outer)
+template <class real>
+dminner<real>::dminner(const int n, const int k, const double th_inner, const double th_outer)
    {
    // code parameters
    assert(k >= 1);
@@ -164,13 +171,15 @@ template <class real> dminner<real>::dminner(const int n, const int k, const dou
 
 // implementations of channel-specific metrics for fba
 
-template <class real> real dminner<real>::P(const int a, const int b)
+template <class real>
+real dminner<real>::P(const int a, const int b)
    {
    const int m = b-a;
    return Ptable(m+1);
    }
 
-template <class real> real dminner<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
+template <class real>
+real dminner<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -185,7 +194,8 @@ template <class real> real dminner<real>::Q(const int a, const int b, const int 
 
 // encoding and decoding functions
 
-template <class real> void dminner<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+template <class real>
+void dminner<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Inherit sizes
    const int q = 1<<k;
@@ -220,7 +230,8 @@ template <class real> void dminner<real>::modulate(const int N, const libbase::v
 
    \todo Make demodulation independent of the previous modulation step.
 */
-template <class real> void dminner<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+template <class real>
+void dminner<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
    // Inherit block size from last modulation step
@@ -318,7 +329,8 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
 
 // description output
 
-template <class real> std::string dminner<real>::description() const
+template <class real>
+std::string dminner<real>::description() const
    {
    std::ostringstream sout;
    sout << "DM Inner Code (" << n << "/" << k << ", " << lutname << " codebook";
@@ -330,7 +342,8 @@ template <class real> std::string dminner<real>::description() const
 
 // object serialization - saving
 
-template <class real> std::ostream& dminner<real>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& dminner<real>::serialize(std::ostream& sout) const
    {
    sout << user_threshold << '\n';
    if(user_threshold)
@@ -353,7 +366,8 @@ template <class real> std::ostream& dminner<real>::serialize(std::ostream& sout)
 
 // object serialization - loading
 
-template <class real> std::istream& dminner<real>::serialize(std::istream& sin)
+template <class real>
+std::istream& dminner<real>::serialize(std::istream& sin)
    {
    free();
    std::streampos start = sin.tellg();
@@ -403,6 +417,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 
 template class dminner<logrealfast>;
-template <> const serializer dminner<logrealfast>::shelper = serializer("modulator", "dminner<logrealfast>", dminner<logrealfast>::create);
+template <>
+const serializer dminner<logrealfast>::shelper = serializer("modulator", "dminner<logrealfast>", dminner<logrealfast>::create);
 
 }; // end namespace

@@ -66,7 +66,8 @@ public:
          in signal-space to a more general mapper layer
 */
 
-template <class S, class R=commsys_errorrates> class basic_commsys
+template <class S, class R=commsys_errorrates>
+class basic_commsys
    : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */
@@ -157,7 +158,8 @@ public:
    - Integrates functionality of binary variant.
    - Explicit instantiations for bool and gf types are present.
 */
-template <class S, class R=commsys_errorrates> class commsys : public basic_commsys<S,R> {
+template <class S, class R=commsys_errorrates>
+class commsys : public basic_commsys<S,R> {
 protected:
    /*! \name Internal functions */
    void transmitandreceive(libbase::vector<int>& source);
@@ -187,7 +189,8 @@ public:
          current input files, the flag is assumed to be false (with no error)
          if we have reached the end of the stream.
 */
-template <class R> class commsys<sigspace,R> : public basic_commsys<sigspace,R> {
+template <class R>
+class commsys<sigspace,R> : public basic_commsys<sigspace,R> {
 protected:
    /*! \name Bound objects */
    puncture             *punc;   //!< Puncturing (operates on signal-space symbols)

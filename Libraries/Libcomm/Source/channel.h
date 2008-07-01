@@ -31,7 +31,8 @@ namespace libcomm {
    \todo Think out and update cloning/serialization interface
 */
 
-template <class S, template<class> class C>
+template <class S, template<class>
+class C>
 class basic_channel {
 protected:
    /*! \name Derived channel representation */
@@ -125,7 +126,8 @@ public:
 
 // channel functions
 
-template <class S, template<class> class C>
+template <class S, template<class>
+class C>
 void basic_channel<S,C>::transmit(const C<S>& tx, C<S>& rx)
    {
    // Initialize results vector
@@ -135,7 +137,8 @@ void basic_channel<S,C>::transmit(const C<S>& tx, C<S>& rx)
       rx(i) = corrupt(tx(i));
    }
 
-template <class S, template<class> class C>
+template <class S, template<class>
+class C>
 void basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
@@ -149,7 +152,8 @@ void basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx, libbase::matrix
          ptable(t,x) = pdf(tx(x), rx(t));
    }
 
-template <class S, template<class> class C>
+template <class S, template<class>
+class C>
 double basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx) const
    {
    // Compute sizes
@@ -163,7 +167,8 @@ double basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx) const
    return p;
    }
 
-template <class S, template<class> class C>
+template <class S, template<class>
+class C>
 double basic_channel<S,C>::receive(const S& tx, const C<S>& rx) const
    {
    // This implementation only works for substitution channels
@@ -184,7 +189,8 @@ double basic_channel<S,C>::receive(const S& tx, const C<S>& rx) const
    Templated base channel model.
 */
 
-template <class S, template<class> class C=libbase::vector>
+template <class S, template<class>
+class C=libbase::vector>
 class channel : public basic_channel<S,C> {
    // Serialization Support
    DECLARE_BASE_SERIALIZER(channel)

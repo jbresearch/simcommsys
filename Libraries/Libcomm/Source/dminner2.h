@@ -22,7 +22,8 @@ namespace libcomm {
    Insertions, Deletions, and Substitutions", Trans. IT, Feb 2001.
 */
 
-template <class real> class dminner2 : public dminner<real>, private fba2<real,bool> {
+template <class real>
+class dminner2 : public dminner<real>, private fba2<real,bool> {
 private:
    // Implementations of channel-specific metrics for fba2
    real Q(int d, int i, const libbase::vector<bool>& r) const;

@@ -75,7 +75,8 @@ void TestRijndaelField()
    cout << dec;
    }
 
-template <int m, int poly> void ListField()
+template <int m, int poly>
+void ListField()
    {
    // Compute and display exponential table using {2} as a multiplier
    cout << "\nGF(" << m << ",0x" << hex << poly << dec << ") table:\n";
@@ -88,7 +89,8 @@ template <int m, int poly> void ListField()
       }
    }
 
-template <int m, int poly> void TestMulDiv()
+template <int m, int poly>
+void TestMulDiv()
    {
    // Compute and display exponential table using {2} as a multiplier
    cout << "\nGF(" << m << ",0x" << hex << poly << dec << ") multiplication/division:\n";

@@ -15,7 +15,8 @@ namespace libcomm {
 
 // implementations of channel-specific metrics for fba2
 
-template <class real> real dminner2<real>::Q(int d, int i, const libbase::vector<bool>& r) const
+template <class real>
+real dminner2<real>::Q(int d, int i, const libbase::vector<bool>& r) const
    {
    const int n = dminner<real>::n;
    // 'tx' is the vector of transmitted symbols that we're considering
@@ -36,7 +37,8 @@ template <class real> real dminner2<real>::Q(int d, int i, const libbase::vector
 
    \todo Make demodulation independent of the previous modulation step.
 */
-template <class real> void dminner2<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+template <class real>
+void dminner2<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
    const int n = dminner<real>::n;
@@ -75,7 +77,8 @@ template <class real> void dminner2<real>::demodulate(const channel<bool>& chan,
 
 // description output
 
-template <class real> std::string dminner2<real>::description() const
+template <class real>
+std::string dminner2<real>::description() const
    {
    std::ostringstream sout;
    sout << "Alternative " << dminner<real>::description();
@@ -84,14 +87,16 @@ template <class real> std::string dminner2<real>::description() const
 
 // object serialization - saving
 
-template <class real> std::ostream& dminner2<real>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& dminner2<real>::serialize(std::ostream& sout) const
    {
    return dminner<real>::serialize(sout);
    }
 
 // object serialization - loading
 
-template <class real> std::istream& dminner2<real>::serialize(std::istream& sin)
+template <class real>
+std::istream& dminner2<real>::serialize(std::istream& sin)
    {
    return dminner<real>::serialize(sin);
    }
@@ -109,6 +114,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 
 template class dminner2<logrealfast>;
-template <> const serializer dminner2<logrealfast>::shelper = serializer("modulator", "dminner2<logrealfast>", dminner2<logrealfast>::create);
+template <>
+const serializer dminner2<logrealfast>::shelper = serializer("modulator", "dminner2<logrealfast>", dminner2<logrealfast>::create);
 
 }; // end namespace

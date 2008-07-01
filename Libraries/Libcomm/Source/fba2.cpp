@@ -17,7 +17,8 @@ using libbase::vector;
 
 // Memory allocation
 
-template <class real, class sig> void fba2<real,sig>::allocate()
+template <class real, class sig>
+void fba2<real,sig>::allocate()
    {
    // determine limits
    dmin = max(-n,-dxmax);
@@ -60,7 +61,8 @@ template <class real, class sig> void fba2<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
+template <class real, class sig>
+void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
    // code parameters
    assert(N > 0);
@@ -87,7 +89,8 @@ template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, 
 
 // Internal procedures
 
-template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::work_gamma(const vector<sig>& r)
    {
    assert(initialised);
    if(!cache_enabled)
@@ -100,7 +103,8 @@ template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<si
    m_cached = false;
    }
 
-template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::work_alpha(const vector<sig>& r)
    {
    assert(initialised);
    // initialise array:
@@ -145,7 +149,8 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
    std::cerr << libbase::pacifier("FBA Alpha", N-1, N-1);
    }
 
-template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::work_beta(const vector<sig>& r)
    {
    assert(initialised);
    // initialise array:
@@ -195,7 +200,8 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
 
 // User procedures
 
-template <class real, class sig> void fba2<real,sig>::prepare(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::prepare(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -213,7 +219,8 @@ template <class real, class sig> void fba2<real,sig>::prepare(const vector<sig>&
    work_beta(r);
    }
 
-template <class real, class sig> void fba2<real,sig>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
+template <class real, class sig>
+void fba2<real,sig>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
    {
    assert(initialised);
    // Initialise result vector (one sparse symbol per timestep)

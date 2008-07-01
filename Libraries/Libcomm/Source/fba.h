@@ -42,7 +42,8 @@ namespace libcomm {
          bit j instead of j+1.
 */
 
-template <class real, class sig=sigspace> class fba {
+template <class real, class sig=sigspace>
+class fba {
    /*! \name User-defined parameters */
    int   tau;           //!< The (transmitted) block size in bits
    int   I;             //!< The maximum number of insertions considered before every transmission

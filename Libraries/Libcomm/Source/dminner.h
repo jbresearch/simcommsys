@@ -43,9 +43,11 @@ namespace libcomm {
          architecture to allow higher-range ptables.
 */
 
-template <class real> class dminner2;
+template <class real>
+class dminner2;
 
-template <class real> class dminner : public modulator<bool>, private fba<real,bool> {
+template <class real>
+class dminner : public modulator<bool>, private fba<real,bool> {
    friend class dminner2<real>;
 private:
    /*! \name User-defined parameters */

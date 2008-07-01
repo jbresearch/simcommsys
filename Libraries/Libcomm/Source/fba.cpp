@@ -17,7 +17,8 @@ using libbase::vector;
 
 // Memory allocation
 
-template <class real, class sig> void fba<real,sig>::allocate()
+template <class real, class sig>
+void fba<real,sig>::allocate()
    {
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
    // B needs indices (j,y) where j in [0, tau] and y in [-xmax, xmax]
@@ -35,7 +36,8 @@ template <class real, class sig> void fba<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig> void fba<real,sig>::init(int tau, int I, int xmax, double th_inner)
+template <class real, class sig>
+void fba<real,sig>::init(int tau, int I, int xmax, double th_inner)
    {
    // code parameters
    assert(tau > 0);
@@ -54,7 +56,8 @@ template <class real, class sig> void fba<real,sig>::init(int tau, int I, int xm
 
 // Internal procedures
 
-template <class real, class sig> void fba<real,sig>::work_forward(const vector<sig>& r)
+template <class real, class sig>
+void fba<real,sig>::work_forward(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -96,7 +99,8 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
    std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
    }
 
-template <class real, class sig> void fba<real,sig>::work_backward(const vector<sig>& r)
+template <class real, class sig>
+void fba<real,sig>::work_backward(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -142,7 +146,8 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
 
 // User procedures
 
-template <class real, class sig> void fba<real,sig>::prepare(const vector<sig>& r)
+template <class real, class sig>
+void fba<real,sig>::prepare(const vector<sig>& r)
    {
    // compute forwards and backwards passes
    work_forward(r);

@@ -25,7 +25,8 @@ using std::cerr;
 
    \todo Validate \c poly - this should be a primitive polynomial [cf. Lin & Costello, 2004, p.41]
 */
-template <int m, int poly> void gf<m,poly>::init(int value)
+template <int m, int poly>
+void gf<m,poly>::init(int value)
    {
    assert(m < 32);
    assert(value >=0 && value < (1<<m));
@@ -39,7 +40,8 @@ template <int m, int poly> void gf<m,poly>::init(int value)
    This function converts the string to an integer and calls init().
    The string must only contain 1's and 0's.
 */
-template <int m, int poly> void gf<m,poly>::init(const char *s)
+template <int m, int poly>
+void gf<m,poly>::init(const char *s)
    {
    int32u value = 0;
    const char *p;
@@ -56,7 +58,8 @@ template <int m, int poly> void gf<m,poly>::init(const char *s)
 
 // Conversion operations
 
-template <int m, int poly> gf<m,poly>::operator std::string() const
+template <int m, int poly>
+gf<m,poly>::operator std::string() const
    {
    std::string sTemp;
    for(int i=m-1; i>=0; i--)
@@ -75,7 +78,8 @@ template <int m, int poly> gf<m,poly>::operator std::string() const
    in the polynomial representation. When the field characteristic is 2 (ie. for extensions
    of a binary field), addition of the coefficients is equivalent to an XOR operation.
 */
-template <int m, int poly> gf<m,poly>& gf<m,poly>::operator+=(const gf<m,poly>& x)
+template <int m, int poly>
+gf<m,poly>& gf<m,poly>::operator+=(const gf<m,poly>& x)
    {
    value ^= x.value;
    return *this;
@@ -90,7 +94,8 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator+=(const gf<m,poly>& 
    of a binary field), subtraction of the coefficients is equivalent to an XOR operation, and
    therefore equivalent to addition.
 */
-template <int m, int poly> gf<m,poly>& gf<m,poly>::operator-=(const gf<m,poly>& x)
+template <int m, int poly>
+gf<m,poly>& gf<m,poly>::operator-=(const gf<m,poly>& x)
    {
    value ^= x.value;
    return *this;
@@ -107,7 +112,8 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator-=(const gf<m,poly>& 
 
    [cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, pp.3-4]
 */
-template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& x)
+template <int m, int poly>
+gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& x)
    {
    // Copy the multiplier (A) and multiplicand (B)
    int32u A = value;
@@ -142,7 +148,8 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator*=(const gf<m,poly>& 
 
    In this implementation, we use the multiplicatve inverse method.
 */
-template <int m, int poly> gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& x)
+template <int m, int poly>
+gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& x)
    {
    return *this *= x.inverse();
    }
@@ -155,7 +162,8 @@ template <int m, int poly> gf<m,poly>& gf<m,poly>::operator/=(const gf<m,poly>& 
 
    In this implementation, we use the brute force search method.
 */
-template <int m, int poly> gf<m,poly> gf<m,poly>::inverse() const
+template <int m, int poly>
+gf<m,poly> gf<m,poly>::inverse() const
    {
    gf<m,poly> I = 1;
    gf<m,poly> r = 1;

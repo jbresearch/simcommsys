@@ -24,7 +24,8 @@ using libbase::matrix;
    Note that if the trellis is not defined as starting or ending at zero, then it is assumed that
    all starting and ending states (respectively) are equiprobable.
 */
-template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const int tau)
+template <class real, class dbl>
+void bcjr<real,dbl>::init(fsm& encoder, const int tau)
    {
    if(tau < 1)
       {
@@ -58,7 +59,8 @@ template <class real, class dbl> void bcjr<real,dbl>::init(fsm& encoder, const i
 
 // Get start- and end-state probabilities
 
-template <class real, class dbl> vector<dbl> bcjr<real,dbl>::getstart() const
+template <class real, class dbl>
+vector<dbl> bcjr<real,dbl>::getstart() const
    {
    vector<dbl> r(M);
    for(int m=0; m<M; m++)
@@ -66,7 +68,8 @@ template <class real, class dbl> vector<dbl> bcjr<real,dbl>::getstart() const
    return r;
    }
 
-template <class real, class dbl> vector<dbl> bcjr<real,dbl>::getend() const
+template <class real, class dbl>
+vector<dbl> bcjr<real,dbl>::getend() const
    {
    vector<dbl> r(M);
    for(int m=0; m<M; m++)
@@ -76,7 +79,8 @@ template <class real, class dbl> vector<dbl> bcjr<real,dbl>::getend() const
 
 // Set start- and end-state probabilities - equiprobable
 
-template <class real, class dbl> void bcjr<real,dbl>::setstart()
+template <class real, class dbl>
+void bcjr<real,dbl>::setstart()
    {
    if(!initialised)
       allocate();
@@ -84,7 +88,8 @@ template <class real, class dbl> void bcjr<real,dbl>::setstart()
       alpha(0, m) = 1.0/double(M);
    }
 
-template <class real, class dbl> void bcjr<real,dbl>::setend()
+template <class real, class dbl>
+void bcjr<real,dbl>::setend()
    {
    if(!initialised)
       allocate();
@@ -94,7 +99,8 @@ template <class real, class dbl> void bcjr<real,dbl>::setend()
 
 // Set start- and end-state probabilities - known state
 
-template <class real, class dbl> void bcjr<real,dbl>::setstart(int state)
+template <class real, class dbl>
+void bcjr<real,dbl>::setstart(int state)
    {
    if(!initialised)
       allocate();
@@ -103,7 +109,8 @@ template <class real, class dbl> void bcjr<real,dbl>::setstart(int state)
    alpha(0, state) = 1;
    }
 
-template <class real, class dbl> void bcjr<real,dbl>::setend(int state)
+template <class real, class dbl>
+void bcjr<real,dbl>::setend(int state)
    {
    if(!initialised)
       allocate();
@@ -114,7 +121,8 @@ template <class real, class dbl> void bcjr<real,dbl>::setend(int state)
 
 // Set start- and end-state probabilities - direct
 
-template <class real, class dbl> void bcjr<real,dbl>::setstart(const libbase::vector<dbl>& p)
+template <class real, class dbl>
+void bcjr<real,dbl>::setstart(const libbase::vector<dbl>& p)
    {
    assert(p.size() == M);
    if(!initialised)
@@ -123,7 +131,8 @@ template <class real, class dbl> void bcjr<real,dbl>::setstart(const libbase::ve
       alpha(0, m) = p(m);
    }
 
-template <class real, class dbl> void bcjr<real,dbl>::setend(const libbase::vector<dbl>& p)
+template <class real, class dbl>
+void bcjr<real,dbl>::setend(const libbase::vector<dbl>& p)
    {
    assert(p.size() == M);
    if(!initialised)
@@ -134,7 +143,8 @@ template <class real, class dbl> void bcjr<real,dbl>::setend(const libbase::vect
 
 // Memory allocation
 
-template <class real, class dbl> void bcjr<real,dbl>::allocate()
+template <class real, class dbl>
+void bcjr<real,dbl>::allocate()
    {
    // to save space, gamma is defined from 0 to tau-1, rather than 1 to tau.
    // for this reason, gamma_t (and only gamma_t) is actually written gamma[t-1, ...
@@ -149,13 +159,15 @@ template <class real, class dbl> void bcjr<real,dbl>::allocate()
 // Internal functions
 
 //! State probability metric - lambda(t,m) = Pr{S(t)=m, Y[1..tau]}
-template <class real, class dbl> real bcjr<real,dbl>::lambda(const int t, const int m)
+template <class real, class dbl>
+real bcjr<real,dbl>::lambda(const int t, const int m)
    {
    return alpha(t, m) * beta(t, m);
    }
 
 //! Transition probability metric - sigma(t,m,i) = Pr{S(t-1)=m, S(t)=m(m,i), Y[1..tau]}
-template <class real, class dbl> real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
+template <class real, class dbl>
+real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
    {
    int mdash = lut_m(m, i);
    return alpha(t-1, m) * gamma(t-1, m, i) * beta(t, mdash);
@@ -178,7 +190,8 @@ template <class real, class dbl> real bcjr<real,dbl>::sigma(const int t, const i
    because the BCJR algorithm cannot determine between two parallel paths anyway (algorithm is
    useless in such cases). Same applies to viterbi algorithm.
 */
-template <class real, class dbl> void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R)
+template <class real, class dbl>
+void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R)
    {
    for(int t=1; t<=tau; t++)
       for(int mdash=0; mdash<M; mdash++)
@@ -199,7 +212,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_gamma(const matrix<db
    For all values of t in [1,tau], the gamma values are worked out as specified by the BCJR equation.
    This function also makes use of the a priori probabilities associated with the input.
 */
-template <class real, class dbl> void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R, const matrix<dbl>& app)
+template <class real, class dbl>
+void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R, const matrix<dbl>& app)
    {
    for(int t=1; t<=tau; t++)
       for(int mdash=0; mdash<M; mdash++)
@@ -217,7 +231,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_gamma(const matrix<db
    the matrix is recursively computed. Initial alpha values are set in the creator and are never
    changed in the object's lifetime.
 */
-template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
+template <class real, class dbl>
+void bcjr<real,dbl>::work_alpha()
    {
    // using the computed gamma values, work out all alpha values at time t
    for(int t=1; t<=tau; t++)
@@ -251,7 +266,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_alpha()
    the matrix is recursively computed. Final beta values are set in the creator and are never
    changed in the object's lifetime.
 */
-template <class real, class dbl> void bcjr<real,dbl>::work_beta()
+template <class real, class dbl>
+void bcjr<real,dbl>::work_beta()
    {
    // evaluate all beta values
    for(int t=tau-1; t>=0; t--)
@@ -294,7 +310,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_beta()
    state mdash before the transition being considered (we care about the transition because this
    determines the input and output symbols represented).
 */
-template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& ri, matrix<dbl>& ro)
+template <class real, class dbl>
+void bcjr<real,dbl>::work_results(matrix<dbl>& ri, matrix<dbl>& ro)
    {
    // Compute probability of received sequence
    real Py = 0;
@@ -323,7 +340,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& 
    Py (the probability of having received the received sequence of modulation symbols). Next, we
    compute the results by doing the appropriate summations on sigma.
 */
-template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& ri)
+template <class real, class dbl>
+void bcjr<real,dbl>::work_results(matrix<dbl>& ri)
    {
    // Compute probability of received sequence
    real Py = 0;
@@ -349,7 +367,8 @@ template <class real, class dbl> void bcjr<real,dbl>::work_results(matrix<dbl>& 
    \brief   Function to normalize results vectors
    \param   r     matrix with results - first index represents time-step
 */
-template <class real, class dbl> void bcjr<real,dbl>::normalize(matrix<dbl>& r)
+template <class real, class dbl>
+void bcjr<real,dbl>::normalize(matrix<dbl>& r)
    {
    for(int t=0; t<r.xsize(); t++)
       {
@@ -377,7 +396,8 @@ template <class real, class dbl> void bcjr<real,dbl>::normalize(matrix<dbl>& r)
    \param   ro    ro(t-1, X) = (result) a posteriori probability of having transmitted (output value)
                   X at time t (result)
 */
-template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& ro)
+template <class real, class dbl>
+void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& ro)
    {
    assert(initialised);
    work_gamma(R);
@@ -397,7 +417,8 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
    \param   ro    ro(t-1, X) = (result) a posteriori probability of having transmitted (output value)
                   X at time t (result)
 */
-template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri, matrix<dbl>& ro)
+template <class real, class dbl>
+void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri, matrix<dbl>& ro)
    {
    assert(initialised);
    work_gamma(R, app);
@@ -413,7 +434,8 @@ template <class real, class dbl> void bcjr<real,dbl>::decode(const matrix<dbl>& 
    \param   ri    ri(t-1, i) is the a posteriori probability of having transmitted (input value)
                   i at time t (result)
 */
-template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
+template <class real, class dbl>
+void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
    {
    assert(initialised);
    work_gamma(R);
@@ -431,7 +453,8 @@ template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>&
    \param   ri    ri(t-1, i) is the a posteriori probability of having transmitted (input value)
                   i at time t (result)
 */
-template <class real, class dbl> void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri)
+template <class real, class dbl>
+void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri)
    {
    assert(initialised);
    work_gamma(R, app);

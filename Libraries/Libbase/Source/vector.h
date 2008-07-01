@@ -157,12 +157,16 @@ namespace libbase {
          convention (esp. Matlab) and that is efficient
 */
 
-template <class T> class vector;
+template <class T>
+class vector;
 
-template <class T> std::ostream& operator<<(std::ostream& s, const vector<T>& x);
-template <class T> std::istream& operator>>(std::istream& s, vector<T>& x);
+template <class T>
+std::ostream& operator<<(std::ostream& s, const vector<T>& x);
+template <class T>
+std::istream& operator>>(std::istream& s, vector<T>& x);
 
-template <class T> class vector {
+template <class T>
+class vector {
 protected:
    bool  m_root;
    int   m_xsize;
@@ -255,7 +259,8 @@ public:
 
 // memory allocation functions
 
-template <class T> inline void vector<T>::alloc(const int x)
+template <class T>
+inline void vector<T>::alloc(const int x)
    {
    assert(x >= 0);
    m_xsize = x;
@@ -266,13 +271,15 @@ template <class T> inline void vector<T>::alloc(const int x)
       m_data = NULL;
    }
 
-template <class T> inline void vector<T>::free()
+template <class T>
+inline void vector<T>::free()
    {
    if(m_root && m_xsize > 0)
       delete[] m_data;
    }
 
-template <class T> inline void vector<T>::setsize(const int x)
+template <class T>
+inline void vector<T>::setsize(const int x)
    {
    assert(x >= 0);
    if(x==m_xsize)
@@ -283,7 +290,8 @@ template <class T> inline void vector<T>::setsize(const int x)
 
 // constructor / destructor functions
 
-template <class T> inline vector<T>::vector(const vector<T>& x)
+template <class T>
+inline vector<T>::vector(const vector<T>& x)
    {
    if(x.m_root)
       {
@@ -301,7 +309,8 @@ template <class T> inline vector<T>::vector(const vector<T>& x)
 
 // vector copy and value initialisation
 
-template <class T> inline vector<T>& vector<T>::assign(const T* x, const int n)
+template <class T>
+inline vector<T>& vector<T>::assign(const T* x, const int n)
    {
    setsize(n);
    for(int i=0; i<n; i++)
@@ -309,7 +318,8 @@ template <class T> inline vector<T>& vector<T>::assign(const T* x, const int n)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
    {
    const int xsize = ::min(m_xsize, x.m_xsize);
    for(int i=0; i<xsize; i++)
@@ -317,7 +327,8 @@ template <class T> inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator=(const vector<T>& x)
    {
    setsize(x.m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -325,7 +336,8 @@ template <class T> inline vector<T>& vector<T>::operator=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator=(const T x)
+template <class T>
+inline vector<T>& vector<T>::operator=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] = x;
@@ -334,7 +346,8 @@ template <class T> inline vector<T>& vector<T>::operator=(const T x)
 
 // sub-vector access
 
-template <class T> inline const vector<T> vector<T>::extract(const int start, const int n) const
+template <class T>
+inline const vector<T> vector<T>::extract(const int start, const int n) const
    {
    vector<T> r;
    r.m_root = false;
@@ -346,13 +359,15 @@ template <class T> inline const vector<T> vector<T>::extract(const int start, co
 
 // index operators (perform boundary checking)
 
-template <class T> inline T& vector<T>::operator()(const int x)
+template <class T>
+inline T& vector<T>::operator()(const int x)
    {
    assert(x>=0 && x<m_xsize);
    return m_data[x];
    }
 
-template <class T> inline T vector<T>::operator()(const int x) const
+template <class T>
+inline T vector<T>::operator()(const int x) const
    {
    assert(x>=0 && x<m_xsize);
    return m_data[x];
@@ -360,7 +375,8 @@ template <class T> inline T vector<T>::operator()(const int x) const
 
 // serialization and stream input & output
 
-template <class T> inline void vector<T>::serialize(std::ostream& s) const
+template <class T>
+inline void vector<T>::serialize(std::ostream& s) const
    {
    s << m_data[0];
    for(int i=1; i<m_xsize; i++)
@@ -368,20 +384,23 @@ template <class T> inline void vector<T>::serialize(std::ostream& s) const
    s << "\n";
    }
 
-template <class T> inline void vector<T>::serialize(std::istream& s)
+template <class T>
+inline void vector<T>::serialize(std::istream& s)
    {
    for(int i=0; i<m_xsize; i++)
       s >> m_data[i];
    }
 
-template <class T> inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
+template <class T>
+inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
    {
    s << x.m_xsize << "\n";
    x.serialize(s);
    return s;
    }
 
-template <class T> inline std::istream& operator>>(std::istream& s, vector<T>& x)
+template <class T>
+inline std::istream& operator>>(std::istream& s, vector<T>& x)
    {
    int xsize;
    s >> xsize;
@@ -392,7 +411,8 @@ template <class T> inline std::istream& operator>>(std::istream& s, vector<T>& x
 
 // arithmetic operations - unary
 
-template <class T> inline vector<T>& vector<T>::operator+=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator+=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -400,7 +420,8 @@ template <class T> inline vector<T>& vector<T>::operator+=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator-=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator-=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -408,7 +429,8 @@ template <class T> inline vector<T>& vector<T>::operator-=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator*=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator*=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -416,7 +438,8 @@ template <class T> inline vector<T>& vector<T>::operator*=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator/=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator/=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -424,28 +447,32 @@ template <class T> inline vector<T>& vector<T>::operator/=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator+=(const T x)
+template <class T>
+inline vector<T>& vector<T>::operator+=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] += x;
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator-=(const T x)
+template <class T>
+inline vector<T>& vector<T>::operator-=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] -= x;
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator*=(const T x)
+template <class T>
+inline vector<T>& vector<T>::operator*=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] *= x;
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator/=(const T x)
+template <class T>
+inline vector<T>& vector<T>::operator/=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] /= x;
@@ -454,56 +481,64 @@ template <class T> inline vector<T>& vector<T>::operator/=(const T x)
 
 // arithmetic operations - binary
 
-template <class T> inline vector<T> vector<T>::operator+(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator+(const vector<T>& x) const
    {
    vector<T> r = *this;
    r += x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator-(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator-(const vector<T>& x) const
    {
    vector<T> r = *this;
    r -= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator*(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator*(const vector<T>& x) const
    {
    vector<T> r = *this;
    r *= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator/(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator/(const vector<T>& x) const
    {
    vector<T> r = *this;
    r /= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator+(const T x) const
+template <class T>
+inline vector<T> vector<T>::operator+(const T x) const
    {
    vector<T> r = *this;
    r += x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator-(const T x) const
+template <class T>
+inline vector<T> vector<T>::operator-(const T x) const
    {
    vector<T> r = *this;
    r -= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator*(const T x) const
+template <class T>
+inline vector<T> vector<T>::operator*(const T x) const
    {
    vector<T> r = *this;
    r *= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator/(const T x) const
+template <class T>
+inline vector<T> vector<T>::operator/(const T x) const
    {
    vector<T> r = *this;
    r /= x;
@@ -512,14 +547,16 @@ template <class T> inline vector<T> vector<T>::operator/(const T x) const
 
 // boolean operations - unary
 
-template <class T> inline vector<T>& vector<T>::operator!()
+template <class T>
+inline vector<T>& vector<T>::operator!()
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] = !m_data[i];
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator&=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator&=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -527,7 +564,8 @@ template <class T> inline vector<T>& vector<T>::operator&=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator|=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator|=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -535,7 +573,8 @@ template <class T> inline vector<T>& vector<T>::operator|=(const vector<T>& x)
    return *this;
    }
 
-template <class T> inline vector<T>& vector<T>::operator^=(const vector<T>& x)
+template <class T>
+inline vector<T>& vector<T>::operator^=(const vector<T>& x)
    {
    assert(x.m_xsize == m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -545,21 +584,24 @@ template <class T> inline vector<T>& vector<T>::operator^=(const vector<T>& x)
 
 // boolean operations - binary
 
-template <class T> inline vector<T> vector<T>::operator&(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator&(const vector<T>& x) const
    {
    vector<T> r = *this;
    r &= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator|(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator|(const vector<T>& x) const
    {
    vector<T> r = *this;
    r |= x;
    return r;
    }
 
-template <class T> inline vector<T> vector<T>::operator^(const vector<T>& x) const
+template <class T>
+inline vector<T> vector<T>::operator^(const vector<T>& x) const
    {
    vector<T> r = *this;
    r ^= x;
@@ -568,7 +610,8 @@ template <class T> inline vector<T> vector<T>::operator^(const vector<T>& x) con
 
 // user-defined operations
 
-template <class T> inline vector<T>& vector<T>::apply(T f(T))
+template <class T>
+inline vector<T>& vector<T>::apply(T f(T))
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] = f(m_data[i]);
@@ -577,7 +620,8 @@ template <class T> inline vector<T>& vector<T>::apply(T f(T))
 
 // statistical operations
 
-template <class T> inline T vector<T>::min() const
+template <class T>
+inline T vector<T>::min() const
    {
    assert(m_xsize > 0);
    T result = m_data[0];
@@ -587,7 +631,8 @@ template <class T> inline T vector<T>::min() const
    return result;
    }
 
-template <class T> inline T vector<T>::max() const
+template <class T>
+inline T vector<T>::max() const
    {
    assert(m_xsize > 0);
    T result = m_data[0];
@@ -597,7 +642,8 @@ template <class T> inline T vector<T>::max() const
    return result;
    }
 
-template <class T> inline T vector<T>::min(int& index, const bool getfirst) const
+template <class T>
+inline T vector<T>::min(int& index, const bool getfirst) const
    {
    assert(m_xsize > 0);
    T result = m_data[0];
@@ -613,7 +659,8 @@ template <class T> inline T vector<T>::min(int& index, const bool getfirst) cons
    return result;
    }
 
-template <class T> inline T vector<T>::max(int& index, const bool getfirst) const
+template <class T>
+inline T vector<T>::max(int& index, const bool getfirst) const
    {
    assert(m_xsize > 0);
    T result = m_data[0];
@@ -629,7 +676,8 @@ template <class T> inline T vector<T>::max(int& index, const bool getfirst) cons
    return result;
    }
 
-template <class T> inline T vector<T>::sum() const
+template <class T>
+inline T vector<T>::sum() const
    {
    assert(m_xsize > 0);
    T result = 0;
@@ -638,7 +686,8 @@ template <class T> inline T vector<T>::sum() const
    return result;
    }
 
-template <class T> inline T vector<T>::sumsq() const
+template <class T>
+inline T vector<T>::sumsq() const
    {
    assert(m_xsize > 0);
    T result = 0;
@@ -647,7 +696,8 @@ template <class T> inline T vector<T>::sumsq() const
    return result;
    }
 
-template <class T> inline T vector<T>::var() const
+template <class T>
+inline T vector<T>::var() const
    {
    const T _mean = mean();
    const T _var = sumsq()/T(size()) - _mean*_mean;

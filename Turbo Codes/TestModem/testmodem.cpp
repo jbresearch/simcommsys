@@ -25,7 +25,8 @@ using std::cerr;
 using std::hex;
 using std::dec;
 
-template <class S> void TestModem(modulator<S> &modem)
+template <class S>
+void TestModem(modulator<S> &modem)
    {
    const int m = modem.num_symbols();
    const int bits = int(log2(m));

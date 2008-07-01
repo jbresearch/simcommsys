@@ -18,7 +18,8 @@ namespace libcomm {
 
 // Vector modem operations
 
-template <class G> void direct_modulator<G>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
+template <class G>
+void direct_modulator<G>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
    {
    // Compute factors / sizes & check validity
    const int M = num_symbols();
@@ -39,7 +40,8 @@ template <class G> void direct_modulator<G>::modulate(const int N, const libbase
          tx(k) = modulate(x % M);
    }
 
-template <class G> void direct_modulator<G>::demodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
+template <class G>
+void direct_modulator<G>::demodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
    {
    // Compute sizes
    const int M = num_symbols();
@@ -53,7 +55,8 @@ template <class G> void direct_modulator<G>::demodulate(const channel<G>& chan, 
 
 // Description
 
-template <class G> std::string direct_modulator<G>::description() const
+template <class G>
+std::string direct_modulator<G>::description() const
    {
    std::ostringstream sout;
    sout << "GF(" << num_symbols() << ") Modulation";
@@ -62,12 +65,14 @@ template <class G> std::string direct_modulator<G>::description() const
 
 // Serialization Support
 
-template <class G> std::ostream& direct_modulator<G>::serialize(std::ostream& sout) const
+template <class G>
+std::ostream& direct_modulator<G>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
-template <class G> std::istream& direct_modulator<G>::serialize(std::istream& sin)
+template <class G>
+std::istream& direct_modulator<G>::serialize(std::istream& sin)
    {
    return sin;
    }
@@ -75,13 +80,17 @@ template <class G> std::istream& direct_modulator<G>::serialize(std::istream& si
 // Explicit Realizations
 
 template class direct_modulator< libbase::gf<1,0x3> >;
-template <> const libbase::serializer direct_modulator< libbase::gf<1,0x3> >::shelper("modulator", "modulator<gf<1,0x3>>", direct_modulator< libbase::gf<1,0x3> >::create);
+template <>
+const libbase::serializer direct_modulator< libbase::gf<1,0x3> >::shelper("modulator", "modulator<gf<1,0x3>>", direct_modulator< libbase::gf<1,0x3> >::create);
 template class direct_modulator< libbase::gf<2,0x7> >;
-template <> const libbase::serializer direct_modulator< libbase::gf<2,0x7> >::shelper("modulator", "modulator<gf<2,0x7>>", direct_modulator< libbase::gf<2,0x7> >::create);
+template <>
+const libbase::serializer direct_modulator< libbase::gf<2,0x7> >::shelper("modulator", "modulator<gf<2,0x7>>", direct_modulator< libbase::gf<2,0x7> >::create);
 template class direct_modulator< libbase::gf<3,0xB> >;
-template <> const libbase::serializer direct_modulator< libbase::gf<3,0xB> >::shelper("modulator", "modulator<gf<3,0xB>>", direct_modulator< libbase::gf<3,0xB> >::create);
+template <>
+const libbase::serializer direct_modulator< libbase::gf<3,0xB> >::shelper("modulator", "modulator<gf<3,0xB>>", direct_modulator< libbase::gf<3,0xB> >::create);
 template class direct_modulator< libbase::gf<4,0x13> >;
-template <> const libbase::serializer direct_modulator< libbase::gf<4,0x13> >::shelper("modulator", "modulator<gf<4,0x13>>", direct_modulator< libbase::gf<4,0x13> >::create);
+template <>
+const libbase::serializer direct_modulator< libbase::gf<4,0x13> >::shelper("modulator", "modulator<gf<4,0x13>>", direct_modulator< libbase::gf<4,0x13> >::create);
 
 
 // *** Specific to direct_modulator<bool> ***

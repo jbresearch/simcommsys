@@ -53,7 +53,8 @@ public:
      on creation.
 */
 
-template <int q> class finite_symbol {
+template <int q>
+class finite_symbol {
 private:
    /*! \name Object representation */
    //! Representation of this element by its polynomial coefficients

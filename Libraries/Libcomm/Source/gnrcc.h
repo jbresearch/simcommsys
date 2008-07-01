@@ -26,7 +26,8 @@ namespace libcomm {
    - removed resetcircular(), which is now implemented in fsm()
 */
 
-template <class G> class gnrcc : public ccfsm<G> {
+template <class G>
+class gnrcc : public ccfsm<G> {
 protected:
    /*! \name FSM helper operations */
    int determineinput(int input) const;

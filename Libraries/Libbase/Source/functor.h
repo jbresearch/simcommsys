@@ -29,7 +29,8 @@ public:
 };
 
 // derived template class
-template <class T> class specificfunctor : public functor {
+template <class T>
+class specificfunctor : public functor {
 private:
    void (T::*fptr)(void);           // pointer to member function
    T* object;                       // pointer to object

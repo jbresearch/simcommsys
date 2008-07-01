@@ -119,7 +119,8 @@ std::string commsys_errorrates::result_description(int i) const
          should get done automatically when the base serializer or
          constructor is called.
 */
-template <class S, class R> void basic_commsys<S,R>::init()
+template <class S, class R>
+void basic_commsys<S,R>::init()
    {
    tau = cdc->block_size();
    m = cdc->tail_length();
@@ -139,7 +140,8 @@ template <class S, class R> void basic_commsys<S,R>::init()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S, class R> void basic_commsys<S,R>::clear()
+template <class S, class R>
+void basic_commsys<S,R>::clear()
    {
    src = NULL;
    cdc = NULL;
@@ -161,7 +163,8 @@ template <class S, class R> void basic_commsys<S,R>::clear()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S, class R> void basic_commsys<S,R>::free()
+template <class S, class R>
+void basic_commsys<S,R>::free()
    {
    if(internallyallocated)
       {
@@ -183,7 +186,8 @@ template <class S, class R> void basic_commsys<S,R>::free()
    The source sequence consists of uniformly random symbols followed by a
    tail sequence if required by the given codec.
 */
-template <class S, class R> libbase::vector<int> basic_commsys<S,R>::createsource()
+template <class S, class R>
+libbase::vector<int> basic_commsys<S,R>::createsource()
    {
    libbase::vector<int> source(tau);
    for(int t=0; t<tau-m; t++)
@@ -205,7 +209,8 @@ template <class S, class R> libbase::vector<int> basic_commsys<S,R>::createsourc
          to divide by the appropriate amount at the end to compute a meaningful
          average.
 */
-template <class S, class R> void basic_commsys<S,R>::cycleonce(libbase::vector<double>& result)
+template <class S, class R>
+void basic_commsys<S,R>::cycleonce(libbase::vector<double>& result)
    {
    assert(result.size() == count());
    // Create source stream
@@ -238,7 +243,8 @@ template <class S, class R> void basic_commsys<S,R>::cycleonce(libbase::vector<d
 
    Initializes system with bound objects as supplied by user.
 */
-template <class S, class R> basic_commsys<S,R>::basic_commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan)
+template <class S, class R>
+basic_commsys<S,R>::basic_commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan)
    {
    basic_commsys<S,R>::src = src;
    basic_commsys<S,R>::cdc = cdc;
@@ -257,7 +263,8 @@ template <class S, class R> basic_commsys<S,R>::basic_commsys(libbase::randgen *
    \todo Fix cast when cloning channel: this should not be necessary.
    \todo Fix cast when cloning modem: this should not be necessary.
 */
-template <class S, class R> basic_commsys<S,R>::basic_commsys(const basic_commsys<S,R>& c)
+template <class S, class R>
+basic_commsys<S,R>::basic_commsys(const basic_commsys<S,R>& c)
    {
    basic_commsys<S,R>::src = new libbase::randgen;
    basic_commsys<S,R>::cdc = c.cdc->clone();
@@ -270,7 +277,8 @@ template <class S, class R> basic_commsys<S,R>::basic_commsys(const basic_commsy
 
 // Experiment parameter handling
 
-template <class S, class R> void basic_commsys<S,R>::seedfrom(libbase::random& r)
+template <class S, class R>
+void basic_commsys<S,R>::seedfrom(libbase::random& r)
    {
    src->seed(r.ival());
    cdc->seedfrom(r);
@@ -281,7 +289,8 @@ template <class S, class R> void basic_commsys<S,R>::seedfrom(libbase::random& r
 
 // Experiment handling
 
-template <class S, class R> void basic_commsys<S,R>::sample(libbase::vector<double>& result)
+template <class S, class R>
+void basic_commsys<S,R>::sample(libbase::vector<double>& result)
    {
    // initialise result vector
    result.init(count());
@@ -292,7 +301,8 @@ template <class S, class R> void basic_commsys<S,R>::sample(libbase::vector<doub
 
 // Description & Serialization
 
-template <class S, class R> std::string basic_commsys<S,R>::description() const
+template <class S, class R>
+std::string basic_commsys<S,R>::description() const
    {
    std::ostringstream sout;
    sout << "Communication System: ";
@@ -303,7 +313,8 @@ template <class S, class R> std::string basic_commsys<S,R>::description() const
    return sout.str();
    }
 
-template <class S, class R> std::ostream& basic_commsys<S,R>::serialize(std::ostream& sout) const
+template <class S, class R>
+std::ostream& basic_commsys<S,R>::serialize(std::ostream& sout) const
    {
    sout << chan;
    sout << modem;
@@ -312,7 +323,8 @@ template <class S, class R> std::ostream& basic_commsys<S,R>::serialize(std::ost
    return sout;
    }
 
-template <class S, class R> std::istream& basic_commsys<S,R>::serialize(std::istream& sin)
+template <class S, class R>
+std::istream& basic_commsys<S,R>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
@@ -377,7 +389,8 @@ template class basic_commsys<bool,commsys_hist_symerr>;
    }
    \enddot
 */
-template <class S, class R> void commsys<S,R>::transmitandreceive(libbase::vector<int>& source)
+template <class S, class R>
+void commsys<S,R>::transmitandreceive(libbase::vector<int>& source)
    {
    const int M = this->modem->num_symbols();
    libbase::vector<int> encoded;
@@ -396,12 +409,14 @@ template <class S, class R> void commsys<S,R>::transmitandreceive(libbase::vecto
 
 // Serialization Support
 
-template <class S, class R> std::ostream& commsys<S,R>::serialize(std::ostream& sout) const
+template <class S, class R>
+std::ostream& commsys<S,R>::serialize(std::ostream& sout) const
    {
    return basic_commsys<S,R>::serialize(sout);
    }
 
-template <class S, class R> std::istream& commsys<S,R>::serialize(std::istream& sin)
+template <class S, class R>
+std::istream& commsys<S,R>::serialize(std::istream& sin)
    {
    return basic_commsys<S,R>::serialize(sin);
    }
@@ -409,24 +424,33 @@ template <class S, class R> std::istream& commsys<S,R>::serialize(std::istream& 
 // Explicit Realizations
 
 template class commsys<bool>;
-template <> const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
+template <>
+const libbase::serializer commsys<bool>::shelper("experiment", "commsys<bool>", commsys<bool>::create);
 template class commsys< libbase::gf<1,0x3> >;
-template <> const libbase::serializer commsys< libbase::gf<1,0x3> >::shelper("experiment", "commsys<gf<1,0x3>>", commsys< libbase::gf<1,0x3> >::create);
+template <>
+const libbase::serializer commsys< libbase::gf<1,0x3> >::shelper("experiment", "commsys<gf<1,0x3>>", commsys< libbase::gf<1,0x3> >::create);
 template class commsys< libbase::gf<2,0x7> >;
-template <> const libbase::serializer commsys< libbase::gf<2,0x7> >::shelper("experiment", "commsys<gf<2,0x7>>", commsys< libbase::gf<2,0x7> >::create);
+template <>
+const libbase::serializer commsys< libbase::gf<2,0x7> >::shelper("experiment", "commsys<gf<2,0x7>>", commsys< libbase::gf<2,0x7> >::create);
 template class commsys< libbase::gf<3,0xB> >;
-template <> const libbase::serializer commsys< libbase::gf<3,0xB> >::shelper("experiment", "commsys<gf<3,0xB>>", commsys< libbase::gf<3,0xB> >::create);
+template <>
+const libbase::serializer commsys< libbase::gf<3,0xB> >::shelper("experiment", "commsys<gf<3,0xB>>", commsys< libbase::gf<3,0xB> >::create);
 template class commsys< libbase::gf<4,0x13> >;
-template <> const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("experiment", "commsys<gf<4,0x13>>", commsys< libbase::gf<4,0x13> >::create);
+template <>
+const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("experiment", "commsys<gf<4,0x13>>", commsys< libbase::gf<4,0x13> >::create);
 
 template class commsys<bool,commsys_prof_burst>;
-template <> const libbase::serializer commsys<bool,commsys_prof_burst>::shelper("experiment", "commsys<bool,prof_burst>", commsys<bool,commsys_prof_burst>::create);
+template <>
+const libbase::serializer commsys<bool,commsys_prof_burst>::shelper("experiment", "commsys<bool,prof_burst>", commsys<bool,commsys_prof_burst>::create);
 template class commsys<bool,commsys_prof_pos>;
-template <> const libbase::serializer commsys<bool,commsys_prof_pos>::shelper("experiment", "commsys<bool,prof_pos>", commsys<bool,commsys_prof_pos>::create);
+template <>
+const libbase::serializer commsys<bool,commsys_prof_pos>::shelper("experiment", "commsys<bool,prof_pos>", commsys<bool,commsys_prof_pos>::create);
 template class commsys<bool,commsys_prof_sym>;
-template <> const libbase::serializer commsys<bool,commsys_prof_sym>::shelper("experiment", "commsys<bool,prof_sym>", commsys<bool,commsys_prof_sym>::create);
+template <>
+const libbase::serializer commsys<bool,commsys_prof_sym>::shelper("experiment", "commsys<bool,prof_sym>", commsys<bool,commsys_prof_sym>::create);
 template class commsys<bool,commsys_hist_symerr>;
-template <> const libbase::serializer commsys<bool,commsys_hist_symerr>::shelper("experiment", "commsys<bool,hist_symerr>", commsys<bool,commsys_hist_symerr>::create);
+template <>
+const libbase::serializer commsys<bool,commsys_hist_symerr>::shelper("experiment", "commsys<bool,hist_symerr>", commsys<bool,commsys_hist_symerr>::create);
 
 
 // *** Specific to commsys<sigspace> ***
@@ -442,7 +466,8 @@ template <> const libbase::serializer commsys<bool,commsys_hist_symerr>::shelper
    - Rate of puncturing
    - Average energy per uncoded bit in the modulation scheme
 */
-template <class R> void commsys<sigspace,R>::init()
+template <class R>
+void commsys<sigspace,R>::init()
    {
    // set up channel energy/bit (Eb)
    double rate = this->cdc->rate() * this->map->rate();
@@ -451,12 +476,14 @@ template <class R> void commsys<sigspace,R>::init()
    this->chan->set_eb(this->modem->bit_energy() / rate);
    }
 
-template <class R> void commsys<sigspace,R>::clear()
+template <class R>
+void commsys<sigspace,R>::clear()
    {
    punc = NULL;
    }
 
-template <class R> void commsys<sigspace,R>::free()
+template <class R>
+void commsys<sigspace,R>::free()
    {
    if(this->internallyallocated)
       {
@@ -503,7 +530,8 @@ template <class R> void commsys<sigspace,R>::free()
    The dotted lines and blocks indicate optional sections to support puncturing,
    which is currently done in signal-space.
 */
-template <class R> void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
+template <class R>
+void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
    {
    const int M = this->modem->num_symbols();
    libbase::vector<int> encoded;
@@ -534,13 +562,15 @@ template <class R> void commsys<sigspace,R>::transmitandreceive(libbase::vector<
 
 // Constructors / Destructors
 
-template <class R> commsys<sigspace,R>::commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace,R>(src, cdc, map, modem, chan)
+template <class R>
+commsys<sigspace,R>::commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : basic_commsys<sigspace,R>(src, cdc, map, modem, chan)
    {
    commsys::punc = punc;
    init();
    }
 
-template <class R> commsys<sigspace,R>::commsys(const commsys<sigspace,R>& c) : basic_commsys<sigspace,R>(c)
+template <class R>
+commsys<sigspace,R>::commsys(const commsys<sigspace,R>& c) : basic_commsys<sigspace,R>(c)
    {
    commsys::punc = c.punc->clone();
    init();
@@ -548,7 +578,8 @@ template <class R> commsys<sigspace,R>::commsys(const commsys<sigspace,R>& c) : 
 
 // Description & Serialization
 
-template <class R> std::string commsys<sigspace,R>::description() const
+template <class R>
+std::string commsys<sigspace,R>::description() const
    {
    std::ostringstream sout;
    sout << basic_commsys<sigspace,R>::description();
@@ -557,7 +588,8 @@ template <class R> std::string commsys<sigspace,R>::description() const
    return sout.str();
    }
 
-template <class R> std::ostream& commsys<sigspace,R>::serialize(std::ostream& sout) const
+template <class R>
+std::ostream& commsys<sigspace,R>::serialize(std::ostream& sout) const
    {
    basic_commsys<sigspace,R>::serialize(sout);
    const bool ispunctured = (punc != NULL);
@@ -567,7 +599,8 @@ template <class R> std::ostream& commsys<sigspace,R>::serialize(std::ostream& so
    return sout;
    }
 
-template <class R> std::istream& commsys<sigspace,R>::serialize(std::istream& sin)
+template <class R>
+std::istream& commsys<sigspace,R>::serialize(std::istream& sin)
    {
    free();
    basic_commsys<sigspace,R>::serialize(sin);
@@ -588,6 +621,7 @@ template <class R> std::istream& commsys<sigspace,R>::serialize(std::istream& si
 // Explicit Realizations
 
 template class commsys<sigspace>;
-template <> const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
+template <>
+const libbase::serializer commsys<sigspace>::shelper("experiment", "commsys<sigspace>", commsys<sigspace>::create);
 
 }; // end namespace
