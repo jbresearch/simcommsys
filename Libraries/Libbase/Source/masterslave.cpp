@@ -30,13 +30,6 @@ using std::cerr;
 using std::clog;
 using std::flush;
 
-// constants (tags)
-
-const int masterslave::tag_getname = 0xFA;
-const int masterslave::tag_getcputime = 0xFB;
-const int masterslave::tag_work = 0xFE;
-const int masterslave::tag_die = 0xFF;
-
 // items for use by everyone
 
 void masterslave::fregister(const std::string& name, functor *f)
@@ -221,16 +214,16 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port, c
    while(true)
       switch(int tag = gettag())
          {
-         case tag_getname:
+         case GETNAME:
             sendname();
             break;
-         case tag_getcputime:
+         case GETCPUTIME:
             sendcputime();
             break;
-         case tag_work:
+         case WORK:
             dowork();
             break;
-         case tag_die:
+         case DIE:
             t.stop();
             // TODO: add usage information
             cerr << "Received die request, stopping after " << timer::format(getcputime()) << " CPU runtime.\n";
@@ -349,7 +342,7 @@ void masterslave::disable()
       {
       trace << "DEBUG (disable): Idle slave found (" << s << "), killing.\n";
       clog << "." << flush;
-      send(s, tag_die);
+      send(s, int(DIE));
       }
    clog << " done\n";
    // print timer information
@@ -503,7 +496,7 @@ bool masterslave::send(slave *s, const std::string& x)
 bool masterslave::updatecputime(slave *s)
    {
    double cputime;
-   if(!send(s, tag_getcputime) || !receive(s, cputime) )
+   if(!send(s, int(GETCPUTIME)) || !receive(s, cputime) )
       return false;
    cputimeused += cputime;
    return true;

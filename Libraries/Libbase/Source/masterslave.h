@@ -43,10 +43,8 @@ namespace libbase {
 
 class masterslave {
    // constants (tags)
-   static const int tag_getname;
-   static const int tag_getcputime;
-   static const int tag_work;
-   static const int tag_die;
+   typedef enum { GETNAME=0xFA, GETCPUTIME,
+      WORK=0xFE, DIE } tag_t;
 
 // communication objects
 public:
@@ -126,7 +124,7 @@ public:
    bool send(slave *s, const int x) { return send(s, &x, sizeof(x)); };
    bool send(slave *s, const double x) { return send(s, &x, sizeof(x)); };
    bool send(slave *s, const std::string& x);
-   bool call(slave *s, const std::string& x) { return send(s, tag_work) && send(s, x); };
+   bool call(slave *s, const std::string& x) { return send(s, int(WORK)) && send(s, x); };
    //! Reset CPU usage accumulation
    void resetcputime() { cputimeused = 0; };
    bool updatecputime(slave *s);
