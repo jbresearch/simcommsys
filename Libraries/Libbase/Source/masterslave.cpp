@@ -59,8 +59,14 @@ void masterslave::fcall(const std::string& name)
    trace << "done.\n";
    }
 
-// global enable/disable of cluster system
+/*! \brief Global enable/disable of master-slave system
 
+   \note Default priority is given by caller, but can be overridden by a
+         command-line parameter.
+   
+   \note Command-line parameters can specify local-computation model; in this
+         case, the class will not be initialized.
+*/
 void masterslave::enable(int *argc, char **argv[], const int priority)
    {
    assert(!initialized);
@@ -248,6 +254,11 @@ bool masterslave::send(const void *buf, const size_t len)
    return true;
    }
 
+
+/*! \brief Send a vector<double> to the master
+   \note Vector size is sent first; this makes foreknowledge of size and
+         pre-initialization unnecessary.
+*/
 bool masterslave::send(const vector<double>& x)
    {
    // determine and send vector size first
@@ -322,27 +333,32 @@ masterslave::~masterslave()
 
 // disable function
 
+/*! \brief Shuts down master-slave system
+
+   \todo Specify what happens if the system was never initialized
+*/
 void masterslave::disable()
    {
-   if(initialized)
-      {
-      // kill all remaining slaves
-      clog << "Killing idle slaves:" << flush;
-      while(slave *s = idleslave())
-         {
-         trace << "DEBUG (disable): Idle slave found (" << s << "), killing.\n";
-         clog << "." << flush;
-         send(s, tag_die);
-         }
-      clog << " done\n";
-      // print timer information
-      t.stop();
-      clog << "Time elapsed: " << t << "\n" << flush;
-      clog << "CPU usage on master: " << int(t.usage()) << "%\n" << flush;
-      clog.precision(2);
-      clog << "Average speedup factor: " << getcputime() / t.elapsed() << "\n" << flush;
-      }
+   // if the master-slave system is not initialized, there is nothing to do
+   if(!initialized)
+      return;
 
+   // kill all remaining slaves
+   clog << "Killing idle slaves:" << flush;
+   while(slave *s = idleslave())
+      {
+      trace << "DEBUG (disable): Idle slave found (" << s << "), killing.\n";
+      clog << "." << flush;
+      send(s, tag_die);
+      }
+   clog << " done\n";
+   // print timer information
+   t.stop();
+   clog << "Time elapsed: " << t << "\n" << flush;
+   clog << "CPU usage on master: " << int(t.usage()) << "%\n" << flush;
+   clog.precision(2);
+   clog << "Average speedup factor: " << getcputime() / t.elapsed() << "\n" << flush;
+   // update flag
    initialized = false;
    }
 
@@ -381,6 +397,8 @@ masterslave::slave *masterslave::pendingslave()
    return NULL;
    }
 
+/*! \brief Number of slaves currently in 'working' state
+*/
 int masterslave::workingslaves() const
    {
    int count = 0;
@@ -398,6 +416,12 @@ bool masterslave::anyoneworking() const
    return false;
    }
 
+/*! \brief Waits for a socket event
+   \param acceptnew Flag to indicate whether new connections are allowed
+                  (defaults to true)
+   \param timeout Return with no event if this many seconds elapses (zero
+                  means wait forever; this is the default)
+*/
 void masterslave::waitforevent(const bool acceptnew, const double timeout)
    {
    static bool firsttime = true;
@@ -434,7 +458,7 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
    }
 
 /*!
-   \brief Reset given slaves to the 'new' state
+   \brief Reset given slave to the 'new' state
 
    \note Slave must be in the 'idle' state
 */
@@ -473,6 +497,9 @@ bool masterslave::send(slave *s, const std::string& x)
    return send(s, x.c_str(), len);
    }
 
+/*! \brief Accumulate CPU time for given slave
+   \param s Slave from which to get CPU time
+*/
 bool masterslave::updatecputime(slave *s)
    {
    double cputime;
@@ -492,6 +519,10 @@ bool masterslave::receive(slave *s, void *buf, const size_t len)
    return true;
    }
 
+/*! \brief Receive a vector<double> from given slave
+   \note Vector size is obtained first; this makes foreknowledge of size and
+         pre-initialization unnecessary.
+*/
 bool masterslave::receive(slave *s, vector<double>& x)
    {
    // get vector size first
