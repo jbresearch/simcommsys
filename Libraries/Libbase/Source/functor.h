@@ -4,6 +4,34 @@
 namespace libbase {
 
 /*!
+   \brief   Base Function Pointer.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Abstract base functor class for functions that take no argmuents and return
+   nothing.
+*/
+
+class functor {
+public:
+   /*! \name Constructors / Destructors */
+   virtual ~functor() {};
+   // @}
+
+   /*! \name Function calling interface */
+   //! Call using bracket operator notation
+   virtual void operator()(void)=0;
+   //! Call using functor method notation
+   virtual void call(void)=0;
+   // @}
+};
+
+
+/*!
    \brief   Function Pointer.
    \author  Johann Briffa
 
@@ -12,34 +40,29 @@ namespace libbase {
    - $Date$
    - $Author$
 
-   \version 1.00 (25 Apr 2007)
-   - Initial version, defining a functor class for functions that take no argmuents
-    and return nothing.
-
-   \version 1.01 (17 Oct 2007)
-   - Added virtual destructor for functor (should have done that before).
+   Specific functor class for class member functions.
 */
 
-// abstract base class
-class functor {
-public:
-   virtual ~functor() {};            // virtual destructor
-   virtual void operator()(void)=0;  // call using operator
-   virtual void call(void)=0;        // call using function
-};
-
-// derived template class
 template <class T>
 class specificfunctor : public functor {
 private:
-   void (T::*fptr)(void);           // pointer to member function
-   T* object;                       // pointer to object
+   /*! \name User-defined parameters */
+   T* object;                       //!< Pointer to object
+   void (T::*fptr)(void);           //!< Pointer to member function
+   // @}
 public:
-   // constructor - takes pointer to an object and pointer to a member function
-   specificfunctor(T* _object, void(T::*_fptr)(void))  { object = _object;  fptr=_fptr; };
-   // override calling operators
-   virtual void operator()(void)  { (*object.*fptr)();};
-   virtual void call(void)        { (*object.*fptr)();};
+   /*! \name Constructors / Destructors */
+   /*! \brief Main constructor
+       \param _object Pointer to an object
+       \param _fptr Pointer to a member function
+   */
+   specificfunctor(T* _object, void(T::*_fptr)(void))
+      { object = _object;  fptr=_fptr; };
+   // @}
+
+   // Function calling interface
+   void operator()(void)  { (*object.*fptr)(); };
+   void call(void)        { (*object.*fptr)(); };
 };
 
 }; // end namespace
