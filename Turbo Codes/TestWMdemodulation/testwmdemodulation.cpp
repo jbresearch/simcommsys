@@ -14,7 +14,9 @@
 #include "dminner2.h"
 #include "bsid.h"
 
+#include <memory>
 #include <iostream>
+#include <string>
 
 using std::cout;
 using std::cerr;
@@ -29,22 +31,25 @@ using libcomm::channel;
 using libcomm::dminner;
 using libcomm::dminner2;
 
-modulator<bool>* create_modem(int const type, int const n, int const k, bool deep, libbase::random& r)
+typedef std::auto_ptr< modulator<bool> > modem_ptr;
+typedef std::auto_ptr< channel<bool> > channel_ptr;
+
+modem_ptr create_modem(int const type, int const n, int const k, bool deep, libbase::random& r)
    {
-   modulator<bool> *modem = NULL;
+   modem_ptr modem;
    switch(type)
       {
       case 1:
          if(deep)
-            modem = new dminner<logrealfast>(n,k,1e-21,1e-12);
+            modem = modem_ptr(new dminner<logrealfast>(n,k,1e-21,1e-12));
          else
-            modem = new dminner<logrealfast>(n,k);
+            modem = modem_ptr(new dminner<logrealfast>(n,k));
          break;
       case 2:
          if(deep)
-            modem = new dminner2<logrealfast>(n,k,1e-21,1e-12);
+            modem = modem_ptr(new dminner2<logrealfast>(n,k,1e-21,1e-12));
          else
-            modem = new dminner2<logrealfast>(n,k);
+            modem = modem_ptr(new dminner2<logrealfast>(n,k));
          break;
       default:
          assertalways("Unknown decoder type.");
@@ -54,9 +59,9 @@ modulator<bool>* create_modem(int const type, int const n, int const k, bool dee
    return modem;
    }
 
-channel<bool> *create_channel(double Pe, libbase::random& r)
+channel_ptr create_channel(double Pe, libbase::random& r)
    {
-   channel<bool> *chan = new libcomm::bsid;
+   channel_ptr chan = channel_ptr(new libcomm::bsid);
    chan->seedfrom(r);
    chan->set_parameter(Pe);
    return chan;
@@ -72,7 +77,7 @@ vector<int> create_encoded(int k, int tau, bool display=true)
    return encoded;
    }
 
-void print_signal(const char* desc, int n, vector<bool> tx)
+void print_signal(const std::string desc, int n, vector<bool> tx)
    {
    cout << desc << ":\n";
    for(int i=0; i<tx.size(); i++)
@@ -138,8 +143,8 @@ void testcycle(int const type, int const seed, int const n, int const k, int con
    libbase::randgen prng;
    prng.seed(seed);
    // create modem and channel
-   modulator<bool> *modem = create_modem(type, n, k, deep, prng);
-   channel<bool> *chan = create_channel(Pe, prng);
+   modem_ptr modem = create_modem(type, n, k, deep, prng);
+   channel_ptr chan = create_channel(Pe, prng);
    cout << '\n';
    cout << modem->description() << '\n';
    cout << chan->description() << '\n';
@@ -155,9 +160,6 @@ void testcycle(int const type, int const seed, int const n, int const k, int con
    matrix<double> ptable = demodulate_encoded(*chan, *modem, rx, display);
    // count errors
    count_errors(encoded, ptable);
-
-   delete modem;
-   delete chan;
    }
 
 int main(int argc, char *argv[])
