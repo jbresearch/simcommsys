@@ -373,7 +373,11 @@ bool montecarlo::readpendingslaves()
 void montecarlo::setupfile()
    {
    assert(!fname.empty());
-   assert(!headerwritten);
+   // start timer for interim results writing
+   tfile.start();
+   // if this is not the first time, that's all
+   if(headerwritten)
+      return;
    // open file for input and output
    std::fstream file(fname.c_str());
    if(!file)
@@ -397,14 +401,14 @@ void montecarlo::setupfile()
    // update digest
    file.seekg(0);
    filedigest.process(file);
-   // update flags and start timer
+   // update flags
    headerwritten = true;
-   tfile.start();
    }
 
 void montecarlo::writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
    {
    assert(!fname.empty());
+   assert(tfile.isrunning());
    // restrict updates to occur every 30 seconds or less
    if(tfile.elapsed() < 30)
       return;
@@ -422,6 +426,7 @@ void montecarlo::writeinterimresults(libbase::vector<double>& result, libbase::v
 void montecarlo::writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
    {
    assert(!fname.empty());
+   assert(tfile.isrunning());
    // open file for input and output
    std::fstream file(fname.c_str());
    assertalways(file.good());
@@ -601,8 +606,8 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    std::istringstream is(systemstring);
    sysdigest.process(is);
 
-   // Write results header if this hasn't been done yet
-   if(!fname.empty() && !headerwritten)
+   // Initialize results-writing system
+   if(!fname.empty())
       setupfile();
 
    // Set up for master-slave system (if necessary)

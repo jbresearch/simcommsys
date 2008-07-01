@@ -45,22 +45,36 @@ class timer {
    double _wallclock() const;
    double _cputime() const;
 public:
+   /*! \name Constructors / Destructors */
    explicit timer(const char *n = NULL);
    virtual ~timer();
+   // @}
+
+   /*! \name Timer operation */
    void start();
    void stop();
+   // @}
+
+   /*! \name Timer information */
    //! The number of seconds elapsed.
    double elapsed() const;
+   //! The number of CPU seconds elapsed.
    double cputime() const;
    //! The percentage CPU usage.
    double usage() const;
+   bool isrunning() const { return running; };
+   // @}
 
+   /*! \name Conversion operations */
    //! Conversion function to generate a string
    operator std::string() const { return format(elapsed()); };
+   // @}
 
+   /*! \name Timer-related functions */
    //! The current date and time.
    static std::string date();
    static std::string format(const double elapsedtime);
+   // @}
 };
 
 /*!
