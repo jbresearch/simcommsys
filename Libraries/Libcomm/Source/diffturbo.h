@@ -89,7 +89,8 @@ namespace libcomm {
    - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
 */
 
-template <class real> class diffturbo : public turbo<real> {
+template <class real>
+class diffturbo : public turbo<real> {
 private:
    std::string filename;
    libbase::vector<int> lut;

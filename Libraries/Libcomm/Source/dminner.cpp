@@ -18,14 +18,16 @@ namespace libcomm {
 /*!
    \brief Set up LUT with the lowest weight codewords
 */
-template <class real> int dminner<real>::fill(int i, libbase::bitfield suffix, int w)
+template <class real>
+int dminner<real>::fill(int i, libbase::bitfield suffix, int w)
    {
+   assert(!user_lut);
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
       {
       assert(n >= 1 && n <= 32);
       assert(k >= 1 && k <= n);
-      userspecified = false;
+      user_lut = false;
       lutname = "sequential";
       lut.init(num_symbols());
       suffix = "";
@@ -54,7 +56,8 @@ template <class real> int dminner<real>::fill(int i, libbase::bitfield suffix, i
 
 //! Watermark sequence creator
 
-template <class real> void dminner<real>::createsequence(const int tau)
+template <class real>
+void dminner<real>::createsequence(const int tau)
    {
    // creates 'tau' elements of 'n' bits each
    ws.init(tau);
@@ -64,7 +67,8 @@ template <class real> void dminner<real>::createsequence(const int tau)
 
 //! Inform user if I or xmax have changed
 
-template <class real> void dminner<real>::checkforchanges(int I, int xmax)
+template <class real>
+void dminner<real>::checkforchanges(int I, int xmax) const
    {
    static int last_I = 0;
    static int last_xmax = 0;
@@ -78,11 +82,15 @@ template <class real> void dminner<real>::checkforchanges(int I, int xmax)
 
 // initialization / de-allocation
 
-template <class real> void dminner<real>::init()
+template <class real>
+void dminner<real>::init()
    {
    using libbase::bitfield;
    using libbase::weight;
    using libbase::trace;
+   // Fill default LUT if necessary
+   if(!user_lut)
+      fill();
 #ifndef NDEBUG
    // Display LUT when debugging
    trace << "LUT (k=" << k << ", n=" << n << "):\n";
@@ -104,6 +112,12 @@ template <class real> void dminner<real>::init()
    w.apply(weight);
    f = w.sum()/double(n * w.size());
    trace << "Watermark code density = " << f << "\n";
+   // set default thresholds if necessary
+   if(!user_threshold)
+      {
+      th_inner = 1e-15;
+      th_outer = 1e-6;
+      }
    // Seed the watermark generator and clear the sequence
    r.seed(0);
    ws.init(0);
@@ -111,7 +125,8 @@ template <class real> void dminner<real>::init()
    mychan = NULL;
    }
 
-template <class real> void dminner<real>::free()
+template <class real>
+void dminner<real>::free()
    {
    if(mychan != NULL)
       delete mychan;
@@ -119,25 +134,52 @@ template <class real> void dminner<real>::free()
 
 // constructor / destructor
 
-template <class real> dminner<real>::dminner(const int n, const int k)
+template <class real>
+dminner<real>::dminner(const int n, const int k)
    {
    // code parameters
+   assert(k >= 1);
+   assert(n > k);
    dminner::n = n;
    dminner::k = k;
+   // default values
+   user_lut = false;
+   user_threshold = false;
    // initialize everything else that depends on the above parameters
-   fill();
+   init();
+   }
+
+template <class real>
+dminner<real>::dminner(const int n, const int k, const double th_inner, const double th_outer)
+   {
+   // code parameters
+   assert(k >= 1);
+   assert(n > k);
+   dminner::n = n;
+   dminner::k = k;
+   // cutoff thresholds
+   assert(th_inner <= 1);
+   assert(th_outer <= 1);
+   user_threshold = true;
+   dminner::th_inner = th_inner;
+   dminner::th_outer = th_outer;
+   // default values
+   user_lut = false;
+   // initialize everything else that depends on the above parameters
    init();
    }
 
 // implementations of channel-specific metrics for fba
 
-template <class real> real dminner<real>::P(const int a, const int b)
+template <class real>
+real dminner<real>::P(const int a, const int b)
    {
    const int m = b-a;
    return Ptable(m+1);
    }
 
-template <class real> real dminner<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
+template <class real>
+real dminner<real>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -152,7 +194,8 @@ template <class real> real dminner<real>::Q(const int a, const int b, const int 
 
 // encoding and decoding functions
 
-template <class real> void dminner<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+template <class real>
+void dminner<real>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Inherit sizes
    const int q = 1<<k;
@@ -187,7 +230,8 @@ template <class real> void dminner<real>::modulate(const int N, const libbase::v
 
    \todo Make demodulation independent of the previous modulation step.
 */
-template <class real> void dminner<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+template <class real>
+void dminner<real>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    using libbase::trace;
    // Inherit block size from last modulation step
@@ -215,7 +259,7 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
    // Pre-compute 'P' table
    bsid::compute_Ptable(Ptable, xmax, mychan->get_pd(), mychan->get_pi());
    // Initialize & perform forward-backward algorithm
-   fba<real,bool>::init(tau, I, xmax);
+   fba<real,bool>::init(tau, I, xmax, th_inner);
    fba<real,bool>::prepare(rx);
    // Initialise result vector (one sparse symbol per timestep)
    libbase::matrix<real> p(N,q);
@@ -230,7 +274,7 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
       for(int x1=-xmax; x1<=xmax; x1++)
          if(fba<real,bool>::getF(n*i,x1) > threshold)
             threshold = fba<real,bool>::getF(n*i,x1);
-      threshold *= 1e-6;
+      threshold *= th_outer;
       for(int d=0; d<q; d++)
          {
          // create the considered transmitted sequence
@@ -256,8 +300,8 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
-            const int x2min = max(-xmax,x1-min(n,dxmax));
-            const int x2max = min(min(xmax,rx.size()-n*(i+1)),x1+min(n*I,dxmax));
+            const int x2min = max(-xmax,max(-n,-dxmax)+x1);
+            const int x2max = min(min(xmax,min(n*I,dxmax)+x1),rx.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
@@ -285,21 +329,32 @@ template <class real> void dminner<real>::demodulate(const channel<bool>& chan, 
 
 // description output
 
-template <class real> std::string dminner<real>::description() const
+template <class real>
+std::string dminner<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Watermark Code (" << n << "/" << k << ", " << lutname << " codebook)";
+   sout << "DM Inner Code (" << n << "/" << k << ", " << lutname << " codebook";
+   if(user_threshold)
+      sout << ", thresholds " << th_inner << "/" << th_outer;
+   sout << ")";
    return sout.str();
    }
 
 // object serialization - saving
 
-template <class real> std::ostream& dminner<real>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& dminner<real>::serialize(std::ostream& sout) const
    {
+   sout << user_threshold << '\n';
+   if(user_threshold)
+      {
+      sout << th_inner << '\n';
+      sout << th_outer << '\n';
+      }
    sout << n << '\n';
    sout << k << '\n';
-   sout << userspecified << '\n';
-   if(userspecified)
+   sout << user_lut << '\n';
+   if(user_lut)
       {
       sout << lutname << '\n';
       assert(lut.size() == num_symbols());
@@ -311,13 +366,29 @@ template <class real> std::ostream& dminner<real>::serialize(std::ostream& sout)
 
 // object serialization - loading
 
-template <class real> std::istream& dminner<real>::serialize(std::istream& sin)
+template <class real>
+std::istream& dminner<real>::serialize(std::istream& sin)
    {
    free();
+   std::streampos start = sin.tellg();
+   sin >> user_threshold;
+   // deal with inexistent flag as 'false'
+   if(sin.fail())
+      {
+      sin.clear();
+      sin.seekg(start);
+      user_threshold = false;
+      }
+   // read or set default thresholds
+   if(user_threshold)
+      {
+      sin >> th_inner;
+      sin >> th_outer;
+      }
    sin >> n;
    sin >> k;
-   sin >> userspecified;
-   if(userspecified)
+   sin >> user_lut;
+   if(user_lut)
       {
       sin >> lutname;
       lut.init(num_symbols());
@@ -329,8 +400,6 @@ template <class real> std::istream& dminner<real>::serialize(std::istream& sin)
          assertalways(n == b.size());
          }
       }
-   else
-      fill();
    init();
    return sin;
    }
@@ -348,6 +417,7 @@ using libbase::logrealfast;
 using libbase::serializer;
 
 template class dminner<logrealfast>;
-template <> const serializer dminner<logrealfast>::shelper = serializer("modulator", "dminner<logrealfast>", dminner<logrealfast>::create);
+template <>
+const serializer dminner<logrealfast>::shelper = serializer("modulator", "dminner<logrealfast>", dminner<logrealfast>::create);
 
 }; // end namespace

@@ -21,7 +21,8 @@ using libbase::randgen;
 using std::cout;
 using std::cerr;
 
-template <class G> void ShowHistogram(vector<G> &x)
+template <class G>
+void ShowHistogram(vector<G> &x)
    {
    const int N = x.size();
    const int q = G::elements();
@@ -35,7 +36,8 @@ template <class G> void ShowHistogram(vector<G> &x)
       cout << i << "\t" << f(i) << "\t[" << 100.0*(f(i)-E)/E << "%]\n";
    }
 
-template <class G> void TestChannel(channel<G> &chan, double p)
+template <class G>
+void TestChannel(channel<G> &chan, double p)
    {
    const int N = 100000;
    const int q = G::elements();
@@ -53,7 +55,8 @@ template <class G> void TestChannel(channel<G> &chan, double p)
    ShowHistogram(rx);
    }
 
-template <int m, int poly> void TestQSC()
+template <int m, int poly>
+void TestQSC()
    {
    qsc< gf<m,poly> > chan;
    TestChannel(chan,0.1);

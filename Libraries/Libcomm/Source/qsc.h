@@ -30,7 +30,8 @@ namespace libcomm {
    - Fixed computation in corrupt() to force addition within the field
 */
 
-template <class G> class qsc : public channel<G> {
+template <class G>
+class qsc : public channel<G> {
 private:
    /*! \name User-defined parameters */
    double   Ps;    //!< Symbol-substitution probability \f$ P_s \f$
@@ -59,7 +60,8 @@ public:
    DECLARE_SERIALIZER(qsc)
 };
 
-template <class G> inline double qsc<G>::pdf(const G& tx, const G& rx) const
+template <class G>
+inline double qsc<G>::pdf(const G& tx, const G& rx) const
    {
    return (tx == rx) ? 1-Ps : Ps/G::elements();
    }

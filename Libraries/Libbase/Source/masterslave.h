@@ -19,79 +19,32 @@ namespace libbase {
    - $Date$
    - $Author$
 
-   \version 1.00 (20-21 Apr 2007)
-   - new class to support socket-based master-slave relationship
-   - derived from cmpi 2.40
+   Class supporting socket-based master-slave relationship.
    - supports dynamic slave list
-   - meant to replace cmpi in montecarlo
-   - TODO (2): serialize to network byte order always...
-   - TODO (3): eventually cmpi will be modified to support this class interface model,
-    and a new abstract class created to encapsulate both models
 
-   \version 1.10 (23-25 Apr 2007)
-   - Modified all send/receive functions to use network byte order, allowing
-    heterogenous usage
-   - Added functions to send/receive byte-wide buffers & strings
-   - Changed collection of CPU usage to CPU time
-   - Modified waitforevent() by adding a bool parameter, to be able to disable the
-    acceptance of new connections
-   - Changed disable() from a static function to a regular member, and added automatic
-    calling from the object destructor
-   - Fixed CPU usage information reporting, by implementing the transfer between slaves
-    and master, through a new function called updatecputime()
-   - Left passing of priority to enable function as default priority, but this can
-    now be overridden by a command-line parameter
-   - Changed usage model so that client functions are not statics, and so that users
-    of this class now declare themselves as derived classes, rather than instantiating
-    and object; this is tied with the requirements for RPC functions.
-   - TODO: In view of above, most functions are now protected rather than public, since
-    only enable/disable are required by other than the derived classes.
-   - Changed function-call model so that we don't have to pass pointers; this was
-    in great part necessitated by the above change, since the current model only supports
-    global pointers. Instead, function calls are now done by passing a string reference,
-    which is used as a key in a map list. Two new functions have been added:
-    - fregister() to allow registering of functions by derived classes, and
-    - fcall() to actually call them
-    Since this class cannot know the exact type of the function pointers, these are held
-    by functors, implemented as an abstract base class and a templated derived one.
-   - Heavily refactored
+   \note The current usage model for this class is that users now declare
+         themselves as derived classes, rather than instantiating an object;
+         this is tied with the requirements for RPC functions.
 
-   \version 1.20 (8 May 2007)
-   - Ported to Windows, using Winsock2 API
-   - TODO: make setting priority effective on Windows
+   \note RPC calls are now done by passing a string reference, which is used
+         as a key in a map list. Two new functions support this:
+         - fregister() allows registering of functions by derived classes, and
+         - fcall() to actually call them
+         Since this class cannot know the exact type of the function pointers,
+         these are held by functors.
 
-   \version 1.21 (20 Nov 2007)
-   - Added timeout facility to waitforevent(), defaulting to no-timeout.
-   - Modified anyoneworking(), making it a const function.
-   - Added workingslaves(), returning the number of slaves currently working.
+   \todo Serialize to network byte order always.
+   
+   \todo Consider modifying cmpi to support this class interface model, and
+         create a new abstract class to encapsulate both models.
 
-   \version 1.22 (28 Nov 2007)
-   - modifications to silence 64-bit portability warnings
-    - changed getnumslaves() return type from int to size_t
-    - similar changes in enable() and send() functions
-
-   \version 1.23 (30 Nov 2007)
-   - refactoring work
-    - extracted method dowork()
-
-   \version 1.24 (14 Jan 2008)
-   - updated enable() to allow option for local computation only
-
-   \version 1.25 (25 Jan 2008)
-   - added function to reset cpu usage accumulation
-   - added function to reset a single slave to the 'new' state
-
-   \version 1.26 (6 May 2008)
-   - updated send/receive vector to include vector size; this makes
-     foreknowledge of size and pre-initialization unnecessary.
+   \todo Make setting priority effective on Windows
 */
 
 class masterslave {
    // constants (tags)
-   static const int tag_getname;
-   static const int tag_getcputime;
-   static const int tag_work;
-   static const int tag_die;
+   typedef enum { GETNAME=0xFA, GETCPUTIME,
+      WORK=0xFE, DIE } tag_t;
 
 // communication objects
 public:
@@ -171,7 +124,8 @@ public:
    bool send(slave *s, const int x) { return send(s, &x, sizeof(x)); };
    bool send(slave *s, const double x) { return send(s, &x, sizeof(x)); };
    bool send(slave *s, const std::string& x);
-   bool call(slave *s, const std::string& x) { return send(s, tag_work) && send(s, x); };
+   bool call(slave *s, const std::string& x) { return send(s, int(WORK)) && send(s, x); };
+   //! Reset CPU usage accumulation
    void resetcputime() { cputimeused = 0; };
    bool updatecputime(slave *s);
    bool receive(slave *s, void *buf, const size_t len);

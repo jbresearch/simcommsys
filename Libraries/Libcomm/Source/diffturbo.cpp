@@ -18,7 +18,8 @@ using libbase::matrix;
 
 // initialization
 
-template <class real> void diffturbo<real>::init()
+template <class real>
+void diffturbo<real>::init()
    {
    using std::cerr;
    if(turbo<real>::tail_length() == 0)  // not sure if this is the same as endatzero
@@ -40,7 +41,8 @@ template <class real> void diffturbo<real>::init()
 
 // constructor / destructor
 
-template <class real> diffturbo<real>::diffturbo(const char *filename, fsm& encoder, const int tau, vector<interleaver *>& inter, const int iter, const bool simile, const bool endatzero, const bool parallel) : \
+template <class real>
+diffturbo<real>::diffturbo(const char *filename, fsm& encoder, const int tau, vector<interleaver *>& inter, const int iter, const bool simile, const bool endatzero, const bool parallel) : \
    turbo<real>(encoder, tau, inter, iter, simile, endatzero, parallel)
    {
    init();
@@ -49,7 +51,8 @@ template <class real> diffturbo<real>::diffturbo(const char *filename, fsm& enco
 
 // internal helper functions
 
-template <class real> void diffturbo<real>::load_lut(const char *filename, const int tau)
+template <class real>
+void diffturbo<real>::load_lut(const char *filename, const int tau)
    {
    diffturbo<real>::filename = filename;
    lut.init(tau);
@@ -73,7 +76,8 @@ template <class real> void diffturbo<real>::load_lut(const char *filename, const
    fclose(file);
    }
 
-template <class real> void diffturbo<real>::add(matrix<double>& z, matrix<double>& x, matrix<double>& y, int zp, int xp, int yp)
+template <class real>
+void diffturbo<real>::add(matrix<double>& z, matrix<double>& x, matrix<double>& y, int zp, int xp, int yp)
    {
    z(zp,0) = x(xp,0) * y(yp,0) + x(xp,1) * y(yp,1);
    z(zp,1) = x(xp,1) * y(yp,0) + x(xp,0) * y(yp,1);
@@ -81,7 +85,8 @@ template <class real> void diffturbo<real>::add(matrix<double>& z, matrix<double
 
 // codec functions
 
-template <class real> void diffturbo<real>::encode(vector<int>& source, vector<int>& encoded)
+template <class real>
+void diffturbo<real>::encode(vector<int>& source, vector<int>& encoded)
    {
    int i;
    // Allocate memory for sources
@@ -106,7 +111,8 @@ template <class real> void diffturbo<real>::encode(vector<int>& source, vector<i
    turbo<real>::encode(source3, encoded);
    }
 
-template <class real> void diffturbo<real>::decode(vector<int>& decoded)
+template <class real>
+void diffturbo<real>::decode(vector<int>& decoded)
    {
    int i;
    // Allocate memory for results
@@ -142,7 +148,8 @@ template <class real> void diffturbo<real>::decode(vector<int>& decoded)
 
 // description output
 
-template <class real> std::string diffturbo<real>::description() const
+template <class real>
+std::string diffturbo<real>::description() const
    {
    std::ostringstream sout;
    sout << "Diffused-Input ";
@@ -152,7 +159,8 @@ template <class real> std::string diffturbo<real>::description() const
 
 // object serialization - saving
 
-template <class real> std::ostream& diffturbo<real>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& diffturbo<real>::serialize(std::ostream& sout) const
    {
    sout << filename << "\n";
    sout << lut;
@@ -162,7 +170,8 @@ template <class real> std::ostream& diffturbo<real>::serialize(std::ostream& sou
 
 // object serialization - loading
 
-template <class real> std::istream& diffturbo<real>::serialize(std::istream& sin)
+template <class real>
+std::istream& diffturbo<real>::serialize(std::istream& sin)
    {
    sin >> filename;
    sin >> lut;
@@ -190,15 +199,19 @@ using libbase::logrealfast;
 using libbase::serializer;
 
 template class diffturbo<mpreal>;
-template <> const serializer diffturbo<mpreal>::shelper = serializer("codec", "diffturbo<mpreal>", diffturbo<mpreal>::create);
+template <>
+const serializer diffturbo<mpreal>::shelper = serializer("codec", "diffturbo<mpreal>", diffturbo<mpreal>::create);
 
 template class diffturbo<mpgnu>;
-template <> const serializer diffturbo<mpgnu>::shelper = serializer("codec", "diffturbo<mpgnu>", diffturbo<mpgnu>::create);
+template <>
+const serializer diffturbo<mpgnu>::shelper = serializer("codec", "diffturbo<mpgnu>", diffturbo<mpgnu>::create);
 
 template class diffturbo<logreal>;
-template <> const serializer diffturbo<logreal>::shelper = serializer("codec", "diffturbo<logreal>", diffturbo<logreal>::create);
+template <>
+const serializer diffturbo<logreal>::shelper = serializer("codec", "diffturbo<logreal>", diffturbo<logreal>::create);
 
 template class diffturbo<logrealfast>;
-template <> const serializer diffturbo<logrealfast>::shelper = serializer("codec", "diffturbo<logrealfast>", diffturbo<logrealfast>::create);
+template <>
+const serializer diffturbo<logrealfast>::shelper = serializer("codec", "diffturbo<logrealfast>", diffturbo<logrealfast>::create);
 
 }; // end namespace

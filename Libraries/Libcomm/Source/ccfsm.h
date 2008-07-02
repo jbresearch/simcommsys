@@ -36,7 +36,8 @@ namespace libcomm {
    - added calls to underlying functions in reset() and advance()
 */
 
-template <class G> class ccfsm : public fsm {
+template <class G>
+class ccfsm : public fsm {
 protected:
    /*! \name Object representation */
    int k;   //!< Number of inputs (symbols per time-step)

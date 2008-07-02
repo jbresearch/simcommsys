@@ -17,7 +17,8 @@ using libbase::vector;
 
 // Memory allocation
 
-template <class real, class sig> void fba<real,sig>::allocate()
+template <class real, class sig>
+void fba<real,sig>::allocate()
    {
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
    // B needs indices (j,y) where j in [0, tau] and y in [-xmax, xmax]
@@ -35,7 +36,8 @@ template <class real, class sig> void fba<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig> void fba<real,sig>::init(int tau, int I, int xmax)
+template <class real, class sig>
+void fba<real,sig>::init(int tau, int I, int xmax, double th_inner)
    {
    // code parameters
    assert(tau > 0);
@@ -45,13 +47,17 @@ template <class real, class sig> void fba<real,sig>::init(int tau, int I, int xm
    assert(xmax > 0);
    fba::I = I;
    fba::xmax = xmax;
+   // path truncation parameters
+   assert(th_inner >= 0);
+   fba::th_inner = th_inner;
    // set flag as necessary
    initialised = false;
    }
 
 // Internal procedures
 
-template <class real, class sig> void fba<real,sig>::work_forward(const vector<sig>& r)
+template <class real, class sig>
+void fba<real,sig>::work_forward(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -70,7 +76,7 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
       for(int a=-xmax; a<=xmax; a++)
          if(F(j-1,a) > threshold)
             threshold = F(j-1,a);
-      threshold *= 1e-15;
+      threshold *= th_inner;
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y <= r.size()-1
@@ -93,7 +99,8 @@ template <class real, class sig> void fba<real,sig>::work_forward(const vector<s
    std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
    }
 
-template <class real, class sig> void fba<real,sig>::work_backward(const vector<sig>& r)
+template <class real, class sig>
+void fba<real,sig>::work_backward(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -114,7 +121,7 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
       for(int b=-xmax; b<=xmax; b++)
          if(B(j+1,b) > threshold)
             threshold = B(j+1,b);
-      threshold *= 1e-15;
+      threshold *= th_inner;
       // event must fit the received sequence:
       // 1. j+y >= 0
       // 2. j+b <= r.size()-1
@@ -139,7 +146,8 @@ template <class real, class sig> void fba<real,sig>::work_backward(const vector<
 
 // User procedures
 
-template <class real, class sig> void fba<real,sig>::prepare(const vector<sig>& r)
+template <class real, class sig>
+void fba<real,sig>::prepare(const vector<sig>& r)
    {
    // compute forwards and backwards passes
    work_forward(r);

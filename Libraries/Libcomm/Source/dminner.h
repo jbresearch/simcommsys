@@ -43,14 +43,22 @@ namespace libcomm {
          architecture to allow higher-range ptables.
 */
 
-template <class real> class dminner : public modulator<bool>, private fba<real,bool> {
+template <class real>
+class dminner2;
+
+template <class real>
+class dminner : public modulator<bool>, private fba<real,bool> {
+   friend class dminner2<real>;
 private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
    int      k;                //!< number of bits in message (input) symbol
-   bool     userspecified;    //!< flag indicating that LUT is supplied by user
+   bool     user_lut;         //!< flag indicating that LUT is supplied by user
    std::string lutname;       //!< name to describe codebook
    libbase::vector<int> lut;  //!< sparsifier LUT
+   bool     user_threshold;   //!< flag indicating that LUT is supplied by user
+   double   th_inner;         //!< Threshold factor for inner cycle
+   double   th_outer;         //!< Threshold factor for outer cycle
    // @}
    /*! \name Pre-computed parameters */
    double   f;    //!< average weight per bit of sparse symbol
@@ -65,7 +73,7 @@ private:
    /*! \name Internal functions */
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    void createsequence(const int tau);                      
-   void checkforchanges(int I, int xmax);                      
+   void checkforchanges(int I, int xmax) const;                      
    // @}
    // Implementations of channel-specific metrics for fba
    real P(const int a, const int b);
@@ -78,13 +86,10 @@ protected:
    void init();
    void free();
    // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   dminner() { mychan = NULL; };
-   // @}
 public:
    /*! \name Constructors / Destructors */
-   dminner(const int n, const int k);
+   dminner(const int n=2, const int k=1);
+   dminner(const int n, const int k, const double th_inner, const double th_outer);
    ~dminner() { free(); };
    // @}
 

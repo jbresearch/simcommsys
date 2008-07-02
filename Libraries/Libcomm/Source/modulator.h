@@ -28,7 +28,8 @@ namespace libcomm {
    - Added seed function.
 */
 
-template <class S> class basic_modulator {
+template <class S>
+class basic_modulator {
 public:
    /*! \name Constructors / Destructors */
    virtual ~basic_modulator() {};
@@ -102,7 +103,8 @@ public:
    - $Author$
 */
 
-template <class S> class modulator : public basic_modulator<S> {
+template <class S>
+class modulator : public basic_modulator<S> {
    // Serialization Support
    DECLARE_BASE_SERIALIZER(modulator)
 };
@@ -121,7 +123,8 @@ template <class S> class modulator : public basic_modulator<S> {
      derived from the abstract class.
 */
 
-template <> class modulator<sigspace> : public basic_modulator<sigspace> {
+template <>
+class modulator<sigspace> : public basic_modulator<sigspace> {
 public:
    /*! \name Informative functions */
    //! Average energy per symbol
@@ -232,7 +235,8 @@ public:
    \todo Merge modulate and demodulate between this function and lut_modulator
 */
 
-template <class G> class direct_modulator : public modulator<G> {
+template <class G>
+class direct_modulator : public modulator<G> {
 public:
    // Atomic modem operations
    const G modulate(const int index) const { assert(index >= 0 && index < num_symbols()); return G(index); };
@@ -266,7 +270,8 @@ public:
      derived from the abstract class.
 */
 
-template <> class direct_modulator<bool> : public modulator<bool> {
+template <>
+class direct_modulator<bool> : public modulator<bool> {
 public:
    // Atomic modem operations
    const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index & 1; };

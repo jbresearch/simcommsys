@@ -280,7 +280,8 @@ namespace libcomm {
      space; this parallels what was done in ccfsm.
 */
 
-template <class real, class dbl=double> class turbo : public codec, private bcjr<real,dbl> {
+template <class real, class dbl=double>
+class turbo : public codec, private bcjr<real,dbl> {
 private:
    /*! \name User-defined parameters */
    libbase::vector<interleaver *> inter;     //!< Set of interleavers, one per parity sequence

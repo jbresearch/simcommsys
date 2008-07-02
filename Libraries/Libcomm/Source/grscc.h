@@ -32,7 +32,8 @@ namespace libcomm {
    - implemented resetcircular() using csct
 */
 
-template <class G> class grscc : public ccfsm<G> {
+template <class G>
+class grscc : public ccfsm<G> {
 private:
    /*! \name Object representation */
    libbase::matrix<int> csct; //!< Circulation state correspondence table

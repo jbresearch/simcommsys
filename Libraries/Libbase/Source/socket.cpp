@@ -45,14 +45,16 @@ int socket::objectcount = 0;
 
 // helper functions
 
-template <class T> ssize_t socket::io(T buf, size_t len)
+template <class T>
+ssize_t socket::io(T buf, size_t len)
    {
    cerr << "Cannot instantiate template function with this type\n";
    exit(1);
    return 0;
    }
 
-template <> ssize_t socket::io(const void *buf, size_t len)
+template <>
+ssize_t socket::io(const void *buf, size_t len)
    {
 #ifdef WIN32
    return send(sd, (const char *)buf, int(len), 0);
@@ -61,7 +63,8 @@ template <> ssize_t socket::io(const void *buf, size_t len)
 #endif
    }
 
-template <> ssize_t socket::io(void *buf, size_t len)
+template <>
+ssize_t socket::io(void *buf, size_t len)
    {
 #ifdef WIN32
    return recv(sd, (char *)buf, int(len), 0);
@@ -70,7 +73,8 @@ template <> ssize_t socket::io(void *buf, size_t len)
 #endif
    }
 
-template <class T> ssize_t socket::insistio(T buf, size_t len)
+template <class T>
+ssize_t socket::insistio(T buf, size_t len)
    {
    const char *b = (const char *)buf;
    //T b = buf;

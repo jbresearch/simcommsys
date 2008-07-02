@@ -152,7 +152,8 @@ namespace libcomm {
         'lut_i' table, since these are not really required.
 */
 
-template <class real, class dbl=double> class bcjr {
+template <class real, class dbl=double>
+class bcjr {
    // internal variables
    int   tau;  //!< Block size in symbols (including any tail bits)
    int   K;    //!< Number of possible input to encoder at any time instant (equals 2^k)

@@ -63,7 +63,8 @@ using libbase::matrix;
    the shift-in is applied. It can be seen that the total length of the state vector
    is equal to the total number of memory elements in the system, \f$ \nu \f$.
 */
-template <class G> int grscc<G>::getstateval(const vector<G>& statevec) const
+template <class G>
+int grscc<G>::getstateval(const vector<G>& statevec) const
    {
    int stateval = 0;
    for(int i=0; i<this->nu; i++)
@@ -82,7 +83,8 @@ template <class G> int grscc<G>::getstateval(const vector<G>& statevec) const
    \param stateval Unique integer representation of state value
    \return State vector in the required format for determining circulation state
 */
-template <class G> vector<G> grscc<G>::getstatevec(int stateval) const
+template <class G>
+vector<G> grscc<G>::getstatevec(int stateval) const
    {
    // Create generator matrix in required format
    vector<G> statevec(this->nu);
@@ -112,7 +114,8 @@ template <class G> vector<G> grscc<G>::getstatevec(int stateval) const
    corresponding to the output generation have no bearing. Similarly, the taps
    corresponding to the inputs also are irrelevant.
 */
-template <class G> matrix<G> grscc<G>::getstategen() const
+template <class G>
+matrix<G> grscc<G>::getstategen() const
    {
    // Create generator matrix in required format
    matrix<G> stategen(this->nu,this->nu);
@@ -140,7 +143,8 @@ template <class G> matrix<G> grscc<G>::getstategen() const
    linear feedback shift register. We verify the period by computing the necessary
    powers of the state-generator matrix.
 */
-template <class G> void grscc<G>::initcsct()
+template <class G>
+void grscc<G>::initcsct()
    {
    const matrix<G> stategen = getstategen();
    const matrix<G> eye = matrix<G>::eye(this->nu);
@@ -170,7 +174,8 @@ template <class G> void grscc<G>::initcsct()
 
 // FSM helper operations
 
-template <class G> int grscc<G>::determineinput(int input) const
+template <class G>
+int grscc<G>::determineinput(int input) const
    {
    if(input != fsm::tail)
       return input;
@@ -182,7 +187,8 @@ template <class G> int grscc<G>::determineinput(int input) const
    return convert(ip);
    }
 
-template <class G> vector<G> grscc<G>::determinefeedin(int input) const
+template <class G>
+vector<G> grscc<G>::determinefeedin(int input) const
    {
    assert(input != fsm::tail);
    // Convert input to vector representation
@@ -198,7 +204,8 @@ template <class G> vector<G> grscc<G>::determinefeedin(int input) const
 
 // FSM state operations (getting and resetting)
 
-template <class G> void grscc<G>::resetcircular(int zerostate, int n)
+template <class G>
+void grscc<G>::resetcircular(int zerostate, int n)
    {
    assert(zerostate >= 0 && zerostate < this->num_states());
    if(csct.size() == 0)
@@ -211,7 +218,8 @@ template <class G> void grscc<G>::resetcircular(int zerostate, int n)
 
 // Description
 
-template <class G> std::string grscc<G>::description() const
+template <class G>
+std::string grscc<G>::description() const
    {
    std::ostringstream sout;
    sout << "RSC code " << ccfsm<G>::description();
@@ -220,12 +228,14 @@ template <class G> std::string grscc<G>::description() const
 
 // Serialization Support
 
-template <class G> std::ostream& grscc<G>::serialize(std::ostream& sout) const
+template <class G>
+std::ostream& grscc<G>::serialize(std::ostream& sout) const
    {
    return ccfsm<G>::serialize(sout);
    }
 
-template <class G> std::istream& grscc<G>::serialize(std::istream& sin)
+template <class G>
+std::istream& grscc<G>::serialize(std::istream& sin)
    {
    return ccfsm<G>::serialize(sin);
    }
@@ -244,15 +254,19 @@ using libbase::serializer;
 // Degenerate case GF(2)
 
 template class grscc< gf<1,0x3> >;
-template <> const serializer grscc< gf<1,0x3> >::shelper = serializer("fsm", "grscc<gf<1,0x3>>", grscc< gf<1,0x3> >::create);
+template <>
+const serializer grscc< gf<1,0x3> >::shelper = serializer("fsm", "grscc<gf<1,0x3>>", grscc< gf<1,0x3> >::create);
 
 // cf. Lin & Costello, 2004, App. A
 
 template class grscc< gf<2,0x7> >;
-template <> const serializer grscc< gf<2,0x7> >::shelper = serializer("fsm", "grscc<gf<2,0x7>>", grscc< gf<2,0x7> >::create);
+template <>
+const serializer grscc< gf<2,0x7> >::shelper = serializer("fsm", "grscc<gf<2,0x7>>", grscc< gf<2,0x7> >::create);
 template class grscc< gf<3,0xB> >;
-template <> const serializer grscc< gf<3,0xB> >::shelper = serializer("fsm", "grscc<gf<3,0xB>>", grscc< gf<3,0xB> >::create);
+template <>
+const serializer grscc< gf<3,0xB> >::shelper = serializer("fsm", "grscc<gf<3,0xB>>", grscc< gf<3,0xB> >::create);
 template class grscc< gf<4,0x13> >;
-template <> const serializer grscc< gf<4,0x13> >::shelper = serializer("fsm", "grscc<gf<4,0x13>>", grscc< gf<4,0x13> >::create);
+template <>
+const serializer grscc< gf<4,0x13> >::shelper = serializer("fsm", "grscc<gf<4,0x13>>", grscc< gf<4,0x13> >::create);
 
 }; // end namespace

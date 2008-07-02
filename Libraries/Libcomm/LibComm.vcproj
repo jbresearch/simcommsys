@@ -455,6 +455,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\digest32.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\dminner.cpp"
 				>
 			</File>
@@ -1043,6 +1047,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\resultsfile.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\rscc.cpp"
 				>
 				<FileConfiguration
@@ -1336,6 +1344,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\digest32.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\dminner.h"
 				>
 			</File>
@@ -1489,6 +1501,10 @@
 			</File>
 			<File
 				RelativePath="Source\rectangular.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\resultsfile.h"
 				>
 			</File>
 			<File

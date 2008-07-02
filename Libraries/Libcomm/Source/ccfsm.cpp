@@ -27,7 +27,8 @@ using libbase::matrix;
    right, and correspond with register positions farther away from the input
    junction.
 */
-template <class G> void ccfsm<G>::init(const matrix< vector<G> >& generator)
+template <class G>
+void ccfsm<G>::init(const matrix< vector<G> >& generator)
    {
    // copy automatically what we can
    gen = generator;
@@ -71,7 +72,8 @@ template <class G> void ccfsm<G>::init(const matrix< vector<G> >& generator)
          represented by higher index positions, and get higher-order positions within
          the integer representation.
 */
-template <class G> int ccfsm<G>::convert(const vector<G>& x, int y) const
+template <class G>
+int ccfsm<G>::convert(const vector<G>& x, int y) const
    {
    for(int i=x.size()-1; i>=0; i--)
       {
@@ -91,7 +93,8 @@ template <class G> int ccfsm<G>::convert(const vector<G>& x, int y) const
          represented by higher index positions, and get higher-order positions within
          the integer representation.
 */
-template <class G> int ccfsm<G>::convert(int x, vector<G>& y) const
+template <class G>
+int ccfsm<G>::convert(int x, vector<G>& y) const
    {
    for(int i=0; i<y.size(); i++)
       {
@@ -110,7 +113,8 @@ template <class G> int ccfsm<G>::convert(int x, vector<G>& y) const
 
    \todo Document this function with a diagram.
 */
-template <class G> G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
+template <class G>
+G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
    {
    // Convolve the shift-in value with corresponding generator polynomial
    int m = r.size();
@@ -127,7 +131,8 @@ template <class G> G ccfsm<G>::convolve(const G& s, const vector<G>& r, const ve
 /*!
    \brief Principal constructor
 */
-template <class G> ccfsm<G>::ccfsm(const matrix< vector<G> >& generator)
+template <class G>
+ccfsm<G>::ccfsm(const matrix< vector<G> >& generator)
    {
    init(generator);
    }
@@ -135,7 +140,8 @@ template <class G> ccfsm<G>::ccfsm(const matrix< vector<G> >& generator)
 /*!
    \brief Copy constructor
 */
-template <class G> ccfsm<G>::ccfsm(const ccfsm<G>& x)
+template <class G>
+ccfsm<G>::ccfsm(const ccfsm<G>& x)
    {
    // copy automatically what we can
    k = x.k;
@@ -158,7 +164,8 @@ template <class G> ccfsm<G>::ccfsm(const ccfsm<G>& x)
          represented by higher index positions, and get higher-order positions within
          the state representation.
 */
-template <class G> int ccfsm<G>::state() const
+template <class G>
+int ccfsm<G>::state() const
    {
    int state = 0;
    for(int i=k-1; i>=0; i--)
@@ -167,7 +174,8 @@ template <class G> int ccfsm<G>::state() const
    return state;
    }
 
-template <class G> void ccfsm<G>::reset(int state)
+template <class G>
+void ccfsm<G>::reset(int state)
    {
    fsm::reset(state);
    assert(state >= 0 && state < num_states());
@@ -179,7 +187,8 @@ template <class G> void ccfsm<G>::reset(int state)
 
 // FSM operations (advance/output/step)
 
-template <class G> void ccfsm<G>::advance(int& input)
+template <class G>
+void ccfsm<G>::advance(int& input)
    {
    fsm::advance(input);
    input = determineinput(input);
@@ -198,7 +207,8 @@ template <class G> void ccfsm<G>::advance(int& input)
       }
    }
 
-template <class G> int ccfsm<G>::output(int input) const
+template <class G>
+int ccfsm<G>::output(int input) const
    {
    input = determineinput(input);
    vector<G> sin = determinefeedin(input);
@@ -218,7 +228,8 @@ template <class G> int ccfsm<G>::output(int input) const
 // Description & Serialization
 
 //! Description output - common part only, must be preceded by specific name
-template <class G> std::string ccfsm<G>::description() const
+template <class G>
+std::string ccfsm<G>::description() const
    {
    std::ostringstream sout;
    sout << "GF(" << G::elements() << "): (nu=" << nu << ", rate " << k << "/" << n << ", G=[";
@@ -234,13 +245,15 @@ template <class G> std::string ccfsm<G>::description() const
    return sout.str();
    }
 
-template <class G> std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
+template <class G>
+std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
    {
    sout << gen;
    return sout;
    }
 
-template <class G> std::istream& ccfsm<G>::serialize(std::istream& sin)
+template <class G>
+std::istream& ccfsm<G>::serialize(std::istream& sin)
    {
    sin >> gen;
    init(gen);

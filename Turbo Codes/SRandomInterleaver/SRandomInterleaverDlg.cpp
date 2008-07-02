@@ -15,7 +15,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
-template <class T> class DerivedVector : public libbase::vector<T>
+template <class T>
+class DerivedVector : public libbase::vector<T>
 {
 public:
    DerivedVector(const int x=0);
@@ -23,11 +24,13 @@ public:
    void sequence();
 };
 
-template <class T> DerivedVector<T>::DerivedVector(const int x) : vector<T>(x)
+template <class T>
+DerivedVector<T>::DerivedVector(const int x) : vector<T>(x)
    {
    }
 
-template <class T> void DerivedVector<T>::remove(const int x)
+template <class T>
+void DerivedVector<T>::remove(const int x)
    {
    ASSERT(x < m_xsize);
    for(int i=x; i<m_xsize-1; i++)
@@ -35,7 +38,8 @@ template <class T> void DerivedVector<T>::remove(const int x)
    m_xsize--;
    }
 
-template <class T> void DerivedVector<T>::sequence()
+template <class T>
+void DerivedVector<T>::sequence()
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] = i;

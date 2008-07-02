@@ -17,7 +17,8 @@ using libbase::vector;
 
 // Memory allocation
 
-template <class real, class sig> void fba2<real,sig>::allocate()
+template <class real, class sig>
+void fba2<real,sig>::allocate()
    {
    // determine limits
    dmin = max(-n,-dxmax);
@@ -60,7 +61,8 @@ template <class real, class sig> void fba2<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax)
+template <class real, class sig>
+void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
    // code parameters
    assert(N > 0);
@@ -76,13 +78,19 @@ template <class real, class sig> void fba2<real,sig>::init(int N, int n, int q, 
    fba2::I = I;
    fba2::xmax = xmax;
    fba2::dxmax = dxmax;
+   // path truncation parameters
+   assert(th_inner >= 0);
+   assert(th_outer >= 0);
+   fba2::th_inner = th_inner;
+   fba2::th_outer = th_outer;
    // set flag as necessary
    initialised = false;
    }
 
 // Internal procedures
 
-template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::work_gamma(const vector<sig>& r)
    {
    assert(initialised);
    if(!cache_enabled)
@@ -95,7 +103,8 @@ template <class real, class sig> void fba2<real,sig>::work_gamma(const vector<si
    m_cached = false;
    }
 
-template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::work_alpha(const vector<sig>& r)
    {
    assert(initialised);
    // initialise array:
@@ -111,7 +120,7 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
       for(int x1=-xmax; x1<=xmax; x1++)
          if(alpha(i-1,x1) > threshold)
             threshold = alpha(i-1,x1);
-      threshold *= 1e-15;
+      threshold *= th_inner;
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*(i-1)+x1 >= 0
@@ -140,7 +149,8 @@ template <class real, class sig> void fba2<real,sig>::work_alpha(const vector<si
    std::cerr << libbase::pacifier("FBA Alpha", N-1, N-1);
    }
 
-template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::work_beta(const vector<sig>& r)
    {
    assert(initialised);
    // initialise array:
@@ -159,7 +169,7 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
       for(int x2=-xmax; x2<=xmax; x2++)
          if(beta(i+1,x2) > threshold)
             threshold = beta(i+1,x2);
-      threshold *= 1e-15;
+      threshold *= th_inner;
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
@@ -190,7 +200,8 @@ template <class real, class sig> void fba2<real,sig>::work_beta(const vector<sig
 
 // User procedures
 
-template <class real, class sig> void fba2<real,sig>::prepare(const vector<sig>& r)
+template <class real, class sig>
+void fba2<real,sig>::prepare(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -208,7 +219,8 @@ template <class real, class sig> void fba2<real,sig>::prepare(const vector<sig>&
    work_beta(r);
    }
 
-template <class real, class sig> void fba2<real,sig>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
+template <class real, class sig>
+void fba2<real,sig>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
    {
    assert(initialised);
    // Initialise result vector (one sparse symbol per timestep)
@@ -222,7 +234,7 @@ template <class real, class sig> void fba2<real,sig>::work_results(const vector<
       for(int x1=-xmax; x1<=xmax; x1++)
          if(alpha(i,x1) > threshold)
             threshold = alpha(i,x1);
-      threshold *= 1e-6;
+      threshold *= th_outer;
       for(int d=0; d<q; d++)
          {
          real p = 0;

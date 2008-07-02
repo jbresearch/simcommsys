@@ -13,6 +13,10 @@
 
 namespace libcomm {
 
+// Static values
+
+bool sha::tested = false;
+
 // Const values
 
 const libbase::int32u sha::K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
@@ -21,40 +25,20 @@ const libbase::int32u sha::K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d
 
 sha::sha()
    {
-   // reset size counter
-   m_size = 0;
    // reset chaining variables
    m_hash.init(5);
    m_hash = 0;
+   // set byte-order flag
+   lsbfirst = false;
+   // perform implementation tests on algorithm, exit on failure
+   if(!tested)
+      selftest();
    }
 
-// Conversion to/from strings
+// Digest-specific functions
 
-sha::sha(const std::string& s)
+void sha::derived_reset()
    {
-   // reset size counter
-   m_size = 0;
-   // reset chaining variables
-   m_hash.init(5);
-   // load from std::string
-   std::istringstream is(s);
-   is >> *this;
-   }
-
-sha::operator std::string() const
-   {
-   // write into a std::string
-   std::ostringstream sout;
-   sout << *this;
-   return sout.str();
-   }
-
-// Public interface for computing digest
-
-void sha::reset()
-   {
-   // reset size counter
-   m_size = 0;
    // reset chaining variables
    m_hash.init(5);
    m_hash(0) = 0x67452301;
@@ -62,13 +46,9 @@ void sha::reset()
    m_hash(2) = 0x98badcfe;
    m_hash(3) = 0x10325476;
    m_hash(4) = 0xc3d2e1f0;
-#ifndef NDEBUG
-   // debugging
-   m_padded = m_terminated = false;
-#endif
    }
 
-void sha::process(const libbase::vector<libbase::int32u>& M)
+void sha::process_block(const libbase::vector<libbase::int32u>& M)
    {
    // create expanded message block
    libbase::vector<libbase::int32u> W;
@@ -90,97 +70,50 @@ void sha::process(const libbase::vector<libbase::int32u>& M)
    m_hash += hash;
    }
 
-void sha::process(const char *buf, const int size)
+// Verification function
+
+void sha::selftest()
    {
-   assert(size <= 64);
-   //trace << "SHA: process block size " << size << "\n";
-   // convert message block and process
-   libbase::vector<libbase::int32u> M(16);
-   // initialize values
-   M = 0;
-   for(int i=0; i<size; i++)
-      M(i>>2) |= libbase::int8u(buf[i]) << 8*(3-(i & 3));
-   // add padding (1-bit followed by zeros) if it fits and is necessary
-   if(size < 64 && (m_size % 64) == 0)
-      {
-      M(size>>2) |= libbase::int8u(0x80) << 8*(3-(size & 3));
-#ifndef NDEBUG
-      if(m_padded)
-         libbase::trace << "SHA Error: Padding already added\n";
-      m_padded = true;
-      //trace << "SHA: adding padding\n";
-#endif
-      }
-   // update size counter
-   m_size += size;
-   // add file size (in bits) if this fits
-   // (note that we need to fit the 8-byte size AND 1 byte of padding)
-   if(size < 64-8)
-      {
-      M(14) = libbase::int32u(m_size >> 29);
-      M(15) = libbase::int32u(m_size << 3);
-#ifndef NDEBUG
-      m_terminated = true;
-      //trace << "SHA: adding file size " << hex << M(14) << " " << M(15) << dec << "\n";
-#endif
-      }
-   // go through the SHA algorithm
-   process(M);
+   // set flag to avoid re-entry
+   tested = true;
+   libbase::trace << "sha: Testing implementation\n";
+   // http://www.faqs.org/rfcs/rfc3174.html
+   std::string sMessage, sHash;
+   // Test libbase::vector 0
+   sMessage = "";
+   sHash = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 1
+   sMessage = "abc";
+   sHash = "a9993e364706816aba3e25717850c26c9cd0d89d";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 2
+   sMessage = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+   sHash = "84983e441c3bd26ebaae4aa1f95129e5e54670f1";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 3
+   sMessage = "";
+   for(int i=0; i<1000000; i++)
+      sMessage += "a";
+   sHash = "34aa973cd4c4daa4f61eeb2bdbad27316534016f";
+   assertalways(verify(sMessage,sHash));
+   // Test libbase::vector 4
+   sMessage = "";
+   for(int i=0; i<10; i++)
+      sMessage += "0123456701234567012345670123456701234567012345670123456701234567";
+   sHash = "dea356a2cddd90c7a7ecedc5ebb563934f460452";
+   assertalways(verify(sMessage,sHash));
    }
 
-void sha::process(std::istream& sin)
+bool sha::verify(const std::string message, const std::string hash)
    {
-   char buf[64];
-   // initialize the variables
-   reset();
-   // process whole data stream
-   while(!sin.eof())
-      {
-      sin.read(buf, 64);
-      process(buf, sin.gcount());
-      }
-   // if necessary, flush to include stream length
-   if(sin.gcount() >= 64-8)
-      process(buf, 0);
-   }
-
-// Comparison functions
-
-bool sha::operator>(const sha& x) const
-   {
-   for(int i=0; i<5; i++)
-      {
-      if(m_hash(i) > x.m_hash(i))
-         return true;
-      if(m_hash(i) < x.m_hash(i))
-         return false;
-      }
-   return false;
-   }
-
-bool sha::operator<(const sha& x) const
-   {
-   for(int i=0; i<5; i++)
-      {
-      if(m_hash(i) < x.m_hash(i))
-         return true;
-      if(m_hash(i) > x.m_hash(i))
-         return false;
-      }
-   return false;
-   }
-
-bool sha::operator==(const sha& x) const
-   {
-   for(int i=0; i<5; i++)
-      if(m_hash(i) != x.m_hash(i))
-         return false;
-   return true;
-   }
-
-bool sha::operator!=(const sha& x) const
-   {
-   return !operator==(x);
+   sha d;
+   d.reset();
+   // process requires a pass by reference, which cannot be done by
+   // direct conversion.
+   std::istringstream s(message);
+   d.process(s);
+   return hash == std::string(d);
    }
 
 // SHA nonlinear function implementations
@@ -223,44 +156,6 @@ void sha::expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libb
       W(i) = M(i);
    for(i=16; i<80; i++)
       W(i) = cshift(W(i-3) ^ W(i-8) ^ W(i-14) ^ W(i-16), 1);
-   }
-
-// Stream input/output
-
-std::ostream& operator<<(std::ostream& sout, const sha& x)
-   {
-#ifndef NDEBUG
-   if(!x.m_padded)
-      libbase::trace << "SHA Error: Unpadded stream\n";
-   if(!x.m_terminated)
-      libbase::trace << "SHA Error: Unterminated stream\n";
-#endif
-   const std::ios::fmtflags flags = sout.flags();
-   for(int i=0; i<5; i++)
-      {
-      sout.width(8);
-      sout.fill('0');
-      sout << std::hex << x.m_hash(i);
-      }
-   sout.flags(flags);
-   return sout;
-   }
-
-std::istream& operator>>(std::istream& sin, sha& x)
-   {
-   const std::ios::fmtflags flags = sin.flags();
-   sin >> std::ws;
-   char buf[9];
-   buf[8] = 0;
-   for(int i=0; i<5; i++)
-      {
-      sin.read(buf, 8);
-      //trace << "Reading hash " << i << ": " << buf << "\n";
-      x.m_hash(i) = strtoul(buf, NULL, 16);
-      //trace << "Converted as " << hex << x.m_hash(i) << dec << "\n";
-      }
-   sin.flags(flags);
-   return sin;
    }
 
 }; // end namespace

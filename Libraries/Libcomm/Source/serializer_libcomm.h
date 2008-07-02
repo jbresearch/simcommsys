@@ -98,7 +98,7 @@ namespace libcomm {
 class serializer_libcomm : private
    qsc< libbase::gf<1,0x3> >, qsc< libbase::gf<2,0x7> >, qsc< libbase::gf<3,0xB> >, qsc< libbase::gf<4,0x13> >,
    awgn, laplacian, lapgauss, bsid, bsc,
-   mpsk, qam, dminner<libbase::logrealfast>, dminner2<libbase::logrealfast>,
+   mpsk, qam,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
@@ -108,16 +108,20 @@ class serializer_libcomm : private
    puncture_file, puncture_null, puncture_stipple
 {
 private:
-   commsys< libbase::gf<1,0x3> >    commsys_gf1;
-   commsys< libbase::gf<2,0x7> >    commsys_gf2;
-   commsys< libbase::gf<3,0xB> >    commsys_gf3;
-   commsys< libbase::gf<4,0x13> >   commsys_gf4;
-   commsys<sigspace>                commsys_sigspace;
-   commsys<bool>                    commsys_bool;
-   commsys<bool,commsys_prof_burst> commsys_bool_prof_burst;
-   commsys<bool,commsys_prof_pos>   commsys_bool_prof_pos;
-   commsys<bool,commsys_prof_sym>   commsys_bool_prof_sym;
-   commsys<bool,commsys_hist_symerr> commsys_bool_hist_symerr;
+   // Modulators
+   dminner<libbase::logrealfast>       _dminner_logrealfast;
+   dminner2<libbase::logrealfast>      _dminner2_logrealfast;
+   // Experiments
+   commsys< libbase::gf<1,0x3> >       _commsys_gf1;
+   commsys< libbase::gf<2,0x7> >       _commsys_gf2;
+   commsys< libbase::gf<3,0xB> >       _commsys_gf3;
+   commsys< libbase::gf<4,0x13> >      _commsys_gf4;
+   commsys<sigspace>                   _commsys_sigspace;
+   commsys<bool>                       _commsys_bool;
+   commsys<bool,commsys_prof_burst>    _commsys_bool_prof_burst;
+   commsys<bool,commsys_prof_pos>      _commsys_bool_prof_pos;
+   commsys<bool,commsys_prof_sym>      _commsys_bool_prof_sym;
+   commsys<bool,commsys_hist_symerr>   _commsys_bool_hist_symerr;
 public:
    serializer_libcomm() {};
 };

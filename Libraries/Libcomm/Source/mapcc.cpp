@@ -14,7 +14,8 @@ namespace libcomm {
 
 // initialization / de-allocation
 
-template <class real> void mapcc<real>::init()
+template <class real>
+void mapcc<real>::init()
    {
    bcjr<real>::init(*encoder, tau);
    assert(!circular || !endatzero);
@@ -24,13 +25,15 @@ template <class real> void mapcc<real>::init()
    N = encoder->num_outputs();
    }
 
-template <class real> void mapcc<real>::free()
+template <class real>
+void mapcc<real>::free()
    {
    if(encoder != NULL)
       delete encoder;
    }
 
-template <class real> void mapcc<real>::reset()
+template <class real>
+void mapcc<real>::reset()
    {
    if(circular)
       {
@@ -51,12 +54,14 @@ template <class real> void mapcc<real>::reset()
 
 // constructor / destructor
 
-template <class real> mapcc<real>::mapcc()
+template <class real>
+mapcc<real>::mapcc()
    {
    encoder = NULL;
    }
 
-template <class real> mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
+template <class real>
+mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
    {
    mapcc::encoder = encoder.clone();
    mapcc::tau = tau;
@@ -67,7 +72,8 @@ template <class real> mapcc<real>::mapcc(const fsm& encoder, const int tau, cons
 
 // encoding and decoding functions
 
-template <class real> void mapcc<real>::encode(libbase::vector<int>& source, libbase::vector<int>& encoded)
+template <class real>
+void mapcc<real>::encode(libbase::vector<int>& source, libbase::vector<int>& encoded)
    {
    // Initialise result vector
    encoded.init(tau);
@@ -86,7 +92,8 @@ template <class real> void mapcc<real>::encode(libbase::vector<int>& source, lib
       encoded(t) = encoder->step(source(t));
    }
 
-template <class real> void mapcc<real>::translate(const libbase::matrix<double>& ptable)
+template <class real>
+void mapcc<real>::translate(const libbase::matrix<double>& ptable)
    {
    using std::cerr;
    // Compute factors / sizes & check validity
@@ -119,7 +126,8 @@ template <class real> void mapcc<real>::translate(const libbase::matrix<double>&
    reset();
    }
 
-template <class real> void mapcc<real>::decode(libbase::vector<int>& decoded)
+template <class real>
+void mapcc<real>::decode(libbase::vector<int>& decoded)
    {
    // Initialize results vectors
    ri.init(tau, K);
@@ -139,7 +147,8 @@ template <class real> void mapcc<real>::decode(libbase::vector<int>& decoded)
 
 // description output
 
-template <class real> std::string mapcc<real>::description() const
+template <class real>
+std::string mapcc<real>::description() const
    {
    std::ostringstream sout;
    sout << (endatzero ? "Terminated, " : "Unterminated, ");
@@ -151,7 +160,8 @@ template <class real> std::string mapcc<real>::description() const
 
 // object serialization - saving
 
-template <class real> std::ostream& mapcc<real>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& mapcc<real>::serialize(std::ostream& sout) const
    {
    sout << encoder;
    sout << tau << "\n";
@@ -162,7 +172,8 @@ template <class real> std::ostream& mapcc<real>::serialize(std::ostream& sout) c
 
 // object serialization - loading
 
-template <class real> std::istream& mapcc<real>::serialize(std::istream& sin)
+template <class real>
+std::istream& mapcc<real>::serialize(std::istream& sin)
    {
    int temp;
    free();
@@ -195,15 +206,19 @@ using libbase::logrealfast;
 using libbase::serializer;
 
 template class mapcc<mpreal>;
-template <> const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);
+template <>
+const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);
 
 template class mapcc<mpgnu>;
-template <> const serializer mapcc<mpgnu>::shelper = serializer("codec", "mapcc<mpgnu>", mapcc<mpgnu>::create);
+template <>
+const serializer mapcc<mpgnu>::shelper = serializer("codec", "mapcc<mpgnu>", mapcc<mpgnu>::create);
 
 template class mapcc<logreal>;
-template <> const serializer mapcc<logreal>::shelper = serializer("codec", "mapcc<logreal>", mapcc<logreal>::create);
+template <>
+const serializer mapcc<logreal>::shelper = serializer("codec", "mapcc<logreal>", mapcc<logreal>::create);
 
 template class mapcc<logrealfast>;
-template <> const serializer mapcc<logrealfast>::shelper = serializer("codec", "mapcc<logrealfast>", mapcc<logrealfast>::create);
+template <>
+const serializer mapcc<logrealfast>::shelper = serializer("codec", "mapcc<logrealfast>", mapcc<logrealfast>::create);
 
 }; // end namespace

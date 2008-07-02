@@ -30,8 +30,8 @@ namespace libcomm {
    Trans. IT, 47(2), Feb 2001.
 */
 
-template <class real, class sig=sigspace> class fba2 {
-private:
+template <class real, class sig=sigspace>
+class fba2 {
    /*! \name User-defined parameters */
    int   N;       //!< The transmitted block size in symbols
    int   n;       //!< The number of bits encoding each q-ary symbol
@@ -39,6 +39,8 @@ private:
    int   I;       //!< The maximum number of insertions considered before every transmission
    int   xmax;    //!< The maximum allowed overall drift is \f$ \pm x_{max} \f$
    int   dxmax;   //!< The maximum allowed drift within a q-ary symbol is \f$ \pm \delta_{max} \f$
+   double th_inner;  //!< Threshold factor for inner cycle
+   double th_outer;  //!< Threshold factor for outer cycle
    // @}
    /*! \name Internally-used objects */
    int   dmin;          //!< Offset for deltax index in gamma matrix
@@ -77,25 +79,23 @@ protected:
    void work_alpha(const libbase::vector<sig>& r);
    void work_beta(const libbase::vector<sig>& r);
    // @}
+public:
    /*! \name Constructors / Destructors */
    //! Default constructor
    fba2() { initialised = false; };
-   // @}
-public:
-   /*! \name Constructors / Destructors */
-   fba2(int N, int n, int q, int I, int xmax, int dxmax) { init(N, n, q, I, xmax, dxmax); };
    virtual ~fba2() {};
    // @}
 
    // main initialization routine - constructor essentially just calls this
-   void init(int N, int n, int q, int I, int xmax, int dxmax);
+   void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer);
 
    // decode functions
    void prepare(const libbase::vector<sig>& r);
    void work_results(const libbase::vector<sig>& r, libbase::matrix<real>& ptable) const;
 };
 
-template <class real, class sig> real fba2<real,sig>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
+template <class real, class sig>
+real fba2<real,sig>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
    {
    if(!cache_enabled)
       return Q(d,i,r.extract(n*i+x,n+deltax));

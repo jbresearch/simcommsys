@@ -14,7 +14,6 @@
 #include "secant.h"
 #include "truerand.h"
 #include "randgen.h"
-#include <iostream>
 #include <sstream>
 #include <limits>
 
@@ -44,13 +43,12 @@ void montecarlo::slave_getcode(void)
    std::istringstream is(systemstring);
    is >> system;
    // Compute its digest
-   sysdigest.reset();
-   is.seekg(0, std::ios::beg);
+   is.seekg(0);
    sysdigest.process(is);
    // Tell the user what we've done
    cerr << "Date: " << libbase::timer::date() << "\n";
    cerr << system->description() << "\n";
-   cerr << "Digest: " << sysdigest << "\n";
+   cerr << "Digest: " << std::string(sysdigest) << "\n";
    }
 
 void montecarlo::slave_getparameter(void)
@@ -95,6 +93,14 @@ void montecarlo::slave_work(void)
 
 // helper functions
 
+std::string montecarlo::get_systemstring()
+   {
+   std::ostringstream os;
+   os << system;
+   std::string systemstring = os.str();
+   return systemstring;
+   }
+
 void montecarlo::seed_experiment()
    {
    libbase::truerand trng;
@@ -123,8 +129,117 @@ void montecarlo::destroyfunctors(void)
    delete fwork;
    }
 
+// System-specific file-handler functions
+
+void montecarlo::writeheader(std::ostream& sout) const
+   {
+   assert(sout.good());
+   assert(system != NULL);
+   trace << "DEBUG (montecarlo): writing results header.\n";
+   // Print information on the simulation being performed
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
+   sout << "#% " << system->description() << "\n";
+   sout << "#% Tolerance: " << 100*accuracy << "%\n";
+   sout << "#% Confidence: " << 100*confidence << "%\n";
+   sout << "#% Date: " << libbase::timer::date() << "\n";
+   sout << "#% URL: " << __WCURL__ << "\n";
+   sout << "#% Version: " << __WCVER__ << "\n";
+   sout << "#\n";
+   // Print results header
+   sout << "# Par";
+   for(int i=0; i<system->count(); i++)
+      sout << "\t" << system->result_description(i) << "\tTol";
+   sout << "\tSamples\tCPUtime\n";
+   sout << std::flush;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
+   }
+
+void montecarlo::writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const
+   {
+   assert(sout.good());
+   if(get_samplecount() == 0)
+      return;
+   trace << "DEBUG (montecarlo): writing results.\n";
+   // Write current estimates to file
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
+   sout << system->get_parameter();
+   for(int i=0; i<system->count(); i++)
+      sout << '\t' << result(i) << '\t' << result(i)*tolerance(i);
+   sout << '\t' << get_samplecount();
+   sout << '\t' << getcputime() << '\n';
+   sout << std::flush;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
+   }
+
+void montecarlo::writestate(std::ostream& sout) const
+   {
+   assert(sout.good());
+   if(get_samplecount() == 0)
+      return;
+   trace << "DEBUG (montecarlo): writing state.\n";
+   // Write accumulated values to file
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
+   libbase::vector<double> state;
+   system->get_state(state);
+   sout << "## System: " << sysdigest << '\n';
+   sout << "## Parameter: " << system->get_parameter() << '\n';
+   sout << "## Samples: " << get_samplecount() << '\n';
+   sout << "## State: " << state.size();
+   for(int i=0; i<state.size(); i++)
+      sout << '\t' << state(i);
+   sout << '\n';
+   sout << std::flush;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
+   }
+
+void montecarlo::lookforstate(std::istream& sin)
+   {
+   assert(sin.good());
+   // state variables to read
+   std::string digest;
+   double parameter = 0;
+   libbase::int64u samplecount = 0;
+   vector<double> state;
+   // read through entire file
+   trace << "DEBUG (montecarlo): looking for state.\n";
+   sin.seekg(0);
+   while(!sin.eof())
+      {
+      std::string s;
+      getline(sin, s);
+      if(s.substr(0,10) == "## System:")
+         digest = s.substr(10);
+      else if(s.substr(0,13) == "## Parameter:")
+         std::istringstream(s.substr(13)) >> parameter;
+      else if(s.substr(0,11) == "## Samples:")
+         std::istringstream(s.substr(11)) >> samplecount;
+      else if(s.substr(0,9) == "## State:")
+         {
+         std::istringstream is(s.substr(9));
+         int count;
+         is >> count;
+         state.init(count);
+         for(int i=0; i<count; i++)
+            is >> state(i);
+         }
+      }
+   // reset file
+   sin.clear();
+   // check that results correspond to system under simulation
+   if(digest == std::string(sysdigest) && parameter == system->get_parameter())
+      {
+      cerr << "NOTICE: Reloading state with " << samplecount << " samples.\n";
+      system->accumulate_state(samplecount, state);      
+      }
+   }
+
 // overrideable user-interface functions
 
+/*!
+   \brief Default progress display routine.
+
+   \note Display updates are rate-limited
+*/
 void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_mean)
    {
    static libbase::timer tupdate;
@@ -149,7 +264,8 @@ void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_m
 montecarlo::montecarlo()
    {
    createfunctors();
-   reset();
+   bound = false;
+   system = NULL;
    // set default parameter settings
    set_confidence(0.95);
    set_accuracy(0.10);
@@ -157,41 +273,43 @@ montecarlo::montecarlo()
 
 montecarlo::~montecarlo()
    {
-   if(init)
-      reset();
+   release();
    delete system;
    destroyfunctors();
    }
 
 // simulation initialization/finalization
 
-void montecarlo::initialise(experiment *system)
+void montecarlo::bind(experiment *system)
    {
-   init = true;
-   // bind sub-components
+   release();
+   assert(montecarlo::system == NULL);
+   bound = true;
    montecarlo::system = system;
    }
 
-void montecarlo::reset()
+void montecarlo::release()
    {
-   init = false;
+   if(!bound)
+      return;
+   assert(system != NULL);
+   bound = false;
    system = NULL;
    }
 
 // simulation parameters
 
-void montecarlo::set_confidence(const double confidence)
+void montecarlo::set_confidence(double confidence)
    {
    assertalways(confidence > 0.5 && confidence < 1.0);
-   trace << "DEBUG: setting confidence level of " << confidence << "\n";
-   libbase::secant Qinv(libbase::Q);  // init Qinv as the inverse of Q(), using the secant method
-   cfactor = Qinv((1.0-confidence)/2.0);
+   trace << "DEBUG (montecarlo): setting confidence level of " << confidence << "\n";
+   montecarlo::confidence = confidence;
    }
 
-void montecarlo::set_accuracy(const double accuracy)
+void montecarlo::set_accuracy(double accuracy)
    {
    assertalways(accuracy > 0 && accuracy < 1.0);
-   trace << "DEBUG: setting accuracy level of " << accuracy << "\n";
+   trace << "DEBUG (montecarlo): setting accuracy level of " << accuracy << "\n";
    montecarlo::accuracy = accuracy;
    }
 
@@ -217,6 +335,10 @@ void montecarlo::sampleandaccumulate()
 */
 void montecarlo::updateresults(vector<double>& result, vector<double>& tolerance) const
    {
+   // init Qinv as the inverse of Q(), using the secant method
+   libbase::secant Qinv(libbase::Q);
+   const double cfactor = Qinv((1.0-confidence)/2.0);
+   // determine a new estimate
    system->estimate(result, tolerance);
    assert(result.size() == tolerance.size());
    // determine confidence interval from standard error
@@ -318,7 +440,7 @@ bool montecarlo::readpendingslaves()
       if(!receive(s, estsamplecount) || !receive(s, eststate))
          continue;
       // check that results correspond to system under simulation
-      if(sysdigest != sha(simdigest) || simparameter != system->get_parameter())
+      if(std::string(sysdigest) != simdigest || simparameter != system->get_parameter())
          {
          trace << "DEBUG (estimate): Slave returned invalid results (" << s << "), re-initializing.\n";
          resetslave(s);
@@ -334,6 +456,8 @@ bool montecarlo::readpendingslaves()
    return results_available;
    }
 
+// Main process
+
 /*!
    \brief Simulate the system until convergence to given accuracy & confidence,
           and return estimated results
@@ -346,21 +470,20 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
 
    // Initialise running values
    system->reset();
+   // create string representation of system
+   std::string systemstring = get_systemstring();
+   // compute its digest
+   std::istringstream is(systemstring);
+   sysdigest.process(is);
+
+   // Initialize results-writing system
+   if(resultsfile::isinitialized())
+      setupfile();
 
    // Set up for master-slave system (if necessary)
    // and seed the experiment
-   std::string systemstring;
    if(isenabled())
       {
-      // create string representation of system
-      std::ostringstream os;
-      os << system;
-      systemstring = os.str();
-      // compute its digest
-      std::istringstream is(systemstring);
-      sysdigest.reset();
-      sysdigest.process(is);
-      // reset timer and all slaves to 'new' state
       resetslaves();
       resetcputime();
       }
@@ -403,12 +526,19 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
             converged = true;
          // print something to inform the user of our progress
          display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result.min());
+         // write interim results
+         if(resultsfile::isinitialized())
+            writeinterimresults(result, tolerance);
          }
       // consider our work done if the user has interrupted the processing
       // (note: this overrides everything)
       if(interrupt())
          break;
       }
+
+   // write final results
+   if(resultsfile::isinitialized())
+      writefinalresults(result, tolerance, interrupt());
 
    t.stop();
    }

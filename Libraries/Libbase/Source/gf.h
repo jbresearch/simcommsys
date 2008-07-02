@@ -51,7 +51,8 @@ namespace libbase {
    \warning Due to the internal representation, this class is limited to \f$ GF(2^31) \f$.
 */
 
-template <int m, int poly> class gf {
+template <int m, int poly>
+class gf {
 public:
    /*! \name Class parameters */
    //! Number of elements in the field
@@ -93,25 +94,29 @@ public:
 
 /*! \name Arithmetic operations */
 
-template <int m, int poly> gf<m,poly> operator+(const gf<m,poly>& a, const gf<m,poly>& b)
+template <int m, int poly>
+gf<m,poly> operator+(const gf<m,poly>& a, const gf<m,poly>& b)
    {
    gf<m,poly> c = a;
    return c += b;
    }
 
-template <int m, int poly> gf<m,poly> operator-(const gf<m,poly>& a, const gf<m,poly>& b)
+template <int m, int poly>
+gf<m,poly> operator-(const gf<m,poly>& a, const gf<m,poly>& b)
    {
    gf<m,poly> c = a;
    return c -= b;
    }
 
-template <int m, int poly> gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,poly>& b)
+template <int m, int poly>
+gf<m,poly> operator*(const gf<m,poly>& a, const gf<m,poly>& b)
    {
    gf<m,poly> c = a;
    return c *= b;
    }
 
-template <int m, int poly> gf<m,poly> operator/(const gf<m,poly>& a, const gf<m,poly>& b)
+template <int m, int poly>
+gf<m,poly> operator/(const gf<m,poly>& a, const gf<m,poly>& b)
    {
    gf<m,poly> c = a;
    return c /= b;
@@ -121,13 +126,15 @@ template <int m, int poly> gf<m,poly> operator/(const gf<m,poly>& a, const gf<m,
 
 /*! \name Stream Input/Output */
 
-template <int m, int poly> std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b)
+template <int m, int poly>
+std::ostream& operator<<(std::ostream& s, const gf<m,poly>& b)
    {
    s << std::string(b);
    return s;
    }
 
-template <int m, int poly> std::istream& operator>>(std::istream& s, gf<m,poly>& b)
+template <int m, int poly>
+std::istream& operator>>(std::istream& s, gf<m,poly>& b)
    {
    std::string str;
    s >> str;

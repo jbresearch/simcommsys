@@ -98,7 +98,8 @@ namespace libcomm {
    - updated to cater for changes in bcjr 2.60
 */
 
-template <class real> class mapcc : public codec, private bcjr<real> {
+template <class real>
+class mapcc : public codec, private bcjr<real> {
 private:
    fsm      *encoder;
    double   rate;

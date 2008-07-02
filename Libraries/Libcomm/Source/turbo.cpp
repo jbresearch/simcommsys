@@ -21,7 +21,8 @@ using libbase::matrix3;
 
 // initialization / de-allocation
 
-template <class real, class dbl> void turbo<real,dbl>::init()
+template <class real, class dbl>
+void turbo<real,dbl>::init()
    {
    bcjr<real,dbl>::init(*encoder, tau);
 
@@ -35,7 +36,8 @@ template <class real, class dbl> void turbo<real,dbl>::init()
    initialised = false;
    }
 
-template <class real, class dbl> void turbo<real,dbl>::free()
+template <class real, class dbl>
+void turbo<real,dbl>::free()
    {
    if(encoder != NULL)
       delete encoder;
@@ -43,7 +45,8 @@ template <class real, class dbl> void turbo<real,dbl>::free()
       delete inter(i);
    }
 
-template <class real, class dbl> void turbo<real,dbl>::reset()
+template <class real, class dbl>
+void turbo<real,dbl>::reset()
    {
    if(circular)
       {
@@ -69,12 +72,14 @@ template <class real, class dbl> void turbo<real,dbl>::reset()
 
 // constructor / destructor
 
-template <class real, class dbl> turbo<real,dbl>::turbo()
+template <class real, class dbl>
+turbo<real,dbl>::turbo()
    {
    encoder = NULL;
    }
 
-template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
+template <class real, class dbl>
+turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
    const vector<interleaver *>& inter, const int iter, \
    const bool endatzero, const bool parallel, const bool circular)
    {
@@ -90,7 +95,8 @@ template <class real, class dbl> turbo<real,dbl>::turbo(const fsm& encoder, cons
 
 // memory allocator (for internal use only)
 
-template <class real, class dbl> void turbo<real,dbl>::allocate()
+template <class real, class dbl>
+void turbo<real,dbl>::allocate()
    {
    R.init(num_sets());
    for(int i=0; i<num_sets(); i++)
@@ -150,7 +156,8 @@ template <class real, class dbl> void turbo<real,dbl>::allocate()
             so one must be careful not to overwrite positions that still
             need to be read.
 */
-template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& ri, const matrix<dbl>& r, matrix<dbl>& re)
+template <class real, class dbl>
+void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& ri, const matrix<dbl>& r, matrix<dbl>& re)
    {
    for(int t=0; t<tau; t++)
       for(int x=0; x<num_inputs(); x++)
@@ -176,7 +183,8 @@ template <class real, class dbl> void turbo<real,dbl>::work_extrinsic(const matr
             so one must be careful not to overwrite positions that still
             need to be read.
 */
-template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl>& ri, matrix<dbl>& re)
+template <class real, class dbl>
+void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl>& ri, matrix<dbl>& re)
    {
 #if DEBUG >= 2
    trace << "DEBUG (turbo): bcjr_wrap - set=" << set << ", ra=" << &ra << ", ri=" << &ri << ", re=" << &re;
@@ -207,7 +215,8 @@ template <class real, class dbl> void turbo<real,dbl>::bcjr_wrap(const int set, 
       }
    }
 
-template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matrix<dbl>& ri, vector<int>& decoded)
+template <class real, class dbl>
+void turbo<real,dbl>::hard_decision(const matrix<dbl>& ri, vector<int>& decoded)
    {
    // Decide which input sequence was most probable.
    for(int t=0; t<tau; t++)
@@ -233,7 +242,8 @@ template <class real, class dbl> void turbo<real,dbl>::hard_decision(const matri
 #endif
    }
 
-template <class real, class dbl> void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
+template <class real, class dbl>
+void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
    {
    // after working all sets, ri is the intrinsic+extrinsic information
    // from the last stage decoder.
@@ -245,7 +255,8 @@ template <class real, class dbl> void turbo<real,dbl>::decode_serial(matrix<dbl>
    bcjr<real,dbl>::normalize(ri);
    }
 
-template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<dbl>& ri)
+template <class real, class dbl>
+void turbo<real,dbl>::decode_parallel(matrix<dbl>& ri)
    {
    // here ri is only a temporary space
    // and ra(set) is updated with the extrinsic information for that set
@@ -270,13 +281,15 @@ template <class real, class dbl> void turbo<real,dbl>::decode_parallel(matrix<db
 
 // encoding and decoding functions
 
-template <class real, class dbl> void turbo<real,dbl>::seedfrom(libbase::random& r)
+template <class real, class dbl>
+void turbo<real,dbl>::seedfrom(libbase::random& r)
    {
    for(int set=0; set<num_sets(); set++)
       inter(set)->seedfrom(r);
    }
 
-template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)
+template <class real, class dbl>
+void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)
    {
    // Initialise result vector
    encoded.init(tau);
@@ -335,7 +348,8 @@ template <class real, class dbl> void turbo<real,dbl>::encode(vector<int>& sourc
       }
    }
 
-template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<double>& ptable)
+template <class real, class dbl>
+void turbo<real,dbl>::translate(const matrix<double>& ptable)
    {
    // Compute factors / sizes & check validity
    const int S = ptable.ysize();
@@ -399,7 +413,8 @@ template <class real, class dbl> void turbo<real,dbl>::translate(const matrix<do
    reset();
    }
 
-template <class real, class dbl> void turbo<real,dbl>::decode(vector<int>& decoded)
+template <class real, class dbl>
+void turbo<real,dbl>::decode(vector<int>& decoded)
    {
    // Initialise result vector
    decoded.init(tau);
@@ -420,7 +435,8 @@ template <class real, class dbl> void turbo<real,dbl>::decode(vector<int>& decod
 
 // description output
 
-template <class real, class dbl> std::string turbo<real,dbl>::description() const
+template <class real, class dbl>
+std::string turbo<real,dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Turbo Code (" << output_bits() << "," << input_bits() << ") - ";
@@ -436,7 +452,8 @@ template <class real, class dbl> std::string turbo<real,dbl>::description() cons
 
 // object serialization - saving
 
-template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
+template <class real, class dbl>
+std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
    {
    // format version
    sout << 1 << '\n';
@@ -454,7 +471,8 @@ template <class real, class dbl> std::ostream& turbo<real,dbl>::serialize(std::o
 
 // object serialization - loading
 
-template <class real, class dbl> std::istream& turbo<real,dbl>::serialize(std::istream& sin)
+template <class real, class dbl>
+std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
    free();
@@ -511,21 +529,27 @@ using libbase::logrealfast;
 using libbase::serializer;
 
 template class turbo<double>;
-template <> const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);
+template <>
+const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);
 
 template class turbo<mpreal>;
-template <> const serializer turbo<mpreal>::shelper = serializer("codec", "turbo<mpreal>", turbo<mpreal>::create);
+template <>
+const serializer turbo<mpreal>::shelper = serializer("codec", "turbo<mpreal>", turbo<mpreal>::create);
 
 template class turbo<mpgnu>;
-template <> const serializer turbo<mpgnu>::shelper = serializer("codec", "turbo<mpgnu>", turbo<mpgnu>::create);
+template <>
+const serializer turbo<mpgnu>::shelper = serializer("codec", "turbo<mpgnu>", turbo<mpgnu>::create);
 
 template class turbo<logreal>;
-template <> const serializer turbo<logreal>::shelper = serializer("codec", "turbo<logreal>", turbo<logreal>::create);
+template <>
+const serializer turbo<logreal>::shelper = serializer("codec", "turbo<logreal>", turbo<logreal>::create);
 
 template class turbo<logrealfast>;
-template <> const serializer turbo<logrealfast>::shelper = serializer("codec", "turbo<logrealfast>", turbo<logrealfast>::create);
+template <>
+const serializer turbo<logrealfast>::shelper = serializer("codec", "turbo<logrealfast>", turbo<logrealfast>::create);
 
 template class turbo<logrealfast,logrealfast>;
-template <> const serializer turbo<logrealfast,logrealfast>::shelper = serializer("codec", "turbo<logrealfast,logrealfast>", turbo<logrealfast,logrealfast>::create);
+template <>
+const serializer turbo<logrealfast,logrealfast>::shelper = serializer("codec", "turbo<logrealfast,logrealfast>", turbo<logrealfast,logrealfast>::create);
 
 }; // end namespace

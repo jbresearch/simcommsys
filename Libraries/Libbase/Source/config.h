@@ -207,7 +207,8 @@ inline double pow(int x, int y) { return pow(double(x),y); };
 
 // Define a function that returns the square of the input
 
-template <class T> inline T square(const T x) { return x*x; };
+template <class T>
+inline T square(const T x) { return x*x; };
 
 // Remove any macros for min/max and define as inline templates
 
@@ -215,8 +216,10 @@ template <class T> inline T square(const T x) { return x*x; };
 #  undef min
 #  undef max
 #endif
-template <class T> inline T min(const T a, const T b) { return( a<b ? a : b); };
-template <class T> inline T max(const T a, const T b) { return( a>b ? a : b); };
+template <class T>
+inline T min(const T a, const T b) { return( a<b ? a : b); };
+template <class T>
+inline T max(const T a, const T b) { return( a>b ? a : b); };
 
 // Define signed size type
 

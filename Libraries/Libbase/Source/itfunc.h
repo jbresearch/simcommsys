@@ -83,7 +83,8 @@ inline double erffc(double x) { return x < 0.0 ? 1.0+gammp(0.5,x*x) : 1.0-gammp(
 inline double Q(double x) { return 0.5 * erffc(x / sqrt(2.0)); }
 inline double gauss(double x) { return exp(-0.5 * x * x)/sqrt(2.0 * PI); }
 
-template <class T> inline T limit(const T x, const T lo, const T hi) { return max(lo, min(hi, x)); };
+template <class T>
+inline T limit(const T x, const T lo, const T hi) { return max(lo, min(hi, x)); };
 
 //! Hamming weight
 int weight(int cw);
