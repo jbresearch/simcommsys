@@ -82,14 +82,14 @@ resultsfile::resultsfile()
 
 resultsfile::~resultsfile()
    {
-   assert(!tfile.isrunning());
+   assert(!t.isrunning());
    }
 
 // File handling interface
 
 void resultsfile::init(const std::string& fname)
    {
-   assert(!tfile.isrunning());
+   assert(!t.isrunning());
    headerwritten = false;
    resultsfile::fname = fname;
    }
@@ -100,7 +100,7 @@ void resultsfile::setupfile()
    {
    assert(!fname.empty());
    // start timer for interim results writing
-   tfile.start();
+   t.start();
    // if this is not the first time, that's all
    if(headerwritten)
       return;
@@ -134,9 +134,9 @@ void resultsfile::setupfile()
 void resultsfile::writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
    {
    assert(!fname.empty());
-   assert(tfile.isrunning());
+   assert(t.isrunning());
    // restrict updates to occur every 30 seconds or less
-   if(tfile.elapsed() < 30)
+   if(t.elapsed() < 30)
       return;
    // open file for input and output
    std::fstream file(fname.c_str());
@@ -146,13 +146,13 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result, libbase::
    writestate(file);
    finishwithfile(file);
    // restart timer
-   tfile.start();
+   t.start();
    }
 
 void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
    {
    assert(!fname.empty());
-   assert(tfile.isrunning());
+   assert(t.isrunning());
    // open file for input and output
    std::fstream file(fname.c_str());
    assertalways(file.good());
@@ -162,7 +162,7 @@ void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::ve
    fileptr = file.tellp();
    finishwithfile(file);
    // stop timer
-   tfile.stop();
+   t.stop();
    }
 
 }; // end namespace

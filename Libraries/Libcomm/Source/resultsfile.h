@@ -28,7 +28,7 @@ private:
    bool           headerwritten; //!< Flag to indicate that the results header has been written
    std::streampos fileptr;       //!< Position in file where we should write the next result
    sha            filedigest;    //!< Digest of file as at last update
-   libbase::timer tfile;         //!< timer to keep track of running estimate
+   libbase::timer t;             //!< Timer to keep track of running estimate
    // @}
 private:
    /*! \name Results file helper functions */
