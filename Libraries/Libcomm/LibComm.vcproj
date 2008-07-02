@@ -1047,6 +1047,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\resultsfile.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\rscc.cpp"
 				>
 				<FileConfiguration
@@ -1497,6 +1501,10 @@
 			</File>
 			<File
 				RelativePath="Source\rectangular.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\resultsfile.h"
 				>
 			</File>
 			<File

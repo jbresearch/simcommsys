@@ -14,18 +14,8 @@
 #include "secant.h"
 #include "truerand.h"
 #include "randgen.h"
-#include <fstream>
 #include <sstream>
 #include <limits>
-
-#ifdef WIN32
-#  include <io.h>
-#  include <fcntl.h>
-#  include <sys/stat.h>
-#else
-#  include <unistd.h>
-#  include <sys/types.h>
-#endif
 
 #ifdef min
 #  undef min
@@ -139,6 +129,110 @@ void montecarlo::destroyfunctors(void)
    delete fwork;
    }
 
+// System-specific file-handler functions
+
+void montecarlo::writeheader(std::ostream& sout) const
+   {
+   assert(sout.good());
+   assert(system != NULL);
+   trace << "DEBUG (montecarlo): writing results header.\n";
+   // Print information on the simulation being performed
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
+   sout << "#% " << system->description() << "\n";
+   sout << "#% Tolerance: " << 100*accuracy << "%\n";
+   sout << "#% Confidence: " << 100*confidence << "%\n";
+   sout << "#% Date: " << libbase::timer::date() << "\n";
+   sout << "#% URL: " << __WCURL__ << "\n";
+   sout << "#% Version: " << __WCVER__ << "\n";
+   sout << "#\n";
+   // Print results header
+   sout << "# Par";
+   for(int i=0; i<system->count(); i++)
+      sout << "\t" << system->result_description(i) << "\tTol";
+   sout << "\tSamples\tCPUtime\n";
+   sout << std::flush;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
+   }
+
+void montecarlo::writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const
+   {
+   assert(sout.good());
+   if(get_samplecount() == 0)
+      return;
+   trace << "DEBUG (montecarlo): writing results.\n";
+   // Write current estimates to file
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
+   sout << system->get_parameter();
+   for(int i=0; i<system->count(); i++)
+      sout << '\t' << result(i) << '\t' << result(i)*tolerance(i);
+   sout << '\t' << get_samplecount();
+   sout << '\t' << getcputime() << '\n';
+   sout << std::flush;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
+   }
+
+void montecarlo::writestate(std::ostream& sout) const
+   {
+   assert(sout.good());
+   if(get_samplecount() == 0)
+      return;
+   trace << "DEBUG (montecarlo): writing state.\n";
+   // Write accumulated values to file
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
+   libbase::vector<double> state;
+   system->get_state(state);
+   sout << "## System: " << sysdigest << '\n';
+   sout << "## Parameter: " << system->get_parameter() << '\n';
+   sout << "## Samples: " << get_samplecount() << '\n';
+   sout << "## State: " << state.size();
+   for(int i=0; i<state.size(); i++)
+      sout << '\t' << state(i);
+   sout << '\n';
+   sout << std::flush;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
+   }
+
+void montecarlo::lookforstate(std::istream& sin)
+   {
+   assert(sin.good());
+   // state variables to read
+   std::string digest;
+   double parameter = 0;
+   libbase::int64u samplecount = 0;
+   vector<double> state;
+   // read through entire file
+   trace << "DEBUG (montecarlo): looking for state.\n";
+   sin.seekg(0);
+   while(!sin.eof())
+      {
+      std::string s;
+      getline(sin, s);
+      if(s.substr(0,10) == "## System:")
+         digest = s.substr(10);
+      else if(s.substr(0,13) == "## Parameter:")
+         std::istringstream(s.substr(13)) >> parameter;
+      else if(s.substr(0,11) == "## Samples:")
+         std::istringstream(s.substr(11)) >> samplecount;
+      else if(s.substr(0,9) == "## State:")
+         {
+         std::istringstream is(s.substr(9));
+         int count;
+         is >> count;
+         state.init(count);
+         for(int i=0; i<count; i++)
+            is >> state(i);
+         }
+      }
+   // reset file
+   sin.clear();
+   // check that results correspond to system under simulation
+   if(digest == std::string(sysdigest) && parameter == system->get_parameter())
+      {
+      cerr << "NOTICE: Reloading state with " << samplecount << " samples.\n";
+      system->accumulate_state(samplecount, state);      
+      }
+   }
+
 // overrideable user-interface functions
 
 /*!
@@ -217,12 +311,6 @@ void montecarlo::set_accuracy(double accuracy)
    assertalways(accuracy > 0 && accuracy < 1.0);
    trace << "DEBUG (montecarlo): setting accuracy level of " << accuracy << "\n";
    montecarlo::accuracy = accuracy;
-   }
-
-void montecarlo::set_resultsfile(const std::string& fname)
-   {
-   montecarlo::fname = fname;
-   headerwritten = false;
    }
 
 // main process
@@ -368,224 +456,6 @@ bool montecarlo::readpendingslaves()
    return results_available;
    }
 
-// Results file helper functions
-
-void montecarlo::setupfile()
-   {
-   assert(!fname.empty());
-   // start timer for interim results writing
-   tfile.start();
-   // if this is not the first time, that's all
-   if(headerwritten)
-      return;
-   // open file for input and output
-   std::fstream file(fname.c_str());
-   if(!file)
-      {
-      trace << "DEBUG (montecarlo): results file not found - creating.\n";
-      // create the file first if necessary
-      file.open(fname.c_str(), std::ios::out);
-      assertalways(file.good());
-      // then reopen for input/output
-      file.close();
-      file.open(fname.c_str());
-      }
-   assertalways(file.good());
-   // look for saved-state
-   lookforstate(file);
-   // write header at end
-   file.seekp(0, std::ios_base::end);
-   writeheader(file);
-   // update write-position
-   fileptr = file.tellp();
-   // update digest
-   file.seekg(0);
-   filedigest.process(file);
-   // update flags
-   headerwritten = true;
-   }
-
-void montecarlo::writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
-   {
-   assert(!fname.empty());
-   assert(tfile.isrunning());
-   // restrict updates to occur every 30 seconds or less
-   if(tfile.elapsed() < 30)
-      return;
-   // open file for input and output
-   std::fstream file(fname.c_str());
-   assertalways(file.good());
-   checkformodifications(file);
-   writeresults(file, result, tolerance);
-   writestate(file);
-   finishwithfile(file);
-   // restart timer
-   tfile.start();
-   }
-
-void montecarlo::writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
-   {
-   assert(!fname.empty());
-   assert(tfile.isrunning());
-   // open file for input and output
-   std::fstream file(fname.c_str());
-   assertalways(file.good());
-   checkformodifications(file);
-   writeresults(file, result, tolerance);
-   // update write-position
-   fileptr = file.tellp();
-   finishwithfile(file);
-   // stop timer
-   tfile.stop();
-   }
-
-void montecarlo::finishwithfile(std::fstream& file)
-   {
-   std::streampos length = file.tellp();
-   // close and truncate file
-   file.close();
-   truncate(length);
-   // re-open and update digest
-   file.open(fname.c_str(), std::ios::in);
-   filedigest.process(file);
-   }
-
-void montecarlo::truncate(std::streampos length)
-   {
-   assert(!fname.empty());
-#ifdef WIN32
-   int fd;
-   _sopen_s(&fd, fname.c_str(), _O_RDWR, _SH_DENYNO, _S_IREAD | _S_IWRITE);
-   _chsize_s(fd, length);
-   _close(fd);
-#else
-   ::truncate(fname.c_str(), length);
-#endif
-   }
-
-void montecarlo::checkformodifications(std::fstream& file)
-   {
-   assert(file.good());
-   trace << "DEBUG (montecarlo): checking file for modifications.\n";
-   // check for user modifications
-   sha curdigest;
-   file.seekg(0);
-   curdigest.process(file);
-   // reset file
-   file.clear();
-   if(curdigest == filedigest)
-      file.seekp(fileptr);
-   else
-      {
-      cerr << "NOTICE: file modifications found - appending.\n";
-      // set current write position to end-of-file
-      file.seekp(0, std::ios_base::end);
-      fileptr = file.tellp();
-      }
-   }
-
-void montecarlo::writeheader(std::ostream& sout) const
-   {
-   assert(sout.good());
-   assert(system != NULL);
-   trace << "DEBUG (montecarlo): writing results header.\n";
-   // Print information on the simulation being performed
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
-   sout << "#% " << system->description() << "\n";
-   sout << "#% Tolerance: " << 100*accuracy << "%\n";
-   sout << "#% Confidence: " << 100*confidence << "%\n";
-   sout << "#% Date: " << libbase::timer::date() << "\n";
-   sout << "#% URL: " << __WCURL__ << "\n";
-   sout << "#% Version: " << __WCVER__ << "\n";
-   sout << "#\n";
-   // Print results header
-   sout << "# Par";
-   for(int i=0; i<system->count(); i++)
-      sout << "\t" << system->result_description(i) << "\tTol";
-   sout << "\tSamples\tCPUtime\n";
-   sout << std::flush;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
-   }
-
-void montecarlo::writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const
-   {
-   assert(sout.good());
-   if(get_samplecount() == 0)
-      return;
-   trace << "DEBUG (montecarlo): writing results.\n";
-   // Write current estimates to file
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
-   sout << system->get_parameter();
-   for(int i=0; i<system->count(); i++)
-      sout << '\t' << result(i) << '\t' << result(i)*tolerance(i);
-   sout << '\t' << get_samplecount();
-   sout << '\t' << getcputime() << '\n';
-   sout << std::flush;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
-   }
-
-void montecarlo::writestate(std::ostream& sout) const
-   {
-   assert(sout.good());
-   if(get_samplecount() == 0)
-      return;
-   trace << "DEBUG (montecarlo): writing state.\n";
-   // Write accumulated values to file
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << "\n";
-   libbase::vector<double> state;
-   system->get_state(state);
-   sout << "## System: " << sysdigest << '\n';
-   sout << "## Parameter: " << system->get_parameter() << '\n';
-   sout << "## Samples: " << get_samplecount() << '\n';
-   sout << "## State: " << state.size();
-   for(int i=0; i<state.size(); i++)
-      sout << '\t' << state(i);
-   sout << '\n';
-   sout << std::flush;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
-   }
-
-void montecarlo::lookforstate(std::istream& sin)
-   {
-   assert(sin.good());
-   // state variables to read
-   std::string digest;
-   double parameter = 0;
-   libbase::int64u samplecount = 0;
-   vector<double> state;
-   // read through entire file
-   trace << "DEBUG (montecarlo): looking for state.\n";
-   sin.seekg(0);
-   while(!sin.eof())
-      {
-      std::string s;
-      getline(sin, s);
-      if(s.substr(0,10) == "## System:")
-         digest = s.substr(10);
-      else if(s.substr(0,13) == "## Parameter:")
-         std::istringstream(s.substr(13)) >> parameter;
-      else if(s.substr(0,11) == "## Samples:")
-         std::istringstream(s.substr(11)) >> samplecount;
-      else if(s.substr(0,9) == "## State:")
-         {
-         std::istringstream is(s.substr(9));
-         int count;
-         is >> count;
-         state.init(count);
-         for(int i=0; i<count; i++)
-            is >> state(i);
-         }
-      }
-   // reset file
-   sin.clear();
-   // check that results correspond to system under simulation
-   if(digest == std::string(sysdigest) && parameter == system->get_parameter())
-      {
-      cerr << "NOTICE: Reloading state with " << samplecount << " samples.\n";
-      system->accumulate_state(samplecount, state);      
-      }
-   }
-
 // Main process
 
 /*!
@@ -607,7 +477,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    sysdigest.process(is);
 
    // Initialize results-writing system
-   if(!fname.empty())
+   if(resultsfile::isinitialized())
       setupfile();
 
    // Set up for master-slave system (if necessary)
@@ -657,7 +527,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          // print something to inform the user of our progress
          display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result.min());
          // write interim results
-         if(!fname.empty())
+         if(resultsfile::isinitialized())
             writeinterimresults(result, tolerance);
          }
       // consider our work done if the user has interrupted the processing
@@ -667,7 +537,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       }
 
    // write final results
-   if(!fname.empty())
+   if(resultsfile::isinitialized())
       writefinalresults(result, tolerance);
 
    t.stop();

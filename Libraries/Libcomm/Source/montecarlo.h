@@ -7,7 +7,7 @@
 #include "sha.h"
 #include "experiment.h"
 #include "masterslave.h"
-#include <iostream>
+#include "resultsfile.h"
 
 namespace libcomm {
 
@@ -21,7 +21,7 @@ namespace libcomm {
    - $Author$
 */
 
-class montecarlo : public libbase::masterslave {
+class montecarlo : public libbase::masterslave, private resultsfile {
    /*! \name Object-wide constants */
    static const libbase::int64u  min_samples;   //!< minimum number of samples
    // @}
@@ -31,11 +31,6 @@ class montecarlo : public libbase::masterslave {
    */
    bool           bound;         //!< Flag to indicate that a system has been bound (only in master)
    experiment     *system;       //!< System being sampled
-   bool           headerwritten; //!< Flag to indicate that the results header has been written
-   std::streampos fileptr;       //!< Position in file where we should write the next result
-   sha            filedigest;    //!< Digest of file as at last update
-   libbase::timer tfile;         //!< timer to keep track of running estimate
-   std::string    fname;         //!< Filename for associated results file
    // @}
    /*! \name Internal variables */
    double         confidence;    //!< confidence level required
@@ -66,19 +61,12 @@ private:
    void workidleslaves(bool converged);
    bool readpendingslaves();
    // @}
-   /*! \name Results file helper functions */
-   void setupfile();
-   void writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
-   void writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
-   void finishwithfile(std::fstream& file);
-   void truncate(std::streampos length);
-   void checkformodifications(std::fstream& file);
+protected:
+   // System-specific file-handler functions
    void writeheader(std::ostream& sout) const;
    void writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
    void writestate(std::ostream& sout) const;
    void lookforstate(std::istream& sin);
-   // @}
-protected:
    /*! \name Overrideable user-interface functions */
    virtual bool interrupt() { return false; };
    virtual void display(libbase::int64u pass, double cur_accuracy, double cur_mean);
@@ -98,7 +86,7 @@ public:
    //! Set target accuracy, say, 0.10 => 10% of mean
    void set_accuracy(double accuracy);
    //! Associates with given results file
-   void set_resultsfile(const std::string& fname);
+   void set_resultsfile(const std::string& fname) { resultsfile::init(fname); };
    // @}
    /*! \name Simulation results */
    //! Number of samples taken to produce the result
