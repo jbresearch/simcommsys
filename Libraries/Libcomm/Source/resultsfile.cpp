@@ -149,7 +149,7 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result, libbase::
    t.start();
    }
 
-void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
+void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, bool savestate)
    {
    assert(!fname.empty());
    assert(t.isrunning());
@@ -158,6 +158,8 @@ void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::ve
    assertalways(file.good());
    checkformodifications(file);
    writeresults(file, result, tolerance);
+   if(savestate)
+      writestate(file);
    // update write-position
    fileptr = file.tellp();
    finishwithfile(file);

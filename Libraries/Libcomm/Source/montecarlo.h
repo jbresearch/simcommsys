@@ -68,6 +68,11 @@ protected:
    void writestate(std::ostream& sout) const;
    void lookforstate(std::istream& sin);
    /*! \name Overrideable user-interface functions */
+   /*! \brief User-interrupt check
+      This function should return true if the user has requested an interrupt.
+      Once it returns true, all subsequent evaluations should keep returning
+      true again.
+   */
    virtual bool interrupt() { return false; };
    virtual void display(libbase::int64u pass, double cur_accuracy, double cur_mean);
    // @}

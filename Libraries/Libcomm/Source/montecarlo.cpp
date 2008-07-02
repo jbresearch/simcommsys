@@ -538,7 +538,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
 
    // write final results
    if(resultsfile::isinitialized())
-      writefinalresults(result, tolerance);
+      writefinalresults(result, tolerance, interrupt());
 
    t.stop();
    }

@@ -57,7 +57,7 @@ public:
    /*! \name Results handling interface */
    void setupfile();
    void writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
-   void writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
+   void writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, bool savestate=false);
    // @}
 };
 
