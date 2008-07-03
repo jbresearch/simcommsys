@@ -78,6 +78,7 @@ void resultsfile::checkformodifications(std::fstream& file)
 resultsfile::resultsfile()
    {
    headerwritten = false;
+   t.stop();
    }
 
 resultsfile::~resultsfile()
