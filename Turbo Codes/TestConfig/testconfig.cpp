@@ -7,6 +7,11 @@
    - $Author$
 */
 
+#include <boost/lambda/lambda.hpp>
+#include <iterator>
+#include <algorithm>
+
+#include <sstream>
 #include <iostream>
 #include <matrix.h>
 
@@ -87,10 +92,23 @@ void testmatrixinv()
    cout << "inv(A).A = " << A.inverse()*A;
    }
 
+void testboost(const std::string& s)
+   {
+   using namespace boost::lambda;
+   typedef std::istream_iterator<int> in;
+   std::istringstream sin(s);
+
+   std::cout << "\nBoost Test:\n\n";
+   std::for_each(
+      in(sin), in(), std::cout << (_1 * 3) << " " );
+   std::cout << "\n";
+   }
+
 int main()
    {
    print_standard_sizes();
    print_new_sizes();
    testmatrixmul();
    testmatrixinv();
+   testboost("1 2 3\n");
    }
