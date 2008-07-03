@@ -217,6 +217,27 @@ void fba2<real,sig>::prepare(const vector<sig>& r)
    work_gamma(r);
    work_alpha(r);
    work_beta(r);
+
+#ifndef NDEBUG
+   // determine the average scale factors
+   vector<real> v1, v2;
+   real scale_n;
+   std::cerr << std::setprecision(4);
+
+   // determine the scale factors for alpha
+   m_alpha.extractrow(v1,0);
+   m_alpha.extractrow(v2,N-1);
+   scale_n = v2.sum()/v1.sum();
+   std::cerr << "Overall scale factor for alpha: " \
+      << pow(scale_n,1/double(N-1)) << "\n";
+
+   // determine the scale factors for alpha
+   m_beta.extractrow(v1,N);
+   m_beta.extractrow(v2,1);
+   scale_n = v2.sum()/v1.sum();
+   std::cerr << "Overall scale factor for beta: " \
+      << pow(scale_n,1/double(N-1)) << "\n";
+#endif
    }
 
 template <class real, class sig>
