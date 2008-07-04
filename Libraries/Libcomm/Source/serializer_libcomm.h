@@ -109,8 +109,8 @@ class serializer_libcomm : private
 {
 private:
    // Modulators
-   dminner<libbase::logrealfast>       _dminner_logrealfast;
-   dminner2<libbase::logrealfast>      _dminner2_logrealfast;
+   dminner<libbase::logrealfast,false>       _dminner_logrealfast;
+   dminner2<libbase::logrealfast,false>      _dminner2_logrealfast;
    // Experiments
    commsys< libbase::gf<1,0x3> >       _commsys_gf1;
    commsys< libbase::gf<2,0x7> >       _commsys_gf2;

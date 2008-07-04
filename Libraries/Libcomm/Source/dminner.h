@@ -43,12 +43,12 @@ namespace libcomm {
          architecture to allow higher-range ptables.
 */
 
-template <class real>
+template <class real, bool normalize>
 class dminner2;
 
-template <class real>
-class dminner : public modulator<bool>, private fba<real,bool> {
-   friend class dminner2<real>;
+template <class real, bool normalize>
+class dminner : public modulator<bool>, private fba<real,bool,normalize> {
+   friend class dminner2<real,normalize>;
 private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol

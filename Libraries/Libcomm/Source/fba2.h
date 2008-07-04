@@ -6,7 +6,6 @@
 #include "matrix.h"
 #include "matrix3.h"
 
-#include "sigspace.h"
 #include "fsm.h"
 
 #include <math.h>
@@ -30,7 +29,7 @@ namespace libcomm {
    Trans. IT, 47(2), Feb 2001.
 */
 
-template <class real, class sig=sigspace>
+template <class real, class sig, bool normalize>
 class fba2 {
    /*! \name User-defined parameters */
    int   N;       //!< The transmitted block size in symbols
@@ -94,8 +93,8 @@ public:
    void work_results(const libbase::vector<sig>& r, libbase::matrix<real>& ptable) const;
 };
 
-template <class real, class sig>
-real fba2<real,sig>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
+template <class real, class sig, bool normalize>
+real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
    {
    if(!cache_enabled)
       return Q(d,i,r.extract(n*i+x,n+deltax));

@@ -17,8 +17,8 @@ using libbase::vector;
 
 // Memory allocation
 
-template <class real, class sig>
-void fba2<real,sig>::allocate()
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::allocate()
    {
    // determine limits
    dmin = max(-n,-dxmax);
@@ -61,8 +61,8 @@ void fba2<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig>
-void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
    // code parameters
    assert(N > 0);
@@ -89,8 +89,8 @@ void fba2<real,sig>::init(int N, int n, int q, int I, int xmax, int dxmax, doubl
 
 // Internal procedures
 
-template <class real, class sig>
-void fba2<real,sig>::work_gamma(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::work_gamma(const vector<sig>& r)
    {
    assert(initialised);
    if(!cache_enabled)
@@ -103,8 +103,8 @@ void fba2<real,sig>::work_gamma(const vector<sig>& r)
    m_cached = false;
    }
 
-template <class real, class sig>
-void fba2<real,sig>::work_alpha(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::work_alpha(const vector<sig>& r)
    {
    assert(initialised);
    // initialise array:
@@ -145,12 +145,22 @@ void fba2<real,sig>::work_alpha(const vector<sig>& r)
             for(int d=0; d<q; d++)
                alpha(i,x2) += alpha(i-1,x1) * compute_gamma(d,i-1,x1,x2-x1,r);
          }
+      // normalize if requested
+      if(normalize)
+         {
+         real sum = 0;
+         for(int x=-xmax; x<=xmax; x++)
+            sum += alpha(i,x);
+         sum = real(1)/sum;
+         for(int x=-xmax; x<=xmax; x++)
+            alpha(i,x) *= sum;
+         }
       }
    std::cerr << libbase::pacifier("FBA Alpha", N-1, N-1);
    }
 
-template <class real, class sig>
-void fba2<real,sig>::work_beta(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::work_beta(const vector<sig>& r)
    {
    assert(initialised);
    // initialise array:
@@ -194,14 +204,24 @@ void fba2<real,sig>::work_beta(const vector<sig>& r)
             for(int d=0; d<q; d++)
                beta(i,x1) += beta(i+1,x2) * compute_gamma(d,i,x1,x2-x1,r);
          }
+      // normalize if requested
+      if(normalize)
+         {
+         real sum = 0;
+         for(int x=-xmax; x<=xmax; x++)
+            sum += beta(i,x);
+         sum = real(1)/sum;
+         for(int x=-xmax; x<=xmax; x++)
+            beta(i,x) *= sum;
+         }
       }
    std::cerr << libbase::pacifier("FBA Beta", N-1, N-1);
    }
 
 // User procedures
 
-template <class real, class sig>
-void fba2<real,sig>::prepare(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::prepare(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -240,8 +260,8 @@ void fba2<real,sig>::prepare(const vector<sig>& r)
 #endif
    }
 
-template <class real, class sig>
-void fba2<real,sig>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
    {
    assert(initialised);
    // Initialise result vector (one sparse symbol per timestep)
@@ -304,10 +324,7 @@ namespace libcomm {
 
 using libbase::logrealfast;
 
-template class fba2<double>;
-template class fba2<logrealfast>;
-
-template class fba2<double,bool>;
-template class fba2<logrealfast,bool>;
+template class fba2<double,bool,true>;
+template class fba2<logrealfast,bool,false>;
 
 }; // end namespace

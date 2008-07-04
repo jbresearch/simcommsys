@@ -17,8 +17,8 @@ using libbase::vector;
 
 // Memory allocation
 
-template <class real, class sig>
-void fba<real,sig>::allocate()
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::allocate()
    {
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
    // B needs indices (j,y) where j in [0, tau] and y in [-xmax, xmax]
@@ -36,8 +36,8 @@ void fba<real,sig>::allocate()
 
 // Initialization
 
-template <class real, class sig>
-void fba<real,sig>::init(int tau, int I, int xmax, double th_inner)
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    {
    // code parameters
    assert(tau > 0);
@@ -56,8 +56,8 @@ void fba<real,sig>::init(int tau, int I, int xmax, double th_inner)
 
 // Internal procedures
 
-template <class real, class sig>
-void fba<real,sig>::work_forward(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::work_forward(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -95,12 +95,22 @@ void fba<real,sig>::work_forward(const vector<sig>& r)
          for(int y=ymin; y<=ymax; y++)
             F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
          }
+      // normalize if requested
+      if(normalize)
+         {
+         real sum = 0;
+         for(int y=-xmax; y<=xmax; y++)
+            sum += F(j,y);
+         sum = real(1)/sum;
+         for(int y=-xmax; y<=xmax; y++)
+            F(j,y) *= sum;
+         }
       }
    std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
    }
 
-template <class real, class sig>
-void fba<real,sig>::work_backward(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::work_backward(const vector<sig>& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -140,14 +150,24 @@ void fba<real,sig>::work_backward(const vector<sig>& r)
          for(int y=ymin; y<=ymax; y++)
             B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
          }
+      // normalize if requested
+      if(normalize)
+         {
+         real sum = 0;
+         for(int y=-xmax; y<=xmax; y++)
+            sum += B(j,y);
+         sum = real(1)/sum;
+         for(int y=-xmax; y<=xmax; y++)
+            B(j,y) *= sum;
+         }
       }
    std::cerr << libbase::pacifier("FBA Backward Pass", tau, tau);
    }
 
 // User procedures
 
-template <class real, class sig>
-void fba<real,sig>::prepare(const vector<sig>& r)
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::prepare(const vector<sig>& r)
    {
    // compute forwards and backwards passes
    work_forward(r);
@@ -164,10 +184,7 @@ namespace libcomm {
 
 using libbase::logrealfast;
 
-template class fba<double>;
-template class fba<logrealfast>;
-
-template class fba<double,bool>;
-template class fba<logrealfast,bool>;
+template class fba<double,bool,true>;
+template class fba<logrealfast,bool,false>;
 
 }; // end namespace

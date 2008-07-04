@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
    // create a watermark code to start with
    int n=5, k=3;
-   libcomm::dminner<libbase::logrealfast> modem(n,k);
+   libcomm::dminner<libbase::logrealfast,false> modem(n,k);
    cout << modem.description() << "\n";
 
    // get a new watermark from stdin

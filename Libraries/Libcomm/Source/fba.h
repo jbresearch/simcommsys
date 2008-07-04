@@ -6,7 +6,6 @@
 #include "matrix.h"
 #include "matrix3.h"
 
-#include "sigspace.h"
 #include "fsm.h"
 
 #include <math.h>
@@ -42,7 +41,7 @@ namespace libcomm {
          bit j instead of j+1.
 */
 
-template <class real, class sig=sigspace>
+template <class real, class sig, bool normalize>
 class fba {
    /*! \name User-defined parameters */
    int   tau;           //!< The (transmitted) block size in bits

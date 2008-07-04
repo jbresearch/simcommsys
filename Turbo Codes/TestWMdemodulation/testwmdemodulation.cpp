@@ -41,15 +41,15 @@ modem_ptr create_modem(int const type, int const n, int const k, bool deep, libb
       {
       case 1:
          if(deep)
-            modem = modem_ptr(new dminner<logrealfast>(n,k,1e-21,1e-12));
+            modem = modem_ptr(new dminner<logrealfast,false>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner<logrealfast>(n,k));
+            modem = modem_ptr(new dminner<logrealfast,false>(n,k));
          break;
       case 2:
          if(deep)
-            modem = modem_ptr(new dminner2<logrealfast>(n,k,1e-21,1e-12));
+            modem = modem_ptr(new dminner2<logrealfast,false>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner2<logrealfast>(n,k));
+            modem = modem_ptr(new dminner2<logrealfast,false>(n,k));
          break;
       default:
          assertalways("Unknown decoder type.");
