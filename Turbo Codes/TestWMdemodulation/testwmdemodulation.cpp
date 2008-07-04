@@ -34,26 +34,42 @@ using libcomm::dminner2;
 typedef std::auto_ptr< modulator<bool> > modem_ptr;
 typedef std::auto_ptr< channel<bool> > channel_ptr;
 
-modem_ptr create_modem(int const type, int const n, int const k, bool deep, libbase::random& r)
+modem_ptr create_modem(bool decoder, bool math, bool deep, int n, int k, libbase::random& r)
    {
    modem_ptr modem;
-   switch(type)
+   if(decoder)
       {
-      case 1:
+      if(math)
+         {
          if(deep)
-            modem = modem_ptr(new dminner<logrealfast,false>(n,k,1e-21,1e-12));
+            modem = modem_ptr(new dminner2<double,true>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner<logrealfast,false>(n,k));
-         break;
-      case 2:
+            modem = modem_ptr(new dminner2<double,true>(n,k));
+         }
+      else
+         {
          if(deep)
             modem = modem_ptr(new dminner2<logrealfast,false>(n,k,1e-21,1e-12));
          else
             modem = modem_ptr(new dminner2<logrealfast,false>(n,k));
-         break;
-      default:
-         assertalways("Unknown decoder type.");
-         break;
+         }
+      }
+   else
+      {
+      if(math)
+         {
+         if(deep)
+            modem = modem_ptr(new dminner<double,true>(n,k,1e-21,1e-12));
+         else
+            modem = modem_ptr(new dminner<double,true>(n,k));
+         }
+      else
+         {
+         if(deep)
+            modem = modem_ptr(new dminner<logrealfast,false>(n,k,1e-21,1e-12));
+         else
+            modem = modem_ptr(new dminner<logrealfast,false>(n,k));
+         }
       }
    modem->seedfrom(r);
    return modem;
@@ -137,13 +153,13 @@ void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
       cout << "Symbol errors: " << count << " (" << int(100*count/double(tau)) << "%)\n" << std::flush;
    }
 
-void testcycle(int const type, int const seed, int const n, int const k, int const tau, double Pe=0, bool deep=false, bool display=true)
+void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k, int tau, double Pe=0, bool display=true)
    {
    // create prng for seeding systems
    libbase::randgen prng;
    prng.seed(seed);
    // create modem and channel
-   modem_ptr modem = create_modem(type, n, k, deep, prng);
+   modem_ptr modem = create_modem(decoder, math, deep, n, k, prng);
    channel_ptr chan = create_channel(Pe, prng);
    cout << '\n';
    cout << modem->description() << '\n';
@@ -169,21 +185,24 @@ int main(int argc, char *argv[])
    const double Phi = 0.056282;
 
    // user-defined parameters
-   if(argc == 1)
+   if(argc < 3)
       {
-      cout << "Usage: " << argv[0] << " <type> [deep [seed [k [n [N [Pe]]]]]]\n";
-      cout << "Where: type = 1 for multiple-cycle with classic decoder\n";
-      cout << "       type = 2 for multiple-cycle with alternative decoder\n";
-      cout << "       type = 11 for single-cycle with classic decoder\n";
-      cout << "       type = 12 for single-cycle with alternative decoder\n";
-      cout << "Code settings deep,seed,n,k are used for all types;\n";
-      cout << "   Defaults to deep 0, seed 0, k/n = 4/15\n";
+      cout << "Usage: " << argv[0] << " <type> <decoder> [math [deep [seed [k [n [N [Pe]]]]]]]\n";
+      cout << "Where: type = 1 for multiple-cycle test\n";
+      cout << "       type = 2 for single-cycle test\n";
+      cout << "       decoder = 0/1 for classic/alternative decoder\n";
+      cout << "       math = 0/1 for logrealfast(default) / double\n";
+      cout << "       deep = 0/1 for shallow(default) / deep path following\n";
+      cout << "Code settings seed,n,k are used always;\n";
+      cout << "   Defaults to seed 0, k/n = 4/15\n";
       cout << "Block size N and error probability Pe are for single-cycle.\n";
       exit(1);
       }
 
-   int i = 1;
-   const int type  = atoi(argv[i]);
+   int i = 0;
+   const int type    = atoi(argv[++i]);
+   const bool decoder = atoi(argv[++i]) != 0;
+   const bool math = ((argc > ++i) ? atoi(argv[i]) : 0) != 0;
    const bool deep = ((argc > ++i) ? atoi(argv[i]) : 0) != 0;
    const int seed  = ((argc > ++i) ? atoi(argv[i]) : 0);
    const int k     = ((argc > ++i) ? atoi(argv[i]) : 4);
@@ -199,19 +218,17 @@ int main(int argc, char *argv[])
    switch(type)
       {
       case 1:
-      case 2:
          // try short,medium,large codes for benchmarking at low error probability
-         testcycle(type, seed, n, k, 10, Plo, deep, false);
-         testcycle(type, seed, n, k, 100, Plo, deep, false);
-         testcycle(type, seed, n, k, 1000, Plo, deep, false);
+         testcycle(decoder, math, deep, seed, n, k, 10, Plo, false);
+         testcycle(decoder, math, deep, seed, n, k, 100, Plo, false);
+         testcycle(decoder, math, deep, seed, n, k, 1000, Plo, false);
          // try short,medium codes for benchmarking at high error probability
-         testcycle(type, seed, n, k, 10, Phi, deep, false);
-         testcycle(type, seed, n, k, 100, Phi, deep, false);
+         testcycle(decoder, math, deep, seed, n, k, 10, Phi, false);
+         testcycle(decoder, math, deep, seed, n, k, 100, Phi, false);
          break;
 
-      case 11:
-      case 12:
-         testcycle(type-10, seed, n, k, N, Pe, deep);
+      case 2:
+         testcycle(decoder, math, deep, seed, n, k, N, Pe);
          break;
 
       default:

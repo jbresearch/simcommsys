@@ -336,6 +336,8 @@ std::string dminner<real,normalize>::description() const
    sout << "DM Inner Code (" << n << "/" << k << ", " << lutname << " codebook";
    if(user_threshold)
       sout << ", thresholds " << th_inner << "/" << th_outer;
+   if(normalize)
+      sout << ", normalized";
    sout << ")";
    return sout.str();
    }
