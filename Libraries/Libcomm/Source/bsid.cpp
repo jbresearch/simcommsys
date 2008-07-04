@@ -334,7 +334,7 @@ void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>&
    ptable.init(1, M);
    // Compute results for each possible signal
    for(int x=0; x<M; x++)
-      ptable(0,x) = receive(tx(x),rx);
+      ptable(0,x) = bsid::receive(tx(x),rx);
    }
 
 double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
@@ -353,12 +353,6 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    // compute remaining matrix values
    for(int j=1; j<tau; j++)
       {
-      // determine the strongest path at this point
-      double threshold = 0;
-      for(int a=-xmax; a<=xmax; a++)
-         if(Ftable(j-1,a+xmax) > threshold)
-            threshold = Ftable(j-1,a+xmax);
-      threshold *= 1e-15;
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y < rx.size()
@@ -369,22 +363,13 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
       const int amax = xmax;
       for(int a=amin; a<=amax; a++)
          {
-         // ignore paths below a certain threshold
-         if(Ftable(j-1,a+xmax) < threshold)
-            continue;
          const int ymin = max(-xmax,a-1);
          const int ymax = min(min(xmax,a+I),rx.size()-j);
          for(int y=ymin; y<=ymax; y++)
-            Ftable(j,y+xmax) += Ftable(j-1,a+xmax) * Ptable(y-a+1) * receive(tx(j-1),rx.extract(j-1+a,y-a+1));
+            Ftable(j,y+xmax) += Ftable(j-1,a+xmax) * Ptable(y-a+1) * bsid::receive(tx(j-1),rx.extract(j-1+a,y-a+1));
          }
       }
    // Compute forward metric for known drift, and return
-   // determine the strongest path at this point
-   double threshold = 0;
-   for(int a=-xmax; a<=xmax; a++)
-      if(Ftable(tau-1,a+xmax) > threshold)
-         threshold = Ftable(tau-1,a+xmax);
-   threshold *= 1e-15;
    // limits on insertions and deletions must be respected:
    // 3. m-a <= I
    // 4. m-a >= -1
@@ -392,10 +377,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    const int amax = min(xmax,m+1);
    for(int a=amin; a<=amax; a++)
       {
-      // ignore paths below a certain threshold
-      if(Ftable(tau-1,a+xmax) < threshold)
-         continue;
-      Ftable(tau,m+xmax) += Ftable(tau-1,a+xmax) * Ptable(m-a+1) * receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
+      Ftable(tau,m+xmax) += Ftable(tau-1,a+xmax) * Ptable(m-a+1) * bsid::receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
       }
    return Ftable(tau,m+xmax);
    }
