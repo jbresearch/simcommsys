@@ -254,7 +254,7 @@ void dminner<real>::demodulate(const channel<bool>& chan, const libbase::vector<
    const double Pd = mychan->get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
-   const int dxmax = bsid::compute_xmax(n, Pd, bsid::compute_I(n, Pd));
+   const int dxmax = bsid::compute_xmax(n, Pd);
    checkforchanges(I, xmax);
    // Pre-compute 'P' table
    bsid::compute_Ptable(Ptable, xmax, mychan->get_pd(), mychan->get_pi());

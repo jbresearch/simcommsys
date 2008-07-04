@@ -31,9 +31,9 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 int bsid::compute_I(int N, double p)
    {
    int I = max(int(ceil((log(1e-12) - log(double(N))) / log(p))) - 1, 1);
-   libbase::trace << "DEBUG (bsid): suggested I = " << I << ".\n";
+   libbase::trace << "DEBUG (bsid): for N = " << N << ", I = " << I << "/";
    I = min(I,2);
-   libbase::trace << "DEBUG (bsid): using I = " << I << ".\n";
+   libbase::trace << I << ".\n";
    return I;
    }
 
@@ -53,10 +53,22 @@ int bsid::compute_I(int N, double p)
 int bsid::compute_xmax(int N, double p, int I)
    {
    int xmax = max(int(ceil(8 * sqrt(N*p/(1-p)))), I);
-   libbase::trace << "DEBUG (bsid): suggested xmax = " << xmax << ".\n";
+   libbase::trace << "DEBUG (bsid): for N = " << N << ", xmax = " << xmax << "/";
    //xmax = min(xmax,25);
-   libbase::trace << "DEBUG (bsid): using xmax = " << xmax << ".\n";
+   libbase::trace << xmax << ".\n";
    return xmax;
+   }
+
+/*!
+   \copydoc bsid::compute_xmax()
+
+   \note Provided for convenience; will determine I itself, then use that to
+         determine xmax.
+*/
+int bsid::compute_xmax(int N, double p)
+   {
+   int I = compute_I(N,p);
+   return compute_xmax(N,p,I);
    }
 
 /*!

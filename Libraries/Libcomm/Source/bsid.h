@@ -42,6 +42,7 @@ public:
    /*! \name FBA decoder parameter computation */
    static int compute_I(int N, double p);
    static int compute_xmax(int N, double p, int I);
+   static int compute_xmax(int N, double p);
    static void compute_Rtable(libbase::matrix<double>& Rtable, int xmax, double Ps, double Pd, double Pi);
    static void compute_Ptable(libbase::vector<double>& Ptable, int xmax, double Pd, double Pi);
    // @}

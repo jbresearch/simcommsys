@@ -57,7 +57,7 @@ void dminner2<real>::demodulate(const channel<bool>& chan, const libbase::vector
    const double Pd = dminner<real>::mychan->get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
-   const int dxmax = bsid::compute_xmax(n, Pd, bsid::compute_I(n, Pd));
+   const int dxmax = bsid::compute_xmax(n, Pd);
    dminner<real>::checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
    fba2<real,bool>::init(N, n, q, I, xmax, dxmax, dminner<real>::th_inner, dminner<real>::th_outer);
