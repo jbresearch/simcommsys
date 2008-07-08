@@ -119,4 +119,3 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
 }; // end namespace
 
 #endif
-

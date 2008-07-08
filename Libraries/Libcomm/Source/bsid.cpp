@@ -85,8 +85,10 @@ int bsid::compute_xmax(int N, double p)
 */
 void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi)
    {
+   // Allocate required size
    array2d_t::extent_gen extents;
    Rtable.resize(extents[2][xmax+1]);
+   // Set values for insertions
    const double a1 = (1-Pi-Pd);
    const double a2 = 0.5*Pi*Pd;
    for(int m=0; m<=xmax; m++)
@@ -102,10 +104,13 @@ void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, dou
 */
 void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
    {
+   // Allocate required size
    typedef array1d_t::extent_range range;
    array1d_t::extent_gen extents;
    Ptable.resize(extents[range(-1,xmax+1)]);
+   // Set values for deletion
    Ptable[-1] = Pd;
+   // Set values for insertions
    for(int m=0; m<=xmax; m++)
       Ptable[m] = pow(Pi,m)*(1-Pi)*(1-Pd);
    }
@@ -375,7 +380,8 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * Ptable[y-a] * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
+            F[j][y] += F[j-1][a] * Ptable[y-a] \
+               * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
          }
       }
    // Compute forward metric for known drift, and return
@@ -389,7 +395,8 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    const index amin = std::max(std::max(-xmax,m-I),1-tau);
    const index amax = std::min(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
-      result += F[tau-1][a] * Ptable[m-a] * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
+      result += F[tau-1][a] * Ptable[m-a] \
+         * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
    return result;
    }
 
