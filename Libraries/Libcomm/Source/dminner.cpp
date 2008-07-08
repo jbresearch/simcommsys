@@ -292,7 +292,7 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
          // (necessary for forward recursion on extracted segment)
          // 5. x2-x1 <= dxmax
          // 6. x2-x1 >= -dxmax
-         const int x1min = max(-xmax,-n*i);
+         const int x1min = std::max(-xmax,-n*i);
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
             {
@@ -300,8 +300,8 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
-            const int x2min = max(-xmax,max(-n,-dxmax)+x1);
-            const int x2max = min(min(xmax,min(n*I,dxmax)+x1),rx.size()-n*(i+1));
+            const int x2min = std::max(-xmax,std::max(-n,-dxmax)+x1);
+            const int x2max = std::min(std::min(xmax,std::min(n*I,dxmax)+x1),rx.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability

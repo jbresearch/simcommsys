@@ -31,9 +31,10 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 */
 int bsid::compute_I(int N, double p)
    {
-   int I = max(int(ceil((log(1e-12) - log(double(N))) / log(p))) - 1, 1);
+   int I = int(ceil((log(1e-12) - log(double(N))) / log(p))) - 1;
+   I = std::max(I,1);
    libbase::trace << "DEBUG (bsid): for N = " << N << ", I = " << I << "/";
-   I = min(I,2);
+   I = std::min(I,2);
    libbase::trace << I << ".\n";
    return I;
    }
@@ -53,7 +54,8 @@ int bsid::compute_I(int N, double p)
 */
 int bsid::compute_xmax(int N, double p, int I)
    {
-   int xmax = max(int(ceil(8 * sqrt(N*p/(1-p)))), I);
+   int xmax = int(ceil(8 * sqrt(N*p/(1-p))));
+   xmax = std::max(xmax,I);
    libbase::trace << "DEBUG (bsid): for N = " << N << ", xmax = " << xmax << "/";
    //xmax = min(xmax,25);
    libbase::trace << xmax << ".\n";
@@ -363,12 +365,12 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
-      const index amin = max<index>(-xmax,1-j);
+      const index amin = std::max<index>(-xmax,1-j);
       const index amax = xmax;
       for(index a=amin; a<=amax; ++a)
          {
-         const index ymin = max<index>(-xmax,a-1);
-         const index ymax = min<index>(min<index>(xmax,a+I),rx.size()-j);
+         const index ymin = std::max<index>(-xmax,a-1);
+         const index ymax = std::min<index>(std::min<index>(xmax,a+I),rx.size()-j);
          for(index y=ymin; y<=ymax; ++y)
             F[j][y] += F[j-1][a] * Ptable(y-a+1) * bsid::receive(tx(j-1),rx.extract(j-1+a,y-a+1));
          }
@@ -377,8 +379,8 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    // limits on insertions and deletions must be respected:
    // 3. m-a <= I
    // 4. m-a >= -1
-   const index amin = max<index>(-xmax,max<index>(1-tau,m-I));
-   const index amax = min<index>(xmax,m+1);
+   const index amin = std::max<index>(-xmax,std::max<index>(1-tau,m-I));
+   const index amax = std::min<index>(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
       F[tau][m] += F[tau-1][a] * Ptable(m-a+1) * bsid::receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
    return F[tau][m];

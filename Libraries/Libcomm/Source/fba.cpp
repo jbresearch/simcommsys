@@ -83,15 +83,15 @@ void fba<real,sig,normalize>::work_forward(const vector<sig>& r)
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
-      const int amin = max(-xmax,1-j);
+      const int amin = std::max(-xmax,1-j);
       const int amax = xmax;
       for(int a=amin; a<=amax; a++)
          {
          // ignore paths below a certain threshold
          if(F(j-1,a) < threshold)
             continue;
-         const int ymin = max(-xmax,a-1);
-         const int ymax = min(min(xmax,a+I),r.size()-j);
+         const int ymin = std::max(-xmax,a-1);
+         const int ymax = std::min(std::min(xmax,a+I),r.size()-j);
          for(int y=ymin; y<=ymax; y++)
             F(j,y) += F(j-1,a) * P(a,y) * Q(a,y,j-1,r.extract(j-1+a,y-a+1));
          }
@@ -139,14 +139,14 @@ void fba<real,sig,normalize>::work_backward(const vector<sig>& r)
       // 3. b-y <= I
       // 4. b-y >= -1
       const int bmin = -xmax;
-      const int bmax = min(xmax,r.size()-j-1);
+      const int bmax = std::min(xmax,r.size()-j-1);
       for(int b=bmin; b<=bmax; b++)
          {
          // ignore paths below a certain threshold
          if(B(j+1,b) < threshold)
             continue;
-         const int ymin = max(max(-xmax,b-I),-j);
-         const int ymax = min(xmax,b+1);
+         const int ymin = std::max(std::max(-xmax,b-I),-j);
+         const int ymax = std::min(xmax,b+1);
          for(int y=ymin; y<=ymax; y++)
             B(j,y) += B(j+1,b) * P(y,b) * Q(y,b,j,r.extract(j+y,b-y+1));
          }

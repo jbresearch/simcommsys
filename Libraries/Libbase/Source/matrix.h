@@ -361,8 +361,8 @@ inline matrix<T>::matrix(const matrix<T>& m)
 template <class T>
 inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
    {
-   const int xsize = ::min(m_xsize, x.m_xsize);
-   const int ysize = ::min(m_ysize, x.m_ysize);
+   const int xsize = std::min(m_xsize, x.m_xsize);
+   const int ysize = std::min(m_ysize, x.m_ysize);
    for(int i=0; i<xsize; i++)
       for(int j=0; j<ysize; j++)
          m_data[i][j] = x.m_data[i][j];

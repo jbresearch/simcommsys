@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-#ifdef min
-#  undef min
-#  undef max
-#endif
-
 namespace libbase {
 
 /*!
@@ -321,7 +316,7 @@ inline vector<T>& vector<T>::assign(const T* x, const int n)
 template <class T>
 inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
    {
-   const int xsize = ::min(m_xsize, x.m_xsize);
+   const int xsize = std::min(m_xsize, x.m_xsize);
    for(int i=0; i<xsize; i++)
       m_data[i] = x.m_data[i];
    return *this;

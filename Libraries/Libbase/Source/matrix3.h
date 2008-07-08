@@ -314,9 +314,9 @@ inline void matrix3<T>::init(const int x, const int y, const int z)
 template <class T>
 inline matrix3<T>& matrix3<T>::copyfrom(const matrix3<T>& x)
    {
-   const int xsize = ::min(m_xsize, x.m_xsize);
-   const int ysize = ::min(m_ysize, x.m_ysize);
-   const int zsize = ::min(m_zsize, x.m_zsize);
+   const int xsize = std::min(m_xsize, x.m_xsize);
+   const int ysize = std::min(m_ysize, x.m_ysize);
+   const int zsize = std::min(m_zsize, x.m_zsize);
    for(int i=0; i<xsize; i++)
       for(int j=0; j<ysize; j++)
          for(int k=0; k<zsize; k++)

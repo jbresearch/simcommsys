@@ -21,8 +21,8 @@ template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::allocate()
    {
    // determine limits
-   dmin = max(-n,-dxmax);
-   dmax = min(n*I,dxmax);
+   dmin = std::max(-n,-dxmax);
+   dmax = std::min(n*I,dxmax);
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
    // (we actually waste i=0 to avoid index complications, for now)
@@ -132,15 +132,15 @@ void fba2<real,sig,normalize>::work_alpha(const vector<sig>& r)
       // (necessary for forward recursion on extracted segment)
       // 5. x2-x1 <= dxmax
       // 6. x2-x1 >= -dxmax
-      const int x1min = max(-xmax,-n*(i-1));
+      const int x1min = std::max(-xmax,-n*(i-1));
       const int x1max = xmax;
       for(int x1=x1min; x1<=x1max; x1++)
          {
          // ignore paths below a certain threshold
          if(alpha(i-1,x1) < threshold)
             continue;
-         const int x2min = max(-xmax,dmin+x1);
-         const int x2max = min(min(xmax,dmax+x1),r.size()-n*i);
+         const int x2min = std::max(-xmax,dmin+x1);
+         const int x2max = std::min(std::min(xmax,dmax+x1),r.size()-n*i);
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
                alpha(i,x2) += alpha(i-1,x1) * compute_gamma(d,i-1,x1,x2-x1,r);
@@ -192,14 +192,14 @@ void fba2<real,sig,normalize>::work_beta(const vector<sig>& r)
       // 5. x2-x1 <= dxmax
       // 6. x2-x1 >= -dxmax
       const int x2min = -xmax;
-      const int x2max = min(xmax,r.size()-n*(i+1));
+      const int x2max = std::min(xmax,r.size()-n*(i+1));
       for(int x2=x2min; x2<=x2max; x2++)
          {
          // ignore paths below a certain threshold
          if(beta(i+1,x2) < threshold)
             continue;
-         const int x1min = max(max(-xmax,x2-dmax),-n*i);
-         const int x1max = min(xmax,x2-dmin);
+         const int x1min = std::max(std::max(-xmax,x2-dmax),-n*i);
+         const int x1max = std::min(xmax,x2-dmin);
          for(int x1=x1min; x1<=x1max; x1++)
             for(int d=0; d<q; d++)
                beta(i,x1) += beta(i+1,x2) * compute_gamma(d,i,x1,x2-x1,r);
@@ -290,15 +290,15 @@ void fba2<real,sig,normalize>::work_results(const vector<sig>& r, libbase::matri
          // (necessary for forward recursion on extracted segment)
          // 5. x2-x1 <= dxmax
          // 6. x2-x1 >= -dxmax
-         const int x1min = max(-xmax,-n*i);
+         const int x1min = std::max(-xmax,-n*i);
          const int x1max = xmax;
          for(int x1=x1min; x1<=x1max; x1++)
             {
             // ignore paths below a certain threshold
             if(alpha(i,x1) < threshold)
                continue;
-            const int x2min = max(-xmax,dmin+x1);
-            const int x2max = min(min(xmax,dmax+x1),r.size()-n*(i+1));
+            const int x2min = std::max(-xmax,dmin+x1);
+            const int x2max = std::min(std::min(xmax,dmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
                p += alpha(i,x1) * compute_gamma(d,i,x1,x2-x1,r) * beta(i+1,x2);
             }

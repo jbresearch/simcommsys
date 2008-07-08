@@ -22,6 +22,12 @@
 #  define _SCL_SECURE_NO_WARNINGS
 #endif
 
+// Disable min/max macros
+
+#ifdef WIN32
+#  define NOMINMAX
+#endif
+
 // Disable dominance warning
 
 //#ifdef WIN32
@@ -50,139 +56,12 @@
    - $Revision$
    - $Date$
    - $Author$
-
-   \version 2.01 (11 Jun 2002)
-   - removed the definition of swap() from this file for gcc (before was only removed for
-   Win32), since this is defined in "algorithm"
-   - also removed the inclusion of "ios" since this should not be necessary anyway.
-
-   \version 2.02 (17 Jul 2006)
-   - changed __int64 to long long for non-Win32 systems
-   - removed definition of min/max for GCC systems
-
-   \version 2.03 (18 Jul 2006)
-   - added GCCONLY()
-
-   \version 2.04 (25 Jul 2006)
-   - added keypressed() and readkey(), with definitions for POSIX and WIN32
-
-   \version 2.05 (28 Jul 2006)
-   - changed the definition of the 32-bit integers to 'int' instead of 'long'; this
-   should only matter on 64-bit systems, given that this code never runs on 16-bit
-   machines anyway.
-
-   \version 2.06 (9 Aug 2006)
-   - added interrupted() function and related handlers - this is meant to catch Ctrl-C
-   during execution, to be used in the same way as keypressed(), allowing pre-mature
-   interruption of running MPI processes (which can't handle keypressed() events).
-   - In reality, while this has been set to catch SIGINT, mpirun will not really
-   propagate this signal to the node processes. Thus, to get this to work, the root
-   process must be sent the INT signal directly - the root can be identified as being
-   the one that is not nice'd on UNIX. The interrupt handler does not work on Win32
-   anyway.
-   - Note that the signal handler is set the first time that interrupted() is called -
-   this means that the mechanism is not activated until the first time it is called,
-   which generally works fine as this function is meant to be used within a loop as
-   part of the condition statement.
-
-   \version 2.07 (6 Oct 2006)
-   - added definition to overload CRT functions with secure versions in Win32;
-   this has been done for compatibility with VS .NET 2005, since the original
-   functions are now deprecated.
-   - removed definition of min/max template functions for Win32 platform on recent
-   compilers.
-   - renamed GCCONLY to STRICT, reflecting that this is applied only to compilers that
-   follow the strict declaration of templated friend functions; definition has been
-   modified so that it also applies to recent Win32 compilers.
-
-   \version 2.08 (7 Oct 2006)
-   - modified CRT settings to allow redefinition
-   - renamed STRICT to TPLFRIEND to avoid name collision
-
-   \version 3.00 (13 Oct 2006)
-   - abandoned support for Sparc and Alpha architectures
-   - abandoned support for Visual Studio 6 - among other things this allows us to ignore
-      - scope problems for variables defined in for() loop initialization, which had
-        to be solved in VS6 by creating a block around the for loop.
-      - template friend definition problems (VS6 did not allow the required <> before
-        the parameter list).
-      - the "identifier truncated" warning shown in VS6
-      - definition of max/min/swap inline template functions (already present)
-      - definition of bool type
-   - changed directory separator character from a macro to a const variable.
-   - added definitions of various math functions (sqrt, log, pow) with integer parameters,
-    so that they automatically upgrade to type double.
-
-   \version 3.10 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
-   \version 3.20 (9 Nov 2006)
-   - re-inserted definition of max/min inline template functions in global namespace,
-   undefining any macros with that name.
-
-   \version 3.21 (18 Apr 2007)
-   updated pow() function so that both parameters are called as double
-   created new pow(double,int) function, forcing promotion to double,double
-
-   \version 3.22 (8 May 2007)
-   - converted pow(int,int) back to pow(double,int)
-   - updated pow(double,int) upgrade to pow(double,double) to be active only in gcc,
-    as .NET2005 already has this defined.
-   - added typedef for ssize_t
-   - TODO: change fixed integer types to use "inttypes.h"
-
-   \version 3.23 (17 Jul 2007)
-   - moved pow(double,int) upgrade to pow(double,double) to be before pow(int,int)
-        upgrade to pow(double,int).
-   - moved isinf() and isnan() back to global namespace.
-
-   \version 3.30 (7 Nov 2007)
-   - added pacifier() function, which returns a string according to an input
-    percentage value.
-
-   \version 3.31 (19 Nov 2007)
-   - added error report when interrupt signal is caught.
-
-   \version 3.32 (20 Nov 2007)
-   - added getlasterror() function, for use in POSIX and Win32
-
-   \version 3.33 (18 Dec 2007)
-   - Modified integer type names to use compiler-specific versions in Win32 and
-     C99 versions in anything else. Eventually, all references will be replaced
-     by the C99 equivalent.
-
-   \version 3.34 (3 Jan 2008)
-   - moved log2() and round() from itfunc file.
-   - defining these in global namespace, in order to use platform implementation
-     when compiling with gcc. Also, these functions aren't really IT-related.
-
-   \version 3.35 (4 Jan 2008)
-   - added assertalways() in global namespace
-   - added fail() in libbase namespace to implement error printout and bailout
-   - added square() function
-
-   \version 3.36 (14-15 Jan 2008)
-   Modified pacifier so that:
-   - it takes two parameters, such that we don't have to use a percentage,
-     but usage defaults that way
-   - the newline is replaced by a carriage return
-   - it keeps a timer that automatically resets and stops (at beginning and
-     end values respectively), to display estimated time remaining
-   - it is overloaded with an optional first parameter containing a descriptive
-     string, to be printed only if something is returned
-
-   \version 3.37 (29 Jan 2008)
-   - Added sign() function
-
-   \version 3.38 (15 Apr 2008)
-   - Added dummy entries for version-control macros, currently useful only in
-     Windows builds; UNIX builds get the values automatically determined on build.
 */
 
 // *** Global namespace ***
 
-// Version-control information
+// Dummy entries for version-control macros, currently useful only in Windows
+// builds; UNIX builds get the values automatically determined on build.
 
 #ifndef __WCURL__
 #  define __WCURL__ "undefined"
@@ -215,17 +94,6 @@ inline double pow(int x, int y) { return pow(double(x),y); };
 
 template <class T>
 inline T square(const T x) { return x*x; };
-
-// Remove any macros for min/max and define as inline templates
-
-#ifdef min
-#  undef min
-#  undef max
-#endif
-template <class T>
-inline T min(const T a, const T b) { return( a<b ? a : b); };
-template <class T>
-inline T max(const T a, const T b) { return( a>b ? a : b); };
 
 // Define signed size type
 
@@ -298,10 +166,26 @@ int keypressed(void);
 // The user's response is not shown on screen.
 int readkey(void);
 
-// Interrupt-signal handling function
+/*! \brief Interrupt-signal handling function
+   This function is meant to catch Ctrl-C during execution, to be used in the
+   same way as keypressed(), allowing pre-mature interruption of running MPI
+   processes (which can't handle keypressed() events).
+   
+   \note The signal handler is set the first time that interrupted() is
+         called; this means that the mechanism is not activated until the
+         first time it is called, which generally works fine as this function
+         is meant to be used within a loop as part of the condition statement.
+*/
 bool interrupted(void);
 
-// Pacifier output
+/*! \brief Pacifier output
+   Returns a string according to a input values specifying amount of work done.
+   This function keeps a timer that automatically resets and stops (at
+   beginning and end values respectively), to display estimated time remaining.
+
+   \note The optional first parameter contains a descriptive string, to be
+         printed only if something is returned.
+*/
 std::string pacifier(const std::string& description, int complete, int total=100);
 std::string pacifier(int complete, int total=100);
 

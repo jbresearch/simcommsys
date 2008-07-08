@@ -17,11 +17,6 @@
 #include <sstream>
 #include <limits>
 
-#ifdef min
-#  undef min
-#  undef max
-#endif
-
 namespace libcomm {
 
 using std::cerr;

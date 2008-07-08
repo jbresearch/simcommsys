@@ -7,6 +7,9 @@
    - $Author$
 */
 
+#include "config.h"
+#include "matrix.h"
+
 #include <boost/lambda/lambda.hpp>
 #include <boost/multi_array.hpp>
 #include <iterator>
@@ -14,7 +17,6 @@
 
 #include <sstream>
 #include <iostream>
-#include <matrix.h>
 
 using libbase::matrix;
 using std::cout;
@@ -125,12 +127,12 @@ void testboost_array()
    // compute remaining matrix values
    for(index j=1; j<=tau; ++j)
       {
-      const index amin = max<index>(-xmax,1-j);
+      const index amin = std::max<index>(-xmax,1-j);
       const index amax = xmax;
       for(index a=amin; a<=amax; ++a)
          {
-         const index ymin = max<index>(-xmax,a-1);
-         const index ymax = min<index>(xmax,a+I);
+         const index ymin = std::max<index>(-xmax,a-1);
+         const index ymax = std::min<index>(xmax,a+I);
          for(index y=ymin; y<=ymax; ++y)
             F[j][y] += F[j-1][a];// * Ptable(y-a+1);
          }
