@@ -352,7 +352,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    typedef array2d_t::index index;
    typedef array2d_t::extent_range range;
    array2d_t::extent_gen extents;
-   array2d_t F(extents[tau+1][range(-xmax,xmax+1)]);
+   array2d_t F(extents[tau][range(-xmax,xmax+1)]);
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    //F = 0;
    F[0][0] = 1;
@@ -377,17 +377,18 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
          }
       }
    // Compute forward metric for known drift, and return
+   double result = 0;
    // event must fit the received sequence:
    // 1. tau-1+a >= 0
    // 2. tau-1+m < rx.size()
    // limits on insertions and deletions must be respected:
    // 3. m-a <= I
    // 4. m-a >= -1
-   const index amin = std::max(-xmax,std::max(1-tau,m-I));
+   const index amin = std::max(std::max(-xmax,m-I),1-tau);
    const index amax = std::min(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
-      F[tau][m] += F[tau-1][a] * Ptable(int(m-a+1)) * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
-   return F[tau][m];
+      result += F[tau-1][a] * Ptable(int(m-a+1)) * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
+   return result;
    }
 
 // description output
