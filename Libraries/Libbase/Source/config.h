@@ -16,6 +16,12 @@
 #  define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
+// Disable checked-iterator warning
+
+#ifdef WIN32
+#  define _SCL_SECURE_NO_WARNINGS
+#endif
+
 // Disable dominance warning
 
 //#ifdef WIN32

@@ -9,6 +9,7 @@
 
 #include "bsid.h"
 #include "secant.h"
+#include <boost/multi_array.hpp>
 #include <sstream>
 #include <limits>
 
@@ -345,13 +346,16 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    assert(tau <= N);
    assert(labs(m) <= xmax);
    // Set up forward matrix
-   libbase::matrix<double> Ftable;
-   Ftable.init(tau+1, 2*xmax+1);
+   typedef boost::multi_array<double,2> array2d_t;
+   typedef array2d_t::index index;
+   typedef array2d_t::extent_range range;
+   array2d_t::extent_gen extents;
+   array2d_t F(extents[tau+1][range(-xmax,xmax+1)]);
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   Ftable = 0;
-   Ftable(0,0+xmax) = 1;
+   //F = 0;
+   F[0][0] = 1;
    // compute remaining matrix values
-   for(int j=1; j<tau; j++)
+   for(index j=1; j<tau; ++j)
       {
       // event must fit the received sequence:
       // 1. j-1+a >= 0
@@ -359,27 +363,25 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
-      const int amin = max(-xmax,1-j);
-      const int amax = xmax;
-      for(int a=amin; a<=amax; a++)
+      const index amin = max<index>(-xmax,1-j);
+      const index amax = xmax;
+      for(index a=amin; a<=amax; ++a)
          {
-         const int ymin = max(-xmax,a-1);
-         const int ymax = min(min(xmax,a+I),rx.size()-j);
-         for(int y=ymin; y<=ymax; y++)
-            Ftable(j,y+xmax) += Ftable(j-1,a+xmax) * Ptable(y-a+1) * bsid::receive(tx(j-1),rx.extract(j-1+a,y-a+1));
+         const index ymin = max<index>(-xmax,a-1);
+         const index ymax = min<index>(min<index>(xmax,a+I),rx.size()-j);
+         for(index y=ymin; y<=ymax; ++y)
+            F[j][y] += F[j-1][a] * Ptable(y-a+1) * bsid::receive(tx(j-1),rx.extract(j-1+a,y-a+1));
          }
       }
    // Compute forward metric for known drift, and return
    // limits on insertions and deletions must be respected:
    // 3. m-a <= I
    // 4. m-a >= -1
-   const int amin = max(-xmax,max(1-tau,m-I));
-   const int amax = min(xmax,m+1);
-   for(int a=amin; a<=amax; a++)
-      {
-      Ftable(tau,m+xmax) += Ftable(tau-1,a+xmax) * Ptable(m-a+1) * bsid::receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
-      }
-   return Ftable(tau,m+xmax);
+   const index amin = max<index>(-xmax,max<index>(1-tau,m-I));
+   const index amax = min<index>(xmax,m+1);
+   for(index a=amin; a<=amax; ++a)
+      F[tau][m] += F[tau-1][a] * Ptable(m-a+1) * bsid::receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
+   return F[tau][m];
    }
 
 // description output

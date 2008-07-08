@@ -8,6 +8,7 @@
 */
 
 #include <boost/lambda/lambda.hpp>
+#include <boost/multi_array.hpp>
 #include <iterator>
 #include <algorithm>
 
@@ -92,15 +93,51 @@ void testmatrixinv()
    cout << "inv(A).A = " << A.inverse()*A;
    }
 
-void testboost(const std::string& s)
+void testboost_foreach(const std::string& s)
    {
    using namespace boost::lambda;
    typedef std::istream_iterator<int> in;
    std::istringstream sin(s);
 
-   std::cout << "\nBoost Test:\n\n";
+   std::cout << "\nBoost ForEach Test:\n\n";
    std::for_each(
       in(sin), in(), std::cout << (_1 * 3) << " " );
+   std::cout << "\n";
+   }
+
+void testboost_array()
+   {
+   // Constants
+   const int xmax = 5;
+   const int tau = 50;
+   const int I = 2;
+   // Set up forward matrix
+   typedef boost::multi_array<double,2> array2d_t;
+   typedef array2d_t::index index;
+   typedef array2d_t::extent_range range;
+   array2d_t::extent_gen extents;
+   array2d_t F(extents[tau+1][range(-xmax,xmax+1)]);
+
+   std::cout << "\nBoost MultiArray Test:\n\n";
+   // Initial conditions
+   //F = 0;
+   F[0][0] = 1;
+   // compute remaining matrix values
+   for(index j=1; j<=tau; ++j)
+      {
+      const index amin = max<index>(-xmax,1-j);
+      const index amax = xmax;
+      for(index a=amin; a<=amax; ++a)
+         {
+         const index ymin = max<index>(-xmax,a-1);
+         const index ymax = min<index>(xmax,a+I);
+         for(index y=ymin; y<=ymax; ++y)
+            F[j][y] += F[j-1][a];// * Ptable(y-a+1);
+         }
+      }
+   // output results
+   for(index x=-xmax; x<=xmax; ++x)
+      std::cout << x << "\t" << F[tau][x] << "\n";
    std::cout << "\n";
    }
 
@@ -110,5 +147,6 @@ int main()
    print_new_sizes();
    testmatrixmul();
    testmatrixinv();
-   testboost("1 2 3\n");
+   testboost_foreach("1 2 3\n");
+   testboost_array();
    }
