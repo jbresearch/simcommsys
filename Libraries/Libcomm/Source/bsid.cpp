@@ -365,24 +365,28 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
-      const index amin = std::max<index>(-xmax,1-j);
+      const index amin = std::max(-xmax,1-int(j));
       const index amax = xmax;
+      const index ymax_bnd = std::min(xmax,rx.size()-int(j));
       for(index a=amin; a<=amax; ++a)
          {
-         const index ymin = std::max<index>(-xmax,a-1);
-         const index ymax = std::min<index>(std::min<index>(xmax,a+I),rx.size()-j);
+         const index ymin = std::max(-xmax,int(a)-1);
+         const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * Ptable(y-a+1) * bsid::receive(tx(j-1),rx.extract(j-1+a,y-a+1));
+            F[j][y] += F[j-1][a] * Ptable(int(y-a+1)) * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
          }
       }
    // Compute forward metric for known drift, and return
+   // event must fit the received sequence:
+   // 1. tau-1+a >= 0
+   // 2. tau-1+m < rx.size()
    // limits on insertions and deletions must be respected:
    // 3. m-a <= I
    // 4. m-a >= -1
-   const index amin = std::max<index>(-xmax,std::max<index>(1-tau,m-I));
-   const index amax = std::min<index>(xmax,m+1);
+   const index amin = std::max(-xmax,std::max(1-tau,m-I));
+   const index amax = std::min(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
-      F[tau][m] += F[tau-1][a] * Ptable(m-a+1) * bsid::receive(tx(tau-1),rx.extract(tau-1+a,m-a+1));
+      F[tau][m] += F[tau-1][a] * Ptable(int(m-a+1)) * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
    return F[tau][m];
    }
 
