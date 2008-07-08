@@ -175,7 +175,7 @@ template <class real, bool normalize>
 real dminner<real,normalize>::P(const int a, const int b)
    {
    const int m = b-a;
-   return Ptable(m+1);
+   return Ptable[m+1];
    }
 
 template <class real, bool normalize>

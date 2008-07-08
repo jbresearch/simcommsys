@@ -50,6 +50,9 @@ template <class real, bool normalize>
 class dminner : public modulator<bool>, private fba<real,bool,normalize> {
    friend class dminner2<real,normalize>;
 private:
+   /*! \name Internally-used types */
+   typedef boost::multi_array<double,1> array1d_t;
+   // @}
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
    int      k;                //!< number of bits in message (input) symbol
@@ -67,7 +70,7 @@ private:
    bsid *mychan;              //!< bound channel object
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
-   libbase::vector<double> Ptable;  //!< pre-computed values for P function
+   mutable array1d_t Ptable;  //!< Forward recursion 'P' function lookup
    // @}
 private:
    /*! \name Internal functions */

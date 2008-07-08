@@ -9,7 +9,6 @@
 
 #include "bsid.h"
 #include "secant.h"
-#include <boost/multi_array.hpp>
 #include <sstream>
 #include <limits>
 
@@ -84,28 +83,30 @@ int bsid::compute_xmax(int N, double p)
    \f[ Rtable(1,m) = \frac{(1-P_i-P_d) * Ps + \frac{1}{2} P_i P_d}
                           {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
 */
-void bsid::compute_Rtable(libbase::matrix<double>& Rtable, int xmax, double Ps, double Pd, double Pi)
+void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi)
    {
-   Rtable.init(2,xmax+1);
+   array2d_t::extent_gen extents;
+   Rtable.resize(extents[2][xmax+1]);
    const double a1 = (1-Pi-Pd);
    const double a2 = 0.5*Pi*Pd;
    for(int m=0; m<=xmax; m++)
       {
       const double a3 = (1<<m)*(1-Pi)*(1-Pd);
-      Rtable(0,m) = (a1 * (1-Ps) + a2) / a3;
-      Rtable(1,m) = (a1 * Ps + a2) / a3;
+      Rtable[0][m] = (a1 * (1-Ps) + a2) / a3;
+      Rtable[1][m] = (a1 * Ps + a2) / a3;
       }
    }
 
 /*!
    \brief Compute forward recursion 'P' function
 */
-void bsid::compute_Ptable(libbase::vector<double>& Ptable, int xmax, double Pd, double Pi)
+void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
    {
-   Ptable.init(xmax+2);
-   Ptable(0) = Pd;   // for m = -1
+   array1d_t::extent_gen extents;
+   Ptable.resize(extents[xmax+2]);
+   Ptable[0] = Pd;   // for m = -1
    for(int m=0; m<=xmax; m++)
-      Ptable(m+1) = pow(Pi,m)*(1-Pi)*(1-Pd);
+      Ptable[m+1] = pow(Pi,m)*(1-Pi)*(1-Pd);
    }
 
 // Internal functions
@@ -348,7 +349,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    assert(tau <= N);
    assert(labs(m) <= xmax);
    // Set up forward matrix
-   typedef boost::multi_array<double,2> array2d_t;
+   //typedef boost::multi_array<double,2> array2d_t;
    typedef array2d_t::index index;
    typedef array2d_t::extent_range range;
    array2d_t::extent_gen extents;
@@ -373,21 +374,21 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * Ptable(int(y-a+1)) * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
+            F[j][y] += F[j-1][a] * Ptable[y-a+1] * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
          }
       }
    // Compute forward metric for known drift, and return
    double result = 0;
    // event must fit the received sequence:
    // 1. tau-1+a >= 0
-   // 2. tau-1+m < rx.size()
+   // 2. tau-1+m < rx.size() [given by definition of m]
    // limits on insertions and deletions must be respected:
    // 3. m-a <= I
    // 4. m-a >= -1
    const index amin = std::max(std::max(-xmax,m-I),1-tau);
    const index amax = std::min(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
-      result += F[tau-1][a] * Ptable(int(m-a+1)) * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
+      result += F[tau-1][a] * Ptable[m-a+1] * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
    return result;
    }
 

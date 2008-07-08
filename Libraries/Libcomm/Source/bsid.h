@@ -5,6 +5,7 @@
 #include "channel.h"
 #include "itfunc.h"
 #include "serializer.h"
+#include <boost/multi_array.hpp>
 #include <math.h>
 
 namespace libcomm {
@@ -21,6 +22,10 @@ namespace libcomm {
 
 class bsid : public channel<bool> {
 private:
+   /*! \name Internally-used types */
+   typedef boost::multi_array<double,2> array2d_t;
+   typedef boost::multi_array<double,1> array1d_t;
+   // @}
    /*! \name User-defined parameters */
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter
@@ -35,16 +40,16 @@ private:
    /*! \name Pre-computed parameters */
    mutable int I;       //!< Assumed limit for insertions between two time-steps
    mutable int xmax;    //!< Assumed maximum drift over a whole \c N -bit block
-   mutable libbase::matrix<double> Rtable;     //!< Receiver coefficient set
-   mutable libbase::vector<double> Ptable;     //!< Forward recursion 'P' function lookup
+   mutable array2d_t Rtable;  //!< Receiver coefficient set
+   mutable array1d_t Ptable;  //!< Forward recursion 'P' function lookup
    // @}
 public:
    /*! \name FBA decoder parameter computation */
    static int compute_I(int N, double p);
    static int compute_xmax(int N, double p, int I);
    static int compute_xmax(int N, double p);
-   static void compute_Rtable(libbase::matrix<double>& Rtable, int xmax, double Ps, double Pd, double Pi);
-   static void compute_Ptable(libbase::vector<double>& Ptable, int xmax, double Pd, double Pi);
+   static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi);
+   static void compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi);
    // @}
 private:
    /*! \name Internal functions */
@@ -108,7 +113,7 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
    // Compute sizes
    const int m = rx.size()-1;
    // Return result from table
-   return (m < 0) ? Pd : Rtable(tx != rx(m), m);
+   return (m < 0) ? Pd : Rtable[tx != rx(m)][m];
    }
 
 }; // end namespace
