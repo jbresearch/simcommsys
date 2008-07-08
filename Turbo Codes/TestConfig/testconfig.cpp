@@ -134,7 +134,7 @@ void testboost_array()
          const index ymin = std::max<index>(-xmax,a-1);
          const index ymax = std::min<index>(xmax,a+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a];// * Ptable(y-a+1);
+            F[j][y] += F[j-1][a];
          }
       }
    // output results

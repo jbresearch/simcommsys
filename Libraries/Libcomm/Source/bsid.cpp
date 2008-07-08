@@ -102,11 +102,12 @@ void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, dou
 */
 void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
    {
+   typedef array1d_t::extent_range range;
    array1d_t::extent_gen extents;
-   Ptable.resize(extents[xmax+2]);
-   Ptable[0] = Pd;   // for m = -1
+   Ptable.resize(extents[range(-1,xmax+1)]);
+   Ptable[-1] = Pd;
    for(int m=0; m<=xmax; m++)
-      Ptable[m+1] = pow(Pi,m)*(1-Pi)*(1-Pd);
+      Ptable[m] = pow(Pi,m)*(1-Pi)*(1-Pd);
    }
 
 // Internal functions
@@ -350,7 +351,6 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    assert(labs(m) <= xmax);
    // Set up forward matrix
    //typedef boost::multi_array<double,2> array2d_t;
-   typedef array2d_t::index index;
    typedef array2d_t::extent_range range;
    array2d_t::extent_gen extents;
    array2d_t F(extents[tau][range(-xmax,xmax+1)]);
@@ -358,6 +358,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    //F = 0;
    F[0][0] = 1;
    // compute remaining matrix values
+   typedef array2d_t::index index;
    for(index j=1; j<tau; ++j)
       {
       // event must fit the received sequence:
@@ -374,7 +375,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * Ptable[y-a+1] * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
+            F[j][y] += F[j-1][a] * Ptable[y-a] * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
          }
       }
    // Compute forward metric for known drift, and return
@@ -388,7 +389,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    const index amin = std::max(std::max(-xmax,m-I),1-tau);
    const index amax = std::min(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
-      result += F[tau-1][a] * Ptable[m-a+1] * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
+      result += F[tau-1][a] * Ptable[m-a] * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
    return result;
    }
 
