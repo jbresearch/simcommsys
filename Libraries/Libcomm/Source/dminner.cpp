@@ -80,6 +80,68 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
       }
    }
 
+template <class real, bool normalize>
+void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const
+   {
+   // Inherit block size from last modulation step
+   const int q = 1<<k;
+   const int N = ws.size();
+   // Initialise result vector (one sparse symbol per timestep)
+   ptable.init(N, q);
+   // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
+   for(int i=0; i<N; i++)
+      {
+      std::cerr << libbase::pacifier("FBA Results", i, N);
+      // determine the strongest path at this point
+      real threshold = 0;
+      for(int x1=-xmax; x1<=xmax; x1++)
+         if(fba<real,bool,normalize>::getF(n*i,x1) > threshold)
+            threshold = fba<real,bool,normalize>::getF(n*i,x1);
+      threshold *= th_outer;
+      for(int d=0; d<q; d++)
+         {
+         real p = 0;
+         // create the considered transmitted sequence
+         libbase::vector<bool> tx(n);
+         for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
+            tx(j) = (t&1);
+         // event must fit the received sequence:
+         // (this is limited to start and end conditions)
+         // 1. n*i+x1 >= 0
+         // 2. n*(i+1)-1+x2 <= r.size()-1
+         // limits on insertions and deletions must be respected:
+         // 3. x2-x1 <= n*I
+         // 4. x2-x1 >= -n
+         // limits on introduced drift in this section:
+         // (necessary for forward recursion on extracted segment)
+         // 5. x2-x1 <= dxmax
+         // 6. x2-x1 >= -dxmax
+         const int x1min = std::max(-xmax,-n*i);
+         const int x1max = xmax;
+         for(int x1=x1min; x1<=x1max; x1++)
+            {
+            const real F = fba<real,bool,normalize>::getF(n*i,x1);
+            // ignore paths below a certain threshold
+            if(F < threshold)
+               continue;
+            const int x2min = std::max(-xmax,std::max(-n,-dxmax)+x1);
+            const int x2max = std::min(std::min(xmax,std::min(n*I,dxmax)+x1),r.size()-n*(i+1));
+            for(int x2=x2min; x2<=x2max; x2++)
+               {
+               // compute the conditional probability
+               const real P = mychan->receive(tx, r.extract(n*i+x1,x2-x1+n));
+               const real B = fba<real,bool,normalize>::getB(n*(i+1),x2);
+               // include the probability for this particular sequence
+               p += P * F * B;
+               }
+            }
+         ptable(i,d) = p;
+         }
+      }
+   if(N > 0)
+      std::cerr << libbase::pacifier("FBA Results", N, N);
+   }
+
 // initialization / de-allocation
 
 template <class real, bool normalize>
@@ -261,61 +323,10 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    // Initialize & perform forward-backward algorithm
    fba<real,bool,normalize>::init(tau, I, xmax, th_inner);
    fba<real,bool,normalize>::prepare(rx);
-   // Initialise result vector (one sparse symbol per timestep)
-   libbase::matrix<real> p(N,q);
-   p = real(0);
-   // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
-   trace << "DEBUG (dminner::demodulate): computing ptable...\n";
-   for(int i=0; i<N; i++)
-      {
-      std::cerr << libbase::pacifier("WM Demodulate", i, N);
-      // determine the strongest path at this point
-      real threshold = 0;
-      for(int x1=-xmax; x1<=xmax; x1++)
-         if(fba<real,bool,normalize>::getF(n*i,x1) > threshold)
-            threshold = fba<real,bool,normalize>::getF(n*i,x1);
-      threshold *= th_outer;
-      for(int d=0; d<q; d++)
-         {
-         // create the considered transmitted sequence
-         libbase::vector<bool> tx(n);
-         for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
-            tx(j) = (t&1);
-         // event must fit the received sequence:
-         // (this is limited to start and end conditions)
-         // 1. n*i+x1 >= 0
-         // 2. n*(i+1)-1+x2 <= r.size()-1
-         // limits on insertions and deletions must be respected:
-         // 3. x2-x1 <= n*I
-         // 4. x2-x1 >= -n
-         // limits on introduced drift in this section:
-         // (necessary for forward recursion on extracted segment)
-         // 5. x2-x1 <= dxmax
-         // 6. x2-x1 >= -dxmax
-         const int x1min = std::max(-xmax,-n*i);
-         const int x1max = xmax;
-         for(int x1=x1min; x1<=x1max; x1++)
-            {
-            const real F = fba<real,bool,normalize>::getF(n*i,x1);
-            // ignore paths below a certain threshold
-            if(F < threshold)
-               continue;
-            const int x2min = std::max(-xmax,std::max(-n,-dxmax)+x1);
-            const int x2max = std::min(std::min(xmax,std::min(n*I,dxmax)+x1),rx.size()-n*(i+1));
-            for(int x2=x2min; x2<=x2max; x2++)
-               {
-               // compute the conditional probability
-               const real P = chan.receive(tx, rx.extract(n*i+x1,x2-x1+n));
-               const real B = fba<real,bool,normalize>::getB(n*(i+1),x2);
-               // include the probability for this particular sequence
-               p(i,d) += P * F * B;
-               }
-            }
-         }
-      }
-   if(N > 0)
-      std::cerr << libbase::pacifier("WM Demodulate", N, N);
-   trace << "DEBUG (dminner::demodulate): ptable done.\n";
+   libbase::matrix<real> p;
+   // Reset substitution probability to original value
+   mychan->set_ps(Ps);
+   work_results(rx,p,xmax,dxmax,I);
    // check for numerical underflow
    const real scale = p.max();
    assert(scale != real(0));
