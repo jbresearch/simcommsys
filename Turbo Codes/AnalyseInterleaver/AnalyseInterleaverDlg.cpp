@@ -228,14 +228,14 @@ void CAnalyseInterleaverDlg::OnAnalyse()
    m_nSpread = m_nMaxDist;
    for(i=0; i<m_nTau; i++)
       {
-      for(j=i+1; j<min(m_nTau,i+m_nMaxDist); j++)
+      for(j=i+1; j<std::min(m_nTau,i+m_nMaxDist); j++)
          {
          const int din = (j-i);
          const int dout = int(fabs(double(out(j)-out(i))));
          if(dout < m_nMaxDist)
             m_miIOSS(din,dout)++;
          if(din <= m_nSpread && dout <= m_nSpread)
-            m_nSpread = max(din,dout);
+            m_nSpread = std::max(din,dout);
          }
       m_pcProgress.SetPos(int(floor(100*i/double(m_nTau))));
       }

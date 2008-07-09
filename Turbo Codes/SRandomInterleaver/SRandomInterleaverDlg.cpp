@@ -300,7 +300,7 @@ void CSRandomInterleaverDlg::ThreadProc()
             n = untried(ndx);
             // see if it's a suitable value (ie satisfies spread constraint)
             good = true;
-            for(int j=max(0,i-m_nSpread); j<i; j++)
+            for(int j=std::max(0,i-m_nSpread); j<i; j++)
                if(abs(m_viInterleaver(j)-n) < m_nSpread)
                   {
                   good = false;
