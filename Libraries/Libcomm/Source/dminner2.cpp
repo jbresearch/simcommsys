@@ -48,8 +48,7 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libba
    const int tau = N*n;
    assert(N > 0);
    // Set channel block size to q-ary symbol size
-   const bsid& chanref = dynamic_cast<const bsid &>(chan);
-   chanref.set_blocksize(n);
+   dminner<real,normalize>::set_blocksize(chan);
    // Clone channel for access within Q()
    dminner<real,normalize>::free();
    assertalways((dminner<real,normalize>::mychan = dynamic_cast<bsid *>(chan.clone())));

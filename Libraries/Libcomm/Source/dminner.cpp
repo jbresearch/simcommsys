@@ -81,6 +81,13 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
    }
 
 template <class real, bool normalize>
+void dminner<real,normalize>::set_blocksize(const channel<bool>& chan) const
+   {
+   const bsid& referred = dynamic_cast<const bsid &>(chan);
+   referred.set_blocksize(n);
+   }
+
+template <class real, bool normalize>
 void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const
    {
    // Inherit block size from last modulation step
@@ -302,8 +309,7 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    const int tau = N*n;
    assert(N > 0);
    // Set channel block size to q-ary symbol size
-   const bsid& chanref = dynamic_cast<const bsid &>(chan);
-   chanref.set_blocksize(n);
+   set_blocksize(chan);
    // Clone channel for access within Q()
    free();
    assertalways(mychan = dynamic_cast<bsid *>(chan.clone()));

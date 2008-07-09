@@ -75,7 +75,8 @@ private:
    /*! \name Internal functions */
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    void createsequence(const int tau);                      
-   void checkforchanges(int I, int xmax) const;                      
+   void checkforchanges(int I, int xmax) const;   
+   void set_blocksize(const channel<bool>& chan) const;
    void work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const;
    // @}
    // Implementations of channel-specific metrics for fba
