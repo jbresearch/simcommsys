@@ -52,7 +52,7 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libba
    chanref.set_blocksize(n);
    // Clone channel for access within Q()
    dminner<real,normalize>::free();
-   assertalways((dminner<real,normalize>::mychan = dynamic_cast<bsid *> (chan.clone())));
+   assertalways((dminner<real,normalize>::mychan = dynamic_cast<bsid *>(chan.clone())));
    // Determine required FBA parameter values
    const double Pd = dminner<real,normalize>::mychan->get_pd();
    const int I = bsid::compute_I(tau, Pd);

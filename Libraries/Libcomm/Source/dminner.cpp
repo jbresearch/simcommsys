@@ -306,7 +306,7 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    chanref.set_blocksize(n);
    // Clone channel for access within Q()
    free();
-   assertalways(mychan = dynamic_cast<bsid *> (chan.clone()));
+   assertalways(mychan = dynamic_cast<bsid *>(chan.clone()));
    // Update substitution probability to take into account sparse addition
    const double Ps = mychan->get_ps();
    mychan->set_ps(Ps*(1-f) + (1-Ps)*f);
