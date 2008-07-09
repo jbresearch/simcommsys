@@ -603,6 +603,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\informed_modulator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\interleaver.cpp"
 				>
 				<FileConfiguration
@@ -1393,6 +1397,10 @@
 			</File>
 			<File
 				RelativePath="Source\helical.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\informed_modulator.h"
 				>
 			</File>
 			<File
