@@ -3,8 +3,7 @@
 
 #include "config.h"
 
-#include "modulator.h"
-#include "mpsk.h"
+#include "informed_modulator.h"
 #include "fba.h"
 #include "bsid.h"
 
@@ -47,7 +46,7 @@ template <class real, bool normalize>
 class dminner2;
 
 template <class real, bool normalize>
-class dminner : public modulator<bool>, private fba<real,bool,normalize> {
+class dminner : public informed_modulator<bool>, private fba<real,bool,normalize> {
    friend class dminner2<real,normalize>;
 private:
    /*! \name Internally-used types */
@@ -82,8 +81,12 @@ private:
    real P(const int a, const int b);
    real Q(const int a, const int b, const int i, const libbase::vector<bool>& s);
    // Atomic modem operations (private as these should never be used)
-   const bool modulate(const int index) const { assert("Function should not be used."); return false; };
-   const int demodulate(const bool& signal) const { assert("Function should not be used."); return 0; };
+   const bool modulate(const int index) const
+      { assert("Function should not be used."); return false; };
+   const int demodulate(const bool& signal) const
+      { assert("Function should not be used."); return 0; };
+   const int demodulate(const bool& signal, const libbase::vector<double>& app) const
+      { assert("Function should not be used."); return 0; };
 protected:
    /*! \name Internal functions */
    void init();
@@ -105,6 +108,7 @@ public:
    // Vector modem operations
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
    void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable);
 
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };

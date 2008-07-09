@@ -327,6 +327,11 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
          ptable(i,d) = p(i,d);
    }
 
+template <class real, bool normalize>
+void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable)
+   {
+   }
+
 // description output
 
 template <class real, bool normalize>
