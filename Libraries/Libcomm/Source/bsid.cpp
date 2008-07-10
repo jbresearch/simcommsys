@@ -86,8 +86,7 @@ int bsid::compute_xmax(int N, double p)
 void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi)
    {
    // Allocate required size
-   array2d_t::extent_gen extents;
-   Rtable.resize(extents[2][xmax+1]);
+   Rtable.resize(boost::extents[2][xmax+1]);
    // Set values for insertions
    const double a1 = (1-Pi-Pd);
    const double a2 = 0.5*Pi*Pd;
@@ -106,8 +105,7 @@ void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
    {
    // Allocate required size
    typedef array1d_t::extent_range range;
-   array1d_t::extent_gen extents;
-   Ptable.resize(extents[range(-1,xmax+1)]);
+   Ptable.resize(boost::extents[range(-1,xmax+1)]);
    // Set values for deletion
    Ptable[-1] = Pd;
    // Set values for insertions
@@ -126,6 +124,16 @@ void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
 */
 void bsid::precompute() const
    {
+   if(N == 0)
+      {
+      I = 0;
+      xmax = 0;
+      // reset arrays
+      Rtable.resize(boost::extents[0][0]);
+      Ptable.resize(boost::extents[0]);
+      return;
+      }
+   assert(N>0);
    // fba decoder parameters
    I = compute_I(N, Pd);
    xmax = compute_xmax(N, Pd, I);
@@ -147,7 +155,8 @@ void bsid::init()
    Ps = 0;
    Pd = 0;
    Pi = 0;
-   N = 1;
+   // set block size to unusable value
+   N = 0;
    precompute();
    }
 
