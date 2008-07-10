@@ -136,7 +136,7 @@ void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libba
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
-               const real P = mychan->receive(tx, r.extract(n*i+x1,x2-x1+n));
+               const real P = mychan.receive(tx, r.extract(n*i+x1,x2-x1+n));
                const real B = fba<real,bool,normalize>::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p += P * F * B;
@@ -190,15 +190,6 @@ void dminner<real,normalize>::init()
    // Seed the watermark generator and clear the sequence
    r.seed(0);
    ws.init(0);
-   // Clear bound channel
-   mychan = NULL;
-   }
-
-template <class real, bool normalize>
-void dminner<real,normalize>::free()
-   {
-   if(mychan != NULL)
-      delete mychan;
    }
 
 // constructor / destructor
@@ -258,7 +249,7 @@ real dminner<real,normalize>::Q(const int a, const int b, const int i, const lib
    const int bit  = i%n;
    bool tx = ((ws(word) >> bit) & 1);
    // compute the conditional probability
-   return mychan->receive(tx, s);
+   return mychan.receive(tx, s);
    }
 
 // encoding and decoding functions
@@ -311,27 +302,26 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    // Set channel block size to q-ary symbol size
    set_blocksize(chan);
    // Clone channel for access within Q()
-   free();
-   assertalways(mychan = dynamic_cast<bsid *>(chan.clone()));
+   mychan = dynamic_cast<const bsid&>(chan);
    // Update substitution probability to take into account sparse addition
-   const double Ps = mychan->get_ps();
-   mychan->set_ps(Ps*(1-f) + (1-Ps)*f);
+   const double Ps = mychan.get_ps();
+   mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
    // Update block size to take into account the number of sparse symbols
-   mychan->set_blocksize(tau);
+   mychan.set_blocksize(tau);
    // Determine required FBA parameter values
-   const double Pd = mychan->get_pd();
+   const double Pd = mychan.get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
    const int dxmax = bsid::compute_xmax(n, Pd);
    checkforchanges(I, xmax);
    // Pre-compute 'P' table
-   bsid::compute_Ptable(Ptable, xmax, mychan->get_pd(), mychan->get_pi());
+   bsid::compute_Ptable(Ptable, xmax, mychan.get_pd(), mychan.get_pi());
    // Initialize & perform forward-backward algorithm
    fba<real,bool,normalize>::init(tau, I, xmax, th_inner);
    fba<real,bool,normalize>::prepare(rx);
    libbase::matrix<real> p;
    // Reset substitution probability to original value
-   mychan->set_ps(Ps);
+   mychan.set_ps(Ps);
    work_results(rx,p,xmax,dxmax,I);
    // check for numerical underflow
    const real scale = p.max();
@@ -393,7 +383,6 @@ std::ostream& dminner<real,normalize>::serialize(std::ostream& sout) const
 template <class real, bool normalize>
 std::istream& dminner<real,normalize>::serialize(std::istream& sin)
    {
-   free();
    std::streampos start = sin.tellg();
    sin >> user_threshold;
    // deal with inexistent flag as 'false'

@@ -13,6 +13,7 @@
 #include "serializer.h"
 #include <stdlib.h>
 #include <math.h>
+#include <memory>
 
 namespace libcomm {
 
@@ -50,7 +51,7 @@ class dminner : public informed_modulator<bool>, private fba<real,bool,normalize
    friend class dminner2<real,normalize>;
 private:
    /*! \name Internally-used types */
-   typedef boost::multi_array<double,1> array1d_t;
+   typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
@@ -63,10 +64,10 @@ private:
    double   th_outer;         //!< Threshold factor for outer cycle
    // @}
    /*! \name Pre-computed parameters */
-   double   f;    //!< average weight per bit of sparse symbol
+   double   f;                //!< average weight per bit of sparse symbol
    // @}
    /*! \name Internally-used objects */
-   bsid *mychan;              //!< bound channel object
+   bsid     mychan;           //!< bound channel object
    libbase::randgen r;        //!< watermark sequence generator
    libbase::vector<int> ws;   //!< watermark sequence
    mutable array1d_t Ptable;  //!< Forward recursion 'P' function lookup
@@ -92,13 +93,11 @@ private:
 protected:
    /*! \name Internal functions */
    void init();
-   void free();
    // @}
 public:
    /*! \name Constructors / Destructors */
    dminner(const int n=2, const int k=1);
    dminner(const int n, const int k, const double th_inner, const double th_outer);
-   ~dminner() { free(); };
    // @}
 
    /*! \name Watermark-specific informative functions */

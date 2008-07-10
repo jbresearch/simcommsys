@@ -28,7 +28,7 @@ real dminner2<real,normalize>::Q(int d, int i, const libbase::vector<bool>& r) c
    for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
       tx(bit) = (t&1);
    // compute the conditional probability
-   return dminner<real,normalize>::mychan->receive(tx, r);
+   return dminner<real,normalize>::mychan.receive(tx, r);
    }
 
 // encoding and decoding functions
@@ -50,10 +50,9 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libba
    // Set channel block size to q-ary symbol size
    dminner<real,normalize>::set_blocksize(chan);
    // Clone channel for access within Q()
-   dminner<real,normalize>::free();
-   assertalways((dminner<real,normalize>::mychan = dynamic_cast<bsid *>(chan.clone())));
+   dminner<real,normalize>::mychan = dynamic_cast<const bsid&>(chan);
    // Determine required FBA parameter values
-   const double Pd = dminner<real,normalize>::mychan->get_pd();
+   const double Pd = dminner<real,normalize>::mychan.get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
    const int dxmax = bsid::compute_xmax(n, Pd);

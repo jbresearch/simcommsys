@@ -5,7 +5,7 @@
 #include "channel.h"
 #include "itfunc.h"
 #include "serializer.h"
-#include <boost/multi_array.hpp>
+#include "multi_array.h"
 #include <math.h>
 
 namespace libcomm {
@@ -23,8 +23,8 @@ namespace libcomm {
 class bsid : public channel<bool> {
 private:
    /*! \name Internally-used types */
-   typedef boost::multi_array<double,2> array2d_t;
-   typedef boost::multi_array<double,1> array1d_t;
+   typedef boost::assignable_multi_array<double,2> array2d_t;
+   typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
    /*! \name User-defined parameters */
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
