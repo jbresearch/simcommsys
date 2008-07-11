@@ -301,7 +301,6 @@ void dminner<real,normalize>::modulate(const int N, const libbase::vector<int>& 
 template <class real, bool normalize>
 void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
-   using libbase::trace;
    // Inherit block size from last modulation step
    const int N = ws.size();
    const int tau = N*n;

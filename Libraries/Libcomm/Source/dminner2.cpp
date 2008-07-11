@@ -40,10 +40,9 @@ real dminner2<real,normalize>::Q(int d, int i, const libbase::vector<bool>& r) c
 template <class real, bool normalize>
 void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
-   using libbase::trace;
-   const int n = dminner<real,normalize>::n;
    // Inherit block size from last modulation step
    const int q = 1<<dminner<real,normalize>::k;
+   const int n = dminner<real,normalize>::n;
    const int N = dminner<real,normalize>::ws.size();
    const int tau = N*n;
    assert(N > 0);
