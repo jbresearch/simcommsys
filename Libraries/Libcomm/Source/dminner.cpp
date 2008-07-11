@@ -320,7 +320,7 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    // Update substitution probability to take into account sparse addition
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps*(1-f) + (1-Ps)*f);
-   // Update block size to take into account the number of sparse symbols
+   // Set block size for main forward-backward pass
    mychan.set_blocksize(tau);
    // Determine required FBA parameter values
    const double Pd = mychan.get_pd();
@@ -335,6 +335,8 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    fba<real,bool,normalize>::prepare(rx);
    // Reset substitution probability to original value
    mychan.set_ps(Ps);
+   // Set block size for results-computation pass
+   mychan.set_blocksize(n);
    // Compute and normalize results
    libbase::matrix<real> p;
    work_results(rx,p,xmax,dxmax,I);
