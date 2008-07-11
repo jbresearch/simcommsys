@@ -79,6 +79,7 @@ private:
    void checkforchanges(int I, int xmax) const;   
    void set_blocksize(const channel<bool>& chan) const;
    void work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const;
+   void normalize_results(const libbase::matrix<real>& in, libbase::matrix<double>& out) const;
    // @}
    // Implementations of channel-specific metrics for fba
    real P(const int a, const int b);

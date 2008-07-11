@@ -60,17 +60,10 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libba
    // Initialize & perform forward-backward algorithm
    fba2<real,bool,normalize>::init(N, n, q, I, xmax, dxmax, dminner<real,normalize>::th_inner, dminner<real,normalize>::th_outer);
    fba2<real,bool,normalize>::prepare(rx);
+   // Compute and normalize results
    libbase::matrix<real> p;
    fba2<real,bool,normalize>::work_results(rx,p);
-   // check for numerical underflow
-   const real scale = p.max();
-   assert(scale != real(0));
-   // normalize and copy results
-   p /= scale;
-   ptable.init(N,q);
-   for(int i=0; i<N; i++)
-      for(int d=0; d<q; d++)
-         ptable(i,d) = p(i,d);
+   dminner<real,normalize>::normalize_results(p,ptable);
    }
 
 // description output

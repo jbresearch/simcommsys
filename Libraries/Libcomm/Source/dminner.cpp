@@ -149,6 +149,21 @@ void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libba
       std::cerr << libbase::pacifier("FBA Results", N, N);
    }
 
+template <class real, bool normalize>
+void dminner<real,normalize>::normalize_results(const libbase::matrix<real>& in, libbase::matrix<double>& out) const
+   {
+   const int N = in.xsize();
+   const int q = in.ysize();
+   // check for numerical underflow
+   const real scale = in.max();
+   assert(scale != real(0));
+   // normalize and copy results
+   out.init(N,q);
+   for(int i=0; i<N; i++)
+      for(int d=0; d<q; d++)
+         out(i,d) = in(i,d)/scale;
+   }
+
 // initialization / de-allocation
 
 template <class real, bool normalize>
@@ -295,7 +310,6 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    {
    using libbase::trace;
    // Inherit block size from last modulation step
-   const int q = 1<<k;
    const int N = ws.size();
    const int tau = N*n;
    assert(N > 0);
@@ -319,19 +333,12 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    // Initialize & perform forward-backward algorithm
    fba<real,bool,normalize>::init(tau, I, xmax, th_inner);
    fba<real,bool,normalize>::prepare(rx);
-   libbase::matrix<real> p;
    // Reset substitution probability to original value
    mychan.set_ps(Ps);
+   // Compute and normalize results
+   libbase::matrix<real> p;
    work_results(rx,p,xmax,dxmax,I);
-   // check for numerical underflow
-   const real scale = p.max();
-   assert(scale != real(0));
-   // normalize and copy results
-   p /= scale;
-   ptable.init(N, q);
-   for(int i=0; i<N; i++)
-      for(int d=0; d<q; d++)
-         ptable(i,d) = p(i,d);
+   normalize_results(p,ptable);
    }
 
 template <class real, bool normalize>
