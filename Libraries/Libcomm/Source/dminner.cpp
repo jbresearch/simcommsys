@@ -81,13 +81,6 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::set_blocksize(const channel<bool>& chan) const
-   {
-   const bsid& referred = dynamic_cast<const bsid &>(chan);
-   referred.set_blocksize(n);
-   }
-
-template <class real, bool normalize>
 void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const
    {
    // Inherit block size from last modulation step
@@ -313,9 +306,7 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    const int N = ws.size();
    const int tau = N*n;
    assert(N > 0);
-   // Set channel block size to q-ary symbol size
-   set_blocksize(chan);
-   // Clone channel for access within Q()
+   // Copy channel for access within Q()
    mychan = dynamic_cast<const bsid&>(chan);
    // Update substitution probability to take into account sparse addition
    const double Ps = mychan.get_ps();
@@ -335,7 +326,7 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    fba<real,bool,normalize>::prepare(rx);
    // Reset substitution probability to original value
    mychan.set_ps(Ps);
-   // Set block size for results-computation pass
+   // Set block size for results-computation pass to q-ary symbol size
    mychan.set_blocksize(n);
    // Compute and normalize results
    libbase::matrix<real> p;

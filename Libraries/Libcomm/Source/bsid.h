@@ -35,13 +35,13 @@ private:
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
-   mutable int N;       //!< Block size in bits over which we want to synchronize
+   int N;               //!< Block size in bits over which we want to synchronize
    // @}
    /*! \name Pre-computed parameters */
-   mutable int I;       //!< Assumed limit for insertions between two time-steps
-   mutable int xmax;    //!< Assumed maximum drift over a whole \c N -bit block
-   mutable array2d_t Rtable;  //!< Receiver coefficient set
-   mutable array1d_t Ptable;  //!< Forward recursion 'P' function lookup
+   int I;               //!< Assumed limit for insertions between two time-steps
+   int xmax;            //!< Assumed maximum drift over a whole \c N -bit block
+   array2d_t Rtable;    //!< Receiver coefficient set
+   array1d_t Ptable;    //!< Forward recursion 'P' function lookup
    // @}
 public:
    /*! \name FBA decoder parameter computation */
@@ -53,7 +53,7 @@ public:
    // @}
 private:
    /*! \name Internal functions */
-   void precompute() const;
+   void precompute();
    void init();
    // @}
 protected:
@@ -78,7 +78,7 @@ public:
    //! Set the bit-insertion probability
    void set_pi(const double Pi);
    //! Set the block size
-   void set_blocksize(int N) const;
+   void set_blocksize(int N);
    // @}
 
    /*! \name Channel parameter getters */

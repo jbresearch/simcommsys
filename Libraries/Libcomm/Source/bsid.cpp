@@ -122,7 +122,7 @@ void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
    operations. Since these values depend on the channel conditions, this
    function should be called any time a channel parameter is changed.
 */
-void bsid::precompute() const
+void bsid::precompute()
    {
    if(N == 0)
       {
@@ -238,7 +238,7 @@ void bsid::set_pi(const double Pi)
    precompute();
    }
 
-void bsid::set_blocksize(int N) const
+void bsid::set_blocksize(int N)
    {
    if(N != bsid::N)
       {

@@ -47,10 +47,10 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libba
    const int N = dminner<real,normalize>::ws.size();
    const int tau = N*n;
    assert(N > 0);
-   // Set channel block size to q-ary symbol size
-   dminner<real,normalize>::set_blocksize(chan);
-   // Clone channel for access within Q()
+   // Copy channel for access within Q()
    dminner<real,normalize>::mychan = dynamic_cast<const bsid&>(chan);
+   // Set channel block size to q-ary symbol size
+   dminner<real,normalize>::mychan.set_blocksize(n);
    // Determine required FBA parameter values
    const double Pd = dminner<real,normalize>::mychan.get_pd();
    const int I = bsid::compute_I(tau, Pd);
