@@ -1,6 +1,7 @@
 #ifndef __multi_array_h
 #define __multi_array_h
 
+#include "config.h"
 #include <boost/multi_array.hpp>
 
 namespace boost {
@@ -17,34 +18,19 @@ namespace boost {
 
 template<typename T, std::size_t NumDims>
 class assignable_multi_array : public multi_array<T,NumDims> {
-protected:
-   //template <std::size_t N>
-   //detail::multi_array::extent_gen<N> gen_extents(detail::multi_array::extent_gen<NumDims-N> prev) const
-   //   {
-   //   assert(1 <= N && N <= NumDims);
-   //   detail::multi_array::extent_gen<NumDims-N+1> next = prev[ shape()[NumDims-N] ];
-   //   if(N == 1)
-   //      return next;
-   //   else
-   //      return gen_extents<N-1>(next);
-   //   }
 public:
    /*! \name Constructors / Destructors */
    explicit assignable_multi_array() :
       multi_array<T,NumDims>()
       {};
-   //template <class ExtentList>
-   //explicit assignable_multi_array(const ExtentList& extents) :
-   //   multi_array<T,NumDims>(extents)
-   //   {};
    explicit assignable_multi_array(const detail::multi_array::extent_gen<NumDims>& ranges) :
       multi_array<T,NumDims>(ranges)
       {};
-   // @}
-   /*! \name The Big Three */
    explicit assignable_multi_array(const assignable_multi_array& x) :
       multi_array<T,NumDims>(dynamic_cast< const multi_array<T,NumDims>& >(x))
       {};
+   // @}
+   /*! \name Assignment */
    assignable_multi_array& operator=(const assignable_multi_array& x)
       {
       if(!std::equal(this->shape(), this->shape()+this->num_dimensions(), x.shape()))
@@ -57,6 +43,11 @@ public:
       return *this;
       }
    // @}
+   /*! \name Informative functions */
+   /*! \brief Get array extents description
+      Returns an object describing the array extents, in a format suitable
+      for use with resize().
+   */
    detail::multi_array::extent_gen<NumDims> extents() const
       {
       typedef typename multi_array<T,NumDims>::extent_range extent_range;
@@ -68,6 +59,7 @@ public:
          }
       return extents_list;
       }
+   // @}
 };
 
 }; // end namespace
