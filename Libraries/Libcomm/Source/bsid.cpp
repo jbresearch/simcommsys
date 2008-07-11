@@ -364,10 +364,8 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    assert(tau <= N);
    assert(labs(m) <= xmax);
    // Set up forward matrix
-   //typedef boost::multi_array<double,2> array2d_t;
    typedef array2d_t::extent_range range;
-   array2d_t::extent_gen extents;
-   array2d_t F(extents[tau][range(-xmax,xmax+1)]);
+   array2d_t F(boost::extents[tau][range(-xmax,xmax+1)]);
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    //F = 0;
    F[0][0] = 1;
