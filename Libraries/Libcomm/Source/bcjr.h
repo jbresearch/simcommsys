@@ -45,57 +45,6 @@ namespace libcomm {
    \note Memory is only allocated in the first call to "decode". This is more
          efficient for the parallel simulator strategy with a master which only
          collects results.
-
-   \version 2.00 (26 Feb 1999)
-   updated by redefining the gamma matrix to contain only the connected set of mdash,m (reducing memory
-   by a factor of M/K) and by computing alpha and beta accordingly (a speedup of M/K).
-
-   \version 2.40 (1 Sep 1999)
-   fixed a bug in the work_gamma procedure - now the gamma values are worked out as specified by the
-   equation, tail or no tail. The BCJR algorithm handles tail regions automatically by giving the correct
-   boundary conditions for alpha/beta. Actually, the difference in this bugfix will be seen in the use
-   with Turbo codes only because the only real problem is with the lack of using APP in the tail region.
-
-   \version 2.52 (1 Aug 2006)
-   added internal normalization of alpha and beta metrics, as in Matt Valenti's CML
-   Theory slides; this is an attempt at solving the numerical range problems currently
-   experienced in multiple (sets>2) Turbo codes.
-
-   \version 2.53 (2 Aug 2006)
-   - modified internal normalization - rather than dividing by the value for the first
-   symbol, we now determine the maximum value over all symbols and divide by that. This
-   should avoid problems when the metric for the first symbol is very small.
-   - added normalization function for use by derived classes (such as turbo);
-   rather than normalizing the a-priori and a-posteriori probabilities here, this
-   is left for derived classes to do - the reason behind this is that this class
-   should not be responsible for its inputs, but whoever is providing them is.
-
-   \version 2.51 (21 Jul 2006)
-   added support for circular decoding - when working alpha and beta vectors, the set of
-   probabilities at the end state are normalized and used to replace the corresponding
-   set for the initial state. To support this, a new flag 'circular' has been added to
-   the constructor, defaulting to false. In addition, a new function reset() has been
-   added, to provide a mechanism for the turbo codec to reset the start- and end-state
-   probabilities between frames.
-
-   \version 2.60 (6 Jan 2008)
-   - modified decoding behaviour with circular trellises: instead of replacing the start-
-     state probabilities with the end-state probabilities at the end of the forward pass
-     (and similarly replacing the end-state with the start-state probabilities at the
-     end of the backward pass), we now do the exchange before we start the turn.
-     Consequently, this requires a slightly different metric initialization.
-   - observed bug in handling of circular decoding: since the same object is used over
-     different sets of the turbo structure, the probabilities copied over between end-
-     state and start-state were actually getting mixed up between iterations. Fixing this
-     as follows:
-      - removed flags startatzero, endatzero, and circular; these are actually properties
-        of the turbo code, rather than the bcjr object itself, and are only relevant for
-        two things: (i) initializing the metric endpoints and (ii) determining the length
-        of the tail sequence
-      - modified reset() and created similar new protected functions to cater for (i),
-        getting and setting the end-state probabilities, to be used by the turbo system
-      - removed the 'nu' variable, which held the length of the tail sequence, and the
-        'lut_i' table, since these are not really required.
 */
 
 template <class real, class dbl=double>

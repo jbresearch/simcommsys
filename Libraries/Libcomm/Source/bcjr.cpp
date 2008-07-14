@@ -180,14 +180,6 @@ inline real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
 
    For all values of t in [1,tau], the gamma values are worked out as specified
    by the BCJR equation.
-
-   \warning The line 'gamma(t-1, mdash, m) = R(t-1, X)' was changed to '+=' on
-            27 May 1998 to allow for the case (as in uncoded Tx) where trellis
-            has parallel paths (more than one path starting at the same state
-            and ending at the same state). It was then immediately changed back
-            to '=' because the BCJR algorithm cannot determine between two
-            parallel paths anyway (algorithm is useless in such cases).
-            Same applies to viterbi algorithm.
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::work_gamma(const array2d_t& R)
@@ -208,8 +200,8 @@ void bcjr<real,dbl>::work_gamma(const array2d_t& R)
    \param   app   app(t-1, i) is the 'a priori' probability of having
                   transmitted (input value) i at time t
 
-   For all values of t in [1,tau], the gamma values are worked out as
-   specified by the BCJR equation. This function also makes use of the a priori
+   For all values of t in [1,tau], the gamma values are worked out as specified
+   by the BCJR equation. This function also makes use of the a priori
    probabilities associated with the input.
 */
 template <class real, class dbl>
@@ -230,6 +222,13 @@ void bcjr<real,dbl>::work_gamma(const array2d_t& R, const array2d_t& app)
    Alpha values only depend on the initial values (for t=0) and on the computed
    gamma values; the matrix is recursively computed. Initial alpha values are
    set in the creator and are never changed in the object's lifetime.
+
+   \note Metrics are normalized using a variation of Matt Valenti's CML Theory
+         slides; this was initially an attempt at solving the numerical range
+         problems in multiple (sets>2) Turbo codes.
+         Rather than dividing by the value for the first symbol, we determine
+         the maximum value over all symbols and divide by that. This avoids
+         problems when the metric for the first symbol is very small.
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::work_alpha()
@@ -265,6 +264,8 @@ void bcjr<real,dbl>::work_alpha()
    Beta values only depend on the final values (for t=tau) and on the computed
    gamma values; the matrix is recursively computed. Final beta values are set
    in the creator and are never changed in the object's lifetime.
+
+   \cf See notes for work_alpha()
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::work_beta()
@@ -373,6 +374,12 @@ void bcjr<real,dbl>::work_results(array2d_t& ri)
 /*!
    \brief   Function to normalize results vectors
    \param   r     matrix with results - first index represents time-step
+
+   This function is provided for derived classes to use; rather than
+   normalizing the a-priori and a-posteriori probabilities in this class, it
+   is up to derived classes to decide when that should be done. The reason
+   behind this is that this class should not be responsible for its inputs,
+   but whoever is providing them is.
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::normalize(array2d_t& r)
