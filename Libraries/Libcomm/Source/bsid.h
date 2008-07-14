@@ -26,6 +26,7 @@ private:
    typedef boost::assignable_multi_array<double,2> array2d_t;
    typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
+private:
    /*! \name User-defined parameters */
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter

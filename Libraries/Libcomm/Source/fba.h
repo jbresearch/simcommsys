@@ -5,8 +5,8 @@
 #include "vector.h"
 #include "matrix.h"
 #include "matrix3.h"
-
 #include "fsm.h"
+#include "multi_array.h"
 
 #include <math.h>
 #include <iostream>
@@ -43,30 +43,32 @@ namespace libcomm {
 
 template <class real, class sig, bool normalize>
 class fba {
+private:
+   /*! \name Internally-used types */
+   typedef libbase::vector<sig> array1s_t;
+   typedef boost::assignable_multi_array<real,2> array2r_t;
+   // @}
+private:
    /*! \name User-defined parameters */
-   int   tau;           //!< The (transmitted) block size in bits
-   int   I;             //!< The maximum number of insertions considered before every transmission
-   int   xmax;          //!< The maximum allowed drift overall
-   double th_inner;  //!< Threshold factor for inner cycle
+   int tau;             //!< The (transmitted) block size in bits
+   int I;               //!< The maximum number of insertions considered before every transmission
+   int xmax;            //!< The maximum allowed drift overall
+   double th_inner;     //!< Threshold factor for inner cycle
    // @}
    /*! \name Internally-used objects */
-   bool  initialised;   //!< Flag to indicate when memory is allocated
-   libbase::matrix<real> mF; //!< Forward recursion metric
-   libbase::matrix<real> mB; //!< Backward recursion metric
+   bool initialised;    //!< Flag to indicate when memory is allocated
+   array2r_t F;         //!< Forward recursion metric
+   array2r_t B;         //!< Backward recursion metric
    // @}
 private:
    /*! \name Internal functions */
-   // index-shifting access internal use
-   real& F(const int j, const int y) { return mF(j,y+xmax); };
-   real& B(const int j, const int y) { return mB(j,y+xmax); };
-   // memory allocation
    void allocate();
    // @}
 protected:
    /*! \name Internal functions */
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual real P(const int a, const int b) = 0;
-   virtual real Q(const int a, const int b, const int i, const libbase::vector<sig>& s) = 0;
+   virtual real Q(const int a, const int b, const int i, const array1s_t& s) = 0;
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -78,12 +80,12 @@ public:
    // main initialization routine
    void init(int tau, int I, int xmax, double th_inner);
    // getters for forward and backward metrics
-   real getF(const int j, const int y) const { return mF(j,y+xmax); };
-   real getB(const int j, const int y) const { return mB(j,y+xmax); };
+   real getF(const int j, const int y) const { return F[j][y]; };
+   real getB(const int j, const int y) const { return B[j][y]; };
    // decode functions
-   void work_forward(const libbase::vector<sig>& r);
-   void work_backward(const libbase::vector<sig>& r);
-   void prepare(const libbase::vector<sig>& r);
+   void work_forward(const array1s_t& r);
+   void work_backward(const array1s_t& r);
+   void prepare(const array1s_t& r);
 };
 
 }; // end namespace

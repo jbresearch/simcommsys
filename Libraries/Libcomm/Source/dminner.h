@@ -53,6 +53,7 @@ private:
    /*! \name Internally-used types */
    typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
+private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
    int      k;                //!< number of bits in message (input) symbol

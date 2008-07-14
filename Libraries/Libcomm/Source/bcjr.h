@@ -57,6 +57,7 @@ private:
    typedef libbase::matrix<real>    array2r_t;
    typedef libbase::matrix3<real>   array3r_t;
    // @}
+private:
    /*! \name Internal variables */
    int   tau;           //!< Input block size in symbols (including tail)
    int   K;             //!< Input alphabet size
