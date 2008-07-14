@@ -11,9 +11,6 @@
 
 namespace libcomm {
 
-using libbase::vector;
-using libbase::matrix;
-
 // Initialization
 
 /*!
@@ -21,18 +18,14 @@ using libbase::matrix;
    \param   encoder     The finite state machine used to encode the source.
    \param   tau         The block length of decoder (including tail bits).
 
-   Note that if the trellis is not defined as starting or ending at zero, then it is assumed that
-   all starting and ending states (respectively) are equiprobable.
+   \note If the trellis is not defined as starting or ending at zero, then it
+         is assumed that all starting and ending states (respectively) are
+         equiprobable.
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::init(fsm& encoder, const int tau)
    {
-   if(tau < 1)
-      {
-      std::cerr << "FATAL ERROR (bcjr): MAP decoder block size too small (" << tau << ")\n";
-      exit(1);
-      }
-
+   assertalways(tau > 0);
    bcjr::tau = tau;
 
    // Initialise constants
@@ -60,18 +53,18 @@ void bcjr<real,dbl>::init(fsm& encoder, const int tau)
 // Get start- and end-state probabilities
 
 template <class real, class dbl>
-vector<dbl> bcjr<real,dbl>::getstart() const
+typename bcjr<real,dbl>::array1d_t bcjr<real,dbl>::getstart() const
    {
-   vector<dbl> r(M);
+   array1d_t r(M);
    for(int m=0; m<M; m++)
       r(m) = beta(0, m);
    return r;
    }
 
 template <class real, class dbl>
-vector<dbl> bcjr<real,dbl>::getend() const
+typename bcjr<real,dbl>::array1d_t bcjr<real,dbl>::getend() const
    {
-   vector<dbl> r(M);
+   array1d_t r(M);
    for(int m=0; m<M; m++)
       r(m) = alpha(tau, m);
    return r;
@@ -122,7 +115,7 @@ void bcjr<real,dbl>::setend(int state)
 // Set start- and end-state probabilities - direct
 
 template <class real, class dbl>
-void bcjr<real,dbl>::setstart(const libbase::vector<dbl>& p)
+void bcjr<real,dbl>::setstart(const array1d_t& p)
    {
    assert(p.size() == M);
    if(!initialised)
@@ -132,7 +125,7 @@ void bcjr<real,dbl>::setstart(const libbase::vector<dbl>& p)
    }
 
 template <class real, class dbl>
-void bcjr<real,dbl>::setend(const libbase::vector<dbl>& p)
+void bcjr<real,dbl>::setend(const array1d_t& p)
    {
    assert(p.size() == M);
    if(!initialised)
@@ -158,16 +151,20 @@ void bcjr<real,dbl>::allocate()
 
 // Internal functions
 
-//! State probability metric - lambda(t,m) = Pr{S(t)=m, Y[1..tau]}
+/*! \brief State probability metric
+   lambda(t,m) = Pr{S(t)=m, Y[1..tau]}
+*/
 template <class real, class dbl>
-real bcjr<real,dbl>::lambda(const int t, const int m)
+inline real bcjr<real,dbl>::lambda(const int t, const int m)
    {
    return alpha(t, m) * beta(t, m);
    }
 
-//! Transition probability metric - sigma(t,m,i) = Pr{S(t-1)=m, S(t)=m(m,i), Y[1..tau]}
+/*! Transition probability metric
+   sigma(t,m,i) = Pr{S(t-1)=m, S(t)=m(m,i), Y[1..tau]}
+*/
 template <class real, class dbl>
-real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
+inline real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
    {
    int mdash = lut_m(m, i);
    return alpha(t-1, m) * gamma(t-1, m, i) * beta(t, mdash);
@@ -178,20 +175,22 @@ real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
 
 /*!
    \brief   Computes the gamma matrix.
-   \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t,
-                  having transmitted X
+   \param   R     R(t-1, X) is the probability of receiving "whatever we
+                  received" at time t, having transmitted X
 
-   For all values of t in [1,tau], the gamma values are worked out as specified by the BCJR equation.
+   For all values of t in [1,tau], the gamma values are worked out as specified
+   by the BCJR equation.
 
-   \warning
-   The line 'gamma(t-1, mdash, m) = R(t-1, X)' was changed to '+=' on 27 May 1998 to allow for
-   the case (as in uncoded Tx) where trellis has parallel paths (more than one path starting at
-   the same state and ending at the same state). It was then immediately changed back to '='
-   because the BCJR algorithm cannot determine between two parallel paths anyway (algorithm is
-   useless in such cases). Same applies to viterbi algorithm.
+   \warning The line 'gamma(t-1, mdash, m) = R(t-1, X)' was changed to '+=' on
+            27 May 1998 to allow for the case (as in uncoded Tx) where trellis
+            has parallel paths (more than one path starting at the same state
+            and ending at the same state). It was then immediately changed back
+            to '=' because the BCJR algorithm cannot determine between two
+            parallel paths anyway (algorithm is useless in such cases).
+            Same applies to viterbi algorithm.
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R)
+void bcjr<real,dbl>::work_gamma(const array2d_t& R)
    {
    for(int t=1; t<=tau; t++)
       for(int mdash=0; mdash<M; mdash++)
@@ -204,16 +203,17 @@ void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R)
 
 /*!
    \brief   Computes the gamma matrix.
-   \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t,
-                  having transmitted X
-   \param   app   app(t-1, i) is the 'a priori' probability of having transmitted (input value)
-                  i at time t
+   \param   R     R(t-1, X) is the probability of receiving "whatever we
+                  received" at time t, having transmitted X
+   \param   app   app(t-1, i) is the 'a priori' probability of having
+                  transmitted (input value) i at time t
 
-   For all values of t in [1,tau], the gamma values are worked out as specified by the BCJR equation.
-   This function also makes use of the a priori probabilities associated with the input.
+   For all values of t in [1,tau], the gamma values are worked out as
+   specified by the BCJR equation. This function also makes use of the a priori
+   probabilities associated with the input.
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R, const matrix<dbl>& app)
+void bcjr<real,dbl>::work_gamma(const array2d_t& R, const array2d_t& app)
    {
    for(int t=1; t<=tau; t++)
       for(int mdash=0; mdash<M; mdash++)
@@ -227,9 +227,9 @@ void bcjr<real,dbl>::work_gamma(const matrix<dbl>& R, const matrix<dbl>& app)
 /*!
    \brief   Computes the alpha matrix.
 
-   Alpha values only depend on the initial values (for t=0) and on the computed gamma values;
-   the matrix is recursively computed. Initial alpha values are set in the creator and are never
-   changed in the object's lifetime.
+   Alpha values only depend on the initial values (for t=0) and on the computed
+   gamma values; the matrix is recursively computed. Initial alpha values are
+   set in the creator and are never changed in the object's lifetime.
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::work_alpha()
@@ -262,9 +262,9 @@ void bcjr<real,dbl>::work_alpha()
 /*!
    \brief   Computes the beta matrix.
 
-   Beta values only depend on the final values (for t=tau) and on the computed gamma values;
-   the matrix is recursively computed. Final beta values are set in the creator and are never
-   changed in the object's lifetime.
+   Beta values only depend on the final values (for t=tau) and on the computed
+   gamma values; the matrix is recursively computed. Final beta values are set
+   in the creator and are never changed in the object's lifetime.
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::work_beta()
@@ -294,24 +294,28 @@ void bcjr<real,dbl>::work_beta()
 
 /*!
    \brief   Computes the final results for the BCJR algorithm.
-   \param   ri    ri(t-1, i) is the probability that we transmitted (input value) i at time t
-   \param   ro    ro(t-1, X) is the probability that we transmitted (output value) X at time t
+   \param   ri    ri(t-1, i) is the probability that we transmitted
+                  (input value) i at time t
+   \param   ro    ro(t-1, X) is the probability that we transmitted
+                  (output value) X at time t
 
-   Once we have worked out the gamma, alpha, and beta matrices, we are in a position to compute
-   Py (the probability of having received the received sequence of modulation symbols). Next, we
-   compute the results by doing the appropriate summations on sigma.
+   Once we have worked out the gamma, alpha, and beta matrices, we are in a
+   position to compute Py (the probability of having received the received
+   sequence of modulation symbols). Next, we compute the results by doing
+   the appropriate summations on sigma.
 
-   \warning
-   Initially, I used to work out the delta probability as:
-      'delta = lambda(t-1, mdash)/Py * sigma(t, mdash, m)/Py'.
-   I suspected this reasoning to be false, and am now working the delta value as:
-      'delta = sigma(t, mdash, m)/Py'.
-   This makes sense because the sigma values already take into account the probability of being in
-   state mdash before the transition being considered (we care about the transition because this
-   determines the input and output symbols represented).
+   \warning Initially, I used to work out the delta probability as:
+               delta = lambda(t-1, mdash)/Py * sigma(t, mdash, m)/Py
+            I suspected this reasoning to be false, and am now working the
+            delta value as:
+               delta = sigma(t, mdash, m)/Py
+            This makes sense because the sigma values already take into account
+            the probability of being in state mdash before the transition being
+            considered (we care about the transition because this determines
+            the input and output symbols represented).
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::work_results(matrix<dbl>& ri, matrix<dbl>& ro)
+void bcjr<real,dbl>::work_results(array2d_t& ri, array2d_t& ro)
    {
    // Compute probability of received sequence
    real Py = 0;
@@ -322,8 +326,8 @@ void bcjr<real,dbl>::work_results(matrix<dbl>& ri, matrix<dbl>& ro)
    ro = dbl(0);
    // Work out final results
    for(int t=1; t<=tau; t++)
-      for(int mdash=0; mdash<M; mdash++)        // for each possible state at time t-1
-         for(int i=0; i<K; i++) // for each possible input, given the state we were in
+      for(int mdash=0; mdash<M; mdash++) // for each possible state at time t-1
+         for(int i=0; i<K; i++) // for each possible input, given present state
             {
             int X = lut_X(mdash, i);
             dbl delta = sigma(t, mdash, i)/Py;
@@ -333,15 +337,18 @@ void bcjr<real,dbl>::work_results(matrix<dbl>& ri, matrix<dbl>& ro)
    }
 
 /*!
-   \brief   Computes the final results for the BCJR algorithm (input statistics only).
-   \param   ri    ri(t-1, i) is the probability that we transmitted (input value) i at time t
+   \brief   Computes the final results for the BCJR algorithm (input statistics
+            only).
+   \param   ri    ri(t-1, i) is the probability that we transmitted
+                  (input value) i at time t
 
-   Once we have worked out the gamma, alpha, and beta matrices, we are in a position to compute
-   Py (the probability of having received the received sequence of modulation symbols). Next, we
-   compute the results by doing the appropriate summations on sigma.
+   Once we have worked out the gamma, alpha, and beta matrices, we are in a
+   position to compute Py (the probability of having received the received
+   sequence of modulation symbols). Next, we compute the results by doing the
+   appropriate summations on sigma.
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::work_results(matrix<dbl>& ri)
+void bcjr<real,dbl>::work_results(array2d_t& ri)
    {
    // Compute probability of received sequence
    real Py = 0;
@@ -349,7 +356,7 @@ void bcjr<real,dbl>::work_results(matrix<dbl>& ri)
       Py += lambda(tau, mdash);
    // Work out final results
    for(int t=1; t<=tau; t++)
-      for(int i=0; i<K; i++)    // for each possible input, given the state we were in
+      for(int i=0; i<K; i++) // for each possible input, given present state
          {
          // initialise results (we divide on every increment as division is faster
          // than addition for logreal - this makes other representations slower)
@@ -368,7 +375,7 @@ void bcjr<real,dbl>::work_results(matrix<dbl>& ri)
    \param   r     matrix with results - first index represents time-step
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::normalize(matrix<dbl>& r)
+void bcjr<real,dbl>::normalize(array2d_t& r)
    {
    for(int t=0; t<r.xsize(); t++)
       {
@@ -389,15 +396,15 @@ void bcjr<real,dbl>::normalize(matrix<dbl>& r)
 
 /*!
    \brief   Wrapping function for decoding a block.
-   \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t,
-                  having transmitted X
-   \param   ri    ri(t-1, i) is the a posteriori probability of having transmitted (input value)
-                  i at time t (result)
-   \param   ro    ro(t-1, X) = (result) a posteriori probability of having transmitted (output value)
-                  X at time t (result)
+   \param   R     R(t-1, X) is the probability of receiving "whatever we
+                  received" at time t, having transmitted X
+   \param   ri    ri(t-1, i) is the a posteriori probability of having
+                  transmitted (input value) i at time t (result)
+   \param   ro    ro(t-1, X) = (result) a posteriori probability of having
+                  transmitted (output value) X at time t (result)
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& ro)
+void bcjr<real,dbl>::decode(const array2d_t& R, array2d_t& ri, array2d_t& ro)
    {
    assert(initialised);
    work_gamma(R);
@@ -408,17 +415,20 @@ void bcjr<real,dbl>::decode(const matrix<dbl>& R, matrix<dbl>& ri, matrix<dbl>& 
 
 /*!
    \brief   Wrapping function for decoding a block.
-   \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t,
-                  having transmitted X
-   \param   app   app(t-1, i) is the 'a priori' probability of having transmitted (input value)
-                  i at time t
-   \param   ri    ri(t-1, i) is the a posteriori probability of having transmitted (input value)
-                  i at time t (result)
-   \param   ro    ro(t-1, X) = (result) a posteriori probability of having transmitted (output value)
-                  X at time t (result)
+   \param   R     R(t-1, X) is the probability of receiving "whatever we
+                  received" at time t, having transmitted X
+   \param   app   app(t-1, i) is the 'a priori' probability of having
+                  transmitted (input value) i at time t
+   \param   ri    ri(t-1, i) is the a posteriori probability of having
+                  transmitted (input value) i at time t (result)
+   \param   ro    ro(t-1, X) = (result) a posteriori probability of having
+                  transmitted (output value) X at time t (result)
+
+   This is the same as the regular decoder, but does not produce a posteriori
+   statistics on the decoder's output.
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri, matrix<dbl>& ro)
+void bcjr<real,dbl>::decode(const array2d_t& R, const array2d_t& app, array2d_t& ri, array2d_t& ro)
    {
    assert(initialised);
    work_gamma(R, app);
@@ -429,13 +439,16 @@ void bcjr<real,dbl>::decode(const matrix<dbl>& R, const matrix<dbl>& app, matrix
 
 /*!
    \brief   Wrapping function for faster decoding of a block.
-   \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t,
-                  having transmitted X
-   \param   ri    ri(t-1, i) is the a posteriori probability of having transmitted (input value)
-                  i at time t (result)
+   \param   R     R(t-1, X) is the probability of receiving "whatever we
+                  received" at time t, having transmitted X
+   \param   ri    ri(t-1, i) is the a posteriori probability of having
+                  transmitted (input value) i at time t (result)
+
+   This is the same as the regular decoder, but does not produce a posteriori
+   statistics on the decoder's output.
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
+void bcjr<real,dbl>::fdecode(const array2d_t& R, array2d_t& ri)
    {
    assert(initialised);
    work_gamma(R);
@@ -446,15 +459,15 @@ void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, matrix<dbl>& ri)
 
 /*!
    \brief   Wrapping function for faster decoding of a block.
-   \param   R     R(t-1, X) is the probability of receiving "whatever we received" at time t,
-                  having transmitted X
-   \param   app   app(t-1, i) is the 'a priori' probability of having transmitted (input value)
-                  i at time t
-   \param   ri    ri(t-1, i) is the a posteriori probability of having transmitted (input value)
-                  i at time t (result)
+   \param   R     R(t-1, X) is the probability of receiving "whatever we
+                  received" at time t, having transmitted X
+   \param   app   app(t-1, i) is the 'a priori' probability of having
+                  transmitted (input value) i at time t
+   \param   ri    ri(t-1, i) is the a posteriori probability of having
+                  transmitted (input value) i at time t (result)
 */
 template <class real, class dbl>
-void bcjr<real,dbl>::fdecode(const matrix<dbl>& R, const matrix<dbl>& app, matrix<dbl>& ri)
+void bcjr<real,dbl>::fdecode(const array2d_t& R, const array2d_t& app, array2d_t& ri)
    {
    assert(initialised);
    work_gamma(R, app);
