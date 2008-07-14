@@ -79,18 +79,17 @@ private:
    array2i_t   lut_m;
    // @}
 private:
-   // memory allocator (for internal use only)
+   /*! \name Internal methods */
    void allocate();
-   // internal functions
    real lambda(const int t, const int m);
    real sigma(const int t, const int m, const int i);
-   // internal procedures
    void work_gamma(const array2d_t& R);
    void work_gamma(const array2d_t& R, const array2d_t& app);
    void work_alpha();
    void work_beta();
    void work_results(array2d_t& ri, array2d_t& ro);
    void work_results(array2d_t& ri);
+   // @}
 protected:
    // normalization function for derived classes
    static void normalize(array2d_t& r);
@@ -113,7 +112,6 @@ protected:
 public:
    // constructor & destructor
    bcjr(fsm& encoder, const int tau) { init(encoder, tau); };
-   ~bcjr() {};
    // decode functions
    void decode(const array2d_t& R, array2d_t& ri, array2d_t& ro);
    void decode(const array2d_t& R, const array2d_t& app, array2d_t& ri, array2d_t& ro);

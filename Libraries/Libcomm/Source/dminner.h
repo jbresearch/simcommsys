@@ -1,5 +1,5 @@
-#ifndef __watermarkcode_h
-#define __watermarkcode_h
+#ifndef __dminner_h
+#define __dminner_h
 
 #include "config.h"
 

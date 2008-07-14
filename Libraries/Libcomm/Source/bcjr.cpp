@@ -134,8 +134,10 @@ void bcjr<real,dbl>::setend(const array1d_t& p)
       beta(tau, m) = p(m);
    }
 
-// Memory allocation
+// Internal methods
 
+/*! \brief Memory allocator for working matrices
+*/
 template <class real, class dbl>
 void bcjr<real,dbl>::allocate()
    {
@@ -147,9 +149,6 @@ void bcjr<real,dbl>::allocate()
    // flag the state of the arrays
    initialised = true;
    }
-
-
-// Internal functions
 
 /*! \brief State probability metric
    lambda(t,m) = Pr{S(t)=m, Y[1..tau]}
@@ -169,9 +168,6 @@ inline real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
    int mdash = lut_m(m, i);
    return alpha(t-1, m) * gamma(t-1, m, i) * beta(t, mdash);
    }
-
-
-// Internal procedures
 
 /*!
    \brief   Computes the gamma matrix.
