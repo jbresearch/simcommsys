@@ -81,7 +81,7 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const
+void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const
    {
    // Inherit block size from last modulation step
    const int q = 1<<k;
@@ -102,7 +102,7 @@ void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libba
          {
          real p = 0;
          // create the considered transmitted sequence
-         libbase::vector<bool> tx(n);
+         array1b_t tx(n);
          for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
             tx(j) = (t&1);
          // event must fit the received sequence:
@@ -143,7 +143,7 @@ void dminner<real,normalize>::work_results(const libbase::vector<bool>& r, libba
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::normalize_results(const libbase::matrix<real>& in, libbase::matrix<double>& out) const
+void dminner<real,normalize>::normalize_results(const array2r_t& in, array2d_t& out) const
    {
    const int N = in.xsize();
    const int q = in.ysize();
@@ -185,7 +185,7 @@ void dminner<real,normalize>::init()
          assertalways(lut(i) != lut(j));
       }
    // Compute the mean density
-   libbase::vector<int> w = lut;
+   array1i_t w = lut;
    w.apply(weight);
    f = w.sum()/double(n * w.size());
    trace << "Watermark code density = " << f << "\n";
@@ -247,7 +247,7 @@ real dminner<real,normalize>::P(const int a, const int b)
    }
 
 template <class real, bool normalize>
-real dminner<real,normalize>::Q(const int a, const int b, const int i, const libbase::vector<bool>& s)
+real dminner<real,normalize>::Q(const int a, const int b, const int i, const array1b_t& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
    assert(s.size() == b-a+1);
@@ -263,7 +263,7 @@ real dminner<real,normalize>::Q(const int a, const int b, const int i, const lib
 // encoding and decoding functions
 
 template <class real, bool normalize>
-void dminner<real,normalize>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+void dminner<real,normalize>::modulate(const int N, const array1i_t& encoded, array1b_t& tx)
    {
    // Inherit sizes
    const int q = 1<<k;
@@ -299,7 +299,7 @@ void dminner<real,normalize>::modulate(const int N, const libbase::vector<int>& 
    \todo Make demodulation independent of the previous modulation step.
 */
 template <class real, bool normalize>
-void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+void dminner<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {
    // Inherit block size from last modulation step
    const int N = ws.size();
@@ -328,14 +328,24 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbas
    // Set block size for results-computation pass to q-ary symbol size
    mychan.set_blocksize(n);
    // Compute and normalize results
-   libbase::matrix<real> p;
+   array2r_t p;
    work_results(rx,p,xmax,dxmax,I);
    normalize_results(p,ptable);
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable)
+void dminner<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
    {
+   // Apply standard demodulation
+   dminner<real,normalize>::demodulate(chan, rx, ptable);
+   // Multiply-in a-priori probabilities
+   const int q = ptable.xsize();
+   const int N = ptable.ysize();
+   assert(app.xsize() == q);
+   assert(app.ysize() == N);
+   for(int i=0; i<N; i++)
+      for(int d=0; d<q; d++)
+         ptable(i,d) *= app(i,d);
    }
 
 // description output

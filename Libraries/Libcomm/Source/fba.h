@@ -51,7 +51,7 @@ private:
 private:
    /*! \name User-defined parameters */
    int tau;             //!< The (transmitted) block size in bits
-   int I;               //!< The maximum number of insertions considered before every transmission
+   int I;               //!< The maximum number of insertions per time-step
    int xmax;            //!< The maximum allowed drift overall
    double th_inner;     //!< Threshold factor for inner cycle
    // @}

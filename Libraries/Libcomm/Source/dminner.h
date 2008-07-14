@@ -51,6 +51,10 @@ class dminner : public informed_modulator<bool>, private fba<real,bool,normalize
    friend class dminner2<real,normalize>;
 private:
    /*! \name Internally-used types */
+   typedef libbase::vector<int>     array1i_t;
+   typedef libbase::vector<bool>    array1b_t;
+   typedef libbase::matrix<double>  array2d_t;
+   typedef libbase::matrix<real>    array2r_t;
    typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
 private:
@@ -59,7 +63,7 @@ private:
    int      k;                //!< number of bits in message (input) symbol
    bool     user_lut;         //!< flag indicating that LUT is supplied by user
    std::string lutname;       //!< name to describe codebook
-   libbase::vector<int> lut;  //!< sparsifier LUT
+   array1i_t lut;             //!< sparsifier LUT
    bool     user_threshold;   //!< flag indicating that LUT is supplied by user
    double   th_inner;         //!< Threshold factor for inner cycle
    double   th_outer;         //!< Threshold factor for outer cycle
@@ -70,7 +74,7 @@ private:
    /*! \name Internally-used objects */
    bsid     mychan;           //!< bound channel object
    libbase::randgen r;        //!< watermark sequence generator
-   libbase::vector<int> ws;   //!< watermark sequence
+   array1i_t ws;              //!< watermark sequence
    mutable array1d_t Ptable;  //!< Forward recursion 'P' function lookup
    // @}
 private:
@@ -78,12 +82,12 @@ private:
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    void createsequence(const int tau);                      
    void checkforchanges(int I, int xmax) const;   
-   void work_results(const libbase::vector<bool>& r, libbase::matrix<real>& ptable, const int xmax, const int dxmax, const int I) const;
-   void normalize_results(const libbase::matrix<real>& in, libbase::matrix<double>& out) const;
+   void work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const;
+   void normalize_results(const array2r_t& in, array2d_t& out) const;
    // @}
    // Implementations of channel-specific metrics for fba
    real P(const int a, const int b);
-   real Q(const int a, const int b, const int i, const libbase::vector<bool>& s);
+   real Q(const int a, const int b, const int i, const array1b_t& s);
    // Atomic modem operations (private as these should never be used)
    const bool modulate(const int index) const
       { assert("Function should not be used."); return false; };
@@ -108,9 +112,9 @@ public:
    // @}
 
    // Vector modem operations
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
-   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
-   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable);
+   void modulate(const int N, const array1i_t& encoded, array1b_t& tx);
+   void demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
+   void demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
 
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
