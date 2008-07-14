@@ -35,9 +35,9 @@ LDflagsCommon :=
 export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
 # Compiler settings
-CCprfopt := -pg -O3 -DNDEBUG
-CCrelopt := -O3 -DNDEBUG
 CCdbgopt := -g -DDEBUG
+CCrelopt := -O3 -DNDEBUG
+CCprfopt := -pg $(CCrelopt)
 CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%/Source)
 #CClang := -Wall -Werror -Wno-non-template-friend -Woverloaded-virtual
 CClang := -Wall -Werror
