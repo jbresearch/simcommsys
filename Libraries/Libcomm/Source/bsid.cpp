@@ -104,7 +104,7 @@ void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, dou
 void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
    {
    // Allocate required size
-   typedef array1d_t::extent_range range;
+   typedef boost::multi_array_types::extent_range range;
    Ptable.resize(boost::extents[range(-1,xmax+1)]);
    // Set values for deletion
    Ptable[-1] = Pd;
@@ -364,7 +364,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    assert(tau <= N);
    assert(labs(m) <= xmax);
    // Set up forward matrix
-   typedef array2d_t::extent_range range;
+   typedef boost::multi_array_types::extent_range range;
    array2d_t F(boost::extents[tau][range(-xmax,xmax+1)]);
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    //F = 0;

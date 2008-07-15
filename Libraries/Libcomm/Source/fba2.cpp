@@ -12,9 +12,6 @@
 
 namespace libcomm {
 
-using libbase::matrix;
-using libbase::vector;
-
 // Memory allocation
 
 template <class real, class sig, bool normalize>
@@ -25,34 +22,30 @@ void fba2<real,sig,normalize>::allocate()
    dmax = std::min(n*I,dxmax);
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
-   // (we actually waste i=0 to avoid index complications, for now)
-   // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
-   // x in [-xmax, xmax], and deltax in [max(-n,-xmax), min(nI,xmax)]
-   m_alpha.init(N, 2*xmax+1);
-   m_beta.init(N+1, 2*xmax+1);
+   typedef boost::multi_array_types::extent_range range;
+   alpha.resize(boost::extents[N][range(-xmax,xmax+1)]);
+   beta.resize(boost::extents[range(1,N+1)][range(-xmax,xmax+1)]);
    // dynamically decide whether we want to use the gamma cache or not
    // decision is hardwired: use if memory requirement < 750MB
    cache_enabled = sizeof(real)*(q * N * (2*xmax+1) * (dmax-dmin+1)) < (750<<20);
+   // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
+   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
    if(cache_enabled)
       {
-      m_gamma.init(q,N);
-      for(int d=0; d<q; d++)
-         for(int i=0; i<N; i++)
-            m_gamma(d,i).init(2*xmax+1, dmax-dmin+1);
-      m_cached.init(N, 2*xmax+1, dmax-dmin+1);
+      gamma.resize(boost::extents[q][N][range(-xmax,xmax+1)][range(dmin,dmax+1)]);
+      cached.resize(boost::extents[N][range(-xmax,xmax+1)][range(dmin,dmax+1)]);
       }
    else
       {
-      m_gamma.init(0,0);
-      m_cached.init(0,0,0);
+      gamma.resize(boost::extents[0][0][0][0]);
+      cached.resize(boost::extents[0][0][0]);
       std::cerr << "FBA Cache Disabled.\n";
       }
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << ( sizeof(bool)*m_cached.size() + 
-      sizeof(real)*( m_alpha.size() + m_beta.size() + 
-      (m_gamma.size()==0 ? 0 : m_gamma(0,0).size()*m_gamma.size()) )
+   std::cerr << ( sizeof(bool)*cached.num_elements() + sizeof(real)*
+      ( alpha.num_elements() + beta.num_elements() + gamma.num_elements() )
       )/double(1<<20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
@@ -90,27 +83,25 @@ void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dx
 // Internal procedures
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_gamma(const vector<sig>& r)
+void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
    {
    assert(initialised);
    if(!cache_enabled)
       return;
    // initialise array
-   for(int d=0; d<q; d++)
-      for(int i=0; i<N; i++)
-         m_gamma(d,i) = real(0);
+   gamma = real(0);
    // initialize cache
-   m_cached = false;
+   cached = false;
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_alpha(const vector<sig>& r)
+void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
    {
    assert(initialised);
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   m_alpha = real(0);
-   alpha(0,0) = real(1);
+   alpha = real(0);
+   alpha[0][0] = real(1);
    // compute remaining matrix values
    for(int i=1; i<N; i++)
       {
@@ -118,8 +109,8 @@ void fba2<real,sig,normalize>::work_alpha(const vector<sig>& r)
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
-         if(alpha(i-1,x1) > threshold)
-            threshold = alpha(i-1,x1);
+         if(alpha[i-1][x1] > threshold)
+            threshold = alpha[i-1][x1];
       threshold *= th_inner;
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
@@ -137,39 +128,39 @@ void fba2<real,sig,normalize>::work_alpha(const vector<sig>& r)
       for(int x1=x1min; x1<=x1max; x1++)
          {
          // ignore paths below a certain threshold
-         if(alpha(i-1,x1) < threshold)
+         if(alpha[i-1][x1] < threshold)
             continue;
          const int x2min = std::max(-xmax,dmin+x1);
          const int x2max = std::min(std::min(xmax,dmax+x1),r.size()-n*i);
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
-               alpha(i,x2) += alpha(i-1,x1) * compute_gamma(d,i-1,x1,x2-x1,r);
+               alpha[i][x2] += alpha[i-1][x1] * compute_gamma(d,i-1,x1,x2-x1,r);
          }
       // normalize if requested
       if(normalize)
          {
          real sum = 0;
          for(int x=-xmax; x<=xmax; x++)
-            sum += alpha(i,x);
+            sum += alpha[i][x];
          sum = real(1)/sum;
          for(int x=-xmax; x<=xmax; x++)
-            alpha(i,x) *= sum;
+            alpha[i][x] *= sum;
          }
       }
    std::cerr << libbase::pacifier("FBA Alpha", N-1, N-1);
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_beta(const vector<sig>& r)
+void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
    {
    assert(initialised);
    // initialise array:
    // we also know x[tau] = r.size()-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
    const int tau = N*n;
-   m_beta = real(0);
+   beta = real(0);
    assertalways(abs(r.size()-tau) <= xmax);
-   beta(N,r.size()-tau) = real(1);
+   beta[N][r.size()-tau] = real(1);
    // compute remaining matrix values
    for(int i=N-1; i>0; i--)
       {
@@ -177,8 +168,8 @@ void fba2<real,sig,normalize>::work_beta(const vector<sig>& r)
       // determine the strongest path at this point
       real threshold = 0;
       for(int x2=-xmax; x2<=xmax; x2++)
-         if(beta(i+1,x2) > threshold)
-            threshold = beta(i+1,x2);
+         if(beta[i+1][x2] > threshold)
+            threshold = beta[i+1][x2];
       threshold *= th_inner;
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
@@ -196,23 +187,23 @@ void fba2<real,sig,normalize>::work_beta(const vector<sig>& r)
       for(int x2=x2min; x2<=x2max; x2++)
          {
          // ignore paths below a certain threshold
-         if(beta(i+1,x2) < threshold)
+         if(beta[i+1][x2] < threshold)
             continue;
          const int x1min = std::max(std::max(-xmax,x2-dmax),-n*i);
          const int x1max = std::min(xmax,x2-dmin);
          for(int x1=x1min; x1<=x1max; x1++)
             for(int d=0; d<q; d++)
-               beta(i,x1) += beta(i+1,x2) * compute_gamma(d,i,x1,x2-x1,r);
+               beta[i][x1] += beta[i+1][x2] * compute_gamma(d,i,x1,x2-x1,r);
          }
       // normalize if requested
       if(normalize)
          {
          real sum = 0;
          for(int x=-xmax; x<=xmax; x++)
-            sum += beta(i,x);
+            sum += beta[i][x];
          sum = real(1)/sum;
          for(int x=-xmax; x<=xmax; x++)
-            beta(i,x) *= sum;
+            beta[i][x] *= sum;
          }
       }
    std::cerr << libbase::pacifier("FBA Beta", N-1, N-1);
@@ -221,7 +212,7 @@ void fba2<real,sig,normalize>::work_beta(const vector<sig>& r)
 // User procedures
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::prepare(const vector<sig>& r)
+void fba2<real,sig,normalize>::prepare(const array1s_t& r)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -237,31 +228,10 @@ void fba2<real,sig,normalize>::prepare(const vector<sig>& r)
    work_gamma(r);
    work_alpha(r);
    work_beta(r);
-
-#ifndef NDEBUG
-   // determine the average scale factors
-   vector<real> v1, v2;
-   real scale_n;
-   std::cerr << std::setprecision(4);
-
-   // determine the scale factors for alpha
-   m_alpha.extractrow(v1,0);
-   m_alpha.extractrow(v2,N-1);
-   scale_n = v2.sum()/v1.sum();
-   std::cerr << "Overall scale factor for alpha: " \
-      << pow(scale_n,1/double(N-1)) << "\n";
-
-   // determine the scale factors for alpha
-   m_beta.extractrow(v1,N);
-   m_beta.extractrow(v2,1);
-   scale_n = v2.sum()/v1.sum();
-   std::cerr << "Overall scale factor for beta: " \
-      << pow(scale_n,1/double(N-1)) << "\n";
-#endif
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_results(const vector<sig>& r, libbase::matrix<real>& ptable) const
+void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& ptable) const
    {
    assert(initialised);
    // Initialise result vector (one sparse symbol per timestep)
@@ -273,8 +243,8 @@ void fba2<real,sig,normalize>::work_results(const vector<sig>& r, libbase::matri
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
-         if(alpha(i,x1) > threshold)
-            threshold = alpha(i,x1);
+         if(alpha[i][x1] > threshold)
+            threshold = alpha[i][x1];
       threshold *= th_outer;
       for(int d=0; d<q; d++)
          {
@@ -295,12 +265,12 @@ void fba2<real,sig,normalize>::work_results(const vector<sig>& r, libbase::matri
          for(int x1=x1min; x1<=x1max; x1++)
             {
             // ignore paths below a certain threshold
-            if(alpha(i,x1) < threshold)
+            if(alpha[i][x1] < threshold)
                continue;
             const int x2min = std::max(-xmax,dmin+x1);
             const int x2max = std::min(std::min(xmax,dmax+x1),r.size()-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
-               p += alpha(i,x1) * compute_gamma(d,i,x1,x2-x1,r) * beta(i+1,x2);
+               p += alpha[i][x1] * compute_gamma(d,i,x1,x2-x1,r) * beta[i+1][x2];
             }
          ptable(i,d) = p;
          }
@@ -309,7 +279,7 @@ void fba2<real,sig,normalize>::work_results(const vector<sig>& r, libbase::matri
       std::cerr << libbase::pacifier("FBA Results", N, N);
 #ifndef NDEBUG
    // show cache statistics
-   std::cerr << "FBA Cache Usage: " << 100*gamma_misses/double(m_cached.size()) << "%\n";
+   std::cerr << "FBA Cache Usage: " << 100*gamma_misses/double(cached.num_elements()) << "%\n";
    std::cerr << "FBA Cache Reuse: " << gamma_calls/double(gamma_misses*q) << "x\n";
 #endif
    }

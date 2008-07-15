@@ -9,9 +9,9 @@
 
 #include "config.h"
 #include "matrix.h"
+#include "multi_array.h"
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/multi_array.hpp>
 #include <iterator>
 #include <algorithm>
 
@@ -115,16 +115,15 @@ void testboost_array()
    const int I = 2;
    // Set up forward matrix
    typedef boost::multi_array<double,2> array2d_t;
-   typedef array2d_t::index index;
-   typedef array2d_t::extent_range range;
-   array2d_t::extent_gen extents;
-   array2d_t F(extents[tau+1][range(-xmax,xmax+1)]);
+   typedef boost::multi_array_types::extent_range range;
+   array2d_t F(boost::extents[tau+1][range(-xmax,xmax+1)]);
 
    std::cout << "\nBoost MultiArray Test:\n\n";
    // Initial conditions
    //F = 0;
    F[0][0] = 1;
    // compute remaining matrix values
+   typedef array2d_t::index index;
    for(index j=1; j<=tau; ++j)
       {
       const index amin = std::max<index>(-xmax,1-j);
@@ -143,6 +142,26 @@ void testboost_array()
    std::cout << "\n";
    }
 
+template <class T>
+void display_array(boost::multi_array<T,2>& A)
+   {
+   typedef boost::multi_array<T,2> array2_t;
+   typedef boost::multi_array<T,1> array1_t;
+   for(typename array2_t::iterator i = A.begin(); i != A.end(); ++i, std::cout << "\n")
+      for(typename array1_t::iterator j = i->begin(); j != i->end(); ++j, std::cout << "\t")
+         std::cout << *j;
+   std::cout << "\n";
+   }
+
+void testboost_iterators()
+   {
+   std::cout << "\nBoost Iterator Usage Test:\n\n";
+   boost::assignable_multi_array<double,2> A(boost::extents[3][4]);
+   display_array(A);
+   A = 1;
+   display_array(A);
+   }
+
 int main()
    {
    print_standard_sizes();
@@ -151,4 +170,5 @@ int main()
    testmatrixinv();
    testboost_foreach("1 2 3\n");
    testboost_array();
+   testboost_iterators();
    }

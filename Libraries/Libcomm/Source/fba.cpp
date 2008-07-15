@@ -20,7 +20,7 @@ void fba<real,sig,normalize>::allocate()
    // Allocate required size
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
    // B needs indices (j,y) where j in [1, tau] and y in [-xmax, xmax]
-   typedef typename array2r_t::extent_range range;
+   typedef boost::multi_array_types::extent_range range;
    F.resize(boost::extents[tau][range(-xmax,xmax+1)]);
    B.resize(boost::extents[range(1,tau+1)][range(-xmax,xmax+1)]);
    // determine memory occupied and tell user

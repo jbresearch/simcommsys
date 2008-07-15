@@ -42,6 +42,12 @@ public:
       dynamic_cast< multi_array<T,NumDims>& >(*this) = dynamic_cast< const multi_array<T,NumDims>& >(x);
       return *this;
       }
+   /*! \name Scalar value assignment */
+   assignable_multi_array& operator=(const T& x)
+      {
+      std::fill(this->data(), this->data()+this->num_elements(), x);
+      return *this;
+      }
    // @}
    /*! \name Informative functions */
    /*! \brief Get array extents description
@@ -50,7 +56,7 @@ public:
    */
    detail::multi_array::extent_gen<NumDims> extents() const
       {
-      typedef typename multi_array<T,NumDims>::extent_range extent_range;
+      typedef multi_array_types::extent_range extent_range;
       detail::multi_array::extent_gen<NumDims> extents_list;
       for(std::size_t i=0; i<NumDims; i++)
          {

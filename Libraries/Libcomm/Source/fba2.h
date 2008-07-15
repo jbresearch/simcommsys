@@ -4,8 +4,7 @@
 #include "config.h"
 #include "vector.h"
 #include "matrix.h"
-#include "matrix3.h"
-
+#include "multi_array.h"
 #include "fsm.h"
 
 #include <math.h>
@@ -31,6 +30,15 @@ namespace libcomm {
 
 template <class real, class sig, bool normalize>
 class fba2 {
+private:
+   /*! \name Internally-used types */
+   typedef libbase::vector<sig>     array1s_t;
+   typedef libbase::matrix<real>    array2r_old_t;
+   typedef boost::assignable_multi_array<real,2> array2r_t;
+   typedef boost::assignable_multi_array<real,4> array4r_t;
+   typedef boost::assignable_multi_array<bool,3> array3b_t;
+   // @}
+private:
    /*! \name User-defined parameters */
    int   N;       //!< The transmitted block size in symbols
    int   n;       //!< The number of bits encoding each q-ary symbol
@@ -46,10 +54,10 @@ class fba2 {
    int   dmax;          //!< Maximum value for deltax index in gamma matrix
    bool  initialised;   //!< Flag to indicate when memory is allocated
    bool  cache_enabled; //!< Flag to indicate when cache is usable
-   libbase::matrix<real>   m_alpha;    //!< Forward recursion metric
-   libbase::matrix<real>   m_beta;     //!< Backward recursion metric
-   mutable libbase::matrix< libbase::matrix<real> >  m_gamma;    //!< Receiver metric
-   mutable libbase::matrix3<bool>  m_cached;    //!< Flag for caching of receiver metric
+   array2r_t alpha;     //!< Forward recursion metric
+   array2r_t beta;      //!< Backward recursion metric
+   mutable array4r_t gamma;   //!< Receiver metric
+   mutable array3b_t cached;  //!< Flag for caching of receiver metric
 #ifndef NDEBUG
    mutable int gamma_calls;   //!< Number of gamma computations
    mutable int gamma_misses;  //!< Number of gamma computations causing a cache miss
@@ -57,26 +65,18 @@ class fba2 {
    // @}
 private:
    /*! \name Internal functions */
-   real compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const;
-   // index-shifting access internal use
-   real& alpha(int i, int x) { return m_alpha(i,x+xmax); };
-   real& beta(int i, int x) { return m_beta(i,x+xmax); };
-   //real& gamma(int d, int i, int x, int deltax) { return m_gamma(d,i)(x+xmax,deltax-dmin); };
-   // const versions of above
-   real alpha(int i, int x) const { return m_alpha(i,x+xmax); };
-   real beta(int i, int x) const { return m_beta(i,x+xmax); };
-   //real gamma(int d, int i, int x, int deltax) const { return m_gamma(d,i)(x+xmax,deltax-dmin); };
+   real compute_gamma(int d, int i, int x, int deltax, const array1s_t& r) const;
    // memory allocation
    void allocate();
    // @}
 protected:
    /*! \name Internal functions */
    // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real Q(int d, int i, const libbase::vector<sig>& r) const = 0;
+   virtual real Q(int d, int i, const array1s_t& r) const = 0;
    // decode functions
-   void work_gamma(const libbase::vector<sig>& r);
-   void work_alpha(const libbase::vector<sig>& r);
-   void work_beta(const libbase::vector<sig>& r);
+   void work_gamma(const array1s_t& r);
+   void work_alpha(const array1s_t& r);
+   void work_beta(const array1s_t& r);
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -89,21 +89,21 @@ public:
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer);
 
    // decode functions
-   void prepare(const libbase::vector<sig>& r);
-   void work_results(const libbase::vector<sig>& r, libbase::matrix<real>& ptable) const;
+   void prepare(const array1s_t& r);
+   void work_results(const array1s_t& r, array2r_old_t& ptable) const;
 };
 
 template <class real, class sig, bool normalize>
-real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax, const libbase::vector<sig>& r) const
+real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax, const array1s_t& r) const
    {
    if(!cache_enabled)
       return Q(d,i,r.extract(n*i+x,n+deltax));
 
-   if(!m_cached(i,x+xmax,deltax-dmin))
+   if(!cached[i][x][deltax])
       {
-      m_cached(i,x+xmax,deltax-dmin) = true;
+      cached[i][x][deltax] = true;
       for(int d=0; d<q; d++)
-         m_gamma(d,i)(x+xmax,deltax-dmin) = Q(d,i,r.extract(n*i+x,n+deltax));
+         gamma[d][i][x][deltax] = Q(d,i,r.extract(n*i+x,n+deltax));
 #ifndef NDEBUG
       gamma_misses++;
 #endif
@@ -112,7 +112,7 @@ real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax, co
    gamma_calls++;
 #endif
 
-   return m_gamma(d,i)(x+xmax,deltax-dmin);
+   return gamma[d][i][x][deltax];
    }
 
 }; // end namespace
