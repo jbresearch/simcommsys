@@ -16,11 +16,11 @@ namespace libcomm {
 // implementations of channel-specific metrics for fba2
 
 template <class real, bool normalize>
-real dminner2<real,normalize>::Q(int d, int i, const libbase::vector<bool>& r) const
+real dminner2<real,normalize>::Q(int d, int i, const array1b_t& r) const
    {
    const int n = dminner<real,normalize>::n;
    // 'tx' is the vector of transmitted symbols that we're considering
-   libbase::vector<bool> tx;
+   array1b_t tx;
    tx.init(n);
    const int w = dminner<real,normalize>::ws(i);
    const int s = dminner<real,normalize>::lut(d);
@@ -38,7 +38,7 @@ real dminner2<real,normalize>::Q(int d, int i, const libbase::vector<bool>& r) c
    \todo Make demodulation independent of the previous modulation step.
 */
 template <class real, bool normalize>
-void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {
    // Inherit block size from last modulation step
    const int q = 1<<dminner<real,normalize>::k;
@@ -63,6 +63,11 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const libba
    libbase::matrix<real> p;
    fba2<real,bool,normalize>::work_results(rx,p);
    dminner<real,normalize>::normalize_results(p,ptable);
+   }
+
+template <class real, bool normalize>
+void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
+   {
    }
 
 // description output

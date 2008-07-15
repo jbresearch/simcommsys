@@ -25,8 +25,13 @@ namespace libcomm {
 template <class real, bool normalize>
 class dminner2 : public dminner<real,normalize>, private fba2<real,bool,normalize> {
 private:
+   /*! \name Internally-used types */
+   typedef libbase::vector<bool>    array1b_t;
+   typedef libbase::matrix<double>  array2d_t;
+   // @}
+private:
    // Implementations of channel-specific metrics for fba2
-   real Q(int d, int i, const libbase::vector<bool>& r) const;
+   real Q(int d, int i, const array1b_t& r) const;
 public:
    /*! \name Constructors / Destructors */
    dminner2(const int n=2, const int k=1)
@@ -36,7 +41,8 @@ public:
    // @}
 
    // Vector modem operations
-   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+   void demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
+   void demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
 
    // Description
    std::string description() const;
