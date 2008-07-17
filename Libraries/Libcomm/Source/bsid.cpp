@@ -41,19 +41,24 @@ int bsid::compute_I(int N, double p)
 /*!
    \brief Determine maximum drift over a whole N-bit block
 
-   \f[ x_{max} = 8 \sqrt{\frac{N p}{1-p}} \f]
-   where \f$ p = P_i = P_d \f$. This is based directly on Davey's suggestion that
-   \f$ x_{max} \f$ should be "several times larger" than the standard deviation of
-   the synchronization drift over one block, given by \f$ \sigma = \sqrt{\frac{N p}{1-p}} \f$
+   \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{N p}{1-p}} \f]
+   where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
+   having a block of size \f$ N \f$ where the drift at the end is greater
+   than \f$ \pm x_{max} \f$.
+
+   The calculation is based on the assumption that the end-of-frame drift has
+   a Gaussian distribution with zero mean and standard deviation given by
+   \f$ \sigma = \sqrt{\frac{N p}{1-p}} \f$.
+   In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
 
    \note The smallest allowed value is \f$ x_{max} = I \f$
-
-   \note While Davey advocates \f$ x_{max} = 5 \sigma \f$, we increase this to
-         \f$ 8 \sigma \f$, as we observed that Davey's estimates are off.
 */
 int bsid::compute_xmax(int N, double p, int I)
    {
-   int xmax = int(ceil(8 * sqrt(N*p/(1-p))));
+   // rather than computing the factor using a root-finding method,
+   // we fix factor = 7.1305, corresponding to Qinv(1e-12/2.0)
+   const double factor = 7.1305;
+   int xmax = int(ceil(factor * sqrt(N*p/(1-p))));
    xmax = std::max(xmax,I);
    libbase::trace << "DEBUG (bsid): for N = " << N << ", xmax = " << xmax << "/";
    //xmax = min(xmax,25);

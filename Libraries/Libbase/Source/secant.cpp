@@ -20,7 +20,7 @@ namespace libbase {
 secant::secant(double (*func)(double))
    {
    bind(func);
-   init(0, 1);
+   init(0,1);
    accuracy(1e-10);
    maxiter(1000);
    }
@@ -33,14 +33,7 @@ void secant::init(const double x1, const double x2)
 
 double secant::solve(const double y)
    {
-   using std::cerr;
-   using std::swap;
-
-   if(f == NULL)
-      {
-      cerr << "FATAL ERROR (secant): No function bound.\n";
-      exit(1);
-      }
+   assertalways(f != NULL);
 
    // Initialise
    double x1 = init_x1;
@@ -50,8 +43,8 @@ double secant::solve(const double y)
 
    if(fabs(y2) < fabs(y1))
       {
-      swap(x1, x2);
-      swap(y1, y2);
+      std::swap(x1, x2);
+      std::swap(y1, y2);
       }
 
    for(int i=0; i<max_iter; i++)
@@ -65,7 +58,7 @@ double secant::solve(const double y)
          return x1;
       }
 
-   cerr << "FATAL ERROR (secant): Maximum number of iterations exceeded.\n";
+   std::cerr << "FATAL ERROR (secant): Maximum number of iterations exceeded.\n";
    exit(1);
    }
 
