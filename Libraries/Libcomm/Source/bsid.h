@@ -113,8 +113,12 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
    {
    // Compute sizes
    const int m = rx.size()-1;
-   // Return result from table
-   return (m < 0) ? Pd : Rtable[tx != rx(m)][m];
+   // Determine and return Q() function value
+   // If this was a deletion, it's a fixed value
+   if(m < 0)
+      return 1;
+   // Otherwise return result from table
+   return Rtable[tx != rx(m)][m];
    }
 
 }; // end namespace

@@ -16,7 +16,7 @@ namespace libcomm {
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
-/// FBA decoder parameter computation
+// FBA decoder parameter computation
 
 /*!
    \brief Determine limit for insertions between two time-steps
@@ -82,10 +82,10 @@ int bsid::compute_xmax(int N, double p)
    \brief Compute receiver coefficient set
 
    First row has elements where the last bit rx(m) == tx
-   \f[ Rtable(0,m) = \frac{(1-P_i-P_d) * (1-Ps) + \frac{1}{2} P_i P_d}
+   \f[ Rtable(0,m) = \frac{(1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d}
                           {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
    Second row has elements where the last bit rx(m) != tx
-   \f[ Rtable(1,m) = \frac{(1-P_i-P_d) * Ps + \frac{1}{2} P_i P_d}
+   \f[ Rtable(1,m) = \frac{(1-P_i-P_d) P_s + \frac{1}{2} P_i P_d}
                           {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
 */
 void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi)
@@ -368,11 +368,10 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    const int m = rx.size()-tau;
    assert(tau <= N);
    assert(labs(m) <= xmax);
-   // Set up forward matrix
+   // Set up forward matrix (automatically initialized to zero)
    typedef boost::multi_array_types::extent_range range;
    array2d_t F(boost::extents[tau][range(-xmax,xmax+1)]);
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   //F = 0;
    F[0][0] = 1;
    // compute remaining matrix values
    typedef array2d_t::index index;
