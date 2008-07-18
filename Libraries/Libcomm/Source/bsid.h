@@ -36,13 +36,12 @@ private:
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
-   int N;               //!< Block size in bits over which we want to synchronize
+   int      N;          //!< Block size in bits over which we want to synchronize
    // @}
    /*! \name Pre-computed parameters */
-   int I;               //!< Assumed limit for insertions between two time-steps
-   int xmax;            //!< Assumed maximum drift over a whole \c N -bit block
+   int      I;          //!< Assumed limit for insertions between two time-steps
+   int      xmax;       //!< Assumed maximum drift over a whole \c N -bit block
    array2d_t Rtable;    //!< Receiver coefficient set
-   array1d_t Ptable;    //!< Forward recursion 'P' function lookup
    // @}
 public:
    /*! \name FBA decoder parameter computation */
@@ -50,7 +49,6 @@ public:
    static int compute_xmax(int N, double p, int I);
    static int compute_xmax(int N, double p);
    static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi);
-   static void compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi);
    // @}
 private:
    /*! \name Internal functions */
@@ -112,13 +110,12 @@ inline double bsid::pdf(const bool& tx, const bool& rx) const
 inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) const
    {
    // Compute sizes
-   const int m = rx.size()-1;
-   // Determine and return Q() function value
+   const int mu = rx.size()-1;
    // If this was a deletion, it's a fixed value
-   if(m < 0)
-      return 1;
+   if(mu < 0)
+      return Pd;
    // Otherwise return result from table
-   return Rtable[tx != rx(m)][m];
+   return Rtable[tx != rx(mu)][mu];
    }
 
 }; // end namespace

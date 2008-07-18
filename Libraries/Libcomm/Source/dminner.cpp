@@ -240,13 +240,6 @@ dminner<real,normalize>::dminner(const int n, const int k, const double th_inner
 // implementations of channel-specific metrics for fba
 
 template <class real, bool normalize>
-real dminner<real,normalize>::P(const int a, const int b)
-   {
-   const int m = b-a;
-   return Ptable[m];
-   }
-
-template <class real, bool normalize>
 real dminner<real,normalize>::Q(const int a, const int b, const int i, const array1b_t& s)
    {
    // 'a' and 'b' are redundant because 's' already contains the difference
@@ -318,8 +311,6 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const array1
    const int xmax = bsid::compute_xmax(tau, Pd, I);
    const int dxmax = bsid::compute_xmax(n, Pd);
    checkforchanges(I, xmax);
-   // Pre-compute 'P' table
-   bsid::compute_Ptable(Ptable, xmax, mychan.get_pd(), mychan.get_pi());
    // Initialize & perform forward-backward algorithm
    fba<real,bool,normalize>::init(tau, I, xmax, th_inner);
    fba<real,bool,normalize>::prepare(rx);

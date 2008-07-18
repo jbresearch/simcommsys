@@ -67,7 +67,6 @@ private:
 protected:
    /*! \name Internal functions */
    // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real P(const int a, const int b) = 0;
    virtual real Q(const int a, const int b, const int i, const array1s_t& s) = 0;
    // @}
 public:

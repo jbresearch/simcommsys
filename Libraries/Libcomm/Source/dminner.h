@@ -75,7 +75,6 @@ private:
    bsid     mychan;           //!< bound channel object
    libbase::randgen r;        //!< watermark sequence generator
    array1i_t ws;              //!< watermark sequence
-   mutable array1d_t Ptable;  //!< Forward recursion 'P' function lookup
    // @}
 private:
    /*! \name Internal functions */
@@ -86,7 +85,6 @@ private:
    void normalize_results(const array2r_t& in, array2d_t& out) const;
    // @}
    // Implementations of channel-specific metrics for fba
-   real P(const int a, const int b);
    real Q(const int a, const int b, const int i, const array1b_t& s);
    // Atomic modem operations (private as these should never be used)
    const bool modulate(const int index) const

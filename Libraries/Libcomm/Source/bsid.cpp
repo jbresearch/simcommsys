@@ -81,12 +81,17 @@ int bsid::compute_xmax(int N, double p)
 /*!
    \brief Compute receiver coefficient set
 
-   First row has elements where the last bit rx(m) == tx
-   \f[ Rtable(0,m) = \frac{(1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d}
-                          {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
-   Second row has elements where the last bit rx(m) != tx
-   \f[ Rtable(1,m) = \frac{(1-P_i-P_d) P_s + \frac{1}{2} P_i P_d}
-                          {2^m (1-P_i) (1-P_d)}, m \in (0, \ldots x_{max}) \f]
+   First row has elements where the last bit \f[ r_\mu = t \f]
+   \f[ Rtable(0,\mu) = 
+      \left(\frac{P_i}{2}\right)^\mu
+      \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
+      , \mu \in (0, \ldots x_{max}) \f]
+
+   Second row has elements where the last bit \f[ r_\mu \neq t \f]
+   \f[ Rtable(1,\mu) = 
+      \left(\frac{P_i}{2}\right)^\mu
+      \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
+      , \mu \in (0, \ldots x_{max}) \f]
 */
 void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi)
    {
@@ -95,27 +100,12 @@ void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, dou
    // Set values for insertions
    const double a1 = (1-Pi-Pd);
    const double a2 = 0.5*Pi*Pd;
-   for(int m=0; m<=xmax; m++)
+   for(int mu=0; mu<=xmax; mu++)
       {
-      const double a3 = (1<<m)*(1-Pi)*(1-Pd);
-      Rtable[0][m] = (a1 * (1-Ps) + a2) / a3;
-      Rtable[1][m] = (a1 * Ps + a2) / a3;
+      const double a3 = pow(0.5*Pi, mu);
+      Rtable[0][mu] = a3 * (a1 * (1-Ps) + a2);
+      Rtable[1][mu] = a3 * (a1 * Ps + a2);
       }
-   }
-
-/*!
-   \brief Compute forward recursion 'P' function
-*/
-void bsid::compute_Ptable(array1d_t& Ptable, int xmax, double Pd, double Pi)
-   {
-   // Allocate required size
-   typedef boost::multi_array_types::extent_range range;
-   Ptable.resize(boost::extents[range(-1,xmax+1)]);
-   // Set values for deletion
-   Ptable[-1] = Pd;
-   // Set values for insertions
-   for(int m=0; m<=xmax; m++)
-      Ptable[m] = pow(Pi,m)*(1-Pi)*(1-Pd);
    }
 
 // Internal functions
@@ -133,9 +123,8 @@ void bsid::precompute()
       {
       I = 0;
       xmax = 0;
-      // reset arrays
+      // reset array
       Rtable.resize(boost::extents[0][0]);
-      Ptable.resize(boost::extents[0]);
       return;
       }
    assert(N>0);
@@ -144,8 +133,6 @@ void bsid::precompute()
    xmax = compute_xmax(N, Pd, I);
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
-   // pre-compute 'P' table
-   compute_Ptable(Ptable, xmax, Pd, Pi);
    }
 
 /*!
@@ -391,7 +378,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * Ptable[y-a] \
+            F[j][y] += F[j-1][a] \
                * bsid::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
          }
       }
@@ -406,7 +393,7 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    const index amin = std::max(std::max(-xmax,m-I),1-tau);
    const index amax = std::min(xmax,m+1);
    for(index a=amin; a<=amax; ++a)
-      result += F[tau-1][a] * Ptable[m-a] \
+      result += F[tau-1][a] \
          * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
    return result;
    }

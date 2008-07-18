@@ -95,7 +95,7 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * P(int(a),int(y)) * Q(int(a),int(y),int(j-1),r.extract(int(j-1+a),int(y-a+1)));
+            F[j][y] += F[j-1][a] * Q(int(a),int(y),int(j-1),r.extract(int(j-1+a),int(y-a+1)));
          }
       // normalize if requested
       if(normalize)
@@ -154,7 +154,7 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
          const index ymin = std::max(ymin_bnd,int(b)-I);
          const index ymax = std::min(xmax,int(b)+1);
          for(index y=ymin; y<=ymax; ++y)
-            B[j][y] += B[j+1][b] * P(int(y),int(b)) * Q(int(y),int(b),int(j),r.extract(int(j+y),int(b-y+1)));
+            B[j][y] += B[j+1][b] * Q(int(y),int(b),int(j),r.extract(int(j+y),int(b-y+1)));
          }
       // normalize if requested
       if(normalize)
