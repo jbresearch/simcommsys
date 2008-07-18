@@ -16,7 +16,7 @@ namespace libcomm {
 // implementations of channel-specific metrics for fba2
 
 template <class real, bool normalize>
-real dminner2<real,normalize>::Q(int d, int i, const array1b_t& r) const
+real dminner2<real,normalize>::R(int d, int i, const array1b_t& r) const
    {
    const int n = dminner<real,normalize>::n;
    // 'tx' is the vector of transmitted symbols that we're considering
@@ -46,7 +46,7 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array
    const int N = dminner<real,normalize>::ws.size();
    const int tau = N*n;
    assert(N > 0);
-   // Copy channel for access within Q()
+   // Copy channel for access within R()
    dminner<real,normalize>::mychan = dynamic_cast<const bsid&>(chan);
    // Set channel block size to q-ary symbol size
    dminner<real,normalize>::mychan.set_blocksize(n);

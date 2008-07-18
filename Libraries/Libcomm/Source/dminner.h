@@ -85,7 +85,7 @@ private:
    void normalize_results(const array2r_t& in, array2d_t& out) const;
    // @}
    // Implementations of channel-specific metrics for fba
-   real Q(const int a, const int b, const int i, const array1b_t& s);
+   real R(const int i, const array1b_t& r);
    // Atomic modem operations (private as these should never be used)
    const bool modulate(const int index) const
       { assert("Function should not be used."); return false; };

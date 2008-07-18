@@ -67,7 +67,7 @@ private:
 protected:
    /*! \name Internal functions */
    // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real Q(const int a, const int b, const int i, const array1s_t& s) = 0;
+   virtual real R(const int i, const array1s_t& r) = 0;
    // @}
 public:
    /*! \name Constructors / Destructors */

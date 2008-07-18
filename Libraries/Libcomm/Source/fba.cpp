@@ -64,9 +64,7 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    typedef typename array2r_t::index index;
-   for(index j=0; j<tau; ++j)
-      for(index x=-xmax; x<=xmax; ++x)
-         F[j][x] = real(0);
+   F = real(0);
    F[0][0] = real(1);
    // compute remaining matrix values
    for(index j=1; j<tau; ++j)
@@ -95,7 +93,7 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
          for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] * Q(int(a),int(y),int(j-1),r.extract(int(j-1+a),int(y-a+1)));
+            F[j][y] += F[j-1][a] * R(int(j-1),r.extract(int(j-1+a),int(y-a+1)));
          }
       // normalize if requested
       if(normalize)
@@ -122,9 +120,7 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
    // we also know x[tau] = r.size()-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
    typedef typename array2r_t::index index;
-   for(index j=1; j<=tau; ++j)
-      for(index x=-xmax; x<=xmax; ++x)
-         B[j][x] = real(0);
+   B = real(0);
    assertalways(abs(r.size()-tau) <= xmax);
    B[tau][r.size()-tau] = real(1);
    // compute remaining matrix values
@@ -154,7 +150,7 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
          const index ymin = std::max(ymin_bnd,int(b)-I);
          const index ymax = std::min(xmax,int(b)+1);
          for(index y=ymin; y<=ymax; ++y)
-            B[j][y] += B[j+1][b] * Q(int(y),int(b),int(j),r.extract(int(j+y),int(b-y+1)));
+            B[j][y] += B[j+1][b] * R(int(j),r.extract(int(j+y),int(b-y+1)));
          }
       // normalize if requested
       if(normalize)

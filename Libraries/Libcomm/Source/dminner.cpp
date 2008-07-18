@@ -129,10 +129,10 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
-               const real P = mychan.receive(tx, r.extract(n*i+x1,x2-x1+n));
+               const real R = mychan.receive(tx, r.extract(n*i+x1,x2-x1+n));
                const real B = fba<real,bool,normalize>::getB(n*(i+1),x2);
                // include the probability for this particular sequence
-               p += P * F * B;
+               p += F * R * B;
                }
             }
          ptable(i,d) = p;
@@ -240,17 +240,15 @@ dminner<real,normalize>::dminner(const int n, const int k, const double th_inner
 // implementations of channel-specific metrics for fba
 
 template <class real, bool normalize>
-real dminner<real,normalize>::Q(const int a, const int b, const int i, const array1b_t& s)
+real dminner<real,normalize>::R(const int i, const array1b_t& r)
    {
-   // 'a' and 'b' are redundant because 's' already contains the difference
-   assert(s.size() == b-a+1);
    // 'tx' is a matrix of all possible transmitted symbols
    // we know exactly what was transmitted at this timestep
    const int word = i/n;
    const int bit  = i%n;
-   bool tx = ((ws(word) >> bit) & 1);
+   bool t = ((ws(word) >> bit) & 1);
    // compute the conditional probability
-   return mychan.receive(tx, s);
+   return mychan.receive(t, r);
    }
 
 // encoding and decoding functions

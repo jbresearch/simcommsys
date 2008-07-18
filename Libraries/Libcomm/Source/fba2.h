@@ -72,7 +72,7 @@ private:
 protected:
    /*! \name Internal functions */
    // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real Q(int d, int i, const array1s_t& r) const = 0;
+   virtual real R(int d, int i, const array1s_t& r) const = 0;
    // decode functions
    void work_gamma(const array1s_t& r);
    void work_alpha(const array1s_t& r);
@@ -97,13 +97,13 @@ template <class real, class sig, bool normalize>
 real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax, const array1s_t& r) const
    {
    if(!cache_enabled)
-      return Q(d,i,r.extract(n*i+x,n+deltax));
+      return R(d,i,r.extract(n*i+x,n+deltax));
 
    if(!cached[i][x][deltax])
       {
       cached[i][x][deltax] = true;
       for(int d=0; d<q; d++)
-         gamma[d][i][x][deltax] = Q(d,i,r.extract(n*i+x,n+deltax));
+         gamma[d][i][x][deltax] = R(d,i,r.extract(n*i+x,n+deltax));
 #ifndef NDEBUG
       gamma_misses++;
 #endif

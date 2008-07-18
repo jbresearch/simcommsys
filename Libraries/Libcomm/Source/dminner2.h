@@ -31,7 +31,7 @@ private:
    // @}
 private:
    // Implementations of channel-specific metrics for fba2
-   real Q(int d, int i, const array1b_t& r) const;
+   real R(int d, int i, const array1b_t& r) const;
 public:
    /*! \name Constructors / Destructors */
    dminner2(const int n=2, const int k=1)
