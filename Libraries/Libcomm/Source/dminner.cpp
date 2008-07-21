@@ -83,6 +83,9 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
 template <class real, bool normalize>
 void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const
    {
+   // determine limits
+   const int dmin = std::max(-n,-dxmax);
+   const int dmax = std::min(n*I,dxmax);
    // Inherit block size from last modulation step
    const int q = 1<<k;
    const int N = ws.size();
@@ -102,9 +105,9 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
          {
          real p = 0;
          // create the considered transmitted sequence
-         array1b_t tx(n);
-         for(int j=0, t=ws(i)^lut(d); j<n; j++, t >>= 1)
-            tx(j) = (t&1);
+         array1b_t t(n);
+         for(int j=0, tval=ws(i)^lut(d); j<n; j++, tval >>= 1)
+            t(j) = (tval&1);
          // event must fit the received sequence:
          // (this is limited to start and end conditions)
          // 1. n*i+x1 >= 0
@@ -118,18 +121,19 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
          // 6. x2-x1 >= -dxmax
          const int x1min = std::max(-xmax,-n*i);
          const int x1max = xmax;
+         const int x2max_bnd = std::min(xmax,r.size()-n*(i+1));
          for(int x1=x1min; x1<=x1max; x1++)
             {
             const real F = fba<real,bool,normalize>::getF(n*i,x1);
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
-            const int x2min = std::max(-xmax,std::max(-n,-dxmax)+x1);
-            const int x2max = std::min(std::min(xmax,std::min(n*I,dxmax)+x1),r.size()-n*(i+1));
+            const int x2min = std::max(-xmax,dmin+x1);
+            const int x2max = std::min(x2max_bnd,dmax+x1);
             for(int x2=x2min; x2<=x2max; x2++)
                {
                // compute the conditional probability
-               const real R = mychan.receive(tx, r.extract(n*i+x1,x2-x1+n));
+               const real R = mychan.receive(t, r.extract(n*i+x1,x2-x1+n));
                const real B = fba<real,bool,normalize>::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p += F * R * B;
