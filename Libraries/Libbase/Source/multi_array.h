@@ -37,7 +37,7 @@ public:
          {
          resize(x.extents());
          for(std::size_t i=0; i<NumDims; i++)
-            libbase::trace << "Output Extent " << i << " = " << this->shape()[i] << "\n";
+            libbase::trace << "DEBUG (multi_array): resized dimension " << i << " = " << this->shape()[i] << "\n";
          }
       dynamic_cast< multi_array<T,NumDims>& >(*this) = dynamic_cast< const multi_array<T,NumDims>& >(x);
       return *this;
@@ -61,7 +61,7 @@ public:
       for(std::size_t i=0; i<NumDims; i++)
          {
          extents_list.ranges_[i] = extent_range(this->index_bases()[i], this->index_bases()[i]+this->shape()[i]);
-         libbase::trace << "Input Extent " << i << " = " << this->shape()[i] << "\n";
+         libbase::trace << "DEBUG (multi_array): read dimension " << i << " = " << this->shape()[i] << "\n";
          }
       return extents_list;
       }

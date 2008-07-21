@@ -24,7 +24,6 @@ class bsid : public channel<bool> {
 private:
    /*! \name Internally-used types */
    typedef boost::assignable_multi_array<double,2> array2d_t;
-   typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
 private:
    /*! \name User-defined parameters */
@@ -45,9 +44,9 @@ private:
    // @}
 public:
    /*! \name FBA decoder parameter computation */
-   static int compute_I(int N, double p);
-   static int compute_xmax(int N, double p, int I);
-   static int compute_xmax(int N, double p);
+   static int compute_I(int tau, double p);
+   static int compute_xmax(int tau, double p, int I);
+   static int compute_xmax(int tau, double p);
    static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi);
    // @}
 private:
