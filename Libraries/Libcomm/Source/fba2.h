@@ -68,6 +68,7 @@ private:
    real compute_gamma(int d, int i, int x, int deltax, const array1s_t& r) const;
    // memory allocation
    void allocate();
+   void free();
    // @}
 protected:
    /*! \name Internal functions */

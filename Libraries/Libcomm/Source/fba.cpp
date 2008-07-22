@@ -32,11 +32,25 @@ void fba<real,sig,normalize>::allocate()
    initialised = true;
    }
 
+/*! \brief Release memory for working matrices
+*/
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::free()
+   {
+   F.resize(boost::extents[0][0]);
+   B.resize(boost::extents[0][0]);
+   // flag the state of the arrays
+   initialised = false;
+   }
+
 // Initialization
 
 template <class real, class sig, bool normalize>
 void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    {
+   // if any parameters that effect memory have changed, release memory
+   if(initialised && (tau != fba::tau || xmax != fba::xmax))
+      free();
    // code parameters
    assert(tau > 0);
    fba::tau = tau;
@@ -48,8 +62,6 @@ void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    // path truncation parameters
    assert(th_inner >= 0);
    fba::th_inner = th_inner;
-   // set flag as necessary
-   initialised = false;
    }
 
 // Internal procedures

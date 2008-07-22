@@ -14,6 +14,8 @@ namespace libcomm {
 
 // Memory allocation
 
+/*! \brief Memory allocator for working matrices
+*/
 template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::allocate()
    {
@@ -52,11 +54,29 @@ void fba2<real,sig,normalize>::allocate()
    initialised = true;
    }
 
+/*! \brief Release memory for working matrices
+*/
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::free()
+   {
+   alpha.resize(boost::extents[0][0]);
+   beta.resize(boost::extents[0][0]);
+   cache_enabled = false;
+   gamma.resize(boost::extents[0][0][0][0]);
+   cached.resize(boost::extents[0][0][0]);
+   // flag the state of the arrays
+   initialised = true;
+   }
+
 // Initialization
 
 template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
+   // if any parameters that effect memory have changed, release memory
+   if(initialised && (N != fba2::N || n != fba2::n || q != fba2::q
+      || I != fba2::I || xmax != fba2::xmax || dxmax != fba2::dxmax))
+      free();
    // code parameters
    assert(N > 0);
    assert(n > 0);
@@ -76,8 +96,6 @@ void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dx
    assert(th_outer >= 0);
    fba2::th_inner = th_inner;
    fba2::th_outer = th_outer;
-   // set flag as necessary
-   initialised = false;
    }
 
 // Internal procedures
