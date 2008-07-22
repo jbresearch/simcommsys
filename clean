@@ -3,4 +3,4 @@
 # $Revision$
 # $Date$
 
-find . -depth \( -name Debug -or -name Release -or -name Arch -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -exec rm -rf '{}' \;
+find . -depth \( -name Documentation -or -name Debug -or -name Release -or -name Arch -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -exec rm -rf '{}' \;
