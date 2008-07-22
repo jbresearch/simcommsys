@@ -29,7 +29,7 @@ public:
    //! Set resolution of result
    void accuracy(const double dx) { min_dx = dx; };
    //! Set maximum number of iterations for secant method
-   void maxiter(const int n) { assert(max_iter >= 1); max_iter = n; };
+   void maxiter(const int n) { assert(n >= 1); max_iter = n; };
    //! Find input value for which function value is y
    double solve(const double y);
    //! Function notation for solve()
