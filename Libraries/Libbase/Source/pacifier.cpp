@@ -12,6 +12,10 @@
 
 namespace libbase {
 
+// Static interface
+
+bool pacifier::quiet = false;
+
 // Constructors / Destructors
 
 pacifier::pacifier(const std::string& name) :
@@ -36,8 +40,10 @@ pacifier::~pacifier()
 */
 std::string pacifier::update(int complete, int total)
    {
+   // if output is disabled, return immediately
+   if(quiet)
+      return "";
    const int value = int(100*complete/double(total));
-
    // if we detect that we've started from zero again,
    // reset the timer and don't print anything
    if(complete == 0 || value < last)

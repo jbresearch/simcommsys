@@ -10,6 +10,7 @@
 #include "masterslave.h"
 
 #include "timer.h"
+#include "pacifier.h"
 #include <iostream>
 #include <sstream>
 
@@ -71,7 +72,7 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
    // parse command-line parameters and determine operating mode
    if(*argc < 2)
       {
-      cerr << "Usage (masterslave): " << (*argv)[0] << " [<normal parameters>] [-p <priority>] local|<hostname>:<port>\n";
+      cerr << "Usage (masterslave): " << (*argv)[0] << " [<normal parameters>] [-q] [-p <priority>] local|<hostname>:<port>\n";
       return;
       }
    // get endpoint
@@ -98,6 +99,13 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
       (*argv)[*argc-1] = NULL;
       (*argv)[*argc-2] = NULL;
       (*argc)-=2;
+      }
+   // check for and get quiet flag
+   if(*argc >= 2 && strcmp((*argv)[*argc-1],"-q")==0)
+      {
+      pacifier::disable_output();
+      (*argv)[*argc-1] = NULL;
+      (*argc)--;
       }
 
    // Handle option for local computation only

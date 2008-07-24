@@ -22,6 +22,14 @@ namespace libbase {
 
 class pacifier {
 private:
+   static bool quiet;
+public:
+   /*! \name Static interface */
+   static void enable_output() { quiet = false; };
+   static void disable_output() { quiet = true; };
+   // @}
+
+private:
    std::string name;
    timer       t;
    int         last;
