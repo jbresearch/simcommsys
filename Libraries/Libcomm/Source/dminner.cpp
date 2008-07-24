@@ -9,6 +9,7 @@
 
 #include "dminner.h"
 #include "timer.h"
+#include "pacifier.h"
 #include <sstream>
 
 namespace libcomm {
@@ -83,6 +84,7 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
 template <class real, bool normalize>
 void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const
    {
+   libbase::pacifier progress("FBA Results");
    // determine limits
    const int dmin = std::max(-n,-dxmax);
    const int dmax = std::min(n*I,dxmax);
@@ -94,7 +96,7 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for(int i=0; i<N; i++)
       {
-      std::cerr << libbase::pacifier("FBA Results", i, N);
+      std::cerr << progress.update(i, N);
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
@@ -143,7 +145,7 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
          }
       }
    if(N > 0)
-      std::cerr << libbase::pacifier("FBA Results", N, N);
+      std::cerr << progress.update(N, N);
    }
 
 template <class real, bool normalize>
