@@ -112,7 +112,7 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
    const int mu = rx.size()-1;
    // If this was a deletion, it's a fixed value
    if(mu < 0)
-      return Pd;
+      return Pd*Pd;
    // Otherwise return result from table
    return Rtable[tx != rx(mu)][mu];
    }
