@@ -399,6 +399,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_errorrates.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\commsys_hist_symerr.cpp"
 				>
 			</File>
@@ -1321,6 +1325,10 @@
 			</File>
 			<File
 				RelativePath="Source\commsys.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\commsys_errorrates.h"
 				>
 			</File>
 			<File

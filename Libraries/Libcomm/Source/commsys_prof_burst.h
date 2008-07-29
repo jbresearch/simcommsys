@@ -2,7 +2,7 @@
 #define __commsys_prof_burst_h
 
 #include "config.h"
-#include "commsys.h"
+#include "commsys_errorrates.h"
 
 namespace libcomm {
 
@@ -15,12 +15,10 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (15 Apr 2008)
-   - Initial version
-   - Determines separately the error probabilities for:
-      * the first symbol in a frame
-      * a symbol following a correctly-decoded one
-      * a symbol following an incorrectly-decoded one
+   Determines separately the error probabilities for:
+   * the first symbol in a frame
+   * a symbol following a correctly-decoded one
+   * a symbol following an incorrectly-decoded one
 */
 
 class commsys_prof_burst : public commsys_errorrates {

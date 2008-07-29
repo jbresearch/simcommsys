@@ -2,7 +2,7 @@
 #define __commsys_prof_sym_h
 
 #include "config.h"
-#include "commsys.h"
+#include "commsys_errorrates.h"
 
 namespace libcomm {
 
@@ -15,9 +15,7 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (19-20 Feb 2008)
-   - Initial version, derived from commsys_prof_pos 2.00
-   - Computes symbol-error histogram as dependent on source symbol value
+   Computes symbol-error histogram as dependent on source symbol value.
 */
 
 class commsys_prof_sym : public commsys_errorrates {
