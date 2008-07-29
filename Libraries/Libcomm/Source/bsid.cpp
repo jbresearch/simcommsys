@@ -162,7 +162,7 @@ void bsid::init()
    \sa init()
 */
 bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi, const bool biased) :
-   varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), biased(biased)
+   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi)
    {
    // channel update flags
    assert(varyPs || varyPd || varyPi);
