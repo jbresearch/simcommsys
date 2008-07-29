@@ -59,12 +59,9 @@ double timer::_cputime() const
 
 // common functions
 
-timer::timer(const char *n)
+timer::timer(const std::string& name)
    {
-   if(n == NULL)
-      name = "";
-   else
-      name = n;
+   timer::name = name;
    start();
    }
 

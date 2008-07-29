@@ -21,18 +21,19 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 /*!
    \brief Determine limit for insertions between two time-steps
 
-   \f[ I = \left\lceil \frac{ \log{P_r} - \log N }{ \log p } \right\rceil - 1 \f]
-   where \f$ P_r \f$ is an arbitrary probability of having a block of size \f$ N \f$
-   with at least one event of more than \f$ I \f$ insertions between successive
-   time-steps. In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+   \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log p } \right\rceil - 1 \f]
+   where \f$ P_r \f$ is an arbitrary probability of having a block of size
+   \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
+   between successive time-steps.
+   In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
 
    \note The smallest allowed value is \f$ I = 1 \f$
 */
-int bsid::compute_I(int N, double p)
+int bsid::compute_I(int tau, double p)
    {
-   int I = int(ceil((log(1e-12) - log(double(N))) / log(p))) - 1;
+   int I = int(ceil((log(1e-12) - log(double(tau))) / log(p))) - 1;
    I = std::max(I,1);
-   libbase::trace << "DEBUG (bsid): for N = " << N << ", I = " << I << "/";
+   libbase::trace << "DEBUG (bsid): for N = " << tau << ", I = " << I << "/";
    I = std::min(I,2);
    libbase::trace << I << ".\n";
    return I;
@@ -41,26 +42,26 @@ int bsid::compute_I(int N, double p)
 /*!
    \brief Determine maximum drift over a whole N-bit block
 
-   \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{N p}{1-p}} \f]
+   \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
    where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
-   having a block of size \f$ N \f$ where the drift at the end is greater
+   having a block of size \f$ \tau \f$ where the drift at the end is greater
    than \f$ \pm x_{max} \f$.
+   In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
 
    The calculation is based on the assumption that the end-of-frame drift has
    a Gaussian distribution with zero mean and standard deviation given by
-   \f$ \sigma = \sqrt{\frac{N p}{1-p}} \f$.
-   In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+   \f$ \sigma = \sqrt{\frac{\tau p}{1-p}} \f$.
 
    \note The smallest allowed value is \f$ x_{max} = I \f$
 */
-int bsid::compute_xmax(int N, double p, int I)
+int bsid::compute_xmax(int tau, double p, int I)
    {
    // rather than computing the factor using a root-finding method,
    // we fix factor = 7.1305, corresponding to Qinv(1e-12/2.0)
    const double factor = 7.1305;
-   int xmax = int(ceil(factor * sqrt(N*p/(1-p))));
+   int xmax = int(ceil(factor * sqrt(tau*p/(1-p))));
    xmax = std::max(xmax,I);
-   libbase::trace << "DEBUG (bsid): for N = " << N << ", xmax = " << xmax << "/";
+   libbase::trace << "DEBUG (bsid): for N = " << tau << ", xmax = " << xmax << "/";
    //xmax = min(xmax,25);
    libbase::trace << xmax << ".\n";
    return xmax;
@@ -72,10 +73,10 @@ int bsid::compute_xmax(int N, double p, int I)
    \note Provided for convenience; will determine I itself, then use that to
          determine xmax.
 */
-int bsid::compute_xmax(int N, double p)
+int bsid::compute_xmax(int tau, double p)
    {
-   int I = compute_I(N,p);
-   return compute_xmax(N,p,I);
+   int I = compute_I(tau,p);
+   return compute_xmax(tau,p,I);
    }
 
 /*!
@@ -133,6 +134,7 @@ void bsid::precompute()
    xmax = compute_xmax(N, Pd, I);
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
+   Rval = biased ? Pd*Pd : Pd;
    }
 
 /*!
@@ -159,13 +161,11 @@ void bsid::init()
 
    \sa init()
 */
-bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi)
+bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi, const bool biased) :
+   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi)
    {
    // channel update flags
    assert(varyPs || varyPd || varyPi);
-   bsid::varyPs = varyPs;
-   bsid::varyPd = varyPd;
-   bsid::varyPi = varyPi;
    // other initialization
    init();
    }
@@ -351,18 +351,18 @@ void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>&
 double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
    {
    // Compute sizes
-   const int tau = tx.size();
-   const int m = rx.size()-tau;
-   assert(tau <= N);
-   assert(labs(m) <= xmax);
+   const int n = tx.size();
+   const int mu = rx.size()-n;
+   assert(n <= N);
+   assert(labs(mu) <= xmax);
    // Set up forward matrix (automatically initialized to zero)
    typedef boost::multi_array_types::extent_range range;
-   array2d_t F(boost::extents[tau][range(-xmax,xmax+1)]);
+   array2d_t F(boost::extents[n][range(-xmax,xmax+1)]);
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    F[0][0] = 1;
    // compute remaining matrix values
    typedef array2d_t::index index;
-   for(index j=1; j<tau; ++j)
+   for(index j=1; j<n; ++j)
       {
       // event must fit the received sequence:
       // 1. j-1+a >= 0
@@ -386,15 +386,15 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
    double result = 0;
    // event must fit the received sequence:
    // 1. tau-1+a >= 0
-   // 2. tau-1+m < rx.size() [given by definition of m]
+   // 2. tau-1+mu < rx.size() [automatically satisfied by definition of mu]
    // limits on insertions and deletions must be respected:
-   // 3. m-a <= I
-   // 4. m-a >= -1
-   const index amin = std::max(std::max(-xmax,m-I),1-tau);
-   const index amax = std::min(xmax,m+1);
+   // 3. mu-a <= I
+   // 4. mu-a >= -1
+   const index amin = std::max(std::max(-xmax,mu-I),1-n);
+   const index amax = std::min(xmax,mu+1);
    for(index a=amin; a<=amax; ++a)
-      result += F[tau-1][a] \
-         * bsid::receive(tx(int(tau-1)),rx.extract(int(tau-1+a),int(m-a+1)));
+      result += F[n-1][a] \
+         * bsid::receive(tx(int(n-1)),rx.extract(int(n-1+a),int(mu-a+1)));
    return result;
    }
 
@@ -403,7 +403,10 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
 std::string bsid::description() const
    {
    std::ostringstream sout;
-   sout << "BSID channel (" << varyPs << varyPd << varyPi << ")";
+   sout << "BSID channel (" << varyPs << varyPd << varyPi;
+   if(biased)
+      sout << ", biased";
+   sout << ")";
    return sout.str();
    }
 
@@ -411,6 +414,8 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
+   sout << 2 << "\n";
+   sout << biased << "\n";
    sout << varyPs << "\n";
    sout << varyPd << "\n";
    sout << varyPi << "\n";
@@ -421,6 +426,22 @@ std::ostream& bsid::serialize(std::ostream& sout) const
 
 std::istream& bsid::serialize(std::istream& sin)
    {
+   std::streampos start = sin.tellg();
+   // get format version
+   int version;
+   sin >> version;
+   // handle old-format files (without version number)
+   if(version < 2)
+      {
+      sin.clear();
+      sin.seekg(start);
+      version = 1;
+      }
+   // read flag if present
+   if(version < 2)
+      biased = false;
+   else
+      sin >> biased;
    sin >> varyPs;
    sin >> varyPd;
    sin >> varyPi;

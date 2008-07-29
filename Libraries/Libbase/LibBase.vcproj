@@ -469,6 +469,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\pacifier.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\randgen.cpp"
 				>
 				<FileConfiguration
@@ -675,6 +679,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\multi_array.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\pacifier.h"
 				>
 			</File>
 			<File

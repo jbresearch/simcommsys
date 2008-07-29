@@ -63,6 +63,7 @@ private:
 private:
    /*! \name Internal functions */
    void allocate();
+   void free();
    // @}
 protected:
    /*! \name Internal functions */

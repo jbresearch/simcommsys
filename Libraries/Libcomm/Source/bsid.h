@@ -24,10 +24,10 @@ class bsid : public channel<bool> {
 private:
    /*! \name Internally-used types */
    typedef boost::assignable_multi_array<double,2> array2d_t;
-   typedef boost::assignable_multi_array<double,1> array1d_t;
    // @}
 private:
    /*! \name User-defined parameters */
+   bool     biased;     //!< Flag to indicate old-style bias against single-deletion
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with parameter
@@ -41,13 +41,14 @@ private:
    /*! \name Pre-computed parameters */
    int      I;          //!< Assumed limit for insertions between two time-steps
    int      xmax;       //!< Assumed maximum drift over a whole \c N -bit block
-   array2d_t Rtable;    //!< Receiver coefficient set
+   array2d_t Rtable;    //!< Receiver coefficient set for mu >= 0
+   double   Rval;       //!< Receiver coefficient value for mu = -1
    // @}
 public:
    /*! \name FBA decoder parameter computation */
-   static int compute_I(int N, double p);
-   static int compute_xmax(int N, double p, int I);
-   static int compute_xmax(int N, double p);
+   static int compute_I(int tau, double p);
+   static int compute_xmax(int tau, double p, int I);
+   static int compute_xmax(int tau, double p);
    static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi);
    // @}
 private:
@@ -61,7 +62,7 @@ protected:
    double pdf(const bool& tx, const bool& rx) const;
 public:
    /*! \name Constructors / Destructors */
-   bsid(const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
+   bsid(const bool varyPs=true, const bool varyPd=true, const bool varyPi=true, const bool biased=false);
    // @}
 
    /*! \name Channel parameter handling */
@@ -113,7 +114,7 @@ inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) con
    const int mu = rx.size()-1;
    // If this was a deletion, it's a fixed value
    if(mu < 0)
-      return Pd;
+      return Rval;
    // Otherwise return result from table
    return Rtable[tx != rx(mu)][mu];
    }

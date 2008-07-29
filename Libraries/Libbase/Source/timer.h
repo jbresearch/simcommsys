@@ -46,7 +46,7 @@ class timer {
    double _cputime() const;
 public:
    /*! \name Constructors / Destructors */
-   explicit timer(const char *n = NULL);
+   explicit timer(const std::string& name="");
    virtual ~timer();
    // @}
 

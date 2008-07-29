@@ -10,6 +10,7 @@
 #include "turbo.h"
 #include "flat.h"
 #include <sstream>
+#include <iomanip>
 
 namespace libcomm {
 
@@ -130,6 +131,15 @@ void turbo<real,dbl>::allocate()
          }
       }
 
+   // determine memory occupied and tell user
+   std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr << "Turbo Memory Usage: " << std::fixed << std::setprecision(1);
+   std::cerr << sizeof(dbl)*( rp.size() + ri.size() + rai.size() + rii.size()
+                           + R.size()*R(0).size() + ra.size()*ra(0).size()
+                           //+ ss.size()*ss(0).size() + se.size()*se(0).size()
+                           )/double(1<<20) << "MB\n";
+   std::cerr.setf(flags);
+   // flag the state of the arrays
    initialised = true;
    }
 

@@ -178,17 +178,6 @@ int readkey(void);
 */
 bool interrupted(void);
 
-/*! \brief Pacifier output
-   Returns a string according to a input values specifying amount of work done.
-   This function keeps a timer that automatically resets and stops (at
-   beginning and end values respectively), to display estimated time remaining.
-
-   \note The optional first parameter contains a descriptive string, to be
-         printed only if something is returned.
-*/
-std::string pacifier(const std::string& description, int complete, int total=100);
-std::string pacifier(int complete, int total=100);
-
 // System error message reporting
 std::string getlasterror();
 

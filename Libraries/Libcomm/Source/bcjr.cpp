@@ -8,6 +8,7 @@
 */
 
 #include "bcjr.h"
+#include <iomanip>
 
 namespace libcomm {
 
@@ -146,6 +147,12 @@ void bcjr<real,dbl>::allocate()
    alpha.init(tau+1, M);
    beta.init(tau+1, M);
    gamma.init(tau, M, K);
+   // determine memory occupied and tell user
+   std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr << "BCJR Memory Usage: " << std::fixed << std::setprecision(1);
+   std::cerr << sizeof(real)*( alpha.size() + beta.size() + gamma.size()
+                           )/double(1<<20) << "MB\n";
+   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
    }

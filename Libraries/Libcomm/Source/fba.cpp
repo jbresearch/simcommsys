@@ -8,6 +8,7 @@
 */
 
 #include "fba.h"
+#include "pacifier.h"
 #include <iomanip>
 
 namespace libcomm {
@@ -32,11 +33,25 @@ void fba<real,sig,normalize>::allocate()
    initialised = true;
    }
 
+/*! \brief Release memory for working matrices
+*/
+template <class real, class sig, bool normalize>
+void fba<real,sig,normalize>::free()
+   {
+   F.resize(boost::extents[0][0]);
+   B.resize(boost::extents[0][0]);
+   // flag the state of the arrays
+   initialised = false;
+   }
+
 // Initialization
 
 template <class real, class sig, bool normalize>
 void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    {
+   // if any parameters that effect memory have changed, release memory
+   if(initialised && (tau != fba::tau || xmax != fba::xmax))
+      free();
    // code parameters
    assert(tau > 0);
    fba::tau = tau;
@@ -48,8 +63,6 @@ void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    // path truncation parameters
    assert(th_inner >= 0);
    fba::th_inner = th_inner;
-   // set flag as necessary
-   initialised = false;
    }
 
 // Internal procedures
@@ -57,10 +70,10 @@ void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
 template <class real, class sig, bool normalize>
 void fba<real,sig,normalize>::work_forward(const array1s_t& r)
    {
+   libbase::pacifier progress("FBA Forward Pass");
    // initialise memory if necessary
    if(!initialised)
       allocate();
-
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    typedef typename array2r_t::index index;
@@ -69,7 +82,7 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
    // compute remaining matrix values
    for(index j=1; j<tau; ++j)
       {
-      std::cerr << libbase::pacifier("FBA Forward Pass", int(j-1), tau-1);
+      std::cerr << progress.update(int(j-1), tau-1);
       // determine the strongest path at this point
       real threshold = 0;
       for(index a=-xmax; a<=xmax; ++a)
@@ -106,16 +119,16 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
             F[j][y] *= sum;
          }
       }
-   std::cerr << libbase::pacifier("FBA Forward Pass", tau-1, tau-1);
+   std::cerr << progress.update(tau-1, tau-1);
    }
 
 template <class real, class sig, bool normalize>
 void fba<real,sig,normalize>::work_backward(const array1s_t& r)
    {
+   libbase::pacifier progress("FBA Backward Pass");
    // initialise memory if necessary
    if(!initialised)
       allocate();
-
    // initialise array:
    // we also know x[tau] = r.size()-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
@@ -126,7 +139,7 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
    // compute remaining matrix values
    for(index j=tau-1; j>0; --j)
       {
-      std::cerr << libbase::pacifier("FBA Backward Pass", int(tau-1-j), tau-1);
+      std::cerr << progress.update(int(tau-1-j), tau-1);
       // determine the strongest path at this point
       real threshold = 0;
       for(index b=-xmax; b<=xmax; ++b)
@@ -163,7 +176,7 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
             B[j][y] *= sum;
          }
       }
-   std::cerr << libbase::pacifier("FBA Backward Pass", tau-1, tau-1);
+   std::cerr << progress.update(tau-1, tau-1);
    }
 
 // User procedures

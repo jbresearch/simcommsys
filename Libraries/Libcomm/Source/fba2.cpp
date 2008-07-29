@@ -8,12 +8,15 @@
 */
 
 #include "fba2.h"
+#include "pacifier.h"
 #include <iomanip>
 
 namespace libcomm {
 
 // Memory allocation
 
+/*! \brief Memory allocator for working matrices
+*/
 template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::allocate()
    {
@@ -52,11 +55,29 @@ void fba2<real,sig,normalize>::allocate()
    initialised = true;
    }
 
+/*! \brief Release memory for working matrices
+*/
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::free()
+   {
+   alpha.resize(boost::extents[0][0]);
+   beta.resize(boost::extents[0][0]);
+   cache_enabled = false;
+   gamma.resize(boost::extents[0][0][0][0]);
+   cached.resize(boost::extents[0][0][0]);
+   // flag the state of the arrays
+   initialised = true;
+   }
+
 // Initialization
 
 template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
+   // if any parameters that effect memory have changed, release memory
+   if(initialised && (N != fba2::N || n != fba2::n || q != fba2::q
+      || I != fba2::I || xmax != fba2::xmax || dxmax != fba2::dxmax))
+      free();
    // code parameters
    assert(N > 0);
    assert(n > 0);
@@ -76,8 +97,6 @@ void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dx
    assert(th_outer >= 0);
    fba2::th_inner = th_inner;
    fba2::th_outer = th_outer;
-   // set flag as necessary
-   initialised = false;
    }
 
 // Internal procedures
@@ -98,6 +117,7 @@ template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
    {
    assert(initialised);
+   libbase::pacifier progress("FBA Alpha");
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    alpha = real(0);
@@ -105,7 +125,7 @@ void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
    // compute remaining matrix values
    for(int i=1; i<N; i++)
       {
-      std::cerr << libbase::pacifier("FBA Alpha", i-1, N-1);
+      std::cerr << progress.update(i-1, N-1);
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
@@ -147,13 +167,14 @@ void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
             alpha[i][x] *= sum;
          }
       }
-   std::cerr << libbase::pacifier("FBA Alpha", N-1, N-1);
+   std::cerr << progress.update(N-1, N-1);
    }
 
 template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
    {
    assert(initialised);
+   libbase::pacifier progress("FBA Beta");
    // initialise array:
    // we also know x[tau] = r.size()-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
@@ -164,7 +185,7 @@ void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
    // compute remaining matrix values
    for(int i=N-1; i>0; i--)
       {
-      std::cerr << libbase::pacifier("FBA Beta", N-1-i, N-1);
+      std::cerr << progress.update(N-1-i, N-1);
       // determine the strongest path at this point
       real threshold = 0;
       for(int x2=-xmax; x2<=xmax; x2++)
@@ -206,7 +227,7 @@ void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
             beta[i][x] *= sum;
          }
       }
-   std::cerr << libbase::pacifier("FBA Beta", N-1, N-1);
+   std::cerr << progress.update(N-1, N-1);
    }
 
 // User procedures
@@ -234,12 +255,13 @@ template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& ptable) const
    {
    assert(initialised);
+   libbase::pacifier progress("FBA Results");
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for(int i=0; i<N; i++)
       {
-      std::cerr << libbase::pacifier("FBA Results", i, N);
+      std::cerr << progress.update(i, N);
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
@@ -276,7 +298,7 @@ void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& p
          }
       }
    if(N > 0)
-      std::cerr << libbase::pacifier("FBA Results", N, N);
+      std::cerr << progress.update(N, N);
 #ifndef NDEBUG
    // show cache statistics
    std::cerr << "FBA Cache Usage: " << 100*gamma_misses/double(cached.num_elements()) << "%\n";
