@@ -25,12 +25,6 @@ pacifier::pacifier(const std::string& name) :
    t.stop();
    }
 
-pacifier::~pacifier()
-   {
-   // make sure we don't get spurious timer output
-   t.stop();
-   }
-
 // Pacifier operation
 
 /*! \brief Pacifier output

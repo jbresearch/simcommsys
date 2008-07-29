@@ -37,7 +37,7 @@ private:
 public:
    /*! \name Constructors / Destructors */
    explicit pacifier(const std::string& name="Process");
-   virtual ~pacifier();
+   virtual ~pacifier() {};
    // @}
 
    /*! \name Pacifier operation */
