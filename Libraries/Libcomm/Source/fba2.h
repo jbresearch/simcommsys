@@ -33,6 +33,7 @@ class fba2 {
 private:
    /*! \name Internally-used types */
    typedef libbase::vector<sig>     array1s_t;
+   typedef libbase::matrix<double>  array2d_t;
    typedef libbase::matrix<real>    array2r_old_t;
    typedef boost::assignable_multi_array<real,2> array2r_t;
    typedef boost::assignable_multi_array<real,4> array4r_t;
@@ -58,6 +59,8 @@ private:
    array2r_t beta;      //!< Backward recursion metric
    mutable array4r_t gamma;   //!< Receiver metric
    mutable array3b_t cached;  //!< Flag for caching of receiver metric
+   array1s_t r;         //!< Copy of received sequence, for lazy computation of gamma
+   array2d_t app;       //!< Copy of a-priori statistics, for lazy computation of gamma
 #ifndef NDEBUG
    mutable int gamma_calls;   //!< Number of gamma computations
    mutable int gamma_misses;  //!< Number of gamma computations causing a cache miss
@@ -65,19 +68,23 @@ private:
    // @}
 private:
    /*! \name Internal functions */
-   real compute_gamma(int d, int i, int x, int deltax, const array1s_t& r) const;
+   real compute_gamma(int d, int i, int x, int deltax) const;
+   real get_gamma(int d, int i, int x, int deltax) const;
    // memory allocation
    void allocate();
    void free();
+   void reset_cache() const;
    // @}
 protected:
    /*! \name Internal functions */
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual real R(int d, int i, const array1s_t& r) const = 0;
    // decode functions
+   void work_gamma(const array1s_t& r, const array2d_t& app);
    void work_gamma(const array1s_t& r);
-   void work_alpha(const array1s_t& r);
-   void work_beta(const array1s_t& r);
+   void work_alpha(int rho);
+   void work_beta(int rho);
+   void work_results(int rho, array2r_old_t& ptable) const;
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -90,21 +97,30 @@ public:
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer);
 
    // decode functions
-   void prepare(const array1s_t& r);
-   void work_results(const array1s_t& r, array2r_old_t& ptable) const;
+   void decode(const array1s_t& r, const array2d_t& app, array2r_old_t& ptable);
+   void decode(const array1s_t& r, array2r_old_t& ptable);
 };
 
 template <class real, class sig, bool normalize>
-real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax, const array1s_t& r) const
+inline real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax) const
+   {
+   real result = R(d,i,r.extract(n*i+x,n+deltax));
+   if(app.size() > 0)
+      result *= app(i,d);
+   return result;
+   }
+
+template <class real, class sig, bool normalize>
+real fba2<real,sig,normalize>::get_gamma(int d, int i, int x, int deltax) const
    {
    if(!cache_enabled)
-      return R(d,i,r.extract(n*i+x,n+deltax));
+      return compute_gamma(d, i, x, deltax);
 
    if(!cached[i][x][deltax])
       {
       cached[i][x][deltax] = true;
       for(int d=0; d<q; d++)
-         gamma[d][i][x][deltax] = R(d,i,r.extract(n*i+x,n+deltax));
+         gamma[d][i][x][deltax] = compute_gamma(d, i, x, deltax);
 #ifndef NDEBUG
       gamma_misses++;
 #endif

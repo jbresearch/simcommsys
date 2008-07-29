@@ -58,10 +58,9 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array
    dminner<real,normalize>::checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
    fba2<real,bool,normalize>::init(N, n, q, I, xmax, dxmax, dminner<real,normalize>::th_inner, dminner<real,normalize>::th_outer);
-   fba2<real,bool,normalize>::prepare(rx);
-   // Compute and normalize results
    libbase::matrix<real> p;
-   fba2<real,bool,normalize>::work_results(rx,p);
+   fba2<real,bool,normalize>::decode(rx,p);
+   // normalize results
    dminner<real,normalize>::normalize_results(p,ptable);
    }
 

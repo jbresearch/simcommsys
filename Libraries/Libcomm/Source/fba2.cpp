@@ -102,19 +102,45 @@ void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dx
 // Internal procedures
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
+void fba2<real,sig,normalize>::reset_cache() const
    {
-   assert(initialised);
-   if(!cache_enabled)
-      return;
    // initialise array
    gamma = real(0);
    // initialize cache
    cached = false;
+#ifndef NDEBUG
+   // reset cache counters
+   gamma_calls = 0;
+   gamma_misses = 0;
+#endif
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
+void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array2d_t& app)
+   {
+   assert(initialised);
+   if(cache_enabled)
+      reset_cache();
+   // copy received vector, needed for lazy computation
+   fba2::r = r;
+   // copy a-priori statistics, needed for lazy computation
+   fba2::app = app;
+   }
+
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
+   {
+   assert(initialised);
+   if(cache_enabled)
+      reset_cache();
+   // copy received vector, needed for lazy computation
+   fba2::r = r;
+   // reset a-priori statistics
+   fba2::app.init(0,0);
+   }
+
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::work_alpha(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
@@ -135,7 +161,7 @@ void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*(i-1)+x1 >= 0
-      // 2. n*i-1+x2 <= r.size()-1
+      // 2. n*i-1+x2 <= rho-1
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
@@ -151,10 +177,10 @@ void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
          if(alpha[i-1][x1] < threshold)
             continue;
          const int x2min = std::max(-xmax,dmin+x1);
-         const int x2max = std::min(std::min(xmax,dmax+x1),r.size()-n*i);
+         const int x2max = std::min(std::min(xmax,dmax+x1),rho-n*i);
          for(int x2=x2min; x2<=x2max; x2++)
             for(int d=0; d<q; d++)
-               alpha[i][x2] += alpha[i-1][x1] * compute_gamma(d,i-1,x1,x2-x1,r);
+               alpha[i][x2] += alpha[i-1][x1] * get_gamma(d,i-1,x1,x2-x1);
          }
       // normalize if requested
       if(normalize)
@@ -171,17 +197,17 @@ void fba2<real,sig,normalize>::work_alpha(const array1s_t& r)
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
+void fba2<real,sig,normalize>::work_beta(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
    // initialise array:
-   // we also know x[tau] = r.size()-tau;
+   // we also know x[tau] = rho-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
    const int tau = N*n;
    beta = real(0);
-   assertalways(abs(r.size()-tau) <= xmax);
-   beta[N][r.size()-tau] = real(1);
+   assertalways(abs(rho-tau) <= xmax);
+   beta[N][rho-tau] = real(1);
    // compute remaining matrix values
    for(int i=N-1; i>0; i--)
       {
@@ -195,7 +221,7 @@ void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
-      // 2. n*(i+1)-1+x2 <= r.size()-1
+      // 2. n*(i+1)-1+x2 <= rho-1
       // limits on insertions and deletions must be respected:
       // 3. x2-x1 <= n*I
       // 4. x2-x1 >= -n
@@ -204,7 +230,7 @@ void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
       // 5. x2-x1 <= dxmax
       // 6. x2-x1 >= -dxmax
       const int x2min = -xmax;
-      const int x2max = std::min(xmax,r.size()-n*(i+1));
+      const int x2max = std::min(xmax,rho-n*(i+1));
       for(int x2=x2min; x2<=x2max; x2++)
          {
          // ignore paths below a certain threshold
@@ -214,7 +240,7 @@ void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
          const int x1max = std::min(xmax,x2-dmin);
          for(int x1=x1min; x1<=x1max; x1++)
             for(int d=0; d<q; d++)
-               beta[i][x1] += beta[i+1][x2] * compute_gamma(d,i,x1,x2-x1,r);
+               beta[i][x1] += beta[i+1][x2] * get_gamma(d,i,x1,x2-x1);
          }
       // normalize if requested
       if(normalize)
@@ -230,29 +256,8 @@ void fba2<real,sig,normalize>::work_beta(const array1s_t& r)
    std::cerr << progress.update(N-1, N-1);
    }
 
-// User procedures
-
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::prepare(const array1s_t& r)
-   {
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
-
-#ifndef NDEBUG
-   // reset cache counters
-   gamma_calls = 0;
-   gamma_misses = 0;
-#endif
-
-   // compute forwards and backwards passes
-   work_gamma(r);
-   work_alpha(r);
-   work_beta(r);
-   }
-
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& ptable) const
+void fba2<real,sig,normalize>::work_results(int rho, array2r_old_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -274,7 +279,7 @@ void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& p
          // event must fit the received sequence:
          // (this is limited to start and end conditions)
          // 1. n*i+x1 >= 0
-         // 2. n*(i+1)-1+x2 <= r.size()-1
+         // 2. n*(i+1)-1+x2 <= rho-1
          // limits on insertions and deletions must be respected:
          // 3. x2-x1 <= n*I
          // 4. x2-x1 >= -n
@@ -290,9 +295,9 @@ void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& p
             if(alpha[i][x1] < threshold)
                continue;
             const int x2min = std::max(-xmax,dmin+x1);
-            const int x2max = std::min(std::min(xmax,dmax+x1),r.size()-n*(i+1));
+            const int x2max = std::min(std::min(xmax,dmax+x1),rho-n*(i+1));
             for(int x2=x2min; x2<=x2max; x2++)
-               p += alpha[i][x1] * compute_gamma(d,i,x1,x2-x1,r) * beta[i+1][x2];
+               p += alpha[i][x1] * get_gamma(d,i,x1,x2-x1) * beta[i+1][x2];
             }
          ptable(i,d) = p;
          }
@@ -304,6 +309,32 @@ void fba2<real,sig,normalize>::work_results(const array1s_t& r, array2r_old_t& p
    std::cerr << "FBA Cache Usage: " << 100*gamma_misses/double(cached.num_elements()) << "%\n";
    std::cerr << "FBA Cache Reuse: " << gamma_calls/double(gamma_misses*q) << "x\n";
 #endif
+   }
+
+// User procedures
+
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::decode(const array1s_t& r, const array2d_t& app, array2r_old_t& ptable)
+   {
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+   work_gamma(r,app);
+   work_alpha(r.size());
+   work_beta(r.size());
+   work_results(r.size(), ptable);
+   }
+
+template <class real, class sig, bool normalize>
+void fba2<real,sig,normalize>::decode(const array1s_t& r, array2r_old_t& ptable)
+   {
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+   work_gamma(r);
+   work_alpha(r.size());
+   work_beta(r.size());
+   work_results(r.size(), ptable);
    }
 
 }; // end namespace
