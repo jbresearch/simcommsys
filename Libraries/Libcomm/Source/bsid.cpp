@@ -134,6 +134,7 @@ void bsid::precompute()
    xmax = compute_xmax(N, Pd, I);
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
+   Rval = biased ? Pd*Pd : Pd;
    }
 
 /*!
@@ -160,13 +161,11 @@ void bsid::init()
 
    \sa init()
 */
-bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi)
+bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi, const bool biased) :
+   varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), biased(biased)
    {
    // channel update flags
    assert(varyPs || varyPd || varyPi);
-   bsid::varyPs = varyPs;
-   bsid::varyPd = varyPd;
-   bsid::varyPi = varyPi;
    // other initialization
    init();
    }
@@ -404,7 +403,10 @@ double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool
 std::string bsid::description() const
    {
    std::ostringstream sout;
-   sout << "BSID channel (" << varyPs << varyPd << varyPi << ")";
+   sout << "BSID channel (" << varyPs << varyPd << varyPi;
+   if(biased)
+      sout << ", biased";
+   sout << ")";
    return sout.str();
    }
 
@@ -412,6 +414,8 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
+   sout << 2 << "\n";
+   sout << biased << "\n";
    sout << varyPs << "\n";
    sout << varyPd << "\n";
    sout << varyPi << "\n";
@@ -422,6 +426,22 @@ std::ostream& bsid::serialize(std::ostream& sout) const
 
 std::istream& bsid::serialize(std::istream& sin)
    {
+   std::streampos start = sin.tellg();
+   // get format version
+   int version;
+   sin >> version;
+   // handle old-format files (without version number)
+   if(version < 2)
+      {
+      sin.clear();
+      sin.seekg(start);
+      version = 1;
+      }
+   // read flag if present
+   if(version < 2)
+      biased = false;
+   else
+      sin >> biased;
    sin >> varyPs;
    sin >> varyPd;
    sin >> varyPi;
