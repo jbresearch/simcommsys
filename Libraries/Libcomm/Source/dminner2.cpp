@@ -31,14 +31,10 @@ real dminner2<real,normalize>::R(int d, int i, const array1b_t& r) const
    return dminner<real,normalize>::mychan.receive(tx, r);
    }
 
-// encoding and decoding functions
+// Setup procedure
 
-/*! \copydoc modulator::demodulate()
-
-   \todo Make demodulation independent of the previous modulation step.
-*/
 template <class real, bool normalize>
-void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
+void dminner2<real,normalize>::init(const channel<bool>& chan)
    {
    // Inherit block size from last modulation step
    const int q = 1<<dminner<real,normalize>::k;
@@ -56,17 +52,32 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array
    const int xmax = bsid::compute_xmax(tau, Pd, I);
    const int dxmax = bsid::compute_xmax(n, Pd);
    dminner<real,normalize>::checkforchanges(I, xmax);
-   // Initialize & perform forward-backward algorithm
+   // Initialize forward-backward algorithm
    fba2<real,bool,normalize>::init(N, n, q, I, xmax, dxmax, dminner<real,normalize>::th_inner, dminner<real,normalize>::th_outer);
+   }
+
+// encoding and decoding functions
+
+/*! \copydoc modulator::demodulate()
+
+   \todo Make demodulation independent of the previous modulation step.
+*/
+template <class real, bool normalize>
+void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
+   {
+   init(chan);
    libbase::matrix<real> p;
    fba2<real,bool,normalize>::decode(rx,p);
-   // normalize results
    dminner<real,normalize>::normalize_results(p,ptable);
    }
 
 template <class real, bool normalize>
 void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
    {
+   init(chan);
+   libbase::matrix<real> p;
+   fba2<real,bool,normalize>::decode(rx,app,p);
+   dminner<real,normalize>::normalize_results(p,ptable);
    }
 
 // description output

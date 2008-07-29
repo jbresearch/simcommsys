@@ -32,6 +32,8 @@ private:
 private:
    // Implementations of channel-specific metrics for fba2
    real R(int d, int i, const array1b_t& r) const;
+   // Setup procedure
+   void init(const channel<bool>& chan);
 public:
    /*! \name Constructors / Destructors */
    dminner2(const int n=2, const int k=1)
