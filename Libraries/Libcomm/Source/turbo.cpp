@@ -159,8 +159,13 @@ void turbo<real,dbl>::allocate()
          at matrix elements where the corresponding 'ri' was greater than
          zero. We have no idea why this was done - will need to check old
          documentation. There seems to be marginal effect on results/speed,
-         so the natural (no-check) computation was restored. Old code has
-         been kept (commented-out) for any future review.
+         so the natural (no-check) computation was restored. Old code was:
+         \code
+         if(ri(t, x) > dbl(0))
+            re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
+         else
+            re(t, x) = 0;
+         \endcode
 
    \warning The return matrix re may actually be one of the input matrices,
             so one must be careful not to overwrite positions that still
@@ -169,13 +174,17 @@ void turbo<real,dbl>::allocate()
 template <class real, class dbl>
 void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& ri, const matrix<dbl>& r, matrix<dbl>& re)
    {
+   // Determine sizes from input matrix
+   const int tau = ri.xsize();
+   const int K = ri.ysize();
+   // Check all matrices are the right size
+   assert(ra.xsize() == tau && ra.ysize() == K);
+   assert(r.xsize() == tau && r.ysize() == K);
+   assert(re.xsize() == tau && re.ysize() == K);
+   // Compute extrinsic values
    for(int t=0; t<tau; t++)
-      for(int x=0; x<num_inputs(); x++)
+      for(int x=0; x<K; x++)
          re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
-   //      if(ri(t, x) > dbl(0))
-   //         re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
-   //      else
-   //         re(t, x) = 0;
    }
 
 /*!
@@ -223,33 +232,6 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl
       ss(set) = bcjr<real,dbl>::getstart();
       se(set) = bcjr<real,dbl>::getend();
       }
-   }
-
-template <class real, class dbl>
-void turbo<real,dbl>::hard_decision(const matrix<dbl>& ri, vector<int>& decoded)
-   {
-   // Decide which input sequence was most probable.
-   for(int t=0; t<tau; t++)
-      {
-      decoded(t) = 0;
-      for(int i=1; i<num_inputs(); i++)
-         if(ri(t, i) > ri(t, decoded(t)))
-            decoded(t) = i;
-      }
-#if DEBUG >= 2
-   static int iter=0;
-   const int ones = decoded.sum();
-   trace << "DEBUG (turbo): iter=" << iter \
-      << ", decoded ones = " << ones << "/" << tau \
-      << ", ri(mean) = " << ri.mean() \
-      << ", rp(mean) = " << rp.mean() << '\n';
-   if(fabs(ones/double(tau) - 0.5) > 0.05)
-      {
-      trace << "DEBUG (turbo): decoded = " << decoded << '\n';
-      trace << "DEBUG (turbo): ri = " << ri << '\n';
-      }
-   iter++;
-#endif
    }
 
 /*! \brief Perform a complete serial-decoding cycle
@@ -452,8 +434,6 @@ void turbo<real,dbl>::translate(const matrix<double>& ptable)
 template <class real, class dbl>
 void turbo<real,dbl>::decode(vector<int>& decoded)
    {
-   // Initialise result vector
-   decoded.init(tau);
 
    // initialise memory if necessary
    if(!initialised)

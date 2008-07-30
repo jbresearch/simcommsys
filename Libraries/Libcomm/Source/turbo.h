@@ -93,9 +93,8 @@ private:
    //! Memory allocator (for internal use only)
    void allocate();
    // wrapping functions
-   void work_extrinsic(const libbase::matrix<dbl>& ra, const libbase::matrix<dbl>& ri, const libbase::matrix<dbl>& r, libbase::matrix<dbl>& re);
+   static void work_extrinsic(const libbase::matrix<dbl>& ra, const libbase::matrix<dbl>& ri, const libbase::matrix<dbl>& r, libbase::matrix<dbl>& re);
    void bcjr_wrap(const int set, const libbase::matrix<dbl>& ra, libbase::matrix<dbl>& ri, libbase::matrix<dbl>& re);
-   void hard_decision(const libbase::matrix<dbl>& ri, libbase::vector<int>& decoded);
    void decode_serial(libbase::matrix<dbl>& ri);
    void decode_parallel(libbase::matrix<dbl>& ri);
    // @}
