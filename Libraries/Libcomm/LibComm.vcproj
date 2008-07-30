@@ -379,6 +379,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\codec_softout.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\commsys.cpp"
 				>
 				<FileConfiguration
@@ -1321,6 +1325,10 @@
 			</File>
 			<File
 				RelativePath="Source\codec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\codec_softout.h"
 				>
 			</File>
 			<File
