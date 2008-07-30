@@ -66,6 +66,7 @@ export CC := gcc
 export LD := gcc
 export LIB := ar
 export RAN := ranlib
+export DOXYGEN := doxygen
 
 # Still to define down here - BUILDDIR, CCflags ##
 
@@ -94,6 +95,9 @@ install-release:
 
 install-debug:
 	@$(MAKE) RELEASE=Debug DOTARGET=install $(TARGETS)
+
+doc:
+	@$(DOXYGEN)
 
 clean:
 
