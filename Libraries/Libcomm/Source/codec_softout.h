@@ -16,9 +16,11 @@ namespace libcomm {
    - $Author$
 */
 
+template <class dbl>
 class codec_softout : public codec {
 public:
    /*! \name Codec operations */
+   void decode(libbase::vector<int>& decoded);
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -26,7 +28,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::matrix<double>& ri) = 0;
+   virtual void decode(libbase::matrix<dbl>& ri) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -35,7 +37,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::matrix<double>& ri, libbase::matrix<double>& ro) = 0;
+   virtual void decode(libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro) = 0;
    // @}
 
    /*! \name Codec helper functions */
@@ -47,30 +49,9 @@ public:
 
       Decide which input sequence was most probable.
    */
-   template <class dbl>
    static void hard_decision(const libbase::matrix<dbl>& ri, libbase::vector<int>& decoded);
    // @}
 };
-
-// Templated functions
-
-template <class dbl>
-void codec_softout::hard_decision(const libbase::matrix<dbl>& ri, libbase::vector<int>& decoded)
-   {
-   // Determine sizes from input matrix
-   const int tau = ri.xsize();
-   const int K = ri.ysize();
-   // Initialise result vector
-   decoded.init(tau);
-   // Determine most likely symbol at every timestep   
-   for(int t=0; t<tau; t++)
-      {
-      decoded(t) = 0;
-      for(int i=1; i<K; i++)
-         if(ri(t, i) > ri(t, decoded(t)))
-            decoded(t) = i;
-      }
-   }
 
 }; // end namespace
 

@@ -122,7 +122,7 @@ void diffturbo<real>::decode(vector<int>& decoded)
    decoded3.init(tau,K);
    decoded.init(tau);
    // First we decode using the standard turbo decoder
-   turbo<real>::decode(decoded);
+   this->decode(decoded);
    // Then we compute the normalised statistics
    for(i=0; i<tau; i++)
       {

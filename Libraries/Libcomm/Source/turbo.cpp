@@ -242,6 +242,11 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl
 template <class real, class dbl>
 void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
    {
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+   // initialise results matrix
+   ri.init(tau, num_inputs());
    // after working all sets, ri is the intrinsic+extrinsic information
    // from the last stage decoder.
    for(int set=0; set<num_sets(); set++)
@@ -267,6 +272,11 @@ void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
 template <class real, class dbl>
 void turbo<real,dbl>::decode_parallel(matrix<dbl>& ri)
    {
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+   // initialise results matrix
+   ri.init(tau, num_inputs());
    // here ri is only a temporary space
    // and ra(set) is updated with the extrinsic information for that set
    for(int set=0; set<num_sets(); set++)
@@ -432,30 +442,17 @@ void turbo<real,dbl>::translate(const matrix<double>& ptable)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(vector<int>& decoded)
+void turbo<real,dbl>::decode(matrix<dbl>& ri)
    {
-
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
-
    // do one iteration, in serial or parallel as required
    if(parallel)
       decode_parallel(ri);
    else
       decode_serial(ri);
-
-   // Decide which input sequence was most probable, based on BCJR stats.
-   hard_decision(ri, decoded);
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(matrix<double>& ri)
-   {
-   }
-
-template <class real, class dbl>
-void turbo<real,dbl>::decode(matrix<double>& ri, matrix<double>& ro)
+void turbo<real,dbl>::decode(matrix<dbl>& ri, matrix<dbl>& ro)
    {
    }
 
@@ -465,7 +462,7 @@ template <class real, class dbl>
 std::string turbo<real,dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Turbo Code (" << output_bits() << "," << input_bits() << ") - ";
+   sout << "Turbo Code (" << this->output_bits() << "," << this->input_bits() << ") - ";
    sout << encoder->description() << ", ";
    for(int i=0; i<inter.size(); i++)
       sout << inter(i)->description() << ", ";

@@ -64,7 +64,7 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class turbo : public codec_softout, private bcjr<real,dbl> {
+class turbo : public codec_softout<dbl>, private bcjr<real,dbl> {
 private:
    /*! \name User-defined parameters */
    //!< Set of interleavers, one per parity sequence (including first set)
@@ -124,9 +124,8 @@ public:
    void seedfrom(libbase::random& r);
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
-   void decode(libbase::vector<int>& decoded);
-   void decode(libbase::matrix<double>& ri);
-   void decode(libbase::matrix<double>& ri, libbase::matrix<double>& ro);
+   void decode(libbase::matrix<dbl>& ri);
+   void decode(libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro);
 
    // Codec information functions - fundamental
    int block_size() const { return tau; };
