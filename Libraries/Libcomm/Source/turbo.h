@@ -4,7 +4,7 @@
 #include "config.h"
 #include "serializer.h"
 
-#include "codec.h"
+#include "codec_softout.h"
 #include "fsm.h"
 #include "interleaver.h"
 #include "bcjr.h"
@@ -46,91 +46,29 @@ namespace libcomm {
          furthermore, this range increases with the number of iterations
          performed.
 
-   \version 1.10 (4 Mar 1999)
-   updated intialisation of a priori statistics (now they are 1/K instead of 1).
-
-   \version 1.40 (20 Apr 1999)
-   removed the reinitialisation of data probabilities in the tail section for non-simile
-   interleavers. The data is always valid input, whether the tails are the same or not.
-
-   \version 1.81 (6 Jun 2000)
-   reinstated the a posteriori statistics as part of the class rather than the decode
-   function. This simplifies the construction of derived classes that make use of this
-   information.
-
-   \version 1.83 (3 Nov 2001)
-   modified parallel decoder to solve a bug that was crashing the simulator when working
-   with parallel codes using more than 2 parallel decoders (ie more than 1 interleaver).
-   For stability, when working the new set of a priori information for the next stage, we
-   now divide the sum of extrinsic information from all other decoders by the number of
-   elements making it up (that is, in practice we work the average not the sum). This seems
-   to be working fine now from preliminary simulations.
-
-   \version 1.90 (15 Nov 2001)
-   modified the way that extrinsic information is worked for interleaved codes, in that
-   the order of de-int/int and working extrinsic information is returned to what it was
-   before Version 1.80 - this should solve the divergence problem I am having with JPL
-   termination interleavers. Note that the way this has been reimplemented favors speed
-   over memory use (ie I am keeping all interleaved versions of the intrinsic source
-   information). I could keep only that for the non-interleaved source vector and re-
-   create the others every time.
-
-   \version 2.40 (11 Jul 2006)
-   added support for circular encoding/decoding. For now, the flag to indicate circular
-   encoding/decoding has been added after the one indicating parallel decoding, and has
-   also been defined as an optional flag. Eventually, the flag setting for this class
-   needs to be improved. Also, note that earlier serialized files need to be updated to
-   include the "circular" variable. In fact, it would be good if the serialization concept
-   was improved to cater for versioning.
-
-   \version 2.43 (25 Jul 2006)
-   fixed a (serious) bug in 'encode', where the tail bits are only fixed for the first
-   (non-interleaved) sequence; this was introduced in the last few days when the encoding
-   process was streamlined to use the same lines of code for the non-interleaved and
-   the interleaved data (introduced with circular coding). This should explain the approx
-   10% decrease in error-correcting performance for the SPECturbo code.
-
-   \version 2.45 (28 Jul - 1 Aug 2006)
-   simulations show that parallel-decoding works well with the 1/4-rate, 3-code, K=3
-   (111/101), N=4096 code from divs95b; however, when simulating larger codes (N=8192)
-   the system seems to go unstable after a few iterations. Also significantly, similar
-   codes with lower rates (1/6 and 1/8) perform _worse_ as the rate decreases. This
-   version attempts to fix the problem by removing the extrinsic information scaling
-   method.
-
-   \version 2.46 (2 Aug 2006)
-   following the addition of normalization within the BCJR alpha and beta metric
-   computation routines, a similar approach is adopted here by normalizing:
-   - the channel-derived (intrinsic) probabilities 'r' and 'R' in translate
-    [note: in this function the a-priori probabilities are now created normalized]
-   - the extrinsic probabilities in decode_serial and decode_parallel
-
-   \version 2.70 (16 Apr 2008)
-   - added interleaver before the first encoder
-   - added version-control for serialization; for compatibility, earlier versions
-     are interpreted as v.0; a flat interleaver is automatically used for the
-     first encoder in these cases.
+   \note Serialization is versioned; for compatibility, earlier versions are
+         interpreted as v.0; a flat interleaver is automatically used for the
+         first encoder in these cases.
    
-   \version 2.72 (18 Apr 2008)
-   - Hid the few trace printouts so they only get compiled-in on debug runs
-     (avoids evaluating what would have been printed, in some cases this would
-     have involved various array/matrix computations)
+   \note Debug output is only enabled if pre-processor define DEBUG is set at
+         a value of 2 or above.
 
-   \todo
-   - Remove tau from user parameters, as this can be derived from interleavers
-     (requires a change to interleaver interface)
-   - Fix terminated sequence encoding (implicitly assume a flat first interleaver)
-   - Move temporary matrix in translate() to a class member (consider if this
-     will actually constitute a speedup)
-   - Standardize encoding/decoding of multiple symbols within a larger symbol
-     space; this parallels what was done in ccfsm.
+   \todo Remove tau from user parameters, as this can be derived from
+         interleavers (requires a change to interleaver interface)
+
+   \todo Fix terminated sequence encoding (implicitly assume a flat first
+         interleaver)
+
+   \todo Standardize encoding/decoding of multiple symbols within a larger
+         symbol space; this parallels what was done in ccfsm.
 */
 
 template <class real, class dbl=double>
-class turbo : public codec, private bcjr<real,dbl> {
+class turbo : public codec_softout, private bcjr<real,dbl> {
 private:
    /*! \name User-defined parameters */
-   libbase::vector<interleaver *> inter;     //!< Set of interleavers, one per parity sequence
+   //!< Set of interleavers, one per parity sequence (including first set)
+   libbase::vector<interleaver *> inter;
    fsm      *encoder;      //!< Encoder object (same for all parity sequences)
    int      tau;           //!< Length of interleavers (information sequence + tail)
    int      iter;          //!< Number of iterations to perform
@@ -188,6 +126,8 @@ public:
    void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
+   void decode(libbase::matrix<double>& ri);
+   void decode(libbase::matrix<double>& ri, libbase::matrix<double>& ro);
 
    // Codec information functions - fundamental
    int block_size() const { return tau; };

@@ -252,6 +252,11 @@ void turbo<real,dbl>::hard_decision(const matrix<dbl>& ri, vector<int>& decoded)
 #endif
    }
 
+/*! \brief Perform a complete serial-decoding cycle
+
+   \note The BCJR normalization method is used to normalize the extrinsic
+         probabilities.
+*/
 template <class real, class dbl>
 void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
    {
@@ -265,6 +270,18 @@ void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
    bcjr<real,dbl>::normalize(ri);
    }
 
+/*! \brief Perform a complete parallel-decoding cycle
+
+   \note The BCJR normalization method is used to normalize the extrinsic
+         probabilities.
+
+   \warning Simulations show that parallel-decoding works well with the
+            1/4-rate, 3-code, K=3 (111/101), N=4096 code from divs95b;
+            however, when simulating larger codes (N=8192) the system seems
+            to go unstable after a few iterations. Also significantly, similar
+            codes with lower rates (1/6 and 1/8) perform _worse_ as the rate
+            decreases.
+*/
 template <class real, class dbl>
 void turbo<real,dbl>::decode_parallel(matrix<dbl>& ri)
    {
@@ -358,6 +375,15 @@ void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)
       }
    }
 
+/*! \copydoc codec::translate()
+
+   \note The BCJR normalization method is used to normalize the channel-derived
+         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+         probabilities are now created normalized.
+
+   \todo Move temporary matrix to a class member (consider if this will
+         actually constitute a speedup)
+*/
 template <class real, class dbl>
 void turbo<real,dbl>::translate(const matrix<double>& ptable)
    {
@@ -441,6 +467,16 @@ void turbo<real,dbl>::decode(vector<int>& decoded)
 
    // Decide which input sequence was most probable, based on BCJR stats.
    hard_decision(ri, decoded);
+   }
+
+template <class real, class dbl>
+void turbo<real,dbl>::decode(matrix<double>& ri)
+   {
+   }
+
+template <class real, class dbl>
+void turbo<real,dbl>::decode(matrix<double>& ri, matrix<double>& ro)
+   {
    }
 
 // description output
