@@ -63,12 +63,13 @@ public:
    */
    virtual void translate(const libbase::matrix<double>& ptable) = 0;
    /*!
-      \brief Encoding process
+      \brief Decoding process
       \param[out] decoded Most likely sequence of information symbols, one per timestep
 
       \note Observe that this output necessarily constitutes a hard decision.
-            Also, each call to decode will perform a single iteration (with
-            respect to num_iter).
+      
+      \note Each call to decode will perform a single iteration (with respect
+            to num_iter).
    */
    virtual void decode(libbase::vector<int>& decoded) = 0;
    // @}
