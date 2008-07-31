@@ -14,12 +14,6 @@
 
 namespace libcomm {
 
-using std::cerr;
-using libbase::trace;
-using libbase::vector;
-using libbase::matrix;
-using libbase::matrix3;
-
 // initialization / de-allocation
 
 template <class real, class dbl>
@@ -81,7 +75,7 @@ turbo<real,dbl>::turbo()
 
 template <class real, class dbl>
 turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
-   const vector<interleaver *>& inter, const int iter, \
+   const libbase::vector<interleaver *>& inter, const int iter, \
    const bool endatzero, const bool parallel, const bool circular)
    {
    turbo::encoder = encoder.clone();
@@ -172,7 +166,7 @@ void turbo<real,dbl>::allocate()
             need to be read.
 */
 template <class real, class dbl>
-void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& ri, const matrix<dbl>& r, matrix<dbl>& re)
+void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re)
    {
    // Determine sizes from input matrix
    const int tau = ri.xsize();
@@ -185,6 +179,54 @@ void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& r
    for(int t=0; t<tau; t++)
       for(int x=0; x<K; x++)
          re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
+   }
+
+/*!
+   \brief Preparation for BCJR decoding
+   \param[in]  set Parity sequence being decoded
+   \param[in]  ra  A-priori (extrinsic) probabilities of input values
+   \param[out] rai Interleaved version of a-priori probabilities 
+
+   This method does the preparatory work required before BCJR decoding,
+   including start/end state probability setting for circular decoding, and
+   pre-interleaving of a-priori probabilities.
+
+   \note When using a circular trellis, the start- and end-state probabilities
+         are re-initialize with the stored values from the previous turn.
+*/
+template <class real, class dbl>
+void turbo<real,dbl>::bcjr_pre(const int set, const array2d_t& ra, array2d_t& rai)
+   {
+   if(circular)
+      {
+      bcjr<real,dbl>::setstart(ss(set));
+      bcjr<real,dbl>::setend(se(set));
+      }
+   inter(set)->transform(ra, rai);
+   }
+
+/*!
+   \brief Post-processing for BCJR decoding
+   \param[in]  set Parity sequence being decoded
+   \param[in]  rii Interleaved version of a-posteriori probabilities 
+   \param[out] ri  A-posteriori probabilities of input values
+
+   This method does the post-processing work required after BCJR decoding,
+   including start/end state probability storing for circular decoding, and
+   de-interleaving of a-posteriori probabilities.
+
+   \note When using a circular trellis, the start- and end-state probabilities
+         are stored for the next turn.
+*/
+template <class real, class dbl>
+void turbo<real,dbl>::bcjr_post(const int set, const array2d_t& rii, array2d_t& ri)
+   {
+   inter(set)->inverse(rii, ri);
+   if(circular)
+      {
+      ss(set) = bcjr<real,dbl>::getstart();
+      se(set) = bcjr<real,dbl>::getend();
+      }
    }
 
 /*!
@@ -203,35 +245,12 @@ void turbo<real,dbl>::work_extrinsic(const matrix<dbl>& ra, const matrix<dbl>& r
             need to be read.
 */
 template <class real, class dbl>
-void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl>& ri, matrix<dbl>& re)
+void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re)
    {
-#if DEBUG >= 2
-   trace << "DEBUG (turbo): bcjr_wrap - set=" << set << ", ra=" << &ra << ", ri=" << &ri << ", re=" << &re;
-   trace << ", ra(mean) = " << ra.mean();
-#endif
-   // when using a circular trellis, re-initialize the start- and end-state
-   // probabilities with the stored values from the previous turn
-   if(circular)
-      {
-      bcjr<real,dbl>::setstart(ss(set));
-      bcjr<real,dbl>::setend(se(set));
-      }
-   // pass through BCJR algorithm
-   // perform interleaving and de-interleaving
-   inter(set)->transform(ra, rai);
+   bcjr_pre(set, ra, rai);
    bcjr<real,dbl>::fdecode(R(set), rai, rii);
-   inter(set)->inverse(rii, ri);
+   bcjr_post(set, rii, ri);
    work_extrinsic(ra, ri, rp, re);
-#if DEBUG >= 2
-   trace << ", ri(mean) = " << ri.mean() << ", re(mean) = " << re.mean() << ".\n";
-#endif
-   // when using a circular trellis, store the start- and end-state
-   // probabilities for the previous turn
-   if(circular)
-      {
-      ss(set) = bcjr<real,dbl>::getstart();
-      se(set) = bcjr<real,dbl>::getend();
-      }
    }
 
 /*! \brief Perform a complete serial-decoding cycle
@@ -240,7 +259,7 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const matrix<dbl>& ra, matrix<dbl
          probabilities.
 */
 template <class real, class dbl>
-void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
+void turbo<real,dbl>::decode_serial(array2d_t& ri)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -270,7 +289,7 @@ void turbo<real,dbl>::decode_serial(matrix<dbl>& ri)
             decreases.
 */
 template <class real, class dbl>
-void turbo<real,dbl>::decode_parallel(matrix<dbl>& ri)
+void turbo<real,dbl>::decode_parallel(array2d_t& ri)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -308,15 +327,15 @@ void turbo<real,dbl>::seedfrom(libbase::random& r)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)
+void turbo<real,dbl>::encode(array1i_t& source, array1i_t& encoded)
    {
    // Initialise result vector
    encoded.init(tau);
 
    // Allocate space for the encoder outputs
-   matrix<int> x(num_sets(), tau);
+   libbase::matrix<int> x(num_sets(), tau);
    // Allocate space for the interleaved sources
-   vector<int> source2(tau);
+   array1i_t source2(tau);
 
    // Consider sets in order
    for(int set=0; set<num_sets(); set++)
@@ -377,7 +396,7 @@ void turbo<real,dbl>::encode(vector<int>& source, vector<int>& encoded)
          actually constitute a speedup)
 */
 template <class real, class dbl>
-void turbo<real,dbl>::translate(const matrix<double>& ptable)
+void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
    {
    // Compute factors / sizes & check validity
    const int S = ptable.ysize();
@@ -396,7 +415,7 @@ void turbo<real,dbl>::translate(const matrix<double>& ptable)
       allocate();
 
    // Allocate space for temporary matrices
-   matrix3<dbl> p(num_sets(), tau, enc_parity());
+   libbase::matrix3<dbl> p(num_sets(), tau, enc_parity());
 
    // Get the necessary data from the channel
    for(int t=0; t<tau; t++)
@@ -427,7 +446,7 @@ void turbo<real,dbl>::translate(const matrix<double>& ptable)
    bcjr<real,dbl>::normalize(rp);
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
-   matrix<dbl> rpi(rp);
+   array2d_t rpi(rp);
    for(int set=0; set<num_sets(); set++)
       {
       inter(set)->transform(rp, rpi);
@@ -442,7 +461,7 @@ void turbo<real,dbl>::translate(const matrix<double>& ptable)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(matrix<dbl>& ri)
+void turbo<real,dbl>::decode(array2d_t& ri)
    {
    // do one iteration, in serial or parallel as required
    if(parallel)
@@ -452,7 +471,7 @@ void turbo<real,dbl>::decode(matrix<dbl>& ri)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(matrix<dbl>& ri, matrix<dbl>& ro)
+void turbo<real,dbl>::decode(array2d_t& ri, array2d_t& ro)
    {
    }
 

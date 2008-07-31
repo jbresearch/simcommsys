@@ -51,7 +51,10 @@ namespace libcomm {
          first encoder in these cases.
    
    \note Debug output is only enabled if pre-processor define DEBUG is set at
-         a value of 2 or above.
+         a value of 2 or above. Most of this will likely be removed as they
+         only serve a specific purpose in debugging parallel decoding, which
+         is still incomplete.
+
 
    \todo Remove tau from user parameters, as this can be derived from
          interleavers (requires a change to interleaver interface)
@@ -66,6 +69,12 @@ namespace libcomm {
 template <class real, class dbl=double>
 class turbo : public codec_softout<dbl>, private bcjr<real,dbl> {
 private:
+   /*! \name Internally-used types */
+   typedef libbase::vector<int>     array1i_t;
+   typedef libbase::vector<dbl>     array1d_t;
+   typedef libbase::matrix<dbl>     array2d_t;
+   // @}
+private:
    /*! \name User-defined parameters */
    //!< Set of interleavers, one per parity sequence (including first set)
    libbase::vector<interleaver *> inter;
@@ -73,30 +82,32 @@ private:
    int      tau;           //!< Length of interleavers (information sequence + tail)
    int      iter;          //!< Number of iterations to perform
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
-   bool     parallel;      //!< Flag to enable parallel decoding algorithm (rather than serial)
+   bool     parallel;      //!< Flag to enable parallel decoding (rather than serial)
    bool     circular;      //!< Flag to indicate trellis tailbiting
    // @}
    /*! \name Internal object representation */
-   bool initialised;       //!< Initially false, becomes true when memory is initialised
-   libbase::matrix<dbl> rp;   //!< A priori intrinsic source statistics (natural)
-   libbase::matrix<dbl> ri;   //!< A posteriori source statistics (natural)
-   libbase::vector< libbase::matrix<dbl> > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
-   libbase::vector< libbase::matrix<dbl> > ra;  //!< A priori extrinsic source statistics
-   libbase::vector< libbase::vector<dbl> > ss;  //!< Holder for start-state probabilities (used with circular trellises)
-   libbase::vector< libbase::vector<dbl> > se;  //!< Holder for end-state probabilities (used with circular trellises)
+   bool     initialised;   //!< Flag to indicate when memory is initialised
+   array2d_t rp;           //!< A priori intrinsic source statistics (natural)
+   array2d_t ri;           //!< A posteriori source statistics (natural)
+   libbase::vector< array2d_t > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
+   libbase::vector< array2d_t > ra;  //!< A priori extrinsic source statistics
+   libbase::vector< array1d_t > ss;  //!< Holder for start-state probabilities (used with circular trellises)
+   libbase::vector< array1d_t > se;  //!< Holder for end-state probabilities (used with circular trellises)
    // @}
    /*! \name Temporary variables */
-   libbase::matrix<dbl> rai;  //!< Temporary statistics (interleaved version of ra)
-   libbase::matrix<dbl> rii;  //!< Temporary statistics (interleaved version of ri)
+   array2d_t rai;          //!< Interleaved version of ra (temporary)
+   array2d_t rii;          //!< Interleaved version of ri (temporary)
    // @}
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();
    // wrapping functions
-   static void work_extrinsic(const libbase::matrix<dbl>& ra, const libbase::matrix<dbl>& ri, const libbase::matrix<dbl>& r, libbase::matrix<dbl>& re);
-   void bcjr_wrap(const int set, const libbase::matrix<dbl>& ra, libbase::matrix<dbl>& ri, libbase::matrix<dbl>& re);
-   void decode_serial(libbase::matrix<dbl>& ri);
-   void decode_parallel(libbase::matrix<dbl>& ri);
+   static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
+   void bcjr_pre(const int set, const array2d_t& ra, array2d_t& rai);
+   void bcjr_post(const int set, const array2d_t& rii, array2d_t& ri);
+   void bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re);
+   void decode_serial(array2d_t& ri);
+   void decode_parallel(array2d_t& ri);
    // @}
 protected:
    /*! \name Internal functions */
@@ -122,10 +133,10 @@ public:
 
    // Codec operations
    void seedfrom(libbase::random& r);
-   void encode(libbase::vector<int>& source, libbase::vector<int>& encoded);
+   void encode(array1i_t& source, array1i_t& encoded);
    void translate(const libbase::matrix<double>& ptable);
-   void decode(libbase::matrix<dbl>& ri);
-   void decode(libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro);
+   void decode(array2d_t& ri);
+   void decode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
    int block_size() const { return tau; };
