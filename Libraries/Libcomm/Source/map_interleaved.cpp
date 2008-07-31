@@ -19,35 +19,35 @@ const libbase::serializer map_interleaved::shelper("mapper", "map_interleaved", 
 
 // Vector map_interleaved operations
 
-void map_interleaved::transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx)
+void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<int>& out)
    {
    // do the base (straight) mapping into a temporary space
    libbase::vector<int> s;
-   map_straight::transform(N, encoded, M, s);
+   map_straight::transform(in, s);
    // final vector is the same size as straight-mapped one
-   tx.init(s);
+   out.init(s);
    // create array to hold permuted positions
-   lut.init(tx);
+   lut.init(out);
    lut = -1;
    // create the permutation vector
-   for(int i=0; i<tx.size(); i++)
+   for(int i=0; i<out.size(); i++)
       {
       int j;
       do {
-         j = r.ival(tx.size());
+         j = r.ival(out.size());
          } while(lut(j)>=0);
       lut(j) = i;
       }
    // shuffle the results
-   for(int i=0; i<tx.size(); i++)
-      tx(i) = s(lut(i));
+   for(int i=0; i<out.size(); i++)
+      out(i) = s(lut(i));
    }
 
-void map_interleaved::inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout)
+void map_interleaved::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout)
    {
    // do the base (straight) mapping into a temporary space
    libbase::matrix<double> ptable;
-   map_straight::inverse(pin, N, ptable);
+   map_straight::inverse(pin, ptable);
    // final matrix is the same size as straight-mapped one
    pout.init(ptable);
    // invert the shuffling

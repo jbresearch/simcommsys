@@ -42,12 +42,15 @@ void basic_commsys<S,R>::init()
    {
    tau = cdc->block_size();
    m = cdc->tail_length();
+   M = modem->num_symbols();
    N = cdc->num_outputs();
    K = cdc->num_inputs();
    k = int(round(log2(double(K))));
    // confirm that source is representable in binary
    assertalways(K == 1<<k);
    iter = cdc->num_iter();
+   // set up mapper with required parameters
+   map->set_parameters(N, M, cdc->num_symbols());
    }
 
 /*!
@@ -310,18 +313,17 @@ template class basic_commsys<bool,commsys_hist_symerr>;
 template <class S, class R>
 void commsys<S,R>::transmitandreceive(libbase::vector<int>& source)
    {
-   const int M = this->modem->num_symbols();
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
    libbase::vector<int> transmitted;
-   this->map->transform(this->N, encoded, M, transmitted);
+   this->map->transform(encoded, transmitted);
    libbase::vector<S> signal;
-   this->modem->modulate(M, transmitted, signal);
+   this->modem->modulate(this->M, transmitted, signal);
    this->chan->transmit(signal, signal);
    libbase::matrix<double> pin;
    this->modem->demodulate(*this->chan, signal, pin);
    libbase::matrix<double> pout;
-   this->map->inverse(pin, this->cdc->output_alphabet(), pout);
+   this->map->inverse(pin, pout);
    this->cdc->translate(pout);
    }
 
@@ -451,13 +453,12 @@ void commsys<sigspace,R>::free()
 template <class R>
 void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
    {
-   const int M = this->modem->num_symbols();
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
    libbase::vector<int> transmitted;
-   this->map->transform(this->N, encoded, M, transmitted);
+   this->map->transform(encoded, transmitted);
    libbase::vector<sigspace> signal1;
-   this->modem->modulate(M, transmitted, signal1);
+   this->modem->modulate(this->M, transmitted, signal1);
    libbase::matrix<double> pin;
    if(punc != NULL)
       {
@@ -474,7 +475,7 @@ void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
       this->modem->demodulate(*this->chan, signal1, pin);
       }
    libbase::matrix<double> pout;
-   this->map->inverse(pin, this->cdc->output_alphabet(), pout);
+   this->map->inverse(pin, pout);
    this->cdc->translate(pout);
    }
 

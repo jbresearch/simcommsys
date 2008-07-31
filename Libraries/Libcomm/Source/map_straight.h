@@ -14,15 +14,29 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (28 Apr 2008)
-   - Moved straight symbol mapper from base class.
+   This class defines a straight symbol mapper with:
+   * forward transform from modulator
+   * inverse transform from the various codecs.
 */
 
 class map_straight : public mapper {
+private:
+   /*! \name User-defined parameters */
+   int N;   //!< Number of possible values of each encoder output
+   int M;   //!< Number of possible values of each modulation symbol
+   int S;   //!< Number of possible values of each translation symbol
+   // @}
+   /*! \name Internal object representation */
+   int s1;  //!< Number of modulation symbols per encoder output
+   int s2;  //!< Number of modulation symbols per translation symbol
+   // @}
 public:
-   // Vector map_straight operations
-   void transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx);
-   void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout);
+   // Vector mapper operations
+   void transform(const libbase::vector<int>& in, libbase::vector<int>& out);
+   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout);
+
+   // Setup functions
+   void set_parameters(const int N, const int M, const int S);
 
    // Informative functions
    double rate() const { return 1; };

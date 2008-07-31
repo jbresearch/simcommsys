@@ -20,16 +20,26 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (21-28 Apr 2008)
-   - Defines interface for mapper classes.
-   - Defined a straight symbol mapper with:
-      * forward transform from modulator
-      * inverse transform from the various codecs.
-   - Integrated within commsys as a layer between codec and modulator.
-   - Moved straight mapper to a new class, making this one abstract.
+   This class defines the interface for mapper classes. It integrates within
+   commsys as a layer between codec and modulator.
 */
 
 class mapper {
+protected:
+   /*! \name Helper functions */
+   /*!
+      \brief Determines the number of input symbols per output symbol
+      \param[in]  input    Number of possible values of each input symbol
+      \param[in]  output   Number of possible values of each output symbol
+   */
+   static int get_rate(const int input, const int output)
+      {
+      const int s = int(round( log(double(output)) / log(double(input)) ));
+      assertalways(output == pow(input,s));
+      return s;
+      }
+   // @}
+
 public:
    /*! \name Constructors / Destructors */
    virtual ~mapper() {};
@@ -37,31 +47,33 @@ public:
 
    /*! \name Vector mapper operations */
    /*!
-      \brief Transform a sequence of encoder outputs to a channel-compatible alphabet
-      \param[in]  N        The number of possible values of each encoded element
-      \param[in]  encoded  Sequence of values to be modulated
-      \param[in]  M        The number of possible values of each transmitted element
-      \param[out] tx       Sequence of symbols corresponding to the given input
-
-      \todo Remove parameters N and M, replacing 'int' type for encoded vector with
-            something that also encodes the number of symbols in the alphabet
+      \brief Transform a sequence of encoder outputs to a channel-compatible
+             alphabet
+      \param[in]  in    Sequence of encoder output values to be modulated
+      \param[out] out   Sequence of modulation symbols
    */
-   virtual void transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx) = 0;
+   virtual void transform(const libbase::vector<int>& in, libbase::vector<int>& out) = 0;
    /*!
-      \brief Inverse-transform the received symbol probabilities to a decoder-comaptible set
-      \param[in]  pin      Table of likelihoods of possible modulation symbols
-      \param[in]  N        The number of possible values of each encoder element
-                           (this is what the encoder would like)
-      \param[out] pout     Table of likelihoods of possible encoder symbols
+      \brief Inverse-transform the received symbol probabilities to a decoder-
+             comaptible set
+      \param[in]  pin   Table of likelihoods of possible modulation symbols
+      \param[out] pout  Table of likelihoods of possible translation symbols
       
-      \note \c pxxx(i,d) \c is the a posteriori probability of symbol 'd' at time 'i'
+      \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
    */
-   virtual void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout) = 0;
+   virtual void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) = 0;
    // @}
 
    /*! \name Setup functions */
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) {};
+   /*!
+      \brief Sets input and output alphabet sizes
+      \param[in]  N  Number of possible values of each encoder output
+      \param[in]  M  Number of possible values of each modulation symbol
+      \param[in]  S  Number of possible values of each translation symbol
+   */
+   virtual void set_parameters(const int N, const int M, const int S) = 0;
    // @}
 
    /*! \name Informative functions */

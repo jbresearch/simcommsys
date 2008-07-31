@@ -15,17 +15,18 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (28 Apr 2008)
-   - Created an interleaved version of the straight mapper.
+   This class defines an interleaved version of the straight mapper.
 */
 
 class map_interleaved : public map_straight {
+   /*! \name Internal object representation */
    libbase::vector<int> lut;
    libbase::randgen r;
+   // @}
 public:
-   // Vector map_interleaved operations
-   void transform(const int N, const libbase::vector<int>& encoded, const int M, libbase::vector<int>& tx);
-   void inverse(const libbase::matrix<double>& pin, const int N, libbase::matrix<double>& pout);
+   // Vector mapper operations
+   void transform(const libbase::vector<int>& in, libbase::vector<int>& out);
+   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout);
 
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };

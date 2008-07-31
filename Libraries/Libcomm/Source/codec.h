@@ -81,8 +81,8 @@ public:
    virtual int num_inputs() const = 0;
    //! Number of valid output combinations
    virtual int num_outputs() const = 0;
-   //! Output symbol alphabet size (required by mapper)
-   virtual int output_alphabet() const { return num_outputs(); };
+   //! Channel symbol alphabet size required for translation
+   virtual int num_symbols() const { return num_outputs(); };
    //! Length of tail in timesteps
    virtual int tail_length() const = 0;
    //! Number of iterations per decoding cycle

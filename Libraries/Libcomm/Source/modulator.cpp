@@ -25,13 +25,9 @@ void direct_modulator<G>::modulate(const int N, const libbase::vector<int>& enco
    const int M = num_symbols();
    const int tau = encoded.size();
    const int s = int(round( log2(double(N)) / log2(double(M)) ));
-   if(N != pow(num_symbols(),s))
-      {
-      std::cerr << "FATAL ERROR (mapper): each encoder output (" << N << ") must be";
-      std::cerr << " represented by an integral number of modulation symbols (" << M << ").";
-      std::cerr << " Suggested number of mod. symbols/encoder output was " << s << ".\n";
-      exit(1);
-      }
+   // Each encoder output N must be representable by an integral number of
+   // modulation symbols M
+   assertalways(N == pow(num_symbols(),s));
    // Initialize results vector
    tx.init(tau*s);
    // Modulate encoded stream (least-significant first)
@@ -104,13 +100,8 @@ void direct_modulator<bool>::modulate(const int N, const libbase::vector<int>& e
    // Compute factors / sizes & check validity
    const int tau = encoded.size();
    const int s = int(round(log2(double(N))));
-   if(N != (1<<s))
-      {
-      std::cerr << "FATAL ERROR (mapper): each encoder output (" << N << ") must be";
-      std::cerr << " represented by an integral number of bits.";
-      std::cerr << " Suggested number of mod. symbols/encoder output was " << s << ".\n";
-      exit(1);
-      }
+   // Each encoder output N must be representable by an integral number of bits
+   assertalways(N == (1<<s));
    // Initialize results vector
    tx.init(tau*s);
    // Modulate encoded stream (least-significant first)

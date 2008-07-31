@@ -142,7 +142,7 @@ public:
    int block_size() const { return tau; };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
-   int output_alphabet() const { return libbase::gcd(num_inputs(),enc_parity()); };
+   int num_symbols() const { return libbase::gcd(num_inputs(),enc_parity()); };
    int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
 
