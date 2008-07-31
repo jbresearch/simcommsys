@@ -70,7 +70,11 @@
 
 // An assertion that is implemented even in release builds
 
-#define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::fail(#_Expression, __FILE__, __LINE__), 0) )
+#ifdef NDEBUG
+#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::fail(#_Expression, __FILE__, __LINE__), 0) )
+#else
+#  define assertalways(_Expression) assert(_Expression)
+#endif
 
 // Implemented log2, round, and sgn if these are not already available
 
