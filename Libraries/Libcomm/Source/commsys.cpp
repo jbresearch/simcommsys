@@ -315,6 +315,7 @@ void commsys<S,R>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
+   this->map->advance();
    libbase::vector<int> transmitted;
    this->map->transform(encoded, transmitted);
    libbase::vector<S> signal;
@@ -455,6 +456,7 @@ void commsys<sigspace,R>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
+   this->map->advance();
    libbase::vector<int> transmitted;
    this->map->transform(encoded, transmitted);
    libbase::vector<sigspace> signal1;

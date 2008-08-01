@@ -31,6 +31,7 @@ public:
 
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
+   void advance() { lut.init(M,r); };
 
    // Description
    std::string description() const;

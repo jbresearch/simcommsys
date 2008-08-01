@@ -26,6 +26,13 @@ namespace libcomm {
 
 class mapper {
 protected:
+   /*! \name User-defined parameters */
+   int N;   //!< Number of possible values of each encoder output
+   int M;   //!< Number of possible values of each modulation symbol
+   int S;   //!< Number of possible values of each translation symbol
+   // @}
+
+protected:
    /*! \name Helper functions */
    /*!
       \brief Determines the number of input symbols per output symbol
@@ -38,6 +45,10 @@ protected:
       assertalways(output == pow(input,s));
       return s;
       }
+   // @}
+   /*! \name Interface with derived classes */
+   //! Setup function, called from set_parameters
+   virtual void setup() = 0;
    // @}
 
 public:
@@ -67,13 +78,15 @@ public:
    /*! \name Setup functions */
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) {};
+   //! Sets up mapper for the next block, in time-variant systems
+   virtual void advance() {};
    /*!
       \brief Sets input and output alphabet sizes
       \param[in]  N  Number of possible values of each encoder output
       \param[in]  M  Number of possible values of each modulation symbol
       \param[in]  S  Number of possible values of each translation symbol
    */
-   virtual void set_parameters(const int N, const int M, const int S) = 0;
+   void set_parameters(const int N, const int M, const int S);
    // @}
 
    /*! \name Informative functions */

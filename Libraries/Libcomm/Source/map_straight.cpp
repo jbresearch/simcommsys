@@ -17,6 +17,19 @@ namespace libcomm {
 
 const libbase::serializer map_straight::shelper("mapper", "map_straight", map_straight::create);
 
+// Interface with derived classes
+
+/*! \copydoc mapper::setup()
+
+   \note Each encoder output must be represented by an integral number of
+         modulation symbols
+*/
+void map_straight::setup()
+   {
+   s1 = get_rate(M, N);
+   s2 = get_rate(M, S);
+   }
+
 // Vector mapper operations
 
 void map_straight::transform(const libbase::vector<int>& in, libbase::vector<int>& out)
@@ -47,22 +60,6 @@ void map_straight::inverse(const libbase::matrix<double>& pin, libbase::matrix<d
          for(int i=0, thisx = x; i<s2; i++, thisx /= M)
             pout(t, x) *= pin(t*s2+i, thisx % M);
          }
-   }
-
-// Setup functions
-
-/*! \copydoc mapper::set_parameters()
-
-   \note Each encoder output must be represented by an integral number of
-         modulation symbols
-*/
-void map_straight::set_parameters(const int N, const int M, const int S)
-   {
-   map_straight::N = N;
-   map_straight::M = M;
-   map_straight::S = S;
-   s1 = get_rate(M, N);
-   s2 = get_rate(M, S);
    }
 
 // Description

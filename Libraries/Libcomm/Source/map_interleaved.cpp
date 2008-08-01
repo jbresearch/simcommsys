@@ -26,8 +26,6 @@ void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<
    map_straight::transform(in, s);
    // final vector is the same size as straight-mapped one
    out.init(s);
-   // set up permutation to be used
-   lut.init(out.size(),r);
    // shuffle the results
    for(int i=0; i<out.size(); i++)
       out(i) = s(lut(i));
