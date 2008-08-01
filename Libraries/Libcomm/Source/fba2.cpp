@@ -93,8 +93,8 @@ void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dx
    fba2::xmax = xmax;
    fba2::dxmax = dxmax;
    // path truncation parameters
-   assert(th_inner >= 0);
-   assert(th_outer >= 0);
+   assert(th_inner >= 0 && th_inner <= 1);
+   assert(th_outer >= 0 && th_outer <= 1);
    fba2::th_inner = th_inner;
    fba2::th_outer = th_outer;
    }

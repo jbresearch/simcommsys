@@ -204,42 +204,23 @@ void dminner<real,normalize>::init()
    // Seed the watermark generator and clear the sequence
    r.seed(0);
    ws.init(0);
+   // Check that everything makes sense
+   test_invariant();
    }
 
 // constructor / destructor
 
 template <class real, bool normalize>
-dminner<real,normalize>::dminner(const int n, const int k)
+dminner<real,normalize>::dminner(const int n, const int k) :
+   n(n), k(k), user_lut(false), user_threshold(false)
    {
-   // code parameters
-   assert(k >= 1);
-   assert(n > k);
-   dminner::n = n;
-   dminner::k = k;
-   // default values
-   user_lut = false;
-   user_threshold = false;
-   // initialize everything else that depends on the above parameters
    init();
    }
 
 template <class real, bool normalize>
-dminner<real,normalize>::dminner(const int n, const int k, const double th_inner, const double th_outer)
+dminner<real,normalize>::dminner(const int n, const int k, const double th_inner, const double th_outer) :
+   n(n), k(k), user_lut(false), user_threshold(true), th_inner(th_inner), th_outer(th_outer)
    {
-   // code parameters
-   assert(k >= 1);
-   assert(n > k);
-   dminner::n = n;
-   dminner::k = k;
-   // cutoff thresholds
-   assert(th_inner <= 1);
-   assert(th_outer <= 1);
-   user_threshold = true;
-   dminner::th_inner = th_inner;
-   dminner::th_outer = th_outer;
-   // default values
-   user_lut = false;
-   // initialize everything else that depends on the above parameters
    init();
    }
 

@@ -78,6 +78,7 @@ private:
    // @}
 private:
    /*! \name Internal functions */
+   void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    void createsequence(const int tau);                      
    void checkforchanges(int I, int xmax) const;   
@@ -127,6 +128,17 @@ public:
    // Serialization Support
    DECLARE_SERIALIZER(dminner)
 };
+
+template <class real, bool normalize>
+inline void dminner<real,normalize>::test_invariant() const
+   {
+   // check code parameters
+   assert(k >= 1);
+   assert(n > k);
+   // check cutoff thresholds
+   assert(th_inner >= 0 && th_inner <= 1);
+   assert(th_outer >= 0 && th_outer <= 1);
+   }
 
 }; // end namespace
 

@@ -61,7 +61,7 @@ void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    fba::I = I;
    fba::xmax = xmax;
    // path truncation parameters
-   assert(th_inner >= 0);
+   assert(th_inner >= 0 && th_inner <= 1);
    fba::th_inner = th_inner;
    }
 
