@@ -2,6 +2,7 @@
 #define __map_interleaved_h
 
 #include "map_straight.h"
+#include "randperm.h"
 #include "randgen.h"
 
 namespace libcomm {
@@ -20,7 +21,7 @@ namespace libcomm {
 
 class map_interleaved : public map_straight {
    /*! \name Internal object representation */
-   libbase::vector<int> lut;
+   libbase::randperm lut;
    libbase::randgen r;
    // @}
 public:
