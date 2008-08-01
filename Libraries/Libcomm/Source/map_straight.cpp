@@ -32,7 +32,7 @@ void map_straight::setup()
 
 // Vector mapper operations
 
-void map_straight::transform(const libbase::vector<int>& in, libbase::vector<int>& out)
+void map_straight::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // Determine length of encoded sequence
    const int tau = in.size();
@@ -44,7 +44,7 @@ void map_straight::transform(const libbase::vector<int>& in, libbase::vector<int
          out(k) = x % M;
    }
 
-void map_straight::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout)
+void map_straight::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
    assertalways(pin.ysize() == M);
    // Determine required length of encoded sequence, and confirm validity

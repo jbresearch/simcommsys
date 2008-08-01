@@ -63,7 +63,7 @@ public:
       \param[in]  in    Sequence of encoder output values to be modulated
       \param[out] out   Sequence of modulation symbols
    */
-   virtual void transform(const libbase::vector<int>& in, libbase::vector<int>& out) = 0;
+   virtual void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
    /*!
       \brief Inverse-transform the received symbol probabilities to a decoder-
              comaptible set
@@ -72,7 +72,7 @@ public:
       
       \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
    */
-   virtual void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) = 0;
+   virtual void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const = 0;
    // @}
 
    /*! \name Setup functions */

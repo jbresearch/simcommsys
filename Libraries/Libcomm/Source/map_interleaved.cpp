@@ -19,7 +19,7 @@ const libbase::serializer map_interleaved::shelper("mapper", "map_interleaved", 
 
 // Vector map_interleaved operations
 
-void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<int>& out)
+void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // do the base (straight) mapping into a temporary space
    libbase::vector<int> s;
@@ -31,7 +31,7 @@ void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<
       out(i) = s(lut(i));
    }
 
-void map_interleaved::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout)
+void map_interleaved::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
    // do the base (straight) mapping into a temporary space
    libbase::matrix<double> ptable;

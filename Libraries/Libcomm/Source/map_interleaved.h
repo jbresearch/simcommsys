@@ -26,8 +26,8 @@ class map_interleaved : public map_straight {
    // @}
 public:
    // Vector mapper operations
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out);
-   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout);
+   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
