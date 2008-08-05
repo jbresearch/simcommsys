@@ -80,6 +80,7 @@
 #include "commsys_prof_pos.h"
 #include "commsys_prof_sym.h"
 #include "commsys_hist_symerr.h"
+#include "commsys_threshold.h"
 
 
 namespace libcomm {
@@ -122,6 +123,7 @@ private:
    commsys<bool,commsys_prof_pos>      _commsys_bool_prof_pos;
    commsys<bool,commsys_prof_sym>      _commsys_bool_prof_sym;
    commsys<bool,commsys_hist_symerr>   _commsys_bool_hist_symerr;
+   commsys_threshold<bool>             _commsys_threshold_bool;
 public:
    serializer_libcomm() {};
 };

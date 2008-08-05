@@ -423,6 +423,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_threshold.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\crypt.cpp"
 				>
 				<FileConfiguration
@@ -891,6 +895,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\parametric.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Source\plmod.cpp"
 				>
 				<FileConfiguration
@@ -1356,6 +1364,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_threshold.h"
+				>
+			</File>
+			<File
 				RelativePath="Source\crypt.h"
 				>
 			</File>
@@ -1485,6 +1497,10 @@
 			</File>
 			<File
 				RelativePath="Source\padded.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\parametric.h"
 				>
 			</File>
 			<File

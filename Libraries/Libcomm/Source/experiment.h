@@ -2,8 +2,9 @@
 #define __experiment_h
 
 #include "config.h"
-#include "vector.h"
+#include "parametric.h"
 #include "serializer.h"
+#include "vector.h"
 #include "random.h"
 
 #include <iostream>
@@ -21,7 +22,7 @@ namespace libcomm {
    - $Author$
 */
 
-class experiment {
+class experiment : public parametric {
 private:
    /*! \name Internal variables */
    libbase::int64u   samplecount;               //!< Number of samples accumulated
@@ -53,10 +54,6 @@ public:
    /*! \name Experiment parameter handling */
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) = 0;
-   //! Set the system parameter at which we want to simulate
-   virtual void set_parameter(double x) = 0;
-   //! Get the system parameter at which we are simulating
-   virtual double get_parameter() = 0;
    // @}
 
    /*! \name Experiment handling */

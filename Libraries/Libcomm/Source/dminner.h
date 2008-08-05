@@ -47,7 +47,7 @@ template <class real, bool normalize>
 class dminner2;
 
 template <class real, bool normalize>
-class dminner : public informed_modulator<bool>, private fba<real,bool,normalize> {
+class dminner : public informed_modulator<bool>, parametric, private fba<real,bool,normalize> {
    friend class dminner2<real,normalize>;
 private:
    /*! \name Internally-used types */
@@ -106,6 +106,8 @@ public:
 
    /*! \name Watermark-specific setup functions */
    void set_thresholds(const double th_inner, const double th_outer);
+   void set_parameter(const double x) { set_thresholds(x,x); };
+   double get_parameter() const { assert(th_inner==th_outer); return th_inner; };
    // @}
 
    /*! \name Watermark-specific informative functions */

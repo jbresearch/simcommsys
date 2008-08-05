@@ -80,8 +80,8 @@ public:
 
    // Experiment parameter handling
    void seedfrom(libbase::random& r);
-   void set_parameter(double x) { chan->set_parameter(x); };
-   double get_parameter() { return chan->get_parameter(); };
+   void set_parameter(const double x) { chan->set_parameter(x); };
+   double get_parameter() const { return chan->get_parameter(); };
 
    // Experiment handling
    void sample(libbase::vector<double>& result);
