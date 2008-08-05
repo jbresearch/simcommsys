@@ -168,17 +168,14 @@ void dminner<real,normalize>::normalize_results(const array2r_t& in, array2d_t& 
 template <class real, bool normalize>
 void dminner<real,normalize>::init()
    {
-   using libbase::bitfield;
-   using libbase::weight;
-   using libbase::trace;
    // Fill default LUT if necessary
    if(!user_lut)
       fill();
 #ifndef NDEBUG
    // Display LUT when debugging
-   trace << "LUT (k=" << k << ", n=" << n << "):\n";
+   libbase::trace << "LUT (k=" << k << ", n=" << n << "):\n";
    for(int i=0; i<lut.size(); i++)
-      trace << i << "\t" << bitfield(lut(i),n) << "\t" << weight(lut(i)) << "\n";
+      libbase::trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
 #endif
    // Validate LUT
    assertalways(lut.size() == num_symbols());
@@ -192,9 +189,9 @@ void dminner<real,normalize>::init()
       }
    // Compute the mean density
    array1i_t w = lut;
-   w.apply(weight);
+   w.apply(libbase::weight);
    f = w.sum()/double(n * w.size());
-   trace << "Watermark code density = " << f << "\n";
+   libbase::trace << "Watermark code density = " << f << "\n";
    // set default thresholds if necessary
    if(!user_threshold)
       {
