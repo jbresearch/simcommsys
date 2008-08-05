@@ -104,10 +104,16 @@ public:
    dminner(const int n, const int k, const double th_inner, const double th_outer);
    // @}
 
+   /*! \name Watermark-specific setup functions */
+   void set_thresholds(const double th_inner, const double th_outer);
+   // @}
+
    /*! \name Watermark-specific informative functions */
    int get_n() const { return n; };
    int get_k() const { return k; };
    int get_lut(int i) const { return lut(i); };
+   double get_th_inner() const { return th_inner; };
+   double get_th_outer() const { return th_outer; };
    // @}
 
    // Vector modem operations

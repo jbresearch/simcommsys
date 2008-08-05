@@ -221,6 +221,17 @@ dminner<real,normalize>::dminner(const int n, const int k, const double th_inner
    init();
    }
 
+// Watermark-specific setup functions
+
+template <class real, bool normalize>
+void dminner<real,normalize>::set_thresholds(const double th_inner, const double th_outer)
+   {
+   user_threshold = true;
+   dminner::th_inner = th_inner;
+   dminner::th_outer = th_outer;
+   test_invariant();
+   }
+
 // implementations of channel-specific metrics for fba
 
 template <class real, bool normalize>
