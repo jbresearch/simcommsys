@@ -47,7 +47,10 @@ template <class real, bool normalize>
 class dminner2;
 
 template <class real, bool normalize>
-class dminner : public informed_modulator<bool>, parametric, private fba<real,bool,normalize> {
+class dminner :
+   public informed_modulator<bool>,
+   public parametric,
+   private fba<real,bool,normalize> {
    friend class dminner2<real,normalize>;
 private:
    /*! \name Internally-used types */
