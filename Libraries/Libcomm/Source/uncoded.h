@@ -31,8 +31,6 @@ private:
 private:
    fsm   *encoder;
    int   tau;  //!< block length
-   int   K;    //!< number of input symbols
-   int   N;    //!< number of output symbols
    array1i_t lut;
    array2d_t R;
 protected:
@@ -53,8 +51,8 @@ public:
 
    // Codec information functions - fundamental
    int block_size() const { return tau; };
-   int num_inputs() const { return K; };
-   int num_outputs() const { return N; };
+   int num_inputs() const { return encoder->num_inputs(); };
+   int num_outputs() const { return encoder->num_outputs(); };
    int tail_length() const { return 0; };
    int num_iter() const { return 1; };
 

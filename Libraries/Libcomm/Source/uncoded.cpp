@@ -22,13 +22,6 @@ void uncoded::init()
    {
    // Check that FSM is memoryless
    assertalways(encoder->mem_order() == 0);
-   K = encoder->num_inputs();
-   N = encoder->num_outputs();
-
-   // since the encoder is memoryless, we can build an input/output table
-   lut.init(K);
-   for(int i=0; i<K; i++)
-      lut(i) = encoder->step(i);
    }
 
 void uncoded::free()
@@ -59,24 +52,24 @@ void uncoded::encode(array1i_t& source, array1i_t& encoded)
    encoded.init(tau);
    // Encode source stream
    for(int t=0; t<tau; t++)
-      encoded(t) = lut(source(t));
+      encoded(t) = encoder->step(source(t));
    }
 
 void uncoded::translate(const array2d_t& ptable)
    {
    // Compute factors / sizes & check validity
    const int S = ptable.ysize();
-   const int s = int(round(log(double(N))/log(double(S))));
+   const int s = int(round(log(double(num_outputs()))/log(double(S))));
    // Confirm that encoder's output symbols can be represented by
    // an integral number of modulation symbols
-   assertalways(N == pow(double(S), s));
+   assertalways(num_outputs() == pow(double(S), s));
    // Confirm input sequence to be of the correct length
    assertalways(ptable.xsize() == tau*s);
    // Initialize results vector
-   R.init(tau, K);
+   R.init(tau, num_inputs());
    // Work out the probabilities of each possible input
    for(int t=0; t<tau; t++)
-      for(int x=0; x<K; x++)
+      for(int x=0; x<num_inputs(); x++)
          {
          R(t, x) = 1;
          for(int i=0, thisx = lut(x); i<s; i++, thisx /= S)
