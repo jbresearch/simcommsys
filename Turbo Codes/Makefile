@@ -8,9 +8,9 @@ FINAL := $(SOURCES:Source/%.cpp=$(BINDIR)/%.$(WCTAG).$(RELEASE))
 
 # Master targets
 
-all:	$(TARGETS) $(BUILDDIR)
+all:	$(BUILDDIR) $(TARGETS)
 
-install: $(FINAL) $(BINDIR)
+install: $(BINDIR) $(FINAL)
 
 clean:
 	$(RM) $(BUILDDIR)
@@ -41,7 +41,6 @@ $(BUILDDIR)/%.o:	Source/%.cpp
 
 $(BUILDDIR)/%.d:	Source/%.cpp
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
-	@$(MKDIR) $(BUILDDIR)
 	@$(CC) $(CCflags) $(CCdepend) $< | gawk 'BEGIN { FS = "$*.o" } { if( NF > 1 ) { print $$1, "$(BUILDDIR)/$*.d $(BUILDDIR)/$*.o", $$2 } else { print $$0 } }' > $@
 
 include $(DEPEND)
