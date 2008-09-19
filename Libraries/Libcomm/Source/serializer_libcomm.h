@@ -113,16 +113,16 @@ private:
    dminner<libbase::logrealfast,false>       _dminner_logrealfast;
    dminner2<libbase::logrealfast,false>      _dminner2_logrealfast;
    // Experiments
-   commsys< libbase::gf<1,0x3> >       _commsys_gf1;
-   commsys< libbase::gf<2,0x7> >       _commsys_gf2;
-   commsys< libbase::gf<3,0xB> >       _commsys_gf3;
-   commsys< libbase::gf<4,0x13> >      _commsys_gf4;
-   commsys<sigspace>                   _commsys_sigspace;
-   commsys<bool>                       _commsys_bool;
-   commsys<bool,commsys_prof_burst>    _commsys_bool_prof_burst;
-   commsys<bool,commsys_prof_pos>      _commsys_bool_prof_pos;
-   commsys<bool,commsys_prof_sym>      _commsys_bool_prof_sym;
-   commsys<bool,commsys_hist_symerr>   _commsys_bool_hist_symerr;
+   commsys_simulator< libbase::gf<1,0x3> >       _commsys_simulator_gf1;
+   commsys_simulator< libbase::gf<2,0x7> >       _commsys_simulator_gf2;
+   commsys_simulator< libbase::gf<3,0xB> >       _commsys_simulator_gf3;
+   commsys_simulator< libbase::gf<4,0x13> >      _commsys_simulator_gf4;
+   commsys_simulator<sigspace>                   _commsys_simulator_sigspace;
+   commsys_simulator<bool>                       _commsys_simulator_bool;
+   commsys_simulator<bool,commsys_prof_burst>    _commsys_simulator_bool_prof_burst;
+   commsys_simulator<bool,commsys_prof_pos>      _commsys_simulator_bool_prof_pos;
+   commsys_simulator<bool,commsys_prof_sym>      _commsys_simulator_bool_prof_sym;
+   commsys_simulator<bool,commsys_hist_symerr>   _commsys_simulator_bool_hist_symerr;
    commsys_threshold<bool>             _commsys_threshold_bool;
 public:
    serializer_libcomm() {};

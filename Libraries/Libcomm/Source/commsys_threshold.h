@@ -15,11 +15,12 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   A variation on the regular commsys object, taking a fixed channel parameter
-   and varying modem threshold (currently assumes a dminner-derived modem).
+   A variation on the regular commsys_simulator object, taking a fixed channel
+   parameter and varying modem threshold (currently assumes a dminner-derived
+   modem).
 */
 template <class S, class R=commsys_errorrates>
-class commsys_threshold : public commsys<S,R> {
+class commsys_threshold : public commsys_simulator<S,R> {
 public:
    // Experiment parameter handling
    void set_parameter(const double x);

@@ -34,7 +34,7 @@ template <class S, class R>
 std::ostream& commsys_threshold<S,R>::serialize(std::ostream& sout) const
    {
    sout << this->chan->get_parameter() << '\n';
-   commsys<S,R>::serialize(sout);
+   commsys_simulator<S,R>::serialize(sout);
    return sout;
    }
 
@@ -43,7 +43,7 @@ std::istream& commsys_threshold<S,R>::serialize(std::istream& sin)
    {
    double x;
    sin >> x;
-   commsys<S,R>::serialize(sin);
+   commsys_simulator<S,R>::serialize(sin);
    this->chan->set_parameter(x);
    return sin;
    }

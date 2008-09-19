@@ -28,7 +28,7 @@ namespace libcomm {
 */
 
 template <class S, class R=commsys_errorrates>
-class basic_commsys
+class basic_commsys_simulator
    : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */
@@ -72,10 +72,10 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(libbase::randgen *src, codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan);
-   basic_commsys(const basic_commsys<S,R>& c);
-   basic_commsys() { clear(); };
-   virtual ~basic_commsys() { free(); };
+   basic_commsys_simulator(libbase::randgen *src, codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan);
+   basic_commsys_simulator(const basic_commsys_simulator<S,R>& c);
+   basic_commsys_simulator() { clear(); };
+   virtual ~basic_commsys_simulator() { free(); };
    // @}
 
    // Experiment parameter handling
@@ -116,19 +116,19 @@ public:
    - $Date$
    - $Author$
 
-   General templated commsys derived from generic base.
+   General templated commsys_simulator derived from generic base.
    - Integrates functionality of binary variant.
    - Explicit instantiations for bool and gf types are present.
 */
 template <class S, class R=commsys_errorrates>
-class commsys : public basic_commsys<S,R> {
+class commsys_simulator : public basic_commsys_simulator<S,R> {
 protected:
    /*! \name Internal functions */
    void transmitandreceive(libbase::vector<int>& source);
    // @}
 public:
    // Serialization Support
-   DECLARE_SERIALIZER(commsys)
+   DECLARE_SERIALIZER(commsys_simulator)
 };
 
 /*!
@@ -142,7 +142,7 @@ public:
 
    This explicit specialization for sigspace channel contains objects and
    functions remaining from the templated base, and is equivalent to the
-   old commsys class; anything that used to use 'commsys' can now use this
+   old commsys_simulator class; anything that used to use 'commsys_simulator' can now use this
    specialization.
 
    \note Serialization of puncturing system is implemented; the canonical
@@ -152,7 +152,7 @@ public:
          if we have reached the end of the stream.
 */
 template <class R>
-class commsys<sigspace,R> : public basic_commsys<sigspace,R> {
+class commsys_simulator<sigspace,R> : public basic_commsys_simulator<sigspace,R> {
 protected:
    /*! \name Bound objects */
    puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
@@ -168,10 +168,10 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys<sigspace,R>(libbase::randgen *src, codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
-   commsys<sigspace,R>(const commsys<sigspace,R>& c);
-   commsys<sigspace,R>() { clear(); };
-   virtual ~commsys<sigspace,R>() { free(); };
+   commsys_simulator<sigspace,R>(libbase::randgen *src, codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
+   commsys_simulator<sigspace,R>(const commsys_simulator<sigspace,R>& c);
+   commsys_simulator<sigspace,R>() { clear(); };
+   virtual ~commsys_simulator<sigspace,R>() { free(); };
    // @}
 
    /*! \name Component object handles */
@@ -183,7 +183,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(commsys)
+   DECLARE_SERIALIZER(commsys_simulator)
 };
 
 }; // end namespace
