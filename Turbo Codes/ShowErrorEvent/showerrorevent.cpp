@@ -37,10 +37,12 @@ libcomm::experiment *createsystem(int *argc, char **argv[])
       cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <system>\n";
       exit(1);
       }
-   // load system
-   std::ifstream file(getlastargument(argc, argv));
+   // load system from string representation
    libcomm::experiment *system;
+   std::ifstream file(getlastargument(argc, argv));
    file >> system;
+   // check for errors in loading system
+   libbase::verifycompleteload(file);
    return system;
    }
 
