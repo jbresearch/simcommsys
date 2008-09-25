@@ -188,6 +188,11 @@ std::string getlasterror();
 // Function to skip over whitespace
 std::istream& eatwhite(std::istream& is);
 
+// Stream data loading verification functions
+bool isfailedload(std::istream &is);
+bool isincompleteload(std::istream &is);
+void verifycompleteload(std::istream& is);
+
 }; // end namespace
 
 #endif

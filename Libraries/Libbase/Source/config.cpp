@@ -194,7 +194,7 @@ std::string getlasterror()
    return sout.str();
    }
 
-// Function to skip over whitespace
+//! Function to skip over whitespace
 
 std::istream& eatwhite(std::istream& is)
    {
@@ -208,6 +208,57 @@ std::istream& eatwhite(std::istream& is)
          }
       }
    return is;
+   }
+
+/*!
+   \brief Check for a failure during the last stream input.
+   \return True if the last stream input did not succeed.
+
+   If the last stream input did not succeed, an error message is also shown,
+   detailing the stream position where this occurred.
+*/
+bool isfailedload(std::istream &is)
+   {
+   if(is.fail())
+      {
+      std::cerr << "ERROR: Failure loading object at position " << is.tellg() << ".\n";
+      return true;
+      }
+   return false;
+   }
+
+/*!
+   \brief Check for a unloaded data on the stream.
+   \return True if there is still data left on the stream.
+
+   If there is still data left on the stream an error message is also shown,
+   detailing the stream position where this occurred. All data left from this
+   position onwards is also printed.
+*/
+bool isincompleteload(std::istream &is)
+   {
+   libbase::eatwhite(is);
+   if(!is.eof())
+      {
+      std::cerr << "ERROR: Incomplete loading, stopped at position " << is.tellg() << ".\n";
+      std::string s;
+      while(getline(is,s))
+         std::cerr << s << "\n";
+      return true;
+      }
+   return false;
+   }
+
+/*!
+   \brief Verify that all stream data was read without error.
+
+   If the last stream input failed, or if there is still data left on the
+   stream, an error message is shown, and the program is stopped.
+*/
+void verifycompleteload(std::istream& is)
+   {
+   if(isfailedload(is) || isincompleteload(is))
+      exit(1);
    }
 
 }; // end namespace
