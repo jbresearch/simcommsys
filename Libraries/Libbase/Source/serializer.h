@@ -121,6 +121,49 @@ public:
    std::ostream& serialize(std::ostream& sout) const; \
    std::istream& serialize(std::istream& sin);
 
+#define DECLARE_CONCRETE_BASE_SERIALIZER( class_name ) \
+   private: \
+   /*! \name Serialization Support */ \
+   /*! \brief Serialization helper object */ \
+   static const libbase::serializer shelper; \
+   /*! \brief Heap creation function */ \
+   static void* create() { return new class_name; }; \
+   /* @} */ \
+   public: \
+   /*! \name Serialization Support */ \
+   /*! \brief Cloning operation */ \
+   virtual class_name *clone() const { return new class_name(*this); }; \
+   /*! \brief Derived object's name */ \
+   virtual const char* name() const { return shelper.name(); }; \
+   /*! \brief Serialization output */ \
+   virtual std::ostream& serialize(std::ostream& sout) const; \
+   /*! \brief Serialization input */ \
+   virtual std::istream& serialize(std::istream& sin); \
+   /*! \brief Stream output */ \
+   friend std::ostream& operator<<(std::ostream& sout, const class_name* x) \
+      { \
+      sout << x->name() << "\n"; \
+      x->serialize(sout); \
+      return sout; \
+      }; \
+   /*! \brief Stream input */ \
+   friend std::istream& operator>>(std::istream& sin, class_name*& x) \
+      { \
+      std::string name; \
+      std::streampos start = sin.tellg(); \
+      sin >> name; \
+      x = (class_name*) libbase::serializer::call(#class_name, name); \
+      if(x == NULL) \
+         { \
+         sin.seekg( start ); \
+         sin.clear( std::ios::failbit ); \
+         } \
+      else \
+         x->serialize(sin); \
+      return sin; \
+      }; \
+   /* @} */
+
 }; // end namespace
 
 #endif
