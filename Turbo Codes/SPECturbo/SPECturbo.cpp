@@ -24,6 +24,7 @@
 */
 
 using std::cout;
+using std::cerr;
 using std::setprecision;
 
 class mymontecarlo : public libcomm::montecarlo {
@@ -38,6 +39,7 @@ libcomm::experiment *createsystem()
    const libcomm::serializer_libcomm my_serializer_libcomm;
 
    const std::string systemstring = 
+      "commsys_simulator<sigspace>\n"
       "commsys<sigspace>\n"
       "awgn\n"
       "mpsk\n"
@@ -59,15 +61,28 @@ libcomm::experiment *createsystem()
       "1\n"
       "0\n"
       "0\n"
-      "10\n"
-      "1\n"
-      "stipple\n"
-      "158\n"
-      "3\n";
+      "10\n";
+      //"1\n"
+      //"stipple\n"
+      //"158\n"
+      //"3\n";
 
+   // load system from string representation
    libcomm::experiment *system;
    std::istringstream is(systemstring);
    is >> system;
+   // check for errors in loading system
+   if(is.fail())
+      cerr << "ERROR: Failure loading system.\n";
+   libbase::eatwhite(is);
+   if(!is.eof())
+      {
+      cerr << "ERROR: System not completely loaded.\n";
+      std::string s;
+      while(getline(is,s))
+         cerr << s << "\n";
+      exit(1);
+      }
    return system;
    }
 

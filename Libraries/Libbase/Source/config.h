@@ -185,6 +185,9 @@ bool interrupted(void);
 // System error message reporting
 std::string getlasterror();
 
+// Function to skip over whitespace
+std::istream& eatwhite(std::istream& is);
+
 }; // end namespace
 
 #endif

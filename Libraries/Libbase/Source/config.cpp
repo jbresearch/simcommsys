@@ -194,4 +194,20 @@ std::string getlasterror()
    return sout.str();
    }
 
+// Function to skip over whitespace
+
+std::istream& eatwhite(std::istream& is)
+   {
+   char c;
+   while(is.get(c))
+      {
+      if(!isspace(c))
+         {
+         is.putback(c);
+         break;
+         }
+      }
+   return is;
+   }
+
 }; // end namespace
