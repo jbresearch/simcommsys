@@ -423,6 +423,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_simulator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\commsys_threshold.cpp"
 				>
 			</File>
@@ -1361,6 +1365,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\commsys_prof_sym.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\commsys_simulator.h"
 				>
 			</File>
 			<File

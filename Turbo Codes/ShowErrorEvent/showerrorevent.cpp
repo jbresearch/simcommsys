@@ -2,7 +2,7 @@
 #include "randgen.h"
 #include "truerand.h"
 #include "serializer_libcomm.h"
-#include "commsys.h"
+#include "commsys_simulator.h"
 #include "timer.h"
 
 #include <iostream>

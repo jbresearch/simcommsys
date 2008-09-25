@@ -76,6 +76,7 @@
 
 // Experiments
 #include "commsys.h"
+#include "commsys_simulator.h"
 #include "commsys_prof_burst.h"
 #include "commsys_prof_pos.h"
 #include "commsys_prof_sym.h"
@@ -112,6 +113,13 @@ private:
    // Modulators
    dminner<libbase::logrealfast,false>       _dminner_logrealfast;
    dminner2<libbase::logrealfast,false>      _dminner2_logrealfast;
+   // Experiments
+   commsys< libbase::gf<1,0x3> >       _commsys_gf1;
+   commsys< libbase::gf<2,0x7> >       _commsys_gf2;
+   commsys< libbase::gf<3,0xB> >       _commsys_gf3;
+   commsys< libbase::gf<4,0x13> >      _commsys_gf4;
+   commsys<sigspace>                   _commsys_sigspace;
+   commsys<bool>                       _commsys_bool;
    // Experiments
    commsys_simulator< libbase::gf<1,0x3> >       _commsys_simulator_gf1;
    commsys_simulator< libbase::gf<2,0x7> >       _commsys_simulator_gf2;

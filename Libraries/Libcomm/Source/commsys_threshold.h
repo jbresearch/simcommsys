@@ -2,12 +2,12 @@
 #define __commsys_threshold_h
 
 #include "config.h"
-#include "commsys.h"
+#include "commsys_simulator.h"
 
 namespace libcomm {
 
 /*!
-   \brief   Communication System - Variation of modem threshold.
+   \brief   Communication System Simulator - Variation of modem threshold.
    \author  Johann Briffa
 
    \par Version Control:
