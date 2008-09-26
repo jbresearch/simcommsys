@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
       cout << "System Used:\n";
       cout << "~~~~~~~~~~~~\n";
       cout << system->description() << "\n";
+      //cout << "Rate: " << system-> << "\n";
       cout << "Tolerance: " << 100*accuracy << "%\n";
       cout << "Confidence: " << 100*confidence << "%\n";
       cout << "Date: " << libbase::timer::date() << "\n";
