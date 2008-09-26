@@ -66,6 +66,7 @@
 #include "mapper.h"
 #include "map_straight.h"
 #include "map_interleaved.h"
+#include "map_stipple.h"
 
 // Puncture Patterns
 #include "puncture.h"
@@ -106,7 +107,7 @@ class serializer_libcomm : private
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
-   map_interleaved,
+   map_interleaved, map_stipple,
    puncture_file, puncture_null, puncture_stipple
 {
 private:

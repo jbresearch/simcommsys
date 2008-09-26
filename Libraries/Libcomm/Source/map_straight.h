@@ -6,7 +6,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Mapper Interface.
+   \brief   Straight Mapper.
    \author  Johann Briffa
 
    \par Version Control:

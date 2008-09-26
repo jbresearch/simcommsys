@@ -40,6 +40,9 @@ libcomm::experiment *createsystem()
       "awgn\n"
       "mpsk\n"
       "2\n"
+      "map_stipple\n"
+      "158\n"
+      "2\n"
       "turbo<double>\n"
       "1\n"
       "rscc\n"
@@ -58,10 +61,6 @@ libcomm::experiment *createsystem()
       "0\n"
       "0\n"
       "10\n";
-      //"1\n"
-      //"stipple\n"
-      //"158\n"
-      //"3\n";
 
    // load system from string representation
    libcomm::experiment *system;

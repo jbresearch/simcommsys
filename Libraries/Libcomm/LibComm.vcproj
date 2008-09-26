@@ -711,6 +711,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\map_stipple.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\map_straight.cpp"
 				>
 			</File>
@@ -1461,6 +1465,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\map_interleaved.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\map_stipple.h"
 				>
 			</File>
 			<File

@@ -8,7 +8,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Mapper Interface.
+   \brief   Random Interleaving Mapper.
    \author  Johann Briffa
 
    \par Version Control:
