@@ -81,14 +81,18 @@ int main(int argc, char *argv[])
 
    libbase::timer tmain("Main timer");
 
-   // Create estimator object and initilize cluster, default priority
-   mymontecarlo estimator;
-   estimator.enable(&argc, &argv);
-
    // Set up user parameters
    po::options_description desc("Allowed options");
    desc.add_options()
       ("help", "print this help message")
+      ("quiet", po::bool_switch(),
+         "suppress all output except benchmark")
+      ("priority", po::value<int>()->default_value(10),
+         "process priority")
+      ("endpoint", po::value<std::string>()->default_value("local"),
+         "- 'local', for local-computation model\n"
+         "- ':port', for server-mode, bound to given port\n"
+         "- 'hostname:port', for client-mode connection")
       ("results-file,o", po::value<std::string>(),
          "output file to hold results")
       ("system-file,i", po::value<std::string>(),
@@ -117,6 +121,9 @@ int main(int argc, char *argv[])
       return 0;
       }
 
+   // Create estimator object and initilize cluster
+   mymontecarlo estimator;
+   estimator.enable(vm["endpoint"].as<std::string>(), vm["quiet"].as<bool>(), vm["priority"].as<int>());
    // Simulation system & parameters
    estimator.set_resultsfile(vm["results-file"].as<std::string>());
    libcomm::experiment *system = createsystem(vm["system-file"].as<std::string>());

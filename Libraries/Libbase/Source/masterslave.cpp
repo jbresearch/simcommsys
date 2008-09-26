@@ -55,13 +55,14 @@ void masterslave::fcall(const std::string& name)
 
 /*! \brief Global enable/disable of master-slave system
 
-   \note Default priority is given by caller, but can be overridden by a
-         command-line parameter.
-   
-   \note Command-line parameters can specify local-computation model; in this
-         case, the class will not be initialized.
+   \note Endpoint can be:
+         - 'local', indicating local-computation model; in this case, the
+           class will not be initialized.
+         - ':port', indicating server-mode, bound to given port
+         - 'hostname:port', indicating client-mode, connecting to given
+           host/port combination
 */
-void masterslave::enable(int *argc, char **argv[], const int priority)
+void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
    {
    assert(!initialized);
 
@@ -69,55 +70,26 @@ void masterslave::enable(int *argc, char **argv[], const int priority)
    signal(SIGPIPE, SIG_IGN);
 #endif
 
-   // parse command-line parameters and determine operating mode
-   if(*argc < 2)
-      {
-      cerr << "Usage (masterslave): " << (*argv)[0] << " [<normal parameters>] [-q] [-p <priority>] local|<hostname>:<port>\n";
-      return;
-      }
-   // get endpoint
-   std::string endpoint = (*argv)[*argc-1];
    // hostname is the part before the ':', or the whole string if there is no ':'
    const size_t n = endpoint.find(':');
    const std::string hostname = endpoint.substr(0,n);
    // port is the part after the ':', if there was one
    // if there is no port, hostname must be 'local'
-   // otherwise, the argument was not meant for us
    int port=0;
    if(n != std::string::npos)
       std::istringstream(endpoint.substr(n+1)) >> port;
-   else if(hostname.compare("local") != 0)
-      return;
-   // if we got here, the argument was actually meant for us, so remove it
-   (*argv)[*argc-1] = NULL;
-   (*argc)--;
-   // check for and get priority override
-   int actualpriority = priority;
-   if(*argc >= 3 && strcmp((*argv)[*argc-2],"-p")==0)
-      {
-      actualpriority = atoi((*argv)[*argc-1]);
-      (*argv)[*argc-1] = NULL;
-      (*argv)[*argc-2] = NULL;
-      (*argc)-=2;
-      }
-   // check for and get quiet flag
-   if(*argc >= 2 && strcmp((*argv)[*argc-1],"-q")==0)
-      {
+   // interpret quiet flag
+   if(quiet)
       pacifier::disable_output();
-      (*argv)[*argc-1] = NULL;
-      (*argc)--;
-      }
-
    // Handle option for local computation only
    if(hostname.compare("local") == 0 && port == 0)
       return;
    // If the hostname part isn't empty, it's a slave process
    if(hostname.length() > 0)
-      slaveprocess(hostname, port, actualpriority);
+      slaveprocess(hostname, port, priority);
    // Otherwise, this must be the master process.
    master = new socket;
-   if(!master->bind(port))
-      exit(1);
+   assertalways(master->bind(port));
    trace << "Master system bound to port " << port << "\n";
 
    initialized = true;

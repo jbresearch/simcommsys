@@ -80,16 +80,18 @@ int main(int argc, char *argv[])
    using std::cout;
    using std::setprecision;
 
-   // Create estimator object and initilize cluster, default priority
-   mymontecarlo estimator;
-   estimator.enable(&argc, &argv);
-
    // Set up user parameters
    po::options_description desc("Allowed options");
    desc.add_options()
       ("help", "print this help message")
       ("quiet", po::bool_switch(),
          "suppress all output except benchmark")
+      ("priority", po::value<int>()->default_value(10),
+         "process priority")
+      ("endpoint", po::value<std::string>()->default_value("local"),
+         "- 'local', for local-computation model\n"
+         "- ':port', for server-mode, bound to given port\n"
+         "- 'hostname:port', for client-mode connection")
       ("snr", po::value<double>()->default_value(0.5),
          "signal to noise ratio")
       ("time", po::value<double>()->default_value(60),
@@ -112,6 +114,9 @@ int main(int argc, char *argv[])
       return 0;
       }
 
+   // Create estimator object and initilize cluster
+   mymontecarlo estimator;
+   estimator.enable(vm["endpoint"].as<std::string>(), vm["quiet"].as<bool>(), vm["priority"].as<int>());
    // Simulation parameters
    const double SNR = vm["snr"].as<double>();
    const double simtime = vm["time"].as<double>();

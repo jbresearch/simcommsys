@@ -66,7 +66,7 @@ protected:
    void fcall(const std::string& name);
 public:
    // global enable of cluster system
-   void enable(int *argc, char **argv[], const int priority=10);
+   void enable(const std::string& endpoint, bool quiet=false, int priority=10);
    // informative functions
    bool isenabled() const { return initialized; };
    double getcputime() const { return initialized ? cputimeused : t.cputime(); };
