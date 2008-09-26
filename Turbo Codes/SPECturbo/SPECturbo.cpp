@@ -84,18 +84,18 @@ int main(int argc, char *argv[])
    po::options_description desc("Allowed options");
    desc.add_options()
       ("help", "print this help message")
-      ("quiet", po::bool_switch(),
+      ("quiet,q", po::bool_switch(),
          "suppress all output except benchmark")
-      ("priority", po::value<int>()->default_value(10),
+      ("priority,p", po::value<int>()->default_value(10),
          "process priority")
-      ("endpoint", po::value<std::string>()->default_value("local"),
+      ("endpoint,e", po::value<std::string>()->default_value("local"),
          "- 'local', for local-computation model\n"
          "- ':port', for server-mode, bound to given port\n"
          "- 'hostname:port', for client-mode connection")
+      ("time,t", po::value<double>()->default_value(60),
+         "benchmark duration in seconds")
       ("snr", po::value<double>()->default_value(0.5),
          "signal to noise ratio")
-      ("time", po::value<double>()->default_value(60),
-         "benchmark duration in seconds")
       //("system-file,i", po::value<std::string>(),
       //   "file containing system description")
       ("confidence", po::value<double>()->default_value(0.999),

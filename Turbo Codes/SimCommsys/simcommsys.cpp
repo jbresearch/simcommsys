@@ -85,26 +85,26 @@ int main(int argc, char *argv[])
    po::options_description desc("Allowed options");
    desc.add_options()
       ("help", "print this help message")
-      ("quiet", po::bool_switch(),
+      ("quiet,q", po::bool_switch(),
          "suppress all output except benchmark")
-      ("priority", po::value<int>()->default_value(10),
+      ("priority,p", po::value<int>()->default_value(10),
          "process priority")
-      ("endpoint", po::value<std::string>()->default_value("local"),
+      ("endpoint,e", po::value<std::string>()->default_value("local"),
          "- 'local', for local-computation model\n"
          "- ':port', for server-mode, bound to given port\n"
          "- 'hostname:port', for client-mode connection")
-      ("results-file,o", po::value<std::string>(),
-         "output file to hold results")
       ("system-file,i", po::value<std::string>(),
          "input file containing system description")
-      ("min-error", po::value<double>(),
-         "stop simulation when result falls below this threshold")
+      ("results-file,o", po::value<std::string>(),
+         "output file to hold results")
       ("beg", po::value<double>(), "first parameter value")
       ("end", po::value<double>(), "last parameter value")
       ("step", po::value<double>(),
          "parameter increment (for a linear range)")
       ("mul", po::value<double>(),
          "parameter multiplier (for a logarithmic range)")
+      ("min-error", po::value<double>()->default_value(1e-5),
+         "stop simulation when result falls below this threshold")
       ("confidence", po::value<double>()->default_value(0.90),
          "confidence level (e.g. 0.90 for 90%)")
       ("tolerance", po::value<double>()->default_value(0.15),
