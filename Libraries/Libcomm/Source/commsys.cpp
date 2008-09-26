@@ -34,7 +34,7 @@ namespace libcomm {
          constructor is called.
 */
 template <class S>
-void commsys<S>::init()
+void basic_commsys<S>::init()
    {
    tau = cdc->block_size();
    m = cdc->tail_length();
@@ -58,7 +58,7 @@ void commsys<S>::init()
          serializer or constructor is called.
 */
 template <class S>
-void commsys<S>::clear()
+void basic_commsys<S>::clear()
    {
    cdc = NULL;
    map = NULL;
@@ -80,7 +80,7 @@ void commsys<S>::clear()
          serializer or constructor is called.
 */
 template <class S>
-void commsys<S>::free()
+void basic_commsys<S>::free()
    {
    if(internallyallocated)
       {
@@ -102,12 +102,12 @@ void commsys<S>::free()
    Initializes system with bound objects as supplied by user.
 */
 template <class S>
-commsys<S>::commsys(codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan)
+basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan)
    {
-   commsys<S>::cdc = cdc;
-   commsys<S>::map = map;
-   commsys<S>::modem = modem;
-   commsys<S>::chan = chan;
+   basic_commsys<S>::cdc = cdc;
+   basic_commsys<S>::map = map;
+   basic_commsys<S>::modem = modem;
+   basic_commsys<S>::chan = chan;
    internallyallocated = false;
    init();
    }
@@ -121,12 +121,12 @@ commsys<S>::commsys(codec *cdc, mapper *map, modulator<S> *modem, channel<S> *ch
    \todo Fix cast when cloning modem: this should not be necessary.
 */
 template <class S>
-commsys<S>::commsys(const commsys<S>& c)
+basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
    {
-   commsys<S>::cdc = c.cdc->clone();
-   commsys<S>::map = c.map->clone();
-   commsys<S>::modem = (modulator<S> *)c.modem->clone();
-   commsys<S>::chan = (channel<S> *)c.chan->clone();
+   basic_commsys<S>::cdc = c.cdc->clone();
+   basic_commsys<S>::map = c.map->clone();
+   basic_commsys<S>::modem = (modulator<S> *)c.modem->clone();
+   basic_commsys<S>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
    init();
    }
@@ -134,7 +134,7 @@ commsys<S>::commsys(const commsys<S>& c)
 // Communication System Setup
 
 template <class S>
-void commsys<S>::seedfrom(libbase::random& r)
+void basic_commsys<S>::seedfrom(libbase::random& r)
    {
    cdc->seedfrom(r);
    map->seedfrom(r);
@@ -145,7 +145,7 @@ void commsys<S>::seedfrom(libbase::random& r)
 // Communication System Interface
 
 /*!
-   \copydoc commsys::transmitandreceive()
+   \copydoc basic_commsys::transmitandreceive()
 
    The cycle consists of the steps depicted in the following diagram:
    \dot
@@ -172,7 +172,7 @@ void commsys<S>::seedfrom(libbase::random& r)
    \enddot
 */
 template <class S>
-void commsys<S>::transmitandreceive(libbase::vector<int>& source)
+void basic_commsys<S>::transmitandreceive(libbase::vector<int>& source)
    {
    libbase::vector<int> encoded;
    this->cdc->encode(source, encoded);
@@ -192,7 +192,7 @@ void commsys<S>::transmitandreceive(libbase::vector<int>& source)
 // Description & Serialization
 
 template <class S>
-std::string commsys<S>::description() const
+std::string basic_commsys<S>::description() const
    {
    std::ostringstream sout;
    sout << "Communication System: ";
@@ -204,7 +204,7 @@ std::string commsys<S>::description() const
    }
 
 template <class S>
-std::ostream& commsys<S>::serialize(std::ostream& sout) const
+std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
    {
    sout << chan;
    sout << modem;
@@ -214,7 +214,7 @@ std::ostream& commsys<S>::serialize(std::ostream& sout) const
    }
 
 template <class S>
-std::istream& commsys<S>::serialize(std::istream& sin)
+std::istream& basic_commsys<S>::serialize(std::istream& sin)
    {
    free();
    sin >> chan;
@@ -234,9 +234,32 @@ std::istream& commsys<S>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
-template class commsys<sigspace>;
-template <>
-const libbase::serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
+template class basic_commsys<bool>;
+template class basic_commsys< libbase::gf<1,0x3> >;
+template class basic_commsys< libbase::gf<2,0x7> >;
+template class basic_commsys< libbase::gf<3,0xB> >;
+template class basic_commsys< libbase::gf<4,0x13> >;
+template class basic_commsys<sigspace>;
+
+
+// *** General Communication System ***
+
+// Serialization Support
+
+template <class S>
+std::ostream& commsys<S>::serialize(std::ostream& sout) const
+   {
+   return basic_commsys<S>::serialize(sout);
+   }
+
+template <class S>
+std::istream& commsys<S>::serialize(std::istream& sin)
+   {
+   return basic_commsys<S>::serialize(sin);
+   }
+
+// Explicit Realizations
+
 template class commsys<bool>;
 template <>
 const libbase::serializer commsys<bool>::shelper("commsys", "commsys<bool>", commsys<bool>::create);
@@ -415,11 +438,12 @@ std::istream& commsys<sigspace>::serialize(std::istream& sin)
    return sin;
    }
 
+#endif
+
 // Explicit Realizations
 
-//template class commsys<sigspace>;
+template class commsys<sigspace>;
+template <>
 const libbase::serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
-
-#endif
 
 }; // end namespace

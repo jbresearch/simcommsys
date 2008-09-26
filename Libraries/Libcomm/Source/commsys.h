@@ -13,7 +13,7 @@
 namespace libcomm {
 
 /*!
-   \brief   General Communication System.
+   \brief   Common Base for Communication System.
    \author  Johann Briffa
 
    \par Version Control:
@@ -27,7 +27,7 @@ namespace libcomm {
 */
 
 template <class S>
-class commsys {
+class basic_commsys {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
@@ -54,10 +54,10 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   commsys(codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan);
-   commsys(const commsys<S>& c);
-   commsys() { clear(); };
-   virtual ~commsys() { free(); };
+   basic_commsys(codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan);
+   basic_commsys(const basic_commsys<S>& c);
+   basic_commsys() { clear(); };
+   virtual ~basic_commsys() { free(); };
    // @}
 
    /*! \name Communication System Setup */
@@ -79,7 +79,25 @@ public:
 
    // Description
    std::string description() const;
+   std::ostream& serialize(std::ostream& sout) const;
+   std::istream& serialize(std::istream& sin);
+};
 
+/*!
+   \brief   General Communication System.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   General templated commsys, directly derived from common base.
+*/
+
+template <class S>
+class commsys : public basic_commsys<S> {
+public:
    // Serialization Support
    DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
 };
