@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
    po::options_description desc("Allowed options");
    desc.add_options()
       ("help", "print this help message")
-      ("quiet", po::value<bool>()->default_value(false),
+      ("quiet", po::bool_switch(),
          "suppress all output except benchmark")
       ("snr", po::value<double>()->default_value(0.5),
          "signal to noise ratio")
