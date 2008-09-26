@@ -20,7 +20,7 @@ export WCTAG := $(notdir $(PWD))
 
 # Linker settings
 export LDlibusr := -lcomm -lbase
-LDlibsys := -lm -lstdc++
+LDlibsys := -lm -lstdc++ -lboost_program_options
 #LDlibsys := -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic -lm
 #LDlibmpi := `mpic++ -showme:link`
 #LDlibmpi := -lpmpich++ -lmpich

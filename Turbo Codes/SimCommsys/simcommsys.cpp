@@ -5,6 +5,8 @@
 #include "masterslave.h"
 #include "timer.h"
 
+#include <boost/program_options.hpp>
+
 #include <math.h>
 #include <string.h>
 #include <iostream>
@@ -24,6 +26,7 @@
 using std::cout;
 using std::cerr;
 using std::setprecision;
+namespace po = boost::program_options;
 
 class mymontecarlo : public libcomm::montecarlo {
 public:
@@ -31,110 +34,45 @@ public:
    bool interrupt() { return libbase::keypressed()>0 || libbase::interrupted(); };
 };
 
-const char *getlastargument(int *argc, char **argv[])
+libcomm::experiment *createsystem(const std::string& fname)
    {
-   // read & swallow argument
-   const char *a = (*argv)[*argc-1];
-   (*argv)[*argc-1] = NULL;
-   (*argc)--;
-   return a;
-   }
-
-std::string getresultsfile(int *argc, char **argv[])
-   {
-   if(*argc < 2)
-      {
-      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <resultsfile>\n";
-      exit(1);
-      }
-   return getlastargument(argc, argv);
-   }
-
-libcomm::experiment *createsystem(int *argc, char **argv[])
-   {
-   if(*argc < 2)
-      {
-      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <system>\n";
-      exit(1);
-      }
    // load system from string representation
    libcomm::experiment *system;
-   std::ifstream file(getlastargument(argc, argv));
+   std::ifstream file(fname.c_str());
    file >> system;
    // check for errors in loading system
    libbase::verifycompleteload(file);
    return system;
    }
 
-double getminerror(int *argc, char **argv[])
+libbase::vector<double> getlinrange(double beg, double end, double step)
    {
-   if(*argc < 2)
-      {
-      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <min_error>\n";
-      exit(1);
-      }
-   return atof(getlastargument(argc, argv));
-   }
-
-libbase::vector<double> getparameterset(int *argc, char **argv[])
-   {
-   if(*argc < 5)
-      {
-      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <-lin|-log> <min> <max> <step>\n";
-      exit(1);
-      }
-   // read range specification
-   const double Pstep = atof(getlastargument(argc, argv));
-   const double Pmax = atof(getlastargument(argc, argv));
-   const double Pmin = atof(getlastargument(argc, argv));
-   const char *type = getlastargument(argc, argv);
    // validate range
-   double steps = 0;
-   bool linear = true;
-   if(strcmp(type,"-lin")==0)
-      {
-      steps = floor((Pmax-Pmin)/Pstep)+1;
-      linear = true;
-      }
-   else if(strcmp(type,"-log")==0)
-      {
-      if(Pmax==0 && Pmin==0)
-         steps = 1;
-      else
-         steps = floor((log(Pmax)-log(Pmin))/log(Pstep))+1;
-      linear = false;
-      }
-   else
-      {
-      cerr << "Invalid range type: " << type << "\n";
-      exit(1);
-      }
-   if(!(steps >= 1 && steps <= 65535))
-      {
-      cerr << "Range does not converge: " << Pmin << ':' << Pstep << ':' << Pmax << '\n';
-      exit(1);
-      }
+   int steps = int(floor((end-beg)/step)+1);
+   assertalways(steps >= 1 && steps <= 65535);
    // create required range
-   const int count = int(steps);
-   libbase::vector<double> Pset(count);
-   Pset(0) = Pmin;
-   for(int i=1; i<count; i++)
-      Pset(i) = linear ? (Pset(i-1) + Pstep) : (Pset(i-1) * Pstep);
-   return Pset;
+   libbase::vector<double> pset(steps);
+   pset(0) = beg;
+   for(int i=1; i<steps; i++)
+      pset(i) = pset(i-1) + step;
+   return pset;
    }
 
-double getconfidence(int *argc, char **argv[])
+libbase::vector<double> getlogrange(double beg, double end, double mul)
    {
-   if(*argc < 2)
-      return 0.90;
-   return atof(getlastargument(argc, argv));
-   }
-
-double gettolerance(int *argc, char **argv[])
-   {
-   if(*argc < 2)
-      return 0.15;
-   return atof(getlastargument(argc, argv));
+   // validate range
+   int steps = 0;
+   if(end==0 && beg==0)
+      steps = 1;
+   else
+      steps = int(floor((log(end)-log(beg))/log(mul))+1);
+   assertalways(steps >= 1 && steps <= 65535);
+   // create required range
+   libbase::vector<double> pset(steps);
+   pset(0) = beg;
+   for(int i=1; i<steps; i++)
+      pset(i) = pset(i-1) * mul;
+   return pset;
    }
 
 int main(int argc, char *argv[])
@@ -147,21 +85,55 @@ int main(int argc, char *argv[])
    mymontecarlo estimator;
    estimator.enable(&argc, &argv);
 
+   // Set up user parameters
+   po::options_description desc("Allowed options");
+   desc.add_options()
+      ("help", "print this help message")
+      ("results-file,o", po::value<std::string>(),
+         "output file to hold results")
+      ("system-file,i", po::value<std::string>(),
+         "input file containing system description")
+      ("min-error", po::value<double>(),
+         "stop simulation when result falls below this threshold")
+      ("beg", po::value<double>(), "first parameter value")
+      ("end", po::value<double>(), "last parameter value")
+      ("step", po::value<double>(),
+         "parameter increment (for a linear range)")
+      ("mul", po::value<double>(),
+         "parameter multiplier (for a logarithmic range)")
+      ("confidence", po::value<double>()->default_value(0.90),
+         "confidence level (e.g. 0.90 for 90%)")
+      ("tolerance", po::value<double>()->default_value(0.15),
+         "confidence interval (e.g. 0.15 for +/- 15%)")
+      ;
+   po::variables_map vm;
+   po::store(po::parse_command_line(argc, argv, desc), vm);
+   po::notify(vm);
+
+   // Validate user parameters
+   if(vm.count("help"))
+      {
+      cout << desc << "\n";
+      return 0;
+      }
+
    // Simulation system & parameters, in reverse order
-   estimator.set_resultsfile(getresultsfile(&argc, &argv));
-   libcomm::experiment *system = createsystem(&argc, &argv);
+   estimator.set_resultsfile(vm["results-file"].as<std::string>());
+   libcomm::experiment *system = createsystem(vm["system-file"].as<std::string>());
    estimator.bind(system);
-   const double min_error = getminerror(&argc, &argv);
-   libbase::vector<double> Pset = getparameterset(&argc, &argv);
-   estimator.set_confidence(getconfidence(&argc, &argv));
-   estimator.set_accuracy(gettolerance(&argc, &argv));
+   const double min_error = vm["min-error"].as<double>();
+   libbase::vector<double> pset = vm.count("step") ?
+      getlinrange(vm["beg"].as<double>(), vm["end"].as<double>(), vm["step"].as<double>()) :
+      getlogrange(vm["beg"].as<double>(), vm["end"].as<double>(), vm["mul"].as<double>());
+   estimator.set_confidence(vm["confidence"].as<double>());
+   estimator.set_accuracy(vm["tolerance"].as<double>());
 
    // Work out the following for every SNR value required
-   for(int i=0; i<Pset.size(); i++)
+   for(int i=0; i<pset.size(); i++)
       {
-      system->set_parameter(Pset(i));
+      system->set_parameter(pset(i));
 
-      cerr << "Simulating system at parameter = " << Pset(i) << "\n";
+      cerr << "Simulating system at parameter = " << pset(i) << "\n";
       libbase::vector<double> result, tolerance;
       estimator.estimate(result, tolerance);
 
