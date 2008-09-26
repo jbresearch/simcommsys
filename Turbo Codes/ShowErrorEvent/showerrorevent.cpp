@@ -1,12 +1,3 @@
-#include "config.h"
-#include "randgen.h"
-#include "truerand.h"
-#include "serializer_libcomm.h"
-#include "commsys_simulator.h"
-#include "timer.h"
-
-#include <iostream>
-
 /*!
    \file
    \brief   Error Event Analysis for Experiments
@@ -18,42 +9,30 @@
    - $Author$
 */
 
+#include "config.h"
+#include "randgen.h"
+#include "truerand.h"
+#include "serializer_libcomm.h"
+#include "commsys_simulator.h"
+#include "timer.h"
+
+#include <boost/program_options.hpp>
+
+#include <iostream>
+
 using std::cout;
 using std::cerr;
+namespace po = boost::program_options;
 
-const char *getlastargument(int *argc, char **argv[])
+libcomm::experiment *createsystem(const std::string& fname)
    {
-   // read & swallow argument
-   const char *a = (*argv)[*argc-1];
-   (*argv)[*argc-1] = NULL;
-   (*argc)--;
-   return a;
-   }
-
-libcomm::experiment *createsystem(int *argc, char **argv[])
-   {
-   if(*argc < 2)
-      {
-      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <system>\n";
-      exit(1);
-      }
    // load system from string representation
    libcomm::experiment *system;
-   std::ifstream file(getlastargument(argc, argv));
+   std::ifstream file(fname.c_str());
    file >> system;
    // check for errors in loading system
    libbase::verifycompleteload(file);
    return system;
-   }
-
-double getparameter(int *argc, char **argv[])
-   {
-   if(*argc < 2)
-      {
-      cerr << "Usage: " << (*argv)[0] << " [<other parameters>] <parameter>\n";
-      exit(1);
-      }
-   return atof(getlastargument(argc, argv));
    }
 
 void seed_experiment(libcomm::experiment *system)
@@ -72,9 +51,29 @@ int main(int argc, char *argv[])
 
    libbase::timer tmain("Main timer");
 
-   // Simulation system & parameters, in reverse order
-   libcomm::experiment *system = createsystem(&argc, &argv);
-   system->set_parameter(getparameter(&argc, &argv));
+   // Set up user parameters
+   po::options_description desc("Allowed options");
+   desc.add_options()
+      ("help", "print this help message")
+      ("system-file,i", po::value<std::string>(),
+         "input file containing system description")
+      ("parameter,p", po::value<double>(),
+         "simulation parameter")
+      ;
+   po::variables_map vm;
+   po::store(po::parse_command_line(argc, argv, desc), vm);
+   po::notify(vm);
+
+   // Validate user parameters
+   if(vm.count("help"))
+      {
+      cout << desc << "\n";
+      return 0;
+      }
+
+   // Simulation system & parameters
+   libcomm::experiment *system = createsystem(vm["system-file"].as<std::string>());
+   system->set_parameter(vm["parameter"].as<double>());
 
    // Initialise running values
    system->reset();

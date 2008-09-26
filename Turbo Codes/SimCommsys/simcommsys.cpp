@@ -1,3 +1,14 @@
+/*!
+   \file
+   \brief   Simulation of Communication Systems
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
+
 #include "randgen.h"
 #include "serializer_libcomm.h"
 #include "commsys_simulator.h"
@@ -11,17 +22,6 @@
 #include <string.h>
 #include <iostream>
 #include <iomanip>
-
-/*!
-   \file
-   \brief   Simulation of Communication Systems
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
 
 using std::cout;
 using std::cerr;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
       return 0;
       }
 
-   // Simulation system & parameters, in reverse order
+   // Simulation system & parameters
    estimator.set_resultsfile(vm["results-file"].as<std::string>());
    libcomm::experiment *system = createsystem(vm["system-file"].as<std::string>());
    estimator.bind(system);

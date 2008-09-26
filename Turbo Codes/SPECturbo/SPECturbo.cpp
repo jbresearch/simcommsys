@@ -1,13 +1,3 @@
-#include "serializer_libcomm.h"
-#include "montecarlo.h"
-#include "timer.h"
-
-#include <math.h>
-#include <string.h>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-
 /*!
    \file
    \brief   SPECturbo benchmark
@@ -22,6 +12,20 @@
          normalized, SPECturbo now uses the double-precision based turbo and
          bcjr algorithms, resulting in more than 6x increase in speed.
 */
+
+#include "serializer_libcomm.h"
+#include "montecarlo.h"
+#include "timer.h"
+
+#include <boost/program_options.hpp>
+
+#include <math.h>
+#include <string.h>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+
+namespace po = boost::program_options;
 
 class mymontecarlo : public libcomm::montecarlo {
 protected:
@@ -80,12 +84,40 @@ int main(int argc, char *argv[])
    mymontecarlo estimator;
    estimator.enable(&argc, &argv);
 
+   // Set up user parameters
+   po::options_description desc("Allowed options");
+   desc.add_options()
+      ("help", "print this help message")
+      ("quiet", po::value<bool>()->default_value(false),
+         "suppress all output except benchmark")
+      ("snr", po::value<double>()->default_value(0.5),
+         "signal to noise ratio")
+      ("time", po::value<double>()->default_value(60),
+         "benchmark duration in seconds")
+      //("system-file,i", po::value<std::string>(),
+      //   "file containing system description")
+      ("confidence", po::value<double>()->default_value(0.999),
+         "confidence level (e.g. 0.90 for 90%)")
+      ("tolerance", po::value<double>()->default_value(0.001),
+         "confidence interval (e.g. 0.15 for +/- 15%)")
+      ;
+   po::variables_map vm;
+   po::store(po::parse_command_line(argc, argv, desc), vm);
+   po::notify(vm);
+
+   // Validate user parameters
+   if(vm.count("help"))
+      {
+      cout << desc << "\n";
+      return 0;
+      }
+
    // Simulation parameters
-   const double SNR = 0.5;
-   const double simtime = argc > 1 ? atoi(argv[1]) : 60;
-   const bool quiet = argc > 2 ? (strcmp(argv[2],"-q")==0) : false;
-   const double confidence = 0.999;
-   const double accuracy = 0.001;
+   const double SNR = vm["snr"].as<double>();
+   const double simtime = vm["time"].as<double>();
+   const bool quiet = vm["quiet"].as<bool>();
+   const double confidence = vm["confidence"].as<double>();
+   const double accuracy = vm["tolerance"].as<double>();
    // Set up the estimator
    libcomm::experiment *system = createsystem();
    estimator.bind(system);
