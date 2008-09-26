@@ -279,12 +279,10 @@ const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("commsys", "co
 
 // *** Specific to commsys<sigspace> ***
 
-#if 0
-
 // Setup functions
 
 /*!
-   \copydoc commsys::init()
+   \copydoc basic_commsys::init()
 
    This function sets the average energy per data bit in the bound channel model.
    The value depends on:
@@ -297,153 +295,28 @@ void commsys<sigspace>::init()
    {
    // set up channel energy/bit (Eb)
    double rate = this->cdc->rate() * this->map->rate();
-   if(punc != NULL)
-      rate /= punc->rate();
+   libbase::trace << "DEBUG: overall code rate = " << rate << "\n";
    this->chan->set_eb(this->modem->bit_energy() / rate);
    }
 
-
-void commsys<sigspace>::clear()
-   {
-   punc = NULL;
-   }
-
-
-void commsys<sigspace>::free()
-   {
-   if(this->internallyallocated)
-      {
-      delete punc;
-      }
-   clear();
-   }
-
-// Internal functions
-
-/*!
-   \copydoc commsys::transmitandreceive()
-
-   The cycle consists of the steps depicted in the following diagram:
-   \dot
-   digraph txrxcycle {
-      // Make figure left-to-right
-      rankdir = LR;
-      // block definitions
-      node [ shape=box ];
-      encode [ label="Encode" ];
-      map [ label="Map" ];
-      modulate [ label="Modulate" ];
-      puncture [ style=dotted,label="Puncture" ];
-      transmit [ label="Transmit" ];
-      demodulate [ label="Demodulate" ];
-      unpuncture [ style=dotted,label="Inverse Puncture" ];
-      unmap [ label="Inverse Map" ];
-      translate [ label="Translate" ];
-      // path definitions
-      encode -> map;
-      map -> modulate;
-      modulate -> transmit;
-      transmit -> demodulate;
-      demodulate -> unmap;
-      unmap -> translate;
-      modulate -> puncture [ style=dotted ];
-      puncture -> transmit [ style=dotted ];
-      demodulate -> unpuncture [ style=dotted ];
-      unpuncture -> unmap [ style=dotted ];
-   }
-   \enddot
-
-   The dotted lines and blocks indicate optional sections to support puncturing,
-   which is currently done in signal-space.
-*/
-void commsys<sigspace>::transmitandreceive(libbase::vector<int>& source)
-   {
-   libbase::vector<int> encoded;
-   this->cdc->encode(source, encoded);
-   this->map->advance();
-   libbase::vector<int> transmitted;
-   this->map->transform(encoded, transmitted);
-   libbase::vector<sigspace> signal1;
-   this->modem->modulate(this->M, transmitted, signal1);
-   libbase::matrix<double> pin;
-   if(punc != NULL)
-      {
-      libbase::vector<sigspace> signal2;
-      punc->transform(signal1, signal2);
-      this->chan->transmit(signal2, signal2);
-      libbase::matrix<double> pchan;
-      this->modem->demodulate(*this->chan, signal2, pchan);
-      punc->inverse(pchan, pin);
-      }
-   else
-      {
-      this->chan->transmit(signal1, signal1);
-      this->modem->demodulate(*this->chan, signal1, pin);
-      }
-   libbase::matrix<double> pout;
-   this->map->inverse(pin, pout);
-   this->cdc->translate(pout);
-   }
-
-// Constructors / Destructors
-
-commsys<sigspace>::commsys(codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan) : commsys<sigspace>(cdc, map, modem, chan)
-   {
-   commsys::punc = punc;
-   init();
-   }
-
-commsys<sigspace>::commsys(const commsys<sigspace>& c) : commsys<sigspace>(c)
-   {
-   commsys::punc = c.punc->clone();
-   init();
-   }
-
-// Description & Serialization
-
-std::string commsys<sigspace>::description() const
-   {
-   std::ostringstream sout;
-   sout << commsys<sigspace>::description();
-   if(punc != NULL)
-      sout << ", " << punc->description();
-   return sout.str();
-   }
+// Serialization Support
 
 std::ostream& commsys<sigspace>::serialize(std::ostream& sout) const
    {
-   commsys<sigspace>::serialize(sout);
-   const bool ispunctured = (punc != NULL);
-   sout << ispunctured << "\n";
-   if(ispunctured)
-      sout << punc;
-   return sout;
+   return basic_commsys<sigspace>::serialize(sout);
    }
 
 std::istream& commsys<sigspace>::serialize(std::istream& sin)
    {
-   free();
-   commsys<sigspace>::serialize(sin);
-   bool ispunctured;
-   sin >> ispunctured;
-   // handle old-format files
-   if(sin.fail())
-      {
-      ispunctured = false;
-      sin.clear();
-      }
-   if(ispunctured)
-      sin >> punc;
+   basic_commsys<sigspace>::serialize(sin);
    init();
    return sin;
    }
 
-#endif
-
 // Explicit Realizations
 
-template class commsys<sigspace>;
-template <>
+//template class commsys<sigspace>;
+//template <>
 const libbase::serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
 
 }; // end namespace

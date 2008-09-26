@@ -6,7 +6,6 @@
 #include "codec.h"
 #include "mapper.h"
 #include "modulator.h"
-#include "puncture.h"
 #include "channel.h"
 #include "serializer.h"
 
@@ -102,7 +101,6 @@ public:
    DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
 };
 
-#if 0
 /*!
    \brief   Signal-Space Communication System.
    \author  Johann Briffa
@@ -113,12 +111,12 @@ public:
    - $Author$
 
    This explicit specialization for sigspace channel contains objects and
-   functions remaining from the templated base, and is equivalent to the
-   old commsys class; anything that used to use 'commsys' can now use this
-   specialization.
+   functions remaining from the templated base, and is generally equivalent
+   to the old commsys class; anything that used to use 'commsys' can now use
+   this specialization.
 
-   \todo Support for puncturing needs to change from its current operation
-         in signal-space to the more general mapper layer
+   \note Support for puncturing has changed from its previous operation in
+         signal-space to the more general mapper layer.
 
    \note Serialization of puncturing system is implemented; the canonical
          form this requires the addition of a 'false' flag at the end of the
@@ -127,41 +125,15 @@ public:
          if we have reached the end of the stream.
 */
 template <>
-class commsys<sigspace> {
-protected:
-   /*! \name Bound objects */
-   puncture             *punc;   //!< Puncturing (operates on signal-space symbols)
-   // @}
+class commsys<sigspace> : public basic_commsys<sigspace> {
 protected:
    /*! \name Setup functions */
    void init();
-   void clear();
-   void free();
    // @}
 public:
-   /*! \name Constructors / Destructors */
-   commsys<sigspace>(codec *cdc, mapper *map, modulator<sigspace> *modem, puncture *punc, channel<sigspace> *chan);
-   commsys<sigspace>(const commsys<sigspace>& c);
-   commsys<sigspace>() { clear(); };
-   virtual ~commsys<sigspace>() { free(); };
-   // @}
-
-   /*! \name Component object handles */
-   //! Get puncturing scheme
-   const puncture *getpunc() const { return punc; };
-   // @}
-
-   // Communication System Interface
-   void transmitandreceive(libbase::vector<int>& source);
-
-   // Description
-   std::string description() const;
-
    // Serialization Support
-   DECLARE_SERIALIZER(commsys)
+   DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
 };
-
-#endif
 
 }; // end namespace
 

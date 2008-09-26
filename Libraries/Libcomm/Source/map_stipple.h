@@ -53,7 +53,7 @@ public:
    void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 
    // Informative functions
-   double rate() const { return 2.0/(sets+1); };
+   double rate() const { return (sets+1)/2.0; };
 
    // Description
    std::string description() const;
