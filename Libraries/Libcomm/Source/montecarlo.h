@@ -92,6 +92,10 @@ public:
    void set_accuracy(double accuracy);
    //! Associates with given results file
    void set_resultsfile(const std::string& fname) { resultsfile::init(fname); };
+   //! Get confidence limit
+   double get_confidence() const { return confidence; };
+   //! Get target accuracy
+   double get_accuracy() const { return accuracy; };
    // @}
    /*! \name Simulation results */
    //! Number of samples taken to produce the result

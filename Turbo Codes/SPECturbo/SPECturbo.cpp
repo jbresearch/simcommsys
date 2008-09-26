@@ -117,55 +117,45 @@ int main(int argc, char *argv[])
    // Create estimator object and initilize cluster
    mymontecarlo estimator;
    estimator.enable(vm["endpoint"].as<std::string>(), vm["quiet"].as<bool>(), vm["priority"].as<int>());
-   // Simulation parameters
-   const double SNR = vm["snr"].as<double>();
-   const double simtime = vm["time"].as<double>();
-   const bool quiet = vm["quiet"].as<bool>();
-   const double confidence = vm["confidence"].as<double>();
-   const double accuracy = vm["tolerance"].as<double>();
    // Set up the estimator
    libcomm::experiment *system = createsystem();
    estimator.bind(system);
-   estimator.set_confidence(confidence);
-   estimator.set_accuracy(accuracy);
+   estimator.set_confidence(vm["confidence"].as<double>());
+   estimator.set_accuracy(vm["tolerance"].as<double>());
+   estimator.timeout = vm["time"].as<double>();
+   // Work out at the SNR value required
+   system->set_parameter(vm["snr"].as<double>());
 
-   // Write some information on the code
-   if(!quiet)
+   // Perform the simulation
+   libbase::vector<double> estimate, tolerance;
+   estimator.estimate(estimate, tolerance);
+   const libbase::int64u frames = estimator.get_samplecount();
+
+   if(!vm["quiet"].as<bool>())
       {
-      cout << "\n";
+      // Write some information on the code
+      cout << "\n\n";
       cout << "System Used:\n";
       cout << "~~~~~~~~~~~~\n";
       cout << system->description() << "\n";
       //cout << "Rate: " << system-> << "\n";
-      cout << "Tolerance: " << 100*accuracy << "%\n";
-      cout << "Confidence: " << 100*confidence << "%\n";
+      cout << "Tolerance: " << 100*estimator.get_accuracy() << "%\n";
+      cout << "Confidence: " << 100*estimator.get_confidence() << "%\n";
       cout << "Date: " << libbase::timer::date() << "\n";
-      cout << "Simulating system at Eb/No = " << SNR << "\n";
-      cout << "\n";
-      }
+      cout << "Simulating system at Eb/No = " << system->get_parameter() << "\n";
 
-   // Work out at the SNR value required
-   system->set_parameter(SNR);
-   // Time the simulation
-   estimator.timeout = simtime;
-   libbase::vector<double> estimate, tolerance;
-   estimator.estimate(estimate, tolerance);
-
-   // Tabulate standard results
-   const double std[] = {0.0924156, 0.993763, \
-                         0.073373, 0.894948, \
-                         0.0671458, 0.798102, \
-                         0.0646009, 0.740787, \
-                         0.0634388, 0.70745, \
-                         0.0628046, 0.690988, \
-                         0.0622686, 0.679999, \
-                         0.0620079, 0.670621, \
-                         0.0619153, 0.666856, \
-                         0.0618174, 0.662668};
-
-   // Print results (for confirming accuracy)
-   if(!quiet)
-      {
+      // Tabulate standard results
+      const double std[] = {0.0924156, 0.993763, \
+                            0.073373, 0.894948, \
+                            0.0671458, 0.798102, \
+                            0.0646009, 0.740787, \
+                            0.0634388, 0.70745, \
+                            0.0628046, 0.690988, \
+                            0.0622686, 0.679999, \
+                            0.0620079, 0.670621, \
+                            0.0619153, 0.666856, \
+                            0.0618174, 0.662668};
+      // Print results (for confirming accuracy)
       cout << "\n";
       cout << "Results: (SER, FER)\n";
       cout << "~~~~~~~~~~~~~~~~~~~\n";
@@ -176,17 +166,15 @@ int main(int argc, char *argv[])
          cout << setprecision(6) << estimate(j+1) << " (";
          cout << setprecision(3) << 100*(estimate(j+1)-std[j+1])/std[j+1] << "%)\n";
          }
-      cout << "\n";
-      }
 
-   // Output timing statistics
-   const libbase::int64u frames = estimator.get_samplecount();
-   if(!quiet)
-      {
+      // Output timing statistics
+      cout << "\n";
       cout << "URL: " << __WCURL__ << "\n";
       cout << "Version: " << __WCVER__ << "\n";
       cout << "Statistics: " << frames << " frames in " << estimator.get_timer() << ".\n";
       }
+
+   // Output overall benchmark
    cout << "SPECturbo: " << setprecision(4) << frames/estimator.get_timer().elapsed() << " frames/sec\n";
    return 0;
    }
