@@ -90,7 +90,6 @@
 // string types
 #define keyFileName              'filE'
 #define keyCodec                 'codE'
-#define keyPuncture              'punC'
 #define keyResults               'resU'
 #define keyEmbeddedImage         'embI'
 #define keyExtractedImage        'extI'

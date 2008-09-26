@@ -144,8 +144,8 @@ protected:
    void PlayeventFilterVariance(int nRadius, int nScale);
    void PlayeventFilterEnergy(const char *sFileName, bool bAppend, bool bDisplayVariance, bool bDisplayEnergy, bool bDisplayPixelCount);
    void PlayeventFilterExport(const char *sPathName);
-   void PlayeventFilterEmbed(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec, const char *sPuncture);
-   void PlayeventFilterExtract(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bPresetStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec, const char *sPuncture, const char *sResults, const char *sEmbedded, const char *sExtracted, const char *sUniform, const char *sDecoded, bool bPrintBER, bool bPrintSNR, bool bPrintEstimate, bool bPrintChiSquare, int nFeedback);
+   void PlayeventFilterEmbed(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec);
+   void PlayeventFilterExtract(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bPresetStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec, const char *sResults, const char *sEmbedded, const char *sExtracted, const char *sUniform, const char *sDecoded, bool bPrintBER, bool bPrintSNR, bool bPrintEstimate, bool bPrintChiSquare, int nFeedback);
 
    // event playback - binary
    void PlayeventFilterOrphans(int nWeight, bool bKeepNoise);

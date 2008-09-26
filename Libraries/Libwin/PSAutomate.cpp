@@ -560,7 +560,7 @@ void CPSAutomate::PlayeventFilterExport(const char *sPathName)
    FreeDescriptor(result);
    }
 
-void CPSAutomate::PlayeventFilterEmbed(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec, const char *sPuncture)
+void CPSAutomate::PlayeventFilterEmbed(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec)
    {
    PIActionDescriptor descriptor = MakeDescriptor();
    // embedding system
@@ -575,15 +575,14 @@ void CPSAutomate::PlayeventFilterEmbed(int nEmbedSeed, int nEmbedRate, double dE
    PutInteger(descriptor, keySourceType, nSourceType);
    PutInteger(descriptor, keySourceSeed, nSourceSeed);
    PutString(descriptor, keySource, sSource);
-   // codec and puncture pattern
+   // codec
    PutString(descriptor, keyCodec, sCodec);
-   PutString(descriptor, keyPuncture, sPuncture);
    // play event
    PIActionDescriptor result = PlayEvent(eventFilterEmbed, descriptor, plugInDialogSilent);
    FreeDescriptor(result);
    }
 
-void CPSAutomate::PlayeventFilterExtract(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bPresetStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec, const char *sPuncture, const char *sResults, const char *sEmbedded, const char *sExtracted, const char *sUniform, const char *sDecoded, bool bPrintBER, bool bPrintSNR, bool bPrintEstimate, bool bPrintChiSquare, int nFeedback)
+void CPSAutomate::PlayeventFilterExtract(int nEmbedSeed, int nEmbedRate, double dEmbedStrength, bool bPresetStrength, bool bInterleave, int nInterleaverSeed, double dInterleaverDensity, int nSourceType, int nSourceSeed, const char *sSource, const char *sCodec, const char *sResults, const char *sEmbedded, const char *sExtracted, const char *sUniform, const char *sDecoded, bool bPrintBER, bool bPrintSNR, bool bPrintEstimate, bool bPrintChiSquare, int nFeedback)
    {
    PIActionDescriptor descriptor = MakeDescriptor();
    // embedding system
@@ -599,9 +598,8 @@ void CPSAutomate::PlayeventFilterExtract(int nEmbedSeed, int nEmbedRate, double 
    PutInteger(descriptor, keySourceType, nSourceType);
    PutInteger(descriptor, keySourceSeed, nSourceSeed);
    PutString(descriptor, keySource, sSource);
-   // codec and puncture pattern
+   // codec
    PutString(descriptor, keyCodec, sCodec);
-   PutString(descriptor, keyPuncture, sPuncture);
    // results storage
    PutString(descriptor, keyResults, sResults);
    PutString(descriptor, keyEmbedded, sEmbedded);

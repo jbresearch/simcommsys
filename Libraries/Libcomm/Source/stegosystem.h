@@ -73,7 +73,6 @@ class stegosystem
 private:
    const serializer_libcomm m_serializer_libcomm;
    codec*            m_pCodec;
-   puncture*         m_pPuncture;
 
 public:
    // creation/destruction
@@ -93,7 +92,7 @@ public:
    double GetCodeRate() const;
    bool CodecPresent() const { return(m_pCodec != NULL); };
 
-   void LoadErrorControl(const char* sCodec, const char* sPuncture);
+   void LoadErrorControl(const char* sCodec);
    void FreeErrorControl();
    void LoadDataFile(const char* sPathName, libbase::vector<int>& d, int n);
    void EncodeData(const libbase::vector<int>& d, libbase::vector<int>& e);

@@ -68,13 +68,6 @@
 #include "map_interleaved.h"
 #include "map_stipple.h"
 
-// Puncture Patterns
-#include "puncture.h"
-#include "puncture_file.h"
-#include "puncture_null.h"
-#include "puncture_stipple.h"
-
-
 // Experiments
 #include "commsys.h"
 #include "commsys_simulator.h"
@@ -107,8 +100,7 @@ class serializer_libcomm : private
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
    onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>, diffturbo<libbase::logrealfast>,
-   map_interleaved, map_stipple,
-   puncture_file, puncture_null, puncture_stipple
+   map_interleaved, map_stipple
 {
 private:
    // Modulators

@@ -30,7 +30,6 @@ using libbase::randgen;
 stegosystem::stegosystem()
    {
    m_pCodec = NULL;
-   m_pPuncture = NULL;
    }
 
 stegosystem::~stegosystem()
@@ -50,7 +49,7 @@ int stegosystem::GetRawSize(double dInterleaverDensity) const
 // returns the length of each encoded vector (in bits)
 int stegosystem::GetOutputSize() const
    {
-   return int(round((m_pCodec == NULL) ? 1 : (m_pPuncture == NULL) ? m_pCodec->output_bits() : m_pPuncture->get_outputs()));
+   return int(round((m_pCodec == NULL) ? 1 : m_pCodec->output_bits()));
    }
 
 // returns the length of each uncoded vector (in bits)
@@ -81,7 +80,7 @@ double stegosystem::GetCodeRate() const
 /////////////////////////////////////////////////////////////////////////////
 //
 
-void stegosystem::LoadErrorControl(const char* sCodec, const char* sPuncture)
+void stegosystem::LoadErrorControl(const char* sCodec)
    {
    // load encoder and puncturing pattern
    FreeErrorControl();
@@ -89,13 +88,6 @@ void stegosystem::LoadErrorControl(const char* sCodec, const char* sPuncture)
       {
       std::ifstream file(sCodec);
       file >> m_pCodec;
-      if(strlen(sPuncture) != 0)
-         {
-         std::ifstream file(sPuncture);
-         file >> m_pPuncture;
-         if(m_pPuncture->get_inputs() != m_pCodec->output_bits())
-            throw("Size mismatch between Codec and Puncturing sub-systems");
-         }
       }
    }
 
@@ -105,11 +97,6 @@ void stegosystem::FreeErrorControl()
       {
       delete m_pCodec;
       m_pCodec = NULL;
-      }
-   if(m_pPuncture != NULL)
-      {
-      delete m_pPuncture;
-      m_pPuncture = NULL;
       }
    }
 
@@ -155,12 +142,6 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
       m_pCodec->encode(source, encoded);
       // modulate
       modem.modulate(m_pCodec->num_outputs(), encoded, signal);
-      // puncture
-      if(m_pPuncture != NULL)
-         {
-         vector<sigspace> signalcopy = signal;
-         m_pPuncture->transform(signalcopy, signal);
-         }
       // write into output stream
       for(i=0; i<signal.size(); i++)
          e(k++) = modem.demodulate(signal(i));
@@ -203,13 +184,6 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
       // demodulate (build probability table)
       modem.demodulate(chan, signal, ptable);
       trace << "Translation table block size = " << ptable.xsize() << "x" << ptable.ysize() << "\n";
-      // unpuncture
-      if(m_pPuncture != NULL)
-         {
-         matrix<double> ptablecopy = ptable;
-         m_pPuncture->inverse(ptablecopy, ptable);
-         trace << "Unpunctured translation table block size = " << ptable.xsize() << "x" << ptable.ysize() << "\n";
-         }
       // decode
       m_pCodec->translate(ptable);
       for(i=0; i<m_pCodec->num_iter(); i++)
