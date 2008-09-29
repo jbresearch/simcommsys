@@ -31,6 +31,9 @@ protected:
    int M;   //!< Number of possible values of each modulation symbol
    int S;   //!< Number of possible values of each translation symbol
    // @}
+   /*! \name Internal representation */
+   mutable bool advanced;   //!< Flag indicating mapper is ready for next block
+   // @}
 
 protected:
    /*! \name Helper functions */
@@ -49,10 +52,17 @@ protected:
    /*! \name Interface with derived classes */
    //! Setup function, called from set_parameters
    virtual void setup() = 0;
+   //! Sets up mapper for the next block, in time-variant systems
+   virtual void advance() const {};
+   //! \copydoc transform()
+   virtual void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
+   //! \copydoc inverse()
+   virtual void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const = 0;
    // @}
 
 public:
    /*! \name Constructors / Destructors */
+   mapper() { advanced = false; };
    virtual ~mapper() {};
    // @}
 
@@ -63,7 +73,7 @@ public:
       \param[in]  in    Sequence of encoder output values to be modulated
       \param[out] out   Sequence of modulation symbols
    */
-   virtual void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
+   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    /*!
       \brief Inverse-transform the received symbol probabilities to a decoder-
              comaptible set
@@ -72,14 +82,12 @@ public:
       
       \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
    */
-   virtual void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const = 0;
+   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
    // @}
 
    /*! \name Setup functions */
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) {};
-   //! Sets up mapper for the next block, in time-variant systems
-   virtual void advance() {};
    /*!
       \brief Sets input and output alphabet sizes
       \param[in]  N  Number of possible values of each encoder output

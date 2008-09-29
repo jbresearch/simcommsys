@@ -17,13 +17,13 @@ namespace libcomm {
 
 const libbase::serializer map_interleaved::shelper("mapper", "map_interleaved", map_interleaved::create);
 
-// Vector map_interleaved operations
+// Interface with mapper
 
-void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+void map_interleaved::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // do the base (straight) mapping into a temporary space
    libbase::vector<int> s;
-   map_straight::transform(in, s);
+   map_straight::dotransform(in, s);
    // final vector is the same size as straight-mapped one
    out.init(s);
    // shuffle the results
@@ -31,11 +31,11 @@ void map_interleaved::transform(const libbase::vector<int>& in, libbase::vector<
       out(i) = s(lut(i));
    }
 
-void map_interleaved::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_interleaved::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
    // do the base (straight) mapping into a temporary space
    libbase::matrix<double> ptable;
-   map_straight::inverse(pin, ptable);
+   map_straight::doinverse(pin, ptable);
    // final matrix is the same size as straight-mapped one
    pout.init(ptable);
    // invert the shuffling

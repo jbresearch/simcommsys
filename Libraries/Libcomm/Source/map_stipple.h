@@ -42,15 +42,14 @@ protected:
    /*! \name Constructors / Destructors */
    map_stipple() {};
    // @}
+   // Interface with mapper
+   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 public:
    /*! \name Constructors / Destructors */
    map_stipple(int tau, int sets) { init(tau, sets); };
    virtual ~map_stipple() {};
    // @}
-
-   // Vector mapper operations
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 
    // Informative functions
    double rate() const { return (sets+1)/2.0; };

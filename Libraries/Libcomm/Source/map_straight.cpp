@@ -17,7 +17,7 @@ namespace libcomm {
 
 const libbase::serializer map_straight::shelper("mapper", "map_straight", map_straight::create);
 
-// Interface with derived classes
+// Interface with mapper
 
 /*! \copydoc mapper::setup()
 
@@ -30,9 +30,7 @@ void map_straight::setup()
    s2 = get_rate(M, S);
    }
 
-// Vector mapper operations
-
-void map_straight::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+void map_straight::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // Determine length of encoded sequence
    const int tau = in.size();
@@ -44,7 +42,7 @@ void map_straight::transform(const libbase::vector<int>& in, libbase::vector<int
          out(k) = x % M;
    }
 
-void map_straight::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_straight::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
    assertalways(pin.ysize() == M);
    // Determine required length of encoded sequence, and confirm validity

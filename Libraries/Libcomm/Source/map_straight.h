@@ -26,14 +26,13 @@ private:
    int s2;  //!< Number of modulation symbols per translation symbol
    // @}
 
-   // Interface with derived classes
+protected:
+   // Interface with mapper
    void setup();
+   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 
 public:
-   // Vector mapper operations
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
-
    // Informative functions
    double rate() const { return 1; };
 

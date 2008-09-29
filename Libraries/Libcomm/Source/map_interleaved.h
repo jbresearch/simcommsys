@@ -20,18 +20,21 @@ namespace libcomm {
 */
 
 class map_interleaved : public map_straight {
+private:
    /*! \name Internal object representation */
-   libbase::randperm lut;
+   mutable libbase::randperm lut;
    libbase::randgen r;
    // @}
-public:
-   // Vector mapper operations
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 
+protected:
+   // Interface with mapper
+   void advance() { lut.init(M,r); };
+   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
+
+public:
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
-   void advance() { lut.init(M,r); };
 
    // Description
    std::string description() const;

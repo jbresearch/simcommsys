@@ -168,7 +168,6 @@ libbase::vector<S> basic_commsys<S>::encode(libbase::vector<int>& source)
    this->cdc->encode(source, encoded);
    // Map
    libbase::vector<int> mapped;
-   this->map->advance();
    this->map->transform(encoded, mapped);
    // Modulate
    libbase::vector<S> transmitted;

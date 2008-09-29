@@ -32,13 +32,13 @@ void map_stipple::init(int tau, int sets)
          pattern(i) = (s==0 || (s-1)==t%sets);
    }
 
-// Vector mapper operations
+// Interface with mapper
 
-void map_stipple::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+void map_stipple::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // do the base (straight) mapping into a temporary space
    libbase::vector<int> s;
-   map_straight::transform(in, s);
+   map_straight::dotransform(in, s);
    // final vector size depends on the number of set positions
    assertalways(s.size()==pattern.size());
    out.init(2*tau);
@@ -48,11 +48,11 @@ void map_stipple::transform(const libbase::vector<int>& in, libbase::vector<int>
          out(ii++) = s(i);
    }
 
-void map_stipple::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_stipple::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
    // do the base (straight) mapping into a temporary space
    libbase::matrix<double> ptable;
-   map_straight::inverse(pin, ptable);
+   map_straight::doinverse(pin, ptable);
    // final matrix size depends on the number of set positions
    assertalways(ptable.xsize()==2*tau);
    pout.init(pattern.size(),ptable.ysize());
