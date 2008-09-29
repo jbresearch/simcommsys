@@ -28,7 +28,7 @@ protected:
    //! The information symbol alphabet size
    virtual int get_alphabetsize() const = 0;
    //! The number of bits per information symbol
-   virtual int get_bitspersymbol() const = 0;
+   int get_bitspersymbol() const { return int(round(log2(double(get_alphabetsize())))); };
    // @}
    /*! \name Helper functions */
    int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;

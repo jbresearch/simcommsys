@@ -47,7 +47,6 @@ protected:
    int get_iter() const { return sys->getcodec()->num_iter(); };
    int get_symbolsperblock() const { return sys->getcodec()->block_size() - sys->getcodec()->tail_length(); };
    int get_alphabetsize() const { return sys->getcodec()->num_inputs(); };
-   int get_bitspersymbol() const { return int(round(log2(double(get_alphabetsize())))); };
 public:
    /*! \name Constructors / Destructors */
    basic_commsys_simulator(libbase::randgen *src, commsys<S> *sys);
