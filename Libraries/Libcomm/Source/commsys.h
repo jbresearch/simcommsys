@@ -72,6 +72,10 @@ public:
    // @}
 
    /*! \name Communication System Interface */
+   //! Perform complete encode path (encode -> map -> modulate)
+   libbase::vector<S> encode(libbase::vector<int>& source);
+   //! Perform complete translation path (demodulate -> unmap -> translate)
+   void translate(libbase::vector<S>& received);
    //! Perform a complete transmit/receive cycle, except for final decoding
    virtual void transmitandreceive(libbase::vector<int>& source);
    // @}

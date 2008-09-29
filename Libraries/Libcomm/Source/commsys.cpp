@@ -145,8 +145,67 @@ void basic_commsys<S>::seedfrom(libbase::random& r)
 // Communication System Interface
 
 /*!
-   \copydoc basic_commsys::transmitandreceive()
+   The encode process consists of the steps depicted in the following diagram:
+   \dot
+   digraph encode {
+      // Make figure left-to-right
+      rankdir = LR;
+      // block definitions
+      node [ shape=box ];
+      encode [ label="Encode" ];
+      map [ label="Map" ];
+      modulate [ label="Modulate" ];
+      // path definitions
+      encode -> map -> modulate;
+   }
+   \enddot
+*/
+template <class S>
+libbase::vector<S> basic_commsys<S>::encode(libbase::vector<int>& source)
+   {
+   // Encode
+   libbase::vector<int> encoded;
+   this->cdc->encode(source, encoded);
+   // Map
+   libbase::vector<int> mapped;
+   this->map->advance();
+   this->map->transform(encoded, mapped);
+   // Modulate
+   libbase::vector<S> transmitted;
+   this->modem->modulate(this->M, mapped, transmitted);
+   return transmitted;
+   }
 
+/*!
+   The translate process consists of the steps depicted in the following diagram:
+   \dot
+   digraph decode {
+      // Make figure left-to-right
+      rankdir = LR;
+      // block definitions
+      node [ shape=box ];
+      demodulate [ label="Demodulate" ];
+      unmap [ label="Inverse Map" ];
+      translate [ label="Translate" ];
+      // path definitions
+      demodulate -> unmap -> translate;
+   }
+   \enddot
+*/
+template <class S>
+void basic_commsys<S>::translate(libbase::vector<S>& received)
+   {
+   // Demodulate
+   libbase::matrix<double> ptable_mapped;
+   this->modem->demodulate(*this->chan, received, ptable_mapped);
+   // Inverse Map
+   libbase::matrix<double> ptable_encoded;
+   this->map->inverse(ptable_mapped, ptable_encoded);
+   // Translate
+   this->cdc->translate(ptable_encoded);
+   }
+
+/*!
    The cycle consists of the steps depicted in the following diagram:
    \dot
    digraph txrxcycle {
@@ -162,31 +221,22 @@ void basic_commsys<S>::seedfrom(libbase::random& r)
       unmap [ label="Inverse Map" ];
       translate [ label="Translate" ];
       // path definitions
-      encode -> map;
-      map -> modulate;
-      modulate -> transmit;
-      transmit -> demodulate;
-      demodulate -> unmap;
-      unmap -> translate;
+      encode -> map -> modulate;
+      modulate -> transmit -> demodulate;
+      demodulate -> unmap -> translate;
    }
    \enddot
 */
 template <class S>
 void basic_commsys<S>::transmitandreceive(libbase::vector<int>& source)
    {
-   libbase::vector<int> encoded;
-   this->cdc->encode(source, encoded);
-   this->map->advance();
-   libbase::vector<int> transmitted;
-   this->map->transform(encoded, transmitted);
-   libbase::vector<S> signal;
-   this->modem->modulate(this->M, transmitted, signal);
-   this->chan->transmit(signal, signal);
-   libbase::matrix<double> pin;
-   this->modem->demodulate(*this->chan, signal, pin);
-   libbase::matrix<double> pout;
-   this->map->inverse(pin, pout);
-   this->cdc->translate(pout);
+   // Encode -> Map -> Modulate
+   libbase::vector<S> transmitted = encode(source);
+   // Transmit
+   libbase::vector<S> received;
+   this->chan->transmit(transmitted, received);
+   // Demodulate -> Inverse Map -> Translate
+   translate(received);
    }
 
 // Description & Serialization
