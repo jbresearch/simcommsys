@@ -133,7 +133,7 @@ public:
 
    // Codec operations
    void seedfrom(libbase::random& r);
-   void encode(array1i_t& source, array1i_t& encoded);
+   void encode(const array1i_t& source, array1i_t& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(array2d_t& ri);
    void decode(array2d_t& ri, array2d_t& ro);

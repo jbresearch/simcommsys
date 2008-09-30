@@ -19,6 +19,9 @@ namespace libcomm {
    - $Date$
    - $Author$
 
+   \todo Current model assumes one symbol per timestep; this needs to change
+         so we can represent multiple input/output symbols per timestep.
+
    \todo Change class interface to better model the actual representation of
          input and output sequences of the codec and to better separate this
          class from the modulation class.
@@ -42,11 +45,8 @@ public:
       \note If the input or output symbols at every timestep represent the
             aggregation of a set of symbols, the combination/division has to
             be done externally.
-
-      \note Source is non-const; this is necessary to allow the codec to set
-            values actually used in tail.
    */
-   virtual void encode(libbase::vector<int>& source, libbase::vector<int>& encoded) = 0;
+   virtual void encode(const libbase::vector<int>& source, libbase::vector<int>& encoded) = 0;
    /*!
       \brief Receiver translation process
       \param[in] ptable Matrix representing the likelihoods of each possible

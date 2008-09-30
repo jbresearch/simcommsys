@@ -327,14 +327,16 @@ void turbo<real,dbl>::seedfrom(libbase::random& r)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::encode(array1i_t& source, array1i_t& encoded)
+void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    // Initialise result vector
    encoded.init(tau);
 
    // Allocate space for the encoder outputs
    libbase::matrix<int> x(num_sets(), tau);
-   // Allocate space for the interleaved sources
+   // Make a local copy of the source (to allow tail updates)
+   array1i_t source1 = source;
+   // Allocate space for the interleaved source
    array1i_t source2(tau);
 
    // Consider sets in order
@@ -343,7 +345,7 @@ void turbo<real,dbl>::encode(array1i_t& source, array1i_t& encoded)
       // Advance interleaver to the next block
       inter(set)->advance();
       // Create interleaved version of source
-      inter(set)->transform(source, source2);
+      inter(set)->transform(source1, source2);
 
       // Reset the encoder to zero state
       encoder->reset(0);
@@ -366,7 +368,7 @@ void turbo<real,dbl>::encode(array1i_t& source, array1i_t& encoded)
       // If this was the first (non-interleaved) set, copy back the source
       // to fix the tail bit values, if any
       if(endatzero && set == 0)
-         source = source2;
+         source1 = source2;
 
       // check that encoder finishes correctly
       if(circular)
@@ -379,7 +381,7 @@ void turbo<real,dbl>::encode(array1i_t& source, array1i_t& encoded)
    for(int t=0; t<tau; t++)
       {
       // data bits
-      encoded(t) = source(t);
+      encoded(t) = source1(t);
       // parity bits
       for(int set=0, mul=num_inputs(); set<num_sets(); set++, mul*=enc_parity())
          encoded(t) += x(set, t)*mul;

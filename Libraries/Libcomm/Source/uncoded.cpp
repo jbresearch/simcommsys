@@ -46,13 +46,16 @@ uncoded::uncoded(const fsm& encoder, const int tau)
 
 // encoding and decoding functions
 
-void uncoded::encode(array1i_t& source, array1i_t& encoded)
+void uncoded::encode(const array1i_t& source, array1i_t& encoded)
    {
    // Initialise result vector
    encoded.init(tau);
    // Encode source stream
    for(int t=0; t<tau; t++)
-      encoded(t) = encoder->step(source(t));
+      {
+      int ip = source(t);
+      encoded(t) = encoder->step(ip);
+      }
    }
 
 void uncoded::translate(const array2d_t& ptable)

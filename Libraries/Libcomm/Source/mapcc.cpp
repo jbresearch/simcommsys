@@ -73,7 +73,7 @@ mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, cons
 // encoding and decoding functions
 
 template <class real>
-void mapcc<real>::encode(libbase::vector<int>& source, libbase::vector<int>& encoded)
+void mapcc<real>::encode(const libbase::vector<int>& source, libbase::vector<int>& encoded)
    {
    // Initialise result vector
    encoded.init(tau);
@@ -84,12 +84,18 @@ void mapcc<real>::encode(libbase::vector<int>& source, libbase::vector<int>& enc
    if(circular)
       {
       for(int t=0; t<tau; t++)
-         encoder->advance(source(t));
+         {
+         int ip = source(t);
+         encoder->advance(ip);
+         }
       encoder->resetcircular();
       }
    // Encode source stream
    for(int t=0; t<tau; t++)
-      encoded(t) = encoder->step(source(t));
+      {
+      int ip = source(t);
+      encoded(t) = encoder->step(ip);
+      }
    }
 
 template <class real>
