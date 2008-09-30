@@ -8,6 +8,7 @@
 */
 
 #include "commsys_prof_burst.h"
+#include "fsm.h"
 #include <sstream>
 
 namespace libcomm {
@@ -20,6 +21,7 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result, const in
    const int skip = count()/get_iter();
    // Update the relevant count for every symbol in error
    // Check the first symbol first
+   assert(source(0) != fsm::tail);
    if(source(0) != decoded(0))
       result(skip*i + 0)++;
    // For each remaining symbol
@@ -27,6 +29,7 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result, const in
       {
       if(source(t-1) != decoded(t-1))
          result(skip*i + 3)++;
+      assert(source(t) != fsm::tail);
       if(source(t) != decoded(t))
          {
          // Keep separate counts, depending on whether the previous symbol was in error

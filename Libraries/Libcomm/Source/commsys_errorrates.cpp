@@ -8,6 +8,7 @@
 */
 
 #include "commsys_errorrates.h"
+#include "fsm.h"
 #include "itfunc.h"
 #include <sstream>
 
@@ -21,7 +22,10 @@ int commsys_errorrates::countbiterrors(const libbase::vector<int>& source, const
    {
    int biterrors = 0;
    for(int t=0; t<get_symbolsperblock(); t++)
+      {
+      assert(source(t) != fsm::tail);
       biterrors += libbase::weight(source(t) ^ decoded(t));
+      }
    return biterrors;
    }
 
@@ -33,8 +37,11 @@ int commsys_errorrates::countsymerrors(const libbase::vector<int>& source, const
    {
    int symerrors = 0;
    for(int t=0; t<get_symbolsperblock(); t++)
+      {
+      assert(source(t) != fsm::tail);
       if(source(t) != decoded(t))
          symerrors++;
+      }
    return symerrors;
    }
 

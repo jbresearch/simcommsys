@@ -8,6 +8,7 @@
 */
 
 #include "commsys_prof_pos.h"
+#include "fsm.h"
 #include <sstream>
 
 namespace libcomm {
@@ -20,8 +21,11 @@ void commsys_prof_pos::updateresults(libbase::vector<double>& result, const int 
    const int skip = count()/get_iter();
    // Update the count for every symbol in error
    for(int t=0; t<get_symbolsperblock(); t++)
+      {
+      assert(source(t) != fsm::tail);
       if(source(t) != decoded(t))
          result(skip*i + t)++;
+      }
    }
 
 /*!
