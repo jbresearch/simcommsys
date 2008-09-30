@@ -39,8 +39,8 @@ public:
    virtual void seedfrom(libbase::random& r) {};
    /*!
       \brief Encoding process
-      \param[in,out] source Sequence of source symbols, one per timestep
-      \param[in,out] encoded Sequence of output (encoded) symbols, one per timestep
+      \param[in] source Sequence of source symbols, one per timestep
+      \param[out] encoded Sequence of output (encoded) symbols, one per timestep
 
       \note If the input or output symbols at every timestep represent the
             aggregation of a set of symbols, the combination/division has to
