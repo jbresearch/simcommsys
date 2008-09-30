@@ -337,7 +337,7 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Make a local copy of the source (to allow tail updates)
    array1i_t source1 = source;
    // Allocate space for the interleaved source
-   array1i_t source2(tau);
+   array1i_t source2;
 
    // Consider sets in order
    for(int set=0; set<num_sets(); set++)
@@ -448,7 +448,7 @@ void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
    bcjr<real,dbl>::normalize(rp);
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
-   array2d_t rpi(rp);
+   array2d_t rpi;
    for(int set=0; set<num_sets(); set++)
       {
       inter(set)->transform(rp, rpi);

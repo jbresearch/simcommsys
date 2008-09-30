@@ -98,11 +98,8 @@ void onetimepad::advance()
 void onetimepad::transform(const vector<int>& in, vector<int>& out) const
    {
    const int tau = pad.size();
-   if(in.size() != tau || out.size() != tau)
-      {
-      cerr << "FATAL ERROR (onetimepad): vectors must have same size as PAD (in=" << in.size() << ", out=" << out.size() << ", pad=" << tau << ").\n";
-      exit(1);
-      }
+   assertalways(in.size() == tau);
+   out.init(in);
    for(int t=0; t<tau; t++)
       out(t) = (in(t) + pad(t)) % K;
    }
@@ -110,16 +107,9 @@ void onetimepad::transform(const vector<int>& in, vector<int>& out) const
 void onetimepad::transform(const matrix<double>& in, matrix<double>& out) const
    {
    const int tau = pad.size();
-   if(in.xsize() != tau || out.xsize() != tau)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same x-size as PAD (in=" << in.xsize() << ", out=" << out.xsize() << ", pad=" << tau << ").\n";
-      exit(1);
-      }
-   if(in.ysize() != K || out.ysize() != K)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same y-size as PAD (in=" << in.ysize() << ", out=" << out.ysize() << ", pad=" << K << ").\n";
-      exit(1);
-      }
+   assertalways(in.ysize() == K);
+   assertalways(in.xsize() == tau);
+   out.init(in);
    for(int t=0; t<tau; t++)
       for(int i=0; i<K; i++)
          out(t, i) = in(t, (i+pad(t))%K);
@@ -128,16 +118,9 @@ void onetimepad::transform(const matrix<double>& in, matrix<double>& out) const
 void onetimepad::inverse(const matrix<double>& in, matrix<double>& out) const
    {
    const int tau = pad.size();
-   if(in.xsize() != tau || out.xsize() != tau)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same x-size as PAD (in=" << in.xsize() << ", out=" << out.xsize() << ", pad=" << tau << ").\n";
-      exit(1);
-      }
-   if(in.ysize() != K || out.ysize() != K)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same y-size as PAD (in=" << in.ysize() << ", out=" << out.ysize() << ", pad=" << K << ").\n";
-      exit(1);
-      }
+   assertalways(in.ysize() == K);
+   assertalways(in.xsize() == tau);
+   out.init(in);
    for(int t=0; t<tau; t++)
       for(int i=0; i<K; i++)
          out(t, (i+pad(t))%K) = in(t, i);
@@ -146,16 +129,9 @@ void onetimepad::inverse(const matrix<double>& in, matrix<double>& out) const
 void onetimepad::transform(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
    {
    const int tau = pad.size();
-   if(in.xsize() != tau || out.xsize() != tau)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same x-size as PAD (in=" << in.xsize() << ", out=" << out.xsize() << ", pad=" << tau << ").\n";
-      exit(1);
-      }
-   if(in.ysize() != K || out.ysize() != K)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same y-size as PAD (in=" << in.ysize() << ", out=" << out.ysize() << ", pad=" << K << ").\n";
-      exit(1);
-      }
+   assertalways(in.ysize() == K);
+   assertalways(in.xsize() == tau);
+   out.init(in);
    for(int t=0; t<tau; t++)
       for(int i=0; i<K; i++)
          out(t, i) = in(t, (i+pad(t))%K);
@@ -164,16 +140,9 @@ void onetimepad::transform(const matrix<libbase::logrealfast>& in, matrix<libbas
 void onetimepad::inverse(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
    {
    const int tau = pad.size();
-   if(in.xsize() != tau || out.xsize() != tau)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same x-size as PAD (in=" << in.xsize() << ", out=" << out.xsize() << ", pad=" << tau << ").\n";
-      exit(1);
-      }
-   if(in.ysize() != K || out.ysize() != K)
-      {
-      cerr << "FATAL ERROR (onetimepad): matrices must have same y-size as PAD (in=" << in.ysize() << ", out=" << out.ysize() << ", pad=" << K << ").\n";
-      exit(1);
-      }
+   assertalways(in.ysize() == K);
+   assertalways(in.xsize() == tau);
+   out.init(in);
    for(int t=0; t<tau; t++)
       for(int i=0; i<K; i++)
          out(t, (i+pad(t))%K) = in(t, i);

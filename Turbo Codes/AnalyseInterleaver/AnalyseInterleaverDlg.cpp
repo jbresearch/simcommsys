@@ -219,9 +219,10 @@ void CAnalyseInterleaverDlg::OnAnalyse()
    m_miIOSS = 0;
 
    // Generate LUT from the interleaver
-   libbase::vector<int> in(m_nTau), out(m_nTau);
+   libbase::vector<int> in(m_nTau);
    for(i=0; i<m_nTau; i++)
       in(i) = i;
+   libbase::vector<int> out;
    m_pInterleaver->transform(in, out);
 
    // Construct IOSS from LUT

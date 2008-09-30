@@ -61,35 +61,35 @@ void padded::advance()
 
 void padded::transform(const vector<int>& in, vector<int>& out) const
    {
-   vector<int> temp(in.size());
+   vector<int> temp;
    inter->transform(in, temp);
    otp->transform(temp, out);
    }
 
 void padded::transform(const matrix<double>& in, matrix<double>& out) const
    {
-   matrix<double> temp(in.xsize(), in.ysize());
+   matrix<double> temp;
    inter->transform(in, temp);
    otp->transform(temp, out);
    }
 
 void padded::inverse(const matrix<double>& in, matrix<double>& out) const
    {
-   matrix<double> temp(in.xsize(), in.ysize());
+   matrix<double> temp;
    otp->inverse(in, temp);
    inter->inverse(temp, out);
    }
 
 void padded::transform(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
    {
-   matrix<libbase::logrealfast> temp(in.xsize(), in.ysize());
+   matrix<libbase::logrealfast> temp;
    inter->transform(in, temp);
    otp->transform(temp, out);
    }
 
 void padded::inverse(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
    {
-   matrix<libbase::logrealfast> temp(in.xsize(), in.ysize());
+   matrix<libbase::logrealfast> temp;
    otp->inverse(in, temp);
    inter->inverse(temp, out);
    }
