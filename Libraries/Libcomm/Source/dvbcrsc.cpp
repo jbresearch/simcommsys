@@ -66,9 +66,7 @@ void dvbcrsc::advance(int& input)
    // ip[0] = A, ip[1] = B
    assert(input != fsm::tail);
    // process input
-   bitfield ip;
-   ip.resize(k);
-   ip = input;
+   bitfield ip(input,k);
    // compute the shift-register left input
    bitfield lsi = ((ip[0]^ip[1]) + reg) * bitfield("1101");
    // do the shift
@@ -84,9 +82,7 @@ int dvbcrsc::output(int input) const
    // ip[0] = A, ip[1] = B
    assert(input != fsm::tail);
    // process input
-   bitfield ip;
-   ip.resize(k);
-   ip = input;
+   bitfield ip(input,k);
    // compute the shift-register left input
    bitfield lsi = ((ip[0]^ip[1]) + reg) * bitfield("1101");
    // determine output

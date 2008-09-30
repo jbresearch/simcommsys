@@ -16,24 +16,9 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (11-14 Dec 2007)
-   - Initial version; implements common elements of a controller-canonical fsm,
-     where each coefficient is an element in a finite field.
-   - Derived from ccbfsm 1.00
-   - The finite field is specified as a template parameter.
-   - Added internal functions to convert from vector spaces in G to integer form
-   - Modified return type for determineinput() to integer.
-   - Modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
-   - Added function to compute convolution
-   - Made convert() and convolve() protected, to make them available to derived classes
-   - Modified definition of first convert() so that vector parameter is a const
-   - Implemented correct description output
-
-   \version 1.01 (3 Jan 2008)
-   - fixed bug in advance() with memoryless systems
-
-   \version 1.02 (4 Jan 2008)
-   - added calls to underlying functions in reset() and advance()
+   Implements common elements of a controller-canonical fsm, where each
+   coefficient is an element in a finite field.
+   The finite field is specified as a template parameter.
 */
 
 template <class G>

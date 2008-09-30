@@ -17,84 +17,6 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.10 (4 Nov 2001)
-   added a virtual function which outputs details on the finite state machine (this was
-   only done before in a non-standard print routine). Added a stream << operator too.
-
-   \version 1.20 (28 Feb 2002)
-   added serialization facility
-
-   \version 1.21 (6 Mar 2002)
-   changed vcs version variable from a global to a static class variable.
-   also changed use of iostream from global to std namespace.
-
-   \version 1.22 (11 Mar 2002)
-   changed the definition of the cloning operation to be a const member.
-
-   \version 1.30 (11 Mar 2002)
-   changed the stream << and >> functions to conform with the new serializer protocol,
-   as defined in serializer 1.10. The stream << output function first writes the name
-   of the derived class, then calls its serialize() to output the data. The name is
-   obtained from the virtual name() function. The stream >> input function first gets
-   the name from the stream, then (via serialize::call) creates a new object of the
-   appropriate type and calls its serialize() function to get the relevant data. Also,
-   changed the definition of stream << output to take the pointer to the fsm class
-   directly, not by reference.
-
-   \version 1.40 (27 Mar 2002)
-   removed the descriptive output() and related stream << output functions, and replaced
-   them by a function description() which returns a string. This provides the same
-   functionality but in a different format, so that now the only stream << output
-   functions are for serialization. This should make the notation much clearer while
-   also simplifying description display in objects other than streams.
-
-   \version 1.50 (8 Jan 2006)
-   updated class to allow consistent support for circular trellis encoding (tail-biting)
-   and also for the use of rate m/(m+1) LFSR codes. In practice this has been achieved
-   by creating a generalized convolutional code class that uses state-space techniques
-   to represent the system - the required codes, such as rate m/(m+1) LFSR including
-   the DVB duo-binary codes can be easily derived. The following virtual functions
-   were added to allow this:
-   - advance(input) - this performs the state-change without also computing the output;
-     it is provided as a faster version of step(), since the output doesn't need to be
-     computed in the first iteration.
-   - output(input) - this is added for completeness, and calculates the output, given
-     the present state and input.
-   - resetcircular(zerostate, N) - this performs the initial state computation (and
-     setting) for circular encoding. It is assumed that this will be called after a
-     sequence of the form [reset(); loop step()/advance()] which the calling class
-     uses to determine the zero-state solution. N is the number of time-steps involved.
-   - resetcircular() - is a convenient form of the above function, where the fsm-derived
-     class must keep track of the number of time-steps since the last reset operation
-     as well as the final state value. The calling class must ensure that this is
-     consistent with the requirements - that is, the initial reset must be to state zero
-     and the input sequence given since the last reset must be the same as the one that
-     will be used now.
-   It was elected to make all the above functions pure virtual - this requires that all
-   derived classes must be updates accordingly; it is considered advantageous because
-   there are just two derived classes which can therefore be easily updated. This avoids
-   adding dependance complexity in the fsm class (there is less risk of unexpected
-   behaviour).
-
-   \version 1.60 (30 Oct 2006)
-   - defined class and associated data within "libcomm" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
-   \version 1.70 (3-5 Dec 2007)
-   - Updated output() so that the input value is a const and the function is also a const
-   - provided a default implementation of step() using output() and advance()
-   - cleaned up order of members and documentation
-   - removed friend status of stream output operators
-
-   \version 1.71 (13 Dec 2007)
-   - modified parameter type for output from "const int&" to "int"
-
-   \version 1.80 (4 Jan 2008)
-   - made step() non-virtual since we don't want to re-implement it elsewhere
-   - made resetcircular() non-virtual since we don't want to re-implement it elsewhere
-   - implemented resetcircular() here; this required the addition of member N and related
-     code in reset() and advance(). This also means that reset() and advance() now have
-     to be called by each function re-implementing them.
 */
 
 class fsm {
@@ -128,6 +50,11 @@ public:
       \brief Reset to the circulation state
       \param zerostate  The final state for the input sequence, if we start at the zero-state
       \param n  The number of time-steps in the input sequence
+
+      This method performs the initial state computation (and setting) for
+      circular encoding. It is assumed that this will be called after a
+      sequence of the form [reset(); loop step()/advance()] which the calling
+      class uses to determine the zero-state solution.
 
       Consider a convolutional code where the state \f$ S_i \f$ at timestep \f$ i \f$ is
       related to state \f$ S_{i-1} \f$ and input \f$ X_i \f$ by the relation:
@@ -163,6 +90,15 @@ public:
    /*!
       \brief Reset to the circulation state, assuming we have just run through the
              input sequence, starting with the zero-state 
+
+      This is a convenient form of the earlier method, where the fsm-derived
+      class must keep track of the number of time-steps since the last reset
+      operation as well as the final state value.
+
+      The calling class must ensure that this is consistent with the
+      requirements - that is, the initial reset must be to state zero and the
+      input sequence given since the last reset must be the same as the one
+      that will be used now.
    */
    void resetcircular();
    // @}
@@ -172,6 +108,10 @@ public:
       \brief Feeds the specified input and advances the state
       \param[in,out]   input    Integer representation of current input; if this is the
                                 'tail' value, it will be updated
+      This method performs the state-change without also computing the output;
+      it is provided as a faster version of step(), for when the output doesn't
+      need to be computed.
+
       \note This function has to be called once by each function re-implementing it.
    */
    virtual void advance(int& input);

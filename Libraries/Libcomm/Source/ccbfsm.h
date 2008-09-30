@@ -17,16 +17,7 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \version 1.00 (5 Dec 2007)
-   - initial version; implements common elements of a controller-canonical binary fsm
-   - added determineinput() and determinefeedin() pure virtual functions
-   - cleaned up order of members and documentation
-
-   \version 1.01 (13 Dec 2007)
-   - modified parameter type for output from "const int&" to "int" (as in fsm 1.71)
-
-   \version 1.02 (4 Jan 2008)
-   - added calls to underlying functions in reset() and advance()
+   Implements common elements of a controller-canonical binary fsm.
 */
 
 class ccbfsm : public fsm {
