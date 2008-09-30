@@ -37,8 +37,6 @@ protected:
    channel<S>     *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
-   int  tau;   //!< Codec block size (in time-steps)
-   int  m;     //!< Tail length required by codec (may be zero)
    int  M;     //!< Alphabet size for modulation symbols
    int  N;     //!< Alphabet size for encoder output
    int  K;     //!< Alphabet size for source data

@@ -36,8 +36,6 @@ namespace libcomm {
 template <class S>
 void basic_commsys<S>::init()
    {
-   tau = cdc->block_size();
-   m = cdc->tail_length();
    M = modem->num_symbols();
    N = cdc->num_outputs();
    K = cdc->num_inputs();
