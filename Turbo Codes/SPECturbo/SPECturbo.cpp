@@ -34,6 +34,14 @@ public:
    double timeout;
 };
 
+libcomm::experiment *loadandverify(std::istream& file)
+   {
+   libcomm::experiment *system;
+   file >> system;
+   libbase::verifycompleteload(file);
+   return system;
+   }
+
 libcomm::experiment *createsystem()
    {
    const libcomm::serializer_libcomm my_serializer_libcomm;
@@ -67,12 +75,15 @@ libcomm::experiment *createsystem()
       "10\n";
 
    // load system from string representation
-   libcomm::experiment *system;
    std::istringstream is(systemstring);
-   is >> system;
-   // check for errors in loading system
-   libbase::verifycompleteload(is);
-   return system;
+   return loadandverify(is);
+   }
+
+libcomm::experiment *createsystem(const std::string& fname)
+   {
+   // load system from string representation
+   std::ifstream file(fname.c_str());
+   return loadandverify(file);
    }
 
 int main(int argc, char *argv[])
@@ -96,8 +107,8 @@ int main(int argc, char *argv[])
          "benchmark duration in seconds")
       ("snr", po::value<double>()->default_value(0.5),
          "signal to noise ratio")
-      //("system-file,i", po::value<std::string>(),
-      //   "file containing system description")
+      ("system-file,i", po::value<std::string>(),
+         "file containing system description")
       ("confidence", po::value<double>()->default_value(0.999),
          "confidence level (e.g. 0.90 for 90%)")
       ("tolerance", po::value<double>()->default_value(0.001),
@@ -118,7 +129,11 @@ int main(int argc, char *argv[])
    mymontecarlo estimator;
    estimator.enable(vm["endpoint"].as<std::string>(), vm["quiet"].as<bool>(), vm["priority"].as<int>());
    // Set up the estimator
-   libcomm::experiment *system = createsystem();
+   libcomm::experiment *system;
+   if(vm.count("system-file"))
+      system = createsystem(vm["system-file"].as<std::string>());
+   else
+      system = createsystem();
    estimator.bind(system);
    estimator.set_confidence(vm["confidence"].as<double>());
    estimator.set_accuracy(vm["tolerance"].as<double>());
