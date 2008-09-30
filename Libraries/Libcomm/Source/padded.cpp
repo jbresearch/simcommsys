@@ -15,29 +15,31 @@ namespace libcomm {
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::serializer padded::shelper("interleaver", "padded", padded::create);
-
 // construction and destruction
 
-padded::padded()
+template <class real>
+padded<real>::padded()
    {
    otp = NULL;
    inter = NULL;
    }
 
-padded::padded(const interleaver& inter, const fsm& encoder, const int tau, const bool terminated, const bool renewable)
+template <class real>
+padded<real>::padded(const interleaver<real>& inter, const fsm& encoder, const int tau, const bool terminated, const bool renewable)
    {
-   otp = new onetimepad(encoder, tau, terminated, renewable);
-   padded::inter = inter.clone();
+   otp = new onetimepad<real>(encoder, tau, terminated, renewable);
+   padded<real>::inter = inter.clone();
    }
 
-padded::padded(const padded& x)
+template <class real>
+padded<real>::padded(const padded& x)
    {
    inter = x.inter->clone();
    otp = x.otp->clone();
    }
 
-padded::~padded()
+template <class real>
+padded<real>::~padded()
    {
    if(otp != NULL)
       delete otp;
@@ -47,56 +49,48 @@ padded::~padded()
 
 // inter-frame operations
 
-void padded::seedfrom(libbase::random& r)
+template <class real>
+void padded<real>::seedfrom(libbase::random& r)
    {
    otp->seedfrom(r);
    }
 
-void padded::advance()
+template <class real>
+void padded<real>::advance()
    {
    otp->advance();
    }
 
 // transform functions
 
-void padded::transform(const vector<int>& in, vector<int>& out) const
+template <class real>
+void padded<real>::transform(const vector<int>& in, vector<int>& out) const
    {
    vector<int> temp;
    inter->transform(in, temp);
    otp->transform(temp, out);
    }
 
-void padded::transform(const matrix<double>& in, matrix<double>& out) const
+template <class real>
+void padded<real>::transform(const matrix<real>& in, matrix<real>& out) const
    {
-   matrix<double> temp;
+   matrix<real> temp;
    inter->transform(in, temp);
    otp->transform(temp, out);
    }
 
-void padded::inverse(const matrix<double>& in, matrix<double>& out) const
+template <class real>
+void padded<real>::inverse(const matrix<real>& in, matrix<real>& out) const
    {
-   matrix<double> temp;
-   otp->inverse(in, temp);
-   inter->inverse(temp, out);
-   }
-
-void padded::transform(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
-   {
-   matrix<libbase::logrealfast> temp;
-   inter->transform(in, temp);
-   otp->transform(temp, out);
-   }
-
-void padded::inverse(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
-   {
-   matrix<libbase::logrealfast> temp;
+   matrix<real> temp;
    otp->inverse(in, temp);
    inter->inverse(temp, out);
    }
 
 // description output
 
-std::string padded::description() const
+template <class real>
+std::string padded<real>::description() const
    {
    std::ostringstream sout;
    sout << "Padded Interleaver [" << inter->description() << " + " << otp->description() << "]";
@@ -105,7 +99,8 @@ std::string padded::description() const
 
 // object serialization - saving
 
-std::ostream& padded::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& padded<real>::serialize(std::ostream& sout) const
    {
    sout << otp;
    sout << inter;
@@ -114,11 +109,22 @@ std::ostream& padded::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& padded::serialize(std::istream& sin)
+template <class real>
+std::istream& padded<real>::serialize(std::istream& sin)
    {
    sin >> otp;
    sin >> inter;
    return sin;
    }
+
+// Explicit instantiations
+
+template class padded<double>;
+template <>
+const libbase::serializer padded<double>::shelper("interleaver", "padded<double>", padded<double>::create);
+
+template class padded<libbase::logrealfast>;
+template <>
+const libbase::serializer padded<libbase::logrealfast>::shelper("interleaver", "padded<logrealfast>", padded<libbase::logrealfast>::create);
 
 }; // end namespace

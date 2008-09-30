@@ -13,13 +13,12 @@
 
 namespace libcomm {
 
-const libbase::serializer berrou::shelper("interleaver", "berrou", berrou::create);
-
 // initialization
 
-void berrou::init(const int M)
+template <class real>
+void berrou<real>::init(const int M)
    {
-   berrou::M = M;
+   berrou<real>::M = M;
 
    if(libbase::weight(M) != 1)
       {
@@ -27,7 +26,7 @@ void berrou::init(const int M)
       exit(1);
       }
    int tau = M*M;
-   lut.init(tau);
+   this->lut.init(tau);
    const int P[] = {17, 37, 19, 29, 41, 23, 13, 7};
    for(int i=0; i<M; i++)
       for(int j=0; j<M; j++)
@@ -35,13 +34,14 @@ void berrou::init(const int M)
          int ir = (M/2+1)*(i+j) % M;
          int xi = (i+j) % 8;
          int jr = (P[xi]*(j+1) - 1) % M;
-         lut(i*M+j) = ir*M + jr;
+         this->lut(i*M+j) = ir*M + jr;
          }
    }
 
 // description output
 
-std::string berrou::description() const
+template <class real>
+std::string berrou<real>::description() const
    {
    std::ostringstream sout;
    sout << "Berrou Interleaver (" << M << "x" << M << ")";
@@ -50,7 +50,8 @@ std::string berrou::description() const
 
 // object serialization - saving
 
-std::ostream& berrou::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& berrou<real>::serialize(std::ostream& sout) const
    {
    sout << M << "\n";
    return sout;
@@ -58,11 +59,22 @@ std::ostream& berrou::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& berrou::serialize(std::istream& sin)
+template <class real>
+std::istream& berrou<real>::serialize(std::istream& sin)
    {
    sin >> M;
    init(M);
    return sin;
    }
+
+// Explicit instantiations
+
+template class berrou<double>;
+template <>
+const libbase::serializer berrou<double>::shelper("interleaver", "berrou<double>", berrou<double>::create);
+
+template class berrou<libbase::logrealfast>;
+template <>
+const libbase::serializer berrou<libbase::logrealfast>::shelper("interleaver", "berrou<logrealfast>", berrou<libbase::logrealfast>::create);
 
 }; // end namespace

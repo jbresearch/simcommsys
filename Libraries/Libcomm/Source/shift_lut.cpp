@@ -12,22 +12,22 @@
 
 namespace libcomm {
 
-const libbase::serializer shift_lut::shelper("interleaver", "shift", shift_lut::create);
-
 // initialisation functions
 
-void shift_lut::init(const int amount, const int tau)
+template <class real>
+void shift_lut<real>::init(const int amount, const int tau)
    {
-   shift_lut::amount = amount;
+   shift_lut<real>::amount = amount;
 
-   lut.init(tau);
+   this->lut.init(tau);
    for(int i=0; i<tau; i++)
-      lut(i) = (i + amount) % tau;
+      this->lut(i) = (i + amount) % tau;
    }
 
 // description output
 
-std::string shift_lut::description() const
+template <class real>
+std::string shift_lut<real>::description() const
    {
    std::ostringstream sout;
    sout << "Shift by " << amount << " Interleaver";
@@ -36,21 +36,33 @@ std::string shift_lut::description() const
 
 // object serialization - saving
 
-std::ostream& shift_lut::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& shift_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << this->lut.size() << "\n";
    sout << amount << "\n";
    return sout;
    }
 
 // object serialization - loading
 
-std::istream& shift_lut::serialize(std::istream& sin)
+template <class real>
+std::istream& shift_lut<real>::serialize(std::istream& sin)
    {
    int tau, amount;
    sin >> tau >> amount;
    init(amount, tau);
    return sin;
    }
+
+// Explicit instantiations
+
+template class shift_lut<double>;
+template <>
+const libbase::serializer shift_lut<double>::shelper("interleaver", "shift_lut<double>", shift_lut<double>::create);
+
+template class shift_lut<libbase::logrealfast>;
+template <>
+const libbase::serializer shift_lut<libbase::logrealfast>::shelper("interleaver", "shift_lut<logrealfast>", shift_lut<libbase::logrealfast>::create);
 
 }; // end namespace

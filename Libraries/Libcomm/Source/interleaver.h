@@ -21,11 +21,9 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Make 'interleaver' a template class, with the template parameter
-         indicating the transform/inverse matrix type support.
 */
 
+template <class real>
 class interleaver {
 public:
    /*! \name Constructors / Destructors */
@@ -53,7 +51,7 @@ public:
       \param[out] out Matrix with likelihoods of interleaved sequence
       \note 'in' and 'out' cannot be the same.
    */
-   virtual void transform(const libbase::matrix<double>& in, libbase::matrix<double>& out) const = 0;
+   virtual void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const = 0;
    /*!
       \brief Inverse transform
       \param[in] in  Matrix representing the likelihoods of each possible symbol
@@ -61,11 +59,7 @@ public:
       \param[out] out Matrix with likelihoods of straight sequence
       \note 'in' and 'out' cannot be the same.
    */
-   virtual void inverse(const libbase::matrix<double>& in, libbase::matrix<double>& out) const = 0;
-   //! \copydoc interleaver::transform(const libbase::matrix<double>, libbase::matrix<double>)
-   virtual void transform(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const = 0;
-   //! \copydoc interleaver::inverse(const libbase::matrix<double>, libbase::matrix<double>)
-   virtual void inverse(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const = 0;
+   virtual void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const = 0;
    // @}
 
    /*! \name Description */

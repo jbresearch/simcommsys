@@ -75,7 +75,7 @@ turbo<real,dbl>::turbo()
 
 template <class real, class dbl>
 turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
-   const libbase::vector<interleaver *>& inter, const int iter, \
+   const libbase::vector<interleaver<dbl> *>& inter, const int iter, \
    const bool endatzero, const bool parallel, const bool circular)
    {
    turbo::encoder = encoder.clone();
@@ -536,7 +536,7 @@ std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    inter.init(sets);
    if(version == 0)
       {
-      inter(0) = new flat(tau);
+      inter(0) = new flat<dbl>(tau);
       for(int i=1; i<inter.size(); i++)
          sin >> inter(i);
       }

@@ -14,15 +14,16 @@ namespace libcomm {
 
 // creation/destruction functions
 
-file_lut::file_lut(const char *filename, const int tau, const int m)
+template <class real>
+file_lut<real>::file_lut(const char *filename, const int tau, const int m)
    {
    file_lut::m = m;
 
    const char *s = strrchr(filename, libbase::DIR_SEPARATOR);
    const char *p = (s==NULL) ? filename : s+1;
-   lutname = p;
+   this->lutname = p;
 
-   lut.init(tau);
+   this->lut.init(tau);
 
    char buf[256];
    FILE *file = fopen(filename, "rb");
@@ -43,11 +44,16 @@ file_lut::file_lut(const char *filename, const int tau, const int m)
          std::cerr << "FATAL ERROR (file_lut): unexpected entry for line " << i << ": " << x << ", " << y << "\n";
          exit(1);
          }
-      lut(i) = y;
+      this->lut(i) = y;
       }
    for(int t=tau-m; t<tau; t++)
-      lut(t) = tail;
+      this->lut(t) = fsm::tail;
    fclose(file);
    }
+
+// Explicit instantiations
+
+template class file_lut<double>;
+template class file_lut<libbase::logrealfast>;
 
 }; // end namespace

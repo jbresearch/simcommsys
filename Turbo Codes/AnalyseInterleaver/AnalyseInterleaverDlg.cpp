@@ -202,7 +202,7 @@ void CAnalyseInterleaverDlg::OnLoad()
 
       if(m_pInterleaver != NULL)
          delete m_pInterleaver;
-      m_pInterleaver = new libcomm::stream_lut(m_sPathName, file, m_nTau, 0);
+      m_pInterleaver = new libcomm::stream_lut<double>(m_sPathName, file, m_nTau, 0);
       fclose(file);
       }
    }

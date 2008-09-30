@@ -13,26 +13,29 @@ namespace libcomm {
 
 // initialisation functions
 
-vale96int::vale96int()
+template <class real>
+vale96int<real>::vale96int()
    {
    // set name and forced tail length
-   lutname = "vale96int";
-   m = 0;
+   this->lutname = "vale96int";
+   this->m = 0;
    // build LUT
    const int tau = 34;
    const int a[] = {16, 29, 9, 10, 14, 6, 31, 8, 12, 22, 17, 33, 34, 23, 24, 19, 32, 30, 13, 2, 21, 25, 26, 3, 28, 20, 27, 7, 5, 15, 4, 11, 18, 1};
-   lut.init(tau);
-   lut = -1;
+   this->lut.init(tau);
+   this->lut = -1;
    for(int i=0; i<tau; i++)
       {
       const int ndx = a[i]-1;
-      if(lut(ndx) != -1)
-         {
-         std::cerr << "DEBUG ERROR (vale96int): Duplicate entry (" << a[i] << ") at position " << i << " (previous one at " << lut(ndx) << ")\n";
-         exit(1);
-         }
-      lut(ndx) = i;
+      // check for duplicate entries
+      assertalways(this->lut(ndx) == -1);
+      this->lut(ndx) = i;
       }
    }
+
+// Explicit instantiations
+
+template class vale96int<double>;
+template class vale96int<libbase::logrealfast>;
 
 }; // end namespace

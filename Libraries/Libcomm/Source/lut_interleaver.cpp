@@ -13,32 +13,30 @@
 
 namespace libcomm {
 
-// static members
-
-const int lut_interleaver::tail = -1;
-
 // transform functions
 
-void lut_interleaver::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+template <class real>
+void lut_interleaver<real>::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    const int tau = lut.size();
    assertalways(in.size() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
-      if(lut(t) == tail)
+      if(lut(t) == fsm::tail)
          out(t) = fsm::tail;
       else
          out(t) = in(lut(t));
    }
 
-void lut_interleaver::transform(const libbase::matrix<double>& in, libbase::matrix<double>& out) const
+template <class real>
+void lut_interleaver<real>::transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const
    {
    const int tau = lut.size();
    const int K = in.ysize();
    assertalways(in.xsize() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
-      if(lut(t) == tail)
+      if(lut(t) == fsm::tail)
          for(int i=0; i<K; i++)
             out(t, i) = 1.0/double(K);
       else
@@ -46,14 +44,15 @@ void lut_interleaver::transform(const libbase::matrix<double>& in, libbase::matr
             out(t, i) = in(lut(t), i);
    }
 
-void lut_interleaver::inverse(const libbase::matrix<double>& in, libbase::matrix<double>& out) const
+template <class real>
+void lut_interleaver<real>::inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const
    {
    const int tau = lut.size();
    const int K = in.ysize();
    assertalways(in.xsize() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
-      if(lut(t) == tail)
+      if(lut(t) == fsm::tail)
          for(int i=0; i<K; i++)
             out(t, i) = 1.0/double(K);
       else
@@ -61,36 +60,9 @@ void lut_interleaver::inverse(const libbase::matrix<double>& in, libbase::matrix
             out(lut(t), i) = in(t, i);
    }
 
-// additional matrix types for transform/inverse
+// Explicit instantiations
 
-void lut_interleaver::transform(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const
-   {
-   const int tau = lut.size();
-   const int K = in.ysize();
-   assertalways(in.xsize() == tau);
-   out.init(in);
-   for(int t=0; t<tau; t++)
-      if(lut(t) == tail)
-         for(int i=0; i<K; i++)
-            out(t, i) = 1.0/double(K);
-      else
-         for(int i=0; i<K; i++)
-            out(t, i) = in(lut(t), i);
-   }
-
-void lut_interleaver::inverse(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const
-   {
-   const int tau = lut.size();
-   const int K = in.ysize();
-   assertalways(in.xsize() == tau);
-   out.init(in);
-   for(int t=0; t<tau; t++)
-      if(lut(t) == tail)
-         for(int i=0; i<K; i++)
-            out(t, i) = 1.0/double(K);
-      else
-         for(int i=0; i<K; i++)
-            out(lut(t), i) = in(t, i);
-   }
+template class lut_interleaver<double>;
+template class lut_interleaver<libbase::logrealfast>;
 
 }; // end namespace

@@ -12,11 +12,10 @@
 
 namespace libcomm {
 
-const libbase::serializer named_lut::shelper("interleaver", "named", named_lut::create);
-
 // description output
 
-std::string named_lut::description() const
+template <class real>
+std::string named_lut<real>::description() const
    {
    std::ostringstream sout;
    sout << "Named Interleaver (" << lutname;
@@ -29,22 +28,34 @@ std::string named_lut::description() const
 
 // object serialization - saving
 
-std::ostream& named_lut::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& named_lut<real>::serialize(std::ostream& sout) const
    {
    sout << m << "\n";
    sout << lutname << "\n";
-   sout << lut;
+   sout << this->lut;
    return sout;
    }
 
 // object serialization - loading
 
-std::istream& named_lut::serialize(std::istream& sin)
+template <class real>
+std::istream& named_lut<real>::serialize(std::istream& sin)
    {
    sin >> m;
    sin >> lutname;
-   sin >> lut;
+   sin >> this->lut;
    return sin;
    }
+
+// Explicit instantiations
+
+template class named_lut<double>;
+template <>
+const libbase::serializer named_lut<double>::shelper("interleaver", "named_lut<double>", named_lut<double>::create);
+
+template class named_lut<libbase::logrealfast>;
+template <>
+const libbase::serializer named_lut<libbase::logrealfast>::shelper("interleaver", "named_lut<logrealfast>", named_lut<libbase::logrealfast>::create);
 
 }; // end namespace

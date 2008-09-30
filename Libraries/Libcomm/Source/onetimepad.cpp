@@ -17,27 +17,28 @@ using std::cerr;
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::serializer onetimepad::shelper("interleaver", "onetimepad", onetimepad::create);
-
 // construction and destruction
 
-onetimepad::onetimepad()
+template <class real>
+onetimepad<real>::onetimepad()
    {
    encoder = NULL;
    }
 
-onetimepad::onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable)
+template <class real>
+onetimepad<real>::onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable)
    {
-   onetimepad::terminated = terminated;
-   onetimepad::renewable = renewable;
-   onetimepad::encoder = encoder.clone();
-   onetimepad::m = encoder.mem_order();
-   onetimepad::K = encoder.num_inputs();
+   onetimepad<real>::terminated = terminated;
+   onetimepad<real>::renewable = renewable;
+   onetimepad<real>::encoder = encoder.clone();
+   onetimepad<real>::m = encoder.mem_order();
+   onetimepad<real>::K = encoder.num_inputs();
    pad.init(tau);
    libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n";
    }
 
-onetimepad::onetimepad(const onetimepad& x)
+template <class real>
+onetimepad<real>::onetimepad(const onetimepad& x)
    {
    terminated = x.terminated;
    renewable = x.renewable;
@@ -48,7 +49,8 @@ onetimepad::onetimepad(const onetimepad& x)
    r = x.r;
    }
 
-onetimepad::~onetimepad()
+template <class real>
+onetimepad<real>::~onetimepad()
    {
    if(encoder != NULL)
       delete encoder;
@@ -56,13 +58,15 @@ onetimepad::~onetimepad()
 
 // inter-frame operations
 
-void onetimepad::seedfrom(libbase::random& r)
+template <class real>
+void onetimepad<real>::seedfrom(libbase::random& r)
    {
    this->r.seed(r.ival());
    advance();
    }
 
-void onetimepad::advance()
+template <class real>
+void onetimepad<real>::advance()
    {
    static bool initialised = false;
 
@@ -95,7 +99,8 @@ void onetimepad::advance()
 
 // transform functions
 
-void onetimepad::transform(const vector<int>& in, vector<int>& out) const
+template <class real>
+void onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
    {
    const int tau = pad.size();
    assertalways(in.size() == tau);
@@ -104,7 +109,8 @@ void onetimepad::transform(const vector<int>& in, vector<int>& out) const
       out(t) = (in(t) + pad(t)) % K;
    }
 
-void onetimepad::transform(const matrix<double>& in, matrix<double>& out) const
+template <class real>
+void onetimepad<real>::transform(const matrix<real>& in, matrix<real>& out) const
    {
    const int tau = pad.size();
    assertalways(in.ysize() == K);
@@ -115,29 +121,8 @@ void onetimepad::transform(const matrix<double>& in, matrix<double>& out) const
          out(t, i) = in(t, (i+pad(t))%K);
    }
 
-void onetimepad::inverse(const matrix<double>& in, matrix<double>& out) const
-   {
-   const int tau = pad.size();
-   assertalways(in.ysize() == K);
-   assertalways(in.xsize() == tau);
-   out.init(in);
-   for(int t=0; t<tau; t++)
-      for(int i=0; i<K; i++)
-         out(t, (i+pad(t))%K) = in(t, i);
-   }
-
-void onetimepad::transform(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
-   {
-   const int tau = pad.size();
-   assertalways(in.ysize() == K);
-   assertalways(in.xsize() == tau);
-   out.init(in);
-   for(int t=0; t<tau; t++)
-      for(int i=0; i<K; i++)
-         out(t, i) = in(t, (i+pad(t))%K);
-   }
-
-void onetimepad::inverse(const matrix<libbase::logrealfast>& in, matrix<libbase::logrealfast>& out) const
+template <class real>
+void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
    {
    const int tau = pad.size();
    assertalways(in.ysize() == K);
@@ -150,7 +135,8 @@ void onetimepad::inverse(const matrix<libbase::logrealfast>& in, matrix<libbase:
 
 // description output
 
-std::string onetimepad::description() const
+template <class real>
+std::string onetimepad<real>::description() const
    {
    std::ostringstream sout;
    sout << "One-Time-Pad Interleaver (";
@@ -165,7 +151,8 @@ std::string onetimepad::description() const
 
 // object serialization - saving
 
-std::ostream& onetimepad::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
    {
    sout << int(terminated) << "\n";
    sout << int(renewable) << "\n";
@@ -176,7 +163,8 @@ std::ostream& onetimepad::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& onetimepad::serialize(std::istream& sin)
+template <class real>
+std::istream& onetimepad<real>::serialize(std::istream& sin)
    {
    int temp;
    sin >> temp;
@@ -190,5 +178,15 @@ std::istream& onetimepad::serialize(std::istream& sin)
    K = encoder->num_inputs();
    return sin;
    }
+
+// Explicit instantiations
+
+template class onetimepad<double>;
+template <>
+const libbase::serializer onetimepad<double>::shelper("interleaver", "onetimepad<double>", onetimepad<double>::create);
+
+template class onetimepad<libbase::logrealfast>;
+template <>
+const libbase::serializer onetimepad<libbase::logrealfast>::shelper("interleaver", "onetimepad<logrealfast>", onetimepad<libbase::logrealfast>::create);
 
 }; // end namespace

@@ -13,14 +13,13 @@
 
 namespace libcomm {
 
-const libbase::serializer rectangular::shelper("interleaver", "rectangular", rectangular::create);
-
 // initialisation functions
 
-void rectangular::init(const int tau, const int rows, const int cols)
+template <class real>
+void rectangular<real>::init(const int tau, const int rows, const int cols)
    {
-   rectangular::rows = rows;
-   rectangular::cols = cols;
+   rectangular<real>::rows = rows;
+   rectangular<real>::cols = cols;
 
    int blklen = rows*cols;
    if(blklen > tau)
@@ -28,22 +27,23 @@ void rectangular::init(const int tau, const int rows, const int cols)
       std::cerr << "FATAL ERROR (rectangular): Interleaver block size cannot be greater than BCJR block.\n";
       exit(1);
       }
-   lut.init(tau);
+   this->lut.init(tau);
    int row = 0, col = 0;
    int i;
    for(i=0; i<blklen; i++)
       {
       row = i % rows;
       col = i / rows;
-      lut(i) = row*cols + col;
+      this->lut(i) = row*cols + col;
       }
    for(i=blklen; i<tau; i++)
-      lut(i) = i;
+      this->lut(i) = i;
    }
 
 // description output
 
-std::string rectangular::description() const
+template <class real>
+std::string rectangular<real>::description() const
    {
    std::ostringstream sout;
    sout << "Rectangular " << rows << "x" << cols << " Interleaver";
@@ -52,9 +52,10 @@ std::string rectangular::description() const
 
 // object serialization - saving
 
-std::ostream& rectangular::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& rectangular<real>::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << this->lut.size() << "\n";
    sout << rows << "\n";
    sout << cols << "\n";
    return sout;
@@ -62,7 +63,8 @@ std::ostream& rectangular::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& rectangular::serialize(std::istream& sin)
+template <class real>
+std::istream& rectangular<real>::serialize(std::istream& sin)
    {
    int tau;
    sin >> tau;
@@ -71,5 +73,15 @@ std::istream& rectangular::serialize(std::istream& sin)
    init(tau, rows, cols);
    return sin;
    }
+
+// Explicit instantiations
+
+template class rectangular<double>;
+template <>
+const libbase::serializer rectangular<double>::shelper("interleaver", "rectangular<double>", rectangular<double>::create);
+
+template class rectangular<libbase::logrealfast>;
+template <>
+const libbase::serializer rectangular<libbase::logrealfast>::shelper("interleaver", "rectangular<logrealfast>", rectangular<libbase::logrealfast>::create);
 
 }; // end namespace

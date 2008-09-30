@@ -13,14 +13,13 @@
 
 namespace libcomm {
 
-const libbase::serializer helical::shelper("interleaver", "helical", helical::create);
-
 // initialisation functions
 
-void helical::init(const int tau, const int rows, const int cols)
+template <class real>
+void helical<real>::init(const int tau, const int rows, const int cols)
    {
-   helical::rows = rows;
-   helical::cols = cols;
+   helical<real>::rows = rows;
+   helical<real>::cols = cols;
 
    int blklen = rows*cols;
    if(blklen > tau)
@@ -28,22 +27,23 @@ void helical::init(const int tau, const int rows, const int cols)
       std::cerr << "FATAL ERROR (helical): Interleaver block size cannot be greater than BCJR block.\n";
       exit(1);
       }
-   lut.init(tau);
+   this->lut.init(tau);
    int row = rows-1, col = 0;
    int i;
    for(i=0; i<blklen; i++)
       {
-      lut(i) = row*cols + col;
+      this->lut(i) = row*cols + col;
       row = (row-1+rows) % rows;
       col = (col+1) % cols;
       }
    for(i=blklen; i<tau; i++)
-      lut(i) = i;
+      this->lut(i) = i;
    }
 
 // description output
 
-std::string helical::description() const
+template <class real>
+std::string helical<real>::description() const
    {
    std::ostringstream sout;
    sout << "Helical " << rows << "x" << cols << " Interleaver";
@@ -52,9 +52,10 @@ std::string helical::description() const
 
 // object serialization - saving
 
-std::ostream& helical::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& helical<real>::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << this->lut.size() << "\n";
    sout << rows << "\n";
    sout << cols << "\n";
    return sout;
@@ -62,7 +63,8 @@ std::ostream& helical::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& helical::serialize(std::istream& sin)
+template <class real>
+std::istream& helical<real>::serialize(std::istream& sin)
    {
    int tau;
    sin >> tau;
@@ -71,5 +73,15 @@ std::istream& helical::serialize(std::istream& sin)
    init(tau, rows, cols);
    return sin;
    }
+
+// Explicit instantiations
+
+template class helical<double>;
+template <>
+const libbase::serializer helical<double>::shelper("interleaver", "helical<double>", helical<double>::create);
+
+template class helical<libbase::logrealfast>;
+template <>
+const libbase::serializer helical<libbase::logrealfast>::shelper("interleaver", "helical<logrealfast>", helical<libbase::logrealfast>::create);
 
 }; // end namespace

@@ -20,7 +20,8 @@ namespace libcomm {
    - $Author$
 */
 
-class onetimepad : public interleaver {
+template <class real>
+class onetimepad : public interleaver<real> {
    bool terminated, renewable;
    fsm *encoder;
    int m, K;
@@ -37,10 +38,8 @@ public:
    void advance();
 
    void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void transform(const libbase::matrix<double>& in, libbase::matrix<double>& out) const;
-   void inverse(const libbase::matrix<double>& in, libbase::matrix<double>& out) const;
-   void transform(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const;
-   void inverse(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const;
+   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
 
    // Description
    std::string description() const;

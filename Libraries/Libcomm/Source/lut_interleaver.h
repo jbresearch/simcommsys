@@ -20,19 +20,17 @@ namespace libcomm {
    \todo Document concept of forced tail interleavers (as in divs95)
 */
 
-class lut_interleaver : public interleaver {
+template <class real>
+class lut_interleaver : public interleaver<real> {
 protected:
    lut_interleaver() {};
-   static const int tail; // a special LUT entry to signify a forced tail
    libbase::vector<int> lut;
 public:
    virtual ~lut_interleaver() {};
 
    void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void transform(const libbase::matrix<double>& in, libbase::matrix<double>& out) const;
-   void inverse(const libbase::matrix<double>& in, libbase::matrix<double>& out) const;
-   void transform(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const;
-   void inverse(const libbase::matrix<libbase::logrealfast>& in, libbase::matrix<libbase::logrealfast>& out) const;
+   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
 };
 
 }; // end namespace

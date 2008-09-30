@@ -13,20 +13,20 @@
 
 namespace libcomm {
 
-const libbase::serializer flat::shelper("interleaver", "flat", flat::create);
-
 // initialization
 
-void flat::init(const int tau)
+template <class real>
+void flat<real>::init(const int tau)
    {
-   lut.init(tau);
+   this->lut.init(tau);
    for(int i=0; i<tau; i++)
-      lut(i) = i;
+      this->lut(i) = i;
    }
 
 // description output
 
-std::string flat::description() const
+template <class real>
+std::string flat<real>::description() const
    {
    std::ostringstream sout;
    sout << "Flat Interleaver";
@@ -35,20 +35,32 @@ std::string flat::description() const
 
 // object serialization - saving
 
-std::ostream& flat::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& flat<real>::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << this->lut.size() << "\n";
    return sout;
    }
 
 // object serialization - loading
 
-std::istream& flat::serialize(std::istream& sin)
+template <class real>
+std::istream& flat<real>::serialize(std::istream& sin)
    {
    int tau;
    sin >> tau;
    init(tau);
    return sin;
    }
+
+// Explicit instantiations
+
+template class flat<double>;
+template <>
+const libbase::serializer flat<double>::shelper("interleaver", "flat<double>", flat<double>::create);
+
+template class flat<libbase::logrealfast>;
+template <>
+const libbase::serializer flat<libbase::logrealfast>::shelper("interleaver", "flat<logrealfast>", flat<libbase::logrealfast>::create);
 
 }; // end namespace

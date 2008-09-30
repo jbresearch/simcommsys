@@ -97,14 +97,38 @@ class serializer_libcomm : private
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
-   onetimepad, padded, berrou, flat, helical, rand_lut, rectangular, shift_lut, uniform_lut, named_lut,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>,
+   onetimepad<double>, padded<double>, berrou<double>, flat<double>, helical<double>, rand_lut<double>, rectangular<double>, shift_lut<double>, uniform_lut<double>, named_lut<double>,
+   onetimepad<libbase::logrealfast>, padded<libbase::logrealfast>, berrou<libbase::logrealfast>, flat<libbase::logrealfast>, helical<libbase::logrealfast>, rand_lut<libbase::logrealfast>, rectangular<libbase::logrealfast>, shift_lut<libbase::logrealfast>, uniform_lut<libbase::logrealfast>, named_lut<libbase::logrealfast>,
    map_interleaved, map_stipple
 {
 private:
+   typedef libbase::logrealfast  logrealfast;
+private:
+   // Interleavers
+   //onetimepad<double>	_onetimepad_double;
+   //padded<double>	_padded_double;
+   //berrou<double>	_berrou_double;
+   //flat<double>   	_flat_double;
+   //helical<double>	_helical_double;
+   //rand_lut<double>	_rand_lut_double;
+   //rectangular<double>	_rectangular_double;
+   //shift_lut<double>	_shift_lut_double;
+   //uniform_lut<double>	_uniform_lut_double;
+   //named_lut<double>	_named_lut_double;
+   //onetimepad<logrealfast>	_onetimepad_double;
+   //padded<logrealfast>	_padded_double;
+   //berrou<logrealfast>	_berrou_double;
+   //flat<logrealfast>   	_flat_double;
+   //helical<logrealfast>	_helical_double;
+   //rand_lut<logrealfast>	_rand_lut_double;
+   //rectangular<logrealfast>	_rectangular_double;
+   //shift_lut<logrealfast>	_shift_lut_double;
+   //uniform_lut<logrealfast>	_uniform_lut_double;
+   //named_lut<logrealfast>	_named_lut_double;
    // Modulators
-   dminner<libbase::logrealfast,false>       _dminner_logrealfast;
-   dminner2<libbase::logrealfast,false>      _dminner2_logrealfast;
+   dminner<logrealfast,false>       _dminner_logrealfast;
+   dminner2<logrealfast,false>      _dminner2_logrealfast;
    // Experiments
    commsys< libbase::gf<1,0x3> >       _commsys_gf1;
    commsys< libbase::gf<2,0x7> >       _commsys_gf2;

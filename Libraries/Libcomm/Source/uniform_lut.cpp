@@ -12,26 +12,27 @@
 
 namespace libcomm {
 
-const libbase::serializer uniform_lut::shelper("interleaver", "uniform", uniform_lut::create);
-
 // initialisation
 
-void uniform_lut::init(const int tau, const int m)
+template <class real>
+void uniform_lut<real>::init(const int tau, const int m)
    {
-   uniform_lut::tau = tau;
-   uniform_lut::m = m;
-   lut.init(tau);
+   uniform_lut<real>::tau = tau;
+   uniform_lut<real>::m = m;
+   this->lut.init(tau);
    }
 
 // intra-frame functions
 
-void uniform_lut::seedfrom(libbase::random& r)
+template <class real>
+void uniform_lut<real>::seedfrom(libbase::random& r)
    {
    this->r.seed(r.ival());
    advance();
    }
 
-void uniform_lut::advance()
+template <class real>
+void uniform_lut<real>::advance()
    {
    // create array to hold 'used' status of possible lut values
    libbase::vector<bool> used(tau-m);
@@ -45,15 +46,16 @@ void uniform_lut::advance()
          tdash = r.ival(tau-m);
          } while(used(tdash));
       used(tdash) = true;
-      lut(t) = tdash;
+      this->lut(t) = tdash;
       }
    for(t=tau-m; t<tau; t++)
-      lut(t) = tail;
+      this->lut(t) = fsm::tail;
    }
 
 // description output
 
-std::string uniform_lut::description() const
+template <class real>
+std::string uniform_lut<real>::description() const
    {
    std::ostringstream sout;
    sout << "Uniform Interleaver";
@@ -64,21 +66,33 @@ std::string uniform_lut::description() const
 
 // object serialization - saving
 
-std::ostream& uniform_lut::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& uniform_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << this->lut.size() << "\n";
    sout << m << "\n";
    return sout;
    }
 
 // object serialization - loading
 
-std::istream& uniform_lut::serialize(std::istream& sin)
+template <class real>
+std::istream& uniform_lut<real>::serialize(std::istream& sin)
    {
    int tau, m;
    sin >> tau >> m;
    init(tau, m);
    return sin;
    }
+
+// Explicit instantiations
+
+template class uniform_lut<double>;
+template <>
+const libbase::serializer uniform_lut<double>::shelper("interleaver", "uniform_lut<double>", uniform_lut<double>::create);
+
+template class uniform_lut<libbase::logrealfast>;
+template <>
+const libbase::serializer uniform_lut<libbase::logrealfast>::shelper("interleaver", "uniform_lut<logrealfast>", uniform_lut<libbase::logrealfast>::create);
 
 }; // end namespace

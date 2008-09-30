@@ -13,11 +13,10 @@
 
 namespace libcomm {
 
-const libbase::serializer rand_lut::shelper("interleaver", "random", rand_lut::create);
-
 // initialisation
 
-void rand_lut::init(const int tau, const int m)
+template <class real>
+void rand_lut<real>::init(const int tau, const int m)
    {
    p = (1<<m)-1;
    if(tau % p != 0)
@@ -25,20 +24,22 @@ void rand_lut::init(const int tau, const int m)
       std::cerr << "FATAL ERROR (rand_lut): interleaver length must be a multiple of the encoder impulse respone length.\n";
       exit(1);
       }
-   lut.init(tau);
+   this->lut.init(tau);
    }
 
 // intra-frame functions
 
-void rand_lut::seedfrom(libbase::random& r)
+template <class real>
+void rand_lut<real>::seedfrom(libbase::random& r)
    {
    this->r.seed(r.ival());
    advance();
    }
 
-void rand_lut::advance()
+template <class real>
+void rand_lut<real>::advance()
    {
-   const int tau = lut.size();
+   const int tau = this->lut.size();
    // create array to hold 'used' status of possible lut values
    libbase::vector<bool> used(tau);
    used = false;
@@ -50,13 +51,14 @@ void rand_lut::advance()
          tdash = int(r.ival(tau)/p)*p + t%p;
          } while(used(tdash));
       used(tdash) = true;
-      lut(t) = tdash;
+      this->lut(t) = tdash;
       }
    }
 
 // description output
 
-std::string rand_lut::description() const
+template <class real>
+std::string rand_lut<real>::description() const
    {
    std::ostringstream sout;
    sout << "Random Interleaver (self-terminating for m=" << int(log2(p+1)) << ")";
@@ -65,21 +67,33 @@ std::string rand_lut::description() const
 
 // object serialization - saving
 
-std::ostream& rand_lut::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& rand_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << this->lut.size() << "\n";
    sout << int(log2(p+1)) << "\n";
    return sout;
    }
 
 // object serialization - loading
 
-std::istream& rand_lut::serialize(std::istream& sin)
+template <class real>
+std::istream& rand_lut<real>::serialize(std::istream& sin)
    {
    int tau, m;
    sin >> tau >> m;
    init(tau, m);
    return sin;
    }
+
+// Explicit instantiations
+
+template class rand_lut<double>;
+template <>
+const libbase::serializer rand_lut<double>::shelper("interleaver", "rand_lut<double>", rand_lut<double>::create);
+
+template class rand_lut<libbase::logrealfast>;
+template <>
+const libbase::serializer rand_lut<libbase::logrealfast>::shelper("interleaver", "rand_lut<logrealfast>", rand_lut<libbase::logrealfast>::create);
 
 }; // end namespace

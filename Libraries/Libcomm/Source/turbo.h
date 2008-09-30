@@ -77,7 +77,7 @@ private:
 private:
    /*! \name User-defined parameters */
    //!< Set of interleavers, one per parity sequence (including first set)
-   libbase::vector<interleaver *> inter;
+   libbase::vector<interleaver<dbl> *> inter;
    fsm      *encoder;      //!< Encoder object (same for all parity sequences)
    int      tau;           //!< Length of interleavers (information sequence + tail)
    int      iter;          //!< Number of iterations to perform
@@ -126,7 +126,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver *>& inter, \
+   turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver<dbl> *>& inter, \
       const int iter, const bool endatzero, const bool parallel=false, const bool circular=false);
    ~turbo() { free(); };
    // @}

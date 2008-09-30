@@ -41,7 +41,7 @@ public:
 
 // Implementation
 protected:
-   libcomm::interleaver* m_pInterleaver;
+   libcomm::interleaver<double>* m_pInterleaver;
    libbase::matrix<int> m_miIOSS;
         HICON m_hIcon;
 
