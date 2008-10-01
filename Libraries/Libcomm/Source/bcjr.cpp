@@ -321,6 +321,9 @@ void bcjr<real,dbl>::work_beta()
 template <class real, class dbl>
 void bcjr<real,dbl>::work_results(array2d_t& ri, array2d_t& ro)
    {
+   // Initialize results vectors
+   ri.init(tau, K);
+   ro.init(tau, N);
    // Compute probability of received sequence
    real Py = 0;
    for(int mdash=0; mdash<M; mdash++) // for each possible ending state
@@ -354,6 +357,8 @@ void bcjr<real,dbl>::work_results(array2d_t& ri, array2d_t& ro)
 template <class real, class dbl>
 void bcjr<real,dbl>::work_results(array2d_t& ri)
    {
+   // Initialize results vector
+   ri.init(tau, K);
    // Compute probability of received sequence
    real Py = 0;
    for(int mdash=0; mdash<M; mdash++) // for each possible ending state

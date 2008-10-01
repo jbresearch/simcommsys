@@ -59,11 +59,15 @@ namespace libcomm {
    \todo Remove tau from user parameters, as this can be derived from
          interleavers (requires a change to interleaver interface)
 
-   \todo Fix terminated sequence encoding (implicitly assume a flat first
-         interleaver)
+   \todo Fix terminated sequence encoding (currently this implicitly assumes
+         a flat first interleaver)
 
    \todo Standardize encoding/decoding of multiple symbols within a larger
          symbol space; this parallels what was done in ccfsm.
+
+   \todo Remove redundant result vector initializations (these should happen
+         on the first call to a function where that vector is used as an
+         output).
 */
 
 template <class real, class dbl=double>

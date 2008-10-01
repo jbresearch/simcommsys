@@ -136,19 +136,12 @@ void mapcc<real>::translate(const array2d_t& ptable)
 template <class real>
 void mapcc<real>::decode(array2d_t& ri)
    {
-   // Initialize results vectors
-   ri.init(tau, K);
-   // Decode using BCJR algorithm
    bcjr<real>::fdecode(R, ri);
    }
 
 template <class real>
 void mapcc<real>::decode(array2d_t& ri, array2d_t& ro)
    {
-   // Initialize results vectors
-   ri.init(tau, K);
-   ro.init(tau, N);
-   // Decode using BCJR algorithm
    bcjr<real>::decode(R, ri, ro);
    }
 
