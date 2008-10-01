@@ -138,9 +138,8 @@ void mapcc<real>::decode(array2d_t& ri)
    {
    // Initialize results vectors
    ri.init(tau, K);
-   ro.init(tau, N);
    // Decode using BCJR algorithm
-   bcjr<real>::decode(R, ri, ro);
+   bcjr<real>::fdecode(R, ri);
    }
 
 template <class real>

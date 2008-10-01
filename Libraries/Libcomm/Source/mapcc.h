@@ -42,7 +42,7 @@ private:
    int      M;             //!< Number of states
    int      K;             //!< Number of input combinations
    int      N;             //!< Number of output combinations
-   array2d_t R, ri, ro;   // BCJR statistics
+   array2d_t R;            //!< BCJR a-priori statistics
 protected:
    /*! \name Internal functions */
    void init();
