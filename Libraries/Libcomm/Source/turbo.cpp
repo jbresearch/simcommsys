@@ -45,9 +45,12 @@ void turbo<real,dbl>::reset()
    {
    if(circular)
       {
-      assert(initialised);
+      ss.init(num_sets());
+      se.init(num_sets());
       for(int set=0; set<num_sets(); set++)
          {
+         ss(set).init(enc_states());
+         se(set).init(enc_states());
          ss(set) = dbl(1.0/double(enc_states()));
          se(set) = dbl(1.0/double(enc_states()));
          }
@@ -110,17 +113,6 @@ void turbo<real,dbl>::allocate()
    R.init(num_sets());
    for(int i=0; i<num_sets(); i++)
       R(i).init(tau, enc_outputs());
-
-   if(circular)
-      {
-      ss.init(num_sets());
-      se.init(num_sets());
-      for(int i=0; i<num_sets(); i++)
-         {
-         ss(i).init(enc_states());
-         se(i).init(enc_states());
-         }
-      }
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -260,9 +252,6 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& r
 template <class real, class dbl>
 void turbo<real,dbl>::decode_serial(array2d_t& ri)
    {
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
    // after working all sets, ri is the intrinsic+extrinsic information
    // from the last stage decoder.
    for(int set=0; set<num_sets(); set++)
@@ -288,9 +277,6 @@ void turbo<real,dbl>::decode_serial(array2d_t& ri)
 template <class real, class dbl>
 void turbo<real,dbl>::decode_parallel(array2d_t& ri)
    {
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
    // here ri is only a temporary space
    // and ra(set) is updated with the extrinsic information for that set
    for(int set=0; set<num_sets(); set++)
