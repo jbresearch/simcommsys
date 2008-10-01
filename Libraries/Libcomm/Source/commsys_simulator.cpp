@@ -129,7 +129,7 @@ void basic_commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
       R::updateresults(result, i, source, decoded);
       }
    // Keep record of what we last simulated
-   const int tau = sys->getcodec()->output_block_size();
+   const int tau = sys->getcodec()->input_block_size();
    assert(source.size() == tau);
    assert(decoded.size() == tau);
    last_event.init(2*tau);

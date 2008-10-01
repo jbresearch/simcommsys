@@ -449,11 +449,16 @@ void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
 template <class real, class dbl>
 void turbo<real,dbl>::decode(array2d_t& ri)
    {
+   // temporary space to hold complete results (ie. with tail)
+   array2d_t rif;
    // do one iteration, in serial or parallel as required
    if(parallel)
-      decode_parallel(ri);
+      decode_parallel(rif);
    else
-      decode_serial(ri);
+      decode_serial(rif);
+   // remove any tail bits
+   ri.init(input_block_size(), num_inputs());
+   ri.copyfrom(rif);
    }
 
 template <class real, class dbl>

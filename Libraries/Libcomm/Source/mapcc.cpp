@@ -136,13 +136,25 @@ void mapcc<real>::translate(const array2d_t& ptable)
 template <class real>
 void mapcc<real>::decode(array2d_t& ri)
    {
-   bcjr<real>::fdecode(R, ri);
+   // temporary space to hold complete results (ie. with tail)
+   array2d_t rif;
+   // perform decoding
+   bcjr<real>::fdecode(R, rif);
+   // remove any tail bits
+   ri.init(input_block_size(), num_inputs());
+   ri.copyfrom(rif);
    }
 
 template <class real>
 void mapcc<real>::decode(array2d_t& ri, array2d_t& ro)
    {
+   // temporary space to hold complete results (ie. with tail)
+   array2d_t rif;
+   // perform decoding
    bcjr<real>::decode(R, ri, ro);
+   // remove any tail bits
+   ri.init(input_block_size(), num_inputs());
+   ri.copyfrom(rif);
    }
 
 // description output
