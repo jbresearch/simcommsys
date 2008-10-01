@@ -197,7 +197,7 @@ public:
    int size() const { return m_xsize; };                 //!< Total number of elements
 
    // serialization and stream input & output
-   void serialize(std::ostream& s) const;
+   void serialize(std::ostream& s, char spacer='\t') const;
    void serialize(std::istream& s);
    friend std::ostream& operator<< <>(std::ostream& s, const vector<T>& x);
    friend std::istream& operator>> <>(std::istream& s, vector<T>& x);
@@ -371,12 +371,12 @@ inline T vector<T>::operator()(const int x) const
 // serialization and stream input & output
 
 template <class T>
-inline void vector<T>::serialize(std::ostream& s) const
+inline void vector<T>::serialize(std::ostream& s, char spacer) const
    {
    s << m_data[0];
    for(int i=1; i<m_xsize; i++)
-      s << "\t" << m_data[i];
-   s << "\n";
+      s << spacer << m_data[i];
+   s << '\n';
    }
 
 template <class T>
