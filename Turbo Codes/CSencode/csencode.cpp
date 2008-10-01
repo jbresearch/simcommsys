@@ -34,6 +34,15 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    // Communication system
    libcomm::commsys<S> *system = createsystem<S>(fname);
    std::cerr << system->description() << "\n";
+   // Repeat until end of stream
+   while(!sin.eof())
+      {
+      libbase::vector<int> source(system->getcodec()->input_block_size());
+      source.serialize(sin);
+      libbase::vector<S> transmitted = system->encode(source);
+      transmitted.serialize(sout, '\n');
+      libbase::eatwhite(sin);
+      }
    }
 
 int main(int argc, char *argv[])
