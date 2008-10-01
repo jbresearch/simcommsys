@@ -97,10 +97,6 @@ private:
    libbase::vector< array1d_t > ss;  //!< Holder for start-state probabilities (used with circular trellises)
    libbase::vector< array1d_t > se;  //!< Holder for end-state probabilities (used with circular trellises)
    // @}
-   /*! \name Temporary variables */
-   array2d_t rai;          //!< Interleaved version of ra (temporary)
-   array2d_t rii;          //!< Interleaved version of ri (temporary)
-   // @}
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();

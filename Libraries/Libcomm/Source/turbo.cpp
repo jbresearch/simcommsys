@@ -93,13 +93,7 @@ turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
 template <class real, class dbl>
 void turbo<real,dbl>::allocate()
    {
-   R.init(num_sets());
-   for(int i=0; i<num_sets(); i++)
-      R(i).init(tau, enc_outputs());
-
    rp.init(tau, num_inputs());
-   rai.init(tau, num_inputs());
-   rii.init(tau, num_inputs());
 
    if(parallel)
       {
@@ -112,6 +106,10 @@ void turbo<real,dbl>::allocate()
       ra.init(1);
       ra(0).init(tau, num_inputs());
       }
+
+   R.init(num_sets());
+   for(int i=0; i<num_sets(); i++)
+      R(i).init(tau, enc_outputs());
 
    if(circular)
       {
@@ -127,10 +125,8 @@ void turbo<real,dbl>::allocate()
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "Turbo Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << sizeof(dbl)*( rp.size() + rai.size() + rii.size()
-                           + R.size()*R(0).size() + ra.size()*ra(0).size()
-                           //+ ss.size()*ss(0).size() + se.size()*se(0).size()
-                           )/double(1<<20) << "MB\n";
+   std::cerr << ( rp.size() + ra.size()*ra(0).size() + R.size()*R(0).size()
+      )*sizeof(dbl)/double(1<<20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
@@ -248,6 +244,8 @@ void turbo<real,dbl>::bcjr_post(const int set, const array2d_t& rii, array2d_t& 
 template <class real, class dbl>
 void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re)
    {
+   // Temporary variables to hold interleaved versions of ra/ri
+   array2d_t rai, rii;
    bcjr_pre(set, ra, rai);
    bcjr<real,dbl>::fdecode(R(set), rai, rii);
    bcjr_post(set, rii, ri);
