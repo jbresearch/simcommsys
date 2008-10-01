@@ -43,12 +43,14 @@ void TestChannel(channel<G> &chan, double p)
    const int q = G::elements();
    cout << '\n' << chan.description() << '\n';
    randgen r;
+   r.seed(0);
    vector<G> tx(N);
    for(int i=0; i<N; i++)
       tx(i) = r.ival(q);
    cout << "Tx:\n";
    ShowHistogram(tx);
    vector<G> rx(N);
+   chan.seedfrom(r);
    chan.set_parameter(p);
    chan.transmit(tx,rx);
    cout << "Rx:\n";
