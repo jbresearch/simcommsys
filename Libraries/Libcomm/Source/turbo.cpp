@@ -174,7 +174,8 @@ void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, c
    // Check all matrices are the right size
    assert(ra.xsize() == tau && ra.ysize() == K);
    assert(r.xsize() == tau && r.ysize() == K);
-   assert(re.xsize() == tau && re.ysize() == K);
+   // Initialize results vector
+   re.init(tau, K);
    // Compute extrinsic values
    for(int t=0; t<tau; t++)
       for(int x=0; x<K; x++)
@@ -238,7 +239,8 @@ void turbo<real,dbl>::bcjr_post(const int set, const array2d_t& rii, array2d_t& 
                    as the new 'a-priori' probabilities)
 
    This method performs a complete decoding cycle, including start/end state
-   probability settings for circular decoding, and any interleaving/de-interleaving.
+   probability settings for circular decoding, and any interleaving/de-
+   interleaving.
 
    \warning The return matrix re may actually be the input matrix ra,
             so one must be careful not to overwrite positions that still
@@ -264,8 +266,6 @@ void turbo<real,dbl>::decode_serial(array2d_t& ri)
    // initialise memory if necessary
    if(!initialised)
       allocate();
-   // initialise results matrix
-   ri.init(tau, num_inputs());
    // after working all sets, ri is the intrinsic+extrinsic information
    // from the last stage decoder.
    for(int set=0; set<num_sets(); set++)
@@ -294,8 +294,6 @@ void turbo<real,dbl>::decode_parallel(array2d_t& ri)
    // initialise memory if necessary
    if(!initialised)
       allocate();
-   // initialise results matrix
-   ri.init(tau, num_inputs());
    // here ri is only a temporary space
    // and ra(set) is updated with the extrinsic information for that set
    for(int set=0; set<num_sets(); set++)
