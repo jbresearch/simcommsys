@@ -75,6 +75,8 @@ public:
    // @}
 
    /*! \name Codec information functions - fundamental */
+   //! Input block size in symbols
+   virtual int input_block_size() const = 0;
    //! Output block size in symbols
    virtual int output_block_size() const = 0;
    //! Number of valid input combinations

@@ -34,9 +34,14 @@ private:
    array1i_t lut;
    array2d_t R;
 protected:
+   /*! \name Internal functions */
    void init();
    void free();
+   // @}
+   /*! \name Constructors / Destructors */
+   //! Default constructor
    uncoded();
+   // @}
 public:
    /*! \name Constructors / Destructors */
    uncoded(const fsm& encoder, const int tau);
@@ -50,6 +55,7 @@ public:
    void decode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
+   int input_block_size() const { return tau; };
    int output_block_size() const { return tau; };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return encoder->num_outputs(); };

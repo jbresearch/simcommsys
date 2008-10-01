@@ -39,18 +39,28 @@ private:
    int      N;             //!< Number of output combinations
    libbase::matrix<double> R, ri, ro;   // BCJR statistics
 protected:
+   /*! \name Internal functions */
    void init();
    void free();
    void reset();
+   // @}
+   /*! \name Constructors / Destructors */
+   //! Default constructor
    mapcc();
+   // @}
 public:
+   /*! \name Constructors / Destructors */
    mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular=false);
    ~mapcc() { free(); };
+   // @}
 
+   // Codec operations
    void encode(const libbase::vector<int>& source, libbase::vector<int>& encoded);
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
 
+   // Codec information functions - fundamental
+   int input_block_size() const { return endatzero ? tau-m : tau; };
    int output_block_size() const { return tau; };
    int num_inputs() const { return K; };
    int num_outputs() const { return N; };

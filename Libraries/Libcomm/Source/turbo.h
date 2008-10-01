@@ -139,6 +139,7 @@ public:
    void decode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
+   int input_block_size() const { return endatzero ? tau-encoder->mem_order() : tau; };
    int output_block_size() const { return tau; };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
