@@ -75,8 +75,15 @@ mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, cons
 template <class real>
 void mapcc<real>::encode(const libbase::vector<int>& source, libbase::vector<int>& encoded)
    {
+   assert(source.size() == input_block_size());
    // Initialise result vector
    encoded.init(tau);
+   // Make a local copy of the source, including any necessary tail
+   libbase::vector<int> source1(tau);
+   for(int t=0; t<source.size(); t++)
+      source1(t) = source(t);
+   for(int t=source.size(); t<tau; t++)
+      source1(t) = fsm::tail;
    // Reset the encoder to zero state
    encoder->reset(0);
    // When dealing with a circular system, perform first pass to determine end state,
@@ -84,18 +91,12 @@ void mapcc<real>::encode(const libbase::vector<int>& source, libbase::vector<int
    if(circular)
       {
       for(int t=0; t<tau; t++)
-         {
-         int ip = source(t);
-         encoder->advance(ip);
-         }
+         encoder->advance(source1(t));
       encoder->resetcircular();
       }
    // Encode source stream
    for(int t=0; t<tau; t++)
-      {
-      int ip = source(t);
-      encoded(t) = encoder->step(ip);
-      }
+      encoded(t) = encoder->step(source1(t));
    }
 
 template <class real>

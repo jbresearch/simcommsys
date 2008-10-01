@@ -48,12 +48,14 @@ uncoded::uncoded(const fsm& encoder, const int tau)
 
 void uncoded::encode(const array1i_t& source, array1i_t& encoded)
    {
+   assert(source.size() == tau);
    // Initialise result vector
    encoded.init(tau);
    // Encode source stream
    for(int t=0; t<tau; t++)
       {
       int ip = source(t);
+      assert(ip != fsm::tail);
       encoded(t) = encoder->step(ip);
       }
    }

@@ -93,13 +93,10 @@ void basic_commsys_simulator<S,R>::free()
 template <class S, class R>
 libbase::vector<int> basic_commsys_simulator<S,R>::createsource()
    {
-   const int tau = sys->getcodec()->output_block_size();
-   const int m = sys->getcodec()->tail_length();
+   const int tau = sys->getcodec()->input_block_size();
    libbase::vector<int> source(tau);
-   for(int t=0; t<tau-m; t++)
+   for(int t=0; t<tau; t++)
       source(t) = src->ival(get_alphabetsize());
-   for(int t=tau-m; t<tau; t++)
-      source(t) = fsm::tail;
    return source;
    }
 

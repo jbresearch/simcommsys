@@ -172,7 +172,7 @@ protected:
    void free();               // if there is memory allocated, free it
    void setsize(const int x); // set vector to given size, freeing if and as required
 public:
-   vector(const int x=0) { alloc(x); };  // constructor (does not initialise elements)
+   explicit vector(const int x=0) { alloc(x); };  // constructor (does not initialise elements)
    vector(const vector<T>& x);
    ~vector() { free(); };
 

@@ -329,14 +329,18 @@ void turbo<real,dbl>::seedfrom(libbase::random& r)
 template <class real, class dbl>
 void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
+   assert(source.size() == input_block_size());
    // Initialise result vector
    encoded.init(tau);
-
    // Allocate space for the encoder outputs
    libbase::matrix<int> x(num_sets(), tau);
-   // Make a local copy of the source (to allow tail updates)
-   array1i_t source1 = source;
-   // Allocate space for the interleaved source
+   // Make a local copy of the source, including any necessary tail
+   array1i_t source1(tau);
+   for(int t=0; t<source.size(); t++)
+      source1(t) = source(t);
+   for(int t=source.size(); t<tau; t++)
+      source1(t) = fsm::tail;
+   // Declare space for the interleaved source
    array1i_t source2;
 
    // Consider sets in order
