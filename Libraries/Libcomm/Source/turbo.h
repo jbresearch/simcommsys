@@ -92,7 +92,6 @@ private:
    /*! \name Internal object representation */
    bool     initialised;   //!< Flag to indicate when memory is initialised
    array2d_t rp;           //!< A priori intrinsic source statistics (natural)
-   array2d_t ri;           //!< A posteriori source statistics (natural)
    libbase::vector< array2d_t > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
    libbase::vector< array2d_t > ra;  //!< A priori extrinsic source statistics
    libbase::vector< array1d_t > ss;  //!< Holder for start-state probabilities (used with circular trellises)
@@ -115,11 +114,6 @@ private:
    // @}
 protected:
    /*! \name Internal functions */
-   /*! \brief Read access for a-posteriori statistics
-      This access is available only for derived classes, and was initially
-      added for use by the diffturbo class.
-   */
-   double aposteriori(const int t, const int i) const { return ri(t,i); };
    void init();
    void free();
    void reset();

@@ -98,7 +98,6 @@ void turbo<real,dbl>::allocate()
       R(i).init(tau, enc_outputs());
 
    rp.init(tau, num_inputs());
-   ri.init(tau, num_inputs());
    rai.init(tau, num_inputs());
    rii.init(tau, num_inputs());
 
@@ -128,7 +127,7 @@ void turbo<real,dbl>::allocate()
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "Turbo Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << sizeof(dbl)*( rp.size() + ri.size() + rai.size() + rii.size()
+   std::cerr << sizeof(dbl)*( rp.size() + rai.size() + rii.size()
                            + R.size()*R(0).size() + ra.size()*ra(0).size()
                            //+ ss.size()*ss(0).size() + se.size()*se(0).size()
                            )/double(1<<20) << "MB\n";
@@ -392,12 +391,11 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
 
 /*! \copydoc codec::translate()
 
+   Sets: rp, ra, R, [ss, se, through reset()]
+
    \note The BCJR normalization method is used to normalize the channel-derived
          (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
          probabilities are now created normalized.
-
-   \todo Move temporary matrix to a class member (consider if this will
-         actually constitute a speedup)
 */
 template <class real, class dbl>
 void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
