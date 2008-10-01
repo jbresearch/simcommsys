@@ -73,13 +73,13 @@ mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, cons
 // encoding and decoding functions
 
 template <class real>
-void mapcc<real>::encode(const libbase::vector<int>& source, libbase::vector<int>& encoded)
+void mapcc<real>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == input_block_size());
    // Initialise result vector
    encoded.init(tau);
    // Make a local copy of the source, including any necessary tail
-   libbase::vector<int> source1(tau);
+   array1i_t source1(tau);
    for(int t=0; t<source.size(); t++)
       source1(t) = source(t);
    for(int t=source.size(); t<tau; t++)
@@ -100,7 +100,7 @@ void mapcc<real>::encode(const libbase::vector<int>& source, libbase::vector<int
    }
 
 template <class real>
-void mapcc<real>::translate(const libbase::matrix<double>& ptable)
+void mapcc<real>::translate(const array2d_t& ptable)
    {
    using std::cerr;
    // Compute factors / sizes & check validity
@@ -134,22 +134,23 @@ void mapcc<real>::translate(const libbase::matrix<double>& ptable)
    }
 
 template <class real>
-void mapcc<real>::decode(libbase::vector<int>& decoded)
+void mapcc<real>::decode(array2d_t& ri)
    {
    // Initialize results vectors
    ri.init(tau, K);
    ro.init(tau, N);
-   decoded.init(tau);
    // Decode using BCJR algorithm
    bcjr<real>::decode(R, ri, ro);
-   // Decide which input sequence was most probable, based on BCJR stats.
-   for(int t=0; t<tau; t++)
-      {
-      decoded(t) = 0;
-      for(int i=1; i<K; i++)
-         if(ri(t, i) > ri(t, decoded(t)))
-            decoded(t) = i;
-      }
+   }
+
+template <class real>
+void mapcc<real>::decode(array2d_t& ri, array2d_t& ro)
+   {
+   // Initialize results vectors
+   ri.init(tau, K);
+   ro.init(tau, N);
+   // Decode using BCJR algorithm
+   bcjr<real>::decode(R, ri, ro);
    }
 
 // description output

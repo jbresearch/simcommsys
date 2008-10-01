@@ -479,6 +479,7 @@ void turbo<real,dbl>::decode(array2d_t& ri)
 template <class real, class dbl>
 void turbo<real,dbl>::decode(array2d_t& ri, array2d_t& ro)
    {
+   assertalways("Not yet implemented");
    }
 
 // description output

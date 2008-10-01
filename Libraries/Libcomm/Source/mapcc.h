@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-#include "codec.h"
+#include "codec_softout.h"
 #include "fsm.h"
 #include "bcjr.h"
 #include "itfunc.h"
@@ -26,7 +26,12 @@ namespace libcomm {
 */
 
 template <class real>
-class mapcc : public codec, private bcjr<real> {
+class mapcc : public codec_softout<double>, private bcjr<real> {
+private:
+   /*! \name Internally-used types */
+   typedef libbase::vector<int>     array1i_t;
+   typedef libbase::matrix<double>  array2d_t;
+   // @}
 private:
    fsm      *encoder;
    double   rate;
@@ -37,7 +42,7 @@ private:
    int      M;             //!< Number of states
    int      K;             //!< Number of input combinations
    int      N;             //!< Number of output combinations
-   libbase::matrix<double> R, ri, ro;   // BCJR statistics
+   array2d_t R, ri, ro;   // BCJR statistics
 protected:
    /*! \name Internal functions */
    void init();
@@ -55,9 +60,10 @@ public:
    // @}
 
    // Codec operations
-   void encode(const libbase::vector<int>& source, libbase::vector<int>& encoded);
-   void translate(const libbase::matrix<double>& ptable);
-   void decode(libbase::vector<int>& decoded);
+   void encode(const array1i_t& source, array1i_t& encoded);
+   void translate(const array2d_t& ptable);
+   void decode(array2d_t& ri);
+   void decode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
    int input_block_size() const { return endatzero ? tau-m : tau; };
