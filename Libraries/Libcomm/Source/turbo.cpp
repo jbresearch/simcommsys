@@ -19,12 +19,18 @@ namespace libcomm {
 template <class real, class dbl>
 void turbo<real,dbl>::init()
    {
+   assertalways(encoder);
+   assertalways(tau > 0);
    bcjr<real,dbl>::init(*encoder, tau);
 
    assertalways(enc_parity()*num_inputs() == enc_outputs());
    assertalways(num_sets() > 0);
-   assertalways(tau > 0);
-   // TODO: check interleavers
+   for(int i=0; i<inter.size(); i++)
+      {
+      assertalways(inter(i));
+      libbase::trace << "Interleaver " << i << ": " << inter(i)->description() << "\n";
+      }
+   // TODO: check interleaver sizes
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
 
