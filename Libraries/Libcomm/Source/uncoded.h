@@ -50,7 +50,7 @@ public:
    void decode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
-   int block_size() const { return tau; };
+   int output_block_size() const { return tau; };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return encoder->num_outputs(); };
    int tail_length() const { return 0; };

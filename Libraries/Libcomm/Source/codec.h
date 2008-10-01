@@ -75,8 +75,8 @@ public:
    // @}
 
    /*! \name Codec information functions - fundamental */
-   //! Block size (input length in timesteps)
-   virtual int block_size() const = 0;
+   //! Output block size in symbols
+   virtual int output_block_size() const = 0;
    //! Number of valid input combinations
    virtual int num_inputs() const = 0;
    //! Number of valid output combinations
@@ -91,9 +91,9 @@ public:
 
    /*! \name Codec information functions - derived */
    //! Equivalent length of information sequence in bits
-   double input_bits() const { return log2(num_inputs())*(block_size() - tail_length()); };
+   double input_bits() const { return log2(num_inputs())*(output_block_size() - tail_length()); };
    //! Equivalent length of output sequence in bits
-   double output_bits() const { return log2(num_outputs())*block_size(); };
+   double output_bits() const { return log2(num_outputs())*output_block_size(); };
    //! Overall code rate
    double rate() const { return input_bits()/output_bits(); };
    // @}

@@ -45,7 +45,7 @@ protected:
    // @}
    // System Interface for Results
    int get_iter() const { return sys->getcodec()->num_iter(); };
-   int get_symbolsperblock() const { return sys->getcodec()->block_size() - sys->getcodec()->tail_length(); };
+   int get_symbolsperblock() const { return sys->getcodec()->output_block_size() - sys->getcodec()->tail_length(); };
    int get_alphabetsize() const { return sys->getcodec()->num_inputs(); };
 public:
    /*! \name Constructors / Destructors */

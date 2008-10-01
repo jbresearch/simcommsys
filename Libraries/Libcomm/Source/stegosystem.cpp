@@ -118,7 +118,7 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
    {
    assert(m_pCodec != NULL);
    // get block size data
-   const int tau = m_pCodec->block_size();
+   const int tau = m_pCodec->output_block_size();
    const int m = m_pCodec->tail_length();
    // set up source / encoded vectors
    vector<int> source(tau), encoded;
@@ -157,7 +157,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
    // initialize data vector
    d.init(GetDataSize(dInterleaverDensity, nEmbedRate));
    // get block size data
-   const int tau = m_pCodec->block_size();
+   const int tau = m_pCodec->output_block_size();
    const int m = m_pCodec->tail_length();
    // set up signal, decoded vectors and probability matrix
    vector<sigspace> signal(GetOutputSize());

@@ -93,7 +93,7 @@ void basic_commsys_simulator<S,R>::free()
 template <class S, class R>
 libbase::vector<int> basic_commsys_simulator<S,R>::createsource()
    {
-   const int tau = sys->getcodec()->block_size();
+   const int tau = sys->getcodec()->output_block_size();
    const int m = sys->getcodec()->tail_length();
    libbase::vector<int> source(tau);
    for(int t=0; t<tau-m; t++)
@@ -132,7 +132,7 @@ void basic_commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
       R::updateresults(result, i, source, decoded);
       }
    // Keep record of what we last simulated
-   const int tau = sys->getcodec()->block_size();
+   const int tau = sys->getcodec()->output_block_size();
    assert(source.size() == tau);
    assert(decoded.size() == tau);
    last_event.init(2*tau);

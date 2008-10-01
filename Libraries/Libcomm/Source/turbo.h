@@ -139,7 +139,7 @@ public:
    void decode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
-   int block_size() const { return tau; };
+   int output_block_size() const { return tau; };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
    int num_symbols() const { return libbase::gcd(num_inputs(),enc_parity()); };

@@ -51,7 +51,7 @@ public:
    void translate(const libbase::matrix<double>& ptable);
    void decode(libbase::vector<int>& decoded);
 
-   int block_size() const { return tau; };
+   int output_block_size() const { return tau; };
    int num_inputs() const { return K; };
    int num_outputs() const { return N; };
    int tail_length() const { return m; };
