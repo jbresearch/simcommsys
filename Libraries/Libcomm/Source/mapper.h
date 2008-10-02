@@ -6,6 +6,7 @@
 #include "matrix.h"
 #include "serializer.h"
 #include "random.h"
+#include "blockprocess.h"
 #include <iostream>
 #include <string>
 
@@ -24,15 +25,12 @@ namespace libcomm {
    commsys as a layer between codec and modulator.
 */
 
-class mapper {
+class mapper : protected blockprocess {
 protected:
    /*! \name User-defined parameters */
    int N;   //!< Number of possible values of each encoder output
    int M;   //!< Number of possible values of each modulation symbol
    int S;   //!< Number of possible values of each translation symbol
-   // @}
-   /*! \name Internal representation */
-   mutable bool advanced;   //!< Flag indicating mapper is ready for next block
    // @}
 
 protected:
@@ -52,8 +50,6 @@ protected:
    /*! \name Interface with derived classes */
    //! Setup function, called from set_parameters
    virtual void setup() = 0;
-   //! Sets up mapper for the next block, in time-variant systems
-   virtual void advance() const {};
    //! \copydoc transform()
    virtual void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
    //! \copydoc inverse()
@@ -62,7 +58,6 @@ protected:
 
 public:
    /*! \name Constructors / Destructors */
-   mapper() { advanced = false; };
    virtual ~mapper() {};
    // @}
 

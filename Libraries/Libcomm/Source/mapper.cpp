@@ -25,17 +25,15 @@ void mapper::set_parameters(const int N, const int M, const int S)
 
 void mapper::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
-   advance();
-   advanced = true;
+   advance_always();
    dotransform(in, out);
    }
 
 void mapper::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
-   if(!advanced)
-      advance();
+   advance_if_dirty();
    doinverse(pin, pout);
-   advanced = false;
+   mark_as_dirty();
    }
 
 }; // end namespace

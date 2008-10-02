@@ -323,6 +323,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\blockprocess.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\bsc.cpp"
 				>
 			</File>
@@ -1217,6 +1221,10 @@
 			</File>
 			<File
 				RelativePath="Source\berrou.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\blockprocess.h"
 				>
 			</File>
 			<File
