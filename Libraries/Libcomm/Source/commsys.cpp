@@ -341,9 +341,8 @@ const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("commsys", "co
 void commsys<sigspace>::init()
    {
    // set up channel energy/bit (Eb)
-   double rate = this->cdc->rate() * this->map->rate();
-   libbase::trace << "DEBUG: overall code rate = " << rate << "\n";
-   this->chan->set_eb(this->modem->bit_energy() / rate);
+   libbase::trace << "DEBUG: overall code rate = " << rate() << "\n";
+   this->chan->set_eb(this->modem->bit_energy() / rate());
    }
 
 // Serialization Support

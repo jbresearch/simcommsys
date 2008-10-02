@@ -78,6 +78,15 @@ public:
    virtual void transmitandreceive(libbase::vector<int>& source);
    // @}
 
+   /*! \name Informative functions */
+   //! Overall mapper rate
+   double rate() const { return cdc->rate() * map->rate(); };
+   //! Input (ie. source/decoded) block size in symbols
+   int input_block_size() const { return cdc->input_block_size(); };
+   //! Output (ie. transmitted/received) block size in symbols
+   int output_block_size() const { return cdc->output_block_size(); };
+   // @}
+
    // Description
    std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;

@@ -70,8 +70,8 @@ public:
    /*!
       \brief Transform a sequence of encoder outputs to a channel-compatible
              alphabet
-      \param[in]  in    Sequence of encoder output values to be modulated
-      \param[out] out   Sequence of modulation symbols
+      \param[in]  in    Sequence of encoder output values
+      \param[out] out   Sequence of symbols to be modulated
    */
    void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    /*!
@@ -100,6 +100,8 @@ public:
    /*! \name Informative functions */
    //! Overall mapper rate
    virtual double rate() const = 0;
+   //! Determine output block size, given input block size, in symbols
+   virtual int determine_output_block_size(int tau) const = 0;
    // @}
 
    /*! \name Description */

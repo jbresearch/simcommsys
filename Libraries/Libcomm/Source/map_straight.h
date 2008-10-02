@@ -35,6 +35,7 @@ protected:
 public:
    // Informative functions
    double rate() const { return 1; };
+   int determine_output_block_size(int tau) const { return tau*s1; };
 
    // Description
    std::string description() const;
