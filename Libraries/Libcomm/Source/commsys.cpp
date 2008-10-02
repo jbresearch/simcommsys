@@ -159,7 +159,7 @@ void basic_commsys<S>::seedfrom(libbase::random& r)
    \enddot
 */
 template <class S>
-libbase::vector<S> basic_commsys<S>::encode(libbase::vector<int>& source)
+libbase::vector<S> basic_commsys<S>::encode(const libbase::vector<int>& source)
    {
    // Encode
    libbase::vector<int> encoded;
@@ -190,7 +190,7 @@ libbase::vector<S> basic_commsys<S>::encode(libbase::vector<int>& source)
    \enddot
 */
 template <class S>
-void basic_commsys<S>::translate(libbase::vector<S>& received)
+void basic_commsys<S>::translate(const libbase::vector<S>& received)
    {
    // Demodulate
    libbase::matrix<double> ptable_mapped;
@@ -225,7 +225,7 @@ void basic_commsys<S>::translate(libbase::vector<S>& received)
    \enddot
 */
 template <class S>
-void basic_commsys<S>::transmitandreceive(libbase::vector<int>& source)
+void basic_commsys<S>::transmitandreceive(const libbase::vector<int>& source)
    {
    // Encode -> Map -> Modulate
    libbase::vector<S> transmitted = encode(source);
