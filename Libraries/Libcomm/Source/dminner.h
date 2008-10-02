@@ -83,7 +83,7 @@ private:
    /*! \name Internal functions */
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
-   void createsequence(const int tau);                      
+   void advance();                      
    void checkforchanges(int I, int xmax) const;   
    void work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const;
    void normalize_results(const array2r_t& in, array2d_t& out) const;

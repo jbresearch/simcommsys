@@ -58,10 +58,10 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
 //! Watermark sequence creator
 
 template <class real, bool normalize>
-void dminner<real,normalize>::createsequence(const int tau)
+void dminner<real,normalize>::advance()
    {
+   const int tau = ws.size();
    // creates 'tau' elements of 'n' bits each
-   ws.init(tau);
    for(int i=0; i<tau; i++)
       ws(i) = r.ival(1<<n);
    }
@@ -257,9 +257,11 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
    // We assume that each 'encoded' symbol can be fitted in an integral number of sparse vectors
    const int p = int(round(log(double(N))/log(double(q))));
    assert(N == pow(q, p));
-   // Initialise result vector (one bit per sparse vector) and watermark sequence
+   // Initialise result vector (one bit per sparse vector)
    tx.init(n*p*tau);
-   createsequence(p*tau);
+   // Initialise watermark sequence
+   ws.init(p*tau);
+   advance();
    // Encode source stream
    for(int i=0, ii=0; i<tau; i++)
       for(int j=0, x=encoded(i); j<p; j++, ii++, x >>= k)
