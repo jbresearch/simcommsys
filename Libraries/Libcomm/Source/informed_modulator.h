@@ -14,7 +14,7 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   Sefines common interface for informed modulator classes. An informed
+   Defines common interface for informed modulator classes. An informed
    modulator is one which can use a-priori symbol probabilities during the
    demodulation stage. In general, such a modulator may be used in an iterative
    loop with the channel codec.
