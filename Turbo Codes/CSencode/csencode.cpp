@@ -37,7 +37,7 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    // Repeat until end of stream
    while(!sin.eof())
       {
-      libbase::vector<int> source(system->getcodec()->input_block_size());
+      libbase::vector<int> source(system->input_block_size());
       source.serialize(sin);
       libbase::vector<S> transmitted = system->encode(source);
       transmitted.serialize(sout, '\n');
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
    if(vm.count("help"))
       {
       std::cerr << desc << "\n";
-      return 0;
+      return 1;
       }
 
    // Main process

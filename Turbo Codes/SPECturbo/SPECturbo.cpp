@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
    if(vm.count("help"))
       {
       cout << desc << "\n";
-      return 0;
+      return 1;
       }
 
    // Create estimator object and initilize cluster
