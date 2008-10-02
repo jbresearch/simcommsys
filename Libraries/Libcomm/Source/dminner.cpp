@@ -55,17 +55,6 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
    return i;
    }
 
-//! Watermark sequence creator
-
-template <class real, bool normalize>
-void dminner<real,normalize>::advance() const
-   {
-   const int tau = ws.size();
-   // creates 'tau' elements of 'n' bits each
-   for(int i=0; i<tau; i++)
-      ws(i) = r.ival(1<<n);
-   }
-
 //! Inform user if I or xmax have changed
 
 template <class real, bool normalize>
@@ -246,6 +235,17 @@ real dminner<real,normalize>::R(const int i, const array1b_t& r)
    return mychan.receive(t, r);
    }
 
+// block advance operation - update watermark sequence
+
+template <class real, bool normalize>
+void dminner<real,normalize>::advance() const
+   {
+   const int tau = ws.size();
+   // creates 'tau' elements of 'n' bits each
+   for(int i=0; i<tau; i++)
+      ws(i) = r.ival(1<<n);
+   }
+
 // encoding and decoding functions
 
 template <class real, bool normalize>
@@ -259,9 +259,13 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
    assert(N == pow(q, p));
    // Initialise result vector (one bit per sparse vector)
    tx.init(n*p*tau);
-   // Initialise watermark sequence
-   ws.init(p*tau);
-   advance();
+   // Initialise watermark sequence if necessary
+   if(ws.size() == 0)
+      {
+      ws.init(p*tau);
+      advance();
+      }
+   assertalways(ws.size() == p*tau);
    // Encode source stream
    for(int i=0, ii=0; i<tau; i++)
       for(int j=0, x=encoded(i); j<p; j++, ii++, x >>= k)
