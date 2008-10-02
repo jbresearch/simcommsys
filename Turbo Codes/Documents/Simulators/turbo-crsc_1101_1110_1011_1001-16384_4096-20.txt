@@ -8,9 +8,9 @@ turbo<logrealfast,logrealfast>
 dvbcrsc
 4096
 3
-flat
+flat<logrealfast>
 4096
-named_lut
+named_lut<logrealfast>
 0
 ran-4096-seed206378.txt
 4096
@@ -4110,7 +4110,7 @@ ran-4096-seed206378.txt
 1227
 3819
 4071
-named_lut
+named_lut<logrealfast>
 0
 ran-4096-seed210473.txt
 4096
