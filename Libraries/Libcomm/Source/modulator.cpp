@@ -14,12 +14,41 @@
 
 namespace libcomm {
 
+// *** Common Modulator Interface ***
+
+// Vector modem operations
+
+template <class S>
+void basic_modulator<S>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx)
+   {
+   advance_always();
+   domodulate(N, encoded, tx);
+   }
+
+template <class S>
+void basic_modulator<S>::demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable)
+   {
+   advance_if_dirty();
+   dodemodulate(chan, rx, ptable);
+   mark_as_dirty();
+   }
+
+// Explicit Realizations
+
+template class basic_modulator< libbase::gf<1,0x3> >;
+template class basic_modulator< libbase::gf<2,0x7> >;
+template class basic_modulator< libbase::gf<3,0xB> >;
+template class basic_modulator< libbase::gf<4,0x13> >;
+template class basic_modulator<bool>;
+template class basic_modulator<libcomm::sigspace>;
+
+
 // *** Templated GF(q) modulator ***
 
 // Vector modem operations
 
 template <class G>
-void direct_modulator<G>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
+void direct_modulator<G>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
    {
    // Compute factors / sizes & check validity
    const int M = num_symbols();
@@ -37,7 +66,7 @@ void direct_modulator<G>::modulate(const int N, const libbase::vector<int>& enco
    }
 
 template <class G>
-void direct_modulator<G>::demodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
+void direct_modulator<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
    {
    // Compute sizes
    const int M = num_symbols();
@@ -95,7 +124,7 @@ const libbase::serializer direct_modulator<bool>::shelper("modulator", "modulato
 
 // Vector modem operations
 
-void direct_modulator<bool>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+void direct_modulator<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Compute factors / sizes & check validity
    const int tau = encoded.size();
@@ -110,7 +139,7 @@ void direct_modulator<bool>::modulate(const int N, const libbase::vector<int>& e
          tx(k) = (x & 1);
    }
 
-void direct_modulator<bool>::demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+void direct_modulator<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    // Create a matrix of all possible transmitted symbols
    libbase::vector<bool> tx(2);

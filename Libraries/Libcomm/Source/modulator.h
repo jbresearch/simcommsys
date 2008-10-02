@@ -7,6 +7,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "channel.h"
+#include "blockprocess.h"
 #include <iostream>
 #include <string>
 
@@ -25,9 +26,18 @@ namespace libcomm {
 */
 
 template <class S>
-class basic_modulator {
+class basic_modulator : protected blockprocess {
+protected:
+   /*! \name Interface with derived classes */
+   //! \copydoc modulate()
+   virtual void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
+   //! \copydoc demodulate()
+   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) = 0;
+   // @}
+
 public:
    /*! \name Constructors / Destructors */
+   //! Virtual destructor
    virtual ~basic_modulator() {};
    // @}
 
@@ -63,7 +73,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   virtual void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
+   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx);
    /*!
       \brief Demodulate a sequence of time-steps
       \param[in]  chan     The channel model (used to obtain likelihoods)
@@ -76,7 +86,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   virtual void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) = 0;
+   void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable);
    // @}
 
    /*! \name Setup functions */
@@ -160,14 +170,15 @@ public:
 
 template <class G>
 class direct_modulator : public modulator<G> {
+protected:
+   // Interface with derived classes
+   void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx);
+   void dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable);
+
 public:
    // Atomic modem operations
    const G modulate(const int index) const { assert(index >= 0 && index < num_symbols()); return G(index); };
    const int demodulate(const G& signal) const { return signal; };
-
-   // Vector modem operations
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx);
-   void demodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable);
 
    // Informative functions
    int num_symbols() const { return G::elements(); };
@@ -193,14 +204,15 @@ public:
 
 template <>
 class direct_modulator<bool> : public modulator<bool> {
+protected:
+   // Interface with derived classes
+   void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
+   void dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+
 public:
    // Atomic modem operations
    const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index & 1; };
    const int demodulate(const bool& signal) const { return signal; };
-
-   // Vector modem operations
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
-   void demodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
 
    // Informative functions
    int num_symbols() const { return 2; };

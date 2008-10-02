@@ -63,7 +63,7 @@ void dminner2<real,normalize>::init(const channel<bool>& chan)
    \todo Make demodulation independent of the previous modulation step.
 */
 template <class real, bool normalize>
-void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
+void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {
    init(chan);
    libbase::matrix<real> p;
@@ -72,7 +72,7 @@ void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array
    }
 
 template <class real, bool normalize>
-void dminner2<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
+void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
    {
    init(chan);
    libbase::matrix<real> p;

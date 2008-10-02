@@ -249,7 +249,7 @@ real dminner<real,normalize>::R(const int i, const array1b_t& r)
 // encoding and decoding functions
 
 template <class real, bool normalize>
-void dminner<real,normalize>::modulate(const int N, const array1i_t& encoded, array1b_t& tx)
+void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
    {
    // Inherit sizes
    const int q = 1<<k;
@@ -285,7 +285,7 @@ void dminner<real,normalize>::modulate(const int N, const array1i_t& encoded, ar
    \todo Make demodulation independent of the previous modulation step.
 */
 template <class real, bool normalize>
-void dminner<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
+void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {
    // Inherit block size from last modulation step
    const int N = ws.size();
@@ -318,10 +318,10 @@ void dminner<real,normalize>::demodulate(const channel<bool>& chan, const array1
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
+void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
    {
    // Apply standard demodulation
-   dminner<real,normalize>::demodulate(chan, rx, ptable);
+   dminner<real,normalize>::dodemodulate(chan, rx, ptable);
    // Multiply-in a-priori probabilities
    const int q = ptable.xsize();
    const int N = ptable.ysize();

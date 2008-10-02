@@ -32,19 +32,15 @@ const int lut_modulator::demodulate(const sigspace& signal) const
 
 // modulation/demodulation - vector operations
 
-void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
+void lut_modulator::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
    {
    // Compute factors / sizes & check validity
    const int M = lut.size();
    const int tau = encoded.size();
    const int s = int(round(log(double(N))/log(double(M))));
-   if(N != pow(double(M), s))
-      {
-      std::cerr << "FATAL ERROR (modulator): each encoder output (" << N << ") must be";
-      std::cerr << " represented by an integral number of modulation symbols (" << M << ").";
-      std::cerr << " Suggested number of mod. symbols/encoder output was " << s << ".\n";
-      exit(1);
-      }
+   // Each encoder output N must be representable by an integral number of
+   // modulation symbols M
+   assertalways(N == pow(double(M), s));
    // Initialize results vector
    tx.init(tau*s);
    // Modulate encoded stream (least-significant first)
@@ -53,7 +49,7 @@ void lut_modulator::modulate(const int N, const libbase::vector<int>& encoded, l
          tx(k) = modulate(x % M);
    }
 
-void lut_modulator::demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
+void lut_modulator::dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
    // Compute sizes
    const int M = lut.size();

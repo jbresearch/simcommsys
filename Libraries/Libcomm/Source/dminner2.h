@@ -34,6 +34,10 @@ private:
    real R(int d, int i, const array1b_t& r) const;
    // Setup procedure
    void init(const channel<bool>& chan);
+protected:
+   // Interface with derived classes
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
 public:
    /*! \name Constructors / Destructors */
    dminner2(const int n=2, const int k=1)
@@ -41,10 +45,6 @@ public:
    dminner2(const int n, const int k, const double th_inner, const double th_outer)
       : dminner<real,normalize>(n,k,th_inner,th_outer) {};
    // @}
-
-   // Vector modem operations
-   void demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
-   void demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
 
    // Description
    std::string description() const;

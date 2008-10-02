@@ -25,6 +25,12 @@ namespace libcomm {
 
 template <class S>
 class informed_modulator : public modulator<S> {
+protected:
+   /*! \name Interface with derived classes */
+   //! \copydoc demodulate()
+   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable) = 0;
+   // @}
+
 public:
    /*! \name Atomic modem operations */
    /*!
@@ -52,7 +58,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   virtual void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable) = 0;
+   void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable);
    // @}
 };
 

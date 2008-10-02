@@ -98,6 +98,12 @@ private:
    const int demodulate(const bool& signal, const libbase::vector<double>& app) const
       { assert("Function should not be used."); return 0; };
 protected:
+   // Interface with derived classes
+   void domodulate(const int N, const array1i_t& encoded, array1b_t& tx);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
+
+protected:
    /*! \name Internal functions */
    void init();
    // @}
@@ -120,11 +126,6 @@ public:
    double get_th_inner() const { return th_inner; };
    double get_th_outer() const { return th_outer; };
    // @}
-
-   // Vector modem operations
-   void modulate(const int N, const array1i_t& encoded, array1b_t& tx);
-   void demodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
-   void demodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
 
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
