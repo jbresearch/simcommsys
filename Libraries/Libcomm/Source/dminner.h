@@ -76,14 +76,14 @@ private:
    // @}
    /*! \name Internally-used objects */
    bsid     mychan;           //!< bound channel object
-   libbase::randgen r;        //!< watermark sequence generator
-   array1i_t ws;              //!< watermark sequence
+   mutable libbase::randgen r;   //!< watermark sequence generator
+   mutable array1i_t ws;         //!< watermark sequence
    // @}
 private:
    /*! \name Internal functions */
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
-   void advance();                      
+   void advance() const;                      
    void checkforchanges(int I, int xmax) const;   
    void work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const;
    void normalize_results(const array2r_t& in, array2d_t& out) const;

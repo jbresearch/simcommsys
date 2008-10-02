@@ -58,7 +58,7 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
 //! Watermark sequence creator
 
 template <class real, bool normalize>
-void dminner<real,normalize>::advance()
+void dminner<real,normalize>::advance() const
    {
    const int tau = ws.size();
    // creates 'tau' elements of 'n' bits each
