@@ -21,7 +21,7 @@ namespace libcomm {
 class blockprocess {
 protected:
    /*! \name Internal representation */
-   mutable bool advanced;   //!< Flag indicating object is ready for next block
+   mutable bool dirty;   //!< Flag indicating this block has been processed
    // @}
 
 protected:
@@ -32,7 +32,7 @@ protected:
 
 public:
    /*! \name Constructors / Destructors */
-   blockprocess() { advanced = false; };
+   blockprocess() { dirty = true; };
    virtual ~blockprocess() {};
    // @}
 
@@ -42,7 +42,7 @@ public:
    //! Advance to the next block only if this block is 'dirty'
    void advance_if_dirty() const;
    //! Mark this block as 'dirty'
-   void mark_as_dirty() const { advanced = false; };
+   void mark_as_dirty() const { dirty = true; };
    // @}
 };
 

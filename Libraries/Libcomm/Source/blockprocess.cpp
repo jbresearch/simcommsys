@@ -16,15 +16,15 @@ namespace libcomm {
 void blockprocess::advance_always() const
    {
    advance();
-   advanced = true;
+   dirty = false;
    }
 
 void blockprocess::advance_if_dirty() const
    {
-   if(!advanced)
+   if(dirty)
       {
       advance();
-      advanced = true;
+      dirty = false;
       }
    }
 
