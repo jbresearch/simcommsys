@@ -34,6 +34,8 @@ private:
 
 protected:
    /*! \name Interface with derived classes */
+   //! Setup function, called from set_blocksize()
+   virtual void setup() {};
    //! \copydoc modulate()
    virtual void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
    //! \copydoc demodulate()
@@ -98,7 +100,7 @@ public:
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) {};
    //! Sets input block size
-   void set_blocksize(int tau) { assert(tau > 0); basic_blockmodem::tau = tau; };
+   void set_blocksize(int tau) { assert(tau > 0); basic_blockmodem::tau = tau; setup(); };
    // @}
 
    /*! \name Informative functions */
@@ -106,6 +108,8 @@ public:
    virtual int num_symbols() const = 0;
    //! Gets input block size
    int input_block_size() const { return tau; };
+   //! Gets output block size
+   virtual int output_block_size() const { return tau; };
    // @}
 
    /*! \name Description */
