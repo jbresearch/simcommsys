@@ -34,13 +34,15 @@ const int lut_modulator::demodulate(const sigspace& signal) const
 
 void lut_modulator::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
    {
-   // Compute factors / sizes & check validity
-   const int M = lut.size();
-   const int tau = encoded.size();
-   const int s = int(round(log(double(N))/log(double(M))));
+   // Inherit sizes
+   const int M = num_symbols();
+   const int tau = this->get_blocksize();
+   // Compute factors & check validity
+   const int s = int(round( log2(double(N)) / log2(double(M)) ));
+   assertalways(tau == encoded.size());
    // Each encoder output N must be representable by an integral number of
    // modulation symbols M
-   assertalways(N == pow(double(M), s));
+   assertalways(N == pow(M,s));
    // Initialize results vector
    tx.init(tau*s);
    // Modulate encoded stream (least-significant first)
@@ -51,8 +53,11 @@ void lut_modulator::domodulate(const int N, const libbase::vector<int>& encoded,
 
 void lut_modulator::dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
    {
-   // Compute sizes
-   const int M = lut.size();
+   // Inherit sizes
+   const int M = num_symbols();
+   const int tau = this->get_blocksize();
+   // Check validity
+   assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
    libbase::vector<sigspace> tx(M);
    for(int x=0; x<M; x++)
