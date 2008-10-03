@@ -36,7 +36,7 @@ namespace libcomm {
 template <class S>
 void basic_commsys<S>::init()
    {
-   M = modem->num_symbols();
+   M = mdm->num_symbols();
    N = cdc->num_outputs();
    K = cdc->num_inputs();
    k = int(round(log2(double(K))));
@@ -60,7 +60,7 @@ void basic_commsys<S>::clear()
    {
    cdc = NULL;
    map = NULL;
-   modem = NULL;
+   mdm = NULL;
    chan = NULL;
    internallyallocated = true;
    }
@@ -84,7 +84,7 @@ void basic_commsys<S>::free()
       {
       delete cdc;
       delete map;
-      delete modem;
+      delete mdm;
       delete chan;
       }
    clear();
@@ -100,11 +100,11 @@ void basic_commsys<S>::free()
    Initializes system with bound objects as supplied by user.
 */
 template <class S>
-basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, modulator<S> *modem, channel<S> *chan)
+basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, modulator<S> *mdm, channel<S> *chan)
    {
    basic_commsys<S>::cdc = cdc;
    basic_commsys<S>::map = map;
-   basic_commsys<S>::modem = modem;
+   basic_commsys<S>::mdm = mdm;
    basic_commsys<S>::chan = chan;
    internallyallocated = false;
    init();
@@ -123,7 +123,7 @@ basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
    {
    basic_commsys<S>::cdc = c.cdc->clone();
    basic_commsys<S>::map = c.map->clone();
-   basic_commsys<S>::modem = (modulator<S> *)c.modem->clone();
+   basic_commsys<S>::mdm = (modulator<S> *)c.mdm->clone();
    basic_commsys<S>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
    init();
@@ -136,7 +136,7 @@ void basic_commsys<S>::seedfrom(libbase::random& r)
    {
    cdc->seedfrom(r);
    map->seedfrom(r);
-   modem->seedfrom(r);
+   mdm->seedfrom(r);
    chan->seedfrom(r);
    }
 
@@ -169,7 +169,7 @@ libbase::vector<S> basic_commsys<S>::encode(const libbase::vector<int>& source)
    this->map->transform(encoded, mapped);
    // Modulate
    libbase::vector<S> transmitted;
-   this->modem->modulate(this->M, mapped, transmitted);
+   this->mdm->modulate(this->M, mapped, transmitted);
    return transmitted;
    }
 
@@ -194,7 +194,7 @@ void basic_commsys<S>::translate(const libbase::vector<S>& received)
    {
    // Demodulate
    libbase::matrix<double> ptable_mapped;
-   this->modem->demodulate(*this->chan, received, ptable_mapped);
+   this->mdm->demodulate(*this->chan, received, ptable_mapped);
    // Inverse Map
    libbase::matrix<double> ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
@@ -245,7 +245,7 @@ std::string basic_commsys<S>::description() const
    sout << "Communication System: ";
    sout << cdc->description() << ", ";
    sout << map->description() << ", ";
-   sout << modem->description() << ", ";
+   sout << mdm->description() << ", ";
    sout << chan->description();
    return sout.str();
    }
@@ -254,7 +254,7 @@ template <class S>
 std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
    {
    sout << chan;
-   sout << modem;
+   sout << mdm;
    sout << map;
    sout << cdc;
    return sout;
@@ -265,7 +265,7 @@ std::istream& basic_commsys<S>::serialize(std::istream& sin)
    {
    free();
    sin >> chan;
-   sin >> modem;
+   sin >> mdm;
    sin >> map;
    if(sin.fail())
       {
@@ -342,7 +342,7 @@ void commsys<sigspace>::init()
    {
    // set up channel energy/bit (Eb)
    libbase::trace << "DEBUG: overall code rate = " << rate() << "\n";
-   this->chan->set_eb(this->modem->bit_energy() / rate());
+   this->chan->set_eb(this->mdm->bit_energy() / rate());
    }
 
 // Serialization Support

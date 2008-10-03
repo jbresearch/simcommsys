@@ -23,23 +23,23 @@ int main(int argc, char *argv[])
 
    // create a watermark code to start with
    int n=5, k=3;
-   libcomm::dminner<libbase::logrealfast,false> modem(n,k);
-   cout << modem.description() << "\n";
+   libcomm::dminner<libbase::logrealfast,false> mdm(n,k);
+   cout << mdm.description() << "\n";
 
    // get a new watermark from stdin
    cerr << "Enter watermark code details:\n";
-   modem.serialize(cin);
-   cout << modem.description() << "\n";
+   mdm.serialize(cin);
+   cout << mdm.description() << "\n";
 
    // compute distance table
-   n = modem.get_n();
-   k = modem.get_k();
+   n = mdm.get_n();
+   k = mdm.get_k();
    libbase::matrix<int> c(1<<k,n);
    c = 0;
    for(int i=0; i<(1<<k); i++)
       for(int j=i+1; j<(1<<k); j++)
          {
-         int t = libbase::weight(modem.get_lut(i) ^ modem.get_lut(j));
+         int t = libbase::weight(mdm.get_lut(i) ^ mdm.get_lut(j));
          c(i,t-1)++;
          c(j,t-1)++;
          }
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
       cout << "c_" << t << (t==n ? '\n' : '\t');
    for(int i=0; i<(1<<k); i++)
       {
-      cout << i << '\t' << libbase::bitfield(modem.get_lut(i),n) << '\t';
+      cout << i << '\t' << libbase::bitfield(mdm.get_lut(i),n) << '\t';
       for(int t=1; t<=n; t++)
          cout << c(i,t-1) << (t==n ? '\n' : '\t');
       }

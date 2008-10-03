@@ -123,7 +123,7 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
    // set up source / encoded vectors
    vector<int> source(tau), encoded;
    // BPSK modulator & modulated signal
-   mpsk modem(2);
+   mpsk mdm(2);
    vector<sigspace> signal;
    // loop for all blocks
    int k=0;
@@ -141,10 +141,10 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
       // encode
       m_pCodec->encode(source, encoded);
       // modulate
-      modem.modulate(m_pCodec->num_outputs(), encoded, signal);
+      mdm.modulate(m_pCodec->num_outputs(), encoded, signal);
       // write into output stream
       for(i=0; i<signal.size(); i++)
-         e(k++) = modem.demodulate(signal(i));
+         e(k++) = mdm.demodulate(signal(i));
       }
    // fill in the rest with zeros
    while(k < e.size())
@@ -165,10 +165,10 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
    vector<int> decoded;
    matrix<double> ptable;
    // BPSK modulator
-   mpsk modem(2);
+   mpsk mdm(2);
    // set up channel
    laplacian chan;
-   chan.set_eb(modem.bit_energy());
+   chan.set_eb(mdm.bit_energy());
    chan.set_parameter(dSNR);
    // loop for all blocks
    int k=0;
@@ -182,7 +182,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
       for(i=0; i<signal.size(); i++)
          signal(i) = s(k++);
       // demodulate (build probability table)
-      modem.demodulate(chan, signal, ptable);
+      mdm.demodulate(chan, signal, ptable);
       trace << "Translation table block size = " << ptable.xsize() << "x" << ptable.ysize() << "\n";
       // decode
       m_pCodec->translate(ptable);
@@ -199,10 +199,10 @@ void stegosystem::DemodulateData(const vector<sigspace>& s, vector<int>& d)
    assert(s.size() > 0);
    d.init(s.size());
    // BPSK modulator
-   mpsk modem(2);
+   mpsk mdm(2);
    // demodulate signal
    for(int i=0; i<s.size(); i++)
-      d(i) = modem.demodulate(s(i));
+      d(i) = mdm.demodulate(s(i));
    }
 
 double stegosystem::EstimateSNR(const double dRate, const vector<sigspace>& rx, const vector<sigspace>& tx, double* pdSNRreal)
@@ -296,11 +296,11 @@ void stegosystem::DemodulateEmbedSequence(const vector<double>& v, const vector<
    assert(u.size() > 0);
    assert(u.size() == v.size());
    s.init(u.size());
-   mpsk modem(2);
+   mpsk mdm(2);
    for(int i=0; i<u.size(); i++)
       {
       const double d = (v(i) - u(i)) / (plmod(u(i)) - u(i));
-      s(i) = modem[0] + d*(modem[1] - modem[0]);
+      s(i) = mdm[0] + d*(mdm[1] - mdm[0]);
       }
    }
 

@@ -36,22 +36,22 @@ typedef std::auto_ptr< channel<bool> > channel_ptr;
 
 modem_ptr create_modem(bool decoder, bool math, bool deep, int n, int k, libbase::random& r)
    {
-   modem_ptr modem;
+   modem_ptr mdm;
    if(decoder)
       {
       if(math)
          {
          if(deep)
-            modem = modem_ptr(new dminner2<double,true>(n,k,1e-21,1e-12));
+            mdm = modem_ptr(new dminner2<double,true>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner2<double,true>(n,k));
+            mdm = modem_ptr(new dminner2<double,true>(n,k));
          }
       else
          {
          if(deep)
-            modem = modem_ptr(new dminner2<logrealfast,false>(n,k,1e-21,1e-12));
+            mdm = modem_ptr(new dminner2<logrealfast,false>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner2<logrealfast,false>(n,k));
+            mdm = modem_ptr(new dminner2<logrealfast,false>(n,k));
          }
       }
    else
@@ -59,20 +59,20 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int n, int k, libbase
       if(math)
          {
          if(deep)
-            modem = modem_ptr(new dminner<double,true>(n,k,1e-21,1e-12));
+            mdm = modem_ptr(new dminner<double,true>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner<double,true>(n,k));
+            mdm = modem_ptr(new dminner<double,true>(n,k));
          }
       else
          {
          if(deep)
-            modem = modem_ptr(new dminner<logrealfast,false>(n,k,1e-21,1e-12));
+            mdm = modem_ptr(new dminner<logrealfast,false>(n,k,1e-21,1e-12));
          else
-            modem = modem_ptr(new dminner<logrealfast,false>(n,k));
+            mdm = modem_ptr(new dminner<logrealfast,false>(n,k));
          }
       }
-   modem->seedfrom(r);
-   return modem;
+   mdm->seedfrom(r);
+   return mdm;
    }
 
 channel_ptr create_channel(double Pe, libbase::random& r)
@@ -101,10 +101,10 @@ void print_signal(const std::string desc, int n, vector<bool> tx)
    cout << std::flush;
    }
 
-vector<bool> modulate_encoded(int k, int n, modulator<bool>& modem, vector<int>& encoded, bool display=true)
+vector<bool> modulate_encoded(int k, int n, modulator<bool>& mdm, vector<int>& encoded, bool display=true)
    {
    vector<bool> tx;
-   modem.modulate(1<<k, encoded, tx);
+   mdm.modulate(1<<k, encoded, tx);
    if(display)
       print_signal("Tx", n, tx);
    return tx;
@@ -119,12 +119,12 @@ vector<bool> transmit_modulated(int n, channel<bool>& chan, const vector<bool>& 
    return rx;
    }
 
-matrix<double> demodulate_encoded(channel<bool>& chan, modulator<bool>& modem, const vector<bool>& rx, bool display=true)
+matrix<double> demodulate_encoded(channel<bool>& chan, modulator<bool>& mdm, const vector<bool>& rx, bool display=true)
    {
    // demodulate received signal
    matrix<double> ptable;
    timer t;
-   modem.demodulate(chan, rx, ptable);
+   mdm.demodulate(chan, rx, ptable);
    t.stop();
    if(display)
       cout << "Ptable: " << ptable << "\n" << std::flush;
@@ -159,21 +159,21 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k, int t
    libbase::randgen prng;
    prng.seed(seed);
    // create modem and channel
-   modem_ptr modem = create_modem(decoder, math, deep, n, k, prng);
+   modem_ptr mdm = create_modem(decoder, math, deep, n, k, prng);
    channel_ptr chan = create_channel(Pe, prng);
    cout << '\n';
-   cout << modem->description() << '\n';
+   cout << mdm->description() << '\n';
    cout << chan->description() << '\n';
    cout << "Block size: N = " << tau << '\n';
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
    // modulate it using the previously created inner code
-   vector<bool> tx = modulate_encoded(k, n, *modem, encoded, display);
+   vector<bool> tx = modulate_encoded(k, n, *mdm, encoded, display);
    // pass it through the channel
    vector<bool> rx = transmit_modulated(n, *chan, tx, display);
    // demodulate received signal
-   matrix<double> ptable = demodulate_encoded(*chan, *modem, rx, display);
+   matrix<double> ptable = demodulate_encoded(*chan, *mdm, rx, display);
    // count errors
    count_errors(encoded, ptable);
    }

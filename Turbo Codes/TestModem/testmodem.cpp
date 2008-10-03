@@ -26,27 +26,27 @@ using std::hex;
 using std::dec;
 
 template <class S>
-void TestModem(modulator<S> &modem)
+void TestModem(modulator<S> &mdm)
    {
-   const int m = modem.num_symbols();
+   const int m = mdm.num_symbols();
    const int bits = int(log2(m));
    assert(m == 1<<bits);
-   cout << '\n' << modem.description() << '\n';
-   cout << "Average Energy/symbol: " << modem.energy() << '\n';
+   cout << '\n' << mdm.description() << '\n';
+   cout << "Average Energy/symbol: " << mdm.energy() << '\n';
    for(int i=0; i<m; i++)
-      cout << bitfield(gray(i),bits) << '\t' << modem.modulate(gray(i)) << '\n';
+      cout << bitfield(gray(i),bits) << '\t' << mdm.modulate(gray(i)) << '\n';
    }
 
 void TestMPSK(int m)
    {
-   mpsk modem(m);
-   TestModem(modem);
+   mpsk mdm(m);
+   TestModem(mdm);
    }
 
 void TestQAM(int m)
    {
-   qam modem(m);
-   TestModem(modem);
+   qam mdm(m);
+   TestModem(mdm);
    }
 
 int main(int argc, char *argv[])
