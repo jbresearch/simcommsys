@@ -84,7 +84,7 @@ public:
    //! Input (ie. source/decoded) block size in symbols
    int input_block_size() const { return cdc->input_block_size(); };
    //! Output (ie. transmitted/received) block size in symbols
-   int output_block_size() const { return cdc->output_block_size(); };
+   int output_block_size() const { return map->determine_output_block_size(cdc->output_block_size()); };
    // @}
 
    // Description
