@@ -28,6 +28,11 @@ namespace libcomm {
 template <class S>
 class basic_blockmodem : protected blockprocess {
 protected:
+   /*! \name User-defined parameters */
+   int tau;    //!< Block size in symbols
+   // @}
+
+protected:
    /*! \name Interface with derived classes */
    //! \copydoc modulate()
    virtual void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
@@ -92,6 +97,8 @@ public:
    /*! \name Setup functions */
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) {};
+   //! Sets operating block size
+   void set_blocksize(int tau) { assert(tau > 0); basic_blockmodem::tau = tau; };
    // @}
 
    /*! \name Informative functions */

@@ -45,6 +45,8 @@ void basic_commsys<S>::init()
    iter = cdc->num_iter();
    // set up mapper with required parameters
    map->set_parameters(N, M, cdc->num_symbols());
+   // set up modem with appropriate block size
+   mdm->set_blocksize(map->determine_output_block_size(cdc->output_block_size()));
    }
 
 /*!
