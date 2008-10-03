@@ -50,13 +50,15 @@ template class basic_blockmodem<libcomm::sigspace>;
 template <class G>
 void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
    {
-   // Compute factors / sizes & check validity
+   // Inherit sizes
    const int M = num_symbols();
-   const int tau = encoded.size();
+   const int tau = this->get_blocksize();
+   // Compute factors & check validity
    const int s = int(round( log2(double(N)) / log2(double(M)) ));
+   assertalways(tau == encoded.size());
    // Each encoder output N must be representable by an integral number of
    // modulation symbols M
-   assertalways(N == pow(num_symbols(),s));
+   assertalways(N == pow(M,s));
    // Initialize results vector
    tx.init(tau*s);
    // Modulate encoded stream (least-significant first)
@@ -68,8 +70,11 @@ void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& e
 template <class G>
 void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
    {
-   // Compute sizes
+   // Inherit sizes
    const int M = num_symbols();
+   const int tau = this->get_blocksize();
+   // Check validity
+   assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
    libbase::vector<G> tx(M);
    for(int x=0; x<M; x++)
@@ -126,9 +131,11 @@ const libbase::serializer direct_blockmodem<bool>::shelper("blockmodem", "blockm
 
 void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
-   // Compute factors / sizes & check validity
-   const int tau = encoded.size();
-   const int s = int(round(log2(double(N))));
+   // Inherit sizes
+   const int tau = get_blocksize();
+   // Compute factors & check validity
+   const int s = int(round( log2(double(N)) ));
+   assertalways(tau == encoded.size());
    // Each encoder output N must be representable by an integral number of bits
    assertalways(N == (1<<s));
    // Initialize results vector
@@ -141,6 +148,10 @@ void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>
 
 void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
+   // Inherit sizes
+   const int tau = get_blocksize();
+   // Check validity
+   assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
    libbase::vector<bool> tx(2);
    tx(0) = false;
