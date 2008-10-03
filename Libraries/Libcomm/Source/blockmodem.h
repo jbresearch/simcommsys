@@ -97,15 +97,15 @@ public:
    /*! \name Setup functions */
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) {};
-   //! Sets operating block size
+   //! Sets input block size
    void set_blocksize(int tau) { assert(tau > 0); basic_blockmodem::tau = tau; };
    // @}
 
    /*! \name Informative functions */
-   //! Symbol alphabet size
+   //! Symbol alphabet size at input
    virtual int num_symbols() const = 0;
-   //! Gets operating block size
-   int get_blocksize() const { return tau; };
+   //! Gets input block size
+   int input_block_size() const { return tau; };
    // @}
 
    /*! \name Description */

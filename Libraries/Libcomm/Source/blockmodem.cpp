@@ -52,7 +52,7 @@ void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& e
    {
    // Inherit sizes
    const int M = num_symbols();
-   const int tau = this->get_blocksize();
+   const int tau = this->input_block_size();
    // Compute factors & check validity
    const int s = int(round( log2(double(N)) / log2(double(M)) ));
    assertalways(tau == encoded.size());
@@ -72,7 +72,7 @@ void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::v
    {
    // Inherit sizes
    const int M = num_symbols();
-   const int tau = this->get_blocksize();
+   const int tau = this->input_block_size();
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
@@ -132,7 +132,7 @@ const libbase::serializer direct_blockmodem<bool>::shelper("blockmodem", "blockm
 void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Inherit sizes
-   const int tau = get_blocksize();
+   const int tau = input_block_size();
    // Compute factors & check validity
    const int s = int(round( log2(double(N)) ));
    assertalways(tau == encoded.size());
@@ -149,7 +149,7 @@ void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>
 void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    // Inherit sizes
-   const int tau = get_blocksize();
+   const int tau = input_block_size();
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols

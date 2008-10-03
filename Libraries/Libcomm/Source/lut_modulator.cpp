@@ -36,7 +36,7 @@ void lut_modulator::domodulate(const int N, const libbase::vector<int>& encoded,
    {
    // Inherit sizes
    const int M = num_symbols();
-   const int tau = this->get_blocksize();
+   const int tau = this->input_block_size();
    // Compute factors & check validity
    const int s = int(round( log2(double(N)) / log2(double(M)) ));
    assertalways(tau == encoded.size());
@@ -55,7 +55,7 @@ void lut_modulator::dodemodulate(const channel<sigspace>& chan, const libbase::v
    {
    // Inherit sizes
    const int M = num_symbols();
-   const int tau = this->get_blocksize();
+   const int tau = this->input_block_size();
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols

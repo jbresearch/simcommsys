@@ -241,7 +241,7 @@ template <class real, bool normalize>
 void dminner<real,normalize>::advance() const
    {
    // Inherit sizes
-   const int tau = this->get_blocksize();
+   const int tau = this->input_block_size();
    // Initialize space
    ws.init(tau);
    // creates 'tau' elements of 'n' bits each
@@ -257,7 +257,7 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
    // TODO: when N is removed from the interface, rename 'tau' to 'N'
    // Inherit sizes
    const int q = 1<<k;
-   const int tau = this->get_blocksize();
+   const int tau = this->input_block_size();
    // Check validity
    assertalways(tau == encoded.size());
    // Each 'encoded' symbol must be representable by a single sparse vector
@@ -288,7 +288,7 @@ template <class real, bool normalize>
 void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {
    // Inherit sizes
-   const int N = this->get_blocksize();
+   const int N = this->input_block_size();
    const int tau = N*n;
    assert(N > 0);
    // Copy channel for access within Q()
