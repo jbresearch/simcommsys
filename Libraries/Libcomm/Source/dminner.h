@@ -126,6 +126,7 @@ public:
 
    // Informative functions
    int num_symbols() const { return 1<<k; };
+   int output_block_size() const { return input_block_size()*n; };
    double energy() const { return n; };
 
    // Description
