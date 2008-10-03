@@ -27,7 +27,7 @@ namespace libcomm {
 
 template <class S>
 class basic_blockmodem : protected blockprocess {
-protected:
+private:
    /*! \name User-defined parameters */
    int tau;    //!< Block size in symbols
    // @}
@@ -104,6 +104,8 @@ public:
    /*! \name Informative functions */
    //! Symbol alphabet size
    virtual int num_symbols() const = 0;
+   //! Gets operating block size
+   int get_blocksize() const { return tau; };
    // @}
 
    /*! \name Description */
