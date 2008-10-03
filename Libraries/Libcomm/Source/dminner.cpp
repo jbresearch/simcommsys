@@ -286,7 +286,7 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
          }
    }
 
-/*! \copydoc modulator::demodulate()
+/*! \copydoc blockmodem::demodulate()
 
    \todo Make demodulation independent of the previous modulation step.
 */
@@ -431,11 +431,11 @@ using libbase::serializer;
 template class dminner<logrealfast,false>;
 template <>
 const serializer dminner<logrealfast,false>::shelper \
-   = serializer("modulator", "dminner<logrealfast>", dminner<logrealfast,false>::create);
+   = serializer("blockmodem", "dminner<logrealfast>", dminner<logrealfast,false>::create);
 
 template class dminner<double,true>;
 template <>
 const serializer dminner<double,true>::shelper \
-   = serializer("modulator", "dminner<double>", dminner<double,true>::create);
+   = serializer("blockmodem", "dminner<double>", dminner<double,true>::create);
 
 }; // end namespace

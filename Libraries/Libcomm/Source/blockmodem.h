@@ -1,5 +1,5 @@
-#ifndef __modulator_h
-#define __modulator_h
+#ifndef __blockmodem_h
+#define __blockmodem_h
 
 #include "config.h"
 #include "serializer.h"
@@ -14,7 +14,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Common Modulator Interface.
+   \brief   Common Blockwise Modulator Interface.
    \author  Johann Briffa
 
    \par Version Control:
@@ -22,11 +22,11 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   Class defines common interface for modulator classes.
+   Class defines common interface for blockmodem classes.
 */
 
 template <class S>
-class basic_modulator : protected blockprocess {
+class basic_blockmodem : protected blockprocess {
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc modulate()
@@ -38,7 +38,7 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Virtual destructor
-   virtual ~basic_modulator() {};
+   virtual ~basic_blockmodem() {};
    // @}
 
    /*! \name Atomic modem operations */
@@ -106,7 +106,7 @@ public:
 };
 
 /*!
-   \brief   Modulator Base.
+   \brief   Blockwise Modulator Base.
    \author  Johann Briffa
 
    \par Version Control:
@@ -116,9 +116,9 @@ public:
 */
 
 template <class S>
-class modulator : public basic_modulator<S> {
+class blockmodem : public basic_blockmodem<S> {
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(modulator)
+   DECLARE_BASE_SERIALIZER(blockmodem)
 };
 
 /*!
@@ -136,7 +136,7 @@ class modulator : public basic_modulator<S> {
 */
 
 template <>
-class modulator<sigspace> : public basic_modulator<sigspace> {
+class blockmodem<sigspace> : public basic_blockmodem<sigspace> {
 public:
    /*! \name Informative functions */
    //! Average energy per symbol
@@ -148,11 +148,11 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(modulator)
+   DECLARE_BASE_SERIALIZER(blockmodem)
 };
 
 /*!
-   \brief   Q-ary Modulator.
+   \brief   Q-ary Blockwise Modulator.
    \author  Johann Briffa
 
    \par Version Control:
@@ -169,7 +169,7 @@ public:
 */
 
 template <class G>
-class direct_modulator : public modulator<G> {
+class direct_blockmodem : public blockmodem<G> {
 protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx);
@@ -187,11 +187,11 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(direct_modulator)
+   DECLARE_SERIALIZER(direct_blockmodem)
 };
 
 /*!
-   \brief   Binary Modulator.
+   \brief   Binary Blockwise Modulator.
    \author  Johann Briffa
 
    \par Version Control:
@@ -203,7 +203,7 @@ public:
 */
 
 template <>
-class direct_modulator<bool> : public modulator<bool> {
+class direct_blockmodem<bool> : public blockmodem<bool> {
 protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
@@ -221,7 +221,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(direct_modulator)
+   DECLARE_SERIALIZER(direct_blockmodem)
 };
 
 }; // end namespace

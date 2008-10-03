@@ -58,7 +58,7 @@ void dminner2<real,normalize>::init(const channel<bool>& chan)
 
 // encoding and decoding functions
 
-/*! \copydoc modulator::demodulate()
+/*! \copydoc blockmodem::demodulate()
 
    \todo Make demodulation independent of the previous modulation step.
 */
@@ -121,11 +121,11 @@ using libbase::serializer;
 template class dminner2<logrealfast,false>;
 template <>
 const serializer dminner2<logrealfast,false>::shelper \
-   = serializer("modulator", "dminner2<logrealfast>", dminner2<logrealfast,false>::create);
+   = serializer("blockmodem", "dminner2<logrealfast>", dminner2<logrealfast,false>::create);
 
 template class dminner2<double,true>;
 template <>
 const serializer dminner2<double,true>::shelper \
-   = serializer("modulator", "dminner2<double>", dminner2<double,true>::create);
+   = serializer("blockmodem", "dminner2<double>", dminner2<double,true>::create);
 
 }; // end namespace

@@ -5,7 +5,7 @@
 #include "randgen.h"
 #include "codec.h"
 #include "mapper.h"
-#include "modulator.h"
+#include "blockmodem.h"
 #include "channel.h"
 #include "serializer.h"
 
@@ -33,7 +33,7 @@ protected:
    bool  internallyallocated;
    codec          *cdc;    //!< Error-control codec
    mapper         *map;    //!< Symbol-mapper (encoded output to transmitted symbols)
-   modulator<S>   *mdm;  //!< Modulation scheme
+   blockmodem<S>   *mdm;  //!< Modulation scheme
    channel<S>     *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
@@ -51,7 +51,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(codec *cdc, mapper *map, modulator<S> *mdm, channel<S> *chan);
+   basic_commsys(codec *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan);
    basic_commsys(const basic_commsys<S>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };
@@ -64,7 +64,7 @@ public:
    //! Get symbol mapper
    mapper *getmapper() const { return map; };
    //! Get modulation scheme
-   modulator<S> *getmodem() const { return mdm; };
+   blockmodem<S> *getmodem() const { return mdm; };
    //! Get channel model
    channel<S> *getchan() const { return chan; };
    // @}

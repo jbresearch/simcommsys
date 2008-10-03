@@ -1,7 +1,7 @@
 #ifndef __lut_modulator_h
 #define __lut_modulator_h
 
-#include "modulator.h"
+#include "blockmodem.h"
 
 namespace libcomm {
 
@@ -15,7 +15,7 @@ namespace libcomm {
    - $Author$
 */
 
-class lut_modulator : public modulator<sigspace> {
+class lut_modulator : public blockmodem<sigspace> {
 protected:
    libbase::vector<sigspace> lut;   // Array of modulation symbols
 
@@ -37,9 +37,9 @@ public:
    // Vector modem operations
    // (necessary because base is templated)
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
-      { modulator<sigspace>::modulate(N, encoded, tx); };
+      { blockmodem<sigspace>::modulate(N, encoded, tx); };
    void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
-      { modulator<sigspace>::demodulate(chan, rx, ptable); };
+      { blockmodem<sigspace>::demodulate(chan, rx, ptable); };
 
    // Informative functions
    int num_symbols() const { return lut.size(); };

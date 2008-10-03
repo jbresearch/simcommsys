@@ -15,7 +15,7 @@ namespace libcomm {
    - $Author$
 
    This class defines a straight symbol mapper with:
-   * forward transform from modulator
+   * forward transform from blockmodem
    * inverse transform from the various codecs.
 */
 

@@ -7,7 +7,7 @@
    - $Author$
 */
 
-#include "modulator.h"
+#include "blockmodem.h"
 #include "gf.h"
 #include <stdlib.h>
 #include <sstream>
@@ -19,14 +19,14 @@ namespace libcomm {
 // Vector modem operations
 
 template <class S>
-void basic_modulator<S>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx)
+void basic_blockmodem<S>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx)
    {
    advance_always();
    domodulate(N, encoded, tx);
    }
 
 template <class S>
-void basic_modulator<S>::demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable)
+void basic_blockmodem<S>::demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable)
    {
    advance_if_dirty();
    dodemodulate(chan, rx, ptable);
@@ -35,20 +35,20 @@ void basic_modulator<S>::demodulate(const channel<S>& chan, const libbase::vecto
 
 // Explicit Realizations
 
-template class basic_modulator< libbase::gf<1,0x3> >;
-template class basic_modulator< libbase::gf<2,0x7> >;
-template class basic_modulator< libbase::gf<3,0xB> >;
-template class basic_modulator< libbase::gf<4,0x13> >;
-template class basic_modulator<bool>;
-template class basic_modulator<libcomm::sigspace>;
+template class basic_blockmodem< libbase::gf<1,0x3> >;
+template class basic_blockmodem< libbase::gf<2,0x7> >;
+template class basic_blockmodem< libbase::gf<3,0xB> >;
+template class basic_blockmodem< libbase::gf<4,0x13> >;
+template class basic_blockmodem<bool>;
+template class basic_blockmodem<libcomm::sigspace>;
 
 
-// *** Templated GF(q) modulator ***
+// *** Templated GF(q) blockmodem ***
 
 // Vector modem operations
 
 template <class G>
-void direct_modulator<G>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
+void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
    {
    // Compute factors / sizes & check validity
    const int M = num_symbols();
@@ -66,7 +66,7 @@ void direct_modulator<G>::domodulate(const int N, const libbase::vector<int>& en
    }
 
 template <class G>
-void direct_modulator<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
+void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
    {
    // Compute sizes
    const int M = num_symbols();
@@ -81,7 +81,7 @@ void direct_modulator<G>::dodemodulate(const channel<G>& chan, const libbase::ve
 // Description
 
 template <class G>
-std::string direct_modulator<G>::description() const
+std::string direct_blockmodem<G>::description() const
    {
    std::ostringstream sout;
    sout << "GF(" << num_symbols() << ") Modulation";
@@ -91,40 +91,40 @@ std::string direct_modulator<G>::description() const
 // Serialization Support
 
 template <class G>
-std::ostream& direct_modulator<G>::serialize(std::ostream& sout) const
+std::ostream& direct_blockmodem<G>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
 template <class G>
-std::istream& direct_modulator<G>::serialize(std::istream& sin)
+std::istream& direct_blockmodem<G>::serialize(std::istream& sin)
    {
    return sin;
    }
 
 // Explicit Realizations
 
-template class direct_modulator< libbase::gf<1,0x3> >;
+template class direct_blockmodem< libbase::gf<1,0x3> >;
 template <>
-const libbase::serializer direct_modulator< libbase::gf<1,0x3> >::shelper("modulator", "modulator<gf<1,0x3>>", direct_modulator< libbase::gf<1,0x3> >::create);
-template class direct_modulator< libbase::gf<2,0x7> >;
+const libbase::serializer direct_blockmodem< libbase::gf<1,0x3> >::shelper("blockmodem", "blockmodem<gf<1,0x3>>", direct_blockmodem< libbase::gf<1,0x3> >::create);
+template class direct_blockmodem< libbase::gf<2,0x7> >;
 template <>
-const libbase::serializer direct_modulator< libbase::gf<2,0x7> >::shelper("modulator", "modulator<gf<2,0x7>>", direct_modulator< libbase::gf<2,0x7> >::create);
-template class direct_modulator< libbase::gf<3,0xB> >;
+const libbase::serializer direct_blockmodem< libbase::gf<2,0x7> >::shelper("blockmodem", "blockmodem<gf<2,0x7>>", direct_blockmodem< libbase::gf<2,0x7> >::create);
+template class direct_blockmodem< libbase::gf<3,0xB> >;
 template <>
-const libbase::serializer direct_modulator< libbase::gf<3,0xB> >::shelper("modulator", "modulator<gf<3,0xB>>", direct_modulator< libbase::gf<3,0xB> >::create);
-template class direct_modulator< libbase::gf<4,0x13> >;
+const libbase::serializer direct_blockmodem< libbase::gf<3,0xB> >::shelper("blockmodem", "blockmodem<gf<3,0xB>>", direct_blockmodem< libbase::gf<3,0xB> >::create);
+template class direct_blockmodem< libbase::gf<4,0x13> >;
 template <>
-const libbase::serializer direct_modulator< libbase::gf<4,0x13> >::shelper("modulator", "modulator<gf<4,0x13>>", direct_modulator< libbase::gf<4,0x13> >::create);
+const libbase::serializer direct_blockmodem< libbase::gf<4,0x13> >::shelper("blockmodem", "blockmodem<gf<4,0x13>>", direct_blockmodem< libbase::gf<4,0x13> >::create);
 
 
-// *** Specific to direct_modulator<bool> ***
+// *** Specific to direct_blockmodem<bool> ***
 
-const libbase::serializer direct_modulator<bool>::shelper("modulator", "modulator<bool>", direct_modulator<bool>::create);
+const libbase::serializer direct_blockmodem<bool>::shelper("blockmodem", "blockmodem<bool>", direct_blockmodem<bool>::create);
 
 // Vector modem operations
 
-void direct_modulator<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Compute factors / sizes & check validity
    const int tau = encoded.size();
@@ -139,7 +139,7 @@ void direct_modulator<bool>::domodulate(const int N, const libbase::vector<int>&
          tx(k) = (x & 1);
    }
 
-void direct_modulator<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
    {
    // Create a matrix of all possible transmitted symbols
    libbase::vector<bool> tx(2);
@@ -151,19 +151,19 @@ void direct_modulator<bool>::dodemodulate(const channel<bool>& chan, const libba
 
 // Description
 
-std::string direct_modulator<bool>::description() const
+std::string direct_blockmodem<bool>::description() const
    {
    return "Binary Modulation";
    }
 
 // Serialization Support
 
-std::ostream& direct_modulator<bool>::serialize(std::ostream& sout) const
+std::ostream& direct_blockmodem<bool>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
-std::istream& direct_modulator<bool>::serialize(std::istream& sin)
+std::istream& direct_blockmodem<bool>::serialize(std::istream& sin)
    {
    return sin;
    }

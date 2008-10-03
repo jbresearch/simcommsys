@@ -14,7 +14,7 @@
 
 namespace libcomm {
 
-const libbase::serializer qam::shelper("modulator", "qam", qam::create);
+const libbase::serializer qam::shelper("blockmodem", "qam", qam::create);
 
 // Internal operations
 
@@ -65,7 +65,7 @@ void qam::init(const int m)
 std::string qam::description() const
    {
    std::ostringstream sout;
-   sout << "Gray " << lut.size() << "QAM modulator";
+   sout << "Gray " << lut.size() << "QAM blockmodem";
    return sout.str();
    }
 

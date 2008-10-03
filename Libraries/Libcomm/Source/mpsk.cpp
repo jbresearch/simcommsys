@@ -14,7 +14,7 @@
 
 namespace libcomm {
 
-const libbase::serializer mpsk::shelper("modulator", "mpsk", mpsk::create);
+const libbase::serializer mpsk::shelper("blockmodem", "mpsk", mpsk::create);
 
 // initialization
 
@@ -39,13 +39,13 @@ std::string mpsk::description() const
    switch(lut.size())
       {
       case 2:
-         sout << "BPSK modulator";
+         sout << "BPSK blockmodem";
          break;
       case 4:
-         sout << "Gray QPSK modulator";
+         sout << "Gray QPSK blockmodem";
          break;
       default:
-         sout << "Gray " << lut.size() << "PSK modulator";
+         sout << "Gray " << lut.size() << "PSK blockmodem";
          break;
       }
    return sout.str();

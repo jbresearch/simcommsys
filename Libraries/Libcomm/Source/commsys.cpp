@@ -100,7 +100,7 @@ void basic_commsys<S>::free()
    Initializes system with bound objects as supplied by user.
 */
 template <class S>
-basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, modulator<S> *mdm, channel<S> *chan)
+basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan)
    {
    basic_commsys<S>::cdc = cdc;
    basic_commsys<S>::map = map;
@@ -123,7 +123,7 @@ basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
    {
    basic_commsys<S>::cdc = c.cdc->clone();
    basic_commsys<S>::map = c.map->clone();
-   basic_commsys<S>::mdm = (modulator<S> *)c.mdm->clone();
+   basic_commsys<S>::mdm = (blockmodem<S> *)c.mdm->clone();
    basic_commsys<S>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
    init();

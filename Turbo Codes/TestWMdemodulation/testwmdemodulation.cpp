@@ -26,12 +26,12 @@ using libbase::vector;
 using libbase::matrix;
 using libbase::logrealfast;
 
-using libcomm::modulator;
+using libcomm::blockmodem;
 using libcomm::channel;
 using libcomm::dminner;
 using libcomm::dminner2;
 
-typedef std::auto_ptr< modulator<bool> > modem_ptr;
+typedef std::auto_ptr< blockmodem<bool> > modem_ptr;
 typedef std::auto_ptr< channel<bool> > channel_ptr;
 
 modem_ptr create_modem(bool decoder, bool math, bool deep, int n, int k, libbase::random& r)
@@ -101,7 +101,7 @@ void print_signal(const std::string desc, int n, vector<bool> tx)
    cout << std::flush;
    }
 
-vector<bool> modulate_encoded(int k, int n, modulator<bool>& mdm, vector<int>& encoded, bool display=true)
+vector<bool> modulate_encoded(int k, int n, blockmodem<bool>& mdm, vector<int>& encoded, bool display=true)
    {
    vector<bool> tx;
    mdm.modulate(1<<k, encoded, tx);
@@ -119,7 +119,7 @@ vector<bool> transmit_modulated(int n, channel<bool>& chan, const vector<bool>& 
    return rx;
    }
 
-matrix<double> demodulate_encoded(channel<bool>& chan, modulator<bool>& mdm, const vector<bool>& rx, bool display=true)
+matrix<double> demodulate_encoded(channel<bool>& chan, blockmodem<bool>& mdm, const vector<bool>& rx, bool display=true)
    {
    // demodulate received signal
    matrix<double> ptable;

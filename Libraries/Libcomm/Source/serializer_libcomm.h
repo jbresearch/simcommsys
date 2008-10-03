@@ -22,7 +22,7 @@
 #include "qsc.h"
 
 // Modulators
-#include "modulator.h"
+#include "blockmodem.h"
 #include "mpsk.h"
 #include "qam.h"
 #include "dminner.h"

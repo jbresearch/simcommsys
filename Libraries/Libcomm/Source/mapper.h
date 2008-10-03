@@ -22,7 +22,7 @@ namespace libcomm {
    - $Author$
 
    This class defines the interface for mapper classes. It integrates within
-   commsys as a layer between codec and modulator.
+   commsys as a layer between codec and blockmodem.
 */
 
 class mapper : protected blockprocess {

@@ -1,7 +1,7 @@
 #ifndef __informed_modulator_h
 #define __informed_modulator_h
 
-#include "modulator.h"
+#include "blockmodem.h"
 
 namespace libcomm {
 
@@ -14,17 +14,17 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   Defines common interface for informed modulator classes. An informed
-   modulator is one which can use a-priori symbol probabilities during the
-   demodulation stage. In general, such a modulator may be used in an iterative
+   Defines common interface for informed blockmodem classes. An informed
+   blockmodem is one which can use a-priori symbol probabilities during the
+   demodulation stage. In general, such a blockmodem may be used in an iterative
    loop with the channel codec.
 
-   This interface is a superset of the regular modulator, defining two new
+   This interface is a superset of the regular blockmodem, defining two new
    demodulation methods (atomic and vector) that make use of prior information.
 */
 
 template <class S>
-class informed_modulator : public modulator<S> {
+class informed_modulator : public blockmodem<S> {
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()

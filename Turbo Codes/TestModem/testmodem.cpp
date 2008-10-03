@@ -13,7 +13,7 @@
 #include "itfunc.h"
 #include <iostream>
 
-using libcomm::modulator;
+using libcomm::blockmodem;
 using libcomm::mpsk;
 using libcomm::qam;
 
@@ -26,7 +26,7 @@ using std::hex;
 using std::dec;
 
 template <class S>
-void TestModem(modulator<S> &mdm)
+void TestModem(blockmodem<S> &mdm)
    {
    const int m = mdm.num_symbols();
    const int bits = int(log2(m));

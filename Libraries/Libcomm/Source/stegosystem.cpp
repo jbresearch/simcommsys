@@ -122,7 +122,7 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
    const int m = m_pCodec->tail_length();
    // set up source / encoded vectors
    vector<int> source(tau), encoded;
-   // BPSK modulator & modulated signal
+   // BPSK blockmodem & modulated signal
    mpsk mdm(2);
    vector<sigspace> signal;
    // loop for all blocks
@@ -164,7 +164,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
    trace << "Signal space block size = " << signal.size() << "\n";
    vector<int> decoded;
    matrix<double> ptable;
-   // BPSK modulator
+   // BPSK blockmodem
    mpsk mdm(2);
    // set up channel
    laplacian chan;
@@ -198,7 +198,7 @@ void stegosystem::DemodulateData(const vector<sigspace>& s, vector<int>& d)
    {
    assert(s.size() > 0);
    d.init(s.size());
-   // BPSK modulator
+   // BPSK blockmodem
    mpsk mdm(2);
    // demodulate signal
    for(int i=0; i<s.size(); i++)
