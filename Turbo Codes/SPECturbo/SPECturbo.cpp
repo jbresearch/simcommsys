@@ -118,8 +118,8 @@ int main(int argc, char *argv[])
          "- 'hostname:port', for client-mode connection")
       ("time,t", po::value<double>()->default_value(60),
          "benchmark duration in seconds")
-      ("snr", po::value<double>()->default_value(0.5),
-         "signal to noise ratio")
+      ("parameter,r", po::value<double>()->default_value(0.5),
+         "channel parameter (e.g. SNR)")
       ("system-file,i", po::value<std::string>(),
          "file containing system description")
       ("confidence", po::value<double>()->default_value(0.999),
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
    estimator.set_accuracy(vm["tolerance"].as<double>());
    estimator.timeout = vm["time"].as<double>();
    // Work out at the SNR value required
-   system->set_parameter(vm["snr"].as<double>());
+   system->set_parameter(vm["parameter"].as<double>());
 
    // Perform the simulation
    libbase::vector<double> estimate, tolerance;
