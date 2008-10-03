@@ -34,7 +34,7 @@ using libcomm::dminner2;
 typedef std::auto_ptr< blockmodem<bool> > modem_ptr;
 typedef std::auto_ptr< channel<bool> > channel_ptr;
 
-modem_ptr create_modem(bool decoder, bool math, bool deep, int n, int k, libbase::random& r)
+modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n, int k, libbase::random& r)
    {
    modem_ptr mdm;
    if(decoder)
@@ -72,6 +72,7 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int n, int k, libbase
          }
       }
    mdm->seedfrom(r);
+   mdm->set_blocksize(tau);
    return mdm;
    }
 
@@ -159,7 +160,7 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k, int t
    libbase::randgen prng;
    prng.seed(seed);
    // create modem and channel
-   modem_ptr mdm = create_modem(decoder, math, deep, n, k, prng);
+   modem_ptr mdm = create_modem(decoder, math, deep, tau, n, k, prng);
    channel_ptr chan = create_channel(Pe, prng);
    cout << '\n';
    cout << mdm->description() << '\n';
