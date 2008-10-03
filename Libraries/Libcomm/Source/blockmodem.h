@@ -44,6 +44,8 @@ protected:
 
 public:
    /*! \name Constructors / Destructors */
+   //! Default constructor
+   basic_blockmodem() { tau = 0; };
    //! Virtual destructor
    virtual ~basic_blockmodem() {};
    // @}
