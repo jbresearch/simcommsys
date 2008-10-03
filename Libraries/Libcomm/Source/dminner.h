@@ -30,12 +30,6 @@ namespace libcomm {
    over Channels with Insertions, Deletions, and Substitutions", Trans. IT,
    Feb 2001.
 
-   \todo Make demodulation independent of the previous modulation step.
-         Current model assumes a cyclic modulation/demodulation system, as is
-         presently being used in the commsys class. This requires:
-         - a member variable that keeps the last transmitted block
-         - functions to create last transmitted block
-
    \note In demodulate(), the ptable is internally computed as type 'real',
          and then copied over after normalization. We normalize over the whole
          block instead of independently for each timestep. This should be

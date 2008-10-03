@@ -58,10 +58,6 @@ void dminner2<real,normalize>::init(const channel<bool>& chan)
 
 // encoding and decoding functions
 
-/*! \copydoc blockmodem::demodulate()
-
-   \todo Make demodulation independent of the previous modulation step.
-*/
 template <class real, bool normalize>
 void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {

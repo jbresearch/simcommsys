@@ -240,7 +240,10 @@ real dminner<real,normalize>::R(const int i, const array1b_t& r)
 template <class real, bool normalize>
 void dminner<real,normalize>::advance() const
    {
-   const int tau = ws.size();
+   // Inherit sizes
+   const int tau = this->get_blocksize();
+   // Initialize space
+   ws.init(tau);
    // creates 'tau' elements of 'n' bits each
    for(int i=0; i<tau; i++)
       ws(i) = r.ival(1<<n);
@@ -251,50 +254,41 @@ void dminner<real,normalize>::advance() const
 template <class real, bool normalize>
 void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
    {
+   // TODO: when N is removed from the interface, rename 'tau' to 'N'
    // Inherit sizes
    const int q = 1<<k;
-   const int tau = encoded.size();
-   // We assume that each 'encoded' symbol can be fitted in an integral number of sparse vectors
-   const int p = int(round(log(double(N))/log(double(q))));
-   assert(N == pow(q, p));
+   const int tau = this->get_blocksize();
+   // Check validity
+   assertalways(tau == encoded.size());
+   // Each 'encoded' symbol must be representable by a single sparse vector
+   assertalways(N == q);
    // Initialise result vector (one bit per sparse vector)
-   tx.init(n*p*tau);
-   // Initialise watermark sequence if necessary
-   if(ws.size() == 0)
-      {
-      ws.init(p*tau);
-      advance();
-      }
-   assertalways(ws.size() == p*tau);
+   tx.init(n*tau);
+   assertalways(ws.size() == tau);
    // Encode source stream
-   for(int i=0, ii=0; i<tau; i++)
-      for(int j=0, x=encoded(i); j<p; j++, ii++, x >>= k)
-         {
-         const int s = lut(x & (q-1));    // sparse vector
-         const int w = ws(ii);            // watermark vector
+   for(int i=0; i<tau; i++)
+      {
+      const int s = lut(encoded(i) & (q-1)); // sparse vector
+      const int w = ws(i);                   // watermark vector
 #ifndef NDEBUG
-         if(tau < 10)
-            {
-            libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
-            libbase::trace << "s = " << libbase::bitfield(s,n) << "\t";
-            libbase::trace << "w = " << libbase::bitfield(w,n) << "\n";
-            }
-#endif
-         // NOTE: we transmit the low-order bits first
-         for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
-            tx(ii*n+bit) = (t&1);
+      if(tau < 10)
+         {
+         libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
+         libbase::trace << "s = " << libbase::bitfield(s,n) << "\t";
+         libbase::trace << "w = " << libbase::bitfield(w,n) << "\n";
          }
+#endif
+      // NOTE: we transmit the low-order bits first
+      for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
+         tx(i*n+bit) = (t&1);
+      }
    }
 
-/*! \copydoc blockmodem::demodulate()
-
-   \todo Make demodulation independent of the previous modulation step.
-*/
 template <class real, bool normalize>
 void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
    {
-   // Inherit block size from last modulation step
-   const int N = ws.size();
+   // Inherit sizes
+   const int N = this->get_blocksize();
    const int tau = N*n;
    assert(N > 0);
    // Copy channel for access within Q()
