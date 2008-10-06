@@ -11,6 +11,7 @@
 
 #include "serializer_libcomm.h"
 #include "commsys.h"
+#include "codec_softout.h"
 #include "timer.h"
 
 #include <boost/program_options.hpp>
@@ -30,7 +31,7 @@ libcomm::commsys<S> *createsystem(const std::string& fname)
    }
 
 template <class S>
-void process(const std::string& fname, double p, std::istream& sin, std::ostream& sout)
+void process(const std::string& fname, double p, bool soft, std::istream& sin, std::ostream& sout)
    {
    // Communication system
    libcomm::commsys<S> *system = createsystem<S>(fname);
@@ -43,10 +44,22 @@ void process(const std::string& fname, double p, std::istream& sin, std::ostream
       libbase::vector<S> received(system->output_block_size());
       received.serialize(sin);
       system->translate(received);
-      libbase::vector<int> decoded;
-      for(int i=0; i<system->getcodec()->num_iter(); i++)
-         system->getcodec()->decode(decoded);
-      decoded.serialize(sout, '\n');
+      if(soft)
+         {
+         libcomm::codec_softout<double>& cdc = 
+            dynamic_cast< libcomm::codec_softout<double>& >(*system->getcodec());
+         libbase::matrix<double> ptable;
+         for(int i=0; i<system->getcodec()->num_iter(); i++)
+            cdc.decode(ptable);
+         ptable.transpose().serialize(sout);
+         }
+      else
+         {
+         libbase::vector<int> decoded;
+         for(int i=0; i<system->getcodec()->num_iter(); i++)
+            system->getcodec()->decode(decoded);
+         decoded.serialize(sout, '\n');
+         }
       libbase::eatwhite(sin);
       }
    }
@@ -64,6 +77,8 @@ int main(int argc, char *argv[])
          "input file containing system description")
       ("parameter,p", po::value<double>(),
          "channel parameter")
+      ("soft-out,s", po::bool_switch(),
+         "enable soft output")
       ;
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -78,7 +93,8 @@ int main(int argc, char *argv[])
 
    // Main process
    process<bool>(vm["system-file"].as<std::string>(),
-      vm["parameter"].as<double>(), std::cin, std::cout);
+      vm["parameter"].as<double>(), vm["soft-out"].as<bool>(),
+      std::cin, std::cout);
 
    return 0;
    }
