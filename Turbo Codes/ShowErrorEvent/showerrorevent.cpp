@@ -26,6 +26,7 @@ namespace po = boost::program_options;
 
 libcomm::experiment *createsystem(const std::string& fname)
    {
+   const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
    libcomm::experiment *system;
    std::ifstream file(fname.c_str());
@@ -47,8 +48,6 @@ void seed_experiment(libcomm::experiment *system)
 
 int main(int argc, char *argv[])
    {
-   const libcomm::serializer_libcomm my_serializer_libcomm;
-
    libbase::timer tmain("Main timer");
 
    // Set up user parameters

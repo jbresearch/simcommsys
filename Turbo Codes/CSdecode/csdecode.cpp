@@ -19,6 +19,7 @@
 template <class S>
 libcomm::commsys<S> *createsystem(const std::string& fname)
    {
+   const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
    libcomm::commsys<S> *system;
    std::ifstream file(fname.c_str());
@@ -52,8 +53,6 @@ void process(const std::string& fname, double p, std::istream& sin, std::ostream
 
 int main(int argc, char *argv[])
    {
-   const libcomm::serializer_libcomm my_serializer_libcomm;
-
    libbase::timer tmain("Main timer");
 
    // Set up user parameters
