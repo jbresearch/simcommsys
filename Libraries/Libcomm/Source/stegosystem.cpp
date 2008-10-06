@@ -86,7 +86,7 @@ void stegosystem::LoadErrorControl(const char* sCodec)
    FreeErrorControl();
    if(strlen(sCodec) != 0)
       {
-      std::ifstream file(sCodec);
+      std::ifstream file(sCodec, std::ios_base::in | std::ios_base::binary);
       file >> m_pCodec;
       }
    }

@@ -35,8 +35,7 @@ ofbstream::~ofbstream()
 
 void ofbstream::open(const char *name)
    {
-   using std::ios;
-   c.open(name, ios::binary | ios::out | ios::trunc);
+   c.open(name, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
    ptr = 0;
    buffer = 0;
    }
@@ -70,8 +69,7 @@ ifbstream::~ifbstream()
 
 void ifbstream::open(const char *name)
    {
-   using std::ios;
-   c.open(name, ios::binary | ios::in);
+   c.open(name, std::ios_base::in | std::ios_base::binary);
    ptr = 0;
    read_buffer();
    }

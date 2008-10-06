@@ -95,7 +95,7 @@ libcomm::experiment *createsystem()
 libcomm::experiment *createsystem(const std::string& fname)
    {
    // load system from string representation
-   std::ifstream file(fname.c_str());
+   std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
    return loadandverify(file);
    }
 

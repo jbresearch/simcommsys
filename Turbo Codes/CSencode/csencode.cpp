@@ -22,7 +22,7 @@ libcomm::commsys<S> *createsystem(const std::string& fname)
    const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
    libcomm::commsys<S> *system;
-   std::ifstream file(fname.c_str());
+   std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
    file >> system;
    // check for errors in loading system
    libbase::verifycompleteload(file);

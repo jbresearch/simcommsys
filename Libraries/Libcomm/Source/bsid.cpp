@@ -433,7 +433,7 @@ std::istream& bsid::serialize(std::istream& sin)
    // handle old-format files (without version number)
    if(version < 2)
       {
-      sin.clear();
+      //sin.clear();
       sin.seekg(start);
       version = 1;
       }
