@@ -286,6 +286,7 @@ public:
 
    // matrix-arithmetic operations
    matrix<T> inverse() const;
+   matrix<T> transpose() const;
 
    // statistical operations
    T min() const;
@@ -1034,6 +1035,20 @@ inline matrix<T> matrix<T>::inverse() const
    // copy back rows of result
    for(int i=0; i<n; i++)
       r.insertrow(rrows(i), i);
+   return r;
+   }
+
+/*!
+   \brief Matrix transpose
+*/
+template <class T>
+inline matrix<T> matrix<T>::transpose() const
+   {
+   matrix<T> r(m_ysize,m_xsize);
+   // copy over data
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         r.m_data[j][i] = m_data[i][j];
    return r;
    }
 
