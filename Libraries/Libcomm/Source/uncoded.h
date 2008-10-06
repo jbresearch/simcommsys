@@ -29,10 +29,14 @@ private:
    typedef libbase::matrix<double>  array2d_t;
    // @}
 private:
+   /*! \name User-specified parameters */
    fsm   *encoder;
    int   tau;  //!< block length
+   // @}
+   /*! \name Computed parameters */
    array1i_t lut;
    array2d_t R;
+   // @}
 protected:
    /*! \name Internal functions */
    void init();

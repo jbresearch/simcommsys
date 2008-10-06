@@ -22,6 +22,10 @@ void uncoded::init()
    {
    // Check that FSM is memoryless
    assertalways(encoder->mem_order() == 0);
+   // since the encoder is memoryless, we can build an input/output table
+   lut.init(encoder->num_inputs());
+   for(int i=0; i<encoder->num_inputs(); i++)
+      lut(i) = encoder->step(i);
    }
 
 void uncoded::free()
