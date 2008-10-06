@@ -102,7 +102,7 @@ public:
          sin.clear( std::ios::failbit ); \
          } \
       else \
-         x->serialize(sin); \
+         assert(x->serialize(sin)); \
       return sin; \
       }; \
    /* @} */
@@ -159,7 +159,7 @@ public:
          sin.clear( std::ios::failbit ); \
          } \
       else \
-         x->serialize(sin); \
+         assert(x->serialize(sin)); \
       return sin; \
       }; \
    /* @} */
