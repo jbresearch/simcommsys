@@ -76,27 +76,18 @@ public:
    double timeout;
 };
 
-libcomm::experiment *loadandverify(std::istream& file)
-   {
-   libcomm::experiment *system;
-   file >> system;
-   libbase::verifycompleteload(file);
-   return system;
-   }
-
 libcomm::experiment *createsystem()
    {
-   const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
    std::istringstream is(std_systemstring, std::ios_base::in | std::ios_base::binary);
-   return loadandverify(is);
+   return libcomm::loadandverify<libcomm::experiment>(is);
    }
 
 libcomm::experiment *createsystem(const std::string& fname)
    {
    // load system from string representation
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   return loadandverify(file);
+   return libcomm::loadandverify<libcomm::experiment>(file);
    }
 
 int main(int argc, char *argv[])

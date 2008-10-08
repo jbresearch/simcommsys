@@ -1,7 +1,6 @@
 #ifndef __serializer_libcomm_h
 #define __serializer_libcomm_h
 
-
 // Utilities
 #include "gf.h"
 
@@ -10,7 +9,6 @@
 #include "mpreal.h"
 #include "logreal.h"
 #include "logrealfast.h"
-
 
 // Channels
 #include "channel.h"
@@ -75,6 +73,8 @@
 #include "commsys_prof_sym.h"
 #include "commsys_hist_symerr.h"
 #include "commsys_threshold.h"
+
+#include <iostream>
 
 
 namespace libcomm {
@@ -151,6 +151,18 @@ private:
 public:
    serializer_libcomm() {};
 };
+
+// Public interface to load objects
+
+template <class T>
+T *loadandverify(std::istream& file)
+   {
+   const serializer_libcomm my_serializer_libcomm;
+   T *system;
+   file >> system;
+   libbase::verifycompleteload(file);
+   return system;
+   }
 
 }; // end namespace
 
