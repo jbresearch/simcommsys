@@ -88,7 +88,7 @@ libcomm::experiment *createsystem()
    {
    const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
-   std::istringstream is(std_systemstring);
+   std::istringstream is(std_systemstring, std::ios_base::in | std::ios_base::binary);
    return loadandverify(is);
    }
 
