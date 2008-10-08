@@ -17,23 +17,10 @@
 #include <iostream>
 
 template <class S>
-libcomm::commsys<S> *createsystem(const std::string& fname)
-   {
-   const libcomm::serializer_libcomm my_serializer_libcomm;
-   // load system from string representation
-   libcomm::commsys<S> *system;
-   std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   file >> system;
-   // check for errors in loading system
-   libbase::verifycompleteload(file);
-   return system;
-   }
-
-template <class S>
 void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    {
    // Communication system
-   libcomm::commsys<S> *system = createsystem<S>(fname);
+   libcomm::commsys<S> *system = libcomm::loadfromfile< libcomm::commsys<S> >(fname);
    std::cerr << system->description() << "\n";
    // Repeat until end of stream
    while(!sin.eof())
