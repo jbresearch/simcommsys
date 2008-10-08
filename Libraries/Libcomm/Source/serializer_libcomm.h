@@ -164,6 +164,22 @@ T *loadandverify(std::istream& file)
    return system;
    }
 
+template <class T>
+T *loadfromstring(const std::string& systemstring)
+   {
+   // load system from string representation
+   std::istringstream is(systemstring, std::ios_base::in | std::ios_base::binary);
+   return libcomm::loadandverify<T>(is);
+   }
+
+template <class T>
+T *loadfromfile(const std::string& fname)
+   {
+   // load system from file
+   std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
+   return libcomm::loadandverify<T>(file);
+   }
+
 }; // end namespace
 
 #endif

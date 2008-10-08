@@ -76,20 +76,6 @@ public:
    double timeout;
 };
 
-libcomm::experiment *loadfromstring(const std::string& systemstring)
-   {
-   // load system from string representation
-   std::istringstream is(systemstring, std::ios_base::in | std::ios_base::binary);
-   return libcomm::loadandverify<libcomm::experiment>(is);
-   }
-
-libcomm::experiment *loadfromfile(const std::string& fname)
-   {
-   // load system from string representation
-   std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   return libcomm::loadandverify<libcomm::experiment>(file);
-   }
-
 int main(int argc, char *argv[])
    {
    using std::cout;
@@ -135,9 +121,9 @@ int main(int argc, char *argv[])
    // Set up the estimator
    libcomm::experiment *system;
    if(vm.count("system-file"))
-      system = loadfromfile(vm["system-file"].as<std::string>());
+      system = libcomm::loadfromfile<libcomm::experiment>(vm["system-file"].as<std::string>());
    else
-      system = loadfromstring(std_systemstring);
+      system = libcomm::loadfromstring<libcomm::experiment>(std_systemstring);
    estimator.bind(system);
    estimator.set_confidence(vm["confidence"].as<double>());
    estimator.set_accuracy(vm["tolerance"].as<double>());
