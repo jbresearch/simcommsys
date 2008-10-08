@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if(vm.count("help"))
       {
-      std::cout << desc << "\n";
+      std::cerr << desc << "\n";
       return 1;
       }
 
