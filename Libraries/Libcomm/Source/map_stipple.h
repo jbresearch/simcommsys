@@ -29,25 +29,21 @@ namespace libcomm {
 class map_stipple : public map_straight {
 private:
    /*! \name User-defined parameters */
-   int tau;    //!< Number of time-steps
    int sets;   //!< Number of turbo code parallel sets
    // @}
    /*! \name Internal object representation */
-   libbase::vector<bool> pattern;   //!< Pre-computed puncturing pattern
+   mutable libbase::vector<bool> pattern;   //!< Pre-computed puncturing pattern
    // @}
 protected:
-   /*! \name Internal functions */
-   void init(int tau, int sets);
-   // @}
    /*! \name Constructors / Destructors */
    map_stipple() {};
    // @}
    // Interface with mapper
+   void advance() const;
    void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 public:
    /*! \name Constructors / Destructors */
-   map_stipple(int tau, int sets) { init(tau, sets); };
    virtual ~map_stipple() {};
    // @}
 

@@ -36,7 +36,6 @@ const std::string std_systemstring =
    "mpsk\n"
    "2\n"
    "map_stipple\n"
-   "158\n"
    "2\n"
    "turbo<double>\n"
    "1\n"
