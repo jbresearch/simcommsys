@@ -63,6 +63,7 @@
 #include "mapper.h"
 #include "map_straight.h"
 #include "map_interleaved.h"
+#include "map_permuted.h"
 #include "map_stipple.h"
 
 // Experiments
@@ -100,7 +101,7 @@ class serializer_libcomm : private
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>,
    onetimepad<double>, padded<double>, berrou<double>, flat<double>, helical<double>, rand_lut<double>, rectangular<double>, shift_lut<double>, uniform_lut<double>, named_lut<double>,
    onetimepad<libbase::logrealfast>, padded<libbase::logrealfast>, berrou<libbase::logrealfast>, flat<libbase::logrealfast>, helical<libbase::logrealfast>, rand_lut<libbase::logrealfast>, rectangular<libbase::logrealfast>, shift_lut<libbase::logrealfast>, uniform_lut<libbase::logrealfast>, named_lut<libbase::logrealfast>,
-   map_interleaved, map_stipple
+   map_interleaved, map_permuted, map_stipple
 {
 private:
    typedef libbase::logrealfast  logrealfast;

@@ -699,6 +699,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\map_permuted.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\map_stipple.cpp"
 				>
 			</File>
@@ -1357,6 +1361,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\map_interleaved.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\map_permuted.h"
 				>
 			</File>
 			<File
