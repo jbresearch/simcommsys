@@ -19,6 +19,11 @@ const libbase::serializer map_interleaved::shelper("mapper", "map_interleaved", 
 
 // Interface with mapper
 
+void map_interleaved::advance() const
+   {
+   lut.init(tau,r);
+   }
+
 void map_interleaved::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // do the base (straight) mapping into a temporary space

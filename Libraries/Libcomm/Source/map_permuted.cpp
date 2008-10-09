@@ -19,7 +19,7 @@ const libbase::serializer map_permuted::shelper("mapper", "map_permuted", map_pe
 
 // Interface with mapper
 
-void map_permuted::advance()
+void map_permuted::advance() const
    {
    lut.init(output_block_size());
    for(int i=0; i<output_block_size(); i++)
