@@ -41,12 +41,7 @@ protected:
       \param[in]  input    Number of possible values of each input symbol
       \param[in]  output   Number of possible values of each output symbol
    */
-   static int get_rate(const int input, const int output)
-      {
-      const int s = int(round( log(double(output)) / log(double(input)) ));
-      assertalways(output == pow(input,s));
-      return s;
-      }
+   static int get_rate(const int input, const int output);
    // @}
    /*! \name Interface with derived classes */
    //! Setup function, called from set_parameters and set_blocksize

@@ -11,6 +11,14 @@
 
 namespace libcomm {
 
+// Helper functions
+int mapper::get_rate(const int input, const int output)
+   {
+   const int s = int(round( log(double(output)) / log(double(input)) ));
+   assertalways(output == pow(input,s));
+   return s;
+   }
+
 // Setup functions
 
 void mapper::set_parameters(const int N, const int M, const int S)
