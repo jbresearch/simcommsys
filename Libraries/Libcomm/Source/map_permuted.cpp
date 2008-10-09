@@ -19,6 +19,13 @@ const libbase::serializer map_permuted::shelper("mapper", "map_permuted", map_pe
 
 // Interface with mapper
 
+void map_permuted::advance()
+   {
+   lut.init(output_block_size());
+   for(int i=0; i<output_block_size(); i++)
+      lut(i).init(M,r); 
+   }
+
 void map_permuted::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    // do the base (straight) mapping into a temporary space
@@ -26,9 +33,10 @@ void map_permuted::dotransform(const libbase::vector<int>& in, libbase::vector<i
    map_straight::dotransform(in, s);
    // final vector is the same size as straight-mapped one
    out.init(s);
-   // shuffle the results
+   // permute the results
+   assert(out.size() == lut.size());
    for(int i=0; i<out.size(); i++)
-      out(i) = s(lut(i));
+      out(i) = lut(i)(s(i));
    }
 
 void map_permuted::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
@@ -38,11 +46,12 @@ void map_permuted::doinverse(const libbase::matrix<double>& pin, libbase::matrix
    map_straight::doinverse(pin, ptable);
    // final matrix is the same size as straight-mapped one
    pout.init(ptable);
-   // invert the shuffling
+   // invert the permutation
    assert(ptable.xsize() == lut.size());
+   assert(ptable.ysize() == M);
    for(int i=0; i<pout.xsize(); i++)
       for(int j=0; j<pout.ysize(); j++)
-         pout(lut(i),j) = ptable(i,j);
+         pout(i,lut(i)(j)) = ptable(i,j);
    }
 
 // Description
@@ -50,7 +59,7 @@ void map_permuted::doinverse(const libbase::matrix<double>& pin, libbase::matrix
 std::string map_permuted::description() const
    {
    std::ostringstream sout;
-   sout << "Interleaved Mapper";
+   sout << "Permuted Mapper";
    return sout.str();
    }
 

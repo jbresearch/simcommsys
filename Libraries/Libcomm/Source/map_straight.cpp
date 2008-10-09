@@ -28,12 +28,13 @@ void map_straight::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
+   upsilon = tau*s1/s2;
+   assertalways(tau*s1 == upsilon*s2);
    }
 
 void map_straight::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
-   // Determine length of encoded sequence
-   const int tau = in.size();
+   assertalways(in.size() == tau);
    // Initialize results vector
    out.init(tau*s1);
    // Modulate encoded stream (least-significant first)
@@ -44,14 +45,12 @@ void map_straight::dotransform(const libbase::vector<int>& in, libbase::vector<i
 
 void map_straight::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
+   assertalways(pin.xsize() == tau*s1);
    assertalways(pin.ysize() == M);
-   // Determine required length of encoded sequence, and confirm validity
-   const int tau = pin.xsize() / s2;
-   assertalways(pin.xsize() == tau*s2);
    // Initialize results vector
-   pout.init(tau,S);
+   pout.init(upsilon,S);
    // Get the necessary data from the channel
-   for(int t=0; t<tau; t++)
+   for(int t=0; t<upsilon; t++)
       for(int x=0; x<S; x++)
          {
          pout(t,x) = 1;

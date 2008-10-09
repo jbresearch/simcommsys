@@ -53,7 +53,7 @@ public:
 
    // Informative functions
    double rate() const { return (sets+1)/2.0; };
-   int determine_output_block_size(int tau) const { return map_stipple::tau*2; };
+   int output_block_size() const { return tau*2; };
 
    // Description
    std::string description() const;

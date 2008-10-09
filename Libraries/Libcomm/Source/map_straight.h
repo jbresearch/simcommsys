@@ -22,8 +22,9 @@ namespace libcomm {
 class map_straight : public mapper {
 private:
    /*! \name Internal object representation */
-   int s1;  //!< Number of modulation symbols per encoder output
-   int s2;  //!< Number of modulation symbols per translation symbol
+   int s1;        //!< Number of modulation symbols per encoder output
+   int s2;        //!< Number of modulation symbols per translation symbol
+   int upsilon;   //!< Block size in symbols at codec translation
    // @}
 
 protected:
@@ -35,7 +36,7 @@ protected:
 public:
    // Informative functions
    double rate() const { return 1; };
-   int determine_output_block_size(int tau) const { return tau*s1; };
+   int output_block_size() const { return tau*s1; };
 
    // Description
    std::string description() const;

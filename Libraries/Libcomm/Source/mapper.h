@@ -31,6 +31,7 @@ protected:
    int N;   //!< Number of possible values of each encoder output
    int M;   //!< Number of possible values of each modulation symbol
    int S;   //!< Number of possible values of each translation symbol
+   int tau; //!< Block size in symbols at input
    // @}
 
 protected:
@@ -48,7 +49,7 @@ protected:
       }
    // @}
    /*! \name Interface with derived classes */
-   //! Setup function, called from set_parameters
+   //! Setup function, called from set_parameters and set_blocksize
    virtual void setup() = 0;
    //! \copydoc transform()
    virtual void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
@@ -90,13 +91,17 @@ public:
       \param[in]  S  Number of possible values of each translation symbol
    */
    void set_parameters(const int N, const int M, const int S);
+   //! Sets input block size
+   void set_blocksize(int tau);
    // @}
 
    /*! \name Informative functions */
    //! Overall mapper rate
    virtual double rate() const = 0;
-   //! Determine output block size, given input block size, in symbols
-   virtual int determine_output_block_size(int tau) const = 0;
+   //! Gets input block size
+   int input_block_size() const { return tau; };
+   //! Gets output block size
+   virtual int output_block_size() const { return tau; };
    // @}
 
    /*! \name Description */

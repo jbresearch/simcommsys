@@ -27,6 +27,7 @@ void map_interleaved::dotransform(const libbase::vector<int>& in, libbase::vecto
    // final vector is the same size as straight-mapped one
    out.init(s);
    // shuffle the results
+   assert(out.size() == lut.size());
    for(int i=0; i<out.size(); i++)
       out(i) = s(lut(i));
    }

@@ -22,13 +22,13 @@ namespace libcomm {
 class map_permuted : public map_straight {
 private:
    /*! \name Internal object representation */
-   mutable libbase::randperm lut;
+   mutable libbase::vector<libbase::randperm> lut;
    libbase::randgen r;
    // @}
 
 protected:
    // Interface with mapper
-   void advance() { lut.init(M,r); };
+   void advance();
    void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 

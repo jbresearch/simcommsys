@@ -28,7 +28,7 @@ private:
 
 protected:
    // Interface with mapper
-   void advance() { lut.init(M,r); };
+   void advance() { lut.init(tau,r); };
    void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
 

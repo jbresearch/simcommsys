@@ -21,6 +21,13 @@ void mapper::set_parameters(const int N, const int M, const int S)
    setup();
    }
 
+void mapper::set_blocksize(int tau)
+   {
+   assert(tau > 0);
+   mapper::tau = tau;
+   setup();
+   }
+
 // Vector mapper operations
 
 void mapper::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
