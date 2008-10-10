@@ -50,7 +50,7 @@ void map_permuted::doinverse(const libbase::matrix<double>& pin, libbase::matrix
    for(int i=0; i<ptable.xsize(); i++)
       for(int j=0; j<ptable.ysize(); j++)
          ptable(i,j) = pin(i,lut(i)(j));
-   // do the base (straight) mapping into a temporary space
+   // do the base (straight) mapping
    map_straight::doinverse(ptable, pout);
    }
 

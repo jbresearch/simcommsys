@@ -34,21 +34,21 @@ void map_interleaved::dotransform(const libbase::vector<int>& in, libbase::vecto
    // shuffle the results
    assert(out.size() == lut.size());
    for(int i=0; i<out.size(); i++)
-      out(i) = s(lut(i));
+      out(lut(i)) = s(i);
    }
 
 void map_interleaved::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
-   // do the base (straight) mapping into a temporary space
+   assert(pin.xsize() == lut.size());
+   // temporary matrix is the same size as input
    libbase::matrix<double> ptable;
-   map_straight::doinverse(pin, ptable);
-   // final matrix is the same size as straight-mapped one
-   pout.init(ptable);
+   ptable.init(pin);
    // invert the shuffling
-   assert(ptable.xsize() == lut.size());
-   for(int i=0; i<pout.xsize(); i++)
-      for(int j=0; j<pout.ysize(); j++)
-         pout(lut(i),j) = ptable(i,j);
+   for(int i=0; i<ptable.xsize(); i++)
+      for(int j=0; j<ptable.ysize(); j++)
+         ptable(i,j) = pin(lut(i),j);
+   // do the base (straight) mapping
+   map_straight::doinverse(ptable, pout);
    }
 
 // Description
