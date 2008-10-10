@@ -41,17 +41,17 @@ void map_permuted::dotransform(const libbase::vector<int>& in, libbase::vector<i
 
 void map_permuted::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
    {
-   // do the base (straight) mapping into a temporary space
+   assert(pin.xsize() == lut.size());
+   assert(pin.ysize() == M);
+   // temporary matrix is the same size as input
    libbase::matrix<double> ptable;
-   map_straight::doinverse(pin, ptable);
-   // final matrix is the same size as straight-mapped one
-   pout.init(ptable);
+   ptable.init(pin);
    // invert the permutation
-   assert(ptable.xsize() == lut.size());
-   assert(ptable.ysize() == M);
-   for(int i=0; i<pout.xsize(); i++)
-      for(int j=0; j<pout.ysize(); j++)
-         pout(i,lut(i)(j)) = ptable(i,j);
+   for(int i=0; i<ptable.xsize(); i++)
+      for(int j=0; j<ptable.ysize(); j++)
+         ptable(i,j) = pin(i,lut(i)(j));
+   // do the base (straight) mapping into a temporary space
+   map_straight::doinverse(ptable, pout);
    }
 
 // Description
