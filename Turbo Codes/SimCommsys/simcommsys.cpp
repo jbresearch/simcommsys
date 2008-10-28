@@ -96,8 +96,8 @@ int main(int argc, char *argv[])
          "input file containing system description")
       ("results-file,o", po::value<std::string>(),
          "output file to hold results")
-      ("beg", po::value<double>(), "first parameter value")
-      ("end", po::value<double>(), "last parameter value")
+      ("start", po::value<double>(), "first parameter value")
+      ("stop", po::value<double>(), "last parameter value")
       ("step", po::value<double>(),
          "parameter increment (for a linear range)")
       ("mul", po::value<double>(),
@@ -129,8 +129,8 @@ int main(int argc, char *argv[])
    estimator.bind(system);
    const double min_error = vm["min-error"].as<double>();
    libbase::vector<double> pset = vm.count("step") ?
-      getlinrange(vm["beg"].as<double>(), vm["end"].as<double>(), vm["step"].as<double>()) :
-      getlogrange(vm["beg"].as<double>(), vm["end"].as<double>(), vm["mul"].as<double>());
+      getlinrange(vm["start"].as<double>(), vm["stop"].as<double>(), vm["step"].as<double>()) :
+      getlogrange(vm["start"].as<double>(), vm["stop"].as<double>(), vm["mul"].as<double>());
    estimator.set_confidence(vm["confidence"].as<double>());
    estimator.set_accuracy(vm["tolerance"].as<double>());
 
