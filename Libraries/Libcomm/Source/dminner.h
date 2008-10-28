@@ -53,7 +53,7 @@ private:
    typedef libbase::matrix<double>  array2d_t;
    typedef libbase::matrix<real>    array2r_t;
    typedef boost::assignable_multi_array<double,1> array1d_t;
-   enum lut_t { lut_straight=0, lut_user };
+   enum lut_t { lut_straight=0, lut_user, lut_random };
    // @}
 private:
    /*! \name User-defined parameters */
@@ -61,7 +61,7 @@ private:
    int      k;                //!< number of bits in message (input) symbol
    lut_t    lut_type;         //!< enum indicating LUT type
    std::string lutname;       //!< name to describe codebook
-   array1i_t lut;             //!< sparsifier LUT
+   mutable array1i_t lut;             //!< sparsifier LUT
    bool     user_threshold;   //!< flag indicating that LUT is supplied by user
    double   th_inner;         //!< Threshold factor for inner cycle
    double   th_outer;         //!< Threshold factor for outer cycle
@@ -141,8 +141,8 @@ template <class real, bool normalize>
 inline void dminner<real,normalize>::test_invariant() const
    {
    // check code parameters
-   assert(k >= 1);
-   assert(n > k);
+   assert(n >= 1 && n <= 32);
+   assert(k >= 1 && k <= n);
    // check cutoff thresholds
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);

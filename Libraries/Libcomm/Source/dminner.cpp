@@ -26,9 +26,6 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
       {
-      assert(n >= 1 && n <= 32);
-      assert(k >= 1 && k <= n);
-      lutname = "sequential";
       lut.init(num_symbols());
       suffix = "";
       w = n;
@@ -246,6 +243,13 @@ void dminner<real,normalize>::advance() const
    // creates 'tau' elements of 'n' bits each
    for(int i=0; i<tau; i++)
       ws(i) = r.ival(1<<n);
+   // Select a random alphabet
+   if(lut_type == lut_random)
+      {
+      lut.init(num_symbols());
+      for(int i=0; i<num_symbols(); i++)
+         lut(i) = r.ival(1<<n);
+      }
    }
 
 // encoding and decoding functions
@@ -337,7 +341,21 @@ template <class real, bool normalize>
 std::string dminner<real,normalize>::description() const
    {
    std::ostringstream sout;
-   sout << "DM Inner Code (" << n << "/" << k << ", " << lutname << " codebook";
+   sout << "DM Inner Code (" << n << "/" << k << ", ";
+   switch(lut_type)
+      {
+      case lut_straight:
+         sout << "sequential codebook";
+         break;
+
+      case lut_user:
+         sout << lutname << " codebook";
+         break;
+
+      case lut_random:
+         sout << "random codebook";
+         break;
+      }
    if(user_threshold)
       sout << ", thresholds " << th_inner << "/" << th_outer;
    if(normalize)
@@ -399,9 +417,9 @@ std::istream& dminner<real,normalize>::serialize(std::istream& sin)
       {
       sin >> lutname;
       lut.init(num_symbols());
-      libbase::bitfield b;
       for(int i=0; i<lut.size(); i++)
          {
+         libbase::bitfield b;
          sin >> b;
          lut(i) = b;
          assertalways(n == b.size());
