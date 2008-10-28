@@ -22,13 +22,12 @@ namespace libcomm {
 template <class real, bool normalize>
 int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
    {
-   assert(!user_lut);
+   assert(lut_type == lut_straight);
    // set up if this is the first (root) call
    if(i == 0 && w == -1)
       {
       assert(n >= 1 && n <= 32);
       assert(k >= 1 && k <= n);
-      user_lut = false;
       lutname = "sequential";
       lut.init(num_symbols());
       suffix = "";
@@ -158,7 +157,7 @@ template <class real, bool normalize>
 void dminner<real,normalize>::init()
    {
    // Fill default LUT if necessary
-   if(!user_lut)
+   if(lut_type == lut_straight)
       fill();
 #ifndef NDEBUG
    // Display LUT when debugging
@@ -198,14 +197,14 @@ void dminner<real,normalize>::init()
 
 template <class real, bool normalize>
 dminner<real,normalize>::dminner(const int n, const int k) :
-   n(n), k(k), user_lut(false), user_threshold(false)
+   n(n), k(k), lut_type(lut_straight), user_threshold(false)
    {
    init();
    }
 
 template <class real, bool normalize>
 dminner<real,normalize>::dminner(const int n, const int k, const double th_inner, const double th_outer) :
-   n(n), k(k), user_lut(false), user_threshold(true), th_inner(th_inner), th_outer(th_outer)
+   n(n), k(k), lut_type(lut_straight), user_threshold(true), th_inner(th_inner), th_outer(th_outer)
    {
    init();
    }
@@ -360,8 +359,8 @@ std::ostream& dminner<real,normalize>::serialize(std::ostream& sout) const
       }
    sout << n << '\n';
    sout << k << '\n';
-   sout << user_lut << '\n';
-   if(user_lut)
+   sout << lut_type << '\n';
+   if(lut_type == lut_user)
       {
       sout << lutname << '\n';
       assert(lut.size() == num_symbols());
@@ -393,8 +392,10 @@ std::istream& dminner<real,normalize>::serialize(std::istream& sin)
       }
    sin >> n;
    sin >> k;
-   sin >> user_lut;
-   if(user_lut)
+   int temp;
+   sin >> temp;
+   lut_type = (lut_t)temp;
+   if(lut_type == lut_user)
       {
       sin >> lutname;
       lut.init(num_symbols());

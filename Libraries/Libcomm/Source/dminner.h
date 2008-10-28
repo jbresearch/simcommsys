@@ -53,12 +53,13 @@ private:
    typedef libbase::matrix<double>  array2d_t;
    typedef libbase::matrix<real>    array2r_t;
    typedef boost::assignable_multi_array<double,1> array1d_t;
+   enum lut_t { lut_straight=0, lut_user };
    // @}
 private:
    /*! \name User-defined parameters */
    int      n;                //!< number of bits in sparse (output) symbol
    int      k;                //!< number of bits in message (input) symbol
-   bool     user_lut;         //!< flag indicating that LUT is supplied by user
+   lut_t    lut_type;         //!< enum indicating LUT type
    std::string lutname;       //!< name to describe codebook
    array1i_t lut;             //!< sparsifier LUT
    bool     user_threshold;   //!< flag indicating that LUT is supplied by user
