@@ -21,7 +21,7 @@ const libbase::serializer map_interleaved::shelper("mapper", "map_interleaved", 
 
 void map_interleaved::advance() const
    {
-   lut.init(tau,r);
+   lut.init(output_block_size(),r);
    }
 
 void map_interleaved::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const

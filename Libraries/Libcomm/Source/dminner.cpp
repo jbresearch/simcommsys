@@ -243,13 +243,6 @@ void dminner<real,normalize>::advance() const
    // creates 'tau' elements of 'n' bits each
    for(int i=0; i<tau; i++)
       ws(i) = r.ival(1<<n);
-   // Select a random alphabet
-   if(lut_type == lut_random)
-      {
-      lut.init(num_symbols());
-      for(int i=0; i<num_symbols(); i++)
-         lut(i) = r.ival(1<<n);
-      }
    }
 
 // encoding and decoding functions
@@ -350,10 +343,6 @@ std::string dminner<real,normalize>::description() const
 
       case lut_user:
          sout << lutname << " codebook";
-         break;
-
-      case lut_random:
-         sout << "random codebook";
          break;
       }
    if(user_threshold)
