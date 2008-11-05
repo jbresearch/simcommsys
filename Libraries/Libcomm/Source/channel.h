@@ -73,18 +73,19 @@ public:
       Default implementation is suitable for substitution channels, and
       performs channel-specific operation through the corrupt() override.
 
-      \note It is possible that the \c tx and \c rx parameters actually point to the same
-            vector.
+      \note It is possible that the \c tx and \c rx parameters actually point
+            to the same vector.
 
       \callergraph
    */
    virtual void transmit(const C<S>& tx, C<S>& rx);
    /*!
-      \brief Determine the per-symbol likelihoods of a sequence of received modulation symbols
-             corresponding to one transmission step
+      \brief Determine the per-symbol likelihoods of a sequence of received
+             modulation symbols corresponding to one transmission step
       \param[in]  tx       Set of possible transmitted symbols
       \param[in]  rx       Received sequence of modulation symbols
-      \param[out] ptable   Likelihoods corresponding to each possible transmitted symbol
+      \param[out] ptable   Likelihoods corresponding to each possible
+                           transmitted symbol
 
       Default implementation is suitable for substitution channels, and
       performs channel-specific operation through the pdf() override.
@@ -93,8 +94,8 @@ public:
    */
    virtual void receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const;
    /*!
-      \brief Determine the likelihood of a sequence of received modulation symbols, given
-             a particular transmitted sequence
+      \brief Determine the likelihood of a sequence of received modulation
+             symbols, given a particular transmitted sequence
       \param[in]  tx       Transmitted sequence being considered
       \param[in]  rx       Received sequence of modulation symbols
       \return              Likelihood \f$ P(rx|tx) \f$
@@ -103,8 +104,8 @@ public:
    */
    virtual double receive(const C<S>& tx, const C<S>& rx) const;
    /*!
-      \brief Determine the likelihood of a sequence of received modulation symbols, given
-             a particular transmitted symbol
+      \brief Determine the likelihood of a sequence of received modulation
+             symbols, given a particular transmitted symbol
       \param[in]  tx       Transmitted symbol being considered
       \param[in]  rx       Received sequence of modulation symbols
       \return              Likelihood \f$ P(rx|tx) \f$
@@ -219,9 +220,10 @@ protected:
    /*!
       \brief Determine channel-specific parameters based on given SNR
 
-      \note \f$ E_b \f$ is fixed by the overall modulation and coding system. The simulator
-            determines \f$ N_0 \f$ according to the given SNR (assuming unit signal energy), so
-            that the actual band-limited noise energy is given by \f$ E_b N_0 \f$.
+      \note \f$ E_b \f$ is fixed by the overall modulation and coding system.
+            The simulator determines \f$ N_0 \f$ according to the given SNR
+            (assuming unit signal energy), so that the actual band-limited
+            noise energy is given by \f$ E_b N_0 \f$.
    */
    virtual void compute_parameters(const double Eb, const double No) {};
    // @}
