@@ -77,7 +77,7 @@ TARGETS := Turbo\ Codes
 
 # Master targets
 
-all:     debug release profile
+all:     debug release
 
 profile:
 	@$(MAKE) RELEASE=Profile DOTARGET=all $(TARGETS)
