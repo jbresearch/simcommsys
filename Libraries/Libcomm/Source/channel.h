@@ -30,6 +30,16 @@ namespace libcomm {
      for insertions and deletions, as well as substitution errors.
 
    \todo Think out and update cloning/serialization interface
+
+   \todo Provide default implementation for corrupt and pdf
+
+   \todo Make templated implementations of transmit and receive specific to
+         vector container
+
+   \todo Replace ptable in receive interface with a container of vectors
+
+   \todo Sort out which receive() method is really needed in the interface, and
+         which should be specific to the various channels
 */
 
 template <class S, template<class> class C>
