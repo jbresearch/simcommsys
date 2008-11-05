@@ -43,7 +43,7 @@ namespace libcomm {
 */
 
 template <class S, template<class> class C>
-class basic_channel : public parametric {
+class basic_channel_interface : public parametric {
 protected:
    /*! \name Derived channel representation */
    libbase::randgen  r;
@@ -66,7 +66,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   virtual ~basic_channel() {};
+   virtual ~basic_channel_interface() {};
    // @}
 
    /*! \name Channel parameter handling */
@@ -88,7 +88,7 @@ public:
 
       \callergraph
    */
-   virtual void transmit(const C<S>& tx, C<S>& rx);
+   virtual void transmit(const C<S>& tx, C<S>& rx) = 0;
    /*!
       \brief Determine the per-symbol likelihoods of a sequence of received
              modulation symbols corresponding to one transmission step
@@ -102,7 +102,7 @@ public:
 
       \callergraph
    */
-   virtual void receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const;
+   virtual void receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const = 0;
    /*!
       \brief Determine the likelihood of a sequence of received modulation
              symbols, given a particular transmitted sequence
@@ -112,7 +112,7 @@ public:
 
       \callergraph
    */
-   virtual double receive(const C<S>& tx, const C<S>& rx) const;
+   virtual double receive(const C<S>& tx, const C<S>& rx) const = 0;
    /*!
       \brief Determine the likelihood of a sequence of received modulation
              symbols, given a particular transmitted symbol
@@ -122,7 +122,7 @@ public:
 
       \callergraph
    */
-   virtual double receive(const S& tx, const C<S>& rx) const;
+   virtual double receive(const S& tx, const C<S>& rx) const = 0;
    // @}
 
    /*! \name Description */
@@ -131,10 +131,48 @@ public:
    // @}
 };
 
-// channel functions
+/*!
+   \brief   Common Channel Base.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Templated common channel base. This extra level is required to allow partial
+   specialization of the container.
+*/
 
 template <class S, template<class> class C>
-void basic_channel<S,C>::transmit(const C<S>& tx, C<S>& rx)
+class basic_channel : public basic_channel_interface<S,C> {
+};
+
+/*!
+   \brief   Common Channel Base.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Templated common channel base. Partial specialization for vector container.
+*/
+
+template <class S>
+class basic_channel<S,libbase::vector> : public basic_channel_interface<S,libbase::vector> {
+public:
+   void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx);
+   void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const;
+   double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const;
+   double receive(const S& tx, const libbase::vector<S>& rx) const;
+};
+
+// channel functions
+
+template <class S>
+void basic_channel<S,libbase::vector>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
    {
    // Initialize results vector
    rx.init(tx);
@@ -143,8 +181,8 @@ void basic_channel<S,C>::transmit(const C<S>& tx, C<S>& rx)
       rx(i) = corrupt(tx(i));
    }
 
-template <class S, template<class> class C>
-void basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const
+template <class S>
+void basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const
    {
    // Compute sizes
    const int tau = rx.size();
@@ -157,8 +195,8 @@ void basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx, libbase::matrix
          ptable(t,x) = pdf(tx(x), rx(t));
    }
 
-template <class S, template<class> class C>
-double basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx) const
+template <class S>
+double basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const
    {
    // Compute sizes
    const int tau = rx.size();
@@ -171,8 +209,8 @@ double basic_channel<S,C>::receive(const C<S>& tx, const C<S>& rx) const
    return p;
    }
 
-template <class S, template<class> class C>
-double basic_channel<S,C>::receive(const S& tx, const C<S>& rx) const
+template <class S>
+double basic_channel<S,libbase::vector>::receive(const S& tx, const libbase::vector<S>& rx) const
    {
    // This implementation only works for substitution channels
    assert(rx.size() == 1);
@@ -263,4 +301,3 @@ public:
 }; // end namespace
 
 #endif
-
