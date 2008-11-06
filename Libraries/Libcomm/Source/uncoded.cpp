@@ -67,13 +67,14 @@ void uncoded::encode(const array1i_t& source, array1i_t& encoded)
 void uncoded::translate(const array2d_t& ptable)
    {
    // Compute factors / sizes & check validity
-   const int S = ptable.ysize();
+   assertalways(ptable.size() > 0);
+   const int S = ptable(0).size();
    const int s = int(round(log(double(num_outputs()))/log(double(S))));
    // Confirm that encoder's output symbols can be represented by
    // an integral number of modulation symbols
    assertalways(num_outputs() == pow(double(S), s));
    // Confirm input sequence to be of the correct length
-   assertalways(ptable.xsize() == tau*s);
+   assertalways(ptable.size() == tau*s);
    // Initialize results vector
    R.init(tau, num_inputs());
    // Work out the probabilities of each possible input
@@ -82,7 +83,7 @@ void uncoded::translate(const array2d_t& ptable)
          {
          R(t, x) = 1;
          for(int i=0, thisx = lut(x); i<s; i++, thisx /= S)
-            R(t, x) *= ptable(t*s+i, thisx % S);
+            R(t, x) *= ptable(t*s+i)(thisx % S);
          }
    }
 

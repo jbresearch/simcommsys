@@ -104,30 +104,22 @@ void mapcc<real>::translate(const array2d_t& ptable)
    {
    using std::cerr;
    // Compute factors / sizes & check validity
-   const int S = ptable.ysize();
+   assert(ptable.size() > 0);
+   const int S = ptable(0).size();
    const int s = int(round(log(double(N))/log(double(S))));
-   if(N != pow(double(S), s))
-      {
-      cerr << "FATAL ERROR (mapcc): each encoder output (" << N << ") must be";
-      cerr << " represented by an integral number of modulation symbols (" << S << ").";
-      cerr << " Suggested number of mod. symbols/encoder output was " << s << ".\n";
-      exit(1);
-      }
-   if(ptable.xsize() != tau*s)
-      {
-      cerr << "FATAL ERROR (mapcc): demodulation table should have " << tau*s;
-      cerr << " symbols, not " << ptable.xsize() << ".\n";
-      exit(1);
-      }
+   // each encoder output N must be represented by an integral number of
+   // modulation symbols
+   assertalways(N == pow(double(S), s));
+   assertalways(ptable.size() == tau*s);
    // Initialize results vector
-   R.init(tau, N);
+   R.init(tau,N);
    // Compute the Input statistics for the BCJR Algorithm
    for(int t=0; t<tau; t++)
       for(int x=0; x<N; x++)
          {
-         R(t, x) = 1;
+         R(t,x) = 1;
          for(int i=0, thisx = x; i<s; i++, thisx /= S)
-            R(t, x) *= ptable(t*s+i, thisx % S);
+            R(t,x) *= ptable(t*s+i)(thisx % S);
          }
    // Reset start- and end-state probabilities
    reset();
@@ -137,24 +129,39 @@ template <class real>
 void mapcc<real>::decode(array2d_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
-   array2d_t rif;
+   libbase::matrix<double> rif;
    // perform decoding
    bcjr<real>::fdecode(R, rif);
-   // remove any tail bits
-   ri.init(input_block_size(), num_inputs());
-   ri.copyfrom(rif);
+   // remove any tail bits from input set
+   ri.init(input_block_size());
+   for(int i=0; i<input_block_size(); i++)
+      ri(i).init(num_inputs());
+   for(int i=0; i<input_block_size(); i++)
+      for(int j=0; j<num_inputs(); j++)
+         ri(i)(j) = rif(i,j);
    }
 
 template <class real>
 void mapcc<real>::decode(array2d_t& ri, array2d_t& ro)
    {
    // temporary space to hold complete results (ie. with tail)
-   array2d_t rif;
+   libbase::matrix<double> rif, rof;
    // perform decoding
-   bcjr<real>::decode(R, ri, ro);
-   // remove any tail bits
-   ri.init(input_block_size(), num_inputs());
-   ri.copyfrom(rif);
+   bcjr<real>::decode(R, rif, rof);
+   // remove any tail bits from input set
+   ri.init(input_block_size());
+   for(int i=0; i<input_block_size(); i++)
+      ri(i).init(num_inputs());
+   for(int i=0; i<input_block_size(); i++)
+      for(int j=0; j<num_inputs(); j++)
+         ri(i)(j) = rif(i,j);
+   // copy output set
+   ro.init(output_block_size());
+   for(int i=0; i<output_block_size(); i++)
+      ro(i).init(num_outputs());
+   for(int i=0; i<output_block_size(); i++)
+      for(int j=0; j<num_outputs(); j++)
+         ro(i)(j) = rof(i,j);
    }
 
 // description output

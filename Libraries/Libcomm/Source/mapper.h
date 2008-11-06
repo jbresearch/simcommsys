@@ -49,7 +49,7 @@ protected:
    //! \copydoc transform()
    virtual void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
    //! \copydoc inverse()
-   virtual void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const = 0;
+   virtual void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const = 0;
    // @}
 
 public:
@@ -70,10 +70,10 @@ public:
              comaptible set
       \param[in]  pin   Table of likelihoods of possible modulation symbols
       \param[out] pout  Table of likelihoods of possible translation symbols
-      
+
       \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
    */
-   void inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
+   void inverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
    // @}
 
    /*! \name Setup functions */

@@ -50,8 +50,8 @@ private:
    /*! \name Internally-used types */
    typedef libbase::vector<int>     array1i_t;
    typedef libbase::vector<bool>    array1b_t;
-   typedef libbase::matrix<double>  array2d_t;
-   typedef libbase::matrix<real>    array2r_t;
+   typedef libbase::vector< libbase::vector<double> > array2d_t;
+   typedef libbase::vector< libbase::vector<real> >   array2r_t;
    typedef boost::assignable_multi_array<double,1> array1d_t;
    enum lut_t { lut_straight=0, lut_user };
    // @}
@@ -78,7 +78,7 @@ private:
    /*! \name Internal functions */
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
-   void checkforchanges(int I, int xmax) const;   
+   void checkforchanges(int I, int xmax) const;
    void work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const;
    void normalize_results(const array2r_t& in, array2d_t& out) const;
    // @}
@@ -93,7 +93,7 @@ private:
       { assert("Function should not be used."); return 0; };
 protected:
    // Interface with derived classes
-   void advance() const;                      
+   void advance() const;
    void domodulate(const int N, const array1i_t& encoded, array1b_t& tx);
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);

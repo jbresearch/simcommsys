@@ -30,7 +30,7 @@ class mapcc : public codec_softout<double>, private bcjr<real> {
 private:
    /*! \name Internally-used types */
    typedef libbase::vector<int>     array1i_t;
-   typedef libbase::matrix<double>  array2d_t;
+   typedef libbase::vector< libbase::vector<double> >  array2d_t;
    // @}
 private:
    fsm      *encoder;
@@ -42,7 +42,7 @@ private:
    int      M;             //!< Number of states
    int      K;             //!< Number of input combinations
    int      N;             //!< Number of output combinations
-   array2d_t R;            //!< BCJR a-priori statistics
+   libbase::matrix<double> R;            //!< BCJR a-priori statistics
 protected:
    /*! \name Internal functions */
    void init();

@@ -26,7 +26,7 @@ class uncoded : public codec_softout<double> {
 private:
    /*! \name Internally-used types */
    typedef libbase::vector<int>     array1i_t;
-   typedef libbase::matrix<double>  array2d_t;
+   typedef libbase::vector< libbase::vector<double> >  array2d_t;
    // @}
 private:
    /*! \name User-specified parameters */
@@ -35,7 +35,7 @@ private:
    // @}
    /*! \name Computed parameters */
    array1i_t lut;
-   array2d_t R;
+   libbase::matrix<double> R;
    // @}
 protected:
    /*! \name Internal functions */

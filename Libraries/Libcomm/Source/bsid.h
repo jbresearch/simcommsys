@@ -92,7 +92,7 @@ public:
 
    // Channel functions
    void transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx);
-   void receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable) const;
+   void receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable) const;
    double receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const;
    double receive(const bool& tx, const libbase::vector<bool>& rx) const;
 

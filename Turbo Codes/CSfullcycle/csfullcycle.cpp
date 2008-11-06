@@ -40,12 +40,13 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
       system->translate(received);
       if(soft)
          {
-         libcomm::codec_softout<double>& cdc = 
+         libcomm::codec_softout<double>& cdc =
             dynamic_cast< libcomm::codec_softout<double>& >(*system->getcodec());
-         libbase::matrix<double> ptable;
+         libbase::vector< libbase::vector<double> > ptable;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             cdc.decode(ptable);
-         ptable.transpose().serialize(sout);
+         for(int i=0; i<ptable.size(); i++)
+            ptable(i).serialize(sout);
          }
       else
          {

@@ -33,8 +33,8 @@ class fba2 {
 private:
    /*! \name Internally-used types */
    typedef libbase::vector<sig>     array1s_t;
-   typedef libbase::matrix<double>  array2d_t;
-   typedef libbase::matrix<real>    array2r_old_t;
+   typedef libbase::vector< libbase::vector<double> > array2d_t;
+   typedef libbase::vector< libbase::vector<real> >   array2r_old_t;
    typedef boost::assignable_multi_array<real,2> array2r_t;
    typedef boost::assignable_multi_array<real,4> array4r_t;
    typedef boost::assignable_multi_array<bool,3> array3b_t;
@@ -106,7 +106,7 @@ inline real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int del
    {
    real result = R(d,i,r.extract(n*i+x,n+deltax));
    if(app.size() > 0)
-      result *= app(i,d);
+      result *= app(i)(d);
    return result;
    }
 

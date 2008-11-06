@@ -136,7 +136,7 @@ void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
    // copy received vector, needed for lazy computation
    fba2::r = r;
    // reset a-priori statistics
-   fba2::app.init(0,0);
+   fba2::app.init(0);
    }
 
 template <class real, class sig, bool normalize>
@@ -262,7 +262,9 @@ void fba2<real,sig,normalize>::work_results(int rho, array2r_old_t& ptable) cons
    assert(initialised);
    libbase::pacifier progress("FBA Results");
    // Initialise result vector (one sparse symbol per timestep)
-   ptable.init(N, q);
+   ptable.init(N);
+   for(int i=0; i<N; i++)
+      ptable(i).init(q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for(int i=0; i<N; i++)
       {
@@ -299,7 +301,7 @@ void fba2<real,sig,normalize>::work_results(int rho, array2r_old_t& ptable) cons
             for(int x2=x2min; x2<=x2max; x2++)
                p += alpha[i][x1] * get_gamma(d,i,x1,x2-x1) * beta[i+1][x2];
             }
-         ptable(i,d) = p;
+         ptable(i)(d) = p;
          }
       }
    if(N > 0)

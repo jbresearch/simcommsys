@@ -23,7 +23,7 @@ void map_permuted::advance() const
    {
    lut.init(output_block_size());
    for(int i=0; i<output_block_size(); i++)
-      lut(i).init(M,r); 
+      lut(i).init(M,r);
    }
 
 void map_permuted::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
@@ -39,17 +39,19 @@ void map_permuted::dotransform(const libbase::vector<int>& in, libbase::vector<i
       out(i) = lut(i)(s(i));
    }
 
-void map_permuted::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_permuted::doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
    {
-   assert(pin.xsize() == lut.size());
-   assert(pin.ysize() == M);
+   assert(pin.size() == lut.size());
+   assert(pin(0).size() == M);
    // temporary matrix is the same size as input
-   libbase::matrix<double> ptable;
-   ptable.init(pin);
+   libbase::vector< libbase::vector<double> > ptable;
+   ptable.init(lut.size());
+   for(int i=0; i<lut.size(); i++)
+      ptable(i).init(M);
    // invert the permutation
-   for(int i=0; i<ptable.xsize(); i++)
-      for(int j=0; j<ptable.ysize(); j++)
-         ptable(i,j) = pin(i,lut(i)(j));
+   for(int i=0; i<lut.size(); i++)
+      for(int j=0; j<M; j++)
+         ptable(i)(j) = pin(i)(lut(i)(j));
    // do the base (straight) mapping
    map_straight::doinverse(ptable, pout);
    }

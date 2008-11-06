@@ -22,7 +22,7 @@ protected:
 protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
-   void dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable);
+   void dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::vector< libbase::vector<double> >& ptable);
 
 public:
    /*! \name Constructors / Destructors */
@@ -38,7 +38,7 @@ public:
    // (necessary because base is templated)
    void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
       { blockmodem<sigspace>::modulate(N, encoded, tx); };
-   void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
+   void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::vector< libbase::vector<double> >& ptable)
       { blockmodem<sigspace>::demodulate(chan, rx, ptable); };
 
    // Informative functions

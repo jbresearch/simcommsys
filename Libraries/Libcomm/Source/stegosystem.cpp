@@ -163,7 +163,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
    vector<sigspace> signal(GetOutputSize());
    trace << "Signal space block size = " << signal.size() << "\n";
    vector<int> decoded;
-   matrix<double> ptable;
+   vector< vector<double> > ptable;
    // BPSK blockmodem
    mpsk mdm(2);
    // set up channel
@@ -183,7 +183,6 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
          signal(i) = s(k++);
       // demodulate (build probability table)
       mdm.demodulate(chan, signal, ptable);
-      trace << "Translation table block size = " << ptable.xsize() << "x" << ptable.ysize() << "\n";
       // decode
       m_pCodec->translate(ptable);
       for(i=0; i<m_pCodec->num_iter(); i++)

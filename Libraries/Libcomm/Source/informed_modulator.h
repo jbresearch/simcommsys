@@ -28,7 +28,7 @@ class informed_modulator : public blockmodem<S> {
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable) = 0;
+   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::vector< libbase::vector<double> >& app, libbase::vector< libbase::vector<double> >& ptable) = 0;
    // @}
 
 public:
@@ -51,8 +51,8 @@ public:
       \param[in]  app      Table of a-priori likelihoods of possible
                            transmitted symbols at every time-step
       \param[out] ptable   Table of likelihoods of possible transmitted symbols
-      
-      \note \c ptable(i,d) \c is the a posteriori probability of having transmitted 
+
+      \note \c ptable(i,d) \c is the a posteriori probability of having transmitted
             symbol 'd' at time 'i'
 
       \note This function is non-const, to support time-variant modulation

@@ -14,25 +14,27 @@ namespace libcomm {
 template <class dbl>
 void codec_softout<dbl>::decode(libbase::vector<int>& decoded)
    {
-   libbase::matrix<dbl> ri;
+   libbase::vector< libbase::vector<dbl> > ri;
    decode(ri);
    hard_decision(ri, decoded);
    }
 
 template <class dbl>
-void codec_softout<dbl>::hard_decision(const libbase::matrix<dbl>& ri, libbase::vector<int>& decoded)
+void codec_softout<dbl>::hard_decision(const libbase::vector< libbase::vector<dbl> >& ri, libbase::vector<int>& decoded)
    {
    // Determine sizes from input matrix
-   const int tau = ri.xsize();
-   const int K = ri.ysize();
+   const int tau = ri.size();
+   assert(tau > 0);
+   const int K = ri(0).size();
    // Initialise result vector
    decoded.init(tau);
-   // Determine most likely symbol at every timestep   
+   // Determine most likely symbol at every timestep
    for(int t=0; t<tau; t++)
       {
+      assert(ri(t).size() == K);
       decoded(t) = 0;
       for(int i=1; i<K; i++)
-         if(ri(t, i) > ri(t, decoded(t)))
+         if(ri(t)(i) > ri(t)(decoded(t)))
             decoded(t) = i;
       }
    }

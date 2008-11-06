@@ -196,10 +196,10 @@ template <class S>
 void basic_commsys<S>::translate(const libbase::vector<S>& received)
    {
    // Demodulate
-   libbase::matrix<double> ptable_mapped;
+   libbase::vector< libbase::vector<double> > ptable_mapped;
    this->mdm->demodulate(*this->chan, received, ptable_mapped);
    // Inverse Map
-   libbase::matrix<double> ptable_encoded;
+   libbase::vector< libbase::vector<double> > ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
    this->cdc->translate(ptable_encoded);

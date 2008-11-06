@@ -41,7 +41,7 @@ protected:
    // Interface with mapper
    void advance() const;
    void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
+   void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
 public:
    /*! \name Constructors / Destructors */
    virtual ~map_stipple() {};

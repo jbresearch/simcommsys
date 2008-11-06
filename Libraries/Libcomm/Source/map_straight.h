@@ -31,7 +31,7 @@ protected:
    // Interface with mapper
    void setup();
    void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const;
+   void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
 
 public:
    // Informative functions

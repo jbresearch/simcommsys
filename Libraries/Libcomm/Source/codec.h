@@ -49,8 +49,8 @@ public:
    virtual void encode(const libbase::vector<int>& source, libbase::vector<int>& encoded) = 0;
    /*!
       \brief Receiver translation process
-      \param[in] ptable Matrix representing the likelihoods of each possible
-                        modulation symbol at every (modulation) timestep
+      \param[in] ptable Likelihoods of each possible modulation symbol at every
+                        (modulation) timestep
 
       This function computes the necessary prabability tables for the codec
       from the probabilities of each modulation symbol as received from the
@@ -61,13 +61,13 @@ public:
             correspond to the number of encoder output symbols, and therefore
             the number of modulation timesteps may be different from tau.
    */
-   virtual void translate(const libbase::matrix<double>& ptable) = 0;
+   virtual void translate(const libbase::vector< libbase::vector<double> >& ptable) = 0;
    /*!
       \brief Decoding process
       \param[out] decoded Most likely sequence of information symbols, one per timestep
 
       \note Observe that this output necessarily constitutes a hard decision.
-      
+
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */

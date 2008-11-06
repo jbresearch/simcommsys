@@ -37,16 +37,15 @@ void map_interleaved::dotransform(const libbase::vector<int>& in, libbase::vecto
       out(lut(i)) = s(i);
    }
 
-void map_interleaved::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_interleaved::doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
    {
-   assert(pin.xsize() == lut.size());
+   assert(pin.size() == lut.size());
    // temporary matrix is the same size as input
-   libbase::matrix<double> ptable;
-   ptable.init(pin);
+   libbase::vector< libbase::vector<double> > ptable;
+   ptable.init(lut.size());
    // invert the shuffling
-   for(int i=0; i<ptable.xsize(); i++)
-      for(int j=0; j<ptable.ysize(); j++)
-         ptable(i,j) = pin(lut(i),j);
+   for(int i=0; i<lut.size(); i++)
+      ptable(i) = pin(lut(i));
    // do the base (straight) mapping
    map_straight::doinverse(ptable, pout);
    }

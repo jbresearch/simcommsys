@@ -179,7 +179,7 @@ void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, c
    \brief Preparation for BCJR decoding
    \param[in]  set Parity sequence being decoded
    \param[in]  ra  A-priori (extrinsic) probabilities of input values
-   \param[out] rai Interleaved version of a-priori probabilities 
+   \param[out] rai Interleaved version of a-priori probabilities
 
    This method does the preparatory work required before BCJR decoding,
    including start/end state probability setting for circular decoding, and
@@ -202,7 +202,7 @@ void turbo<real,dbl>::bcjr_pre(const int set, const array2d_t& ra, array2d_t& ra
 /*!
    \brief Post-processing for BCJR decoding
    \param[in]  set Parity sequence being decoded
-   \param[in]  rii Interleaved version of a-posteriori probabilities 
+   \param[in]  rii Interleaved version of a-posteriori probabilities
    \param[out] ri  A-posteriori probabilities of input values
 
    This method does the post-processing work required after BCJR decoding,
@@ -388,10 +388,11 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
          probabilities are now created normalized.
 */
 template <class real, class dbl>
-void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
+void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
    {
    // Compute factors / sizes & check validity
-   const int S = ptable.ysize();
+   assertalways(ptable.size() > 0);
+   const int S = ptable(0).size();
    const int sp = int(round(log(double(enc_parity()))/log(double(S))));
    const int sk = int(round(log(double(num_inputs()))/log(double(S))));
    const int s = sk + num_sets()*sp;
@@ -400,7 +401,7 @@ void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
    assertalways(enc_parity() == pow(double(S), sp));
    assertalways(num_inputs() == pow(double(S), sk));
    // Confirm input sequence to be of the correct length
-   assertalways(ptable.xsize() == tau*s);
+   assertalways(ptable.size() == tau*s);
 
    // initialise memory if necessary
    if(!initialised)
@@ -417,7 +418,7 @@ void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
          {
          rp(t, x) = 1;
          for(int i=0, thisx = x; i<sk; i++, thisx /= S)
-            rp(t, x) *= ptable(t*s+i, thisx % S);
+            rp(t, x) *= ptable(t*s+i)(thisx % S);
          }
       // Parity bits [all sets]
       for(int x=0; x<enc_parity(); x++)
@@ -425,7 +426,7 @@ void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
             {
             p(set, t, x) = 1;
             for(int i=0, thisx = x; i<sp; i++, thisx /= S)
-               p(set, t, x) *= ptable(t*s+i+offset, thisx % S);
+               p(set, t, x) *= ptable(t*s+i+offset)(thisx % S);
             offset += sp;
             }
       }
@@ -453,7 +454,7 @@ void turbo<real,dbl>::translate(const libbase::matrix<double>& ptable)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(array2d_t& ri)
+void turbo<real,dbl>::decode(array_pvec_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
    array2d_t rif;
@@ -462,13 +463,17 @@ void turbo<real,dbl>::decode(array2d_t& ri)
       decode_parallel(rif);
    else
       decode_serial(rif);
-   // remove any tail bits
-   ri.init(input_block_size(), num_inputs());
-   ri.copyfrom(rif);
+   // remove any tail bits from input set
+   ri.init(input_block_size());
+   for(int i=0; i<input_block_size(); i++)
+      ri(i).init(num_inputs());
+   for(int i=0; i<input_block_size(); i++)
+      for(int j=0; j<num_inputs(); j++)
+         ri(i)(j) = rif(i,j);
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(array2d_t& ri, array2d_t& ro)
+void turbo<real,dbl>::decode(array_pvec_t& ri, array_pvec_t& ro)
    {
    assertalways("Not yet implemented");
    }

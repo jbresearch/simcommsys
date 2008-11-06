@@ -120,10 +120,10 @@ vector<bool> transmit_modulated(int n, channel<bool>& chan, const vector<bool>& 
    return rx;
    }
 
-matrix<double> demodulate_encoded(channel<bool>& chan, blockmodem<bool>& mdm, const vector<bool>& rx, bool display=true)
+vector< vector<double> > demodulate_encoded(channel<bool>& chan, blockmodem<bool>& mdm, const vector<bool>& rx, bool display=true)
    {
    // demodulate received signal
-   matrix<double> ptable;
+   vector< vector<double> > ptable;
    timer t;
    mdm.demodulate(chan, rx, ptable);
    t.stop();
@@ -133,18 +133,20 @@ matrix<double> demodulate_encoded(channel<bool>& chan, blockmodem<bool>& mdm, co
    return ptable;
    }
 
-void count_errors(const vector<int>& encoded, const matrix<double>& ptable)
+void count_errors(const vector<int>& encoded, const vector< vector<double> >& ptable)
    {
-   const int tau = ptable.xsize();
-   const int n = ptable.ysize();
+   const int tau = ptable.size();
+   assert(tau > 0);
    assert(encoded.size() == tau);
+   const int n = ptable(0).size();
    int count = 0;
    for(int i=0; i<tau; i++)
       {
+      assert(ptable(i).size() == n);
       // find the most likely candidate
       int d=0;
       for(int j=1; j<n; j++)
-         if(ptable(i,j) > ptable(i,d))
+         if(ptable(i)(j) > ptable(i)(d))
             d = j;
       // see if there is an error
       if(d != encoded(i))
@@ -174,7 +176,7 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k, int t
    // pass it through the channel
    vector<bool> rx = transmit_modulated(n, *chan, tx, display);
    // demodulate received signal
-   matrix<double> ptable = demodulate_encoded(*chan, *mdm, rx, display);
+   vector< vector<double> > ptable = demodulate_encoded(*chan, *mdm, rx, display);
    // count errors
    count_errors(encoded, ptable);
    }

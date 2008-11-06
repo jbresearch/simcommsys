@@ -23,6 +23,8 @@ namespace libcomm {
    - $Author$
 
    Class defines common interface for blockmodem classes.
+
+   \todo Templatize with respect to the type used for the likelihood table
 */
 
 template <class S>
@@ -39,7 +41,7 @@ protected:
    //! \copydoc modulate()
    virtual void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) = 0;
+   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable) = 0;
    // @}
 
 public:
@@ -88,14 +90,14 @@ public:
       \param[in]  chan     The channel model (used to obtain likelihoods)
       \param[in]  rx       Sequence of received symbols
       \param[out] ptable   Table of likelihoods of possible transmitted symbols
-      
-      \note \c ptable(i,d) \c is the a posteriori probability of having transmitted 
-            symbol 'd' at time 'i'
+
+      \note \c ptable(i)(d) \c is the a posteriori probability of having
+            transmitted symbol 'd' at time 'i'
 
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable);
+   void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable);
    // @}
 
    /*! \name Setup functions */
@@ -188,7 +190,7 @@ class direct_blockmodem : public blockmodem<G> {
 protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx);
-   void dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable);
+   void dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::vector< libbase::vector<double> >& ptable);
 
 public:
    // Atomic modem operations
@@ -222,7 +224,7 @@ class direct_blockmodem<bool> : public blockmodem<bool> {
 protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
-   void dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable);
+   void dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable);
 
 public:
    // Atomic modem operations

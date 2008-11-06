@@ -44,7 +44,7 @@ void mapper::transform(const libbase::vector<int>& in, libbase::vector<int>& out
    dotransform(in, out);
    }
 
-void mapper::inverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void mapper::inverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
    {
    advance_if_dirty();
    doinverse(pin, pout);

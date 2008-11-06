@@ -27,7 +27,8 @@ class dminner2 : public dminner<real,normalize>, private fba2<real,bool,normaliz
 private:
    /*! \name Internally-used types */
    typedef libbase::vector<bool>    array1b_t;
-   typedef libbase::matrix<double>  array2d_t;
+   typedef libbase::vector< libbase::vector<double> >  array2d_t;
+   typedef libbase::vector< libbase::vector<real> >    array2r_t;
    // @}
 private:
    // Implementations of channel-specific metrics for fba2

@@ -43,19 +43,23 @@ void map_straight::dotransform(const libbase::vector<int>& in, libbase::vector<i
          out(k) = x % M;
    }
 
-void map_straight::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_straight::doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
    {
-   assertalways(pin.xsize() == tau*s1);
-   assertalways(pin.ysize() == M);
+   assertalways(pin.size() == tau*s1);
    // Initialize results vector
-   pout.init(upsilon,S);
+   pout.init(upsilon);
+   for(int t=0; t<upsilon; t++)
+      {
+      assertalways(pin(t).size() == M);
+      pout(t).init(S);
+      }
    // Get the necessary data from the channel
    for(int t=0; t<upsilon; t++)
       for(int x=0; x<S; x++)
          {
-         pout(t,x) = 1;
+         pout(t)(x) = 1;
          for(int i=0, thisx = x; i<s2; i++, thisx /= M)
-            pout(t, x) *= pin(t*s2+i, thisx % M);
+            pout(t)(x) *= pin(t*s2+i)(thisx % M);
          }
    }
 

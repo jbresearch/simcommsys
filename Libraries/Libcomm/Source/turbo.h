@@ -49,7 +49,7 @@ namespace libcomm {
    \note Serialization is versioned; for compatibility, earlier versions are
          interpreted as v.0; a flat interleaver is automatically used for the
          first encoder in these cases.
-   
+
    \note Debug output is only enabled if pre-processor define DEBUG is set at
          a value of 2 or above. Most of this will likely be removed as they
          only serve a specific purpose in debugging parallel decoding, which
@@ -77,6 +77,7 @@ private:
    typedef libbase::vector<int>     array1i_t;
    typedef libbase::vector<dbl>     array1d_t;
    typedef libbase::matrix<dbl>     array2d_t;
+   typedef libbase::vector< libbase::vector<dbl> >     array_pvec_t;
    // @}
 private:
    /*! \name User-defined parameters */
@@ -128,9 +129,9 @@ public:
    // Codec operations
    void seedfrom(libbase::random& r);
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const libbase::matrix<double>& ptable);
-   void decode(array2d_t& ri);
-   void decode(array2d_t& ri, array2d_t& ro);
+   void translate(const libbase::vector< libbase::vector<double> >& ptable);
+   void decode(array_pvec_t& ri);
+   void decode(array_pvec_t& ri, array_pvec_t& ro);
 
    // Codec information functions - fundamental
    int input_block_size() const { return endatzero ? tau-encoder->mem_order() : tau; };

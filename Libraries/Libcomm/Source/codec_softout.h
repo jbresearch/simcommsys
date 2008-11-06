@@ -28,7 +28,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::matrix<dbl>& ri) = 0;
+   virtual void decode(libbase::vector< libbase::vector<dbl> >& ri) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -37,7 +37,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::matrix<dbl>& ri, libbase::matrix<dbl>& ro) = 0;
+   virtual void decode(libbase::vector< libbase::vector<dbl> >& ri, libbase::vector< libbase::vector<dbl> >& ro) = 0;
    // @}
 
    /*! \name Codec helper functions */
@@ -49,7 +49,7 @@ public:
 
       Decide which input sequence was most probable.
    */
-   static void hard_decision(const libbase::matrix<dbl>& ri, libbase::vector<int>& decoded);
+   static void hard_decision(const libbase::vector< libbase::vector<dbl> >& ri, libbase::vector<int>& decoded);
    // @}
 };
 

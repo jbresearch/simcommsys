@@ -33,11 +33,6 @@ namespace libcomm {
 
    \todo Provide default implementation for corrupt and pdf
 
-   \todo Make templated implementations of transmit and receive specific to
-         vector container
-
-   \todo Replace ptable in receive interface with a container of vectors
-
    \todo Sort out which receive() method is really needed in the interface, and
          which should be specific to the various channels
 */
@@ -102,7 +97,7 @@ public:
 
       \callergraph
    */
-   virtual void receive(const C<S>& tx, const C<S>& rx, libbase::matrix<double>& ptable) const = 0;
+   virtual void receive(const C<S>& tx, const C<S>& rx, C< libbase::vector<double> >& ptable) const = 0;
    /*!
       \brief Determine the likelihood of a sequence of received modulation
              symbols, given a particular transmitted sequence
@@ -164,7 +159,7 @@ template <class S>
 class basic_channel<S,libbase::vector> : public basic_channel_interface<S,libbase::vector> {
 public:
    void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx);
-   void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const;
+   void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable) const;
    double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const;
    double receive(const S& tx, const libbase::vector<S>& rx) const;
 };
@@ -182,17 +177,19 @@ void basic_channel<S,libbase::vector>::transmit(const libbase::vector<S>& tx, li
    }
 
 template <class S>
-void basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::matrix<double>& ptable) const
+void basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable) const
    {
    // Compute sizes
    const int tau = rx.size();
    const int M = tx.size();
    // Initialize results vector
-   ptable.init(tau, M);
+   ptable.init(tau);
+   for(int t=0; t<tau; t++)
+      ptable(t).init(M);
    // Work out the probabilities of each possible signal
    for(int t=0; t<tau; t++)
       for(int x=0; x<M; x++)
-         ptable(t,x) = pdf(tx(x), rx(t));
+         ptable(t)(x) = pdf(tx(x), rx(t));
    }
 
 template <class S>

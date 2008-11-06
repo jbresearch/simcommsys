@@ -83,13 +83,13 @@ int bsid::compute_xmax(int tau, double p)
    \brief Compute receiver coefficient set
 
    First row has elements where the last bit \f[ r_\mu = t \f]
-   \f[ Rtable(0,\mu) = 
+   \f[ Rtable(0,\mu) =
       \left(\frac{P_i}{2}\right)^\mu
       \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
       , \mu \in (0, \ldots x_{max}) \f]
 
    Second row has elements where the last bit \f[ r_\mu \neq t \f]
-   \f[ Rtable(1,\mu) = 
+   \f[ Rtable(1,\mu) =
       \left(\frac{P_i}{2}\right)^\mu
       \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
       , \mu \in (0, \ldots x_{max}) \f]
@@ -337,15 +337,16 @@ void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
    rx = newrx;
    }
 
-void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable) const
+void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable) const
    {
    // Compute sizes
    const int M = tx.size();
    // Initialize results vector
-   ptable.init(1, M);
+   ptable.init(1);
+   ptable(0).init(M);
    // Compute results for each possible signal
    for(int x=0; x<M; x++)
-      ptable(0,x) = bsid::receive(tx(x),rx);
+      ptable(0)(x) = bsid::receive(tx(x),rx);
    }
 
 double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const

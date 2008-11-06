@@ -77,7 +77,9 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
    const int q = 1<<k;
    const int N = ws.size();
    // Initialise result vector (one sparse symbol per timestep)
-   ptable.init(N, q);
+   ptable.init(N);
+   for(int i=0; i<N; i++)
+      ptable(i).init(q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for(int i=0; i<N; i++)
       {
@@ -126,7 +128,7 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
                p += F * R * B;
                }
             }
-         ptable(i,d) = p;
+         ptable(i)(d) = p;
          }
       }
    if(N > 0)
@@ -136,16 +138,21 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
 template <class real, bool normalize>
 void dminner<real,normalize>::normalize_results(const array2r_t& in, array2d_t& out) const
    {
-   const int N = in.xsize();
-   const int q = in.ysize();
+   const int N = in.size();
+   assert(N > 0);
+   const int q = in(0).size();
    // check for numerical underflow
-   const real scale = in.max();
+   real scale = 0;
+   for(int i=0; i<N; i++)
+      scale = std::max(scale, in(i).max());
    assert(scale != real(0));
    // normalize and copy results
-   out.init(N,q);
+   out.init(N);
+   for(int i=0; i<N; i++)
+      out(i).init(q);
    for(int i=0; i<N; i++)
       for(int d=0; d<q; d++)
-         out(i,d) = in(i,d)/scale;
+         out(i)(d) = in(i)(d)/scale;
    }
 
 // initialization / de-allocation
@@ -319,13 +326,16 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
    // Apply standard demodulation
    dminner<real,normalize>::dodemodulate(chan, rx, ptable);
    // Multiply-in a-priori probabilities
-   const int q = ptable.xsize();
-   const int N = ptable.ysize();
-   assert(app.xsize() == q);
-   assert(app.ysize() == N);
+   const int N = ptable.size();
+   assert(N > 0);
+   const int q = ptable(0).size();
+   assert(app.size() == N);
    for(int i=0; i<N; i++)
+      {
+      assert(app(i).size() == q);
       for(int d=0; d<q; d++)
-         ptable(i,d) *= app(i,d);
+         ptable(i)(d) *= app(i)(d);
+      }
    }
 
 // description output

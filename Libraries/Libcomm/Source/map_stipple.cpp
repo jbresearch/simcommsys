@@ -47,25 +47,27 @@ void map_stipple::dotransform(const libbase::vector<int>& in, libbase::vector<in
          out(ii++) = s(i);
    }
 
-void map_stipple::doinverse(const libbase::matrix<double>& pin, libbase::matrix<double>& pout) const
+void map_stipple::doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
    {
-   assertalways(pin.xsize()==tau*2);
-   assertalways(pin.ysize()==M);
+   assertalways(pin.size()==tau*2);
+   assertalways(pin(0).size()==M);
    // final matrix size depends on the number of set positions
-   libbase::matrix<double> ptable;
-   ptable.init(pattern.size(),pin.ysize());
+   libbase::vector< libbase::vector<double> > ptable;
+   ptable.init(pattern.size());
+   for(int i=0; i<pattern.size(); i++)
+      ptable(i).init(M);
    // invert the puncturing
-   for(int i=0, ii=0; i<ptable.xsize(); i++)
+   for(int i=0, ii=0; i<pattern.size(); i++)
       if(pattern(i))
          {
-         for(int j=0; j<ptable.ysize(); j++)
-            ptable(i,j) = pin(ii,j);
+         for(int j=0; j<M; j++)
+            ptable(i)(j) = pin(ii)(j);
          ii++;
          }
       else
          {
-         for(int j=0; j<ptable.ysize(); j++)
-            ptable(i,j) = 1.0/ptable.ysize();
+         for(int j=0; j<M; j++)
+            ptable(i)(j) = 1.0/M;
          }
    // do the base (straight) inverse mapping
    map_straight::doinverse(ptable, pout);

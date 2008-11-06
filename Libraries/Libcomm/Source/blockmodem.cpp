@@ -27,7 +27,7 @@ void basic_blockmodem<S>::modulate(const int N, const libbase::vector<int>& enco
    }
 
 template <class S>
-void basic_blockmodem<S>::demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::matrix<double>& ptable)
+void basic_blockmodem<S>::demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable)
    {
    assert(tau > 0);
    advance_if_dirty();
@@ -70,7 +70,7 @@ void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& e
    }
 
 template <class G>
-void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::matrix<double>& ptable)
+void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::vector< libbase::vector<double> >& ptable)
    {
    // Inherit sizes
    const int M = num_symbols();
@@ -148,7 +148,7 @@ void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>
          tx(k) = (x & 1);
    }
 
-void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::matrix<double>& ptable)
+void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable)
    {
    // Inherit sizes
    const int tau = input_block_size();

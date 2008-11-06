@@ -51,7 +51,7 @@ void lut_modulator::domodulate(const int N, const libbase::vector<int>& encoded,
          tx(k) = modulate(x % M);
    }
 
-void lut_modulator::dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::matrix<double>& ptable)
+void lut_modulator::dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::vector< libbase::vector<double> >& ptable)
    {
    // Inherit sizes
    const int M = num_symbols();
