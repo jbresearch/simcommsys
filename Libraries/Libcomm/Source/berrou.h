@@ -32,7 +32,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(berrou)
+   DECLARE_SERIALIZER(berrou);
 };
 
 }; // end namespace

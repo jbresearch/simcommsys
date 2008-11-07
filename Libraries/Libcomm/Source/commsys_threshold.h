@@ -17,7 +17,7 @@ namespace libcomm {
 
    A variation on the regular commsys_simulator object, taking a fixed channel
    parameter and varying modem threshold.
-   
+
    \todo Remove assumption of a dminner-derived modem.
 */
 template <class S, class R=commsys_errorrates>
@@ -28,7 +28,7 @@ public:
    double get_parameter() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(commsys_threshold)
+   DECLARE_SERIALIZER(commsys_threshold);
 };
 
 }; // end namespace

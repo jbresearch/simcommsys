@@ -91,7 +91,7 @@ template <class S, class R=commsys_errorrates>
 class commsys_simulator : public basic_commsys_simulator<S,R> {
 public:
    // Serialization Support
-   DECLARE_SERIALIZER(commsys_simulator)
+   DECLARE_SERIALIZER(commsys_simulator);
 };
 
 }; // end namespace

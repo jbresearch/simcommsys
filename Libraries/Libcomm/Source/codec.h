@@ -106,7 +106,7 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(codec)
+   DECLARE_BASE_SERIALIZER(codec);
 };
 
 }; // end namespace

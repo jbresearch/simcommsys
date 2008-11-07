@@ -32,7 +32,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(helical)
+   DECLARE_SERIALIZER(helical);
 };
 
 }; // end namespace

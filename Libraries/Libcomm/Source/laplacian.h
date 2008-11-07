@@ -75,7 +75,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(laplacian)
+   DECLARE_SERIALIZER(laplacian);
 };
 
 }; // end namespace

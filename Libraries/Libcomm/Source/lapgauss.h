@@ -58,7 +58,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(lapgauss)
+   DECLARE_SERIALIZER(lapgauss);
 };
 
 }; // end namespace

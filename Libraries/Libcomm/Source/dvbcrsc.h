@@ -58,7 +58,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(dvbcrsc)
+   DECLARE_SERIALIZER(dvbcrsc);
 };
 
 }; // end namespace

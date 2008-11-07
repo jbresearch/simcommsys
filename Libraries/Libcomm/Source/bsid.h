@@ -100,7 +100,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(bsid)
+   DECLARE_SERIALIZER(bsid);
 };
 
 inline double bsid::pdf(const bool& tx, const bool& rx) const

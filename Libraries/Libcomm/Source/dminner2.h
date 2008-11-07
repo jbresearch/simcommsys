@@ -51,7 +51,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(dminner2)
+   DECLARE_SERIALIZER(dminner2);
 };
 
 }; // end namespace

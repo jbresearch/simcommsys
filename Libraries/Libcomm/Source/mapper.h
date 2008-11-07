@@ -105,7 +105,7 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(mapper)
+   DECLARE_BASE_SERIALIZER(mapper);
 };
 
 }; // end namespace

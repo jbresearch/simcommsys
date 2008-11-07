@@ -47,7 +47,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(bsc)
+   DECLARE_SERIALIZER(bsc);
 };
 
 inline double bsc::pdf(const bool& tx, const bool& rx) const

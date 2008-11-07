@@ -68,7 +68,7 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(interleaver)
+   DECLARE_BASE_SERIALIZER(interleaver);
 };
 
 }; // end namespace

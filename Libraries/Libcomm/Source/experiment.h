@@ -41,7 +41,7 @@ protected:
    virtual void derived_accumulate(const libbase::vector<double>& result) = 0;
    /*!
       \brief Add the complete state of results to the accumulated set
-      \param[in] state Vector set of accumulated results 
+      \param[in] state Vector set of accumulated results
    */
    virtual void accumulate_state(const libbase::vector<double>& state) = 0;
    // @}
@@ -94,13 +94,13 @@ public:
    /*!
       \brief Add the complete state of results to the accumulated set
       \param[in] samplecount The number of samples in the accumulated set
-      \param[in] state Vector set of accumulated results 
+      \param[in] state Vector set of accumulated results
    */
    void accumulate_state(libbase::int64u samplecount, const libbase::vector<double>& state)
       { this->samplecount += samplecount; accumulate_state(state); };
    /*!
       \brief Get the complete state of accumulated results
-      \param[out] state Vector set of accumulated results 
+      \param[out] state Vector set of accumulated results
    */
    virtual void get_state(libbase::vector<double>& state) const = 0;
    /*!
@@ -131,7 +131,7 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(experiment)
+   DECLARE_BASE_SERIALIZER(experiment);
 };
 
 /*!

@@ -104,7 +104,7 @@ public:
       else \
          assertalways(x->serialize(sin)); \
       return sin; \
-      }; \
+      } \
    /* @} */
 
 #define DECLARE_SERIALIZER( class_name ) \
@@ -119,7 +119,7 @@ public:
    class_name *clone() const { return new class_name(*this); }; \
    const char* name() const { return shelper.name(); }; \
    std::ostream& serialize(std::ostream& sout) const; \
-   std::istream& serialize(std::istream& sin);
+   std::istream& serialize(std::istream& sin)
 
 #define DECLARE_CONCRETE_BASE_SERIALIZER( class_name ) \
    private: \
@@ -161,7 +161,7 @@ public:
       else \
          assertalways(x->serialize(sin)); \
       return sin; \
-      }; \
+      } \
    /* @} */
 
 }; // end namespace

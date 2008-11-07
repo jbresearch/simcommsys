@@ -70,7 +70,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(awgn)
+   DECLARE_SERIALIZER(awgn);
 };
 
 }; // end namespace

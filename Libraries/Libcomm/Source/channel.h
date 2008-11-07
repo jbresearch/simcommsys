@@ -230,7 +230,7 @@ double basic_channel<S,libbase::vector>::receive(const S& tx, const libbase::vec
 template <class S, template<class> class C=libbase::vector>
 class channel : public basic_channel<S,C> {
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(channel)
+   DECLARE_BASE_SERIALIZER(channel);
 };
 
 /*!
@@ -292,7 +292,7 @@ public:
    double get_parameter() const { return snr_db; };
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(channel)
+   DECLARE_BASE_SERIALIZER(channel);
 };
 
 }; // end namespace

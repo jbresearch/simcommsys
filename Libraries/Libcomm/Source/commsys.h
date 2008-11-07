@@ -109,7 +109,7 @@ template <class S>
 class commsys : public basic_commsys<S> {
 public:
    // Serialization Support
-   DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
+   DECLARE_CONCRETE_BASE_SERIALIZER(commsys);
 };
 
 /*!
@@ -143,7 +143,7 @@ protected:
    // @}
 public:
    // Serialization Support
-   DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
+   DECLARE_CONCRETE_BASE_SERIALIZER(commsys);
 };
 
 }; // end namespace

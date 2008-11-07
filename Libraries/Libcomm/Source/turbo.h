@@ -153,7 +153,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(turbo)
+   DECLARE_SERIALIZER(turbo);
 };
 
 }; // end namespace

@@ -35,7 +35,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(named_lut)
+   DECLARE_SERIALIZER(named_lut);
 };
 
 }; // end namespace

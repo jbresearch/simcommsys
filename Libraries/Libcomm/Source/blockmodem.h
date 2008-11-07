@@ -135,7 +135,7 @@ public:
 template <class S>
 class blockmodem : public basic_blockmodem<S> {
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(blockmodem)
+   DECLARE_BASE_SERIALIZER(blockmodem);
 };
 
 /*!
@@ -165,7 +165,7 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(blockmodem)
+   DECLARE_BASE_SERIALIZER(blockmodem);
 };
 
 /*!
@@ -204,7 +204,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(direct_blockmodem)
+   DECLARE_SERIALIZER(direct_blockmodem);
 };
 
 /*!
@@ -238,7 +238,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(direct_blockmodem)
+   DECLARE_SERIALIZER(direct_blockmodem);
 };
 
 }; // end namespace

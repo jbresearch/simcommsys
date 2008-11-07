@@ -89,7 +89,7 @@ public:
    virtual void resetcircular(int zerostate, int n) = 0;
    /*!
       \brief Reset to the circulation state, assuming we have just run through the
-             input sequence, starting with the zero-state 
+             input sequence, starting with the zero-state
 
       This is a convenient form of the earlier method, where the fsm-derived
       class must keep track of the number of time-steps since the last reset
@@ -149,7 +149,7 @@ public:
    // @}
 
    // Serialization Support
-   DECLARE_BASE_SERIALIZER(fsm)
+   DECLARE_BASE_SERIALIZER(fsm);
 };
 
 }; // end namespace

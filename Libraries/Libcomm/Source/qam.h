@@ -40,7 +40,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(qam)
+   DECLARE_SERIALIZER(qam);
 };
 
 }; // end namespace

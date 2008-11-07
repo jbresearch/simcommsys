@@ -40,7 +40,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(map_permuted)
+   DECLARE_SERIALIZER(map_permuted);
 };
 
 }; // end namespace
