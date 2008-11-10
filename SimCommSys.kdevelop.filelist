@@ -1,208 +1,62 @@
 # KDevelop Custom Project File List
-Makefile
-Turbo Codes/Makefile
-Turbo Codes/TestWMdemodulation/testwmdemodulation.cpp
-Turbo Codes/TestWatermark/testwatermark.cpp
-Turbo Codes/TestQSC/testqsc.cpp
-Turbo Codes/TestModem/testmodem.cpp
-Turbo Codes/TestGRSCC/testgrscc.cpp
-Turbo Codes/TestGF/testgf.cpp
-Turbo Codes/TestConfig/testconfig.cpp
-Turbo Codes/TestBSID/testbsid.cpp
-Turbo Codes/SRandomInterleaver/resource.h
-Turbo Codes/SRandomInterleaver/SRandomInterleaver.cpp
-Turbo Codes/SRandomInterleaver/SRandomInterleaver.h
-Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.cpp
-Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.h
-Turbo Codes/SRandomInterleaver/Stdafx.cpp
-Turbo Codes/SRandomInterleaver/Stdafx.h
-Turbo Codes/SPECturbo/SPECturbo.cpp
-Turbo Codes/Source/csdecode.cpp
-Turbo Codes/Source/csencode.cpp
-Turbo Codes/Source/csfullcycle.cpp
-Turbo Codes/Source/cstransmit.cpp
-Turbo Codes/Source/showerrorevent.cpp
-Turbo Codes/Source/simcommsys.cpp
-Turbo Codes/Source/SPECturbo.cpp
-Turbo Codes/Source/testbsid.cpp
-Turbo Codes/Source/testconfig.cpp
-Turbo Codes/Source/testgf.cpp
-Turbo Codes/Source/testgrscc.cpp
-Turbo Codes/Source/testmodem.cpp
-Turbo Codes/Source/testqsc.cpp
-Turbo Codes/Source/testwatermark.cpp
-Turbo Codes/Source/testwmdemodulation.cpp
-Turbo Codes/SimCommsys/simcommsys.cpp
-Turbo Codes/ShowErrorEvent/showerrorevent.cpp
-Turbo Codes/CStransmit/cstransmit.cpp
-Turbo Codes/CSfullcycle/csfullcycle.cpp
-Turbo Codes/CSencode/csencode.cpp
-Turbo Codes/CSdecode/csdecode.cpp
-Turbo Codes/AnnealInterleaver/AnnealInterleaver.cpp
-Turbo Codes/AnnealInterleaver/AnnealInterleaver.h
-Turbo Codes/AnnealInterleaver/AnnealInterleaverDlg.cpp
-Turbo Codes/AnnealInterleaver/AnnealInterleaverDlg.h
-Turbo Codes/AnnealInterleaver/resource.h
-Turbo Codes/AnnealInterleaver/Stdafx.cpp
-Turbo Codes/AnnealInterleaver/Stdafx.h
-Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.cpp
-Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.h
-Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.cpp
-Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.h
-Turbo Codes/AnalyseInterleaver/resource.h
-Turbo Codes/AnalyseInterleaver/Stdafx.cpp
-Turbo Codes/AnalyseInterleaver/Stdafx.h
-Steganography/SSISsimulator/SSISsimulator.cpp
-Steganography/SSISsimulator/SSISsimulator.h
-Steganography/PluginWizard/PluginWizard.cpp
-Steganography/PluginWizard/PluginWizard.h
-Steganography/PluginWizard/PluginWizardDlg.cpp
-Steganography/PluginWizard/PluginWizardDlg.h
-Steganography/PluginWizard/resource.h
-Steganography/PluginWizard/Stdafx.cpp
-Steganography/PluginWizard/Stdafx.h
-Steganography/FilterWavelet/FilterWavelet.cpp
-Steganography/FilterWavelet/FilterWavelet.h
-Steganography/FilterWavelet/FilterWaveletDlg.cpp
-Steganography/FilterWavelet/FilterWaveletDlg.h
-Steganography/FilterWavelet/resource.h
-Steganography/FilterWavelet/Stdafx.cpp
-Steganography/FilterWavelet/Stdafx.h
-Steganography/FilterVariance/FilterVariance.cpp
-Steganography/FilterVariance/FilterVariance.h
-Steganography/FilterVariance/FilterVarianceDlg.cpp
-Steganography/FilterVariance/FilterVarianceDlg.h
-Steganography/FilterVariance/resource.h
-Steganography/FilterVariance/Stdafx.cpp
-Steganography/FilterVariance/Stdafx.h
-Steganography/FilterOrphans/FilterOrphans.cpp
-Steganography/FilterOrphans/FilterOrphans.h
-Steganography/FilterOrphans/FilterOrphansDlg.cpp
-Steganography/FilterOrphans/FilterOrphansDlg.h
-Steganography/FilterOrphans/resource.h
-Steganography/FilterOrphans/Stdafx.cpp
-Steganography/FilterOrphans/Stdafx.h
-Steganography/FilterLevels/DisplayResultsDlg.cpp
-Steganography/FilterLevels/DisplayResultsDlg.h
-Steganography/FilterLevels/FilterLevels.cpp
-Steganography/FilterLevels/FilterLevels.h
-Steganography/FilterLevels/FilterLevelsDlg.cpp
-Steganography/FilterLevels/FilterLevelsDlg.h
-Steganography/FilterLevels/resource.h
-Steganography/FilterLevels/Stdafx.cpp
-Steganography/FilterLevels/Stdafx.h
-Steganography/FilterExtract/ComputeStrengthDlg.cpp
-Steganography/FilterExtract/ComputeStrengthDlg.h
-Steganography/FilterExtract/DisplayResultsDlg.cpp
-Steganography/FilterExtract/DisplayResultsDlg.h
-Steganography/FilterExtract/FilterExtract.cpp
-Steganography/FilterExtract/FilterExtract.h
-Steganography/FilterExtract/FilterExtractDlg.cpp
-Steganography/FilterExtract/FilterExtractDlg.h
-Steganography/FilterExtract/resource.h
-Steganography/FilterExtract/Stdafx.cpp
-Steganography/FilterExtract/Stdafx.h
-Steganography/FilterExport/FilterExport.cpp
-Steganography/FilterExport/FilterExport.h
-Steganography/FilterExport/FilterExportDlg.cpp
-Steganography/FilterExport/FilterExportDlg.h
-Steganography/FilterExport/Resource.h
-Steganography/FilterExport/Stdafx.cpp
-Steganography/FilterExport/Stdafx.h
-Steganography/FilterEnergy/FilterEnergy.cpp
-Steganography/FilterEnergy/FilterEnergy.h
-Steganography/FilterEnergy/FilterEnergyDlg.cpp
-Steganography/FilterEnergy/FilterEnergyDlg.h
-Steganography/FilterEnergy/resource.h
-Steganography/FilterEnergy/Stdafx.cpp
-Steganography/FilterEnergy/Stdafx.h
-Steganography/FilterEmbed/ComputeStrengthDlg.cpp
-Steganography/FilterEmbed/ComputeStrengthDlg.h
-Steganography/FilterEmbed/FilterEmbed.cpp
-Steganography/FilterEmbed/FilterEmbed.h
-Steganography/FilterEmbed/FilterEmbedDlg.cpp
-Steganography/FilterEmbed/FilterEmbedDlg.h
-Steganography/FilterEmbed/resource.h
-Steganography/FilterEmbed/Stdafx.cpp
-Steganography/FilterEmbed/Stdafx.h
-Steganography/Filteraw/Filteraw.cpp
-Steganography/Filteraw/Filteraw.h
-Steganography/Filteraw/FilterAWDlg.cpp
-Steganography/Filteraw/FilterAWDlg.h
-Steganography/Filteraw/resource.h
-Steganography/Filteraw/Stdafx.cpp
-Steganography/Filteraw/Stdafx.h
-Steganography/FilterATM/FilterATM.cpp
-Steganography/FilterATM/FilterATM.h
-Steganography/FilterATM/FilterATMDlg.cpp
-Steganography/FilterATM/FilterATMDlg.h
-Steganography/FilterATM/resource.h
-Steganography/FilterATM/Stdafx.cpp
-Steganography/FilterATM/Stdafx.h
-Steganography/AutomateGraphing/AutomateGraphing.cpp
-Steganography/AutomateGraphing/AutomateGraphing.h
-Steganography/AutomateGraphing/AutomateGraphingDlg.cpp
-Steganography/AutomateGraphing/AutomateGraphingDlg.h
-Steganography/AutomateGraphing/resource.h
-Steganography/AutomateGraphing/Stdafx.cpp
-Steganography/AutomateGraphing/Stdafx.h
-Steganography/AutomateEmbedding/AutomateEmbedding.cpp
-Steganography/AutomateEmbedding/AutomateEmbedding.h
-Steganography/AutomateEmbedding/AutomateEmbeddingDlg.cpp
-Steganography/AutomateEmbedding/AutomateEmbeddingDlg.h
-Steganography/AutomateEmbedding/resource.h
-Steganography/AutomateEmbedding/Stdafx.cpp
-Steganography/AutomateEmbedding/Stdafx.h
-Libraries/Libwin/ArchiveStreamBuf.cpp
-Libraries/Libwin/ArchiveStreamBuf.h
-Libraries/Libwin/FolderDialog.cpp
-Libraries/Libwin/FolderDialog.h
-Libraries/Libwin/Histogram2D.cpp
-Libraries/Libwin/Histogram2D.h
-Libraries/Libwin/MBoxStreamBuf.cpp
-Libraries/Libwin/MBoxStreamBuf.h
-Libraries/Libwin/PSAutomate.cpp
-Libraries/Libwin/PSAutomate.h
-Libraries/Libwin/Psplugin.cpp
-Libraries/Libwin/Psplugin.h
-Libraries/Libwin/RoutedIO.cpp
-Libraries/Libwin/RoutedIO.h
-Libraries/Libwin/ScriptingKeys.h
-Libraries/Libwin/StatusGraph.cpp
-Libraries/Libwin/StatusGraph.h
-Libraries/Libwin/Stdafx.cpp
-Libraries/Libwin/Stdafx.h
-Libraries/Libwin/StringStreamBuf.cpp
-Libraries/Libwin/StringStreamBuf.h
-Libraries/Libwin/TraceStreamBuf.cpp
-Libraries/Libwin/TraceStreamBuf.h
-Libraries/Libwin/WaterHeaterClient.cpp
-Libraries/Libwin/WaterHeaterClient.h
-Libraries/Libwin/wmdefines.h
-Libraries/Libwin/WorkerThread.cpp
-Libraries/Libwin/WorkerThread.h
-Libraries/Libimage/Source/atmfilter.cpp
-Libraries/Libimage/Source/atmfilter.h
-Libraries/Libimage/Source/awfilter.cpp
-Libraries/Libimage/Source/awfilter.h
-Libraries/Libimage/Source/filter.cpp
-Libraries/Libimage/Source/filter.h
-Libraries/Libimage/Source/image.cpp
-Libraries/Libimage/Source/image.h
-Libraries/Libimage/Source/imagefile.cpp
-Libraries/Libimage/Source/imagefile.h
-Libraries/Libimage/Source/limiter.cpp
-Libraries/Libimage/Source/limiter.h
-Libraries/Libimage/Source/variancefilter.cpp
-Libraries/Libimage/Source/variancefilter.h
-Libraries/Libimage/Source/wavelet.cpp
-Libraries/Libimage/Source/wavelet.h
-Libraries/Libimage/Source/waveletfilter.cpp
-Libraries/Libimage/Source/waveletfilter.h
-Libraries/Libimage/Source/old/picture.cpp
-Libraries/Libimage/Source/old/picture.h
-Libraries/Libimage/Source/old/pixel.cpp
-Libraries/Libimage/Source/old/pixel.h
+Documentation/latex/Makefile
+Libraries/Libbase/Makefile
+Libraries/Libbase/Source/bitfield.cpp
+Libraries/Libbase/Source/bitfield.h
+Libraries/Libbase/Source/bstream.cpp
+Libraries/Libbase/Source/bstream.h
+Libraries/Libbase/Source/cmpi.cpp
+Libraries/Libbase/Source/cmpi.h
+Libraries/Libbase/Source/config.cpp
+Libraries/Libbase/Source/config.h
+Libraries/Libbase/Source/fastsecant.cpp
+Libraries/Libbase/Source/fastsecant.h
+Libraries/Libbase/Source/fbstream.cpp
+Libraries/Libbase/Source/fbstream.h
+Libraries/Libbase/Source/functor.h
+Libraries/Libbase/Source/gf.cpp
+Libraries/Libbase/Source/gf.h
+Libraries/Libbase/Source/histogram.cpp
+Libraries/Libbase/Source/histogram.h
+Libraries/Libbase/Source/itfunc.cpp
+Libraries/Libbase/Source/itfunc.h
+Libraries/Libbase/Source/logreal.cpp
+Libraries/Libbase/Source/logreal.h
+Libraries/Libbase/Source/logrealfast.cpp
+Libraries/Libbase/Source/logrealfast.h
+Libraries/Libbase/Source/masterslave.cpp
+Libraries/Libbase/Source/masterslave.h
+Libraries/Libbase/Source/matrix.cpp
+Libraries/Libbase/Source/matrix.h
+Libraries/Libbase/Source/matrix3.cpp
+Libraries/Libbase/Source/matrix3.h
+Libraries/Libbase/Source/mpgnu.cpp
+Libraries/Libbase/Source/mpgnu.h
+Libraries/Libbase/Source/mpreal.cpp
+Libraries/Libbase/Source/mpreal.h
+Libraries/Libbase/Source/multi_array.h
+Libraries/Libbase/Source/pacifier.cpp
+Libraries/Libbase/Source/pacifier.h
+Libraries/Libbase/Source/randgen.cpp
+Libraries/Libbase/Source/randgen.h
+Libraries/Libbase/Source/random.cpp
+Libraries/Libbase/Source/random.h
+Libraries/Libbase/Source/randperm.cpp
+Libraries/Libbase/Source/randperm.h
+Libraries/Libbase/Source/rvstatistics.cpp
+Libraries/Libbase/Source/rvstatistics.h
+Libraries/Libbase/Source/secant.cpp
+Libraries/Libbase/Source/secant.h
+Libraries/Libbase/Source/serializer.cpp
+Libraries/Libbase/Source/serializer.h
+Libraries/Libbase/Source/socket.cpp
+Libraries/Libbase/Source/socket.h
+Libraries/Libbase/Source/timer.cpp
+Libraries/Libbase/Source/timer.h
+Libraries/Libbase/Source/truerand.cpp
+Libraries/Libbase/Source/truerand.h
+Libraries/Libbase/Source/vector.cpp
+Libraries/Libbase/Source/vector.h
 Libraries/Libcomm/Makefile
 Libraries/Libcomm/Source/anneal_interleaver.cpp
 Libraries/Libcomm/Source/anneal_interleaver.h
@@ -358,61 +212,207 @@ Libraries/Libcomm/Source/uniform_lut.cpp
 Libraries/Libcomm/Source/uniform_lut.h
 Libraries/Libcomm/Source/vale96int.cpp
 Libraries/Libcomm/Source/vale96int.h
-Libraries/Libbase/Makefile
-Libraries/Libbase/Source/bitfield.cpp
-Libraries/Libbase/Source/bitfield.h
-Libraries/Libbase/Source/bstream.cpp
-Libraries/Libbase/Source/bstream.h
-Libraries/Libbase/Source/cmpi.cpp
-Libraries/Libbase/Source/cmpi.h
-Libraries/Libbase/Source/config.cpp
-Libraries/Libbase/Source/config.h
-Libraries/Libbase/Source/fastsecant.cpp
-Libraries/Libbase/Source/fastsecant.h
-Libraries/Libbase/Source/fbstream.cpp
-Libraries/Libbase/Source/fbstream.h
-Libraries/Libbase/Source/functor.h
-Libraries/Libbase/Source/gf.cpp
-Libraries/Libbase/Source/gf.h
-Libraries/Libbase/Source/histogram.cpp
-Libraries/Libbase/Source/histogram.h
-Libraries/Libbase/Source/itfunc.cpp
-Libraries/Libbase/Source/itfunc.h
-Libraries/Libbase/Source/logreal.cpp
-Libraries/Libbase/Source/logreal.h
-Libraries/Libbase/Source/logrealfast.cpp
-Libraries/Libbase/Source/logrealfast.h
-Libraries/Libbase/Source/masterslave.cpp
-Libraries/Libbase/Source/masterslave.h
-Libraries/Libbase/Source/matrix.cpp
-Libraries/Libbase/Source/matrix.h
-Libraries/Libbase/Source/matrix3.cpp
-Libraries/Libbase/Source/matrix3.h
-Libraries/Libbase/Source/mpgnu.cpp
-Libraries/Libbase/Source/mpgnu.h
-Libraries/Libbase/Source/mpreal.cpp
-Libraries/Libbase/Source/mpreal.h
-Libraries/Libbase/Source/multi_array.h
-Libraries/Libbase/Source/pacifier.cpp
-Libraries/Libbase/Source/pacifier.h
-Libraries/Libbase/Source/randgen.cpp
-Libraries/Libbase/Source/randgen.h
-Libraries/Libbase/Source/random.cpp
-Libraries/Libbase/Source/random.h
-Libraries/Libbase/Source/randperm.cpp
-Libraries/Libbase/Source/randperm.h
-Libraries/Libbase/Source/rvstatistics.cpp
-Libraries/Libbase/Source/rvstatistics.h
-Libraries/Libbase/Source/secant.cpp
-Libraries/Libbase/Source/secant.h
-Libraries/Libbase/Source/serializer.cpp
-Libraries/Libbase/Source/serializer.h
-Libraries/Libbase/Source/socket.cpp
-Libraries/Libbase/Source/socket.h
-Libraries/Libbase/Source/timer.cpp
-Libraries/Libbase/Source/timer.h
-Libraries/Libbase/Source/truerand.cpp
-Libraries/Libbase/Source/truerand.h
-Libraries/Libbase/Source/vector.cpp
-Libraries/Libbase/Source/vector.h
-Documentation/latex/Makefile
+Libraries/Libimage/Source/atmfilter.cpp
+Libraries/Libimage/Source/atmfilter.h
+Libraries/Libimage/Source/awfilter.cpp
+Libraries/Libimage/Source/awfilter.h
+Libraries/Libimage/Source/filter.cpp
+Libraries/Libimage/Source/filter.h
+Libraries/Libimage/Source/image.cpp
+Libraries/Libimage/Source/image.h
+Libraries/Libimage/Source/imagefile.cpp
+Libraries/Libimage/Source/imagefile.h
+Libraries/Libimage/Source/limiter.cpp
+Libraries/Libimage/Source/limiter.h
+Libraries/Libimage/Source/old/picture.cpp
+Libraries/Libimage/Source/old/picture.h
+Libraries/Libimage/Source/old/pixel.cpp
+Libraries/Libimage/Source/old/pixel.h
+Libraries/Libimage/Source/variancefilter.cpp
+Libraries/Libimage/Source/variancefilter.h
+Libraries/Libimage/Source/wavelet.cpp
+Libraries/Libimage/Source/wavelet.h
+Libraries/Libimage/Source/waveletfilter.cpp
+Libraries/Libimage/Source/waveletfilter.h
+Libraries/Libwin/ArchiveStreamBuf.cpp
+Libraries/Libwin/ArchiveStreamBuf.h
+Libraries/Libwin/FolderDialog.cpp
+Libraries/Libwin/FolderDialog.h
+Libraries/Libwin/Histogram2D.cpp
+Libraries/Libwin/Histogram2D.h
+Libraries/Libwin/MBoxStreamBuf.cpp
+Libraries/Libwin/MBoxStreamBuf.h
+Libraries/Libwin/PSAutomate.cpp
+Libraries/Libwin/PSAutomate.h
+Libraries/Libwin/Psplugin.cpp
+Libraries/Libwin/Psplugin.h
+Libraries/Libwin/RoutedIO.cpp
+Libraries/Libwin/RoutedIO.h
+Libraries/Libwin/ScriptingKeys.h
+Libraries/Libwin/StatusGraph.cpp
+Libraries/Libwin/StatusGraph.h
+Libraries/Libwin/Stdafx.cpp
+Libraries/Libwin/Stdafx.h
+Libraries/Libwin/StringStreamBuf.cpp
+Libraries/Libwin/StringStreamBuf.h
+Libraries/Libwin/TraceStreamBuf.cpp
+Libraries/Libwin/TraceStreamBuf.h
+Libraries/Libwin/WaterHeaterClient.cpp
+Libraries/Libwin/WaterHeaterClient.h
+Libraries/Libwin/WorkerThread.cpp
+Libraries/Libwin/WorkerThread.h
+Libraries/Libwin/wmdefines.h
+Makefile
+Steganography/AutomateEmbedding/AutomateEmbedding.cpp
+Steganography/AutomateEmbedding/AutomateEmbedding.h
+Steganography/AutomateEmbedding/AutomateEmbeddingDlg.cpp
+Steganography/AutomateEmbedding/AutomateEmbeddingDlg.h
+Steganography/AutomateEmbedding/Stdafx.cpp
+Steganography/AutomateEmbedding/Stdafx.h
+Steganography/AutomateEmbedding/resource.h
+Steganography/AutomateGraphing/AutomateGraphing.cpp
+Steganography/AutomateGraphing/AutomateGraphing.h
+Steganography/AutomateGraphing/AutomateGraphingDlg.cpp
+Steganography/AutomateGraphing/AutomateGraphingDlg.h
+Steganography/AutomateGraphing/Stdafx.cpp
+Steganography/AutomateGraphing/Stdafx.h
+Steganography/AutomateGraphing/resource.h
+Steganography/FilterATM/FilterATM.cpp
+Steganography/FilterATM/FilterATM.h
+Steganography/FilterATM/FilterATMDlg.cpp
+Steganography/FilterATM/FilterATMDlg.h
+Steganography/FilterATM/Stdafx.cpp
+Steganography/FilterATM/Stdafx.h
+Steganography/FilterATM/resource.h
+Steganography/FilterEmbed/ComputeStrengthDlg.cpp
+Steganography/FilterEmbed/ComputeStrengthDlg.h
+Steganography/FilterEmbed/FilterEmbed.cpp
+Steganography/FilterEmbed/FilterEmbed.h
+Steganography/FilterEmbed/FilterEmbedDlg.cpp
+Steganography/FilterEmbed/FilterEmbedDlg.h
+Steganography/FilterEmbed/Stdafx.cpp
+Steganography/FilterEmbed/Stdafx.h
+Steganography/FilterEmbed/resource.h
+Steganography/FilterEnergy/FilterEnergy.cpp
+Steganography/FilterEnergy/FilterEnergy.h
+Steganography/FilterEnergy/FilterEnergyDlg.cpp
+Steganography/FilterEnergy/FilterEnergyDlg.h
+Steganography/FilterEnergy/Stdafx.cpp
+Steganography/FilterEnergy/Stdafx.h
+Steganography/FilterEnergy/resource.h
+Steganography/FilterExport/FilterExport.cpp
+Steganography/FilterExport/FilterExport.h
+Steganography/FilterExport/FilterExportDlg.cpp
+Steganography/FilterExport/FilterExportDlg.h
+Steganography/FilterExport/Resource.h
+Steganography/FilterExport/Stdafx.cpp
+Steganography/FilterExport/Stdafx.h
+Steganography/FilterExtract/ComputeStrengthDlg.cpp
+Steganography/FilterExtract/ComputeStrengthDlg.h
+Steganography/FilterExtract/DisplayResultsDlg.cpp
+Steganography/FilterExtract/DisplayResultsDlg.h
+Steganography/FilterExtract/FilterExtract.cpp
+Steganography/FilterExtract/FilterExtract.h
+Steganography/FilterExtract/FilterExtractDlg.cpp
+Steganography/FilterExtract/FilterExtractDlg.h
+Steganography/FilterExtract/Stdafx.cpp
+Steganography/FilterExtract/Stdafx.h
+Steganography/FilterExtract/resource.h
+Steganography/FilterLevels/DisplayResultsDlg.cpp
+Steganography/FilterLevels/DisplayResultsDlg.h
+Steganography/FilterLevels/FilterLevels.cpp
+Steganography/FilterLevels/FilterLevels.h
+Steganography/FilterLevels/FilterLevelsDlg.cpp
+Steganography/FilterLevels/FilterLevelsDlg.h
+Steganography/FilterLevels/Stdafx.cpp
+Steganography/FilterLevels/Stdafx.h
+Steganography/FilterLevels/resource.h
+Steganography/FilterOrphans/FilterOrphans.cpp
+Steganography/FilterOrphans/FilterOrphans.h
+Steganography/FilterOrphans/FilterOrphansDlg.cpp
+Steganography/FilterOrphans/FilterOrphansDlg.h
+Steganography/FilterOrphans/Stdafx.cpp
+Steganography/FilterOrphans/Stdafx.h
+Steganography/FilterOrphans/resource.h
+Steganography/FilterVariance/FilterVariance.cpp
+Steganography/FilterVariance/FilterVariance.h
+Steganography/FilterVariance/FilterVarianceDlg.cpp
+Steganography/FilterVariance/FilterVarianceDlg.h
+Steganography/FilterVariance/Stdafx.cpp
+Steganography/FilterVariance/Stdafx.h
+Steganography/FilterVariance/resource.h
+Steganography/FilterWavelet/FilterWavelet.cpp
+Steganography/FilterWavelet/FilterWavelet.h
+Steganography/FilterWavelet/FilterWaveletDlg.cpp
+Steganography/FilterWavelet/FilterWaveletDlg.h
+Steganography/FilterWavelet/Stdafx.cpp
+Steganography/FilterWavelet/Stdafx.h
+Steganography/FilterWavelet/resource.h
+Steganography/Filteraw/FilterAWDlg.cpp
+Steganography/Filteraw/FilterAWDlg.h
+Steganography/Filteraw/Filteraw.cpp
+Steganography/Filteraw/Filteraw.h
+Steganography/Filteraw/Stdafx.cpp
+Steganography/Filteraw/Stdafx.h
+Steganography/Filteraw/resource.h
+Steganography/PluginWizard/PluginWizard.cpp
+Steganography/PluginWizard/PluginWizard.h
+Steganography/PluginWizard/PluginWizardDlg.cpp
+Steganography/PluginWizard/PluginWizardDlg.h
+Steganography/PluginWizard/Stdafx.cpp
+Steganography/PluginWizard/Stdafx.h
+Steganography/PluginWizard/resource.h
+Steganography/SSISsimulator/SSISsimulator.cpp
+Steganography/SSISsimulator/SSISsimulator.h
+Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.cpp
+Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.h
+Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.cpp
+Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.h
+Turbo Codes/AnalyseInterleaver/Stdafx.cpp
+Turbo Codes/AnalyseInterleaver/Stdafx.h
+Turbo Codes/AnalyseInterleaver/resource.h
+Turbo Codes/AnnealInterleaver/AnnealInterleaver.cpp
+Turbo Codes/AnnealInterleaver/AnnealInterleaver.h
+Turbo Codes/AnnealInterleaver/AnnealInterleaverDlg.cpp
+Turbo Codes/AnnealInterleaver/AnnealInterleaverDlg.h
+Turbo Codes/AnnealInterleaver/Stdafx.cpp
+Turbo Codes/AnnealInterleaver/Stdafx.h
+Turbo Codes/AnnealInterleaver/resource.h
+Turbo Codes/CSdecode/csdecode.cpp
+Turbo Codes/CSencode/csencode.cpp
+Turbo Codes/CSfullcycle/csfullcycle.cpp
+Turbo Codes/CStransmit/cstransmit.cpp
+Turbo Codes/Makefile
+Turbo Codes/SPECturbo/SPECturbo.cpp
+Turbo Codes/SRandomInterleaver/SRandomInterleaver.cpp
+Turbo Codes/SRandomInterleaver/SRandomInterleaver.h
+Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.cpp
+Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.h
+Turbo Codes/SRandomInterleaver/Stdafx.cpp
+Turbo Codes/SRandomInterleaver/Stdafx.h
+Turbo Codes/SRandomInterleaver/resource.h
+Turbo Codes/ShowErrorEvent/showerrorevent.cpp
+Turbo Codes/SimCommsys/simcommsys.cpp
+Turbo Codes/Source/SPECturbo.cpp
+Turbo Codes/Source/csdecode.cpp
+Turbo Codes/Source/csencode.cpp
+Turbo Codes/Source/csfullcycle.cpp
+Turbo Codes/Source/cstransmit.cpp
+Turbo Codes/Source/showerrorevent.cpp
+Turbo Codes/Source/simcommsys.cpp
+Turbo Codes/Source/testbsid.cpp
+Turbo Codes/Source/testconfig.cpp
+Turbo Codes/Source/testgf.cpp
+Turbo Codes/Source/testgrscc.cpp
+Turbo Codes/Source/testmodem.cpp
+Turbo Codes/Source/testqsc.cpp
+Turbo Codes/Source/testwatermark.cpp
+Turbo Codes/Source/testwmdemodulation.cpp
+Turbo Codes/TestBSID/testbsid.cpp
+Turbo Codes/TestConfig/testconfig.cpp
+Turbo Codes/TestGF/testgf.cpp
+Turbo Codes/TestGRSCC/testgrscc.cpp
+Turbo Codes/TestModem/testmodem.cpp
+Turbo Codes/TestQSC/testqsc.cpp
+Turbo Codes/TestWMdemodulation/testwmdemodulation.cpp
+Turbo Codes/TestWatermark/testwatermark.cpp
