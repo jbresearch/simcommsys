@@ -87,12 +87,12 @@ void uncoded::translate(const array2d_t& ptable)
          }
    }
 
-void uncoded::decode(array2d_t& ri)
+void uncoded::softdecode(array2d_t& ri)
    {
    ri = R;
    }
 
-void uncoded::decode(array2d_t& ri, array2d_t& ro)
+void uncoded::softdecode(array2d_t& ri, array2d_t& ro)
    {
    assertalways("Not yet implemented");
    }

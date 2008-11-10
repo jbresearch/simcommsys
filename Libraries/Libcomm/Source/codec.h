@@ -27,6 +27,7 @@ namespace libcomm {
          class from the modulation class.
 */
 
+template <template<class> class C=libbase::vector>
 class codec {
 public:
    /*! \name Constructors / Destructors */
@@ -46,7 +47,7 @@ public:
             aggregation of a set of symbols, the combination/division has to
             be done externally.
    */
-   virtual void encode(const libbase::vector<int>& source, libbase::vector<int>& encoded) = 0;
+   virtual void encode(const C<int>& source, C<int>& encoded) = 0;
    /*!
       \brief Receiver translation process
       \param[in] ptable Likelihoods of each possible modulation symbol at every
@@ -61,7 +62,7 @@ public:
             correspond to the number of encoder output symbols, and therefore
             the number of modulation timesteps may be different from tau.
    */
-   virtual void translate(const libbase::vector< libbase::vector<double> >& ptable) = 0;
+   virtual void translate(const C< libbase::vector<double> >& ptable) = 0;
    /*!
       \brief Decoding process
       \param[out] decoded Most likely sequence of information symbols, one per timestep
@@ -71,7 +72,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::vector<int>& decoded) = 0;
+   virtual void decode(C<int>& decoded) = 0;
    // @}
 
    /*! \name Codec information functions - fundamental */

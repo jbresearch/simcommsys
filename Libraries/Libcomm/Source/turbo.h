@@ -130,8 +130,8 @@ public:
    void seedfrom(libbase::random& r);
    void encode(const array1i_t& source, array1i_t& encoded);
    void translate(const libbase::vector< libbase::vector<double> >& ptable);
-   void decode(array_pvec_t& ri);
-   void decode(array_pvec_t& ri, array_pvec_t& ro);
+   void softdecode(array_pvec_t& ri);
+   void softdecode(array_pvec_t& ri, array_pvec_t& ro);
 
    // Codec information functions - fundamental
    int input_block_size() const { return endatzero ? tau-encoder->mem_order() : tau; };

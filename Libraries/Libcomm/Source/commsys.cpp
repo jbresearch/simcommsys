@@ -33,8 +33,8 @@ namespace libcomm {
          should get done automatically when the base serializer or
          constructor is called.
 */
-template <class S>
-void basic_commsys<S>::init()
+template <class S, template<class> class C>
+void basic_commsys<S,C>::init()
    {
    M = mdm->num_symbols();
    N = cdc->num_outputs();
@@ -58,8 +58,8 @@ void basic_commsys<S>::init()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S>
-void basic_commsys<S>::clear()
+template <class S, template<class> class C>
+void basic_commsys<S,C>::clear()
    {
    cdc = NULL;
    map = NULL;
@@ -80,8 +80,8 @@ void basic_commsys<S>::clear()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S>
-void basic_commsys<S>::free()
+template <class S, template<class> class C>
+void basic_commsys<S,C>::free()
    {
    if(internallyallocated)
       {
@@ -102,13 +102,13 @@ void basic_commsys<S>::free()
 
    Initializes system with bound objects as supplied by user.
 */
-template <class S>
-basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan)
+template <class S, template<class> class C>
+basic_commsys<S,C>::basic_commsys(codec<C> *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan)
    {
-   basic_commsys<S>::cdc = cdc;
-   basic_commsys<S>::map = map;
-   basic_commsys<S>::mdm = mdm;
-   basic_commsys<S>::chan = chan;
+   basic_commsys<S,C>::cdc = cdc;
+   basic_commsys<S,C>::map = map;
+   basic_commsys<S,C>::mdm = mdm;
+   basic_commsys<S,C>::chan = chan;
    internallyallocated = false;
    init();
    }
@@ -121,21 +121,21 @@ basic_commsys<S>::basic_commsys(codec *cdc, mapper *map, blockmodem<S> *mdm, cha
    \todo Fix cast when cloning channel: this should not be necessary.
    \todo Fix cast when cloning modem: this should not be necessary.
 */
-template <class S>
-basic_commsys<S>::basic_commsys(const basic_commsys<S>& c)
+template <class S, template<class> class C>
+basic_commsys<S,C>::basic_commsys(const basic_commsys<S,C>& c)
    {
-   basic_commsys<S>::cdc = c.cdc->clone();
-   basic_commsys<S>::map = c.map->clone();
-   basic_commsys<S>::mdm = (blockmodem<S> *)c.mdm->clone();
-   basic_commsys<S>::chan = (channel<S> *)c.chan->clone();
+   basic_commsys<S,C>::cdc = c.cdc->clone();
+   basic_commsys<S,C>::map = c.map->clone();
+   basic_commsys<S,C>::mdm = (blockmodem<S> *)c.mdm->clone();
+   basic_commsys<S,C>::chan = (channel<S> *)c.chan->clone();
    internallyallocated = true;
    init();
    }
 
 // Communication System Setup
 
-template <class S>
-void basic_commsys<S>::seedfrom(libbase::random& r)
+template <class S, template<class> class C>
+void basic_commsys<S,C>::seedfrom(libbase::random& r)
    {
    cdc->seedfrom(r);
    map->seedfrom(r);
@@ -161,8 +161,8 @@ void basic_commsys<S>::seedfrom(libbase::random& r)
    }
    \enddot
 */
-template <class S>
-libbase::vector<S> basic_commsys<S>::encode(const libbase::vector<int>& source)
+template <class S, template<class> class C>
+libbase::vector<S> basic_commsys<S,C>::encode(const libbase::vector<int>& source)
    {
    // Encode
    libbase::vector<int> encoded;
@@ -192,8 +192,8 @@ libbase::vector<S> basic_commsys<S>::encode(const libbase::vector<int>& source)
    }
    \enddot
 */
-template <class S>
-void basic_commsys<S>::translate(const libbase::vector<S>& received)
+template <class S, template<class> class C>
+void basic_commsys<S,C>::translate(const libbase::vector<S>& received)
    {
    // Demodulate
    libbase::vector< libbase::vector<double> > ptable_mapped;
@@ -227,8 +227,8 @@ void basic_commsys<S>::translate(const libbase::vector<S>& received)
    }
    \enddot
 */
-template <class S>
-void basic_commsys<S>::transmitandreceive(const libbase::vector<int>& source)
+template <class S, template<class> class C>
+void basic_commsys<S,C>::transmitandreceive(const libbase::vector<int>& source)
    {
    // Encode -> Map -> Modulate
    libbase::vector<S> transmitted = encode(source);
@@ -241,8 +241,8 @@ void basic_commsys<S>::transmitandreceive(const libbase::vector<int>& source)
 
 // Description & Serialization
 
-template <class S>
-std::string basic_commsys<S>::description() const
+template <class S, template<class> class C>
+std::string basic_commsys<S,C>::description() const
    {
    std::ostringstream sout;
    sout << "Communication System: ";
@@ -253,8 +253,8 @@ std::string basic_commsys<S>::description() const
    return sout.str();
    }
 
-template <class S>
-std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
+template <class S, template<class> class C>
+std::ostream& basic_commsys<S,C>::serialize(std::ostream& sout) const
    {
    sout << chan;
    sout << mdm;
@@ -263,8 +263,8 @@ std::ostream& basic_commsys<S>::serialize(std::ostream& sout) const
    return sout;
    }
 
-template <class S>
-std::istream& basic_commsys<S>::serialize(std::istream& sin)
+template <class S, template<class> class C>
+std::istream& basic_commsys<S,C>::serialize(std::istream& sin)
    {
    free();
    sin >> chan;
@@ -296,16 +296,16 @@ template class basic_commsys<sigspace>;
 
 // Serialization Support
 
-template <class S>
-std::ostream& commsys<S>::serialize(std::ostream& sout) const
+template <class S, template<class> class C>
+std::ostream& commsys<S,C>::serialize(std::ostream& sout) const
    {
-   return basic_commsys<S>::serialize(sout);
+   return basic_commsys<S,C>::serialize(sout);
    }
 
-template <class S>
-std::istream& commsys<S>::serialize(std::istream& sin)
+template <class S, template<class> class C>
+std::istream& commsys<S,C>::serialize(std::istream& sin)
    {
-   return basic_commsys<S>::serialize(sin);
+   return basic_commsys<S,C>::serialize(sin);
    }
 
 // Explicit Realizations
@@ -341,31 +341,34 @@ const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("commsys", "co
    - Average energy per uncoded bit in the modulation scheme
 */
 
-void commsys<sigspace>::init()
+template <template<class> class C>
+void commsys<sigspace,C>::init()
    {
    // set up channel energy/bit (Eb)
-   libbase::trace << "DEBUG: overall code rate = " << rate() << "\n";
-   this->chan->set_eb(this->mdm->bit_energy() / rate());
+   libbase::trace << "DEBUG: overall code rate = " << this->rate() << "\n";
+   this->chan->set_eb(this->mdm->bit_energy() / this->rate());
    }
 
 // Serialization Support
 
-std::ostream& commsys<sigspace>::serialize(std::ostream& sout) const
+template <template<class> class C>
+std::ostream& commsys<sigspace,C>::serialize(std::ostream& sout) const
    {
-   return basic_commsys<sigspace>::serialize(sout);
+   return basic_commsys<sigspace,C>::serialize(sout);
    }
 
-std::istream& commsys<sigspace>::serialize(std::istream& sin)
+template <template<class> class C>
+std::istream& commsys<sigspace,C>::serialize(std::istream& sin)
    {
-   basic_commsys<sigspace>::serialize(sin);
+   basic_commsys<sigspace,C>::serialize(sin);
    init();
    return sin;
    }
 
 // Explicit Realizations
 
-//template class commsys<sigspace>;
-//template <>
+template class commsys<sigspace>;
+template <>
 const libbase::serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
 
 }; // end namespace

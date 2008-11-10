@@ -126,7 +126,7 @@ void mapcc<real>::translate(const array2d_t& ptable)
    }
 
 template <class real>
-void mapcc<real>::decode(array2d_t& ri)
+void mapcc<real>::softdecode(array2d_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif;
@@ -142,7 +142,7 @@ void mapcc<real>::decode(array2d_t& ri)
    }
 
 template <class real>
-void mapcc<real>::decode(array2d_t& ri, array2d_t& ro)
+void mapcc<real>::softdecode(array2d_t& ri, array2d_t& ro)
    {
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif, rof;

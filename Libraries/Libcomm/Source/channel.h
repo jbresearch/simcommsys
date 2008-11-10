@@ -144,7 +144,7 @@ class basic_channel : public basic_channel_interface<S,C> {
 };
 
 /*!
-   \brief   Common Channel Base.
+   \brief   Common Channel Base Specialization.
    \author  Johann Briffa
 
    \par Version Control:

@@ -454,7 +454,7 @@ void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(array_pvec_t& ri)
+void turbo<real,dbl>::softdecode(array_pvec_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
    array2d_t rif;
@@ -473,7 +473,7 @@ void turbo<real,dbl>::decode(array_pvec_t& ri)
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::decode(array_pvec_t& ri, array_pvec_t& ro)
+void turbo<real,dbl>::softdecode(array_pvec_t& ri, array_pvec_t& ro)
    {
    assertalways("Not yet implemented");
    }

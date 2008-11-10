@@ -55,8 +55,8 @@ public:
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
    void translate(const array2d_t& ptable);
-   void decode(array2d_t& ri);
-   void decode(array2d_t& ri, array2d_t& ro);
+   void softdecode(array2d_t& ri);
+   void softdecode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
    int input_block_size() const { return tau; };

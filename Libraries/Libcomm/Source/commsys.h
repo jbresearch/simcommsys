@@ -25,15 +25,15 @@ namespace libcomm {
    - Explicit instantiations for bool and gf types are present.
 */
 
-template <class S>
+template <class S, template<class> class C=libbase::vector>
 class basic_commsys {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
    bool  internallyallocated;
-   codec          *cdc;    //!< Error-control codec
+   codec<C>       *cdc;    //!< Error-control codec
    mapper         *map;    //!< Symbol-mapper (encoded output to transmitted symbols)
-   blockmodem<S>   *mdm;  //!< Modulation scheme
+   blockmodem<S>  *mdm;  //!< Modulation scheme
    channel<S>     *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
@@ -51,8 +51,8 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(codec *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan);
-   basic_commsys(const basic_commsys<S>& c);
+   basic_commsys(codec<C> *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan);
+   basic_commsys(const basic_commsys<S,C>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };
    // @}
@@ -60,7 +60,7 @@ public:
    /*! \name Communication System Setup */
    virtual void seedfrom(libbase::random& r);
    //! Get error-control codec
-   codec *getcodec() const { return cdc; };
+   codec<C> *getcodec() const { return cdc; };
    //! Get symbol mapper
    mapper *getmapper() const { return map; };
    //! Get modulation scheme
@@ -105,8 +105,8 @@ public:
    General templated commsys, directly derived from common base.
 */
 
-template <class S>
-class commsys : public basic_commsys<S> {
+template <class S, template<class> class C=libbase::vector>
+class commsys : public basic_commsys<S,C> {
 public:
    // Serialization Support
    DECLARE_CONCRETE_BASE_SERIALIZER(commsys);
@@ -135,8 +135,8 @@ public:
          current input files, the flag is assumed to be false (with no error)
          if we have reached the end of the stream.
 */
-template <>
-class commsys<sigspace> : public basic_commsys<sigspace> {
+template <template<class> class C>
+class commsys<sigspace,C> : public basic_commsys<sigspace,C> {
 protected:
    /*! \name Setup functions */
    void init();

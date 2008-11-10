@@ -7,7 +7,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Channel Codec with Soft Output.
+   \brief   Channel Codec with Soft Output Interface.
    \author  Johann Briffa
 
    \par Version Control:
@@ -16,11 +16,10 @@ namespace libcomm {
    - $Author$
 */
 
-template <class dbl>
-class codec_softout : public codec {
+template <class dbl, template<class> class C=libbase::vector>
+class codec_softout_interface : public codec<C> {
 public:
    /*! \name Codec operations */
-   void decode(libbase::vector<int>& decoded);
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -28,7 +27,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::vector< libbase::vector<dbl> >& ri) = 0;
+   virtual void softdecode(C< libbase::vector<dbl> >& ri) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -37,8 +36,46 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void decode(libbase::vector< libbase::vector<dbl> >& ri, libbase::vector< libbase::vector<dbl> >& ro) = 0;
+   virtual void softdecode(C< libbase::vector<dbl> >& ri, C< libbase::vector<dbl> >& ro) = 0;
    // @}
+};
+
+/*!
+   \brief   Channel Codec with Soft Output Base.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Templated soft-output codec base. This extra level is required to allow
+   partial specialization of the container.
+*/
+
+template <class dbl, template<class> class C=libbase::vector>
+class codec_softout : public codec_softout_interface<dbl,C> {
+public:
+};
+
+/*!
+   \brief   Channel Codec with Soft Output Base Specialization.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Templated soft-output codec base. This extra level is required to allow
+   partial specialization of the container.
+*/
+
+template <class dbl>
+class codec_softout<dbl,libbase::vector> : public codec_softout_interface<dbl,libbase::vector> {
+public:
+   // Codec operations
+   void decode(libbase::vector<int>& decoded);
 
    /*! \name Codec helper functions */
    /*!

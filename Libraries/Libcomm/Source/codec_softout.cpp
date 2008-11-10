@@ -12,15 +12,15 @@
 namespace libcomm {
 
 template <class dbl>
-void codec_softout<dbl>::decode(libbase::vector<int>& decoded)
+void codec_softout<dbl,libbase::vector>::decode(libbase::vector<int>& decoded)
    {
    libbase::vector< libbase::vector<dbl> > ri;
-   decode(ri);
+   softdecode(ri);
    hard_decision(ri, decoded);
    }
 
 template <class dbl>
-void codec_softout<dbl>::hard_decision(const libbase::vector< libbase::vector<dbl> >& ri, libbase::vector<int>& decoded)
+void codec_softout<dbl,libbase::vector>::hard_decision(const libbase::vector< libbase::vector<dbl> >& ri, libbase::vector<int>& decoded)
    {
    // Determine sizes from input matrix
    const int tau = ri.size();

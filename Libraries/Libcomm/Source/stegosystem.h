@@ -72,7 +72,7 @@ class stegosystem
 {
 private:
    const serializer_libcomm m_serializer_libcomm;
-   codec*            m_pCodec;
+   codec<libbase::vector>*            m_pCodec;
 
 public:
    // creation/destruction
