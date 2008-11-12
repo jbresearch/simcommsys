@@ -74,10 +74,10 @@ template <class real, class dbl=double>
 class turbo : public codec_softout<dbl>, private bcjr<real,dbl> {
 private:
    /*! \name Internally-used types */
-   typedef libbase::vector<int>     array1i_t;
-   typedef libbase::vector<dbl>     array1d_t;
-   typedef libbase::matrix<dbl>     array2d_t;
-   typedef libbase::vector< libbase::vector<dbl> >     array_pvec_t;
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<dbl>        array1d_t;
+   typedef libbase::matrix<dbl>        array2d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
    /*! \name User-defined parameters */
@@ -130,8 +130,8 @@ public:
    void seedfrom(libbase::random& r);
    void encode(const array1i_t& source, array1i_t& encoded);
    void translate(const libbase::vector< libbase::vector<double> >& ptable);
-   void softdecode(array_pvec_t& ri);
-   void softdecode(array_pvec_t& ri, array_pvec_t& ro);
+   void softdecode(array1vd_t& ri);
+   void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
    int input_block_size() const { return endatzero ? tau-encoder->mem_order() : tau; };
