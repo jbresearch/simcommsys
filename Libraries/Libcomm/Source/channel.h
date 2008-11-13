@@ -39,6 +39,10 @@ namespace libcomm {
 
 template <class S, template<class> class C>
 class basic_channel_interface : public parametric {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<double>     array1d_t;
+   // @}
 protected:
    /*! \name Derived channel representation */
    libbase::randgen  r;
@@ -97,7 +101,7 @@ public:
 
       \callergraph
    */
-   virtual void receive(const C<S>& tx, const C<S>& rx, C< libbase::vector<double> >& ptable) const = 0;
+   virtual void receive(const C<S>& tx, const C<S>& rx, C<array1d_t>& ptable) const = 0;
    /*!
       \brief Determine the likelihood of a sequence of received modulation
              symbols, given a particular transmitted sequence
@@ -158,16 +162,22 @@ class basic_channel : public basic_channel_interface<S,C> {
 template <class S>
 class basic_channel<S,libbase::vector> : public basic_channel_interface<S,libbase::vector> {
 public:
-   void transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx);
-   void receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable) const;
-   double receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const;
-   double receive(const S& tx, const libbase::vector<S>& rx) const;
+   /*! \name Type definitions */
+   typedef libbase::vector<S>          array1s_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   // @}
+public:
+   void transmit(const array1s_t& tx, array1s_t& rx);
+   void receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
+   double receive(const array1s_t& tx, const array1s_t& rx) const;
+   double receive(const S& tx, const array1s_t& rx) const;
 };
 
 // channel functions
 
 template <class S>
-void basic_channel<S,libbase::vector>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
+void basic_channel<S,libbase::vector>::transmit(const array1s_t& tx, array1s_t& rx)
    {
    // Initialize results vector
    rx.init(tx);
@@ -177,7 +187,7 @@ void basic_channel<S,libbase::vector>::transmit(const libbase::vector<S>& tx, li
    }
 
 template <class S>
-void basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable) const
+void basic_channel<S,libbase::vector>::receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const
    {
    // Compute sizes
    const int tau = rx.size();
@@ -193,7 +203,7 @@ void basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, con
    }
 
 template <class S>
-double basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, const libbase::vector<S>& rx) const
+double basic_channel<S,libbase::vector>::receive(const array1s_t& tx, const array1s_t& rx) const
    {
    // Compute sizes
    const int tau = rx.size();
@@ -207,7 +217,7 @@ double basic_channel<S,libbase::vector>::receive(const libbase::vector<S>& tx, c
    }
 
 template <class S>
-double basic_channel<S,libbase::vector>::receive(const S& tx, const libbase::vector<S>& rx) const
+double basic_channel<S,libbase::vector>::receive(const S& tx, const array1s_t& rx) const
    {
    // This implementation only works for substitution channels
    assert(rx.size() == 1);
