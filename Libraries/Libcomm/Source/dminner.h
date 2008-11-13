@@ -48,11 +48,12 @@ class dminner :
    friend class dminner2<real,normalize>;
 private:
    /*! \name Internally-used types */
-   typedef libbase::vector<int>     array1i_t;
-   typedef libbase::vector<bool>    array1b_t;
-   typedef libbase::vector< libbase::vector<double> > array2d_t;
-   typedef libbase::vector< libbase::vector<real> >   array2r_t;
-   typedef boost::assignable_multi_array<double,1> array1d_t;
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<bool>       array1b_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<real>       array1r_t;
+   typedef libbase::vector<array1d_t>  array2d_t;
+   typedef libbase::vector<array1r_t>  array2r_t;
    enum lut_t { lut_straight=0, lut_user };
    // @}
 private:
