@@ -46,8 +46,8 @@ class dminner :
    public parametric,
    private fba<real,bool,normalize> {
    friend class dminner2<real,normalize>;
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
    typedef libbase::vector<bool>       array1b_t;
    typedef libbase::vector<double>     array1d_t;

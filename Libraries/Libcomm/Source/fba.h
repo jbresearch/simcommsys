@@ -26,7 +26,7 @@ namespace libcomm {
    Implements Forward-Backward Algorithm for a HMM. This is based on the
    paper by Davey & McKay, "Watermark Codes: Reliable communication over
    Insertion/Deletion channels", Trans. IT, 47(2), Feb 2001.
-   
+
    Algorithm is implemented on a single block; in the case of Davey's
    Watermark codes, each block is N elements of n-bit in length, and is the
    size of the sparsifier's output for a single LDPC codeword. Typical values
@@ -43,8 +43,8 @@ namespace libcomm {
 
 template <class real, class sig, bool normalize>
 class fba {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
    typedef boost::assignable_multi_array<real,2> array2r_t;
    // @}

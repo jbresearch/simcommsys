@@ -72,8 +72,8 @@ namespace libcomm {
 
 template <class real, class dbl=double>
 class turbo : public codec_softout<dbl>, private bcjr<real,dbl> {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
    typedef libbase::vector<dbl>        array1d_t;
    typedef libbase::matrix<dbl>        array2d_t;

@@ -49,8 +49,8 @@ namespace libcomm {
 
 template <class real, class dbl=double>
 class bcjr {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::matrix<int>     array2i_t;
    typedef libbase::vector<dbl>     array1d_t;
    typedef libbase::matrix<dbl>     array2d_t;

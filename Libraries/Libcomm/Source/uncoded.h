@@ -23,8 +23,8 @@ namespace libcomm {
 */
 
 class uncoded : public codec_softout<double> {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<int>     array1i_t;
    typedef libbase::vector< libbase::vector<double> >  array2d_t;
    // @}

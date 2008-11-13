@@ -21,8 +21,8 @@ namespace libcomm {
 */
 
 class bsid : public channel<bool> {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef boost::assignable_multi_array<double,2> array2d_t;
    // @}
 private:

@@ -27,8 +27,8 @@ namespace libcomm {
 
 template <class real>
 class mapcc : public codec_softout<double>, private bcjr<real> {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<int>     array1i_t;
    typedef libbase::vector< libbase::vector<double> >  array2d_t;
    // @}

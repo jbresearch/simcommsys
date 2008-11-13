@@ -24,8 +24,8 @@ namespace libcomm {
 
 template <class real, bool normalize>
 class dminner2 : public dminner<real,normalize>, private fba2<real,bool,normalize> {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<bool>       array1b_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::vector<real>       array1r_t;

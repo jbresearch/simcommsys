@@ -30,8 +30,8 @@ namespace libcomm {
 
 template <class real, class sig, bool normalize>
 class fba2 {
-private:
-   /*! \name Internally-used types */
+public:
+   /*! \name Type definitions */
    typedef libbase::vector<sig>     array1s_t;
    typedef libbase::vector< libbase::vector<double> > array2d_t;
    typedef libbase::vector< libbase::vector<real> >   array2r_old_t;
