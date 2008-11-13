@@ -26,9 +26,11 @@ template <class real, bool normalize>
 class dminner2 : public dminner<real,normalize>, private fba2<real,bool,normalize> {
 private:
    /*! \name Internally-used types */
-   typedef libbase::vector<bool>    array1b_t;
-   typedef libbase::vector< libbase::vector<double> >  array2d_t;
-   typedef libbase::vector< libbase::vector<real> >    array2r_t;
+   typedef libbase::vector<bool>       array1b_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<real>       array1r_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::vector<array1r_t>  array1vr_t;
    // @}
 private:
    // Implementations of channel-specific metrics for fba2
@@ -37,8 +39,8 @@ private:
    void init(const channel<bool>& chan);
 protected:
    // Interface with derived classes
-   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
-   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
    dminner2(const int n=2, const int k=1)

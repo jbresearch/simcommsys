@@ -67,7 +67,7 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const
+void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const
    {
    libbase::pacifier progress("FBA Results");
    // determine limits
@@ -136,7 +136,7 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array2r_t& ptable
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::normalize_results(const array2r_t& in, array2d_t& out) const
+void dminner<real,normalize>::normalize_results(const array1vr_t& in, array1vd_t& out) const
    {
    const int N = in.size();
    assert(N > 0);
@@ -288,7 +288,7 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
+void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
    {
    // Inherit sizes
    const int N = this->input_block_size();
@@ -315,13 +315,13 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
    // Set block size for results-computation pass to q-ary symbol size
    mychan.set_blocksize(n);
    // Compute and normalize results
-   array2r_t p;
+   array1vr_t p;
    work_results(rx,p,xmax,dxmax,I);
    normalize_results(p,ptable);
    }
 
 template <class real, bool normalize>
-void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
+void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    // Apply standard demodulation
    dminner<real,normalize>::dodemodulate(chan, rx, ptable);

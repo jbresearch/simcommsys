@@ -59,19 +59,19 @@ void dminner2<real,normalize>::init(const channel<bool>& chan)
 // encoding and decoding functions
 
 template <class real, bool normalize>
-void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable)
+void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
    {
    init(chan);
-   array2r_t p;
+   array1vr_t p;
    fba2<real,bool,normalize>::decode(rx,p);
    dminner<real,normalize>::normalize_results(p,ptable);
    }
 
 template <class real, bool normalize>
-void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable)
+void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    init(chan);
-   array2r_t p;
+   array1vr_t p;
    fba2<real,bool,normalize>::decode(rx,app,p);
    dminner<real,normalize>::normalize_results(p,ptable);
    }

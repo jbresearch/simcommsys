@@ -52,8 +52,8 @@ private:
    typedef libbase::vector<bool>       array1b_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::vector<real>       array1r_t;
-   typedef libbase::vector<array1d_t>  array2d_t;
-   typedef libbase::vector<array1r_t>  array2r_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::vector<array1r_t>  array1vr_t;
    enum lut_t { lut_straight=0, lut_user };
    // @}
 private:
@@ -80,8 +80,8 @@ private:
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
    void checkforchanges(int I, int xmax) const;
-   void work_results(const array1b_t& r, array2r_t& ptable, const int xmax, const int dxmax, const int I) const;
-   void normalize_results(const array2r_t& in, array2d_t& out) const;
+   void work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const;
+   void normalize_results(const array1vr_t& in, array1vd_t& out) const;
    // @}
    // Implementations of channel-specific metrics for fba
    real R(const int i, const array1b_t& r);
@@ -96,8 +96,8 @@ protected:
    // Interface with derived classes
    void advance() const;
    void domodulate(const int N, const array1i_t& encoded, array1b_t& tx);
-   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array2d_t& ptable);
-   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array2d_t& app, array2d_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable);
 
 protected:
    /*! \name Internal functions */
