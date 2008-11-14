@@ -19,6 +19,10 @@ namespace libcomm {
 template <class dbl, template<class> class C=libbase::vector>
 class codec_softout_interface : public codec<C> {
 public:
+   /*! \name Type definitions */
+   typedef libbase::vector<dbl>     array1d_t;
+   // @}
+public:
    /*! \name Codec operations */
    /*!
       \brief Decoding process
@@ -27,7 +31,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void softdecode(C< libbase::vector<dbl> >& ri) = 0;
+   virtual void softdecode(C<array1d_t>& ri) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -36,7 +40,7 @@ public:
       \note Each call to decode will perform a single iteration (with respect
             to num_iter).
    */
-   virtual void softdecode(C< libbase::vector<dbl> >& ri, C< libbase::vector<dbl> >& ro) = 0;
+   virtual void softdecode(C<array1d_t>& ri, C<array1d_t>& ro) = 0;
    // @}
 };
 
@@ -74,8 +78,14 @@ public:
 template <class dbl>
 class codec_softout<dbl,libbase::vector> : public codec_softout_interface<dbl,libbase::vector> {
 public:
+   /*! \name Type definitions */
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<dbl>        array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   // @}
+public:
    // Codec operations
-   void decode(libbase::vector<int>& decoded);
+   void decode(array1i_t& decoded);
 
    /*! \name Codec helper functions */
    /*!
@@ -86,7 +96,7 @@ public:
 
       Decide which input sequence was most probable.
    */
-   static void hard_decision(const libbase::vector< libbase::vector<dbl> >& ri, libbase::vector<int>& decoded);
+   static void hard_decision(const array1vd_t& ri, array1i_t& decoded);
    // @}
 };
 
