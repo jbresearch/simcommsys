@@ -30,8 +30,9 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
    r.seed(0);
    system->seedfrom(r);
    // Repeat until end of stream
-   while(!sin.eof())
+   for(int j=0; !sin.eof(); j++)
       {
+      std::cerr << "Processing block " << j << "...\n";
       libbase::vector<int> source(system->input_block_size());
       source.serialize(sin);
       libbase::vector<S> transmitted = system->encode(source);
@@ -56,6 +57,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
          decoded.serialize(sout, '\n');
          }
       libbase::eatwhite(sin);
+      std::cerr << "Block " << j << " done.\n";
       }
    }
 
