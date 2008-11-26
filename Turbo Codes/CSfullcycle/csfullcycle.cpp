@@ -32,13 +32,17 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
    // Repeat until end of stream
    for(int j=0; !sin.eof(); j++)
       {
-      std::cerr << "Processing block " << j << "...\n";
+      std::cerr << "Processing block " << j << ".";
       libbase::vector<int> source(system->input_block_size());
       source.serialize(sin);
+      std::cerr << ".";
       libbase::vector<S> transmitted = system->encode(source);
+      std::cerr << ".";
       libbase::vector<S> received;
       system->getchan()->transmit(transmitted, received);
+      std::cerr << ".";
       system->translate(received);
+      std::cerr << ".";
       if(soft)
          {
          libcomm::codec_softout<double>& cdc =
@@ -46,6 +50,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
          libbase::vector< libbase::vector<double> > ptable;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             cdc.softdecode(ptable);
+         std::cerr << ".";
          for(int i=0; i<ptable.size(); i++)
             ptable(i).serialize(sout);
          }
@@ -54,10 +59,11 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
          libbase::vector<int> decoded;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             system->getcodec()->decode(decoded);
+         std::cerr << ".";
          decoded.serialize(sout, '\n');
          }
       libbase::eatwhite(sin);
-      std::cerr << "Block " << j << " done.\n";
+      std::cerr << "done.\n";
       }
    }
 
