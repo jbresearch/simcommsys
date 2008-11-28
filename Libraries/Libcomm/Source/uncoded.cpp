@@ -64,7 +64,7 @@ void uncoded::encode(const array1i_t& source, array1i_t& encoded)
       }
    }
 
-void uncoded::translate(const array2d_t& ptable)
+void uncoded::translate(const array1vd_t& ptable)
    {
    // Compute factors / sizes & check validity
    assertalways(ptable.size() > 0);
@@ -76,23 +76,25 @@ void uncoded::translate(const array2d_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == tau*s);
    // Initialize results vector
-   R.init(tau, num_inputs());
+   R.init(tau);
+   for(int t=0; t<tau; t++)
+      R(t).init(num_inputs());
    // Work out the probabilities of each possible input
    for(int t=0; t<tau; t++)
       for(int x=0; x<num_inputs(); x++)
          {
-         R(t, x) = 1;
+         R(t)(x) = 1;
          for(int i=0, thisx = lut(x); i<s; i++, thisx /= S)
-            R(t, x) *= ptable(t*s+i)(thisx % S);
+            R(t)(x) *= ptable(t*s+i)(thisx % S);
          }
    }
 
-void uncoded::softdecode(array2d_t& ri)
+void uncoded::softdecode(array1vd_t& ri)
    {
    ri = R;
    }
 
-void uncoded::softdecode(array2d_t& ri, array2d_t& ro)
+void uncoded::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    assertalways("Not yet implemented");
    }

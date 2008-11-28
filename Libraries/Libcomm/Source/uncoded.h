@@ -25,8 +25,9 @@ namespace libcomm {
 class uncoded : public codec_softout<double> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<int>     array1i_t;
-   typedef libbase::vector< libbase::vector<double> >  array2d_t;
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
    /*! \name User-specified parameters */
@@ -35,7 +36,7 @@ private:
    // @}
    /*! \name Computed parameters */
    array1i_t lut;
-   libbase::matrix<double> R;
+   array1vd_t R;
    // @}
 protected:
    /*! \name Internal functions */
@@ -54,9 +55,9 @@ public:
 
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const array2d_t& ptable);
-   void softdecode(array2d_t& ri);
-   void softdecode(array2d_t& ri, array2d_t& ro);
+   void translate(const array1vd_t& ptable);
+   void softdecode(array1vd_t& ri);
+   void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
    int input_block_size() const { return tau; };
