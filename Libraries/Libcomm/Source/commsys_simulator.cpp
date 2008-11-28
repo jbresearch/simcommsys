@@ -30,19 +30,6 @@ namespace libcomm {
 // Setup functions
 
 /*!
-   \brief Initialize internal computed parameters
-
-   \note This function is only responsible for initializing parameters
-         that are specific to this object/derivation. Anything else
-         should get done automatically when the base serializer or
-         constructor is called.
-*/
-template <class S, class R>
-void basic_commsys_simulator<S,R>::init()
-   {
-   }
-
-/*!
    \brief Sets up system with no bound objects.
 
    \note This function is only responsible for clearing pointers to
@@ -153,7 +140,6 @@ basic_commsys_simulator<S,R>::basic_commsys_simulator(libbase::randgen *src, com
    basic_commsys_simulator<S,R>::src = src;
    basic_commsys_simulator<S,R>::sys = sys;
    internallyallocated = false;
-   init();
    }
 
 /*!
@@ -170,7 +156,6 @@ basic_commsys_simulator<S,R>::basic_commsys_simulator(const basic_commsys_simula
    basic_commsys_simulator<S,R>::src = new libbase::randgen;
    basic_commsys_simulator<S,R>::sys = (commsys<S> *)c.sys->clone();
    internallyallocated = true;
-   init();
    }
 
 // Experiment parameter handling
@@ -219,7 +204,6 @@ std::istream& basic_commsys_simulator<S,R>::serialize(std::istream& sin)
    src = new libbase::randgen;
    sin >> sys;
    internallyallocated = true;
-   init();
    return sin;
    }
 

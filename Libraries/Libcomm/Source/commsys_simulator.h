@@ -35,7 +35,6 @@ protected:
    // @}
 protected:
    /*! \name Setup functions */
-   void init();
    void clear();
    void free();
    // @}
