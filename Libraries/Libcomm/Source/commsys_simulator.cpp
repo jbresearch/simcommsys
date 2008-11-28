@@ -38,7 +38,7 @@ namespace libcomm {
          serializer or constructor is called.
 */
 template <class S, class R>
-void basic_commsys_simulator<S,R>::clear()
+void commsys_simulator<S,R>::clear()
    {
    src = NULL;
    sys = NULL;
@@ -58,7 +58,7 @@ void basic_commsys_simulator<S,R>::clear()
          serializer or constructor is called.
 */
 template <class S, class R>
-void basic_commsys_simulator<S,R>::free()
+void commsys_simulator<S,R>::free()
    {
    if(internallyallocated)
       {
@@ -78,7 +78,7 @@ void basic_commsys_simulator<S,R>::free()
    tail sequence if required by the given codec.
 */
 template <class S, class R>
-libbase::vector<int> basic_commsys_simulator<S,R>::createsource()
+libbase::vector<int> commsys_simulator<S,R>::createsource()
    {
    const int tau = sys->getcodec()->input_block_size();
    libbase::vector<int> source(tau);
@@ -100,7 +100,7 @@ libbase::vector<int> basic_commsys_simulator<S,R>::createsource()
          average.
 */
 template <class S, class R>
-void basic_commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
+void commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
    {
    assert(result.size() == count());
    // Create source stream
@@ -135,10 +135,10 @@ void basic_commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
    Initializes system with bound objects as supplied by user.
 */
 template <class S, class R>
-basic_commsys_simulator<S,R>::basic_commsys_simulator(libbase::randgen *src, commsys<S> *sys)
+commsys_simulator<S,R>::commsys_simulator(libbase::randgen *src, commsys<S> *sys)
    {
-   basic_commsys_simulator<S,R>::src = src;
-   basic_commsys_simulator<S,R>::sys = sys;
+   commsys_simulator<S,R>::src = src;
+   commsys_simulator<S,R>::sys = sys;
    internallyallocated = false;
    }
 
@@ -151,17 +151,17 @@ basic_commsys_simulator<S,R>::basic_commsys_simulator(libbase::randgen *src, com
    \todo Fix cast when cloning modem: this should not be necessary.
 */
 template <class S, class R>
-basic_commsys_simulator<S,R>::basic_commsys_simulator(const basic_commsys_simulator<S,R>& c)
+commsys_simulator<S,R>::commsys_simulator(const commsys_simulator<S,R>& c)
    {
-   basic_commsys_simulator<S,R>::src = new libbase::randgen;
-   basic_commsys_simulator<S,R>::sys = (commsys<S> *)c.sys->clone();
+   commsys_simulator<S,R>::src = new libbase::randgen;
+   commsys_simulator<S,R>::sys = (commsys<S> *)c.sys->clone();
    internallyallocated = true;
    }
 
 // Experiment parameter handling
 
 template <class S, class R>
-void basic_commsys_simulator<S,R>::seedfrom(libbase::random& r)
+void commsys_simulator<S,R>::seedfrom(libbase::random& r)
    {
    src->seed(r.ival());
    sys->seedfrom(r);
@@ -170,7 +170,7 @@ void basic_commsys_simulator<S,R>::seedfrom(libbase::random& r)
 // Experiment handling
 
 template <class S, class R>
-void basic_commsys_simulator<S,R>::sample(libbase::vector<double>& result)
+void commsys_simulator<S,R>::sample(libbase::vector<double>& result)
    {
    // initialise result vector
    result.init(count());
@@ -182,7 +182,7 @@ void basic_commsys_simulator<S,R>::sample(libbase::vector<double>& result)
 // Description & Serialization
 
 template <class S, class R>
-std::string basic_commsys_simulator<S,R>::description() const
+std::string commsys_simulator<S,R>::description() const
    {
    std::ostringstream sout;
    sout << "Simulator for ";
@@ -191,14 +191,14 @@ std::string basic_commsys_simulator<S,R>::description() const
    }
 
 template <class S, class R>
-std::ostream& basic_commsys_simulator<S,R>::serialize(std::ostream& sout) const
+std::ostream& commsys_simulator<S,R>::serialize(std::ostream& sout) const
    {
    sout << sys;
    return sout;
    }
 
 template <class S, class R>
-std::istream& basic_commsys_simulator<S,R>::serialize(std::istream& sin)
+std::istream& commsys_simulator<S,R>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
@@ -209,36 +209,9 @@ std::istream& basic_commsys_simulator<S,R>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
-template class basic_commsys_simulator<sigspace>;
-template class basic_commsys_simulator<bool>;
-template class basic_commsys_simulator< libbase::gf<1,0x3> >;
-template class basic_commsys_simulator< libbase::gf<2,0x7> >;
-template class basic_commsys_simulator< libbase::gf<3,0xB> >;
-template class basic_commsys_simulator< libbase::gf<4,0x13> >;
-
-template class basic_commsys_simulator<bool,commsys_prof_burst>;
-template class basic_commsys_simulator<bool,commsys_prof_pos>;
-template class basic_commsys_simulator<bool,commsys_prof_sym>;
-template class basic_commsys_simulator<bool,commsys_hist_symerr>;
-
-
-// *** Templated Base ***
-
-// Serialization Support
-
-template <class S, class R>
-std::ostream& commsys_simulator<S,R>::serialize(std::ostream& sout) const
-   {
-   return basic_commsys_simulator<S,R>::serialize(sout);
-   }
-
-template <class S, class R>
-std::istream& commsys_simulator<S,R>::serialize(std::istream& sin)
-   {
-   return basic_commsys_simulator<S,R>::serialize(sin);
-   }
-
-// Explicit Realizations
+template class commsys_simulator<sigspace>;
+template <>
+const libbase::serializer commsys_simulator<sigspace>::shelper("experiment", "commsys_simulator<sigspace>", commsys_simulator<sigspace>::create);
 
 template class commsys_simulator<bool>;
 template <>
@@ -268,9 +241,5 @@ const libbase::serializer commsys_simulator<bool,commsys_prof_sym>::shelper("exp
 template class commsys_simulator<bool,commsys_hist_symerr>;
 template <>
 const libbase::serializer commsys_simulator<bool,commsys_hist_symerr>::shelper("experiment", "commsys_simulator<bool,hist_symerr>", commsys_simulator<bool,commsys_hist_symerr>::create);
-
-template class commsys_simulator<sigspace>;
-template <>
-const libbase::serializer commsys_simulator<sigspace>::shelper("experiment", "commsys_simulator<sigspace>", commsys_simulator<sigspace>::create);
 
 }; // end namespace

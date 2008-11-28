@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Common Base for Communication Systems Simulator.
+   \brief   Communication Systems Simulator.
    \author  Johann Briffa
 
    \par Version Control:
@@ -21,7 +21,7 @@ namespace libcomm {
 */
 
 template <class S, class R=commsys_errorrates>
-class basic_commsys_simulator
+class commsys_simulator
    : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */
@@ -48,10 +48,10 @@ protected:
    int get_alphabetsize() const { return sys->getcodec()->num_inputs(); };
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys_simulator(libbase::randgen *src, commsys<S> *sys);
-   basic_commsys_simulator(const basic_commsys_simulator<S,R>& c);
-   basic_commsys_simulator() { clear(); };
-   virtual ~basic_commsys_simulator() { free(); };
+   commsys_simulator(libbase::randgen *src, commsys<S> *sys);
+   commsys_simulator(const commsys_simulator<S,R>& c);
+   commsys_simulator() { clear(); };
+   virtual ~commsys_simulator() { free(); };
    // @}
 
    // Experiment parameter handling
@@ -71,24 +71,9 @@ public:
    const commsys<S> *getsystem() const { return sys; };
    // @}
 
-   // Description & Serialization
+   // Description
    std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
-};
 
-/*!
-   \brief   Communication System Simulator.
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-template <class S, class R=commsys_errorrates>
-class commsys_simulator : public basic_commsys_simulator<S,R> {
-public:
    // Serialization Support
    DECLARE_SERIALIZER(commsys_simulator);
 };
