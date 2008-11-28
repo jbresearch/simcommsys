@@ -25,10 +25,16 @@ namespace libcomm {
 
 template <class S>
 class informed_modulator : public blockmodem<S> {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<S>          array1s_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   // @}
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::vector< libbase::vector<double> >& app, libbase::vector< libbase::vector<double> >& ptable) = 0;
+   virtual void dodemodulate(const channel<S>& chan, const array1s_t& rx, const array1vd_t& app, array1vd_t& ptable) = 0;
    // @}
 
 public:
@@ -40,7 +46,7 @@ public:
                            transmitted symbols
       \return  Index corresponding symbol that is closest to the received signal
    */
-   virtual const int demodulate(const S& signal, const libbase::vector<double>& app) const = 0;
+   virtual const int demodulate(const S& signal, const array1d_t& app) const = 0;
    // @}
 
    /*! \name Vector modem operations */
@@ -57,8 +63,13 @@ public:
 
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
+
+      \note app and ptable may point to the same space
+
+      \note app may be empty; this should be taken to indicate that no prior
+            information is available
    */
-   void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, const libbase::matrix<double>& app, libbase::matrix<double>& ptable);
+   void demodulate(const channel<S>& chan, const array1s_t& rx, const array1vd_t& app, array1vd_t& ptable);
    // @}
 };
 

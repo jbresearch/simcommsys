@@ -29,6 +29,13 @@ namespace libcomm {
 
 template <class S>
 class basic_blockmodem : protected blockprocess {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<S>          array1s_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   // @}
 private:
    /*! \name User-defined parameters */
    int tau;    //!< Block size in symbols
@@ -39,9 +46,9 @@ protected:
    //! Setup function, called from set_blocksize()
    virtual void setup() {};
    //! \copydoc modulate()
-   virtual void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx) = 0;
+   virtual void domodulate(const int N, const array1i_t& encoded, array1s_t& tx) = 0;
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable) = 0;
+   virtual void dodemodulate(const channel<S>& chan, const array1s_t& rx, array1vd_t& ptable) = 0;
    // @}
 
 public:
@@ -84,7 +91,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx);
+   void modulate(const int N, const array1i_t& encoded, array1s_t& tx);
    /*!
       \brief Demodulate a sequence of time-steps
       \param[in]  chan     The channel model (used to obtain likelihoods)
@@ -97,7 +104,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   void demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable);
+   void demodulate(const channel<S>& chan, const array1s_t& rx, array1vd_t& ptable);
    // @}
 
    /*! \name Setup functions */
@@ -187,10 +194,17 @@ public:
 
 template <class G>
 class direct_blockmodem : public blockmodem<G> {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<G>          array1g_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   // @}
 protected:
    // Interface with derived classes
-   void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx);
-   void dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::vector< libbase::vector<double> >& ptable);
+   void domodulate(const int N, const array1i_t& encoded, array1g_t& tx);
+   void dodemodulate(const channel<G>& chan, const array1g_t& rx, array1vd_t& ptable);
 
 public:
    // Atomic modem operations
@@ -221,10 +235,17 @@ public:
 
 template <>
 class direct_blockmodem<bool> : public blockmodem<bool> {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<bool>       array1b_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   // @}
 protected:
    // Interface with derived classes
-   void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx);
-   void dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable);
+   void domodulate(const int N, const array1i_t& encoded, array1b_t& tx);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable);
 
 public:
    // Atomic modem operations

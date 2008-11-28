@@ -9,10 +9,56 @@
 
 #include "commsys_iterative.h"
 
+#include "informed_modulator.h"
 #include "gf.h"
+#include <sstream>
 
 namespace libcomm {
 
+// Communication System Interface
+
+template <class S, template<class> class C>
+void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
+   {
+   // Demodulate
+   libbase::vector< libbase::vector<double> > ptable_mapped;
+   informed_modulator<S>& m = dynamic_cast<informed_modulator<S>&>(*this->mdm);
+   for(int i=0; i<iter; i++)
+      m.demodulate(*this->chan, received, ptable_mapped, ptable_mapped);
+   // Inverse Map
+   libbase::vector< libbase::vector<double> > ptable_encoded;
+   this->map->inverse(ptable_mapped, ptable_encoded);
+   // Translate
+   this->cdc->translate(ptable_encoded);
+   }
+
+// Description & Serialization
+
+template <class S, template<class> class C>
+std::string commsys_iterative<S,C>::description() const
+   {
+   std::ostringstream sout;
+   sout << "Iterative ";
+   sout << commsys<S,C>::description() << ", ";
+   sout << iter << " iterations";
+   return sout.str();
+   }
+
+template <class S, template<class> class C>
+std::ostream& commsys_iterative<S,C>::serialize(std::ostream& sout) const
+   {
+   sout << iter;
+   commsys<S,C>::serialize(sout);
+   return sout;
+   }
+
+template <class S, template<class> class C>
+std::istream& commsys_iterative<S,C>::serialize(std::istream& sin)
+   {
+   sin >> iter;
+   commsys<S,C>::serialize(sin);
+   return sin;
+   }
 
 // Explicit Realizations
 

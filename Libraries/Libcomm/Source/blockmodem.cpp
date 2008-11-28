@@ -19,7 +19,7 @@ namespace libcomm {
 // Vector modem operations
 
 template <class S>
-void basic_blockmodem<S>::modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<S>& tx)
+void basic_blockmodem<S>::modulate(const int N, const array1i_t& encoded, array1s_t& tx)
    {
    assert(tau > 0);
    advance_always();
@@ -27,7 +27,7 @@ void basic_blockmodem<S>::modulate(const int N, const libbase::vector<int>& enco
    }
 
 template <class S>
-void basic_blockmodem<S>::demodulate(const channel<S>& chan, const libbase::vector<S>& rx, libbase::vector< libbase::vector<double> >& ptable)
+void basic_blockmodem<S>::demodulate(const channel<S>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
    assert(tau > 0);
    advance_if_dirty();
@@ -50,7 +50,7 @@ template class basic_blockmodem<libcomm::sigspace>;
 // Vector modem operations
 
 template <class G>
-void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
+void direct_blockmodem<G>::domodulate(const int N, const array1i_t& encoded, array1g_t& tx)
    {
    // Inherit sizes
    const int M = num_symbols();
@@ -70,7 +70,7 @@ void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& e
    }
 
 template <class G>
-void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::vector< libbase::vector<double> >& ptable)
+void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const array1g_t& rx, array1vd_t& ptable)
    {
    // Inherit sizes
    const int M = num_symbols();
@@ -78,7 +78,7 @@ void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::v
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
-   libbase::vector<G> tx(M);
+   array1g_t tx(M);
    for(int x=0; x<M; x++)
       tx(x) = modulate(x);
    // Work out the probabilities of each possible signal
@@ -131,7 +131,7 @@ const libbase::serializer direct_blockmodem<bool>::shelper("blockmodem", "blockm
 
 // Vector modem operations
 
-void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
+void direct_blockmodem<bool>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
    {
    // Inherit sizes
    const int tau = input_block_size();
@@ -148,14 +148,14 @@ void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>
          tx(k) = (x & 1);
    }
 
-void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable)
+void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
    {
    // Inherit sizes
    const int tau = input_block_size();
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
-   libbase::vector<bool> tx(2);
+   array1b_t tx(2);
    tx(0) = false;
    tx(1) = true;
    // Work out the probabilities of each possible signal

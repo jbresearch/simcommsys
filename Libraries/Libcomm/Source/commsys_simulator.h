@@ -18,6 +18,8 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Clean up interface with commsys object, particularly in cycleonce()
 */
 
 template <class S, class R=commsys_errorrates>

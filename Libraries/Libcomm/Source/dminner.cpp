@@ -323,18 +323,25 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
 template <class real, bool normalize>
 void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
+   array1vd_t p;
    // Apply standard demodulation
-   dminner<real,normalize>::dodemodulate(chan, rx, ptable);
+   dminner<real,normalize>::dodemodulate(chan, rx, p);
+   // If we have no prior information, copy results over
+   if(app.size() == 0)
+      {
+      ptable = p;
+      return;
+      }
    // Multiply-in a-priori probabilities
-   const int N = ptable.size();
+   const int N = p.size();
    assert(N > 0);
-   const int q = ptable(0).size();
+   const int q = p(0).size();
    assert(app.size() == N);
    for(int i=0; i<N; i++)
       {
       assert(app(i).size() == q);
       for(int d=0; d<q; d++)
-         ptable(i)(d) *= app(i)(d);
+         ptable(i)(d) = p(i)(d) * app(i)(d);
       }
    }
 
