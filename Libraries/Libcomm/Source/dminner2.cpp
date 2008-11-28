@@ -116,12 +116,12 @@ using libbase::serializer;
 
 template class dminner2<logrealfast,false>;
 template <>
-const serializer dminner2<logrealfast,false>::shelper \
+const serializer dminner2<logrealfast,false>::shelper
    = serializer("blockmodem", "dminner2<logrealfast>", dminner2<logrealfast,false>::create);
 
 template class dminner2<double,true>;
 template <>
-const serializer dminner2<double,true>::shelper \
+const serializer dminner2<double,true>::shelper
    = serializer("blockmodem", "dminner2<double>", dminner2<double,true>::create);
 
 }; // end namespace
