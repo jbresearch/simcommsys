@@ -24,7 +24,10 @@ void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
    libbase::vector< libbase::vector<double> > ptable_mapped;
    informed_modulator<S>& m = dynamic_cast<informed_modulator<S>&>(*this->mdm);
    for(int i=0; i<iter; i++)
+      {
+      libbase::trace << "DEBUG (commsys_iterative): Starting demodulation iteration " << i << "\n";
       m.demodulate(*this->chan, received, ptable_mapped, ptable_mapped);
+      }
    // Inverse Map
    libbase::vector< libbase::vector<double> > ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
