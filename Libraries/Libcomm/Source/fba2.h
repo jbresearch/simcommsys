@@ -32,9 +32,11 @@ template <class real, class sig, bool normalize>
 class fba2 {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<sig>     array1s_t;
-   typedef libbase::vector< libbase::vector<double> > array2d_t;
-   typedef libbase::vector< libbase::vector<real> >   array2r_old_t;
+   typedef libbase::vector<sig>        array1s_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<real>       array1r_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::vector<array1r_t>  array1vr_t;
    typedef boost::assignable_multi_array<real,2> array2r_t;
    typedef boost::assignable_multi_array<real,4> array4r_t;
    typedef boost::assignable_multi_array<bool,3> array3b_t;
@@ -60,7 +62,7 @@ private:
    mutable array4r_t gamma;   //!< Receiver metric
    mutable array3b_t cached;  //!< Flag for caching of receiver metric
    array1s_t r;         //!< Copy of received sequence, for lazy computation of gamma
-   array2d_t app;       //!< Copy of a-priori statistics, for lazy computation of gamma
+   array1vd_t app;       //!< Copy of a-priori statistics, for lazy computation of gamma
 #ifndef NDEBUG
    mutable int gamma_calls;   //!< Number of gamma computations
    mutable int gamma_misses;  //!< Number of gamma computations causing a cache miss
@@ -80,11 +82,11 @@ protected:
    // handles for channel-specific metrics - to be implemented by derived classes
    virtual real R(int d, int i, const array1s_t& r) const = 0;
    // decode functions
-   void work_gamma(const array1s_t& r, const array2d_t& app);
+   void work_gamma(const array1s_t& r, const array1vd_t& app);
    void work_gamma(const array1s_t& r);
    void work_alpha(int rho);
    void work_beta(int rho);
-   void work_results(int rho, array2r_old_t& ptable) const;
+   void work_results(int rho, array1vr_t& ptable) const;
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -97,8 +99,8 @@ public:
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer);
 
    // decode functions
-   void decode(const array1s_t& r, const array2d_t& app, array2r_old_t& ptable);
-   void decode(const array1s_t& r, array2r_old_t& ptable);
+   void decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable);
+   void decode(const array1s_t& r, array1vr_t& ptable);
 };
 
 template <class real, class sig, bool normalize>

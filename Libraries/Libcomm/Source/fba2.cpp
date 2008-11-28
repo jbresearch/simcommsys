@@ -116,7 +116,7 @@ void fba2<real,sig,normalize>::reset_cache() const
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array2d_t& app)
+void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array1vd_t& app)
    {
    assert(initialised);
    if(cache_enabled)
@@ -259,7 +259,7 @@ void fba2<real,sig,normalize>::work_beta(int rho)
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_results(int rho, array2r_old_t& ptable) const
+void fba2<real,sig,normalize>::work_results(int rho, array1vr_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -318,7 +318,7 @@ void fba2<real,sig,normalize>::work_results(int rho, array2r_old_t& ptable) cons
 // User procedures
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::decode(const array1s_t& r, const array2d_t& app, array2r_old_t& ptable)
+void fba2<real,sig,normalize>::decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -330,7 +330,7 @@ void fba2<real,sig,normalize>::decode(const array1s_t& r, const array2d_t& app, 
    }
 
 template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::decode(const array1s_t& r, array2r_old_t& ptable)
+void fba2<real,sig,normalize>::decode(const array1s_t& r, array1vr_t& ptable)
    {
    // initialise memory if necessary
    if(!initialised)
