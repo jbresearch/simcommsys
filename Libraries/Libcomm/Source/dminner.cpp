@@ -135,6 +135,12 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptabl
       std::cerr << progress.update(N, N);
    }
 
+/*!
+   \brief Normalize probability table
+
+   The input probability table is normalized such that the largest value is
+   equal to 1; result is converted to double.
+*/
 template <class real, bool normalize>
 void dminner<real,normalize>::normalize_results(const array1vr_t& in, array1vd_t& out) const
    {
@@ -146,10 +152,11 @@ void dminner<real,normalize>::normalize_results(const array1vr_t& in, array1vd_t
    for(int i=0; i<N; i++)
       scale = std::max(scale, in(i).max());
    assert(scale != real(0));
-   // normalize and copy results
+   // allocate result space
    out.init(N);
    for(int i=0; i<N; i++)
       out(i).init(q);
+   // normalize and copy results
    for(int i=0; i<N; i++)
       for(int d=0; d<q; d++)
          out(i)(d) = in(i)(d)/scale;

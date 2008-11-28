@@ -125,6 +125,8 @@ void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array2d_t& a
    fba2::r = r;
    // copy a-priori statistics, needed for lazy computation
    fba2::app = app;
+   if(app.size() == 0)
+      libbase::trace << "DEBUG (fba2): Empty a-priori probability table passed.\n";
    }
 
 template <class real, class sig, bool normalize>
