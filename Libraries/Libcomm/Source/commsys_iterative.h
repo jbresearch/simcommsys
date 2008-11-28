@@ -6,7 +6,7 @@
 namespace libcomm {
 
 /*!
-   \brief   General Communication System.
+   \brief   Iterative-Decoding Communication System.
    \author  Johann Briffa
 
    \par Version Control:
@@ -14,7 +14,12 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   General templated commsys, directly derived from common base.
+   Communication system with iterative demodulation.
+
+   \todo Update interface to cater for various iterative modes between codec
+         and modem.
+
+   \todo Move iterative codec nature into this class (requires codec split).
 */
 
 template <class S, template<class> class C=libbase::vector>
