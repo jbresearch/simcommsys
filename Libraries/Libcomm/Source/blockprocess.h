@@ -43,6 +43,8 @@ public:
    void advance_if_dirty() const;
    //! Mark this block as 'dirty'
    void mark_as_dirty() const { dirty = true; };
+   //! Mark this block as not 'dirty'
+   void mark_as_clean() const { dirty = false; };
    // @}
 };
 

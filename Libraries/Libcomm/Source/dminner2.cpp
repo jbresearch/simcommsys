@@ -72,18 +72,7 @@ void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const arr
    {
    init(chan);
    array1vr_t p;
-   if(app.size() == 0)
-      {
-      ptable.init(this->input_block_size());
-      for(int i=0; i<this->input_block_size(); i++)
-         {
-         ptable(i).init(this->num_symbols());
-         ptable(i) = 1.0/this->num_symbols();
-         }
-      fba2<real,bool,normalize>::decode(rx,ptable,p);
-      }
-   else
-      fba2<real,bool,normalize>::decode(rx,app,p);
+   fba2<real,bool,normalize>::decode(rx,app,p);
    dminner<real,normalize>::normalize_results(p,ptable);
    }
 

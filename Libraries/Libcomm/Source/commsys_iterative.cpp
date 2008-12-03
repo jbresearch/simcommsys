@@ -27,7 +27,9 @@ void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
       {
       libbase::trace << "DEBUG (commsys_iterative): Starting demodulation iteration " << i << "\n";
       m.demodulate(*this->chan, received, ptable_mapped, ptable_mapped);
+      m.mark_as_clean();
       }
+   m.mark_as_dirty();
    // Inverse Map
    libbase::vector< libbase::vector<double> > ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);

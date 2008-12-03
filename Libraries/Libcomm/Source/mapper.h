@@ -25,7 +25,7 @@ namespace libcomm {
    commsys as a layer between codec and blockmodem.
 */
 
-class mapper : protected blockprocess {
+class mapper : public blockprocess {
 protected:
    /*! \name User-defined parameters */
    int N;   //!< Number of possible values of each encoder output

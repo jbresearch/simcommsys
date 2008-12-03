@@ -28,7 +28,7 @@ namespace libcomm {
 */
 
 template <class S>
-class basic_blockmodem : protected blockprocess {
+class basic_blockmodem : public blockprocess {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
