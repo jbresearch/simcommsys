@@ -16,8 +16,6 @@ namespace libcomm {
 
    Communication system with iterative demodulation.
 
-   \todo Add this class to Windows solution
-
    \todo Update interface to cater for various iterative modes between codec
          and modem.
 

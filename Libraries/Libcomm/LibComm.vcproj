@@ -419,6 +419,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\commsys_iterative.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\commsys_prof_burst.cpp"
 				>
 			</File>
@@ -1257,6 +1261,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\commsys_hist_symerr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\commsys_iterative.h"
 				>
 			</File>
 			<File
