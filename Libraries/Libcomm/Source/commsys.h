@@ -88,7 +88,7 @@ public:
    // @}
 
    // Description
-   std::string description() const;
+   virtual std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;
    std::istream& serialize(std::istream& sin);
 };
