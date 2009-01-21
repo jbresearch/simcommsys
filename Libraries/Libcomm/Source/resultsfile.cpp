@@ -48,7 +48,7 @@ void resultsfile::truncate(std::streampos length)
    _chsize_s(fd, length);
    _close(fd);
 #else
-   ::truncate(fname.c_str(), length);
+   assertalways(::truncate(fname.c_str(), length)==0);
 #endif
    }
 

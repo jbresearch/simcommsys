@@ -17,6 +17,7 @@
 #  include <termios.h>
 #  include <sys/ioctl.h>
 #  include <errno.h>
+#  include <string.h>
 #endif
 #include <signal.h>
 #include <stdlib.h>

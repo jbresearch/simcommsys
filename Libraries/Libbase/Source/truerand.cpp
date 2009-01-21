@@ -8,15 +8,16 @@
 */
 
 #include "truerand.h"
+#include "stdlib.h"
 
 #ifdef WIN32
-#include <windows.h>
-#include <wincrypt.h>
+#  include <windows.h>
+#  include <wincrypt.h>
 #else
-#include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#  include <iostream>
+#  include <sys/types.h>
+#  include <sys/stat.h>
+#  include <fcntl.h>
 #endif
 
 namespace libbase {

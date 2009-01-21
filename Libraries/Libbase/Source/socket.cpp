@@ -10,18 +10,20 @@
 #include "socket.h"
 
 #ifdef WIN32
-#include <winsock2.h>
+#  include <winsock2.h>
 #else
-#include <netdb.h>
-#include <unistd.h>
+#  include <stdlib.h>
+#  include <string.h>
+#  include <netdb.h>
+#  include <unistd.h>
 
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
+#  include <sys/time.h>
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#  include <sys/select.h>
 
-#include <arpa/inet.h>
-#include <netinet/ip.h>
+#  include <arpa/inet.h>
+#  include <netinet/ip.h>
 #endif
 
 #ifdef WIN32

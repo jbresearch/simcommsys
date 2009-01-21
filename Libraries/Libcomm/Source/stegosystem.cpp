@@ -15,6 +15,7 @@
 #include "plmod.h"
 #include "bitfield.h"
 #include "fbstream.h"
+#include <string.h>
 
 namespace libcomm {
 

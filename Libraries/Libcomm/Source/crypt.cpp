@@ -163,7 +163,7 @@ crypt::~crypt()
 void crypt::perm(char *a, const char *e, const char *pc, int n)
    {
    for(; n--; pc++, a++)
-      *a = e[*pc];
+      *a = e[int(*pc)];
    }
 
 void crypt::crypt_main(char *nachr_l, char *nachr_r, char *schl)
@@ -177,7 +177,7 @@ void crypt::crypt_main(char *nachr_l, char *nachr_r, char *schl)
    for(i = 0; i < 8; i++)
       {
       for(j = 0, sbval = 0; j < 6; j++)
-         sbval =(sbval << 1) |(nachr_r[*e++] ^ *schl++);
+         sbval =(sbval << 1) |(nachr_r[int(*e++)] ^ *schl++);
       sbval = S_BOX[i][sbval];
       for(tp += 4, j = 4; j--; sbval >>= 1)
          *--tp = sbval & 1;

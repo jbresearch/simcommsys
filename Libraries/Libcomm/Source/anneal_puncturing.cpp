@@ -32,7 +32,7 @@ anneal_puncturing::anneal_puncturing(const char *fname, const int tau, const int
             {
             double temp;
             if(fscanf(file, "%lf", &temp) == 0)
-               fscanf(file, "%*[^\n]\n");
+               assertalways(fscanf(file, "%*[^\n]\n") == 0);
             contrib(j, i, k) = temp;
             }
    fclose(file);

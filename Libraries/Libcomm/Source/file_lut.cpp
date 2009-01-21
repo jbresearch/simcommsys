@@ -9,6 +9,7 @@
 
 #include "file_lut.h"
 #include <stdio.h>
+#include <string.h>
 
 namespace libcomm {
 
@@ -35,7 +36,7 @@ file_lut<real>::file_lut(const char *filename, const int tau, const int m)
    for(int i=0; i<tau-m; i++)
       {
       do {
-         fscanf(file, "%[^\n]\n", buf);
+         assertalways(fscanf(file, "%[^\n]\n", buf) == 1);
          } while(buf[0] == '#');
       int x, y;
       sscanf(buf, "%d%d", &x, &y);

@@ -8,6 +8,7 @@
 */
 
 #include "stream_lut.h"
+#include <string.h>
 
 namespace libcomm {
 
@@ -28,7 +29,7 @@ stream_lut<real>::stream_lut(const char *filename, FILE *file, const int tau, co
    for(int i=0; i<tau-m; i++)
       {
       do {
-         fscanf(file, "%[^\n]\n", buf);
+         assertalways(fscanf(file, "%[^\n]\n", buf) == 1);
          } while(buf[0] == '#');
       int y;
       sscanf(buf, "%d", &y);
