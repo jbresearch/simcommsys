@@ -25,16 +25,15 @@ namespace libcomm {
    Class defines common interface for blockmodem classes.
 
    \todo Templatize with respect to the type used for the likelihood table
+
+   \todo Separate block size definition from this class
 */
 
-template <class S>
+template <class S, template<class> class C=libbase::vector>
 class basic_blockmodem : public blockprocess {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<int>        array1i_t;
-   typedef libbase::vector<S>          array1s_t;
    typedef libbase::vector<double>     array1d_t;
-   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
    /*! \name User-defined parameters */
@@ -46,9 +45,9 @@ protected:
    //! Setup function, called from set_blocksize()
    virtual void setup() {};
    //! \copydoc modulate()
-   virtual void domodulate(const int N, const array1i_t& encoded, array1s_t& tx) = 0;
+   virtual void domodulate(const int N, const C<int>& encoded, C<S>& tx) = 0;
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const array1s_t& rx, array1vd_t& ptable) = 0;
+   virtual void dodemodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable) = 0;
    // @}
 
 public:
@@ -91,7 +90,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   void modulate(const int N, const array1i_t& encoded, array1s_t& tx);
+   void modulate(const int N, const C<int>& encoded, C<S>& tx);
    /*!
       \brief Demodulate a sequence of time-steps
       \param[in]  chan     The channel model (used to obtain likelihoods)
@@ -104,7 +103,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   void demodulate(const channel<S>& chan, const array1s_t& rx, array1vd_t& ptable);
+   void demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable);
    // @}
 
    /*! \name Setup functions */
