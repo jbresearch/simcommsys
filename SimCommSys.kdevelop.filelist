@@ -1,5 +1,5 @@
 # KDevelop Custom Project File List
-Documentation/latex/Makefile
+Libraries
 Libraries/Libbase/Makefile
 Libraries/Libbase/Source/bitfield.cpp
 Libraries/Libbase/Source/bitfield.h
@@ -57,7 +57,9 @@ Libraries/Libbase/Source/truerand.cpp
 Libraries/Libbase/Source/truerand.h
 Libraries/Libbase/Source/vector.cpp
 Libraries/Libbase/Source/vector.h
+Libraries/Libcomm
 Libraries/Libcomm/Makefile
+Libraries/Libcomm/Source
 Libraries/Libcomm/Source/anneal_interleaver.cpp
 Libraries/Libcomm/Source/anneal_interleaver.h
 Libraries/Libcomm/Source/anneal_puncturing.cpp
@@ -96,6 +98,8 @@ Libraries/Libcomm/Source/commsys_errorrates.cpp
 Libraries/Libcomm/Source/commsys_errorrates.h
 Libraries/Libcomm/Source/commsys_hist_symerr.cpp
 Libraries/Libcomm/Source/commsys_hist_symerr.h
+Libraries/Libcomm/Source/commsys_iterative.cpp
+Libraries/Libcomm/Source/commsys_iterative.h
 Libraries/Libcomm/Source/commsys_prof_burst.cpp
 Libraries/Libcomm/Source/commsys_prof_burst.h
 Libraries/Libcomm/Source/commsys_prof_pos.cpp
