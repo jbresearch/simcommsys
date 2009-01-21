@@ -89,10 +89,9 @@ inline double sign(double x) {return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 
 inline double sqrt(int x) { return sqrt(double(x)); };
 inline double log(int x) { return log(double(x)); };
-#ifndef WIN32
-//inline double pow(double x, int y) { return pow(x,double(y)); };
+#ifdef WIN32
+inline double pow(int x, int y) { return pow(double(x),y); };
 #endif //ifdef WIN32
-//inline double pow(int x, int y) { return pow(double(x),y); };
 
 // Define a function that returns the square of the input
 
