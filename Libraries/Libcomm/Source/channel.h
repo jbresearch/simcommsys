@@ -41,6 +41,7 @@ template <class S, template<class> class C>
 class basic_channel_interface : public parametric {
 public:
    /*! \name Type definitions */
+   typedef libbase::vector<S>          array1s_t;
    typedef libbase::vector<double>     array1d_t;
    // @}
 protected:
@@ -101,7 +102,7 @@ public:
 
       \callergraph
    */
-   virtual void receive(const C<S>& tx, const C<S>& rx, C<array1d_t>& ptable) const = 0;
+   virtual void receive(const array1s_t& tx, const C<S>& rx, C<array1d_t>& ptable) const = 0;
    /*!
       \brief Determine the likelihood of a sequence of received modulation
              symbols, given a particular transmitted sequence
@@ -223,6 +224,88 @@ double basic_channel<S,libbase::vector>::receive(const S& tx, const array1s_t& r
    assert(rx.size() == 1);
    // Work out the probability of receiving the particular symbol
    return pdf(tx, rx(0));
+   }
+
+/*!
+   \brief   Common Channel Base Specialization.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Templated common channel base. Partial specialization for matrix container.
+*/
+
+template <class S>
+class basic_channel<S,libbase::matrix> : public basic_channel_interface<S,libbase::matrix> {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<S>          array1s_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::matrix<S>          array2s_t;
+   typedef libbase::matrix<double>     array2d_t;
+   typedef libbase::matrix<array1d_t>  array2vd_t;
+   // @}
+public:
+   void transmit(const array2s_t& tx, array2s_t& rx);
+   void receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const;
+   double receive(const array2s_t& tx, const array2s_t& rx) const;
+   double receive(const S& tx, const array2s_t& rx) const;
+};
+
+// channel functions
+
+template <class S>
+void basic_channel<S,libbase::matrix>::transmit(const array2s_t& tx, array2s_t& rx)
+   {
+   // Initialize results vector
+   rx.init(tx);
+   // Corrupt the modulation symbols (simulate the channel)
+   for(int i=0; i<tx.xsize(); i++)
+      for(int j=0; i<tx.ysize(); j++)
+         rx(i,j) = corrupt(tx(i,j));
+   }
+
+template <class S>
+void basic_channel<S,libbase::matrix>::receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const
+   {
+   // Compute sizes
+   const int M = tx.size();
+   // Initialize results vector
+   ptable.init(rx);
+   for(int i=0; i<rx.xsize(); i++)
+      for(int j=0; i<rx.ysize(); j++)
+         ptable(i,j).init(M);
+   // Work out the probabilities of each possible signal
+   for(int i=0; i<rx.xsize(); i++)
+      for(int j=0; i<rx.ysize(); j++)
+         for(int x=0; x<M; x++)
+            ptable(i,j)(x) = pdf(tx(x), rx(i,j));
+   }
+
+template <class S>
+double basic_channel<S,libbase::matrix>::receive(const array2s_t& tx, const array2s_t& rx) const
+   {
+   // This implementation only works for substitution channels
+   assert(tx.xsize() == rx.xsize());
+   assert(tx.ysize() == rx.ysize());
+   // Work out the combined probability of the sequence
+   double p = 1;
+   for(int i=0; i<rx.xsize(); i++)
+      for(int j=0; i<rx.ysize(); j++)
+         p *= pdf(tx(i,j), rx(i,j));
+   return p;
+   }
+
+template <class S>
+double basic_channel<S,libbase::matrix>::receive(const S& tx, const array2s_t& rx) const
+   {
+   // This implementation only works for substitution channels
+   assert(rx.size() == 1);
+   // Work out the probability of receiving the particular symbol
+   return pdf(tx, rx(0,0));
    }
 
 /*!
