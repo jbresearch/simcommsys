@@ -16,6 +16,7 @@
 #include "laplacian.h"
 #include "lapgauss.h"
 #include "bsid.h"
+#include "bsid2d.h"
 #include "bsc.h"
 #include "qsc.h"
 
@@ -96,7 +97,7 @@ namespace libcomm {
 // Serialization support
 class serializer_libcomm : private
    qsc< libbase::gf<1,0x3> >, qsc< libbase::gf<2,0x7> >, qsc< libbase::gf<3,0xB> >, qsc< libbase::gf<4,0x13> >,
-   awgn, laplacian, lapgauss, bsid, bsc,
+   awgn, laplacian, lapgauss, bsid, bsid2d, bsc,
    mpsk, qam,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
