@@ -245,7 +245,6 @@ public:
    typedef libbase::vector<S>          array1s_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::matrix<S>          array2s_t;
-   typedef libbase::matrix<double>     array2d_t;
    typedef libbase::matrix<array1d_t>  array2vd_t;
    // @}
 public:
