@@ -11,6 +11,7 @@
 #include "randgen.h"
 
 #include <iostream>
+#include <stdlib.h>
 
 using std::cout;
 using std::cerr;
@@ -19,7 +20,7 @@ using libbase::matrix;
 using libbase::randgen;
 using libcomm::bsid2d;
 
-void visualtest()
+void visualtest(int seed=0)
    {
    // define an alternating input sequence
    const int M=5, N=5;
@@ -32,7 +33,7 @@ void visualtest()
    matrix<bool> rx1, rx2;
    // seed generator
    randgen prng;
-   prng.seed(0);
+   prng.seed(seed);
    // channel1 is a substitution-only channel
    bsid2d channel1(true,false,false);
    channel1.seedfrom(prng);
@@ -49,8 +50,12 @@ void visualtest()
 
 int main(int argc, char *argv[])
    {
+   int seed=0;
+   if(argc > 1)
+      seed = atoi(argv[1]);
+      
    // create a test sequence and test 2D BSID transmission
-   visualtest();
+   visualtest(seed);
 
    return 0;
    }
