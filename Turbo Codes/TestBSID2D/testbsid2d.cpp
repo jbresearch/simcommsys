@@ -10,8 +10,8 @@
 #include "bsid2d.h"
 #include "randgen.h"
 
+#include <boost/program_options.hpp>
 #include <iostream>
-#include <stdlib.h>
 
 using std::cout;
 using std::cerr;
@@ -61,12 +61,32 @@ void visualtest(int seed, int type, double p)
 
 int main(int argc, char *argv[])
    {
-   int seed=0;
-   if(argc > 1)
-      seed = atoi(argv[1]);
+   // Set up user parameters
+   namespace po = boost::program_options;
+   po::options_description desc("Allowed options");
+   desc.add_options()
+      ("help", "print this help message")
+      ("seed,s", po::value<int>()->default_value(0),
+         "random generator seed")
+      ("parameter,p", po::value<double>()->default_value(0.1),
+         "channel error probability")
+      ;
+   po::variables_map vm;
+   po::store(po::parse_command_line(argc, argv, desc), vm);
+   po::notify(vm);
+
+   // Validate user parameters
+   if(vm.count("help"))
+      {
+      std::cerr << desc << "\n";
+      return 1;
+      }
+
+   // Get user parameters
+   const int seed = vm["seed"].as<int>();
+   const double p = vm["parameter"].as<double>();
 
    // create a test sequence and test 2D BSID transmission
-   const double p = 0.1;
    visualtest(seed, 0, p); // all-zero sequence
    visualtest(seed, 1, p); // all-one sequenceee
    visualtest(seed, 2, p); // random sequence
