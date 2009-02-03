@@ -11,23 +11,29 @@
 namespace libcomm {
 
 /*!
-   \brief   Binary substitution/insertion/deletion channel.
+   \brief   2D binary substitution/insertion/deletion channel.
    \author  Johann Briffa
 
    \par Version Control:
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Derive repeated workings from bsid
 */
 
-class bsid2d : public channel<bool> {
+class bsid2d : public channel<bool,libbase::matrix> {
 public:
    /*! \name Type definitions */
    typedef boost::assignable_multi_array<double,2> array2d_t;
+   typedef libbase::vector<bool>       array1b_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::matrix<bool>       array2b_t;
+   typedef libbase::matrix<int>        array2i_t;
+   typedef libbase::matrix<array1d_t>  array2vd_t;
    // @}
 private:
    /*! \name User-defined parameters */
-   bool     biased;     //!< Flag to indicate old-style bias against single-deletion
    bool     varyPs;     //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool     varyPd;     //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool     varyPi;     //!< Flag to indicate that \f$ P_i \f$ should change with parameter
@@ -36,7 +42,8 @@ private:
    double   Ps;         //!< Bit-substitution probability \f$ P_s \f$
    double   Pd;         //!< Bit-deletion probability \f$ P_d \f$
    double   Pi;         //!< Bit-insertion probability \f$ P_i \f$
-   int      N;          //!< Block size in bits over which we want to synchronize
+   int      M;          //!< Vertical block size (rows) over which we want to synchronize
+   int      N;          //!< Horizontal block size (columns) over which we want to synchronize
    // @}
    /*! \name Pre-computed parameters */
    int      I;          //!< Assumed limit for insertions between two time-steps
@@ -55,6 +62,9 @@ private:
    /*! \name Internal functions */
    void precompute();
    void init();
+   void computestate(int& insertions, bool& transmit);
+   void computestate(array2i_t& insertions, array2b_t& transmit);
+   static void cumsum(array2i_t& m, int dim);
    // @}
 protected:
    // Channel function overrides
@@ -62,7 +72,7 @@ protected:
    double pdf(const bool& tx, const bool& rx) const;
 public:
    /*! \name Constructors / Destructors */
-   bsid2d(const bool varyPs=true, const bool varyPd=true, const bool varyPi=true, const bool biased=false);
+   bsid2d(const bool varyPs=true, const bool varyPd=true, const bool varyPi=true);
    // @}
 
    /*! \name Channel parameter handling */
@@ -78,7 +88,7 @@ public:
    //! Set the bit-insertion probability
    void set_pi(const double Pi);
    //! Set the block size
-   void set_blocksize(int N);
+   void set_blocksize(int M, int N);
    // @}
 
    /*! \name Channel parameter getters */
@@ -91,10 +101,7 @@ public:
    // @}
 
    // Channel functions
-   void transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx);
-   void receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable) const;
-   double receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const;
-   double receive(const bool& tx, const libbase::vector<bool>& rx) const;
+   void transmit(const array2b_t& tx, array2b_t& rx);
 
    // Description
    std::string description() const;
@@ -106,17 +113,6 @@ public:
 inline double bsid2d::pdf(const bool& tx, const bool& rx) const
    {
    return (tx != rx) ? Ps : 1-Ps;
-   }
-
-inline double bsid2d::receive(const bool& tx, const libbase::vector<bool>& rx) const
-   {
-   // Compute sizes
-   const int mu = rx.size()-1;
-   // If this was a deletion, it's a fixed value
-   if(mu < 0)
-      return Rval;
-   // Otherwise return result from table
-   return Rtable[tx != rx(mu)][mu];
    }
 
 }; // end namespace

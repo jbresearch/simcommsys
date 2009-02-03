@@ -134,7 +134,7 @@ void bsid2d::precompute()
    xmax = compute_xmax(N, Pd, I);
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
-   Rval = biased ? Pd*Pd : Pd;
+   Rval = Pd;
    }
 
 /*!
@@ -154,6 +154,69 @@ void bsid2d::init()
    precompute();
    }
 
+/*!
+   \brief Determine state-machine values for a single timestep
+
+   Returns the number of insertions \e before given position, and whether the
+   given position is transmitted or deleted.
+*/
+void bsid2d::computestate(int& insertions, bool& transmit)
+   {
+   // initialize accumulators
+   insertions = 0;
+   transmit = true;
+   // determine state sequence for this timestep
+   double p;
+   while((p = r.fval()) < Pi)
+      insertions++;
+   if(p < (Pi+Pd))
+      transmit = false;
+   }
+
+/*!
+   \brief Determine state-machine values for a whole block
+
+   \cf computestate();
+*/
+void bsid2d::computestate(array2i_t& insertions, array2b_t& transmit)
+   {
+   // determine matrix sizes
+   const int M = insertions.xsize();
+   const int N = insertions.ysize();
+   assertalways(transmit.xsize() == M);
+   assertalways(transmit.ysize() == N);
+   // iterate over all timesteps
+   for(int i=0; i<M; i++)
+      for(int j=0; j<N; j++)
+         computestate(insertions(i,j), transmit(i,j));
+   }
+
+/*!
+   \brief Accumulate matrix elements over given dimension
+   \param m Matrix containing data to be accumulated
+   \param dim Dimension over which to accumulate (0 or 1)
+*/
+void bsid2d::cumsum(array2i_t& m, int dim)
+   {
+   assert(dim==0 || dim==1);
+   // determine matrix sizes
+   const int M = m.xsize();
+   const int N = m.ysize();
+   // iterate over all matrix elements
+   if(dim==0)
+      {
+      for(int j=0; j<N; j++)
+         for(int i=1; i<M; i++)
+            m(i,j) += m(i-1,j);
+      }
+   else
+      {
+      for(int i=0; i<M; i++)
+         for(int j=1; j<N; j++)
+            m(i,j) += m(i,j-1);
+      }
+   }
+
 // Constructors / Destructors
 
 /*!
@@ -161,8 +224,8 @@ void bsid2d::init()
 
    \sa init()
 */
-bsid2d::bsid2d(const bool varyPs, const bool varyPd, const bool varyPi, const bool biased) :
-   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi)
+bsid2d::bsid2d(const bool varyPs, const bool varyPd, const bool varyPi) :
+   varyPs(varyPs), varyPd(varyPd), varyPi(varyPi)
    {
    // channel update flags
    assert(varyPs || varyPd || varyPi);
@@ -230,10 +293,12 @@ void bsid2d::set_pi(const double Pi)
    precompute();
    }
 
-void bsid2d::set_blocksize(int N)
+void bsid2d::set_blocksize(int M, int N)
    {
-   if(N != bsid2d::N)
+   if(M != bsid2d::M || N != bsid2d::N)
       {
+      assert(M > 0);
+      bsid2d::M = M;
       assert(N > 0);
       bsid2d::N = N;
       precompute();
@@ -292,111 +357,75 @@ bool bsid2d::corrupt(const bool& s)
             - the number of insertions \e before given position, and
             - whether the given position is transmitted or deleted.
 
-   \note We have to make sure that we don't corrupt the vector we're reading
-         from (in the case where tx and rx are the same vector); therefore,
-         the result is first created as a new vector and only copied over at
+   \note We have to make sure that we don't corrupt the array we're reading
+         from (in the case where tx and rx are the same array); therefore,
+         the result is first created as a new array and only copied over at
          the end.
 
    \sa corrupt()
 */
-void bsid2d::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
+void bsid2d::transmit(const array2b_t& tx, array2b_t& rx)
    {
-   const int tau = tx.size();
-   libbase::vector<int> insertions(tau);
-   insertions = 0;
-   libbase::vector<int> transmit(tau);
-   transmit = 1;
-   // determine state sequence
-   for(int i=0; i<tau; i++)
-      {
-      double p;
-      while((p = r.fval()) < Pi)
-         insertions(i)++;
-      if(p < (Pi+Pd))
-         transmit(i) = 0;
-      }
+   // determine matrix sizes
+   const int M = tx.xsize();
+   const int N = tx.ysize();
+   // compute state tables
+   array2i_t insertions_h(M,N), insertions_v(M,N);
+   array2b_t transmit_h(M,N), transmit_v(M,N);
+   computestate(insertions_h, transmit_h);
+   computestate(insertions_v, transmit_v);
+   // initialize coordinate transformations
+   array2i_t ii(M,N), jj(M,N);
+   for(int i=0; i<M; i++)
+      for(int j=0; j<N; j++)
+         {
+         ii(i,j) = insertions_v(i,j)+(transmit_v(i,j) ? 0 : -1);
+         jj(i,j) = insertions_h(i,j)+(transmit_h(i,j) ? 0 : -1);
+         }
+   // accumulate differential
+   cumsum(ii, 0);
+   cumsum(jj, 1);
+   // compute final coordinates
+   for(int i=0; i<M; i++)
+      for(int j=0; j<N; j++)
+         {
+         ii(i,j) += i;
+         jj(i,j) += j;
+         }
+   // invert coordinates for transmitted bits
+   const int MM = ii.max()+1;
+   const int NN = jj.max()+1;
+   array2i_t iii(MM,NN), jjj(MM,NN);
+   iii = -1;
+   jjj = -1;
+   for(int i=0; i<M; i++)
+      for(int j=0; j<N; j++)
+         {
+         if(transmit_h(i,j) & transmit_v(i,j))
+            {
+            iii(ii(i,j),jj(i,j)) = i;
+            jjj(ii(i,j),jj(i,j)) = j;
+            }
+         }
    // Initialize results vector
-#ifndef NDEBUG
-   if(tau < 100)
-      {
-      libbase::trace << "DEBUG (bsid2d): transmit = " << transmit << "\n";
-      libbase::trace << "DEBUG (bsid2d): insertions = " << insertions << "\n";
-      }
-#endif
-   libbase::vector<bool> newrx;
-   newrx.init(transmit.sum() + insertions.sum());
+   array2b_t newrx(MM,NN);
    // Corrupt the modulation symbols (simulate the channel)
-   for(int i=0, j=0; i<tau; i++)
-      {
-      while(insertions(i)--)
-         newrx(j++) = (r.fval() < 0.5);
-      if(transmit(i))
-         newrx(j++) = corrupt(tx(i));
-      }
+   for(int i=0; i<MM; i++)
+      for(int j=0; j<NN; j++)
+         {
+         if(iii(i,j) == -1) // insertion or padding
+            {
+            assert(jjj(i,j) == -1);
+            newrx(i,j) = (r.fval() < 0.5);
+            }
+         else // transmission
+            {
+            assert(jjj(i,j) >= 0);
+            newrx(i,j) = corrupt(tx(iii(i,j),jjj(i,j)));
+            }
+         }
    // copy results back
    rx = newrx;
-   }
-
-void bsid2d::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable) const
-   {
-   // Compute sizes
-   const int M = tx.size();
-   // Initialize results vector
-   ptable.init(1);
-   ptable(0).init(M);
-   // Compute results for each possible signal
-   for(int x=0; x<M; x++)
-      ptable(0)(x) = bsid2d::receive(tx(x),rx);
-   }
-
-double bsid2d::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
-   {
-   // Compute sizes
-   const int n = tx.size();
-   const int mu = rx.size()-n;
-   assert(n <= N);
-   assert(labs(mu) <= xmax);
-   // Set up forward matrix (automatically initialized to zero)
-   typedef boost::multi_array_types::extent_range range;
-   array2d_t F(boost::extents[n][range(-xmax,xmax+1)]);
-   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   F[0][0] = 1;
-   // compute remaining matrix values
-   typedef array2d_t::index index;
-   for(index j=1; j<n; ++j)
-      {
-      // event must fit the received sequence:
-      // 1. j-1+a >= 0
-      // 2. j-1+y < rx.size()
-      // limits on insertions and deletions must be respected:
-      // 3. y-a <= I
-      // 4. y-a >= -1
-      const index amin = std::max(-xmax,1-int(j));
-      const index amax = xmax;
-      const index ymax_bnd = std::min(xmax,rx.size()-int(j));
-      for(index a=amin; a<=amax; ++a)
-         {
-         const index ymin = std::max(-xmax,int(a)-1);
-         const index ymax = std::min(ymax_bnd,int(a)+I);
-         for(index y=ymin; y<=ymax; ++y)
-            F[j][y] += F[j-1][a] \
-               * bsid2d::receive(tx(int(j-1)),rx.extract(int(j-1+a),int(y-a+1)));
-         }
-      }
-   // Compute forward metric for known drift, and return
-   double result = 0;
-   // event must fit the received sequence:
-   // 1. tau-1+a >= 0
-   // 2. tau-1+mu < rx.size() [automatically satisfied by definition of mu]
-   // limits on insertions and deletions must be respected:
-   // 3. mu-a <= I
-   // 4. mu-a >= -1
-   const index amin = std::max(std::max(-xmax,mu-I),1-n);
-   const index amax = std::min(xmax,mu+1);
-   for(index a=amin; a<=amax; ++a)
-      result += F[n-1][a] \
-         * bsid2d::receive(tx(int(n-1)),rx.extract(int(n-1+a),int(mu-a+1)));
-   return result;
    }
 
 // description output
@@ -404,10 +433,7 @@ double bsid2d::receive(const libbase::vector<bool>& tx, const libbase::vector<bo
 std::string bsid2d::description() const
    {
    std::ostringstream sout;
-   sout << "BSID channel (" << varyPs << varyPd << varyPi;
-   if(biased)
-      sout << ", biased";
-   sout << ")";
+   sout << "2D BSID channel (" << varyPs << varyPd << varyPi << ")";
    return sout.str();
    }
 
@@ -415,8 +441,7 @@ std::string bsid2d::description() const
 
 std::ostream& bsid2d::serialize(std::ostream& sout) const
    {
-   sout << 2 << "\n";
-   sout << biased << "\n";
+   sout << 1 << "\n";
    sout << varyPs << "\n";
    sout << varyPd << "\n";
    sout << varyPi << "\n";
@@ -431,18 +456,7 @@ std::istream& bsid2d::serialize(std::istream& sin)
    // get format version
    int version;
    sin >> version;
-   // handle old-format files (without version number)
-   if(version < 2)
-      {
-      //sin.clear();
-      sin.seekg(start);
-      version = 1;
-      }
-   // read flag if present
-   if(version < 2)
-      biased = false;
-   else
-      sin >> biased;
+   // read parameters
    sin >> varyPs;
    sin >> varyPd;
    sin >> varyPi;
