@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "config.h"
 #include "matrix.h"
 #include "multi_array.h"
@@ -161,6 +152,16 @@ void testboost_iterators()
    A = 1;
    display_array(A);
    }
+
+/*!
+   \brief   Test program for various base functions and facilities
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main()
    {

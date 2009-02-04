@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "qsc.h"
 #include "gf.h"
 #include "randgen.h"
@@ -63,6 +54,16 @@ void TestQSC()
    qsc< gf<m,poly> > chan;
    TestChannel(chan,0.1);
    }
+
+/*!
+   \brief   Test program for q-ary symmetric channel
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

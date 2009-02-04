@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "logrealfast.h"
 #include "dminner.h"
 #include "bsid.h"
@@ -94,6 +85,16 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    cout << "   Ones:\t" << ones.mean() << "\t" << ones.sigma() << "\n";
    cout << "\n";
    }
+
+/*!
+   \brief   Test program for BSID channel
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

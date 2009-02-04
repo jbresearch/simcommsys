@@ -1,14 +1,3 @@
-/*!
-   \file
-   \brief   Simulation of Communication Systems
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "randgen.h"
 #include "serializer_libcomm.h"
 #include "commsys_simulator.h"
@@ -75,6 +64,16 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
       pset(i) = pset(i-1) * mul;
    return pset;
    }
+
+/*!
+   \brief   Simulation of Communication Systems
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {
