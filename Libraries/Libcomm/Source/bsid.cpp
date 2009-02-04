@@ -299,7 +299,7 @@ bool bsid::corrupt(const bool& s)
 
    \sa corrupt()
 */
-void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
+void bsid::transmit(const array1b_t& tx, array1b_t& rx)
    {
    const int tau = tx.size();
    libbase::vector<int> insertions(tau);
@@ -323,7 +323,7 @@ void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
       libbase::trace << "DEBUG (bsid): insertions = " << insertions << "\n";
       }
 #endif
-   libbase::vector<bool> newrx;
+   array1b_t newrx;
    newrx.init(transmit.sum() + insertions.sum());
    // Corrupt the modulation symbols (simulate the channel)
    for(int i=0, j=0; i<tau; i++)
@@ -337,7 +337,7 @@ void bsid::transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx)
    rx = newrx;
    }
 
-void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable) const
+void bsid::receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const
    {
    // Compute sizes
    const int M = tx.size();
@@ -349,7 +349,7 @@ void bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>&
       ptable(0)(x) = bsid::receive(tx(x),rx);
    }
 
-double bsid::receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const
+double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
    {
    // Compute sizes
    const int n = tx.size();

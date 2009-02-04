@@ -24,6 +24,9 @@ class bsid : public channel<bool> {
 public:
    /*! \name Type definitions */
    typedef boost::assignable_multi_array<double,2> array2d_t;
+   typedef libbase::vector<bool>       array1b_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
    /*! \name User-defined parameters */
@@ -91,10 +94,10 @@ public:
    // @}
 
    // Channel functions
-   void transmit(const libbase::vector<bool>& tx, libbase::vector<bool>& rx);
-   void receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx, libbase::vector< libbase::vector<double> >& ptable) const;
-   double receive(const libbase::vector<bool>& tx, const libbase::vector<bool>& rx) const;
-   double receive(const bool& tx, const libbase::vector<bool>& rx) const;
+   void transmit(const array1b_t& tx, array1b_t& rx);
+   void receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const;
+   double receive(const array1b_t& tx, const array1b_t& rx) const;
+   double receive(const bool& tx, const array1b_t& rx) const;
 
    // Description
    std::string description() const;
@@ -108,7 +111,7 @@ inline double bsid::pdf(const bool& tx, const bool& rx) const
    return (tx != rx) ? Ps : 1-Ps;
    }
 
-inline double bsid::receive(const bool& tx, const libbase::vector<bool>& rx) const
+inline double bsid::receive(const bool& tx, const array1b_t& rx) const
    {
    // Compute sizes
    const int mu = rx.size()-1;
