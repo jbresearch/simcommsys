@@ -16,126 +16,7 @@ namespace libcomm {
 
 const libbase::serializer bsid2d::shelper("channel", "bsid2d", bsid2d::create);
 
-// FBA decoder parameter computation
-
-/*!
-   \brief Determine limit for insertions between two time-steps
-
-   \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log p } \right\rceil - 1 \f]
-   where \f$ P_r \f$ is an arbitrary probability of having a block of size
-   \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
-   between successive time-steps.
-   In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
-
-   \note The smallest allowed value is \f$ I = 1 \f$
-*/
-int bsid2d::compute_I(int tau, double p)
-   {
-   int I = int(ceil((log(1e-12) - log(double(tau))) / log(p))) - 1;
-   I = std::max(I,1);
-   libbase::trace << "DEBUG (bsid2d): for N = " << tau << ", I = " << I << "/";
-   I = std::min(I,2);
-   libbase::trace << I << ".\n";
-   return I;
-   }
-
-/*!
-   \brief Determine maximum drift over a whole N-bit block
-
-   \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
-   where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
-   having a block of size \f$ \tau \f$ where the drift at the end is greater
-   than \f$ \pm x_{max} \f$.
-   In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
-
-   The calculation is based on the assumption that the end-of-frame drift has
-   a Gaussian distribution with zero mean and standard deviation given by
-   \f$ \sigma = \sqrt{\frac{\tau p}{1-p}} \f$.
-
-   \note The smallest allowed value is \f$ x_{max} = I \f$
-*/
-int bsid2d::compute_xmax(int tau, double p, int I)
-   {
-   // rather than computing the factor using a root-finding method,
-   // we fix factor = 7.1305, corresponding to Qinv(1e-12/2.0)
-   const double factor = 7.1305;
-   int xmax = int(ceil(factor * sqrt(tau*p/(1-p))));
-   xmax = std::max(xmax,I);
-   libbase::trace << "DEBUG (bsid2d): for N = " << tau << ", xmax = " << xmax << "/";
-   //xmax = min(xmax,25);
-   libbase::trace << xmax << ".\n";
-   return xmax;
-   }
-
-/*!
-   \copydoc bsid2d::compute_xmax()
-
-   \note Provided for convenience; will determine I itself, then use that to
-         determine xmax.
-*/
-int bsid2d::compute_xmax(int tau, double p)
-   {
-   int I = compute_I(tau,p);
-   return compute_xmax(tau,p,I);
-   }
-
-/*!
-   \brief Compute receiver coefficient set
-
-   First row has elements where the last bit \f[ r_\mu = t \f]
-   \f[ Rtable(0,\mu) =
-      \left(\frac{P_i}{2}\right)^\mu
-      \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
-      , \mu \in (0, \ldots x_{max}) \f]
-
-   Second row has elements where the last bit \f[ r_\mu \neq t \f]
-   \f[ Rtable(1,\mu) =
-      \left(\frac{P_i}{2}\right)^\mu
-      \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
-      , \mu \in (0, \ldots x_{max}) \f]
-*/
-void bsid2d::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi)
-   {
-   // Allocate required size
-   Rtable.resize(boost::extents[2][xmax+1]);
-   // Set values for insertions
-   const double a1 = (1-Pi-Pd);
-   const double a2 = 0.5*Pi*Pd;
-   for(int mu=0; mu<=xmax; mu++)
-      {
-      const double a3 = pow(0.5*Pi, mu);
-      Rtable[0][mu] = a3 * (a1 * (1-Ps) + a2);
-      Rtable[1][mu] = a3 * (a1 * Ps + a2);
-      }
-   }
-
 // Internal functions
-
-/*!
-   \brief Sets up pre-computed values
-
-   This function computes all cached quantities used within actual channel
-   operations. Since these values depend on the channel conditions, this
-   function should be called any time a channel parameter is changed.
-*/
-void bsid2d::precompute()
-   {
-   if(N == 0)
-      {
-      I = 0;
-      xmax = 0;
-      // reset array
-      Rtable.resize(boost::extents[0][0]);
-      return;
-      }
-   assert(N>0);
-   // fba decoder parameters
-   I = compute_I(N, Pd);
-   xmax = compute_xmax(N, Pd, I);
-   // receiver coefficients
-   compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
-   Rval = Pd;
-   }
 
 /*!
    \brief Initialization
@@ -151,7 +32,8 @@ void bsid2d::init()
    Pi = 0;
    // set block size to unusable value
    N = 0;
-   precompute();
+   M = 0;
+   //precompute();
    }
 
 /*!
@@ -282,7 +164,7 @@ void bsid2d::set_pd(const double Pd)
    assert(Pd >=0 && Pd <= 1);
    assert(Pi+Pd >=0 && Pi+Pd <= 1);
    bsid2d::Pd = Pd;
-   precompute();
+   //precompute();
    }
 
 void bsid2d::set_pi(const double Pi)
@@ -290,7 +172,7 @@ void bsid2d::set_pi(const double Pi)
    assert(Pi >=0 && Pi <= 1);
    assert(Pi+Pd >=0 && Pi+Pd <= 1);
    bsid2d::Pi = Pi;
-   precompute();
+   //precompute();
    }
 
 void bsid2d::set_blocksize(int M, int N)
@@ -301,7 +183,7 @@ void bsid2d::set_blocksize(int M, int N)
       bsid2d::M = M;
       assert(N > 0);
       bsid2d::N = N;
-      precompute();
+      //precompute();
       }
    }
 
@@ -331,7 +213,9 @@ bool bsid2d::corrupt(const bool& s)
 /*!
    \copydoc channel::transmit()
 
-   The channel model implemented is described by the following state diagram:
+   The channel model implemented is described by independent state machines
+   for the row and column sequences, each according to the following state
+   diagram:
    \dot
    digraph bsid2dstates {
       // Make figure left-to-right
@@ -350,6 +234,13 @@ bool bsid2d::corrupt(const bool& s)
       Substitute -> next;
    }
    \enddot
+
+   The cumulative number of insertions-deletions+transmissions for each row
+   and column determine the final horizontal and vertical position respectively
+   for the given bit. The bit is only actually transmitted if the transmit
+   flags for the horizontal and vertical state machines are both true. The
+   final matrix is padded to the smallest rectangle that will fit all final
+   positions. Inserted bits and other padding are assumed to be equiprobable.
 
    \note We have initially no idea how long the received sequence will be, so
          we first determine the state sequence at every timestep, keeping

@@ -45,22 +45,8 @@ private:
    int      M;          //!< Vertical block size (rows) over which we want to synchronize
    int      N;          //!< Horizontal block size (columns) over which we want to synchronize
    // @}
-   /*! \name Pre-computed parameters */
-   int      I;          //!< Assumed limit for insertions between two time-steps
-   int      xmax;       //!< Assumed maximum drift over a whole \c N -bit block
-   array2d_t Rtable;    //!< Receiver coefficient set for mu >= 0
-   double   Rval;       //!< Receiver coefficient value for mu = -1
-   // @}
-public:
-   /*! \name FBA decoder parameter computation */
-   static int compute_I(int tau, double p);
-   static int compute_xmax(int tau, double p, int I);
-   static int compute_xmax(int tau, double p);
-   static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd, double Pi);
-   // @}
 private:
    /*! \name Internal functions */
-   void precompute();
    void init();
    void computestate(int& insertions, bool& transmit);
    void computestate(array2i_t& insertions, array2b_t& transmit);
