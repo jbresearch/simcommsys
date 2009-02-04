@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "logrealfast.h"
 #include "dminner.h"
 #include "bsid.h"
@@ -14,6 +5,16 @@
 #include "bitfield.h"
 
 #include <iostream>
+
+/*!
+   \brief   Test program for DM inner code creation
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

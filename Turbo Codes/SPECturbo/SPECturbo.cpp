@@ -1,18 +1,3 @@
-/*!
-   \file
-   \brief   SPECturbo benchmark
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-
-   \note Following the update to bcjr, where the alpha and beta metrics are
-         normalized, SPECturbo now uses the double-precision based turbo and
-         bcjr algorithms, resulting in more than 6x increase in speed.
-*/
-
 #include "serializer_libcomm.h"
 #include "montecarlo.h"
 #include "timer.h"
@@ -27,7 +12,7 @@
 
 namespace po = boost::program_options;
 
-// Standard system and respective results
+//! Standard benchmark system
 
 const std::string std_systemstring = 
    "commsys_simulator<sigspace>\n"
@@ -56,6 +41,8 @@ const std::string std_systemstring =
    "0\n"
    "10\n";
 
+//! Standard benchmark result set
+
 const double std_result[] = {
    0.0924156, 0.993763, \
    0.073373, 0.894948, \
@@ -74,6 +61,20 @@ protected:
 public:
    double timeout;
 };
+
+/*!
+   \brief   SPECturbo benchmark
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \note Following the update to bcjr, where the alpha and beta metrics are
+         normalized, SPECturbo now uses the double-precision based turbo and
+         bcjr algorithms, resulting in more than 6x increase in speed.
+*/
 
 int main(int argc, char *argv[])
    {

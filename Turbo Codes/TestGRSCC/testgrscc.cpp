@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "rscc.h"
 #include "grscc.h"
 #include "gf.h"
@@ -170,6 +161,16 @@ void TestCirculation()
       }
    cout << '\n';
    }
+
+/*!
+   \brief   Test program for GRSCC class
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

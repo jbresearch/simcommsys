@@ -1,14 +1,3 @@
-/*!
-   \file
-   \brief   Communication Systems Decoder
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "serializer_libcomm.h"
 #include "commsys.h"
 #include "codec_softout.h"
@@ -51,6 +40,16 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
       libbase::eatwhite(sin);
       }
    }
+
+/*!
+   \brief   Communication Systems Decoder
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

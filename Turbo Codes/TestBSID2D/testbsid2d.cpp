@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "bsid2d.h"
 #include "randgen.h"
 
@@ -58,6 +49,16 @@ void visualtest(int seed, int type, double p)
    channel2.transmit(tx, rx2);
    cout << "Rx2: " << rx2 << "\n";
    }
+
+/*!
+   \brief   Test program for 2D BSID channel
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

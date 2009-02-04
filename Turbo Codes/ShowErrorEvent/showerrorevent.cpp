@@ -1,14 +1,3 @@
-/*!
-   \file
-   \brief   Error Event Analysis for Experiments
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "config.h"
 #include "randgen.h"
 #include "truerand.h"
@@ -45,6 +34,16 @@ void seed_experiment(libcomm::experiment *system)
    system->seedfrom(prng);
    cerr << "Seed: " << seed << "\n";
    }
+
+/*!
+   \brief   Error Event Analysis for Experiments
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

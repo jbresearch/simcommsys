@@ -1,14 +1,3 @@
-/*!
-   \file
-   \brief   Communication Systems Encoder
-   \author  Johann Briffa
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "serializer_libcomm.h"
 #include "commsys.h"
 #include "timer.h"
@@ -32,6 +21,16 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
       libbase::eatwhite(sin);
       }
    }
+
+/*!
+   \brief   Communication Systems Encoder
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

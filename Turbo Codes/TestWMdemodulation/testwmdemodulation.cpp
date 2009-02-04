@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "timer.h"
 #include "randgen.h"
 #include "logrealfast.h"
@@ -180,6 +171,16 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k, int t
    // count errors
    count_errors(encoded, ptable);
    }
+
+/*!
+   \brief   Test program for DM inner decoder
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

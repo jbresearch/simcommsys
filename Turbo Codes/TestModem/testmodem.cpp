@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "mpsk.h"
 #include "qam.h"
 #include "bitfield.h"
@@ -48,6 +39,16 @@ void TestQAM(int m)
    qam mdm(m);
    TestModem(mdm);
    }
+
+/*!
+   \brief   Test program for modem class
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {

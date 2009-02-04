@@ -1,12 +1,3 @@
-/*!
-   \file
-
-   \par Version Control:
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
-
 #include "gf.h"
 #include "bitfield.h"
 #include "matrix.h"
@@ -21,8 +12,10 @@ using std::cerr;
 using std::hex;
 using std::dec;
 
-// Exponential table entries for base {03}
-// cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
+/*!
+   \brief Exponential table entries for base {03}
+   cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
+*/
 const int aestable[] = {
    0x01, 0x03, 0x05, 0x0f, 0x11, 0x33, 0x55, 0xff, 0x1a, 0x2e, 0x72, 0x96, 0xa1, 0xf8, 0x13, 0x35,
    0x5f, 0xe1, 0x38, 0x48, 0xd8, 0x73, 0x95, 0xa4, 0xf7, 0x02, 0x06, 0x0a, 0x1e, 0x22, 0x66, 0xaa,
@@ -141,6 +134,16 @@ void TestGenPowerGF8()
       pow(G,i).serialize(cout);
       }
    }
+
+/*!
+   \brief Test program for GF class
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+*/
 
 int main(int argc, char *argv[])
    {
