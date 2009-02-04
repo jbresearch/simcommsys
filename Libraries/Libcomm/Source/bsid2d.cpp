@@ -176,7 +176,7 @@ void bsid2d::computestate(int& insertions, bool& transmit)
 /*!
    \brief Determine state-machine values for a whole block
 
-   \cf computestate();
+   \sa computestate();
 */
 void bsid2d::computestate(array2i_t& insertions, array2b_t& transmit)
    {
