@@ -18,7 +18,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Davey's Watermark Code.
+   \brief   Davey-MacKay Inner Code, original bit-level decoding.
    \author  Johann Briffa
 
    \par Version Control:
@@ -26,9 +26,9 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   Implements Watermark Codes as described by Davey in "Reliable Communication
-   over Channels with Insertions, Deletions, and Substitutions", Trans. IT,
-   Feb 2001.
+   Implements 'Watermark' Codes as described by Davey and MacKay in "Reliable
+   Communication over Channels with Insertions, Deletions, and Substitutions",
+   Trans. IT, Feb 2001.
 
    \note In demodulate(), the ptable is internally computed as type 'real',
          and then copied over after normalization. We normalize over the whole

@@ -9,7 +9,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Davey's Watermark Code.
+   \brief   Davey-MacKay Inner Code, with symbol-level decoding.
    \author  Johann Briffa
 
    \par Version Control:
@@ -18,8 +18,8 @@ namespace libcomm {
    - $Author$
 
    Implements a novel (and more accurate) decoding algorithm for the inner
-   codes described by Davey in "Reliable Communication over Channels with
-   Insertions, Deletions, and Substitutions", Trans. IT, Feb 2001.
+   codes described by Davey and MacKay in "Reliable Communication over Channels
+   with Insertions, Deletions, and Substitutions", Trans. IT, Feb 2001.
 */
 
 template <class real, bool normalize>
