@@ -368,6 +368,7 @@ Steganography/PluginWizard/Stdafx.h
 Steganography/PluginWizard/resource.h
 Steganography/SSISsimulator/SSISsimulator.cpp
 Steganography/SSISsimulator/SSISsimulator.h
+Turbo Codes
 Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.cpp
 Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.h
 Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.cpp
@@ -397,6 +398,7 @@ Turbo Codes/SRandomInterleaver/Stdafx.h
 Turbo Codes/SRandomInterleaver/resource.h
 Turbo Codes/ShowErrorEvent/showerrorevent.cpp
 Turbo Codes/SimCommsys/simcommsys.cpp
+Turbo Codes/Source
 Turbo Codes/Source/SPECturbo.cpp
 Turbo Codes/Source/csdecode.cpp
 Turbo Codes/Source/csencode.cpp
@@ -405,6 +407,7 @@ Turbo Codes/Source/cstransmit.cpp
 Turbo Codes/Source/showerrorevent.cpp
 Turbo Codes/Source/simcommsys.cpp
 Turbo Codes/Source/testbsid.cpp
+Turbo Codes/Source/testbsid2d.cpp
 Turbo Codes/Source/testconfig.cpp
 Turbo Codes/Source/testgf.cpp
 Turbo Codes/Source/testgrscc.cpp
@@ -413,6 +416,8 @@ Turbo Codes/Source/testqsc.cpp
 Turbo Codes/Source/testwatermark.cpp
 Turbo Codes/Source/testwmdemodulation.cpp
 Turbo Codes/TestBSID/testbsid.cpp
+Turbo Codes/TestBSID2D
+Turbo Codes/TestBSID2D/testbsid2d.cpp
 Turbo Codes/TestConfig/testconfig.cpp
 Turbo Codes/TestGF/testgf.cpp
 Turbo Codes/TestGRSCC/testgrscc.cpp
