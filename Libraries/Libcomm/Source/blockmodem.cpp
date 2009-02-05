@@ -14,12 +14,12 @@
 
 namespace libcomm {
 
-// *** Common Modulator Interface ***
+// *** Blockwise Modulator Base ***
 
 // Vector modem operations
 
 template <class S, template<class> class C>
-void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
+void blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
    {
    assert(tau > 0);
    advance_always();
@@ -27,7 +27,7 @@ void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& t
    }
 
 template <class S, template<class> class C>
-void basic_blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable)
+void blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable)
    {
    assert(tau > 0);
    advance_if_dirty();
@@ -37,12 +37,12 @@ void basic_blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C
 
 // Explicit Realizations
 
-template class basic_blockmodem< libbase::gf<1,0x3> >;
-template class basic_blockmodem< libbase::gf<2,0x7> >;
-template class basic_blockmodem< libbase::gf<3,0xB> >;
-template class basic_blockmodem< libbase::gf<4,0x13> >;
-template class basic_blockmodem<bool>;
-template class basic_blockmodem<libcomm::sigspace>;
+template class blockmodem< libbase::gf<1,0x3> >;
+template class blockmodem< libbase::gf<2,0x7> >;
+template class blockmodem< libbase::gf<3,0xB> >;
+template class blockmodem< libbase::gf<4,0x13> >;
+template class blockmodem<bool>;
+template class blockmodem<libcomm::sigspace>;
 
 
 // *** Templated GF(q) blockmodem ***
@@ -50,10 +50,10 @@ template class basic_blockmodem<libcomm::sigspace>;
 // Vector modem operations
 
 template <class G>
-void direct_blockmodem<G>::domodulate(const int N, const array1i_t& encoded, array1g_t& tx)
+void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<G>& tx)
    {
    // Inherit sizes
-   const int M = num_symbols();
+   const int M = this->num_symbols();
    const int tau = this->input_block_size();
    // Compute factors & check validity
    const int s = int(round( log2(double(N)) / log2(double(M)) ));
@@ -66,21 +66,21 @@ void direct_blockmodem<G>::domodulate(const int N, const array1i_t& encoded, arr
    // Modulate encoded stream (least-significant first)
    for(int t=0, k=0; t<tau; t++)
       for(int i=0, x = encoded(t); i<s; i++, k++, x /= M)
-         tx(k) = modulate(x % M);
+         tx(k) = direct_modem<G>::modulate(x % M);
    }
 
 template <class G>
-void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const array1g_t& rx, array1vd_t& ptable)
+void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::vector<array1d_t>& ptable)
    {
    // Inherit sizes
-   const int M = num_symbols();
+   const int M = this->num_symbols();
    const int tau = this->input_block_size();
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
-   array1g_t tx(M);
+   libbase::vector<G> tx(M);
    for(int x=0; x<M; x++)
-      tx(x) = modulate(x);
+      tx(x) = direct_modem<G>::modulate(x);
    // Work out the probabilities of each possible signal
    chan.receive(tx, rx, ptable);
    }
@@ -91,7 +91,7 @@ template <class G>
 std::string direct_blockmodem<G>::description() const
    {
    std::ostringstream sout;
-   sout << "GF(" << num_symbols() << ") Modulation";
+   sout << "Blockwise " << direct_modem<G>::description();
    return sout.str();
    }
 
@@ -100,13 +100,13 @@ std::string direct_blockmodem<G>::description() const
 template <class G>
 std::ostream& direct_blockmodem<G>::serialize(std::ostream& sout) const
    {
-   return sout;
+   return direct_modem<G>::serialize(sout);
    }
 
 template <class G>
 std::istream& direct_blockmodem<G>::serialize(std::istream& sin)
    {
-   return sin;
+   return direct_modem<G>::serialize(sin);
    }
 
 // Explicit Realizations
@@ -131,7 +131,7 @@ const libbase::serializer direct_blockmodem<bool>::shelper("blockmodem", "blockm
 
 // Vector modem operations
 
-void direct_blockmodem<bool>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
+void direct_blockmodem<bool>::domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
    {
    // Inherit sizes
    const int tau = input_block_size();
@@ -148,14 +148,14 @@ void direct_blockmodem<bool>::domodulate(const int N, const array1i_t& encoded, 
          tx(k) = (x & 1);
    }
 
-void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
+void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::vector<array1d_t>& ptable)
    {
    // Inherit sizes
    const int tau = input_block_size();
    // Check validity
    assertalways(tau == rx.size());
    // Create a matrix of all possible transmitted symbols
-   array1b_t tx(2);
+   libbase::vector<bool> tx(2);
    tx(0) = false;
    tx(1) = true;
    // Work out the probabilities of each possible signal
@@ -166,19 +166,21 @@ void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const arra
 
 std::string direct_blockmodem<bool>::description() const
    {
-   return "Binary Modulation";
+   std::ostringstream sout;
+   sout << "Blockwise " << direct_modem<bool>::description();
+   return sout.str();
    }
 
 // Serialization Support
 
 std::ostream& direct_blockmodem<bool>::serialize(std::ostream& sout) const
    {
-   return sout;
+   return direct_modem<bool>::serialize(sout);
    }
 
 std::istream& direct_blockmodem<bool>::serialize(std::istream& sin)
    {
-   return sin;
+   return direct_modem<bool>::serialize(sin);
    }
 
 }; // end namespace

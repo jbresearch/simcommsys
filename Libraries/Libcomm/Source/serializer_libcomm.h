@@ -98,7 +98,6 @@ namespace libcomm {
 class serializer_libcomm : private
    qsc< libbase::gf<1,0x3> >, qsc< libbase::gf<2,0x7> >, qsc< libbase::gf<3,0xB> >, qsc< libbase::gf<4,0x13> >,
    awgn, laplacian, lapgauss, bsid, bsid2d, bsc,
-   mpsk, qam,
    nrcc, rscc, dvbcrsc,
    grscc< libbase::gf<1,0x3> >, grscc< libbase::gf<2,0x7> >, grscc< libbase::gf<3,0xB> >, grscc< libbase::gf<4,0x13> >,
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
@@ -132,6 +131,8 @@ private:
    //uniform_lut<logrealfast>	_uniform_lut_double;
    //named_lut<logrealfast>	_named_lut_double;
    // Modulators
+   mpsk                             _mpsk;
+   qam                              _qam;
    dminner<logrealfast,false>       _dminner_logrealfast;
    dminner2<logrealfast,false>      _dminner2_logrealfast;
    // Systems
@@ -160,7 +161,8 @@ private:
    commsys_simulator<bool,commsys_hist_symerr>   _commsys_simulator_bool_hist_symerr;
    commsys_threshold<bool>             _commsys_threshold_bool;
 public:
-   serializer_libcomm() {};
+   serializer_libcomm() :
+      _mpsk(2), _qam(4) {};
 };
 
 // Public interface to load objects
