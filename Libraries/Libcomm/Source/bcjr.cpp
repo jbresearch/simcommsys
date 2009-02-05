@@ -268,7 +268,7 @@ void bcjr<real,dbl>::work_alpha()
    gamma values; the matrix is recursively computed. Final beta values are set
    in the creator and are never changed in the object's lifetime.
 
-   \cf See notes for work_alpha()
+   \sa See notes for work_alpha()
 */
 template <class real, class dbl>
 void bcjr<real,dbl>::work_beta()
