@@ -73,6 +73,8 @@ public:
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Avoid using virtual inheritance
 */
 
 template <class S>
@@ -89,6 +91,8 @@ class modem : public virtual basic_modem<S> {
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Avoid using virtual inheritance
 */
 
 template <>
@@ -122,6 +126,8 @@ public:
          the field size.
 
    \todo Merge modulate and demodulate between this function and lut_modulator (?)
+
+   \todo Avoid using virtual inheritance
 */
 
 template <class G>
@@ -151,6 +157,8 @@ public:
    - $Author$
 
    Specific implementation of binary channel modulation.
+
+   \todo Avoid using virtual inheritance
 */
 
 template <>

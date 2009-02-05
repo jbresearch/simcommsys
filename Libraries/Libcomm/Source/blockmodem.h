@@ -24,6 +24,8 @@ namespace libcomm {
 
    \todo Separate block size definition from this class
 
+   \todo Avoid using virtual inheritance
+
    \todo Test inheritance of virtual functions in VS 2005
 */
 
