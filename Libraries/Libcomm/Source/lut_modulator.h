@@ -13,6 +13,8 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Test inheritance of virtual functions in VS 2005
 */
 
 class lut_modulator : public blockmodem<sigspace> {
@@ -35,11 +37,9 @@ public:
    const int demodulate(const sigspace& signal) const;
 
    // Vector modem operations
-   // (necessary because base is templated)
-   void modulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx)
-      { blockmodem<sigspace>::modulate(N, encoded, tx); };
-   void demodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::vector< libbase::vector<double> >& ptable)
-      { blockmodem<sigspace>::demodulate(chan, rx, ptable); };
+   // (necessary because inheriting methods from templated base)
+   using blockmodem<sigspace>::modulate;
+   using blockmodem<sigspace>::demodulate;
 
    // Informative functions
    int num_symbols() const { return lut.size(); };
