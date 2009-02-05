@@ -139,7 +139,7 @@ void TestGenPowerGF8()
    \brief Test program for GF class
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

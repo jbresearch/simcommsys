@@ -44,7 +44,7 @@ void TestQAM(int m)
    \brief   Test program for modem class
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

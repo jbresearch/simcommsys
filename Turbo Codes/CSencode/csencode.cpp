@@ -26,7 +26,7 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    \brief   Communication Systems Encoder
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

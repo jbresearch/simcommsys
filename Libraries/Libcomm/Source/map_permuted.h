@@ -11,7 +11,7 @@ namespace libcomm {
    \brief   Random Symbol Permutation Mapper.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

@@ -39,7 +39,7 @@ void seed_experiment(libcomm::experiment *system)
    \brief   Error Event Analysis for Experiments
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

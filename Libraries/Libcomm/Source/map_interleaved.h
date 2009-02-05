@@ -11,7 +11,7 @@ namespace libcomm {
    \brief   Random Interleaving Mapper.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

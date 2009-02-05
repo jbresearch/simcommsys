@@ -7,7 +7,7 @@ namespace libbase {
    \brief   Base Function Pointer.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -35,7 +35,7 @@ public:
    \brief   Function Pointer.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

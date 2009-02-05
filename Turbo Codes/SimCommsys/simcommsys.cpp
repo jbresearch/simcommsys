@@ -69,7 +69,7 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
    \brief   Simulation of Communication Systems
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

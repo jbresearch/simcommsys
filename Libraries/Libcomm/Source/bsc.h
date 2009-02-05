@@ -12,7 +12,7 @@ namespace libcomm {
    \brief   Binary symmetric channel.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

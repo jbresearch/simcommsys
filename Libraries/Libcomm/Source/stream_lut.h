@@ -11,7 +11,7 @@ namespace libcomm {
    \brief   Stream-loaded LUT Interleaver.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

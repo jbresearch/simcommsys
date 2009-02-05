@@ -13,7 +13,7 @@ namespace libcomm {
    \brief   Common 32-bit Digest Implementation.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

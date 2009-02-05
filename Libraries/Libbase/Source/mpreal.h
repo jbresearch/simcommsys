@@ -10,7 +10,7 @@ namespace libbase {
    \brief   Multi-Precision Arithmetic.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

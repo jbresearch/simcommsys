@@ -14,7 +14,7 @@ namespace libcomm {
    \brief   Communication Systems Simulator.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

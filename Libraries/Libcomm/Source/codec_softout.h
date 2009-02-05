@@ -10,7 +10,7 @@ namespace libcomm {
    \brief   Channel Codec with Soft Output Interface.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -48,7 +48,7 @@ public:
    \brief   Channel Codec with Soft Output Base.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -66,7 +66,7 @@ public:
    \brief   Channel Codec with Soft Output Base Specialization.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

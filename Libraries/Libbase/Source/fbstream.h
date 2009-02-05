@@ -11,7 +11,7 @@ namespace libbase {
    \brief   Bitstream File-handling.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

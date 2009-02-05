@@ -12,7 +12,7 @@ namespace libcomm {
    \brief   Davey-MacKay Inner Code, with symbol-level decoding.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

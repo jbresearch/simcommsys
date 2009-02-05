@@ -90,7 +90,7 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    \brief   Test program for BSID channel
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

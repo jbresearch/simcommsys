@@ -13,7 +13,7 @@ namespace libcomm {
    \brief   Random LUT Interleaver.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

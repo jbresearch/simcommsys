@@ -14,7 +14,7 @@ namespace libcomm {
    \brief   Additive Laplacian Noise Channel.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

@@ -14,7 +14,7 @@ namespace libbase {
    \brief   Socket-based Master-Slave computation.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

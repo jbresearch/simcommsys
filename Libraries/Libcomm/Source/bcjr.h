@@ -19,7 +19,7 @@ namespace libcomm {
    \brief   Bahl-Cocke-Jelinek-Raviv (BCJR) decoding algorithm.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

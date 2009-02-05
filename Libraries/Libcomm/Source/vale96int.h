@@ -10,7 +10,7 @@ namespace libcomm {
    \brief   Matt Valenti's Interleaver.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

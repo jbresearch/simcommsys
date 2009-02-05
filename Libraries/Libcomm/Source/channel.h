@@ -19,7 +19,7 @@ namespace libcomm {
    \brief   Common Channel Interface.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -135,7 +135,7 @@ public:
    \brief   Common Channel Base.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -152,7 +152,7 @@ class basic_channel : public basic_channel_interface<S,C> {
    \brief   Common Channel Base Specialization.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -230,7 +230,7 @@ double basic_channel<S,libbase::vector>::receive(const S& tx, const array1s_t& r
    \brief   Common Channel Base Specialization.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -311,7 +311,7 @@ double basic_channel<S,libbase::matrix>::receive(const S& tx, const array2s_t& r
    \brief   Channel Base.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -329,7 +329,7 @@ class channel : public basic_channel<S,C> {
    \brief   Signal-Space Channel.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

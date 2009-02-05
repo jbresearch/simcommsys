@@ -10,7 +10,7 @@ namespace libcomm {
    \brief   CommSys Results - Symbol-Value Error Profile.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

@@ -9,7 +9,7 @@ namespace libcomm {
    \brief   Piece-wise Linear Modulator used in SSIS.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

@@ -15,7 +15,7 @@ namespace libcomm {
    \brief   Common Base for Communication System.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -97,7 +97,7 @@ public:
    \brief   General Communication System.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -116,7 +116,7 @@ public:
    \brief   Signal-Space Communication System.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

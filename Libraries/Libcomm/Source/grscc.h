@@ -10,7 +10,7 @@ namespace libcomm {
    \brief   Generalized Recursive Systematic Convolutional Code.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

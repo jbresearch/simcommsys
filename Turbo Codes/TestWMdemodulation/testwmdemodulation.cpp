@@ -176,7 +176,7 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k, int t
    \brief   Test program for DM inner decoder
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

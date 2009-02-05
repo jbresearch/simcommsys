@@ -9,7 +9,7 @@ namespace libcomm {
    \brief   Finite symbol base class.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -42,7 +42,7 @@ public:
    \brief   Finite q-ary symbol.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

@@ -13,7 +13,7 @@ namespace libcomm {
    \brief   Blockwise Modulator Base.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -112,7 +112,7 @@ public:
    \brief   Q-ary Blockwise Modulator.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -148,7 +148,7 @@ public:
    \brief   Binary Blockwise Modulator.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

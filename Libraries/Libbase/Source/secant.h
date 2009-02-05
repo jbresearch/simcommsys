@@ -10,7 +10,7 @@ namespace libbase {
    \brief   Root-finding by Secant method.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

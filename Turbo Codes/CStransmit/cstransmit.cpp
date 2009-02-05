@@ -33,7 +33,7 @@ void process(const std::string& fname, double p, std::istream& sin, std::ostream
    \brief   Communication Systems Transmitter
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

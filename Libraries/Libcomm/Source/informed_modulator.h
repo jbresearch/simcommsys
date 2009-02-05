@@ -9,7 +9,7 @@ namespace libcomm {
    \brief   Informed Modulator Interface.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

@@ -9,7 +9,7 @@ namespace libcomm {
    \brief   Stipple Mapper.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

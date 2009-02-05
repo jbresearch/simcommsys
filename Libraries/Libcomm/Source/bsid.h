@@ -14,7 +14,7 @@ namespace libcomm {
    \brief   Binary substitution/insertion/deletion channel.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

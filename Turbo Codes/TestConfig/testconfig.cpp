@@ -157,7 +157,7 @@ void testboost_iterators()
    \brief   Test program for various base functions and facilities
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

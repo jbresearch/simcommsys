@@ -16,7 +16,7 @@ namespace libcomm {
    \brief   Generic experiment.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -138,7 +138,7 @@ public:
    \brief   Experiment with normally distributed samples.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
@@ -170,7 +170,7 @@ public:
    \brief   Experiment for estimation of a binomial proportion.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

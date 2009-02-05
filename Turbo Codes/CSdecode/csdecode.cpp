@@ -45,7 +45,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
    \brief   Communication Systems Decoder
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

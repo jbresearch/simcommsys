@@ -19,7 +19,7 @@ namespace libcomm {
    \brief   Turbo decoding algorithm.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

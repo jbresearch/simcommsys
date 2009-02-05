@@ -14,7 +14,7 @@ namespace libcomm {
    \brief   Message Digest MD5 Algorithm.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

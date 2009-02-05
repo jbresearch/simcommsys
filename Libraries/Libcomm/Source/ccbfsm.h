@@ -12,7 +12,7 @@ namespace libcomm {
    \brief   Controller-Canonical Binary Finite State Machine.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

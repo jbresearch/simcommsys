@@ -1,7 +1,7 @@
 /*!
    \file
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

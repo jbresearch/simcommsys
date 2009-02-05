@@ -15,7 +15,7 @@ namespace libcomm {
    \brief   Uncoded transmission.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
