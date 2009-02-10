@@ -12,7 +12,7 @@ namespace libcomm {
    \brief   Iterative 2D implementation of Davey-MacKay Inner Code.
    \author  Johann Briffa
 
-   \par Version Control:
+   \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$

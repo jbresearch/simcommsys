@@ -23,18 +23,16 @@ namespace libcomm {
    demodulation methods (atomic and vector) that make use of prior information.
 */
 
-template <class S>
-class informed_modulator : public blockmodem<S> {
+template <class S, template<class> class C=libbase::vector>
+class informed_modulator : public blockmodem<S,C> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<S>          array1s_t;
    typedef libbase::vector<double>     array1d_t;
-   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const array1s_t& rx, const array1vd_t& app, array1vd_t& ptable) = 0;
+   virtual void dodemodulate(const channel<S>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable) = 0;
    // @}
 
 public:
@@ -69,7 +67,7 @@ public:
       \note app may be empty; this should be taken to indicate that no prior
             information is available
    */
-   void demodulate(const channel<S>& chan, const array1s_t& rx, const array1vd_t& app, array1vd_t& ptable);
+   void demodulate(const channel<S>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable);
    // @}
 };
 
