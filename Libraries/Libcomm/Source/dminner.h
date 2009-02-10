@@ -35,6 +35,9 @@ namespace libcomm {
          block instead of independently for each timestep. This should be
          equivalent to no-normalization, and is a precursor to a change in the
          architecture to allow higher-range ptables.
+
+   \todo Separate this class from friendship with dminner2; common elements
+         should be extracted into a common base
 */
 
 template <class real, bool normalize>
