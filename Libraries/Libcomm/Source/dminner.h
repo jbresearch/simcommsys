@@ -82,6 +82,8 @@ private:
    /*! \name Internal functions */
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
+   void validatelut() const;
+   double computemeandensity() const;
    void checkforchanges(int I, int xmax) const;
    void work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const;
    void normalize_results(const array1vr_t& in, array1vd_t& out) const;

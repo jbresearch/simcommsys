@@ -51,6 +51,32 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
    return i;
    }
 
+//! Validate LUT
+
+template <class real, bool normalize>
+void dminner<real,normalize>::validatelut() const
+   {
+   assertalways(lut.size() == num_symbols());
+   for(int i=0; i<lut.size(); i++)
+      {
+      // all entries should be within size
+      assertalways(lut(i) >= 0 && lut(i) < (1<<n));
+      // all entries should be distinct
+      for(int j=0; j<i; j++)
+         assertalways(lut(i) != lut(j));
+      }
+   }
+
+//! Compute mean density of sparse alphabet
+
+template <class real, bool normalize>
+double dminner<real,normalize>::computemeandensity() const
+   {
+   array1i_t w = lut;
+   w.apply(libbase::weight);
+   return w.sum()/double(n * w.size());
+   }
+   
 //! Inform user if I or xmax have changed
 
 template <class real, bool normalize>
@@ -177,19 +203,9 @@ void dminner<real,normalize>::init()
       libbase::trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
 #endif
    // Validate LUT
-   assertalways(lut.size() == num_symbols());
-   for(int i=0; i<lut.size(); i++)
-      {
-      // all entries should be within size
-      assertalways(lut(i) >= 0 && lut(i) < (1<<n));
-      // all entries should be distinct
-      for(int j=0; j<i; j++)
-         assertalways(lut(i) != lut(j));
-      }
+   validatelut();
    // Compute the mean density
-   array1i_t w = lut;
-   w.apply(libbase::weight);
-   f = w.sum()/double(n * w.size());
+   f = computemeandensity();
    libbase::trace << "Watermark code density = " << f << "\n";
    // set default thresholds if necessary
    if(!user_threshold)
