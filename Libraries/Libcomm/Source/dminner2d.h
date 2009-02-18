@@ -29,7 +29,18 @@ class dminner2d :
    //private fba2<real,bool,normalize> {
 public:
    /*! \name Type definitions */
+   typedef libbase::matrix<bool>       array2b_t;
    typedef libbase::vector<double>     array1d_t;
+   // @}
+private:
+   /*! \name User-defined parameters */
+   std::string lutname;       //!< name to describe codebook
+   libbase::vector<array2b_t> lut; //!< sparsifier LUT, one 'm'x'n' matrix per symbol
+   // @}
+   /*! \name Pre-computed parameters */
+   int      q;                //!< number of symbols in message (input) alphabet
+   int      m;                //!< number of rows in sparse (output) symbol
+   int      n;                //!< number of columns in sparse (output) symbol
    // @}
 private:
    // Implementations of channel-specific metrics for fba
@@ -48,10 +59,13 @@ protected:
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable) {};
 
+protected:
+   /*! \name Internal functions */
+   void init();
+   // @}
 public:
-   
    // Informative functions
-   int num_symbols() const { return 1; };
+   int num_symbols() const { return q; };
 
    // Description
    std::string description() const;

@@ -13,13 +13,32 @@
 
 namespace libcomm {
 
+// initialization
+
+template <class real, bool normalize>
+void dminner2d<real,normalize>::init()
+   {
+   // Determine code parameters from LUT
+   q = lut.size();
+   assertalways(q > 0);
+   m = lut(0).xsize();
+   n = lut(0).ysize();
+   // Validate LUT
+   //validatelut();
+   // Seed the watermark generator and clear the sequence
+   //r.seed(0);
+   //ws.init(0);
+   }
+
 // description output
 
 template <class real, bool normalize>
 std::string dminner2d<real,normalize>::description() const
    {
    std::ostringstream sout;
-   sout << "Iterative 2D DM Inner Code";
+   sout << "Iterative 2D DM Inner Code (";
+   sout << m << "x" << n << "/" << q << ", ";
+   sout << lutname << " codebook)";
    return sout.str();
    }
 
@@ -28,6 +47,8 @@ std::string dminner2d<real,normalize>::description() const
 template <class real, bool normalize>
 std::ostream& dminner2d<real,normalize>::serialize(std::ostream& sout) const
    {
+   sout << lutname;
+   sout << lut;
    return sout;
    }
 
@@ -36,6 +57,9 @@ std::ostream& dminner2d<real,normalize>::serialize(std::ostream& sout) const
 template <class real, bool normalize>
 std::istream& dminner2d<real,normalize>::serialize(std::istream& sin)
    {
+   sin >> lutname;
+   sin >> lut;
+   init();
    return sin;
    }
 
