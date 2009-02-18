@@ -14,12 +14,12 @@
 
 namespace libcomm {
 
-// *** Blockwise Modulator Base ***
+// *** Blockwise Modulator Common Interface ***
 
 // Vector modem operations
 
 template <class S, template<class> class C>
-void blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
+void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
    {
    assert(tau > 0);
    advance_always();
@@ -27,13 +27,24 @@ void blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
    }
 
 template <class S, template<class> class C>
-void blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable)
+void basic_blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable)
    {
    assert(tau > 0);
    advance_if_dirty();
    dodemodulate(chan, rx, ptable);
    mark_as_dirty();
    }
+
+// Explicit Realizations
+
+template class basic_blockmodem< libbase::gf<1,0x3> >;
+template class basic_blockmodem< libbase::gf<2,0x7> >;
+template class basic_blockmodem< libbase::gf<3,0xB> >;
+template class basic_blockmodem< libbase::gf<4,0x13> >;
+template class basic_blockmodem<bool>;
+template class basic_blockmodem<libcomm::sigspace>;
+
+// *** Blockwise Modulator Common Interface ***
 
 // Explicit Realizations
 

@@ -10,7 +10,7 @@
 namespace libcomm {
 
 /*!
-   \brief   Blockwise Modulator Base.
+   \brief   Blockwise Modulator Common Interface.
    \author  Johann Briffa
 
    \section svn Version Control
@@ -30,7 +30,7 @@ namespace libcomm {
 */
 
 template <class S, template<class> class C=libbase::vector>
-class blockmodem : public blockprocess, public virtual modem<S> {
+class basic_blockmodem : public blockprocess, public virtual modem<S> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double>     array1d_t;
@@ -53,9 +53,9 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   blockmodem() { tau = 0; };
+   basic_blockmodem() { tau = 0; };
    //! Virtual destructor
-   virtual ~blockmodem() {};
+   virtual ~basic_blockmodem() {};
    // @}
 
    // Atomic modem operations
@@ -94,7 +94,7 @@ public:
 
    /*! \name Setup functions */
    //! Sets input block size
-   void set_blocksize(int tau) { assert(tau > 0); blockmodem::tau = tau; setup(); };
+   void set_blocksize(int tau) { assert(tau > 0); this->tau = tau; setup(); };
    // @}
 
    /*! \name Informative functions */
@@ -102,6 +102,26 @@ public:
    int input_block_size() const { return tau; };
    //! Gets output block size
    virtual int output_block_size() const { return tau; };
+   // @}
+};
+
+/*!
+   \brief   Blockwise Modulator Base.
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Class defines specialized interface for blockmodem classes.
+*/
+
+template <class S, template<class> class C=libbase::vector>
+class blockmodem : public basic_blockmodem<S,C> {
+public:
+   //! Virtual destructor
+   virtual ~blockmodem() {};
    // @}
 
    // Serialization Support
