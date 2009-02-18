@@ -51,7 +51,11 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
    return i;
    }
 
-//! Validate LUT
+/*!
+   \brief Confirm that LUT is valid
+   Checks that all LUT entries are within range and that there are no
+   duplicate entries.
+*/
 
 template <class real, bool normalize>
 void dminner<real,normalize>::validatelut() const

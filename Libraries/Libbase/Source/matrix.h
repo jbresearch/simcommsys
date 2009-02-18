@@ -241,6 +241,10 @@ public:
    matrix<bool> operator<(const T x) const;
    matrix<bool> operator>(const T x) const;
 
+   // direct comparison operations
+   bool isequalto(const matrix<T>& x) const;
+   bool isnotequalto(const matrix<T>& x) const;
+
    // arithmetic operations - unary
    matrix<T>& operator+=(const matrix<T>& x);
    matrix<T>& operator-=(const matrix<T>& x);
@@ -626,6 +630,28 @@ inline matrix<bool> matrix<T>::operator>(const T x) const
       for(int j=0; j<m_ysize; j++)
          r(i,j) = (m_data[i][j] > x);
    return r;
+   }
+
+// comparison (mask-creation) operations
+
+template <class T>
+inline bool matrix<T>::isequalto(const matrix<T>& x) const
+   {
+   if(x.m_xsize != m_xsize)
+      return false;
+   if(x.m_ysize != m_ysize)
+      return false;
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         if(m_data[i][j] != x.m_data[i][j])
+            return false;
+   return true;
+   }
+
+template <class T>
+inline bool matrix<T>::isnotequalto(const matrix<T>& x) const
+   {
+   return !isequalto(x);
    }
 
 // arithmetic operations - unary

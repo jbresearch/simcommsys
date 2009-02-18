@@ -13,7 +13,33 @@
 
 namespace libcomm {
 
-// initialization
+/*!
+   \brief Confirm that LUT is valid
+   Checks that all LUT entries are of the correct size and that there are no
+   duplicate entries.
+*/
+
+template <class real, bool normalize>
+void dminner2d<real,normalize>::validatelut() const
+   {
+   assertalways(lut.size() == num_symbols());
+   for(int i=0; i<lut.size(); i++)
+      {
+      // all entries should be of the correct size
+      assertalways(lut(i).xsize() == m);
+      assertalways(lut(i).ysize() == n);
+      // all entries should be distinct
+      for(int j=0; j<i; j++)
+         assertalways(lut(i).isnotequalto(lut(j)));
+      }
+   }
+
+/*!
+   \brief Object initialization
+   Determines code parameters from LUT and sets up object for use.
+   This includes validating the LUT, setting up the pilot generator,
+   and clearing the pilot sequence.
+*/
 
 template <class real, bool normalize>
 void dminner2d<real,normalize>::init()
@@ -24,7 +50,7 @@ void dminner2d<real,normalize>::init()
    m = lut(0).xsize();
    n = lut(0).ysize();
    // Validate LUT
-   //validatelut();
+   validatelut();
    // Seed the watermark generator and clear the sequence
    //r.seed(0);
    //ws.init(0);

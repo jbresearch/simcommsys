@@ -59,6 +59,10 @@ protected:
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable) {};
 
+private:
+   /*! \name Internal functions */
+   void validatelut() const;
+   // @}
 protected:
    /*! \name Internal functions */
    void init();
