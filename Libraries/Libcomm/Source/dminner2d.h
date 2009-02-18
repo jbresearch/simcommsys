@@ -5,7 +5,8 @@
 
 #include "dminner2.h"
 #include "informed_modulator.h"
-#include "fba2.h"
+//#include "bsid2d.h"
+//#include "fba2.h"
 #include "matrix.h"
 
 namespace libcomm {
@@ -42,6 +43,11 @@ private:
    int      m;                //!< number of rows in sparse (output) symbol
    int      n;                //!< number of columns in sparse (output) symbol
    // @}
+   /*! \name Internally-used objects */
+   //bsid2d   mychan;           //!< bound channel object
+   mutable libbase::randgen r; //!< pilot sequence generator
+   mutable array2b_t pilot;   //!< pilot sequence (same size as frame)
+   // @}
 private:
    // Implementations of channel-specific metrics for fba
    //real R(const int i, const array1b_t& r);
@@ -54,7 +60,7 @@ private:
       { assert("Function should not be used."); return 0; };
 protected:
    // Interface with derived classes
-   //void advance() const;
+   void advance() const;
    void domodulate(const int N, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx) {};
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable) {};

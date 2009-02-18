@@ -14,6 +14,29 @@
 namespace libcomm {
 
 /*!
+   \copydoc blockmodem::advance()
+
+   Updates 2D pilot sequence
+
+   \todo Inherit correct block size from blockmodem (requires update in
+         blockmodem)
+*/
+
+template <class real, bool normalize>
+void dminner2d<real,normalize>::advance() const
+   {
+   // Inherit sizes
+   const int M = this->input_block_size();
+   const int N = 1;
+   // Initialize space
+   pilot.init(M*m,N*n);
+   // creates 'tau' elements of 'n' bits each
+   for(int i=0; i<pilot.xsize(); i++)
+      for(int j=0; j<pilot.ysize(); j++)
+         pilot(i,j) = r.ival(2);
+   }
+
+/*!
    \brief Confirm that LUT is valid
    Checks that all LUT entries are of the correct size and that there are no
    duplicate entries.
@@ -51,9 +74,9 @@ void dminner2d<real,normalize>::init()
    n = lut(0).ysize();
    // Validate LUT
    validatelut();
-   // Seed the watermark generator and clear the sequence
-   //r.seed(0);
-   //ws.init(0);
+   // Seed the pilot generator and clear the sequence
+   r.seed(0);
+   pilot.init(0,0);
    }
 
 // description output
