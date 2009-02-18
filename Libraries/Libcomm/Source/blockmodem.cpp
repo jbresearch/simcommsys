@@ -21,7 +21,7 @@ namespace libcomm {
 template <class S, template<class> class C>
 void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
    {
-   assert(tau > 0);
+   test_invariant();
    advance_always();
    domodulate(N, encoded, tx);
    }
@@ -29,7 +29,7 @@ void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& t
 template <class S, template<class> class C>
 void basic_blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable)
    {
-   assert(tau > 0);
+   test_invariant();
    advance_if_dirty();
    dodemodulate(chan, rx, ptable);
    mark_as_dirty();

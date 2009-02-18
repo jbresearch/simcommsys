@@ -26,7 +26,7 @@ template <class real, bool normalize>
 void dminner2d<real,normalize>::advance() const
    {
    // Inherit sizes
-   const int M = this->input_block_size();
+   const int M = 1; //this->input_block_size();
    const int N = 1;
    // Initialize space
    pilot.init(M*m,N*n);

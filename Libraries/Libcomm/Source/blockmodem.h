@@ -22,8 +22,6 @@ namespace libcomm {
 
    \todo Templatize with respect to the type used for the likelihood table
 
-   \todo Separate block size definition from this class
-
    \todo Avoid using virtual inheritance
 
    \todo Test inheritance of virtual functions in VS 2005
@@ -35,15 +33,13 @@ public:
    /*! \name Type definitions */
    typedef libbase::vector<double>     array1d_t;
    // @}
-private:
-   /*! \name User-defined parameters */
-   int tau;    //!< Block size in symbols
-   // @}
 
 protected:
    /*! \name Interface with derived classes */
-   //! Setup function, called from set_blocksize()
+   //! Setup function, called from set_blocksize() in base class
    virtual void setup() {};
+   //! Validates block size, called from modulate() and demodulate()
+   virtual void test_invariant() const {};
    //! \copydoc modulate()
    virtual void domodulate(const int N, const C<int>& encoded, C<S>& tx) = 0;
    //! \copydoc demodulate()
@@ -52,8 +48,6 @@ protected:
 
 public:
    /*! \name Constructors / Destructors */
-   //! Default constructor
-   basic_blockmodem() { tau = 0; };
    //! Virtual destructor
    virtual ~basic_blockmodem() {};
    // @}
@@ -91,18 +85,6 @@ public:
    */
    void demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable);
    // @}
-
-   /*! \name Setup functions */
-   //! Sets input block size
-   void set_blocksize(int tau) { assert(tau > 0); this->tau = tau; setup(); };
-   // @}
-
-   /*! \name Informative functions */
-   //! Gets input block size
-   int input_block_size() const { return tau; };
-   //! Gets output block size
-   virtual int output_block_size() const { return tau; };
-   // @}
 };
 
 /*!
@@ -122,6 +104,53 @@ class blockmodem : public basic_blockmodem<S,C> {
 public:
    //! Virtual destructor
    virtual ~blockmodem() {};
+   // @}
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(blockmodem);
+};
+
+/*!
+   \brief   Blockwise Modulator Base - Vector Specialization.
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Class defines specialized interface for blockmodem classes.
+*/
+
+template <class S>
+class blockmodem<S,libbase::vector> : public basic_blockmodem<S,libbase::vector> {
+private:
+   /*! \name User-defined parameters */
+   int tau;    //!< Block size in symbols
+   // @}
+
+protected:
+   // Interface with base class
+   void test_invariant() const { assert(tau > 0); };
+
+public:
+   /*! \name Constructors / Destructors */
+   //! Default constructor
+   blockmodem() { tau = 0; };
+   //! Virtual destructor
+   virtual ~blockmodem() {};
+   // @}
+
+   /*! \name Setup functions */
+   //! Sets input block size
+   void set_blocksize(int tau) { assert(tau > 0); this->tau = tau; this->setup(); };
+   // @}
+
+   /*! \name Informative functions */
+   //! Gets input block size
+   int input_block_size() const { return tau; };
+   //! Gets output block size
+   virtual int output_block_size() const { return tau; };
    // @}
 
    // Serialization Support
