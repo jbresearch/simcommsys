@@ -26,6 +26,7 @@
 #include "qam.h"
 #include "dminner.h"
 #include "dminner2.h"
+#include "dminner2d.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -134,7 +135,11 @@ private:
    mpsk                             _mpsk;
    qam                              _qam;
    dminner<logrealfast,false>       _dminner_logrealfast;
+   dminner<double,true>             _dminner_double;
    dminner2<logrealfast,false>      _dminner2_logrealfast;
+   dminner2<double,true>            _dminner2_double;
+   dminner2d<logrealfast,false>     _dminner2d_logrealfast;
+   dminner2d<double,true>           _dminner2d_double;
    // Systems
    commsys< libbase::gf<1,0x3> >       _commsys_gf1;
    commsys< libbase::gf<2,0x7> >       _commsys_gf2;
