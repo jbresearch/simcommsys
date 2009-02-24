@@ -122,9 +122,8 @@ public:
    // @}
 
    /*! \name Watermark-specific informative functions */
-   int get_n() const { return n; };
-   int get_k() const { return k; };
-   int get_lut(int i) const { return lut(i); };
+   int get_symbolsize() const { return n; };
+   int get_symbol(int i) const { return lut(i); };
    double get_th_inner() const { return th_inner; };
    double get_th_outer() const { return th_outer; };
    // @}

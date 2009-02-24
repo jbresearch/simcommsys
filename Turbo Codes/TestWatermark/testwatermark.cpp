@@ -23,24 +23,21 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // create a watermark code to start with
-   int n=5, k=3;
-   libcomm::dminner<libbase::logrealfast,false> mdm(n,k);
-   cout << mdm.description() << "\n";
-
+   libcomm::dminner<libbase::logrealfast,false> mdm;
    // get a new watermark from stdin
    cerr << "Enter watermark code details:\n";
    mdm.serialize(cin);
    cout << mdm.description() << "\n";
 
    // compute distance table
-   n = mdm.get_n();
-   k = mdm.get_k();
-   libbase::matrix<int> c(1<<k,n);
+   int n = mdm.get_symbolsize();
+   int q = mdm.num_symbols();
+   libbase::matrix<int> c(q,n);
    c = 0;
-   for(int i=0; i<(1<<k); i++)
-      for(int j=i+1; j<(1<<k); j++)
+   for(int i=0; i<q; i++)
+      for(int j=i+1; j<q; j++)
          {
-         int t = libbase::weight(mdm.get_lut(i) ^ mdm.get_lut(j));
+         int t = libbase::weight(mdm.get_symbol(i) ^ mdm.get_symbol(j));
          c(i,t-1)++;
          c(j,t-1)++;
          }
@@ -49,9 +46,9 @@ int main(int argc, char *argv[])
    cout << "d\ts\t";
    for(int t=1; t<=n; t++)
       cout << "c_" << t << (t==n ? '\n' : '\t');
-   for(int i=0; i<(1<<k); i++)
+   for(int i=0; i<q; i++)
       {
-      cout << i << '\t' << libbase::bitfield(mdm.get_lut(i),n) << '\t';
+      cout << i << '\t' << libbase::bitfield(mdm.get_symbol(i),n) << '\t';
       for(int t=1; t<=n; t++)
          cout << c(i,t-1) << (t==n ? '\n' : '\t');
       }
