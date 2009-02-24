@@ -26,11 +26,11 @@ void dminner2d<real,normalize>::advance() const
    const int M = this->input_block_rows();
    const int N = this->input_block_cols();
    // Initialize space
-   pilot.init(M*m,N*n);
+   pilot.init(N*n,M*m);
    // creates 'tau' elements of 'n' bits each
-   for(int i=0; i<pilot.xsize(); i++)
-      for(int j=0; j<pilot.ysize(); j++)
-         pilot(i,j) = r.ival(2);
+   for(int i=0; i<pilot.ysize(); i++)
+      for(int j=0; j<pilot.xsize(); j++)
+         pilot(j,i) = r.ival(2);
    }
 
 /*!
@@ -48,18 +48,18 @@ void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<in
    const int M = this->input_block_rows();
    const int N = this->input_block_cols();
    // Check validity
-   assertalways(M == encoded.xsize());
-   assertalways(N == encoded.ysize());
+   assertalways(M == encoded.ysize());
+   assertalways(N == encoded.xsize());
    // Initialise result vector
    tx = pilot;
-   assert(tx.xsize() == M*m);
-   assert(tx.ysize() == N*n);
+   assert(tx.ysize() == M*m);
+   assert(tx.xsize() == N*n);
    // Encode source
    for(int i=0; i<M; i++)
       for(int j=0; i<N; j++)
          for(int ii=0; ii<m; ii++)
             for(int jj=0; jj<n; jj++)
-               tx(i*M+ii,j*N+jj) ^= lut(encoded(i,j))(ii,jj);
+               tx(j*N+jj,i*M+ii) ^= lut(encoded(j,i))(jj,ii);
    }
 
 /*!
@@ -75,8 +75,8 @@ void dminner2d<real,normalize>::validatelut() const
    for(int i=0; i<lut.size(); i++)
       {
       // all entries should be of the correct size
-      assertalways(lut(i).xsize() == m);
-      assertalways(lut(i).ysize() == n);
+      assertalways(lut(i).ysize() == m);
+      assertalways(lut(i).xsize() == n);
       // all entries should be distinct
       for(int j=0; j<i; j++)
          assertalways(lut(i).isnotequalto(lut(j)));
@@ -96,8 +96,8 @@ void dminner2d<real,normalize>::init()
    // Determine code parameters from LUT
    q = lut.size();
    assertalways(q > 0);
-   m = lut(0).xsize();
-   n = lut(0).ysize();
+   m = lut(0).ysize();
+   n = lut(0).xsize();
    // Validate LUT
    validatelut();
    // Seed the pilot generator and clear the sequence
