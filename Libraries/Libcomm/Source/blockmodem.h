@@ -96,7 +96,7 @@ public:
    - $Date$
    - $Author$
 
-   Class defines specialized interface for blockmodem classes.
+   Class defines base interface for blockmodem classes.
 */
 
 template <class S, template<class> class C=libbase::vector>

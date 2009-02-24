@@ -26,8 +26,8 @@ template <class real, bool normalize>
 void dminner2d<real,normalize>::advance() const
    {
    // Inherit sizes
-   const int M = 1; //this->input_block_size();
-   const int N = 1;
+   const int M = this->input_block_rows();
+   const int N = this->input_block_cols();
    // Initialize space
    pilot.init(M*m,N*n);
    // creates 'tau' elements of 'n' bits each
