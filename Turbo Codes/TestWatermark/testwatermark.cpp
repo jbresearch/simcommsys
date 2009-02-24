@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
    cout << mdm.description() << "\n";
 
    // compute distance table
-   int n = mdm.get_symbolsize();
-   int q = mdm.num_symbols();
+   const int n = mdm.get_symbolsize();
+   const int q = mdm.num_symbols();
    libbase::matrix<int> c(q,n);
    c = 0;
    for(int i=0; i<q; i++)
