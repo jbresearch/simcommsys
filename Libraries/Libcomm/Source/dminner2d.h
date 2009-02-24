@@ -74,8 +74,15 @@ protected:
    void init();
    // @}
 public:
+
+   // Setup functions
+   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
+
    // Informative functions
    int num_symbols() const { return q; };
+   int output_block_rows() const { return input_block_rows()*m; };
+   int output_block_cols() const { return input_block_cols()*n; };
+   double energy() const { return m*n; };
 
    // Description
    std::string description() const;
