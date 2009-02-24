@@ -777,16 +777,14 @@ inline vector<T> matrix<T>::operator*(const vector<T>& x) const
    }
 
 /*!
-   \brief Ordinary matrix division by Gauss elimination
+   \brief Ordinary matrix division by matrix inversion
    \param  x   Matrix to divide this one by
    \return The result of 'this' divided by 'x'
-   \todo Implement this function.
 */
 template <class T>
 inline matrix<T> matrix<T>::operator/(const matrix<T>& x) const
    {
-   assertalways("Not yet implemented.");
-   return x;
+   return *this * x.inverse();
    }
 
 /*!
