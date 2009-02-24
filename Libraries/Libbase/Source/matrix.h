@@ -9,161 +9,11 @@
 
 namespace libbase {
 
-/*!
-   \brief   Generic 2D Matrix.
-   \author  Johann Briffa
-
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-
-   \version 1.10 (31 Oct 2001)
-   created arithmetic functions as part of the matrix class. These are only created
-   for an instantiation in which they are used, so it should not pose a problem anyway.
-   This includes arithmetic operations between matrices, constant matrix initialisation
-   routines, and also some statistical functions. Also, cleaned up the protected
-   (internal) interface, and formalised the existence of empty matrices. Also renamed
-   member variables to start with m_ in order to facilitate the similar naming of public
-   functions (such as the size functions). Separated 3D matrix into another header.
-
-   \version 1.11 (10 Nov 2001)
-   added a function which sets the size of a matrix to the given size - leaving it as
-   it is if the size was already good, and freeing/reallocating if necessary. This helps
-   reduce redundant free/alloc operations on matrices which keep the same size.
-
-   \version 1.20 (11 Nov 2001)
-   renamed max/min functions to max/min, after #undef'ing the macros with that name in
-   Win32 (and possibly other compilers). Also added a new function to compute the sum
-   of elements in a matrix.
-
-   \version 1.30 (30 Nov 2001)
-   added statistical functions that return sumsq, mean, var.
-
-   \version 1.40 (27 Feb 2002)
-   modified the stream output function to first print the size, and added a complementary
-   stream input function. Together these allow for simplified saving and loading.
-
-   \version 1.41 (6 Mar 2002)
-   changed use of iostream from global to std namespace.
-
-   \version 1.42 (4 Apr 2002)
-   made validation functions operative only in debug mode.
-
-   \version 1.43 (7 Apr 2002)
-   moved validation functions up-front, to make sure they're used inline. Also moved
-   alloc and free before setsize, for the same reason.
-
-   \version 1.50 (13 Apr 2002)
-   added a number of high-level support routines for working with matrices - the overall
-   effect of this should be a drastic reduction in the number of loops required in user
-   code to express various common operations. Changes are:
-   - support for working with different-sized matrices (in place of resizing operations
-   which would be quite expensive); added a function copyfrom() which copies data from
-   another matrix without resizing this one. Opted for this rather than changing the
-   definition of operator= because it's convenient for '=' to copy _everything_ from the
-   source to the destination; otherwise we would land into obscure problems in some cases
-   (like when we're trying to copy a vector of matrices, etc.). This method also has the
-   advantage of keeping the old code/interface as it was.
-   - added a new format for init(), which takes another matrix as argument, to allow
-   easier (and neater) sizing of one matrix based on another. This is a template function
-   to allow the argument matrix to be of a different type.
-   - added an apply() function which allows the user to do the same operation on all
-   elements (previously had to do this manually).
-   - added functions to extract/insert matrix rows and columns as vectors - for the moment
-   these need the target vector to be passed as a parameter; the expression format can
-   be improved aesthetically, however the present format clearly communicates what is
-   happening.
-
-   \version 1.51 (13 Apr 2002)
-   removed all validate functions & replaced them by assertions.
-
-   \version 1.60 (15 Apr 2002)
-   added functions to support masked operations:
-   - added mask creation functions by defining comparison operators.
-   - added a new class masked_matrix, created by masking any matrix, and defined the
-   arithmetic, statistical, user-defined operation, and copy/value init functions for this
-   class. This easily allows us to modify the masked parts of any given matrix. Also
-   note here that for the user, the use of masked matrices should be essentially
-   transparent (in that they can mostly be used in place of normal matrices) and that
-   the user should never create one explicitly, but merely through a normal matrix.
-   - added unary and binary boolean operators, for use with matrix<bool> mostly.
-   - also, changed the binary operators to be member functions with a single argument,
-   rather than non-members with two arguments.
-   - finally, added conversion from matrix (or masked matrix) to vector
-
-   \version 1.61 (22 Apr 2002)
-   added serialize() functions which read and write matrix data only; the input function
-   assumes that the current matrix already has the correct size. These functions are
-   useful for interfacing with other file formats. Also modified the stream I/O functions
-   to make use of these.
-
-   \version 1.62 (9 May 2002)
-   - added another apply() so that the given function's parameter is const - this allows
-   the use of functions which do not modify their parameter (it's actually what we want
-   anyway). The older version (with non-const parameter) is still kept to allow the use
-   of functions where the parameter is not defined as const (such as fabs, etc).
-
-   \version 1.63 (11 Jun 2002)
-   removed the instance of apply() whose given function's parameter is const, since this
-   was causing problems with gcc on Solaris.
-
-   \version 1.64 (5 Jan 2005)
-   fixed the templated init function that takes a matrix as parameter, so that the xsize
-   and ysize are obtained through the respective functions (instead of by directly tyring
-   to read the private member variables). This is to allow this function to be given as
-   parameter a matrix of different type.
-
-   \version 1.65 (18 Jul 2006)
-   updated declaration of matrix's friend functions to comply with the standard, by
-   adding declarations of the function before that of the class. Consequently, a
-   declaration of the class itself was also required before that.
-
-   \version 1.66 (6 Oct 2006)
-   renamed GCCONLY to STRICT, in accordance with config 2.07.
-
-   \version 1.67 (7 Oct 2006)
-   renamed STRICT to TPLFRIEND, in accordance with config 2.08.
-
-   \version 1.68 (13 Oct 2006)
-   removed TPLFRIEND, in accordance with config 3.00.
-
-   \version 1.70 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
-   \version 1.71 (17 Oct 2007)
-   - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
-
-   \version 1.80 (4-6 Jan 2008)
-   - hid division as a private function to make sure it is not being used anywhere.
-   - hid multiplication and division as private functions in masked_matrix.
-   - fixed matrix negation, which should not modify the object it's operating on
-   - implemented proper matrix multiplication
-   - implemented identity matrix
-   - implemented matrix inversion by direct gaussian elimination
-   - implemented multiplication by vector
-   - implemented power as repeated multiplication
-   - replaced default-values in principal constructor with a default constructor;
-     otherwise there is an ambiguity implying a constructor given a _single_ integer
-     parameter (i.e. x has a value, y takes its default)
-   - updated allocator to detect invalid size values (either x or y being 0, but not both)
-   - updated inverse() to perform row pivoting when necessary
-
-   \version 1.90 (18 Apr 2008)
-   - added array multiplication and division functions to regular and masked
-     matrices.
-
-   \todo Implement matrix division using Gauss elimination (inversion),
-         and make publicly available again.
-
-   \todo Change the convention for row/column in the class (note this will
-         require changes wherever this class is used!)
-   
-   \todo This class needs to be re-designed in a manner that is consistent with
-         convention (esp. Matlab) and that is efficient
+/* \note
+   To comply with the standard, matrix's friend functions must be declared
+   before the main class. Consequently, a declaration of the class itself
+   is also required before that.
 */
-
 template <class T>
 class matrix;
 template <class T>
@@ -174,6 +24,30 @@ std::ostream& operator<<(std::ostream& s, const matrix<T>& x);
 template <class T>
 std::istream& operator>>(std::istream& s, matrix<T>& x);
 
+/*!
+   \brief   Generic 2D Matrix.
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Arithmetic functions are part of the matrix class. This includes arithmetic
+   operations between matrices, constant matrix initialisation routines, and
+   some statistical functions.
+
+   \note Empty matrices (that is, ones with no elements) are defined and valid.
+
+   \note Range-checking and other validation functions are only operative in
+         debug mode.
+
+   \todo Change the convention for row/column in the class (note this will
+         require changes wherever this class is used!). This class needs to be
+         re-designed in a manner that is consistent with convention (esp.
+         Matlab) and that is efficient.
+*/
+
 template <class T>
 class matrix {
    friend class masked_matrix<T>;
@@ -182,17 +56,31 @@ private:
    T    **m_data;
 protected:
    // memory allocation functions
-   void alloc(const int x, const int y);   // allocates memory for (x,y) elements and updates sizes
-   void free();                            // if there is memory allocated, free it
-   void setsize(const int x, const int y); // set matrix to given size, freeing if and as required
+   void alloc(const int x, const int y);
+   void free();
+   void setsize(const int x, const int y);
 public:
+   /*! \brief Default constructor
+      This exists instead of default-values in principal constructor to avoid
+      allowing the situation where a constructor is given a _single_ integer
+      parameter (i.e. x has a value, y takes its default)
+   */
    matrix() { alloc(0,0); };
-   matrix(const int x, const int y) { alloc(x,y); }; // constructor (does not initialise elements)
+   /*! \brief Principal constructor
+      \note Does not initialize elements.
+   */
+   matrix(const int x, const int y) { alloc(x,y); };
    matrix(const matrix<T>& m);
    ~matrix() { free(); };
 
    // resizing operations
+   //! \copydoc setsize()
    void init(const int x, const int y) { setsize(x,y); };
+   /*! \copydoc setsize()
+      This overload takes another matrix as argument, to allow easier (and
+      neater) sizing of one matrix based on another. This is a template
+      function to allow the argument matrix to be of a different type.
+   */
    template <class A> void init(const matrix<A>& x) { init(x.xsize(), x.ysize()); };
 
    // matrix copy and value initialisation
@@ -249,9 +137,7 @@ public:
    matrix<T>& operator+=(const matrix<T>& x);
    matrix<T>& operator-=(const matrix<T>& x);
    matrix<T>& operator*=(const matrix<T>& x);
-private:
    matrix<T>& operator/=(const matrix<T>& x);
-public:
    matrix<T>& multiplyby(const matrix<T>& x);
    matrix<T>& divideby(const matrix<T>& x);
    matrix<T>& operator+=(const T x);
@@ -264,9 +150,7 @@ public:
    matrix<T> operator-(const matrix<T>& x) const;
    matrix<T> operator*(const matrix<T>& x) const;
    vector<T> operator*(const vector<T>& x) const;
-private:
    matrix<T> operator/(const matrix<T>& x) const;
-public:
    matrix<T> multiply(const matrix<T>& x) const;
    matrix<T> divide(const matrix<T>& x) const;
    matrix<T> operator+(const T x) const;
@@ -297,8 +181,10 @@ public:
    T max() const;
    T sum() const;
    T sumsq() const;
+   //! Compute the mean value of matrix elements
    T mean() const { return sum()/T(size()); };
    T var() const;
+   //! Compute standard deviation of matrix elements
    T sigma() const { return sqrt(var()); };
 
    // static functions
@@ -306,8 +192,7 @@ public:
 };
 
 
-// memory allocation functions
-
+//! If there is memory allocated, free it
 template <class T>
 inline void matrix<T>::free()
    {
@@ -320,6 +205,12 @@ inline void matrix<T>::free()
       }
    }
 
+/*! \brief Set matrix to given size, freeing if and as required
+   
+   This method leaves the matrix as it is if the size was already correct, and
+   frees/reallocates if necessary. This helps reduce redundant free/alloc
+   operations on matrices which keep the same size.
+*/
 template <class T>
 inline void matrix<T>::setsize(const int x, const int y)
    {
@@ -329,6 +220,9 @@ inline void matrix<T>::setsize(const int x, const int y)
    alloc(x,y);
    }
 
+/*! \brief Allocates memory for (x,y) elements and updates sizes
+   \note Detects invalid size values (either x or y being 0, but not both)
+*/
 template <class T>
 inline void matrix<T>::alloc(const int x, const int y)
    {
@@ -363,6 +257,16 @@ inline matrix<T>::matrix(const matrix<T>& m)
 
 // matrix copy and value initialisation
 
+/*! \brief Copies data from another matrix without resizing this one
+   
+   Adds support for working with different-sized matrices (in place of
+   resizing operations which would be quite expensive).
+   
+   \note Opted for this rather than changing the definition of operator=
+         because it's convenient for '=' to copy _everything_ from the source
+         to the destination; otherwise we would land into obscure problems in
+         some cases (like when we're trying to copy a vector of matrices).
+*/
 template <class T>
 inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
    {
@@ -395,6 +299,8 @@ inline matrix<T>& matrix<T>::operator=(const T x)
 
 // insert/extract rows/columns as vectors
 
+/*! \brief Insert vector into row 'x'
+*/
 template <class T>
 inline void matrix<T>::insertrow(const vector<T>& v, const int x)
    {
@@ -403,6 +309,11 @@ inline void matrix<T>::insertrow(const vector<T>& v, const int x)
       m_data[x][y] = v(y);
    }
 
+/*! \brief Extract row 'x' as a vector
+   The target vector needs to be passed as a parameter; the expression format
+   can be improved aesthetically, however the present format clearly
+   communicates what is happening.
+*/
 template <class T>
 inline void matrix<T>::extractrow(vector<T>& v, const int x) const
    {
@@ -411,6 +322,8 @@ inline void matrix<T>::extractrow(vector<T>& v, const int x) const
       v(y) = m_data[x][y];
    }
 
+/*! \brief Insert vector into column 'y'
+*/
 template <class T>
 inline void matrix<T>::insertcol(const vector<T>& v, const int y)
    {
@@ -419,6 +332,11 @@ inline void matrix<T>::insertcol(const vector<T>& v, const int y)
       m_data[x][y] = v(x);
    }
 
+/*! \brief Extract column 'y' as a vector
+   The target vector needs to be passed as a parameter; the expression format
+   can be improved aesthetically, however the present format clearly
+   communicates what is happening.
+*/
 template <class T>
 inline void matrix<T>::extractcol(vector<T>& v, const int y) const
    {
@@ -427,8 +345,10 @@ inline void matrix<T>::extractcol(vector<T>& v, const int y) const
       v(x) = m_data[x][y];
    }
 
-// convert to a vector
-
+/*! \brief Convert matrix to a vector
+   Elements are extracted in column-major order (ie. starting with the top-left
+   first go down then across).
+*/
 template <class T>
 inline matrix<T>::operator vector<T>() const
    {
@@ -458,8 +378,10 @@ inline T matrix<T>::operator()(const int x, const int y) const
    return m_data[x][y];
    }
 
-// serialization and stream input & output
-
+/*! \brief Writes matrix data to output stream.
+   This function is intended for interfacing with file formats that do not use
+   the serialization format of this class.
+*/
 template <class T>
 inline void matrix<T>::serialize(std::ostream& s) const
    {
@@ -472,6 +394,11 @@ inline void matrix<T>::serialize(std::ostream& s) const
       }
    }
 
+/*! \brief Reads matrix data from input stream.
+   \note Assumes that the current matrix already has the correct size.
+   This function is intended for interfacing with file formats that do not use
+   the serialization format of this class.
+*/
 template <class T>
 inline void matrix<T>::serialize(std::istream& s)
    {
@@ -480,6 +407,9 @@ inline void matrix<T>::serialize(std::istream& s)
          s >> m_data[i][j];
    }
 
+/*! \brief Writes matrix to output stream.
+   Includes matrix size, to allow correct reconstruction when reading in.
+*/
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix<T>& x)
    {
@@ -488,6 +418,8 @@ inline std::ostream& operator<<(std::ostream& s, const matrix<T>& x)
    return s;
    }
 
+/*! \brief Reads and reconstructs matrix from input stream.
+*/
 template <class T>
 inline std::istream& operator>>(std::istream& s, matrix<T>& x)
    {
@@ -690,15 +622,16 @@ inline matrix<T>& matrix<T>::operator*=(const matrix<T>& x)
    return *this = r;
    }
 
+/*!
+   \brief Ordinary matrix division
+   \param  x   Matrix to divide this one by
+   \return The updated (divided-by) matrix
+*/
 template <class T>
 inline matrix<T>& matrix<T>::operator/=(const matrix<T>& x)
    {
-   assert(x.m_xsize == m_xsize);
-   assert(x.m_ysize == m_ysize);
-   for(int i=0; i<m_xsize; i++)
-      for(int j=0; j<m_ysize; j++)
-         m_data[i][j] /= x.m_data[i][j];
-   return *this;
+   matrix<T> r = *this / x;
+   return *this = r;
    }
 
 /*!
@@ -821,8 +754,9 @@ inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    \brief Ordinary matrix multiplication by column vector
    \param  x   Vector to be multiplied to this matrix
    \return The result of 'this' multiplied by 'x'
-   \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
-         rather than that used in the rest of this class.
+   \warning The use of 'i' and 'j' indices in this function follows the
+            mathematical convention, rather than that used in the rest of this
+            class.
 */
 template <class T>
 inline vector<T> matrix<T>::operator*(const vector<T>& x) const
@@ -842,12 +776,17 @@ inline vector<T> matrix<T>::operator*(const vector<T>& x) const
    return r;
    }
 
+/*!
+   \brief Ordinary matrix division by Gauss elimination
+   \param  x   Matrix to divide this one by
+   \return The result of 'this' divided by 'x'
+   \todo Implement this function.
+*/
 template <class T>
 inline matrix<T> matrix<T>::operator/(const matrix<T>& x) const
    {
-   matrix<T> r = *this;
-   r /= x;
-   return r;
+   assertalways("Not yet implemented.");
+   return x;
    }
 
 /*!
@@ -993,8 +932,11 @@ inline matrix<T> matrix<T>::operator^(const matrix<T>& x) const
    return r;
    }
 
-// user-defined operations
+/*! \brief Perform user-defined operation on all matrix elements
 
+   \note Removed the instance of apply() whose given function's parameter is
+         const, since this was causing problems with gcc on Solaris.
+*/
 template <class T>
 inline matrix<T>& matrix<T>::apply(T f(T))
    {
@@ -1012,6 +954,7 @@ inline matrix<T>& matrix<T>::apply(T f(T))
    \invariant Matrix must be square
    \note Template class must provide the subtraction, division, and multiplication
    \note Template class must provide conversion to/from integer
+   Performs row pivoting when necessary.
 */
 template <class T>
 inline matrix<T> matrix<T>::inverse() const
@@ -1080,6 +1023,11 @@ inline matrix<T> matrix<T>::transpose() const
 
 // statistical operations
 
+/*! \brief Determines the smallest element in the matrix
+
+   \note This assumes that less-than comparison is defined in operator (<).
+   \note This is only valid for non-empty matrices.
+*/
 template <class T>
 inline T matrix<T>::min() const
    {
@@ -1092,6 +1040,11 @@ inline T matrix<T>::min() const
    return result;
    }
 
+/*! \brief Determines the largest element in the matrix
+
+   \note This assumes that greater-than comparison is defined in operator (>).
+   \note This is only valid for non-empty matrices.
+*/
 template <class T>
 inline T matrix<T>::max() const
    {
@@ -1104,6 +1057,11 @@ inline T matrix<T>::max() const
    return result;
    }
 
+/*! \brief Computes sum of elements in matrix
+
+   \note This assumes that addition is defined for the type, in the accumulate
+         operator (+=). Also, it is assumed that '0' is defined for the type.
+*/
 template <class T>
 inline T matrix<T>::sum() const
    {
@@ -1115,6 +1073,12 @@ inline T matrix<T>::sum() const
    return result;
    }
 
+/*! \brief Computes sum of squares of elements in matrix
+
+   \note This assumes that addition is defined for the type, in the accumulate
+         operator (+=), as well as multiplication in the binary operator (*).
+         Also, it is assumed that '0' is defined for the type.
+*/
 template <class T>
 inline T matrix<T>::sumsq() const
    {
@@ -1126,6 +1090,8 @@ inline T matrix<T>::sumsq() const
    return result;
    }
 
+/*! \brief Computes the variance of elements
+*/
 template <class T>
 inline T matrix<T>::var() const
    {
@@ -1136,6 +1102,10 @@ inline T matrix<T>::var() const
 
 // static functions
 
+/*!
+   \brief Identity matrix
+   \return The 'n'x'n' identity matrix
+*/
 template <class T>
 inline matrix<T> matrix<T>::eye(int n)
    {
@@ -1184,8 +1154,25 @@ inline libbase::matrix<T> pow(const libbase::matrix<T>& A, int n)
 
 namespace libbase {
 
-// *** masked matrix class ***
+/*!
+   \brief   Masked 2D Matrix.
+   \author  Johann Briffa
 
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   A masked matrix is a matrix with a binary element-mask. Arithmetic,
+   statistical, user-defined operation, and copy/value init functions are
+   defined for this class, allowing us to modify the masked parts of any
+   given matrix with ease.
+    
+   It is intended that for the user, the use of masked matrices should be
+   essentially transparent (in that they can mostly be used in place of
+   normal matrices) and that the user should never create one explicitly,
+   but merely through a normal matrix.
+*/
 template <class T>
 class masked_matrix {
    friend class matrix<T>;
@@ -1205,8 +1192,10 @@ public:
    masked_matrix<T>& operator+=(const matrix<T>& x);
    masked_matrix<T>& operator-=(const matrix<T>& x);
 private:
-   masked_matrix<T>& operator*=(const matrix<T>& x);
-   masked_matrix<T>& operator/=(const matrix<T>& x);
+   //! Matrix multiplication is hidden because it's meaningless here
+   masked_matrix<T>& operator*=(const matrix<T>& x) {};
+   //! Matrix division is hidden because it's meaningless here
+   masked_matrix<T>& operator/=(const matrix<T>& x) {};
 public:
    masked_matrix<T>& multiplyby(const matrix<T>& x);
    masked_matrix<T>& divideby(const matrix<T>& x);
@@ -1291,30 +1280,6 @@ inline masked_matrix<T>& masked_matrix<T>::operator-=(const matrix<T>& x)
       for(int j=0; j<m_data->m_ysize; j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] -= x.m_data[i][j];
-   return *this;
-   }
-
-template <class T>
-inline masked_matrix<T>& masked_matrix<T>::operator*=(const matrix<T>& x)
-   {
-   assert(x.m_xsize == m_data->m_xsize);
-   assert(x.m_ysize == m_data->m_ysize);
-   for(int i=0; i<m_data->m_xsize; i++)
-      for(int j=0; j<m_data->m_ysize; j++)
-         if(m_mask(i,j))
-            m_data->m_data[i][j] *= x.m_data[i][j];
-   return *this;
-   }
-
-template <class T>
-inline masked_matrix<T>& masked_matrix<T>::operator/=(const matrix<T>& x)
-   {
-   assert(x.m_xsize == m_data->m_xsize);
-   assert(x.m_ysize == m_data->m_ysize);
-   for(int i=0; i<m_data->m_xsize; i++)
-      for(int j=0; j<m_data->m_ysize; j++)
-         if(m_mask(i,j))
-            m_data->m_data[i][j] /= x.m_data[i][j];
    return *this;
    }
 
