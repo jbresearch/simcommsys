@@ -28,17 +28,18 @@ int main(int argc, char *argv[])
    cout << mdm.description() << "\n";
 
    // compute distance table
-//    n = mdm.get_n();
-//    k = mdm.get_k();
-//    libbase::matrix<int> c(1<<k,n);
-//    c = 0;
-//    for(int i=0; i<(1<<k); i++)
-//       for(int j=i+1; j<(1<<k); j++)
-//          {
-//          int t = libbase::weight(mdm.get_lut(i) ^ mdm.get_lut(j));
-//          c(i,t-1)++;
-//          c(j,t-1)++;
-//          }
+   const int m = mdm.get_symbol_rows();
+   const int n = mdm.get_symbol_cols();
+   const int q = mdm.num_symbols();
+   libbase::matrix<int> c(q,m*n);
+   c = 0;
+   for(int i=0; i<q; i++)
+      for(int j=i+1; j<q; j++)
+         {
+         int t = libbase::weight(mdm.get_symbol(i) ^ mdm.get_symbol(j));
+         c(i,t-1)++;
+         c(j,t-1)++;
+         }
 
    // display codebook and distance table
 //    cout << "d\ts\t";

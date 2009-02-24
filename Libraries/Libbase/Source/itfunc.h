@@ -2,6 +2,7 @@
 #define __itfunc_h
 
 #include "config.h"
+#include "matrix.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string>
@@ -49,6 +50,18 @@ template <class T>
 inline T limit(const T x, const T lo, const T hi) { return std::max(lo, std::min(hi, x)); };
 
 int weight(int cw);
+
+/*! \brief Binary Hamming weight
+*/
+template <class T>
+int weight(const matrix<T>& m)
+   {
+   matrix<int> t;
+   t = m;
+   t.apply(weight);
+   return t.sum();
+   }
+
 
 //! Gray code
 inline int32u gray(int32u n) { return n ^ (n >> 1); };
