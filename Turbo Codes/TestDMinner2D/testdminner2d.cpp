@@ -42,15 +42,19 @@ int main(int argc, char *argv[])
          }
 
    // display codebook and distance table
-//    cout << "d\ts\t";
-//    for(int t=1; t<=n; t++)
-//       cout << "c_" << t << (t==n ? '\n' : '\t');
-//    for(int i=0; i<(1<<k); i++)
-//       {
-//       cout << i << '\t' << libbase::bitfield(mdm.get_lut(i),n) << '\t';
-//       for(int t=1; t<=n; t++)
-//          cout << c(i,t-1) << (t==n ? '\n' : '\t');
-//       }
+   cout << "d\ts\t";
+   for(int t=1; t<=m*n; t++)
+      cout << "c_" << t << (t==m*n ? '\n' : '\t');
+   for(int d=0; d<q; d++)
+      {
+      cout << d << '\t';
+      for(int i=0; i<m; i++)
+         for(int j=0; j<n; j++)
+            cout << mdm.get_symbol(d)(j,i);
+      cout << '\t';
+      for(int t=1; t<=m*n; t++)
+         cout << c(d,t-1) << (t==m*n ? '\n' : '\t');
+      }
 
    return 0;
    }

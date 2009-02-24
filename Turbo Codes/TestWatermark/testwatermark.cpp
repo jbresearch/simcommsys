@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
       cout << "c_" << t << (t==n ? '\n' : '\t');
    for(int i=0; i<q; i++)
       {
-      cout << i << '\t' << libbase::bitfield(mdm.get_symbol(i),n) << '\t';
+      cout << i << '\t';
+      cout << libbase::bitfield(mdm.get_symbol(i),n) << '\t';
       for(int t=1; t<=n; t++)
          cout << c(i,t-1) << (t==n ? '\n' : '\t');
       }
