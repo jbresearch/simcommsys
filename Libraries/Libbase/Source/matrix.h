@@ -81,11 +81,13 @@ public:
       neater) sizing of one matrix based on another. This is a template
       function to allow the argument matrix to be of a different type.
    */
-   template <class A> void init(const matrix<A>& x) { init(x.xsize(), x.ysize()); };
+   template <class A>
+   void init(const matrix<A>& x) { init(x.xsize(), x.ysize()); };
 
    // matrix copy and value initialisation
    matrix<T>& copyfrom(const matrix<T>& x);
-   matrix<T>& operator=(const matrix<T>& x);
+   template <class A>
+   matrix<T>& operator=(const matrix<A>& x);
    matrix<T>& operator=(const T x);
 
    // insert/extract rows/columns as vectors
@@ -279,12 +281,13 @@ inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
    }
 
 template <class T>
-inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
+template <class A>
+inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    {
-   setsize(x.m_xsize, x.m_ysize);
+   setsize(x.xsize(), x.ysize());
    for(int i=0; i<m_xsize; i++)
       for(int j=0; j<m_ysize; j++)
-         m_data[i][j] = x.m_data[i][j];
+         m_data[i][j] = x(i,j);
    return *this;
    }
 
