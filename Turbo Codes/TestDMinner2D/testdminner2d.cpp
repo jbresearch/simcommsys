@@ -49,9 +49,11 @@ int main(int argc, char *argv[])
       {
       cout << d << '\t';
       for(int i=0; i<m; i++)
+         {
          for(int j=0; j<n; j++)
             cout << mdm.get_symbol(d)(j,i);
-      cout << '\t';
+         cout << (i==m-1 ? '\t' : ',');
+         }
       for(int t=1; t<=m*n; t++)
          cout << c(d,t-1) << (t==m*n ? '\n' : '\t');
       }
