@@ -75,6 +75,12 @@ protected:
    // @}
 public:
 
+   /*! \name Class-specific informative functions */
+   int get_symbol_rows() const { return m; };
+   int get_symbol_cols() const { return n; };
+   array2b_t get_symbol(int i) const { return lut(i); };
+   // @}
+
    // Setup functions
    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
 
