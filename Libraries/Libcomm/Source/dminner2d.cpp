@@ -17,9 +17,6 @@ namespace libcomm {
    \copydoc blockmodem::advance()
 
    Updates 2D pilot sequence
-
-   \todo Inherit correct block size from blockmodem (requires update in
-         blockmodem)
 */
 
 template <class real, bool normalize>
@@ -34,6 +31,35 @@ void dminner2d<real,normalize>::advance() const
    for(int i=0; i<pilot.xsize(); i++)
       for(int j=0; j<pilot.ysize(); j++)
          pilot(i,j) = r.ival(2);
+   }
+
+/*!
+   \copydoc blockmodem::domodulate()
+
+   Updates 2D pilot sequence
+*/
+
+template <class real, bool normalize>
+void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx)
+   {
+   // Each 'encoded' symbol must be representable by a single sparse matrix
+   assertalways(this->q == q);
+   // Inherit sizes
+   const int M = this->input_block_rows();
+   const int N = this->input_block_cols();
+   // Check validity
+   assertalways(M == encoded.xsize());
+   assertalways(N == encoded.ysize());
+   // Initialise result vector
+   tx = pilot;
+   assert(tx.xsize() == M*m);
+   assert(tx.ysize() == N*n);
+   // Encode source
+   for(int i=0; i<M; i++)
+      for(int j=0; i<N; j++)
+         for(int ii=0; ii<m; ii++)
+            for(int jj=0; jj<n; jj++)
+               tx(i*M+ii,j*N+jj) ^= lut(encoded(i,j))(ii,jj);
    }
 
 /*!
