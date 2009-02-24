@@ -114,8 +114,12 @@ double gammp(double a, double x)
       return 1.0-gammcf(a,x);
    }
 
-// error function - based on Chebychev fitting
-
+/*! \brief Error function based on Chebychev fitting
+   \sa Numerical Recipes in C, p.220
+   Based on Chebychev fitting to an inspired guess as to the functional form.
+   \note fractional error is everywhere less than 1.2E-7
+   erf(x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt
+*/
 double cerf(double x)
    {
    double z = fabs(x);
@@ -126,6 +130,12 @@ double cerf(double x)
    return x >= 0.0 ? 1.0-ans : ans-1.0;
    }
 
+/*! \brief Complementary Error function based on Chebychev fitting
+   \sa Numerical Recipes in C, p.220
+   Based on Chebychev fitting to an inspired guess as to the functional form.
+   \note fractional error is everywhere less than 1.2E-7
+   erfc(x) = 1-erf(x) = 2/sqrt(pi) * integral from x to inf of exp(-t^2) dt
+*/
 double cerfc(double x)
    {
    double z = fabs(x);
@@ -136,8 +146,8 @@ double cerfc(double x)
    return x >= 0.0 ? ans : 2.0-ans;
    }
 
-// binary hamming weight
-
+/*! \brief Binary Hamming weight
+*/
 int weight(int cw)
    {
    int c = cw;
@@ -150,8 +160,8 @@ int weight(int cw)
    return w;
    }
 
-// Inverse Gray code
-
+/*! \brief Inverse Gray code
+*/
 int32u igray(int32u n)
    {
    int32u r = n;
@@ -160,8 +170,9 @@ int32u igray(int32u n)
    return r;
    }
 
-// Greatest common divisor
-
+/*! \brief Greatest common divisor
+   GCD function based on Euclid's algorithm.
+*/
 int gcd(int a, int b)
    {
    while(b != 0)
@@ -227,8 +238,8 @@ double permutationsd(int n, int r)
    return z;
    }
 
-// string <-> hex functions
-
+/*! \brief Converts a string to its hex representation
+*/
 string hexify(const string input)
    {
    std::ostringstream sout;
@@ -244,6 +255,8 @@ string hexify(const string input)
    return output;
    }
 
+/*! \brief Reconstructs a string from its hex representation
+*/
 string dehexify(const string input)
    {
    string output;
