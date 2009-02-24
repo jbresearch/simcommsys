@@ -1,6 +1,8 @@
 # KDevelop Custom Project File List
 Libraries
+Libraries/Libbase
 Libraries/Libbase/Makefile
+Libraries/Libbase/Source
 Libraries/Libbase/Source/bitfield.cpp
 Libraries/Libbase/Source/bitfield.h
 Libraries/Libbase/Source/bstream.cpp
@@ -82,6 +84,8 @@ Libraries/Libcomm/Source/bsc.cpp
 Libraries/Libcomm/Source/bsc.h
 Libraries/Libcomm/Source/bsid.cpp
 Libraries/Libcomm/Source/bsid.h
+Libraries/Libcomm/Source/bsid2d.cpp
+Libraries/Libcomm/Source/bsid2d.h
 Libraries/Libcomm/Source/ccbfsm.cpp
 Libraries/Libcomm/Source/ccbfsm.h
 Libraries/Libcomm/Source/ccfsm.cpp
@@ -118,6 +122,8 @@ Libraries/Libcomm/Source/dminner.cpp
 Libraries/Libcomm/Source/dminner.h
 Libraries/Libcomm/Source/dminner2.cpp
 Libraries/Libcomm/Source/dminner2.h
+Libraries/Libcomm/Source/dminner2d.cpp
+Libraries/Libcomm/Source/dminner2d.h
 Libraries/Libcomm/Source/dvbcrsc.cpp
 Libraries/Libcomm/Source/dvbcrsc.h
 Libraries/Libcomm/Source/experiment.cpp
@@ -164,6 +170,8 @@ Libraries/Libcomm/Source/mapper.cpp
 Libraries/Libcomm/Source/mapper.h
 Libraries/Libcomm/Source/md5.cpp
 Libraries/Libcomm/Source/md5.h
+Libraries/Libcomm/Source/modem.cpp
+Libraries/Libcomm/Source/modem.h
 Libraries/Libcomm/Source/montecarlo.cpp
 Libraries/Libcomm/Source/montecarlo.h
 Libraries/Libcomm/Source/mpsk.cpp
@@ -216,6 +224,8 @@ Libraries/Libcomm/Source/uniform_lut.cpp
 Libraries/Libcomm/Source/uniform_lut.h
 Libraries/Libcomm/Source/vale96int.cpp
 Libraries/Libcomm/Source/vale96int.h
+Libraries/Libimage
+Libraries/Libimage/Source
 Libraries/Libimage/Source/atmfilter.cpp
 Libraries/Libimage/Source/atmfilter.h
 Libraries/Libimage/Source/awfilter.cpp
@@ -228,6 +238,7 @@ Libraries/Libimage/Source/imagefile.cpp
 Libraries/Libimage/Source/imagefile.h
 Libraries/Libimage/Source/limiter.cpp
 Libraries/Libimage/Source/limiter.h
+Libraries/Libimage/Source/old
 Libraries/Libimage/Source/old/picture.cpp
 Libraries/Libimage/Source/old/picture.h
 Libraries/Libimage/Source/old/pixel.cpp
@@ -238,6 +249,7 @@ Libraries/Libimage/Source/wavelet.cpp
 Libraries/Libimage/Source/wavelet.h
 Libraries/Libimage/Source/waveletfilter.cpp
 Libraries/Libimage/Source/waveletfilter.h
+Libraries/Libwin
 Libraries/Libwin/ArchiveStreamBuf.cpp
 Libraries/Libwin/ArchiveStreamBuf.h
 Libraries/Libwin/FolderDialog.cpp
@@ -267,6 +279,8 @@ Libraries/Libwin/WorkerThread.cpp
 Libraries/Libwin/WorkerThread.h
 Libraries/Libwin/wmdefines.h
 Makefile
+Steganography
+Steganography/AutomateEmbedding
 Steganography/AutomateEmbedding/AutomateEmbedding.cpp
 Steganography/AutomateEmbedding/AutomateEmbedding.h
 Steganography/AutomateEmbedding/AutomateEmbeddingDlg.cpp
@@ -274,6 +288,7 @@ Steganography/AutomateEmbedding/AutomateEmbeddingDlg.h
 Steganography/AutomateEmbedding/Stdafx.cpp
 Steganography/AutomateEmbedding/Stdafx.h
 Steganography/AutomateEmbedding/resource.h
+Steganography/AutomateGraphing
 Steganography/AutomateGraphing/AutomateGraphing.cpp
 Steganography/AutomateGraphing/AutomateGraphing.h
 Steganography/AutomateGraphing/AutomateGraphingDlg.cpp
@@ -281,6 +296,7 @@ Steganography/AutomateGraphing/AutomateGraphingDlg.h
 Steganography/AutomateGraphing/Stdafx.cpp
 Steganography/AutomateGraphing/Stdafx.h
 Steganography/AutomateGraphing/resource.h
+Steganography/FilterATM
 Steganography/FilterATM/FilterATM.cpp
 Steganography/FilterATM/FilterATM.h
 Steganography/FilterATM/FilterATMDlg.cpp
@@ -288,6 +304,7 @@ Steganography/FilterATM/FilterATMDlg.h
 Steganography/FilterATM/Stdafx.cpp
 Steganography/FilterATM/Stdafx.h
 Steganography/FilterATM/resource.h
+Steganography/FilterEmbed
 Steganography/FilterEmbed/ComputeStrengthDlg.cpp
 Steganography/FilterEmbed/ComputeStrengthDlg.h
 Steganography/FilterEmbed/FilterEmbed.cpp
@@ -297,6 +314,7 @@ Steganography/FilterEmbed/FilterEmbedDlg.h
 Steganography/FilterEmbed/Stdafx.cpp
 Steganography/FilterEmbed/Stdafx.h
 Steganography/FilterEmbed/resource.h
+Steganography/FilterEnergy
 Steganography/FilterEnergy/FilterEnergy.cpp
 Steganography/FilterEnergy/FilterEnergy.h
 Steganography/FilterEnergy/FilterEnergyDlg.cpp
@@ -304,6 +322,7 @@ Steganography/FilterEnergy/FilterEnergyDlg.h
 Steganography/FilterEnergy/Stdafx.cpp
 Steganography/FilterEnergy/Stdafx.h
 Steganography/FilterEnergy/resource.h
+Steganography/FilterExport
 Steganography/FilterExport/FilterExport.cpp
 Steganography/FilterExport/FilterExport.h
 Steganography/FilterExport/FilterExportDlg.cpp
@@ -311,6 +330,7 @@ Steganography/FilterExport/FilterExportDlg.h
 Steganography/FilterExport/Resource.h
 Steganography/FilterExport/Stdafx.cpp
 Steganography/FilterExport/Stdafx.h
+Steganography/FilterExtract
 Steganography/FilterExtract/ComputeStrengthDlg.cpp
 Steganography/FilterExtract/ComputeStrengthDlg.h
 Steganography/FilterExtract/DisplayResultsDlg.cpp
@@ -322,6 +342,7 @@ Steganography/FilterExtract/FilterExtractDlg.h
 Steganography/FilterExtract/Stdafx.cpp
 Steganography/FilterExtract/Stdafx.h
 Steganography/FilterExtract/resource.h
+Steganography/FilterLevels
 Steganography/FilterLevels/DisplayResultsDlg.cpp
 Steganography/FilterLevels/DisplayResultsDlg.h
 Steganography/FilterLevels/FilterLevels.cpp
@@ -331,6 +352,7 @@ Steganography/FilterLevels/FilterLevelsDlg.h
 Steganography/FilterLevels/Stdafx.cpp
 Steganography/FilterLevels/Stdafx.h
 Steganography/FilterLevels/resource.h
+Steganography/FilterOrphans
 Steganography/FilterOrphans/FilterOrphans.cpp
 Steganography/FilterOrphans/FilterOrphans.h
 Steganography/FilterOrphans/FilterOrphansDlg.cpp
@@ -338,6 +360,7 @@ Steganography/FilterOrphans/FilterOrphansDlg.h
 Steganography/FilterOrphans/Stdafx.cpp
 Steganography/FilterOrphans/Stdafx.h
 Steganography/FilterOrphans/resource.h
+Steganography/FilterVariance
 Steganography/FilterVariance/FilterVariance.cpp
 Steganography/FilterVariance/FilterVariance.h
 Steganography/FilterVariance/FilterVarianceDlg.cpp
@@ -345,6 +368,7 @@ Steganography/FilterVariance/FilterVarianceDlg.h
 Steganography/FilterVariance/Stdafx.cpp
 Steganography/FilterVariance/Stdafx.h
 Steganography/FilterVariance/resource.h
+Steganography/FilterWavelet
 Steganography/FilterWavelet/FilterWavelet.cpp
 Steganography/FilterWavelet/FilterWavelet.h
 Steganography/FilterWavelet/FilterWaveletDlg.cpp
@@ -352,6 +376,7 @@ Steganography/FilterWavelet/FilterWaveletDlg.h
 Steganography/FilterWavelet/Stdafx.cpp
 Steganography/FilterWavelet/Stdafx.h
 Steganography/FilterWavelet/resource.h
+Steganography/Filteraw
 Steganography/Filteraw/FilterAWDlg.cpp
 Steganography/Filteraw/FilterAWDlg.h
 Steganography/Filteraw/Filteraw.cpp
@@ -359,6 +384,7 @@ Steganography/Filteraw/Filteraw.h
 Steganography/Filteraw/Stdafx.cpp
 Steganography/Filteraw/Stdafx.h
 Steganography/Filteraw/resource.h
+Steganography/PluginWizard
 Steganography/PluginWizard/PluginWizard.cpp
 Steganography/PluginWizard/PluginWizard.h
 Steganography/PluginWizard/PluginWizardDlg.cpp
@@ -366,9 +392,11 @@ Steganography/PluginWizard/PluginWizardDlg.h
 Steganography/PluginWizard/Stdafx.cpp
 Steganography/PluginWizard/Stdafx.h
 Steganography/PluginWizard/resource.h
+Steganography/SSISsimulator
 Steganography/SSISsimulator/SSISsimulator.cpp
 Steganography/SSISsimulator/SSISsimulator.h
 Turbo Codes
+Turbo Codes/AnalyseInterleaver
 Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.cpp
 Turbo Codes/AnalyseInterleaver/AnalyseInterleaver.h
 Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.cpp
@@ -376,6 +404,7 @@ Turbo Codes/AnalyseInterleaver/AnalyseInterleaverDlg.h
 Turbo Codes/AnalyseInterleaver/Stdafx.cpp
 Turbo Codes/AnalyseInterleaver/Stdafx.h
 Turbo Codes/AnalyseInterleaver/resource.h
+Turbo Codes/AnnealInterleaver
 Turbo Codes/AnnealInterleaver/AnnealInterleaver.cpp
 Turbo Codes/AnnealInterleaver/AnnealInterleaver.h
 Turbo Codes/AnnealInterleaver/AnnealInterleaverDlg.cpp
@@ -383,12 +412,20 @@ Turbo Codes/AnnealInterleaver/AnnealInterleaverDlg.h
 Turbo Codes/AnnealInterleaver/Stdafx.cpp
 Turbo Codes/AnnealInterleaver/Stdafx.h
 Turbo Codes/AnnealInterleaver/resource.h
+Turbo Codes/CSdecode
 Turbo Codes/CSdecode/csdecode.cpp
+Turbo Codes/CSencode
 Turbo Codes/CSencode/csencode.cpp
+Turbo Codes/CSfullcycle
 Turbo Codes/CSfullcycle/csfullcycle.cpp
+Turbo Codes/CStransmit
 Turbo Codes/CStransmit/cstransmit.cpp
+Turbo Codes/Documents
+Turbo Codes/Documents/mainpage.h
 Turbo Codes/Makefile
+Turbo Codes/SPECturbo
 Turbo Codes/SPECturbo/SPECturbo.cpp
+Turbo Codes/SRandomInterleaver
 Turbo Codes/SRandomInterleaver/SRandomInterleaver.cpp
 Turbo Codes/SRandomInterleaver/SRandomInterleaver.h
 Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.cpp
@@ -396,32 +433,27 @@ Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.h
 Turbo Codes/SRandomInterleaver/Stdafx.cpp
 Turbo Codes/SRandomInterleaver/Stdafx.h
 Turbo Codes/SRandomInterleaver/resource.h
+Turbo Codes/ShowErrorEvent
 Turbo Codes/ShowErrorEvent/showerrorevent.cpp
+Turbo Codes/SimCommsys
 Turbo Codes/SimCommsys/simcommsys.cpp
-Turbo Codes/Source
-Turbo Codes/Source/SPECturbo.cpp
-Turbo Codes/Source/csdecode.cpp
-Turbo Codes/Source/csencode.cpp
-Turbo Codes/Source/csfullcycle.cpp
-Turbo Codes/Source/cstransmit.cpp
-Turbo Codes/Source/showerrorevent.cpp
-Turbo Codes/Source/simcommsys.cpp
-Turbo Codes/Source/testbsid.cpp
-Turbo Codes/Source/testbsid2d.cpp
-Turbo Codes/Source/testconfig.cpp
-Turbo Codes/Source/testgf.cpp
-Turbo Codes/Source/testgrscc.cpp
-Turbo Codes/Source/testmodem.cpp
-Turbo Codes/Source/testqsc.cpp
-Turbo Codes/Source/testwatermark.cpp
-Turbo Codes/Source/testwmdemodulation.cpp
+Turbo Codes/TestBSID
 Turbo Codes/TestBSID/testbsid.cpp
 Turbo Codes/TestBSID2D
 Turbo Codes/TestBSID2D/testbsid2d.cpp
+Turbo Codes/TestConfig
 Turbo Codes/TestConfig/testconfig.cpp
+Turbo Codes/TestDMinner2D
+Turbo Codes/TestDMinner2D/testdminner2d.cpp
+Turbo Codes/TestGF
 Turbo Codes/TestGF/testgf.cpp
+Turbo Codes/TestGRSCC
 Turbo Codes/TestGRSCC/testgrscc.cpp
+Turbo Codes/TestModem
 Turbo Codes/TestModem/testmodem.cpp
+Turbo Codes/TestQSC
 Turbo Codes/TestQSC/testqsc.cpp
+Turbo Codes/TestWMdemodulation
 Turbo Codes/TestWMdemodulation/testwmdemodulation.cpp
+Turbo Codes/TestWatermark
 Turbo Codes/TestWatermark/testwatermark.cpp
