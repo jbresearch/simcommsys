@@ -158,6 +158,58 @@ public:
 };
 
 /*!
+   \brief   Blockwise Modulator Base - Matrix Specialization.
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   Class defines specialized interface for blockmodem classes.
+*/
+
+template <class S>
+class blockmodem<S,libbase::matrix> : public basic_blockmodem<S,libbase::matrix> {
+private:
+   /*! \name User-defined parameters */
+   int M;      //!< Number of rows in input block (symbols)
+   int N;      //!< Number of columns in input block (symbols)
+   // @}
+
+protected:
+   // Interface with base class
+   void test_invariant() const { assert(M > 0 && N > 0); };
+
+public:
+   /*! \name Constructors / Destructors */
+   //! Default constructor
+   blockmodem() { M = 0; N = 0; };
+   //! Virtual destructor
+   virtual ~blockmodem() {};
+   // @}
+
+   /*! \name Setup functions */
+   //! Sets input block size
+   void set_blocksize(int M, int N) { assert(M > 0 && N > 0); this->M = M; this->N = N; this->setup(); };
+   // @}
+
+   /*! \name Informative functions */
+   //! Gets number of rows in input block
+   int input_block_rows() const { return M; };
+   //! Gets number of columns in input block
+   int input_block_cols() const { return N; };
+   //! Gets number of rows in output block
+   virtual int output_block_rows() const { return M; };
+   //! Gets number of columns in output block
+   virtual int output_block_cols() const { return N; };
+   // @}
+
+   // Serialization Support
+   DECLARE_BASE_SERIALIZER(blockmodem);
+};
+
+/*!
    \brief   Q-ary Blockwise Modulator.
    \author  Johann Briffa
 
