@@ -60,6 +60,24 @@
       <path>Documentation</path>
       <path>Documentation/latex</path>
       <path>Documentation/latex/Makefile</path>
+      <path>Turbo Codes/Source</path>
+      <path>Turbo Codes/Source/csdecode.cpp</path>
+      <path>Turbo Codes/Source/csencode.cpp</path>
+      <path>Turbo Codes/Source/csfullcycle.cpp</path>
+      <path>Turbo Codes/Source/cstransmit.cpp</path>
+      <path>Turbo Codes/Source/showerrorevent.cpp</path>
+      <path>Turbo Codes/Source/simcommsys.cpp</path>
+      <path>Turbo Codes/Source/SPECturbo.cpp</path>
+      <path>Turbo Codes/Source/testbsid2d.cpp</path>
+      <path>Turbo Codes/Source/testbsid.cpp</path>
+      <path>Turbo Codes/Source/testconfig.cpp</path>
+      <path>Turbo Codes/Source/testdminner2d.cpp</path>
+      <path>Turbo Codes/Source/testgf.cpp</path>
+      <path>Turbo Codes/Source/testgrscc.cpp</path>
+      <path>Turbo Codes/Source/testmodem.cpp</path>
+      <path>Turbo Codes/Source/testqsc.cpp</path>
+      <path>Turbo Codes/Source/testwatermark.cpp</path>
+      <path>Turbo Codes/Source/testwmdemodulation.cpp</path>
     </blacklist>
   </kdevcustomproject>
   <kdevdebugger>
