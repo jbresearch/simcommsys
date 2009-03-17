@@ -93,15 +93,13 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    for(int i=0; i<M; i++)
       {
       ptable.extractrow(pin,i);
-      pacc.init(0);
+      pacc.init(pin);
+      pacc = 1;
       for(int ii=0; ii<m; ii++)
          {
          rx.extractrow(rxvec,i*M+ii);
          rowdec.demodulate(chan, rxvec, pin, pout);
-         if(pacc.size() == 0)
-            pacc = pout;
-         else
-            pacc *= pout;
+         pacc *= pout;
          }
       ptable.insertrow(pacc,i);
       }
@@ -109,15 +107,13 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    for(int j=0; j<N; j++)
       {
       ptable.extractcol(pin,j);
-      pacc.init(0);
+      pacc.init(pin);
+      pacc = 1;
       for(int jj=0; jj<n; jj++)
          {
          rx.extractcol(rxvec,j*N+jj);
          coldec.demodulate(chan, rxvec, pin, pout);
-         if(pacc.size() == 0)
-            pacc = pout;
-         else
-            pacc *= pout;
+         pacc *= pout;
          }
       ptable.insertcol(pacc,j);
       }

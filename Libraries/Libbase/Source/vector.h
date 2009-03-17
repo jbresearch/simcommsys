@@ -80,9 +80,9 @@ public:
    */
    vector<T>& copyfrom(const vector<T>& x);
    //! Copies another vector, resizing this one as necessary
-   vector<T>& operator=(const vector<T>& x);
+   template <class A> vector<T>& operator=(const vector<A>& x);
    //! Sets all vector elements to the given value
-   vector<T>& operator=(const T x);
+   template <class A> vector<T>& operator=(const A x);
    // @}
 
    // sub-vector access
@@ -239,7 +239,8 @@ inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
    }
 
 template <class T>
-inline vector<T>& vector<T>::operator=(const vector<T>& x)
+template <class A>
+inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    setsize(x.m_xsize);
    for(int i=0; i<m_xsize; i++)
@@ -248,7 +249,8 @@ inline vector<T>& vector<T>::operator=(const vector<T>& x)
    }
 
 template <class T>
-inline vector<T>& vector<T>::operator=(const T x)
+template <class A>
+inline vector<T>& vector<T>::operator=(const A x)
    {
    for(int i=0; i<m_xsize; i++)
       m_data[i] = x;
