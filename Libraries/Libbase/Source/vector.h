@@ -16,138 +16,18 @@ namespace libbase {
    - $Date$
    - $Author$
 
-   \version 1.10 (29 Oct 2001)
-   reinstated arithmetic functions as part of the vector class. These are only created
-   for an instantiation in which they are used, so it should not pose a problem anyway.
-   Also, cleaned up the protected (internal) interface, and formalised the existence of
-   empty vectors.
+   \note Supports the concept of an empty vector
 
-   \version 1.11 (31 Oct 2001)
-   renamed member variables to start with m_ to enable similar naming of public functions.
-   This is particularly useful for matrices. Also solved a bug where vector size was not
-   checked for validity in new vectors, and created a new internal function to validate
-   that the vector is not empty.
+   \warning Unlike most other classes, this class uses stream I/O as
+            serialization for loading and saving; they therefore output
+            container size together with container elements.
+            The serialize methods input/output only the elements.
 
-   \version 1.20 (11 Nov 2001)
-   renamed max/min functions to max/min, after #undef'ing the macros with that name in
-   Win32 (and possibly other compilers). Also added a new function to compute the sum
-   of elements in a vector.
+   \todo Extract non-root vectors as a derived class
 
-   \version 1.30 (30 Nov 2001)
-   added statistical functions that return sumsq, mean, var.
+   \note vector multiplication and division are hidden as private functions to
+         make sure they are not being used anywhere.
 
-   \version 1.31 (2 Dec 2001)
-   added a function which sets the size of a vector to the given size - leaving it as
-   it is if the size was already good, and freeing/reallocating if necessary. This helps
-   reduce redundant free/alloc operations on matrices which keep the same size.
-   [Ported from matrix 1.11]
-
-   \version 1.40 (27 Feb 2002)
-   modified the stream output function to first print the size, and added a complementary
-   stream input function. Together these allow for simplified saving and loading.
-
-   \version 1.41 (6 Mar 2002)
-   changed use of iostream from global to std namespace.
-
-   \version 1.42 (4 Apr 2002)
-   made validation functions operative only in debug mode.
-
-   \version 1.43 (7 Apr 2002)
-   moved validation functions up-front, to make sure they're used inline. Also moved
-   alloc and free before setsize, for the same reason.
-
-   \version 1.50 (13 Apr 2002)
-   added a number of high-level support routines for working with vectors - the overall
-   effect of this should be a drastic reduction in the number of loops required in user
-   code to express various common operations. Changes are:
-   - support for working with different-sized vectors (in place of resizing operations
-   which would be quite expensive); added a function copyfrom() which copies data from
-   another vector without resizing this one. Opted for this rather than changing the
-   definition of operator= because it's convenient for '=' to copy _everything_ from the
-   source to the destination; otherwise we would land into obscure problems in some cases
-   (like when we're trying to copy a vector of matrices, etc.). This method also has the
-   advantage of keeping the old code/interface as it was.
-   - added a new format for init(), which takes another vector as argument, to allow
-   easier (and neater) sizing of one vector based on another. This is a template function
-   to allow the argument vector to be of a different type.
-   - added an apply() function which allows the user to do the same operation on all
-   elements (previously had to do this manually).
-
-   \version 1.51 (13 Apr 2002)
-   removed all validate functions & replaced them by assertions.
-
-   \version 1.52 (15 Apr 2002)
-   fixed a bug in sum & sumsq (and by consequence mean, var & sigma) - the first element
-   was being skipped in the loop.
-
-   \version 1.60 (30 Apr 2002)
-   added assign() function to copy elements from an array.
-
-   \version 1.61 (9 May 2002)
-   - added another apply() so that the given function's parameter is const - this allows
-   the use of functions which do not modify their parameter (it's actually what we want
-   anyway). The older version (with non-const parameter) is still kept to allow the use
-   of functions where the parameter is not defined as const (such as fabs, etc).
-   - added unary and binary boolean operators.
-   - also, changed the binary operators to be member functions with a single argument,
-   rather than non-members with two arguments. Also, for operations with a constant
-   (rather than another vector), that constant is passed directly, not by reference.
-   - added serialize() functions which read and write vector data only; the input function
-   assumes that the current vector already has the correct size. These functions are
-   useful for interfacing with other file formats. Also modified the stream I/O functions
-   to make use of these.
-
-   \version 1.62 (11 Jun 2002)
-   removed the instance of apply() whose given function's parameter is const, since this
-   was causing problems with gcc on Solaris.
-
-   \version 1.63 (5 Jan 2005)
-   fixed the templated init function that takes a vector as parameter, so that the size
-   is obtained through the respective function (instead of by directly tyring to read the
-   private member variables). This is to allow this function to be given as parameter a
-   vector of different type. [as fixed in matrix v1.64]
-
-   \version 1.70 (5 Jan 2005)
-   - added alternative min() and max() functions which take a dereferenced integer as
-   parameter, to allow the function to return the index for the min or max value,
-   respectively. A second optional parameter allows the user to obtain the index for
-   the first or the last min/max value (defaults to first).
-
-   \version 1.71 (18 Jul 2006)
-   updated declaration of vector's friend functions to comply with the standard, by
-   adding declarations of the function before that of the class. Consequently, a
-   declaration of the class itself was also required before that.
-
-   \version 1.72 (6 Oct 2006)
-   renamed GCCONLY to STRICT, in accordance with config 2.07.
-
-   \version 1.73 (7 Oct 2006)
-   renamed STRICT to TPLFRIEND, in accordance with config 2.08.
-
-   \version 1.74 (13 Oct 2006)
-   removed TPLFRIEND, in accordance with config 3.00.
-
-   \version 1.80 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
-   \version 1.81 (17 Oct 2007)
-   - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
-
-   \version 1.90 (15 Nov 2007)
-   - added facility for sub-vector referencing, enabling access to the sub-vector data without
-    array copying; this needed the introduction of a flag m_root, which indicates vectors
-    containing their own allocated memory.
-
-   \version 1.91 (28 Nov 2007)
-   - defined alternate vector copy for non-root vectors (to avoid copying the data)
-
-   \version 2.00 (4-6 Jan 2008)
-   - hid vector multiplication and division as private functions to make sure they
-     are not being used anywhere.
-   - updated allocator to detect invalid size values
-
-     
    \todo This class needs to be re-designed in a manner that is consistent with
          convention (esp. Matlab) and that is efficient
 */
@@ -163,30 +43,53 @@ std::istream& operator>>(std::istream& s, vector<T>& x);
 template <class T>
 class vector {
 protected:
-   bool  m_root;
+   bool  m_root;     //!< True if vector contains its own allocated memory
    int   m_xsize;
    T     *m_data;
 protected:
-   // memory allocation functions
-   void alloc(const int x);   // allocates memory for x elements (if necessary) and updates xsize
-   void free();               // if there is memory allocated, free it
-   void setsize(const int x); // set vector to given size, freeing if and as required
+   /*! \name Memory allocation functions */
+   //! Allocates memory for x elements (if necessary) and updates xsize
+   void alloc(const int x);
+   //! If there is memory allocated, free it
+   void free();
+   //! Set vector to given size, freeing if and as required
+   void setsize(const int x);
+   // @}
 public:
    explicit vector(const int x=0) { alloc(x); };  // constructor (does not initialise elements)
    vector(const vector<T>& x);
    ~vector() { free(); };
 
-   // resizing operations
+   /*! \name Resizing operations */
+   /*! \brief Initialize vector to given size
+      This method is guaranteed to leave the vector untouched if the size is
+      already good, and only reallocated if necessary. This helps reduce
+      redundant free/alloc operations.
+   */
    void init(const int x) { setsize(x); };
+   //! Initialize vector to the size of given vector
    template <class A> void init(const vector<A>& x) { init(x.size()); };
-
-   // vector copy and value initialisation
+   // @}
+   
+   /*! \name Vector copy and value initialisation */
+   //! Copy elements from an array.
    vector<T>& assign(const T* x, const int n);
+   /*! \brief Copies data from another vector without resizing this one
+      If the vectors are not the same size, the first 'n' elements are copied,
+      where 'n' is the smaller vector's size. If this vector is larger, the
+      remaining elements are left untouched.
+   */
    vector<T>& copyfrom(const vector<T>& x);
+   //! Copies another vector, resizing this one as necessary
    vector<T>& operator=(const vector<T>& x);
+   //! Sets all vector elements to the given value
    vector<T>& operator=(const T x);
+   // @}
 
    // sub-vector access
+   /*! \brief Extract a sub-vector as a reference into this vector
+      This allows access to sub-vector data without array copying.
+   */
    const vector<T> extract(const int start, const int n) const;
 
    // index operators (perform boundary checking)
@@ -194,14 +97,16 @@ public:
    T operator()(const int x) const;
 
    // information services
-   int size() const { return m_xsize; };                 //!< Total number of elements
+   //! Total number of elements
+   int size() const { return m_xsize; };
 
-   // serialization and stream input & output
+   /*! \name Serialization and stream input & output */
    void serialize(std::ostream& s, char spacer='\t') const;
    void serialize(std::istream& s);
    friend std::ostream& operator<< <>(std::ostream& s, const vector<T>& x);
    friend std::istream& operator>> <>(std::istream& s, vector<T>& x);
-
+   // @}
+   
    // arithmetic operations - unary
    vector<T>& operator+=(const vector<T>& x);
    vector<T>& operator-=(const vector<T>& x);
@@ -237,19 +142,35 @@ public:
    vector<T> operator|(const vector<T>& x) const;
    vector<T> operator^(const vector<T>& x) const;
 
-   // user-defined operations
+   //! Apply user-defined operation on all elements
    vector<T>& apply(T f(T));
 
-   // statistical operations
+   /*! \name statistical operations */
+   //! Find smallest vector element
    T min() const;
+   //! Find largest vector element
    T max() const;
+   /*! \brief Find smallest vector element
+      \param index returns the index for the smallest value
+      \param getfirst flag to return first value found (rather than last)
+   */
    T min(int& index, const bool getfirst=true) const;
+   /*! \brief Find largest vector element
+      \param index returns the index for the largest value
+      \param getfirst flag to return first value found (rather than last)
+   */
    T max(int& index, const bool getfirst=true) const;
+   //! Compute the sum of all vector elements
    T sum() const;
+   //! Computes the sum of the squares of all vector elements
    T sumsq() const;
+   //! Computes the mathematical mean of vector elements
    T mean() const { return sum()/T(size()); };
+   //! Computes the variance of vector elements
    T var() const;
+   //! Computes the standard deviation of vector elements
    T sigma() const { return sqrt(var()); };
+   // @}
 };
 
 // memory allocation functions
