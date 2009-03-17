@@ -260,6 +260,13 @@ dminner<real,normalize>::dminner(const int n, const int k, const double th_inner
 // Watermark-specific setup functions
 
 template <class real, bool normalize>
+void dminner<real,normalize>::set_lut(libbase::vector<libbase::bitfield> lut)
+   {
+   copylut(lut);
+   init();
+   }
+
+template <class real, bool normalize>
 void dminner<real,normalize>::set_thresholds(const double th_inner, const double th_outer)
    {
    user_threshold = true;

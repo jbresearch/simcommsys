@@ -117,6 +117,7 @@ public:
    // @}
 
    /*! \name Watermark-specific setup functions */
+   void set_lut(libbase::vector<libbase::bitfield> lut);
    void set_thresholds(const double th_inner, const double th_outer);
    void set_parameter(const double x) { set_thresholds(x,x); };
    double get_parameter() const { assert(th_inner==th_outer); return th_inner; };
