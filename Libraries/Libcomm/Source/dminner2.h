@@ -49,6 +49,11 @@ public:
       : dminner<real,normalize>(n,k,th_inner,th_outer) {};
    // @}
 
+   // Vector modem operations
+   // (necessary because inheriting methods from templated base)
+   using informed_modulator<bool>::modulate;
+   using informed_modulator<bool>::demodulate;
+
    // Description
    std::string description() const;
 

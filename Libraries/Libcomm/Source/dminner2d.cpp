@@ -8,6 +8,7 @@
 */
 
 #include "dminner2d.h"
+#include "dminner2.h"
 #include "timer.h"
 #include <sstream>
 
@@ -56,10 +57,52 @@ void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<in
    assert(tx.xsize() == N*n);
    // Encode source
    for(int i=0; i<M; i++)
-      for(int j=0; i<N; j++)
+      for(int j=0; j<N; j++)
          for(int ii=0; ii<m; ii++)
             for(int jj=0; jj<n; jj++)
                tx(j*N+jj,i*M+ii) ^= lut(encoded(j,i))(jj,ii);
+   }
+
+/*!
+   \copydoc blockmodem::dodemodulate()
+
+   Decodes 2D sequence by performing iterative row/column decodings.
+*/
+
+template <class real, bool normalize>
+void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
+   {
+   // Inherit sizes
+   const int M = this->input_block_rows();
+   const int N = this->input_block_cols();
+   // Check input validity
+   assertalways(M == app.ysize());
+   assertalways(N == app.xsize());
+   // Initialize result vector
+   ptable = app;
+   // Temporary variables
+   libbase::vector<bool> rxvec;
+   libbase::vector<array1d_t> pvec;
+   dminner2<real,normalize> rowdec(n,log2(q));
+   dminner2<real,normalize> coldec(m,log2(q));
+   rowdec.set_thresholds(0,0);
+   coldec.set_thresholds(0,0);
+   // Decode rows
+   for(int i=0; i<M; i++)
+      {
+      rx.extractrow(rxvec,i);
+      ptable.extractrow(pvec,i);
+      rowdec.demodulate(chan, rxvec, pvec, pvec);
+      ptable.insertrow(pvec,i);
+      }
+   // Decode columns
+   for(int j=0; j<N; j++)
+      {
+      rx.extractcol(rxvec,j);
+      ptable.extractcol(pvec,j);
+      coldec.demodulate(chan, rxvec, pvec, pvec);
+      ptable.insertcol(pvec,j);
+      }
    }
 
 /*!

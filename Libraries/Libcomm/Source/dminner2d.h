@@ -63,7 +63,7 @@ protected:
    void advance() const;
    void domodulate(const int q, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx);
    void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
-   void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable) {};
+   void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable);
 
 private:
    /*! \name Internal functions */
