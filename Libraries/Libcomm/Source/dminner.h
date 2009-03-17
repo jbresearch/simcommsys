@@ -99,6 +99,7 @@ private:
    /*! \name Internal functions */
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
+   void copylut(libbase::vector<libbase::bitfield> lutb);
    void validatelut() const;
    double computemeandensity() const;
    void checkforchanges(int I, int xmax) const;

@@ -52,6 +52,23 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
    }
 
 /*!
+   \brief Set up LUT with the given codewords
+*/
+template <class real, bool normalize>
+void dminner<real,normalize>::copylut(libbase::vector<libbase::bitfield> lutb)
+   {
+   assertalways(lutb.size() == num_symbols());
+   // initialize LUT
+   lut.init(num_symbols());
+   // copy elements
+   for(int i=0; i<lut.size(); i++)
+      {
+      assertalways(lutb(i).size() == n);
+      lut(i) = lutb(i);
+      }
+   }
+   
+/*!
    \brief Confirm that LUT is valid
    Checks that all LUT entries are within range and that there are no
    duplicate entries.
@@ -449,14 +466,12 @@ std::istream& dminner<real,normalize>::serialize(std::istream& sin)
    if(lut_type == lut_user)
       {
       sin >> lutname;
-      lut.init(num_symbols());
-      for(int i=0; i<lut.size(); i++)
-         {
-         libbase::bitfield b;
-         sin >> b;
-         lut(i) = b;
-         assertalways(n == b.size());
-         }
+      // read LUT from stream
+      libbase::vector<libbase::bitfield> lutb;
+      lutb.init(num_symbols());
+      lutb.serialize(sin);
+      // use read LUT
+      copylut(lutb);
       }
    init();
    return sin;
