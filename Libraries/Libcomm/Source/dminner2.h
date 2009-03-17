@@ -43,7 +43,7 @@ protected:
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
-   dminner2(const int n=2, const int k=1)
+   explicit dminner2(const int n=2, const int k=1)
       : dminner<real,normalize>(n,k) {};
    dminner2(const int n, const int k, const double th_inner, const double th_outer)
       : dminner<real,normalize>(n,k,th_inner,th_outer) {};

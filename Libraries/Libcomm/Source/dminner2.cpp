@@ -82,7 +82,7 @@ template <class real, bool normalize>
 std::string dminner2<real,normalize>::description() const
    {
    std::ostringstream sout;
-   sout << "Alternative " << dminner<real,normalize>::description();
+   sout << "Symbol-level " << dminner<real,normalize>::description();
    return sout.str();
    }
 
