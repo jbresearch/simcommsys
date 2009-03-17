@@ -18,15 +18,14 @@ namespace libbase {
 
    \note Supports the concept of an empty vector
 
+   \note Multiplication and division perform array operations
+   
    \warning Unlike most other classes, this class uses stream I/O as
             serialization for loading and saving; they therefore output
             container size together with container elements.
             The serialize methods input/output only the elements.
 
    \todo Extract non-root vectors as a derived class
-
-   \note vector multiplication and division are hidden as private functions to
-         make sure they are not being used anywhere.
 
    \todo This class needs to be re-designed in a manner that is consistent with
          convention (esp. Matlab) and that is efficient
@@ -110,10 +109,8 @@ public:
    // arithmetic operations - unary
    vector<T>& operator+=(const vector<T>& x);
    vector<T>& operator-=(const vector<T>& x);
-private:
    vector<T>& operator*=(const vector<T>& x);
    vector<T>& operator/=(const vector<T>& x);
-public:
    vector<T>& operator+=(const T x);
    vector<T>& operator-=(const T x);
    vector<T>& operator*=(const T x);
@@ -122,10 +119,8 @@ public:
    // arithmetic operations - binary
    vector<T> operator+(const vector<T>& x) const;
    vector<T> operator-(const vector<T>& x) const;
-private:
    vector<T> operator*(const vector<T>& x) const;
    vector<T> operator/(const vector<T>& x) const;
-public:
    vector<T> operator+(const T x) const;
    vector<T> operator-(const T x) const;
    vector<T> operator*(const T x) const;

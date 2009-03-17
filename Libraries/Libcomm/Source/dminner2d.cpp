@@ -82,7 +82,9 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    ptable = app;
    // Temporary variables
    libbase::vector<bool> rxvec;
-   libbase::vector<array1d_t> pvec;
+   libbase::vector<array1d_t> pin;
+   libbase::vector<array1d_t> pout;
+   libbase::vector<array1d_t> pacc;
    dminner2<real,normalize> rowdec(n,log2(q));
    dminner2<real,normalize> coldec(m,log2(q));
    rowdec.set_thresholds(0,0);
@@ -90,18 +92,34 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    // Decode rows
    for(int i=0; i<M; i++)
       {
-      rx.extractrow(rxvec,i);
-      ptable.extractrow(pvec,i);
-      rowdec.demodulate(chan, rxvec, pvec, pvec);
-      ptable.insertrow(pvec,i);
+      ptable.extractrow(pin,i);
+      pacc.init(0);
+      for(int ii=0; ii<m; ii++)
+         {
+         rx.extractrow(rxvec,i*M+ii);
+         rowdec.demodulate(chan, rxvec, pin, pout);
+         if(pacc.size() == 0)
+            pacc = pout;
+         else
+            pacc *= pout;
+         }
+      ptable.insertrow(pacc,i);
       }
    // Decode columns
    for(int j=0; j<N; j++)
       {
-      rx.extractcol(rxvec,j);
-      ptable.extractcol(pvec,j);
-      coldec.demodulate(chan, rxvec, pvec, pvec);
-      ptable.insertcol(pvec,j);
+      ptable.extractcol(pin,j);
+      pacc.init(0);
+      for(int jj=0; jj<n; jj++)
+         {
+         rx.extractcol(rxvec,j*N+jj);
+         coldec.demodulate(chan, rxvec, pin, pout);
+         if(pacc.size() == 0)
+            pacc = pout;
+         else
+            pacc *= pout;
+         }
+      ptable.insertcol(pacc,j);
       }
    }
 
