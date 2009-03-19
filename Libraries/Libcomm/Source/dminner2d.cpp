@@ -85,8 +85,8 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    libbase::vector<array1d_t> pin;
    libbase::vector<array1d_t> pout;
    libbase::vector<array1d_t> pacc;
-   dminner2<real,normalize> rowdec(n,log2(q));
-   dminner2<real,normalize> coldec(m,log2(q));
+   dminner2<real,normalize> rowdec(n,int(log2(q)));
+   dminner2<real,normalize> coldec(m,int(log2(q)));
    rowdec.set_thresholds(0,0);
    coldec.set_thresholds(0,0);
    // Iterate a few times
