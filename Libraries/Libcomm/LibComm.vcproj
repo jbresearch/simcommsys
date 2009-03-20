@@ -339,6 +339,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\bsid2d.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\ccbfsm.cpp"
 				>
 			</File>
@@ -472,6 +476,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\dminner2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\dminner2d.cpp"
 				>
 			</File>
 			<File
@@ -757,6 +765,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Source\modem.cpp"
+				>
 			</File>
 			<File
 				RelativePath="Source\montecarlo.cpp"
@@ -1232,6 +1244,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\bsid2d.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\ccbfsm.h"
 				>
 			</File>
@@ -1301,6 +1317,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\dminner2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\dminner2d.h"
 				>
 			</File>
 			<File
@@ -1393,6 +1413,10 @@
 			</File>
 			<File
 				RelativePath="Source\md5.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\modem.h"
 				>
 			</File>
 			<File
