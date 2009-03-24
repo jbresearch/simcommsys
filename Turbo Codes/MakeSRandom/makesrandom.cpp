@@ -48,6 +48,9 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
    {
    // set up common elements
    libbase::truerand trng;
+   libbase::randgen seeder;
+   seeder.seed(trng.ival());
+   libbase::randgen prng;
    libbase::pacifier p;
    libbase::vector<int> lut(tau);
 
@@ -58,8 +61,7 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
    do {
       p.update(attempt, max_attempts);
       // re-seed random generator
-      seed = trng.ival();
-      libbase::randgen prng;
+      seed = seeder.ival();
       prng.seed(seed);
       // set up working variables
       DerivedVector<int> unused(tau);
@@ -161,7 +163,7 @@ int main(int argc, char *argv[])
    int spread = vm["spread"].as<int>();
    const int max_attempts = vm["attempts"].as<int>();
    // Main process
-   libbase::int32u seed;
+   libbase::int32u seed = 0;
    libbase::vector<int> lut = create_srandom(tau, spread, seed, max_attempts);
    // Output
    std::cout << "#% Size: " << tau << "\n";
