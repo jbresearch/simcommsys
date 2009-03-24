@@ -288,6 +288,7 @@ template class basic_commsys< libbase::gf<3,0xB> >;
 template class basic_commsys< libbase::gf<4,0x13> >;
 template class basic_commsys<sigspace>;
 
+//template class basic_commsys<bool,libbase::matrix>;
 
 // *** General Communication System ***
 
