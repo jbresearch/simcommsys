@@ -13,10 +13,6 @@
 
 namespace libcomm {
 
-// Serialization Support
-
-const libbase::serializer map_straight::shelper("mapper", "map_straight", map_straight::create);
-
 // Interface with mapper
 
 /*! \copydoc mapper::setup()
@@ -24,7 +20,8 @@ const libbase::serializer map_straight::shelper("mapper", "map_straight", map_st
    \note Each encoder output must be represented by an integral number of
          modulation symbols
 */
-void map_straight::setup()
+template <template<class> class C>
+void map_straight<C>::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
@@ -32,7 +29,8 @@ void map_straight::setup()
    assertalways(tau*s1 == upsilon*s2);
    }
 
-void map_straight::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+template <template<class> class C>
+void map_straight<C>::dotransform(const C<int>& in, C<int>& out) const
    {
    assertalways(in.size() == tau);
    // Initialize results vector
@@ -43,7 +41,8 @@ void map_straight::dotransform(const libbase::vector<int>& in, libbase::vector<i
          out(k) = x % M;
    }
 
-void map_straight::doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
+template <template<class> class C>
+void map_straight<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
    assertalways(pin.size() == tau*s1);
    // Initialize results vector
@@ -65,7 +64,8 @@ void map_straight::doinverse(const libbase::vector< libbase::vector<double> >& p
 
 // Description
 
-std::string map_straight::description() const
+template <template<class> class C>
+std::string map_straight<C>::description() const
    {
    std::ostringstream sout;
    sout << "Straight Mapper";
@@ -74,14 +74,22 @@ std::string map_straight::description() const
 
 // Serialization Support
 
-std::ostream& map_straight::serialize(std::ostream& sout) const
+template <template<class> class C>
+std::ostream& map_straight<C>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
-std::istream& map_straight::serialize(std::istream& sin)
+template <template<class> class C>
+std::istream& map_straight<C>::serialize(std::istream& sin)
    {
    return sin;
    }
+
+// Explicit instantiations
+
+template class map_straight<libbase::vector>;
+template <>
+const libbase::serializer map_straight<libbase::vector>::shelper("mapper", "map_straight<vector>", map_straight<libbase::vector>::create);
 
 }; // end namespace

@@ -32,7 +32,7 @@ protected:
    //! Flag to indicate whether the objects should be released on destruction
    bool  internallyallocated;
    codec<C>          *cdc;    //!< Error-control codec
-   mapper         *map;    //!< Symbol-mapper (encoded output to transmitted symbols)
+   mapper<C>         *map;    //!< Symbol-mapper (encoded output to transmitted symbols)
    blockmodem<S,C>   *mdm;    //!< Modulation scheme
    channel<S,C>      *chan;   //!< Channel model
    // @}
@@ -51,7 +51,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(codec<C> *cdc, mapper *map, blockmodem<S,C> *mdm, channel<S,C> *chan);
+   basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,C> *mdm, channel<S,C> *chan);
    basic_commsys(const basic_commsys<S,C>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };
@@ -62,7 +62,7 @@ public:
    //! Get error-control codec
    codec<C> *getcodec() const { return cdc; };
    //! Get symbol mapper
-   mapper *getmapper() const { return map; };
+   mapper<C> *getmapper() const { return map; };
    //! Get modulation scheme
    blockmodem<S> *getmodem() const { return mdm; };
    //! Get channel model

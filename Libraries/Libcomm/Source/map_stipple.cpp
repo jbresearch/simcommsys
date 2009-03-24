@@ -13,13 +13,10 @@
 
 namespace libcomm {
 
-// Serialization Support
-
-const libbase::serializer map_stipple::shelper("mapper", "map_stipple", map_stipple::create);
-
 // Interface with mapper
 
-void map_stipple::advance() const
+template <template<class> class C>
+void map_stipple<C>::advance() const
    {
    assertalways(tau > 0);
    assertalways(sets > 0);
@@ -33,11 +30,12 @@ void map_stipple::advance() const
          pattern(i) = (s==0 || (s-1)==t%sets);
    }
 
-void map_stipple::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+template <template<class> class C>
+void map_stipple<C>::dotransform(const C<int>& in, C<int>& out) const
    {
    // do the base (straight) mapping into a temporary space
-   libbase::vector<int> s;
-   map_straight::dotransform(in, s);
+   C<int> s;
+   map_straight<C>::dotransform(in, s);
    // final vector size depends on the number of set positions
    assertalways(s.size()==pattern.size());
    out.init(2*tau);
@@ -47,12 +45,13 @@ void map_stipple::dotransform(const libbase::vector<int>& in, libbase::vector<in
          out(ii++) = s(i);
    }
 
-void map_stipple::doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
+template <template<class> class C>
+void map_stipple<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
-   assertalways(pin.size()==tau*2);
-   assertalways(pin(0).size()==M);
+   assertalways(pin.size() == tau*2);
+   assertalways(pin(0).size() == M);
    // final matrix size depends on the number of set positions
-   libbase::vector< libbase::vector<double> > ptable;
+   C<array1d_t> ptable;
    ptable.init(pattern.size());
    for(int i=0; i<pattern.size(); i++)
       ptable(i).init(M);
@@ -70,12 +69,13 @@ void map_stipple::doinverse(const libbase::vector< libbase::vector<double> >& pi
             ptable(i)(j) = 1.0/M;
          }
    // do the base (straight) inverse mapping
-   map_straight::doinverse(ptable, pout);
+   map_straight<C>::doinverse(ptable, pout);
    }
 
 // Description
 
-std::string map_stipple::description() const
+template <template<class> class C>
+std::string map_stipple<C>::description() const
    {
    std::ostringstream sout;
    sout << "Stipple Mapper (" << sets << ")";
@@ -84,18 +84,26 @@ std::string map_stipple::description() const
 
 // Serialization Support
 
-std::ostream& map_stipple::serialize(std::ostream& sout) const
+template <template<class> class C>
+std::ostream& map_stipple<C>::serialize(std::ostream& sout) const
    {
-   map_straight::serialize(sout);
+   map_straight<C>::serialize(sout);
    sout << sets << "\n";
    return sout;
    }
 
-std::istream& map_stipple::serialize(std::istream& sin)
+template <template<class> class C>
+std::istream& map_stipple<C>::serialize(std::istream& sin)
    {
-   map_straight::serialize(sin);
+   map_straight<C>::serialize(sin);
    sin >> sets;
    return sin;
    }
+
+// Explicit instantiations
+
+template class map_stipple<libbase::vector>;
+template <>
+const libbase::serializer map_stipple<libbase::vector>::shelper("mapper", "map_stipple<vector>", map_stipple<libbase::vector>::create);
 
 }; // end namespace

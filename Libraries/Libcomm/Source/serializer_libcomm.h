@@ -104,8 +104,7 @@ class serializer_libcomm : private
    gnrcc< libbase::gf<1,0x3> >, gnrcc< libbase::gf<2,0x7> >, gnrcc< libbase::gf<3,0xB> >, gnrcc< libbase::gf<4,0x13> >,
    uncoded, mapcc<libbase::logrealfast>, turbo<libbase::logrealfast,libbase::logrealfast>,
    onetimepad<double>, padded<double>, berrou<double>, flat<double>, helical<double>, rand_lut<double>, rectangular<double>, shift_lut<double>, uniform_lut<double>, named_lut<double>,
-   onetimepad<libbase::logrealfast>, padded<libbase::logrealfast>, berrou<libbase::logrealfast>, flat<libbase::logrealfast>, helical<libbase::logrealfast>, rand_lut<libbase::logrealfast>, rectangular<libbase::logrealfast>, shift_lut<libbase::logrealfast>, uniform_lut<libbase::logrealfast>, named_lut<libbase::logrealfast>,
-   map_interleaved, map_permuted, map_stipple
+   onetimepad<libbase::logrealfast>, padded<libbase::logrealfast>, berrou<libbase::logrealfast>, flat<libbase::logrealfast>, helical<libbase::logrealfast>, rand_lut<libbase::logrealfast>, rectangular<libbase::logrealfast>, shift_lut<libbase::logrealfast>, uniform_lut<libbase::logrealfast>, named_lut<libbase::logrealfast>
 {
 private:
    typedef libbase::logrealfast  logrealfast;
@@ -140,6 +139,10 @@ private:
    dminner2<double,true>            _dminner2_double;
    dminner2d<logrealfast,false>     _dminner2d_logrealfast;
    dminner2d<double,true>           _dminner2d_double;
+   // Mappers
+   map_interleaved<libbase::vector>    _map_interleaved_vector;
+   map_permuted<libbase::vector>       _map_permuted_vector;
+   map_stipple<libbase::vector>        _map_stipple_vector;
    // Systems
    commsys< libbase::gf<1,0x3> >       _commsys_gf1;
    commsys< libbase::gf<2,0x7> >       _commsys_gf2;

@@ -19,7 +19,15 @@ namespace libcomm {
    * inverse transform from the various codecs.
 */
 
-class map_straight : public mapper {
+template <template<class> class C=libbase::vector>
+class map_straight :
+   public mapper<C> {
+public:
+   /*! \name Type definitions */
+   typedef mapper<C> Base;
+   typedef libbase::vector<double>     array1d_t;
+   // @}
+
 private:
    /*! \name Internal object representation */
    int s1;        //!< Number of modulation symbols per encoder output
@@ -28,15 +36,22 @@ private:
    // @}
 
 protected:
+   // Pull in base class variables
+   using Base::tau;
+   using Base::M;
+   using Base::N;
+   using Base::S;
+
+protected:
    // Interface with mapper
    void setup();
-   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
+   void dotransform(const C<int>& in, C<int>& out) const;
+   void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
 
 public:
    // Informative functions
    double rate() const { return 1; };
-   int output_block_size() const { return tau*s1; };
+   int output_block_size() const { return this->tau*s1; };
 
    // Description
    std::string description() const;

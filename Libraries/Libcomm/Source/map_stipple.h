@@ -26,22 +26,34 @@ namespace libcomm {
          code, and is one less than that for puncture_stipple.
 */
 
-class map_stipple : public map_straight {
+template <template<class> class C=libbase::vector>
+class map_stipple :
+   public map_straight<C> {
+public:
+   /*! \name Type definitions */
+   typedef map_straight<C> Base;
+   typedef libbase::vector<double>     array1d_t;
+   // @}
+
 private:
    /*! \name User-defined parameters */
    int sets;   //!< Number of turbo code parallel sets
    // @}
    /*! \name Internal object representation */
-   mutable libbase::vector<bool> pattern;   //!< Pre-computed puncturing pattern
+   mutable C<bool> pattern;   //!< Pre-computed puncturing pattern
    // @}
+
 protected:
-   /*! \name Constructors / Destructors */
-   map_stipple() {};
-   // @}
+   // Pull in base class variables
+   using Base::tau;
+   using Base::M;
+
+protected:
    // Interface with mapper
    void advance() const;
-   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
+   void dotransform(const C<int>& in, C<int>& out) const;
+   void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
+
 public:
    /*! \name Constructors / Destructors */
    virtual ~map_stipple() {};
@@ -49,7 +61,7 @@ public:
 
    // Informative functions
    double rate() const { return (sets+1)/2.0; };
-   int output_block_size() const { return tau*2; };
+   int output_block_size() const { return this->tau*2; };
 
    // Description
    std::string description() const;

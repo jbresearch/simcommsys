@@ -12,7 +12,9 @@
 namespace libcomm {
 
 // Helper functions
-int mapper::get_rate(const int input, const int output)
+
+template <template<class> class C>
+int mapper<C>::get_rate(const int input, const int output)
    {
    const int s = int(round( log(double(output)) / log(double(input)) ));
    assertalways(output == pow(input,s));
@@ -21,34 +23,42 @@ int mapper::get_rate(const int input, const int output)
 
 // Setup functions
 
-void mapper::set_parameters(const int N, const int M, const int S)
+template <template<class> class C>
+void mapper<C>::set_parameters(const int N, const int M, const int S)
    {
-   mapper::N = N;
-   mapper::M = M;
-   mapper::S = S;
+   this->N = N;
+   this->M = M;
+   this->S = S;
    setup();
    }
 
-void mapper::set_blocksize(int tau)
+template <template<class> class C>
+void mapper<C>::set_blocksize(int tau)
    {
    assert(tau > 0);
-   mapper::tau = tau;
+   mapper<C>::tau = tau;
    setup();
    }
 
 // Vector mapper operations
 
-void mapper::transform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+template <template<class> class C>
+void mapper<C>::transform(const C<int>& in, C<int>& out) const
    {
    advance_always();
    dotransform(in, out);
    }
 
-void mapper::inverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const
+template <template<class> class C>
+void mapper<C>::inverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
    advance_if_dirty();
    doinverse(pin, pout);
    mark_as_dirty();
    }
+
+// Explicit instantiations
+
+template class mapper<libbase::vector>;
 
 }; // end namespace

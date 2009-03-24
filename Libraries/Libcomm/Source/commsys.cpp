@@ -103,7 +103,7 @@ void basic_commsys<S,C>::free()
    Initializes system with bound objects as supplied by user.
 */
 template <class S, template<class> class C>
-basic_commsys<S,C>::basic_commsys(codec<C> *cdc, mapper *map, blockmodem<S,C> *mdm, channel<S,C> *chan)
+basic_commsys<S,C>::basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,C> *mdm, channel<S,C> *chan)
    {
    this->cdc = cdc;
    this->map = map;
@@ -273,7 +273,7 @@ std::istream& basic_commsys<S,C>::serialize(std::istream& sin)
    if(sin.fail())
       {
       assert(map == NULL);
-      map = new map_straight;
+      map = new map_straight<C>;
       sin.clear();
       }
    sin >> cdc;

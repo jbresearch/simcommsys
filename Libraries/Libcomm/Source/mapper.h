@@ -23,11 +23,16 @@ namespace libcomm {
 
    This class defines the interface for mapper classes. It integrates within
    commsys as a layer between codec and blockmodem.
-
-   \todo Templatize to work with 2D channels
 */
 
-class mapper : public blockprocess {
+template <template<class> class C=libbase::vector>
+class mapper :
+   public blockprocess {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<double>     array1d_t;
+   // @}
+
 protected:
    /*! \name User-defined parameters */
    int N;   //!< Number of possible values of each encoder output
@@ -49,9 +54,9 @@ protected:
    //! Setup function, called from set_parameters and set_blocksize
    virtual void setup() = 0;
    //! \copydoc transform()
-   virtual void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const = 0;
+   virtual void dotransform(const C<int>& in, C<int>& out) const = 0;
    //! \copydoc inverse()
-   virtual void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const = 0;
+   virtual void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const = 0;
    // @}
 
 public:
@@ -66,7 +71,7 @@ public:
       \param[in]  in    Sequence of encoder output values
       \param[out] out   Sequence of symbols to be modulated
    */
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void transform(const C<int>& in, C<int>& out) const;
    /*!
       \brief Inverse-transform the received symbol probabilities to a decoder-
              comaptible set
@@ -75,7 +80,7 @@ public:
 
       \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
    */
-   void inverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
+   void inverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
    // @}
 
    /*! \name Setup functions */

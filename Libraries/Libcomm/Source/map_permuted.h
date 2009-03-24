@@ -19,7 +19,15 @@ namespace libcomm {
    This class defines an symbol-permuting version of the straight mapper.
 */
 
-class map_permuted : public map_straight {
+template <template<class> class C=libbase::vector>
+class map_permuted :
+   public map_straight<C> {
+public:
+   /*! \name Type definitions */
+   typedef map_straight<C> Base;
+   typedef libbase::vector<double>     array1d_t;
+   // @}
+
 private:
    /*! \name Internal object representation */
    mutable libbase::vector<libbase::randperm> lut;
@@ -27,10 +35,15 @@ private:
    // @}
 
 protected:
+   // Pull in base class variables
+   using Base::tau;
+   using Base::M;
+
+protected:
    // Interface with mapper
    void advance() const;
-   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void doinverse(const libbase::vector< libbase::vector<double> >& pin, libbase::vector< libbase::vector<double> >& pout) const;
+   void dotransform(const C<int>& in, C<int>& out) const;
+   void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
 
 public:
    // Setup functions
