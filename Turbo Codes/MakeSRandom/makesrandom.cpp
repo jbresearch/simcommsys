@@ -59,7 +59,7 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
    // loop for a number of attempts at the given Spread, then
    // reduce and continue as necessary
    do {
-      p.update(attempt, max_attempts);
+      std::cerr << p.update(attempt, max_attempts);
       // re-seed random generator
       seed = seeder.ival();
       prng.seed(seed);
