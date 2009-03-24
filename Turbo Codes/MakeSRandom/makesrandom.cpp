@@ -1,6 +1,7 @@
 #include "serializer_libcomm.h"
 #include "commsys.h"
 #include "truerand.h"
+#include "pacifier.h"
 #include "timer.h"
 
 #include <boost/program_options.hpp>
@@ -45,9 +46,9 @@ void DerivedVector<T>::sequence()
 
 libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u& seed, const int max_attempts)
    {
-   // seed generator
+   // set up common elements
    libbase::truerand trng;
-   // intialize space for results
+   libbase::pacifier p;
    libbase::vector<int> lut(tau);
 
    bool failed;
@@ -55,9 +56,9 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
    // loop for a number of attempts at the given Spread, then
    // reduce and continue as necessary
    do {
-      std::cerr << "Attempt " << attempt << " at spread " << spread << "\r";
+      p.update(attempt, max_attempts);
       // re-seed random generator
-      const libbase::int32u seed = trng.ival();
+      seed = trng.ival();
       libbase::randgen prng;
       prng.seed(seed);
       // set up working variables
@@ -110,6 +111,7 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
             {
             attempt = 0;
             spread--;
+            std::cerr << "Searching for solution at spread " << spread << "\n";
             }
          }
       } while(failed);
