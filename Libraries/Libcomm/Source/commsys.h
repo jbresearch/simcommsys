@@ -31,10 +31,10 @@ protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
    bool  internallyallocated;
-   codec<C>       *cdc;    //!< Error-control codec
+   codec<C>          *cdc;    //!< Error-control codec
    mapper         *map;    //!< Symbol-mapper (encoded output to transmitted symbols)
-   blockmodem<S>  *mdm;  //!< Modulation scheme
-   channel<S>     *chan;   //!< Channel model
+   blockmodem<S,C>   *mdm;    //!< Modulation scheme
+   channel<S,C>      *chan;   //!< Channel model
    // @}
    /*! \name Computed parameters */
    int  M;     //!< Alphabet size for modulation symbols
@@ -51,7 +51,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(codec<C> *cdc, mapper *map, blockmodem<S> *mdm, channel<S> *chan);
+   basic_commsys(codec<C> *cdc, mapper *map, blockmodem<S,C> *mdm, channel<S,C> *chan);
    basic_commsys(const basic_commsys<S,C>& c);
    basic_commsys() { clear(); };
    virtual ~basic_commsys() { free(); };

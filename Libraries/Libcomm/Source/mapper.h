@@ -23,6 +23,8 @@ namespace libcomm {
 
    This class defines the interface for mapper classes. It integrates within
    commsys as a layer between codec and blockmodem.
+
+   \todo Templatize to work with 2D channels
 */
 
 class mapper : public blockprocess {

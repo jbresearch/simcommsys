@@ -294,7 +294,6 @@ public:
    //using direct_modem_implementation<bool>::modulate;
    //using direct_modem_implementation<bool>::demodulate;
    //using direct_modem_implementation<bool>::num_symbols;
-   //using Implementation::num_symbols;
 
    // Description
    std::string description() const;
