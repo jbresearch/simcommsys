@@ -77,7 +77,7 @@ void direct_blockmodem<G>::domodulate(const int N, const libbase::vector<int>& e
    // Modulate encoded stream (least-significant first)
    for(int t=0, k=0; t<tau; t++)
       for(int i=0, x = encoded(t); i<s; i++, k++, x /= M)
-         tx(k) = direct_modem<G>::modulate(x % M);
+         tx(k) = direct_modem_implementation<G>::modulate(x % M);
    }
 
 template <class G>
@@ -91,7 +91,7 @@ void direct_blockmodem<G>::dodemodulate(const channel<G>& chan, const libbase::v
    // Create a matrix of all possible transmitted symbols
    libbase::vector<G> tx(M);
    for(int x=0; x<M; x++)
-      tx(x) = direct_modem<G>::modulate(x);
+      tx(x) = direct_modem_implementation<G>::modulate(x);
    // Work out the probabilities of each possible signal
    chan.receive(tx, rx, ptable);
    }
@@ -102,7 +102,7 @@ template <class G>
 std::string direct_blockmodem<G>::description() const
    {
    std::ostringstream sout;
-   sout << "Blockwise " << direct_modem<G>::description();
+   sout << "Blockwise " << direct_modem_implementation<G>::description();
    return sout.str();
    }
 
@@ -111,13 +111,13 @@ std::string direct_blockmodem<G>::description() const
 template <class G>
 std::ostream& direct_blockmodem<G>::serialize(std::ostream& sout) const
    {
-   return direct_modem<G>::serialize(sout);
+   return sout;
    }
 
 template <class G>
 std::istream& direct_blockmodem<G>::serialize(std::istream& sin)
    {
-   return direct_modem<G>::serialize(sin);
+   return sin;
    }
 
 // Explicit Realizations
@@ -178,7 +178,7 @@ void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan, const libb
 std::string direct_blockmodem<bool>::description() const
    {
    std::ostringstream sout;
-   sout << "Blockwise " << direct_modem<bool>::description();
+   sout << "Blockwise " << direct_modem_implementation<bool>::description();
    return sout.str();
    }
 
@@ -186,12 +186,12 @@ std::string direct_blockmodem<bool>::description() const
 
 std::ostream& direct_blockmodem<bool>::serialize(std::ostream& sout) const
    {
-   return direct_modem<bool>::serialize(sout);
+   return sout;
    }
 
 std::istream& direct_blockmodem<bool>::serialize(std::istream& sin)
    {
-   return direct_modem<bool>::serialize(sin);
+   return sin;
    }
 
 }; // end namespace

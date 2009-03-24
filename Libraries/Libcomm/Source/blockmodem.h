@@ -28,7 +28,7 @@ namespace libcomm {
 */
 
 template <class S, template<class> class C=libbase::vector>
-class basic_blockmodem : public blockprocess, public virtual modem<S> {
+class basic_blockmodem : public blockprocess, public modem<S> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double>     array1d_t;
@@ -227,9 +227,12 @@ public:
 */
 
 template <class G>
-class direct_blockmodem : public blockmodem<G>, public direct_modem<G> {
+class direct_blockmodem :
+   public blockmodem<G>,
+   protected direct_modem_implementation<G> {
 public:
    /*! \name Type definitions */
+   typedef direct_modem_implementation<G> Implementation;
    typedef libbase::vector<double>     array1d_t;
    // @}
 protected:
@@ -238,6 +241,16 @@ protected:
    void dodemodulate(const channel<G>& chan, const libbase::vector<G>& rx, libbase::vector<array1d_t>& ptable);
 
 public:
+   // Use implementation from base
+   // Atomic modem operations
+   const G modulate(const int index) const { return Implementation::modulate(index); };
+   const int demodulate(const G& signal) const { return Implementation::demodulate(signal); };
+   // Informative functions
+   int num_symbols() const { return Implementation::num_symbols(); };
+   //using direct_modem_implementation<G>::modulate;
+   //using direct_modem_implementation<G>::demodulate;
+   //using direct_modem_implementation<G>::num_symbols;
+
    // Description
    std::string description() const;
 
@@ -258,9 +271,12 @@ public:
 */
 
 template <>
-class direct_blockmodem<bool> : public blockmodem<bool>, public direct_modem<bool> {
+class direct_blockmodem<bool> :
+   public blockmodem<bool>,
+   protected direct_modem_implementation<bool> {
 public:
    /*! \name Type definitions */
+   typedef direct_modem_implementation<bool> Implementation;
    typedef libbase::vector<double>     array1d_t;
    // @}
 protected:
@@ -269,6 +285,17 @@ protected:
    void dodemodulate(const channel<bool>& chan, const libbase::vector<bool>& rx, libbase::vector<array1d_t>& ptable);
 
 public:
+   // Use implementation from base
+   // Atomic modem operations
+   const bool modulate(const int index) const { return Implementation::modulate(index); };
+   const int demodulate(const bool& signal) const { return Implementation::demodulate(signal); };
+   // Informative functions
+   int num_symbols() const { return Implementation::num_symbols(); };
+   //using direct_modem_implementation<bool>::modulate;
+   //using direct_modem_implementation<bool>::demodulate;
+   //using direct_modem_implementation<bool>::num_symbols;
+   //using Implementation::num_symbols;
+
    // Description
    std::string description() const;
 

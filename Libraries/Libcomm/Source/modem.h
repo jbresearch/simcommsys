@@ -78,7 +78,7 @@ public:
 */
 
 template <class S>
-class modem : public virtual basic_modem<S> {
+class modem : public basic_modem<S> {
    // Serialization Support
    DECLARE_BASE_SERIALIZER(modem);
 };
@@ -96,7 +96,7 @@ class modem : public virtual basic_modem<S> {
 */
 
 template <>
-class modem<sigspace> : public virtual basic_modem<sigspace> {
+class modem<sigspace> : public basic_modem<sigspace> {
 public:
    /*! \name Informative functions */
    //! Average energy per symbol
@@ -126,12 +126,10 @@ public:
          the field size.
 
    \todo Merge modulate and demodulate between this function and lut_modulator (?)
-
-   \todo Avoid using virtual inheritance
 */
 
 template <class G>
-class direct_modem : public virtual modem<G> {
+class direct_modem_implementation {
 public:
    // Atomic modem operations
    const G modulate(const int index) const { assert(index >= 0 && index < num_symbols()); return G(index); };
@@ -142,9 +140,6 @@ public:
 
    // Description
    std::string description() const;
-
-   // Serialization Support
-   DECLARE_SERIALIZER(direct_modem);
 };
 
 /*!
@@ -157,12 +152,10 @@ public:
    - $Author$
 
    Specific implementation of binary channel modulation.
-
-   \todo Avoid using virtual inheritance
 */
 
 template <>
-class direct_modem<bool> : public virtual modem<bool> {
+class direct_modem_implementation<bool> {
 public:
    // Atomic modem operations
    const bool modulate(const int index) const { assert(index >= 0 && index <= 1); return index & 1; };
@@ -173,6 +166,41 @@ public:
 
    // Description
    std::string description() const;
+};
+
+/*!
+   \brief   Direct Modulator Implementation.
+   \author  Johann Briffa
+
+   \par Version Control:
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \todo Avoid using virtual inheritance
+*/
+
+template <class G>
+class direct_modem :
+   public modem<G>,
+   protected direct_modem_implementation<G> {
+public:
+   /*! \name Type definitions */
+   typedef direct_modem_implementation<G> Implementation;
+   // @}
+public:
+   // Use implementation from base
+   // Atomic modem operations
+   const G modulate(const int index) const { return Implementation::modulate(index); };
+   const int demodulate(const G& signal) const { return Implementation::demodulate(signal); };
+   // Informative functions
+   int num_symbols() const { return Implementation::num_symbols(); };
+   // Description
+   std::string description() const { return Implementation::description(); };
+   //using direct_modem_implementation<G>::modulate;
+   //using direct_modem_implementation<G>::demodulate;
+   //using direct_modem_implementation<G>::num_symbols;
+   //using direct_modem_implementation<G>::description;
 
    // Serialization Support
    DECLARE_SERIALIZER(direct_modem);

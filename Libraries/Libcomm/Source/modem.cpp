@@ -31,12 +31,32 @@ template class basic_modem<libcomm::sigspace>;
 // Description
 
 template <class G>
-std::string direct_modem<G>::description() const
+std::string direct_modem_implementation<G>::description() const
    {
    std::ostringstream sout;
    sout << "GF(" << num_symbols() << ") Modulation";
    return sout.str();
    }
+
+// Explicit Realizations
+
+template class direct_modem_implementation< libbase::gf<1,0x3> >;
+template class direct_modem_implementation< libbase::gf<2,0x7> >;
+template class direct_modem_implementation< libbase::gf<3,0xB> >;
+template class direct_modem_implementation< libbase::gf<4,0x13> >;
+
+
+// *** Specific to direct_modem_implementation<bool> ***
+
+// Description
+
+std::string direct_modem_implementation<bool>::description() const
+   {
+   return "Binary Modulation";
+   }
+
+
+// *** Templated Direct Modem ***
 
 // Serialization Support
 
@@ -54,6 +74,10 @@ std::istream& direct_modem<G>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+template class direct_modem<bool>;
+template <>
+const libbase::serializer direct_modem<bool>::shelper("modem", "modem<bool>", direct_modem<bool>::create);
+
 template class direct_modem< libbase::gf<1,0x3> >;
 template <>
 const libbase::serializer direct_modem< libbase::gf<1,0x3> >::shelper("modem", "modem<gf<1,0x3>>", direct_modem< libbase::gf<1,0x3> >::create);
@@ -66,29 +90,5 @@ const libbase::serializer direct_modem< libbase::gf<3,0xB> >::shelper("modem", "
 template class direct_modem< libbase::gf<4,0x13> >;
 template <>
 const libbase::serializer direct_modem< libbase::gf<4,0x13> >::shelper("modem", "modem<gf<4,0x13>>", direct_modem< libbase::gf<4,0x13> >::create);
-
-
-// *** Specific to direct_modem<bool> ***
-
-const libbase::serializer direct_modem<bool>::shelper("modem", "modem<bool>", direct_modem<bool>::create);
-
-// Description
-
-std::string direct_modem<bool>::description() const
-   {
-   return "Binary Modulation";
-   }
-
-// Serialization Support
-
-std::ostream& direct_modem<bool>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
-
-std::istream& direct_modem<bool>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
 
 }; // end namespace
