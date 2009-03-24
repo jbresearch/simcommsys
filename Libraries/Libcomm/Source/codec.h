@@ -33,6 +33,7 @@ public:
    /*! \name Type definitions */
    typedef libbase::vector<double>     array1d_t;
    // @}
+
 public:
    /*! \name Constructors / Destructors */
    //! Virtual destructor

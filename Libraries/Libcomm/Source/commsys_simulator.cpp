@@ -137,8 +137,8 @@ void commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
 template <class S, class R>
 commsys_simulator<S,R>::commsys_simulator(libbase::randgen *src, commsys<S> *sys)
    {
-   commsys_simulator<S,R>::src = src;
-   commsys_simulator<S,R>::sys = sys;
+   this->src = src;
+   this->sys = sys;
    internallyallocated = false;
    }
 

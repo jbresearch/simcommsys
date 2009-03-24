@@ -27,6 +27,11 @@ namespace libcomm {
 
 template <class S, template<class> class C=libbase::vector>
 class basic_commsys {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<double>     array1d_t;
+   // @}
+
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
@@ -71,11 +76,11 @@ public:
 
    /*! \name Communication System Interface */
    //! Perform complete encode path (encode -> map -> modulate)
-   libbase::vector<S> encode(const libbase::vector<int>& source);
+   C<S> encode(const C<int>& source);
    //! Perform complete translation path (demodulate -> unmap -> translate)
-   virtual void translate(const libbase::vector<S>& received);
+   virtual void translate(const C<S>& received);
    //! Perform a complete transmit/receive cycle, except for final decoding
-   virtual void transmitandreceive(const libbase::vector<int>& source);
+   virtual void transmitandreceive(const C<int>& source);
    // @}
 
    /*! \name Informative functions */

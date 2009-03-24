@@ -159,16 +159,16 @@ void basic_commsys<S,C>::seedfrom(libbase::random& r)
    \enddot
 */
 template <class S, template<class> class C>
-libbase::vector<S> basic_commsys<S,C>::encode(const libbase::vector<int>& source)
+C<S> basic_commsys<S,C>::encode(const C<int>& source)
    {
    // Encode
-   libbase::vector<int> encoded;
+   C<int> encoded;
    this->cdc->encode(source, encoded);
    // Map
-   libbase::vector<int> mapped;
+   C<int> mapped;
    this->map->transform(encoded, mapped);
    // Modulate
-   libbase::vector<S> transmitted;
+   C<S> transmitted;
    this->mdm->modulate(this->M, mapped, transmitted);
    return transmitted;
    }
@@ -190,13 +190,13 @@ libbase::vector<S> basic_commsys<S,C>::encode(const libbase::vector<int>& source
    \enddot
 */
 template <class S, template<class> class C>
-void basic_commsys<S,C>::translate(const libbase::vector<S>& received)
+void basic_commsys<S,C>::translate(const C<S>& received)
    {
    // Demodulate
-   libbase::vector< libbase::vector<double> > ptable_mapped;
+   C<array1d_t> ptable_mapped;
    this->mdm->demodulate(*this->chan, received, ptable_mapped);
    // Inverse Map
-   libbase::vector< libbase::vector<double> > ptable_encoded;
+   C<array1d_t> ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
    this->cdc->translate(ptable_encoded);
@@ -225,12 +225,12 @@ void basic_commsys<S,C>::translate(const libbase::vector<S>& received)
    \enddot
 */
 template <class S, template<class> class C>
-void basic_commsys<S,C>::transmitandreceive(const libbase::vector<int>& source)
+void basic_commsys<S,C>::transmitandreceive(const C<int>& source)
    {
    // Encode -> Map -> Modulate
-   libbase::vector<S> transmitted = encode(source);
+   C<S> transmitted = encode(source);
    // Transmit
-   libbase::vector<S> received;
+   C<S> received;
    this->chan->transmit(transmitted, received);
    // Demodulate -> Inverse Map -> Translate
    translate(received);
