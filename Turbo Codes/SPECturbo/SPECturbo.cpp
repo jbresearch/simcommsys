@@ -131,6 +131,9 @@ int main(int argc, char *argv[])
    // Work out at the SNR value required
    system->set_parameter(vm["parameter"].as<double>());
 
+   // Print some debug information
+   libbase::trace << system->description() << "\n";
+
    // Perform the simulation
    libbase::vector<double> estimate, tolerance;
    estimator.estimate(estimate, tolerance);
