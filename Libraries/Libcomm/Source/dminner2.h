@@ -28,6 +28,7 @@ class dminner2 :
    private fba2<real,bool,normalize> {
 public:
    /*! \name Type definitions */
+   typedef informed_modulator<bool>    Base;
    typedef libbase::vector<bool>       array1b_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::vector<real>       array1r_t;
@@ -53,8 +54,8 @@ public:
 
    // Vector modem operations
    // (necessary because inheriting methods from templated base)
-   using informed_modulator<bool>::modulate;
-   using informed_modulator<bool>::demodulate;
+   using Base::modulate;
+   using Base::demodulate;
 
    // Description
    std::string description() const;

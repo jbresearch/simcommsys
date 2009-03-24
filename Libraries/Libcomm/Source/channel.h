@@ -38,7 +38,8 @@ namespace libcomm {
 */
 
 template <class S, template<class> class C>
-class basic_channel_interface : public parametric {
+class basic_channel_interface :
+   public parametric {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<S>          array1s_t;
@@ -161,7 +162,8 @@ class basic_channel : public basic_channel_interface<S,C> {
 */
 
 template <class S>
-class basic_channel<S,libbase::vector> : public basic_channel_interface<S,libbase::vector> {
+class basic_channel<S,libbase::vector> :
+   public basic_channel_interface<S,libbase::vector> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<S>          array1s_t;

@@ -28,7 +28,9 @@ namespace libcomm {
 */
 
 template <class S, template<class> class C=libbase::vector>
-class basic_blockmodem : public blockprocess, public modem<S> {
+class basic_blockmodem :
+   public modem<S>,
+   public blockprocess {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double>     array1d_t;
@@ -53,7 +55,7 @@ public:
    // @}
 
    // Atomic modem operations
-   // (necessary because inheriting methods from templated base)
+   // (necessary because overloaded methods hide those in templated base)
    using modem<S>::modulate;
    using modem<S>::demodulate;
 
