@@ -222,7 +222,10 @@ bool isfailedload(std::istream &is)
    {
    if(is.fail())
       {
+      std::ios::iostate state = is.rdstate();
+      is.clear();
       std::cerr << "ERROR: Failure loading object at position " << is.tellg() << ".\n";
+      is.clear(state);
       return true;
       }
    return false;
