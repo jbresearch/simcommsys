@@ -117,17 +117,14 @@ basic_commsys<S,C>::basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,C>
    \brief Copy constructor
 
    Initializes system with bound objects cloned from supplied system.
-
-   \todo Fix cast when cloning channel: this should not be necessary.
-   \todo Fix cast when cloning modem: this should not be necessary.
 */
 template <class S, template<class> class C>
 basic_commsys<S,C>::basic_commsys(const basic_commsys<S,C>& c)
    {
-   basic_commsys<S,C>::cdc = c.cdc->clone();
-   basic_commsys<S,C>::map = c.map->clone();
-   basic_commsys<S,C>::mdm = (blockmodem<S> *)c.mdm->clone();
-   basic_commsys<S,C>::chan = (channel<S> *)c.chan->clone();
+   this->cdc = c.cdc->clone();
+   this->map = c.map->clone();
+   this->mdm = c.mdm->clone();
+   this->chan = c.chan->clone();
    internallyallocated = true;
    init();
    }

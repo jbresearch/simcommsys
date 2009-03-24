@@ -146,15 +146,12 @@ commsys_simulator<S,R>::commsys_simulator(libbase::randgen *src, commsys<S> *sys
    \brief Copy constructor
 
    Initializes system with bound objects cloned from supplied system.
-
-   \todo Fix cast when cloning channel: this should not be necessary.
-   \todo Fix cast when cloning modem: this should not be necessary.
 */
 template <class S, class R>
 commsys_simulator<S,R>::commsys_simulator(const commsys_simulator<S,R>& c)
    {
-   commsys_simulator<S,R>::src = new libbase::randgen;
-   commsys_simulator<S,R>::sys = (commsys<S> *)c.sys->clone();
+   this->src = new libbase::randgen;
+   this->sys = c.sys->clone();
    internallyallocated = true;
    }
 
