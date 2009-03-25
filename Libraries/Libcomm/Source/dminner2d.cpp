@@ -31,7 +31,7 @@ void dminner2d<real,normalize>::advance() const
    // creates 'tau' elements of 'n' bits each
    for(int i=0; i<pilot.ysize(); i++)
       for(int j=0; j<pilot.xsize(); j++)
-         pilot(j,i) = r.ival(2);
+         pilot(j,i) = (r.ival(2) != 0);
    }
 
 /*!
