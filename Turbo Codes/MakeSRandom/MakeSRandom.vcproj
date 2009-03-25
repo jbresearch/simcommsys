@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="MakeSRandom"
+	ProjectGUID="{C970894D-7128-4F54-AA3F-47A353A4ABF7}"
 	RootNamespace="MakeSRandom"
 	Keyword="MFCProj"
 	>
