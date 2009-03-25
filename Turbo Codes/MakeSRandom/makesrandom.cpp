@@ -6,6 +6,8 @@
 
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 /*!
    \brief Vector-type container for S-Random interleaver creation
@@ -113,12 +115,34 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
             {
             attempt = 0;
             spread--;
+            std::cerr << p.update(attempt, max_attempts);
             std::cerr << "Searching for solution at spread " << spread << "\n";
             }
          }
       } while(failed);
 
    return lut;
+   }
+
+//! Returns filename according to usual convention
+
+std::string compose_filename(int tau, int spread, libbase::int32u seed)
+   {
+   std::ostringstream sout;
+   sout << "sri-" << tau << "-spread" << spread << "-seed" << seed << ".txt";
+   return sout.str();
+   }
+
+//! Saves the interleaver to the given stream
+
+void serialize_interleaver(std::ostream& sout, libbase::vector<int> lut, int tau, int spread, libbase::int32u seed, double elapsed)
+   {
+   sout << "#% Size: " << tau << "\n";
+   sout << "#% Spread: " << spread << "\n";
+   sout << "#% Seed: " << seed << "\n";
+   sout << "# Date: " << libbase::timer::date() << "\n";
+   sout << "# Time taken: " << libbase::timer::format(elapsed) << "\n";
+   lut.serialize(sout, '\n');
    }
 
 /*!
@@ -166,12 +190,9 @@ int main(int argc, char *argv[])
    libbase::int32u seed = 0;
    libbase::vector<int> lut = create_srandom(tau, spread, seed, max_attempts);
    // Output
-   std::cout << "#% Size: " << tau << "\n";
-   std::cout << "#% Spread: " << spread << "\n";
-   std::cout << "#% Seed: " << seed << "\n";
-   std::cout << "# Date: " << libbase::timer::date() << "\n";
-   std::cout << "# Time taken: " << libbase::timer::format(tmain.elapsed()) << "\n";
-   lut.serialize(std::cout, '\n');
+   const std::string fname = compose_filename(tau, spread, seed);
+   std::ofstream file(fname.c_str());
+   serialize_interleaver(file, lut, tau, spread, seed, tmain.elapsed());
 
    return 0;
    }
