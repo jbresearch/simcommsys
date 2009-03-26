@@ -21,7 +21,7 @@ namespace libcomm {
      rate of 1/2
    For a two-set turbo code, this corresponds to odd/even puncturing.
 
-   \note This supersedes the puncture_stipple class; observe thought that the
+   \note This supersedes the puncture_stipple class; observe though that the
          number of sets here corresponds to the definition used in the turbo
          code, and is one less than that for puncture_stipple.
 */
