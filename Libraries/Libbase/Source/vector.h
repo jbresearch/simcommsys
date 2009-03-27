@@ -46,6 +46,10 @@ protected:
    int   m_xsize;
    T     *m_data;
 protected:
+   /*! \name Internal functions */
+   //! Verifies that object is in a valid state
+   void test_invariant();
+   // @}
    /*! \name Memory allocation functions */
    //! Allocates memory for x elements (if necessary) and updates xsize
    void alloc(const int x);
@@ -55,7 +59,9 @@ protected:
    void setsize(const int x);
    // @}
 public:
-   explicit vector(const int x=0) { alloc(x); };  // constructor (does not initialise elements)
+   //! Default constructor (does not initialise elements)
+   explicit vector(const int x=0);
+   //! Copy constructor
    vector(const vector<T>& x);
    ~vector() { free(); };
 
@@ -168,25 +174,46 @@ public:
    // @}
 };
 
+// internal functions
+
+template <class T>
+inline void vector<T>::test_invariant()
+   {
+   assert(m_xsize >= 0);
+   if(m_xsize == 0)
+      assert(m_data == NULL);
+   else
+      assert(m_data != NULL);
+   }
+
 // memory allocation functions
 
 template <class T>
 inline void vector<T>::alloc(const int x)
    {
+   test_invariant();
    assert(x >= 0);
+   assert(m_xsize == 0);
    m_xsize = x;
    m_root = true;
    if(x > 0)
       m_data = new T[x];
    else
       m_data = NULL;
+   test_invariant();
    }
 
 template <class T>
 inline void vector<T>::free()
    {
+   test_invariant();
    if(m_root && m_xsize > 0)
+      {
       delete[] m_data;
+      m_xsize = 0;
+      m_data = NULL;
+      }
+   test_invariant();
    }
 
 template <class T>
@@ -202,7 +229,19 @@ inline void vector<T>::setsize(const int x)
 // constructor / destructor functions
 
 template <class T>
-inline vector<T>::vector(const vector<T>& x)
+inline vector<T>::vector(const int x) :
+   m_root(true),
+   m_xsize(0),
+   m_data(NULL)
+   {
+   alloc(x);
+   }
+
+template <class T>
+inline vector<T>::vector(const vector<T>& x) :
+   m_root(true),
+   m_xsize(0),
+   m_data(NULL)
    {
    if(x.m_root)
       {
