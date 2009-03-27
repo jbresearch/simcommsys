@@ -20,7 +20,7 @@ const std::string std_systemstring =
    "awgn\n"
    "mpsk\n"
    "2\n"
-   "map_stipple\n"
+   "map_stipple<vector>\n"
    "2\n"
    "turbo<double>\n"
    "1\n"

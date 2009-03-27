@@ -23,7 +23,7 @@
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments>-t 10 -r 0.2 -i &quot;/home/jabriffa/ECW/Results/Binary Codes/Simulators/bsc-stipple-turbo-rsc_5_1_2-13095-2-20.txt&quot;</globaldebugarguments>
+      <globaldebugarguments></globaldebugarguments>
       <globalcwd>/home/jabriffa/Programming/trunk</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <autoinstall>false</autoinstall>
