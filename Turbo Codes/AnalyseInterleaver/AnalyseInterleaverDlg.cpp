@@ -127,7 +127,7 @@ BOOL CAnalyseInterleaverDlg::OnInitDialog()
    SetIcon(m_hIcon, TRUE);                      // Set big icon
    SetIcon(m_hIcon, FALSE);             // Set small icon
 
-   // TODO: Add extra initialization here
+   // Add extra initialization here
    m_pInterleaver = NULL;
    m_nMaxDist = 100;
    UpdateData(false);

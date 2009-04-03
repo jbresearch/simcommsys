@@ -73,8 +73,6 @@ public:
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Avoid using virtual inheritance
 */
 
 template <class S>
@@ -91,8 +89,6 @@ class modem : public basic_modem<S> {
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Avoid using virtual inheritance
 */
 
 template <>
@@ -176,8 +172,6 @@ public:
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Avoid using virtual inheritance
 */
 
 template <class G>

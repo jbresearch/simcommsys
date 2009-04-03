@@ -167,7 +167,7 @@ BOOL CSRandomInterleaverDlg::OnInitDialog()
    SetIcon(m_hIcon, TRUE);                      // Set big icon
    SetIcon(m_hIcon, FALSE);             // Set small icon
 
-   // TODO: Add extra initialization here
+   // Add extra initialization here
    m_nSeed = 0;
    m_nTau = 1024;
    m_nSpread = int(floor(sqrt(m_nTau/double(2))));

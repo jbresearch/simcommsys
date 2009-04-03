@@ -147,7 +147,7 @@ BOOL CAnnealInterleaverDlg::OnInitDialog()
         SetIcon(m_hIcon, TRUE);                 // Set big icon
         SetIcon(m_hIcon, FALSE);                // Set small icon
 
-        // TODO: Add extra initialization here
+        // Add extra initialization here
         m_bSystemPresent = false;
    m_nSets = 1;
    m_nTau = 32;

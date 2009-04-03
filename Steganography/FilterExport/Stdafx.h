@@ -40,7 +40,7 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 
-// TODO: reference additional headers your program requires here
+// reference additional headers your program requires here
 #define USING_MFC
 #include "PIFilter.h"
 #include "PIUIHooksSuite.h"

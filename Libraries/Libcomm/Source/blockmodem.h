@@ -21,10 +21,6 @@ namespace libcomm {
    Class defines common interface for blockmodem classes.
 
    \todo Templatize with respect to the type used for the likelihood table
-
-   \todo Avoid using virtual inheritance
-
-   \todo Test inheritance of virtual functions in VS 2005
 */
 
 template <class S, template<class> class C=libbase::vector>
