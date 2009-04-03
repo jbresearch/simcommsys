@@ -13,8 +13,6 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Test inheritance of virtual functions in VS 2005
 */
 
 class lut_modulator :
