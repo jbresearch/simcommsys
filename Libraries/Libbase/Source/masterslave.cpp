@@ -205,8 +205,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port, c
             break;
          case DIE:
             t.stop();
-            // TODO: add usage information
-            cerr << "Received die request, stopping after " << timer::format(getcputime()) << " CPU runtime.\n";
+            cerr << "Received die request, stopping after " << timer::format(getcputime()) << " CPU runtime (" << int(100*getusage()) << "%% usage).\n";
             close(master);
             exit(0);
          default:
@@ -330,7 +329,7 @@ void masterslave::disable()
    clog << "Time elapsed: " << t << "\n" << flush;
    clog << "CPU usage on master: " << int(t.usage()) << "%\n" << flush;
    clog.precision(2);
-   clog << "Average speedup factor: " << getcputime() / t.elapsed() << "\n" << flush;
+   clog << "Average speedup factor: " << getusage() << "\n" << flush;
    // update flag
    initialized = false;
    }

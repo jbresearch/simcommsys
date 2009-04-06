@@ -39,6 +39,8 @@ namespace libbase {
          create a new abstract class to encapsulate both models.
 
    \todo Make setting priority effective on Windows
+
+   \todo Split master and slave classes
 */
 
 class masterslave {
@@ -70,6 +72,8 @@ public:
    // informative functions
    bool isenabled() const { return initialized; };
    double getcputime() const { return initialized ? cputimeused : t.cputime(); };
+   double getwalltime() const { return t.elapsed(); };
+   double getusage() const { return getcputime()/getwalltime(); };
    size_t getnumslaves() const { return smap.size(); };
 
 // items for use by slaves
