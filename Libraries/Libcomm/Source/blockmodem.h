@@ -33,12 +33,17 @@ public:
    typedef libbase::vector<double>     array1d_t;
    // @}
 
+private:
+   /*! \name User-defined parameters */
+   libbase::size<C> size;    //!< Input block size in symbols
+   // @}
+
 protected:
    /*! \name Interface with derived classes */
    //! Setup function, called from set_blocksize() in base class
    virtual void setup() {};
    //! Validates block size, called from modulate() and demodulate()
-   virtual void test_invariant() const {};
+   virtual void test_invariant() const { assert(size > 0); };
    //! \copydoc modulate()
    virtual void domodulate(const int N, const C<int>& encoded, C<S>& tx) = 0;
    //! \copydoc demodulate()
@@ -84,6 +89,18 @@ public:
    */
    void demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable);
    // @}
+
+   /*! \name Setup functions */
+   //! Sets input block size
+   void set_blocksize(libbase::size<C> size) { assert(size > 0); this->size = size; this->setup(); };
+   // @}
+
+   /*! \name Informative functions */
+   //! Gets input block size
+   libbase::size<C> input_block_size() const { return size; };
+   //! Gets output block size
+   virtual libbase::size<C> output_block_size() const { return size; };
+   // @}
 };
 
 /*!
@@ -103,104 +120,6 @@ class blockmodem : public basic_blockmodem<S,C> {
 public:
    //! Virtual destructor
    virtual ~blockmodem() {};
-   // @}
-
-   // Serialization Support
-   DECLARE_BASE_SERIALIZER(blockmodem);
-};
-
-/*!
-   \brief   Blockwise Modulator Base - Vector Specialization.
-   \author  Johann Briffa
-
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-
-   Class defines specialized interface for blockmodem classes.
-*/
-
-template <class S>
-class blockmodem<S,libbase::vector> : public basic_blockmodem<S,libbase::vector> {
-private:
-   /*! \name User-defined parameters */
-   libbase::size<libbase::vector> size;    //!< Input block size in symbols
-   // @}
-
-protected:
-   // Interface with base class
-   void test_invariant() const { assert(size.x > 0); };
-
-public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   blockmodem() { size.x = 0; };
-   //! Virtual destructor
-   virtual ~blockmodem() {};
-   // @}
-
-   /*! \name Setup functions */
-   //! Sets input block size
-   void set_blocksize(int tau) { assert(tau > 0); size.x = tau; this->setup(); };
-   // @}
-
-   /*! \name Informative functions */
-   //! Gets input block size
-   int input_block_size() const { return size.x; };
-   //! Gets output block size
-   virtual int output_block_size() const { return size.x; };
-   // @}
-
-   // Serialization Support
-   DECLARE_BASE_SERIALIZER(blockmodem);
-};
-
-/*!
-   \brief   Blockwise Modulator Base - Matrix Specialization.
-   \author  Johann Briffa
-
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-
-   Class defines specialized interface for blockmodem classes.
-*/
-
-template <class S>
-class blockmodem<S,libbase::matrix> : public basic_blockmodem<S,libbase::matrix> {
-private:
-   /*! \name User-defined parameters */
-   libbase::size<libbase::matrix> size;    //!< Input block size in symbols
-   // @}
-
-protected:
-   // Interface with base class
-   void test_invariant() const { assert(size.x > 0 && size.y > 0); };
-
-public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   blockmodem() { size.x = 0; size.y = 0; };
-   //! Virtual destructor
-   virtual ~blockmodem() {};
-   // @}
-
-   /*! \name Setup functions */
-   //! Sets input block size
-   void set_blocksize(int M, int N) { assert(M > 0 && N > 0); size.y = M; size.x = N; this->setup(); };
-   // @}
-
-   /*! \name Informative functions */
-   //! Gets number of rows in input block
-   int input_block_rows() const { return size.y; };
-   //! Gets number of columns in input block
-   int input_block_cols() const { return size.x; };
-   //! Gets number of rows in output block
-   virtual int output_block_rows() const { return size.y; };
-   //! Gets number of columns in output block
-   virtual int output_block_cols() const { return size.x; };
    // @}
 
    // Serialization Support

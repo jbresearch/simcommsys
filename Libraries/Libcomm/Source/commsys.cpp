@@ -32,6 +32,8 @@ namespace libcomm {
          that are specific to this object/derivation. Anything else
          should get done automatically when the base serializer or
          constructor is called.
+
+   \todo Update mapper and codec to use new block size convention
 */
 template <class S, template<class> class C>
 void basic_commsys<S,C>::init()
@@ -47,7 +49,7 @@ void basic_commsys<S,C>::init()
    map->set_parameters(N, M, cdc->num_symbols());
    map->set_blocksize(cdc->output_block_size());
    // set up modem with appropriate block size
-   mdm->set_blocksize(map->output_block_size());
+   mdm->set_blocksize(libbase::size<C>(map->output_block_size()));
    }
 
 /*!

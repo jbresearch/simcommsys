@@ -24,8 +24,8 @@ template <class real, bool normalize>
 void dminner2d<real,normalize>::advance() const
    {
    // Inherit sizes
-   const int M = this->input_block_rows();
-   const int N = this->input_block_cols();
+   const int M = this->input_block_size().y;
+   const int N = this->input_block_size().x;
    // Initialize space
    pilot.init(N*n,M*m);
    // creates 'tau' elements of 'n' bits each
@@ -46,8 +46,8 @@ void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<in
    // Each 'encoded' symbol must be representable by a single sparse matrix
    assertalways(this->q == q);
    // Inherit sizes
-   const int M = this->input_block_rows();
-   const int N = this->input_block_cols();
+   const int M = this->input_block_size().y;
+   const int N = this->input_block_size().x;
    // Check validity
    assertalways(M == encoded.ysize());
    assertalways(N == encoded.xsize());
@@ -73,8 +73,8 @@ template <class real, bool normalize>
 void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
-   const int M = this->input_block_rows();
-   const int N = this->input_block_cols();
+   const int M = this->input_block_size().y;
+   const int N = this->input_block_size().x;
    // Check input validity
    assertalways(M == app.ysize());
    assertalways(N == app.xsize());

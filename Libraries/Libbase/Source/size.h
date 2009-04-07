@@ -30,6 +30,8 @@ class size {
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Consider hiding fields
 */
 
 template <>
@@ -38,6 +40,7 @@ public:
    int  x;
 public:
    explicit size(int x=0) { this->x = x; };
+   operator int() const { return x; };
 };
 
 
@@ -49,6 +52,8 @@ public:
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Consider hiding fields
 */
 
 template <>
@@ -58,6 +63,7 @@ public:
    int  y;
 public:
    explicit size(int x=0, int y=0) { this->x = x; this->y = y; };
+   operator int() const { return x*y; };
 };
 
 }; // end namespace

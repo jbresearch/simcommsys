@@ -86,8 +86,8 @@ public:
 
    // Informative functions
    int num_symbols() const { return q; };
-   int output_block_rows() const { return input_block_rows()*m; };
-   int output_block_cols() const { return input_block_cols()*n; };
+   libbase::size<libbase::matrix> output_block_size() const
+      { return libbase::size<libbase::matrix>(input_block_size().x*n, input_block_size().y*m); };
    double energy() const { return m*n; };
 
    // Description
