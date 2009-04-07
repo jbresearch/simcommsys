@@ -60,8 +60,10 @@ public:
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
-   int input_block_size() const { return tau; };
-   int output_block_size() const { return tau; };
+   libbase::size<libbase::vector> input_block_size() const
+      { return libbase::size<libbase::vector>(tau); };
+   libbase::size<libbase::vector> output_block_size() const
+      { return libbase::size<libbase::vector>(tau); };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return encoder->num_outputs(); };
    int tail_length() const { return 0; };

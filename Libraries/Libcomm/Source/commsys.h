@@ -23,8 +23,6 @@ namespace libcomm {
    General templated commsys.
    - Integrates functionality of binary variant.
    - Explicit instantiations for bool and gf types are present.
-
-   \todo Update codec to use new block size convention
 */
 
 template <class S, template<class> class C=libbase::vector>

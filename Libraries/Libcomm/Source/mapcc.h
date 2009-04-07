@@ -66,8 +66,10 @@ public:
    void softdecode(array2d_t& ri, array2d_t& ro);
 
    // Codec information functions - fundamental
-   int input_block_size() const { return endatzero ? tau-m : tau; };
-   int output_block_size() const { return tau; };
+   libbase::size<libbase::vector> input_block_size() const
+      { return libbase::size<libbase::vector>(endatzero ? tau-m : tau); };
+   libbase::size<libbase::vector> output_block_size() const
+      { return libbase::size<libbase::vector>(tau); };
    int num_inputs() const { return K; };
    int num_outputs() const { return N; };
    int tail_length() const { return m; };

@@ -82,9 +82,9 @@ public:
 
    /*! \name Codec information functions - fundamental */
    //! Input block size in symbols
-   virtual int input_block_size() const = 0;
+   virtual libbase::size<C> input_block_size() const = 0;
    //! Output block size in symbols
-   virtual int output_block_size() const = 0;
+   virtual libbase::size<C> output_block_size() const = 0;
    //! Number of valid input combinations
    virtual int num_inputs() const = 0;
    //! Number of valid output combinations
@@ -103,7 +103,7 @@ public:
    //! Equivalent length of output sequence in bits
    double output_bits() const { return log2(num_outputs())*output_block_size(); };
    //! Overall code rate
-   double rate() const { return input_bits()/output_bits(); };
+   double rate() const { return input_bits()/double(output_bits()); };
    // @}
 
    /*! \name Description */

@@ -134,8 +134,10 @@ public:
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
-   int input_block_size() const { return endatzero ? tau-encoder->mem_order() : tau; };
-   int output_block_size() const { return tau; };
+   libbase::size<libbase::vector> input_block_size() const
+      { return libbase::size<libbase::vector>(endatzero ? tau-encoder->mem_order() : tau); };
+   libbase::size<libbase::vector> output_block_size() const
+      { return libbase::size<libbase::vector>(tau); };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
    int num_symbols() const { return libbase::gcd(num_inputs(),enc_parity()); };
