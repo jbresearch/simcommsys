@@ -294,7 +294,7 @@ template class basic_commsys< libbase::gf<3,0xB> >;
 template class basic_commsys< libbase::gf<4,0x13> >;
 template class basic_commsys<sigspace>;
 
-//template class basic_commsys<bool,libbase::matrix>;
+// template class basic_commsys<bool,libbase::matrix>;
 
 // *** General Communication System ***
 
@@ -330,6 +330,9 @@ template class commsys< libbase::gf<4,0x13> >;
 template <>
 const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("commsys", "commsys<gf<4,0x13>>", commsys< libbase::gf<4,0x13> >::create);
 
+// template class commsys<bool,libbase::matrix>;
+// template <>
+// const libbase::serializer commsys<bool,libbase::matrix>::shelper("commsys", "commsys<bool,matrix>", commsys<bool,libbase::matrix>::create);
 
 // *** Specific to commsys<sigspace> ***
 

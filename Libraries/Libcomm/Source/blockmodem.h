@@ -4,6 +4,7 @@
 #include "modem.h"
 #include "vector.h"
 #include "matrix.h"
+#include "size.h"
 #include "channel.h"
 #include "blockprocess.h"
 
@@ -124,31 +125,31 @@ template <class S>
 class blockmodem<S,libbase::vector> : public basic_blockmodem<S,libbase::vector> {
 private:
    /*! \name User-defined parameters */
-   int tau;    //!< Block size in symbols
+   libbase::size<libbase::vector> size;    //!< Input block size in symbols
    // @}
 
 protected:
    // Interface with base class
-   void test_invariant() const { assert(tau > 0); };
+   void test_invariant() const { assert(size.x > 0); };
 
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   blockmodem() { tau = 0; };
+   blockmodem() { size.x = 0; };
    //! Virtual destructor
    virtual ~blockmodem() {};
    // @}
 
    /*! \name Setup functions */
    //! Sets input block size
-   void set_blocksize(int tau) { assert(tau > 0); this->tau = tau; this->setup(); };
+   void set_blocksize(int tau) { assert(tau > 0); size.x = tau; this->setup(); };
    // @}
 
    /*! \name Informative functions */
    //! Gets input block size
-   int input_block_size() const { return tau; };
+   int input_block_size() const { return size.x; };
    //! Gets output block size
-   virtual int output_block_size() const { return tau; };
+   virtual int output_block_size() const { return size.x; };
    // @}
 
    // Serialization Support
@@ -171,36 +172,35 @@ template <class S>
 class blockmodem<S,libbase::matrix> : public basic_blockmodem<S,libbase::matrix> {
 private:
    /*! \name User-defined parameters */
-   int M;      //!< Number of rows in input block (symbols)
-   int N;      //!< Number of columns in input block (symbols)
+   libbase::size<libbase::matrix> size;    //!< Input block size in symbols
    // @}
 
 protected:
    // Interface with base class
-   void test_invariant() const { assert(M > 0 && N > 0); };
+   void test_invariant() const { assert(size.x > 0 && size.y > 0); };
 
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   blockmodem() { M = 0; N = 0; };
+   blockmodem() { size.x = 0; size.y = 0; };
    //! Virtual destructor
    virtual ~blockmodem() {};
    // @}
 
    /*! \name Setup functions */
    //! Sets input block size
-   void set_blocksize(int M, int N) { assert(M > 0 && N > 0); this->M = M; this->N = N; this->setup(); };
+   void set_blocksize(int M, int N) { assert(M > 0 && N > 0); size.y = M; size.x = N; this->setup(); };
    // @}
 
    /*! \name Informative functions */
    //! Gets number of rows in input block
-   int input_block_rows() const { return M; };
+   int input_block_rows() const { return size.y; };
    //! Gets number of columns in input block
-   int input_block_cols() const { return N; };
+   int input_block_cols() const { return size.x; };
    //! Gets number of rows in output block
-   virtual int output_block_rows() const { return M; };
+   virtual int output_block_rows() const { return size.y; };
    //! Gets number of columns in output block
-   virtual int output_block_cols() const { return N; };
+   virtual int output_block_cols() const { return size.x; };
    // @}
 
    // Serialization Support
@@ -222,6 +222,8 @@ public:
          the field size.
 
    \todo Merge modulate and demodulate between this function and lut_modulator
+
+   \todo Find out why using declarations are not working.
 */
 
 template <class G>
@@ -266,6 +268,8 @@ public:
    - $Author$
 
    Specific implementation of binary channel modulation.
+
+   \todo Find out why using declarations are not working.
 */
 
 template <>

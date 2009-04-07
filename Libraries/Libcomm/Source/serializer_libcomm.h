@@ -150,6 +150,7 @@ private:
    commsys< libbase::gf<4,0x13> >      _commsys_gf4;
    commsys<sigspace>                   _commsys_sigspace;
    commsys<bool>                       _commsys_bool;
+//    commsys<bool,libbase::matrix>       _commsys_bool_matrix;
    commsys_iterative< libbase::gf<1,0x3> >       _commsys_iterative_gf1;
    commsys_iterative< libbase::gf<2,0x7> >       _commsys_iterative_gf2;
    commsys_iterative< libbase::gf<3,0xB> >       _commsys_iterative_gf3;

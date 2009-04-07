@@ -69,9 +69,9 @@ public:
    //! Get symbol mapper
    mapper<C> *getmapper() const { return map; };
    //! Get modulation scheme
-   blockmodem<S> *getmodem() const { return mdm; };
+   blockmodem<S,C> *getmodem() const { return mdm; };
    //! Get channel model
-   channel<S> *getchan() const { return chan; };
+   channel<S,C> *getchan() const { return chan; };
    // @}
 
    /*! \name Communication System Interface */
