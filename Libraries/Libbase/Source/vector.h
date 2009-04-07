@@ -19,7 +19,7 @@ namespace libbase {
    \note Supports the concept of an empty vector
 
    \note Multiplication and division perform array operations
-   
+
    \warning Unlike most other classes, this class uses stream I/O as
             serialization for loading and saving; they therefore output
             container size together with container elements.
@@ -75,7 +75,7 @@ public:
    //! Initialize vector to the size of given vector
    template <class A> void init(const vector<A>& x) { init(x.size()); };
    // @}
-   
+
    /*! \name Vector copy and value initialisation */
    //! Copy elements from an array.
    vector<T>& assign(const T* x, const int n);
@@ -111,7 +111,7 @@ public:
    friend std::ostream& operator<< <>(std::ostream& s, const vector<T>& x);
    friend std::istream& operator>> <>(std::istream& s, vector<T>& x);
    // @}
-   
+
    // arithmetic operations - unary
    vector<T>& operator+=(const vector<T>& x);
    vector<T>& operator-=(const vector<T>& x);
@@ -305,7 +305,7 @@ inline const vector<T> vector<T>::extract(const int start, const int n) const
    r.m_root = false;
    r.m_xsize = n;
    assert(m_xsize >= start+n);
-   r.m_data = &m_data[start];
+   r.m_data = (n>0) ? &m_data[start] : NULL;
    return r;
    }
 
