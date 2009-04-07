@@ -307,6 +307,7 @@ inline vector<T>& vector<T>::operator=(const A x)
 template <class T>
 inline const vector<T> vector<T>::extract(const int start, const int n) const
    {
+   assert(n >= 0);
    vector<T> r;
    r.m_root = false;
    r.m_xsize = n;
@@ -336,7 +337,8 @@ inline T vector<T>::operator()(const int x) const
 template <class T>
 inline void vector<T>::serialize(std::ostream& s, char spacer) const
    {
-   s << m_data[0];
+   if(m_xsize > 0)
+      s << m_data[0];
    for(int i=1; i<m_xsize; i++)
       s << spacer << m_data[i];
    s << '\n';
@@ -581,7 +583,7 @@ inline vector<T>& vector<T>::apply(T f(T))
 template <class T>
 inline T vector<T>::min() const
    {
-   assert(m_xsize > 0);
+   assertalways(m_xsize > 0);
    T result = m_data[0];
    for(int i=1; i<m_xsize; i++)
       if(m_data[i] < result)
@@ -592,7 +594,7 @@ inline T vector<T>::min() const
 template <class T>
 inline T vector<T>::max() const
    {
-   assert(m_xsize > 0);
+   assertalways(m_xsize > 0);
    T result = m_data[0];
    for(int i=1; i<m_xsize; i++)
       if(m_data[i] > result)
@@ -603,7 +605,7 @@ inline T vector<T>::max() const
 template <class T>
 inline T vector<T>::min(int& index, const bool getfirst) const
    {
-   assert(m_xsize > 0);
+   assertalways(m_xsize > 0);
    T result = m_data[0];
    index = 0;
    for(int i=1; i<m_xsize; i++)
@@ -620,7 +622,7 @@ inline T vector<T>::min(int& index, const bool getfirst) const
 template <class T>
 inline T vector<T>::max(int& index, const bool getfirst) const
    {
-   assert(m_xsize > 0);
+   assertalways(m_xsize > 0);
    T result = m_data[0];
    index = 0;
    for(int i=1; i<m_xsize; i++)
@@ -637,7 +639,7 @@ inline T vector<T>::max(int& index, const bool getfirst) const
 template <class T>
 inline T vector<T>::sum() const
    {
-   assert(m_xsize > 0);
+   assertalways(m_xsize > 0);
    T result = 0;
    for(int i=0; i<m_xsize; i++)
       result += m_data[i];
@@ -647,7 +649,7 @@ inline T vector<T>::sum() const
 template <class T>
 inline T vector<T>::sumsq() const
    {
-   assert(m_xsize > 0);
+   assertalways(m_xsize > 0);
    T result = 0;
    for(int i=0; i<m_xsize; i++)
       result += m_data[i] * m_data[i];
