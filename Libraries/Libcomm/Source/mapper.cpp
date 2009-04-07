@@ -32,14 +32,6 @@ void mapper<C>::set_parameters(const int N, const int M, const int S)
    setup();
    }
 
-template <template<class> class C>
-void mapper<C>::set_blocksize(int tau)
-   {
-   assert(tau > 0);
-   mapper<C>::tau = tau;
-   setup();
-   }
-
 // Vector mapper operations
 
 template <template<class> class C>

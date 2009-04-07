@@ -18,14 +18,14 @@ namespace libcomm {
 template <template<class> class C>
 void map_stipple<C>::advance() const
    {
-   assertalways(tau > 0);
+   assertalways(size > 0);
    assertalways(sets > 0);
    // check if matrix is already set
-   if(pattern.size() == tau*(sets+1))
+   if(pattern.size() == size.x*(sets+1))
       return;
    // initialise the pattern matrix
-   pattern.init(tau*(sets+1));
-   for(int i=0, t=0; t<tau; t++)
+   pattern.init(size.x*(sets+1));
+   for(int i=0, t=0; t<size.x; t++)
       for(int s=0; s<=sets; s++, i++)
          pattern(i) = (s==0 || (s-1)==t%sets);
    }
@@ -38,7 +38,7 @@ void map_stipple<C>::dotransform(const C<int>& in, C<int>& out) const
    map_straight<C>::dotransform(in, s);
    // final vector size depends on the number of set positions
    assertalways(s.size()==pattern.size());
-   out.init(2*tau);
+   out.init(output_block_size());
    // puncture the results
    for(int i=0, ii=0; i<s.size(); i++)
       if(pattern(i))
@@ -48,7 +48,7 @@ void map_stipple<C>::dotransform(const C<int>& in, C<int>& out) const
 template <template<class> class C>
 void map_stipple<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
-   assertalways(pin.size() == tau*2);
+   assertalways(pin.size() == output_block_size());
    assertalways(pin(0).size() == M);
    // final matrix size depends on the number of set positions
    C<array1d_t> ptable;

@@ -25,18 +25,18 @@ void map_straight<C>::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
-   upsilon = tau*s1/s2;
-   assertalways(tau*s1 == upsilon*s2);
+   upsilon = size.x*s1/s2;
+   assertalways(size.x*s1 == upsilon*s2);
    }
 
 template <template<class> class C>
 void map_straight<C>::dotransform(const C<int>& in, C<int>& out) const
    {
-   assertalways(in.size() == tau);
+   assertalways(in.size() == this->input_block_size());
    // Initialize results vector
-   out.init(tau*s1);
+   out.init(output_block_size());
    // Modulate encoded stream (least-significant first)
-   for(int t=0, k=0; t<tau; t++)
+   for(int t=0, k=0; t<size.x; t++)
       for(int i=0, x = in(t); i<s1; i++, k++, x /= M)
          out(k) = x % M;
    }
@@ -44,7 +44,7 @@ void map_straight<C>::dotransform(const C<int>& in, C<int>& out) const
 template <template<class> class C>
 void map_straight<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
-   assertalways(pin.size() == tau*s1);
+   assertalways(pin.size() == output_block_size());
    // Initialize results vector
    pout.init(upsilon);
    for(int t=0; t<upsilon; t++)

@@ -91,7 +91,8 @@ public:
 
    /*! \name Setup functions */
    //! Sets input block size
-   void set_blocksize(libbase::size<C> size) { assert(size > 0); this->size = size; this->setup(); };
+   void set_blocksize(libbase::size<C> size)
+      { assert(size > 0); this->size = size; this->setup(); };
    // @}
 
    /*! \name Informative functions */

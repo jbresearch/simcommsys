@@ -17,6 +17,8 @@ namespace libcomm {
    This class defines a straight symbol mapper with:
    * forward transform from blockmodem
    * inverse transform from the various codecs.
+
+   \bug This is really only properly defined for vector containers.
 */
 
 template <template<class> class C=libbase::vector>
@@ -37,7 +39,7 @@ private:
 
 protected:
    // Pull in base class variables
-   using Base::tau;
+   using Base::size;
    using Base::M;
    using Base::N;
    using Base::S;
@@ -51,7 +53,7 @@ protected:
 public:
    // Informative functions
    double rate() const { return 1; };
-   int output_block_size() const { return this->tau*s1; };
+   libbase::size<C> output_block_size() const { return libbase::size<C>(size.x*s1); };
 
    // Description
    std::string description() const;

@@ -24,6 +24,8 @@ namespace libcomm {
    \note This supersedes the puncture_stipple class; observe though that the
          number of sets here corresponds to the definition used in the turbo
          code, and is one less than that for puncture_stipple.
+
+   \bug This is really only properly defined for vector containers.
 */
 
 template <template<class> class C=libbase::vector>
@@ -45,7 +47,7 @@ private:
 
 protected:
    // Pull in base class variables
-   using Base::tau;
+   using Base::size;
    using Base::M;
 
 protected:
@@ -61,7 +63,7 @@ public:
 
    // Informative functions
    double rate() const { return (sets+1)/2.0; };
-   int output_block_size() const { return this->tau*2; };
+   libbase::size<C> output_block_size() const { return libbase::size<C>(size.x*2); };
 
    // Description
    std::string description() const;

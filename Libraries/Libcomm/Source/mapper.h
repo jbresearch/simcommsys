@@ -38,7 +38,7 @@ protected:
    int N;   //!< Number of possible values of each encoder output
    int M;   //!< Number of possible values of each modulation symbol
    int S;   //!< Number of possible values of each translation symbol
-   int tau; //!< Block size in symbols at input
+   libbase::size<C> size;    //!< Input block size in symbols
    // @}
 
 protected:
@@ -94,16 +94,17 @@ public:
    */
    void set_parameters(const int N, const int M, const int S);
    //! Sets input block size
-   void set_blocksize(int tau);
+   void set_blocksize(libbase::size<C> size)
+      { assert(size > 0); this->size = size; this->setup(); };
    // @}
 
    /*! \name Informative functions */
    //! Overall mapper rate
    virtual double rate() const = 0;
    //! Gets input block size
-   int input_block_size() const { return tau; };
+   libbase::size<C> input_block_size() const { return size; };
    //! Gets output block size
-   virtual int output_block_size() const { return tau; };
+   virtual libbase::size<C> output_block_size() const { return size; };
    // @}
 
    /*! \name Description */

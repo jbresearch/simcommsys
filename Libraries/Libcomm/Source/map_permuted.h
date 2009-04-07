@@ -17,6 +17,8 @@ namespace libcomm {
    - $Author$
 
    This class defines an symbol-permuting version of the straight mapper.
+
+   \todo Make this class inherit from any base mapper, not just straight
 */
 
 template <template<class> class C=libbase::vector>
@@ -36,7 +38,6 @@ private:
 
 protected:
    // Pull in base class variables
-   using Base::tau;
    using Base::M;
 
 protected:
