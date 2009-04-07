@@ -36,6 +36,8 @@ template <>
 class size<vector> {
 public:
    int  x;
+public:
+   explicit size(int x=0) { this->x = x; };
 };
 
 
@@ -54,6 +56,8 @@ class size<matrix> {
 public:
    int  x;
    int  y;
+public:
+   explicit size(int x=0, int y=0) { this->x = x; this->y = y; };
 };
 
 }; // end namespace
