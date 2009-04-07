@@ -2,10 +2,24 @@
 #define __vector_h
 
 #include "config.h"
+#include "size.h"
 #include <stdlib.h>
 #include <iostream>
 
 namespace libbase {
+
+/* \note
+   To comply with the standard, vector's friend functions must be declared
+   before the main class. Consequently, a declaration of the class itself
+   is also required before that.
+*/
+template <class T>
+class vector;
+
+template <class T>
+std::ostream& operator<<(std::ostream& s, const vector<T>& x);
+template <class T>
+std::istream& operator>>(std::istream& s, vector<T>& x);
 
 /*!
    \brief   Generic Vector.
@@ -30,14 +44,6 @@ namespace libbase {
    \todo This class needs to be re-designed in a manner that is consistent with
          convention (esp. Matlab) and that is efficient
 */
-
-template <class T>
-class vector;
-
-template <class T>
-std::ostream& operator<<(std::ostream& s, const vector<T>& x);
-template <class T>
-std::istream& operator>>(std::istream& s, vector<T>& x);
 
 template <class T>
 class vector {
@@ -655,6 +661,27 @@ inline T vector<T>::var() const
    const T _var = sumsq()/T(size()) - _mean*_mean;
    return (_var > 0) ? _var : 0;
    }
+
+/*!
+   \brief   Size specialization for vector.
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \todo Consider hiding fields
+*/
+
+template <>
+class size<vector> {
+public:
+   int  x;
+public:
+   explicit size(int x=0) { this->x = x; };
+   operator int() const { return x; };
+};
 
 }; // end namespace
 

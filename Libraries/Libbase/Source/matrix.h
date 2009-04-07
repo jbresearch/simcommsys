@@ -2,6 +2,7 @@
 #define __matrix_h
 
 #include "config.h"
+#include "size.h"
 #include "vector.h"
 #include <stdlib.h>
 #include <iostream>
@@ -208,7 +209,7 @@ inline void matrix<T>::free()
    }
 
 /*! \brief Set matrix to given size, freeing if and as required
-   
+
    This method leaves the matrix as it is if the size was already correct, and
    frees/reallocates if necessary. This helps reduce redundant free/alloc
    operations on matrices which keep the same size.
@@ -260,10 +261,10 @@ inline matrix<T>::matrix(const matrix<T>& m)
 // matrix copy and value initialisation
 
 /*! \brief Copies data from another matrix without resizing this one
-   
+
    Adds support for working with different-sized matrices (in place of
    resizing operations which would be quite expensive).
-   
+
    \note Opted for this rather than changing the definition of operator=
          because it's convenient for '=' to copy _everything_ from the source
          to the destination; otherwise we would land into obscure problems in
@@ -740,7 +741,7 @@ inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    // for A.B:
    // The number of columns of A must be the same as the number of rows of B.
    assert(m_xsize == x.m_ysize);
-   // If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an m-by-p matrix 
+   // If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an m-by-p matrix
    matrix<T> r(x.m_xsize,m_ysize);
    // Element AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j}
    for(int i=0; i<r.m_ysize; i++)
@@ -767,7 +768,7 @@ inline vector<T> matrix<T>::operator*(const vector<T>& x) const
    // for A.B:
    // The number of columns of A must be the same as the number of rows of B.
    assert(m_xsize == x.size());
-   // If A is an m-by-n matrix and B is an n-by-1 vector, then the product is an m-by-1 matrix 
+   // If A is an m-by-n matrix and B is an n-by-1 vector, then the product is an m-by-1 matrix
    vector<T> r(m_ysize);
    // Element AB_{i} = \sum_{k=1}^{n} a_{i,k} b_{k}
    for(int i=0; i<r.size(); i++)
@@ -1168,7 +1169,7 @@ namespace libbase {
    statistical, user-defined operation, and copy/value init functions are
    defined for this class, allowing us to modify the masked parts of any
    given matrix with ease.
-    
+
    It is intended that for the user, the use of masked matrices should be
    essentially transparent (in that they can mostly be used in place of
    normal matrices) and that the user should never create one explicitly,
@@ -1460,6 +1461,28 @@ inline T masked_matrix<T>::var() const
    const T _var = sumsq()/T(size()) - _mean*_mean;
    return (_var > 0) ? _var : 0;
    }
+
+/*!
+   \brief   Size specialization for matrix.
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+   \todo Consider hiding fields
+*/
+
+template <>
+class size<matrix> {
+public:
+   int  x;
+   int  y;
+public:
+   explicit size(int x=0, int y=0) { this->x = x; this->y = y; };
+   operator int() const { return x*y; };
+};
 
 }; // end namespace
 

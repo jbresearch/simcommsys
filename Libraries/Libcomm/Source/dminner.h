@@ -135,7 +135,8 @@ public:
 
    // Informative functions
    int num_symbols() const { return 1<<k; };
-   libbase::size<libbase::vector> output_block_size() const { return libbase::size<libbase::vector>(input_block_size()*n); };
+   libbase::size<libbase::vector> output_block_size() const
+      { return libbase::size<libbase::vector>(input_block_size()*n); };
    double energy() const { return n; };
 
    // Description
