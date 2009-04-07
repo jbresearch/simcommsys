@@ -16,14 +16,14 @@
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>/user/cscssst/jb0029/Programming/trunk/Turbo Codes/Arch/Linux.i686/Debug/SPECturbo</mainprogram>
+      <mainprogram>/user/cscssst/jb0029/Programming/trunk/Turbo Codes/Arch/Linux.i686/Debug/simcommsys</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
       <programargs></programargs>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments>-t 10 -i 'Turbo Codes/Documents/Simulators/bsid-dminner_4_8_b1-uncoded-gf16-750.txt'</globaldebugarguments>
+      <globaldebugarguments>-e localhost:9999</globaldebugarguments>
       <globalcwd>/user/cscssst/jb0029/Programming/trunk</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <autoinstall>false</autoinstall>

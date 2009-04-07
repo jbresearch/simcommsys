@@ -18,8 +18,8 @@ namespace libcomm {
 template <template<class> class C>
 void map_permuted<C>::advance() const
    {
-   lut.init(this->output_block_size());
-   for(int i=0; i<this->output_block_size(); i++)
+   lut.init(map_permuted<C>::output_block_size());
+   for(int i=0; i<map_permuted<C>::output_block_size(); i++)
       lut(i).init(M,r);
    }
 

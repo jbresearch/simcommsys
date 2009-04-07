@@ -32,9 +32,9 @@ void map_straight<C>::setup()
 template <template<class> class C>
 void map_straight<C>::dotransform(const C<int>& in, C<int>& out) const
    {
-   assertalways(in.size() == this->input_block_size());
+   assertalways(in.size() == map_straight<C>::input_block_size());
    // Initialize results vector
-   out.init(output_block_size());
+   out.init(map_straight<C>::output_block_size());
    // Modulate encoded stream (least-significant first)
    for(int t=0, k=0; t<size.x; t++)
       for(int i=0, x = in(t); i<s1; i++, k++, x /= M)
@@ -44,7 +44,7 @@ void map_straight<C>::dotransform(const C<int>& in, C<int>& out) const
 template <template<class> class C>
 void map_straight<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
-   assertalways(pin.size() == output_block_size());
+   assertalways(pin.size() == map_straight<C>::output_block_size());
    // Initialize results vector
    pout.init(upsilon);
    for(int t=0; t<upsilon; t++)
