@@ -80,10 +80,6 @@ protected:
       \note This is validly called for non-root and for empty vectors
    */
    void free();
-   /*! \brief Set vector to given size, freeing if and as required
-      \note This is only valid for 'root' vectors.
-   */
-   void setsize(const int x);
    // @}
 public:
    //! Default constructor (does not initialise elements)
@@ -93,12 +89,13 @@ public:
    ~vector() { free(); };
 
    /*! \name Resizing operations */
-   /*! \brief Initialize vector to given size
+   /*! \brief Set vector to given size, freeing if and as required
       This method is guaranteed to leave the vector untouched if the size is
       already good, and only reallocated if necessary. This helps reduce
       redundant free/alloc operations.
+      \note This is only valid for 'root' vectors.
    */
-   void init(const int x) { setsize(x); };
+   void init(const int x);
    //! Initialize vector to the size of given vector
    template <class A> void init(const vector<A>& x) { init(x.size()); };
    // @}
@@ -272,19 +269,6 @@ inline void vector<T>::free()
    test_invariant();
    }
 
-template <class T>
-inline void vector<T>::setsize(const int x)
-   {
-   test_invariant();
-   assert(x >= 0);
-   assert(m_root);
-   if(x==m_xsize)
-      return;
-   free();
-   alloc(x);
-   test_invariant();
-   }
-
 // constructor / destructor functions
 
 template <class T>
@@ -320,13 +304,28 @@ inline vector<T>::vector(const vector<T>& x) :
    test_invariant();
    }
 
+// Resizing operations
+
+template <class T>
+inline void vector<T>::init(const int x)
+   {
+   test_invariant();
+   assert(x >= 0);
+   assert(m_root);
+   if(x==m_xsize)
+      return;
+   free();
+   alloc(x);
+   test_invariant();
+   }
+
 // vector copy and value initialisation
 
 template <class T>
 inline vector<T>& vector<T>::assign(const T* x, const int n)
    {
    test_invariant();
-   setsize(n);
+   init(n);
    for(int i=0; i<n; i++)
       m_data[i] = x[i];
    test_invariant();
@@ -349,7 +348,7 @@ template <class A>
 inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
-   setsize(x.m_xsize);
+   init(x.m_xsize);
    for(int i=0; i<m_xsize; i++)
       m_data[i] = x.m_data[i];
    test_invariant();
@@ -436,7 +435,7 @@ inline std::istream& operator>>(std::istream& s, vector<T>& x)
    {
    int xsize;
    s >> xsize;
-   x.setsize(xsize);
+   x.init(xsize);
    x.serialize(s);
    return s;
    }
