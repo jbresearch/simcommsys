@@ -5,8 +5,23 @@
 #include "size.h"
 #include <stdlib.h>
 #include <iostream>
+#include <map>
 
 namespace libbase {
+
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of memory allocation/deallocation
+// 3 - Trace memory allocation/deallocation
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
+#if DEBUG>=2
+//! Associative array to keep track of memory allocation
+extern std::map<void*,int> _vector_heap;
+#endif
 
 /* \note
    To comply with the standard, vector's friend functions must be declared
@@ -203,7 +218,17 @@ inline void vector<T>::alloc(const int x)
    m_xsize = x;
    m_root = true;
    if(x > 0)
+      {
       m_data = new T[x];
+#if DEBUG>=2
+      assert(_vector_heap.count(m_data) == 0);
+      _vector_heap[m_data] = m_xsize;
+#endif
+#if DEBUG>=3
+      trace << "DEBUG (vector): allocated " << m_xsize << " x " << sizeof(T)
+         << " bytes at " << std::hex << m_data << std::dec << "\n";
+#endif
+      }
    else
       m_data = NULL;
    test_invariant();
@@ -215,6 +240,14 @@ inline void vector<T>::free()
    test_invariant();
    if(m_root && m_xsize > 0)
       {
+#if DEBUG>=2
+      assert(_vector_heap.count(m_data) > 0);
+      _vector_heap.erase(_vector_heap.find(m_data));
+#endif
+#if DEBUG>=3
+      trace << "DEBUG (vector): freeing " << m_xsize << " x " << sizeof(T)
+         << " bytes at " << std::hex << m_data << std::dec << "\n";
+#endif
       delete[] m_data;
       m_xsize = 0;
       m_data = NULL;

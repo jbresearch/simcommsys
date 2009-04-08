@@ -50,11 +50,6 @@ namespace libcomm {
          interpreted as v.0; a flat interleaver is automatically used for the
          first encoder in these cases.
 
-   \note Debug output is only enabled if pre-processor define DEBUG is set at
-         a value of 2 or above. Most of this will likely be removed as they
-         only serve a specific purpose in debugging parallel decoding, which
-         is still incomplete.
-
 
    \todo Remove tau from user parameters, as this can be derived from
          interleavers (requires a change to interleaver interface)
