@@ -222,11 +222,11 @@ inline void vector<T>::alloc(const int x)
       m_data = new T[x];
 #if DEBUG>=2
       assert(_vector_heap.count(m_data) == 0);
-      _vector_heap[m_data] = m_xsize;
+      _vector_heap[m_data] = m_xsize * sizeof(T);
 #endif
 #if DEBUG>=3
       trace << "DEBUG (vector): allocated " << m_xsize << " x " << sizeof(T)
-         << " bytes at " << std::hex << m_data << std::dec << "\n";
+         << " bytes at " << m_data << "\n";
 #endif
       }
    else
@@ -242,11 +242,12 @@ inline void vector<T>::free()
       {
 #if DEBUG>=2
       assert(_vector_heap.count(m_data) > 0);
+      assert(_vector_heap[m_data] == m_xsize * int(sizeof(T)));
       _vector_heap.erase(_vector_heap.find(m_data));
 #endif
 #if DEBUG>=3
       trace << "DEBUG (vector): freeing " << m_xsize << " x " << sizeof(T)
-         << " bytes at " << std::hex << m_data << std::dec << "\n";
+         << " bytes at " << m_data << "\n";
 #endif
       delete[] m_data;
       m_xsize = 0;
