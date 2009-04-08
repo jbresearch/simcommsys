@@ -72,11 +72,17 @@ protected:
    void test_invariant();
    // @}
    /*! \name Memory allocation functions */
-   //! Allocates memory for x elements (if necessary) and updates xsize
+   /*! \brief Allocates memory for x elements (if necessary) and updates xsize
+      \note This is only valid for 'root' vectors.
+   */
    void alloc(const int x);
-   //! If there is memory allocated, free it
+   /*! \brief If there is memory allocated, free it
+      \note This is validly called for non-root and for empty vectors
+   */
    void free();
-   //! Set vector to given size, freeing if and as required
+   /*! \brief Set vector to given size, freeing if and as required
+      \note This is only valid for 'root' vectors.
+   */
    void setsize(const int x);
    // @}
 public:
@@ -200,11 +206,21 @@ public:
 template <class T>
 inline void vector<T>::test_invariant()
    {
+   // size must be valid
    assert(m_xsize >= 0);
+   // pointer must make sense
    if(m_xsize == 0)
       assert(m_data == NULL);
    else
       assert(m_data != NULL);
+#if DEBUG>=2
+   if(m_root && m_data != NULL)
+      {
+      // root vectors: record of allocated memory of correct size
+      assert(_vector_heap.count(m_data) > 0);
+      assert(_vector_heap[m_data] == m_xsize * int(sizeof(T)));
+      }
+#endif
    }
 
 // memory allocation functions
@@ -214,9 +230,9 @@ inline void vector<T>::alloc(const int x)
    {
    test_invariant();
    assert(x >= 0);
+   assert(m_root);
    assert(m_xsize == 0);
    m_xsize = x;
-   m_root = true;
    if(x > 0)
       {
       m_data = new T[x];
@@ -260,6 +276,7 @@ template <class T>
 inline void vector<T>::setsize(const int x)
    {
    assert(x >= 0);
+   assert(m_root);
    if(x==m_xsize)
       return;
    free();
