@@ -15,7 +15,7 @@ namespace libbase {
 // 3 - Trace memory allocation/deallocation
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 #if DEBUG>=2
@@ -112,7 +112,10 @@ public:
       remaining elements are left untouched.
    */
    vector<T>& copyfrom(const vector<T>& x);
-   //! Copies another vector, resizing this one as necessary
+   /*! \brief Copies another vector, resizing this one as necessary
+      \warning This non-templated version is required to avoid the
+               compiler's default shallow-copy
+   */
    vector<T>& operator=(const vector<T>& x);
    //! Copies another vector, resizing this one as necessary
    template <class A>
