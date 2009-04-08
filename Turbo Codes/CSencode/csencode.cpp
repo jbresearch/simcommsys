@@ -11,6 +11,10 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    // Communication system
    libcomm::commsys<S> *system = libcomm::loadfromfile< libcomm::commsys<S> >(fname);
    std::cerr << system->description() << "\n";
+   // Initialize system
+   libbase::randgen r;
+   r.seed(0);
+   system->seedfrom(r);
    // Repeat until end of stream
    while(!sin.eof())
       {
