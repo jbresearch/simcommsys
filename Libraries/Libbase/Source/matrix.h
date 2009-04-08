@@ -47,6 +47,8 @@ std::istream& operator>>(std::istream& s, matrix<T>& x);
          require changes wherever this class is used!). This class needs to be
          re-designed in a manner that is consistent with convention (esp.
          Matlab) and that is efficient.
+
+   \todo Extract common implementation of copy assignment operators
 */
 
 template <class T>
@@ -87,6 +89,7 @@ public:
 
    // matrix copy and value initialisation
    matrix<T>& copyfrom(const matrix<T>& x);
+   matrix<T>& operator=(const matrix<T>& x);
    template <class A>
    matrix<T>& operator=(const matrix<A>& x);
    matrix<T>& operator=(const T x);
@@ -278,6 +281,16 @@ inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
    for(int i=0; i<xsize; i++)
       for(int j=0; j<ysize; j++)
          m_data[i][j] = x.m_data[i][j];
+   return *this;
+   }
+
+template <class T>
+inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
+   {
+   setsize(x.xsize(), x.ysize());
+   for(int i=0; i<m_xsize; i++)
+      for(int j=0; j<m_ysize; j++)
+         m_data[i][j] = x(i,j);
    return *this;
    }
 

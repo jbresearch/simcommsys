@@ -58,6 +58,8 @@ std::istream& operator>>(std::istream& s, vector<T>& x);
 
    \todo This class needs to be re-designed in a manner that is consistent with
          convention (esp. Matlab) and that is efficient
+
+   \todo Extract common implementation of copy assignment operators
 */
 
 template <class T>
@@ -97,7 +99,8 @@ public:
    */
    void init(const int x);
    //! Initialize vector to the size of given vector
-   template <class A> void init(const vector<A>& x) { init(x.size()); };
+   template <class A>
+   void init(const vector<A>& x) { init(x.size()); };
    // @}
 
    /*! \name Vector copy and value initialisation */
@@ -110,9 +113,13 @@ public:
    */
    vector<T>& copyfrom(const vector<T>& x);
    //! Copies another vector, resizing this one as necessary
-   template <class A> vector<T>& operator=(const vector<A>& x);
+   vector<T>& operator=(const vector<T>& x);
+   //! Copies another vector, resizing this one as necessary
+   template <class A>
+   vector<T>& operator=(const vector<A>& x);
    //! Sets all vector elements to the given value
-   template <class A> vector<T>& operator=(const A x);
+   template <class A>
+   vector<T>& operator=(const A x);
    // @}
 
    // sub-vector access
@@ -338,6 +345,17 @@ inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
    test_invariant();
    const int xsize = std::min(m_xsize, x.m_xsize);
    for(int i=0; i<xsize; i++)
+      m_data[i] = x.m_data[i];
+   test_invariant();
+   return *this;
+   }
+
+template <class T>
+inline vector<T>& vector<T>::operator=(const vector<T>& x)
+   {
+   test_invariant();
+   init(x.m_xsize);
+   for(int i=0; i<m_xsize; i++)
       m_data[i] = x.m_data[i];
    test_invariant();
    return *this;
