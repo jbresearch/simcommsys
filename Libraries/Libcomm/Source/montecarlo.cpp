@@ -501,7 +501,6 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          // get idle slaves to work if we're not yet done
          workidleslaves(converged);
          // wait for results, but not indefinitely - this allows user to break
-         trace << "DEBUG (estimate): Waiting for event.\n";
          waitforevent(true, 0.5);
          // accumulate results from any pending slaves
          results_available = readpendingslaves();

@@ -403,6 +403,13 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
       firsttime = false;
       }
 
+   static bool signalentry = true;
+   if(signalentry)
+      {
+      trace << "DEBUG (estimate): Waiting for event.\n";
+      signalentry = false;
+      }
+
    // create list of sockets and select
    std::list<socket *> sl, al;
 
@@ -411,6 +418,8 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
       sl.push_back(i->second->sock);
 
    al = socket::select(sl, timeout);
+   if(!al.empty())
+      signalentry = true;
    for(std::list<socket *>::iterator i=al.begin(); i != al.end(); ++i)
       {
       if((*i)->islistener() && acceptnew)
