@@ -179,10 +179,8 @@ void montecarlo::writestate(std::ostream& sout) const
    sout << "## System: " << sysdigest << '\n';
    sout << "## Parameter: " << system->get_parameter() << '\n';
    sout << "## Samples: " << get_samplecount() << '\n';
-   sout << "## State: " << state.size();
-   for(int i=0; i<state.size(); i++)
-      sout << '\t' << state(i);
-   sout << '\n';
+   sout << "## State: " << state.size() << '\t';
+   state.serialize(sout, '\t');
    sout << std::flush;
    trace << "DEBUG (montecarlo): position after = " << sout.tellp() << "\n";
    }
@@ -211,11 +209,7 @@ void montecarlo::lookforstate(std::istream& sin)
       else if(s.substr(0,9) == "## State:")
          {
          std::istringstream is(s.substr(9));
-         int count;
-         is >> count;
-         state.init(count);
-         for(int i=0; i<count; i++)
-            is >> state(i);
+         is >> state;
          }
       }
    // reset file
