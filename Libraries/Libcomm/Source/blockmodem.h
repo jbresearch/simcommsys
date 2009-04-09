@@ -46,7 +46,7 @@ protected:
    //! \copydoc modulate()
    virtual void domodulate(const int N, const C<int>& encoded, C<S>& tx) = 0;
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable) = 0;
+   virtual void dodemodulate(const channel<S,C>& chan, const C<S>& rx, C<array1d_t>& ptable) = 0;
    // @}
 
 public:
@@ -86,7 +86,7 @@ public:
       \note This function is non-const, to support time-variant modulation
             schemes such as DM inner codes.
    */
-   void demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable);
+   void demodulate(const channel<S,C>& chan, const C<S>& rx, C<array1d_t>& ptable);
    // @}
 
    /*! \name Setup functions */

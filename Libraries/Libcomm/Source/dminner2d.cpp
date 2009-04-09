@@ -8,6 +8,7 @@
 */
 
 #include "dminner2d.h"
+#include "bsid2d.h"
 #include "dminner2.h"
 #include "timer.h"
 #include <sstream>
@@ -70,7 +71,7 @@ void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<in
 */
 
 template <class real, bool normalize>
-void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
+void dminner2d<real,normalize>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
    const int M = this->input_block_size().y;
@@ -78,6 +79,12 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    // Check input validity
    assertalways(M == app.ysize());
    assertalways(N == app.xsize());
+   // Copy channel and create a 1D one with same parameters
+   bsid2d theirchan = dynamic_cast<const bsid2d&>(chan);
+   bsid mychan;
+   mychan.set_ps(theirchan.get_ps());
+   mychan.set_pd(theirchan.get_pd());
+   mychan.set_pi(theirchan.get_pi());
    // Initialize result vector
    ptable = app;
    // Temporary variables
@@ -93,6 +100,7 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
    for(int k=0; k<5; k++)
       {
       // Decode rows
+      mychan.set_blocksize(N);
       for(int i=0; i<M; i++)
          {
          ptable.extractrow(pin,i);
@@ -101,12 +109,13 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
          for(int ii=0; ii<m; ii++)
             {
             rx.extractrow(rxvec,i*M+ii);
-            rowdec.demodulate(chan, rxvec, pin, pout);
+            rowdec.demodulate(mychan, rxvec, pin, pout);
             pacc *= pout;
             }
          ptable.insertrow(pacc,i);
          }
       // Decode columns
+      mychan.set_blocksize(M);
       for(int j=0; j<N; j++)
          {
          ptable.extractcol(pin,j);
@@ -115,7 +124,7 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool>& chan, const li
          for(int jj=0; jj<n; jj++)
             {
             rx.extractcol(rxvec,j*N+jj);
-            coldec.demodulate(chan, rxvec, pin, pout);
+            coldec.demodulate(mychan, rxvec, pin, pout);
             pacc *= pout;
             }
          ptable.insertcol(pacc,j);

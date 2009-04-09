@@ -27,7 +27,7 @@ void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& t
    }
 
 template <class S, template<class> class C>
-void basic_blockmodem<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, C<array1d_t>& ptable)
+void basic_blockmodem<S,C>::demodulate(const channel<S,C>& chan, const C<S>& rx, C<array1d_t>& ptable)
    {
    test_invariant();
    advance_if_dirty();

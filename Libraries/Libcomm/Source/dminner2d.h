@@ -5,7 +5,6 @@
 
 #include "dminner2.h"
 #include "informed_modulator.h"
-//#include "bsid2d.h"
 //#include "fba2.h"
 #include "matrix.h"
 
@@ -62,8 +61,8 @@ protected:
    // Interface with derived classes
    void advance() const;
    void domodulate(const int q, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx);
-   void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
-   void dodemodulate(const channel<bool>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable);
+   void dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
+   void dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable);
 
 private:
    /*! \name Internal functions */

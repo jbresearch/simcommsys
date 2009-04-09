@@ -32,7 +32,7 @@ public:
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable) = 0;
+   virtual void dodemodulate(const channel<S,C>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable) = 0;
    // @}
 
 public:
@@ -67,7 +67,7 @@ public:
       \note app may be empty; this should be taken to indicate that no prior
             information is available
    */
-   void demodulate(const channel<S>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable);
+   void demodulate(const channel<S,C>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable);
    // @}
 };
 

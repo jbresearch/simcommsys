@@ -16,7 +16,7 @@ namespace libcomm {
 // Vector modem operations
 
 template <class S, template<class> class C>
-void informed_modulator<S,C>::demodulate(const channel<S>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable)
+void informed_modulator<S,C>::demodulate(const channel<S,C>& chan, const C<S>& rx, const C<array1d_t>& app, C<array1d_t>& ptable)
    {
    this->advance_if_dirty();
    dodemodulate(chan, rx, app, ptable);
