@@ -714,6 +714,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\size.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\socket.h"
 				>
 			</File>
