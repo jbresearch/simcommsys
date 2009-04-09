@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "commsys_errorrates.h"
-#include "experiment.h"
+#include "experiment_binomial.h"
 #include "randgen.h"
 #include "commsys.h"
 #include "serializer.h"

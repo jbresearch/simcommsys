@@ -523,6 +523,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\experiment_binomial.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\experiment_normal.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\fba.cpp"
 				>
 			</File>
@@ -1329,6 +1337,14 @@
 			</File>
 			<File
 				RelativePath="Source\experiment.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\experiment_binomial.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\experiment_normal.h"
 				>
 			</File>
 			<File
