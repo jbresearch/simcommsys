@@ -28,8 +28,9 @@ public:
    /*! \copydoc experiment::count()
        For each iteration, we count respectively the number symbol errors:
        - in the first frame symbol
-       - in subsequent symbols, if the prior symbol was correct
-       - in subsequent symbols, if the prior symbol was in error
+       - in subsequent symbols:
+         - if the prior symbol was correct (ie. joint probability)
+         - if the prior symbol was in error
        - in the prior symbol (required when applying Bayes' rule
          to the above two counts)
    */
