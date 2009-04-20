@@ -52,8 +52,6 @@ private:
    void allocate();
    // wrapping functions
    static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
-   void bcjr_pre(const int set, const array2d_t& ra, array2d_t& rai);
-   void bcjr_post(const int set, const array2d_t& rii, array2d_t& ri);
    void bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re);
    void decode_serial(array2d_t& ri);
    void decode_parallel(array2d_t& ri);
@@ -83,7 +81,7 @@ public:
    libbase::size<libbase::vector> output_block_size() const
       { return libbase::size<libbase::vector>(N*q + tail_length()); };
    int num_inputs() const { return encoder->num_inputs(); };
-   int num_outputs() const { return num_inputs(); };
+   int num_outputs() const { return encoder->num_outputs(); };
    int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
 

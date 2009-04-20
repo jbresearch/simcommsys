@@ -19,7 +19,8 @@ void repacc<real,dbl>::init()
    {
    assertalways(encoder);
    bcjr<real,dbl>::init(*encoder, output_block_size().x);
-
+   // check that encoder is rate-1
+   assertalways(num_inputs() == num_outputs());
    assertalways(inter);
    // TODO: check interleaver sizes
    assertalways(iter > 0);
@@ -50,7 +51,6 @@ void repacc<real,dbl>::reset()
       bcjr<real,dbl>::setend();
       }
    }
-
 
 // constructor / destructor
 

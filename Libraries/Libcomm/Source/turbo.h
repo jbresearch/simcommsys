@@ -96,8 +96,6 @@ private:
    void allocate();
    // wrapping functions
    static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
-   void bcjr_pre(const int set, const array2d_t& ra, array2d_t& rai);
-   void bcjr_post(const int set, const array2d_t& rii, array2d_t& ri);
    void bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re);
    void decode_serial(array2d_t& ri);
    void decode_parallel(array2d_t& ri);

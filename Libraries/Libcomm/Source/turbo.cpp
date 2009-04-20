@@ -176,54 +176,6 @@ void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, c
    }
 
 /*!
-   \brief Preparation for BCJR decoding
-   \param[in]  set Parity sequence being decoded
-   \param[in]  ra  A-priori (extrinsic) probabilities of input values
-   \param[out] rai Interleaved version of a-priori probabilities
-
-   This method does the preparatory work required before BCJR decoding,
-   including start/end state probability setting for circular decoding, and
-   pre-interleaving of a-priori probabilities.
-
-   \note When using a circular trellis, the start- and end-state probabilities
-         are re-initialize with the stored values from the previous turn.
-*/
-template <class real, class dbl>
-void turbo<real,dbl>::bcjr_pre(const int set, const array2d_t& ra, array2d_t& rai)
-   {
-   if(circular)
-      {
-      bcjr<real,dbl>::setstart(ss(set));
-      bcjr<real,dbl>::setend(se(set));
-      }
-   inter(set)->transform(ra, rai);
-   }
-
-/*!
-   \brief Post-processing for BCJR decoding
-   \param[in]  set Parity sequence being decoded
-   \param[in]  rii Interleaved version of a-posteriori probabilities
-   \param[out] ri  A-posteriori probabilities of input values
-
-   This method does the post-processing work required after BCJR decoding,
-   including start/end state probability storing for circular decoding, and
-   de-interleaving of a-posteriori probabilities.
-
-   \note When using a circular trellis, the start- and end-state probabilities
-         are stored for the next turn.
-*/
-template <class real, class dbl>
-void turbo<real,dbl>::bcjr_post(const int set, const array2d_t& rii, array2d_t& ri)
-   {
-   inter(set)->inverse(rii, ri);
-   if(circular)
-      {
-      ss(set) = bcjr<real,dbl>::getstart();
-      se(set) = bcjr<real,dbl>::getend();
-      }
-   }
-
-/*!
    \brief Complete BCJR decoding cycle
    \param[in]  set Parity sequence being decoded
    \param[in]  ra  A-priori (extrinsic) probabilities of input values
@@ -235,6 +187,9 @@ void turbo<real,dbl>::bcjr_post(const int set, const array2d_t& rii, array2d_t& 
    probability settings for circular decoding, and any interleaving/de-
    interleaving.
 
+   \note When using a circular trellis, the start- and end-state probabilities
+         are re-initialize with the stored values from the previous turn.
+
    \warning The return matrix re may actually be the input matrix ra,
             so one must be careful not to overwrite positions that still
             need to be read.
@@ -244,9 +199,19 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& r
    {
    // Temporary variables to hold interleaved versions of ra/ri
    array2d_t rai, rii;
-   bcjr_pre(set, ra, rai);
+   if(circular)
+      {
+      bcjr<real,dbl>::setstart(ss(set));
+      bcjr<real,dbl>::setend(se(set));
+      }
+   inter(set)->transform(ra, rai);
    bcjr<real,dbl>::fdecode(R(set), rai, rii);
-   bcjr_post(set, rii, ri);
+   inter(set)->inverse(rii, ri);
+   if(circular)
+      {
+      ss(set) = bcjr<real,dbl>::getstart();
+      se(set) = bcjr<real,dbl>::getend();
+      }
    work_extrinsic(ra, ri, rp, re);
    }
 
