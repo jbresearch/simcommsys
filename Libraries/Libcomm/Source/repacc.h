@@ -80,7 +80,7 @@ public:
    libbase::size<libbase::vector> output_block_size() const
       { return libbase::size<libbase::vector>(N*q + tail_length()); };
    int num_inputs() const { return encoder->num_inputs(); };
-   int num_outputs() const { return encoder->num_outputs(); };
+   int num_outputs() const { return encoder->num_outputs()/num_inputs(); };
    int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
 

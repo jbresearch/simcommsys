@@ -94,7 +94,7 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    encoder->reset(0);
    // Encode sequence
    for(int i=0; i<output_block_size(); i++)
-      encoded(i) = encoder->step(rep2(i));
+      encoded(i) = encoder->step(rep2(i)) / num_inputs();
    // check that encoder finishes correctly
    if(endatzero)
       assertalways(encoder->state() == 0);
