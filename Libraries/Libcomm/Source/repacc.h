@@ -66,8 +66,7 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   repacc(const fsm& encoder, const interleaver<dbl>& inter, const int N, \
-      const int q, const int iter, const bool endatzero);
+   repacc();
    ~repacc() { free(); };
    // @}
 

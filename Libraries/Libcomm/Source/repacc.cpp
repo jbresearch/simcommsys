@@ -12,6 +12,55 @@
 
 namespace libcomm {
 
+// initialization / de-allocation
+
+template <class real, class dbl>
+void repacc<real,dbl>::init()
+   {
+   assertalways(encoder);
+   bcjr<real,dbl>::init(*encoder, output_block_size().x);
+
+   assertalways(inter);
+   // TODO: check interleaver sizes
+   assertalways(iter > 0);
+
+   initialised = false;
+   }
+
+template <class real, class dbl>
+void repacc<real,dbl>::free()
+   {
+   if(encoder != NULL)
+      delete encoder;
+   if(inter != NULL)
+      delete inter;
+   }
+
+template <class real, class dbl>
+void repacc<real,dbl>::reset()
+   {
+   if(endatzero)
+      {
+      bcjr<real,dbl>::setstart(0);
+      bcjr<real,dbl>::setend(0);
+      }
+   else
+      {
+      bcjr<real,dbl>::setstart(0);
+      bcjr<real,dbl>::setend();
+      }
+   }
+
+
+// constructor / destructor
+
+template <class real, class dbl>
+repacc<real,dbl>::repacc()
+   {
+   encoder = NULL;
+   inter = NULL;
+   }
+
 // description output
 
 template <class real, class dbl>
