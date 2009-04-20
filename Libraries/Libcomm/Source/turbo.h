@@ -2,8 +2,6 @@
 #define __turbo_h
 
 #include "config.h"
-#include "serializer.h"
-
 #include "codec_softout.h"
 #include "fsm.h"
 #include "interleaver.h"
@@ -76,7 +74,7 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   //!< Set of interleavers, one per parity sequence (including first set)
+   //! Set of interleavers, one per parity sequence (including first set)
    libbase::vector<interleaver<dbl> *> inter;
    fsm      *encoder;      //!< Encoder object (same for all parity sequences)
    int      tau;           //!< Length of interleavers (information sequence + tail)
