@@ -46,8 +46,6 @@ private:
    array2d_t rp;           //!< A priori intrinsic source statistics (natural)
    libbase::vector< array2d_t > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
    libbase::vector< array2d_t > ra;  //!< A priori extrinsic source statistics
-   libbase::vector< array1d_t > ss;  //!< Holder for start-state probabilities (used with circular trellises)
-   libbase::vector< array1d_t > se;  //!< Holder for end-state probabilities (used with circular trellises)
    // @}
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
