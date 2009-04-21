@@ -61,6 +61,8 @@ namespace libcomm {
    \todo Remove redundant result vector initializations (these should happen
          on the first call to a function where that vector is used as an
          output).
+
+   \todo Split serial and parallel decoding into separate classes.
 */
 
 template <class real, class dbl=double>
