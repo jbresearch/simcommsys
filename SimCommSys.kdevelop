@@ -16,14 +16,14 @@
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>/user/cscssst/jb0029/Programming/trunk/Turbo Codes/Arch/Linux.i686/Debug/SPECturbo</mainprogram>
+      <mainprogram>/user/cscssst/jb0029/Programming/trunk/Turbo Codes/Arch/Linux.i686/Debug/csencode</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
       <programargs></programargs>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments>-r 0.1 -i '/user/cscssst/jb0029/ECW/Results/RA Codes (GF8)/Systems/qsc-gf8-repacc-grsc_2_1_2-40-5-20-noterm.txt'</globaldebugarguments>
+      <globaldebugarguments>-i '/user/cscssst/jb0029/ECW/Results/RA Codes (GF8)/Systems/qsc-gf8-repacc-grsc_2_1_2-40-5-20-noterm.txt' &lt; '/user/cscssst/jb0029/ECW/Results/RA Codes (GF8)/source.txt'</globaldebugarguments>
       <globalcwd>/user/cscssst/jb0029/Programming/trunk</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <autoinstall>false</autoinstall>

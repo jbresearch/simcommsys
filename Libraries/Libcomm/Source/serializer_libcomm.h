@@ -202,6 +202,7 @@ T *loadfromfile(const std::string& fname)
    {
    // load system from file
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
+   assertalways(file.is_open());
    return libcomm::loadandverify<T>(file);
    }
 

@@ -146,7 +146,8 @@ public:
 
    // resizing operations
    void init(const int x, const int y, const int z);
-   template <class A> void init(const matrix3<A>& x) { init(x.m_xsize, x.m_ysize, x.m_zsize); };
+   template <class A>
+   void init(const matrix3<A>& x) { init(x.m_xsize, x.m_ysize, x.m_zsize); };
 
    // matrix3 copy and value initialisation
    matrix3<T>& copyfrom(const matrix3<T>& x);

@@ -34,6 +34,8 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    - $Revision$
    - $Date$
    - $Author$
+
+   \bug Works only with bool systems!
 */
 
 int main(int argc, char *argv[])

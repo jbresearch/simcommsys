@@ -150,10 +150,10 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    assert(source.size() == input_block_size());
    // Compute repeater output, including any necessary tail
    array1i_t rep(output_block_size());
-   for(int i=0; i<source.size(); i++)
+   for(int i=0; i<input_block_size(); i++)
       for(int j=0; j<q; j++)
          rep(i*q+j) = source(i);
-   for(int i=source.size()*q; i<output_block_size(); i++)
+   for(int i=input_block_size()*q; i<output_block_size(); i++)
       rep(i) = fsm::tail;
 
    // Declare space for the interleaved sequence
