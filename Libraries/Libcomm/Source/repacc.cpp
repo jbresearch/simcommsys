@@ -19,7 +19,7 @@ template <class real, class dbl>
 void repacc<real,dbl>::init()
    {
    assertalways(encoder);
-   bcjr<real,dbl>::init(*encoder, output_block_size().x);
+   bcjr<real,dbl>::init(*encoder, output_block_size());
    // check that encoder is rate-1
    assertalways(num_inputs() == num_outputs());
    assertalways(inter);
@@ -67,8 +67,8 @@ repacc<real,dbl>::repacc()
 template <class real, class dbl>
 void repacc<real,dbl>::allocate()
    {
-   ra.init(input_block_size(), num_inputs());
-   rp.init(input_block_size(), num_inputs());
+   ra.init(output_block_size(), num_inputs());
+   rp.init(output_block_size(), num_inputs());
    R.init(output_block_size(), num_outputs());
 
    // determine memory occupied and tell user
@@ -186,9 +186,9 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
 template <class real, class dbl>
 void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
    {
-   assertalways(ptable.size() > 0);
    // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable(0).size() == num_inputs());
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == num_outputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == output_block_size());
 
@@ -203,7 +203,7 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
 
    // Determine encoder-output statistics (intrinsic) from the channel
    for(int i=0; i<output_block_size(); i++)
-      for(int x=0; x<num_inputs(); x++)
+      for(int x=0; x<num_outputs(); x++)
          R(i, x) = ptable(i)(x);
    bcjr<real,dbl>::normalize(R);
 
@@ -214,25 +214,33 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
 template <class real, class dbl>
 void repacc<real,dbl>::softdecode(array1vd_t& ri)
    {
-   /*
-   // temporary space to hold complete results (ie. with tail)
+   // temporary space to hold complete results
+   // (ie. intrinsic+extrinsic with tail)
    array2d_t rif;
-   // after working all sets, ri is the intrinsic+extrinsic information
-   // from the last stage decoder.
-   for(int set=0; set<num_sets(); set++)
-      {
-      bcjr_wrap(set, ra, rif, ra);
-      bcjr<real,dbl>::normalize(ra);
-      }
+   // decode accumulator
+   bcjr_wrap(ra, rif, ra);
+   bcjr<real,dbl>::normalize(ra);
    bcjr<real,dbl>::normalize(rif);
-   // remove any tail bits from input set
+   // allocate space for final results and initialize
    ri.init(input_block_size());
    for(int i=0; i<input_block_size(); i++)
       ri(i).init(num_inputs());
+   ri = 1.0;
+   // decode repetition code
    for(int i=0; i<input_block_size(); i++)
-      for(int j=0; j<num_inputs(); j++)
-         ri(i)(j) = rif(i,j);
-   */
+      for(int j=0; j<q; j++)
+         for(int x=0; x<num_inputs(); x++)
+            ri(i)(x) *= rif(i*q+j,x);
+   // accumulate extrinsic information
+   for(int i=0; i<input_block_size(); i++)
+      for(int j=1; j<q; j++)
+         for(int x=0; x<num_inputs(); x++)
+            ra(i*q,x) *= ra(i*q+j,x);
+   // repeat extrinsic information
+   for(int i=0; i<input_block_size(); i++)
+      for(int j=1; j<q; j++)
+         for(int x=0; x<num_inputs(); x++)
+            ra(i*q+j,x) = ra(i*q,x);
    }
 
 template <class real, class dbl>
