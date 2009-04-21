@@ -9,6 +9,7 @@
 
 #include "repacc.h"
 #include <sstream>
+#include <iomanip>
 
 namespace libcomm {
 
@@ -59,6 +60,80 @@ repacc<real,dbl>::repacc()
    {
    encoder = NULL;
    inter = NULL;
+   }
+
+// memory allocator (for internal use only)
+
+template <class real, class dbl>
+void repacc<real,dbl>::allocate()
+   {
+   ra.init(input_block_size(), num_inputs());
+   rp.init(input_block_size(), num_inputs());
+   R.init(output_block_size(), num_outputs());
+
+   // determine memory occupied and tell user
+   std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr << "RepAcc Memory Usage: " << std::fixed << std::setprecision(1);
+   std::cerr << ( ra.size() + R.size()
+      )*sizeof(dbl)/double(1<<20) << "MB\n";
+   std::cerr.setf(flags);
+   // flag the state of the arrays
+   initialised = true;
+   }
+
+// wrapping functions
+
+/*!
+   \copydoc turbo::work_extrinsic()
+
+   \todo Merge with method in turbo
+*/
+template <class real, class dbl>
+void repacc<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re)
+   {
+   // Determine sizes from input matrix
+   const int tau = ri.xsize();
+   const int K = ri.ysize();
+   // Check all matrices are the right size
+   assert(ra.xsize() == tau && ra.ysize() == K);
+   assert(r.xsize() == tau && r.ysize() == K);
+   // Initialize results vector
+   re.init(tau, K);
+   // Compute extrinsic values
+   for(int t=0; t<tau; t++)
+      for(int x=0; x<K; x++)
+         re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
+   }
+
+/*!
+   \brief Complete BCJR decoding cycle
+   \param[in]  ra  A-priori (extrinsic) probabilities of input values
+   \param[out] ri  A-posteriori probabilities of input values
+   \param[out] re  Extrinsic probabilities of input values (will be used later
+                   as the new 'a-priori' probabilities)
+
+   This method performs a complete decoding cycle, including start/end state
+   probability settings for circular decoding, and any interleaving/de-
+   interleaving.
+
+   \warning The return matrix re may actually be the input matrix ra,
+            so one must be careful not to overwrite positions that still
+            need to be read.
+
+   \note This method is a subset of that in turbo (note that here we don't
+         cater for circular trellises, and there are no parallel sets)
+
+   \todo Merge this method with that in turbo
+*/
+template <class real, class dbl>
+void repacc<real,dbl>::bcjr_wrap(const array2d_t& ra, array2d_t& ri, array2d_t& re)
+   {
+   // Temporary variables to hold interleaved versions of ra/ri
+   array2d_t rai, rii;
+   inter->transform(ra, rai);
+   bcjr<real,dbl>::fdecode(R, rai, rii);
+   inter->inverse(rii, ri);
+   work_extrinsic(ra, ri, rp, re);
    }
 
 // encoding and decoding functions
@@ -121,14 +196,16 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    if(!initialised)
       allocate();
 
-   // Get the necessary data from the channel
+   // Initialise a priori probabilities (extrinsic)
+   ra = 1.0;
+   // Initialise a priori probabilities (intrinsic)
+   rp = 1.0;
+
+   // Determine encoder-output statistics (intrinsic) from the channel
    for(int i=0; i<output_block_size(); i++)
       for(int x=0; x<num_inputs(); x++)
          R(i, x) = ptable(i)(x);
    bcjr<real,dbl>::normalize(R);
-
-   // Initialise a priori probabilities (extrinsic)
-   ra = 1.0;
 
    // Reset start- and end-state probabilities
    reset();

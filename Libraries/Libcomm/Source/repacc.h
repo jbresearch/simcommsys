@@ -43,16 +43,16 @@ private:
    // @}
    /*! \name Internal object representation */
    bool     initialised;   //!< Flag to indicate when memory is initialised
-   //array2d_t rp;           //!< A priori intrinsic source statistics (natural)
-   array2d_t R;            //!< A priori intrinsic encoder-output statistics (interleaved)
    array2d_t ra;           //!< A priori extrinsic source statistics
+   array2d_t rp;           //!< A priori intrinsic source statistics (natural)
+   array2d_t R;            //!< A priori intrinsic encoder-output statistics (interleaved)
    // @}
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();
    // wrapping functions
    static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
-   void bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re);
+   void bcjr_wrap(const array2d_t& ra, array2d_t& ri, array2d_t& re);
    // @}
 protected:
    /*! \name Internal functions */
