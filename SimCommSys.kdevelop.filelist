@@ -51,6 +51,7 @@ Libraries/Libbase/Source/secant.cpp
 Libraries/Libbase/Source/secant.h
 Libraries/Libbase/Source/serializer.cpp
 Libraries/Libbase/Source/serializer.h
+Libraries/Libbase/Source/size.h
 Libraries/Libbase/Source/socket.cpp
 Libraries/Libbase/Source/socket.h
 Libraries/Libbase/Source/timer.cpp
@@ -128,6 +129,10 @@ Libraries/Libcomm/Source/dvbcrsc.cpp
 Libraries/Libcomm/Source/dvbcrsc.h
 Libraries/Libcomm/Source/experiment.cpp
 Libraries/Libcomm/Source/experiment.h
+Libraries/Libcomm/Source/experiment_binomial.cpp
+Libraries/Libcomm/Source/experiment_binomial.h
+Libraries/Libcomm/Source/experiment_normal.cpp
+Libraries/Libcomm/Source/experiment_normal.h
 Libraries/Libcomm/Source/fba.cpp
 Libraries/Libcomm/Source/fba.h
 Libraries/Libcomm/Source/fba2.cpp
@@ -198,6 +203,8 @@ Libraries/Libcomm/Source/rc4.cpp
 Libraries/Libcomm/Source/rc4.h
 Libraries/Libcomm/Source/rectangular.cpp
 Libraries/Libcomm/Source/rectangular.h
+Libraries/Libcomm/Source/repacc.cpp
+Libraries/Libcomm/Source/repacc.h
 Libraries/Libcomm/Source/resultsfile.cpp
 Libraries/Libcomm/Source/resultsfile.h
 Libraries/Libcomm/Source/rscc.cpp
@@ -422,6 +429,8 @@ Turbo Codes/CStransmit
 Turbo Codes/CStransmit/cstransmit.cpp
 Turbo Codes/Documents
 Turbo Codes/Documents/mainpage.h
+Turbo Codes/MakeSRandom
+Turbo Codes/MakeSRandom/makesrandom.cpp
 Turbo Codes/Makefile
 Turbo Codes/SPECturbo
 Turbo Codes/SPECturbo/SPECturbo.cpp
