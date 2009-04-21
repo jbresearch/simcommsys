@@ -20,6 +20,8 @@ namespace libcomm {
 */
 int commsys_errorrates::countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
+   assert(source.size() == get_symbolsperblock());
+   assert(decoded.size() == get_symbolsperblock());
    int biterrors = 0;
    for(int t=0; t<get_symbolsperblock(); t++)
       {
@@ -35,6 +37,8 @@ int commsys_errorrates::countbiterrors(const libbase::vector<int>& source, const
 */
 int commsys_errorrates::countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
+   assert(source.size() == get_symbolsperblock());
+   assert(decoded.size() == get_symbolsperblock());
    int symerrors = 0;
    for(int t=0; t<get_symbolsperblock(); t++)
       {

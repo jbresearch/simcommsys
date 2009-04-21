@@ -20,6 +20,8 @@ void commsys_prof_pos::updateresults(libbase::vector<double>& result, const int 
    assert(i >= 0 && i < get_iter());
    const int skip = count()/get_iter();
    // Update the count for every symbol in error
+   assert(source.size() == get_symbolsperblock());
+   assert(decoded.size() == get_symbolsperblock());
    for(int t=0; t<get_symbolsperblock(); t++)
       {
       assert(source(t) != fsm::tail);

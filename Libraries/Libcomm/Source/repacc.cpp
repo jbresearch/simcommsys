@@ -69,7 +69,7 @@ void repacc<real,dbl>::allocate()
    {
    ra.init(output_block_size(), num_inputs());
    rp.init(output_block_size(), num_inputs());
-   R.init(output_block_size(), num_outputs());
+   R.init(output_block_size(), encoder->num_outputs());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -202,9 +202,11 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    rp = 1.0;
 
    // Determine encoder-output statistics (intrinsic) from the channel
+   R = 0.0;
    for(int i=0; i<output_block_size(); i++)
       for(int x=0; x<num_outputs(); x++)
-         R(i, x) = ptable(i)(x);
+         for(int j=0; j<num_inputs(); j++)
+            R(i, x*q+j) = ptable(i)(x);
    bcjr<real,dbl>::normalize(R);
 
    // Reset start- and end-state probabilities

@@ -17,6 +17,8 @@ namespace libcomm {
 
 void commsys_prof_burst::updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
    {
+   assert(source.size() == get_symbolsperblock());
+   assert(decoded.size() == get_symbolsperblock());
    assert(i >= 0 && i < get_iter());
    const int skip = count()/get_iter();
    // Update the relevant count for every symbol in error
