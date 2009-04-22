@@ -213,6 +213,15 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    reset();
    }
 
+/*! \copydoc codec_softout::softdecode()
+
+   \note Implements soft-decision decoding according to Alexandre's
+         interpretation:
+         - when computing final output at repetition code, use only extrinsic
+           information from accumulator
+         - when computing extrinsic output at rep code, factor out the input
+           information at that position
+*/
 template <class real, class dbl>
 void repacc<real,dbl>::softdecode(array1vd_t& ri)
    {
