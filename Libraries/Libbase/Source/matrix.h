@@ -820,7 +820,7 @@ inline matrix<T> matrix<T>::multiply(const matrix<T>& x) const
    matrix<T> r(m_xsize,m_ysize);
    for(int i=0; i<m_xsize; i++)
       for(int j=0; j<m_ysize; j++)
-         r = m_data[i][j] * x.m_data[i][j];
+         r.m_data[i][j] = m_data[i][j] * x.m_data[i][j];
    return r;
    }
 
@@ -840,7 +840,7 @@ inline matrix<T> matrix<T>::divide(const matrix<T>& x) const
    matrix<T> r(m_xsize,m_ysize);
    for(int i=0; i<m_xsize; i++)
       for(int j=0; j<m_ysize; j++)
-         r = m_data[i][j] / x.m_data[i][j];
+         r.m_data[i][j] = m_data[i][j] / x.m_data[i][j];
    return r;
    }
 
