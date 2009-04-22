@@ -57,6 +57,16 @@ private:
    //! Memory allocator (for internal use only)
    void allocate();
    // @}
+   /*! \name Internal codec information functions */
+   libbase::size<libbase::vector> my_input_block_size() const
+      { return libbase::size<libbase::vector>(N); };
+   libbase::size<libbase::vector> my_output_block_size() const
+      { return libbase::size<libbase::vector>(N*q + tail_length()); };
+   int my_num_inputs() const { return encoder->num_inputs(); };
+   int my_num_outputs() const { return encoder->num_outputs()/num_inputs(); };
+   int my_tail_length() const { return endatzero ? encoder->mem_order() : 0; };
+   int my_num_iter() const { return iter; };
+   // @}
 protected:
    /*! \name Internal functions */
    void init();
@@ -78,13 +88,13 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
-      { return libbase::size<libbase::vector>(N); };
+      { return my_input_block_size(); };
    libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(N*q + tail_length()); };
-   int num_inputs() const { return encoder->num_inputs(); };
-   int num_outputs() const { return encoder->num_outputs()/num_inputs(); };
-   int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
-   int num_iter() const { return iter; };
+      { return my_output_block_size(); };
+   int num_inputs() const { return my_num_inputs(); };
+   int num_outputs() const { return my_num_outputs(); };
+   int tail_length() const { return my_tail_length(); };
+   int num_iter() const { return my_num_iter(); };
 
    /*! \name Codec information functions - internal */
    int num_repeats() const { return q; };
