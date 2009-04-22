@@ -45,12 +45,14 @@ private:
    int      iter;          //!< Number of iterations to perform
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
    // @}
+protected:
    /*! \name Internal object representation */
    bool     initialised;   //!< Flag to indicate when memory is initialised
    array2d_t ra;           //!< A priori extrinsic source statistics (natural)
    array2d_t rp;           //!< A priori intrinsic source statistics (natural)
    array2d_t R;            //!< A priori intrinsic encoder-output statistics (interleaved)
    // @}
+private:
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();

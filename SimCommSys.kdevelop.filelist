@@ -223,6 +223,8 @@ Libraries/Libcomm/Source/stream_lut.cpp
 Libraries/Libcomm/Source/stream_lut.h
 Libraries/Libcomm/Source/symbol.cpp
 Libraries/Libcomm/Source/symbol.h
+Libraries/Libcomm/Source/sysrepacc.cpp
+Libraries/Libcomm/Source/sysrepacc.h
 Libraries/Libcomm/Source/turbo.cpp
 Libraries/Libcomm/Source/turbo.h
 Libraries/Libcomm/Source/uncoded.cpp

@@ -85,7 +85,6 @@ void repacc<real,dbl>::allocate()
    initialised = true;
    }
 
-
 // encoding and decoding functions
 
 template <class real, class dbl>

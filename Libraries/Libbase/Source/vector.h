@@ -60,6 +60,8 @@ std::istream& operator>>(std::istream& s, vector<T>& x);
          convention (esp. Matlab) and that is efficient
 
    \todo Extract common implementation of copy assignment operators
+
+   \todo Merge code for extract() and segment()
 */
 
 template <class T>
@@ -130,6 +132,10 @@ public:
       This allows access to sub-vector data without array copying.
    */
    const vector<T> extract(const int start, const int n) const;
+   /*! \brief Access part of this vector as a sub-vector
+      This allows operations on sub-vector data without array copying.
+   */
+   vector<T> segment(const int start, const int n);
 
    // index operators (perform boundary checking)
    T& operator()(const int x);
@@ -391,6 +397,20 @@ inline vector<T>& vector<T>::operator=(const A x)
 
 template <class T>
 inline const vector<T> vector<T>::extract(const int start, const int n) const
+   {
+   test_invariant();
+   assert(n >= 0);
+   vector<T> r;
+   r.m_root = false;
+   r.m_xsize = n;
+   assert(m_xsize >= start+n);
+   r.m_data = (n>0) ? &m_data[start] : NULL;
+   r.test_invariant();
+   return r;
+   }
+
+template <class T>
+inline vector<T> vector<T>::segment(const int start, const int n)
    {
    test_invariant();
    assert(n >= 0);
