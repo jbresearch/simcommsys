@@ -54,7 +54,6 @@ private:
    void allocate();
    // wrapping functions
    static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
-   void bcjr_wrap(const array2d_t& ra, array2d_t& ri, array2d_t& re);
    // @}
 protected:
    /*! \name Internal functions */

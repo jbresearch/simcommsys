@@ -105,37 +105,6 @@ void repacc<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, 
          re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
    }
 
-/*!
-   \brief Complete BCJR decoding cycle
-   \param[in]  ra  A-priori (extrinsic) probabilities of input values
-   \param[out] ri  A-posteriori probabilities of input values
-   \param[out] re  Extrinsic probabilities of input values (will be used later
-                   as the new 'a-priori' probabilities)
-
-   This method performs a complete decoding cycle, including start/end state
-   probability settings for circular decoding, and any interleaving/de-
-   interleaving.
-
-   \warning The return matrix re may actually be the input matrix ra,
-            so one must be careful not to overwrite positions that still
-            need to be read.
-
-   \note This method is a subset of that in turbo (note that here we don't
-         cater for circular trellises, and there are no parallel sets)
-
-   \todo Merge this method with that in turbo
-*/
-template <class real, class dbl>
-void repacc<real,dbl>::bcjr_wrap(const array2d_t& ra, array2d_t& ri, array2d_t& re)
-   {
-   // Temporary variables to hold interleaved versions of ra/ri
-   array2d_t rai, rii;
-   inter->transform(ra, rai);
-   bcjr<real,dbl>::fdecode(R, rai, rii);
-   inter->inverse(rii, ri);
-   work_extrinsic(ra, ri, rp, re);
-   }
-
 // encoding and decoding functions
 
 template <class real, class dbl>
@@ -226,8 +195,14 @@ template <class real, class dbl>
 void repacc<real,dbl>::softdecode(array1vd_t& ri)
    {
    // decode accumulator
-   array2d_t rif;
-   bcjr_wrap(ra, rif, ra);
+
+   // Temporary variables to hold posterior probabilities and
+   // interleaved versions of ra/ri
+   array2d_t rif, rai, rii;
+   inter->transform(ra, rai);
+   bcjr<real,dbl>::fdecode(R, rai, rii);
+   inter->inverse(rii, rif);
+   work_extrinsic(ra, rif, rp, ra);
    bcjr<real,dbl>::normalize(ra);
    // allocate space for final results and initialize
    ri.init(input_block_size());
