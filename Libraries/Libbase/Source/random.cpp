@@ -15,7 +15,7 @@ random::random()
    {
 #ifndef NDEBUG
    counter = 0;
-   trace << "DEBUG: random (" << this << ") created.\n" << std::flush;
+   //trace << "DEBUG: random (" << this << ") created.\n" << std::flush;
    initialized = false;
 #endif
    next_gval_available = false;
@@ -24,7 +24,8 @@ random::random()
 random::~random()
    {
 #ifndef NDEBUG
-   trace << "DEBUG: random (" << this << ") destroyed after " << counter << " steps.\n" << std::flush;
+   if(counter > 0)
+      trace << "DEBUG: random (" << this << ") destroyed after " << counter << " steps.\n" << std::flush;
 #endif
    }
 
