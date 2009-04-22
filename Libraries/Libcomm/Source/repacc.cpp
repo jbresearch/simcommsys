@@ -244,6 +244,8 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
       for(int j=0; j<q; j++)
          for(int x=0; x<num_inputs(); x++)
             ra(i*q+j,x) = ri(i)(x) / ra(i*q+j,x);
+   // normalize results
+   bcjr<real,dbl>::normalize(ra);
    }
 
 template <class real, class dbl>
