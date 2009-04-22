@@ -216,33 +216,25 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
 template <class real, class dbl>
 void repacc<real,dbl>::softdecode(array1vd_t& ri)
    {
-   // temporary space to hold complete results
-   // (ie. intrinsic+extrinsic with tail)
-   array2d_t rif;
    // decode accumulator
+   array2d_t rif;
    bcjr_wrap(ra, rif, ra);
    bcjr<real,dbl>::normalize(ra);
-   bcjr<real,dbl>::normalize(rif);
    // allocate space for final results and initialize
    ri.init(input_block_size());
    for(int i=0; i<input_block_size(); i++)
       ri(i).init(num_inputs());
    ri = 1.0;
-   // decode repetition code
+   // decode repetition code (based on extrinsic information only)
    for(int i=0; i<input_block_size(); i++)
       for(int j=0; j<q; j++)
          for(int x=0; x<num_inputs(); x++)
-            ri(i)(x) *= rif(i*q+j,x);
-   // accumulate extrinsic information
+            ri(i)(x) *= ra(i*q+j,x);
+   // compute extrinsic information
    for(int i=0; i<input_block_size(); i++)
-      for(int j=1; j<q; j++)
+      for(int j=0; j<q; j++)
          for(int x=0; x<num_inputs(); x++)
-            ra(i*q,x) *= ra(i*q+j,x);
-   // repeat extrinsic information
-   for(int i=0; i<input_block_size(); i++)
-      for(int j=1; j<q; j++)
-         for(int x=0; x<num_inputs(); x++)
-            ra(i*q+j,x) = ra(i*q,x);
+            ra(i*q+j,x) = ri(i)(x) / ra(i*q+j,x);
    }
 
 template <class real, class dbl>

@@ -45,7 +45,7 @@ private:
    // @}
    /*! \name Internal object representation */
    bool     initialised;   //!< Flag to indicate when memory is initialised
-   array2d_t ra;           //!< A priori extrinsic source statistics
+   array2d_t ra;           //!< A priori extrinsic source statistics (natural)
    array2d_t rp;           //!< A priori intrinsic source statistics (natural)
    array2d_t R;            //!< A priori intrinsic encoder-output statistics (interleaved)
    // @}
