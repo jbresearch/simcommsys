@@ -73,7 +73,7 @@ void repacc<real,dbl>::allocate()
    {
    ra.init(my_output_block_size(), my_num_inputs());
    rp.init(my_output_block_size(), my_num_inputs());
-   R.init(my_output_block_size(), encoder->my_num_outputs());
+   R.init(my_output_block_size(), encoder->num_outputs());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
