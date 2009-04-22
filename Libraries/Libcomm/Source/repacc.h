@@ -52,8 +52,6 @@ private:
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();
-   // wrapping functions
-   static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
    // @}
 protected:
    /*! \name Internal functions */

@@ -81,29 +81,6 @@ void repacc<real,dbl>::allocate()
    initialised = true;
    }
 
-// wrapping functions
-
-/*!
-   \copydoc turbo::work_extrinsic()
-
-   \todo Merge with method in turbo
-*/
-template <class real, class dbl>
-void repacc<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re)
-   {
-   // Determine sizes from input matrix
-   const int tau = ri.xsize();
-   const int K = ri.ysize();
-   // Check all matrices are the right size
-   assert(ra.xsize() == tau && ra.ysize() == K);
-   assert(r.xsize() == tau && r.ysize() == K);
-   // Initialize results vector
-   re.init(tau, K);
-   // Compute extrinsic values
-   for(int t=0; t<tau; t++)
-      for(int x=0; x<K; x++)
-         re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
-   }
 
 // encoding and decoding functions
 
@@ -202,7 +179,7 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    inter->transform(ra, rai);
    bcjr<real,dbl>::fdecode(R, rai, rii);
    inter->inverse(rii, rif);
-   work_extrinsic(ra, rif, rp, ra);
+   ra = rif.divide(ra.multiply(rp));
    bcjr<real,dbl>::normalize(ra);
    // allocate space for final results and initialize
    ri.init(input_block_size());
