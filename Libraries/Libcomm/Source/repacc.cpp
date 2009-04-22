@@ -18,6 +18,10 @@ namespace libcomm {
 template <class real, class dbl>
 void repacc<real,dbl>::init()
    {
+   // check sizes
+   assertalways(N > 0);
+   assertalways(q > 0);
+   // initialize BCJR subsystem for accumulator
    assertalways(encoder);
    bcjr<real,dbl>::init(*encoder, output_block_size());
    // check that encoder is rate-1
