@@ -18,22 +18,27 @@ namespace libcomm {
 template <class real, class dbl>
 void sysrepacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
+   array1i_t parity;
+   repacc<real,dbl>::encode(source, parity);
+   encoded.init(this->output_block_size());
+   encoded.segment(0,source.size()).copyfrom(source);
+   encoded.segment(source.size(),parity.size()).copyfrom(parity);
    }
 
 template <class real, class dbl>
 void sysrepacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
    {
-   }
-
-template <class real, class dbl>
-void sysrepacc<real,dbl>::softdecode(array1vd_t& ri)
-   {
-   }
-
-template <class real, class dbl>
-void sysrepacc<real,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
-   {
-   assertalways("Not yet implemented");
+   const int Ns = repacc<real,dbl>::input_block_size();
+   const int Np = repacc<real,dbl>::output_block_size();
+   repacc<real,dbl>::translate(ptable.extract(Ns,Np));
+   // Determine a priori probabilities (intrinsic) from the channel
+   const int q = this->num_repeats();
+   this->rp = 1.0;
+   for(int i=0; i<this->input_block_size(); i++)
+      for(int x=0; x<this->num_inputs(); x++)
+         for(int j=0; j<q; j++)
+            this->rp(i*q+j, x) = ptable(i)(x);
+   bcjr<real,dbl>::normalize(this->rp);
    }
 
 // description output

@@ -27,7 +27,7 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class repacc : public codec_softout<dbl>, private bcjr<real,dbl> {
+class repacc : public codec_softout<dbl>, protected bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -85,6 +85,10 @@ public:
    int num_outputs() const { return encoder->num_outputs()/num_inputs(); };
    int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return iter; };
+
+   /*! \name Codec information functions - internal */
+   int num_repeats() const { return q; };
+   // @}
 
    // Description
    std::string description() const;

@@ -61,6 +61,7 @@
 #include "mapcc.h"
 #include "turbo.h"
 #include "repacc.h"
+#include "sysrepacc.h"
 
 // Signal Mappers
 #include "mapper.h"
@@ -142,6 +143,7 @@ private:
    dminner2d<double,true>           _dminner2d_double;
    // Codecs
    repacc<libbase::logrealfast>     _repacc_logrealfast;
+   sysrepacc<libbase::logrealfast>  _sysrepacc_logrealfast;
    // Mappers
    map_interleaved<libbase::vector>    _map_interleaved_vector;
    map_permuted<libbase::vector>       _map_permuted_vector;
