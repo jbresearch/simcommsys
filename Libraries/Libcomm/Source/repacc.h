@@ -22,6 +22,8 @@ namespace libcomm {
    sum-product algorithm.
 
    \todo Implement repeater as fsm
+
+   \todo Avoid divisions when computing extrinsic information
 */
 
 template <class real, class dbl=double>

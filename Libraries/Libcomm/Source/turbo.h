@@ -63,6 +63,8 @@ namespace libcomm {
          output).
 
    \todo Split serial and parallel decoding into separate classes.
+
+   \todo Avoid divisions when computing extrinsic information
 */
 
 template <class real, class dbl=double>
