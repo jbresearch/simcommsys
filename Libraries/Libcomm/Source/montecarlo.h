@@ -74,7 +74,7 @@ protected:
       true again.
    */
    virtual bool interrupt() { return false; };
-   virtual void display(libbase::int64u pass, double cur_accuracy, double cur_mean);
+   virtual void display(libbase::int64u pass, double cur_accuracy, const libbase::vector<double>& result);
    // @}
 public:
    /*! \name Constructor/destructor */

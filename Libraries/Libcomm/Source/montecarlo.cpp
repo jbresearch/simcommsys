@@ -83,7 +83,7 @@ void montecarlo::slave_work(void)
    vector<double> result, tolerance;
    updateresults(result, tolerance);
    const double acc = tolerance.max();
-   display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result.min());
+   display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result);
    }
 
 // helper functions
@@ -229,7 +229,7 @@ void montecarlo::lookforstate(std::istream& sin)
 
    \note Display updates are rate-limited
 */
-void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_mean)
+void montecarlo::display(libbase::int64u pass, double cur_accuracy, const libbase::vector<double>& result)
    {
    static libbase::timer tupdate;
    if(tupdate.elapsed() > 0.5)
@@ -241,8 +241,10 @@ void montecarlo::display(libbase::int64u pass, double cur_accuracy, double cur_m
          clog << getnumslaves() << " clients, " << getcputime()/t.elapsed() << "x speedup, ";
       else
          clog << "local, " << t.cputime()/t.elapsed() << "x usage, ";
-      clog << "pass " << pass << ", "
-         << "[" << cur_mean << " +/- " << cur_accuracy << "%] \r" << std::flush;
+      clog << "pass " << pass << ".\n";
+      clog << "Results: [+/- " << cur_accuracy << "%]\n";
+      result.serialize(clog,'\n');
+      clog << "\n" << std::flush;
       clog.precision(prec);
       tupdate.start();
       }
@@ -513,7 +515,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          if(acc <= accuracy && system->get_samplecount() >= min_samples)
             converged = true;
          // print something to inform the user of our progress
-         display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result.min());
+         display(system->get_samplecount(), (acc<1 ? 100*acc : 99), result);
          // write interim results
          if(resultsfile::isinitialized())
             writeinterimresults(result, tolerance);
