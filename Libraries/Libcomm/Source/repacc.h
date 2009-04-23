@@ -96,6 +96,7 @@ public:
 
    /*! \name Codec information functions - internal */
    int num_repeats() const { return q; };
+   const interleaver<dbl> *get_inter() const { return inter; };
    // @}
 
    // Description

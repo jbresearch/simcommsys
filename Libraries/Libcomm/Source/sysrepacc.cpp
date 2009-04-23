@@ -55,15 +55,19 @@ void sysrepacc<real,dbl>::translate(const libbase::vector< libbase::vector<doubl
       for(int x=0; x<q; x++)     // 'x' is the input symbol
          for(int j=0; j<r; j++)  // 'j' is the repetition counter
             rp(i*r+j, x) = iptable(i)(x);
-   bcjr<real,dbl>::normalize(rp);
+   // Compute interleaved version of this
+   array2d_t rpi; 
+   this->get_inter()->transform(rp, rpi);
    // Determine encoder-output statistics (intrinsic) from the channel
    R = 0.0;
    for(int i=0; i<Np; i++)
       for(int x=0; x<q; x++)     // 'x' is the parity symbol
          for(int j=0; j<q; j++)  // 'j' is the corresponding input symbol
-            R(i, x*q+j) = optable(i)(x) * iptable(i/r)(j);
-   bcjr<real,dbl>::normalize(R);
+            R(i, x*q+j) = dbl(optable(i)(x)) * rpi(i,j);
 
+   // Normalize tables
+   bcjr<real,dbl>::normalize(rp);
+   bcjr<real,dbl>::normalize(R);
    // Reset start- and end-state probabilities
    reset();
    }
