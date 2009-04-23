@@ -57,15 +57,6 @@ void repacc<real,dbl>::reset()
       }
    }
 
-// constructor / destructor
-
-template <class real, class dbl>
-repacc<real,dbl>::repacc()
-   {
-   encoder = NULL;
-   inter = NULL;
-   }
-
 // memory allocator (for internal use only)
 
 template <class real, class dbl>
@@ -83,6 +74,15 @@ void repacc<real,dbl>::allocate()
    std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+   }
+
+// constructor / destructor
+
+template <class real, class dbl>
+repacc<real,dbl>::repacc()
+   {
+   encoder = NULL;
+   inter = NULL;
    }
 
 // encoding and decoding functions

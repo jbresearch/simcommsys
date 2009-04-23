@@ -53,10 +53,6 @@ protected:
    array2d_t R;            //!< A priori intrinsic encoder-output statistics (interleaved)
    // @}
 private:
-   /*! \name Internal functions */
-   //! Memory allocator (for internal use only)
-   void allocate();
-   // @}
    /*! \name Internal codec information functions */
    libbase::size<libbase::vector> my_input_block_size() const
       { return libbase::size<libbase::vector>(N); };
@@ -72,6 +68,8 @@ protected:
    void init();
    void free();
    void reset();
+   //! Memory allocator (for internal use only)
+   void allocate();
    // @}
 public:
    /*! \name Constructors / Destructors */

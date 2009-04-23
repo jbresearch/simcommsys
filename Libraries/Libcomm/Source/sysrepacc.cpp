@@ -28,17 +28,44 @@ void sysrepacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
 template <class real, class dbl>
 void sysrepacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
    {
+   // Inherit sizes
    const int Ns = repacc<real,dbl>::input_block_size();
    const int Np = repacc<real,dbl>::output_block_size();
-   repacc<real,dbl>::translate(ptable.extract(Ns,Np));
+   const int q = this->num_outputs();
+   assertalways(this->num_inputs() == q);
+   const int r = this->num_repeats();
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == q);
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == Ns+Np);
+
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+
+   // Divide ptable for input and output sides
+   const libbase::vector< libbase::vector<double> > iptable = ptable.extract(0,Ns);
+   const libbase::vector< libbase::vector<double> > optable = ptable.extract(Ns,Np);
+   // Initialise a priori probabilities (extrinsic)
+   ra = 1.0;
    // Determine a priori probabilities (intrinsic) from the channel
-   const int q = this->num_repeats();
-   this->rp = 1.0;
-   for(int i=0; i<this->input_block_size(); i++)
-      for(int x=0; x<this->num_inputs(); x++)
-         for(int j=0; j<q; j++)
-            this->rp(i*q+j, x) = ptable(i)(x);
-   bcjr<real,dbl>::normalize(this->rp);
+   rp = 1.0;
+   for(int i=0; i<Ns; i++)
+      for(int x=0; x<q; x++)     // 'x' is the input symbol
+         for(int j=0; j<r; j++)  // 'j' is the repetition counter
+            rp(i*r+j, x) = iptable(i)(x);
+   bcjr<real,dbl>::normalize(rp);
+   // Determine encoder-output statistics (intrinsic) from the channel
+   R = 0.0;
+   for(int i=0; i<Np; i++)
+      for(int x=0; x<q; x++)     // 'x' is the parity symbol
+         for(int j=0; j<q; j++)  // 'j' is the corresponding input symbol
+            R(i, x*q+j) = optable(i)(x) * iptable(i/r)(j);
+   bcjr<real,dbl>::normalize(R);
+
+   // Reset start- and end-state probabilities
+   reset();
    }
 
 // description output

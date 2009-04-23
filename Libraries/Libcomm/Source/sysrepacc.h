@@ -28,6 +28,15 @@ public:
    typedef libbase::matrix<dbl>        array2d_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
+private:
+   // Grant access to inherited fields and methods
+   typedef repacc<real,dbl> Base;
+   using Base::ra;
+   using Base::rp;
+   using Base::R;
+   using Base::initialised;
+   using Base::allocate;
+   using Base::reset;
 public:
    /*! \name Constructors / Destructors */
    ~sysrepacc() {};
