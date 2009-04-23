@@ -456,6 +456,8 @@ Turbo Codes/TestConfig
 Turbo Codes/TestConfig/testconfig.cpp
 Turbo Codes/TestDMinner2D
 Turbo Codes/TestDMinner2D/testdminner2d.cpp
+Turbo Codes/TestFSM
+Turbo Codes/TestFSM/testfsm.cpp
 Turbo Codes/TestGF
 Turbo Codes/TestGF/testgf.cpp
 Turbo Codes/TestGRSCC
