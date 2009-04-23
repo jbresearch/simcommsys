@@ -31,45 +31,20 @@ void sysrepacc<real,dbl>::translate(const libbase::vector< libbase::vector<doubl
    // Inherit sizes
    const int Ns = repacc<real,dbl>::input_block_size();
    const int Np = repacc<real,dbl>::output_block_size();
-   const int q = this->num_outputs();
-   assertalways(this->num_inputs() == q);
-   const int r = this->num_repeats();
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == q);
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == Ns+Np);
-
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
-
+   const int q = this->num_inputs();
+   assertalways(this->num_outputs() == q);
    // Divide ptable for input and output sides
    const libbase::vector< libbase::vector<double> > iptable = ptable.extract(0,Ns);
    const libbase::vector< libbase::vector<double> > optable = ptable.extract(Ns,Np);
-   // Initialise a priori probabilities (extrinsic)
-   ra = 1.0;
-   // Determine a priori probabilities (intrinsic) from the channel
+   // Perform standard translate
+   repacc<real,dbl>::translate(optable);
+   // Determine intrinsic source statistics (natural)
+   // from the channel
    rp = 1.0;
    for(int i=0; i<Ns; i++)
       for(int x=0; x<q; x++)     // 'x' is the input symbol
-         for(int j=0; j<r; j++)  // 'j' is the repetition counter
-            rp(i*r+j, x) = iptable(i)(x);
-   // Compute interleaved version of this
-   array2d_t rpi; 
-   this->get_inter()->transform(rp, rpi);
-   // Determine encoder-output statistics (intrinsic) from the channel
-   R = 0.0;
-   for(int i=0; i<Np; i++)
-      for(int x=0; x<q; x++)     // 'x' is the parity symbol
-         for(int j=0; j<q; j++)  // 'j' is the corresponding input symbol
-            R(i, x*q+j) = dbl(optable(i)(x)) * rpi(i,j);
-
-   // Normalize tables
+         rp(i, x) = iptable(i)(x);
    bcjr<real,dbl>::normalize(rp);
-   bcjr<real,dbl>::normalize(R);
-   // Reset start- and end-state probabilities
-   reset();
    }
 
 // description output
