@@ -62,14 +62,14 @@ void repacc<real,dbl>::reset()
 template <class real, class dbl>
 void repacc<real,dbl>::allocate()
    {
-   ra.init(my_output_block_size(), my_num_inputs());
-   rp.init(my_output_block_size(), my_num_inputs());
+   rp.init(my_input_block_size(), my_num_inputs());
+   ra.init(my_output_block_size(), encoder->num_inputs());
    R.init(my_output_block_size(), encoder->num_outputs());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "RepAcc Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << ( ra.size() + rp.size() + R.size()
+   std::cerr << ( rp.size() + ra.size() + R.size()
       )*sizeof(dbl)/double(1<<20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
@@ -145,12 +145,12 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    if(!initialised)
       allocate();
 
-   // Initialise a priori probabilities (extrinsic)
-   ra = 1.0;
-   // Initialise a priori probabilities (intrinsic)
+   // Initialise intrinsic source statistics (natural)
    rp = 1.0;
-
-   // Determine encoder-output statistics (intrinsic) from the channel
+   // Initialise extrinsic accumulator-input statistics (natural)
+   ra = 1.0;
+   // Determine intrinsic accumulator-output statistics (interleaved)
+   // from the channel
    R = 0.0;
    for(int i=0; i<my_output_block_size(); i++)
       for(int x=0; x<my_num_outputs(); x++)
@@ -182,13 +182,16 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    inter->transform(ra, rai);
    bcjr<real,dbl>::fdecode(R, rai, rii);
    inter->inverse(rii, rif);
-   ra = rif.divide(ra.multiply(rp));
+   ra = rif.divide(ra);
    bcjr<real,dbl>::normalize(ra);
-   // allocate space for final results and initialize
+   // allocate space for final results
    ri.init(my_input_block_size());
    for(int i=0; i<my_input_block_size(); i++)
       ri(i).init(my_num_inputs());
-   ri = 1.0;
+   // initialize final results with prior information
+   for(int i=0; i<my_input_block_size(); i++)
+      for(int x=0; x<my_num_inputs(); x++)
+         ri(i)(x) = rp(i,x);
    // decode repetition code (based on extrinsic information only)
    for(int i=0; i<my_input_block_size(); i++)
       for(int j=0; j<q; j++)

@@ -24,6 +24,8 @@ namespace libcomm {
    \todo Implement repeater as fsm
 
    \todo Avoid divisions when computing extrinsic information
+
+   \todo Replace internal getters with specific calls
 */
 
 template <class real, class dbl=double>
@@ -48,9 +50,9 @@ private:
 protected:
    /*! \name Internal object representation */
    bool     initialised;   //!< Flag to indicate when memory is initialised
-   array2d_t ra;           //!< A priori extrinsic source statistics (natural)
-   array2d_t rp;           //!< A priori intrinsic source statistics (natural)
-   array2d_t R;            //!< A priori intrinsic encoder-output statistics (interleaved)
+   array2d_t rp;           //!< Intrinsic source statistics (natural)
+   array2d_t ra;           //!< Extrinsic accumulator-input statistics (natural)
+   array2d_t R;            //!< Intrinsic accumulator-output statistics (interleaved)
    // @}
 private:
    /*! \name Internal codec information functions */
