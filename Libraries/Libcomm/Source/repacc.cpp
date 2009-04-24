@@ -25,7 +25,6 @@ void repacc<real,dbl>::init()
    assertalways(encoder);
    BCJR::init(*encoder, This::output_block_size());
    // check other components
-   assertalways(This::num_inputs() == This::num_outputs());
    assertalways(inter);
    // TODO: check interleaver sizes
    assertalways(iter > 0);
