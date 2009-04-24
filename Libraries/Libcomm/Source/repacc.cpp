@@ -20,7 +20,7 @@ void repacc<real,dbl>::init()
    {
    // check sizes
    assertalways(N > 0);
-   assertalways(q > 0);
+   assertalways(r > 0);
    // initialize BCJR subsystem for accumulator
    assertalways(encoder);
    BCJR::init(*encoder, This::output_block_size());
@@ -100,9 +100,9 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Compute repeater output, including any necessary tail
    array1i_t rep(This::output_block_size());
    for(int i=0; i<This::input_block_size(); i++)
-      for(int j=0; j<q; j++)
-         rep(i*q+j) = source(i);
-   for(int i=This::input_block_size()*q; i<This::output_block_size(); i++)
+      for(int j=0; j<r; j++)
+         rep(i*r+j) = source(i);
+   for(int i=This::input_block_size()*r; i<This::output_block_size(); i++)
       rep(i) = fsm::tail;
 
    // Declare space for the interleaved sequence
@@ -194,14 +194,14 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
          ri(i)(x) = rp(i,x);
    // decode repetition code (based on extrinsic information only)
    for(int i=0; i<This::input_block_size(); i++)
-      for(int j=0; j<q; j++)
+      for(int j=0; j<r; j++)
          for(int x=0; x<This::num_inputs(); x++)
-            ri(i)(x) *= ra(i*q+j,x);
+            ri(i)(x) *= ra(i*r+j,x);
    // compute extrinsic information
    for(int i=0; i<This::input_block_size(); i++)
-      for(int j=0; j<q; j++)
+      for(int j=0; j<r; j++)
          for(int x=0; x<This::num_inputs(); x++)
-            ra(i*q+j,x) = ri(i)(x) / ra(i*q+j,x);
+            ra(i*r+j,x) = ri(i)(x) / ra(i*r+j,x);
    // normalize results
    BCJR::normalize(ra);
    }
@@ -218,7 +218,7 @@ template <class real, class dbl>
 std::string repacc<real,dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Repeat-Accumulate Code (" << N << "," << q << ") - ";
+   sout << "Repeat-Accumulate Code (" << N << "," << r << ") - ";
    sout << encoder->description() << ", ";
    sout << inter->description() << ", ";
    sout << iter << " iterations, ";
@@ -236,7 +236,7 @@ std::ostream& repacc<real,dbl>::serialize(std::ostream& sout) const
    sout << encoder;
    sout << inter;
    sout << N << '\n';
-   sout << q << '\n';
+   sout << r << '\n';
    sout << iter << '\n';
    sout << int(endatzero) << '\n';
    return sout;
@@ -256,7 +256,7 @@ std::istream& repacc<real,dbl>::serialize(std::istream& sin)
    sin >> encoder;
    sin >> inter;
    sin >> N;
-   sin >> q;
+   sin >> r;
    sin >> iter;
    sin >> endatzero;
    init();
