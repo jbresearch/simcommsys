@@ -23,9 +23,9 @@ void repacc<real,dbl>::init()
    assertalways(q > 0);
    // initialize BCJR subsystem for accumulator
    assertalways(encoder);
-   bcjr<real,dbl>::init(*encoder, my_output_block_size());
-   // check that encoder is rate-1
-   assertalways(my_num_inputs() == my_num_outputs());
+   BCJR::init(*encoder, This::output_block_size());
+   // check other components
+   assertalways(This::num_inputs() == This::num_outputs());
    assertalways(inter);
    // TODO: check interleaver sizes
    assertalways(iter > 0);
@@ -47,13 +47,13 @@ void repacc<real,dbl>::reset()
    {
    if(endatzero)
       {
-      bcjr<real,dbl>::setstart(0);
-      bcjr<real,dbl>::setend(0);
+      BCJR::setstart(0);
+      BCJR::setend(0);
       }
    else
       {
-      bcjr<real,dbl>::setstart(0);
-      bcjr<real,dbl>::setend();
+      BCJR::setstart(0);
+      BCJR::setend();
       }
    }
 
@@ -62,9 +62,9 @@ void repacc<real,dbl>::reset()
 template <class real, class dbl>
 void repacc<real,dbl>::allocate()
    {
-   rp.init(my_input_block_size(), my_num_inputs());
-   ra.init(my_output_block_size(), encoder->num_inputs());
-   R.init(my_output_block_size(), encoder->num_outputs());
+   rp.init(This::input_block_size(), This::num_inputs());
+   ra.init(This::output_block_size(), encoder->num_inputs());
+   R.init(This::output_block_size(), encoder->num_outputs());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -96,13 +96,13 @@ void repacc<real,dbl>::seedfrom(libbase::random& r)
 template <class real, class dbl>
 void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
-   assert(source.size() == my_input_block_size());
+   assert(source.size() == This::input_block_size());
    // Compute repeater output, including any necessary tail
-   array1i_t rep(my_output_block_size());
-   for(int i=0; i<my_input_block_size(); i++)
+   array1i_t rep(This::output_block_size());
+   for(int i=0; i<This::input_block_size(); i++)
       for(int j=0; j<q; j++)
          rep(i*q+j) = source(i);
-   for(int i=my_input_block_size()*q; i<my_output_block_size(); i++)
+   for(int i=This::input_block_size()*q; i<This::output_block_size(); i++)
       rep(i) = fsm::tail;
 
    // Declare space for the interleaved sequence
@@ -113,12 +113,12 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    inter->transform(rep, rep2);
 
    // Initialise result vector
-   encoded.init(my_output_block_size());
+   encoded.init(This::output_block_size());
    // Reset the encoder to zero state
    encoder->reset(0);
    // Encode sequence
-   for(int i=0; i<my_output_block_size(); i++)
-      encoded(i) = encoder->step(rep2(i)) / my_num_inputs();
+   for(int i=0; i<This::output_block_size(); i++)
+      encoded(i) = encoder->step(rep2(i)) / This::num_inputs();
    // check that encoder finishes correctly
    if(endatzero)
       assertalways(encoder->state() == 0);
@@ -137,9 +137,9 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == my_num_outputs());
+   assertalways(ptable(0).size() == This::num_outputs());
    // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == my_output_block_size());
+   assertalways(ptable.size() == This::output_block_size());
 
    // initialise memory if necessary
    if(!initialised)
@@ -152,11 +152,11 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    // Determine intrinsic accumulator-output statistics (interleaved)
    // from the channel
    R = 0.0;
-   for(int i=0; i<my_output_block_size(); i++)
-      for(int x=0; x<my_num_outputs(); x++)
-         for(int j=0; j<my_num_inputs(); j++)
-            R(i, x*my_num_inputs()+j) = ptable(i)(x);
-   bcjr<real,dbl>::normalize(R);
+   for(int i=0; i<This::output_block_size(); i++)
+      for(int x=0; x<This::num_outputs(); x++)
+         for(int j=0; j<This::num_inputs(); j++)
+            R(i, x*This::num_inputs()+j) = ptable(i)(x);
+   BCJR::normalize(R);
 
    // Reset start- and end-state probabilities
    reset();
@@ -180,30 +180,30 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    // interleaved versions of ra/ri
    array2d_t rif, rai, rii;
    inter->transform(ra, rai);
-   bcjr<real,dbl>::fdecode(R, rai, rii);
+   BCJR::fdecode(R, rai, rii);
    inter->inverse(rii, rif);
    ra = rif.divide(ra);
-   bcjr<real,dbl>::normalize(ra);
+   BCJR::normalize(ra);
    // allocate space for final results
-   ri.init(my_input_block_size());
-   for(int i=0; i<my_input_block_size(); i++)
-      ri(i).init(my_num_inputs());
+   ri.init(This::input_block_size());
+   for(int i=0; i<This::input_block_size(); i++)
+      ri(i).init(This::num_inputs());
    // initialize final results with prior information
-   for(int i=0; i<my_input_block_size(); i++)
-      for(int x=0; x<my_num_inputs(); x++)
+   for(int i=0; i<This::input_block_size(); i++)
+      for(int x=0; x<This::num_inputs(); x++)
          ri(i)(x) = rp(i,x);
    // decode repetition code (based on extrinsic information only)
-   for(int i=0; i<my_input_block_size(); i++)
+   for(int i=0; i<This::input_block_size(); i++)
       for(int j=0; j<q; j++)
-         for(int x=0; x<my_num_inputs(); x++)
+         for(int x=0; x<This::num_inputs(); x++)
             ri(i)(x) *= ra(i*q+j,x);
    // compute extrinsic information
-   for(int i=0; i<my_input_block_size(); i++)
+   for(int i=0; i<This::input_block_size(); i++)
       for(int j=0; j<q; j++)
-         for(int x=0; x<my_num_inputs(); x++)
+         for(int x=0; x<This::num_inputs(); x++)
             ra(i*q+j,x) = ri(i)(x) / ra(i*q+j,x);
    // normalize results
-   bcjr<real,dbl>::normalize(ra);
+   BCJR::normalize(ra);
    }
 
 template <class real, class dbl>

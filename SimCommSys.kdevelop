@@ -79,6 +79,7 @@
       <path>Turbo Codes/Source/testbsid.cpp</path>
       <path>Turbo Codes/Source/testconfig.cpp</path>
       <path>Turbo Codes/Source/testdminner2d.cpp</path>
+      <path>Turbo Codes/Source/testfsm.cpp</path>
       <path>Turbo Codes/Source/testgf.cpp</path>
       <path>Turbo Codes/Source/testgrscc.cpp</path>
       <path>Turbo Codes/Source/testmodem.cpp</path>

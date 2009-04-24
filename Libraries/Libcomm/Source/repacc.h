@@ -24,8 +24,6 @@ namespace libcomm {
    \todo Implement repeater as fsm
 
    \todo Avoid divisions when computing extrinsic information
-
-   \todo Replace internal getters with specific calls
 */
 
 template <class real, class dbl=double>
@@ -37,6 +35,10 @@ public:
    typedef libbase::matrix<dbl>        array2d_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef repacc<real,dbl> This;
+   typedef bcjr<real,dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
@@ -53,17 +55,6 @@ protected:
    array2d_t rp;           //!< Intrinsic source statistics (natural)
    array2d_t ra;           //!< Extrinsic accumulator-input statistics (natural)
    array2d_t R;            //!< Intrinsic accumulator-output statistics (interleaved)
-   // @}
-private:
-   /*! \name Internal codec information functions */
-   libbase::size<libbase::vector> my_input_block_size() const
-      { return libbase::size<libbase::vector>(N); };
-   libbase::size<libbase::vector> my_output_block_size() const
-      { return libbase::size<libbase::vector>(N*q + tail_length()); };
-   int my_num_inputs() const { return encoder->num_inputs(); };
-   int my_num_outputs() const { return encoder->num_outputs()/num_inputs(); };
-   int my_tail_length() const { return endatzero ? encoder->mem_order() : 0; };
-   int my_num_iter() const { return iter; };
    // @}
 protected:
    /*! \name Internal functions */
@@ -88,13 +79,13 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
-      { return my_input_block_size(); };
+      { return libbase::size<libbase::vector>(N); };
    libbase::size<libbase::vector> output_block_size() const
-      { return my_output_block_size(); };
-   int num_inputs() const { return my_num_inputs(); };
-   int num_outputs() const { return my_num_outputs(); };
-   int tail_length() const { return my_tail_length(); };
-   int num_iter() const { return my_num_iter(); };
+      { return libbase::size<libbase::vector>(N*q + tail_length()); };
+   int num_inputs() const { return encoder->num_inputs(); };
+   int num_outputs() const { return encoder->num_outputs()/encoder->num_inputs(); };
+   int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
+   int num_iter() const { return iter; };
 
    /*! \name Codec information functions - internal */
    int num_repeats() const { return q; };
