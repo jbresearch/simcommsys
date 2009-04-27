@@ -29,8 +29,11 @@ public:
    typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
-   // Grant access to inherited fields and methods
+   // Shorthand for class hierarchy
+   typedef sysrepacc<real,dbl> This;
    typedef repacc<real,dbl> Base;
+   typedef bcjr<real,dbl> BCJR;
+   // Grant access to inherited fields and methods
    using Base::ra;
    using Base::rp;
    using Base::R;
@@ -48,7 +51,7 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(repacc<real,dbl>::input_block_size() + repacc<real,dbl>::output_block_size()); };
+      { return libbase::size<libbase::vector>(Base::input_block_size() + Base::output_block_size()); };
 
    // Description
    std::string description() const;
