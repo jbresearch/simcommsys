@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="TestBSID2D"
+	ProjectGUID="{D62809CF-C46E-481E-B412-FFC374CE3854}"
 	RootNamespace="TestBSID2D"
 	Keyword="Win32Proj"
 	>

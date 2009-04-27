@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="TestDMinner2D"
+	ProjectGUID="{C5B60508-9454-4A69-A40C-5F480CAEC87B}"
 	RootNamespace="TestDMinner2D"
 	Keyword="Win32Proj"
 	>

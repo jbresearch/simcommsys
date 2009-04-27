@@ -20,12 +20,12 @@ void visualtest(int seed, int type, double p)
       {
       case 0:
       case 1:
-         tx = type;
+         tx = type != 0;
          break;
       case 2:
          for(int i=0; i<M; i++)
             for(int j=0; j<N; j++)
-               tx(i,j) = (i&1) ^ (j&1);
+               tx(i,j) = ((i&1) ^ (j&1)) != 0;
          break;
       default:
          assertalways("Invalid type");

@@ -991,6 +991,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\repacc.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\resultsfile.cpp"
 				>
 			</File>
@@ -1120,6 +1124,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\symbol.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\sysrepacc.cpp"
 				>
 			</File>
 			<File
@@ -1488,6 +1496,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\repacc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\resultsfile.h"
 				>
 			</File>
@@ -1521,6 +1533,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\symbol.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\sysrepacc.h"
 				>
 			</File>
 			<File

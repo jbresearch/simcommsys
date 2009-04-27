@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="TestFSM"
+	ProjectGUID="{B59E5527-6B5B-40EC-9AC2-62925F663379}"
 	RootNamespace="TestFSM"
 	Keyword="Win32Proj"
 	>
