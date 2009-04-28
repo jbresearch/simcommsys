@@ -97,6 +97,7 @@ Libraries/Libcomm/Source/codec.cpp
 Libraries/Libcomm/Source/codec.h
 Libraries/Libcomm/Source/codec_softout.cpp
 Libraries/Libcomm/Source/codec_softout.h
+Libraries/Libcomm/Source/codec_softout_flattened.h
 Libraries/Libcomm/Source/commsys.cpp
 Libraries/Libcomm/Source/commsys.h
 Libraries/Libcomm/Source/commsys_errorrates.cpp
