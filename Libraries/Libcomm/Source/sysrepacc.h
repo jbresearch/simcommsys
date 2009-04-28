@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "repacc.h"
+#include "codec_softout_flattened.h"
 
 namespace libcomm {
 
@@ -20,7 +21,7 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class sysrepacc : public repacc<real,dbl> {
+class sysrepacc : public codec_softout_flattened< repacc<real,dbl>, dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -31,7 +32,7 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef sysrepacc<real,dbl> This;
-   typedef repacc<real,dbl> Base;
+   typedef codec_softout_flattened< repacc<real,dbl>, dbl> Base;
    typedef bcjr<real,dbl> BCJR;
    // Grant access to inherited fields and methods
    using Base::ra;

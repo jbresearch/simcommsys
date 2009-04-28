@@ -1,5 +1,5 @@
-#ifndef __codec_softout_h
-#define __codec_softout_h
+#ifndef __codec_softout_flattened_h
+#define __codec_softout_flattened_h
 
 #include "config.h"
 #include "map_straight.h"
@@ -27,7 +27,7 @@ public:
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef codec_softout_flattened<base,dbl> This;
+   typedef codec_softout_flattened<Base,dbl> This;
 public:
    /*! \name Constructors / Destructors */
    ~codec_softout_flattened() {};
@@ -39,21 +39,18 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> output_block_size() const
-      { return Base::input_block_size() * log2(Base::num_outputs()/Base::num_inputs()); };
+      { return libbase::size<libbase::vector>(Base::input_block_size() * \
+               log2(Base::num_outputs()/Base::num_inputs())); };
    int num_outputs() const { return Base::num_inputs(); };
 
    // Description
    std::string description() const
       { return "Flattened " + Base::description(); };
-
-   // Serialization Support
-   DECLARE_SERIALIZER(repacc);
 };
-template <class Base, class dbl=double>
 
 // Codec operations
 
-template <class Base, class dbl=double>
+template <class Base, class dbl>
 void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    // Set up mapper
@@ -68,7 +65,7 @@ void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_
    map.transform(encwide, encoded);
    }
 
-template <class Base, class dbl=double>
+template <class Base, class dbl>
 void codec_softout_flattened<Base,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
    {
    // Set up mapper
@@ -78,7 +75,7 @@ void codec_softout_flattened<Base,dbl>::translate(const libbase::vector< libbase
    const int S = Base::num_outputs(); // To:     # tran symbols
    map.set_parameters(N, M, S);
    // Convert to a temporary space and translate
-   libbase::vector< libbase::vector<double> >& ptable_flat;
+   libbase::vector< libbase::vector<double> > ptable_flat;
    map.inverse(ptable, ptable_flat);
    Base::translate(ptable_flat);
    }
