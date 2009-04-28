@@ -6,6 +6,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show mapping block sizes
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 /*!
    \brief   Channel Codec with Soft Output and same Input/Output Symbol Space.
    \author  Johann Briffa
@@ -65,8 +73,10 @@ void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_
    const int S = Base::num_outputs(); // Unused: # tran symbols
    map.set_parameters(N, M, S);
    map.set_blocksize(Base::output_block_size());
+#if DEBUG>=2
    libbase::trace << "DEBUG: Flattening encode from " << N << " to " << M << " symbols, "
       << map.input_block_size() << " to " << map.output_block_size() << " block\n";
+#endif
    // Encode to a temporary space and convert
    array1i_t encwide;
    Base::encode(source, encwide);
@@ -83,8 +93,10 @@ void codec_softout_flattened<Base,dbl>::translate(const libbase::vector< libbase
    const int S = Base::num_outputs(); // To:     # tran symbols
    map.set_parameters(N, M, S);
    map.set_blocksize(Base::output_block_size());
+#if DEBUG>=2
    libbase::trace << "DEBUG: Opening translate from " << M << " to " << S << " symbols, "
       << map.input_block_size() << " to " << map.output_block_size() << " block\n";
+#endif
    // Convert to a temporary space and translate
    libbase::vector< libbase::vector<double> > ptable_flat;
    map.inverse(ptable, ptable_flat);
