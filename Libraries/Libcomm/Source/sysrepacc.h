@@ -52,7 +52,12 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(Base::input_block_size() + Base::output_block_size()); };
+      {
+      // Inherit sizes
+      const int Ns = Base::input_block_size();
+      const int Np = Base::output_block_size();
+      return libbase::size<libbase::vector>(Ns + Np);
+      };
 
    // Description
    std::string description() const;

@@ -39,8 +39,13 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(Base::input_block_size() * \
-               log2(Base::num_outputs()/Base::num_inputs())); };
+      {
+      // Inherit sizes
+      const int N = Base::output_block_size();
+      const int n = Base::num_outputs();
+      const int k = Base::num_inputs();
+      return libbase::size<libbase::vector>(N * log2(n)/log2(k));
+      };
    int num_outputs() const { return Base::num_inputs(); };
 
    // Description
@@ -59,6 +64,9 @@ void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_
    const int M = This::num_outputs(); // To:     # mod symbols
    const int S = Base::num_outputs(); // Unused: # tran symbols
    map.set_parameters(N, M, S);
+   map.set_blocksize(Base::output_block_size());
+   libbase::trace << "DEBUG: Flattening encode from " << N << " to " << M << " symbols, "
+      << map.input_block_size() << " to " << map.output_block_size() << " block\n";
    // Encode to a temporary space and convert
    array1i_t encwide;
    Base::encode(source, encwide);
@@ -74,6 +82,9 @@ void codec_softout_flattened<Base,dbl>::translate(const libbase::vector< libbase
    const int M = This::num_outputs(); // From:   # mod symbols
    const int S = Base::num_outputs(); // To:     # tran symbols
    map.set_parameters(N, M, S);
+   map.set_blocksize(Base::output_block_size());
+   libbase::trace << "DEBUG: Opening translate from " << M << " to " << S << " symbols, "
+      << map.input_block_size() << " to " << map.output_block_size() << " block\n";
    // Convert to a temporary space and translate
    libbase::vector< libbase::vector<double> > ptable_flat;
    map.inverse(ptable, ptable_flat);
