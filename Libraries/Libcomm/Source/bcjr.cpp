@@ -23,8 +23,8 @@ namespace libcomm {
          is assumed that all starting and ending states (respectively) are
          equiprobable.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::init(fsm& encoder, const int tau)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::init(fsm& encoder, const int tau)
    {
    assertalways(tau > 0);
    bcjr::tau = tau;
@@ -53,8 +53,8 @@ void bcjr<real,dbl>::init(fsm& encoder, const int tau)
 
 // Get start- and end-state probabilities
 
-template <class real, class dbl>
-typename bcjr<real,dbl>::array1d_t bcjr<real,dbl>::getstart() const
+template <class real, class dbl, bool norm>
+typename bcjr<real,dbl,norm>::array1d_t bcjr<real,dbl,norm>::getstart() const
    {
    array1d_t r(M);
    for(int m=0; m<M; m++)
@@ -62,8 +62,8 @@ typename bcjr<real,dbl>::array1d_t bcjr<real,dbl>::getstart() const
    return r;
    }
 
-template <class real, class dbl>
-typename bcjr<real,dbl>::array1d_t bcjr<real,dbl>::getend() const
+template <class real, class dbl, bool norm>
+typename bcjr<real,dbl,norm>::array1d_t bcjr<real,dbl,norm>::getend() const
    {
    array1d_t r(M);
    for(int m=0; m<M; m++)
@@ -73,8 +73,8 @@ typename bcjr<real,dbl>::array1d_t bcjr<real,dbl>::getend() const
 
 // Set start- and end-state probabilities - equiprobable
 
-template <class real, class dbl>
-void bcjr<real,dbl>::setstart()
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::setstart()
    {
    if(!initialised)
       allocate();
@@ -82,8 +82,8 @@ void bcjr<real,dbl>::setstart()
       alpha(0, m) = 1.0/double(M);
    }
 
-template <class real, class dbl>
-void bcjr<real,dbl>::setend()
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::setend()
    {
    if(!initialised)
       allocate();
@@ -93,8 +93,8 @@ void bcjr<real,dbl>::setend()
 
 // Set start- and end-state probabilities - known state
 
-template <class real, class dbl>
-void bcjr<real,dbl>::setstart(int state)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::setstart(int state)
    {
    if(!initialised)
       allocate();
@@ -103,8 +103,8 @@ void bcjr<real,dbl>::setstart(int state)
    alpha(0, state) = 1;
    }
 
-template <class real, class dbl>
-void bcjr<real,dbl>::setend(int state)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::setend(int state)
    {
    if(!initialised)
       allocate();
@@ -115,8 +115,8 @@ void bcjr<real,dbl>::setend(int state)
 
 // Set start- and end-state probabilities - direct
 
-template <class real, class dbl>
-void bcjr<real,dbl>::setstart(const array1d_t& p)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::setstart(const array1d_t& p)
    {
    assert(p.size() == M);
    if(!initialised)
@@ -125,8 +125,8 @@ void bcjr<real,dbl>::setstart(const array1d_t& p)
       alpha(0, m) = p(m);
    }
 
-template <class real, class dbl>
-void bcjr<real,dbl>::setend(const array1d_t& p)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::setend(const array1d_t& p)
    {
    assert(p.size() == M);
    if(!initialised)
@@ -139,8 +139,8 @@ void bcjr<real,dbl>::setend(const array1d_t& p)
 
 /*! \brief Memory allocator for working matrices
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::allocate()
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::allocate()
    {
    // to save space, gamma is defined from 0 to tau-1, rather than 1 to tau.
    // for this reason, gamma_t (and only gamma_t) is actually written gamma[t-1, ...
@@ -160,17 +160,17 @@ void bcjr<real,dbl>::allocate()
 /*! \brief State probability metric
    lambda(t,m) = Pr{S(t)=m, Y[1..tau]}
 */
-template <class real, class dbl>
-inline real bcjr<real,dbl>::lambda(const int t, const int m)
+template <class real, class dbl, bool norm>
+inline real bcjr<real,dbl,norm>::lambda(const int t, const int m)
    {
    return alpha(t, m) * beta(t, m);
    }
 
-/*! Transition probability metric
+/*! \brief Transition probability metric
    sigma(t,m,i) = Pr{S(t-1)=m, S(t)=m(m,i), Y[1..tau]}
 */
-template <class real, class dbl>
-inline real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
+template <class real, class dbl, bool norm>
+inline real bcjr<real,dbl,norm>::sigma(const int t, const int m, const int i)
    {
    int mdash = lut_m(m, i);
    return alpha(t-1, m) * gamma(t-1, m, i) * beta(t, mdash);
@@ -184,8 +184,8 @@ inline real bcjr<real,dbl>::sigma(const int t, const int m, const int i)
    For all values of t in [1,tau], the gamma values are worked out as specified
    by the BCJR equation.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::work_gamma(const array2d_t& R)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::work_gamma(const array2d_t& R)
    {
    for(int t=1; t<=tau; t++)
       for(int mdash=0; mdash<M; mdash++)
@@ -207,8 +207,8 @@ void bcjr<real,dbl>::work_gamma(const array2d_t& R)
    by the BCJR equation. This function also makes use of the a priori
    probabilities associated with the input.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::work_gamma(const array2d_t& R, const array2d_t& app)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::work_gamma(const array2d_t& R, const array2d_t& app)
    {
    for(int t=1; t<=tau; t++)
       for(int mdash=0; mdash<M; mdash++)
@@ -233,8 +233,8 @@ void bcjr<real,dbl>::work_gamma(const array2d_t& R, const array2d_t& app)
          the maximum value over all symbols and divide by that. This avoids
          problems when the metric for the first symbol is very small.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::work_alpha()
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::work_alpha()
    {
    // using the computed gamma values, work out all alpha values at time t
    for(int t=1; t<=tau; t++)
@@ -251,13 +251,16 @@ void bcjr<real,dbl>::work_alpha()
             alpha(t, m) += alpha(t-1, mdash) * gamma(t-1, mdash, i);
             }
       // normalize
-      real scale = alpha(t, 0);
-      for(int m=1; m<M; m++)
-         if(alpha(t, m) > scale)
-            scale = alpha(t, m);
-      scale = real(1)/scale;
-      for(int m=0; m<M; m++)
-         alpha(t, m) *= scale;
+      if(norm)
+         {
+         real scale = alpha(t, 0);
+         for(int m=1; m<M; m++)
+            scale += alpha(t, m);
+         assertalways(scale > real(0));
+         scale = real(1)/scale;
+         for(int m=0; m<M; m++)
+            alpha(t, m) *= scale;
+         }
       }
    }
 
@@ -270,8 +273,8 @@ void bcjr<real,dbl>::work_alpha()
 
    \sa See notes for work_alpha()
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::work_beta()
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::work_beta()
    {
    // evaluate all beta values
    for(int t=tau-1; t>=0; t--)
@@ -286,13 +289,16 @@ void bcjr<real,dbl>::work_beta()
             }
          }
       // normalize
-      real scale = beta(t, 0);
-      for(int m=1; m<M; m++)
-         if(beta(t, m) > scale)
-            scale = beta(t, m);
-      scale = real(1)/scale;
-      for(int m=0; m<M; m++)
-         beta(t, m) *= scale;
+      if(norm)
+         {
+         real scale = beta(t, 0);
+         for(int m=1; m<M; m++)
+            scale += beta(t, m);
+         assertalways(scale > real(0));
+         scale = real(1)/scale;
+         for(int m=0; m<M; m++)
+            beta(t, m) *= scale;
+         }
       }
    }
 
@@ -318,8 +324,8 @@ void bcjr<real,dbl>::work_beta()
             considered (we care about the transition because this determines
             the input and output symbols represented).
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::work_results(array2d_t& ri, array2d_t& ro)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::work_results(array2d_t& ri, array2d_t& ro)
    {
    // Initialize results vectors
    ri.init(tau, K);
@@ -344,8 +350,7 @@ void bcjr<real,dbl>::work_results(array2d_t& ri, array2d_t& ro)
    }
 
 /*!
-   \brief   Computes the final results for the BCJR algorithm (input statistics
-            only).
+   \brief   Computes the final results for the BCJR algorithm (input only).
    \param   ri    ri(t-1, i) is the probability that we transmitted
                   (input value) i at time t
 
@@ -354,8 +359,8 @@ void bcjr<real,dbl>::work_results(array2d_t& ri, array2d_t& ro)
    sequence of modulation symbols). Next, we compute the results by doing the
    appropriate summations on sigma.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::work_results(array2d_t& ri)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::work_results(array2d_t& ri)
    {
    // Initialize results vector
    ri.init(tau, K);
@@ -389,21 +394,18 @@ void bcjr<real,dbl>::work_results(array2d_t& ri)
    behind this is that this class should not be responsible for its inputs,
    but whoever is providing them is.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::normalize(array2d_t& r)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::normalize(array2d_t& r)
    {
    for(int t=0; t<r.xsize(); t++)
       {
       dbl scale = r(t,0);
       for(int i=1; i<r.ysize(); i++)
-         if(r(t,i) > scale)
-            scale = r(t,i);
-      if(scale > dbl(0))
-         {
-         scale = dbl(1)/scale;
-         for(int i=0; i<r.ysize(); i++)
-            r(t,i) *= scale;
-         }
+         scale += r(t,i);
+      assertalways(scale > dbl(0));
+      scale = dbl(1)/scale;
+      for(int i=0; i<r.ysize(); i++)
+         r(t,i) *= scale;
       }
    }
 
@@ -418,8 +420,8 @@ void bcjr<real,dbl>::normalize(array2d_t& r)
    \param   ro    ro(t-1, X) = (result) a posteriori probability of having
                   transmitted (output value) X at time t (result)
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::decode(const array2d_t& R, array2d_t& ri, array2d_t& ro)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::decode(const array2d_t& R, array2d_t& ri, array2d_t& ro)
    {
    assert(initialised);
    work_gamma(R);
@@ -442,8 +444,8 @@ void bcjr<real,dbl>::decode(const array2d_t& R, array2d_t& ri, array2d_t& ro)
    This is the same as the regular decoder, but does not produce a posteriori
    statistics on the decoder's output.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::decode(const array2d_t& R, const array2d_t& app, array2d_t& ri, array2d_t& ro)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::decode(const array2d_t& R, const array2d_t& app, array2d_t& ri, array2d_t& ro)
    {
    assert(initialised);
    work_gamma(R, app);
@@ -462,8 +464,8 @@ void bcjr<real,dbl>::decode(const array2d_t& R, const array2d_t& app, array2d_t&
    This is the same as the regular decoder, but does not produce a posteriori
    statistics on the decoder's output.
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::fdecode(const array2d_t& R, array2d_t& ri)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::fdecode(const array2d_t& R, array2d_t& ri)
    {
    assert(initialised);
    work_gamma(R);
@@ -481,8 +483,8 @@ void bcjr<real,dbl>::fdecode(const array2d_t& R, array2d_t& ri)
    \param   ri    ri(t-1, i) is the a posteriori probability of having
                   transmitted (input value) i at time t (result)
 */
-template <class real, class dbl>
-void bcjr<real,dbl>::fdecode(const array2d_t& R, const array2d_t& app, array2d_t& ri)
+template <class real, class dbl, bool norm>
+void bcjr<real,dbl,norm>::fdecode(const array2d_t& R, const array2d_t& app, array2d_t& ri)
    {
    assert(initialised);
    work_gamma(R, app);
@@ -507,7 +509,7 @@ using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
-template class bcjr<double>;
+template class bcjr<double,double,true>;
 template class bcjr<mpreal>;
 template class bcjr<mpgnu>;
 template class bcjr<logreal>;

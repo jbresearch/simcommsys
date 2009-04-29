@@ -5,7 +5,7 @@
 #include "codec_softout.h"
 #include "fsm.h"
 #include "interleaver.h"
-#include "bcjr.h"
+#include "safe_bcjr.h"
 #include "itfunc.h"
 
 #include <stdlib.h>
@@ -68,7 +68,7 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class turbo : public codec_softout<dbl>, private bcjr<real,dbl> {
+class turbo : public codec_softout<dbl>, private safe_bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -76,6 +76,10 @@ public:
    typedef libbase::matrix<dbl>        array2d_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef turbo<real,dbl> This;
+   typedef safe_bcjr<real,dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    //! Set of interleavers, one per parity sequence (including first set)

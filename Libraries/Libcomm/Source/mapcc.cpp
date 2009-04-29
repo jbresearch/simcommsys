@@ -17,7 +17,7 @@ namespace libcomm {
 template <class real>
 void mapcc<real>::init()
    {
-   bcjr<real>::init(*encoder, tau);
+   BCJR::init(*encoder, tau);
    assert(!circular || !endatzero);
    m = endatzero ? encoder->mem_order() : 0;
    M = encoder->num_states();
@@ -37,18 +37,18 @@ void mapcc<real>::reset()
    {
    if(circular)
       {
-      bcjr<real>::setstart();
-      bcjr<real>::setend();
+      BCJR::setstart();
+      BCJR::setend();
       }
    else if(endatzero)
       {
-      bcjr<real>::setstart(0);
-      bcjr<real>::setend(0);
+      BCJR::setstart(0);
+      BCJR::setend(0);
       }
    else
       {
-      bcjr<real>::setstart(0);
-      bcjr<real>::setend();
+      BCJR::setstart(0);
+      BCJR::setend();
       }
    }
 
@@ -63,10 +63,10 @@ mapcc<real>::mapcc()
 template <class real>
 mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
    {
-   mapcc::encoder = encoder.clone();
-   mapcc::tau = tau;
-   mapcc::endatzero = endatzero;
-   mapcc::circular = circular;
+   This::encoder = encoder.clone();
+   This::tau = tau;
+   This::endatzero = endatzero;
+   This::circular = circular;
    init();
    }
 
@@ -131,7 +131,7 @@ void mapcc<real>::softdecode(array2d_t& ri)
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif;
    // perform decoding
-   bcjr<real>::fdecode(R, rif);
+   BCJR::fdecode(R, rif);
    // remove any tail bits from input set
    ri.init(input_block_size());
    for(int i=0; i<input_block_size(); i++)
@@ -147,7 +147,7 @@ void mapcc<real>::softdecode(array2d_t& ri, array2d_t& ro)
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif, rof;
    // perform decoding
-   bcjr<real>::decode(R, rif, rof);
+   BCJR::decode(R, rif, rof);
    // remove any tail bits from input set
    ri.init(input_block_size());
    for(int i=0; i<input_block_size(); i++)

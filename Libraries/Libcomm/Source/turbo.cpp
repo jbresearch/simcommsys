@@ -21,7 +21,7 @@ void turbo<real,dbl>::init()
    {
    assertalways(encoder);
    assertalways(tau > 0);
-   bcjr<real,dbl>::init(*encoder, tau);
+   BCJR::init(*encoder, tau);
 
    assertalways(enc_parity()*num_inputs() == enc_outputs());
    assertalways(num_sets() > 0);
@@ -63,13 +63,13 @@ void turbo<real,dbl>::reset()
       }
    else if(endatzero)
       {
-      bcjr<real,dbl>::setstart(0);
-      bcjr<real,dbl>::setend(0);
+      BCJR::setstart(0);
+      BCJR::setend(0);
       }
    else
       {
-      bcjr<real,dbl>::setstart(0);
-      bcjr<real,dbl>::setend();
+      BCJR::setstart(0);
+      BCJR::setend();
       }
    }
 
@@ -87,13 +87,13 @@ turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
    const libbase::vector<interleaver<dbl> *>& inter, const int iter, \
    const bool endatzero, const bool parallel, const bool circular)
    {
-   turbo::encoder = encoder.clone();
-   turbo::tau = tau;
-   turbo::inter = inter;
-   turbo::endatzero = endatzero;
-   turbo::parallel = parallel;
-   turbo::circular = circular;
-   turbo::iter = iter;
+   This::encoder = encoder.clone();
+   This::tau = tau;
+   This::inter = inter;
+   This::endatzero = endatzero;
+   This::parallel = parallel;
+   This::circular = circular;
+   This::iter = iter;
    init();
    }
 
@@ -201,16 +201,16 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& r
    array2d_t rai, rii;
    if(circular)
       {
-      bcjr<real,dbl>::setstart(ss(set));
-      bcjr<real,dbl>::setend(se(set));
+      BCJR::setstart(ss(set));
+      BCJR::setend(se(set));
       }
    inter(set)->transform(ra, rai);
-   bcjr<real,dbl>::fdecode(R(set), rai, rii);
+   BCJR::fdecode(R(set), rai, rii);
    inter(set)->inverse(rii, ri);
    if(circular)
       {
-      ss(set) = bcjr<real,dbl>::getstart();
-      se(set) = bcjr<real,dbl>::getend();
+      ss(set) = BCJR::getstart();
+      se(set) = BCJR::getend();
       }
    work_extrinsic(ra, ri, rp, re);
    }
@@ -228,9 +228,9 @@ void turbo<real,dbl>::decode_serial(array2d_t& ri)
    for(int set=0; set<num_sets(); set++)
       {
       bcjr_wrap(set, ra(0), ri, ra(0));
-      bcjr<real,dbl>::normalize(ra(0));
+      BCJR::normalize(ra(0));
       }
-   bcjr<real,dbl>::normalize(ri);
+   BCJR::normalize(ri);
    }
 
 /*! \brief Perform a complete parallel-decoding cycle
@@ -265,8 +265,8 @@ void turbo<real,dbl>::decode_parallel(array2d_t& ri)
    ri.multiplyby(rp);
    // normalize results
    for(int set=0; set<num_sets(); set++)
-      bcjr<real,dbl>::normalize(ra(set));
-   bcjr<real,dbl>::normalize(ri);
+      BCJR::normalize(ra(set));
+   BCJR::normalize(ri);
    }
 
 // encoding and decoding functions
@@ -401,7 +401,7 @@ void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >
       ra(set) = 1.0;
 
    // Normalize a priori probabilities (intrinsic - source)
-   bcjr<real,dbl>::normalize(rp);
+   BCJR::normalize(rp);
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
    array2d_t rpi;
@@ -411,7 +411,7 @@ void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >
       for(int t=0; t<tau; t++)
          for(int x=0; x<enc_outputs(); x++)
             R(set)(t, x) = rpi(t, x%num_inputs()) * p(set, t, x/num_inputs());
-      bcjr<real,dbl>::normalize(R(set));
+      BCJR::normalize(R(set));
       }
 
    // Reset start- and end-state probabilities

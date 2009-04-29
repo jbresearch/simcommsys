@@ -33,7 +33,7 @@ private:
    // Shorthand for class hierarchy
    typedef sysrepacc<real,dbl> This;
    typedef codec_softout_flattened< repacc<real,dbl>, dbl> Base;
-   typedef bcjr<real,dbl> BCJR;
+   typedef safe_bcjr<real,dbl> BCJR;
    // Grant access to inherited fields and methods
    using Base::ra;
    using Base::rp;

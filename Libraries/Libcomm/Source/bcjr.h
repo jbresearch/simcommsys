@@ -36,6 +36,11 @@ namespace libcomm {
    information is much larger than for serial decoding; furthermore, this range
    increases with the number of iterations performed.
 
+   The third template parameter 'norm', which defaults to false, is a flag to
+   enable conventional normalization of probabilities during forward and
+   backward recursion. This allows the use of double-precision representation
+   throughout the algorithm.
+
    \warning
       - Static memory requirements:
          sizeof(real)*(2*(tau+1)*M + tau*M*K + K + N) + sizeof(int)*(2*K+1)*M
@@ -47,7 +52,7 @@ namespace libcomm {
          collects results.
 */
 
-template <class real, class dbl=double>
+template <class real, class dbl=double, bool norm=false>
 class bcjr {
 public:
    /*! \name Type definitions */

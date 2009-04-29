@@ -210,6 +210,7 @@ Libraries/Libcomm/Source/resultsfile.cpp
 Libraries/Libcomm/Source/resultsfile.h
 Libraries/Libcomm/Source/rscc.cpp
 Libraries/Libcomm/Source/rscc.h
+Libraries/Libcomm/Source/safe_bcjr.h
 Libraries/Libcomm/Source/serializer_libcomm.cpp
 Libraries/Libcomm/Source/serializer_libcomm.h
 Libraries/Libcomm/Source/sha.cpp

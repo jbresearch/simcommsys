@@ -5,7 +5,7 @@
 
 #include "codec_softout.h"
 #include "fsm.h"
-#include "bcjr.h"
+#include "safe_bcjr.h"
 #include "itfunc.h"
 #include "serializer.h"
 #include <stdlib.h>
@@ -26,12 +26,17 @@ namespace libcomm {
 */
 
 template <class real>
-class mapcc : public codec_softout<double>, private bcjr<real> {
+class mapcc : public codec_softout<double>, private safe_bcjr<real> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>     array1i_t;
    typedef libbase::vector< libbase::vector<double> >  array2d_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef mapcc<real> This;
+   typedef codec_softout<double> Base;
+   typedef safe_bcjr<real> BCJR;
 private:
    fsm      *encoder;
    double   rate;

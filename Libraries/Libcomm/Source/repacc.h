@@ -5,7 +5,7 @@
 #include "codec_softout.h"
 #include "fsm.h"
 #include "interleaver.h"
-#include "bcjr.h"
+#include "safe_bcjr.h"
 
 namespace libcomm {
 
@@ -27,7 +27,7 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class repacc : public codec_softout<dbl>, protected bcjr<real,dbl> {
+class repacc : public codec_softout<dbl>, protected safe_bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -38,7 +38,7 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef repacc<real,dbl> This;
-   typedef bcjr<real,dbl> BCJR;
+   typedef safe_bcjr<real,dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
