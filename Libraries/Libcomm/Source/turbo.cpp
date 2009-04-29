@@ -142,18 +142,6 @@ void turbo<real,dbl>::allocate()
    \note It is counter-productive to vectorize this, as it would require
          many unnecessary temporary matrix creations.
 
-   \note Before the code review of v2.72, the division was only computed
-         at matrix elements where the corresponding 'ri' was greater than
-         zero. We have no idea why this was done - will need to check old
-         documentation. There seems to be marginal effect on results/speed,
-         so the natural (no-check) computation was restored. Old code was:
-         \code
-         if(ri(t, x) > dbl(0))
-            re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
-         else
-            re(t, x) = 0;
-         \endcode
-
    \warning The return matrix re may actually be one of the input matrices,
             so one must be careful not to overwrite positions that still
             need to be read.
@@ -161,18 +149,11 @@ void turbo<real,dbl>::allocate()
 template <class real, class dbl>
 void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re)
    {
-   // Determine sizes from input matrix
-   const int tau = ri.xsize();
-   const int K = ri.ysize();
-   // Check all matrices are the right size
-   assert(ra.xsize() == tau && ra.ysize() == K);
-   assert(r.xsize() == tau && r.ysize() == K);
-   // Initialize results vector
-   re.init(tau, K);
-   // Compute extrinsic values
-   for(int t=0; t<tau; t++)
-      for(int x=0; x<K; x++)
-         re(t, x) = ri(t, x) / (ra(t, x) * r(t, x));
+   // Compute denominator
+   array2d_t rar = ra.multiply(r);
+   // Copy numerator and divide only for non-zero denominator
+   re = ri;
+   re.mask(rar > 0).divideby(rar);
    }
 
 /*!

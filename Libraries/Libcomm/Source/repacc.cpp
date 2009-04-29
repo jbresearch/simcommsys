@@ -181,7 +181,9 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    inter->transform(ra, rai);
    BCJR::fdecode(R, rai, rii);
    inter->inverse(rii, rif);
-   ra = rif.divide(ra);
+   // compute extrinsic information
+   rif.mask(ra > 0).divideby(ra);
+   ra = rif;
    BCJR::normalize(ra);
    // allocate space for final results
    ri.init(This::input_block_size());
@@ -200,7 +202,10 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    for(int i=0; i<This::input_block_size(); i++)
       for(int j=0; j<r; j++)
          for(int x=0; x<This::num_inputs(); x++)
-            ra(i*r+j,x) = ri(i)(x) / ra(i*r+j,x);
+            if(ra(i*r+j,x) > dbl(0))
+               ra(i*r+j,x) = ri(i)(x) / ra(i*r+j,x);
+            else
+               ra(i*r+j,x) = ri(i)(x);
    // normalize results
    BCJR::normalize(ra);
    }
