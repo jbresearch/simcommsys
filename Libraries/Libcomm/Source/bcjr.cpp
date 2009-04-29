@@ -323,6 +323,8 @@ void bcjr<real,dbl,norm>::work_beta()
             the probability of being in state mdash before the transition being
             considered (we care about the transition because this determines
             the input and output symbols represented).
+
+   \todo Update according to the changes in work_results(ri)
 */
 template <class real, class dbl, bool norm>
 void bcjr<real,dbl,norm>::work_results(array2d_t& ri, array2d_t& ro)
@@ -372,13 +374,12 @@ void bcjr<real,dbl,norm>::work_results(array2d_t& ri)
    for(int t=1; t<=tau; t++)
       for(int i=0; i<K; i++) // for each possible input, given present state
          {
-         // initialise results (we divide on every increment as division is faster
-         // than addition for logreal - this makes other representations slower)
-         dbl delta = 0;
+         // compute results
+         real delta = 0;
          for(int mdash=0; mdash<M; mdash++)     // for each possible state at time t-1
-            delta += dbl(sigma(t, mdash, i)/Py);
+            delta += sigma(t, mdash, i);
          // copy results into their final place
-         ri(t-1, i) = delta;
+         ri(t-1, i) = delta/Py;
          }
    }
 
