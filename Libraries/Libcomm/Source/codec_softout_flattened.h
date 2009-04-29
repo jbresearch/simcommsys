@@ -52,7 +52,7 @@ public:
       const int N = Base::output_block_size();
       const int n = Base::num_outputs();
       const int k = Base::num_inputs();
-      return libbase::size<libbase::vector>(N * log2(n)/log2(k));
+      return libbase::size<libbase::vector>(int(N * log2(n)/log2(k)));
       };
    int num_outputs() const { return Base::num_inputs(); };
 
