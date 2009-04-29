@@ -381,9 +381,6 @@ void bcjr<real,dbl,norm>::work_results(array2d_t& ri)
          // copy results into their final place
          ri(t-1, i) = delta/Py;
          }
-   // normalize results if requested
-   if(norm)
-      normalize(ri);
    }
 
 // Internal helper functions
