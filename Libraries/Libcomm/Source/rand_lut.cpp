@@ -88,6 +88,10 @@ std::istream& rand_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class rand_lut<float>;
+template <>
+const libbase::serializer rand_lut<float>::shelper("interleaver", "rand_lut<float>", rand_lut<float>::create);
+
 template class rand_lut<double>;
 template <>
 const libbase::serializer rand_lut<double>::shelper("interleaver", "rand_lut<double>", rand_lut<double>::create);

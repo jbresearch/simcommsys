@@ -47,6 +47,7 @@ void codec_softout<dbl,libbase::vector>::hard_decision(const array1vd_t& ri, arr
 
 namespace libcomm {
 
+template class codec_softout<float>;
 template class codec_softout<double>;
 template class codec_softout<libbase::logrealfast>;
 

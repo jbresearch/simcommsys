@@ -55,6 +55,10 @@ std::istream& flat<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class flat<float>;
+template <>
+const libbase::serializer flat<float>::shelper("interleaver", "flat<float>", flat<float>::create);
+
 template class flat<double>;
 template <>
 const libbase::serializer flat<double>::shelper("interleaver", "flat<double>", flat<double>::create);

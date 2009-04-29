@@ -519,6 +519,10 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
+template class turbo<float,float>;
+template <>
+const serializer turbo<float,float>::shelper = serializer("codec", "turbo<float>", turbo<float,float>::create);
+
 template class turbo<double>;
 template <>
 const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);

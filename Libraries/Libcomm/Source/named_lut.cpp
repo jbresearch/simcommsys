@@ -50,6 +50,10 @@ std::istream& named_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class named_lut<float>;
+template <>
+const libbase::serializer named_lut<float>::shelper("interleaver", "named_lut<float>", named_lut<float>::create);
+
 template class named_lut<double>;
 template <>
 const libbase::serializer named_lut<double>::shelper("interleaver", "named_lut<double>", named_lut<double>::create);

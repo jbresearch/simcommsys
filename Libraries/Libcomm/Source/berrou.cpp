@@ -69,6 +69,10 @@ std::istream& berrou<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class berrou<float>;
+template <>
+const libbase::serializer berrou<float>::shelper("interleaver", "berrou<float>", berrou<float>::create);
+
 template class berrou<double>;
 template <>
 const libbase::serializer berrou<double>::shelper("interleaver", "berrou<double>", berrou<double>::create);

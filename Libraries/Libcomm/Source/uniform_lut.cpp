@@ -87,6 +87,10 @@ std::istream& uniform_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class uniform_lut<float>;
+template <>
+const libbase::serializer uniform_lut<float>::shelper("interleaver", "uniform_lut<float>", uniform_lut<float>::create);
+
 template class uniform_lut<double>;
 template <>
 const libbase::serializer uniform_lut<double>::shelper("interleaver", "uniform_lut<double>", uniform_lut<double>::create);

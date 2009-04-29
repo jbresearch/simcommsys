@@ -510,6 +510,7 @@ using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
+template class bcjr<float,float,true>;
 template class bcjr<double,double,true>;
 template class bcjr<mpreal>;
 template class bcjr<mpgnu>;

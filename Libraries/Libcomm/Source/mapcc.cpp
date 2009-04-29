@@ -224,6 +224,10 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
+template class mapcc<double>;
+template <>
+const serializer mapcc<double>::shelper = serializer("codec", "mapcc<double>", mapcc<double>::create);
+
 template class mapcc<mpreal>;
 template <>
 const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>", mapcc<mpreal>::create);

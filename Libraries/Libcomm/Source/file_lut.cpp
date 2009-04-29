@@ -54,6 +54,7 @@ file_lut<real>::file_lut(const char *filename, const int tau, const int m)
 
 // Explicit instantiations
 
+template class file_lut<float>;
 template class file_lut<double>;
 template class file_lut<libbase::logrealfast>;
 

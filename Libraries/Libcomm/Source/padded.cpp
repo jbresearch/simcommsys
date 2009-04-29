@@ -119,6 +119,10 @@ std::istream& padded<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class padded<float>;
+template <>
+const libbase::serializer padded<float>::shelper("interleaver", "padded<float>", padded<float>::create);
+
 template class padded<double>;
 template <>
 const libbase::serializer padded<double>::shelper("interleaver", "padded<double>", padded<double>::create);

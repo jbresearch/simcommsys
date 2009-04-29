@@ -23,6 +23,10 @@ namespace libcomm {
    - $Author$
 
    \todo Check for both flags (for terminated and circular trellises) being set.
+
+   \todo Add template parameter for intermediate results
+
+   \todo Add float representation
 */
 
 template <class real>

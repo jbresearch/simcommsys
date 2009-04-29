@@ -38,13 +38,34 @@ public:
 */
 
 template <>
-class safe_bcjr<double> : public bcjr<double,double,true> {
+class safe_bcjr<double,double> : public bcjr<double,double,true> {
 protected:
    // default constructor
    safe_bcjr() : bcjr<double,double,true>() {};
 public:
    // constructor & destructor
    safe_bcjr(fsm& encoder, const int tau) : bcjr<double,double,true>(encoder, tau) {};
+};
+
+/*!
+   \brief   Safe version of BCJR - 'float' specialization (normalized).
+   \author  Johann Briffa
+
+   \section svn Version Control
+   - $Revision$
+   - $Date$
+   - $Author$
+
+*/
+
+template <>
+class safe_bcjr<float,float> : public bcjr<float,float,true> {
+protected:
+   // default constructor
+   safe_bcjr() : bcjr<float,float,true>() {};
+public:
+   // constructor & destructor
+   safe_bcjr(fsm& encoder, const int tau) : bcjr<float,float,true>(encoder, tau) {};
 };
 
 }; // end namespace

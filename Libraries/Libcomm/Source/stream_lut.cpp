@@ -41,6 +41,7 @@ stream_lut<real>::stream_lut(const char *filename, FILE *file, const int tau, co
 
 // Explicit instantiations
 
+template class stream_lut<float>;
 template class stream_lut<double>;
 template class stream_lut<libbase::logrealfast>;
 

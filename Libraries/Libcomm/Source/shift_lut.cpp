@@ -57,6 +57,10 @@ std::istream& shift_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
+template class shift_lut<float>;
+template <>
+const libbase::serializer shift_lut<float>::shelper("interleaver", "shift_lut<float>", shift_lut<float>::create);
+
 template class shift_lut<double>;
 template <>
 const libbase::serializer shift_lut<double>::shelper("interleaver", "shift_lut<double>", shift_lut<double>::create);
