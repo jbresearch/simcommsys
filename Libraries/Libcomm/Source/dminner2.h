@@ -28,13 +28,18 @@ class dminner2 :
    private fba2<real,bool,normalize> {
 public:
    /*! \name Type definitions */
-   typedef informed_modulator<bool>    Base;
    typedef libbase::vector<bool>       array1b_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::vector<real>       array1r_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
    typedef libbase::vector<array1r_t>  array1vr_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef informed_modulator<bool> Interface;
+   typedef dminner2<real,normalize> This;
+   typedef dminner<real,normalize> Base;
+   typedef fba2<real,bool,normalize> FBA;
 private:
    // Implementations of channel-specific metrics for fba2
    real R(int d, int i, const array1b_t& r) const;
@@ -54,8 +59,8 @@ public:
 
    // Vector modem operations
    // (necessary because inheriting methods from templated base)
-   using Base::modulate;
-   using Base::demodulate;
+   using Interface::modulate;
+   using Interface::demodulate;
 
    // Description
    std::string description() const;

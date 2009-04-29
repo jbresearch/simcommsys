@@ -49,6 +49,10 @@ class dminner :
    public parametric,
    private fba<real,bool,normalize> {
    friend class dminner2<real,normalize>;
+private:
+   // Shorthand for class hierarchy
+   typedef dminner<real,normalize> This;
+   typedef fba<real,bool,normalize> FBA;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;

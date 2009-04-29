@@ -18,17 +18,17 @@ namespace libcomm {
 template <class real, bool normalize>
 real dminner2<real,normalize>::R(int d, int i, const array1b_t& r) const
    {
-   const int n = dminner<real,normalize>::n;
+   const int n = Base::n;
    // 'tx' is the vector of transmitted symbols that we're considering
    array1b_t tx;
    tx.init(n);
-   const int w = dminner<real,normalize>::ws(i);
-   const int s = dminner<real,normalize>::lut(d);
+   const int w = Base::ws(i);
+   const int s = Base::lut(d);
    // NOTE: we transmit the low-order bits first
    for(int bit=0, t=s^w; bit<n; bit++, t >>= 1)
       tx(bit) = (t&1);
    // compute the conditional probability
-   return dminner<real,normalize>::mychan.receive(tx, r);
+   return Base::mychan.receive(tx, r);
    }
 
 // Setup procedure
@@ -37,23 +37,23 @@ template <class real, bool normalize>
 void dminner2<real,normalize>::init(const channel<bool>& chan)
    {
    // Inherit block size from last modulation step
-   const int q = 1<<dminner<real,normalize>::k;
-   const int n = dminner<real,normalize>::n;
-   const int N = dminner<real,normalize>::ws.size();
+   const int q = 1<<Base::k;
+   const int n = Base::n;
+   const int N = Base::ws.size();
    const int tau = N*n;
    assert(N > 0);
    // Copy channel for access within R()
-   dminner<real,normalize>::mychan = dynamic_cast<const bsid&>(chan);
+   Base::mychan = dynamic_cast<const bsid&>(chan);
    // Set channel block size to q-ary symbol size
-   dminner<real,normalize>::mychan.set_blocksize(n);
+   Base::mychan.set_blocksize(n);
    // Determine required FBA parameter values
-   const double Pd = dminner<real,normalize>::mychan.get_pd();
+   const double Pd = Base::mychan.get_pd();
    const int I = bsid::compute_I(tau, Pd);
    const int xmax = bsid::compute_xmax(tau, Pd, I);
    const int dxmax = bsid::compute_xmax(n, Pd);
-   dminner<real,normalize>::checkforchanges(I, xmax);
+   Base::checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
-   fba2<real,bool,normalize>::init(N, n, q, I, xmax, dxmax, dminner<real,normalize>::th_inner, dminner<real,normalize>::th_outer);
+   FBA::init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer);
    }
 
 // encoding and decoding functions
@@ -63,8 +63,8 @@ void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const arr
    {
    init(chan);
    array1vr_t p;
-   fba2<real,bool,normalize>::decode(rx,p);
-   dminner<real,normalize>::normalize_results(p,ptable);
+   FBA::decode(rx,p);
+   Base::normalize_results(p,ptable);
    }
 
 template <class real, bool normalize>
@@ -72,8 +72,8 @@ void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const arr
    {
    init(chan);
    array1vr_t p;
-   fba2<real,bool,normalize>::decode(rx,app,p);
-   dminner<real,normalize>::normalize_results(p,ptable);
+   FBA::decode(rx,app,p);
+   Base::normalize_results(p,ptable);
    }
 
 // description output
@@ -82,7 +82,7 @@ template <class real, bool normalize>
 std::string dminner2<real,normalize>::description() const
    {
    std::ostringstream sout;
-   sout << "Symbol-level " << dminner<real,normalize>::description();
+   sout << "Symbol-level " << Base::description();
    return sout.str();
    }
 
@@ -91,7 +91,7 @@ std::string dminner2<real,normalize>::description() const
 template <class real, bool normalize>
 std::ostream& dminner2<real,normalize>::serialize(std::ostream& sout) const
    {
-   return dminner<real,normalize>::serialize(sout);
+   return Base::serialize(sout);
    }
 
 // object serialization - loading
@@ -99,7 +99,7 @@ std::ostream& dminner2<real,normalize>::serialize(std::ostream& sout) const
 template <class real, bool normalize>
 std::istream& dminner2<real,normalize>::serialize(std::istream& sin)
    {
-   return dminner<real,normalize>::serialize(sin);
+   return Base::serialize(sin);
    }
 
 }; // end namespace

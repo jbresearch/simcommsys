@@ -75,28 +75,28 @@ template <class real, class sig, bool normalize>
 void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
    // if any parameters that effect memory have changed, release memory
-   if(initialised && (N != fba2::N || n != fba2::n || q != fba2::q
-      || I != fba2::I || xmax != fba2::xmax || dxmax != fba2::dxmax))
+   if(initialised && (N != This::N || n != This::n || q != This::q
+      || I != This::I || xmax != This::xmax || dxmax != This::dxmax))
       free();
    // code parameters
    assert(N > 0);
    assert(n > 0);
-   fba2::N = N;
-   fba2::n = n;
+   This::N = N;
+   This::n = n;
    assert(q > 1);
-   fba2::q = q;
+   This::q = q;
    // decoder parameters
    assert(I > 0);
    assert(xmax > 0);
    assert(dxmax > 0);
-   fba2::I = I;
-   fba2::xmax = xmax;
-   fba2::dxmax = dxmax;
+   This::I = I;
+   This::xmax = xmax;
+   This::dxmax = dxmax;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);
-   fba2::th_inner = th_inner;
-   fba2::th_outer = th_outer;
+   This::th_inner = th_inner;
+   This::th_outer = th_outer;
    }
 
 // Internal procedures
@@ -122,9 +122,9 @@ void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array1vd_t& 
    if(cache_enabled)
       reset_cache();
    // copy received vector, needed for lazy computation
-   fba2::r = r;
+   This::r = r;
    // copy a-priori statistics, needed for lazy computation
-   fba2::app = app;
+   This::app = app;
    if(app.size() == 0)
       libbase::trace << "DEBUG (fba2): Empty a-priori probability table passed.\n";
    }
@@ -136,9 +136,9 @@ void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
    if(cache_enabled)
       reset_cache();
    // copy received vector, needed for lazy computation
-   fba2::r = r;
+   This::r = r;
    // reset a-priori statistics
-   fba2::app.init(0);
+   This::app.init(0);
    }
 
 template <class real, class sig, bool normalize>

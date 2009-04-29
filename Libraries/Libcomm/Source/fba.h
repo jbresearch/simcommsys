@@ -49,6 +49,9 @@ public:
    typedef boost::assignable_multi_array<real,2> array2r_t;
    // @}
 private:
+   // Shorthand for class hierarchy
+   typedef fba<real,sig,normalize> This;
+private:
    /*! \name User-defined parameters */
    int tau;             //!< The (transmitted) block size in bits
    int I;               //!< The maximum number of insertions per time-step
@@ -91,4 +94,3 @@ public:
 }; // end namespace
 
 #endif
-

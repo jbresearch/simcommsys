@@ -50,19 +50,19 @@ template <class real, class sig, bool normalize>
 void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
    {
    // if any parameters that effect memory have changed, release memory
-   if(initialised && (tau != fba::tau || xmax != fba::xmax))
+   if(initialised && (tau != This::tau || xmax != This::xmax))
       free();
    // code parameters
    assert(tau > 0);
-   fba::tau = tau;
+   This::tau = tau;
    // decoder parameters
    assert(I > 0);
    assert(xmax > 0);
-   fba::I = I;
-   fba::xmax = xmax;
+   This::I = I;
+   This::xmax = xmax;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
-   fba::th_inner = th_inner;
+   This::th_inner = th_inner;
    }
 
 // Internal procedures

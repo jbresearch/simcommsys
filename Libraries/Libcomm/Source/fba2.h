@@ -42,6 +42,9 @@ public:
    typedef boost::assignable_multi_array<bool,3> array3b_t;
    // @}
 private:
+   // Shorthand for class hierarchy
+   typedef fba2<real,sig,normalize> This;
+private:
    /*! \name User-defined parameters */
    int   N;       //!< The transmitted block size in symbols
    int   n;       //!< The number of bits encoding each q-ary symbol

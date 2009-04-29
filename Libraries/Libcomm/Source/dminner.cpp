@@ -67,7 +67,7 @@ void dminner<real,normalize>::copylut(libbase::vector<libbase::bitfield> lutb)
       lut(i) = lutb(i);
       }
    }
-   
+
 /*!
    \brief Confirm that LUT is valid
    Checks that all LUT entries are within range and that there are no
@@ -97,7 +97,7 @@ double dminner<real,normalize>::computemeandensity() const
    w.apply(libbase::weight);
    return w.sum()/double(n * w.size());
    }
-   
+
 //! Inform user if I or xmax have changed
 
 template <class real, bool normalize>
@@ -134,8 +134,8 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptabl
       // determine the strongest path at this point
       real threshold = 0;
       for(int x1=-xmax; x1<=xmax; x1++)
-         if(fba<real,bool,normalize>::getF(n*i,x1) > threshold)
-            threshold = fba<real,bool,normalize>::getF(n*i,x1);
+         if(FBA::getF(n*i,x1) > threshold)
+            threshold = FBA::getF(n*i,x1);
       threshold *= th_outer;
       for(int d=0; d<q; d++)
          {
@@ -160,7 +160,7 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptabl
          const int x2max_bnd = std::min(xmax,r.size()-n*(i+1));
          for(int x1=x1min; x1<=x1max; x1++)
             {
-            const real F = fba<real,bool,normalize>::getF(n*i,x1);
+            const real F = FBA::getF(n*i,x1);
             // ignore paths below a certain threshold
             if(F < threshold)
                continue;
@@ -170,7 +170,7 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptabl
                {
                // compute the conditional probability
                const real R = mychan.receive(t, r.extract(n*i+x1,x2-x1+n));
-               const real B = fba<real,bool,normalize>::getB(n*(i+1),x2);
+               const real B = FBA::getB(n*(i+1),x2);
                // include the probability for this particular sequence
                p += F * R * B;
                }
@@ -270,8 +270,8 @@ template <class real, bool normalize>
 void dminner<real,normalize>::set_thresholds(const double th_inner, const double th_outer)
    {
    user_threshold = true;
-   dminner::th_inner = th_inner;
-   dminner::th_outer = th_outer;
+   This::th_inner = th_inner;
+   This::th_outer = th_outer;
    test_invariant();
    }
 
@@ -327,7 +327,7 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
 #ifndef NDEBUG
       if(tau < 10)
          {
-         libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
+         libbase::trace << "DEBUG (This::modulate): word " << i << "\t";
          libbase::trace << "s = " << libbase::bitfield(s,n) << "\t";
          libbase::trace << "w = " << libbase::bitfield(w,n) << "\n";
          }
@@ -359,8 +359,8 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
    const int dxmax = bsid::compute_xmax(n, Pd);
    checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
-   fba<real,bool,normalize>::init(tau, I, xmax, th_inner);
-   fba<real,bool,normalize>::prepare(rx);
+   FBA::init(tau, I, xmax, th_inner);
+   FBA::prepare(rx);
    // Reset substitution probability to original value
    mychan.set_ps(Ps);
    // Set block size for results-computation pass to q-ary symbol size
@@ -376,7 +376,7 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
    {
    array1vd_t p;
    // Apply standard demodulation
-   dminner<real,normalize>::dodemodulate(chan, rx, p);
+   This::dodemodulate(chan, rx, p);
    // If we have no prior information, copy results over
    if(app.size() == 0)
       {
