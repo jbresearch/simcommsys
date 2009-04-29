@@ -22,10 +22,10 @@ namespace libcomm {
    with Insertions, Deletions, and Substitutions", Trans. IT, Feb 2001.
 */
 
-template <class real, bool normalize>
+template <class real, bool norm>
 class dminner2 :
-   public dminner<real,normalize>,
-   private fba2<real,bool,normalize> {
+   public dminner<real,norm>,
+   private fba2<real,bool,norm> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<bool>       array1b_t;
@@ -37,9 +37,9 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef informed_modulator<bool> Interface;
-   typedef dminner2<real,normalize> This;
-   typedef dminner<real,normalize> Base;
-   typedef fba2<real,bool,normalize> FBA;
+   typedef dminner2<real,norm> This;
+   typedef dminner<real,norm> Base;
+   typedef fba2<real,bool,norm> FBA;
 private:
    // Implementations of channel-specific metrics for fba2
    real R(int d, int i, const array1b_t& r) const;
@@ -52,9 +52,9 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    explicit dminner2(const int n=2, const int k=1)
-      : dminner<real,normalize>(n,k) {};
+      : dminner<real,norm>(n,k) {};
    dminner2(const int n, const int k, const double th_inner, const double th_outer)
-      : dminner<real,normalize>(n,k,th_inner,th_outer) {};
+      : dminner<real,norm>(n,k,th_inner,th_outer) {};
    // @}
 
    // Vector modem operations

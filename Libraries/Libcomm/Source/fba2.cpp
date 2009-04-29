@@ -17,8 +17,8 @@ namespace libcomm {
 
 /*! \brief Memory allocator for working matrices
 */
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::allocate()
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::allocate()
    {
    // determine limits
    dmin = std::max(-n,-dxmax);
@@ -57,8 +57,8 @@ void fba2<real,sig,normalize>::allocate()
 
 /*! \brief Release memory for working matrices
 */
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::free()
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::free()
    {
    alpha.resize(boost::extents[0][0]);
    beta.resize(boost::extents[0][0]);
@@ -71,8 +71,8 @@ void fba2<real,sig,normalize>::free()
 
 // Initialization
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
    {
    // if any parameters that effect memory have changed, release memory
    if(initialised && (N != This::N || n != This::n || q != This::q
@@ -101,8 +101,8 @@ void fba2<real,sig,normalize>::init(int N, int n, int q, int I, int xmax, int dx
 
 // Internal procedures
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::reset_cache() const
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::reset_cache() const
    {
    // initialise array
    gamma = real(0);
@@ -115,8 +115,8 @@ void fba2<real,sig,normalize>::reset_cache() const
 #endif
    }
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array1vd_t& app)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::work_gamma(const array1s_t& r, const array1vd_t& app)
    {
    assert(initialised);
    if(cache_enabled)
@@ -129,8 +129,8 @@ void fba2<real,sig,normalize>::work_gamma(const array1s_t& r, const array1vd_t& 
       libbase::trace << "DEBUG (fba2): Empty a-priori probability table passed.\n";
    }
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::work_gamma(const array1s_t& r)
    {
    assert(initialised);
    if(cache_enabled)
@@ -141,8 +141,8 @@ void fba2<real,sig,normalize>::work_gamma(const array1s_t& r)
    This::app.init(0);
    }
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_alpha(int rho)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::work_alpha(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
@@ -185,7 +185,7 @@ void fba2<real,sig,normalize>::work_alpha(int rho)
                alpha[i][x2] += alpha[i-1][x1] * get_gamma(d,i-1,x1,x2-x1);
          }
       // normalize if requested
-      if(normalize)
+      if(norm)
          {
          real sum = 0;
          for(int x=-xmax; x<=xmax; x++)
@@ -198,8 +198,8 @@ void fba2<real,sig,normalize>::work_alpha(int rho)
    std::cerr << progress.update(N-1, N-1);
    }
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_beta(int rho)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::work_beta(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
@@ -245,7 +245,7 @@ void fba2<real,sig,normalize>::work_beta(int rho)
                beta[i][x1] += beta[i+1][x2] * get_gamma(d,i,x1,x2-x1);
          }
       // normalize if requested
-      if(normalize)
+      if(norm)
          {
          real sum = 0;
          for(int x=-xmax; x<=xmax; x++)
@@ -258,8 +258,8 @@ void fba2<real,sig,normalize>::work_beta(int rho)
    std::cerr << progress.update(N-1, N-1);
    }
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::work_results(int rho, array1vr_t& ptable) const
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -317,8 +317,8 @@ void fba2<real,sig,normalize>::work_results(int rho, array1vr_t& ptable) const
 
 // User procedures
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
    {
    // initialise memory if necessary
    if(!initialised)
@@ -329,8 +329,8 @@ void fba2<real,sig,normalize>::decode(const array1s_t& r, const array1vd_t& app,
    work_results(r.size(), ptable);
    }
 
-template <class real, class sig, bool normalize>
-void fba2<real,sig,normalize>::decode(const array1s_t& r, array1vr_t& ptable)
+template <class real, class sig, bool norm>
+void fba2<real,sig,norm>::decode(const array1s_t& r, array1vr_t& ptable)
    {
    // initialise memory if necessary
    if(!initialised)

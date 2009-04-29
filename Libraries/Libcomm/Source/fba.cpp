@@ -15,8 +15,8 @@ namespace libcomm {
 
 /*! \brief Memory allocator for working matrices
 */
-template <class real, class sig, bool normalize>
-void fba<real,sig,normalize>::allocate()
+template <class real, class sig, bool norm>
+void fba<real,sig,norm>::allocate()
    {
    // Allocate required size
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
@@ -35,8 +35,8 @@ void fba<real,sig,normalize>::allocate()
 
 /*! \brief Release memory for working matrices
 */
-template <class real, class sig, bool normalize>
-void fba<real,sig,normalize>::free()
+template <class real, class sig, bool norm>
+void fba<real,sig,norm>::free()
    {
    F.resize(boost::extents[0][0]);
    B.resize(boost::extents[0][0]);
@@ -46,8 +46,8 @@ void fba<real,sig,normalize>::free()
 
 // Initialization
 
-template <class real, class sig, bool normalize>
-void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
+template <class real, class sig, bool norm>
+void fba<real,sig,norm>::init(int tau, int I, int xmax, double th_inner)
    {
    // if any parameters that effect memory have changed, release memory
    if(initialised && (tau != This::tau || xmax != This::xmax))
@@ -67,8 +67,8 @@ void fba<real,sig,normalize>::init(int tau, int I, int xmax, double th_inner)
 
 // Internal procedures
 
-template <class real, class sig, bool normalize>
-void fba<real,sig,normalize>::work_forward(const array1s_t& r)
+template <class real, class sig, bool norm>
+void fba<real,sig,norm>::work_forward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Forward Pass");
    // initialise memory if necessary
@@ -109,7 +109,7 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
             F[j][y] += F[j-1][a] * R(int(j-1),r.extract(int(j-1+a),int(y-a+1)));
          }
       // normalize if requested
-      if(normalize)
+      if(norm)
          {
          real sum = 0;
          for(index y=-xmax; y<=xmax; ++y)
@@ -122,8 +122,8 @@ void fba<real,sig,normalize>::work_forward(const array1s_t& r)
    std::cerr << progress.update(tau-1, tau-1);
    }
 
-template <class real, class sig, bool normalize>
-void fba<real,sig,normalize>::work_backward(const array1s_t& r)
+template <class real, class sig, bool norm>
+void fba<real,sig,norm>::work_backward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Backward Pass");
    // initialise memory if necessary
@@ -166,7 +166,7 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
             B[j][y] += B[j+1][b] * R(int(j),r.extract(int(j+y),int(b-y+1)));
          }
       // normalize if requested
-      if(normalize)
+      if(norm)
          {
          real sum = 0;
          for(index y=-xmax; y<=xmax; ++y)
@@ -181,8 +181,8 @@ void fba<real,sig,normalize>::work_backward(const array1s_t& r)
 
 // User procedures
 
-template <class real, class sig, bool normalize>
-void fba<real,sig,normalize>::prepare(const array1s_t& r)
+template <class real, class sig, bool norm>
+void fba<real,sig,norm>::prepare(const array1s_t& r)
    {
    // compute forwards and backwards passes
    work_forward(r);

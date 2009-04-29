@@ -41,7 +41,7 @@ namespace libcomm {
          bit j instead of j+1.
 */
 
-template <class real, class sig, bool normalize>
+template <class real, class sig, bool norm>
 class fba {
 public:
    /*! \name Type definitions */
@@ -50,7 +50,7 @@ public:
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef fba<real,sig,normalize> This;
+   typedef fba<real,sig,norm> This;
 private:
    /*! \name User-defined parameters */
    int tau;             //!< The (transmitted) block size in bits

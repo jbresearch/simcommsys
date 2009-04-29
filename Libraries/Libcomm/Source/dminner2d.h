@@ -23,10 +23,10 @@ namespace libcomm {
    row/column decoding, where the sparse symbols are now two-dimensional.
 */
 
-template <class real, bool normalize>
+template <class real, bool norm>
 class dminner2d :
    public informed_modulator<bool,libbase::matrix> {
-   //private fba2<real,bool,normalize> {
+   //private fba2<real,bool,norm> {
 public:
    /*! \name Type definitions */
    typedef libbase::matrix<bool>       array2b_t;

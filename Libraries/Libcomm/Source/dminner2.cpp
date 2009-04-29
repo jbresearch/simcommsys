@@ -15,8 +15,8 @@ namespace libcomm {
 
 // implementations of channel-specific metrics for fba2
 
-template <class real, bool normalize>
-real dminner2<real,normalize>::R(int d, int i, const array1b_t& r) const
+template <class real, bool norm>
+real dminner2<real,norm>::R(int d, int i, const array1b_t& r) const
    {
    const int n = Base::n;
    // 'tx' is the vector of transmitted symbols that we're considering
@@ -33,8 +33,8 @@ real dminner2<real,normalize>::R(int d, int i, const array1b_t& r) const
 
 // Setup procedure
 
-template <class real, bool normalize>
-void dminner2<real,normalize>::init(const channel<bool>& chan)
+template <class real, bool norm>
+void dminner2<real,norm>::init(const channel<bool>& chan)
    {
    // Inherit block size from last modulation step
    const int q = 1<<Base::k;
@@ -58,8 +58,8 @@ void dminner2<real,normalize>::init(const channel<bool>& chan)
 
 // encoding and decoding functions
 
-template <class real, bool normalize>
-void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
+template <class real, bool norm>
+void dminner2<real,norm>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
    {
    init(chan);
    array1vr_t p;
@@ -67,8 +67,8 @@ void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const arr
    Base::normalize_results(p,ptable);
    }
 
-template <class real, bool normalize>
-void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
+template <class real, bool norm>
+void dminner2<real,norm>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    init(chan);
    array1vr_t p;
@@ -78,8 +78,8 @@ void dminner2<real,normalize>::dodemodulate(const channel<bool>& chan, const arr
 
 // description output
 
-template <class real, bool normalize>
-std::string dminner2<real,normalize>::description() const
+template <class real, bool norm>
+std::string dminner2<real,norm>::description() const
    {
    std::ostringstream sout;
    sout << "Symbol-level " << Base::description();
@@ -88,16 +88,16 @@ std::string dminner2<real,normalize>::description() const
 
 // object serialization - saving
 
-template <class real, bool normalize>
-std::ostream& dminner2<real,normalize>::serialize(std::ostream& sout) const
+template <class real, bool norm>
+std::ostream& dminner2<real,norm>::serialize(std::ostream& sout) const
    {
    return Base::serialize(sout);
    }
 
 // object serialization - loading
 
-template <class real, bool normalize>
-std::istream& dminner2<real,normalize>::serialize(std::istream& sin)
+template <class real, bool norm>
+std::istream& dminner2<real,norm>::serialize(std::istream& sin)
    {
    return Base::serialize(sin);
    }

@@ -28,7 +28,7 @@ namespace libcomm {
    Trans. IT, 47(2), Feb 2001.
 */
 
-template <class real, class sig, bool normalize>
+template <class real, class sig, bool norm>
 class fba2 {
 public:
    /*! \name Type definitions */
@@ -43,7 +43,7 @@ public:
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef fba2<real,sig,normalize> This;
+   typedef fba2<real,sig,norm> This;
 private:
    /*! \name User-defined parameters */
    int   N;       //!< The transmitted block size in symbols
@@ -106,8 +106,8 @@ public:
    void decode(const array1s_t& r, array1vr_t& ptable);
 };
 
-template <class real, class sig, bool normalize>
-inline real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int deltax) const
+template <class real, class sig, bool norm>
+inline real fba2<real,sig,norm>::compute_gamma(int d, int i, int x, int deltax) const
    {
    real result = R(d,i,r.extract(n*i+x,n+deltax));
    if(app.size() > 0)
@@ -115,8 +115,8 @@ inline real fba2<real,sig,normalize>::compute_gamma(int d, int i, int x, int del
    return result;
    }
 
-template <class real, class sig, bool normalize>
-real fba2<real,sig,normalize>::get_gamma(int d, int i, int x, int deltax) const
+template <class real, class sig, bool norm>
+real fba2<real,sig,norm>::get_gamma(int d, int i, int x, int deltax) const
    {
    if(!cache_enabled)
       return compute_gamma(d, i, x, deltax);

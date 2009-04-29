@@ -31,7 +31,7 @@ namespace libcomm {
    Trans. IT, Feb 2001.
 
    \note In demodulate(), the ptable is internally computed as type 'real',
-         and then copied over after normalization. We normalize over the whole
+         and then copied over after normalization. We norm over the whole
          block instead of independently for each timestep. This should be
          equivalent to no-normalization, and is a precursor to a change in the
          architecture to allow higher-range ptables.
@@ -40,19 +40,19 @@ namespace libcomm {
          should be extracted into a common base
 */
 
-template <class real, bool normalize>
+template <class real, bool norm>
 class dminner2;
 
-template <class real, bool normalize>
+template <class real, bool norm>
 class dminner :
    public informed_modulator<bool>,
    public parametric,
-   private fba<real,bool,normalize> {
-   friend class dminner2<real,normalize>;
+   private fba<real,bool,norm> {
+   friend class dminner2<real,norm>;
 private:
    // Shorthand for class hierarchy
-   typedef dminner<real,normalize> This;
-   typedef fba<real,bool,normalize> FBA;
+   typedef dminner<real,norm> This;
+   typedef fba<real,bool,norm> FBA;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -150,8 +150,8 @@ public:
    DECLARE_SERIALIZER(dminner);
 };
 
-template <class real, bool normalize>
-inline void dminner<real,normalize>::test_invariant() const
+template <class real, bool norm>
+inline void dminner<real,norm>::test_invariant() const
    {
    // check code parameters
    assert(n >= 1 && n <= 32);

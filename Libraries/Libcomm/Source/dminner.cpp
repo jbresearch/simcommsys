@@ -19,8 +19,8 @@ namespace libcomm {
 /*!
    \brief Set up LUT with the lowest weight codewords
 */
-template <class real, bool normalize>
-int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
+template <class real, bool norm>
+int dminner<real,norm>::fill(int i, libbase::bitfield suffix, int w)
    {
    assert(lut_type == lut_straight);
    // set up if this is the first (root) call
@@ -54,8 +54,8 @@ int dminner<real,normalize>::fill(int i, libbase::bitfield suffix, int w)
 /*!
    \brief Set up LUT with the given codewords
 */
-template <class real, bool normalize>
-void dminner<real,normalize>::copylut(libbase::vector<libbase::bitfield> lutb)
+template <class real, bool norm>
+void dminner<real,norm>::copylut(libbase::vector<libbase::bitfield> lutb)
    {
    assertalways(lutb.size() == num_symbols());
    // initialize LUT
@@ -74,8 +74,8 @@ void dminner<real,normalize>::copylut(libbase::vector<libbase::bitfield> lutb)
    duplicate entries.
 */
 
-template <class real, bool normalize>
-void dminner<real,normalize>::validatelut() const
+template <class real, bool norm>
+void dminner<real,norm>::validatelut() const
    {
    assertalways(lut.size() == num_symbols());
    for(int i=0; i<lut.size(); i++)
@@ -90,8 +90,8 @@ void dminner<real,normalize>::validatelut() const
 
 //! Compute mean density of sparse alphabet
 
-template <class real, bool normalize>
-double dminner<real,normalize>::computemeandensity() const
+template <class real, bool norm>
+double dminner<real,norm>::computemeandensity() const
    {
    array1i_t w = lut;
    w.apply(libbase::weight);
@@ -100,8 +100,8 @@ double dminner<real,normalize>::computemeandensity() const
 
 //! Inform user if I or xmax have changed
 
-template <class real, bool normalize>
-void dminner<real,normalize>::checkforchanges(int I, int xmax) const
+template <class real, bool norm>
+void dminner<real,norm>::checkforchanges(int I, int xmax) const
    {
    static int last_I = 0;
    static int last_xmax = 0;
@@ -113,8 +113,8 @@ void dminner<real,normalize>::checkforchanges(int I, int xmax) const
       }
    }
 
-template <class real, bool normalize>
-void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const
+template <class real, bool norm>
+void dminner<real,norm>::work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const
    {
    libbase::pacifier progress("FBA Results");
    // determine limits
@@ -188,8 +188,8 @@ void dminner<real,normalize>::work_results(const array1b_t& r, array1vr_t& ptabl
    The input probability table is normalized such that the largest value is
    equal to 1; result is converted to double.
 */
-template <class real, bool normalize>
-void dminner<real,normalize>::normalize_results(const array1vr_t& in, array1vd_t& out) const
+template <class real, bool norm>
+void dminner<real,norm>::normalize_results(const array1vr_t& in, array1vd_t& out) const
    {
    const int N = in.size();
    assert(N > 0);
@@ -211,8 +211,8 @@ void dminner<real,normalize>::normalize_results(const array1vr_t& in, array1vd_t
 
 // initialization / de-allocation
 
-template <class real, bool normalize>
-void dminner<real,normalize>::init()
+template <class real, bool norm>
+void dminner<real,norm>::init()
    {
    // Fill default LUT if necessary
    if(lut_type == lut_straight)
@@ -243,15 +243,15 @@ void dminner<real,normalize>::init()
 
 // constructor / destructor
 
-template <class real, bool normalize>
-dminner<real,normalize>::dminner(const int n, const int k) :
+template <class real, bool norm>
+dminner<real,norm>::dminner(const int n, const int k) :
    n(n), k(k), lut_type(lut_straight), user_threshold(false)
    {
    init();
    }
 
-template <class real, bool normalize>
-dminner<real,normalize>::dminner(const int n, const int k, const double th_inner, const double th_outer) :
+template <class real, bool norm>
+dminner<real,norm>::dminner(const int n, const int k, const double th_inner, const double th_outer) :
    n(n), k(k), lut_type(lut_straight), user_threshold(true), th_inner(th_inner), th_outer(th_outer)
    {
    init();
@@ -259,15 +259,15 @@ dminner<real,normalize>::dminner(const int n, const int k, const double th_inner
 
 // Watermark-specific setup functions
 
-template <class real, bool normalize>
-void dminner<real,normalize>::set_lut(libbase::vector<libbase::bitfield> lut)
+template <class real, bool norm>
+void dminner<real,norm>::set_lut(libbase::vector<libbase::bitfield> lut)
    {
    copylut(lut);
    init();
    }
 
-template <class real, bool normalize>
-void dminner<real,normalize>::set_thresholds(const double th_inner, const double th_outer)
+template <class real, bool norm>
+void dminner<real,norm>::set_thresholds(const double th_inner, const double th_outer)
    {
    user_threshold = true;
    This::th_inner = th_inner;
@@ -277,8 +277,8 @@ void dminner<real,normalize>::set_thresholds(const double th_inner, const double
 
 // implementations of channel-specific metrics for fba
 
-template <class real, bool normalize>
-real dminner<real,normalize>::R(const int i, const array1b_t& r)
+template <class real, bool norm>
+real dminner<real,norm>::R(const int i, const array1b_t& r)
    {
    // 'tx' is a matrix of all possible transmitted symbols
    // we know exactly what was transmitted at this timestep
@@ -291,8 +291,8 @@ real dminner<real,normalize>::R(const int i, const array1b_t& r)
 
 // block advance operation - update watermark sequence
 
-template <class real, bool normalize>
-void dminner<real,normalize>::advance() const
+template <class real, bool norm>
+void dminner<real,norm>::advance() const
    {
    // Inherit sizes
    const int tau = this->input_block_size();
@@ -305,8 +305,8 @@ void dminner<real,normalize>::advance() const
 
 // encoding and decoding functions
 
-template <class real, bool normalize>
-void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
+template <class real, bool norm>
+void dminner<real,norm>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
    {
    // TODO: when N is removed from the interface, rename 'tau' to 'N'
    // Inherit sizes
@@ -338,8 +338,8 @@ void dminner<real,normalize>::domodulate(const int N, const array1i_t& encoded, 
       }
    }
 
-template <class real, bool normalize>
-void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
+template <class real, bool norm>
+void dminner<real,norm>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, array1vd_t& ptable)
    {
    // Inherit sizes
    const int N = this->input_block_size();
@@ -371,8 +371,8 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
    normalize_results(p,ptable);
    }
 
-template <class real, bool normalize>
-void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
+template <class real, bool norm>
+void dminner<real,norm>::dodemodulate(const channel<bool>& chan, const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    array1vd_t p;
    // Apply standard demodulation
@@ -398,8 +398,8 @@ void dminner<real,normalize>::dodemodulate(const channel<bool>& chan, const arra
 
 // description output
 
-template <class real, bool normalize>
-std::string dminner<real,normalize>::description() const
+template <class real, bool norm>
+std::string dminner<real,norm>::description() const
    {
    std::ostringstream sout;
    sout << "DM Inner Code (" << n << "/" << k << ", ";
@@ -415,7 +415,7 @@ std::string dminner<real,normalize>::description() const
       }
    if(user_threshold)
       sout << ", thresholds " << th_inner << "/" << th_outer;
-   if(normalize)
+   if(norm)
       sout << ", normalized";
    sout << ")";
    return sout.str();
@@ -423,8 +423,8 @@ std::string dminner<real,normalize>::description() const
 
 // object serialization - saving
 
-template <class real, bool normalize>
-std::ostream& dminner<real,normalize>::serialize(std::ostream& sout) const
+template <class real, bool norm>
+std::ostream& dminner<real,norm>::serialize(std::ostream& sout) const
    {
    sout << user_threshold << '\n';
    if(user_threshold)
@@ -447,8 +447,8 @@ std::ostream& dminner<real,normalize>::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-template <class real, bool normalize>
-std::istream& dminner<real,normalize>::serialize(std::istream& sin)
+template <class real, bool norm>
+std::istream& dminner<real,norm>::serialize(std::istream& sin)
    {
    std::streampos start = sin.tellg();
    sin >> user_threshold;

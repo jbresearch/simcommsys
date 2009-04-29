@@ -21,8 +21,8 @@ namespace libcomm {
    Updates 2D pilot sequence
 */
 
-template <class real, bool normalize>
-void dminner2d<real,normalize>::advance() const
+template <class real, bool norm>
+void dminner2d<real,norm>::advance() const
    {
    // Inherit sizes
    const int M = this->input_block_size().y;
@@ -41,8 +41,8 @@ void dminner2d<real,normalize>::advance() const
    Updates 2D pilot sequence
 */
 
-template <class real, bool normalize>
-void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx)
+template <class real, bool norm>
+void dminner2d<real,norm>::domodulate(const int q, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx)
    {
    // Each 'encoded' symbol must be representable by a single sparse matrix
    assertalways(this->q == q);
@@ -70,8 +70,8 @@ void dminner2d<real,normalize>::domodulate(const int q, const libbase::matrix<in
    Decodes 2D sequence by performing iterative row/column decodings.
 */
 
-template <class real, bool normalize>
-void dminner2d<real,normalize>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
+template <class real, bool norm>
+void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
    const int M = this->input_block_size().y;
@@ -92,8 +92,8 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool,libbase::matrix>
    libbase::vector<array1d_t> pin;
    libbase::vector<array1d_t> pout;
    libbase::vector<array1d_t> pacc;
-   dminner2<real,normalize> rowdec(n,int(log2(q)));
-   dminner2<real,normalize> coldec(m,int(log2(q)));
+   dminner2<real,norm> rowdec(n,int(log2(q)));
+   dminner2<real,norm> coldec(m,int(log2(q)));
    rowdec.set_thresholds(0,0);
    coldec.set_thresholds(0,0);
    // Iterate a few times
@@ -138,8 +138,8 @@ void dminner2d<real,normalize>::dodemodulate(const channel<bool,libbase::matrix>
    duplicate entries.
 */
 
-template <class real, bool normalize>
-void dminner2d<real,normalize>::validatelut() const
+template <class real, bool norm>
+void dminner2d<real,norm>::validatelut() const
    {
    assertalways(lut.size() == num_symbols());
    for(int i=0; i<lut.size(); i++)
@@ -160,8 +160,8 @@ void dminner2d<real,normalize>::validatelut() const
    and clearing the pilot sequence.
 */
 
-template <class real, bool normalize>
-void dminner2d<real,normalize>::init()
+template <class real, bool norm>
+void dminner2d<real,norm>::init()
    {
    // Determine code parameters from LUT
    q = lut.size();
@@ -177,8 +177,8 @@ void dminner2d<real,normalize>::init()
 
 // description output
 
-template <class real, bool normalize>
-std::string dminner2d<real,normalize>::description() const
+template <class real, bool norm>
+std::string dminner2d<real,norm>::description() const
    {
    std::ostringstream sout;
    sout << "Iterative 2D DM Inner Code (";
@@ -189,8 +189,8 @@ std::string dminner2d<real,normalize>::description() const
 
 // object serialization - saving
 
-template <class real, bool normalize>
-std::ostream& dminner2d<real,normalize>::serialize(std::ostream& sout) const
+template <class real, bool norm>
+std::ostream& dminner2d<real,norm>::serialize(std::ostream& sout) const
    {
    sout << lutname;
    sout << lut;
@@ -199,8 +199,8 @@ std::ostream& dminner2d<real,normalize>::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-template <class real, bool normalize>
-std::istream& dminner2d<real,normalize>::serialize(std::istream& sin)
+template <class real, bool norm>
+std::istream& dminner2d<real,norm>::serialize(std::istream& sin)
    {
    sin >> lutname;
    sin >> lut;
