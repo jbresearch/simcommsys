@@ -44,7 +44,7 @@ void sysrepacc<real,dbl>::translate(const libbase::vector< libbase::vector<doubl
    rp = 1.0;
    for(int i=0; i<Ns; i++)
       for(int x=0; x<q; x++)     // 'x' is the input symbol
-         rp(i, x) = iptable(i)(x);
+         rp(i, x) = dbl(iptable(i)(x));
    BCJR::normalize(rp);
    }
 

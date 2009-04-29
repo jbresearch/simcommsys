@@ -38,7 +38,7 @@ void lut_interleaver<real>::transform(const libbase::matrix<real>& in, libbase::
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)
          for(int i=0; i<K; i++)
-            out(t, i) = 1.0/double(K);
+            out(t, i) = real(1.0/K);
       else
          for(int i=0; i<K; i++)
             out(t, i) = in(lut(t), i);
@@ -54,7 +54,7 @@ void lut_interleaver<real>::inverse(const libbase::matrix<real>& in, libbase::ma
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)
          for(int i=0; i<K; i++)
-            out(t, i) = 1.0/double(K);
+            out(t, i) = real(1.0/K);
       else
          for(int i=0; i<K; i++)
             out(lut(t), i) = in(t, i);

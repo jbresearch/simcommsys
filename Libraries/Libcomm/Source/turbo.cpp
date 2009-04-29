@@ -364,7 +364,7 @@ void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >
          {
          rp(t, x) = 1;
          for(int i=0, thisx = x; i<sk; i++, thisx /= S)
-            rp(t, x) *= ptable(t*s+i)(thisx % S);
+            rp(t, x) *= dbl(ptable(t*s+i)(thisx % S));
          }
       // Parity bits [all sets]
       for(int x=0; x<enc_parity(); x++)
@@ -372,7 +372,7 @@ void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >
             {
             p(set, t, x) = 1;
             for(int i=0, thisx = x; i<sp; i++, thisx /= S)
-               p(set, t, x) *= ptable(t*s+i+offset)(thisx % S);
+               p(set, t, x) *= dbl(ptable(t*s+i+offset)(thisx % S));
             offset += sp;
             }
       }

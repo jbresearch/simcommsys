@@ -79,7 +79,7 @@ void bcjr<real,dbl,norm>::setstart()
    if(!initialised)
       allocate();
    for(int m=0; m<M; m++)
-      alpha(0, m) = 1.0/double(M);
+      alpha(0, m) = real(1.0/M);
    }
 
 template <class real, class dbl, bool norm>
@@ -88,7 +88,7 @@ void bcjr<real,dbl,norm>::setend()
    if(!initialised)
       allocate();
    for(int m=0; m<M; m++)
-      beta(tau, m) = 1.0/double(M);
+      beta(tau, m) = real(1.0/M);
    }
 
 // Set start- and end-state probabilities - known state

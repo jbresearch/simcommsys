@@ -154,7 +154,7 @@ void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> 
    for(int i=0; i<This::output_block_size(); i++)
       for(int x=0; x<This::num_outputs(); x++)
          for(int j=0; j<This::num_inputs(); j++)
-            R(i, x*This::num_inputs()+j) = ptable(i)(x);
+            R(i, x*This::num_inputs()+j) = dbl(ptable(i)(x));
    BCJR::normalize(R);
 
    // Reset start- and end-state probabilities
