@@ -187,12 +187,13 @@ void fba2<real,sig,norm>::work_alpha(int rho)
       // normalize if requested
       if(norm)
          {
-         real sum = 0;
+         real scale = 0;
          for(int x=-xmax; x<=xmax; x++)
-            sum += alpha[i][x];
-         sum = real(1)/sum;
+            scale += alpha[i][x];
+         assertalways(scale > real(0));
+         scale = real(1)/scale;
          for(int x=-xmax; x<=xmax; x++)
-            alpha[i][x] *= sum;
+            alpha[i][x] *= scale;
          }
       }
    std::cerr << progress.update(N-1, N-1);
@@ -247,12 +248,13 @@ void fba2<real,sig,norm>::work_beta(int rho)
       // normalize if requested
       if(norm)
          {
-         real sum = 0;
+         real scale = 0;
          for(int x=-xmax; x<=xmax; x++)
-            sum += beta[i][x];
-         sum = real(1)/sum;
+            scale += beta[i][x];
+         assertalways(scale > real(0));
+         scale = real(1)/scale;
          for(int x=-xmax; x<=xmax; x++)
-            beta[i][x] *= sum;
+            beta[i][x] *= scale;
          }
       }
    std::cerr << progress.update(N-1, N-1);

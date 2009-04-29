@@ -111,12 +111,13 @@ void fba<real,sig,norm>::work_forward(const array1s_t& r)
       // normalize if requested
       if(norm)
          {
-         real sum = 0;
+         real scale = 0;
          for(index y=-xmax; y<=xmax; ++y)
-            sum += F[j][y];
-         sum = real(1)/sum;
+            scale += F[j][y];
+         assertalways(scale > real(0));
+         scale = real(1)/scale;
          for(index y=-xmax; y<=xmax; ++y)
-            F[j][y] *= sum;
+            F[j][y] *= scale;
          }
       }
    std::cerr << progress.update(tau-1, tau-1);
@@ -168,12 +169,13 @@ void fba<real,sig,norm>::work_backward(const array1s_t& r)
       // normalize if requested
       if(norm)
          {
-         real sum = 0;
+         real scale = 0;
          for(index y=-xmax; y<=xmax; ++y)
-            sum += B[j][y];
-         sum = real(1)/sum;
+            scale += B[j][y];
+         assertalways(scale > real(0));
+         scale = real(1)/scale;
          for(index y=-xmax; y<=xmax; ++y)
-            B[j][y] *= sum;
+            B[j][y] *= scale;
          }
       }
    std::cerr << progress.update(tau-1, tau-1);
