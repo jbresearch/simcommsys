@@ -100,7 +100,7 @@ void mapcc<real>::encode(const array1i_t& source, array1i_t& encoded)
    }
 
 template <class real>
-void mapcc<real>::translate(const array2d_t& ptable)
+void mapcc<real>::translate(const array1vd_t& ptable)
    {
    using std::cerr;
    // Compute factors / sizes & check validity
@@ -126,7 +126,7 @@ void mapcc<real>::translate(const array2d_t& ptable)
    }
 
 template <class real>
-void mapcc<real>::softdecode(array2d_t& ri)
+void mapcc<real>::softdecode(array1vd_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif;
@@ -142,7 +142,7 @@ void mapcc<real>::softdecode(array2d_t& ri)
    }
 
 template <class real>
-void mapcc<real>::softdecode(array2d_t& ri, array2d_t& ro)
+void mapcc<real>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif, rof;
@@ -194,14 +194,11 @@ std::ostream& mapcc<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& mapcc<real>::serialize(std::istream& sin)
    {
-   int temp;
    free();
    sin >> encoder;
    sin >> tau;
-   sin >> temp;
-   endatzero = temp != 0;
-   sin >> temp;
-   circular = temp != 0;
+   sin >> endatzero;
+   sin >> circular;
    init();
    return sin;
    }

@@ -33,8 +33,9 @@ template <class real>
 class mapcc : public codec_softout<double>, private safe_bcjr<real> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<int>     array1i_t;
-   typedef libbase::vector< libbase::vector<double> >  array2d_t;
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
    // Shorthand for class hierarchy
@@ -42,16 +43,20 @@ private:
    typedef codec_softout<double> Base;
    typedef safe_bcjr<real> BCJR;
 private:
+   /*! \name User-defined parameters */
    fsm      *encoder;
-   double   rate;
    int      tau;           //!< Block length (including tail, if any)
    bool     endatzero;     //!< True for terminated trellis
    bool     circular;      //!< True for circular trellis
+   // @}
+   /*! \name Internal object representation */
+   double   rate;
    int      m;             //!< encoder memory order
    int      M;             //!< Number of states
    int      K;             //!< Number of input combinations
    int      N;             //!< Number of output combinations
    libbase::matrix<double> R;            //!< BCJR a-priori statistics
+   // @}
 protected:
    /*! \name Internal functions */
    void init();
@@ -70,9 +75,9 @@ public:
 
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const array2d_t& ptable);
-   void softdecode(array2d_t& ri);
-   void softdecode(array2d_t& ri, array2d_t& ro);
+   void translate(const array1vd_t& ptable);
+   void softdecode(array1vd_t& ri);
+   void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
