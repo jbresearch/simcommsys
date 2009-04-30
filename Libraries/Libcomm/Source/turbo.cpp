@@ -332,6 +332,8 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    \note The BCJR normalization method is used to normalize the channel-derived
          (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
          probabilities are now created normalized.
+
+   \note Clean up this function, removing unnecessary symbol-conversion
 */
 template <class real, class dbl>
 void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)

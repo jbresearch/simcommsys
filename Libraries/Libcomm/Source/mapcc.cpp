@@ -102,25 +102,17 @@ void mapcc<real>::encode(const array1i_t& source, array1i_t& encoded)
 template <class real>
 void mapcc<real>::translate(const array1vd_t& ptable)
    {
-   using std::cerr;
-   // Compute factors / sizes & check validity
-   assert(ptable.size() > 0);
-   const int S = ptable(0).size();
-   const int s = int(round(log(double(N))/log(double(S))));
-   // each encoder output N must be represented by an integral number of
-   // modulation symbols
-   assertalways(N == pow(double(S), s));
-   assertalways(ptable.size() == tau*s);
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_outputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::output_block_size());
    // Initialize results vector
    R.init(tau,N);
-   // Compute the Input statistics for the BCJR Algorithm
+   // Copy the input statistics for the BCJR Algorithm
    for(int t=0; t<tau; t++)
       for(int x=0; x<N; x++)
-         {
-         R(t,x) = 1;
-         for(int i=0, thisx = x; i<s; i++, thisx /= S)
-            R(t,x) *= ptable(t*s+i)(thisx % S);
-         }
+         R(t,x) = ptable(t)(x);
    // Reset start- and end-state probabilities
    reset();
    }
