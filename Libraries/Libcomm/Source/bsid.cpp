@@ -196,13 +196,13 @@ void bsid::set_parameter(const double p)
 */
 double bsid::get_parameter() const
    {
+   assert(varyPs || varyPd || varyPi);
    if(varyPs)
       return Ps;
    if(varyPd)
       return Pd;
-   if(varyPi)
-      return Pi;
-   assertalways("BSID channel has no parameters");
+   // must be varyPi
+   return Pi;
    }
 
 // Channel parameter setters

@@ -43,7 +43,7 @@ private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
-   fsm      *encoder;      //!< Encoder representation of accumulator
+   fsm      *acc;      //!< Encoder representation of accumulator
    int      N;             //!< Block size in input symbols
    int      r;             //!< Repetition factor
    int      iter;          //!< Number of iterations to perform
@@ -82,9 +82,9 @@ public:
       { return libbase::size<libbase::vector>(N); };
    libbase::size<libbase::vector> output_block_size() const
       { return libbase::size<libbase::vector>(N*r + tail_length()); };
-   int num_inputs() const { return encoder->num_inputs(); };
-   int num_outputs() const { return encoder->num_outputs()/encoder->num_inputs(); };
-   int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
+   int num_inputs() const { return acc->num_inputs(); };
+   int num_outputs() const { return acc->num_outputs()/acc->num_inputs(); };
+   int tail_length() const { return endatzero ? acc->mem_order() : 0; };
    int num_iter() const { return iter; };
 
    /*! \name Codec information functions - internal */

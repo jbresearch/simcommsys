@@ -22,8 +22,8 @@ void repacc<real,dbl>::init()
    assertalways(N > 0);
    assertalways(r > 0);
    // initialize BCJR subsystem for accumulator
-   assertalways(encoder);
-   BCJR::init(*encoder, This::output_block_size());
+   assertalways(acc);
+   BCJR::init(*acc, This::output_block_size());
    // check other components
    assertalways(inter);
    // TODO: check interleaver sizes
@@ -35,8 +35,8 @@ void repacc<real,dbl>::init()
 template <class real, class dbl>
 void repacc<real,dbl>::free()
    {
-   if(encoder != NULL)
-      delete encoder;
+   if(acc != NULL)
+      delete acc;
    if(inter != NULL)
       delete inter;
    }
@@ -62,8 +62,8 @@ template <class real, class dbl>
 void repacc<real,dbl>::allocate()
    {
    rp.init(This::input_block_size(), This::num_inputs());
-   ra.init(This::output_block_size(), encoder->num_inputs());
-   R.init(This::output_block_size(), encoder->num_outputs());
+   ra.init(This::output_block_size(), acc->num_inputs());
+   R.init(This::output_block_size(), acc->num_outputs());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -80,7 +80,7 @@ void repacc<real,dbl>::allocate()
 template <class real, class dbl>
 repacc<real,dbl>::repacc()
    {
-   encoder = NULL;
+   acc = NULL;
    inter = NULL;
    }
 
@@ -114,13 +114,13 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Initialise result vector
    encoded.init(This::output_block_size());
    // Reset the encoder to zero state
-   encoder->reset(0);
+   acc->reset(0);
    // Encode sequence
    for(int i=0; i<This::output_block_size(); i++)
-      encoded(i) = encoder->step(rep2(i)) / This::num_inputs();
+      encoded(i) = acc->step(rep2(i)) / This::num_inputs();
    // check that encoder finishes correctly
    if(endatzero)
-      assertalways(encoder->state() == 0);
+      assertalways(acc->state() == 0);
    }
 
 /*! \copydoc codec::translate()
@@ -223,7 +223,7 @@ std::string repacc<real,dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Repeat-Accumulate Code (" << N << "," << r << ") - ";
-   sout << encoder->description() << ", ";
+   sout << acc->description() << ", ";
    sout << inter->description() << ", ";
    sout << iter << " iterations, ";
    sout << (endatzero ? "Terminated" : "Unterminated");
@@ -237,7 +237,7 @@ std::ostream& repacc<real,dbl>::serialize(std::ostream& sout) const
    {
    // format version
    sout << 1 << '\n';
-   sout << encoder;
+   sout << acc;
    sout << inter;
    sout << N << '\n';
    sout << r << '\n';
@@ -257,7 +257,7 @@ std::istream& repacc<real,dbl>::serialize(std::istream& sin)
    int version;
    sin >> version;
    // get first-version items
-   sin >> encoder;
+   sin >> acc;
    sin >> inter;
    sin >> N;
    sin >> r;
