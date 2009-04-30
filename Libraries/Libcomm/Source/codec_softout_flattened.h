@@ -11,7 +11,7 @@ namespace libcomm {
 // 2 - Show mapping block sizes
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 2
 #endif
 
 /*!
@@ -36,6 +36,14 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef codec_softout_flattened<Base,dbl> This;
+private:
+   /*! \name Internal representation */
+   map_straight<libbase::vector> map;
+   // @}
+private:
+   /*! \name Internal functions */
+   void init();
+   // @}
 public:
    /*! \name Constructors / Destructors */
    ~codec_softout_flattened() {};
@@ -61,22 +69,33 @@ public:
       { return "Flattened " + Base::description(); };
 };
 
-// Codec operations
+// Initialization
 
 template <class Base, class dbl>
-void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void codec_softout_flattened<Base,dbl>::init()
    {
    // Set up mapper
-   map_straight<libbase::vector> map;
    const int N = Base::num_outputs(); // From:   # enc outputs
    const int M = This::num_outputs(); // To:     # mod symbols
    const int S = Base::num_outputs(); // Unused: # tran symbols
    map.set_parameters(N, M, S);
    map.set_blocksize(Base::output_block_size());
 #if DEBUG>=2
-   libbase::trace << "DEBUG: Flattening encode from " << N << " to " << M << " symbols, "
-      << map.input_block_size() << " to " << map.output_block_size() << " block\n";
+   libbase::trace << "DEBUG: flat encode setup from " \
+      << map.input_block_size() << "x" << N << " to " \
+      << map.output_block_size() << "x" << M << " symbols\n";
+   libbase::trace << "DEBUG: flat translate setup from " \
+      << map.output_block_size() << "x" << M << " to " \
+      << map.input_block_size() << "x" << S << " symbols\n";
 #endif
+   }
+
+// Codec operations
+
+template <class Base, class dbl>
+void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_t& encoded)
+   {
+   init();
    // Encode to a temporary space and convert
    array1i_t encwide;
    Base::encode(source, encwide);
@@ -86,17 +105,7 @@ void codec_softout_flattened<Base,dbl>::encode(const array1i_t& source, array1i_
 template <class Base, class dbl>
 void codec_softout_flattened<Base,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
    {
-   // Set up mapper
-   map_straight<libbase::vector> map;
-   const int N = Base::num_outputs(); // Unused: # enc outputs
-   const int M = This::num_outputs(); // From:   # mod symbols
-   const int S = Base::num_outputs(); // To:     # tran symbols
-   map.set_parameters(N, M, S);
-   map.set_blocksize(Base::output_block_size());
-#if DEBUG>=2
-   libbase::trace << "DEBUG: Opening translate from " << M << " to " << S << " symbols, "
-      << map.input_block_size() << " to " << map.output_block_size() << " block\n";
-#endif
+   init();
    // Convert to a temporary space and translate
    libbase::vector< libbase::vector<double> > ptable_flat;
    map.inverse(ptable, ptable_flat);
