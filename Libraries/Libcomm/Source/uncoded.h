@@ -47,6 +47,10 @@ protected:
    //! Default constructor
    uncoded();
    // @}
+   // Internal codec operations
+   void resetpriors();
+   void setpriors(const array1vd_t& ptable);
+   void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
    uncoded(const fsm& encoder, const int tau);
@@ -55,7 +59,6 @@ public:
 
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const array1vd_t& ptable);
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 

@@ -250,6 +250,103 @@ void turbo<real,dbl>::decode_parallel(array2d_t& ri)
    BCJR::normalize(ri);
    }
 
+// internal codec operations
+
+template <class real, class dbl>
+void turbo<real,dbl>::resetpriors()
+   {
+   }
+
+template <class real, class dbl>
+void turbo<real,dbl>::setpriors(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::input_block_size());
+   // Copy the input statistics for the BCJR Algorithm
+   for(int t=0; t<rp.xsize(); t++)
+      for(int i=0; i<rp.ysize(); i++)
+         rp(t,i) *= ptable(t)(i);
+   }
+
+/*! \copydoc codec_softout::setreceiver()
+
+   Sets: rp, ra, R, [ss, se, through reset()]
+
+   \note The BCJR normalization method is used to normalize the channel-derived
+         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+         probabilities are now created normalized.
+
+   \note Clean up this function, removing unnecessary symbol-conversion
+*/
+template <class real, class dbl>
+void turbo<real,dbl>::setreceiver(const array1vd_t& ptable)
+   {
+   // Compute factors / sizes & check validity
+   assertalways(ptable.size() > 0);
+   const int S = ptable(0).size();
+   const int sp = int(round(log(double(enc_parity()))/log(double(S))));
+   const int sk = int(round(log(double(num_inputs()))/log(double(S))));
+   const int s = sk + num_sets()*sp;
+   // Confirm that encoder's parity and input symbols can be represented by
+   // an integral number of modulation symbols
+   assertalways(enc_parity() == pow(double(S), sp));
+   assertalways(num_inputs() == pow(double(S), sk));
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == tau*s);
+
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+
+   // Allocate space for temporary matrices
+   libbase::matrix3<dbl> p(num_sets(), tau, enc_parity());
+
+   // Get the necessary data from the channel
+   for(int t=0; t<tau; t++)
+      {
+      // Input (data) bits [set 0 only]
+      for(int x=0; x<num_inputs(); x++)
+         {
+         rp(t, x) = 1;
+         for(int i=0, thisx = x; i<sk; i++, thisx /= S)
+            rp(t, x) *= dbl(ptable(t*s+i)(thisx % S));
+         }
+      // Parity bits [all sets]
+      for(int x=0; x<enc_parity(); x++)
+         for(int set=0, offset=sk; set<num_sets(); set++)
+            {
+            p(set, t, x) = 1;
+            for(int i=0, thisx = x; i<sp; i++, thisx /= S)
+               p(set, t, x) *= dbl(ptable(t*s+i+offset)(thisx % S));
+            offset += sp;
+            }
+      }
+
+   // Initialise a priori probabilities (extrinsic)
+   for(int set=0; set<(parallel ? num_sets() : 1); set++)
+      ra(set) = 1.0;
+
+   // Normalize a priori probabilities (intrinsic - source)
+   BCJR::normalize(rp);
+
+   // Compute and normalize a priori probabilities (intrinsic - encoded)
+   array2d_t rpi;
+   for(int set=0; set<num_sets(); set++)
+      {
+      inter(set)->transform(rp, rpi);
+      for(int t=0; t<tau; t++)
+         for(int x=0; x<enc_outputs(); x++)
+            R(set)(t, x) = rpi(t, x%num_inputs()) * p(set, t, x/num_inputs());
+      BCJR::normalize(R(set));
+      }
+
+   // Reset start- and end-state probabilities
+   reset();
+   }
+
 // encoding and decoding functions
 
 template <class real, class dbl>
@@ -325,81 +422,6 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
       }
    }
 
-/*! \copydoc codec::translate()
-
-   Sets: rp, ra, R, [ss, se, through reset()]
-
-   \note The BCJR normalization method is used to normalize the channel-derived
-         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
-         probabilities are now created normalized.
-
-   \note Clean up this function, removing unnecessary symbol-conversion
-*/
-template <class real, class dbl>
-void turbo<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
-   {
-   // Compute factors / sizes & check validity
-   assertalways(ptable.size() > 0);
-   const int S = ptable(0).size();
-   const int sp = int(round(log(double(enc_parity()))/log(double(S))));
-   const int sk = int(round(log(double(num_inputs()))/log(double(S))));
-   const int s = sk + num_sets()*sp;
-   // Confirm that encoder's parity and input symbols can be represented by
-   // an integral number of modulation symbols
-   assertalways(enc_parity() == pow(double(S), sp));
-   assertalways(num_inputs() == pow(double(S), sk));
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == tau*s);
-
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
-
-   // Allocate space for temporary matrices
-   libbase::matrix3<dbl> p(num_sets(), tau, enc_parity());
-
-   // Get the necessary data from the channel
-   for(int t=0; t<tau; t++)
-      {
-      // Input (data) bits [set 0 only]
-      for(int x=0; x<num_inputs(); x++)
-         {
-         rp(t, x) = 1;
-         for(int i=0, thisx = x; i<sk; i++, thisx /= S)
-            rp(t, x) *= dbl(ptable(t*s+i)(thisx % S));
-         }
-      // Parity bits [all sets]
-      for(int x=0; x<enc_parity(); x++)
-         for(int set=0, offset=sk; set<num_sets(); set++)
-            {
-            p(set, t, x) = 1;
-            for(int i=0, thisx = x; i<sp; i++, thisx /= S)
-               p(set, t, x) *= dbl(ptable(t*s+i+offset)(thisx % S));
-            offset += sp;
-            }
-      }
-
-   // Initialise a priori probabilities (extrinsic)
-   for(int set=0; set<(parallel ? num_sets() : 1); set++)
-      ra(set) = 1.0;
-
-   // Normalize a priori probabilities (intrinsic - source)
-   BCJR::normalize(rp);
-
-   // Compute and normalize a priori probabilities (intrinsic - encoded)
-   array2d_t rpi;
-   for(int set=0; set<num_sets(); set++)
-      {
-      inter(set)->transform(rp, rpi);
-      for(int t=0; t<tau; t++)
-         for(int x=0; x<enc_outputs(); x++)
-            R(set)(t, x) = rpi(t, x%num_inputs()) * p(set, t, x/num_inputs());
-      BCJR::normalize(R(set));
-      }
-
-   // Reset start- and end-state probabilities
-   reset();
-   }
 
 template <class real, class dbl>
 void turbo<real,dbl>::softdecode(array1vd_t& ri)

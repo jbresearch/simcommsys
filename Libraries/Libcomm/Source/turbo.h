@@ -116,6 +116,10 @@ protected:
    //! Default constructor
    turbo();
    // @}
+   // Internal codec operations
+   void resetpriors();
+   void setpriors(const array1vd_t& ptable);
+   void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
    turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver<dbl> *>& inter, \
@@ -126,7 +130,6 @@ public:
    // Codec operations
    void seedfrom(libbase::random& r);
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const libbase::vector< libbase::vector<double> >& ptable);
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 

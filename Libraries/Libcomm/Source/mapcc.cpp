@@ -70,6 +70,50 @@ mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, cons
    init();
    }
 
+// internal codec functions
+
+template <class real>
+void mapcc<real>::resetpriors()
+   {
+   // Initialize input probability vector
+   app.init(This::input_block_size(), This::num_inputs());
+   app = 1.0;
+   }
+
+template <class real>
+void mapcc<real>::setpriors(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::input_block_size());
+   // Initialize input probability vector
+   app.init(This::input_block_size(), This::num_inputs());
+   // Copy the input statistics for the BCJR Algorithm
+   for(int t=0; t<app.xsize(); t++)
+      for(int i=0; i<app.ysize(); i++)
+         app(t,i) = ptable(t)(i);
+   }
+
+template <class real>
+void mapcc<real>::setreceiver(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_outputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::output_block_size());
+   // Initialize receiver probability vector
+   R.init(tau,N);
+   // Copy the input statistics for the BCJR Algorithm
+   for(int t=0; t<tau; t++)
+      for(int x=0; x<N; x++)
+         R(t,x) = ptable(t)(x);
+   // Reset start- and end-state probabilities
+   reset();
+   }
+
 // encoding and decoding functions
 
 template <class real>
@@ -100,30 +144,12 @@ void mapcc<real>::encode(const array1i_t& source, array1i_t& encoded)
    }
 
 template <class real>
-void mapcc<real>::translate(const array1vd_t& ptable)
-   {
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == This::num_outputs());
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == This::output_block_size());
-   // Initialize results vector
-   R.init(tau,N);
-   // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<tau; t++)
-      for(int x=0; x<N; x++)
-         R(t,x) = ptable(t)(x);
-   // Reset start- and end-state probabilities
-   reset();
-   }
-
-template <class real>
 void mapcc<real>::softdecode(array1vd_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
    libbase::matrix<double> rif;
    // perform decoding
-   BCJR::fdecode(R, rif);
+   BCJR::fdecode(R, app, rif);
    // remove any tail bits from input set
    ri.init(input_block_size());
    for(int i=0; i<input_block_size(); i++)

@@ -25,6 +25,8 @@ namespace libcomm {
    \todo Change class interface to better model the actual representation of
          input and output sequences of the codec and to better separate this
          class from the modulation class.
+
+   \todo Templatize with respect to soft-value arithmetic
 */
 
 template <template<class> class C=libbase::vector>

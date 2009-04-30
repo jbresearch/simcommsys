@@ -375,9 +375,9 @@ template <class A>
 inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
-   init(x.m_xsize);
+   init(x.size());
    for(int i=0; i<m_xsize; i++)
-      m_data[i] = x.m_data[i];
+      m_data[i] = x(i);
    test_invariant();
    return *this;
    }

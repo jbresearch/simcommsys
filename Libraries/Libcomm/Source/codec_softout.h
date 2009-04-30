@@ -22,8 +22,41 @@ public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl>     array1d_t;
    // @}
+protected:
+   /*! \name Internal codec operations */
+   /*!
+      \brief A-priori probability initialization
+
+      This function resets the a-priori prabability tables for the codec to
+      equally-likely. This function (or setpriors) should be called before the
+      first decode iteration for each block.
+   */
+   virtual void resetpriors() = 0;
+   /*!
+      \brief A-priori probability setup
+      \param[in] ptable Likelihoods of each possible input symbol at every
+                        (input) timestep
+
+      This function updates the a-priori prabability tables for the codec.
+      This function (or resetpriors) should be called before the first decode
+      iteration for each block.
+   */
+   virtual void setpriors(const C<array1d_t>& ptable) = 0;
+   /*!
+      \copydoc codec::translate()
+
+      \note Sets up receiver likelihood tables only.
+   */
+   virtual void setreceiver(const C<array1d_t>& ptable) = 0;
+   // @}
 public:
    /*! \name Codec operations */
+   /*!
+      \copydoc codec::translate()
+      \param[in] app Likelihoods of each possible input symbol at every
+                     (input) timestep
+   */
+   virtual void translate(const C<array1d_t>& ptable, const C<array1d_t>& app) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -85,6 +118,8 @@ public:
    // @}
 public:
    // Codec operations
+   void translate(const libbase::vector< libbase::vector<double> >& ptable);
+   void translate(const array1vd_t& ptable, const array1vd_t& app);
    void decode(array1i_t& decoded);
 
    /*! \name Codec helper functions */

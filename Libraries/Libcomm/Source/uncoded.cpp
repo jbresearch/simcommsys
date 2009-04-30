@@ -48,23 +48,26 @@ uncoded::uncoded(const fsm& encoder, const int tau)
    init();
    }
 
-// encoding and decoding functions
+// internal codec operations
 
-void uncoded::encode(const array1i_t& source, array1i_t& encoded)
+void uncoded::resetpriors()
    {
-   assert(source.size() == tau);
-   // Initialise result vector
-   encoded.init(tau);
-   // Encode source stream
-   for(int t=0; t<tau; t++)
-      {
-      int ip = source(t);
-      assert(ip != fsm::tail);
-      encoded(t) = encoder->step(ip);
-      }
    }
 
-void uncoded::translate(const array1vd_t& ptable)
+void uncoded::setpriors(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == input_block_size());
+   // Copy the input statistics for the BCJR Algorithm
+   for(int t=0; t<input_block_size(); t++)
+      for(int i=0; i<num_inputs(); i++)
+         R(t)(i) *= ptable(t)(i);
+   }
+
+void uncoded::setreceiver(const array1vd_t& ptable)
    {
    // Compute factors / sizes & check validity
    assertalways(ptable.size() > 0);
@@ -87,6 +90,22 @@ void uncoded::translate(const array1vd_t& ptable)
          for(int i=0, thisx = lut(x); i<s; i++, thisx /= S)
             R(t)(x) *= ptable(t*s+i)(thisx % S);
          }
+   }
+
+// encoding and decoding functions
+
+void uncoded::encode(const array1i_t& source, array1i_t& encoded)
+   {
+   assert(source.size() == tau);
+   // Initialise result vector
+   encoded.init(tau);
+   // Encode source stream
+   for(int t=0; t<tau; t++)
+      {
+      int ip = source(t);
+      assert(ip != fsm::tail);
+      encoded(t) = encoder->step(ip);
+      }
    }
 
 void uncoded::softdecode(array1vd_t& ri)

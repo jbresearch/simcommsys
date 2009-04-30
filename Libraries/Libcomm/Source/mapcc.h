@@ -36,6 +36,7 @@ public:
    typedef libbase::vector<int>        array1i_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::matrix<double>     array2d_t;
    // @}
 private:
    // Shorthand for class hierarchy
@@ -55,7 +56,8 @@ private:
    int      M;             //!< Number of states
    int      K;             //!< Number of input combinations
    int      N;             //!< Number of output combinations
-   libbase::matrix<double> R;            //!< BCJR a-priori statistics
+   array2d_t R;            //!< BCJR a-priori receiver statistics
+   array2d_t app;          //!< BCJR a-priori input statistics
    // @}
 protected:
    /*! \name Internal functions */
@@ -67,6 +69,10 @@ protected:
    //! Default constructor
    mapcc();
    // @}
+   // Internal codec operations
+   void resetpriors();
+   void setpriors(const array1vd_t& ptable);
+   void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
    mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular=false);
@@ -75,7 +81,6 @@ public:
 
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const array1vd_t& ptable);
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 

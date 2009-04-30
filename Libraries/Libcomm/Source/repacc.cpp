@@ -84,6 +84,65 @@ repacc<real,dbl>::repacc()
    inter = NULL;
    }
 
+// internal codec functions
+
+template <class real, class dbl>
+void repacc<real,dbl>::resetpriors()
+   {
+   }
+
+template <class real, class dbl>
+void repacc<real,dbl>::setpriors(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::input_block_size());
+   // Copy the input statistics for the BCJR Algorithm
+   for(int t=0; t<rp.xsize(); t++)
+      for(int i=0; i<rp.ysize(); i++)
+         rp(t,i) *= ptable(t)(i);
+   }
+
+/*! \copydoc codec_softout::setreceiver()
+
+   Sets: ra, R
+
+   \note The BCJR normalization method is used to normalize the channel-derived
+         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+         probabilities are now created normalized.
+*/
+template <class real, class dbl>
+void repacc<real,dbl>::setreceiver(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_outputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::output_block_size());
+
+   // initialise memory if necessary
+   if(!initialised)
+      allocate();
+
+   // Initialise intrinsic source statistics (natural)
+   rp = 1.0;
+   // Initialise extrinsic accumulator-input statistics (natural)
+   ra = 1.0;
+   // Determine intrinsic accumulator-output statistics (interleaved)
+   // from the channel
+   R = 0.0;
+   for(int i=0; i<This::output_block_size(); i++)
+      for(int x=0; x<This::num_outputs(); x++)
+         for(int j=0; j<This::num_inputs(); j++)
+            R(i, x*This::num_inputs()+j) = dbl(ptable(i)(x));
+   BCJR::normalize(R);
+
+   // Reset start- and end-state probabilities
+   reset();
+   }
+
 // encoding and decoding functions
 
 template <class real, class dbl>
@@ -121,44 +180,6 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // check that encoder finishes correctly
    if(endatzero)
       assertalways(acc->state() == 0);
-   }
-
-/*! \copydoc codec::translate()
-
-   Sets: ra, R
-
-   \note The BCJR normalization method is used to normalize the channel-derived
-         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
-         probabilities are now created normalized.
-*/
-template <class real, class dbl>
-void repacc<real,dbl>::translate(const libbase::vector< libbase::vector<double> >& ptable)
-   {
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == This::num_outputs());
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == This::output_block_size());
-
-   // initialise memory if necessary
-   if(!initialised)
-      allocate();
-
-   // Initialise intrinsic source statistics (natural)
-   rp = 1.0;
-   // Initialise extrinsic accumulator-input statistics (natural)
-   ra = 1.0;
-   // Determine intrinsic accumulator-output statistics (interleaved)
-   // from the channel
-   R = 0.0;
-   for(int i=0; i<This::output_block_size(); i++)
-      for(int x=0; x<This::num_outputs(); x++)
-         for(int j=0; j<This::num_inputs(); j++)
-            R(i, x*This::num_inputs()+j) = dbl(ptable(i)(x));
-   BCJR::normalize(R);
-
-   // Reset start- and end-state probabilities
-   reset();
    }
 
 /*! \copydoc codec_softout::softdecode()
