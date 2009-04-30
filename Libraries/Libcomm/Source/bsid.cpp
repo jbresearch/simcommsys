@@ -202,8 +202,7 @@ double bsid::get_parameter() const
       return Pd;
    if(varyPi)
       return Pi;
-   std::cerr << "ERROR: BSID channel has no parameters\n";
-   exit(1);
+   assertalways("BSID channel has no parameters");
    }
 
 // Channel parameter setters

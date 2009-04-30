@@ -71,6 +71,8 @@ template <class real, class sig, bool norm>
 void fba<real,sig,norm>::work_forward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Forward Pass");
+   // local flag for path thresholding
+   const bool thresholding = (th_inner > 0);
    // initialise memory if necessary
    if(!initialised)
       allocate();
@@ -85,10 +87,13 @@ void fba<real,sig,norm>::work_forward(const array1s_t& r)
       std::cerr << progress.update(int(j-1), tau-1);
       // determine the strongest path at this point
       real threshold = 0;
-      for(index a=-xmax; a<=xmax; ++a)
-         if(F[j-1][a] > threshold)
-            threshold = F[j-1][a];
-      threshold *= th_inner;
+      if(thresholding)
+         {
+         for(index a=-xmax; a<=xmax; ++a)
+            if(F[j-1][a] > threshold)
+               threshold = F[j-1][a];
+         threshold *= th_inner;
+         }
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y <= r.size()-1
@@ -101,7 +106,7 @@ void fba<real,sig,norm>::work_forward(const array1s_t& r)
       for(index a=amin; a<=amax; ++a)
          {
          // ignore paths below a certain threshold
-         if(F[j-1][a] < threshold)
+         if(thresholding && F[j-1][a] < threshold)
             continue;
          const index ymin = std::max(-xmax,int(a)-1);
          const index ymax = std::min(ymax_bnd,int(a)+I);
@@ -127,6 +132,8 @@ template <class real, class sig, bool norm>
 void fba<real,sig,norm>::work_backward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Backward Pass");
+   // local flag for path thresholding
+   const bool thresholding = (th_inner > 0);
    // initialise memory if necessary
    if(!initialised)
       allocate();
@@ -143,10 +150,13 @@ void fba<real,sig,norm>::work_backward(const array1s_t& r)
       std::cerr << progress.update(int(tau-1-j), tau-1);
       // determine the strongest path at this point
       real threshold = 0;
-      for(index b=-xmax; b<=xmax; ++b)
-         if(B[j+1][b] > threshold)
-            threshold = B[j+1][b];
-      threshold *= th_inner;
+      if(thresholding)
+         {
+         for(index b=-xmax; b<=xmax; ++b)
+            if(B[j+1][b] > threshold)
+               threshold = B[j+1][b];
+         threshold *= th_inner;
+         }
       // event must fit the received sequence:
       // 1. j+y >= 0
       // 2. j+b <= r.size()-1
@@ -159,7 +169,7 @@ void fba<real,sig,norm>::work_backward(const array1s_t& r)
       for(index b=bmin; b<=bmax; ++b)
          {
          // ignore paths below a certain threshold
-         if(B[j+1][b] < threshold)
+         if(thresholding && B[j+1][b] < threshold)
             continue;
          const index ymin = std::max(ymin_bnd,int(b)-I);
          const index ymax = std::min(xmax,int(b)+1);

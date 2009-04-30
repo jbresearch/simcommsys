@@ -117,6 +117,8 @@ template <class real, bool norm>
 void dminner<real,norm>::work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const
    {
    libbase::pacifier progress("FBA Results");
+   // local flag for path thresholding
+   const bool thresholding = (th_outer > 0);
    // determine limits
    const int dmin = std::max(-n,-dxmax);
    const int dmax = std::min(n*I,dxmax);
@@ -133,10 +135,13 @@ void dminner<real,norm>::work_results(const array1b_t& r, array1vr_t& ptable, co
       std::cerr << progress.update(i, N);
       // determine the strongest path at this point
       real threshold = 0;
-      for(int x1=-xmax; x1<=xmax; x1++)
-         if(FBA::getF(n*i,x1) > threshold)
-            threshold = FBA::getF(n*i,x1);
-      threshold *= th_outer;
+      if(thresholding)
+         {
+         for(int x1=-xmax; x1<=xmax; x1++)
+            if(FBA::getF(n*i,x1) > threshold)
+               threshold = FBA::getF(n*i,x1);
+         threshold *= th_outer;
+         }
       for(int d=0; d<q; d++)
          {
          real p = 0;
@@ -162,7 +167,7 @@ void dminner<real,norm>::work_results(const array1b_t& r, array1vr_t& ptable, co
             {
             const real F = FBA::getF(n*i,x1);
             // ignore paths below a certain threshold
-            if(F < threshold)
+            if(thresholding && F < threshold)
                continue;
             const int x2min = std::max(-xmax,dmin+x1);
             const int x2max = std::min(x2max_bnd,dmax+x1);

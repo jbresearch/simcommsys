@@ -146,6 +146,8 @@ void fba2<real,sig,norm>::work_alpha(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
+   // local flag for path thresholding
+   const bool thresholding = (th_inner > 0);
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    alpha = real(0);
@@ -156,10 +158,13 @@ void fba2<real,sig,norm>::work_alpha(int rho)
       std::cerr << progress.update(i-1, N-1);
       // determine the strongest path at this point
       real threshold = 0;
-      for(int x1=-xmax; x1<=xmax; x1++)
-         if(alpha[i-1][x1] > threshold)
-            threshold = alpha[i-1][x1];
-      threshold *= th_inner;
+      if(thresholding)
+         {
+         for(int x1=-xmax; x1<=xmax; x1++)
+            if(alpha[i-1][x1] > threshold)
+               threshold = alpha[i-1][x1];
+         threshold *= th_inner;
+         }
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*(i-1)+x1 >= 0
@@ -176,7 +181,7 @@ void fba2<real,sig,norm>::work_alpha(int rho)
       for(int x1=x1min; x1<=x1max; x1++)
          {
          // ignore paths below a certain threshold
-         if(alpha[i-1][x1] < threshold)
+         if(thresholding && alpha[i-1][x1] < threshold)
             continue;
          const int x2min = std::max(-xmax,dmin+x1);
          const int x2max = std::min(std::min(xmax,dmax+x1),rho-n*i);
@@ -204,6 +209,8 @@ void fba2<real,sig,norm>::work_beta(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
+   // local flag for path thresholding
+   const bool thresholding = (th_inner > 0);
    // initialise array:
    // we also know x[tau] = rho-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
@@ -217,10 +224,13 @@ void fba2<real,sig,norm>::work_beta(int rho)
       std::cerr << progress.update(N-1-i, N-1);
       // determine the strongest path at this point
       real threshold = 0;
-      for(int x2=-xmax; x2<=xmax; x2++)
-         if(beta[i+1][x2] > threshold)
-            threshold = beta[i+1][x2];
-      threshold *= th_inner;
+      if(thresholding)
+         {
+         for(int x2=-xmax; x2<=xmax; x2++)
+            if(beta[i+1][x2] > threshold)
+               threshold = beta[i+1][x2];
+         threshold *= th_inner;
+         }
       // event must fit the received sequence:
       // (this is limited to start and end conditions)
       // 1. n*i+x1 >= 0
@@ -237,7 +247,7 @@ void fba2<real,sig,norm>::work_beta(int rho)
       for(int x2=x2min; x2<=x2max; x2++)
          {
          // ignore paths below a certain threshold
-         if(beta[i+1][x2] < threshold)
+         if(thresholding && beta[i+1][x2] < threshold)
             continue;
          const int x1min = std::max(std::max(-xmax,x2-dmax),-n*i);
          const int x1max = std::min(xmax,x2-dmin);
@@ -265,6 +275,8 @@ void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
+   // local flag for path thresholding
+   const bool thresholding = (th_outer > 0);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N);
    for(int i=0; i<N; i++)
@@ -275,10 +287,13 @@ void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
       std::cerr << progress.update(i, N);
       // determine the strongest path at this point
       real threshold = 0;
-      for(int x1=-xmax; x1<=xmax; x1++)
-         if(alpha[i][x1] > threshold)
-            threshold = alpha[i][x1];
-      threshold *= th_outer;
+      if(thresholding)
+         {
+         for(int x1=-xmax; x1<=xmax; x1++)
+            if(alpha[i][x1] > threshold)
+               threshold = alpha[i][x1];
+         threshold *= th_outer;
+         }
       for(int d=0; d<q; d++)
          {
          real p = 0;
@@ -298,7 +313,7 @@ void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
          for(int x1=x1min; x1<=x1max; x1++)
             {
             // ignore paths below a certain threshold
-            if(alpha[i][x1] < threshold)
+            if(thresholding && alpha[i][x1] < threshold)
                continue;
             const int x2min = std::max(-xmax,dmin+x1);
             const int x2max = std::min(std::min(xmax,dmax+x1),rho-n*(i+1));
