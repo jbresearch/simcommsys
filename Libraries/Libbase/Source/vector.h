@@ -376,8 +376,16 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
    init(x.size());
+// avoid down-cast warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4244 )
+#endif
    for(int i=0; i<m_xsize; i++)
       m_data[i] = x(i);
+#ifdef WIN32
+#  pragma warning( pop ) 
+#endif
    test_invariant();
    return *this;
    }
@@ -387,8 +395,16 @@ template <class A>
 inline vector<T>& vector<T>::operator=(const A x)
    {
    test_invariant();
+// avoid down-cast warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4244 )
+#endif
    for(int i=0; i<m_xsize; i++)
       m_data[i] = x;
+#ifdef WIN32
+#  pragma warning( pop ) 
+#endif
    test_invariant();
    return *this;
    }
