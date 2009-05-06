@@ -35,9 +35,11 @@ int dminner<real,norm>::fill(int i, libbase::bitfield suffix, int w)
       return i;
    // otherwise, it all depends on the weight we're considering
    using libbase::bitfield;
-   using libbase::trace;
    bitfield b;
-   trace << "Starting fill with:\t" << suffix << "\t" << w << "\n";
+#ifndef NDEBUG
+   if(n > 2)
+      libbase::trace << "Starting fill with:\t" << suffix << "\t" << w << "\n";
+#endif
    if(w == 0)
       lut(i++) = suffix;
    else
@@ -224,15 +226,21 @@ void dminner<real,norm>::init()
       fill();
 #ifndef NDEBUG
    // Display LUT when debugging
-   libbase::trace << "LUT (k=" << k << ", n=" << n << "):\n";
-   for(int i=0; i<lut.size(); i++)
-      libbase::trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
+   if(n > 2)
+      {
+      libbase::trace << "LUT (k=" << k << ", n=" << n << "):\n";
+      for(int i=0; i<lut.size(); i++)
+         libbase::trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
+      }
 #endif
    // Validate LUT
    validatelut();
    // Compute the mean density
    f = computemeandensity();
-   libbase::trace << "Watermark code density = " << f << "\n";
+#ifndef NDEBUG
+   if(n > 2)
+      libbase::trace << "Watermark code density = " << f << "\n";
+#endif
    // set default thresholds if necessary
    if(!user_threshold)
       {
