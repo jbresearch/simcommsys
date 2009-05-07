@@ -4,7 +4,7 @@
 #include "config.h"
 #include "codec_softout.h"
 #include "codec_softout_flattened.h"
-#include "mapcc.h"
+#include "uncoded.h"
 #include "fsm.h"
 #include "interleaver.h"
 #include "safe_bcjr.h"
@@ -24,6 +24,10 @@ namespace libcomm {
    sum-product algorithm.
 
    \todo Avoid divisions when computing extrinsic information
+
+   \todo Implement accumulator as mapcc
+
+   \todo Generalize repeater and accumulator
 */
 
 template <class real, class dbl=double>
@@ -44,7 +48,7 @@ private:
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
    //! MAP representation of repetition code
-   codec_softout_flattened< mapcc<real,dbl>, dbl > rep;
+   codec_softout_flattened< uncoded<dbl>, dbl > rep;
    fsm      *acc;          //!< Encoder representation of accumulator
    int      iter;          //!< Number of iterations to perform
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
