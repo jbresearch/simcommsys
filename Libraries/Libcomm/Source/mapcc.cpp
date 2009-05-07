@@ -20,10 +20,6 @@ void mapcc<real,dbl>::init()
    assertalways(encoder);
    BCJR::init(*encoder, tau);
    assertalways(!circular || !endatzero);
-   m = endatzero ? encoder->mem_order() : 0;
-   M = encoder->num_states();
-   K = encoder->num_inputs();
-   N = encoder->num_outputs();
    }
 
 template <class real, class dbl>
@@ -62,12 +58,12 @@ mapcc<real,dbl>::mapcc() :
    }
 
 template <class real, class dbl>
-mapcc<real,dbl>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
+mapcc<real,dbl>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular) :
+   tau(tau),
+   endatzero(endatzero),
+   circular(circular)
    {
    This::encoder = encoder.clone();
-   This::tau = tau;
-   This::endatzero = endatzero;
-   This::circular = circular;
    init();
    }
 
@@ -106,10 +102,10 @@ void mapcc<real,dbl>::setreceiver(const array1vd_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::output_block_size());
    // Initialize receiver probability vector
-   R.init(tau,N);
+   R.init(This::output_block_size(),This::num_outputs());
    // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<tau; t++)
-      for(int x=0; x<N; x++)
+   for(int t=0; t<This::output_block_size(); t++)
+      for(int x=0; x<This::num_outputs(); x++)
          R(t,x) = ptable(t)(x);
    // Reset start- and end-state probabilities
    reset();

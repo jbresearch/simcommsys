@@ -21,8 +21,6 @@ namespace libcomm {
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Check for both flags (for terminated and circular trellises) being set.
 */
 
 template <class real, class dbl=double>
@@ -48,10 +46,6 @@ private:
    // @}
    /*! \name Internal object representation */
    double   rate;
-   int      m;             //!< encoder memory order
-   int      M;             //!< Number of states
-   int      K;             //!< Number of input combinations
-   int      N;             //!< Number of output combinations
    array2d_t R;            //!< BCJR a-priori receiver statistics
    array2d_t app;          //!< BCJR a-priori input statistics
    // @}
@@ -82,12 +76,15 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
-      { return libbase::size<libbase::vector>(endatzero ? tau-m : tau); };
+      {
+      const int nu = This::tail_length();
+      return libbase::size<libbase::vector>(tau-nu);
+      };
    libbase::size<libbase::vector> output_block_size() const
       { return libbase::size<libbase::vector>(tau); };
-   int num_inputs() const { return K; };
-   int num_outputs() const { return N; };
-   int tail_length() const { return m; };
+   int num_inputs() const { return encoder->num_inputs(); };
+   int num_outputs() const { return encoder->num_outputs(); };
+   int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
    int num_iter() const { return 1; };
 
    // Description
