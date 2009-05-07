@@ -22,13 +22,18 @@ namespace libcomm {
 
 */
 
-class uncoded : public codec_softout<double> {
+class uncoded :
+   public codec_softout<double> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
    typedef libbase::vector<double>     array1d_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef uncoded This;
+   typedef codec_softout<double> Base;
 private:
    /*! \name User-specified parameters */
    fsm   *encoder;

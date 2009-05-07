@@ -20,6 +20,7 @@ const libbase::serializer uncoded::shelper("codec", "uncoded", uncoded::create);
 
 void uncoded::init()
    {
+   assertalways(encoder);
    // Check that FSM is memoryless
    assertalways(encoder->mem_order() == 0);
    // since the encoder is memoryless, we can build an input/output table
@@ -36,15 +37,15 @@ void uncoded::free()
 
 // constructor / destructor
 
-uncoded::uncoded()
+uncoded::uncoded() :
+   encoder(NULL)
    {
-   encoder = NULL;
    }
 
-uncoded::uncoded(const fsm& encoder, const int tau)
+uncoded::uncoded(const fsm& encoder, const int tau) :
+   tau(tau)
    {
    uncoded::encoder = encoder.clone();
-   uncoded::tau = tau;
    init();
    }
 
@@ -58,33 +59,34 @@ void uncoded::setpriors(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == num_inputs());
+   assertalways(ptable(0).size() == This::num_inputs());
    // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == input_block_size());
+   assertalways(ptable.size() == This::input_block_size());
    // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<input_block_size(); t++)
-      for(int i=0; i<num_inputs(); i++)
+   for(int t=0; t<This::input_block_size(); t++)
+      for(int i=0; i<This::num_inputs(); i++)
          R(t)(i) *= ptable(t)(i);
    }
 
 void uncoded::setreceiver(const array1vd_t& ptable)
    {
+   //TODO: need only support modulation space = output space
    // Compute factors / sizes & check validity
    assertalways(ptable.size() > 0);
    const int S = ptable(0).size();
-   const int s = int(round(log(double(num_outputs()))/log(double(S))));
+   const int s = int(round(log(double(This::num_outputs()))/log(double(S))));
    // Confirm that encoder's output symbols can be represented by
    // an integral number of modulation symbols
-   assertalways(num_outputs() == pow(double(S), s));
+   assertalways(This::num_outputs() == pow(double(S), s));
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == tau*s);
    // Initialize results vector
    R.init(tau);
    for(int t=0; t<tau; t++)
-      R(t).init(num_inputs());
+      R(t).init(This::num_inputs());
    // Work out the probabilities of each possible input
    for(int t=0; t<tau; t++)
-      for(int x=0; x<num_inputs(); x++)
+      for(int x=0; x<This::num_inputs(); x++)
          {
          R(t)(x) = 1;
          for(int i=0, thisx = lut(x); i<s; i++, thisx /= S)
@@ -96,6 +98,7 @@ void uncoded::setreceiver(const array1vd_t& ptable)
 
 void uncoded::encode(const array1i_t& source, array1i_t& encoded)
    {
+   //TODO: can use LUT
    assert(source.size() == tau);
    // Initialise result vector
    encoded.init(tau);
@@ -123,7 +126,7 @@ void uncoded::softdecode(array1vd_t& ri, array1vd_t& ro)
 std::string uncoded::description() const
    {
    std::ostringstream sout;
-   sout << "Uncoded/Repetition Code ("  << output_bits() << "," << input_bits() << ") - ";
+   sout << "Uncoded/Repetition Code ("  << This::output_bits() << "," << This::input_bits() << ") - ";
    sout << encoder->description();
    return sout.str();
    }
