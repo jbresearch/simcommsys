@@ -54,6 +54,12 @@ uncoded<dbl>::uncoded(const fsm& encoder, const int tau) :
 template <class dbl>
 void uncoded<dbl>::resetpriors()
    {
+   // Allocate space for prior input statistics
+   rp.init(This::input_block_size());
+   for(int t=0; t<This::input_block_size(); t++)
+      rp(t).init(This::num_inputs());
+   // Initialize
+   rp = 1.0;
    }
 
 template <class dbl>
@@ -64,10 +70,8 @@ void uncoded<dbl>::setpriors(const array1vd_t& ptable)
    assertalways(ptable(0).size() == This::num_inputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
-   // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<This::input_block_size(); t++)
-      for(int i=0; i<This::num_inputs(); i++)
-         R(t)(i) *= ptable(t)(i);
+   // Copy the input statistics
+   rp = ptable;
    }
 
 template <class dbl>
@@ -78,14 +82,8 @@ void uncoded<dbl>::setreceiver(const array1vd_t& ptable)
    assertalways(ptable(0).size() == This::num_outputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::output_block_size());
-   // Initialize receiver probability vector
-   R.init(This::input_block_size());
-   for(int t=0; t<This::input_block_size(); t++)
-      R(t).init(This::num_inputs());
-   // Work out the probabilities of each possible input
-   for(int t=0; t<This::input_block_size(); t++)
-      for(int x=0; x<This::num_inputs(); x++)
-         R(t)(x) = ptable(t)(lut(x));
+   // Copy the output statistics
+   R = ptable;
    }
 
 // encoding and decoding functions
@@ -104,13 +102,27 @@ void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
 template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri)
    {
-   ri = R;
+   // Initialize results to prior statistics
+   ri = rp;
+   // Work out the probabilities of each possible input
+   for(int t=0; t<This::input_block_size(); t++)
+      for(int x=0; x<This::num_inputs(); x++)
+         ri(t)(x) *= R(t)(lut(x));
    }
 
 template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
-   failwith("Not yet implemented");
+   softdecode(ri);
+   // Allocate space for output results
+   ro.init(This::output_block_size());
+   for(int t=0; t<This::output_block_size(); t++)
+      ro(t).init(This::num_outputs());
+   // Compute output-related statistics
+   ro = 0.0;
+   for(int t=0; t<This::input_block_size(); t++)
+      for(int x=0; x<This::num_inputs(); x++)
+         ro(t)(lut(x)) = ri(t)(x);
    }
 
 // description output

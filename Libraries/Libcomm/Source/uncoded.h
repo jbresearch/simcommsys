@@ -38,11 +38,12 @@ private:
 private:
    /*! \name User-specified parameters */
    fsm   *encoder;
-   int   tau;  //!< block length
+   int   tau;        //!< Block size at input
    // @}
    /*! \name Computed parameters */
    array1i_t lut;
-   array1vd_t R;
+   array1vd_t rp;    //!< Intrinsic source statistics
+   array1vd_t R;     //!< Intrinsic output statistics
    // @}
 protected:
    /*! \name Internal functions */
