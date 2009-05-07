@@ -28,7 +28,7 @@ void visualtest(int seed, int type, double p)
                tx(i,j) = ((i&1) ^ (j&1)) != 0;
          break;
       default:
-         assertalways("Invalid type");
+         failwith("Invalid type");
       }
    cout << "Tx: " << tx << "\n";
    // pass that through the channel

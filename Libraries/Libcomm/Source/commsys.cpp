@@ -266,10 +266,10 @@ std::istream& basic_commsys<S,C>::serialize(std::istream& sin)
    free();
    sin >> chan;
    if(chan == NULL)
-      assertalways("Failed to load channel.");
+      failwith("Failed to load channel.");
    sin >> mdm;
    if(mdm == NULL)
-      assertalways("Failed to load modem.");
+      failwith("Failed to load modem.");
    sin >> map;
    if(sin.fail())
       {
@@ -279,7 +279,7 @@ std::istream& basic_commsys<S,C>::serialize(std::istream& sin)
       }
    sin >> cdc;
    if(cdc == NULL)
-      assertalways("Failed to load codec.");
+      failwith("Failed to load codec.");
    internallyallocated = true;
    init();
    return sin;

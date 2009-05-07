@@ -21,7 +21,7 @@ const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
 void rscc::resetcircular(int zerostate, int n)
    {
-   assertalways("Function not implemented.");
+   failwith("Function not implemented.");
    }
 
 // FSM helper operations

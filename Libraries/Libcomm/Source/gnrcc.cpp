@@ -45,7 +45,7 @@ vector<G> gnrcc<G>::determinefeedin(int input) const
 template <class G>
 void gnrcc<G>::resetcircular(int zerostate, int n)
    {
-   assertalways("Function not implemented.");
+   failwith("Function not implemented.");
    }
 
 

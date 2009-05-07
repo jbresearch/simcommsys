@@ -71,10 +71,14 @@
 // An assertion that is implemented even in release builds
 
 #ifdef NDEBUG
-#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::fail(#_Expression, __FILE__, __LINE__), 0) )
+#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::reporterrorandfail(#_Expression, __FILE__, __LINE__), 0) )
 #else
 #  define assertalways(_Expression) assert(_Expression)
 #endif
+
+// Fail with error
+
+#define failwith(_String) libbase::reporterrorandfail(_String, __FILE__, __LINE__)
 
 // Implemented log2, round, and sgn if these are not already available
 
@@ -143,7 +147,7 @@ namespace libbase {
 
 // Debugging tools
 
-void fail(const char *expression, const char *file, int line);
+void reporterrorandfail(const char *expression, const char *file, int line);
 extern std::ostream trace;
 
 // Names for integer types

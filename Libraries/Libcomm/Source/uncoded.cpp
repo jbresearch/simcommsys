@@ -110,7 +110,7 @@ void uncoded<dbl>::softdecode(array1vd_t& ri)
 template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
-   assertalways("Not yet implemented");
+   failwith("Not yet implemented");
    }
 
 // description output
