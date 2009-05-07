@@ -49,6 +49,7 @@ public:
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
    void translate(const libbase::vector< libbase::vector<double> >& ptable);
+   void translate(const array1vd_t& ptable, const array1vd_t& app);
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> output_block_size() const
