@@ -23,26 +23,22 @@ namespace libcomm {
    - $Author$
 
    \todo Check for both flags (for terminated and circular trellises) being set.
-
-   \todo Add template parameter for intermediate results
-
-   \todo Add float representation
 */
 
-template <class real>
-class mapcc : public codec_softout<double>, private safe_bcjr<real> {
+template <class real, class dbl=double>
+class mapcc : public codec_softout<dbl>, private safe_bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>        array1d_t;
    typedef libbase::vector<array1d_t>  array1vd_t;
-   typedef libbase::matrix<double>     array2d_t;
+   typedef libbase::matrix<dbl>        array2d_t;
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef mapcc<real> This;
-   typedef codec_softout<double> Base;
-   typedef safe_bcjr<real> BCJR;
+   typedef mapcc<real,dbl> This;
+   typedef codec_softout<dbl> Base;
+   typedef safe_bcjr<real,dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    fsm      *encoder;

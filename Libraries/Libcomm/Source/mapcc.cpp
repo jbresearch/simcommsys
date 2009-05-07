@@ -14,26 +14,27 @@ namespace libcomm {
 
 // initialization / de-allocation
 
-template <class real>
-void mapcc<real>::init()
+template <class real, class dbl>
+void mapcc<real,dbl>::init()
    {
+   assertalways(encoder);
    BCJR::init(*encoder, tau);
-   assert(!circular || !endatzero);
+   assertalways(!circular || !endatzero);
    m = endatzero ? encoder->mem_order() : 0;
    M = encoder->num_states();
    K = encoder->num_inputs();
    N = encoder->num_outputs();
    }
 
-template <class real>
-void mapcc<real>::free()
+template <class real, class dbl>
+void mapcc<real,dbl>::free()
    {
    if(encoder != NULL)
       delete encoder;
    }
 
-template <class real>
-void mapcc<real>::reset()
+template <class real, class dbl>
+void mapcc<real,dbl>::reset()
    {
    if(circular)
       {
@@ -54,14 +55,14 @@ void mapcc<real>::reset()
 
 // constructor / destructor
 
-template <class real>
-mapcc<real>::mapcc()
+template <class real, class dbl>
+mapcc<real,dbl>::mapcc() :
+   encoder(NULL)
    {
-   encoder = NULL;
    }
 
-template <class real>
-mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
+template <class real, class dbl>
+mapcc<real,dbl>::mapcc(const fsm& encoder, const int tau, const bool endatzero, const bool circular)
    {
    This::encoder = encoder.clone();
    This::tau = tau;
@@ -72,16 +73,16 @@ mapcc<real>::mapcc(const fsm& encoder, const int tau, const bool endatzero, cons
 
 // internal codec functions
 
-template <class real>
-void mapcc<real>::resetpriors()
+template <class real, class dbl>
+void mapcc<real,dbl>::resetpriors()
    {
    // Initialize input probability vector
    app.init(This::input_block_size(), This::num_inputs());
    app = 1.0;
    }
 
-template <class real>
-void mapcc<real>::setpriors(const array1vd_t& ptable)
+template <class real, class dbl>
+void mapcc<real,dbl>::setpriors(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -96,8 +97,8 @@ void mapcc<real>::setpriors(const array1vd_t& ptable)
          app(t,i) = ptable(t)(i);
    }
 
-template <class real>
-void mapcc<real>::setreceiver(const array1vd_t& ptable)
+template <class real, class dbl>
+void mapcc<real,dbl>::setreceiver(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -116,10 +117,10 @@ void mapcc<real>::setreceiver(const array1vd_t& ptable)
 
 // encoding and decoding functions
 
-template <class real>
-void mapcc<real>::encode(const array1i_t& source, array1i_t& encoded)
+template <class real, class dbl>
+void mapcc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
-   assert(source.size() == input_block_size());
+   assert(source.size() == This::input_block_size());
    // Initialise result vector
    encoded.init(tau);
    // Make a local copy of the source, including any necessary tail
@@ -143,62 +144,62 @@ void mapcc<real>::encode(const array1i_t& source, array1i_t& encoded)
       encoded(t) = encoder->step(source1(t));
    }
 
-template <class real>
-void mapcc<real>::softdecode(array1vd_t& ri)
+template <class real, class dbl>
+void mapcc<real,dbl>::softdecode(array1vd_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
-   libbase::matrix<double> rif;
+   array2d_t rif;
    // perform decoding
    BCJR::fdecode(R, app, rif);
    // remove any tail bits from input set
-   ri.init(input_block_size());
-   for(int i=0; i<input_block_size(); i++)
-      ri(i).init(num_inputs());
-   for(int i=0; i<input_block_size(); i++)
-      for(int j=0; j<num_inputs(); j++)
+   ri.init(This::input_block_size());
+   for(int i=0; i<This::input_block_size(); i++)
+      ri(i).init(This::num_inputs());
+   for(int i=0; i<This::input_block_size(); i++)
+      for(int j=0; j<This::num_inputs(); j++)
          ri(i)(j) = rif(i,j);
    }
 
-template <class real>
-void mapcc<real>::softdecode(array1vd_t& ri, array1vd_t& ro)
+template <class real, class dbl>
+void mapcc<real,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    // temporary space to hold complete results (ie. with tail)
-   libbase::matrix<double> rif, rof;
+   array2d_t rif, rof;
    // perform decoding
    BCJR::decode(R, rif, rof);
    // remove any tail bits from input set
-   ri.init(input_block_size());
-   for(int i=0; i<input_block_size(); i++)
-      ri(i).init(num_inputs());
-   for(int i=0; i<input_block_size(); i++)
-      for(int j=0; j<num_inputs(); j++)
+   ri.init(This::input_block_size());
+   for(int i=0; i<This::input_block_size(); i++)
+      ri(i).init(This::num_inputs());
+   for(int i=0; i<This::input_block_size(); i++)
+      for(int j=0; j<This::num_inputs(); j++)
          ri(i)(j) = rif(i,j);
    // copy output set
-   ro.init(output_block_size());
-   for(int i=0; i<output_block_size(); i++)
-      ro(i).init(num_outputs());
-   for(int i=0; i<output_block_size(); i++)
-      for(int j=0; j<num_outputs(); j++)
+   ro.init(This::output_block_size());
+   for(int i=0; i<This::output_block_size(); i++)
+      ro(i).init(This::num_outputs());
+   for(int i=0; i<This::output_block_size(); i++)
+      for(int j=0; j<This::num_outputs(); j++)
          ro(i)(j) = rof(i,j);
    }
 
 // description output
 
-template <class real>
-std::string mapcc<real>::description() const
+template <class real, class dbl>
+std::string mapcc<real,dbl>::description() const
    {
    std::ostringstream sout;
    sout << (endatzero ? "Terminated, " : "Unterminated, ");
    sout << (circular ? "Circular, " : "Non-circular, ");
-   sout << "MAP-decoded Convolutional Code (" << output_bits() << "," << input_bits() << ") - ";
+   sout << "MAP-decoded Convolutional Code (" << This::output_bits() << "," << This::input_bits() << ") - ";
    sout << encoder->description();
    return sout.str();
    }
 
 // object serialization - saving
 
-template <class real>
-std::ostream& mapcc<real>::serialize(std::ostream& sout) const
+template <class real, class dbl>
+std::ostream& mapcc<real,dbl>::serialize(std::ostream& sout) const
    {
    sout << encoder;
    sout << tau << "\n";
@@ -209,8 +210,8 @@ std::ostream& mapcc<real>::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-template <class real>
-std::istream& mapcc<real>::serialize(std::istream& sin)
+template <class real, class dbl>
+std::istream& mapcc<real,dbl>::serialize(std::istream& sin)
    {
    free();
    sin >> encoder;
@@ -239,6 +240,10 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
+template class mapcc<float,float>;
+template <>
+const serializer mapcc<float,float>::shelper = serializer("codec", "mapcc<float>", mapcc<float,float>::create);
+
 template class mapcc<double>;
 template <>
 const serializer mapcc<double>::shelper = serializer("codec", "mapcc<double>", mapcc<double>::create);
@@ -258,5 +263,9 @@ const serializer mapcc<logreal>::shelper = serializer("codec", "mapcc<logreal>",
 template class mapcc<logrealfast>;
 template <>
 const serializer mapcc<logrealfast>::shelper = serializer("codec", "mapcc<logrealfast>", mapcc<logrealfast>::create);
+
+template class mapcc<logrealfast,logrealfast>;
+template <>
+const serializer mapcc<logrealfast,logrealfast>::shelper = serializer("codec", "mapcc<logrealfast,logrealfast>", mapcc<logrealfast,logrealfast>::create);
 
 }; // end namespace
