@@ -70,45 +70,31 @@ void uncoded::setpriors(const array1vd_t& ptable)
 
 void uncoded::setreceiver(const array1vd_t& ptable)
    {
-   //TODO: need only support modulation space = output space
-   // Compute factors / sizes & check validity
+   // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
-   const int S = ptable(0).size();
-   const int s = int(round(log(double(This::num_outputs()))/log(double(S))));
-   // Confirm that encoder's output symbols can be represented by
-   // an integral number of modulation symbols
-   assertalways(This::num_outputs() == pow(double(S), s));
+   assertalways(ptable(0).size() == This::num_outputs());
    // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == tau*s);
-   // Initialize results vector
-   R.init(tau);
-   for(int t=0; t<tau; t++)
+   assertalways(ptable.size() == This::output_block_size());
+   // Initialize receiver probability vector
+   R.init(This::input_block_size());
+   for(int t=0; t<This::input_block_size(); t++)
       R(t).init(This::num_inputs());
    // Work out the probabilities of each possible input
-   for(int t=0; t<tau; t++)
+   for(int t=0; t<This::input_block_size(); t++)
       for(int x=0; x<This::num_inputs(); x++)
-         {
-         R(t)(x) = 1;
-         for(int i=0, thisx = lut(x); i<s; i++, thisx /= S)
-            R(t)(x) *= ptable(t*s+i)(thisx % S);
-         }
+         R(t)(x) = ptable(t)(lut(x));
    }
 
 // encoding and decoding functions
 
 void uncoded::encode(const array1i_t& source, array1i_t& encoded)
    {
-   //TODO: can use LUT
-   assert(source.size() == tau);
+   assert(source.size() == This::input_block_size());
    // Initialise result vector
-   encoded.init(tau);
+   encoded.init(This::input_block_size());
    // Encode source stream
-   for(int t=0; t<tau; t++)
-      {
-      int ip = source(t);
-      assert(ip != fsm::tail);
-      encoded(t) = encoder->step(ip);
-      }
+   for(int t=0; t<This::input_block_size(); t++)
+      encoded(t) = lut(source(t));
    }
 
 void uncoded::softdecode(array1vd_t& ri)
