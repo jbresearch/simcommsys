@@ -12,13 +12,10 @@
 
 namespace libcomm {
 
-using std::cerr;
-
-const libbase::serializer uncoded::shelper("codec", "uncoded", uncoded::create);
-
 // initialization / de-allocation
 
-void uncoded::init()
+template <class dbl>
+void uncoded<dbl>::init()
    {
    assertalways(encoder);
    // Check that FSM is memoryless
@@ -29,7 +26,8 @@ void uncoded::init()
       lut(i) = encoder->step(i);
    }
 
-void uncoded::free()
+template <class dbl>
+void uncoded<dbl>::free()
    {
    if(encoder != NULL)
       delete encoder;
@@ -37,25 +35,29 @@ void uncoded::free()
 
 // constructor / destructor
 
-uncoded::uncoded() :
+template <class dbl>
+uncoded<dbl>::uncoded() :
    encoder(NULL)
    {
    }
 
-uncoded::uncoded(const fsm& encoder, const int tau) :
+template <class dbl>
+uncoded<dbl>::uncoded(const fsm& encoder, const int tau) :
    tau(tau)
    {
-   uncoded::encoder = encoder.clone();
+   uncoded<dbl>::encoder = encoder.clone();
    init();
    }
 
 // internal codec operations
 
-void uncoded::resetpriors()
+template <class dbl>
+void uncoded<dbl>::resetpriors()
    {
    }
 
-void uncoded::setpriors(const array1vd_t& ptable)
+template <class dbl>
+void uncoded<dbl>::setpriors(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -68,7 +70,8 @@ void uncoded::setpriors(const array1vd_t& ptable)
          R(t)(i) *= ptable(t)(i);
    }
 
-void uncoded::setreceiver(const array1vd_t& ptable)
+template <class dbl>
+void uncoded<dbl>::setreceiver(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -87,7 +90,8 @@ void uncoded::setreceiver(const array1vd_t& ptable)
 
 // encoding and decoding functions
 
-void uncoded::encode(const array1i_t& source, array1i_t& encoded)
+template <class dbl>
+void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
    // Initialise result vector
@@ -97,19 +101,22 @@ void uncoded::encode(const array1i_t& source, array1i_t& encoded)
       encoded(t) = lut(source(t));
    }
 
-void uncoded::softdecode(array1vd_t& ri)
+template <class dbl>
+void uncoded<dbl>::softdecode(array1vd_t& ri)
    {
    ri = R;
    }
 
-void uncoded::softdecode(array1vd_t& ri, array1vd_t& ro)
+template <class dbl>
+void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    assertalways("Not yet implemented");
    }
 
 // description output
 
-std::string uncoded::description() const
+template <class dbl>
+std::string uncoded<dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Uncoded/Repetition Code ("  << This::output_bits() << "," << This::input_bits() << ") - ";
@@ -119,7 +126,8 @@ std::string uncoded::description() const
 
 // object serialization - saving
 
-std::ostream& uncoded::serialize(std::ostream& sout) const
+template <class dbl>
+std::ostream& uncoded<dbl>::serialize(std::ostream& sout) const
    {
    sout << encoder;
    sout << tau << "\n";
@@ -128,7 +136,8 @@ std::ostream& uncoded::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& uncoded::serialize(std::istream& sin)
+template <class dbl>
+std::istream& uncoded<dbl>::serialize(std::istream& sin)
    {
    free();
    sin >> encoder;
@@ -136,5 +145,29 @@ std::istream& uncoded::serialize(std::istream& sin)
    init();
    return sin;
    }
+
+}; // end namespace
+
+// Explicit Realizations
+
+#include "logrealfast.h"
+
+namespace libcomm {
+
+using libbase::logrealfast;
+
+using libbase::serializer;
+
+template class uncoded<float>;
+template <>
+const serializer uncoded<float>::shelper = serializer("codec", "uncoded<float>", uncoded<float>::create);
+
+template class uncoded<double>;
+template <>
+const serializer uncoded<double>::shelper = serializer("codec", "uncoded<double>", uncoded<double>::create);
+
+template class uncoded<logrealfast>;
+template <>
+const serializer uncoded<logrealfast>::shelper = serializer("codec", "uncoded<logrealfast>", uncoded<logrealfast>::create);
 
 }; // end namespace
