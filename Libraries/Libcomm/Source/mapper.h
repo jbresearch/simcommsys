@@ -25,13 +25,16 @@ namespace libcomm {
    commsys as a layer between codec and blockmodem.
 */
 
-template <template<class> class C=libbase::vector>
+template <template<class> class C=libbase::vector, class dbl=double>
 class mapper :
    public blockprocess {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>     array1d_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef mapper<C,dbl> This;
 
 protected:
    /*! \name User-defined parameters */
@@ -95,7 +98,7 @@ public:
    void set_parameters(const int N, const int M, const int S);
    //! Sets input block size
    void set_blocksize(libbase::size<C> size)
-      { assert(size > 0); this->size = size; this->setup(); };
+      { assert(size > 0); This::size = size; setup(); };
    // @}
 
    /*! \name Informative functions */

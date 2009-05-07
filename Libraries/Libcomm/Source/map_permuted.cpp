@@ -15,20 +15,20 @@ namespace libcomm {
 
 // Interface with mapper
 
-template <template<class> class C>
-void map_permuted<C>::advance() const
+template <template<class> class C, class dbl>
+void map_permuted<C,dbl>::advance() const
    {
-   lut.init(map_permuted<C>::output_block_size());
-   for(int i=0; i<map_permuted<C>::output_block_size(); i++)
+   lut.init(This::output_block_size());
+   for(int i=0; i<This::output_block_size(); i++)
       lut(i).init(M,r);
    }
 
-template <template<class> class C>
-void map_permuted<C>::dotransform(const C<int>& in, C<int>& out) const
+template <template<class> class C, class dbl>
+void map_permuted<C,dbl>::dotransform(const C<int>& in, C<int>& out) const
    {
    // do the base (straight) mapping into a temporary space
    C<int> s;
-   map_straight<C>::dotransform(in, s);
+   Base::dotransform(in, s);
    // final vector is the same size as straight-mapped one
    out.init(s);
    // permute the results
@@ -37,8 +37,8 @@ void map_permuted<C>::dotransform(const C<int>& in, C<int>& out) const
       out(i) = lut(i)(s(i));
    }
 
-template <template<class> class C>
-void map_permuted<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
+template <template<class> class C, class dbl>
+void map_permuted<C,dbl>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
    assert(pin.size() == lut.size());
    assert(pin(0).size() == M);
@@ -52,13 +52,13 @@ void map_permuted<C>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) con
       for(int j=0; j<M; j++)
          ptable(i)(j) = pin(i)(lut(i)(j));
    // do the base (straight) mapping
-   map_straight<C>::doinverse(ptable, pout);
+   Base::doinverse(ptable, pout);
    }
 
 // Description
 
-template <template<class> class C>
-std::string map_permuted<C>::description() const
+template <template<class> class C, class dbl>
+std::string map_permuted<C,dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Permuted Mapper";
@@ -67,17 +67,17 @@ std::string map_permuted<C>::description() const
 
 // Serialization Support
 
-template <template<class> class C>
-std::ostream& map_permuted<C>::serialize(std::ostream& sout) const
+template <template<class> class C, class dbl>
+std::ostream& map_permuted<C,dbl>::serialize(std::ostream& sout) const
    {
-   map_straight<C>::serialize(sout);
+   Base::serialize(sout);
    return sout;
    }
 
-template <template<class> class C>
-std::istream& map_permuted<C>::serialize(std::istream& sin)
+template <template<class> class C, class dbl>
+std::istream& map_permuted<C,dbl>::serialize(std::istream& sin)
    {
-   map_straight<C>::serialize(sin);
+   Base::serialize(sin);
    return sin;
    }
 

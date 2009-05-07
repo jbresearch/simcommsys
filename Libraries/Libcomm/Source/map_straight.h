@@ -21,14 +21,17 @@ namespace libcomm {
    \bug This is really only properly defined for vector containers.
 */
 
-template <template<class> class C=libbase::vector>
+template <template<class> class C=libbase::vector, class dbl=double>
 class map_straight :
-   public mapper<C> {
+   public mapper<C,dbl> {
 public:
    /*! \name Type definitions */
-   typedef mapper<C> Base;
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>     array1d_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef mapper<C,dbl> Base;
+   typedef map_straight<C,dbl> This;
 
 private:
    /*! \name Internal object representation */
@@ -53,7 +56,7 @@ protected:
 public:
    // Informative functions
    double rate() const { return 1; };
-   libbase::size<C> output_block_size() const { return libbase::size<C>(size.x*s1); };
+   libbase::size<C> output_block_size() const { return libbase::size<C>(size*s1); };
 
    // Description
    std::string description() const;

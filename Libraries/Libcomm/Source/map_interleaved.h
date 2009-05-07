@@ -19,13 +19,17 @@ namespace libcomm {
    This class defines an interleaved version of the straight mapper.
 */
 
-template <template<class> class C=libbase::vector>
+template <template<class> class C=libbase::vector, class dbl=double>
 class map_interleaved :
-   public map_straight<C> {
+   public map_straight<C,dbl> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>     array1d_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef map_straight<C,dbl> Base;
+   typedef map_interleaved<C,dbl> This;
 
 private:
    /*! \name Internal object representation */
