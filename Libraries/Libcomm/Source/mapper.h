@@ -45,14 +45,6 @@ protected:
    // @}
 
 protected:
-   /*! \name Helper functions */
-   /*!
-      \brief Determines the number of input symbols per output symbol
-      \param[in]  input    Number of possible values of each input symbol
-      \param[in]  output   Number of possible values of each output symbol
-   */
-   static int get_rate(const int input, const int output);
-   // @}
    /*! \name Interface with derived classes */
    //! Setup function, called from set_parameters and set_blocksize
    virtual void setup() = 0;
@@ -65,6 +57,15 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    virtual ~mapper() {};
+   // @}
+
+   /*! \name Helper functions */
+   /*!
+      \brief Determines the number of input symbols per output symbol
+      \param[in]  input    Number of possible values of each input symbol
+      \param[in]  output   Number of possible values of each output symbol
+   */
+   static int get_rate(const int input, const int output);
    // @}
 
    /*! \name Vector mapper operations */

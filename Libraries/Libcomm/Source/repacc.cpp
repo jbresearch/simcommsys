@@ -228,12 +228,13 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    rep.translate(ravd,rp);
    rep.softdecode(ri,ro);
    // compute extrinsic information
-   for(int i=0; i<This::output_block_size(); i++)
-      for(int x=0; x<This::num_outputs(); x++)
+   for(int i=0; i<Nr; i++)
+      for(int x=0; x<q; x++)
          if(ra(i,x) > dbl(0))
             ra(i,x) = ro(i)(x) / ra(i,x);
          else
             ra(i,x) = ro(i)(x);
+   // TODO: figure out how to deal with tail
    // normalize results
    BCJR::normalize(ra);
    }

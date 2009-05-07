@@ -49,6 +49,7 @@ public:
    void encode(const array1i_t& source, array1i_t& encoded);
    void translate(const libbase::vector< libbase::vector<double> >& ptable);
    void translate(const array1vd_t& ptable, const array1vd_t& app);
+   void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> output_block_size() const
@@ -73,16 +74,14 @@ template <class D>
 void codec_softout_flattened<Base,dbl>::init(mapper<libbase::vector,D>& map) const
    {
    // Set up mapper
-   const int N = Base::num_outputs(); // From:   # enc outputs
-   const int M = This::num_outputs(); // To:     # mod symbols
-   const int S = Base::num_outputs(); // Unused: # tran symbols
+   const int N = Base::num_outputs(); // # enc outputs
+   const int M = This::num_outputs(); // # mod symbols
+   const int S = Base::num_outputs(); // # tran symbols
    map.set_parameters(N, M, S);
    map.set_blocksize(Base::output_block_size());
 #if DEBUG>=2
-   libbase::trace << "DEBUG: flat encode setup from " \
+   libbase::trace << "DEBUG: mapper setup from " \
       << map.input_block_size() << "x" << N << " to " \
-      << map.output_block_size() << "x" << M << " symbols\n";
-   libbase::trace << "DEBUG: flat translate setup from " \
       << map.output_block_size() << "x" << M << " to " \
       << map.input_block_size() << "x" << S << " symbols\n";
 #endif
@@ -121,6 +120,28 @@ void codec_softout_flattened<Base,dbl>::translate(const array1vd_t& ptable, cons
    array1vd_t ptable_flat;
    map.inverse(ptable, ptable_flat);
    Base::translate(ptable_flat,app);
+   }
+
+template <class Base, class dbl>
+void codec_softout_flattened<Base,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+   {
+   // Decode to a temporary space
+   array1vd_t ro_wide;
+   Base::softdecode(ri,ro_wide);
+   // Allocate space for results
+   ro.init(This::output_block_size());
+   for(int t=0; t<This::output_block_size(); t++)
+      ro(t).init(This::num_outputs());
+   // Initialize
+   ro = 0.0;
+   // Convert
+   const int N = Base::num_outputs(); // # enc outputs
+   const int M = This::num_outputs(); // # mod symbols
+   const int s1 = mapper<>::get_rate(M, N);
+   for(int t=0; t<ro_wide.size(); t++)
+      for(int x=0; x<ro_wide(t).size(); x++)
+         for(int i=0, thisx=x; i<s1; i++, thisx /= M)
+            ro(t*s1+i)(x%M) += ro_wide(t)(x);
    }
 
 }; // end namespace

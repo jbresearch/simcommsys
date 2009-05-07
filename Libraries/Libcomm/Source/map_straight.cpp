@@ -44,14 +44,15 @@ void map_straight<C,dbl>::dotransform(const C<int>& in, C<int>& out) const
 template <template<class> class C, class dbl>
 void map_straight<C,dbl>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
    {
+   // Confirm modulation symbol space is what we expect
+   assertalways(pin.size() > 0);
+   assertalways(pin(0).size() == M);
+   // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
    pout.init(upsilon);
    for(int t=0; t<upsilon; t++)
-      {
-      assertalways(pin(t).size() == M);
       pout(t).init(S);
-      }
    // Get the necessary data from the channel
    for(int t=0; t<upsilon; t++)
       for(int x=0; x<S; x++)
