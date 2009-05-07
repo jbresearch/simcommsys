@@ -3,6 +3,8 @@
 
 #include "config.h"
 #include "codec_softout.h"
+#include "codec_softout_flattened.h"
+#include "mapcc.h"
 #include "fsm.h"
 #include "interleaver.h"
 #include "safe_bcjr.h"
@@ -20,8 +22,6 @@ namespace libcomm {
 
    These codes are decoded using the MAP decoder, rather than the
    sum-product algorithm.
-
-   \todo Implement repeater as fsm
 
    \todo Avoid divisions when computing extrinsic information
 */
@@ -43,16 +43,16 @@ private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
-   fsm      *acc;      //!< Encoder representation of accumulator
-   int      N;             //!< Block size in input symbols
-   int      r;             //!< Repetition factor
+   //! MAP representation of repetition code
+   codec_softout_flattened< mapcc<real,dbl>, dbl > rep;
+   fsm      *acc;          //!< Encoder representation of accumulator
    int      iter;          //!< Number of iterations to perform
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
    // @}
 protected:
    /*! \name Internal object representation */
    bool     initialised;   //!< Flag to indicate when memory is initialised
-   array2d_t rp;           //!< Intrinsic source statistics (natural)
+   array1vd_t rp;          //!< Intrinsic source statistics (natural)
    array2d_t ra;           //!< Extrinsic accumulator-input statistics (natural)
    array2d_t R;            //!< Intrinsic accumulator-output statistics (interleaved)
    // @}
@@ -82,16 +82,25 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
-      { return libbase::size<libbase::vector>(N); };
+      {
+      // Inherit sizes
+      const int N = rep.input_block_size();
+      return libbase::size<libbase::vector>(N);
+      };
    libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(N*r + tail_length()); };
+      {
+      // Inherit sizes
+      const int Nr = rep.output_block_size();
+      const int nu = tail_length();
+      return libbase::size<libbase::vector>(Nr + nu);
+      };
    int num_inputs() const { return acc->num_inputs(); };
    int num_outputs() const { return acc->num_outputs()/acc->num_inputs(); };
    int tail_length() const { return endatzero ? acc->mem_order() : 0; };
    int num_iter() const { return iter; };
 
    /*! \name Codec information functions - internal */
-   int num_repeats() const { return r; };
+   int num_repeats() const { return int(round(log(rep.num_outputs())/log(rep.num_inputs()))); };
    const interleaver<dbl> *get_inter() const { return inter; };
    // @}
 

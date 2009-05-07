@@ -23,7 +23,7 @@
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments>-r 0.4 -i '/user/cscssst/jb0029/ECW/Results/RA Codes (GF8)/Simulators/qsc-gf8-sysrepacc-grsc_2_1_2-200-4-20-term.txt'</globaldebugarguments>
+      <globaldebugarguments>-r 0.4 -i '/user/cscssst/jb0029/ECW/Results/RA Codes (GF8)/Simulators/qsc-gf8-repacc-grsc_2_1_2-200-5-20-term-new.txt'</globaldebugarguments>
       <globalcwd>/user/cscssst/jb0029/Programming/trunk</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <autoinstall>false</autoinstall>

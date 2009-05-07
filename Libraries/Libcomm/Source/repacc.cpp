@@ -18,14 +18,14 @@ namespace libcomm {
 template <class real, class dbl>
 void repacc<real,dbl>::init()
    {
-   // check sizes
-   assertalways(N > 0);
-   assertalways(r > 0);
-   // initialize BCJR subsystem for accumulator
-   assertalways(acc);
-   BCJR::init(*acc, This::output_block_size());
-   // check other components
+   // check presence of components
    assertalways(inter);
+   assertalways(acc);
+   // check repeat code
+   assertalways(This::input_block_size() > 0);
+   assertalways(rep.num_inputs() == This::num_inputs());
+   // initialize BCJR subsystem for accumulator
+   BCJR::init(*acc, This::output_block_size());
    // TODO: check interleaver sizes
    assertalways(iter > 0);
 
@@ -61,7 +61,10 @@ void repacc<real,dbl>::reset()
 template <class real, class dbl>
 void repacc<real,dbl>::allocate()
    {
-   rp.init(This::input_block_size(), This::num_inputs());
+   rp.init(This::input_block_size());
+   for(int i=0; i<This::input_block_size(); i++)
+      rp(i).init(This::num_inputs());
+   //rp.init(This::input_block_size(), This::num_inputs());
    ra.init(This::output_block_size(), acc->num_inputs());
    R.init(This::output_block_size(), acc->num_outputs());
 
@@ -78,10 +81,10 @@ void repacc<real,dbl>::allocate()
 // constructor / destructor
 
 template <class real, class dbl>
-repacc<real,dbl>::repacc()
+repacc<real,dbl>::repacc() :
+   inter(NULL),
+   acc(NULL)
    {
-   acc = NULL;
-   inter = NULL;
    }
 
 // internal codec functions
@@ -100,9 +103,10 @@ void repacc<real,dbl>::setpriors(const array1vd_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
    // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<rp.xsize(); t++)
+   rp = ptable;
+/*   for(int t=0; t<rp.xsize(); t++)
       for(int i=0; i<rp.ysize(); i++)
-         rp(t,i) *= ptable(t)(i);
+         rp(t)(i) *= ptable(t)(i);*/
    }
 
 /*! \copydoc codec_softout::setreceiver()
@@ -155,20 +159,18 @@ template <class real, class dbl>
 void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
-   // Compute repeater output, including any necessary tail
-   array1i_t rep(This::output_block_size());
-   for(int i=0; i<This::input_block_size(); i++)
-      for(int j=0; j<r; j++)
-         rep(i*r+j) = source(i);
-   for(int i=This::input_block_size()*r; i<This::output_block_size(); i++)
-      rep(i) = fsm::tail;
-
-   // Declare space for the interleaved sequence
-   array1i_t rep2;
-   // Advance interleaver to the next block
-   inter->advance();
+   // Compute repeater output
+   array1i_t rep0;
+   rep.encode(source,rep0);
+   // Copy and add any necessary tail
+   array1i_t rep1(This::output_block_size());
+   rep1.copyfrom(rep0);
+   for(int i=rep0.size(); i<rep1.size(); i++)
+      rep1(i) = fsm::tail;
    // Create interleaved sequence
-   inter->transform(rep, rep2);
+   array1i_t rep2;
+   inter->advance();
+   inter->transform(rep1, rep2);
 
    // Initialise result vector
    encoded.init(This::output_block_size());
@@ -206,27 +208,32 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    rif.mask(ra > 0).divideby(ra);
    ra = rif;
    BCJR::normalize(ra);
-   // allocate space for final results
-   ri.init(This::input_block_size());
-   for(int i=0; i<This::input_block_size(); i++)
-      ri(i).init(This::num_inputs());
-   // initialize final results with prior information
-   for(int i=0; i<This::input_block_size(); i++)
-      for(int x=0; x<This::num_inputs(); x++)
-         ri(i)(x) = rp(i,x);
+
+   // allocate space for interim results
+   const int Nr = rep.output_block_size();
+   const int q = rep.num_outputs();
+   assertalways(ra.xsize() >= Nr);
+   assertalways(ra.ysize() == q);
+   array1vd_t ravd;
+   ravd.init(Nr);
+   for(int i=0; i<Nr; i++)
+      ravd(i).init(q);
+   // convert interim results
+   for(int i=0; i<Nr; i++)
+      for(int x=0; x<q; x++)
+         ravd(i)(x) = ra(i,x);
+
    // decode repetition code (based on extrinsic information only)
-   for(int i=0; i<This::input_block_size(); i++)
-      for(int j=0; j<r; j++)
-         for(int x=0; x<This::num_inputs(); x++)
-            ri(i)(x) *= ra(i*r+j,x);
+   array1vd_t ro;
+   rep.translate(ravd,rp);
+   rep.softdecode(ri,ro);
    // compute extrinsic information
-   for(int i=0; i<This::input_block_size(); i++)
-      for(int j=0; j<r; j++)
-         for(int x=0; x<This::num_inputs(); x++)
-            if(ra(i*r+j,x) > dbl(0))
-               ra(i*r+j,x) = ri(i)(x) / ra(i*r+j,x);
-            else
-               ra(i*r+j,x) = ri(i)(x);
+   for(int i=0; i<This::output_block_size(); i++)
+      for(int x=0; x<This::num_outputs(); x++)
+         if(ra(i,x) > dbl(0))
+            ra(i,x) = ro(i)(x) / ra(i,x);
+         else
+            ra(i,x) = ro(i)(x);
    // normalize results
    BCJR::normalize(ra);
    }
@@ -243,7 +250,8 @@ template <class real, class dbl>
 std::string repacc<real,dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Repeat-Accumulate Code (" << N << "," << r << ") - ";
+   sout << "Repeat-Accumulate Code - ";
+   sout << rep.description() << ", ";
    sout << acc->description() << ", ";
    sout << inter->description() << ", ";
    sout << iter << " iterations, ";
@@ -257,11 +265,10 @@ template <class real, class dbl>
 std::ostream& repacc<real,dbl>::serialize(std::ostream& sout) const
    {
    // format version
-   sout << 1 << '\n';
+   sout << 2 << '\n';
+   rep.serialize(sout);
    sout << acc;
    sout << inter;
-   sout << N << '\n';
-   sout << r << '\n';
    sout << iter << '\n';
    sout << int(endatzero) << '\n';
    return sout;
@@ -277,11 +284,11 @@ std::istream& repacc<real,dbl>::serialize(std::istream& sin)
    // get format version
    int version;
    sin >> version;
-   // get first-version items
+   assertalways(version >= 2);
+   // get second-version items
+   rep.serialize(sin);
    sin >> acc;
    sin >> inter;
-   sin >> N;
-   sin >> r;
    sin >> iter;
    sin >> endatzero;
    init();
