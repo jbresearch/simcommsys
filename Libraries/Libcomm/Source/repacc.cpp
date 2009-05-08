@@ -13,6 +13,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show intermediate decoding output
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 // initialization / de-allocation
 
 template <class real, class dbl>
@@ -92,6 +100,10 @@ repacc<real,dbl>::repacc() :
 template <class real, class dbl>
 void repacc<real,dbl>::resetpriors()
    {
+   // Should be called after setreceivers()
+   assertalways(initialised);
+   // Initialise intrinsic source statistics (natural)
+   rp = 1.0;
    }
 
 template <class real, class dbl>
@@ -102,11 +114,10 @@ void repacc<real,dbl>::setpriors(const array1vd_t& ptable)
    assertalways(ptable(0).size() == This::num_inputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
-   // Copy the input statistics for the BCJR Algorithm
-   rp = ptable;
-/*   for(int t=0; t<rp.xsize(); t++)
-      for(int i=0; i<rp.ysize(); i++)
-         rp(t)(i) *= ptable(t)(i);*/
+   // Take into account intrinsic source statistics
+   for(int t=0; t<This::input_block_size(); t++)
+      for(int i=0; i<This::num_inputs(); i++)
+         rp(t)(i) *= ptable(t)(i);
    }
 
 /*! \copydoc codec_softout::setreceiver()
@@ -130,8 +141,6 @@ void repacc<real,dbl>::setreceiver(const array1vd_t& ptable)
    if(!initialised)
       allocate();
 
-   // Initialise intrinsic source statistics (natural)
-   rp = 1.0;
    // Initialise extrinsic accumulator-input statistics (natural)
    ra = 1.0;
    // Determine intrinsic accumulator-output statistics (interleaved)
@@ -223,18 +232,36 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
       for(int x=0; x<q; x++)
          ravd(i)(x) = ra(i,x);
 
+#if DEBUG>=2
+   array1i_t dec;
+   This::hard_decision(ravd,dec);
+   libbase::trace << "DEBUG (repacc): ravd = ";
+   dec.serialize(libbase::trace, ' ');
+#endif
+
    // decode repetition code (based on extrinsic information only)
    array1vd_t ro;
    rep.translate(ravd,rp);
    rep.softdecode(ri,ro);
+
+#if DEBUG>=2
+   This::hard_decision(ro,dec);
+   libbase::trace << "DEBUG (repacc): ro = ";
+   dec.serialize(libbase::trace, ' ');
+   This::hard_decision(ri,dec);
+   libbase::trace << "DEBUG (repacc): ri = ";
+   dec.serialize(libbase::trace, ' ');
+#endif
+
    // compute extrinsic information
+   // TODO: figure out how to deal with tail
    for(int i=0; i<Nr; i++)
       for(int x=0; x<q; x++)
          if(ra(i,x) > dbl(0))
             ra(i,x) = ro(i)(x) / ra(i,x);
          else
             ra(i,x) = ro(i)(x);
-   // TODO: figure out how to deal with tail
+
    // normalize results
    BCJR::normalize(ra);
    }
