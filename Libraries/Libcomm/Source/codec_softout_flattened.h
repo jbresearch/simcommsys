@@ -12,7 +12,7 @@ namespace libcomm {
 // 3 - Show soft-output for encoded symbols
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 /*!
