@@ -9,9 +9,10 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show mapping block sizes
+// 3 - Show soft-output for encoded symbols
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 3
 #endif
 
 /*!
@@ -129,6 +130,12 @@ void codec_softout_flattened<base_codec_softout,dbl>::softdecode(array1vd_t& ri,
    // Decode to a temporary space
    array1vd_t ro_wide;
    Base::softdecode(ri,ro_wide);
+#if DEBUG>=3
+   array1i_t dec;
+   This::hard_decision(ro_wide,dec);
+   libbase::trace << "DEBUG (csf): ro_wide = ";
+   dec.serialize(libbase::trace, ' ');
+#endif
    // Allocate space for results
    ro.init(This::output_block_size());
    for(int t=0; t<This::output_block_size(); t++)
@@ -142,7 +149,12 @@ void codec_softout_flattened<base_codec_softout,dbl>::softdecode(array1vd_t& ri,
    for(int t=0; t<ro_wide.size(); t++)
       for(int x=0; x<ro_wide(t).size(); x++)
          for(int i=0, thisx=x; i<s1; i++, thisx /= M)
-            ro(t*s1+i)(x%M) += ro_wide(t)(x);
+            ro(t*s1+i)(thisx%M) += ro_wide(t)(x);
+#if DEBUG>=3
+   This::hard_decision(ro,dec);
+   libbase::trace << "DEBUG (csf): ro = ";
+   dec.serialize(libbase::trace, ' ');
+#endif
    }
 
 }; // end namespace

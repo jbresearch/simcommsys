@@ -18,7 +18,7 @@ namespace libcomm {
 // 2 - Show intermediate decoding output
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 // initialization / de-allocation
