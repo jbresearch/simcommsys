@@ -87,7 +87,7 @@ public:
    //! Overall mapper rate
    double rate() const { return cdc->rate() * map->rate(); };
    //! Input (ie. source/decoded) block size in symbols
-   libbase::size<C> input_block_size() const { return libbase::size<C>(cdc->input_block_size()); };
+   libbase::size<C> input_block_size() const { return cdc->input_block_size(); };
    //! Output (ie. transmitted/received) block size in symbols
    libbase::size<C> output_block_size() const { return mdm->output_block_size(); };
    // @}

@@ -27,6 +27,10 @@ namespace libcomm {
          class from the modulation class.
 
    \todo Templatize with respect to soft-value arithmetic
+
+   \todo Merge num_symbols() with num_outputs() as these should be the same
+
+   \todo Remove tail_length() as tailing should be handled internally
 */
 
 template <template<class> class C=libbase::vector>

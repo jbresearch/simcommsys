@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
       ("help", "print this help message")
       ("system-file,i", po::value<std::string>(),
          "input file containing system description")
+      ("type,t", po::value<std::string>()->default_value("bool"),
+         "modulation symbol type")
       ;
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -62,7 +64,23 @@ int main(int argc, char *argv[])
       }
 
    // Main process
-   process<bool>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   if(vm["type"].as<std::string>() == "bool")
+      process<bool>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   else if(vm["type"].as<std::string>() == "gf2")
+      process< libbase::gf<1,0x3> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   else if(vm["type"].as<std::string>() == "gf4")
+      process< libbase::gf<2,0x7> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   else if(vm["type"].as<std::string>() == "gf8")
+      process< libbase::gf<3,0xB> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   else if(vm["type"].as<std::string>() == "gf16")
+      process< libbase::gf<4,0x13> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   else if(vm["type"].as<std::string>() == "sigspace")
+      process<libcomm::sigspace>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   else
+      {
+      std::cerr << "Unrecognized symbol type: " << vm["type"].as<std::string>() << "\n";
+      return 1;
+      }
 
    return 0;
    }
