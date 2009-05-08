@@ -101,11 +101,11 @@ public:
 
    /*! \name Codec information functions - derived */
    //! Equivalent length of information sequence in bits
-   double input_bits() const { return log2(num_inputs())*(output_block_size() - tail_length()); };
+   double input_bits() const { return log2(num_inputs())*input_block_size(); };
    //! Equivalent length of output sequence in bits
    double output_bits() const { return log2(num_outputs())*output_block_size(); };
    //! Overall code rate
-   double rate() const { return input_bits()/double(output_bits()); };
+   double rate() const { return input_bits()/output_bits(); };
    // @}
 
    /*! \name Description */
