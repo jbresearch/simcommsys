@@ -48,10 +48,6 @@ namespace libcomm {
          interpreted as v.0; a flat interleaver is automatically used for the
          first encoder in these cases.
 
-
-   \todo Remove tau from user parameters, as this can be derived from
-         interleavers (requires a change to interleaver interface)
-
    \todo Fix terminated sequence encoding (currently this implicitly assumes
          a flat first interleaver)
 
@@ -83,7 +79,6 @@ private:
    //! Set of interleavers, one per parity sequence (including first set)
    libbase::vector<interleaver<dbl> *> inter;
    fsm      *encoder;      //!< Encoder object (same for all parity sequences)
-   int      tau;           //!< Length of interleavers (information sequence + tail)
    int      iter;          //!< Number of iterations to perform
    bool     endatzero;     //!< Flag to indicate that trellises are terminated
    bool     parallel;      //!< Flag to enable parallel decoding (rather than serial)
@@ -122,7 +117,7 @@ protected:
    void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
-   turbo(const fsm& encoder, const int tau, const libbase::vector<interleaver<dbl> *>& inter, \
+   turbo(const fsm& encoder, const libbase::vector<interleaver<dbl> *>& inter, \
       const int iter, const bool endatzero, const bool parallel=false, const bool circular=false);
    ~turbo() { free(); };
    // @}
@@ -135,9 +130,18 @@ public:
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
-      { return libbase::size<libbase::vector>(endatzero ? tau-encoder->mem_order() : tau); };
+      {
+      const int tau = This::output_block_size();
+      const int nu = This::tail_length();
+      return libbase::size<libbase::vector>(tau-nu);
+      };
    libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(tau); };
+      {
+      assertalways(inter.size() > 0);
+      assertalways(inter(0));
+      const int tau = inter(0)->size();
+      return libbase::size<libbase::vector>(tau);
+      };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
    int num_symbols() const { return libbase::gcd(num_inputs(),enc_parity()); };

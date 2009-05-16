@@ -19,19 +19,22 @@ namespace libcomm {
 template <class real, class dbl>
 void turbo<real,dbl>::init()
    {
+   // check presence and size of interleavers
+   assertalways(inter.size() > 0);
+   for(int i=0; i<inter.size(); i++)
+      {
+      assertalways(inter(i));
+      assertalways(inter(i)->size() == inter(0)->size());
+      libbase::trace << "Interleaver " << i << ": " << inter(i)->description() << "\n";
+      }
+
+   // check required components and initialize BCJR
+   const int tau = inter(0)->size();
    assertalways(encoder);
    assertalways(tau > 0);
    BCJR::init(*encoder, tau);
 
    assertalways(enc_parity()*num_inputs() == enc_outputs());
-   assertalways(num_sets() > 0);
-   // check presence and size of interleavers
-   for(int i=0; i<inter.size(); i++)
-      {
-      assertalways(inter(i));
-      assertalways(inter(i)->size() == tau);
-      libbase::trace << "Interleaver " << i << ": " << inter(i)->description() << "\n";
-      }
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
 
@@ -84,12 +87,11 @@ turbo<real,dbl>::turbo()
    }
 
 template <class real, class dbl>
-turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
+turbo<real,dbl>::turbo(const fsm& encoder, \
    const libbase::vector<interleaver<dbl> *>& inter, const int iter, \
    const bool endatzero, const bool parallel, const bool circular)
    {
    This::encoder = encoder.clone();
-   This::tau = tau;
    This::inter = inter;
    This::endatzero = endatzero;
    This::parallel = parallel;
@@ -103,6 +105,7 @@ turbo<real,dbl>::turbo(const fsm& encoder, const int tau, \
 template <class real, class dbl>
 void turbo<real,dbl>::allocate()
    {
+   const int tau = This::output_block_size();
    rp.init(tau, num_inputs());
 
    if(parallel)
@@ -296,6 +299,7 @@ void turbo<real,dbl>::setreceiver(const array1vd_t& ptable)
    assertalways(enc_parity() == pow(double(S), sp));
    assertalways(num_inputs() == pow(double(S), sk));
    // Confirm input sequence to be of the correct length
+   const int tau = This::output_block_size();
    assertalways(ptable.size() == tau*s);
 
    // initialise memory if necessary
@@ -361,6 +365,7 @@ template <class real, class dbl>
 void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == input_block_size());
+   const int tau = This::output_block_size();
    // Initialise result vector
    encoded.init(tau);
    // Allocate space for the encoder outputs
@@ -455,7 +460,7 @@ template <class real, class dbl>
 std::string turbo<real,dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Turbo Code (" << this->output_bits() << "," << this->input_bits() << ") - ";
+   sout << "Turbo Code (" << This::output_bits() << "," << This::input_bits() << ") - ";
    sout << encoder->description() << ", ";
    for(int i=0; i<inter.size(); i++)
       sout << inter(i)->description() << ", ";
@@ -472,9 +477,8 @@ template <class real, class dbl>
 std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
    {
    // format version
-   sout << 1 << '\n';
+   sout << 2 << '\n';
    sout << encoder;
-   sout << tau << '\n';
    sout << num_sets() << '\n';
    for(int i=0; i<inter.size(); i++)
       sout << inter(i);
@@ -487,6 +491,13 @@ std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
+/*!
+   \version 0 Initial version (un-numbered)
+
+   \version 1 Added version numbering; added explicit first interleaver
+
+   \version 2 Removed explicit 'tau'
+*/
 template <class real, class dbl>
 std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    {
@@ -502,11 +513,13 @@ std::istream& turbo<real,dbl>::serialize(std::istream& sin)
       sin.clear();
       }
    sin >> encoder;
-   sin >> tau;
+   int tau = 0;
+   if(version < 2)
+      sin >> tau;
    int sets;
    sin >> sets;
    inter.init(sets);
-   if(version == 0)
+   if(version < 1)
       {
       inter(0) = new flat<dbl>(tau);
       for(int i=1; i<inter.size(); i++)
