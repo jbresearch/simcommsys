@@ -3,6 +3,8 @@
 #include "gf.h"
 #include <iostream>
 
+namespace testgrscc {
+
 using std::cout;
 using std::cerr;
 
@@ -178,4 +180,11 @@ int main(int argc, char *argv[])
    CompareCodes();
    TestCirculation();
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testgrscc::main(argc, argv);
    }

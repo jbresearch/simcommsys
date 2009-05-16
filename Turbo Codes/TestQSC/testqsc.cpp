@@ -3,6 +3,8 @@
 #include "randgen.h"
 #include <iostream>
 
+namespace testqsc {
+
 using libcomm::channel;
 using libcomm::qsc;
 using libbase::gf;
@@ -78,4 +80,11 @@ int main(int argc, char *argv[])
    //TestQSC<9,0x211>();
    //TestQSC<10,0x409>();
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testqsc::main(argc, argv);
    }

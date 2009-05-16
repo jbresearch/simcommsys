@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+namespace testfsm {
+
 /*!
    \brief   Test program for FSM objects
    \author  Johann Briffa
@@ -43,4 +45,11 @@ int main(int argc, char *argv[])
          }
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testfsm::main(argc, argv);
    }

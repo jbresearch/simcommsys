@@ -3,6 +3,8 @@
 #include "matrix.h"
 #include <iostream>
 
+namespace testgf {
+
 using libbase::gf;
 using libbase::bitfield;
 using libbase::matrix;
@@ -156,4 +158,11 @@ int main(int argc, char *argv[])
    TestGenPowerGF2();
    TestGenPowerGF8();
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testgf::main(argc, argv);
    }

@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+namespace testwatermark {
+
 /*!
    \brief   Test program for DM inner code creation
    \author  Johann Briffa
@@ -55,4 +57,11 @@ int main(int argc, char *argv[])
       }
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testwatermark::main(argc, argv);
    }

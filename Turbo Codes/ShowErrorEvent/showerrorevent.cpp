@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+namespace showerrorevent {
+
 using std::cout;
 using std::cerr;
 namespace po = boost::program_options;
@@ -92,4 +94,11 @@ int main(int argc, char *argv[])
       cout << last_event(i) << '\t' << last_event(i+tau) << '\n';
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return showerrorevent::main(argc, argv);
    }

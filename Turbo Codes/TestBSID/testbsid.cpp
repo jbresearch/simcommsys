@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+namespace testbsid {
+
 using std::cout;
 using std::cerr;
 using std::flush;
@@ -114,4 +116,11 @@ int main(int argc, char *argv[])
    testtransmission(1000, 0.25, true, true, false, 0);
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testbsid::main(argc, argv);
    }

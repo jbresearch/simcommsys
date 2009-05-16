@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+namespace testdminner2d {
+
 /*!
    \brief   Test program for 2D DM inner code
    \author  Johann Briffa
@@ -59,4 +61,11 @@ int main(int argc, char *argv[])
       }
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testdminner2d::main(argc, argv);
    }

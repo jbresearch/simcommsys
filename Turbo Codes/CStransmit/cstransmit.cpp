@@ -5,6 +5,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+namespace cstransmit {
+
 template <class S>
 void process(const std::string& fname, double p, std::istream& sin, std::ostream& sout)
    {
@@ -69,4 +71,11 @@ int main(int argc, char *argv[])
       vm["parameter"].as<double>(), std::cin, std::cout);
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return cstransmit::main(argc, argv);
    }

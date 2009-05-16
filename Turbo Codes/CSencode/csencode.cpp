@@ -5,6 +5,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+namespace csencode {
+
 template <class S>
 void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    {
@@ -83,4 +85,11 @@ int main(int argc, char *argv[])
       }
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return csencode::main(argc, argv);
    }

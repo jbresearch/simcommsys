@@ -10,6 +10,8 @@
 #include <iostream>
 #include <iomanip>
 
+namespace SPECturbo {
+
 namespace po = boost::program_options;
 
 //! Standard benchmark system
@@ -178,4 +180,11 @@ int main(int argc, char *argv[])
    // Output overall benchmark
    cout << "SPECturbo: " << setprecision(4) << frames/estimator.get_timer().elapsed() << " frames/sec\n";
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return SPECturbo::main(argc, argv);
    }

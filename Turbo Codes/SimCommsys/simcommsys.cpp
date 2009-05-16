@@ -12,6 +12,8 @@
 #include <iostream>
 #include <iomanip>
 
+namespace simcommsys {
+
 using std::cout;
 using std::cerr;
 using std::setprecision;
@@ -152,4 +154,11 @@ int main(int argc, char *argv[])
       }
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return simcommsys::main(argc, argv);
    }

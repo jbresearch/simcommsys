@@ -6,6 +6,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+namespace csdecode {
+
 template <class S>
 void process(const std::string& fname, double p, bool soft, std::istream& sin, std::ostream& sout)
    {
@@ -116,4 +118,11 @@ int main(int argc, char *argv[])
       }
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return csdecode::main(argc, argv);
    }

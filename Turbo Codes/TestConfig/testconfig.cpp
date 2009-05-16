@@ -9,6 +9,8 @@
 #include <sstream>
 #include <iostream>
 
+namespace testconfig {
+
 using libbase::matrix;
 using std::cout;
 
@@ -163,7 +165,7 @@ void testboost_iterators()
    - $Author$
 */
 
-int main()
+int main(int argc, char *argv[])
    {
    print_standard_sizes();
    print_new_sizes();
@@ -172,4 +174,12 @@ int main()
    testboost_foreach("1 2 3\n");
    testboost_array();
    testboost_iterators();
+   return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testconfig::main(argc, argv);
    }

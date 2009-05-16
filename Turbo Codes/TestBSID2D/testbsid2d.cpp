@@ -4,6 +4,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+namespace testbsid2d {
+
 using std::cout;
 using std::cerr;
 using std::flush;
@@ -93,4 +95,11 @@ int main(int argc, char *argv[])
    visualtest(seed, 2, p); // random sequence
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return testbsid2d::main(argc, argv);
    }

@@ -9,6 +9,8 @@
 #include <sstream>
 #include <fstream>
 
+namespace makesrandom {
+
 /*!
    \brief Vector-type container for S-Random interleaver creation
    This vector container has the following addional abilities:
@@ -195,4 +197,11 @@ int main(int argc, char *argv[])
    serialize_interleaver(file, lut, tau, spread, seed, tmain.elapsed());
 
    return 0;
+   }
+
+}; // end namespace
+
+int main(int argc, char *argv[])
+   {
+   return makesrandom::main(argc, argv);
    }
