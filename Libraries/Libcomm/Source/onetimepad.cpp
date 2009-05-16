@@ -20,33 +20,33 @@ using libbase::matrix;
 // construction and destruction
 
 template <class real>
-onetimepad<real>::onetimepad()
+onetimepad<real>::onetimepad() :
+   encoder(NULL)
    {
-   encoder = NULL;
    }
 
 template <class real>
-onetimepad<real>::onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable)
+onetimepad<real>::onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable) :
+   terminated(terminated),
+   renewable(renewable),
+   encoder(encoder.clone()),
+   m(encoder.mem_order()),
+   K(encoder.num_inputs())
    {
-   onetimepad<real>::terminated = terminated;
-   onetimepad<real>::renewable = renewable;
-   onetimepad<real>::encoder = encoder.clone();
-   onetimepad<real>::m = encoder.mem_order();
-   onetimepad<real>::K = encoder.num_inputs();
    pad.init(tau);
    libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n";
    }
 
 template <class real>
-onetimepad<real>::onetimepad(const onetimepad& x)
+onetimepad<real>::onetimepad(const onetimepad& x) :
+   terminated(x.terminated),
+   renewable(x.renewable),
+   encoder(x.encoder->clone()),
+   m(x.m),
+   K(x.K),
+   pad(x.pad),
+   r(x.r)
    {
-   terminated = x.terminated;
-   renewable = x.renewable;
-   encoder = x.encoder->clone();
-   m = x.m;
-   K = x.K;
-   pad = x.pad;
-   r = x.r;
    }
 
 template <class real>
@@ -166,13 +166,11 @@ std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& onetimepad<real>::serialize(std::istream& sin)
    {
-   int temp;
-   sin >> temp;
-   terminated = temp != 0;
-   sin >> temp;
-   renewable = temp != 0;
-   sin >> temp;
-   pad.init(temp);
+   sin >> terminated;
+   sin >> renewable;
+   int tau;
+   sin >> tau;
+   pad.init(tau);
    sin >> encoder;
    m = encoder->mem_order();
    K = encoder->num_inputs();

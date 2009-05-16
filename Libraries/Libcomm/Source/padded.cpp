@@ -18,16 +18,16 @@ using libbase::matrix;
 // construction and destruction
 
 template <class real>
-padded<real>::padded()
+padded<real>::padded() :
+   otp(NULL),
+   inter(NULL)
    {
-   otp = NULL;
-   inter = NULL;
    }
 
 template <class real>
-padded<real>::padded(const interleaver<real>& inter, const fsm& encoder, const int tau, const bool terminated, const bool renewable)
+padded<real>::padded(const interleaver<real>& inter, const fsm& encoder, const bool terminated, const bool renewable)
    {
-   otp = new onetimepad<real>(encoder, tau, terminated, renewable);
+   otp = new onetimepad<real>(encoder, inter.size(), terminated, renewable);
    padded<real>::inter = inter.clone();
    }
 

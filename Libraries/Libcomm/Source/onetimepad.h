@@ -24,6 +24,7 @@ template <class real>
 class onetimepad : public interleaver<real> {
    bool terminated, renewable;
    fsm *encoder;
+   // TODO: remove m, K from fields
    int m, K;
    libbase::vector<int> pad;
    libbase::randgen r;

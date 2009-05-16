@@ -30,8 +30,7 @@ class padded : public interleaver<real> {
 protected:
    padded();
 public:
-   // TODO: remove 'tau' from parameter list, as this can be taken from base
-   padded(const interleaver<real>& inter, const fsm& encoder, const int tau, const bool terminated, const bool renewable);
+   padded(const interleaver<real>& inter, const fsm& encoder, const bool terminated, const bool renewable);
    padded(const padded& x);
    ~padded();
 
