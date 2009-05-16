@@ -29,11 +29,11 @@ template <class real>
 onetimepad<real>::onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable) :
    terminated(terminated),
    renewable(renewable),
-   encoder(encoder.clone()),
-   m(encoder.mem_order()),
-   K(encoder.num_inputs())
+   encoder(encoder.clone())
    {
    pad.init(tau);
+   const int m = encoder.mem_order();
+   const int K = encoder.num_inputs();
    libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n";
    }
 
@@ -42,8 +42,6 @@ onetimepad<real>::onetimepad(const onetimepad& x) :
    terminated(x.terminated),
    renewable(x.renewable),
    encoder(x.encoder->clone()),
-   m(x.m),
-   K(x.K),
    pad(x.pad),
    r(x.r)
    {
@@ -75,6 +73,8 @@ void onetimepad<real>::advance()
       return;
 
    const int tau = pad.size();
+   const int m = encoder->mem_order();
+   const int K = encoder->num_inputs();
    // fill in pad
    if(terminated)
       {
@@ -103,6 +103,7 @@ template <class real>
 void onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
    {
    const int tau = pad.size();
+   const int K = encoder->num_inputs();
    assertalways(in.size() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
@@ -113,6 +114,7 @@ template <class real>
 void onetimepad<real>::transform(const matrix<real>& in, matrix<real>& out) const
    {
    const int tau = pad.size();
+   const int K = encoder->num_inputs();
    assertalways(in.ysize() == K);
    assertalways(in.xsize() == tau);
    out.init(in);
@@ -125,6 +127,7 @@ template <class real>
 void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
    {
    const int tau = pad.size();
+   const int K = encoder->num_inputs();
    assertalways(in.ysize() == K);
    assertalways(in.xsize() == tau);
    out.init(in);
@@ -172,8 +175,6 @@ std::istream& onetimepad<real>::serialize(std::istream& sin)
    sin >> tau;
    pad.init(tau);
    sin >> encoder;
-   m = encoder->mem_order();
-   K = encoder->num_inputs();
    return sin;
    }
 
