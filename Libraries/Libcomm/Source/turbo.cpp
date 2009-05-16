@@ -25,12 +25,13 @@ void turbo<real,dbl>::init()
 
    assertalways(enc_parity()*num_inputs() == enc_outputs());
    assertalways(num_sets() > 0);
+   // check presence and size of interleavers
    for(int i=0; i<inter.size(); i++)
       {
       assertalways(inter(i));
+      assertalways(inter(i)->size() == tau);
       libbase::trace << "Interleaver " << i << ": " << inter(i)->description() << "\n";
       }
-   // TODO: check interleaver sizes
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
 
