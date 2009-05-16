@@ -384,6 +384,7 @@ public:
    void set_parameter(const double snr_db);
    //! Get the signal-to-noise ratio
    double get_parameter() const { return snr_db; };
+   // @}
 
    // Serialization Support
    DECLARE_BASE_SERIALIZER(channel);

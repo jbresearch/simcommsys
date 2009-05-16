@@ -34,12 +34,17 @@ public:
    onetimepad(const onetimepad& x);
    ~onetimepad();
 
+   // Intra-frame Operations
    void seedfrom(libbase::random& r);
    void advance();
 
+   // Transform functions
    void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
    void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+
+   // Information functions
+   int size() const { return pad.size(); };
 
    // Description
    std::string description() const;

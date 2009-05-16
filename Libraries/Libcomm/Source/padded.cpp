@@ -52,12 +52,14 @@ padded<real>::~padded()
 template <class real>
 void padded<real>::seedfrom(libbase::random& r)
    {
+   assertalways(otp);
    otp->seedfrom(r);
    }
 
 template <class real>
 void padded<real>::advance()
    {
+   assertalways(otp);
    otp->advance();
    }
 

@@ -64,6 +64,11 @@ public:
    virtual void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const = 0;
    // @}
 
+   /*! \name Information functions */
+   //! Interleaver size in symbols
+   virtual int size() const = 0;
+   // @}
+
    /*! \name Description */
    //! Description output
    virtual std::string description() const = 0;

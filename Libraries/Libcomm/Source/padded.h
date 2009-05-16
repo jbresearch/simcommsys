@@ -30,16 +30,22 @@ class padded : public interleaver<real> {
 protected:
    padded();
 public:
+   // TODO: remove 'tau' from parameter list, as this can be taken from base
    padded(const interleaver<real>& inter, const fsm& encoder, const int tau, const bool terminated, const bool renewable);
    padded(const padded& x);
    ~padded();
 
+   // Intra-frame Operations
    void seedfrom(libbase::random& r);
    void advance();
 
+   // Transform functions
    void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
    void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
    void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+
+   // Information functions
+   int size() const { assertalways(inter); return inter->size(); };
 
    // Description
    std::string description() const;
