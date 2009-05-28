@@ -95,6 +95,7 @@ Libraries/Libcomm/Source/channel.cpp
 Libraries/Libcomm/Source/channel.h
 Libraries/Libcomm/Source/codec.cpp
 Libraries/Libcomm/Source/codec.h
+Libraries/Libcomm/Source/codec_reshaped.h
 Libraries/Libcomm/Source/codec_softout.cpp
 Libraries/Libcomm/Source/codec_softout.h
 Libraries/Libcomm/Source/codec_softout_flattened.h

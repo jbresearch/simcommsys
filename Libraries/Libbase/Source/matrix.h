@@ -87,18 +87,22 @@ public:
    template <class A>
    void init(const matrix<A>& x) { init(x.xsize(), x.ysize()); };
 
-   // matrix copy and value initialisation
+   // matrix copy, vector conversion, and value initialisation
    matrix<T>& copyfrom(const matrix<T>& x);
    matrix<T>& operator=(const matrix<T>& x);
    template <class A>
    matrix<T>& operator=(const matrix<A>& x);
+   template <class A>
+   matrix<T>& operator=(const vector<A>& x);
    matrix<T>& operator=(const T x);
 
    // insert/extract rows/columns as vectors
    void insertrow(const vector<T>& v, const int x);
-   void extractrow(vector<T>& v, const int x) const;
    void insertcol(const vector<T>& v, const int y);
+   void extractrow(vector<T>& v, const int x) const;
    void extractcol(vector<T>& v, const int y) const;
+   vector<T> extractrow(const int x) const;
+   vector<T> extractcol(const int y) const;
 
    // convert to a vector
    operator vector<T>() const;
@@ -306,6 +310,16 @@ inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    }
 
 template <class T>
+template <class A>
+inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
+   {
+   setsize(x.size(), 1);
+   for(int i=0; i<m_xsize; i++)
+      m_data[i][1] = x(i);
+   return *this;
+   }
+
+template <class T>
 inline matrix<T>& matrix<T>::operator=(const T x)
    {
    for(int i=0; i<m_xsize; i++)
@@ -326,6 +340,16 @@ inline void matrix<T>::insertrow(const vector<T>& v, const int x)
       m_data[x][y] = v(y);
    }
 
+/*! \brief Insert vector into column 'y'
+*/
+template <class T>
+inline void matrix<T>::insertcol(const vector<T>& v, const int y)
+   {
+   assert(v.size() == m_xsize);
+   for(int x=0; x<m_xsize; x++)
+      m_data[x][y] = v(x);
+   }
+
 /*! \brief Extract row 'x' as a vector
    The target vector needs to be passed as a parameter; the expression format
    can be improved aesthetically, however the present format clearly
@@ -339,16 +363,6 @@ inline void matrix<T>::extractrow(vector<T>& v, const int x) const
       v(y) = m_data[x][y];
    }
 
-/*! \brief Insert vector into column 'y'
-*/
-template <class T>
-inline void matrix<T>::insertcol(const vector<T>& v, const int y)
-   {
-   assert(v.size() == m_xsize);
-   for(int x=0; x<m_xsize; x++)
-      m_data[x][y] = v(x);
-   }
-
 /*! \brief Extract column 'y' as a vector
    The target vector needs to be passed as a parameter; the expression format
    can be improved aesthetically, however the present format clearly
@@ -360,6 +374,26 @@ inline void matrix<T>::extractcol(vector<T>& v, const int y) const
    v.init(m_xsize);
    for(int x=0; x<m_xsize; x++)
       v(x) = m_data[x][y];
+   }
+
+/*! \brief Extract row 'x' as a vector
+*/
+template <class T>
+inline vector<T> matrix<T>::extractrow(const int x) const
+   {
+   vector<T> v;
+   extractrow(v,x);
+   return v;
+   }
+
+/*! \brief Extract column 'y' as a vector
+*/
+template <class T>
+inline vector<T> matrix<T>::extractcol(const int y) const
+   {
+   vector<T> v;
+   extractcol(v,y);
+   return v;
    }
 
 /*! \brief Convert matrix to a vector
