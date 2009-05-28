@@ -25,61 +25,66 @@ namespace libcomm {
 
 template <class base_codec>
 class codec_reshaped :
-   public codec<libbase::matrix>,
-   public base_codec {
+   public codec<libbase::matrix> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double>        array1d_t;
    // @}
 private:
-   // Shorthand for containers
-   typedef libbase::matrix C;
-   typedef libbase::vector V;
-   // Shorthand for class hierarchy
-   typedef base_codec Base;
-   typedef codec_reshaped<base_codec> This;
+   /*! \name Internal representation */
+   base_codec base;
+   // @}
 public:
    /*! \name Constructors / Destructors */
    ~codec_reshaped() {};
    // @}
 
    // Codec operations
-   void encode(const C<int>& source, C<int>& encoded)
+   void seedfrom(libbase::random& r) { base.seedfrom(r); };
+   void encode(const libbase::matrix<int>& source, libbase::matrix<int>& encoded)
       {
-      V<int> source_v = source;
-      V<int> encoded_v;
-      Base::encode(source_v, encoded_v);
+      libbase::vector<int> source_v = source;
+      libbase::vector<int> encoded_v;
+      base.encode(source_v, encoded_v);
       encoded = encoded_v;
       }
-   void translate(const C<array1d_t>& ptable)
+   void translate(const libbase::matrix<array1d_t>& ptable)
       {
-      V<array1d_t> ptable_v = ptable;
-      Base::translate(ptable_v);
+      libbase::vector<array1d_t> ptable_v = ptable;
+      base.translate(ptable_v);
       }
-   void decode(C<int>& decoded)
+   void decode(libbase::matrix<int>& decoded)
       {
-      V<int> decoded_v;
-      Base::decode(decoded_v);
+      libbase::vector<int> decoded_v;
+      base.decode(decoded_v);
       decoded = decoded_v;
       }
 
    // Codec information functions - fundamental
-   libbase::size<C> input_block_size() const
+   libbase::size<libbase::matrix> input_block_size() const
       {
       // Inherit sizes
-      const int N = Base::input_block_size();
-      return libbase::size<C>(N,1);
+      const int N = base.input_block_size();
+      return libbase::size<libbase::matrix>(N,1);
       };
-   libbase::size<C> output_block_size() const
+   libbase::size<libbase::matrix> output_block_size() const
       {
       // Inherit sizes
-      const int N = Base::output_block_size();
-      return libbase::size<C>(N,1);
+      const int N = base.output_block_size();
+      return libbase::size<libbase::matrix>(N,1);
       };
+   int num_inputs() const { return base.num_inputs(); };
+   int num_outputs() const { return base.num_outputs(); };
+   int num_symbols() const { return base.num_symbols(); };
+   int tail_length() const { return base.tail_length(); };
+   int num_iter() const { return base.num_iter(); };
 
    // Description
    std::string description() const
-      { return "Reshaped " + Base::description(); };
+      { return "Reshaped " + base.description(); };
+
+   // Serialization Support
+   DECLARE_SERIALIZER(codec_reshaped);
 };
 
 }; // end namespace

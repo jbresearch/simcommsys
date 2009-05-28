@@ -57,6 +57,7 @@
 
 // Codecs
 #include "codec.h"
+#include "codec_reshaped.h"
 #include "uncoded.h"
 #include "mapcc.h"
 #include "turbo.h"
@@ -105,7 +106,8 @@ class serializer_libcomm : private
    grscc< libbase::gf<1,0x3> >,
    gnrcc< libbase::gf<1,0x3> >,
    uncoded<double>, mapcc<double>, turbo<double>,
-   onetimepad<double>, padded<double>, berrou<double>, flat<double>, helical<double>, rand_lut<double>, rectangular<double>, shift_lut<double>, uniform_lut<double>, named_lut<double>
+   onetimepad<double>, padded<double>, berrou<double>, flat<double>, helical<double>, rand_lut<double>, rectangular<double>, shift_lut<double>, uniform_lut<double>, named_lut<double>,
+   codec_reshaped< turbo<double> >
 {
 private:
    typedef libbase::logrealfast  logrealfast;

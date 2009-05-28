@@ -62,7 +62,9 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class turbo : public codec_softout<dbl>, private safe_bcjr<real,dbl> {
+class turbo :
+   public codec_softout<dbl>,
+   private safe_bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -73,6 +75,7 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef turbo<real,dbl> This;
+   typedef codec_softout<dbl> Base;
    typedef safe_bcjr<real,dbl> BCJR;
 private:
    /*! \name User-defined parameters */
@@ -107,16 +110,14 @@ protected:
    void free();
    void reset();
    // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   turbo();
-   // @}
    // Internal codec operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
+   //! Default constructor
+   turbo();
    turbo(const fsm& encoder, const libbase::vector<interleaver<dbl> *>& inter, \
       const int iter, const bool endatzero, const bool parallel=false, const bool circular=false);
    ~turbo() { free(); };
@@ -127,6 +128,8 @@ public:
    void encode(const array1i_t& source, array1i_t& encoded);
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
+   // (necessary because inheriting methods from templated base)
+   using Base::decode;
 
    // Codec information functions - fundamental
    libbase::size<libbase::vector> input_block_size() const
