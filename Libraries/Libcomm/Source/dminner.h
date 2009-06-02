@@ -70,7 +70,7 @@ private:
    lut_t    lut_type;         //!< enum indicating LUT type
    std::string lutname;       //!< name to describe codebook
    array1i_t lut;             //!< sparsifier LUT
-   bool     user_threshold;   //!< flag indicating that LUT is supplied by user
+   bool     user_threshold;   //!< flag indicating that thresholds are supplied by user
    double   th_inner;         //!< Threshold factor for inner cycle
    double   th_outer;         //!< Threshold factor for outer cycle
    // @}
