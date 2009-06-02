@@ -63,9 +63,6 @@
       <filetype>CMakeLists.txt</filetype>
     </filetypes>
     <blacklist>
-      <path>Documentation</path>
-      <path>Documentation/latex</path>
-      <path>Documentation/latex/Makefile</path>
       <path>Turbo Codes/Source</path>
       <path>Turbo Codes/Source/csdecode.cpp</path>
       <path>Turbo Codes/Source/csencode.cpp</path>
