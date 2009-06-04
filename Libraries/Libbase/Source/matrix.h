@@ -142,7 +142,7 @@ public:
    // information services
    int xsize() const { return m_size.x; };                //!< Size on dimension x (rows)
    int ysize() const { return m_size.y; };                //!< Size on dimension y (columns)
-   int size() const { return m_size; };       //!< Total number of elements
+   size_type<libbase::matrix> size() const { return m_size; };       //!< Total number of elements
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;

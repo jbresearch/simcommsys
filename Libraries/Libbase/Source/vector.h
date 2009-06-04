@@ -167,7 +167,7 @@ public:
 
    // information services
    //! Total number of elements
-   int size() const { return m_size.x; };
+   size_type<libbase::vector> size() const { return m_size; };
 
    /*! \name Serialization and stream input & output */
    void serialize(std::ostream& s, char spacer='\t') const;
