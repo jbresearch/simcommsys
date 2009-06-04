@@ -20,8 +20,8 @@ namespace libcomm {
    \note Each encoder output must be represented by an integral number of
          modulation symbols
 */
-template <template<class> class C, class dbl>
-void map_straight<C,dbl>::setup()
+template <class dbl>
+void map_straight<libbase::vector,dbl>::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
@@ -29,8 +29,8 @@ void map_straight<C,dbl>::setup()
    assertalways(size.x*s1 == upsilon*s2);
    }
 
-template <template<class> class C, class dbl>
-void map_straight<C,dbl>::dotransform(const C<int>& in, C<int>& out) const
+template <class dbl>
+void map_straight<libbase::vector,dbl>::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
    {
    assertalways(in.size() == This::input_block_size());
    // Initialize results vector
@@ -41,8 +41,8 @@ void map_straight<C,dbl>::dotransform(const C<int>& in, C<int>& out) const
          out(k) = x % M;
    }
 
-template <template<class> class C, class dbl>
-void map_straight<C,dbl>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
+template <class dbl>
+void map_straight<libbase::vector,dbl>::doinverse(const libbase::vector<array1d_t>& pin, libbase::vector<array1d_t>& pout) const
    {
    // Confirm modulation symbol space is what we expect
    assertalways(pin.size() > 0);
@@ -65,24 +65,24 @@ void map_straight<C,dbl>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout)
 
 // Description
 
-template <template<class> class C, class dbl>
-std::string map_straight<C,dbl>::description() const
+template <class dbl>
+std::string map_straight<libbase::vector,dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Straight Mapper";
+   sout << "Straight Mapper (Vector)";
    return sout.str();
    }
 
 // Serialization Support
 
-template <template<class> class C, class dbl>
-std::ostream& map_straight<C,dbl>::serialize(std::ostream& sout) const
+template <class dbl>
+std::ostream& map_straight<libbase::vector,dbl>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
-template <template<class> class C, class dbl>
-std::istream& map_straight<C,dbl>::serialize(std::istream& sin)
+template <class dbl>
+std::istream& map_straight<libbase::vector,dbl>::serialize(std::istream& sin)
    {
    return sin;
    }
