@@ -1524,14 +1524,14 @@ inline T masked_matrix<T>::var() const
 */
 
 template <>
-class size<matrix> {
+class size_type<matrix> {
 public:
    int  x;
    int  y;
 public:
-   explicit size(int x=0, int y=0) { this->x = x; this->y = y; };
+   explicit size_type(int x=0, int y=0) { this->x = x; this->y = y; };
    operator int() const { return x*y; };
-   bool operator==(const size<matrix>& rhs) const { return (x==rhs.x) && (y==rhs.y); };
+   bool operator==(const size_type<matrix>& rhs) const { return (x==rhs.x) && (y==rhs.y); };
 };
 
 }; // end namespace

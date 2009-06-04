@@ -34,7 +34,7 @@ public:
 
 private:
    /*! \name User-defined parameters */
-   libbase::size<C> size;    //!< Input block size in symbols
+   libbase::size_type<C> size;    //!< Input block size in symbols
    // @}
 
 protected:
@@ -91,15 +91,15 @@ public:
 
    /*! \name Setup functions */
    //! Sets input block size
-   void set_blocksize(libbase::size<C> size)
+   void set_blocksize(libbase::size_type<C> size)
       { assert(size > 0); this->size = size; this->setup(); };
    // @}
 
    /*! \name Informative functions */
    //! Gets input block size
-   libbase::size<C> input_block_size() const { return size; };
+   libbase::size_type<C> input_block_size() const { return size; };
    //! Gets output block size
-   virtual libbase::size<C> output_block_size() const { return size; };
+   virtual libbase::size_type<C> output_block_size() const { return size; };
    // @}
 };
 

@@ -75,8 +75,8 @@ protected:
 public:
    // Informative functions
    double rate() const { return 1; };
-   libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(size*s1); };
+   libbase::size_type<libbase::vector> output_block_size() const
+      { return libbase::size_type<libbase::vector>(size*s1); };
 
    // Description
    std::string description() const;
@@ -116,7 +116,7 @@ private:
 
 private:
    /*! \name Internal object representation */
-   libbase::size<libbase::matrix>   size_out;
+   libbase::size_type<libbase::matrix>   size_out;
    // @}
 
 protected:
@@ -135,7 +135,7 @@ protected:
 public:
    // Informative functions
    double rate() const { return 1; };
-   libbase::size<libbase::matrix> output_block_size() const
+   libbase::size_type<libbase::matrix> output_block_size() const
       { return size_out; };
 
    // Description

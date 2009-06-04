@@ -52,12 +52,12 @@ public:
    void translate(const array1vd_t& ptable, const array1vd_t& app);
 
    // Codec information functions - fundamental
-   libbase::size<libbase::vector> output_block_size() const
+   libbase::size_type<libbase::vector> output_block_size() const
       {
       // Inherit sizes
       const int Ns = Base::input_block_size();
       const int Np = Base::output_block_size();
-      return libbase::size<libbase::vector>(Ns + Np);
+      return libbase::size_type<libbase::vector>(Ns + Np);
       };
 
    // Description

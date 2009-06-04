@@ -61,17 +61,17 @@ public:
       }
 
    // Codec information functions - fundamental
-   libbase::size<libbase::matrix> input_block_size() const
+   libbase::size_type<libbase::matrix> input_block_size() const
       {
       // Inherit sizes
       const int N = base.input_block_size();
-      return libbase::size<libbase::matrix>(N,1);
+      return libbase::size_type<libbase::matrix>(N,1);
       };
-   libbase::size<libbase::matrix> output_block_size() const
+   libbase::size_type<libbase::matrix> output_block_size() const
       {
       // Inherit sizes
       const int N = base.output_block_size();
-      return libbase::size<libbase::matrix>(N,1);
+      return libbase::size_type<libbase::matrix>(N,1);
       };
    int num_inputs() const { return base.num_inputs(); };
    int num_outputs() const { return base.num_outputs(); };

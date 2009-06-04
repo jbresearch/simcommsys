@@ -14,7 +14,7 @@ namespace libbase {
 */
 
 template <template<class> class T>
-class size {
+class size_type {
 };
 
 }; // end namespace

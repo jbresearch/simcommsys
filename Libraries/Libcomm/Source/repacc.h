@@ -85,18 +85,18 @@ public:
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
-   libbase::size<libbase::vector> input_block_size() const
+   libbase::size_type<libbase::vector> input_block_size() const
       {
       // Inherit sizes
       const int N = rep.input_block_size();
-      return libbase::size<libbase::vector>(N);
+      return libbase::size_type<libbase::vector>(N);
       };
-   libbase::size<libbase::vector> output_block_size() const
+   libbase::size_type<libbase::vector> output_block_size() const
       {
       // Inherit sizes
       const int Nr = rep.output_block_size();
       const int nu = tail_length();
-      return libbase::size<libbase::vector>(Nr + nu);
+      return libbase::size_type<libbase::vector>(Nr + nu);
       };
    int num_inputs() const { return acc->num_inputs(); };
    int num_outputs() const { return acc->num_outputs()/acc->num_inputs(); };
