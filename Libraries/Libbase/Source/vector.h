@@ -861,6 +861,8 @@ inline T vector<T>::var() const
    - $Author$
 
    \todo Consider hiding fields
+
+   \todo Add serialization
 */
 
 template <>
@@ -870,6 +872,7 @@ public:
 public:
    explicit size(int x=0) { this->x = x; };
    operator int() const { return x; };
+   bool operator==(const size<vector>& rhs) const { return (x==rhs.x); };
 };
 
 }; // end namespace

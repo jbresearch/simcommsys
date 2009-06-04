@@ -1519,6 +1519,8 @@ inline T masked_matrix<T>::var() const
    - $Author$
 
    \todo Consider hiding fields
+
+   \todo Add serialization
 */
 
 template <>
@@ -1529,6 +1531,7 @@ public:
 public:
    explicit size(int x=0, int y=0) { this->x = x; this->y = y; };
    operator int() const { return x*y; };
+   bool operator==(const size<matrix>& rhs) const { return (x==rhs.x) && (y==rhs.y); };
 };
 
 }; // end namespace
