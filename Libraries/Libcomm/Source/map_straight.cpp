@@ -13,6 +13,8 @@
 
 namespace libcomm {
 
+using libbase::vector;
+
 // Interface with mapper
 
 /*! \copydoc mapper::setup()
@@ -21,7 +23,7 @@ namespace libcomm {
          modulation symbols
 */
 template <class dbl>
-void map_straight<libbase::vector,dbl>::setup()
+void map_straight<vector,dbl>::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
@@ -30,7 +32,7 @@ void map_straight<libbase::vector,dbl>::setup()
    }
 
 template <class dbl>
-void map_straight<libbase::vector,dbl>::dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const
+void map_straight<vector,dbl>::dotransform(const array1i_t& in, array1i_t& out) const
    {
    assertalways(in.size() == This::input_block_size());
    // Initialize results vector
@@ -42,7 +44,7 @@ void map_straight<libbase::vector,dbl>::dotransform(const libbase::vector<int>& 
    }
 
 template <class dbl>
-void map_straight<libbase::vector,dbl>::doinverse(const libbase::vector<array1d_t>& pin, libbase::vector<array1d_t>& pout) const
+void map_straight<vector,dbl>::doinverse(const array1vd_t& pin, array1vd_t& pout) const
    {
    // Confirm modulation symbol space is what we expect
    assertalways(pin.size() > 0);
@@ -66,7 +68,7 @@ void map_straight<libbase::vector,dbl>::doinverse(const libbase::vector<array1d_
 // Description
 
 template <class dbl>
-std::string map_straight<libbase::vector,dbl>::description() const
+std::string map_straight<vector,dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Straight Mapper (Vector)";
@@ -76,13 +78,13 @@ std::string map_straight<libbase::vector,dbl>::description() const
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_straight<libbase::vector,dbl>::serialize(std::ostream& sout) const
+std::ostream& map_straight<vector,dbl>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
 template <class dbl>
-std::istream& map_straight<libbase::vector,dbl>::serialize(std::istream& sin)
+std::istream& map_straight<vector,dbl>::serialize(std::istream& sin)
    {
    return sin;
    }
@@ -96,7 +98,6 @@ std::istream& map_straight<libbase::vector,dbl>::serialize(std::istream& sin)
 namespace libcomm {
 
 using libbase::serializer;
-using libbase::vector;
 using libbase::logrealfast;
 
 template class map_straight<vector>;

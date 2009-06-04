@@ -43,7 +43,9 @@ class map_straight<libbase::vector,dbl> :
    public mapper<libbase::vector,dbl> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<dbl>     array1d_t;
+   typedef libbase::vector<int>        array1i_t;
+   typedef libbase::vector<dbl>        array1d_t;
+   typedef libbase::vector<array1d_t>  array1vd_t;
    // @}
 private:
    // Shorthand for class hierarchy
@@ -67,8 +69,8 @@ protected:
 protected:
    // Interface with mapper
    void setup();
-   void dotransform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void doinverse(const libbase::vector<array1d_t>& pin, libbase::vector<array1d_t>& pout) const;
+   void dotransform(const array1i_t& in, array1i_t& out) const;
+   void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
 
 public:
    // Informative functions
