@@ -124,6 +124,8 @@ public:
       \note This is only valid for 'root' vectors.
    */
    void init(const int x);
+   //! Initialize vector to the given size
+   void init(const size_type<libbase::vector>& size) { init(size.x); };
    //! Initialize vector to the size of given vector
    template <class A>
    void init(const vector<A>& x) { init(x.size()); };

@@ -105,12 +105,16 @@ public:
    //! \copydoc setsize()
    void init(const int x, const int y) { setsize(x,y); };
    /*! \copydoc setsize()
+      This overload takes a matrix-size object as argument.
+   */
+   void init(const size_type<libbase::matrix>& size) { init(size.x, size.y); };
+   /*! \copydoc setsize()
       This overload takes another matrix as argument, to allow easier (and
       neater) sizing of one matrix based on another. This is a template
       function to allow the argument matrix to be of a different type.
    */
    template <class A>
-   void init(const matrix<A>& x) { init(x.xsize(), x.ysize()); };
+   void init(const matrix<A>& x) { init(x.size()); };
 
    // matrix copy, vector conversion, and value initialisation
    matrix<T>& copyfrom(const matrix<T>& x);
