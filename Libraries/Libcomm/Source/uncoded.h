@@ -50,16 +50,14 @@ protected:
    void init();
    void free();
    // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   uncoded();
-   // @}
    // Internal codec operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
+   //! Default constructor
+   uncoded();
    uncoded(const fsm& encoder, const int tau);
    ~uncoded() { free(); };
    // @}
