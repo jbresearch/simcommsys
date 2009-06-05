@@ -115,8 +115,18 @@ void map_straight<matrix,dbl>::dotransform(const array2i_t& in, array2i_t& out) 
    // Initialize results matrix
    out.init(This::output_block_size());
    // Map encoded stream (row-major order)
-//    for(int j=0; j<in.y; j++)
-//       for(int i=0; i<in.x; i++)
+   int ii=0, jj=0;
+   for(int i=0; i<in.xsize(); i++)
+      for(int j=0; j<in.ysize(); j++)
+         {
+         out(ii,jj) = in(i,j);
+         jj++;
+         if(jj >= out.ysize())
+            {
+            jj = 0;
+            ii++;
+            }
+         }
    }
 
 template <class dbl>
@@ -124,12 +134,24 @@ void map_straight<matrix,dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout
    {
    // Confirm modulation symbol space is what we expect
    assertalways(pin.size() > 0);
-   assertalways(pin(0).size() == M);
+   assertalways(pin(0,0).size() == M);
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
    pout.init(This::input_block_size());
-   // Get the necessary data from the channel
+   // Map channek receiver information (row-major order)
+   int ii=0, jj=0;
+   for(int i=0; i<pin.xsize(); i++)
+      for(int j=0; j<pin.ysize(); j++)
+         {
+         pout(ii,jj) = pin(i,j);
+         jj++;
+         if(jj >= pout.ysize())
+            {
+            jj = 0;
+            ii++;
+            }
+         }
    }
 
 // Description
@@ -170,6 +192,8 @@ namespace libcomm {
 using libbase::serializer;
 using libbase::logrealfast;
 
+/*** Vector Specialization ***/
+
 template class map_straight<vector>;
 template <>
 const serializer map_straight<vector>::shelper("mapper", "map_straight<vector>", map_straight<vector>::create);
@@ -181,5 +205,19 @@ const serializer map_straight<vector,float>::shelper("mapper", "map_straight<vec
 template class map_straight<vector,logrealfast>;
 template <>
 const serializer map_straight<vector,logrealfast>::shelper("mapper", "map_straight<vector,logrealfast>", map_straight<vector,logrealfast>::create);
+
+/*** Matrix Specialization ***/
+
+template class map_straight<matrix>;
+template <>
+const serializer map_straight<matrix>::shelper("mapper", "map_straight<matrix>", map_straight<matrix>::create);
+
+template class map_straight<matrix,float>;
+template <>
+const serializer map_straight<matrix,float>::shelper("mapper", "map_straight<matrix,float>", map_straight<matrix,float>::create);
+
+template class map_straight<matrix,logrealfast>;
+template <>
+const serializer map_straight<matrix,logrealfast>::shelper("mapper", "map_straight<matrix,logrealfast>", map_straight<matrix,logrealfast>::create);
 
 }; // end namespace
