@@ -7,11 +7,11 @@
 
 namespace csencode {
 
-template <class S>
+template <class S, template<class> class C>
 void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    {
    // Communication system
-   libcomm::commsys<S> *system = libcomm::loadfromfile< libcomm::commsys<S> >(fname);
+   libcomm::commsys<S,C> *system = libcomm::loadfromfile< libcomm::commsys<S,C> >(fname);
    std::cerr << system->description() << "\n";
    // Initialize system
    libbase::randgen r;
@@ -20,9 +20,9 @@ void process(const std::string& fname, std::istream& sin, std::ostream& sout)
    // Repeat until end of stream
    while(!sin.eof())
       {
-      libbase::vector<int> source(system->input_block_size());
+      C<int> source(system->input_block_size());
       source.serialize(sin);
-      libbase::vector<S> transmitted = system->encode(source);
+      C<S> transmitted = system->encode(source);
       transmitted.serialize(sout, '\n');
       libbase::eatwhite(sin);
       }
@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
          "input file containing system description")
       ("type,t", po::value<std::string>()->default_value("bool"),
          "modulation symbol type")
+      ("container,c", po::value<std::string>()->default_value("vector"),
+         "input/output container type")
       ;
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -66,21 +68,55 @@ int main(int argc, char *argv[])
       }
 
    // Main process
-   if(vm["type"].as<std::string>() == "bool")
-      process<bool>(vm["system-file"].as<std::string>(), std::cin, std::cout);
-   else if(vm["type"].as<std::string>() == "gf2")
-      process< libbase::gf<1,0x3> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-   else if(vm["type"].as<std::string>() == "gf4")
-      process< libbase::gf<2,0x7> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-   else if(vm["type"].as<std::string>() == "gf8")
-      process< libbase::gf<3,0xB> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-   else if(vm["type"].as<std::string>() == "gf16")
-      process< libbase::gf<4,0x13> >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-   else if(vm["type"].as<std::string>() == "sigspace")
-      process<libcomm::sigspace>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+   if(vm["container"].as<std::string>() == "vector")
+      {
+      using libbase::vector;
+      using libbase::gf;
+      using libcomm::sigspace;
+      if(vm["type"].as<std::string>() == "bool")
+         process<bool,vector>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf2")
+         process< gf<1,0x3>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf4")
+         process< gf<2,0x7>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf8")
+         process< gf<3,0xB>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf16")
+         process< gf<4,0x13>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "sigspace")
+         process<sigspace,vector>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else
+         {
+         std::cerr << "Unrecognized symbol type: " << vm["type"].as<std::string>() << "\n";
+         return 1;
+         }
+      }
+   else if(vm["container"].as<std::string>() == "matrix")
+      {
+      using libbase::matrix;
+      using libbase::gf;
+      using libcomm::sigspace;
+      if(vm["type"].as<std::string>() == "bool")
+         process<bool,matrix>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf2")
+         process< gf<1,0x3>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf4")
+         process< gf<2,0x7>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf8")
+         process< gf<3,0xB>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "gf16")
+         process< gf<4,0x13>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else if(vm["type"].as<std::string>() == "sigspace")
+         process<sigspace,matrix>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      else
+         {
+         std::cerr << "Unrecognized symbol type: " << vm["type"].as<std::string>() << "\n";
+         return 1;
+         }
+      }
    else
       {
-      std::cerr << "Unrecognized symbol type: " << vm["type"].as<std::string>() << "\n";
+      std::cerr << "Unrecognized container type: " << vm["container"].as<std::string>() << "\n";
       return 1;
       }
 

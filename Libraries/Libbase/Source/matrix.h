@@ -98,6 +98,7 @@ public:
       \note Does not initialize elements.
    */
    matrix(const int x, const int y) { alloc(x,y); };
+   matrix(const size_type<libbase::matrix>& size) { alloc(size.x,size.y); };
    matrix(const matrix<T>& m);
    ~matrix() { free(); };
 
@@ -150,6 +151,8 @@ public:
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;
+   void serialize(std::ostream& s, char spacer) const
+      { serialize(s); s << spacer; };
    void serialize(std::istream& s);
    friend std::ostream& operator<< <>(std::ostream& s, const matrix<T>& x);
    friend std::istream& operator>> <>(std::istream& s, matrix<T>& x);

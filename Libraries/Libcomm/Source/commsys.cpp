@@ -287,14 +287,22 @@ std::istream& basic_commsys<S,C>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+using libbase::gf;
+using libbase::matrix;
+
 template class basic_commsys<bool>;
-template class basic_commsys< libbase::gf<1,0x3> >;
-template class basic_commsys< libbase::gf<2,0x7> >;
-template class basic_commsys< libbase::gf<3,0xB> >;
-template class basic_commsys< libbase::gf<4,0x13> >;
+template class basic_commsys< gf<1,0x3> >;
+template class basic_commsys< gf<2,0x7> >;
+template class basic_commsys< gf<3,0xB> >;
+template class basic_commsys< gf<4,0x13> >;
 template class basic_commsys<sigspace>;
 
-//template class basic_commsys<bool,libbase::matrix>;
+template class basic_commsys<bool,matrix>;
+template class basic_commsys< gf<1,0x3>,matrix >;
+template class basic_commsys< gf<2,0x7>,matrix >;
+template class basic_commsys< gf<3,0xB>,matrix >;
+template class basic_commsys< gf<4,0x13>,matrix >;
+template class basic_commsys<sigspace,matrix>;
 
 // *** General Communication System ***
 
@@ -337,6 +345,18 @@ const serializer commsys< gf<4,0x13> >::shelper("commsys", "commsys<gf<4,0x13>>"
 template class commsys<bool,matrix>;
 template <>
 const serializer commsys<bool,matrix>::shelper("commsys", "commsys<bool,matrix>", commsys<bool,matrix>::create);
+template class commsys< gf<1,0x3>,matrix >;
+template <>
+const serializer commsys< gf<1,0x3>,matrix >::shelper("commsys", "commsys<gf<1,0x3>,matrix>", commsys< gf<1,0x3>,matrix >::create);
+template class commsys< gf<2,0x7>,matrix >;
+template <>
+const serializer commsys< gf<2,0x7>,matrix >::shelper("commsys", "commsys<gf<2,0x7>,matrix>", commsys< gf<2,0x7>,matrix >::create);
+template class commsys< gf<3,0xB>,matrix >;
+template <>
+const serializer commsys< gf<3,0xB>,matrix >::shelper("commsys", "commsys<gf<3,0xB>,matrix>", commsys< gf<3,0xB>,matrix >::create);
+template class commsys< gf<4,0x13>,matrix >;
+template <>
+const serializer commsys< gf<4,0x13>,matrix >::shelper("commsys", "commsys<gf<4,0x13>,matrix>", commsys< gf<4,0x13>,matrix >::create);
 
 // *** Specific to commsys<sigspace> ***
 
