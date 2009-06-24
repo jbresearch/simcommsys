@@ -11,7 +11,7 @@ namespace libcomm {
 // 2 - Show input/output of blocks being reshaped
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 /*!
