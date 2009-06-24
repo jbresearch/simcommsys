@@ -8,9 +8,10 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
+// 2 - Show input/output of blocks being reshaped
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 2
 #endif
 
 /*!
@@ -45,8 +46,16 @@ public:
       {
       libbase::vector<int> source_v = source;
       libbase::vector<int> encoded_v;
+#if DEBUG>=2
+      libbase::trace << "DEBUG (codec_reshaped): source = " << source;
+      libbase::trace << "DEBUG (codec_reshaped): source_v = " << source_v;
+#endif
       base.encode(source_v, encoded_v);
       encoded = encoded_v;
+#if DEBUG>=2
+      libbase::trace << "DEBUG (codec_reshaped): encoded = " << encoded;
+      libbase::trace << "DEBUG (codec_reshaped): encoded_v = " << encoded_v;
+#endif
       }
    void translate(const libbase::matrix<array1d_t>& ptable)
       {

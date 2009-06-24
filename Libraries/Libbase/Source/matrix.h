@@ -347,7 +347,7 @@ inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
    {
    setsize(x.size(), 1);
    for(int i=0; i<m_size.x; i++)
-      m_data[i][1] = x(i);
+      m_data[i][0] = x(i);
    return *this;
    }
 

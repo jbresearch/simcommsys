@@ -216,6 +216,7 @@ const serializer commsys_simulator<sigspace>::shelper("experiment", "commsys_sim
 template class commsys_simulator<bool>;
 template <>
 const serializer commsys_simulator<bool>::shelper("experiment", "commsys_simulator<bool>", commsys_simulator<bool>::create);
+
 template class commsys_simulator< gf<1,0x3> >;
 template <>
 const serializer commsys_simulator< gf<1,0x3> >::shelper("experiment", "commsys_simulator<gf<1,0x3>>", commsys_simulator< gf<1,0x3> >::create);
@@ -228,6 +229,14 @@ const serializer commsys_simulator< gf<3,0xB> >::shelper("experiment", "commsys_
 template class commsys_simulator< gf<4,0x13> >;
 template <>
 const serializer commsys_simulator< gf<4,0x13> >::shelper("experiment", "commsys_simulator<gf<4,0x13>>", commsys_simulator< gf<4,0x13> >::create);
+
+// realizations for non-default containers
+
+// template class commsys_simulator<bool,matrix>;
+// template <>
+// const serializer commsys_simulator<bool,matrix>::shelper("experiment", "commsys_simulator<bool,matrix>", commsys_simulator<bool,matrix>::create);
+
+// realizations for non-default results collectors
 
 template class commsys_simulator<bool,commsys_prof_burst>;
 template <>

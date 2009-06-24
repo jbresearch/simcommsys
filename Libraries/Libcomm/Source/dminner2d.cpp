@@ -61,7 +61,7 @@ void dminner2d<real,norm>::domodulate(const int q, const libbase::matrix<int>& e
       for(int j=0; j<N; j++)
          for(int ii=0; ii<m; ii++)
             for(int jj=0; jj<n; jj++)
-               tx(j*N+jj,i*M+ii) ^= lut(encoded(j,i))(jj,ii);
+               tx(j*n+jj,i*m+ii) ^= lut(encoded(j,i))(jj,ii);
    }
 
 /*!
