@@ -206,37 +206,40 @@ std::istream& commsys_simulator<S,R>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+using libbase::serializer;
+using libbase::gf;
+
 template class commsys_simulator<sigspace>;
 template <>
-const libbase::serializer commsys_simulator<sigspace>::shelper("experiment", "commsys_simulator<sigspace>", commsys_simulator<sigspace>::create);
+const serializer commsys_simulator<sigspace>::shelper("experiment", "commsys_simulator<sigspace>", commsys_simulator<sigspace>::create);
 
 template class commsys_simulator<bool>;
 template <>
-const libbase::serializer commsys_simulator<bool>::shelper("experiment", "commsys_simulator<bool>", commsys_simulator<bool>::create);
-template class commsys_simulator< libbase::gf<1,0x3> >;
+const serializer commsys_simulator<bool>::shelper("experiment", "commsys_simulator<bool>", commsys_simulator<bool>::create);
+template class commsys_simulator< gf<1,0x3> >;
 template <>
-const libbase::serializer commsys_simulator< libbase::gf<1,0x3> >::shelper("experiment", "commsys_simulator<gf<1,0x3>>", commsys_simulator< libbase::gf<1,0x3> >::create);
-template class commsys_simulator< libbase::gf<2,0x7> >;
+const serializer commsys_simulator< gf<1,0x3> >::shelper("experiment", "commsys_simulator<gf<1,0x3>>", commsys_simulator< gf<1,0x3> >::create);
+template class commsys_simulator< gf<2,0x7> >;
 template <>
-const libbase::serializer commsys_simulator< libbase::gf<2,0x7> >::shelper("experiment", "commsys_simulator<gf<2,0x7>>", commsys_simulator< libbase::gf<2,0x7> >::create);
-template class commsys_simulator< libbase::gf<3,0xB> >;
+const serializer commsys_simulator< gf<2,0x7> >::shelper("experiment", "commsys_simulator<gf<2,0x7>>", commsys_simulator< gf<2,0x7> >::create);
+template class commsys_simulator< gf<3,0xB> >;
 template <>
-const libbase::serializer commsys_simulator< libbase::gf<3,0xB> >::shelper("experiment", "commsys_simulator<gf<3,0xB>>", commsys_simulator< libbase::gf<3,0xB> >::create);
-template class commsys_simulator< libbase::gf<4,0x13> >;
+const serializer commsys_simulator< gf<3,0xB> >::shelper("experiment", "commsys_simulator<gf<3,0xB>>", commsys_simulator< gf<3,0xB> >::create);
+template class commsys_simulator< gf<4,0x13> >;
 template <>
-const libbase::serializer commsys_simulator< libbase::gf<4,0x13> >::shelper("experiment", "commsys_simulator<gf<4,0x13>>", commsys_simulator< libbase::gf<4,0x13> >::create);
+const serializer commsys_simulator< gf<4,0x13> >::shelper("experiment", "commsys_simulator<gf<4,0x13>>", commsys_simulator< gf<4,0x13> >::create);
 
 template class commsys_simulator<bool,commsys_prof_burst>;
 template <>
-const libbase::serializer commsys_simulator<bool,commsys_prof_burst>::shelper("experiment", "commsys_simulator<bool,prof_burst>", commsys_simulator<bool,commsys_prof_burst>::create);
+const serializer commsys_simulator<bool,commsys_prof_burst>::shelper("experiment", "commsys_simulator<bool,prof_burst>", commsys_simulator<bool,commsys_prof_burst>::create);
 template class commsys_simulator<bool,commsys_prof_pos>;
 template <>
-const libbase::serializer commsys_simulator<bool,commsys_prof_pos>::shelper("experiment", "commsys_simulator<bool,prof_pos>", commsys_simulator<bool,commsys_prof_pos>::create);
+const serializer commsys_simulator<bool,commsys_prof_pos>::shelper("experiment", "commsys_simulator<bool,prof_pos>", commsys_simulator<bool,commsys_prof_pos>::create);
 template class commsys_simulator<bool,commsys_prof_sym>;
 template <>
-const libbase::serializer commsys_simulator<bool,commsys_prof_sym>::shelper("experiment", "commsys_simulator<bool,prof_sym>", commsys_simulator<bool,commsys_prof_sym>::create);
+const serializer commsys_simulator<bool,commsys_prof_sym>::shelper("experiment", "commsys_simulator<bool,prof_sym>", commsys_simulator<bool,commsys_prof_sym>::create);
 template class commsys_simulator<bool,commsys_hist_symerr>;
 template <>
-const libbase::serializer commsys_simulator<bool,commsys_hist_symerr>::shelper("experiment", "commsys_simulator<bool,hist_symerr>", commsys_simulator<bool,commsys_hist_symerr>::create);
+const serializer commsys_simulator<bool,commsys_hist_symerr>::shelper("experiment", "commsys_simulator<bool,hist_symerr>", commsys_simulator<bool,commsys_hist_symerr>::create);
 
 }; // end namespace

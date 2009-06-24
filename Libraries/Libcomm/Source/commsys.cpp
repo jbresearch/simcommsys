@@ -398,8 +398,10 @@ std::istream& commsys<sigspace,C>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+using libbase::serializer;
+
 template class commsys<sigspace>;
 template <>
-const libbase::serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
+const serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
 
 }; // end namespace
