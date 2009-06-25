@@ -67,6 +67,30 @@ void dminner2d<real,norm>::domodulate(const int q, const libbase::matrix<int>& e
 /*!
    \copydoc blockmodem::dodemodulate()
 
+   Wrapper for decoder function assuming equiprobable APP table.
+*/
+
+template <class real, bool norm>
+void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable)
+   {
+   // Inherit sizes
+   const int M = this->input_block_size().y;
+   const int N = this->input_block_size().x;
+   // Create equiprobable a-priori probability table
+   libbase::matrix<array1d_t> app(N,M);
+   for(int i=0; i<M; i++)
+      for(int j=0; j<N; j++)
+         {
+         app(j,i).init(q);
+         app(j,i) = 1.0;
+         }
+   // Now call the full decode function
+   dodemodulate(chan, rx, app, ptable);
+   }
+
+/*!
+   \copydoc blockmodem::dodemodulate()
+
    Decodes 2D sequence by performing iterative row/column decodings.
 */
 
@@ -89,6 +113,7 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
    ptable = app;
    // Temporary variables
    libbase::vector<bool> rxvec;
+   libbase::vector<bool> wsvec;
    libbase::vector<array1d_t> pin;
    libbase::vector<array1d_t> pout;
    libbase::vector<array1d_t> pacc;
@@ -104,11 +129,17 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
       for(int i=0; i<M; i++)
          {
          ptable.extractrow(pin,i);
+         // initialize storage
          pacc.init(pin);
+         for(int ii=0; ii<pacc.size(); ii++)
+            pacc(ii).init(pin(ii));
+         // initialize value
          pacc = 1;
          for(int ii=0; ii<m; ii++)
             {
-            rx.extractrow(rxvec,i*M+ii);
+            pilot.extractrow(wsvec,i*m+ii);
+            rowdec.set_pilot(wsvec);
+            rx.extractrow(rxvec,i*m+ii);
             rowdec.demodulate(mychan, rxvec, pin, pout);
             pacc *= pout;
             }
@@ -119,11 +150,17 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
       for(int j=0; j<N; j++)
          {
          ptable.extractcol(pin,j);
+         // initialize storage
          pacc.init(pin);
+         for(int jj=0; jj<pacc.size(); jj++)
+            pacc(jj).init(pin(jj));
+         // initialize value
          pacc = 1;
          for(int jj=0; jj<n; jj++)
             {
-            rx.extractcol(rxvec,j*N+jj);
+            pilot.extractcol(wsvec,j*n+jj);
+            coldec.set_pilot(wsvec);
+            rx.extractcol(rxvec,j*n+jj);
             coldec.demodulate(mychan, rxvec, pin, pout);
             pacc *= pout;
             }

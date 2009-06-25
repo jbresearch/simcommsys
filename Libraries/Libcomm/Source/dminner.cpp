@@ -54,6 +54,23 @@ int dminner<real,norm>::fill(int i, libbase::bitfield suffix, int w)
    }
 
 /*!
+   \brief Set up pilot sequence for the current frame as given
+*/
+template <class real, bool norm>
+void dminner<real,norm>::copypilot(libbase::vector<libbase::bitfield> pilotb)
+   {
+   assertalways(pilotb.size() > 0);
+   // initialize LUT
+   ws.init(pilotb.size());
+   // copy elements
+   for(int i=0; i<ws.size(); i++)
+      {
+      assertalways(pilotb(i).size() == n);
+      ws(i) = pilotb(i);
+      }
+   }
+
+/*!
    \brief Set up LUT with the given codewords
 */
 template <class real, bool norm>
@@ -273,6 +290,29 @@ dminner<real,norm>::dminner(const int n, const int k, const double th_inner, con
 // Watermark-specific setup functions
 
 template <class real, bool norm>
+void dminner<real,norm>::set_pilot(libbase::vector<bool> pilot)
+   {
+   assertalways((pilot.size() % n) == 0);
+   // init space for converted vector
+   libbase::vector<libbase::bitfield> pilotb(pilot.size() / n);
+   // convert pilot sequence
+   for(int i=0; i<pilotb.size(); i++)
+      {
+      pilotb(i) = "";
+      for(int j=0; j<n; j++)
+         pilotb(i) = pilotb(i) + libbase::bitfield(pilot(i*n+j),1);
+      }
+   // pass through the standard method for setting pilot sequence
+   set_pilot(pilotb);
+   }
+
+template <class real, bool norm>
+void dminner<real,norm>::set_pilot(libbase::vector<libbase::bitfield> pilot)
+   {
+   copypilot(pilot);
+   }
+
+template <class real, bool norm>
 void dminner<real,norm>::set_lut(libbase::vector<libbase::bitfield> lut)
    {
    copylut(lut);
@@ -309,11 +349,15 @@ void dminner<real,norm>::advance() const
    {
    // Inherit sizes
    const int tau = this->input_block_size();
-   // Initialize space
-   ws.init(tau);
-   // creates 'tau' elements of 'n' bits each
-   for(int i=0; i<tau; i++)
-      ws(i) = r.ival(1<<n);
+   // Advance pilot sequence only for non-zero block sizes
+   if(tau > 0)
+      {
+      // Initialize space
+      ws.init(tau);
+      // creates 'tau' elements of 'n' bits each
+      for(int i=0; i<tau; i++)
+         ws(i) = r.ival(1<<n);
+      }
    }
 
 // encoding and decoding functions

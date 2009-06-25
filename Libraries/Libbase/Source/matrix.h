@@ -390,6 +390,7 @@ inline void matrix<T>::insertcol(const vector<T>& v, const int y)
 template <class T>
 inline void matrix<T>::extractrow(vector<T>& v, const int x) const
    {
+   assert(x>=0 && x<m_size.x);
    v.init(m_size.y);
    for(int y=0; y<m_size.y; y++)
       v(y) = m_data[x][y];
@@ -403,6 +404,7 @@ inline void matrix<T>::extractrow(vector<T>& v, const int x) const
 template <class T>
 inline void matrix<T>::extractcol(vector<T>& v, const int y) const
    {
+   assert(y>=0 && y<m_size.y);
    v.init(m_size.x);
    for(int x=0; x<m_size.x; x++)
       v(x) = m_data[x][y];
