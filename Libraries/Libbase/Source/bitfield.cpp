@@ -29,20 +29,12 @@ int32u bitfield::mask() const
 
 void bitfield::check_range(int32u f) const
    {
-   if(f & ~mask())
-      {
-      cerr << "FATAL ERROR (bitfield): value outside bitfield range (" << f << ").\n";
-      exit(1);
-      }
+   assertalways((f & ~mask()) == 0);
    }
 
 void bitfield::check_fieldsize(int b)
    {
-   if(b<0 || b>32)
-      {
-      cerr << "FATAL ERROR (bitfield): invalid bitfield size (" << b << ").\n";
-      exit(1);
-      }
+   assertalways(b>=0 && b<=32);
    }
 
 void bitfield::init(const char *s)
@@ -53,16 +45,19 @@ void bitfield::init(const char *s)
    for(p=s; *p=='1' || *p=='0'; p++)
       {
       field <<= 1;
-      if(*p == '1')
-         field |= 1;
+      field |= (*p == '1');
       bits++;
       }
-   if(*p != '\0')
-      cerr << "ERROR (bitfield): initialization string (" << s << ") contains invalud characters.\n";
+   // check there do not remain any invalid characters
+   assertalways(*p == '\0');
    }
 
 // Conversion operations
 
+
+/*!
+   \brief Convert bitfield to a string representation
+*/
 bitfield::operator std::string() const
    {
    std::string sTemp;
@@ -79,10 +74,28 @@ bitfield::bitfield()
    field = 0;
    }
 
+/*!
+   \brief Constructor to directly convert an integer at a specified width
+*/
 bitfield::bitfield(const int32u field, const int bits)
    {
    bitfield::bits = bits;
    bitfield::field = field;
+   }
+
+/*!
+   \brief Constructor that converts a vector of bits
+*/
+bitfield::bitfield(const vector<bool>& v)
+   {
+   bits = v.size();
+   check_fieldsize(bits);
+   field = 0;
+   for(int i=0; i<bits; i++)
+      {
+      field <<= 1;
+      field |= v(i);
+      }
    }
 
 // Resizing Operations
@@ -121,11 +134,7 @@ bitfield& bitfield::operator=(const int32u x)
 bitfield bitfield::extract(const int hi, const int lo) const
    {
    bitfield c;
-   if(hi >= bits || lo < 0 || lo > hi)
-      {
-      cerr << "FATAL ERROR (bitfield): invalid range for extraction (" << hi << ", " << lo << ").\n";
-      exit(1);
-      }
+   assertalways(hi < bits && lo >= 0 && lo <= hi);
    c.bits = hi-lo+1;
    c.field = (field >> lo) & c.mask();
    return c;
@@ -134,11 +143,7 @@ bitfield bitfield::extract(const int hi, const int lo) const
 bitfield bitfield::extract(const int b) const
    {
    bitfield c;
-   if(b >= bits || b < 0)
-      {
-      cerr << "FATAL ERROR (bitfield): invalid range for extraction (" << b << ").\n";
-      exit(1);
-      }
+   assertalways(b < bits && b >= 0);
    c.bits = 1;
    c.field = (field >> b) & 1;
    return c;
@@ -148,33 +153,21 @@ bitfield bitfield::extract(const int b) const
 
 bitfield& bitfield::operator|=(const bitfield& x)
    {
-   if(bits != x.bits)
-      {
-      cerr << "FATAL ERROR (bitfield): bitfield OR failed; parameters have unequal size\n";
-      exit(1);
-      }
+   assertalways(bits == x.bits);
    field |= x.field;
    return *this;
    }
 
 bitfield& bitfield::operator&=(const bitfield& x)
    {
-   if(bits != x.bits)
-      {
-      cerr << "FATAL ERROR (bitfield): bitfield AND failed; parameters have unequal size\n";
-      exit(1);
-      }
+   assertalways(bits == x.bits);
    field &= x.field;
    return *this;
    }
 
 bitfield& bitfield::operator^=(const bitfield& x)
    {
-   if(bits != x.bits)
-      {
-      cerr << "FATAL ERROR (bitfield): bitfield XOR failed; parameters have unequal size\n";
-      exit(1);
-      }
+   assertalways(bits == x.bits);
    field ^= x.field;
    return *this;
    }
@@ -204,11 +197,7 @@ bitfield operator^(const bitfield& a, const bitfield& b)
 
 bitfield operator*(const bitfield& a, const bitfield& b)
    {
-   if(a.bits != b.bits)
-      {
-      cerr << "FATAL ERROR (bitfield): collapse failed; parameters have unequal size\n";
-      exit(1);
-      }
+   assertalways(a.bits == b.bits);
    bitfield c;
    c.bits = 1;
    int32u x = a.field & b.field;

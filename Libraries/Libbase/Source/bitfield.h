@@ -2,6 +2,7 @@
 #define __bitfield_h
 
 #include "config.h"
+#include "vector.h"
 
 #include <iostream>
 #include <string>
@@ -9,51 +10,20 @@
 namespace libbase {
 
 /*!
-   \brief   Bitfield.
+   \brief   Bitfield (register of a set size).
    \author  Johann Briffa
 
    \section svn Version Control
    - $Revision$
    - $Date$
    - $Author$
-
-   \version 1.01 (27 Nov 2001)
-  made setdefsize a static member (this should have been so anyway) and also
-  check_fieldsize since this is called from it. Also made check_range a const member.
-
-   \version 1.10 (28 Feb 2002)
-  moved most functions to the implementation file rather than inline here. Also, made
-  the extraction functions const, and added a stream input function.
-
-   \version 1.11 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
-  also had to change the concatenation operator from ',' to '+' since this was
-  conflicting with something in "iostream"
-
-   \version 1.12 (13 Mar 2002)
-  changed the stream input function to get the next word from the stream (as a string) and
-  then use the same code as the constructor to change that into a bitfield. This code
-  is now moved into a private init() function. Also, the init function has been changed
-  to issue a warning if the string contains any invalid characters.
-
-   \version 1.20 (23 Mar 2002)
-  added operator to convert bitfield to a string. Also updated the stream output function
-  to use this convertor to display a bitfield.
-
-   \version 1.30 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
-   \version 1.31 (5 Dec 2007)
-   - added constructor to directly convert an integer at a specified width
 */
 
 class bitfield {
-   static int   defsize;   // default size
+   static int   defsize;   //!< default size
    // member variables
-   int32u field;           // bit field
-   int    bits;            // number of bits
+   int32u field;           //!< bit field value
+   int    bits;            //!< number of bits
 private:
    int32u mask() const;
    void check_range(int32u f) const;
@@ -63,6 +33,7 @@ public:
    bitfield();
    bitfield(const char *s) { init(s); };
    bitfield(const int32u field, const int bits);
+   explicit bitfield(const vector<bool>& v);
 
    // Type conversion to integer/string
    operator int32u() const { return field; };
