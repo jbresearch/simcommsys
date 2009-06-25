@@ -14,6 +14,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show LUTs on manual update
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 // internally-used functions
 
 /*!
@@ -87,6 +95,19 @@ void dminner<real,norm>::copylut(libbase::vector<libbase::bitfield> lutb)
       }
    }
 
+
+/*!
+   \brief Display LUT on given stream
+*/
+
+template <class real, bool norm>
+void dminner<real,norm>::showlut(std::ostream& sout) const
+   {
+   sout << "LUT (k=" << k << ", n=" << n << "):\n";
+   for(int i=0; i<lut.size(); i++)
+      sout<< i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
+   }
+
 /*!
    \brief Confirm that LUT is valid
    Checks that all LUT entries are within range and that there are no
@@ -107,14 +128,18 @@ void dminner<real,norm>::validatelut() const
       }
    }
 
-//! Compute mean density of sparse alphabet
+//! Compute and update mean density of sparse alphabet
 
 template <class real, bool norm>
-double dminner<real,norm>::computemeandensity() const
+void dminner<real,norm>::computemeandensity()
    {
    array1i_t w = lut;
    w.apply(libbase::weight);
-   return w.sum()/double(n * w.size());
+   f = w.sum()/double(n * w.size());
+#ifndef NDEBUG
+   if(n > 2)
+      libbase::trace << "Watermark code density = " << f << "\n";
+#endif
    }
 
 //! Inform user if I or xmax have changed
@@ -244,20 +269,11 @@ void dminner<real,norm>::init()
 #ifndef NDEBUG
    // Display LUT when debugging
    if(n > 2)
-      {
-      libbase::trace << "LUT (k=" << k << ", n=" << n << "):\n";
-      for(int i=0; i<lut.size(); i++)
-         libbase::trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
-      }
+      showlut(libbase::trace);
 #endif
-   // Validate LUT
+   // Validate LUT and compute the mean density
    validatelut();
-   // Compute the mean density
-   f = computemeandensity();
-#ifndef NDEBUG
-   if(n > 2)
-      libbase::trace << "Watermark code density = " << f << "\n";
-#endif
+   computemeandensity();
    // set default thresholds if necessary
    if(!user_threshold)
       {
@@ -289,6 +305,10 @@ dminner<real,norm>::dminner(const int n, const int k, const double th_inner, con
 
 // Watermark-specific setup functions
 
+/*!
+   \copydoc set_pilot()
+   \todo Consider moving this method to the dminner2d class
+*/
 template <class real, bool norm>
 void dminner<real,norm>::set_pilot(libbase::vector<bool> pilot)
    {
@@ -306,17 +326,34 @@ void dminner<real,norm>::set_pilot(libbase::vector<bool> pilot)
    set_pilot(pilotb);
    }
 
+/*!
+   \brief Overrides the internally-generated pilot sequence with given one
+
+   The intent of this method is to allow users to apply the dminner decoder
+   in derived algorithms, such as the 2D extension.
+
+   \todo merge with copypilot()
+*/
 template <class real, bool norm>
 void dminner<real,norm>::set_pilot(libbase::vector<libbase::bitfield> pilot)
    {
    copypilot(pilot);
    }
 
+/*!
+   \brief Overrides the sparse alphabet with given one
+
+   The intent of this method is to allow users to apply the dminner decoder
+   in derived algorithms, such as the 2D extension.
+*/
 template <class real, bool norm>
 void dminner<real,norm>::set_lut(libbase::vector<libbase::bitfield> lut)
    {
    copylut(lut);
-   init();
+   computemeandensity();
+#if DEBUG>=2
+   showlut(libbase::trace);
+#endif
    }
 
 template <class real, bool norm>
