@@ -67,6 +67,8 @@ protected:
 private:
    /*! \name Internal functions */
    void validatelut() const;
+   libbase::vector<libbase::bitfield> get_alphabet_row(int i) const;
+   libbase::vector<libbase::bitfield> get_alphabet_col(int j) const;
    // @}
 protected:
    /*! \name Internal functions */

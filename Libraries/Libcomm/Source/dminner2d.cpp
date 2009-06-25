@@ -147,8 +147,10 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
          for(int ii=0; ii<m; ii++)
             {
 #if DEBUG>=2
-            libbase::trace << "DEBUG (dminner2d): Decoding row " << ii << " of symbol " << i << "\n";
+            libbase::trace << "DEBUG (dminner2d): Decoding row " << ii << " of symbol row " << i << "\n";
 #endif
+            // set up row decoder's sparse alphabet & pilot sequence
+            rowdec.set_lut(get_alphabet_row(ii));
             pilot.extractrow(wsvec,i*m+ii);
             rowdec.set_pilot(wsvec);
             rx.extractrow(rxvec,i*m+ii);
@@ -182,8 +184,10 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
          for(int jj=0; jj<n; jj++)
             {
 #if DEBUG>=2
-            libbase::trace << "DEBUG (dminner2d): Decoding col " << jj << " of symbol " << j << "\n";
+            libbase::trace << "DEBUG (dminner2d): Decoding col " << jj << " of symbol col " << j << "\n";
 #endif
+            // set up col decoder's sparse alphabet & pilot sequence
+            coldec.set_lut(get_alphabet_col(jj));
             pilot.extractcol(wsvec,j*n+jj);
             coldec.set_pilot(wsvec);
             rx.extractcol(rxvec,j*n+jj);
@@ -225,6 +229,24 @@ void dminner2d<real,norm>::validatelut() const
       for(int j=0; j<i; j++)
          assertalways(lut(i).isnotequalto(lut(j)));
       }
+   }
+
+template <class real, bool norm>
+libbase::vector<libbase::bitfield> dminner2d<real,norm>::get_alphabet_row(int i) const
+   {
+   libbase::vector<libbase::bitfield> lutb(lut.size());
+   for(int k=0; k<lut.size(); k++)
+      lutb(k) = libbase::bitfield(lut(k).extractrow(i));
+   return lutb;
+   }
+
+template <class real, bool norm>
+libbase::vector<libbase::bitfield> dminner2d<real,norm>::get_alphabet_col(int j) const
+   {
+   libbase::vector<libbase::bitfield> lutb(lut.size());
+   for(int k=0; k<lut.size(); k++)
+      lutb(k) = libbase::bitfield(lut(k).extractcol(j));
+   return lutb;
    }
 
 /*!
