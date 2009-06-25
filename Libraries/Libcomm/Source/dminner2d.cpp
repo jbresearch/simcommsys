@@ -15,6 +15,15 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show pilot & received rows/cols as they are being decoded
+// 3 - Also show input/output probability tables
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 3
+#endif
+
 /*!
    \copydoc blockmodem::advance()
 
@@ -137,11 +146,25 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
          pacc = 1;
          for(int ii=0; ii<m; ii++)
             {
+#if DEBUG>=2
+            libbase::trace << "DEBUG (dminner2d): Decoding row " << ii << " of symbol " << i << "\n";
+#endif
             pilot.extractrow(wsvec,i*m+ii);
             rowdec.set_pilot(wsvec);
             rx.extractrow(rxvec,i*m+ii);
+#if DEBUG>=2
+            libbase::trace << "DEBUG (dminner2d): pilot = " << wsvec;
+            libbase::trace << "DEBUG (dminner2d): rx = " << rxvec;
+#endif
+#if DEBUG>=3
+            libbase::trace << "DEBUG (dminner2d): pin = " << pin;
+#endif
             rowdec.demodulate(mychan, rxvec, pin, pout);
             pacc *= pout;
+#if DEBUG>=3
+            libbase::trace << "DEBUG (dminner2d): pout = " << pout;
+            libbase::trace << "DEBUG (dminner2d): pacc = " << pacc;
+#endif
             }
          ptable.insertrow(pacc,i);
          }
@@ -158,11 +181,25 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
          pacc = 1;
          for(int jj=0; jj<n; jj++)
             {
+#if DEBUG>=2
+            libbase::trace << "DEBUG (dminner2d): Decoding col " << jj << " of symbol " << j << "\n";
+#endif
             pilot.extractcol(wsvec,j*n+jj);
             coldec.set_pilot(wsvec);
             rx.extractcol(rxvec,j*n+jj);
+#if DEBUG>=2
+            libbase::trace << "DEBUG (dminner2d): pilot = " << wsvec;
+            libbase::trace << "DEBUG (dminner2d): rx = " << rxvec;
+#endif
+#if DEBUG>=3
+            libbase::trace << "DEBUG (dminner2d): pin = " << pin;
+#endif
             coldec.demodulate(mychan, rxvec, pin, pout);
             pacc *= pout;
+#if DEBUG>=3
+            libbase::trace << "DEBUG (dminner2d): pout = " << pout;
+            libbase::trace << "DEBUG (dminner2d): pacc = " << pacc;
+#endif
             }
          ptable.insertcol(pacc,j);
          }
