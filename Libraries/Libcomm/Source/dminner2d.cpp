@@ -47,7 +47,12 @@ void dminner2d<real,norm>::advance() const
 /*!
    \copydoc blockmodem::domodulate()
 
-   Updates 2D pilot sequence
+   Performs modulation; this is similar to the original (1D) DM code, except
+   that here both the input sequence, pilot sequence, and sparse symbols are
+   two-dimensional:
+   - input sequence (from codec) is M x N symbols
+   - sparse symbols are each m x n bits
+   - pilot and output (transmitted) sequences are therefore M m  x N n bits
 */
 
 template <class real, bool norm>
@@ -100,7 +105,27 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
 /*!
    \copydoc blockmodem::dodemodulate()
 
-   Decodes 2D sequence by performing iterative row/column decodings.
+   Decodes 2D sequence by performing iterative row/column decodings, given the
+   a-priori probabilities for each possible value of encoded symbols in app.
+   Output probabilities for each possible transmitted symbols is returned
+   in ptable. Decoding is performed as follows:
+
+   1) Initialize output (ptable) from the input (app) probability table
+   2) Consider each encoded row of symbols, one at a time (call this 'i'):
+      a) Extract the corresponding row of probabilities from ptable, to
+         use with the row decoder (call this 'pacc')
+      b) Consider each transmitted row of bits for this row of symbols,
+         one at a time (call this 'ii'):
+         i) Construct a 1D DM decoder for the row, where the sparse symbol
+            alphabet is extracted from the corresponding row of the 2D
+            alphabet, and the pilot sequence is extracted from the
+            corresponding row of the 2D pilot sequence.
+         ii) Decode using the row decoder
+         iii) Update 'pacc' by multiplying with the corresponding output
+              from the row decoder
+      c) Update ptable by copying 'pacc' back in place
+   3) Consider each encoded column in the same way as with step 2
+   4) Repeat from step 2 for a given number of iterations
 */
 
 template <class real, bool norm>
