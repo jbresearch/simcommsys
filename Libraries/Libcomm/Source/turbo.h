@@ -132,18 +132,18 @@ public:
    using Base::decode;
 
    // Codec information functions - fundamental
-   libbase::size<libbase::vector> input_block_size() const
+   libbase::size_type<libbase::vector> input_block_size() const
       {
       const int tau = This::output_block_size();
       const int nu = This::tail_length();
-      return libbase::size<libbase::vector>(tau-nu);
+      return libbase::size_type<libbase::vector>(tau-nu);
       };
-   libbase::size<libbase::vector> output_block_size() const
+   libbase::size_type<libbase::vector> output_block_size() const
       {
       assertalways(inter.size() > 0);
       assertalways(inter(0));
       const int tau = inter(0)->size();
-      return libbase::size<libbase::vector>(tau);
+      return libbase::size_type<libbase::vector>(tau);
       };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };

@@ -22,7 +22,7 @@ class DerivedVector : public libbase::vector<T>
 {
 private:
    typedef libbase::vector<T> Base;
-   using Base::m_xsize;
+   using Base::m_size;
    using Base::m_data;
 public:
    DerivedVector(const int x=0) : Base(x) {};
@@ -33,16 +33,16 @@ public:
 template <class T>
 void DerivedVector<T>::remove(const int x)
    {
-   assert(x < m_xsize);
-   for(int i=x; i<m_xsize-1; i++)
+   assert(x < m_size.x);
+   for(int i=x; i<m_size.x-1; i++)
       m_data[i] = m_data[i+1];
-   m_xsize--;
+   m_size.x--;
    }
 
 template <class T>
 void DerivedVector<T>::sequence()
    {
-   for(int i=0; i<m_xsize; i++)
+   for(int i=0; i<m_size.x; i++)
       m_data[i] = i;
    }
 

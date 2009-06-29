@@ -50,16 +50,14 @@ protected:
    void init();
    void free();
    // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   uncoded();
-   // @}
    // Internal codec operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
 public:
    /*! \name Constructors / Destructors */
+   //! Default constructor
+   uncoded();
    uncoded(const fsm& encoder, const int tau);
    ~uncoded() { free(); };
    // @}
@@ -70,10 +68,10 @@ public:
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
-   libbase::size<libbase::vector> input_block_size() const
-      { return libbase::size<libbase::vector>(tau); };
-   libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(tau); };
+   libbase::size_type<libbase::vector> input_block_size() const
+      { return libbase::size_type<libbase::vector>(tau); };
+   libbase::size_type<libbase::vector> output_block_size() const
+      { return libbase::size_type<libbase::vector>(tau); };
    int num_inputs() const { return encoder->num_inputs(); };
    int num_outputs() const { return encoder->num_outputs(); };
    int tail_length() const { return 0; };

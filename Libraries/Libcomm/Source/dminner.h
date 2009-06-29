@@ -103,9 +103,11 @@ private:
    /*! \name Internal functions */
    void test_invariant() const;
    int fill(int i=0, libbase::bitfield suffix="", int weight=-1);
+   void copypilot(libbase::vector<libbase::bitfield> pilotb);
    void copylut(libbase::vector<libbase::bitfield> lutb);
+   void showlut(std::ostream& sout) const;
    void validatelut() const;
-   double computemeandensity() const;
+   void computemeandensity();
    void checkforchanges(int I, int xmax) const;
    void work_results(const array1b_t& r, array1vr_t& ptable, const int xmax, const int dxmax, const int I) const;
    void normalize_results(const array1vr_t& in, array1vd_t& out) const;
@@ -121,6 +123,8 @@ public:
    // @}
 
    /*! \name Watermark-specific setup functions */
+   void set_pilot(libbase::vector<bool> pilot);
+   void set_pilot(libbase::vector<libbase::bitfield> pilot);
    void set_lut(libbase::vector<libbase::bitfield> lut);
    void set_thresholds(const double th_inner, const double th_outer);
    void set_parameter(const double x) { set_thresholds(x,x); };
@@ -139,8 +143,8 @@ public:
 
    // Informative functions
    int num_symbols() const { return 1<<k; };
-   libbase::size<libbase::vector> output_block_size() const
-      { return libbase::size<libbase::vector>(input_block_size()*n); };
+   libbase::size_type<libbase::vector> output_block_size() const
+      { return libbase::size_type<libbase::vector>(input_block_size()*n); };
    double energy() const { return n; };
 
    // Description

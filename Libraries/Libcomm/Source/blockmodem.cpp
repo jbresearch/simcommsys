@@ -37,23 +37,41 @@ void basic_blockmodem<S,C>::demodulate(const channel<S,C>& chan, const C<S>& rx,
 
 // Explicit Realizations
 
-template class basic_blockmodem< libbase::gf<1,0x3> >;
-template class basic_blockmodem< libbase::gf<2,0x7> >;
-template class basic_blockmodem< libbase::gf<3,0xB> >;
-template class basic_blockmodem< libbase::gf<4,0x13> >;
+using libbase::matrix;
+using libbase::gf;
+using libcomm::sigspace;
+
+template class basic_blockmodem< gf<1,0x3> >;
+template class basic_blockmodem< gf<2,0x7> >;
+template class basic_blockmodem< gf<3,0xB> >;
+template class basic_blockmodem< gf<4,0x13> >;
 template class basic_blockmodem<bool>;
-template class basic_blockmodem<libcomm::sigspace>;
+template class basic_blockmodem<sigspace>;
+
+template class basic_blockmodem< gf<1,0x3>,matrix >;
+template class basic_blockmodem< gf<2,0x7>,matrix >;
+template class basic_blockmodem< gf<3,0xB>,matrix >;
+template class basic_blockmodem< gf<4,0x13>,matrix >;
+template class basic_blockmodem<bool,matrix>;
+template class basic_blockmodem<sigspace,matrix>;
 
 // *** Blockwise Modulator Common Interface ***
 
 // Explicit Realizations
 
-template class blockmodem< libbase::gf<1,0x3> >;
-template class blockmodem< libbase::gf<2,0x7> >;
-template class blockmodem< libbase::gf<3,0xB> >;
-template class blockmodem< libbase::gf<4,0x13> >;
+template class blockmodem< gf<1,0x3> >;
+template class blockmodem< gf<2,0x7> >;
+template class blockmodem< gf<3,0xB> >;
+template class blockmodem< gf<4,0x13> >;
 template class blockmodem<bool>;
-template class blockmodem<libcomm::sigspace>;
+template class blockmodem<sigspace>;
+
+template class blockmodem< gf<1,0x3>,matrix >;
+template class blockmodem< gf<2,0x7>,matrix >;
+template class blockmodem< gf<3,0xB>,matrix >;
+template class blockmodem< gf<4,0x13>,matrix >;
+template class blockmodem<bool,matrix>;
+template class blockmodem<sigspace,matrix>;
 
 
 // *** Templated GF(q) blockmodem ***
@@ -122,23 +140,26 @@ std::istream& direct_blockmodem<G>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
-template class direct_blockmodem< libbase::gf<1,0x3> >;
-template <>
-const libbase::serializer direct_blockmodem< libbase::gf<1,0x3> >::shelper("blockmodem", "blockmodem<gf<1,0x3>>", direct_blockmodem< libbase::gf<1,0x3> >::create);
-template class direct_blockmodem< libbase::gf<2,0x7> >;
-template <>
-const libbase::serializer direct_blockmodem< libbase::gf<2,0x7> >::shelper("blockmodem", "blockmodem<gf<2,0x7>>", direct_blockmodem< libbase::gf<2,0x7> >::create);
-template class direct_blockmodem< libbase::gf<3,0xB> >;
-template <>
-const libbase::serializer direct_blockmodem< libbase::gf<3,0xB> >::shelper("blockmodem", "blockmodem<gf<3,0xB>>", direct_blockmodem< libbase::gf<3,0xB> >::create);
-template class direct_blockmodem< libbase::gf<4,0x13> >;
-template <>
-const libbase::serializer direct_blockmodem< libbase::gf<4,0x13> >::shelper("blockmodem", "blockmodem<gf<4,0x13>>", direct_blockmodem< libbase::gf<4,0x13> >::create);
+using libbase::serializer;
+using libbase::gf;
+using libbase::matrix;
 
+template class direct_blockmodem< gf<1,0x3> >;
+template <>
+const serializer direct_blockmodem< gf<1,0x3> >::shelper("blockmodem", "blockmodem<gf<1,0x3>>", direct_blockmodem< gf<1,0x3> >::create);
+template class direct_blockmodem< gf<2,0x7> >;
+template <>
+const serializer direct_blockmodem< gf<2,0x7> >::shelper("blockmodem", "blockmodem<gf<2,0x7>>", direct_blockmodem< gf<2,0x7> >::create);
+template class direct_blockmodem< gf<3,0xB> >;
+template <>
+const serializer direct_blockmodem< gf<3,0xB> >::shelper("blockmodem", "blockmodem<gf<3,0xB>>", direct_blockmodem< gf<3,0xB> >::create);
+template class direct_blockmodem< gf<4,0x13> >;
+template <>
+const serializer direct_blockmodem< gf<4,0x13> >::shelper("blockmodem", "blockmodem<gf<4,0x13>>", direct_blockmodem< gf<4,0x13> >::create);
+
+const serializer direct_blockmodem<bool>::shelper("blockmodem", "blockmodem<bool>", direct_blockmodem<bool>::create);
 
 // *** Specific to direct_blockmodem<bool> ***
-
-const libbase::serializer direct_blockmodem<bool>::shelper("blockmodem", "blockmodem<bool>", direct_blockmodem<bool>::create);
 
 // Vector modem operations
 

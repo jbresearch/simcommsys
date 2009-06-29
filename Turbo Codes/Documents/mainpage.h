@@ -29,4 +29,22 @@
      - libcomm::mapper, a symbol-mapping between the codec and modulator
      - libcomm::blockmodem, the modulation scheme
      - libcomm::channel, a model for the communications channel
+
+   \section conventions Coding Conventions and Formatting
+   Conventions for code formatting that are used within this project include:
+   - Use of spaces rather than tabs in text files; tabs, when present, should
+     be replaced by spaces.
+   - Indenting using 3-space, at all levels
+   - Indenting braces, which are to be usually on separate lines
+   - Wherever possible, lines should be kept to less than 80 characters width;
+     please use line-breakers only where strictly necessary
+   - Doxygen documentation should use '\' to indicate keywords; short-style
+     comment forms should only be used where a brief description only is to
+     be given.
+
+   When adding to or modifying existing code, please keep to the coding style
+   already present, as far as possible, unless this is already non-conforming.
+   In view of this, please set your editor preferences accordingly, to avoid
+   needless automatic editing, which complicates merges.
+   Edits which are primarily sylistic should be committed separately.
 */

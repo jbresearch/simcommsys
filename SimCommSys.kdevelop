@@ -16,15 +16,15 @@
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>/user/cscssst/jb0029/Programming/trunk/Turbo Codes/Arch/Linux.i686/Debug/SPECturbo</mainprogram>
+      <mainprogram>/user/cscssst/jb0029/Programming/branches/jab/Turbo Codes/Arch/Linux.i686/Debug/csdecode</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
       <programargs/>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments>-r 0.4 -i '/user/cscssst/jb0029/ECW/Results/RA Codes (GF4)/Simulators/awgn-qpsk-gf4-repacc-grsc_2_1_2-512-3-20-term.txt'</globaldebugarguments>
-      <globalcwd>/user/cscssst/jb0029/Programming/trunk</globalcwd>
+      <globaldebugarguments>-t bool -c matrix -i '/user/cscssst/jb0029/ECW/Results/2D DM Codes/Systems/bsid2d-dminner2d_4x4_16-uncoded-gf16-16x16.txt' -p 0 &lt; '/user/cscssst/jb0029/ECW/Results/2D DM Codes/enc.txt'</globaldebugarguments>
+      <globalcwd>/user/cscssst/jb0029/Programming/branches/jab/</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>

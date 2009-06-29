@@ -61,12 +61,14 @@ protected:
    // Interface with derived classes
    void advance() const;
    void domodulate(const int q, const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx);
-   void dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable) {};
+   void dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable);
    void dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable);
 
 private:
    /*! \name Internal functions */
    void validatelut() const;
+   libbase::vector<libbase::bitfield> get_alphabet_row(int i) const;
+   libbase::vector<libbase::bitfield> get_alphabet_col(int j) const;
    // @}
 protected:
    /*! \name Internal functions */
@@ -85,8 +87,8 @@ public:
 
    // Informative functions
    int num_symbols() const { return q; };
-   libbase::size<libbase::matrix> output_block_size() const
-      { return libbase::size<libbase::matrix>(input_block_size().x*n, input_block_size().y*m); };
+   libbase::size_type<libbase::matrix> output_block_size() const
+      { return libbase::size_type<libbase::matrix>(input_block_size().x*n, input_block_size().y*m); };
    double energy() const { return m*n; };
 
    // Description

@@ -88,9 +88,9 @@ public:
 
    /*! \name Codec information functions - fundamental */
    //! Input block size in symbols
-   virtual libbase::size<C> input_block_size() const = 0;
+   virtual libbase::size_type<C> input_block_size() const = 0;
    //! Output block size in symbols
-   virtual libbase::size<C> output_block_size() const = 0;
+   virtual libbase::size_type<C> output_block_size() const = 0;
    //! Number of valid input combinations
    virtual int num_inputs() const = 0;
    //! Number of valid output combinations

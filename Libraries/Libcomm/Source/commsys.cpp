@@ -287,14 +287,22 @@ std::istream& basic_commsys<S,C>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+using libbase::gf;
+using libbase::matrix;
+
 template class basic_commsys<bool>;
-template class basic_commsys< libbase::gf<1,0x3> >;
-template class basic_commsys< libbase::gf<2,0x7> >;
-template class basic_commsys< libbase::gf<3,0xB> >;
-template class basic_commsys< libbase::gf<4,0x13> >;
+template class basic_commsys< gf<1,0x3> >;
+template class basic_commsys< gf<2,0x7> >;
+template class basic_commsys< gf<3,0xB> >;
+template class basic_commsys< gf<4,0x13> >;
 template class basic_commsys<sigspace>;
 
-//template class basic_commsys<bool,libbase::matrix>;
+template class basic_commsys<bool,matrix>;
+template class basic_commsys< gf<1,0x3>,matrix >;
+template class basic_commsys< gf<2,0x7>,matrix >;
+template class basic_commsys< gf<3,0xB>,matrix >;
+template class basic_commsys< gf<4,0x13>,matrix >;
+template class basic_commsys<sigspace,matrix>;
 
 // *** General Communication System ***
 
@@ -314,25 +322,41 @@ std::istream& commsys<S,C>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+using libbase::serializer;
+using libbase::gf;
+using libbase::matrix;
+
 template class commsys<bool>;
 template <>
-const libbase::serializer commsys<bool>::shelper("commsys", "commsys<bool>", commsys<bool>::create);
-template class commsys< libbase::gf<1,0x3> >;
+const serializer commsys<bool>::shelper("commsys", "commsys<bool>", commsys<bool>::create);
+template class commsys< gf<1,0x3> >;
 template <>
-const libbase::serializer commsys< libbase::gf<1,0x3> >::shelper("commsys", "commsys<gf<1,0x3>>", commsys< libbase::gf<1,0x3> >::create);
-template class commsys< libbase::gf<2,0x7> >;
+const serializer commsys< gf<1,0x3> >::shelper("commsys", "commsys<gf<1,0x3>>", commsys< gf<1,0x3> >::create);
+template class commsys< gf<2,0x7> >;
 template <>
-const libbase::serializer commsys< libbase::gf<2,0x7> >::shelper("commsys", "commsys<gf<2,0x7>>", commsys< libbase::gf<2,0x7> >::create);
-template class commsys< libbase::gf<3,0xB> >;
+const serializer commsys< gf<2,0x7> >::shelper("commsys", "commsys<gf<2,0x7>>", commsys< gf<2,0x7> >::create);
+template class commsys< gf<3,0xB> >;
 template <>
-const libbase::serializer commsys< libbase::gf<3,0xB> >::shelper("commsys", "commsys<gf<3,0xB>>", commsys< libbase::gf<3,0xB> >::create);
-template class commsys< libbase::gf<4,0x13> >;
+const serializer commsys< gf<3,0xB> >::shelper("commsys", "commsys<gf<3,0xB>>", commsys< gf<3,0xB> >::create);
+template class commsys< gf<4,0x13> >;
 template <>
-const libbase::serializer commsys< libbase::gf<4,0x13> >::shelper("commsys", "commsys<gf<4,0x13>>", commsys< libbase::gf<4,0x13> >::create);
+const serializer commsys< gf<4,0x13> >::shelper("commsys", "commsys<gf<4,0x13>>", commsys< gf<4,0x13> >::create);
 
-// template class commsys<bool,libbase::matrix>;
-// template <>
-// const libbase::serializer commsys<bool,libbase::matrix>::shelper("commsys", "commsys<bool,matrix>", commsys<bool,libbase::matrix>::create);
+template class commsys<bool,matrix>;
+template <>
+const serializer commsys<bool,matrix>::shelper("commsys", "commsys<bool,matrix>", commsys<bool,matrix>::create);
+template class commsys< gf<1,0x3>,matrix >;
+template <>
+const serializer commsys< gf<1,0x3>,matrix >::shelper("commsys", "commsys<gf<1,0x3>,matrix>", commsys< gf<1,0x3>,matrix >::create);
+template class commsys< gf<2,0x7>,matrix >;
+template <>
+const serializer commsys< gf<2,0x7>,matrix >::shelper("commsys", "commsys<gf<2,0x7>,matrix>", commsys< gf<2,0x7>,matrix >::create);
+template class commsys< gf<3,0xB>,matrix >;
+template <>
+const serializer commsys< gf<3,0xB>,matrix >::shelper("commsys", "commsys<gf<3,0xB>,matrix>", commsys< gf<3,0xB>,matrix >::create);
+template class commsys< gf<4,0x13>,matrix >;
+template <>
+const serializer commsys< gf<4,0x13>,matrix >::shelper("commsys", "commsys<gf<4,0x13>,matrix>", commsys< gf<4,0x13>,matrix >::create);
 
 // *** Specific to commsys<sigspace> ***
 
@@ -374,8 +398,10 @@ std::istream& commsys<sigspace,C>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
+using libbase::serializer;
+
 template class commsys<sigspace>;
 template <>
-const libbase::serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
+const serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>", commsys<sigspace>::create);
 
 }; // end namespace

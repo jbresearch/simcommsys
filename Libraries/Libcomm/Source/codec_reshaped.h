@@ -8,6 +8,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
+// 2 - Show input/output of blocks being reshaped
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -45,8 +46,16 @@ public:
       {
       libbase::vector<int> source_v = source;
       libbase::vector<int> encoded_v;
+#if DEBUG>=2
+      libbase::trace << "DEBUG (codec_reshaped): source = " << source;
+      libbase::trace << "DEBUG (codec_reshaped): source_v = " << source_v;
+#endif
       base.encode(source_v, encoded_v);
       encoded = encoded_v;
+#if DEBUG>=2
+      libbase::trace << "DEBUG (codec_reshaped): encoded = " << encoded;
+      libbase::trace << "DEBUG (codec_reshaped): encoded_v = " << encoded_v;
+#endif
       }
    void translate(const libbase::matrix<array1d_t>& ptable)
       {
@@ -61,17 +70,17 @@ public:
       }
 
    // Codec information functions - fundamental
-   libbase::size<libbase::matrix> input_block_size() const
+   libbase::size_type<libbase::matrix> input_block_size() const
       {
       // Inherit sizes
       const int N = base.input_block_size();
-      return libbase::size<libbase::matrix>(N,1);
+      return libbase::size_type<libbase::matrix>(N,1);
       };
-   libbase::size<libbase::matrix> output_block_size() const
+   libbase::size_type<libbase::matrix> output_block_size() const
       {
       // Inherit sizes
       const int N = base.output_block_size();
-      return libbase::size<libbase::matrix>(N,1);
+      return libbase::size_type<libbase::matrix>(N,1);
       };
    int num_inputs() const { return base.num_inputs(); };
    int num_outputs() const { return base.num_outputs(); };

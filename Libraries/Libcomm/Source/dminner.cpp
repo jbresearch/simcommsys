@@ -14,6 +14,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show LUTs on manual update
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 // internally-used functions
 
 /*!
@@ -54,6 +62,23 @@ int dminner<real,norm>::fill(int i, libbase::bitfield suffix, int w)
    }
 
 /*!
+   \brief Set up pilot sequence for the current frame as given
+*/
+template <class real, bool norm>
+void dminner<real,norm>::copypilot(libbase::vector<libbase::bitfield> pilotb)
+   {
+   assertalways(pilotb.size() > 0);
+   // initialize LUT
+   ws.init(pilotb.size());
+   // copy elements
+   for(int i=0; i<ws.size(); i++)
+      {
+      assertalways(pilotb(i).size() == n);
+      ws(i) = pilotb(i);
+      }
+   }
+
+/*!
    \brief Set up LUT with the given codewords
 */
 template <class real, bool norm>
@@ -68,6 +93,19 @@ void dminner<real,norm>::copylut(libbase::vector<libbase::bitfield> lutb)
       assertalways(lutb(i).size() == n);
       lut(i) = lutb(i);
       }
+   }
+
+
+/*!
+   \brief Display LUT on given stream
+*/
+
+template <class real, bool norm>
+void dminner<real,norm>::showlut(std::ostream& sout) const
+   {
+   sout << "LUT (k=" << k << ", n=" << n << "):\n";
+   for(int i=0; i<lut.size(); i++)
+      sout<< i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
    }
 
 /*!
@@ -90,14 +128,18 @@ void dminner<real,norm>::validatelut() const
       }
    }
 
-//! Compute mean density of sparse alphabet
+//! Compute and update mean density of sparse alphabet
 
 template <class real, bool norm>
-double dminner<real,norm>::computemeandensity() const
+void dminner<real,norm>::computemeandensity()
    {
    array1i_t w = lut;
    w.apply(libbase::weight);
-   return w.sum()/double(n * w.size());
+   f = w.sum()/double(n * w.size());
+#ifndef NDEBUG
+   if(n > 2)
+      libbase::trace << "Watermark code density = " << f << "\n";
+#endif
    }
 
 //! Inform user if I or xmax have changed
@@ -227,20 +269,11 @@ void dminner<real,norm>::init()
 #ifndef NDEBUG
    // Display LUT when debugging
    if(n > 2)
-      {
-      libbase::trace << "LUT (k=" << k << ", n=" << n << "):\n";
-      for(int i=0; i<lut.size(); i++)
-         libbase::trace << i << "\t" << libbase::bitfield(lut(i),n) << "\t" << libbase::weight(lut(i)) << "\n";
-      }
+      showlut(libbase::trace);
 #endif
-   // Validate LUT
+   // Validate LUT and compute the mean density
    validatelut();
-   // Compute the mean density
-   f = computemeandensity();
-#ifndef NDEBUG
-   if(n > 2)
-      libbase::trace << "Watermark code density = " << f << "\n";
-#endif
+   computemeandensity();
    // set default thresholds if necessary
    if(!user_threshold)
       {
@@ -272,11 +305,55 @@ dminner<real,norm>::dminner(const int n, const int k, const double th_inner, con
 
 // Watermark-specific setup functions
 
+/*!
+   \copydoc set_pilot()
+   \todo Consider moving this method to the dminner2d class
+*/
+template <class real, bool norm>
+void dminner<real,norm>::set_pilot(libbase::vector<bool> pilot)
+   {
+   assertalways((pilot.size() % n) == 0);
+   // init space for converted vector
+   libbase::vector<libbase::bitfield> pilotb(pilot.size() / n);
+   // convert pilot sequence
+   for(int i=0; i<pilotb.size(); i++)
+      {
+      pilotb(i) = "";
+      for(int j=0; j<n; j++)
+         pilotb(i) = pilotb(i) + libbase::bitfield(pilot(i*n+j),1);
+      }
+   // pass through the standard method for setting pilot sequence
+   set_pilot(pilotb);
+   }
+
+/*!
+   \brief Overrides the internally-generated pilot sequence with given one
+
+   The intent of this method is to allow users to apply the dminner decoder
+   in derived algorithms, such as the 2D extension.
+
+   \todo merge with copypilot()
+*/
+template <class real, bool norm>
+void dminner<real,norm>::set_pilot(libbase::vector<libbase::bitfield> pilot)
+   {
+   copypilot(pilot);
+   }
+
+/*!
+   \brief Overrides the sparse alphabet with given one
+
+   The intent of this method is to allow users to apply the dminner decoder
+   in derived algorithms, such as the 2D extension.
+*/
 template <class real, bool norm>
 void dminner<real,norm>::set_lut(libbase::vector<libbase::bitfield> lut)
    {
    copylut(lut);
-   init();
+   computemeandensity();
+#if DEBUG>=2
+   showlut(libbase::trace);
+#endif
    }
 
 template <class real, bool norm>
@@ -309,11 +386,15 @@ void dminner<real,norm>::advance() const
    {
    // Inherit sizes
    const int tau = this->input_block_size();
-   // Initialize space
-   ws.init(tau);
-   // creates 'tau' elements of 'n' bits each
-   for(int i=0; i<tau; i++)
-      ws(i) = r.ival(1<<n);
+   // Advance pilot sequence only for non-zero block sizes
+   if(tau > 0)
+      {
+      // Initialize space
+      ws.init(tau);
+      // creates 'tau' elements of 'n' bits each
+      for(int i=0; i<tau; i++)
+         ws(i) = r.ival(1<<n);
+      }
    }
 
 // encoding and decoding functions

@@ -65,7 +65,7 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n, int k
          }
       }
    mdm->seedfrom(r);
-   mdm->set_blocksize(libbase::size<libbase::vector>(tau));
+   mdm->set_blocksize(libbase::size_type<libbase::vector>(tau));
    return mdm;
    }
 
