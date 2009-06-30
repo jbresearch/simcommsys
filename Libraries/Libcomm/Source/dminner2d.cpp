@@ -21,7 +21,7 @@ namespace libcomm {
 // 3 - Also show input/output probability tables
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 /*!
