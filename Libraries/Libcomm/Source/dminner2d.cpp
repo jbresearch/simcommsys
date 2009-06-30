@@ -21,7 +21,7 @@ namespace libcomm {
 // 3 - Also show input/output probability tables
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 /*!
@@ -155,8 +155,9 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
    dminner2<real,norm> coldec(m,int(log2(q)));
    rowdec.set_thresholds(0,0);
    coldec.set_thresholds(0,0);
-   // Iterate a few times
-   for(int k=0; k<5; k++)
+   // Iterate as requested
+   const int iter = 1;
+   for(int k=0; k<iter; k++)
       {
       // Decode rows
       mychan.set_blocksize(N);

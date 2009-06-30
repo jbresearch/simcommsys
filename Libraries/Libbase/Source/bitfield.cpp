@@ -85,6 +85,8 @@ bitfield::bitfield(const int32u field, const int bits)
 
 /*!
    \brief Constructor that converts a vector of bits
+
+   Bits are held in the vector as low-order first.
 */
 bitfield::bitfield(const vector<bool>& v)
    {
@@ -92,10 +94,7 @@ bitfield::bitfield(const vector<bool>& v)
    check_fieldsize(bits);
    field = 0;
    for(int i=0; i<bits; i++)
-      {
-      field <<= 1;
-      field |= v(i);
-      }
+      field |= (v(i) << i);
    }
 
 // Resizing Operations

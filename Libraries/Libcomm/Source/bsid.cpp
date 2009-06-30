@@ -14,6 +14,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show tx and rx vectors when computing RecvPr
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 
 // FBA decoder parameter computation
@@ -350,6 +358,11 @@ void bsid::receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable)
 
 double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
    {
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bsid): Computing RecvPr for\n";
+   libbase::trace << "tx = " << tx;
+   libbase::trace << "rx = " << rx;
+#endif
    // Compute sizes
    const int n = tx.size();
    const int mu = rx.size()-n;
@@ -395,6 +408,9 @@ double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
    for(index a=amin; a<=amax; ++a)
       result += F[n-1][a] \
          * bsid::receive(tx(int(n-1)),rx.extract(int(n-1+a),int(mu-a+1)));
+#if DEBUG>=2
+   libbase::trace << "RecvPr = " << result << "\n";
+#endif
    return result;
    }
 
