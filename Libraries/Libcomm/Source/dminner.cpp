@@ -317,11 +317,7 @@ void dminner<real,norm>::set_pilot(libbase::vector<bool> pilot)
    libbase::vector<libbase::bitfield> pilotb(pilot.size() / n);
    // convert pilot sequence
    for(int i=0; i<pilotb.size(); i++)
-      {
-      pilotb(i) = "";
-      for(int j=0; j<n; j++)
-         pilotb(i) = pilotb(i) + libbase::bitfield(pilot(i*n+j),1);
-      }
+      pilotb(i) = libbase::bitfield(pilot.extract(i*n,n));
    // pass through the standard method for setting pilot sequence
    set_pilot(pilotb);
    }
