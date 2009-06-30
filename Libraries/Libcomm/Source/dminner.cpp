@@ -19,7 +19,7 @@ namespace libcomm {
 // 2 - Show LUTs on manual update
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 // internally-used functions
