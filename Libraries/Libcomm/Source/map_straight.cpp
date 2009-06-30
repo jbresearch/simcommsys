@@ -13,6 +13,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Matrix: show input/output sizes on transform/inverse
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 /*** Vector Specialization ***/
 
 using libbase::vector;
@@ -114,6 +122,11 @@ void map_straight<matrix,dbl>::dotransform(const array2i_t& in, array2i_t& out) 
    assertalways(in.size() == This::input_block_size());
    // Initialize results matrix
    out.init(This::output_block_size());
+#if DEBUG>=2
+   libbase::trace << "DEBUG (map_straight): Transform ";
+   libbase::trace << in.xsize() << "x" << in.ysize() << " to ";
+   libbase::trace << out.xsize() << "x" << out.ysize() << "\n";
+#endif
    // Map encoded stream (row-major order)
    int ii=0, jj=0;
    for(int i=0; i<in.xsize(); i++)
@@ -139,6 +152,11 @@ void map_straight<matrix,dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
    pout.init(This::input_block_size());
+#if DEBUG>=2
+   libbase::trace << "DEBUG (map_straight): Inverse ";
+   libbase::trace << pin.xsize() << "x" << pin.ysize() << " to ";
+   libbase::trace << pout.xsize() << "x" << pout.ysize() << "\n";
+#endif
    // Map channek receiver information (row-major order)
    int ii=0, jj=0;
    for(int i=0; i<pin.xsize(); i++)
