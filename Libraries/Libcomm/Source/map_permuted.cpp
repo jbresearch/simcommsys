@@ -30,7 +30,7 @@ void map_permuted<C,dbl>::dotransform(const C<int>& in, C<int>& out) const
    C<int> s;
    Base::dotransform(in, s);
    // final vector is the same size as straight-mapped one
-   out.init(s);
+   out.init(s.size());
    // permute the results
    assert(out.size() == lut.size());
    for(int i=0; i<out.size(); i++)

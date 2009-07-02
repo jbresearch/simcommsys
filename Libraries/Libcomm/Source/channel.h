@@ -183,7 +183,7 @@ template <class S>
 void basic_channel<S,libbase::vector>::transmit(const array1s_t& tx, array1s_t& rx)
    {
    // Initialize results vector
-   rx.init(tx);
+   rx.init(tx.size());
    // Corrupt the modulation symbols (simulate the channel)
    for(int i=0; i<tx.size(); i++)
       rx(i) = corrupt(tx(i));

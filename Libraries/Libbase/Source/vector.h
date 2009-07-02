@@ -13,6 +13,8 @@ namespace libbase {
 // 1 - Normal debug output only
 // 2 - Keep track of memory allocation/deallocation
 // 3 - Trace memory allocation/deallocation
+// NOTE: since this is a header, this is likely to affect other classes as well;
+//       please return this to '1' when committing.
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -121,7 +123,7 @@ protected:
    /*! \brief Allocates memory for x elements (if necessary) and updates xsize
       \note This is only valid for 'root' vectors.
    */
-   void alloc(const int x);
+   void alloc(const int n);
    /*! \brief If there is memory allocated, free it
       \note This is validly called for non-root and for empty vectors
    */
@@ -129,7 +131,7 @@ protected:
    // @}
 public:
    //! Default constructor (does not initialise elements)
-   explicit vector(const int x=0);
+   explicit vector(const int n=0);
    //! Copy constructor
    vector(const vector<T>& x);
    ~vector() { free(); };
@@ -141,12 +143,9 @@ public:
       redundant free/alloc operations.
       \note This is only valid for 'root' vectors.
    */
-   void init(const int x);
+   void init(const int n);
    //! Initialize vector to the given size
    void init(const size_type<libbase::vector>& size) { init(size.length()); };
-   //! Initialize vector to the size of given vector
-   template <class A>
-   void init(const vector<A>& x) { init(x.size()); };
    // @}
 
    /*! \name Vector copy and value initialisation */
@@ -283,16 +282,16 @@ inline void vector<T>::test_invariant() const
 // memory allocation functions
 
 template <class T>
-inline void vector<T>::alloc(const int x)
+inline void vector<T>::alloc(const int n)
    {
    test_invariant();
-   assert(x >= 0);
+   assert(n >= 0);
    assert(m_root);
    assert(m_size.length() == 0);
-   m_size = size_type<libbase::vector>(x);
-   if(x > 0)
+   m_size = size_type<libbase::vector>(n);
+   if(n > 0)
       {
-      m_data = new T[x];
+      m_data = new T[n];
 #if DEBUG>=2
       assert(_vector_heap.count(m_data) == 0);
       _vector_heap[m_data] = m_size.length() * sizeof(T);
@@ -332,13 +331,13 @@ inline void vector<T>::free()
 // constructor / destructor functions
 
 template <class T>
-inline vector<T>::vector(const int x) :
+inline vector<T>::vector(const int n) :
    m_root(true),
    m_size(0),
    m_data(NULL)
    {
    test_invariant();
-   alloc(x);
+   alloc(n);
    test_invariant();
    }
 
@@ -367,15 +366,15 @@ inline vector<T>::vector(const vector<T>& x) :
 // Resizing operations
 
 template <class T>
-inline void vector<T>::init(const int x)
+inline void vector<T>::init(const int n)
    {
    test_invariant();
-   assert(x >= 0);
+   assert(n >= 0);
    assert(m_root);
-   if(x==m_size.length())
+   if(n==m_size.length())
       return;
    free();
-   alloc(x);
+   alloc(n);
    test_invariant();
    }
 
