@@ -10,20 +10,10 @@
 
 namespace libbase {
 
-/* \note
-   To comply with the standard, matrix's friend functions must be declared
-   before the main class. Consequently, a declaration of the class itself
-   is also required before that.
-*/
 template <class T>
 class matrix;
 template <class T>
 class masked_matrix;
-
-template <class T>
-std::ostream& operator<<(std::ostream& s, const matrix<T>& x);
-template <class T>
-std::istream& operator>>(std::istream& s, matrix<T>& x);
 
 /*!
    \brief   Size specialization for matrix.
@@ -172,13 +162,11 @@ public:
    size_type<libbase::matrix> size() const { return m_size; };
    // @}
 
-   /*! \name Serialization and stream input & output */
+   /*! \name Serialization */
    void serialize(std::ostream& s) const;
    void serialize(std::ostream& s, char spacer) const
       { serialize(s); s << spacer; };
    void serialize(std::istream& s);
-   friend std::ostream& operator<< <>(std::ostream& s, const matrix<T>& x);
-   friend std::istream& operator>> <>(std::istream& s, matrix<T>& x);
    // @}
 
    /*! \name Comparison (mask-creation) operations */
@@ -507,6 +495,10 @@ inline void matrix<T>::serialize(std::ostream& s) const
       {
       s << m_data[0][j];
       for(int i=1; i<m_size.rows(); i++)
+//    for(int i=0; i<m_size.rows(); i++)
+//       {
+//       s << m_data[i][0];
+//       for(int j=1; j<m_size.cols(); j++)
          s << "\t" << m_data[i][j];
       s << "\n";
       }
@@ -525,6 +517,8 @@ inline void matrix<T>::serialize(std::istream& s)
    {
    for(int j=0; j<m_size.cols(); j++)
       for(int i=0; i<m_size.rows(); i++)
+//    for(int i=0; i<m_size.rows(); i++)
+//       for(int j=0; j<m_size.cols(); j++)
          s >> m_data[i][j];
    }
 
@@ -534,7 +528,7 @@ inline void matrix<T>::serialize(std::istream& s)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix<T>& x)
    {
-   s << x.m_size << "\n";
+   s << x.size() << "\n";
    x.serialize(s);
    return s;
    }

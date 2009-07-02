@@ -25,18 +25,8 @@ namespace libbase {
 extern std::map<void*,int> _vector_heap;
 #endif
 
-/* \note
-   To comply with the standard, vector's friend functions must be declared
-   before the main class. Consequently, a declaration of the class itself
-   is also required before that.
-*/
 template <class T>
 class vector;
-
-template <class T>
-std::ostream& operator<<(std::ostream& s, const vector<T>& x);
-template <class T>
-std::istream& operator>>(std::istream& s, vector<T>& x);
 
 /*!
    \brief   Size specialization for vector.
@@ -97,6 +87,7 @@ public:
             serialization for loading and saving; they therefore output
             container size together with container elements.
             The serialize methods input/output only the elements.
+
 
    \todo Extract non-root vectors as a derived class
 
@@ -188,11 +179,9 @@ public:
    //! Total number of elements
    size_type<libbase::vector> size() const { return m_size; };
 
-   /*! \name Serialization and stream input & output */
+   /*! \name Serialization */
    void serialize(std::ostream& s, char spacer='\t') const;
    void serialize(std::istream& s);
-   friend std::ostream& operator<< <>(std::ostream& s, const vector<T>& x);
-   friend std::istream& operator>> <>(std::istream& s, vector<T>& x);
    // @}
 
    // arithmetic operations - unary
@@ -525,7 +514,7 @@ inline void vector<T>::serialize(std::istream& s)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
    {
-   s << x.m_size.length() << "\n";
+   s << x.size() << "\n";
    x.serialize(s);
    return s;
    }
@@ -533,9 +522,9 @@ inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
 template <class T>
 inline std::istream& operator>>(std::istream& s, vector<T>& x)
    {
-   int xsize;
-   s >> xsize;
-   x.init(xsize);
+   size_type<vector> size;
+   s >> size;
+   x.init(size);
    x.serialize(s);
    return s;
    }
