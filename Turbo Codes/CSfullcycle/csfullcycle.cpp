@@ -66,6 +66,8 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
    - $Revision$
    - $Date$
    - $Author$
+
+   \todo Add '-t' option as in csencode/decode
 */
 
 int main(int argc, char *argv[])
