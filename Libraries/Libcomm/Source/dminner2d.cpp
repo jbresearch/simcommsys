@@ -34,8 +34,8 @@ template <class real, bool norm>
 void dminner2d<real,norm>::advance() const
    {
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Initialize space
    pilot.init(N*n,M*m);
    // creates 'tau' elements of 'n' bits each
@@ -61,8 +61,8 @@ void dminner2d<real,norm>::domodulate(const int q, const libbase::matrix<int>& e
    // Each 'encoded' symbol must be representable by a single sparse matrix
    assertalways(this->q == q);
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Check validity
    assertalways(M == encoded.ysize());
    assertalways(N == encoded.xsize());
@@ -88,8 +88,8 @@ template <class real, bool norm>
 void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Create equiprobable a-priori probability table
    libbase::matrix<array1d_t> app(N,M);
    for(int i=0; i<M; i++)
@@ -132,8 +132,8 @@ template <class real, bool norm>
 void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Check input validity
    assertalways(M == app.ysize());
    assertalways(N == app.xsize());

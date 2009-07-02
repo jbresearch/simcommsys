@@ -33,21 +33,41 @@ std::istream& operator>>(std::istream& s, matrix<T>& x);
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Consider hiding fields
-
-   \todo Add serialization
 */
 
 template <>
 class size_type<matrix> {
-public:
+private:
    int  x;
    int  y;
 public:
+   /*! \brief Principal Constructor
+   */
    explicit size_type(int x=0, int y=0) { this->x = x; this->y = y; };
+   /*! \brief Conversion to integer
+      Returns the total number of elements
+   */
    operator int() const { return x*y; };
+   /*! \brief Comparison of two size objects
+      Only true if both dimensions are the same
+   */
    bool operator==(const size_type<matrix>& rhs) const { return (x==rhs.x) && (y==rhs.y); };
+   /*! \brief Number of rows (first index) */
+   int rows() const { return x; };
+   /*! \brief Number of columns (second index) */
+   int cols() const { return y; };
+   /*! \brief Stream output */
+   friend std::ostream& operator<<(std::ostream& sout, const size_type<matrix> r)
+      {
+      sout << r.x << '\t' << r.y;
+      return sout;
+      };
+   /*! \brief Stream input */
+   friend std::istream& operator>>(std::istream& sin, size_type<matrix>& r)
+      {
+      sin >> r.x >> r.y;
+      return sin;
+      }
 };
 
 /*!
@@ -98,7 +118,7 @@ public:
       \note Does not initialize elements.
    */
    matrix(const int x, const int y) { alloc(x,y); };
-   matrix(const size_type<libbase::matrix>& size) { alloc(size.x,size.y); };
+   matrix(const size_type<libbase::matrix>& size) { alloc(size.rows(),size.cols()); };
    matrix(const matrix<T>& m);
    ~matrix() { free(); };
 
@@ -108,7 +128,7 @@ public:
    /*! \copydoc setsize()
       This overload takes a matrix-size object as argument.
    */
-   void init(const size_type<libbase::matrix>& size) { init(size.x, size.y); };
+   void init(const size_type<libbase::matrix>& size) { init(size.rows(), size.cols()); };
    /*! \copydoc setsize()
       This overload takes another matrix as argument, to allow easier (and
       neater) sizing of one matrix based on another. This is a template
@@ -145,8 +165,8 @@ public:
    T operator()(const int x, const int y) const;
 
    // information services
-   int xsize() const { return m_size.x; };                //!< Size on dimension x (rows)
-   int ysize() const { return m_size.y; };                //!< Size on dimension y (columns)
+   int xsize() const { return m_size.rows(); };                //!< Size on dimension x (rows)
+   int ysize() const { return m_size.cols(); };                //!< Size on dimension y (columns)
    size_type<libbase::matrix> size() const { return m_size; };       //!< Total number of elements
 
    // serialization and stream input & output
@@ -239,9 +259,9 @@ template <class T>
 inline void matrix<T>::free()
    {
    // note that if xsize is 0, then ysize must also be zero
-   if(m_size.x > 0)
+   if(m_size.rows() > 0)
       {
-      for(int i=0; i<m_size.x; i++)
+      for(int i=0; i<m_size.rows(); i++)
          delete[] m_data[i];
       delete[] m_data;
       }
@@ -256,7 +276,7 @@ inline void matrix<T>::free()
 template <class T>
 inline void matrix<T>::setsize(const int x, const int y)
    {
-   if(x==m_size.x && y==m_size.y)
+   if(x==m_size.rows() && y==m_size.cols())
       return;
    free();
    alloc(x,y);
@@ -270,15 +290,13 @@ inline void matrix<T>::alloc(const int x, const int y)
    {
    if(x==0 && y==0)
       {
-      m_size.x = 0;
-      m_size.y = 0;
+      m_size = size_type<libbase::matrix>(0,0);
       m_data = NULL;
       }
    else
       {
       assertalways(x>0 && y>0);
-      m_size.x = x;
-      m_size.y = y;
+      m_size = size_type<libbase::matrix>(x,y);
       typedef T* Tp;
       m_data = new Tp[x];
       for(int i=0; i<x; i++)
@@ -291,9 +309,9 @@ inline void matrix<T>::alloc(const int x, const int y)
 template <class T>
 inline matrix<T>::matrix(const matrix<T>& m)
    {
-   alloc(m.m_size.x, m.m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   alloc(m.m_size.rows(), m.m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = m.m_data[i][j];
    }
 
@@ -312,8 +330,8 @@ inline matrix<T>::matrix(const matrix<T>& m)
 template <class T>
 inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
    {
-   const int xsize = std::min(m_size.x, x.m_size.x);
-   const int ysize = std::min(m_size.y, x.m_size.y);
+   const int xsize = std::min(m_size.rows(), x.m_size.rows());
+   const int ysize = std::min(m_size.cols(), x.m_size.cols());
    for(int i=0; i<xsize; i++)
       for(int j=0; j<ysize; j++)
          m_data[i][j] = x.m_data[i][j];
@@ -324,8 +342,8 @@ template <class T>
 inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
    {
    setsize(x.xsize(), x.ysize());
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x(i,j);
    return *this;
    }
@@ -335,8 +353,8 @@ template <class A>
 inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    {
    setsize(x.xsize(), x.ysize());
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x(i,j);
    return *this;
    }
@@ -346,7 +364,7 @@ template <class A>
 inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
    {
    setsize(x.size(), 1);
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.rows(); i++)
       m_data[i][0] = x(i);
    return *this;
    }
@@ -354,8 +372,8 @@ inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator=(const T x)
    {
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x;
    return *this;
    }
@@ -367,8 +385,8 @@ inline matrix<T>& matrix<T>::operator=(const T x)
 template <class T>
 inline void matrix<T>::insertrow(const vector<T>& v, const int x)
    {
-   assert(v.size() == m_size.y);
-   for(int y=0; y<m_size.y; y++)
+   assert(v.size() == m_size.cols());
+   for(int y=0; y<m_size.cols(); y++)
       m_data[x][y] = v(y);
    }
 
@@ -377,8 +395,8 @@ inline void matrix<T>::insertrow(const vector<T>& v, const int x)
 template <class T>
 inline void matrix<T>::insertcol(const vector<T>& v, const int y)
    {
-   assert(v.size() == m_size.x);
-   for(int x=0; x<m_size.x; x++)
+   assert(v.size() == m_size.rows());
+   for(int x=0; x<m_size.rows(); x++)
       m_data[x][y] = v(x);
    }
 
@@ -390,9 +408,9 @@ inline void matrix<T>::insertcol(const vector<T>& v, const int y)
 template <class T>
 inline void matrix<T>::extractrow(vector<T>& v, const int x) const
    {
-   assert(x>=0 && x<m_size.x);
-   v.init(m_size.y);
-   for(int y=0; y<m_size.y; y++)
+   assert(x>=0 && x<m_size.rows());
+   v.init(m_size.cols());
+   for(int y=0; y<m_size.cols(); y++)
       v(y) = m_data[x][y];
    }
 
@@ -404,9 +422,9 @@ inline void matrix<T>::extractrow(vector<T>& v, const int x) const
 template <class T>
 inline void matrix<T>::extractcol(vector<T>& v, const int y) const
    {
-   assert(y>=0 && y<m_size.y);
-   v.init(m_size.x);
-   for(int x=0; x<m_size.x; x++)
+   assert(y>=0 && y<m_size.cols());
+   v.init(m_size.rows());
+   for(int x=0; x<m_size.rows(); x++)
       v(x) = m_data[x][y];
    }
 
@@ -439,8 +457,8 @@ inline matrix<T>::operator vector<T>() const
    {
    vector<T> v(size());
    int k=0;
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          v(k++) = m_data[i][j];
    return v;
    }
@@ -450,16 +468,16 @@ inline matrix<T>::operator vector<T>() const
 template <class T>
 inline T& matrix<T>::operator()(const int x, const int y)
    {
-   assert(x>=0 && x<m_size.x);
-   assert(y>=0 && y<m_size.y);
+   assert(x>=0 && x<m_size.rows());
+   assert(y>=0 && y<m_size.cols());
    return m_data[x][y];
    }
 
 template <class T>
 inline T matrix<T>::operator()(const int x, const int y) const
    {
-   assert(x>=0 && x<m_size.x);
-   assert(y>=0 && y<m_size.y);
+   assert(x>=0 && x<m_size.rows());
+   assert(y>=0 && y<m_size.cols());
    return m_data[x][y];
    }
 
@@ -470,10 +488,10 @@ inline T matrix<T>::operator()(const int x, const int y) const
 template <class T>
 inline void matrix<T>::serialize(std::ostream& s) const
    {
-   for(int j=0; j<m_size.y; j++)
+   for(int j=0; j<m_size.cols(); j++)
       {
       s << m_data[0][j];
-      for(int i=1; i<m_size.x; i++)
+      for(int i=1; i<m_size.rows(); i++)
          s << "\t" << m_data[i][j];
       s << "\n";
       }
@@ -487,8 +505,8 @@ inline void matrix<T>::serialize(std::ostream& s) const
 template <class T>
 inline void matrix<T>::serialize(std::istream& s)
    {
-   for(int j=0; j<m_size.y; j++)
-      for(int i=0; i<m_size.x; i++)
+   for(int j=0; j<m_size.cols(); j++)
+      for(int i=0; i<m_size.rows(); i++)
          s >> m_data[i][j];
    }
 
@@ -498,7 +516,7 @@ inline void matrix<T>::serialize(std::istream& s)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix<T>& x)
    {
-   s << x.m_size.x << "\t" << x.m_size.y << "\n";
+   s << x.m_size.rows() << "\t" << x.m_size.cols() << "\n";
    x.serialize(s);
    return s;
    }
@@ -520,11 +538,11 @@ inline std::istream& operator>>(std::istream& s, matrix<T>& x)
 template <class T>
 inline matrix<bool> matrix<T>::operator==(const matrix<T>& x) const
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] == x.m_data[i][j]);
    return r;
    }
@@ -532,11 +550,11 @@ inline matrix<bool> matrix<T>::operator==(const matrix<T>& x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator!=(const matrix<T>& x) const
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] != x.m_data[i][j]);
    return r;
    }
@@ -544,11 +562,11 @@ inline matrix<bool> matrix<T>::operator!=(const matrix<T>& x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator<=(const matrix<T>& x) const
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] <= x.m_data[i][j]);
    return r;
    }
@@ -556,11 +574,11 @@ inline matrix<bool> matrix<T>::operator<=(const matrix<T>& x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator>=(const matrix<T>& x) const
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] >= x.m_data[i][j]);
    return r;
    }
@@ -568,11 +586,11 @@ inline matrix<bool> matrix<T>::operator>=(const matrix<T>& x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator<(const matrix<T>& x) const
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] < x.m_data[i][j]);
    return r;
    }
@@ -580,11 +598,11 @@ inline matrix<bool> matrix<T>::operator<(const matrix<T>& x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator>(const matrix<T>& x) const
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] > x.m_data[i][j]);
    return r;
    }
@@ -592,9 +610,9 @@ inline matrix<bool> matrix<T>::operator>(const matrix<T>& x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator==(const T x) const
    {
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] == x);
    return r;
    }
@@ -602,9 +620,9 @@ inline matrix<bool> matrix<T>::operator==(const T x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator!=(const T x) const
    {
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] != x);
    return r;
    }
@@ -612,9 +630,9 @@ inline matrix<bool> matrix<T>::operator!=(const T x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator<=(const T x) const
    {
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] <= x);
    return r;
    }
@@ -622,9 +640,9 @@ inline matrix<bool> matrix<T>::operator<=(const T x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator>=(const T x) const
    {
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] >= x);
    return r;
    }
@@ -632,9 +650,9 @@ inline matrix<bool> matrix<T>::operator>=(const T x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator<(const T x) const
    {
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] < x);
    return r;
    }
@@ -642,9 +660,9 @@ inline matrix<bool> matrix<T>::operator<(const T x) const
 template <class T>
 inline matrix<bool> matrix<T>::operator>(const T x) const
    {
-   matrix<bool> r(m_size.x, m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<bool> r(m_size.rows(), m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r(i,j) = (m_data[i][j] > x);
    return r;
    }
@@ -654,12 +672,12 @@ inline matrix<bool> matrix<T>::operator>(const T x) const
 template <class T>
 inline bool matrix<T>::isequalto(const matrix<T>& x) const
    {
-   if(x.m_size.x != m_size.x)
+   if(x.m_size.rows() != m_size.rows())
       return false;
-   if(x.m_size.y != m_size.y)
+   if(x.m_size.cols() != m_size.cols())
       return false;
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          if(m_data[i][j] != x.m_data[i][j])
             return false;
    return true;
@@ -676,10 +694,10 @@ inline bool matrix<T>::isnotequalto(const matrix<T>& x) const
 template <class T>
 inline matrix<T>& matrix<T>::operator+=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] += x.m_data[i][j];
    return *this;
    }
@@ -687,10 +705,10 @@ inline matrix<T>& matrix<T>::operator+=(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator-=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] -= x.m_data[i][j];
    return *this;
    }
@@ -729,10 +747,10 @@ inline matrix<T>& matrix<T>::multiplyby(const matrix<T>& x)
    {
    // for A.*B:
    // The size of A must be the same as the size of B.
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] *= x.m_data[i][j];
    return *this;
    }
@@ -747,10 +765,10 @@ inline matrix<T>& matrix<T>::divideby(const matrix<T>& x)
    {
    // for A./B:
    // The size of A must be the same as the size of B.
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] /= x.m_data[i][j];
    return *this;
    }
@@ -758,8 +776,8 @@ inline matrix<T>& matrix<T>::divideby(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator+=(const T x)
    {
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] += x;
    return *this;
    }
@@ -767,8 +785,8 @@ inline matrix<T>& matrix<T>::operator+=(const T x)
 template <class T>
 inline matrix<T>& matrix<T>::operator-=(const T x)
    {
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] -= x;
    return *this;
    }
@@ -776,8 +794,8 @@ inline matrix<T>& matrix<T>::operator-=(const T x)
 template <class T>
 inline matrix<T>& matrix<T>::operator*=(const T x)
    {
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] *= x;
    return *this;
    }
@@ -785,8 +803,8 @@ inline matrix<T>& matrix<T>::operator*=(const T x)
 template <class T>
 inline matrix<T>& matrix<T>::operator/=(const T x)
    {
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] /= x;
    return *this;
    }
@@ -821,15 +839,15 @@ inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    {
    // for A.B:
    // The number of columns of A must be the same as the number of rows of B.
-   assert(m_size.x == x.m_size.y);
+   assert(m_size.rows() == x.m_size.cols());
    // If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an m-by-p matrix
-   matrix<T> r(x.m_size.x,m_size.y);
+   matrix<T> r(x.m_size.rows(),m_size.cols());
    // Element AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j}
-   for(int i=0; i<r.m_size.y; i++)
-      for(int j=0; j<r.m_size.x; j++)
+   for(int i=0; i<r.m_size.cols(); i++)
+      for(int j=0; j<r.m_size.rows(); j++)
          {
          r.m_data[j][i] = 0;
-         for(int k=0; k<m_size.x; k++)
+         for(int k=0; k<m_size.rows(); k++)
             r.m_data[j][i] += m_data[k][i] * x.m_data[j][k];
          }
    return r;
@@ -848,14 +866,14 @@ inline vector<T> matrix<T>::operator*(const vector<T>& x) const
    {
    // for A.B:
    // The number of columns of A must be the same as the number of rows of B.
-   assert(m_size.x == x.size());
+   assert(m_size.rows() == x.size());
    // If A is an m-by-n matrix and B is an n-by-1 vector, then the product is an m-by-1 matrix
-   vector<T> r(m_size.y);
+   vector<T> r(m_size.cols());
    // Element AB_{i} = \sum_{k=1}^{n} a_{i,k} b_{k}
    for(int i=0; i<r.size(); i++)
       {
       r(i) = 0;
-      for(int k=0; k<m_size.x; k++)
+      for(int k=0; k<m_size.rows(); k++)
          r(i) += m_data[k][i] * x(k);
       }
    return r;
@@ -882,12 +900,12 @@ inline matrix<T> matrix<T>::multiply(const matrix<T>& x) const
    {
    // for A.*B:
    // The size of A must be the same as the size of B.
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
    // Result is same size
-   matrix<T> r(m_size.x,m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<T> r(m_size.rows(),m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r.m_data[i][j] = m_data[i][j] * x.m_data[i][j];
    return r;
    }
@@ -902,12 +920,12 @@ inline matrix<T> matrix<T>::divide(const matrix<T>& x) const
    {
    // for A./B:
    // The size of A must be the same as the size of B.
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
    // Result is same size
-   matrix<T> r(m_size.x,m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   matrix<T> r(m_size.rows(),m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r.m_data[i][j] = m_data[i][j] / x.m_data[i][j];
    return r;
    }
@@ -949,10 +967,10 @@ inline matrix<T> matrix<T>::operator/(const T x) const
 template <class T>
 inline matrix<T>& matrix<T>::operator&=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] &= x.m_data[i][j];
    return *this;
    }
@@ -960,10 +978,10 @@ inline matrix<T>& matrix<T>::operator&=(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator|=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] |= x.m_data[i][j];
    return *this;
    }
@@ -971,10 +989,10 @@ inline matrix<T>& matrix<T>::operator|=(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator^=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_size.x);
-   assert(x.m_size.y == m_size.y);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   assert(x.m_size.rows() == m_size.rows());
+   assert(x.m_size.cols() == m_size.cols());
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] ^= x.m_data[i][j];
    return *this;
    }
@@ -985,8 +1003,8 @@ template <class T>
 inline matrix<T> matrix<T>::operator!() const
    {
    matrix<T> r(*this);
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r.m_data[i][j] = !m_data[i][j];
    return r;
    }
@@ -1023,8 +1041,8 @@ inline matrix<T> matrix<T>::operator^(const matrix<T>& x) const
 template <class T>
 inline matrix<T>& matrix<T>::apply(T f(T))
    {
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = f(m_data[i][j]);
    return *this;
    }
@@ -1042,8 +1060,8 @@ inline matrix<T>& matrix<T>::apply(T f(T))
 template <class T>
 inline matrix<T> matrix<T>::inverse() const
    {
-   assertalways(m_size.x == m_size.y);
-   const int n = m_size.x;
+   assertalways(m_size.rows() == m_size.cols());
+   const int n = m_size.rows();
    matrix<T> r = eye(n);
    // create copy of rows of this matrix
    vector< vector<T> > arows(n);
@@ -1096,10 +1114,10 @@ inline matrix<T> matrix<T>::inverse() const
 template <class T>
 inline matrix<T> matrix<T>::transpose() const
    {
-   matrix<T> r(m_size.y,m_size.x);
+   matrix<T> r(m_size.cols(),m_size.rows());
    // copy over data
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          r.m_data[j][i] = m_data[i][j];
    return r;
    }
@@ -1114,10 +1132,10 @@ inline matrix<T> matrix<T>::transpose() const
 template <class T>
 inline T matrix<T>::min() const
    {
-   assert(m_size.x > 0);
+   assert(m_size.rows() > 0);
    T result = m_data[0][0];
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          if(m_data[i][j] < result)
             result = m_data[i][j];
    return result;
@@ -1131,10 +1149,10 @@ inline T matrix<T>::min() const
 template <class T>
 inline T matrix<T>::max() const
    {
-   assert(m_size.x > 0);
+   assert(m_size.rows() > 0);
    T result = m_data[0][0];
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          if(m_data[i][j] > result)
             result = m_data[i][j];
    return result;
@@ -1148,10 +1166,10 @@ inline T matrix<T>::max() const
 template <class T>
 inline T matrix<T>::sum() const
    {
-   assert(m_size.x > 0);
+   assert(m_size.rows() > 0);
    T result = 0;
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          result += m_data[i][j];
    return result;
    }
@@ -1165,10 +1183,10 @@ inline T matrix<T>::sum() const
 template <class T>
 inline T matrix<T>::sumsq() const
    {
-   assert(m_size.x > 0);
+   assert(m_size.rows() > 0);
    T result = 0;
-   for(int i=0; i<m_size.x; i++)
-      for(int j=0; j<m_size.y; j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          result += m_data[i][j] * m_data[i][j];
    return result;
    }
@@ -1308,8 +1326,8 @@ public:
 template <class T>
 inline masked_matrix<T>::masked_matrix(matrix<T>* data, const matrix<bool>& mask)
    {
-   assert(data->m_size.x == mask.xsize());
-   assert(data->m_size.y == mask.ysize());
+   assert(data->m_size.rows() == mask.xsize());
+   assert(data->m_size.cols() == mask.ysize());
    m_data = data;
    m_mask = mask;
    }
@@ -1319,8 +1337,8 @@ inline masked_matrix<T>::masked_matrix(matrix<T>* data, const matrix<bool>& mask
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator=(const T x)
    {
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] = x;
    return *this;
@@ -1333,8 +1351,8 @@ inline masked_matrix<T>::operator vector<T>() const
    {
    vector<T> v(size());
    int k=0;
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             v(k++) = m_data->m_data[i][j];
    return v;
@@ -1345,10 +1363,10 @@ inline masked_matrix<T>::operator vector<T>() const
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator+=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_data->m_size.x);
-   assert(x.m_size.y == m_data->m_size.y);
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   assert(x.m_size.rows() == m_data->m_size.rows());
+   assert(x.m_size.cols() == m_data->m_size.cols());
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] += x.m_data[i][j];
    return *this;
@@ -1357,10 +1375,10 @@ inline masked_matrix<T>& masked_matrix<T>::operator+=(const matrix<T>& x)
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator-=(const matrix<T>& x)
    {
-   assert(x.m_size.x == m_data->m_size.x);
-   assert(x.m_size.y == m_data->m_size.y);
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   assert(x.m_size.rows() == m_data->m_size.rows());
+   assert(x.m_size.cols() == m_data->m_size.cols());
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] -= x.m_data[i][j];
    return *this;
@@ -1380,10 +1398,10 @@ inline masked_matrix<T>& masked_matrix<T>::multiplyby(const matrix<T>& x)
    {
    // for A.*B:
    // The size of A must be the same as the size of B.
-   assert(x.m_size.x == m_data->m_size.x);
-   assert(x.m_size.y == m_data->m_size.y);
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   assert(x.m_size.rows() == m_data->m_size.rows());
+   assert(x.m_size.cols() == m_data->m_size.cols());
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] *= x.m_data[i][j];
    return *this;
@@ -1403,10 +1421,10 @@ inline masked_matrix<T>& masked_matrix<T>::divideby(const matrix<T>& x)
    {
    // for A./B:
    // The size of A must be the same as the size of B.
-   assert(x.m_size.x == m_data->m_size.x);
-   assert(x.m_size.y == m_data->m_size.y);
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   assert(x.m_size.rows() == m_data->m_size.rows());
+   assert(x.m_size.cols() == m_data->m_size.cols());
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] /= x.m_data[i][j];
    return *this;
@@ -1415,8 +1433,8 @@ inline masked_matrix<T>& masked_matrix<T>::divideby(const matrix<T>& x)
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator+=(const T x)
    {
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] += x;
    return *this;
@@ -1425,8 +1443,8 @@ inline masked_matrix<T>& masked_matrix<T>::operator+=(const T x)
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator-=(const T x)
    {
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] -= x;
    return *this;
@@ -1435,8 +1453,8 @@ inline masked_matrix<T>& masked_matrix<T>::operator-=(const T x)
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator*=(const T x)
    {
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] *= x;
    return *this;
@@ -1445,8 +1463,8 @@ inline masked_matrix<T>& masked_matrix<T>::operator*=(const T x)
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::operator/=(const T x)
    {
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] /= x;
    return *this;
@@ -1457,8 +1475,8 @@ inline masked_matrix<T>& masked_matrix<T>::operator/=(const T x)
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::apply(T f(T))
    {
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             m_data->m_data[i][j] = f(m_data->m_data[i][j]);
    return *this;
@@ -1470,8 +1488,8 @@ template <class T>
 inline int masked_matrix<T>::size() const
    {
    int result = 0;
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             result++;
    return result;
@@ -1485,8 +1503,8 @@ inline T masked_matrix<T>::min() const
    assert(size() > 0);
    T result;
    bool initial = true;
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j) && (m_data->m_data[i][j] < result || initial))
             {
             result = m_data->m_data[i][j];
@@ -1501,8 +1519,8 @@ inline T masked_matrix<T>::max() const
    assert(size() > 0);
    T result;
    bool initial = true;
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j) && (m_data->m_data[i][j] > result || initial))
             {
             result = m_data->m_data[i][j];
@@ -1514,10 +1532,10 @@ inline T masked_matrix<T>::max() const
 template <class T>
 inline T masked_matrix<T>::sum() const
    {
-   assert(m_data->m_size.x > 0);
+   assert(m_data->m_size.rows() > 0);
    T result = 0;
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             result += m_data->m_data[i][j];
    return result;
@@ -1526,10 +1544,10 @@ inline T masked_matrix<T>::sum() const
 template <class T>
 inline T masked_matrix<T>::sumsq() const
    {
-   assert(m_data->m_size.x > 0);
+   assert(m_data->m_size.rows() > 0);
    T result = 0;
-   for(int i=0; i<m_data->m_size.x; i++)
-      for(int j=0; j<m_data->m_size.y; j++)
+   for(int i=0; i<m_data->m_size.rows(); i++)
+      for(int j=0; j<m_data->m_size.cols(); j++)
          if(m_mask(i,j))
             result += m_data->m_data[i][j] * m_data->m_data[i][j];
    return result;

@@ -179,7 +179,7 @@ std::string map_straight<matrix,dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Straight Mapper (Matrix ";
-   sout << size_out.x << "x" << size_out.y << ")";
+   sout << size_out.rows() << "x" << size_out.cols() << ")";
    return sout.str();
    }
 
@@ -188,14 +188,14 @@ std::string map_straight<matrix,dbl>::description() const
 template <class dbl>
 std::ostream& map_straight<matrix,dbl>::serialize(std::ostream& sout) const
    {
-   sout << size_out.x << '\t' << size_out.y << '\n';
+   sout << size_out << '\n';
    return sout;
    }
 
 template <class dbl>
 std::istream& map_straight<matrix,dbl>::serialize(std::istream& sin)
    {
-   sin >> size_out.x >> size_out.y;
+   sin >> size_out;
    return sin;
    }
 
