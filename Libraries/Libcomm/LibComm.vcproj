@@ -391,6 +391,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Source\codec_reshaped.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\codec_softout.cpp"
 				>
 			</File>
@@ -1280,7 +1284,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\codec_reshaped.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\codec_softout.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\codec_softout_flattened.h"
 				>
 			</File>
 			<File
@@ -1505,6 +1517,10 @@
 			</File>
 			<File
 				RelativePath="Source\rscc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\safe_bcjr.h"
 				>
 			</File>
 			<File
