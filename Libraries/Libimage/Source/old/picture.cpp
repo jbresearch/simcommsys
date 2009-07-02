@@ -22,8 +22,8 @@ picture::~picture()
 
 picture::picture(const libbase::matrix<double>& in)
    {
-   int width = in.xsize();
-   int height = in.ysize();
+   int width = in.size().rows();
+   int height = in.size().cols();
    
    data.init(width, height);
    for(int y=0; y<height; y++)

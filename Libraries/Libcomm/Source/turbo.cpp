@@ -270,8 +270,8 @@ void turbo<real,dbl>::setpriors(const array1vd_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
    // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<rp.xsize(); t++)
-      for(int i=0; i<rp.ysize(); i++)
+   for(int t=0; t<rp.size().rows(); t++)
+      for(int i=0; i<rp.size().cols(); i++)
          rp(t,i) *= ptable(t)(i);
    }
 

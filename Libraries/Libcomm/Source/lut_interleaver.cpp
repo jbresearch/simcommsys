@@ -32,8 +32,8 @@ template <class real>
 void lut_interleaver<real>::transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const
    {
    const int tau = lut.size();
-   const int K = in.ysize();
-   assertalways(in.xsize() == tau);
+   const int K = in.size().cols();
+   assertalways(in.size().rows() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)
@@ -48,8 +48,8 @@ template <class real>
 void lut_interleaver<real>::inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const
    {
    const int tau = lut.size();
-   const int K = in.ysize();
-   assertalways(in.xsize() == tau);
+   const int K = in.size().cols();
+   assertalways(in.size().rows() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)

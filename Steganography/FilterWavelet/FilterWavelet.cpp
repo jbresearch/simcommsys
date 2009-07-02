@@ -73,9 +73,9 @@ void CFilterWaveletApp::FilterContinue(void)
    if(m_nIteration == 0)
       {
       // first iteration: update statistics
-      if(weight(in.xsize()) != 1 || weight(in.ysize()) != 1)
+      if(weight(in.size().rows()) != 1 || weight(in.size().cols()) != 1)
          {
-         matrix<double> temp(1<<int(ceil(log2(in.xsize()))), 1<<int(ceil(log2(in.ysize()))));
+         matrix<double> temp(1<<int(ceil(log2(in.size().rows()))), 1<<int(ceil(log2(in.size().cols()))));
          temp = 0;
          temp.copyfrom(in);
          waveletfilter::update(temp);
@@ -86,9 +86,9 @@ void CFilterWaveletApp::FilterContinue(void)
    else
       {
       // second iteration: do the wavelet shrinkage
-      if(weight(in.xsize()) != 1 || weight(in.ysize()) != 1)
+      if(weight(in.size().rows()) != 1 || weight(in.size().cols()) != 1)
          {
-         matrix<double> temp(1<<int(ceil(log2(in.xsize()))), 1<<int(ceil(log2(in.ysize()))));
+         matrix<double> temp(1<<int(ceil(log2(in.size().rows()))), 1<<int(ceil(log2(in.size().cols()))));
          temp = 0;
          temp.copyfrom(in);
          waveletfilter::process(temp, temp);

@@ -124,17 +124,17 @@ void map_straight<matrix,dbl>::dotransform(const array2i_t& in, array2i_t& out) 
    out.init(This::output_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_straight): Transform ";
-   libbase::trace << in.xsize() << "x" << in.ysize() << " to ";
-   libbase::trace << out.xsize() << "x" << out.ysize() << "\n";
+   libbase::trace << in.size().rows() << "x" << in.size().cols() << " to ";
+   libbase::trace << out.size().rows() << "x" << out.size().cols() << "\n";
 #endif
    // Map encoded stream (row-major order)
    int ii=0, jj=0;
-   for(int i=0; i<in.xsize(); i++)
-      for(int j=0; j<in.ysize(); j++)
+   for(int i=0; i<in.size().rows(); i++)
+      for(int j=0; j<in.size().cols(); j++)
          {
          out(ii,jj) = in(i,j);
          jj++;
-         if(jj >= out.ysize())
+         if(jj >= out.size().cols())
             {
             jj = 0;
             ii++;
@@ -154,17 +154,17 @@ void map_straight<matrix,dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout
    pout.init(This::input_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_straight): Inverse ";
-   libbase::trace << pin.xsize() << "x" << pin.ysize() << " to ";
-   libbase::trace << pout.xsize() << "x" << pout.ysize() << "\n";
+   libbase::trace << pin.size().rows() << "x" << pin.size().cols() << " to ";
+   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << "\n";
 #endif
    // Map channek receiver information (row-major order)
    int ii=0, jj=0;
-   for(int i=0; i<pin.xsize(); i++)
-      for(int j=0; j<pin.ysize(); j++)
+   for(int i=0; i<pin.size().rows(); i++)
+      for(int j=0; j<pin.size().cols(); j++)
          {
          pout(ii,jj) = pin(i,j);
          jj++;
-         if(jj >= pout.ysize())
+         if(jj >= pout.size().cols())
             {
             jj = 0;
             ii++;

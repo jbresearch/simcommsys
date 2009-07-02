@@ -473,20 +473,20 @@ void wavelet::inverse(const vector<double>& in, vector<double>& out, const int l
 
 void wavelet::transform(const matrix<double>& in, matrix<double>& out, const int level) const
    {
-   assert(weight(in.xsize())==1 && weight(in.ysize())==1);
+   assert(weight(in.size().rows())==1 && weight(in.size().cols())==1);
    // resize the output matrix if necessary
    out.init(in);
    // loop variables
    int i;
    // do the transform for each dimension
    vector<double> b;
-   for(i=0; i<in.xsize(); i++)
+   for(i=0; i<in.size().rows(); i++)
       {
       in.extractrow(b, i);
       transform(b, b, level);
       out.insertrow(b, i);
       }
-   for(i=0; i<in.ysize(); i++)
+   for(i=0; i<in.size().cols(); i++)
       {
       out.extractcol(b, i);
       transform(b, b, level);
@@ -496,20 +496,20 @@ void wavelet::transform(const matrix<double>& in, matrix<double>& out, const int
 
 void wavelet::inverse(const matrix<double>& in, matrix<double>& out, const int level) const
    {
-   assert(weight(in.xsize())==1 && weight(in.ysize())==1);
+   assert(weight(in.size().rows())==1 && weight(in.size().cols())==1);
    // resize the output matrix if necessary
    out.init(in);
    // loop variables
    int i;
    // do the transform for each dimension
    vector<double> b;
-   for(i=0; i<in.xsize(); i++)
+   for(i=0; i<in.size().rows(); i++)
       {
       in.extractrow(b, i);
       inverse(b, b, level);
       out.insertrow(b, i);
       }
-   for(i=0; i<in.ysize(); i++)
+   for(i=0; i<in.size().cols(); i++)
       {
       out.extractcol(b, i);
       inverse(b, b, level);

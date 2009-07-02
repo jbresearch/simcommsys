@@ -50,8 +50,8 @@ histogram::histogram(const matrix<double>& a, const int n)
    y.init(n);
    y = 0;
    double sum = 0, sumsq = 0;
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          {
          sum += a(i,j);
          sumsq += a(i,j)*a(i,j);
@@ -72,8 +72,8 @@ histogram::histogram(const matrix<double>& a, const int n)
 double phistogram::findmax(const matrix<double>& a)
    {
    double max = a(0,0);
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          if(fabs(a(i,j)) > max)
             max = fabs(a(i,j));
    return max;
@@ -100,8 +100,8 @@ phistogram::phistogram(const matrix<double>& a, const int n)
 
    y.init(n);
    y = 0;
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          for(int k=0; k<n; k++)
             if(fabs(a(i,j)) <= x(k))
                {
@@ -119,8 +119,8 @@ phistogram::phistogram(const matrix<double>& a, const int n)
 double chistogram::findmax(const matrix<double>& a)
    {
    double max = fabs(a(0,0));
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          if(fabs(a(i,j)) > max)
             max = fabs(a(i,j));
    return max;
@@ -129,8 +129,8 @@ double chistogram::findmax(const matrix<double>& a)
 double chistogram::findmax(const matrix<double>& a, const matrix<bool>& mask)
    {
    double max = -DBL_MAX;
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          if(mask(i,j))
             {
             if(fabs(a(i,j)) > max)
@@ -142,8 +142,8 @@ double chistogram::findmax(const matrix<double>& a, const matrix<bool>& mask)
 int chistogram::count(const matrix<bool>& mask)
    {
    int elements = 0;
-   for(int i=0; i<mask.xsize(); i++)
-      for(int j=0; j<mask.ysize(); j++)
+   for(int i=0; i<mask.size().rows(); i++)
+      for(int j=0; j<mask.size().cols(); j++)
          if(mask(i,j))
             elements++;
    return elements;
@@ -172,8 +172,8 @@ chistogram::chistogram(const matrix<double>& a, const int n)
 
    y.init(n);
    y = 0;
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          for(int k=0; k<n; k++)
             if(fabs(a(i,j)) <= x(k))
                {
@@ -191,8 +191,8 @@ chistogram::chistogram(const matrix<double>& a, const matrix<bool>& mask, const 
    const double delta = 1/double(count(mask));
    y.init(n);
    y = 0;
-   for(int i=0; i<a.xsize(); i++)
-      for(int j=0; j<a.ysize(); j++)
+   for(int i=0; i<a.size().rows(); i++)
+      for(int j=0; j<a.size().cols(); j++)
          if(mask(i,j))
             for(int k=0; k<n; k++)
                if(fabs(a(i,j)) <= x(k))

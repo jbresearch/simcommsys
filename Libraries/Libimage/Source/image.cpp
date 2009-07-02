@@ -476,8 +476,8 @@ void image::setchannel(int c, const libbase::matrix<double>& m)
    {
    assert(c >= 0);
    assert(c < channels());
-   assert(m.xsize() == width());
-   assert(m.ysize() == height());
+   assert(m.size().rows() == width());
+   assert(m.size().cols() == height());
    // get information on image format
    unsigned pitch = FreeImage_GetPitch(dib);
    FREE_IMAGE_TYPE type = FreeImage_GetImageType(dib);

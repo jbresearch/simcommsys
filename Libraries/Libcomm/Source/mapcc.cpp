@@ -88,8 +88,8 @@ void mapcc<real,dbl>::setpriors(const array1vd_t& ptable)
    // Initialize input probability vector
    app.init(This::input_block_size(), This::num_inputs());
    // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<app.xsize(); t++)
-      for(int i=0; i<app.ysize(); i++)
+   for(int t=0; t<app.size().rows(); t++)
+      for(int i=0; i<app.size().cols(); i++)
          app(t,i) = ptable(t)(i);
    }
 

@@ -210,7 +210,7 @@ void grscc<G>::resetcircular(int zerostate, int n)
    assert(zerostate >= 0 && zerostate < this->num_states());
    if(csct.size() == 0)
       initcsct();
-   const int L = csct.xsize();
+   const int L = csct.size().rows();
    assert(n%L != 0);
    reset(csct(n%L,zerostate));
    }

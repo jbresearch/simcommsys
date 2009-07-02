@@ -63,13 +63,13 @@ void CHistogram2D::OnPaint()
    const int ysize = rectClient.Height();
 
    const double sg = 255/double(m_maxval);
-   const double sx = xsize/double(m_data.xsize());
-   const double sy = ysize/double(m_data.ysize());
+   const double sx = xsize/double(m_data.size().rows());
+   const double sy = ysize/double(m_data.size().cols());
    const int cx = int(ceil(sx));
    const int cy = int(ceil(sy));
 
-   for(int i=0; i<m_data.xsize(); i++)
-      for(int j=0; j<m_data.ysize(); j++)
+   for(int i=0; i<m_data.size().rows(); i++)
+      for(int j=0; j<m_data.size().cols(); j++)
          {
          const int g = int(floor(m_data(i,j) * sg));
          const int c = g | g<<8 | g<<16;
@@ -90,7 +90,7 @@ void CHistogram2D::OnUser(WPARAM wParam, LPARAM lParam)
    libbase::matrix<int> *data = (libbase::matrix<int> *) wParam;
    trace << "DEBUG (Histogram2D): received matrix at " << data << "\n";
    m_data = *data;
-   trace << "DEBUG (Histogram2D): copied matrix " << m_data.xsize() << "x" << m_data.ysize() << "\n";
+   trace << "DEBUG (Histogram2D): copied matrix " << m_data.size().rows() << "x" << m_data.size().cols() << "\n";
    m_maxval = m_data.max();
    trace << "DEBUG (Histogram2D): max value = " << m_maxval << "\n";
    Invalidate(false);

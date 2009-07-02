@@ -115,8 +115,8 @@ void onetimepad<real>::transform(const matrix<real>& in, matrix<real>& out) cons
    {
    const int tau = pad.size();
    const int K = encoder->num_inputs();
-   assertalways(in.ysize() == K);
-   assertalways(in.xsize() == tau);
+   assertalways(in.size().cols() == K);
+   assertalways(in.size().rows() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
       for(int i=0; i<K; i++)
@@ -128,8 +128,8 @@ void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
    {
    const int tau = pad.size();
    const int K = encoder->num_inputs();
-   assertalways(in.ysize() == K);
-   assertalways(in.xsize() == tau);
+   assertalways(in.size().cols() == K);
+   assertalways(in.size().rows() == tau);
    out.init(in);
    for(int t=0; t<tau; t++)
       for(int i=0; i<K; i++)

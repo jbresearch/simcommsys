@@ -21,8 +21,8 @@ template<class T> void awfilter<T>::reset()
 
 template<class T> void awfilter<T>::update(const libbase::matrix<T>& in)
    {
-   const int M = in.xsize();
-   const int N = in.ysize();
+   const int M = in.size().rows();
+   const int N = in.size().cols();
 
    for(int i=0; i<M; i++)
       {
@@ -50,8 +50,8 @@ template<class T> void awfilter<T>::estimate()
 
 template<class T> void awfilter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const
    {
-   const int M = in.xsize();
-   const int N = in.ysize();
+   const int M = in.size().rows();
+   const int N = in.size().cols();
 
    out.init(M,N);
 

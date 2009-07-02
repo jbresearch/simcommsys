@@ -94,8 +94,6 @@ public:
 
 
    \todo Extract common implementation of copy assignment operators
-
-   \todo Remove xsize() and ysize() elements as these are now redundant
 */
 
 template <class T>
@@ -181,10 +179,6 @@ public:
    // @}
 
    /*! \name Information functions */
-   //! Size on dimension x (rows)
-   int xsize() const { return m_size.rows(); };
-   //! Size on dimension y (columns)
-   int ysize() const { return m_size.cols(); };
    //! Total number of elements
    size_type<libbase::matrix> size() const { return m_size; };
    // @}
@@ -372,7 +366,7 @@ inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
    {
-   setsize(x.xsize(), x.ysize());
+   setsize(x.size().rows(), x.size().cols());
    for(int i=0; i<m_size.rows(); i++)
       for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x(i,j);
@@ -383,7 +377,7 @@ template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    {
-   setsize(x.xsize(), x.ysize());
+   setsize(x.size().rows(), x.size().cols());
    for(int i=0; i<m_size.rows(); i++)
       for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x(i,j);
@@ -1242,10 +1236,10 @@ template <class T>
 inline libbase::matrix<T> pow(const libbase::matrix<T>& A, int n)
    {
    using libbase::matrix;
-   assert(A.xsize() == A.ysize());
+   assert(A.size().rows() == A.size().cols());
    // power by zero return identity
    if(n == 0)
-      return matrix<T>::eye(A.xsize());
+      return matrix<T>::eye(A.size().rows());
    // handle negative powers as powers of the inverse
    matrix<T> R;
    if(n > 0)

@@ -17,8 +17,8 @@ template <class T> void limiter<T>::init(const T lo, const T hi)
 
 template <class T> void limiter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const
    {
-   const int M = in.xsize();
-   const int N = in.ysize();
+   const int M = in.size().rows();
+   const int N = in.size().cols();
 
    out.init(M,N);
 
@@ -34,8 +34,8 @@ template <class T> void limiter<T>::process(const libbase::matrix<T>& in, libbas
 
 template <class T> void limiter<T>::process(libbase::matrix<T>& m) const
    {
-   const int M = m.xsize();
-   const int N = m.ysize();
+   const int M = m.size().rows();
+   const int N = m.size().cols();
 
    for(int i=0; i<M; i++)
       for(int j=0; j<N; j++)

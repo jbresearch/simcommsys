@@ -222,8 +222,8 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    // allocate space for interim results
    const int Nr = rep.output_block_size();
    const int q = rep.num_outputs();
-   assertalways(ra.xsize() >= Nr);
-   assertalways(ra.ysize() == q);
+   assertalways(ra.size().rows() >= Nr);
+   assertalways(ra.size().cols() == q);
    array1vd_t ravd;
    ravd.init(Nr);
    for(int i=0; i<Nr; i++)

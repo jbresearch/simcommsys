@@ -78,8 +78,8 @@ void CFilterExtractApp::FilterContinue(void)
 
          // extract from image
          int k = GetCurrentPlane() * GetImageWidth() * GetImageHeight() + GetCurrentCoordTop() * GetImageWidth();
-         for(int j=0; j<m.ysize(); j++)
-            for(int i=0; i<m.xsize(); i++)
+         for(int j=0; j<m.size().cols(); j++)
+            for(int i=0; i<m.size().rows(); i++)
                m_vdMessage(k++) = m(i,j);
          } break;
 
@@ -93,8 +93,8 @@ void CFilterExtractApp::FilterContinue(void)
 
          // replace image
          int k = GetCurrentPlane() * GetImageWidth() * GetImageHeight() + GetCurrentCoordTop() * GetImageWidth();
-         for(int j=0; j<m.ysize(); j++)
-            for(int i=0; i<m.xsize(); i++)
+         for(int j=0; j<m.size().cols(); j++)
+            for(int i=0; i<m.size().rows(); i++)
                m(i,j) = m_vdMessage(k++);
 
          // clip & convert matrix to tile
