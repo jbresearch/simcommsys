@@ -106,8 +106,6 @@ protected:
    /*! \name Memory allocation functions */
    void alloc(const int m, const int n);
    void free();
-   /*! \todo Merge with init() */
-   void setsize(const int m, const int n);
    // @}
 public:
    /*! \name Constructors / destructors */
@@ -132,13 +130,12 @@ public:
    // @}
 
    /*! \name Resizing operations */
-   //! \copydoc setsize()
-   void init(const int m, const int n) { setsize(m,n); };
-   /*! \copydoc setsize()
+   void init(const int m, const int n);
+   /*! \copydoc init()
       This overload takes a matrix-size object as argument.
    */
    void init(const size_type<libbase::matrix>& size) { init(size.rows(), size.cols()); };
-   /*! \copydoc setsize()
+   /*! \copydoc init()
       This overload takes another matrix as argument, to allow easier (and
       neater) sizing of one matrix based on another. This is a template
       function to allow the argument matrix to be of a different type.
@@ -283,28 +280,12 @@ public:
 template <class T>
 inline void matrix<T>::free()
    {
-   // note that if xsize is 0, then ysize must also be zero
-   if(m_size.rows() > 0)
+   if(m_size > 0)
       {
       for(int i=0; i<m_size.rows(); i++)
          delete[] m_data[i];
       delete[] m_data;
       }
-   }
-
-/*! \brief Set matrix to given size, freeing if and as required
-
-   This method leaves the matrix as it is if the size was already correct, and
-   frees/reallocates if necessary. This helps reduce redundant free/alloc
-   operations on matrices which keep the same size.
-*/
-template <class T>
-inline void matrix<T>::setsize(const int x, const int y)
-   {
-   if(x==m_size.rows() && y==m_size.cols())
-      return;
-   free();
-   alloc(x,y);
    }
 
 /*! \brief Allocates memory for (x,y) elements and updates sizes
@@ -340,6 +321,21 @@ inline matrix<T>::matrix(const matrix<T>& x)
          m_data[i][j] = x.m_data[i][j];
    }
 
+/*! \brief Set matrix to given size, freeing if and as required
+
+   This method leaves the matrix as it is if the size was already correct, and
+   frees/reallocates if necessary. This helps reduce redundant free/alloc
+   operations on matrices which keep the same size.
+*/
+template <class T>
+inline void matrix<T>::init(const int m, const int n)
+   {
+   if(m==m_size.rows() && n==m_size.cols())
+      return;
+   free();
+   alloc(m,n);
+   }
+
 // matrix copy and value initialisation
 
 /*! \brief Copies data from another matrix without resizing this one
@@ -355,10 +351,10 @@ inline matrix<T>::matrix(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
    {
-   const int xsize = std::min(m_size.rows(), x.m_size.rows());
-   const int ysize = std::min(m_size.cols(), x.m_size.cols());
-   for(int i=0; i<xsize; i++)
-      for(int j=0; j<ysize; j++)
+   const int rows = std::min(m_size.rows(), x.m_size.rows());
+   const int cols = std::min(m_size.cols(), x.m_size.cols());
+   for(int i=0; i<rows; i++)
+      for(int j=0; j<cols; j++)
          m_data[i][j] = x.m_data[i][j];
    return *this;
    }
@@ -366,7 +362,7 @@ inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
 template <class T>
 inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
    {
-   setsize(x.size().rows(), x.size().cols());
+   init(x.size());
    for(int i=0; i<m_size.rows(); i++)
       for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x(i,j);
@@ -377,7 +373,7 @@ template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    {
-   setsize(x.size().rows(), x.size().cols());
+   init(x.size());
    for(int i=0; i<m_size.rows(); i++)
       for(int j=0; j<m_size.cols(); j++)
          m_data[i][j] = x(i,j);
@@ -388,7 +384,7 @@ template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
    {
-   setsize(x.size(), 1);
+   init(x.size(), 1);
    for(int i=0; i<m_size.rows(); i++)
       m_data[i][0] = x(i);
    return *this;
@@ -558,7 +554,7 @@ inline std::istream& operator>>(std::istream& s, matrix<T>& x)
    {
    size_type<matrix> size;
    s >> size;
-   x.setsize(size.rows(), size.cols());
+   x.init(size);
    x.serialize(s);
    return s;
    }
