@@ -262,7 +262,7 @@ template <class S>
 void basic_channel<S,libbase::matrix>::transmit(const array2s_t& tx, array2s_t& rx)
    {
    // Initialize results vector
-   rx.init(tx);
+   rx.init(tx.size());
    // Corrupt the modulation symbols (simulate the channel)
    for(int i=0; i<tx.size().rows(); i++)
       for(int j=0; i<tx.size().cols(); j++)
@@ -275,7 +275,7 @@ void basic_channel<S,libbase::matrix>::receive(const array1s_t& tx, const array2
    // Compute sizes
    const int M = tx.size();
    // Initialize results vector
-   ptable.init(rx);
+   ptable.init(rx.size());
    for(int i=0; i<rx.size().rows(); i++)
       for(int j=0; i<rx.size().cols(); j++)
          ptable(i,j).init(M);

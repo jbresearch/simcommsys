@@ -135,14 +135,6 @@ public:
       This overload takes a matrix-size object as argument.
    */
    void init(const size_type<libbase::matrix>& size) { init(size.rows(), size.cols()); };
-   /*! \copydoc init()
-      This overload takes another matrix as argument, to allow easier (and
-      neater) sizing of one matrix based on another. This is a template
-      function to allow the argument matrix to be of a different type.
-      \todo Consider removing this overload, as it is redundant
-   */
-   template <class A>
-   void init(const matrix<A>& x) { init(x.size()); };
    // @}
 
    /*! \name Matrix copy, vector conversion, and value initialisation */

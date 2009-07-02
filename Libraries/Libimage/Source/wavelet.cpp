@@ -451,7 +451,7 @@ void wavelet::transform(const vector<double>& in, vector<double>& out, const int
    {
    assert(weight(in.size())==1);
    // resize the output vector if necessary
-   out.init(in);
+   out.init(in.size());
    // start at the largest heirarchy and work towards the smallest
    const int limit = getlimit(in.size(), level) << 1;
    for(int n=in.size(); n>=limit; n>>=1)
@@ -462,7 +462,7 @@ void wavelet::inverse(const vector<double>& in, vector<double>& out, const int l
    {
    assert(weight(in.size())==1);
    // resize the output vector if necessary
-   out.init(in);
+   out.init(in.size());
    // start at the smallest heirarchy and work towards the largest
    const int limit = getlimit(in.size(), level) << 1;
    for(int n=limit; n<=in.size(); n<<=1)
@@ -475,7 +475,7 @@ void wavelet::transform(const matrix<double>& in, matrix<double>& out, const int
    {
    assert(weight(in.size().rows())==1 && weight(in.size().cols())==1);
    // resize the output matrix if necessary
-   out.init(in);
+   out.init(in.size());
    // loop variables
    int i;
    // do the transform for each dimension
@@ -498,7 +498,7 @@ void wavelet::inverse(const matrix<double>& in, matrix<double>& out, const int l
    {
    assert(weight(in.size().rows())==1 && weight(in.size().cols())==1);
    // resize the output matrix if necessary
-   out.init(in);
+   out.init(in.size());
    // loop variables
    int i;
    // do the transform for each dimension

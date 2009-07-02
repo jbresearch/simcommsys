@@ -92,7 +92,7 @@ void CFilterWaveletApp::FilterContinue(void)
          temp = 0;
          temp.copyfrom(in);
          waveletfilter::process(temp, temp);
-         out.init(in);
+         out.init(in.size());
          out.copyfrom(temp);
          }
       else

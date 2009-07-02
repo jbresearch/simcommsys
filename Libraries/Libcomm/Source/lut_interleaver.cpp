@@ -20,7 +20,7 @@ void lut_interleaver<real>::transform(const libbase::vector<int>& in, libbase::v
    {
    const int tau = lut.size();
    assertalways(in.size() == tau);
-   out.init(in);
+   out.init(in.size());
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)
          out(t) = fsm::tail;
@@ -34,7 +34,7 @@ void lut_interleaver<real>::transform(const libbase::matrix<real>& in, libbase::
    const int tau = lut.size();
    const int K = in.size().cols();
    assertalways(in.size().rows() == tau);
-   out.init(in);
+   out.init(in.size());
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)
          for(int i=0; i<K; i++)
@@ -50,7 +50,7 @@ void lut_interleaver<real>::inverse(const libbase::matrix<real>& in, libbase::ma
    const int tau = lut.size();
    const int K = in.size().cols();
    assertalways(in.size().rows() == tau);
-   out.init(in);
+   out.init(in.size());
    for(int t=0; t<tau; t++)
       if(lut(t) == fsm::tail)
          for(int i=0; i<K; i++)
