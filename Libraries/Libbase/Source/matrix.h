@@ -38,34 +38,34 @@ std::istream& operator>>(std::istream& s, matrix<T>& x);
 template <>
 class size_type<matrix> {
 private:
-   int  x;
-   int  y;
+   int  m;  //!< Number of rows
+   int  n;  //!< Number of columns
 public:
    /*! \brief Principal Constructor
    */
-   explicit size_type(int x=0, int y=0) { this->x = x; this->y = y; };
+   explicit size_type(int m=0, int n=0) { this->m = m; this->n = n; };
    /*! \brief Conversion to integer
       Returns the total number of elements
    */
-   operator int() const { return x*y; };
+   operator int() const { return m*n; };
    /*! \brief Comparison of two size objects
       Only true if both dimensions are the same
    */
-   bool operator==(const size_type<matrix>& rhs) const { return (x==rhs.x) && (y==rhs.y); };
+   bool operator==(const size_type<matrix>& rhs) const { return (m==rhs.m) && (n==rhs.n); };
    /*! \brief Number of rows (first index) */
-   int rows() const { return x; };
+   int rows() const { return m; };
    /*! \brief Number of columns (second index) */
-   int cols() const { return y; };
+   int cols() const { return n; };
    /*! \brief Stream output */
    friend std::ostream& operator<<(std::ostream& sout, const size_type<matrix> r)
       {
-      sout << r.x << '\t' << r.y;
+      sout << r.m << '\t' << r.n;
       return sout;
       };
    /*! \brief Stream input */
    friend std::istream& operator>>(std::istream& sin, size_type<matrix>& r)
       {
-      sin >> r.x >> r.y;
+      sin >> r.m >> r.n;
       return sin;
       }
 };
