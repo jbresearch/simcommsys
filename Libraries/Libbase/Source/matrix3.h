@@ -26,36 +26,11 @@ namespace libbase {
    member variables to start with m_ in order to facilitate the similar naming of public
    functions (such as the size functions).
 
-   \version 1.10 (11 Nov 2001)
-   renamed max/min functions to max/min, after #undef'ing the macros with that name in
-   Win32 (and possibly other compilers). Also added a new function to compute the sum
-   of elements in a matrix.
-
-   \version 1.20 (30 Nov 2001)
-   added statistical functions that return sumsq, mean, var.
-
    \version 1.21 (2 Dec 2001)
    added a function which sets the size of a matrix to the given size - leaving it as
    it is if the size was already good, and freeing/reallocating if necessary. This helps
    reduce redundant free/alloc operations on matrices which keep the same size.
    [Ported from matrix 1.11]
-
-   \version 1.30 (27 Feb 2002)
-   modified the stream output function to first print the size, and added a complementary
-   stream input function. Together these allow for simplified saving and loading.
-
-   \version 1.31 (6 Mar 2002)
-   changed use of iostream from global to std namespace.
-
-   \version 1.32 (4 Apr 2002)
-   made validation functions operative only in debug mode.
-
-   \version 1.33 (7 Apr 2002)
-   moved validation functions up-front, to make sure they're used inline. Also moved
-   alloc and free before setsize, for the same reason.
-
-   \version 1.40 (13 Apr 2002)
-   skipped for version consistency with matrix & vector.
 
    \version 1.50 (13 Apr 2002)
    added a number of high-level support routines for working with matrices - the overall
@@ -74,9 +49,6 @@ namespace libbase {
    - added an apply() function which allows the user to do the same operation on all
    elements (previously had to do this manually).
 
-   \version 1.51 (13 Apr 2002)
-   removed all validate functions & replaced them by assertions.
-
    \version 1.60 (9 May 2002)
    - added another apply() so that the given function's parameter is const - this allows
    the use of functions which do not modify their parameter (it's actually what we want
@@ -91,34 +63,9 @@ namespace libbase {
    useful for interfacing with other file formats. Also modified the stream I/O functions
    to make use of these.
 
-   \version 1.61 (11 Jun 2002)
-   removed the instance of apply() whose given function's parameter is const, since this
-   was causing problems with gcc on Solaris.
 
-   \version 1.62 (18 Jul 2006)
-   updated declaration of matrix3's friend functions to comply with the standard, by
-   adding declarations of the function before that of the class. Consequently, a
-   declaration of the class itself was also required before that.
-
-   \version 1.63 (6 Oct 2006)
-   renamed GCCONLY to STRICT, in accordance with config 2.07.
-
-   \version 1.64 (7 Oct 2006)
-   renamed STRICT to TPLFRIEND, in accordance with config 2.08.
-
-   \version 1.65 (13 Oct 2006)
-   removed TPLFRIEND, in accordance with config 3.00.
-
-   \version 1.70 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
-   \version 1.71 (17 Oct 2007)
-   - modified alloc() so that m_data is set to NULL if we're not allocating space; this silences a warning.
-
-   \version 1.80 (4 Jan 2008)
-   - hid matrix multiplication and division as private functions to make sure they
-     are not being used anywhere.
+   \todo Consider removing this class, and port any existing uses to boost
+         multi_array
 */
 
 template <class T>
@@ -159,10 +106,8 @@ public:
    T operator()(const int x, const int y, const int z) const;
 
    // information services
-   int xsize() const { return m_xsize; };                //!< Size on dimension x
-   int ysize() const { return m_ysize; };                //!< Size on dimension y
-   int zsize() const { return m_zsize; };                //!< Size on dimension z
-   int size() const { return m_xsize * m_ysize * m_zsize; }; //!< Total number of elements
+   //! Total number of elements
+   int size() const { return m_xsize * m_ysize * m_zsize; };
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;
