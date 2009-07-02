@@ -108,6 +108,7 @@ protected:
    /*! \name Memory allocation functions */
    void alloc(const int m, const int n);
    void free();
+   /*! \todo Merge with init() */
    void setsize(const int m, const int n);
    // @}
 public:
@@ -143,6 +144,7 @@ public:
       This overload takes another matrix as argument, to allow easier (and
       neater) sizing of one matrix based on another. This is a template
       function to allow the argument matrix to be of a different type.
+      \todo Consider removing this overload, as it is redundant
    */
    template <class A>
    void init(const matrix<A>& x) { init(x.size()); };
@@ -168,31 +170,35 @@ public:
    vector<T> extractcol(const int j) const;
    // @}
 
-   // bind a mask to a matrix
+   /*! \name Bind a mask to a matrix */
    masked_matrix<T> mask(const matrix<bool>& x)
       { return masked_matrix<T>(this, x); };
+   // @}
 
-   // index operators (perform boundary checking)
+   /*! \name Index operators (perform boundary checking) */
    T& operator()(const int i, const int j);
    T operator()(const int i, const int j) const;
+   // @}
 
-   // information services
+   /*! \name Information functions */
    //! Size on dimension x (rows)
    int xsize() const { return m_size.rows(); };
    //! Size on dimension y (columns)
    int ysize() const { return m_size.cols(); };
    //! Total number of elements
    size_type<libbase::matrix> size() const { return m_size; };
+   // @}
 
-   // serialization and stream input & output
+   /*! \name Serialization and stream input & output */
    void serialize(std::ostream& s) const;
    void serialize(std::ostream& s, char spacer) const
       { serialize(s); s << spacer; };
    void serialize(std::istream& s);
    friend std::ostream& operator<< <>(std::ostream& s, const matrix<T>& x);
    friend std::istream& operator>> <>(std::istream& s, matrix<T>& x);
+   // @}
 
-   // comparison (mask-creation) operations
+   /*! \name Comparison (mask-creation) operations */
    matrix<bool> operator==(const matrix<T>& x) const;
    matrix<bool> operator!=(const matrix<T>& x) const;
    matrix<bool> operator<=(const matrix<T>& x) const;
@@ -205,12 +211,14 @@ public:
    matrix<bool> operator>=(const T x) const;
    matrix<bool> operator<(const T x) const;
    matrix<bool> operator>(const T x) const;
+   // @}
 
-   // direct comparison operations
+   /*! \name Direct comparison operations */
    bool isequalto(const matrix<T>& x) const;
    bool isnotequalto(const matrix<T>& x) const;
+   // @}
 
-   // arithmetic operations - unary
+   /*! \name Arithmetic operations - unary */
    matrix<T>& operator+=(const matrix<T>& x);
    matrix<T>& operator-=(const matrix<T>& x);
    matrix<T>& operator*=(const matrix<T>& x);
@@ -221,8 +229,9 @@ public:
    matrix<T>& operator-=(const T x);
    matrix<T>& operator*=(const T x);
    matrix<T>& operator/=(const T x);
+   // @}
 
-   // arithmetic operations - binary
+   /*! \name Arithmetic operations - binary */
    matrix<T> operator+(const matrix<T>& x) const;
    matrix<T> operator-(const matrix<T>& x) const;
    matrix<T> operator*(const matrix<T>& x) const;
@@ -234,26 +243,31 @@ public:
    matrix<T> operator-(const T x) const;
    matrix<T> operator*(const T x) const;
    matrix<T> operator/(const T x) const;
+   // @}
 
-   // boolean operations - modifying
+   /*! \name Boolean operations - modifying */
    matrix<T>& operator&=(const matrix<T>& x);
    matrix<T>& operator|=(const matrix<T>& x);
    matrix<T>& operator^=(const matrix<T>& x);
+   // @}
 
-   // boolean operations - non-modifying
+   /*! \name Boolean operations - non-modifying */
    matrix<T> operator!() const;
    matrix<T> operator&(const matrix<T>& x) const;
    matrix<T> operator|(const matrix<T>& x) const;
    matrix<T> operator^(const matrix<T>& x) const;
+   // @}
 
-   // user-defined operations
+   /*! \name User-defined operations */
    matrix<T>& apply(T f(T));
+   // @}
 
-   // matrix-arithmetic operations
+   /*! \name Matrix-arithmetic operations */
    matrix<T> inverse() const;
    matrix<T> transpose() const;
+   // @}
 
-   // statistical operations
+   /*! \name Statistical operations */
    T min() const;
    T max() const;
    T sum() const;
@@ -263,9 +277,11 @@ public:
    T var() const;
    //! Compute standard deviation of matrix elements
    T sigma() const { return sqrt(var()); };
+   // @}
 
-   // static functions
+   /*! \name Static functions */
    static matrix<T> eye(int n);
+   // @}
 };
 
 
