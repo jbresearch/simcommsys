@@ -37,8 +37,8 @@ void map_straight<vector,dbl>::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
-   upsilon = size.x*s1/s2;
-   assertalways(size.x*s1 == upsilon*s2);
+   upsilon = size.length()*s1/s2;
+   assertalways(size.length()*s1 == upsilon*s2);
    }
 
 template <class dbl>
@@ -48,7 +48,7 @@ void map_straight<vector,dbl>::dotransform(const array1i_t& in, array1i_t& out) 
    // Initialize results vector
    out.init(This::output_block_size());
    // Modulate encoded stream (least-significant first)
-   for(int t=0, k=0; t<size.x; t++)
+   for(int t=0, k=0; t<size.length(); t++)
       for(int i=0, x = in(t); i<s1; i++, k++, x /= M)
          out(k) = x % M;
    }

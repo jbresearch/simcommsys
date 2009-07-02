@@ -21,11 +21,11 @@ void map_stipple<C,dbl>::advance() const
    assertalways(size > 0);
    assertalways(sets > 0);
    // check if matrix is already set
-   if(pattern.size() == size.x*(sets+1))
+   if(pattern.size() == size.length()*(sets+1))
       return;
    // initialise the pattern matrix
-   pattern.init(size.x*(sets+1));
-   for(int i=0, t=0; t<size.x; t++)
+   pattern.init(size.length()*(sets+1));
+   for(int i=0, t=0; t<size.length(); t++)
       for(int s=0; s<=sets; s++, i++)
          pattern(i) = (s==0 || (s-1)==t%sets);
    }
