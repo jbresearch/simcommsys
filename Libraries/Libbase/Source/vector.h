@@ -49,31 +49,31 @@ std::istream& operator>>(std::istream& s, vector<T>& x);
 template <>
 class size_type<vector> {
 private:
-   int  x;  //!< Length of vector in elements
+   int  n;  //!< Length of vector in elements
 public:
    /*! \brief Principal Constructor
    */
-   explicit size_type(int x=0) { this->x = x; };
+   explicit size_type(int n=0) { this->n = n; };
    /*! \brief Conversion to integer
       Returns the number of elements
    */
-   operator int() const { return x; };
+   operator int() const { return n; };
    /*! \brief Comparison of two size objects
       Only true if dimensions are the same
    */
-   bool operator==(const size_type<vector>& rhs) const { return (x==rhs.x); };
+   bool operator==(const size_type<vector>& rhs) const { return (n==rhs.n); };
    /*! \brief Number of elements */
-   int length() const { return x; };
+   int length() const { return n; };
    /*! \brief Stream output */
    friend std::ostream& operator<<(std::ostream& sout, const size_type<vector> r)
       {
-      sout << r.x;
+      sout << r.n;
       return sout;
       };
    /*! \brief Stream input */
    friend std::istream& operator>>(std::istream& sin, size_type<vector>& r)
       {
-      sin >> r.x;
+      sin >> r.n;
       return sin;
       }
 };
