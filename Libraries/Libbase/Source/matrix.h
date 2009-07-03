@@ -485,20 +485,14 @@ inline T matrix<T>::operator()(const int i, const int j) const
 /*! \brief Writes matrix data to output stream.
    This function is intended for interfacing with file formats that do not use
    the serialization format of this class.
-
-   \todo Transpose output to conform with convention
 */
 template <class T>
 inline void matrix<T>::serialize(std::ostream& s) const
    {
-   for(int j=0; j<m_size.cols(); j++)
+   for(int i=0; i<m_size.rows(); i++)
       {
-      s << m_data[0][j];
-      for(int i=1; i<m_size.rows(); i++)
-//    for(int i=0; i<m_size.rows(); i++)
-//       {
-//       s << m_data[i][0];
-//       for(int j=1; j<m_size.cols(); j++)
+      s << m_data[i][0];
+      for(int j=1; j<m_size.cols(); j++)
          s << "\t" << m_data[i][j];
       s << "\n";
       }
@@ -509,16 +503,12 @@ inline void matrix<T>::serialize(std::ostream& s) const
    the serialization format of this class.
 
    \note Assumes that the current matrix already has the correct size.
-
-   \todo Transpose output to conform with convention
 */
 template <class T>
 inline void matrix<T>::serialize(std::istream& s)
    {
-   for(int j=0; j<m_size.cols(); j++)
-      for(int i=0; i<m_size.rows(); i++)
-//    for(int i=0; i<m_size.rows(); i++)
-//       for(int j=0; j<m_size.cols(); j++)
+   for(int i=0; i<m_size.rows(); i++)
+      for(int j=0; j<m_size.cols(); j++)
          s >> m_data[i][j];
    }
 
