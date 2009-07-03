@@ -66,7 +66,7 @@ public:
 
    // Informative functions
    double rate() const { return (sets+1)/2.0; };
-   libbase::size_type<C> output_block_size() const { return libbase::size_type<C>(size.x*2); };
+   libbase::size_type<C> output_block_size() const { return libbase::size_type<C>(size.length()*2); };
 
    // Description
    std::string description() const;

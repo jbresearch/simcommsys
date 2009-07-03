@@ -34,7 +34,7 @@
       <builddir/>
     </build>
     <make>
-      <abortonerror>true</abortonerror>
+      <abortonerror>false</abortonerror>
       <numberofjobs>4</numberofjobs>
       <prio>0</prio>
       <dontact>false</dontact>
@@ -178,7 +178,7 @@
     <qt>
       <used>false</used>
       <version>3</version>
-      <root></root>
+      <root>/usr/lib/qt-3.3</root>
       <includestyle>3</includestyle>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
       <qmake></qmake>

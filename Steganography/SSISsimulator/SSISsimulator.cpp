@@ -182,8 +182,8 @@ void CSSISsimulator::ProcessImage(libimage::image& iImage)
       // convert channel to a matrix
       libbase::matrix<double> mChannel = iImage.getchannel(c);
       // embed in image
-      for(int i=0; i<mChannel.xsize(); i++)
-         for(int j=0; j<mChannel.ysize(); j++)
+      for(int i=0; i<mChannel.size().rows(); i++)
+         for(int j=0; j<mChannel.size().cols(); j++)
             mChannel(i,j) += m_vdMessage(k++);
       // clip
       libimage::limiter<double> lim(0,1);

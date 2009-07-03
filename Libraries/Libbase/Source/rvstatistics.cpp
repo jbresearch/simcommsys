@@ -41,8 +41,8 @@ void rvstatistics::insert(const vector<double>& x)
 
 void rvstatistics::insert(const matrix<double>& x)
    {
-   for(int i=0; i<x.xsize(); i++)
-      for(int j=0; j<x.ysize(); j++)
+   for(int i=0; i<x.size().rows(); i++)
+      for(int j=0; j<x.size().cols(); j++)
          insert(x(i,j));
    }
 

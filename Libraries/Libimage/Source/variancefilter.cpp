@@ -16,8 +16,8 @@ template<class T> void variancefilter<T>::init(const int d)
 
 template<class T> void variancefilter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const
    {
-   const int M = in.xsize();
-   const int N = in.ysize();
+   const int M = in.size().rows();
+   const int N = in.size().cols();
 
    out.init(M,N);
 

@@ -37,8 +37,8 @@ public:
 
    libbase::matrix<double> luminance() const;
 
-   int width() const { return data.xsize(); };
-   int height() const { return data.ysize(); };
+   int width() const { return data.size().rows(); };
+   int height() const { return data.size().cols(); };
 };
 
 }; // end namespace

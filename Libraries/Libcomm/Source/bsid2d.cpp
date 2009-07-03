@@ -63,10 +63,10 @@ void bsid2d::computestate(int& insertions, bool& transmit)
 void bsid2d::computestate(array2i_t& insertions, array2b_t& transmit)
    {
    // determine matrix sizes
-   const int M = insertions.xsize();
-   const int N = insertions.ysize();
-   assertalways(transmit.xsize() == M);
-   assertalways(transmit.ysize() == N);
+   const int M = insertions.size().rows();
+   const int N = insertions.size().cols();
+   assertalways(transmit.size().rows() == M);
+   assertalways(transmit.size().cols() == N);
    // iterate over all timesteps
    for(int i=0; i<M; i++)
       for(int j=0; j<N; j++)
@@ -82,8 +82,8 @@ void bsid2d::cumsum(array2i_t& m, int dim)
    {
    assert(dim==0 || dim==1);
    // determine matrix sizes
-   const int M = m.xsize();
-   const int N = m.ysize();
+   const int M = m.size().rows();
+   const int N = m.size().cols();
    // iterate over all matrix elements
    if(dim==0)
       {
@@ -258,8 +258,8 @@ bool bsid2d::corrupt(const bool& s)
 void bsid2d::transmit(const array2b_t& tx, array2b_t& rx)
    {
    // determine matrix sizes
-   const int M = tx.xsize();
-   const int N = tx.ysize();
+   const int M = tx.size().rows();
+   const int N = tx.size().cols();
    // compute state tables
    array2i_t insertions_h(M,N), insertions_v(M,N);
    array2b_t transmit_h(M,N), transmit_v(M,N);

@@ -32,8 +32,8 @@ void ccfsm<G>::init(const matrix< vector<G> >& generator)
    {
    // copy automatically what we can
    gen = generator;
-   k = gen.xsize();
-   n = gen.ysize();
+   k = gen.size().rows();
+   n = gen.size().cols();
    // set default value to the rest
    m = 0;
    // check that the generator matrix is valid (correct sizes) and create shift registers

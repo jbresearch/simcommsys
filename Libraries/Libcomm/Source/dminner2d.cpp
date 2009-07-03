@@ -34,13 +34,13 @@ template <class real, bool norm>
 void dminner2d<real,norm>::advance() const
    {
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Initialize space
    pilot.init(N*n,M*m);
    // creates 'tau' elements of 'n' bits each
-   for(int i=0; i<pilot.ysize(); i++)
-      for(int j=0; j<pilot.xsize(); j++)
+   for(int i=0; i<pilot.size().cols(); i++)
+      for(int j=0; j<pilot.size().rows(); j++)
          pilot(j,i) = (r.ival(2) != 0);
    }
 
@@ -61,15 +61,15 @@ void dminner2d<real,norm>::domodulate(const int q, const libbase::matrix<int>& e
    // Each 'encoded' symbol must be representable by a single sparse matrix
    assertalways(this->q == q);
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Check validity
-   assertalways(M == encoded.ysize());
-   assertalways(N == encoded.xsize());
+   assertalways(M == encoded.size().cols());
+   assertalways(N == encoded.size().rows());
    // Initialise result vector
    tx = pilot;
-   assert(tx.ysize() == M*m);
-   assert(tx.xsize() == N*n);
+   assert(tx.size().cols() == M*m);
+   assert(tx.size().rows() == N*n);
    // Encode source
    for(int i=0; i<M; i++)
       for(int j=0; j<N; j++)
@@ -88,8 +88,8 @@ template <class real, bool norm>
 void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Create equiprobable a-priori probability table
    libbase::matrix<array1d_t> app(N,M);
    for(int i=0; i<M; i++)
@@ -132,11 +132,11 @@ template <class real, bool norm>
 void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& chan, const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
-   const int M = this->input_block_size().y;
-   const int N = this->input_block_size().x;
+   const int M = this->input_block_size().cols();
+   const int N = this->input_block_size().rows();
    // Check input validity
-   assertalways(M == app.ysize());
-   assertalways(N == app.xsize());
+   assertalways(M == app.size().cols());
+   assertalways(N == app.size().rows());
    // Copy channel and create a 1D one with same parameters
    bsid2d theirchan = dynamic_cast<const bsid2d&>(chan);
    bsid mychan;
@@ -165,9 +165,9 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
          {
          ptable.extractrow(pin,i);
          // initialize storage
-         pacc.init(pin);
+         pacc.init(pin.size());
          for(int ii=0; ii<pacc.size(); ii++)
-            pacc(ii).init(pin(ii));
+            pacc(ii).init(pin(ii).size());
          // initialize value
          pacc = 1;
          for(int ii=0; ii<m; ii++)
@@ -202,9 +202,9 @@ void dminner2d<real,norm>::dodemodulate(const channel<bool,libbase::matrix>& cha
          {
          ptable.extractcol(pin,j);
          // initialize storage
-         pacc.init(pin);
+         pacc.init(pin.size());
          for(int jj=0; jj<pacc.size(); jj++)
-            pacc(jj).init(pin(jj));
+            pacc(jj).init(pin(jj).size());
          // initialize value
          pacc = 1;
          for(int jj=0; jj<n; jj++)
@@ -249,8 +249,8 @@ void dminner2d<real,norm>::validatelut() const
    for(int i=0; i<lut.size(); i++)
       {
       // all entries should be of the correct size
-      assertalways(lut(i).ysize() == m);
-      assertalways(lut(i).xsize() == n);
+      assertalways(lut(i).size().cols() == m);
+      assertalways(lut(i).size().rows() == n);
       // all entries should be distinct
       for(int j=0; j<i; j++)
          assertalways(lut(i).isnotequalto(lut(j)));
@@ -288,8 +288,8 @@ void dminner2d<real,norm>::init()
    // Determine code parameters from LUT
    q = lut.size();
    assertalways(q > 0);
-   m = lut(0).ysize();
-   n = lut(0).xsize();
+   m = lut(0).size().cols();
+   n = lut(0).size().rows();
    // Validate LUT
    validatelut();
    // Seed the pilot generator and clear the sequence

@@ -13,6 +13,8 @@ namespace libbase {
 // 1 - Normal debug output only
 // 2 - Keep track of memory allocation/deallocation
 // 3 - Trace memory allocation/deallocation
+// NOTE: since this is a header, this is likely to affect other classes as well;
+//       please return this to '1' when committing.
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -23,18 +25,8 @@ namespace libbase {
 extern std::map<void*,int> _vector_heap;
 #endif
 
-/* \note
-   To comply with the standard, vector's friend functions must be declared
-   before the main class. Consequently, a declaration of the class itself
-   is also required before that.
-*/
 template <class T>
 class vector;
-
-template <class T>
-std::ostream& operator<<(std::ostream& s, const vector<T>& x);
-template <class T>
-std::istream& operator>>(std::istream& s, vector<T>& x);
 
 /*!
    \brief   Size specialization for vector.
@@ -44,20 +36,38 @@ std::istream& operator>>(std::istream& s, vector<T>& x);
    - $Revision$
    - $Date$
    - $Author$
-
-   \todo Consider hiding fields
-
-   \todo Add serialization
 */
 
 template <>
 class size_type<vector> {
+private:
+   int  n;  //!< Length of vector in elements
 public:
-   int  x;
-public:
-   explicit size_type(int x=0) { this->x = x; };
-   operator int() const { return x; };
-   bool operator==(const size_type<vector>& rhs) const { return (x==rhs.x); };
+   /*! \brief Principal Constructor
+   */
+   explicit size_type(int n=0) { this->n = n; };
+   /*! \brief Conversion to integer
+      Returns the number of elements
+   */
+   operator int() const { return n; };
+   /*! \brief Comparison of two size objects
+      Only true if dimensions are the same
+   */
+   bool operator==(const size_type<vector>& rhs) const { return (n==rhs.n); };
+   /*! \brief Number of elements */
+   int length() const { return n; };
+   /*! \brief Stream output */
+   friend std::ostream& operator<<(std::ostream& sout, const size_type<vector> r)
+      {
+      sout << r.n;
+      return sout;
+      };
+   /*! \brief Stream input */
+   friend std::istream& operator>>(std::istream& sin, size_type<vector>& r)
+      {
+      sin >> r.n;
+      return sin;
+      }
 };
 
 /*!
@@ -77,6 +87,7 @@ public:
             serialization for loading and saving; they therefore output
             container size together with container elements.
             The serialize methods input/output only the elements.
+
 
    \todo Extract non-root vectors as a derived class
 
@@ -103,7 +114,7 @@ protected:
    /*! \brief Allocates memory for x elements (if necessary) and updates xsize
       \note This is only valid for 'root' vectors.
    */
-   void alloc(const int x);
+   void alloc(const int n);
    /*! \brief If there is memory allocated, free it
       \note This is validly called for non-root and for empty vectors
    */
@@ -111,7 +122,7 @@ protected:
    // @}
 public:
    //! Default constructor (does not initialise elements)
-   explicit vector(const int x=0);
+   explicit vector(const int n=0);
    //! Copy constructor
    vector(const vector<T>& x);
    ~vector() { free(); };
@@ -123,12 +134,9 @@ public:
       redundant free/alloc operations.
       \note This is only valid for 'root' vectors.
    */
-   void init(const int x);
+   void init(const int n);
    //! Initialize vector to the given size
-   void init(const size_type<libbase::vector>& size) { init(size.x); };
-   //! Initialize vector to the size of given vector
-   template <class A>
-   void init(const vector<A>& x) { init(x.size()); };
+   void init(const size_type<libbase::vector>& size) { init(size.length()); };
    // @}
 
    /*! \name Vector copy and value initialisation */
@@ -171,11 +179,9 @@ public:
    //! Total number of elements
    size_type<libbase::vector> size() const { return m_size; };
 
-   /*! \name Serialization and stream input & output */
+   /*! \name Serialization */
    void serialize(std::ostream& s, char spacer='\t') const;
    void serialize(std::istream& s);
-   friend std::ostream& operator<< <>(std::ostream& s, const vector<T>& x);
-   friend std::istream& operator>> <>(std::istream& s, vector<T>& x);
    // @}
 
    // arithmetic operations - unary
@@ -246,9 +252,9 @@ template <class T>
 inline void vector<T>::test_invariant() const
    {
    // size must be valid
-   assert(m_size.x >= 0);
+   assert(m_size.length() >= 0);
    // pointer must make sense
-   if(m_size.x == 0)
+   if(m_size.length() == 0)
       assert(m_data == NULL);
    else
       assert(m_data != NULL);
@@ -257,7 +263,7 @@ inline void vector<T>::test_invariant() const
       {
       // root vectors: record of allocated memory of correct size
       assert(_vector_heap.count(m_data) > 0);
-      assert(_vector_heap[m_data] == m_size.x * int(sizeof(T)));
+      assert(_vector_heap[m_data] == m_size.length() * int(sizeof(T)));
       }
 #endif
    }
@@ -265,22 +271,22 @@ inline void vector<T>::test_invariant() const
 // memory allocation functions
 
 template <class T>
-inline void vector<T>::alloc(const int x)
+inline void vector<T>::alloc(const int n)
    {
    test_invariant();
-   assert(x >= 0);
+   assert(n >= 0);
    assert(m_root);
-   assert(m_size.x == 0);
-   m_size.x = x;
-   if(x > 0)
+   assert(m_size.length() == 0);
+   m_size = size_type<libbase::vector>(n);
+   if(n > 0)
       {
-      m_data = new T[x];
+      m_data = new T[n];
 #if DEBUG>=2
       assert(_vector_heap.count(m_data) == 0);
-      _vector_heap[m_data] = m_size.x * sizeof(T);
+      _vector_heap[m_data] = m_size.length() * sizeof(T);
 #endif
 #if DEBUG>=3
-      trace << "DEBUG (vector): allocated " << m_size.x << " x " << sizeof(T)
+      trace << "DEBUG (vector): allocated " << m_size.length() << " x " << sizeof(T)
          << " bytes at " << m_data << "\n";
 #endif
       }
@@ -293,19 +299,19 @@ template <class T>
 inline void vector<T>::free()
    {
    test_invariant();
-   if(m_root && m_size.x > 0)
+   if(m_root && m_size.length() > 0)
       {
 #if DEBUG>=2
       assert(_vector_heap.count(m_data) > 0);
-      assert(_vector_heap[m_data] == m_size.x * int(sizeof(T)));
+      assert(_vector_heap[m_data] == m_size.length() * int(sizeof(T)));
       _vector_heap.erase(_vector_heap.find(m_data));
 #endif
 #if DEBUG>=3
-      trace << "DEBUG (vector): freeing " << m_size.x << " x " << sizeof(T)
+      trace << "DEBUG (vector): freeing " << m_size.length() << " x " << sizeof(T)
          << " bytes at " << m_data << "\n";
 #endif
       delete[] m_data;
-      m_size.x = 0;
+      m_size = size_type<libbase::vector>(0);
       m_data = NULL;
       }
    test_invariant();
@@ -314,13 +320,13 @@ inline void vector<T>::free()
 // constructor / destructor functions
 
 template <class T>
-inline vector<T>::vector(const int x) :
+inline vector<T>::vector(const int n) :
    m_root(true),
    m_size(0),
    m_data(NULL)
    {
    test_invariant();
-   alloc(x);
+   alloc(n);
    test_invariant();
    }
 
@@ -333,14 +339,14 @@ inline vector<T>::vector(const vector<T>& x) :
    test_invariant();
    if(x.m_root)
       {
-      alloc(x.m_size.x);
-      for(int i=0; i<m_size.x; i++)
+      alloc(x.m_size.length());
+      for(int i=0; i<m_size.length(); i++)
          m_data[i] = x.m_data[i];
       }
    else
       {
       m_root = x.m_root;
-      m_size.x = x.m_size.x;
+      m_size = x.m_size;
       m_data = x.m_data;
       }
    test_invariant();
@@ -349,15 +355,15 @@ inline vector<T>::vector(const vector<T>& x) :
 // Resizing operations
 
 template <class T>
-inline void vector<T>::init(const int x)
+inline void vector<T>::init(const int n)
    {
    test_invariant();
-   assert(x >= 0);
+   assert(n >= 0);
    assert(m_root);
-   if(x==m_size.x)
+   if(n==m_size.length())
       return;
    free();
-   alloc(x);
+   alloc(n);
    test_invariant();
    }
 
@@ -378,7 +384,7 @@ template <class T>
 inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
    {
    test_invariant();
-   const int xsize = std::min(m_size.x, x.m_size.x);
+   const int xsize = std::min(m_size.length(), x.m_size.length());
    for(int i=0; i<xsize; i++)
       m_data[i] = x.m_data[i];
    test_invariant();
@@ -389,8 +395,8 @@ template <class T>
 inline vector<T>& vector<T>::operator=(const vector<T>& x)
    {
    test_invariant();
-   init(x.m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   init(x.m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] = x.m_data[i];
    test_invariant();
    return *this;
@@ -407,10 +413,10 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] = x(i);
 #ifdef WIN32
-#  pragma warning( pop ) 
+#  pragma warning( pop )
 #endif
    test_invariant();
    return *this;
@@ -426,10 +432,10 @@ inline vector<T>& vector<T>::operator=(const A x)
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] = x;
 #ifdef WIN32
-#  pragma warning( pop ) 
+#  pragma warning( pop )
 #endif
    test_invariant();
    return *this;
@@ -444,8 +450,8 @@ inline const vector<T> vector<T>::extract(const int start, const int n) const
    assert(n >= 0);
    vector<T> r;
    r.m_root = false;
-   r.m_size.x = n;
-   assert(m_size.x >= start+n);
+   r.m_size = size_type<libbase::vector>(n);
+   assert(m_size.length() >= start+n);
    r.m_data = (n>0) ? &m_data[start] : NULL;
    r.test_invariant();
    return r;
@@ -458,8 +464,8 @@ inline vector<T> vector<T>::segment(const int start, const int n)
    assert(n >= 0);
    vector<T> r;
    r.m_root = false;
-   r.m_size.x = n;
-   assert(m_size.x >= start+n);
+   r.m_size = size_type<libbase::vector>(n);
+   assert(m_size.length() >= start+n);
    r.m_data = (n>0) ? &m_data[start] : NULL;
    r.test_invariant();
    return r;
@@ -471,7 +477,7 @@ template <class T>
 inline T& vector<T>::operator()(const int x)
    {
    test_invariant();
-   assert(x>=0 && x<m_size.x);
+   assert(x>=0 && x<m_size.length());
    return m_data[x];
    }
 
@@ -479,7 +485,7 @@ template <class T>
 inline T vector<T>::operator()(const int x) const
    {
    test_invariant();
-   assert(x>=0 && x<m_size.x);
+   assert(x>=0 && x<m_size.length());
    return m_data[x];
    }
 
@@ -489,9 +495,9 @@ template <class T>
 inline void vector<T>::serialize(std::ostream& s, char spacer) const
    {
    test_invariant();
-   if(m_size.x > 0)
+   if(m_size.length() > 0)
       s << m_data[0];
-   for(int i=1; i<m_size.x; i++)
+   for(int i=1; i<m_size.length(); i++)
       s << spacer << m_data[i];
    s << '\n';
    }
@@ -500,7 +506,7 @@ template <class T>
 inline void vector<T>::serialize(std::istream& s)
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       s >> m_data[i];
    test_invariant();
    }
@@ -508,7 +514,7 @@ inline void vector<T>::serialize(std::istream& s)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
    {
-   s << x.m_size.x << "\n";
+   s << x.size() << "\n";
    x.serialize(s);
    return s;
    }
@@ -516,9 +522,9 @@ inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
 template <class T>
 inline std::istream& operator>>(std::istream& s, vector<T>& x)
    {
-   int xsize;
-   s >> xsize;
-   x.init(xsize);
+   size_type<vector> size;
+   s >> size;
+   x.init(size);
    x.serialize(s);
    return s;
    }
@@ -529,8 +535,8 @@ template <class T>
 inline vector<T>& vector<T>::operator+=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] += x.m_data[i];
    test_invariant();
    return *this;
@@ -540,8 +546,8 @@ template <class T>
 inline vector<T>& vector<T>::operator-=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] -= x.m_data[i];
    test_invariant();
    return *this;
@@ -551,8 +557,8 @@ template <class T>
 inline vector<T>& vector<T>::operator*=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] *= x.m_data[i];
    test_invariant();
    return *this;
@@ -562,8 +568,8 @@ template <class T>
 inline vector<T>& vector<T>::operator/=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] /= x.m_data[i];
    test_invariant();
    return *this;
@@ -573,7 +579,7 @@ template <class T>
 inline vector<T>& vector<T>::operator+=(const T x)
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] += x;
    test_invariant();
    return *this;
@@ -583,7 +589,7 @@ template <class T>
 inline vector<T>& vector<T>::operator-=(const T x)
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] -= x;
    test_invariant();
    return *this;
@@ -593,7 +599,7 @@ template <class T>
 inline vector<T>& vector<T>::operator*=(const T x)
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] *= x;
    test_invariant();
    return *this;
@@ -603,7 +609,7 @@ template <class T>
 inline vector<T>& vector<T>::operator/=(const T x)
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] /= x;
    test_invariant();
    return *this;
@@ -697,7 +703,7 @@ template <class T>
 inline vector<T>& vector<T>::operator!()
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] = !m_data[i];
    test_invariant();
    return *this;
@@ -707,8 +713,8 @@ template <class T>
 inline vector<T>& vector<T>::operator&=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] &= x.m_data[i];
    test_invariant();
    return *this;
@@ -718,8 +724,8 @@ template <class T>
 inline vector<T>& vector<T>::operator|=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] |= x.m_data[i];
    test_invariant();
    return *this;
@@ -729,8 +735,8 @@ template <class T>
 inline vector<T>& vector<T>::operator^=(const vector<T>& x)
    {
    test_invariant();
-   assert(x.m_size.x == m_size.x);
-   for(int i=0; i<m_size.x; i++)
+   assert(x.m_size.length() == m_size.length());
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] ^= x.m_data[i];
    test_invariant();
    return *this;
@@ -771,7 +777,7 @@ template <class T>
 inline vector<T>& vector<T>::apply(T f(T))
    {
    test_invariant();
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       m_data[i] = f(m_data[i]);
    test_invariant();
    return *this;
@@ -783,9 +789,9 @@ template <class T>
 inline T vector<T>::min() const
    {
    test_invariant();
-   assertalways(m_size.x > 0);
+   assertalways(m_size.length() > 0);
    T result = m_data[0];
-   for(int i=1; i<m_size.x; i++)
+   for(int i=1; i<m_size.length(); i++)
       if(m_data[i] < result)
          result = m_data[i];
    test_invariant();
@@ -796,9 +802,9 @@ template <class T>
 inline T vector<T>::max() const
    {
    test_invariant();
-   assertalways(m_size.x > 0);
+   assertalways(m_size.length() > 0);
    T result = m_data[0];
-   for(int i=1; i<m_size.x; i++)
+   for(int i=1; i<m_size.length(); i++)
       if(m_data[i] > result)
          result = m_data[i];
    test_invariant();
@@ -809,10 +815,10 @@ template <class T>
 inline T vector<T>::min(int& index, const bool getfirst) const
    {
    test_invariant();
-   assertalways(m_size.x > 0);
+   assertalways(m_size.length() > 0);
    T result = m_data[0];
    index = 0;
-   for(int i=1; i<m_size.x; i++)
+   for(int i=1; i<m_size.length(); i++)
       if(m_data[i] < result)
          {
          result = m_data[i];
@@ -828,10 +834,10 @@ template <class T>
 inline T vector<T>::max(int& index, const bool getfirst) const
    {
    test_invariant();
-   assertalways(m_size.x > 0);
+   assertalways(m_size.length() > 0);
    T result = m_data[0];
    index = 0;
-   for(int i=1; i<m_size.x; i++)
+   for(int i=1; i<m_size.length(); i++)
       if(m_data[i] > result)
          {
          result = m_data[i];
@@ -847,9 +853,9 @@ template <class T>
 inline T vector<T>::sum() const
    {
    test_invariant();
-   assertalways(m_size.x > 0);
+   assertalways(m_size.length() > 0);
    T result = 0;
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       result += m_data[i];
    test_invariant();
    return result;
@@ -859,9 +865,9 @@ template <class T>
 inline T vector<T>::sumsq() const
    {
    test_invariant();
-   assertalways(m_size.x > 0);
+   assertalways(m_size.length() > 0);
    T result = 0;
-   for(int i=0; i<m_size.x; i++)
+   for(int i=0; i<m_size.length(); i++)
       result += m_data[i] * m_data[i];
    test_invariant();
    return result;

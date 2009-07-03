@@ -81,8 +81,8 @@ void CFilterLevelsApp::FilterContinue(void)
          GetPixelMatrix(m);
 
          // for each pixel, update the relevant histogram entry
-         for(int j=0; j<m.ysize(); j++)
-            for(int i=0; i<m.xsize(); i++)
+         for(int j=0; j<m.size().cols(); j++)
+            for(int i=0; i<m.size().rows(); i++)
                {
                int k = int(round(m(i,j) * (m_nLevels-1)));
                m_viHistogram(k)++;
@@ -112,8 +112,8 @@ void CFilterLevelsApp::FilterContinue(void)
                // obtain thresholded image (where black=1, white=0)
                mt = (m <= k/double(m_nLevels-1));
                // for each pixel, if set, determine the number of neighbors
-               for(int i=1; i<mt.xsize()-1; i++)
-                  for(int j=1; j<mt.ysize()-1; j++)
+               for(int i=1; i<mt.size().rows()-1; i++)
+                  for(int j=1; j<mt.size().cols()-1; j++)
                      if(mt(i,j)) // current pixel is black
                         {
                         int sum = -1;  // to discount current pixel

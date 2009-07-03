@@ -440,14 +440,6 @@ Turbo Codes/MakeSRandom/makesrandom.cpp
 Turbo Codes/Makefile
 Turbo Codes/SPECturbo
 Turbo Codes/SPECturbo/SPECturbo.cpp
-Turbo Codes/SRandomInterleaver
-Turbo Codes/SRandomInterleaver/SRandomInterleaver.cpp
-Turbo Codes/SRandomInterleaver/SRandomInterleaver.h
-Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.cpp
-Turbo Codes/SRandomInterleaver/SRandomInterleaverDlg.h
-Turbo Codes/SRandomInterleaver/Stdafx.cpp
-Turbo Codes/SRandomInterleaver/Stdafx.h
-Turbo Codes/SRandomInterleaver/resource.h
 Turbo Codes/ShowErrorEvent
 Turbo Codes/ShowErrorEvent/showerrorevent.cpp
 Turbo Codes/SimCommsys

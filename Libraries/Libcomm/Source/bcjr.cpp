@@ -398,14 +398,14 @@ void bcjr<real,dbl,norm>::work_results(array2d_t& ri)
 template <class real, class dbl, bool norm>
 void bcjr<real,dbl,norm>::normalize(array2d_t& r)
    {
-   for(int t=0; t<r.xsize(); t++)
+   for(int t=0; t<r.size().rows(); t++)
       {
       dbl scale = r(t,0);
-      for(int i=1; i<r.ysize(); i++)
+      for(int i=1; i<r.size().cols(); i++)
          scale += r(t,i);
       assertalways(scale > dbl(0));
       scale = dbl(1)/scale;
-      for(int i=0; i<r.ysize(); i++)
+      for(int i=0; i<r.size().cols(); i++)
          r(t,i) *= scale;
       }
    }

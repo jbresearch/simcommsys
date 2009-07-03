@@ -58,7 +58,7 @@ void waveletfilter::update(const matrix<double>& in)
          m_wWavelet.transform(in, out, m_nWaveletLevel);
          // mask out low-frequency coefficients
          matrix<bool> mask;
-         createmask(mask, in.xsize(), in.ysize());
+         createmask(mask, in.size().rows(), in.size().cols());
          // convert masked section to a vector
          vector<double> v = out.mask(mask);
          // append values to the list
@@ -77,8 +77,8 @@ void waveletfilter::update(const matrix<double>& in)
          matrix<double> out;
          m_wWavelet.transform(in, out, m_nWaveletLevel);
          // append [hi,hi] values to the list
-         for(int i=out.xsize()>>1; i<out.xsize(); i++)
-            for(int j=out.ysize()>>1; j<out.ysize(); j++)
+         for(int i=out.size().rows()>>1; i<out.size().rows(); i++)
+            for(int j=out.size().cols()>>1; j<out.size().cols(); j++)
                m_vdCoefficient.push_back(fabs(out(i,j)));
          // update size
          m_nSize += in.size();
@@ -135,7 +135,7 @@ void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
 
    // mask out low-frequency coefficients
    matrix<bool> hipass;
-   createmask(hipass, in.xsize(), in.ysize());
+   createmask(hipass, in.size().rows(), in.size().cols());
    // compute absolute value of coefficients
    matrix<double> outabs = out;
    outabs.apply(fabs);

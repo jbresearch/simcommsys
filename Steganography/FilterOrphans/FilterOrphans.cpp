@@ -54,8 +54,8 @@ void CFilterOrphansApp::FilterContinue(void)
    libbase::matrix<double> in, out;
    GetPixelMatrix(in);
    out = in;
-   for(int i=1; i<in.xsize()-1; i++)
-      for(int j=1; j<in.ysize()-1; j++)
+   for(int i=1; i<in.size().rows()-1; i++)
+      for(int j=1; j<in.size().cols()-1; j++)
          if(in(i,j) < 0.5) // current pixel is black
             {
             int sum = -1;  // to discount current pixel

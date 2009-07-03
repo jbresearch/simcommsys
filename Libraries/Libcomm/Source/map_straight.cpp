@@ -37,8 +37,8 @@ void map_straight<vector,dbl>::setup()
    {
    s1 = get_rate(M, N);
    s2 = get_rate(M, S);
-   upsilon = size.x*s1/s2;
-   assertalways(size.x*s1 == upsilon*s2);
+   upsilon = size.length()*s1/s2;
+   assertalways(size.length()*s1 == upsilon*s2);
    }
 
 template <class dbl>
@@ -48,7 +48,7 @@ void map_straight<vector,dbl>::dotransform(const array1i_t& in, array1i_t& out) 
    // Initialize results vector
    out.init(This::output_block_size());
    // Modulate encoded stream (least-significant first)
-   for(int t=0, k=0; t<size.x; t++)
+   for(int t=0, k=0; t<size.length(); t++)
       for(int i=0, x = in(t); i<s1; i++, k++, x /= M)
          out(k) = x % M;
    }
@@ -124,17 +124,17 @@ void map_straight<matrix,dbl>::dotransform(const array2i_t& in, array2i_t& out) 
    out.init(This::output_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_straight): Transform ";
-   libbase::trace << in.xsize() << "x" << in.ysize() << " to ";
-   libbase::trace << out.xsize() << "x" << out.ysize() << "\n";
+   libbase::trace << in.size().rows() << "x" << in.size().cols() << " to ";
+   libbase::trace << out.size().rows() << "x" << out.size().cols() << "\n";
 #endif
    // Map encoded stream (row-major order)
    int ii=0, jj=0;
-   for(int i=0; i<in.xsize(); i++)
-      for(int j=0; j<in.ysize(); j++)
+   for(int i=0; i<in.size().rows(); i++)
+      for(int j=0; j<in.size().cols(); j++)
          {
          out(ii,jj) = in(i,j);
          jj++;
-         if(jj >= out.ysize())
+         if(jj >= out.size().cols())
             {
             jj = 0;
             ii++;
@@ -154,17 +154,17 @@ void map_straight<matrix,dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout
    pout.init(This::input_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_straight): Inverse ";
-   libbase::trace << pin.xsize() << "x" << pin.ysize() << " to ";
-   libbase::trace << pout.xsize() << "x" << pout.ysize() << "\n";
+   libbase::trace << pin.size().rows() << "x" << pin.size().cols() << " to ";
+   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << "\n";
 #endif
    // Map channek receiver information (row-major order)
    int ii=0, jj=0;
-   for(int i=0; i<pin.xsize(); i++)
-      for(int j=0; j<pin.ysize(); j++)
+   for(int i=0; i<pin.size().rows(); i++)
+      for(int j=0; j<pin.size().cols(); j++)
          {
          pout(ii,jj) = pin(i,j);
          jj++;
-         if(jj >= pout.ysize())
+         if(jj >= pout.size().cols())
             {
             jj = 0;
             ii++;
@@ -179,7 +179,7 @@ std::string map_straight<matrix,dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Straight Mapper (Matrix ";
-   sout << size_out.x << "x" << size_out.y << ")";
+   sout << size_out.rows() << "x" << size_out.cols() << ")";
    return sout.str();
    }
 
@@ -188,14 +188,14 @@ std::string map_straight<matrix,dbl>::description() const
 template <class dbl>
 std::ostream& map_straight<matrix,dbl>::serialize(std::ostream& sout) const
    {
-   sout << size_out.x << '\t' << size_out.y << '\n';
+   sout << size_out << '\n';
    return sout;
    }
 
 template <class dbl>
 std::istream& map_straight<matrix,dbl>::serialize(std::istream& sin)
    {
-   sin >> size_out.x >> size_out.y;
+   sin >> size_out;
    return sin;
    }
 

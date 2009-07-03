@@ -58,7 +58,7 @@ using libbase::matrix;
              \end{pmatrix} \f]
 
    where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
-   memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$ 
+   memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$
    is the left-most memory element for input \f$ i \f$, and therefore the one to which
    the shift-in is applied. It can be seen that the total length of the state vector
    is equal to the total number of memory elements in the system, \f$ \nu \f$.
@@ -78,7 +78,7 @@ int grscc<G>::getstateval(const vector<G>& statevec) const
    }
 
 /*!
-   \brief Convert integer representation of state value to a vector in the required 
+   \brief Convert integer representation of state value to a vector in the required
           format for determining circulation state
    \param stateval Unique integer representation of state value
    \return State vector in the required format for determining circulation state
@@ -131,8 +131,7 @@ matrix<G> grscc<G>::getstategen() const
       for(int j=1; j<this->reg(i).size(); j++)
          stategen(j-1,++row) = 1;
       }
-   trace << "DEBUG (grscc): state-generator matrix = \n";
-   stategen.serialize(trace);
+   trace << "DEBUG (grscc): state-generator matrix = " << stategen;
    return stategen;
    }
 
@@ -210,7 +209,7 @@ void grscc<G>::resetcircular(int zerostate, int n)
    assert(zerostate >= 0 && zerostate < this->num_states());
    if(csct.size() == 0)
       initcsct();
-   const int L = csct.xsize();
+   const int L = csct.size().rows();
    assert(n%L != 0);
    reset(csct(n%L,zerostate));
    }

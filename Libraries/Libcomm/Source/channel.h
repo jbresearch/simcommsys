@@ -183,7 +183,7 @@ template <class S>
 void basic_channel<S,libbase::vector>::transmit(const array1s_t& tx, array1s_t& rx)
    {
    // Initialize results vector
-   rx.init(tx);
+   rx.init(tx.size());
    // Corrupt the modulation symbols (simulate the channel)
    for(int i=0; i<tx.size(); i++)
       rx(i) = corrupt(tx(i));
@@ -262,10 +262,10 @@ template <class S>
 void basic_channel<S,libbase::matrix>::transmit(const array2s_t& tx, array2s_t& rx)
    {
    // Initialize results vector
-   rx.init(tx);
+   rx.init(tx.size());
    // Corrupt the modulation symbols (simulate the channel)
-   for(int i=0; i<tx.xsize(); i++)
-      for(int j=0; i<tx.ysize(); j++)
+   for(int i=0; i<tx.size().rows(); i++)
+      for(int j=0; i<tx.size().cols(); j++)
          rx(i,j) = corrupt(tx(i,j));
    }
 
@@ -275,13 +275,13 @@ void basic_channel<S,libbase::matrix>::receive(const array1s_t& tx, const array2
    // Compute sizes
    const int M = tx.size();
    // Initialize results vector
-   ptable.init(rx);
-   for(int i=0; i<rx.xsize(); i++)
-      for(int j=0; i<rx.ysize(); j++)
+   ptable.init(rx.size());
+   for(int i=0; i<rx.size().rows(); i++)
+      for(int j=0; i<rx.size().cols(); j++)
          ptable(i,j).init(M);
    // Work out the probabilities of each possible signal
-   for(int i=0; i<rx.xsize(); i++)
-      for(int j=0; i<rx.ysize(); j++)
+   for(int i=0; i<rx.size().rows(); i++)
+      for(int j=0; i<rx.size().cols(); j++)
          for(int x=0; x<M; x++)
             ptable(i,j)(x) = pdf(tx(x), rx(i,j));
    }
@@ -290,12 +290,12 @@ template <class S>
 double basic_channel<S,libbase::matrix>::receive(const array2s_t& tx, const array2s_t& rx) const
    {
    // This implementation only works for substitution channels
-   assert(tx.xsize() == rx.xsize());
-   assert(tx.ysize() == rx.ysize());
+   assert(tx.size().rows() == rx.size().rows());
+   assert(tx.size().cols() == rx.size().cols());
    // Work out the combined probability of the sequence
    double p = 1;
-   for(int i=0; i<rx.xsize(); i++)
-      for(int j=0; i<rx.ysize(); j++)
+   for(int i=0; i<rx.size().rows(); i++)
+      for(int j=0; i<rx.size().cols(); j++)
          p *= pdf(tx(i,j), rx(i,j));
    return p;
    }
