@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
    po::notify(vm);
 
    // Validate user parameters
-   if(vm.count("help"))
+   if(vm.count("help") || \
+      vm.count("system-file")==0)
       {
       std::cerr << desc << "\n";
       return 1;
