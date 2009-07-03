@@ -8,7 +8,7 @@
 namespace csencode {
 
 template <class S, template<class> class C>
-void process(const std::string& fname, std::istream& sin, std::ostream& sout)
+void process(const std::string& fname, std::istream& sin=std::cin, std::ostream& sout=std::cout)
    {
    // Communication system
    libcomm::commsys<S,C> *system = libcomm::loadfromfile< libcomm::commsys<S,C> >(fname);
@@ -59,62 +59,67 @@ int main(int argc, char *argv[])
    po::notify(vm);
 
    // Validate user parameters
-   if(vm.count("help"))
+   if(vm.count("help") || \
+      vm.count("system-file")==0)
       {
       std::cerr << desc << "\n";
       return 1;
       }
+   // Shorthand access for parameters
+   const std::string container = vm["container"].as<std::string>();
+   const std::string type = vm["type"].as<std::string>();
+   const std::string filename = vm["system-file"].as<std::string>();
 
    // Main process
-   if(vm["container"].as<std::string>() == "vector")
+   if(container == "vector")
       {
       using libbase::vector;
       using libbase::gf;
       using libcomm::sigspace;
-      if(vm["type"].as<std::string>() == "bool")
-         process<bool,vector>(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf2")
-         process< gf<1,0x3>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf4")
-         process< gf<2,0x7>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf8")
-         process< gf<3,0xB>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf16")
-         process< gf<4,0x13>,vector >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "sigspace")
-         process<sigspace,vector>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      if(type == "bool")
+         process<bool,vector>(filename);
+      else if(type == "gf2")
+         process< gf<1,0x3>,vector >(filename);
+      else if(type == "gf4")
+         process< gf<2,0x7>,vector >(filename);
+      else if(type == "gf8")
+         process< gf<3,0xB>,vector >(filename);
+      else if(type == "gf16")
+         process< gf<4,0x13>,vector >(filename);
+      else if(type == "sigspace")
+         process<sigspace,vector>(filename);
       else
          {
-         std::cerr << "Unrecognized symbol type: " << vm["type"].as<std::string>() << "\n";
+         std::cerr << "Unrecognized symbol type: " << type << "\n";
          return 1;
          }
       }
-   else if(vm["container"].as<std::string>() == "matrix")
+   else if(container == "matrix")
       {
       using libbase::matrix;
       using libbase::gf;
       using libcomm::sigspace;
-      if(vm["type"].as<std::string>() == "bool")
-         process<bool,matrix>(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf2")
-         process< gf<1,0x3>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf4")
-         process< gf<2,0x7>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf8")
-         process< gf<3,0xB>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "gf16")
-         process< gf<4,0x13>,matrix >(vm["system-file"].as<std::string>(), std::cin, std::cout);
-      else if(vm["type"].as<std::string>() == "sigspace")
-         process<sigspace,matrix>(vm["system-file"].as<std::string>(), std::cin, std::cout);
+      if(type == "bool")
+         process<bool,matrix>(filename);
+      else if(type == "gf2")
+         process< gf<1,0x3>,matrix >(filename);
+      else if(type == "gf4")
+         process< gf<2,0x7>,matrix >(filename);
+      else if(type == "gf8")
+         process< gf<3,0xB>,matrix >(filename);
+      else if(type == "gf16")
+         process< gf<4,0x13>,matrix >(filename);
+      else if(type == "sigspace")
+         process<sigspace,matrix>(filename);
       else
          {
-         std::cerr << "Unrecognized symbol type: " << vm["type"].as<std::string>() << "\n";
+         std::cerr << "Unrecognized symbol type: " << type << "\n";
          return 1;
          }
       }
    else
       {
-      std::cerr << "Unrecognized container type: " << vm["container"].as<std::string>() << "\n";
+      std::cerr << "Unrecognized container type: " << container << "\n";
       return 1;
       }
 
