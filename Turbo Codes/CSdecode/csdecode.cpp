@@ -123,9 +123,7 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if(type == "bool")
-         process<bool,matrix>(filename,
-            parameter, softout,
-            std::cin, std::cout);
+         process<bool,matrix>(filename, parameter, softout);
       else if(type == "gf2")
          process< gf<1,0x3>,matrix >(filename, parameter, softout);
       else if(type == "gf4")
