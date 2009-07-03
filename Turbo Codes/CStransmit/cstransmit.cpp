@@ -7,11 +7,11 @@
 
 namespace cstransmit {
 
-template <class S>
+template <class S, template<class> class C>
 void process(const std::string& fname, double p, std::istream& sin, std::ostream& sout)
    {
    // Communication system
-   libcomm::commsys<S> *system = libcomm::loadfromfile< libcomm::commsys<S> >(fname);
+   libcomm::commsys<S,C> *system = libcomm::loadfromfile< libcomm::commsys<S,C> >(fname);
    std::cerr << system->description() << "\n";
    // Set channel parameter
    system->getchan()->set_parameter(p);
@@ -22,9 +22,9 @@ void process(const std::string& fname, double p, std::istream& sin, std::ostream
    // Repeat until end of stream
    while(!sin.eof())
       {
-      libbase::vector<S> transmitted(system->output_block_size());
+      C<S> transmitted(system->output_block_size());
       transmitted.serialize(sin);
-      libbase::vector<S> received;
+      C<S> received;
       system->getchan()->transmit(transmitted, received);
       received.serialize(sout, '\n');
       libbase::eatwhite(sin);
@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
       }
 
    // Main process
-   process<bool>(vm["system-file"].as<std::string>(),
+   using libbase::vector;
+   process<bool,vector>(vm["system-file"].as<std::string>(),
       vm["parameter"].as<double>(), std::cin, std::cout);
 
    return 0;

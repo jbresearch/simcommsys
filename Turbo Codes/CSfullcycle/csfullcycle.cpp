@@ -8,11 +8,11 @@
 
 namespace csfullcycle {
 
-template <class S>
+template <class S, template<class> class C>
 void process(const std::string& fname, double p, bool soft, std::istream& sin, std::ostream& sout)
    {
    // Communication system
-   libcomm::commsys<S> *system = libcomm::loadfromfile< libcomm::commsys<S> >(fname);
+   libcomm::commsys<S,C> *system = libcomm::loadfromfile< libcomm::commsys<S,C> >(fname);
    std::cerr << system->description() << "\n";
    // Set channel parameter
    system->getchan()->set_parameter(p);
@@ -24,30 +24,29 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin, s
    for(int j=0; !sin.eof(); j++)
       {
       std::cerr << "Processing block " << j << ".";
-      libbase::vector<int> source(system->input_block_size());
+      C<int> source(system->input_block_size());
       source.serialize(sin);
       std::cerr << ".";
-      libbase::vector<S> transmitted = system->encode(source);
+      C<S> transmitted = system->encode(source);
       std::cerr << ".";
-      libbase::vector<S> received;
+      C<S> received;
       system->getchan()->transmit(transmitted, received);
       std::cerr << ".";
       system->translate(received);
       std::cerr << ".";
       if(soft)
          {
-         libcomm::codec_softout<double>& cdc =
-            dynamic_cast< libcomm::codec_softout<double>& >(*system->getcodec());
-         libbase::vector< libbase::vector<double> > ptable;
+         libcomm::codec_softout<double,C>& cdc =
+            dynamic_cast< libcomm::codec_softout<double,C>& >(*system->getcodec());
+         C< libbase::vector<double> > ptable;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             cdc.softdecode(ptable);
          std::cerr << ".";
-         for(int i=0; i<ptable.size(); i++)
-            ptable(i).serialize(sout);
+         ptable.serialize(sout);
          }
       else
          {
-         libbase::vector<int> decoded;
+         C<int> decoded;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             system->getcodec()->decode(decoded);
          std::cerr << ".";
@@ -98,7 +97,8 @@ int main(int argc, char *argv[])
       }
 
    // Main process
-   process<bool>(vm["system-file"].as<std::string>(),
+   using libbase::vector;
+   process<bool,vector>(vm["system-file"].as<std::string>(),
       vm["parameter"].as<double>(), vm["soft-out"].as<bool>(),
       std::cin, std::cout);
 
