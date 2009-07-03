@@ -115,7 +115,13 @@ int main(int argc, char *argv[])
    po::notify(vm);
 
    // Validate user parameters
-   if(vm.count("help"))
+   if(vm.count("help") || \
+      vm.count("system-file")==0 || \
+      vm.count("results-file")==0 || \
+      vm.count("start")==0 || \
+      vm.count("stop")==0 || \
+      (vm.count("step")==0 && vm.count("mul")==0) || \
+      (vm.count("step") && vm.count("mul")) )
       {
       cout << desc << "\n";
       return 0;
