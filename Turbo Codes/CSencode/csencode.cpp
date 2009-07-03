@@ -8,7 +8,7 @@
 namespace csencode {
 
 template <class S, template<class> class C>
-void process(const std::string& fname, std::istream& sin, std::ostream& sout)
+void process(const std::string& fname, std::istream& sin=std::cin, std::ostream& sout=std::cout)
    {
    // Communication system
    libcomm::commsys<S,C> *system = libcomm::loadfromfile< libcomm::commsys<S,C> >(fname);
@@ -76,17 +76,17 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if(type == "bool")
-         process<bool,vector>(filename, std::cin, std::cout);
+         process<bool,vector>(filename);
       else if(type == "gf2")
-         process< gf<1,0x3>,vector >(filename, std::cin, std::cout);
+         process< gf<1,0x3>,vector >(filename);
       else if(type == "gf4")
-         process< gf<2,0x7>,vector >(filename, std::cin, std::cout);
+         process< gf<2,0x7>,vector >(filename);
       else if(type == "gf8")
-         process< gf<3,0xB>,vector >(filename, std::cin, std::cout);
+         process< gf<3,0xB>,vector >(filename);
       else if(type == "gf16")
-         process< gf<4,0x13>,vector >(filename, std::cin, std::cout);
+         process< gf<4,0x13>,vector >(filename);
       else if(type == "sigspace")
-         process<sigspace,vector>(filename, std::cin, std::cout);
+         process<sigspace,vector>(filename);
       else
          {
          std::cerr << "Unrecognized symbol type: " << type << "\n";
@@ -99,17 +99,17 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if(type == "bool")
-         process<bool,matrix>(filename, std::cin, std::cout);
+         process<bool,matrix>(filename);
       else if(type == "gf2")
-         process< gf<1,0x3>,matrix >(filename, std::cin, std::cout);
+         process< gf<1,0x3>,matrix >(filename);
       else if(type == "gf4")
-         process< gf<2,0x7>,matrix >(filename, std::cin, std::cout);
+         process< gf<2,0x7>,matrix >(filename);
       else if(type == "gf8")
-         process< gf<3,0xB>,matrix >(filename, std::cin, std::cout);
+         process< gf<3,0xB>,matrix >(filename);
       else if(type == "gf16")
-         process< gf<4,0x13>,matrix >(filename, std::cin, std::cout);
+         process< gf<4,0x13>,matrix >(filename);
       else if(type == "sigspace")
-         process<sigspace,matrix>(filename, std::cin, std::cout);
+         process<sigspace,matrix>(filename);
       else
          {
          std::cerr << "Unrecognized symbol type: " << type << "\n";
