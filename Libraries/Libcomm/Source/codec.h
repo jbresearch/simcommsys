@@ -26,18 +26,16 @@ namespace libcomm {
          input and output sequences of the codec and to better separate this
          class from the modulation class.
 
-   \todo Templatize with respect to soft-value arithmetic
-
    \todo Merge num_symbols() with num_outputs() as these should be the same
 
    \todo Remove tail_length() as tailing should be handled internally
 */
 
-template <template<class> class C=libbase::vector>
+template <template<class> class C=libbase::vector, class dbl=double>
 class codec {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>     array1d_t;
    // @}
 
 public:

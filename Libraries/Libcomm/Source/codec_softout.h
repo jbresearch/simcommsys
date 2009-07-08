@@ -17,7 +17,8 @@ namespace libcomm {
 */
 
 template <template<class> class C=libbase::vector, class dbl=double>
-class codec_softout_interface : public codec<C> {
+class codec_softout_interface :
+   public codec<C,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl>     array1d_t;
@@ -91,7 +92,8 @@ public:
 */
 
 template <template<class> class C=libbase::vector, class dbl=double>
-class codec_softout : public codec_softout_interface<C,dbl> {
+class codec_softout :
+   public codec_softout_interface<C,dbl> {
 public:
 };
 
@@ -109,7 +111,8 @@ public:
 */
 
 template <class dbl>
-class codec_softout<libbase::vector,dbl> : public codec_softout_interface<libbase::vector,dbl> {
+class codec_softout<libbase::vector,dbl> :
+   public codec_softout_interface<libbase::vector,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -118,7 +121,7 @@ public:
    // @}
 public:
    // Codec operations
-   void translate(const libbase::vector< libbase::vector<double> >& ptable);
+   void translate(const array1vd_t& ptable);
    void translate(const array1vd_t& ptable, const array1vd_t& app);
    void decode(array1i_t& decoded);
 
