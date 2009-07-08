@@ -25,7 +25,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
       {
       C<S> received(system->output_block_size());
       received.serialize(sin);
-      system->init_decoder(received);
+      system->receive_path(received);
       if(soft)
          {
          libcomm::codec_softout<C>& cdc =

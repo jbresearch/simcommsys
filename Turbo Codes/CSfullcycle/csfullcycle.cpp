@@ -27,12 +27,12 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
       C<int> source(system->input_block_size());
       source.serialize(sin);
       std::cerr << ".";
-      C<S> transmitted = system->encode(source);
+      C<S> transmitted = system->encode_path(source);
       std::cerr << ".";
       C<S> received;
       system->getchan()->transmit(transmitted, received);
       std::cerr << ".";
-      system->init_decoder(received);
+      system->receive_path(received);
       std::cerr << ".";
       if(soft)
          {

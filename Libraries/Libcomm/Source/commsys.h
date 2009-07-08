@@ -76,12 +76,12 @@ public:
 
    /*! \name Communication System Interface */
    //! Perform complete encode path
-   C<S> encode(const C<int>& source);
+   C<S> encode_path(const C<int>& source);
    //! Perform complete receive path, except for final decoding
-   virtual void init_decoder(const C<S>& received);
+   virtual void receive_path(const C<S>& received);
    //! Perform a decoding iteration, with hard decision
    virtual void decode(C<int>& decoded);
-   //! Perform a complete transmit/receive cycle, except for final decoding
+   //! Perform a complete encode/transmit/receive cycle, except for final decoding
    virtual void transmitandreceive(const C<int>& source);
    // @}
 

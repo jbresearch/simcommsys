@@ -159,7 +159,7 @@ void basic_commsys<S,C>::seedfrom(libbase::random& r)
    \enddot
 */
 template <class S, template<class> class C>
-C<S> basic_commsys<S,C>::encode(const C<int>& source)
+C<S> basic_commsys<S,C>::encode_path(const C<int>& source)
    {
    // Encode
    C<int> encoded;
@@ -174,8 +174,7 @@ C<S> basic_commsys<S,C>::encode(const C<int>& source)
    }
 
 /*!
-   The decoder initialization process consists of the steps depicted in the
-   following diagram:
+   The receive path consists of the steps depicted in the following diagram:
    \dot
    digraph decode {
       // Make figure left-to-right
@@ -191,7 +190,7 @@ C<S> basic_commsys<S,C>::encode(const C<int>& source)
    \enddot
 */
 template <class S, template<class> class C>
-void basic_commsys<S,C>::init_decoder(const C<S>& received)
+void basic_commsys<S,C>::receive_path(const C<S>& received)
    {
    // Demodulate
    C<array1d_t> ptable_mapped;
@@ -236,12 +235,12 @@ template <class S, template<class> class C>
 void basic_commsys<S,C>::transmitandreceive(const C<int>& source)
    {
    // Encode -> Map -> Modulate
-   C<S> transmitted = encode(source);
+   C<S> transmitted = encode_path(source);
    // Transmit
    C<S> received;
    this->chan->transmit(transmitted, received);
    // Demodulate -> Inverse Map -> Translate
-   init_decoder(received);
+   receive_path(received);
    }
 
 // Description & Serialization
