@@ -24,13 +24,18 @@ namespace libcomm {
 
 template <class S, template<class> class C=libbase::vector>
 class commsys_iterative : public commsys<S,C> {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<double>     array1d_t;
+   // @}
+
 private:
    /*! \name User parameters */
    int   iter;    //!< Number of demodulation iterations
    // @}
 public:
    // Communication System Interface
-   void init_decoder(const libbase::vector<S>& received);
+   void receive_path(const C<S>& received);
 
    // Description
    std::string description() const;
