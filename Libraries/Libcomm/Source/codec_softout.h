@@ -16,7 +16,7 @@ namespace libcomm {
    - $Author$
 */
 
-template <class dbl, template<class> class C=libbase::vector>
+template <template<class> class C=libbase::vector, class dbl=double>
 class codec_softout_interface : public codec<C> {
 public:
    /*! \name Type definitions */
@@ -90,8 +90,8 @@ public:
    partial specialization of the container.
 */
 
-template <class dbl, template<class> class C=libbase::vector>
-class codec_softout : public codec_softout_interface<dbl,C> {
+template <template<class> class C=libbase::vector, class dbl=double>
+class codec_softout : public codec_softout_interface<C,dbl> {
 public:
 };
 
@@ -109,7 +109,7 @@ public:
 */
 
 template <class dbl>
-class codec_softout<dbl,libbase::vector> : public codec_softout_interface<dbl,libbase::vector> {
+class codec_softout<libbase::vector,dbl> : public codec_softout_interface<libbase::vector,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;

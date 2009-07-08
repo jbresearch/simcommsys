@@ -36,8 +36,8 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
       std::cerr << ".";
       if(soft)
          {
-         libcomm::codec_softout<double,C>& cdc =
-            dynamic_cast< libcomm::codec_softout<double,C>& >(*system->getcodec());
+         libcomm::codec_softout<C>& cdc =
+            dynamic_cast< libcomm::codec_softout<C>& >(*system->getcodec());
          C< libbase::vector<double> > ptable;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             cdc.softdecode(ptable);

@@ -24,7 +24,7 @@ namespace libcomm {
 
 template <class dbl=double>
 class uncoded :
-   public codec_softout<dbl> {
+   public codec_softout<libbase::vector,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -34,7 +34,7 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef uncoded<dbl> This;
-   typedef codec_softout<dbl> Base;
+   typedef codec_softout<libbase::vector,dbl> Base;
 private:
    /*! \name User-specified parameters */
    fsm   *encoder;
