@@ -173,6 +173,14 @@ C<S> basic_commsys<S,C>::encode_path(const C<int>& source)
    return transmitted;
    }
 
+template <class S, template<class> class C>
+C<S> basic_commsys<S,C>::transmit(const C<S>& transmitted)
+   {
+   C<S> received;
+   this->chan->transmit(transmitted, received);
+   return received;
+   }
+
 /*!
    The receive path consists of the steps depicted in the following diagram:
    \dot

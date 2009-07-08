@@ -76,7 +76,9 @@ public:
 
    /*! \name Communication System Interface */
    //! Perform complete encode path
-   C<S> encode_path(const C<int>& source);
+   virtual C<S> encode_path(const C<int>& source);
+   //! Perform channel transmission
+   virtual C<S> transmit(const C<S>& transmitted);
    //! Perform complete receive path, except for final decoding
    virtual void receive_path(const C<S>& received);
    //! Perform a decoding iteration, with hard decision
