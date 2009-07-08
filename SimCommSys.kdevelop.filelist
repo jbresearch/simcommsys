@@ -130,6 +130,8 @@ Libraries/Libcomm/Source/dminner2d.cpp
 Libraries/Libcomm/Source/dminner2d.h
 Libraries/Libcomm/Source/dvbcrsc.cpp
 Libraries/Libcomm/Source/dvbcrsc.h
+Libraries/Libcomm/Source/exit_computer.cpp
+Libraries/Libcomm/Source/exit_computer.h
 Libraries/Libcomm/Source/experiment.cpp
 Libraries/Libcomm/Source/experiment.h
 Libraries/Libcomm/Source/experiment_binomial.cpp
