@@ -76,7 +76,7 @@ void exit_computer<S>::free()
 template <class S>
 libbase::vector<int> exit_computer<S>::createsource()
    {
-   const int tau = sys->getcodec()->input_block_size();
+   const int tau = sys->input_block_size();
    libbase::vector<int> source(tau);
    for(int t=0; t<tau; t++)
       source(t) = src->ival(get_alphabetsize());
@@ -112,7 +112,7 @@ void exit_computer<S>::cycleonce(libbase::vector<double>& result)
       //R::updateresults(result, i, source, decoded);
       }
    // Keep record of what we last simulated
-   const int tau = sys->getcodec()->input_block_size();
+   const int tau = sys->input_block_size();
    assert(source.size() == tau);
    assert(decoded.size() == tau);
    last_event.init(2*tau);

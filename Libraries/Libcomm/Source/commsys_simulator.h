@@ -46,8 +46,8 @@ protected:
    // @}
    // System Interface for Results
    int get_iter() const { return sys->getcodec()->num_iter(); };
-   int get_symbolsperblock() const { return sys->getcodec()->input_block_size(); };
-   int get_alphabetsize() const { return sys->getcodec()->num_inputs(); };
+   int get_symbolsperblock() const { return sys->input_block_size(); };
+   int get_alphabetsize() const { return sys->num_inputs(); };
 public:
    /*! \name Constructors / Destructors */
    commsys_simulator(libbase::randgen *src, commsys<S> *sys);

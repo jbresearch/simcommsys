@@ -89,11 +89,20 @@ public:
 
    /*! \name Informative functions */
    //! Overall mapper rate
-   double rate() const { return cdc->rate() * map->rate(); };
+   double rate() const
+      { return cdc->rate() * map->rate(); }
+   //! Input alphabet size (number of valid symbols)
+   int num_inputs() const
+      { return cdc->num_inputs(); }
+   //! Output alphabet size (number of valid symbols)
+   int num_outputs() const
+      { return mdm->num_symbols(); }
    //! Input (ie. source/decoded) block size in symbols
-   libbase::size_type<C> input_block_size() const { return cdc->input_block_size(); };
+   libbase::size_type<C> input_block_size() const
+      { return cdc->input_block_size(); }
    //! Output (ie. transmitted/received) block size in symbols
-   libbase::size_type<C> output_block_size() const { return mdm->output_block_size(); };
+   libbase::size_type<C> output_block_size() const
+      { return mdm->output_block_size(); }
    // @}
 
    // Description

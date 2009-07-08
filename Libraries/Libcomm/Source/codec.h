@@ -89,9 +89,9 @@ public:
    virtual libbase::size_type<C> input_block_size() const = 0;
    //! Output block size in symbols
    virtual libbase::size_type<C> output_block_size() const = 0;
-   //! Number of valid input combinations
+   //! Input alphabet size (number of valid symbols)
    virtual int num_inputs() const = 0;
-   //! Number of valid output combinations
+   //! Output alphabet size (number of valid symbols)
    virtual int num_outputs() const = 0;
    //! Channel symbol alphabet size required for translation
    virtual int num_symbols() const { return num_outputs(); };
