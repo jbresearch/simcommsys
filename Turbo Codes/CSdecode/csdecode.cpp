@@ -39,7 +39,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
          {
          C<int> decoded;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
-            system->getcodec()->decode(decoded);
+            system->decode(decoded);
          decoded.serialize(sout, '\n');
          }
       libbase::eatwhite(sin);

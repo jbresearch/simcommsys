@@ -245,8 +245,7 @@ void basic_commsys<S,C>::transmitandreceive(const C<int>& source)
    // Encode -> Map -> Modulate
    C<S> transmitted = encode_path(source);
    // Transmit
-   C<S> received;
-   this->chan->transmit(transmitted, received);
+   C<S> received = transmit(transmitted);
    // Demodulate -> Inverse Map -> Translate
    receive_path(received);
    }

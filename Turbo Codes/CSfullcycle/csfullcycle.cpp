@@ -29,8 +29,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
       std::cerr << ".";
       C<S> transmitted = system->encode_path(source);
       std::cerr << ".";
-      C<S> received;
-      system->getchan()->transmit(transmitted, received);
+      C<S> received = system->transmit(transmitted);
       std::cerr << ".";
       system->receive_path(received);
       std::cerr << ".";
@@ -48,7 +47,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
          {
          C<int> decoded;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
-            system->getcodec()->decode(decoded);
+            system->decode(decoded);
          std::cerr << ".";
          decoded.serialize(sout, '\n');
          }

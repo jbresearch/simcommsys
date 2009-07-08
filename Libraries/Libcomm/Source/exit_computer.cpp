@@ -108,7 +108,7 @@ void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    for(int i=0; i<get_iter(); i++)
       {
       // Decode & update results
-      sys->getcodec()->decode(decoded);
+      sys->decode(decoded);
       //R::updateresults(result, i, source, decoded);
       }
    // Keep record of what we last simulated

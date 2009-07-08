@@ -24,8 +24,7 @@ void process(const std::string& fname, double p, std::istream& sin=std::cin, std
       {
       C<S> transmitted(system->output_block_size());
       transmitted.serialize(sin);
-      C<S> received;
-      system->getchan()->transmit(transmitted, received);
+      C<S> received = system->transmit(transmitted);
       received.serialize(sout, '\n');
       libbase::eatwhite(sin);
       }
