@@ -44,10 +44,6 @@ protected:
    libbase::vector<int> createsource();
    void cycleonce(libbase::vector<double>& result);
    // @}
-   // System Interface for Results
-   int get_iter() const { return sys->getcodec()->num_iter(); };
-   int get_symbolsperblock() const { return sys->input_block_size(); };
-   int get_alphabetsize() const { return sys->num_inputs(); };
 public:
    /*! \name Constructors / Destructors */
    exit_computer(libbase::randgen *src, commsys<S> *sys);

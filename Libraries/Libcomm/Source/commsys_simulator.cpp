@@ -83,7 +83,7 @@ libbase::vector<int> commsys_simulator<S,R>::createsource()
    const int tau = sys->input_block_size();
    libbase::vector<int> source(tau);
    for(int t=0; t<tau; t++)
-      source(t) = src->ival(get_alphabetsize());
+      source(t) = src->ival(sys->num_inputs());
    return source;
    }
 
@@ -109,7 +109,7 @@ void commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
    sys->transmitandreceive(source);
    // For every iteration
    libbase::vector<int> decoded;
-   for(int i=0; i<get_iter(); i++)
+   for(int i=0; i<sys->getcodec()->num_iter(); i++)
       {
       // Decode & update results
       sys->decode(decoded);
