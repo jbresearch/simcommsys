@@ -23,6 +23,9 @@ namespace libcomm {
    General templated commsys.
    - Integrates functionality of binary variant.
    - Explicit instantiations for bool and gf types are present.
+
+   \todo Consider removing subcomponent getters, enforcing calls through this
+         interface
 */
 
 template <class S, template<class> class C=libbase::vector>
