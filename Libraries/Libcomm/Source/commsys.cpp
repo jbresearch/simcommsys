@@ -202,6 +202,13 @@ void basic_commsys<S,C>::translate(const C<S>& received)
    this->cdc->translate(ptable_encoded);
    }
 
+template <class S, template<class> class C>
+void basic_commsys<S,C>::decode(C<int>& decoded)
+   {
+   // Decode
+   this->cdc->decode(decoded);
+   }
+
 /*!
    The cycle consists of the steps depicted in the following diagram:
    \dot

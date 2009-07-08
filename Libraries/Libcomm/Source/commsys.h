@@ -79,6 +79,8 @@ public:
    C<S> encode(const C<int>& source);
    //! Perform complete translation path (demodulate -> unmap -> translate)
    virtual void translate(const C<S>& received);
+   //! Perform a decoding iteration, with hard decision
+   virtual void decode(C<int>& decoded);
    //! Perform a complete transmit/receive cycle, except for final decoding
    virtual void transmitandreceive(const C<int>& source);
    // @}
