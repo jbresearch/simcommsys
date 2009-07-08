@@ -71,7 +71,7 @@ public:
             correspond to the number of encoder output symbols, and therefore
             the number of modulation timesteps may be different from tau.
    */
-   virtual void translate(const C<array1d_t>& ptable) = 0;
+   virtual void init_decoder(const C<array1d_t>& ptable) = 0;
    /*!
       \brief Decoding process
       \param[out] decoded Most likely sequence of information symbols, one per timestep

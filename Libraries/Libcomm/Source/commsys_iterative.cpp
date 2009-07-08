@@ -18,7 +18,7 @@ namespace libcomm {
 // Communication System Interface
 
 template <class S, template<class> class C>
-void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
+void commsys_iterative<S,C>::init_decoder(const libbase::vector<S>& received)
    {
    // Demodulate
    libbase::vector< libbase::vector<double> > ptable_mapped;
@@ -34,7 +34,7 @@ void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
    libbase::vector< libbase::vector<double> > ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
-   this->cdc->translate(ptable_encoded);
+   this->cdc->init_decoder(ptable_encoded);
    }
 
 // Description & Serialization

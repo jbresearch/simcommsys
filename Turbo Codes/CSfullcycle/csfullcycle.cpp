@@ -32,7 +32,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
       C<S> received;
       system->getchan()->transmit(transmitted, received);
       std::cerr << ".";
-      system->translate(received);
+      system->init_decoder(received);
       std::cerr << ".";
       if(soft)
          {

@@ -12,7 +12,7 @@
 namespace libcomm {
 
 template <class dbl>
-void codec_softout<libbase::vector,dbl>::translate(const array1vd_t& ptable)
+void codec_softout<libbase::vector,dbl>::init_decoder(const array1vd_t& ptable)
    {
    array1vd_t temp;
    temp = ptable;
@@ -21,7 +21,7 @@ void codec_softout<libbase::vector,dbl>::translate(const array1vd_t& ptable)
    }
 
 template <class dbl>
-void codec_softout<libbase::vector,dbl>::translate(const array1vd_t& ptable, const array1vd_t& app)
+void codec_softout<libbase::vector,dbl>::init_decoder(const array1vd_t& ptable, const array1vd_t& app)
    {
    setreceiver(ptable);
    setpriors(app);

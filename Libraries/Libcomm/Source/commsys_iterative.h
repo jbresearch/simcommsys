@@ -30,7 +30,7 @@ private:
    // @}
 public:
    // Communication System Interface
-   void translate(const libbase::vector<S>& received);
+   void init_decoder(const libbase::vector<S>& received);
 
    // Description
    std::string description() const;

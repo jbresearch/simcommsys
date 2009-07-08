@@ -242,7 +242,7 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
 
    // decode repetition code (based on extrinsic information only)
    array1vd_t ro;
-   rep.translate(ravd,rp);
+   rep.init_decoder(ravd,rp);
    rep.softdecode(ri,ro);
 
 #if DEBUG>=2

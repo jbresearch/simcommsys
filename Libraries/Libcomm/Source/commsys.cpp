@@ -174,7 +174,8 @@ C<S> basic_commsys<S,C>::encode(const C<int>& source)
    }
 
 /*!
-   The translate process consists of the steps depicted in the following diagram:
+   The decoder initialization process consists of the steps depicted in the
+   following diagram:
    \dot
    digraph decode {
       // Make figure left-to-right
@@ -183,14 +184,14 @@ C<S> basic_commsys<S,C>::encode(const C<int>& source)
       node [ shape=box ];
       demodulate [ label="Demodulate" ];
       unmap [ label="Inverse Map" ];
-      translate [ label="Translate" ];
+      init_decoder [ label="Initialize Decoder" ];
       // path definitions
-      demodulate -> unmap -> translate;
+      demodulate -> unmap -> init_decoder;
    }
    \enddot
 */
 template <class S, template<class> class C>
-void basic_commsys<S,C>::translate(const C<S>& received)
+void basic_commsys<S,C>::init_decoder(const C<S>& received)
    {
    // Demodulate
    C<array1d_t> ptable_mapped;
@@ -199,7 +200,7 @@ void basic_commsys<S,C>::translate(const C<S>& received)
    C<array1d_t> ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
-   this->cdc->translate(ptable_encoded);
+   this->cdc->init_decoder(ptable_encoded);
    }
 
 template <class S, template<class> class C>
@@ -223,11 +224,11 @@ void basic_commsys<S,C>::decode(C<int>& decoded)
       transmit [ label="Transmit" ];
       demodulate [ label="Demodulate" ];
       unmap [ label="Inverse Map" ];
-      translate [ label="Translate" ];
+      init_decoder [ label="Initialize Decoder" ];
       // path definitions
       encode -> map -> modulate;
       modulate -> transmit -> demodulate;
-      demodulate -> unmap -> translate;
+      demodulate -> unmap -> init_decoder;
    }
    \enddot
 */
@@ -240,7 +241,7 @@ void basic_commsys<S,C>::transmitandreceive(const C<int>& source)
    C<S> received;
    this->chan->transmit(transmitted, received);
    // Demodulate -> Inverse Map -> Translate
-   translate(received);
+   init_decoder(received);
    }
 
 // Description & Serialization

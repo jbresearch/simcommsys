@@ -44,7 +44,7 @@ protected:
    */
    virtual void setpriors(const C<array1d_t>& ptable) = 0;
    /*!
-      \copydoc codec::translate()
+      \copydoc codec::init_decoder()
 
       \note Sets up receiver likelihood tables only.
    */
@@ -53,11 +53,11 @@ protected:
 public:
    /*! \name Codec operations */
    /*!
-      \copydoc codec::translate()
+      \copydoc codec::init_decoder()
       \param[in] app Likelihoods of each possible input symbol at every
                      (input) timestep
    */
-   virtual void translate(const C<array1d_t>& ptable, const C<array1d_t>& app) = 0;
+   virtual void init_decoder(const C<array1d_t>& ptable, const C<array1d_t>& app) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -121,8 +121,8 @@ public:
    // @}
 public:
    // Codec operations
-   void translate(const array1vd_t& ptable);
-   void translate(const array1vd_t& ptable, const array1vd_t& app);
+   void init_decoder(const array1vd_t& ptable);
+   void init_decoder(const array1vd_t& ptable, const array1vd_t& app);
    void decode(array1i_t& decoded);
 
    /*! \name Codec helper functions */

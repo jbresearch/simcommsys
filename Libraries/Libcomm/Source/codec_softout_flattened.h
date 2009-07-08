@@ -49,8 +49,8 @@ public:
 
    // Codec operations
    void encode(const array1i_t& source, array1i_t& encoded);
-   void translate(const array1vd_t& ptable);
-   void translate(const array1vd_t& ptable, const array1vd_t& app);
+   void init_decoder(const array1vd_t& ptable);
+   void init_decoder(const array1vd_t& ptable, const array1vd_t& app);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
    // Codec information functions - fundamental
@@ -103,25 +103,25 @@ void codec_softout_flattened<base_codec_softout,dbl>::encode(const array1i_t& so
    }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_flattened<base_codec_softout,dbl>::translate(const array1vd_t& ptable)
+void codec_softout_flattened<base_codec_softout,dbl>::init_decoder(const array1vd_t& ptable)
    {
    map_straight<libbase::vector,dbl> map;
    init(map);
    // Convert to a temporary space and translate
    array1vd_t ptable_flat;
    map.inverse(ptable, ptable_flat);
-   Base::translate(ptable_flat);
+   Base::init_decoder(ptable_flat);
    }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_flattened<base_codec_softout,dbl>::translate(const array1vd_t& ptable, const array1vd_t& app)
+void codec_softout_flattened<base_codec_softout,dbl>::init_decoder(const array1vd_t& ptable, const array1vd_t& app)
    {
    map_straight<libbase::vector,dbl> map;
    init(map);
    // Convert to a temporary space and translate
    array1vd_t ptable_flat;
    map.inverse(ptable, ptable_flat);
-   Base::translate(ptable_flat,app);
+   Base::init_decoder(ptable_flat,app);
    }
 
 template <class base_codec_softout, class dbl>

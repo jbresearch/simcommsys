@@ -26,7 +26,7 @@ void sysrepacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    }
 
 template <class real, class dbl>
-void sysrepacc<real,dbl>::translate(const array1vd_t& ptable)
+void sysrepacc<real,dbl>::init_decoder(const array1vd_t& ptable)
    {
    // Inherit sizes
    const int Ns = Base::input_block_size();
@@ -42,8 +42,8 @@ void sysrepacc<real,dbl>::translate(const array1vd_t& ptable)
    // Divide ptable for input and output sides
    const array1vd_t iptable = ptable.extract(0,Ns);
    const array1vd_t optable = ptable.extract(Ns,Np);
-   // Perform standard translate
-   Base::translate(optable);
+   // Perform standard decoder initialization
+   Base::init_decoder(optable);
    // Determine intrinsic source statistics (natural)
    // from the channel
    for(int i=0; i<Ns; i++)
@@ -53,7 +53,7 @@ void sysrepacc<real,dbl>::translate(const array1vd_t& ptable)
    }
 
 template <class real, class dbl>
-void sysrepacc<real,dbl>::translate(const array1vd_t& ptable, const array1vd_t& app)
+void sysrepacc<real,dbl>::init_decoder(const array1vd_t& ptable, const array1vd_t& app)
    {
    // Inherit sizes
    const int Ns = Base::input_block_size();
@@ -69,8 +69,8 @@ void sysrepacc<real,dbl>::translate(const array1vd_t& ptable, const array1vd_t& 
    // Divide ptable for input and output sides
    const array1vd_t iptable = ptable.extract(0,Ns);
    const array1vd_t optable = ptable.extract(Ns,Np);
-   // Perform standard translate
-   Base::translate(optable,app);
+   // Perform standard decoder initialization
+   Base::init_decoder(optable,app);
    // Determine intrinsic source statistics (natural)
    // from the channel
    for(int i=0; i<Ns; i++)

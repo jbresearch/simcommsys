@@ -185,7 +185,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate, const d
       // demodulate (build probability table)
       mdm.demodulate(chan, signal, ptable);
       // decode
-      m_pCodec->translate(ptable);
+      m_pCodec->init_decoder(ptable);
       for(i=0; i<m_pCodec->num_iter(); i++)
          m_pCodec->decode(decoded);
       // write into output stream
