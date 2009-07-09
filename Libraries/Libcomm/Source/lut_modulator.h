@@ -20,6 +20,7 @@ class lut_modulator :
 public:
    /*! \name Type definitions */
    typedef blockmodem<sigspace> Base;
+   typedef libbase::vector<double>     array1d_t;
    // @}
 
 protected:
@@ -28,7 +29,7 @@ protected:
 protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded, libbase::vector<sigspace>& tx);
-   void dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::vector< libbase::vector<double> >& ptable);
+   void dodemodulate(const channel<sigspace>& chan, const libbase::vector<sigspace>& rx, libbase::vector<array1d_t>& ptable);
 
 public:
    /*! \name Constructors / Destructors */

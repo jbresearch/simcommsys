@@ -18,10 +18,10 @@ namespace libcomm {
 // Communication System Interface
 
 template <class S, template<class> class C>
-void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
+void commsys_iterative<S,C>::receive_path(const C<S>& received)
    {
    // Demodulate
-   libbase::vector< libbase::vector<double> > ptable_mapped;
+   C<array1d_t> ptable_mapped;
    informed_modulator<S>& m = dynamic_cast<informed_modulator<S>&>(*this->mdm);
    for(int i=0; i<iter; i++)
       {
@@ -31,10 +31,10 @@ void commsys_iterative<S,C>::translate(const libbase::vector<S>& received)
       }
    m.mark_as_dirty();
    // Inverse Map
-   libbase::vector< libbase::vector<double> > ptable_encoded;
+   C<array1d_t> ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
-   this->cdc->translate(ptable_encoded);
+   this->cdc->init_decoder(ptable_encoded);
    }
 
 // Description & Serialization

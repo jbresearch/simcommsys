@@ -23,6 +23,9 @@ namespace libcomm {
    General templated commsys.
    - Integrates functionality of binary variant.
    - Explicit instantiations for bool and gf types are present.
+
+   \todo Consider removing subcomponent getters, enforcing calls through this
+         interface
 */
 
 template <class S, template<class> class C=libbase::vector>
@@ -75,21 +78,34 @@ public:
    // @}
 
    /*! \name Communication System Interface */
-   //! Perform complete encode path (encode -> map -> modulate)
-   C<S> encode(const C<int>& source);
-   //! Perform complete translation path (demodulate -> unmap -> translate)
-   virtual void translate(const C<S>& received);
-   //! Perform a complete transmit/receive cycle, except for final decoding
+   //! Perform complete encode path
+   virtual C<S> encode_path(const C<int>& source);
+   //! Perform channel transmission
+   virtual C<S> transmit(const C<S>& transmitted);
+   //! Perform complete receive path, except for final decoding
+   virtual void receive_path(const C<S>& received);
+   //! Perform a decoding iteration, with hard decision
+   virtual void decode(C<int>& decoded);
+   //! Perform a complete encode/transmit/receive cycle, except for final decoding
    virtual void transmitandreceive(const C<int>& source);
    // @}
 
    /*! \name Informative functions */
    //! Overall mapper rate
-   double rate() const { return cdc->rate() * map->rate(); };
+   double rate() const
+      { return cdc->rate() * map->rate(); }
+   //! Input alphabet size (number of valid symbols)
+   int num_inputs() const
+      { return cdc->num_inputs(); }
+   //! Output alphabet size (number of valid symbols)
+   int num_outputs() const
+      { return mdm->num_symbols(); }
    //! Input (ie. source/decoded) block size in symbols
-   libbase::size_type<C> input_block_size() const { return cdc->input_block_size(); };
+   libbase::size_type<C> input_block_size() const
+      { return cdc->input_block_size(); }
    //! Output (ie. transmitted/received) block size in symbols
-   libbase::size_type<C> output_block_size() const { return mdm->output_block_size(); };
+   libbase::size_type<C> output_block_size() const
+      { return mdm->output_block_size(); }
    // @}
 
    // Description

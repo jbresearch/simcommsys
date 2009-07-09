@@ -159,7 +159,7 @@ void basic_commsys<S,C>::seedfrom(libbase::random& r)
    \enddot
 */
 template <class S, template<class> class C>
-C<S> basic_commsys<S,C>::encode(const C<int>& source)
+C<S> basic_commsys<S,C>::encode_path(const C<int>& source)
    {
    // Encode
    C<int> encoded;
@@ -173,8 +173,16 @@ C<S> basic_commsys<S,C>::encode(const C<int>& source)
    return transmitted;
    }
 
+template <class S, template<class> class C>
+C<S> basic_commsys<S,C>::transmit(const C<S>& transmitted)
+   {
+   C<S> received;
+   this->chan->transmit(transmitted, received);
+   return received;
+   }
+
 /*!
-   The translate process consists of the steps depicted in the following diagram:
+   The receive path consists of the steps depicted in the following diagram:
    \dot
    digraph decode {
       // Make figure left-to-right
@@ -183,14 +191,14 @@ C<S> basic_commsys<S,C>::encode(const C<int>& source)
       node [ shape=box ];
       demodulate [ label="Demodulate" ];
       unmap [ label="Inverse Map" ];
-      translate [ label="Translate" ];
+      init_decoder [ label="Initialize Decoder" ];
       // path definitions
-      demodulate -> unmap -> translate;
+      demodulate -> unmap -> init_decoder;
    }
    \enddot
 */
 template <class S, template<class> class C>
-void basic_commsys<S,C>::translate(const C<S>& received)
+void basic_commsys<S,C>::receive_path(const C<S>& received)
    {
    // Demodulate
    C<array1d_t> ptable_mapped;
@@ -199,7 +207,14 @@ void basic_commsys<S,C>::translate(const C<S>& received)
    C<array1d_t> ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
-   this->cdc->translate(ptable_encoded);
+   this->cdc->init_decoder(ptable_encoded);
+   }
+
+template <class S, template<class> class C>
+void basic_commsys<S,C>::decode(C<int>& decoded)
+   {
+   // Decode
+   this->cdc->decode(decoded);
    }
 
 /*!
@@ -216,11 +231,11 @@ void basic_commsys<S,C>::translate(const C<S>& received)
       transmit [ label="Transmit" ];
       demodulate [ label="Demodulate" ];
       unmap [ label="Inverse Map" ];
-      translate [ label="Translate" ];
+      init_decoder [ label="Initialize Decoder" ];
       // path definitions
       encode -> map -> modulate;
       modulate -> transmit -> demodulate;
-      demodulate -> unmap -> translate;
+      demodulate -> unmap -> init_decoder;
    }
    \enddot
 */
@@ -228,12 +243,11 @@ template <class S, template<class> class C>
 void basic_commsys<S,C>::transmitandreceive(const C<int>& source)
    {
    // Encode -> Map -> Modulate
-   C<S> transmitted = encode(source);
+   C<S> transmitted = encode_path(source);
    // Transmit
-   C<S> received;
-   this->chan->transmit(transmitted, received);
+   C<S> received = transmit(transmitted);
    // Demodulate -> Inverse Map -> Translate
-   translate(received);
+   receive_path(received);
    }
 
 // Description & Serialization

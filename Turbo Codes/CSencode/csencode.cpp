@@ -22,7 +22,7 @@ void process(const std::string& fname, std::istream& sin=std::cin, std::ostream&
       {
       C<int> source(system->input_block_size());
       source.serialize(sin);
-      C<S> transmitted = system->encode(source);
+      C<S> transmitted = system->encode_path(source);
       transmitted.serialize(sout, '\n');
       libbase::eatwhite(sin);
       }

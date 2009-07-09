@@ -25,11 +25,11 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
       {
       C<S> received(system->output_block_size());
       received.serialize(sin);
-      system->translate(received);
+      system->receive_path(received);
       if(soft)
          {
-         libcomm::codec_softout<double,C>& cdc =
-            dynamic_cast< libcomm::codec_softout<double,C>& >(*system->getcodec());
+         libcomm::codec_softout<C>& cdc =
+            dynamic_cast< libcomm::codec_softout<C>& >(*system->getcodec());
          C< libbase::vector<double> > ptable;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
             cdc.softdecode(ptable);
@@ -39,7 +39,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin=st
          {
          C<int> decoded;
          for(int i=0; i<system->getcodec()->num_iter(); i++)
-            system->getcodec()->decode(decoded);
+            system->decode(decoded);
          decoded.serialize(sout, '\n');
          }
       libbase::eatwhite(sin);

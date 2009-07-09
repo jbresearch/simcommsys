@@ -19,17 +19,15 @@ namespace libcomm {
    - $Author$
 
    Class defines common interface for blockmodem classes.
-
-   \todo Templatize with respect to the type used for the likelihood table
 */
 
-template <class S, template<class> class C=libbase::vector>
+template <class S, template<class> class C=libbase::vector, class dbl=double>
 class basic_blockmodem :
    public modem<S>,
    public blockprocess {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>     array1d_t;
    // @}
 
 private:
@@ -115,8 +113,8 @@ public:
    Class defines base interface for blockmodem classes.
 */
 
-template <class S, template<class> class C=libbase::vector>
-class blockmodem : public basic_blockmodem<S,C> {
+template <class S, template<class> class C=libbase::vector, class dbl=double>
+class blockmodem : public basic_blockmodem<S,C,dbl> {
 public:
    //! Virtual destructor
    virtual ~blockmodem() {};

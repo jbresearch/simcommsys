@@ -16,8 +16,9 @@ namespace libcomm {
    - $Author$
 */
 
-template <class dbl, template<class> class C=libbase::vector>
-class codec_softout_interface : public codec<C> {
+template <template<class> class C=libbase::vector, class dbl=double>
+class codec_softout_interface :
+   public codec<C,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl>     array1d_t;
@@ -43,7 +44,7 @@ protected:
    */
    virtual void setpriors(const C<array1d_t>& ptable) = 0;
    /*!
-      \copydoc codec::translate()
+      \copydoc codec::init_decoder()
 
       \note Sets up receiver likelihood tables only.
    */
@@ -52,11 +53,11 @@ protected:
 public:
    /*! \name Codec operations */
    /*!
-      \copydoc codec::translate()
+      \copydoc codec::init_decoder()
       \param[in] app Likelihoods of each possible input symbol at every
                      (input) timestep
    */
-   virtual void translate(const C<array1d_t>& ptable, const C<array1d_t>& app) = 0;
+   virtual void init_decoder(const C<array1d_t>& ptable, const C<array1d_t>& app) = 0;
    /*!
       \brief Decoding process
       \param[out] ri Likelihood table for input symbols at every timestep
@@ -90,8 +91,9 @@ public:
    partial specialization of the container.
 */
 
-template <class dbl, template<class> class C=libbase::vector>
-class codec_softout : public codec_softout_interface<dbl,C> {
+template <template<class> class C=libbase::vector, class dbl=double>
+class codec_softout :
+   public codec_softout_interface<C,dbl> {
 public:
 };
 
@@ -109,7 +111,8 @@ public:
 */
 
 template <class dbl>
-class codec_softout<dbl,libbase::vector> : public codec_softout_interface<dbl,libbase::vector> {
+class codec_softout<libbase::vector,dbl> :
+   public codec_softout_interface<libbase::vector,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
@@ -118,8 +121,8 @@ public:
    // @}
 public:
    // Codec operations
-   void translate(const libbase::vector< libbase::vector<double> >& ptable);
-   void translate(const array1vd_t& ptable, const array1vd_t& app);
+   void init_decoder(const array1vd_t& ptable);
+   void init_decoder(const array1vd_t& ptable, const array1vd_t& app);
    void decode(array1i_t& decoded);
 
    /*! \name Codec helper functions */

@@ -63,7 +63,7 @@ namespace libcomm {
 
 template <class real, class dbl=double>
 class turbo :
-   public codec_softout<dbl>,
+   public codec_softout<libbase::vector,dbl>,
    private safe_bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
@@ -75,7 +75,7 @@ public:
 private:
    // Shorthand for class hierarchy
    typedef turbo<real,dbl> This;
-   typedef codec_softout<dbl> Base;
+   typedef codec_softout<libbase::vector,dbl> Base;
    typedef safe_bcjr<real,dbl> BCJR;
 private:
    /*! \name User-defined parameters */

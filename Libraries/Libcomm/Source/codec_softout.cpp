@@ -12,7 +12,7 @@
 namespace libcomm {
 
 template <class dbl>
-void codec_softout<dbl,libbase::vector>::translate(const libbase::vector< libbase::vector<double> >& ptable)
+void codec_softout<libbase::vector,dbl>::init_decoder(const array1vd_t& ptable)
    {
    array1vd_t temp;
    temp = ptable;
@@ -21,14 +21,14 @@ void codec_softout<dbl,libbase::vector>::translate(const libbase::vector< libbas
    }
 
 template <class dbl>
-void codec_softout<dbl,libbase::vector>::translate(const array1vd_t& ptable, const array1vd_t& app)
+void codec_softout<libbase::vector,dbl>::init_decoder(const array1vd_t& ptable, const array1vd_t& app)
    {
    setreceiver(ptable);
    setpriors(app);
    }
 
 template <class dbl>
-void codec_softout<dbl,libbase::vector>::decode(array1i_t& decoded)
+void codec_softout<libbase::vector,dbl>::decode(array1i_t& decoded)
    {
    array1vd_t ri;
    softdecode(ri);
@@ -36,7 +36,7 @@ void codec_softout<dbl,libbase::vector>::decode(array1i_t& decoded)
    }
 
 template <class dbl>
-void codec_softout<dbl,libbase::vector>::hard_decision(const array1vd_t& ri, array1i_t& decoded)
+void codec_softout<libbase::vector,dbl>::hard_decision(const array1vd_t& ri, array1i_t& decoded)
    {
    // Determine sizes from input matrix
    const int tau = ri.size();
@@ -63,8 +63,11 @@ void codec_softout<dbl,libbase::vector>::hard_decision(const array1vd_t& ri, arr
 
 namespace libcomm {
 
-template class codec_softout<float>;
-template class codec_softout<double>;
-template class codec_softout<libbase::logrealfast>;
+using libbase::vector;
+using libbase::logrealfast;
+
+template class codec_softout<vector,float>;
+template class codec_softout<vector,double>;
+template class codec_softout<vector,logrealfast>;
 
 }; // end namespace

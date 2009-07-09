@@ -1,17 +1,16 @@
-#ifndef __commsys_simulator_h
-#define __commsys_simulator_h
+#ifndef __exit_computer_h
+#define __exit_computer_h
 
 #include "config.h"
-#include "commsys_errorrates.h"
-#include "experiment_binomial.h"
-#include "randgen.h"
+#include "experiment_normal.h"
 #include "commsys.h"
+#include "randgen.h"
 #include "serializer.h"
 
 namespace libcomm {
 
 /*!
-   \brief   Communication Systems Simulator.
+   \brief   EXIT Chart Computer.
    \author  Johann Briffa
 
    \section svn Version Control
@@ -19,12 +18,13 @@ namespace libcomm {
    - $Date$
    - $Author$
 
-   \todo Clean up interface with commsys object, particularly in cycleonce()
+   \warning Currently this is just a placeholder; functionality still needs
+            to be written.
 */
 
-template <class S, class R=commsys_errorrates>
-class commsys_simulator
-   : public experiment_binomial, public R {
+template <class S>
+class exit_computer
+   : public experiment_normal {
 protected:
    /*! \name Bound objects */
    //! Flag to indicate whether the objects should be released on destruction
@@ -44,16 +44,12 @@ protected:
    libbase::vector<int> createsource();
    void cycleonce(libbase::vector<double>& result);
    // @}
-   // System Interface for Results
-   int get_iter() const { return sys->getcodec()->num_iter(); };
-   int get_symbolsperblock() const { return sys->input_block_size(); };
-   int get_alphabetsize() const { return sys->num_inputs(); };
 public:
    /*! \name Constructors / Destructors */
-   commsys_simulator(libbase::randgen *src, commsys<S> *sys);
-   commsys_simulator(const commsys_simulator<S,R>& c);
-   commsys_simulator() { clear(); };
-   virtual ~commsys_simulator() { free(); };
+   exit_computer(libbase::randgen *src, commsys<S> *sys);
+   exit_computer(const exit_computer<S>& c);
+   exit_computer() { clear(); };
+   virtual ~exit_computer() { free(); };
    // @}
 
    // Experiment parameter handling
@@ -63,9 +59,9 @@ public:
 
    // Experiment handling
    void sample(libbase::vector<double>& result);
-   int count() const { return R::count(); };
-   int get_multiplicity(int i) const { return R::get_multiplicity(i); };
-   std::string result_description(int i) const { return R::result_description(i); };
+   int count() const { return 1; };
+   int get_multiplicity(int i) const { return 1; };
+   std::string result_description(int i) const { return ""; };
    libbase::vector<int> get_event() const { return last_event; };
 
    /*! \name Component object handles */
@@ -77,7 +73,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(commsys_simulator);
+   DECLARE_SERIALIZER(exit_computer);
 };
 
 }; // end namespace

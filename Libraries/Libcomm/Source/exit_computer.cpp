@@ -7,11 +7,7 @@
    - $Author$
 */
 
-#include "commsys_simulator.h"
-#include "commsys_prof_burst.h"
-#include "commsys_prof_pos.h"
-#include "commsys_prof_sym.h"
-#include "commsys_hist_symerr.h"
+#include "exit_computer.h"
 
 #include "map_straight.h"
 #include "fsm.h"
@@ -37,8 +33,8 @@ namespace libcomm {
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S, class R>
-void commsys_simulator<S,R>::clear()
+template <class S>
+void exit_computer<S>::clear()
    {
    src = NULL;
    sys = NULL;
@@ -57,8 +53,8 @@ void commsys_simulator<S,R>::clear()
          Anything else should get done automatically when the base
          serializer or constructor is called.
 */
-template <class S, class R>
-void commsys_simulator<S,R>::free()
+template <class S>
+void exit_computer<S>::free()
    {
    if(internallyallocated)
       {
@@ -77,8 +73,8 @@ void commsys_simulator<S,R>::free()
    The source sequence consists of uniformly random symbols followed by a
    tail sequence if required by the given codec.
 */
-template <class S, class R>
-libbase::vector<int> commsys_simulator<S,R>::createsource()
+template <class S>
+libbase::vector<int> exit_computer<S>::createsource()
    {
    const int tau = sys->input_block_size();
    libbase::vector<int> source(tau);
@@ -99,8 +95,8 @@ libbase::vector<int> commsys_simulator<S,R>::createsource()
          to divide by the appropriate amount at the end to compute a meaningful
          average.
 */
-template <class S, class R>
-void commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
+template <class S>
+void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    {
    assert(result.size() == count());
    // Create source stream
@@ -113,7 +109,7 @@ void commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
       {
       // Decode & update results
       sys->decode(decoded);
-      R::updateresults(result, i, source, decoded);
+      //R::updateresults(result, i, source, decoded);
       }
    // Keep record of what we last simulated
    const int tau = sys->input_block_size();
@@ -134,8 +130,8 @@ void commsys_simulator<S,R>::cycleonce(libbase::vector<double>& result)
 
    Initializes system with bound objects as supplied by user.
 */
-template <class S, class R>
-commsys_simulator<S,R>::commsys_simulator(libbase::randgen *src, commsys<S> *sys)
+template <class S>
+exit_computer<S>::exit_computer(libbase::randgen *src, commsys<S> *sys)
    {
    this->src = src;
    this->sys = sys;
@@ -147,8 +143,8 @@ commsys_simulator<S,R>::commsys_simulator(libbase::randgen *src, commsys<S> *sys
 
    Initializes system with bound objects cloned from supplied system.
 */
-template <class S, class R>
-commsys_simulator<S,R>::commsys_simulator(const commsys_simulator<S,R>& c)
+template <class S>
+exit_computer<S>::exit_computer(const exit_computer<S>& c)
    {
    this->src = new libbase::randgen;
    this->sys = c.sys->clone();
@@ -157,8 +153,8 @@ commsys_simulator<S,R>::commsys_simulator(const commsys_simulator<S,R>& c)
 
 // Experiment parameter handling
 
-template <class S, class R>
-void commsys_simulator<S,R>::seedfrom(libbase::random& r)
+template <class S>
+void exit_computer<S>::seedfrom(libbase::random& r)
    {
    src->seed(r.ival());
    sys->seedfrom(r);
@@ -166,8 +162,8 @@ void commsys_simulator<S,R>::seedfrom(libbase::random& r)
 
 // Experiment handling
 
-template <class S, class R>
-void commsys_simulator<S,R>::sample(libbase::vector<double>& result)
+template <class S>
+void exit_computer<S>::sample(libbase::vector<double>& result)
    {
    // initialise result vector
    result.init(count());
@@ -178,8 +174,8 @@ void commsys_simulator<S,R>::sample(libbase::vector<double>& result)
 
 // Description & Serialization
 
-template <class S, class R>
-std::string commsys_simulator<S,R>::description() const
+template <class S>
+std::string exit_computer<S>::description() const
    {
    std::ostringstream sout;
    sout << "Simulator for ";
@@ -187,15 +183,15 @@ std::string commsys_simulator<S,R>::description() const
    return sout.str();
    }
 
-template <class S, class R>
-std::ostream& commsys_simulator<S,R>::serialize(std::ostream& sout) const
+template <class S>
+std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
    {
    sout << sys;
    return sout;
    }
 
-template <class S, class R>
-std::istream& commsys_simulator<S,R>::serialize(std::istream& sin)
+template <class S>
+std::istream& exit_computer<S>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
@@ -209,46 +205,31 @@ std::istream& commsys_simulator<S,R>::serialize(std::istream& sin)
 using libbase::serializer;
 using libbase::gf;
 
-template class commsys_simulator<sigspace>;
+template class exit_computer<sigspace>;
 template <>
-const serializer commsys_simulator<sigspace>::shelper("experiment", "commsys_simulator<sigspace>", commsys_simulator<sigspace>::create);
+const serializer exit_computer<sigspace>::shelper("experiment", "exit_computer<sigspace>", exit_computer<sigspace>::create);
 
-template class commsys_simulator<bool>;
+template class exit_computer<bool>;
 template <>
-const serializer commsys_simulator<bool>::shelper("experiment", "commsys_simulator<bool>", commsys_simulator<bool>::create);
+const serializer exit_computer<bool>::shelper("experiment", "exit_computer<bool>", exit_computer<bool>::create);
 
-template class commsys_simulator< gf<1,0x3> >;
+template class exit_computer< gf<1,0x3> >;
 template <>
-const serializer commsys_simulator< gf<1,0x3> >::shelper("experiment", "commsys_simulator<gf<1,0x3>>", commsys_simulator< gf<1,0x3> >::create);
-template class commsys_simulator< gf<2,0x7> >;
+const serializer exit_computer< gf<1,0x3> >::shelper("experiment", "exit_computer<gf<1,0x3>>", exit_computer< gf<1,0x3> >::create);
+template class exit_computer< gf<2,0x7> >;
 template <>
-const serializer commsys_simulator< gf<2,0x7> >::shelper("experiment", "commsys_simulator<gf<2,0x7>>", commsys_simulator< gf<2,0x7> >::create);
-template class commsys_simulator< gf<3,0xB> >;
+const serializer exit_computer< gf<2,0x7> >::shelper("experiment", "exit_computer<gf<2,0x7>>", exit_computer< gf<2,0x7> >::create);
+template class exit_computer< gf<3,0xB> >;
 template <>
-const serializer commsys_simulator< gf<3,0xB> >::shelper("experiment", "commsys_simulator<gf<3,0xB>>", commsys_simulator< gf<3,0xB> >::create);
-template class commsys_simulator< gf<4,0x13> >;
+const serializer exit_computer< gf<3,0xB> >::shelper("experiment", "exit_computer<gf<3,0xB>>", exit_computer< gf<3,0xB> >::create);
+template class exit_computer< gf<4,0x13> >;
 template <>
-const serializer commsys_simulator< gf<4,0x13> >::shelper("experiment", "commsys_simulator<gf<4,0x13>>", commsys_simulator< gf<4,0x13> >::create);
+const serializer exit_computer< gf<4,0x13> >::shelper("experiment", "exit_computer<gf<4,0x13>>", exit_computer< gf<4,0x13> >::create);
 
 // realizations for non-default containers
 
-// template class commsys_simulator<bool,matrix>;
+// template class exit_computer<bool,matrix>;
 // template <>
-// const serializer commsys_simulator<bool,matrix>::shelper("experiment", "commsys_simulator<bool,matrix>", commsys_simulator<bool,matrix>::create);
-
-// realizations for non-default results collectors
-
-template class commsys_simulator<bool,commsys_prof_burst>;
-template <>
-const serializer commsys_simulator<bool,commsys_prof_burst>::shelper("experiment", "commsys_simulator<bool,prof_burst>", commsys_simulator<bool,commsys_prof_burst>::create);
-template class commsys_simulator<bool,commsys_prof_pos>;
-template <>
-const serializer commsys_simulator<bool,commsys_prof_pos>::shelper("experiment", "commsys_simulator<bool,prof_pos>", commsys_simulator<bool,commsys_prof_pos>::create);
-template class commsys_simulator<bool,commsys_prof_sym>;
-template <>
-const serializer commsys_simulator<bool,commsys_prof_sym>::shelper("experiment", "commsys_simulator<bool,prof_sym>", commsys_simulator<bool,commsys_prof_sym>::create);
-template class commsys_simulator<bool,commsys_hist_symerr>;
-template <>
-const serializer commsys_simulator<bool,commsys_hist_symerr>::shelper("experiment", "commsys_simulator<bool,hist_symerr>", commsys_simulator<bool,commsys_hist_symerr>::create);
+// const serializer exit_computer<bool,matrix>::shelper("experiment", "exit_computer<bool,matrix>", exit_computer<bool,matrix>::create);
 
 }; // end namespace

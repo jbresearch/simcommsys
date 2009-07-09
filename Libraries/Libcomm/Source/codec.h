@@ -26,18 +26,16 @@ namespace libcomm {
          input and output sequences of the codec and to better separate this
          class from the modulation class.
 
-   \todo Templatize with respect to soft-value arithmetic
-
    \todo Merge num_symbols() with num_outputs() as these should be the same
 
    \todo Remove tail_length() as tailing should be handled internally
 */
 
-template <template<class> class C=libbase::vector>
+template <template<class> class C=libbase::vector, class dbl=double>
 class codec {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<double>     array1d_t;
+   typedef libbase::vector<dbl>     array1d_t;
    // @}
 
 public:
@@ -73,7 +71,7 @@ public:
             correspond to the number of encoder output symbols, and therefore
             the number of modulation timesteps may be different from tau.
    */
-   virtual void translate(const C<array1d_t>& ptable) = 0;
+   virtual void init_decoder(const C<array1d_t>& ptable) = 0;
    /*!
       \brief Decoding process
       \param[out] decoded Most likely sequence of information symbols, one per timestep
@@ -91,9 +89,9 @@ public:
    virtual libbase::size_type<C> input_block_size() const = 0;
    //! Output block size in symbols
    virtual libbase::size_type<C> output_block_size() const = 0;
-   //! Number of valid input combinations
+   //! Input alphabet size (number of valid symbols)
    virtual int num_inputs() const = 0;
-   //! Number of valid output combinations
+   //! Output alphabet size (number of valid symbols)
    virtual int num_outputs() const = 0;
    //! Channel symbol alphabet size required for translation
    virtual int num_symbols() const { return num_outputs(); };

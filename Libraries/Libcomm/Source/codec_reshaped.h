@@ -57,10 +57,10 @@ public:
       libbase::trace << "DEBUG (codec_reshaped): encoded_v = " << encoded_v;
 #endif
       }
-   void translate(const libbase::matrix<array1d_t>& ptable)
+   void init_decoder(const libbase::matrix<array1d_t>& ptable)
       {
       libbase::vector<array1d_t> ptable_v = ptable;
-      base.translate(ptable_v);
+      base.init_decoder(ptable_v);
       }
    void decode(libbase::matrix<int>& decoded)
       {

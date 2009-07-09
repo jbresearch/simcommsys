@@ -18,16 +18,16 @@ namespace libcomm {
 
 // Vector modem operations
 
-template <class S, template<class> class C>
-void basic_blockmodem<S,C>::modulate(const int N, const C<int>& encoded, C<S>& tx)
+template <class S, template<class> class C, class dbl>
+void basic_blockmodem<S,C,dbl>::modulate(const int N, const C<int>& encoded, C<S>& tx)
    {
    test_invariant();
    advance_always();
    domodulate(N, encoded, tx);
    }
 
-template <class S, template<class> class C>
-void basic_blockmodem<S,C>::demodulate(const channel<S,C>& chan, const C<S>& rx, C<array1d_t>& ptable)
+template <class S, template<class> class C, class dbl>
+void basic_blockmodem<S,C,dbl>::demodulate(const channel<S,C>& chan, const C<S>& rx, C<array1d_t>& ptable)
    {
    test_invariant();
    advance_if_dirty();

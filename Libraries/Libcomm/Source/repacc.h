@@ -31,7 +31,7 @@ namespace libcomm {
 */
 
 template <class real, class dbl=double>
-class repacc : public codec_softout<dbl>, protected safe_bcjr<real,dbl> {
+class repacc : public codec_softout<libbase::vector,dbl>, protected safe_bcjr<real,dbl> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int>        array1i_t;
