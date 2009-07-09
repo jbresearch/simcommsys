@@ -105,6 +105,6 @@ inline pixel operator+(const pixel& a, const pixel& b)
    return c;
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

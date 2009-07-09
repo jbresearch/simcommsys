@@ -12,20 +12,22 @@
 namespace makesrandom {
 
 /*!
-   \brief Vector-type container for S-Random interleaver creation
-   This vector container has the following addional abilities:
-   * removing an element from the middle
-   * initializing with numerical sequence
-*/
+ \brief Vector-type container for S-Random interleaver creation
+ This vector container has the following addional abilities:
+ * removing an element from the middle
+ * initializing with numerical sequence
+ */
 template <class T>
-class DerivedVector : public libbase::vector<T>
-{
+class DerivedVector : public libbase::vector<T> {
 private:
    typedef libbase::vector<T> Base;
    using Base::m_size;
    using Base::m_data;
 public:
-   DerivedVector(const int x=0) : Base(x) {};
+   DerivedVector(const int x = 0) :
+      Base(x)
+      {
+      }
    void remove(const int x);
    void sequence();
 };
@@ -34,21 +36,22 @@ template <class T>
 void DerivedVector<T>::remove(const int x)
    {
    assert(x < m_size.length());
-   for(int i=x; i<m_size.length()-1; i++)
-      m_data[i] = m_data[i+1];
-   m_size = libbase::size_type<libbase::vector>(m_size.length()-1);
+   for (int i = x; i < m_size.length() - 1; i++)
+      m_data[i] = m_data[i + 1];
+   m_size = libbase::size_type<libbase::vector>(m_size.length() - 1);
    }
 
 template <class T>
 void DerivedVector<T>::sequence()
    {
-   for(int i=0; i<m_size.length(); i++)
+   for (int i = 0; i < m_size.length(); i++)
       m_data[i] = i;
    }
 
 //! S-Random creation process
 
-libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u& seed, const int max_attempts)
+libbase::vector<int> create_srandom(const int tau, int& spread,
+      libbase::int32u& seed, const int max_attempts)
    {
    // set up common elements
    libbase::truerand trng;
@@ -62,7 +65,8 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
    int attempt = 0;
    // loop for a number of attempts at the given Spread, then
    // reduce and continue as necessary
-   do {
+   do
+      {
       std::cerr << p.update(attempt, max_attempts);
       // re-seed random generator
       seed = seeder.ival();
@@ -72,7 +76,7 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
       unused.sequence();
       // loop to fill all entries in the interleaver - or until we fail
       failed = false;
-      for(int i=0; i<tau && !failed; i++)
+      for (int i = 0; i < tau && !failed; i++)
          {
          // set up for the current entry
          DerivedVector<int> untried = unused;
@@ -82,21 +86,22 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
          bool good;
          // loop for the current entry - until we manage to find a suitable value
          // or totally fail in trying
-         do {
+         do
+            {
             // choose a random number from what's left to try
             ndx = prng.ival(untried.size());
             n = untried(ndx);
             // see if it's a suitable value (ie satisfies spread constraint)
             good = true;
-            for(int j=std::max(0,i-spread); j<i; j++)
-               if(abs(lut(j)-n) < spread)
+            for (int j = std::max(0, i - spread); j < i; j++)
+               if (abs(lut(j) - n) < spread)
                   {
                   good = false;
                   break;
                   }
             // if it's no good remove it from the list of options,
             // if it's good then insert it into the interleaver & mark that number as used
-            if(!good)
+            if (!good)
                {
                untried.remove(ndx);
                index.remove(ndx);
@@ -107,13 +112,13 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
                unused.remove(index(ndx));
                lut(i) = n;
                }
-            } while(!good && !failed);
+            } while (!good && !failed);
          }
       // if this failed, prepare for the next attempt
-      if(failed)
+      if (failed)
          {
          attempt++;
-         if(attempt >= max_attempts)
+         if (attempt >= max_attempts)
             {
             attempt = 0;
             spread--;
@@ -121,7 +126,7 @@ libbase::vector<int> create_srandom(const int tau, int& spread, libbase::int32u&
             std::cerr << "Searching for solution at spread " << spread << "\n";
             }
          }
-      } while(failed);
+      } while (failed);
 
    return lut;
    }
@@ -137,7 +142,8 @@ std::string compose_filename(int tau, int spread, libbase::int32u seed)
 
 //! Saves the interleaver to the given stream
 
-void serialize_interleaver(std::ostream& sout, libbase::vector<int> lut, int tau, int spread, libbase::int32u seed, double elapsed)
+void serialize_interleaver(std::ostream& sout, libbase::vector<int> lut,
+      int tau, int spread, libbase::int32u seed, double elapsed)
    {
    sout << "#% Size: " << tau << "\n";
    sout << "#% Spread: " << spread << "\n";
@@ -148,14 +154,14 @@ void serialize_interleaver(std::ostream& sout, libbase::vector<int> lut, int tau
    }
 
 /*!
-   \brief   S-Random Interleaver Creator
-   \author  Johann Briffa
+ \brief   S-Random Interleaver Creator
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 int main(int argc, char *argv[])
    {
@@ -164,30 +170,26 @@ int main(int argc, char *argv[])
    // Set up user parameters
    namespace po = boost::program_options;
    po::options_description desc("Allowed options");
-   desc.add_options()
-      ("help", "print this help message")
-      ("tau,t", po::value<int>(),
-         "interleaver length")
-      ("spread,s", po::value<int>(),
-         "interleaver spread to start with")
-      ("attempts,n", po::value<int>()->default_value(1000),
-         "number of attempts before reducing spread")
-      ;
+   desc.add_options()("help", "print this help message")("tau,t",
+         po::value<int>(), "interleaver length")("spread,s", po::value<int>(),
+         "interleaver spread to start with")("attempts,n",
+         po::value<int>()->default_value(1000),
+         "number of attempts before reducing spread");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
    // Validate user parameters
-   if(vm.count("help"))
+   if (vm.count("help"))
       {
       std::cerr << desc << "\n";
       return 1;
       }
 
    // Interpret arguments
-   const int tau = vm["tau"].as<int>();
-   int spread = vm["spread"].as<int>();
-   const int max_attempts = vm["attempts"].as<int>();
+   const int tau = vm["tau"].as<int> ();
+   int spread = vm["spread"].as<int> ();
+   const int max_attempts = vm["attempts"].as<int> ();
    // Main process
    libbase::int32u seed = 0;
    libbase::vector<int> lut = create_srandom(tau, spread, seed, max_attempts);
@@ -199,7 +201,7 @@ int main(int argc, char *argv[])
    return 0;
    }
 
-}; // end namespace
+} // end namespace
 
 int main(int argc, char *argv[])
    {

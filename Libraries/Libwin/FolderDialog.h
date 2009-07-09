@@ -43,6 +43,6 @@ protected:
    HWND m_hWnd;
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

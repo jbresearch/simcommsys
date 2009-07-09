@@ -7,17 +7,17 @@
 namespace libcomm {
 
 /*!
-   \brief   Generalized Recursive Systematic Convolutional Code.
-   \author  Johann Briffa
+ \brief   Generalized Recursive Systematic Convolutional Code.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Implements RSCC where polynomial coefficients are elements of a finite
-   field, which is specified as a template parameter.
-*/
+ Implements RSCC where polynomial coefficients are elements of a finite
+ field, which is specified as a template parameter.
+ */
 
 template <class G>
 class grscc : public ccfsm<G> {
@@ -38,13 +38,23 @@ protected:
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
-   grscc() {};
+   grscc()
+      {
+      }
    // @}
 public:
    /*! \name Constructors / Destructors */
-   grscc(const libbase::matrix< libbase::vector<G> >& generator) : ccfsm<G>(generator) {};
-   grscc(const grscc<G>& x) : ccfsm<G>(x) {};
-   ~grscc() {};
+   grscc(const libbase::matrix<libbase::vector<G> >& generator) :
+      ccfsm<G> (generator)
+      {
+      }
+   grscc(const grscc<G>& x) :
+      ccfsm<G> (x)
+      {
+      }
+   ~grscc()
+      {
+      }
    // @}
 
    // FSM state operations (getting and resetting)
@@ -54,10 +64,10 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(grscc);
+DECLARE_SERIALIZER(grscc);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "sha.h"
 
@@ -19,7 +19,8 @@ bool sha::tested = false;
 
 // Const values
 
-const libbase::int32u sha::K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
+const libbase::int32u sha::K[] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc,
+      0xca62c1d6};
 
 // Construction/Destruction
 
@@ -31,7 +32,7 @@ sha::sha()
    // set byte-order flag
    lsbfirst = false;
    // perform implementation tests on algorithm, exit on failure
-   if(!tested)
+   if (!tested)
       selftest();
    }
 
@@ -56,9 +57,10 @@ void sha::process_block(const libbase::vector<libbase::int32u>& M)
    // copy variables
    libbase::vector<libbase::int32u> hash = m_hash;
    // main loop
-   for(int t=0; t<80; t++)
+   for (int t = 0; t < 80; t++)
       {
-      const libbase::int32u temp = cshift(hash(0),5) + f(t,hash(1),hash(2),hash(3)) + hash(4) + W(t) + K[t/20];
+      const libbase::int32u temp = cshift(hash(0), 5) + f(t, hash(1), hash(2),
+            hash(3)) + hash(4) + W(t) + K[t / 20];
       hash(4) = hash(3);
       hash(3) = hash(2);
       hash(2) = cshift(hash(1), 30);
@@ -93,14 +95,15 @@ void sha::selftest()
    assertalways(verify(sMessage,sHash));
    // Test libbase::vector 3
    sMessage = "";
-   for(int i=0; i<1000000; i++)
+   for (int i = 0; i < 1000000; i++)
       sMessage += "a";
    sHash = "34aa973cd4c4daa4f61eeb2bdbad27316534016f";
    assertalways(verify(sMessage,sHash));
    // Test libbase::vector 4
    sMessage = "";
-   for(int i=0; i<10; i++)
-      sMessage += "0123456701234567012345670123456701234567012345670123456701234567";
+   for (int i = 0; i < 10; i++)
+      sMessage
+            += "0123456701234567012345670123456701234567012345670123456701234567";
    sHash = "dea356a2cddd90c7a7ecedc5ebb563934f460452";
    assertalways(verify(sMessage,sHash));
    }
@@ -118,10 +121,11 @@ bool sha::verify(const std::string message, const std::string hash)
 
 // SHA nonlinear function implementations
 
-libbase::int32u sha::f(const int t, const libbase::int32u X, const libbase::int32u Y, const libbase::int32u Z)
+libbase::int32u sha::f(const int t, const libbase::int32u X,
+      const libbase::int32u Y, const libbase::int32u Z)
    {
    assert(t<80);
-   switch(t/20)
+   switch (t / 20)
       {
       case 0:
          return (X & Y) | ((~X) & Z);
@@ -139,12 +143,13 @@ libbase::int32u sha::f(const int t, const libbase::int32u X, const libbase::int3
 
 libbase::int32u sha::cshift(const libbase::int32u x, const int s)
    {
-   return (x << s) | (x >> (32-s));
+   return (x << s) | (x >> (32 - s));
    }
 
 // Message expansion function
 
-void sha::expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libbase::int32u>& W)
+void sha::expand(const libbase::vector<libbase::int32u>& M, libbase::vector<
+      libbase::int32u>& W)
    {
    // check input size
    assert(M.size() == 16);
@@ -152,10 +157,10 @@ void sha::expand(const libbase::vector<libbase::int32u>& M, libbase::vector<libb
    W.init(80);
    // initialize values
    int i;
-   for(i=0; i<16; i++)
+   for (i = 0; i < 16; i++)
       W(i) = M(i);
-   for(i=16; i<80; i++)
-      W(i) = cshift(W(i-3) ^ W(i-8) ^ W(i-14) ^ W(i-16), 1);
+   for (i = 16; i < 80; i++)
+      W(i) = cshift(W(i - 3) ^ W(i - 8) ^ W(i - 14) ^ W(i - 16), 1);
    }
 
-}; // end namespace
+} // end namespace

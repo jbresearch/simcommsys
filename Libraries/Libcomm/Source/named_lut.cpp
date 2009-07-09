@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "named_lut.h"
 #include <sstream>
@@ -19,7 +19,7 @@ std::string named_lut<real>::description() const
    {
    std::ostringstream sout;
    sout << "Named Interleaver (" << lutname;
-   if(m > 0)
+   if (m > 0)
       sout << ", Forced tail length " << m << ")";
    else
       sout << ")";
@@ -50,16 +50,20 @@ std::istream& named_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class named_lut<float>;
+template class named_lut<float>
 template <>
-const libbase::serializer named_lut<float>::shelper("interleaver", "named_lut<float>", named_lut<float>::create);
+const libbase::serializer named_lut<float>::shelper("interleaver",
+      "named_lut<float>", named_lut<float>::create);
 
-template class named_lut<double>;
+template class named_lut<double>
 template <>
-const libbase::serializer named_lut<double>::shelper("interleaver", "named_lut<double>", named_lut<double>::create);
+const libbase::serializer named_lut<double>::shelper("interleaver",
+      "named_lut<double>", named_lut<double>::create);
 
-template class named_lut<libbase::logrealfast>;
+template class named_lut<libbase::logrealfast>
 template <>
-const libbase::serializer named_lut<libbase::logrealfast>::shelper("interleaver", "named_lut<logrealfast>", named_lut<libbase::logrealfast>::create);
+const libbase::serializer named_lut<libbase::logrealfast>::shelper(
+      "interleaver", "named_lut<logrealfast>",
+      named_lut<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "padded.h"
 #include <sstream>
@@ -19,15 +19,15 @@ using libbase::matrix;
 
 template <class real>
 padded<real>::padded() :
-   otp(NULL),
-   inter(NULL)
+   otp(NULL), inter(NULL)
    {
    }
 
 template <class real>
-padded<real>::padded(const interleaver<real>& inter, const fsm& encoder, const bool terminated, const bool renewable)
+padded<real>::padded(const interleaver<real>& inter, const fsm& encoder,
+      const bool terminated, const bool renewable)
    {
-   otp = new onetimepad<real>(encoder, inter.size(), terminated, renewable);
+   otp = new onetimepad<real> (encoder, inter.size(), terminated, renewable);
    padded<real>::inter = inter.clone();
    }
 
@@ -41,9 +41,9 @@ padded<real>::padded(const padded& x)
 template <class real>
 padded<real>::~padded()
    {
-   if(otp != NULL)
+   if (otp != NULL)
       delete otp;
-   if(inter != NULL)
+   if (inter != NULL)
       delete inter;
    }
 
@@ -95,7 +95,8 @@ template <class real>
 std::string padded<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Padded Interleaver [" << inter->description() << " + " << otp->description() << "]";
+   sout << "Padded Interleaver [" << inter->description() << " + "
+         << otp->description() << "]";
    return sout.str();
    }
 
@@ -121,16 +122,19 @@ std::istream& padded<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class padded<float>;
+template class padded<float>
 template <>
-const libbase::serializer padded<float>::shelper("interleaver", "padded<float>", padded<float>::create);
+const libbase::serializer padded<float>::shelper("interleaver",
+      "padded<float>", padded<float>::create);
 
-template class padded<double>;
+template class padded<double>
 template <>
-const libbase::serializer padded<double>::shelper("interleaver", "padded<double>", padded<double>::create);
+const libbase::serializer padded<double>::shelper("interleaver",
+      "padded<double>", padded<double>::create);
 
-template class padded<libbase::logrealfast>;
+template class padded<libbase::logrealfast>
 template <>
-const libbase::serializer padded<libbase::logrealfast>::shelper("interleaver", "padded<logrealfast>", padded<libbase::logrealfast>::create);
+const libbase::serializer padded<libbase::logrealfast>::shelper("interleaver",
+      "padded<logrealfast>", padded<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

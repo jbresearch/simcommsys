@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "exit_computer.h"
 
@@ -20,19 +20,18 @@
 
 namespace libcomm {
 
-
 // *** Templated Common Base ***
 
 // Setup functions
 
 /*!
-   \brief Sets up system with no bound objects.
+ \brief Sets up system with no bound objects.
 
-   \note This function is only responsible for clearing pointers to
-         objects that are specific to this object/derivation.
-         Anything else should get done automatically when the base
-         serializer or constructor is called.
-*/
+ \note This function is only responsible for clearing pointers to
+ objects that are specific to this object/derivation.
+ Anything else should get done automatically when the base
+ serializer or constructor is called.
+ */
 template <class S>
 void exit_computer<S>::clear()
    {
@@ -42,21 +41,21 @@ void exit_computer<S>::clear()
    }
 
 /*!
-   \brief Removes association with bound objects
+ \brief Removes association with bound objects
 
-   This function performs two things:
-   - Deletes any internally-allocated bound objects
-   - Sets up the system with no bound objects
+ This function performs two things:
+ - Deletes any internally-allocated bound objects
+ - Sets up the system with no bound objects
 
-   \note This function is only responsible for deleting bound
-         objects that are specific to this object/derivation.
-         Anything else should get done automatically when the base
-         serializer or constructor is called.
-*/
+ \note This function is only responsible for deleting bound
+ objects that are specific to this object/derivation.
+ Anything else should get done automatically when the base
+ serializer or constructor is called.
+ */
 template <class S>
 void exit_computer<S>::free()
    {
-   if(internallyallocated)
+   if (internallyallocated)
       {
       delete src;
       delete sys;
@@ -67,34 +66,34 @@ void exit_computer<S>::free()
 // Internal functions
 
 /*!
-   \brief Create source sequence to be encoded
-   \return Source sequence of the required length
+ \brief Create source sequence to be encoded
+ \return Source sequence of the required length
 
-   The source sequence consists of uniformly random symbols followed by a
-   tail sequence if required by the given codec.
-*/
+ The source sequence consists of uniformly random symbols followed by a
+ tail sequence if required by the given codec.
+ */
 template <class S>
 libbase::vector<int> exit_computer<S>::createsource()
    {
    const int tau = sys->input_block_size();
    libbase::vector<int> source(tau);
-   for(int t=0; t<tau; t++)
+   for (int t = 0; t < tau; t++)
       source(t) = src->ival(sys->num_inputs());
    return source;
    }
 
 /*!
-   \brief Perform a complete encode->transmit->receive cycle
-   \param[out] result   Vector containing the set of results to be updated
+ \brief Perform a complete encode->transmit->receive cycle
+ \param[out] result   Vector containing the set of results to be updated
 
-   Results are organized as (BER,SER,FER), repeated for every iteration that
-   needs to be performed.
+ Results are organized as (BER,SER,FER), repeated for every iteration that
+ needs to be performed.
 
-   \note It is assumed that the result vector serves as an accumulator, so that
-         every cycle effectively adds to this result. The caller is responsible
-         to divide by the appropriate amount at the end to compute a meaningful
-         average.
-*/
+ \note It is assumed that the result vector serves as an accumulator, so that
+ every cycle effectively adds to this result. The caller is responsible
+ to divide by the appropriate amount at the end to compute a meaningful
+ average.
+ */
 template <class S>
 void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    {
@@ -105,7 +104,7 @@ void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    sys->transmitandreceive(source);
    // For every iteration
    libbase::vector<int> decoded;
-   for(int i=0; i<sys->getcodec()->num_iter(); i++)
+   for (int i = 0; i < sys->getcodec()->num_iter(); i++)
       {
       // Decode & update results
       sys->decode(decoded);
@@ -115,21 +114,21 @@ void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    const int tau = sys->input_block_size();
    assert(source.size() == tau);
    assert(decoded.size() == tau);
-   last_event.init(2*tau);
-   for(int i=0; i<tau; i++)
+   last_event.init(2 * tau);
+   for (int i = 0; i < tau; i++)
       {
       last_event(i) = source(i);
-      last_event(i+tau) = decoded(i);
+      last_event(i + tau) = decoded(i);
       }
    }
 
 // Constructors / Destructors
 
 /*!
-   \brief Main public constructor
+ \brief Main public constructor
 
-   Initializes system with bound objects as supplied by user.
-*/
+ Initializes system with bound objects as supplied by user.
+ */
 template <class S>
 exit_computer<S>::exit_computer(libbase::randgen *src, commsys<S> *sys)
    {
@@ -139,10 +138,10 @@ exit_computer<S>::exit_computer(libbase::randgen *src, commsys<S> *sys)
    }
 
 /*!
-   \brief Copy constructor
+ \brief Copy constructor
 
-   Initializes system with bound objects cloned from supplied system.
-*/
+ Initializes system with bound objects cloned from supplied system.
+ */
 template <class S>
 exit_computer<S>::exit_computer(const exit_computer<S>& c)
    {
@@ -205,26 +204,32 @@ std::istream& exit_computer<S>::serialize(std::istream& sin)
 using libbase::serializer;
 using libbase::gf;
 
-template class exit_computer<sigspace>;
+template class exit_computer<sigspace>
 template <>
-const serializer exit_computer<sigspace>::shelper("experiment", "exit_computer<sigspace>", exit_computer<sigspace>::create);
+const serializer exit_computer<sigspace>::shelper("experiment",
+      "exit_computer<sigspace>", exit_computer<sigspace>::create);
 
-template class exit_computer<bool>;
+template class exit_computer<bool>
 template <>
-const serializer exit_computer<bool>::shelper("experiment", "exit_computer<bool>", exit_computer<bool>::create);
+const serializer exit_computer<bool>::shelper("experiment",
+      "exit_computer<bool>", exit_computer<bool>::create);
 
-template class exit_computer< gf<1,0x3> >;
+template class exit_computer<gf<1, 0x3> >
 template <>
-const serializer exit_computer< gf<1,0x3> >::shelper("experiment", "exit_computer<gf<1,0x3>>", exit_computer< gf<1,0x3> >::create);
-template class exit_computer< gf<2,0x7> >;
+const serializer exit_computer<gf<1, 0x3> >::shelper("experiment",
+      "exit_computer<gf<1,0x3>>", exit_computer<gf<1, 0x3> >::create);
+template class exit_computer<gf<2, 0x7> >
 template <>
-const serializer exit_computer< gf<2,0x7> >::shelper("experiment", "exit_computer<gf<2,0x7>>", exit_computer< gf<2,0x7> >::create);
-template class exit_computer< gf<3,0xB> >;
+const serializer exit_computer<gf<2, 0x7> >::shelper("experiment",
+      "exit_computer<gf<2,0x7>>", exit_computer<gf<2, 0x7> >::create);
+template class exit_computer<gf<3, 0xB> >
 template <>
-const serializer exit_computer< gf<3,0xB> >::shelper("experiment", "exit_computer<gf<3,0xB>>", exit_computer< gf<3,0xB> >::create);
-template class exit_computer< gf<4,0x13> >;
+const serializer exit_computer<gf<3, 0xB> >::shelper("experiment",
+      "exit_computer<gf<3,0xB>>", exit_computer<gf<3, 0xB> >::create);
+template class exit_computer<gf<4, 0x13> >
 template <>
-const serializer exit_computer< gf<4,0x13> >::shelper("experiment", "exit_computer<gf<4,0x13>>", exit_computer< gf<4,0x13> >::create);
+const serializer exit_computer<gf<4, 0x13> >::shelper("experiment",
+      "exit_computer<gf<4,0x13>>", exit_computer<gf<4, 0x13> >::create);
 
 // realizations for non-default containers
 
@@ -232,4 +237,4 @@ const serializer exit_computer< gf<4,0x13> >::shelper("experiment", "exit_comput
 // template <>
 // const serializer exit_computer<bool,matrix>::shelper("experiment", "exit_computer<bool,matrix>", exit_computer<bool,matrix>::create);
 
-}; // end namespace
+} // end namespace

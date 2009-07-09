@@ -10,25 +10,25 @@
 namespace libcomm {
 
 /*!
-   \brief   UNIX Crypt Algorithm.
-   \author  Johann Briffa
+ \brief   UNIX Crypt Algorithm.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 0.01 (28 Feb 2003)
-  initial version - class that implements UNIX Crypt Algorithm, built by
-  following the Cygwin (GNU) sources; intended for major upgrade.
+ \version 0.01 (28 Feb 2003)
+ initial version - class that implements UNIX Crypt Algorithm, built by
+ following the Cygwin (GNU) sources; intended for major upgrade.
 
-   \version 0.02 (17 Jul 2006)
-  in crypt_main, made explicit conversion from char to int of array subscript.
+ \version 0.02 (17 Jul 2006)
+ in crypt_main, made explicit conversion from char to int of array subscript.
 
-   \version 1.00 (30 Oct 2006)
-   - defined class and associated data within "libcomm" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-*/
+ \version 1.00 (30 Oct 2006)
+ - defined class and associated data within "libcomm" namespace.
+ - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ */
 
 class crypt {
    // constants - scalars
@@ -46,8 +46,8 @@ class crypt {
    char schluessel[16][48];
 public:
    // basic constructor/destructor
-        crypt();
-        virtual ~crypt();
+   crypt();
+   virtual ~crypt();
    // public functions
    void encrypt(char *nachr, int decr);
    void setkey(char *schl);
@@ -58,6 +58,6 @@ protected:
    void crypt_main(char *nachr_l, char *nachr_r, char *schl);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

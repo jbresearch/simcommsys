@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "logreal.h"
 
@@ -17,11 +17,11 @@ std::ostream& operator<<(std::ostream& s, const logreal& x)
    {
    using std::ios;
 
-   const double lg = -x.logval/log(10.0);
+   const double lg = -x.logval / log(10.0);
 
    const ios::fmtflags flags = s.flags();
    s.setf(ios::fixed, ios::floatfield);
-   s << pow(10.0, lg-floor(lg));
+   s << pow(10.0, lg - floor(lg));
    s.setf(ios::showpos);
    s << "e" << int(floor(lg));
    s.flags(flags);
@@ -29,4 +29,4 @@ std::ostream& operator<<(std::ostream& s, const logreal& x)
    return s;
    }
 
-}; // end namespace
+} // end namespace

@@ -6,20 +6,20 @@
 namespace libcomm {
 
 /*!
-   \brief   Experiment for estimation of a binomial proportion.
-   \author  Johann Briffa
+ \brief   Experiment for estimation of a binomial proportion.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Implements the accumulator functions required by the experiment class.
-*/
+ Implements the accumulator functions required by the experiment class.
+ */
 
 class experiment_binomial : public experiment {
    /*! \name Internal variables */
-   libbase::vector<double> sum;     //!< Vector of result sums
+   libbase::vector<double> sum; //!< Vector of result sums
    // @}
 
 protected:
@@ -32,9 +32,10 @@ protected:
 public:
    // Accumulator functions
    void get_state(libbase::vector<double>& state) const;
-   void estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const;
+   void estimate(libbase::vector<double>& estimate,
+         libbase::vector<double>& stderror) const;
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

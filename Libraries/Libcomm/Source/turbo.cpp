@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "turbo.h"
 #include "flat.h"
@@ -17,15 +17,16 @@ namespace libcomm {
 // initialization / de-allocation
 
 template <class real, class dbl>
-void turbo<real,dbl>::init()
+void turbo<real, dbl>::init()
    {
    // check presence and size of interleavers
    assertalways(inter.size() > 0);
-   for(int i=0; i<inter.size(); i++)
+   for (int i = 0; i < inter.size(); i++)
       {
       assertalways(inter(i));
       assertalways(inter(i)->size() == inter(0)->size());
-      libbase::trace << "Interleaver " << i << ": " << inter(i)->description() << "\n";
+      libbase::trace << "Interleaver " << i << ": " << inter(i)->description()
+            << "\n";
       }
 
    // check required components and initialize BCJR
@@ -42,30 +43,30 @@ void turbo<real,dbl>::init()
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::free()
+void turbo<real, dbl>::free()
    {
-   if(encoder != NULL)
+   if (encoder != NULL)
       delete encoder;
-   for(int i=0; i<inter.size(); i++)
+   for (int i = 0; i < inter.size(); i++)
       delete inter(i);
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::reset()
+void turbo<real, dbl>::reset()
    {
-   if(circular)
+   if (circular)
       {
       ss.init(num_sets());
       se.init(num_sets());
-      for(int set=0; set<num_sets(); set++)
+      for (int set = 0; set < num_sets(); set++)
          {
          ss(set).init(enc_states());
          se(set).init(enc_states());
-         ss(set) = dbl(1.0/double(enc_states()));
-         se(set) = dbl(1.0/double(enc_states()));
+         ss(set) = dbl(1.0 / double(enc_states()));
+         se(set) = dbl(1.0 / double(enc_states()));
          }
       }
-   else if(endatzero)
+   else if (endatzero)
       {
       BCJR::setstart(0);
       BCJR::setend(0);
@@ -77,19 +78,18 @@ void turbo<real,dbl>::reset()
       }
    }
 
-
 // constructor / destructor
 
 template <class real, class dbl>
-turbo<real,dbl>::turbo()
+turbo<real, dbl>::turbo()
    {
    encoder = NULL;
    }
 
 template <class real, class dbl>
-turbo<real,dbl>::turbo(const fsm& encoder, \
-   const libbase::vector<interleaver<dbl> *>& inter, const int iter, \
-   const bool endatzero, const bool parallel, const bool circular)
+turbo<real, dbl>::turbo(const fsm& encoder, const libbase::vector<interleaver<
+      dbl> *>& inter, const int iter, const bool endatzero,
+      const bool parallel, const bool circular)
    {
    This::encoder = encoder.clone();
    This::inter = inter;
@@ -103,15 +103,15 @@ turbo<real,dbl>::turbo(const fsm& encoder, \
 // memory allocator (for internal use only)
 
 template <class real, class dbl>
-void turbo<real,dbl>::allocate()
+void turbo<real, dbl>::allocate()
    {
    const int tau = This::output_block_size();
    rp.init(tau, num_inputs());
 
-   if(parallel)
+   if (parallel)
       {
       ra.init(num_sets());
-      for(int i=0; i<num_sets(); i++)
+      for (int i = 0; i < num_sets(); i++)
          ra(i).init(tau, num_inputs());
       }
    else
@@ -121,14 +121,14 @@ void turbo<real,dbl>::allocate()
       }
 
    R.init(num_sets());
-   for(int i=0; i<num_sets(); i++)
+   for (int i = 0; i < num_sets(); i++)
       R(i).init(tau, enc_outputs());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "Turbo Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << ( rp.size() + ra.size()*ra(0).size() + R.size()*R(0).size()
-      )*sizeof(dbl)/double(1<<20) << "MB\n";
+   std::cerr << (rp.size() + ra.size() * ra(0).size() + R.size() * R(0).size())
+         * sizeof(dbl) / double(1 << 20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
@@ -137,21 +137,22 @@ void turbo<real,dbl>::allocate()
 // wrapping functions
 
 /*!
-   \brief Computes extrinsic probabilities
-   \param[in]  ra  A-priori (extrinsic) probabilities of input values
-   \param[in]  ri  A-posteriori probabilities of input values
-   \param[in]  r   A-priori intrinsic probabilities of input values
-   \param[out] re  Extrinsic probabilities of input values
+ \brief Computes extrinsic probabilities
+ \param[in]  ra  A-priori (extrinsic) probabilities of input values
+ \param[in]  ri  A-posteriori probabilities of input values
+ \param[in]  r   A-priori intrinsic probabilities of input values
+ \param[out] re  Extrinsic probabilities of input values
 
-   \note It is counter-productive to vectorize this, as it would require
-         many unnecessary temporary matrix creations.
+ \note It is counter-productive to vectorize this, as it would require
+ many unnecessary temporary matrix creations.
 
-   \warning The return matrix re may actually be one of the input matrices,
-            so one must be careful not to overwrite positions that still
-            need to be read.
-*/
+ \warning The return matrix re may actually be one of the input matrices,
+ so one must be careful not to overwrite positions that still
+ need to be read.
+ */
 template <class real, class dbl>
-void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re)
+void turbo<real, dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri,
+      const array2d_t& r, array2d_t& re)
    {
    // Compute denominator
    array2d_t rar = ra.multiply(r);
@@ -161,30 +162,31 @@ void turbo<real,dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri, c
    }
 
 /*!
-   \brief Complete BCJR decoding cycle
-   \param[in]  set Parity sequence being decoded
-   \param[in]  ra  A-priori (extrinsic) probabilities of input values
-   \param[out] ri  A-posteriori probabilities of input values
-   \param[out] re  Extrinsic probabilities of input values (will be used later
-                   as the new 'a-priori' probabilities)
+ \brief Complete BCJR decoding cycle
+ \param[in]  set Parity sequence being decoded
+ \param[in]  ra  A-priori (extrinsic) probabilities of input values
+ \param[out] ri  A-posteriori probabilities of input values
+ \param[out] re  Extrinsic probabilities of input values (will be used later
+ as the new 'a-priori' probabilities)
 
-   This method performs a complete decoding cycle, including start/end state
-   probability settings for circular decoding, and any interleaving/de-
-   interleaving.
+ This method performs a complete decoding cycle, including start/end state
+ probability settings for circular decoding, and any interleaving/de-
+ interleaving.
 
-   \note When using a circular trellis, the start- and end-state probabilities
-         are re-initialize with the stored values from the previous turn.
+ \note When using a circular trellis, the start- and end-state probabilities
+ are re-initialize with the stored values from the previous turn.
 
-   \warning The return matrix re may actually be the input matrix ra,
-            so one must be careful not to overwrite positions that still
-            need to be read.
-*/
+ \warning The return matrix re may actually be the input matrix ra,
+ so one must be careful not to overwrite positions that still
+ need to be read.
+ */
 template <class real, class dbl>
-void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re)
+void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
+      array2d_t& ri, array2d_t& re)
    {
    // Temporary variables to hold interleaved versions of ra/ri
    array2d_t rai, rii;
-   if(circular)
+   if (circular)
       {
       BCJR::setstart(ss(set));
       BCJR::setend(se(set));
@@ -192,7 +194,7 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& r
    inter(set)->transform(ra, rai);
    BCJR::fdecode(R(set), rai, rii);
    inter(set)->inverse(rii, ri);
-   if(circular)
+   if (circular)
       {
       ss(set) = BCJR::getstart();
       se(set) = BCJR::getend();
@@ -202,15 +204,15 @@ void turbo<real,dbl>::bcjr_wrap(const int set, const array2d_t& ra, array2d_t& r
 
 /*! \brief Perform a complete serial-decoding cycle
 
-   \note The BCJR normalization method is used to normalize the extrinsic
-         probabilities.
-*/
+ \note The BCJR normalization method is used to normalize the extrinsic
+ probabilities.
+ */
 template <class real, class dbl>
-void turbo<real,dbl>::decode_serial(array2d_t& ri)
+void turbo<real, dbl>::decode_serial(array2d_t& ri)
    {
    // after working all sets, ri is the intrinsic+extrinsic information
    // from the last stage decoder.
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       {
       bcjr_wrap(set, ra(0), ri, ra(0));
       BCJR::normalize(ra(0));
@@ -220,36 +222,36 @@ void turbo<real,dbl>::decode_serial(array2d_t& ri)
 
 /*! \brief Perform a complete parallel-decoding cycle
 
-   \note The BCJR normalization method is used to normalize the extrinsic
-         probabilities.
+ \note The BCJR normalization method is used to normalize the extrinsic
+ probabilities.
 
-   \warning Simulations show that parallel-decoding works well with the
-            1/4-rate, 3-code, K=3 (111/101), N=4096 code from divs95b;
-            however, when simulating larger codes (N=8192) the system seems
-            to go unstable after a few iterations. Also significantly, similar
-            codes with lower rates (1/6 and 1/8) perform _worse_ as the rate
-            decreases.
-*/
+ \warning Simulations show that parallel-decoding works well with the
+ 1/4-rate, 3-code, K=3 (111/101), N=4096 code from divs95b;
+ however, when simulating larger codes (N=8192) the system seems
+ to go unstable after a few iterations. Also significantly, similar
+ codes with lower rates (1/6 and 1/8) perform _worse_ as the rate
+ decreases.
+ */
 template <class real, class dbl>
-void turbo<real,dbl>::decode_parallel(array2d_t& ri)
+void turbo<real, dbl>::decode_parallel(array2d_t& ri)
    {
    // here ri is only a temporary space
    // and ra(set) is updated with the extrinsic information for that set
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       bcjr_wrap(set, ra(set), ri, ra(set));
    // the following are repeated at each frame element, for each possible symbol
    // work in ri the sum of all extrinsic information
    ri = ra(0);
-   for(int set=1; set<num_sets(); set++)
+   for (int set = 1; set < num_sets(); set++)
       ri.multiplyby(ra(set));
    // compute the next-stage a priori information by subtracting the extrinsic
    // information of the current stage from the sum of all extrinsic information.
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       ra(set) = ri.divide(ra(set));
    // add the channel information to the sum of extrinsic information
    ri.multiplyby(rp);
    // normalize results
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       BCJR::normalize(ra(set));
    BCJR::normalize(ri);
    }
@@ -257,12 +259,12 @@ void turbo<real,dbl>::decode_parallel(array2d_t& ri)
 // internal codec operations
 
 template <class real, class dbl>
-void turbo<real,dbl>::resetpriors()
+void turbo<real, dbl>::resetpriors()
    {
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::setpriors(const array1vd_t& ptable)
+void turbo<real, dbl>::setpriors(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -270,30 +272,30 @@ void turbo<real,dbl>::setpriors(const array1vd_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
    // Copy the input statistics for the BCJR Algorithm
-   for(int t=0; t<rp.size().rows(); t++)
-      for(int i=0; i<rp.size().cols(); i++)
-         rp(t,i) *= ptable(t)(i);
+   for (int t = 0; t < rp.size().rows(); t++)
+      for (int i = 0; i < rp.size().cols(); i++)
+         rp(t, i) *= ptable(t)(i);
    }
 
 /*! \copydoc codec_softout::setreceiver()
 
-   Sets: rp, ra, R, [ss, se, through reset()]
+ Sets: rp, ra, R, [ss, se, through reset()]
 
-   \note The BCJR normalization method is used to normalize the channel-derived
-         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
-         probabilities are now created normalized.
+ \note The BCJR normalization method is used to normalize the channel-derived
+ (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+ probabilities are now created normalized.
 
-   \note Clean up this function, removing unnecessary symbol-conversion
-*/
+ \note Clean up this function, removing unnecessary symbol-conversion
+ */
 template <class real, class dbl>
-void turbo<real,dbl>::setreceiver(const array1vd_t& ptable)
+void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
    {
    // Compute factors / sizes & check validity
    assertalways(ptable.size() > 0);
    const int S = ptable(0).size();
-   const int sp = int(round(log(double(enc_parity()))/log(double(S))));
-   const int sk = int(round(log(double(num_inputs()))/log(double(S))));
-   const int s = sk + num_sets()*sp;
+   const int sp = int(round(log(double(enc_parity())) / log(double(S))));
+   const int sk = int(round(log(double(num_inputs())) / log(double(S))));
+   const int s = sk + num_sets() * sp;
    // Confirm that encoder's parity and input symbols can be represented by
    // an integral number of modulation symbols
    assertalways(enc_parity() == pow(double(S), sp));
@@ -303,35 +305,35 @@ void turbo<real,dbl>::setreceiver(const array1vd_t& ptable)
    assertalways(ptable.size() == tau*s);
 
    // initialise memory if necessary
-   if(!initialised)
+   if (!initialised)
       allocate();
 
    // Allocate space for temporary matrices
    libbase::matrix3<dbl> p(num_sets(), tau, enc_parity());
 
    // Get the necessary data from the channel
-   for(int t=0; t<tau; t++)
+   for (int t = 0; t < tau; t++)
       {
       // Input (data) bits [set 0 only]
-      for(int x=0; x<num_inputs(); x++)
+      for (int x = 0; x < num_inputs(); x++)
          {
          rp(t, x) = 1;
-         for(int i=0, thisx = x; i<sk; i++, thisx /= S)
-            rp(t, x) *= dbl(ptable(t*s+i)(thisx % S));
+         for (int i = 0, thisx = x; i < sk; i++, thisx /= S)
+            rp(t, x) *= dbl(ptable(t * s + i)(thisx % S));
          }
       // Parity bits [all sets]
-      for(int x=0; x<enc_parity(); x++)
-         for(int set=0, offset=sk; set<num_sets(); set++)
+      for (int x = 0; x < enc_parity(); x++)
+         for (int set = 0, offset = sk; set < num_sets(); set++)
             {
             p(set, t, x) = 1;
-            for(int i=0, thisx = x; i<sp; i++, thisx /= S)
-               p(set, t, x) *= dbl(ptable(t*s+i+offset)(thisx % S));
+            for (int i = 0, thisx = x; i < sp; i++, thisx /= S)
+               p(set, t, x) *= dbl(ptable(t * s + i + offset)(thisx % S));
             offset += sp;
             }
       }
 
    // Initialise a priori probabilities (extrinsic)
-   for(int set=0; set<(parallel ? num_sets() : 1); set++)
+   for (int set = 0; set < (parallel ? num_sets() : 1); set++)
       ra(set) = 1.0;
 
    // Normalize a priori probabilities (intrinsic - source)
@@ -339,12 +341,13 @@ void turbo<real,dbl>::setreceiver(const array1vd_t& ptable)
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
    array2d_t rpi;
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       {
       inter(set)->transform(rp, rpi);
-      for(int t=0; t<tau; t++)
-         for(int x=0; x<enc_outputs(); x++)
-            R(set)(t, x) = rpi(t, x%num_inputs()) * p(set, t, x/num_inputs());
+      for (int t = 0; t < tau; t++)
+         for (int x = 0; x < enc_outputs(); x++)
+            R(set)(t, x) = rpi(t, x % num_inputs()) * p(set, t, x
+                  / num_inputs());
       BCJR::normalize(R(set));
       }
 
@@ -355,14 +358,14 @@ void turbo<real,dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class real, class dbl>
-void turbo<real,dbl>::seedfrom(libbase::random& r)
+void turbo<real, dbl>::seedfrom(libbase::random& r)
    {
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       inter(set)->seedfrom(r);
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == input_block_size());
    const int tau = This::output_block_size();
@@ -372,15 +375,15 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    libbase::matrix<int> x(num_sets(), tau);
    // Make a local copy of the source, including any necessary tail
    array1i_t source1(tau);
-   for(int t=0; t<source.size(); t++)
+   for (int t = 0; t < source.size(); t++)
       source1(t) = source(t);
-   for(int t=source.size(); t<tau; t++)
+   for (int t = source.size(); t < tau; t++)
       source1(t) = fsm::tail;
    // Declare space for the interleaved source
    array1i_t source2;
 
    // Consider sets in order
-   for(int set=0; set<num_sets(); set++)
+   for (int set = 0; set < num_sets(); set++)
       {
       // Advance interleaver to the next block
       inter(set)->advance();
@@ -393,63 +396,63 @@ void turbo<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
       // When dealing with a circular system, perform first pass to determine end state,
       // then reset to the corresponding circular state.
       int cstate = 0;
-      if(circular)
+      if (circular)
          {
-         for(int t=0; t<tau; t++)
+         for (int t = 0; t < tau; t++)
             encoder->advance(source2(t));
          encoder->resetcircular();
          cstate = encoder->state();
          }
 
       // Encode source (non-interleaved must be done first to determine tail bit values)
-      for(int t=0; t<tau; t++)
+      for (int t = 0; t < tau; t++)
          x(set, t) = encoder->step(source2(t)) / num_inputs();
 
       // If this was the first (non-interleaved) set, copy back the source
       // to fix the tail bit values, if any
-      if(endatzero && set == 0)
+      if (endatzero && set == 0)
          source1 = source2;
 
       // check that encoder finishes correctly
-      if(circular)
+      if (circular)
          assertalways(encoder->state() == cstate);
-      if(endatzero)
+      if (endatzero)
          assertalways(encoder->state() == 0);
       }
 
    // Encode source stream
-   for(int t=0; t<tau; t++)
+   for (int t = 0; t < tau; t++)
       {
       // data bits
       encoded(t) = source1(t);
       // parity bits
-      for(int set=0, mul=num_inputs(); set<num_sets(); set++, mul*=enc_parity())
-         encoded(t) += x(set, t)*mul;
+      for (int set = 0, mul = num_inputs(); set < num_sets(); set++, mul
+            *= enc_parity())
+         encoded(t) += x(set, t) * mul;
       }
    }
 
-
 template <class real, class dbl>
-void turbo<real,dbl>::softdecode(array1vd_t& ri)
+void turbo<real, dbl>::softdecode(array1vd_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
    array2d_t rif;
    // do one iteration, in serial or parallel as required
-   if(parallel)
+   if (parallel)
       decode_parallel(rif);
    else
       decode_serial(rif);
    // remove any tail bits from input set
    ri.init(input_block_size());
-   for(int i=0; i<input_block_size(); i++)
+   for (int i = 0; i < input_block_size(); i++)
       ri(i).init(num_inputs());
-   for(int i=0; i<input_block_size(); i++)
-      for(int j=0; j<num_inputs(); j++)
-         ri(i)(j) = rif(i,j);
+   for (int i = 0; i < input_block_size(); i++)
+      for (int j = 0; j < num_inputs(); j++)
+         ri(i)(j) = rif(i, j);
    }
 
 template <class real, class dbl>
-void turbo<real,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    failwith("Not yet implemented");
    }
@@ -457,12 +460,13 @@ void turbo<real,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class real, class dbl>
-std::string turbo<real,dbl>::description() const
+std::string turbo<real, dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Turbo Code (" << This::output_bits() << "," << This::input_bits() << ") - ";
+   sout << "Turbo Code (" << This::output_bits() << "," << This::input_bits()
+         << ") - ";
    sout << encoder->description() << ", ";
-   for(int i=0; i<inter.size(); i++)
+   for (int i = 0; i < inter.size(); i++)
       sout << inter(i)->description() << ", ";
    sout << (endatzero ? "Terminated, " : "Unterminated, ");
    sout << (circular ? "Circular, " : "Non-circular, ");
@@ -474,13 +478,13 @@ std::string turbo<real,dbl>::description() const
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
+std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
    sout << 2 << '\n';
    sout << encoder;
    sout << num_sets() << '\n';
-   for(int i=0; i<inter.size(); i++)
+   for (int i = 0; i < inter.size(); i++)
       sout << inter(i);
    sout << int(endatzero) << '\n';
    sout << int(circular) << '\n';
@@ -492,14 +496,14 @@ std::ostream& turbo<real,dbl>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 /*!
-   \version 0 Initial version (un-numbered)
+ \version 0 Initial version (un-numbered)
 
-   \version 1 Added version numbering; added explicit first interleaver
+ \version 1 Added version numbering; added explicit first interleaver
 
-   \version 2 Removed explicit 'tau'
-*/
+ \version 2 Removed explicit 'tau'
+ */
 template <class real, class dbl>
-std::istream& turbo<real,dbl>::serialize(std::istream& sin)
+std::istream& turbo<real, dbl>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
    free();
@@ -507,27 +511,27 @@ std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    int version;
    sin >> version;
    // handle old-format files
-   if(sin.fail())
+   if (sin.fail())
       {
       version = 0;
       sin.clear();
       }
    sin >> encoder;
    int tau = 0;
-   if(version < 2)
+   if (version < 2)
       sin >> tau;
    int sets;
    sin >> sets;
    inter.init(sets);
-   if(version < 1)
+   if (version < 1)
       {
-      inter(0) = new flat<dbl>(tau);
-      for(int i=1; i<inter.size(); i++)
+      inter(0) = new flat<dbl> (tau);
+      for (int i = 1; i < inter.size(); i++)
          sin >> inter(i);
       }
    else
       {
-      for(int i=0; i<inter.size(); i++)
+      for (int i = 0; i < inter.size(); i++)
          sin >> inter(i);
       }
    sin >> endatzero;
@@ -539,7 +543,7 @@ std::istream& turbo<real,dbl>::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace
 
 // Explicit Realizations
 
@@ -557,32 +561,40 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
-template class turbo<float,float>;
+template class turbo<float, float>
 template <>
-const serializer turbo<float,float>::shelper = serializer("codec", "turbo<float>", turbo<float,float>::create);
+const serializer turbo<float, float>::shelper = serializer("codec",
+      "turbo<float>", turbo<float, float>::create);
 
-template class turbo<double>;
+template class turbo<double>
 template <>
-const serializer turbo<double>::shelper = serializer("codec", "turbo<double>", turbo<double>::create);
+const serializer turbo<double>::shelper = serializer("codec", "turbo<double>",
+      turbo<double>::create);
 
-template class turbo<mpreal>;
+template class turbo<mpreal>
 template <>
-const serializer turbo<mpreal>::shelper = serializer("codec", "turbo<mpreal>", turbo<mpreal>::create);
+const serializer turbo<mpreal>::shelper = serializer("codec", "turbo<mpreal>",
+      turbo<mpreal>::create);
 
-template class turbo<mpgnu>;
+template class turbo<mpgnu>
 template <>
-const serializer turbo<mpgnu>::shelper = serializer("codec", "turbo<mpgnu>", turbo<mpgnu>::create);
+const serializer turbo<mpgnu>::shelper = serializer("codec", "turbo<mpgnu>",
+      turbo<mpgnu>::create);
 
-template class turbo<logreal>;
+template class turbo<logreal>
 template <>
-const serializer turbo<logreal>::shelper = serializer("codec", "turbo<logreal>", turbo<logreal>::create);
+const serializer turbo<logreal>::shelper = serializer("codec",
+      "turbo<logreal>", turbo<logreal>::create);
 
-template class turbo<logrealfast>;
+template class turbo<logrealfast>
 template <>
-const serializer turbo<logrealfast>::shelper = serializer("codec", "turbo<logrealfast>", turbo<logrealfast>::create);
+const serializer turbo<logrealfast>::shelper = serializer("codec",
+      "turbo<logrealfast>", turbo<logrealfast>::create);
 
-template class turbo<logrealfast,logrealfast>;
+template class turbo<logrealfast, logrealfast>
 template <>
-const serializer turbo<logrealfast,logrealfast>::shelper = serializer("codec", "turbo<logrealfast,logrealfast>", turbo<logrealfast,logrealfast>::create);
+const serializer turbo<logrealfast, logrealfast>::shelper =
+      serializer("codec", "turbo<logrealfast,logrealfast>", turbo<logrealfast,
+            logrealfast>::create);
 
-}; // end namespace
+} // end namespace

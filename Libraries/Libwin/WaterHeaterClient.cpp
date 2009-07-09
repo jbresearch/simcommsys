@@ -108,4 +108,4 @@ CWaterHeaterClient::~CWaterHeaterClient()
    //ReadFile(m_hComm, pBuf, nBufLen, &dwBytes, NULL);
    //}
 
-}; // end namespace
+} // end namespace

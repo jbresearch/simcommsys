@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "serializer.h"
 #include <iostream>
@@ -18,28 +18,29 @@ using std::flush;
 
 // static variables
 
-std::map<std::string,serializer::fptr>* serializer::cmap = NULL;
+std::map<std::string, serializer::fptr>* serializer::cmap = NULL;
 int serializer::count = 0;
 
 // static functions
 
 void* serializer::call(const std::string& base, const std::string& derived)
    {
-   fptr func = (*cmap)[base+":"+derived];
+   fptr func = (*cmap)[base + ":" + derived];
    //trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << ".\n";
-   if(func == NULL)
+   if (func == NULL)
       return NULL;
    return (*func)();
    }
 
 // constructor / destructor
 
-serializer::serializer(const std::string& base, const std::string& derived, fptr func)
+serializer::serializer(const std::string& base, const std::string& derived,
+      fptr func)
    {
-   if(cmap == NULL)
-      cmap = new std::map<std::string,fptr>;
+   if (cmap == NULL)
+      cmap = new std::map<std::string, fptr>;
    //trace << "DEBUG (serializer): new map entry [" << count << "] for (" << base+":"+derived << ") = " << (void *)func << ".\n";
-   (*cmap)[base+":"+derived] = func;
+   (*cmap)[base + ":" + derived] = func;
    classname = derived;
    count++;
    }
@@ -47,8 +48,8 @@ serializer::serializer(const std::string& base, const std::string& derived, fptr
 serializer::~serializer()
    {
    count--;
-   if(count == 0)
+   if (count == 0)
       delete cmap;
    }
 
-}; // end namespace
+} // end namespace

@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "dvbcrsc.h"
 #include <iostream>
@@ -15,8 +15,9 @@ namespace libcomm {
 
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
 
-const int dvbcrsc::csct[7][8] = {{0,1,2,3,4,5,6,7}, {0,6,4,2,7,1,3,5}, {0,3,7,4,5,6,2,1}, \
-   {0,5,3,6,2,7,1,4}, {0,4,1,5,6,2,7,3}, {0,2,5,7,1,3,4,6}, {0,7,6,1,3,4,5,2}};
+const int dvbcrsc::csct[7][8] = {{0, 1, 2, 3, 4, 5, 6, 7}, {0, 6, 4, 2, 7, 1,
+      3, 5}, {0, 3, 7, 4, 5, 6, 2, 1}, {0, 5, 3, 6, 2, 7, 1, 4}, {0, 4, 1, 5,
+      6, 2, 7, 3}, {0, 2, 5, 7, 1, 3, 4, 6}, {0, 7, 6, 1, 3, 4, 5, 2}};
 
 const int dvbcrsc::k = 2;
 const int dvbcrsc::n = 4;
@@ -53,7 +54,7 @@ void dvbcrsc::resetcircular(int zerostate, int n)
    // a multiple of the period
    assert(n%7 != 0);
    // lookup the circulation state and set accordingly
-   reset(csct[n%7][zerostate]);
+   reset(csct[n % 7][zerostate]);
    }
 
 // finite state machine functions - state advance etc.
@@ -66,9 +67,9 @@ void dvbcrsc::advance(int& input)
    // ip[0] = A, ip[1] = B
    assert(input != fsm::tail);
    // process input
-   bitfield ip(input,k);
+   bitfield ip(input, k);
    // compute the shift-register left input
-   bitfield lsi = ((ip[0]^ip[1]) + reg) * bitfield("1101");
+   bitfield lsi = ((ip[0] ^ ip[1]) + reg) * bitfield("1101");
    // do the shift
    reg = lsi >> reg;
    // apply the second input
@@ -82,9 +83,9 @@ int dvbcrsc::output(int input) const
    // ip[0] = A, ip[1] = B
    assert(input != fsm::tail);
    // process input
-   bitfield ip(input,k);
+   bitfield ip(input, k);
    // compute the shift-register left input
-   bitfield lsi = ((ip[0]^ip[1]) + reg) * bitfield("1101");
+   bitfield lsi = ((ip[0] ^ ip[1]) + reg) * bitfield("1101");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
    bitfield op = ip;
@@ -124,4 +125,4 @@ std::istream& dvbcrsc::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace

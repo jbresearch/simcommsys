@@ -136,4 +136,4 @@ void CStatusGraph::Insert(CWnd *pWnd, const double x)
    pWnd->SendMessage(WM_STATUSGRAPH_INSERT, (UINT_PTR) new double(x));
    }
 
-}; // end namespace
+} // end namespace

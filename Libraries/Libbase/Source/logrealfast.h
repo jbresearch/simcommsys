@@ -18,40 +18,40 @@
 namespace libbase {
 
 /*!
-   \brief   Fast Logarithm Arithmetic.
-   \author  Johann Briffa
+ \brief   Fast Logarithm Arithmetic.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \note There is a hook to allow debugging by printing to a file the
-         difference values and the errors for all LUT access.
-         To activate, define DEBUGFILE.
+ \note There is a hook to allow debugging by printing to a file the
+ difference values and the errors for all LUT access.
+ To activate, define DEBUGFILE.
 
-   Implements log-scale arithmetic with table-lookup for speeding up
-   addition. The choice of LUT size and range is optimized at 128k entries
-   over [0,12].
+ Implements log-scale arithmetic with table-lookup for speeding up
+ addition. The choice of LUT size and range is optimized at 128k entries
+ over [0,12].
 
-   \note Constructor traps infinite values and NaN. Zero values are trapped
-         first; since zero is the default argument, there are many more calls
-         with this value than any other, so this should improve performance.
+ \note Constructor traps infinite values and NaN. Zero values are trapped
+ first; since zero is the default argument, there are many more calls
+ with this value than any other, so this should improve performance.
 
 
-   \note Comparison operators are provided between variables of this kind -
-         these are required by the turbo decoder when taking a hard decision
-         (actually it only uses the greater-than operator, but all comparisons
-         are defined here). When these were not supplied, the comparison was
-         performed _after_ a conversion to double, which can easily cause
-         under- or over-flow, leading to a useless comparison.
-*/
+ \note Comparison operators are provided between variables of this kind -
+ these are required by the turbo decoder when taking a hard decision
+ (actually it only uses the greater-than operator, but all comparisons
+ are defined here). When these were not supplied, the comparison was
+ performed _after_ a conversion to double, which can easily cause
+ under- or over-flow, leading to a useless comparison.
+ */
 
 class logrealfast {
-   static const int  lutsize;
+   static const int lutsize;
    static const double lutrange;
-   static double  *lut;
-   static bool    lutready;
+   static double *lut;
+   static bool lutready;
 #ifdef DEBUGFILE
    static std::ofstream file;
 #endif
@@ -79,12 +79,30 @@ public:
    logrealfast& operator*=(const logrealfast& a);
    logrealfast& operator/=(const logrealfast& a);
    // comparison
-   bool operator==(const logrealfast& a) const { return logval == a.logval; };
-   bool operator!=(const logrealfast& a) const { return logval != a.logval; };
-   bool operator>=(const logrealfast& a) const { return logval <= a.logval; };
-   bool operator<=(const logrealfast& a) const { return logval >= a.logval; };
-   bool operator>(const logrealfast& a) const { return logval < a.logval; };
-   bool operator<(const logrealfast& a) const { return logval > a.logval; };
+   bool operator==(const logrealfast& a) const
+      {
+      return logval == a.logval;
+      }
+   bool operator!=(const logrealfast& a) const
+      {
+      return logval != a.logval;
+      }
+   bool operator>=(const logrealfast& a) const
+      {
+      return logval <= a.logval;
+      }
+   bool operator<=(const logrealfast& a) const
+      {
+      return logval >= a.logval;
+      }
+   bool operator>(const logrealfast& a) const
+      {
+      return logval < a.logval;
+      }
+   bool operator<(const logrealfast& a) const
+      {
+      return logval > a.logval;
+      }
    // stream output
    friend std::ostream& operator<<(std::ostream& s, const logrealfast& x);
    // specialized power function
@@ -96,26 +114,28 @@ public:
 inline void logrealfast::ensurefinite(double& x)
    {
    const int inf = isinf(x);
-   if(inf < 0)
+   if (inf < 0)
       {
       x = -DBL_MAX;
 #ifndef NDEBUG
       static int warningcount = 10;
-      if(--warningcount > 0)
+      if (--warningcount > 0)
          trace << "WARNING (logrealfast): negative infinity.\n";
-      else if(warningcount == 0)
-         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+      else if (warningcount == 0)
+         trace
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
 #endif
       }
-   else if(inf > 0)
+   else if (inf > 0)
       {
       x = DBL_MAX;
 #ifndef NDEBUG
       static int warningcount = 10;
-      if(--warningcount > 0)
+      if (--warningcount > 0)
          trace << "WARNING (logrealfast): positive infinity.\n";
-      else if(warningcount == 0)
-         trace << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+      else if (warningcount == 0)
+         trace
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
 #endif
       }
    }
@@ -124,13 +144,13 @@ inline void logrealfast::ensurefinite(double& x)
 
 inline logrealfast::logrealfast()
    {
-   if(!lutready)
+   if (!lutready)
       buildlut();
    }
 
 inline logrealfast::logrealfast(const double m)
    {
-   if(!lutready)
+   if (!lutready)
       buildlut();
    logval = convertfromdouble(m);
    }
@@ -167,10 +187,10 @@ inline logrealfast& logrealfast::operator=(const double m)
 
 inline logrealfast& logrealfast::operator+=(const logrealfast& a)
    {
-   static const double lutinvstep = (lutsize-1)/lutrange;
+   static const double lutinvstep = (lutsize - 1) / lutrange;
    const double diff = fabs(logval - a.logval);
 
-   if(a.logval < logval)
+   if (a.logval < logval)
       logval = a.logval;
 
 #ifdef DEBUGFILE
@@ -178,9 +198,9 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
    logval -= offset;
 #endif
 
-   if(diff < lutrange)
+   if (diff < lutrange)
       {
-      const int index = int(round(diff*lutinvstep));
+      const int index = int(round(diff * lutinvstep));
       logval -= lut[index];
 #ifdef DEBUGFILE
       file << diff << "\t" << offset - lut[index] << "\n";
@@ -188,7 +208,7 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
       }
 #ifdef DEBUGFILE
    else
-      file << diff << "\t" << offset << "\n";
+   file << diff << "\t" << offset << "\n";
 #endif
 
    return *this;
@@ -241,6 +261,6 @@ inline logrealfast pow(const logrealfast& a, const double b)
    return result;
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

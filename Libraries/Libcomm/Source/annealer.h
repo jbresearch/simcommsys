@@ -9,45 +9,51 @@
 namespace libcomm {
 
 /*!
-   \brief   Simulated Annealing Algorithm.
-   \author  Johann Briffa
+ \brief   Simulated Annealing Algorithm.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 1.01 (10 Oct 2001)
-  added a virtual display function, to facilitate deriving from the class to produce a
-  windowed GUI (by using custom display routines), and also added a virtual interrupt
-  function to allow a derived class to stop the processing routine. Both functions are
-  protected so they can only be called by the class itself or by derived classes.
+ \version 1.01 (10 Oct 2001)
+ added a virtual display function, to facilitate deriving from the class to produce a
+ windowed GUI (by using custom display routines), and also added a virtual interrupt
+ function to allow a derived class to stop the processing routine. Both functions are
+ protected so they can only be called by the class itself or by derived classes.
 
-   \version 1.02 (16 Nov 2001)
-  added a virtual destructor.
+ \version 1.02 (16 Nov 2001)
+ added a virtual destructor.
 
-   \version 1.03 (23 Feb 2002)
-  added flushes to all end-of-line clog outputs, to clean up text user interface.
+ \version 1.03 (23 Feb 2002)
+ added flushes to all end-of-line clog outputs, to clean up text user interface.
 
-   \version 1.04 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+ \version 1.04 (6 Mar 2002)
+ changed vcs version variable from a global to a static class variable.
+ also changed use of iostream from global to std namespace.
 
-   \version 1.10 (27 Oct 2006)
-   - defined class and associated data within "libcomm" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-*/
+ \version 1.10 (27 Oct 2006)
+ - defined class and associated data within "libcomm" namespace.
+ - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ */
 
 class annealer {
 protected:
    anneal_system *system;
-   libbase::randgen  r;
-   double   Tstart, Tstop, rate;
-   int      min_iter, min_changes;
+   libbase::randgen r;
+   double Tstart, Tstop, rate;
+   int min_iter, min_changes;
 protected:
-   virtual ~annealer() {};
-   virtual bool interrupt() { return false; };
-   virtual void display(const double T, const double percent, const libbase::rvstatistics E);
+   virtual ~annealer()
+      {
+      }
+   virtual bool interrupt()
+      {
+      return false;
+      }
+   virtual void display(const double T, const double percent,
+         const libbase::rvstatistics E);
 public:
    void attach_system(anneal_system& system);
    void seedfrom(libbase::random& r);
@@ -57,6 +63,6 @@ public:
    void improve();
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

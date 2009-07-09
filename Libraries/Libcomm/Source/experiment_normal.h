@@ -6,22 +6,22 @@
 namespace libcomm {
 
 /*!
-   \brief   Experiment with normally distributed samples.
-   \author  Johann Briffa
+ \brief   Experiment with normally distributed samples.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Implements the accumulator functions required by the experiment class,
-   moved from previous implementation in montecarlo.
-*/
+ Implements the accumulator functions required by the experiment class,
+ moved from previous implementation in montecarlo.
+ */
 
 class experiment_normal : public experiment {
    /*! \name Internal variables */
-   libbase::vector<double> sum;     //!< Vector of result sums
-   libbase::vector<double> sumsq;   //!< Vector of result sum-of-squares
+   libbase::vector<double> sum; //!< Vector of result sums
+   libbase::vector<double> sumsq; //!< Vector of result sum-of-squares
    // @}
 
 protected:
@@ -34,9 +34,10 @@ protected:
 public:
    // Accumulator functions
    void get_state(libbase::vector<double>& state) const;
-   void estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const;
+   void estimate(libbase::vector<double>& estimate,
+         libbase::vector<double>& stderror) const;
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

@@ -6,17 +6,17 @@
 namespace testfsm {
 
 /*!
-   \brief   Test program for FSM objects
-   \author  Johann Briffa
+ \brief   Test program for FSM objects
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Serializes a FSM object from standard input; computes and displays
-   state table.
-*/
+ Serializes a FSM object from standard input; computes and displays
+ state table.
+ */
 
 int main(int argc, char *argv[])
    {
@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
 
    // compute and display state table
    cout << "PS\tIn\tOut\tNS\n";
-   for(int ps=0; ps<encoder->num_states(); ps++)
-      for(int in=0; in<encoder->num_inputs(); in++)
+   for (int ps = 0; ps < encoder->num_states(); ps++)
+      for (int in = 0; in < encoder->num_inputs(); in++)
          {
          cout << ps << '\t';
          cout << in << '\t';
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
    return 0;
    }
 
-}; // end namespace
+} // end namespace
 
 int main(int argc, char *argv[])
    {

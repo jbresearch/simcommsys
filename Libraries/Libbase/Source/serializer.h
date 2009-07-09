@@ -9,58 +9,58 @@
 namespace libbase {
 
 /*!
-   \brief   Serialization helper.
-   \author  Johann Briffa
+ \brief   Serialization helper.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Class created to allow the implementation of serialization functions
-   similar to MFC's. Concept is that derived classes should have a static
-   const serializer object within the class, which should be constructed
-   by giving it:
-   - the name of the derived class,
-   - the name of its base class (to which we would like to add support),
-   - and a pointer to a function which creates a new object of the derived
-     type. This would ideally be a static function for the derived class.
-   The base class then has access to these functions through a static
-   serializer function, to which it needs to give:
-   - its own name (ie that of the base class),
-   - and the derived class's name, the one to which it needs access.
-   This can be used within an istream >> function to dynamically create
-   & load a derived class object.
+ Class created to allow the implementation of serialization functions
+ similar to MFC's. Concept is that derived classes should have a static
+ const serializer object within the class, which should be constructed
+ by giving it:
+ - the name of the derived class,
+ - the name of its base class (to which we would like to add support),
+ - and a pointer to a function which creates a new object of the derived
+ type. This would ideally be a static function for the derived class.
+ The base class then has access to these functions through a static
+ serializer function, to which it needs to give:
+ - its own name (ie that of the base class),
+ - and the derived class's name, the one to which it needs access.
+ This can be used within an istream >> function to dynamically create
+ & load a derived class object.
 
-   In serializable classes, the stream << output function first writes the
-   name of the derived class, then calls its serialize() to output the data.
-   The name is obtained from the virtual name() function.
-   Similarly, the stream >> input function first gets the name from the stream,
-   then (via serialize::call) creates a new object of the appropriate type and
-   calls its serialize() function to get the relevant data.
+ In serializable classes, the stream << output function first writes the
+ name of the derived class, then calls its serialize() to output the data.
+ The name is obtained from the virtual name() function.
+ Similarly, the stream >> input function first gets the name from the stream,
+ then (via serialize::call) creates a new object of the appropriate type and
+ calls its serialize() function to get the relevant data.
 
-   \note In the constructor, the function pointer is passed directly, not by
-         reference. This is required to pass anything except global functions.
+ \note In the constructor, the function pointer is passed directly, not by
+ reference. This is required to pass anything except global functions.
 
-   \note The map is held as a static pointer to map. For some obscure reason,
-         static or global maps are leading to access violations. The pointer is
-         initially NULL, and when the first serializer object is created, space
-         for this is allocated.
-         A static counter keeps track of how many serializer objects are
-         defined. When this drops to zero, the global map is deallocated. Note
-         that this should only drop to zero on program end, assuming all
-         serializer objects are created with either global or static member
-         scope.
+ \note The map is held as a static pointer to map. For some obscure reason,
+ static or global maps are leading to access violations. The pointer is
+ initially NULL, and when the first serializer object is created, space
+ for this is allocated.
+ A static counter keeps track of how many serializer objects are
+ defined. When this drops to zero, the global map is deallocated. Note
+ that this should only drop to zero on program end, assuming all
+ serializer objects are created with either global or static member
+ scope.
 
-   \note Macros are defined to standardize declarations in serializable
-         classes; this mirrors what Microsoft do in MFC.
-*/
+ \note Macros are defined to standardize declarations in serializable
+ classes; this mirrors what Microsoft do in MFC.
+ */
 
 class serializer {
 public:
    typedef void*(*fptr)();
 private:
-   static std::map<std::string,fptr>* cmap;
+   static std::map<std::string, fptr>* cmap;
    static int count;
    std::string classname;
 public:
@@ -68,7 +68,10 @@ public:
 public:
    serializer(const std::string& base, const std::string& derived, fptr func);
    ~serializer();
-   const char *name() const { return classname.c_str(); };
+   const char *name() const
+      {
+      return classname.c_str();
+      }
 };
 
 #define DECLARE_BASE_SERIALIZER( class_name ) \
@@ -164,6 +167,6 @@ public:
       } \
    /* @} */
 
-}; // end namespace
+} // end namespace
 
 #endif

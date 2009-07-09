@@ -8,23 +8,25 @@
 namespace libcomm {
 
 /*!
-   \brief   Stream-loaded LUT Interleaver.
-   \author  Johann Briffa
+ \brief   Stream-loaded LUT Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-*/
+ */
 
 template <class real>
 class stream_lut : public named_lut<real> {
 public:
    stream_lut(const char *filename, FILE *file, const int tau, const int m);
-   ~stream_lut() {};
+   ~stream_lut()
+      {
+      }
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

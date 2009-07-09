@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "flat.h"
 #include <stdlib.h>
@@ -19,7 +19,7 @@ template <class real>
 void flat<real>::init(const int tau)
    {
    this->lut.init(tau);
-   for(int i=0; i<tau; i++)
+   for (int i = 0; i < tau; i++)
       this->lut(i) = i;
    }
 
@@ -55,16 +55,19 @@ std::istream& flat<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class flat<float>;
+template class flat<float>
 template <>
-const libbase::serializer flat<float>::shelper("interleaver", "flat<float>", flat<float>::create);
+const libbase::serializer flat<float>::shelper("interleaver", "flat<float>",
+      flat<float>::create);
 
-template class flat<double>;
+template class flat<double>
 template <>
-const libbase::serializer flat<double>::shelper("interleaver", "flat<double>", flat<double>::create);
+const libbase::serializer flat<double>::shelper("interleaver", "flat<double>",
+      flat<double>::create);
 
-template class flat<libbase::logrealfast>;
+template class flat<libbase::logrealfast>
 template <>
-const libbase::serializer flat<libbase::logrealfast>::shelper("interleaver", "flat<logrealfast>", flat<libbase::logrealfast>::create);
+const libbase::serializer flat<libbase::logrealfast>::shelper("interleaver",
+      "flat<logrealfast>", flat<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

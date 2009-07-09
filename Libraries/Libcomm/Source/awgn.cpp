@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "awgn.h"
 
@@ -17,7 +17,7 @@ const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
 
 void awgn::compute_parameters(const double Eb, const double No)
    {
-   sigma = sqrt(Eb*No);
+   sigma = sqrt(Eb * No);
    }
 
 // channel handle functions
@@ -55,4 +55,4 @@ std::istream& awgn::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace

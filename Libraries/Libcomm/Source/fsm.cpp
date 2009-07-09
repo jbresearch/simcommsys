@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "fsm.h"
 
@@ -22,7 +22,7 @@ void fsm::reset(int state)
 
 void fsm::resetcircular()
    {
-   resetcircular(state(),N);
+   resetcircular(state(), N);
    }
 
 // FSM operations
@@ -39,4 +39,4 @@ int fsm::step(int& input)
    return op;
    }
 
-}; // end namespace
+} // end namespace

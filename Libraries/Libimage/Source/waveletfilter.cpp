@@ -10,11 +10,13 @@ using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::vcs waveletfilter::version("Wavelet De-Noising Filter module (waveletfilter)", 1.40);
+const libbase::vcs waveletfilter::version(
+      "Wavelet De-Noising Filter module (waveletfilter)", 1.40);
 
 // helper functions
 
-void waveletfilter::createmask(matrix<bool>& mask, const int xsize, const int ysize) const
+void waveletfilter::createmask(matrix<bool>& mask, const int xsize,
+      const int ysize) const
    {
    // initialize mask with all elements selected
    mask.init(xsize, ysize);
@@ -30,7 +32,9 @@ void waveletfilter::createmask(matrix<bool>& mask, const int xsize, const int ys
 
 // initialization
 
-void waveletfilter::init(const int nType, const int nPar, const int nLevel, const int nThreshType, const int nThreshSelector, const double dThreshCutoff)
+void waveletfilter::init(const int nType, const int nPar, const int nLevel,
+      const int nThreshType, const int nThreshSelector,
+      const double dThreshCutoff)
    {
    m_wWavelet.init(nType, nPar);
    m_nWaveletLevel = nLevel;
@@ -49,10 +53,11 @@ void waveletfilter::reset()
 
 void waveletfilter::update(const matrix<double>& in)
    {
-   switch(m_nThreshSelector)
+   switch (m_nThreshSelector)
       {
       // % of coefficients
-      case 0: {
+      case 0:
+         {
          // do the wavelet transform of this matrix at the requested level
          matrix<double> out;
          m_wWavelet.transform(in, out, m_nWaveletLevel);
@@ -62,62 +67,82 @@ void waveletfilter::update(const matrix<double>& in)
          // convert masked section to a vector
          vector<double> v = out.mask(mask);
          // append values to the list
-         for(int i=0; i<v.size(); i++)
+         for (int i = 0; i < v.size(); i++)
             m_vdCoefficient.push_back(fabs(v(i)));
-         } break;
-      // Hybrid+      
+         }
+         break;
+         // Hybrid+
       case 4:
-      // SURE
+         // SURE
       case 3:
-      // Minimax
+         // Minimax
       case 2:
-      // Visu
-      case 1: {
+         // Visu
+      case 1:
+         {
          // do the wavelet transform of this matrix at level 1 only
          matrix<double> out;
          m_wWavelet.transform(in, out, m_nWaveletLevel);
          // append [hi,hi] values to the list
-         for(int i=out.size().rows()>>1; i<out.size().rows(); i++)
-            for(int j=out.size().cols()>>1; j<out.size().cols(); j++)
-               m_vdCoefficient.push_back(fabs(out(i,j)));
+         for (int i = out.size().rows() >> 1; i < out.size().rows(); i++)
+            for (int j = out.size().cols() >> 1; j < out.size().cols(); j++)
+               m_vdCoefficient.push_back(fabs(out(i, j)));
          // update size
          m_nSize += in.size();
-         } break;
-      // unsupported type
-      default: {
+         }
+         break;
+         // unsupported type
+      default:
+         {
          cerr << "Unknown threshold selector (" << m_nThreshSelector << ").\n";
-         } break;
+         }
+         break;
       }
    }
 
 void waveletfilter::estimate()
    {
    sort(m_vdCoefficient.begin(), m_vdCoefficient.end());
-   switch(m_nThreshSelector)
+   switch (m_nThreshSelector)
       {
       // % of coefficients
-      case 0: {
-         m_dThreshValue = m_vdCoefficient[int(libbase::round(m_vdCoefficient.size() * m_dThreshCutoff))];
-         } break;
-      // Visu
-      case 1: {
-         const double dSigma = m_vdCoefficient[m_vdCoefficient.size()/2] / 0.6745;
-         trace << "Estimated noise std = " << dSigma << " (" << 20*log10(dSigma) << "dB)\n";
-         m_dThreshValue = dSigma * sqrt(2*log(double(m_nSize)));
-         } break;
-      // Minimax
-      case 2: {
-         } break;
-      // SURE
-      case 3: {
-         } break;
-      // Hybrid+      
-      case 4: {
-         } break;
-      // unsupported type
-      default: {
+      case 0:
+         {
+         m_dThreshValue = m_vdCoefficient[int(libbase::round(
+               m_vdCoefficient.size() * m_dThreshCutoff))];
+         }
+         break;
+         // Visu
+      case 1:
+         {
+         const double dSigma = m_vdCoefficient[m_vdCoefficient.size() / 2]
+               / 0.6745;
+         trace << "Estimated noise std = " << dSigma << " (" << 20 * log10(
+               dSigma) << "dB)\n";
+         m_dThreshValue = dSigma * sqrt(2 * log(double(m_nSize)));
+         }
+         break;
+         // Minimax
+      case 2:
+         {
+         }
+         break;
+         // SURE
+      case 3:
+         {
+         }
+         break;
+         // Hybrid+
+      case 4:
+         {
+         }
+         break;
+         // unsupported type
+      default:
+         {
          cerr << "Unknown threshold selector (" << m_nThreshSelector << ").\n";
-         } break;
+         }
+         break;
       }
    trace << "Threshold = " << m_dThreshValue << "\n";
    }
@@ -127,11 +152,11 @@ void waveletfilter::estimate()
 void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
    {
    // initial progress
-   display_progress(0,3);
+   display_progress(0, 3);
 
    // do the wavelet transform of this matrix
    m_wWavelet.transform(in, out, m_nWaveletLevel);
-   display_progress(1,3);
+   display_progress(1, 3);
 
    // mask out low-frequency coefficients
    matrix<bool> hipass;
@@ -141,14 +166,14 @@ void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
    outabs.apply(fabs);
    // do the truncation / shrinkage
    matrix<bool> selection;
-   switch(m_nThreshType)
+   switch (m_nThreshType)
       {
-      case 0:  // hard thresholding
+      case 0: // hard thresholding
          selection = outabs < m_dThreshValue;
          selection &= hipass;
          out.mask(selection) = 0;
          break;
-      case 1:  // soft thresholding
+      case 1: // soft thresholding
          selection = out > m_dThreshValue;
          selection &= hipass;
          out.mask(selection) -= m_dThreshValue;
@@ -165,12 +190,13 @@ void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
       }
    const int count = out.mask(selection).size();
    const int n = in.size();
-   trace << "Retained " << n-count << " coefficients (" << 100.0*(n-count)/n << "%)\n";
-   display_progress(2,3);
+   trace << "Retained " << n - count << " coefficients (" << 100.0
+         * (n - count) / n << "%)\n";
+   display_progress(2, 3);
 
    // do the inverse transform
    m_wWavelet.inverse(out, out, m_nWaveletLevel);
-   display_progress(3,3);
+   display_progress(3, 3);
    }
 
-}; // end namespace
+} // end namespace

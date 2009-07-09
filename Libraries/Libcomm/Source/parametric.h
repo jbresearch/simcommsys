@@ -6,21 +6,23 @@
 namespace libcomm {
 
 /*!
-   \brief   Parametric Clas Interface.
-   \author  Johann Briffa
+ \brief   Parametric Clas Interface.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Defines a class that takes a scalar parameter.
-*/
+ Defines a class that takes a scalar parameter.
+ */
 
 class parametric {
 public:
    /*! \name Constructors / Destructors */
-   virtual ~parametric() {};
+   virtual ~parametric()
+      {
+      }
    // @}
 
    /*! \name Parameter handling */
@@ -32,6 +34,6 @@ public:
 
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

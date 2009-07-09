@@ -72,4 +72,4 @@ void CWorkerThread::ThreadWaitFinish()
       ::WaitForSingleObject(m_eventDone, INFINITE);
    }
 
-}; // end namespace
+} // end namespace

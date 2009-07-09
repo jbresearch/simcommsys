@@ -12,32 +12,32 @@
 namespace libbase {
 
 /*!
-   \brief   GNU Multi-Precision Arithmetic.
-   \author  Johann Briffa
+ \brief   GNU Multi-Precision Arithmetic.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 1.01 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+ \version 1.01 (6 Mar 2002)
+ changed vcs version variable from a global to a static class variable.
+ also changed use of iostream from global to std namespace.
 
-   \version 1.10 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-*/
+ \version 1.10 (26 Oct 2006)
+ - defined class and associated data within "libbase" namespace.
+ - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ */
 
 class mpgnu {
    static void init();
 #ifdef GMP
    static mpf_t dblmin, dblmax;
-   mpf_t        value;
+   mpf_t value;
 #endif
 public:
    ~mpgnu();
-   mpgnu(const double m=0);
+   mpgnu(const double m = 0);
    mpgnu(const mpgnu& a);
 
    operator double() const;
@@ -94,11 +94,11 @@ inline mpgnu::operator double() const
 #else
    double result;
    if(mpf_cmp(value, dblmin) <= 0)
-      result = DBL_MIN;
+   result = DBL_MIN;
    else if(mpf_cmp(value, dblmax) >= 0)
-      result = DBL_MAX;
+   result = DBL_MAX;
    else
-      result = mpf_get_d(value);
+   result = mpf_get_d(value);
 #endif
    return result;
    }
@@ -214,6 +214,6 @@ inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
    return s;
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

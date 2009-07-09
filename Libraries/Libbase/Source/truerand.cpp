@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "truerand.h"
 #include "stdlib.h"
@@ -34,7 +34,7 @@ truerand::truerand()
       }
 #else
    fd = open("/dev/random", O_RDONLY);
-   if(fd < 0)
+   if (fd < 0)
       {
       std::cerr << "ERROR (truerand): cannot open /dev/random.\n";
       exit(1);
@@ -70,4 +70,4 @@ inline void truerand::advance()
 #endif
    }
 
-}; // end namespace
+} // end namespace

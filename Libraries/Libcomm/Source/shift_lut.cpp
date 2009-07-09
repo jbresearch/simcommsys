@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "shift_lut.h"
 #include <sstream>
@@ -20,7 +20,7 @@ void shift_lut<real>::init(const int amount, const int tau)
    shift_lut<real>::amount = amount;
 
    this->lut.init(tau);
-   for(int i=0; i<tau; i++)
+   for (int i = 0; i < tau; i++)
       this->lut(i) = (i + amount) % tau;
    }
 
@@ -57,16 +57,20 @@ std::istream& shift_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class shift_lut<float>;
+template class shift_lut<float>
 template <>
-const libbase::serializer shift_lut<float>::shelper("interleaver", "shift_lut<float>", shift_lut<float>::create);
+const libbase::serializer shift_lut<float>::shelper("interleaver",
+      "shift_lut<float>", shift_lut<float>::create);
 
-template class shift_lut<double>;
+template class shift_lut<double>
 template <>
-const libbase::serializer shift_lut<double>::shelper("interleaver", "shift_lut<double>", shift_lut<double>::create);
+const libbase::serializer shift_lut<double>::shelper("interleaver",
+      "shift_lut<double>", shift_lut<double>::create);
 
-template class shift_lut<libbase::logrealfast>;
+template class shift_lut<libbase::logrealfast>
 template <>
-const libbase::serializer shift_lut<libbase::logrealfast>::shelper("interleaver", "shift_lut<logrealfast>", shift_lut<libbase::logrealfast>::create);
+const libbase::serializer shift_lut<libbase::logrealfast>::shelper(
+      "interleaver", "shift_lut<logrealfast>",
+      shift_lut<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

@@ -143,4 +143,4 @@ libbase::matrix<double> picture::luminance() const
    return r;
    }
 
-}; // end namespace
+} // end namespace

@@ -8,18 +8,18 @@
 namespace libcomm {
 
 /*!
-   \brief   QAM Modulator.
-   \author  Johann Briffa
+ \brief   QAM Modulator.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 1.00 (3 Jan 2008)
-   - Initial version, implements square QAM with Gray-coded mapping
-   - Derived from mpsk 2.20
-*/
+ \version 1.00 (3 Jan 2008)
+ - Initial version, implements square QAM with Gray-coded mapping
+ - Derived from mpsk 2.20
+ */
 
 class qam : public lut_modulator {
 protected:
@@ -28,21 +28,28 @@ protected:
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
-   qam() {};
+   qam()
+      {
+      }
    // @}
 public:
    /*! \name Constructors / Destructors */
-   qam(const int m) { init(m); };
-   ~qam() {};
+   qam(const int m)
+      {
+      init(m);
+      }
+   ~qam()
+      {
+      }
    // @}
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(qam);
+DECLARE_SERIALIZER(qam);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

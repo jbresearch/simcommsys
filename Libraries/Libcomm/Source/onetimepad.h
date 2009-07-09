@@ -11,14 +11,14 @@
 namespace libcomm {
 
 /*!
-   \brief   One Time Pad Interleaver.
-   \author  Johann Briffa
+ \brief   One Time Pad Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 template <class real>
 class onetimepad : public interleaver<real> {
@@ -29,7 +29,8 @@ class onetimepad : public interleaver<real> {
 protected:
    onetimepad();
 public:
-   onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable);
+   onetimepad(const fsm& encoder, const int tau, const bool terminated,
+         const bool renewable);
    onetimepad(const onetimepad& x);
    ~onetimepad();
 
@@ -38,20 +39,26 @@ public:
    void advance();
 
    // Transform functions
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
-   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void
+         transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void
+         transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void
+         inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
 
    // Information functions
-   int size() const { return pad.size(); };
+   int size() const
+      {
+      return pad.size();
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(onetimepad);
+DECLARE_SERIALIZER(onetimepad);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

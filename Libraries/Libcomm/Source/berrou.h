@@ -9,33 +9,40 @@
 namespace libcomm {
 
 /*!
-   \brief   Berrou's Original Interleaver.
-   \author  Johann Briffa
+ \brief   Berrou's Original Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 template <class real>
 class berrou : public lut_interleaver<real> {
    int M;
 protected:
    void init(const int M);
-   berrou() {};
+   berrou()
+      {
+      }
 public:
-   berrou(const int M) { init(M); };
-   ~berrou() {};
+   berrou(const int M)
+      {
+      init(M);
+      }
+   ~berrou()
+      {
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(berrou);
+DECLARE_SERIALIZER(berrou);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

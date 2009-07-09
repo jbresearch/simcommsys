@@ -26,8 +26,8 @@ void TestModem(blockmodem<S> &mdm)
    assert(m == 1<<bits);
    cout << '\n' << mdm.description() << '\n';
    cout << "Average Energy/symbol: " << mdm.energy() << '\n';
-   for(int i=0; i<m; i++)
-      cout << bitfield(gray(i),bits) << '\t' << mdm.modulate(gray(i)) << '\n';
+   for (int i = 0; i < m; i++)
+      cout << bitfield(gray(i), bits) << '\t' << mdm.modulate(gray(i)) << '\n';
    }
 
 void TestMPSK(int m)
@@ -43,14 +43,14 @@ void TestQAM(int m)
    }
 
 /*!
-   \brief   Test program for modem class
-   \author  Johann Briffa
+ \brief   Test program for modem class
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 int main(int argc, char *argv[])
    {
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
    return 0;
    }
 
-}; // end namespace
+} // end namespace
 
 int main(int argc, char *argv[])
    {

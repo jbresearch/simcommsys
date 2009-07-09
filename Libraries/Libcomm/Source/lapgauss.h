@@ -10,21 +10,21 @@
 namespace libcomm {
 
 /*!
-   \brief   Additive Laplacian-Gaussian Channel.
-   \author  Johann Briffa
+ \brief   Additive Laplacian-Gaussian Channel.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \todo this class is still unfinished, and only implements the plain
-         Gaussian channel right now
-*/
+ \todo this class is still unfinished, and only implements the plain
+ Gaussian channel right now
+ */
 
 class lapgauss : public channel<sigspace> {
    // channel paremeters
-   double               sigma;
+   double sigma;
 protected:
    // handle functions
    void compute_parameters(const double Eb, const double No);
@@ -39,10 +39,10 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(lapgauss);
+DECLARE_SERIALIZER(lapgauss);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

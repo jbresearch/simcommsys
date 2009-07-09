@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "rand_lut.h"
 #include "vector.h"
@@ -18,10 +18,11 @@ namespace libcomm {
 template <class real>
 void rand_lut<real>::init(const int tau, const int m)
    {
-   p = (1<<m)-1;
-   if(tau % p != 0)
+   p = (1 << m) - 1;
+   if (tau % p != 0)
       {
-      std::cerr << "FATAL ERROR (rand_lut): interleaver length must be a multiple of the encoder impulse respone length.\n";
+      std::cerr
+            << "FATAL ERROR (rand_lut): interleaver length must be a multiple of the encoder impulse respone length.\n";
       exit(1);
       }
    this->lut.init(tau);
@@ -44,12 +45,13 @@ void rand_lut<real>::advance()
    libbase::vector<bool> used(tau);
    used = false;
    // fill in lut
-   for(int t=0; t<tau; t++)
+   for (int t = 0; t < tau; t++)
       {
       int tdash;
-      do {
-         tdash = int(r.ival(tau)/p)*p + t%p;
-         } while(used(tdash));
+      do
+         {
+         tdash = int(r.ival(tau) / p) * p + t % p;
+         } while (used(tdash));
       used(tdash) = true;
       this->lut(t) = tdash;
       }
@@ -61,7 +63,8 @@ template <class real>
 std::string rand_lut<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Random Interleaver (self-terminating for m=" << int(log2(p+1)) << ")";
+   sout << "Random Interleaver (self-terminating for m=" << int(log2(p + 1))
+         << ")";
    return sout.str();
    }
 
@@ -71,7 +74,7 @@ template <class real>
 std::ostream& rand_lut<real>::serialize(std::ostream& sout) const
    {
    sout << this->lut.size() << "\n";
-   sout << int(log2(p+1)) << "\n";
+   sout << int(log2(p + 1)) << "\n";
    return sout;
    }
 
@@ -88,16 +91,20 @@ std::istream& rand_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class rand_lut<float>;
+template class rand_lut<float>
 template <>
-const libbase::serializer rand_lut<float>::shelper("interleaver", "rand_lut<float>", rand_lut<float>::create);
+const libbase::serializer rand_lut<float>::shelper("interleaver",
+      "rand_lut<float>", rand_lut<float>::create);
 
-template class rand_lut<double>;
+template class rand_lut<double>
 template <>
-const libbase::serializer rand_lut<double>::shelper("interleaver", "rand_lut<double>", rand_lut<double>::create);
+const libbase::serializer rand_lut<double>::shelper("interleaver",
+      "rand_lut<double>", rand_lut<double>::create);
 
-template class rand_lut<libbase::logrealfast>;
+template class rand_lut<libbase::logrealfast>
 template <>
-const libbase::serializer rand_lut<libbase::logrealfast>::shelper("interleaver", "rand_lut<logrealfast>", rand_lut<libbase::logrealfast>::create);
+const libbase::serializer rand_lut<libbase::logrealfast>::shelper(
+      "interleaver", "rand_lut<logrealfast>",
+      rand_lut<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

@@ -8,16 +8,16 @@
 namespace libcomm {
 
 /*!
-   \brief   CommSys Results - Symbol/Frame Error Rates.
-   \author  Johann Briffa
+ \brief   CommSys Results - Symbol/Frame Error Rates.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Implements standard error rate calculators.
-*/
+ Implements standard error rate calculators.
+ */
 class commsys_errorrates {
 protected:
    /*! \name System Interface */
@@ -29,22 +29,31 @@ protected:
    virtual int get_alphabetsize() const = 0;
    // @}
    /*! \name Helper functions */
-   int countbiterrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
-   int countsymerrors(const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   int countbiterrors(const libbase::vector<int>& source,
+         const libbase::vector<int>& decoded) const;
+   int countsymerrors(const libbase::vector<int>& source,
+         const libbase::vector<int>& decoded) const;
    // @}
 public:
-   virtual ~commsys_errorrates() {};
+   virtual ~commsys_errorrates()
+      {
+      }
    /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const int i, const libbase::vector<int>& source, const libbase::vector<int>& decoded) const;
+   void updateresults(libbase::vector<double>& result, const int i,
+         const libbase::vector<int>& source,
+         const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-       For each iteration, we count the number of symbol and frame errors
-   */
-   int count() const { return 2*get_iter(); };
+    For each iteration, we count the number of symbol and frame errors
+    */
+   int count() const
+      {
+      return 2 * get_iter();
+      }
    int get_multiplicity(int i) const;
    std::string result_description(int i) const;
    // @}
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

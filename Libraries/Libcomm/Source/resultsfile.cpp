@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "resultsfile.h"
 
@@ -62,7 +62,7 @@ void resultsfile::checkformodifications(std::fstream& file)
    curdigest.process(file);
    // reset file
    file.clear();
-   if(curdigest == filedigest)
+   if (curdigest == filedigest)
       file.seekp(fileptr);
    else
       {
@@ -103,11 +103,11 @@ void resultsfile::setupfile()
    // start timer for interim results writing
    t.start();
    // if this is not the first time, that's all
-   if(headerwritten)
+   if (headerwritten)
       return;
    // open file for input and output
    std::fstream file(fname.c_str());
-   if(!file)
+   if (!file)
       {
       trace << "DEBUG (montecarlo): results file not found - creating.\n";
       // create the file first if necessary
@@ -132,12 +132,13 @@ void resultsfile::setupfile()
    headerwritten = true;
    }
 
-void resultsfile::writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance)
+void resultsfile::writeinterimresults(libbase::vector<double>& result,
+      libbase::vector<double>& tolerance)
    {
    assert(!fname.empty());
    assert(t.isrunning());
    // restrict updates to occur every 30 seconds or less
-   if(t.elapsed() < 30)
+   if (t.elapsed() < 30)
       return;
    // open file for input and output
    std::fstream file(fname.c_str());
@@ -150,7 +151,8 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result, libbase::
    t.start();
    }
 
-void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, bool savestate)
+void resultsfile::writefinalresults(libbase::vector<double>& result,
+      libbase::vector<double>& tolerance, bool savestate)
    {
    assert(!fname.empty());
    assert(t.isrunning());
@@ -159,7 +161,7 @@ void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::ve
    assertalways(file.good());
    checkformodifications(file);
    writeresults(file, result, tolerance);
-   if(savestate)
+   if (savestate)
       writestate(file);
    // update write-position
    fileptr = file.tellp();
@@ -168,4 +170,4 @@ void resultsfile::writefinalresults(libbase::vector<double>& result, libbase::ve
    t.stop();
    }
 
-}; // end namespace
+} // end namespace

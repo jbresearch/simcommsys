@@ -572,6 +572,6 @@ bool CPSPlugIn::GetBoolean(PIReadDescriptor token, bool *data)
    return false;
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

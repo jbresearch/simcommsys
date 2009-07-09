@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "socket.h"
 
@@ -78,19 +78,20 @@ ssize_t socket::io(void *buf, size_t len)
 template <class T>
 ssize_t socket::insistio(T buf, size_t len)
    {
-   const char *b = (const char *)buf;
+   const char *b = (const char *) buf;
    //T b = buf;
    size_t rem = len;
 
-   do {
+   do
+      {
       ssize_t n = io(T(b), rem);
-      if(n < 0)
+      if (n < 0)
          return n;
-      if(n == 0)
+      if (n == 0)
          return len - rem;
       rem -= n;
       b += n;
-      } while(rem);
+      } while (rem);
 
    return len;
    }
@@ -124,7 +125,7 @@ socket::socket()
 
 socket::~socket()
    {
-   if(sd >= 0)
+   if (sd >= 0)
       {
       trace << "DEBUG (~socket): closing socket " << sd << "\n";
 #ifdef WIN32
@@ -150,7 +151,7 @@ socket::~socket()
 
 bool socket::bind(int16u port)
    {
-   if((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+   if ((sd = (int) ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
       {
       cerr << "ERROR (bind): Failed to create socket descriptor\n";
       return false;
@@ -165,18 +166,18 @@ bool socket::bind(int16u port)
 #ifdef WIN32
    if(setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt)))
 #else
-   if(setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
+   if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
 #endif
       {
       cerr << "ERROR (bind): Failed to set socket options\n";
       return false;
       }
-   if(::bind(sd, (struct sockaddr *) &sin, sizeof(struct sockaddr_in)))
+   if (::bind(sd, (struct sockaddr *) &sin, sizeof(struct sockaddr_in)))
       {
       cerr << "ERROR (bind): Failed to bind socket options\n";
       return false;
       }
-   if(listen(sd, 5))
+   if (listen(sd, 5))
       {
       cerr << "ERROR (bind): Failure on listening for connections\n";
       return false;
@@ -194,23 +195,23 @@ std::list<socket *> socket::select(std::list<socket *> sl, const double timeout)
    FD_ZERO(&rfds);
 
    int max = 0;
-   for(std::list<socket *>::iterator i=sl.begin(); i!=sl.end(); ++i)
+   for (std::list<socket *>::iterator i = sl.begin(); i != sl.end(); ++i)
       {
       FD_SET((*i)->sd, &rfds);
-      if((*i)->sd > max)
+      if ((*i)->sd > max)
          max = (*i)->sd;
       }
    ++max;
 
    struct timeval s_timeout;
    s_timeout.tv_sec = int(floor(timeout));
-   s_timeout.tv_usec = int((timeout-floor(timeout)) * 1E6);
-   ::select(max, &rfds, NULL, NULL, timeout==0 ? NULL : &s_timeout);
+   s_timeout.tv_usec = int((timeout - floor(timeout)) * 1E6);
+   ::select(max, &rfds, NULL, NULL, timeout == 0 ? NULL : &s_timeout);
 
    std::list<socket *> al;
-   for(std::list<socket *>::iterator i=sl.begin(); i!=sl.end(); ++i)
+   for (std::list<socket *>::iterator i = sl.begin(); i != sl.end(); ++i)
       {
-      if(FD_ISSET((*i)->sd, &rfds))
+      if (FD_ISSET((*i)->sd, &rfds))
          al.push_back(*i);
       }
 
@@ -222,8 +223,8 @@ socket *socket::accept()
    socket *s = new socket;
    socklen_t len = sizeof(struct sockaddr_in);
    struct sockaddr_in clnt;
-   s->sd = (int)::accept(sd, (struct sockaddr *) &clnt, &len);
-   if(s->sd < 0)
+   s->sd = (int) ::accept(sd, (struct sockaddr *) &clnt, &len);
+   if (s->sd < 0)
       {
       cerr << "ERROR (accept): Failure on listening for connections\n";
       exit(1);
@@ -231,7 +232,8 @@ socket *socket::accept()
    s->ip = inet_ntoa(clnt.sin_addr);
    s->port = ntohs(clnt.sin_port);
    s->listener = false;
-   trace << "DEBUG (accept): Accepted new client from " << s->ip << ":" << s->port << "\n";
+   trace << "DEBUG (accept): Accepted new client from " << s->ip << ":"
+         << s->port << "\n";
    return s;
    }
 
@@ -239,7 +241,7 @@ socket *socket::accept()
 
 bool socket::connect(std::string hostname, int16u port)
    {
-   if((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+   if ((sd = (int) ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
       {
       cerr << "ERROR (connect): Failed to create socket descriptor\n";
       return false;
@@ -251,19 +253,21 @@ bool socket::connect(std::string hostname, int16u port)
 
    // Do a DNS lookup of the hostname and try to connect
    struct hostent *hp;
-   if( !(hp = gethostbyname(hostname.c_str())) )
+   if (!(hp = gethostbyname(hostname.c_str())))
       {
       cerr << "ERROR (connect): Failed to resolve host address\n";
       return false;
       }
    memcpy(&sin.sin_addr, hp->h_addr_list[0], sizeof(struct in_addr));
 
-   for(int i=1; i <= connect_tries; i++)
+   for (int i = 1; i <= connect_tries; i++)
       {
-      if(::connect(sd, (struct sockaddr *) &sin, sizeof(struct sockaddr_in)) == 0)
+      if (::connect(sd, (struct sockaddr *) &sin, sizeof(struct sockaddr_in))
+            == 0)
          break;
-      cerr << "WARNING (connect): Connect failed, try " << i << " of " << connect_tries << "\n";
-      if(i == connect_tries)
+      cerr << "WARNING (connect): Connect failed, try " << i << " of "
+            << connect_tries << "\n";
+      if (i == connect_tries)
          {
          cerr << "ERROR (connect): Too many connection failures\n";
          return false;
@@ -277,7 +281,8 @@ bool socket::connect(std::string hostname, int16u port)
       }
 
    // TCP/IP connection has been established
-   trace << "DEBUG (connect): Connections to " << hostname << ":" << port << " established\n";
+   trace << "DEBUG (connect): Connections to " << hostname << ":" << port
+         << " established\n";
    socket::ip = hostname;
    socket::port = port;
    return true;
@@ -288,21 +293,25 @@ bool socket::connect(std::string hostname, int16u port)
 ssize_t socket::write(const void *buf, size_t len)
    {
    return io(buf, len);
-   };
+   }
+;
 
 ssize_t socket::read(void *buf, size_t len)
    {
    return io(buf, len);
-   };
+   }
+;
 
 bool socket::insistwrite(const void *buf, size_t len)
    {
    return insistio(buf, len) == ssize_t(len);
-   };
+   }
+;
 
 bool socket::insistread(void *buf, size_t len)
    {
    return insistio(buf, len) == ssize_t(len);
-   };
+   }
+;
 
-}; // end namespace
+} // end namespace

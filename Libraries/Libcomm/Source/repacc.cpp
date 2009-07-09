@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "repacc.h"
 #include <sstream>
@@ -24,7 +24,7 @@ namespace libcomm {
 // initialization / de-allocation
 
 template <class real, class dbl>
-void repacc<real,dbl>::init()
+void repacc<real, dbl>::init()
    {
    // check presence of components
    assertalways(inter);
@@ -42,18 +42,18 @@ void repacc<real,dbl>::init()
    }
 
 template <class real, class dbl>
-void repacc<real,dbl>::free()
+void repacc<real, dbl>::free()
    {
-   if(acc != NULL)
+   if (acc != NULL)
       delete acc;
-   if(inter != NULL)
+   if (inter != NULL)
       delete inter;
    }
 
 template <class real, class dbl>
-void repacc<real,dbl>::reset()
+void repacc<real, dbl>::reset()
    {
-   if(endatzero)
+   if (endatzero)
       {
       BCJR::setstart(0);
       BCJR::setend(0);
@@ -68,10 +68,10 @@ void repacc<real,dbl>::reset()
 // memory allocator (for internal use only)
 
 template <class real, class dbl>
-void repacc<real,dbl>::allocate()
+void repacc<real, dbl>::allocate()
    {
    rp.init(This::input_block_size());
-   for(int i=0; i<This::input_block_size(); i++)
+   for (int i = 0; i < This::input_block_size(); i++)
       rp(i).init(This::num_inputs());
    //rp.init(This::input_block_size(), This::num_inputs());
    ra.init(This::output_block_size(), acc->num_inputs());
@@ -80,8 +80,8 @@ void repacc<real,dbl>::allocate()
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "RepAcc Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << ( rp.size() + ra.size() + R.size()
-      )*sizeof(dbl)/double(1<<20) << "MB\n";
+   std::cerr << (rp.size() + ra.size() + R.size()) * sizeof(dbl) / double(1
+         << 20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
@@ -90,16 +90,15 @@ void repacc<real,dbl>::allocate()
 // constructor / destructor
 
 template <class real, class dbl>
-repacc<real,dbl>::repacc() :
-   inter(NULL),
-   acc(NULL)
+repacc<real, dbl>::repacc() :
+   inter(NULL), acc(NULL)
    {
    }
 
 // internal codec functions
 
 template <class real, class dbl>
-void repacc<real,dbl>::resetpriors()
+void repacc<real, dbl>::resetpriors()
    {
    // Should be called after setreceivers()
    assertalways(initialised);
@@ -108,7 +107,7 @@ void repacc<real,dbl>::resetpriors()
    }
 
 template <class real, class dbl>
-void repacc<real,dbl>::setpriors(const array1vd_t& ptable)
+void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -116,21 +115,21 @@ void repacc<real,dbl>::setpriors(const array1vd_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
    // Take into account intrinsic source statistics
-   for(int t=0; t<This::input_block_size(); t++)
-      for(int i=0; i<This::num_inputs(); i++)
+   for (int t = 0; t < This::input_block_size(); t++)
+      for (int i = 0; i < This::num_inputs(); i++)
          rp(t)(i) *= ptable(t)(i);
    }
 
 /*! \copydoc codec_softout::setreceiver()
 
-   Sets: ra, R
+ Sets: ra, R
 
-   \note The BCJR normalization method is used to normalize the channel-derived
-         (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
-         probabilities are now created normalized.
-*/
+ \note The BCJR normalization method is used to normalize the channel-derived
+ (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+ probabilities are now created normalized.
+ */
 template <class real, class dbl>
-void repacc<real,dbl>::setreceiver(const array1vd_t& ptable)
+void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
    {
    // Encoder symbol space must be the same as modulation symbol space
    assertalways(ptable.size() > 0);
@@ -139,7 +138,7 @@ void repacc<real,dbl>::setreceiver(const array1vd_t& ptable)
    assertalways(ptable.size() == This::output_block_size());
 
    // initialise memory if necessary
-   if(!initialised)
+   if (!initialised)
       allocate();
 
    // Initialise extrinsic accumulator-input statistics (natural)
@@ -147,10 +146,10 @@ void repacc<real,dbl>::setreceiver(const array1vd_t& ptable)
    // Determine intrinsic accumulator-output statistics (interleaved)
    // from the channel
    R = 0.0;
-   for(int i=0; i<This::output_block_size(); i++)
-      for(int x=0; x<This::num_outputs(); x++)
-         for(int j=0; j<This::num_inputs(); j++)
-            R(i, x*This::num_inputs()+j) = dbl(ptable(i)(x));
+   for (int i = 0; i < This::output_block_size(); i++)
+      for (int x = 0; x < This::num_outputs(); x++)
+         for (int j = 0; j < This::num_inputs(); j++)
+            R(i, x * This::num_inputs() + j) = dbl(ptable(i)(x));
    BCJR::normalize(R);
 
    // Reset start- and end-state probabilities
@@ -160,22 +159,22 @@ void repacc<real,dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class real, class dbl>
-void repacc<real,dbl>::seedfrom(libbase::random& r)
+void repacc<real, dbl>::seedfrom(libbase::random& r)
    {
    inter->seedfrom(r);
    }
 
 template <class real, class dbl>
-void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
    // Compute repeater output
    array1i_t rep0;
-   rep.encode(source,rep0);
+   rep.encode(source, rep0);
    // Copy and add any necessary tail
    array1i_t rep1(This::output_block_size());
    rep1.copyfrom(rep0);
-   for(int i=rep0.size(); i<rep1.size(); i++)
+   for (int i = rep0.size(); i < rep1.size(); i++)
       rep1(i) = fsm::tail;
    // Create interleaved sequence
    array1i_t rep2;
@@ -187,24 +186,24 @@ void repacc<real,dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Reset the encoder to zero state
    acc->reset(0);
    // Encode sequence
-   for(int i=0; i<This::output_block_size(); i++)
+   for (int i = 0; i < This::output_block_size(); i++)
       encoded(i) = acc->step(rep2(i)) / This::num_inputs();
    // check that encoder finishes correctly
-   if(endatzero)
+   if (endatzero)
       assertalways(acc->state() == 0);
    }
 
 /*! \copydoc codec_softout::softdecode()
 
-   \note Implements soft-decision decoding according to Alexandre's
-         interpretation:
-         - when computing final output at repetition code, use only extrinsic
-           information from accumulator
-         - when computing extrinsic output at rep code, factor out the input
-           information at that position
-*/
+ \note Implements soft-decision decoding according to Alexandre's
+ interpretation:
+ - when computing final output at repetition code, use only extrinsic
+ information from accumulator
+ - when computing extrinsic output at rep code, factor out the input
+ information at that position
+ */
 template <class real, class dbl>
-void repacc<real,dbl>::softdecode(array1vd_t& ri)
+void repacc<real, dbl>::softdecode(array1vd_t& ri)
    {
    // decode accumulator
 
@@ -226,12 +225,12 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
    assertalways(ra.size().cols() == q);
    array1vd_t ravd;
    ravd.init(Nr);
-   for(int i=0; i<Nr; i++)
+   for (int i = 0; i < Nr; i++)
       ravd(i).init(q);
    // convert interim results
-   for(int i=0; i<Nr; i++)
-      for(int x=0; x<q; x++)
-         ravd(i)(x) = ra(i,x);
+   for (int i = 0; i < Nr; i++)
+      for (int x = 0; x < q; x++)
+         ravd(i)(x) = ra(i, x);
 
 #if DEBUG>=2
    array1i_t dec;
@@ -242,8 +241,8 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
 
    // decode repetition code (based on extrinsic information only)
    array1vd_t ro;
-   rep.init_decoder(ravd,rp);
-   rep.softdecode(ri,ro);
+   rep.init_decoder(ravd, rp);
+   rep.softdecode(ri, ro);
 
 #if DEBUG>=2
    This::hard_decision(ro,dec);
@@ -256,19 +255,19 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri)
 
    // compute extrinsic information
    // TODO: figure out how to deal with tail
-   for(int i=0; i<Nr; i++)
-      for(int x=0; x<q; x++)
-         if(ra(i,x) > dbl(0))
-            ra(i,x) = ro(i)(x) / ra(i,x);
+   for (int i = 0; i < Nr; i++)
+      for (int x = 0; x < q; x++)
+         if (ra(i, x) > dbl(0))
+            ra(i, x) = ro(i)(x) / ra(i, x);
          else
-            ra(i,x) = ro(i)(x);
+            ra(i, x) = ro(i)(x);
 
    // normalize results
    BCJR::normalize(ra);
    }
 
 template <class real, class dbl>
-void repacc<real,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void repacc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    failwith("Not yet implemented");
    }
@@ -276,7 +275,7 @@ void repacc<real,dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class real, class dbl>
-std::string repacc<real,dbl>::description() const
+std::string repacc<real, dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Repeat-Accumulate Code - ";
@@ -291,7 +290,7 @@ std::string repacc<real,dbl>::description() const
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& repacc<real,dbl>::serialize(std::ostream& sout) const
+std::ostream& repacc<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
    sout << 2 << '\n';
@@ -306,7 +305,7 @@ std::ostream& repacc<real,dbl>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real, class dbl>
-std::istream& repacc<real,dbl>::serialize(std::istream& sin)
+std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
    free();
@@ -325,7 +324,7 @@ std::istream& repacc<real,dbl>::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace
 
 // Explicit Realizations
 
@@ -336,20 +335,25 @@ namespace libcomm {
 using libbase::logrealfast;
 using libbase::serializer;
 
-template class repacc<float,float>;
+template class repacc<float, float>
 template <>
-const serializer repacc<float,float>::shelper = serializer("codec", "repacc<float>", repacc<float,float>::create);
+const serializer repacc<float, float>::shelper = serializer("codec",
+      "repacc<float>", repacc<float, float>::create);
 
-template class repacc<double>;
+template class repacc<double>
 template <>
-const serializer repacc<double>::shelper = serializer("codec", "repacc<double>", repacc<double>::create);
+const serializer repacc<double>::shelper = serializer("codec",
+      "repacc<double>", repacc<double>::create);
 
-template class repacc<logrealfast>;
+template class repacc<logrealfast>
 template <>
-const serializer repacc<logrealfast>::shelper = serializer("codec", "repacc<logrealfast>", repacc<logrealfast>::create);
+const serializer repacc<logrealfast>::shelper = serializer("codec",
+      "repacc<logrealfast>", repacc<logrealfast>::create);
 
-template class repacc<logrealfast,logrealfast>;
+template class repacc<logrealfast, logrealfast>
 template <>
-const serializer repacc<logrealfast,logrealfast>::shelper = serializer("codec", "repacc<logrealfast,logrealfast>", repacc<logrealfast,logrealfast>::create);
+const serializer repacc<logrealfast, logrealfast>::shelper = serializer(
+      "codec", "repacc<logrealfast,logrealfast>", repacc<logrealfast,
+            logrealfast>::create);
 
-}; // end namespace
+} // end namespace

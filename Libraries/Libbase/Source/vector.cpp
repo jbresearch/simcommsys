@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "vector.h"
 
@@ -15,4 +15,4 @@ namespace libbase {
 std::map<void*,int> _vector_heap;
 #endif
 
-}; // end namespace
+} // end namespace

@@ -24,6 +24,6 @@ public:
    // User functions
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

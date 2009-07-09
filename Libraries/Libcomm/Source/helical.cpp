@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "helical.h"
 #include <stdlib.h>
@@ -21,22 +21,23 @@ void helical<real>::init(const int tau, const int rows, const int cols)
    helical<real>::rows = rows;
    helical<real>::cols = cols;
 
-   int blklen = rows*cols;
-   if(blklen > tau)
+   int blklen = rows * cols;
+   if (blklen > tau)
       {
-      std::cerr << "FATAL ERROR (helical): Interleaver block size cannot be greater than BCJR block.\n";
+      std::cerr
+            << "FATAL ERROR (helical): Interleaver block size cannot be greater than BCJR block.\n";
       exit(1);
       }
    this->lut.init(tau);
-   int row = rows-1, col = 0;
+   int row = rows - 1, col = 0;
    int i;
-   for(i=0; i<blklen; i++)
+   for (i = 0; i < blklen; i++)
       {
-      this->lut(i) = row*cols + col;
-      row = (row-1+rows) % rows;
-      col = (col+1) % cols;
+      this->lut(i) = row * cols + col;
+      row = (row - 1 + rows) % rows;
+      col = (col + 1) % cols;
       }
-   for(i=blklen; i<tau; i++)
+   for (i = blklen; i < tau; i++)
       this->lut(i) = i;
    }
 
@@ -76,16 +77,19 @@ std::istream& helical<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class helical<float>;
+template class helical<float>
 template <>
-const libbase::serializer helical<float>::shelper("interleaver", "helical<float>", helical<float>::create);
+const libbase::serializer helical<float>::shelper("interleaver",
+      "helical<float>", helical<float>::create);
 
-template class helical<double>;
+template class helical<double>
 template <>
-const libbase::serializer helical<double>::shelper("interleaver", "helical<double>", helical<double>::create);
+const libbase::serializer helical<double>::shelper("interleaver",
+      "helical<double>", helical<double>::create);
 
-template class helical<libbase::logrealfast>;
+template class helical<libbase::logrealfast>
 template <>
-const libbase::serializer helical<libbase::logrealfast>::shelper("interleaver", "helical<logrealfast>", helical<libbase::logrealfast>::create);
+const libbase::serializer helical<libbase::logrealfast>::shelper("interleaver",
+      "helical<logrealfast>", helical<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

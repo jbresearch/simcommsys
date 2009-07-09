@@ -22,7 +22,10 @@ namespace po = boost::program_options;
 class mymontecarlo : public libcomm::montecarlo {
 public:
    // make interrupt function public to allow use by main program
-   bool interrupt() { return libbase::keypressed()>0 || libbase::interrupted(); };
+   bool interrupt()
+      {
+      return libbase::keypressed() > 0 || libbase::interrupted();
+      }
 };
 
 libcomm::experiment *createsystem(const std::string& fname)
@@ -40,13 +43,13 @@ libcomm::experiment *createsystem(const std::string& fname)
 libbase::vector<double> getlinrange(double beg, double end, double step)
    {
    // validate range
-   int steps = int(floor((end-beg)/step)+1);
+   int steps = int(floor((end - beg) / step) + 1);
    assertalways(steps >= 1 && steps <= 65535);
    // create required range
    libbase::vector<double> pset(steps);
    pset(0) = beg;
-   for(int i=1; i<steps; i++)
-      pset(i) = pset(i-1) + step;
+   for (int i = 1; i < steps; i++)
+      pset(i) = pset(i - 1) + step;
    return pset;
    }
 
@@ -54,28 +57,28 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
    {
    // validate range
    int steps = 0;
-   if(end==0 && beg==0)
+   if (end == 0 && beg == 0)
       steps = 1;
    else
-      steps = int(floor((log(end)-log(beg))/log(mul))+1);
+      steps = int(floor((log(end) - log(beg)) / log(mul)) + 1);
    assertalways(steps >= 1 && steps <= 65535);
    // create required range
    libbase::vector<double> pset(steps);
    pset(0) = beg;
-   for(int i=1; i<steps; i++)
-      pset(i) = pset(i-1) * mul;
+   for (int i = 1; i < steps; i++)
+      pset(i) = pset(i - 1) * mul;
    return pset;
    }
 
 /*!
-   \brief   Simulation of Communication Systems
-   \author  Johann Briffa
+ \brief   Simulation of Communication Systems
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 int main(int argc, char *argv[])
    {
@@ -83,45 +86,35 @@ int main(int argc, char *argv[])
 
    // Set up user parameters
    po::options_description desc("Allowed options");
-   desc.add_options()
-      ("help", "print this help message")
-      ("quiet,q", po::bool_switch(),
-         "suppress all output except benchmark")
-      ("priority,p", po::value<int>()->default_value(10),
-         "process priority")
-      ("endpoint,e", po::value<std::string>()->default_value("local"),
+   desc.add_options()("help", "print this help message")("quiet,q",
+         po::bool_switch(), "suppress all output except benchmark")(
+         "priority,p", po::value<int>()->default_value(10), "process priority")(
+         "endpoint,e", po::value<std::string>()->default_value("local"),
          "- 'local', for local-computation model\n"
-         "- ':port', for server-mode, bound to given port\n"
-         "- 'hostname:port', for client-mode connection")
-      ("system-file,i", po::value<std::string>(),
-         "input file containing system description")
-      ("results-file,o", po::value<std::string>(),
-         "output file to hold results")
-      ("start", po::value<double>(), "first parameter value")
-      ("stop", po::value<double>(), "last parameter value")
-      ("step", po::value<double>(),
-         "parameter increment (for a linear range)")
-      ("mul", po::value<double>(),
-         "parameter multiplier (for a logarithmic range)")
-      ("min-error", po::value<double>()->default_value(1e-5),
-         "stop simulation when result falls below this threshold")
-      ("confidence", po::value<double>()->default_value(0.90),
-         "confidence level (e.g. 0.90 for 90%)")
-      ("tolerance", po::value<double>()->default_value(0.15),
-         "confidence interval (e.g. 0.15 for +/- 15%)")
-      ;
+            "- ':port', for server-mode, bound to given port\n"
+            "- 'hostname:port', for client-mode connection")("system-file,i",
+         po::value<std::string>(), "input file containing system description")(
+         "results-file,o", po::value<std::string>(),
+         "output file to hold results")("start", po::value<double>(),
+         "first parameter value")("stop", po::value<double>(),
+         "last parameter value")("step", po::value<double>(),
+         "parameter increment (for a linear range)")("mul",
+         po::value<double>(), "parameter multiplier (for a logarithmic range)")(
+         "min-error", po::value<double>()->default_value(1e-5),
+         "stop simulation when result falls below this threshold")(
+         "confidence", po::value<double>()->default_value(0.90),
+         "confidence level (e.g. 0.90 for 90%)")("tolerance",
+         po::value<double>()->default_value(0.15),
+         "confidence interval (e.g. 0.15 for +/- 15%)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
    // Validate user parameters
-   if(vm.count("help") || \
-      vm.count("system-file")==0 || \
-      vm.count("results-file")==0 || \
-      vm.count("start")==0 || \
-      vm.count("stop")==0 || \
-      (vm.count("step")==0 && vm.count("mul")==0) || \
-      (vm.count("step") && vm.count("mul")) )
+   if (vm.count("help") || vm.count("system-file") == 0 || vm.count(
+         "results-file") == 0 || vm.count("start") == 0 || vm.count("stop")
+         == 0 || (vm.count("step") == 0 && vm.count("mul") == 0) || (vm.count(
+         "step") && vm.count("mul")))
       {
       cout << desc << "\n";
       return 0;
@@ -129,20 +122,23 @@ int main(int argc, char *argv[])
 
    // Create estimator object and initilize cluster
    mymontecarlo estimator;
-   estimator.enable(vm["endpoint"].as<std::string>(), vm["quiet"].as<bool>(), vm["priority"].as<int>());
+   estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<bool> (),
+         vm["priority"].as<int> ());
    // Simulation system & parameters
-   estimator.set_resultsfile(vm["results-file"].as<std::string>());
-   libcomm::experiment *system = createsystem(vm["system-file"].as<std::string>());
+   estimator.set_resultsfile(vm["results-file"].as<std::string> ());
+   libcomm::experiment *system = createsystem(
+         vm["system-file"].as<std::string> ());
    estimator.bind(system);
-   const double min_error = vm["min-error"].as<double>();
-   libbase::vector<double> pset = vm.count("step") ?
-      getlinrange(vm["start"].as<double>(), vm["stop"].as<double>(), vm["step"].as<double>()) :
-      getlogrange(vm["start"].as<double>(), vm["stop"].as<double>(), vm["mul"].as<double>());
-   estimator.set_confidence(vm["confidence"].as<double>());
-   estimator.set_accuracy(vm["tolerance"].as<double>());
+   const double min_error = vm["min-error"].as<double> ();
+   libbase::vector<double> pset = vm.count("step") ? getlinrange(
+         vm["start"].as<double> (), vm["stop"].as<double> (), vm["step"].as<
+               double> ()) : getlogrange(vm["start"].as<double> (),
+         vm["stop"].as<double> (), vm["mul"].as<double> ());
+   estimator.set_confidence(vm["confidence"].as<double> ());
+   estimator.set_accuracy(vm["tolerance"].as<double> ());
 
    // Work out the following for every SNR value required
-   for(int i=0; i<pset.size(); i++)
+   for (int i = 0; i < pset.size(); i++)
       {
       system->set_parameter(pset(i));
 
@@ -150,19 +146,20 @@ int main(int argc, char *argv[])
       libbase::vector<double> result, tolerance;
       estimator.estimate(result, tolerance);
 
-      cerr << "Statistics: " << setprecision(4)
-         << estimator.get_samplecount() << " frames in " << estimator.get_timer() << " - "
-         << estimator.get_samplecount()/estimator.get_timer().elapsed() << " frames/sec\n";
+      cerr << "Statistics: " << setprecision(4) << estimator.get_samplecount()
+            << " frames in " << estimator.get_timer() << " - "
+            << estimator.get_samplecount() / estimator.get_timer().elapsed()
+            << " frames/sec\n";
 
       // handle pre-mature breaks
-      if(estimator.interrupt() || result.min()<min_error)
+      if (estimator.interrupt() || result.min() < min_error)
          break;
       }
 
    return 0;
    }
 
-}; // end namespace
+} // end namespace
 
 int main(int argc, char *argv[])
    {

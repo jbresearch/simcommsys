@@ -14,93 +14,94 @@
 namespace libcomm {
 
 /*!
-   \brief   Turbo decoding algorithm.
-   \author  Johann Briffa
+ \brief   Turbo decoding algorithm.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   All internal metrics are held as type 'real', which is user-defined. This
-   allows internal working at any required level of accuracy. This is necessary
-   because the internal matrics have a very wide dynamic range, which increases
-   exponentially with block size 'tau'. Actually, the required range is within
-   [1,0), but very large exponents are required. (For BCJR sub-component)
+ All internal metrics are held as type 'real', which is user-defined. This
+ allows internal working at any required level of accuracy. This is necessary
+ because the internal matrics have a very wide dynamic range, which increases
+ exponentially with block size 'tau'. Actually, the required range is within
+ [1,0), but very large exponents are required. (For BCJR sub-component)
 
-   \note Memory is allocaed only on first call to demodulate/decode. This
-         reduces memory requirements in cases where classes are instantiated
-         but not actually used for decoding (e.g. in master node on a
-         distributed Monte Carlo simulation)
+ \note Memory is allocaed only on first call to demodulate/decode. This
+ reduces memory requirements in cases where classes are instantiated
+ but not actually used for decoding (e.g. in master node on a
+ distributed Monte Carlo simulation)
 
-   \note Since puncturing is not handled within the codec, for the moment, the
-         modification for stipple puncturing with simile interleavers is not
-         performed.
+ \note Since puncturing is not handled within the codec, for the moment, the
+ modification for stipple puncturing with simile interleavers is not
+ performed.
 
-   \note The template class 'dbl', which defaults to 'double', defines the
-         numerical representation for inter-iteration statistics. This became
-         necessary for the parallel decoding structure, where the range of
-         extrinsic information is much larger than for serial decoding;
-         furthermore, this range increases with the number of iterations
-         performed.
+ \note The template class 'dbl', which defaults to 'double', defines the
+ numerical representation for inter-iteration statistics. This became
+ necessary for the parallel decoding structure, where the range of
+ extrinsic information is much larger than for serial decoding;
+ furthermore, this range increases with the number of iterations
+ performed.
 
-   \note Serialization is versioned; for compatibility, earlier versions are
-         interpreted as v.0; a flat interleaver is automatically used for the
-         first encoder in these cases.
+ \note Serialization is versioned; for compatibility, earlier versions are
+ interpreted as v.0; a flat interleaver is automatically used for the
+ first encoder in these cases.
 
-   \todo Fix terminated sequence encoding (currently this implicitly assumes
-         a flat first interleaver)
+ \todo Fix terminated sequence encoding (currently this implicitly assumes
+ a flat first interleaver)
 
-   \todo Standardize encoding/decoding of multiple symbols within a larger
-         symbol space; this parallels what was done in ccfsm.
+ \todo Standardize encoding/decoding of multiple symbols within a larger
+ symbol space; this parallels what was done in ccfsm.
 
-   \todo Remove redundant result vector initializations (these should happen
-         on the first call to a function where that vector is used as an
-         output).
+ \todo Remove redundant result vector initializations (these should happen
+ on the first call to a function where that vector is used as an
+ output).
 
-   \todo Split serial and parallel decoding into separate classes.
-*/
+ \todo Split serial and parallel decoding into separate classes.
+ */
 
-template <class real, class dbl=double>
-class turbo :
-   public codec_softout<libbase::vector,dbl>,
-   private safe_bcjr<real,dbl> {
+template <class real, class dbl = double>
+class turbo : public codec_softout<libbase::vector, dbl> , private safe_bcjr<
+      real, dbl> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<int>        array1i_t;
-   typedef libbase::vector<dbl>        array1d_t;
-   typedef libbase::matrix<dbl>        array2d_t;
-   typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<dbl> array1d_t;
+   typedef libbase::matrix<dbl> array2d_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef turbo<real,dbl> This;
-   typedef codec_softout<libbase::vector,dbl> Base;
-   typedef safe_bcjr<real,dbl> BCJR;
+   typedef turbo<real, dbl> This;
+   typedef codec_softout<libbase::vector, dbl> Base;
+   typedef safe_bcjr<real, dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    //! Set of interleavers, one per parity sequence (including first set)
    libbase::vector<interleaver<dbl> *> inter;
-   fsm      *encoder;      //!< Encoder object (same for all parity sequences)
-   int      iter;          //!< Number of iterations to perform
-   bool     endatzero;     //!< Flag to indicate that trellises are terminated
-   bool     parallel;      //!< Flag to enable parallel decoding (rather than serial)
-   bool     circular;      //!< Flag to indicate trellis tailbiting
+   fsm *encoder; //!< Encoder object (same for all parity sequences)
+   int iter; //!< Number of iterations to perform
+   bool endatzero; //!< Flag to indicate that trellises are terminated
+   bool parallel; //!< Flag to enable parallel decoding (rather than serial)
+   bool circular; //!< Flag to indicate trellis tailbiting
    // @}
    /*! \name Internal object representation */
-   bool     initialised;   //!< Flag to indicate when memory is initialised
-   array2d_t rp;           //!< A priori intrinsic source statistics (natural)
-   libbase::vector< array2d_t > R;   //!< A priori intrinsic encoder-output statistics (interleaved)
-   libbase::vector< array2d_t > ra;  //!< A priori extrinsic source statistics
-   libbase::vector< array1d_t > ss;  //!< Holder for start-state probabilities (used with circular trellises)
-   libbase::vector< array1d_t > se;  //!< Holder for end-state probabilities (used with circular trellises)
+   bool initialised; //!< Flag to indicate when memory is initialised
+   array2d_t rp; //!< A priori intrinsic source statistics (natural)
+   libbase::vector<array2d_t> R; //!< A priori intrinsic encoder-output statistics (interleaved)
+   libbase::vector<array2d_t> ra; //!< A priori extrinsic source statistics
+   libbase::vector<array1d_t> ss; //!< Holder for start-state probabilities (used with circular trellises)
+   libbase::vector<array1d_t> se; //!< Holder for end-state probabilities (used with circular trellises)
    // @}
    /*! \name Internal functions */
    //! Memory allocator (for internal use only)
    void allocate();
    // wrapping functions
-   static void work_extrinsic(const array2d_t& ra, const array2d_t& ri, const array2d_t& r, array2d_t& re);
-   void bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri, array2d_t& re);
+   static void work_extrinsic(const array2d_t& ra, const array2d_t& ri,
+         const array2d_t& r, array2d_t& re);
+   void bcjr_wrap(const int set, const array2d_t& ra, array2d_t& ri,
+         array2d_t& re);
    void decode_serial(array2d_t& ri);
    void decode_parallel(array2d_t& ri);
    // @}
@@ -118,9 +119,13 @@ public:
    /*! \name Constructors / Destructors */
    //! Default constructor
    turbo();
-   turbo(const fsm& encoder, const libbase::vector<interleaver<dbl> *>& inter, \
-      const int iter, const bool endatzero, const bool parallel=false, const bool circular=false);
-   ~turbo() { free(); };
+   turbo(const fsm& encoder, const libbase::vector<interleaver<dbl> *>& inter,
+         const int iter, const bool endatzero, const bool parallel = false,
+         const bool circular = false);
+   ~turbo()
+      {
+      free();
+      }
    // @}
 
    // Codec operations
@@ -136,35 +141,62 @@ public:
       {
       const int tau = This::output_block_size();
       const int nu = This::tail_length();
-      return libbase::size_type<libbase::vector>(tau-nu);
-      };
+      return libbase::size_type<libbase::vector>(tau - nu);
+      }
    libbase::size_type<libbase::vector> output_block_size() const
       {
       assertalways(inter.size() > 0);
       assertalways(inter(0));
       const int tau = inter(0)->size();
       return libbase::size_type<libbase::vector>(tau);
-      };
-   int num_inputs() const { return encoder->num_inputs(); };
-   int num_outputs() const { return int(num_inputs()*pow(enc_parity(),num_sets())); };
-   int num_symbols() const { return libbase::gcd(num_inputs(),enc_parity()); };
-   int tail_length() const { return endatzero ? encoder->mem_order() : 0; };
-   int num_iter() const { return iter; };
+      }
+   int num_inputs() const
+      {
+      return encoder->num_inputs();
+      }
+   int num_outputs() const
+      {
+      return int(num_inputs() * pow(enc_parity(), num_sets()));
+      }
+   int num_symbols() const
+      {
+      return libbase::gcd(num_inputs(), enc_parity());
+      }
+   int tail_length() const
+      {
+      return endatzero ? encoder->mem_order() : 0;
+      }
+   int num_iter() const
+      {
+      return iter;
+      }
 
    /*! \name Codec information functions - internal */
-   int num_sets() const { return inter.size(); };
-   int enc_states() const { return encoder->num_states(); };
-   int enc_outputs() const { return encoder->num_outputs(); };
-   int enc_parity() const { return enc_outputs()/num_inputs(); };
+   int num_sets() const
+      {
+      return inter.size();
+      }
+   int enc_states() const
+      {
+      return encoder->num_states();
+      }
+   int enc_outputs() const
+      {
+      return encoder->num_outputs();
+      }
+   int enc_parity() const
+      {
+      return enc_outputs() / num_inputs();
+      }
    // @}
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(turbo);
+DECLARE_SERIALIZER(turbo);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

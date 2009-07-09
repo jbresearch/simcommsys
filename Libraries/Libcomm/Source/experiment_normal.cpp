@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "experiment_normal.h"
 #include <limits>
@@ -25,7 +25,8 @@ void experiment_normal::derived_reset()
    sumsq = 0;
    }
 
-void experiment_normal::derived_accumulate(const libbase::vector<double>& result)
+void experiment_normal::derived_accumulate(
+      const libbase::vector<double>& result)
    {
    assert(count() == result.size());
    assert(count() == sum.size());
@@ -42,10 +43,10 @@ void experiment_normal::accumulate_state(const libbase::vector<double>& state)
    assert(count() == sum.size());
    assert(count() == sumsq.size());
    assert(2*count() == state.size());
-   for(int i=0; i<count(); i++)
+   for (int i = 0; i < count(); i++)
       {
       sum(i) += state(i);
-      sumsq(i) += state(count()+i);
+      sumsq(i) += state(count() + i);
       }
    }
 
@@ -53,28 +54,30 @@ void experiment_normal::get_state(libbase::vector<double>& state) const
    {
    assert(count() == sum.size());
    assert(count() == sumsq.size());
-   state.init(2*count());
-   for(int i=0; i<count(); i++)
+   state.init(2 * count());
+   for (int i = 0; i < count(); i++)
       {
       state(i) = sum(i);
-      state(count()+i) = sumsq(i);
+      state(count() + i) = sumsq(i);
       }
    }
 
-void experiment_normal::estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const
+void experiment_normal::estimate(libbase::vector<double>& estimate,
+      libbase::vector<double>& stderror) const
    {
    assert(count() == sum.size());
    assert(count() == sumsq.size());
    // estimate is the mean value
    assert(get_samplecount() > 0);
-   estimate = sum/double(get_samplecount());
+   estimate = sum / double(get_samplecount());
    // standard error is sigma/sqrt(n)
    stderror.init(count());
-   if(get_samplecount() > 1)
-      for(int i=0; i<count(); i++)
-         stderror(i) = sqrt((sumsq(i)/double(get_samplecount()) - estimate(i)*estimate(i))/double(get_samplecount()-1));
+   if (get_samplecount() > 1)
+      for (int i = 0; i < count(); i++)
+         stderror(i) = sqrt((sumsq(i) / double(get_samplecount()) - estimate(i)
+               * estimate(i)) / double(get_samplecount() - 1));
    else
       stderror = std::numeric_limits<double>::max();
    }
 
-}; // end namespace
+} // end namespace

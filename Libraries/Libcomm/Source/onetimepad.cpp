@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "onetimepad.h"
 #include <sstream>
@@ -26,31 +26,28 @@ onetimepad<real>::onetimepad() :
    }
 
 template <class real>
-onetimepad<real>::onetimepad(const fsm& encoder, const int tau, const bool terminated, const bool renewable) :
-   terminated(terminated),
-   renewable(renewable),
-   encoder(encoder.clone())
+onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
+      const bool terminated, const bool renewable) :
+   terminated(terminated), renewable(renewable), encoder(encoder.clone())
    {
    pad.init(tau);
    const int m = encoder.mem_order();
    const int K = encoder.num_inputs();
-   libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau << ", m=" << m << ", K=" << K << ")\n";
+   libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau
+         << ", m=" << m << ", K=" << K << ")\n";
    }
 
 template <class real>
 onetimepad<real>::onetimepad(const onetimepad& x) :
-   terminated(x.terminated),
-   renewable(x.renewable),
-   encoder(x.encoder->clone()),
-   pad(x.pad),
-   r(x.r)
+   terminated(x.terminated), renewable(x.renewable),
+         encoder(x.encoder->clone()), pad(x.pad), r(x.r)
    {
    }
 
 template <class real>
 onetimepad<real>::~onetimepad()
    {
-   if(encoder != NULL)
+   if (encoder != NULL)
       delete encoder;
    }
 
@@ -69,28 +66,28 @@ void onetimepad<real>::advance()
    static bool initialised = false;
 
    // do not advance if this interleaver is not renewable
-   if(!renewable && initialised)
+   if (!renewable && initialised)
       return;
 
    const int tau = pad.size();
    const int m = encoder->mem_order();
    const int K = encoder->num_inputs();
    // fill in pad
-   if(terminated)
+   if (terminated)
       {
       int t;
-      for(t=0; t<tau-m; t++)
+      for (t = 0; t < tau - m; t++)
          pad(t) = r.ival(K);
-      for(t=tau-m; t<tau; t++)
+      for (t = tau - m; t < tau; t++)
          pad(t) = fsm::tail;
       // run through the encoder once, so that we work out the tail bits
       encoder->reset(0);
-      for(t=0; t<tau; t++)
+      for (t = 0; t < tau; t++)
          encoder->step(pad(t));
       }
    else
       {
-      for(int t=0; t<tau; t++)
+      for (int t = 0; t < tau; t++)
          pad(t) = r.ival(K);
       }
 
@@ -106,7 +103,7 @@ void onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
    const int K = encoder->num_inputs();
    assertalways(in.size() == tau);
    out.init(in.size());
-   for(int t=0; t<tau; t++)
+   for (int t = 0; t < tau; t++)
       out(t) = (in(t) + pad(t)) % K;
    }
 
@@ -118,9 +115,9 @@ void onetimepad<real>::transform(const matrix<real>& in, matrix<real>& out) cons
    assertalways(in.size().cols() == K);
    assertalways(in.size().rows() == tau);
    out.init(in.size());
-   for(int t=0; t<tau; t++)
-      for(int i=0; i<K; i++)
-         out(t, i) = in(t, (i+pad(t))%K);
+   for (int t = 0; t < tau; t++)
+      for (int i = 0; i < K; i++)
+         out(t, i) = in(t, (i + pad(t)) % K);
    }
 
 template <class real>
@@ -131,9 +128,9 @@ void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
    assertalways(in.size().cols() == K);
    assertalways(in.size().rows() == tau);
    out.init(in.size());
-   for(int t=0; t<tau; t++)
-      for(int i=0; i<K; i++)
-         out(t, (i+pad(t))%K) = in(t, i);
+   for (int t = 0; t < tau; t++)
+      for (int i = 0; i < K; i++)
+         out(t, (i + pad(t)) % K) = in(t, i);
    }
 
 // description output
@@ -143,11 +140,11 @@ std::string onetimepad<real>::description() const
    {
    std::ostringstream sout;
    sout << "One-Time-Pad Interleaver (";
-   if(terminated)
+   if (terminated)
       sout << "terminated";
-   if(terminated && renewable)
+   if (terminated && renewable)
       sout << ", ";
-   if(renewable)
+   if (renewable)
       sout << "renewable";
    return sout.str();
    }
@@ -180,16 +177,20 @@ std::istream& onetimepad<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class onetimepad<float>;
+template class onetimepad<float>
 template <>
-const libbase::serializer onetimepad<float>::shelper("interleaver", "onetimepad<float>", onetimepad<float>::create);
+const libbase::serializer onetimepad<float>::shelper("interleaver",
+      "onetimepad<float>", onetimepad<float>::create);
 
-template class onetimepad<double>;
+template class onetimepad<double>
 template <>
-const libbase::serializer onetimepad<double>::shelper("interleaver", "onetimepad<double>", onetimepad<double>::create);
+const libbase::serializer onetimepad<double>::shelper("interleaver",
+      "onetimepad<double>", onetimepad<double>::create);
 
-template class onetimepad<libbase::logrealfast>;
+template class onetimepad<libbase::logrealfast>
 template <>
-const libbase::serializer onetimepad<libbase::logrealfast>::shelper("interleaver", "onetimepad<logrealfast>", onetimepad<libbase::logrealfast>::create);
+const libbase::serializer onetimepad<libbase::logrealfast>::shelper(
+      "interleaver", "onetimepad<logrealfast>",
+      onetimepad<libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

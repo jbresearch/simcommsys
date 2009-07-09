@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "timer.h"
 #include <math.h>
@@ -31,11 +31,10 @@ double timer::_cputime() const
    }
 
 #else //(ifdef WIN32)
-
 double timer::_wallclock() const
    {
-   struct timeval         tv;
-   struct timezone  tz;
+   struct timeval tv;
+   struct timezone tz;
 
    gettimeofday(&tv, &tz);
 
@@ -44,19 +43,18 @@ double timer::_wallclock() const
 
 double timer::_cputime() const
    {
-   struct rusage        usage;
-   double               cpu;
+   struct rusage usage;
+   double cpu;
 
    getrusage(RUSAGE_SELF, &usage);
    cpu = convert(usage.ru_utime);
    getrusage(RUSAGE_CHILDREN, &usage);
    cpu += convert(usage.ru_utime);
 
-   return(cpu);
+   return (cpu);
    }
 
 #endif //(ifdef WIN32)
-
 
 // common functions
 
@@ -70,10 +68,10 @@ timer::~timer()
    {
    using std::clog;
 
-   if(running)
+   if (running)
       {
       clog << "Timer";
-      if(name != "")
+      if (name != "")
          clog << " (" << name << ")";
       clog << " expired after " << *this << "\n" << std::flush;
       }
@@ -88,10 +86,10 @@ void timer::start()
 
 void timer::stop()
    {
-   if(!running)
+   if (!running)
       {
       std::cerr << "Warning: tried to stop a timer that was not running";
-      if(name != "")
+      if (name != "")
          std::cerr << " (" << name << ")";
       std::cerr << ".\n";
       return;
@@ -103,21 +101,21 @@ void timer::stop()
 
 double timer::elapsed() const
    {
-   if(running)
-      return(_wallclock() - wall);
+   if (running)
+      return (_wallclock() - wall);
    return wall;
    }
 
 double timer::cputime() const
    {
-   if(running)
-      return(_cputime() - cpu);
+   if (running)
+      return (_cputime() - cpu);
    return cpu;
    }
 
 double timer::usage() const
    {
-   return 100.0*cputime()/elapsed();
+   return 100.0 * cputime() / elapsed();
    }
 
 // static functions
@@ -127,13 +125,13 @@ std::string timer::format(const double elapsedtime)
    const int max = 256;
    static char tempstring[max];
 
-   if(elapsedtime < 60)
+   if (elapsedtime < 60)
       {
-      int order = int(ceil(-log10(elapsedtime)/3.0));
-      if(order > 3)
+      int order = int(ceil(-log10(elapsedtime) / 3.0));
+      if (order > 3)
          order = 3;
-      sprintf(tempstring, "%0.2f", elapsedtime * pow(10.0, order*3));
-      switch(order)
+      sprintf(tempstring, "%0.2f", elapsedtime * pow(10.0, order * 3));
+      switch (order)
          {
          case 0:
             strcat(tempstring, "s");
@@ -151,7 +149,7 @@ std::string timer::format(const double elapsedtime)
       }
    else
       {
-      int  days, hrs, min, sec;
+      int days, hrs, min, sec;
 
       sec = int(floor(elapsedtime));
       min = sec / 60;
@@ -160,8 +158,9 @@ std::string timer::format(const double elapsedtime)
       min = min % 60;
       days = hrs / 24;
       hrs = hrs % 24;
-      if(days > 0)
-         sprintf(tempstring, "%d %s, %02d:%02d:%02d", days, (days==1 ? "day" : "days"), hrs, min, sec);
+      if (days > 0)
+         sprintf(tempstring, "%d %s, %02d:%02d:%02d", days, (days == 1 ? "day"
+               : "days"), hrs, min, sec);
       else
          sprintf(tempstring, "%02d:%02d:%02d", hrs, min, sec);
       }
@@ -181,4 +180,4 @@ std::string timer::date()
    return d;
    }
 
-}; // end namespace
+} // end namespace

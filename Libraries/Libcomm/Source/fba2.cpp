@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "fba2.h"
 #include "pacifier.h"
@@ -16,27 +16,30 @@ namespace libcomm {
 // Memory allocation
 
 /*! \brief Memory allocator for working matrices
-*/
+ */
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::allocate()
+void fba2<real, sig, norm>::allocate()
    {
    // determine limits
-   dmin = std::max(-n,-dxmax);
-   dmax = std::min(n*I,dxmax);
+   dmin = std::max(-n, -dxmax);
+   dmax = std::min(n * I, dxmax);
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
    typedef boost::multi_array_types::extent_range range;
-   alpha.resize(boost::extents[N][range(-xmax,xmax+1)]);
-   beta.resize(boost::extents[range(1,N+1)][range(-xmax,xmax+1)]);
+   alpha.resize(boost::extents[N][range(-xmax, xmax + 1)]);
+   beta.resize(boost::extents[range(1, N + 1)][range(-xmax, xmax + 1)]);
    // dynamically decide whether we want to use the gamma cache or not
    // decision is hardwired: use if memory requirement < 750MB
-   cache_enabled = sizeof(real)*(q * N * (2*xmax+1) * (dmax-dmin+1)) < (750<<20);
+   cache_enabled = sizeof(real) * (q * N * (2 * xmax + 1) * (dmax - dmin + 1))
+         < (750 << 20);
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
    // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
-   if(cache_enabled)
+   if (cache_enabled)
       {
-      gamma.resize(boost::extents[q][N][range(-xmax,xmax+1)][range(dmin,dmax+1)]);
-      cached.resize(boost::extents[N][range(-xmax,xmax+1)][range(dmin,dmax+1)]);
+      gamma.resize(boost::extents[q][N][range(-xmax, xmax + 1)][range(dmin,
+            dmax + 1)]);
+      cached.resize(boost::extents[N][range(-xmax, xmax + 1)][range(dmin, dmax
+            + 1)]);
       }
    else
       {
@@ -47,18 +50,18 @@ void fba2<real,sig,norm>::allocate()
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
    std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << ( sizeof(bool)*cached.num_elements() + sizeof(real)*
-      ( alpha.num_elements() + beta.num_elements() + gamma.num_elements() )
-      )/double(1<<20) << "MB\n";
+   std::cerr << (sizeof(bool) * cached.num_elements() + sizeof(real)
+         * (alpha.num_elements() + beta.num_elements() + gamma.num_elements()))
+         / double(1 << 20) << "MB\n";
    std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
    }
 
 /*! \brief Release memory for working matrices
-*/
+ */
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::free()
+void fba2<real, sig, norm>::free()
    {
    alpha.resize(boost::extents[0][0]);
    beta.resize(boost::extents[0][0]);
@@ -72,11 +75,12 @@ void fba2<real,sig,norm>::free()
 // Initialization
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner, double th_outer)
+void fba2<real, sig, norm>::init(int N, int n, int q, int I, int xmax,
+      int dxmax, double th_inner, double th_outer)
    {
    // if any parameters that effect memory have changed, release memory
-   if(initialised && (N != This::N || n != This::n || q != This::q
-      || I != This::I || xmax != This::xmax || dxmax != This::dxmax))
+   if (initialised && (N != This::N || n != This::n || q != This::q || I
+         != This::I || xmax != This::xmax || dxmax != This::dxmax))
       free();
    // code parameters
    assert(N > 0);
@@ -102,7 +106,7 @@ void fba2<real,sig,norm>::init(int N, int n, int q, int I, int xmax, int dxmax, 
 // Internal procedures
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::reset_cache() const
+void fba2<real, sig, norm>::reset_cache() const
    {
    // initialise array
    gamma = real(0);
@@ -116,24 +120,26 @@ void fba2<real,sig,norm>::reset_cache() const
    }
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::work_gamma(const array1s_t& r, const array1vd_t& app)
+void fba2<real, sig, norm>::work_gamma(const array1s_t& r,
+      const array1vd_t& app)
    {
    assert(initialised);
-   if(cache_enabled)
+   if (cache_enabled)
       reset_cache();
    // copy received vector, needed for lazy computation
    This::r = r;
    // copy a-priori statistics, needed for lazy computation
    This::app = app;
-   if(app.size() == 0)
-      libbase::trace << "DEBUG (fba2): Empty a-priori probability table passed.\n";
+   if (app.size() == 0)
+      libbase::trace
+            << "DEBUG (fba2): Empty a-priori probability table passed.\n";
    }
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::work_gamma(const array1s_t& r)
+void fba2<real, sig, norm>::work_gamma(const array1s_t& r)
    {
    assert(initialised);
-   if(cache_enabled)
+   if (cache_enabled)
       reset_cache();
    // copy received vector, needed for lazy computation
    This::r = r;
@@ -142,7 +148,7 @@ void fba2<real,sig,norm>::work_gamma(const array1s_t& r)
    }
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::work_alpha(int rho)
+void fba2<real, sig, norm>::work_alpha(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
@@ -153,16 +159,16 @@ void fba2<real,sig,norm>::work_alpha(int rho)
    alpha = real(0);
    alpha[0][0] = real(1);
    // compute remaining matrix values
-   for(int i=1; i<N; i++)
+   for (int i = 1; i < N; i++)
       {
-      std::cerr << progress.update(i-1, N-1);
+      std::cerr << progress.update(i - 1, N - 1);
       // determine the strongest path at this point
       real threshold = 0;
-      if(thresholding)
+      if (thresholding)
          {
-         for(int x1=-xmax; x1<=xmax; x1++)
-            if(alpha[i-1][x1] > threshold)
-               threshold = alpha[i-1][x1];
+         for (int x1 = -xmax; x1 <= xmax; x1++)
+            if (alpha[i - 1][x1] > threshold)
+               threshold = alpha[i - 1][x1];
          threshold *= th_inner;
          }
       // event must fit the received sequence:
@@ -176,36 +182,37 @@ void fba2<real,sig,norm>::work_alpha(int rho)
       // (necessary for forward recursion on extracted segment)
       // 5. x2-x1 <= dxmax
       // 6. x2-x1 >= -dxmax
-      const int x1min = std::max(-xmax,-n*(i-1));
+      const int x1min = std::max(-xmax, -n * (i - 1));
       const int x1max = xmax;
-      for(int x1=x1min; x1<=x1max; x1++)
+      for (int x1 = x1min; x1 <= x1max; x1++)
          {
          // ignore paths below a certain threshold
-         if(thresholding && alpha[i-1][x1] < threshold)
+         if (thresholding && alpha[i - 1][x1] < threshold)
             continue;
-         const int x2min = std::max(-xmax,dmin+x1);
-         const int x2max = std::min(std::min(xmax,dmax+x1),rho-n*i);
-         for(int x2=x2min; x2<=x2max; x2++)
-            for(int d=0; d<q; d++)
-               alpha[i][x2] += alpha[i-1][x1] * get_gamma(d,i-1,x1,x2-x1);
+         const int x2min = std::max(-xmax, dmin + x1);
+         const int x2max = std::min(std::min(xmax, dmax + x1), rho - n * i);
+         for (int x2 = x2min; x2 <= x2max; x2++)
+            for (int d = 0; d < q; d++)
+               alpha[i][x2] += alpha[i - 1][x1] * get_gamma(d, i - 1, x1, x2
+                     - x1);
          }
       // normalize if requested
-      if(norm)
+      if (norm)
          {
          real scale = 0;
-         for(int x=-xmax; x<=xmax; x++)
+         for (int x = -xmax; x <= xmax; x++)
             scale += alpha[i][x];
          assertalways(scale > real(0));
-         scale = real(1)/scale;
-         for(int x=-xmax; x<=xmax; x++)
+         scale = real(1) / scale;
+         for (int x = -xmax; x <= xmax; x++)
             alpha[i][x] *= scale;
          }
       }
-   std::cerr << progress.update(N-1, N-1);
+   std::cerr << progress.update(N - 1, N - 1);
    }
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::work_beta(int rho)
+void fba2<real, sig, norm>::work_beta(int rho)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
@@ -214,21 +221,21 @@ void fba2<real,sig,norm>::work_beta(int rho)
    // initialise array:
    // we also know x[tau] = rho-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
-   const int tau = N*n;
+   const int tau = N * n;
    beta = real(0);
    assertalways(abs(rho-tau) <= xmax);
-   beta[N][rho-tau] = real(1);
+   beta[N][rho - tau] = real(1);
    // compute remaining matrix values
-   for(int i=N-1; i>0; i--)
+   for (int i = N - 1; i > 0; i--)
       {
-      std::cerr << progress.update(N-1-i, N-1);
+      std::cerr << progress.update(N - 1 - i, N - 1);
       // determine the strongest path at this point
       real threshold = 0;
-      if(thresholding)
+      if (thresholding)
          {
-         for(int x2=-xmax; x2<=xmax; x2++)
-            if(beta[i+1][x2] > threshold)
-               threshold = beta[i+1][x2];
+         for (int x2 = -xmax; x2 <= xmax; x2++)
+            if (beta[i + 1][x2] > threshold)
+               threshold = beta[i + 1][x2];
          threshold *= th_inner;
          }
       // event must fit the received sequence:
@@ -243,35 +250,35 @@ void fba2<real,sig,norm>::work_beta(int rho)
       // 5. x2-x1 <= dxmax
       // 6. x2-x1 >= -dxmax
       const int x2min = -xmax;
-      const int x2max = std::min(xmax,rho-n*(i+1));
-      for(int x2=x2min; x2<=x2max; x2++)
+      const int x2max = std::min(xmax, rho - n * (i + 1));
+      for (int x2 = x2min; x2 <= x2max; x2++)
          {
          // ignore paths below a certain threshold
-         if(thresholding && beta[i+1][x2] < threshold)
+         if (thresholding && beta[i + 1][x2] < threshold)
             continue;
-         const int x1min = std::max(std::max(-xmax,x2-dmax),-n*i);
-         const int x1max = std::min(xmax,x2-dmin);
-         for(int x1=x1min; x1<=x1max; x1++)
-            for(int d=0; d<q; d++)
-               beta[i][x1] += beta[i+1][x2] * get_gamma(d,i,x1,x2-x1);
+         const int x1min = std::max(std::max(-xmax, x2 - dmax), -n * i);
+         const int x1max = std::min(xmax, x2 - dmin);
+         for (int x1 = x1min; x1 <= x1max; x1++)
+            for (int d = 0; d < q; d++)
+               beta[i][x1] += beta[i + 1][x2] * get_gamma(d, i, x1, x2 - x1);
          }
       // normalize if requested
-      if(norm)
+      if (norm)
          {
          real scale = 0;
-         for(int x=-xmax; x<=xmax; x++)
+         for (int x = -xmax; x <= xmax; x++)
             scale += beta[i][x];
          assertalways(scale > real(0));
-         scale = real(1)/scale;
-         for(int x=-xmax; x<=xmax; x++)
+         scale = real(1) / scale;
+         for (int x = -xmax; x <= xmax; x++)
             beta[i][x] *= scale;
          }
       }
-   std::cerr << progress.update(N-1, N-1);
+   std::cerr << progress.update(N - 1, N - 1);
    }
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
+void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -279,22 +286,22 @@ void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
    const bool thresholding = (th_outer > 0);
    // Initialise result vector (one sparse symbol per timestep)
    ptable.init(N);
-   for(int i=0; i<N; i++)
+   for (int i = 0; i < N; i++)
       ptable(i).init(q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
-   for(int i=0; i<N; i++)
+   for (int i = 0; i < N; i++)
       {
       std::cerr << progress.update(i, N);
       // determine the strongest path at this point
       real threshold = 0;
-      if(thresholding)
+      if (thresholding)
          {
-         for(int x1=-xmax; x1<=xmax; x1++)
-            if(alpha[i][x1] > threshold)
+         for (int x1 = -xmax; x1 <= xmax; x1++)
+            if (alpha[i][x1] > threshold)
                threshold = alpha[i][x1];
          threshold *= th_outer;
          }
-      for(int d=0; d<q; d++)
+      for (int d = 0; d < q; d++)
          {
          real p = 0;
          // event must fit the received sequence:
@@ -308,49 +315,54 @@ void fba2<real,sig,norm>::work_results(int rho, array1vr_t& ptable) const
          // (necessary for forward recursion on extracted segment)
          // 5. x2-x1 <= dxmax
          // 6. x2-x1 >= -dxmax
-         const int x1min = std::max(-xmax,-n*i);
+         const int x1min = std::max(-xmax, -n * i);
          const int x1max = xmax;
-         for(int x1=x1min; x1<=x1max; x1++)
+         for (int x1 = x1min; x1 <= x1max; x1++)
             {
             // ignore paths below a certain threshold
-            if(thresholding && alpha[i][x1] < threshold)
+            if (thresholding && alpha[i][x1] < threshold)
                continue;
-            const int x2min = std::max(-xmax,dmin+x1);
-            const int x2max = std::min(std::min(xmax,dmax+x1),rho-n*(i+1));
-            for(int x2=x2min; x2<=x2max; x2++)
-               p += alpha[i][x1] * get_gamma(d,i,x1,x2-x1) * beta[i+1][x2];
+            const int x2min = std::max(-xmax, dmin + x1);
+            const int x2max = std::min(std::min(xmax, dmax + x1), rho - n * (i
+                  + 1));
+            for (int x2 = x2min; x2 <= x2max; x2++)
+               p += alpha[i][x1] * get_gamma(d, i, x1, x2 - x1)
+                     * beta[i + 1][x2];
             }
          ptable(i)(d) = p;
          }
       }
-   if(N > 0)
+   if (N > 0)
       std::cerr << progress.update(N, N);
 #ifndef NDEBUG
    // show cache statistics
-   std::cerr << "FBA Cache Usage: " << 100*gamma_misses/double(cached.num_elements()) << "%\n";
-   std::cerr << "FBA Cache Reuse: " << gamma_calls/double(gamma_misses*q) << "x\n";
+   std::cerr << "FBA Cache Usage: " << 100 * gamma_misses
+         / double(cached.num_elements()) << "%\n";
+   std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q)
+         << "x\n";
 #endif
    }
 
 // User procedures
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
+void fba2<real, sig, norm>::decode(const array1s_t& r, const array1vd_t& app,
+      array1vr_t& ptable)
    {
    // initialise memory if necessary
-   if(!initialised)
+   if (!initialised)
       allocate();
-   work_gamma(r,app);
+   work_gamma(r, app);
    work_alpha(r.size());
    work_beta(r.size());
    work_results(r.size(), ptable);
    }
 
 template <class real, class sig, bool norm>
-void fba2<real,sig,norm>::decode(const array1s_t& r, array1vr_t& ptable)
+void fba2<real, sig, norm>::decode(const array1s_t& r, array1vr_t& ptable)
    {
    // initialise memory if necessary
-   if(!initialised)
+   if (!initialised)
       allocate();
    work_gamma(r);
    work_alpha(r.size());
@@ -358,7 +370,7 @@ void fba2<real,sig,norm>::decode(const array1s_t& r, array1vr_t& ptable)
    work_results(r.size(), ptable);
    }
 
-}; // end namespace
+} // end namespace
 
 // Explicit Realizations
 
@@ -368,7 +380,6 @@ namespace libcomm {
 
 using libbase::logrealfast;
 
-template class fba2<double,bool,true>;
-template class fba2<logrealfast,bool,false>;
-
-}; // end namespace
+template class fba2<double, bool, true>
+template class fba2<logrealfast, bool, false>
+} // end namespace

@@ -12,4 +12,4 @@ CArchiveStreamBuf::CArchiveStreamBuf(CArchive* ar)
    CArchiveStreamBuf::ar = ar;
    }
 
-}; // end namespace
+} // end namespace

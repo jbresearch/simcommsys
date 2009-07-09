@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "secant.h"
 
@@ -17,10 +17,10 @@ namespace libbase {
 
 // exported functions
 
-secant::secant(double (*func)(double))
+secant::secant(double(*func)(double))
    {
    bind(func);
-   init(0,1);
+   init(0, 1);
    accuracy(1e-10);
    maxiter(1000);
    }
@@ -41,25 +41,26 @@ double secant::solve(const double y)
    double y1 = (*f)(x1) - y;
    double y2 = (*f)(x2) - y;
 
-   if(fabs(y2) < fabs(y1))
+   if (fabs(y2) < fabs(y1))
       {
       std::swap(x1, x2);
       std::swap(y1, y2);
       }
 
-   for(int i=0; i<max_iter; i++)
+   for (int i = 0; i < max_iter; i++)
       {
-      double dx = (x2-x1)*y1/(y1-y2);
+      double dx = (x2 - x1) * y1 / (y1 - y2);
       x2 = x1;
       y2 = y1;
       x1 += dx;
       y1 = (*f)(x1) - y;
-      if(y1 == 0.0 || fabs(dx) < min_dx)
+      if (y1 == 0.0 || fabs(dx) < min_dx)
          return x1;
       }
 
-   std::cerr << "FATAL ERROR (secant): Maximum number of iterations exceeded.\n";
+   std::cerr
+         << "FATAL ERROR (secant): Maximum number of iterations exceeded.\n";
    exit(1);
    }
 
-}; // end namespace
+} // end namespace

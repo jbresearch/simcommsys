@@ -10,18 +10,18 @@
 namespace libcomm {
 
 /*!
-   \brief   Padded Interleaver.
-   \author  Johann Briffa
+ \brief   Padded Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \note The member onetimepad object is a pointer; this allows us to create
-         an empty "padded" class without access to onetimepad's default
-         constructor (which is private for that class).
-*/
+ \note The member onetimepad object is a pointer; this allows us to create
+ an empty "padded" class without access to onetimepad's default
+ constructor (which is private for that class).
+ */
 
 template <class real>
 class padded : public interleaver<real> {
@@ -30,7 +30,8 @@ class padded : public interleaver<real> {
 protected:
    padded();
 public:
-   padded(const interleaver<real>& inter, const fsm& encoder, const bool terminated, const bool renewable);
+   padded(const interleaver<real>& inter, const fsm& encoder,
+         const bool terminated, const bool renewable);
    padded(const padded& x);
    ~padded();
 
@@ -39,20 +40,27 @@ public:
    void advance();
 
    // Transform functions
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
-   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void
+         transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void
+         transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void
+         inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
 
    // Information functions
-   int size() const { assertalways(inter); return inter->size(); };
+   int size() const
+      {
+      assertalways(inter);
+      return inter->size();
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(padded);
+DECLARE_SERIALIZER(padded);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

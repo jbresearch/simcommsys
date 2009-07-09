@@ -9,35 +9,45 @@
 namespace libcomm {
 
 /*!
-   \brief   Lookup Table Interleaver.
-   \author  Johann Briffa
+ \brief   Lookup Table Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \todo Document concept of forced tail interleavers (as in divs95)
-*/
+ \todo Document concept of forced tail interleavers (as in divs95)
+ */
 
 template <class real>
 class lut_interleaver : public interleaver<real> {
 protected:
-   lut_interleaver() {};
+   lut_interleaver()
+      {
+      }
    libbase::vector<int> lut;
 public:
-   virtual ~lut_interleaver() {};
+   virtual ~lut_interleaver()
+      {
+      }
 
    // Transform functions
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
-   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void
+         transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void
+         transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void
+         inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
 
    // Information functions
-   int size() const { return lut.size(); };
+   int size() const
+      {
+      return lut.size();
+      }
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 
