@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "mpsk.h"
 #include "itfunc.h"
@@ -23,11 +23,11 @@ void mpsk::init(const int m)
    lut.init(m);
    // allocate symbols using a Gray code sequence
    using libbase::gray;
-   for(int i=0; i<m; i++)
+   for (int i = 0; i < m; i++)
       {
       const double r = 1;
-      const double theta = i * (2*libbase::PI/m);
-      lut(gray(i)) = sigspace(r*cos(theta), r*sin(theta));
+      const double theta = i * (2 * libbase::PI / m);
+      lut(gray(i)) = sigspace(r * cos(theta), r * sin(theta));
       }
    }
 
@@ -36,7 +36,7 @@ void mpsk::init(const int m)
 std::string mpsk::description() const
    {
    std::ostringstream sout;
-   switch(lut.size())
+   switch (lut.size())
       {
       case 2:
          sout << "BPSK blockmodem";
@@ -69,4 +69,4 @@ std::istream& mpsk::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace

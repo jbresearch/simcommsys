@@ -16,18 +16,18 @@ using libcomm::bsid2d;
 void visualtest(int seed, int type, double p)
    {
    // define an alternating input sequence
-   const int M=5, N=5;
-   matrix<bool> tx(M,N);
-   switch(type)
+   const int M = 5, N = 5;
+   matrix<bool> tx(M, N);
+   switch (type)
       {
       case 0:
       case 1:
          tx = type != 0;
          break;
       case 2:
-         for(int i=0; i<M; i++)
-            for(int j=0; j<N; j++)
-               tx(i,j) = ((i&1) ^ (j&1)) != 0;
+         for (int i = 0; i < M; i++)
+            for (int j = 0; j < N; j++)
+               tx(i, j) = ((i & 1) ^ (j & 1)) != 0;
          break;
       default:
          failwith("Invalid type");
@@ -39,13 +39,13 @@ void visualtest(int seed, int type, double p)
    randgen prng;
    prng.seed(seed);
    // channel1 is a substitution-only channel
-   bsid2d channel1(true,false,false);
+   bsid2d channel1(true, false, false);
    channel1.seedfrom(prng);
    channel1.set_parameter(p);
    channel1.transmit(tx, rx1);
    cout << "Rx1: " << rx1 << "\n";
    // channel1 is an insdel-only channel
-   bsid2d channel2(false,true,true);
+   bsid2d channel2(false, true, true);
    channel2.seedfrom(prng);
    channel2.set_parameter(p);
    channel2.transmit(tx, rx2);
@@ -53,41 +53,37 @@ void visualtest(int seed, int type, double p)
    }
 
 /*!
-   \brief   Test program for 2D BSID channel
-   \author  Johann Briffa
+ \brief   Test program for 2D BSID channel
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 int main(int argc, char *argv[])
    {
    // Set up user parameters
    namespace po = boost::program_options;
    po::options_description desc("Allowed options");
-   desc.add_options()
-      ("help", "print this help message")
-      ("seed,s", po::value<int>()->default_value(0),
-         "random generator seed")
-      ("parameter,p", po::value<double>()->default_value(0.1),
-         "channel error probability")
-      ;
+   desc.add_options()("help", "print this help message")("seed,s", po::value<
+         int>()->default_value(0), "random generator seed")("parameter,p",
+         po::value<double>()->default_value(0.1), "channel error probability");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
    // Validate user parameters
-   if(vm.count("help"))
+   if (vm.count("help"))
       {
       std::cerr << desc << "\n";
       return 1;
       }
 
    // Get user parameters
-   const int seed = vm["seed"].as<int>();
-   const double p = vm["parameter"].as<double>();
+   const int seed = vm["seed"].as<int> ();
+   const double p = vm["parameter"].as<double> ();
 
    // create a test sequence and test 2D BSID transmission
    visualtest(seed, 0, p); // all-zero sequence
@@ -97,7 +93,7 @@ int main(int argc, char *argv[])
    return 0;
    }
 
-}; // end namespace
+} // end namespace
 
 int main(int argc, char *argv[])
    {

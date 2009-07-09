@@ -71,4 +71,4 @@ CString CFolderDialog::GetFolder()
    return m_sFolder;
    }
 
-}; // end namespace
+} // end namespace

@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "rvstatistics.h"
 #include <float.h>
@@ -26,24 +26,24 @@ void rvstatistics::insert(const double x)
    {
    m_n++;
    m_sum += x;
-   m_sumsq += x*x;
-   if(x > m_hi)
+   m_sumsq += x * x;
+   if (x > m_hi)
       m_hi = x;
-   if(x < m_lo)
+   if (x < m_lo)
       m_lo = x;
    }
 
 void rvstatistics::insert(const vector<double>& x)
    {
-   for(int i=0; i<x.size(); i++)
+   for (int i = 0; i < x.size(); i++)
       insert(x(i));
    }
 
 void rvstatistics::insert(const matrix<double>& x)
    {
-   for(int i=0; i<x.size().rows(); i++)
-      for(int j=0; j<x.size().cols(); j++)
-         insert(x(i,j));
+   for (int i = 0; i < x.size().rows(); i++)
+      for (int j = 0; j < x.size().cols(); j++)
+         insert(x(i, j));
    }
 
-}; // end namespace
+} // end namespace

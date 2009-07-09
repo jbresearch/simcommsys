@@ -16,4 +16,4 @@ CTraceStreamBuf::~CTraceStreamBuf()
    {
    }
 
-}; // end namespace
+} // end namespace

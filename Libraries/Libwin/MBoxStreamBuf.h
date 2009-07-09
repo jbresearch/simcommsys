@@ -49,6 +49,6 @@ inline int CMBoxStreamBuf::overflow(int nCh)
    return 1;
    };
 
-}; // end namespace
+} // end namespace
 
 #endif

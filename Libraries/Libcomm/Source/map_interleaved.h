@@ -8,28 +8,27 @@
 namespace libcomm {
 
 /*!
-   \brief   Random Interleaving Mapper.
-   \author  Johann Briffa
+ \brief   Random Interleaving Mapper.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   This class defines an interleaved version of the straight mapper.
-*/
+ This class defines an interleaved version of the straight mapper.
+ */
 
-template <template<class> class C=libbase::vector, class dbl=double>
-class map_interleaved :
-   public map_straight<C,dbl> {
+template <template <class > class C = libbase::vector, class dbl = double>
+class map_interleaved : public map_straight<C, dbl> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<dbl>     array1d_t;
+   typedef libbase::vector<dbl> array1d_t;
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef map_straight<C,dbl> Base;
-   typedef map_interleaved<C,dbl> This;
+   typedef map_straight<C, dbl> Base;
+   typedef map_interleaved<C, dbl> This;
 
 private:
    /*! \name Internal object representation */
@@ -45,15 +44,18 @@ protected:
 
 public:
    // Setup functions
-   void seedfrom(libbase::random& r) { this->r.seed(r.ival()); };
+   void seedfrom(libbase::random& r)
+      {
+      this->r.seed(r.ival());
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(map_interleaved);
+DECLARE_SERIALIZER(map_interleaved);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

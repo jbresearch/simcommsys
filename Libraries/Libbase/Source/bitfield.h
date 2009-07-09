@@ -10,20 +10,20 @@
 namespace libbase {
 
 /*!
-   \brief   Bitfield (register of a set size).
-   \author  Johann Briffa
+ \brief   Bitfield (register of a set size).
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 class bitfield {
-   static int   defsize;   //!< default size
+   static int defsize; //!< default size
    // member variables
-   int32u field;           //!< bit field value
-   int    bits;            //!< number of bits
+   int32u field; //!< bit field value
+   int bits; //!< number of bits
 private:
    int32u mask() const;
    void check_range(int32u f) const;
@@ -31,16 +31,25 @@ private:
    void init(const char *s);
 public:
    bitfield();
-   bitfield(const char *s) { init(s); };
+   bitfield(const char *s)
+      {
+      init(s);
+      }
    bitfield(const int32u field, const int bits);
    explicit bitfield(const vector<bool>& v);
 
    // Type conversion to integer/string
-   operator int32u() const { return field; };
+   operator int32u() const
+      {
+      return field;
+      }
    operator std::string() const;
 
    // Field size methods
-   int size() const { return bits; };
+   int size() const
+      {
+      return bits;
+      }
    void resize(const int b);
    static void setdefsize(const int b);
 
@@ -51,7 +60,10 @@ public:
    // Partial extraction and indexed access
    bitfield extract(const int hi, const int lo) const;
    bitfield extract(const int b) const;
-   bitfield operator[](const int b) const { return extract(b); };
+   bitfield operator[](const int b) const
+      {
+      return extract(b);
+      }
 
    // Logical operators - OR, AND, XOR
    friend bitfield operator|(const bitfield& a, const bitfield& b);
@@ -79,6 +91,6 @@ public:
    friend std::istream& operator>>(std::istream& s, bitfield& b);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

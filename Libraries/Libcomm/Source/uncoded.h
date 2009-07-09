@@ -12,38 +12,37 @@
 namespace libcomm {
 
 /*!
-   \brief   Uncoded transmission.
-   \author  Johann Briffa
+ \brief   Uncoded transmission.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-*/
+ */
 
-template <class dbl=double>
-class uncoded :
-   public codec_softout<libbase::vector,dbl> {
+template <class dbl = double>
+class uncoded : public codec_softout<libbase::vector, dbl> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<int>        array1i_t;
-   typedef libbase::vector<dbl>        array1d_t;
-   typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<dbl> array1d_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 private:
    // Shorthand for class hierarchy
    typedef uncoded<dbl> This;
-   typedef codec_softout<libbase::vector,dbl> Base;
+   typedef codec_softout<libbase::vector, dbl> Base;
 private:
    /*! \name User-specified parameters */
-   fsm   *encoder;
-   int   tau;        //!< Block size at input
+   fsm *encoder;
+   int tau; //!< Block size at input
    // @}
    /*! \name Computed parameters */
    array1i_t lut;
-   array1vd_t rp;    //!< Intrinsic source statistics
-   array1vd_t R;     //!< Intrinsic output statistics
+   array1vd_t rp; //!< Intrinsic source statistics
+   array1vd_t R; //!< Intrinsic output statistics
    // @}
 protected:
    /*! \name Internal functions */
@@ -59,7 +58,10 @@ public:
    //! Default constructor
    uncoded();
    uncoded(const fsm& encoder, const int tau);
-   ~uncoded() { free(); };
+   ~uncoded()
+      {
+      free();
+      }
    // @}
 
    // Codec operations
@@ -69,22 +71,38 @@ public:
 
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> input_block_size() const
-      { return libbase::size_type<libbase::vector>(tau); };
+      {
+      return libbase::size_type<libbase::vector>(tau);
+      }
    libbase::size_type<libbase::vector> output_block_size() const
-      { return libbase::size_type<libbase::vector>(tau); };
-   int num_inputs() const { return encoder->num_inputs(); };
-   int num_outputs() const { return encoder->num_outputs(); };
-   int tail_length() const { return 0; };
-   int num_iter() const { return 1; };
+      {
+      return libbase::size_type<libbase::vector>(tau);
+      }
+   int num_inputs() const
+      {
+      return encoder->num_inputs();
+      }
+   int num_outputs() const
+      {
+      return encoder->num_outputs();
+      }
+   int tail_length() const
+      {
+      return 0;
+      }
+   int num_iter() const
+      {
+      return 1;
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(uncoded);
+DECLARE_SERIALIZER(uncoded);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

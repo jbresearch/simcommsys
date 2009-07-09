@@ -16,37 +16,41 @@
 namespace libbase {
 
 /*!
-   \brief   Timer.
-   \author  Johann Briffa
+ \brief   Timer.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   A class which can be used to time subroutines, etc. resolution is in
-   microseconds, but the class can also handle durations in
-   weeks/years/anything you care to time...
+ A class which can be used to time subroutines, etc. resolution is in
+ microseconds, but the class can also handle durations in
+ weeks/years/anything you care to time...
 
-   \note Win32 supported using a millisecond timer. The clock() timer
-         is used to compute processor time. This allows us to get a CPU
-         usage estimate.
-*/
+ \note Win32 supported using a millisecond timer. The clock() timer
+ is used to compute processor time. This allows us to get a CPU
+ usage estimate.
+ */
 
 class timer {
    std::string name;
    double wall, cpu;
    bool running;
 #ifdef WIN32
-   double convert(const struct _timeb& tb) const { return((double)tb.time + (double)tb.millitm * 1E-3); };
+   double convert(const struct _timeb& tb) const
+      {return((double)tb.time + (double)tb.millitm * 1E-3);};
 #else
-   double convert(const struct timeval& tv) const { return((double)tv.tv_sec + (double)tv.tv_usec * 1E-6); };
+   double convert(const struct timeval& tv) const
+      {
+      return ((double) tv.tv_sec + (double) tv.tv_usec * 1E-6);
+      }
 #endif
    double _wallclock() const;
    double _cputime() const;
 public:
    /*! \name Constructors / Destructors */
-   explicit timer(const std::string& name="");
+   explicit timer(const std::string& name = "");
    virtual ~timer();
    // @}
 
@@ -62,12 +66,18 @@ public:
    double cputime() const;
    //! The percentage CPU usage.
    double usage() const;
-   bool isrunning() const { return running; };
+   bool isrunning() const
+      {
+      return running;
+      }
    // @}
 
    /*! \name Conversion operations */
    //! Conversion function to generate a string
-   operator std::string() const { return format(elapsed()); };
+   operator std::string() const
+      {
+      return format(elapsed());
+      }
    // @}
 
    /*! \name Timer-related functions */
@@ -78,16 +88,17 @@ public:
 };
 
 /*!
-   \brief Stream output
-   
-   \note This routine does not stop the timer, therefore allowing
-         display of running timers.
-*/
+ \brief Stream output
+
+ \note This routine does not stop the timer, therefore allowing
+ display of running timers.
+ */
 inline std::ostream& operator<<(std::ostream& s, const timer& t)
    {
    return s << std::string(t);
-   };
+   }
+;
 
-}; // end namespace
+} // end namespace
 
 #endif

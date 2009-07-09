@@ -14,4 +14,4 @@ CRoutedIO::CRoutedIO()
    std::cerr.rdbuf(msgbox.rdbuf());
    }
 
-}; // end namespace
+} // end namespace

@@ -10,25 +10,25 @@
 namespace libcomm {
 
 /*!
-   \brief   Results File Handler.
-   \author  Johann Briffa
+ \brief   Results File Handler.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 class resultsfile {
 private:
    /*! \name User-specified parameters */
-   std::string    fname;         //!< Filename for associated results file
+   std::string fname; //!< Filename for associated results file
    // @}
    /*! \name Internal variables */
-   bool           headerwritten; //!< Flag to indicate that the results header has been written
-   std::streampos fileptr;       //!< Position in file where we should write the next result
-   sha            filedigest;    //!< Digest of file as at last update
-   libbase::timer t;             //!< Timer to keep track of running estimate
+   bool headerwritten; //!< Flag to indicate that the results header has been written
+   std::streampos fileptr; //!< Position in file where we should write the next result
+   sha filedigest; //!< Digest of file as at last update
+   libbase::timer t; //!< Timer to keep track of running estimate
    // @}
 private:
    /*! \name Results file helper functions */
@@ -39,7 +39,9 @@ private:
 protected:
    /*! \name System-specific functions */
    virtual void writeheader(std::ostream& sout) const = 0;
-   virtual void writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const = 0;
+   virtual void
+         writeresults(std::ostream& sout, libbase::vector<double>& result,
+               libbase::vector<double>& tolerance) const = 0;
    virtual void writestate(std::ostream& sout) const = 0;
    virtual void lookforstate(std::istream& sin) = 0;
    // @}
@@ -51,16 +53,21 @@ public:
 
    /*! \name File handling interface */
    void init(const std::string& fname);
-   bool isinitialized() const { return !fname.empty(); };
+   bool isinitialized() const
+      {
+      return !fname.empty();
+      }
    // @}
 
    /*! \name Results handling interface */
    void setupfile();
-   void writeinterimresults(libbase::vector<double>& result, libbase::vector<double>& tolerance);
-   void writefinalresults(libbase::vector<double>& result, libbase::vector<double>& tolerance, bool savestate=false);
+   void writeinterimresults(libbase::vector<double>& result, libbase::vector<
+         double>& tolerance);
+   void writefinalresults(libbase::vector<double>& result, libbase::vector<
+         double>& tolerance, bool savestate = false);
    // @}
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

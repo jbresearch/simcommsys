@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "sigspace.h"
 
@@ -33,23 +33,23 @@ std::istream& operator>>(std::istream& s, sigspace& x)
    char c = 0;
 
    s >> c;
-   if(c == '[')
+   if (c == '[')
       {
       s >> i >> c;
-      if(c == ',')
+      if (c == ',')
          s >> q >> c;
       else
          s.clear(ios::badbit);
-      if(c != ']')
+      if (c != ']')
          s.clear(ios::badbit);
       }
    else
       s.clear(ios::badbit);
 
-   if(s)
+   if (s)
       x = sigspace(i, q);
 
    return s;
    }
 
-}; // end namespace
+} // end namespace

@@ -54,6 +54,6 @@ public:
         virtual ~CWorkerThread();
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

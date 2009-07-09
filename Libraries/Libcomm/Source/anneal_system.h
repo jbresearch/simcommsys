@@ -8,45 +8,47 @@
 namespace libcomm {
 
 /*!
-   \brief   Simulated Annealing System base.
-   \author  Johann Briffa
+ \brief   Simulated Annealing System base.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 1.00 (10 Jul 1998)
+ \version 1.00 (10 Jul 1998)
 
-   \version 1.10 (11 Oct 2001)
-   added a virtual function which outputs the annealed system
-   (this was only done before in the destruction mechanism)
+ \version 1.10 (11 Oct 2001)
+ added a virtual function which outputs the annealed system
+ (this was only done before in the destruction mechanism)
 
-   \version 1.11 (26 Oct 2001)
-   added a virtual destroy function (see interleaver.h)
+ \version 1.11 (26 Oct 2001)
+ added a virtual destroy function (see interleaver.h)
 
-   \version 1.20 (4 Nov 2001)
-   added a stream << operator and modified the regular output routine accordingly
-   (so that this now returns the stream, and is a pure virtual).
+ \version 1.20 (4 Nov 2001)
+ added a stream << operator and modified the regular output routine accordingly
+ (so that this now returns the stream, and is a pure virtual).
 
-   \version 1.21 (6 Mar 2002)
-   changed vcs version variable from a global to a static class variable.
-   also changed use of iostream from global to std namespace.
+ \version 1.21 (6 Mar 2002)
+ changed vcs version variable from a global to a static class variable.
+ also changed use of iostream from global to std namespace.
 
-   \version 1.22 (17 Jul 2006)
-   added virtual destructor, since this is not done by default.
+ \version 1.22 (17 Jul 2006)
+ added virtual destructor, since this is not done by default.
 
-   \version 1.23 (25 Jul 2006)
-   added empty definition for virtual destructor.
+ \version 1.23 (25 Jul 2006)
+ added empty definition for virtual destructor.
 
-   \version 1.30 (27 Oct 2006)
-   - defined class and associated data within "libcomm" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-*/
+ \version 1.30 (27 Oct 2006)
+ - defined class and associated data within "libcomm" namespace.
+ - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ */
 
 class anneal_system {
 public:
-   virtual ~anneal_system() {};
+   virtual ~anneal_system()
+      {
+      }
    //! Seeds any random generators from a pseudo-random sequence
    virtual void seedfrom(libbase::random& r) = 0;
    //! Perturbs the state and returns the difference in energy due to perturbation
@@ -60,6 +62,6 @@ public:
    friend std::ostream& operator<<(std::ostream& sout, const anneal_system& x);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

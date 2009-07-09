@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "mpreal.h"
 #include <math.h>
@@ -17,14 +17,14 @@ const double mpreal::base = 10.0;
 
 inline void mpreal::normalise()
    {
-   if(mantissa == 0)
+   if (mantissa == 0)
       {
       exponent = 0;
       return;
       }
-   if(isinf(mantissa) || isnan(mantissa))
+   if (isinf(mantissa) || isnan(mantissa))
       return;
-   int shift = (int)floor(log(fabs(mantissa))/log(double(base)));
+   int shift = (int) floor(log(fabs(mantissa)) / log(double(base)));
    mantissa *= pow(base, -shift);
    exponent += shift;
    }
@@ -53,18 +53,18 @@ mpreal& mpreal::operator-()
 
 mpreal& mpreal::operator+=(const mpreal& a)
    {
-   if(mantissa == 0)
+   if (mantissa == 0)
       {
       mantissa = a.mantissa;
       exponent = a.exponent;
       return *this;
       }
-   if(a.mantissa == 0)
+   if (a.mantissa == 0)
       return *this;
 
-   if(exponent == a.exponent)
+   if (exponent == a.exponent)
       mantissa += a.mantissa;
-   else if(exponent > a.exponent)
+   else if (exponent > a.exponent)
       mantissa += a.mantissa * pow(base, a.exponent - exponent);
    else
       {
@@ -108,7 +108,7 @@ std::ostream& operator<<(std::ostream& s, const mpreal& x)
    const ios::fmtflags flags = s.flags();
    s.setf(ios::fixed, ios::floatfield);
    s << x.mantissa;
-   if(!(isinf(x.mantissa) || isnan(x.mantissa)))
+   if (!(isinf(x.mantissa) || isnan(x.mantissa)))
       {
       s.setf(ios::showpos);
       s << "e" << x.exponent;
@@ -117,4 +117,4 @@ std::ostream& operator<<(std::ostream& s, const mpreal& x)
    return s;
    }
 
-}; // end namespace
+} // end namespace

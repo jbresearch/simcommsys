@@ -4,19 +4,19 @@
 namespace libbase {
 
 /*!
-   \brief   Size of templated parameter object.
-   \author  Johann Briffa
+ \brief   Size of templated parameter object.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
-template <template<class> class T>
+template <template <class > class T>
 class size_type {
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

@@ -7,23 +7,25 @@
 namespace libcomm {
 
 /*!
-   \brief   Matt Valenti's Interleaver.
-   \author  Johann Briffa
+ \brief   Matt Valenti's Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-*/
+ */
 
 template <class real>
 class vale96int : public named_lut<real> {
 public:
    vale96int();
-   ~vale96int() {};
+   ~vale96int()
+      {
+      }
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "uncoded.h"
 #include <sstream>
@@ -22,14 +22,14 @@ void uncoded<dbl>::init()
    assertalways(encoder->mem_order() == 0);
    // since the encoder is memoryless, we can build an input/output table
    lut.init(encoder->num_inputs());
-   for(int i=0; i<encoder->num_inputs(); i++)
+   for (int i = 0; i < encoder->num_inputs(); i++)
       lut(i) = encoder->step(i);
    }
 
 template <class dbl>
 void uncoded<dbl>::free()
    {
-   if(encoder != NULL)
+   if (encoder != NULL)
       delete encoder;
    }
 
@@ -56,7 +56,7 @@ void uncoded<dbl>::resetpriors()
    {
    // Allocate space for prior input statistics
    rp.init(This::input_block_size());
-   for(int t=0; t<This::input_block_size(); t++)
+   for (int t = 0; t < This::input_block_size(); t++)
       rp(t).init(This::num_inputs());
    // Initialize
    rp = 1.0;
@@ -95,7 +95,7 @@ void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Initialise result vector
    encoded.init(This::input_block_size());
    // Encode source stream
-   for(int t=0; t<This::input_block_size(); t++)
+   for (int t = 0; t < This::input_block_size(); t++)
       encoded(t) = lut(source(t));
    }
 
@@ -105,8 +105,8 @@ void uncoded<dbl>::softdecode(array1vd_t& ri)
    // Initialize results to prior statistics
    ri = rp;
    // Work out the probabilities of each possible input
-   for(int t=0; t<This::input_block_size(); t++)
-      for(int x=0; x<This::num_inputs(); x++)
+   for (int t = 0; t < This::input_block_size(); t++)
+      for (int x = 0; x < This::num_inputs(); x++)
          ri(t)(x) *= R(t)(lut(x));
    }
 
@@ -116,12 +116,12 @@ void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    softdecode(ri);
    // Allocate space for output results
    ro.init(This::output_block_size());
-   for(int t=0; t<This::output_block_size(); t++)
+   for (int t = 0; t < This::output_block_size(); t++)
       ro(t).init(This::num_outputs());
    // Compute output-related statistics
    ro = 0.0;
-   for(int t=0; t<This::input_block_size(); t++)
-      for(int x=0; x<This::num_inputs(); x++)
+   for (int t = 0; t < This::input_block_size(); t++)
+      for (int x = 0; x < This::num_inputs(); x++)
          ro(t)(lut(x)) = ri(t)(x);
    }
 
@@ -131,7 +131,8 @@ template <class dbl>
 std::string uncoded<dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Uncoded/Repetition Code ("  << This::output_bits() << "," << This::input_bits() << ") - ";
+   sout << "Uncoded/Repetition Code (" << This::output_bits() << ","
+         << This::input_bits() << ") - ";
    sout << encoder->description();
    return sout.str();
    }
@@ -158,7 +159,7 @@ std::istream& uncoded<dbl>::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace
 
 // Explicit Realizations
 
@@ -170,16 +171,19 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
-template class uncoded<float>;
+template class uncoded<float> ;
 template <>
-const serializer uncoded<float>::shelper = serializer("codec", "uncoded<float>", uncoded<float>::create);
+const serializer uncoded<float>::shelper = serializer("codec",
+      "uncoded<float>", uncoded<float>::create);
 
-template class uncoded<double>;
+template class uncoded<double> ;
 template <>
-const serializer uncoded<double>::shelper = serializer("codec", "uncoded<double>", uncoded<double>::create);
+const serializer uncoded<double>::shelper = serializer("codec",
+      "uncoded<double>", uncoded<double>::create);
 
-template class uncoded<logrealfast>;
+template class uncoded<logrealfast> ;
 template <>
-const serializer uncoded<logrealfast>::shelper = serializer("codec", "uncoded<logrealfast>", uncoded<logrealfast>::create);
+const serializer uncoded<logrealfast>::shelper = serializer("codec",
+      "uncoded<logrealfast>", uncoded<logrealfast>::create);
 
-}; // end namespace
+} // end namespace

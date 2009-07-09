@@ -1,17 +1,18 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "lapgauss.h"
 
 namespace libcomm {
 
-const libbase::serializer lapgauss::shelper("channel", "lapgauss", lapgauss::create);
+const libbase::serializer lapgauss::shelper("channel", "lapgauss",
+      lapgauss::create);
 
 // constructors / destructors
 
@@ -23,7 +24,7 @@ lapgauss::lapgauss()
 
 void lapgauss::compute_parameters(const double Eb, const double No)
    {
-   sigma = sqrt(Eb*No);
+   sigma = sqrt(Eb * No);
    }
 
 // channel handle functions
@@ -63,4 +64,4 @@ std::istream& lapgauss::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace

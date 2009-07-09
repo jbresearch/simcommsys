@@ -10,37 +10,37 @@
 namespace libbase {
 
 /*!
-   \brief   Logarithm Arithmetic.
-   \author  Johann Briffa
+ \brief   Logarithm Arithmetic.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 1.01 (6 Mar 2002)
-  changed vcs version variable from a global to a static class variable.
-  also changed use of iostream from global to std namespace.
+ \version 1.01 (6 Mar 2002)
+ changed vcs version variable from a global to a static class variable.
+ also changed use of iostream from global to std namespace.
 
-   \version 1.02 (15 Jun 2002)
-  changed 'flags' variable in implementation file from type int to type
-  ios::fmtflags, as it's supposed to be.
+ \version 1.02 (15 Jun 2002)
+ changed 'flags' variable in implementation file from type int to type
+ ios::fmtflags, as it's supposed to be.
 
-   \version 1.10 (26 Oct 2006)
-   - defined class and associated data within "libbase" namespace.
-   - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ \version 1.10 (26 Oct 2006)
+ - defined class and associated data within "libbase" namespace.
+ - removed use of "using namespace std", replacing by tighter "using" statements as needed.
 
-   \version 1.11 (17 Jul 2007)
-   - changed references to isinf() and isnan() back to global namespace, in accord with
-    config.h 3.23.
-*/
+ \version 1.11 (17 Jul 2007)
+ - changed references to isinf() and isnan() back to global namespace, in accord with
+ config.h 3.23.
+ */
 
 class logreal {
-   double       logval;
+   double logval;
    logreal& operator-();
    logreal& operator-=(const logreal& a);
 public:
-   logreal(const double m=0);
+   logreal(const double m = 0);
    operator double() const;
 
    logreal& operator+=(const logreal& a);
@@ -52,12 +52,12 @@ public:
 
 inline logreal::logreal(const double m)
    {
-   if(m < 0)
+   if (m < 0)
       {
       std::cerr << "FATAL ERROR (logreal): Negative numbers cannot be used.\n";
       exit(1);
       }
-   logval = (m==0) ? DBL_MAX : -log(m);
+   logval = (m == 0) ? DBL_MAX : -log(m);
    }
 
 inline logreal::operator double() const
@@ -67,7 +67,7 @@ inline logreal::operator double() const
 
 inline logreal& logreal::operator+=(const logreal& a)
    {
-   if(logval < a.logval)
+   if (logval < a.logval)
       logval = logval - log(1 + exp(logval - a.logval));
    else
       logval = a.logval - log(1 + exp(a.logval - logval));
@@ -77,7 +77,7 @@ inline logreal& logreal::operator+=(const logreal& a)
 inline logreal& logreal::operator*=(const logreal& a)
    {
    logval += a.logval;
-   if(isinf(logval))
+   if (isinf(logval))
       logval = isinf(logval) * DBL_MAX;
    return *this;
    }
@@ -85,7 +85,7 @@ inline logreal& logreal::operator*=(const logreal& a)
 inline logreal& logreal::operator/=(const logreal& a)
    {
    logval -= a.logval;
-   if(isinf(logval))
+   if (isinf(logval))
       logval = isinf(logval) * DBL_MAX;
    return *this;
    }
@@ -113,6 +113,6 @@ inline logreal operator/(const logreal& a, const logreal& b)
    return result;
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

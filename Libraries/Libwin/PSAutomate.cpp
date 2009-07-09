@@ -755,6 +755,6 @@ void CPSAutomate::PlayeventRevert()
    FreeDescriptor(result);
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

@@ -8,34 +8,41 @@
 namespace libcomm {
 
 /*!
-   \brief   Helical Interleaver.
-   \author  Johann Briffa
+ \brief   Helical Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-*/
+ */
 
 template <class real>
 class helical : public lut_interleaver<real> {
    int rows, cols;
 protected:
    void init(const int tau, const int rows, const int cols);
-   helical() {};
+   helical()
+      {
+      }
 public:
-   helical(const int tau, const int rows, const int cols) { init(tau, rows, cols); };
-   ~helical() {};
+   helical(const int tau, const int rows, const int cols)
+      {
+      init(tau, rows, cols);
+      }
+   ~helical()
+      {
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(helical);
+DECLARE_SERIALIZER(helical);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

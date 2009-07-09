@@ -85,32 +85,47 @@
 
 #include <iostream>
 
-
 namespace libcomm {
 
 /*!
-   \brief   Communications Library Serializer.
-   \author  Johann Briffa
+ \brief   Communications Library Serializer.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 // Serialization support
-class serializer_libcomm : private
-   qsc< libbase::gf<1,0x3> >,
-   awgn, laplacian, lapgauss, bsid, bsid2d, bsc,
-   nrcc, rscc, dvbcrsc,
-   grscc< libbase::gf<1,0x3> >,
-   gnrcc< libbase::gf<1,0x3> >,
-   uncoded<double>, mapcc<double>, turbo<double>,
-   onetimepad<double>, padded<double>, berrou<double>, flat<double>, helical<double>, rand_lut<double>, rectangular<double>, shift_lut<double>, uniform_lut<double>, named_lut<double>,
-   codec_reshaped< turbo<double> >
-{
+class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
+      awgn,
+      laplacian,
+      lapgauss,
+      bsid,
+      bsid2d,
+      bsc,
+      nrcc,
+      rscc,
+      dvbcrsc,
+      grscc<libbase::gf<1, 0x3> > ,
+      gnrcc<libbase::gf<1, 0x3> > ,
+      uncoded<double> ,
+      mapcc<double> ,
+      turbo<double> ,
+      onetimepad<double> ,
+      padded<double> ,
+      berrou<double> ,
+      flat<double> ,
+      helical<double> ,
+      rand_lut<double> ,
+      rectangular<double> ,
+      shift_lut<double> ,
+      uniform_lut<double> ,
+      named_lut<double> ,
+      codec_reshaped<turbo<double> > {
 private:
-   typedef libbase::logrealfast  logrealfast;
+   typedef libbase::logrealfast logrealfast;
 private:
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
@@ -124,27 +139,29 @@ private:
    //uniform_lut<double>	_uniform_lut_double;
    //named_lut<double>	_named_lut_double;
    // Modulators
-   mpsk                             _mpsk;
-   qam                              _qam;
-   dminner<double,true>             _dminner;
-   dminner2<double,true>            _dminner2;
-   dminner2d<double,true>           _dminner2d;
+   mpsk _mpsk;
+   qam _qam;
+   dminner<double, true> _dminner;
+   dminner2<double, true> _dminner2;
+   dminner2d<double, true> _dminner2d;
    // Codecs
-   repacc<double>                   _repacc;
-   sysrepacc<double>                _sysrepacc;
+   repacc<double> _repacc;
+   sysrepacc<double> _sysrepacc;
    // Mappers
-   map_interleaved<libbase::vector>    _map_interleaved;
-   map_permuted<libbase::vector>       _map_permuted;
-   map_stipple<libbase::vector>        _map_stipple;
+   map_interleaved<libbase::vector> _map_interleaved;
+   map_permuted<libbase::vector> _map_permuted;
+   map_stipple<libbase::vector> _map_stipple;
    // Systems
-   commsys<bool>                       _commsys;
-   commsys_iterative<bool>             _commsys_iterative;
+   commsys<bool> _commsys;
+   commsys_iterative<bool> _commsys_iterative;
    // Experiments
-   commsys_simulator<bool>             _commsys_simulator;
-   commsys_threshold<bool>             _commsys_threshold;
+   commsys_simulator<bool> _commsys_simulator;
+   commsys_threshold<bool> _commsys_threshold;
 public:
    serializer_libcomm() :
-      _mpsk(2), _qam(4) {};
+      _mpsk(2), _qam(4)
+      {
+      }
 };
 
 // Public interface to load objects
@@ -163,7 +180,8 @@ template <class T>
 T *loadfromstring(const std::string& systemstring)
    {
    // load system from string representation
-   std::istringstream is(systemstring, std::ios_base::in | std::ios_base::binary);
+   std::istringstream is(systemstring, std::ios_base::in
+         | std::ios_base::binary);
    return libcomm::loadandverify<T>(is);
    }
 
@@ -176,6 +194,6 @@ T *loadfromfile(const std::string& fname)
    return libcomm::loadandverify<T>(file);
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

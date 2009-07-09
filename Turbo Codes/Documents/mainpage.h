@@ -47,4 +47,19 @@
    In view of this, please set your editor preferences accordingly, to avoid
    needless automatic editing, which complicates merges.
    Edits which are primarily sylistic should be committed separately.
+
+   \section software Software Required
+   The code base is meant to be edited using an IDE; requirements depend on
+   the operating system:
+   - Windows development assumes Microsoft Visual Studio 2005; the Team
+     Edition is suggested for its performance-related tools. The Refactor!
+     plugin from Developer Express Inc. is also recommended.
+   - Linux development assumes Eclipse 3.5, with Subclipse 1.4.x for SVN
+     integration (install both the main items and the SVNKit to work in
+     Ubuntu 9.04) and Eclox for Doxygen access.
+
+   Compilation on Windows uses the Microsoft built-in compiler; on Linux G++
+   is used. Any recent G++ package should work - the current reference
+   standard is 4.3.3 as in Ubuntu 9.04. Both operating systems need the
+   development version of Boost v1.35 installed.
 */

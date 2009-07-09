@@ -9,22 +9,22 @@
 namespace libcomm {
 
 /*!
-   \brief   Binary symmetric channel.
-   \author  Johann Briffa
+ \brief   Binary symmetric channel.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \version 1.00 (25 Jan 2008)
-   - Initial version; implementation of a binary symmetric channel.
-*/
+ \version 1.00 (25 Jan 2008)
+ - Initial version; implementation of a binary symmetric channel.
+ */
 
 class bsc : public channel<bool> {
 private:
    /*! \name User-defined parameters */
-   double   Ps;    //!< Bit-substitution probability \f$ P_s \f$
+   double Ps; //!< Bit-substitution probability \f$ P_s \f$
    // @}
 protected:
    // Channel function overrides
@@ -33,29 +33,34 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   bsc() {};
+   bsc()
+      {
+      }
    // @}
 
    /*! \name Channel parameter handling */
    //! Set the substitution probability
    void set_parameter(const double Ps);
    //! Get the substitution probability
-   double get_parameter() const { return Ps; };
+   double get_parameter() const
+      {
+      return Ps;
+      }
    // @}
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(bsc);
+DECLARE_SERIALIZER(bsc);
 };
 
 inline double bsc::pdf(const bool& tx, const bool& rx) const
    {
-   return (tx != rx) ? Ps : 1-Ps;
+   return (tx != rx) ? Ps : 1 - Ps;
    }
 
-}; // end namespace
+} // end namespace
 
 #endif
 

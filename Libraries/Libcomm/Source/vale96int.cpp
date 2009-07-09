@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "vale96int.h"
 
@@ -21,12 +21,13 @@ vale96int<real>::vale96int()
    this->m = 0;
    // build LUT
    const int tau = 34;
-   const int a[] = {16, 29, 9, 10, 14, 6, 31, 8, 12, 22, 17, 33, 34, 23, 24, 19, 32, 30, 13, 2, 21, 25, 26, 3, 28, 20, 27, 7, 5, 15, 4, 11, 18, 1};
+   const int a[] = {16, 29, 9, 10, 14, 6, 31, 8, 12, 22, 17, 33, 34, 23, 24,
+         19, 32, 30, 13, 2, 21, 25, 26, 3, 28, 20, 27, 7, 5, 15, 4, 11, 18, 1};
    this->lut.init(tau);
    this->lut = -1;
-   for(int i=0; i<tau; i++)
+   for (int i = 0; i < tau; i++)
       {
-      const int ndx = a[i]-1;
+      const int ndx = a[i] - 1;
       // check for duplicate entries
       assertalways(this->lut(ndx) == -1);
       this->lut(ndx) = i;
@@ -35,8 +36,7 @@ vale96int<real>::vale96int()
 
 // Explicit instantiations
 
-template class vale96int<float>;
-template class vale96int<double>;
-template class vale96int<libbase::logrealfast>;
-
-}; // end namespace
+template class vale96int<float> ;
+template class vale96int<double> ;
+template class vale96int<libbase::logrealfast> ;
+} // end namespace

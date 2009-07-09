@@ -5,15 +5,15 @@
 #include "vcs.h"
 
 /*******************************************************************************
-  
-  Version 1.00 (7 Dec 2006)
-  * initial version
-  * class meant to encapsulate the data and functions dealing with image files,
-  potentially containing several images.
-  * this is effectively a container for images, together with the functions
-  necessary to save and load to files or other streams.
 
-*******************************************************************************/
+ Version 1.00 (7 Dec 2006)
+ * initial version
+ * class meant to encapsulate the data and functions dealing with image files,
+ potentially containing several images.
+ * this is effectively a container for images, together with the functions
+ necessary to save and load to files or other streams.
+
+ *******************************************************************************/
 
 namespace libimage {
 
@@ -27,9 +27,9 @@ public:
    // File format
 
    // Saving / loading
-   
+
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

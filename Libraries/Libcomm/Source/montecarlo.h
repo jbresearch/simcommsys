@@ -12,31 +12,31 @@
 namespace libcomm {
 
 /*!
-   \brief   Monte Carlo Estimator.
-   \author  Johann Briffa
+ \brief   Monte Carlo Estimator.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 class montecarlo : public libbase::masterslave, private resultsfile {
    /*! \name Object-wide constants */
-   static const libbase::int64u  min_samples;   //!< minimum number of samples
+   static const libbase::int64u min_samples; //!< minimum number of samples
    // @}
    /*! \name Bound objects */
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
-             object at this address. This should be deleted when no longer necessary.
-   */
-   bool           bound;         //!< Flag to indicate that a system has been bound (only in master)
-   experiment     *system;       //!< System being sampled
+    object at this address. This should be deleted when no longer necessary.
+    */
+   bool bound; //!< Flag to indicate that a system has been bound (only in master)
+   experiment *system; //!< System being sampled
    // @}
    /*! \name Internal variables */
-   double         confidence;    //!< confidence level required
-   double         accuracy;      //!< accuracy level required
-   libbase::timer t;             //!< timer to keep track of running estimate
-   sha            sysdigest;     //!< digest of the currently-simulated system
+   double confidence; //!< confidence level required
+   double accuracy; //!< accuracy level required
+   libbase::timer t; //!< timer to keep track of running estimate
+   sha sysdigest; //!< digest of the currently-simulated system
    // @}
    /*! \name Slave process functions & their functors */
    void slave_getcode(void);
@@ -55,7 +55,8 @@ private:
    // @}
    /*! \name Main estimator helper functions */
    void sampleandaccumulate();
-   void updateresults(libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
+   void updateresults(libbase::vector<double>& result,
+         libbase::vector<double>& tolerance) const;
    void initslave(slave *s, std::string systemstring);
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool converged);
@@ -64,17 +65,22 @@ private:
 protected:
    // System-specific file-handler functions
    void writeheader(std::ostream& sout) const;
-   void writeresults(std::ostream& sout, libbase::vector<double>& result, libbase::vector<double>& tolerance) const;
+   void writeresults(std::ostream& sout, libbase::vector<double>& result,
+         libbase::vector<double>& tolerance) const;
    void writestate(std::ostream& sout) const;
    void lookforstate(std::istream& sin);
    /*! \name Overrideable user-interface functions */
    /*! \brief User-interrupt check
-      This function should return true if the user has requested an interrupt.
-      Once it returns true, all subsequent evaluations should keep returning
-      true again.
-   */
-   virtual bool interrupt() { return false; };
-   virtual void display(libbase::int64u pass, double cur_accuracy, const libbase::vector<double>& result);
+    This function should return true if the user has requested an interrupt.
+    Once it returns true, all subsequent evaluations should keep returning
+    true again.
+    */
+   virtual bool interrupt()
+      {
+      return false;
+      }
+   virtual void display(libbase::int64u pass, double cur_accuracy,
+         const libbase::vector<double>& result);
    // @}
 public:
    /*! \name Constructor/destructor */
@@ -91,23 +97,39 @@ public:
    //! Set target accuracy, say, 0.10 => 10% of mean
    void set_accuracy(double accuracy);
    //! Associates with given results file
-   void set_resultsfile(const std::string& fname) { resultsfile::init(fname); };
+   void set_resultsfile(const std::string& fname)
+      {
+      resultsfile::init(fname);
+      }
    //! Get confidence limit
-   double get_confidence() const { return confidence; };
+   double get_confidence() const
+      {
+      return confidence;
+      }
    //! Get target accuracy
-   double get_accuracy() const { return accuracy; };
+   double get_accuracy() const
+      {
+      return accuracy;
+      }
    // @}
    /*! \name Simulation results */
    //! Number of samples taken to produce the result
-   libbase::int64u get_samplecount() const { return system->get_samplecount(); };
+   libbase::int64u get_samplecount() const
+      {
+      return system->get_samplecount();
+      }
    //! Time taken to produce the result
-   const libbase::timer& get_timer() const { return t; };
+   const libbase::timer& get_timer() const
+      {
+      return t;
+      }
    // @}
    /*! \name Main process */
-   void estimate(libbase::vector<double>& result, libbase::vector<double>& tolerance);
+   void estimate(libbase::vector<double>& result,
+         libbase::vector<double>& tolerance);
    // @}
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

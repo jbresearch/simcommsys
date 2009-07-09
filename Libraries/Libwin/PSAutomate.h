@@ -194,7 +194,7 @@ public:
    virtual void Process(void);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

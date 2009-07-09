@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "rectangular.h"
 #include <stdlib.h>
@@ -21,22 +21,23 @@ void rectangular<real>::init(const int tau, const int rows, const int cols)
    rectangular<real>::rows = rows;
    rectangular<real>::cols = cols;
 
-   int blklen = rows*cols;
-   if(blklen > tau)
+   int blklen = rows * cols;
+   if (blklen > tau)
       {
-      std::cerr << "FATAL ERROR (rectangular): Interleaver block size cannot be greater than BCJR block.\n";
+      std::cerr
+            << "FATAL ERROR (rectangular): Interleaver block size cannot be greater than BCJR block.\n";
       exit(1);
       }
    this->lut.init(tau);
    int row = 0, col = 0;
    int i;
-   for(i=0; i<blklen; i++)
+   for (i = 0; i < blklen; i++)
       {
       row = i % rows;
       col = i / rows;
-      this->lut(i) = row*cols + col;
+      this->lut(i) = row * cols + col;
       }
-   for(i=blklen; i<tau; i++)
+   for (i = blklen; i < tau; i++)
       this->lut(i) = i;
    }
 
@@ -76,16 +77,20 @@ std::istream& rectangular<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class rectangular<float>;
+template class rectangular<float> ;
 template <>
-const libbase::serializer rectangular<float>::shelper("interleaver", "rectangular<float>", rectangular<float>::create);
+const libbase::serializer rectangular<float>::shelper("interleaver",
+      "rectangular<float>", rectangular<float>::create);
 
-template class rectangular<double>;
+template class rectangular<double> ;
 template <>
-const libbase::serializer rectangular<double>::shelper("interleaver", "rectangular<double>", rectangular<double>::create);
+const libbase::serializer rectangular<double>::shelper("interleaver",
+      "rectangular<double>", rectangular<double>::create);
 
-template class rectangular<libbase::logrealfast>;
+template class rectangular<libbase::logrealfast> ;
 template <>
-const libbase::serializer rectangular<libbase::logrealfast>::shelper("interleaver", "rectangular<logrealfast>", rectangular<libbase::logrealfast>::create);
+const libbase::serializer rectangular<libbase::logrealfast>::shelper(
+      "interleaver", "rectangular<logrealfast>", rectangular<
+            libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

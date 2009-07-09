@@ -10,28 +10,28 @@
 namespace libcomm {
 
 /*!
-   \brief   Common 32-bit Digest Implementation.
-   \author  Johann Briffa
+ \brief   Common 32-bit Digest Implementation.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Implements methods and data handling that are common for digests using
-   32-bit integer arithmetic and 64-byte block sizes.
-*/
+ Implements methods and data handling that are common for digests using
+ 32-bit integer arithmetic and 64-byte block sizes.
+ */
 
 class digest32 {
    /*! \name Internally-used objects */
-   libbase::int64u m_size;    //!< Size of message so far (used for termination)
-   bool m_padded;             //!< Flag indicating message padding has been applied
-   bool m_terminated;         //!< Flag indicating message size has been included
+   libbase::int64u m_size; //!< Size of message so far (used for termination)
+   bool m_padded; //!< Flag indicating message padding has been applied
+   bool m_terminated; //!< Flag indicating message size has been included
    // @}
 protected:
    /*! \name Internally-used objects */
-   libbase::vector<libbase::int32u> m_hash;  //!< Current hash value
-   bool lsbfirst;             //!< Bytes are placed in least-significant byte positions first
+   libbase::vector<libbase::int32u> m_hash; //!< Current hash value
+   bool lsbfirst; //!< Bytes are placed in least-significant byte positions first
    // @}
    /*! \name Digest-specific functions */
    virtual void derived_reset() = 0;
@@ -40,13 +40,18 @@ protected:
    /*! \name Internal functions */
    void reset();
    void process(const char *buf, int size);
-   void flush() { process(NULL, 0); };
+   void flush()
+      {
+      process(NULL, 0);
+      }
    // @}
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
    digest32();
-   virtual ~digest32() {};
+   virtual ~digest32()
+      {
+      }
    // @}
 
    /*! \name Conversion operations */
@@ -60,7 +65,10 @@ public:
 
    /*! \name Comparison functions */
    bool operator==(const digest32& x) const;
-   bool operator!=(const digest32& x) const { return !operator==(x); };
+   bool operator!=(const digest32& x) const
+      {
+      return !operator==(x);
+      }
    // @}
 };
 
@@ -68,6 +76,6 @@ public:
 std::ostream& operator<<(std::ostream& sout, const digest32& x);
 // @}
 
-}; // end namespace
+} // end namespace
 
 #endif

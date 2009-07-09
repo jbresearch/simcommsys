@@ -41,6 +41,6 @@ public:
    int height() const { return data.size().cols(); };
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

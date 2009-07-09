@@ -21,8 +21,8 @@ void visualtest()
    // define an alternating input sequence
    const int tau = 5;
    vector<bool> tx(tau);
-   for(int i=0; i<tau; i++)
-      tx(i) = (i&1);
+   for (int i = 0; i < tau; i++)
+      tx(i) = (i & 1);
    cout << "Tx: " << tx << "\n";
    // pass that through the channel
    vector<bool> rx1, rx2;
@@ -51,7 +51,7 @@ void visualtest()
 void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    {
    // define channel according to specifications
-   bsid channel(sub,del,ins);
+   bsid channel(sub, del, ins);
    randgen prng;
    prng.seed(0);
    channel.seedfrom(prng);
@@ -59,9 +59,12 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    // run a number of transmissions with an all-zero source
    cout << "Testing on an all-" << (src ? "one" : "zero") << " source:\n";
    cout << "   type:\t";
-   if(ins) cout << "insertions ";
-   if(del) cout << "deletions ";
-   if(sub) cout << "substitutions";
+   if (ins)
+      cout << "insertions ";
+   if (del)
+      cout << "deletions ";
+   if (sub)
+      cout << "substitutions";
    cout << "\n";
    cout << "      N:\t" << tau << "\n";
    cout << "      p:\t" << p << "\n";
@@ -70,15 +73,15 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    tx = src;
    vector<bool> rx;
    libbase::rvstatistics drift, zeros, ones;
-   for(int i=0; i<1000; i++)
+   for (int i = 0; i < 1000; i++)
       {
-      channel.transmit(tx,rx);
-      drift.insert(rx.size()-tau);
+      channel.transmit(tx, rx);
+      drift.insert(rx.size() - tau);
       int count = 0;
-      for(int j=0; j<rx.size(); j++)
+      for (int j = 0; j < rx.size(); j++)
          count += rx(j);
       ones.insert(count);
-      zeros.insert(rx.size()-count);
+      zeros.insert(rx.size() - count);
       }
    // show results
    cout << "   Value\tMean\tSigma\n";
@@ -89,14 +92,14 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    }
 
 /*!
-   \brief   Test program for BSID channel
-   \author  Johann Briffa
+ \brief   Test program for BSID channel
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 int main(int argc, char *argv[])
    {
@@ -118,7 +121,7 @@ int main(int argc, char *argv[])
    return 0;
    }
 
-}; // end namespace
+} // end namespace
 
 int main(int argc, char *argv[])
    {

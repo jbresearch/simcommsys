@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "bsc.h"
 #include <sstream>
@@ -25,27 +25,27 @@ void bsc::set_parameter(const double Ps)
 // Channel function overrides
 
 /*!
-   \copydoc channel::corrupt()
+ \copydoc channel::corrupt()
 
-   The channel model implemented is described by the following state diagram:
-   \dot
-   digraph bsidstates {
-      // Make figure left-to-right
-      rankdir = LR;
-      // state definitions
-      this [ shape=circle, color=gray, style=filled, label="t(i)" ];
-      next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
-      // path definitions
-      this -> next [ label="1-Ps" ];
-      this -> Substitute [ label="Ps" ];
-      Substitute -> next;
-   }
-   \enddot
-*/
+ The channel model implemented is described by the following state diagram:
+ \dot
+ digraph bsidstates {
+ // Make figure left-to-right
+ rankdir = LR;
+ // state definitions
+ this [ shape=circle, color=gray, style=filled, label="t(i)" ];
+ next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
+ // path definitions
+ this -> next [ label="1-Ps" ];
+ this -> Substitute [ label="Ps" ];
+ Substitute -> next;
+ }
+ \enddot
+ */
 bool bsc::corrupt(const bool& s)
    {
    const double p = r.fval();
-   if(p < Ps)
+   if (p < Ps)
       return !s;
    return s;
    }
@@ -71,4 +71,4 @@ std::istream& bsc::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace

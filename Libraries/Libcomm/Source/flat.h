@@ -8,33 +8,40 @@
 namespace libcomm {
 
 /*!
-   \brief   Flat Interleaver.
-   \author  Johann Briffa
+ \brief   Flat Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-*/
+ */
 
 template <class real>
 class flat : public lut_interleaver<real> {
 protected:
    void init(const int tau);
-   flat() {};
+   flat()
+      {
+      }
 public:
-   flat(const int tau) { init(tau); };
-   ~flat() {};
+   flat(const int tau)
+      {
+      init(tau);
+      }
+   ~flat()
+      {
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(flat);
+DECLARE_SERIALIZER(flat);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

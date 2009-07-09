@@ -16,4 +16,4 @@ CMBoxStreamBuf::~CMBoxStreamBuf()
    {
    }
 
-}; // end namespace
+} // end namespace

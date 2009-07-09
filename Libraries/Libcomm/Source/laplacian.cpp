@@ -1,24 +1,25 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "laplacian.h"
 
 namespace libcomm {
 
-const libbase::serializer laplacian::shelper("channel", "laplacian", laplacian::create);
+const libbase::serializer laplacian::shelper("channel", "laplacian",
+      laplacian::create);
 
 // handle functions
 
 void laplacian::compute_parameters(const double Eb, const double No)
    {
-   const double sigma = sqrt(Eb*No);
-   lambda = sigma/sqrt(double(2));
+   const double sigma = sqrt(Eb * No);
+   lambda = sigma / sqrt(double(2));
    }
 
 // channel handle functions
@@ -57,4 +58,4 @@ std::istream& laplacian::serialize(std::istream& sin)
    return sin;
    }
 
-}; // end namespace
+} // end namespace

@@ -8,33 +8,33 @@
 namespace libbase {
 
 /*!
-   \brief   Random Generator Base Class.
-   \author  Johann Briffa
+ \brief   Random Generator Base Class.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Defines interface for random generators, and also provides common
-   integer, real (uniform), and gaussian deviate conversion facility.
-   Implementations of actual random generators are created by deriving
-   from this class and providing the necessary virtual functions.
-*/
+ Defines interface for random generators, and also provides common
+ integer, real (uniform), and gaussian deviate conversion facility.
+ Implementations of actual random generators are created by deriving
+ from this class and providing the necessary virtual functions.
+ */
 
 class random {
 private:
    /*! \name Object representation */
 #ifndef NDEBUG
    //! Debug only: number of generator advances
-   int32u   counter;
+   int32u counter;
    //! Debug only: flag to check for explicit seeding
-   bool     initialized;
+   bool initialized;
 #endif
    //! Flag to indicate whether a Gaussian value is readily available
-   bool     next_gval_available;
+   bool next_gval_available;
    //! Secondary Gaussian value storage
-   double   next_gval;
+   double next_gval;
    // @}
 
 protected:
@@ -60,13 +60,23 @@ public:
    //! Return unsigned integer in [0, getmax()]
    int32u ival();
    //! Return unsigned integer modulo 'm'
-   int32u ival(int32u m) { assert(m-1 <= get_max()); return ival() % m; };
+   int32u ival(int32u m)
+      {
+      assert(m-1 <= get_max());
+      return ival() % m;
+      }
    //! Return floating point value in closed interval [0,1]
-   double fval() { return ival() / double(get_max()); };
+   double fval()
+      {
+      return ival() / double(get_max());
+      }
    //! Return gaussian-distributed double (zero mean, unit variance)
    double gval();
    //! Return gaussian-distributed double (zero mean, variance sigma^2)
-   double gval(double sigma) { return gval() * sigma; };
+   double gval(double sigma)
+      {
+      return gval() * sigma;
+      }
    // @}
 
    /*! \name Informative functions */
@@ -88,6 +98,6 @@ inline int32u random::ival()
    return get_value();
    }
 
-}; // end namespace
+} // end namespace
 
 #endif

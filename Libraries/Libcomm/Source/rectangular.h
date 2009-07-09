@@ -8,33 +8,40 @@
 namespace libcomm {
 
 /*!
-   \brief   Rectangular Interleaver.
-   \author  Johann Briffa
+ \brief   Rectangular Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-*/
+ */
 
 template <class real>
 class rectangular : public lut_interleaver<real> {
    int rows, cols;
 protected:
    void init(const int tau, const int rows, const int cols);
-   rectangular() {};
+   rectangular()
+      {
+      }
 public:
-   rectangular(const int tau, const int rows, const int cols) { init(tau, rows, cols); };
-   ~rectangular() {};
+   rectangular(const int tau, const int rows, const int cols)
+      {
+      init(tau, rows, cols);
+      }
+   ~rectangular()
+      {
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(rectangular);
+DECLARE_SERIALIZER(rectangular);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

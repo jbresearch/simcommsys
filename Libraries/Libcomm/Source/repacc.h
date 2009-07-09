@@ -12,53 +12,54 @@
 namespace libcomm {
 
 /*!
-   \brief   Repeat-Accumulate (RA) codes.
-   \author  Johann Briffa
+ \brief   Repeat-Accumulate (RA) codes.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   These codes are decoded using the MAP decoder, rather than the
-   sum-product algorithm.
+ These codes are decoded using the MAP decoder, rather than the
+ sum-product algorithm.
 
-   \todo Avoid divisions when computing extrinsic information
+ \todo Avoid divisions when computing extrinsic information
 
-   \todo Implement accumulator as mapcc
+ \todo Implement accumulator as mapcc
 
-   \todo Generalize repeater and accumulator
-*/
+ \todo Generalize repeater and accumulator
+ */
 
-template <class real, class dbl=double>
-class repacc : public codec_softout<libbase::vector,dbl>, protected safe_bcjr<real,dbl> {
+template <class real, class dbl = double>
+class repacc : public codec_softout<libbase::vector, dbl> ,
+      protected safe_bcjr<real, dbl> {
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<int>        array1i_t;
-   typedef libbase::vector<dbl>        array1d_t;
-   typedef libbase::matrix<dbl>        array2d_t;
-   typedef libbase::vector<array1d_t>  array1vd_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<dbl> array1d_t;
+   typedef libbase::matrix<dbl> array2d_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef repacc<real,dbl> This;
-   typedef safe_bcjr<real,dbl> BCJR;
+   typedef repacc<real, dbl> This;
+   typedef safe_bcjr<real, dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
    //! MAP representation of repetition code
-   codec_softout_flattened< uncoded<dbl>, dbl > rep;
-   fsm      *acc;          //!< Encoder representation of accumulator
-   int      iter;          //!< Number of iterations to perform
-   bool     endatzero;     //!< Flag to indicate that trellises are terminated
+   codec_softout_flattened<uncoded<dbl> , dbl> rep;
+   fsm *acc; //!< Encoder representation of accumulator
+   int iter; //!< Number of iterations to perform
+   bool endatzero; //!< Flag to indicate that trellises are terminated
    // @}
 protected:
    /*! \name Internal object representation */
-   bool     initialised;   //!< Flag to indicate when memory is initialised
-   array1vd_t rp;          //!< Intrinsic source statistics (natural)
-   array2d_t ra;           //!< Extrinsic accumulator-input statistics (natural)
-   array2d_t R;            //!< Intrinsic accumulator-output statistics (interleaved)
+   bool initialised; //!< Flag to indicate when memory is initialised
+   array1vd_t rp; //!< Intrinsic source statistics (natural)
+   array2d_t ra; //!< Extrinsic accumulator-input statistics (natural)
+   array2d_t R; //!< Intrinsic accumulator-output statistics (interleaved)
    // @}
 protected:
    /*! \name Internal functions */
@@ -75,7 +76,10 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    repacc();
-   ~repacc() { free(); };
+   ~repacc()
+      {
+      free();
+      }
    // @}
 
    // Codec operations
@@ -90,31 +94,49 @@ public:
       // Inherit sizes
       const int N = rep.input_block_size();
       return libbase::size_type<libbase::vector>(N);
-      };
+      }
    libbase::size_type<libbase::vector> output_block_size() const
       {
       // Inherit sizes
       const int Nr = rep.output_block_size();
       const int nu = tail_length();
       return libbase::size_type<libbase::vector>(Nr + nu);
-      };
-   int num_inputs() const { return acc->num_inputs(); };
-   int num_outputs() const { return acc->num_outputs()/acc->num_inputs(); };
-   int tail_length() const { return endatzero ? acc->mem_order() : 0; };
-   int num_iter() const { return iter; };
+      }
+   int num_inputs() const
+      {
+      return acc->num_inputs();
+      }
+   int num_outputs() const
+      {
+      return acc->num_outputs() / acc->num_inputs();
+      }
+   int tail_length() const
+      {
+      return endatzero ? acc->mem_order() : 0;
+      }
+   int num_iter() const
+      {
+      return iter;
+      }
 
    /*! \name Codec information functions - internal */
-   int num_repeats() const { return int(round(log(rep.num_outputs())/log(rep.num_inputs()))); };
-   const interleaver<dbl> *get_inter() const { return inter; };
+   int num_repeats() const
+      {
+      return int(round(log(rep.num_outputs()) / log(rep.num_inputs())));
+      }
+   const interleaver<dbl> *get_inter() const
+      {
+      return inter;
+      }
    // @}
 
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(repacc);
+DECLARE_SERIALIZER(repacc);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "experiment_binomial.h"
 
@@ -22,7 +22,8 @@ void experiment_binomial::derived_reset()
    sum = 0;
    }
 
-void experiment_binomial::derived_accumulate(const libbase::vector<double>& result)
+void experiment_binomial::derived_accumulate(
+      const libbase::vector<double>& result)
    {
    assert(count() == result.size());
    assert(count() == sum.size());
@@ -44,7 +45,8 @@ void experiment_binomial::get_state(libbase::vector<double>& state) const
    state = sum;
    }
 
-void experiment_binomial::estimate(libbase::vector<double>& estimate, libbase::vector<double>& stderror) const
+void experiment_binomial::estimate(libbase::vector<double>& estimate,
+      libbase::vector<double>& stderror) const
    {
    assert(count() == sum.size());
    // initialize space for results
@@ -52,13 +54,14 @@ void experiment_binomial::estimate(libbase::vector<double>& estimate, libbase::v
    stderror.init(count());
    // compute results
    assert(get_samplecount() > 0);
-   for(int i=0; i<count(); i++)
+   for (int i = 0; i < count(); i++)
       {
       // estimate is the proportion
-      estimate(i) = sum(i)/double(get_samplecount(i));
+      estimate(i) = sum(i) / double(get_samplecount(i));
       // standard error is sqrt(p(1-p)/n)
-      stderror(i) = sqrt( (estimate(i)*(1-estimate(i))) / double(get_samplecount(i)) );
+      stderror(i) = sqrt((estimate(i) * (1 - estimate(i)))
+            / double(get_samplecount(i)));
       }
    }
 
-}; // end namespace
+} // end namespace

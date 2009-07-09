@@ -305,7 +305,7 @@ public:
    virtual void FilterFinish(void);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

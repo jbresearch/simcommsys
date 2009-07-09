@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "uniform_lut.h"
 #include <sstream>
@@ -35,20 +35,21 @@ template <class real>
 void uniform_lut<real>::advance()
    {
    // create array to hold 'used' status of possible lut values
-   libbase::vector<bool> used(tau-m);
+   libbase::vector<bool> used(tau - m);
    used = false;
    // fill in lut
    int t;
-   for(t=0; t<tau-m; t++)
+   for (t = 0; t < tau - m; t++)
       {
       int tdash;
-      do {
-         tdash = r.ival(tau-m);
-         } while(used(tdash));
+      do
+         {
+         tdash = r.ival(tau - m);
+         } while (used(tdash));
       used(tdash) = true;
       this->lut(t) = tdash;
       }
-   for(t=tau-m; t<tau; t++)
+   for (t = tau - m; t < tau; t++)
       this->lut(t) = fsm::tail;
    }
 
@@ -59,7 +60,7 @@ std::string uniform_lut<real>::description() const
    {
    std::ostringstream sout;
    sout << "Uniform Interleaver";
-   if(m > 0)
+   if (m > 0)
       sout << " (Forced tail length " << m << ")";
    return sout.str();
    }
@@ -87,16 +88,20 @@ std::istream& uniform_lut<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class uniform_lut<float>;
+template class uniform_lut<float> ;
 template <>
-const libbase::serializer uniform_lut<float>::shelper("interleaver", "uniform_lut<float>", uniform_lut<float>::create);
+const libbase::serializer uniform_lut<float>::shelper("interleaver",
+      "uniform_lut<float>", uniform_lut<float>::create);
 
-template class uniform_lut<double>;
+template class uniform_lut<double> ;
 template <>
-const libbase::serializer uniform_lut<double>::shelper("interleaver", "uniform_lut<double>", uniform_lut<double>::create);
+const libbase::serializer uniform_lut<double>::shelper("interleaver",
+      "uniform_lut<double>", uniform_lut<double>::create);
 
-template class uniform_lut<libbase::logrealfast>;
+template class uniform_lut<libbase::logrealfast> ;
 template <>
-const libbase::serializer uniform_lut<libbase::logrealfast>::shelper("interleaver", "uniform_lut<logrealfast>", uniform_lut<libbase::logrealfast>::create);
+const libbase::serializer uniform_lut<libbase::logrealfast>::shelper(
+      "interleaver", "uniform_lut<logrealfast>", uniform_lut<
+            libbase::logrealfast>::create);
 
-}; // end namespace
+} // end namespace

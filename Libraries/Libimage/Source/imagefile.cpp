@@ -12,4 +12,4 @@ imagefile::~imagefile()
    {
    }
 
-}; // end namespace
+} // end namespace

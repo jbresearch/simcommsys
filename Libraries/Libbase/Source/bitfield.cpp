@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "bitfield.h"
 
@@ -24,7 +24,7 @@ int bitfield::defsize = 0;
 
 int32u bitfield::mask() const
    {
-   return bits==32 ? 0xffffffff : ((1L << bits) - 1L);
+   return bits == 32 ? 0xffffffff : ((1L << bits) - 1L);
    }
 
 void bitfield::check_range(int32u f) const
@@ -42,7 +42,7 @@ void bitfield::init(const char *s)
    bits = 0;
    field = 0;
    const char *p;
-   for(p=s; *p=='1' || *p=='0'; p++)
+   for (p = s; *p == '1' || *p == '0'; p++)
       {
       field <<= 1;
       field |= (*p == '1');
@@ -56,12 +56,12 @@ void bitfield::init(const char *s)
 
 
 /*!
-   \brief Convert bitfield to a string representation
-*/
+ \brief Convert bitfield to a string representation
+ */
 bitfield::operator std::string() const
    {
    std::string sTemp;
-   for(int i=bits-1; i>=0; i--)
+   for (int i = bits - 1; i >= 0; i--)
       sTemp += '0' + ((field >> i) & 1);
    return sTemp;
    }
@@ -75,8 +75,8 @@ bitfield::bitfield()
    }
 
 /*!
-   \brief Constructor to directly convert an integer at a specified width
-*/
+ \brief Constructor to directly convert an integer at a specified width
+ */
 bitfield::bitfield(const int32u field, const int bits)
    {
    bitfield::bits = bits;
@@ -84,16 +84,16 @@ bitfield::bitfield(const int32u field, const int bits)
    }
 
 /*!
-   \brief Constructor that converts a vector of bits
+ \brief Constructor that converts a vector of bits
 
-   Bits are held in the vector as low-order first.
-*/
+ Bits are held in the vector as low-order first.
+ */
 bitfield::bitfield(const vector<bool>& v)
    {
    bits = v.size();
    check_fieldsize(bits);
    field = 0;
-   for(int i=0; i<bits; i++)
+   for (int i = 0; i < bits; i++)
       field |= (v(i) << i);
    }
 
@@ -134,7 +134,7 @@ bitfield bitfield::extract(const int hi, const int lo) const
    {
    bitfield c;
    assertalways(hi < bits && lo >= 0 && lo <= hi);
-   c.bits = hi-lo+1;
+   c.bits = hi - lo + 1;
    c.field = (field >> lo) & c.mask();
    return c;
    }
@@ -200,9 +200,9 @@ bitfield operator*(const bitfield& a, const bitfield& b)
    bitfield c;
    c.bits = 1;
    int32u x = a.field & b.field;
-   for(int i=0; i<a.bits; i++)
-       if(x & (1<<i))
-          c.field ^= 1;
+   for (int i = 0; i < a.bits; i++)
+      if (x & (1 << i))
+         c.field ^= 1;
    return c;
    }
 
@@ -243,7 +243,7 @@ bitfield& bitfield::operator<<=(const int x)
 
 bitfield& bitfield::operator>>=(const int x)
    {
-   if(x >= 32)  // avoid a subtle bug in gcc (or the Pentium, not sure which...)
+   if (x >= 32) // avoid a subtle bug in gcc (or the Pentium, not sure which...)
       field = 0;
    else
       {
@@ -283,4 +283,4 @@ std::istream& operator>>(std::istream& s, bitfield& b)
    return s;
    }
 
-}; // end namespace
+} // end namespace

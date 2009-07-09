@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "blockprocess.h"
 
@@ -21,11 +21,11 @@ void blockprocess::advance_always() const
 
 void blockprocess::advance_if_dirty() const
    {
-   if(dirty)
+   if (dirty)
       {
       advance();
       dirty = false;
       }
    }
 
-}; // end namespace
+} // end namespace

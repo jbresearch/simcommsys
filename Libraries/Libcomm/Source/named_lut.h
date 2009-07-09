@@ -10,35 +10,37 @@
 namespace libcomm {
 
 /*!
-   \brief   Named LUT Interleaver.
-   \author  Johann Briffa
+ \brief   Named LUT Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   Implements an interleaver which is specified directly by its LUT,
-   and which is externally generated (say by Simulated Annealing
-   or another such method).
-   A name is associated with the interleaver (say, filename).
-*/
+ Implements an interleaver which is specified directly by its LUT,
+ and which is externally generated (say by Simulated Annealing
+ or another such method).
+ A name is associated with the interleaver (say, filename).
+ */
 
 template <class real>
 class named_lut : public lut_interleaver<real> {
 protected:
    std::string lutname;
    int m;
-   named_lut() {};
+   named_lut()
+      {
+      }
 public:
    // Description
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(named_lut);
+DECLARE_SERIALIZER(named_lut);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif
 

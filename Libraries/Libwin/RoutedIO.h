@@ -22,6 +22,6 @@ class CRoutedIO
       CRoutedIO();
    };
 
-}; // end namespace
+} // end namespace
 
 #endif

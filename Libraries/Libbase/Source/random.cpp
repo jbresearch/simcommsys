@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "random.h"
 
@@ -24,16 +24,18 @@ random::random()
 random::~random()
    {
 #ifndef NDEBUG
-   if(counter > 0)
-      trace << "DEBUG: random (" << this << ") destroyed after " << counter << " steps.\n" << std::flush;
+   if (counter > 0)
+      trace << "DEBUG: random (" << this << ") destroyed after " << counter
+            << " steps.\n" << std::flush;
 #endif
    }
 
 void random::seed(int32u s)
    {
 #ifndef NDEBUG
-   if(counter > 0)
-      trace << "DEBUG: random (" << this << ") reseeded after " << counter << " steps.\n" << std::flush;
+   if (counter > 0)
+      trace << "DEBUG: random (" << this << ") reseeded after " << counter
+            << " steps.\n" << std::flush;
    counter = 0;
    initialized = true;
 #endif
@@ -45,22 +47,23 @@ void random::seed(int32u s)
 
 double random::gval()
    {
-   if(next_gval_available)
+   if (next_gval_available)
       {
       next_gval_available = false;
       return next_gval;
       }
 
    double v1, v2, rsq;
-   do {
+   do
+      {
       v1 = 2.0 * fval() - 1.0;
       v2 = 2.0 * fval() - 1.0;
-      rsq = (v1*v1) + (v2*v2);
-      } while(rsq >= 1.0 || rsq == 0.0);
-   double fac = sqrt(-2.0*log(rsq)/rsq);
+      rsq = (v1 * v1) + (v2 * v2);
+      } while (rsq >= 1.0 || rsq == 0.0);
+   double fac = sqrt(-2.0 * log(rsq) / rsq);
    next_gval = v2 * fac;
    next_gval_available = true;
    return (v1 * fac);
    }
 
-}; // end namespace
+} // end namespace

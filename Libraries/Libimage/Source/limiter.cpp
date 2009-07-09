@@ -3,7 +3,8 @@
 
 namespace libimage {
 
-const libbase::vcs limiter_version("Hard Limiter Filter module (limiter)", 1.20);
+const libbase::vcs
+      limiter_version("Hard Limiter Filter module (limiter)", 1.20);
 
 // initialization
 
@@ -15,21 +16,22 @@ template <class T> void limiter<T>::init(const T lo, const T hi)
 
 // filter process loop (only updates output matrix)
 
-template <class T> void limiter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const
+template <class T> void limiter<T>::process(const libbase::matrix<T>& in,
+      libbase::matrix<T>& out) const
    {
    const int M = in.size().rows();
    const int N = in.size().cols();
 
-   out.init(M,N);
+   out.init(M, N);
 
-   for(int i=0; i<M; i++)
-      for(int j=0; j<N; j++)
-         if(in(i,j) < m_lo)
-            out(i,j) = m_lo;
-         else if(in(i,j) > m_hi)
-            out(i,j) = m_hi;
+   for (int i = 0; i < M; i++)
+      for (int j = 0; j < N; j++)
+         if (in(i, j) < m_lo)
+            out(i, j) = m_lo;
+         else if (in(i, j) > m_hi)
+            out(i, j) = m_hi;
          else
-            out(i,j) = in(i,j);
+            out(i, j) = in(i, j);
    }
 
 template <class T> void limiter<T>::process(libbase::matrix<T>& m) const
@@ -37,17 +39,16 @@ template <class T> void limiter<T>::process(libbase::matrix<T>& m) const
    const int M = m.size().rows();
    const int N = m.size().cols();
 
-   for(int i=0; i<M; i++)
-      for(int j=0; j<N; j++)
-         if(m(i,j) < m_lo)
-            m(i,j) = m_lo;
-         else if(m(i,j) > m_hi)
-            m(i,j) = m_hi;
+   for (int i = 0; i < M; i++)
+      for (int j = 0; j < N; j++)
+         if (m(i, j) < m_lo)
+            m(i, j) = m_lo;
+         else if (m(i, j) > m_hi)
+            m(i, j) = m_hi;
    }
 
 // Explicit Realizations
 
-template class limiter<double>;
-template class limiter<int>;
-
-}; // end namespace
+template class limiter<double> ;
+template class limiter<int> ;
+} // end namespace

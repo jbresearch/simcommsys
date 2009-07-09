@@ -38,6 +38,6 @@ inline int CArchiveStreamBuf::overflow(int nCh)
    return 1;
    };
 
-}; // end namespace
+} // end namespace
 
 #endif

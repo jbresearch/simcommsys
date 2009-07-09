@@ -16,4 +16,4 @@ CStringStreamBuf::~CStringStreamBuf()
    {
    }
 
-}; // end namespace
+} // end namespace

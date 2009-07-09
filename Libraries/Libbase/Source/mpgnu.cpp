@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "mpgnu.h"
 #include <stdlib.h>
@@ -20,7 +20,8 @@ mpf_t mpgnu::dblmax;
 void mpgnu::init()
    {
 #ifndef GMP
-   std::cerr << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - cannot initialise.\n";
+   std::cerr
+         << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - cannot initialise.\n";
    exit(1);
 #else
    static bool ready = false;
@@ -33,4 +34,4 @@ void mpgnu::init()
 #endif
    }
 
-}; // end namespace
+} // end namespace

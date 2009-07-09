@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "cmpi.h"
 
@@ -84,32 +84,32 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
          switch(status.MPI_TAG)
             {
             case tag_getname:
-               // tell the root process our UNIX hostname
-               MPI_Send(hostname, hostname_len, MPI_CHAR, root, tag_base, MPI_COMM_WORLD);
-               trace << "send hostname [" << hostname << "]\n" << flush;
-               break;
+            // tell the root process our UNIX hostname
+            MPI_Send(hostname, hostname_len, MPI_CHAR, root, tag_base, MPI_COMM_WORLD);
+            trace << "send hostname [" << hostname << "]\n" << flush;
+            break;
             case tag_getusage:
-               // tell the root process how much CPU time we have used
-               MPI_Send(&usage, 1, MPI_DOUBLE, root, tag_base, MPI_COMM_WORLD);
-               trace << "send usage [CPU " << usage << "%]\n" << flush;
-               break;
+            // tell the root process how much CPU time we have used
+            MPI_Send(&usage, 1, MPI_DOUBLE, root, tag_base, MPI_COMM_WORLD);
+            trace << "send usage [CPU " << usage << "%]\n" << flush;
+            break;
             case tag_work:
-               trace << "system working\n" << flush;
-               (*func)();
-               break;
+            trace << "system working\n" << flush;
+            (*func)();
+            break;
             case tag_die:
-               trace << "system stopped\n" << flush;
-               MPI_Finalize();
-               exit(0);
+            trace << "system stopped\n" << flush;
+            MPI_Finalize();
+            exit(0);
             default:
-               std::cerr << "received bad tag [" << status.MPI_TAG << "]\n" << flush;
-               exit(1);
+            std::cerr << "received bad tag [" << status.MPI_TAG << "]\n" << flush;
+            exit(1);
             }
          }
       }
    // Otherwise, this must be the parent process.
    if(mpi_size > 1)
-      trace << "MPI parent system initialized.\n" << flush;
+   trace << "MPI parent system initialized.\n" << flush;
    else
       {
       trace << "MPI cluster has one node only - reverting to normal mode.\n";
@@ -156,7 +156,6 @@ void cmpi::disable()
    initialized = false;
    }
 
-
 // functions for children to communicate with their parent (the root node)
 
 void cmpi::_receive(double& x)
@@ -200,7 +199,7 @@ void cmpi::_send(vector<double>& x)
    double a[count];
    // fill in the array
    for(int i=0; i<count; i++)
-      a[i] = x(i);
+   a[i] = x(i);
    // send
    MPI_Send(a, count, MPI_DOUBLE, root, tag_data_doublevector, MPI_COMM_WORLD);
 #endif
@@ -212,7 +211,7 @@ cmpi::cmpi()
    {
    // only need to do this check here, on creation. If the cmpi object
    // is created, then MPI must be running.
-   if(!initialized)
+   if (!initialized)
       {
       std::cerr << "FATAL ERROR (cmpi): MPI not initialized.\n";
       exit(1);
@@ -225,7 +224,7 @@ cmpi::~cmpi()
 
 // child control function (make a child call a given function)
 
-void cmpi::call(const int rank, void (*func)(void))
+void cmpi::call(const int rank, void(*func)(void))
    {
 #ifdef MPI_VERSION
    long addr = (long)func;
@@ -274,7 +273,7 @@ void cmpi::receive(int& rank, vector<double>& x)
    MPI_Recv(a, count, MPI_DOUBLE, MPI_ANY_SOURCE, tag_data_doublevector, MPI_COMM_WORLD, &status);
    // fill in results
    for(int i=0; i<count; i++)
-      x(i) = a[i];
+   x(i) = a[i];
    rank = status.MPI_SOURCE-1;
 #endif
    }
@@ -289,4 +288,4 @@ void cmpi::send(const int rank, const double x)
 #endif
    }
 
-}; // end namespace
+} // end namespace

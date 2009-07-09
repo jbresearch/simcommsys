@@ -10,27 +10,34 @@
 namespace libcomm {
 
 /*!
-   \brief   Uniform Interleaver.
-   \author  Johann Briffa
+ \brief   Uniform Interleaver.
+ \author  Johann Briffa
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
 
-   \note This interleaver allows JPL termination.
-*/
+ \note This interleaver allows JPL termination.
+ */
 
 template <class real>
 class uniform_lut : public lut_interleaver<real> {
-   libbase::randgen  r;
+   libbase::randgen r;
    int tau, m;
 protected:
    void init(const int tau, const int m);
-   uniform_lut() {};
+   uniform_lut()
+      {
+      }
 public:
-   uniform_lut(const int tau, const int m) { init(tau, m); };
-   ~uniform_lut() {};
+   uniform_lut(const int tau, const int m)
+      {
+      init(tau, m);
+      }
+   ~uniform_lut()
+      {
+      }
 
    void seedfrom(libbase::random& r);
    void advance();
@@ -39,9 +46,9 @@ public:
    std::string description() const;
 
    // Serialization Support
-   DECLARE_SERIALIZER(uniform_lut);
+DECLARE_SERIALIZER(uniform_lut);
 };
 
-}; // end namespace
+} // end namespace
 
 #endif

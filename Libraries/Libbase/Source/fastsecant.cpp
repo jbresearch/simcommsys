@@ -1,11 +1,11 @@
 /*!
-   \file
+ \file
 
-   \section svn Version Control
-   - $Revision$
-   - $Date$
-   - $Author$
-*/
+ \section svn Version Control
+ - $Revision$
+ - $Date$
+ - $Author$
+ */
 
 #include "fastsecant.h"
 #include <stdlib.h>
@@ -15,7 +15,8 @@ namespace libbase {
 
 // exported functions
 
-fastsecant::fastsecant(double (*func)(double)) : secant(func)
+fastsecant::fastsecant(double(*func)(double)) :
+   secant(func)
    {
    }
 
@@ -23,10 +24,10 @@ void fastsecant::init(const double x1, const double x2, const int n)
    {
    m_dMin = x1;
    m_dMax = x2;
-   m_dStep = (x2-x1)/double(n-1);
+   m_dStep = (x2 - x1) / double(n - 1);
    m_vdCache.init(n);
    double x = m_dMin;
-   for(int i=0; i<n; i++)
+   for (int i = 0; i < n; i++)
       {
       m_vdCache(i) = secant::solve(x);
       x += m_dStep;
@@ -35,20 +36,20 @@ void fastsecant::init(const double x1, const double x2, const int n)
 
 double fastsecant::solve(const double y)
    {
-   const int i = int(floor((y-m_dMin)/m_dStep));
-   const int j = int(ceil((y-m_dMin)/m_dStep));
-   if(i == j)
+   const int i = int(floor((y - m_dMin) / m_dStep));
+   const int j = int(ceil((y - m_dMin) / m_dStep));
+   if (i == j)
       return m_vdCache(i);
-   else if(i >= 0 && j < m_vdCache.size())
+   else if (i >= 0 && j < m_vdCache.size())
       {
       const double x1 = m_vdCache(i);
       const double x2 = m_vdCache(j);
-      secant::init(x1,x2);
+      secant::init(x1, x2);
       }
    else
-      secant::init(-1,1);
+      secant::init(-1, 1);
 
    return secant::solve(y);
    }
 
-}; // end namespace
+} // end namespace
