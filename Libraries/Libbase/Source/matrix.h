@@ -235,6 +235,7 @@ public:
 
    /*! \name Matrix-arithmetic operations */
    matrix<T> inverse() const;
+   matrix<T> reduceToREF() const;
    matrix<T> transpose() const;
    // @}
 
@@ -1083,6 +1084,98 @@ inline matrix<T> matrix<T>::inverse() const
       r.insertrow(rrows(i), i);
    return r;
    }
+
+/*!
+ * \brief Row Echelon Form of a matrix with k rows and n columns
+ *
+ * This function will return the row echelon form of the current matrix
+ * ie at the end of the process the matrix will look like
+ * \verbatim
+
+ [0 ... 0 1 0 ... 0 ...         0 a(1,1) a(1,2) ... a(1,l)]
+ [0 ... 0 0 ... 1 ... 0 ...     0 a(2,1) a(2,2) ... a(2,l)]
+ [0 ...         0 0 ... 1 0 ... 0 a(3,1) a(3,2) ... a(3,l)]
+ [.               ...                                     ]
+ [.               ...                                     ]
+ [.               ...                                     ]
+ [0               ...         0 1 a(k,1) a(k,2) ... a(k,l)]
+ \endverbatim
+ */
+template<class T>
+inline matrix<T> matrix<T>::reduceToREF() const
+   {
+
+   const int dim = m_size.rows();
+   const int len = m_size.cols();
+   // create copy of rows of this matrix
+   vector<vector<T> > arows(dim);
+   for (int i = 0; i < dim; i++)
+      {
+      extractrow(arows(i), i);
+      }
+   int cur_row = 0;
+   T cur_pivot = 0;
+   T tmp_entry = 0;
+   int n = 0;
+   while ((n < len) && (cur_row < dim))
+      {
+      int findpivot = cur_row;
+      //this while loop relies on lazy evaluation to avoid reading an
+      //out-of-range value.
+      while ((findpivot < dim) && (arows(findpivot)(n) == 0))
+         {
+         findpivot++;
+         }
+      //did we find a pivot for this column?
+      if ((findpivot) != dim)
+         {
+         //is the pivot in the right place?
+         if ((findpivot != cur_row))
+            {
+            //we found a pivot which is not in the current row
+            //swap the findpivot row with the current row
+            std::swap(arows(findpivot), arows(cur_row));
+            }
+         //get the pivot value
+         cur_pivot = arows(cur_row)(n);
+         //divide the row by the pivot (only needed if the pivot value is not 1)
+         if (cur_pivot != 1)
+            {
+            arows(cur_row) /= cur_pivot;
+            }
+         //now subtract appropriate multiples of this row from the ones above it
+         for (int loop = 0; loop < cur_row; loop++)
+            {
+            //only need to subtract if the entry at this position is non-zero
+            tmp_entry = arows(loop)(n);
+            if (tmp_entry != 0)
+               {
+               arows(loop) -= (arows(cur_row) * tmp_entry);
+               }
+            }
+         //now subtract appropriate multiples of this row from the ones below it
+         for (int loop = cur_row + 1; loop < dim; loop++)
+            {
+            //only need to subtract if the entry at this position is non-zero
+            T tmp_entry = arows(loop)(n);
+            if (tmp_entry != 0)
+               {
+               arows(loop) -= (arows(cur_row) * tmp_entry);
+               }
+            }
+         cur_row++;
+         }
+      n++;
+      }
+   //the arows now contain our new matrix
+   matrix<T> ref(dim, len);
+   for (int k = 0; k < dim; k++)
+      {
+      ref.insertrow(arows(k), k);
+      }
+   return ref;
+   }
+
 
 /*!
    \brief Matrix transpose
