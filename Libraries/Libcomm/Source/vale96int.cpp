@@ -36,7 +36,7 @@ vale96int<real>::vale96int()
 
 // Explicit instantiations
 
-template class vale96int<float>
-template class vale96int<double>
-template class vale96int<libbase::logrealfast>
+template class vale96int<float> ;
+template class vale96int<double> ;
+template class vale96int<libbase::logrealfast> ;
 } // end namespace

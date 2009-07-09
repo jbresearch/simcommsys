@@ -84,7 +84,7 @@ std::istream& map_permuted<C, dbl>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class map_permuted<libbase::vector>
+template class map_permuted<libbase::vector> ;
 template <>
 const libbase::serializer map_permuted<libbase::vector>::shelper("mapper",
       "map_permuted<vector>", map_permuted<libbase::vector>::create);

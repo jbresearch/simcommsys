@@ -37,6 +37,6 @@ template <class T> void variancefilter<T>::process(
 
 // Explicit Realizations
 
-template class variancefilter<double>
-template class variancefilter<int>
+template class variancefilter<double> ;
+template class variancefilter<int> ;
 } // end namespace

@@ -204,29 +204,32 @@ std::istream& exit_computer<S>::serialize(std::istream& sin)
 using libbase::serializer;
 using libbase::gf;
 
-template class exit_computer<sigspace>
+template class exit_computer<sigspace> ;
 template <>
 const serializer exit_computer<sigspace>::shelper("experiment",
       "exit_computer<sigspace>", exit_computer<sigspace>::create);
 
-template class exit_computer<bool>
+template class exit_computer<bool> ;
 template <>
 const serializer exit_computer<bool>::shelper("experiment",
       "exit_computer<bool>", exit_computer<bool>::create);
 
-template class exit_computer<gf<1, 0x3> >
+template class exit_computer<gf<1, 0x3> > ;
 template <>
 const serializer exit_computer<gf<1, 0x3> >::shelper("experiment",
       "exit_computer<gf<1,0x3>>", exit_computer<gf<1, 0x3> >::create);
-template class exit_computer<gf<2, 0x7> >
+
+template class exit_computer<gf<2, 0x7> > ;
 template <>
 const serializer exit_computer<gf<2, 0x7> >::shelper("experiment",
       "exit_computer<gf<2,0x7>>", exit_computer<gf<2, 0x7> >::create);
-template class exit_computer<gf<3, 0xB> >
+
+template class exit_computer<gf<3, 0xB> > ;
 template <>
 const serializer exit_computer<gf<3, 0xB> >::shelper("experiment",
       "exit_computer<gf<3,0xB>>", exit_computer<gf<3, 0xB> >::create);
-template class exit_computer<gf<4, 0x13> >
+
+template class exit_computer<gf<4, 0x13> > ;
 template <>
 const serializer exit_computer<gf<4, 0x13> >::shelper("experiment",
       "exit_computer<gf<4,0x13>>", exit_computer<gf<4, 0x13> >::create);

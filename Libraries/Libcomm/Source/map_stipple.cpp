@@ -102,7 +102,7 @@ std::istream& map_stipple<C, dbl>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class map_stipple<libbase::vector>
+template class map_stipple<libbase::vector> ;
 template <>
 const libbase::serializer map_stipple<libbase::vector>::shelper("mapper",
       "map_stipple<vector>", map_stipple<libbase::vector>::create);

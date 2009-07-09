@@ -78,7 +78,7 @@ std::istream& map_interleaved<C, dbl>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class map_interleaved<libbase::vector>
+template class map_interleaved<libbase::vector> ;
 template <>
 const libbase::serializer map_interleaved<libbase::vector>::shelper("mapper",
       "map_interleaved<vector>", map_interleaved<libbase::vector>::create);

@@ -214,17 +214,17 @@ using libbase::logrealfast;
 
 /*** Vector Specialization ***/
 
-template class map_straight<vector>
+template class map_straight<vector> ;
 template <>
 const serializer map_straight<vector>::shelper("mapper",
       "map_straight<vector>", map_straight<vector>::create);
 
-template class map_straight<vector, float>
+template class map_straight<vector, float> ;
 template <>
 const serializer map_straight<vector, float>::shelper("mapper",
       "map_straight<vector,float>", map_straight<vector, float>::create);
 
-template class map_straight<vector, logrealfast>
+template class map_straight<vector, logrealfast> ;
 template <>
 const serializer map_straight<vector, logrealfast>::shelper("mapper",
       "map_straight<vector,logrealfast>",
@@ -232,17 +232,17 @@ const serializer map_straight<vector, logrealfast>::shelper("mapper",
 
 /*** Matrix Specialization ***/
 
-template class map_straight<matrix>
+template class map_straight<matrix> ;
 template <>
 const serializer map_straight<matrix>::shelper("mapper",
       "map_straight<matrix>", map_straight<matrix>::create);
 
-template class map_straight<matrix, float>
+template class map_straight<matrix, float> ;
 template <>
 const serializer map_straight<matrix, float>::shelper("mapper",
       "map_straight<matrix,float>", map_straight<matrix, float>::create);
 
-template class map_straight<matrix, logrealfast>
+template class map_straight<matrix, logrealfast> ;
 template <>
 const serializer map_straight<matrix, logrealfast>::shelper("mapper",
       "map_straight<matrix,logrealfast>",

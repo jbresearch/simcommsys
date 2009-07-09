@@ -77,17 +77,17 @@ std::istream& rectangular<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class rectangular<float>
+template class rectangular<float> ;
 template <>
 const libbase::serializer rectangular<float>::shelper("interleaver",
       "rectangular<float>", rectangular<float>::create);
 
-template class rectangular<double>
+template class rectangular<double> ;
 template <>
 const libbase::serializer rectangular<double>::shelper("interleaver",
       "rectangular<double>", rectangular<double>::create);
 
-template class rectangular<libbase::logrealfast>
+template class rectangular<libbase::logrealfast> ;
 template <>
 const libbase::serializer rectangular<libbase::logrealfast>::shelper(
       "interleaver", "rectangular<logrealfast>", rectangular<

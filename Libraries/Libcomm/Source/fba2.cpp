@@ -380,6 +380,7 @@ namespace libcomm {
 
 using libbase::logrealfast;
 
-template class fba2<double, bool, true>
-template class fba2<logrealfast, bool, false>
+template class fba2<double, bool, true> ;
+template class fba2<logrealfast, bool, false> ;
+
 } // end namespace

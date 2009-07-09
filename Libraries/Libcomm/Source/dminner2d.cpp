@@ -350,13 +350,13 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
-template class dminner2d<logrealfast, false>
+template class dminner2d<logrealfast, false> ;
 template <>
 const serializer dminner2d<logrealfast, false>::shelper = serializer(
       "blockmodem", "dminner2d<logrealfast>",
       dminner2d<logrealfast, false>::create);
 
-template class dminner2d<double, true>
+template class dminner2d<double, true> ;
 template <>
 const serializer dminner2d<double, true>::shelper = serializer("blockmodem",
       "dminner2d<double>", dminner2d<double, true>::create);

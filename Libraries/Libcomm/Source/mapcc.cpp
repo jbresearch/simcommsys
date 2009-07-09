@@ -236,37 +236,37 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
-template class mapcc<float, float>
+template class mapcc<float, float> ;
 template <>
 const serializer mapcc<float, float>::shelper = serializer("codec",
       "mapcc<float>", mapcc<float, float>::create);
 
-template class mapcc<double>
+template class mapcc<double> ;
 template <>
 const serializer mapcc<double>::shelper = serializer("codec", "mapcc<double>",
       mapcc<double>::create);
 
-template class mapcc<mpreal>
+template class mapcc<mpreal> ;
 template <>
 const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>",
       mapcc<mpreal>::create);
 
-template class mapcc<mpgnu>
+template class mapcc<mpgnu> ;
 template <>
 const serializer mapcc<mpgnu>::shelper = serializer("codec", "mapcc<mpgnu>",
       mapcc<mpgnu>::create);
 
-template class mapcc<logreal>
+template class mapcc<logreal> ;
 template <>
 const serializer mapcc<logreal>::shelper = serializer("codec",
       "mapcc<logreal>", mapcc<logreal>::create);
 
-template class mapcc<logrealfast>
+template class mapcc<logrealfast> ;
 template <>
 const serializer mapcc<logrealfast>::shelper = serializer("codec",
       "mapcc<logrealfast>", mapcc<logrealfast>::create);
 
-template class mapcc<logrealfast, logrealfast>
+template class mapcc<logrealfast, logrealfast> ;
 template <>
 const serializer mapcc<logrealfast, logrealfast>::shelper =
       serializer("codec", "mapcc<logrealfast,logrealfast>", mapcc<logrealfast,

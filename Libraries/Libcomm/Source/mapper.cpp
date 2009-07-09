@@ -61,10 +61,10 @@ using libbase::vector;
 using libbase::matrix;
 using libbase::logrealfast;
 
-template class mapper<vector>
-template class mapper<vector, float>
-template class mapper<vector, logrealfast>
-template class mapper<matrix>
-template class mapper<matrix, float>
-template class mapper<matrix, logrealfast>
+template class mapper<vector> ;
+template class mapper<vector, float> ;
+template class mapper<vector, logrealfast> ;
+template class mapper<matrix> ;
+template class mapper<matrix, float> ;
+template class mapper<matrix, logrealfast> ;
 } // end namespace

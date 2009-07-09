@@ -78,6 +78,6 @@ template <class T> void awfilter<T>::process(const libbase::matrix<T>& in,
 
 // Explicit Realizations
 
-template class awfilter<double>
-template class awfilter<int>
+template class awfilter<double> ;
+template class awfilter<int> ;
 } // end namespace

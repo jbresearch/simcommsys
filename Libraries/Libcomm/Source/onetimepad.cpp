@@ -177,17 +177,17 @@ std::istream& onetimepad<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class onetimepad<float>
+template class onetimepad<float> ;
 template <>
 const libbase::serializer onetimepad<float>::shelper("interleaver",
       "onetimepad<float>", onetimepad<float>::create);
 
-template class onetimepad<double>
+template class onetimepad<double> ;
 template <>
 const libbase::serializer onetimepad<double>::shelper("interleaver",
       "onetimepad<double>", onetimepad<double>::create);
 
-template class onetimepad<libbase::logrealfast>
+template class onetimepad<libbase::logrealfast> ;
 template <>
 const libbase::serializer onetimepad<libbase::logrealfast>::shelper(
       "interleaver", "onetimepad<logrealfast>",

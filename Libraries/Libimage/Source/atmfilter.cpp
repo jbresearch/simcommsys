@@ -59,6 +59,6 @@ template <class T> void atmfilter<T>::process(const libbase::matrix<T>& in,
 
 // Explicit Realizations
 
-template class atmfilter<double>
-template class atmfilter<int>
+template class atmfilter<double> ;
+template class atmfilter<int> ;
 } // end namespace

@@ -214,6 +214,7 @@ namespace libcomm {
 
 using libbase::logrealfast;
 
-template class fba<double, bool, true>
-template class fba<logrealfast, bool, false>
+template class fba<double, bool, true> ;
+template class fba<logrealfast, bool, false> ;
+
 } // end namespace

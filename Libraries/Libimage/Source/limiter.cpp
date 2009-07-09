@@ -49,6 +49,6 @@ template <class T> void limiter<T>::process(libbase::matrix<T>& m) const
 
 // Explicit Realizations
 
-template class limiter<double>
-template class limiter<int>
+template class limiter<double> ;
+template class limiter<int> ;
 } // end namespace

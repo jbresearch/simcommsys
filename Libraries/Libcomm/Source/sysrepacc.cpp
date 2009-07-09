@@ -117,22 +117,22 @@ namespace libcomm {
 using libbase::logrealfast;
 using libbase::serializer;
 
-template class sysrepacc<float, float>
+template class sysrepacc<float, float> ;
 template <>
 const serializer sysrepacc<float, float>::shelper = serializer("codec",
       "sysrepacc<float>", sysrepacc<float, float>::create);
 
-template class sysrepacc<double>
+template class sysrepacc<double> ;
 template <>
 const serializer sysrepacc<double>::shelper = serializer("codec",
       "sysrepacc<double>", sysrepacc<double>::create);
 
-template class sysrepacc<logrealfast>
+template class sysrepacc<logrealfast> ;
 template <>
 const serializer sysrepacc<logrealfast>::shelper = serializer("codec",
       "sysrepacc<logrealfast>", sysrepacc<logrealfast>::create);
 
-template class sysrepacc<logrealfast, logrealfast>
+template class sysrepacc<logrealfast, logrealfast> ;
 template <>
 const serializer sysrepacc<logrealfast, logrealfast>::shelper = serializer(
       "codec", "sysrepacc<logrealfast,logrealfast>", sysrepacc<logrealfast,

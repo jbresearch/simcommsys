@@ -77,17 +77,17 @@ std::istream& helical<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class helical<float>
+template class helical<float> ;
 template <>
 const libbase::serializer helical<float>::shelper("interleaver",
       "helical<float>", helical<float>::create);
 
-template class helical<double>
+template class helical<double> ;
 template <>
 const libbase::serializer helical<double>::shelper("interleaver",
       "helical<double>", helical<double>::create);
 
-template class helical<libbase::logrealfast>
+template class helical<libbase::logrealfast> ;
 template <>
 const libbase::serializer helical<libbase::logrealfast>::shelper("interleaver",
       "helical<logrealfast>", helical<libbase::logrealfast>::create);

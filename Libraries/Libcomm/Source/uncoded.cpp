@@ -171,17 +171,17 @@ using libbase::logrealfast;
 
 using libbase::serializer;
 
-template class uncoded<float>
+template class uncoded<float> ;
 template <>
 const serializer uncoded<float>::shelper = serializer("codec",
       "uncoded<float>", uncoded<float>::create);
 
-template class uncoded<double>
+template class uncoded<double> ;
 template <>
 const serializer uncoded<double>::shelper = serializer("codec",
       "uncoded<double>", uncoded<double>::create);
 
-template class uncoded<logrealfast>
+template class uncoded<logrealfast> ;
 template <>
 const serializer uncoded<logrealfast>::shelper = serializer("codec",
       "uncoded<logrealfast>", uncoded<logrealfast>::create);

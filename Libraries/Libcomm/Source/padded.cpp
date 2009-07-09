@@ -122,17 +122,17 @@ std::istream& padded<real>::serialize(std::istream& sin)
 
 // Explicit instantiations
 
-template class padded<float>
+template class padded<float> ;
 template <>
 const libbase::serializer padded<float>::shelper("interleaver",
       "padded<float>", padded<float>::create);
 
-template class padded<double>
+template class padded<double> ;
 template <>
 const libbase::serializer padded<double>::shelper("interleaver",
       "padded<double>", padded<double>::create);
 
-template class padded<libbase::logrealfast>
+template class padded<libbase::logrealfast> ;
 template <>
 const libbase::serializer padded<libbase::logrealfast>::shelper("interleaver",
       "padded<logrealfast>", padded<libbase::logrealfast>::create);

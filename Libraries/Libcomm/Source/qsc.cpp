@@ -83,19 +83,19 @@ std::istream& qsc<G>::serialize(std::istream& sin)
 
 // Explicit Realizations
 
-template class qsc<libbase::gf<1, 0x3> >
+template class qsc<libbase::gf<1, 0x3> > ;
 template <>
 const libbase::serializer qsc<libbase::gf<1, 0x3> >::shelper("channel",
       "qsc<gf<1,0x3>>", qsc<libbase::gf<1, 0x3> >::create);
-template class qsc<libbase::gf<2, 0x7> >
+template class qsc<libbase::gf<2, 0x7> > ;
 template <>
 const libbase::serializer qsc<libbase::gf<2, 0x7> >::shelper("channel",
       "qsc<gf<2,0x7>>", qsc<libbase::gf<2, 0x7> >::create);
-template class qsc<libbase::gf<3, 0xB> >
+template class qsc<libbase::gf<3, 0xB> > ;
 template <>
 const libbase::serializer qsc<libbase::gf<3, 0xB> >::shelper("channel",
       "qsc<gf<3,0xB>>", qsc<libbase::gf<3, 0xB> >::create);
-template class qsc<libbase::gf<4, 0x13> >
+template class qsc<libbase::gf<4, 0x13> > ;
 template <>
 const libbase::serializer qsc<libbase::gf<4, 0x13> >::shelper("channel",
       "qsc<gf<4,0x13>>", qsc<libbase::gf<4, 0x13> >::create);

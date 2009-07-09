@@ -65,7 +65,7 @@ void lut_interleaver<real>::inverse(const libbase::matrix<real>& in,
 
 // Explicit instantiations
 
-template class lut_interleaver<float>
-template class lut_interleaver<double>
-template class lut_interleaver<libbase::logrealfast>
+template class lut_interleaver<float> ;
+template class lut_interleaver<double> ;
+template class lut_interleaver<libbase::logrealfast> ;
 } // end namespace
