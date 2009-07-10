@@ -105,7 +105,7 @@ public:
    virtual void receive_path(const C<S>& received);
    //! Perform a decoding iteration, with hard decision
    virtual void decode(C<int>& decoded);
-   //! Perform a complete encode/transmit/receive cycle, except for final decoding
+   //! Perform an encode/transmit/receive cycle, except for final decoding
    virtual void transmitandreceive(const C<int>& source);
    // @}
 
