@@ -53,9 +53,11 @@ int main(int argc, char *argv[])
 
    // Set up user parameters
    po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message")("system-file,i",
-         po::value<std::string>(), "input file containing system description")(
-         "parameter,p", po::value<double>(), "simulation parameter");
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("system-file,i", po::value<std::string>(),
+         "input file containing system description");
+   desc.add_options()("parameter,p", po::value<double>(),
+         "simulation parameter");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);

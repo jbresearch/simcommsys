@@ -77,14 +77,16 @@ int main(int argc, char *argv[])
    // Set up user parameters
    namespace po = boost::program_options;
    po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message")("system-file,i",
-         po::value<std::string>(), "input file containing system description")(
-         "type,t", po::value<std::string>()->default_value("bool"),
-         "modulation symbol type")("container,c",
-         po::value<std::string>()->default_value("vector"),
-         "input/output container type")("parameter,p", po::value<double>(),
-         "channel parameter")("soft-out,s", po::bool_switch(),
-         "enable soft output");
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("system-file,i", po::value<std::string>(),
+         "input file containing system description");
+   desc.add_options()("type,t",
+         po::value<std::string>()->default_value("bool"),
+         "modulation symbol type");
+   desc.add_options()("container,c", po::value<std::string>()->default_value(
+         "vector"), "input/output container type");
+   desc.add_options()("parameter,p", po::value<double>(), "channel parameter");
+   desc.add_options()("soft-out,s", po::bool_switch(), "enable soft output");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);

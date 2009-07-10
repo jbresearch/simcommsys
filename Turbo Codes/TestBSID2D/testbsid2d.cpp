@@ -67,9 +67,11 @@ int main(int argc, char *argv[])
    // Set up user parameters
    namespace po = boost::program_options;
    po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message")("seed,s", po::value<
-         int>()->default_value(0), "random generator seed")("parameter,p",
-         po::value<double>()->default_value(0.1), "channel error probability");
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("seed,s", po::value<int>()->default_value(0),
+         "random generator seed");
+   desc.add_options()("parameter,p", po::value<double>()->default_value(0.1),
+         "channel error probability");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);

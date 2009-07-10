@@ -86,25 +86,30 @@ int main(int argc, char *argv[])
 
    // Set up user parameters
    po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message")("quiet,q",
-         po::bool_switch(), "suppress all output except benchmark")(
-         "priority,p", po::value<int>()->default_value(10), "process priority")(
-         "endpoint,e", po::value<std::string>()->default_value("local"),
-         "- 'local', for local-computation model\n"
-            "- ':port', for server-mode, bound to given port\n"
-            "- 'hostname:port', for client-mode connection")("system-file,i",
-         po::value<std::string>(), "input file containing system description")(
-         "results-file,o", po::value<std::string>(),
-         "output file to hold results")("start", po::value<double>(),
-         "first parameter value")("stop", po::value<double>(),
-         "last parameter value")("step", po::value<double>(),
-         "parameter increment (for a linear range)")("mul",
-         po::value<double>(), "parameter multiplier (for a logarithmic range)")(
-         "min-error", po::value<double>()->default_value(1e-5),
-         "stop simulation when result falls below this threshold")(
-         "confidence", po::value<double>()->default_value(0.90),
-         "confidence level (e.g. 0.90 for 90%)")("tolerance",
-         po::value<double>()->default_value(0.15),
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("quiet,q", po::bool_switch(),
+         "suppress all output except benchmark");
+   desc.add_options()("priority,p", po::value<int>()->default_value(10),
+         "process priority");
+   desc.add_options()("endpoint,e", po::value<std::string>()->default_value(
+         "local"), "- 'local', for local-computation model\n"
+      "- ':port', for server-mode, bound to given port\n"
+      "- 'hostname:port', for client-mode connection");
+   desc.add_options()("system-file,i", po::value<std::string>(),
+         "input file containing system description");
+   desc.add_options()("results-file,o", po::value<std::string>(),
+         "output file to hold results");
+   desc.add_options()("start", po::value<double>(), "first parameter value");
+   desc.add_options()("stop", po::value<double>(), "last parameter value");
+   desc.add_options()("step", po::value<double>(),
+         "parameter increment (for a linear range)");
+   desc.add_options()("mul", po::value<double>(),
+         "parameter multiplier (for a logarithmic range)");
+   desc.add_options()("min-error", po::value<double>()->default_value(1e-5),
+         "stop simulation when result falls below this threshold");
+   desc.add_options()("confidence", po::value<double>()->default_value(0.90),
+         "confidence level (e.g. 0.90 for 90%)");
+   desc.add_options()("tolerance", po::value<double>()->default_value(0.15),
          "confidence interval (e.g. 0.15 for +/- 15%)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
