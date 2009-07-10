@@ -80,21 +80,24 @@ int main(int argc, char *argv[])
 
    // Set up user parameters
    po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message")("quiet,q",
-         po::bool_switch(), "suppress all output except benchmark")(
-         "priority,p", po::value<int>()->default_value(10), "process priority")(
-         "endpoint,e", po::value<std::string>()->default_value("local"),
-         "- 'local', for local-computation model\n"
-            "- ':port', for server-mode, bound to given port\n"
-            "- 'hostname:port', for client-mode connection")("time,t",
-         po::value<double>()->default_value(60),
-         "benchmark duration in seconds")("parameter,r",
-         po::value<double>()->default_value(0.5),
-         "channel parameter (e.g. SNR)")("system-file,i",
-         po::value<std::string>(), "file containing system description")(
-         "confidence", po::value<double>()->default_value(0.999),
-         "confidence level (e.g. 0.90 for 90%)")("tolerance",
-         po::value<double>()->default_value(0.001),
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("quiet,q", po::bool_switch(),
+         "suppress all output except benchmark");
+   desc.add_options()("priority,p", po::value<int>()->default_value(10),
+         "process priority");
+   desc.add_options()("endpoint,e", po::value<std::string>()->default_value(
+         "local"), "- 'local', for local-computation model\n"
+      "- ':port', for server-mode, bound to given port\n"
+      "- 'hostname:port', for client-mode connection");
+   desc.add_options()("time,t", po::value<double>()->default_value(60),
+         "benchmark duration in seconds");
+   desc.add_options()("parameter,r", po::value<double>()->default_value(0.5),
+         "channel parameter (e.g. SNR)");
+   desc.add_options()("system-file,i", po::value<std::string>(),
+         "file containing system description");
+   desc.add_options()("confidence", po::value<double>()->default_value(0.999),
+         "confidence level (e.g. 0.90 for 90%)");
+   desc.add_options()("tolerance", po::value<double>()->default_value(0.001),
          "confidence interval (e.g. 0.15 for +/- 15%)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);

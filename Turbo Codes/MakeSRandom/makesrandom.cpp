@@ -170,10 +170,11 @@ int main(int argc, char *argv[])
    // Set up user parameters
    namespace po = boost::program_options;
    po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message")("tau,t",
-         po::value<int>(), "interleaver length")("spread,s", po::value<int>(),
-         "interleaver spread to start with")("attempts,n",
-         po::value<int>()->default_value(1000),
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("tau,t", po::value<int>(), "interleaver length");
+   desc.add_options()("spread,s", po::value<int>(),
+         "interleaver spread to start with");
+   desc.add_options()("attempts,n", po::value<int>()->default_value(1000),
          "number of attempts before reducing spread");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);

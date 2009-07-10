@@ -1146,7 +1146,7 @@ inline matrix<T> matrix<T>::inverse() const
  [0               ...         0 1 a(k,1) a(k,2) ... a(k,l)]
  \endverbatim
  */
-template<class T>
+template <class T>
 inline matrix<T> matrix<T>::reduceToREF() const
    {
 
