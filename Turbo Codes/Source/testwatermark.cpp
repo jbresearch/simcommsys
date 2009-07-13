@@ -1,1 +1,0 @@
-../TestWatermark/testwatermark.cpp

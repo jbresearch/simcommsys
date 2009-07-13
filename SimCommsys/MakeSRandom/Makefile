@@ -1,38 +1,39 @@
-# $Author: jabriffa $
-# $Revision: 1947 $
-# $Date: 2008-11-05 11:22:31 +0000 (Wed, 05 Nov 2008) $
-
-# Function definition for recursive wildcard
-
-rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/)$(filter $(subst *,%,$2),$d))
-
 # All compiling, linking, and library flags are imported
 
-SOURCES := $(call rwildcard,,*.cpp)
+SOURCES := $(wildcard *.cpp)
 OBJECTS := $(SOURCES:%.cpp=$(BUILDDIR)/%.o)
 DEPEND := $(SOURCES:%.cpp=$(BUILDDIR)/%.d)
-LIBRARY := $(BUILDDIR)/libcomm.a
+TARGETS := $(SOURCES:%.cpp=$(BUILDDIR)/%)
+FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(WCTAG).$(RELEASE))
 
 # Master targets
 
-.PHONY:	clean clean-dist clean-depend
+all:	$(BUILDDIR) $(TARGETS)
 
-all:	$(BUILDDIR) $(LIBRARY)
+install: $(BINDIR) $(FINAL)
 
 clean:
 	$(RM) $(BUILDDIR)
+
+.PHONY:	all install clean
 
 # Manual targets
 
 $(BUILDDIR):
 	@$(MKDIR) $(BUILDDIR)
 
-$(LIBRARY):	$(OBJECTS)
-	@echo "Building library $* [$(RELEASE)]"
-	@$(LIB) $(LIBflags) $(LIBRARY) $(OBJECTS)
-	@$(RAN) $(LIBRARY)
+$(BINDIR):
+	@$(MKDIR) $(BINDIR)
 
 # Pattern-matched targets
+
+$(BINDIR)/%.$(WCTAG).$(RELEASE):	$(BUILDDIR)/%
+	@echo "Installing $* [$(RELEASE)]"
+	@$(CP) $< $@
+
+$(BUILDDIR)/%:	$(BUILDDIR)/%.o $(LIBS)
+	@echo "Linking $* [$(RELEASE)]"
+	@$(LD) $(LDflags) -o $@ $< $(LDlibs)
 
 $(BUILDDIR)/%.o:	%.cpp
 	@echo "Compiling $< [$(RELEASE)]"

@@ -1,1 +1,0 @@
-../TestWMdemodulation/testwmdemodulation.cpp
