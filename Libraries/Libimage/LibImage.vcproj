@@ -176,7 +176,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="Source\atmfilter.cpp"
+				RelativePath="atmfilter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -196,7 +196,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\awfilter.cpp"
+				RelativePath="awfilter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -216,7 +216,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\filter.cpp"
+				RelativePath="filter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -236,35 +236,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\image.cpp"
+				RelativePath="image.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\imagefile.cpp"
+				RelativePath="imagefile.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\limiter.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Source\variancefilter.cpp"
+				RelativePath="limiter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -284,7 +264,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\wavelet.cpp"
+				RelativePath="variancefilter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -304,7 +284,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\waveletfilter.cpp"
+				RelativePath="wavelet.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="waveletfilter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -329,39 +329,39 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="Source\atmfilter.h"
+				RelativePath="atmfilter.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\awfilter.h"
+				RelativePath="awfilter.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\filter.h"
+				RelativePath="filter.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\image.h"
+				RelativePath="image.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\imagefile.h"
+				RelativePath="imagefile.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\limiter.h"
+				RelativePath="limiter.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\variancefilter.h"
+				RelativePath="variancefilter.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\wavelet.h"
+				RelativePath="wavelet.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\waveletfilter.h"
+				RelativePath="waveletfilter.h"
 				>
 			</File>
 		</Filter>
