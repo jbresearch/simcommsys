@@ -8,9 +8,8 @@
 export ROOTDIR := $(PWD)
 
 # Directory where the object files and binaries are placed
-export OSNAME := $(shell uname -s)
 export OSARCH := $(shell uname -m)
-export BUILDDIR = Arch/$(OSNAME).$(OSARCH)/$(RELEASE)
+export BUILDDIR = $(RELEASE)/$(OSARCH)
 export BINDIR = ~/bin.$(OSARCH)
 
 # Version control information
@@ -21,7 +20,6 @@ export WCTAG := $(notdir $(PWD))
 # Linker settings
 export LDlibusr := -lcomm -lbase
 LDlibsys := -lm -lstdc++ -lboost_program_options
-#LDlibsys := -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic -lm
 #LDlibmpi := `mpic++ -showme:link`
 #LDlibmpi := -lpmpich++ -lmpich
 LDlibmpi :=
@@ -30,15 +28,15 @@ export LDlibs := $(LDlibusr) $(LDlibsys) $(LDlibmpi)
 export LDflagProfile := -pg
 export LDflagRelease := 
 export LDflagDebug   := 
-LDflagsCommon :=
 #LDflagsCommon := -static-libgcc
+LDflagsCommon :=
 export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
 # Compiler settings
 CCdbgopt := -g -DDEBUG
 CCrelopt := -O3 -DNDEBUG
 CCprfopt := -pg $(CCrelopt)
-CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%/Source)
+CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%)
 #CClang := -Wall -Werror -Wno-non-template-friend -Woverloaded-virtual
 CClang := -Wall -Werror
 #CCmpi := -DUSEMPI `mpic++ -showme:compile`
@@ -73,7 +71,25 @@ export DOXYGEN := doxygen
 
 # Local variables:
 
-TARGETS := Turbo\ Codes
+TARGETS := SimCommsys/CSdecode \
+	SimCommsys/CSencode \
+	SimCommsys/CSfullcycle \
+	SimCommsys/CStransmit \
+	SimCommsys/MakeSRandom \
+	SimCommsys/ShowErrorEvent \
+	SimCommsys/SimCommsys \
+	SimCommsys/SPECturbo \
+	SimCommsys/TestBSID \
+	SimCommsys/TestBSID2D \
+	SimCommsys/TestConfig \
+	SimCommsys/TestDMinner2D \
+	SimCommsys/TestFSM \
+	SimCommsys/TestGF \
+	SimCommsys/TestGRSCC \
+	SimCommsys/TestModem \
+	SimCommsys/TestQSC \
+	SimCommsys/TestWatermark \
+	SimCommsys/TestWMdemodulation
 
 # Master targets
 

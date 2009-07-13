@@ -1,10 +1,10 @@
 # All compiling, linking, and library flags are imported
 
-SOURCES := $(wildcard Source/*.cpp)
-OBJECTS := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%.o)
-DEPEND := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%.d)
-TARGETS := $(SOURCES:Source/%.cpp=$(BUILDDIR)/%)
-FINAL := $(SOURCES:Source/%.cpp=$(BINDIR)/%.$(WCTAG).$(RELEASE))
+SOURCES := $(wildcard *.cpp)
+OBJECTS := $(SOURCES:%.cpp=$(BUILDDIR)/%.o)
+DEPEND := $(SOURCES:%.cpp=$(BUILDDIR)/%.d)
+TARGETS := $(SOURCES:%.cpp=$(BUILDDIR)/%)
+FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(WCTAG).$(RELEASE))
 
 # Master targets
 
@@ -35,11 +35,11 @@ $(BUILDDIR)/%:	$(BUILDDIR)/%.o $(LIBS)
 	@echo "Linking $* [$(RELEASE)]"
 	@$(LD) $(LDflags) -o $@ $< $(LDlibs)
 
-$(BUILDDIR)/%.o:	Source/%.cpp
+$(BUILDDIR)/%.o:	%.cpp
 	@echo "Compiling $< [$(RELEASE)]"
 	@$(CC) $(CCflags) -c $< -o $@
 
-$(BUILDDIR)/%.d:	Source/%.cpp
+$(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(BUILDDIR)
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
 	@$(CC) $(CCflags) $(CCdepend) $< | gawk 'BEGIN { FS = "$*.o" } { if( NF > 1 ) { print $$1, "$(BUILDDIR)/$*.d $(BUILDDIR)/$*.o", $$2 } else { print $$0 } }' > $@
