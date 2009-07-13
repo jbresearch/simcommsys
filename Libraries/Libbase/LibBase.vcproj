@@ -181,7 +181,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="Source\bitfield.cpp"
+				RelativePath="bitfield.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -201,7 +201,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\bstream.cpp"
+				RelativePath="bstream.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -221,7 +221,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\cmpi.cpp"
+				RelativePath="cmpi.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -241,7 +241,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\config.cpp"
+				RelativePath="config.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -261,7 +261,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\fastsecant.cpp"
+				RelativePath="fastsecant.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -281,7 +281,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\fbstream.cpp"
+				RelativePath="fbstream.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -301,31 +301,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\gf.cpp"
+				RelativePath="gf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\histogram.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Source\itfunc.cpp"
+				RelativePath="histogram.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -345,7 +325,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\logreal.cpp"
+				RelativePath="itfunc.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -365,7 +345,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\logrealfast.cpp"
+				RelativePath="logreal.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -385,11 +365,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\masterslave.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\matrix.cpp"
+				RelativePath="logrealfast.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -409,7 +385,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\matrix3.cpp"
+				RelativePath="masterslave.cpp"
+				>
+			</File>
+			<File
+				RelativePath="matrix.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -429,7 +409,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\mpgnu.cpp"
+				RelativePath="matrix3.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -449,7 +429,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\mpreal.cpp"
+				RelativePath="mpgnu.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -469,11 +449,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\pacifier.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\randgen.cpp"
+				RelativePath="mpreal.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -493,15 +469,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\random.cpp"
+				RelativePath="pacifier.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\randperm.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\rvstatistics.cpp"
+				RelativePath="randgen.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -521,7 +493,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\secant.cpp"
+				RelativePath="random.cpp"
+				>
+			</File>
+			<File
+				RelativePath="randperm.cpp"
+				>
+			</File>
+			<File
+				RelativePath="rvstatistics.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -541,7 +521,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\serializer.cpp"
+				RelativePath="secant.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -561,11 +541,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\socket.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\timer.cpp"
+				RelativePath="serializer.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -585,11 +561,35 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\truerand.cpp"
+				RelativePath="socket.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\vector.cpp"
+				RelativePath="timer.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="truerand.cpp"
+				>
+			</File>
+			<File
+				RelativePath="vector.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -614,123 +614,123 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="Source\bitfield.h"
+				RelativePath="bitfield.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\bstream.h"
+				RelativePath="bstream.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\cmpi.h"
+				RelativePath="cmpi.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\config.h"
+				RelativePath="config.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\fastsecant.h"
+				RelativePath="fastsecant.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\fbstream.h"
+				RelativePath="fbstream.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\functor.h"
+				RelativePath="functor.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\gf.h"
+				RelativePath="gf.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\histogram.h"
+				RelativePath="histogram.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\itfunc.h"
+				RelativePath="itfunc.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\logreal.h"
+				RelativePath="logreal.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\logrealfast.h"
+				RelativePath="logrealfast.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\masterslave.h"
+				RelativePath="masterslave.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\matrix.h"
+				RelativePath="matrix.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\matrix3.h"
+				RelativePath="matrix3.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\mpgnu.h"
+				RelativePath="mpgnu.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\mpreal.h"
+				RelativePath="mpreal.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\multi_array.h"
+				RelativePath="multi_array.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\pacifier.h"
+				RelativePath="pacifier.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\randgen.h"
+				RelativePath="randgen.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\random.h"
+				RelativePath="random.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\randperm.h"
+				RelativePath="randperm.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\rvstatistics.h"
+				RelativePath="rvstatistics.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\secant.h"
+				RelativePath="secant.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\serializer.h"
+				RelativePath="serializer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\size.h"
+				RelativePath="size.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\socket.h"
+				RelativePath="socket.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\timer.h"
+				RelativePath="timer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\truerand.h"
+				RelativePath="truerand.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\vector.h"
+				RelativePath="vector.h"
 				>
 			</File>
 		</Filter>

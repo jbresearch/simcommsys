@@ -183,7 +183,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="Source\anneal_interleaver.cpp"
+				RelativePath="anneal_interleaver.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -203,7 +203,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\anneal_puncturing.cpp"
+				RelativePath="anneal_puncturing.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -223,7 +223,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\anneal_system.cpp"
+				RelativePath="anneal_system.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -243,7 +243,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\annealer.cpp"
+				RelativePath="annealer.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -263,7 +263,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\awgn.cpp"
+				RelativePath="awgn.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -283,7 +283,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\bcjr.cpp"
+				RelativePath="bcjr.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -303,7 +303,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\berrou.cpp"
+				RelativePath="berrou.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -323,55 +323,35 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\blockmodem.cpp"
+				RelativePath="blockmodem.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blockprocess.cpp"
+				RelativePath="blockprocess.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsc.cpp"
+				RelativePath="bsc.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsid.cpp"
+				RelativePath="bsid.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsid2d.cpp"
+				RelativePath="bsid2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ccbfsm.cpp"
+				RelativePath="ccbfsm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ccfsm.cpp"
+				RelativePath="ccfsm.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\channel.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Source\codec.cpp"
+				RelativePath="channel.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -391,15 +371,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\codec_reshaped.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\codec_softout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\commsys.cpp"
+				RelativePath="codec.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -419,39 +391,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_errorrates.cpp"
+				RelativePath="codec_reshaped.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_hist_symerr.cpp"
+				RelativePath="codec_softout.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_iterative.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\commsys_prof_burst.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\commsys_prof_pos.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\commsys_prof_sym.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\commsys_simulator.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\commsys_threshold.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\crypt.cpp"
+				RelativePath="commsys.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -471,43 +419,39 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\digest32.cpp"
+				RelativePath="commsys_errorrates.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dminner.cpp"
+				RelativePath="commsys_hist_symerr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dminner2.cpp"
+				RelativePath="commsys_iterative.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dminner2d.cpp"
+				RelativePath="commsys_prof_burst.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\dvbcrsc.cpp"
+				RelativePath="commsys_prof_pos.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\experiment.cpp"
+				RelativePath="commsys_prof_sym.cpp"
+				>
+			</File>
+			<File
+				RelativePath="commsys_simulator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="commsys_threshold.cpp"
+				>
+			</File>
+			<File
+				RelativePath="crypt.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -527,43 +471,23 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\experiment_binomial.cpp"
+				RelativePath="digest32.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\experiment_normal.cpp"
+				RelativePath="dminner.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\fba.cpp"
+				RelativePath="dminner2.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\fba2.cpp"
+				RelativePath="dminner2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\file_lut.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Source\flat.cpp"
+				RelativePath="dvbcrsc.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -583,7 +507,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\fsm.cpp"
+				RelativePath="experiment.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -603,39 +527,23 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\gnrcc.cpp"
+				RelativePath="experiment_binomial.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\grscc.cpp"
+				RelativePath="experiment_normal.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\helical.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Source\informed_modulator.cpp"
+				RelativePath="fba.cpp"
 				>
 			</File>
 			<File
-				RelativePath="Source\interleaver.cpp"
+				RelativePath="fba2.cpp"
+				>
+			</File>
+			<File
+				RelativePath="file_lut.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -655,7 +563,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\lapgauss.cpp"
+				RelativePath="flat.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -675,7 +583,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\laplacian.cpp"
+				RelativePath="fsm.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -695,7 +603,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\lut_interleaver.cpp"
+				RelativePath="gnrcc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="grscc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="helical.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -715,27 +631,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\lut_modulator.cpp"
+				RelativePath="informed_modulator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\map_interleaved.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\map_permuted.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\map_stipple.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\map_straight.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\mapcc.cpp"
+				RelativePath="interleaver.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -755,11 +655,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\mapper.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\md5.cpp"
+				RelativePath="lapgauss.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -779,11 +675,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\modem.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\montecarlo.cpp"
+				RelativePath="laplacian.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -803,7 +695,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\mpsk.cpp"
+				RelativePath="lut_interleaver.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -823,7 +715,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\named_lut.cpp"
+				RelativePath="lut_modulator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="map_interleaved.cpp"
+				>
+			</File>
+			<File
+				RelativePath="map_permuted.cpp"
+				>
+			</File>
+			<File
+				RelativePath="map_stipple.cpp"
+				>
+			</File>
+			<File
+				RelativePath="map_straight.cpp"
+				>
+			</File>
+			<File
+				RelativePath="mapcc.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -843,7 +755,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\nrcc.cpp"
+				RelativePath="mapper.cpp"
+				>
+			</File>
+			<File
+				RelativePath="md5.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -863,7 +779,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\onetimepad.cpp"
+				RelativePath="modem.cpp"
+				>
+			</File>
+			<File
+				RelativePath="montecarlo.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -883,7 +803,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\padded.cpp"
+				RelativePath="mpsk.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -903,11 +823,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\parametric.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\plmod.cpp"
+				RelativePath="named_lut.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -927,15 +843,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\qam.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\qsc.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\rand_lut.cpp"
+				RelativePath="nrcc.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -955,7 +863,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\rc4.cpp"
+				RelativePath="onetimepad.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -975,7 +883,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\rectangular.cpp"
+				RelativePath="padded.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -995,15 +903,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\repacc.cpp"
+				RelativePath="parametric.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\resultsfile.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\rscc.cpp"
+				RelativePath="plmod.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1023,7 +927,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\serializer_libcomm.cpp"
+				RelativePath="qam.cpp"
+				>
+			</File>
+			<File
+				RelativePath="qsc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="rand_lut.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1043,7 +955,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\sha.cpp"
+				RelativePath="rc4.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1063,7 +975,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\shift_lut.cpp"
+				RelativePath="rectangular.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1083,7 +995,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\sigspace.cpp"
+				RelativePath="repacc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="resultsfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="rscc.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1103,11 +1023,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\stegosystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\stream_lut.cpp"
+				RelativePath="serializer_libcomm.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1127,15 +1043,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\symbol.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\sysrepacc.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Source\turbo.cpp"
+				RelativePath="sha.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1155,7 +1063,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\uncoded.cpp"
+				RelativePath="shift_lut.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1175,7 +1083,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\uniform_lut.cpp"
+				RelativePath="sigspace.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1195,7 +1103,99 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Source\vale96int.cpp"
+				RelativePath="stegosystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath="stream_lut.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="symbol.cpp"
+				>
+			</File>
+			<File
+				RelativePath="sysrepacc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="turbo.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="uncoded.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="uniform_lut.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="vale96int.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1220,355 +1220,355 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="Source\anneal_interleaver.h"
+				RelativePath="anneal_interleaver.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\anneal_puncturing.h"
+				RelativePath="anneal_puncturing.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\anneal_system.h"
+				RelativePath="anneal_system.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\annealer.h"
+				RelativePath="annealer.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\awgn.h"
+				RelativePath="awgn.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\bcjr.h"
+				RelativePath="bcjr.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\berrou.h"
+				RelativePath="berrou.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blockmodem.h"
+				RelativePath="blockmodem.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blockprocess.h"
+				RelativePath="blockprocess.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsc.h"
+				RelativePath="bsc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsid.h"
+				RelativePath="bsid.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\bsid2d.h"
+				RelativePath="bsid2d.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ccbfsm.h"
+				RelativePath="ccbfsm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ccfsm.h"
+				RelativePath="ccfsm.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\channel.h"
+				RelativePath="channel.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\codec.h"
+				RelativePath="codec.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\codec_reshaped.h"
+				RelativePath="codec_reshaped.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\codec_softout.h"
+				RelativePath="codec_softout.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\codec_softout_flattened.h"
+				RelativePath="codec_softout_flattened.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\commsys.h"
+				RelativePath="commsys.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_errorrates.h"
+				RelativePath="commsys_errorrates.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_hist_symerr.h"
+				RelativePath="commsys_hist_symerr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_iterative.h"
+				RelativePath="commsys_iterative.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_prof_burst.h"
+				RelativePath="commsys_prof_burst.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_prof_pos.h"
+				RelativePath="commsys_prof_pos.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_prof_sym.h"
+				RelativePath="commsys_prof_sym.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_simulator.h"
+				RelativePath="commsys_simulator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\commsys_threshold.h"
+				RelativePath="commsys_threshold.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\crypt.h"
+				RelativePath="crypt.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\digest32.h"
+				RelativePath="digest32.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dminner.h"
+				RelativePath="dminner.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dminner2.h"
+				RelativePath="dminner2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dminner2d.h"
+				RelativePath="dminner2d.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\dvbcrsc.h"
+				RelativePath="dvbcrsc.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\experiment.h"
+				RelativePath="experiment.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\experiment_binomial.h"
+				RelativePath="experiment_binomial.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\experiment_normal.h"
+				RelativePath="experiment_normal.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\fba.h"
+				RelativePath="fba.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\fba2.h"
+				RelativePath="fba2.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\file_lut.h"
+				RelativePath="file_lut.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\flat.h"
+				RelativePath="flat.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\fsm.h"
+				RelativePath="fsm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\gnrcc.h"
+				RelativePath="gnrcc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\grscc.h"
+				RelativePath="grscc.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\helical.h"
+				RelativePath="helical.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\informed_modulator.h"
+				RelativePath="informed_modulator.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\interleaver.h"
+				RelativePath="interleaver.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\lapgauss.h"
+				RelativePath="lapgauss.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\laplacian.h"
+				RelativePath="laplacian.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\lut_interleaver.h"
+				RelativePath="lut_interleaver.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\lut_modulator.h"
+				RelativePath="lut_modulator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\map_interleaved.h"
+				RelativePath="map_interleaved.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\map_permuted.h"
+				RelativePath="map_permuted.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\map_stipple.h"
+				RelativePath="map_stipple.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\map_straight.h"
+				RelativePath="map_straight.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\mapcc.h"
+				RelativePath="mapcc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\mapper.h"
+				RelativePath="mapper.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\md5.h"
+				RelativePath="md5.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\modem.h"
+				RelativePath="modem.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\montecarlo.h"
+				RelativePath="montecarlo.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\mpsk.h"
+				RelativePath="mpsk.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\named_lut.h"
+				RelativePath="named_lut.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\nrcc.h"
+				RelativePath="nrcc.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\onetimepad.h"
+				RelativePath="onetimepad.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\padded.h"
+				RelativePath="padded.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\parametric.h"
+				RelativePath="parametric.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\plmod.h"
+				RelativePath="plmod.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\qam.h"
+				RelativePath="qam.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\qsc.h"
+				RelativePath="qsc.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\rand_lut.h"
+				RelativePath="rand_lut.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\rc4.h"
+				RelativePath="rc4.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\rectangular.h"
+				RelativePath="rectangular.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\repacc.h"
+				RelativePath="repacc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\resultsfile.h"
+				RelativePath="resultsfile.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\rscc.h"
+				RelativePath="rscc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\safe_bcjr.h"
+				RelativePath="safe_bcjr.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\serializer_libcomm.h"
+				RelativePath="serializer_libcomm.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\sha.h"
+				RelativePath="sha.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\shift_lut.h"
+				RelativePath="shift_lut.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\sigspace.h"
+				RelativePath="sigspace.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\stegosystem.h"
+				RelativePath="stegosystem.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\stream_lut.h"
+				RelativePath="stream_lut.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\symbol.h"
+				RelativePath="symbol.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\sysrepacc.h"
+				RelativePath="sysrepacc.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\turbo.h"
+				RelativePath="turbo.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\uncoded.h"
+				RelativePath="uncoded.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\uniform_lut.h"
+				RelativePath="uniform_lut.h"
 				>
 			</File>
 			<File
-				RelativePath="Source\vale96int.h"
+				RelativePath="vale96int.h"
 				>
 			</File>
 		</Filter>
