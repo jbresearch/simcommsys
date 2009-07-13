@@ -1,14 +1,14 @@
-#ifndef __rectangular_h
-#define __rectangular_h
+#ifndef __helical_h
+#define __helical_h
 
 #include "config.h"
-#include "lut_interleaver.h"
+#include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 
 namespace libcomm {
 
 /*!
- \brief   Rectangular Interleaver.
+ \brief   Helical Interleaver.
  \author  Johann Briffa
 
  \section svn Version Control
@@ -19,19 +19,19 @@ namespace libcomm {
  */
 
 template <class real>
-class rectangular : public lut_interleaver<real> {
+class helical : public lut_interleaver<real> {
    int rows, cols;
 protected:
    void init(const int tau, const int rows, const int cols);
-   rectangular()
+   helical()
       {
       }
 public:
-   rectangular(const int tau, const int rows, const int cols)
+   helical(const int tau, const int rows, const int cols)
       {
       init(tau, rows, cols);
       }
-   ~rectangular()
+   ~helical()
       {
       }
 
@@ -39,9 +39,10 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(rectangular);
+DECLARE_SERIALIZER(helical);
 };
 
 } // end namespace
 
 #endif
+

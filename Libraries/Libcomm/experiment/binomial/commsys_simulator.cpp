@@ -8,12 +8,12 @@
  */
 
 #include "commsys_simulator.h"
-#include "commsys_prof_burst.h"
-#include "commsys_prof_pos.h"
-#include "commsys_prof_sym.h"
-#include "commsys_hist_symerr.h"
+#include "result_collector/commsys_prof_burst.h"
+#include "result_collector/commsys_prof_pos.h"
+#include "result_collector/commsys_prof_sym.h"
+#include "result_collector/commsys_hist_symerr.h"
 
-#include "map_straight.h"
+#include "mapper/map_straight.h"
 #include "fsm.h"
 #include "gf.h"
 #include "itfunc.h"

@@ -2,7 +2,7 @@
 #define __codec_softout_flattened_h
 
 #include "config.h"
-#include "map_straight.h"
+#include "mapper/map_straight.h"
 
 namespace libcomm {
 

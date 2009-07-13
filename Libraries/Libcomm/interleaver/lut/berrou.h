@@ -1,36 +1,37 @@
-#ifndef __flat_h
-#define __flat_h
+#ifndef __berrou_h
+#define __berrou_h
 
 #include "config.h"
-#include "lut_interleaver.h"
+#include "interleaver/lut_interleaver.h"
 #include "serializer.h"
+#include "itfunc.h"
 
 namespace libcomm {
 
 /*!
- \brief   Flat Interleaver.
+ \brief   Berrou's Original Interleaver.
  \author  Johann Briffa
 
  \section svn Version Control
  - $Revision$
  - $Date$
  - $Author$
-
  */
 
 template <class real>
-class flat : public lut_interleaver<real> {
+class berrou : public lut_interleaver<real> {
+   int M;
 protected:
-   void init(const int tau);
-   flat()
+   void init(const int M);
+   berrou()
       {
       }
 public:
-   flat(const int tau)
+   berrou(const int M)
       {
-      init(tau);
+      init(M);
       }
-   ~flat()
+   ~berrou()
       {
       }
 
@@ -38,7 +39,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(flat);
+DECLARE_SERIALIZER(berrou);
 };
 
 } // end namespace

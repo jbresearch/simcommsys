@@ -2,7 +2,7 @@
 #include "randgen.h"
 #include "truerand.h"
 #include "serializer_libcomm.h"
-#include "commsys_simulator.h"
+#include "experiment/binomial/commsys_simulator.h"
 #include "timer.h"
 
 #include <boost/program_options.hpp>

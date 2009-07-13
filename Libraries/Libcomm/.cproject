@@ -30,6 +30,7 @@
 <option id="gnu.cpp.compiler.lib.debug.option.debugging.level.1938155849" name="Debug Level" superClass="gnu.cpp.compiler.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.1898383673" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.577589427" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.862989888" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -509,6 +510,7 @@
 <option id="gnu.cpp.compiler.lib.release.option.debugging.level.14833787" name="Debug Level" superClass="gnu.cpp.compiler.lib.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.661704077" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.1567750227" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
 <option id="gnu.cpp.compiler.option.preprocessor.def.525132438" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">

@@ -2,8 +2,8 @@
 #define __commsys_simulator_h
 
 #include "config.h"
-#include "commsys_errorrates.h"
-#include "experiment_binomial.h"
+#include "experiment/binomial/result_collector/commsys_errorrates.h"
+#include "experiment/experiment_binomial.h"
 #include "randgen.h"
 #include "commsys.h"
 #include "serializer.h"

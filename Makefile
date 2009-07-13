@@ -116,6 +116,9 @@ doc:
 	@$(DOXYGEN)
 
 clean:
+	@$(MAKE) RELEASE=Debug DOTARGET=clean $(TARGETS)
+	@$(MAKE) RELEASE=Release DOTARGET=clean $(TARGETS)
+	@$(MAKE) RELEASE=profile DOTARGET=clean $(TARGETS)
 
 FORCE:
 

@@ -1,9 +1,9 @@
 #include "timer.h"
 #include "randgen.h"
 #include "logrealfast.h"
-#include "dminner.h"
-#include "dminner2.h"
-#include "bsid.h"
+#include "modem/dminner.h"
+#include "modem/dminner2.h"
+#include "channel/bsid.h"
 
 #include <memory>
 #include <iostream>

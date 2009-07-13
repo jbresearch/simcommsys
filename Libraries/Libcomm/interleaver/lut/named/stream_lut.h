@@ -2,7 +2,7 @@
 #define __stream_lut_h
 
 #include "config.h"
-#include "named_lut.h"
+#include "interleaver/lut/named_lut.h"
 #include <stdio.h>
 
 namespace libcomm {

@@ -2,7 +2,7 @@
 #define __exit_computer_h
 
 #include "config.h"
-#include "experiment_normal.h"
+#include "experiment/experiment_normal.h"
 #include "commsys.h"
 #include "randgen.h"
 #include "serializer.h"

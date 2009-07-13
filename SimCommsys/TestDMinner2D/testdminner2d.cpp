@@ -1,5 +1,5 @@
 #include "logrealfast.h"
-#include "dminner2d.h"
+#include "modem/dminner2d.h"
 #include "itfunc.h"
 
 #include <iostream>
