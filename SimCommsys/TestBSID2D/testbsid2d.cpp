@@ -1,4 +1,4 @@
-#include "bsid2d.h"
+#include "channel/bsid2d.h"
 #include "randgen.h"
 
 #include <boost/program_options.hpp>

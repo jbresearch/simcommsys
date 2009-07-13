@@ -1,14 +1,14 @@
-#ifndef __helical_h
-#define __helical_h
+#ifndef __flat_h
+#define __flat_h
 
 #include "config.h"
-#include "lut_interleaver.h"
+#include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 
 namespace libcomm {
 
 /*!
- \brief   Helical Interleaver.
+ \brief   Flat Interleaver.
  \author  Johann Briffa
 
  \section svn Version Control
@@ -19,19 +19,18 @@ namespace libcomm {
  */
 
 template <class real>
-class helical : public lut_interleaver<real> {
-   int rows, cols;
+class flat : public lut_interleaver<real> {
 protected:
-   void init(const int tau, const int rows, const int cols);
-   helical()
+   void init(const int tau);
+   flat()
       {
       }
 public:
-   helical(const int tau, const int rows, const int cols)
+   flat(const int tau)
       {
-      init(tau, rows, cols);
+      init(tau);
       }
-   ~helical()
+   ~flat()
       {
       }
 
@@ -39,7 +38,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(helical);
+DECLARE_SERIALIZER(flat);
 };
 
 } // end namespace

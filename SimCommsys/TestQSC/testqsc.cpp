@@ -1,4 +1,4 @@
-#include "qsc.h"
+#include "channel/qsc.h"
 #include "gf.h"
 #include "randgen.h"
 #include <iostream>

@@ -8,7 +8,7 @@
  */
 
 #include "dminner2d.h"
-#include "bsid2d.h"
+#include "channel/bsid2d.h"
 #include "dminner2.h"
 #include "timer.h"
 #include <sstream>

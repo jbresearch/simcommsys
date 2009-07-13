@@ -2,7 +2,7 @@
 #define __shift_lut_h
 
 #include "config.h"
-#include "lut_interleaver.h"
+#include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 #include <stdio.h>
 #include <iostream>

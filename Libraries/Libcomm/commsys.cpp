@@ -9,7 +9,7 @@
 
 #include "commsys.h"
 
-#include "map_straight.h"
+#include "mapper/map_straight.h"
 #include "fsm.h"
 #include "gf.h"
 #include "itfunc.h"

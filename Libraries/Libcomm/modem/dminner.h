@@ -5,7 +5,7 @@
 
 #include "informed_modulator.h"
 #include "fba.h"
-#include "bsid.h"
+#include "channel/bsid.h"
 
 #include "bitfield.h"
 #include "randgen.h"

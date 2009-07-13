@@ -2,7 +2,7 @@
 #define __annealer_h
 
 #include "config.h"
-#include "anneal_system.h"
+#include "annealer/anneal_system.h"
 #include "randgen.h"
 #include "rvstatistics.h"
 

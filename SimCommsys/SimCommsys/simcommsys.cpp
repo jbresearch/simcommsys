@@ -1,6 +1,6 @@
 #include "randgen.h"
 #include "serializer_libcomm.h"
-#include "commsys_simulator.h"
+#include "experiment/binomial/commsys_simulator.h"
 #include "montecarlo.h"
 #include "masterslave.h"
 #include "timer.h"

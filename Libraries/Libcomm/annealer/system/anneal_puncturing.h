@@ -6,7 +6,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "matrix3.h"
-#include "anneal_system.h"
+#include "annealer/anneal_system.h"
 
 namespace libcomm {
 

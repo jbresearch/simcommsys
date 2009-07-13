@@ -1,5 +1,5 @@
-#include "mpsk.h"
-#include "qam.h"
+#include "modem/mpsk.h"
+#include "modem/qam.h"
 #include "bitfield.h"
 #include "itfunc.h"
 #include <iostream>

@@ -1,6 +1,6 @@
 #include "logrealfast.h"
-#include "dminner.h"
-#include "bsid.h"
+#include "modem/dminner.h"
+#include "channel/bsid.h"
 #include "itfunc.h"
 #include "bitfield.h"
 

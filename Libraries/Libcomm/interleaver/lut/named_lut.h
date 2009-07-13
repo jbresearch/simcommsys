@@ -2,7 +2,7 @@
 #define __named_lut_h
 
 #include "config.h"
-#include "lut_interleaver.h"
+#include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 #include <string>
 #include <iostream>

@@ -1,6 +1,6 @@
 #include "serializer_libcomm.h"
 #include "commsys.h"
-#include "codec_softout.h"
+#include "codec/codec_softout.h"
 #include "timer.h"
 
 #include <boost/program_options.hpp>

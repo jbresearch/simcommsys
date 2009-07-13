@@ -8,7 +8,6 @@
  */
 
 #include "commsys_threshold.h"
-#include "dminner.h"
 
 namespace libcomm {
 

@@ -9,7 +9,7 @@
 
 #include "commsys_iterative.h"
 
-#include "informed_modulator.h"
+#include "modem/informed_modulator.h"
 #include "gf.h"
 #include <sstream>
 

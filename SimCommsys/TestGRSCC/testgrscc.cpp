@@ -1,5 +1,5 @@
-#include "rscc.h"
-#include "grscc.h"
+#include "fsm/rscc.h"
+#include "fsm/grscc.h"
 #include "gf.h"
 #include <iostream>
 

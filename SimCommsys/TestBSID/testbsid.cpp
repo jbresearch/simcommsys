@@ -1,6 +1,6 @@
 #include "logrealfast.h"
-#include "dminner.h"
-#include "bsid.h"
+#include "modem/dminner.h"
+#include "channel/bsid.h"
 #include "randgen.h"
 #include "rvstatistics.h"
 

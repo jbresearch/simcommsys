@@ -4,7 +4,7 @@
 #include "config.h"
 #include "matrix.h"
 #include "randgen.h"
-#include "anneal_system.h"
+#include "annealer/anneal_system.h"
 
 namespace libcomm {
 

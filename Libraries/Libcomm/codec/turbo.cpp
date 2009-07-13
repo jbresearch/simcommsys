@@ -8,7 +8,7 @@
  */
 
 #include "turbo.h"
-#include "flat.h"
+#include "interleaver/lut/flat.h"
 #include <sstream>
 #include <iomanip>
 
