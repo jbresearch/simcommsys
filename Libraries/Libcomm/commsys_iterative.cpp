@@ -62,7 +62,7 @@ std::ostream& commsys_iterative<S, C>::serialize(std::ostream& sout) const
 template <class S, template <class > class C>
 std::istream& commsys_iterative<S, C>::serialize(std::istream& sin)
    {
-   sin >> iter;
+   sin >> libbase::eatcomments >> iter;
    commsys<S, C>::serialize(sin);
    return sin;
    }

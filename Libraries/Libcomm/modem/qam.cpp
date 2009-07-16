@@ -86,7 +86,7 @@ std::ostream& qam::serialize(std::ostream& sout) const
 std::istream& qam::serialize(std::istream& sin)
    {
    int m;
-   sin >> m;
+   sin >> libbase::eatcomments >> m;
    init(m);
    return sin;
    }

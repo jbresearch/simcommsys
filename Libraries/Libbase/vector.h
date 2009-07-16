@@ -202,8 +202,8 @@ public:
       }
 
    /*! \name Serialization */
-   void serialize(std::ostream& s, char spacer = '\t') const;
-   void serialize(std::istream& s);
+   void serialize(std::ostream& sout, char spacer = '\t') const;
+   void serialize(std::istream& sin);
    // @}
 
    // arithmetic operations - unary
@@ -516,22 +516,22 @@ inline T vector<T>::operator()(const int x) const
 // serialization and stream input & output
 
 template <class T>
-inline void vector<T>::serialize(std::ostream& s, char spacer) const
+inline void vector<T>::serialize(std::ostream& sout, char spacer) const
    {
    test_invariant();
    if (m_size.length() > 0)
-      s << m_data[0];
+      sout << m_data[0];
    for (int i = 1; i < m_size.length(); i++)
-      s << spacer << m_data[i];
-   s << '\n';
+      sout << spacer << m_data[i];
+   sout << '\n';
    }
 
 template <class T>
-inline void vector<T>::serialize(std::istream& s)
+inline void vector<T>::serialize(std::istream& sin)
    {
    test_invariant();
    for (int i = 0; i < m_size.length(); i++)
-      s >> m_data[i];
+      sin >> m_data[i];
    test_invariant();
    }
 

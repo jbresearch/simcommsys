@@ -50,7 +50,7 @@ template <class real>
 std::istream& shift_lut<real>::serialize(std::istream& sin)
    {
    int tau, amount;
-   sin >> tau >> amount;
+   sin >> libbase::eatcomments >> tau >> amount;
    init(amount, tau);
    return sin;
    }

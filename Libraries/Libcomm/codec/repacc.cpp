@@ -311,14 +311,14 @@ std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    free();
    // get format version
    int version;
-   sin >> version;
+   sin >> libbase::eatcomments >> version;
    assertalways(version >= 2);
    // get second-version items
    rep.serialize(sin);
-   sin >> acc;
-   sin >> inter;
-   sin >> iter;
-   sin >> endatzero;
+   sin >> libbase::eatcomments >> acc;
+   sin >> libbase::eatcomments >> inter;
+   sin >> libbase::eatcomments >> iter;
+   sin >> libbase::eatcomments >> endatzero;
    init();
    assertalways(sin.good());
    return sin;

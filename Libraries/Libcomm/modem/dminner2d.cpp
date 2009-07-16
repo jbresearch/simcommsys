@@ -332,8 +332,8 @@ std::ostream& dminner2d<real, norm>::serialize(std::ostream& sout) const
 template <class real, bool norm>
 std::istream& dminner2d<real, norm>::serialize(std::istream& sin)
    {
-   sin >> lutname;
-   sin >> lut;
+   sin >> libbase::eatcomments >> lutname;
+   sin >> libbase::eatcomments >> lut;
    init();
    return sin;
    }

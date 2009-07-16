@@ -115,8 +115,8 @@ std::ostream& padded<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& padded<real>::serialize(std::istream& sin)
    {
-   sin >> otp;
-   sin >> inter;
+   sin >> libbase::eatcomments >> otp;
+   sin >> libbase::eatcomments >> inter;
    return sin;
    }
 

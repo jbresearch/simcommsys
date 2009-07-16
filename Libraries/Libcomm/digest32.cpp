@@ -94,7 +94,7 @@ digest32::digest32(const std::string& s)
    // load from std::string
    std::istringstream sin(s);
    // skip initial whitespace
-   sin >> std::ws;
+   sin >> libbase::eatcomments >> std::ws;
    for (int i = 0; i < m_hash.size(); i++)
       {
       char buf[9];

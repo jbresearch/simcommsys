@@ -153,8 +153,8 @@ template <class dbl>
 std::istream& uncoded<dbl>::serialize(std::istream& sin)
    {
    free();
-   sin >> encoder;
-   sin >> tau;
+   sin >> libbase::eatcomments >> encoder;
+   sin >> libbase::eatcomments >> tau;
    init();
    return sin;
    }

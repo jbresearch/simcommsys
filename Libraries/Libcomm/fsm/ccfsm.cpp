@@ -252,7 +252,7 @@ std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
 template <class G>
 std::istream& ccfsm<G>::serialize(std::istream& sin)
    {
-   sin >> gen;
+   sin >> libbase::eatcomments >> gen;
    init(gen);
    return sin;
    }

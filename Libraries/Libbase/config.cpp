@@ -222,6 +222,27 @@ std::istream& eatwhite(std::istream& is)
    return is;
    }
 
+//! Function to skip over comments (and preceding whitespace)
+
+std::istream& eatcomments(std::istream& is)
+   {
+   char c;
+   while (is.get(c))
+      {
+      if (c == '#')
+         {
+         std::string s;
+         getline(is, s);
+         }
+      else if (!isspace(c))
+         {
+         is.putback(c);
+         break;
+         }
+      }
+   return is;
+   }
+
 /*!
  \brief Check for a failure during the last stream input.
  \return True if the last stream input did not succeed.
@@ -249,11 +270,11 @@ bool isfailedload(std::istream &is)
 
  If there is still data left on the stream an error message is also shown,
  detailing the stream position where this occurred. All data left from this
- position onwards is also printed.
+ position onwards is also printed. Note that comments are excluded.
  */
 bool isincompleteload(std::istream &is)
    {
-   libbase::eatwhite(is);
+   libbase::eatcomments(is);
    if (!is.eof())
       {
       std::cerr << "ERROR: Incomplete loading, stopped at position "

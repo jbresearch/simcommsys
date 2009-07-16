@@ -84,7 +84,7 @@ template <class real>
 std::istream& rand_lut<real>::serialize(std::istream& sin)
    {
    int tau, m;
-   sin >> tau >> m;
+   sin >> libbase::eatcomments >> tau >> m;
    init(tau, m);
    return sin;
    }

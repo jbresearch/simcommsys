@@ -509,35 +509,35 @@ std::istream& turbo<real, dbl>::serialize(std::istream& sin)
    free();
    // get format version
    int version;
-   sin >> version;
+   sin >> libbase::eatcomments >> version;
    // handle old-format files
    if (sin.fail())
       {
       version = 0;
       sin.clear();
       }
-   sin >> encoder;
+   sin >> libbase::eatcomments >> encoder;
    int tau = 0;
    if (version < 2)
-      sin >> tau;
+      sin >> libbase::eatcomments >> tau;
    int sets;
-   sin >> sets;
+   sin >> libbase::eatcomments >> sets;
    inter.init(sets);
    if (version < 1)
       {
       inter(0) = new flat<dbl> (tau);
       for (int i = 1; i < inter.size(); i++)
-         sin >> inter(i);
+         sin >> libbase::eatcomments >> inter(i);
       }
    else
       {
       for (int i = 0; i < inter.size(); i++)
-         sin >> inter(i);
+         sin >> libbase::eatcomments >> inter(i);
       }
-   sin >> endatzero;
-   sin >> circular;
-   sin >> parallel;
-   sin >> iter;
+   sin >> libbase::eatcomments >> endatzero;
+   sin >> libbase::eatcomments >> circular;
+   sin >> libbase::eatcomments >> parallel;
+   sin >> libbase::eatcomments >> iter;
    init();
    assertalways(sin.good());
    return sin;

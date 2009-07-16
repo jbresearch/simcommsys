@@ -42,7 +42,7 @@ template <class S, class R>
 std::istream& commsys_threshold<S, R>::serialize(std::istream& sin)
    {
    double x;
-   sin >> x;
+   sin >> libbase::eatcomments >> x;
    commsys_simulator<S, R>::serialize(sin);
    this->sys->getchan()->set_parameter(x);
    return sin;

@@ -199,7 +199,7 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
-   sin >> sys;
+   sin >> libbase::eatcomments >> sys;
    internallyallocated = true;
    return sin;
    }

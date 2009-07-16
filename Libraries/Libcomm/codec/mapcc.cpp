@@ -210,10 +210,10 @@ template <class real, class dbl>
 std::istream& mapcc<real, dbl>::serialize(std::istream& sin)
    {
    free();
-   sin >> encoder;
-   sin >> tau;
-   sin >> endatzero;
-   sin >> circular;
+   sin >> libbase::eatcomments >> encoder;
+   sin >> libbase::eatcomments >> tau;
+   sin >> libbase::eatcomments >> endatzero;
+   sin >> libbase::eatcomments >> circular;
    init();
    return sin;
    }

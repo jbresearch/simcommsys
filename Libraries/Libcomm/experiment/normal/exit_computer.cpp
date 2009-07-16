@@ -194,7 +194,7 @@ std::istream& exit_computer<S>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
-   sin >> sys;
+   sin >> libbase::eatcomments >> sys;
    internallyallocated = true;
    return sin;
    }

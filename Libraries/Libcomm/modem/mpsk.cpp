@@ -64,7 +64,7 @@ std::ostream& mpsk::serialize(std::ostream& sout) const
 std::istream& mpsk::serialize(std::istream& sin)
    {
    int m;
-   sin >> m;
+   sin >> libbase::eatcomments >> m;
    init(m);
    return sin;
    }

@@ -168,12 +168,12 @@ public:
 // Public interface to load objects
 
 template <class T>
-T *loadandverify(std::istream& file)
+T *loadandverify(std::istream& sin)
    {
    const serializer_libcomm my_serializer_libcomm;
    T *system;
-   file >> system;
-   libbase::verifycompleteload(file);
+   sin >> libbase::eatcomments >> system;
+   libbase::verifycompleteload(sin);
    return system;
    }
 

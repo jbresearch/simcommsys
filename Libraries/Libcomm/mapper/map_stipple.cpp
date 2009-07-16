@@ -96,7 +96,7 @@ template <template <class > class C, class dbl>
 std::istream& map_stipple<C, dbl>::serialize(std::istream& sin)
    {
    Base::serialize(sin);
-   sin >> sets;
+   sin >> libbase::eatcomments >> sets;
    return sin;
    }
 

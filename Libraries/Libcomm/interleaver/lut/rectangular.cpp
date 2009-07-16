@@ -68,9 +68,9 @@ template <class real>
 std::istream& rectangular<real>::serialize(std::istream& sin)
    {
    int tau;
-   sin >> tau;
-   sin >> rows;
-   sin >> cols;
+   sin >> libbase::eatcomments >> tau;
+   sin >> libbase::eatcomments >> rows;
+   sin >> libbase::eatcomments >> cols;
    init(tau, rows, cols);
    return sin;
    }

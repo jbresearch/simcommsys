@@ -72,7 +72,8 @@ public:
    /*! \brief Stream input */
    friend std::istream& operator>>(std::istream& sin, size_type<matrix>& r)
       {
-      sin >> r.m >> r.n;
+      sin >> r.m;
+      sin >> r.n;
       return sin;
       }
 };
@@ -200,13 +201,13 @@ public:
    // @}
 
    /*! \name Serialization */
-   void serialize(std::ostream& s) const;
-   void serialize(std::ostream& s, char spacer) const
+   void serialize(std::ostream& sout) const;
+   void serialize(std::ostream& sout, char spacer) const
       {
-      serialize(s);
-      s << spacer;
+      serialize(sout);
+      sout << spacer;
       }
-   void serialize(std::istream& s);
+   void serialize(std::istream& sin);
    // @}
 
    /*! \name Comparison (mask-creation) operations */
@@ -533,14 +534,14 @@ inline T matrix<T>::operator()(const int i, const int j) const
  the serialization format of this class.
  */
 template <class T>
-inline void matrix<T>::serialize(std::ostream& s) const
+inline void matrix<T>::serialize(std::ostream& sout) const
    {
    for (int i = 0; i < m_size.rows(); i++)
       {
-      s << m_data[i][0];
+      sout << m_data[i][0];
       for (int j = 1; j < m_size.cols(); j++)
-         s << "\t" << m_data[i][j];
-      s << "\n";
+         sout << "\t" << m_data[i][j];
+      sout << "\n";
       }
    }
 
@@ -551,11 +552,11 @@ inline void matrix<T>::serialize(std::ostream& s) const
  \note Assumes that the current matrix already has the correct size.
  */
 template <class T>
-inline void matrix<T>::serialize(std::istream& s)
+inline void matrix<T>::serialize(std::istream& sin)
    {
    for (int i = 0; i < m_size.rows(); i++)
       for (int j = 0; j < m_size.cols(); j++)
-         s >> m_data[i][j];
+         sin >> m_data[i][j];
    }
 
 /*! \brief Writes matrix to output stream.
