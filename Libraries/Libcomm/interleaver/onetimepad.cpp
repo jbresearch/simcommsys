@@ -166,12 +166,12 @@ std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& onetimepad<real>::serialize(std::istream& sin)
    {
-   sin >> terminated;
-   sin >> renewable;
+   sin >> libbase::eatcomments >> terminated;
+   sin >> libbase::eatcomments >> renewable;
    int tau;
-   sin >> tau;
+   sin >> libbase::eatcomments >> tau;
    pad.init(tau);
-   sin >> encoder;
+   sin >> libbase::eatcomments >> encoder;
    return sin;
    }
 

@@ -207,8 +207,9 @@ bool interrupted(void);
 // System error message reporting
 std::string getlasterror();
 
-// Function to skip over whitespace
+// Functions to skip over whitespace and comments
 std::istream& eatwhite(std::istream& is);
+std::istream& eatcomments(std::istream& is);
 
 // Stream data loading verification functions
 bool isfailedload(std::istream &is);

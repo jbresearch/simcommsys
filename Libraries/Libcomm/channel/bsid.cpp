@@ -449,7 +449,7 @@ std::istream& bsid::serialize(std::istream& sin)
    std::streampos start = sin.tellg();
    // get format version
    int version;
-   sin >> version;
+   sin >> libbase::eatcomments >> version;
    // handle old-format files (without version number)
    if (version < 2)
       {
@@ -461,10 +461,10 @@ std::istream& bsid::serialize(std::istream& sin)
    if (version < 2)
       biased = false;
    else
-      sin >> biased;
-   sin >> varyPs;
-   sin >> varyPd;
-   sin >> varyPi;
+      sin >> libbase::eatcomments >> biased;
+   sin >> libbase::eatcomments >> varyPs;
+   sin >> libbase::eatcomments >> varyPd;
+   sin >> libbase::eatcomments >> varyPi;
    init();
    return sin;
    }

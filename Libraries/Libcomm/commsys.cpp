@@ -278,20 +278,20 @@ template <class S, template <class > class C>
 std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    {
    free();
-   sin >> chan;
+   sin >> libbase::eatcomments >> chan;
    if (chan == NULL)
       failwith("Failed to load channel.");
-   sin >> mdm;
+   sin >> libbase::eatcomments >> mdm;
    if (mdm == NULL)
       failwith("Failed to load modem.");
-   sin >> map;
+   sin >> libbase::eatcomments >> map;
    if (sin.fail())
       {
       assert(map == NULL);
       map = new map_straight<C> ;
       sin.clear();
       }
-   sin >> cdc;
+   sin >> libbase::eatcomments >> cdc;
    if (cdc == NULL)
       failwith("Failed to load codec.");
    internallyallocated = true;

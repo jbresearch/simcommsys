@@ -551,7 +551,7 @@ template <class real, bool norm>
 std::istream& dminner<real, norm>::serialize(std::istream& sin)
    {
    std::streampos start = sin.tellg();
-   sin >> user_threshold;
+   sin >> libbase::eatcomments >> user_threshold;
    // deal with inexistent flag as 'false'
    if (sin.fail())
       {
@@ -562,17 +562,17 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
    // read or set default thresholds
    if (user_threshold)
       {
-      sin >> th_inner;
-      sin >> th_outer;
+      sin >> libbase::eatcomments >> th_inner;
+      sin >> libbase::eatcomments >> th_outer;
       }
-   sin >> n;
-   sin >> k;
+   sin >> libbase::eatcomments >> n;
+   sin >> libbase::eatcomments >> k;
    int temp;
-   sin >> temp;
+   sin >> libbase::eatcomments >> temp;
    lut_type = (lut_t) temp;
    if (lut_type == lut_user)
       {
-      sin >> lutname;
+      sin >> libbase::eatcomments >> lutname;
       // read LUT from stream
       libbase::vector<libbase::bitfield> lutb;
       lutb.init(num_symbols());

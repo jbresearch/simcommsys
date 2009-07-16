@@ -62,7 +62,7 @@ std::ostream& berrou<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& berrou<real>::serialize(std::istream& sin)
    {
-   sin >> M;
+   sin >> libbase::eatcomments >> M;
    init(M);
    return sin;
    }

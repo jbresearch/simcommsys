@@ -48,7 +48,7 @@ template <class real>
 std::istream& flat<real>::serialize(std::istream& sin)
    {
    int tau;
-   sin >> tau;
+   sin >> libbase::eatcomments >> tau;
    init(tau);
    return sin;
    }

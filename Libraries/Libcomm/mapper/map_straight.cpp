@@ -197,7 +197,7 @@ std::ostream& map_straight<matrix, dbl>::serialize(std::ostream& sout) const
 template <class dbl>
 std::istream& map_straight<matrix, dbl>::serialize(std::istream& sin)
    {
-   sin >> size_out;
+   sin >> libbase::eatcomments >> size_out;
    return sin;
    }
 

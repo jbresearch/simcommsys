@@ -42,9 +42,9 @@ std::ostream& named_lut<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& named_lut<real>::serialize(std::istream& sin)
    {
-   sin >> m;
-   sin >> lutname;
-   sin >> this->lut;
+   sin >> libbase::eatcomments >> m;
+   sin >> libbase::eatcomments >> lutname;
+   sin >> libbase::eatcomments >> this->lut;
    return sin;
    }
 
