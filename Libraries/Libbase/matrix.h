@@ -276,7 +276,7 @@ public:
 
    /*! \name Matrix-arithmetic operations */
    matrix<T> inverse() const;
-   matrix<T> reduceToREF() const;
+   matrix<T> reduce_to_ref() const;
    matrix<T> transpose() const;
    // @}
 
@@ -1148,7 +1148,7 @@ inline matrix<T> matrix<T>::inverse() const
  \endverbatim
  */
 template <class T>
-inline matrix<T> matrix<T>::reduceToREF() const
+inline matrix<T> matrix<T>::reduce_to_ref() const
    {
 
    const int dim = m_size.rows();
