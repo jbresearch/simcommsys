@@ -60,6 +60,12 @@ public:
       {
       return 1 << m;
       }
+
+   //! dimension of the field over GF(2)
+   static int dimension()
+      {
+      return m;
+      }
    // @}
 
 private:
