@@ -21,8 +21,6 @@ namespace libcomm {
  - $Revision$
  - $Date$
  - $Author$
-
- \todo Add size getter
  */
 
 template <class real>
