@@ -200,6 +200,40 @@ vector<G> grscc<G>::determinefeedin(int input) const
 
 // FSM state operations (getting and resetting)
 
+/*!
+ * \copydoc fsm::resetcircular()
+ *
+ * Consider a convolutional code where the state \f$ S_i \f$ at timestep
+ * \f$ i \f$ is related to state \f$ S_{i-1} \f$ and input \f$ X_i \f$ by the
+ * relation:
+ * \f[ S_i = G \cdot S_{i-1} + X_i \f]
+ *
+ * Therefore, after \f$ N \f$ timesteps, the state is given by:
+ * \f[ S_N = G^N \cdot S_0 + \sum_{i=1}^{N} G^{N-i} \cdot X_i \f]
+ *
+ * Thus, the circulation state, defined such that \f$ S_c = S_N = S_0 \f$ is
+ * derived from the equation:
+ * \f[ S_c = \langle I + G^N \rangle ^{-1} \sum_{i=1}^{N} G^{N-i} \cdot X_i \f]
+ *
+ * and is obtainable only if \f$ I + G^N \f$ is invertible. It is worth noting
+ * that not all \f$ G \f$ matrices are suitable; also, the sequence length
+ * \f$ N \f$ must not be a multiple of the period \f$ L \f$ of the recursive
+ * generator, defined by \f$ G^L = I \f$.
+ *
+ * Consider starting at the zero-intial-state and pre-encoding the input
+ * sequence; this gives us a final state:
+ * \f[ S_N^0 = \sum_{i=1}^{N} G^{N-i} \cdot X_i \f]
+ *
+ * Combining this with the equation for the circulation state, we get:
+ * \f[ S_c = \langle I + G^N \rangle ^{-1} S_N^0 \f]
+ *
+ * Note, however, that because of the periodicity of the system, this equation
+ * can be reduced to:
+ * \f[ S_c = \langle I + G^P \rangle ^{-1} S_N^0 \f]
+ *
+ * where \f$ P = N \mathrm{mod} L \f$. This can be obtained by a lookup table
+ * containing all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
+ */
 template <class G>
 void grscc<G>::resetcircular(int zerostate, int n)
    {

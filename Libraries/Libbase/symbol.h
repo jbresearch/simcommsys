@@ -56,6 +56,7 @@ private:
    int value;
    // @}
 
+private:
    /*! \name Internal functions */
    void init(int value);
    // @}
