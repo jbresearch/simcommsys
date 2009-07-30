@@ -92,13 +92,13 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    }
 
 /*!
- \brief   Test program for BSID channel
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Test program for BSID channel
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

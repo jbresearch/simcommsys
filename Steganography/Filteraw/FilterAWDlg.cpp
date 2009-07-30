@@ -67,10 +67,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterAWDlg message handlers
 
-BOOL CFilterAWDlg::OnInitDialog() 
+BOOL CFilterAWDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // set region (cf OnChangeRadius)
    CString sTemp;
    sTemp.Format(" Region: %dx%d", 2*m_nRadius+1, 2*m_nRadius+1);
@@ -82,7 +82,7 @@ BOOL CFilterAWDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CFilterAWDlg::OnChangeRadius() 
+void CFilterAWDlg::OnChangeRadius()
    {
    m_nRadius = GetDlgItemInt(IDC_RADIUS);
    CString sTemp;
@@ -90,7 +90,7 @@ void CFilterAWDlg::OnChangeRadius()
    SetDlgItemText(IDC_REGION, sTemp);
    }
 
-void CFilterAWDlg::OnAuto() 
+void CFilterAWDlg::OnAuto()
    {
    m_bAuto = ((CButton*)GetDlgItem(IDC_AUTO))->GetCheck();
    GetDlgItem(IDC_NOISE)->EnableWindow(!m_bAuto);

@@ -53,13 +53,13 @@ void visualtest(int seed, int type, double p)
    }
 
 /*!
- \brief   Test program for 2D BSID channel
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Test program for 2D BSID channel
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

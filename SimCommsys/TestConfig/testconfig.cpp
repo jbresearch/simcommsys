@@ -157,13 +157,13 @@ void testboost_iterators()
    }
 
 /*!
- \brief   Test program for various base functions and facilities
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Test program for various base functions and facilities
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

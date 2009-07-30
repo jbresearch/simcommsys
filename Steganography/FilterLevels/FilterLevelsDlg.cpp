@@ -65,10 +65,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterLevelsDlg message handlers
 
-BOOL CFilterLevelsDlg::OnInitDialog() 
+BOOL CFilterLevelsDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // set slider limits & position (cf OnChangeWeight)
    m_scSlider.SetRange(0, 8);
    m_scSlider.SetPos(m_nWeight);
@@ -77,7 +77,7 @@ BOOL CFilterLevelsDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CFilterLevelsDlg::OnChangeWeight() 
+void CFilterLevelsDlg::OnChangeWeight()
    {
    m_nWeight = GetDlgItemInt(IDC_WEIGHT);
    if(m_scSlider.GetPos() != m_nWeight)
@@ -87,7 +87,7 @@ void CFilterLevelsDlg::OnChangeWeight()
       }
    }
 
-void CFilterLevelsDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult) 
+void CFilterLevelsDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult)
    {
    if(m_scSlider.GetPos() != m_nWeight && m_scSlider.GetRangeMax() >= m_nWeight)
       SetDlgItemInt(IDC_WEIGHT, m_scSlider.GetPos());

@@ -58,13 +58,13 @@ void TestQSC()
    }
 
 /*!
- \brief   Test program for q-ary symmetric channel
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Test program for q-ary symmetric channel
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

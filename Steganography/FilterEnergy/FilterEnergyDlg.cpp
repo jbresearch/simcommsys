@@ -71,7 +71,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEnergyDlg message handlers
 
-BOOL CFilterEnergyDlg::OnInitDialog() 
+BOOL CFilterEnergyDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
 
@@ -84,7 +84,7 @@ BOOL CFilterEnergyDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CFilterEnergyDlg::OnScreenOnly() 
+void CFilterEnergyDlg::OnScreenOnly()
    {
    m_bScreenOnly = ((CButton*)GetDlgItem(IDC_SCREENONLY))->GetCheck();
    GetDlgItem(IDC_FILENAME)->EnableWindow(!m_bScreenOnly);
@@ -92,7 +92,7 @@ void CFilterEnergyDlg::OnScreenOnly()
    GetDlgItem(IDC_APPEND)->EnableWindow(!m_bScreenOnly);
    }
 
-void CFilterEnergyDlg::OnBrowse() 
+void CFilterEnergyDlg::OnBrowse()
    {
    CFileDialog dlg(FALSE, NULL, m_sFileName.IsEmpty() ? "results.txt" : m_sFileName);
    if(dlg.DoModal() == IDOK)

@@ -85,10 +85,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterWaveletDlg message handlers
 
-BOOL CFilterWaveletDlg::OnInitDialog() 
+BOOL CFilterWaveletDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // set whole-image criterion (cf OnWholeimage)
    GetDlgItem(IDC_TILEX)->EnableWindow(!m_bWholeImage);
    GetDlgItem(IDC_TILEY)->EnableWindow(!m_bWholeImage);
@@ -101,7 +101,7 @@ BOOL CFilterWaveletDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CFilterWaveletDlg::OnOK() 
+void CFilterWaveletDlg::OnOK()
    {
    UpdateData(true);
    // set up library names
@@ -145,20 +145,20 @@ void CFilterWaveletDlg::OnOK()
    trace << "Wavelet parameter converted to: " << m_nWaveletPar << "\n";
    }
 
-void CFilterWaveletDlg::OnWholeimage() 
+void CFilterWaveletDlg::OnWholeimage()
    {
    m_bWholeImage = ((CButton*)GetDlgItem(IDC_WHOLEIMAGE))->GetCheck();
    GetDlgItem(IDC_TILEX)->EnableWindow(!m_bWholeImage);
    GetDlgItem(IDC_TILEY)->EnableWindow(!m_bWholeImage);
    }
 
-void CFilterWaveletDlg::OnSelchangeThreshSelector() 
+void CFilterWaveletDlg::OnSelchangeThreshSelector()
    {
    UpdateData(true);
    GetDlgItem(IDC_THRESH_CUTOFF)->EnableWindow(m_nThreshSelector==0);
    }
 
-void CFilterWaveletDlg::OnSelchangeWaveletType() 
+void CFilterWaveletDlg::OnSelchangeWaveletType()
    {
    UpdateData(true);
    m_nWaveletPar = GetDlgItemInt(IDC_WAVELET_PAR);

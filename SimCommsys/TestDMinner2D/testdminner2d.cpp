@@ -7,13 +7,13 @@
 namespace testdminner2d {
 
 /*!
- \brief   Test program for 2D DM inner code
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Test program for 2D DM inner code
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

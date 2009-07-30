@@ -171,7 +171,7 @@ void CFilterWaveletApp::ShowDialog(void)
    m_sData->bWholeImage = dlg.m_bWholeImage != 0;
    // other
    m_sData->bKeepNoise = dlg.m_bKeepNoise != 0;
-   
+
    SetShowDialog(false);
    }
 

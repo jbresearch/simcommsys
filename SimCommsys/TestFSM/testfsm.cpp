@@ -6,16 +6,16 @@
 namespace testfsm {
 
 /*!
- \brief   Test program for FSM objects
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Serializes a FSM object from standard input; computes and displays
- state table.
+ * \brief   Test program for FSM objects
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Serializes a FSM object from standard input; computes and displays
+ * state table.
  */
 
 int main(int argc, char *argv[])
