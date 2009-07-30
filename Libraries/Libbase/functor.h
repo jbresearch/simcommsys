@@ -4,16 +4,16 @@
 namespace libbase {
 
 /*!
- \brief   Base Function Pointer.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Abstract base functor class for functions that take no argmuents and return
- nothing.
+ * \brief   Base Function Pointer.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Abstract base functor class for functions that take no argmuents and return
+ * nothing.
  */
 
 class functor {
@@ -33,15 +33,15 @@ public:
 };
 
 /*!
- \brief   Function Pointer.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Specific functor class for class member functions.
+ * \brief   Function Pointer.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Specific functor class for class member functions.
  */
 
 template <class T>
@@ -54,8 +54,8 @@ private:
 public:
    /*! \name Constructors / Destructors */
    /*! \brief Main constructor
-    \param _object Pointer to an object
-    \param _fptr Pointer to a member function
+    * \param _object Pointer to an object
+    * \param _fptr Pointer to a member function
     */
    specificfunctor(T* _object, void(T::*_fptr)(void))
       {

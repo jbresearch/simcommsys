@@ -12,22 +12,22 @@
 namespace libcomm {
 
 /*!
- \brief   Repeat-Accumulate (RA) codes.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- These codes are decoded using the MAP decoder, rather than the
- sum-product algorithm.
-
- \todo Avoid divisions when computing extrinsic information
-
- \todo Implement accumulator as mapcc
-
- \todo Generalize repeater and accumulator
+ * \brief   Repeat-Accumulate (RA) codes.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * These codes are decoded using the MAP decoder, rather than the
+ * sum-product algorithm.
+ * 
+ * \todo Avoid divisions when computing extrinsic information
+ * 
+ * \todo Implement accumulator as mapcc
+ * 
+ * \todo Generalize repeater and accumulator
  */
 
 template <class real, class dbl = double>

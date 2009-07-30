@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "onetimepad.h"

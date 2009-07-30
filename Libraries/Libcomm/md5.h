@@ -11,22 +11,22 @@
 namespace libcomm {
 
 /*!
- \brief   Message Digest MD5 Algorithm.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements Message Digest MD5, as specified in Schneier, "Applied
- Cryptography", 1996, pp.436-441.
- Class performs self-testing on creation of the first object.
-
- \note there are bugs in Schneier's descriptions of MD5:
- - chaining variables should be initialised like SHA's
- - message length is low-order byte first
- - message is encoded into 32-bit words in low-order byte first
+ * \brief   Message Digest MD5 Algorithm.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements Message Digest MD5, as specified in Schneier, "Applied
+ * Cryptography", 1996, pp.436-441.
+ * Class performs self-testing on creation of the first object.
+ * 
+ * \note there are bugs in Schneier's descriptions of MD5:
+ * - chaining variables should be initialised like SHA's
+ * - message length is low-order byte first
+ * - message is encoded into 32-bit words in low-order byte first
  */
 
 class md5 : public digest32 {

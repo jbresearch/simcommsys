@@ -14,21 +14,21 @@
 namespace libbase {
 
 /*!
- \brief   True Random Number Generator.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Provide true random numbers (through OS routines), originally created
- to facilitate seeding slave workers in the master-slave mode
-
- \note
- - idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
- - Win32 support provided through CryptoAPI
- - UNIX support provided through /dev/random
+ * \brief   True Random Number Generator.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Provide true random numbers (through OS routines), originally created
+ * to facilitate seeding slave workers in the master-slave mode
+ * 
+ * \note
+ * - idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
+ * - Win32 support provided through CryptoAPI
+ * - UNIX support provided through /dev/random
  */
 
 class truerand : public random {

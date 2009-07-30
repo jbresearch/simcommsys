@@ -1,12 +1,12 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \see grscc.cpp
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \see grscc.cpp
  */
 
 #include "gnrcc.h"

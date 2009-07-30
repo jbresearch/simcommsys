@@ -9,37 +9,37 @@
 namespace libbase {
 
 /*!
- \brief   Random Variable Statistics.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00
- a class which gathers statistics about a random variable
-
- \version 1.01 (17 Oct 2001)
- solved a bug where the variance returned negative due to
- floating-point resolution - now this returns zero instead.
- This used to affect the sigma() which had a domain error.
-
- \version 1.02 (6 Mar 2002)
- changed vcs version variable from a global to a static class variable.
- also changed use of iostream from global to std namespace.
-
- \version 1.03 (6 Apr 2002)
- made the destructor virtual and inline; added a public reset() function which
- resets the statistics, in order to start afresh on a new set of data. The
- default constructor has been modified to make use of this function.
-
- \version 1.04 (23 Apr 2002)
- added insert() functions for vectors and matrices - these avoid the loops that
- are otherwise necessary.
-
- \version 1.80 (26 Oct 2006)
- - defined class and associated data within "libbase" namespace.
+ * \brief   Random Variable Statistics.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.00
+ * a class which gathers statistics about a random variable
+ * 
+ * \version 1.01 (17 Oct 2001)
+ * solved a bug where the variance returned negative due to
+ * floating-point resolution - now this returns zero instead.
+ * This used to affect the sigma() which had a domain error.
+ * 
+ * \version 1.02 (6 Mar 2002)
+ * changed vcs version variable from a global to a static class variable.
+ * also changed use of iostream from global to std namespace.
+ * 
+ * \version 1.03 (6 Apr 2002)
+ * made the destructor virtual and inline; added a public reset() function which
+ * resets the statistics, in order to start afresh on a new set of data. The
+ * default constructor has been modified to make use of this function.
+ * 
+ * \version 1.04 (23 Apr 2002)
+ * added insert() functions for vectors and matrices - these avoid the loops that
+ * are otherwise necessary.
+ * 
+ * \version 1.80 (26 Oct 2006)
+ * - defined class and associated data within "libbase" namespace.
  */
 
 class rvstatistics {

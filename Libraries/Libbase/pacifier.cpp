@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "pacifier.h"
@@ -28,9 +28,9 @@ pacifier::pacifier(const std::string& name) :
 // Pacifier operation
 
 /*! \brief Pacifier output
- Returns a string according to a input values specifying amount of work done.
- This function keeps a timer that automatically resets and stops (at
- beginning and end values respectively), to display estimated time remaining.
+ * Returns a string according to a input values specifying amount of work done.
+ * This function keeps a timer that automatically resets and stops (at
+ * beginning and end values respectively), to display estimated time remaining.
  */
 std::string pacifier::update(int complete, int total)
    {

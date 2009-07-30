@@ -10,18 +10,18 @@
 namespace libcomm {
 
 /*!
- \brief   Named LUT Interleaver.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements an interleaver which is specified directly by its LUT,
- and which is externally generated (say by Simulated Annealing
- or another such method).
- A name is associated with the interleaver (say, filename).
+ * \brief   Named LUT Interleaver.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements an interleaver which is specified directly by its LUT,
+ * and which is externally generated (say by Simulated Annealing
+ * or another such method).
+ * A name is associated with the interleaver (say, filename).
  */
 
 template <class real>

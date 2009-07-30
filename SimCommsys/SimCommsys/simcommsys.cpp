@@ -71,13 +71,13 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
    }
 
 /*!
- \brief   Simulation of Communication Systems
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Simulation of Communication Systems
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

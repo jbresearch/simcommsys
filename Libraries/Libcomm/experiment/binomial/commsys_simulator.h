@@ -11,15 +11,15 @@
 namespace libcomm {
 
 /*!
- \brief   Communication Systems Simulator.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \todo Clean up interface with commsys object, particularly in cycleonce()
+ * \brief   Communication Systems Simulator.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \todo Clean up interface with commsys object, particularly in cycleonce()
  */
 
 template <class S, class R = commsys_errorrates>

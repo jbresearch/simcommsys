@@ -9,25 +9,25 @@
 namespace libcomm {
 
 /*!
- \brief   q-ary symmetric channel.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (12 Feb 2008)
- - Initial version; implementation of a q-ary symmetric channel as
- templated class.
-
- \version 1.01 (13 Feb 2008)
- - Fixed check on range of Ps
- - Changed assert to assertalways in range check
- - Fixed PDF result for erroneous symbols
-
- \version 1.02 (16 Apr 2008)
- - Fixed computation in corrupt() to force addition within the field
+ * \brief   q-ary symmetric channel.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.00 (12 Feb 2008)
+ * - Initial version; implementation of a q-ary symmetric channel as
+ * templated class.
+ * 
+ * \version 1.01 (13 Feb 2008)
+ * - Fixed check on range of Ps
+ * - Changed assert to assertalways in range check
+ * - Fixed PDF result for erroneous symbols
+ * 
+ * \version 1.02 (16 Apr 2008)
+ * - Fixed computation in corrupt() to force addition within the field
  */
 
 template <class G>

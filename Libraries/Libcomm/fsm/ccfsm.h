@@ -8,17 +8,17 @@
 namespace libcomm {
 
 /*!
- \brief   Controller-Canonical Finite State Machine.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements common elements of a controller-canonical fsm, where each
- coefficient is an element in a finite field.
- The finite field is specified as a template parameter.
+ * \brief   Controller-Canonical Finite State Machine.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements common elements of a controller-canonical fsm, where each
+ * coefficient is an element in a finite field.
+ * The finite field is specified as a template parameter.
  */
 
 template <class G>
@@ -45,16 +45,16 @@ protected:
    // @}
    /*! \name FSM helper operations */
    /*!
-    \brief Determine the actual input that will be applied (resolve tail as necessary)
-    \param  input    Requested input - can be any valid input or the special 'tail' value
-    \return Either the given value, or the value that must be applied to tail out
+    * \brief Determine the actual input that will be applied (resolve tail as necessary)
+    * \param  input    Requested input - can be any valid input or the special 'tail' value
+    * \return Either the given value, or the value that must be applied to tail out
     */
    virtual int determineinput(int input) const = 0;
    /*!
-    \brief Determine the value that will be shifted into the register
-    \param  input    Requested input - can only be a valid input
-    \return Vector representation of the shift-in value - lower index positions
-    correspond to lower-index inputs
+    * \brief Determine the value that will be shifted into the register
+    * \param  input    Requested input - can only be a valid input
+    * \return Vector representation of the shift-in value - lower index positions
+    * correspond to lower-index inputs
     */
    virtual libbase::vector<G> determinefeedin(int input) const = 0;
    // @}

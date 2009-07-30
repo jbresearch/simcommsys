@@ -18,33 +18,33 @@
 namespace libbase {
 
 /*!
- \brief   Fast Logarithm Arithmetic.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \note There is a hook to allow debugging by printing to a file the
- difference values and the errors for all LUT access.
- To activate, define DEBUGFILE.
-
- Implements log-scale arithmetic with table-lookup for speeding up
- addition. The choice of LUT size and range is optimized at 128k entries
- over [0,12].
-
- \note Constructor traps infinite values and NaN. Zero values are trapped
- first; since zero is the default argument, there are many more calls
- with this value than any other, so this should improve performance.
-
-
- \note Comparison operators are provided between variables of this kind -
- these are required by the turbo decoder when taking a hard decision
- (actually it only uses the greater-than operator, but all comparisons
- are defined here). When these were not supplied, the comparison was
- performed _after_ a conversion to double, which can easily cause
- under- or over-flow, leading to a useless comparison.
+ * \brief   Fast Logarithm Arithmetic.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \note There is a hook to allow debugging by printing to a file the
+ * difference values and the errors for all LUT access.
+ * To activate, define DEBUGFILE.
+ * 
+ * Implements log-scale arithmetic with table-lookup for speeding up
+ * addition. The choice of LUT size and range is optimized at 128k entries
+ * over [0,12].
+ * 
+ * \note Constructor traps infinite values and NaN. Zero values are trapped
+ * first; since zero is the default argument, there are many more calls
+ * with this value than any other, so this should improve performance.
+ * 
+ * 
+ * \note Comparison operators are provided between variables of this kind -
+ * these are required by the turbo decoder when taking a hard decision
+ * (actually it only uses the greater-than operator, but all comparisons
+ * are defined here). When these were not supplied, the comparison was
+ * performed _after_ a conversion to double, which can easily cause
+ * under- or over-flow, leading to a useless comparison.
  */
 
 class logrealfast {

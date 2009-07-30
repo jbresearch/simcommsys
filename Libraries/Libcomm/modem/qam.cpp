@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "qam.h"
@@ -19,18 +19,18 @@ const libbase::serializer qam::shelper("blockmodem", "qam", qam::create);
 // Internal operations
 
 /*! \brief Initialization
-
- For square constellations, allocate symbols using Gray code sequences for
- rows and columns (i.e adjacent symbols in the quadrature and in-phase directions
- respectively); each symbol then represents the concatenation of these two Gray
- code values.
-
- The constellation is centered about the origin, and uses the conventional
- scaling where symbols take amplitudes +/- 1, 3, 5, ...
-
- \sa Sklar, 2nd edition, p.565.
-
- \sa Matlab bin2gray function from the communications toolbox
+ * 
+ * For square constellations, allocate symbols using Gray code sequences for
+ * rows and columns (i.e adjacent symbols in the quadrature and in-phase directions
+ * respectively); each symbol then represents the concatenation of these two Gray
+ * code values.
+ * 
+ * The constellation is centered about the origin, and uses the conventional
+ * scaling where symbols take amplitudes +/- 1, 3, 5, ...
+ * 
+ * \sa Sklar, 2nd edition, p.565.
+ * 
+ * \sa Matlab bin2gray function from the communications toolbox
  */
 void qam::init(const int m)
    {

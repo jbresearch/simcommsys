@@ -1,35 +1,35 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \warning GCC complains if I don't explicitly refer to member variables from
- parent class ccfm<G> using this-> or grscc<G>:: qualifiers. It turns
- out this is a known "feature" of GCC:
- (c.f. http://gcc.gnu.org/bugs.html#known)
-
- \code
- # This also affects members of base classes, see [14.6.2]:
-
- template <typename> struct A
- {
- int i, j;
- };
-
- template <typename T> struct B : A<T>
- {
- int foo1() { return i; }       // error
- int foo2() { return this->i; } // OK
- int foo3() { return B<T>::i; } // OK
- int foo4() { return A<T>::i; } // OK
-
- using A<T>::j;
- int foo5() { return j; }       // OK
- };
- \endcode
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \warning GCC complains if I don't explicitly refer to member variables from
+ * parent class ccfm<G> using this-> or grscc<G>:: qualifiers. It turns
+ * out this is a known "feature" of GCC:
+ * (c.f. http://gcc.gnu.org/bugs.html#known)
+ * 
+ * \code
+ * # This also affects members of base classes, see [14.6.2]:
+ * 
+ * template <typename> struct A
+ * {
+ * int i, j;
+ * };
+ * 
+ * template <typename T> struct B : A<T>
+ * {
+ * int foo1() { return i; }       // error
+ * int foo2() { return this->i; } // OK
+ * int foo3() { return B<T>::i; } // OK
+ * int foo4() { return A<T>::i; } // OK
+ * 
+ * using A<T>::j;
+ * int foo5() { return j; }       // OK
+ * };
+ * \endcode
  */
 
 #include "grscc.h"
@@ -45,22 +45,22 @@ using libbase::matrix;
 // Internal functions
 
 /*!
- \brief Determine unique value from state vector
- \param statevec State vector in the required format for determining circulation state
- \return Unique integer representation of state value
-
- Similarly to convention, define the state vector as a column vector, as follows:
- \f[ S_i = \begin{pmatrix}
- S_{1,1} \\ S_{2,1} \\ \vdots \\ S_{\nu_1,1} \\
-                  S_{1,2} \\ S_{2,2} \\ \vdots \\ S_{\nu_2,2} \\
-                  \vdots \\ S_{\nu_k,k}
- \end{pmatrix} \f]
-
- where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
- memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$
- is the left-most memory element for input \f$ i \f$, and therefore the one to which
- the shift-in is applied. It can be seen that the total length of the state vector
- is equal to the total number of memory elements in the system, \f$ \nu \f$.
+ * \brief Determine unique value from state vector
+ * \param statevec State vector in the required format for determining circulation state
+ * \return Unique integer representation of state value
+ * 
+ * Similarly to convention, define the state vector as a column vector, as follows:
+ * \f[ S_i = \begin{pmatrix}
+ * S_{1,1} \\ S_{2,1} \\ \vdots \\ S_{\nu_1,1} \\
+ * S_{1,2} \\ S_{2,2} \\ \vdots \\ S_{\nu_2,2} \\
+ * \vdots \\ S_{\nu_k,k}
+ * \end{pmatrix} \f]
+ * 
+ * where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
+ * memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$
+ * is the left-most memory element for input \f$ i \f$, and therefore the one to which
+ * the shift-in is applied. It can be seen that the total length of the state vector
+ * is equal to the total number of memory elements in the system, \f$ \nu \f$.
  */
 template <class G>
 int grscc<G>::getstateval(const vector<G>& statevec) const
@@ -77,10 +77,10 @@ int grscc<G>::getstateval(const vector<G>& statevec) const
    }
 
 /*!
- \brief Convert integer representation of state value to a vector in the required
- format for determining circulation state
- \param stateval Unique integer representation of state value
- \return State vector in the required format for determining circulation state
+ * \brief Convert integer representation of state value to a vector in the required
+ * format for determining circulation state
+ * \param stateval Unique integer representation of state value
+ * \return State vector in the required format for determining circulation state
  */
 template <class G>
 vector<G> grscc<G>::getstatevec(int stateval) const
@@ -99,19 +99,19 @@ vector<G> grscc<G>::getstatevec(int stateval) const
    }
 
 /*!
- \brief Create state-generator matrix in the required format for
- determining circulation state
- \return State-generator matrix
-
- The size of state-generator matrix \f$ G \f$ is \f$ \nu \times \nu \f$ elements.
- Each row contains the multipliers corresponding to a particular memory element's
- input. In turn, each column contains the multiplier (weight) corresponding to
- successive present-state memory elements.
-
- Note that by definition, \f$ G \f$ contains only the taps corresponding to the
- feedforward and feedback paths for the next-state generation; thus the polynomials
- corresponding to the output generation have no bearing. Similarly, the taps
- corresponding to the inputs also are irrelevant.
+ * \brief Create state-generator matrix in the required format for
+ * determining circulation state
+ * \return State-generator matrix
+ * 
+ * The size of state-generator matrix \f$ G \f$ is \f$ \nu \times \nu \f$ elements.
+ * Each row contains the multipliers corresponding to a particular memory element's
+ * input. In turn, each column contains the multiplier (weight) corresponding to
+ * successive present-state memory elements.
+ * 
+ * Note that by definition, \f$ G \f$ contains only the taps corresponding to the
+ * feedforward and feedback paths for the next-state generation; thus the polynomials
+ * corresponding to the output generation have no bearing. Similarly, the taps
+ * corresponding to the inputs also are irrelevant.
  */
 template <class G>
 matrix<G> grscc<G>::getstategen() const
@@ -135,11 +135,11 @@ matrix<G> grscc<G>::getstategen() const
    }
 
 /*!
- \brief Initialize circulation state correspondence table
-
- If the feedback polynomial is primitive, the system behaves as a maximal-length
- linear feedback shift register. We verify the period by computing the necessary
- powers of the state-generator matrix.
+ * \brief Initialize circulation state correspondence table
+ * 
+ * If the feedback polynomial is primitive, the system behaves as a maximal-length
+ * linear feedback shift register. We verify the period by computing the necessary
+ * powers of the state-generator matrix.
  */
 template <class G>
 void grscc<G>::initcsct()

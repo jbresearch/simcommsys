@@ -8,14 +8,14 @@
 namespace libcomm {
 
 /*!
- \brief   Helical Interleaver.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
+ * \brief   Helical Interleaver.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
  */
 
 template <class real>

@@ -14,13 +14,13 @@
 namespace libcomm {
 
 /*!
- \brief   Maximum A-Posteriori Decoder.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Maximum A-Posteriori Decoder.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class real, class dbl = double>

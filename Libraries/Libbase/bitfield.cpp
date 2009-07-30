@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "bitfield.h"
@@ -56,7 +56,7 @@ void bitfield::init(const char *s)
 
 
 /*!
- \brief Convert bitfield to a string representation
+ * \brief Convert bitfield to a string representation
  */
 bitfield::operator std::string() const
    {
@@ -75,7 +75,7 @@ bitfield::bitfield()
    }
 
 /*!
- \brief Constructor to directly convert an integer at a specified width
+ * \brief Constructor to directly convert an integer at a specified width
  */
 bitfield::bitfield(const int32u field, const int bits)
    {
@@ -84,9 +84,9 @@ bitfield::bitfield(const int32u field, const int bits)
    }
 
 /*!
- \brief Constructor that converts a vector of bits
-
- Bits are held in the vector as low-order first.
+ * \brief Constructor that converts a vector of bits
+ * 
+ * Bits are held in the vector as low-order first.
  */
 bitfield::bitfield(const vector<bool>& v)
    {

@@ -7,13 +7,13 @@
 namespace boost {
 
 /*!
- \brief   Assignable version of Boost MultiArray.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Assignable version of Boost MultiArray.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <typename T, std::size_t NumDims>
@@ -59,8 +59,8 @@ public:
    // @}
    /*! \name Informative functions */
    /*! \brief Get array extents description
-    Returns an object describing the array extents, in a format suitable
-    for use with resize().
+    * Returns an object describing the array extents, in a format suitable
+    * for use with resize().
     */
    detail::multi_array::extent_gen<NumDims> extents() const
       {

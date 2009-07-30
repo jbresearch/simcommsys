@@ -8,15 +8,15 @@
 namespace libbase {
 
 /*!
- \brief   Random Permutation Class.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Defines a random permutation of the set {0,1,..N-1} for given size N.
+ * \brief   Random Permutation Class.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Defines a random permutation of the set {0,1,..N-1} for given size N.
  */
 
 class randperm {
@@ -45,10 +45,10 @@ public:
 
    /*! \name Random permutation interface */
    /*! \brief Permutation setup function
-    \param N Size of permutation
-    \param r Random generator to use in creating permutation
-
-    Sets up a random permutation of the set {0,1,..N-1} for given size N.
+    * \param N Size of permutation
+    * \param r Random generator to use in creating permutation
+    * 
+    * Sets up a random permutation of the set {0,1,..N-1} for given size N.
     */
    void init(const int N, random& r);
    //! Return indexed value

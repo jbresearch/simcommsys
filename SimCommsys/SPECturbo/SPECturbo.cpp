@@ -69,17 +69,17 @@ public:
 };
 
 /*!
- \brief   SPECturbo benchmark
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \note Following the update to bcjr, where the alpha and beta metrics are
- normalized, SPECturbo now uses the double-precision based turbo and
- bcjr algorithms, resulting in more than 6x increase in speed.
+ * \brief   SPECturbo benchmark
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \note Following the update to bcjr, where the alpha and beta metrics are
+ * normalized, SPECturbo now uses the double-precision based turbo and
+ * bcjr algorithms, resulting in more than 6x increase in speed.
  */
 
 int main(int argc, char *argv[])

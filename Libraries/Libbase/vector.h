@@ -29,13 +29,13 @@ template <class T>
 class vector;
 
 /*!
- \brief   Size specialization for vector.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Size specialization for vector.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <>
@@ -50,14 +50,14 @@ public:
       this->n = n;
       }
    /*! \brief Conversion to integer
-    Returns the number of elements
+    * Returns the number of elements
     */
    operator int() const
       {
       return n;
       }
    /*! \brief Comparison of two size objects
-    Only true if dimensions are the same
+    * Only true if dimensions are the same
     */
    bool operator==(const size_type<vector>& rhs) const
       {
@@ -84,32 +84,32 @@ public:
 };
 
 /*!
- \brief   Generic Vector.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \note Supports the concept of an empty vector
-
- \note Multiplication and division perform array operations
-
- \warning Unlike most other classes, this class uses stream I/O as
- serialization for loading and saving; they therefore output
- container size together with container elements.
- The serialize methods input/output only the elements.
-
-
- \todo Extract non-root vectors as a derived class
-
- \todo This class needs to be re-designed in a manner that is consistent with
- convention (esp. Matlab) and that is efficient
-
- \todo Extract common implementation of copy assignment operators
-
- \todo Merge code for extract() and segment()
+ * \brief   Generic Vector.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \note Supports the concept of an empty vector
+ * 
+ * \note Multiplication and division perform array operations
+ * 
+ * \warning Unlike most other classes, this class uses stream I/O as
+ * serialization for loading and saving; they therefore output
+ * container size together with container elements.
+ * The serialize methods input/output only the elements.
+ * 
+ * 
+ * \todo Extract non-root vectors as a derived class
+ * 
+ * \todo This class needs to be re-designed in a manner that is consistent with
+ * convention (esp. Matlab) and that is efficient
+ * 
+ * \todo Extract common implementation of copy assignment operators
+ * 
+ * \todo Merge code for extract() and segment()
  */
 
 template <class T>
@@ -125,11 +125,11 @@ protected:
    // @}
    /*! \name Memory allocation functions */
    /*! \brief Allocates memory for x elements (if necessary) and updates xsize
-    \note This is only valid for 'root' vectors.
+    * \note This is only valid for 'root' vectors.
     */
    void alloc(const int n);
    /*! \brief If there is memory allocated, free it
-    \note This is validly called for non-root and for empty vectors
+    * \note This is validly called for non-root and for empty vectors
     */
    void free();
    // @}
@@ -145,10 +145,10 @@ public:
 
    /*! \name Resizing operations */
    /*! \brief Set vector to given size, freeing if and as required
-    This method is guaranteed to leave the vector untouched if the size is
-    already good, and only reallocated if necessary. This helps reduce
-    redundant free/alloc operations.
-    \note This is only valid for 'root' vectors.
+    * This method is guaranteed to leave the vector untouched if the size is
+    * already good, and only reallocated if necessary. This helps reduce
+    * redundant free/alloc operations.
+    * \note This is only valid for 'root' vectors.
     */
    void init(const int n);
    //! Initialize vector to the given size
@@ -162,14 +162,14 @@ public:
    //! Copy elements from an array.
    vector<T>& assign(const T* x, const int n);
    /*! \brief Copies data from another vector without resizing this one
-    If the vectors are not the same size, the first 'n' elements are copied,
-    where 'n' is the smaller vector's size. If this vector is larger, the
-    remaining elements are left untouched.
+    * If the vectors are not the same size, the first 'n' elements are copied,
+    * where 'n' is the smaller vector's size. If this vector is larger, the
+    * remaining elements are left untouched.
     */
    vector<T>& copyfrom(const vector<T>& x);
    /*! \brief Copies another vector, resizing this one as necessary
-    \warning This non-templated version is required to avoid the
-    compiler's default shallow-copy
+    * \warning This non-templated version is required to avoid the
+    * compiler's default shallow-copy
     */
    vector<T>& operator=(const vector<T>& x);
    //! Copies another vector, resizing this one as necessary
@@ -182,11 +182,11 @@ public:
 
    // sub-vector access
    /*! \brief Extract a sub-vector as a reference into this vector
-    This allows access to sub-vector data without array copying.
+    * This allows access to sub-vector data without array copying.
     */
    const vector<T> extract(const int start, const int n) const;
    /*! \brief Access part of this vector as a sub-vector
-    This allows operations on sub-vector data without array copying.
+    * This allows operations on sub-vector data without array copying.
     */
    vector<T> segment(const int start, const int n);
 
@@ -246,13 +246,13 @@ public:
    //! Find largest vector element
    T max() const;
    /*! \brief Find smallest vector element
-    \param index returns the index for the smallest value
-    \param getfirst flag to return first value found (rather than last)
+    * \param index returns the index for the smallest value
+    * \param getfirst flag to return first value found (rather than last)
     */
    T min(int& index, const bool getfirst = true) const;
    /*! \brief Find largest vector element
-    \param index returns the index for the largest value
-    \param getfirst flag to return first value found (rather than last)
+    * \param index returns the index for the largest value
+    * \param getfirst flag to return first value found (rather than last)
     */
    T max(int& index, const bool getfirst = true) const;
    //! Compute the sum of all vector elements

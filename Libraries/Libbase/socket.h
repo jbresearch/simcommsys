@@ -9,46 +9,46 @@
 namespace libbase {
 
 /*!
- \brief   Networking sockets.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (27 Jun 2002)
- original version; just a placeholder
-
- \version 1.10 (18-19 Apr 2007)
- - defined class and associated data within "libbase" namespace.
- - removed use of "using namespace std", replacing by tighter "using" statements as needed.
- - Integrated code from worker pool project by:
- - Johann Briffa   <j.briffa@ieee.org>
- - Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
- - Currently supports POSIX; eventually need to port to Windows
-
- \version 1.11 (21 Apr 2007)
- - added getter properties for ip & hostname
-
- \version 1.12 (23 Apr 2007)
- - split read/write functions so that the normal functions return the size
- as usual, while the insist functions merely return true/false; this simplifies
- use in masterslave class
- - modified write to only require a const void * pointer to the buffer, since
- this function should never modify the contents
- - split io() function due to inconsistent requirements for buffer pointer
-
- \version 1.20 (8 May 2007)
- - Ported class to Windows, using Winsock2 API
-
- \version 1.21 (20 Nov 2007)
- - Added timeout facility to select(), defaulting to no-timeout
-
- \version 1.22 (28 Nov 2007)
- - modifications to silence 64-bit portability warnings
- - explicit conversion from size_t to int in io()
- - ditto in bind(), accept() and connect()
+ * \brief   Networking sockets.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.00 (27 Jun 2002)
+ * original version; just a placeholder
+ * 
+ * \version 1.10 (18-19 Apr 2007)
+ * - defined class and associated data within "libbase" namespace.
+ * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - Integrated code from worker pool project by:
+ * - Johann Briffa   <j.briffa@ieee.org>
+ * - Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
+ * - Currently supports POSIX; eventually need to port to Windows
+ * 
+ * \version 1.11 (21 Apr 2007)
+ * - added getter properties for ip & hostname
+ * 
+ * \version 1.12 (23 Apr 2007)
+ * - split read/write functions so that the normal functions return the size
+ * as usual, while the insist functions merely return true/false; this simplifies
+ * use in masterslave class
+ * - modified write to only require a const void * pointer to the buffer, since
+ * this function should never modify the contents
+ * - split io() function due to inconsistent requirements for buffer pointer
+ * 
+ * \version 1.20 (8 May 2007)
+ * - Ported class to Windows, using Winsock2 API
+ * 
+ * \version 1.21 (20 Nov 2007)
+ * - Added timeout facility to select(), defaulting to no-timeout
+ * 
+ * \version 1.22 (28 Nov 2007)
+ * - modifications to silence 64-bit portability warnings
+ * - explicit conversion from size_t to int in io()
+ * - ditto in bind(), accept() and connect()
  */
 
 class socket {

@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "config.h"
@@ -244,11 +244,11 @@ std::istream& eatcomments(std::istream& is)
    }
 
 /*!
- \brief Check for a failure during the last stream input.
- \return True if the last stream input did not succeed.
-
- If the last stream input did not succeed, an error message is also shown,
- detailing the stream position where this occurred.
+ * \brief Check for a failure during the last stream input.
+ * \return True if the last stream input did not succeed.
+ * 
+ * If the last stream input did not succeed, an error message is also shown,
+ * detailing the stream position where this occurred.
  */
 bool isfailedload(std::istream &is)
    {
@@ -265,12 +265,12 @@ bool isfailedload(std::istream &is)
    }
 
 /*!
- \brief Check for a unloaded data on the stream.
- \return True if there is still data left on the stream.
-
- If there is still data left on the stream an error message is also shown,
- detailing the stream position where this occurred. All data left from this
- position onwards is also printed. Note that comments are excluded.
+ * \brief Check for a unloaded data on the stream.
+ * \return True if there is still data left on the stream.
+ * 
+ * If there is still data left on the stream an error message is also shown,
+ * detailing the stream position where this occurred. All data left from this
+ * position onwards is also printed. Note that comments are excluded.
  */
 bool isincompleteload(std::istream &is)
    {
@@ -288,10 +288,10 @@ bool isincompleteload(std::istream &is)
    }
 
 /*!
- \brief Verify that all stream data was read without error.
-
- If the last stream input failed, or if there is still data left on the
- stream, an error message is shown, and the program is stopped.
+ * \brief Verify that all stream data was read without error.
+ * 
+ * If the last stream input failed, or if there is still data left on the
+ * stream, an error message is shown, and the program is stopped.
  */
 void verifycompleteload(std::istream& is)
    {

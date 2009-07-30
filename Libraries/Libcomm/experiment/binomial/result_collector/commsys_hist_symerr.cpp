@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "commsys_hist_symerr.h"
@@ -25,10 +25,10 @@ void commsys_hist_symerr::updateresults(libbase::vector<double>& result,
    }
 
 /*!
- \copydoc experiment::result_description()
-
- The description is a string ER_X_Y, where 'X' is the symbol-error
- count (starting at zero), and 'Y' is the iteration, starting at 1.
+ * \copydoc experiment::result_description()
+ * 
+ * The description is a string ER_X_Y, where 'X' is the symbol-error
+ * count (starting at zero), and 'Y' is the iteration, starting at 1.
  */
 std::string commsys_hist_symerr::result_description(int i) const
    {

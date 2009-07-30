@@ -7,65 +7,65 @@
 namespace libcomm {
 
 /*!
- \brief   Stegosystem encoder/decoder.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (15 Nov 2002)
- initial version - created by moving embedding/extraction routines from the embed/extract
- filters - this makes the code for the embed/extract filters leaner, and also simplifies
- the process of keeping them in sync. The following changes were necessary:
- - added interleaver density as a parameter to GetRawSize, GetDataSize, and DecodeData;
- added embed rate as a parameter to GetDataSize and DecodeData; added preset strength
- (bool flag and double value) to NormalizeGaussian.
- - added a function FreeErrorControl(), which releases the codec and puncture system,
- if they were allocated
- - added a function CodecPresent() that returns true if there is an error control system
- loaded.
-
- \version 1.01 (16 Nov 2002)
- added function that computes chi square metric, given received and transmitted signals;
- also renamed parameters in EstimateSNR in the same fashion, to indicate what they
- represent.
-
- \version 1.02 (18 Nov 2002)
- modified chi square function to return the computed value of chisq, instead of the
- associated probability value.
-
- \version 1.03 (18 Nov 2002)
- modified chi square function so that the associated probability value is only computed
- in the debug build - this avoids potential numerical errors in the release build, where
- the result is not used anyway.
-
- \version 1.04 (19 Feb 2003)
- modified BandwidthExpander by adding a sigspace version. This allows the expander
- to work after modulation and not necessarily before.
-
- \version 1.05 (17 Jul 2006)
- added explicit conversion to int for round() in ComputeChiSquare, to conform with the
- change in itfunc 1.07
-
- \version 1.06 (7 Oct 2006)
- - added explicit conversion to int for round() in various functions, to avoid compiler
- warning about possible data loss in conversion to integer.
- - changed sqrt(2) to sqrt(double(2)) in various functions, to avoid ambiguity in recent
- VS .NET due to overloading of math functions.
-
- \version 1.10 (6 Nov 2006)
- - defined class and associated data within "libwin" namespace.
- - removed pragma once directive, as this is unnecessary
- - changed unique define to conform with that used in other libraries
-
- \version 1.20 (1 Dec 2006)
- - moved class from libwin to libcomm library and associated namespace.
- - added vcs object.
- - changed name from CStegoSystem to stegosystem, to better reflect library usage.
- - although not according to library practice, the function names have been left as
- they are (camel case).
+ * \brief   Stegosystem encoder/decoder.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.00 (15 Nov 2002)
+ * initial version - created by moving embedding/extraction routines from the embed/extract
+ * filters - this makes the code for the embed/extract filters leaner, and also simplifies
+ * the process of keeping them in sync. The following changes were necessary:
+ * - added interleaver density as a parameter to GetRawSize, GetDataSize, and DecodeData;
+ * added embed rate as a parameter to GetDataSize and DecodeData; added preset strength
+ * (bool flag and double value) to NormalizeGaussian.
+ * - added a function FreeErrorControl(), which releases the codec and puncture system,
+ * if they were allocated
+ * - added a function CodecPresent() that returns true if there is an error control system
+ * loaded.
+ * 
+ * \version 1.01 (16 Nov 2002)
+ * added function that computes chi square metric, given received and transmitted signals;
+ * also renamed parameters in EstimateSNR in the same fashion, to indicate what they
+ * represent.
+ * 
+ * \version 1.02 (18 Nov 2002)
+ * modified chi square function to return the computed value of chisq, instead of the
+ * associated probability value.
+ * 
+ * \version 1.03 (18 Nov 2002)
+ * modified chi square function so that the associated probability value is only computed
+ * in the debug build - this avoids potential numerical errors in the release build, where
+ * the result is not used anyway.
+ * 
+ * \version 1.04 (19 Feb 2003)
+ * modified BandwidthExpander by adding a sigspace version. This allows the expander
+ * to work after modulation and not necessarily before.
+ * 
+ * \version 1.05 (17 Jul 2006)
+ * added explicit conversion to int for round() in ComputeChiSquare, to conform with the
+ * change in itfunc 1.07
+ * 
+ * \version 1.06 (7 Oct 2006)
+ * - added explicit conversion to int for round() in various functions, to avoid compiler
+ * warning about possible data loss in conversion to integer.
+ * - changed sqrt(2) to sqrt(double(2)) in various functions, to avoid ambiguity in recent
+ * VS .NET due to overloading of math functions.
+ * 
+ * \version 1.10 (6 Nov 2006)
+ * - defined class and associated data within "libwin" namespace.
+ * - removed pragma once directive, as this is unnecessary
+ * - changed unique define to conform with that used in other libraries
+ * 
+ * \version 1.20 (1 Dec 2006)
+ * - moved class from libwin to libcomm library and associated namespace.
+ * - added vcs object.
+ * - changed name from CStegoSystem to stegosystem, to better reflect library usage.
+ * - although not according to library practice, the function names have been left as
+ * they are (camel case).
  */
 
 class stegosystem {

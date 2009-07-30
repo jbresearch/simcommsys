@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "commsys_errorrates.h"
@@ -15,8 +15,8 @@
 namespace libcomm {
 
 /*!
- \brief Count the number of bit errors in the last encode/decode cycle
- \return Error count in bits
+ * \brief Count the number of bit errors in the last encode/decode cycle
+ * \return Error count in bits
  */
 int commsys_errorrates::countbiterrors(const libbase::vector<int>& source,
       const libbase::vector<int>& decoded) const
@@ -33,8 +33,8 @@ int commsys_errorrates::countbiterrors(const libbase::vector<int>& source,
    }
 
 /*!
- \brief Count the number of symbol errors in the last encode/decode cycle
- \return Error count in symbols
+ * \brief Count the number of symbol errors in the last encode/decode cycle
+ * \return Error count in symbols
  */
 int commsys_errorrates::countsymerrors(const libbase::vector<int>& source,
       const libbase::vector<int>& decoded) const
@@ -52,15 +52,15 @@ int commsys_errorrates::countsymerrors(const libbase::vector<int>& source,
    }
 
 /*!
- \brief Update result set
- \param[out] result   Vector containing the set of results to be updated
- \param[in]  i        Iteration just performed
- \param[in]  source   Source data sequence
- \param[in]  decoded  Decoded data sequence
-
- Results are organized as (symbol,frame) error count, repeated for
- every iteration that needs to be performed. Eventually these will be
- divided by the respective multiplicity to get the average error rates.
+ * \brief Update result set
+ * \param[out] result   Vector containing the set of results to be updated
+ * \param[in]  i        Iteration just performed
+ * \param[in]  source   Source data sequence
+ * \param[in]  decoded  Decoded data sequence
+ * 
+ * Results are organized as (symbol,frame) error count, repeated for
+ * every iteration that needs to be performed. Eventually these will be
+ * divided by the respective multiplicity to get the average error rates.
  */
 void commsys_errorrates::updateresults(libbase::vector<double>& result,
       const int i, const libbase::vector<int>& source, const libbase::vector<
@@ -75,11 +75,11 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result,
    }
 
 /*!
- \copydoc experiment::get_multiplicity()
-
- Since results are organized as (symbol,frame) error count, repeated for
- every iteration, the multiplicity is respectively the number of symbols
- and the number of frames (=1) per sample.
+ * \copydoc experiment::get_multiplicity()
+ * 
+ * Since results are organized as (symbol,frame) error count, repeated for
+ * every iteration, the multiplicity is respectively the number of symbols
+ * and the number of frames (=1) per sample.
  */
 int commsys_errorrates::get_multiplicity(int i) const
    {
@@ -90,11 +90,11 @@ int commsys_errorrates::get_multiplicity(int i) const
    }
 
 /*!
- \copydoc experiment::result_description()
-
- The description is a string XER_Y, where 'X' is S,F to indicate
- symbol or frame error rates respectively. 'Y' is the iteration,
- starting at 1.
+ * \copydoc experiment::result_description()
+ * 
+ * The description is a string XER_Y, where 'X' is S,F to indicate
+ * symbol or frame error rates respectively. 'Y' is the iteration,
+ * starting at 1.
  */
 std::string commsys_errorrates::result_description(int i) const
    {

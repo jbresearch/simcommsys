@@ -15,13 +15,13 @@ namespace libcomm {
 #endif
 
 /*!
- \brief   Channel Codec with matrix container from vector container.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Channel Codec with matrix container from vector container.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class base_codec>

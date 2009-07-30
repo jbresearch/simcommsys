@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "repacc.h"
@@ -121,12 +121,12 @@ void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
    }
 
 /*! \copydoc codec_softout::setreceiver()
-
- Sets: ra, R
-
- \note The BCJR normalization method is used to normalize the channel-derived
- (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
- probabilities are now created normalized.
+ * 
+ * Sets: ra, R
+ * 
+ * \note The BCJR normalization method is used to normalize the channel-derived
+ * (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+ * probabilities are now created normalized.
  */
 template <class real, class dbl>
 void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
@@ -194,13 +194,13 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    }
 
 /*! \copydoc codec_softout::softdecode()
-
- \note Implements soft-decision decoding according to Alexandre's
- interpretation:
- - when computing final output at repetition code, use only extrinsic
- information from accumulator
- - when computing extrinsic output at rep code, factor out the input
- information at that position
+ * 
+ * \note Implements soft-decision decoding according to Alexandre's
+ * interpretation:
+ * - when computing final output at repetition code, use only extrinsic
+ * information from accumulator
+ * - when computing extrinsic output at rep code, factor out the input
+ * information at that position
  */
 template <class real, class dbl>
 void repacc<real, dbl>::softdecode(array1vd_t& ri)

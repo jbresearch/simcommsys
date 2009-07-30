@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "commsys.h"
@@ -25,12 +25,12 @@ namespace libcomm {
 // Setup functions
 
 /*!
- \brief Initialize internal computed parameters
-
- \note This function is only responsible for initializing parameters
- that are specific to this object/derivation. Anything else
- should get done automatically when the base serializer or
- constructor is called.
+ * \brief Initialize internal computed parameters
+ * 
+ * \note This function is only responsible for initializing parameters
+ * that are specific to this object/derivation. Anything else
+ * should get done automatically when the base serializer or
+ * constructor is called.
  */
 template <class S, template <class > class C>
 void basic_commsys<S, C>::init()
@@ -50,12 +50,12 @@ void basic_commsys<S, C>::init()
    }
 
 /*!
- \brief Sets up system with no bound objects.
-
- \note This function is only responsible for clearing pointers to
- objects that are specific to this object/derivation.
- Anything else should get done automatically when the base
- serializer or constructor is called.
+ * \brief Sets up system with no bound objects.
+ * 
+ * \note This function is only responsible for clearing pointers to
+ * objects that are specific to this object/derivation.
+ * Anything else should get done automatically when the base
+ * serializer or constructor is called.
  */
 template <class S, template <class > class C>
 void basic_commsys<S, C>::clear()
@@ -68,16 +68,16 @@ void basic_commsys<S, C>::clear()
    }
 
 /*!
- \brief Removes association with bound objects
-
- This function performs two things:
- - Deletes any internally-allocated bound objects
- - Sets up the system with no bound objects
-
- \note This function is only responsible for deleting bound
- objects that are specific to this object/derivation.
- Anything else should get done automatically when the base
- serializer or constructor is called.
+ * \brief Removes association with bound objects
+ * 
+ * This function performs two things:
+ * - Deletes any internally-allocated bound objects
+ * - Sets up the system with no bound objects
+ * 
+ * \note This function is only responsible for deleting bound
+ * objects that are specific to this object/derivation.
+ * Anything else should get done automatically when the base
+ * serializer or constructor is called.
  */
 template <class S, template <class > class C>
 void basic_commsys<S, C>::free()
@@ -97,9 +97,9 @@ void basic_commsys<S, C>::free()
 // Constructors / Destructors
 
 /*!
- \brief Main public constructor
-
- Initializes system with bound objects as supplied by user.
+ * \brief Main public constructor
+ * 
+ * Initializes system with bound objects as supplied by user.
  */
 template <class S, template <class > class C>
 basic_commsys<S, C>::basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,
@@ -114,9 +114,9 @@ basic_commsys<S, C>::basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,
    }
 
 /*!
- \brief Copy constructor
-
- Initializes system with bound objects cloned from supplied system.
+ * \brief Copy constructor
+ * 
+ * Initializes system with bound objects cloned from supplied system.
  */
 template <class S, template <class > class C>
 basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c)
@@ -143,20 +143,20 @@ void basic_commsys<S, C>::seedfrom(libbase::random& r)
 // Communication System Interface
 
 /*!
- The encode process consists of the steps depicted in the following diagram:
- \dot
- digraph encode {
- // Make figure left-to-right
- rankdir = LR;
- // block definitions
- node [ shape=box ];
- encode [ label="Encode" ];
- map [ label="Map" ];
- modulate [ label="Modulate" ];
- // path definitions
- encode -> map -> modulate;
- }
- \enddot
+ * The encode process consists of the steps depicted in the following diagram:
+ * \dot
+ * digraph encode {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // block definitions
+ * node [ shape=box ];
+ * encode [ label="Encode" ];
+ * map [ label="Map" ];
+ * modulate [ label="Modulate" ];
+ * // path definitions
+ * encode -> map -> modulate;
+ * }
+ * \enddot
  */
 template <class S, template <class > class C>
 C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
@@ -182,20 +182,20 @@ C<S> basic_commsys<S, C>::transmit(const C<S>& transmitted)
    }
 
 /*!
- The receive path consists of the steps depicted in the following diagram:
- \dot
- digraph decode {
- // Make figure left-to-right
- rankdir = LR;
- // block definitions
- node [ shape=box ];
- demodulate [ label="Demodulate" ];
- unmap [ label="Inverse Map" ];
- init_decoder [ label="Initialize Decoder" ];
- // path definitions
- demodulate -> unmap -> init_decoder;
- }
- \enddot
+ * The receive path consists of the steps depicted in the following diagram:
+ * \dot
+ * digraph decode {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // block definitions
+ * node [ shape=box ];
+ * demodulate [ label="Demodulate" ];
+ * unmap [ label="Inverse Map" ];
+ * init_decoder [ label="Initialize Decoder" ];
+ * // path definitions
+ * demodulate -> unmap -> init_decoder;
+ * }
+ * \enddot
  */
 template <class S, template <class > class C>
 void basic_commsys<S, C>::receive_path(const C<S>& received)
@@ -218,26 +218,26 @@ void basic_commsys<S, C>::decode(C<int>& decoded)
    }
 
 /*!
- The cycle consists of the steps depicted in the following diagram:
- \dot
- digraph txrxcycle {
- // Make figure left-to-right
- rankdir = LR;
- // block definitions
- node [ shape=box ];
- encode [ label="Encode" ];
- map [ label="Map" ];
- modulate [ label="Modulate" ];
- transmit [ label="Transmit" ];
- demodulate [ label="Demodulate" ];
- unmap [ label="Inverse Map" ];
- init_decoder [ label="Initialize Decoder" ];
- // path definitions
- encode -> map -> modulate;
- modulate -> transmit -> demodulate;
- demodulate -> unmap -> init_decoder;
- }
- \enddot
+ * The cycle consists of the steps depicted in the following diagram:
+ * \dot
+ * digraph txrxcycle {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // block definitions
+ * node [ shape=box ];
+ * encode [ label="Encode" ];
+ * map [ label="Map" ];
+ * modulate [ label="Modulate" ];
+ * transmit [ label="Transmit" ];
+ * demodulate [ label="Demodulate" ];
+ * unmap [ label="Inverse Map" ];
+ * init_decoder [ label="Initialize Decoder" ];
+ * // path definitions
+ * encode -> map -> modulate;
+ * modulate -> transmit -> demodulate;
+ * demodulate -> unmap -> init_decoder;
+ * }
+ * \enddot
  */
 template <class S, template <class > class C>
 void basic_commsys<S, C>::transmitandreceive(const C<int>& source)
@@ -394,13 +394,13 @@ const serializer commsys<gf<4, 0x13> , matrix>::shelper("commsys",
 // Setup functions
 
 /*!
- \copydoc basic_commsys::init()
-
- This function sets the average energy per data bit in the bound channel model.
- The value depends on:
- - Rate of codec
- - Rate of puncturing
- - Average energy per uncoded bit in the modulation scheme
+ * \copydoc basic_commsys::init()
+ * 
+ * This function sets the average energy per data bit in the bound channel model.
+ * The value depends on:
+ * - Rate of codec
+ * - Rate of puncturing
+ * - Average energy per uncoded bit in the modulation scheme
  */
 
 template <template <class > class C>

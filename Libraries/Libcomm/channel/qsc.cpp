@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "qsc.h"
@@ -26,25 +26,25 @@ void qsc<G>::set_parameter(const double Ps)
 // Channel function overrides
 
 /*!
- \copydoc channel::corrupt()
-
- The channel model implemented is described by the following state diagram:
- \dot
- digraph bsidstates {
- // Make figure left-to-right
- rankdir = LR;
- // state definitions
- this [ shape=circle, color=gray, style=filled, label="t(i)" ];
- next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
- // path definitions
- this -> next [ label="1-Ps" ];
- this -> Substitute [ label="Ps" ];
- Substitute -> next;
- }
- \enddot
-
- For symbols that are substituted, any of the remaining symbols are equally
- likely.
+ * \copydoc channel::corrupt()
+ * 
+ * The channel model implemented is described by the following state diagram:
+ * \dot
+ * digraph bsidstates {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // state definitions
+ * this [ shape=circle, color=gray, style=filled, label="t(i)" ];
+ * next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
+ * // path definitions
+ * this -> next [ label="1-Ps" ];
+ * this -> Substitute [ label="Ps" ];
+ * Substitute -> next;
+ * }
+ * \enddot
+ * 
+ * For symbols that are substituted, any of the remaining symbols are equally
+ * likely.
  */
 template <class G>
 G qsc<G>::corrupt(const G& s)

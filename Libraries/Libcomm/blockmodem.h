@@ -10,15 +10,15 @@
 namespace libcomm {
 
 /*!
- \brief   Blockwise Modulator Common Interface.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Class defines common interface for blockmodem classes.
+ * \brief   Blockwise Modulator Common Interface.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Class defines common interface for blockmodem classes.
  */
 
 template <class S, template <class > class C = libbase::vector,
@@ -67,29 +67,29 @@ public:
 
    /*! \name Vector modem operations */
    /*!
-    \brief Modulate a sequence of time-steps
-    \param[in]  N        The number of possible values of each encoded element
-    \param[in]  encoded  Sequence of values to be modulated
-    \param[out] tx       Sequence of symbols corresponding to the given input
-
-    \todo Remove parameter N, replacing 'int' type for encoded vector with
-    something that also encodes the number of symbols in the alphabet.
-
-    \note This function is non-const, to support time-variant modulation
-    schemes such as DM inner codes.
+    * \brief Modulate a sequence of time-steps
+    * \param[in]  N        The number of possible values of each encoded element
+    * \param[in]  encoded  Sequence of values to be modulated
+    * \param[out] tx       Sequence of symbols corresponding to the given input
+    * 
+    * \todo Remove parameter N, replacing 'int' type for encoded vector with
+    * something that also encodes the number of symbols in the alphabet.
+    * 
+    * \note This function is non-const, to support time-variant modulation
+    * schemes such as DM inner codes.
     */
    void modulate(const int N, const C<int>& encoded, C<S>& tx);
    /*!
-    \brief Demodulate a sequence of time-steps
-    \param[in]  chan     The channel model (used to obtain likelihoods)
-    \param[in]  rx       Sequence of received symbols
-    \param[out] ptable   Table of likelihoods of possible transmitted symbols
-
-    \note \c ptable(i)(d) \c is the a posteriori probability of having
-    transmitted symbol 'd' at time 'i'
-
-    \note This function is non-const, to support time-variant modulation
-    schemes such as DM inner codes.
+    * \brief Demodulate a sequence of time-steps
+    * \param[in]  chan     The channel model (used to obtain likelihoods)
+    * \param[in]  rx       Sequence of received symbols
+    * \param[out] ptable   Table of likelihoods of possible transmitted symbols
+    * 
+    * \note \c ptable(i)(d) \c is the a posteriori probability of having
+    * transmitted symbol 'd' at time 'i'
+    * 
+    * \note This function is non-const, to support time-variant modulation
+    * schemes such as DM inner codes.
     */
    void demodulate(const channel<S, C>& chan, const C<S>& rx,
          C<array1d_t>& ptable);
@@ -120,15 +120,15 @@ public:
 };
 
 /*!
- \brief   Blockwise Modulator Base.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Class defines base interface for blockmodem classes.
+ * \brief   Blockwise Modulator Base.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Class defines base interface for blockmodem classes.
  */
 
 template <class S, template <class > class C = libbase::vector,
@@ -146,22 +146,22 @@ DECLARE_BASE_SERIALIZER(blockmodem)
 };
 
 /*!
- \brief   Q-ary Blockwise Modulator.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Specific implementation of q-ary channel modulation.
-
- \note Template argument class must provide a method elements() that returns
- the field size.
-
- \todo Merge modulate and demodulate between this function and lut_modulator
-
- \todo Find out why using declarations are not working.
+ * \brief   Q-ary Blockwise Modulator.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Specific implementation of q-ary channel modulation.
+ * 
+ * \note Template argument class must provide a method elements() that returns
+ * the field size.
+ * 
+ * \todo Merge modulate and demodulate between this function and lut_modulator
+ * 
+ * \todo Find out why using declarations are not working.
  */
 
 template <class G>
@@ -207,17 +207,17 @@ DECLARE_SERIALIZER(direct_blockmodem);
 };
 
 /*!
- \brief   Binary Blockwise Modulator.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Specific implementation of binary channel modulation.
-
- \todo Find out why using declarations are not working.
+ * \brief   Binary Blockwise Modulator.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Specific implementation of binary channel modulation.
+ * 
+ * \todo Find out why using declarations are not working.
  */
 
 template <>

@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "dminner.h"
@@ -25,7 +25,7 @@ namespace libcomm {
 // internally-used functions
 
 /*!
- \brief Set up LUT with the lowest weight codewords
+ * \brief Set up LUT with the lowest weight codewords
  */
 template <class real, bool norm>
 int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
@@ -62,7 +62,7 @@ int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
    }
 
 /*!
- \brief Set up pilot sequence for the current frame as given
+ * \brief Set up pilot sequence for the current frame as given
  */
 template <class real, bool norm>
 void dminner<real, norm>::copypilot(libbase::vector<libbase::bitfield> pilotb)
@@ -79,7 +79,7 @@ void dminner<real, norm>::copypilot(libbase::vector<libbase::bitfield> pilotb)
    }
 
 /*!
- \brief Set up LUT with the given codewords
+ * \brief Set up LUT with the given codewords
  */
 template <class real, bool norm>
 void dminner<real, norm>::copylut(libbase::vector<libbase::bitfield> lutb)
@@ -96,7 +96,7 @@ void dminner<real, norm>::copylut(libbase::vector<libbase::bitfield> lutb)
    }
 
 /*!
- \brief Display LUT on given stream
+ * \brief Display LUT on given stream
  */
 
 template <class real, bool norm>
@@ -109,9 +109,9 @@ void dminner<real, norm>::showlut(std::ostream& sout) const
    }
 
 /*!
- \brief Confirm that LUT is valid
- Checks that all LUT entries are within range and that there are no
- duplicate entries.
+ * \brief Confirm that LUT is valid
+ * Checks that all LUT entries are within range and that there are no
+ * duplicate entries.
  */
 
 template <class real, bool norm>
@@ -235,10 +235,10 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
    }
 
 /*!
- \brief Normalize probability table
-
- The input probability table is normalized such that the largest value is
- equal to 1; result is converted to double.
+ * \brief Normalize probability table
+ * 
+ * The input probability table is normalized such that the largest value is
+ * equal to 1; result is converted to double.
  */
 template <class real, bool norm>
 void dminner<real, norm>::normalize_results(const array1vr_t& in,
@@ -312,8 +312,8 @@ dminner<real, norm>::dminner(const int n, const int k, const double th_inner,
 // Watermark-specific setup functions
 
 /*!
- \copydoc set_pilot()
- \todo Consider moving this method to the dminner2d class
+ * \copydoc set_pilot()
+ * \todo Consider moving this method to the dminner2d class
  */
 template <class real, bool norm>
 void dminner<real, norm>::set_pilot(libbase::vector<bool> pilot)
@@ -329,12 +329,12 @@ void dminner<real, norm>::set_pilot(libbase::vector<bool> pilot)
    }
 
 /*!
- \brief Overrides the internally-generated pilot sequence with given one
-
- The intent of this method is to allow users to apply the dminner decoder
- in derived algorithms, such as the 2D extension.
-
- \todo merge with copypilot()
+ * \brief Overrides the internally-generated pilot sequence with given one
+ * 
+ * The intent of this method is to allow users to apply the dminner decoder
+ * in derived algorithms, such as the 2D extension.
+ * 
+ * \todo merge with copypilot()
  */
 template <class real, bool norm>
 void dminner<real, norm>::set_pilot(libbase::vector<libbase::bitfield> pilot)
@@ -343,10 +343,10 @@ void dminner<real, norm>::set_pilot(libbase::vector<libbase::bitfield> pilot)
    }
 
 /*!
- \brief Overrides the sparse alphabet with given one
-
- The intent of this method is to allow users to apply the dminner decoder
- in derived algorithms, such as the 2D extension.
+ * \brief Overrides the sparse alphabet with given one
+ * 
+ * The intent of this method is to allow users to apply the dminner decoder
+ * in derived algorithms, such as the 2D extension.
  */
 template <class real, bool norm>
 void dminner<real, norm>::set_lut(libbase::vector<libbase::bitfield> lut)

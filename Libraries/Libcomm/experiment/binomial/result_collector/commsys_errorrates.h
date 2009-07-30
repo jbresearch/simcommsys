@@ -8,15 +8,15 @@
 namespace libcomm {
 
 /*!
- \brief   CommSys Results - Symbol/Frame Error Rates.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements standard error rate calculators.
+ * \brief   CommSys Results - Symbol/Frame Error Rates.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements standard error rate calculators.
  */
 class commsys_errorrates {
 protected:
@@ -43,7 +43,7 @@ public:
          const libbase::vector<int>& source,
          const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    For each iteration, we count the number of symbol and frame errors
+    * For each iteration, we count the number of symbol and frame errors
     */
    int count() const
       {

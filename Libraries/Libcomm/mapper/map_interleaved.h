@@ -8,15 +8,15 @@
 namespace libcomm {
 
 /*!
- \brief   Random Interleaving Mapper.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- This class defines an interleaved version of the straight mapper.
+ * \brief   Random Interleaving Mapper.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * This class defines an interleaved version of the straight mapper.
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>

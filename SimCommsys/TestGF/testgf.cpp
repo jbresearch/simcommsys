@@ -15,8 +15,8 @@ using std::hex;
 using std::dec;
 
 /*!
- \brief Exponential table entries for base {03}
- cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
+ * \brief Exponential table entries for base {03}
+ * cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
  */
 const int aestable[] = {0x01, 0x03, 0x05, 0x0f, 0x11, 0x33, 0x55, 0xff, 0x1a,
       0x2e, 0x72, 0x96, 0xa1, 0xf8, 0x13, 0x35, 0x5f, 0xe1, 0x38, 0x48, 0xd8,
@@ -144,13 +144,13 @@ void TestGenPowerGF8()
    }
 
 /*!
- \brief Test program for GF class
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief Test program for GF class
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

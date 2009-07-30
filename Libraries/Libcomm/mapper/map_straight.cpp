@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "map_straight.h"
@@ -28,9 +28,9 @@ using libbase::vector;
 // Interface with mapper
 
 /*! \copydoc mapper::setup()
-
- \note Each encoder output must be represented by an integral number of
- modulation symbols
+ * 
+ * \note Each encoder output must be represented by an integral number of
+ * modulation symbols
  */
 template <class dbl>
 void map_straight<vector, dbl>::setup()
@@ -107,8 +107,8 @@ using libbase::matrix;
 // Interface with mapper
 
 /*! \copydoc mapper::setup()
-
- \note Symbol alphabets must be the same size
+ * 
+ * \note Symbol alphabets must be the same size
  */
 template <class dbl>
 void map_straight<matrix, dbl>::setup()

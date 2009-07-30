@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "masterslave.h"
@@ -54,13 +54,13 @@ void masterslave::fcall(const std::string& name)
    }
 
 /*! \brief Global enable/disable of master-slave system
-
- \note Endpoint can be:
- - 'local', indicating local-computation model; in this case, the
- class will not be initialized.
- - ':port', indicating server-mode, bound to given port
- - 'hostname:port', indicating client-mode, connecting to given
- host/port combination
+ * 
+ * \note Endpoint can be:
+ * - 'local', indicating local-computation model; in this case, the
+ * class will not be initialized.
+ * - ':port', indicating server-mode, bound to given port
+ * - 'hostname:port', indicating client-mode, connecting to given
+ * host/port combination
  */
 void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
    {
@@ -229,8 +229,8 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       }
 
    /*! \brief Send a vector<double> to the master
-    \note Vector size is sent first; this makes foreknowledge of size and
-    pre-initialization unnecessary.
+    * \note Vector size is sent first; this makes foreknowledge of size and
+    * pre-initialization unnecessary.
     */
    bool masterslave::send(const vector<double>& x)
       {
@@ -306,8 +306,8 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
    // disable function
 
    /*! \brief Shuts down master-slave system
-
-    \todo Specify what happens if the system was never initialized
+    * 
+    * \todo Specify what happens if the system was never initialized
     */
    void masterslave::disable()
       {
@@ -389,10 +389,10 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       }
 
    /*! \brief Waits for a socket event
-    \param acceptnew Flag to indicate whether new connections are allowed
-    (defaults to true)
-    \param timeout Return with no event if this many seconds elapses (zero
-    means wait forever; this is the default)
+    * \param acceptnew Flag to indicate whether new connections are allowed
+    * (defaults to true)
+    * \param timeout Return with no event if this many seconds elapses (zero
+    * means wait forever; this is the default)
     */
    void masterslave::waitforevent(const bool acceptnew, const double timeout)
       {
@@ -439,9 +439,9 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       }
 
    /*!
-    \brief Reset given slave to the 'new' state
-
-    \note Slave must be in the 'idle' state
+    * \brief Reset given slave to the 'new' state
+    * 
+    * \note Slave must be in the 'idle' state
     */
    void masterslave::resetslave(slave *s)
       {
@@ -450,7 +450,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       }
 
    /*!
-    \brief Reset all 'idle' slaves to the 'new' state
+    * \brief Reset all 'idle' slaves to the 'new' state
     */
    void masterslave::resetslaves()
       {
@@ -479,7 +479,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       }
 
    /*! \brief Accumulate CPU time for given slave
-    \param s Slave from which to get CPU time
+    * \param s Slave from which to get CPU time
     */
    bool masterslave::updatecputime(slave *s)
       {
@@ -501,8 +501,8 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       }
 
    /*! \brief Receive a vector<double> from given slave
-    \note Vector size is obtained first; this makes foreknowledge of size and
-    pre-initialization unnecessary.
+    * \note Vector size is obtained first; this makes foreknowledge of size and
+    * pre-initialization unnecessary.
     */
    bool masterslave::receive(slave *s, vector<double>& x)
       {

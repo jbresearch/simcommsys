@@ -7,14 +7,14 @@
 namespace libcomm {
 
 /*!
- \brief   Matt Valenti's Interleaver.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
+ * \brief   Matt Valenti's Interleaver.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
  */
 
 template <class real>

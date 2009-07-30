@@ -9,15 +9,15 @@
 namespace libcomm {
 
 /*!
- \brief   Controller-Canonical Binary Finite State Machine.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements common elements of a controller-canonical binary fsm.
+ * \brief   Controller-Canonical Binary Finite State Machine.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements common elements of a controller-canonical binary fsm.
  */
 
 class ccbfsm : public fsm {

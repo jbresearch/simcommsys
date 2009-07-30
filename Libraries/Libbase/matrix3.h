@@ -8,64 +8,64 @@
 namespace libbase {
 
 /*!
- \brief   Generic 3D Matrix.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (31 Oct 2001)
- separated 3D matrix class from the 2D matrix header.
- Created arithmetic functions as part of the matrix class. These are only created
- for an instantiation in which they are used, so it should not pose a problem anyway.
- This includes arithmetic operations between matrices, constant matrix initialisation
- routines, and also some statistical functions. Also, cleaned up the protected
- (internal) interface, and formalised the existence of empty matrices. Also renamed
- member variables to start with m_ in order to facilitate the similar naming of public
- functions (such as the size functions).
-
- \version 1.21 (2 Dec 2001)
- added a function which sets the size of a matrix to the given size - leaving it as
- it is if the size was already good, and freeing/reallocating if necessary. This helps
- reduce redundant free/alloc operations on matrices which keep the same size.
- [Ported from matrix 1.11]
-
- \version 1.50 (13 Apr 2002)
- added a number of high-level support routines for working with matrices - the overall
- effect of this should be a drastic reduction in the number of loops required in user
- code to express various common operations. Changes are:
- - support for working with different-sized matrices (in place of resizing operations
- which would be quite expensive); added a function copyfrom() which copies data from
- another matrix without resizing this one. Opted for this rather than changing the
- definition of operator= because it's convenient for '=' to copy _everything_ from the
- source to the destination; otherwise we would land into obscure problems in some cases
- (like when we're trying to copy a vector of matrices, etc.). This method also has the
- advantage of keeping the old code/interface as it was.
- - added a new format for init(), which takes another matrix as argument, to allow
- easier (and neater) sizing of one matrix based on another. This is a template function
- to allow the argument matrix to be of a different type.
- - added an apply() function which allows the user to do the same operation on all
- elements (previously had to do this manually).
-
- \version 1.60 (9 May 2002)
- - added another apply() so that the given function's parameter is const - this allows
- the use of functions which do not modify their parameter (it's actually what we want
- anyway). The older version (with non-const parameter) is still kept to allow the use
- of functions where the parameter is not defined as const (such as fabs, etc).
- - added unary and binary boolean operators.
- - also, changed the binary operators to be member functions with a single argument,
- rather than non-members with two arguments. Also, for operations with a constant
- (rather than another vector), that constant is passed directly, not by reference.
- - added serialize() functions which read and write vector data only; the input function
- assumes that the current vector already has the correct size. These functions are
- useful for interfacing with other file formats. Also modified the stream I/O functions
- to make use of these.
-
-
- \todo Consider removing this class, and port any existing uses to boost
- multi_array
+ * \brief   Generic 3D Matrix.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.00 (31 Oct 2001)
+ * separated 3D matrix class from the 2D matrix header.
+ * Created arithmetic functions as part of the matrix class. These are only created
+ * for an instantiation in which they are used, so it should not pose a problem anyway.
+ * This includes arithmetic operations between matrices, constant matrix initialisation
+ * routines, and also some statistical functions. Also, cleaned up the protected
+ * (internal) interface, and formalised the existence of empty matrices. Also renamed
+ * member variables to start with m_ in order to facilitate the similar naming of public
+ * functions (such as the size functions).
+ * 
+ * \version 1.21 (2 Dec 2001)
+ * added a function which sets the size of a matrix to the given size - leaving it as
+ * it is if the size was already good, and freeing/reallocating if necessary. This helps
+ * reduce redundant free/alloc operations on matrices which keep the same size.
+ * [Ported from matrix 1.11]
+ * 
+ * \version 1.50 (13 Apr 2002)
+ * added a number of high-level support routines for working with matrices - the overall
+ * effect of this should be a drastic reduction in the number of loops required in user
+ * code to express various common operations. Changes are:
+ * - support for working with different-sized matrices (in place of resizing operations
+ * which would be quite expensive); added a function copyfrom() which copies data from
+ * another matrix without resizing this one. Opted for this rather than changing the
+ * definition of operator= because it's convenient for '=' to copy _everything_ from the
+ * source to the destination; otherwise we would land into obscure problems in some cases
+ * (like when we're trying to copy a vector of matrices, etc.). This method also has the
+ * advantage of keeping the old code/interface as it was.
+ * - added a new format for init(), which takes another matrix as argument, to allow
+ * easier (and neater) sizing of one matrix based on another. This is a template function
+ * to allow the argument matrix to be of a different type.
+ * - added an apply() function which allows the user to do the same operation on all
+ * elements (previously had to do this manually).
+ * 
+ * \version 1.60 (9 May 2002)
+ * - added another apply() so that the given function's parameter is const - this allows
+ * the use of functions which do not modify their parameter (it's actually what we want
+ * anyway). The older version (with non-const parameter) is still kept to allow the use
+ * of functions where the parameter is not defined as const (such as fabs, etc).
+ * - added unary and binary boolean operators.
+ * - also, changed the binary operators to be member functions with a single argument,
+ * rather than non-members with two arguments. Also, for operations with a constant
+ * (rather than another vector), that constant is passed directly, not by reference.
+ * - added serialize() functions which read and write vector data only; the input function
+ * assumes that the current vector already has the correct size. These functions are
+ * useful for interfacing with other file formats. Also modified the stream I/O functions
+ * to make use of these.
+ * 
+ * 
+ * \todo Consider removing this class, and port any existing uses to boost
+ * multi_array
  */
 
 template <class T>

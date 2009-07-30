@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "ccfsm.h"
@@ -19,13 +19,13 @@ using libbase::matrix;
 // Internal functions
 
 /*!
- \brief Initialization
- \param  generator   Generator matrix of size \f$ k \times n \f$
-
- Each generator matrix element is a vector over G, laid out in the same format
- as the internal registers - lower index positions are considered to lie on the
- right, and correspond with register positions farther away from the input
- junction.
+ * \brief Initialization
+ * \param  generator   Generator matrix of size \f$ k \times n \f$
+ * 
+ * Each generator matrix element is a vector over G, laid out in the same format
+ * as the internal registers - lower index positions are considered to lie on the
+ * right, and correspond with register positions farther away from the input
+ * junction.
  */
 template <class G>
 void ccfsm<G>::init(const matrix<vector<G> >& generator)
@@ -62,15 +62,15 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
 // Helper functions
 
 /*!
- \brief Conversion from vector spaces to integer
- \param[in]  x  Input in vector representation
- \param[in]  y  Initial integer value (set to zero if this is the first vector)
- \return Value of \c x in integer representation; any prior value \c y is
- shifted to the left before adding the conversion of \c x
-
- \note Left-most register positions (ie. those closest to the input junction) are
- represented by higher index positions, and get higher-order positions within
- the integer representation.
+ * \brief Conversion from vector spaces to integer
+ * \param[in]  x  Input in vector representation
+ * \param[in]  y  Initial integer value (set to zero if this is the first vector)
+ * \return Value of \c x in integer representation; any prior value \c y is
+ * shifted to the left before adding the conversion of \c x
+ * 
+ * \note Left-most register positions (ie. those closest to the input junction) are
+ * represented by higher index positions, and get higher-order positions within
+ * the integer representation.
  */
 template <class G>
 int ccfsm<G>::convert(const vector<G>& x, int y) const
@@ -84,14 +84,14 @@ int ccfsm<G>::convert(const vector<G>& x, int y) const
    }
 
 /*!
- \brief Conversion from integer to vector space
- \param[in]  x  Input in integer representation
- \param[out] y  Pre-allocated vector for storing result - must be of correct size
- \return Any remaining (shifted) higher-order value from \c x
-
- \note Left-most register positions (ie. those closest to the input junction) are
- represented by higher index positions, and get higher-order positions within
- the integer representation.
+ * \brief Conversion from integer to vector space
+ * \param[in]  x  Input in integer representation
+ * \param[out] y  Pre-allocated vector for storing result - must be of correct size
+ * \return Any remaining (shifted) higher-order value from \c x
+ * 
+ * \note Left-most register positions (ie. those closest to the input junction) are
+ * represented by higher index positions, and get higher-order positions within
+ * the integer representation.
  */
 template <class G>
 int ccfsm<G>::convert(int x, vector<G>& y) const
@@ -105,13 +105,13 @@ int ccfsm<G>::convert(int x, vector<G>& y) const
    }
 
 /*!
- \brief Convolves the shift-in value and register with a generator polynomial
- \param  s  The value at the left shift-in of the register
- \param  r  The register
- \param  g  The corresponding generator polynomial
- \return The output
-
- \todo Document this function with a diagram.
+ * \brief Convolves the shift-in value and register with a generator polynomial
+ * \param  s  The value at the left shift-in of the register
+ * \param  r  The register
+ * \param  g  The corresponding generator polynomial
+ * \return The output
+ * 
+ * \todo Document this function with a diagram.
  */
 template <class G>
 G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
@@ -128,7 +128,7 @@ G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
 // Constructors / Destructors
 
 /*!
- \brief Principal constructor
+ * \brief Principal constructor
  */
 template <class G>
 ccfsm<G>::ccfsm(const matrix<vector<G> >& generator)
@@ -137,7 +137,7 @@ ccfsm<G>::ccfsm(const matrix<vector<G> >& generator)
    }
 
 /*!
- \brief Copy constructor
+ * \brief Copy constructor
  */
 template <class G>
 ccfsm<G>::ccfsm(const ccfsm<G>& x)
@@ -154,13 +154,13 @@ ccfsm<G>::ccfsm(const ccfsm<G>& x)
 // FSM state operations (getting and resetting)
 
 /*!
- \copydoc fsm::state()
-
- \note Lower-order inputs get lower-order positions within the state representation.
-
- \note Left-most register positions (ie. those closest to the input junction) are
- represented by higher index positions, and get higher-order positions within
- the state representation.
+ * \copydoc fsm::state()
+ * 
+ * \note Lower-order inputs get lower-order positions within the state representation.
+ * 
+ * \note Left-most register positions (ie. those closest to the input junction) are
+ * represented by higher index positions, and get higher-order positions within
+ * the state representation.
  */
 template <class G>
 int ccfsm<G>::state() const

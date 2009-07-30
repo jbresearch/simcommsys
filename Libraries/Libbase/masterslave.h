@@ -11,36 +11,36 @@
 namespace libbase {
 
 /*!
- \brief   Socket-based Master-Slave computation.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Class supporting socket-based master-slave relationship.
- - supports dynamic slave list
-
- \note The current usage model for this class is that users now declare
- themselves as derived classes, rather than instantiating an object;
- this is tied with the requirements for RPC functions.
-
- \note RPC calls are now done by passing a string reference, which is used
- as a key in a map list. Two new functions support this:
- - fregister() allows registering of functions by derived classes, and
- - fcall() to actually call them
- Since this class cannot know the exact type of the function pointers,
- these are held by functors.
-
- \todo Serialize to network byte order always.
-
- \todo Consider modifying cmpi to support this class interface model, and
- create a new abstract class to encapsulate both models.
-
- \todo Make setting priority effective on Windows
-
- \todo Split master and slave classes
+ * \brief   Socket-based Master-Slave computation.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Class supporting socket-based master-slave relationship.
+ * - supports dynamic slave list
+ * 
+ * \note The current usage model for this class is that users now declare
+ * themselves as derived classes, rather than instantiating an object;
+ * this is tied with the requirements for RPC functions.
+ * 
+ * \note RPC calls are now done by passing a string reference, which is used
+ * as a key in a map list. Two new functions support this:
+ * - fregister() allows registering of functions by derived classes, and
+ * - fcall() to actually call them
+ * Since this class cannot know the exact type of the function pointers,
+ * these are held by functors.
+ * 
+ * \todo Serialize to network byte order always.
+ * 
+ * \todo Consider modifying cmpi to support this class interface model, and
+ * create a new abstract class to encapsulate both models.
+ * 
+ * \todo Make setting priority effective on Windows
+ * 
+ * \todo Split master and slave classes
  */
 
 class masterslave {

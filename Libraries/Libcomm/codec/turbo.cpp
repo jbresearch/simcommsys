@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "turbo.h"
@@ -137,18 +137,18 @@ void turbo<real, dbl>::allocate()
 // wrapping functions
 
 /*!
- \brief Computes extrinsic probabilities
- \param[in]  ra  A-priori (extrinsic) probabilities of input values
- \param[in]  ri  A-posteriori probabilities of input values
- \param[in]  r   A-priori intrinsic probabilities of input values
- \param[out] re  Extrinsic probabilities of input values
-
- \note It is counter-productive to vectorize this, as it would require
- many unnecessary temporary matrix creations.
-
- \warning The return matrix re may actually be one of the input matrices,
- so one must be careful not to overwrite positions that still
- need to be read.
+ * \brief Computes extrinsic probabilities
+ * \param[in]  ra  A-priori (extrinsic) probabilities of input values
+ * \param[in]  ri  A-posteriori probabilities of input values
+ * \param[in]  r   A-priori intrinsic probabilities of input values
+ * \param[out] re  Extrinsic probabilities of input values
+ * 
+ * \note It is counter-productive to vectorize this, as it would require
+ * many unnecessary temporary matrix creations.
+ * 
+ * \warning The return matrix re may actually be one of the input matrices,
+ * so one must be careful not to overwrite positions that still
+ * need to be read.
  */
 template <class real, class dbl>
 void turbo<real, dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri,
@@ -162,23 +162,23 @@ void turbo<real, dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri,
    }
 
 /*!
- \brief Complete BCJR decoding cycle
- \param[in]  set Parity sequence being decoded
- \param[in]  ra  A-priori (extrinsic) probabilities of input values
- \param[out] ri  A-posteriori probabilities of input values
- \param[out] re  Extrinsic probabilities of input values (will be used later
- as the new 'a-priori' probabilities)
-
- This method performs a complete decoding cycle, including start/end state
- probability settings for circular decoding, and any interleaving/de-
- interleaving.
-
- \note When using a circular trellis, the start- and end-state probabilities
- are re-initialize with the stored values from the previous turn.
-
- \warning The return matrix re may actually be the input matrix ra,
- so one must be careful not to overwrite positions that still
- need to be read.
+ * \brief Complete BCJR decoding cycle
+ * \param[in]  set Parity sequence being decoded
+ * \param[in]  ra  A-priori (extrinsic) probabilities of input values
+ * \param[out] ri  A-posteriori probabilities of input values
+ * \param[out] re  Extrinsic probabilities of input values (will be used later
+ * as the new 'a-priori' probabilities)
+ * 
+ * This method performs a complete decoding cycle, including start/end state
+ * probability settings for circular decoding, and any interleaving/de-
+ * interleaving.
+ * 
+ * \note When using a circular trellis, the start- and end-state probabilities
+ * are re-initialize with the stored values from the previous turn.
+ * 
+ * \warning The return matrix re may actually be the input matrix ra,
+ * so one must be careful not to overwrite positions that still
+ * need to be read.
  */
 template <class real, class dbl>
 void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
@@ -203,9 +203,9 @@ void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
    }
 
 /*! \brief Perform a complete serial-decoding cycle
-
- \note The BCJR normalization method is used to normalize the extrinsic
- probabilities.
+ * 
+ * \note The BCJR normalization method is used to normalize the extrinsic
+ * probabilities.
  */
 template <class real, class dbl>
 void turbo<real, dbl>::decode_serial(array2d_t& ri)
@@ -221,16 +221,16 @@ void turbo<real, dbl>::decode_serial(array2d_t& ri)
    }
 
 /*! \brief Perform a complete parallel-decoding cycle
-
- \note The BCJR normalization method is used to normalize the extrinsic
- probabilities.
-
- \warning Simulations show that parallel-decoding works well with the
- 1/4-rate, 3-code, K=3 (111/101), N=4096 code from divs95b;
- however, when simulating larger codes (N=8192) the system seems
- to go unstable after a few iterations. Also significantly, similar
- codes with lower rates (1/6 and 1/8) perform _worse_ as the rate
- decreases.
+ * 
+ * \note The BCJR normalization method is used to normalize the extrinsic
+ * probabilities.
+ * 
+ * \warning Simulations show that parallel-decoding works well with the
+ * 1/4-rate, 3-code, K=3 (111/101), N=4096 code from divs95b;
+ * however, when simulating larger codes (N=8192) the system seems
+ * to go unstable after a few iterations. Also significantly, similar
+ * codes with lower rates (1/6 and 1/8) perform _worse_ as the rate
+ * decreases.
  */
 template <class real, class dbl>
 void turbo<real, dbl>::decode_parallel(array2d_t& ri)
@@ -278,14 +278,14 @@ void turbo<real, dbl>::setpriors(const array1vd_t& ptable)
    }
 
 /*! \copydoc codec_softout::setreceiver()
-
- Sets: rp, ra, R, [ss, se, through reset()]
-
- \note The BCJR normalization method is used to normalize the channel-derived
- (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
- probabilities are now created normalized.
-
- \note Clean up this function, removing unnecessary symbol-conversion
+ * 
+ * Sets: rp, ra, R, [ss, se, through reset()]
+ * 
+ * \note The BCJR normalization method is used to normalize the channel-derived
+ * (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+ * probabilities are now created normalized.
+ * 
+ * \note Clean up this function, removing unnecessary symbol-conversion
  */
 template <class real, class dbl>
 void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
@@ -496,11 +496,11 @@ std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 /*!
- \version 0 Initial version (un-numbered)
-
- \version 1 Added version numbering; added explicit first interleaver
-
- \version 2 Removed explicit 'tau'
+ * \version 0 Initial version (un-numbered)
+ * 
+ * \version 1 Added version numbering; added explicit first interleaver
+ * 
+ * \version 2 Removed explicit 'tau'
  */
 template <class real, class dbl>
 std::istream& turbo<real, dbl>::serialize(std::istream& sin)

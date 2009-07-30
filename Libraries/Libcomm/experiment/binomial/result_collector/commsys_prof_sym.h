@@ -7,15 +7,15 @@
 namespace libcomm {
 
 /*!
- \brief   CommSys Results - Symbol-Value Error Profile.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Computes symbol-error histogram as dependent on source symbol value.
+ * \brief   CommSys Results - Symbol-Value Error Profile.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Computes symbol-error histogram as dependent on source symbol value.
  */
 
 class commsys_prof_sym : public commsys_errorrates {
@@ -25,16 +25,16 @@ public:
          const libbase::vector<int>& source,
          const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    For each iteration, we count the number of symbol errors for
-    every input alphabet symbol value.
+    * For each iteration, we count the number of symbol errors for
+    * every input alphabet symbol value.
     */
    int count() const
       {
       return get_alphabetsize() * get_iter();
       }
    /*! \copydoc experiment::get_multiplicity()
-    A total equal to the number of symbols/frame may be incremented
-    in every sample.
+    * A total equal to the number of symbols/frame may be incremented
+    * in every sample.
     */
    int get_multiplicity(int i) const
       {

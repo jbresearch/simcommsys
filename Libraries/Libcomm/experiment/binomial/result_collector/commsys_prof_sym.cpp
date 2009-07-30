@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "commsys_prof_sym.h"
@@ -33,10 +33,10 @@ void commsys_prof_sym::updateresults(libbase::vector<double>& result,
    }
 
 /*!
- \copydoc experiment::result_description()
-
- The description is a string SER_X_Y, where 'X' is the symbol value
- (starting at zero), and 'Y' is the iteration, starting at 1.
+ * \copydoc experiment::result_description()
+ * 
+ * The description is a string SER_X_Y, where 'X' is the symbol value
+ * (starting at zero), and 'Y' is the iteration, starting at 1.
  */
 std::string commsys_prof_sym::result_description(int i) const
    {

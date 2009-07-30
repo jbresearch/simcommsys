@@ -11,72 +11,72 @@
 namespace libbase {
 
 /*!
- \brief   MPI Multi-Computer Environment.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.01 (5 Mar 1999)
- updated mpi child functions to print the latency between jobs.
-
- \version 2.00 (23 Mar 1999)
- major update to the class.
-
- \version 2.10 (25 Mar 1999)
- changed the spawning algorithm. Now, this will spawn max*nodes processes, so that all processors
- are necessarily covered. Then, it will kill unnecessary nodes to avoid memory wastage. Note that
- with this technique, there is no more the need to have the nodes sorted in order of decreasing
- processors. Also, all nodes are cleanly in a single communicator, which aviods playing about with
- MPI. Also changed the initialisation process of children. Now children enter the loop immediately
- and must explicitly directed to send the number of processors to root or to get the size/rank.
-
- \version 2.11 (7 May 1999)
- re-schedules children with a lower priority to favour foreground tasks.
-
- \version 2.12 (22 Jul 1999)
- prints CPU usage information at the end of the process.
-
- \version 2.13 (3 Sep 1999)
- added functions for children to send integers to the root process
-
- \version 2.20 (29 Sep 2001)
- modified to compile on Win32 as a Dummy MPI module
-
- \version 2.21 (23 Feb 2002)
- added flushes to all end-of-line clog outputs, to clean up text user interface.
-
- \version 2.22 (6 Mar 2002)
- changed vcs version variable from a global to a static class variable.
- also changed use of iostream from global to std namespace.
-
- \version 2.30 (26 Jul 2006)
- first attempt to get this to work with OpenMPI as installed on iapetus (should be
- a recent version as it has just been installed for me, but I do not yet know how
- to determine the version number).
- - made as much code unconditional as possible (instead of depending on the
- definition of MPI, which was conflicting with the namespace)
- - reworked the parent/child relationship to avoid spawning - modern-day libaries
- seem to handle multi-CPU machines with ease, and this greatly simplifies the code.
- - removed dependence on environment variables 'CPUS' and 'HOSTNAME'
-
- \version 2.31 (27 Jul 2006)
- updated class:
- - to revert to non-MPI mode when the "cluster" consists of a single node.
- - to alleviate typos, the 'initialised' variable has been americanized.
- - the 'rank()' function is now also scaled down to ignore the root process.
- - CPU usage is returned as type double instead of integer (for each child)
- - total usage is kept as a private member and updated at the end; this can be
- read by the user with the appropriate function.
-
- \version 2.40 (26 Oct 2006)
- - defined class and associated data within "libbase" namespace.
- - removed use of "using namespace std", replacing by tighter "using" statements as needed.
-
- \version 2.41 (28 Sep 2007)
- modified so that compilation as a Dummy MPI module occurs when USEMPI is not defined.
+ * \brief   MPI Multi-Computer Environment.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.01 (5 Mar 1999)
+ * updated mpi child functions to print the latency between jobs.
+ * 
+ * \version 2.00 (23 Mar 1999)
+ * major update to the class.
+ * 
+ * \version 2.10 (25 Mar 1999)
+ * changed the spawning algorithm. Now, this will spawn max*nodes processes, so that all processors
+ * are necessarily covered. Then, it will kill unnecessary nodes to avoid memory wastage. Note that
+ * with this technique, there is no more the need to have the nodes sorted in order of decreasing
+ * processors. Also, all nodes are cleanly in a single communicator, which aviods playing about with
+ * MPI. Also changed the initialisation process of children. Now children enter the loop immediately
+ * and must explicitly directed to send the number of processors to root or to get the size/rank.
+ * 
+ * \version 2.11 (7 May 1999)
+ * re-schedules children with a lower priority to favour foreground tasks.
+ * 
+ * \version 2.12 (22 Jul 1999)
+ * prints CPU usage information at the end of the process.
+ * 
+ * \version 2.13 (3 Sep 1999)
+ * added functions for children to send integers to the root process
+ * 
+ * \version 2.20 (29 Sep 2001)
+ * modified to compile on Win32 as a Dummy MPI module
+ * 
+ * \version 2.21 (23 Feb 2002)
+ * added flushes to all end-of-line clog outputs, to clean up text user interface.
+ * 
+ * \version 2.22 (6 Mar 2002)
+ * changed vcs version variable from a global to a static class variable.
+ * also changed use of iostream from global to std namespace.
+ * 
+ * \version 2.30 (26 Jul 2006)
+ * first attempt to get this to work with OpenMPI as installed on iapetus (should be
+ * a recent version as it has just been installed for me, but I do not yet know how
+ * to determine the version number).
+ * - made as much code unconditional as possible (instead of depending on the
+ * definition of MPI, which was conflicting with the namespace)
+ * - reworked the parent/child relationship to avoid spawning - modern-day libaries
+ * seem to handle multi-CPU machines with ease, and this greatly simplifies the code.
+ * - removed dependence on environment variables 'CPUS' and 'HOSTNAME'
+ * 
+ * \version 2.31 (27 Jul 2006)
+ * updated class:
+ * - to revert to non-MPI mode when the "cluster" consists of a single node.
+ * - to alleviate typos, the 'initialised' variable has been americanized.
+ * - the 'rank()' function is now also scaled down to ignore the root process.
+ * - CPU usage is returned as type double instead of integer (for each child)
+ * - total usage is kept as a private member and updated at the end; this can be
+ * read by the user with the appropriate function.
+ * 
+ * \version 2.40 (26 Oct 2006)
+ * - defined class and associated data within "libbase" namespace.
+ * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * 
+ * \version 2.41 (28 Sep 2007)
+ * modified so that compilation as a Dummy MPI module occurs when USEMPI is not defined.
  */
 
 class cmpi {

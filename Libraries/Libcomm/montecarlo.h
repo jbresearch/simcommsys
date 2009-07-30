@@ -12,13 +12,13 @@
 namespace libcomm {
 
 /*!
- \brief   Monte Carlo Estimator.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Monte Carlo Estimator.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 class montecarlo : public libbase::masterslave, private resultsfile {
@@ -27,7 +27,7 @@ class montecarlo : public libbase::masterslave, private resultsfile {
    // @}
    /*! \name Bound objects */
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
-    object at this address. This should be deleted when no longer necessary.
+    * object at this address. This should be deleted when no longer necessary.
     */
    bool bound; //!< Flag to indicate that a system has been bound (only in master)
    experiment *system; //!< System being sampled
@@ -71,9 +71,9 @@ protected:
    void lookforstate(std::istream& sin);
    /*! \name Overrideable user-interface functions */
    /*! \brief User-interrupt check
-    This function should return true if the user has requested an interrupt.
-    Once it returns true, all subsequent evaluations should keep returning
-    true again.
+    * This function should return true if the user has requested an interrupt.
+    * Once it returns true, all subsequent evaluations should keep returning
+    * true again.
     */
    virtual bool interrupt()
       {

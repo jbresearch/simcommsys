@@ -16,25 +16,25 @@
 namespace libcomm {
 
 /*!
- \brief   Common Channel Interface.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Base channel definition provides:
- - random generator accessible by derived classes
- - channel model defined by transmit() and receive() functions, with support
- for insertions and deletions, as well as substitution errors.
-
- \todo Think out and update cloning/serialization interface
-
- \todo Provide default implementation for corrupt and pdf
-
- \todo Sort out which receive() method is really needed in the interface, and
- which should be specific to the various channels
+ * \brief   Common Channel Interface.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Base channel definition provides:
+ * - random generator accessible by derived classes
+ * - channel model defined by transmit() and receive() functions, with support
+ * for insertions and deletions, as well as substitution errors.
+ * 
+ * \todo Think out and update cloning/serialization interface
+ * 
+ * \todo Provide default implementation for corrupt and pdf
+ * 
+ * \todo Sort out which receive() method is really needed in the interface, and
+ * which should be specific to the various channels
  */
 
 template <class S, template <class > class C>
@@ -51,16 +51,16 @@ protected:
 protected:
    /*! \name Channel function overrides */
    /*!
-    \brief Pass a single symbol through the substitution channel
-    \param   s  Input (Tx) symbol
-    \return  Output (Rx) symbol
+    * \brief Pass a single symbol through the substitution channel
+    * \param   s  Input (Tx) symbol
+    * \return  Output (Rx) symbol
     */
    virtual S corrupt(const S& s) = 0;
    /*!
-    \brief Determine the conditional likelihood for the received symbol
-    \param   tx  Transmitted symbol being considered
-    \param   rx  Received symbol
-    \return  Likelihood \f$ P(rx|tx) \f$
+    * \brief Determine the conditional likelihood for the received symbol
+    * \param   tx  Transmitted symbol being considered
+    * \param   rx  Received symbol
+    * \return  Likelihood \f$ P(rx|tx) \f$
     */
    virtual double pdf(const S& tx, const S& rx) const = 0;
    // @}
@@ -81,52 +81,52 @@ public:
 
    /*! \name Channel functions */
    /*!
-    \brief Pass a sequence of modulation symbols through the channel
-    \param[in]  tx  Transmitted sequence of modulation symbols
-    \param[out] rx  Received sequence of modulation symbols
-
-    Default implementation is suitable for substitution channels, and
-    performs channel-specific operation through the corrupt() override.
-
-    \note It is possible that the \c tx and \c rx parameters actually point
-    to the same vector.
-
-    \callergraph
+    * \brief Pass a sequence of modulation symbols through the channel
+    * \param[in]  tx  Transmitted sequence of modulation symbols
+    * \param[out] rx  Received sequence of modulation symbols
+    * 
+    * Default implementation is suitable for substitution channels, and
+    * performs channel-specific operation through the corrupt() override.
+    * 
+    * \note It is possible that the \c tx and \c rx parameters actually point
+    * to the same vector.
+    * 
+    * \callergraph
     */
    virtual void transmit(const C<S>& tx, C<S>& rx) = 0;
    /*!
-    \brief Determine the per-symbol likelihoods of a sequence of received
-    modulation symbols corresponding to one transmission step
-    \param[in]  tx       Set of possible transmitted symbols
-    \param[in]  rx       Received sequence of modulation symbols
-    \param[out] ptable   Likelihoods corresponding to each possible
-    transmitted symbol
-
-    Default implementation is suitable for substitution channels, and
-    performs channel-specific operation through the pdf() override.
-
-    \callergraph
+    * \brief Determine the per-symbol likelihoods of a sequence of received
+    * modulation symbols corresponding to one transmission step
+    * \param[in]  tx       Set of possible transmitted symbols
+    * \param[in]  rx       Received sequence of modulation symbols
+    * \param[out] ptable   Likelihoods corresponding to each possible
+    * transmitted symbol
+    * 
+    * Default implementation is suitable for substitution channels, and
+    * performs channel-specific operation through the pdf() override.
+    * 
+    * \callergraph
     */
    virtual void receive(const array1s_t& tx, const C<S>& rx,
          C<array1d_t>& ptable) const = 0;
    /*!
-    \brief Determine the likelihood of a sequence of received modulation
-    symbols, given a particular transmitted sequence
-    \param[in]  tx       Transmitted sequence being considered
-    \param[in]  rx       Received sequence of modulation symbols
-    \return              Likelihood \f$ P(rx|tx) \f$
-
-    \callergraph
+    * \brief Determine the likelihood of a sequence of received modulation
+    * symbols, given a particular transmitted sequence
+    * \param[in]  tx       Transmitted sequence being considered
+    * \param[in]  rx       Received sequence of modulation symbols
+    * \return              Likelihood \f$ P(rx|tx) \f$
+    * 
+    * \callergraph
     */
    virtual double receive(const C<S>& tx, const C<S>& rx) const = 0;
    /*!
-    \brief Determine the likelihood of a sequence of received modulation
-    symbols, given a particular transmitted symbol
-    \param[in]  tx       Transmitted symbol being considered
-    \param[in]  rx       Received sequence of modulation symbols
-    \return              Likelihood \f$ P(rx|tx) \f$
-
-    \callergraph
+    * \brief Determine the likelihood of a sequence of received modulation
+    * symbols, given a particular transmitted symbol
+    * \param[in]  tx       Transmitted symbol being considered
+    * \param[in]  rx       Received sequence of modulation symbols
+    * \return              Likelihood \f$ P(rx|tx) \f$
+    * 
+    * \callergraph
     */
    virtual double receive(const S& tx, const C<S>& rx) const = 0;
    // @}
@@ -138,16 +138,16 @@ public:
 };
 
 /*!
- \brief   Common Channel Base.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Templated common channel base. This extra level is required to allow partial
- specialization of the container.
+ * \brief   Common Channel Base.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Templated common channel base. This extra level is required to allow partial
+ * specialization of the container.
  */
 
 template <class S, template <class > class C>
@@ -155,15 +155,15 @@ class basic_channel : public basic_channel_interface<S, C> {
 };
 
 /*!
- \brief   Common Channel Base Specialization.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Templated common channel base. Partial specialization for vector container.
+ * \brief   Common Channel Base Specialization.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Templated common channel base. Partial specialization for vector container.
  */
 
 template <class S>
@@ -239,15 +239,15 @@ double basic_channel<S, libbase::vector>::receive(const S& tx,
    }
 
 /*!
- \brief   Common Channel Base Specialization.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Templated common channel base. Partial specialization for matrix container.
+ * \brief   Common Channel Base Specialization.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Templated common channel base. Partial specialization for matrix container.
  */
 
 template <class S>
@@ -326,15 +326,15 @@ double basic_channel<S, libbase::matrix>::receive(const S& tx,
    }
 
 /*!
- \brief   Channel Base.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Templated base channel model.
+ * \brief   Channel Base.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Templated base channel model.
  */
 
 template <class S, template <class > class C = libbase::vector>
@@ -344,16 +344,16 @@ DECLARE_BASE_SERIALIZER(channel)
 };
 
 /*!
- \brief   Signal-Space Channel.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Class specialization including elements specific to the signal-space
- channel model.
+ * \brief   Signal-Space Channel.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Class specialization including elements specific to the signal-space
+ * channel model.
  */
 
 template <>
@@ -373,12 +373,12 @@ private:
 protected:
    /*! \name Channel function overrides */
    /*!
-    \brief Determine channel-specific parameters based on given SNR
-
-    \note \f$ E_b \f$ is fixed by the overall modulation and coding system.
-    The simulator determines \f$ N_0 \f$ according to the given SNR
-    (assuming unit signal energy), so that the actual band-limited
-    noise energy is given by \f$ E_b N_0 \f$.
+    * \brief Determine channel-specific parameters based on given SNR
+    * 
+    * \note \f$ E_b \f$ is fixed by the overall modulation and coding system.
+    * The simulator determines \f$ N_0 \f$ according to the given SNR
+    * (assuming unit signal energy), so that the actual band-limited
+    * noise energy is given by \f$ E_b N_0 \f$.
     */
    virtual void compute_parameters(const double Eb, const double No)
       {
