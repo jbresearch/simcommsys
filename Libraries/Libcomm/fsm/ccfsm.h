@@ -38,8 +38,8 @@ private:
    // @}
 protected:
    /*! \name Helper functions */
-   static int convert(const libbase::vector<G>& x);
-   static libbase::vector<G> convert(int x, int nu);
+   static int convert(const libbase::vector<G>& vec);
+   static libbase::vector<G> convert(int val, int nu);
    G convolve(const G& s, const libbase::vector<G>& r,
          const libbase::vector<G>& g) const;
    // @}

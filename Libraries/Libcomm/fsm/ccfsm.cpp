@@ -145,7 +145,7 @@ libbase::vector<int> ccfsm<G>::state() const
 template <class G>
 void ccfsm<G>::reset()
    {
-   fsm::reset(state);
+   fsm::reset();
    reg = 0;
    }
 

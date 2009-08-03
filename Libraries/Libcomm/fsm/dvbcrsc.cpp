@@ -13,8 +13,12 @@
 
 namespace libcomm {
 
+using libbase::bitfield;
+using libbase::vector;
+
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
 
+// TODO: may need to reverse the bits here
 const int dvbcrsc::csct[7][8] = {{0, 1, 2, 3, 4, 5, 6, 7}, {0, 6, 4, 2, 7, 1,
       3, 5}, {0, 3, 7, 4, 5, 6, 2, 1}, {0, 5, 3, 6, 2, 7, 1, 4}, {0, 4, 1, 5,
       6, 2, 7, 3}, {0, 2, 5, 7, 1, 3, 4, 6}, {0, 7, 6, 1, 3, 4, 5, 2}};
@@ -41,64 +45,68 @@ dvbcrsc::dvbcrsc(const dvbcrsc& x)
 
 // finite state machine functions - resetting
 
-void dvbcrsc::reset(int state)
+void dvbcrsc::reset()
    {
-   fsm::reset(state);
-   reg = state;
+   fsm::reset();
+   reg = 0;
    }
 
-void dvbcrsc::resetcircular(int zerostate, int n)
+void dvbcrsc::reset(vector<int> state)
    {
-   assert(zerostate >= 0 && zerostate <= 7);
+   fsm::reset(state);
+   reg = fsm::convert(state, 2);
+   }
+
+void dvbcrsc::resetcircular(vector<int> zerostate, int n)
+   {
+   // TODO: check input state is valid
    // circulation state is obtainable only if the sequence length is not
    // a multiple of the period
    assert(n%7 != 0);
    // lookup the circulation state and set accordingly
-   reset(csct[n % 7][zerostate]);
+   reset(fsm::convert(csct[n % 7][zerostate], nu, 2));
    }
 
 // finite state machine functions - state advance etc.
 
-void dvbcrsc::advance(int& input)
+void dvbcrsc::advance(vector<int>& input)
    {
    fsm::advance(input);
-   using libbase::bitfield;
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)
    // ip[0] = A, ip[1] = B
-   assert(input != fsm::tail);
+   assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip(input, k);
+   bitfield ip(input);
    // compute the shift-register left input
-   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
+   bitfield lsi = (reg + (ip(0) ^ ip(1))) * bitfield("1011");
    // do the shift
-   reg = lsi >> reg;
+   reg = reg << lsi;
    // apply the second input
-   reg ^= (bitfield("0") + ip(1) + ip(1));
+   reg ^= (ip(1) + ip(1) + bitfield("0"));
    }
 
-int dvbcrsc::output(int input) const
+vector<int> dvbcrsc::output(vector<int> input) const
    {
-   using libbase::bitfield;
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)
    // ip[0] = A, ip[1] = B
-   assert(input != fsm::tail);
+   assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip(input, k);
+   bitfield ip(input);
    // compute the shift-register left input
-   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
+   bitfield lsi = (reg + (ip(0) ^ ip(1))) * bitfield("1011");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
    bitfield op = ip;
    // low-order parity is Y
-   op = (lsi + reg) * bitfield("1011") + op;
+   op = (reg + lsi) * bitfield("1101") + op;
    // next is W
-   op = (lsi + reg) * bitfield("1001") + op;
+   op = (reg + lsi) * bitfield("1001") + op;
    return op;
    }
 
-int dvbcrsc::state() const
+vector<int> dvbcrsc::state() const
    {
-   return reg;
+   return vector<bool>(reg);
    }
 
 // description output

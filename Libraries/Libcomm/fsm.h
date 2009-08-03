@@ -40,8 +40,8 @@ public:
    // @}
 
    /*! \name Helper functions */
-   static int convert(const libbase::vector<int>& x, int S);
-   static libbase::vector<int> convert(int x, int nu, int S);
+   static int convert(const libbase::vector<int>& vec, int S);
+   static libbase::vector<int> convert(int val, int nu, int S);
    // @}
 
    /*! \name FSM state operations (getting and resetting) */

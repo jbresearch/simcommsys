@@ -45,29 +45,34 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   int state() const;
-   void reset(int state = 0);
-   void resetcircular(int zerostate, int n);
+   libbase::vector<int> state() const;
+   void reset();
+   void reset(libbase::vector<int> state);
+   void resetcircular(libbase::vector<int> zerostate, int n);
    // FSM operations (advance/output/step)
-   void advance(int& input);
-   int output(int input) const;
+   void advance(libbase::vector<int>& input);
+   libbase::vector<int> output(libbase::vector<int> input) const;
 
    // FSM information functions
+   int mem_order() const
+      {
+      return nu;
+      }
    int num_states() const
       {
       return 1 << nu;
       }
    int num_inputs() const
       {
-      return 1 << k;
+      return k;
       }
    int num_outputs() const
       {
-      return 1 << n;
+      return n;
       }
-   int mem_order() const
+   int num_symbols() const
       {
-      return nu;
+      return 2;
       }
 
    // Description

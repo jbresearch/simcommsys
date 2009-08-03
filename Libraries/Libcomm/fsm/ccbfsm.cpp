@@ -82,7 +82,7 @@ libbase::vector<int> ccbfsm::state() const
 
 void ccbfsm::reset()
    {
-   fsm::reset(state);
+   fsm::reset();
    reg = 0;
    }
 
