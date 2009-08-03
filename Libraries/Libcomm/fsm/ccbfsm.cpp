@@ -68,7 +68,7 @@ ccbfsm::ccbfsm(const ccbfsm& x)
 
 // FSM state operations (getting and resetting)
 
-int ccbfsm::state() const
+libbase::vector<int> ccbfsm::state() const
    {
    bitfield newstate;
    newstate.resize(0);
@@ -79,7 +79,7 @@ int ccbfsm::state() const
    return newstate;
    }
 
-void ccbfsm::reset(int state)
+void ccbfsm::reset(libbase::vector<int> state)
    {
    fsm::reset(state);
    bitfield newstate;
@@ -99,7 +99,7 @@ void ccbfsm::reset(int state)
 
 // FSM operations (advance/output/step)
 
-void ccbfsm::advance(int& input)
+void ccbfsm::advance(libbase::vector<int>& input)
    {
    fsm::advance(input);
    bitfield ip = determineinput(input);
@@ -111,7 +111,7 @@ void ccbfsm::advance(int& input)
       reg(i) = sin[i] >> reg(i);
    }
 
-int ccbfsm::output(int input) const
+libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
    {
    bitfield ip = determineinput(input);
    bitfield sin = determinefeedin(ip);

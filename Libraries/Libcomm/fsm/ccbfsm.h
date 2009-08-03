@@ -36,8 +36,8 @@ private:
    // @}
 protected:
    /*! \name FSM helper operations */
-   virtual libbase::bitfield determineinput(const int input) const = 0;
-   virtual libbase::bitfield determinefeedin(const int input) const = 0;
+   virtual libbase::bitfield determineinput(libbase::vector<int> input) const = 0;
+   virtual libbase::bitfield determinefeedin(libbase::vector<int> input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -55,11 +55,11 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   int state() const;
-   void reset(int state = 0);
+   libbase::vector<int> state() const;
+   void reset(libbase::vector<int> state = 0);
    // FSM operations (advance/output/step)
-   void advance(int& input);
-   int output(int input) const;
+   void advance(libbase::vector<int>& input);
+   libbase::vector<int> output(libbase::vector<int> input) const;
 
    // FSM information functions
    int mem_order() const
@@ -72,11 +72,15 @@ public:
       }
    int num_inputs() const
       {
-      return 1 << k;
+      return k;
       }
    int num_outputs() const
       {
-      return 1 << n;
+      return n;
+      }
+   int num_symbols() const
+      {
+      return 2;
       }
 
    // Description & Serialization
