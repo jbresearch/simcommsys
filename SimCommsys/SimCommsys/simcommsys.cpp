@@ -116,10 +116,7 @@ int main(int argc, char *argv[])
    po::notify(vm);
 
    // Validate user parameters
-   if (vm.count("help") || vm.count("system-file") == 0 || vm.count(
-         "results-file") == 0 || vm.count("start") == 0 || vm.count("stop")
-         == 0 || (vm.count("step") == 0 && vm.count("mul") == 0) || (vm.count(
-         "step") && vm.count("mul")))
+   if (vm.count("help"))
       {
       cout << desc << "\n";
       return 0;
@@ -129,6 +126,17 @@ int main(int argc, char *argv[])
    mymontecarlo estimator;
    estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<bool> (),
          vm["priority"].as<int> ());
+
+   // If this is a server instance, check the remaining parameters
+   if (vm.count("system-file") == 0 || vm.count("results-file") == 0
+         || vm.count("start") == 0 || vm.count("stop") == 0
+         || (vm.count("step") == 0 && vm.count("mul") == 0)
+         || (vm.count("step") && vm.count("mul")))
+      {
+      cout << desc << "\n";
+      return 0;
+      }
+
    // Simulation system & parameters
    estimator.set_resultsfile(vm["results-file"].as<std::string> ());
    libcomm::experiment *system = createsystem(
