@@ -33,8 +33,8 @@ private:
    // @}
 protected:
    /*! \name FSM helper operations */
-   int determineinput(int input) const;
-   libbase::vector<G> determinefeedin(int input) const;
+   libbase::vector<int> determineinput(libbase::vector<int> input) const;
+   libbase::vector<G> determinefeedin(libbase::vector<int> input) const;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -58,7 +58,7 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   void resetcircular(int zerostate, int n);
+   void resetcircular(libbase::vector<int> zerostate, int n);
 
    // Description
    std::string description() const;

@@ -172,29 +172,28 @@ void grscc<G>::initcsct()
 // FSM helper operations
 
 template <class G>
-int grscc<G>::determineinput(int input) const
+vector<int> grscc<G>::determineinput(vector<int> input) const
    {
-   if (input != fsm::tail)
-      return input;
-   // Handle tailing out
-   const G zero;
-   vector<G> ip(this->k);
-   for (int i = 0; i < this->k; i++)
-      ip(i) = convolve(zero, this->reg(i), this->gen(i, i));
-   return convert(ip);
+   for (int i = 0; i < input.size(); i++)
+      if (input(i) == fsm::tail)
+         {
+         // Handle tailing out
+         const G zero;
+         for (int i = 0; i < this->k; i++)
+            input(i) = convolve(zero, this->reg(i), this->gen(i, i));
+         }
+   return input;
    }
 
 template <class G>
-vector<G> grscc<G>::determinefeedin(int input) const
+vector<G> grscc<G>::determinefeedin(vector<int> input) const
    {
-   assert(input != fsm::tail);
-   // Convert input to vector representation
-   vector<G> ip(this->k);
-   convert(input, ip);
+   for (int i = 0; i < input.size(); i++)
+      assert(input != fsm::tail);
    // Determine the shift-in values by convolution
    vector<G> sin(this->k);
    for (int i = 0; i < this->k; i++)
-      sin(i) = convolve(ip(i), this->reg(i), this->gen(i, i));
+      sin(i) = convolve(input(i), this->reg(i), this->gen(i, i));
    return sin;
    }
 
@@ -235,14 +234,14 @@ vector<G> grscc<G>::determinefeedin(int input) const
  * containing all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
  */
 template <class G>
-void grscc<G>::resetcircular(int zerostate, int n)
+void grscc<G>::resetcircular(vector<int> zerostate, int n)
    {
-   assert(zerostate >= 0 && zerostate < this->num_states());
+   // TODO: check the input state is valid
    if (csct.size() == 0)
       initcsct();
    const int L = csct.size().rows();
-   assert(n%L != 0);
-   reset(csct(n % L, zerostate));
+   assert(n % L != 0);
+   reset(csct(n % L, convert(zerostate)));
    }
 
 // Description
