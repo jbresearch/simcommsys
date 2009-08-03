@@ -23,9 +23,9 @@ using libbase::matrix;
  * \param  generator   Generator matrix of size \f$ k \times n \f$
  * 
  * Each generator matrix element is a vector over G, laid out in the same format
- * as the internal registers - lower index positions are considered to lie on the
- * right, and correspond with register positions farther away from the input
- * junction.
+ * as the internal registers - lower index positions are considered to lie on
+ * the left, and correspond with register positions closest to the input
+ * junction. This follows the usual convention in the coding community.
  */
 template <class G>
 void ccfsm<G>::init(const matrix<vector<G> >& generator)
@@ -36,23 +36,20 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
    n = gen.size().cols();
    // set default value to the rest
    m = 0;
-   // check that the generator matrix is valid (correct sizes) and create shift registers
+   // check that the generator matrix is valid (correct sizes) and create
+   // shift registers
    reg.init(k);
    nu = 0;
    for (int i = 0; i < k; i++)
       {
-      // assume with of register of input 'i' from its generator sequence for first output
+      // assume with of register of input 'i' from its generator sequence for
+      // first output
       int m = gen(i, 0).size() - 1;
       reg(i).init(m);
       nu += m;
       // check that the gen. seq. for all outputs are the same length
       for (int j = 1; j < n; j++)
-         if (gen(i, j).size() != m + 1)
-            {
-            std::cerr
-                  << "FATAL ERROR (ccfsm): Generator sequence must have constant width for each input.\n";
-            exit(1);
-            }
+         assertalways(gen(i, j).size() == m + 1);
       // update memory order
       if (m > ccfsm<G>::m)
          ccfsm<G>::m = m;
@@ -63,19 +60,21 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
 
 /*!
  * \brief Conversion from vector spaces to integer
- * \param[in]  x  Input in vector representation
- * \param[in]  y  Initial integer value (set to zero if this is the first vector)
- * \return Value of \c x in integer representation; any prior value \c y is
- * shifted to the left before adding the conversion of \c x
+ * \param[in] x Input in vector representation
+ * \return Value of \c x in integer representation
  * 
- * \note Left-most register positions (ie. those closest to the input junction) are
- * represented by higher index positions, and get higher-order positions within
+ * Left-most register positions (ie. those closest to the input junction) are
+ * represented by lower index positions, and get lower-order positions within
  * the integer representation.
+ *
+ * \todo check we are within the acceptable range for int representation
  */
 template <class G>
-int ccfsm<G>::convert(const vector<G>& x, int y) const
+int ccfsm<G>::convert(const vector<G>& x)
    {
-   for (int i = x.size() - 1; i >= 0; i--)
+   int nu = x.size();
+   int y = 0;
+   for (int i = nu - 1; i >= 0; i--)
       {
       y *= G::elements();
       y += x(i);
@@ -85,23 +84,25 @@ int ccfsm<G>::convert(const vector<G>& x, int y) const
 
 /*!
  * \brief Conversion from integer to vector space
- * \param[in]  x  Input in integer representation
- * \param[out] y  Pre-allocated vector for storing result - must be of correct size
- * \return Any remaining (shifted) higher-order value from \c x
+ * \param[in] x Input in integer representation
+ * \param[in] nu Length of vector representation
+ * \return Value of \c x in vector representation
  * 
- * \note Left-most register positions (ie. those closest to the input junction) are
- * represented by higher index positions, and get higher-order positions within
+ * Left-most register positions (ie. those closest to the input junction) are
+ * represented by lower index positions, and get lower-order positions within
  * the integer representation.
  */
 template <class G>
-int ccfsm<G>::convert(int x, vector<G>& y) const
+vector<G> ccfsm<G>::convert(int x, int nu)
    {
-   for (int i = 0; i < y.size(); i++)
+   vector<G> y(nu);
+   for (int i = 0; i < nu; i++)
       {
       y(i) = x % G::elements();
       x /= G::elements();
       }
-   return x;
+   assert(x == 0);
+   return y;
    }
 
 /*!
@@ -153,39 +154,36 @@ ccfsm<G>::ccfsm(const ccfsm<G>& x)
 
 // FSM state operations (getting and resetting)
 
-/*!
- * \copydoc fsm::state()
- * 
- * \note Lower-order inputs get lower-order positions within the state representation.
- * 
- * \note Left-most register positions (ie. those closest to the input junction) are
- * represented by higher index positions, and get higher-order positions within
- * the state representation.
- */
 template <class G>
-int ccfsm<G>::state() const
+libbase::vector<int> ccfsm<G>::state() const
    {
-   int state = 0;
-   for (int i = k - 1; i >= 0; i--)
-      state = convert(reg(i), state);
-   assert(state >= 0 && state < num_states());
+   libbase::vector<int> state(nu);
+   int j = 0;
+   for (int t = 0; t < nu; t++)
+      for (int i = 0; i < k; i++)
+         if (reg(i).size() > t)
+            state(j++) = reg(i)(t);
+   assert(j == nu);
    return state;
    }
 
 template <class G>
-void ccfsm<G>::reset(int state)
+void ccfsm<G>::reset(libbase::vector<int> state)
    {
    fsm::reset(state);
-   assert(state >= 0 && state < num_states());
-   for (int i = k - 1; i >= 0; i--)
-      state = convert(state, reg(i));
-   assert(state == 0);
+   assert(state.size() == nu);
+   int j = 0;
+   for (int t = 0; t < nu; t++)
+      for (int i = 0; i < k; i++)
+         if (reg(i).size() > t)
+            reg(i)(t) = state(j++);
+   assert(j == nu);
    }
 
 // FSM operations (advance/output/step)
 
 template <class G>
-void ccfsm<G>::advance(int& input)
+void ccfsm<G>::advance(libbase::vector<int>& input)
    {
    fsm::advance(input);
    input = determineinput(input);
@@ -196,16 +194,16 @@ void ccfsm<G>::advance(int& input)
       const int m = reg(i).size();
       if (m == 0)
          continue;
-      // Shift entries to the right (ie. down)
-      for (int j = 1; j < m; j++)
-         reg(i)(j - 1) = reg(i)(j);
+      // Shift entries to the right (ie. up)
+      for (int j = m - 1; j > 0; j--)
+         reg(i)(j) = reg(i)(j - 1);
       // Left-most entry gets the shift-in value
-      reg(i)(m - 1) = sin(i);
+      reg(i)(0) = sin(i);
       }
    }
 
 template <class G>
-int ccfsm<G>::output(int input) const
+libbase::vector<int> ccfsm<G>::output(libbase::vector<int> input) const
    {
    input = determineinput(input);
    vector<G> sin = determinefeedin(input);
@@ -218,7 +216,7 @@ int ccfsm<G>::output(int input) const
          thisop += convolve(sin(i), reg(i), gen(i, j));
       op(j) = thisop;
       }
-   return convert(op);
+   return op;
    }
 
 // Description & Serialization
@@ -235,7 +233,7 @@ std::string ccfsm<G>::description() const
       for (int j = 0; j < n; j++)
          {
          // Loop over polynomial
-         for (int x = gen(i, j).size() - 1; x >= 0; x--)
+         for (int x = 0; x < gen(i, j).size(); x++)
             sout << "{" << gen(i, j)(x) << "}";
          sout << (j == n - 1 ? (i == k - 1 ? "])" : "; ") : ", ");
          }

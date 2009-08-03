@@ -25,8 +25,8 @@ template <class G>
 class ccfsm : public fsm {
 protected:
    /*! \name Object representation */
-   int k; //!< Number of inputs (symbols per time-step)
-   int n; //!< Number of outputs (symbols per time-step)
+   int k; //!< Number of input lines
+   int n; //!< Number of output lines
    int nu; //!< Total number of memory elements (constraint length)
    int m; //!< Memory order (longest input register)
    libbase::vector<libbase::vector<G> > reg; //!< Shift registers (one for each input)
@@ -38,25 +38,26 @@ private:
    // @}
 protected:
    /*! \name Helper functions */
-   int convert(const libbase::vector<G>& x, int y = 0) const;
-   int convert(int x, libbase::vector<G>& y) const;
+   static int convert(const libbase::vector<G>& x);
+   static libbase::vector<G> convert(int x, int nu);
    G convolve(const G& s, const libbase::vector<G>& r,
          const libbase::vector<G>& g) const;
    // @}
    /*! \name FSM helper operations */
    /*!
-    * \brief Determine the actual input that will be applied (resolve tail as necessary)
-    * \param  input    Requested input - can be any valid input or the special 'tail' value
-    * \return Either the given value, or the value that must be applied to tail out
+    * \brief Determine the actual input that will be applied (resolve tail)
+    * \param input Requested input - can be a valid input or the 'tail' value
+    * \return The given value, or the value that must be applied to tail out
     */
-   virtual int determineinput(int input) const = 0;
+   virtual libbase::vector<int>
+   determineinput(libbase::vector<int> input) const = 0;
    /*!
     * \brief Determine the value that will be shifted into the register
-    * \param  input    Requested input - can only be a valid input
-    * \return Vector representation of the shift-in value - lower index positions
-    * correspond to lower-index inputs
+    * \param input Requested input - can only be a valid input
+    * \return Vector representation of the shift-in value
     */
-   virtual libbase::vector<G> determinefeedin(int input) const = 0;
+   virtual libbase::vector<G>
+   determinefeedin(libbase::vector<int> input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -74,11 +75,11 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   int state() const;
-   void reset(int state = 0);
+   libbase::vector<int> state() const;
+   void reset(libbase::vector<int> state = 0);
    // FSM operations (advance/output/step)
-   void advance(int& input);
-   int output(int input) const;
+   void advance(libbase::vector<int> & input);
+   libbase::vector<int> output(libbase::vector<int> input) const;
 
    // FSM information functions
    int mem_order() const
@@ -91,11 +92,15 @@ public:
       }
    int num_inputs() const
       {
-      return int(pow(G::elements(), k));
+      return k;
       }
    int num_outputs() const
       {
-      return int(pow(G::elements(), n));
+      return n;
+      }
+   int num_symbols() const
+      {
+      return G::elements();
       }
 
    // Description & Serialization
@@ -107,4 +112,3 @@ public:
 } // end namespace
 
 #endif
-

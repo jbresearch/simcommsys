@@ -161,7 +161,10 @@ public:
    // @}
 
    /*! \name Matrix copy, vector conversion, and value initialisation */
-   matrix<T>& copyfrom(const matrix<T>& x);
+   template <class A>
+   matrix<T>& copyfrom(const matrix<A>& x);
+   template <class A>
+   matrix<T>& copyfrom(const vector<A>& x);
    matrix<T>& operator=(const matrix<T>& x);
    template <class A>
    matrix<T>& operator=(const matrix<A>& x);
@@ -376,13 +379,27 @@ inline void matrix<T>::init(const int m, const int n)
  * some cases (like when we're trying to copy a vector of matrices).
  */
 template <class T>
-inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
+template <class A>
+inline matrix<T>& matrix<T>::copyfrom(const matrix<A>& x)
    {
    const int rows = std::min(m_size.rows(), x.m_size.rows());
    const int cols = std::min(m_size.cols(), x.m_size.cols());
    for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-         m_data[i][j] = x.m_data[i][j];
+         m_data[i][j] = x(i, j);
+   return *this;
+   }
+
+/*! \brief Copies data from a vector in row-major order, without resizing
+ */
+template <class T>
+template <class A>
+inline matrix<T>& matrix<T>::copyfrom(const vector<A>& x)
+   {
+   int k = 0;
+   for (int i = 0; i < m_size.rows(); i++)
+      for (int j = 0; j < m_size.cols() && k < x.size(); j++)
+         m_data[i][j] = x(k++);
    return *this;
    }
 
@@ -396,6 +413,8 @@ inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
    return *this;
    }
 
+/*! \brief Copy matrix (can be of different type)
+ */
 template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
@@ -407,6 +426,8 @@ inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    return *this;
    }
 
+/*! \brief Convert vector to matrix as a single column
+ */
 template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
@@ -427,8 +448,7 @@ inline matrix<T>& matrix<T>::operator=(const T x)
    }
 
 /*! \brief Convert matrix to a vector
- * Elements are extracted in column-major order (ie. starting with the top-left
- * first go down then across).
+ * Elements are extracted in row-major order.
  */
 template <class T>
 inline matrix<T>::operator vector<T>() const

@@ -72,7 +72,7 @@ template <class real, class dbl>
 void mapcc<real, dbl>::resetpriors()
    {
    // Initialize input probability vector
-   app.init(This::input_block_size(), This::num_inputs());
+   app.init(BCJR::block_size(), BCJR::num_input_symbols());
    app = 1.0;
    }
 
@@ -84,12 +84,24 @@ void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
    assertalways(ptable(0).size() == This::num_inputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
+   // Convert the input statistics for the BCJR Algorithm
+
+   // Set up mapper
+   map_straight<libbase::vector, dbl> map;
+   const int N = BCJR::num_input_symbols(); // # enc outputs
+   const int M = This::num_inputs(); // # mod symbols
+   const int S = BCJR::num_input_symbols(); // # tran symbols
+   map.set_parameters(N, M, S);
+   map.set_blocksize(BCJR::block_size());
+   // Convert to a temporary space
+   array1vd_t ptable_bcjr;
+   map.inverse(ptable, ptable_bcjr);
    // Initialize input probability vector
-   app.init(This::input_block_size(), This::num_inputs());
+   app.init(BCJR::block_size(), BCJR::num_input_symbols());
    // Copy the input statistics for the BCJR Algorithm
    for (int t = 0; t < app.size().rows(); t++)
       for (int i = 0; i < app.size().cols(); i++)
-         app(t, i) = ptable(t)(i);
+         app(t, i) = ptable_bcjr(t)(i);
    }
 
 template <class real, class dbl>
@@ -116,27 +128,31 @@ template <class real, class dbl>
 void mapcc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
-   // Initialise result vector
-   encoded.init(tau);
-   // Make a local copy of the source, including any necessary tail
-   array1i_t source1(tau);
-   for (int t = 0; t < source.size(); t++)
-      source1(t) = source(t);
-   for (int t = source.size(); t < tau; t++)
-      source1(t) = fsm::tail;
+   // Inherit sizes
+   const int k = encoder->num_inputs();
+   const int n = encoder->num_outputs();
+   // Reform source into a matrix, with one row per timestep
+   // and adding any necessary tail
+   array2i_t source1(tau, k);
+   source1 = fsm::tail;
+   source1.copyfrom(source);
    // Reset the encoder to zero state
    encoder->reset(0);
-   // When dealing with a circular system, perform first pass to determine end state,
-   // then reset to the corresponding circular state.
+   // When dealing with a circular system, perform first pass to determine end
+   // state, then reset to the corresponding circular state.
    if (circular)
       {
       for (int t = 0; t < tau; t++)
-         encoder->advance(source1(t));
+         encoder->advance(source1.extractrow(t));
       encoder->resetcircular();
       }
+   // Initialise result vector
+   array2i_t encoded1(tau, n);
    // Encode source stream
    for (int t = 0; t < tau; t++)
-      encoded(t) = encoder->step(source1(t));
+      encoded1.insertrow(encoder->step(source1.extractrow(t)), t);
+   // Reform results as a vector
+   encoded = encoded1;
    }
 
 template <class real, class dbl>
@@ -146,10 +162,11 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri)
    array2d_t rif;
    // perform decoding
    BCJR::fdecode(R, app, rif);
-   // remove any tail bits from input set
+   // initialise results set
    ri.init(This::input_block_size());
    for (int i = 0; i < This::input_block_size(); i++)
       ri(i).init(This::num_inputs());
+   // remove any tail bits from input set
    for (int i = 0; i < This::input_block_size(); i++)
       for (int j = 0; j < This::num_inputs(); j++)
          ri(i)(j) = rif(i, j);

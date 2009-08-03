@@ -56,6 +56,7 @@ template <class real, class dbl = double, bool norm = false>
 class bcjr {
 public:
    /*! \name Type definitions */
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::matrix<int> array2i_t;
    typedef libbase::vector<dbl> array1d_t;
    typedef libbase::matrix<dbl> array2d_t;
@@ -119,17 +120,43 @@ protected:
       initialised = false;
       }
 public:
-   // constructor & destructor
+   /*! \name Constructor & destructor */
    bcjr(fsm& encoder, const int tau)
       {
       init(encoder, tau);
       }
-   // decode functions
+   // @}
+
+   /*! \name Decode functions */
    void decode(const array2d_t& R, array2d_t& ri, array2d_t& ro);
    void decode(const array2d_t& R, const array2d_t& app, array2d_t& ri,
          array2d_t& ro);
    void fdecode(const array2d_t& R, array2d_t& ri);
    void fdecode(const array2d_t& R, const array2d_t& app, array2d_t& ri);
+   // @}
+
+   /*! \name Information functions */
+   //! Number of defined states
+   int num_states() const
+      {
+      return M;
+      }
+   //! Input alphabet size
+   int num_input_symbols() const
+      {
+      return K;
+      }
+   //! Output alphabet size
+   int num_output_symbols() const
+      {
+      return N;
+      }
+   //! Sequence length (number of time-steps)
+   int block_size() const
+      {
+      return tau;
+      }
+   // @}
 };
 
 } // end namespace

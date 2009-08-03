@@ -22,6 +22,9 @@ namespace libcomm {
  * \note If the trellis is not defined as starting or ending at zero, then it
  * is assumed that all starting and ending states (respectively) are
  * equiprobable.
+ *
+ * \note Instead of keeping a copy of the encoder, we compute the state
+ * transition and output tables and keep a copy of those.
  */
 template <class real, class dbl, bool norm>
 void bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
@@ -29,22 +32,30 @@ void bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
    assertalways(tau > 0);
    bcjr::tau = tau;
 
+   // Inherit constants
+   const int S = encoder.num_symbols();
+   const int k = encoder.num_inputs();
+   const int n = encoder.num_outputs();
+
    // Initialise constants
-   K = encoder.num_inputs();
-   N = encoder.num_outputs();
+   K = pow(S, k);
+   N = pow(S, n);
    M = encoder.num_states();
 
+   // Determine the number of state memory elements
+   const int m = int(log(M)/log(S));
+   assert(M == pow(m,S));
    // initialise LUT's for state table
-   // this must be done here or we will have to keep a copy of the encoder
    lut_X.init(M, K);
    lut_m.init(M, K);
    for (int mdash = 0; mdash < M; mdash++)
       for (int i = 0; i < K; i++)
          {
-         encoder.reset(mdash);
-         int input = i;
-         lut_X(mdash, i) = encoder.step(input);
-         lut_m(mdash, i) = encoder.state();
+         array1i_t mdash_v = fsm::convert(mdash, m, S);
+         encoder.reset(mdash_v);
+         array1i_t input = fsm::convert(i, k, S);
+         lut_X(mdash, i) = fsm::convert(encoder.step(input), S);
+         lut_m(mdash, i) = fsm::convert(encoder.state(), S);
          }
 
    // set flag as necessary
