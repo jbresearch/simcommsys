@@ -86,7 +86,12 @@ bitfield::bitfield(const int32u field, const int bits)
 /*!
  * \brief Constructor that converts a vector of bits
  * 
- * Bits are held in the vector as low-order first.
+ * Bits are held in the vector as high-order first; this means that the first
+ * (index 0) element in the vector is the left-most (or most-significant) bit.
+ * This convention is consistent with the conventions used for fsm, where
+ * vector index zero corresponds to the left-most element, and the convention
+ * for octal/binary representation of shift-register taps, where the msb is
+ * left-most.
  */
 bitfield::bitfield(const vector<bool>& v)
    {
@@ -94,7 +99,22 @@ bitfield::bitfield(const vector<bool>& v)
    check_fieldsize(bits);
    field = 0;
    for (int i = 0; i < bits; i++)
-      field |= (v(i) << i);
+      {
+      field <<= 1;
+      field |= v(i);
+      }
+   }
+
+/*!
+ * \brief Convert bitfield to a vector representation
+ * \sa bitfield()
+ */
+bitfield::operator vector<bool>() const
+   {
+   vector<bool> result(bits);
+   for (int i = 0, j = bits - 1; i < bits; i++, j--)
+      result(i) = ((field >> j) & 1);
+   return result;
    }
 
 // Resizing Operations

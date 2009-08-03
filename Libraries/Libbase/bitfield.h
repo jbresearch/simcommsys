@@ -30,6 +30,7 @@ private:
    static void check_fieldsize(int b);
    void init(const char *s);
 public:
+   /*! \name Constructors / Destructors */
    bitfield();
    bitfield(const char *s)
       {
@@ -37,13 +38,16 @@ public:
       }
    bitfield(const int32u field, const int bits);
    explicit bitfield(const vector<bool>& v);
+   // @}
 
-   // Type conversion to integer/string
+   /*! \name Type conversion */
    operator int32u() const
       {
       return field;
       }
    operator std::string() const;
+   operator vector<bool>() const;
+   // @}
 
    // Field size methods
    int size() const
