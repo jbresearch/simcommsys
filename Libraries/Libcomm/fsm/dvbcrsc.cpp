@@ -69,11 +69,11 @@ void dvbcrsc::advance(int& input)
    // process input
    bitfield ip(input, k);
    // compute the shift-register left input
-   bitfield lsi = ((ip[0] ^ ip[1]) + reg) * bitfield("1101");
+   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // do the shift
    reg = lsi >> reg;
    // apply the second input
-   reg ^= (bitfield("0") + ip[1] + ip[1]);
+   reg ^= (bitfield("0") + ip(1) + ip(1));
    }
 
 int dvbcrsc::output(int input) const
@@ -85,7 +85,7 @@ int dvbcrsc::output(int input) const
    // process input
    bitfield ip(input, k);
    // compute the shift-register left input
-   bitfield lsi = ((ip[0] ^ ip[1]) + reg) * bitfield("1101");
+   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
    bitfield op = ip;

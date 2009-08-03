@@ -76,7 +76,8 @@ public:
 
    // FSM state operations (getting and resetting)
    libbase::vector<int> state() const;
-   void reset(libbase::vector<int> state = 0);
+   void reset();
+   void reset(libbase::vector<int> state);
    // FSM operations (advance/output/step)
    void advance(libbase::vector<int> & input);
    libbase::vector<int> output(libbase::vector<int> input) const;

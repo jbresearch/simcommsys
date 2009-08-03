@@ -70,31 +70,33 @@ ccbfsm::ccbfsm(const ccbfsm& x)
 
 libbase::vector<int> ccbfsm::state() const
    {
-   bitfield newstate;
-   newstate.resize(0);
-   for (int i = 0; i < k; i++)
-      {
-      newstate = reg(i) + newstate;
-      }
-   return newstate;
+   libbase::vector<int> state(nu);
+   int j = 0;
+   for (int t = 0; t < nu; t++)
+      for (int i = 0; i < k; i++)
+         if (reg(i).size() > t)
+            state(j++) = reg(i)(t);
+   assert(j == nu);
+   return state;
+   }
+
+void ccbfsm::reset()
+   {
+   fsm::reset(state);
+   reg = 0;
    }
 
 void ccbfsm::reset(libbase::vector<int> state)
    {
    fsm::reset(state);
-   bitfield newstate;
-   newstate.resize(nu);
-   newstate = state;
-   for (int i = 0; i < k; i++)
-      {
-      int size = reg(i).size();
-      // check for case where no memory is associated with the input bit
-      if (size > 0)
-         {
-         reg(i) = newstate.extract(size - 1, 0);
-         newstate >>= size;
-         }
-      }
+   assert(state.size() == nu);
+   reg = 0;
+   int j = 0;
+   for (int t = 0; t < nu; t++)
+      for (int i = 0; i < k; i++)
+         if (reg(i).size() > t)
+            reg(i) |= state(j++) << t;
+   assert(j == nu);
    }
 
 // FSM operations (advance/output/step)
@@ -108,7 +110,7 @@ void ccbfsm::advance(libbase::vector<int>& input)
    input = ip;
    // Compute next state
    for (int i = 0; i < k; i++)
-      reg(i) = sin[i] >> reg(i);
+      reg(i) = reg(i) << sin(i);
    }
 
 libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
@@ -121,7 +123,7 @@ libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
       {
       bitfield thisop(0, 1);
       for (int i = 0; i < k; i++)
-         thisop ^= (sin[i] + reg(i)) * gen(i, j);
+         thisop ^= (reg(i) + sin(i)) * gen(i, j);
       op = thisop + op;
       }
    return op;

@@ -18,7 +18,7 @@ void ofbstream::write_buffer()
    buffer >>= 32 - ptr;
    // write as many bytes as necessary to expel buffer
    for (int i = 0; i < ptr; i += 8)
-      c.put(char(buffer.extract(i + 7, i)));
+      c.put(char(buffer(i + 7, i)));
    c << std::flush;
    ptr = 0;
    }

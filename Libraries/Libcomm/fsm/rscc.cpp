@@ -48,7 +48,7 @@ bitfield rscc::determinefeedin(const int input) const
    assert(input != fsm::tail);
    bitfield sin(0, 0), ip(input, k);
    for (int i = 0; i < k; i++)
-      sin = ((ip[i] + reg(i)) * gen(i, i)) + sin;
+      sin = ((ip(i) + reg(i)) * gen(i, i)) + sin;
    return sin;
    }
 

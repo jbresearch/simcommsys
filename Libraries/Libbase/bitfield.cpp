@@ -89,7 +89,8 @@ bitfield::bitfield(const int32u field, const int bits)
  * Bits are held in the vector as low-order first; this means that the first
  * (index 0) element in the vector is the right-most (or least-significant) bit.
  * This convention is consistent with the convention used for bit indexing
- * using the [] operator.
+ * using the [] operator, and also with that for converting vectors to integer
+ * representation in fsm.
  */
 bitfield::bitfield(const vector<bool>& v)
    {
@@ -145,7 +146,7 @@ bitfield& bitfield::operator=(const int32u x)
 
 // Extraction Operations
 
-bitfield bitfield::extract(const int hi, const int lo) const
+bitfield bitfield::operator()(const int hi, const int lo) const
    {
    bitfield c;
    assertalways(hi < bits && lo >= 0 && lo <= hi);
@@ -154,13 +155,28 @@ bitfield bitfield::extract(const int hi, const int lo) const
    return c;
    }
 
-bitfield bitfield::extract(const int b) const
+bitfield bitfield::operator()(const int b) const
    {
    bitfield c;
    assertalways(b < bits && b >= 0);
    c.bits = 1;
    c.field = (field >> b) & 1;
    return c;
+   }
+
+// Bit Reversal
+
+bitfield& bitfield::reverse()
+   {
+   int32u result = 0;
+   while (field)
+      {
+      result <<= 1;
+      result |= field & 1;
+      field >>= 1;
+      }
+   field = result;
+   return *this;
    }
 
 // Logic Operations
@@ -298,4 +314,5 @@ std::istream& operator>>(std::istream& s, bitfield& b)
    return s;
    }
 
-} // end namespace
+}
+// end namespace

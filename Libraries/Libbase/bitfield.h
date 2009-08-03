@@ -62,12 +62,11 @@ public:
    bitfield& operator=(const int32u x);
 
    // Partial extraction and indexed access
-   bitfield extract(const int hi, const int lo) const;
-   bitfield extract(const int b) const;
-   bitfield operator[](const int b) const
-      {
-      return extract(b);
-      }
+   bitfield operator()(const int hi, const int lo) const;
+   bitfield operator()(const int b) const;
+
+   // Bit-reversal method
+   bitfield& reverse();
 
    // Logical operators - OR, AND, XOR
    friend bitfield operator|(const bitfield& a, const bitfield& b);

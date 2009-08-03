@@ -143,6 +143,13 @@ libbase::vector<int> ccfsm<G>::state() const
    }
 
 template <class G>
+void ccfsm<G>::reset()
+   {
+   fsm::reset(state);
+   reg = 0;
+   }
+
+template <class G>
 void ccfsm<G>::reset(libbase::vector<int> state)
    {
    fsm::reset(state);
