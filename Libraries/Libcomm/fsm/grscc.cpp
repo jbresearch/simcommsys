@@ -49,15 +49,15 @@ using libbase::matrix;
  * determining circulation state
  * \return State-generator matrix
  * 
- * The size of state-generator matrix \f$ G \f$ is \f$ \nu \times \nu \f$ elements.
- * Each row contains the multipliers corresponding to a particular memory element's
- * input. In turn, each column contains the multiplier (weight) corresponding to
- * successive present-state memory elements.
+ * The size of state-generator matrix \f$ G \f$ is \f$ \nu \times \nu \f$
+ * elements. Each row contains the multipliers corresponding to a particular
+ * memory element's input. In turn, each column contains the multiplier
+ * (weight) corresponding to successive present-state memory elements.
  * 
- * Note that by definition, \f$ G \f$ contains only the taps corresponding to the
- * feedforward and feedback paths for the next-state generation; thus the polynomials
- * corresponding to the output generation have no bearing. Similarly, the taps
- * corresponding to the inputs also are irrelevant.
+ * Note that by definition, \f$ G \f$ contains only the taps corresponding to
+ * the feedforward and feedback paths for the next-state generation; thus the
+ * polynomials corresponding to the output generation have no bearing.
+ * Similarly, the taps corresponding to the inputs also are irrelevant.
  */
 template <class G>
 matrix<G> grscc<G>::getstategen() const
@@ -70,10 +70,10 @@ matrix<G> grscc<G>::getstategen() const
       {
       // First row describes the shift-input taps, except for
       // the first element, which corresponds to the shift-in quantity
-      for (int j = this->gen(i, i).size() - 2, col = 0; j >= 0; j--, col++)
+      for (int j = 1, col = 0; j < this->gen(i, i).size(); j++, col++)
          stategen(col, row) = this->gen(i, i)(j);
       // Successive rows describe the simple right-shift taps
-      for (int j = 1; j < this->reg(i).size(); j++)
+      for (int j = 1, col = 0; j < this->reg(i).size(); j++, col++)
          stategen(j - 1, ++row) = 1;
       }
    trace << "DEBUG (grscc): state-generator matrix = " << stategen;
