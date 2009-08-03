@@ -26,8 +26,6 @@ private:
    libbase::matrix<int> csct; //!< Circulation state correspondence table
    // @}
    /*! \name Internal functions */
-   int getstateval(const libbase::vector<G>& statevec) const;
-   libbase::vector<G> getstatevec(int stateval) const;
    libbase::matrix<G> getstategen() const;
    void initcsct();
    // @}

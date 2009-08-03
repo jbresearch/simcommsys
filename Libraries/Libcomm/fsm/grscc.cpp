@@ -45,60 +45,6 @@ using libbase::matrix;
 // Internal functions
 
 /*!
- * \brief Determine unique value from state vector
- * \param statevec State vector in the required format for determining circulation state
- * \return Unique integer representation of state value
- * 
- * Similarly to convention, define the state vector as a column vector, as follows:
- * \f[ S_i = \begin{pmatrix}
- * S_{1,1} \\ S_{2,1} \\ \vdots \\ S_{\nu_1,1} \\
- * S_{1,2} \\ S_{2,2} \\ \vdots \\ S_{\nu_2,2} \\
- * \vdots \\ S_{\nu_k,k}
- * \end{pmatrix} \f]
- * 
- * where \f$ k \f$ is the number of inputs and \f$ \nu_i \f$ is the number of
- * memory elements for input \f$ i \f$. Note that conventionally, element \f$ S_{1,i} \f$
- * is the left-most memory element for input \f$ i \f$, and therefore the one to which
- * the shift-in is applied. It can be seen that the total length of the state vector
- * is equal to the total number of memory elements in the system, \f$ \nu \f$.
- */
-template <class G>
-int grscc<G>::getstateval(const vector<G>& statevec) const
-   {
-   int stateval = 0;
-   for (int i = 0; i < this->nu; i++)
-      {
-      stateval *= G::elements();
-      stateval += statevec(i);
-      }
-   assert(stateval >= 0 && stateval < this->num_states());
-   //trace << "DEBUG (grscc): state value = " << stateval << "\n";
-   return stateval;
-   }
-
-/*!
- * \brief Convert integer representation of state value to a vector in the required
- * format for determining circulation state
- * \param stateval Unique integer representation of state value
- * \return State vector in the required format for determining circulation state
- */
-template <class G>
-vector<G> grscc<G>::getstatevec(int stateval) const
-   {
-   // Create generator matrix in required format
-   vector<G> statevec(this->nu);
-   for (int i = this->nu - 1; i >= 0; i--)
-      {
-      statevec(i) = stateval % G::elements();
-      stateval /= G::elements();
-      }
-   assert(stateval == 0);
-   //trace << "DEBUG (grscc): state vector = ";
-   //statevec.serialize(trace);
-   return statevec;
-   }
-
-/*!
  * \brief Create state-generator matrix in the required format for
  * determining circulation state
  * \return State-generator matrix
