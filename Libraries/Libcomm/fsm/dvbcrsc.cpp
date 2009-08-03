@@ -18,7 +18,6 @@ using libbase::vector;
 
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
 
-// TODO: may need to reverse the bits here
 const int dvbcrsc::csct[7][8] = {{0, 1, 2, 3, 4, 5, 6, 7}, {0, 6, 4, 2, 7, 1,
       3, 5}, {0, 3, 7, 4, 5, 6, 2, 1}, {0, 5, 3, 6, 2, 7, 1, 4}, {0, 4, 1, 5,
       6, 2, 7, 3}, {0, 2, 5, 7, 1, 3, 4, 6}, {0, 7, 6, 1, 3, 4, 5, 2}};
@@ -78,11 +77,11 @@ void dvbcrsc::advance(vector<int>& input)
    // process input
    bitfield ip(input);
    // compute the shift-register left input
-   bitfield lsi = (reg + (ip(0) ^ ip(1))) * bitfield("1011");
+   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // do the shift
-   reg = reg << lsi;
+   reg = lsi >> reg;
    // apply the second input
-   reg ^= (ip(1) + ip(1) + bitfield("0"));
+   reg ^= (bitfield("0") + ip(1) + ip(1));
    }
 
 vector<int> dvbcrsc::output(vector<int> input) const
@@ -93,14 +92,14 @@ vector<int> dvbcrsc::output(vector<int> input) const
    // process input
    bitfield ip(input);
    // compute the shift-register left input
-   bitfield lsi = (reg + (ip(0) ^ ip(1))) * bitfield("1011");
+   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
    bitfield op = ip;
    // low-order parity is Y
-   op = (reg + lsi) * bitfield("1101") + op;
+   op = (lsi + reg) * bitfield("1011") + op;
    // next is W
-   op = (reg + lsi) * bitfield("1001") + op;
+   op = (lsi + reg) * bitfield("1001") + op;
    return op;
    }
 
