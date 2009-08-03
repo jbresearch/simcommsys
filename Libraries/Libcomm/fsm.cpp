@@ -27,16 +27,16 @@ const int fsm::tail = -1;
  *
  * \todo check we are within the acceptable range for int representation
  */
-int fsm::convert(const vector<int>& x, int S)
+int fsm::convert(const vector<int>& vec, int S)
    {
-   int nu = x.size();
-   int y = 0;
+   int nu = vec.size();
+   int val = 0;
    for (int i = nu - 1; i >= 0; i--)
       {
-      y *= S;
-      y += x(i);
+      val *= S;
+      val += vec(i);
       }
-   return y;
+   return val;
    }
 
 /*!
@@ -50,16 +50,16 @@ int fsm::convert(const vector<int>& x, int S)
  * represented by lower index positions, and get lower-order positions within
  * the integer representation.
  */
-vector<int> fsm::convert(int x, int nu, int S)
+vector<int> fsm::convert(int val, int nu, int S)
    {
-   vector<int> y(nu);
+   vector<int> vec(nu);
    for (int i = 0; i < nu; i++)
       {
-      y(i) = x % S;
-      x /= S;
+      vec(i) = val % S;
+      val /= S;
       }
-   assert(x == 0);
-   return y;
+   assert(val == 0);
+   return vec;
    }
 
 // FSM state operations

@@ -59,50 +59,25 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
 // Helper functions
 
 /*!
- * \brief Conversion from vector spaces to integer
- * \param[in] x Input in vector representation
- * \return Value of \c x in integer representation
- * 
- * Left-most register positions (ie. those closest to the input junction) are
- * represented by lower index positions, and get lower-order positions within
- * the integer representation.
+ * \copydoc fsm::convert()
  *
- * \todo check we are within the acceptable range for int representation
+ * Interface adaptation to make use of GF class concept of alphabet size
  */
 template <class G>
-int ccfsm<G>::convert(const vector<G>& x)
+int ccfsm<G>::convert(const vector<G>& vec)
    {
-   int nu = x.size();
-   int y = 0;
-   for (int i = nu - 1; i >= 0; i--)
-      {
-      y *= G::elements();
-      y += x(i);
-      }
-   return y;
+   return fsm::convert(vec, G::elements());
    }
 
 /*!
- * \brief Conversion from integer to vector space
- * \param[in] x Input in integer representation
- * \param[in] nu Length of vector representation
- * \return Value of \c x in vector representation
- * 
- * Left-most register positions (ie. those closest to the input junction) are
- * represented by lower index positions, and get lower-order positions within
- * the integer representation.
+ * \copydoc fsm::convert()
+ *
+ * Interface adaptation to make use of GF class concept of alphabet size
  */
 template <class G>
-vector<G> ccfsm<G>::convert(int x, int nu)
+vector<G> ccfsm<G>::convert(int val, int nu)
    {
-   vector<G> y(nu);
-   for (int i = 0; i < nu; i++)
-      {
-      y(i) = x % G::elements();
-      x /= G::elements();
-      }
-   assert(x == 0);
-   return y;
+   return fsm::convert(val, nu, G::elements());
    }
 
 /*!

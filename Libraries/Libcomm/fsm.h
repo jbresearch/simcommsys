@@ -54,10 +54,24 @@ public:
     * nearer to the input side, and registers for lower-index inputs are
     * placed first
     *
-    * \note By convention, lower-order inputs get lower-order positions within
-    * the state representation. Also, left-most memory elements (ie. those
-    * closest to the input junction) are represented by lower index positions
-    * within the state representation.
+    * Also, lower-order inputs get lower-order positions within the state
+    * representation. Also, left-most memory elements (ie. those closest to
+    * the input junction) are represented by lower index positions within
+    * the state representation.
+    *
+    * Define the state vector as a column vector, as follows:
+    * \f[ S_i = \begin{pmatrix}
+    * S_{1,1} \\ S_{1,2} \\ \vdots \\ S_{1,k} \\
+    * S_{2,1} \\ S_{2,2} \\ \vdots \\ S_{2,k} \\
+    * \vdots \\ S_{\nu_k,k}
+    * \end{pmatrix} \f]
+    *
+    * where \f$ k \f$ is the number of input lines and \f$ \nu_i \f$ is the
+    * number of memory elements for input \f$ i \f$.
+    * Element \f$ S_{1,i} \f$ is the left-most memory element for input
+    * \f$ i \f$, and therefore the one to which the shift-in is applied.
+    * It can be seen that the total length of the state vector is equal to
+    * the total number of memory elements in the system, \f$ \nu \f$.
     */
    virtual libbase::vector<int> state() const = 0;
    /*!
