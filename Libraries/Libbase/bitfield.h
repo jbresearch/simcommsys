@@ -29,6 +29,9 @@ private:
    void check_range(int32u f) const;
    static void check_fieldsize(int b);
    void init(const char *s);
+   // Partial extraction and indexed access
+   bitfield extract(const int hi, const int lo) const;
+   bitfield extract(const int b) const;
 public:
    /*! \name Constructors / Destructors */
    bitfield();
@@ -62,8 +65,14 @@ public:
    bitfield& operator=(const int32u x);
 
    // Partial extraction and indexed access
-   bitfield operator()(const int hi, const int lo) const;
-   bitfield operator()(const int b) const;
+   bitfield operator()(const int hi, const int lo) const
+      {
+      return extract(hi, lo);
+      }
+   bitfield operator()(const int b) const
+      {
+      return extract(b);
+      }
 
    // Bit-reversal method
    bitfield reverse() const;

@@ -146,7 +146,7 @@ bitfield& bitfield::operator=(const int32u x)
 
 // Extraction Operations
 
-bitfield bitfield::operator()(const int hi, const int lo) const
+bitfield bitfield::extract(const int hi, const int lo) const
    {
    bitfield c;
    assertalways(hi < bits && lo >= 0 && lo <= hi);
@@ -155,7 +155,7 @@ bitfield bitfield::operator()(const int hi, const int lo) const
    return c;
    }
 
-bitfield bitfield::operator()(const int b) const
+bitfield bitfield::extract(const int b) const
    {
    bitfield c;
    assertalways(b < bits && b >= 0);
@@ -170,7 +170,7 @@ bitfield bitfield::reverse() const
    {
    bitfield result(0, 0);
    for (int i = 0; i < bits; i++)
-      result = result + *this(i);
+      result = result + extract(i);
    return result;
    }
 
