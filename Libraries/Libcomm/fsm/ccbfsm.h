@@ -18,6 +18,14 @@ namespace libcomm {
  * - $Author$
  * 
  * Implements common elements of a controller-canonical binary fsm.
+ * The generator matrix is serialized (and output in the descriptor) using the
+ * usual convention as in Lin & Costello (ie. high-order bits are left-most,
+ * and closest to the input junction). However, the state internally is held
+ * such that the least-significant bit is left-most; this is according to the
+ * convention described by Alex, such that from state 0, input 1, we always
+ * get state 1, no matter how long the state register is. This difference in
+ * notation requires the generator matrix to be reversed for internal use.
+ * We do this reversal during initialization.
  */
 
 class ccbfsm : public fsm {
@@ -27,17 +35,24 @@ protected:
    int n; //!< Number of output bits
    int nu; //!< Number of memory elements (constraint length)
    int m; //!< Memory order (longest input register)
-   libbase::vector<libbase::bitfield> reg; //!< Shift registers (one for each input bit)
+   /*! \brief Shift registers (one for each input bit);
+    * not all registers need be the same length
+    */
+   libbase::vector<libbase::bitfield> reg;
    libbase::matrix<libbase::bitfield> gen; //!< Generator sequence
+   //! Generator sequence, in reversed form (as used internally)
+   libbase::matrix<libbase::bitfield> revgen;
    // @}
 private:
    /*! \name Internal functions */
-   void init(const libbase::matrix<libbase::bitfield>& generator);
+   void init();
    // @}
 protected:
    /*! \name FSM helper operations */
-   virtual libbase::bitfield determineinput(libbase::vector<int> input) const = 0;
-   virtual libbase::bitfield determinefeedin(libbase::vector<int> input) const = 0;
+   virtual libbase::bitfield
+   determineinput(libbase::vector<int> input) const = 0;
+   virtual libbase::bitfield
+   determinefeedin(libbase::vector<int> input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -48,7 +63,6 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    ccbfsm(const libbase::matrix<libbase::bitfield>& generator);
-   ccbfsm(const ccbfsm& x);
    ~ccbfsm()
       {
       }

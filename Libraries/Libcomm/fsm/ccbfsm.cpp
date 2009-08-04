@@ -17,15 +17,20 @@ using libbase::bitfield;
 
 // initialization
 
-void ccbfsm::init(const libbase::matrix<bitfield>& generator)
+void ccbfsm::init()
    {
+   // Reverse all generator values
+   revgen.init(gen.size());
+   for(int i=0; i<gen.size().rows(); i++)
+      for(int j=0; j<gen.size().cols(); j++)
+         revgen(i,j) = gen(i,j).reverse();
    // copy automatically what we can
-   gen = generator;
    k = gen.size().rows();
    n = gen.size().cols();
    // set default value to the rest
    m = 0;
-   // check that the generator matrix is valid (correct sizes) and create shift registers
+   // check that the generator matrix is valid (correct sizes) and
+   // create shift registers
    reg.init(k);
    nu = 0;
    for (int i = 0; i < k; i++)
@@ -36,12 +41,7 @@ void ccbfsm::init(const libbase::matrix<bitfield>& generator)
       nu += m;
       // check that the gen. seq. for all outputs are the same length
       for (int j = 1; j < n; j++)
-         if (gen(i, j).size() != m + 1)
-            {
-            std::cerr
-                  << "FATAL ERROR (ccbfsm): Generator sequence must have constant width for each input bit.\n";
-            exit(1);
-            }
+         assertalways(gen(i, j).size() == m + 1);
       // update memory order
       if (m > ccbfsm::m)
          ccbfsm::m = m;
@@ -52,18 +52,8 @@ void ccbfsm::init(const libbase::matrix<bitfield>& generator)
 
 ccbfsm::ccbfsm(const libbase::matrix<bitfield>& generator)
    {
-   init(generator);
-   }
-
-ccbfsm::ccbfsm(const ccbfsm& x)
-   {
-   // copy automatically what we can
-   k = x.k;
-   n = x.n;
-   nu = x.nu;
-   m = x.m;
-   gen = x.gen;
-   reg = x.reg;
+   gen = generator;
+   init();
    }
 
 // FSM state operations (getting and resetting)
@@ -123,7 +113,7 @@ libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
       {
       bitfield thisop(0, 1);
       for (int i = 0; i < k; i++)
-         thisop ^= (reg(i) + sin(i)) * gen(i, j);
+         thisop ^= (reg(i) + sin(i)) * revgen(i, j);
       op = thisop + op;
       }
    return op;
@@ -152,7 +142,7 @@ std::ostream& ccbfsm::serialize(std::ostream& sout) const
 std::istream& ccbfsm::serialize(std::istream& sin)
    {
    sin >> libbase::eatcomments >> gen;
-   init(gen);
+   init();
    return sin;
    }
 
