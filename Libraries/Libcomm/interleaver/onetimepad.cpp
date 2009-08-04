@@ -30,11 +30,8 @@ onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
       const bool terminated, const bool renewable) :
    terminated(terminated), renewable(renewable), encoder(encoder.clone())
    {
-   pad.init(tau);
-   const int m = encoder.mem_order();
-   const int K = encoder.num_inputs();
-   libbase::trace << "DEBUG (onetimepad): constructed interleaver (tau=" << tau
-         << ", m=" << m << ", K=" << K << ")\n";
+   const int k = encoder.num_inputs();
+   pad.init(tau*k);
    }
 
 template <class real>
@@ -69,26 +66,29 @@ void onetimepad<real>::advance()
    if (!renewable && initialised)
       return;
 
-   const int tau = pad.size();
    const int m = encoder->mem_order();
-   const int K = encoder->num_inputs();
+   const int k = encoder->num_inputs();
+   const int S = encoder->num_symbols();
+   const int tau = pad.size()/k;
    // fill in pad
    if (terminated)
       {
-      int t;
-      for (t = 0; t < tau - m; t++)
-         pad(t) = r.ival(K);
-      for (t = tau - m; t < tau; t++)
+      for (int t = 0; t < (tau - m)*k; t++)
+         pad(t) = r.ival(S);
+      for (int t = (tau - m)*k; t < tau*k; t++)
          pad(t) = fsm::tail;
       // run through the encoder once, so that we work out the tail bits
-      encoder->reset(0);
-      for (t = 0; t < tau; t++)
-         encoder->step(pad(t));
+      encoder->reset();
+      for (int t = 0; t < tau; t++)
+         {
+         vector<int> ip = pad.segment(t*k,k);
+         encoder->step(ip);
+         }
       }
    else
       {
-      for (int t = 0; t < tau; t++)
-         pad(t) = r.ival(K);
+      for (int t = 0; t < tau*k; t++)
+         pad(t) = r.ival(S);
       }
 
    initialised = true;
@@ -99,38 +99,38 @@ void onetimepad<real>::advance()
 template <class real>
 void onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
    {
-   const int tau = pad.size();
-   const int K = encoder->num_inputs();
-   assertalways(in.size() == tau);
+   const int N = pad.size();
+   const int S = encoder->num_symbols();
+   assertalways(in.size() == N);
    out.init(in.size());
-   for (int t = 0; t < tau; t++)
-      out(t) = (in(t) + pad(t)) % K;
+   for (int i = 0; i < N; i++)
+      out(i) = (in(i) + pad(i)) % S;
    }
 
 template <class real>
 void onetimepad<real>::transform(const matrix<real>& in, matrix<real>& out) const
    {
-   const int tau = pad.size();
-   const int K = encoder->num_inputs();
-   assertalways(in.size().cols() == K);
-   assertalways(in.size().rows() == tau);
+   const int N = pad.size();
+   const int S = encoder->num_symbols();
+   assertalways(in.size().cols() == S);
+   assertalways(in.size().rows() == N);
    out.init(in.size());
-   for (int t = 0; t < tau; t++)
-      for (int i = 0; i < K; i++)
-         out(t, i) = in(t, (i + pad(t)) % K);
+   for (int i = 0; i < N; i++)
+      for (int j = 0; j < S; j++)
+         out(i, j) = in(i, (j + pad(i)) % S);
    }
 
 template <class real>
 void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
    {
-   const int tau = pad.size();
-   const int K = encoder->num_inputs();
-   assertalways(in.size().cols() == K);
-   assertalways(in.size().rows() == tau);
+   const int N = pad.size();
+   const int S = encoder->num_symbols();
+   assertalways(in.size().cols() == S);
+   assertalways(in.size().rows() == N);
    out.init(in.size());
-   for (int t = 0; t < tau; t++)
-      for (int i = 0; i < K; i++)
-         out(t, (i + pad(t)) % K) = in(t, i);
+   for (int i = 0; i < N; i++)
+      for (int j = 0; j < S; j++)
+         out(i, (j + pad(i)) % S) = in(i, j);
    }
 
 // description output
@@ -168,9 +168,9 @@ std::istream& onetimepad<real>::serialize(std::istream& sin)
    {
    sin >> libbase::eatcomments >> terminated;
    sin >> libbase::eatcomments >> renewable;
-   int tau;
-   sin >> libbase::eatcomments >> tau;
-   pad.init(tau);
+   int N;
+   sin >> libbase::eatcomments >> N;
+   pad.init(N);
    sin >> libbase::eatcomments >> encoder;
    return sin;
    }

@@ -26,15 +26,14 @@ void rscc::resetcircular(libbase::vector<int> zerostate, int n)
 
 // FSM helper operations
 
-bitfield rscc::determineinput(libbase::vector<int> input) const
+libbase::vector<int> rscc::determineinput(libbase::vector<int> input) const
    {
    assert(input.size() == k);
    // replace 'tail' inputs with required value
    for (int i = 0; i < k; i++)
       if (input(i) == fsm::tail)
          input(i) = (reg(i) + bitfield(0, 1)) * revgen(i, i);
-   // convert to required type
-   return libbase::vector<bool>(input);
+   return input;
    }
 
 bitfield rscc::determinefeedin(libbase::vector<int> input) const
@@ -44,7 +43,7 @@ bitfield rscc::determinefeedin(libbase::vector<int> input) const
    for (int i = 0; i < k; i++)
       assert(input(i) != fsm::tail);
    // compute input junction
-   bitfield sin(0, 0), ip = convert(input, 2);
+   bitfield sin(0, 0), ip = bitfield(libbase::vector<bool>(input));
    for (int i = 0; i < k; i++)
       sin = ((reg(i) + ip(i)) * revgen(i, i)) + sin;
    return sin;

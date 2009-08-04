@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "serializer.h"
+#include "vector.h"
 #include <iostream>
 #include <string>
 

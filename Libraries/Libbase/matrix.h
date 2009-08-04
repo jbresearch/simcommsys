@@ -171,7 +171,8 @@ public:
    template <class A>
    matrix<T>& operator=(const vector<A>& x);
    matrix<T>& operator=(const T x);
-   operator vector<T>() const;
+   vector<T> rowmajor() const;
+   vector<T> colmajor() const;
    // @}
 
    /*! \name Insert/extract rows/columns as vectors */
@@ -447,16 +448,26 @@ inline matrix<T>& matrix<T>::operator=(const T x)
    return *this;
    }
 
-/*! \brief Convert matrix to a vector
- * Elements are extracted in row-major order.
- */
+//! Convert matrix to a vector, extracting elements in row-major order.
 template <class T>
-inline matrix<T>::operator vector<T>() const
+inline vector<T> matrix<T>::rowmajor() const
    {
    vector<T> v(size());
    int k = 0;
    for (int i = 0; i < m_size.rows(); i++)
       for (int j = 0; j < m_size.cols(); j++)
+         v(k++) = m_data[i][j];
+   return v;
+   }
+
+//! Convert matrix to a vector, extracting elements in column-major order.
+template <class T>
+inline vector<T> matrix<T>::colmajor() const
+   {
+   vector<T> v(size());
+   int k = 0;
+   for (int j = 0; j < m_size.cols(); j++)
+      for (int i = 0; i < m_size.rows(); i++)
          v(k++) = m_data[i][j];
    return v;
    }

@@ -26,15 +26,14 @@ void nrcc::resetcircular(libbase::vector<int> zerostate, int n)
 
 // FSM helper operations
 
-bitfield nrcc::determineinput(libbase::vector<int> input) const
+libbase::vector<int> nrcc::determineinput(libbase::vector<int> input) const
    {
    assert(input.size() == k);
    // replace 'tail' inputs with zeros
    for (int i = 0; i < k; i++)
       if (input(i) == fsm::tail)
          input(i) = 0;
-   // convert to required type
-   return libbase::vector<bool>(input);
+   return input;
    }
 
 bitfield nrcc::determinefeedin(libbase::vector<int> input) const
@@ -44,7 +43,7 @@ bitfield nrcc::determinefeedin(libbase::vector<int> input) const
    for (int i = 0; i < k; i++)
       assert(input(i) != fsm::tail);
    // convert to required type
-   return libbase::vector<bool>(input);
+   return bitfield(libbase::vector<bool>(input));
    }
 
 // Description

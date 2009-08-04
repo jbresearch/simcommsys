@@ -8,6 +8,7 @@
  */
 
 #include "mapcc.h"
+#include "mapper/map_straight.h"
 #include <sstream>
 
 namespace libcomm {
@@ -137,22 +138,29 @@ void mapcc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    source1 = fsm::tail;
    source1.copyfrom(source);
    // Reset the encoder to zero state
-   encoder->reset(0);
+   encoder->reset();
    // When dealing with a circular system, perform first pass to determine end
    // state, then reset to the corresponding circular state.
    if (circular)
       {
       for (int t = 0; t < tau; t++)
-         encoder->advance(source1.extractrow(t));
+         {
+         array1i_t ip = source1.extractrow(t);
+         encoder->advance(ip);
+         }
       encoder->resetcircular();
       }
    // Initialise result vector
    array2i_t encoded1(tau, n);
    // Encode source stream
    for (int t = 0; t < tau; t++)
-      encoded1.insertrow(encoder->step(source1.extractrow(t)), t);
+      {
+      array1i_t ip = source1.extractrow(t);
+      encoded1.insertrow(encoder->step(ip), t);
+      source1.insertrow(ip, t);
+      }
    // Reform results as a vector
-   encoded = encoded1;
+   encoded = encoded1.rowmajor();
    }
 
 template <class real, class dbl>
@@ -243,6 +251,7 @@ std::istream& mapcc<real, dbl>::serialize(std::istream& sin)
 #include "mpgnu.h"
 #include "logreal.h"
 #include "logrealfast.h"
+#include "mapper/map_straight.h"
 
 namespace libcomm {
 

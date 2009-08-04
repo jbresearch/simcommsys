@@ -11,6 +11,8 @@
 
 namespace libcomm {
 
+using libbase::vector;
+
 const int fsm::tail = -1;
 
 // Helper functions

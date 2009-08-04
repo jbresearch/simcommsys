@@ -109,8 +109,8 @@ void grscc<G>::initcsct()
       const matrix<G> A = (eye + Gi).inverse();
       for (int j = 0; j < this->num_states(); j++)
          {
-         vector<G> statevec = A * getstatevec(j);
-         csct(i, j) = getstateval(statevec);
+         vector<G> statevec = A * ccfsm<G>::convert(j, ccfsm<G>::nu);
+         csct(i, j) = ccfsm<G>::convert(statevec);
          }
       }
    }
@@ -135,7 +135,7 @@ template <class G>
 vector<G> grscc<G>::determinefeedin(vector<int> input) const
    {
    for (int i = 0; i < input.size(); i++)
-      assert(input != fsm::tail);
+      assert(input(i) != fsm::tail);
    // Determine the shift-in values by convolution
    vector<G> sin(this->k);
    for (int i = 0; i < this->k; i++)
@@ -187,7 +187,9 @@ void grscc<G>::resetcircular(vector<int> zerostate, int n)
       initcsct();
    const int L = csct.size().rows();
    assert(n % L != 0);
-   reset(csct(n % L, convert(zerostate)));
+   const int zerostateval = ccfsm<G>::convert(zerostate);
+   const int circstateval = csct(n % L, zerostateval);
+   reset(ccfsm<G>::convert(circstateval, ccfsm<G>::nu));
    }
 
 // Description

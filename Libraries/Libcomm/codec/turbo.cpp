@@ -368,22 +368,27 @@ template <class real, class dbl>
 void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == input_block_size());
-   const int tau = This::output_block_size();
-   // Initialise result vector
-   encoded.init(tau);
-   // Allocate space for the encoder outputs
-   libbase::matrix<int> x(num_sets(), tau);
+   // Inherit sizes
+   const int sets = num_sets();
+   const int tau = num_timesteps();
+   const int k = enc_inputs();
+   const int n = enc_outputs();
+   const int p = enc_parity();
+   const int S = This::num_symbols();
+
    // Make a local copy of the source, including any necessary tail
-   array1i_t source1(tau);
+   array1i_t source1(inter_size());
    for (int t = 0; t < source.size(); t++)
       source1(t) = source(t);
-   for (int t = source.size(); t < tau; t++)
+   for (int t = source.size(); t < source1.size(); t++)
       source1(t) = fsm::tail;
+
    // Declare space for the interleaved source
    array1i_t source2;
-
+   // Allocate space for the encoder outputs
+   libbase::matrix<libbase::vector<int> > x(sets, tau);
    // Consider sets in order
-   for (int set = 0; set < num_sets(); set++)
+   for (int set = 0; set < sets; set++)
       {
       // Advance interleaver to the next block
       inter(set)->advance();
@@ -391,22 +396,29 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
       inter(set)->transform(source1, source2);
 
       // Reset the encoder to zero state
-      encoder->reset(0);
+      encoder->reset();
 
-      // When dealing with a circular system, perform first pass to determine end state,
-      // then reset to the corresponding circular state.
+      // When dealing with a circular system, perform first pass to determine
+      // end state, then reset to the corresponding circular state.
       int cstate = 0;
       if (circular)
          {
          for (int t = 0; t < tau; t++)
-            encoder->advance(source2(t));
+            {
+            array1i_t ip = source2.segment(t * k, k);
+            encoder->advance(ip);
+            }
          encoder->resetcircular();
-         cstate = encoder->state();
+         cstate = fsm::convert(encoder->state(), S);
          }
 
-      // Encode source (non-interleaved must be done first to determine tail bit values)
+      // Encode source
+      // (non-interleaved must be done first to determine tail bit values)
       for (int t = 0; t < tau; t++)
-         x(set, t) = encoder->step(source2(t)) / num_inputs();
+         {
+         array1i_t ip = source2.segment(t * k, k);
+         x(set, t) = encoder->step(ip).extract(k, n - k);
+         }
 
       // If this was the first (non-interleaved) set, copy back the source
       // to fix the tail bit values, if any
@@ -414,21 +426,23 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
          source1 = source2;
 
       // check that encoder finishes correctly
+      const int finstate = fsm::convert(encoder->state(), S);
       if (circular)
-         assertalways(encoder->state() == cstate);
+         assertalways(finstate == cstate);
       if (endatzero)
-         assertalways(encoder->state() == 0);
+         assertalways(finstate == 0);
       }
 
+   // Initialise result vector
+   encoded.init(This::output_block_size());
    // Encode source stream
    for (int t = 0; t < tau; t++)
       {
       // data bits
-      encoded(t) = source1(t);
+      encoded.segment(t * n, k) = source1.extract(t * k, k);
       // parity bits
-      for (int set = 0, mul = num_inputs(); set < num_sets(); set++, mul
-            *= enc_parity())
-         encoded(t) += x(set, t) * mul;
+      for (int set = 0; set < num_sets(); set++)
+         encoded.segment(t * n + k * set, p) = x(set, t);
       }
    }
 

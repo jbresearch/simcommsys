@@ -66,7 +66,7 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
 template <class G>
 int ccfsm<G>::convert(const vector<G>& vec)
    {
-   return fsm::convert(vec, G::elements());
+   return fsm::convert(vector<int>(vec), G::elements());
    }
 
 /*!
@@ -77,7 +77,7 @@ int ccfsm<G>::convert(const vector<G>& vec)
 template <class G>
 vector<G> ccfsm<G>::convert(int val, int nu)
    {
-   return fsm::convert(val, nu, G::elements());
+   return vector<G>(fsm::convert(val, nu, G::elements()));
    }
 
 /*!

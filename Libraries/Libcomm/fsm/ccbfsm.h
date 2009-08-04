@@ -49,8 +49,10 @@ private:
    // @}
 protected:
    /*! \name FSM helper operations */
-   virtual libbase::bitfield
+   //! Computes the actual input to be applied (works out tail)
+   virtual libbase::vector<int>
    determineinput(libbase::vector<int> input) const = 0;
+   //! Computes the memory register input
    virtual libbase::bitfield
    determinefeedin(libbase::vector<int> input) const = 0;
    // @}

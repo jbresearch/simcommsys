@@ -111,6 +111,53 @@ protected:
    void free();
    void reset();
    // @}
+   /*! \name Codec information functions - internal */
+   //! Number of parallel concatenations
+   int num_sets() const
+      {
+      return inter.size();
+      }
+   //! Size of the interleavers (includes input + tail)
+   int inter_size() const
+      {
+      assertalways(inter.size() > 0);
+      assertalways(inter(0));
+      return inter(0)->size();
+      }
+   //! Number of encoder input symbols / timestep
+   int enc_inputs() const
+      {
+      assert(encoder);
+      return encoder->num_inputs();
+      }
+   //! Number of encoder output symbols / timestep
+   int enc_outputs() const
+      {
+      assert(encoder);
+      return encoder->num_outputs();
+      }
+   //! Number of encoder parity symbols / timestep
+   int enc_parity() const
+      {
+      return enc_outputs() - enc_inputs();
+      }
+   //! Number of encoder timesteps per block
+   int num_timesteps() const
+      {
+      const int N = inter_size();
+      assert(encoder);
+      const int k = enc_inputs();
+      const int tau = N / k;
+      assert(N == tau * k);
+      return tau;
+      }
+   //! Number of encoder states
+   int enc_states() const
+      {
+      assert(encoder);
+      return encoder->num_states();
+      }
+   // @}
    // Internal codec operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
@@ -139,56 +186,43 @@ public:
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> input_block_size() const
       {
-      const int tau = This::output_block_size();
+      const int tau = num_timesteps();
       const int nu = This::tail_length();
-      return libbase::size_type<libbase::vector>(tau - nu);
+      const int k = enc_inputs();
+      return libbase::size_type<libbase::vector>(k * (tau - nu));
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      assertalways(inter.size() > 0);
-      assertalways(inter(0));
-      const int tau = inter(0)->size();
-      return libbase::size_type<libbase::vector>(tau);
+      const int tau = num_timesteps();
+      const int k = enc_inputs();
+      const int p = enc_parity();
+      const int sets = num_sets();
+      return libbase::size_type<libbase::vector>(tau * (k + p * sets));
       }
    int num_inputs() const
       {
-      return encoder->num_inputs();
+      assert(encoder);
+      return encoder->num_symbols();
       }
    int num_outputs() const
       {
-      return int(num_inputs() * pow(enc_parity(), num_sets()));
+      assert(encoder);
+      return encoder->num_symbols();
       }
    int num_symbols() const
       {
-      return libbase::gcd(num_inputs(), enc_parity());
+      assert(encoder);
+      return encoder->num_symbols();
       }
    int tail_length() const
       {
+      assert(encoder);
       return endatzero ? encoder->mem_order() : 0;
       }
    int num_iter() const
       {
       return iter;
       }
-
-   /*! \name Codec information functions - internal */
-   int num_sets() const
-      {
-      return inter.size();
-      }
-   int enc_states() const
-      {
-      return encoder->num_states();
-      }
-   int enc_outputs() const
-      {
-      return encoder->num_outputs();
-      }
-   int enc_parity() const
-      {
-      return enc_outputs() / num_inputs();
-      }
-   // @}
 
    // Description
    std::string description() const;

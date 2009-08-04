@@ -152,9 +152,9 @@ public:
       return N;
       }
    //! Sequence length (number of time-steps)
-   int block_size() const
+   libbase::size_type<libbase::vector> block_size() const
       {
-      return tau;
+      return libbase::size_type<libbase::vector>(tau);
       }
    // @}
 };

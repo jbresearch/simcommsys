@@ -68,6 +68,15 @@ protected:
    void reset();
    //! Memory allocator (for internal use only)
    void allocate();
+   //! Determine the number of timesteps for the accumulator
+   int acc_timesteps() const
+      {
+      // Inherit sizes
+      const int Nr = rep.output_block_size();
+      const int k = acc->num_inputs();
+      const int nu = tail_length();
+      return Nr / k + nu;
+      }
    // @}
    // Internal codec operations
    void resetpriors();
@@ -98,17 +107,17 @@ public:
    libbase::size_type<libbase::vector> output_block_size() const
       {
       // Inherit sizes
-      const int Nr = rep.output_block_size();
-      const int nu = tail_length();
-      return libbase::size_type<libbase::vector>(Nr + nu);
+      const int n = acc->num_outputs();
+      const int tau = acc_timesteps();
+      return libbase::size_type<libbase::vector>(n * tau);
       }
    int num_inputs() const
       {
-      return acc->num_inputs();
+      return acc->num_symbols();
       }
    int num_outputs() const
       {
-      return acc->num_outputs() / acc->num_inputs();
+      return acc->num_symbols();
       }
    int tail_length() const
       {

@@ -168,11 +168,16 @@ template <class real, class dbl>
 void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
+   // Inherit sizes
+   const int k = acc->num_inputs();
+   const int n = acc->num_outputs();
+   const int tau = acc_timesteps();
+
    // Compute repeater output
    array1i_t rep0;
    rep.encode(source, rep0);
    // Copy and add any necessary tail
-   array1i_t rep1(This::output_block_size());
+   array1i_t rep1(tau * k);
    rep1.copyfrom(rep0);
    for (int i = rep0.size(); i < rep1.size(); i++)
       rep1(i) = fsm::tail;
@@ -184,13 +189,16 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Initialise result vector
    encoded.init(This::output_block_size());
    // Reset the encoder to zero state
-   acc->reset(0);
+   acc->reset();
    // Encode sequence
-   for (int i = 0; i < This::output_block_size(); i++)
-      encoded(i) = acc->step(rep2(i)) / This::num_inputs();
+   for (int i = 0; i < tau; i++)
+      {
+      array1i_t ip = rep2.segment(i * k, k);
+      encoded.segment(i * n, n) = acc->step(ip).extract(k, n - k);
+      }
    // check that encoder finishes correctly
    if (endatzero)
-      assertalways(acc->state() == 0);
+      assertalways(fsm::convert(acc->state(), acc->num_symbols()) == 0);
    }
 
 /*! \copydoc codec_softout::softdecode()

@@ -48,8 +48,8 @@ public:
       {
       return field;
       }
-   operator std::string() const;
-   operator vector<bool>() const;
+   std::string asstring() const;
+   vector<bool> asvector() const;
    // @}
 
    // Field size methods

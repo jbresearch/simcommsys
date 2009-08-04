@@ -63,7 +63,7 @@ void dvbcrsc::resetcircular(vector<int> zerostate, int n)
    // a multiple of the period
    assert(n%7 != 0);
    // lookup the circulation state and set accordingly
-   reset(fsm::convert(csct[n % 7][zerostate], nu, 2));
+   reset(fsm::convert(csct[n % 7][fsm::convert(zerostate,2)], nu, 2));
    }
 
 // finite state machine functions - state advance etc.
@@ -100,12 +100,12 @@ vector<int> dvbcrsc::output(vector<int> input) const
    op = (lsi + reg) * bitfield("1011") + op;
    // next is W
    op = (lsi + reg) * bitfield("1001") + op;
-   return op;
+   return op.asvector();
    }
 
 vector<int> dvbcrsc::state() const
    {
-   return vector<bool>(reg);
+   return reg.asvector();
    }
 
 // description output

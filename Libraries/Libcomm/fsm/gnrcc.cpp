@@ -33,7 +33,7 @@ template <class G>
 vector<G> gnrcc<G>::determinefeedin(vector<int> input) const
    {
    for (int i = 0; i < input.size(); i++)
-      assert(input != fsm::tail);
+      assert(input(i) != fsm::tail);
    // Convert input to vector of required type
    return input;
    }

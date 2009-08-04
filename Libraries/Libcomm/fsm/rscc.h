@@ -18,7 +18,7 @@ namespace libcomm {
 
 class rscc : public ccbfsm {
 protected:
-   libbase::bitfield determineinput(libbase::vector<int> input) const;
+   libbase::vector<int> determineinput(libbase::vector<int> input) const;
    libbase::bitfield determinefeedin(libbase::vector<int> input) const;
    rscc()
       {

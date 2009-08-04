@@ -58,12 +58,12 @@ void bitfield::init(const char *s)
 /*!
  * \brief Convert bitfield to a string representation
  */
-bitfield::operator std::string() const
+std::string bitfield::asstring() const
    {
-   std::string sTemp;
+   std::string s;
    for (int i = bits - 1; i >= 0; i--)
-      sTemp += '0' + ((field >> i) & 1);
-   return sTemp;
+      s += '0' + ((field >> i) & 1);
+   return s;
    }
 
 // Creation and Destruction
@@ -105,7 +105,7 @@ bitfield::bitfield(const vector<bool>& v)
  * \brief Convert bitfield to a vector representation
  * \sa bitfield()
  */
-bitfield::operator vector<bool>() const
+vector<bool> bitfield::asvector() const
    {
    vector<bool> result(bits);
    for (int i = 0; i < bits; i++)
@@ -297,7 +297,7 @@ bitfield operator>>(const bitfield& a, const int b)
 
 std::ostream& operator<<(std::ostream& s, const bitfield& b)
    {
-   s << std::string(b);
+   s << b.asstring();
    return s;
    }
 

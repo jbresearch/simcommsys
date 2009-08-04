@@ -136,8 +136,17 @@ protected:
 public:
    //! Default constructor (does not initialise elements)
    explicit vector(const int n = 0);
-   //! Copy constructor
+   /*! \brief Copy constructor
+    * For root vectors this constitutes a deep copy; for non-root vectors
+    * it's shallow (ie. the reference to the original data set is maintained).
+    */
    vector(const vector<T>& x);
+   //! On-the-fly conversion of vectors
+   template <class A>
+   vector(const vector<A>& x)
+      {
+      *this = x;
+      }
    ~vector()
       {
       free();
