@@ -166,17 +166,12 @@ bitfield bitfield::operator()(const int b) const
 
 // Bit Reversal
 
-bitfield& bitfield::reverse()
+bitfield bitfield::reverse() const
    {
-   int32u result = 0;
-   while (field)
-      {
-      result <<= 1;
-      result |= field & 1;
-      field >>= 1;
-      }
-   field = result;
-   return *this;
+   bitfield result(0, 0);
+   for (int i = 0; i < bits; i++)
+      result = result + *this(i);
+   return result;
    }
 
 // Logic Operations

@@ -66,7 +66,7 @@ public:
    bitfield operator()(const int b) const;
 
    // Bit-reversal method
-   bitfield& reverse();
+   bitfield reverse() const;
 
    // Logical operators - OR, AND, XOR
    friend bitfield operator|(const bitfield& a, const bitfield& b);
