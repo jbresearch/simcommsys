@@ -225,7 +225,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
    std::ostringstream sout;
    sout << "LDPC(n=" << this->length_n << ", m=" << this->dim_pchk << ", k="
          << this->dim_k << ", spa=" << this->spa_alg->spa_type() << ", iter="
-         << this->max_iter << ")\n";
+         << this->max_iter << ") ";
 #if DEBUG>=2
    this->serialize(libbase::trace);
    libbase::trace << "\n";
