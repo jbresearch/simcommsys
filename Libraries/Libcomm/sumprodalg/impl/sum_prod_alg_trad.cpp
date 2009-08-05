@@ -58,7 +58,7 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_r_
    int num_of_var_syms = tmpN_m.size() - 1;
    int num_of_elements = GF_q::elements();
    //for each check node we need to consider num_of_elements^num_of_var_symbols cases
-   int num_of_cases = pow(num_of_elements, num_of_var_syms);
+   int num_of_cases = int(pow(num_of_elements, num_of_var_syms));
    int pos_n = tmpN_m(n) - 1;//we count from 1;
    int bitmask = num_of_elements - 1;
 
