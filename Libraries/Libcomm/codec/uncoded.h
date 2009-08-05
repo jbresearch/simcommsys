@@ -36,11 +36,11 @@ private:
    typedef codec_softout<libbase::vector, dbl> Base;
 private:
    /*! \name User-specified parameters */
+   //! FSM specifying input-output mapping; must have no memory
    fsm *encoder;
-   int tau; //!< Block size at input
+   int tau; //!< Number of time-steps
    // @}
    /*! \name Computed parameters */
-   array1i_t lut;
    array1vd_t rp; //!< Intrinsic source statistics
    array1vd_t R; //!< Intrinsic output statistics
    // @}
@@ -48,6 +48,20 @@ protected:
    /*! \name Internal functions */
    void init();
    void free();
+   // @}
+   /*! \name Codec information functions - internal */
+   //! Number of encoder input symbols / timestep
+   int enc_inputs() const
+      {
+      assert(encoder);
+      return encoder->num_inputs();
+      }
+   //! Number of encoder output symbols / timestep
+   int enc_outputs() const
+      {
+      assert(encoder);
+      return encoder->num_outputs();
+      }
    // @}
    // Internal codec operations
    void resetpriors();
@@ -72,19 +86,21 @@ public:
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> input_block_size() const
       {
-      return libbase::size_type<libbase::vector>(tau);
+      const int k = enc_inputs();
+      return libbase::size_type<libbase::vector>(tau * k);
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      return libbase::size_type<libbase::vector>(tau);
+      const int n = enc_outputs();
+      return libbase::size_type<libbase::vector>(tau*n);
       }
    int num_inputs() const
       {
-      return encoder->num_inputs();
+      return encoder->num_symbols();
       }
    int num_outputs() const
       {
-      return encoder->num_outputs();
+      return encoder->num_symbols();
       }
    int tail_length() const
       {

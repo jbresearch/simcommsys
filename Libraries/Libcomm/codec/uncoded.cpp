@@ -20,10 +20,6 @@ void uncoded<dbl>::init()
    assertalways(encoder);
    // Check that FSM is memoryless
    assertalways(encoder->mem_order() == 0);
-   // since the encoder is memoryless, we can build an input/output table
-   lut.init(encoder->num_inputs());
-   for (int i = 0; i < encoder->num_inputs(); i++)
-      lut(i) = encoder->step(i);
    }
 
 template <class dbl>
@@ -92,37 +88,82 @@ template <class dbl>
 void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
+   // Inherit sizes
+   const int k = enc_inputs();
+   const int n = enc_outputs();
    // Initialise result vector
-   encoded.init(This::input_block_size());
+   encoded.init(This::output_block_size());
    // Encode source stream
-   for (int t = 0; t < This::input_block_size(); t++)
-      encoded(t) = lut(source(t));
+   for (int t = 0; t < tau; t++)
+      {
+      array1i_t ip = source.extract(t * k, k);
+      encoded.segment(t * n, n) = encoder->step(ip);
+      }
    }
 
 template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri)
    {
+   // Inherit sizes
+   const int k = enc_inputs();
+   const int n = enc_outputs();
+   const int S = This::num_inputs();
    // Initialize results to prior statistics
    ri = rp;
-   // Work out the probabilities of each possible input
-   for (int t = 0; t < This::input_block_size(); t++)
-      for (int x = 0; x < This::num_inputs(); x++)
-         ri(t)(x) *= R(t)(lut(x));
+   // Consider each time-step
+   for (int t = 0; t < tau; t++)
+      {
+      array1i_t ip(k), op(n);
+      // Go through each possible input set
+      ip = 0;
+      for (int i = 0; i < k; i++)
+         for (int x = 0; x < S; x++)
+            {
+            // Update input set
+            ip(i) = x;
+            // Determine corresponding output set
+            op = encoder->step(ip);
+            // Update probabilities at input according to those at output
+            for (int ii = 0; ii < k; ii++)
+               for (int oo = 0; oo < n; oo++)
+                  ri(t * k + ii)(ip(ii)) *= R(t * n + oo)(op(oo));
+            }
+      }
    }
 
 template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    softdecode(ri);
+   // Inherit sizes
+   const int k = enc_inputs();
+   const int n = enc_outputs();
+   const int S = This::num_inputs();
    // Allocate space for output results
    ro.init(This::output_block_size());
    for (int t = 0; t < This::output_block_size(); t++)
       ro(t).init(This::num_outputs());
-   // Compute output-related statistics
-   ro = 0.0;
-   for (int t = 0; t < This::input_block_size(); t++)
-      for (int x = 0; x < This::num_inputs(); x++)
-         ro(t)(lut(x)) = ri(t)(x);
+   // Initialize
+   ro = 1.0;
+   // Consider each time-step
+   for (int t = 0; t < tau; t++)
+      {
+      array1i_t ip(k), op(n);
+      // Go through each possible input set
+      ip = 0;
+      for (int i = 0; i < k; i++)
+         for (int x = 0; x < S; x++)
+            {
+            // Update input set
+            ip(i) = x;
+            // Determine corresponding output set
+            op = encoder->step(ip);
+            // Update probabilities at output according to those at input
+            for (int ii = 0; ii < k; ii++)
+               for (int oo = 0; oo < n; oo++)
+                  ro(t * n + oo)(op(oo)) *= ri(t * k + ii)(ip(ii));
+            }
+      }
    }
 
 // description output

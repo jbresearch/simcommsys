@@ -71,7 +71,7 @@ int commsys_prof_burst::get_multiplicity(int i) const
 /*!
  * \copydoc experiment::result_description()
  * 
- * The description is a string XXX_Y, where 'XXX' is a string indicating
+ * The description is a string X_Y, where 'X' is a string indicating
  * the probability represented. 'Y' is the iteration, starting at 1.
  */
 std::string commsys_prof_burst::result_description(int i) const

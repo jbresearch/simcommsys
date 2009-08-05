@@ -21,6 +21,8 @@ namespace libcomm {
  * - $Revision$
  * - $Date$
  * - $Author$
+ *
+ * \todo Update decoding process for changes in FSM model.
  */
 
 template <class real, class dbl = double>

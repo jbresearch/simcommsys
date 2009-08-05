@@ -59,6 +59,8 @@ namespace libcomm {
  * output).
  * 
  * \todo Split serial and parallel decoding into separate classes.
+ *
+ * \todo Update decoding process for changes in FSM model.
  */
 
 template <class real, class dbl = double>
