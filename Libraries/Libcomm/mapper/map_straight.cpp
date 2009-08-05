@@ -35,10 +35,10 @@ using libbase::vector;
 template <class dbl>
 void map_straight<vector, dbl>::setup()
    {
-   s1 = get_rate(M, N);
-   s2 = get_rate(M, S);
-   upsilon = size.length() * s1 / s2;
-   assertalways(size.length()*s1 == upsilon*s2);
+   s1 = get_rate(Base::M, Base::N);
+   s2 = get_rate(Base::M, Base::S);
+   upsilon = Base::size.length() * s1 / s2;
+   assertalways(Base::size.length()*s1 == upsilon*s2);
    }
 
 template <class dbl>
@@ -48,9 +48,9 @@ void map_straight<vector, dbl>::dotransform(const array1i_t& in, array1i_t& out)
    // Initialize results vector
    out.init(This::output_block_size());
    // Modulate encoded stream (least-significant first)
-   for (int t = 0, k = 0; t < size.length(); t++)
-      for (int i = 0, x = in(t); i < s1; i++, k++, x /= M)
-         out(k) = x % M;
+   for (int t = 0, k = 0; t < Base::size.length(); t++)
+      for (int i = 0, x = in(t); i < s1; i++, k++, x /= Base::M)
+         out(k) = x % Base::M;
    }
 
 template <class dbl>
@@ -59,20 +59,20 @@ void map_straight<vector, dbl>::doinverse(const array1vd_t& pin,
    {
    // Confirm modulation symbol space is what we expect
    assertalways(pin.size() > 0);
-   assertalways(pin(0).size() == M);
+   assertalways(pin(0).size() == Base::M);
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
    pout.init(upsilon);
    for (int t = 0; t < upsilon; t++)
-      pout(t).init(S);
+      pout(t).init(Base::S);
    // Get the necessary data from the channel
    for (int t = 0; t < upsilon; t++)
-      for (int x = 0; x < S; x++)
+      for (int x = 0; x < Base::S; x++)
          {
          pout(t)(x) = 1;
-         for (int i = 0, thisx = x; i < s2; i++, thisx /= M)
-            pout(t)(x) *= pin(t * s2 + i)(thisx % M);
+         for (int i = 0, thisx = x; i < s2; i++, thisx /= Base::M)
+            pout(t)(x) *= pin(t * s2 + i)(thisx % Base::M);
          }
    }
 
@@ -113,8 +113,8 @@ using libbase::matrix;
 template <class dbl>
 void map_straight<matrix, dbl>::setup()
    {
-   assertalways(M == N);
-   assertalways(M == S);
+   assertalways(Base::M == Base::N);
+   assertalways(Base::M == Base::S);
    }
 
 template <class dbl>
@@ -149,7 +149,7 @@ void map_straight<matrix, dbl>::doinverse(const array2vd_t& pin,
    {
    // Confirm modulation symbol space is what we expect
    assertalways(pin.size() > 0);
-   assertalways(pin(0,0).size() == M);
+   assertalways(pin(0,0).size() == Base::M);
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
