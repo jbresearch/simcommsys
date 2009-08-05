@@ -39,9 +39,10 @@ int main(int argc, char *argv[])
          {
          cout << ps << '\t';
          cout << in << '\t';
-         encoder->reset(ps);
-         cout << encoder->step(in) << '\t';
-         cout << encoder->state() << '\n';
+         encoder->reset(encoder->convert_state(ps));
+         libbase::vector<int> ip = encoder->convert_input(in);
+         cout << encoder->convert_output(encoder->step(ip)) << '\t';
+         cout << encoder->convert_state(encoder->state()) << '\n';
          }
 
    return 0;

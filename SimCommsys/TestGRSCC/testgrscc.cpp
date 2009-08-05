@@ -117,13 +117,16 @@ void CompareCodes()
    for (int q = 0; q < cc_old.num_states(); q++)
       for (int i = 0; i < cc_old.num_inputs(); i++)
          {
-         cc_old.reset(q);
-         const int out = cc_old.step(i);
-         const int ns = cc_old.state();
-         cc_new.reset(q);
-         const int n_ps = cc_new.state();
-         const int n_out = cc_new.step(i);
-         const int n_ns = cc_new.state();
+         vector<int> ip;
+         cc_old.reset(cc_old.convert_state(q));
+         ip = cc_old.convert_input(i);
+         const int out = cc_old.convert_output(cc_old.step(ip));
+         const int ns = cc_old.convert_state(cc_old.state());
+         cc_new.reset(cc_new.convert_state(q));
+         const int n_ps = cc_new.convert_state(cc_new.state());
+         ip = cc_new.convert_input(i);
+         const int n_out = cc_new.convert_output(cc_new.step(ip));
+         const int n_ns = cc_new.convert_state(cc_new.state());
          cout << q << '-' << n_ps << '\t';
          cout << i << '\t';
          cout << ns << '-' << n_ns << '\t';
@@ -157,7 +160,7 @@ void TestCirculation()
       cout << '\n' << N;
       for (int S = 0; S < cc.num_states(); S++)
          {
-         cc.resetcircular(S, N);
+         cc.resetcircular(cc.convert_state(S), N);
          cout << '\t' << cc.state();
          }
       }
