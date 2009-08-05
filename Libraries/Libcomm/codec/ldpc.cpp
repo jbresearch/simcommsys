@@ -7,6 +7,8 @@
 
 #include "ldpc.h"
 #include "linear_code_utils.h"
+#include "randgen.h"
+#include "sumprodalg/spa_factory.h"
 #include <math.h>
 #include <sstream>
 
@@ -20,7 +22,7 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
-template <class GF_q> void ldpc<GF_q>::init()
+template <class GF_q, class real> void ldpc<GF_q, real>::init()
    {
 
    //compute the generator matrix for the code
@@ -42,27 +44,14 @@ template <class GF_q> void ldpc<GF_q>::init()
       this ->info_symb_pos(loop) = this->perm_to_systematic((this->length_n
             - this->dim_k) + loop);
       }
-
-   //allocate enough storage for the q_mxn and r_mxn values.
-   this->marginal_probs.init(this->dim_pchk, this->length_n);
-
    }
 
-template <class GF_q> void ldpc<GF_q>::resetpriors()
-   {
-   //not needed
-   }
-
-template <class GF_q> void ldpc<GF_q>::setpriors(const array1vd_t & ptable)
-   {
-   failwith("Not implemented as this function is not needed");
-
-   }
-
-template <class GF_q> void ldpc<GF_q>::setreceiver(const array1vd_t& ptable)
+template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
+      const array1vd_t& ptable)
    {
 
    this->current_iteration = 0;
+   this->decodingSuccess = false;
 
 #if DEBUG>=2
    libbase::trace << "\nThe received likelihoods are:\n";
@@ -78,8 +67,8 @@ template <class GF_q> void ldpc<GF_q>::setreceiver(const array1vd_t& ptable)
    //generalise this formula to all elements in GF_q
    //The result of this is that the computed probs for each entry adds to 1
    //and the most likely symbol has the highest probability
-   double alpha = 0.0;
-   int num_of_elements = GF_q::elements();
+   real alpha = 0.0;
+
    for (int loop_n = 0; loop_n < this->length_n; loop_n++)
       {
       alpha = ptable(loop_n).sum(); //sum all the likelihoods in ptable(loop_n)
@@ -92,7 +81,7 @@ template <class GF_q> void ldpc<GF_q>::setreceiver(const array1vd_t& ptable)
 #endif
 
    //determine the most likely symbol
-   libbase::linear_code_utils<GF_q>::get_most_likely_received_word(
+   libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(
          this->received_probs, this->received_word_sd, this->received_word_hd);
 
 #if DEBUG>=2
@@ -102,62 +91,68 @@ template <class GF_q> void ldpc<GF_q>::setreceiver(const array1vd_t& ptable)
    this->received_word_sd.serialize(libbase::trace, ' ');
 #endif
    //do we have a solution already?
-   this->decodingSuccess = libbase::linear_code_utils<GF_q>::compute_syndrome(
-         this->pchk_matrix, this->received_word_hd, this->syndrome);
-
-#if DEBUG>=2
-   libbase::trace << "\nThe syndrome is given by:\n";
-   this->syndrome.serialize(libbase::trace, ' ');
-#endif
-
-   //only do the rest if we don't have a codeword already
+   this->isCodeword();
    if (this->decodingSuccess)
       {
-      //initialise the output vector to the previously computed solution
       this->computed_solution = this->received_probs;
       }
-   else
 
+   //only do the rest if we don't have a codeword already
+   if (!this->decodingSuccess)
       {
-      //initialise the marginal prob values
-
-      //this uses the description of the algorithm as given by
-      //MacKay in Information Theory, Inference and Learning Algorithms(2003)
-      //on page 560 - chapter 47.3
-
-      //some helper variables
-      int pos = 0;
-      int non_zeros = 0;
-
-      //simply set q_mxn(0)=P_n(0)=P(x_n=0) and q_mxn(1)=P_n(1)=P(x_n=1)
-      for (int loop_m = 0; loop_m < this->dim_pchk; loop_m++)
-         {
-         non_zeros = this->N_m(loop_m).size();
-         for (int loop_n = 0; loop_n < non_zeros; loop_n++)
-            {
-            pos = this->N_m(loop_m)(loop_n) - 1;//we count from zero;
-            this->marginal_probs(loop_m, pos).q_mxn = this->received_probs(pos);
-            this->marginal_probs(loop_m, pos).r_mxn.init(num_of_elements);
-            this->marginal_probs(loop_m, pos).r_mxn = 0.0;
-            }
-         }
-
-#if DEBUG>=2
-      libbase::trace << "LDPC Memory Usage:\n ";
-      libbase::trace << this->marginal_probs.size()
-      * sizeof(ldpc<GF_q>::marginals) / double(1 << 20) << " MB\n";
-
-      libbase::trace << "\nThe marginal matrix is given by:\n";
-      this->print_marginal_probs(libbase::trace);
-#endif
+      this->spa_alg->spa_init(this->received_probs);
       }
    }
+template <class GF_q, class real> void ldpc<GF_q, real>::isCodeword()
+   {
 
-template <class GF_q> void ldpc<GF_q>::encode(
+   bool dec_success = true;
+   int num_of_entries = 0;
+   int pos_n = 0;
+
+   GF_q tmp_val = GF_q(0);
+   int rows = 0;
+   while (dec_success && rows < this->dim_pchk)
+      {
+      tmp_val = GF_q(0);
+      num_of_entries = this->N_m(rows).size();
+      for (int loop = 0; loop < num_of_entries; loop++)
+         {
+         pos_n = this->N_m(rows)(loop) - 1;//we count from zero
+         tmp_val += this->pchk_matrix(rows, pos_n) * received_word_hd(pos_n);
+         }
+      if (tmp_val != GF_q(0))
+         {
+         //the syndrome is non-zero
+         dec_success = false;
+         }
+      rows++;
+      }
+   this->decodingSuccess = dec_success;
+#if DEBUG>=2
+   if (dec_success)
+      {
+      libbase::trace << "We have a solution\n";
+      }
+#endif
+
+   }
+template <class GF_q, class real> void ldpc<GF_q, real>::encode(
       const libbase::vector<int>& source, libbase::vector<int>& encoded)
    {
    libbase::linear_code_utils<GF_q>::encode_cw(this->gen_matrix, source,
          encoded);
+
+#if DEBUG>=2
+   this->received_word_hd = encoded;
+   this->isCodeword();
+   assertalways(this->decodingSuccess);
+   //extract the info symbols from the codeword word and compare them to the original
+   for (int loop_i = 0; loop_i < this->dim_k; loop_i++)
+      {
+      assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
+      }
+#endif
 #if DEBUG>=2
    libbase::trace << "The encoded word is:\n";
    encoded.serialize(libbase::trace, ' ');
@@ -165,19 +160,11 @@ template <class GF_q> void ldpc<GF_q>::encode(
 #endif
    }
 
-template <class GF_q> void ldpc<GF_q>::softdecode(array1vd_t& ri)
-   {
-   //this simply calls the proper decoder
-   array1vd_t ro;
-   this->softdecode(ri, ro);
-   }
-
-template <class GF_q> void ldpc<GF_q>::softdecode(array1vd_t& ri,
-      libbase::vector<array1d_t>& ro)
+template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
+      array1vd_t& ri, libbase::vector<array1d_t>& ro)
    {
    //update the iteration counter
    this->current_iteration++;
-
    //init the received sd information vector;
    ri.init(this->dim_k);
 
@@ -189,66 +176,7 @@ template <class GF_q> void ldpc<GF_q>::softdecode(array1vd_t& ri,
       }
    else
       {
-      //carry out the horizontal step
-      //this uses the description of the algorithm as given by
-      //MacKay in Information Theory, Inference and Learning Algorithms(2003)
-      //on page 560 - chapter 47.3
-
-      // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in N(m)\n}q_mxn(x_{n') )
-      // Essentially, what we are doing is the following:
-      // Assume x_n=0
-      // we need to sum over all possibilities that such that the parity check is satisfied, ie =0
-      // if the parity check is satisfied the conditional probability is 1 and 0 otherwise
-      // so we are simply adding up the products for which the parity check is satisfied.
-
-      //the number of symbols in N_m, eg the number of variables that participate in check m
-      int size_N_m;
-
-      //loop over all check nodes - the horizontal step
-      for (int loop_m = 0; loop_m < this->dim_pchk; loop_m++)
-         {
-         // get the bits that participate in this check
-         size_N_m = this->N_m(loop_m).size();
-         for (int loop_n = 0; loop_n < size_N_m; loop_n++)
-            {
-            //this will compute the relevant r_nms fixing the x_n given by loop_n
-            this->compute_r_mn(loop_m, loop_n, this->N_m(loop_m));
-            }
-         }
-
-#if DEBUG>=2
-      libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
-      libbase::trace
-      << "After the horizontal step, the marginal matrix is given by:\n";
-      this->print_marginal_probs(libbase::trace);
-#endif
-
-      //this array holds the checks that use symbol n
-      array1i_t M_n;
-      //the number of checks in that array
-      int size_M_n;
-
-      //loop over all the bit nodes - the vertical step
-
-      for (int loop_n = 0; loop_n < this->dim_pchk; loop_n++)
-         {
-         M_n = this->M_n(loop_n);
-         size_M_n = M_n.size().length();
-         for (int loop_m = 0; loop_m < size_M_n; loop_m++)
-            {
-            this->compute_q_mn(loop_m, loop_n, M_n);
-            }
-         }
-#if DEBUG>=2
-      libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
-      libbase::trace
-      << "After the vertical step, the marginal matrix is given by:\n";
-      this->print_marginal_probs(libbase::trace);
-#endif
-
-      //compute the new probabilities for all symbols given the information in this iteration.
-      //This will be used in a tentative decoding to see whether we have found a codeword
-      this->compute_probs(ro);
+      this->spa_alg->spa_iteration(ro);
 
 #if DEBUG>=3
       libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
@@ -258,13 +186,11 @@ template <class GF_q> void ldpc<GF_q>::softdecode(array1vd_t& ri,
 #endif
 
       //determine the most likely symbol
-      libbase::linear_code_utils<GF_q>::get_most_likely_received_word(ro,
+      libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(ro,
             this->received_word_sd, this->received_word_hd);
 
       //do we have a solution?
-      this->decodingSuccess
-            = libbase::linear_code_utils<GF_q>::compute_syndrome(
-                  this->pchk_matrix, this->received_word_hd, this->syndrome);
+      this->isCodeword();
       if (this->decodingSuccess)
          {
          //store the solution for the next iteration
@@ -277,8 +203,6 @@ template <class GF_q> void ldpc<GF_q>::softdecode(array1vd_t& ri,
       this->received_word_hd.serialize(libbase::trace, ' ');
       libbase::trace << "\nIts symbol probabilities are given by:\n";
       this->received_word_sd.serialize(libbase::trace, ' ');
-      libbase::trace << "\nIts syndrome is given by:\n";
-      this->syndrome.serialize(libbase::trace, ' ');
 #endif
       //finished decoding
       }
@@ -296,184 +220,21 @@ template <class GF_q> void ldpc<GF_q>::softdecode(array1vd_t& ri,
 
    }
 
-template <class GF_q> void ldpc<GF_q>::compute_r_mn(int m, int n,
-      const array1i_t & tmpN_m)
-   {
-   //the number of remaining symbols that can vary
-   int num_of_var_syms = tmpN_m.size() - 1;
-   int num_of_elements = GF_q::elements();
-   //for each check node we need to consider num_of_elements^num_of_var_symbols cases
-   int num_of_cases = pow(num_of_elements, num_of_var_syms);
-   int pos_n = tmpN_m(n) - 1;//we count from 1;
-   int bitmask = num_of_elements - 1;
-
-   //only use the entries that are variable
-   array1i_t rel_N_m;
-   rel_N_m.init(num_of_var_syms);
-   int indx = 0;
-   for (int loop = 0; loop < num_of_var_syms; loop++)
-      {
-      if (indx == n)
-         {
-         indx++;
-         }
-      rel_N_m(loop) = tmpN_m(indx);
-      indx++;
-      }
-   //go through all cases - this will use bitwise manipulation
-   GF_q syndrome_sym = GF_q(0);
-
-   int int_sym_val;
-   int bits;
-   int pos_n_dash;
-   double q_nm_prod = 1.0;
-
-   this->marginal_probs(m, pos_n).r_mxn = 0.0;
-
-   for (int loop1 = 0; loop1 < num_of_cases; loop1++)
-      {
-      bits = loop1;
-      syndrome_sym = GF_q(0);
-      q_nm_prod = 1.0;
-      for (int loop2 = 0; loop2 < num_of_var_syms; loop2++)
-         {
-
-         pos_n_dash = rel_N_m(loop2) - 1;//we count from zero
-         //extract int value of the first symbol
-         int_sym_val = bits & bitmask;
-         //shift bits to the right by the dimension of the finite field
-         bits = bits >> GF_q::dimension();
-
-         //add it to the syndrome
-         syndrome_sym = syndrome_sym + GF_q(int_sym_val);
-         q_nm_prod *= this->marginal_probs(m, pos_n_dash).q_mxn(int_sym_val);
-         }
-      //adjust the appropriate rmn value
-      int_sym_val = syndrome_sym; //since we work in char(GF_q)=2 syndrome_sym=-syndrome_sym
-      this->marginal_probs(m, pos_n).r_mxn(int_sym_val) += q_nm_prod;
-      }
-   }
-
-template <class GF_q> void ldpc<GF_q>::compute_q_mn(int m, int n,
-      const array1i_t & M_n)
-   {
-   //todo avoid the use of temp array
-   //initialise some helper variables
-   int num_of_elements = GF_q::elements();
-   array1d_t q_mn(this -> received_probs(n));
-
-   int m_dash = 0;
-   int pos_m = M_n(m) - 1;//we count from 1;
-
-   //compute q_mn(sym) = a_mxn * P_n(sym) * \prod_{m'\in M(n)\m} r_m'xn(0) for all sym in GF_q
-   int size_of_M_n = M_n.size().length();
-   for (int loop_m = 0; loop_m < size_of_M_n; loop_m++)
-      {
-      if (m != loop_m)
-         {
-         m_dash = M_n(loop_m) - 1; //we start counting from zero
-         for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
-            {
-            q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
-            }
-         }
-      }
-   //normalise the q_mxn's so that q_mxn_0+q_mxn_1=1
-
-   double a_nxm = q_mn.sum();//sum up the values in q_mn
-   q_mn /= a_nxm; //normalise
-
-   //store the values
-   this->marginal_probs(pos_m, n).q_mxn = q_mn;
-   }
-
-template <class GF_q> void ldpc<GF_q>::compute_probs(array1vd_t& ro)
-   {
-   //ensure the output vector has the right length
-   ro.init(this->length_n);
-
-   //initialise some helper variables
-   int num_of_elements = GF_q::elements();
-   double a_n = 0.0;
-   int size_of_M_n = 0;
-   int pos_m;
-   for (int loop_n = 0; loop_n < this->length_n; loop_n++)
-      {
-      ro(loop_n) = this->received_probs(loop_n);
-      size_of_M_n = this->M_n(loop_n).size();
-      for (int loop_m = 0; loop_m < size_of_M_n; loop_m++)
-         {
-         pos_m = this->M_n(loop_n)(loop_m) - 1;//we count from 0
-         for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
-            {
-            ro(loop_n)(loop_e) *= this->marginal_probs(pos_m, loop_n).r_mxn(
-                  loop_e);
-            }
-         }
-      //normalise the result so that q_n_0+q_n_1=1
-      a_n = ro(loop_n).sum();
-      ro(loop_n) /= a_n;
-      }
-   }
-
-template <class GF_q> void ldpc<GF_q>::print_marginal_probs(std::ostream& sout)
-   {
-   int num_of_elements = GF_q::elements();
-   bool used;
-   for (int loop_m = 0; loop_m < this->dim_pchk; loop_m++)
-      {
-      sout << "\n[";
-      for (int loop_n = 0; loop_n < this->length_n; loop_n++)
-         {
-         sout << " <q=(";
-         used = this->marginal_probs(loop_m, loop_n).q_mxn.size() > 0;
-         if (used)
-            {
-            for (int loop_e = 0; loop_e < num_of_elements - 1; loop_e++)
-               {
-               sout << this->marginal_probs(loop_m, loop_n).q_mxn(loop_e)
-                     << ", ";
-               }
-            sout << this->marginal_probs(loop_m, loop_n).q_mxn(num_of_elements
-                  - 1);
-            }
-         else
-            {
-            sout << " n/a ";
-            }
-         sout << "), r=(";
-         if (used)
-            {
-            for (int loop_e = 0; loop_e < num_of_elements - 1; loop_e++)
-               {
-               sout << this->marginal_probs(loop_m, loop_n).r_mxn(loop_e)
-                     << ", ";
-               }
-            sout << this->marginal_probs(loop_m, loop_n).r_mxn(num_of_elements
-                  - 1);
-            }
-         else
-            {
-            sout << "n/a ";
-            }
-         sout << ")>";
-         }
-      sout << "]\n";
-      }
-   }
-
-template <class GF_q> std::string ldpc<GF_q>::description() const
+template <class GF_q, class real> std::string ldpc<GF_q, real>::description() const
    {
    std::ostringstream sout;
-   sout << "LDPC(n=" << this->length_n << ", m=" << this->dim_pchk << ")\n";
+   sout << "LDPC(n=" << this->length_n << ", m=" << this->dim_pchk << ", k="
+         << this->dim_k << ", spa=" << this->spa_alg->spa_type() << ", iter="
+         << this->max_iter << ")\n";
+#if DEBUG>=2
    this->serialize(libbase::trace);
    libbase::trace << "\n";
+#endif
+
+#if DEBUG>=2
    libbase::trace << "Its parity check matrix is given by:\n";
    this->pchk_matrix.serialize(libbase::trace, '\n');
-#if DEBUG>=2
-   libbase::trace << "its parity check matrix in REF is given by:\n";
-   this->pchk_matrix.reduce_to_ref().serialize(libbase::trace, '\n');
-#endif
+
    libbase::trace << "Its generator matrix is given by:\n";
    this->gen_matrix.serialize(libbase::trace, '\n');
    libbase::trace << "The information symbols are located in columns:\n";
@@ -482,6 +243,7 @@ template <class GF_q> std::string ldpc<GF_q>::description() const
       libbase::trace << this->info_symb_pos(loop) + 1 << " ";
       }
    libbase::trace << "\n";
+#endif
    return sout.str();
    }
 
@@ -492,22 +254,34 @@ template <class GF_q> std::string ldpc<GF_q>::description() const
  *
  * ldpc<gf<m,n>>
  * version
+ * spa_type
  * max_iter
  * n m
  * max_n max_m
+ * rand_prov_vals
+ * seed (only present if rand_only if rand_prov_vals=random)
  * list of the number of non-zero entries for each column
  * list of the number of non-zero entries for each row
  * pos of each non-zero entry per col
- * vals of each non-zero entry per col
+ * vals of each non-zero entry per col - optional
  *
  * where
  * - ldpc<gf<n,m>> is actually written by the serialisation code and not this method
  * - version is the file format version used
+ * - spa_type is the impl of the SPA used
  * - max_iter is the maximum number of iterations used by the decoder
  * - n is the length of the code
  * - m is the dimension of the parity check matrix
  * - max_n is the maxiumum number of non-zero entries per column
  * - max_m is the maximum number of non-zero entries per row
+ * - rand_prov_vals is either ones, random, provided and indicates how
+ *   the non-zero values are to be determined:
+ *      - ones sets all entries to 1
+ *      - provided reads them from the file
+ *      - random generates non-zero entries randomly using the provided seed
+ * - seed is an unsigned 32bit integer which contains the seed for the random number generator
+ *   It is only present when rand_prov_vals has been set to random
+ *
  *
  * Note that in the binary case the values are left out as they will be 1
  * anyway.
@@ -518,12 +292,20 @@ template <class GF_q> std::string ldpc<GF_q>::description() const
  * 0 2 2 3 3
  * 3 0 2 1 0
  *
- * The output would be
+ * An example file would be
  * ldpc<gf<2,0x7>>
- * 1
+ * #version
+ * 2
+ * #SPA
+ * trad
+ * #iter
  * 10
+ * # length dim
  * 5 3
+ * # max col/row weight
  * 2 2
+ * #non-zero vals
+ * provided
  * # col weights
  * 5
  * 2 2 2 2 2
@@ -554,34 +336,49 @@ template <class GF_q> std::string ldpc<GF_q>::description() const
  * 1 3
  *
  */
-template <class GF_q> std::ostream& ldpc<GF_q>::serialize(std::ostream& sout) const
+template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
+      std::ostream& sout) const
    {
 
    assertalways(sout.good());
-   sout << "#version of this fileformat\n";
-   sout << 1 << "\n";
+   sout << "#version of this file format\n";
+   sout << 2 << "\n";
+   sout << "#SPA type\n";
+   sout << this->spa_alg->spa_type() << "\n";
    sout << "# number of iterations\n";
    sout << this->max_iter << "\n";
    sout << "# length n and dimension m\n";
    sout << this->length_n << " " << this->dim_pchk << "\n";
    sout << "#max col weight and max row weight\n";
    sout << this->max_col_weight << " " << this->max_row_weight << "\n";
+
+   sout << "#non-zero values:ones/random/provided\n";
+   sout << "#if random is chosen then it must be followed\n";
+   sout << "#by a positive integer which acts as the seed for the\n";
+   sout << "#random number generator\n";
+   sout << this->rand_prov_values << "\n";
+   if ("random" == this->rand_prov_values)
+      {
+      sout << "#seed value\n";
+      sout << this->seed << "\n";
+      }
+
    sout << "#the column weight vector\n";
-   sout << this->col_weight << "\n";
+   sout << this->col_weight;
    sout << "#the row weight vector\n";
-   sout << this->row_weight << "\n";
+   sout << this->row_weight;
 
    sout << "#the non zero pos per col\n";
    int num_of_non_zeros;
    int gf_val_int;
    int tmp_pos;
-   int dim_gf = GF_q::dimension();
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
-      sout << this->M_n(loop1) << "\n";
+      sout << this->M_n(loop1);
       }
-   // only output non-zero entries is the non-binary case
-   if (dim_gf != 1)
+   // only output non-zero entries if needed
+
+   if ("provided" == this->rand_prov_values)
       {
       libbase::vector<GF_q> non_zero_vals_in_col;
       sout << "#the non zero vals per col\n";
@@ -595,7 +392,7 @@ template <class GF_q> std::ostream& ldpc<GF_q>::serialize(std::ostream& sout) co
             gf_val_int = this->pchk_matrix(tmp_pos, loop1);
             non_zero_vals_in_col(loop2) = gf_val_int;
             }
-         sout << non_zero_vals_in_col << "\n";
+         sout << non_zero_vals_in_col;
          }
       }
    return sout;
@@ -608,21 +405,33 @@ template <class GF_q> std::ostream& ldpc<GF_q>::serialize(std::ostream& sout) co
  *
  * ldpc<gf<m,n>>
  * version
+ * spa_type
  * max_iter
  * n m
  * max_n max_m
+ * rand_prov_vals
+ * seed (only present if rand_only if rand_prov_vals=random)
  * list of the number of non-zero entries for each column
  * list of the number of non-zero entries for each row
  * pos of each non-zero entry per col
- * vals of each non-zero entry per col
+ * vals of each non-zero entry per col - optional
  *
  * where
+ * - ldpc<gf<n,m>> is actually written by the serialisation code and not this method
  * - version is the file format version used
+ * - spa_type is the impl of the SPA used
  * - max_iter is the maximum number of iterations used by the decoder
  * - n is the length of the code
  * - m is the dimension of the parity check matrix
  * - max_n is the maxiumum number of non-zero entries per column
  * - max_m is the maximum number of non-zero entries per row
+ * - rand_prov_vals is either ones, random, provided and indicates how
+ *   the non-zero values are to be determined:
+ *      - ones sets all entries to 1
+ *      - provided reads them from the file
+ *      - random generates non-zero entries randomly using the provided seed
+ * - seed is an unsigned 32bit integer which contains the seed for the random number generator
+ *   It is only present when rand_prov_vals has been set to random
  *
  * Note that in the binary case the values are left out as they will be 1
  * anyway.
@@ -636,10 +445,18 @@ template <class GF_q> std::ostream& ldpc<GF_q>::serialize(std::ostream& sout) co
  *
  * An example file would be
  * ldpc<gf<2,0x7>>
- * 1
+ * #version
+ * 2
+ * #SPA
+ * trad
+ * #iter
  * 10
+ * # length dim
  * 5 3
+ * # max col/row weight
  * 2 2
+ * #non-zero vals
+ * provided
  * # col weights
  * 5
  * 2 2 2 2 2
@@ -671,12 +488,16 @@ template <class GF_q> std::ostream& ldpc<GF_q>::serialize(std::ostream& sout) co
  *
  */
 
-template <class GF_q> std::istream& ldpc<GF_q>::serialize(std::istream& sin)
+template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
+      std::istream& sin)
    {
    assertalways(sin.good());
    int version;
    sin >> libbase::eatcomments >> version;
-   assertalways(version==1); //do something with this at some stage
+   assertalways(version==2);
+   string spa_type;
+   sin >> libbase::eatcomments >> spa_type;
+
    sin >> libbase::eatcomments >> this->max_iter;
    assertalways(this->max_iter>=1);
 
@@ -686,6 +507,19 @@ template <class GF_q> std::istream& ldpc<GF_q>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> this->max_col_weight;
    sin >> libbase::eatcomments >> this->max_row_weight;
 
+   libbase::randgen rng;
+   //are the non-zero values provided or do we randomly generate them?
+   sin >> libbase::eatcomments >> this->rand_prov_values;
+   assertalways(("ones"==this->rand_prov_values) ||
+         ("random"==this->rand_prov_values) ||
+         ("provided"==this->rand_prov_values));
+   if ("random" == this->rand_prov_values)
+      {
+      //read the seed value;
+      sin >> libbase::eatcomments >> this-> seed;
+      assertalways(seed>=0);
+      rng.seed(seed);
+      }
    //read the col weights and ensure they are sensible
    this->col_weight.init(this->length_n);
    sin >> libbase::eatcomments;
@@ -713,23 +547,34 @@ template <class GF_q> std::istream& ldpc<GF_q>::serialize(std::istream& sin)
 
    //init the parity check matrix and read in the non-zero entries
    this->pchk_matrix.init(this->dim_pchk, this->length_n);
-   this->pchk_matrix = 0.0;
+   this->pchk_matrix = GF_q(0);
    int tmp_entries;
    int tmp_pos;
    libbase::vector<GF_q> non_zero_vals;
+   int num_of_non_zero_elements = GF_q::elements() - 1;
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
       tmp_entries = this->M_n(loop1).size();
       non_zero_vals.init(tmp_entries);
-      if (GF_q::dimension() == 1)
+      if ("ones" == this->rand_prov_values)
          {
          //in the binary case the non-zero values are 1
          non_zero_vals = GF_q(1);
+         }
+      else if ("random" == this->rand_prov_values)
+         {
+         for (int loop_e = 0; loop_e < tmp_entries; loop_e++)
+            {
+            non_zero_vals(loop_e) = GF_q(1 + int(rng.ival(
+                  num_of_non_zero_elements)));
+            }
+         assertalways(non_zero_vals.min()!=GF_q(0));
          }
       else
          {
          sin >> libbase::eatcomments;
          sin >> non_zero_vals;
+         assertalways(non_zero_vals.min()!=GF_q(0));
          }
       for (int loop2 = 0; loop2 < tmp_entries; loop2++)
          {
@@ -757,6 +602,9 @@ template <class GF_q> std::istream& ldpc<GF_q>::serialize(std::istream& sin)
       //tmp_pos should now correspond to the given row weight
       assertalways(tmp_pos==this->row_weight(loop1));
       }
+   this->spa_alg = libcomm::spa_factory<GF_q, real>::get_spa(spa_type,
+         this->length_n, this->dim_pchk, this->M_n, this->N_m,
+         this->pchk_matrix);
    this->init();
    return sin;
    }
@@ -766,7 +614,7 @@ template <class GF_q> std::istream& ldpc<GF_q>::serialize(std::istream& sin)
  * described by MacKay @
  * http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html
  *
- * n m
+ * n m q
  * max_n max_m
  * list of the number of non-zero entries for each column
  * list of the number of non-zero entries for each row
@@ -776,82 +624,103 @@ template <class GF_q> std::istream& ldpc<GF_q>::serialize(std::istream& sin)
  * where
  * - n is the length of the code
  * - m is the dimension of the parity check matrix
- * - max_n is the maximum number of non-zero entries per column
+ * - q is only provided in non-binary cases where q=|GF(q)|
+ * - max_n is the maxiumum number of non-zero entries per column
  * - max_m is the maximum number of non-zero entries per row
- *
- * Note that the last set of positions is only used to
+ * Note that the last set of positions and values are only used to
  * verify the information provided by the first set.
+ *
+ * Note that in the binary case the values are left out as they will be 1
+ * anyway. An example row with 4 non-zero entries would look like this (assuming gf<3,0xB>
+ * 1 1 3 3 9 7 10 2
+ * ie the non-zero entries at pos 1,3,9 and 10 are 1,3,7 and 2 respectively
+ *
+ * Similarly a column with 3 non-zero entries over gf<3,0xB> would look like:
+ * 3 4 6 3 12 6
+ * ie the non-zero entries at pos 3,6 and 12 are 4, 3 and 6 respectively
+ *
+ * in the binary case the above row and column would simply be given by
+ * 3 6 12
+ * 1 3 9 10
+ *
  * Also note that the alist format expects cols/rows with weight less than
  * the max col/row weight to be padded with extra 0s, eg
  * if a code has max col weight of 5 and a given col only has weight 3 then
  * it would look like
- * 1 4 5 0 0 (followed by the non-zero values in case of non-binary code)
- * These additional 0 need to be ignored
+ * 1 4 5 0 0 (each entry immediately followed by the non-zero values in case of non-binary code)
+ * These additional 0s need to be ignored
  *
  */
 
-template <class GF_q> std::ostream& ldpc<GF_q>::write_alist(std::ostream& sout) const
+template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::write_alist(
+      std::ostream& sout) const
    {
 
    assertalways(sout.good());
+   int numOfElements = GF_q::elements();
+   bool nonbinary = (numOfElements > 2);
 
    // alist format version
-   sout << this->length_n << " " << this->dim_pchk << "\n";
+   sout << this->length_n << " " << this->dim_pchk;
+   if (nonbinary)
+      {
+      sout << " " << numOfElements;
+      }
+   sout << "\n";
    sout << this->max_col_weight << " " << this->max_row_weight << "\n";
    this->col_weight.serialize(sout, ' ');
    this->row_weight.serialize(sout, ' ');
    int num_of_non_zeros;
    int gf_val_int;
    int tmp_pos;
-   int dim_gf = GF_q::dimension();
 
+   //positions per column (and the non-zero values associated with them in the non-binary case)
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
       num_of_non_zeros = this->M_n(loop1).size().length();
       for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++)
          {
          sout << this->M_n(loop1)(loop2) << " ";
+         tmp_pos = this->M_n(loop1)(loop2) - 1;
+         if (nonbinary)
+            {
+            gf_val_int = this->pchk_matrix(tmp_pos, loop1);
+            sout << gf_val_int << " ";
+            }
          }
       //add 0 zeros if necessary
       for (int loop2 = 0; loop2 < (this->max_col_weight - num_of_non_zeros); loop2++)
          {
          sout << "0 ";
-         }
-
-      // only output non-zero entries is the non-binary case
-      if (dim_gf != 1)
-         {
-         for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++)
+         if (nonbinary)
             {
-            tmp_pos = this->M_n(loop1)(loop2) - 1;
-            gf_val_int = this->pchk_matrix(tmp_pos, loop1);
-            sout << gf_val_int << " ";
+            sout << "0 ";
             }
          }
       sout << "\n";
       }
 
+   //positions per row (and the non-zero values associated with them in the non-binary case)
    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++)
       {
       num_of_non_zeros = this->N_m(loop1).size().length();
       for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++)
          {
          sout << this->N_m(loop1)(loop2) << " ";
+         tmp_pos = this->N_m(loop1)(loop2) - 1;
+         if (nonbinary)
+            {
+            gf_val_int = this->pchk_matrix(loop1, tmp_pos);
+            sout << gf_val_int << " ";
+            }
          }
       //add 0 zeros if necessary
       for (int loop2 = 0; loop2 < (this->max_row_weight - num_of_non_zeros); loop2++)
          {
          sout << "0 ";
-         }
-
-      // only output non-zero entries is the non-binary case
-      if (dim_gf != 1)
-         {
-         for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++)
+         if (nonbinary)
             {
-            tmp_pos = this->N_m(loop1)(loop2) - 1;
-            gf_val_int = this->pchk_matrix(loop1, tmp_pos);
-            sout << gf_val_int << " ";
+            sout << "0 ";
             }
          }
       sout << "\n";
@@ -863,7 +732,7 @@ template <class GF_q> std::ostream& ldpc<GF_q>::write_alist(std::ostream& sout) 
 /* loading of the  alist format of an LDPC code
  * This method expects the following format
  *
- * n m
+ * n m q
  * max_n max_m
  * list of the number of non-zero entries for each column
  * list of the number of non-zero entries for each row
@@ -873,6 +742,7 @@ template <class GF_q> std::ostream& ldpc<GF_q>::write_alist(std::ostream& sout) 
  * where
  * - n is the length of the code
  * - m is the dimension of the parity check matrix
+ * - q is only provided in non-binary cases where q=|GF(q)|
  * - max_n is the maxiumum number of non-zero entries per column
  * - max_m is the maximum number of non-zero entries per row
  * Note that the last set of positions and values are only used to
@@ -880,11 +750,11 @@ template <class GF_q> std::ostream& ldpc<GF_q>::write_alist(std::ostream& sout) 
  *
  * Note that in the binary case the values are left out as they will be 1
  * anyway. An example row with 4 non-zero entries would look like this (assuming gf<3,0xB>
- * 1 3 9 10 1 3 7 2
+ * 1 1 3 3 9 7 10 2
  * ie the non-zero entries at pos 1,3,9 and 10 are 1,3,7 and 2 respectively
  *
  * Similarly a column with 3 non-zero entries over gf<3,0xB> would look like:
- * 3 6 12 4 3 6
+ * 3 4 6 3 12 6
  * ie the non-zero entries at pos 3,6 and 12 are 4, 3 and 6 respectively
  *
  * in the binary case the above row and column would simply be given by
@@ -895,18 +765,26 @@ template <class GF_q> std::ostream& ldpc<GF_q>::write_alist(std::ostream& sout) 
  * the max col/row weight to be padded with extra 0s, eg
  * if a code has max col weight of 5 and a given col only has weight 3 then
  * it would look like
- * 1 4 5 0 0 (followed by the non-zero values in case of non-binary code)
- * These additional 0 need to be ignored
+ * 1 4 5 0 0 (each entry immediately followed by the non-zero values in case of non-binary code)
+ * These additional 0s need to be ignored
  *
  */
 
-template <class GF_q> std::istream& ldpc<GF_q>::read_alist(std::istream& sin)
+template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
+      std::istream& sin)
    {
-
    assertalways(sin.good());
+   int numOfElements = GF_q::elements();
+   bool nonbinary = (numOfElements > 2);
 
    sin >> libbase::eatcomments >> this->length_n;
    sin >> libbase::eatcomments >> this->dim_pchk;
+   if (nonbinary)
+      {
+      int q;
+      sin >> libbase::eatcomments >> q;
+      assertalways(numOfElements==q);
+      }
 
    sin >> libbase::eatcomments >> this->max_col_weight;
    sin >> libbase::eatcomments >> this->max_row_weight;
@@ -940,9 +818,7 @@ template <class GF_q> std::istream& ldpc<GF_q>::read_alist(std::istream& sin)
    //and ensure they make sense
    int tmp_entries;
    int tmp_pos;
-   GF_q tmp_val = GF_q(1); //this is the default value for the binary case
-   int gf_val_int;
-   int dim_gf = GF_q::dimension();
+   int tmp_val = 1; //this is the default value for the binary case
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
       //read in the non-zero row entries
@@ -954,26 +830,24 @@ template <class GF_q> std::istream& ldpc<GF_q>::read_alist(std::istream& sin)
          this->M_n(loop1)(loop2) = tmp_pos;
          tmp_pos--;//we start counting at 0 internally
          assertalways((0<=tmp_pos)&&(tmp_pos<this->dim_pchk));
+         // read the non-zero element in the non-binary case
+         if (nonbinary)
+            {
+            sin >> libbase::eatcomments >> tmp_val;
+            assertalways((0<=tmp_val)&&(tmp_val<numOfElements));
+            }
+         this->pchk_matrix(tmp_pos, loop1) = GF_q(tmp_val);
          }
       //discard any padded 0 zeros if necessary
       for (int loop2 = 0; loop2 < (this->max_col_weight - tmp_entries); loop2++)
          {
          sin >> libbase::eatcomments >> tmp_pos;
-         assertalways(tmp_pos==0);
-         }
-      //read in the non-zero values at those positions
-      for (int loop2 = 0; loop2 < tmp_entries; loop2++)
-         {
-         tmp_pos = this->M_n(loop1)(loop2) - 1;
-         if (dim_gf != 1)
+         assertalways(0==tmp_pos);
+         if (nonbinary)
             {
-            //in the non-binary case we need to actually need to know the values
-            //of the non-zero entries - in the binary case they are always 1
-            sin >> libbase::eatcomments >> gf_val_int;
-            tmp_val = GF_q(gf_val_int);
-            assertalways ((GF_q(0))!=tmp_val);//ensure the value is non-zero
+            sin >> libbase::eatcomments >> tmp_val;
+            assertalways((0==tmp_val));
             }
-         this->pchk_matrix(tmp_pos, loop1) = tmp_val;
          }
       }
 
@@ -989,30 +863,39 @@ template <class GF_q> std::istream& ldpc<GF_q>::read_alist(std::istream& sin)
          this->N_m(loop1)(loop2) = tmp_pos;
          tmp_pos--;//we start counting at 0 internally
          assertalways((0<=tmp_pos)&&(tmp_pos<this->length_n));
+         // read the non-zero element in the non-binary case
+         if (nonbinary)
+            {
+            sin >> libbase::eatcomments >> tmp_val;
+            assertalways((0<=tmp_val)&&(tmp_val<numOfElements));
+            }
+         assertalways(GF_q(tmp_val)==this->pchk_matrix(loop1,tmp_pos));
          }
       //discard any padded 0 zeros if necessary
       for (int loop2 = 0; loop2 < (this->max_row_weight - tmp_entries); loop2++)
          {
          sin >> libbase::eatcomments >> tmp_pos;
-         assertalways(tmp_pos==0);
-         }
-
-      //verify that the non-zero values correspond to the
-      //non-zero entries in the matrix
-      for (int loop2 = 0; loop2 < tmp_entries; loop2++)
-         {
-         tmp_pos = this->N_m(loop1)(loop2) - 1;
-         if (dim_gf != 1)
+         assertalways(0==tmp_pos);
+         if (nonbinary)
             {
-            //in the non-binary case we need to actually need to know the values
-            //of the non-zero entries - in the binary case they are always 1
-            sin >> libbase::eatcomments >> gf_val_int;
-            tmp_val = GF_q(gf_val_int);
+            sin >> libbase::eatcomments >> tmp_val;
+            assertalways((0==tmp_val));
             }
-         assertalways(tmp_val==this->pchk_matrix(loop1,tmp_pos));
          }
       }
-
+   //set some default values
+   this->max_iter = 50;
+   if (GF_q::dimension() == 1)
+      {
+      this->rand_prov_values = "ones";
+      }
+   else
+      {
+      this->rand_prov_values = "provided";
+      }
+   this->spa_alg = libcomm::spa_factory<GF_q, real>::get_spa("gdl",
+         this->length_n, this->dim_pchk, this->M_n, this->N_m,
+         this->pchk_matrix);
    this->init();
    return sin;
    }
@@ -1023,10 +906,15 @@ template <class GF_q> std::istream& ldpc<GF_q>::read_alist(std::istream& sin)
 namespace libcomm {
 using libbase::serializer;
 
-template class ldpc<gf<1, 0x3> > ;
+template class ldpc<gf<1, 0x3> , double> ;
 template <>
-const serializer ldpc<gf<1, 0x3> >::shelper = serializer("codec",
-      "ldpc<gf<1,0x3>>", ldpc<gf<1, 0x3> >::create);
+const serializer ldpc<gf<1, 0x3> , double>::shelper = serializer("codec",
+      "ldpc<gf<1,0x3>>", ldpc<gf<1, 0x3> , double>::create);
+
+template class ldpc<gf<2, 0x7> > ;
+template <>
+const serializer ldpc<gf<2, 0x7> >::shelper = serializer("codec",
+      "ldpc<gf<2,0x7>>", ldpc<gf<2, 0x7> >::create);
 
 template class ldpc<gf<3, 0xB> > ;
 template <>

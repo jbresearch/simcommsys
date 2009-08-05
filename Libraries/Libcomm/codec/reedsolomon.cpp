@@ -31,8 +31,8 @@ template <class GF_q> void reedsolomon<GF_q>::seedfrom(libbase::random & r)
 template <class GF_q> void reedsolomon<GF_q>::encode(const array1i_t & source,
       array1i_t & encoded)
    {
-   libbase::linear_code_utils<GF_q>::encode_cw(this->gen_ref_matrix, source,
-         encoded);
+   libbase::linear_code_utils<GF_q, double>::encode_cw(this->gen_ref_matrix,
+         source, encoded);
    }
 
 template <class GF_q> void reedsolomon<GF_q>::init_decoder(
@@ -106,7 +106,7 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
 
    //Calculate the syndrome of the received word
    libbase::vector<GF_q> syndrome_vec;
-   dec_success = libbase::linear_code_utils<GF_q>::compute_syndrome(
+   dec_success = libbase::linear_code_utils<GF_q, double>::compute_syndrome(
          this->pchk_matrix, this->received_word_hd, syndrome_vec);
 
 #if DEBUG>=2
@@ -397,12 +397,12 @@ template <class GF_q> void reedsolomon<GF_q>::init()
     *
     * Consider the following matrix now:
     *
-    *   [1    alpha           alpha^2             alpha^3      ...      alpha^(n-3)          alpha^(n-2)     ]
-    *   [1   alpha^2        (alpha^2)^2         (alpha^3)^2    ...   (alpha^(n-3))^2       (alpha^(n-2)^2    ]
+    *   [1    alpha           alpha^2             alpha^3      ...      alpha^(n-3)          alpha^(n-1)     ]
+    *   [1   alpha^2        (alpha^2)^2         (alpha^3)^2    ...   (alpha^(n-3))^2       (alpha^(n-1)^2    ]
     * H=[.                                                     ...                                           ]
     *   [.                                                     ...                                           ]
     *   [.                                                     ...                                           ]
-    *   [1  alpha^(2t-1)  (alpha^2)^(2t-1)  (alpha^3)^(2t-1)   ... (alpha^(n-3))^(2t-1)  (alpha^(n-2))^(2t-1)]
+    *   [1  alpha^(2t-1)  (alpha^2)^(2t-1)  (alpha^3)^(2t-1)   ... (alpha^(n-3))^(2t-1)  (alpha^(n-1))^(2t-1)]
     *
     * Then it is clear that H*v=0
     *
@@ -412,12 +412,12 @@ template <class GF_q> void reedsolomon<GF_q>::init()
     *
     * we can construct the parity check matrix of an extended RS code with [q,k,d+1] as follows (see Lin-p240):
     *
-    *    [1    alpha           alpha^2             alpha^3      ...      alpha^(n-3)          alpha^(n-2)      1]
-    *    [1   alpha^2        (alpha^2)^2         (alpha^3)^2    ...   (alpha^(n-3))^2       (alpha^(n-2)^2     0]
+    *    [1    alpha           alpha^2             alpha^3      ...      alpha^(n-3)          alpha^(n-1)      1]
+    *    [1   alpha^2        (alpha^2)^2         (alpha^3)^2    ...   (alpha^(n-3))^2       (alpha^(n-1)^2     0]
     * H'=[.                                                     ...                                            0]
     *    [.                                                     ...                                            0]
     *    [.                                                     ...                                            0]
-    *    [1  alpha^(2t-1)  (alpha^2)^(2t-1)  (alpha^3)^(2t-1)   ... (alpha^(n-3))^(2t-1)  (alpha^(n-2))^(2t-1) 0]
+    *    [1  alpha^(2t-1)  (alpha^2)^(2t-1)  (alpha^3)^(2t-1)   ... (alpha^(n-3))^(2t-1)  (alpha^(n-1))^(2t-1) 0]
     *
     * We will use the parity check matrix construction to obtain the required parity check matrix for the code
     * and then use standard matrix manipulation to obtain the generator matrix for the code.

@@ -25,14 +25,14 @@ namespace libbase {
  * - $Author: swesemeyer $
  */
 
-template <class GF_q>
+template <class GF_q, class real = double>
 class linear_code_utils {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<double> array1d_t;
+   typedef libbase::vector<real> array1d_t;
    typedef libbase::vector<GF_q> array1gfq_t;
-   typedef libbase::vector<libbase::vector<double> > array1dv_t;
+   typedef libbase::vector<array1d_t> array1dv_t;
 
    linear_code_utils();
    virtual ~linear_code_utils();
@@ -91,6 +91,27 @@ public:
          const array1dv_t& received_likelihoods, array1d_t & received_word_sd,
          array1gfq_t & received_word_hd);
 
+   /*!
+    * This creates a Hadamard matrix of size=2^m
+    */
+   static void create_hadamard(matrix<int>& hadMat, int m);
+
+   /*!
+    * This computes the Kroenecker product of 2 matrices
+    * if A is an mxn matrix and B is a pxq matrix then their Kroenecker product is
+    * an (m*p)(n*q) matrix. The result of the product is that each a_i_j in A is effectively
+    * replaced by the matrix a_i_j*B.
+    */
+   static void compute_kronecker(const matrix<int>& A, const matrix<int>& B,
+         matrix<int>& prod);
+
+   /*! \brief convert a parity check matrix over GF(q) into the equivalent binary one
+    *
+    */
+   /*
+    static void convert_to_binary(const matrix<GF_q>& mat_in,
+    matrix<gf<2, 0x7> > mat_out);
+    */
 };
 }
 

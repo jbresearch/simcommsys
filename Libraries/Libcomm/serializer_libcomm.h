@@ -148,9 +148,9 @@ private:
    dminner2<double, true> _dminner2;
    dminner2d<double, true> _dminner2d;
    // Codecs
-   ldpc<gf<1, 0x3> > _ldpc_1_0x3;
-   ldpc<gf<3, 0xB> > _ldpc_3_0xB;
-   ldpc<gf<4, 0x13> > _ldpc_4_0x13;
+   ldpc<gf<1, 0x3> , double> _ldpc_1_0x3_dbl;
+   ldpc<gf<3, 0xB> , double> _ldpc_3_0xB;
+   ldpc<gf<4, 0x13> , double> _ldpc_4_0x13;
 
    reedsolomon<gf<3, 11> > _rscodec_3_11;
    reedsolomon<gf<4, 19> > _rscodec_4_19;

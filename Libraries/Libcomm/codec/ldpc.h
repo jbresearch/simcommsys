@@ -11,14 +11,19 @@
 #include <string>
 #include <iostream>
 #include "codec_softout.h"
+#include "config.h"
 #include "vector.h"
 #include "matrix.h"
 #include "gf.h"
+#include "boost/shared_ptr.hpp"
+#include "sumprodalg/sum_prod_alg_inf.h"
 
 using std::string;
 using libcomm::codec_softout;
 using libbase::gf;
 using libbase::matrix;
+
+using boost::shared_ptr;
 
 namespace libcomm {
 /*!
@@ -34,69 +39,29 @@ namespace libcomm {
  * - $Author: swesemeyer $
  */
 
-template <class GF_q>
-class ldpc : public codec_softout<libbase::vector, double> {
-
-private:
-   /* see MacKay's Information Theory, Inference and Learning Algs (2003, ch 47.3,pp 559-561)
-    * for a proper definition of the following variables.
-    */
-
-   //!this struct holds the probabilities that check m is satisfied if symbol n of the received word is
-   //fixed at symbols and the other symbols(<>n) have separable distributions given by q_mxn
-   struct marginals {
-      array1d_t q_mxn;
-      array1d_t r_mxn;
-   };
+template <class GF_q, class real = double>
+class ldpc : public codec_softout<libbase::vector, real> {
 
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
+   typedef libbase::vector<real> array1d_t;
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<array1i_t> array1vi_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
 
-   /*
-    * The following methods are needed so that the abstract class codec_softoutput
-    * can translate the codec methods translate and decode into the corresponding
-    * soft decision methods.
-    */
-
-protected:
-   /*! \name Internal codec operations */
-   /*!
-    \brief A-priori probability initialization
-
-    This function resets the a-priori prabability tables for the codec to
-    equally-likely. This function (or setpriors) should be called before the
-    first decode iteration for each block.
-    */
-   void resetpriors();
-   /*!
-    \brief A-priori probability setup
-    \param[in] ptable Likelihoods of each possible input symbol at every
-    (input) timestep
-
-    This function updates the a-priori prabability tables for the codec.
-    This function (or resetpriors) should be called before the first decode
-    iteration for each block.
-    */
-   void setpriors(const array1vd_t& ptable);
-
-   /*!
-    * \note Sets up receiver likelihood tables only.
-    */
-   void setreceiver(const array1vd_t& ptable);
-   // @}
-
-
 public:
+   /*! \brief default constructor
+    *
+    */
    ldpc()
       {
       this->decodingSuccess = false;
       }
+   /*! \brief default destructor
+    *
+    */
    ~ldpc()
       {
       //nothing to do
@@ -130,7 +95,11 @@ public:
     \note Each call to decode will perform a single iteration (with respect
     to num_iter).
     */
-   void softdecode(array1vd_t& ri);
+   void softdecode(array1vd_t& ri)
+      {
+      array1vd_t ro;
+      this->softdecode(ri, ro);
+      }
 
    /*!
     \brief Decoding process
@@ -184,6 +153,9 @@ public:
       {
       return this->max_iter;
       }
+
+   //! Description output - describe the LDPC code in detail
+   std::string description() const;
    // @}
 
    // \name Codec information functions - derived */
@@ -196,11 +168,6 @@ public:
    // Overall code rate
    //double rate() const; - use default implementation
    //
-
-   /*! \name Description */
-   //! Description output - describe the LDPC code in detail
-   std::string description() const;
-   // @}
 
    /*! \name read_alist
     * reads the parity check matrix given in the "alist" format
@@ -215,39 +182,55 @@ public:
    // Serialization Support
 DECLARE_SERIALIZER(ldpc);
 
-   //private methods
+protected:
+   /*! \name Internal codec operations */
+   /*!
+    \brief A-priori probability initialization
+
+    This function resets the a-priori prabability tables for the codec to
+    equally-likely. This function (or setpriors) should be called before the
+    first decode iteration for each block.
+    */
+   void resetpriors()
+      {
+      //nothing to do
+      }
+   /*!
+    \brief A-priori probability setup
+    \param[in] ptable Likelihoods of each possible input symbol at every
+    (input) timestep
+
+    This function updates the a-priori prabability tables for the codec.
+    This function (or resetpriors) should be called before the first decode
+    iteration for each block.
+    */
+   void setpriors(const array1vd_t& ptable)
+      {
+      failwith("Not implemented as this function is not needed");
+      }
+
+   /*!
+    * \note Sets up receiver likelihood tables only.
+    */
+   void setreceiver(const array1vd_t& ptable);
+   // @}
+
+
 private:
    //! \brief initialises the LDPC codec
    // simply initialises the LDPC code and checks that the parity check matrix
    // has the right dimensions
    void init();
 
-   /*!
-    * \brief compute the r_mn(0) and r_mn(1) values for each iteration
-    * This is the horizontal step in the Sum-Product Algorithm
+   /*! \brief checks whether the current solution is a codeword
+    * This computes the syndrome of a received word using the fact that the matrix is sparse
+    * However, as soon as the syndrome contains a non-zero value it stops as this means the
+    * current solution cannot be a codeword
     */
-   void compute_r_mn(int m, int n, const array1i_t & N_m);
-
-   /*!
-    * \brief compute the q_mn(0) and q_mn(1) values for each iteration
-    * * This is the vertical step in the Sum-Product Algorithm
-    */
-   void compute_q_mn(int m, int n, const array1i_t & M_n);
-
-   /*!
-    * \brief compute the probabilities for each symbol given the
-    * derived probabilities in this iteration.
-    * This is the tentative decoding step
-    */
-   void compute_probs(array1vd_t& ro);
-
-   /*!
-    * \brief output the marginal matrix
-    */
-   void print_marginal_probs(std::ostream& s);
+   void isCodeword();
 
    /*
-    * internal variables needed by LDPC_GFq
+    * internal variables needed by the LDPC code
     */
 private:
 
@@ -283,6 +266,12 @@ private:
    //!the weight of each col
    array1i_t col_weight;
 
+   //! the way the non-zero entries are provided
+   string rand_prov_values;
+
+   //! the seed for the random number generator
+   unsigned int seed;
+
    //the positions of the non-zero entries per row
    array1vi_t N_m;
 
@@ -308,9 +297,6 @@ private:
    //!the probabilities per symbol of the computed solution
    array1vd_t computed_solution;
 
-   //! The syndrome computed from the received word
-   libbase::vector<GF_q> syndrome;
-
    //! flag indicating whether or not the current iteration
    //has resulted in a codeword
    bool decodingSuccess;
@@ -323,8 +309,7 @@ private:
    //the syndrome
    libbase::vector<GF_q> received_word_hd;
 
-   //! this matrix holds the r_mxn probabilities
-   matrix<marginals> marginal_probs;
+   shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
 
 };
 
