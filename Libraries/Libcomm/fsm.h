@@ -43,6 +43,36 @@ public:
    /*! \name Helper functions */
    static int convert(const libbase::vector<int>& vec, int S);
    static libbase::vector<int> convert(int val, int nu, int S);
+   //! Convert input from vector to integer
+   int convert_input(const libbase::vector<int>& vec)
+      {
+      return fsm::convert(vec, num_symbols());
+      }
+   //! Convert input from integer to vector
+   libbase::vector<int> convert_input(int val)
+      {
+      return fsm::convert(val, num_inputs(), num_symbols());
+      }
+   //! Convert output from vector to integer
+   int convert_output(const libbase::vector<int>& vec)
+      {
+      return fsm::convert(vec, num_symbols());
+      }
+   //! Convert output from integer to vector
+   libbase::vector<int> convert_output(int val)
+      {
+      return fsm::convert(val, num_outputs(), num_symbols());
+      }
+   //! Convert state from vector to integer
+   int convert_state(const libbase::vector<int>& vec)
+      {
+      return fsm::convert(vec, num_symbols());
+      }
+   //! Convert state from integer to vector
+   libbase::vector<int> convert_state(int val)
+      {
+      return fsm::convert(val, num_states(), num_symbols());
+      }
    // @}
 
    /*! \name FSM state operations (getting and resetting) */
@@ -168,6 +198,8 @@ public:
    /*! \name FSM information functions */
    //! Memory order (length of tail)
    virtual int mem_order() const = 0;
+   //! Number of memory elements
+   virtual int mem_elements() const = 0;
    //! Number of defined states
    virtual int num_states() const = 0;
    //! Number of input lines

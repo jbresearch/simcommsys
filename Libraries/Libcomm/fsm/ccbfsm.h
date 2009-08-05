@@ -83,6 +83,10 @@ public:
       {
       return m;
       }
+   int mem_elements() const
+      {
+      return nu;
+      }
    int num_states() const
       {
       return 1 << nu;
