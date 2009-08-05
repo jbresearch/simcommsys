@@ -35,7 +35,7 @@ vector<G> gnrcc<G>::determinefeedin(vector<int> input) const
    for (int i = 0; i < input.size(); i++)
       assert(input(i) != fsm::tail);
    // Convert input to vector of required type
-   return input;
+   return vector<G>(input);
    }
 
 // FSM state operations (getting and resetting)

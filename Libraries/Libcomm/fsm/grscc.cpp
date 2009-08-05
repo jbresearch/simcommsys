@@ -187,9 +187,9 @@ void grscc<G>::resetcircular(vector<int> zerostate, int n)
       initcsct();
    const int L = csct.size().rows();
    assert(n % L != 0);
-   const int zerostateval = ccfsm<G>::convert(zerostate);
+   const int zerostateval = ccfsm<G>::convert(vector<G>(zerostate));
    const int circstateval = csct(n % L, zerostateval);
-   reset(ccfsm<G>::convert(circstateval, ccfsm<G>::nu));
+   this->reset(vector<int> (ccfsm<G>::convert(circstateval, ccfsm<G>::nu)));
    }
 
 // Description

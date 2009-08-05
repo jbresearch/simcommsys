@@ -114,7 +114,8 @@ protected:
 private:
    /*! \name Internal functions */
    void test_invariant() const;
-   int fill(int i = 0, libbase::bitfield suffix = "", int weight = -1);
+   int fill(int i = 0, libbase::bitfield suffix = libbase::bitfield(""),
+         int weight = -1);
    void copypilot(libbase::vector<libbase::bitfield> pilotb);
    void copylut(libbase::vector<libbase::bitfield> lutb);
    void showlut(std::ostream& sout) const;
@@ -147,7 +148,7 @@ public:
       }
    double get_parameter() const
       {
-      assert(th_inner==th_outer);
+      assert(th_inner == th_outer);
       return th_inner;
       }
    // @}

@@ -199,65 +199,65 @@ bitfield& bitfield::operator^=(const bitfield& x)
 
 // Logic Operations - friends
 
-bitfield operator|(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator|(const bitfield& x) const
    {
-   bitfield c = a;
-   c |= b;
-   return c;
+   bitfield y = *this;
+   y |= x;
+   return y;
    }
 
-bitfield operator&(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator&(const bitfield& x) const
    {
-   bitfield c = a;
-   c &= b;
-   return c;
+   bitfield y = *this;
+   y &= x;
+   return y;
    }
 
-bitfield operator^(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator^(const bitfield& x) const
    {
-   bitfield c = a;
-   c ^= b;
-   return c;
+   bitfield y = *this;
+   y ^= x;
+   return y;
    }
 
-bitfield operator*(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator*(const bitfield& x) const
    {
-   assertalways(a.bits == b.bits);
-   bitfield c;
-   c.bits = 1;
-   int32u x = a.field & b.field;
-   for (int i = 0; i < a.bits; i++)
-      if (x & (1 << i))
-         c.field ^= 1;
-   return c;
+   assertalways(this->bits == x.bits);
+   bitfield y;
+   y.bits = 1;
+   int32u r = this->field & x.field;
+   for (int i = 0; i < this->bits; i++)
+      if (r & (1 << i))
+         y.field ^= 1;
+   return y;
    }
 
 // Barrel-Shifting Operations
 
-bitfield operator+(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator+(const bitfield& x) const
    {
-   bitfield c;
-   c.bits = a.bits + b.bits;
-   c.field = (a.field << b.bits) | b.field;
-   return c;
+   bitfield y;
+   y.bits = this->bits + x.bits;
+   y.field = (this->field << x.bits) | x.field;
+   return y;
    }
 
-bitfield operator<<(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator<<(const bitfield& x) const
    {
-   bitfield c;
-   c.bits = a.bits;
-   c.field = (a.field << b.bits) | b.field;
-   c.field &= c.mask();
-   return c;
+   bitfield y;
+   y.bits = this->bits;
+   y.field = (this->field << x.bits) | x.field;
+   y.field &= y.mask();
+   return y;
    }
 
-bitfield operator>>(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator>>(const bitfield& x) const
    {
-   bitfield c;
-   c.bits = b.bits;
-   c.field = (a.field << (b.bits - a.bits)) | (b.field >> a.bits);
-   c.field &= c.mask();
-   return c;
+   bitfield y;
+   y.bits = x.bits;
+   y.field = (this->field << (x.bits - this->bits)) | (x.field >> this->bits);
+   y.field &= y.mask();
+   return y;
    }
 
 bitfield& bitfield::operator<<=(const int x)
@@ -279,17 +279,17 @@ bitfield& bitfield::operator>>=(const int x)
    return *this;
    }
 
-bitfield operator<<(const bitfield& a, const int b)
+bitfield bitfield::operator<<(const int x) const
    {
-   bitfield c = a;
-   c <<= b;
+   bitfield c = *this;
+   c <<= x;
    return c;
    }
 
-bitfield operator>>(const bitfield& a, const int b)
+bitfield bitfield::operator>>(const int x) const
    {
-   bitfield c = a;
-   c >>= b;
+   bitfield c = *this;
+   c >>= x;
    return c;
    }
 

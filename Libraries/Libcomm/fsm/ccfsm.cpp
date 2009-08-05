@@ -130,9 +130,9 @@ ccfsm<G>::ccfsm(const ccfsm<G>& x)
 // FSM state operations (getting and resetting)
 
 template <class G>
-libbase::vector<int> ccfsm<G>::state() const
+vector<int> ccfsm<G>::state() const
    {
-   libbase::vector<int> state(nu);
+   vector<int> state(nu);
    int j = 0;
    for (int t = 0; t < nu; t++)
       for (int i = 0; i < k; i++)
@@ -150,7 +150,7 @@ void ccfsm<G>::reset()
    }
 
 template <class G>
-void ccfsm<G>::reset(libbase::vector<int> state)
+void ccfsm<G>::reset(vector<int> state)
    {
    fsm::reset(state);
    assert(state.size() == nu);
@@ -165,7 +165,7 @@ void ccfsm<G>::reset(libbase::vector<int> state)
 // FSM operations (advance/output/step)
 
 template <class G>
-void ccfsm<G>::advance(libbase::vector<int>& input)
+void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
    input = determineinput(input);
@@ -185,7 +185,7 @@ void ccfsm<G>::advance(libbase::vector<int>& input)
    }
 
 template <class G>
-libbase::vector<int> ccfsm<G>::output(libbase::vector<int> input) const
+vector<int> ccfsm<G>::output(vector<int> input) const
    {
    input = determineinput(input);
    vector<G> sin = determinefeedin(input);
@@ -198,7 +198,7 @@ libbase::vector<int> ccfsm<G>::output(libbase::vector<int> input) const
          thisop += convolve(sin(i), reg(i), gen(i, j));
       op(j) = thisop;
       }
-   return op;
+   return vector<int>(op);
    }
 
 // Description & Serialization

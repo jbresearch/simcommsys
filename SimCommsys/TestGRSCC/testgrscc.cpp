@@ -82,9 +82,9 @@ matrix<bitfield> GetGeneratorBinary()
    // Create generator matrix for a R=1/2 code
    matrix<bitfield> gen(1, 2);
    // 1 + D + D^2
-   gen(0, 0) = "111";
+   gen(0, 0) = bitfield("111");
    // 1 + D^2
-   gen(0, 1) = "101";
+   gen(0, 1) = bitfield("101");
    return gen;
    }
 

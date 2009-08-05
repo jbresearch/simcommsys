@@ -35,7 +35,7 @@ private:
 public:
    /*! \name Constructors / Destructors */
    bitfield();
-   bitfield(const char *s)
+   explicit bitfield(const char *s)
       {
       init(s);
       }
@@ -78,23 +78,23 @@ public:
    bitfield reverse() const;
 
    // Logical operators - OR, AND, XOR
-   friend bitfield operator|(const bitfield& a, const bitfield& b);
-   friend bitfield operator&(const bitfield& a, const bitfield& b);
-   friend bitfield operator^(const bitfield& a, const bitfield& b);
+   bitfield operator|(const bitfield& x) const;
+   bitfield operator&(const bitfield& x) const;
+   bitfield operator^(const bitfield& x) const;
    bitfield& operator|=(const bitfield& x);
    bitfield& operator&=(const bitfield& x);
    bitfield& operator^=(const bitfield& x);
 
    // Convolution operator
-   friend bitfield operator*(const bitfield& a, const bitfield& b);
+   bitfield operator*(const bitfield& x) const;
    // Concatenation operator
-   friend bitfield operator+(const bitfield& a, const bitfield& b);
+   bitfield operator+(const bitfield& x) const;
    // Shift-register operators - sequence shift-in
-   friend bitfield operator<<(const bitfield& a, const bitfield& b);
-   friend bitfield operator>>(const bitfield& a, const bitfield& b);
+   bitfield operator<<(const bitfield& x) const;
+   bitfield operator>>(const bitfield& x) const;
    // Shift-register operators - zero shift-in
-   friend bitfield operator<<(const bitfield& a, const int b);
-   friend bitfield operator>>(const bitfield& a, const int b);
+   bitfield operator<<(const int x) const;
+   bitfield operator>>(const int x) const;
    bitfield& operator<<=(const int x);
    bitfield& operator>>=(const int x);
 

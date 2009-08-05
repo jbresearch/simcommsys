@@ -107,7 +107,8 @@ public:
  * \todo This class needs to be re-designed in a manner that is consistent with
  * convention (esp. Matlab) and that is efficient
  * 
- * \todo Extract common implementation of copy assignment operators
+ * \todo Extract common implementation of copy assignment operators and
+ * copy constructor
  * 
  * \todo Merge code for extract() and segment()
  */
@@ -143,10 +144,8 @@ public:
    vector(const vector<T>& x);
    //! On-the-fly conversion of vectors
    template <class A>
-   vector(const vector<A>& x)
-      {
-      *this = x;
-      }
+   explicit vector(const vector<A>& x);
+   //! Destructor
    ~vector()
       {
       free();
@@ -184,7 +183,10 @@ public:
    //! Copies another vector, resizing this one as necessary
    template <class A>
    vector<T>& operator=(const vector<A>& x);
-   //! Sets all vector elements to the given value
+   /*! \brief Sets all vector elements to the given value
+    * There is an advantage in using overloaded '=' instead of an init_value()
+    * method: this works even with nested vectors.
+    */
    template <class A>
    vector<T>& operator=(const A x);
    // @}
@@ -382,6 +384,26 @@ inline vector<T>::vector(const vector<T>& x) :
       m_size = x.m_size;
       m_data = x.m_data;
       }
+   test_invariant();
+   }
+
+template <class T>
+template <class A>
+inline vector<T>::vector(const vector<A>& x) :
+   m_root(true), m_size(0), m_data(NULL)
+   {
+   test_invariant();
+   init(x.size());
+   // avoid down-cast warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4244 )
+#endif
+   for (int i = 0; i < m_size.length(); i++)
+      m_data[i] = x(i);
+#ifdef WIN32
+#  pragma warning( pop )
+#endif
    test_invariant();
    }
 

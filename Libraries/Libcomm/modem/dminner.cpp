@@ -31,18 +31,18 @@ template <class real, bool norm>
 int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
    {
    assert(lut_type == lut_straight);
+   using libbase::bitfield;
    // set up if this is the first (root) call
    if (i == 0 && w == -1)
       {
       lut.init(num_symbols());
-      suffix = "";
+      suffix = bitfield("");
       w = n;
       }
    // stop here if we've reached the end
    if (i >= lut.size())
       return i;
    // otherwise, it all depends on the weight we're considering
-   using libbase::bitfield;
    bitfield b;
 #ifndef NDEBUG
    if (n > 2)
@@ -55,7 +55,7 @@ int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
       w--;
       if (suffix.size() == 0)
          i = fill(i, suffix, w);
-      for (b = "1"; b.size() + suffix.size() + w <= n; b = b + bitfield("0"))
+      for (b = bitfield("1"); b.size() + suffix.size() + w <= n; b = b + bitfield("0"))
          i = fill(i, b + suffix, w);
       }
    return i;
