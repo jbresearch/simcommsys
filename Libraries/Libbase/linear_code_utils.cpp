@@ -8,6 +8,7 @@
 #include "linear_code_utils.h"
 #include <iostream>
 #include <algorithm>
+#include "logrealfast.h"
 
 namespace libbase {
 
@@ -19,109 +20,60 @@ namespace libbase {
 #  define DEBUG 1
 #endif
 
-template <class GF_q> linear_code_utils<GF_q>::linear_code_utils()
+template <class GF_q, class real> linear_code_utils<GF_q, real>::linear_code_utils()
    {
    //nothing to do
 
    }
 
-template <class GF_q> linear_code_utils<GF_q>::~linear_code_utils()
+template <class GF_q, class real> linear_code_utils<GF_q, real>::~linear_code_utils()
    {
-   //nothing to dob
+   //nothing to do
    }
 
-template <class GF_q> void linear_code_utils<GF_q>::compute_dual_code(
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_dual_code(
       const matrix<GF_q> & orgMat, matrix<GF_q> & dualCodeGenMatrix,
       array1i_t & systematic_perm)
    {
    int length_n = orgMat.size().cols();
    int dim_k = orgMat.size().rows();
    int dim_m = length_n - dim_k;
-
-   //copy original matrix and reduce it to REF, ie G'=(I_k|P)
-   matrix<GF_q> tmpOrgMat(orgMat);
-   matrix<GF_q> refOrgMat(tmpOrgMat.reduce_to_ref());
-
+   matrix<GF_q> refOrgMat;
 #if DEBUG>=2
-   std::cout << "The REF is given by:\n";
-   refOrgMat.serialize(std::cout, '\n');
+   std::cout << "The original matrix is given by:\n";
+   orgMat.serialize(std::cout, '\n');
 #endif
+   linear_code_utils::compute_row_dim(orgMat, refOrgMat);
 
-   //quick check that we at least have the right dimension
-   //since the matrix is in REF, the last rows of the matrix
-   //should not be equal to zero. If it is then the row dimension
-   //of the generator matrix needs to be reduced.
-   int loop1 = dim_k;
-   int loop2;
-   bool isZero = true;
-   while (isZero && (loop1 >= 0))
-      {
-      loop1--;
-      loop2 = length_n;
-      while (isZero && (loop2 >= dim_k))
-         {
-         loop2--;
-         if (refOrgMat(loop1, loop2) != (GF_q(0)))
-            {
-            isZero = false;
-            }
-         }
-      }
-#if DEBUG>=2
-   std::cout << "We have " << (dim_k - loop1) - 1 << " zero rows.\n";
-#endif
-   //compensate for the fact the we start counting rows from 0
-   loop1++;
-   if (loop1 < dim_k)
-      {
-      dim_k = loop1;
-      dim_m = length_n - dim_k;
-      //the matrix contains zero rows - drop them
-      matrix<GF_q> tmprefMatrix;
-      tmprefMatrix.init(dim_k, length_n);
-      for (loop2 = 0; loop2 < dim_k; loop2++)
-         {
-         tmprefMatrix.insertrow(refOrgMat.extractrow(loop2), loop2);
-         }
-      refOrgMat = tmprefMatrix;
-      }
+   dim_k = refOrgMat.size().rows();
+   dim_m = length_n - dim_k;
 
-#if DEBUG>=2
-   std::cout << "After dropping zero rows, the REF is given by:\n";
-   refOrgMat.serialize(std::cout, '\n');
-#endif
    // Now we need to check that the columns are systematic
    //if they aren't then we need to perform some column permutation
    //otherwise the permutation is simple the identy map
 
    systematic_perm.init(length_n);
-   for (loop1 = 0; loop1 < length_n; loop1++)
+   for (int loop1 = 0; loop1 < length_n; loop1++)
       {
       //the identity permutation
       systematic_perm(loop1) = loop1;
       }
 
-   bool needsPermutation = false;
-   bool swapcols = false;
-   if (!libbase::linear_code_utils<GF_q>::is_systematic(refOrgMat))
+   bool needsPermutation =
+         !(libbase::linear_code_utils<GF_q, real>::is_systematic(refOrgMat));
+   if (needsPermutation)
       {
       //matrix needs its columns permuted before it is in systematic form
+      //find the pivots
       int col_pos = 0;
-      for (loop1 = 0; loop1 < dim_k; loop1++)
+      for (int loop1 = 0; loop1 < dim_k; loop1++)
          {
 
          while ((GF_q(1)) != refOrgMat(loop1, col_pos))
             {
             col_pos++;
-            needsPermutation = true;
-            swapcols = true;
             }
-         if (swapcols)
-            {
-            systematic_perm(col_pos) = systematic_perm(loop1);
-            systematic_perm(loop1) = col_pos;
-            swapcols = false;
-            }
+         std::swap(systematic_perm(loop1), systematic_perm(col_pos));
          col_pos++;
          }
 #if DEBUG>=2
@@ -134,7 +86,7 @@ template <class GF_q> void linear_code_utils<GF_q>::compute_dual_code(
          matrix<GF_q> tmprefMatrix;
          tmprefMatrix.init(dim_k, length_n);
          int col_index;
-         for (loop1 = 0; loop1 < length_n; loop1++)
+         for (int loop1 = 0; loop1 < length_n; loop1++)
             {
             col_index = systematic_perm(loop1);
             tmprefMatrix.insertcol(refOrgMat.extractcol(col_index), loop1);
@@ -194,7 +146,7 @@ template <class GF_q> void linear_code_utils<GF_q>::compute_dual_code(
       matrix<GF_q> tmpdualCodeGenMatrix;
       tmpdualCodeGenMatrix.init(dim_m, length_n);
       int col_index;
-      for (loop1 = 0; loop1 < length_n; loop1++)
+      for (int loop1 = 0; loop1 < length_n; loop1++)
          {
          col_index = systematic_perm(loop1);
          tmpdualCodeGenMatrix.insertcol(dualCodeGenMatrix.extractcol(loop1),
@@ -209,17 +161,85 @@ template <class GF_q> void linear_code_utils<GF_q>::compute_dual_code(
    dualCodeGenMatrix.serialize(std::cout, '\n');
 #endif
 
+#if DEBUG>=2
+   std::cout
+   << "we now multiply the generator matrix by the transpose of the original matrix, ie:\n";
+   std::cout << "the transpose of:\n";
+   orgMat.serialize(std::cout, '\n');
+   std::cout << "is:\n";
+   matrix<GF_q> trans(orgMat.transpose());
+   trans.serialize(std::cout, '\n');
+   matrix<GF_q> zeroTest(trans * dualCodeGenMatrix);
+   std::cout << "the result is:\n";
+   zeroTest.serialize(std::cout, '\n');
+   assertalways(GF_q(0)==zeroTest.max());
+#endif
+
    }
 
-template <class GF_q> void linear_code_utils<GF_q>::compute_row_dim(
-      const matrix<GF_q>& parMat_H, matrix<GF_q> & maxRowSpace_H)
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_row_dim(
+      const matrix<GF_q>& orgMat, matrix<GF_q> & maxRowSpaceMat)
    {
-   //dummy implementations
-   //TODO fix me
-   maxRowSpace_H = parMat_H;
+   int length_n = orgMat.size().cols();
+   int dim_k = orgMat.size().rows();
+
+   //copy original matrix and reduce it to REF, ie G'=(I_k|P)
+   matrix<GF_q> refOrgMat(orgMat.reduce_to_ref());
+
+#if DEBUG>=2
+   std::cout << "The REF is given by:\n";
+   refOrgMat.serialize(std::cout, '\n');
+#endif
+
+   //quick check that we at least have the right dimension
+   //since the matrix is in REF, the last rows of the matrix
+   //should not be equal to zero. If the last row of the matrix is zero
+   //then keep dropping it until it isn't. Consequently, the row dimension
+   //of the generator matrix is reduced by the number of dropped rows.
+   int loop1 = dim_k;
+   int loop2;
+   bool isZero = true;
+   while (isZero && (loop1 > 0))
+      {
+      loop1--;
+      loop2 = length_n;
+      while (isZero && (loop2 >= dim_k))
+         {
+         loop2--;
+         if (refOrgMat(loop1, loop2) != (GF_q(0)))
+            {
+            isZero = false;
+            }
+         }
+      }
+#if DEBUG>=2
+   std::cout << "We have " << (dim_k - loop1) - 1 << " zero rows.\n";
+#endif
+   //compensate for the fact the we start counting rows from 0
+   loop1++;
+   if (loop1 < dim_k)
+      {
+      dim_k = loop1;
+      //the matrix contains zero rows - drop them
+
+      maxRowSpaceMat.init(dim_k, length_n);
+      for (loop2 = 0; loop2 < dim_k; loop2++)
+         {
+         maxRowSpaceMat.insertrow(refOrgMat.extractrow(loop2), loop2);
+         }
+#if DEBUG>=2
+      std::cout << "After dropping zero rows, the REF is given by:\n";
+      maxRowSpaceMat.serialize(std::cout, '\n');
+#endif
+      }
+   else
+      {
+      //the original matrix is ok already
+      maxRowSpaceMat = refOrgMat;
+      }
    }
 
-template <class GF_q> void linear_code_utils<GF_q>::remove_zero_cols(
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::remove_zero_cols(
       const matrix<GF_q>& mat_G, matrix<GF_q> noZeroCols_G)
    {
    //dummy implementations
@@ -227,9 +247,12 @@ template <class GF_q> void linear_code_utils<GF_q>::remove_zero_cols(
    noZeroCols_G = mat_G;
 
    }
-template <class GF_q> void linear_code_utils<GF_q>::encode_cw(
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::encode_cw(
       const matrix<GF_q> & mat_G, const array1i_t & source, array1i_t & encoded)
    {
+#if DEBUG>=2
+   libbase::trace << "\nencoding";
+#endif
    //initialise encoded
    int length_n = mat_G.size().cols();
    int dim_k = mat_G.size().rows();
@@ -246,9 +269,12 @@ template <class GF_q> void linear_code_utils<GF_q>::encode_cw(
          }
       encoded(i) = val;
       }
+#if DEBUG>=2
+   libbase::trace << "\nfinished encoding";
+#endif
    }
 
-template <class GF_q> bool linear_code_utils<GF_q>::compute_syndrome(
+template <class GF_q, class real> bool linear_code_utils<GF_q, real>::compute_syndrome(
       const matrix<GF_q> & parMat, const array1gfq_t & received_word_hd,
       array1gfq_t & syndrome_vec)
    {
@@ -281,8 +307,8 @@ template <class GF_q> bool linear_code_utils<GF_q>::compute_syndrome(
 
    }
 
-template <class GF_q> bool linear_code_utils<GF_q>::is_systematic(const matrix<
-      GF_q> & genMat)
+template <class GF_q, class real> bool linear_code_utils<GF_q, real>::is_systematic(
+      const matrix<GF_q> & genMat)
    {
    int dim_k = genMat.size().rows();
    int loop1 = 0;
@@ -317,13 +343,13 @@ template <class GF_q> bool linear_code_utils<GF_q>::is_systematic(const matrix<
    }
 
 //determine the most likely symbol
-template <class GF_q> void linear_code_utils<GF_q>::get_most_likely_received_word(
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::get_most_likely_received_word(
       const array1dv_t& received_likelihoods, array1d_t & received_word_sd,
       array1gfq_t& received_word_hd)
    {
    //some helper variables
    int length_n = received_likelihoods.size();
-   double mostlikely_sofar = 0;
+   real mostlikely_sofar = 0;
    int indx = 0;
    array1d_t tmp_vec;
    int num_of_symbs;
@@ -349,10 +375,78 @@ template <class GF_q> void linear_code_utils<GF_q>::get_most_likely_received_wor
       received_word_hd(loop_n) = GF_q(indx);
       }
    }
+
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::create_hadamard(
+      matrix<int>& hadMat, int m)
+   {
+   assertalways(m>1);
+   int num_of_elements = 1 << m;
+   hadMat.init(num_of_elements, num_of_elements);
+   matrix<int> A;
+   A.init(2, 2);
+   A = 1;
+   A(1, 1) = -1;
+   int size = 2;
+   if (num_of_elements == 2)
+      {
+      std::swap(hadMat, A);//hadMat=A;
+      }
+   else
+      {
+      matrix<int> B(A);
+      matrix<int> C;
+      while (size < num_of_elements)
+         {
+         linear_code_utils::compute_kronecker(A, B, C);
+         std::swap(B, C);
+         size = size * 2;
+         }
+      std::swap(hadMat, B);//B contains the Hadamard matrix
+#if DEBUB>=2
+      hadMat.serialize(std::cerr,' ');
+#endif
+      }
+   }
+
+template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_kronecker(
+      const matrix<int>& A, const matrix<int>& B, matrix<int>& prod)
+   {
+   //ensure the product is big enough
+   int row_a = A.size().rows();
+   int row_b = B.size().rows();
+   int col_a = A.size().cols();
+   int col_b = B.size().cols();
+   int rowsize = row_a * row_b;
+   int colsize = col_a * col_b;
+   int pos_m = 0;
+   int pos_n = 0;
+   prod.init(rowsize, colsize);
+
+   for (int loop_ra = 0; loop_ra < row_a; loop_ra++)
+      {
+      pos_m = loop_ra * row_b;
+      for (int loop_rb = 0; loop_rb < row_b; loop_rb++)
+         {
+         for (int loop_ca = 0; loop_ca < col_a; loop_ca++)
+            {
+            pos_n = loop_ca * col_b;
+
+            for (int loop_cb = 0; loop_cb < col_b; loop_cb++)
+               {
+               prod(pos_m, pos_n) = A(loop_ra, loop_ca) * B(loop_rb, loop_cb);
+               pos_n++;
+               }
+            }
+         pos_m++;
+         }
+      }
+   }
+
 }
 //explicit realisations
 namespace libbase {
 template class linear_code_utils<gf<1, 0x3> > ;
+template class linear_code_utils<gf<1, 0x3> , long double> ;
 template class linear_code_utils<gf<2, 0x7> > ;
 template class linear_code_utils<gf<3, 0xB> > ;
 template class linear_code_utils<gf<4, 0x13> > ;

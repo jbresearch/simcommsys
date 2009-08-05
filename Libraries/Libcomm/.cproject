@@ -32,7 +32,7 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
-<option id="gnu.cpp.compiler.option.warnings.toerrors.577589427" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
+<option id="gnu.cpp.compiler.option.warnings.toerrors.577589427" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.862989888" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.877259451" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
@@ -512,7 +512,7 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
-<option id="gnu.cpp.compiler.option.warnings.toerrors.1567750227" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
+<option id="gnu.cpp.compiler.option.warnings.toerrors.1567750227" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
 <option id="gnu.cpp.compiler.option.preprocessor.def.525132438" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 <listOptionValue builtIn="false" value="NDEBUG"/>
 </option>
