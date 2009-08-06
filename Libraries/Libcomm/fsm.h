@@ -46,6 +46,7 @@ public:
    //! Convert input from vector to integer
    int convert_input(const libbase::vector<int>& vec)
       {
+      assert(vec.size() == num_inputs());
       return fsm::convert(vec, num_symbols());
       }
    //! Convert input from integer to vector
@@ -56,6 +57,7 @@ public:
    //! Convert output from vector to integer
    int convert_output(const libbase::vector<int>& vec)
       {
+      assert(vec.size() == num_outputs());
       return fsm::convert(vec, num_symbols());
       }
    //! Convert output from integer to vector
@@ -66,6 +68,7 @@ public:
    //! Convert state from vector to integer
    int convert_state(const libbase::vector<int>& vec)
       {
+      assert(vec.size() == mem_elements());
       return fsm::convert(vec, num_symbols());
       }
    //! Convert state from integer to vector
