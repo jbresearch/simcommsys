@@ -38,8 +38,8 @@ void bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
    const int n = encoder.num_outputs();
 
    // Initialise constants
-   K = pow(S, k);
-   N = pow(S, n);
+   K = int(pow(S, k));
+   N = int(pow(S, n));
    M = encoder.num_states();
 
    // Determine the number of state memory elements
