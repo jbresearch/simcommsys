@@ -71,7 +71,7 @@ public:
    //! Convert state from integer to vector
    libbase::vector<int> convert_state(int val)
       {
-      return fsm::convert(val, num_states(), num_symbols());
+      return fsm::convert(val, mem_elements(), num_symbols());
       }
    // @}
 
