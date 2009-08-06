@@ -101,6 +101,15 @@ public:
  * container size together with container elements.
  * The serialize methods input/output only the elements.
  * 
+ * \note For root vectors, copy construction or assignment constitute a deep
+ * copy; for non-root vectors the operations are shallow (ie. the reference to
+ * the original data set is maintained). The actual allocated memory is only
+ * released when the relevant root vector is destroyed. There is always a risk
+ * that the root vector is destroyed before non-root references, in which case
+ * those references become stale.
+ *
+ * \todo Fix destruction of root vectors to make sure there are no remaining
+ * references to the data set.
  * 
  * \todo Extract non-root vectors as a derived class
  * 
@@ -111,6 +120,8 @@ public:
  * copy constructor
  * 
  * \todo Merge code for extract() and segment()
+ *
+ * \todo Add construction from array if possible
  */
 
 template <class T>
@@ -135,21 +146,25 @@ protected:
    void free();
    // @}
 public:
-   //! Default constructor (does not initialise elements)
-   explicit vector(const int n = 0);
-   /*! \brief Copy constructor
-    * For root vectors this constitutes a deep copy; for non-root vectors
-    * it's shallow (ie. the reference to the original data set is maintained).
-    */
-   vector(const vector<T>& x);
-   //! On-the-fly conversion of vectors
-   template <class A>
-   explicit vector(const vector<A>& x);
+   /*! \name Law of the Big Three */
    //! Destructor
    ~vector()
       {
       free();
       }
+   //! Copy constructor
+   vector(const vector<T>& x);
+   //! Copy asignment operator
+   vector<T>& operator=(const vector<T>& x);
+   // @}
+
+   /*! \name Other Constructors */
+   //! Default constructor (does not initialise elements)
+   explicit vector(const int n = 0);
+   //! On-the-fly conversion of vectors
+   template <class A>
+   explicit vector(const vector<A>& x);
+   // @}
 
    /*! \name Resizing operations */
    /*! \brief Set vector to given size, freeing if and as required
@@ -175,11 +190,6 @@ public:
     * remaining elements are left untouched.
     */
    vector<T>& copyfrom(const vector<T>& x);
-   /*! \brief Copies another vector, resizing this one as necessary
-    * \warning This non-templated version is required to avoid the
-    * compiler's default shallow-copy
-    */
-   vector<T>& operator=(const vector<T>& x);
    //! Copies another vector, resizing this one as necessary
    template <class A>
    vector<T>& operator=(const vector<A>& x);
@@ -399,6 +409,8 @@ inline vector<T>::vector(const vector<A>& x) :
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
+   // Do not convert type of element from A to T, so that if either is a
+   // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
 #ifdef WIN32
@@ -450,9 +462,12 @@ template <class T>
 inline vector<T>& vector<T>::operator=(const vector<T>& x)
    {
    test_invariant();
-   init(x.m_size.length());
+   // correctly handle self-assignment
+   if (this == &x)
+      return *this;
+   init(x.size());
    for (int i = 0; i < m_size.length(); i++)
-      m_data[i] = x.m_data[i];
+      m_data[i] = x(i);
    test_invariant();
    return *this;
    }
@@ -462,12 +477,16 @@ template <class A>
 inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
+   // this should never correspond to self-assignment
+   assert(this != &x);
    init(x.size());
    // avoid down-cast warnings in Win32
 #ifdef WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
+   // Do not convert type of element from A to T, so that if either is a
+   // vector, the process can continue recursively
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
 #ifdef WIN32

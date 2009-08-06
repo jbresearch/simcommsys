@@ -102,6 +102,8 @@ public:
  * 
  * 
  * \todo Extract common implementation of copy assignment operators
+ *
+ * \todo Add construction from array if possible
  */
 
 template <class T>
@@ -902,6 +904,8 @@ inline matrix<T> matrix<T>::operator-(const matrix<T>& x) const
  * If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an
  * m-by-p matrix, where the elements are given by:
  * \f[ AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j} \f]
+ *
+ * \todo fix orientation
  */
 template <class T>
 inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const

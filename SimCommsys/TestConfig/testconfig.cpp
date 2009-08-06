@@ -11,6 +11,7 @@
 
 namespace testconfig {
 
+using libbase::vector;
 using libbase::matrix;
 using std::cout;
 
@@ -48,6 +49,64 @@ void print_new_sizes()
    cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << "\n";
    }
 
+vector<int> makerangevector()
+   {
+   cout << "\nMake vector range:\n\n";
+   // create space for result
+   vector<int> x(10);
+   cout << "Local address: " << &x << "\n";
+   // init values
+   for (int i = 0; i < x.size(); i++)
+      x(i) = i;
+   // return result
+   return x;
+   }
+
+void accessvectorbyvalue(vector<int> x)
+   {
+   cout << "\nAccess vector by value:\n\n";
+   cout << "Address: " << &x << "\n";
+   cout << "Size: " << x.size() << "\n";
+   }
+
+void accessvectorbyreference(vector<int>& x)
+   {
+   cout << "\nAccess vector by reference:\n\n";
+   cout << "Address: " << &x << "\n";
+   cout << "Size: " << x.size() << "\n";
+   }
+
+void testvector()
+   {
+   // test default construction
+   vector<int> x;
+   assert(x.size() == 0);
+   // test integer construction (two forms)
+   vector<int> y1(10);
+   assert(y1.size() == 10);
+   vector<int> y2 = vector<int> (10);
+   assert(y2.size() == 10);
+   // test copy construction (two forms)
+   vector<int> z1(y1);
+   assert(z1.size() == 10);
+   vector<int> z2 = y1;
+   assert(z2.size() == 10);
+   // test copy assignment
+   x = y1;
+   assert(x.size() == 10);
+   // test vector return by value
+   vector<int> r = makerangevector();
+   cout << "\nTest vector return by value:\n\n";
+   cout << "Address: " << &r << "\n";
+   cout << "Size: " << r.size() << "\n";
+   // test vector passing
+   cout << "\nTest vector access on:\n\n";
+   cout << "Address: " << &r << "\n";
+   cout << "Size: " << r.size() << "\n";
+   accessvectorbyreference(r);
+   accessvectorbyvalue(r);
+   }
+
 void testmatrixmul()
    {
    cout << "\nMatrix Multiplication:\n\n";
@@ -68,6 +127,7 @@ void testmatrixmul()
    cout << "A = " << A;
    cout << "B = " << B;
    cout << "AB = " << A * B;
+   // TODO: add test for result values
    }
 
 void testmatrixinv()
@@ -86,6 +146,7 @@ void testmatrixinv()
    cout << "A = " << A;
    cout << "inv(A) = " << A.inverse();
    cout << "inv(A).A = " << A.inverse() * A;
+   // TODO: add test for result values
    }
 
 void testboost_foreach(const std::string& s)
@@ -170,6 +231,7 @@ int main(int argc, char *argv[])
    {
    print_standard_sizes();
    print_new_sizes();
+   testvector();
    testmatrixmul();
    testmatrixinv();
    testboost_foreach("1 2 3\n");
