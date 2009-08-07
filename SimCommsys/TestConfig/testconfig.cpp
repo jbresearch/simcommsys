@@ -91,6 +91,12 @@ void testvector()
    assert(z1.size() == 10);
    vector<int> z2 = y1;
    assert(z2.size() == 10);
+   // test array construction
+   int aa[] = {0, 1, 2, 3, 4};
+   vector<int> a(aa);
+   assert(a.size() == 5);
+   for (int i = 0; i < a.size(); i++)
+      assert(a(i) == i);
    // test copy assignment
    x = y1;
    assert(x.size() == 10);

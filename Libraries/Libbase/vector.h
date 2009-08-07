@@ -164,6 +164,9 @@ public:
    //! On-the-fly conversion of vectors
    template <class A>
    explicit vector(const vector<A>& x);
+   //! Construction from arrays
+   template <class A>
+   explicit vector(const A x[]);
    // @}
 
    /*! \name Resizing operations */
@@ -413,6 +416,29 @@ inline vector<T>::vector(const vector<A>& x) :
    // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
+#ifdef WIN32
+#  pragma warning( pop )
+#endif
+   test_invariant();
+   }
+
+template <class T>
+template <class A>
+inline vector<T>::vector(const A x[]) :
+   m_root(true), m_size(0), m_data(NULL)
+   {
+   test_invariant();
+   const int n = sizeof(x);
+   init(n);
+   // avoid down-cast warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4244 )
+#endif
+   // Do not convert type of element from A to T, so that if either is a
+   // vector, the process can continue through the assignment operator
+   for (int i = 0; i < m_size.length(); i++)
+      m_data[i] = x[i];
 #ifdef WIN32
 #  pragma warning( pop )
 #endif
