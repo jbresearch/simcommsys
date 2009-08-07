@@ -103,7 +103,7 @@ public:
  * 
  * \todo Extract common implementation of copy assignment operators
  *
- * \todo Add construction from array if possible
+ * \todo Add construction from initializer_list when if possible
  */
 
 template <class T>
