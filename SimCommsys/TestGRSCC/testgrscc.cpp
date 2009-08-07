@@ -15,6 +15,7 @@ using libbase::gf;
 using libcomm::grscc;
 using libbase::bitfield;
 using libcomm::rscc;
+using libcomm::fsm;
 
 // Define types for binary and for GF(2^4): m(x) = 1 { 0011 }
 typedef gf<1, 0x3> GF2;
@@ -100,41 +101,58 @@ void TestCreation()
    cout << "Code serialization: [" << &cc << "]\n";
    }
 
+void CompareCode(fsm& enc, const int ns[], const int out[])
+   {
+   cout << enc.description() << "\n";
+
+   cout << "PS\tIn\tNS\tOut\n";
+   for (int ps = 0, k = 0; ps < enc.num_states(); ps++)
+      for (int i = 0; i < enc.num_inputs(); i++, k++)
+         {
+         // reset encoder and verify the state is correctly set
+         enc.reset(enc.convert_state(ps));
+         const int n_ps = enc.convert_state(enc.state());
+         cout << ps << '-' << n_ps << '\t';
+         assert(ps == n_ps);
+         // prepare required input
+         vector<int> ip = enc.convert_input(i);
+         cout << i << '\t';
+         // feed input and determine output and next state
+         const int n_out = enc.convert_output(enc.step(ip));
+         const int n_ns = enc.convert_state(enc.state());
+         cout << ns[k] << '-' << n_ns << '\t';
+         cout << out[k] << '-' << n_out << '\n';
+         assert(out[k] == n_out);
+         assert(ns[k] == n_ns);
+         }
+   }
+
 void CompareCodes()
    {
    cout << "\nTest comparison of code with classic one:\n";
-   // Compute, display, and compare the state table for an RSC with G = [111,101]
-   // between the classic rscc and the grscc using the degenerate binary field
+   /* Consider a RSC with G = [111,101]
+    * PS        In      NS      Out
+    * 00        0       00      00
+    * 00        1       01      11
+    * 01        0       11      10
+    * 01        1       10      01
+    * 10        0       01      00
+    * 10        1       00      11
+    * 11        0       10      10
+    * 11        0       11      01
+    */
+   const int ns[] = {0, 1, 3, 2, 1, 0, 2, 3};
+   const int out[] = {0, 3, 2, 1, 0, 3, 2, 1};
+
+   // Compute, display, and compare the state table
+
+   cout << "Classic Code:\n";
    rscc cc_old(GetGeneratorBinary());
-   cout << "Classic Code description:\n";
-   cout << cc_old.description() << "\n";
+   CompareCode(cc_old, ns, out);
 
+   cout << "New Code:\n";
    grscc<GF2> cc_new(GetGeneratorGF2());
-   cout << "New Code description:\n";
-   cout << cc_new.description() << "\n";
-
-   cout << "PS\tIn\tNS\tOut\n";
-   for (int q = 0; q < cc_old.num_states(); q++)
-      for (int i = 0; i < cc_old.num_inputs(); i++)
-         {
-         vector<int> ip;
-         cc_old.reset(cc_old.convert_state(q));
-         ip = cc_old.convert_input(i);
-         const int out = cc_old.convert_output(cc_old.step(ip));
-         const int ns = cc_old.convert_state(cc_old.state());
-         cc_new.reset(cc_new.convert_state(q));
-         const int n_ps = cc_new.convert_state(cc_new.state());
-         ip = cc_new.convert_input(i);
-         const int n_out = cc_new.convert_output(cc_new.step(ip));
-         const int n_ns = cc_new.convert_state(cc_new.state());
-         cout << q << '-' << n_ps << '\t';
-         cout << i << '\t';
-         cout << ns << '-' << n_ns << '\t';
-         cout << out << '-' << n_out << '\n';
-         assert(q == n_ps);
-         assert(out == n_out);
-         assert(ns == n_ns);
-         }
+   CompareCode(cc_new, ns, out);
    }
 
 void TestCirculation()
