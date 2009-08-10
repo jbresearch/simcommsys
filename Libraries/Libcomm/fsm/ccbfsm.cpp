@@ -19,11 +19,6 @@ using libbase::bitfield;
 
 void ccbfsm::init()
    {
-   // Reverse all generator values
-   revgen.init(gen.size());
-   for(int i=0; i<gen.size().rows(); i++)
-      for(int j=0; j<gen.size().cols(); j++)
-         revgen(i,j) = gen(i,j).reverse();
    // copy automatically what we can
    k = gen.size().rows();
    n = gen.size().cols();
@@ -111,7 +106,7 @@ libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
       {
       bitfield thisop(0, 1);
       for (int i = 0; i < k; i++)
-         thisop ^= (reg(i) + sin(i)) * revgen(i, j);
+         thisop ^= (reg(i) + sin(i)) * gen(i, j);
       op(j) = thisop;
       }
    return op;

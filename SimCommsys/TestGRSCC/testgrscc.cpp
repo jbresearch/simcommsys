@@ -65,16 +65,18 @@ matrix<vector<GF2> > GetGeneratorGF2()
    {
    // Create generator matrix for a R=1/2 code
    matrix<vector<GF2> > gen(1, 2);
-   // 1 + D + D^2
-   gen(0, 0).init(3);
+   // Feedback: 1 + D + D^3 (1011 = 13)
+   gen(0, 0).init(4);
    gen(0, 0)(0) = "1";
    gen(0, 0)(1) = "1";
-   gen(0, 0)(2) = "1";
-   // 1 + D^2
-   gen(0, 1).init(3);
+   gen(0, 0)(2) = "0";
+   gen(0, 0)(3) = "1";
+   // Output: 1 + D + D^2 + D^3 (1111 = 17)
+   gen(0, 1).init(4);
    gen(0, 1)(0) = "1";
-   gen(0, 1)(1) = "0";
+   gen(0, 1)(1) = "1";
    gen(0, 1)(2) = "1";
+   gen(0, 1)(3) = "1";
    return gen;
    }
 
@@ -82,10 +84,10 @@ matrix<bitfield> GetGeneratorBinary()
    {
    // Create generator matrix for a R=1/2 code
    matrix<bitfield> gen(1, 2);
-   // 1 + D + D^2
-   gen(0, 0) = bitfield("111");
-   // 1 + D^2
-   gen(0, 1) = bitfield("101");
+   // Feedback: 1 + D + D^3 (1011 = 13)
+   gen(0, 0) = bitfield("1011");
+   // Output: 1 + D + D^2 + D^3 (1111 = 17)
+   gen(0, 1) = bitfield("1111");
    return gen;
    }
 
@@ -130,29 +132,37 @@ void CompareCode(fsm& enc, const int ns[], const int out[])
 void CompareCodes()
    {
    cout << "\nTest comparison of code with classic one:\n";
-   /* Consider a RSC with G = [111,101]
+   /* Consider a RSC with G = [1011,1111]
     * PS        In      NS      Out
-    * 00        0       00      00
-    * 00        1       01      11
-    * 01        0       11      10
-    * 01        1       10      01
-    * 10        0       01      00
-    * 10        1       00      11
-    * 11        0       10      10
-    * 11        0       11      01
+    * 000       0       000     00
+    * 000       1       001     11
+    * 001       0       011     10
+    * 001       1       010     01
+    * 010       0       100     10
+    * 010       1       101     01
+    * 011       0       111     00
+    * 011       1       110     11
+    * 100       0       001     10
+    * 100       1       000     01
+    * 101       0       010     00
+    * 101       1       011     11
+    * 110       0       101     00
+    * 110       1       100     11
+    * 111       0       110     10
+    * 111       1       111     01
     */
-   const int ns[] = {0, 1, 3, 2, 1, 0, 2, 3};
-   const int out[] = {0, 3, 2, 1, 0, 3, 2, 1};
+   const int ns[] = {0, 1, 3, 2, 4, 5, 7, 6, 1, 0, 2, 3, 5, 4, 6, 7};
+   const int out[] = {0, 3, 2, 1, 2, 1, 0, 3, 2, 1, 0, 3, 0, 3, 2, 1};
 
    // Compute, display, and compare the state table
 
-   cout << "Classic Code:\n";
-   rscc cc_old(GetGeneratorBinary());
-   CompareCode(cc_old, ns, out);
-
-   cout << "New Code:\n";
+   cout << "Generalized Code:\n";
    grscc<GF2> cc_new(GetGeneratorGF2());
    CompareCode(cc_new, ns, out);
+
+   cout << "Binary Code:\n";
+   rscc cc_old(GetGeneratorBinary());
+   CompareCode(cc_old, ns, out);
    }
 
 void TestCirculation()

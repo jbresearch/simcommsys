@@ -32,7 +32,7 @@ libbase::vector<int> rscc::determineinput(libbase::vector<int> input) const
    // replace 'tail' inputs with required value
    for (int i = 0; i < k; i++)
       if (input(i) == fsm::tail)
-         input(i) = (reg(i) + bitfield(0, 1)) * revgen(i, i);
+         input(i) = (reg(i) + bitfield(0, 1)) * gen(i, i);
    return input;
    }
 
@@ -45,7 +45,7 @@ bitfield rscc::determinefeedin(libbase::vector<int> input) const
    // compute input junction
    bitfield sin(0, 0), ip = bitfield(libbase::vector<bool>(input));
    for (int i = 0; i < k; i++)
-      sin = ((reg(i) + ip(i)) * revgen(i, i)) + sin;
+      sin = ((reg(i) + ip(i)) * gen(i, i)) + sin;
    return sin;
    }
 

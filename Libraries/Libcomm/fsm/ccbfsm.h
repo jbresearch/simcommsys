@@ -18,14 +18,14 @@ namespace libcomm {
  * - $Author$
  * 
  * Implements common elements of a controller-canonical binary fsm.
- * The generator matrix is serialized (and output in the descriptor) using the
- * usual convention as in Lin & Costello (ie. high-order bits are left-most,
- * and closest to the input junction). However, the state internally is held
- * such that the least-significant bit is left-most; this is according to the
- * convention described by Alex, such that from state 0, input 1, we always
- * get state 1, no matter how long the state register is. This difference in
- * notation requires the generator matrix to be reversed for internal use.
- * We do this reversal during initialization.
+ * The generator matrix is held such that the least-significant bit is
+ * left-most; this is according to the convention described by Alex, such that
+ * from state 0, input 1, we always get state 1, no matter how long the state
+ * register is. This is also the same as the format used in Benedetto et al.'s
+ * 1998 paper "A Search for Good Convolutional Codes to be Used in the
+ * Construction of Turbo Codes". This is different from the assumed convention
+ * in Lin & Costello (ie. high-order bits are left-most, and closest to the
+ * input junction).
  */
 
 class ccbfsm : public fsm {
@@ -40,8 +40,6 @@ protected:
     */
    libbase::vector<libbase::bitfield> reg;
    libbase::matrix<libbase::bitfield> gen; //!< Generator sequence
-   //! Generator sequence, in reversed form (as used internally)
-   libbase::matrix<libbase::bitfield> revgen;
    // @}
 private:
    /*! \name Internal functions */
