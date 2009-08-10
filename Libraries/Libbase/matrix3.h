@@ -114,12 +114,22 @@ public:
       {
       return m_xsize * m_ysize * m_zsize;
       }
+   int xsize() const
+      {
+      return m_xsize;
+      }
+   int ysize() const
+      {
+      return m_ysize;
+      }
+   int zsize() const
+      {
+      return m_zsize;
+      }
 
    // serialization and stream input & output
    void serialize(std::ostream& s) const;
    void serialize(std::istream& s);
-   friend std::ostream& operator<<<> (std::ostream& s, const matrix3<T>& x);
-   friend std::istream& operator>><> (std::istream& s, matrix3<T>& x);
 
    // arithmetic operations - unary
    matrix3<T>& operator+=(const matrix3<T>& x);
@@ -353,7 +363,7 @@ inline void matrix3<T>::serialize(std::istream& s)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix3<T>& x)
    {
-   s << x.m_xsize << "\t" << x.m_ysize << "\t" << x.m_zsize << "\n";
+   s << x.xsize() << "\t" << x.ysize() << "\t" << x.zsize() << "\n";
    x.serialize(s);
    return s;
    }
@@ -363,7 +373,7 @@ inline std::istream& operator>>(std::istream& s, matrix3<T>& x)
    {
    int xsize, ysize, zsize;
    s >> xsize >> ysize >> zsize;
-   x.setsize(xsize, ysize, zsize);
+   x.init(xsize, ysize, zsize);
    x.serialize(s);
    return s;
    }
