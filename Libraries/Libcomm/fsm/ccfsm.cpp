@@ -170,11 +170,15 @@ template <class G>
 void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
+   libbase::trace << "  Original Input: " << input;
    input = determineinput(input);
+   libbase::trace << "  Actual Input: " << input;
    vector<G> sin = determinefeedin(input);
+   libbase::trace << "  Register Feed-in: " << sin;
    // Compute next state for each input register
    for (int i = 0; i < k; i++)
       {
+      libbase::trace << "  Register " << i << " In: " << reg(i);
       const int m = reg(i).size();
       if (m == 0)
          continue;
@@ -183,6 +187,7 @@ void ccfsm<G>::advance(vector<int>& input)
          reg(i)(j) = reg(i)(j - 1);
       // Left-most entry gets the shift-in value
       reg(i)(0) = sin(i);
+      libbase::trace << "  Register " << i << " Out: " << reg(i);
       }
    }
 
