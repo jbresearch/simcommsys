@@ -26,9 +26,9 @@ using libbase::linear_code_utils;
  \author  Steve Wesemeyer
 
  \section svn Version Control
- - $Revision: 2799 $
- - $Date: 2009-08-04 14:43:53 +0100 (Tue, 04 Aug 2009) $
- - $Author: swesemeyer $
+ - $Revision$
+ - $Date$
+ - $Author$
  */
 /*
  int main(int argc, char *argv[])
