@@ -66,7 +66,7 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
 template <class G>
 int ccfsm<G>::convert(const vector<G>& vec)
    {
-   return fsm::convert(vector<int>(vec), G::elements());
+   return fsm::convert(vector<int> (vec), G::elements());
    }
 
 /*!
@@ -77,7 +77,7 @@ int ccfsm<G>::convert(const vector<G>& vec)
 template <class G>
 vector<G> ccfsm<G>::convert(int val, int nu)
    {
-   return vector<G>(fsm::convert(val, nu, G::elements()));
+   return vector<G> (fsm::convert(val, nu, G::elements()));
    }
 
 /*!
@@ -92,12 +92,14 @@ vector<G> ccfsm<G>::convert(int val, int nu)
 template <class G>
 G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
    {
+   // Inherit sizes
+   const int m = r.size();
+   assert(g.size() == m + 1);
    // Convolve the shift-in value with corresponding generator polynomial
-   int m = r.size();
-   G thisop = s * g(m);
+   G thisop = s * g(0);
    // Convolve register with corresponding generator polynomial
-   for (m--; m >= 0; m--)
-      thisop += r(m) * g(m);
+   for (int i = 0; i < m; i++)
+      thisop += r(i) * g(i + 1);
    return thisop;
    }
 
@@ -198,7 +200,7 @@ vector<int> ccfsm<G>::output(vector<int> input) const
          thisop += convolve(sin(i), reg(i), gen(i, j));
       op(j) = thisop;
       }
-   return vector<int>(op);
+   return vector<int> (op);
    }
 
 // Description & Serialization
