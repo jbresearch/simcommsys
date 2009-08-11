@@ -304,6 +304,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gf_fast.cpp"
+				>
+			</File>
+			<File
 				RelativePath="histogram.cpp"
 				>
 				<FileConfiguration
@@ -646,6 +650,10 @@
 			</File>
 			<File
 				RelativePath="gf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gf_fast.h"
 				>
 			</File>
 			<File

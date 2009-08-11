@@ -1743,7 +1743,7 @@ void ProduceLookupTables()
     */
    gf<8, 0x11D> alpha(2);
    gf<8, 0x11D> pow_of_alpha(1);
-   int num_of_elements = 256;
+   const int num_of_elements = 256;
    int non_zero = num_of_elements - 1;
 
    int pow_lut[num_of_elements];
