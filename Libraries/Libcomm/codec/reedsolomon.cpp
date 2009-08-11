@@ -565,46 +565,45 @@ template <class GF_q> std::istream& reedsolomon<GF_q>::serialize(
 namespace libcomm {
 using libbase::serializer;
 
-template class reedsolomon<gf<3, 11> > ;
+template class reedsolomon<gf<3, 0xB> > ;
 template <>
-const serializer reedsolomon<gf<3, 11> >::shelper = serializer("codec",
-      "reedsolomon<gf<3,11>>", reedsolomon<gf<3, 11> >::create);
+const serializer reedsolomon<gf<3, 0xB> >::shelper = serializer("codec",
+      "reedsolomon<gf<3,0xB>>", reedsolomon<gf<3, 0xB> >::create);
 
-template class reedsolomon<gf<4, 19> > ;
+template class reedsolomon<gf<4, 0x13> > ;
 template <>
-const serializer reedsolomon<gf<4, 19> >::shelper = serializer("codec",
-      "reedsolomon<gf<4,19>>", reedsolomon<gf<4, 19> >::create);
+const serializer reedsolomon<gf<4, 0x13> >::shelper = serializer("codec",
+      "reedsolomon<gf<4,0x13>>", reedsolomon<gf<4, 0x13> >::create);
 
-template class reedsolomon<gf<5, 37> > ;
+template class reedsolomon<gf<5, 0x25> > ;
 template <>
-const serializer reedsolomon<gf<5, 37> >::shelper = serializer("codec",
-      "reedsolomon<gf<5,37>>", reedsolomon<gf<5, 37> >::create);
+const serializer reedsolomon<gf<5, 0x25> >::shelper = serializer("codec",
+      "reedsolomon<gf<5,0x25>>", reedsolomon<gf<5, 0x25> >::create);
 
-template class reedsolomon<gf<6, 67> > ;
+template class reedsolomon<gf<6, 0x43> > ;
 template <>
-const serializer reedsolomon<gf<6, 67> >::shelper = serializer("codec",
-      "reedsolomon<gf<6,67>>", reedsolomon<gf<6, 67> >::create);
-/*
- template class reedsolomon<gf<7, 133> > ;
- template<>
- const serializer reedsolomon<gf<7, 133> >::shelper = serializer("codec",
- "reedsolomon<GF_7_133>", reedsolomon<gf<7, 133> >::create);
+const serializer reedsolomon<gf<6, 0x43> >::shelper = serializer("codec",
+      "reedsolomon<gf<6,0x43>>", reedsolomon<gf<6, 0x43> >::create);
 
- template class reedsolomon<gf<8, 285> > ;
- template<>
- const serializer reedsolomon<gf<8, 285> >::shelper = serializer("codec",
- "reedsolomon<GF_8_285>", reedsolomon<gf<8, 285> >::create);
+template class reedsolomon<gf<7, 0x89> > ;
+template <>
+const serializer reedsolomon<gf<7, 0x89> >::shelper = serializer("codec",
+      "reedsolomon<gf<7,0x89>>", reedsolomon<gf<7, 0x89> >::create);
 
- template class reedsolomon<gf<9, 529> > ;
- template<>
- const serializer reedsolomon<gf<9, 529> >::shelper = serializer("codec",
- "reedsolomon<GF_9_529>", reedsolomon<gf<9, 529> >::create);
+template class reedsolomon<gf<8, 0x11D> > ;
+template <>
+const serializer reedsolomon<gf<8, 0x11D> >::shelper = serializer("codec",
+      "reedsolomon<gf<8,0x11D>>", reedsolomon<gf<8, 0x11D> >::create);
 
- template class reedsolomon<gf<10, 1033> > ;
- template<>
- const serializer reedsolomon<gf<10, 1033> >::shelper = serializer("codec",
- "reedsolomon<GF_10_1033>", reedsolomon<gf<10, 1033> >::create);
- */
+template class reedsolomon<gf<9, 0x211> > ;
+template <>
+const serializer reedsolomon<gf<9, 0x211> >::shelper = serializer("codec",
+      "reedsolomon<gf<9,0x211>>", reedsolomon<gf<9, 0x211> >::create);
+
+template class reedsolomon<gf<10, 0x409> > ;
+template <>
+const serializer reedsolomon<gf<10, 0x409> >::shelper = serializer("codec",
+      "reedsolomon<gf<10,0x409>>", reedsolomon<gf<10, 0x409> >::create);
 }
 
 //end namespace

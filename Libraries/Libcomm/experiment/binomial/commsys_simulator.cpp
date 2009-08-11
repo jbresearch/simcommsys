@@ -239,6 +239,39 @@ template <>
 const serializer commsys_simulator<gf<4, 0x13> >::shelper("experiment",
       "commsys_simulator<gf<4,0x13>>", commsys_simulator<gf<4, 0x13> >::create);
 
+template class commsys_simulator<gf<5, 0x25> > ;
+template <>
+const serializer commsys_simulator<gf<5, 0x25> >::shelper("experiment",
+      "commsys_simulator<gf<5,0x25>>", commsys_simulator<gf<5, 0x25> >::create);
+
+template class commsys_simulator<gf<6, 0x43> > ;
+template <>
+const serializer commsys_simulator<gf<6, 0x43> >::shelper("experiment",
+      "commsys_simulator<gf<6,0x43>>", commsys_simulator<gf<6, 0x43> >::create);
+
+template class commsys_simulator<gf<7, 0x89> > ;
+template <>
+const serializer commsys_simulator<gf<7, 0x89> >::shelper("experiment",
+      "commsys_simulator<gf<7,0x89>>", commsys_simulator<gf<7, 0x89> >::create);
+
+template class commsys_simulator<gf<8, 0x11D> > ;
+template <>
+const serializer commsys_simulator<gf<8, 0x11D> >::shelper("experiment",
+      "commsys_simulator<gf<8,0x11D>>",
+      commsys_simulator<gf<8, 0x11D> >::create);
+
+template class commsys_simulator<gf<9, 0x211> > ;
+template <>
+const serializer commsys_simulator<gf<9, 0x211> >::shelper("experiment",
+      "commsys_simulator<gf<9,0x211>>",
+      commsys_simulator<gf<9, 0x211> >::create);
+
+template class commsys_simulator<gf<10, 0x409> > ;
+template <>
+const serializer commsys_simulator<gf<10, 0x409> >::shelper("experiment",
+      "commsys_simulator<gf<10,0x409>>",
+      commsys_simulator<gf<10, 0x409> >::create);
+
 // realizations for non-default containers
 
 // template class commsys_simulator<bool,matrix>;

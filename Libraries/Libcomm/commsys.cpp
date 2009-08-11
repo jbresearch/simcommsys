@@ -309,12 +309,25 @@ template class basic_commsys<gf<1, 0x3> > ;
 template class basic_commsys<gf<2, 0x7> > ;
 template class basic_commsys<gf<3, 0xB> > ;
 template class basic_commsys<gf<4, 0x13> > ;
+template class basic_commsys<gf<5, 0x25> > ;
+template class basic_commsys<gf<6, 0x43> > ;
+template class basic_commsys<gf<7, 0x89> > ;
+template class basic_commsys<gf<8, 0x11D> > ;
+template class basic_commsys<gf<9, 0x211> > ;
+template class basic_commsys<gf<10, 0x409> > ;
 template class basic_commsys<sigspace> ;
 template class basic_commsys<bool, matrix> ;
 template class basic_commsys<gf<1, 0x3> , matrix> ;
 template class basic_commsys<gf<2, 0x7> , matrix> ;
 template class basic_commsys<gf<3, 0xB> , matrix> ;
 template class basic_commsys<gf<4, 0x13> , matrix> ;
+template class basic_commsys<gf<5, 0x25> , matrix> ;
+template class basic_commsys<gf<6, 0x43> , matrix> ;
+template class basic_commsys<gf<7, 0x89> , matrix> ;
+template class basic_commsys<gf<8, 0x11D> , matrix> ;
+template class basic_commsys<gf<9, 0x211> , matrix> ;
+template class basic_commsys<gf<10, 0x409> , matrix> ;
+
 template class basic_commsys<sigspace, matrix> ;
 
 // *** General Communication System ***
@@ -364,6 +377,36 @@ template <>
 const serializer commsys<gf<4, 0x13> >::shelper("commsys",
       "commsys<gf<4,0x13>>", commsys<gf<4, 0x13> >::create);
 
+template class commsys<gf<5, 0x25> > ;
+template <>
+const serializer commsys<gf<5, 0x25> >::shelper("commsys",
+      "commsys<gf<5,0x25>>", commsys<gf<5, 0x25> >::create);
+
+template class commsys<gf<6, 0x43> > ;
+template <>
+const serializer commsys<gf<6, 0x43> >::shelper("commsys",
+      "commsys<gf<6,0x43>>", commsys<gf<6, 0x43> >::create);
+
+template class commsys<gf<7, 0x89> > ;
+template <>
+const serializer commsys<gf<7, 0x89> >::shelper("commsys",
+      "commsys<gf<7,0x89>>", commsys<gf<7, 0x89> >::create);
+
+template class commsys<gf<8, 0x11D> > ;
+template <>
+const serializer commsys<gf<8, 0x11D> >::shelper("commsys",
+      "commsys<gf<8,0x11D>>", commsys<gf<8, 0x11D> >::create);
+
+template class commsys<gf<9, 0x211> > ;
+template <>
+const serializer commsys<gf<9, 0x211> >::shelper("commsys",
+      "commsys<gf<9,0x211>>", commsys<gf<9, 0x211> >::create);
+
+template class commsys<gf<10, 0x409> > ;
+template <>
+const serializer commsys<gf<10, 0x409> >::shelper("commsys",
+      "commsys<gf<10,0x409>>", commsys<gf<10, 0x409> >::create);
+
 template class commsys<bool, matrix> ;
 template <>
 const serializer commsys<bool, matrix>::shelper("commsys",
@@ -388,6 +431,36 @@ template class commsys<gf<4, 0x13> , matrix> ;
 template <>
 const serializer commsys<gf<4, 0x13> , matrix>::shelper("commsys",
       "commsys<gf<4,0x13>,matrix>", commsys<gf<4, 0x13> , matrix>::create);
+
+template class commsys<gf<5, 0x25> , matrix> ;
+template <>
+const serializer commsys<gf<5, 0x25> , matrix>::shelper("commsys",
+      "commsys<gf<5,0x25>,matrix>", commsys<gf<5, 0x25> , matrix>::create);
+
+template class commsys<gf<6, 0x43> , matrix> ;
+template <>
+const serializer commsys<gf<6, 0x43> , matrix>::shelper("commsys",
+      "commsys<gf<6,0x43>,matrix>", commsys<gf<6, 0x43> , matrix>::create);
+
+template class commsys<gf<7, 0x89> , matrix> ;
+template <>
+const serializer commsys<gf<7, 0x89> , matrix>::shelper("commsys",
+      "commsys<gf<7,0x89>,matrix>", commsys<gf<7, 0x89> , matrix>::create);
+
+template class commsys<gf<8, 0x11D> , matrix> ;
+template <>
+const serializer commsys<gf<8, 0x11D> , matrix>::shelper("commsys",
+      "commsys<gf<8,0x11D>,matrix>", commsys<gf<8, 0x11D> , matrix>::create);
+
+template class commsys<gf<9, 0x211> , matrix> ;
+template <>
+const serializer commsys<gf<9, 0x211> , matrix>::shelper("commsys",
+      "commsys<gf<9,0x211>,matrix>", commsys<gf<9, 0x211> , matrix>::create);
+
+template class commsys<gf<10, 0x409> , matrix> ;
+template <>
+const serializer commsys<gf<10, 0x409> , matrix>::shelper("commsys",
+      "commsys<gf<10,0x409>,matrix>", commsys<gf<10, 0x409> , matrix>::create);
 
 // *** Specific to commsys<sigspace> ***
 

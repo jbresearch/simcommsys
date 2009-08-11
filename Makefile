@@ -8,7 +8,13 @@
 export ROOTDIR := $(PWD)
 
 # Directory where the object files and binaries are placed
+# if OSARCH is available then use it - otherwise use the
+# processor architecture (ie i686 x86_64)
+ifndef OSARCH
 export OSARCH := $(shell uname -m)
+else
+export OSARCH
+endif
 export BUILDDIR = $(RELEASE)/$(OSARCH)
 export BINDIR = ~/bin.$(OSARCH)
 

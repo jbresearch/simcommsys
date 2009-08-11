@@ -234,6 +234,36 @@ template <>
 const serializer exit_computer<gf<4, 0x13> >::shelper("experiment",
       "exit_computer<gf<4,0x13>>", exit_computer<gf<4, 0x13> >::create);
 
+template class exit_computer<gf<5, 0x25> > ;
+template <>
+const serializer exit_computer<gf<5, 0x25> >::shelper("experiment",
+      "exit_computer<gf<5,0x25>>", exit_computer<gf<5, 0x25> >::create);
+
+template class exit_computer<gf<6, 0x43> > ;
+template <>
+const serializer exit_computer<gf<6, 0x43> >::shelper("experiment",
+      "exit_computer<gf<6,0x43>>", exit_computer<gf<6, 0x43> >::create);
+
+template class exit_computer<gf<7, 0x89> > ;
+template <>
+const serializer exit_computer<gf<7, 0x89> >::shelper("experiment",
+      "exit_computer<gf<7,0x89>>", exit_computer<gf<7, 0x89> >::create);
+
+template class exit_computer<gf<8, 0x11D> > ;
+template <>
+const serializer exit_computer<gf<8, 0x11D> >::shelper("experiment",
+      "exit_computer<gf<8,0x11D>>", exit_computer<gf<8, 0x11D> >::create);
+
+template class exit_computer<gf<9, 0x211> > ;
+template <>
+const serializer exit_computer<gf<9, 0x211> >::shelper("experiment",
+      "exit_computer<gf<9,0x211>>", exit_computer<gf<9, 0x211> >::create);
+
+template class exit_computer<gf<10, 0x409> > ;
+template <>
+const serializer exit_computer<gf<10, 0x409> >::shelper("experiment",
+      "exit_computer<gf<10,0x409>>", exit_computer<gf<10, 0x409> >::create);
+
 // realizations for non-default containers
 
 // template class exit_computer<bool,matrix>;

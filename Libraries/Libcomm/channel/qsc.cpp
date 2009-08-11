@@ -100,4 +100,28 @@ template <>
 const libbase::serializer qsc<libbase::gf<4, 0x13> >::shelper("channel",
       "qsc<gf<4,0x13>>", qsc<libbase::gf<4, 0x13> >::create);
 
+template <>
+const libbase::serializer qsc<libbase::gf<5, 0x25> >::shelper("channel",
+      "qsc<gf<5,0x25>>", qsc<libbase::gf<5, 0x25> >::create);
+
+template <>
+const libbase::serializer qsc<libbase::gf<6, 0x43> >::shelper("channel",
+      "qsc<gf<6,0x43>>", qsc<libbase::gf<6, 0x43> >::create);
+
+template <>
+const libbase::serializer qsc<libbase::gf<7, 0x89> >::shelper("channel",
+      "qsc<gf<7,0x89>>", qsc<libbase::gf<7, 0x89> >::create);
+
+template <>
+const libbase::serializer qsc<libbase::gf<8, 0x11D> >::shelper("channel",
+      "qsc<gf<8,0x11D>>", qsc<libbase::gf<8, 0x11D> >::create);
+
+template <>
+const libbase::serializer qsc<libbase::gf<9, 0x211> >::shelper("channel",
+      "qsc<gf<9,0x211>>", qsc<libbase::gf<9, 0x211> >::create);
+
+template <>
+const libbase::serializer qsc<libbase::gf<10, 0x409> >::shelper("channel",
+      "qsc<gf<10,0x409>>", qsc<libbase::gf<10, 0x409> >::create);
+
 } // end namespace

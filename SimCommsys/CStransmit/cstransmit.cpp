@@ -93,6 +93,18 @@ int main(int argc, char *argv[])
          process<gf<3, 0xB> , vector> (filename, parameter);
       else if (type == "gf16")
          process<gf<4, 0x13> , vector> (filename, parameter);
+      else if (type == "gf32")
+         process<gf<5, 0x25> , vector> (filename, parameter);
+      else if (type == "gf64")
+         process<gf<6, 0x43> , vector> (filename, parameter);
+      else if (type == "gf128")
+         process<gf<7, 0x89> , vector> (filename, parameter);
+      else if (type == "gf256")
+         process<gf<8, 0x11D> , vector> (filename, parameter);
+      else if (type == "gf512")
+         process<gf<9, 0x211> , vector> (filename, parameter);
+      else if (type == "gf1024")
+         process<gf<10, 0x409> , vector> (filename, parameter);
       else if (type == "sigspace")
          process<sigspace, vector> (filename, parameter);
       else
@@ -116,6 +128,18 @@ int main(int argc, char *argv[])
          process<gf<3, 0xB> , matrix> (filename, parameter);
       else if (type == "gf16")
          process<gf<4, 0x13> , matrix> (filename, parameter);
+      else if (type == "gf32")
+         process<gf<5, 0x25> , matrix> (filename, parameter);
+      else if (type == "gf64")
+         process<gf<6, 0x43> , matrix> (filename, parameter);
+      else if (type == "gf128")
+         process<gf<7, 0x89> , matrix> (filename, parameter);
+      else if (type == "gf256")
+         process<gf<8, 0x11D> , matrix> (filename, parameter);
+      else if (type == "gf512")
+         process<gf<9, 0x211> , matrix> (filename, parameter);
+      else if (type == "gf1024")
+         process<gf<10, 0x409> , matrix> (filename, parameter);
       else if (type == "sigspace")
          process<sigspace, matrix> (filename, parameter);
       else

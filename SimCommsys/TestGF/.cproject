@@ -28,6 +28,7 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
 </option>
+<option id="gnu.cpp.compiler.option.warnings.toerrors.694110386" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.73834424" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.312558517" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
@@ -497,6 +498,7 @@
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 <cconfiguration id="cdt.managedbuild.config.gnu.exe.release.760532159">
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.760532159" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -523,6 +525,7 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
 </option>
+<option id="gnu.cpp.compiler.option.warnings.toerrors.701205796" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1544263487" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.558009694" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
@@ -992,6 +995,7 @@
 </externalSetting>
 </externalSettings>
 </storageModule>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">

@@ -268,4 +268,34 @@ template <>
 const serializer grscc<gf<4, 0x13> >::shelper = serializer("fsm",
       "grscc<gf<4,0x13>>", grscc<gf<4, 0x13> >::create);
 
+template class grscc<gf<5, 0x25> > ;
+template <>
+const serializer grscc<gf<5, 0x25> >::shelper("fsm", "grscc<gf<5,0x25>>",
+      grscc<gf<5, 0x25> >::create);
+
+template class grscc<gf<6, 0x43> > ;
+template <>
+const serializer grscc<gf<6, 0x43> >::shelper("fsm", "grscc<gf<6,0x43>>",
+      grscc<gf<6, 0x43> >::create);
+
+template class grscc<gf<7, 0x89> > ;
+template <>
+const serializer grscc<gf<7, 0x89> >::shelper("fsm", "grscc<gf<7,0x89>>",
+      grscc<gf<7, 0x89> >::create);
+
+template class grscc<gf<8, 0x11D> > ;
+template <>
+const serializer grscc<gf<8, 0x11D> >::shelper("fsm", "grscc<gf<8,0x11D>>",
+      grscc<gf<8, 0x11D> >::create);
+
+template class grscc<gf<9, 0x211> > ;
+template <>
+const serializer grscc<gf<9, 0x211> >::shelper("fsm", "grscc<gf<9,0x211>>",
+      grscc<gf<9, 0x211> >::create);
+
+template class grscc<gf<10, 0x409> > ;
+template <>
+const serializer grscc<gf<10, 0x409> >::shelper("fsm", "grscc<gf<10,0x409>>",
+      grscc<gf<10, 0x409> >::create);
+
 } // end namespace

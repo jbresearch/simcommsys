@@ -47,12 +47,26 @@ template class basic_blockmodem<gf<1, 0x3> > ;
 template class basic_blockmodem<gf<2, 0x7> > ;
 template class basic_blockmodem<gf<3, 0xB> > ;
 template class basic_blockmodem<gf<4, 0x13> > ;
+template class basic_blockmodem<gf<5, 0x25> > ;
+template class basic_blockmodem<gf<6, 0x43> > ;
+template class basic_blockmodem<gf<7, 0x89> > ;
+template class basic_blockmodem<gf<8, 0x11D> > ;
+template class basic_blockmodem<gf<9, 0x211> > ;
+template class basic_blockmodem<gf<10, 0x409> > ;
+
 template class basic_blockmodem<bool> ;
 template class basic_blockmodem<sigspace> ;
 template class basic_blockmodem<gf<1, 0x3> , matrix> ;
 template class basic_blockmodem<gf<2, 0x7> , matrix> ;
 template class basic_blockmodem<gf<3, 0xB> , matrix> ;
 template class basic_blockmodem<gf<4, 0x13> , matrix> ;
+template class basic_blockmodem<gf<5, 0x25> , matrix> ;
+template class basic_blockmodem<gf<6, 0x43> , matrix> ;
+template class basic_blockmodem<gf<7, 0x89> , matrix> ;
+template class basic_blockmodem<gf<8, 0x11D> , matrix> ;
+template class basic_blockmodem<gf<9, 0x211> , matrix> ;
+template class basic_blockmodem<gf<10, 0x409> , matrix> ;
+
 template class basic_blockmodem<bool, matrix> ;
 template class basic_blockmodem<sigspace, matrix> ;
 
@@ -64,12 +78,25 @@ template class blockmodem<gf<1, 0x3> > ;
 template class blockmodem<gf<2, 0x7> > ;
 template class blockmodem<gf<3, 0xB> > ;
 template class blockmodem<gf<4, 0x13> > ;
+template class blockmodem<gf<5, 0x25> > ;
+template class blockmodem<gf<6, 0x43> > ;
+template class blockmodem<gf<7, 0x89> > ;
+template class blockmodem<gf<8, 0x11D> > ;
+template class blockmodem<gf<9, 0x211> > ;
+template class blockmodem<gf<10, 0x409> > ;
+
 template class blockmodem<bool> ;
 template class blockmodem<sigspace> ;
 template class blockmodem<gf<1, 0x3> , matrix> ;
 template class blockmodem<gf<2, 0x7> , matrix> ;
 template class blockmodem<gf<3, 0xB> , matrix> ;
 template class blockmodem<gf<4, 0x13> , matrix> ;
+template class blockmodem<gf<5, 0x25> , matrix> ;
+template class blockmodem<gf<6, 0x43> , matrix> ;
+template class blockmodem<gf<7, 0x89> , matrix> ;
+template class blockmodem<gf<8, 0x11D> , matrix> ;
+template class blockmodem<gf<9, 0x211> , matrix> ;
+template class blockmodem<gf<10, 0x409> , matrix> ;
 template class blockmodem<bool, matrix> ;
 template class blockmodem<sigspace, matrix> ;
 
@@ -164,6 +191,39 @@ template class direct_blockmodem<gf<4, 0x13> > ;
 template <>
 const serializer direct_blockmodem<gf<4, 0x13> >::shelper("blockmodem",
       "blockmodem<gf<4,0x13>>", direct_blockmodem<gf<4, 0x13> >::create);
+
+template class direct_blockmodem<gf<5, 0x25> > ;
+template <>
+const serializer direct_blockmodem<gf<5, 0x25> >::shelper("blockmodem",
+      "direct_blockmodem<gf<5,0x25>>", direct_blockmodem<gf<5, 0x25> >::create);
+
+template class direct_blockmodem<gf<6, 0x43> > ;
+template <>
+const serializer direct_blockmodem<gf<6, 0x43> >::shelper("blockmodem",
+      "direct_blockmodem<gf<6,0x43>>", direct_blockmodem<gf<6, 0x43> >::create);
+
+template class direct_blockmodem<gf<7, 0x89> > ;
+template <>
+const serializer direct_blockmodem<gf<7, 0x89> >::shelper("blockmodem",
+      "direct_blockmodem<gf<7,0x89>>", direct_blockmodem<gf<7, 0x89> >::create);
+
+template class direct_blockmodem<gf<8, 0x11D> > ;
+template <>
+const serializer direct_blockmodem<gf<8, 0x11D> >::shelper("blockmodem",
+      "direct_blockmodem<gf<8,0x11D>>",
+      direct_blockmodem<gf<8, 0x11D> >::create);
+
+template class direct_blockmodem<gf<9, 0x211> > ;
+template <>
+const serializer direct_blockmodem<gf<9, 0x211> >::shelper("blockmodem",
+      "direct_blockmodem<gf<9,0x211>>",
+      direct_blockmodem<gf<9, 0x211> >::create);
+
+template class direct_blockmodem<gf<10, 0x409> > ;
+template <>
+const serializer direct_blockmodem<gf<10, 0x409> >::shelper("blockmodem",
+      "direct_blockmodem<gf<10,0x409>>",
+      direct_blockmodem<gf<10, 0x409> >::create);
 
 const serializer direct_blockmodem<bool>::shelper("blockmodem",
       "blockmodem<bool>", direct_blockmodem<bool>::create);

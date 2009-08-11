@@ -926,4 +926,29 @@ template <>
 const serializer ldpc<gf<4, 0x13> >::shelper = serializer("codec",
       "ldpc<gf<4,0x13>>", ldpc<gf<4, 0x13> >::create);
 
+template class ldpc<gf<6, 0x43> > ;
+template <>
+const serializer ldpc<gf<6, 0x43> >::shelper = serializer("codec",
+      "ldpc<gf<6,0x43>>", ldpc<gf<6, 0x43> >::create);
+
+template class ldpc<gf<7, 0x89> > ;
+template <>
+const serializer ldpc<gf<7, 0x89> >::shelper = serializer("codec",
+      "ldpc<gf<7,0x89>>", ldpc<gf<7, 0x89> >::create);
+
+template class ldpc<gf<8, 0x11D> > ;
+template <>
+const serializer ldpc<gf<8, 0x11D> >::shelper = serializer("codec",
+      "ldpc<gf<8,0x11D>>", ldpc<gf<8, 0x11D> >::create);
+
+template class ldpc<gf<9, 0x211> > ;
+template <>
+const serializer ldpc<gf<9, 0x211> >::shelper = serializer("codec",
+      "ldpc<gf<9,0x211>>", ldpc<gf<9, 0x211> >::create);
+
+template class ldpc<gf<10, 0x409> > ;
+template <>
+const serializer ldpc<gf<10, 0x409> >::shelper = serializer("codec",
+      "ldpc<gf<10,0x409>>", ldpc<gf<10, 0x409> >::create);
+
 }

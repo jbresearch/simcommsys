@@ -78,4 +78,10 @@ template class spa_factory<gf<1, 0x3> , long double> ;
 template class spa_factory<gf<2, 0x7> > ;
 template class spa_factory<gf<3, 0xB> > ;
 template class spa_factory<gf<4, 0x13> > ;
+template class spa_factory<gf<6, 0x43> > ;
+template class spa_factory<gf<7, 0x89> > ;
+template class spa_factory<gf<8, 0x11D> > ;
+template class spa_factory<gf<9, 0x211> > ;
+template class spa_factory<gf<10, 0x409> > ;
+
 }

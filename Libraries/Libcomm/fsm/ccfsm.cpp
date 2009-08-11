@@ -276,5 +276,11 @@ template class ccfsm<gf<1, 0x3> > ;
 template class ccfsm<gf<2, 0x7> > ;
 template class ccfsm<gf<3, 0xB> > ;
 template class ccfsm<gf<4, 0x13> > ;
+template class ccfsm<gf<5, 0x25> > ;
+template class ccfsm<gf<6, 0x43> > ;
+template class ccfsm<gf<7, 0x89> > ;
+template class ccfsm<gf<8, 0x11D> > ;
+template class ccfsm<gf<9, 0x211> > ;
+template class ccfsm<gf<10, 0x409> > ;
 
 } // end namespace
