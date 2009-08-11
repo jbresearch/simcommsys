@@ -344,6 +344,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\linear_code_utils.cpp"
+				>
+			</File>
+			<File
 				RelativePath="logreal.cpp"
 				>
 				<FileConfiguration
@@ -650,6 +654,10 @@
 			</File>
 			<File
 				RelativePath="itfunc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\linear_code_utils.h"
 				>
 			</File>
 			<File
