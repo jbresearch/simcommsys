@@ -8,7 +8,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "anneal_interleaver.h"
+#include "annealer/system/anneal_interleaver.h"
 #include "annealer.h"
 #include "timer.h"
 #include "WorkerThread.h"

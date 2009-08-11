@@ -1,0 +1,42 @@
+<UserSettings>
+	<ApplicationIdentity version="9.0"/>
+	<ToolsOptions>
+		<ToolsOptionsCategory name="Projects" RegisteredName="Projects">
+			<ToolsOptionsSubCategory name="VCDirectories" RegisteredName="VCDirectories" PackageName="Visual C++ Project System Package">
+				<PropertyValue name="LibraryDirectories">Win32|C:\Program Files\boost\boost_1_35_0\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(VCInstallDir)atlmfc\lib\i386;$(WindowsSdkDir)\lib;$(FrameworkSDKDir)lib;$(VSInstallDir);$(VSInstallDir)lib|Pocket PC 2003 (ARMV4)|$(VSInstallDir)SmartDevices\SDK\PocketPC2003\lib\ARMV4;$(VCInstallDir)ce\atlmfc\lib\ARMV4;$(VCInstallDir)ce\lib\ARMV4;|Smartphone 2003 (ARMV4)|$(VSInstallDir)SmartDevices\SDK\SmartPhone2003\lib\ARMV4;$(VCInstallDir)ce\atlmfc\lib\ARMV4;$(VCInstallDir)ce\lib\ARMV4;|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)|C:\Program Files\Windows Mobile 5.0 SDK R2\PocketPC\lib\ARMV4I;$(VCInstallDir)ce\atlmfc\lib\ARMV4I;$(VCInstallDir)ce\lib\ARMV4I;|Windows Mobile 5.0 Smartphone SDK (ARMV4I)|C:\Program Files\Windows Mobile 5.0 SDK R2\Smartphone\lib\ARMV4I;$(VCInstallDir)ce\atlmfc\lib\ARMV4I;$(VCInstallDir)ce\lib\ARMV4I;</PropertyValue>
+				<PropertyValue name="ReferenceDirectories">Win32|$(FrameworkDir)$(FrameworkVersion);$(VCInstallDir)atlmfc\lib;$(VCInstallDir)lib|Pocket PC 2003 (ARMV4)||Smartphone 2003 (ARMV4)||Windows Mobile 5.0 Pocket PC SDK (ARMV4I)||Windows Mobile 5.0 Smartphone SDK (ARMV4I)|</PropertyValue>
+				<PropertyValue name="ExcludeDirectories">Win32|$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)\include;$(FrameworkSDKDir)include;$(FrameworkDir)$(FrameworkVersion);$(VCInstallDir)atlmfc\lib;$(VCInstallDir)lib|Pocket PC 2003 (ARMV4)|$(VCInstallDir)ce\include;$(VSInstallDir)SmartDevices\SDK\PocketPC2003\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0;;|Smartphone 2003 (ARMV4)|$(VCInstallDir)ce\include;$(VSInstallDir)SmartDevices\SDK\SmartPhone2003\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0;;|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)|$(VCInstallDir)ce\include;C:\Program Files\Windows Mobile 5.0 SDK R2\PocketPC\include\ARMV4I;C:\Program Files\Windows Mobile 5.0 SDK R2\PocketPC\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0;|Windows Mobile 5.0 Smartphone SDK (ARMV4I)|$(VCInstallDir)ce\include;C:\Program Files\Windows Mobile 5.0 SDK R2\Smartphone\include\ARMV4I;C:\Program Files\Windows Mobile 5.0 SDK R2\Smartphone\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0;</PropertyValue>
+				<PropertyValue name="IncludeDirectories">Win32|C:\Program Files\boost\boost_1_35_0;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)\include;$(FrameworkSDKDir)include|Pocket PC 2003 (ARMV4)|$(VCInstallDir)ce\include;$(VSInstallDir)SmartDevices\SDK\PocketPC2003\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0;|Smartphone 2003 (ARMV4)|$(VCInstallDir)ce\include;$(VSInstallDir)SmartDevices\SDK\SmartPhone2003\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0;|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)|$(VCInstallDir)ce\include;C:\Program Files\Windows Mobile 5.0 SDK R2\PocketPC\include\ARMV4I;C:\Program Files\Windows Mobile 5.0 SDK R2\PocketPC\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0|Windows Mobile 5.0 Smartphone SDK (ARMV4I)|$(VCInstallDir)ce\include;C:\Program Files\Windows Mobile 5.0 SDK R2\Smartphone\include\ARMV4I;C:\Program Files\Windows Mobile 5.0 SDK R2\Smartphone\include;$(VCInstallDir)ce\atlmfc\include;$(VSInstallDir)SmartDevices\SDK\SQL Server\Mobile\v3.0</PropertyValue>
+				<PropertyValue name="SourceDirectories">Win32|$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src|Pocket PC 2003 (ARMV4)|$(VCInstallDir)ce\atlmfc\src\atl\;$(VCInstallDir)ce\atlmfc\src\mfc\;$(VCInstallDir)ce\crt\src\|Smartphone 2003 (ARMV4)|$(VCInstallDir)ce\atlmfc\src\atl\;$(VCInstallDir)ce\atlmfc\src\mfc\;$(VCInstallDir)ce\crt\src\|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)|;$(VCInstallDir)ce\atlmfc\src\atl;$(VCInstallDir)ce\atlmfc\src\mfc;;$(VCInstallDir)ce\crt\src|Windows Mobile 5.0 Smartphone SDK (ARMV4I)|;$(VCInstallDir)ce\atlmfc\src\atl;$(VCInstallDir)ce\atlmfc\src\mfc;;$(VCInstallDir)ce\crt\src</PropertyValue>
+				<PropertyValue name="ExecutableDirectories">Win32|$(VCInstallDir)bin;$(WindowsSdkDir)\bin;$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(FrameworkSDKDir)bin;$(FrameworkDir)$(FrameworkVersion);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH)|Pocket PC 2003 (ARMV4)|$(VCInstallDir)ce\bin\x86_arm;$(VCInstallDir)bin;$(WindowsSdkDir)\bin;$(VSInstallDir)Common7\Tools;$(VSInstallDir)Common7\IDE;$(VSInstallDir)Common\Tools;$(VSInstallDir)Common\IDE;$(VSInstallDir);$(FrameworkSDKDir)Bin;$(PATH);|Smartphone 2003 (ARMV4)|$(VCInstallDir)ce\bin\x86_arm;$(VCInstallDir)bin;$(WindowsSdkDir)\bin;$(VSInstallDir)Common7\Tools;$(VSInstallDir)Common7\IDE;$(VSInstallDir)Common\Tools;$(VSInstallDir)Common\IDE;$(VSInstallDir);$(FrameworkSDKDir)Bin;$(PATH);|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)|$(VCInstallDir)\ce\bin\x86_arm;$(VCInstallDir)bin;$(WindowsSdkDir)\bin;$(VSInstallDir)Common7\Tools;$(VSInstallDir)Common7\IDE;$(VSInstallDir)Common\Tools;$(VSInstallDir)Common\IDE;$(VSInstallDir);$(FrameworkSDKDir)Bin;$(PATH);|Windows Mobile 5.0 Smartphone SDK (ARMV4I)|$(VCInstallDir)\ce\bin\x86_arm;$(VCInstallDir)bin;$(WindowsSdkDir)\bin;$(VSInstallDir)Common7\Tools;$(VSInstallDir)Common7\IDE;$(VSInstallDir)Common\Tools;$(VSInstallDir)Common\IDE;$(VSInstallDir);$(FrameworkSDKDir)Bin;$(PATH);</PropertyValue>
+			</ToolsOptionsSubCategory>
+		</ToolsOptionsCategory>
+		<ToolsOptionsCategory name="TextEditor" RegisteredName="TextEditor">
+			<ToolsOptionsSubCategory name="C/C++" RegisteredName="C/C++" PackageName="Text Management Package">
+				<PropertyValue name="TabSize">8</PropertyValue>
+				<PropertyValue name="AutoListMembers">true</PropertyValue>
+				<PropertyValue name="IndentStyle">2</PropertyValue>
+				<PropertyValue name="HideAdvancedMembers">true</PropertyValue>
+				<PropertyValue name="ShowNavigationBar">true</PropertyValue>
+				<PropertyValue name="VirtualSpace">false</PropertyValue>
+				<PropertyValue name="InsertTabs">false</PropertyValue>
+				<PropertyValue name="WordWrapGlyphs">true</PropertyValue>
+				<PropertyValue name="EnableLeftClickForURLs">true</PropertyValue>
+				<PropertyValue name="ShowLineNumbers">true</PropertyValue>
+				<PropertyValue name="WordWrap">false</PropertyValue>
+				<PropertyValue name="IndentSize">3</PropertyValue>
+				<PropertyValue name="CutCopyBlankLines">true</PropertyValue>
+				<PropertyValue name="AutoListParams">true</PropertyValue>
+			</ToolsOptionsSubCategory>
+			<ToolsOptionsSubCategory name="C/C++ Specific" RegisteredName="C/C++ Specific" PackageName="Visual C++ Language Manager Package">
+				<PropertyValue name="EnterOutliningModeWhenFilesOpen">true</PropertyValue>
+				<PropertyValue name="IntellisenseOptions">0</PropertyValue>
+				<PropertyValue name="AutomaticOutliningOfStatementBlocks">false</PropertyValue>
+				<PropertyValue name="ColorizeInactiveBlocksDifferently">true</PropertyValue>
+				<PropertyValue name="EnableQuickInfoToolTips">true</PropertyValue>
+				<PropertyValue name="IndentBraces">true</PropertyValue>
+				<PropertyValue name="AutomaticOutliningOfPragmaRegions">true</PropertyValue>
+			</ToolsOptionsSubCategory>
+		</ToolsOptionsCategory>
+	</ToolsOptions>
+</UserSettings>

@@ -9,8 +9,8 @@
 #endif // _MSC_VER > 1000
 
 #include "interleaver.h"
-#include "file_lut.h"
-#include "stream_lut.h"
+#include "interleaver/lut/named/file_lut.h"
+#include "interleaver/lut/named/stream_lut.h"
 #include "matrix.h"
 #include "vector.h"
 
