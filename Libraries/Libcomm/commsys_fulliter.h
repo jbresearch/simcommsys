@@ -23,6 +23,9 @@ namespace libcomm {
  \note This only works with straight mapping for now.
 
  \todo Integrate this nature within updated commsys interface.
+
+ \todo Update mapper interface as necessary to allow this to work with
+ non-straight mappers
  */
 
 template <class S, template <class > class C = libbase::vector>
