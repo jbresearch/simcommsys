@@ -76,6 +76,7 @@
 // Systems
 #include "commsys.h"
 #include "commsys_iterative.h"
+#include "commsys_fulliter.h"
 
 // Experiments
 #include "experiment/binomial/commsys_simulator.h"
@@ -161,6 +162,7 @@ private:
    // Systems
    commsys<bool> _commsys;
    commsys_iterative<bool> _commsys_iterative;
+   commsys_fulliter<bool> _commsys_fulliter;
    // Experiments
    commsys_simulator<bool> _commsys_simulator;
    commsys_threshold<bool> _commsys_threshold;
