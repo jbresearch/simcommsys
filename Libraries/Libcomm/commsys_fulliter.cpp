@@ -23,17 +23,18 @@ void commsys_fulliter<S, C>::receive_path(const C<S>& received)
    {
    // Store received vector
    last_received = received;
-   // Reset demodulation information
+   // Reset modem
    ptable_mapped.init(0);
+   cur_mdm_iter = 0;
    // Reset decoder
-   current_iter = 0;
+   cur_cdc_iter = 0;
    }
 
 template <class S, template <class > class C>
 void commsys_fulliter<S, C>::decode(C<int>& decoded)
    {
    // If this is the first decode cycle, we need to do the receive-path first
-   if (current_iter == 0)
+   if (cur_cdc_iter == 0)
       {
       // Demodulate
       informed_modulator<S>& m =
@@ -44,21 +45,27 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       this->map->inverse(ptable_mapped, ptable_encoded);
       // Translate
       this->cdc->init_decoder(ptable_encoded);
-      // Mark components as clean to avoid early advance
-      this->mdm->mark_as_clean();
-      this->map->mark_as_clean();
+      // If this is not the last iteration, mark components as clean
+      if (++cur_mdm_iter < iter)
+         {
+         this->mdm->mark_as_clean();
+         this->map->mark_as_clean();
+         }
       }
    // Just do a plain decoder iteration if this is not the last one in the cycle
-   if (++current_iter < this->cdc->num_iter())
+   if (++cur_cdc_iter < this->cdc->num_iter())
       this->cdc->decode(decoded);
-   // Otherwise, do a soft-output iteration, keeping the posterior information
+   // Otherwise, do a soft-output iteration
    else
       {
+      // Perform soft-output decoding
       codec_softout<C>& c = dynamic_cast<codec_softout<C>&> (*this->cdc);
       C<array1d_t> ri;
       C<array1d_t> ro;
       c.softdecode(ri, ro);
+      // Compute hard-decision for results gatherer
       codec_softout<C>::hard_decision(ri, decoded);
+      // Keep posterior output information for next demodulation cycle
       ptable_mapped = ro;
       }
    }
