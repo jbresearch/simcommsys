@@ -35,13 +35,12 @@ namespace libcomm {
 template <class S, template <class > class C>
 void basic_commsys<S, C>::init()
    {
-   M = mdm->num_symbols();
-   N = cdc->num_outputs();
-   K = cdc->num_inputs();
-   k = int(round(log2(double(K))));
+   const int M = mdm->num_symbols();
+   const int N = cdc->num_outputs();
+   const int K = cdc->num_inputs();
+   const int k = int(round(log2(double(K))));
    // confirm that source is representable in binary
    assertalways(K == 1<<k);
-   iter = cdc->num_iter();
    // set up mapper with required parameters
    map->set_parameters(N, M, cdc->num_symbols());
    map->set_blocksize(cdc->output_block_size());
@@ -168,8 +167,9 @@ C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
    C<int> mapped;
    this->map->transform(encoded, mapped);
    // Modulate
+   const int M = this->mdm->num_symbols();
    C<S> transmitted;
-   this->mdm->modulate(this->M, mapped, transmitted);
+   this->mdm->modulate(M, mapped, transmitted);
    return transmitted;
    }
 
