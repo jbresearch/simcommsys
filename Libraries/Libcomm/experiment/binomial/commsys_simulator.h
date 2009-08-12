@@ -46,7 +46,7 @@ protected:
    // System Interface for Results
    int get_iter() const
       {
-      return sys->getcodec()->num_iter();
+      return sys->num_iter();
       }
    int get_symbolsperblock() const
       {

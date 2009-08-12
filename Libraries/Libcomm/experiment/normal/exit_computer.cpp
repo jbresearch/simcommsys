@@ -104,7 +104,7 @@ void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    sys->transmitandreceive(source);
    // For every iteration
    libbase::vector<int> decoded;
-   for (int i = 0; i < sys->getcodec()->num_iter(); i++)
+   for (int i = 0; i < sys->num_iter(); i++)
       {
       // Decode & update results
       sys->decode(decoded);

@@ -110,6 +110,11 @@ public:
    // @}
 
    /*! \name Informative functions */
+   //! Number of iterations to perform
+   virtual int num_iter() const
+      {
+      return cdc->num_iter();
+      }
    //! Overall mapper rate
    double rate() const
       {
