@@ -262,6 +262,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\commsys_fulliter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\experiment\binomial\result_collector\commsys_hist_symerr.cpp"
 				>
 			</File>
@@ -636,6 +640,10 @@
 			</File>
 			<File
 				RelativePath=".\experiment\binomial\result_collector\commsys_errorrates.h"
+				>
+			</File>
+			<File
+				RelativePath=".\commsys_fulliter.h"
 				>
 			</File>
 			<File
