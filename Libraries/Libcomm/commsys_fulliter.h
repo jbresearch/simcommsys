@@ -20,6 +20,8 @@ namespace libcomm {
  demodulation, followed again by M decoding iterations. This is repeated for
  N demodulations (ie. full-system iterations), giving a total of N.M results.
 
+ \note This only works with straight mapping for now.
+
  \todo Integrate this nature within updated commsys interface.
  */
 
@@ -29,14 +31,28 @@ public:
    /*! \name Type definitions */
    typedef libbase::vector<double> array1d_t;
    // @}
-
+private:
+   // Shorthand for class hierarchy
+   typedef commsys<S, C> Base;
+   typedef commsys_fulliter<S, C> This;
 private:
    /*! \name User parameters */
-   int iter; //!< Number of demodulation iterations
+   int iter; //!< Number of full-system iterations
+   // @}
+   /*! \name Internal state */
+   int current_iter; //!< Current decoder iteration
+   C<S> last_received; //!< Last received block
+   C<array1d_t> ptable_mapped; //!< Prior information to use in demodulation
    // @}
 public:
    // Communication System Interface
    void receive_path(const C<S>& received);
+   void decode(C<int>& decoded);
+   // Informative functions
+   int num_iter() const
+      {
+      return this->cdc->num_iter() * iter;
+      }
 
    // Description
    std::string description() const;

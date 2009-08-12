@@ -10,6 +10,7 @@
 #include "commsys_fulliter.h"
 
 #include "modem/informed_modulator.h"
+#include "codec/codec_softout.h"
 #include "gf.h"
 #include <sstream>
 
@@ -20,23 +21,46 @@ namespace libcomm {
 template <class S, template <class > class C>
 void commsys_fulliter<S, C>::receive_path(const C<S>& received)
    {
-   // Demodulate
-   C<array1d_t> ptable_mapped;
-   informed_modulator<S>& m = dynamic_cast<informed_modulator<S>&> (*this->mdm);
-   for (int i = 0; i < iter; i++)
+   // Store received vector
+   last_received = received;
+   // Reset demodulation information
+   ptable_mapped.init(0);
+   // Reset decoder
+   current_iter = 0;
+   }
+
+template <class S, template <class > class C>
+void commsys_fulliter<S, C>::decode(C<int>& decoded)
+   {
+   // If this is the first decode cycle, we need to do the receive-path first
+   if (current_iter == 0)
       {
-      libbase::trace
-            << "DEBUG (commsys_fulliter): Starting demodulation iteration "
-            << i << "\n";
-      m.demodulate(*this->chan, received, ptable_mapped, ptable_mapped);
-      m.mark_as_clean();
+      // Demodulate
+      informed_modulator<S>& m =
+            dynamic_cast<informed_modulator<S>&> (*this->mdm);
+      m.demodulate(*this->chan, last_received, ptable_mapped, ptable_mapped);
+      // Inverse Map
+      C<array1d_t> ptable_encoded;
+      this->map->inverse(ptable_mapped, ptable_encoded);
+      // Translate
+      this->cdc->init_decoder(ptable_encoded);
+      // Mark components as clean to avoid early advance
+      this->mdm->mark_as_clean();
+      this->map->mark_as_clean();
       }
-   m.mark_as_dirty();
-   // Inverse Map
-   C<array1d_t> ptable_encoded;
-   this->map->inverse(ptable_mapped, ptable_encoded);
-   // Translate
-   this->cdc->init_decoder(ptable_encoded);
+   // Just do a plain decoder iteration if this is not the last one in the cycle
+   if (++current_iter < this->cdc->num_iter())
+      this->cdc->decode(decoded);
+   // Otherwise, do a soft-output iteration, keeping the posterior information
+   else
+      {
+      codec_softout<C>& c = dynamic_cast<codec_softout<C>&> (*this->cdc);
+      C<array1d_t> ri;
+      C<array1d_t> ro;
+      c.softdecode(ri, ro);
+      codec_softout<C>::hard_decision(ri, decoded);
+      ptable_mapped = ro;
+      }
    }
 
 // Description & Serialization
@@ -45,8 +69,8 @@ template <class S, template <class > class C>
 std::string commsys_fulliter<S, C>::description() const
    {
    std::ostringstream sout;
-   sout << "Iterative ";
-   sout << commsys<S, C>::description() << ", ";
+   sout << "Full-System Iterative ";
+   sout << Base::description() << ", ";
    sout << iter << " iterations";
    return sout.str();
    }
@@ -55,7 +79,7 @@ template <class S, template <class > class C>
 std::ostream& commsys_fulliter<S, C>::serialize(std::ostream& sout) const
    {
    sout << iter;
-   commsys<S, C>::serialize(sout);
+   Base::serialize(sout);
    return sout;
    }
 
@@ -63,7 +87,7 @@ template <class S, template <class > class C>
 std::istream& commsys_fulliter<S, C>::serialize(std::istream& sin)
    {
    sin >> libbase::eatcomments >> iter;
-   commsys<S, C>::serialize(sin);
+   Base::serialize(sin);
    return sin;
    }
 
@@ -82,56 +106,56 @@ const libbase::serializer commsys_fulliter<bool>::shelper("commsys",
 template class commsys_fulliter<libbase::gf<1, 0x3> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<1, 0x3> >::shelper(
-      "commsys", "commsys_fulliter<gf<1,0x3>>", commsys_fulliter<libbase::gf<
-            1, 0x3> >::create);
+      "commsys", "commsys_fulliter<gf<1,0x3>>", commsys_fulliter<libbase::gf<1,
+            0x3> >::create);
 
 template class commsys_fulliter<libbase::gf<2, 0x7> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<2, 0x7> >::shelper(
-      "commsys", "commsys_fulliter<gf<2,0x7>>", commsys_fulliter<libbase::gf<
-            2, 0x7> >::create);
+      "commsys", "commsys_fulliter<gf<2,0x7>>", commsys_fulliter<libbase::gf<2,
+            0x7> >::create);
 
 template class commsys_fulliter<libbase::gf<3, 0xB> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<3, 0xB> >::shelper(
-      "commsys", "commsys_fulliter<gf<3,0xB>>", commsys_fulliter<libbase::gf<
-            3, 0xB> >::create);
+      "commsys", "commsys_fulliter<gf<3,0xB>>", commsys_fulliter<libbase::gf<3,
+            0xB> >::create);
 
 template class commsys_fulliter<libbase::gf<4, 0x13> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<4, 0x13> >::shelper(
-      "commsys", "commsys_fulliter<gf<4,0x13>>", commsys_fulliter<
-            libbase::gf<4, 0x13> >::create);
+      "commsys", "commsys_fulliter<gf<4,0x13>>", commsys_fulliter<libbase::gf<
+            4, 0x13> >::create);
 
 template class commsys_fulliter<libbase::gf<5, 0x25> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<5, 0x25> >::shelper(
-      "commsys", "commsys_fulliter<gf<5,0x25>>", commsys_fulliter<
-            libbase::gf<5, 0x25> >::create);
+      "commsys", "commsys_fulliter<gf<5,0x25>>", commsys_fulliter<libbase::gf<
+            5, 0x25> >::create);
 
 template class commsys_fulliter<libbase::gf<6, 0x43> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<6, 0x43> >::shelper(
-      "commsys", "commsys_fulliter<gf<6,0x43>>", commsys_fulliter<
-            libbase::gf<6, 0x43> >::create);
+      "commsys", "commsys_fulliter<gf<6,0x43>>", commsys_fulliter<libbase::gf<
+            6, 0x43> >::create);
 
 template class commsys_fulliter<libbase::gf<7, 0x89> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<7, 0x89> >::shelper(
-      "commsys", "commsys_fulliter<gf<7,0x89>>", commsys_fulliter<
-            libbase::gf<7, 0x89> >::create);
+      "commsys", "commsys_fulliter<gf<7,0x89>>", commsys_fulliter<libbase::gf<
+            7, 0x89> >::create);
 
 template class commsys_fulliter<libbase::gf<8, 0x11D> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<8, 0x11D> >::shelper(
-      "commsys", "commsys_fulliter<gf<8,0x11D>>", commsys_fulliter<
-            libbase::gf<8, 0x11D> >::create);
+      "commsys", "commsys_fulliter<gf<8,0x11D>>", commsys_fulliter<libbase::gf<
+            8, 0x11D> >::create);
 
 template class commsys_fulliter<libbase::gf<9, 0x211> > ;
 template <>
 const libbase::serializer commsys_fulliter<libbase::gf<9, 0x211> >::shelper(
-      "commsys", "commsys_fulliter<gf<9,0x211>>", commsys_fulliter<
-            libbase::gf<9, 0x211> >::create);
+      "commsys", "commsys_fulliter<gf<9,0x211>>", commsys_fulliter<libbase::gf<
+            9, 0x211> >::create);
 
 template class commsys_fulliter<libbase::gf<10, 0x409> > ;
 template <>
