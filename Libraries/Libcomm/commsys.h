@@ -44,13 +44,6 @@ protected:
    blockmodem<S, C> *mdm; //!< Modulation scheme
    channel<S, C> *chan; //!< Channel model
    // @}
-   /*! \name Computed parameters */
-   int M; //!< Alphabet size for modulation symbols
-   int N; //!< Alphabet size for encoder output
-   int K; //!< Alphabet size for source data
-   int k; //!< Bit width for source data symbols (\f$ K = 2^k \f$)
-   int iter; //!< Number of iterations the decoder will do
-   // @}
 protected:
    /*! \name Setup functions */
    void init();
