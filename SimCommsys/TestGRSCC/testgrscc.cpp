@@ -131,7 +131,7 @@ void CompareCode(fsm& enc, const int ns[], const int out[])
 
 void CompareCodes()
    {
-   cout << "\nTest comparison of code with classic one:\n";
+   cout << "\nTest comparison of recursive codes with known state table:\n";
    /* Consider a RSC with G = [1011,1111]
     * PS        In      NS      Out
     * 000       0       000     00
@@ -156,11 +156,11 @@ void CompareCodes()
 
    // Compute, display, and compare the state table
 
-   cout << "Generalized Code:\n";
+   cout << "\nGeneralized Code:\n";
    grscc<GF2> cc_new(GetGeneratorGF2());
    CompareCode(cc_new, ns, out);
 
-   cout << "Binary Code:\n";
+   cout << "\nBinary Code:\n";
    rscc cc_old(GetGeneratorBinary());
    CompareCode(cc_old, ns, out);
    }
