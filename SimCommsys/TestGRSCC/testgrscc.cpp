@@ -194,38 +194,40 @@ void TestCirculationUsage(fsm& cc, int period)
    libbase::randgen r;
    r.seed(0);
    for (int i = 1; i < period; i++)
-      {
-      vector<int> ip;
-      // Choose a valid random message length
-      int N = r.ival(10) * period + i;
-      cout << "Testing circulation at N = " << N << ":\t";
-      // Create random message
-      const int q = cc.num_input_combinations();
-      vector<int> src(N);
-      for (int t = 0; t < N; t++)
-         src(t) = r.ival(q);
-      // Run through sequencer
-      cc.reset();
-      for (int t = 0; t < N; t++)
+      for (int j = 0; j < 10; j++)
          {
-         ip = cc.convert_input(src(t));
-         cc.advance(ip);
+         vector<int> ip;
+         // Choose a valid random message length
+         int N = r.ival(10) * period + i;
+         cout << "Testing at N = " << N << ":\t";
+         cout << "N % p = " << i << ",\t";
+         // Create random message
+         const int q = cc.num_input_combinations();
+         vector<int> src(N);
+         for (int t = 0; t < N; t++)
+            src(t) = r.ival(q);
+         // Run through sequencer
+         cc.reset();
+         for (int t = 0; t < N; t++)
+            {
+            ip = cc.convert_input(src(t));
+            cc.advance(ip);
+            }
+         cout << "Sz = " << cc.convert_state(cc.state()) << ",\t";
+         // Reset to circular state
+         cc.resetcircular();
+         const int Sc = cc.convert_state(cc.state());
+         cout << "Sc = " << Sc << ",\t";
+         // Run through sequencer again
+         for (int t = 0; t < N; t++)
+            {
+            ip = cc.convert_input(src(t));
+            cc.advance(ip);
+            }
+         const int Sf = cc.convert_state(cc.state());
+         cout << "Sf = " << Sf << "\n";
+         assert(Sf == Sc);
          }
-      cout << "Sz = " << cc.convert_state(cc.state()) << ",\t";
-      // Reset to circular state
-      cc.resetcircular();
-      const int Sc = cc.convert_state(cc.state());
-      cout << "Sc = " << Sc << ",\t";
-      // Run through sequencer again
-      for (int t = 0; t < N; t++)
-         {
-         ip = cc.convert_input(src(t));
-         cc.advance(ip);
-         }
-      const int Sf = cc.convert_state(cc.state());
-      cout << "Sf = " << Sf << "\n";
-      assert(Sf == Sc);
-      }
    }
 
 void TestCirculation()
@@ -235,6 +237,7 @@ void TestCirculation()
    // Create RSC code from generator matrix for R=1/2, nu=2, GF(8)
    grscc<GF8> cc(GetGeneratorGF8());
    ShowCirculationTable(cc, 7);
+   TestCirculationUsage(cc, 7);
 
    // DVB-RCS code
    dvbcrsc dvbcc;
