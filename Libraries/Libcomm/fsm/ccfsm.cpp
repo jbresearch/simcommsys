@@ -179,21 +179,25 @@ void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
 #if DEBUG>=2
-   libbase::trace << "  Original Input: " << input;
+   libbase::trace << "  Original Input:\t";
+   input.serialize(libbase::trace);
 #endif
    input = determineinput(input);
 #if DEBUG>=2
-   libbase::trace << "  Actual Input: " << input;
+   libbase::trace << "  Actual Input: \t";
+   input.serialize(libbase::trace);
 #endif
    vector<G> sin = determinefeedin(input);
 #if DEBUG>=2
-   libbase::trace << "  Register Feed-in: " << sin;
+   libbase::trace << "  Register Feed-in:\t";
+   sin.serialize(libbase::trace);
 #endif
    // Compute next state for each input register
    for (int i = 0; i < k; i++)
       {
 #if DEBUG>=2
-      libbase::trace << "  Register " << i << " In: " << reg(i);
+      libbase::trace << "  Register " << i << " In:\t";
+      reg(i).serialize(libbase::trace);
 #endif
       const int m = reg(i).size();
       if (m == 0)
@@ -204,7 +208,8 @@ void ccfsm<G>::advance(vector<int>& input)
       // Left-most entry gets the shift-in value
       reg(i)(0) = sin(i);
 #if DEBUG>=2
-      libbase::trace << "  Register " << i << " Out: " << reg(i);
+      libbase::trace << "  Register " << i << " Out:\t";
+      reg(i).serialize(libbase::trace);
 #endif
       }
    }
