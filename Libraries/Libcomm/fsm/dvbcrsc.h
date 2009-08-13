@@ -26,22 +26,10 @@ class dvbcrsc : public fsm {
    static const int nu; //!< Number of memory elements (constraint length)
    libbase::bitfield reg; //!< Present state (shift register)
    // @}
-protected:
-   /*! \name Internal functions */
-   void init();
-   // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   dvbcrsc()
-      {
-      }
-   // @}
 public:
    /*! \name Constructors / Destructors */
-   dvbcrsc(const dvbcrsc& x);
-   ~dvbcrsc()
-      {
-      }
+   //! Default constructor
+   dvbcrsc();
    // @}
 
    // FSM state operations (getting and resetting)

@@ -28,18 +28,9 @@ const int dvbcrsc::nu = 3;
 
 // initialization
 
-void dvbcrsc::init()
+dvbcrsc::dvbcrsc() :
+   reg(0, nu)
    {
-   // create shift register
-   reg.resize(nu);
-   }
-
-// constructors / destructors
-
-dvbcrsc::dvbcrsc(const dvbcrsc& x)
-   {
-   // copy automatically what we can
-   reg = x.reg;
    }
 
 // finite state machine functions - resetting
@@ -63,7 +54,7 @@ void dvbcrsc::resetcircular(vector<int> zerostate, int n)
    // a multiple of the period
    assert(n%7 != 0);
    // lookup the circulation state and set accordingly
-   reset(fsm::convert(csct[n % 7][fsm::convert(zerostate,2)], nu, 2));
+   reset(fsm::convert(csct[n % 7][fsm::convert(zerostate, 2)], nu, 2));
    }
 
 // finite state machine functions - state advance etc.
@@ -75,7 +66,7 @@ void dvbcrsc::advance(vector<int>& input)
    // ip[0] = A, ip[1] = B
    assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip = bitfield(vector<bool>(input));
+   bitfield ip = bitfield(vector<bool> (input));
    // compute the shift-register left input
    bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // do the shift
@@ -90,7 +81,7 @@ vector<int> dvbcrsc::output(vector<int> input) const
    // ip[0] = A, ip[1] = B
    assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip = bitfield(vector<bool>(input));
+   bitfield ip = bitfield(vector<bool> (input));
    // compute the shift-register left input
    bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // determine output
@@ -100,12 +91,12 @@ vector<int> dvbcrsc::output(vector<int> input) const
    op = (lsi + reg) * bitfield("1011") + op;
    // next is W
    op = (lsi + reg) * bitfield("1001") + op;
-   return vector<int>(op.asvector());
+   return vector<int> (op.asvector());
    }
 
 vector<int> dvbcrsc::state() const
    {
-   return vector<int>(reg.asvector());
+   return vector<int> (reg.asvector());
    }
 
 // description output
@@ -128,7 +119,6 @@ std::ostream& dvbcrsc::serialize(std::ostream& sout) const
 
 std::istream& dvbcrsc::serialize(std::istream& sin)
    {
-   init();
    return sin;
    }
 

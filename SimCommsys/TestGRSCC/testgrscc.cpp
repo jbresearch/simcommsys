@@ -1,5 +1,6 @@
 #include "fsm/rscc.h"
 #include "fsm/grscc.h"
+#include "fsm/dvbcrsc.h"
 #include "gf.h"
 #include <iostream>
 
@@ -16,6 +17,7 @@ using libcomm::grscc;
 using libbase::bitfield;
 using libcomm::rscc;
 using libcomm::fsm;
+using libcomm::dvbcrsc;
 
 // Define types for binary and for GF(2^4): m(x) = 1 { 0011 }
 typedef gf<1, 0x3> GF2;
@@ -165,21 +167,11 @@ void CompareCodes()
    CompareCode(cc_old, ns, out);
    }
 
-void TestCirculation()
+void ShowCirculationTable(fsm& cc)
    {
-   cout << "\nTest code circulation:\n";
-   // Create RSC code from generator matrix for R=1/2, nu=2, GF(8)
-   grscc<GF8> cc(GetGeneratorGF8());
+   cout << "\nCode circulation table:\n";
    // Show code description
-   cout << "Code description:\n";
    cout << cc.description() << "\n";
-   // Encode a short all-zero sequence
-   //cc.reset();
-   //int ip = 0;
-   //for(int i=0; i<16; i++)
-   //   cc.advance(ip);
-   // Call circulation reset
-   //cc.resetcircular();
    // Compute and display circulation state correspondence table
    for (int S = 0; S < cc.num_states(); S++)
       cout << '\t' << S;
@@ -189,10 +181,23 @@ void TestCirculation()
       for (int S = 0; S < cc.num_states(); S++)
          {
          cc.resetcircular(cc.convert_state(S), N);
-         cout << '\t' << cc.state();
+         cout << '\t' << cc.convert_state(cc.state());
          }
       }
    cout << '\n';
+   }
+
+void TestCirculation()
+   {
+   cout << "\nTest code circulation:\n";
+
+   // Create RSC code from generator matrix for R=1/2, nu=2, GF(8)
+   grscc<GF8> cc(GetGeneratorGF8());
+   ShowCirculationTable(cc);
+
+   // DVB-RCS code
+   dvbcrsc dvbcc;
+   ShowCirculationTable(dvbcc);
    }
 
 /*!
