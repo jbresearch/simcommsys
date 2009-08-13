@@ -15,12 +15,13 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Debug advance()
+// 2 - Debug advance() and output()
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 2
 #endif
 
+using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 
@@ -179,25 +180,26 @@ void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
 #if DEBUG>=2
-   libbase::trace << "  Original Input:\t";
-   input.serialize(libbase::trace);
+   trace << "Advance:\n";
+   trace << "  Original Input:\t";
+   input.serialize(trace);
 #endif
    input = determineinput(input);
 #if DEBUG>=2
-   libbase::trace << "  Actual Input: \t";
-   input.serialize(libbase::trace);
+   trace << "  Actual Input: \t";
+   input.serialize(trace);
 #endif
    vector<G> sin = determinefeedin(input);
 #if DEBUG>=2
-   libbase::trace << "  Register Feed-in:\t";
-   sin.serialize(libbase::trace);
+   trace << "  Register Feed-in:\t";
+   sin.serialize(trace);
 #endif
    // Compute next state for each input register
    for (int i = 0; i < k; i++)
       {
 #if DEBUG>=2
-      libbase::trace << "  Register " << i << " In:\t";
-      reg(i).serialize(libbase::trace);
+      trace << "  Register " << i << " In:\t";
+      reg(i).serialize(trace);
 #endif
       const int m = reg(i).size();
       if (m == 0)
@@ -208,8 +210,8 @@ void ccfsm<G>::advance(vector<int>& input)
       // Left-most entry gets the shift-in value
       reg(i)(0) = sin(i);
 #if DEBUG>=2
-      libbase::trace << "  Register " << i << " Out:\t";
-      reg(i).serialize(libbase::trace);
+      trace << "  Register " << i << " Out:\t";
+      reg(i).serialize(trace);
 #endif
       }
    }
@@ -217,17 +219,44 @@ void ccfsm<G>::advance(vector<int>& input)
 template <class G>
 vector<int> ccfsm<G>::output(vector<int> input) const
    {
+#if DEBUG>=2
+   trace << "Output:\n";
+   trace << "  Original Input:\t";
+   input.serialize(trace);
+#endif
    input = determineinput(input);
+#if DEBUG>=2
+   trace << "  Actual Input: \t";
+   input.serialize(trace);
+#endif
    vector<G> sin = determinefeedin(input);
+#if DEBUG>=2
+   trace << "  Register Feed-in:\t";
+   sin.serialize(trace);
+#endif
    // Compute output
    vector<G> op(n);
    for (int j = 0; j < n; j++)
       {
       G thisop;
       for (int i = 0; i < k; i++)
+         {
          thisop += convolve(sin(i), reg(i), gen(i, j));
+#if DEBUG>=2
+         trace << "  Input + Register " << i << ":\t";
+         trace << sin(i) << "\t";
+         reg(i).serialize(trace);
+         trace << "  Generator " << i << "," << j << ":\t";
+         gen(i, j).serialize(trace);
+         trace << "  Accumulated Result:\t" << thisop << "\n";
+#endif
+         }
       op(j) = thisop;
       }
+#if DEBUG>=2
+   trace << "  Output:\t";
+   op.serialize(trace);
+#endif
    return vector<int> (op);
    }
 
