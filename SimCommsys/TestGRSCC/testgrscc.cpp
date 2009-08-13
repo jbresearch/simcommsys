@@ -167,7 +167,7 @@ void CompareCodes()
    CompareCode(cc_old, ns, out);
    }
 
-void ShowCirculationTable(fsm& cc)
+void ShowCirculationTable(fsm& cc, int period)
    {
    cout << "\nCode circulation table:\n";
    // Show code description
@@ -175,13 +175,14 @@ void ShowCirculationTable(fsm& cc)
    // Compute and display circulation state correspondence table
    for (int S = 0; S < cc.num_states(); S++)
       cout << '\t' << S;
-   for (int N = 1; N < 7; N++)
+   for (int N = 1; N < period; N++)
       {
       cout << '\n' << N;
       for (int S = 0; S < cc.num_states(); S++)
          {
          cc.resetcircular(cc.convert_state(S), N);
-         cout << '\t' << cc.convert_state(cc.state());
+         const int Sc = cc.convert_state(cc.state());
+         cout << '\t' << Sc;
          }
       }
    cout << '\n';
@@ -193,11 +194,11 @@ void TestCirculation()
 
    // Create RSC code from generator matrix for R=1/2, nu=2, GF(8)
    grscc<GF8> cc(GetGeneratorGF8());
-   ShowCirculationTable(cc);
+   ShowCirculationTable(cc, 7);
 
    // DVB-RCS code
    dvbcrsc dvbcc;
-   ShowCirculationTable(dvbcc);
+   ShowCirculationTable(dvbcc, 7);
    }
 
 /*!
