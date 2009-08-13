@@ -2,6 +2,7 @@
 #include "fsm/grscc.h"
 #include "fsm/dvbcrsc.h"
 #include "gf.h"
+#include "randgen.h"
 #include <iostream>
 
 namespace testgrscc {
@@ -188,6 +189,45 @@ void ShowCirculationTable(fsm& cc, int period)
    cout << '\n';
    }
 
+void TestCirculationUsage(fsm& cc, int period)
+   {
+   libbase::randgen r;
+   r.seed(0);
+   for (int i = 1; i < period; i++)
+      {
+      vector<int> ip;
+      // Choose a valid random message length
+      int N = r.ival(10) * period + i;
+      cout << "Testing circulation at N = " << N << ":\t";
+      // Create random message
+      const int q = cc.num_input_combinations();
+      vector<int> src(N);
+      for (int t = 0; t < N; t++)
+         src(t) = r.ival(q);
+      // Run through sequencer
+      cc.reset();
+      for (int t = 0; t < N; t++)
+         {
+         ip = cc.convert_input(src(t));
+         cc.advance(ip);
+         }
+      cout << "Sz = " << cc.convert_state(cc.state()) << ",\t";
+      // Reset to circular state
+      cc.resetcircular();
+      const int Sc = cc.convert_state(cc.state());
+      cout << "Sc = " << Sc << ",\t";
+      // Run through sequencer again
+      for (int t = 0; t < N; t++)
+         {
+         ip = cc.convert_input(src(t));
+         cc.advance(ip);
+         }
+      const int Sf = cc.convert_state(cc.state());
+      cout << "Sf = " << Sf << "\n";
+      assert(Sf == Sc);
+      }
+   }
+
 void TestCirculation()
    {
    cout << "\nTest code circulation:\n";
@@ -199,6 +239,7 @@ void TestCirculation()
    // DVB-RCS code
    dvbcrsc dvbcc;
    ShowCirculationTable(dvbcc, 7);
+   TestCirculationUsage(dvbcc, 7);
    }
 
 /*!
