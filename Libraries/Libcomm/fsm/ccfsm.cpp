@@ -13,6 +13,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Debug advance()
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 using libbase::vector;
 using libbase::matrix;
 
@@ -170,15 +178,23 @@ template <class G>
 void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
+#if DEBUG>=2
    libbase::trace << "  Original Input: " << input;
+#endif
    input = determineinput(input);
+#if DEBUG>=2
    libbase::trace << "  Actual Input: " << input;
+#endif
    vector<G> sin = determinefeedin(input);
+#if DEBUG>=2
    libbase::trace << "  Register Feed-in: " << sin;
+#endif
    // Compute next state for each input register
    for (int i = 0; i < k; i++)
       {
+#if DEBUG>=2
       libbase::trace << "  Register " << i << " In: " << reg(i);
+#endif
       const int m = reg(i).size();
       if (m == 0)
          continue;
@@ -187,7 +203,9 @@ void ccfsm<G>::advance(vector<int>& input)
          reg(i)(j) = reg(i)(j - 1);
       // Left-most entry gets the shift-in value
       reg(i)(0) = sin(i);
+#if DEBUG>=2
       libbase::trace << "  Register " << i << " Out: " << reg(i);
+#endif
       }
    }
 

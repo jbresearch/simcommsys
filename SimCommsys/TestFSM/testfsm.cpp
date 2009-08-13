@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
    // compute and display state table
    cout << "PS\tIn\tOut\tNS\n";
    for (int ps = 0; ps < encoder->num_states(); ps++)
-      for (int in = 0; in < encoder->num_inputs(); in++)
+      for (int in = 0; in < encoder->num_input_combinations(); in++)
          {
          cout << ps << '\t';
          cout << in << '\t';

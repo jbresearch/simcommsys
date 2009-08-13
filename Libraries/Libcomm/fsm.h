@@ -217,6 +217,16 @@ public:
       {
       return int(pow(num_symbols(), mem_elements()));
       }
+   //! Number of input combinations
+   int num_input_combinations() const
+      {
+      return int(pow(num_symbols(), num_inputs()));
+      }
+   //! Number of output combinations
+   int num_output_combinations() const
+      {
+      return int(pow(num_symbols(), num_outputs()));
+      }
    // @}
 
    /*! \name Description */

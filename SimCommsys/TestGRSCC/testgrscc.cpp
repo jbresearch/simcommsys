@@ -109,8 +109,9 @@ void CompareCode(fsm& enc, const int ns[], const int out[])
 
    cout << "PS\tIn\tNS\tOut\n";
    for (int ps = 0, k = 0; ps < enc.num_states(); ps++)
-      for (int i = 0; i < enc.num_inputs(); i++, k++)
+      for (int i = 0; i < enc.num_input_combinations(); i++, k++)
          {
+         cout << "\n";
          // reset encoder and verify the state is correctly set
          enc.reset(enc.convert_state(ps));
          const int n_ps = enc.convert_state(enc.state());
