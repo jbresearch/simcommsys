@@ -91,10 +91,6 @@ public:
       {
       return nu;
       }
-   int num_states() const
-      {
-      return int(pow(G::elements(), nu));
-      }
    int num_inputs() const
       {
       return k;

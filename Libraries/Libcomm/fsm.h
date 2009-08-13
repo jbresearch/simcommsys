@@ -198,19 +198,25 @@ public:
    libbase::vector<int> step(libbase::vector<int>& input);
    // @}
 
-   /*! \name FSM information functions */
+   /*! \name FSM information functions - fundamental */
    //! Memory order (length of tail)
    virtual int mem_order() const = 0;
    //! Number of memory elements
    virtual int mem_elements() const = 0;
-   //! Number of defined states
-   virtual int num_states() const = 0;
    //! Number of input lines
    virtual int num_inputs() const = 0;
    //! Number of output lines
    virtual int num_outputs() const = 0;
    //! Alphabet size of input/output symbols
    virtual int num_symbols() const = 0;
+   // @}
+
+   /*! \name FSM information functions - derived */
+   //! Number of defined states
+   int num_states() const
+      {
+      return int(pow(num_symbols(), mem_elements()));
+      }
    // @}
 
    /*! \name Description */

@@ -62,10 +62,6 @@ public:
       {
       return nu;
       }
-   int num_states() const
-      {
-      return 1 << nu;
-      }
    int num_inputs() const
       {
       return k;
