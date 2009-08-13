@@ -10,6 +10,14 @@
 
 namespace libbase {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Detailed matrix inversion
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 template <class T>
 class matrix;
 template <class T>
@@ -904,20 +912,18 @@ inline matrix<T> matrix<T>::operator-(const matrix<T>& x) const
  * If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an
  * m-by-p matrix, where the elements are given by:
  * \f[ AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j} \f]
- *
- * \todo fix orientation
  */
 template <class T>
 inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    {
-   assert(m_size.rows() == x.m_size.cols());
-   matrix<T> r(x.m_size.rows(), m_size.cols());
-   for (int i = 0; i < r.m_size.cols(); i++)
-      for (int j = 0; j < r.m_size.rows(); j++)
+   assert(m_size.cols() == x.m_size.rows());
+   matrix<T> r(m_size.rows(), x.m_size.cols());
+   for (int i = 0; i < r.m_size.rows(); i++)
+      for (int j = 0; j < r.m_size.cols(); j++)
          {
-         r.m_data[j][i] = 0;
-         for (int k = 0; k < m_size.rows(); k++)
-            r.m_data[j][i] += m_data[k][i] * x.m_data[j][k];
+         r.m_data[i][j] = 0;
+         for (int k = 0; k < m_size.cols(); k++)
+            r.m_data[i][j] += m_data[i][k] * x.m_data[k][j];
          }
    return r;
    }
@@ -1133,9 +1139,11 @@ inline matrix<T> matrix<T>::inverse() const
    // repeat for all rows
    for (int i = 0; i < n; i++)
       {
-      //trace << "DEBUG (matrix): G-J elimination on row " << i << "\n";
-      //trace << "DEBUG (matrix): A = " << arows;
-      //trace << "DEBUG (matrix): R = " << rrows;
+#if DEBUG>=2
+      trace << "DEBUG (matrix): G-J elimination on row " << i << "\n";
+      trace << "DEBUG (matrix): A = " << arows;
+      trace << "DEBUG (matrix): R = " << rrows;
+#endif
       // find a suitable pivot element
       if (arows(i)(i) == 0)
          for (int j = i + 1; j < n; j++)
@@ -1143,9 +1151,11 @@ inline matrix<T> matrix<T>::inverse() const
                {
                std::swap(rrows(i), rrows(j));
                std::swap(arows(i), arows(j));
-               //trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << "\n";
-               //trace << "DEBUG (matrix): A = " << arows;
-               //trace << "DEBUG (matrix): R = " << rrows;
+#if DEBUG>=2
+               trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << "\n";
+               trace << "DEBUG (matrix): A = " << arows;
+               trace << "DEBUG (matrix): R = " << rrows;
+#endif
                break;
                }
       // divide by pivot element
