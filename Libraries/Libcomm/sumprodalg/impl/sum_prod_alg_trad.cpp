@@ -78,7 +78,7 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_r_
    //go through all cases - this will use bitwise manipulation
    GF_q syndrome_sym = GF_q(0);
    GF_q h_m_n_dash;
-   GF_q h_m_n;
+   //GF_q h_m_n;
    GF_q tmp_chk_val;
 
    int int_sym_val;

@@ -344,7 +344,6 @@ std::ostream& bsid2d::serialize(std::ostream& sout) const
 
 std::istream& bsid2d::serialize(std::istream& sin)
    {
-   std::streampos start = sin.tellg();
    // get format version
    int version;
    sin >> libbase::eatcomments >> version;
