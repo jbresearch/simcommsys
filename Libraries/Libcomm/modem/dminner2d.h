@@ -36,6 +36,7 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
+   int iter; //!< number of iterations
    std::string lutname; //!< name to describe codebook
    libbase::vector<array2b_t> lut; //!< sparsifier LUT, one 'm'x'n' matrix per symbol
    // @}

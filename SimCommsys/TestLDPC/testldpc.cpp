@@ -123,15 +123,15 @@ void compute_conv(array1d_t& conv_out, int pos1, int pos2)
 int main(int argc, char *argv[])
    {
    /*
-   array1d_t convs;
-   convs.init(8);
-   for (int loop1 = 1; loop1 < 9; loop1++)
-      {
-      convs(loop1 - 1) = loop1;
-      }
-   compute_conv(convs, 0, 7);
-   convs.serialize(std::cout, ' ');
-*/
+    array1d_t convs;
+    convs.init(8);
+    for (int loop1 = 1; loop1 < 9; loop1++)
+    {
+    convs(loop1 - 1) = loop1;
+    }
+    compute_conv(convs, 0, 7);
+    convs.serialize(std::cout, ' ');
+    */
    if (argc == 1)
       {
       cerr << "\nPlease provide a path to a file";
