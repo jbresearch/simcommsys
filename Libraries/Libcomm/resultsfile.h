@@ -12,7 +12,7 @@ namespace libcomm {
 /*!
  * \brief   Results File Handler.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

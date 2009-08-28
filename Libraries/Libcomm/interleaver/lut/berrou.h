@@ -11,7 +11,7 @@ namespace libcomm {
 /*!
  * \brief   Berrou's Original Interleaver.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

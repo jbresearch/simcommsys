@@ -10,12 +10,12 @@ namespace libcomm {
 /*!
  * \brief   Controller-Canonical Finite State Machine.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements common elements of a controller-canonical fsm, where each
  * coefficient is an element in a finite field.
  * The finite field is specified as a template parameter.

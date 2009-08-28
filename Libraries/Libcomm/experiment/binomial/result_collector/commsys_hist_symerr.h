@@ -9,12 +9,12 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Symbol-Error per Frame Histogram.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Computes histogram of symbol error count for each block simulated.
  */
 

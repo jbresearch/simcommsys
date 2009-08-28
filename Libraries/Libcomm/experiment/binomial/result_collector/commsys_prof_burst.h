@@ -9,12 +9,12 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Error Burstiness Profile.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Determines separately the error probabilities for:
  * the first symbol in a frame
  * a symbol following a correctly-decoded one

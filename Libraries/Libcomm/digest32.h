@@ -12,12 +12,12 @@ namespace libcomm {
 /*!
  * \brief   Common 32-bit Digest Implementation.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements methods and data handling that are common for digests using
  * 32-bit integer arithmetic and 64-byte block sizes.
  */

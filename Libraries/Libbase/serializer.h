@@ -11,12 +11,12 @@ namespace libbase {
 /*!
  * \brief   Serialization helper.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Class created to allow the implementation of serialization functions
  * similar to MFC's. Concept is that derived classes should have a static
  * const serializer object within the class, which should be constructed
@@ -31,17 +31,17 @@ namespace libbase {
  * - and the derived class's name, the one to which it needs access.
  * This can be used within an istream >> function to dynamically create
  * & load a derived class object.
- * 
+ *
  * In serializable classes, the stream << output function first writes the
  * name of the derived class, then calls its serialize() to output the data.
  * The name is obtained from the virtual name() function.
  * Similarly, the stream >> input function first gets the name from the stream,
  * then (via serialize::call) creates a new object of the appropriate type and
  * calls its serialize() function to get the relevant data.
- * 
+ *
  * \note In the constructor, the function pointer is passed directly, not by
  * reference. This is required to pass anything except global functions.
- * 
+ *
  * \note The map is held as a static pointer to map. For some obscure reason,
  * static or global maps are leading to access violations. The pointer is
  * initially NULL, and when the first serializer object is created, space
@@ -51,7 +51,7 @@ namespace libbase {
  * that this should only drop to zero on program end, assuming all
  * serializer objects are created with either global or static member
  * scope.
- * 
+ *
  * \note Macros are defined to standardize declarations in serializable
  * classes; this mirrors what Microsoft do in MFC.
  */

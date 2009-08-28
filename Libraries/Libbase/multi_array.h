@@ -9,7 +9,7 @@ namespace boost {
 /*!
  * \brief   Assignable version of Boost MultiArray.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

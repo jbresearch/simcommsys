@@ -8,17 +8,17 @@ namespace libcomm {
 /*!
  * \brief   Informed Modulator Interface.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Defines common interface for informed blockmodem classes. An informed
  * blockmodem is one which can use a-priori symbol probabilities during the
  * demodulation stage. In general, such a blockmodem may be used in an iterative
  * loop with the channel codec.
- * 
+ *
  * This interface is a superset of the regular blockmodem, defining two new
  * demodulation methods (atomic and vector) that make use of prior information.
  */
@@ -56,15 +56,15 @@ public:
     * \param[in]  app      Table of a-priori likelihoods of possible
     * transmitted symbols at every time-step
     * \param[out] ptable   Table of likelihoods of possible transmitted symbols
-    * 
+    *
     * \note \c ptable(i,d) \c is the a posteriori probability of having transmitted
     * symbol 'd' at time 'i'
-    * 
+    *
     * \note This function is non-const, to support time-variant modulation
     * schemes such as DM inner codes.
-    * 
+    *
     * \note app and ptable may point to the same space
-    * 
+    *
     * \note app may be empty; this should be taken to indicate that no prior
     * information is available
     */

@@ -12,12 +12,12 @@ namespace libcomm {
 /*!
  * \brief   EXIT Chart Computer.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \warning Currently this is just a placeholder; functionality still needs
  * to be written.
  */

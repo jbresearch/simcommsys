@@ -6,7 +6,7 @@ namespace libbase {
 /*!
  * \brief   Size of templated parameter object.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

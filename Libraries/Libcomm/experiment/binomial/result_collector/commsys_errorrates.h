@@ -10,12 +10,12 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Symbol/Frame Error Rates.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements standard error rate calculators.
  */
 class commsys_errorrates {

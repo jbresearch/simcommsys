@@ -11,12 +11,12 @@
  * \file
  * \brief   Information Theory Functions.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 namespace libbase {

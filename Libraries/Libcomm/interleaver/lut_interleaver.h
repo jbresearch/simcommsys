@@ -11,12 +11,12 @@ namespace libcomm {
 /*!
  * \brief   Lookup Table Interleaver.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \todo Document concept of forced tail interleavers (as in divs95)
  */
 

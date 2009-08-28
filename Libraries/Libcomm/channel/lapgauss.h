@@ -12,12 +12,12 @@ namespace libcomm {
 /*!
  * \brief   Additive Laplacian-Gaussian Channel.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \todo this class is still unfinished, and only implements the plain
  * Gaussian channel right now
  */

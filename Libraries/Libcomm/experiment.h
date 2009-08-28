@@ -15,7 +15,7 @@ namespace libcomm {
 /*!
  * \brief   Generic experiment.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

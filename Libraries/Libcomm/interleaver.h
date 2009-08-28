@@ -16,7 +16,7 @@ namespace libcomm {
 /*!
  * \brief   Interleaver Base.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

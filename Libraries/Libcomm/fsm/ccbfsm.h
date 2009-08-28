@@ -11,12 +11,12 @@ namespace libcomm {
 /*!
  * \brief   Controller-Canonical Binary Finite State Machine.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements common elements of a controller-canonical binary fsm.
  * The generator matrix is held such that the least-significant bit is
  * left-most; this is according to the convention described by Alex, such that

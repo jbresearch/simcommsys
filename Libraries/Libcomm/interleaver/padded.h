@@ -12,12 +12,12 @@ namespace libcomm {
 /*!
  * \brief   Padded Interleaver.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \note The member onetimepad object is a pointer; this allows us to create
  * an empty "padded" class without access to onetimepad's default
  * constructor (which is private for that class).

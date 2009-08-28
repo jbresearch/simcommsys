@@ -16,12 +16,12 @@ namespace libcomm {
 /*!
  * \brief   Alternative Forward-Backward Algorithm.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements the forward-backward algorithm for a HMM, as required for the
  * new decoder for Davey & McKay's inner codes, originally introduced in
  * "Watermark Codes: Reliable communication over Insertion/Deletion channels",

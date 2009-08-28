@@ -9,12 +9,12 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Frame-Position Error Profile.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Profiler of error with respect to position within block.
  */
 

@@ -18,21 +18,21 @@ namespace libcomm {
 /*!
  * \brief   Common Channel Interface.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Base channel definition provides:
  * - random generator accessible by derived classes
  * - channel model defined by transmit() and receive() functions, with support
  * for insertions and deletions, as well as substitution errors.
- * 
+ *
  * \todo Think out and update cloning/serialization interface
- * 
+ *
  * \todo Provide default implementation for corrupt and pdf
- * 
+ *
  * \todo Sort out which receive() method is really needed in the interface, and
  * which should be specific to the various channels
  */
@@ -84,13 +84,13 @@ public:
     * \brief Pass a sequence of modulation symbols through the channel
     * \param[in]  tx  Transmitted sequence of modulation symbols
     * \param[out] rx  Received sequence of modulation symbols
-    * 
+    *
     * Default implementation is suitable for substitution channels, and
     * performs channel-specific operation through the corrupt() override.
-    * 
+    *
     * \note It is possible that the \c tx and \c rx parameters actually point
     * to the same vector.
-    * 
+    *
     * \callergraph
     */
    virtual void transmit(const C<S>& tx, C<S>& rx) = 0;
@@ -101,10 +101,10 @@ public:
     * \param[in]  rx       Received sequence of modulation symbols
     * \param[out] ptable   Likelihoods corresponding to each possible
     * transmitted symbol
-    * 
+    *
     * Default implementation is suitable for substitution channels, and
     * performs channel-specific operation through the pdf() override.
-    * 
+    *
     * \callergraph
     */
    virtual void receive(const array1s_t& tx, const C<S>& rx,
@@ -115,7 +115,7 @@ public:
     * \param[in]  tx       Transmitted sequence being considered
     * \param[in]  rx       Received sequence of modulation symbols
     * \return              Likelihood \f$ P(rx|tx) \f$
-    * 
+    *
     * \callergraph
     */
    virtual double receive(const C<S>& tx, const C<S>& rx) const = 0;
@@ -125,7 +125,7 @@ public:
     * \param[in]  tx       Transmitted symbol being considered
     * \param[in]  rx       Received sequence of modulation symbols
     * \return              Likelihood \f$ P(rx|tx) \f$
-    * 
+    *
     * \callergraph
     */
    virtual double receive(const S& tx, const C<S>& rx) const = 0;
@@ -140,12 +140,12 @@ public:
 /*!
  * \brief   Common Channel Base.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Templated common channel base. This extra level is required to allow partial
  * specialization of the container.
  */
@@ -157,12 +157,12 @@ class basic_channel : public basic_channel_interface<S, C> {
 /*!
  * \brief   Common Channel Base Specialization.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Templated common channel base. Partial specialization for vector container.
  */
 
@@ -241,12 +241,12 @@ double basic_channel<S, libbase::vector>::receive(const S& tx,
 /*!
  * \brief   Common Channel Base Specialization.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Templated common channel base. Partial specialization for matrix container.
  */
 
@@ -328,12 +328,12 @@ double basic_channel<S, libbase::matrix>::receive(const S& tx,
 /*!
  * \brief   Channel Base.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Templated base channel model.
  */
 
@@ -346,12 +346,12 @@ DECLARE_BASE_SERIALIZER(channel)
 /*!
  * \brief   Signal-Space Channel.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Class specialization including elements specific to the signal-space
  * channel model.
  */
@@ -374,7 +374,7 @@ protected:
    /*! \name Channel function overrides */
    /*!
     * \brief Determine channel-specific parameters based on given SNR
-    * 
+    *
     * \note \f$ E_b \f$ is fixed by the overall modulation and coding system.
     * The simulator determines \f$ N_0 \f$ according to the given SNR
     * (assuming unit signal energy), so that the actual band-limited

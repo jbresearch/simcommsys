@@ -9,7 +9,7 @@ namespace libcomm {
 /*!
  * \brief   Recursive Systematic Convolutional Coder.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

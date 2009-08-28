@@ -13,7 +13,7 @@ namespace libcomm {
 /*!
  * \brief   One Time Pad Interleaver.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

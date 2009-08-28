@@ -20,22 +20,22 @@ namespace libcomm {
 /*!
  * \brief   Davey-MacKay Inner Code, original bit-level decoding.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements 'Watermark' Codes as described by Davey and MacKay in "Reliable
  * Communication over Channels with Insertions, Deletions, and Substitutions",
  * Trans. IT, Feb 2001.
- * 
+ *
  * \note In demodulate(), the ptable is internally computed as type 'real',
  * and then copied over after normalization. We norm over the whole
  * block instead of independently for each timestep. This should be
  * equivalent to no-normalization, and is a precursor to a change in the
  * architecture to allow higher-range ptables.
- * 
+ *
  * \todo Separate this class from friendship with dminner2; common elements
  * should be extracted into a common base
  */

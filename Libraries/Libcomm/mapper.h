@@ -15,12 +15,12 @@ namespace libcomm {
 /*!
  * \brief   Mapper Interface.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * This class defines the interface for mapper classes. It integrates within
  * commsys as a layer between codec and blockmodem.
  */
@@ -82,7 +82,7 @@ public:
     * comaptible set
     * \param[in]  pin   Table of likelihoods of possible modulation symbols
     * \param[out] pout  Table of likelihoods of possible translation symbols
-    * 
+    *
     * \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
     */
    void inverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;

@@ -1,12 +1,12 @@
 /*!
  * \mainpage SimCommSys Project
  * \author   Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \section intro Introduction
  * This project consists of a set of libraries for simulating communication
  * systems. Of principal interest is the error-control coding component,
@@ -14,7 +14,7 @@
  * Also in this project are a number of targets implementing various stages
  * of the communication system (such as the encoder, decoder, and a complete
  * simulator).
- * 
+ *
  * \section classes Principal Classes
  * The most important classes in this project are:
  * - libcomm::montecarlo, which implements a distributed Monte Carlo simulator.
@@ -29,7 +29,7 @@
  * - libcomm::mapper, a symbol-mapping between the codec and modulator
  * - libcomm::blockmodem, the modulation scheme
  * - libcomm::channel, a model for the communications channel
- * 
+ *
  * \section conventions Coding Conventions and Formatting
  * Conventions for code formatting that are used within this project include:
  * - Use of spaces rather than tabs in text files; tabs, when present, should
@@ -41,13 +41,13 @@
  * - Doxygen documentation should use '\' to indicate keywords; short-style
  * comment forms should only be used where a brief description only is to
  * be given.
- * 
+ *
  * When adding to or modifying existing code, please keep to the coding style
  * already present, as far as possible, unless this is already non-conforming.
  * In view of this, please set your editor preferences accordingly, to avoid
  * needless automatic editing, which complicates merges.
  * Edits which are primarily sylistic should be committed separately.
- * 
+ *
  * \section software Software Required
  * The code base is meant to be edited using an IDE; requirements depend on
  * the operating system:
@@ -57,7 +57,7 @@
  * - Linux development assumes Eclipse 3.5, with Subclipse 1.4.x for SVN
  * integration (install both the main items and the SVNKit to work in
  * Ubuntu 9.04) and Eclox for Doxygen access.
- * 
+ *
  * Compilation on Windows uses the Microsoft built-in compiler; on Linux G++
  * is used. Any recent G++ package should work - the current reference
  * standard is 4.3.3 as in Ubuntu 9.04. Both operating systems need the

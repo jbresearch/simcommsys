@@ -10,12 +10,12 @@ namespace libbase {
 /*!
  * \brief   User Pacifier.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * A class that formats output suitable for keeping user updated with the
  * progress of an operation.
  */

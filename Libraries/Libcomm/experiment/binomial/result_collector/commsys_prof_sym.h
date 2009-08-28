@@ -9,12 +9,12 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Symbol-Value Error Profile.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Computes symbol-error histogram as dependent on source symbol value.
  */
 

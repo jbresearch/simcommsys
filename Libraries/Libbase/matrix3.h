@@ -10,12 +10,12 @@ namespace libbase {
 /*!
  * \brief   Generic 3D Matrix.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \version 1.00 (31 Oct 2001)
  * separated 3D matrix class from the 2D matrix header.
  * Created arithmetic functions as part of the matrix class. These are only created
@@ -25,13 +25,13 @@ namespace libbase {
  * (internal) interface, and formalised the existence of empty matrices. Also renamed
  * member variables to start with m_ in order to facilitate the similar naming of public
  * functions (such as the size functions).
- * 
+ *
  * \version 1.21 (2 Dec 2001)
  * added a function which sets the size of a matrix to the given size - leaving it as
  * it is if the size was already good, and freeing/reallocating if necessary. This helps
  * reduce redundant free/alloc operations on matrices which keep the same size.
  * [Ported from matrix 1.11]
- * 
+ *
  * \version 1.50 (13 Apr 2002)
  * added a number of high-level support routines for working with matrices - the overall
  * effect of this should be a drastic reduction in the number of loops required in user
@@ -48,7 +48,7 @@ namespace libbase {
  * to allow the argument matrix to be of a different type.
  * - added an apply() function which allows the user to do the same operation on all
  * elements (previously had to do this manually).
- * 
+ *
  * \version 1.60 (9 May 2002)
  * - added another apply() so that the given function's parameter is const - this allows
  * the use of functions which do not modify their parameter (it's actually what we want
@@ -62,8 +62,8 @@ namespace libbase {
  * assumes that the current vector already has the correct size. These functions are
  * useful for interfacing with other file formats. Also modified the stream I/O functions
  * to make use of these.
- * 
- * 
+ *
+ *
  * \todo Consider removing this class, and port any existing uses to boost
  * multi_array
  */

@@ -14,12 +14,12 @@ namespace libcomm {
 /*!
  * \brief   Uncoded transmission.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 template <class dbl = double>

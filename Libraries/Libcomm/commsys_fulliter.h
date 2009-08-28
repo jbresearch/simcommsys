@@ -6,26 +6,26 @@
 namespace libcomm {
 
 /*!
- \brief   Communication System with Full-System Iteration.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Communication system with iterative demodulation and decoding; the model here
- is such that we demodulate once, then decode for M iterations. After that,
- we pass the posterior information as prior information for a second
- demodulation, followed again by M decoding iterations. This is repeated for
- N demodulations (ie. full-system iterations), giving a total of N.M results.
-
- \note This only works with straight mapping for now.
-
- \todo Integrate this nature within updated commsys interface.
-
- \todo Update mapper interface as necessary to allow this to work with
- non-straight mappers
+ * \brief   Communication System with Full-System Iteration.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * Communication system with iterative demodulation and decoding; the model here
+ * is such that we demodulate once, then decode for M iterations. After that,
+ * we pass the posterior information as prior information for a second
+ * demodulation, followed again by M decoding iterations. This is repeated for
+ * N demodulations (ie. full-system iterations), giving a total of N.M results.
+ *
+ * \note This only works with straight mapping for now.
+ *
+ * \todo Integrate this nature within updated commsys interface.
+ *
+ * \todo Update mapper interface as necessary to allow this to work with
+ * non-straight mappers
  */
 
 template <class S, template <class > class C = libbase::vector>

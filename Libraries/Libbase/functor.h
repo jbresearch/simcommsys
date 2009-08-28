@@ -6,12 +6,12 @@ namespace libbase {
 /*!
  * \brief   Base Function Pointer.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Abstract base functor class for functions that take no argmuents and return
  * nothing.
  */
@@ -35,12 +35,12 @@ public:
 /*!
  * \brief   Function Pointer.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Specific functor class for class member functions.
  */
 

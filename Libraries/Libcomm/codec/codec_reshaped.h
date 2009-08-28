@@ -17,7 +17,7 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with matrix container from vector container.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

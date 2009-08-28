@@ -12,7 +12,7 @@ namespace libbase {
 /*!
  * \brief   Bitfield (register of a set size).
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

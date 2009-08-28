@@ -18,7 +18,7 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with Soft Output and same Input/Output Symbol Space.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

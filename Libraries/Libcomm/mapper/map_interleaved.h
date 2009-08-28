@@ -10,12 +10,12 @@ namespace libcomm {
 /*!
  * \brief   Random Interleaving Mapper.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * This class defines an interleaved version of the straight mapper.
  */
 

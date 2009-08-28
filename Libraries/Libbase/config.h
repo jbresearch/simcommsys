@@ -51,7 +51,7 @@
  * \file
  * \brief   Main Configuration.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
@@ -196,7 +196,7 @@ int readkey(void);
  * This function is meant to catch Ctrl-C during execution, to be used in the
  * same way as keypressed(), allowing pre-mature interruption of running MPI
  * processes (which can't handle keypressed() events).
- * 
+ *
  * \note The signal handler is set the first time that interrupted() is
  * called; this means that the mechanism is not activated until the
  * first time it is called, which generally works fine as this function

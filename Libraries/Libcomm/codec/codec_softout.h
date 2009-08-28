@@ -9,7 +9,7 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with Soft Output Interface.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
@@ -26,7 +26,7 @@ protected:
    /*! \name Internal codec operations */
    /*!
     * \brief A-priori probability initialization
-    * 
+    *
     * This function resets the a-priori prabability tables for the codec to
     * equally-likely. This function (or setpriors) should be called before the
     * first decode iteration for each block.
@@ -36,7 +36,7 @@ protected:
     * \brief A-priori probability setup
     * \param[in] ptable Likelihoods of each possible input symbol at every
     * (input) timestep
-    * 
+    *
     * This function updates the a-priori prabability tables for the codec.
     * This function (or resetpriors) should be called before the first decode
     * iteration for each block.
@@ -44,7 +44,7 @@ protected:
    virtual void setpriors(const C<array1d_t>& ptable) = 0;
    /*!
     * \copydoc codec::init_decoder()
-    * 
+    *
     * \note Sets up receiver likelihood tables only.
     */
    virtual void setreceiver(const C<array1d_t>& ptable) = 0;
@@ -61,7 +61,7 @@ public:
    /*!
     * \brief Decoding process
     * \param[out] ri Likelihood table for input symbols at every timestep
-    * 
+    *
     * \note Each call to decode will perform a single iteration (with respect
     * to num_iter).
     */
@@ -70,7 +70,7 @@ public:
     * \brief Decoding process
     * \param[out] ri Likelihood table for input symbols at every timestep
     * \param[out] ro Likelihood table for output symbols at every timestep
-    * 
+    *
     * \note Each call to decode will perform a single iteration (with respect
     * to num_iter).
     */
@@ -81,12 +81,12 @@ public:
 /*!
  * \brief   Channel Codec with Soft Output Base.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Templated soft-output codec base. This extra level is required to allow
  * partial specialization of the container.
  */
@@ -99,12 +99,12 @@ public:
 /*!
  * \brief   Channel Codec with Soft Output Base Specialization.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Templated soft-output codec base. This extra level is required to allow
  * partial specialization of the container.
  */
@@ -130,7 +130,7 @@ public:
     * \param[in]  ri       Likelihood table for input symbols at every timestep
     * \param[out] decoded  Sequence of the most likely input symbols at every
     * timestep
-    * 
+    *
     * Decide which input sequence was most probable.
     */
    static void hard_decision(const array1vd_t& ri, array1i_t& decoded);

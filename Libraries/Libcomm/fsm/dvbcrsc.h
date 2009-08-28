@@ -11,12 +11,12 @@ namespace libcomm {
 /*!
  * \brief   DVB-Standard Circular Recursive Systematic Convolutional Coder.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 class dvbcrsc : public fsm {

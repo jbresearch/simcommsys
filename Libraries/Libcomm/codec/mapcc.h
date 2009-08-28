@@ -16,7 +16,7 @@ namespace libcomm {
 /*!
  * \brief   Maximum A-Posteriori Decoder.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

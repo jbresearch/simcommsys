@@ -26,7 +26,7 @@ class masked_matrix;
 /*!
  * \brief   Size specialization for matrix.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
@@ -89,26 +89,26 @@ public:
 /*!
  * \brief   Generic 2D Matrix.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Arithmetic functions are part of the matrix class. This includes arithmetic
  * operations between matrices, constant matrix initialisation routines, and
  * some statistical functions.
- * 
+ *
  * This class follows the usual mathematical convention, where the first index
  * represents the row and second represents the column. This is consistent with
  * Matlab notation.
- * 
+ *
  * \note Empty matrices (that is, ones with no elements) are defined and valid.
- * 
+ *
  * \note Range-checking and other validation functions are only operative in
  * debug mode.
- * 
- * 
+ *
+ *
  * \todo Extract common implementation of copy assignment operators
  *
  * \todo Add construction from initializer_list when if possible
@@ -363,7 +363,7 @@ inline matrix<T>::matrix(const matrix<T>& x)
    }
 
 /*! \brief Set matrix to given size, freeing if and as required
- * 
+ *
  * This method leaves the matrix as it is if the size was already correct, and
  * frees/reallocates if necessary. This helps reduce redundant free/alloc
  * operations on matrices which keep the same size.
@@ -380,10 +380,10 @@ inline void matrix<T>::init(const int m, const int n)
 // matrix copy and value initialisation
 
 /*! \brief Copies data from another matrix without resizing this one
- * 
+ *
  * Adds support for working with different-sized matrices (in place of
  * resizing operations which would be quite expensive).
- * 
+ *
  * \note Opted for this rather than changing the definition of operator=
  * because it's convenient for '=' to copy _everything_ from the source
  * to the destination; otherwise we would land into obscure problems in
@@ -589,7 +589,7 @@ inline void matrix<T>::serialize(std::ostream& sout) const
 /*! \brief Reads matrix data from input stream.
  * This function is intended for interfacing with file formats that do not use
  * the serialization format of this class.
- * 
+ *
  * \note Assumes that the current matrix already has the correct size.
  */
 template <class T>
@@ -1098,7 +1098,7 @@ inline matrix<T> matrix<T>::operator^(const matrix<T>& x) const
    }
 
 /*! \brief Perform user-defined operation on all matrix elements
- * 
+ *
  * \note Removed the instance of apply() whose given function's parameter is
  * const, since this was causing problems with gcc on Solaris.
  */
@@ -1182,7 +1182,7 @@ inline matrix<T> matrix<T>::inverse() const
  * This function will return the row echelon form of the current matrix
  * ie at the end of the process the matrix will look like
  * \verbatim
- * 
+ *
  * [0 ... 0 1 0 ... 0 ...         0 a(1,1) a(1,2) ... a(1,l)]
  * [0 ... 0 0 ... 1 ... 0 ...     0 a(2,1) a(2,2) ... a(2,l)]
  * [0 ...         0 0 ... 1 0 ... 0 a(3,1) a(3,2) ... a(3,l)]
@@ -1284,9 +1284,9 @@ inline matrix<T> matrix<T>::transpose() const
 // statistical operations
 
 /*! \brief Determines the smallest element in the matrix
- * 
+ *
  * \note This assumes that less-than comparison is defined in operator (<).
- * 
+ *
  * \note This is only valid for non-empty matrices.
  */
 template <class T>
@@ -1302,9 +1302,9 @@ inline T matrix<T>::min() const
    }
 
 /*! \brief Determines the largest element in the matrix
- * 
+ *
  * \note This assumes that greater-than comparison is defined in operator (>).
- * 
+ *
  * \note This is only valid for non-empty matrices.
  */
 template <class T>
@@ -1320,7 +1320,7 @@ inline T matrix<T>::max() const
    }
 
 /*! \brief Computes sum of elements in matrix
- * 
+ *
  * \note This assumes that addition is defined for the type, in the accumulate
  * operator (+=). Also, it is assumed that '0' is defined for the type.
  */
@@ -1336,7 +1336,7 @@ inline T matrix<T>::sum() const
    }
 
 /*! \brief Computes sum of squares of elements in matrix
- * 
+ *
  * \note This assumes that addition is defined for the type, in the accumulate
  * operator (+=), as well as multiplication in the binary operator (*).
  * Also, it is assumed that '0' is defined for the type.
@@ -1418,17 +1418,17 @@ namespace libbase {
 /*!
  * \brief   Masked 2D Matrix.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * A masked matrix is a matrix with a binary element-mask. Arithmetic,
  * statistical, user-defined operation, and copy/value init functions are
  * defined for this class, allowing us to modify the masked parts of any
  * given matrix with ease.
- * 
+ *
  * It is intended that for the user, the use of masked matrices should be
  * essentially transparent (in that they can mostly be used in place of
  * normal matrices) and that the user should never create one explicitly,
@@ -1556,11 +1556,11 @@ inline masked_matrix<T>& masked_matrix<T>::operator-=(const matrix<T>& x)
  * \brief Array multiplication (element-by-element) of matrices
  * \param  x   Matrix to be multiplied to this one
  * \return The updated (multiplied-into) matrix
- * 
+ *
  * Masked elements (ie. where the mask is true) are multiplied by
  * the corresponding element in 'x'. Unmasked elements are left
  * untouched.
- * 
+ *
  * \note For A.*B, the size of A must be the same as the size of B.
  */
 template <class T>
@@ -1578,11 +1578,11 @@ inline masked_matrix<T>& masked_matrix<T>::multiplyby(const matrix<T>& x)
  * \brief Array division (element-by-element) of matrices
  * \param  x   Matrix to divide this one by
  * \return The updated (divided-into) matrix
- * 
+ *
  * Masked elements (ie. where the mask is true) are divided by
  * the corresponding element in 'x'. Unmasked elements are left
  * untouched.
- * 
+ *
  * \note For A./B, the size of A must be the same as the size of B.
  */
 template <class T>

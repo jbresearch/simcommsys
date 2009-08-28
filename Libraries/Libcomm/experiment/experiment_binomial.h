@@ -8,12 +8,12 @@ namespace libcomm {
 /*!
  * \brief   Experiment for estimation of a binomial proportion.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements the accumulator functions required by the experiment class.
  */
 

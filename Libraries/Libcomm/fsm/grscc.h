@@ -9,12 +9,12 @@ namespace libcomm {
 /*!
  * \brief   Generalized Recursive Systematic Convolutional Code.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements RSCC where polynomial coefficients are elements of a finite
  * field, which is specified as a template parameter.
  */

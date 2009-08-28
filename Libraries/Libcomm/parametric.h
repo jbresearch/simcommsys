@@ -8,12 +8,12 @@ namespace libcomm {
 /*!
  * \brief   Parametric Clas Interface.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Defines a class that takes a scalar parameter.
  */
 

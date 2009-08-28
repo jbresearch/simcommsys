@@ -9,12 +9,12 @@ namespace libbase {
 /*!
  * \brief   Root-finding by Secant method.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 class secant {

@@ -13,12 +13,12 @@ namespace libcomm {
 /*!
  * \brief   Common Modulator Interface.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Class defines common interface for modem classes.
  */
 
@@ -78,7 +78,7 @@ public:
 /*!
  * \brief   Modulator Base.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$
@@ -94,7 +94,7 @@ DECLARE_BASE_SERIALIZER(modem)
 /*!
  * \brief   Signal-Space Modulator Specialization.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$
@@ -126,17 +126,17 @@ DECLARE_BASE_SERIALIZER(modem)
 /*!
  * \brief   Q-ary Modulator Implementation.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Specific implementation of q-ary channel modulation.
- * 
+ *
  * \note Template argument class must provide a method elements() that returns
  * the field size.
- * 
+ *
  * \todo Merge modulate and demodulate between this function and lut_modulator (?)
  */
 
@@ -167,12 +167,12 @@ public:
 /*!
  * \brief   Binary Modulator Implementation Specialization.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Specific implementation of binary channel modulation.
  */
 
@@ -203,7 +203,7 @@ public:
 /*!
  * \brief   Direct Modulator Implementation.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$

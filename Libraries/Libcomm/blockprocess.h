@@ -8,12 +8,12 @@ namespace libcomm {
 /*!
  * \brief   Block-Processed Interface.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * This class defines the interface for an object that gets processed in a
  * blockwise fashion.
  */

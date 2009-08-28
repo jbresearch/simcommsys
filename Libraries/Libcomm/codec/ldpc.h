@@ -75,13 +75,13 @@ public:
       }
 
    /*!
-    \brief Encoding process
-    \param[in] source Sequence of source symbols, one per timestep
-    \param[out] encoded Sequence of output (encoded) symbols, one per timestep
-
-    \note If the input or output symbols at every timestep represent the
-    aggregation of a set of symbols, the combination/division has to
-    be done externally.
+    * \brief Encoding process
+    * \param[in] source Sequence of source symbols, one per timestep
+    * \param[out] encoded Sequence of output (encoded) symbols, one per timestep
+    *
+    * \note If the input or output symbols at every timestep represent the
+    * aggregation of a set of symbols, the combination/division has to
+    * be done externally.
     */
    void
    encode(const array1i_t & source, array1i_t& encoded);
@@ -89,11 +89,11 @@ public:
    /*! \name Softout codec operations */
 
    /*!
-    \brief Decoding process
-    \param[out] ri Likelihood table for input symbols at every timestep
-
-    \note Each call to decode will perform a single iteration (with respect
-    to num_iter).
+    * \brief Decoding process
+    * \param[out] ri Likelihood table for input symbols at every timestep
+    *
+    * \note Each call to decode will perform a single iteration (with respect
+    * to num_iter).
     */
    void softdecode(array1vd_t& ri)
       {
@@ -102,12 +102,12 @@ public:
       }
 
    /*!
-    \brief Decoding process
-    \param[out] ri Likelihood table for input symbols at every timestep
-    \param[out] ro Likelihood table for output symbols at every timestep
-
-    \note Each call to decode will perform a single iteration (with respect
-    to num_iter).
+    * \brief Decoding process
+    * \param[out] ri Likelihood table for input symbols at every timestep
+    * \param[out] ro Likelihood table for output symbols at every timestep
+    *
+    * \note Each call to decode will perform a single iteration (with respect
+    * to num_iter).
     */
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
@@ -185,24 +185,24 @@ DECLARE_SERIALIZER(ldpc);
 protected:
    /*! \name Internal codec operations */
    /*!
-    \brief A-priori probability initialization
-
-    This function resets the a-priori prabability tables for the codec to
-    equally-likely. This function (or setpriors) should be called before the
-    first decode iteration for each block.
+    * \brief A-priori probability initialization
+    *
+    * This function resets the a-priori prabability tables for the codec to
+    * equally-likely. This function (or setpriors) should be called before the
+    * first decode iteration for each block.
     */
    void resetpriors()
       {
       //nothing to do
       }
    /*!
-    \brief A-priori probability setup
-    \param[in] ptable Likelihoods of each possible input symbol at every
-    (input) timestep
-
-    This function updates the a-priori prabability tables for the codec.
-    This function (or resetpriors) should be called before the first decode
-    iteration for each block.
+    * \brief A-priori probability setup
+    * \param[in] ptable Likelihoods of each possible input symbol at every
+    * (input) timestep
+    *
+    * This function updates the a-priori prabability tables for the codec.
+    * This function (or resetpriors) should be called before the first decode
+    * iteration for each block.
     */
    void setpriors(const array1vd_t& ptable)
       {

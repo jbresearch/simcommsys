@@ -31,7 +31,7 @@ class vector;
 /*!
  * \brief   Size specialization for vector.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
@@ -86,21 +86,21 @@ public:
 /*!
  * \brief   Generic Vector.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \note Supports the concept of an empty vector
- * 
+ *
  * \note Multiplication and division perform array operations
- * 
+ *
  * \warning Unlike most other classes, this class uses stream I/O as
  * serialization for loading and saving; they therefore output
  * container size together with container elements.
  * The serialize methods input/output only the elements.
- * 
+ *
  * \note For root vectors, copy construction or assignment constitute a deep
  * copy; for non-root vectors the operations are shallow (ie. the reference to
  * the original data set is maintained). The actual allocated memory is only
@@ -110,15 +110,15 @@ public:
  *
  * \todo Fix destruction of root vectors to make sure there are no remaining
  * references to the data set.
- * 
+ *
  * \todo Extract non-root vectors as a derived class
- * 
+ *
  * \todo This class needs to be re-designed in a manner that is consistent with
  * convention (esp. Matlab) and that is efficient
- * 
+ *
  * \todo Extract common implementation of copy assignment operators and
  * copy constructor
- * 
+ *
  * \todo Merge code for extract() and segment()
  *
  * \todo Add construction from initializer_list when possible

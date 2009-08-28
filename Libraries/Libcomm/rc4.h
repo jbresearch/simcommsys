@@ -11,28 +11,28 @@ namespace libcomm {
 /*!
  * \brief   RSA RC4 Algorithm.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \version 1.00 (03 Jul 2003)
  * initial version - class that implements RSA RC4 Algorithm, as specified in
  * Schneier, "Applied Cryptography", 1996, pp.397-398.
- * 
+ *
  * \version 1.01 (04 Jul 2003)
  * changed vector tables to int8u instead of int, to ensure validity of values.
- * 
+ *
  * \version 1.02 (5 Jul 2003)
  * - added self-testing on creation of the first object.
  * - modified counters to be int8u instead of int - also renamed them x & y
  * - removed superfluous mod 256 (& 0xff) operations
- * 
+ *
  * \version 1.03 (17 Jul 2006)
  * in encrypt, changed the loop variable to type size_t, to avoid the warning about
  * comparisons between signed and unsigned types.
- * 
+ *
  * \version 1.10 (6 Nov 2006)
  * - defined class and associated data within "libcomm" namespace.
  * - removed use of "using namespace std", replacing by tighter "using" statements as needed.

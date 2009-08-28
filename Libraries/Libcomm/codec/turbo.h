@@ -16,48 +16,48 @@ namespace libcomm {
 /*!
  * \brief   Turbo decoding algorithm.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * All internal metrics are held as type 'real', which is user-defined. This
  * allows internal working at any required level of accuracy. This is necessary
  * because the internal matrics have a very wide dynamic range, which increases
  * exponentially with block size 'tau'. Actually, the required range is within
  * [1,0), but very large exponents are required. (For BCJR sub-component)
- * 
+ *
  * \note Memory is allocaed only on first call to demodulate/decode. This
  * reduces memory requirements in cases where classes are instantiated
  * but not actually used for decoding (e.g. in master node on a
  * distributed Monte Carlo simulation)
- * 
+ *
  * \note Since puncturing is not handled within the codec, for the moment, the
  * modification for stipple puncturing with simile interleavers is not
  * performed.
- * 
+ *
  * \note The template class 'dbl', which defaults to 'double', defines the
  * numerical representation for inter-iteration statistics. This became
  * necessary for the parallel decoding structure, where the range of
  * extrinsic information is much larger than for serial decoding;
  * furthermore, this range increases with the number of iterations
  * performed.
- * 
+ *
  * \note Serialization is versioned; for compatibility, earlier versions are
  * interpreted as v.0; a flat interleaver is automatically used for the
  * first encoder in these cases.
- * 
+ *
  * \todo Fix terminated sequence encoding (currently this implicitly assumes
  * a flat first interleaver)
- * 
+ *
  * \todo Standardize encoding/decoding of multiple symbols within a larger
  * symbol space; this parallels what was done in ccfsm.
- * 
+ *
  * \todo Remove redundant result vector initializations (these should happen
  * on the first call to a function where that vector is used as an
  * output).
- * 
+ *
  * \todo Split serial and parallel decoding into separate classes.
  *
  * \todo Update decoding process for changes in FSM model.

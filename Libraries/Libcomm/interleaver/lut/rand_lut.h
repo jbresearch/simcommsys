@@ -12,12 +12,12 @@ namespace libcomm {
 /*!
  * \brief   Random LUT Interleaver.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \note This assumes the implementation of a random simile interleaver; there
  * is therefore a restriction that the interleaver size must be a
  * multiple of p, where p is the length of the encoder impulse response

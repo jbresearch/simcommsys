@@ -13,12 +13,12 @@ namespace libcomm {
 /*!
  * \brief   Communication Systems Simulator.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \todo Clean up interface with commsys object, particularly in cycleonce()
  */
 

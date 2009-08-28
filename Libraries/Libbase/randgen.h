@@ -9,16 +9,16 @@ namespace libbase {
 /*!
  * \brief   Knuth's Subtractive Random Generator.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * A pseudo-random generator using the subtractive technique due to
  * Knuth. This algorithm was found to give very good results in the
  * communications lab during the third year.
- * 
+ *
  * \note
  * - The subtractive algorithm has a very long period (necessary for low
  * bit error rates in the tested data stream)

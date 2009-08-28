@@ -13,12 +13,12 @@ namespace libcomm {
 /*!
  * \brief   2D binary substitution/insertion/deletion channel.
  * \author  Johann Briffa
- * 
+ *
  * \par Version Control:
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \todo Derive repeated workings from bsid
  */
 

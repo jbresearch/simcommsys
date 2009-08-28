@@ -8,12 +8,12 @@ namespace libcomm {
 /*!
  * \brief   Experiment with normally distributed samples.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements the accumulator functions required by the experiment class,
  * moved from previous implementation in montecarlo.
  */

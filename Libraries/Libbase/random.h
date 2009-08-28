@@ -10,12 +10,12 @@ namespace libbase {
 /*!
  * \brief   Random Generator Base Class.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Defines interface for random generators, and also provides common
  * integer, real (uniform), and gaussian deviate conversion facility.
  * Implementations of actual random generators are created by deriving

@@ -11,12 +11,12 @@ namespace libcomm {
 /*!
  * \brief   Davey-MacKay Inner Code, with symbol-level decoding.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements a novel (and more accurate) decoding algorithm for the inner
  * codes described by Davey and MacKay in "Reliable Communication over Channels
  * with Insertions, Deletions, and Substitutions", Trans. IT, Feb 2001.

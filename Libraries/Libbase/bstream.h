@@ -9,20 +9,20 @@ namespace libbase {
 /*!
  * \brief   Bitstream Base.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \version 1.01 (6 Mar 2002)
  * changed vcs version variable from a global to a static class variable.
  * also changed use of iostream from global to std namespace.
- * 
+ *
  * \version 1.02 (15 Jun 2002)
  * - modified implementation file min() function usage to specify global one.
  * - added default constructor and virtual destructor for obstream/ibstream
- * 
+ *
  * \version 1.10 (26 Oct 2006)
  * - defined class and associated data within "libbase" namespace.
  */

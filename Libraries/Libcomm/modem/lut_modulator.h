@@ -8,7 +8,7 @@ namespace libcomm {
 /*!
  * \brief   LUT Modulator.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

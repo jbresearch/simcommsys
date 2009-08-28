@@ -13,15 +13,15 @@ namespace libcomm {
 /*!
  * \brief   Iterative 2D implementation of Davey-MacKay Inner Code.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * Implements a 2D version of the Davey-MacKay inner code, using iterative
  * row/column decoding, where the sparse symbols are now two-dimensional.
- * 
+ *
  * \todo This class seems to assume the old (col,row) convention for matrix.
  * Need to make changes as necessary to conform with the new convention.
  */

@@ -94,7 +94,7 @@ namespace libcomm {
 /*!
  * \brief   Communications Library Serializer.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$

@@ -8,12 +8,12 @@ namespace libcomm {
 /*!
  * \brief   Safe version of BCJR - Standard template (no normalization).
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 template <class real, class dbl = double>
@@ -35,12 +35,12 @@ public:
 /*!
  * \brief   Safe version of BCJR - 'double' specialization (normalized).
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 template <>
@@ -62,12 +62,12 @@ public:
 /*!
  * \brief   Safe version of BCJR - 'float' specialization (normalized).
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  */
 
 template <>

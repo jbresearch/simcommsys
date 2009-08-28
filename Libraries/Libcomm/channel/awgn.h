@@ -12,19 +12,19 @@ namespace libcomm {
 /*!
  * \brief   Additive White Gaussian Noise Channel.
  * \author  Johann Briffa
- * 
+ *
  * \section svn Version Control
  * - $Revision$
  * - $Date$
  * - $Author$
- * 
+ *
  * \version 1.10 (15 Apr 1999)
  * Changed the definition of set_snr to avoid using the pow() function.
  * This was causing an unexplained SEGV with optimised code
- * 
+ *
  * \version 1.11 (6 Mar 2002)
  * changed vcs version variable from a global to a static class variable.
- * 
+ *
  * \version 1.20 (13 Mar 2002)
  * updated the system to conform with the completed serialization protocol (in conformance
  * with channel 1.10), by adding the necessary name() function, and also by adding a static
@@ -33,25 +33,25 @@ namespace libcomm {
  * virtual public one, since this was affecting the transfer of virtual functions within
  * the class (causing access violations). Also moved most functions into the implementation
  * file rather than here.
- * 
+ *
  * \version 1.30 (27 Mar 2002)
  * changed descriptive output function to conform with channel 1.30.
- * 
+ *
  * \version 1.40 (30 Oct 2006)
  * - defined class and associated data within "libcomm" namespace.
- * 
+ *
  * \version 1.50 (16 Oct 2007)
  * changed class to conform with channel 1.50.
- * 
+ *
  * \version 1.51 (16 Oct 2007)
  * changed class to conform with channel 1.51.
- * 
+ *
  * \version 1.52 (17 Oct 2007)
  * changed class to conform with channel 1.52.
- * 
+ *
  * \version 1.53 (29 Oct 2007)
  * - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
- * 
+ *
  * \version 1.54 (24 Jan 2008)
  * - Changed derivation from channel to channel<sigspace>
  */
