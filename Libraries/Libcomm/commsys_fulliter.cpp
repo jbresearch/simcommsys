@@ -16,11 +16,20 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Log calls to receive_path and decode
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 // Communication System Interface
 
 template <class S, template <class > class C>
 void commsys_fulliter<S, C>::receive_path(const C<S>& received)
    {
+   libbase::trace << "DEBUG (fulliter): Starting receive path.\n";
    // Store received vector
    last_received = received;
    // Reset modem
