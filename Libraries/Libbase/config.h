@@ -48,14 +48,14 @@
 #endif
 
 /*!
- \file
- \brief   Main Configuration.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * \brief   Main Configuration.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 // *** Global namespace ***
@@ -193,14 +193,14 @@ int keypressed(void);
 int readkey(void);
 
 /*! \brief Interrupt-signal handling function
- This function is meant to catch Ctrl-C during execution, to be used in the
- same way as keypressed(), allowing pre-mature interruption of running MPI
- processes (which can't handle keypressed() events).
-
- \note The signal handler is set the first time that interrupted() is
- called; this means that the mechanism is not activated until the
- first time it is called, which generally works fine as this function
- is meant to be used within a loop as part of the condition statement.
+ * This function is meant to catch Ctrl-C during execution, to be used in the
+ * same way as keypressed(), allowing pre-mature interruption of running MPI
+ * processes (which can't handle keypressed() events).
+ * 
+ * \note The signal handler is set the first time that interrupted() is
+ * called; this means that the mechanism is not activated until the
+ * first time it is called, which generally works fine as this function
+ * is meant to be used within a loop as part of the condition statement.
  */
 bool interrupted(void);
 

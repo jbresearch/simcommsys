@@ -11,24 +11,24 @@
 namespace libcomm {
 
 /*!
- \brief   Channel Codec Base.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \todo Current model assumes one symbol per timestep; this needs to change
- so we can represent multiple input/output symbols per timestep.
-
- \todo Change class interface to better model the actual representation of
- input and output sequences of the codec and to better separate this
- class from the modulation class.
-
- \todo Merge num_symbols() with num_outputs() as these should be the same
-
- \todo Remove tail_length() as tailing should be handled internally
+ * \brief   Channel Codec Base.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \todo Current model assumes one symbol per timestep; this needs to change
+ * so we can represent multiple input/output symbols per timestep.
+ * 
+ * \todo Change class interface to better model the actual representation of
+ * input and output sequences of the codec and to better separate this
+ * class from the modulation class.
+ * 
+ * \todo Merge num_symbols() with num_outputs() as these should be the same
+ * 
+ * \todo Remove tail_length() as tailing should be handled internally
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
@@ -52,38 +52,38 @@ public:
       {
       }
    /*!
-    \brief Encoding process
-    \param[in] source Sequence of source symbols, one per timestep
-    \param[out] encoded Sequence of output (encoded) symbols, one per timestep
-
-    \note If the input or output symbols at every timestep represent the
-    aggregation of a set of symbols, the combination/division has to
-    be done externally.
+    * \brief Encoding process
+    * \param[in] source Sequence of source symbols, one per timestep
+    * \param[out] encoded Sequence of output (encoded) symbols, one per timestep
+    * 
+    * \note If the input or output symbols at every timestep represent the
+    * aggregation of a set of symbols, the combination/division has to
+    * be done externally.
     */
    virtual void encode(const C<int>& source, C<int>& encoded) = 0;
    /*!
-    \brief Receiver translation process
-    \param[in] ptable Likelihoods of each possible modulation symbol at every
-    (modulation) timestep
-
-    This function computes the necessary prabability tables for the codec
-    from the probabilities of each modulation symbol as received from the
-    channel. This function should be called before the first decode iteration
-    for each block.
-
-    \note The number of possible modulation symbols does not necessarily
-    correspond to the number of encoder output symbols, and therefore
-    the number of modulation timesteps may be different from tau.
+    * \brief Receiver translation process
+    * \param[in] ptable Likelihoods of each possible modulation symbol at every
+    * (modulation) timestep
+    * 
+    * This function computes the necessary prabability tables for the codec
+    * from the probabilities of each modulation symbol as received from the
+    * channel. This function should be called before the first decode iteration
+    * for each block.
+    * 
+    * \note The number of possible modulation symbols does not necessarily
+    * correspond to the number of encoder output symbols, and therefore
+    * the number of modulation timesteps may be different from tau.
     */
    virtual void init_decoder(const C<array1d_t>& ptable) = 0;
    /*!
-    \brief Decoding process
-    \param[out] decoded Most likely sequence of information symbols, one per timestep
-
-    \note Observe that this output necessarily constitutes a hard decision.
-
-    \note Each call to decode will perform a single iteration (with respect
-    to num_iter).
+    * \brief Decoding process
+    * \param[out] decoded Most likely sequence of information symbols, one per timestep
+    * 
+    * \note Observe that this output necessarily constitutes a hard decision.
+    * 
+    * \note Each call to decode will perform a single iteration (with respect
+    * to num_iter).
     */
    virtual void decode(C<int>& decoded) = 0;
    // @}

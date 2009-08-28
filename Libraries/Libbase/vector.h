@@ -29,13 +29,13 @@ template <class T>
 class vector;
 
 /*!
- \brief   Size specialization for vector.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Size specialization for vector.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <>
@@ -50,14 +50,14 @@ public:
       this->n = n;
       }
    /*! \brief Conversion to integer
-    Returns the number of elements
+    * Returns the number of elements
     */
    operator int() const
       {
       return n;
       }
    /*! \brief Comparison of two size objects
-    Only true if dimensions are the same
+    * Only true if dimensions are the same
     */
    bool operator==(const size_type<vector>& rhs) const
       {
@@ -84,32 +84,44 @@ public:
 };
 
 /*!
- \brief   Generic Vector.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \note Supports the concept of an empty vector
-
- \note Multiplication and division perform array operations
-
- \warning Unlike most other classes, this class uses stream I/O as
- serialization for loading and saving; they therefore output
- container size together with container elements.
- The serialize methods input/output only the elements.
-
-
- \todo Extract non-root vectors as a derived class
-
- \todo This class needs to be re-designed in a manner that is consistent with
- convention (esp. Matlab) and that is efficient
-
- \todo Extract common implementation of copy assignment operators
-
- \todo Merge code for extract() and segment()
+ * \brief   Generic Vector.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \note Supports the concept of an empty vector
+ * 
+ * \note Multiplication and division perform array operations
+ * 
+ * \warning Unlike most other classes, this class uses stream I/O as
+ * serialization for loading and saving; they therefore output
+ * container size together with container elements.
+ * The serialize methods input/output only the elements.
+ * 
+ * \note For root vectors, copy construction or assignment constitute a deep
+ * copy; for non-root vectors the operations are shallow (ie. the reference to
+ * the original data set is maintained). The actual allocated memory is only
+ * released when the relevant root vector is destroyed. There is always a risk
+ * that the root vector is destroyed before non-root references, in which case
+ * those references become stale.
+ *
+ * \todo Fix destruction of root vectors to make sure there are no remaining
+ * references to the data set.
+ * 
+ * \todo Extract non-root vectors as a derived class
+ * 
+ * \todo This class needs to be re-designed in a manner that is consistent with
+ * convention (esp. Matlab) and that is efficient
+ * 
+ * \todo Extract common implementation of copy assignment operators and
+ * copy constructor
+ * 
+ * \todo Merge code for extract() and segment()
+ *
+ * \todo Add construction from initializer_list when possible
  */
 
 template <class T>
@@ -125,30 +137,41 @@ protected:
    // @}
    /*! \name Memory allocation functions */
    /*! \brief Allocates memory for x elements (if necessary) and updates xsize
-    \note This is only valid for 'root' vectors.
+    * \note This is only valid for 'root' vectors.
     */
    void alloc(const int n);
    /*! \brief If there is memory allocated, free it
-    \note This is validly called for non-root and for empty vectors
+    * \note This is validly called for non-root and for empty vectors
     */
    void free();
    // @}
 public:
-   //! Default constructor (does not initialise elements)
-   explicit vector(const int n = 0);
-   //! Copy constructor
-   vector(const vector<T>& x);
+   /*! \name Law of the Big Three */
+   //! Destructor
    ~vector()
       {
       free();
       }
+   //! Copy constructor
+   vector(const vector<T>& x);
+   //! Copy asignment operator
+   vector<T>& operator=(const vector<T>& x);
+   // @}
+
+   /*! \name Other Constructors */
+   //! Default constructor (does not initialise elements)
+   explicit vector(const int n = 0);
+   //! On-the-fly conversion of vectors
+   template <class A>
+   explicit vector(const vector<A>& x);
+   // @}
 
    /*! \name Resizing operations */
    /*! \brief Set vector to given size, freeing if and as required
-    This method is guaranteed to leave the vector untouched if the size is
-    already good, and only reallocated if necessary. This helps reduce
-    redundant free/alloc operations.
-    \note This is only valid for 'root' vectors.
+    * This method is guaranteed to leave the vector untouched if the size is
+    * already good, and only reallocated if necessary. This helps reduce
+    * redundant free/alloc operations.
+    * \note This is only valid for 'root' vectors.
     */
    void init(const int n);
    //! Initialize vector to the given size
@@ -162,31 +185,29 @@ public:
    //! Copy elements from an array.
    vector<T>& assign(const T* x, const int n);
    /*! \brief Copies data from another vector without resizing this one
-    If the vectors are not the same size, the first 'n' elements are copied,
-    where 'n' is the smaller vector's size. If this vector is larger, the
-    remaining elements are left untouched.
+    * If the vectors are not the same size, the first 'n' elements are copied,
+    * where 'n' is the smaller vector's size. If this vector is larger, the
+    * remaining elements are left untouched.
     */
    vector<T>& copyfrom(const vector<T>& x);
-   /*! \brief Copies another vector, resizing this one as necessary
-    \warning This non-templated version is required to avoid the
-    compiler's default shallow-copy
-    */
-   vector<T>& operator=(const vector<T>& x);
    //! Copies another vector, resizing this one as necessary
    template <class A>
    vector<T>& operator=(const vector<A>& x);
-   //! Sets all vector elements to the given value
+   /*! \brief Sets all vector elements to the given value
+    * There is an advantage in using overloaded '=' instead of an init_value()
+    * method: this works even with nested vectors.
+    */
    template <class A>
    vector<T>& operator=(const A x);
    // @}
 
    // sub-vector access
    /*! \brief Extract a sub-vector as a reference into this vector
-    This allows access to sub-vector data without array copying.
+    * This allows access to sub-vector data without array copying.
     */
    const vector<T> extract(const int start, const int n) const;
    /*! \brief Access part of this vector as a sub-vector
-    This allows operations on sub-vector data without array copying.
+    * This allows operations on sub-vector data without array copying.
     */
    vector<T> segment(const int start, const int n);
 
@@ -246,13 +267,13 @@ public:
    //! Find largest vector element
    T max() const;
    /*! \brief Find smallest vector element
-    \param index returns the index for the smallest value
-    \param getfirst flag to return first value found (rather than last)
+    * \param index returns the index for the smallest value
+    * \param getfirst flag to return first value found (rather than last)
     */
    T min(int& index, const bool getfirst = true) const;
    /*! \brief Find largest vector element
-    \param index returns the index for the largest value
-    \param getfirst flag to return first value found (rather than last)
+    * \param index returns the index for the largest value
+    * \param getfirst flag to return first value found (rather than last)
     */
    T max(int& index, const bool getfirst = true) const;
    //! Compute the sum of all vector elements
@@ -376,6 +397,28 @@ inline vector<T>::vector(const vector<T>& x) :
    test_invariant();
    }
 
+template <class T>
+template <class A>
+inline vector<T>::vector(const vector<A>& x) :
+   m_root(true), m_size(0), m_data(NULL)
+   {
+   test_invariant();
+   init(x.size());
+   // avoid down-cast warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4244 )
+#endif
+   // Do not convert type of element from A to T, so that if either is a
+   // vector, the process can continue through the assignment operator
+   for (int i = 0; i < m_size.length(); i++)
+      m_data[i] = x(i);
+#ifdef WIN32
+#  pragma warning( pop )
+#endif
+   test_invariant();
+   }
+
 // Resizing operations
 
 template <class T>
@@ -419,9 +462,12 @@ template <class T>
 inline vector<T>& vector<T>::operator=(const vector<T>& x)
    {
    test_invariant();
-   init(x.m_size.length());
+   // correctly handle self-assignment
+   if (this == &x)
+      return *this;
+   init(x.size());
    for (int i = 0; i < m_size.length(); i++)
-      m_data[i] = x.m_data[i];
+      m_data[i] = x(i);
    test_invariant();
    return *this;
    }
@@ -431,12 +477,16 @@ template <class A>
 inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
+   // this should never correspond to self-assignment
+   assert(this != &x);
    init(x.size());
    // avoid down-cast warnings in Win32
 #ifdef WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
+   // Do not convert type of element from A to T, so that if either is a
+   // vector, the process can continue recursively
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
 #ifdef WIN32

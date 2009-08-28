@@ -31,13 +31,13 @@ void process(const std::string& fname, std::istream& sin = std::cin,
    }
 
 /*!
- \brief   Communication Systems Encoder
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Communication Systems Encoder
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

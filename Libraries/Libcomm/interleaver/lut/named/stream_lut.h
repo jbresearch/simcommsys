@@ -8,14 +8,14 @@
 namespace libcomm {
 
 /*!
- \brief   Stream-loaded LUT Interleaver.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
+ * \brief   Stream-loaded LUT Interleaver.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
  */
 
 template <class real>

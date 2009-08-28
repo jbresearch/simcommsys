@@ -14,13 +14,15 @@
 namespace libcomm {
 
 /*!
- \brief   Maximum A-Posteriori Decoder.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Maximum A-Posteriori Decoder.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * \todo Update decoding process for changes in FSM model.
  */
 
 template <class real, class dbl = double>
@@ -29,6 +31,7 @@ class mapcc : public codec_softout<libbase::vector, dbl> , private safe_bcjr<
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
+   typedef libbase::matrix<int> array2i_t;
    typedef libbase::vector<dbl> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::matrix<dbl> array2d_t;
@@ -41,7 +44,7 @@ private:
 private:
    /*! \name User-defined parameters */
    fsm *encoder;
-   int tau; //!< Block length (including tail, if any)
+   int tau; //!< Sequence length in timesteps (including tail, if any)
    bool endatzero; //!< True for terminated trellis
    bool circular; //!< True for circular trellis
    // @}
@@ -83,19 +86,23 @@ public:
    libbase::size_type<libbase::vector> input_block_size() const
       {
       const int nu = This::tail_length();
-      return libbase::size_type<libbase::vector>(tau - nu);
+      const int k = encoder->num_inputs();
+      const int result = (tau - nu) * k;
+      return libbase::size_type<libbase::vector>(result);
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      return libbase::size_type<libbase::vector>(tau);
+      const int n = encoder->num_outputs();
+      const int result = tau * n;
+      return libbase::size_type<libbase::vector>(result);
       }
    int num_inputs() const
       {
-      return encoder->num_inputs();
+      return encoder->num_symbols();
       }
    int num_outputs() const
       {
-      return encoder->num_outputs();
+      return encoder->num_symbols();
       }
    int tail_length() const
       {

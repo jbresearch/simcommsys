@@ -7,16 +7,16 @@
 namespace libcomm {
 
 /*!
- \brief   Generalized Recursive Systematic Convolutional Code.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements RSCC where polynomial coefficients are elements of a finite
- field, which is specified as a template parameter.
+ * \brief   Generalized Recursive Systematic Convolutional Code.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements RSCC where polynomial coefficients are elements of a finite
+ * field, which is specified as a template parameter.
  */
 
 template <class G>
@@ -26,15 +26,13 @@ private:
    libbase::matrix<int> csct; //!< Circulation state correspondence table
    // @}
    /*! \name Internal functions */
-   int getstateval(const libbase::vector<G>& statevec) const;
-   libbase::vector<G> getstatevec(int stateval) const;
    libbase::matrix<G> getstategen() const;
    void initcsct();
    // @}
 protected:
    /*! \name FSM helper operations */
-   int determineinput(int input) const;
-   libbase::vector<G> determinefeedin(int input) const;
+   libbase::vector<int> determineinput(libbase::vector<int> input) const;
+   libbase::vector<G> determinefeedin(libbase::vector<int> input) const;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -58,7 +56,7 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   void resetcircular(int zerostate, int n);
+   void resetcircular(libbase::vector<int> zerostate, int n);
 
    // Description
    std::string description() const;

@@ -18,26 +18,26 @@
 namespace libcomm {
 
 /*!
- \brief   Davey-MacKay Inner Code, original bit-level decoding.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements 'Watermark' Codes as described by Davey and MacKay in "Reliable
- Communication over Channels with Insertions, Deletions, and Substitutions",
- Trans. IT, Feb 2001.
-
- \note In demodulate(), the ptable is internally computed as type 'real',
- and then copied over after normalization. We norm over the whole
- block instead of independently for each timestep. This should be
- equivalent to no-normalization, and is a precursor to a change in the
- architecture to allow higher-range ptables.
-
- \todo Separate this class from friendship with dminner2; common elements
- should be extracted into a common base
+ * \brief   Davey-MacKay Inner Code, original bit-level decoding.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements 'Watermark' Codes as described by Davey and MacKay in "Reliable
+ * Communication over Channels with Insertions, Deletions, and Substitutions",
+ * Trans. IT, Feb 2001.
+ * 
+ * \note In demodulate(), the ptable is internally computed as type 'real',
+ * and then copied over after normalization. We norm over the whole
+ * block instead of independently for each timestep. This should be
+ * equivalent to no-normalization, and is a precursor to a change in the
+ * architecture to allow higher-range ptables.
+ * 
+ * \todo Separate this class from friendship with dminner2; common elements
+ * should be extracted into a common base
  */
 
 template <class real, bool norm>
@@ -114,7 +114,8 @@ protected:
 private:
    /*! \name Internal functions */
    void test_invariant() const;
-   int fill(int i = 0, libbase::bitfield suffix = "", int weight = -1);
+   int fill(int i = 0, libbase::bitfield suffix = libbase::bitfield(""),
+         int weight = -1);
    void copypilot(libbase::vector<libbase::bitfield> pilotb);
    void copylut(libbase::vector<libbase::bitfield> lutb);
    void showlut(std::ostream& sout) const;
@@ -147,7 +148,7 @@ public:
       }
    double get_parameter() const
       {
-      assert(th_inner==th_outer);
+      assert(th_inner == th_outer);
       return th_inner;
       }
    // @}

@@ -20,7 +20,7 @@
 /*
   Data Version 1.00 (30 Nov 2001)
   copied from FilterEmbed - all entries unused.
-  
+
   Data Version 1.01 (30 Nov 2001)
   deleted strength; kept pathname to allow comparison of extraction to source.
 

@@ -11,16 +11,16 @@
 namespace libcomm {
 
 /*!
- \brief   Secure Hash Algorithm.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Implements Secure Hash Algorithm SHA-1 (160-bit), as specified in
- Schneier, "Applied Cryptography", 1996, pp.442-445.
+ * \brief   Secure Hash Algorithm.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements Secure Hash Algorithm SHA-1 (160-bit), as specified in
+ * Schneier, "Applied Cryptography", 1996, pp.442-445.
  */
 
 class sha : public digest32 {

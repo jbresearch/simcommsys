@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "commsys_simulator.h"
@@ -29,12 +29,12 @@ namespace libcomm {
 // Setup functions
 
 /*!
- \brief Sets up system with no bound objects.
-
- \note This function is only responsible for clearing pointers to
- objects that are specific to this object/derivation.
- Anything else should get done automatically when the base
- serializer or constructor is called.
+ * \brief Sets up system with no bound objects.
+ * 
+ * \note This function is only responsible for clearing pointers to
+ * objects that are specific to this object/derivation.
+ * Anything else should get done automatically when the base
+ * serializer or constructor is called.
  */
 template <class S, class R>
 void commsys_simulator<S, R>::clear()
@@ -45,16 +45,16 @@ void commsys_simulator<S, R>::clear()
    }
 
 /*!
- \brief Removes association with bound objects
-
- This function performs two things:
- - Deletes any internally-allocated bound objects
- - Sets up the system with no bound objects
-
- \note This function is only responsible for deleting bound
- objects that are specific to this object/derivation.
- Anything else should get done automatically when the base
- serializer or constructor is called.
+ * \brief Removes association with bound objects
+ * 
+ * This function performs two things:
+ * - Deletes any internally-allocated bound objects
+ * - Sets up the system with no bound objects
+ * 
+ * \note This function is only responsible for deleting bound
+ * objects that are specific to this object/derivation.
+ * Anything else should get done automatically when the base
+ * serializer or constructor is called.
  */
 template <class S, class R>
 void commsys_simulator<S, R>::free()
@@ -70,11 +70,11 @@ void commsys_simulator<S, R>::free()
 // Internal functions
 
 /*!
- \brief Create source sequence to be encoded
- \return Source sequence of the required length
-
- The source sequence consists of uniformly random symbols followed by a
- tail sequence if required by the given codec.
+ * \brief Create source sequence to be encoded
+ * \return Source sequence of the required length
+ * 
+ * The source sequence consists of uniformly random symbols followed by a
+ * tail sequence if required by the given codec.
  */
 template <class S, class R>
 libbase::vector<int> commsys_simulator<S, R>::createsource()
@@ -87,16 +87,16 @@ libbase::vector<int> commsys_simulator<S, R>::createsource()
    }
 
 /*!
- \brief Perform a complete encode->transmit->receive cycle
- \param[out] result   Vector containing the set of results to be updated
-
- Results are organized as (BER,SER,FER), repeated for every iteration that
- needs to be performed.
-
- \note It is assumed that the result vector serves as an accumulator, so that
- every cycle effectively adds to this result. The caller is responsible
- to divide by the appropriate amount at the end to compute a meaningful
- average.
+ * \brief Perform a complete encode->transmit->receive cycle
+ * \param[out] result   Vector containing the set of results to be updated
+ * 
+ * Results are organized as (BER,SER,FER), repeated for every iteration that
+ * needs to be performed.
+ * 
+ * \note It is assumed that the result vector serves as an accumulator, so that
+ * every cycle effectively adds to this result. The caller is responsible
+ * to divide by the appropriate amount at the end to compute a meaningful
+ * average.
  */
 template <class S, class R>
 void commsys_simulator<S, R>::cycleonce(libbase::vector<double>& result)
@@ -129,9 +129,9 @@ void commsys_simulator<S, R>::cycleonce(libbase::vector<double>& result)
 // Constructors / Destructors
 
 /*!
- \brief Main public constructor
-
- Initializes system with bound objects as supplied by user.
+ * \brief Main public constructor
+ * 
+ * Initializes system with bound objects as supplied by user.
  */
 template <class S, class R>
 commsys_simulator<S, R>::commsys_simulator(libbase::randgen *src,
@@ -143,9 +143,9 @@ commsys_simulator<S, R>::commsys_simulator(libbase::randgen *src,
    }
 
 /*!
- \brief Copy constructor
-
- Initializes system with bound objects cloned from supplied system.
+ * \brief Copy constructor
+ * 
+ * Initializes system with bound objects cloned from supplied system.
  */
 template <class S, class R>
 commsys_simulator<S, R>::commsys_simulator(const commsys_simulator<S, R>& c)

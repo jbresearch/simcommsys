@@ -8,17 +8,17 @@
 namespace libcomm {
 
 /*!
- \brief   Random Symbol Permutation Mapper.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- This class defines an symbol-permuting version of the straight mapper.
-
- \todo Make this class inherit from any base mapper, not just straight
+ * \brief   Random Symbol Permutation Mapper.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * This class defines an symbol-permuting version of the straight mapper.
+ * 
+ * \todo Make this class inherit from any base mapper, not just straight
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>

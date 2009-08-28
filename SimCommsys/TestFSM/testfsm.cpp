@@ -6,16 +6,16 @@
 namespace testfsm {
 
 /*!
- \brief   Test program for FSM objects
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Serializes a FSM object from standard input; computes and displays
- state table.
+ * \brief   Test program for FSM objects
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Serializes a FSM object from standard input; computes and displays
+ * state table.
  */
 
 int main(int argc, char *argv[])
@@ -35,13 +35,14 @@ int main(int argc, char *argv[])
    // compute and display state table
    cout << "PS\tIn\tOut\tNS\n";
    for (int ps = 0; ps < encoder->num_states(); ps++)
-      for (int in = 0; in < encoder->num_inputs(); in++)
+      for (int in = 0; in < encoder->num_input_combinations(); in++)
          {
          cout << ps << '\t';
          cout << in << '\t';
-         encoder->reset(ps);
-         cout << encoder->step(in) << '\t';
-         cout << encoder->state() << '\n';
+         encoder->reset(encoder->convert_state(ps));
+         libbase::vector<int> ip = encoder->convert_input(in);
+         cout << encoder->convert_output(encoder->step(ip)) << '\t';
+         cout << encoder->convert_state(encoder->state()) << '\n';
          }
 
    return 0;

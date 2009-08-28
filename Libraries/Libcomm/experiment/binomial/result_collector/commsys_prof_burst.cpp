@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "commsys_prof_burst.h"
@@ -46,15 +46,15 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result,
    }
 
 /*!
- \copydoc experiment::get_multiplicity()
-
- For each iteration, we count respectively the number symbol errors:
- - in the first frame symbol (at most 1/frame)
- - in subsequent symbols, if the prior symbol was correct
- - in subsequent symbols, if the prior symbol was in error
- - in the prior symbol (required when applying Bayes' rule
- to the above two counts)
- (all three above: at most #symbols/frame - 1)
+ * \copydoc experiment::get_multiplicity()
+ * 
+ * For each iteration, we count respectively the number symbol errors:
+ * - in the first frame symbol (at most 1/frame)
+ * - in subsequent symbols, if the prior symbol was correct
+ * - in subsequent symbols, if the prior symbol was in error
+ * - in the prior symbol (required when applying Bayes' rule
+ * to the above two counts)
+ * (all three above: at most #symbols/frame - 1)
  */
 int commsys_prof_burst::get_multiplicity(int i) const
    {
@@ -69,10 +69,10 @@ int commsys_prof_burst::get_multiplicity(int i) const
    }
 
 /*!
- \copydoc experiment::result_description()
-
- The description is a string XXX_Y, where 'XXX' is a string indicating
- the probability represented. 'Y' is the iteration, starting at 1.
+ * \copydoc experiment::result_description()
+ * 
+ * The description is a string X_Y, where 'X' is a string indicating
+ * the probability represented. 'Y' is the iteration, starting at 1.
  */
 std::string commsys_prof_burst::result_description(int i) const
    {

@@ -8,47 +8,31 @@
 namespace libbase {
 
 /*!
- \brief   Galois Field Element.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (11-13 Dec 2007)
- - Initial version; implements extensions of the binary field: \f$ GF(2^n) \f$.
- - This is the first class where we're not using the vcs version-printing class.
- - Defined operations: addition and multiplication.
- - Defined conversions: to integer, to string, from integer, from string.
- - Defined stream functions: output, input.
- - Realizations: gf<8,283> Rijndael, gf<2>..gf<10> Lin & Costello
- - Added number of elements in the field as a static function
- - Created initialization routine to convert from integer
- - Moved class-specific documentation here
- - Moved stream I/O functions here
- - Moved string conversion routine from constructor to a new init function
- - Moved non-member arithmetic ops here
-
- \version 1.01 (5 Jan 2008)
- - Implemented subtraction (since this is characteristic 2 only, this performs
- the same operation as addition)
- - Implemented division
-
- \version 1.02 (6 Jan 2008)
- - Replaced constructor from int32u to constructor from int; this avoids a lot
- of needless explicit conversions
- - Replaced internal representation from int32u to int, and replaced conversion
- accordingly
-
- \param   m     Order of the binary field extension; that is, the field will be \f$ GF(2^m) \f$.
- \param   poly  Primitive polynomial used to define the field elements
-
- In integer representations of polynomials (e.g \c poly), higher-order bits in the integer
- represent higher-order powers of the polynomial representation. For example:
- \f[ x^6 + x^4 + x^2 + x^1 + 1 = \{ 01010111 \}_2 = \{ 57 \}_16 = \{ 87 \}_10 \f]
-
- \warning Due to the internal representation, this class is limited to \f$ GF(2^31) \f$.
+ * \brief   Galois Field Element.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Implements extensions of the binary field: \f$ GF(2^n) \f$.
+ * 
+ * Realizations:
+ * - gf<8,283> Rijndael,
+ * - gf<2>..gf<10> Lin & Costello
+ * 
+ * \param   m     Order of the binary field extension; that is, the field will
+ * be \f$ GF(2^m) \f$.
+ * \param   poly  Primitive polynomial used to define the field elements
+ * 
+ * In integer representations of polynomials (e.g \c poly), higher-order bits in
+ * the integer represent higher-order powers of the polynomial representation.
+ * For example:
+ * \f[ x^6 + x^4 + x^2 + x^1 + 1 = \{ 01010111 \}_2 = \{ 57 \}_16 = \{ 87 \}_10 \f]
+ * 
+ * \warning Due to the internal representation, this class is limited to
+ * \f$ GF(2^31) \f$.
  */
 
 template <int m, int poly>

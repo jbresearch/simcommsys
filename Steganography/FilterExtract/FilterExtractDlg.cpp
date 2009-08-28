@@ -132,16 +132,16 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterExtractDlg message handlers
 
-BOOL CFilterExtractDlg::OnInitDialog() 
+BOOL CFilterExtractDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    m_nRawSize = m_pPSPlugIn->GetImageWidth() * m_pPSPlugIn->GetImageHeight() * m_pPSPlugIn->GetPlanes();
    ComputeFileData();
    ComputeCodecData();
    ComputePunctureData();
    UpdateDisplay();
-   
+
    GetDlgItem(IDC_SOURCE)->EnableWindow(m_nSourceType==3);
    GetDlgItem(IDC_CLEAR_SOURCE)->EnableWindow(m_nSourceType==3);
    GetDlgItem(IDC_LOAD_SOURCE)->EnableWindow(m_nSourceType==3);
@@ -157,7 +157,7 @@ BOOL CFilterExtractDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CFilterExtractDlg::OnOK() 
+void CFilterExtractDlg::OnOK()
    {
    UpdateData(true);
    if(m_nSourceType == 3 && m_sSource.IsEmpty())
@@ -175,13 +175,13 @@ void CFilterExtractDlg::OnOK()
       MessageBox("Density must be between 0 and 1.", NULL, MB_OK | MB_ICONWARNING);
       return;
       }
-   
+
    CDialog::OnOK();
    }
 
 // message events
 
-void CFilterExtractDlg::OnChangeEmbedRate() 
+void CFilterExtractDlg::OnChangeEmbedRate()
    {
    m_nEmbedRate = GetDlgItemInt(IDC_EMBED_RATE);
    if(m_nEmbedRate < 1)
@@ -189,7 +189,7 @@ void CFilterExtractDlg::OnChangeEmbedRate()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnChangeInterleaverDensity() 
+void CFilterExtractDlg::OnChangeInterleaverDensity()
    {
    CString sTemp;
    GetDlgItemText(IDC_INTERLEAVER_DENSITY, sTemp);
@@ -197,7 +197,7 @@ void CFilterExtractDlg::OnChangeInterleaverDensity()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnSelchangeSourceType() 
+void CFilterExtractDlg::OnSelchangeSourceType()
    {
    UpdateData(true);
    //m_nSourceType = GetDlgItemInt(IDC_SOURCE_TYPE);
@@ -208,7 +208,7 @@ void CFilterExtractDlg::OnSelchangeSourceType()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnInterleave() 
+void CFilterExtractDlg::OnInterleave()
    {
    m_bInterleave = ((CButton*)GetDlgItem(IDC_INTERLEAVE))->GetCheck();
    GetDlgItem(IDC_INTERLEAVER_DENSITY)->EnableWindow(m_bInterleave);
@@ -216,7 +216,7 @@ void CFilterExtractDlg::OnInterleave()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnPresetStrength() 
+void CFilterExtractDlg::OnPresetStrength()
    {
    m_bPresetStrength = ((CButton*)GetDlgItem(IDC_PRESET_STRENGTH))->GetCheck();
    GetDlgItem(IDC_STRENGTH)->EnableWindow(m_bPresetStrength);
@@ -225,7 +225,7 @@ void CFilterExtractDlg::OnPresetStrength()
 
 // button events
 
-void CFilterExtractDlg::OnComputeStrength() 
+void CFilterExtractDlg::OnComputeStrength()
    {
    CString sTemp;
    CComputeStrengthDlg dlg;
@@ -243,7 +243,7 @@ void CFilterExtractDlg::OnComputeStrength()
       }
    }
 
-void CFilterExtractDlg::OnLoadSource() 
+void CFilterExtractDlg::OnLoadSource()
    {
    CFileDialog dlg(TRUE, NULL, "*.*");
    if(dlg.DoModal() == IDOK)
@@ -255,7 +255,7 @@ void CFilterExtractDlg::OnLoadSource()
       }
    }
 
-void CFilterExtractDlg::OnLoadCodec() 
+void CFilterExtractDlg::OnLoadCodec()
    {
    CFileDialog dlg(TRUE, NULL, "*.*");
    if(dlg.DoModal() == IDOK)
@@ -267,7 +267,7 @@ void CFilterExtractDlg::OnLoadCodec()
       }
    }
 
-void CFilterExtractDlg::OnLoadPuncture() 
+void CFilterExtractDlg::OnLoadPuncture()
    {
    CFileDialog dlg(TRUE, NULL, "*.*");
    if(dlg.DoModal() == IDOK)
@@ -279,7 +279,7 @@ void CFilterExtractDlg::OnLoadPuncture()
       }
    }
 
-void CFilterExtractDlg::OnClearSource() 
+void CFilterExtractDlg::OnClearSource()
    {
    m_sSource = "";
    SetDlgItemText(IDC_SOURCE, m_sSource);
@@ -287,7 +287,7 @@ void CFilterExtractDlg::OnClearSource()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnClearCodec() 
+void CFilterExtractDlg::OnClearCodec()
    {
    m_sCodec = "";
    SetDlgItemText(IDC_CODEC, m_sCodec);
@@ -295,7 +295,7 @@ void CFilterExtractDlg::OnClearCodec()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnClearPuncture() 
+void CFilterExtractDlg::OnClearPuncture()
    {
    m_sPuncture = "";
    SetDlgItemText(IDC_PUNCTURE, m_sPuncture);
@@ -303,7 +303,7 @@ void CFilterExtractDlg::OnClearPuncture()
    UpdateDisplay();
    }
 
-void CFilterExtractDlg::OnSaveResults() 
+void CFilterExtractDlg::OnSaveResults()
    {
    CFileDialog dlg(FALSE, NULL, "results.txt");
    if(dlg.DoModal() == IDOK)
@@ -313,7 +313,7 @@ void CFilterExtractDlg::OnSaveResults()
       }
    }
 
-void CFilterExtractDlg::OnSaveEmbeddedImage() 
+void CFilterExtractDlg::OnSaveEmbeddedImage()
    {
    CFileDialog dlg(FALSE, NULL, "embedded-image.txt");
    if(dlg.DoModal() == IDOK)
@@ -323,7 +323,7 @@ void CFilterExtractDlg::OnSaveEmbeddedImage()
       }
    }
 
-void CFilterExtractDlg::OnSaveExtractedImage() 
+void CFilterExtractDlg::OnSaveExtractedImage()
    {
    CFileDialog dlg(FALSE, NULL, "extracted-image.txt");
    if(dlg.DoModal() == IDOK)
@@ -333,7 +333,7 @@ void CFilterExtractDlg::OnSaveExtractedImage()
       }
    }
 
-void CFilterExtractDlg::OnSaveEmbedded() 
+void CFilterExtractDlg::OnSaveEmbedded()
    {
    CFileDialog dlg(FALSE, NULL, "embedded-sigspace.txt");
    if(dlg.DoModal() == IDOK)
@@ -343,7 +343,7 @@ void CFilterExtractDlg::OnSaveEmbedded()
       }
    }
 
-void CFilterExtractDlg::OnSaveExtracted() 
+void CFilterExtractDlg::OnSaveExtracted()
    {
    CFileDialog dlg(FALSE, NULL, "extracted-sigspace.txt");
    if(dlg.DoModal() == IDOK)
@@ -353,7 +353,7 @@ void CFilterExtractDlg::OnSaveExtracted()
       }
    }
 
-void CFilterExtractDlg::OnSaveDecoded() 
+void CFilterExtractDlg::OnSaveDecoded()
    {
    CFileDialog dlg(FALSE, NULL, "decoded.txt");
    if(dlg.DoModal() == IDOK)
@@ -363,7 +363,7 @@ void CFilterExtractDlg::OnSaveDecoded()
       }
    }
 
-void CFilterExtractDlg::OnSaveUniform() 
+void CFilterExtractDlg::OnSaveUniform()
    {
    CFileDialog dlg(FALSE, NULL, "uniform.txt");
    if(dlg.DoModal() == IDOK)
@@ -373,43 +373,43 @@ void CFilterExtractDlg::OnSaveUniform()
       }
    }
 
-void CFilterExtractDlg::OnClearResults() 
+void CFilterExtractDlg::OnClearResults()
    {
    m_sResults = "";
    SetDlgItemText(IDC_RESULTS, m_sResults);
    }
 
-void CFilterExtractDlg::OnClearEmbeddedImage() 
+void CFilterExtractDlg::OnClearEmbeddedImage()
    {
    m_sEmbeddedImage = "";
    SetDlgItemText(IDC_EMBEDDED_IMAGE, m_sEmbeddedImage);
    }
 
-void CFilterExtractDlg::OnClearExtractedImage() 
+void CFilterExtractDlg::OnClearExtractedImage()
    {
    m_sExtractedImage = "";
    SetDlgItemText(IDC_EXTRACTED_IMAGE, m_sExtractedImage);
    }
 
-void CFilterExtractDlg::OnClearEmbedded() 
+void CFilterExtractDlg::OnClearEmbedded()
    {
    m_sEmbedded = "";
    SetDlgItemText(IDC_EMBEDDED, m_sEmbedded);
    }
 
-void CFilterExtractDlg::OnClearExtracted() 
+void CFilterExtractDlg::OnClearExtracted()
    {
    m_sExtracted = "";
    SetDlgItemText(IDC_EXTRACTED, m_sExtracted);
    }
 
-void CFilterExtractDlg::OnClearDecoded() 
+void CFilterExtractDlg::OnClearDecoded()
    {
    m_sDecoded = "";
    SetDlgItemText(IDC_DECODED, m_sDecoded);
    }
 
-void CFilterExtractDlg::OnClearUniform() 
+void CFilterExtractDlg::OnClearUniform()
    {
    m_sUniform = "";
    SetDlgItemText(IDC_UNIFORM, m_sUniform);

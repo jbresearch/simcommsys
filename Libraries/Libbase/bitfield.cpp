@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "bitfield.h"
@@ -56,14 +56,14 @@ void bitfield::init(const char *s)
 
 
 /*!
- \brief Convert bitfield to a string representation
+ * \brief Convert bitfield to a string representation
  */
-bitfield::operator std::string() const
+std::string bitfield::asstring() const
    {
-   std::string sTemp;
+   std::string s;
    for (int i = bits - 1; i >= 0; i--)
-      sTemp += '0' + ((field >> i) & 1);
-   return sTemp;
+      s += '0' + ((field >> i) & 1);
+   return s;
    }
 
 // Creation and Destruction
@@ -75,7 +75,7 @@ bitfield::bitfield()
    }
 
 /*!
- \brief Constructor to directly convert an integer at a specified width
+ * \brief Constructor to directly convert an integer at a specified width
  */
 bitfield::bitfield(const int32u field, const int bits)
    {
@@ -84,9 +84,13 @@ bitfield::bitfield(const int32u field, const int bits)
    }
 
 /*!
- \brief Constructor that converts a vector of bits
-
- Bits are held in the vector as low-order first.
+ * \brief Constructor that converts a vector of bits
+ * 
+ * Bits are held in the vector as low-order first; this means that the first
+ * (index 0) element in the vector is the right-most (or least-significant) bit.
+ * This convention is consistent with the convention used for bit indexing
+ * using the [] operator, and also with that for converting vectors to integer
+ * representation in fsm.
  */
 bitfield::bitfield(const vector<bool>& v)
    {
@@ -94,7 +98,19 @@ bitfield::bitfield(const vector<bool>& v)
    check_fieldsize(bits);
    field = 0;
    for (int i = 0; i < bits; i++)
-      field |= (v(i) << i);
+      field |= v(i) << i;
+   }
+
+/*!
+ * \brief Convert bitfield to a vector representation
+ * \sa bitfield()
+ */
+vector<bool> bitfield::asvector() const
+   {
+   vector<bool> result(bits);
+   for (int i = 0; i < bits; i++)
+      result(i) = ((field >> i) & 1);
+   return result;
    }
 
 // Resizing Operations
@@ -148,6 +164,16 @@ bitfield bitfield::extract(const int b) const
    return c;
    }
 
+// Bit Reversal
+
+bitfield bitfield::reverse() const
+   {
+   bitfield result(0, 0);
+   for (int i = 0; i < bits; i++)
+      result = result + extract(i);
+   return result;
+   }
+
 // Logic Operations
 
 bitfield& bitfield::operator|=(const bitfield& x)
@@ -173,65 +199,65 @@ bitfield& bitfield::operator^=(const bitfield& x)
 
 // Logic Operations - friends
 
-bitfield operator|(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator|(const bitfield& x) const
    {
-   bitfield c = a;
-   c |= b;
-   return c;
+   bitfield y = *this;
+   y |= x;
+   return y;
    }
 
-bitfield operator&(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator&(const bitfield& x) const
    {
-   bitfield c = a;
-   c &= b;
-   return c;
+   bitfield y = *this;
+   y &= x;
+   return y;
    }
 
-bitfield operator^(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator^(const bitfield& x) const
    {
-   bitfield c = a;
-   c ^= b;
-   return c;
+   bitfield y = *this;
+   y ^= x;
+   return y;
    }
 
-bitfield operator*(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator*(const bitfield& x) const
    {
-   assertalways(a.bits == b.bits);
-   bitfield c;
-   c.bits = 1;
-   int32u x = a.field & b.field;
-   for (int i = 0; i < a.bits; i++)
-      if (x & (1 << i))
-         c.field ^= 1;
-   return c;
+   assertalways(this->bits == x.bits);
+   bitfield y;
+   y.bits = 1;
+   int32u r = this->field & x.field;
+   for (int i = 0; i < this->bits; i++)
+      if (r & (1 << i))
+         y.field ^= 1;
+   return y;
    }
 
 // Barrel-Shifting Operations
 
-bitfield operator+(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator+(const bitfield& x) const
    {
-   bitfield c;
-   c.bits = a.bits + b.bits;
-   c.field = (a.field << b.bits) | b.field;
-   return c;
+   bitfield y;
+   y.bits = this->bits + x.bits;
+   y.field = (this->field << x.bits) | x.field;
+   return y;
    }
 
-bitfield operator<<(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator<<(const bitfield& x) const
    {
-   bitfield c;
-   c.bits = a.bits;
-   c.field = (a.field << b.bits) | b.field;
-   c.field &= c.mask();
-   return c;
+   bitfield y;
+   y.bits = this->bits;
+   y.field = (this->field << x.bits) | x.field;
+   y.field &= y.mask();
+   return y;
    }
 
-bitfield operator>>(const bitfield& a, const bitfield& b)
+bitfield bitfield::operator>>(const bitfield& x) const
    {
-   bitfield c;
-   c.bits = b.bits;
-   c.field = (a.field << (b.bits - a.bits)) | (b.field >> a.bits);
-   c.field &= c.mask();
-   return c;
+   bitfield y;
+   y.bits = x.bits;
+   y.field = (this->field << (x.bits - this->bits)) | (x.field >> this->bits);
+   y.field &= y.mask();
+   return y;
    }
 
 bitfield& bitfield::operator<<=(const int x)
@@ -253,17 +279,17 @@ bitfield& bitfield::operator>>=(const int x)
    return *this;
    }
 
-bitfield operator<<(const bitfield& a, const int b)
+bitfield bitfield::operator<<(const int x) const
    {
-   bitfield c = a;
-   c <<= b;
+   bitfield c = *this;
+   c <<= x;
    return c;
    }
 
-bitfield operator>>(const bitfield& a, const int b)
+bitfield bitfield::operator>>(const int x) const
    {
-   bitfield c = a;
-   c >>= b;
+   bitfield c = *this;
+   c >>= x;
    return c;
    }
 
@@ -271,7 +297,7 @@ bitfield operator>>(const bitfield& a, const int b)
 
 std::ostream& operator<<(std::ostream& s, const bitfield& b)
    {
-   s << std::string(b);
+   s << b.asstring();
    return s;
    }
 
@@ -283,4 +309,5 @@ std::istream& operator>>(std::istream& s, bitfield& b)
    return s;
    }
 
-} // end namespace
+}
+// end namespace

@@ -1,10 +1,10 @@
 /*!
- \file
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "modem.h"

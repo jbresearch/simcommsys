@@ -31,17 +31,17 @@ const std::string std_systemstring = "# simulator\n"
    "### codec\n"
    "turbo<double>\n"
    "1   # format version\n"
-      "#### encoder (fsm)"
+   "#### encoder (fsm)\n"
    "rscc\n"
    "1\t2\n"
    "111\n"
    "101\n"
    "158 # block size (tau)\n"
    "2   # number of sets\n"
-      "#### interleaver 0\n"
+   "#### interleaver 0\n"
    "flat<double>\n"
    "158 # interleaver size\n"
-      "#### interleaver 1\n"
+   "#### interleaver 1\n"
    "helical<double>\n"
    "158 # interleaver size\n"
    "13  # rows\n"
@@ -69,17 +69,17 @@ public:
 };
 
 /*!
- \brief   SPECturbo benchmark
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \note Following the update to bcjr, where the alpha and beta metrics are
- normalized, SPECturbo now uses the double-precision based turbo and
- bcjr algorithms, resulting in more than 6x increase in speed.
+ * \brief   SPECturbo benchmark
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \note Following the update to bcjr, where the alpha and beta metrics are
+ * normalized, SPECturbo now uses the double-precision based turbo and
+ * bcjr algorithms, resulting in more than 6x increase in speed.
  */
 
 int main(int argc, char *argv[])

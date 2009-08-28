@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "montecarlo.h"
@@ -230,9 +230,9 @@ void montecarlo::lookforstate(std::istream& sin)
 // overrideable user-interface functions
 
 /*!
- \brief Default progress display routine.
-
- \note Display updates are rate-limited
+ * \brief Default progress display routine.
+ * 
+ * \note Display updates are rate-limited
  */
 void montecarlo::display(libbase::int64u pass, double cur_accuracy,
       const libbase::vector<double>& result)
@@ -316,7 +316,7 @@ void montecarlo::set_accuracy(double accuracy)
 // main process
 
 /*!
- \brief Compute a single sample and accumulate results
+ * \brief Compute a single sample and accumulate results
  */
 void montecarlo::sampleandaccumulate()
    {
@@ -326,12 +326,12 @@ void montecarlo::sampleandaccumulate()
    }
 
 /*!
- \brief Determine overall estimate from accumulated results
- \param[out] result      Vector containing the set of estimates
- \param[out] tolerance   Corresponding confidence interval as a fraction of estimate
-
- \note If the accuracy cannot be computed yet (there has been no error event), then the
- accuracy reached takes the special largest-double value.
+ * \brief Determine overall estimate from accumulated results
+ * \param[out] result      Vector containing the set of estimates
+ * \param[out] tolerance   Corresponding confidence interval as a fraction of estimate
+ * 
+ * \note If the accuracy cannot be computed yet (there has been no error event), then the
+ * accuracy reached takes the special largest-double value.
  */
 void montecarlo::updateresults(vector<double>& result,
       vector<double>& tolerance) const
@@ -353,12 +353,12 @@ void montecarlo::updateresults(vector<double>& result,
    }
 
 /*!
- \brief Initialize given slave
- \param   s              Slave to be initialized
- \param   systemstring   Serialized system description
-
- Initialize given slave by sending the system being simulated and the
- current simulation parameter.
+ * \brief Initialize given slave
+ * \param   s              Slave to be initialized
+ * \param   systemstring   Serialized system description
+ * 
+ * Initialize given slave by sending the system being simulated and the
+ * current simulation parameter.
  */
 void montecarlo::initslave(slave *s, std::string systemstring)
    {
@@ -374,11 +374,11 @@ void montecarlo::initslave(slave *s, std::string systemstring)
    }
 
 /*!
- \brief Initialize any new slaves
- \param   systemstring   Serialized system description
-
- If there are any slaves in the NEW state, initialize them by sending the system
- being simulated and the current simulation parameters.
+ * \brief Initialize any new slaves
+ * \param   systemstring   Serialized system description
+ * 
+ * If there are any slaves in the NEW state, initialize them by sending the system
+ * being simulated and the current simulation parameters.
  */
 void montecarlo::initnewslaves(std::string systemstring)
    {
@@ -391,16 +391,16 @@ void montecarlo::initnewslaves(std::string systemstring)
    }
 
 /*!
- \brief Get idle slaves to work if we're not yet done
- \param   converged  True if results have already converged
-
- If there are any slaves in the IDLE state, ask them to start working. We ask *all* IDLE
- slaves to work, as long as the results have not yet converged. Therefore, this happens
- when the target accuracy is not yet reached or if the number of samples gathered is not
- yet enough. This necessarily causes extraneous results to be computed; these will then
- be discarded during the next turn. This method avoids the master hanging up waiting for
- results from slaves that will never come (happens if the machine is locked up but the
- TCP/IP stack is still running).
+ * \brief Get idle slaves to work if we're not yet done
+ * \param   converged  True if results have already converged
+ * 
+ * If there are any slaves in the IDLE state, ask them to start working. We ask *all* IDLE
+ * slaves to work, as long as the results have not yet converged. Therefore, this happens
+ * when the target accuracy is not yet reached or if the number of samples gathered is not
+ * yet enough. This necessarily causes extraneous results to be computed; these will then
+ * be discarded during the next turn. This method avoids the master hanging up waiting for
+ * results from slaves that will never come (happens if the machine is locked up but the
+ * TCP/IP stack is still running).
  */
 void montecarlo::workidleslaves(bool converged)
    {
@@ -415,15 +415,15 @@ void montecarlo::workidleslaves(bool converged)
    }
 
 /*!
- \brief Read and accumulate results from any pending slaves
- \return  True if any new results have been added, false otherwise
-
- If there are any slaves in the EVENT_PENDING state, read their results. Values
- returned are accumulated into the running totals.
-
- If any slave returns a result that does not correspond to the same system
- or parameter that are now being simulated, this is discarded and the slave
- is marked as 'new'.
+ * \brief Read and accumulate results from any pending slaves
+ * \return  True if any new results have been added, false otherwise
+ * 
+ * If there are any slaves in the EVENT_PENDING state, read their results. Values
+ * returned are accumulated into the running totals.
+ * 
+ * If any slave returns a result that does not correspond to the same system
+ * or parameter that are now being simulated, this is discarded and the slave
+ * is marked as 'new'.
  */
 bool montecarlo::readpendingslaves()
    {
@@ -465,10 +465,10 @@ bool montecarlo::readpendingslaves()
 // Main process
 
 /*!
- \brief Simulate the system until convergence to given accuracy & confidence,
- and return estimated results
- \param[out] result      Vector of results
- \param[out] tolerance   Vector of corresponding result accuracy (at given confidence level)
+ * \brief Simulate the system until convergence to given accuracy & confidence,
+ * and return estimated results
+ * \param[out] result      Vector of results
+ * \param[out] tolerance   Vector of corresponding result accuracy (at given confidence level)
  */
 void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    {

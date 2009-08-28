@@ -10,15 +10,15 @@
 namespace libcomm {
 
 /*!
- \brief   Uniform Interleaver.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \note This interleaver allows JPL termination.
+ * \brief   Uniform Interleaver.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \note This interleaver allows JPL termination.
  */
 
 template <class real>

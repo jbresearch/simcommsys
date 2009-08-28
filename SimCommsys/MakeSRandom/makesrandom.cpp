@@ -12,8 +12,8 @@
 namespace makesrandom {
 
 /*!
- \brief Vector-type container for S-Random interleaver creation
- This vector container has the following addional abilities:
+ * \brief Vector-type container for S-Random interleaver creation
+ * This vector container has the following addional abilities:
  * removing an element from the middle
  * initializing with numerical sequence
  */
@@ -154,13 +154,13 @@ void serialize_interleaver(std::ostream& sout, libbase::vector<int> lut,
    }
 
 /*!
- \brief   S-Random Interleaver Creator
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   S-Random Interleaver Creator
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

@@ -185,13 +185,13 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k,
    }
 
 /*!
- \brief   Test program for DM inner decoder
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Test program for DM inner decoder
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

@@ -49,13 +49,13 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
    }
 
 /*!
- \brief   Communication Systems Decoder
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Communication Systems Decoder
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

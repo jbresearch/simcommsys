@@ -10,14 +10,14 @@
 namespace libcomm {
 
 /*!
- \brief   Barrel-Shifting LUT Interleaver.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
+ * \brief   Barrel-Shifting LUT Interleaver.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
  */
 
 template <class real>

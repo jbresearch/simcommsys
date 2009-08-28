@@ -11,15 +11,15 @@
 namespace libcomm {
 
 /*!
- \brief   Common Modulator Interface.
- \author  Johann Briffa
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
-
- Class defines common interface for modem classes.
+ * \brief   Common Modulator Interface.
+ * \author  Johann Briffa
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Class defines common interface for modem classes.
  */
 
 template <class S>
@@ -34,15 +34,15 @@ public:
 
    /*! \name Atomic modem operations */
    /*!
-    \brief Modulate a single time-step
-    \param   index Index into the symbol alphabet
-    \return  Symbol corresponding to the given index
+    * \brief Modulate a single time-step
+    * \param   index Index into the symbol alphabet
+    * \return  Symbol corresponding to the given index
     */
    virtual const S modulate(const int index) const = 0;
    /*!
-    \brief Demodulate a single time-step
-    \param   signal   Received signal
-    \return  Index corresponding symbol that is closest to the received signal
+    * \brief Demodulate a single time-step
+    * \param   signal   Received signal
+    * \return  Index corresponding symbol that is closest to the received signal
     */
    virtual const int demodulate(const S& signal) const = 0;
    /*! \copydoc modulate() */
@@ -76,13 +76,13 @@ public:
 };
 
 /*!
- \brief   Modulator Base.
- \author  Johann Briffa
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Modulator Base.
+ * \author  Johann Briffa
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class S>
@@ -92,13 +92,13 @@ DECLARE_BASE_SERIALIZER(modem)
 };
 
 /*!
- \brief   Signal-Space Modulator Specialization.
- \author  Johann Briffa
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Signal-Space Modulator Specialization.
+ * \author  Johann Briffa
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <>
@@ -124,20 +124,20 @@ DECLARE_BASE_SERIALIZER(modem)
 };
 
 /*!
- \brief   Q-ary Modulator Implementation.
- \author  Johann Briffa
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
-
- Specific implementation of q-ary channel modulation.
-
- \note Template argument class must provide a method elements() that returns
- the field size.
-
- \todo Merge modulate and demodulate between this function and lut_modulator (?)
+ * \brief   Q-ary Modulator Implementation.
+ * \author  Johann Briffa
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Specific implementation of q-ary channel modulation.
+ * 
+ * \note Template argument class must provide a method elements() that returns
+ * the field size.
+ * 
+ * \todo Merge modulate and demodulate between this function and lut_modulator (?)
  */
 
 template <class G>
@@ -165,15 +165,15 @@ public:
 };
 
 /*!
- \brief   Binary Modulator Implementation Specialization.
- \author  Johann Briffa
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
-
- Specific implementation of binary channel modulation.
+ * \brief   Binary Modulator Implementation Specialization.
+ * \author  Johann Briffa
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Specific implementation of binary channel modulation.
  */
 
 template <>
@@ -201,13 +201,13 @@ public:
 };
 
 /*!
- \brief   Direct Modulator Implementation.
- \author  Johann Briffa
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Direct Modulator Implementation.
+ * \author  Johann Briffa
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class G>

@@ -67,10 +67,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterATMDlg message handlers
 
-BOOL CFilterATMDlg::OnInitDialog() 
+BOOL CFilterATMDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // set region (cf OnChangeRadius)
    CString sTemp;
    sTemp.Format(" Region: %dx%d", 2*m_nRadius+1, 2*m_nRadius+1);
@@ -82,7 +82,7 @@ BOOL CFilterATMDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CFilterATMDlg::OnChangeRadius() 
+void CFilterATMDlg::OnChangeRadius()
    {
    m_nRadius = GetDlgItemInt(IDC_RADIUS);
    CString sTemp;
@@ -93,7 +93,7 @@ void CFilterATMDlg::OnChangeRadius()
    m_scSlider.RedrawWindow();
    }
 
-void CFilterATMDlg::OnChangeAlpha() 
+void CFilterATMDlg::OnChangeAlpha()
    {
    m_nAlpha = GetDlgItemInt(IDC_ALPHA);
    if(m_scSlider.GetPos() != m_nAlpha)
@@ -103,7 +103,7 @@ void CFilterATMDlg::OnChangeAlpha()
       }
    }
 
-void CFilterATMDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult) 
+void CFilterATMDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult)
    {
    if(m_scSlider.GetPos() != m_nAlpha && m_scSlider.GetRangeMax() >= m_nAlpha)
       SetDlgItemInt(IDC_ALPHA, m_scSlider.GetPos());

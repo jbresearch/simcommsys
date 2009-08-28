@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "symbol.h"
@@ -14,8 +14,8 @@ namespace libcomm {
 // Internal functions
 
 /*!
- \brief Initialization
- \param   value Integer representation of element
+ * \brief Initialization
+ * \param   value Integer representation of element
  */
 template <int q>
 void finite_symbol<q>::init(int value)

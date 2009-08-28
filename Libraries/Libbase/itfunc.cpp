@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "itfunc.h"
@@ -117,10 +117,10 @@ double gammp(double a, double x)
    }
 
 /*! \brief Error function based on Chebychev fitting
- \sa Numerical Recipes in C, p.220
- Based on Chebychev fitting to an inspired guess as to the functional form.
- \note fractional error is everywhere less than 1.2E-7
- erf(x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt
+ * \sa Numerical Recipes in C, p.220
+ * Based on Chebychev fitting to an inspired guess as to the functional form.
+ * \note fractional error is everywhere less than 1.2E-7
+ * erf(x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt
  */
 double cerf(double x)
    {
@@ -134,10 +134,10 @@ double cerf(double x)
    }
 
 /*! \brief Complementary Error function based on Chebychev fitting
- \sa Numerical Recipes in C, p.220
- Based on Chebychev fitting to an inspired guess as to the functional form.
- \note fractional error is everywhere less than 1.2E-7
- erfc(x) = 1-erf(x) = 2/sqrt(pi) * integral from x to inf of exp(-t^2) dt
+ * \sa Numerical Recipes in C, p.220
+ * Based on Chebychev fitting to an inspired guess as to the functional form.
+ * \note fractional error is everywhere less than 1.2E-7
+ * erfc(x) = 1-erf(x) = 2/sqrt(pi) * integral from x to inf of exp(-t^2) dt
  */
 double cerfc(double x)
    {
@@ -175,7 +175,7 @@ int32u igray(int32u n)
    }
 
 /*! \brief Greatest common divisor
- GCD function based on Euclid's algorithm.
+ * GCD function based on Euclid's algorithm.
  */
 int gcd(int a, int b)
    {

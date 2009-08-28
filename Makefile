@@ -63,6 +63,7 @@ export LIBS = $(foreach name,$(LDlibusr:-l%=%),$(ROOTDIR)/Libraries/Lib$(name)/$
 export LIBflags := ru
 
 # Define the names for commands
+export MAKE := $(MAKE) --no-print-directory
 export MKDIR := mkdir -p
 export RM := rm -rf
 export CP := cp

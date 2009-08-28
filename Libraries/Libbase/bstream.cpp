@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "bstream.h"
@@ -24,7 +24,7 @@ obstream& obstream::operator<<(const bitfield& b)
    while (left)
       {
       int cur = std::min(left, 32 - ptr);
-      buffer = pending.extract(cur - 1, 0) >> buffer;
+      buffer = pending(cur - 1, 0) >> buffer;
       pending >>= cur;
       ptr += cur;
       if (ptr == 32)
@@ -44,7 +44,7 @@ ibstream& ibstream::operator>>(bitfield& b)
       if (ptr > 0)
          {
          int cur = std::min(ptr, left);
-         b = buffer.extract(cur - 1, 0) >> b;
+         b = buffer(cur - 1, 0) >> b;
          buffer >>= cur;
          ptr -= cur;
          left -= cur;

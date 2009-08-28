@@ -14,51 +14,53 @@
 namespace libcomm {
 
 /*!
- \brief   Turbo decoding algorithm.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- All internal metrics are held as type 'real', which is user-defined. This
- allows internal working at any required level of accuracy. This is necessary
- because the internal matrics have a very wide dynamic range, which increases
- exponentially with block size 'tau'. Actually, the required range is within
- [1,0), but very large exponents are required. (For BCJR sub-component)
-
- \note Memory is allocaed only on first call to demodulate/decode. This
- reduces memory requirements in cases where classes are instantiated
- but not actually used for decoding (e.g. in master node on a
- distributed Monte Carlo simulation)
-
- \note Since puncturing is not handled within the codec, for the moment, the
- modification for stipple puncturing with simile interleavers is not
- performed.
-
- \note The template class 'dbl', which defaults to 'double', defines the
- numerical representation for inter-iteration statistics. This became
- necessary for the parallel decoding structure, where the range of
- extrinsic information is much larger than for serial decoding;
- furthermore, this range increases with the number of iterations
- performed.
-
- \note Serialization is versioned; for compatibility, earlier versions are
- interpreted as v.0; a flat interleaver is automatically used for the
- first encoder in these cases.
-
- \todo Fix terminated sequence encoding (currently this implicitly assumes
- a flat first interleaver)
-
- \todo Standardize encoding/decoding of multiple symbols within a larger
- symbol space; this parallels what was done in ccfsm.
-
- \todo Remove redundant result vector initializations (these should happen
- on the first call to a function where that vector is used as an
- output).
-
- \todo Split serial and parallel decoding into separate classes.
+ * \brief   Turbo decoding algorithm.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * All internal metrics are held as type 'real', which is user-defined. This
+ * allows internal working at any required level of accuracy. This is necessary
+ * because the internal matrics have a very wide dynamic range, which increases
+ * exponentially with block size 'tau'. Actually, the required range is within
+ * [1,0), but very large exponents are required. (For BCJR sub-component)
+ * 
+ * \note Memory is allocaed only on first call to demodulate/decode. This
+ * reduces memory requirements in cases where classes are instantiated
+ * but not actually used for decoding (e.g. in master node on a
+ * distributed Monte Carlo simulation)
+ * 
+ * \note Since puncturing is not handled within the codec, for the moment, the
+ * modification for stipple puncturing with simile interleavers is not
+ * performed.
+ * 
+ * \note The template class 'dbl', which defaults to 'double', defines the
+ * numerical representation for inter-iteration statistics. This became
+ * necessary for the parallel decoding structure, where the range of
+ * extrinsic information is much larger than for serial decoding;
+ * furthermore, this range increases with the number of iterations
+ * performed.
+ * 
+ * \note Serialization is versioned; for compatibility, earlier versions are
+ * interpreted as v.0; a flat interleaver is automatically used for the
+ * first encoder in these cases.
+ * 
+ * \todo Fix terminated sequence encoding (currently this implicitly assumes
+ * a flat first interleaver)
+ * 
+ * \todo Standardize encoding/decoding of multiple symbols within a larger
+ * symbol space; this parallels what was done in ccfsm.
+ * 
+ * \todo Remove redundant result vector initializations (these should happen
+ * on the first call to a function where that vector is used as an
+ * output).
+ * 
+ * \todo Split serial and parallel decoding into separate classes.
+ *
+ * \todo Update decoding process for changes in FSM model.
  */
 
 template <class real, class dbl = double>
@@ -111,6 +113,53 @@ protected:
    void free();
    void reset();
    // @}
+   /*! \name Codec information functions - internal */
+   //! Number of parallel concatenations
+   int num_sets() const
+      {
+      return inter.size();
+      }
+   //! Size of the interleavers (includes input + tail)
+   int inter_size() const
+      {
+      assertalways(inter.size() > 0);
+      assertalways(inter(0));
+      return inter(0)->size();
+      }
+   //! Number of encoder input symbols / timestep
+   int enc_inputs() const
+      {
+      assert(encoder);
+      return encoder->num_inputs();
+      }
+   //! Number of encoder output symbols / timestep
+   int enc_outputs() const
+      {
+      assert(encoder);
+      return encoder->num_outputs();
+      }
+   //! Number of encoder parity symbols / timestep
+   int enc_parity() const
+      {
+      return enc_outputs() - enc_inputs();
+      }
+   //! Number of encoder timesteps per block
+   int num_timesteps() const
+      {
+      const int N = inter_size();
+      assert(encoder);
+      const int k = enc_inputs();
+      const int tau = N / k;
+      assert(N == tau * k);
+      return tau;
+      }
+   //! Number of encoder states
+   int enc_states() const
+      {
+      assert(encoder);
+      return encoder->num_states();
+      }
+   // @}
    // Internal codec operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
@@ -139,56 +188,43 @@ public:
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> input_block_size() const
       {
-      const int tau = This::output_block_size();
+      const int tau = num_timesteps();
       const int nu = This::tail_length();
-      return libbase::size_type<libbase::vector>(tau - nu);
+      const int k = enc_inputs();
+      return libbase::size_type<libbase::vector>(k * (tau - nu));
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      assertalways(inter.size() > 0);
-      assertalways(inter(0));
-      const int tau = inter(0)->size();
-      return libbase::size_type<libbase::vector>(tau);
+      const int tau = num_timesteps();
+      const int k = enc_inputs();
+      const int p = enc_parity();
+      const int sets = num_sets();
+      return libbase::size_type<libbase::vector>(tau * (k + p * sets));
       }
    int num_inputs() const
       {
-      return encoder->num_inputs();
+      assert(encoder);
+      return encoder->num_symbols();
       }
    int num_outputs() const
       {
-      return int(num_inputs() * pow(enc_parity(), num_sets()));
+      assert(encoder);
+      return encoder->num_symbols();
       }
    int num_symbols() const
       {
-      return libbase::gcd(num_inputs(), enc_parity());
+      assert(encoder);
+      return encoder->num_symbols();
       }
    int tail_length() const
       {
+      assert(encoder);
       return endatzero ? encoder->mem_order() : 0;
       }
    int num_iter() const
       {
       return iter;
       }
-
-   /*! \name Codec information functions - internal */
-   int num_sets() const
-      {
-      return inter.size();
-      }
-   int enc_states() const
-      {
-      return encoder->num_states();
-      }
-   int enc_outputs() const
-      {
-      return encoder->num_outputs();
-      }
-   int enc_parity() const
-      {
-      return enc_outputs() / num_inputs();
-      }
-   // @}
 
    // Description
    std::string description() const;

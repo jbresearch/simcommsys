@@ -6,13 +6,13 @@
 namespace libcomm {
 
 /*!
- \brief   LUT Modulator.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   LUT Modulator.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 class lut_modulator : public blockmodem<sigspace> {

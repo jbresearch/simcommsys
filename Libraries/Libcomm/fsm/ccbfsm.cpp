@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "ccbfsm.h"
@@ -17,15 +17,15 @@ using libbase::bitfield;
 
 // initialization
 
-void ccbfsm::init(const libbase::matrix<bitfield>& generator)
+void ccbfsm::init()
    {
    // copy automatically what we can
-   gen = generator;
    k = gen.size().rows();
    n = gen.size().cols();
    // set default value to the rest
    m = 0;
-   // check that the generator matrix is valid (correct sizes) and create shift registers
+   // check that the generator matrix is valid (correct sizes) and
+   // create shift registers
    reg.init(k);
    nu = 0;
    for (int i = 0; i < k; i++)
@@ -36,12 +36,7 @@ void ccbfsm::init(const libbase::matrix<bitfield>& generator)
       nu += m;
       // check that the gen. seq. for all outputs are the same length
       for (int j = 1; j < n; j++)
-         if (gen(i, j).size() != m + 1)
-            {
-            std::cerr
-                  << "FATAL ERROR (ccbfsm): Generator sequence must have constant width for each input bit.\n";
-            exit(1);
-            }
+         assertalways(gen(i, j).size() == m + 1);
       // update memory order
       if (m > ccbfsm::m)
          ccbfsm::m = m;
@@ -52,77 +47,67 @@ void ccbfsm::init(const libbase::matrix<bitfield>& generator)
 
 ccbfsm::ccbfsm(const libbase::matrix<bitfield>& generator)
    {
-   init(generator);
-   }
-
-ccbfsm::ccbfsm(const ccbfsm& x)
-   {
-   // copy automatically what we can
-   k = x.k;
-   n = x.n;
-   nu = x.nu;
-   m = x.m;
-   gen = x.gen;
-   reg = x.reg;
+   gen = generator;
+   init();
    }
 
 // FSM state operations (getting and resetting)
 
-int ccbfsm::state() const
+libbase::vector<int> ccbfsm::state() const
    {
-   bitfield newstate;
-   newstate.resize(0);
-   for (int i = 0; i < k; i++)
-      {
-      newstate = reg(i) + newstate;
-      }
-   return newstate;
+   libbase::vector<int> state(nu);
+   int j = 0;
+   for (int t = 0; t < nu; t++)
+      for (int i = 0; i < k; i++)
+         if (reg(i).size() > t)
+            state(j++) = reg(i)(t);
+   assert(j == nu);
+   return state;
    }
 
-void ccbfsm::reset(int state)
+void ccbfsm::reset()
+   {
+   fsm::reset();
+   reg = 0;
+   }
+
+void ccbfsm::reset(libbase::vector<int> state)
    {
    fsm::reset(state);
-   bitfield newstate;
-   newstate.resize(nu);
-   newstate = state;
-   for (int i = 0; i < k; i++)
-      {
-      int size = reg(i).size();
-      // check for case where no memory is associated with the input bit
-      if (size > 0)
-         {
-         reg(i) = newstate.extract(size - 1, 0);
-         newstate >>= size;
-         }
-      }
+   assert(state.size() == nu);
+   reg = 0;
+   int j = 0;
+   for (int t = 0; t < nu; t++)
+      for (int i = 0; i < k; i++)
+         if (reg(i).size() > t)
+            reg(i) |= bitfield(state(j++) << t, reg(i).size());
+   assert(j == nu);
    }
 
 // FSM operations (advance/output/step)
 
-void ccbfsm::advance(int& input)
+void ccbfsm::advance(libbase::vector<int>& input)
    {
    fsm::advance(input);
-   bitfield ip = determineinput(input);
-   bitfield sin = determinefeedin(ip);
-   // Update input
-   input = ip;
+   input = determineinput(input);
+   bitfield sin = determinefeedin(input);
    // Compute next state
    for (int i = 0; i < k; i++)
-      reg(i) = sin[i] >> reg(i);
+      reg(i) = reg(i) << sin(i);
    }
 
-int ccbfsm::output(int input) const
+libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
    {
-   bitfield ip = determineinput(input);
-   bitfield sin = determinefeedin(ip);
+   input = determineinput(input);
+   bitfield sin = determinefeedin(input);
    // Compute output
-   bitfield op(0, 0);
+   libbase::vector<int> op(n);
    for (int j = 0; j < n; j++)
       {
       bitfield thisop(0, 1);
       for (int i = 0; i < k; i++)
-         thisop ^= (sin[i] + reg(i)) * gen(i, j);
-      op = thisop + op;
+         thisop ^= (reg(i) + sin(i)) * gen(i, j);
+      op(j) = thisop;
       }
    return op;
    }
@@ -150,7 +135,7 @@ std::ostream& ccbfsm::serialize(std::ostream& sout) const
 std::istream& ccbfsm::serialize(std::istream& sin)
    {
    sin >> libbase::eatcomments >> gen;
-   init(gen);
+   init();
    return sin;
    }
 

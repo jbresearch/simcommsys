@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "rscc.h"
@@ -19,36 +19,33 @@ const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
 // FSM state operations (getting and resetting)
 
-void rscc::resetcircular(int zerostate, int n)
+void rscc::resetcircular(libbase::vector<int> zerostate, int n)
    {
    failwith("Function not implemented.");
    }
 
 // FSM helper operations
 
-bitfield rscc::determineinput(const int input) const
+libbase::vector<int> rscc::determineinput(libbase::vector<int> input) const
    {
-   bitfield ip;
-   if (input != fsm::tail)
-      {
-      ip.resize(k);
-      ip = input;
-      }
-   else // Handle tailing out
-      {
-      ip.resize(0);
-      for (int i = 0; i < k; i++)
-         ip = ((bitfield(0, 1) + reg(i)) * gen(i, i)) + ip;
-      }
-   return ip;
+   assert(input.size() == k);
+   // replace 'tail' inputs with required value
+   for (int i = 0; i < k; i++)
+      if (input(i) == fsm::tail)
+         input(i) = (reg(i) + bitfield(0, 1)) * gen(i, i);
+   return input;
    }
 
-bitfield rscc::determinefeedin(const int input) const
+bitfield rscc::determinefeedin(libbase::vector<int> input) const
    {
-   assert(input != fsm::tail);
-   bitfield sin(0, 0), ip(input, k);
+   assert(input.size() == k);
+   // check we have no 'tail' inputs
    for (int i = 0; i < k; i++)
-      sin = ((ip[i] + reg(i)) * gen(i, i)) + sin;
+      assert(input(i) != fsm::tail);
+   // compute input junction
+   bitfield sin(0, 0), ip = bitfield(libbase::vector<bool>(input));
+   for (int i = 0; i < k; i++)
+      sin = ((reg(i) + ip(i)) * gen(i, i)) + sin;
    return sin;
    }
 

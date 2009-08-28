@@ -38,13 +38,13 @@ void seed_experiment(libcomm::experiment *system)
    }
 
 /*!
- \brief   Error Event Analysis for Experiments
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Error Event Analysis for Experiments
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 int main(int argc, char *argv[])

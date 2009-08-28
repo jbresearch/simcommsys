@@ -10,13 +10,13 @@
 namespace libbase {
 
 /*!
- \brief   Bitfield (register of a set size).
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Bitfield (register of a set size).
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 class bitfield {
@@ -29,21 +29,28 @@ private:
    void check_range(int32u f) const;
    static void check_fieldsize(int b);
    void init(const char *s);
+   // Partial extraction and indexed access
+   bitfield extract(const int hi, const int lo) const;
+   bitfield extract(const int b) const;
 public:
+   /*! \name Constructors / Destructors */
    bitfield();
-   bitfield(const char *s)
+   explicit bitfield(const char *s)
       {
       init(s);
       }
    bitfield(const int32u field, const int bits);
    explicit bitfield(const vector<bool>& v);
+   // @}
 
-   // Type conversion to integer/string
+   /*! \name Type conversion */
    operator int32u() const
       {
       return field;
       }
-   operator std::string() const;
+   std::string asstring() const;
+   vector<bool> asvector() const;
+   // @}
 
    // Field size methods
    int size() const
@@ -58,31 +65,36 @@ public:
    bitfield& operator=(const int32u x);
 
    // Partial extraction and indexed access
-   bitfield extract(const int hi, const int lo) const;
-   bitfield extract(const int b) const;
-   bitfield operator[](const int b) const
+   bitfield operator()(const int hi, const int lo) const
+      {
+      return extract(hi, lo);
+      }
+   bitfield operator()(const int b) const
       {
       return extract(b);
       }
 
+   // Bit-reversal method
+   bitfield reverse() const;
+
    // Logical operators - OR, AND, XOR
-   friend bitfield operator|(const bitfield& a, const bitfield& b);
-   friend bitfield operator&(const bitfield& a, const bitfield& b);
-   friend bitfield operator^(const bitfield& a, const bitfield& b);
+   bitfield operator|(const bitfield& x) const;
+   bitfield operator&(const bitfield& x) const;
+   bitfield operator^(const bitfield& x) const;
    bitfield& operator|=(const bitfield& x);
    bitfield& operator&=(const bitfield& x);
    bitfield& operator^=(const bitfield& x);
 
    // Convolution operator
-   friend bitfield operator*(const bitfield& a, const bitfield& b);
+   bitfield operator*(const bitfield& x) const;
    // Concatenation operator
-   friend bitfield operator+(const bitfield& a, const bitfield& b);
+   bitfield operator+(const bitfield& x) const;
    // Shift-register operators - sequence shift-in
-   friend bitfield operator<<(const bitfield& a, const bitfield& b);
-   friend bitfield operator>>(const bitfield& a, const bitfield& b);
+   bitfield operator<<(const bitfield& x) const;
+   bitfield operator>>(const bitfield& x) const;
    // Shift-register operators - zero shift-in
-   friend bitfield operator<<(const bitfield& a, const int b);
-   friend bitfield operator>>(const bitfield& a, const int b);
+   bitfield operator<<(const int x) const;
+   bitfield operator>>(const int x) const;
    bitfield& operator<<=(const int x);
    bitfield& operator>>=(const int x);
 

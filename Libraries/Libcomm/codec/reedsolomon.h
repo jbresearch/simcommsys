@@ -52,38 +52,38 @@ public:
    void seedfrom(libbase::random& r);
 
    /*!
-    \brief Encoding process
-    \param[in] source Sequence of source symbols, one per timestep
-    \param[out] encoded Sequence of output (encoded) symbols, one per timestep
-
-    \note If the input or output symbols at every timestep represent the
-    aggregation of a set of symbols, the combination/division has to
-    be done externally.
+    * \brief Encoding process
+    * \param[in] source Sequence of source symbols, one per timestep
+    * \param[out] encoded Sequence of output (encoded) symbols, one per timestep
+    * 
+    * \note If the input or output symbols at every timestep represent the
+    * aggregation of a set of symbols, the combination/division has to
+    * be done externally.
     */
    void encode(const array1i_t& source, array1i_t& encoded);
    /*!
-    \brief Receiver translation process
-    \param[in] ptable Likelihoods of each possible modulation symbol at every
-    (modulation) timestep
-
-    This function computes the necessary probability tables for the codec
-    from the probabilities of each modulation symbol as received from the
-    channel. This function should be called before the first decode iteration
-    for each block.
-
-    \note The number of possible modulation symbols does not necessarily
-    correspond to the number of encoder output symbols, and therefore
-    the number of modulation timesteps may be different from tau.
+    * \brief Receiver translation process
+    * \param[in] ptable Likelihoods of each possible modulation symbol at every
+    * (modulation) timestep
+    * 
+    * This function computes the necessary probability tables for the codec
+    * from the probabilities of each modulation symbol as received from the
+    * channel. This function should be called before the first decode iteration
+    * for each block.
+    * 
+    * \note The number of possible modulation symbols does not necessarily
+    * correspond to the number of encoder output symbols, and therefore
+    * the number of modulation timesteps may be different from tau.
     */
    void init_decoder(const array1vd_t& ptable);
    /*!
-    \brief Decoding process
-    \param[out] decoded Most likely sequence of information symbols, one per timestep
-
-    \note Observe that this output necessarily constitutes a hard decision.
-
-    \note Each call to decode will perform a single iteration (with respect
-    to num_iter).
+    * \brief Decoding process
+    * \param[out] decoded Most likely sequence of information symbols, one per timestep
+    * 
+    * \note Observe that this output necessarily constitutes a hard decision.
+    * 
+    * \note Each call to decode will perform a single iteration (with respect
+    * to num_iter).
     */
    void decode(array1i_t& decoded);
    // @}

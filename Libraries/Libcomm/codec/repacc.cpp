@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "repacc.h"
@@ -121,12 +121,12 @@ void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
    }
 
 /*! \copydoc codec_softout::setreceiver()
-
- Sets: ra, R
-
- \note The BCJR normalization method is used to normalize the channel-derived
- (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
- probabilities are now created normalized.
+ * 
+ * Sets: ra, R
+ * 
+ * \note The BCJR normalization method is used to normalize the channel-derived
+ * (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
+ * probabilities are now created normalized.
  */
 template <class real, class dbl>
 void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
@@ -168,11 +168,16 @@ template <class real, class dbl>
 void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
+   // Inherit sizes
+   const int k = acc->num_inputs();
+   const int n = acc->num_outputs();
+   const int tau = acc_timesteps();
+
    // Compute repeater output
    array1i_t rep0;
    rep.encode(source, rep0);
    // Copy and add any necessary tail
-   array1i_t rep1(This::output_block_size());
+   array1i_t rep1(tau * k);
    rep1.copyfrom(rep0);
    for (int i = rep0.size(); i < rep1.size(); i++)
       rep1(i) = fsm::tail;
@@ -184,23 +189,26 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Initialise result vector
    encoded.init(This::output_block_size());
    // Reset the encoder to zero state
-   acc->reset(0);
+   acc->reset();
    // Encode sequence
-   for (int i = 0; i < This::output_block_size(); i++)
-      encoded(i) = acc->step(rep2(i)) / This::num_inputs();
+   for (int i = 0; i < tau; i++)
+      {
+      array1i_t ip = rep2.segment(i * k, k);
+      encoded.segment(i * n, n) = acc->step(ip).extract(k, n - k);
+      }
    // check that encoder finishes correctly
    if (endatzero)
-      assertalways(acc->state() == 0);
+      assertalways(fsm::convert(acc->state(), acc->num_symbols()) == 0);
    }
 
 /*! \copydoc codec_softout::softdecode()
-
- \note Implements soft-decision decoding according to Alexandre's
- interpretation:
- - when computing final output at repetition code, use only extrinsic
- information from accumulator
- - when computing extrinsic output at rep code, factor out the input
- information at that position
+ * 
+ * \note Implements soft-decision decoding according to Alexandre's
+ * interpretation:
+ * - when computing final output at repetition code, use only extrinsic
+ * information from accumulator
+ * - when computing extrinsic output at rep code, factor out the input
+ * information at that position
  */
 template <class real, class dbl>
 void repacc<real, dbl>::softdecode(array1vd_t& ri)

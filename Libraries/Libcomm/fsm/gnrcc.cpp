@@ -1,12 +1,12 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \see grscc.cpp
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \see grscc.cpp
  */
 
 #include "gnrcc.h"
@@ -21,27 +21,27 @@ using libbase::matrix;
 // FSM helper operations
 
 template <class G>
-int gnrcc<G>::determineinput(int input) const
+vector<int> gnrcc<G>::determineinput(vector<int> input) const
    {
-   if (input != fsm::tail)
-      return input;
-   return 0;
+   for (int i = 0; i < input.size(); i++)
+      if (input(i) == fsm::tail)
+         input(i) = 0;
+   return input;
    }
 
 template <class G>
-vector<G> gnrcc<G>::determinefeedin(int input) const
+vector<G> gnrcc<G>::determinefeedin(vector<int> input) const
    {
-   assert(input != fsm::tail);
-   // Convert input to vector representation
-   vector<G> ip(this->k);
-   convert(input, ip);
-   return ip;
+   for (int i = 0; i < input.size(); i++)
+      assert(input(i) != fsm::tail);
+   // Convert input to vector of required type
+   return vector<G>(input);
    }
 
 // FSM state operations (getting and resetting)
 
 template <class G>
-void gnrcc<G>::resetcircular(int zerostate, int n)
+void gnrcc<G>::resetcircular(vector<int> zerostate, int n)
    {
    failwith("Function not implemented.");
    }

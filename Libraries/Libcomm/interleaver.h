@@ -14,15 +14,13 @@
 namespace libcomm {
 
 /*!
- \brief   Interleaver Base.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \todo Add size getter
+ * \brief   Interleaver Base.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class real>
@@ -47,27 +45,27 @@ public:
 
    /*! \name Transform Functions */
    /*!
-    \brief Forward transform
-    \param[in] in Source sequence
-    \param[out] out Interleaved sequence
-    \note 'in' and 'out' cannot be the same.
+    * \brief Forward transform
+    * \param[in] in Source sequence
+    * \param[out] out Interleaved sequence
+    * \note 'in' and 'out' cannot be the same.
     */
    virtual void transform(const libbase::vector<int>& in,
          libbase::vector<int>& out) const = 0;
    /*!
-    \brief Forward transform
-    \param[in] in Matrix representing the likelihoods of each possible symbol
-    \param[out] out Matrix with likelihoods of interleaved sequence
-    \note 'in' and 'out' cannot be the same.
+    * \brief Forward transform
+    * \param[in] in Matrix representing the likelihoods of each possible symbol
+    * \param[out] out Matrix with likelihoods of interleaved sequence
+    * \note 'in' and 'out' cannot be the same.
     */
    virtual void transform(const libbase::matrix<real>& in,
          libbase::matrix<real>& out) const = 0;
    /*!
-    \brief Inverse transform
-    \param[in] in  Matrix representing the likelihoods of each possible symbol
-    for the interleaved sequence
-    \param[out] out Matrix with likelihoods of straight sequence
-    \note 'in' and 'out' cannot be the same.
+    * \brief Inverse transform
+    * \param[in] in  Matrix representing the likelihoods of each possible symbol
+    * for the interleaved sequence
+    * \param[out] out Matrix with likelihoods of straight sequence
+    * \note 'in' and 'out' cannot be the same.
     */
    virtual void inverse(const libbase::matrix<real>& in,
          libbase::matrix<real>& out) const = 0;

@@ -77,10 +77,10 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateEmbeddingDlg message handlers
 
-BOOL CAutomateEmbeddingDlg::OnInitDialog() 
+BOOL CAutomateEmbeddingDlg::OnInitDialog()
    {
    CDialog::OnInitDialog();
-   
+
    // make sure all buttons are set up correctly
    GetDlgItem(IDC_JPEGQ_MIN)->EnableWindow(m_bJpeg);
    GetDlgItem(IDC_JPEGQ_MAX)->EnableWindow(m_bJpeg);
@@ -90,7 +90,7 @@ BOOL CAutomateEmbeddingDlg::OnInitDialog()
    // EXCEPTION: OCX Property Pages should return FALSE
    }
 
-void CAutomateEmbeddingDlg::OnOutputBrowse() 
+void CAutomateEmbeddingDlg::OnOutputBrowse()
    {
    libwin::CFolderDialog dlg("Select output folder:", m_sOutput);
    if(dlg.DoModal() == IDOK)
@@ -100,7 +100,7 @@ void CAutomateEmbeddingDlg::OnOutputBrowse()
       }
    }
 
-void CAutomateEmbeddingDlg::OnJpeg() 
+void CAutomateEmbeddingDlg::OnJpeg()
    {
    m_bJpeg = ((CButton*)GetDlgItem(IDC_JPEG))->GetCheck();
    GetDlgItem(IDC_JPEGQ_MIN)->EnableWindow(m_bJpeg);
@@ -108,7 +108,7 @@ void CAutomateEmbeddingDlg::OnJpeg()
    GetDlgItem(IDC_JPEGQ_STEP)->EnableWindow(m_bJpeg);
    }
 
-void CAutomateEmbeddingDlg::OnOK() 
+void CAutomateEmbeddingDlg::OnOK()
    {
    // base class routine
    CDialog::OnOK();

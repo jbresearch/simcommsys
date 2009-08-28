@@ -15,13 +15,13 @@ namespace libcomm {
 #endif
 
 /*!
- \brief   Channel Codec with matrix container from vector container.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Channel Codec with matrix container from vector container.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class base_codec>
@@ -49,7 +49,7 @@ public:
    void encode(const libbase::matrix<int>& source,
          libbase::matrix<int>& encoded)
       {
-      libbase::vector<int> source_v = source;
+      libbase::vector<int> source_v = source.rowmajor();
       libbase::vector<int> encoded_v;
 #if DEBUG>=2
       libbase::trace << "DEBUG (codec_reshaped): source = " << source;
@@ -64,7 +64,7 @@ public:
       }
    void init_decoder(const libbase::matrix<array1d_t>& ptable)
       {
-      libbase::vector<array1d_t> ptable_v = ptable;
+      libbase::vector<array1d_t> ptable_v = ptable.rowmajor();
       base.init_decoder(ptable_v);
       }
    void decode(libbase::matrix<int>& decoded)

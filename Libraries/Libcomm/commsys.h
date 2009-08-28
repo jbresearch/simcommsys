@@ -12,20 +12,20 @@
 namespace libcomm {
 
 /*!
- \brief   Common Base for Communication System.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- General templated commsys.
- - Integrates functionality of binary variant.
- - Explicit instantiations for bool and gf types are present.
-
- \todo Consider removing subcomponent getters, enforcing calls through this
- interface
+ * \brief   Common Base for Communication System.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * General templated commsys.
+ * - Integrates functionality of binary variant.
+ * - Explicit instantiations for bool and gf types are present.
+ * 
+ * \todo Consider removing subcomponent getters, enforcing calls through this
+ * interface
  */
 
 template <class S, template <class > class C = libbase::vector>
@@ -142,15 +142,15 @@ public:
 };
 
 /*!
- \brief   General Communication System.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- General templated commsys, directly derived from common base.
+ * \brief   General Communication System.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * General templated commsys, directly derived from common base.
  */
 
 template <class S, template <class > class C = libbase::vector>
@@ -161,27 +161,27 @@ DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
 };
 
 /*!
- \brief   Signal-Space Communication System.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- This explicit specialization for sigspace channel contains objects and
- functions remaining from the templated base, and is generally equivalent
- to the old commsys class; anything that used to use 'commsys' can now use
- this specialization.
-
- \note Support for puncturing has changed from its previous operation in
- signal-space to the more general mapper layer.
-
- \note Serialization of puncturing system is implemented; the canonical
- form this requires the addition of a 'false' flag at the end of the
- stream to signal that there is no puncturing. In order not to break
- current input files, the flag is assumed to be false (with no error)
- if we have reached the end of the stream.
+ * \brief   Signal-Space Communication System.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * This explicit specialization for sigspace channel contains objects and
+ * functions remaining from the templated base, and is generally equivalent
+ * to the old commsys class; anything that used to use 'commsys' can now use
+ * this specialization.
+ * 
+ * \note Support for puncturing has changed from its previous operation in
+ * signal-space to the more general mapper layer.
+ * 
+ * \note Serialization of puncturing system is implemented; the canonical
+ * form this requires the addition of a 'false' flag at the end of the
+ * stream to signal that there is no puncturing. In order not to break
+ * current input files, the flag is assumed to be false (with no error)
+ * if we have reached the end of the stream.
  */
 template <template <class > class C>
 class commsys<sigspace, C> : public basic_commsys<sigspace, C> {

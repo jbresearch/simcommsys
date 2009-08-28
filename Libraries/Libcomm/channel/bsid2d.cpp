@@ -1,10 +1,10 @@
 /*!
- \file
-
- \par Version Control:
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \par Version Control:
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "bsid2d.h"
@@ -19,10 +19,10 @@ const libbase::serializer bsid2d::shelper("channel", "bsid2d", bsid2d::create);
 // Internal functions
 
 /*!
- \brief Initialization
-
- Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
- of the parameters not flagged to change with channel SNR will remain zero.
+ * \brief Initialization
+ * 
+ * Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
+ * of the parameters not flagged to change with channel SNR will remain zero.
  */
 void bsid2d::init()
    {
@@ -37,10 +37,10 @@ void bsid2d::init()
    }
 
 /*!
- \brief Determine state-machine values for a single timestep
-
- Returns the number of insertions \e before given position, and whether the
- given position is transmitted or deleted.
+ * \brief Determine state-machine values for a single timestep
+ * 
+ * Returns the number of insertions \e before given position, and whether the
+ * given position is transmitted or deleted.
  */
 void bsid2d::computestate(int& insertions, bool& transmit)
    {
@@ -56,9 +56,9 @@ void bsid2d::computestate(int& insertions, bool& transmit)
    }
 
 /*!
- \brief Determine state-machine values for a whole block
-
- \sa computestate();
+ * \brief Determine state-machine values for a whole block
+ * 
+ * \sa computestate();
  */
 void bsid2d::computestate(array2i_t& insertions, array2b_t& transmit)
    {
@@ -74,9 +74,9 @@ void bsid2d::computestate(array2i_t& insertions, array2b_t& transmit)
    }
 
 /*!
- \brief Accumulate matrix elements over given dimension
- \param m Matrix containing data to be accumulated
- \param dim Dimension over which to accumulate (0 or 1)
+ * \brief Accumulate matrix elements over given dimension
+ * \param m Matrix containing data to be accumulated
+ * \param dim Dimension over which to accumulate (0 or 1)
  */
 void bsid2d::cumsum(array2i_t& m, int dim)
    {
@@ -102,9 +102,9 @@ void bsid2d::cumsum(array2i_t& m, int dim)
 // Constructors / Destructors
 
 /*!
- \brief Principal constructor
-
- \sa init()
+ * \brief Principal constructor
+ * 
+ * \sa init()
  */
 bsid2d::bsid2d(const bool varyPs, const bool varyPd, const bool varyPi) :
    varyPs(varyPs), varyPd(varyPd), varyPi(varyPi)
@@ -118,12 +118,12 @@ bsid2d::bsid2d(const bool varyPs, const bool varyPd, const bool varyPi) :
 // Channel parameter handling
 
 /*!
- \brief Set channel parameter
-
- This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
- parameters that are not flagged to change will instead be set to zero. This ensures
- that there is no leakage between successive uses of this class. (i.e. once this
- function is called, the class will be in a known determined state).
+ * \brief Set channel parameter
+ * 
+ * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
+ * parameters that are not flagged to change will instead be set to zero. This ensures
+ * that there is no leakage between successive uses of this class. (i.e. once this
+ * function is called, the class will be in a known determined state).
  */
 void bsid2d::set_parameter(const double p)
    {
@@ -135,10 +135,10 @@ void bsid2d::set_parameter(const double p)
    }
 
 /*!
- \brief Get channel parameter
-
- This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
- If none of these are flagged to change, this constitutes an error condition.
+ * \brief Get channel parameter
+ * 
+ * This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
+ * If none of these are flagged to change, this constitutes an error condition.
  */
 double bsid2d::get_parameter() const
    {
@@ -191,15 +191,15 @@ void bsid2d::set_blocksize(int M, int N)
 // Channel function overrides
 
 /*!
- \copydoc channel::corrupt()
-
- \note Due to limitations of the interface, which was designed for substitution channels,
- only the substitution part of the channel model is handled here.
-
- For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
- This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
- modulation. For MPSK modulation, this causes the output to be the symbol farthest away
- from the input.
+ * \copydoc channel::corrupt()
+ * 
+ * \note Due to limitations of the interface, which was designed for substitution channels,
+ * only the substitution part of the channel model is handled here.
+ * 
+ * For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
+ * This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
+ * modulation. For MPSK modulation, this causes the output to be the symbol farthest away
+ * from the input.
  */
 bool bsid2d::corrupt(const bool& s)
    {
@@ -212,49 +212,49 @@ bool bsid2d::corrupt(const bool& s)
 // Channel functions
 
 /*!
- \copydoc channel::transmit()
-
- The channel model implemented is described by independent state machines
- for the row and column sequences, each according to the following state
- diagram:
- \dot
- digraph bsid2dstates {
- // Make figure left-to-right
- rankdir = LR;
- // state definitions
- this [ shape=circle, color=gray, style=filled, label="t(i)" ];
- next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
- // path definitions
- this -> Insert [ label="Pi" ];
- Insert -> this;
- this -> Delete [ label="Pd" ];
- Delete -> next;
- this -> Transmit [ label="1-Pi-Pd" ];
- Transmit -> next [ label="1-Ps" ];
- Transmit -> Substitute [ label="Ps" ];
- Substitute -> next;
- }
- \enddot
-
- The cumulative number of insertions-deletions+transmissions for each row
- and column determine the final horizontal and vertical position respectively
- for the given bit. The bit is only actually transmitted if the transmit
- flags for the horizontal and vertical state machines are both true. The
- final matrix is padded to the smallest rectangle that will fit all final
- positions. Inserted bits and other padding are assumed to be equiprobable.
-
- \note We have initially no idea how long the received sequence will be, so
- we first determine the state sequence at every timestep, keeping
- track of:
- - the number of insertions \e before given position, and
- - whether the given position is transmitted or deleted.
-
- \note We have to make sure that we don't corrupt the array we're reading
- from (in the case where tx and rx are the same array); therefore,
- the result is first created as a new array and only copied over at
- the end.
-
- \sa corrupt()
+ * \copydoc channel::transmit()
+ * 
+ * The channel model implemented is described by independent state machines
+ * for the row and column sequences, each according to the following state
+ * diagram:
+ * \dot
+ * digraph bsid2dstates {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // state definitions
+ * this [ shape=circle, color=gray, style=filled, label="t(i)" ];
+ * next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
+ * // path definitions
+ * this -> Insert [ label="Pi" ];
+ * Insert -> this;
+ * this -> Delete [ label="Pd" ];
+ * Delete -> next;
+ * this -> Transmit [ label="1-Pi-Pd" ];
+ * Transmit -> next [ label="1-Ps" ];
+ * Transmit -> Substitute [ label="Ps" ];
+ * Substitute -> next;
+ * }
+ * \enddot
+ * 
+ * The cumulative number of insertions-deletions+transmissions for each row
+ * and column determine the final horizontal and vertical position respectively
+ * for the given bit. The bit is only actually transmitted if the transmit
+ * flags for the horizontal and vertical state machines are both true. The
+ * final matrix is padded to the smallest rectangle that will fit all final
+ * positions. Inserted bits and other padding are assumed to be equiprobable.
+ * 
+ * \note We have initially no idea how long the received sequence will be, so
+ * we first determine the state sequence at every timestep, keeping
+ * track of:
+ * - the number of insertions \e before given position, and
+ * - whether the given position is transmitted or deleted.
+ * 
+ * \note We have to make sure that we don't corrupt the array we're reading
+ * from (in the case where tx and rx are the same array); therefore,
+ * the result is first created as a new array and only copied over at
+ * the end.
+ * 
+ * \sa corrupt()
  */
 void bsid2d::transmit(const array2b_t& tx, array2b_t& rx)
    {

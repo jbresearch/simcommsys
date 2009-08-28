@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "nrcc.h"
@@ -19,25 +19,31 @@ const libbase::serializer nrcc::shelper("fsm", "nrcc", nrcc::create);
 
 // FSM state operations (getting and resetting)
 
-void nrcc::resetcircular(int zerostate, int n)
+void nrcc::resetcircular(libbase::vector<int> zerostate, int n)
    {
    failwith("Function not implemented.");
    }
 
 // FSM helper operations
 
-bitfield nrcc::determineinput(const int input) const
+libbase::vector<int> nrcc::determineinput(libbase::vector<int> input) const
    {
-   bitfield ip(0, k);
-   if (input != fsm::tail)
-      ip = input;
-   return ip;
+   assert(input.size() == k);
+   // replace 'tail' inputs with zeros
+   for (int i = 0; i < k; i++)
+      if (input(i) == fsm::tail)
+         input(i) = 0;
+   return input;
    }
 
-bitfield nrcc::determinefeedin(const int input) const
+bitfield nrcc::determinefeedin(libbase::vector<int> input) const
    {
-   assert(input != fsm::tail);
-   return bitfield(input, k);
+   assert(input.size() == k);
+   // check we have no 'tail' inputs
+   for (int i = 0; i < k; i++)
+      assert(input(i) != fsm::tail);
+   // convert to required type
+   return bitfield(libbase::vector<bool>(input));
    }
 
 // Description

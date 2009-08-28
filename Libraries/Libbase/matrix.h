@@ -10,19 +10,27 @@
 
 namespace libbase {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Detailed matrix inversion
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 template <class T>
 class matrix;
 template <class T>
 class masked_matrix;
 
 /*!
- \brief   Size specialization for matrix.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \brief   Size specialization for matrix.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <>
@@ -39,14 +47,14 @@ public:
       this->n = n;
       }
    /*! \brief Conversion to integer
-    Returns the total number of elements
+    * Returns the total number of elements
     */
    operator int() const
       {
       return m * n;
       }
    /*! \brief Comparison of two size objects
-    Only true if both dimensions are the same
+    * Only true if both dimensions are the same
     */
    bool operator==(const size_type<matrix>& rhs) const
       {
@@ -79,29 +87,31 @@ public:
 };
 
 /*!
- \brief   Generic 2D Matrix.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Arithmetic functions are part of the matrix class. This includes arithmetic
- operations between matrices, constant matrix initialisation routines, and
- some statistical functions.
-
- This class follows the usual mathematical convention, where the first index
- represents the row and second represents the column. This is consistent with
- Matlab notation.
-
- \note Empty matrices (that is, ones with no elements) are defined and valid.
-
- \note Range-checking and other validation functions are only operative in
- debug mode.
-
-
- \todo Extract common implementation of copy assignment operators
+ * \brief   Generic 2D Matrix.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Arithmetic functions are part of the matrix class. This includes arithmetic
+ * operations between matrices, constant matrix initialisation routines, and
+ * some statistical functions.
+ * 
+ * This class follows the usual mathematical convention, where the first index
+ * represents the row and second represents the column. This is consistent with
+ * Matlab notation.
+ * 
+ * \note Empty matrices (that is, ones with no elements) are defined and valid.
+ * 
+ * \note Range-checking and other validation functions are only operative in
+ * debug mode.
+ * 
+ * 
+ * \todo Extract common implementation of copy assignment operators
+ *
+ * \todo Add construction from initializer_list when if possible
  */
 
 template <class T>
@@ -118,23 +128,23 @@ protected:
 public:
    /*! \name Constructors / destructors */
    /*! \brief Default constructor
-    This exists instead of default-values in principal constructor to avoid
-    allowing the situation where a constructor is given a _single_ integer
-    parameter (i.e. x has a value, y takes its default)
+    * This exists instead of default-values in principal constructor to avoid
+    * allowing the situation where a constructor is given a _single_ integer
+    * parameter (i.e. x has a value, y takes its default)
     */
    matrix()
       {
       alloc(0, 0);
       }
    /*! \brief Principal constructor
-    \note Does not initialize elements.
+    * \note Does not initialize elements.
     */
    matrix(const int m, const int n)
       {
       alloc(m, n);
       }
    /*! \brief Principal constructor - alternative form
-    \note Does not initialize elements.
+    * \note Does not initialize elements.
     */
    matrix(const size_type<libbase::matrix>& size)
       {
@@ -152,7 +162,7 @@ public:
    /*! \name Resizing operations */
    void init(const int m, const int n);
    /*! \copydoc init()
-    This overload takes a matrix-size object as argument.
+    * This overload takes a matrix-size object as argument.
     */
    void init(const size_type<libbase::matrix>& size)
       {
@@ -161,14 +171,18 @@ public:
    // @}
 
    /*! \name Matrix copy, vector conversion, and value initialisation */
-   matrix<T>& copyfrom(const matrix<T>& x);
+   template <class A>
+   matrix<T>& copyfrom(const matrix<A>& x);
+   template <class A>
+   matrix<T>& copyfrom(const vector<A>& x);
    matrix<T>& operator=(const matrix<T>& x);
    template <class A>
    matrix<T>& operator=(const matrix<A>& x);
    template <class A>
    matrix<T>& operator=(const vector<A>& x);
    matrix<T>& operator=(const T x);
-   operator vector<T>() const;
+   vector<T> rowmajor() const;
+   vector<T> colmajor() const;
    // @}
 
    /*! \name Insert/extract rows/columns as vectors */
@@ -316,7 +330,7 @@ inline void matrix<T>::free()
    }
 
 /*! \brief Allocates memory for (x,y) elements and updates sizes
- \note Detects invalid size values (either x or y being 0, but not both)
+ * \note Detects invalid size values (either x or y being 0, but not both)
  */
 template <class T>
 inline void matrix<T>::alloc(const int x, const int y)
@@ -349,10 +363,10 @@ inline matrix<T>::matrix(const matrix<T>& x)
    }
 
 /*! \brief Set matrix to given size, freeing if and as required
-
- This method leaves the matrix as it is if the size was already correct, and
- frees/reallocates if necessary. This helps reduce redundant free/alloc
- operations on matrices which keep the same size.
+ * 
+ * This method leaves the matrix as it is if the size was already correct, and
+ * frees/reallocates if necessary. This helps reduce redundant free/alloc
+ * operations on matrices which keep the same size.
  */
 template <class T>
 inline void matrix<T>::init(const int m, const int n)
@@ -366,23 +380,37 @@ inline void matrix<T>::init(const int m, const int n)
 // matrix copy and value initialisation
 
 /*! \brief Copies data from another matrix without resizing this one
-
- Adds support for working with different-sized matrices (in place of
- resizing operations which would be quite expensive).
-
- \note Opted for this rather than changing the definition of operator=
- because it's convenient for '=' to copy _everything_ from the source
- to the destination; otherwise we would land into obscure problems in
- some cases (like when we're trying to copy a vector of matrices).
+ * 
+ * Adds support for working with different-sized matrices (in place of
+ * resizing operations which would be quite expensive).
+ * 
+ * \note Opted for this rather than changing the definition of operator=
+ * because it's convenient for '=' to copy _everything_ from the source
+ * to the destination; otherwise we would land into obscure problems in
+ * some cases (like when we're trying to copy a vector of matrices).
  */
 template <class T>
-inline matrix<T>& matrix<T>::copyfrom(const matrix<T>& x)
+template <class A>
+inline matrix<T>& matrix<T>::copyfrom(const matrix<A>& x)
    {
    const int rows = std::min(m_size.rows(), x.m_size.rows());
    const int cols = std::min(m_size.cols(), x.m_size.cols());
    for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-         m_data[i][j] = x.m_data[i][j];
+         m_data[i][j] = x(i, j);
+   return *this;
+   }
+
+/*! \brief Copies data from a vector in row-major order, without resizing
+ */
+template <class T>
+template <class A>
+inline matrix<T>& matrix<T>::copyfrom(const vector<A>& x)
+   {
+   int k = 0;
+   for (int i = 0; i < m_size.rows(); i++)
+      for (int j = 0; j < m_size.cols() && k < x.size(); j++)
+         m_data[i][j] = x(k++);
    return *this;
    }
 
@@ -396,6 +424,8 @@ inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
    return *this;
    }
 
+/*! \brief Copy matrix (can be of different type)
+ */
 template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
@@ -407,6 +437,8 @@ inline matrix<T>& matrix<T>::operator=(const matrix<A>& x)
    return *this;
    }
 
+/*! \brief Convert vector to matrix as a single column
+ */
 template <class T>
 template <class A>
 inline matrix<T>& matrix<T>::operator=(const vector<A>& x)
@@ -426,17 +458,26 @@ inline matrix<T>& matrix<T>::operator=(const T x)
    return *this;
    }
 
-/*! \brief Convert matrix to a vector
- Elements are extracted in column-major order (ie. starting with the top-left
- first go down then across).
- */
+//! Convert matrix to a vector, extracting elements in row-major order.
 template <class T>
-inline matrix<T>::operator vector<T>() const
+inline vector<T> matrix<T>::rowmajor() const
    {
    vector<T> v(size());
    int k = 0;
    for (int i = 0; i < m_size.rows(); i++)
       for (int j = 0; j < m_size.cols(); j++)
+         v(k++) = m_data[i][j];
+   return v;
+   }
+
+//! Convert matrix to a vector, extracting elements in column-major order.
+template <class T>
+inline vector<T> matrix<T>::colmajor() const
+   {
+   vector<T> v(size());
+   int k = 0;
+   for (int j = 0; j < m_size.cols(); j++)
+      for (int i = 0; i < m_size.rows(); i++)
          v(k++) = m_data[i][j];
    return v;
    }
@@ -464,9 +505,9 @@ inline void matrix<T>::insertcol(const vector<T>& v, const int j)
    }
 
 /*! \brief Extract row 'i' as a vector
- The target vector needs to be passed as a parameter; the expression format
- can be improved aesthetically, however the present format clearly
- communicates what is happening.
+ * The target vector needs to be passed as a parameter; the expression format
+ * can be improved aesthetically, however the present format clearly
+ * communicates what is happening.
  */
 template <class T>
 inline void matrix<T>::extractrow(vector<T>& v, const int i) const
@@ -478,9 +519,9 @@ inline void matrix<T>::extractrow(vector<T>& v, const int i) const
    }
 
 /*! \brief Extract column 'j' as a vector
- The target vector needs to be passed as a parameter; the expression format
- can be improved aesthetically, however the present format clearly
- communicates what is happening.
+ * The target vector needs to be passed as a parameter; the expression format
+ * can be improved aesthetically, however the present format clearly
+ * communicates what is happening.
  */
 template <class T>
 inline void matrix<T>::extractcol(vector<T>& v, const int j) const
@@ -530,8 +571,8 @@ inline T matrix<T>::operator()(const int i, const int j) const
    }
 
 /*! \brief Writes matrix data to output stream.
- This function is intended for interfacing with file formats that do not use
- the serialization format of this class.
+ * This function is intended for interfacing with file formats that do not use
+ * the serialization format of this class.
  */
 template <class T>
 inline void matrix<T>::serialize(std::ostream& sout) const
@@ -546,10 +587,10 @@ inline void matrix<T>::serialize(std::ostream& sout) const
    }
 
 /*! \brief Reads matrix data from input stream.
- This function is intended for interfacing with file formats that do not use
- the serialization format of this class.
-
- \note Assumes that the current matrix already has the correct size.
+ * This function is intended for interfacing with file formats that do not use
+ * the serialization format of this class.
+ * 
+ * \note Assumes that the current matrix already has the correct size.
  */
 template <class T>
 inline void matrix<T>::serialize(std::istream& sin)
@@ -560,7 +601,7 @@ inline void matrix<T>::serialize(std::istream& sin)
    }
 
 /*! \brief Writes matrix to output stream.
- Includes matrix size, to allow correct reconstruction when reading in.
+ * Includes matrix size, to allow correct reconstruction when reading in.
  */
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix<T>& x)
@@ -753,9 +794,9 @@ inline matrix<T>& matrix<T>::operator-=(const matrix<T>& x)
    }
 
 /*!
- \brief Ordinary matrix multiplication
- \param  x   Matrix to be multiplied to this one
- \return The updated (multiplied-into) matrix
+ * \brief Ordinary matrix multiplication
+ * \param  x   Matrix to be multiplied to this one
+ * \return The updated (multiplied-into) matrix
  */
 template <class T>
 inline matrix<T>& matrix<T>::operator*=(const matrix<T>& x)
@@ -765,9 +806,9 @@ inline matrix<T>& matrix<T>::operator*=(const matrix<T>& x)
    }
 
 /*!
- \brief Ordinary matrix division
- \param  x   Matrix to divide this one by
- \return The updated (divided-by) matrix
+ * \brief Ordinary matrix division
+ * \param  x   Matrix to divide this one by
+ * \return The updated (divided-by) matrix
  */
 template <class T>
 inline matrix<T>& matrix<T>::operator/=(const matrix<T>& x)
@@ -777,10 +818,10 @@ inline matrix<T>& matrix<T>::operator/=(const matrix<T>& x)
    }
 
 /*!
- \brief Array multiplication (element-by-element) of matrices
- \param  x   Matrix to be multiplied to this one
- \return The updated (multiplied-into) matrix
- \note For A.*B, the size of A must be the same as the size of B.
+ * \brief Array multiplication (element-by-element) of matrices
+ * \param  x   Matrix to be multiplied to this one
+ * \return The updated (multiplied-into) matrix
+ * \note For A.*B, the size of A must be the same as the size of B.
  */
 template <class T>
 inline matrix<T>& matrix<T>::multiplyby(const matrix<T>& x)
@@ -793,10 +834,10 @@ inline matrix<T>& matrix<T>::multiplyby(const matrix<T>& x)
    }
 
 /*!
- \brief Array division (element-by-element) of matrices
- \param  x   Matrix to divide this one by
- \return The updated (divided-into) matrix
- \note For A./B, the size of A must be the same as the size of B.
+ * \brief Array division (element-by-element) of matrices
+ * \param  x   Matrix to divide this one by
+ * \return The updated (divided-into) matrix
+ * \note For A./B, the size of A must be the same as the size of B.
  */
 template <class T>
 inline matrix<T>& matrix<T>::divideby(const matrix<T>& x)
@@ -863,39 +904,39 @@ inline matrix<T> matrix<T>::operator-(const matrix<T>& x) const
    }
 
 /*!
- \brief Ordinary matrix multiplication
- \param  x   Matrix to be multiplied to this one
- \return The result of 'this' multiplied by 'x'
- For matrix multiplication A.B, the number of columns of A must be the same
- as the number of rows of B.
- If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an
- m-by-p matrix, where the elements are given by:
- \f[ AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j} \f]
+ * \brief Ordinary matrix multiplication
+ * \param  x   Matrix to be multiplied to this one
+ * \return The result of 'this' multiplied by 'x'
+ * For matrix multiplication A.B, the number of columns of A must be the same
+ * as the number of rows of B.
+ * If A is an m-by-n matrix and B is an n-by-p matrix, then the product is an
+ * m-by-p matrix, where the elements are given by:
+ * \f[ AB_{i,j} = \sum_{k=1}^{n} a_{i,k} b_{k,j} \f]
  */
 template <class T>
 inline matrix<T> matrix<T>::operator*(const matrix<T>& x) const
    {
-   assert(m_size.rows() == x.m_size.cols());
-   matrix<T> r(x.m_size.rows(), m_size.cols());
-   for (int i = 0; i < r.m_size.cols(); i++)
-      for (int j = 0; j < r.m_size.rows(); j++)
+   assert(m_size.cols() == x.m_size.rows());
+   matrix<T> r(m_size.rows(), x.m_size.cols());
+   for (int i = 0; i < r.m_size.rows(); i++)
+      for (int j = 0; j < r.m_size.cols(); j++)
          {
-         r.m_data[j][i] = 0;
-         for (int k = 0; k < m_size.rows(); k++)
-            r.m_data[j][i] += m_data[k][i] * x.m_data[j][k];
+         r.m_data[i][j] = 0;
+         for (int k = 0; k < m_size.cols(); k++)
+            r.m_data[i][j] += m_data[i][k] * x.m_data[k][j];
          }
    return r;
    }
 
 /*!
- \brief Ordinary matrix multiplication by column vector
- \param  x   Vector to be multiplied to this matrix
- \return The result of 'this' multiplied by 'x'
- For multiplication A.B, where A is a matrix and B is a vector,
- the number of columns of A must be the same as the number of rows of B.
- If A is an m-by-n matrix and B is an n-by-1 vector, then the product is an
- m-by-1 matrix, where the elements are given by:
- \f[ AB_{i} = \sum_{k=1}^{n} a_{i,k} b_{k} \f]
+ * \brief Ordinary matrix multiplication by column vector
+ * \param  x   Vector to be multiplied to this matrix
+ * \return The result of 'this' multiplied by 'x'
+ * For multiplication A.B, where A is a matrix and B is a vector,
+ * the number of columns of A must be the same as the number of rows of B.
+ * If A is an m-by-n matrix and B is an n-by-1 vector, then the product is an
+ * m-by-1 matrix, where the elements are given by:
+ * \f[ AB_{i} = \sum_{k=1}^{n} a_{i,k} b_{k} \f]
  */
 template <class T>
 inline vector<T> matrix<T>::operator*(const vector<T>& x) const
@@ -912,9 +953,9 @@ inline vector<T> matrix<T>::operator*(const vector<T>& x) const
    }
 
 /*!
- \brief Ordinary matrix division by matrix inversion
- \param  x   Matrix to divide this one by
- \return The result of 'this' divided by 'x'
+ * \brief Ordinary matrix division by matrix inversion
+ * \param  x   Matrix to divide this one by
+ * \return The result of 'this' divided by 'x'
  */
 template <class T>
 inline matrix<T> matrix<T>::operator/(const matrix<T>& x) const
@@ -923,10 +964,10 @@ inline matrix<T> matrix<T>::operator/(const matrix<T>& x) const
    }
 
 /*!
- \brief Array multiplication (element-by-element) of matrices
- \param  x   Matrix to be multiplied to this one
- \return The result of 'this' multiplied by 'x'
- \note For A.*B, the size of A must be the same as the size of B.
+ * \brief Array multiplication (element-by-element) of matrices
+ * \param  x   Matrix to be multiplied to this one
+ * \return The result of 'this' multiplied by 'x'
+ * \note For A.*B, the size of A must be the same as the size of B.
  */
 template <class T>
 inline matrix<T> matrix<T>::multiply(const matrix<T>& x) const
@@ -940,10 +981,10 @@ inline matrix<T> matrix<T>::multiply(const matrix<T>& x) const
    }
 
 /*!
- \brief Array division (element-by-element) of matrices
- \param  x   Matrix to divide this one by
- \return The result of 'this' divided by 'x'
- \note For A./B, the size of A must be the same as the size of B.
+ * \brief Array division (element-by-element) of matrices
+ * \param  x   Matrix to divide this one by
+ * \return The result of 'this' divided by 'x'
+ * \note For A./B, the size of A must be the same as the size of B.
  */
 template <class T>
 inline matrix<T> matrix<T>::divide(const matrix<T>& x) const
@@ -1057,9 +1098,9 @@ inline matrix<T> matrix<T>::operator^(const matrix<T>& x) const
    }
 
 /*! \brief Perform user-defined operation on all matrix elements
-
- \note Removed the instance of apply() whose given function's parameter is
- const, since this was causing problems with gcc on Solaris.
+ * 
+ * \note Removed the instance of apply() whose given function's parameter is
+ * const, since this was causing problems with gcc on Solaris.
  */
 template <class T>
 inline matrix<T>& matrix<T>::apply(T f(T))
@@ -1073,12 +1114,12 @@ inline matrix<T>& matrix<T>::apply(T f(T))
 // matrix-arithmetic operations
 
 /*!
- \brief Matrix inversion, by direct Gauss-Jordan elimination
- \return The inverse of this matrix
- \invariant Matrix must be square
- \note Template class must provide the subtraction, division, and
- multiplication operators, as well as conversion to/from integer
- \note Performs row pivoting when necessary.
+ * \brief Matrix inversion, by direct Gauss-Jordan elimination
+ * \return The inverse of this matrix
+ * \invariant Matrix must be square
+ * \note Template class must provide the subtraction, division, and
+ * multiplication operators, as well as conversion to/from integer
+ * \note Performs row pivoting when necessary.
  */
 template <class T>
 inline matrix<T> matrix<T>::inverse() const
@@ -1098,9 +1139,11 @@ inline matrix<T> matrix<T>::inverse() const
    // repeat for all rows
    for (int i = 0; i < n; i++)
       {
-      //trace << "DEBUG (matrix): G-J elimination on row " << i << "\n";
-      //trace << "DEBUG (matrix): A = " << arows;
-      //trace << "DEBUG (matrix): R = " << rrows;
+#if DEBUG>=2
+      trace << "DEBUG (matrix): G-J elimination on row " << i << "\n";
+      trace << "DEBUG (matrix): A = " << arows;
+      trace << "DEBUG (matrix): R = " << rrows;
+#endif
       // find a suitable pivot element
       if (arows(i)(i) == 0)
          for (int j = i + 1; j < n; j++)
@@ -1108,9 +1151,11 @@ inline matrix<T> matrix<T>::inverse() const
                {
                std::swap(rrows(i), rrows(j));
                std::swap(arows(i), arows(j));
-               //trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << "\n";
-               //trace << "DEBUG (matrix): A = " << arows;
-               //trace << "DEBUG (matrix): R = " << rrows;
+#if DEBUG>=2
+               trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << "\n";
+               trace << "DEBUG (matrix): A = " << arows;
+               trace << "DEBUG (matrix): R = " << rrows;
+#endif
                break;
                }
       // divide by pivot element
@@ -1137,15 +1182,15 @@ inline matrix<T> matrix<T>::inverse() const
  * This function will return the row echelon form of the current matrix
  * ie at the end of the process the matrix will look like
  * \verbatim
-
- [0 ... 0 1 0 ... 0 ...         0 a(1,1) a(1,2) ... a(1,l)]
- [0 ... 0 0 ... 1 ... 0 ...     0 a(2,1) a(2,2) ... a(2,l)]
- [0 ...         0 0 ... 1 0 ... 0 a(3,1) a(3,2) ... a(3,l)]
- [.               ...                                     ]
- [.               ...                                     ]
- [.               ...                                     ]
- [0               ...         0 1 a(k,1) a(k,2) ... a(k,l)]
- \endverbatim
+ * 
+ * [0 ... 0 1 0 ... 0 ...         0 a(1,1) a(1,2) ... a(1,l)]
+ * [0 ... 0 0 ... 1 ... 0 ...     0 a(2,1) a(2,2) ... a(2,l)]
+ * [0 ...         0 0 ... 1 0 ... 0 a(3,1) a(3,2) ... a(3,l)]
+ * [.               ...                                     ]
+ * [.               ...                                     ]
+ * [.               ...                                     ]
+ * [0               ...         0 1 a(k,1) a(k,2) ... a(k,l)]
+ * \endverbatim
  */
 template <class T>
 inline matrix<T> matrix<T>::reduce_to_ref() const
@@ -1223,7 +1268,7 @@ inline matrix<T> matrix<T>::reduce_to_ref() const
    }
 
 /*!
- \brief Matrix transpose
+ * \brief Matrix transpose
  */
 template <class T>
 inline matrix<T> matrix<T>::transpose() const
@@ -1239,10 +1284,10 @@ inline matrix<T> matrix<T>::transpose() const
 // statistical operations
 
 /*! \brief Determines the smallest element in the matrix
-
- \note This assumes that less-than comparison is defined in operator (<).
-
- \note This is only valid for non-empty matrices.
+ * 
+ * \note This assumes that less-than comparison is defined in operator (<).
+ * 
+ * \note This is only valid for non-empty matrices.
  */
 template <class T>
 inline T matrix<T>::min() const
@@ -1257,10 +1302,10 @@ inline T matrix<T>::min() const
    }
 
 /*! \brief Determines the largest element in the matrix
-
- \note This assumes that greater-than comparison is defined in operator (>).
-
- \note This is only valid for non-empty matrices.
+ * 
+ * \note This assumes that greater-than comparison is defined in operator (>).
+ * 
+ * \note This is only valid for non-empty matrices.
  */
 template <class T>
 inline T matrix<T>::max() const
@@ -1275,9 +1320,9 @@ inline T matrix<T>::max() const
    }
 
 /*! \brief Computes sum of elements in matrix
-
- \note This assumes that addition is defined for the type, in the accumulate
- operator (+=). Also, it is assumed that '0' is defined for the type.
+ * 
+ * \note This assumes that addition is defined for the type, in the accumulate
+ * operator (+=). Also, it is assumed that '0' is defined for the type.
  */
 template <class T>
 inline T matrix<T>::sum() const
@@ -1291,10 +1336,10 @@ inline T matrix<T>::sum() const
    }
 
 /*! \brief Computes sum of squares of elements in matrix
-
- \note This assumes that addition is defined for the type, in the accumulate
- operator (+=), as well as multiplication in the binary operator (*).
- Also, it is assumed that '0' is defined for the type.
+ * 
+ * \note This assumes that addition is defined for the type, in the accumulate
+ * operator (+=), as well as multiplication in the binary operator (*).
+ * Also, it is assumed that '0' is defined for the type.
  */
 template <class T>
 inline T matrix<T>::sumsq() const
@@ -1320,8 +1365,8 @@ inline T matrix<T>::var() const
 // static functions
 
 /*!
- \brief Identity matrix
- \return The 'n'x'n' identity matrix
+ * \brief Identity matrix
+ * \return The 'n'x'n' identity matrix
  */
 template <class T>
 inline matrix<T> matrix<T>::eye(int n)
@@ -1337,10 +1382,10 @@ inline matrix<T> matrix<T>::eye(int n)
 } // end namespace
 
 /*!
- \brief Ordinary matrix power
- \return The result of A^n using ordinary matrix multiplication
- \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
- rather than that used in the rest of this class.
+ * \brief Ordinary matrix power
+ * \return The result of A^n using ordinary matrix multiplication
+ * \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
+ * rather than that used in the rest of this class.
  */
 template <class T>
 inline libbase::matrix<T> pow(const libbase::matrix<T>& A, int n)
@@ -1371,23 +1416,23 @@ inline libbase::matrix<T> pow(const libbase::matrix<T>& A, int n)
 namespace libbase {
 
 /*!
- \brief   Masked 2D Matrix.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- A masked matrix is a matrix with a binary element-mask. Arithmetic,
- statistical, user-defined operation, and copy/value init functions are
- defined for this class, allowing us to modify the masked parts of any
- given matrix with ease.
-
- It is intended that for the user, the use of masked matrices should be
- essentially transparent (in that they can mostly be used in place of
- normal matrices) and that the user should never create one explicitly,
- but merely through a normal matrix.
+ * \brief   Masked 2D Matrix.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * A masked matrix is a matrix with a binary element-mask. Arithmetic,
+ * statistical, user-defined operation, and copy/value init functions are
+ * defined for this class, allowing us to modify the masked parts of any
+ * given matrix with ease.
+ * 
+ * It is intended that for the user, the use of masked matrices should be
+ * essentially transparent (in that they can mostly be used in place of
+ * normal matrices) and that the user should never create one explicitly,
+ * but merely through a normal matrix.
  */
 template <class T>
 class masked_matrix {
@@ -1508,15 +1553,15 @@ inline masked_matrix<T>& masked_matrix<T>::operator-=(const matrix<T>& x)
    }
 
 /*!
- \brief Array multiplication (element-by-element) of matrices
- \param  x   Matrix to be multiplied to this one
- \return The updated (multiplied-into) matrix
-
- Masked elements (ie. where the mask is true) are multiplied by
- the corresponding element in 'x'. Unmasked elements are left
- untouched.
-
- \note For A.*B, the size of A must be the same as the size of B.
+ * \brief Array multiplication (element-by-element) of matrices
+ * \param  x   Matrix to be multiplied to this one
+ * \return The updated (multiplied-into) matrix
+ * 
+ * Masked elements (ie. where the mask is true) are multiplied by
+ * the corresponding element in 'x'. Unmasked elements are left
+ * untouched.
+ * 
+ * \note For A.*B, the size of A must be the same as the size of B.
  */
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::multiplyby(const matrix<T>& x)
@@ -1530,15 +1575,15 @@ inline masked_matrix<T>& masked_matrix<T>::multiplyby(const matrix<T>& x)
    }
 
 /*!
- \brief Array division (element-by-element) of matrices
- \param  x   Matrix to divide this one by
- \return The updated (divided-into) matrix
-
- Masked elements (ie. where the mask is true) are divided by
- the corresponding element in 'x'. Unmasked elements are left
- untouched.
-
- \note For A./B, the size of A must be the same as the size of B.
+ * \brief Array division (element-by-element) of matrices
+ * \param  x   Matrix to divide this one by
+ * \return The updated (divided-into) matrix
+ * 
+ * Masked elements (ie. where the mask is true) are divided by
+ * the corresponding element in 'x'. Unmasked elements are left
+ * untouched.
+ * 
+ * \note For A./B, the size of A must be the same as the size of B.
  */
 template <class T>
 inline masked_matrix<T>& masked_matrix<T>::divideby(const matrix<T>& x)

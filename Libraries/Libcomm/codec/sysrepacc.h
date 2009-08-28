@@ -8,16 +8,16 @@
 namespace libcomm {
 
 /*!
- \brief   Systematic Repeat-Accumulate (SRA) codes.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- Extension of the Repeat-Accumulate (RA) codes, also transmitting
- systematic data on the channel.
+ * \brief   Systematic Repeat-Accumulate (SRA) codes.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Extension of the Repeat-Accumulate (RA) codes, also transmitting
+ * systematic data on the channel.
  */
 
 template <class real, class dbl = double>

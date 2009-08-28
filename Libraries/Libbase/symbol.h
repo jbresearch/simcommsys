@@ -6,18 +6,16 @@
 namespace libcomm {
 
 /*!
- \brief   Finite symbol base class.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (22 Apr 2008)
- - Initial version.
- - Created to abstract the concept of a symbol from a finite alphabet.
- - This is an abstract class which defines the interface to such an object.
+ * \brief   Finite symbol base class.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Created to abstract the concept of a symbol from a finite alphabet.
+ * This is an abstract class which defines the interface to such an object.
  */
 
 class symbol {
@@ -38,18 +36,16 @@ public:
 };
 
 /*!
- \brief   Finite q-ary symbol.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (22 Apr 2008)
- - Initial version.
- - Uses an integer to represent symbol value; value is initialized to zero
- on creation.
+ * \brief   Finite q-ary symbol.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * Uses an integer to represent symbol value; value is initialized to zero
+ * on creation.
  */
 
 template <int q>
@@ -60,6 +56,7 @@ private:
    int value;
    // @}
 
+private:
    /*! \name Internal functions */
    void init(int value);
    // @}
@@ -67,7 +64,7 @@ private:
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
-   finite_symbol(int value = 0)
+   explicit finite_symbol(int value = 0)
       {
       init(value);
       }

@@ -8,15 +8,15 @@
 #include <string>
 
 /*!
- \file
- \brief   Information Theory Functions.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
+ * \file
+ * \brief   Information Theory Functions.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
  */
 
 namespace libbase {
@@ -33,14 +33,14 @@ double gammp(double a, double x);
 double cerf(double x);
 double cerfc(double x);
 /*! \brief Error function based on incomplete Gamma functions
- More accurate but much slower than Chebychev fitting
+ * More accurate but much slower than Chebychev fitting
  */
 inline double erff(double x)
    {
    return x < 0.0 ? -gammp(0.5, x * x) : gammp(0.5, x * x);
    }
 /*! \brief Complementary rrror function based on incomplete Gamma functions
- More accurate but much slower than Chebychev fitting
+ * More accurate but much slower than Chebychev fitting
  */
 inline double erffc(double x)
    {

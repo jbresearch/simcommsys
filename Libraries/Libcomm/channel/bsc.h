@@ -9,16 +9,16 @@
 namespace libcomm {
 
 /*!
- \brief   Binary symmetric channel.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- \version 1.00 (25 Jan 2008)
- - Initial version; implementation of a binary symmetric channel.
+ * \brief   Binary symmetric channel.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * \version 1.00 (25 Jan 2008)
+ * - Initial version; implementation of a binary symmetric channel.
  */
 
 class bsc : public channel<bool> {

@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "dvbcrsc.h"
@@ -12,6 +12,9 @@
 #include <sstream>
 
 namespace libcomm {
+
+using libbase::bitfield;
+using libbase::vector;
 
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
 
@@ -25,67 +28,62 @@ const int dvbcrsc::nu = 3;
 
 // initialization
 
-void dvbcrsc::init()
+dvbcrsc::dvbcrsc() :
+   reg(0, nu)
    {
-   // create shift register
-   reg.resize(nu);
-   }
-
-// constructors / destructors
-
-dvbcrsc::dvbcrsc(const dvbcrsc& x)
-   {
-   // copy automatically what we can
-   reg = x.reg;
    }
 
 // finite state machine functions - resetting
 
-void dvbcrsc::reset(int state)
+void dvbcrsc::reset()
    {
-   fsm::reset(state);
-   reg = state;
+   fsm::reset();
+   reg = 0;
    }
 
-void dvbcrsc::resetcircular(int zerostate, int n)
+void dvbcrsc::reset(vector<int> state)
    {
-   assert(zerostate >= 0 && zerostate <= 7);
+   fsm::reset(state);
+   reg = fsm::convert(state, 2);
+   }
+
+void dvbcrsc::resetcircular(vector<int> zerostate, int n)
+   {
+   // TODO: check input state is valid
    // circulation state is obtainable only if the sequence length is not
    // a multiple of the period
    assert(n%7 != 0);
    // lookup the circulation state and set accordingly
-   reset(csct[n % 7][zerostate]);
+   reset(fsm::convert(csct[n % 7][fsm::convert(zerostate, 2)], nu, 2));
    }
 
 // finite state machine functions - state advance etc.
 
-void dvbcrsc::advance(int& input)
+void dvbcrsc::advance(vector<int>& input)
    {
    fsm::advance(input);
-   using libbase::bitfield;
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)
    // ip[0] = A, ip[1] = B
-   assert(input != fsm::tail);
+   assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip(input, k);
+   bitfield ip = bitfield(vector<bool> (input));
    // compute the shift-register left input
-   bitfield lsi = ((ip[0] ^ ip[1]) + reg) * bitfield("1101");
+   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // do the shift
    reg = lsi >> reg;
    // apply the second input
-   reg ^= (bitfield("0") + ip[1] + ip[1]);
+   reg ^= (bitfield("0") + ip(1) + ip(1));
    }
 
-int dvbcrsc::output(int input) const
+vector<int> dvbcrsc::output(vector<int> input) const
    {
-   using libbase::bitfield;
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)
    // ip[0] = A, ip[1] = B
-   assert(input != fsm::tail);
+   assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip(input, k);
+   bitfield ip = bitfield(vector<bool> (input));
    // compute the shift-register left input
-   bitfield lsi = ((ip[0] ^ ip[1]) + reg) * bitfield("1101");
+   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
    bitfield op = ip;
@@ -93,12 +91,12 @@ int dvbcrsc::output(int input) const
    op = (lsi + reg) * bitfield("1011") + op;
    // next is W
    op = (lsi + reg) * bitfield("1001") + op;
-   return op;
+   return vector<int> (op.asvector());
    }
 
-int dvbcrsc::state() const
+vector<int> dvbcrsc::state() const
    {
-   return reg;
+   return vector<int> (reg.asvector());
    }
 
 // description output
@@ -121,7 +119,6 @@ std::ostream& dvbcrsc::serialize(std::ostream& sout) const
 
 std::istream& dvbcrsc::serialize(std::istream& sin)
    {
-   init();
    return sin;
    }
 

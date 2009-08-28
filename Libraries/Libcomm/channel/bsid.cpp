@@ -1,10 +1,10 @@
 /*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
+ * \file
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 #include "bsid.h"
@@ -27,15 +27,15 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 // FBA decoder parameter computation
 
 /*!
- \brief Determine limit for insertions between two time-steps
-
- \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log p } \right\rceil - 1 \f]
- where \f$ P_r \f$ is an arbitrary probability of having a block of size
- \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
- between successive time-steps.
- In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
-
- \note The smallest allowed value is \f$ I = 1 \f$
+ * \brief Determine limit for insertions between two time-steps
+ * 
+ * \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log p } \right\rceil - 1 \f]
+ * where \f$ P_r \f$ is an arbitrary probability of having a block of size
+ * \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
+ * between successive time-steps.
+ * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+ * 
+ * \note The smallest allowed value is \f$ I = 1 \f$
  */
 int bsid::compute_I(int tau, double p)
    {
@@ -48,19 +48,19 @@ int bsid::compute_I(int tau, double p)
    }
 
 /*!
- \brief Determine maximum drift over a whole N-bit block
-
- \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
- where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
- having a block of size \f$ \tau \f$ where the drift at the end is greater
- than \f$ \pm x_{max} \f$.
- In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
-
- The calculation is based on the assumption that the end-of-frame drift has
- a Gaussian distribution with zero mean and standard deviation given by
- \f$ \sigma = \sqrt{\frac{\tau p}{1-p}} \f$.
-
- \note The smallest allowed value is \f$ x_{max} = I \f$
+ * \brief Determine maximum drift over a whole N-bit block
+ * 
+ * \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
+ * where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
+ * having a block of size \f$ \tau \f$ where the drift at the end is greater
+ * than \f$ \pm x_{max} \f$.
+ * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+ * 
+ * The calculation is based on the assumption that the end-of-frame drift has
+ * a Gaussian distribution with zero mean and standard deviation given by
+ * \f$ \sigma = \sqrt{\frac{\tau p}{1-p}} \f$.
+ * 
+ * \note The smallest allowed value is \f$ x_{max} = I \f$
  */
 int bsid::compute_xmax(int tau, double p, int I)
    {
@@ -77,10 +77,10 @@ int bsid::compute_xmax(int tau, double p, int I)
    }
 
 /*!
- \copydoc bsid::compute_xmax()
-
- \note Provided for convenience; will determine I itself, then use that to
- determine xmax.
+ * \copydoc bsid::compute_xmax()
+ * 
+ * \note Provided for convenience; will determine I itself, then use that to
+ * determine xmax.
  */
 int bsid::compute_xmax(int tau, double p)
    {
@@ -89,19 +89,19 @@ int bsid::compute_xmax(int tau, double p)
    }
 
 /*!
- \brief Compute receiver coefficient set
-
- First row has elements where the last bit \f[ r_\mu = t \f]
- \f[ Rtable(0,\mu) =
- \left(\frac{P_i}{2}\right)^\mu
- \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
- , \mu \in (0, \ldots x_{max}) \f]
-
- Second row has elements where the last bit \f[ r_\mu \neq t \f]
- \f[ Rtable(1,\mu) =
- \left(\frac{P_i}{2}\right)^\mu
- \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
- , \mu \in (0, \ldots x_{max}) \f]
+ * \brief Compute receiver coefficient set
+ * 
+ * First row has elements where the last bit \f[ r_\mu = t \f]
+ * \f[ Rtable(0,\mu) =
+ * \left(\frac{P_i}{2}\right)^\mu
+ * \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
+ * , \mu \in (0, \ldots x_{max}) \f]
+ * 
+ * Second row has elements where the last bit \f[ r_\mu \neq t \f]
+ * \f[ Rtable(1,\mu) =
+ * \left(\frac{P_i}{2}\right)^\mu
+ * \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
+ * , \mu \in (0, \ldots x_{max}) \f]
  */
 void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd,
       double Pi)
@@ -122,11 +122,11 @@ void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd,
 // Internal functions
 
 /*!
- \brief Sets up pre-computed values
-
- This function computes all cached quantities used within actual channel
- operations. Since these values depend on the channel conditions, this
- function should be called any time a channel parameter is changed.
+ * \brief Sets up pre-computed values
+ * 
+ * This function computes all cached quantities used within actual channel
+ * operations. Since these values depend on the channel conditions, this
+ * function should be called any time a channel parameter is changed.
  */
 void bsid::precompute()
    {
@@ -148,10 +148,10 @@ void bsid::precompute()
    }
 
 /*!
- \brief Initialization
-
- Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
- of the parameters not flagged to change with channel SNR will remain zero.
+ * \brief Initialization
+ * 
+ * Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
+ * of the parameters not flagged to change with channel SNR will remain zero.
  */
 void bsid::init()
    {
@@ -167,9 +167,9 @@ void bsid::init()
 // Constructors / Destructors
 
 /*!
- \brief Principal constructor
-
- \sa init()
+ * \brief Principal constructor
+ * 
+ * \sa init()
  */
 bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
       const bool biased) :
@@ -184,12 +184,12 @@ bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
 // Channel parameter handling
 
 /*!
- \brief Set channel parameter
-
- This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
- parameters that are not flagged to change will instead be set to zero. This ensures
- that there is no leakage between successive uses of this class. (i.e. once this
- function is called, the class will be in a known determined state).
+ * \brief Set channel parameter
+ * 
+ * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
+ * parameters that are not flagged to change will instead be set to zero. This ensures
+ * that there is no leakage between successive uses of this class. (i.e. once this
+ * function is called, the class will be in a known determined state).
  */
 void bsid::set_parameter(const double p)
    {
@@ -201,10 +201,10 @@ void bsid::set_parameter(const double p)
    }
 
 /*!
- \brief Get channel parameter
-
- This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
- If none of these are flagged to change, this constitutes an error condition.
+ * \brief Get channel parameter
+ * 
+ * This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
+ * If none of these are flagged to change, this constitutes an error condition.
  */
 double bsid::get_parameter() const
    {
@@ -254,15 +254,15 @@ void bsid::set_blocksize(int N)
 // Channel function overrides
 
 /*!
- \copydoc channel::corrupt()
-
- \note Due to limitations of the interface, which was designed for substitution channels,
- only the substitution part of the channel model is handled here.
-
- For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
- This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
- modulation. For MPSK modulation, this causes the output to be the symbol farthest away
- from the input.
+ * \copydoc channel::corrupt()
+ * 
+ * \note Due to limitations of the interface, which was designed for substitution channels,
+ * only the substitution part of the channel model is handled here.
+ * 
+ * For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
+ * This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
+ * modulation. For MPSK modulation, this causes the output to be the symbol farthest away
+ * from the input.
  */
 bool bsid::corrupt(const bool& s)
    {
@@ -275,40 +275,40 @@ bool bsid::corrupt(const bool& s)
 // Channel functions
 
 /*!
- \copydoc channel::transmit()
-
- The channel model implemented is described by the following state diagram:
- \dot
- digraph bsidstates {
- // Make figure left-to-right
- rankdir = LR;
- // state definitions
- this [ shape=circle, color=gray, style=filled, label="t(i)" ];
- next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
- // path definitions
- this -> Insert [ label="Pi" ];
- Insert -> this;
- this -> Delete [ label="Pd" ];
- Delete -> next;
- this -> Transmit [ label="1-Pi-Pd" ];
- Transmit -> next [ label="1-Ps" ];
- Transmit -> Substitute [ label="Ps" ];
- Substitute -> next;
- }
- \enddot
-
- \note We have initially no idea how long the received sequence will be, so
- we first determine the state sequence at every timestep, keeping
- track of:
- - the number of insertions \e before given position, and
- - whether the given position is transmitted or deleted.
-
- \note We have to make sure that we don't corrupt the vector we're reading
- from (in the case where tx and rx are the same vector); therefore,
- the result is first created as a new vector and only copied over at
- the end.
-
- \sa corrupt()
+ * \copydoc channel::transmit()
+ * 
+ * The channel model implemented is described by the following state diagram:
+ * \dot
+ * digraph bsidstates {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // state definitions
+ * this [ shape=circle, color=gray, style=filled, label="t(i)" ];
+ * next [ shape=circle, color=gray, style=filled, label="t(i+1)" ];
+ * // path definitions
+ * this -> Insert [ label="Pi" ];
+ * Insert -> this;
+ * this -> Delete [ label="Pd" ];
+ * Delete -> next;
+ * this -> Transmit [ label="1-Pi-Pd" ];
+ * Transmit -> next [ label="1-Ps" ];
+ * Transmit -> Substitute [ label="Ps" ];
+ * Substitute -> next;
+ * }
+ * \enddot
+ * 
+ * \note We have initially no idea how long the received sequence will be, so
+ * we first determine the state sequence at every timestep, keeping
+ * track of:
+ * - the number of insertions \e before given position, and
+ * - whether the given position is transmitted or deleted.
+ * 
+ * \note We have to make sure that we don't corrupt the vector we're reading
+ * from (in the case where tx and rx are the same vector); therefore,
+ * the result is first created as a new vector and only copied over at
+ * the end.
+ * 
+ * \sa corrupt()
  */
 void bsid::transmit(const array1b_t& tx, array1b_t& rx)
    {

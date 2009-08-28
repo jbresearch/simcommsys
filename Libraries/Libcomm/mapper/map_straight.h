@@ -6,17 +6,17 @@
 namespace libcomm {
 
 /*!
- \brief   Straight Mapper Template.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- This class is a template definition for straight mappers; this needs to
- be specialized for actual use. Template parameter defaults are provided
- here.
+ * \brief   Straight Mapper Template.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * This class is a template definition for straight mappers; this needs to
+ * be specialized for actual use. Template parameter defaults are provided
+ * here.
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
@@ -24,15 +24,15 @@ class map_straight : public mapper<C, dbl> {
 };
 
 /*!
- \brief   Straight Mapper - Vector containers.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- This class defines a straight symbol mapper with:
+ * \brief   Straight Mapper - Vector containers.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * This class defines a straight symbol mapper with:
  * forward transform from blockmodem
  * inverse transform from the various codecs.
  */
@@ -89,18 +89,18 @@ DECLARE_SERIALIZER(map_straight);
 };
 
 /*!
- \brief   Straight Mapper - Matrix containers.
- \author  Johann Briffa
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
-
- This class defines a straight symbol mapper, where it is assumed that:
- - the input and output alphabet sizes are the same
- - matrix reshaping occurs by reading and writing elements in row-major
- order
+ * \brief   Straight Mapper - Matrix containers.
+ * \author  Johann Briffa
+ * 
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ * 
+ * This class defines a straight symbol mapper, where it is assumed that:
+ * - the input and output alphabet sizes are the same
+ * - matrix reshaping occurs by reading and writing elements in row-major
+ * order
  */
 
 template <class dbl>
