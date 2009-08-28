@@ -29,7 +29,9 @@ namespace libcomm {
 template <class S, template <class > class C>
 void commsys_fulliter<S, C>::receive_path(const C<S>& received)
    {
+#if DEBUG>=2
    libbase::trace << "DEBUG (fulliter): Starting receive path.\n";
+#endif
    // Store received vector
    last_received = received;
    // Reset modem
@@ -42,6 +44,10 @@ void commsys_fulliter<S, C>::receive_path(const C<S>& received)
 template <class S, template <class > class C>
 void commsys_fulliter<S, C>::decode(C<int>& decoded)
    {
+#if DEBUG>=2
+   libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
+         << "/" << cur_cdc_iter << ".\n";
+#endif
    // If this is the first decode cycle, we need to do the receive-path first
    if (cur_cdc_iter == 0)
       {
@@ -54,12 +60,6 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       this->map->inverse(ptable_mapped, ptable_encoded);
       // Translate
       this->cdc->init_decoder(ptable_encoded);
-      // If this is not the last iteration, mark components as clean
-      if (++cur_mdm_iter < iter)
-         {
-         this->mdm->mark_as_clean();
-         this->map->mark_as_clean();
-         }
       }
    // Just do a plain decoder iteration if this is not the last one in the cycle
    if (++cur_cdc_iter < this->cdc->num_iter())
@@ -76,6 +76,16 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       codec_softout<C>::hard_decision(ri, decoded);
       // Keep posterior output information for next demodulation cycle
       ptable_mapped = ro;
+      // Reset decoder iteration count
+      cur_cdc_iter = 0;
+      // Update modem iteration count
+      cur_mdm_iter++;
+      // If this was not the last iteration, mark components as clean
+      if (cur_mdm_iter < iter)
+         {
+         this->mdm->mark_as_clean();
+         this->map->mark_as_clean();
+         }
       }
    }
 
