@@ -363,6 +363,12 @@ inline void vector<T>::free()
       m_size = size_type<libbase::vector> (0);
       m_data = NULL;
       }
+   else if (!m_root)
+      {
+      m_root = true;
+      m_size = size_type<libbase::vector> (0);
+      m_data = NULL;
+      }
    test_invariant();
    }
 
@@ -426,9 +432,9 @@ inline void vector<T>::init(const int n)
    {
    test_invariant();
    assert(n >= 0);
-   assert(m_root);
    if (n == m_size.length())
       return;
+   assert(m_root);
    free();
    alloc(n);
    test_invariant();

@@ -53,20 +53,16 @@ protected:
       {
       return x;
       }
+   int32u get_max() const
+      {
+      return 0xffffffff;
+      }
 
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
    truerand();
    ~truerand();
-   // @}
-
-   /*! \name Informative functions */
-   //! The largest returnable value
-   int32u get_max() const
-      {
-      return 0xffffffff;
-      }
    // @}
 };
 

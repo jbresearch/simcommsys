@@ -266,7 +266,7 @@ void bsid::set_blocksize(int N)
  */
 bool bsid::corrupt(const bool& s)
    {
-   const double p = r.fval();
+   const double p = r.fval_closed();
    if (p < Ps)
       return !s;
    return s;
@@ -321,7 +321,7 @@ void bsid::transmit(const array1b_t& tx, array1b_t& rx)
    for (int i = 0; i < tau; i++)
       {
       double p;
-      while ((p = r.fval()) < Pi)
+      while ((p = r.fval_closed()) < Pi)
          insertions(i)++;
       if (p < (Pi + Pd))
          transmit(i) = 0;
@@ -340,7 +340,7 @@ void bsid::transmit(const array1b_t& tx, array1b_t& rx)
    for (int i = 0, j = 0; i < tau; i++)
       {
       while (insertions(i)--)
-         newrx(j++) = (r.fval() < 0.5);
+         newrx(j++) = (r.fval_closed() < 0.5);
       if (transmit(i))
          newrx(j++) = corrupt(tx(i));
       }

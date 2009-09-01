@@ -49,7 +49,7 @@ void bsid2d::computestate(int& insertions, bool& transmit)
    transmit = true;
    // determine state sequence for this timestep
    double p;
-   while ((p = r.fval()) < Pi)
+   while ((p = r.fval_closed()) < Pi)
       insertions++;
    if (p < (Pi + Pd))
       transmit = false;
@@ -203,7 +203,7 @@ void bsid2d::set_blocksize(int M, int N)
  */
 bool bsid2d::corrupt(const bool& s)
    {
-   const double p = r.fval();
+   const double p = r.fval_closed();
    if (p < Ps)
       return !s;
    return s;
@@ -308,7 +308,7 @@ void bsid2d::transmit(const array2b_t& tx, array2b_t& rx)
          if (iii(i, j) == -1) // insertion or padding
             {
             assert(jjj(i,j) == -1);
-            newrx(i, j) = (r.fval() < 0.5);
+            newrx(i, j) = (r.fval_closed() < 0.5);
             }
          else // transmission
             {

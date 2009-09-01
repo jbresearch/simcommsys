@@ -30,12 +30,11 @@ void turbo<real, dbl>::init()
       }
 
    // check required components and initialize BCJR
-   const int tau = inter(0)->size();
    assertalways(encoder);
+   const int tau = num_timesteps();
    assertalways(tau > 0);
    BCJR::init(*encoder, tau);
 
-   assertalways(enc_parity()*num_inputs() == enc_outputs());
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
 
@@ -105,24 +104,29 @@ turbo<real, dbl>::turbo(const fsm& encoder, const libbase::vector<interleaver<
 template <class real, class dbl>
 void turbo<real, dbl>::allocate()
    {
-   const int tau = This::output_block_size();
-   rp.init(tau, num_inputs());
+   // Inherit sizes
+   const int sets = num_sets();
+   const int tau = num_timesteps();
+   const int K = alg_input_symbols();
+   const int N = alg_output_symbols();
+
+   rp.init(tau, K);
 
    if (parallel)
       {
-      ra.init(num_sets());
-      for (int i = 0; i < num_sets(); i++)
-         ra(i).init(tau, num_inputs());
+      ra.init(sets);
+      for (int i = 0; i < sets; i++)
+         ra(i).init(tau, K);
       }
    else
       {
       ra.init(1);
-      ra(0).init(tau, num_inputs());
+      ra(0).init(tau, K);
       }
 
-   R.init(num_sets());
-   for (int i = 0; i < num_sets(); i++)
-      R(i).init(tau, enc_outputs());
+   R.init(sets);
+   for (int i = 0; i < sets; i++)
+      R(i).init(tau, N);
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -290,50 +294,49 @@ void turbo<real, dbl>::setpriors(const array1vd_t& ptable)
 template <class real, class dbl>
 void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
    {
-   // Compute factors / sizes & check validity
-   assertalways(ptable.size() > 0);
-   const int S = ptable(0).size();
-   const int sp = int(round(log(double(enc_parity())) / log(double(S))));
-   const int sk = int(round(log(double(num_inputs())) / log(double(S))));
-   const int s = sk + num_sets() * sp;
-   // Confirm that encoder's parity and input symbols can be represented by
-   // an integral number of modulation symbols
-   assertalways(enc_parity() == pow(double(S), sp));
-   assertalways(num_inputs() == pow(double(S), sk));
-   // Confirm input sequence to be of the correct length
-   const int tau = This::output_block_size();
-   assertalways(ptable.size() == tau*s);
+   assert(ptable.size() == This::output_block_size());
+   // Inherit sizes
+   const int sets = num_sets();
+   const int tau = num_timesteps();
+   const int k = enc_inputs();
+   const int p = enc_parity();
+   const int S = This::num_symbols();
+   const int K = alg_input_symbols();
+   const int N = alg_output_symbols();
+   // Derived sizes
+   const int s = k + p * sets;
+   const int P = N / K;
 
    // initialise memory if necessary
    if (!initialised)
       allocate();
 
    // Allocate space for temporary matrices
-   libbase::matrix3<dbl> p(num_sets(), tau, enc_parity());
+   libbase::matrix3<dbl> ptemp(sets, tau, P);
 
    // Get the necessary data from the channel
    for (int t = 0; t < tau; t++)
       {
       // Input (data) bits [set 0 only]
-      for (int x = 0; x < num_inputs(); x++)
+      for (int x = 0; x < K; x++)
          {
          rp(t, x) = 1;
-         for (int i = 0, thisx = x; i < sk; i++, thisx /= S)
+         for (int i = 0, thisx = x; i < k; i++, thisx /= S)
             rp(t, x) *= dbl(ptable(t * s + i)(thisx % S));
          }
       // Parity bits [all sets]
-      for (int x = 0; x < enc_parity(); x++)
-         for (int set = 0, offset = sk; set < num_sets(); set++)
+      for (int x = 0; x < P; x++)
+         for (int set = 0, offset = k; set < sets; set++)
             {
-            p(set, t, x) = 1;
-            for (int i = 0, thisx = x; i < sp; i++, thisx /= S)
-               p(set, t, x) *= dbl(ptable(t * s + i + offset)(thisx % S));
-            offset += sp;
+            ptemp(set, t, x) = 1;
+            for (int i = 0, thisx = x; i < p; i++, thisx /= S)
+               ptemp(set, t, x) *= dbl(ptable(t * s + i + offset)(thisx % S));
+            offset += p;
             }
       }
 
    // Initialise a priori probabilities (extrinsic)
-   for (int set = 0; set < (parallel ? num_sets() : 1); set++)
+   for (int set = 0; set < (parallel ? sets : 1); set++)
       ra(set) = 1.0;
 
    // Normalize a priori probabilities (intrinsic - source)
@@ -341,13 +344,12 @@ void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
    array2d_t rpi;
-   for (int set = 0; set < num_sets(); set++)
+   for (int set = 0; set < sets; set++)
       {
       inter(set)->transform(rp, rpi);
       for (int t = 0; t < tau; t++)
-         for (int x = 0; x < enc_outputs(); x++)
-            R(set)(t, x) = rpi(t, x % num_inputs()) * p(set, t, x
-                  / num_inputs());
+         for (int x = 0; x < N; x++)
+            R(set)(t, x) = rpi(t, x % K) * ptemp(set, t, x / K);
       BCJR::normalize(R(set));
       }
 
@@ -367,24 +369,24 @@ void turbo<real, dbl>::seedfrom(libbase::random& r)
 template <class real, class dbl>
 void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
-   assert(source.size() == input_block_size());
+   assert(source.size() == This::input_block_size());
    // Inherit sizes
    const int sets = num_sets();
    const int tau = num_timesteps();
    const int k = enc_inputs();
-   const int n = enc_outputs();
    const int p = enc_parity();
    const int S = This::num_symbols();
+   // Derived sizes
+   const int s = k + p * sets;
 
-   // Make a local copy of the source, including any necessary tail
-   array1i_t source1(inter_size());
-   for (int t = 0; t < source.size(); t++)
-      source1(t) = source(t);
-   for (int t = source.size(); t < source1.size(); t++)
-      source1(t) = fsm::tail;
+   // Reform source into a matrix, with one row per timestep
+   // and adding any necessary tail
+   array2i_t source1(tau, k);
+   source1 = fsm::tail;
+   source1.copyfrom(source);
 
    // Declare space for the interleaved source
-   array1i_t source2;
+   array2i_t source2(tau, k);
    // Allocate space for the encoder outputs
    libbase::matrix<libbase::vector<int> > x(sets, tau);
    // Consider sets in order
@@ -393,7 +395,12 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
       // Advance interleaver to the next block
       inter(set)->advance();
       // Create interleaved version of source
-      inter(set)->transform(source1, source2);
+      for (int i = 0; i < k; i++)
+         {
+         array1i_t source2slice;
+         inter(set)->transform(source1.extractcol(i), source2slice);
+         source2.insertcol(source2slice, i);
+         }
 
       // Reset the encoder to zero state
       encoder->reset();
@@ -405,7 +412,7 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
          {
          for (int t = 0; t < tau; t++)
             {
-            array1i_t ip = source2.segment(t * k, k);
+            array1i_t ip = source2.extractrow(t);
             encoder->advance(ip);
             }
          encoder->resetcircular();
@@ -416,8 +423,9 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
       // (non-interleaved must be done first to determine tail bit values)
       for (int t = 0; t < tau; t++)
          {
-         array1i_t ip = source2.segment(t * k, k);
-         x(set, t) = encoder->step(ip).extract(k, n - k);
+         array1i_t ip = source2.extractrow(t);
+         x(set, t) = encoder->step(ip).extract(k, p);
+         source2.insertrow(ip, t);
          }
 
       // If this was the first (non-interleaved) set, copy back the source
@@ -439,10 +447,10 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    for (int t = 0; t < tau; t++)
       {
       // data bits
-      encoded.segment(t * n, k) = source1.extract(t * k, k);
+      encoded.segment(t * s, k) = source1.extractrow(t);
       // parity bits
-      for (int set = 0; set < num_sets(); set++)
-         encoded.segment(t * n + k * set, p) = x(set, t);
+      for (int set = 0; set < sets; set++)
+         encoded.segment(t * s + k + p * set, p) = x(set, t);
       }
    }
 

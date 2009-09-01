@@ -1,4 +1,3 @@
-commsys_simulator<bool>
 commsys<bool>
 bsid
 0

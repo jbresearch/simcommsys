@@ -26,8 +26,8 @@ void laplacian::compute_parameters(const double Eb, const double No)
 
 sigspace laplacian::corrupt(const sigspace& s)
    {
-   const double x = Finv(r.fval());
-   const double y = Finv(r.fval());
+   const double x = Finv(r.fval_closed());
+   const double y = Finv(r.fval_closed());
    return s + sigspace(x, y);
    }
 

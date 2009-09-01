@@ -56,8 +56,8 @@ double random::gval()
    double v1, v2, rsq;
    do
       {
-      v1 = 2.0 * fval() - 1.0;
-      v2 = 2.0 * fval() - 1.0;
+      v1 = 2.0 * fval_closed() - 1.0;
+      v2 = 2.0 * fval_closed() - 1.0;
       rsq = (v1 * v1) + (v2 * v2);
       } while (rsq >= 1.0 || rsq == 0.0);
    double fac = sqrt(-2.0 * log(rsq) / rsq);

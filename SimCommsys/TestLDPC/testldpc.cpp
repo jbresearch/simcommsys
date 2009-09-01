@@ -53,7 +53,7 @@ using libbase::linear_code_utils;
  int num_of_row_entries = 3;
  for (int loop = 0; loop < num_of_row_entries; loop++)
  {
- tmp_pos = int(rng.fval() * (length_n - 0.000001));
+ tmp_pos = int(rng.fval_closed() * (length_n - 0.000001));
  pchk_matrix(row, tmp_pos) = gf<1, 0x3> (1);
  }
  }

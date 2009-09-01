@@ -43,15 +43,10 @@ protected:
       {
       return mj;
       }
-
-public:
-   /*! \name Informative functions */
-   //! The largest returnable value
    int32u get_max() const
       {
       return mbig;
       }
-   // @}
 };
 
 } // end namespace

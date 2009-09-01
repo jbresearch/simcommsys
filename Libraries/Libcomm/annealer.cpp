@@ -66,7 +66,7 @@ void annealer::improve()
       for (i = 0, c = 0; i < min_iter && c < min_changes; i++)
          {
          double deltaE = system->perturb();
-         if (deltaE < 0 || r.fval() < exp(-deltaE / T))
+         if (deltaE < 0 || r.fval_closed() < exp(-deltaE / T))
             {
             c++;
             E += deltaE;

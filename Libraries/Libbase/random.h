@@ -17,7 +17,7 @@ namespace libbase {
  * - $Author$
  *
  * Defines interface for random generators, and also provides common
- * integer, real (uniform), and gaussian deviate conversion facility.
+ * integer, real (uniform), and Gaussian deviate conversion facility.
  * Implementations of actual random generators are created by deriving
  * from this class and providing the necessary virtual functions.
  */
@@ -45,6 +45,8 @@ protected:
    virtual void advance() = 0;
    //! The current generator output value
    virtual int32u get_value() const = 0;
+   //! The largest returnable value
+   virtual int32u get_max() const = 0;
    // @}
 
 public:
@@ -57,31 +59,31 @@ public:
    /*! \name Random generator interface */
    //! Seed random generator
    void seed(int32u s);
-   //! Return unsigned integer in [0, getmax()]
+   //! Uniformly-distributed unsigned integer in closed interval [0,get_max()]
    int32u ival();
-   //! Return unsigned integer modulo 'm'
+   //! Uniformly-distributed unsigned integer in half-open interval [0,m)
    int32u ival(int32u m)
       {
       assert(m-1 <= get_max());
-      return ival() % m;
+      return int(floor(fval_halfopen() * m));
       }
-   //! Return floating point value in closed interval [0,1]
-   double fval()
+   //! Uniformly-distributed floating point value in closed interval [0,1]
+   double fval_closed()
       {
       return ival() / double(get_max());
       }
-   //! Return gaussian-distributed double (zero mean, unit variance)
+   //! Uniformly-distributed floating point value in half-open interval [0,1)
+   double fval_halfopen()
+      {
+      return ival() / (double(get_max())+1.0);
+      }
+   //! Return Gaussian-distributed double (zero mean, unit variance)
    double gval();
-   //! Return gaussian-distributed double (zero mean, variance sigma^2)
+   //! Return Gaussian-distributed double (zero mean, variance sigma^2)
    double gval(double sigma)
       {
       return gval() * sigma;
       }
-   // @}
-
-   /*! \name Informative functions */
-   //! The largest returnable value
-   virtual int32u get_max() const = 0;
    // @}
 };
 

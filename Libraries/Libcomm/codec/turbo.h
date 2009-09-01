@@ -69,6 +69,7 @@ class turbo : public codec_softout<libbase::vector, dbl> , private safe_bcjr<
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
+   typedef libbase::matrix<int> array2i_t;
    typedef libbase::vector<dbl> array1d_t;
    typedef libbase::matrix<dbl> array2d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -159,6 +160,20 @@ protected:
       assert(encoder);
       return encoder->num_states();
       }
+   //! Input alphabet size for algorithm
+   int alg_input_symbols() const
+      {
+      const int k = enc_inputs();
+      const int S = This::num_symbols();
+      return int(pow(S, k));
+      }
+   //! Output alphabet size for algorithm
+   int alg_output_symbols() const
+      {
+      const int n = enc_outputs();
+      const int S = This::num_symbols();
+      return int(pow(S, n));
+      }
    // @}
    // Internal codec operations
    void resetpriors();
@@ -203,13 +218,11 @@ public:
       }
    int num_inputs() const
       {
-      assert(encoder);
-      return encoder->num_symbols();
+      return This::num_symbols();
       }
    int num_outputs() const
       {
-      assert(encoder);
-      return encoder->num_symbols();
+      return This::num_symbols();
       }
    int num_symbols() const
       {

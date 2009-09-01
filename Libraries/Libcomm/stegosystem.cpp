@@ -301,7 +301,7 @@ void stegosystem::GenerateEmbedSequence(vector<double>& u, int seed)
    randgen r;
    r.seed(seed);
    for (int i = 0; i < u.size(); i++)
-      u(i) = r.fval();
+      u(i) = r.fval_closed();
    }
 
 void stegosystem::DemodulateEmbedSequence(const vector<double>& v,

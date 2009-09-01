@@ -44,7 +44,7 @@ void bsc::set_parameter(const double Ps)
  */
 bool bsc::corrupt(const bool& s)
    {
-   const double p = r.fval();
+   const double p = r.fval_closed();
    if (p < Ps)
       return !s;
    return s;
