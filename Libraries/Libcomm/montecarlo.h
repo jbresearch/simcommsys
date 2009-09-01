@@ -73,14 +73,20 @@ protected:
    /*! \brief User-interrupt check
     * This function should return true if the user has requested an interrupt.
     * Once it returns true, all subsequent evaluations should keep returning
-    * true again.
+    * true again. Default action is to check for user pressing 'q' or Ctrl-C.
     */
    virtual bool interrupt()
       {
-      return false;
+      static bool interrupted = false;
+      if (interrupted)
+         return true;
+      if (libbase::interrupted())
+         interrupted = true;
+      else if (libbase::keypressed() > 0)
+         interrupted = (libbase::readkey() == 'q');
+      return interrupted;
       }
-   virtual void display(libbase::int64u pass, double cur_accuracy,
-         const libbase::vector<double>& result);
+   virtual void display() const;
    // @}
 public:
    /*! \name Constructor/destructor */

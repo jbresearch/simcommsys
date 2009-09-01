@@ -143,6 +143,10 @@ public:
     * \return        Population size per sample for given result index
     */
    virtual int get_multiplicity(int i) const = 0;
+   /*!
+    * \brief Display accumulated results in human-readable form
+    */
+   virtual void prettyprint_results(std::ostream& sout) const;
    // @}
 
    /*! \name Description */

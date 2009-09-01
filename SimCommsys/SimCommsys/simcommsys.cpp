@@ -24,7 +24,7 @@ public:
    // make interrupt function public to allow use by main program
    bool interrupt()
       {
-      return libbase::keypressed() > 0 || libbase::interrupted();
+      return montecarlo::interrupt();
       }
 };
 

@@ -61,7 +61,7 @@ class mymontecarlo : public libcomm::montecarlo {
 protected:
    bool interrupt()
       {
-      return get_timer().elapsed() > timeout;
+      return montecarlo::interrupt() || get_timer().elapsed() > timeout;
       }
 public:
    double timeout;
