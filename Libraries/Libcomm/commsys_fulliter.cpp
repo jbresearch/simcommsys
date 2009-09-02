@@ -19,9 +19,10 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Log calls to receive_path and decode
+// 3 - Show part of soft information being passed around
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 3
 #endif
 
 // Communication System Interface
@@ -55,6 +56,10 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       informed_modulator<S>& m =
             dynamic_cast<informed_modulator<S>&> (*this->mdm);
       m.demodulate(*this->chan, last_received, ptable_mapped, ptable_mapped);
+#if DEBUG>=3
+      libbase::trace << "DEBUG (fulliter): modem soft-output = \n";
+      libbase::trace << ptable_mapped.extract(0,5);
+#endif
       // Inverse Map
       C<array1d_t> ptable_encoded;
       this->map->inverse(ptable_mapped, ptable_encoded);
@@ -76,6 +81,10 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       codec_softout<C>::hard_decision(ri, decoded);
       // Keep posterior output information for next demodulation cycle
       ptable_mapped = ro;
+#if DEBUG>=3
+      libbase::trace << "DEBUG (fulliter): codec soft-output = \n";
+      libbase::trace << ptable_mapped.extract(0,5);
+#endif
       // Reset decoder iteration count
       cur_cdc_iter = 0;
       // Update modem iteration count
