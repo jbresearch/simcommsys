@@ -97,7 +97,8 @@ TARGETS := SimCommsys/CSdecode \
 	SimCommsys/TestQSC \
 	SimCommsys/TestWatermark \
 	SimCommsys/TestWMdemodulation \
-	SimCommsys/TestLDPC
+	SimCommsys/TestLDPC \
+	SimCommsys/TestLinearity
 
 # Master targets
 

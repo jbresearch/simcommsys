@@ -43,8 +43,8 @@ void bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
    M = encoder.num_states();
 
    // Determine the number of state memory elements
-   const int m = int(log(M)/log(S));
-   assert(M == pow(m,S));
+   const int m = int(log(M) / log(S));
+   assert(M == pow(S, m));
    // initialise LUT's for state table
    lut_X.init(M, K);
    lut_m.init(M, K);

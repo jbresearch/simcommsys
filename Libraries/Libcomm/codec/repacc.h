@@ -107,9 +107,12 @@ public:
    libbase::size_type<libbase::vector> output_block_size() const
       {
       // Inherit sizes
+      const int k = acc->num_inputs();
       const int n = acc->num_outputs();
       const int tau = acc_timesteps();
-      return libbase::size_type<libbase::vector>(n * tau);
+      // Calculate internal sizes
+      const int p = n - k;
+      return libbase::size_type<libbase::vector>(tau * p);
       }
    int num_inputs() const
       {

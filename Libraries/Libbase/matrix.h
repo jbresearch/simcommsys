@@ -751,7 +751,7 @@ inline matrix<bool> matrix<T>::operator>(const T x) const
    return r;
    }
 
-// comparison (mask-creation) operations
+// direct comparison operations
 
 template <class T>
 inline bool matrix<T>::isequalto(const matrix<T>& x) const

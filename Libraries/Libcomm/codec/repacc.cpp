@@ -74,8 +74,8 @@ void repacc<real, dbl>::allocate()
    for (int i = 0; i < This::input_block_size(); i++)
       rp(i).init(This::num_inputs());
    //rp.init(This::input_block_size(), This::num_inputs());
-   ra.init(This::output_block_size(), acc->num_inputs());
-   R.init(This::output_block_size(), acc->num_outputs());
+   ra.init(This::output_block_size(), acc->num_input_combinations());
+   R.init(This::output_block_size(), acc->num_output_combinations());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -172,6 +172,8 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    const int k = acc->num_inputs();
    const int n = acc->num_outputs();
    const int tau = acc_timesteps();
+   // Calculate internal sizes
+   const int p = n - k;
 
    // Compute repeater output
    array1i_t rep0;
@@ -194,7 +196,7 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    for (int i = 0; i < tau; i++)
       {
       array1i_t ip = rep2.segment(i * k, k);
-      encoded.segment(i * n, n) = acc->step(ip).extract(k, n - k);
+      encoded.segment(i * p, p) = acc->step(ip).extract(k, p);
       }
    // check that encoder finishes correctly
    if (endatzero)

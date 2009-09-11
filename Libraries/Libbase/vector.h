@@ -227,6 +227,11 @@ public:
    void serialize(std::istream& sin);
    // @}
 
+   /*! \name Direct comparison operations */
+   bool isequalto(const vector<T>& x) const;
+   bool isnotequalto(const vector<T>& x) const;
+   // @}
+
    // arithmetic operations - unary
    vector<T>& operator+=(const vector<T>& x);
    vector<T>& operator-=(const vector<T>& x);
@@ -607,6 +612,25 @@ inline std::istream& operator>>(std::istream& s, vector<T>& x)
    x.init(size);
    x.serialize(s);
    return s;
+   }
+
+// direct comparison operations
+
+template <class T>
+inline bool vector<T>::isequalto(const vector<T>& x) const
+   {
+   if (x.m_size != m_size)
+      return false;
+   for (int i = 0; i < m_size.length(); i++)
+      if (m_data[i] != x.m_data[i])
+         return false;
+   return true;
+   }
+
+template <class T>
+inline bool vector<T>::isnotequalto(const vector<T>& x) const
+   {
+   return !isequalto(x);
    }
 
 // arithmetic operations - unary
