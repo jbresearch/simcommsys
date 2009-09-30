@@ -22,7 +22,7 @@ namespace libcomm {
 // 3 - Show part of soft information being passed around
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 // Communication System Interface
@@ -47,7 +47,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
    {
 #if DEBUG>=2
    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
-         << "/" << cur_cdc_iter << ".\n";
+   << "/" << cur_cdc_iter << ".\n";
 #endif
    // If this is the first decode cycle, we need to do the receive-path first
    if (cur_cdc_iter == 0)
@@ -79,8 +79,21 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       c.softdecode(ri, ro);
       // Compute hard-decision for results gatherer
       codec_softout<C>::hard_decision(ri, decoded);
-      // Keep posterior output information for next demodulation cycle
-      ptable_mapped = ro;
+      // TODO: Pass posterior information through mapper
+      // Compute extrinsic information for next demodulation cycle
+      if (ptable_mapped.size() == 0)
+         ptable_mapped = ro;
+      else
+         {
+         const int tau = ro.size();
+         const int N = ro(0).size();
+         for (int i = 0; i < tau; i++)
+            for (int x = 0; x < N; x++)
+               if (ptable_mapped(i)(x) > 0)
+                  ptable_mapped(i)(x) = ro(i)(x) / ptable_mapped(i)(x);
+               else
+                  ptable_mapped(i)(x) = ro(i)(x);
+         }
 #if DEBUG>=3
       libbase::trace << "DEBUG (fulliter): codec soft-output = \n";
       libbase::trace << ptable_mapped.extract(0,5);
