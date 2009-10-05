@@ -47,10 +47,9 @@ void dminner2<real, norm>::init(const channel<bool>& chan)
    // Set channel block size to q-ary symbol size
    Base::mychan.set_blocksize(n);
    // Determine required FBA parameter values
-   const double Pd = Base::mychan.get_pd();
-   const int I = bsid::compute_I(tau, Pd);
-   const int xmax = bsid::compute_xmax(tau, Pd, I);
-   const int dxmax = bsid::compute_xmax(n, Pd);
+   const int I = Base::mychan.compute_I(tau);
+   const int xmax = Base::mychan.compute_xmax(tau);
+   const int dxmax = Base::mychan.compute_xmax(n);
    Base::checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
    FBA::init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer);

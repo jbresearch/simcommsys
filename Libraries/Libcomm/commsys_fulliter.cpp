@@ -25,6 +25,48 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+// Helper functions
+
+/*! \brief Compute extrinsic information
+ *
+ * \param[out] re extrinsic information
+ * \param[in] ro 'full' posterior information
+ * \param[in] ri (extrinsic) prior information
+ *
+ * Computes extrinsic information as re = ro/ri, except cases where ri=0, where
+ * re=ro.
+ *
+ * \note re may point to the same memory as ro/ri, so care must be taken.
+ */
+template <class S, template <class > class C>
+void commsys_fulliter<S, C>::compute_extrinsic(C<array1d_t>& re, const C<
+      array1d_t>& ro, const C<array1d_t>& ri)
+   {
+   // Handle the case where the prior information is empty
+   if (ri.size() == 0)
+      re = ro;
+   else
+      {
+      // Determine size
+      const int tau = ro.size();
+      const int N = ro(0).size();
+      // Check for validity
+      assert(ri.size() == tau);
+      assert(ri(0).size() == N);
+      // Allocate space for re (if necessary)
+      re.init(tau);
+      for (int i = 0; i < tau; i++)
+         re(i).init(N);
+      // Perform computation
+      for (int i = 0; i < tau; i++)
+         for (int x = 0; x < N; x++)
+            if (ri(i)(x) > 0)
+               re(i)(x) = ro(i)(x) / ri(i)(x);
+            else
+               re(i)(x) = ro(i)(x);
+      }
+   }
+
 // Communication System Interface
 
 template <class S, template <class > class C>
@@ -53,13 +95,16 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
    if (cur_cdc_iter == 0)
       {
       // Demodulate
+      C<array1d_t> ptable_full;
       informed_modulator<S>& m =
             dynamic_cast<informed_modulator<S>&> (*this->mdm);
-      m.demodulate(*this->chan, last_received, ptable_mapped, ptable_mapped);
+      m.demodulate(*this->chan, last_received, ptable_mapped, ptable_full);
 #if DEBUG>=3
       libbase::trace << "DEBUG (fulliter): modem soft-output = \n";
       libbase::trace << ptable_mapped.extract(0,5);
 #endif
+      // Compute extrinsic information for passing to codec
+      compute_extrinsic(ptable_mapped, ptable_full, ptable_mapped);
       // Inverse Map
       C<array1d_t> ptable_encoded;
       this->map->inverse(ptable_mapped, ptable_encoded);
@@ -81,19 +126,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       codec_softout<C>::hard_decision(ri, decoded);
       // TODO: Pass posterior information through mapper
       // Compute extrinsic information for next demodulation cycle
-      if (ptable_mapped.size() == 0)
-         ptable_mapped = ro;
-      else
-         {
-         const int tau = ro.size();
-         const int N = ro(0).size();
-         for (int i = 0; i < tau; i++)
-            for (int x = 0; x < N; x++)
-               if (ptable_mapped(i)(x) > 0)
-                  ptable_mapped(i)(x) = ro(i)(x) / ptable_mapped(i)(x);
-               else
-                  ptable_mapped(i)(x) = ro(i)(x);
-         }
+      compute_extrinsic(ptable_mapped, ro, ptable_mapped);
 #if DEBUG>=3
       libbase::trace << "DEBUG (fulliter): codec soft-output = \n";
       libbase::trace << ptable_mapped.extract(0,5);

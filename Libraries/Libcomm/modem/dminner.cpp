@@ -452,10 +452,9 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
    // Set block size for main forward-backward pass
    mychan.set_blocksize(tau);
    // Determine required FBA parameter values
-   const double Pd = mychan.get_pd();
-   const int I = bsid::compute_I(tau, Pd);
-   const int xmax = bsid::compute_xmax(tau, Pd, I);
-   const int dxmax = bsid::compute_xmax(n, Pd);
+   const int I = mychan.compute_I(tau);
+   const int xmax = mychan.compute_xmax(tau);
+   const int dxmax = mychan.compute_xmax(n);
    checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
    FBA::init(tau, I, xmax, th_inner);

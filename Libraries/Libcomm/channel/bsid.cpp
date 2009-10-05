@@ -35,14 +35,16 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
  * between successive time-steps.
  * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
  * 
- * \note The smallest allowed value is \f$ I = 1 \f$
+ * \note The smallest allowed value is \f$ I = 1 \f$; the largest value depends
+ * on a user parameter.
  */
-int bsid::compute_I(int tau, double p)
+int bsid::compute_I(int tau, double p, int Icap)
    {
    int I = int(ceil((log(1e-12) - log(double(tau))) / log(p))) - 1;
    I = std::max(I, 1);
    libbase::trace << "DEBUG (bsid): for N = " << tau << ", I = " << I << "/";
-   I = std::min(I, 2);
+   if (Icap > 0)
+      I = std::min(I, Icap);
    libbase::trace << I << ".\n";
    return I;
    }
@@ -77,15 +79,24 @@ int bsid::compute_xmax(int tau, double p, int I)
    }
 
 /*!
- * \copydoc bsid::compute_xmax()
- * 
- * \note Provided for convenience; will determine I itself, then use that to
- * determine xmax.
+ * \copydoc bsid::compute_I()
+ *
+ * \note Provided for convenience; depends on object parameters
  */
-int bsid::compute_xmax(int tau, double p)
+int bsid::compute_I(int tau)
    {
-   int I = compute_I(tau, p);
-   return compute_xmax(tau, p, I);
+   return compute_I(tau, Pi, Icap);
+   }
+
+/*!
+ * \copydoc bsid::compute_xmax()
+ *
+ * \note Provided for convenience; depends on object parameters
+ */
+int bsid::compute_xmax(int tau)
+   {
+   const int I = compute_I(tau, Pi, Icap);
+   return compute_xmax(tau, Pi, I);
    }
 
 /*!
@@ -138,10 +149,10 @@ void bsid::precompute()
       Rtable.resize(boost::extents[0][0]);
       return;
       }
-   assert(N>0);
+   assert(N > 0);
    // fba decoder parameters
-   I = compute_I(N, Pd);
-   xmax = compute_xmax(N, Pd, I);
+   I = compute_I(N);
+   xmax = compute_xmax(N);
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
    Rval = biased ? Pd * Pd : Pd;
@@ -173,7 +184,7 @@ void bsid::init()
  */
 bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
       const bool biased) :
-   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi)
+   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(2)
    {
    // channel update flags
    assert(varyPs || varyPd || varyPi);
@@ -221,22 +232,22 @@ double bsid::get_parameter() const
 
 void bsid::set_ps(const double Ps)
    {
-   assert(Ps >=0 && Ps <= 0.5);
+   assert(Ps >= 0 && Ps <= 0.5);
    bsid::Ps = Ps;
    }
 
 void bsid::set_pd(const double Pd)
    {
-   assert(Pd >=0 && Pd <= 1);
-   assert(Pi+Pd >=0 && Pi+Pd <= 1);
+   assert(Pd >= 0 && Pd <= 1);
+   assert(Pi + Pd >= 0 && Pi + Pd <= 1);
    bsid::Pd = Pd;
    precompute();
    }
 
 void bsid::set_pi(const double Pi)
    {
-   assert(Pi >=0 && Pi <= 1);
-   assert(Pi+Pd >=0 && Pi+Pd <= 1);
+   assert(Pi >= 0 && Pi <= 1);
+   assert(Pi + Pd >= 0 && Pi + Pd <= 1);
    bsid::Pi = Pi;
    precompute();
    }
@@ -434,16 +445,26 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
-   sout << 2 << "\n";
+   sout << 3 << "\n";
    sout << biased << "\n";
    sout << varyPs << "\n";
    sout << varyPd << "\n";
    sout << varyPi << "\n";
+   sout << Icap << "\n";
    return sout;
    }
 
 // object serialization - loading
 
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added version numbering
+ *
+ * \version 2 Added 'biased' flag
+ *
+ * \version 3 Added 'Icap' parameter
+ */
 std::istream& bsid::serialize(std::istream& sin)
    {
    std::streampos start = sin.tellg();
@@ -465,6 +486,10 @@ std::istream& bsid::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> varyPs;
    sin >> libbase::eatcomments >> varyPd;
    sin >> libbase::eatcomments >> varyPi;
+   if (version < 3)
+      Icap = 2;
+   else
+      sin >> libbase::eatcomments >> Icap;
    init();
    return sin;
    }

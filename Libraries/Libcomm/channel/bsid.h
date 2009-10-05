@@ -34,6 +34,7 @@ private:
    bool varyPs; //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
+   int  Icap; //!< Maximum usable value of I (0 indicates no cap is placed)
    // @}
    /*! \name Channel-state parameters */
    double Ps; //!< Bit-substitution probability \f$ P_s \f$
@@ -49,11 +50,12 @@ private:
    // @}
 public:
    /*! \name FBA decoder parameter computation */
-   static int compute_I(int tau, double p);
+   static int compute_I(int tau, double p, int Icap);
    static int compute_xmax(int tau, double p, int I);
-   static int compute_xmax(int tau, double p);
    static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps,
          double Pd, double Pi);
+   int compute_I(int tau);
+   int compute_xmax(int tau);
    // @}
 private:
    /*! \name Internal functions */
