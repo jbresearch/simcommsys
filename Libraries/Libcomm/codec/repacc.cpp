@@ -33,9 +33,9 @@ void repacc<real, dbl>::init()
    assertalways(This::input_block_size() > 0);
    assertalways(rep.num_inputs() == This::num_inputs());
    // initialize BCJR subsystem for accumulator
-   BCJR::init(*acc, This::output_block_size());
+   BCJR::init(*acc, This::acc_timesteps());
    // check interleaver size
-   assertalways(inter->size() == This::output_block_size());
+   assertalways(inter->size() == This::acc_timesteps());
    assertalways(iter > 0);
 
    initialised = false;
