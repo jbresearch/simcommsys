@@ -22,7 +22,7 @@ namespace libcomm {
  * - $Author$
  */
 
-class experiment : public parametric {
+class experiment : public parametric, public libbase::serializable {
 private:
    /*! \name Internal variables */
    libbase::int64u samplecount; //!< Number of samples accumulated

@@ -28,16 +28,17 @@ onetimepad<real>::onetimepad() :
 template <class real>
 onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
       const bool terminated, const bool renewable) :
-   terminated(terminated), renewable(renewable), encoder(encoder.clone())
+   terminated(terminated), renewable(renewable), encoder(
+         dynamic_cast<fsm*> (encoder.clone()))
    {
    const int k = encoder.num_inputs();
-   pad.init(tau*k);
+   pad.init(tau * k);
    }
 
 template <class real>
 onetimepad<real>::onetimepad(const onetimepad& x) :
-   terminated(x.terminated), renewable(x.renewable),
-         encoder(x.encoder->clone()), pad(x.pad), r(x.r)
+   terminated(x.terminated), renewable(x.renewable), encoder(
+         dynamic_cast<fsm*> (x.encoder->clone())), pad(x.pad), r(x.r)
    {
    }
 
@@ -69,25 +70,25 @@ void onetimepad<real>::advance()
    const int m = encoder->mem_order();
    const int k = encoder->num_inputs();
    const int S = encoder->num_symbols();
-   const int tau = pad.size()/k;
+   const int tau = pad.size() / k;
    // fill in pad
    if (terminated)
       {
-      for (int t = 0; t < (tau - m)*k; t++)
+      for (int t = 0; t < (tau - m) * k; t++)
          pad(t) = r.ival(S);
-      for (int t = (tau - m)*k; t < tau*k; t++)
+      for (int t = (tau - m) * k; t < tau * k; t++)
          pad(t) = fsm::tail;
       // run through the encoder once, so that we work out the tail bits
       encoder->reset();
       for (int t = 0; t < tau; t++)
          {
-         vector<int> ip = pad.segment(t*k,k);
+         vector<int> ip = pad.segment(t * k, k);
          encoder->step(ip);
          }
       }
    else
       {
-      for (int t = 0; t < tau*k; t++)
+      for (int t = 0; t < tau * k; t++)
          pad(t) = r.ival(S);
       }
 

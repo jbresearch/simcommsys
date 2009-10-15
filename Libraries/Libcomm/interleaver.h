@@ -24,7 +24,7 @@ namespace libcomm {
  */
 
 template <class real>
-class interleaver {
+class interleaver : public libbase::serializable {
 public:
    /*! \name Constructors / Destructors */
    //! Virtual destructor

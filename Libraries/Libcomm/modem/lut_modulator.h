@@ -47,7 +47,7 @@ public:
       }
    const int demodulate(const sigspace& signal) const;
 
-   // Vector modem operations
+   // Block modem operations
    // (necessary because overloaded methods hide those in templated base)
    using Base::modulate;
    using Base::demodulate;

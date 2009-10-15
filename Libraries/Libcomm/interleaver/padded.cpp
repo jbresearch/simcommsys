@@ -28,14 +28,14 @@ padded<real>::padded(const interleaver<real>& inter, const fsm& encoder,
       const bool terminated, const bool renewable)
    {
    otp = new onetimepad<real> (encoder, inter.size(), terminated, renewable);
-   padded<real>::inter = inter.clone();
+   padded<real>::inter = dynamic_cast<interleaver<real> *> (inter.clone());
    }
 
 template <class real>
 padded<real>::padded(const padded& x)
    {
-   inter = x.inter->clone();
-   otp = x.otp->clone();
+   inter = dynamic_cast<interleaver<real> *> (x.inter->clone());
+   otp = dynamic_cast<interleaver<real> *> (x.otp->clone());
    }
 
 template <class real>

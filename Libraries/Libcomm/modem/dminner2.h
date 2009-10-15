@@ -62,7 +62,7 @@ public:
       }
    // @}
 
-   // Vector modem operations
+   // Block modem operations
    // (necessary because inheriting methods from templated base)
    using Interface::modulate;
    using Interface::demodulate;

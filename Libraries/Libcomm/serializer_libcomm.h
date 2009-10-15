@@ -22,6 +22,8 @@
 
 // Modulators
 #include "blockmodem.h"
+#include "modem/direct_modem.h"
+#include "modem/direct_blockmodem.h"
 #include "modem/mpsk.h"
 #include "modem/qam.h"
 #include "modem/dminner.h"
@@ -143,6 +145,8 @@ private:
    //uniform_lut<double>	_uniform_lut_double;
    //named_lut<double>	_named_lut_double;
    // Modulators
+   direct_modem<bool> _direct_modem_bool;
+   direct_blockmodem<bool> _direct_blockmodem_bool;
    mpsk _mpsk;
    qam _qam;
    dminner<double, true> _dminner;

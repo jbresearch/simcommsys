@@ -27,10 +27,17 @@ namespace libbase {
 
 // Debugging tools
 
+void reportassertionandfail(const char *expression, const char *file, int line)
+   {
+   std::string s;
+   s = "assertion " + std::string(expression) + " failed.";
+   reporterrorandfail(s.c_str(), file, line);
+   }
+
 void reporterrorandfail(const char *expression, const char *file, int line)
    {
-   std::cerr << "ERROR (" << file << " line " << line << "): assertion "
-         << expression << " failed.\n";
+   std::cerr << "ERROR (" << file << " line " << line << "): " << expression
+         << "\n";
    exit(1);
    }
 

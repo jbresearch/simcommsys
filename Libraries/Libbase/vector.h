@@ -489,7 +489,7 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
    // this should never correspond to self-assignment
-   assert(this != &x);
+   assert((void *)this != (void *)&x);
    init(x.size());
    // avoid down-cast warnings in Win32
 #ifdef WIN32

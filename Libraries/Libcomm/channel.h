@@ -178,7 +178,7 @@ public:
 public:
    void transmit(const array1s_t& tx, array1s_t& rx);
    void
-         receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
+   receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
    double receive(const array1s_t& tx, const array1s_t& rx) const;
    double receive(const S& tx, const array1s_t& rx) const;
 };
@@ -263,7 +263,7 @@ public:
 public:
    void transmit(const array2s_t& tx, array2s_t& rx);
    void
-         receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const;
+   receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const;
    double receive(const array2s_t& tx, const array2s_t& rx) const;
    double receive(const S& tx, const array2s_t& rx) const;
 };
@@ -338,7 +338,7 @@ double basic_channel<S, libbase::matrix>::receive(const S& tx,
  */
 
 template <class S, template <class > class C = libbase::vector>
-class channel : public basic_channel<S, C> {
+class channel : public basic_channel<S, C> , public libbase::serializable {
    // Serialization Support
 DECLARE_BASE_SERIALIZER(channel)
 };
@@ -357,7 +357,8 @@ DECLARE_BASE_SERIALIZER(channel)
  */
 
 template <>
-class channel<sigspace> : public basic_channel<sigspace, libbase::vector> {
+class channel<sigspace> : public basic_channel<sigspace, libbase::vector> ,
+      public libbase::serializable {
 private:
    /*! \name User-defined parameters */
    double snr_db; //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$

@@ -74,8 +74,8 @@ void repacc<real, dbl>::allocate()
    for (int i = 0; i < This::input_block_size(); i++)
       rp(i).init(This::num_inputs());
    //rp.init(This::input_block_size(), This::num_inputs());
-   ra.init(This::output_block_size(), acc->num_input_combinations());
-   R.init(This::output_block_size(), acc->num_output_combinations());
+   ra.init(This::acc_timesteps(), acc->num_input_combinations());
+   R.init(This::acc_timesteps(), acc->num_output_combinations());
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -143,13 +143,21 @@ void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
 
    // Initialise extrinsic accumulator-input statistics (natural)
    ra = 1.0;
+   // Inherit sizes
+   const int k = acc->num_inputs();
+   const int n = acc->num_outputs();
+   const int tau = acc_timesteps();
+   const int N = acc->num_output_combinations();
+   const int S = This::num_outputs();
+   // Calculate internal sizes
+   const int p = n - k;
    // Determine intrinsic accumulator-output statistics (interleaved)
    // from the channel
-   R = 0.0;
-   for (int i = 0; i < This::output_block_size(); i++)
-      for (int x = 0; x < This::num_outputs(); x++)
-         for (int j = 0; j < This::num_inputs(); j++)
-            R(i, x * This::num_inputs() + j) = dbl(ptable(i)(x));
+   R = 1.0;
+   for (int i = 0; i < tau; i++)
+      for (int x = 0; x < N; x++)
+         for (int j = 0, thisx = x / pow(S, k); j < p; j++, thisx /= S)
+            R(i, x) *= dbl(ptable(i * p + j)(thisx % S));
    BCJR::normalize(R);
 
    // Reset start- and end-state probabilities

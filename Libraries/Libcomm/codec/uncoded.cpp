@@ -41,7 +41,7 @@ template <class dbl>
 uncoded<dbl>::uncoded(const fsm& encoder, const int tau) :
    tau(tau)
    {
-   uncoded<dbl>::encoder = encoder.clone();
+   uncoded<dbl>::encoder = dynamic_cast<fsm*> (encoder.clone());
    init();
    }
 

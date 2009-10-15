@@ -48,7 +48,7 @@ public:
    virtual const int demodulate(const S& signal, const array1d_t& app) const = 0;
    // @}
 
-   /*! \name Vector modem operations */
+   /*! \name Block modem operations */
    /*!
     * \brief Demodulate a sequence of time-steps
     * \param[in]  chan     The channel model (used to obtain likelihoods)

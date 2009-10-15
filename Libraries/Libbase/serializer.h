@@ -5,8 +5,13 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <typeinfo>
 
 namespace libbase {
+
+// Pre-definition
+
+class serializable;
 
 /*!
  * \brief   Serialization helper.
@@ -58,13 +63,14 @@ namespace libbase {
 
 class serializer {
 public:
-   typedef void*(*fptr)();
+   typedef serializable*(*fptr)();
 private:
    static std::map<std::string, fptr>* cmap;
    static int count;
    std::string classname;
 public:
-   static void* call(const std::string& base, const std::string& derived);
+   static serializable* call(const std::string& base,
+         const std::string& derived);
 public:
    serializer(const std::string& base, const std::string& derived, fptr func);
    ~serializer();
@@ -74,31 +80,50 @@ public:
       }
 };
 
+/*!
+ * \brief   Serializable class base.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * All serializable classes inherit from this. Implements part of the required
+ * functionality, in conjunction with DECLARE_BASE_SERIALIZER() macro.
+ */
+
+class serializable {
+public:
+   /*! \name Serialization Support */
+   /*! \brief Cloning operation */
+   virtual serializable *clone() const = 0;
+   /*! \brief Derived object's name */
+   virtual const char* name() const = 0;
+   /*! \brief Serialization output */
+   virtual std::ostream& serialize(std::ostream& sout) const = 0;
+   /*! \brief Serialization input */
+   virtual std::istream& serialize(std::istream& sin) = 0;
+   /* @} */
+};
+
 #define DECLARE_BASE_SERIALIZER( class_name ) \
+   /* Comment */ \
    public: \
-   /*! \name Serialization Support */ \
-   /*! \brief Cloning operation */ \
-   virtual class_name *clone() const = 0; \
-   /*! \brief Derived object's name */ \
-   virtual const char* name() const = 0; \
-   /*! \brief Serialization output */ \
-   virtual std::ostream& serialize(std::ostream& sout) const = 0; \
-   /*! \brief Serialization input */ \
-   virtual std::istream& serialize(std::istream& sin) = 0; \
    /*! \brief Stream output */ \
    friend std::ostream& operator<<(std::ostream& sout, const class_name* x) \
       { \
       sout << x->name() << "\n"; \
       x->serialize(sout); \
       return sout; \
-      }; \
+      } \
    /*! \brief Stream input */ \
    friend std::istream& operator>>(std::istream& sin, class_name*& x) \
       { \
       std::string name; \
       std::streampos start = sin.tellg(); \
       sin >> name; \
-      x = (class_name*) libbase::serializer::call(#class_name, name); \
+      x = dynamic_cast<class_name *> (libbase::serializer::call(#class_name, name)); \
       if(x == NULL) \
          { \
          sin.seekg( start ); \
@@ -111,61 +136,19 @@ public:
    /* @} */
 
 #define DECLARE_SERIALIZER( class_name ) \
+   /* Comment */ \
    private: \
    /*! \name Serialization Support */ \
    /*! \brief Serialization helper object */ \
    static const libbase::serializer shelper; \
    /*! \brief Heap creation function */ \
-   static void* create() { return new class_name; }; \
+   static libbase::serializable* create() { return new class_name; }; \
    /* @} */ \
    public: \
    class_name *clone() const { return new class_name(*this); }; \
    const char* name() const { return shelper.name(); }; \
    std::ostream& serialize(std::ostream& sout) const; \
    std::istream& serialize(std::istream& sin)
-
-#define DECLARE_CONCRETE_BASE_SERIALIZER( class_name ) \
-   private: \
-   /*! \name Serialization Support */ \
-   /*! \brief Serialization helper object */ \
-   static const libbase::serializer shelper; \
-   /*! \brief Heap creation function */ \
-   static void* create() { return new class_name; }; \
-   /* @} */ \
-   public: \
-   /*! \name Serialization Support */ \
-   /*! \brief Cloning operation */ \
-   virtual class_name *clone() const { return new class_name(*this); }; \
-   /*! \brief Derived object's name */ \
-   virtual const char* name() const { return shelper.name(); }; \
-   /*! \brief Serialization output */ \
-   virtual std::ostream& serialize(std::ostream& sout) const; \
-   /*! \brief Serialization input */ \
-   virtual std::istream& serialize(std::istream& sin); \
-   /*! \brief Stream output */ \
-   friend std::ostream& operator<<(std::ostream& sout, const class_name* x) \
-      { \
-      sout << x->name() << "\n"; \
-      x->serialize(sout); \
-      return sout; \
-      }; \
-   /*! \brief Stream input */ \
-   friend std::istream& operator>>(std::istream& sin, class_name*& x) \
-      { \
-      std::string name; \
-      std::streampos start = sin.tellg(); \
-      sin >> name; \
-      x = (class_name*) libbase::serializer::call(#class_name, name); \
-      if(x == NULL) \
-         { \
-         sin.seekg( start ); \
-         sin.clear( std::ios::failbit ); \
-         } \
-      else \
-         assertalways(x->serialize(sin)); \
-      return sin; \
-      } \
-   /* @} */
 
 } // end namespace
 

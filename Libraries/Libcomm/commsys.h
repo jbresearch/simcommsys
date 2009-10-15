@@ -154,10 +154,12 @@ public:
  */
 
 template <class S, template <class > class C = libbase::vector>
-class commsys : public basic_commsys<S, C> {
+class commsys : public basic_commsys<S, C> , public libbase::serializable {
 public:
    // Serialization Support
-DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
+DECLARE_BASE_SERIALIZER(commsys)
+   ;
+DECLARE_SERIALIZER(commsys);
 };
 
 /*!
@@ -184,14 +186,17 @@ DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
  * if we have reached the end of the stream.
  */
 template <template <class > class C>
-class commsys<sigspace, C> : public basic_commsys<sigspace, C> {
+class commsys<sigspace, C> : public basic_commsys<sigspace, C> ,
+      public libbase::serializable {
 protected:
    /*! \name Setup functions */
    void init();
    // @}
 public:
    // Serialization Support
-DECLARE_CONCRETE_BASE_SERIALIZER(commsys)
+DECLARE_BASE_SERIALIZER(commsys)
+   ;
+DECLARE_SERIALIZER(commsys);
 };
 
 } // end namespace

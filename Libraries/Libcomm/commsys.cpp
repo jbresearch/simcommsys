@@ -120,10 +120,10 @@ basic_commsys<S, C>::basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,
 template <class S, template <class > class C>
 basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c)
    {
-   this->cdc = c.cdc->clone();
-   this->map = c.map->clone();
-   this->mdm = c.mdm->clone();
-   this->chan = c.chan->clone();
+   this->cdc = dynamic_cast<codec<C>*> (c.cdc->clone());
+   this->map = dynamic_cast<mapper<C>*> (c.map->clone());
+   this->mdm = dynamic_cast<blockmodem<S, C>*> (c.mdm->clone());
+   this->chan = dynamic_cast<channel<S, C>*> (c.chan->clone());
    internallyallocated = true;
    init();
    }

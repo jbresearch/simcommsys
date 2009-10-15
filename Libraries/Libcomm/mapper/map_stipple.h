@@ -72,7 +72,9 @@ public:
       }
    libbase::size_type<C> output_block_size() const
       {
-      return libbase::size_type<C>(size.length() * 2);
+      const int tau = size.length() / (sets + 1);
+      assert(size.length() == tau * (sets + 1));
+      return libbase::size_type<C>(tau * 2);
       }
 
    // Description

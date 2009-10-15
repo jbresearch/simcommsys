@@ -63,7 +63,7 @@ mapcc<real, dbl>::mapcc(const fsm& encoder, const int tau,
       const bool endatzero, const bool circular) :
    tau(tau), endatzero(endatzero), circular(circular)
    {
-   This::encoder = encoder.clone();
+   This::encoder = dynamic_cast<fsm*> (encoder.clone());
    init();
    }
 

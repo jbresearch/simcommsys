@@ -71,7 +71,7 @@
 // An assertion that is implemented even in release builds
 
 #ifdef NDEBUG
-#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::reporterrorandfail(#_Expression, __FILE__, __LINE__), 0) )
+#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::reportassertionandfail(#_Expression, __FILE__, __LINE__), 0) )
 #else
 #  define assertalways(_Expression) assert(_Expression)
 #endif
@@ -166,6 +166,7 @@ namespace libbase {
 
 // Debugging tools
 
+void reportassertionandfail(const char *expression, const char *file, int line);
 void reporterrorandfail(const char *expression, const char *file, int line);
 extern std::ostream trace;
 

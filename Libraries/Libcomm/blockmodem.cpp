@@ -9,6 +9,7 @@
 
 #include "blockmodem.h"
 #include "gf.h"
+#include "logrealfast.h"
 #include <stdlib.h>
 #include <sstream>
 
@@ -16,7 +17,7 @@ namespace libcomm {
 
 // *** Blockwise Modulator Common Interface ***
 
-// Vector modem operations
+// Block modem operations
 
 template <class S, template <class > class C, class dbl>
 void basic_blockmodem<S, C, dbl>::modulate(const int N, const C<int>& encoded,
@@ -39,251 +40,115 @@ void basic_blockmodem<S, C, dbl>::demodulate(const channel<S, C>& chan,
 
 // Explicit Realizations
 
+using libbase::vector;
 using libbase::matrix;
 using libbase::gf;
-using libcomm::sigspace;
+using libbase::logrealfast;
 
-template class basic_blockmodem<gf<1, 0x3> > ;
-template class basic_blockmodem<gf<2, 0x7> > ;
-template class basic_blockmodem<gf<3, 0xB> > ;
-template class basic_blockmodem<gf<4, 0x13> > ;
-template class basic_blockmodem<gf<5, 0x25> > ;
-template class basic_blockmodem<gf<6, 0x43> > ;
-template class basic_blockmodem<gf<7, 0x89> > ;
-template class basic_blockmodem<gf<8, 0x11D> > ;
-template class basic_blockmodem<gf<9, 0x211> > ;
-template class basic_blockmodem<gf<10, 0x409> > ;
+template class basic_blockmodem<gf<1, 0x3> , vector, double> ;
+template class basic_blockmodem<gf<2, 0x7> , vector, double> ;
+template class basic_blockmodem<gf<3, 0xB> , vector, double> ;
+template class basic_blockmodem<gf<4, 0x13> , vector, double> ;
+template class basic_blockmodem<gf<5, 0x25> , vector, double> ;
+template class basic_blockmodem<gf<6, 0x43> , vector, double> ;
+template class basic_blockmodem<gf<7, 0x89> , vector, double> ;
+template class basic_blockmodem<gf<8, 0x11D> , vector, double> ;
+template class basic_blockmodem<gf<9, 0x211> , vector, double> ;
+template class basic_blockmodem<gf<10, 0x409> , vector, double> ;
+template class basic_blockmodem<bool, vector, double> ;
+template class basic_blockmodem<sigspace, vector, double> ;
 
-template class basic_blockmodem<bool> ;
-template class basic_blockmodem<sigspace> ;
-template class basic_blockmodem<gf<1, 0x3> , matrix> ;
-template class basic_blockmodem<gf<2, 0x7> , matrix> ;
-template class basic_blockmodem<gf<3, 0xB> , matrix> ;
-template class basic_blockmodem<gf<4, 0x13> , matrix> ;
-template class basic_blockmodem<gf<5, 0x25> , matrix> ;
-template class basic_blockmodem<gf<6, 0x43> , matrix> ;
-template class basic_blockmodem<gf<7, 0x89> , matrix> ;
-template class basic_blockmodem<gf<8, 0x11D> , matrix> ;
-template class basic_blockmodem<gf<9, 0x211> , matrix> ;
-template class basic_blockmodem<gf<10, 0x409> , matrix> ;
+template class basic_blockmodem<gf<1, 0x3> , matrix, double> ;
+template class basic_blockmodem<gf<2, 0x7> , matrix, double> ;
+template class basic_blockmodem<gf<3, 0xB> , matrix, double> ;
+template class basic_blockmodem<gf<4, 0x13> , matrix, double> ;
+template class basic_blockmodem<gf<5, 0x25> , matrix, double> ;
+template class basic_blockmodem<gf<6, 0x43> , matrix, double> ;
+template class basic_blockmodem<gf<7, 0x89> , matrix, double> ;
+template class basic_blockmodem<gf<8, 0x11D> , matrix, double> ;
+template class basic_blockmodem<gf<9, 0x211> , matrix, double> ;
+template class basic_blockmodem<gf<10, 0x409> , matrix, double> ;
+template class basic_blockmodem<bool, matrix, double> ;
+template class basic_blockmodem<sigspace, matrix, double> ;
 
-template class basic_blockmodem<bool, matrix> ;
-template class basic_blockmodem<sigspace, matrix> ;
+template class basic_blockmodem<gf<1, 0x3> , vector, logrealfast> ;
+template class basic_blockmodem<gf<2, 0x7> , vector, logrealfast> ;
+template class basic_blockmodem<gf<3, 0xB> , vector, logrealfast> ;
+template class basic_blockmodem<gf<4, 0x13> , vector, logrealfast> ;
+template class basic_blockmodem<gf<5, 0x25> , vector, logrealfast> ;
+template class basic_blockmodem<gf<6, 0x43> , vector, logrealfast> ;
+template class basic_blockmodem<gf<7, 0x89> , vector, logrealfast> ;
+template class basic_blockmodem<gf<8, 0x11D> , vector, logrealfast> ;
+template class basic_blockmodem<gf<9, 0x211> , vector, logrealfast> ;
+template class basic_blockmodem<gf<10, 0x409> , vector, logrealfast> ;
+template class basic_blockmodem<bool, vector, logrealfast> ;
+template class basic_blockmodem<sigspace, vector, logrealfast> ;
+
+template class basic_blockmodem<gf<1, 0x3> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<2, 0x7> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<3, 0xB> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<4, 0x13> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<5, 0x25> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<6, 0x43> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<7, 0x89> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<8, 0x11D> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<9, 0x211> , matrix, logrealfast> ;
+template class basic_blockmodem<gf<10, 0x409> , matrix, logrealfast> ;
+template class basic_blockmodem<bool, matrix, logrealfast> ;
+template class basic_blockmodem<sigspace, matrix, logrealfast> ;
 
 // *** Blockwise Modulator Common Interface ***
 
-// Explicit Realizations
+template class blockmodem<gf<1, 0x3> , vector, double> ;
+template class blockmodem<gf<2, 0x7> , vector, double> ;
+template class blockmodem<gf<3, 0xB> , vector, double> ;
+template class blockmodem<gf<4, 0x13> , vector, double> ;
+template class blockmodem<gf<5, 0x25> , vector, double> ;
+template class blockmodem<gf<6, 0x43> , vector, double> ;
+template class blockmodem<gf<7, 0x89> , vector, double> ;
+template class blockmodem<gf<8, 0x11D> , vector, double> ;
+template class blockmodem<gf<9, 0x211> , vector, double> ;
+template class blockmodem<gf<10, 0x409> , vector, double> ;
+template class blockmodem<bool, vector, double> ;
+template class blockmodem<sigspace, vector, double> ;
 
-template class blockmodem<gf<1, 0x3> > ;
-template class blockmodem<gf<2, 0x7> > ;
-template class blockmodem<gf<3, 0xB> > ;
-template class blockmodem<gf<4, 0x13> > ;
-template class blockmodem<gf<5, 0x25> > ;
-template class blockmodem<gf<6, 0x43> > ;
-template class blockmodem<gf<7, 0x89> > ;
-template class blockmodem<gf<8, 0x11D> > ;
-template class blockmodem<gf<9, 0x211> > ;
-template class blockmodem<gf<10, 0x409> > ;
+template class blockmodem<gf<1, 0x3> , matrix, double> ;
+template class blockmodem<gf<2, 0x7> , matrix, double> ;
+template class blockmodem<gf<3, 0xB> , matrix, double> ;
+template class blockmodem<gf<4, 0x13> , matrix, double> ;
+template class blockmodem<gf<5, 0x25> , matrix, double> ;
+template class blockmodem<gf<6, 0x43> , matrix, double> ;
+template class blockmodem<gf<7, 0x89> , matrix, double> ;
+template class blockmodem<gf<8, 0x11D> , matrix, double> ;
+template class blockmodem<gf<9, 0x211> , matrix, double> ;
+template class blockmodem<gf<10, 0x409> , matrix, double> ;
+template class blockmodem<bool, matrix, double> ;
+template class blockmodem<sigspace, matrix, double> ;
 
-template class blockmodem<bool> ;
-template class blockmodem<sigspace> ;
-template class blockmodem<gf<1, 0x3> , matrix> ;
-template class blockmodem<gf<2, 0x7> , matrix> ;
-template class blockmodem<gf<3, 0xB> , matrix> ;
-template class blockmodem<gf<4, 0x13> , matrix> ;
-template class blockmodem<gf<5, 0x25> , matrix> ;
-template class blockmodem<gf<6, 0x43> , matrix> ;
-template class blockmodem<gf<7, 0x89> , matrix> ;
-template class blockmodem<gf<8, 0x11D> , matrix> ;
-template class blockmodem<gf<9, 0x211> , matrix> ;
-template class blockmodem<gf<10, 0x409> , matrix> ;
-template class blockmodem<bool, matrix> ;
-template class blockmodem<sigspace, matrix> ;
+template class blockmodem<gf<1, 0x3> , vector, logrealfast> ;
+template class blockmodem<gf<2, 0x7> , vector, logrealfast> ;
+template class blockmodem<gf<3, 0xB> , vector, logrealfast> ;
+template class blockmodem<gf<4, 0x13> , vector, logrealfast> ;
+template class blockmodem<gf<5, 0x25> , vector, logrealfast> ;
+template class blockmodem<gf<6, 0x43> , vector, logrealfast> ;
+template class blockmodem<gf<7, 0x89> , vector, logrealfast> ;
+template class blockmodem<gf<8, 0x11D> , vector, logrealfast> ;
+template class blockmodem<gf<9, 0x211> , vector, logrealfast> ;
+template class blockmodem<gf<10, 0x409> , vector, logrealfast> ;
+template class blockmodem<bool, vector, logrealfast> ;
+template class blockmodem<sigspace, vector, logrealfast> ;
 
-// *** Templated GF(q) blockmodem ***
-
-// Vector modem operations
-
-template <class G>
-void direct_blockmodem<G>::domodulate(const int N,
-      const libbase::vector<int>& encoded, libbase::vector<G>& tx)
-   {
-   // Inherit sizes
-   const int M = this->num_symbols();
-   const int tau = this->input_block_size();
-   // Compute factors & check validity
-   const int s = int(round(log2(double(N)) / log2(double(M))));
-   assertalways(tau == encoded.size());
-   // Each encoder output N must be representable by an integral number of
-   // modulation symbols M
-   assertalways(N == pow(M,s));
-   // Initialize results vector
-   tx.init(tau * s);
-   // Modulate encoded stream (least-significant first)
-   for (int t = 0, k = 0; t < tau; t++)
-      for (int i = 0, x = encoded(t); i < s; i++, k++, x /= M)
-         tx(k) = direct_modem_implementation<G>::modulate(x % M);
-   }
-
-template <class G>
-void direct_blockmodem<G>::dodemodulate(const channel<G>& chan,
-      const libbase::vector<G>& rx, libbase::vector<array1d_t>& ptable)
-   {
-   // Inherit sizes
-   const int M = this->num_symbols();
-   const int tau = this->input_block_size();
-   // Check validity
-   assertalways(tau == rx.size());
-   // Create a matrix of all possible transmitted symbols
-   libbase::vector<G> tx(M);
-   for (int x = 0; x < M; x++)
-      tx(x) = direct_modem_implementation<G>::modulate(x);
-   // Work out the probabilities of each possible signal
-   chan.receive(tx, rx, ptable);
-   }
-
-// Description
-
-template <class G>
-std::string direct_blockmodem<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Blockwise " << direct_modem_implementation<G>::description();
-   return sout.str();
-   }
-
-// Serialization Support
-
-template <class G>
-std::ostream& direct_blockmodem<G>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
-
-template <class G>
-std::istream& direct_blockmodem<G>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
-
-// Explicit Realizations
-
-using libbase::serializer;
-using libbase::gf;
-using libbase::matrix;
-
-template class direct_blockmodem<gf<1, 0x3> > ;
-template <>
-const serializer direct_blockmodem<gf<1, 0x3> >::shelper("blockmodem",
-      "blockmodem<gf<1,0x3>>", direct_blockmodem<gf<1, 0x3> >::create);
-
-template class direct_blockmodem<gf<2, 0x7> > ;
-template <>
-const serializer direct_blockmodem<gf<2, 0x7> >::shelper("blockmodem",
-      "blockmodem<gf<2,0x7>>", direct_blockmodem<gf<2, 0x7> >::create);
-
-template class direct_blockmodem<gf<3, 0xB> > ;
-template <>
-const serializer direct_blockmodem<gf<3, 0xB> >::shelper("blockmodem",
-      "blockmodem<gf<3,0xB>>", direct_blockmodem<gf<3, 0xB> >::create);
-
-template class direct_blockmodem<gf<4, 0x13> > ;
-template <>
-const serializer direct_blockmodem<gf<4, 0x13> >::shelper("blockmodem",
-      "blockmodem<gf<4,0x13>>", direct_blockmodem<gf<4, 0x13> >::create);
-
-template class direct_blockmodem<gf<5, 0x25> > ;
-template <>
-const serializer direct_blockmodem<gf<5, 0x25> >::shelper("blockmodem",
-      "direct_blockmodem<gf<5,0x25>>", direct_blockmodem<gf<5, 0x25> >::create);
-
-template class direct_blockmodem<gf<6, 0x43> > ;
-template <>
-const serializer direct_blockmodem<gf<6, 0x43> >::shelper("blockmodem",
-      "direct_blockmodem<gf<6,0x43>>", direct_blockmodem<gf<6, 0x43> >::create);
-
-template class direct_blockmodem<gf<7, 0x89> > ;
-template <>
-const serializer direct_blockmodem<gf<7, 0x89> >::shelper("blockmodem",
-      "direct_blockmodem<gf<7,0x89>>", direct_blockmodem<gf<7, 0x89> >::create);
-
-template class direct_blockmodem<gf<8, 0x11D> > ;
-template <>
-const serializer direct_blockmodem<gf<8, 0x11D> >::shelper("blockmodem",
-      "direct_blockmodem<gf<8,0x11D>>",
-      direct_blockmodem<gf<8, 0x11D> >::create);
-
-template class direct_blockmodem<gf<9, 0x211> > ;
-template <>
-const serializer direct_blockmodem<gf<9, 0x211> >::shelper("blockmodem",
-      "direct_blockmodem<gf<9,0x211>>",
-      direct_blockmodem<gf<9, 0x211> >::create);
-
-template class direct_blockmodem<gf<10, 0x409> > ;
-template <>
-const serializer direct_blockmodem<gf<10, 0x409> >::shelper("blockmodem",
-      "direct_blockmodem<gf<10,0x409>>",
-      direct_blockmodem<gf<10, 0x409> >::create);
-
-const serializer direct_blockmodem<bool>::shelper("blockmodem",
-      "blockmodem<bool>", direct_blockmodem<bool>::create);
-
-// *** Specific to direct_blockmodem<bool> ***
-
-// Vector modem operations
-
-void direct_blockmodem<bool>::domodulate(const int N,
-      const libbase::vector<int>& encoded, libbase::vector<bool>& tx)
-   {
-   // Inherit sizes
-   const int tau = input_block_size();
-   // Compute factors & check validity
-   const int s = int(round(log2(double(N))));
-   assertalways(tau == encoded.size());
-   // Each encoder output N must be representable by an integral number of bits
-   assertalways(N == (1<<s));
-   // Initialize results vector
-   tx.init(tau * s);
-   // Modulate encoded stream (least-significant first)
-   for (int t = 0, k = 0; t < tau; t++)
-      for (int i = 0, x = encoded(t); i < s; i++, k++, x >>= 1)
-         tx(k) = (x & 1);
-   }
-
-void direct_blockmodem<bool>::dodemodulate(const channel<bool>& chan,
-      const libbase::vector<bool>& rx, libbase::vector<array1d_t>& ptable)
-   {
-   // Inherit sizes
-   const int tau = input_block_size();
-   // Check validity
-   assertalways(tau == rx.size());
-   // Create a matrix of all possible transmitted symbols
-   libbase::vector<bool> tx(2);
-   tx(0) = false;
-   tx(1) = true;
-   // Work out the probabilities of each possible signal
-   chan.receive(tx, rx, ptable);
-   }
-
-// Description
-
-std::string direct_blockmodem<bool>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Blockwise " << direct_modem_implementation<bool>::description();
-   return sout.str();
-   }
-
-// Serialization Support
-
-std::ostream& direct_blockmodem<bool>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
-
-std::istream& direct_blockmodem<bool>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+template class blockmodem<gf<1, 0x3> , matrix, logrealfast> ;
+template class blockmodem<gf<2, 0x7> , matrix, logrealfast> ;
+template class blockmodem<gf<3, 0xB> , matrix, logrealfast> ;
+template class blockmodem<gf<4, 0x13> , matrix, logrealfast> ;
+template class blockmodem<gf<5, 0x25> , matrix, logrealfast> ;
+template class blockmodem<gf<6, 0x43> , matrix, logrealfast> ;
+template class blockmodem<gf<7, 0x89> , matrix, logrealfast> ;
+template class blockmodem<gf<8, 0x11D> , matrix, logrealfast> ;
+template class blockmodem<gf<9, 0x211> , matrix, logrealfast> ;
+template class blockmodem<gf<10, 0x409> , matrix, logrealfast> ;
+template class blockmodem<bool, matrix, logrealfast> ;
+template class blockmodem<sigspace, matrix, logrealfast> ;
 
 } // end namespace

@@ -21,7 +21,7 @@ namespace libcomm {
  * \todo separate support for circulation from this class
  */
 
-class fsm {
+class fsm : public libbase::serializable {
 public:
    /*! \name Class constants */
    static const int tail; //!< A special input value to use when tailing out
