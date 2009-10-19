@@ -156,7 +156,7 @@ void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
    R = 1.0;
    for (int i = 0; i < tau; i++)
       for (int x = 0; x < N; x++)
-         for (int j = 0, thisx = x / pow(S, k); j < p; j++, thisx /= S)
+         for (int j = 0, thisx = x / int(pow(S, k)); j < p; j++, thisx /= S)
             R(i, x) *= dbl(ptable(i * p + j)(thisx % S));
    BCJR::normalize(R);
 
