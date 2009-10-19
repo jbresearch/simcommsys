@@ -72,12 +72,18 @@ public:
 #endif /* SPA_FACTORY_H_ */
 
 //Explicit realisations
+#include "mpreal.h"
+
 namespace libcomm {
+using libbase::mpreal;
+
 template class spa_factory<gf<1, 0x3> > ;
-template class spa_factory<gf<1, 0x3> , long double> ;
 template class spa_factory<gf<2, 0x7> > ;
 template class spa_factory<gf<3, 0xB> > ;
+template class spa_factory<gf<3, 0xB> , mpreal> ;
 template class spa_factory<gf<4, 0x13> > ;
+template class spa_factory<gf<4, 0x13> , mpreal> ;
+template class spa_factory<gf<5, 0x25> > ;
 template class spa_factory<gf<6, 0x43> > ;
 template class spa_factory<gf<7, 0x89> > ;
 template class spa_factory<gf<8, 0x11D> > ;

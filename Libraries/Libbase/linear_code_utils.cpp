@@ -169,7 +169,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
    std::cout << "is:\n";
    matrix<GF_q> trans(orgMat.transpose());
    trans.serialize(std::cout, '\n');
-   matrix<GF_q> zeroTest(trans * dualCodeGenMatrix);
+   matrix<GF_q> zeroTest(dualCodeGenMatrix*trans);
    std::cout << "the result is:\n";
    zeroTest.serialize(std::cout, '\n');
    assertalways(GF_q(0)==zeroTest.max());
@@ -349,7 +349,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::get_most_l
    {
    //some helper variables
    int length_n = received_likelihoods.size();
-   real mostlikely_sofar = 0;
+   real mostlikely_sofar = real(0.0);
    int indx = 0;
    array1d_t tmp_vec;
    int num_of_symbs;
@@ -443,13 +443,18 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_kr
    }
 
 }
-//explicit realisations
+//Explicit realisations
+#include "mpreal.h"
+
 namespace libbase {
+using libbase::mpreal;
+
 template class linear_code_utils<gf<1, 0x3> > ;
-template class linear_code_utils<gf<1, 0x3> , long double> ;
 template class linear_code_utils<gf<2, 0x7> > ;
 template class linear_code_utils<gf<3, 0xB> > ;
+template class linear_code_utils<gf<3, 0xB> , mpreal> ;
 template class linear_code_utils<gf<4, 0x13> > ;
+template class linear_code_utils<gf<4, 0x13> , mpreal> ;
 template class linear_code_utils<gf<5, 0x25> > ;
 template class linear_code_utils<gf<6, 0x43> > ;
 template class linear_code_utils<gf<7, 0x89> > ;

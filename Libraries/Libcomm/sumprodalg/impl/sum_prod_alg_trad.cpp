@@ -6,7 +6,6 @@
  */
 
 #include "sum_prod_alg_trad.h"
-#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -14,8 +13,33 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::spa_init(
       const array1vd_t& recvd_probs)
    {
 
-   this->received_probs = recvd_probs;
    //initialise the marginal prob values
+   int num_of_elements = GF_q::elements();
+   real tmp_prob = real(0.0);
+   real alpha = real(0.0);
+
+   //ensure we don't have zero probabilities
+   //and normalise the probs at the same time
+
+   this->received_probs.init(recvd_probs.size());
+   for (int loop_n = 0; loop_n < this->length_n; loop_n++)
+      {
+      this->received_probs(loop_n).init(num_of_elements);
+      alpha = real(0.0);
+      for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
+         {
+         //HACK: no prob should be zero - set it to almost zero
+         tmp_prob = recvd_probs(loop_n)(loop_e);
+         if (tmp_prob == real(0.0))
+            {
+            tmp_prob = this->almostzero;
+            }
+         this->received_probs(loop_n)(loop_e) = tmp_prob;
+         alpha += tmp_prob;
+         }
+      assertalways(alpha!=real(0.0));
+      this->received_probs(loop_n) /= alpha;
+      }
 
    //this uses the description of the algorithm as given by
    //MacKay in Information Theory, Inference and Learning Algorithms(2003)
@@ -24,7 +48,6 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::spa_init(
    //some helper variables
    int pos = 0;
    int non_zeros = 0;
-   int num_of_elements = GF_q::elements();
 
    //simply set q_mxn(0)=P_n(0)=P(x_n=0) and q_mxn(1)=P_n(1)=P(x_n=1)
    for (int loop_m = 0; loop_m < this->dim_m; loop_m++)
@@ -84,7 +107,7 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_r_
    int int_sym_val;
    int bits;
    int pos_n_dash;
-   real q_nm_prod = 1.0;
+   real q_nm_prod = real(1.0);
 
    this->marginal_probs(m, pos_n).r_mxn = 0.0;
    GF_q check_value = this->marginal_probs(m, pos_n).val;
@@ -146,6 +169,7 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_q_
    //normalise the q_mxn's so that q_mxn_0+q_mxn_1=1
 
    real a_nxm = q_mn.sum();//sum up the values in q_mn
+   assertalways(a_nxm!=real(0));
    q_mn /= a_nxm; //normalise
 
    //store the values
@@ -154,12 +178,18 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_q_
 
 }
 //Explicit realisations
+#include "mpreal.h"
+
 namespace libcomm {
+using libbase::mpreal;
+
 template class sum_prod_alg_trad<gf<1, 0x3> > ;
-template class sum_prod_alg_trad<gf<1, 0x3> , long double> ;
 template class sum_prod_alg_trad<gf<2, 0x7> > ;
 template class sum_prod_alg_trad<gf<3, 0xB> > ;
+template class sum_prod_alg_trad<gf<3, 0xB> , mpreal> ;
 template class sum_prod_alg_trad<gf<4, 0x13> > ;
+template class sum_prod_alg_trad<gf<4, 0x13> , mpreal> ;
+template class sum_prod_alg_trad<gf<5, 0x25> > ;
 template class sum_prod_alg_trad<gf<6, 0x43> > ;
 template class sum_prod_alg_trad<gf<7, 0x89> > ;
 template class sum_prod_alg_trad<gf<8, 0x11D> > ;

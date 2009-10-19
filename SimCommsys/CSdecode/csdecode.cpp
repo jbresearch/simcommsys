@@ -1,5 +1,6 @@
 #include "serializer_libcomm.h"
 #include "commsys.h"
+#include "commsys_fulliter.h"
 #include "codec/codec_softout.h"
 #include "timer.h"
 
@@ -22,26 +23,53 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
    libbase::randgen r;
    r.seed(0);
    system->seedfrom(r);
-   // Repeat until end of stream
-   while (!sin.eof())
+
+   //use RTTI to decide whether or not we are doing full system iterations
+   libcomm::commsys_fulliter<S, C> *iter_system =
+         dynamic_cast<libcomm::commsys_fulliter<S, C>*> (system);
+
+   if (iter_system == NULL)
       {
-      C<S> received(system->output_block_size());
-      received.serialize(sin);
-      system->receive_path(received);
-      if (soft)
+      //not an iterative system
+      // Repeat until end of stream
+      while (!sin.eof())
          {
-         libcomm::codec_softout<C>& cdc =
-               dynamic_cast<libcomm::codec_softout<C>&> (*system->getcodec());
-         C<libbase::vector<double> > ptable;
-         for (int i = 0; i < system->getcodec()->num_iter(); i++)
-            cdc.softdecode(ptable);
-         ptable.serialize(sout);
+         C<S> received(system->output_block_size());
+         received.serialize(sin);
+         system->receive_path(received);
+         if (soft)
+            {
+            libcomm::codec_softout<C>
+                  & cdc =
+                        dynamic_cast<libcomm::codec_softout<C>&> (*system->getcodec());
+            C<libbase::vector<double> > ptable;
+            for (int i = 0; i < system->getcodec()->num_iter(); i++)
+               cdc.softdecode(ptable);
+            ptable.serialize(sout);
+            }
+         else
+            {
+            C<int> decoded;
+            for (int i = 0; i < system->getcodec()->num_iter(); i++)
+               system->decode(decoded);
+            decoded.serialize(sout, '\n');
+            }
+         libbase::eatwhite(sin);
          }
-      else
+      }
+   else
+      {
+      //soft option is not implemented
+      assertalways(!soft);
+      // Repeat until end of stream
+      while (!sin.eof())
          {
+         C<S> received(iter_system->output_block_size());
+         received.serialize(sin);
+         iter_system->receive_path(received);
          C<int> decoded;
-         for (int i = 0; i < system->getcodec()->num_iter(); i++)
-            system->decode(decoded);
+         for (int i = 0; i < iter_system->num_iter(); i++)
+            iter_system->decode(decoded);
          decoded.serialize(sout, '\n');
          }
       libbase::eatwhite(sin);

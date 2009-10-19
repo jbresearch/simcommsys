@@ -8,6 +8,7 @@
 #include "linear_code_utils.h"
 #include "randgen.h"
 #include <fstream>
+
 using std::cerr;
 using std::cout;
 using std::string;
@@ -96,42 +97,8 @@ void compute_conv(array1d_t& conv_out, int pos1, int pos2)
       }
    }
 
-/*         int size = probs.size();
- conv_out = probs;
- int index = 1;
- int pos1 = 0;
- int pos2 = 0;
- int convs = size / 2;
- double tmp1;
- double tmp2;
- while         (index < size)
- {
- pos1 = 0;
- for (int loop = 0; loop < convs; loop++)
- {
-
- pos1++;
- if (pos1 == pos2)
- {
- pos1++;
- }
- }
- index << 1; // *2
- }
- */
-
 int main(int argc, char *argv[])
    {
-   /*
-    array1d_t convs;
-    convs.init(8);
-    for (int loop1 = 1; loop1 < 9; loop1++)
-    {
-    convs(loop1 - 1) = loop1;
-    }
-    compute_conv(convs, 0, 7);
-    convs.serialize(std::cout, ' ');
-    */
    if (argc == 1)
       {
       cerr << "\nPlease provide a path to a file";

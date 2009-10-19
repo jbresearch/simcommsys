@@ -47,6 +47,7 @@ public:
          const array1vi_t& non_zero_row_pos, const matrix<GF_q>& pchk_matrix) :
       length_n(n), dim_m(m), M_n(non_zero_col_pos), N_m(non_zero_row_pos)
       {
+      almostzero=real(1e-100);
       marginal_probs.init(m, n);
 
       int non_zeros = 0;
@@ -136,6 +137,9 @@ protected:
 
    //! this matrix holds the r_mxn probabilities
    matrix<marginals> marginal_probs;
+
+   //! this is the value we assign to zero probs
+   real almostzero;
 };
 }
 

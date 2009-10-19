@@ -40,13 +40,17 @@ namespace libcomm {
  */
 
 template <class GF_q, class real = double>
-class ldpc : public codec_softout<libbase::vector, real> {
+class ldpc : public codec_softout<libbase::vector, double> {
 
 public:
    /*! \name Type definitions */
-   typedef libbase::vector<real> array1d_t;
+   typedef libbase::vector<double> array1dbl_t;
+   typedef libbase::vector<array1dbl_t> array1vdbl_t;
+
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<array1i_t> array1vi_t;
+
+   typedef libbase::vector<real> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
@@ -95,9 +99,9 @@ public:
     * \note Each call to decode will perform a single iteration (with respect
     * to num_iter).
     */
-   void softdecode(array1vd_t& ri)
+   void softdecode(array1vdbl_t& ri)
       {
-      array1vd_t ro;
+      array1vdbl_t ro;
       this->softdecode(ri, ro);
       }
 
@@ -109,7 +113,7 @@ public:
     * \note Each call to decode will perform a single iteration (with respect
     * to num_iter).
     */
-   void softdecode(array1vd_t& ri, array1vd_t& ro);
+   void softdecode(array1vdbl_t& ri, array1vdbl_t& ro);
 
    /*
     * some more necessary functions for the codec interface
@@ -204,7 +208,7 @@ protected:
     * This function (or resetpriors) should be called before the first decode
     * iteration for each block.
     */
-   void setpriors(const array1vd_t& ptable)
+   void setpriors(const array1vdbl_t& ptable)
       {
       failwith("Not implemented as this function is not needed");
       }
@@ -212,7 +216,7 @@ protected:
    /*!
     * \note Sets up receiver likelihood tables only.
     */
-   void setreceiver(const array1vd_t& ptable);
+   void setreceiver(const array1vdbl_t& ptable);
    // @}
 
 
@@ -295,7 +299,7 @@ private:
    array1vd_t received_probs;
 
    //!the probabilities per symbol of the computed solution
-   array1vd_t computed_solution;
+   array1vdbl_t computed_solution;
 
    //! flag indicating whether or not the current iteration
    //has resulted in a codeword

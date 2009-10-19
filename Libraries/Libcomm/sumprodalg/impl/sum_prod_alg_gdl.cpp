@@ -7,7 +7,6 @@
 
 #include "sum_prod_alg_gdl.h"
 #include <cmath>
-#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -15,8 +14,37 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
       const array1vd_t& recvd_probs)
    {
 
-   this->received_probs = recvd_probs;
+   int num_of_elements = GF_q::elements();
+   real tmp_prob = real(0.0);
+   real alpha = real(0.0);
+
    //initialise the marginal prob values
+   //ensure we don't have zero probabilities
+   //and normalise the probs at the same time
+   this->received_probs.init(recvd_probs.size());
+   for (int loop_n = 0; loop_n < this->length_n; loop_n++)
+      {
+      this->received_probs(loop_n).init(num_of_elements);
+      alpha = real(0.0);
+      for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
+         {
+         //HACK: no prob should be zero - set it to almost zero
+         tmp_prob = recvd_probs(loop_n)(loop_e);
+         if (tmp_prob == real(0.0))
+            {
+            tmp_prob = this->almostzero;
+            }
+         this->received_probs(loop_n)(loop_e) = tmp_prob;
+         alpha += tmp_prob;
+         }
+      assertalways(alpha!=real(0.0));
+      this->received_probs(loop_n) /= alpha;
+      }
+
+#if DEBUG>=2
+   libbase::trace << "\nThe first 5 normalised likelihoods are given by:\n";
+   libbase::trace << this->received_probs.extract(0, 5);
+#endif
 
    //this uses the description of the algorithm as given by
 
@@ -26,7 +54,6 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
    //some helper variables
    int pos = 0;
    int non_zeros = 0;
-   int num_of_elements = GF_q::elements();
    int h_m_n = 0;
 
    array1vd_t qmn_conv;
@@ -129,35 +156,8 @@ template <> void sum_prod_alg_gdl<gf<1, 0x3> , double>::compute_r_mn(int m,
          q_nm_conv_prod *= this->marginal_probs(m, pos_n_dash).qmn_conv(1);
          }
       }
-   this->marginal_probs(m, pos_n).r_mxn(0) = 0.5 * (1 + q_nm_conv_prod);
-   this->marginal_probs(m, pos_n).r_mxn(1) = 0.5 * (1 - q_nm_conv_prod);
-
-   }
-
-//specialisation for GF(2)
-template <> void sum_prod_alg_gdl<gf<1, 0x3> , long double>::compute_r_mn(
-      int m, int n, const array1i_t & tmpN_m)
-   {
-   //the number of participating symbols
-   int num_of_var_syms = tmpN_m.size();
-
-   int pos_n = tmpN_m(n) - 1;//we count from 1;
-
-
-   int pos_n_dash;
-
-   libbase::logrealfast q_nm_conv_prod = 1.0;
-   for (int loop2 = 0; loop2 < num_of_var_syms; loop2++)
-      {
-      if (loop2 != n)
-         {
-         pos_n_dash = tmpN_m(loop2) - 1;//we count from zero
-         q_nm_conv_prod *= this->marginal_probs(m, pos_n_dash).qmn_conv(1);
-         }
-      }
-   this->marginal_probs(m, pos_n).r_mxn(0) = libbase::logrealfast(0.5)
-         * (libbase::logrealfast(1) + q_nm_conv_prod);
-   this->marginal_probs(m, pos_n).r_mxn(1) = 0.5 * (1 - q_nm_conv_prod);
+   this->marginal_probs(m, pos_n).r_mxn(0) = 0.5 * (1.0 + q_nm_conv_prod);
+   this->marginal_probs(m, pos_n).r_mxn(1) = 0.5 * (1.0 - q_nm_conv_prod);
 
    }
 
@@ -194,8 +194,36 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_r_m
 
    //apply the FFT again to get the proper values
    this->compute_convs(q_nm_conv_prod, 0, num_of_elements - 1);
-   //need to adjust the value by the size of the finite field
-   q_nm_conv_prod /= num_of_elements;
+
+   //HACK: Ensure all of the returned values are positive
+
+   /*
+    * ensure that the values in q_nm_conv_prod make sense, ie
+    * they should all be >0 and sum up to 1
+    * Note we don't allow zero values either as no prob should be
+    * completely 0.
+    */
+   real sum_qnm = real(0.0);
+   real tmp_prob = real(0.0);
+   for (int loop1 = 0; loop1 < num_of_elements; loop1++)
+      {
+      tmp_prob = q_nm_conv_prod(loop1);
+      if (tmp_prob <= real(0.0))
+         {
+
+         libbase::trace << "at (m,n)=(" << m << ", " << pos_n << ") and e="
+               << loop1 << " we have conv_val=" << q_nm_conv_prod(loop1);
+         //this is too small set it to zero
+         libbase::trace
+               << " : probability is <=0; setting it to almostzero\n";
+         q_nm_conv_prod(loop1) = this->almostzero;
+         }
+      sum_qnm += tmp_prob;
+      }
+
+   //normalise them instead of simply dividing by the number of field elements.
+   assertalways(sum_qnm != real(0.0));
+   q_nm_conv_prod /= sum_qnm;
 
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
       {
@@ -212,7 +240,8 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
    //initialise some helper variables
    int num_of_elements = GF_q::elements();
    array1d_t q_mn(this -> received_probs(n));
-
+   real a_nxm = q_mn.sum();//sum up the values in q_mn
+   assertalways(a_nxm!=real(0));
    int m_dash = 0;
    int pos_m = M_n(m) - 1;//we count from 1;
 
@@ -230,10 +259,44 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
             q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
             }
          }
+      //HACK - we don't want a non-positive probability
+      if (q_mn(loop_e) <= real(0.0))
+         {
+         q_mn(loop_e) = this->almostzero;
+         }
+
       }
    //normalise the q_mxn's so that q_mxn_0+q_mxn_1=1
+   a_nxm = q_mn.sum();//sum up the values in q_mn
 
-   real a_nxm = q_mn.sum();//sum up the values in q_mn
+   if (a_nxm == real(0))
+      {
+      //show me the error
+      q_mn = this -> received_probs(n);
+      std::cerr << "received probs:" << q_mn;
+      for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
+         {
+         for (int loop_m = 0; loop_m < size_of_M_n; loop_m++)
+            {
+            if (m != loop_m)
+               {
+               m_dash = M_n(loop_m) - 1; //we start counting from zero
+               std::cerr << "q_mn(" << loop_e << ")=" << q_mn(loop_e) << " x "
+                     << this->marginal_probs(m_dash, n).r_mxn(loop_e) << "\n";
+               q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
+               }
+            }
+         //HACK - we don't want a zero probability
+         if (q_mn(loop_e) == real(0.0))
+            {
+            std::cerr << "q_mn(" << loop_e
+                  << ")=zero - setting it to almostzero=" << this->almostzero
+                  << "\n";
+            q_mn(loop_e) = this->almostzero;
+            }
+         }
+      }
+   assertalways(a_nxm!=real(0));
    q_mn /= a_nxm; //normalise
    //store the values
    this->marginal_probs(pos_m, n).q_mxn = q_mn;
@@ -252,12 +315,18 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
    }
 }
 //Explicit realisations
+#include "mpreal.h"
+
 namespace libcomm {
+using libbase::mpreal;
+
 template class sum_prod_alg_gdl<gf<1, 0x3> > ;
-template class sum_prod_alg_gdl<gf<1, 0x3> , long double> ;
 template class sum_prod_alg_gdl<gf<2, 0x7> > ;
 template class sum_prod_alg_gdl<gf<3, 0xB> > ;
+template class sum_prod_alg_gdl<gf<3, 0xB> , mpreal> ;
 template class sum_prod_alg_gdl<gf<4, 0x13> > ;
+template class sum_prod_alg_gdl<gf<4, 0x13> , mpreal> ;
+template class sum_prod_alg_gdl<gf<5, 0x25> > ;
 template class sum_prod_alg_gdl<gf<6, 0x43> > ;
 template class sum_prod_alg_gdl<gf<7, 0x89> > ;
 template class sum_prod_alg_gdl<gf<8, 0x11D> > ;

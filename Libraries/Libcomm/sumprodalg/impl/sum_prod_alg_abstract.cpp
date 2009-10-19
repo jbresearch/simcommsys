@@ -6,7 +6,6 @@
  */
 
 #include "sum_prod_alg_abstract.h"
-#include "logrealfast.h"
 
 namespace libcomm {
 // Determine debug level:
@@ -96,20 +95,29 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::comput
 
    //initialise some helper variables
    int num_of_elements = GF_q::elements();
-   real a_n = 0.0;
+   real a_n = real(0.0);
    int size_of_M_n = 0;
    int pos_m;
    for (int loop_n = 0; loop_n < this->length_n; loop_n++)
       {
       ro(loop_n) = this->received_probs(loop_n);
       size_of_M_n = this->M_n(loop_n).size();
-      for (int loop_m = 0; loop_m < size_of_M_n; loop_m++)
+      for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
          {
-         pos_m = this->M_n(loop_n)(loop_m) - 1;//we count from 0
-         for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
+         for (int loop_m = 0; loop_m < size_of_M_n; loop_m++)
             {
+            pos_m = this->M_n(loop_n)(loop_m) - 1;//we count from 0
             ro(loop_n)(loop_e) *= this->marginal_probs(pos_m, loop_n).r_mxn(
                   loop_e);
+            }
+         if (ro(loop_n)(loop_e) <= real(0.0))
+            {
+            //we suffered an underflow somewhere, set the probability to almostzero
+            libbase::trace << "underflow occurred at(" << loop_n << ", "
+                  << loop_e << "):" << ro(loop_n)(loop_e)
+                  << " is non-positive. Setting it to almost zero!\n";
+            ro(loop_n)(loop_e) = this->almostzero;
+
             }
          }
       //Note the following step is not strictly necessary apart from making the result
@@ -117,6 +125,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::comput
 
       //normalise the result so that q_n_0+q_n_1=1
       a_n = ro(loop_n).sum();
+      assertalways(a_n!=real(0.0));
       ro(loop_n) /= a_n;
       }
    }
@@ -256,12 +265,17 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
 }
 
 //Explicit realisations
+#include "mpreal.h"
 namespace libcomm {
+using libbase::mpreal;
+
 template class sum_prod_alg_abstract<gf<1, 0x3> > ;
-template class sum_prod_alg_abstract<gf<1, 0x3> , long double> ;
 template class sum_prod_alg_abstract<gf<2, 0x7> > ;
 template class sum_prod_alg_abstract<gf<3, 0xB> > ;
+template class sum_prod_alg_abstract<gf<3, 0xB> , mpreal> ;
 template class sum_prod_alg_abstract<gf<4, 0x13> > ;
+template class sum_prod_alg_abstract<gf<4, 0x13> , mpreal> ;
+template class sum_prod_alg_abstract<gf<5, 0x25> > ;
 template class sum_prod_alg_abstract<gf<6, 0x43> > ;
 template class sum_prod_alg_abstract<gf<7, 0x89> > ;
 template class sum_prod_alg_abstract<gf<8, 0x11D> > ;

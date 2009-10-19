@@ -11,6 +11,7 @@
 #include "sumprodalg/spa_factory.h"
 #include <math.h>
 #include <sstream>
+#include <cstdlib>
 
 namespace libcomm {
 
@@ -47,38 +48,28 @@ template <class GF_q, class real> void ldpc<GF_q, real>::init()
    }
 
 template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
-      const array1vd_t& ptable)
+      const array1vdbl_t& ptable)
    {
 
    this->current_iteration = 0;
    this->decodingSuccess = false;
 
 #if DEBUG>=2
-   libbase::trace << "\nThe received likelihoods are:\n";
-   ptable.serialize(libbase::trace, ' ');
+   libbase::trace << "\nThe first 5 received likelihoods are:\n";
+   libbase::trace<< ptable.extract(0,5);
 #endif
-
    this->received_probs.init(this->length_n);
 
-   //initialise the computed probabilities by normalising the received likelihoods,
-   //eg in the binary case compute
-   //P(x_n=0)=P(y_n|x_n=0)/(P(y_n|x_n=0)+P(y|x_n=1))
-   //P(x_n=1)=P(y_n|x_n=1)/(P(y_n|x_n=0)+P(y|x_n=1))
-   //generalise this formula to all elements in GF_q
-   //The result of this is that the computed probs for each entry adds to 1
-   //and the most likely symbol has the highest probability
-   real alpha = 0.0;
-
+   //cast the values from double to real
+   int numOfElements = GF_q::elements();
    for (int loop_n = 0; loop_n < this->length_n; loop_n++)
       {
-      alpha = ptable(loop_n).sum(); //sum all the likelihoods in ptable(loop_n)
-      this->received_probs(loop_n) = ptable(loop_n) / alpha; //normalise them
+      this->received_probs(loop_n).init(numOfElements);
+      for (int loop_e = 0; loop_e < numOfElements; loop_e++)
+         {
+         this->received_probs(loop_n)(loop_e) = real(ptable(loop_n)(loop_e));
+         }
       }
-
-#if DEBUG>=2
-   libbase::trace << "\nThe normalised likelihoods are given by:\n";
-   this->computed_probs.serialize(libbase::trace, ' ');
-#endif
 
    //determine the most likely symbol
    libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(
@@ -90,22 +81,40 @@ template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
    libbase::trace << "\n the symbol probabilities are given by:\n";
    this->received_word_sd.serialize(libbase::trace, ' ');
 #endif
-   //do we have a solution already?
-   this->isCodeword();
-   if (this->decodingSuccess)
-      {
-      this->computed_solution = this->received_probs;
-      }
+   //do not check whether we have a solution already. This will force
+   //the algorithm to do at least 1 iteration. That should be enough
+   //for the computation of the extrinsic information to work properly.
+   //If we stop here then we return the same information back which
+   //will result in the extrinsic info to equal 1.
+
+   /*
+    //this->isCodeword();
+    if (this->decodingSuccess)
+    {
+    //copy the values over
+    //this->computed_solution = this->received_probs;
+
+    this->computed_solution.init(this->length_n);
+    for (int loop_n = 0; loop_n < this->length_n; loop_n++)
+    {
+    this->computed_solution(loop_n).init(numOfElements);
+    for (int loop_e = 0; loop_e < numOfElements; loop_e++)
+    {
+    this->computed_solution(loop_n)(loop_e)
+    = static_cast<double> (this->received_probs(loop_n)(loop_e));
+    }
+    }
+    }
+    */
 
    //only do the rest if we don't have a codeword already
-   if (!this->decodingSuccess)
-      {
-      this->spa_alg->spa_init(this->received_probs);
-      }
+   //else
+   //   {
+   this->spa_alg->spa_init(this->received_probs);
+   //   }
    }
 template <class GF_q, class real> void ldpc<GF_q, real>::isCodeword()
    {
-
    bool dec_success = true;
    int num_of_entries = 0;
    int pos_n = 0;
@@ -135,7 +144,6 @@ template <class GF_q, class real> void ldpc<GF_q, real>::isCodeword()
       libbase::trace << "We have a solution\n";
       }
 #endif
-
    }
 template <class GF_q, class real> void ldpc<GF_q, real>::encode(
       const libbase::vector<int>& source, libbase::vector<int>& encoded)
@@ -161,7 +169,7 @@ template <class GF_q, class real> void ldpc<GF_q, real>::encode(
    }
 
 template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
-      array1vd_t& ri, libbase::vector<array1d_t>& ro)
+      array1vdbl_t& ri, array1vdbl_t& ro)
    {
    //update the iteration counter
    this->current_iteration++;
@@ -176,7 +184,8 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
       }
    else
       {
-      this->spa_alg->spa_iteration(ro);
+      array1vd_t tmp_ro;
+      this->spa_alg->spa_iteration(tmp_ro);
 
 #if DEBUG>=3
       libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
@@ -186,9 +195,20 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
 #endif
 
       //determine the most likely symbol
-      libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(ro,
-            this->received_word_sd, this->received_word_hd);
+      libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(
+            tmp_ro, this->received_word_sd, this->received_word_hd);
 
+      //cast the values back from real to double
+      int num_of_elements = GF_q::elements();
+      ro.init(this->length_n);
+      for (int loop_n = 0; loop_n < this->length_n; loop_n++)
+         {
+         ro(loop_n).init(num_of_elements);
+         for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
+            {
+            ro(loop_n)(loop_e) = static_cast<double> (tmp_ro(loop_n)(loop_e));
+            }
+         }
       //do we have a solution?
       this->isCodeword();
       if (this->decodingSuccess)
@@ -903,7 +923,10 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
 }//end namespace
 
 //Explicit realisations
+#include "mpreal.h"
+
 namespace libcomm {
+using libbase::mpreal;
 using libbase::serializer;
 
 template class ldpc<gf<1, 0x3> , double> ;
@@ -921,10 +944,25 @@ template <>
 const serializer ldpc<gf<3, 0xB> >::shelper = serializer("codec",
       "ldpc<gf<3,0xB>>", ldpc<gf<3, 0xB> >::create);
 
+template class ldpc<gf<3, 0xB> , mpreal> ;
+template <>
+const serializer ldpc<gf<3, 0xB> , mpreal>::shelper = serializer("codec",
+      "ldpc<gf<3,0xB>(mpreal)>", ldpc<gf<3, 0xB> , mpreal>::create);
+
 template class ldpc<gf<4, 0x13> > ;
 template <>
 const serializer ldpc<gf<4, 0x13> >::shelper = serializer("codec",
       "ldpc<gf<4,0x13>>", ldpc<gf<4, 0x13> >::create);
+
+template class ldpc<gf<4, 0x13> , mpreal> ;
+template <>
+const serializer ldpc<gf<4, 0x13> , mpreal>::shelper = serializer("codec",
+      "ldpc<gf<4,0x13>(mpreal)>", ldpc<gf<4, 0x13> , mpreal>::create);
+
+template class ldpc<gf<5, 0x25> > ;
+template <>
+const serializer ldpc<gf<5, 0x25> >::shelper = serializer("codec",
+      "ldpc<gf<5,0x25>>", ldpc<gf<5, 0x25> >::create);
 
 template class ldpc<gf<6, 0x43> > ;
 template <>

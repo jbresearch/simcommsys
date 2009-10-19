@@ -62,14 +62,17 @@ void codec_softout<libbase::vector, dbl>::hard_decision(const array1vd_t& ri,
 // Explicit Realizations
 
 #include "logrealfast.h"
+#include "mpreal.h"
 
 namespace libcomm {
 
 using libbase::vector;
 using libbase::logrealfast;
+using libbase::mpreal;
 
 template class codec_softout<vector, float> ;
 template class codec_softout<vector, double> ;
 template class codec_softout<vector, logrealfast> ;
+template class codec_softout<vector, mpreal> ;
 
 } // end namespace
