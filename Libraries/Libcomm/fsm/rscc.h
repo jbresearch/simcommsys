@@ -29,13 +29,6 @@ public:
       ccbfsm(generator)
       {
       }
-   rscc(rscc const &x) :
-      ccbfsm(x)
-      {
-      }
-   ~rscc()
-      {
-      }
    // @}
 
    // FSM state operations (getting and resetting)

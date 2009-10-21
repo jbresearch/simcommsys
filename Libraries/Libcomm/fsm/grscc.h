@@ -45,13 +45,7 @@ public:
    grscc(const libbase::matrix<libbase::vector<G> >& generator) :
       ccfsm<G> (generator)
       {
-      }
-   grscc(const grscc<G>& x) :
-      ccfsm<G> (x)
-      {
-      }
-   ~grscc()
-      {
+      initcsct();
       }
    // @}
 

@@ -68,10 +68,6 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    ccfsm(const libbase::matrix<libbase::vector<G> >& generator);
-   ccfsm(const ccfsm& x);
-   ~ccfsm()
-      {
-      }
    // @}
 
    // FSM state operations (getting and resetting)

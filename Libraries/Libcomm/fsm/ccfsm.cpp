@@ -123,21 +123,6 @@ ccfsm<G>::ccfsm(const matrix<vector<G> >& generator)
    init(generator);
    }
 
-/*!
- * \brief Copy constructor
- */
-template <class G>
-ccfsm<G>::ccfsm(const ccfsm<G>& x)
-   {
-   // copy automatically what we can
-   k = x.k;
-   n = x.n;
-   nu = x.nu;
-   m = x.m;
-   gen = x.gen;
-   reg = x.reg;
-   }
-
 // FSM state operations (getting and resetting)
 
 template <class G>

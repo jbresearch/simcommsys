@@ -11,12 +11,15 @@ LIBRARY := $(BUILDDIR)/libcomm.a
 
 # Master targets
 
-.PHONY:	clean clean-dist clean-depend
-
 all:	$(LIBRARY)
 
+install:	all
+
 clean:
-	$(RM) $(BUILDDIR)
+	@echo "Cleaning [$(RELEASE)]"
+	@$(RM) $(BUILDDIR)
+
+.PHONY:	all install clean
 
 # Manual targets
 
@@ -28,6 +31,7 @@ $(LIBRARY):	$(OBJECTS)
 # Pattern-matched targets
 
 $(BUILDDIR)/%.o:	%.cpp
+	@$(MKDIR) $(dir $@)
 	@echo "Compiling $< [$(RELEASE)]"
 	@$(CC) $(CCflags) -c $< -o $@
 
@@ -36,4 +40,4 @@ $(BUILDDIR)/%.d:	%.cpp
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
 	@$(CC) $(CCflags) $(CCdepend) $< | gawk 'BEGIN { FS = "$*.o" } { if( NF > 1 ) { print $$1, "$(BUILDDIR)/$*.d $(BUILDDIR)/$*.o", $$2 } else { print $$0 } }' > $@
 
-include $(DEPEND)
+#include $(DEPEND)

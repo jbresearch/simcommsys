@@ -2,8 +2,8 @@
 #include "gf_fast.h"
 #include "bitfield.h"
 #include "matrix.h"
+#include "timer.h"
 #include <iostream>
-#include <ctime>
 
 namespace testgf {
 
@@ -11,13 +11,12 @@ using libbase::gf;
 using libbase::gf_fast;
 using libbase::bitfield;
 using libbase::matrix;
+using libbase::timer;
 
 using std::cout;
 using std::cerr;
 using std::hex;
 using std::dec;
-using std::clock;
-using std::clock_t;
 
 /*!
  * \brief Exponential table entries for base {03}
@@ -210,15 +209,11 @@ void TestFastGF4()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<2, 0x7> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -231,9 +226,7 @@ void TestFastGF4()
          gf4 = gf<2, 0x7> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -300,108 +293,49 @@ void TestFastGF4()
       gffast3 = gf_fast<2, 0x7> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<2,0x7>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<2, 0x7> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<2, 0x7>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<2, 0x7> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<2, 0x7> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<2, 0x7> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
    }
 
 void TestFastGF8()
@@ -431,15 +365,11 @@ void TestFastGF8()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<3, 0xB> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -452,9 +382,7 @@ void TestFastGF8()
          gf4 = gf<3, 0xB> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -521,108 +449,49 @@ void TestFastGF8()
       gffast3 = gf_fast<3, 0xB> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<3, 0xB>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<3, 0xB> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<3, 0xB>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<3, 0xB> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<3, 0xB> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<3, 0xB> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    }
 
@@ -653,15 +522,11 @@ void TestFastGF16()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<4, 0x13> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -674,9 +539,7 @@ void TestFastGF16()
          gf4 = gf<4, 0x13> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -743,108 +606,49 @@ void TestFastGF16()
       gffast3 = gf_fast<4, 0x13> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<4, 0x13>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<4, 0x13> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<4, 0x13>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<4, 0x13> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<4, 0x13> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<4, 0x13> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    }
 
@@ -875,15 +679,11 @@ void TestFastGF32()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<5, 0x25> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -896,9 +696,7 @@ void TestFastGF32()
          gf4 = gf<5, 0x25> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -965,108 +763,49 @@ void TestFastGF32()
       gffast3 = gf_fast<5, 0x25> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<5, 0x25>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<5, 0x25> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<5, 0x25>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<5, 0x25> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<5, 0x25> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<5, 0x25> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
    }
 
 void TestFastGF64()
@@ -1096,15 +835,11 @@ void TestFastGF64()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<6, 0x43> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -1117,9 +852,7 @@ void TestFastGF64()
          gf4 = gf<6, 0x43> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -1186,108 +919,49 @@ void TestFastGF64()
       gffast3 = gf_fast<6, 0x43> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<6, 0x43>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<6, 0x43> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<6, 0x43>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<6, 0x43> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<6, 0x43> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<6, 0x43> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
    }
 
 void TestFastGF128()
@@ -1317,15 +991,11 @@ void TestFastGF128()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<7, 0x89> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -1338,9 +1008,7 @@ void TestFastGF128()
          gf4 = gf<7, 0x89> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -1407,108 +1075,49 @@ void TestFastGF128()
       gffast3 = gf_fast<7, 0x89> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<7, 0x89>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<7, 0x89> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<7, 0x89>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<7, 0x89> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<7, 0x89> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<7, 0x89> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    }
 
@@ -1539,15 +1148,11 @@ void TestFastGF256()
          {
          power = (loop1 % non_zero);
          if (power < 0)
-            {
             power += non_zero;
-            }
          gf2 = gf1.inverse();
          gf4 = gf<8, 0x11D> (1);
          for (int loop2 = loop1; loop2 < 0; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       else if (loop1 == 0)
@@ -1560,9 +1165,7 @@ void TestFastGF256()
          gf4 = gf<8, 0x11D> (1);
          gf2 = gf1;
          for (int loop2 = 0; loop2 < loop1; loop2++)
-            {
             gf4 = gf4 * gf2;
-            }
          assert((gffast4 == gf4) && gffast4.log_gf() == power);
          }
       }
@@ -1629,108 +1232,49 @@ void TestFastGF256()
       gffast3 = gf_fast<8, 0x11D> (tmp_val);
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
+
+   timer t1;
    cout << "Proving that gf_fast is faster at multiplication:\n";
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<8, 0x11D>\n";
-   clock_t t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 * gf<8, 0x11D> (loop2);
-         }
-      }
-   clock_t t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<8, 0x11D>\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 * gf_fast<8, 0x11D> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   double diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
-   assert(diff2 < diff1);
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout << "Proving that gf_fast is as fast at additions as gf:\n";
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gf1 = gf<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gf1 = gf1 + gf<8, 0x11D> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff1 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff1 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    cout
          << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
-   t1 = clock();
-   if (t1 == clock_t(-1))
-      {
-      cerr << "no clock\n";
-      exit(1);
-      }
+   t1.start();
    gffast1 = gf_fast<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
-      {
       for (int loop2 = 1; loop2 < non_zero; loop2++)
-         {
          gffast1 = gffast1 + gf_fast<8, 0x11D> (loop2);
-         }
-      }
-   t2 = clock();
-   if (t2 == clock_t(-1))
-      {
-      cerr << "clock overflow\n";
-      exit(1);
-      }
-   diff2 = double(t2 - t1) / CLOCKS_PER_SEC;
-   cout << "This took " << diff2 << " seconds\n";
+   t1.stop();
+   cout << "This took " << t1 << "\n";
 
    }
 
@@ -1793,6 +1337,7 @@ int main(int argc, char *argv[])
    TestMulDiv<3, 0xB> ();
    TestGenPowerGF2();
    TestGenPowerGF8();
+   // TODO: templatize tests for gf_fast
    TestFastGF2();
    TestFastGF4();
    TestFastGF8();

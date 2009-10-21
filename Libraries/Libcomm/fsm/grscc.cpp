@@ -183,8 +183,7 @@ template <class G>
 void grscc<G>::resetcircular(vector<int> zerostate, int n)
    {
    // TODO: check the input state is valid
-   if (csct.size() == 0)
-      initcsct();
+   assert(csct.size() > 0);
    const int L = csct.size().rows();
    assert(n % L != 0);
    const int zerostateval = ccfsm<G>::convert(vector<G>(zerostate));
@@ -213,7 +212,9 @@ std::ostream& grscc<G>::serialize(std::ostream& sout) const
 template <class G>
 std::istream& grscc<G>::serialize(std::istream& sin)
    {
-   return ccfsm<G>::serialize(sin);
+   ccfsm<G>::serialize(sin);
+   initcsct();
+   return sin;
    }
 
 } // end namespace

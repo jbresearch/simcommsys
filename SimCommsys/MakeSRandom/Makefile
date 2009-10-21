@@ -13,7 +13,8 @@ all:	$(BUILDDIR) $(TARGETS)
 install: $(BINDIR) $(FINAL)
 
 clean:
-	$(RM) $(BUILDDIR)
+	@echo "Cleaning [$(RELEASE)]"
+	@$(RM) $(BUILDDIR)
 
 .PHONY:	all install clean
 
@@ -36,6 +37,7 @@ $(BUILDDIR)/%:	$(BUILDDIR)/%.o $(LIBS)
 	@$(LD) $(LDflags) -o $@ $< $(LDlibs)
 
 $(BUILDDIR)/%.o:	%.cpp
+	@$(MKDIR) $(BUILDDIR)
 	@echo "Compiling $< [$(RELEASE)]"
 	@$(CC) $(CCflags) -c $< -o $@
 
@@ -44,4 +46,4 @@ $(BUILDDIR)/%.d:	%.cpp
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
 	@$(CC) $(CCflags) $(CCdepend) $< | gawk 'BEGIN { FS = "$*.o" } { if( NF > 1 ) { print $$1, "$(BUILDDIR)/$*.d $(BUILDDIR)/$*.o", $$2 } else { print $$0 } }' > $@
 
-include $(DEPEND)
+#include $(DEPEND)

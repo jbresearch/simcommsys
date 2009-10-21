@@ -148,16 +148,17 @@ void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
    const int n = acc->num_outputs();
    const int tau = acc_timesteps();
    const int N = acc->num_output_combinations();
-   const int S = This::num_outputs();
+   const int K = acc->num_input_combinations();
+   const int S = acc->num_symbols();
    // Calculate internal sizes
    const int p = n - k;
    // Determine intrinsic accumulator-output statistics (interleaved)
    // from the channel
    R = 1.0;
-   for (int i = 0; i < tau; i++)
+   for (int t = 0; t < tau; t++)
       for (int x = 0; x < N; x++)
-         for (int j = 0, thisx = x / int(pow(S, k)); j < p; j++, thisx /= S)
-            R(i, x) *= dbl(ptable(i * p + j)(thisx % S));
+         for (int i = 0, thisx = x / K; i < p; i++, thisx /= S)
+            R(t, x) *= dbl(ptable(t * p + i)(thisx % S));
    BCJR::normalize(R);
 
    // Reset start- and end-state probabilities

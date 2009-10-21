@@ -127,7 +127,7 @@ doc:
 clean:
 	@$(MAKE) RELEASE=Debug DOTARGET=clean $(TARGETS)
 	@$(MAKE) RELEASE=Release DOTARGET=clean $(TARGETS)
-	@$(MAKE) RELEASE=profile DOTARGET=clean $(TARGETS)
+	@$(MAKE) RELEASE=Profile DOTARGET=clean $(TARGETS)
 
 FORCE:
 
@@ -143,4 +143,4 @@ $(TARGETS):	$(LIBS) FORCE
 
 %.a:	FORCE
 	@echo "----> Making library \"$(notdir $@)\" [$(RELEASE)]."
-	@$(MAKE) -C $(ROOTDIR)/Libraries/$(patsubst lib%.a,Lib%,$(notdir $@))
+	@$(MAKE) -C $(ROOTDIR)/Libraries/$(patsubst lib%.a,Lib%,$(notdir $@)) $(DOTARGET)

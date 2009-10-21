@@ -63,9 +63,6 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    ccbfsm(const libbase::matrix<libbase::bitfield>& generator);
-   ~ccbfsm()
-      {
-      }
    // @}
 
    // FSM state operations (getting and resetting)

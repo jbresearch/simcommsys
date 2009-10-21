@@ -32,30 +32,24 @@ void bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
    assertalways(tau > 0);
    bcjr::tau = tau;
 
-   // Inherit constants
-   const int S = encoder.num_symbols();
-   const int k = encoder.num_inputs();
-   const int n = encoder.num_outputs();
-
    // Initialise constants
-   K = int(pow(S, k));
-   N = int(pow(S, n));
+   K = encoder.num_input_combinations();
+   N = encoder.num_output_combinations();
    M = encoder.num_states();
 
-   // Determine the number of state memory elements
-   const int m = int(log(M) / log(S));
-   assert(M == pow(S, m));
    // initialise LUT's for state table
    lut_X.init(M, K);
    lut_m.init(M, K);
    for (int mdash = 0; mdash < M; mdash++)
       for (int i = 0; i < K; i++)
          {
-         array1i_t mdash_v = fsm::convert(mdash, m, S);
+         array1i_t mdash_v = encoder.convert_state(mdash);
          encoder.reset(mdash_v);
-         array1i_t input = fsm::convert(i, k, S);
-         lut_X(mdash, i) = fsm::convert(encoder.step(input), S);
-         lut_m(mdash, i) = fsm::convert(encoder.state(), S);
+         array1i_t input = encoder.convert_input(i);
+         lut_X(mdash, i) = encoder.convert_output(encoder.step(input));
+         assert(lut_X(mdash, i) >= 0 && lut_X(mdash, i) < N);
+         lut_m(mdash, i) = encoder.convert_state(encoder.state());
+         assert(lut_m(mdash, i) >= 0 && lut_m(mdash, i) < M);
          }
 
    // set flag as necessary

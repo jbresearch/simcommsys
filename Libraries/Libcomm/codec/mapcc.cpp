@@ -113,12 +113,18 @@ void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
    assertalways(ptable(0).size() == This::num_outputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::output_block_size());
+   // Inherit sizes
+   const int S = encoder->num_symbols();
+   const int N = encoder->num_output_combinations();
+   const int n = encoder->num_outputs();
    // Initialize receiver probability vector
-   R.init(This::output_block_size(), This::num_outputs());
+   R.init(tau, N);
    // Copy the input statistics for the BCJR Algorithm
-   for (int t = 0; t < This::output_block_size(); t++)
-      for (int x = 0; x < This::num_outputs(); x++)
-         R(t, x) = ptable(t)(x);
+   R = 1.0;
+   for (int t = 0; t < tau; t++)
+      for (int x = 0; x < N; x++)
+         for (int i = 0, thisx = x; i < n; i++, thisx /= S)
+            R(t, x) *= dbl(ptable(t * n + i)(thisx % S));
    // Reset start- and end-state probabilities
    reset();
    }

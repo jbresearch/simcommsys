@@ -45,13 +45,6 @@ public:
       ccfsm<G> (generator)
       {
       }
-   gnrcc(const gnrcc<G>& x) :
-      ccfsm<G> (x)
-      {
-      }
-   ~gnrcc()
-      {
-      }
    // @}
 
    // FSM state operations (getting and resetting)

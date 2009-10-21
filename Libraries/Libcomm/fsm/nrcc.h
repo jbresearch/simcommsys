@@ -29,13 +29,6 @@ public:
       ccbfsm(generator)
       {
       }
-   nrcc(nrcc const &x) :
-      ccbfsm(x)
-      {
-      }
-   ~nrcc()
-      {
-      }
    // @}
 
    // FSM state operations (getting and resetting)
