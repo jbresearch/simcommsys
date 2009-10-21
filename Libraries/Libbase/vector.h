@@ -418,7 +418,7 @@ inline vector<T>::vector(const vector<A>& x) :
    // avoid down-cast warnings in Win32
 #ifdef WIN32
 #  pragma warning( push )
-#  pragma warning( disable : 4244 )
+#  pragma warning( disable : 4244 4800 )
 #endif
    // Do not convert type of element from A to T, so that if either is a
    // vector, the process can continue through the assignment operator

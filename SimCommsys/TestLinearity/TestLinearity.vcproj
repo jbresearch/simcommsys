@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="TestLinearity"
+	ProjectGUID="{E57EF277-B62D-4A12-9D3E-0B30BE198C99}"
 	RootNamespace="TestLinearity"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
