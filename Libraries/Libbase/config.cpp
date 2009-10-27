@@ -88,7 +88,6 @@ inline int tracestreambuf::overflow(int c)
 #endif
    return 1;
    }
-;
 
 tracestreambuf g_tracebuf;
 std::ostream trace(&g_tracebuf);
@@ -103,7 +102,9 @@ const char DIR_SEPARATOR = '\\';
 const char DIR_SEPARATOR = '/';
 #endif
 
-// Checks if a key has been pressed and returns true if this has happened.
+/*! \brief Checks if a key has been pressed
+ * \return true if this has happened
+ */
 int keypressed(void)
    {
 #ifdef WIN32
@@ -132,8 +133,9 @@ int keypressed(void)
 #endif
    }
 
-// Waits for the user to hit a key and returns its value.
-// The user's response is not shown on screen.
+/*! \brief Waits for the user to hit a key and returns its value.
+ * \note The user's response is not shown on screen.
+ */
 int readkey(void)
    {
 #ifdef WIN32
@@ -172,10 +174,18 @@ int readkey(void)
 #endif
    }
 
-// Interrupt-signal handling function
-
 static bool interrupt_caught = false;
 
+/*! \brief Interrupt-signal handling function
+ * This function is meant to catch Ctrl-C during execution, to be used in the
+ * same way as keypressed(), allowing pre-mature interruption of running MPI
+ * processes (which can't handle keypressed() events).
+ *
+ * \note The signal handler is set the first time that interrupted() is
+ * called; this means that the mechanism is not activated until the
+ * first time it is called, which generally works fine as this function
+ * is meant to be used within a loop as part of the condition statement.
+ */
 static void catch_signal(int sig_num)
    {
    trace << "DEBUG (catch_signal): caught signal " << sig_num << "\n.";

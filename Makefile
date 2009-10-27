@@ -38,9 +38,16 @@ export LDflagDebug   :=
 LDflagsCommon :=
 export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
+# Target-specific common options
+CCcomopt :=
+ifeq ($(OSARCH),i686)
+CCcomopt := -msse2 $(CCcomopt)
+else ifeq ($(OSARCH),x86_64)
+CCcomopt := -msse2 -m64 $(CCcomopt)
+endif
 # Compiler settings
-CCdbgopt := -g -DDEBUG
-CCrelopt := -O3 -DNDEBUG
+CCdbgopt := -g -DDEBUG $(CCcomopt)
+CCrelopt := -O3 -DNDEBUG $(CCcomopt)
 CCprfopt := -pg $(CCrelopt)
 CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%)
 #CClang := -Wall -Werror -Wno-non-template-friend -Woverloaded-virtual
@@ -115,6 +122,9 @@ debug:
 
 install:	install-release install-debug
 
+install-profile:
+	@$(MAKE) RELEASE=Profile DOTARGET=install $(TARGETS)
+
 install-release:
 	@$(MAKE) RELEASE=Release DOTARGET=install $(TARGETS)
 
@@ -128,6 +138,9 @@ clean:
 	@$(MAKE) RELEASE=Debug DOTARGET=clean $(TARGETS)
 	@$(MAKE) RELEASE=Release DOTARGET=clean $(TARGETS)
 	@$(MAKE) RELEASE=Profile DOTARGET=clean $(TARGETS)
+
+showsettings:
+	$(CC) $(CCflagRelease) -Q --help=target --help=optimizers --help=warnings
 
 FORCE:
 

@@ -1,6 +1,17 @@
 #ifndef __config_h
 #define __config_h
 
+/*!
+ * \file
+ * \brief   Main Configuration.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ */
+
 // Enable secure function overload for CRT in Win32
 
 #ifdef WIN32
@@ -47,17 +58,6 @@
 #  include <stdint.h>
 #endif
 
-/*!
- * \file
- * \brief   Main Configuration.
- * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 // *** Global namespace ***
 
 // Dummy entries for version-control macros, currently useful only in Windows
@@ -97,22 +97,18 @@ inline double sign(double x)
    return (x > 0) ? +1 : ((x < 0) ? -1 : 0);
    }
 
-// Automatic upgrade of various math functions from int to double parameter
+// Automatic handling of various math functions with int parameter
 
 inline double sqrt(int x)
    {
    return sqrt(double(x));
    }
-;
+
 inline double log(int x)
    {
    return log(double(x));
    }
-;
-#ifdef WIN32
-inline double pow(int x, int y)
-   {return pow(double(x),y);};
-#endif //ifdef WIN32
+
 // Define a function that returns the square of the input
 
 template <class T>
@@ -120,7 +116,6 @@ inline T square(const T x)
    {
    return x * x;
    }
-;
 
 // Define signed size type
 
@@ -132,7 +127,9 @@ typedef SSIZE_T ssize_t;
 
 #ifdef WIN32
 inline int isnan(double value)
-   {return _isnan(value);};
+   {
+   return _isnan(value);
+   }
 
 inline int isinf(double value)
    {
@@ -147,6 +144,7 @@ inline int isinf(double value)
       }
    }
 #endif //ifdef WIN32
+
 // C99 Names for integer types
 
 #ifdef WIN32
@@ -186,23 +184,11 @@ typedef int64_t int64s;
 extern const double PI;
 extern const char DIR_SEPARATOR;
 
-// Define interactive keyboard-handling functions
-// Checks if a key has been pressed and returns true if this has happened.
+// Interactive keyboard handling
 int keypressed(void);
-// Waits for the user to hit a key and returns its value.
-// The user's response is not shown on screen.
 int readkey(void);
 
-/*! \brief Interrupt-signal handling function
- * This function is meant to catch Ctrl-C during execution, to be used in the
- * same way as keypressed(), allowing pre-mature interruption of running MPI
- * processes (which can't handle keypressed() events).
- *
- * \note The signal handler is set the first time that interrupted() is
- * called; this means that the mechanism is not activated until the
- * first time it is called, which generally works fine as this function
- * is meant to be used within a loop as part of the condition statement.
- */
+// Interrupt-signal handling function
 bool interrupted(void);
 
 // System error message reporting
