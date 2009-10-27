@@ -304,6 +304,7 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
 using libbase::gf;
 using libbase::matrix;
 
+template class basic_commsys<sigspace> ;
 template class basic_commsys<bool> ;
 template class basic_commsys<gf<1, 0x3> > ;
 template class basic_commsys<gf<2, 0x7> > ;
@@ -315,7 +316,8 @@ template class basic_commsys<gf<7, 0x89> > ;
 template class basic_commsys<gf<8, 0x11D> > ;
 template class basic_commsys<gf<9, 0x211> > ;
 template class basic_commsys<gf<10, 0x409> > ;
-template class basic_commsys<sigspace> ;
+
+template class basic_commsys<sigspace, matrix> ;
 template class basic_commsys<bool, matrix> ;
 template class basic_commsys<gf<1, 0x3> , matrix> ;
 template class basic_commsys<gf<2, 0x7> , matrix> ;
@@ -327,8 +329,6 @@ template class basic_commsys<gf<7, 0x89> , matrix> ;
 template class basic_commsys<gf<8, 0x11D> , matrix> ;
 template class basic_commsys<gf<9, 0x211> , matrix> ;
 template class basic_commsys<gf<10, 0x409> , matrix> ;
-
-template class basic_commsys<sigspace, matrix> ;
 
 // *** General Communication System ***
 
@@ -346,11 +346,54 @@ std::istream& commsys<S, C>::serialize(std::istream& sin)
    return basic_commsys<S, C>::serialize(sin);
    }
 
+// *** Specific to commsys<sigspace> ***
+
+// Setup functions
+
+/*!
+ * \copydoc basic_commsys::init()
+ *
+ * This function sets the average energy per data bit in the bound channel model.
+ * The value depends on:
+ * - Rate of codec
+ * - Rate of puncturing
+ * - Average energy per uncoded bit in the modulation scheme
+ */
+
+template <template <class > class C>
+void commsys<sigspace, C>::init()
+   {
+   // set up channel energy/bit (Eb)
+   libbase::trace << "DEBUG: overall code rate = " << this->rate() << "\n";
+   this->chan->set_eb(this->mdm->bit_energy() / this->rate());
+   }
+
+// Serialization Support
+
+template <template <class > class C>
+std::ostream& commsys<sigspace, C>::serialize(std::ostream& sout) const
+   {
+   return basic_commsys<sigspace, C>::serialize(sout);
+   }
+
+template <template <class > class C>
+std::istream& commsys<sigspace, C>::serialize(std::istream& sin)
+   {
+   basic_commsys<sigspace, C>::serialize(sin);
+   init();
+   return sin;
+   }
+
 // Explicit Realizations
 
 using libbase::serializer;
 using libbase::gf;
 using libbase::matrix;
+
+template class commsys<sigspace> ;
+template <>
+const serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>",
+      commsys<sigspace>::create);
 
 template class commsys<bool> ;
 template <>
@@ -461,52 +504,5 @@ template class commsys<gf<10, 0x409> , matrix> ;
 template <>
 const serializer commsys<gf<10, 0x409> , matrix>::shelper("commsys",
       "commsys<gf<10,0x409>,matrix>", commsys<gf<10, 0x409> , matrix>::create);
-
-// *** Specific to commsys<sigspace> ***
-
-// Setup functions
-
-/*!
- * \copydoc basic_commsys::init()
- * 
- * This function sets the average energy per data bit in the bound channel model.
- * The value depends on:
- * - Rate of codec
- * - Rate of puncturing
- * - Average energy per uncoded bit in the modulation scheme
- */
-
-template <template <class > class C>
-void commsys<sigspace, C>::init()
-   {
-   // set up channel energy/bit (Eb)
-   libbase::trace << "DEBUG: overall code rate = " << this->rate() << "\n";
-   this->chan->set_eb(this->mdm->bit_energy() / this->rate());
-   }
-
-// Serialization Support
-
-template <template <class > class C>
-std::ostream& commsys<sigspace, C>::serialize(std::ostream& sout) const
-   {
-   return basic_commsys<sigspace, C>::serialize(sout);
-   }
-
-template <template <class > class C>
-std::istream& commsys<sigspace, C>::serialize(std::istream& sin)
-   {
-   basic_commsys<sigspace, C>::serialize(sin);
-   init();
-   return sin;
-   }
-
-// Explicit Realizations
-
-using libbase::serializer;
-
-template class commsys<sigspace> ;
-template <>
-const serializer commsys<sigspace>::shelper("commsys", "commsys<sigspace>",
-      commsys<sigspace>::create);
 
 } // end namespace

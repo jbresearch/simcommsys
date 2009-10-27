@@ -158,8 +158,7 @@ class commsys : public basic_commsys<S, C> , public libbase::serializable {
 public:
    // Serialization Support
 DECLARE_BASE_SERIALIZER(commsys)
-   ;
-DECLARE_SERIALIZER(commsys);
+DECLARE_SERIALIZER(commsys)
 };
 
 /*!
@@ -195,8 +194,7 @@ protected:
 public:
    // Serialization Support
 DECLARE_BASE_SERIALIZER(commsys)
-   ;
-DECLARE_SERIALIZER(commsys);
+DECLARE_SERIALIZER(commsys)
 };
 
 } // end namespace

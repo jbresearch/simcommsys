@@ -115,7 +115,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(uncoded);
+DECLARE_SERIALIZER(uncoded)
 };
 
 } // end namespace

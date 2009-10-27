@@ -121,7 +121,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(direct_blockmodem);
+DECLARE_SERIALIZER(direct_blockmodem)
 };
 
 } // end namespace

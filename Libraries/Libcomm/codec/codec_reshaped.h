@@ -115,7 +115,7 @@ public:
       }
 
    // Serialization Support
-DECLARE_SERIALIZER(codec_reshaped);
+DECLARE_SERIALIZER(codec_reshaped)
 };
 
 } // end namespace

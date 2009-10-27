@@ -85,7 +85,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_straight);
+DECLARE_SERIALIZER(map_straight)
 };
 
 /*!
@@ -149,7 +149,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_straight);
+DECLARE_SERIALIZER(map_straight)
 };
 
 } // end namespace

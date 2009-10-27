@@ -28,7 +28,7 @@ public:
    double get_parameter() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(commsys_threshold);
+DECLARE_SERIALIZER(commsys_threshold)
 };
 
 } // end namespace

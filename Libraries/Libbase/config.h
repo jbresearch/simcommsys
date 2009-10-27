@@ -97,7 +97,7 @@ inline double sign(double x)
    return (x > 0) ? +1 : ((x < 0) ? -1 : 0);
    }
 
-// Automatic handling of various math functions with int parameter
+// Automatic upgrading of various math functions with int parameter
 
 inline double sqrt(int x)
    {
@@ -108,6 +108,13 @@ inline double log(int x)
    {
    return log(double(x));
    }
+
+#ifdef WIN32
+inline double pow(int x, int y)
+   {
+   return pow(double(x), y);
+   }
+#endif
 
 // Define a function that returns the square of the input
 

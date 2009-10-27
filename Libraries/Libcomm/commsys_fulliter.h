@@ -66,7 +66,7 @@ public:
    // Description
    std::string description() const;
    // Serialization Support
-DECLARE_SERIALIZER(commsys_fulliter);
+DECLARE_SERIALIZER(commsys_fulliter)
 };
 
 } // end namespace

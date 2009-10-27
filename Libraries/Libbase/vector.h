@@ -640,8 +640,16 @@ inline vector<T>& vector<T>::operator+=(const vector<T>& x)
    {
    test_invariant();
    assert(x.m_size.length() == m_size.length());
+   // avoid bool-related warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4804 4800 )
+#endif
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] += x.m_data[i];
+#ifdef WIN32
+#  pragma warning( pop )
+#endif
    test_invariant();
    return *this;
    }

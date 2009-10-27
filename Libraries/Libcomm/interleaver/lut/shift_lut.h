@@ -41,7 +41,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(shift_lut);
+DECLARE_SERIALIZER(shift_lut)
 };
 
 } // end namespace

@@ -62,7 +62,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(qsc);
+DECLARE_SERIALIZER(qsc)
 };
 
 template <class G>

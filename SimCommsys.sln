@@ -260,6 +260,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLDPC", "SimCommsys\Test
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLinearity", "SimCommsys\TestLinearity\TestLinearity.vcproj", "{E57EF277-B62D-4A12-9D3E-0B30BE198C99}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
+		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

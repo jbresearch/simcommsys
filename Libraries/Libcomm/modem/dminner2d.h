@@ -133,7 +133,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(dminner2d);
+DECLARE_SERIALIZER(dminner2d)
 };
 
 } // end namespace

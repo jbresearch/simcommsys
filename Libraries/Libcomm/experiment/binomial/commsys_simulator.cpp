@@ -151,7 +151,7 @@ template <class S, class R>
 commsys_simulator<S, R>::commsys_simulator(const commsys_simulator<S, R>& c)
    {
    this->src = new libbase::randgen;
-   this->sys = c.sys->clone();
+   this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
    internallyallocated = true;
    }
 

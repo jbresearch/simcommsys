@@ -38,7 +38,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(rscc);
+DECLARE_SERIALIZER(rscc)
 };
 
 } // end namespace

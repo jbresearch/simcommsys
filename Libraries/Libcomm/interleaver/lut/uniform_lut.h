@@ -46,7 +46,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(uniform_lut);
+DECLARE_SERIALIZER(uniform_lut)
 };
 
 } // end namespace

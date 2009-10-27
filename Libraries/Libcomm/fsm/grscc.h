@@ -56,7 +56,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(grscc);
+DECLARE_SERIALIZER(grscc)
 };
 
 } // end namespace

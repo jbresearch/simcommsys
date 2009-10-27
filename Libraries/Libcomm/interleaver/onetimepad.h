@@ -56,7 +56,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(onetimepad);
+DECLARE_SERIALIZER(onetimepad)
 };
 
 } // end namespace

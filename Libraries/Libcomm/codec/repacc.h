@@ -146,7 +146,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(repacc);
+DECLARE_SERIALIZER(repacc)
 };
 
 } // end namespace

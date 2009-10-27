@@ -302,6 +302,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\modem\direct_blockmodem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\direct_modem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\modem\dminner.cpp"
 				>
 			</File>
@@ -530,10 +538,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\symbol.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\codec\sysrepacc.cpp"
 				>
 			</File>
@@ -680,6 +684,14 @@
 			</File>
 			<File
 				RelativePath=".\digest32.h"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\direct_blockmodem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\direct_modem.h"
 				>
 			</File>
 			<File
@@ -920,10 +932,6 @@
 			</File>
 			<File
 				RelativePath=".\sumprodalg\impl\sum_prod_alg_trad.h"
-				>
-			</File>
-			<File
-				RelativePath=".\symbol.h"
 				>
 			</File>
 			<File

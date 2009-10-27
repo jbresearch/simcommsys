@@ -196,7 +196,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(dminner);
+DECLARE_SERIALIZER(dminner)
 };
 
 template <class real, bool norm>

@@ -112,7 +112,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(commsys_simulator);
+DECLARE_SERIALIZER(commsys_simulator)
 };
 
 } // end namespace

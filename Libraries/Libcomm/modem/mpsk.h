@@ -39,7 +39,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(mpsk);
+DECLARE_SERIALIZER(mpsk)
 };
 
 } // end namespace

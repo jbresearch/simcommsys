@@ -53,7 +53,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_interleaved);
+DECLARE_SERIALIZER(map_interleaved)
 };
 
 } // end namespace

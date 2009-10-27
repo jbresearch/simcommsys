@@ -99,7 +99,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(exit_computer);
+DECLARE_SERIALIZER(exit_computer)
 };
 
 } // end namespace

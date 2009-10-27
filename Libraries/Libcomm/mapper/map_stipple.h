@@ -81,7 +81,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_stipple);
+DECLARE_SERIALIZER(map_stipple)
 };
 
 } // end namespace

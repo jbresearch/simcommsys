@@ -50,7 +50,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(rand_lut);
+DECLARE_SERIALIZER(rand_lut)
 };
 
 } // end namespace

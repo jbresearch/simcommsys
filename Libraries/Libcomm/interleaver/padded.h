@@ -58,7 +58,7 @@ public:
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(padded);
+DECLARE_SERIALIZER(padded)
 };
 
 } // end namespace

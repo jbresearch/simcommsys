@@ -158,7 +158,7 @@ public:
    void init();
 
    // Serialization Support
-DECLARE_SERIALIZER(reedsolomon);
+DECLARE_SERIALIZER(reedsolomon)
 
 private:
    //! the length of the code

@@ -184,7 +184,7 @@ public:
    std::ostream& write_alist(std::ostream& sout) const;
 
    // Serialization Support
-DECLARE_SERIALIZER(ldpc);
+DECLARE_SERIALIZER(ldpc)
 
 protected:
    /*! \name Internal codec operations */

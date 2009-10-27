@@ -142,13 +142,13 @@ public:
    /*! \brief Serialization helper object */ \
    static const libbase::serializer shelper; \
    /*! \brief Heap creation function */ \
-   static libbase::serializable* create() { return new class_name; }; \
+   static libbase::serializable* create() { return new class_name; } \
    /* @} */ \
    public: \
-   class_name *clone() const { return new class_name(*this); }; \
-   const char* name() const { return shelper.name(); }; \
+   libbase::serializable *clone() const { return new class_name(*this); } \
+   const char* name() const { return shelper.name(); } \
    std::ostream& serialize(std::ostream& sout) const; \
-   std::istream& serialize(std::istream& sin)
+   std::istream& serialize(std::istream& sin);
 
 } // end namespace
 

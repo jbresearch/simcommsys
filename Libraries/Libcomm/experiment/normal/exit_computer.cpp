@@ -146,7 +146,7 @@ template <class S>
 exit_computer<S>::exit_computer(const exit_computer<S>& c)
    {
    this->src = new libbase::randgen;
-   this->sys = c.sys->clone();
+   this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
    internallyallocated = true;
    }
 
