@@ -11,6 +11,7 @@
 #include "channel/bsid2d.h"
 #include "dminner2.h"
 #include "timer.h"
+#include "vectorutils.h"
 #include <sstream>
 
 namespace libcomm {
@@ -170,9 +171,7 @@ void dminner2d<real, norm>::dodemodulate(
          {
          ptable.extractrow(pin, i);
          // initialize storage
-         pacc.init(pin.size());
-         for (int ii = 0; ii < pacc.size(); ii++)
-            pacc(ii).init(pin(ii).size());
+         libbase::allocate(pacc, pin.size(), pin(0).size());
          // initialize value
          pacc = 1;
          for (int ii = 0; ii < m; ii++)
@@ -207,9 +206,7 @@ void dminner2d<real, norm>::dodemodulate(
          {
          ptable.extractcol(pin, j);
          // initialize storage
-         pacc.init(pin.size());
-         for (int jj = 0; jj < pacc.size(); jj++)
-            pacc(jj).init(pin(jj).size());
+         libbase::allocate(pacc, pin.size(), pin(0).size());
          // initialize value
          pacc = 1;
          for (int jj = 0; jj < n; jj++)

@@ -8,6 +8,7 @@
  */
 
 #include "repacc.h"
+#include "vectorutils.h"
 #include <sstream>
 #include <iomanip>
 
@@ -37,6 +38,8 @@ void repacc<real, dbl>::init()
    // check interleaver size
    assertalways(inter->size() == This::acc_timesteps());
    assertalways(iter > 0);
+   // set lower clipping limit
+   limitlo = 1e-100;
 
    initialised = false;
    }
@@ -70,10 +73,7 @@ void repacc<real, dbl>::reset()
 template <class real, class dbl>
 void repacc<real, dbl>::allocate()
    {
-   rp.init(This::input_block_size());
-   for (int i = 0; i < This::input_block_size(); i++)
-      rp(i).init(This::num_inputs());
-   //rp.init(This::input_block_size(), This::num_inputs());
+   libbase::allocate(rp, This::input_block_size(), This::num_inputs());
    ra.init(This::acc_timesteps(), acc->num_input_combinations());
    R.init(This::acc_timesteps(), acc->num_output_combinations());
 
@@ -115,9 +115,7 @@ void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::input_block_size());
    // Take into account intrinsic source statistics
-   for (int t = 0; t < This::input_block_size(); t++)
-      for (int i = 0; i < This::num_inputs(); i++)
-         rp(t)(i) *= ptable(t)(i);
+   rp = ptable;
    }
 
 /*! \copydoc codec_softout::setreceiver()
@@ -235,7 +233,9 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
    // compute extrinsic information
    rif.mask(ra > 0).divideby(ra);
    ra = rif;
+   // normalize and clip extrinsic information
    BCJR::normalize(ra);
+   ra.mask(ra < limitlo) = limitlo;
 
    // allocate space for interim results
    const int Nr = rep.output_block_size();
@@ -243,9 +243,7 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
    assertalways(ra.size().rows() >= Nr);
    assertalways(ra.size().cols() == q);
    array1vd_t ravd;
-   ravd.init(Nr);
-   for (int i = 0; i < Nr; i++)
-      ravd(i).init(q);
+   libbase::allocate(ravd, Nr, q);
    // convert interim results
    for (int i = 0; i < Nr; i++)
       for (int x = 0; x < q; x++)
@@ -281,8 +279,9 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
          else
             ra(i, x) = ro(i)(x);
 
-   // normalize results
+   // normalize and clip extrinsic information
    BCJR::normalize(ra);
+   ra.mask(ra < limitlo) = limitlo;
    }
 
 template <class real, class dbl>
@@ -357,7 +356,12 @@ using libbase::serializer;
 template class repacc<float, float> ;
 template <>
 const serializer repacc<float, float>::shelper = serializer("codec",
-      "repacc<float>", repacc<float, float>::create);
+      "repacc<float,float>", repacc<float, float>::create);
+
+template class repacc<float> ;
+template <>
+const serializer repacc<float>::shelper = serializer("codec", "repacc<float>",
+      repacc<float>::create);
 
 template class repacc<double> ;
 template <>

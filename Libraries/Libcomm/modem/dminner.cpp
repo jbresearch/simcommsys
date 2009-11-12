@@ -10,6 +10,7 @@
 #include "dminner.h"
 #include "timer.h"
 #include "pacifier.h"
+#include "vectorutils.h"
 #include <sstream>
 
 namespace libcomm {
@@ -172,9 +173,7 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
    const int q = 1 << k;
    const int N = ws.size();
    // Initialise result vector (one sparse symbol per timestep)
-   ptable.init(N);
-   for (int i = 0; i < N; i++)
-      ptable(i).init(q);
+   libbase::allocate(ptable, N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for (int i = 0; i < N; i++)
       {
@@ -253,9 +252,7 @@ void dminner<real, norm>::normalize_results(const array1vr_t& in,
       scale = std::max(scale, in(i).max());
    assert(scale != real(0));
    // allocate result space
-   out.init(N);
-   for (int i = 0; i < N; i++)
-      out(i).init(q);
+   libbase::allocate(out, N, q);
    // normalize and copy results
    for (int i = 0; i < N; i++)
       for (int d = 0; d < q; d++)

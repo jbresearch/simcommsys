@@ -8,7 +8,7 @@
  */
 
 #include "lut_interleaver.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 namespace libcomm {

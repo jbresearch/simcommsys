@@ -2,7 +2,7 @@
 #define __matrix3_h
 
 #include "config.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 namespace libbase {

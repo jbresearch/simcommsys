@@ -9,7 +9,7 @@
 
 #include "mpsk.h"
 #include "itfunc.h"
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 namespace libcomm {

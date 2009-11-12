@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>TestLDPC</name>
+	<name>Libimage</name>
 	<comment></comment>
 	<projects>
-		<project>Libcomm</project>
 		<project>Libbase</project>
 	</projects>
 	<buildSpec>
@@ -33,7 +32,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/TestLDPC/Debug}</value>
+					<value>${workspace_loc:/Libimage/Debug}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>

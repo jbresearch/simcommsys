@@ -9,6 +9,7 @@
 
 #include "mapcc.h"
 #include "mapper/map_straight.h"
+#include "vectorutils.h"
 #include <sstream>
 
 namespace libcomm {
@@ -177,9 +178,7 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri)
    // perform decoding
    BCJR::fdecode(R, app, rif);
    // initialise results set
-   ri.init(This::input_block_size());
-   for (int i = 0; i < This::input_block_size(); i++)
-      ri(i).init(This::num_inputs());
+   libbase::allocate(ri, This::input_block_size(), This::num_inputs());
    // remove any tail bits from input set
    for (int i = 0; i < This::input_block_size(); i++)
       for (int j = 0; j < This::num_inputs(); j++)
@@ -194,16 +193,12 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    // perform decoding
    BCJR::decode(R, rif, rof);
    // remove any tail bits from input set
-   ri.init(This::input_block_size());
-   for (int i = 0; i < This::input_block_size(); i++)
-      ri(i).init(This::num_inputs());
+   libbase::allocate(ri, This::input_block_size(), This::num_inputs());
    for (int i = 0; i < This::input_block_size(); i++)
       for (int j = 0; j < This::num_inputs(); j++)
          ri(i)(j) = rif(i, j);
    // copy output set
-   ro.init(This::output_block_size());
-   for (int i = 0; i < This::output_block_size(); i++)
-      ro(i).init(This::num_outputs());
+   libbase::allocate(ro, This::output_block_size(), This::num_outputs());
    for (int i = 0; i < This::output_block_size(); i++)
       for (int j = 0; j < This::num_outputs(); j++)
          ro(i)(j) = rof(i, j);

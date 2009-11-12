@@ -4,7 +4,7 @@
 #include "config.h"
 #include "size.h"
 #include "vector.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <algorithm>
 
@@ -1066,7 +1066,7 @@ inline matrix<T>& matrix<T>::operator^=(const matrix<T>& x)
 template <class T>
 inline matrix<T> matrix<T>::operator!() const
    {
-   matrix<T> r(*this);
+   matrix<T> r(m_size);
    for (int i = 0; i < m_size.rows(); i++)
       for (int j = 0; j < m_size.cols(); j++)
          r.m_data[i][j] = !m_data[i][j];
@@ -1158,6 +1158,7 @@ inline matrix<T> matrix<T>::inverse() const
 #endif
                break;
                }
+      assertalways(arows(i)(i) != 0);
       // divide by pivot element
       rrows(i) /= arows(i)(i);
       arows(i) /= arows(i)(i);
@@ -1384,8 +1385,6 @@ inline matrix<T> matrix<T>::eye(int n)
 /*!
  * \brief Ordinary matrix power
  * \return The result of A^n using ordinary matrix multiplication
- * \note The use of 'i' and 'j' indices in this function follows the mathematical convention,
- * rather than that used in the rest of this class.
  */
 template <class T>
 inline libbase::matrix<T> pow(const libbase::matrix<T>& A, int n)
@@ -1727,7 +1726,6 @@ inline T masked_matrix<T>::var() const
    return (_var > 0) ? _var : 0;
    }
 
-}
-; // end namespace
+} // end namespace
 
 #endif

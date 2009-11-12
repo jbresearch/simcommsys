@@ -9,7 +9,7 @@
 
 #include "md5.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 namespace libcomm {

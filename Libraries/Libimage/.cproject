@@ -3,64 +3,45 @@
 
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 <storageModule moduleId="org.eclipse.cdt.core.settings">
-<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.1063237607">
-<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.1063237607" moduleId="org.eclipse.cdt.core.settings" name="Debug">
-<externalSettings/>
+<cconfiguration id="cdt.managedbuild.config.gnu.lib.debug.1118599574">
+<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.lib.debug.1118599574" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+<externalSettings>
+<externalSetting>
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libimage"/>
+<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libimage/Debug"/>
+</externalSetting>
+</externalSettings>
 <extensions>
 <extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 <extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 </extensions>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-<configuration artifactName="MakeSRandom" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.debug.1063237607" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug">
-<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1063237607." name="/" resourcePath="">
-<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.826717929" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
-<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug.2001426304" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
-<builder buildPath="${workspace_loc:/MakeSRandom/Debug}" id="cdt.managedbuild.target.gnu.builder.exe.debug.1386664268" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="4" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
-<tool id="cdt.managedbuild.tool.gnu.archiver.base.109800952" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-<tool command="g++" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG}${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1161412751" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
-<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.807742509" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1318044712" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.option.include.paths.393869052" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
+<configuration artifactExtension="a" artifactName="Libimage" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.lib.debug.1118599574" name="Debug" parent="cdt.managedbuild.config.gnu.lib.debug">
+<folderInfo id="cdt.managedbuild.config.gnu.lib.debug.1118599574." name="/" resourcePath="">
+<toolChain id="cdt.managedbuild.toolchain.gnu.lib.debug.1366957105" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.lib.debug">
+<targetPlatform id="cdt.managedbuild.target.gnu.platform.lib.debug.1957145011" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.lib.debug"/>
+<builder buildPath="${workspace_loc:/Libimage/Debug}" id="cdt.managedbuild.target.gnu.builder.lib.debug.791632081" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="4" superClass="cdt.managedbuild.target.gnu.builder.lib.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.archiver.lib.debug.197673218" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.lib.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.2018543125" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug">
+<option id="gnu.cpp.compiler.lib.debug.option.optimization.level.1051865935" name="Optimization Level" superClass="gnu.cpp.compiler.lib.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.lib.debug.option.debugging.level.664438274" name="Debug Level" superClass="gnu.cpp.compiler.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.include.paths.2108399712" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
 </option>
-<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.112035266" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.74280771" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
-<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.500405363" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" valueType="enumerated"/>
-<option id="gnu.c.compiler.exe.debug.option.debugging.level.1004082521" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-<option id="gnu.c.compiler.option.include.paths.1522447112" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
-</option>
-<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1910225974" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.253212983" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
+<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.lib.debug.option.optimization.level.1598592573" name="Optimization Level" superClass="gnu.c.compiler.lib.debug.option.optimization.level" valueType="enumerated"/>
+<option id="gnu.c.compiler.lib.debug.option.debugging.level.398856208" name="Debug Level" superClass="gnu.c.compiler.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.676689426" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1052363743" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.808148827" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
-<option id="gnu.cpp.link.option.paths.95208824" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase/Debug}&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm/Debug}&quot;"/>
-</option>
-<option id="gnu.cpp.link.option.libs.1648137407" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
-<listOptionValue builtIn="false" value="comm"/>
-<listOptionValue builtIn="false" value="base"/>
-<listOptionValue builtIn="false" value="boost_program_options"/>
-</option>
-<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.873076089" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
-<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
-<additionalInput kind="additionalinput" paths="$(LIBS)"/>
-</inputType>
-</tool>
-<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.519764334" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
-<option id="gnu.both.asm.option.include.paths.303904597" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
-</option>
-<inputType id="cdt.managedbuild.tool.gnu.assembler.input.849387923" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.base.816893551" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.511696634" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.lib.debug.1798603216" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.debug">
+<inputType id="cdt.managedbuild.tool.gnu.assembler.input.234627047" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
 </folderInfo>
@@ -148,7 +129,7 @@
 <parser enabled="true"/>
 </scannerInfoProvider>
 </profile>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1063237607;cdt.managedbuild.config.gnu.exe.debug.1063237607.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1161412751;cdt.managedbuild.tool.gnu.cpp.compiler.input.112035266">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.debug.1118599574;cdt.managedbuild.config.gnu.lib.debug.1118599574.;cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.2018543125;cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -231,7 +212,7 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1063237607;cdt.managedbuild.config.gnu.exe.debug.1063237607.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.74280771;cdt.managedbuild.tool.gnu.c.compiler.input.1910225974">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.debug.1118599574;cdt.managedbuild.config.gnu.lib.debug.1118599574.;cdt.managedbuild.tool.gnu.c.compiler.lib.debug.253212983;cdt.managedbuild.tool.gnu.c.compiler.input.676689426">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -314,7 +295,7 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.4975010;cdt.managedbuild.config.gnu.exe.release.4975010.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.678177120;cdt.managedbuild.tool.gnu.cpp.compiler.input.234465425">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.release.599865044;cdt.managedbuild.config.gnu.lib.release.599865044.;cdt.managedbuild.tool.gnu.cpp.compiler.lib.release.953656410;cdt.managedbuild.tool.gnu.cpp.compiler.input.1338211625">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -397,7 +378,7 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.4975010;cdt.managedbuild.config.gnu.exe.release.4975010.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.240998206;cdt.managedbuild.tool.gnu.c.compiler.input.1364089949">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.release.599865044;cdt.managedbuild.config.gnu.lib.release.599865044.;cdt.managedbuild.tool.gnu.c.compiler.lib.release.1215063816;cdt.managedbuild.tool.gnu.c.compiler.input.1515347698">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -481,81 +462,49 @@
 </profile>
 </scannerConfigBuildInfo>
 </storageModule>
-<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-<externalSettings containerId="Libbase;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-<externalSetting>
-<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
-<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libbase/Debug"/>
-</externalSetting>
-</externalSettings>
-<externalSettings containerId="Libcomm;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-<externalSetting>
-<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libcomm"/>
-<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libcomm/Debug"/>
-</externalSetting>
-</externalSettings>
-</storageModule>
+<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
-<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
-<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.4975010">
-<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.4975010" moduleId="org.eclipse.cdt.core.settings" name="Release">
-<externalSettings/>
+<cconfiguration id="cdt.managedbuild.config.gnu.lib.release.599865044">
+<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.lib.release.599865044" moduleId="org.eclipse.cdt.core.settings" name="Release">
+<externalSettings>
+<externalSetting>
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libimage"/>
+<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libimage/Release"/>
+</externalSetting>
+</externalSettings>
 <extensions>
 <extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 <extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 </extensions>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-<configuration artifactName="MakeSRandom" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.release.4975010" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
-<folderInfo id="cdt.managedbuild.config.gnu.exe.release.4975010." name="/" resourcePath="">
-<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.782429563" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
-<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.13619461" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-<builder buildPath="${workspace_loc:/MakeSRandom/Release}" id="cdt.managedbuild.target.gnu.builder.exe.release.1609400862" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="4" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
-<tool id="cdt.managedbuild.tool.gnu.archiver.base.1589467501" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.678177120" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
-<option id="gnu.cpp.compiler.exe.release.option.optimization.level.588085688" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.exe.release.option.debugging.level.405948894" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.option.include.paths.1947172454" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
+<configuration artifactExtension="a" artifactName="Libimage" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.lib.release.599865044" name="Release" parent="cdt.managedbuild.config.gnu.lib.release">
+<folderInfo id="cdt.managedbuild.config.gnu.lib.release.599865044." name="/" resourcePath="">
+<toolChain id="cdt.managedbuild.toolchain.gnu.lib.release.2088450507" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.lib.release">
+<targetPlatform id="cdt.managedbuild.target.gnu.platform.lib.release.2062648990" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.lib.release"/>
+<builder buildPath="${workspace_loc:/Libimage/Release}" id="cdt.managedbuild.target.gnu.builder.lib.release.685051966" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="4" superClass="cdt.managedbuild.target.gnu.builder.lib.release"/>
+<tool id="cdt.managedbuild.tool.gnu.archiver.lib.release.80626833" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.lib.release"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.lib.release.953656410" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.lib.release">
+<option id="gnu.cpp.compiler.lib.release.option.optimization.level.686677762" name="Optimization Level" superClass="gnu.cpp.compiler.lib.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.lib.release.option.debugging.level.1731348171" name="Debug Level" superClass="gnu.cpp.compiler.lib.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.include.paths.2089892696" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
 </option>
-<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.234465425" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1338211625" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.240998206" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
-<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.2077838545" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
-<option id="gnu.c.compiler.exe.release.option.debugging.level.685893019" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-<option id="gnu.c.compiler.option.include.paths.1149146456" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
-</option>
-<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1364089949" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.1215063816" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
+<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.288559134" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
+<option id="gnu.c.compiler.lib.release.option.debugging.level.2084229196" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1515347698" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1889286220" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1669151428" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
-<option id="gnu.cpp.link.option.paths.1123446674" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase/Debug}&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm/Debug}&quot;"/>
-</option>
-<option id="gnu.cpp.link.option.libs.1647018055" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
-<listOptionValue builtIn="false" value="comm"/>
-<listOptionValue builtIn="false" value="base"/>
-<listOptionValue builtIn="false" value="boost_program_options"/>
-</option>
-<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1842080866" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
-<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
-<additionalInput kind="additionalinput" paths="$(LIBS)"/>
-</inputType>
-</tool>
-<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1186917773" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
-<option id="gnu.both.asm.option.include.paths.915030477" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
-</option>
-<inputType id="cdt.managedbuild.tool.gnu.assembler.input.223505488" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1193367391" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.827936941" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.1093544049" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release">
+<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1249358604" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
 </folderInfo>
@@ -643,7 +592,7 @@
 <parser enabled="true"/>
 </scannerInfoProvider>
 </profile>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1063237607;cdt.managedbuild.config.gnu.exe.debug.1063237607.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1161412751;cdt.managedbuild.tool.gnu.cpp.compiler.input.112035266">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.debug.1118599574;cdt.managedbuild.config.gnu.lib.debug.1118599574.;cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.2018543125;cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -726,7 +675,7 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1063237607;cdt.managedbuild.config.gnu.exe.debug.1063237607.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.74280771;cdt.managedbuild.tool.gnu.c.compiler.input.1910225974">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.debug.1118599574;cdt.managedbuild.config.gnu.lib.debug.1118599574.;cdt.managedbuild.tool.gnu.c.compiler.lib.debug.253212983;cdt.managedbuild.tool.gnu.c.compiler.input.676689426">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -809,7 +758,7 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.4975010;cdt.managedbuild.config.gnu.exe.release.4975010.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.678177120;cdt.managedbuild.tool.gnu.cpp.compiler.input.234465425">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.release.599865044;cdt.managedbuild.config.gnu.lib.release.599865044.;cdt.managedbuild.tool.gnu.cpp.compiler.lib.release.953656410;cdt.managedbuild.tool.gnu.cpp.compiler.input.1338211625">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -892,7 +841,7 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.4975010;cdt.managedbuild.config.gnu.exe.release.4975010.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.240998206;cdt.managedbuild.tool.gnu.c.compiler.input.1364089949">
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.release.599865044;cdt.managedbuild.config.gnu.lib.release.599865044.;cdt.managedbuild.tool.gnu.c.compiler.lib.release.1215063816;cdt.managedbuild.tool.gnu.c.compiler.input.1515347698">
 <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
@@ -976,25 +925,12 @@
 </profile>
 </scannerConfigBuildInfo>
 </storageModule>
+<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
-<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-<externalSettings containerId="Libbase;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-<externalSetting>
-<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
-<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libbase/Debug"/>
-</externalSetting>
-</externalSettings>
-<externalSettings containerId="Libcomm;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-<externalSetting>
-<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libcomm"/>
-<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libcomm/Debug"/>
-</externalSetting>
-</externalSettings>
-</storageModule>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
-<project id="MakeSRandom.cdt.managedbuild.target.gnu.exe.1718186243" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
+<project id="Libimage.cdt.managedbuild.target.gnu.lib.86581063" name="Static Library" projectType="cdt.managedbuild.target.gnu.lib"/>
 </storageModule>
 </cproject>

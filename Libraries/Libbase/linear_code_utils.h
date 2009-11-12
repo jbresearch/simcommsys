@@ -10,6 +10,8 @@
 
 #include "matrix.h"
 #include "gf.h"
+
+// TODO: remove all using declarations in header files
 using libbase::matrix;
 
 namespace libbase {

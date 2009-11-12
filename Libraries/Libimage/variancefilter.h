@@ -16,9 +16,8 @@
 
 namespace libimage {
 
-extern const libbase::vcs variancefilter_version;
-
-template <class T> class variancefilter : public filter<T> {
+template <class T>
+class variancefilter : public filter<T> {
 protected:
    int m_d;
 public:

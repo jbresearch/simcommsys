@@ -8,8 +8,8 @@
  */
 
 #include "fastsecant.h"
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 namespace libbase {
 

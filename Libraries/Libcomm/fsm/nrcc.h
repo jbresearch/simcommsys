@@ -18,8 +18,8 @@ namespace libcomm {
 
 class nrcc : public ccbfsm {
 protected:
-   libbase::vector<int> determineinput(libbase::vector<int> input) const;
-   libbase::bitfield determinefeedin(libbase::vector<int> input) const;
+   libbase::vector<int> determineinput(const libbase::vector<int>& input) const;
+   libbase::bitfield determinefeedin(const libbase::vector<int>& input) const;
    nrcc()
       {
       }
@@ -32,7 +32,7 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   void resetcircular(libbase::vector<int> zerostate, int n);
+   void resetcircular(const libbase::vector<int>& zerostate, int n);
 
    // Description
    std::string description() const;

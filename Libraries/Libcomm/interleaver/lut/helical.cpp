@@ -8,7 +8,7 @@
  */
 
 #include "helical.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {

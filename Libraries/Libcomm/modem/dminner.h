@@ -11,8 +11,8 @@
 #include "randgen.h"
 #include "itfunc.h"
 #include "serializer.h"
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include <memory>
 
 namespace libcomm {

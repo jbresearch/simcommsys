@@ -20,6 +20,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Stop when an error is introduced to a correctly-decoded frame
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 // *** Templated Common Base ***
 
 // Setup functions
@@ -160,6 +168,10 @@ void basic_commsys<S, C>::seedfrom(libbase::random& r)
 template <class S, template <class > class C>
 C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
    {
+   // Keep track of what we're transmitting
+#if DEBUG>=2
+   lastsource = source;
+#endif
    // Encode
    C<int> encoded;
    this->cdc->encode(source, encoded);
@@ -208,6 +220,10 @@ void basic_commsys<S, C>::receive_path(const C<S>& received)
    this->map->inverse(ptable_mapped, ptable_encoded);
    // Translate
    this->cdc->init_decoder(ptable_encoded);
+   // This frame has not been decoded yet
+#if DEBUG>=2
+   lastframecorrect = false;
+#endif
    }
 
 template <class S, template <class > class C>
@@ -215,6 +231,15 @@ void basic_commsys<S, C>::decode(C<int>& decoded)
    {
    // Decode
    this->cdc->decode(decoded);
+   // Keep track of correct decodings
+#if DEBUG>=2
+   if(lastsource.size() > 0)
+      {
+      bool thisframecorrect = decoded.isequalto(lastsource);
+      assert(!(lastframecorrect && !thisframecorrect));
+      lastframecorrect = thisframecorrect;
+      }
+#endif
    }
 
 /*!

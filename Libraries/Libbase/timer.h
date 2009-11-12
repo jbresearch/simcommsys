@@ -2,7 +2,7 @@
 #define __timer_h
 
 #include "config.h"
-#include <time.h>
+#include <ctime>
 #ifdef WIN32
 #  include <sys/types.h>
 #  include <sys/timeb.h>

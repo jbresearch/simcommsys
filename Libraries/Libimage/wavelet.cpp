@@ -10,9 +10,6 @@ using libbase::weight;
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::vcs wavelet::version("Wavelet Transform Base module (wavelet)",
-      1.40);
-
 // static helper functions - quadrature filter constructor
 
 vector<double> wavelet::quadrature(const vector<double>& g)
@@ -488,7 +485,7 @@ int wavelet::getlimit(const int size, const int level) const
    {
    if (level <= 0)
       return 2;
-   return max(2, size >> level);
+   return std::max(2, size >> level);
    }
 
 // transform / inverse functions - vector
@@ -496,7 +493,7 @@ int wavelet::getlimit(const int size, const int level) const
 void wavelet::transform(const vector<double>& in, vector<double>& out,
       const int level) const
    {
-   assert(weight(in.size())==1);
+   assert(weight(in.size()) == 1);
    // resize the output vector if necessary
    out.init(in.size());
    // start at the largest heirarchy and work towards the smallest
@@ -508,7 +505,7 @@ void wavelet::transform(const vector<double>& in, vector<double>& out,
 void wavelet::inverse(const vector<double>& in, vector<double>& out,
       const int level) const
    {
-   assert(weight(in.size())==1);
+   assert(weight(in.size()) == 1);
    // resize the output vector if necessary
    out.init(in.size());
    // start at the smallest heirarchy and work towards the largest
@@ -522,7 +519,7 @@ void wavelet::inverse(const vector<double>& in, vector<double>& out,
 void wavelet::transform(const matrix<double>& in, matrix<double>& out,
       const int level) const
    {
-   assert(weight(in.size().rows())==1 && weight(in.size().cols())==1);
+   assert(weight(in.size().rows()) == 1 && weight(in.size().cols()) == 1);
    // resize the output matrix if necessary
    out.init(in.size());
    // loop variables
@@ -546,7 +543,7 @@ void wavelet::transform(const matrix<double>& in, matrix<double>& out,
 void wavelet::inverse(const matrix<double>& in, matrix<double>& out,
       const int level) const
    {
-   assert(weight(in.size().rows())==1 && weight(in.size().cols())==1);
+   assert(weight(in.size().rows()) == 1 && weight(in.size().cols()) == 1);
    // resize the output matrix if necessary
    out.init(in.size());
    // loop variables

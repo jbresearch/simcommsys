@@ -8,7 +8,7 @@
  */
 
 #include "commsys_fulliter.h"
-
+#include "vectorutils.h"
 #include "modem/informed_modulator.h"
 #include "codec/codec_softout.h"
 #include "gf.h"
@@ -54,9 +54,7 @@ void commsys_fulliter<S, C>::compute_extrinsic(C<array1d_t>& re, const C<
       assert(ri.size() == tau);
       assert(ri(0).size() == N);
       // Allocate space for re (if necessary)
-      re.init(tau);
-      for (int i = 0; i < tau; i++)
-         re(i).init(N);
+      libbase::allocate(re, tau, N);
       // Perform computation
       for (int i = 0; i < tau; i++)
          for (int x = 0; x < N; x++)

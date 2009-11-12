@@ -124,7 +124,7 @@ public:
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void reset(libbase::vector<int> state);
+   virtual void reset(const libbase::vector<int>& state);
    /*!
     * \brief Reset to the circulation state
     *
@@ -138,7 +138,7 @@ public:
     * sequence of the form [reset(); loop step()/advance()] which the calling
     * class uses to determine the zero-state solution.
     */
-   virtual void resetcircular(libbase::vector<int> zerostate, int n) = 0;
+   virtual void resetcircular(const libbase::vector<int>& zerostate, int n) = 0;
    /*!
     * \brief Reset to the circulation state, assuming we have just run through
     * the input sequence, starting with the zero-state
@@ -183,7 +183,8 @@ public:
     *
     * \return Vector representation of the output
     */
-   virtual libbase::vector<int> output(libbase::vector<int> input) const = 0;
+   virtual libbase::vector<int>
+         output(const libbase::vector<int>& input) const = 0;
    /*!
     * \brief Feeds the specified input and returns the corresponding output,
     * advancing the state in the process

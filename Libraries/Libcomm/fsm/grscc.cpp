@@ -118,21 +118,22 @@ void grscc<G>::initcsct()
 // FSM helper operations
 
 template <class G>
-vector<int> grscc<G>::determineinput(vector<int> input) const
+vector<int> grscc<G>::determineinput(const vector<int>& input) const
    {
-   for (int i = 0; i < input.size(); i++)
-      if (input(i) == fsm::tail)
+   vector<int> ip = input;
+   for (int i = 0; i < ip.size(); i++)
+      if (ip(i) == fsm::tail)
          {
          // Handle tailing out
          const G zero;
          for (int i = 0; i < this->k; i++)
-            input(i) = convolve(zero, this->reg(i), this->gen(i, i));
+            ip(i) = convolve(zero, this->reg(i), this->gen(i, i));
          }
-   return input;
+   return ip;
    }
 
 template <class G>
-vector<G> grscc<G>::determinefeedin(vector<int> input) const
+vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
    {
    for (int i = 0; i < input.size(); i++)
       assert(input(i) != fsm::tail);
@@ -180,7 +181,7 @@ vector<G> grscc<G>::determinefeedin(vector<int> input) const
  * containing all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
  */
 template <class G>
-void grscc<G>::resetcircular(vector<int> zerostate, int n)
+void grscc<G>::resetcircular(const vector<int>& zerostate, int n)
    {
    // TODO: check the input state is valid
    assert(csct.size() > 0);

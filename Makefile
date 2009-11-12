@@ -24,7 +24,7 @@ WCVER := $(shell svnversion)
 export WCTAG := $(notdir $(PWD))
 
 # Linker settings
-export LDlibusr := -lcomm -lbase
+export LDlibusr := -limage -lcomm -lbase
 LDlibsys := -lm -lstdc++ -lboost_program_options
 #LDlibmpi := `mpic++ -showme:link`
 #LDlibmpi := -lpmpich++ -lmpich
@@ -61,7 +61,7 @@ export CCflagProfile := $(CCprfopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
 export CCflagRelease := $(CCrelopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
 export CCflagDebug   := $(CCdbgopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
 export CCflags = $(CCflag$(RELEASE))
-export CCdepend := -MM
+export CCdepend := -MM -MP
 
 # User library list
 export LIBS = $(foreach name,$(LDlibusr:-l%=%),$(ROOTDIR)/Libraries/Lib$(name)/$(BUILDDIR)/lib$(name).a)
@@ -85,15 +85,16 @@ export DOXYGEN := doxygen
 
 # Local variables:
 
-TARGETS := SimCommsys/CSdecode \
+MAINTARGETS := SimCommsys/CSdecode \
 	SimCommsys/CSencode \
 	SimCommsys/CSfullcycle \
 	SimCommsys/CStransmit \
 	SimCommsys/MakeSRandom \
 	SimCommsys/ShowErrorEvent \
 	SimCommsys/SimCommsys \
-	SimCommsys/SPECturbo \
-	SimCommsys/TestBSID \
+	SimCommsys/SPECturbo
+
+TESTTARGETS := SimCommsys/TestBSID \
 	SimCommsys/TestBSID2D \
 	SimCommsys/TestConfig \
 	SimCommsys/TestDMinner2D \
@@ -106,6 +107,8 @@ TARGETS := SimCommsys/CSdecode \
 	SimCommsys/TestWMdemodulation \
 	SimCommsys/TestLDPC \
 	SimCommsys/TestLinearity
+
+TARGETS = $(MAINTARGETS) $(TESTTARGETS)
 
 # Master targets
 
@@ -130,6 +133,14 @@ install-release:
 
 install-debug:
 	@$(MAKE) RELEASE=Debug DOTARGET=install $(TARGETS)
+
+install-main:	install-main-release install-main-debug
+
+install-main-release:
+	@$(MAKE) RELEASE=Release DOTARGET=install $(MAINTARGETS)
+
+install-main-debug:
+	@$(MAKE) RELEASE=Debug DOTARGET=install $(MAINTARGETS)
 
 doc:
 	@$(DOXYGEN)

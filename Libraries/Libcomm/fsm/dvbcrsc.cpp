@@ -41,13 +41,13 @@ void dvbcrsc::reset()
    reg = 0;
    }
 
-void dvbcrsc::reset(vector<int> state)
+void dvbcrsc::reset(const vector<int>& state)
    {
    fsm::reset(state);
    reg = fsm::convert(state, 2);
    }
 
-void dvbcrsc::resetcircular(vector<int> zerostate, int n)
+void dvbcrsc::resetcircular(const vector<int>& zerostate, int n)
    {
    // TODO: check input state is valid
    // circulation state is obtainable only if the sequence length is not
@@ -75,7 +75,7 @@ void dvbcrsc::advance(vector<int>& input)
    reg ^= (bitfield("0") + ip(1) + ip(1));
    }
 
-vector<int> dvbcrsc::output(vector<int> input) const
+vector<int> dvbcrsc::output(const vector<int>& input) const
    {
    // ref: ETSI EN 301 790 V1.4.1 (2005-04)
    // ip[0] = A, ip[1] = B

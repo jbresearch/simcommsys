@@ -8,8 +8,8 @@
 #include "safe_bcjr.h"
 #include "itfunc.h"
 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 namespace libcomm {
 

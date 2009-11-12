@@ -21,16 +21,17 @@ using libbase::matrix;
 // FSM helper operations
 
 template <class G>
-vector<int> gnrcc<G>::determineinput(vector<int> input) const
+vector<int> gnrcc<G>::determineinput(const vector<int>& input) const
    {
-   for (int i = 0; i < input.size(); i++)
-      if (input(i) == fsm::tail)
-         input(i) = 0;
-   return input;
+   vector<int> ip = input;
+   for (int i = 0; i < ip.size(); i++)
+      if (ip(i) == fsm::tail)
+         ip(i) = 0;
+   return ip;
    }
 
 template <class G>
-vector<G> gnrcc<G>::determinefeedin(vector<int> input) const
+vector<G> gnrcc<G>::determinefeedin(const vector<int>& input) const
    {
    for (int i = 0; i < input.size(); i++)
       assert(input(i) != fsm::tail);
@@ -41,7 +42,7 @@ vector<G> gnrcc<G>::determinefeedin(vector<int> input) const
 // FSM state operations (getting and resetting)
 
 template <class G>
-void gnrcc<G>::resetcircular(vector<int> zerostate, int n)
+void gnrcc<G>::resetcircular(const vector<int>& zerostate, int n)
    {
    failwith("Function not implemented.");
    }

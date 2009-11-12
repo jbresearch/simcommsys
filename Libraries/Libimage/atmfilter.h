@@ -24,9 +24,8 @@
 
 namespace libimage {
 
-extern const libbase::vcs atmfilter_version;
-
-template <class T> class atmfilter : public filter<T> {
+template <class T>
+class atmfilter : public filter<T> {
 protected:
    int m_d;
    int m_alpha;

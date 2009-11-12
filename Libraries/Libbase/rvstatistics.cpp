@@ -8,7 +8,7 @@
  */
 
 #include "rvstatistics.h"
-#include <float.h>
+#include <cfloat>
 
 namespace libbase {
 

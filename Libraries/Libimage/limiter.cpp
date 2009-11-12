@@ -3,12 +3,10 @@
 
 namespace libimage {
 
-const libbase::vcs
-      limiter_version("Hard Limiter Filter module (limiter)", 1.20);
-
 // initialization
 
-template <class T> void limiter<T>::init(const T lo, const T hi)
+template <class T>
+void limiter<T>::init(const T lo, const T hi)
    {
    m_lo = lo;
    m_hi = hi;
@@ -16,8 +14,8 @@ template <class T> void limiter<T>::init(const T lo, const T hi)
 
 // filter process loop (only updates output matrix)
 
-template <class T> void limiter<T>::process(const libbase::matrix<T>& in,
-      libbase::matrix<T>& out) const
+template <class T>
+void limiter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const
    {
    const int M = in.size().rows();
    const int N = in.size().cols();
@@ -34,7 +32,8 @@ template <class T> void limiter<T>::process(const libbase::matrix<T>& in,
             out(i, j) = in(i, j);
    }
 
-template <class T> void limiter<T>::process(libbase::matrix<T>& m) const
+template <class T>
+void limiter<T>::process(libbase::matrix<T>& m) const
    {
    const int M = m.size().rows();
    const int N = m.size().cols();
@@ -51,4 +50,6 @@ template <class T> void limiter<T>::process(libbase::matrix<T>& m) const
 
 template class limiter<double> ;
 template class limiter<int> ;
+
+
 } // end namespace

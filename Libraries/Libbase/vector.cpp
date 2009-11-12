@@ -12,7 +12,8 @@
 namespace libbase {
 
 #if DEBUG>=2
-std::map<void*,int> _vector_heap;
+std::map<const void*,int> _vector_heap;
+std::map<std::pair<const void*, int>, int> _vector_refs;
 #endif
 
 } // end namespace

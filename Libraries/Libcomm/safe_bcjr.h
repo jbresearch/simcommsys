@@ -86,6 +86,34 @@ public:
       }
 };
 
+/*!
+ * \brief   Safe version of BCJR - 'float' specialization with 'double'
+ * interface (normalized).
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ */
+
+template <>
+class safe_bcjr<float, double> : public bcjr<float, double, true> {
+protected:
+   // default constructor
+   safe_bcjr() :
+      bcjr<float, double, true> ()
+      {
+      }
+public:
+   // constructor & destructor
+   safe_bcjr(fsm& encoder, const int tau) :
+      bcjr<float, double, true> (encoder, tau)
+      {
+      }
+};
+
 } // end namespace
 
 #endif

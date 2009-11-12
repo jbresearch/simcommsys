@@ -14,36 +14,37 @@
 namespace libcomm {
 
 using libbase::bitfield;
+using libbase::vector;
 
 const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
 // FSM state operations (getting and resetting)
 
-void rscc::resetcircular(libbase::vector<int> zerostate, int n)
+void rscc::resetcircular(const vector<int>& zerostate, int n)
    {
    failwith("Function not implemented.");
    }
 
 // FSM helper operations
 
-libbase::vector<int> rscc::determineinput(libbase::vector<int> input) const
+vector<int> rscc::determineinput(const vector<int>& input) const
    {
    assert(input.size() == k);
-   // replace 'tail' inputs with required value
-   for (int i = 0; i < k; i++)
-      if (input(i) == fsm::tail)
-         input(i) = (reg(i) + bitfield(0, 1)) * gen(i, i);
-   return input;
+   vector<int> ip = input;
+   for (int i = 0; i < ip.size(); i++)
+      if (ip(i) == fsm::tail)
+         ip(i) = (reg(i) + bitfield(0, 1)) * gen(i, i);
+   return ip;
    }
 
-bitfield rscc::determinefeedin(libbase::vector<int> input) const
+bitfield rscc::determinefeedin(const vector<int>& input) const
    {
    assert(input.size() == k);
    // check we have no 'tail' inputs
    for (int i = 0; i < k; i++)
       assert(input(i) != fsm::tail);
    // compute input junction
-   bitfield sin(0, 0), ip = bitfield(libbase::vector<bool>(input));
+   bitfield sin(0, 0), ip = bitfield(vector<bool>(input));
    for (int i = 0; i < k; i++)
       sin = ((reg(i) + ip(i)) * gen(i, i)) + sin;
    return sin;

@@ -8,7 +8,7 @@
  */
 
 #include "stream_lut.h"
-#include <string.h>
+#include <cstring>
 
 namespace libcomm {
 

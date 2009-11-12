@@ -14,6 +14,7 @@
 #include "matrix.h"
 
 #include "boost/shared_ptr.hpp"
+// TODO: remove all using declarations in header files
 using boost::shared_ptr;
 
 #include <string>

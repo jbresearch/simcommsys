@@ -27,12 +27,14 @@ private:
    // @}
    /*! \name Internal functions */
    libbase::matrix<G> getstategen() const;
+   // TODO: Separate circulation state stuff from this class
+   // (not all RSC codes are suitable)
    void initcsct();
    // @}
 protected:
    /*! \name FSM helper operations */
-   libbase::vector<int> determineinput(libbase::vector<int> input) const;
-   libbase::vector<G> determinefeedin(libbase::vector<int> input) const;
+   libbase::vector<int> determineinput(const libbase::vector<int>& input) const;
+   libbase::vector<G> determinefeedin(const libbase::vector<int>& input) const;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -50,7 +52,7 @@ public:
    // @}
 
    // FSM state operations (getting and resetting)
-   void resetcircular(libbase::vector<int> zerostate, int n);
+   void resetcircular(const libbase::vector<int>& zerostate, int n);
 
    // Description
    std::string description() const;

@@ -35,11 +35,11 @@ public:
    // FSM state operations (getting and resetting)
    libbase::vector<int> state() const;
    void reset();
-   void reset(libbase::vector<int> state);
-   void resetcircular(libbase::vector<int> zerostate, int n);
+   void reset(const libbase::vector<int>& state);
+   void resetcircular(const libbase::vector<int>& zerostate, int n);
    // FSM operations (advance/output/step)
    void advance(libbase::vector<int>& input);
-   libbase::vector<int> output(libbase::vector<int> input) const;
+   libbase::vector<int> output(const libbase::vector<int>& input) const;
 
    // FSM information functions
    int mem_order() const

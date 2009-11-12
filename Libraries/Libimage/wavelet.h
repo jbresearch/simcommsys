@@ -2,7 +2,6 @@
 #define __wavelet_h
 
 #include "config.h"
-#include "vcs.h"
 #include "vector.h"
 #include "matrix.h"
 #include <iostream>
@@ -51,7 +50,6 @@
 namespace libimage {
 
 class wavelet {
-   static const libbase::vcs version;
 protected:
    // the quadrature mirror filters
    libbase::vector<double> g, h;

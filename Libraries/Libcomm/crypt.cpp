@@ -9,9 +9,9 @@
 
 #include "crypt.h"
 
-#include <time.h>
-#include <string.h>
-#include <stdlib.h>
+#include <ctime>
+#include <cstring>
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {

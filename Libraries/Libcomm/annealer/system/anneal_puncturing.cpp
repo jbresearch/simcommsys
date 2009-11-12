@@ -8,7 +8,7 @@
  */
 
 #include "anneal_puncturing.h"
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 namespace libcomm {

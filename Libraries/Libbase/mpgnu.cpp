@@ -8,7 +8,7 @@
  */
 
 #include "mpgnu.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace libbase {
 

@@ -2,9 +2,9 @@
 #define __logreal_h
 
 #include "config.h"
-#include <math.h>
-#include <float.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cfloat>
+#include <cstdlib>
 #include <iostream>
 
 namespace libbase {

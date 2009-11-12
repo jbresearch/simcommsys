@@ -9,6 +9,7 @@
 
 #include "fba2.h"
 #include "pacifier.h"
+#include "vectorutils.h"
 #include <iomanip>
 
 namespace libcomm {
@@ -285,9 +286,7 @@ void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
    // local flag for path thresholding
    const bool thresholding = (th_outer > 0);
    // Initialise result vector (one sparse symbol per timestep)
-   ptable.init(N);
-   for (int i = 0; i < N; i++)
-      ptable(i).init(q);
+   libbase::allocate(ptable, N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for (int i = 0; i < N; i++)
       {

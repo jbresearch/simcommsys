@@ -2,7 +2,7 @@
 #define __mpgnu_h
 
 #include "config.h"
-#include <float.h>
+#include <cfloat>
 #include <iostream>
 
 #ifdef GMP

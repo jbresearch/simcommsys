@@ -12,8 +12,8 @@
 #ifdef WIN32
 #  include <winsock2.h>
 #else
-#  include <stdlib.h>
-#  include <string.h>
+#  include <cstdlib>
+#  include <cstring>
 #  include <netdb.h>
 #  include <unistd.h>
 

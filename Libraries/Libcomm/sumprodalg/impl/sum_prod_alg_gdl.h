@@ -12,6 +12,7 @@
 #include <string>
 
 namespace libcomm {
+
 template <class GF_q, class real = double>
 class sum_prod_alg_gdl : public sum_prod_alg_abstract<GF_q, real> {
 public:

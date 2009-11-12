@@ -55,9 +55,13 @@ vector<int> makerangevector()
    // create space for result
    vector<int> x(10);
    cout << "Local address: " << &x << "\n";
+   cout << "Size: " << x.size() << "\n";
    // init values
    for (int i = 0; i < x.size(); i++)
       x(i) = i;
+   cout << "Contents: {";
+   x.serialize(cout, ',');
+   cout << "}\n";
    // return result
    return x;
    }
@@ -67,6 +71,9 @@ void accessvectorbyvalue(vector<int> x)
    cout << "\nAccess vector by value:\n\n";
    cout << "Address: " << &x << "\n";
    cout << "Size: " << x.size() << "\n";
+   cout << "Contents: {";
+   x.serialize(cout, ',');
+   cout << "}\n";
    }
 
 void accessvectorbyreference(vector<int>& x)
@@ -74,6 +81,9 @@ void accessvectorbyreference(vector<int>& x)
    cout << "\nAccess vector by reference:\n\n";
    cout << "Address: " << &x << "\n";
    cout << "Size: " << x.size() << "\n";
+   cout << "Contents: {";
+   x.serialize(cout, ',');
+   cout << "}\n";
    }
 
 void testvector()
@@ -99,10 +109,16 @@ void testvector()
    cout << "\nTest vector return by value:\n\n";
    cout << "Address: " << &r << "\n";
    cout << "Size: " << r.size() << "\n";
+   cout << "Contents: {";
+   r.serialize(cout, ',');
+   cout << "}\n";
    // test vector passing
    cout << "\nTest vector access on:\n\n";
    cout << "Address: " << &r << "\n";
    cout << "Size: " << r.size() << "\n";
+   cout << "Contents: {";
+   r.serialize(cout, ',');
+   cout << "}\n";
    accessvectorbyreference(r);
    accessvectorbyvalue(r);
    }
@@ -126,8 +142,20 @@ void testmatrixmul()
    B(1, 2) = 0;
    cout << "A = " << A;
    cout << "B = " << B;
-   cout << "AB = " << A * B;
-   // TODO: add test for result values
+   matrix<int> AB = A * B;
+   cout << "AB = " << AB;
+   // test for result values
+   matrix<int> R(3, 3);
+   R(0, 0) = 2;
+   R(1, 0) = 3;
+   R(2, 0) = 7;
+   R(0, 1) = 1;
+   R(1, 1) = 3;
+   R(2, 1) = 5;
+   R(0, 2) = 1;
+   R(1, 2) = 0;
+   R(2, 2) = 2;
+   assert(AB.isequalto(R));
    }
 
 void testmatrixinv()
@@ -144,9 +172,11 @@ void testmatrixinv()
    A(1, 2) = 1;
    A(2, 2) = 7;
    cout << "A = " << A;
-   cout << "inv(A) = " << A.inverse();
-   cout << "inv(A).A = " << A.inverse() * A;
-   // TODO: add test for result values
+   matrix<int> Ainv = A.inverse();
+   cout << "inv(A) = " << Ainv;
+   matrix<int> R = Ainv * A;
+   cout << "inv(A).A = " << R;
+   assert(R.isequalto(matrix<int>::eye(3)));
    }
 
 void testboost_foreach(const std::string& s)

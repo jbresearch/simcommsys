@@ -4,7 +4,7 @@
 #include "config.h"
 #include "channel.h"
 #include "serializer.h"
-#include <math.h>
+#include <cmath>
 
 namespace libcomm {
 

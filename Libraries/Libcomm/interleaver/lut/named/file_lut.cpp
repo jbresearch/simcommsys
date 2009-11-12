@@ -8,8 +8,8 @@
  */
 
 #include "file_lut.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 namespace libcomm {
 

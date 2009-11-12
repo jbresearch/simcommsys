@@ -146,7 +146,7 @@ void ccfsm<G>::reset()
    }
 
 template <class G>
-void ccfsm<G>::reset(vector<int> state)
+void ccfsm<G>::reset(const vector<int>& state)
    {
    fsm::reset(state);
    assert(state.size() == nu);
@@ -202,19 +202,19 @@ void ccfsm<G>::advance(vector<int>& input)
    }
 
 template <class G>
-vector<int> ccfsm<G>::output(vector<int> input) const
+vector<int> ccfsm<G>::output(const vector<int>& input) const
    {
 #if DEBUG>=2
    trace << "Output:\n";
    trace << "  Original Input:\t";
    input.serialize(trace);
 #endif
-   input = determineinput(input);
+   vector<int> ip = determineinput(input);
 #if DEBUG>=2
    trace << "  Actual Input: \t";
    input.serialize(trace);
 #endif
-   vector<G> sin = determinefeedin(input);
+   vector<G> sin = determinefeedin(ip);
 #if DEBUG>=2
    trace << "  Register Feed-in:\t";
    sin.serialize(trace);

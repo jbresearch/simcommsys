@@ -4,7 +4,7 @@
 #include "config.h"
 #include "vector.h"
 #include "matrix.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 namespace libbase {

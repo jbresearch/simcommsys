@@ -7,7 +7,7 @@
 #include "multi_array.h"
 #include "fsm.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 

@@ -38,7 +38,7 @@ $(BUILDDIR)/%.o:	%.cpp
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
-	@$(CC) $(CCflags) $(CCdepend) $< | gawk 'BEGIN { FS = "$*.o" } { if( NF > 1 ) { print $$1, "$(BUILDDIR)/$*.d $(BUILDDIR)/$*.o", $$2 } else { print $$0 } }' > $@
+	@$(CC) $(CCflags) $(CCdepend) -MF$@ $< 
 
 ifneq ($(MAKECMDGOALS),clean)
 include $(DEPEND)

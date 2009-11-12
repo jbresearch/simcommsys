@@ -2,7 +2,6 @@
 #define __imagefile_h
 
 #include "config.h"
-#include "vcs.h"
 
 /*******************************************************************************
 
@@ -18,7 +17,6 @@
 namespace libimage {
 
 class imagefile {
-   static const libbase::vcs version;
 public:
    // Construction / destruction
    imagefile();

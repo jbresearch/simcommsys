@@ -8,6 +8,7 @@
  */
 
 #include "uncoded.h"
+#include "vectorutils.h"
 #include <sstream>
 
 namespace libcomm {
@@ -51,9 +52,7 @@ template <class dbl>
 void uncoded<dbl>::resetpriors()
    {
    // Allocate space for prior input statistics
-   rp.init(This::input_block_size());
-   for (int t = 0; t < This::input_block_size(); t++)
-      rp(t).init(This::num_inputs());
+   libbase::allocate(rp, This::input_block_size(), This::num_inputs());
    // Initialize
    rp = 1.0;
    }
@@ -96,7 +95,9 @@ void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Encode source stream
    for (int t = 0; t < tau; t++)
       {
-      array1i_t ip = source.extract(t * k, k);
+      // NOTE: do not replace with a copy constructor
+      array1i_t ip;
+      ip = source.extract(t * k, k);
       encoded.segment(t * n, n) = encoder->step(ip);
       }
    }
@@ -140,9 +141,7 @@ void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    const int n = enc_outputs();
    const int S = This::num_inputs();
    // Allocate space for output results
-   ro.init(This::output_block_size());
-   for (int t = 0; t < This::output_block_size(); t++)
-      ro(t).init(This::num_outputs());
+   libbase::allocate(ro, This::output_block_size(), This::num_outputs());
    // Initialize
    ro = 1.0;
    // Consider each time-step

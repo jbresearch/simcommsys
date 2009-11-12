@@ -8,7 +8,7 @@
  */
 
 #include "histogram.h"
-#include <float.h>
+#include <cfloat>
 
 namespace libbase {
 

@@ -50,14 +50,14 @@ protected:
     * \return The given value, or the value that must be applied to tail out
     */
    virtual libbase::vector<int>
-   determineinput(libbase::vector<int> input) const = 0;
+   determineinput(const libbase::vector<int>& input) const = 0;
    /*!
     * \brief Determine the value that will be shifted into the register
     * \param input Requested input - can only be a valid input
     * \return Vector representation of the shift-in value
     */
    virtual libbase::vector<G>
-   determinefeedin(libbase::vector<int> input) const = 0;
+   determinefeedin(const libbase::vector<int>& input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -73,10 +73,10 @@ public:
    // FSM state operations (getting and resetting)
    libbase::vector<int> state() const;
    void reset();
-   void reset(libbase::vector<int> state);
+   void reset(const libbase::vector<int>& state);
    // FSM operations (advance/output/step)
-   void advance(libbase::vector<int> & input);
-   libbase::vector<int> output(libbase::vector<int> input) const;
+   void advance(libbase::vector<int>& input);
+   libbase::vector<int> output(const libbase::vector<int>& input) const;
 
    // FSM information functions
    int mem_order() const

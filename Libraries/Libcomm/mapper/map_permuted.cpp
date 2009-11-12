@@ -8,7 +8,8 @@
  */
 
 #include "map_permuted.h"
-#include <stdlib.h>
+#include "vectorutils.h"
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {
@@ -45,9 +46,7 @@ void map_permuted<C, dbl>::doinverse(const C<array1d_t>& pin,
    assert(pin(0).size() == M);
    // temporary matrix is the same size as input
    C<array1d_t> ptable;
-   ptable.init(lut.size());
-   for (int i = 0; i < lut.size(); i++)
-      ptable(i).init(M);
+   libbase::allocate(ptable, lut.size(), M);
    // invert the permutation
    for (int i = 0; i < lut.size(); i++)
       for (int j = 0; j < M; j++)

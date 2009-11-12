@@ -7,7 +7,7 @@
 SOURCES := $(shell find . -name '*.cpp')
 OBJECTS := $(SOURCES:%.cpp=$(BUILDDIR)/%.o)
 DEPEND := $(SOURCES:%.cpp=$(BUILDDIR)/%.d)
-LIBRARY := $(BUILDDIR)/libbase.a
+LIBRARY := $(BUILDDIR)/libimage.a
 
 # Master targets
 

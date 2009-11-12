@@ -9,7 +9,7 @@
 
 #include "anneal_interleaver.h"
 #include "vector.h"
-#include <float.h>
+#include <cfloat>
 #include <algorithm>
 #include <iostream>
 

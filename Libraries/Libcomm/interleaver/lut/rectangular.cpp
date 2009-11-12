@@ -8,7 +8,7 @@
  */
 
 #include "rectangular.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {

@@ -9,7 +9,7 @@
 #include "sigspace.h"
 #include "fsm.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 

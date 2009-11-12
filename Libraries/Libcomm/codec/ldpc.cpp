@@ -9,7 +9,7 @@
 #include "linear_code_utils.h"
 #include "randgen.h"
 #include "sumprodalg/spa_factory.h"
-#include <math.h>
+#include <cmath>
 #include <sstream>
 #include <cstdlib>
 

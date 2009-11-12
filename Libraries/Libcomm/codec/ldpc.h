@@ -18,6 +18,7 @@
 #include "boost/shared_ptr.hpp"
 #include "sumprodalg/sum_prod_alg_inf.h"
 
+// TODO: remove all using declarations in header files
 using std::string;
 using libcomm::codec_softout;
 using libbase::gf;

@@ -8,8 +8,8 @@
  */
 
 #include "mpreal.h"
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 namespace libbase {
 

@@ -7,7 +7,7 @@
 
 #include "reedsolomon.h"
 #include "linear_code_utils.h"
-#include <math.h>
+#include <cmath>
 #include <sstream>
 #include <iostream>
 

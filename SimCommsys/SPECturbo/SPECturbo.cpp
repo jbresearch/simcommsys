@@ -4,8 +4,8 @@
 
 #include <boost/program_options.hpp>
 
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <iomanip>

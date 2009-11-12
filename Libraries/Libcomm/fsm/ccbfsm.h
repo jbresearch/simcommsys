@@ -49,10 +49,10 @@ protected:
    /*! \name FSM helper operations */
    //! Computes the actual input to be applied (works out tail)
    virtual libbase::vector<int>
-   determineinput(libbase::vector<int> input) const = 0;
+   determineinput(const libbase::vector<int>& input) const = 0;
    //! Computes the memory register input
    virtual libbase::bitfield
-   determinefeedin(libbase::vector<int> input) const = 0;
+   determinefeedin(const libbase::vector<int>& input) const = 0;
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -68,10 +68,10 @@ public:
    // FSM state operations (getting and resetting)
    libbase::vector<int> state() const;
    void reset();
-   void reset(libbase::vector<int> state);
+   void reset(const libbase::vector<int>& state);
    // FSM operations (advance/output/step)
    void advance(libbase::vector<int>& input);
-   libbase::vector<int> output(libbase::vector<int> input) const;
+   libbase::vector<int> output(const libbase::vector<int>& input) const;
 
    // FSM information functions
    int mem_order() const

@@ -6,7 +6,7 @@
 #include "randgen.h"
 #include "itfunc.h"
 #include "serializer.h"
-#include <math.h>
+#include <cmath>
 
 namespace libcomm {
 

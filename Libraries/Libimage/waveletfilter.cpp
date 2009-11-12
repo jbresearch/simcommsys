@@ -10,9 +10,6 @@ using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 
-const libbase::vcs waveletfilter::version(
-      "Wavelet De-Noising Filter module (waveletfilter)", 1.40);
-
 // helper functions
 
 void waveletfilter::createmask(matrix<bool>& mask, const int xsize,
@@ -108,8 +105,8 @@ void waveletfilter::estimate()
       // % of coefficients
       case 0:
          {
-         m_dThreshValue = m_vdCoefficient[int(libbase::round(
-               m_vdCoefficient.size() * m_dThreshCutoff))];
+         m_dThreshValue = m_vdCoefficient[int(round(m_vdCoefficient.size()
+               * m_dThreshCutoff))];
          }
          break;
          // Visu
@@ -198,5 +195,6 @@ void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
    m_wWavelet.inverse(out, out, m_nWaveletLevel);
    display_progress(3, 3);
    }
+
 
 } // end namespace

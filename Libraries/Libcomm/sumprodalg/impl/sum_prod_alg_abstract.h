@@ -15,9 +15,19 @@
 #include "sumprodalg/sum_prod_alg_inf.h"
 
 namespace libcomm {
+
+// Determine debug level:
+// 1 - Normal debug output only
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
+// TODO: remove all using declarations in header files
 using libbase::gf;
 using libbase::matrix;
-/*! \vrief Sum Product Algorithm(SPA) implementation
+
+/*! \brief Sum Product Algorithm(SPA) implementation
  *
  * Currently 2 types of the SPA: trad and gdl
  * The trad version computes the probabilities for the r__mxn's by computing

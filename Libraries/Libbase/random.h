@@ -2,7 +2,7 @@
 #define __random_h
 
 #include "config.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 namespace libbase {

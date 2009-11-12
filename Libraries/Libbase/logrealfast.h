@@ -7,9 +7,9 @@
 
 #include "config.h"
 #include "itfunc.h"
-#include <math.h>
-#include <float.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cfloat>
+#include <cstdlib>
 #include <iostream>
 #ifdef DEBUGFILE
 #  include <fstream>

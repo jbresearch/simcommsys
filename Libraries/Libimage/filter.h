@@ -2,7 +2,6 @@
 #define __filter_h
 
 #include "config.h"
-#include "vcs.h"
 #include "matrix.h"
 
 /*
@@ -22,9 +21,8 @@
 
 namespace libimage {
 
-extern const libbase::vcs filter_version;
-
-template <class T> class filter {
+template <class T>
+class filter {
 public:
    virtual ~filter()
       {
@@ -37,7 +35,7 @@ public:
    virtual void estimate() = 0;
    // filter process loop (only updates output matrix)
    virtual void
-         process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const = 0;
+   process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const = 0;
 };
 
 } // end namespace

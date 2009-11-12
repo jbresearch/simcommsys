@@ -71,7 +71,7 @@ void fsm::reset()
    N = 0;
    }
 
-void fsm::reset(libbase::vector<int> state)
+void fsm::reset(const libbase::vector<int>& state)
    {
    N = 0;
    }

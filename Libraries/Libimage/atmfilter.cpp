@@ -5,12 +5,10 @@
 
 namespace libimage {
 
-const libbase::vcs atmfilter_version(
-      "Alpha-Trimmed Mean Filter module (atmfilter)", 1.20);
-
 // initialization
 
-template <class T> void atmfilter<T>::init(const int d, const int alpha)
+template <class T>
+void atmfilter<T>::init(const int d, const int alpha)
    {
    m_d = d;
    m_alpha = alpha;
@@ -18,7 +16,8 @@ template <class T> void atmfilter<T>::init(const int d, const int alpha)
 
 // filter process loop (only updates output matrix)
 
-template <class T> void atmfilter<T>::process(const libbase::matrix<T>& in,
+template <class T>
+void atmfilter<T>::process(const libbase::matrix<T>& in,
       libbase::matrix<T>& out) const
    {
    const int M = in.size().rows();
@@ -35,14 +34,14 @@ template <class T> void atmfilter<T>::process(const libbase::matrix<T>& in,
          {
          // create list of neighbouring pixels
          lst.clear();
-         for (int ii = max(i - m_d, 0); ii <= min(i + m_d, M - 1); ii++)
-            for (int jj = max(j - m_d, 0); jj <= min(j + m_d, N - 1); jj++)
+         for (int ii = std::max(i - m_d, 0); ii <= std::min(i + m_d, M - 1); ii++)
+            for (int jj = std::max(j - m_d, 0); jj <= std::min(j + m_d, N - 1); jj++)
                lst.push_back(in(ii, jj));
          // sort the list
          lst.sort();
          // erase the first and last alpha elements
-         list<T>::iterator p1 = lst.begin();
-         list<T>::iterator p2 = lst.end();
+         typename list<T>::iterator p1 = lst.begin();
+         typename list<T>::iterator p2 = lst.end();
          for (int k = 0; k < m_alpha; k++)
             {
             p1++;
@@ -61,4 +60,5 @@ template <class T> void atmfilter<T>::process(const libbase::matrix<T>& in,
 
 template class atmfilter<double> ;
 template class atmfilter<int> ;
+
 } // end namespace

@@ -16,9 +16,8 @@
 
 namespace libimage {
 
-extern const libbase::vcs limiter_version;
-
-template <class T> class limiter : public filter<T> {
+template <class T>
+class limiter : public filter<T> {
 protected:
    T m_lo;
    T m_hi;

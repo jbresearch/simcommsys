@@ -9,6 +9,7 @@
 
 #include "turbo.h"
 #include "interleaver/lut/flat.h"
+#include "vectorutils.h"
 #include <sstream>
 #include <iomanip>
 
@@ -55,15 +56,10 @@ void turbo<real, dbl>::reset()
    {
    if (circular)
       {
-      ss.init(num_sets());
-      se.init(num_sets());
-      for (int set = 0; set < num_sets(); set++)
-         {
-         ss(set).init(enc_states());
-         se(set).init(enc_states());
-         ss(set) = dbl(1.0 / double(enc_states()));
-         se(set) = dbl(1.0 / double(enc_states()));
-         }
+      libbase::allocate(ss, num_sets(), enc_states());
+      libbase::allocate(se, num_sets(), enc_states());
+      ss = dbl(1.0 / double(enc_states()));
+      se = dbl(1.0 / double(enc_states()));
       }
    else if (endatzero)
       {
@@ -113,20 +109,11 @@ void turbo<real, dbl>::allocate()
    rp.init(tau, K);
 
    if (parallel)
-      {
-      ra.init(sets);
-      for (int i = 0; i < sets; i++)
-         ra(i).init(tau, K);
-      }
+      libbase::allocate(ra, sets, tau, K);
    else
-      {
-      ra.init(1);
-      ra(0).init(tau, K);
-      }
+      libbase::allocate(ra, 1, tau, K);
 
-   R.init(sets);
-   for (int i = 0; i < sets; i++)
-      R(i).init(tau, N);
+   libbase::allocate(R, sets, tau, N);
 
    // determine memory occupied and tell user
    std::ios::fmtflags flags = std::cerr.flags();
@@ -465,9 +452,7 @@ void turbo<real, dbl>::softdecode(array1vd_t& ri)
    else
       decode_serial(rif);
    // remove any tail bits from input set
-   ri.init(input_block_size());
-   for (int i = 0; i < input_block_size(); i++)
-      ri(i).init(num_inputs());
+   libbase::allocate(ri, input_block_size(), num_inputs());
    for (int i = 0; i < input_block_size(); i++)
       for (int j = 0; j < num_inputs(); j++)
          ri(i)(j) = rif(i, j);

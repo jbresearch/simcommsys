@@ -8,7 +8,8 @@
  */
 
 #include "map_stipple.h"
-#include <stdlib.h>
+#include "vectorutils.h"
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {
@@ -55,9 +56,7 @@ void map_stipple<C, dbl>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout)
    assertalways(pin(0).size() == M);
    // final matrix size depends on the number of set positions
    C<array1d_t> ptable;
-   ptable.init(pattern.size());
-   for (int i = 0; i < pattern.size(); i++)
-      ptable(i).init(M);
+   libbase::allocate(ptable, pattern.size(), M);
    // invert the puncturing
    for (int i = 0, ii = 0; i < pattern.size(); i++)
       if (pattern(i))

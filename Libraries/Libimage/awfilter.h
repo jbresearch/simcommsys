@@ -31,9 +31,8 @@
 
 namespace libimage {
 
-extern const libbase::vcs awfilter_version;
-
-template <class T> class awfilter : public filter<T> {
+template <class T>
+class awfilter : public filter<T> {
 protected:
    // user-supplied settings
    int m_d;

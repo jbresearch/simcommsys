@@ -6,6 +6,7 @@
 #include "serializer.h"
 #include "vector.h"
 #include "matrix.h"
+#include "vectorutils.h"
 
 #include "randgen.h"
 #include "sigspace.h"
@@ -204,9 +205,7 @@ void basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
    const int tau = rx.size();
    const int M = tx.size();
    // Initialize results vector
-   ptable.init(tau);
-   for (int t = 0; t < tau; t++)
-      ptable(t).init(M);
+   libbase::allocate(ptable, tau, M);
    // Work out the probabilities of each possible signal
    for (int t = 0; t < tau; t++)
       for (int x = 0; x < M; x++)
@@ -289,10 +288,7 @@ void basic_channel<S, libbase::matrix>::receive(const array1s_t& tx,
    // Compute sizes
    const int M = tx.size();
    // Initialize results vector
-   ptable.init(rx.size());
-   for (int i = 0; i < rx.size().rows(); i++)
-      for (int j = 0; i < rx.size().cols(); j++)
-         ptable(i, j).init(M);
+   libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
    // Work out the probabilities of each possible signal
    for (int i = 0; i < rx.size().rows(); i++)
       for (int j = 0; i < rx.size().cols(); j++)

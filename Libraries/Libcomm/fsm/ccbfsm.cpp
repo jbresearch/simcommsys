@@ -71,7 +71,7 @@ void ccbfsm::reset()
    reg = 0;
    }
 
-void ccbfsm::reset(libbase::vector<int> state)
+void ccbfsm::reset(const libbase::vector<int>& state)
    {
    fsm::reset(state);
    assert(state.size() == nu);
@@ -96,10 +96,10 @@ void ccbfsm::advance(libbase::vector<int>& input)
       reg(i) = reg(i) << sin(i);
    }
 
-libbase::vector<int> ccbfsm::output(libbase::vector<int> input) const
+libbase::vector<int> ccbfsm::output(const libbase::vector<int>& input) const
    {
-   input = determineinput(input);
-   bitfield sin = determinefeedin(input);
+   libbase::vector<int> ip = determineinput(input);
+   bitfield sin = determinefeedin(ip);
    // Compute output
    libbase::vector<int> op(n);
    for (int j = 0; j < n; j++)

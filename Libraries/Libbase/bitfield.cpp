@@ -9,7 +9,7 @@
 
 #include "bitfield.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 namespace libbase {

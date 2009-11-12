@@ -9,7 +9,7 @@
 
 #include "modem.h"
 #include "gf.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {

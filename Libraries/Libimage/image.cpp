@@ -3,10 +3,9 @@
 
 namespace libimage {
 
-const libbase::vcs image::version("Digital Image module (image)", 1.00);
-
-using libbase::round;
 using libbase::trace;
+
+#ifdef FREEIMAGE
 
 // Freeimage sub-class
 
@@ -149,59 +148,59 @@ double image::getpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp,
    switch (type)
       {
       case FIT_BITMAP:
-         switch (bpp)
+      switch (bpp)
+         {
+         case 8:
+         assert(channel == 0);
+         return pixel[0] / maxval(8);
+         case 24:
             {
-            case 8:
-               assert(channel == 0);
-               return pixel[0] / maxval(8);
-            case 24:
+            RGBTRIPLE *d = (RGBTRIPLE *) pixel;
+            switch (channel)
                {
-               RGBTRIPLE *d = (RGBTRIPLE *) pixel;
-               switch (channel)
-                  {
-                  case 0:
-                     return d->rgbtRed / maxval(8);
-                  case 1:
-                     return d->rgbtGreen / maxval(8);
-                  case 2:
-                     return d->rgbtBlue / maxval(8);
-                  default:
-                     assert("ERROR (image): invalid channel number.");
-                  }
+               case 0:
+               return d->rgbtRed / maxval(8);
+               case 1:
+               return d->rgbtGreen / maxval(8);
+               case 2:
+               return d->rgbtBlue / maxval(8);
+               default:
+               assert("ERROR (image): invalid channel number.");
                }
-            case 32:
-               {
-               RGBQUAD *d = (RGBQUAD *) pixel;
-               switch (channel)
-                  {
-                  case 0:
-                     return d->rgbRed / maxval(8);
-                  case 1:
-                     return d->rgbGreen / maxval(8);
-                  case 2:
-                     return d->rgbBlue / maxval(8);
-                  case 3:
-                     return d->rgbReserved / maxval(8);
-                  default:
-                     assert("ERROR (image): invalid channel number.");
-                  }
-               }
-            default:
-               assert("ERROR (image): invalid bpp value.");
             }
+         case 32:
+            {
+            RGBQUAD *d = (RGBQUAD *) pixel;
+            switch (channel)
+               {
+               case 0:
+               return d->rgbRed / maxval(8);
+               case 1:
+               return d->rgbGreen / maxval(8);
+               case 2:
+               return d->rgbBlue / maxval(8);
+               case 3:
+               return d->rgbReserved / maxval(8);
+               default:
+               assert("ERROR (image): invalid channel number.");
+               }
+            }
+         default:
+         assert("ERROR (image): invalid bpp value.");
+         }
       case FIT_RGB16:
          {
          FIRGB16 *d = (FIRGB16 *) pixel;
          switch (channel)
             {
             case 0:
-               return d->red / maxval(5);
+            return d->red / maxval(5);
             case 1:
-               return d->green / maxval(5);
+            return d->green / maxval(5);
             case 2:
-               return d->blue / maxval(5);
+            return d->blue / maxval(5);
             default:
-               assert("ERROR (image): invalid channel number.");
+            assert("ERROR (image): invalid channel number.");
             }
          }
       case FIT_RGBA16:
@@ -210,19 +209,19 @@ double image::getpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp,
          switch (channel)
             {
             case 0:
-               return d->red / maxval(5);
+            return d->red / maxval(5);
             case 1:
-               return d->green / maxval(5);
+            return d->green / maxval(5);
             case 2:
-               return d->blue / maxval(5);
+            return d->blue / maxval(5);
             case 3:
-               return d->alpha / maxval(5);
+            return d->alpha / maxval(5);
             default:
-               assert("ERROR (image): invalid channel number.");
+            assert("ERROR (image): invalid channel number.");
             }
          }
       default:
-         assert("ERROR (image): image type unknown.");
+      assert("ERROR (image): image type unknown.");
       }
    return -1;
    }
@@ -233,70 +232,70 @@ void image::setpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp,
    switch (type)
       {
       case FIT_BITMAP:
-         switch (bpp)
+      switch (bpp)
+         {
+         case 8:
+         assert(channel == 0);
+         pixel[0] = BYTE(round(value * maxval(8)));
+         break;
+         case 24:
             {
-            case 8:
-               assert(channel == 0);
-               pixel[0] = BYTE(round(value * maxval(8)));
+            RGBTRIPLE *d = (RGBTRIPLE *) pixel;
+            switch (channel)
+               {
+               case 0:
+               d->rgbtRed = BYTE(round(value * maxval(8)));
                break;
-            case 24:
-               {
-               RGBTRIPLE *d = (RGBTRIPLE *) pixel;
-               switch (channel)
-                  {
-                  case 0:
-                     d->rgbtRed = BYTE(round(value * maxval(8)));
-                     break;
-                  case 1:
-                     d->rgbtGreen = BYTE(round(value * maxval(8)));
-                     break;
-                  case 2:
-                     d->rgbtBlue = BYTE(round(value * maxval(8)));
-                     break;
-                  default:
-                     assert("ERROR (image): invalid channel number.");
-                  }
+               case 1:
+               d->rgbtGreen = BYTE(round(value * maxval(8)));
+               break;
+               case 2:
+               d->rgbtBlue = BYTE(round(value * maxval(8)));
+               break;
+               default:
+               assert("ERROR (image): invalid channel number.");
                }
-            case 32:
-               {
-               RGBQUAD *d = (RGBQUAD *) pixel;
-               switch (channel)
-                  {
-                  case 0:
-                     d->rgbRed = BYTE(round(value * maxval(8)));
-                     break;
-                  case 1:
-                     d->rgbGreen = BYTE(round(value * maxval(8)));
-                     break;
-                  case 2:
-                     d->rgbBlue = BYTE(round(value * maxval(8)));
-                     break;
-                  case 3:
-                     d->rgbReserved = BYTE(round(value * maxval(8)));
-                     break;
-                  default:
-                     assert("ERROR (image): invalid channel number.");
-                  }
-               }
-            default:
-               assert("ERROR (image): invalid bpp value.");
             }
+         case 32:
+            {
+            RGBQUAD *d = (RGBQUAD *) pixel;
+            switch (channel)
+               {
+               case 0:
+               d->rgbRed = BYTE(round(value * maxval(8)));
+               break;
+               case 1:
+               d->rgbGreen = BYTE(round(value * maxval(8)));
+               break;
+               case 2:
+               d->rgbBlue = BYTE(round(value * maxval(8)));
+               break;
+               case 3:
+               d->rgbReserved = BYTE(round(value * maxval(8)));
+               break;
+               default:
+               assert("ERROR (image): invalid channel number.");
+               }
+            }
+         default:
+         assert("ERROR (image): invalid bpp value.");
+         }
       case FIT_RGB16:
          {
          FIRGB16 *d = (FIRGB16 *) pixel;
          switch (channel)
             {
             case 0:
-               d->red = WORD(round(value * maxval(5)));
-               break;
+            d->red = WORD(round(value * maxval(5)));
+            break;
             case 1:
-               d->green = WORD(round(value * maxval(5)));
-               break;
+            d->green = WORD(round(value * maxval(5)));
+            break;
             case 2:
-               d->blue = WORD(round(value * maxval(5)));
-               break;
+            d->blue = WORD(round(value * maxval(5)));
+            break;
             default:
-               assert("ERROR (image): invalid channel number.");
+            assert("ERROR (image): invalid channel number.");
             }
          }
       case FIT_RGBA16:
@@ -305,81 +304,90 @@ void image::setpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp,
          switch (channel)
             {
             case 0:
-               d->red = WORD(round(value * maxval(5)));
-               break;
+            d->red = WORD(round(value * maxval(5)));
+            break;
             case 1:
-               d->green = WORD(round(value * maxval(5)));
-               break;
+            d->green = WORD(round(value * maxval(5)));
+            break;
             case 2:
-               d->blue = WORD(round(value * maxval(5)));
-               break;
+            d->blue = WORD(round(value * maxval(5)));
+            break;
             case 3:
-               d->alpha = WORD(round(value * maxval(5)));
-               break;
+            d->alpha = WORD(round(value * maxval(5)));
+            break;
             default:
-               assert("ERROR (image): invalid channel number.");
+            assert("ERROR (image): invalid channel number.");
             }
          }
       default:
-         assert("ERROR (image): image type unknown.");
+      assert("ERROR (image): image type unknown.");
       }
    }
+
+#endif
 
 // Construction / destruction
 
 image::image()
    {
+#ifdef FREEIMAGE
    dib = NULL;
+#endif
    }
 
 image::~image()
    {
+#ifdef FREEIMAGE
    unload();
+#endif
    }
 
 // Saving/loading functions
 
 std::ostream& image::serialize(std::ostream& sout) const
    {
+#ifdef FREEIMAGE
    // set format/compression/quality according to what user wants
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
    int flags = 0;
    switch (format)
       {
       case tiff:
-         trace << "DEBUG (image): Writing image in TIFF format.\n";
-         fif = FIF_TIFF;
-         switch (compression)
-            {
-            case none:
-               trace << "DEBUG (image): TIFF format - no compression.\n";
-               flags = TIFF_NONE;
-               break;
-            case lzw:
-               trace << "DEBUG (image): TIFF format - LZW compression.\n";
-               flags = TIFF_LZW;
-               break;
-            default:
-               trace
-                     << "DEBUG (image): TIFF format - unknown compression setting.\n";
-            }
+      trace << "DEBUG (image): Writing image in TIFF format.\n";
+      fif = FIF_TIFF;
+      switch (compression)
+         {
+         case none:
+         trace << "DEBUG (image): TIFF format - no compression.\n";
+         flags = TIFF_NONE;
          break;
+         case lzw:
+         trace << "DEBUG (image): TIFF format - LZW compression.\n";
+         flags = TIFF_LZW;
+         break;
+         default:
+         trace
+         << "DEBUG (image): TIFF format - unknown compression setting.\n";
+         }
+      break;
       case jpeg:
-         trace << "DEBUG (image): Writing image in JPEG format (Q = "
-               << quality << ").\n";
-         fif = FIF_JPEG;
-         flags = quality;
-         break;
+      trace << "DEBUG (image): Writing image in JPEG format (Q = "
+      << quality << ").\n";
+      fif = FIF_JPEG;
+      flags = quality;
+      break;
       default:
-         trace << "DEBUG (image): unkown image format.\n";
+      trace << "DEBUG (image): unkown image format.\n";
       }
    // save the iamge
    FreeImage_SaveToHandle(fif, dib, &library.out, (fi_handle) & sout, flags);
+#endif
    return sout;
    }
 
 std::istream& image::serialize(std::istream& sin)
    {
+#ifdef FREEIMAGE
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
    fif = FreeImage_GetFileTypeFromHandle(&library.in, (fi_handle) & sin);
    // confirm that we can identify the format and that we know how to read it
@@ -389,19 +397,19 @@ std::istream& image::serialize(std::istream& sin)
    switch (fif)
       {
       case FIF_TIFF:
-         trace << "DEBUG (image): Reading image in TIFF format.\n";
-         format = tiff;
-         break;
+      trace << "DEBUG (image): Reading image in TIFF format.\n";
+      format = tiff;
+      break;
       case FIF_JPEG:
-         trace << "DEBUG (image): Reading image in JPEG format.\n";
-         format = jpeg;
-         break;
+      trace << "DEBUG (image): Reading image in JPEG format.\n";
+      format = jpeg;
+      break;
       case FIF_PNG:
-         trace << "DEBUG (image): Reading image in PNG format.\n";
-         format = png;
-         break;
+      trace << "DEBUG (image): Reading image in PNG format.\n";
+      format = png;
+      break;
       default:
-         trace << "DEBUG (image): Format type (" << fif << ") not handled.\n";
+      trace << "DEBUG (image): Format type (" << fif << ") not handled.\n";
       }
    // unload any previous image
    unload();
@@ -409,7 +417,8 @@ std::istream& image::serialize(std::istream& sin)
    dib = FreeImage_LoadFromHandle(fif, &library.in, (fi_handle) & sin);
    assert(dib != NULL);
    trace << "DEBUG (image): Read image size (" << width() << "x" << height()
-         << "x" << channels() << ").\n";
+   << "x" << channels() << ").\n";
+#endif
    return sin;
    }
 
@@ -425,19 +434,19 @@ std::istream& operator>>(std::istream& sin, image& x)
    return sin;
    }
 
+#ifdef FREEIMAGE
+
 // Informative functions
 
 int image::width() const
    {
    return FreeImage_GetWidth(dib);
    }
-;
 
 int image::height() const
    {
    return FreeImage_GetHeight(dib);
    }
-;
 
 int image::channels() const
    {
@@ -445,16 +454,15 @@ int image::channels() const
       {
       case FIC_MINISBLACK:
       case FIC_MINISWHITE:
-         return 1;
+      return 1;
       case FIC_RGB:
-         return 3;
+      return 3;
       case FIC_RGBALPHA:
       case FIC_CMYK:
-         return 4;
+      return 4;
       }
    return 0;
    }
-;
 
 // Conversion to/from matrix of pixels
 
@@ -475,7 +483,7 @@ libbase::matrix<double> image::getchannel(int c) const
       {
       BYTE *pixel = bits;
       for (int x = 0; x < width(); x++, pixel += (bpp >> 3))
-         m(x, y) = getpixel(pixel, type, bpp, c);
+      m(x, y) = getpixel(pixel, type, bpp, c);
       }
    return m;
    }
@@ -496,11 +504,13 @@ void image::setchannel(int c, const libbase::matrix<double>& m)
       {
       BYTE *pixel = bits;
       for (int x = 0; x < width(); x++, pixel += (bpp >> 3))
-         setpixel(pixel, type, bpp, c, m(x, y));
+      setpixel(pixel, type, bpp, c, m(x, y));
       }
    }
 
 //image::operator libbase::matrix<double>() const
 //image& image::operator=(const libbase::matrix<double>& m)
+
+#endif
 
 } // end namespace

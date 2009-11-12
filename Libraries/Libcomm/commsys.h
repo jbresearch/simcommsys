@@ -44,6 +44,10 @@ protected:
    blockmodem<S, C> *mdm; //!< Modulation scheme
    channel<S, C> *chan; //!< Channel model
    // @}
+#ifndef NDEBUG
+   bool lastframecorrect;
+   C<int> lastsource;
+#endif
 protected:
    /*! \name Setup functions */
    void init();

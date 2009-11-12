@@ -6,8 +6,8 @@
 #include "codec_softout.h"
 #include "fsm.h"
 #include "serializer.h"
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 namespace libcomm {
 

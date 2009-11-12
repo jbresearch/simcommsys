@@ -8,7 +8,7 @@
  */
 
 #include "annealer.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 namespace libcomm {

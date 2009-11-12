@@ -8,7 +8,8 @@
  */
 
 #include "map_straight.h"
-#include <stdlib.h>
+#include "vectorutils.h"
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {
@@ -63,9 +64,7 @@ void map_straight<vector, dbl>::doinverse(const array1vd_t& pin,
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
-   pout.init(upsilon);
-   for (int t = 0; t < upsilon; t++)
-      pout(t).init(Base::S);
+   libbase::allocate(pout, upsilon, Base::S);
    // Get the necessary data from the channel
    for (int t = 0; t < upsilon; t++)
       for (int x = 0; x < Base::S; x++)

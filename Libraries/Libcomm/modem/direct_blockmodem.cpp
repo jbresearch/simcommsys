@@ -10,7 +10,7 @@
 #include "direct_blockmodem.h"
 #include "gf.h"
 #include "logrealfast.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 namespace libcomm {

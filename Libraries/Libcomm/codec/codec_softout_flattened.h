@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "mapper/map_straight.h"
+#include "vectorutils.h"
 
 namespace libcomm {
 
@@ -150,9 +151,7 @@ void codec_softout_flattened<base_codec_softout, dbl>::softdecode(
    dec.serialize(libbase::trace, ' ');
 #endif
    // Allocate space for results
-   ro.init(This::output_block_size());
-   for (int t = 0; t < This::output_block_size(); t++)
-      ro(t).init(This::num_outputs());
+   libbase::allocate(ro, This::output_block_size(), This::num_outputs());
    // Initialize
    ro = 0.0;
    // Convert

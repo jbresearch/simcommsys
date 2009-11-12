@@ -52,7 +52,6 @@
 namespace libimage {
 
 class waveletfilter : public filter<double> {
-   static const libbase::vcs version;
 private:
    // user-supplied settings
    wavelet m_wWavelet;

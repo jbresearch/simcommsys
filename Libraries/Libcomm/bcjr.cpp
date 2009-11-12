@@ -411,7 +411,11 @@ void bcjr<real, dbl, norm>::normalize(array2d_t& r)
       assertalways(scale > dbl(0));
       scale = dbl(1) / scale;
       for (int i = 0; i < r.size().cols(); i++)
+         {
          r(t, i) *= scale;
+         // TODO: replace with clipping
+         //assert(r(t, i) > dbl(0));
+         }
       }
    }
 
@@ -519,6 +523,7 @@ using libbase::logreal;
 using libbase::logrealfast;
 
 template class bcjr<float, float, true> ;
+template class bcjr<float, double, true> ;
 template class bcjr<double, double, true> ;
 template class bcjr<mpreal> ;
 template class bcjr<mpgnu> ;

@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "interleaver/lut/named_lut.h"
-#include <stdio.h>
+#include <cstdio>
 
 namespace libcomm {
 

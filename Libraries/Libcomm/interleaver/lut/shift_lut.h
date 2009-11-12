@@ -4,7 +4,7 @@
 #include "config.h"
 #include "interleaver/lut_interleaver.h"
 #include "serializer.h"
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 namespace libcomm {

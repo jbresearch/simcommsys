@@ -9,12 +9,14 @@
 #define REEDSOLOMON_H_
 
 #include <string>
+// TODO: remove all using declarations in header files
 using std::string;
 
 #include "config.h"
 #include "codec.h"
 #include "gf.h"
 #include "matrix.h"
+// TODO: remove all using declarations in header files
 using libbase::gf;
 using libbase::matrix;
 

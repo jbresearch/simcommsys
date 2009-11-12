@@ -6,7 +6,7 @@
 #include "itfunc.h"
 #include "serializer.h"
 #include "multi_array.h"
-#include <math.h>
+#include <cmath>
 
 namespace libcomm {
 
