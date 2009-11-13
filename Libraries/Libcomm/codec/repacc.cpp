@@ -302,6 +302,8 @@ std::string repacc<real, dbl>::description() const
    sout << inter->description() << ", ";
    sout << iter << " iterations, ";
    sout << (endatzero ? "Terminated" : "Unterminated");
+   if(limitlo > dbl(0))
+      sout << ", Clipping at " << limitlo;
    return sout.str();
    }
 
