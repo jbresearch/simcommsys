@@ -38,8 +38,8 @@ void repacc<real, dbl>::init()
    // check interleaver size
    assertalways(inter->size() == This::acc_timesteps());
    assertalways(iter > 0);
-   // set lower clipping limit
-   limitlo = 1e-100;
+   // check lower clipping threshold
+   assertalways(limitlo >= dbl(0));
 
    initialised = false;
    }
@@ -311,17 +311,21 @@ template <class real, class dbl>
 std::ostream& repacc<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
-   sout << 2 << '\n';
+   sout << 3 << '\n';
    rep.serialize(sout);
    sout << acc;
    sout << inter;
    sout << iter << '\n';
    sout << int(endatzero) << '\n';
+   sout << limitlo << '\n';
    return sout;
    }
 
 // object serialization - loading
 
+/*!
+ * \version 3 added clipping threshold (limitlo)
+ */
 template <class real, class dbl>
 std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    {
@@ -331,12 +335,17 @@ std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    int version;
    sin >> libbase::eatcomments >> version;
    assertalways(version >= 2);
-   // get second-version items
+   // get version 2 items
    rep.serialize(sin);
    sin >> libbase::eatcomments >> acc;
    sin >> libbase::eatcomments >> inter;
    sin >> libbase::eatcomments >> iter;
    sin >> libbase::eatcomments >> endatzero;
+   // get version 3 items
+   if(version >= 3)
+      sin >> libbase::eatcomments >> limitlo;
+   else
+      limitlo = 0;
    init();
    assertalways(sin.good());
    return sin;

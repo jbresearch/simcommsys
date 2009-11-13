@@ -44,7 +44,7 @@ $(BUILDDIR)/%.o:	%.cpp
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(BUILDDIR)
 	@echo "Making dependancy list for $*.o [$(RELEASE)]"
-	@$(CC) $(CCflags) $(CCdepend) -MF$@ $< 
+	@$(CC) $(CCflags) $(CCdepend) -MT$(BUILDDIR)/$*.o -MF$@ $< 
 
 ifneq ($(MAKECMDGOALS),clean)
 include $(DEPEND)

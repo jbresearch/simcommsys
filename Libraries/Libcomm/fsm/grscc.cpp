@@ -106,7 +106,16 @@ void grscc<G>::initcsct()
    for (int i = 1; i < L; i++)
       {
       Gi *= stategen;
-      const matrix<G> A = (eye + Gi).inverse();
+      const matrix<G> IGi = eye + Gi;
+      // check if matrix is non-invertible
+      if (IGi.rank() < IGi.size().rows())
+         {
+         // clear circulation table to indicate we cannot do this
+         csct.init(0, 0);
+         return;
+         }
+      // compute inverse and determine circulation values at this offset
+      const matrix<G> A = IGi.inverse();
       for (int j = 0; j < this->num_states(); j++)
          {
          vector<G> statevec = A * ccfsm<G>::convert(j, ccfsm<G>::nu);
@@ -187,7 +196,7 @@ void grscc<G>::resetcircular(const vector<int>& zerostate, int n)
    assert(csct.size() > 0);
    const int L = csct.size().rows();
    assert(n % L != 0);
-   const int zerostateval = ccfsm<G>::convert(vector<G>(zerostate));
+   const int zerostateval = ccfsm<G>::convert(vector<G> (zerostate));
    const int circstateval = csct(n % L, zerostateval);
    this->reset(vector<int> (ccfsm<G>::convert(circstateval, ccfsm<G>::nu)));
    }

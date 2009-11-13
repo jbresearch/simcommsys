@@ -53,7 +53,7 @@ private:
    fsm *acc; //!< Encoder representation of accumulator
    int iter; //!< Number of iterations to perform
    bool endatzero; //!< Flag to indicate that trellises are terminated
-   dbl limitlo; //!< Lower clipping limit
+   dbl limitlo; //!< Lower clipping threshold
    // @}
 protected:
    /*! \name Internal object representation */

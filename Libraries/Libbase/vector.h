@@ -7,6 +7,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <typeinfo>
 
 namespace libbase {
 
@@ -389,7 +390,7 @@ inline void vector<T>::record_allocation() const
    {
 #if DEBUG>=3
    trace << "DEBUG (vector): allocated " << m_size.length() << " x "
-         << sizeof(T) << " bytes at " << m_data << "\n";
+   << sizeof(T) << " bytes at " << m_data << "\n";
 #endif
 #if DEBUG>=2
    // confirm there was no prior allocation at this space
@@ -405,7 +406,7 @@ inline void vector<T>::remove_allocation() const
    {
 #if DEBUG>=3
    trace << "DEBUG (vector): freeing " << m_size.length() << " x " << sizeof(T)
-         << " bytes at " << m_data << "\n";
+   << " bytes at " << m_data << "\n";
 #endif
 #if DEBUG>=2
    // first confirm any existing allocation is properly recorded
@@ -474,9 +475,9 @@ inline void vector<T>::copy(T* dst, const T* src, int n)
       return;
    // check for self-copy
    assert(dst != src);
-#ifndef NDEBUG
    // determine the required amount of data to copy
    const int nbytes = n * sizeof(T);
+#ifndef NDEBUG
    // check for non-overlapping arrays
    const int8u* buf1 = std::min((int8u*) dst, (int8u*) src);
    const int8u* buf2 = std::max((int8u*) dst, (int8u*) src);
@@ -484,9 +485,12 @@ inline void vector<T>::copy(T* dst, const T* src, int n)
 #endif
    // do the copy
    // NOTE: we can only use memory-copy if T is a primitive type
-   for (int i = 0; i < n; i++)
-      dst[i] = src[i];
-   //memcpy(dst, src, nbytes);
+   if (typeid(T) == typeid(bool) || typeid(T) == typeid(int) || typeid(T)
+         == typeid(double) || typeid(T) == typeid(float))
+      memcpy(dst, src, nbytes);
+   else
+      for (int i = 0; i < n; i++)
+         dst[i] = src[i];
    test_invariant();
    }
 
@@ -1208,7 +1212,7 @@ protected:
    indirect_vector(vector<T>& x, const int start, const int n)
 #if DEBUG>=2
    :
-      r_size(x.size()), r_data(&x(start))
+   r_size(x.size()), r_data(&x(start))
 #endif
       {
       Base::test_invariant();
@@ -1240,7 +1244,7 @@ public:
    indirect_vector(const indirect_vector<T>& x)
 #if DEBUG>=2
    :
-      r_size(x.r_size), r_data(x.r_data)
+   r_size(x.r_size), r_data(x.r_data)
 #endif
       {
       Base::m_size = x.m_size;
@@ -1279,16 +1283,16 @@ inline void indirect_vector<T>::record_reference() const
    {
 #if DEBUG>=3
    trace << "DEBUG (indirect_vector): referenced " << r_size.length() << " x "
-         << sizeof(T) << " bytes at " << r_data << "\n";
+   << sizeof(T) << " bytes at " << r_data << "\n";
 #endif
 #if DEBUG>=2
    assert(r_data != NULL);
    std::pair<const void*, int> ndx(r_data, r_size.length() * sizeof(T));
    // create record if this is a new ref, otherwise increase ref count
    if (_vector_refs.count(ndx) == 0)
-      _vector_refs[ndx] = 1;
+   _vector_refs[ndx] = 1;
    else
-      _vector_refs[ndx]++;
+   _vector_refs[ndx]++;
 #endif
    }
 
@@ -1297,7 +1301,7 @@ inline void indirect_vector<T>::remove_reference() const
    {
 #if DEBUG>=3
    trace << "DEBUG (indirect_vector): removing ref to " << r_size.length()
-         << " x " << sizeof(T) << " bytes at " << r_data << "\n";
+   << " x " << sizeof(T) << " bytes at " << r_data << "\n";
 #endif
 #if DEBUG>=2
    // first confirm a reference to this data set is recorded
@@ -1306,7 +1310,7 @@ inline void indirect_vector<T>::remove_reference() const
    // reduce count, and remove if no more references
    _vector_refs[ndx]--;
    if (_vector_refs[ndx] == 0)
-      _vector_refs.erase(_vector_refs.find(ndx));
+   _vector_refs.erase(_vector_refs.find(ndx));
 #endif
    }
 

@@ -179,6 +179,20 @@ void testmatrixinv()
    assert(R.isequalto(matrix<int>::eye(3)));
    }
 
+void testmatrixops()
+   {
+   cout << "\nMatrix Operations:\n\n";
+   matrix<int> A;
+   std::istringstream s("4 4\n2 4 1 3\n-1 -2 1 0\n0 0 2 2\n3 6 2 5");
+   s >> A;
+   cout << "A = " << A;
+   matrix<int> Aref = A.reduce_to_ref();
+   cout << "ref(A) = " << Aref;
+   int r = A.rank();
+   cout << "rank(A) = " << r << "\n";
+   assert(r == 2);
+   }
+
 void testboost_foreach(const std::string& s)
    {
    using namespace boost::lambda;
@@ -264,6 +278,7 @@ int main(int argc, char *argv[])
    testvector();
    testmatrixmul();
    testmatrixinv();
+   testmatrixops();
    testboost_foreach("1 2 3\n");
    testboost_array();
    testboost_iterators();

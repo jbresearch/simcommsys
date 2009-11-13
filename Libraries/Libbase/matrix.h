@@ -292,6 +292,7 @@ public:
    matrix<T> inverse() const;
    matrix<T> reduce_to_ref() const;
    matrix<T> transpose() const;
+   int rank() const;
    // @}
 
    /*! \name Statistical operations */
@@ -1196,15 +1197,12 @@ inline matrix<T> matrix<T>::inverse() const
 template <class T>
 inline matrix<T> matrix<T>::reduce_to_ref() const
    {
-
    const int dim = m_size.rows();
    const int len = m_size.cols();
    // create copy of rows of this matrix
    vector<vector<T> > arows(dim);
    for (int i = 0; i < dim; i++)
-      {
       extractrow(arows(i), i);
-      }
    int cur_row = 0;
    T cur_pivot = 0;
    T tmp_entry = 0;
@@ -1215,35 +1213,27 @@ inline matrix<T> matrix<T>::reduce_to_ref() const
       //this while loop relies on lazy evaluation to avoid reading an
       //out-of-range value.
       while ((findpivot < dim) && (arows(findpivot)(n) == 0))
-         {
          findpivot++;
-         }
       //did we find a pivot for this column?
       if ((findpivot) != dim)
          {
          //is the pivot in the right place?
+         //if we found a pivot which is not in the current row
+         //swap the findpivot row with the current row
          if ((findpivot != cur_row))
-            {
-            //we found a pivot which is not in the current row
-            //swap the findpivot row with the current row
             std::swap(arows(findpivot), arows(cur_row));
-            }
          //get the pivot value
          cur_pivot = arows(cur_row)(n);
          //divide the row by the pivot (only needed if the pivot value is not 1)
          if (cur_pivot != 1)
-            {
             arows(cur_row) /= cur_pivot;
-            }
          //now subtract appropriate multiples of this row from the ones above it
          for (int loop = 0; loop < cur_row; loop++)
             {
             //only need to subtract if the entry at this position is non-zero
             tmp_entry = arows(loop)(n);
             if (tmp_entry != 0)
-               {
                arows(loop) -= (arows(cur_row) * tmp_entry);
-               }
             }
          //now subtract appropriate multiples of this row from the ones below it
          for (int loop = cur_row + 1; loop < dim; loop++)
@@ -1251,9 +1241,7 @@ inline matrix<T> matrix<T>::reduce_to_ref() const
             //only need to subtract if the entry at this position is non-zero
             T tmp_entry = arows(loop)(n);
             if (tmp_entry != 0)
-               {
                arows(loop) -= (arows(cur_row) * tmp_entry);
-               }
             }
          cur_row++;
          }
@@ -1262,10 +1250,29 @@ inline matrix<T> matrix<T>::reduce_to_ref() const
    //the arows now contain our new matrix
    matrix<T> ref(dim, len);
    for (int k = 0; k < dim; k++)
-      {
       ref.insertrow(arows(k), k);
-      }
    return ref;
+   }
+
+/*!
+ * \brief Rank of this matrix
+ */
+template <class T>
+inline int matrix<T>::rank() const
+   {
+   const int m = m_size.rows();
+   const int n = m_size.cols();
+   // reduce to REF
+   const matrix<T> ref = reduce_to_ref();
+   // create all-zero row (for comparison)
+   vector<T> zero(n);
+   zero = 0;
+   // determine rank
+   int rank = 0;
+   for (int i = 0; i < m; i++)
+      if (ref.extractrow(i).isnotequalto(zero))
+         rank++;
+   return rank;
    }
 
 /*!

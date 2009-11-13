@@ -103,8 +103,9 @@ public:
       {
       return logval > a.logval;
       }
-   // stream output
-   friend std::ostream& operator<<(std::ostream& s, const logrealfast& x);
+   // stream I/O
+   friend std::ostream& operator<<(std::ostream& sout, const logrealfast& x);
+   friend std::istream& operator>>(std::istream& sin, logrealfast& x);
    // specialized power function
    friend logrealfast pow(const logrealfast& a, const double b);
 };

@@ -103,20 +103,49 @@ double logrealfast::convertfromdouble(const double m)
 
 // Input/Output Operations
 
-std::ostream& operator<<(std::ostream& s, const logrealfast& x)
+std::ostream& operator<<(std::ostream& sout, const logrealfast& x)
    {
    using std::ios;
 
    const double lg = -x.logval / log(10.0);
 
-   const ios::fmtflags flags = s.flags();
-   s.setf(ios::fixed, ios::floatfield);
-   s << ::pow(10.0, lg - floor(lg));
-   s.setf(ios::showpos);
-   s << "e" << int(floor(lg));
-   s.flags(flags);
+   const ios::fmtflags flags = sout.flags();
+   sout.setf(ios::fixed, ios::floatfield);
+   sout << ::pow(10.0, lg - floor(lg));
+   sout.setf(ios::showpos);
+   sout << "e" << int(floor(lg));
+   sout.flags(flags);
 
-   return s;
+   return sout;
+   }
+
+std::istream& operator>>(std::istream& sin, logrealfast& x)
+   {
+   assertalways(sin.good());
+   // get the number representation as a string
+   using std::string;
+   string sval;
+   sin >> sval;
+   // split into mantissa and exponent
+   size_t pos = sval.find('e');
+   double man;
+   int exp;
+   if (pos != string::npos)
+      {
+      man = atof(sval.substr(0, pos).c_str());
+      exp = atoi(sval.substr(pos+1).c_str());
+      }
+   else
+      {
+      man = atof(sval.c_str());
+      exp = 0;
+      }
+   // convert to logvalue
+   x.logval = exp * log(10.0);
+   x.logval += log(man);
+
+   assertalways(sin.good());
+   return sin;
    }
 
 } // end namespace
