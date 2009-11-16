@@ -153,9 +153,9 @@ private:
    dminner2<double, true> _dminner2;
    dminner2d<double, true> _dminner2d;
    // Codecs
-   ldpc<gf<1, 0x3> , double> _ldpc_1_0x3_dbl;
+   ldpc<libbase::gf<1, 0x3> , double> _ldpc_1_0x3_dbl;
 
-   reedsolomon<gf<3, 0xB> > _rscodec_3_0xB;
+   reedsolomon<libbase::gf<3, 0xB> > _rscodec_3_0xB;
 
    repacc<double> _repacc;
    sysrepacc<double> _sysrepacc;

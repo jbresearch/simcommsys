@@ -245,7 +245,9 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
    std::ostringstream sout;
    sout << "LDPC(n=" << this->length_n << ", m=" << this->dim_pchk << ", k="
          << this->dim_k << ", spa=" << this->spa_alg->spa_type() << ", iter="
-         << this->max_iter << ") ";
+         << this->max_iter << ", clipping="
+         << this->spa_alg->get_clipping_type() << ", almostzero="
+         << this->spa_alg->get_almostzero() << ") ";
 #if DEBUG>=2
    this->serialize(libbase::trace);
    libbase::trace << "\n";
@@ -320,6 +322,9 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
  * trad
  * #iter
  * 10
+ * #clipping method and almost_zero value
+ * zero
+ * 1e-100
  * # length dim
  * 5 3
  * # max col/row weight
@@ -362,11 +367,17 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
 
    assertalways(sout.good());
    sout << "#version of this file format\n";
-   sout << 2 << "\n";
+   sout << 3 << "\n";
    sout << "#SPA type\n";
    sout << this->spa_alg->spa_type() << "\n";
    sout << "# number of iterations\n";
    sout << this->max_iter << "\n";
+   sout << "#clipping methods available\n";
+   sout << "# zero - replace only zeros with almostzero\n";
+   sout << "# clip - replace all values below almostzero with almostzero\n";
+   sout << "#this is followed by the value of almostzero\n";
+   sout << this->spa_alg->get_clipping_type() << "\n";
+   sout << this->spa_alg->get_almostzero() << "\n";
    sout << "# length n and dimension m\n";
    sout << this->length_n << " " << this->dim_pchk << "\n";
    sout << "#max col weight and max row weight\n";
@@ -471,6 +482,9 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
  * trad
  * #iter
  * 10
+ * #clipping method and almost_zero value
+ * zero
+ * 1e-100
  * # length dim
  * 5 3
  * # max col/row weight
@@ -514,12 +528,27 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    assertalways(sin.good());
    int version;
    sin >> libbase::eatcomments >> version;
-   assertalways(version==2);
-   string spa_type;
+   assertalways(version>=2);
+   std::string spa_type;
    sin >> libbase::eatcomments >> spa_type;
-
    sin >> libbase::eatcomments >> this->max_iter;
    assertalways(this->max_iter>=1);
+   //default clipping settings for version 2 files
+   //my method of avoiding probs of zero is labelled "zero"
+   //the method of clipping all probs below a certain value
+   //is called  "clip"
+   //In either case we need to replace a value by
+   //almostzero.
+   std::string clipping_type = "zero";
+   real almost_zero = real(1E-100);
+   if (version > 2)
+      {
+      sin >> libbase::eatcomments >> clipping_type;
+      assertalways(("clip"==clipping_type)||("zero"==clipping_type));
+      double tmp_az;
+      sin >> libbase::eatcomments >> tmp_az;
+      almost_zero = real(tmp_az);
+      }
 
    sin >> libbase::eatcomments >> this->length_n;
    sin >> libbase::eatcomments >> this->dim_pchk;
@@ -537,8 +566,8 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
       {
       //read the seed value;
       sin >> libbase::eatcomments >> this-> seed;
-      assertalways(seed>=0);
-      rng.seed(seed);
+      assertalways(this->seed>=0);
+      rng.seed(this->seed);
       }
    //read the col weights and ensure they are sensible
    this->col_weight.init(this->length_n);
@@ -625,6 +654,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    this->spa_alg = libcomm::spa_factory<GF_q, real>::get_spa(spa_type,
          this->length_n, this->dim_pchk, this->M_n, this->N_m,
          this->pchk_matrix);
+   this->spa_alg->set_clipping(clipping_type, almost_zero);
    this->init();
    return sin;
    }
@@ -916,6 +946,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
    this->spa_alg = libcomm::spa_factory<GF_q, real>::get_spa("gdl",
          this->length_n, this->dim_pchk, this->M_n, this->N_m,
          this->pchk_matrix);
+   this->spa_alg->set_clipping("zero", real(1e-100));
    this->init();
    return sin;
    }
@@ -928,6 +959,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
 namespace libcomm {
 using libbase::mpreal;
 using libbase::serializer;
+using libbase::gf;
 
 template class ldpc<gf<1, 0x3> , double> ;
 template <>

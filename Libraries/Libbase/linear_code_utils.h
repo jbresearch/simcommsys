@@ -11,9 +11,6 @@
 #include "matrix.h"
 #include "gf.h"
 
-// TODO: remove all using declarations in header files
-using libbase::matrix;
-
 namespace libbase {
 /*!
  *  \brief   Linear Block Code Helper Class
@@ -47,8 +44,8 @@ public:
     * H is then the generator matrix of the dual code of G. H is also
     * the parity check matrix of G.
     */
-   static void compute_dual_code(const matrix<GF_q> & orgMat,
-         matrix<GF_q> & dualCodeMatrix, array1i_t & systematic_perm);
+   static void compute_dual_code(const libbase::matrix<GF_q> & orgMat,
+         libbase::matrix<GF_q> & dualCodeMatrix, array1i_t & systematic_perm);
 
    /*
     * !This computes the row space of a parity check matrix,
@@ -58,33 +55,33 @@ public:
     * Note this is mainly useful for LDPC codes that are defined by their
     * parity check matrix.
     */
-   static void compute_row_dim(const matrix<GF_q> & parMat_H,
-         matrix<GF_q> & maxRowSpace_H);
+   static void compute_row_dim(const libbase::matrix<GF_q> & parMat_H,
+         libbase::matrix<GF_q> & maxRowSpace_H);
 
    /*
     * !This removes any zero columns from a matrix and returns a new matrix
     * without these columns.
     */
-   static void remove_zero_cols(const matrix<GF_q> & mat_G,
-         matrix<GF_q> noZeroCols_G);
+   static void remove_zero_cols(const libbase::matrix<GF_q> & mat_G,
+         libbase::matrix<GF_q> noZeroCols_G);
 
    /*
     * !This encodes a codeword given a generator matrix
     */
-   static void encode_cw(const matrix<GF_q> & mat_G, const array1i_t & source,
+   static void encode_cw(const libbase::matrix<GF_q> & mat_G, const array1i_t & source,
          array1i_t & encoded);
 
    /*
     * !This computes the syndrome of a received word - it returns true if the syndrome is the zero vector.
     *
     */
-   static bool compute_syndrome(const matrix<GF_q> & parMat,
+   static bool compute_syndrome(const libbase::matrix<GF_q> & parMat,
          const array1gfq_t & received_word_hd, array1gfq_t & syndrome);
 
    /*! This checks whether the generator matrix is in systematic form (eg G=(I|P))
     *
     */
-   static bool is_systematic(const matrix<GF_q> & genMat);
+   static bool is_systematic(const libbase::matrix<GF_q> & genMat);
 
    /*!
     * This simply extracts the most likely received word in soft decision format
@@ -96,7 +93,7 @@ public:
    /*!
     * This creates a Hadamard matrix of size=2^m
     */
-   static void create_hadamard(matrix<int>& hadMat, int m);
+   static void create_hadamard(libbase::matrix<int>& hadMat, int m);
 
    /*!
     * This computes the Kroenecker product of 2 matrices
@@ -104,15 +101,15 @@ public:
     * an (m*p)(n*q) matrix. The result of the product is that each a_i_j in A is effectively
     * replaced by the matrix a_i_j*B.
     */
-   static void compute_kronecker(const matrix<int>& A, const matrix<int>& B,
-         matrix<int>& prod);
+   static void compute_kronecker(const libbase::matrix<int>& A, const libbase::matrix<int>& B,
+         libbase::matrix<int>& prod);
 
    /*! \brief convert a parity check matrix over GF(q) into the equivalent binary one
     *
     */
    /*
-    static void convert_to_binary(const matrix<GF_q>& mat_in,
-    matrix<gf<2, 0x7> > mat_out);
+    static void convert_to_binary(const libbase::matrix<GF_q>& mat_in,
+    libbase::matrix<gf<2, 0x7> > mat_out);
     */
 };
 }

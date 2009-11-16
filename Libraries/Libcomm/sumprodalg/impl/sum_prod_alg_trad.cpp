@@ -28,12 +28,9 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::spa_init(
       alpha = real(0.0);
       for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
          {
-         //HACK: no prob should be zero - set it to almost zero
          tmp_prob = recvd_probs(loop_n)(loop_e);
-         if (tmp_prob == real(0.0))
-            {
-            tmp_prob = this->almostzero;
-            }
+         //Clipping HACK
+         perform_clipping(tmp_prob);
          this->received_probs(loop_n)(loop_e) = tmp_prob;
          alpha += tmp_prob;
          }
@@ -182,6 +179,7 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_q_
 
 namespace libcomm {
 using libbase::mpreal;
+using libbase::gf;
 
 template class sum_prod_alg_trad<gf<1, 0x3> > ;
 template class sum_prod_alg_trad<gf<2, 0x7> > ;

@@ -18,14 +18,6 @@
 #include "boost/shared_ptr.hpp"
 #include "sumprodalg/sum_prod_alg_inf.h"
 
-// TODO: remove all using declarations in header files
-using std::string;
-using libcomm::codec_softout;
-using libbase::gf;
-using libbase::matrix;
-
-using boost::shared_ptr;
-
 namespace libcomm {
 /*!
  * \brief   LDPC codec
@@ -272,7 +264,7 @@ private:
    array1i_t col_weight;
 
    //! the way the non-zero entries are provided
-   string rand_prov_values;
+   std::string rand_prov_values;
 
    //! the seed for the random number generator
    unsigned int seed;
@@ -284,10 +276,10 @@ private:
    array1vi_t M_n;
 
    //The parity check matrix of the code
-   matrix<GF_q> pchk_matrix;
+   libbase::matrix<GF_q> pchk_matrix;
 
    //!The generator matrix of the code in REF
-   matrix<GF_q> gen_matrix;
+   libbase::matrix<GF_q> gen_matrix;
 
    //! the permutation that swaps the columns so that
    //the parity check matrix is in standard form, eg (I|P)
@@ -314,7 +306,7 @@ private:
    //the syndrome
    libbase::vector<GF_q> received_word_hd;
 
-   shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
+   boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
 
 };
 

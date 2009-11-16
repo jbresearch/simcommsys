@@ -42,6 +42,27 @@ public:
     *
     */
    virtual std::string spa_type()=0;
+
+   /*! \brief set the way the algorithm should deal with
+    * clipping, ie replacing probabilities below a certain value
+    */
+
+   virtual void set_clipping(std::string clipping_type, real almost_zero)=0;
+
+   /*!\brief returns the type of clipping used
+    *
+    */
+   virtual std::string get_clipping_type()=0;
+
+   /*!\brief returns the value of almostzero used in the clipping method
+    *
+    */
+   virtual real get_almostzero()=0;
+
+   /*!\brief Perform the desired clipping
+    *
+    */
+   virtual void perform_clipping(real& num)=0;
 };
 
 }

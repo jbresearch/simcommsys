@@ -9,6 +9,7 @@
 #include <cmath>
 
 namespace libcomm {
+using libbase::gf;
 
 template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
       const array1vd_t& recvd_probs)
@@ -28,12 +29,9 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
       alpha = real(0.0);
       for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
          {
-         //HACK: no prob should be zero - set it to almost zero
+         //Clipping HACK
          tmp_prob = recvd_probs(loop_n)(loop_e);
-         if (tmp_prob == real(0.0))
-            {
-            tmp_prob = this->almostzero;
-            }
+         perform_clipping(tmp_prob);
          this->received_probs(loop_n)(loop_e) = tmp_prob;
          alpha += tmp_prob;
          }
@@ -195,8 +193,6 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_r_m
    //apply the FFT again to get the proper values
    this->compute_convs(q_nm_conv_prod, 0, num_of_elements - 1);
 
-   //HACK: Ensure all of the returned values are positive
-
    /*
     * ensure that the values in q_nm_conv_prod make sense, ie
     * they should all be >0 and sum up to 1
@@ -204,21 +200,11 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_r_m
     * completely 0.
     */
    real sum_qnm = real(0.0);
-   real tmp_prob = real(0.0);
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
       {
-      tmp_prob = q_nm_conv_prod(loop1);
-      if (tmp_prob <= real(0.0))
-         {
-
-         libbase::trace << "at (m,n)=(" << m << ", " << pos_n << ") and e="
-               << loop1 << " we have conv_val=" << q_nm_conv_prod(loop1);
-         //this is too small set it to zero
-         libbase::trace
-               << " : probability is <=0; setting it to almostzero\n";
-         q_nm_conv_prod(loop1) = this->almostzero;
-         }
-      sum_qnm += tmp_prob;
+      //Clipping HACK
+      perform_clipping(q_nm_conv_prod(loop1));
+      sum_qnm += q_nm_conv_prod(loop1);
       }
 
    //normalise them instead of simply dividing by the number of field elements.
@@ -259,13 +245,10 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
             q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
             }
          }
-      //HACK - we don't want a non-positive probability
-      if (q_mn(loop_e) <= real(0.0))
-         {
-         q_mn(loop_e) = this->almostzero;
-         }
-
+      //Clipping HACK
+      perform_clipping(q_mn(loop_e));
       }
+
    //normalise the q_mxn's so that q_mxn_0+q_mxn_1=1
    a_nxm = q_mn.sum();//sum up the values in q_mn
 
@@ -286,13 +269,27 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
                q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
                }
             }
-         //HACK - we don't want a zero probability
-         if (q_mn(loop_e) == real(0.0))
+         //Clipping HACK - just for error display purposes
+         if (1 == this->clipping_method)
             {
-            std::cerr << "q_mn(" << loop_e
-                  << ")=zero - setting it to almostzero=" << this->almostzero
-                  << "\n";
-            q_mn(loop_e) = this->almostzero;
+            if (q_mn(loop_e) < this->almostzero)
+               {
+               std::cerr << "q_mn(" << loop_e
+                     << ")<almostzero - setting it to almostzero="
+                     << this->almostzero << "\n";
+               q_mn(loop_e) = this->almostzero;
+               }
+            }
+         else
+            {
+            if (q_mn(loop_e) <= real(0.0))
+               {
+               std::cerr << "q_mn(" << loop_e
+                     << ") is equal to zero - setting it to almostzero="
+                     << this->almostzero << "\n";
+               q_mn(loop_e) = this->almostzero;
+               }
+
             }
          }
       }

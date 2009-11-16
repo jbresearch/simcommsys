@@ -32,7 +32,8 @@ public:
     *
     */
    sum_prod_alg_gdl(int n, int m, const array1vi_t& non_zero_col_pos,
-         const array1vi_t& non_zero_row_pos, const matrix<GF_q>& pchk_matrix) :
+         const array1vi_t& non_zero_row_pos,
+         const libbase::matrix<GF_q>& pchk_matrix) :
       sum_prod_alg_abstract<GF_q, real>::sum_prod_alg_abstract(n, m,
             non_zero_col_pos, non_zero_row_pos, pchk_matrix)
       {

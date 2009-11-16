@@ -110,15 +110,8 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::comput
             ro(loop_n)(loop_e) *= this->marginal_probs(pos_m, loop_n).r_mxn(
                   loop_e);
             }
-         if (ro(loop_n)(loop_e) <= real(0.0))
-            {
-            //we suffered an underflow somewhere, set the probability to almostzero
-            libbase::trace << "underflow occurred at(" << loop_n << ", "
-                  << loop_e << "):" << ro(loop_n)(loop_e)
-                  << " is non-positive. Setting it to almost zero!\n";
-            ro(loop_n)(loop_e) = this->almostzero;
-
-            }
+         //Use appropriate clipping method
+         perform_clipping(ro(loop_n)(loop_e));
          }
       //Note the following step is not strictly necessary apart from making the result
       //look neater - however it only adds a small overhead
@@ -268,6 +261,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
 #include "mpreal.h"
 namespace libcomm {
 using libbase::mpreal;
+using libbase::gf;
 
 template class sum_prod_alg_abstract<gf<1, 0x3> > ;
 template class sum_prod_alg_abstract<gf<2, 0x7> > ;

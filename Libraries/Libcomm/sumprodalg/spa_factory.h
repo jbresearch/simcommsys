@@ -14,12 +14,9 @@
 #include "matrix.h"
 
 #include "boost/shared_ptr.hpp"
-// TODO: remove all using declarations in header files
-using boost::shared_ptr;
 
 #include <string>
 #include "logrealfast.h"
-using std::string;
 
 namespace libcomm {
 /*! \brief factory to return the desired SPA implementation
@@ -41,27 +38,28 @@ public:
    /*!\brief return an instance of the SPA algorithm
     *
     */
-   static shared_ptr<sum_prod_alg_inf<GF_q, real> > get_spa(
+   static boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > get_spa(
          const std::string type, int n, int m,
          const array1vi_t& non_zero_col_pos,
-         const array1vi_t& non_zero_row_pos, const matrix<GF_q> pchk_matrix)
+         const array1vi_t& non_zero_row_pos,
+         const libbase::matrix<GF_q> pchk_matrix)
       {
-      shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_ptr;
+      boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_ptr;
       if ("trad" == type)
          {
-         spa_ptr = shared_ptr<sum_prod_alg_inf<GF_q, real> > (
+         spa_ptr = boost::shared_ptr<sum_prod_alg_inf<GF_q, real> >(
                new sum_prod_alg_trad<GF_q, real> (n, m, non_zero_col_pos,
                      non_zero_row_pos, pchk_matrix));
          }
       else if ("gdl" == type)
          {
-         spa_ptr = shared_ptr<sum_prod_alg_inf<GF_q, real> > (
+         spa_ptr = boost::shared_ptr<sum_prod_alg_inf<GF_q, real> >(
                new sum_prod_alg_gdl<GF_q, real> (n, m, non_zero_col_pos,
                      non_zero_row_pos, pchk_matrix));
          }
       else
          {
-         string error_msg(type + " is not a valid SPA type");
+         std::string error_msg(type + " is not a valid SPA type");
          failwith(error_msg.c_str());
          }
       return spa_ptr;
@@ -76,19 +74,18 @@ public:
 #include "mpreal.h"
 
 namespace libcomm {
-using libbase::mpreal;
 
-template class spa_factory<gf<1, 0x3> > ;
-template class spa_factory<gf<2, 0x7> > ;
-template class spa_factory<gf<3, 0xB> > ;
-template class spa_factory<gf<3, 0xB> , mpreal> ;
-template class spa_factory<gf<4, 0x13> > ;
-template class spa_factory<gf<4, 0x13> , mpreal> ;
-template class spa_factory<gf<5, 0x25> > ;
-template class spa_factory<gf<6, 0x43> > ;
-template class spa_factory<gf<7, 0x89> > ;
-template class spa_factory<gf<8, 0x11D> > ;
-template class spa_factory<gf<9, 0x211> > ;
-template class spa_factory<gf<10, 0x409> > ;
+template class spa_factory<libbase::gf<1, 0x3> > ;
+template class spa_factory<libbase::gf<2, 0x7> > ;
+template class spa_factory<libbase::gf<3, 0xB> > ;
+template class spa_factory<libbase::gf<3, 0xB>, libbase::mpreal> ;
+template class spa_factory<libbase::gf<4, 0x13> > ;
+template class spa_factory<libbase::gf<4, 0x13>, libbase::mpreal> ;
+template class spa_factory<libbase::gf<5, 0x25> > ;
+template class spa_factory<libbase::gf<6, 0x43> > ;
+template class spa_factory<libbase::gf<7, 0x89> > ;
+template class spa_factory<libbase::gf<8, 0x11D> > ;
+template class spa_factory<libbase::gf<9, 0x211> > ;
+template class spa_factory<libbase::gf<10, 0x409> > ;
 
 }

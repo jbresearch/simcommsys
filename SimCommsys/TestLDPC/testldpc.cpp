@@ -31,41 +31,7 @@ using libbase::linear_code_utils;
  - $Date$
  - $Author$
  */
-/*
- int main(int argc, char *argv[])
- {
- randgen rng;
- rng.seed(123);
- int length_n = 12;
- int max_iter = 10;
- int tmp_pos = 0;
- matrix<gf<1, 0x3> > pchk_matrix;
- matrix<gf<1, 0x3> > gen_matrix;
- libbase::vector<int> perm;
- for (int dim_k = 3; dim_k < 10; dim_k++)
- {
- for (int iter = 0; iter < max_iter; iter++)
- {
- pchk_matrix.init(dim_k, length_n);
- pchk_matrix = gf<1, 0x3> (0);
- //create a random matrix
- for (int row = 0; row < dim_k; row++)
- {
- int num_of_row_entries = 3;
- for (int loop = 0; loop < num_of_row_entries; loop++)
- {
- tmp_pos = int(rng.fval_closed() * (length_n - 0.000001));
- pchk_matrix(row, tmp_pos) = gf<1, 0x3> (1);
- }
- }
- //compute the dual code
- linear_code_utils<gf<1, 0x3> , double>::compute_dual_code(pchk_matrix,
- gen_matrix, perm);
- }
- }
- return 0;
- }
- */
+
 typedef libbase::vector<double> array1d_t;
 typedef libbase::vector<int> array1i_t;
 typedef libbase::vector<array1i_t> array1vi_t;
@@ -108,7 +74,7 @@ int main(int argc, char *argv[])
    string infile = in_str + ".txt";
    string outfile_ser = in_str + "_ser.txt";
    string outfile_al = in_str + "_al.txt";
-   ldpc<gf<4, 0x13> , double> ldpc_bin;
+   ldpc<gf<1, 0x3> , double> ldpc_bin;
 
    //read the alist LDPC code
    ifstream sin(infile.c_str());

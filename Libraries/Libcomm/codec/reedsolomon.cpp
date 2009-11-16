@@ -12,6 +12,7 @@
 #include <iostream>
 
 namespace libcomm {
+using libbase::matrix;
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -564,6 +565,7 @@ template <class GF_q> std::istream& reedsolomon<GF_q>::serialize(
 //Explicit realisations
 namespace libcomm {
 using libbase::serializer;
+using libbase::gf;
 
 template class reedsolomon<gf<3, 0xB> > ;
 template <>

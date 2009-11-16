@@ -9,16 +9,10 @@
 #define REEDSOLOMON_H_
 
 #include <string>
-// TODO: remove all using declarations in header files
-using std::string;
-
 #include "config.h"
 #include "codec.h"
 #include "gf.h"
 #include "matrix.h"
-// TODO: remove all using declarations in header files
-using libbase::gf;
-using libbase::matrix;
 
 namespace libcomm {
 
@@ -171,13 +165,13 @@ private:
    int dim_pchk;
 
    //The parity check matrix of the code
-   matrix<GF_q> pchk_matrix;
+   libbase::matrix<GF_q> pchk_matrix;
 
    //!The generator matrix of the code
-   matrix<GF_q> pchk_ref_matrix;
+   libbase::matrix<GF_q> pchk_ref_matrix;
 
    //!The generator matrix of the code in REF
-   matrix<GF_q> gen_ref_matrix;
+   libbase::matrix<GF_q> gen_ref_matrix;
    libbase::vector<GF_q> received_word_hd;
    array1vd_t received_likelihoods;
    array1d_t received_word_sd;

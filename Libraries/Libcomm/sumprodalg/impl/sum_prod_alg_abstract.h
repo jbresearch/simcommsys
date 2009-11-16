@@ -13,6 +13,7 @@
 #include "matrix.h"
 #include "gf.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
+#include <limits>
 
 namespace libcomm {
 
@@ -22,10 +23,6 @@ namespace libcomm {
 #  undef DEBUG
 #  define DEBUG 1
 #endif
-
-// TODO: remove all using declarations in header files
-using libbase::gf;
-using libbase::matrix;
 
 /*! \brief Sum Product Algorithm(SPA) implementation
  *
@@ -54,11 +51,15 @@ public:
     * initialise the main variables
     */
    sum_prod_alg_abstract(int n, int m, const array1vi_t& non_zero_col_pos,
-         const array1vi_t& non_zero_row_pos, const matrix<GF_q>& pchk_matrix) :
+         const array1vi_t& non_zero_row_pos,
+         const libbase::matrix<GF_q>& pchk_matrix) :
       length_n(n), dim_m(m), M_n(non_zero_col_pos), N_m(non_zero_row_pos)
       {
-      almostzero=real(1e-100);
-      marginal_probs.init(m, n);
+      //default values for clipping method
+      this->almostzero = real(1E-100);
+      this->clipping_method = 0;
+
+      this->marginal_probs.init(m, n);
 
       int non_zeros = 0;
       int pos = 0;
@@ -91,11 +92,76 @@ public:
     */
    virtual std::string spa_type()=0;
 
+   /*! \brief set the way the algorithm should deal with
+    * clipping, ie replacing probabilities below a certain value
+    */
+   void set_clipping(std::string clipping_type, real almost_zero)
+      {
+      if ("zero" == clipping_type)
+         {
+         this->clipping_method = 0;
+         }
+      else
+         {
+         this->clipping_method = 1;
+         }
+      this->almostzero = almost_zero;
+
+      }
+
+   /*!\brief returns the type of clipping used
+    *
+    */
+   std::string get_clipping_type()
+      {
+      std::string clipping_type;
+      if (this->clipping_method == 1)
+         {
+         clipping_type = "clip";
+         }
+      else
+         {
+         clipping_type = "zero";
+         }
+      return clipping_type;
+      }
+
+   /*!\brief returns the value of almostzero used in the clipping method
+    *
+    */
+   real get_almostzero()
+      {
+      return this->almostzero;
+      }
+
    /*!\brief carry out one iteration of the SPA
     * This method will carry out the horizontal and vertical step
     * of the SPA and store the result in the ro vector
     */
    void spa_iteration(array1vd_t& ro);
+
+   /*! brief Perform the desired clipping
+    *
+    */
+   void perform_clipping(real& num)
+      {
+      if (1 == this->clipping_method)
+         {
+         //use standard clipping
+         if (num < this->almostzero)
+            {
+            num = this->almostzero;
+            }
+         }
+      else
+         {
+         //use zero clipping
+         if (num <= real(0.0))
+            {
+            num = this->almostzero;
+            }
+         }
+      }
 
 protected:
    /*! \brief carries out the horizontal step of SPA
@@ -146,10 +212,16 @@ protected:
    array1vi_t N_m;
 
    //! this matrix holds the r_mxn probabilities
-   matrix<marginals> marginal_probs;
+   libbase::matrix<marginals> marginal_probs;
+
+   //! the clipping method used
+   // 0-replace 0 with almostzero
+   // 1-replace all values below almostzero with almostzero
+   int clipping_method;
 
    //! this is the value we assign to zero probs
    real almostzero;
+
 };
 }
 
