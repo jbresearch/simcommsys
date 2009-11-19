@@ -127,7 +127,7 @@ void bcjr<real, dbl, norm>::setstart(const array1d_t& p)
    if (!initialised)
       allocate();
    for (int m = 0; m < M; m++)
-      alpha(0, m) = p(m);
+      alpha(0, m) = real(p(m));
    }
 
 template <class real, class dbl, bool norm>
@@ -137,7 +137,7 @@ void bcjr<real, dbl, norm>::setend(const array1d_t& p)
    if (!initialised)
       allocate();
    for (int m = 0; m < M; m++)
-      beta(tau, m) = p(m);
+      beta(tau, m) = real(p(m));
    }
 
 // Internal methods
@@ -197,7 +197,7 @@ void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R)
          for (int i = 0; i < K; i++)
             {
             int X = lut_X(mdash, i);
-            gamma(t - 1, mdash, i) = R(t - 1, X);
+            gamma(t - 1, mdash, i) = real(R(t - 1, X));
             }
    }
 
@@ -220,7 +220,7 @@ void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R, const array2d_t& app)
          for (int i = 0; i < K; i++)
             {
             int X = lut_X(mdash, i);
-            gamma(t - 1, mdash, i) = R(t - 1, X) * app(t - 1, i);
+            gamma(t - 1, mdash, i) = real(R(t - 1, X) * app(t - 1, i));
             }
    }
 
