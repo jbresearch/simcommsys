@@ -215,6 +215,29 @@ void basic_commsys<S, C>::receive_path(const C<S>& received)
    // Demodulate
    C<array1d_t> ptable_mapped;
    this->mdm->demodulate(*this->chan, received, ptable_mapped);
+   // After-demodulation receive path
+   softreceive_path(ptable_mapped);
+   }
+
+/*!
+ * The after-demodulation receive path consists of the steps depicted in the
+ * following diagram:
+ * \dot
+ * digraph decode {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // block definitions
+ * node [ shape=box ];
+ * unmap [ label="Inverse Map" ];
+ * init_decoder [ label="Initialize Decoder" ];
+ * // path definitions
+ * unmap -> init_decoder;
+ * }
+ * \enddot
+ */
+template <class S, template <class > class C>
+void basic_commsys<S, C>::softreceive_path(const C<array1d_t>& ptable_mapped)
+   {
    // Inverse Map
    C<array1d_t> ptable_encoded;
    this->map->inverse(ptable_mapped, ptable_encoded);

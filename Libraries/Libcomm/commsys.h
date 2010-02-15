@@ -100,6 +100,8 @@ public:
    virtual C<S> transmit(const C<S>& transmitted);
    //! Perform complete receive path, except for final decoding
    virtual void receive_path(const C<S>& received);
+   //! Perform after-demodulation receive path, except for final decoding
+   virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
    //! Perform a decoding iteration, with hard decision
    virtual void decode(C<int>& decoded);
    //! Perform an encode/transmit/receive cycle, except for final decoding

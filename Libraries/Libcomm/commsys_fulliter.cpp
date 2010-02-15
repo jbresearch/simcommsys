@@ -103,11 +103,8 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
 #endif
       // Compute extrinsic information for passing to codec
       compute_extrinsic(ptable_mapped, ptable_full, ptable_mapped);
-      // Inverse Map
-      C<array1d_t> ptable_encoded;
-      this->map->inverse(ptable_mapped, ptable_encoded);
-      // Translate
-      this->cdc->init_decoder(ptable_encoded);
+      // After-demodulation receive path
+      softreceive_path(ptable_mapped);
       }
    // Just do a plain decoder iteration if this is not the last one in the cycle
    if (++cur_cdc_iter < this->cdc->num_iter())

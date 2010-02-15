@@ -32,11 +32,8 @@ void commsys_iterative<S, C>::receive_path(const C<S>& received)
       m.mark_as_clean();
       }
    m.mark_as_dirty();
-   // Inverse Map
-   C<array1d_t> ptable_encoded;
-   this->map->inverse(ptable_mapped, ptable_encoded);
-   // Translate
-   this->cdc->init_decoder(ptable_encoded);
+   // After-demodulation receive path
+   softreceive_path(ptable_mapped);
    }
 
 // Description & Serialization

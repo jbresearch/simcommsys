@@ -10,9 +10,13 @@
 namespace csdecode {
 
 template <class S, template <class > class C>
-void process(const std::string& fname, double p, bool soft, std::istream& sin =
-      std::cin, std::ostream& sout = std::cout)
+void process(const std::string& fname, double p, bool softin, bool softout,
+      std::istream& sin = std::cin, std::ostream& sout = std::cout)
    {
+   // define types
+   typedef libbase::vector<double> array1d_t;
+   typedef libcomm::codec_softout<C> codec_so;
+
    // Communication system
    libcomm::commsys<S, C> *system = libcomm::loadfromfile<
          libcomm::commsys<S, C> >(fname);
@@ -24,56 +28,38 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
    r.seed(0);
    system->seedfrom(r);
 
-   //use RTTI to decide whether or not we are doing full system iterations
-   libcomm::commsys_fulliter<S, C> *iter_system =
-         dynamic_cast<libcomm::commsys_fulliter<S, C>*> (system);
-
-   if (iter_system == NULL)
+   // Repeat until end of stream
+   while (!sin.eof())
       {
-      //not an iterative system
-      // Repeat until end of stream
-      while (!sin.eof())
+      if (softin)
+         {
+         C<array1d_t> ptable_in(system->output_block_size());
+         ptable_in.serialize(sin);
+         system->softreceive_path(ptable_in);
+         }
+      else
          {
          C<S> received(system->output_block_size());
          received.serialize(sin);
          system->receive_path(received);
-         if (soft)
-            {
-            libcomm::codec_softout<C>
-                  & cdc =
-                        dynamic_cast<libcomm::codec_softout<C>&> (*system->getcodec());
-            C<libbase::vector<double> > ptable;
-            for (int i = 0; i < system->getcodec()->num_iter(); i++)
-               cdc.softdecode(ptable);
-            ptable.serialize(sout);
-            }
-         else
-            {
-            C<int> decoded;
-            for (int i = 0; i < system->getcodec()->num_iter(); i++)
-               system->decode(decoded);
-            decoded.serialize(sout, '\n');
-            }
-         libbase::eatwhite(sin);
          }
-      }
-   else
-      {
-      //soft option is not implemented
-      assertalways(!soft);
-      // Repeat until end of stream
-      while (!sin.eof())
+      if (softout)
          {
-         C<S> received(iter_system->output_block_size());
-         received.serialize(sin);
-         iter_system->receive_path(received);
+         codec_so& cdc = dynamic_cast<codec_so&> (*system->getcodec());
+         C<array1d_t> ptable_out;
+         for (int i = 0; i < system->num_iter(); i++)
+            cdc.softdecode(ptable_out);
+         ptable_out.serialize(sout);
+         }
+      else
+         {
          C<int> decoded;
-         for (int i = 0; i < iter_system->num_iter(); i++)
-            iter_system->decode(decoded);
+         for (int i = 0; i < system->num_iter(); i++)
+            system->decode(decoded);
          decoded.serialize(sout, '\n');
          }
-      libbase::eatwhite(sin);
       }
+   libbase::eatwhite(sin);
    }
 
 /*!
@@ -102,7 +88,8 @@ int main(int argc, char *argv[])
    desc.add_options()("container,c", po::value<std::string>()->default_value(
          "vector"), "input/output container type");
    desc.add_options()("parameter,p", po::value<double>(), "channel parameter");
-   desc.add_options()("soft-out,s", po::bool_switch(), "enable soft output");
+   desc.add_options()("soft-in,s", po::bool_switch(), "enable soft input");
+   desc.add_options()("soft-out,o", po::bool_switch(), "enable soft output");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -119,6 +106,7 @@ int main(int argc, char *argv[])
    const std::string type = vm["type"].as<std::string> ();
    const std::string filename = vm["system-file"].as<std::string> ();
    const double parameter = vm["parameter"].as<double> ();
+   const bool softin = vm["soft-in"].as<bool> ();
    const bool softout = vm["soft-out"].as<bool> ();
 
    // Main process
@@ -128,29 +116,29 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if (type == "bool")
-         process<bool, vector> (filename, parameter, softout);
+         process<bool, vector> (filename, parameter, softin, softout);
       else if (type == "gf2")
-         process<gf<1, 0x3> , vector> (filename, parameter, softout);
+         process<gf<1, 0x3> , vector> (filename, parameter, softin, softout);
       else if (type == "gf4")
-         process<gf<2, 0x7> , vector> (filename, parameter, softout);
+         process<gf<2, 0x7> , vector> (filename, parameter, softin, softout);
       else if (type == "gf8")
-         process<gf<3, 0xB> , vector> (filename, parameter, softout);
+         process<gf<3, 0xB> , vector> (filename, parameter, softin, softout);
       else if (type == "gf16")
-         process<gf<4, 0x13> , vector> (filename, parameter, softout);
+         process<gf<4, 0x13> , vector> (filename, parameter, softin, softout);
       else if (type == "gf32")
-         process<gf<5, 0x25> , vector> (filename, parameter, softout);
+         process<gf<5, 0x25> , vector> (filename, parameter, softin, softout);
       else if (type == "gf64")
-         process<gf<6, 0x43> , vector> (filename, parameter, softout);
+         process<gf<6, 0x43> , vector> (filename, parameter, softin, softout);
       else if (type == "gf128")
-         process<gf<7, 0x89> , vector> (filename, parameter, softout);
+         process<gf<7, 0x89> , vector> (filename, parameter, softin, softout);
       else if (type == "gf256")
-         process<gf<8, 0x11D> , vector> (filename, parameter, softout);
+         process<gf<8, 0x11D> , vector> (filename, parameter, softin, softout);
       else if (type == "gf512")
-         process<gf<9, 0x211> , vector> (filename, parameter, softout);
+         process<gf<9, 0x211> , vector> (filename, parameter, softin, softout);
       else if (type == "gf1024")
-         process<gf<10, 0x409> , vector> (filename, parameter, softout);
+         process<gf<10, 0x409> , vector> (filename, parameter, softin, softout);
       else if (type == "sigspace")
-         process<sigspace, vector> (filename, parameter, softout);
+         process<sigspace, vector> (filename, parameter, softin, softout);
       else
          {
          std::cerr << "Unrecognized symbol type: " << type << "\n";
@@ -163,29 +151,29 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if (type == "bool")
-         process<bool, matrix> (filename, parameter, softout);
+         process<bool, matrix> (filename, parameter, softin, softout);
       else if (type == "gf2")
-         process<gf<1, 0x3> , matrix> (filename, parameter, softout);
+         process<gf<1, 0x3> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf4")
-         process<gf<2, 0x7> , matrix> (filename, parameter, softout);
+         process<gf<2, 0x7> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf8")
-         process<gf<3, 0xB> , matrix> (filename, parameter, softout);
+         process<gf<3, 0xB> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf16")
-         process<gf<4, 0x13> , matrix> (filename, parameter, softout);
+         process<gf<4, 0x13> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf32")
-         process<gf<5, 0x25> , matrix> (filename, parameter, softout);
+         process<gf<5, 0x25> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf64")
-         process<gf<6, 0x43> , matrix> (filename, parameter, softout);
+         process<gf<6, 0x43> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf128")
-         process<gf<7, 0x89> , matrix> (filename, parameter, softout);
+         process<gf<7, 0x89> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf256")
-         process<gf<8, 0x11D> , matrix> (filename, parameter, softout);
+         process<gf<8, 0x11D> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf512")
-         process<gf<9, 0x211> , matrix> (filename, parameter, softout);
+         process<gf<9, 0x211> , matrix> (filename, parameter, softin, softout);
       else if (type == "gf1024")
-         process<gf<10, 0x409> , matrix> (filename, parameter, softout);
+         process<gf<10, 0x409> , matrix> (filename, parameter, softin, softout);
       else if (type == "sigspace")
-         process<sigspace, matrix> (filename, parameter, softout);
+         process<sigspace, matrix> (filename, parameter, softin, softout);
       else
          {
          std::cerr << "Unrecognized symbol type: " << type << "\n";
