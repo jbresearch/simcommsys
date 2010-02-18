@@ -89,6 +89,7 @@ MAINTARGETS := SimCommsys/CSdecode \
 	SimCommsys/CSencode \
 	SimCommsys/CSfullcycle \
 	SimCommsys/CStransmit \
+	SimCommsys/CompareLists \
 	SimCommsys/MakeSRandom \
 	SimCommsys/ShowErrorEvent \
 	SimCommsys/SimCommsys \

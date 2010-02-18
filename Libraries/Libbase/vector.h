@@ -7,6 +7,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <vector>
 #include <typeinfo>
 
 namespace libbase {
@@ -175,6 +176,10 @@ public:
     */
    template <class A>
    explicit vector(const vector<A>& x);
+   /*! \brief On-the-fly conversion from STL vector
+    */
+   template <class A>
+   explicit vector(const std::vector<A>& x);
    // @}
 
    /*! \name Vector copy and value initialisation */
@@ -531,6 +536,28 @@ inline vector<T>::vector(const vector<A>& x) :
    // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
+#ifdef WIN32
+#  pragma warning( pop )
+#endif
+   test_invariant();
+   }
+
+template <class T>
+template <class A>
+inline vector<T>::vector(const std::vector<A>& x) :
+   m_size(0), m_data(NULL)
+   {
+   test_invariant();
+   alloc(x.size());
+   // avoid down-cast warnings in Win32
+#ifdef WIN32
+#  pragma warning( push )
+#  pragma warning( disable : 4244 4800 )
+#endif
+   // Do not convert type of element from A to T, so that if either is a
+   // vector, the process can continue through the assignment operator
+   for (int i = 0; i < m_size.length(); i++)
+      m_data[i] = x[i];
 #ifdef WIN32
 #  pragma warning( pop )
 #endif
