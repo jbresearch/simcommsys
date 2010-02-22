@@ -43,6 +43,7 @@ void process(const std::string& fname, double p, bool softin, bool softout,
          received.serialize(sin);
          system->receive_path(received);
          }
+      libbase::eatwhite(sin);
       if (softout)
          {
          codec_so& cdc = dynamic_cast<codec_so&> (*system->getcodec());
@@ -59,7 +60,6 @@ void process(const std::string& fname, double p, bool softin, bool softout,
          decoded.serialize(sout, '\n');
          }
       }
-   libbase::eatwhite(sin);
    }
 
 /*!
