@@ -4,6 +4,7 @@
 #include "config.h"
 #include "mapper/map_straight.h"
 #include "vectorutils.h"
+#include "hard_decision.h"
 
 namespace libcomm {
 
@@ -11,6 +12,7 @@ namespace libcomm {
 // 1 - Normal debug output only
 // 2 - Show mapping block sizes
 // 3 - Show soft-output for encoded symbols
+// 4 - Show intermediate encoded output
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -111,6 +113,14 @@ void codec_softout_flattened<base_codec_softout, dbl>::encode(
    array1i_t encwide;
    Base::encode(source, encwide);
    map.transform(encwide, encoded);
+#if DEBUG>=4
+   std::cerr << "Source:\n";
+   source.serialize(std::cerr, '\n');
+   std::cerr << "Encoded (wide):\n";
+   encwide.serialize(std::cerr, '\n');
+   std::cerr << "Encoded (flat):\n";
+   encoded.serialize(std::cerr, '\n');
+#endif
    }
 
 template <class base_codec_softout, class dbl>
@@ -146,7 +156,8 @@ void codec_softout_flattened<base_codec_softout, dbl>::softdecode(
    Base::softdecode(ri, ro_wide);
 #if DEBUG>=3
    array1i_t dec;
-   This::hard_decision(ro_wide,dec);
+   hard_decision<libbase::vector, dbl> functor;
+   functor(ro_wide,dec);
    libbase::trace << "DEBUG (csf): ro_wide = ";
    dec.serialize(libbase::trace, ' ');
 #endif
@@ -163,7 +174,7 @@ void codec_softout_flattened<base_codec_softout, dbl>::softdecode(
          for (int i = 0, thisx = x; i < s1; i++, thisx /= M)
             ro(t * s1 + i)(thisx % M) += ro_wide(t)(x);
 #if DEBUG>=3
-   This::hard_decision(ro,dec);
+   functor(ro,dec);
    libbase::trace << "DEBUG (csf): ro = ";
    dec.serialize(libbase::trace, ' ');
 #endif

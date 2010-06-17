@@ -97,7 +97,7 @@ public:
    virtual void transmit(const C<S>& tx, C<S>& rx) = 0;
    /*!
     * \brief Determine the per-symbol likelihoods of a sequence of received
-    * modulation symbols corresponding to one transmission step
+    * modulation symbols
     * \param[in]  tx       Set of possible transmitted symbols
     * \param[in]  rx       Received sequence of modulation symbols
     * \param[out] ptable   Likelihoods corresponding to each possible
@@ -106,9 +106,34 @@ public:
     * Default implementation is suitable for substitution channels, and
     * performs channel-specific operation through the pdf() override.
     *
-    * \callergraph
+    * \note For substitution channels, this method is only suitable when the
+    * modulation scheme is time-invariant
+    *
+    * \note Suitable for non-substitution channels, only when it is assumed
+    * that 'rx' corresponds to a single transmitted symbol
+    *
+    * \warning Note that 'rx' assumes different meanings for substitution and
+    * non-substitution channels
     */
    virtual void receive(const array1s_t& tx, const C<S>& rx,
+         C<array1d_t>& ptable) const = 0;
+   /*!
+    * \brief Determine the per-symbol likelihoods of a sequence of received
+    * modulation symbols
+    * \param[in]  tx       Set of possible transmitted symbols at each timestep
+    * \param[in]  rx       Received sequence of modulation symbols
+    * \param[out] ptable   Likelihoods corresponding to each possible
+    * transmitted symbol
+    *
+    * Default implementation is suitable for substitution channels, and
+    * performs channel-specific operation through the pdf() override.
+    *
+    * \note For substitution channels, this method is suitable for time-variant
+    * modulation schemes
+    *
+    * \note Not suitable for non-substitution channels
+    */
+   virtual void receive(const C<array1s_t>& tx, const C<S>& rx,
          C<array1d_t>& ptable) const = 0;
    /*!
     * \brief Determine the likelihood of a sequence of received modulation
@@ -117,7 +142,8 @@ public:
     * \param[in]  rx       Received sequence of modulation symbols
     * \return              Likelihood \f$ P(rx|tx) \f$
     *
-    * \callergraph
+    * \note Suitable for non-substitution channels, where length of 'tx' and
+    * 'rx' are not necessarily the same
     */
    virtual double receive(const C<S>& tx, const C<S>& rx) const = 0;
    /*!
@@ -127,7 +153,8 @@ public:
     * \param[in]  rx       Received sequence of modulation symbols
     * \return              Likelihood \f$ P(rx|tx) \f$
     *
-    * \callergraph
+    * \note Suitable for non-substitution channels, where length of 'rx' is
+    * not necessarily equal to 1
     */
    virtual double receive(const S& tx, const C<S>& rx) const = 0;
    // @}
@@ -173,6 +200,7 @@ class basic_channel<S, libbase::vector> : public basic_channel_interface<S,
 public:
    /*! \name Type definitions */
    typedef libbase::vector<S> array1s_t;
+   typedef libbase::vector<array1s_t> array1vs_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
@@ -180,6 +208,8 @@ public:
    void transmit(const array1s_t& tx, array1s_t& rx);
    void
    receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
+   void
+   receive(const array1vs_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
    double receive(const array1s_t& tx, const array1s_t& rx) const;
    double receive(const S& tx, const array1s_t& rx) const;
 };
@@ -210,6 +240,26 @@ void basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
    for (int t = 0; t < tau; t++)
       for (int x = 0; x < M; x++)
          ptable(t)(x) = pdf(tx(x), rx(t));
+   }
+
+template <class S>
+void basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
+      const array1s_t& rx, array1vd_t& ptable) const
+   {
+   // Compute sizes
+   const int tau = rx.size();
+   assert(tx.size() == tau);
+   assert(tau > 0);
+   const int M = tx(0).size();
+   // Initialize results vector
+   libbase::allocate(ptable, tau, M);
+   // Work out the probabilities of each possible signal
+   for (int t = 0; t < tau; t++)
+      {
+      assert(tx(t).size() == M);
+      for (int x = 0; x < M; x++)
+         ptable(t)(x) = pdf(tx(t)(x), rx(t));
+      }
    }
 
 template <class S>
@@ -257,12 +307,15 @@ public:
    typedef libbase::vector<S> array1s_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::matrix<S> array2s_t;
+   typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::matrix<array1d_t> array2vd_t;
    // @}
 public:
    void transmit(const array2s_t& tx, array2s_t& rx);
    void
    receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const;
+   void
+   receive(const array2vs_t& tx, const array2s_t& rx, array2vd_t& ptable) const;
    double receive(const array2s_t& tx, const array2s_t& rx) const;
    double receive(const S& tx, const array2s_t& rx) const;
 };
@@ -277,7 +330,7 @@ void basic_channel<S, libbase::matrix>::transmit(const array2s_t& tx,
    rx.init(tx.size());
    // Corrupt the modulation symbols (simulate the channel)
    for (int i = 0; i < tx.size().rows(); i++)
-      for (int j = 0; i < tx.size().cols(); j++)
+      for (int j = 0; j < tx.size().cols(); j++)
          rx(i, j) = corrupt(tx(i, j));
    }
 
@@ -291,9 +344,29 @@ void basic_channel<S, libbase::matrix>::receive(const array1s_t& tx,
    libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
    // Work out the probabilities of each possible signal
    for (int i = 0; i < rx.size().rows(); i++)
-      for (int j = 0; i < rx.size().cols(); j++)
+      for (int j = 0; j < rx.size().cols(); j++)
          for (int x = 0; x < M; x++)
             ptable(i, j)(x) = pdf(tx(x), rx(i, j));
+   }
+
+template <class S>
+void basic_channel<S, libbase::matrix>::receive(const array2vs_t& tx,
+      const array2s_t& rx, array2vd_t& ptable) const
+   {
+   // Compute sizes
+   assert(tx.size() == rx.size());
+   assert(tx.size() > 0);
+   const int M = tx(0, 0).size();
+   // Initialize results vector
+   libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
+   // Work out the probabilities of each possible signal
+   for (int i = 0; i < rx.size().rows(); i++)
+      for (int j = 0; j < rx.size().cols(); j++)
+         {
+         assert(tx(i, j).size() == M);
+         for (int x = 0; x < M; x++)
+            ptable(i, j)(x) = pdf(tx(i, j)(x), rx(i, j));
+         }
    }
 
 template <class S>
@@ -306,7 +379,7 @@ double basic_channel<S, libbase::matrix>::receive(const array2s_t& tx,
    // Work out the combined probability of the sequence
    double p = 1;
    for (int i = 0; i < rx.size().rows(); i++)
-      for (int j = 0; i < rx.size().cols(); j++)
+      for (int j = 0; j < rx.size().cols(); j++)
          p *= pdf(tx(i, j), rx(i, j));
    return p;
    }

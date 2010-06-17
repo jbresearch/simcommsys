@@ -37,19 +37,9 @@ void qam::init(const int m)
    using libbase::gray;
    const int k = int(log2(m)); // number of bits per symbol
    if (m != 1 << k)
-      {
-      std::cerr
-            << "FATAL ERROR (qam): non-binary constellations not supported ("
-            << m << ")\n";
-      exit(1);
-      }
+      failwith("Non-binary constellations not supported");
    if (k % 1) // non-square constellation
-      {
-      std::cerr
-            << "FATAL ERROR (qam): non-square constellations not supported ("
-            << m << ")\n";
-      exit(1);
-      }
+      failwith("Non-square constellations not supported");
    // preliminaries
    lut.init(m);
    const int s = 1 << k / 2;

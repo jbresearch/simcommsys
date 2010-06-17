@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "size.h"
+#include "aligned_allocator.h"
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -121,6 +122,8 @@ public:
 template <class T>
 class vector {
 protected:
+   //aligned_allocator<T, 128> allocator;
+   std::allocator<T> allocator;
    size_type<libbase::vector> m_size;
    T *m_data;
 protected:
@@ -139,6 +142,10 @@ protected:
     * \note This can only be called when the vector is empty.
     */
    void alloc(const int n);
+   /*! \brief Deallocates memory only (does not update internal size or pointer)
+    * \note This can only be called when the vector is not empty.
+    */
+   void dealloc();
    /*! \brief If there is memory allocated, free it
     * \note This is validly called for empty vectors, in which case it does
     * nothing.
@@ -154,7 +161,8 @@ public:
    //! Destructor
    virtual ~vector()
       {
-      free();
+      if (m_size.length() > 0)
+         dealloc();
       }
    /*! \brief Copy constructor
     * \note Copy construction is a deep copy.
@@ -449,12 +457,31 @@ inline void vector<T>::alloc(const int n)
    m_size = size_type<libbase::vector> (n);
    if (n > 0)
       {
-      m_data = new T[n];
+      // allocate memory for all elements
+      m_data = allocator.allocate(n);
       record_allocation();
+      // call default constructor
+      const T element = T();
+      for (int i = 0; i < n; i++)
+         allocator.construct(&m_data[i], element);
       }
    else
       m_data = NULL;
    test_invariant();
+   }
+
+template <class T>
+inline void vector<T>::dealloc()
+   {
+   test_invariant();
+   assert(m_size.length() > 0);
+   remove_allocation();
+   // call destructor
+   const int n = m_size.length();
+   for (int i = 0; i < n; i++)
+      allocator.destroy(&m_data[i]);
+   // deallocate memory
+   allocator.deallocate(m_data, n);
    }
 
 template <class T>
@@ -463,8 +490,8 @@ inline void vector<T>::free()
    test_invariant();
    if (m_size.length() > 0)
       {
-      remove_allocation();
-      delete[] m_data;
+      dealloc();
+      // reset fields
       m_size = size_type<libbase::vector> (0);
       m_data = NULL;
       }

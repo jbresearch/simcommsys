@@ -6,7 +6,7 @@
 namespace libcomm {
 
 /*!
- * \brief   Parametric Clas Interface.
+ * \brief   Parametric Class Interface.
  * \author  Johann Briffa
  *
  * \section svn Version Control

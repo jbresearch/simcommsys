@@ -8,12 +8,14 @@
  * - $Author$
  *
  * \section intro Introduction
- * This project consists of a set of libraries for simulating communication
- * systems. Of principal interest is the error-control coding component,
- * where various kinds of binary and non-binary turbo codecs are implemented.
- * Also in this project are a number of targets implementing various stages
- * of the communication system (such as the encoder, decoder, and a complete
- * simulator).
+ * The SimCommSys project consists of a set of libraries for simulating
+ * communication systems using a distributed Monte Carlo simulator. Of
+ * principal interest is the error-control coding component, where various
+ * kinds of binary and non-binary codes are implemented, including turbo,
+ * LDPC, repeat-accumulate, and Reed-Solomon.
+ * This project also contains a number of executables implementing various
+ * stages of the communication system (such as the encoder, decoder, and a
+ * complete simulator) and a system benchmark.
  *
  * \section classes Principal Classes
  * The most important classes in this project are:

@@ -59,7 +59,18 @@ private:
    // @}
 
    /*! \name Internal functions */
-   void init(int value);
+   /*!
+    * \brief Initialization
+    * \param   value Representation of element by its polynomial coefficients
+    *
+    * \todo Validate \c poly - this should be a primitive polynomial [cf. Lin & Costello, 2004, p.41]
+    */
+   void init(int value)
+      {
+      assert(m < 32);
+      assert(value >=0 && value < (1<<m));
+      gf::value = value;
+      }
    void init(const char *s);
    // @}
 
@@ -85,10 +96,49 @@ public:
    // @}
 
    /*! \name Arithmetic operations */
-   gf& operator+=(const gf& x);
-   gf& operator-=(const gf& x);
+   /*!
+    * \brief Addition
+    * \param   x  Field element we want to add to this one.
+    *
+    * Addition within extensions of a field is the addition of the corresponding coefficients
+    * in the polynomial representation. When the field characteristic is 2 (ie. for extensions
+    * of a binary field), addition of the coefficients is equivalent to an XOR operation.
+    */
+   gf& operator+=(const gf& x)
+      {
+      value ^= x.value;
+      return *this;
+      }
+   /*!
+    * \brief Subtraction
+    * \param   x  Field element we want to subtract from this one.
+    *
+    * Subtraction within extensions of a field is the subtraction of the corresponding coefficients
+    * in the polynomial representation. When the field characteristic is 2 (ie. for extensions
+    * of a binary field), subtraction of the coefficients is equivalent to an XOR operation, and
+    * therefore equivalent to addition.
+    */
+   gf& operator-=(const gf& x)
+      {
+      value ^= x.value;
+      return *this;
+      }
    gf& operator*=(const gf& x);
-   gf& operator/=(const gf& x);
+   /*!
+    * \brief Division
+    * \param   x  Field element we want to divide this one by (i.e. divisor).
+    *
+    * Division in a finite field can be performed by:
+    * - finding the multiplicative inverse, and multiplying by it
+    * - obtaining the logarithms of the two values, performing a subtraction, and
+    * then computing the inverse logarithm
+    *
+    * In this implementation, we use the multiplicatve inverse method.
+    */
+   gf& operator/=(const gf& x)
+      {
+      return *this *= x.inverse();
+      }
    gf inverse() const;
    // @}
 

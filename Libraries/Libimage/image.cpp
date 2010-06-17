@@ -1,516 +1,145 @@
 #include "image.h"
-#include "itfunc.h"
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <typeinfo>
 
 namespace libimage {
 
-using libbase::trace;
-
-#ifdef FREEIMAGE
-
-// Freeimage sub-class
-
-bool image::freeimage::initialized = false;
-image::freeimage image::library;
-
-// constructor / destructor
-
-image::freeimage::freeimage()
-   {
-   assert(!initialized);
-   // call this ONLY when linking with FreeImage as a static library
-#ifdef FREEIMAGE_LIB
-   //trace << "DEBUG (image): Initialising FreeImage library.\n";
-   FreeImage_Initialise();
-#endif // FREEIMAGE_LIB
-   initialized = true;
-   // fill in I/O structures
-   in.read_proc = (FI_ReadProc) & read;
-   in.write_proc = (FI_WriteProc) NULL;
-   in.seek_proc = (FI_SeekProc) & iseek;
-   in.tell_proc = (FI_TellProc) & itell;
-   out.read_proc = (FI_ReadProc) NULL;
-   out.write_proc = (FI_WriteProc) & write;
-   out.seek_proc = (FI_SeekProc) & oseek;
-   out.tell_proc = (FI_TellProc) & otell;
-   }
-
-image::freeimage::~freeimage()
-   {
-   // call this ONLY when linking with FreeImage as a static library
-#ifdef FREEIMAGE_LIB
-   //trace << "DEBUG (image): DeInitialising FreeImage library.\n";
-   FreeImage_DeInitialise();
-#endif // FREEIMAGE_LIB
-   }
-
-// translations between handle I/O and stream I/O
-
-unsigned DLL_CALLCONV image::freeimage::read(void *buffer, unsigned size, unsigned count, fi_handle handle)
-   {
-   //trace << "DEBUG (image): read " << size << "x" << count << " into address " << std::hex << int(buffer) << std::dec << "\n";
-   std::istream *sin = (std::istream *) handle;
-   sin->read((char *)buffer, size*count);
-   return sin->gcount()/size;
-   }
-
-int DLL_CALLCONV image::freeimage::iseek(fi_handle handle, long offset, int origin)
-   {
-   //trace << "DEBUG (image): iseek " << offset << " from ";
-   std::istream *sin = (std::istream *) handle;
-   std::ios_base::seekdir way;
-   switch(origin)
-      {
-      case SEEK_SET:
-      //trace << "start\n";
-      way = std::ios_base::beg;
-      break;
-      case SEEK_CUR:
-      //trace << "current\n";
-      way = std::ios_base::cur;
-      break;
-      case SEEK_END:
-      //trace << "end\n";
-      way = std::ios_base::end;
-      break;
-      default:
-      assert("ERROR (image): origin unknown.");
-      }
-   sin->seekg(offset, way);
-   return 0;
-   }
-
-long DLL_CALLCONV image::freeimage::itell(fi_handle handle)
-   {
-   //trace << "DEBUG (image): itell - ";
-   std::istream *sin = (std::istream *) handle;
-   std::streampos p = sin->tellg();
-   //trace << p << "\n";
-   return p;
-   }
-
-unsigned DLL_CALLCONV image::freeimage::write(void *buffer, unsigned size, unsigned count, fi_handle handle)
-   {
-   //trace << "DEBUG (image): write " << size << "x" << count << " from address " << std::hex << int(buffer) << std::dec << "\n";
-   std::ostream *sout = (std::ostream *) handle;
-   sout->write((const char *)buffer, size*count);
-   return count;
-   }
-
-int DLL_CALLCONV image::freeimage::oseek(fi_handle handle, long offset, int origin)
-   {
-   //trace << "DEBUG (image): oseek " << offset << " from ";
-   std::ostream *sout = (std::ostream *) handle;
-   std::ios_base::seekdir way;
-   switch(origin)
-      {
-      case SEEK_SET:
-      //trace << "start\n";
-      way = std::ios_base::beg;
-      break;
-      case SEEK_CUR:
-      //trace << "current\n";
-      way = std::ios_base::cur;
-      break;
-      case SEEK_END:
-      //trace << "end\n";
-      way = std::ios_base::end;
-      break;
-      default:
-      assert("ERROR (image): origin unknown.");
-      }
-   sout->seekp(offset, way);
-   return 0;
-   }
-
-long DLL_CALLCONV image::freeimage::otell(fi_handle handle)
-   {
-   //trace << "DEBUG (image): otell - ";
-   std::ostream *sout = (std::ostream *) handle;
-   std::streampos p = sout->tellp();
-   //trace << p << "\n";
-   return p;
-   }
-
-// other freeimage interface functions
-
-void image::unload()
-   {
-   if (dib != NULL)
-      {
-      FreeImage_Unload(dib);
-      dib = NULL;
-      }
-   }
-
-double image::getpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp,
-      unsigned channel) const
-   {
-   switch (type)
-      {
-      case FIT_BITMAP:
-      switch (bpp)
-         {
-         case 8:
-         assert(channel == 0);
-         return pixel[0] / maxval(8);
-         case 24:
-            {
-            RGBTRIPLE *d = (RGBTRIPLE *) pixel;
-            switch (channel)
-               {
-               case 0:
-               return d->rgbtRed / maxval(8);
-               case 1:
-               return d->rgbtGreen / maxval(8);
-               case 2:
-               return d->rgbtBlue / maxval(8);
-               default:
-               assert("ERROR (image): invalid channel number.");
-               }
-            }
-         case 32:
-            {
-            RGBQUAD *d = (RGBQUAD *) pixel;
-            switch (channel)
-               {
-               case 0:
-               return d->rgbRed / maxval(8);
-               case 1:
-               return d->rgbGreen / maxval(8);
-               case 2:
-               return d->rgbBlue / maxval(8);
-               case 3:
-               return d->rgbReserved / maxval(8);
-               default:
-               assert("ERROR (image): invalid channel number.");
-               }
-            }
-         default:
-         assert("ERROR (image): invalid bpp value.");
-         }
-      case FIT_RGB16:
-         {
-         FIRGB16 *d = (FIRGB16 *) pixel;
-         switch (channel)
-            {
-            case 0:
-            return d->red / maxval(5);
-            case 1:
-            return d->green / maxval(5);
-            case 2:
-            return d->blue / maxval(5);
-            default:
-            assert("ERROR (image): invalid channel number.");
-            }
-         }
-      case FIT_RGBA16:
-         {
-         FIRGBA16 *d = (FIRGBA16 *) pixel;
-         switch (channel)
-            {
-            case 0:
-            return d->red / maxval(5);
-            case 1:
-            return d->green / maxval(5);
-            case 2:
-            return d->blue / maxval(5);
-            case 3:
-            return d->alpha / maxval(5);
-            default:
-            assert("ERROR (image): invalid channel number.");
-            }
-         }
-      default:
-      assert("ERROR (image): image type unknown.");
-      }
-   return -1;
-   }
-
-void image::setpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp,
-      unsigned channel, double value)
-   {
-   switch (type)
-      {
-      case FIT_BITMAP:
-      switch (bpp)
-         {
-         case 8:
-         assert(channel == 0);
-         pixel[0] = BYTE(round(value * maxval(8)));
-         break;
-         case 24:
-            {
-            RGBTRIPLE *d = (RGBTRIPLE *) pixel;
-            switch (channel)
-               {
-               case 0:
-               d->rgbtRed = BYTE(round(value * maxval(8)));
-               break;
-               case 1:
-               d->rgbtGreen = BYTE(round(value * maxval(8)));
-               break;
-               case 2:
-               d->rgbtBlue = BYTE(round(value * maxval(8)));
-               break;
-               default:
-               assert("ERROR (image): invalid channel number.");
-               }
-            }
-         case 32:
-            {
-            RGBQUAD *d = (RGBQUAD *) pixel;
-            switch (channel)
-               {
-               case 0:
-               d->rgbRed = BYTE(round(value * maxval(8)));
-               break;
-               case 1:
-               d->rgbGreen = BYTE(round(value * maxval(8)));
-               break;
-               case 2:
-               d->rgbBlue = BYTE(round(value * maxval(8)));
-               break;
-               case 3:
-               d->rgbReserved = BYTE(round(value * maxval(8)));
-               break;
-               default:
-               assert("ERROR (image): invalid channel number.");
-               }
-            }
-         default:
-         assert("ERROR (image): invalid bpp value.");
-         }
-      case FIT_RGB16:
-         {
-         FIRGB16 *d = (FIRGB16 *) pixel;
-         switch (channel)
-            {
-            case 0:
-            d->red = WORD(round(value * maxval(5)));
-            break;
-            case 1:
-            d->green = WORD(round(value * maxval(5)));
-            break;
-            case 2:
-            d->blue = WORD(round(value * maxval(5)));
-            break;
-            default:
-            assert("ERROR (image): invalid channel number.");
-            }
-         }
-      case FIT_RGBA16:
-         {
-         FIRGBA16 *d = (FIRGBA16 *) pixel;
-         switch (channel)
-            {
-            case 0:
-            d->red = WORD(round(value * maxval(5)));
-            break;
-            case 1:
-            d->green = WORD(round(value * maxval(5)));
-            break;
-            case 2:
-            d->blue = WORD(round(value * maxval(5)));
-            break;
-            case 3:
-            d->alpha = WORD(round(value * maxval(5)));
-            break;
-            default:
-            assert("ERROR (image): invalid channel number.");
-            }
-         }
-      default:
-      assert("ERROR (image): image type unknown.");
-      }
-   }
-
-#endif
-
-// Construction / destruction
-
-image::image()
-   {
-#ifdef FREEIMAGE
-   dib = NULL;
-#endif
-   }
-
-image::~image()
-   {
-#ifdef FREEIMAGE
-   unload();
-#endif
-   }
-
 // Saving/loading functions
 
-std::ostream& image::serialize(std::ostream& sout) const
+template <class T>
+std::ostream& image<T>::serialize(std::ostream& sout) const
    {
-#ifdef FREEIMAGE
-   // set format/compression/quality according to what user wants
-   FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-   int flags = 0;
-   switch (format)
-      {
-      case tiff:
-      trace << "DEBUG (image): Writing image in TIFF format.\n";
-      fif = FIF_TIFF;
-      switch (compression)
-         {
-         case none:
-         trace << "DEBUG (image): TIFF format - no compression.\n";
-         flags = TIFF_NONE;
-         break;
-         case lzw:
-         trace << "DEBUG (image): TIFF format - LZW compression.\n";
-         flags = TIFF_LZW;
-         break;
-         default:
-         trace
-         << "DEBUG (image): TIFF format - unknown compression setting.\n";
-         }
-      break;
-      case jpeg:
-      trace << "DEBUG (image): Writing image in JPEG format (Q = "
-      << quality << ").\n";
-      fif = FIF_JPEG;
-      flags = quality;
-      break;
-      default:
-      trace << "DEBUG (image): unkown image format.\n";
-      }
-   // save the iamge
-   FreeImage_SaveToHandle(fif, dib, &library.out, (fi_handle) & sout, flags);
-#endif
+   libbase::trace << "Saving image" << std::flush;
+   // header data
+   const int chan = channels();
+   assert(chan > 0);
+   const int rows = m_data(0).size().rows();
+   const int cols = m_data(0).size().cols();
+   libbase::trace << " (" << cols << "x" << rows << "x" << chan << ")..."
+         << std::flush;
+   // write file descriptor
+   if (chan == 1 && m_maxval == 1)
+      sout << "P4" << std::endl; // bitmap
+   else if (chan == 1 && m_maxval > 1)
+      sout << "P5" << std::endl; // graymap
+   else if (chan == 3)
+      sout << "P6" << std::endl; // pixmap
+   else
+      failwith("Image format not supported");
+   // write comment
+   sout << "# file written by libimage" << std::endl;
+   // write image size
+   sout << cols << " " << rows << std::endl;
+   // if needed, write maxval
+   if (chan > 1 || m_maxval > 1)
+      sout << m_maxval << std::endl;
+   // write image data
+   for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++)
+         for (int c = 0; c < chan; c++)
+            {
+            int p;
+            if (typeid(T) == typeid(double) || typeid(T) == typeid(float))
+               p = round(m_data(c)(i, j) * m_maxval);
+            else
+               p = m_data(c)(i, j);
+            assert(p >= 0 && p <= m_maxval);
+            sout.put(p);
+            }
+   // done
+   libbase::trace << "done" << std::endl;
    return sout;
    }
 
-std::istream& image::serialize(std::istream& sin)
+template <class T>
+std::istream& image<T>::serialize(std::istream& sin)
    {
-#ifdef FREEIMAGE
-   FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-   fif = FreeImage_GetFileTypeFromHandle(&library.in, (fi_handle) & sin);
-   // confirm that we can identify the format and that we know how to read it
-   assert(fif != FIF_UNKNOWN);
-   assert(FreeImage_FIFSupportsReading(fif));
-   // set format/compression/quality according to what was loaded
-   switch (fif)
+   libbase::trace << "Loading image" << std::flush;
+   // header data
+   int cols, rows, chan;
+   bool binary;
+   // read file header
+   std::string line;
+   std::getline(sin, line);
+   // read file descriptor
+   int descriptor;
+   assert(line[0] == 'P');
+   std::istringstream(line.substr(1)) >> descriptor;
+   assertalways(descriptor >= 1 && descriptor <= 6);
+   // determine the number of channels
+   if (descriptor == 3 || descriptor == 6)
+      chan = 3;
+   else
+      chan = 1;
+   // determine the data format
+   if (descriptor >= 4 || descriptor <= 6)
+      binary = true;
+   else
+      binary = false;
+   // skip comment
+   do
       {
-      case FIF_TIFF:
-      trace << "DEBUG (image): Reading image in TIFF format.\n";
-      format = tiff;
-      break;
-      case FIF_JPEG:
-      trace << "DEBUG (image): Reading image in JPEG format.\n";
-      format = jpeg;
-      break;
-      case FIF_PNG:
-      trace << "DEBUG (image): Reading image in PNG format.\n";
-      format = png;
-      break;
-      default:
-      trace << "DEBUG (image): Format type (" << fif << ") not handled.\n";
+      std::getline(sin, line);
+      } while (line[0] == '#');
+   // read image size
+   std::istringstream(line) >> cols >> rows;
+   // if necessary read pixel value range
+   if (descriptor == 1 || descriptor == 4)
+      {
+      m_maxval = 1;
+      assert(!binary); // cannot handle binary bitmaps (packed bits)
       }
-   // unload any previous image
-   unload();
-   // load the image
-   dib = FreeImage_LoadFromHandle(fif, &library.in, (fi_handle) & sin);
-   assert(dib != NULL);
-   trace << "DEBUG (image): Read image size (" << width() << "x" << height()
-   << "x" << channels() << ").\n";
-#endif
+   else
+      {
+      std::getline(sin, line);
+      std::istringstream(line) >> m_maxval;
+      assert(!binary || m_maxval <= 255); // cannot handle 16-bit binary files
+      }
+   libbase::trace << " (" << cols << "x" << rows << "x" << chan << ")...";
+   // set up space to hold image
+   m_data.init(chan);
+   for (int c = 0; c < chan; c++)
+      m_data(c).init(rows, cols);
+   // read image data
+   for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++)
+         for (int c = 0; c < chan; c++)
+            {
+            if (binary)
+               m_data(c)(i, j) = sin.get();
+            else
+               sin >> m_data(c)(i, j);
+            assert(m_data(c)(i, j) >= 0 && m_data(c)(i, j) <= m_maxval);
+            }
+   assertalways(sin);
+   // scale down if we're using floating-point
+   if (typeid(T) == typeid(double) || typeid(T) == typeid(float))
+      for (int c = 0; c < chan; c++)
+         m_data(c) /= T(m_maxval);
+   // done
+   libbase::trace << "done" << std::endl;
    return sin;
    }
 
-std::ostream& operator<<(std::ostream& sout, const image& x)
-   {
-   x.serialize(sout);
-   return sout;
-   }
+// Explicit Realizations
 
-std::istream& operator>>(std::istream& sin, image& x)
-   {
-   x.serialize(sin);
-   return sin;
-   }
+using libbase::serializer;
 
-#ifdef FREEIMAGE
+template class image<int> ;
+template <>
+const serializer image<int>::shelper("image", "image<int>", image<int>::create);
 
-// Informative functions
+template class image<float> ;
+template <>
+const serializer image<float>::shelper("image", "image<float>",
+      image<float>::create);
 
-int image::width() const
-   {
-   return FreeImage_GetWidth(dib);
-   }
-
-int image::height() const
-   {
-   return FreeImage_GetHeight(dib);
-   }
-
-int image::channels() const
-   {
-   switch (FreeImage_GetColorType(dib))
-      {
-      case FIC_MINISBLACK:
-      case FIC_MINISWHITE:
-      return 1;
-      case FIC_RGB:
-      return 3;
-      case FIC_RGBALPHA:
-      case FIC_CMYK:
-      return 4;
-      }
-   return 0;
-   }
-
-// Conversion to/from matrix of pixels
-
-libbase::matrix<double> image::getchannel(int c) const
-   {
-   assert(c >= 0);
-   assert(c < channels());
-   // get information on image format
-   unsigned pitch = FreeImage_GetPitch(dib);
-   FREE_IMAGE_TYPE type = FreeImage_GetImageType(dib);
-   int bpp = FreeImage_GetBPP(dib);
-   BYTE *bits = (BYTE *) FreeImage_GetBits(dib);
-   // create matrix
-   libbase::matrix<double> m;
-   m.init(width(), height());
-   // loop through all pixels
-   for (int y = 0; y < height(); y++, bits += pitch)
-      {
-      BYTE *pixel = bits;
-      for (int x = 0; x < width(); x++, pixel += (bpp >> 3))
-      m(x, y) = getpixel(pixel, type, bpp, c);
-      }
-   return m;
-   }
-
-void image::setchannel(int c, const libbase::matrix<double>& m)
-   {
-   assert(c >= 0);
-   assert(c < channels());
-   assert(m.size().rows() == width());
-   assert(m.size().cols() == height());
-   // get information on image format
-   unsigned pitch = FreeImage_GetPitch(dib);
-   FREE_IMAGE_TYPE type = FreeImage_GetImageType(dib);
-   int bpp = FreeImage_GetBPP(dib);
-   BYTE *bits = (BYTE *) FreeImage_GetBits(dib);
-   // loop through all pixels
-   for (int y = 0; y < height(); y++, bits += pitch)
-      {
-      BYTE *pixel = bits;
-      for (int x = 0; x < width(); x++, pixel += (bpp >> 3))
-      setpixel(pixel, type, bpp, c, m(x, y));
-      }
-   }
-
-//image::operator libbase::matrix<double>() const
-//image& image::operator=(const libbase::matrix<double>& m)
-
-#endif
+template class image<double> ;
+template <>
+const serializer image<double>::shelper("image", "image<double>",
+      image<double>::create);
 
 } // end namespace

@@ -27,9 +27,9 @@ namespace libcomm {
  * provided in the alist format (see MacKay:http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html)
  *
  * \section svn Version Control
- * - $Revision: 2668 $
- * - $Date: 2009-07-16 15:41:52 +0100 (Thu, 16 Jul 2009) $
- * - $Author: swesemeyer $
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class GF_q, class real = double>

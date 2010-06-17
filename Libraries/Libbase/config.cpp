@@ -20,7 +20,6 @@
 #  include <string.h>
 #endif
 #include <signal.h>
-#include <stdlib.h>
 #include <sstream>
 
 namespace libbase {
@@ -101,6 +100,8 @@ const char DIR_SEPARATOR = '\\';
 #else
 const char DIR_SEPARATOR = '/';
 #endif
+
+const int ALIGNMENT = 128;
 
 /*! \brief Checks if a key has been pressed
  * \return true if this has happened

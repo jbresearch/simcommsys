@@ -1,6 +1,8 @@
 #ifndef __config_h
 #define __config_h
 
+#include <cstdlib>
+
 /*!
  * \file
  * \brief   Main Configuration.
@@ -190,6 +192,7 @@ typedef int64_t int64s;
 
 extern const double PI;
 extern const char DIR_SEPARATOR;
+extern const int ALIGNMENT;
 
 // Interactive keyboard handling
 int keypressed(void);
@@ -209,6 +212,12 @@ std::istream& eatcomments(std::istream& is);
 bool isfailedload(std::istream &is);
 bool isincompleteload(std::istream &is);
 void verifycompleteload(std::istream& is);
+
+// Check for alignment
+inline bool isaligned(const void *buf, int bytes)
+   {
+   return ((long) buf & (bytes - 1)) == 0;
+   }
 
 } // end namespace
 

@@ -38,8 +38,24 @@ private:
    // @}
 protected:
    /*! \name Helper functions */
-   static int convert(const libbase::vector<G>& vec);
-   static libbase::vector<G> convert(int val, int nu);
+   /*!
+    * \copydoc fsm::convert()
+    *
+    * Interface adaptation to make use of GF class concept of alphabet size
+    */
+   static int convert(const libbase::vector<G>& vec)
+      {
+      return fsm::convert(libbase::vector<int> (vec), G::elements());
+      }
+   /*!
+    * \copydoc fsm::convert()
+    *
+    * Interface adaptation to make use of GF class concept of alphabet size
+    */
+   static libbase::vector<G> convert(int val, int nu)
+      {
+      return libbase::vector<G> (fsm::convert(val, nu, G::elements()));
+      }
    G convolve(const G& s, const libbase::vector<G>& r,
          const libbase::vector<G>& g) const;
    // @}
@@ -67,12 +83,22 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   ccfsm(const libbase::matrix<libbase::vector<G> >& generator);
+   /*!
+    * \brief Principal constructor
+    */
+   ccfsm(const libbase::matrix<libbase::vector<G> >& generator)
+      {
+      init(generator);
+      }
    // @}
 
    // FSM state operations (getting and resetting)
    libbase::vector<int> state() const;
-   void reset();
+   void reset()
+      {
+      fsm::reset();
+      reg = 0;
+      }
    void reset(const libbase::vector<int>& state);
    // FSM operations (advance/output/step)
    void advance(libbase::vector<int>& input);

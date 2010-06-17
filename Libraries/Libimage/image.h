@@ -3,121 +3,80 @@
 
 #include "config.h"
 #include "matrix.h"
+#include "vector.h"
+#include "serializer.h"
 
-#ifdef FREEIMAGE
-// comment this out if not using the static library
-#define FREEIMAGE_LIB
-#include "freeimage.h"
-#endif
 #include <iostream>
-
-/*******************************************************************************
-
- Version 1.00 (7-14 Dec 2006)
- * initial version
- * class meant to encapsulate the data and functions dealing with a single
- image, potentially containing a number of channels.
- * according to common convention in image processing, the origin is at the
- top left, so that row-major order gives the normal raster conversion.
-
- *******************************************************************************/
 
 namespace libimage {
 
-class image {
+/*!
+ * \brief   Image Class.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * This class encapsulates the data and functions for dealing with a single
+ * image, potentially containing a number of channels. According to common
+ * convention in image processing, the origin is at the top left, so that
+ * row-major order gives the normal raster conversion.
+ */
+
+template <class T>
+class image : public libbase::serializable {
 private:
-#ifdef FREEIMAGE
-   // FreeImage interface;
-   class freeimage
-      {
-      static bool initialized;
-   public:
-      // pre-built I/O structures
-      FreeImageIO in, out;
-   public:
-      // constructor / destructor
-      freeimage();
-      ~freeimage();
-      // translations between handle I/O and stream I/O
-      static unsigned DLL_CALLCONV read(void *buffer, unsigned size, unsigned count, fi_handle handle);
-      static int DLL_CALLCONV iseek(fi_handle handle, long offset, int origin);
-      static long DLL_CALLCONV itell(fi_handle handle);
-      static unsigned DLL_CALLCONV write(void *buffer, unsigned size, unsigned count, fi_handle handle);
-      static int DLL_CALLCONV oseek(fi_handle handle, long offset, int origin);
-      static long DLL_CALLCONV otell(fi_handle handle);
-      };
-   static freeimage library;
-   // the image object itself
-   FIBITMAP *dib;
-   // other freeimage interface functions
-   double maxval(int bits) const
-      {return double((1<<bits) - 1);};
-   void unload();
-   double getpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp, unsigned channel) const;
-   void setpixel(BYTE *pixel, FREE_IMAGE_TYPE type, int bpp, unsigned channel, double value);
-public: // File format interface
-   typedef enum
-      {
-      tiff = 0,
-      jpeg,
-      png
-      }format_type;
-   typedef enum
-      {
-      none = 0,
-      lzw
-      }compression_type;
-private: // File format interface
-   format_type format;
-   compression_type compression;
-   int quality;
-#endif
+   //! Internal image representation
+   libbase::vector<libbase::matrix<T> > m_data;
+   int m_maxval;
 public:
    // Construction / destruction
-   image();
-   ~image();
+   virtual ~image()
+      {
+      }
 
-#ifdef FREEIMAGE
-   // File format functions
-   format_type get_format() const
-      {return format;};
-   compression_type get_compression() const
-      {return compression;};
-   int get_quality() const
-      {return quality;};
-   void set_format(format_type format)
-      {image::format = format;};
-   void set_compression(compression_type compression)
-      {image::compression = compression;};
-   void set_quality(int quality)
-      {image::quality = quality;};
-#endif
+   /*! \name Information functions */
+   //! Maximum pixel value
+   int range() const
+      {
+      return m_maxval;
+      }
+   //! Number of channels (image planes)
+   int channels() const
+      {
+      return m_data.size();
+      }
+   //! Image size in rows and columns
+   libbase::size_type<libbase::matrix> size() const
+      {
+      if (channels() > 0)
+         return m_data(0).size();
+      return libbase::size_type<libbase::matrix>(0, 0);
+      }
+   // @}
 
-   // Saving/loading functions
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+   /*! \name Pixel access */
+   //! Extract channel as a matrix of pixel values
+   libbase::matrix<T> getchannel(int c) const
+      {
+      assert(c >= 0 && c < channels());
+      return m_data(c);
+      }
+   //! Copy matrix of pixel values to channel
+   void setchannel(int c, const libbase::matrix<T>& m)
+      {
+      assert(c >= 0 && c < channels());
+      assert(m.size() == size());
+      m_data(c) = m;
+      }
+   // @}
 
-#ifdef FREEIMAGE
-   // Informative functions
-   int width() const;
-   int height() const;
-   int channels() const;
-
-   // Conversion to/from matrix of pixels
-   libbase::matrix<double> getchannel(int c) const;
-   void setchannel(int c, const libbase::matrix<double>& m);
-   //operator libbase::matrix<double>() const;
-   //image& operator=(const libbase::matrix<double>& m);
-
-   //// Data access
-   //T operator()(int x, int y) const { return data(x,y); };
-   //T& operator()(int x, int y) { return data(x,y); };
-#endif
+   // Serialization Support
+DECLARE_BASE_SERIALIZER(image)
+DECLARE_SERIALIZER(image)
 };
-
-// Non-member, non-friend functions
-std::ostream& operator<<(std::ostream& sout, const image& x);
-std::istream& operator>>(std::istream& sin, image& x);
 
 } // end namespace
 

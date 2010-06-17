@@ -12,6 +12,8 @@
 #include "modem/informed_modulator.h"
 #include "codec/codec_softout.h"
 #include "gf.h"
+#include "hard_decision.h"
+
 #include <sstream>
 
 namespace libcomm {
@@ -118,7 +120,8 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       C<array1d_t> ro;
       c.softdecode(ri, ro);
       // Compute hard-decision for results gatherer
-      codec_softout<C>::hard_decision(ri, decoded);
+      hard_decision<C, double> functor;
+      functor(ri, decoded);
       // TODO: Pass posterior information through mapper
       // Compute extrinsic information for next demodulation cycle
       compute_extrinsic(ptable_mapped, ro, ptable_mapped);

@@ -20,6 +20,13 @@
 #include "channel/bsc.h"
 #include "channel/qsc.h"
 
+// Embedders - atomic
+#include "embedder.h"
+#include "embedder/qim.h"
+// Embedders - block
+#include "blockembedder.h"
+#include "embedder/direct_blockembedder.h"
+
 // Modulators
 #include "blockmodem.h"
 #include "modem/direct_modem.h"
@@ -106,7 +113,7 @@ namespace libcomm {
 // Serialization support
 class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       awgn,
-      laplacian,
+      laplacian<sigspace>,
       lapgauss,
       bsid,
       bsid2d,
@@ -144,6 +151,10 @@ private:
    //shift_lut<double>	_shift_lut_double;
    //uniform_lut<double>	_uniform_lut_double;
    //named_lut<double>	_named_lut_double;
+   // Embedders - atomic
+   qim<int> _qim_int;
+   // Embedders - block
+   direct_blockembedder<int> _direct_blockembedder_int;
    // Modulators
    direct_modem<bool> _direct_modem_bool;
    direct_blockmodem<bool> _direct_blockmodem_bool;

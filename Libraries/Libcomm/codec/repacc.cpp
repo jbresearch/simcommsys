@@ -9,6 +9,8 @@
 
 #include "repacc.h"
 #include "vectorutils.h"
+#include "hard_decision.h"
+
 #include <sstream>
 #include <iomanip>
 
@@ -16,7 +18,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show intermediate decoding output
+// 2 - Show intermediate encoded + decoded output
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -181,6 +183,10 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    const int tau = acc_timesteps();
    // Calculate internal sizes
    const int p = n - k;
+#if DEBUG>=2
+   std::cerr << "Source:\n";
+   source.serialize(std::cerr, '\n');
+#endif
 
    // Compute repeater output
    array1i_t rep0;
@@ -194,6 +200,12 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    array1i_t rep2;
    inter->advance();
    inter->transform(rep1, rep2);
+#if DEBUG>=2
+   std::cerr << "Repeater:\n";
+   rep1.serialize(std::cerr, '\n');
+   std::cerr << "Permuter:\n";
+   rep2.serialize(std::cerr, '\n');
+#endif
 
    // Initialise result vector
    encoded.init(This::output_block_size());
@@ -208,6 +220,10 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // check that encoder finishes correctly
    if (endatzero)
       assertalways(fsm::convert(acc->state(), acc->num_symbols()) == 0);
+#if DEBUG>=2
+   std::cerr << "Accumulator:\n";
+   encoded.serialize(std::cerr, '\n');
+#endif
    }
 
 /*! \copydoc codec_softout::softdecode()
@@ -251,7 +267,8 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
 
 #if DEBUG>=2
    array1i_t dec;
-   This::hard_decision(ravd,dec);
+   hard_decision<libbase::vector, dbl> functor;
+   functor(ravd,dec);
    libbase::trace << "DEBUG (repacc): ravd = ";
    dec.serialize(libbase::trace, ' ');
 #endif
@@ -262,10 +279,10 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
    rep.softdecode(ri, ro);
 
 #if DEBUG>=2
-   This::hard_decision(ro,dec);
+   functor(ro,dec);
    libbase::trace << "DEBUG (repacc): ro = ";
    dec.serialize(libbase::trace, ' ');
-   This::hard_decision(ri,dec);
+   functor(ri,dec);
    libbase::trace << "DEBUG (repacc): ri = ";
    dec.serialize(libbase::trace, ' ');
 #endif

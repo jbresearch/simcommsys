@@ -106,7 +106,7 @@ public:
 
    // index operators (perform boundary checking)
    T& operator()(const int x, const int y, const int z);
-   T operator()(const int x, const int y, const int z) const;
+   const T& operator()(const int x, const int y, const int z) const;
 
    // information services
    //! Total number of elements
@@ -325,7 +325,7 @@ inline T& matrix3<T>::operator()(const int x, const int y, const int z)
    }
 
 template <class T>
-inline T matrix3<T>::operator()(const int x, const int y, const int z) const
+inline const T& matrix3<T>::operator()(const int x, const int y, const int z) const
    {
    assert(x>=0 && x<m_xsize);
    assert(y>=0 && y<m_ysize);

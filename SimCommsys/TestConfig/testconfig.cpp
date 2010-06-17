@@ -21,6 +21,7 @@ void print_standard_sizes()
    cout << "Type:      \tSize (bits):\n";
    cout << "~~~~~      \t~~~~~~~~~~~~\n";
 
+   cout << "bool       \t" << sizeof(bool) * 8 << "\n";
    cout << "char       \t" << sizeof(char) * 8 << "\n";
    cout << "short      \t" << sizeof(short) * 8 << "\n";
    cout << "int        \t" << sizeof(int) * 8 << "\n";

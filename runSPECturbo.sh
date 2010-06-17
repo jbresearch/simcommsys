@@ -23,13 +23,15 @@ else
    RELEASE=Release
 fi
 
+BRANCH=`basename $PWD`
+
 # start slave processes (one/CPU)
 declare -i i
 for (( i=0; $i < $COUNT; i++ )); do
    echo Starting slave $i
-   ( sleep 1; SPECturbo.$RELEASE localhost:$PORT >/dev/null 2>&1 )&
+   ( sleep 1; SPECturbo.$BRANCH.$RELEASE -e localhost:$PORT >/dev/null 2>&1 )&
 done
 
 # start master process
 echo Starting master
-SPECturbo.$RELEASE :$PORT
+SPECturbo.$BRANCH.$RELEASE -e :$PORT

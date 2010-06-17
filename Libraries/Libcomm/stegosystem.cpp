@@ -170,7 +170,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate,
    // BPSK blockmodem
    mpsk mdm(2);
    // set up channel
-   laplacian chan;
+   laplacian<sigspace> chan;
    chan.set_eb(mdm.bit_energy());
    chan.set_parameter(dSNR);
    // loop for all blocks

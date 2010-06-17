@@ -11,7 +11,7 @@
 namespace libcomm {
 
 /*!
- * \brief   Additive Laplacian Noise Channel.
+ * \brief   Common Base for Additive Laplacian Noise Channel.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -19,48 +19,15 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * \version 1.00 (15 Apr 2001)
- * First version - note that as with the Gaussian channel, the distribution
- * has zero mean even in this case.
- *
- * \version 1.01 (6 Mar 2002)
- * changed vcs version variable from a global to a static class variable.
- *
- * \version 1.10 (13 Mar 2002)
- * updated the system to conform with the completed serialization protocol (in conformance
- * with channel 1.10), by adding the necessary name() function, and also by adding a static
- * serializer member and initialize it with this class's name and the static constructor
- * (adding that too). Also made the channel object a public base class, rather than a
- * virtual public one, since this was affecting the transfer of virtual functions within
- * the class (causing access violations). Also moved most functions into the implementation
- * file rather than here.
- *
- * \version 1.20 (27 Mar 2002)
- * changed descriptive output function to conform with channel 1.30.
- *
- * \version 1.30 (30 Oct 2006)
- * - defined class and associated data within "libcomm" namespace.
- *
- * \version 1.40 (16 Oct 2007)
- * changed class to conform with channel 1.50.
- *
- * \version 1.41 (16 Oct 2007)
- * changed class to conform with channel 1.51.
- *
- * \version 1.42 (17 Oct 2007)
- * changed class to conform with channel 1.52.
- *
- * \version 1.43 (29 Oct 2007)
- * - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
- *
- * \version 1.44 (24 Jan 2008)
- * - Changed derivation from channel to channel<sigspace>
+ * \note The distribution has zero mean.
  */
 
-class laplacian : public channel<sigspace> {
+template <class S, template <class > class C = libbase::vector>
+class basic_laplacian : public channel<S, C> {
+protected:
    // channel paremeters
    double lambda;
-private:
+protected:
    // internal helper functions
    double f(const double x) const
       {
@@ -70,6 +37,69 @@ private:
       {
       return (y < 0.5) ? lambda * log(2 * y) : -lambda * log(2 * (1 - y));
       }
+public:
+   // Description
+   std::string description() const
+      {
+      return "Laplacian channel";
+      }
+};
+
+/*!
+ * \brief   General Additive Laplacian Noise Channel.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ */
+
+template <class S, template <class > class C = libbase::vector>
+class laplacian : public basic_laplacian<S, C> {
+private:
+   // Shorthand for class hierarchy
+   typedef basic_laplacian<S, C> Base;
+protected:
+   // channel handle functions
+   S corrupt(const S& s)
+      {
+      const S n = Base::Finv(Base::r.fval_closed());
+      return s + n;
+      }
+   double pdf(const S& tx, const S& rx) const
+      {
+      const S n = rx - tx;
+      return f(n);
+      }
+public:
+   // Parameter handling
+   void set_parameter(const double x)
+      {
+      assertalways(x >= 0);
+      Base::lambda = x;
+      }
+   double get_parameter() const
+      {
+      return Base::lambda;
+      }
+
+   // Serialization Support
+DECLARE_SERIALIZER(laplacian)
+};
+
+/*!
+ * \brief   Signal-Space Additive Laplacian Noise Channel.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ */
+
+template <>
+class laplacian<sigspace, libbase::vector> : public basic_laplacian<sigspace> {
 protected:
    // handle functions
    void compute_parameters(const double Eb, const double No);
@@ -77,9 +107,6 @@ protected:
    sigspace corrupt(const sigspace& s);
    double pdf(const sigspace& tx, const sigspace& rx) const;
 public:
-   // Description
-   std::string description() const;
-
    // Serialization Support
 DECLARE_SERIALIZER(laplacian)
 };

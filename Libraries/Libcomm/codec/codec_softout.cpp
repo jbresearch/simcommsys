@@ -8,6 +8,7 @@
  */
 
 #include "codec_softout.h"
+#include "hard_decision.h"
 
 namespace libcomm {
 
@@ -33,28 +34,8 @@ void codec_softout<libbase::vector, dbl>::decode(array1i_t& decoded)
    {
    array1vd_t ri;
    softdecode(ri);
-   hard_decision(ri, decoded);
-   }
-
-template <class dbl>
-void codec_softout<libbase::vector, dbl>::hard_decision(const array1vd_t& ri,
-      array1i_t& decoded)
-   {
-   // Determine sizes from input matrix
-   const int tau = ri.size();
-   assert(tau > 0);
-   const int K = ri(0).size();
-   // Initialise result vector
-   decoded.init(tau);
-   // Determine most likely symbol at every timestep
-   for (int t = 0; t < tau; t++)
-      {
-      assert(ri(t).size() == K);
-      decoded(t) = 0;
-      for (int i = 1; i < K; i++)
-         if (ri(t)(i) > ri(t)(decoded(t)))
-            decoded(t) = i;
-      }
+   hard_decision<libbase::vector, dbl> functor;
+   functor(ri, decoded);
    }
 
 } // end namespace

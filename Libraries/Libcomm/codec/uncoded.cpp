@@ -8,6 +8,7 @@
  */
 
 #include "uncoded.h"
+#include "fsm/cached_fsm.h"
 #include "vectorutils.h"
 #include <sstream>
 
@@ -42,7 +43,7 @@ template <class dbl>
 uncoded<dbl>::uncoded(const fsm& encoder, const int tau) :
    tau(tau)
    {
-   uncoded<dbl>::encoder = dynamic_cast<fsm*> (encoder.clone());
+   uncoded<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(encoder));
    init();
    }
 
@@ -90,14 +91,15 @@ void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Inherit sizes
    const int k = enc_inputs();
    const int n = enc_outputs();
+   // Reset the encoder to zero state
+   encoder->reset();
    // Initialise result vector
    encoded.init(This::output_block_size());
    // Encode source stream
    for (int t = 0; t < tau; t++)
       {
-      // NOTE: do not replace with a copy constructor
-      array1i_t ip;
-      ip = source.extract(t * k, k);
+      // have to make a copy because of step()
+      array1i_t ip = source.extract(t * k, k);
       encoded.segment(t * n, n) = encoder->step(ip);
       }
    }
@@ -193,7 +195,10 @@ template <class dbl>
 std::istream& uncoded<dbl>::serialize(std::istream& sin)
    {
    free();
-   sin >> libbase::eatcomments >> encoder;
+   fsm *encoder_original;
+   sin >> libbase::eatcomments >> encoder_original;
+   uncoded<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(*encoder_original));
+   delete encoder_original;
    sin >> libbase::eatcomments >> tau;
    init();
    return sin;

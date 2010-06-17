@@ -5,7 +5,8 @@
 #include "channel.h"
 #include "itfunc.h"
 #include "serializer.h"
-#include "multi_array.h"
+#include "matrix.h"
+#include "bsid-cuda.h"
 #include <cmath>
 
 namespace libcomm {
@@ -23,7 +24,8 @@ namespace libcomm {
 class bsid : public channel<bool> {
 public:
    /*! \name Type definitions */
-   typedef boost::assignable_multi_array<double, 2> array2d_t;
+   typedef float real;
+   typedef libbase::matrix<real> array2r_t;
    typedef libbase::vector<bool> array1b_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -34,7 +36,7 @@ private:
    bool varyPs; //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
-   int  Icap; //!< Maximum usable value of I (0 indicates no cap is placed)
+   int Icap; //!< Maximum usable value of I (0 indicates no cap is placed)
    // @}
    /*! \name Channel-state parameters */
    double Ps; //!< Bit-substitution probability \f$ P_s \f$
@@ -45,14 +47,18 @@ private:
    /*! \name Pre-computed parameters */
    int I; //!< Assumed limit for insertions between two time-steps
    int xmax; //!< Assumed maximum drift over a whole \c N -bit block
-   array2d_t Rtable; //!< Receiver coefficient set for mu >= 0
-   double Rval; //!< Receiver coefficient value for mu = -1
+   array2r_t Rtable; //!< Receiver coefficient set for mu >= 0
+   real Rval; //!< Receiver coefficient value for mu = -1
+#ifdef CUDA
+   cuda::matrix<real> dev_Rtable; //!< Device copy of receiver coefficient set
+   cuda::value<real> dev_Rval; //!< Device copy of receiver coefficient value
+#endif
    // @}
 public:
    /*! \name FBA decoder parameter computation */
    static int compute_I(int tau, double p, int Icap);
    static int compute_xmax(int tau, double p, int I);
-   static void compute_Rtable(array2d_t& Rtable, int xmax, double Ps,
+   static void compute_Rtable(array2r_t& Rtable, int xmax, double Ps,
          double Pd, double Pi);
    int compute_I(int tau);
    int compute_xmax(int tau);
@@ -65,7 +71,10 @@ private:
 protected:
    // Channel function overrides
    bool corrupt(const bool& s);
-   double pdf(const bool& tx, const bool& rx) const;
+   double pdf(const bool& tx, const bool& rx) const
+      {
+      return (tx != rx) ? Ps : 1 - Ps;
+      }
 public:
    /*! \name Constructors / Destructors */
    bsid(const bool varyPs = true, const bool varyPd = true, const bool varyPi =
@@ -109,9 +118,18 @@ public:
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);
    void
-         receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const;
+   receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const;
    double receive(const array1b_t& tx, const array1b_t& rx) const;
-   double receive(const bool& tx, const array1b_t& rx) const;
+   double receive(const bool& tx, const array1b_t& rx) const
+      {
+      // Compute sizes
+      const int mu = rx.size() - 1;
+      // If this was not a deletion, return result from table
+      if (mu >= 0)
+         return Rtable(tx != rx(mu), mu);
+      // If this was a deletion, it's a fixed value
+      return Rval;
+      }
 
    // Description
    std::string description() const;
@@ -119,22 +137,6 @@ public:
    // Serialization Support
 DECLARE_SERIALIZER(bsid)
 };
-
-inline double bsid::pdf(const bool& tx, const bool& rx) const
-   {
-   return (tx != rx) ? Ps : 1 - Ps;
-   }
-
-inline double bsid::receive(const bool& tx, const array1b_t& rx) const
-   {
-   // Compute sizes
-   const int mu = rx.size() - 1;
-   // If this was a deletion, it's a fixed value
-   if (mu < 0)
-      return Rval;
-   // Otherwise return result from table
-   return Rtable[tx != rx(mu)][mu];
-   }
 
 } // end namespace
 

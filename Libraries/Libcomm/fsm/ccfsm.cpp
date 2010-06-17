@@ -68,28 +68,6 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
 // Helper functions
 
 /*!
- * \copydoc fsm::convert()
- *
- * Interface adaptation to make use of GF class concept of alphabet size
- */
-template <class G>
-int ccfsm<G>::convert(const vector<G>& vec)
-   {
-   return fsm::convert(vector<int> (vec), G::elements());
-   }
-
-/*!
- * \copydoc fsm::convert()
- *
- * Interface adaptation to make use of GF class concept of alphabet size
- */
-template <class G>
-vector<G> ccfsm<G>::convert(int val, int nu)
-   {
-   return vector<G> (fsm::convert(val, nu, G::elements()));
-   }
-
-/*!
  * \brief Convolves the shift-in value and register with a generator polynomial
  * \param  s  The value at the left shift-in of the register
  * \param  r  The register
@@ -112,17 +90,6 @@ G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
    return thisop;
    }
 
-// Constructors / Destructors
-
-/*!
- * \brief Principal constructor
- */
-template <class G>
-ccfsm<G>::ccfsm(const matrix<vector<G> >& generator)
-   {
-   init(generator);
-   }
-
 // FSM state operations (getting and resetting)
 
 template <class G>
@@ -136,13 +103,6 @@ vector<int> ccfsm<G>::state() const
             state(j++) = reg(i)(t);
    assert(j == nu);
    return state;
-   }
-
-template <class G>
-void ccfsm<G>::reset()
-   {
-   fsm::reset();
-   reg = 0;
    }
 
 template <class G>

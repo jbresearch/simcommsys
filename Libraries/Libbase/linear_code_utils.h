@@ -19,9 +19,9 @@ namespace libbase {
  * linear block codes over GF(2^p) with p>=1
  *
  * \section svn Version Control
- * - $Revision: 2668 $
- * - $Date: 2009-07-16 15:41:52 +0100 (Thu, 16 Jul 2009) $
- * - $Author: swesemeyer $
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class GF_q, class real = double>

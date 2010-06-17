@@ -48,7 +48,8 @@ endif
 # Compiler settings
 CCdbgopt := -g -DDEBUG $(CCcomopt)
 CCrelopt := -O3 -DNDEBUG $(CCcomopt)
-CCprfopt := -pg $(CCrelopt)
+#CCprfopt := $(CCrelopt) -pg -fno-inline
+CCprfopt := $(CCrelopt) -pg
 CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%)
 #CClang := -Wall -Werror -Wno-non-template-friend -Woverloaded-virtual
 CClang := -Wall -Werror
@@ -85,31 +86,7 @@ export DOXYGEN := doxygen
 
 # Local variables:
 
-MAINTARGETS := SimCommsys/CSdecode \
-	SimCommsys/CSencode \
-	SimCommsys/CSfullcycle \
-	SimCommsys/CStransmit \
-	SimCommsys/CompareLists \
-	SimCommsys/MakeSRandom \
-	SimCommsys/ShowErrorEvent \
-	SimCommsys/SimCommsys \
-	SimCommsys/SPECturbo
-
-TESTTARGETS := SimCommsys/TestBSID \
-	SimCommsys/TestBSID2D \
-	SimCommsys/TestConfig \
-	SimCommsys/TestDMinner2D \
-	SimCommsys/TestFSM \
-	SimCommsys/TestGF \
-	SimCommsys/TestGRSCC \
-	SimCommsys/TestModem \
-	SimCommsys/TestQSC \
-	SimCommsys/TestWatermark \
-	SimCommsys/TestWMdemodulation \
-	SimCommsys/TestLDPC \
-	SimCommsys/TestLinearity
-
-TARGETS = $(MAINTARGETS) $(TESTTARGETS)
+TARGETS = $(wildcard SimCommsys/*)
 
 # Master targets
 
@@ -134,14 +111,6 @@ install-release:
 
 install-debug:
 	@$(MAKE) RELEASE=Debug DOTARGET=install $(TARGETS)
-
-install-main:	install-main-release install-main-debug
-
-install-main-release:
-	@$(MAKE) RELEASE=Release DOTARGET=install $(MAINTARGETS)
-
-install-main-debug:
-	@$(MAKE) RELEASE=Debug DOTARGET=install $(MAINTARGETS)
 
 doc:
 	@$(DOXYGEN)

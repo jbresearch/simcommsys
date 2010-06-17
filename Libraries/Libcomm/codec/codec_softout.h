@@ -123,18 +123,6 @@ public:
    void init_decoder(const array1vd_t& ptable);
    void init_decoder(const array1vd_t& ptable, const array1vd_t& app);
    void decode(array1i_t& decoded);
-
-   /*! \name Codec helper functions */
-   /*!
-    * \brief Hard decision on soft information
-    * \param[in]  ri       Likelihood table for input symbols at every timestep
-    * \param[out] decoded  Sequence of the most likely input symbols at every
-    * timestep
-    *
-    * Decide which input sequence was most probable.
-    */
-   static void hard_decision(const array1vd_t& ri, array1i_t& decoded);
-   // @}
 };
 
 } // end namespace

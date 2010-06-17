@@ -114,19 +114,19 @@ int bsid::compute_xmax(int tau)
  * \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
  * , \mu \in (0, \ldots x_{max}) \f]
  */
-void bsid::compute_Rtable(array2d_t& Rtable, int xmax, double Ps, double Pd,
+void bsid::compute_Rtable(array2r_t& Rtable, int xmax, double Ps, double Pd,
       double Pi)
    {
    // Allocate required size
-   Rtable.resize(boost::extents[2][xmax + 1]);
+   Rtable.init(2, xmax + 1);
    // Set values for insertions
    const double a1 = (1 - Pi - Pd);
    const double a2 = 0.5 * Pi * Pd;
    for (int mu = 0; mu <= xmax; mu++)
       {
       const double a3 = pow(0.5 * Pi, mu);
-      Rtable[0][mu] = a3 * (a1 * (1 - Ps) + a2);
-      Rtable[1][mu] = a3 * (a1 * Ps + a2);
+      Rtable(0, mu) = a3 * (a1 * (1 - Ps) + a2);
+      Rtable(1, mu) = a3 * (a1 * Ps + a2);
       }
    }
 
@@ -146,7 +146,7 @@ void bsid::precompute()
       I = 0;
       xmax = 0;
       // reset array
-      Rtable.resize(boost::extents[0][0]);
+      Rtable.init(0, 0);
       return;
       }
    assert(N > 0);
@@ -156,6 +156,11 @@ void bsid::precompute()
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
    Rval = biased ? Pd * Pd : Pd;
+#ifdef CUDA
+   // copy necessary data to device
+   dev_Rtable = Rtable;
+   dev_Rval = Rval;
+#endif
    }
 
 /*!
@@ -378,51 +383,104 @@ double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
    libbase::trace << "tx = " << tx;
    libbase::trace << "rx = " << rx;
 #endif
+
+#ifdef CUDA
+   cuda::vector<bool> dev_tx;
+   cuda::vector<bool> dev_rx;
+   dev_tx = tx;
+   dev_rx = rx;
+
+   real result = cuda::bsid_receive(dev_tx, dev_rx, dev_Rtable, dev_Rval, I, xmax, N);
+#else
+   using std::min;
+   using std::max;
+   using std::swap;
    // Compute sizes
    const int n = tx.size();
    const int mu = rx.size() - n;
    assert(n <= N);
    assert(labs(mu) <= xmax);
-   // Set up forward matrix (automatically initialized to zero)
-   typedef boost::multi_array_types::extent_range range;
-   array2d_t F(boost::extents[n][range(-xmax, xmax + 1)]);
-   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   F[0][0] = 1;
+   // Set up two slices of forward matrix, and associated pointers
+   real F0[2 * xmax + 1];
+   real F1[2 * xmax + 1];
+   real *Fthis = F1;
+   real *Fprev = F0;
+   // for prior list, reset all elements to zero
+   for (int x = 0; x < 2 * xmax + 1; x++)
+      Fprev[x] = 0;
+   // we also know x[0] = 0; ie. drift before transmitting bit t0 is zero.
+   Fprev[xmax + 0] = 1;
    // compute remaining matrix values
-   typedef array2d_t::index index;
-   for (index j = 1; j < n; ++j)
+   for (int j = 1; j < n; ++j)
       {
+      // for this list, reset all elements to zero
+      for (int x = 0; x < 2 * xmax + 1; x++)
+         Fthis[x] = 0;
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y < rx.size()
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
-      const index amin = std::max(-xmax, 1 - int(j));
-      const index amax = xmax;
-      const index ymax_bnd = std::min(xmax, rx.size() - int(j));
-      for (index a = amin; a <= amax; ++a)
+      // note: a and y are offset by xmax
+      const int ymin = max(0, xmax - j);
+      const int ymax = min(2 * xmax, xmax + rx.size() - j);
+      for (int y = ymin; y <= ymax; ++y)
          {
-         const index ymin = std::max(-xmax, int(a) - 1);
-         const index ymax = std::min(ymax_bnd, int(a) + I);
-         for (index y = ymin; y <= ymax; ++y)
-            F[j][y] += F[j - 1][a] * bsid::receive(tx(int(j - 1)), rx.extract(
-                  int(j - 1 + a), int(y - a + 1)));
+         const int amin = max(max(0, xmax + 1 - j), y - I);
+         const int amax = min(2 * xmax, y + 1);
+         // check if the last element is a pure deletion
+         int amax_act = amax;
+         if (y - amax < 0)
+            {
+            Fthis[y] += Fprev[amax] * Rval;
+            amax_act--;
+            }
+         // elements requiring comparison of tx and rx bits
+         for (int a = amin; a <= amax_act; ++a)
+            {
+            // received subsequence has
+            // start:  j-1+a
+            // length: y-a+1
+            // therefore last element is: start+length-1 = j+y-1
+            const bool cmp = tx(j - 1) != rx(j + (y - xmax) - 1);
+            Fthis[y] += Fprev[a] * Rtable(cmp, y - a);
+            }
          }
+      // swap 'this' and 'prior' lists
+      swap(Fthis, Fprev);
       }
    // Compute forward metric for known drift, and return
-   double result = 0;
+   real result = 0;
    // event must fit the received sequence:
-   // 1. tau-1+a >= 0
-   // 2. tau-1+mu < rx.size() [automatically satisfied by definition of mu]
+   // 1. n-1+a >= 0
+   // 2. n-1+mu < rx.size() [automatically satisfied by definition of mu]
    // limits on insertions and deletions must be respected:
    // 3. mu-a <= I
    // 4. mu-a >= -1
-   const index amin = std::max(std::max(-xmax, mu - I), 1 - n);
-   const index amax = std::min(xmax, mu + 1);
-   for (index a = amin; a <= amax; ++a)
-      result += F[n - 1][a] * bsid::receive(tx(int(n - 1)), rx.extract(int(n
-            - 1 + a), int(mu - a + 1)));
+   // note: muoff and a are offset by xmax
+   const int muoff = mu + xmax;
+   const int amin = max(max(0, muoff - I), xmax + 1 - n);
+   const int amax = min(2 * xmax, muoff + 1);
+   // check if the last element is a pure deletion
+   int amax_act = amax;
+   if (muoff - amax < 0)
+      {
+      result += Fprev[amax] * Rval;
+      amax_act--;
+      }
+   // elements requiring comparison of tx and rx bits
+   for (int a = amin; a <= amax_act; ++a)
+      {
+      // received subsequence has
+      // start:  n-1+a
+      // length: mu-a+1
+      // therefore last element is: start+length-1 = n+mu-1
+      const bool cmp = tx(n - 1) != rx(n + mu - 1);
+      result += Fprev[a] * Rtable(cmp, muoff - a);
+      }
+#endif
+
 #if DEBUG>=2
    libbase::trace << "RecvPr = " << result << "\n";
 #endif

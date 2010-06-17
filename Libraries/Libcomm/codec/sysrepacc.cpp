@@ -13,6 +13,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show intermediate encoded output
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 // encoding and decoding functions
 
 template <class real, class dbl>
@@ -20,6 +28,12 @@ void sysrepacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    {
    array1i_t parity;
    Base::encode(source, parity);
+#if DEBUG>=2
+   std::cerr << "Source:\n";
+   source.serialize(std::cerr, '\n');
+   std::cerr << "Parity:\n";
+   parity.serialize(std::cerr, '\n');
+#endif
    encoded.init(This::output_block_size());
    encoded.segment(0, source.size()).copyfrom(source);
    encoded.segment(source.size(), parity.size()).copyfrom(parity);

@@ -203,11 +203,11 @@ public:
 
    /*! \name Index operators (perform boundary checking) */
    T& operator()(const int i, const int j);
-   T operator()(const int i, const int j) const;
+   const T& operator()(const int i, const int j) const;
    // @}
 
    /*! \name Information functions */
-   //! Total number of elements
+   //! Matrix size in rows and columns
    size_type<libbase::matrix> size() const
       {
       return m_size;
@@ -564,7 +564,7 @@ inline T& matrix<T>::operator()(const int i, const int j)
    }
 
 template <class T>
-inline T matrix<T>::operator()(const int i, const int j) const
+inline const T& matrix<T>::operator()(const int i, const int j) const
    {
    assert(i>=0 && i<m_size.rows());
    assert(j>=0 && j<m_size.cols());
@@ -1462,10 +1462,12 @@ private:
    //! Matrix multiplication is hidden because it's meaningless here
    masked_matrix<T>& operator*=(const matrix<T>& x)
       {
+      return *this;
       }
    //! Matrix division is hidden because it's meaningless here
    masked_matrix<T>& operator/=(const matrix<T>& x)
       {
+      return *this;
       }
 public:
    masked_matrix<T>& multiplyby(const matrix<T>& x);
