@@ -298,6 +298,15 @@ private:
    //has resulted in a codeword
    bool decodingSuccess;
 
+   //! flag indicating whether the generator matrix should be reduced to
+   //REF form in the hope of getting a proper systematic code.
+   //If set to false, initialisation is quicker and the info symbols are
+   //at the end of the codeword
+   //If set to true, the info symbols will be at the beginning of the
+   //code word.
+   //Note that it is not guaranteed that they will be in the first
+   //k positions though.
+   bool reduce_to_ref;
    //!this is the most likely received word (eg the maximum value of the
    //received likelihoods are used to form this word)
    array1d_t received_word_sd;
@@ -306,6 +315,10 @@ private:
    //the syndrome
    libbase::vector<GF_q> received_word_hd;
 
+   //!this holds a pointer to the version of the spa_alg
+   //that is going to be used
+   //currently we have trad(=traditional and slow) and
+   //gdl(=general distribution law and fast)
    boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
 
 };

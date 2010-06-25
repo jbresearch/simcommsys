@@ -64,7 +64,7 @@ protected:
    // channel handle functions
    S corrupt(const S& s)
       {
-      const S n = Base::Finv(Base::r.fval_closed());
+      const S n = S(Base::Finv(Base::r.fval_closed()));
       return s + n;
       }
    double pdf(const S& tx, const S& rx) const

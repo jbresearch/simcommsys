@@ -31,19 +31,38 @@ template <class GF_q, class real> void ldpc<GF_q, real>::init()
    libbase::linear_code_utils<GF_q>::compute_dual_code(this->pchk_matrix,
          this->gen_matrix, this->perm_to_systematic);
 
-   //as we define the LDPC code by its parity check matrix,H , the generator matrix
-   //will be of the form (P|I) provided H was in systematic form when reduced to REF
-   //if H wasn't then perm_to_systematic contains the permutation that transformed
-   //H into systematic form which gives us the information we need to extract the
-   //positions of the info symbols in G. In fact the last k values of perm_to_systematic
-   //are those positions.
-
    this->dim_k = this->gen_matrix.size().rows();
    this->info_symb_pos.init(this->dim_k);
-   for (int loop = 0; loop < this->dim_k; loop++)
+
+   if (this->reduce_to_ref == false)
       {
-      this ->info_symb_pos(loop) = this->perm_to_systematic((this->length_n
-            - this->dim_k) + loop);
+      //as we define the LDPC code by its parity check matrix,H , the generator matrix
+      //will be of the form (P|I) provided H was in systematic form when reduced to REF
+      //if H wasn't then perm_to_systematic contains the permutation that transformed
+      //H into systematic form which gives us the information we need to extract the
+      //positions of the info symbols in G. In fact the last k values of perm_to_systematic
+      //are those positions.
+      for (int loop = 0; loop < this->dim_k; loop++)
+         {
+         this ->info_symb_pos(loop) = this->perm_to_systematic((this->length_n
+               - this->dim_k) + loop);
+         }
+      }
+   else
+      {
+      //we reduce the generator matrix to REF format in the hope that the info symbols will be
+      //in the first k positions and that we'll therefore have a systematic code
+      this->gen_matrix = this->gen_matrix.reduce_to_ref();
+      //we now need to find the pivots
+      int posy = 0;
+      for (int loop = 0; loop < this->dim_k; loop++)
+         {
+         while (this->gen_matrix(loop, posy) == GF_q(0))
+            {
+            posy++;
+            }
+         this->info_symb_pos(loop) = posy;
+         }
       }
    }
 
@@ -276,6 +295,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
  *
  * ldpc<gf<m,n>>
  * version
+ * clipping
  * spa_type
  * max_iter
  * n m
@@ -317,7 +337,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
  * An example file would be
  * ldpc<gf<2,0x7>>
  * #version
- * 2
+ * 4
  * #SPA
  * trad
  * #iter
@@ -325,6 +345,8 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
  * #clipping method and almost_zero value
  * zero
  * 1e-100
+ * # reduce generator matrix to REF? (true|false)
+ * false
  * # length dim
  * 5 3
  * # max col/row weight
@@ -367,7 +389,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
 
    assertalways(sout.good());
    sout << "#version of this file format\n";
-   sout << 3 << "\n";
+   sout << 4 << "\n";
    sout << "#SPA type\n";
    sout << this->spa_alg->spa_type() << "\n";
    sout << "# number of iterations\n";
@@ -378,6 +400,15 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
    sout << "#this is followed by the value of almostzero\n";
    sout << this->spa_alg->get_clipping_type() << "\n";
    sout << this->spa_alg->get_almostzero() << "\n";
+   sout << "#reduce generator matrix to REF? (true|false)\n";
+   if (this->reduce_to_ref)
+      {
+      sout << "true\n";
+      }
+   else
+      {
+      sout << "false\n";
+      }
    sout << "# length n and dimension m\n";
    sout << this->length_n << " " << this->dim_pchk << "\n";
    sout << "#max col weight and max row weight\n";
@@ -485,6 +516,8 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
  * #clipping method and almost_zero value
  * zero
  * 1e-100
+ * # reduce generator matrix to REF? (true|false)
+ * false
  * # length dim
  * 5 3
  * # max col/row weight
@@ -549,7 +582,18 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
       sin >> libbase::eatcomments >> tmp_az;
       almost_zero = real(tmp_az);
       }
-
+   //default flag for files with versions less than 4
+   this->reduce_to_ref = false;
+   if (version > 3)
+      {
+      std::string tmp_flag;
+      sin >> libbase::eatcomments >> tmp_flag;
+      assertalways(("true"==tmp_flag)||("false"==tmp_flag));
+      if ("true" == tmp_flag)
+         {
+         this->reduce_to_ref = true;
+         }
+      }
    sin >> libbase::eatcomments >> this->length_n;
    sin >> libbase::eatcomments >> this->dim_pchk;
 

@@ -63,8 +63,49 @@ void compute_conv(array1d_t& conv_out, int pos1, int pos2)
       }
    }
 
+void compute_dual()
+   {
+   matrix<gf<1, 0x3> > test;
+   test.init(5, 31);
+   int tmp;
+   for (int i = 1; i < 32; i++)
+      {
+      tmp = i;
+      for (int shift = 0; shift < 5; shift++)
+         {
+         test(shift, i - 1) = tmp % 2;
+         tmp = tmp >> 1;
+         }
+      }
+
+   cout << "the parity check matrix for the (31,26) Hamming code looks like:\n";
+   test.serialize(cout, ' ');
+   cout<<"\n";
+   //compute the minimum weight codewords
+   array1i_t info_sym;
+   array1i_t code_word;
+   for (int i = 0; i < 31; i++)
+      {
+      info_sym = test.extractcol(i);
+      linear_code_utils<gf<1, 0x3> , double>::encode_cw(test,info_sym,code_word);
+      cout<<"codeword "<<i+1<<": ";
+      code_word.serialize(cout,' ');
+      cout<<" weight= "<<code_word.sum()<<"\n";
+      }
+
+   /*
+    matrix<gf<1, 0x3> > dual;
+    array1i_t systematic_perm;
+    linear_code_utils<gf<1, 0x3> , double>::compute_dual_code(test, dual, systematic_perm);
+    cout << "the dual matrix is given by:\n";
+    dual.serialize(cout, ' ');
+    */
+   }
+
 int main(int argc, char *argv[])
    {
+   compute_dual();
+   return 0;
    if (argc == 1)
       {
       cerr << "\nPlease provide a path to a file";

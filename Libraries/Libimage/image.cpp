@@ -43,9 +43,9 @@ std::ostream& image<T>::serialize(std::ostream& sout) const
             {
             int p;
             if (typeid(T) == typeid(double) || typeid(T) == typeid(float))
-               p = round(m_data(c)(i, j) * m_maxval);
+               p = int(round(m_data(c)(i, j) * m_maxval));
             else
-               p = m_data(c)(i, j);
+               p = int(m_data(c)(i, j));
             assert(p >= 0 && p <= m_maxval);
             sout.put(p);
             }
