@@ -8,15 +8,17 @@
 #ifndef LDPC_H_
 #define LDPC_H_
 
-#include <string>
-#include <iostream>
 #include "codec_softout.h"
 #include "config.h"
 #include "vector.h"
 #include "matrix.h"
 #include "gf.h"
-#include "boost/shared_ptr.hpp"
 #include "sumprodalg/sum_prod_alg_inf.h"
+
+#include "boost/shared_ptr.hpp"
+
+#include <string>
+#include <iostream>
 
 namespace libcomm {
 /*!

@@ -1,8 +1,6 @@
 #ifndef __config_h
 #define __config_h
 
-#include <cstdlib>
-
 /*!
  * \file
  * \brief   Main Configuration.
@@ -49,7 +47,8 @@
 
 // include files
 
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <math.h>

@@ -210,6 +210,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\blockembedder.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\blockmodem.cpp"
 				>
 			</File>
@@ -227,6 +231,10 @@
 			</File>
 			<File
 				RelativePath=".\channel\bsid2d.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fsm\cached_fsm.cpp"
 				>
 			</File>
 			<File
@@ -302,6 +310,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\embedder\direct_blockembedder.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\modem\direct_blockmodem.cpp"
 				>
 			</File>
@@ -323,6 +335,10 @@
 			</File>
 			<File
 				RelativePath=".\fsm\dvbcrsc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\embedder.cpp"
 				>
 			</File>
 			<File
@@ -470,6 +486,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\embedder\qim.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\channel\qsc.cpp"
 				>
 			</File>
@@ -591,6 +611,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\blockembedder.h"
+				>
+			</File>
+			<File
 				RelativePath=".\blockmodem.h"
 				>
 			</File>
@@ -608,6 +632,10 @@
 			</File>
 			<File
 				RelativePath=".\channel\bsid2d.h"
+				>
+			</File>
+			<File
+				RelativePath=".\fsm\cached_fsm.h"
 				>
 			</File>
 			<File
@@ -687,6 +715,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\embedder\direct_blockembedder.h"
+				>
+			</File>
+			<File
 				RelativePath=".\modem\direct_blockmodem.h"
 				>
 			</File>
@@ -708,6 +740,10 @@
 			</File>
 			<File
 				RelativePath=".\fsm\dvbcrsc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\embedder.h"
 				>
 			</File>
 			<File
@@ -852,6 +888,10 @@
 			</File>
 			<File
 				RelativePath=".\modem\qam.h"
+				>
+			</File>
+			<File
+				RelativePath=".\embedder\qim.h"
 				>
 			</File>
 			<File

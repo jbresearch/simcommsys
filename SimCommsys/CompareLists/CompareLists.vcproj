@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="CompareLists"
+	ProjectGUID="{B43A183D-E559-44F3-977A-0DF9D2F3937D}"
 	RootNamespace="CompareLists"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"

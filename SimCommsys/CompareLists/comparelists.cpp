@@ -1,4 +1,5 @@
 #include "levenshtein.h"
+#include "hamming.h"
 #include "timer.h"
 
 #include <boost/program_options.hpp>
@@ -196,7 +197,8 @@ double compute_mse(const std::vector<T>& s1, const std::vector<T>& s2)
 
 template <class T>
 void process(const std::string& fname1, const std::string& fname2,
-      const double t, const bool lev, const bool rep, const bool mse)
+      const double t, const bool ham, const bool lev, const bool rep,
+      const bool mse)
    {
    // Load sequences and user settings
    const std::vector<T> s1 = getsequence<T> (fname1);
@@ -204,6 +206,12 @@ void process(const std::string& fname1, const std::string& fname2,
    T::set_threshold(t);
 
    // Do the computations
+   if (ham)
+      {
+      const int hd = libbase::hamming<T>(libbase::vector<T>(s1),
+            libbase::vector<T>(s2));
+      cout << "Hamming distance = " << hd << "\n";
+      }
    if (lev)
       {
       const int ld = libbase::levenshtein<T>(libbase::vector<T>(s1),
@@ -252,6 +260,8 @@ int main(int argc, char *argv[])
          "threshold for Euclidian distance");
    desc.add_options()("coordinates,c", po::bool_switch(),
          "read elements as coordinate pairs");
+   desc.add_options()("hamming,h", po::bool_switch(),
+         "compute Hamming distance");
    desc.add_options()("levenshtein,l", po::bool_switch(),
          "compute Levenshtein distance");
    desc.add_options()("repeatability,r", po::bool_switch(),
@@ -264,8 +274,8 @@ int main(int argc, char *argv[])
 
    // Validate user parameters
    if (vm.count("help") || vm.count("sequence1-file") == 0 || vm.count(
-         "sequence1-file") == 0 || (vm.count("levenshtein") + vm.count(
-         "repeatability") + vm.count("mse")) == 0)
+         "sequence1-file") == 0 || (vm.count("hamming") + vm.count(
+         "levenshtein") + vm.count("repeatability") + vm.count("mse")) == 0)
       {
       cout << desc << "\n";
       return 0;
@@ -276,6 +286,7 @@ int main(int argc, char *argv[])
    const std::string fname2 = vm["sequence2-file"].as<std::string> ();
    const double t = vm["threshold"].as<double> ();
    const bool coordinates = vm["coordinates"].as<bool> ();
+   const bool ham = vm["hamming"].as<bool> ();
    const bool lev = vm["levenshtein"].as<bool> ();
    const bool rep = vm["repeatability"].as<bool> ();
    const bool mse = vm["mse"].as<bool> ();
@@ -283,9 +294,9 @@ int main(int argc, char *argv[])
    // call main process
 
    if (coordinates)
-      process<coordinate<double> > (fname1, fname2, t, lev, rep, mse);
+      process<coordinate<double> > (fname1, fname2, t, ham, lev, rep, mse);
    else
-      process<value<double> > (fname1, fname2, t, lev, rep, mse);
+      process<value<double> > (fname1, fname2, t, ham, lev, rep, mse);
 
    return 0;
    }

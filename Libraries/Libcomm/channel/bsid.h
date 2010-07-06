@@ -75,6 +75,10 @@ protected:
       {
       return (tx != rx) ? Ps : 1 - Ps;
       }
+   // Static implementations of channel functions
+   static real host_receive(const array1b_t& tx, const array1b_t& rx,
+      const array2r_t& Rtable, const real Rval, const int I,
+      const int xmax, const int N);
 public:
    /*! \name Constructors / Destructors */
    bsid(const bool varyPs = true, const bool varyPd = true, const bool varyPi =

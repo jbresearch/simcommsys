@@ -125,8 +125,8 @@ void bsid::compute_Rtable(array2r_t& Rtable, int xmax, double Ps, double Pd,
    for (int mu = 0; mu <= xmax; mu++)
       {
       const double a3 = pow(0.5 * Pi, mu);
-      Rtable(0, mu) = a3 * (a1 * (1 - Ps) + a2);
-      Rtable(1, mu) = a3 * (a1 * Ps + a2);
+      Rtable(0, mu) = real(a3 * (a1 * (1 - Ps) + a2));
+      Rtable(1, mu) = real(a3 * (a1 * Ps + a2));
       }
    }
 
@@ -155,7 +155,7 @@ void bsid::precompute()
    xmax = compute_xmax(N);
    // receiver coefficients
    compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
-   Rval = biased ? Pd * Pd : Pd;
+   Rval = real(biased ? Pd * Pd : Pd);
 #ifdef CUDA
    // copy necessary data to device
    dev_Rtable = Rtable;
@@ -376,22 +376,10 @@ void bsid::receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable)
       ptable(0)(x) = bsid::receive(tx(x), rx);
    }
 
-double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
+bsid::real bsid::host_receive(const array1b_t& tx, const array1b_t& rx,
+      const array2r_t& Rtable, const real Rval, const int I, const int xmax,
+      const int N)
    {
-#if DEBUG>=2
-   libbase::trace << "DEBUG (bsid): Computing RecvPr for\n";
-   libbase::trace << "tx = " << tx;
-   libbase::trace << "rx = " << rx;
-#endif
-
-#ifdef CUDA
-   cuda::vector<bool> dev_tx;
-   cuda::vector<bool> dev_rx;
-   dev_tx = tx;
-   dev_rx = rx;
-
-   real result = cuda::bsid_receive(dev_tx, dev_rx, dev_Rtable, dev_Rval, I, xmax, N);
-#else
    using std::min;
    using std::max;
    using std::swap;
@@ -401,8 +389,9 @@ double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
    assert(n <= N);
    assert(labs(mu) <= xmax);
    // Set up two slices of forward matrix, and associated pointers
-   real F0[2 * xmax + 1];
-   real F1[2 * xmax + 1];
+   // arrays must be allocated on the heap as the size is non-const
+   real *F0 = new real[2 * xmax + 1];
+   real *F1 = new real[2 * xmax + 1];
    real *Fthis = F1;
    real *Fprev = F0;
    // for prior list, reset all elements to zero
@@ -479,6 +468,29 @@ double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
       const bool cmp = tx(n - 1) != rx(n + mu - 1);
       result += Fprev[a] * Rtable(cmp, muoff - a);
       }
+   // clean up and return
+   delete[] F0;
+   delete[] F1;
+   return result;
+   }
+
+double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
+   {
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bsid): Computing RecvPr for\n";
+   libbase::trace << "tx = " << tx;
+   libbase::trace << "rx = " << rx;
+#endif
+
+#ifdef CUDA
+   cuda::vector<bool> dev_tx;
+   cuda::vector<bool> dev_rx;
+   dev_tx = tx;
+   dev_rx = rx;
+
+   real result = cuda::bsid_receive(dev_tx, dev_rx, dev_Rtable, dev_Rval, I, xmax, N);
+#else
+   real result = host_receive(tx, rx, Rtable, Rval, I, xmax, N);
 #endif
 
 #if DEBUG>=2

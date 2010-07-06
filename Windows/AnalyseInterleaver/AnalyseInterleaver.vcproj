@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AnalyseInterleaver"
-	ProjectGUID="{33AF05B0-BD59-4695-B1E0-DD22A2A826A9}"
+	ProjectGUID="{CD338C16-06CB-442A-B6AD-F85580B9F3A6}"
 	RootNamespace="AnalyseInterleaver"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"

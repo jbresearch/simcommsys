@@ -79,11 +79,11 @@ std::istream& image<T>::serialize(std::istream& sin)
       binary = true;
    else
       binary = false;
-   // skip comment
+   // skip comments or empty lines
    do
       {
       std::getline(sin, line);
-      } while (line[0] == '#');
+      } while (line.size() == 0 || line[0] == '#');
    // read image size
    std::istringstream(line) >> cols >> rows;
    // if necessary read pixel value range
@@ -109,7 +109,7 @@ std::istream& image<T>::serialize(std::istream& sin)
          for (int c = 0; c < chan; c++)
             {
             if (binary)
-               m_data(c)(i, j) = sin.get();
+               m_data(c)(i, j) = T(sin.get());
             else
                sin >> m_data(c)(i, j);
             assert(m_data(c)(i, j) >= 0 && m_data(c)(i, j) <= m_maxval);

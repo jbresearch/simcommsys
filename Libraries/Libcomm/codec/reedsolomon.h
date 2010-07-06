@@ -8,11 +8,11 @@
 #ifndef REEDSOLOMON_H_
 #define REEDSOLOMON_H_
 
-#include <string>
 #include "config.h"
 #include "codec.h"
 #include "gf.h"
 #include "matrix.h"
+#include <string>
 
 namespace libcomm {
 

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="AnnealInterleaver"
-	ProjectGUID="{B3B60BCE-5D9E-4F1F-B5B0-254B96A1707D}"
+	ProjectGUID="{A1541E91-1497-4F44-BF84-8ECA2F6A8CFB}"
 	RootNamespace="AnnealInterleaver"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"
