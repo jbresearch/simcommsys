@@ -26,6 +26,7 @@
 <option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1986483006" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.420269824" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.696090789" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1610988891" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -35,6 +36,7 @@
 <option id="gnu.c.compiler.exe.debug.option.debugging.level.1636637710" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.c.compiler.option.include.paths.507652730" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.147752653" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
@@ -42,6 +44,7 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1802062667" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 <option id="gnu.cpp.link.option.paths.1428649141" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase/Debug}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm/Debug}&quot;"/>
 </option>
 <option id="gnu.cpp.link.option.libs.1677057176" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="comm"/>
@@ -56,6 +59,7 @@
 <tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.942632253" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 <option id="gnu.both.asm.option.include.paths.1611594707" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.680648356" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
@@ -491,6 +495,7 @@
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 <cconfiguration id="cdt.managedbuild.config.gnu.exe.release.23297446">
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.23297446" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -515,6 +520,7 @@
 <option id="gnu.cpp.compiler.exe.release.option.debugging.level.1026005740" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.823868106" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.1481129784" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.7682657" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -524,6 +530,7 @@
 <option id="gnu.c.compiler.exe.release.option.debugging.level.346104671" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.c.compiler.option.include.paths.1549358755" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1415370294" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
@@ -531,6 +538,7 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1258037799" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
 <option id="gnu.cpp.link.option.paths.1336151425" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase/Debug}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm/Debug}&quot;"/>
 </option>
 <option id="gnu.cpp.link.option.libs.1698270818" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="comm"/>
@@ -545,6 +553,7 @@
 <tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.36258087" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
 <option id="gnu.both.asm.option.include.paths.1625402048" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.717982224" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
@@ -980,6 +989,7 @@
 <externalSetting/>
 </externalSettings>
 </storageModule>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
