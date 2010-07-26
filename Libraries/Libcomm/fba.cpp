@@ -110,7 +110,7 @@ void fba<real, sig, norm>::work_forward(const array1s_t& r)
          if (thresholding && F[j - 1][a] < threshold)
             continue;
          const index ymin = std::max(-xmax, int(a) - 1);
-         const index ymax = std::min(ymax_bnd, int(a) + I);
+         const index ymax = std::min(int(ymax_bnd), int(a) + I);
          for (index y = ymin; y <= ymax; ++y)
             F[j][y] += F[j - 1][a] * R(int(j - 1), r.extract(int(j - 1 + a),
                   int(y - a + 1)));
@@ -173,7 +173,7 @@ void fba<real, sig, norm>::work_backward(const array1s_t& r)
          // ignore paths below a certain threshold
          if (thresholding && B[j + 1][b] < threshold)
             continue;
-         const index ymin = std::max(ymin_bnd, int(b) - I);
+         const index ymin = std::max(int(ymin_bnd), int(b) - I);
          const index ymax = std::min(xmax, int(b) + 1);
          for (index y = ymin; y <= ymax; ++y)
             B[j][y] += B[j + 1][b] * R(int(j), r.extract(int(j + y), int(b - y

@@ -1,35 +1,36 @@
-#ifndef __limiter_h
-#define __limiter_h
+#ifndef __limitfilter_h
+#define __limitfilter_h
 
 #include "filter.h"
 
-/*
- Version 1.00 (11 Nov 2001)
- Initial version.
-
- Version 1.10 (17 Oct 2002)
- class is now derived from filter.
-
- Version 1.20 (10 Nov 2006)
- * defined class and associated data within "libimage" namespace.
- */
-
 namespace libimage {
 
+/*
+ * \brief   Limit Filter
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * This filter limits pixels between given values.
+ */
+
 template <class T>
-class limiter : public filter<T> {
+class limitfilter : public filter<T> {
 protected:
    T m_lo;
    T m_hi;
 public:
-   limiter()
+   limitfilter()
       {
       }
-   limiter(const T lo, const T hi)
+   limitfilter(const T lo, const T hi)
       {
       init(lo, hi);
       }
-   virtual ~limiter()
+   virtual ~limitfilter()
       {
       }
    // initialization

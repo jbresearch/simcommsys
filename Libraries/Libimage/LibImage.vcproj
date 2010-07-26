@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../LibBase"
+				AdditionalIncludeDirectories="../LibBase;../LibImage"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -122,7 +122,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../LibBase"
+				AdditionalIncludeDirectories="../LibBase;../LibImage"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -180,44 +180,12 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="atmfilter.cpp"
+				RelativePath=".\filter\atmfilter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="awfilter.cpp"
+				RelativePath=".\filter\awfilter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="filter.cpp"
@@ -248,44 +216,12 @@
 				>
 			</File>
 			<File
-				RelativePath="limiter.cpp"
+				RelativePath=".\filter\limitfilter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="variancefilter.cpp"
+				RelativePath=".\filter\variancefilter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="wavelet.cpp"
@@ -308,24 +244,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="waveletfilter.cpp"
+				RelativePath=".\filter\waveletfilter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -333,11 +253,11 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="atmfilter.h"
+				RelativePath=".\filter\atmfilter.h"
 				>
 			</File>
 			<File
-				RelativePath="awfilter.h"
+				RelativePath=".\filter\awfilter.h"
 				>
 			</File>
 			<File
@@ -353,11 +273,11 @@
 				>
 			</File>
 			<File
-				RelativePath="limiter.h"
+				RelativePath=".\filter\limitfilter.h"
 				>
 			</File>
 			<File
-				RelativePath="variancefilter.h"
+				RelativePath=".\filter\variancefilter.h"
 				>
 			</File>
 			<File
@@ -365,7 +285,7 @@
 				>
 			</File>
 			<File
-				RelativePath="waveletfilter.h"
+				RelativePath=".\filter\waveletfilter.h"
 				>
 			</File>
 		</Filter>

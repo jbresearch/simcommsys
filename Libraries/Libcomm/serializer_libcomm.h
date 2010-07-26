@@ -23,6 +23,7 @@
 // Embedders - atomic
 #include "embedder.h"
 #include "embedder/qim.h"
+#include "embedder/ssis.h"
 // Embedders - block
 #include "blockembedder.h"
 #include "embedder/direct_blockembedder.h"
@@ -155,6 +156,7 @@ private:
    qim<int> _qim_int;
    // Embedders - block
    direct_blockembedder<int> _direct_blockembedder_int;
+   ssis<int> _ssis_int;
    // Modulators
    direct_modem<bool> _direct_modem_bool;
    direct_blockmodem<bool> _direct_blockmodem_bool;

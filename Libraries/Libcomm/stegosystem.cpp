@@ -12,7 +12,6 @@
 #include "rvstatistics.h"
 #include "randgen.h"
 #include "fastsecant.h"
-#include "plmod.h"
 #include "bitfield.h"
 #include "fbstream.h"
 #include <cstring>
@@ -23,6 +22,17 @@ using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 using libbase::randgen;
+
+// Piece-wise Linear Modulator
+double stegosystem::plmod(const double u)
+   {
+   if (u < 0.5)
+      return u + 0.5;
+   else if (u > 0.5)
+      return u - 0.5;
+   else
+      return 0;
+   }
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

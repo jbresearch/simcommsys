@@ -4,22 +4,23 @@
 #include "config.h"
 #include "matrix.h"
 
-/*
- Version 1.00 (15 Apr 2002)
- Initial version. This class is a base class for filters; it specifies the interface
- that any filter class should provide. The specification supports tiled filtering
- through a two-pass process. The first pass gathers details from the image, tile by
- tile, while the second pass uses the gathered information for any parameter estimates
- (such as automatic thresholds, etc) and applies the filter to the image.
-
- Version 1.10 (29 Apr 2002)
- added hook for progress display.
-
- Version 1.20 (10 Nov 2006)
- * defined class and associated data within "libimage" namespace.
- */
-
 namespace libimage {
+
+/*
+ * \brief   Filter interface
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * This class specifies the interface that any filter class should provide.
+ * The specification supports tiled filtering through a two-pass process.
+ * The first pass gathers details from the image, tile by tile, while the
+ * second pass uses the gathered information for any parameter estimates
+ * (such as automatic thresholds, etc) and applies the filter to the image.
+ */
 
 template <class T>
 class filter {
@@ -33,10 +34,14 @@ public:
    virtual void reset() = 0;
    virtual void update(const libbase::matrix<T>& in) = 0;
    virtual void estimate() = 0;
-   // filter process loop (only updates output matrix)
+   //! Filter process loop (only updates output matrix)
    virtual void
    process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const = 0;
+   //! Apply filter to an image channel
+   void apply(const libbase::matrix<T>& in, libbase::matrix<T>& out);
 };
+
+
 
 } // end namespace
 

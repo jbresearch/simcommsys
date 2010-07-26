@@ -45,13 +45,16 @@ void direct_blockmodem_implementation<G, vector, dbl>::dodemodulate(
    {
    // Inherit sizes
    const int M = this->num_symbols();
-   // Create a matrix of all possible transmitted symbols
-   vector<G> tx(M);
-   for (int x = 0; x < M; x++)
-      tx(x) = Implementation::modulate(x);
-   // Work out the probabilities of each possible signal
+   // Allocate space for temporary results
    vector<vector<double> > ptable_double;
-   chan.receive(tx, rx, ptable_double);
+      {
+      // Create a matrix of all possible transmitted symbols
+      vector<G> tx(M);
+      for (int x = 0; x < M; x++)
+         tx(x) = Implementation::modulate(x);
+      // Work out the probabilities of each possible signal
+      chan.receive(tx, rx, ptable_double);
+      }
    // Convert result
    ptable = ptable_double;
    }
@@ -94,68 +97,67 @@ std::istream& direct_blockmodem<G, C, dbl>::serialize(std::istream& sin)
 template class direct_blockmodem<gf<1, 0x3> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<1, 0x3> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<1,0x3>>", direct_blockmodem<
-            gf<1, 0x3> , vector, double>::create);
+      "blockmodem", "blockmodem<gf<1,0x3>>", direct_blockmodem<gf<1, 0x3> ,
+            vector, double>::create);
 
 template class direct_blockmodem<gf<2, 0x7> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<2, 0x7> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<2,0x7>>", direct_blockmodem<
-            gf<2, 0x7> , vector, double>::create);
+      "blockmodem", "blockmodem<gf<2,0x7>>", direct_blockmodem<gf<2, 0x7> ,
+            vector, double>::create);
 
 template class direct_blockmodem<gf<3, 0xB> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<3, 0xB> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<3,0xB>>", direct_blockmodem<
-            gf<3, 0xB> , vector, double>::create);
+      "blockmodem", "blockmodem<gf<3,0xB>>", direct_blockmodem<gf<3, 0xB> ,
+            vector, double>::create);
 
 template class direct_blockmodem<gf<4, 0x13> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<4, 0x13> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<4,0x13>>", direct_blockmodem<gf<4,
-            0x13> , vector, double>::create);
+      "blockmodem", "blockmodem<gf<4,0x13>>", direct_blockmodem<gf<4, 0x13> ,
+            vector, double>::create);
 
 template class direct_blockmodem<gf<5, 0x25> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<5, 0x25> , vector, double>::shelper(
-      "blockmodem", "direct_blockmodem<gf<5,0x25>>", direct_blockmodem<
-            gf<5, 0x25> , vector, double>::create);
+      "blockmodem", "direct_blockmodem<gf<5,0x25>>", direct_blockmodem<gf<5,
+            0x25> , vector, double>::create);
 
 template class direct_blockmodem<gf<6, 0x43> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<6, 0x43> , vector, double>::shelper(
-      "blockmodem", "direct_blockmodem<gf<6,0x43>>", direct_blockmodem<
-            gf<6, 0x43> , vector, double>::create);
+      "blockmodem", "direct_blockmodem<gf<6,0x43>>", direct_blockmodem<gf<6,
+            0x43> , vector, double>::create);
 
 template class direct_blockmodem<gf<7, 0x89> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<7, 0x89> , vector, double>::shelper(
-      "blockmodem", "direct_blockmodem<gf<7,0x89>>", direct_blockmodem<
-            gf<7, 0x89> , vector, double>::create);
+      "blockmodem", "direct_blockmodem<gf<7,0x89>>", direct_blockmodem<gf<7,
+            0x89> , vector, double>::create);
 
 template class direct_blockmodem<gf<8, 0x11D> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<8, 0x11D> , vector, double>::shelper(
-      "blockmodem", "direct_blockmodem<gf<8,0x11D>>", direct_blockmodem<
-            gf<8, 0x11D> , vector, double>::create);
+      "blockmodem", "direct_blockmodem<gf<8,0x11D>>", direct_blockmodem<gf<8,
+            0x11D> , vector, double>::create);
 
 template class direct_blockmodem<gf<9, 0x211> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<9, 0x211> , vector, double>::shelper(
-      "blockmodem", "direct_blockmodem<gf<9,0x211>>", direct_blockmodem<
-            gf<9, 0x211> , vector, double>::create);
+      "blockmodem", "direct_blockmodem<gf<9,0x211>>", direct_blockmodem<gf<9,
+            0x211> , vector, double>::create);
 
 template class direct_blockmodem<gf<10, 0x409> , vector, double> ;
 template <>
 const serializer direct_blockmodem<gf<10, 0x409> , vector, double>::shelper(
-      "blockmodem", "direct_blockmodem<gf<10,0x409>>",
-      direct_blockmodem<gf<10, 0x409> , vector, double>::create);
+      "blockmodem", "direct_blockmodem<gf<10,0x409>>", direct_blockmodem<gf<10,
+            0x409> , vector, double>::create);
 
 template class direct_blockmodem<bool, vector, double> ;
 template <>
 const serializer direct_blockmodem<bool, vector, double>::shelper("blockmodem",
-      "blockmodem<bool>",
-      direct_blockmodem<bool, vector, double>::create);
+      "blockmodem<bool>", direct_blockmodem<bool, vector, double>::create);
 
 // Vector, logrealfast-precision
 

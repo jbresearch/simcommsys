@@ -8,7 +8,16 @@ template <class T>
 void awfilter<T>::init(const int d, const double noise)
    {
    m_d = d;
+   m_autoestimate = false;
    m_noise = noise;
+   }
+
+template <class T>
+void awfilter<T>::init(const int d)
+   {
+   m_d = d;
+   m_autoestimate = true;
+   m_noise = 0;
    }
 
 // parameter estimation (updates internal statistics)
@@ -16,12 +25,16 @@ void awfilter<T>::init(const int d, const double noise)
 template <class T>
 void awfilter<T>::reset()
    {
-   rvglobal.reset();
+   if (m_autoestimate)
+      rvglobal.reset();
    }
 
 template <class T>
 void awfilter<T>::update(const libbase::matrix<T>& in)
    {
+   if (!m_autoestimate)
+      return;
+
    const int M = in.size().rows();
    const int N = in.size().cols();
 
@@ -44,8 +57,11 @@ void awfilter<T>::update(const libbase::matrix<T>& in)
 template <class T>
 void awfilter<T>::estimate()
    {
-   m_noise = rvglobal.mean();
-   libbase::trace << "Noise threshold = " << m_noise << "\n";
+   if (m_autoestimate)
+      {
+      m_noise = rvglobal.mean();
+      libbase::trace << "Noise threshold = " << m_noise << "\n";
+      }
    }
 
 // filter process loop (only updates output matrix)
@@ -80,6 +96,7 @@ void awfilter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out)
 // Explicit Realizations
 
 template class awfilter<double> ;
+template class awfilter<float> ;
 template class awfilter<int> ;
 
 } // end namespace

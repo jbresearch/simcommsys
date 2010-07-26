@@ -73,6 +73,10 @@ private:
    const serializer_libcomm m_serializer_libcomm;
    codec<libbase::vector>* m_pCodec;
 
+protected:
+   // Piece-wise Linear Modulator
+  static double plmod(const double u);
+
 public:
    // creation/destruction
    stegosystem();

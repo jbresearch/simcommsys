@@ -24,7 +24,7 @@ WCVER := $(shell svnversion)
 export WCTAG := $(notdir $(PWD))
 
 # Linker settings
-export LDlibusr := -limage -lcomm -lbase
+export LDlibusr := -lcomm -limage -lbase
 LDlibsys := -lm -lstdc++ -lboost_program_options
 #LDlibmpi := `mpic++ -showme:link`
 #LDlibmpi := -lpmpich++ -lmpich

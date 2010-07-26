@@ -3,6 +3,7 @@
 	<name>CSfullcycle</name>
 	<comment></comment>
 	<projects>
+		<project>Libimage</project>
 		<project>Libcomm</project>
 		<project>Libbase</project>
 	</projects>

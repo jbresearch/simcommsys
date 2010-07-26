@@ -21,6 +21,7 @@
 #endif
 #include <signal.h>
 #include <sstream>
+#include <cstdio>
 
 namespace libbase {
 

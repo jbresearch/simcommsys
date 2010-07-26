@@ -63,5 +63,7 @@
  * Compilation on Windows uses the Microsoft built-in compiler; on Linux G++
  * is used. Any recent G++ package should work - the current reference
  * standard is 4.3.3 as in Ubuntu 9.04. Both operating systems need the
- * development version of Boost v1.35 installed.
-*/
+ * development version of Boost v1.35 installed, together with the 'Program
+ * Options' optional component. For Windows, install the Mutithread and
+ * Mutithread Debug variants.
+ */

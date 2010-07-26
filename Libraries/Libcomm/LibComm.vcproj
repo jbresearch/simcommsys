@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\LibBase;..\LibComm"
+				AdditionalIncludeDirectories="..\LibBase;..\LibComm;..\LibImage"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -123,7 +123,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\LibBase;..\LibComm"
+				AdditionalIncludeDirectories="..\LibBase;..\LibComm;..\LibImage"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -478,10 +478,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\plmod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\modem\qam.cpp"
 				>
 			</File>
@@ -535,6 +531,10 @@
 			</File>
 			<File
 				RelativePath=".\sigspace.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\embedder\ssis.cpp"
 				>
 			</File>
 			<File
@@ -883,10 +883,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\plmod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\modem\qam.h"
 				>
 			</File>
@@ -948,6 +944,10 @@
 			</File>
 			<File
 				RelativePath=".\sumprodalg\spa_factory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\embedder\ssis.h"
 				>
 			</File>
 			<File

@@ -10,6 +10,9 @@
 <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libimage"/>
 <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libimage/Debug"/>
 </externalSetting>
+<externalSetting languages="cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328">
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
+</externalSetting>
 </externalSettings>
 <extensions>
 <extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -30,17 +33,24 @@
 <option id="gnu.cpp.compiler.lib.debug.option.debugging.level.664438274" name="Debug Level" superClass="gnu.cpp.compiler.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.2108399712" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.253212983" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
 <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.lib.debug.option.optimization.level.1598592573" name="Optimization Level" superClass="gnu.c.compiler.lib.debug.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.lib.debug.option.debugging.level.398856208" name="Debug Level" superClass="gnu.c.compiler.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+<option id="gnu.c.compiler.option.include.paths.1857330509" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.676689426" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.816893551" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.511696634" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.lib.debug.1798603216" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.debug">
+<option id="gnu.both.asm.option.include.paths.1071502816" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.234627047" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
@@ -493,17 +503,24 @@
 <option id="gnu.cpp.compiler.lib.release.option.debugging.level.1731348171" name="Debug Level" superClass="gnu.cpp.compiler.lib.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.2089892696" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1338211625" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.1215063816" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
 <option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.288559134" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.lib.release.option.debugging.level.2084229196" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+<option id="gnu.c.compiler.option.include.paths.1533853889" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1515347698" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1193367391" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.827936941" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.1093544049" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release">
+<option id="gnu.both.asm.option.include.paths.426999498" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1249358604" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>

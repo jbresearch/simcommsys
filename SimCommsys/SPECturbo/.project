@@ -3,8 +3,9 @@
 	<name>SPECturbo</name>
 	<comment></comment>
 	<projects>
-		<project>Libbase</project>
+		<project>Libimage</project>
 		<project>Libcomm</project>
+		<project>Libbase</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

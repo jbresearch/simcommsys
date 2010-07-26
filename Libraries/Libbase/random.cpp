@@ -34,8 +34,8 @@ void random::seed(int32u s)
    {
 #ifndef NDEBUG
    if (counter > 0)
-      trace << "DEBUG: random (" << this << ") reseeded after " << counter
-            << " steps.\n" << std::flush;
+      trace << "DEBUG: random (" << this << ") reseeded with " << s
+            << " after " << counter << " steps.\n" << std::flush;
    counter = 0;
    initialized = true;
 #endif

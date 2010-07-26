@@ -37,6 +37,7 @@ void variancefilter<T>::process(const libbase::matrix<T>& in,
 // Explicit Realizations
 
 template class variancefilter<double> ;
+template class variancefilter<float> ;
 template class variancefilter<int> ;
 
 } // end namespace

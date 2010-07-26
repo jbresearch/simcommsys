@@ -27,6 +27,7 @@
 <option id="gnu.cpp.compiler.lib.debug.option.debugging.level.1938155849" name="Debug Level" superClass="gnu.cpp.compiler.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.1898383673" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.577589427" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
@@ -35,14 +36,20 @@
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.877259451" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
 <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.lib.debug.option.optimization.level.1819284639" name="Optimization Level" superClass="gnu.c.compiler.lib.debug.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.lib.debug.option.debugging.level.1046770470" name="Debug Level" superClass="gnu.c.compiler.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-<option id="gnu.c.compiler.option.include.paths.38493613" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
+<option id="gnu.c.compiler.option.include.paths.38493613" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <option id="gnu.c.compiler.option.warnings.toerrors.1199213381" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1441524164" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1758644124" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.2009997522" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.lib.debug.81614032" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.debug">
-<option id="gnu.both.asm.option.include.paths.1854309436" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
+<option id="gnu.both.asm.option.include.paths.1854309436" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1308049736" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
@@ -54,6 +61,15 @@
 <externalSetting>
 <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
 <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libbase/Debug"/>
+</externalSetting>
+</externalSettings>
+<externalSettings containerId="Libimage;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+<externalSetting>
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libimage"/>
+<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libimage/Debug"/>
+</externalSetting>
+<externalSetting languages="cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328">
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
 </externalSetting>
 </externalSettings>
 </storageModule>
@@ -2176,6 +2192,7 @@
 <option id="gnu.cpp.compiler.lib.release.option.debugging.level.14833787" name="Debug Level" superClass="gnu.cpp.compiler.lib.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.661704077" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm}&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.1567750227" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
@@ -2187,14 +2204,20 @@
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.2034435693" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
 <option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.806209257" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.lib.release.option.debugging.level.1068756738" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-<option id="gnu.c.compiler.option.include.paths.1650477644" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
+<option id="gnu.c.compiler.option.include.paths.1650477644" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <option id="gnu.c.compiler.option.warnings.toerrors.1279527121" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1691285686" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1948842670" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.2031526627" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.894076701" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release">
-<option id="gnu.both.asm.option.include.paths.583926834" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+<option id="gnu.both.asm.option.include.paths.583926834" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.416504979" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
@@ -2208,6 +2231,15 @@
 <externalSetting>
 <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
 <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libbase/Debug"/>
+</externalSetting>
+</externalSettings>
+<externalSettings containerId="Libimage;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+<externalSetting>
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libimage"/>
+<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Libimage/Debug"/>
+</externalSetting>
+<externalSetting languages="cdt.managedbuild.tool.gnu.cpp.compiler.input.1190811328">
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Libbase"/>
 </externalSetting>
 </externalSettings>
 </storageModule>

@@ -49,15 +49,18 @@ void direct_blockembedder<S, vector, dbl>::doextract(
    // Inherit sizes
    const int tau = this->input_block_size();
    const int M = this->num_symbols();
-   // Create a set of all possible transmitted symbols, at each timestep
-   vector<vector<S> > tx;
-   libbase::allocate(tx, tau, M);
-   for (int t = 0; t < tau; t++)
-      for (int x = 0; x < M; x++)
-         tx(t)(x) = implementation->embed(x, rx(t));
-   // Work out the probabilities of each possible signal
+   // Allocate space for temporary results
    vector<vector<double> > ptable_double;
-   chan.receive(tx, rx, ptable_double);
+      {
+      // Create a set of all possible transmitted symbols, at each timestep
+      vector<vector<S> > tx;
+      libbase::allocate(tx, tau, M);
+      for (int t = 0; t < tau; t++)
+         for (int x = 0; x < M; x++)
+            tx(t)(x) = implementation->embed(x, rx(t));
+      // Work out the probabilities of each possible signal
+      chan.receive(tx, rx, ptable_double);
+      }
    // Convert result
    ptable = ptable_double;
    }
@@ -123,16 +126,19 @@ void direct_blockembedder<S, matrix, dbl>::doextract(
    const int rows = this->input_block_size().rows();
    const int cols = this->input_block_size().cols();
    const int M = this->num_symbols();
-   // Create a set of all possible transmitted symbols, at each timestep
-   matrix<vector<S> > tx;
-   libbase::allocate(tx, rows, cols, M);
-   for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-         for (int x = 0; x < M; x++)
-            tx(i, j)(x) = implementation->embed(x, rx(i, j));
-   // Work out the probabilities of each possible signal
+   // Allocate space for temporary results
    matrix<vector<double> > ptable_double;
-   chan.receive(tx, rx, ptable_double);
+      {
+      // Create a set of all possible transmitted symbols, at each timestep
+      matrix<vector<S> > tx;
+      libbase::allocate(tx, rows, cols, M);
+      for (int i = 0; i < rows; i++)
+         for (int j = 0; j < cols; j++)
+            for (int x = 0; x < M; x++)
+               tx(i, j)(x) = implementation->embed(x, rx(i, j));
+      // Work out the probabilities of each possible signal
+      chan.receive(tx, rx, ptable_double);
+      }
    // Convert result
    ptable = ptable_double;
    }

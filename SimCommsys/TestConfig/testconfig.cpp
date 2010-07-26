@@ -50,6 +50,22 @@ void print_new_sizes()
    cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << "\n";
    }
 
+void print_vector_sizes()
+   {
+   // create a vector with two elements
+   vector<int> x;
+   x.init(2);
+
+   cout << '\n';
+   cout << "Type:      \tSize (bits):\n";
+   cout << "~~~~~      \t~~~~~~~~~~~~\n";
+
+   cout << "vector size type    \t" << sizeof(x.size()) * 8 << "\n";
+   cout << "vector container    \t" << sizeof(x) * 8 << "\n";
+   cout << "int elements        \t" << ((char*) &x(1) - (char*) &x(0)) * 8
+         << "\n";
+   }
+
 vector<int> makerangevector()
    {
    cout << "\nMake vector range:\n\n";
@@ -276,6 +292,7 @@ int main(int argc, char *argv[])
    {
    print_standard_sizes();
    print_new_sizes();
+   print_vector_sizes();
    testvector();
    testmatrixmul();
    testmatrixinv();
