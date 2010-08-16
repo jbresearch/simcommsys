@@ -70,7 +70,7 @@ void fba2<real, sig, norm>::free()
    gamma.resize(boost::extents[0][0][0][0]);
    cached.resize(boost::extents[0][0][0]);
    // flag the state of the arrays
-   initialised = true;
+   initialised = false;
    }
 
 // Initialization
