@@ -16,7 +16,11 @@ else
 export OSARCH
 endif
 export BUILDDIR = $(RELEASE)/$(OSARCH)
+ifndef BINDIR
 export BINDIR = ~/bin.$(OSARCH)
+else
+export BINDIR
+endif
 
 # Version control information
 WCURL := $(shell svn info |gawk '/^URL/ { print $$2 }')
