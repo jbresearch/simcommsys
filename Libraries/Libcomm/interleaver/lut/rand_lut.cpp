@@ -22,7 +22,7 @@ void rand_lut<real>::init(const int tau, const int m)
    if (tau % p != 0)
       {
       std::cerr
-            << "FATAL ERROR (rand_lut): interleaver length must be a multiple of the encoder impulse respone length.\n";
+            << "FATAL ERROR (rand_lut): interleaver length must be a multiple of the encoder impulse respone length." << std::endl;
       exit(1);
       }
    this->lut.init(tau);
@@ -73,8 +73,8 @@ std::string rand_lut<real>::description() const
 template <class real>
 std::ostream& rand_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << this->lut.size() << "\n";
-   sout << int(log2(p + 1)) << "\n";
+   sout << this->lut.size() << std::endl;
+   sout << int(log2(p + 1)) << std::endl;
    return sout;
    }
 

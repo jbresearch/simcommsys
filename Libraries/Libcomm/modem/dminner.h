@@ -4,7 +4,7 @@
 #include "config.h"
 
 #include "informed_modulator.h"
-#include "fba.h"
+#include "algorithm/fba.h"
 #include "channel/bsid.h"
 
 #include "bitfield.h"
@@ -113,7 +113,15 @@ protected:
 
 private:
    /*! \name Internal functions */
-   void test_invariant() const;
+   void test_invariant() const
+      {
+      // check code parameters
+      assert(n >= 1 && n <= 32);
+      assert(k >= 1 && k <= n);
+      // check cutoff thresholds
+      assert(th_inner >= 0 && th_inner <= 1);
+      assert(th_outer >= 0 && th_outer <= 1);
+      }
    int fill(int i = 0, libbase::bitfield suffix = libbase::bitfield(""),
          int weight = -1);
    void copypilot(libbase::vector<libbase::bitfield> pilotb);
@@ -198,17 +206,6 @@ public:
    // Serialization Support
 DECLARE_SERIALIZER(dminner)
 };
-
-template <class real, bool norm>
-inline void dminner<real, norm>::test_invariant() const
-   {
-   // check code parameters
-   assert(n >= 1 && n <= 32);
-   assert(k >= 1 && k <= n);
-   // check cutoff thresholds
-   assert(th_inner >= 0 && th_inner <= 1);
-   assert(th_outer >= 0 && th_outer <= 1);
-   }
 
 } // end namespace
 

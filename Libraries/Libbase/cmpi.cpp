@@ -12,7 +12,7 @@
 #include "timer.h"
 #include <iostream>
 
-#ifdef MPI_VERSION
+#ifdef USE_MPI
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
@@ -45,8 +45,7 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
    {
    assert(!initialized);
    initialized = true;
-#ifdef MPI_VERSION
-   using std::flush;
+#ifdef USE_MPI
    // initialise the MPI routines and determine where we stand
    MPI_Init(argc, argv);
    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
@@ -63,7 +62,7 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
       char hostname[hostname_len];
       MPI_Get_processor_name(hostname, &hostname_len);
       // Status information for user
-      trace << "MPI child system starting on " << hostname << " (priority " << priority << ").\n" << flush;
+      trace << "MPI child system starting on " << hostname << " (priority " << priority << ")." << std::endl;
       // infinite loop, until we are explicitly told to die
       timer tim1, tim2;
       // CPU usage timer
@@ -86,37 +85,37 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
             case tag_getname:
             // tell the root process our UNIX hostname
             MPI_Send(hostname, hostname_len, MPI_CHAR, root, tag_base, MPI_COMM_WORLD);
-            trace << "send hostname [" << hostname << "]\n" << flush;
+            trace << "send hostname [" << hostname << "]" << std::endl;
             break;
             case tag_getusage:
             // tell the root process how much CPU time we have used
             MPI_Send(&usage, 1, MPI_DOUBLE, root, tag_base, MPI_COMM_WORLD);
-            trace << "send usage [CPU " << usage << "%]\n" << flush;
+            trace << "send usage [CPU " << usage << "%]" << std::endl;
             break;
             case tag_work:
-            trace << "system working\n" << flush;
+            trace << "system working" << std::endl;
             (*func)();
             break;
             case tag_die:
-            trace << "system stopped\n" << flush;
+            trace << "system stopped" << std::endl;
             MPI_Finalize();
             exit(0);
             default:
-            std::cerr << "received bad tag [" << status.MPI_TAG << "]\n" << flush;
+            std::cerr << "received bad tag [" << status.MPI_TAG << "]" << std::endl;
             exit(1);
             }
          }
       }
    // Otherwise, this must be the parent process.
    if(mpi_size > 1)
-   trace << "MPI parent system initialized.\n" << flush;
+   trace << "MPI parent system initialized." << std::endl;
    else
       {
-      trace << "MPI cluster has one node only - reverting to normal mode.\n";
+      trace << "MPI cluster has one node only - reverting to normal mode." << std::endl;
       initialized = false;
       }
 #else
-   trace << "MPI class operating in dummy mode - running single.\n";
+   trace << "MPI class operating in dummy mode - running single." << std::endl;
    initialized = false;
 #endif
    }
@@ -124,14 +123,13 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
 void cmpi::disable()
    {
    assert(initialized);
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    using std::clog;
-   using std::flush;
    // print CPU usage information on the cluster and kill the children
    if(mpi_size > 1)
       {
       MPI_Status status;
-      clog << "Processor Usage Summary:\n" << flush;
+      clog << "Processor Usage Summary:" << std::endl;
       cpu_usage = 0;
       for(int i=1; i<mpi_size; i++)
          {
@@ -146,9 +144,9 @@ void cmpi::disable()
          MPI_Send(NULL, 0, MPI_LONG, i, tag_die, MPI_COMM_WORLD);
          cpu_usage += usage;
          // inform the user what is happening
-         clog << "\tCPU " << i << "\t(" << hostname << "):\t" << usage << "%\n" << flush;
+         clog << "\tCPU " << i << "\t(" << hostname << "):\t" << usage << "%" << std::endl;
          }
-      clog << "\tTotal:\t" << cpu_usage << "%\n" << flush;
+      clog << "\tTotal:\t" << cpu_usage << "%" << std::endl;
       }
    // cease MPI operations
    MPI_Finalize();
@@ -160,7 +158,7 @@ void cmpi::disable()
 
 void cmpi::_receive(double& x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    double a;
    // receive
@@ -173,7 +171,7 @@ void cmpi::_receive(double& x)
 
 void cmpi::_send(const int x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    int a = x;
    // send
@@ -183,7 +181,7 @@ void cmpi::_send(const int x)
 
 void cmpi::_send(const double x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    double a = x;
    // send
@@ -193,7 +191,7 @@ void cmpi::_send(const double x)
 
 void cmpi::_send(vector<double>& x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    const int count = x.size();
    double a[count];
@@ -213,7 +211,7 @@ cmpi::cmpi()
    // is created, then MPI must be running.
    if (!initialized)
       {
-      std::cerr << "FATAL ERROR (cmpi): MPI not initialized.\n";
+      std::cerr << "FATAL ERROR (cmpi): MPI not initialized." << std::endl;
       exit(1);
       }
    }
@@ -226,7 +224,7 @@ cmpi::~cmpi()
 
 void cmpi::call(const int rank, void(*func)(void))
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    long addr = (long)func;
    MPI_Send(&addr, 1, MPI_LONG, rank+1, tag_work, MPI_COMM_WORLD);
 #endif
@@ -236,7 +234,7 @@ void cmpi::call(const int rank, void(*func)(void))
 
 void cmpi::receive(int& rank, int& x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    int a;
    // receive
@@ -250,7 +248,7 @@ void cmpi::receive(int& rank, int& x)
 
 void cmpi::receive(int& rank, double& x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    double a;
    // receive
@@ -264,7 +262,7 @@ void cmpi::receive(int& rank, double& x)
 
 void cmpi::receive(int& rank, vector<double>& x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    const int count = x.size();
    double a[count];
@@ -280,7 +278,7 @@ void cmpi::receive(int& rank, vector<double>& x)
 
 void cmpi::send(const int rank, const double x)
    {
-#ifdef MPI_VERSION
+#ifdef USE_MPI
    // allocate temporary storage
    double a = x;
    // send

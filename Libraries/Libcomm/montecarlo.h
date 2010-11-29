@@ -36,6 +36,7 @@ class montecarlo : public libbase::masterslave, private resultsfile {
    double confidence; //!< confidence level required
    double accuracy; //!< accuracy level required
    libbase::timer t; //!< timer to keep track of running estimate
+   mutable libbase::timer tupdate; //!< timer to keep track of display rate
    sha sysdigest; //!< digest of the currently-simulated system
    // @}
    /*! \name Slave process functions & their functors */

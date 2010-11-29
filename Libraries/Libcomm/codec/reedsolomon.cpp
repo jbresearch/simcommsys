@@ -65,9 +65,9 @@ template <class GF_q> void reedsolomon<GF_q>::init_decoder(
       }
 #if DEBUG>=2
    this->received_word_sd.serialize(std::cout, ',');
-   std::cout << "\n";
+   std::cout << std::endl;
    this->received_word_hd.serialize(std::cout, ',');
-   std::cout << "\n";
+   std::cout << std::endl;
 #endif
    }
 
@@ -111,9 +111,9 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
          this->pchk_matrix, this->received_word_hd, syndrome_vec);
 
 #if DEBUG>=2
-   std::cout << "\nThe received word is given by:\n";
+   std::cout << std::endl << "The received word is given by:" << std::endl;
    this->received_word_hd.serialize(std::cout, ',');
-   std::cout << "\nIts syndrome is given by:\n";
+   std::cout << std::endl << "Its syndrome is given by:" << std::endl;
    syndrome_vec.serialize(std::cout, ',');
 #endif
    if (dec_success == false)
@@ -167,9 +167,9 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
          syndrome_ref_matrix = syndrome_matrix.reduce_to_ref();
 
 #if DEBUG>=2
-         std::cout << "\nThe syndrome matrix is given by:\n";
+         std::cout << std::endl << "The syndrome matrix is given by:" << std::endl;
          syndrome_matrix.serialize(std::cout, '\n');
-         std::cout << "\nThe syndrome matrix in REF is given by:\n";
+         std::cout << std::endl << "The syndrome matrix in REF is given by:" << std::endl;
          syndrome_ref_matrix.serialize(std::cout, '\n');
 #endif
 
@@ -204,7 +204,7 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
          //X_i=\alpha^{j_i}.
 #if DEBUG>=2
          std::cout
-         << "\nThe coeffs of the error locator polynomial are given by:\n";
+         << std::endl << "The coeffs of the error locator polynomial are given by:" << std::endl;
          error_loc_poly.serialize(std::cout, ',');
 #endif
 
@@ -246,7 +246,7 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
 #if DEBUG>=2
          if (rootsfound > 0)
             {
-            std::cout << "\nWe found roots at:\n";
+            std::cout << std::endl << "We found roots at:" << std::endl;
             for (int loop1 = 0; loop1 < rootsfound; loop1++)
                {
                std::count << error_pos(loop1) << ", ";
@@ -277,9 +277,9 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
             error_ref_mat = error_mat.reduce_to_ref();
 
 #if DEBUG>=2
-            std::cout << "\nThe error matrix is given by:\n";
+            std::cout << std::endl << "The error matrix is given by:" << std::endl;
             error_mat.serialize(std::cout, '\n');
-            std::cout << "\nThe error matrix in REF is given by:\n";
+            std::cout << std::endl << "The error matrix in REF is given by:" << std::endl;
             error_ref_mat.serialize(std::cout, '\n');
 #endif
 
@@ -296,9 +296,9 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
                   tmp_received_hd(col) = tmp_val;
                   }
 #if DEBUG>=2
-               std::cout << "This is the word we should have received:\n";
+               std::cout << "This is the word we should have received:" << std::endl;
                tmp_received_hd.serialize(std::cout, ',');
-               std::cout << "\n";
+               std::cout << std::endl;
 #endif
                for (int i = 0; i < this->dim_k; i++)
                   {
@@ -310,9 +310,9 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
          }
       }
 #if DEBUG>=2
-   std::cout << "\nThe decoded word is given by:\n";
+   std::cout << std::endl << "The decoded word is given by:" << std::endl;
    decoded.serialize(std::cout, ',');
-   std::cout << "\n";
+   std::cout << std::endl;
 #endif
    }
 
@@ -322,15 +322,15 @@ template <class GF_q> std::string reedsolomon<GF_q>::description() const
    std::ostringstream sout;
    sout << "RS code [" << this->length_n << ", " << this->dim_k << "] ";
 
-   libbase::trace << "Its parity check matrix is:" << "\n";
+   libbase::trace << "Its parity check matrix is:" << std::endl;
 
    this->pchk_matrix.serialize(libbase::trace, ' ');
 #if DEBUG>=1
-   libbase::trace << "Its parity check matrix in REF is:" << "\n";
+   libbase::trace << "Its parity check matrix in REF is:" << std::endl;
    this->pchk_ref_matrix.serialize(libbase::trace, ' ');
 #endif
 
-   libbase::trace << "Its generator matrix in REF format is:" << "\n";
+   libbase::trace << "Its generator matrix in REF format is:" << std::endl;
    this->gen_ref_matrix.serialize(libbase::trace, ' ');
    return sout.str();
    }
@@ -523,8 +523,8 @@ template <class GF_q> std::ostream& reedsolomon<GF_q>::serialize(
       std::ostream& sout) const
    {
    // format version
-   sout << this->length_n << "\n";
-   sout << this->dim_k << "\n";
+   sout << this->length_n << std::endl;
+   sout << this->dim_k << std::endl;
    return sout;
    }
 

@@ -39,8 +39,8 @@ std::string shift_lut<real>::description() const
 template <class real>
 std::ostream& shift_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << this->lut.size() << "\n";
-   sout << amount << "\n";
+   sout << this->lut.size() << std::endl;
+   sout << amount << std::endl;
    return sout;
    }
 

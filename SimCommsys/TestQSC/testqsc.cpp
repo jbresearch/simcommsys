@@ -26,7 +26,7 @@ void ShowHistogram(vector<G> &x)
    assertalways(f.sum() == N);
    const double E = double(N) / double(q);
    for (int i = 0; i < q; i++)
-      cout << i << "\t" << f(i) << "\t[" << 100.0 * (f(i) - E) / E << "%]\n";
+      cout << i << "\t" << f(i) << "\t[" << 100.0 * (f(i) - E) / E << "%]" << std::endl;
    }
 
 template <class G>
@@ -34,19 +34,19 @@ void TestChannel(channel<G> &chan, double p)
    {
    const int N = 100000;
    const int q = G::elements();
-   cout << '\n' << chan.description() << '\n';
+   cout << std::endl << chan.description() << std::endl;
    randgen r;
    r.seed(0);
    vector<G> tx(N);
    for (int i = 0; i < N; i++)
       tx(i) = r.ival(q);
-   cout << "Tx:\n";
+   cout << "Tx:" << std::endl;
    ShowHistogram(tx);
    vector<G> rx(N);
    chan.seedfrom(r);
    chan.set_parameter(p);
    chan.transmit(tx, rx);
-   cout << "Rx:\n";
+   cout << "Rx:" << std::endl;
    ShowHistogram(rx);
    }
 

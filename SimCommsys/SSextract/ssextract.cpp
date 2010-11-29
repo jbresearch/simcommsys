@@ -56,11 +56,11 @@ void process(const std::string& systemfile, const std::string& channelfile,
    // Stego-system embedder
    libcomm::blockembedder<S, C> *system = libcomm::loadfromfile<
          libcomm::blockembedder<S, C> >(systemfile);
-   std::cerr << system->description() << "\n";
+   std::cerr << system->description() << std::endl;
    // Channel model
    libcomm::channel<S, C> *chan =
          libcomm::loadfromfile<libcomm::channel<S, C> >(channelfile);
-   std::cerr << chan->description() << "\n";
+   std::cerr << chan->description() << std::endl;
    // Set channel parameter
    chan->set_parameter(p);
    // Initialize system
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
    if (vm.count("help") || vm.count("system-file") == 0 || vm.count(
          "channel-file") == 0 || vm.count("parameter") == 0)
       {
-      std::cerr << desc << "\n";
+      std::cerr << desc << std::endl;
       return 1;
       }
    // Shorthand access for parameters
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     process<double, vector> (systemfile, channelfile, parameter, softout);
     else
     {
-    std::cerr << "Unrecognized symbol type: " << type << "\n";
+    std::cerr << "Unrecognized symbol type: " << type << std::endl;
     return 1;
     }
     }
@@ -171,13 +171,13 @@ int main(int argc, char *argv[])
          process<double, matrix> (systemfile, channelfile, parameter, softout);
       else
          {
-         std::cerr << "Unrecognized symbol type: " << type << "\n";
+         std::cerr << "Unrecognized symbol type: " << type << std::endl;
          return 1;
          }
       }
    else
       {
-      std::cerr << "Unrecognized container type: " << container << "\n";
+      std::cerr << "Unrecognized container type: " << container << std::endl;
       return 1;
       }
 

@@ -152,14 +152,21 @@ void bcjr<real, dbl, norm>::allocate()
    alpha.init(tau + 1, M);
    beta.init(tau + 1, M);
    gamma.init(tau, M, K);
-   // determine memory occupied and tell user
-   std::ios::fmtflags flags = std::cerr.flags();
-   std::cerr << "BCJR Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << sizeof(real) * (alpha.size() + beta.size() + gamma.size())
-         / double(1 << 20) << "MB\n";
-   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+
+   // set required format, storing previous settings
+   const std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr.setf(std::ios::fixed, std::ios::floatfield);
+   const int prec = std::cerr.precision(1);
+   // determine memory occupied and tell user
+   const size_t bytes_used = sizeof(real) * (alpha.size() + beta.size()
+         + gamma.size());
+   std::cerr << "BCJR Memory Usage: " << bytes_used / double(1 << 20)
+         << "MiB" << std::endl;
+   // revert cerr to original format
+   std::cerr.precision(prec);
+   std::cerr.setf(flags);
    }
 
 /*! \brief State probability metric

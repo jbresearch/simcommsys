@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if (vm.count("help"))
       {
-      cout << desc << "\n";
+      cout << desc << std::endl;
       return 1;
       }
 
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
    system->set_parameter(vm["parameter"].as<double> ());
 
    // Print some debug information
-   libbase::trace << system->description() << "\n";
+   libbase::trace << system->description() << std::endl;
 
    // Perform the simulation
    libbase::vector<double> estimate, tolerance;
@@ -147,21 +147,21 @@ int main(int argc, char *argv[])
    if (!vm["quiet"].as<bool> ())
       {
       // Write some information on the code
-      cout << "\n\n";
-      cout << "System Used:\n";
-      cout << "~~~~~~~~~~~~\n";
-      cout << system->description() << "\n";
-      //cout << "Rate: " << system-> << "\n";
-      cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%\n";
-      cout << "Confidence: " << 100 * estimator.get_confidence() << "%\n";
-      cout << "Date: " << libbase::timer::date() << "\n";
+      cout << std::endl << std::endl;
+      cout << "System Used:" << std::endl;
+      cout << "~~~~~~~~~~~~" << std::endl;
+      cout << system->description() << std::endl;
+      //cout << "Rate: " << system-> << std::endl;
+      cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%" << std::endl;
+      cout << "Confidence: " << 100 * estimator.get_confidence() << "%" << std::endl;
+      cout << "Date: " << libbase::timer::date() << std::endl;
       cout << "Simulating system at Eb/No = " << system->get_parameter()
-            << "\n";
+            << std::endl;
 
       // Print results (for confirming accuracy)
-      cout << "\n";
-      cout << "Results: (SER, FER)\n";
-      cout << "~~~~~~~~~~~~~~~~~~~\n";
+      cout << std::endl;
+      cout << "Results: (SER, FER)" << std::endl;
+      cout << "~~~~~~~~~~~~~~~~~~~" << std::endl;
       for (int j = 0; j < system->count(); j += 2)
          {
          cout << setprecision(6) << estimate(j);
@@ -173,20 +173,20 @@ int main(int argc, char *argv[])
          if (!vm.count("system-file"))
             cout << " (" << setprecision(3) << 100 * (estimate(j + 1)
                   - std_result[j + 1]) / std_result[j + 1] << "%)";
-         cout << "\n";
+         cout << std::endl;
          }
 
       // Output timing statistics
-      cout << "\n";
-      cout << "URL: " << __WCURL__ << "\n";
-      cout << "Version: " << __WCVER__ << "\n";
+      cout << std::endl;
+      cout << "URL: " << __WCURL__ << std::endl;
+      cout << "Version: " << __WCVER__ << std::endl;
       cout << "Statistics: " << frames << " frames in "
-            << estimator.get_timer() << ".\n";
+            << estimator.get_timer() << "." << std::endl;
       }
 
    // Output overall benchmark
    cout << "SPECturbo: " << setprecision(4) << frames
-         / estimator.get_timer().elapsed() << " frames/sec\n";
+         / estimator.get_timer().elapsed() << " frames/sec" << std::endl;
    return 0;
    }
 

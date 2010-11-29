@@ -117,7 +117,7 @@ template <int m, int poly>
 void gf_fast<m, poly>::init(int value)
    {
    assert(m < 32);
-   assert(value >=0 && value < (1<<m));
+   assert(value >= 0 && value < (1 << m));
    this->value = value;
    this->pow_of_alpha = gf_fast<m, poly>::log_lut[this->value];
    }
@@ -208,7 +208,7 @@ gf_fast<m, poly>& gf_fast<m, poly>::operator*=(const gf_fast<m, poly>& x)
       if (0 == x)
          {
          this->value = 0;
-         this->pow_of_alpha = 0;//by convention
+         this->pow_of_alpha = 0; //by convention
          }
       else
          {

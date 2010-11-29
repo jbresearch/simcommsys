@@ -9,10 +9,18 @@
 #include <cmath>
 
 namespace libcomm {
+
+// Determine debug level:
+// 1 - Normal debug output only
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 using libbase::gf;
 
-template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
-      const array1vd_t& recvd_probs)
+template <class GF_q, class real>
+void sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
    {
 
    int num_of_elements = GF_q::elements();
@@ -40,7 +48,7 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
       }
 
 #if DEBUG>=2
-   libbase::trace << "\nThe first 5 normalised likelihoods are given by:\n";
+   libbase::trace << std::endl << "The first 5 normalised likelihoods are given by:" << std::endl;
    libbase::trace << this->received_probs.extract(0, 5);
 #endif
 
@@ -98,15 +106,17 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::spa_init(
    libbase::trace << " Memory Usage:\n ";
    libbase::trace << this->marginal_probs.size()
    * sizeof(sum_prod_alg_abstract<GF_q,real>::marginals) / double(1 << 20)
-   << " MB\n";
+   << " MB" << std::endl;
 
-   libbase::trace << "\nThe marginal matrix is given by:\n";
+   libbase::trace << std::endl << "The marginal matrix is given by:" << std::endl;
    this->print_marginal_probs(libbase::trace);
 #endif
 
    }
-template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_convs(
-      array1d_t & conv_out, int pos1, int pos2)
+
+template <class GF_q, class real>
+void sum_prod_alg_gdl<GF_q, real>::compute_convs(array1d_t & conv_out,
+      int pos1, int pos2)
    {
    //this is in fact the Hadamard transform using the butterfly property of
    //the fast Fourier transform.
@@ -135,8 +145,9 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_con
    }
 
 //specialisation for GF(2)
-template <> void sum_prod_alg_gdl<gf<1, 0x3> , double>::compute_r_mn(int m,
-      int n, const array1i_t & tmpN_m)
+template <>
+void sum_prod_alg_gdl<gf<1, 0x3> , double>::compute_r_mn(int m, int n,
+      const array1i_t & tmpN_m)
    {
    //the number of participating symbols
    int num_of_var_syms = tmpN_m.size();
@@ -159,8 +170,9 @@ template <> void sum_prod_alg_gdl<gf<1, 0x3> , double>::compute_r_mn(int m,
 
    }
 
-template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_r_mn(
-      int m, int n, const array1i_t & tmpN_m)
+template <class GF_q, class real>
+void sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m, int n,
+      const array1i_t & tmpN_m)
    {
    //the number of participating symbols
    int num_of_var_syms = tmpN_m.size();
@@ -220,8 +232,9 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_r_m
       }
    }
 
-template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_mn(
-      int m, int n, const array1i_t & M_n)
+template <class GF_q, class real>
+void sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n,
+      const array1i_t & M_n)
    {
    //initialise some helper variables
    int num_of_elements = GF_q::elements();
@@ -265,7 +278,7 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
                {
                m_dash = M_n(loop_m) - 1; //we start counting from zero
                std::cerr << "q_mn(" << loop_e << ")=" << q_mn(loop_e) << " x "
-                     << this->marginal_probs(m_dash, n).r_mxn(loop_e) << "\n";
+                     << this->marginal_probs(m_dash, n).r_mxn(loop_e) << std::endl;
                q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
                }
             }
@@ -276,7 +289,7 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
                {
                std::cerr << "q_mn(" << loop_e
                      << ")<almostzero - setting it to almostzero="
-                     << this->almostzero << "\n";
+                     << this->almostzero << std::endl;
                q_mn(loop_e) = this->almostzero;
                }
             }
@@ -286,7 +299,7 @@ template <class GF_q, class real> void sum_prod_alg_gdl<GF_q, real>::compute_q_m
                {
                std::cerr << "q_mn(" << loop_e
                      << ") is equal to zero - setting it to almostzero="
-                     << this->almostzero << "\n";
+                     << this->almostzero << std::endl;
                q_mn(loop_e) = this->almostzero;
                }
 

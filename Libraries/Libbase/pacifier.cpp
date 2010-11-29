@@ -70,7 +70,7 @@ std::string pacifier::update(int complete, int total)
    std::ostringstream sout;
    // if this is the first time we're printing something, start on a new line
    if (characters == 0)
-      sout << '\n';
+      sout << std::endl;
    sout << name << ": completed " << value << "%, elapsed " << t
          << " of estimated " << timer::format(estimate) << '\r';
    // update tracker

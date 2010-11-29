@@ -25,7 +25,7 @@ void process(const std::string& fname, int count)
    // Communication system
    libcomm::codec<C, double> *cdc = libcomm::loadfromfile<libcomm::codec<C,
          double> >(fname);
-   std::cerr << cdc->description() << "\n";
+   std::cerr << cdc->description() << std::endl;
    // Initialize system
    libbase::randgen r;
    r.seed(0);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if (vm.count("help") || vm.count("system-file") == 0)
       {
-      std::cerr << desc << "\n";
+      std::cerr << desc << std::endl;
       return 1;
       }
    // Shorthand access for parameters
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
          process<int, vector> (filename, n);
       else
          {
-         std::cerr << "Unrecognized symbol type: " << type << "\n";
+         std::cerr << "Unrecognized symbol type: " << type << std::endl;
          return 1;
          }
       }
@@ -159,13 +159,13 @@ int main(int argc, char *argv[])
    //         process<sigspace, matrix> (filename,n);
    //      else
    //         {
-   //         std::cerr << "Unrecognized symbol type: " << type << "\n";
+   //         std::cerr << "Unrecognized symbol type: " << type << std::endl;
    //         return 1;
    //         }
    //      }
    else
       {
-      std::cerr << "Unrecognized container type: " << container << "\n";
+      std::cerr << "Unrecognized container type: " << container << std::endl;
       return 1;
       }
 

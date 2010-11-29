@@ -55,7 +55,7 @@ void resultsfile::truncate(std::streampos length)
 void resultsfile::checkformodifications(std::fstream& file)
    {
    assert(file.good());
-   trace << "DEBUG (montecarlo): checking file for modifications.\n";
+   trace << "DEBUG (montecarlo): checking file for modifications." << std::endl;
    // check for user modifications
    sha curdigest;
    file.seekg(0);
@@ -66,7 +66,7 @@ void resultsfile::checkformodifications(std::fstream& file)
       file.seekp(fileptr);
    else
       {
-      cerr << "NOTICE: file modifications found - appending.\n";
+      cerr << "NOTICE: file modifications found - appending." << std::endl;
       // set current write position to end-of-file
       file.seekp(0, std::ios_base::end);
       fileptr = file.tellp();
@@ -75,7 +75,8 @@ void resultsfile::checkformodifications(std::fstream& file)
 
 // Constructor/destructor
 
-resultsfile::resultsfile()
+resultsfile::resultsfile() :
+   t("resultsfile")
    {
    headerwritten = false;
    t.stop();
@@ -109,7 +110,7 @@ void resultsfile::setupfile()
    std::fstream file(fname.c_str());
    if (!file)
       {
-      trace << "DEBUG (montecarlo): results file not found - creating.\n";
+      trace << "DEBUG (montecarlo): results file not found - creating." << std::endl;
       // create the file first if necessary
       file.open(fname.c_str(), std::ios::out);
       assertalways(file.good());

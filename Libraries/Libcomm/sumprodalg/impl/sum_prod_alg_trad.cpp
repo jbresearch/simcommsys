@@ -9,8 +9,15 @@
 
 namespace libcomm {
 
-template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::spa_init(
-      const array1vd_t& recvd_probs)
+// Determine debug level:
+// 1 - Normal debug output only
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
+template <class GF_q, class real>
+void sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
    {
 
    //initialise the marginal prob values
@@ -63,16 +70,17 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::spa_init(
    libbase::trace << " Memory Usage:\n ";
    libbase::trace << this->marginal_probs.size()
    * sizeof(sum_prod_alg_abstract<GF_q,real>::marginals) / double(1 << 20)
-   << " MB\n";
+   << " MB" << std::endl;
 
-   libbase::trace << "\nThe marginal matrix is given by:\n";
+   libbase::trace << std::endl << "The marginal matrix is given by:" << std::endl;
    this->print_marginal_probs(libbase::trace);
 #endif
 
    }
 
-template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_r_mn(
-      int m, int n, const array1i_t & tmpN_m)
+template <class GF_q, class real>
+void sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m, int n,
+      const array1i_t & tmpN_m)
    {
    //the number of remaining symbols that can vary
    int num_of_var_syms = tmpN_m.size() - 1;
@@ -139,8 +147,10 @@ template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_r_
       this->marginal_probs(m, pos_n).r_mxn(int_sym_val) += q_nm_prod;
       }
    }
-template <class GF_q, class real> void sum_prod_alg_trad<GF_q, real>::compute_q_mn(
-      int m, int n, const array1i_t & M_n)
+
+template <class GF_q, class real>
+void sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m, int n,
+      const array1i_t & M_n)
    {
 
    //initialise some helper variables

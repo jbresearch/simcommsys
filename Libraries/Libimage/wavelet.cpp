@@ -215,7 +215,7 @@ void wavelet::init(const int type, const int par)
                // Undefined
             default:
                cerr << "Undefined parameter (" << par << ") for wavelet type ("
-                     << type << ").\n";
+                     << type << ")." << std::endl;
                return;
             }
          }
@@ -312,7 +312,7 @@ void wavelet::init(const int type, const int par)
                // Undefined
             default:
                cerr << "Undefined parameter (" << par << ") for wavelet type ("
-                     << type << ").\n";
+                     << type << ")." << std::endl;
                return;
             }
          }
@@ -397,7 +397,7 @@ void wavelet::init(const int type, const int par)
                // Undefined
             default:
                cerr << "Undefined parameter (" << par << ") for wavelet type ("
-                     << type << ").\n";
+                     << type << ")." << std::endl;
                return;
             }
          }
@@ -454,7 +454,7 @@ void wavelet::init(const int type, const int par)
                // Undefined
             default:
                cerr << "Undefined parameter (" << par << ") for wavelet type ("
-                     << type << ").\n";
+                     << type << ")." << std::endl;
                return;
             }
          const vector<double> gcopy = g;
@@ -466,7 +466,7 @@ void wavelet::init(const int type, const int par)
          break;
          // Undefined
       default:
-         cerr << "Undefined wavelet type (" << type << ").\n";
+         cerr << "Undefined wavelet type (" << type << ")." << std::endl;
          return;
       }
    // normalise g and create quadrature filter
@@ -474,9 +474,9 @@ void wavelet::init(const int type, const int par)
    h = quadrature(g);
    // debug information
    trace << "wavelet initialised - type (" << type << ") par (" << par
-         << ").\n";
-   trace << "g = " << g << "\n";
-   trace << "h = " << h << "\n";
+         << ")." << std::endl;
+   trace << "g = " << g << std::endl;
+   trace << "h = " << h << std::endl;
    }
 
 // informative / helper functions

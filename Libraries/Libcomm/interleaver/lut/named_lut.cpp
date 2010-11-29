@@ -31,8 +31,8 @@ std::string named_lut<real>::description() const
 template <class real>
 std::ostream& named_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << m << "\n";
-   sout << lutname << "\n";
+   sout << m << std::endl;
+   sout << lutname << std::endl;
    sout << this->lut;
    return sout;
    }

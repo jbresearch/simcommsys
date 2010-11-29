@@ -177,7 +177,7 @@ void dminner2d<real, norm>::dodemodulate(
          for (int ii = 0; ii < m; ii++)
             {
 #if DEBUG>=2
-            libbase::trace << "DEBUG (dminner2d): Decoding row " << ii << " of symbol row " << i << "\n";
+            libbase::trace << "DEBUG (dminner2d): Decoding row " << ii << " of symbol row " << i << std::endl;
 #endif
             // set up row decoder's sparse alphabet & pilot sequence
             rowdec.set_lut(get_alphabet_row(ii));
@@ -212,7 +212,7 @@ void dminner2d<real, norm>::dodemodulate(
          for (int jj = 0; jj < n; jj++)
             {
 #if DEBUG>=2
-            libbase::trace << "DEBUG (dminner2d): Decoding col " << jj << " of symbol col " << j << "\n";
+            libbase::trace << "DEBUG (dminner2d): Decoding col " << jj << " of symbol col " << j << std::endl;
 #endif
             // set up col decoder's sparse alphabet & pilot sequence
             coldec.set_lut(get_alphabet_col(jj));
@@ -344,14 +344,15 @@ std::istream& dminner2d<real, norm>::serialize(std::istream& sin)
 namespace libcomm {
 
 using libbase::logrealfast;
-
 using libbase::serializer;
 
+#ifndef USE_CUDA
 template class dminner2d<logrealfast, false> ;
 template <>
 const serializer dminner2d<logrealfast, false>::shelper = serializer(
       "blockmodem", "dminner2d<logrealfast>",
       dminner2d<logrealfast, false>::create);
+#endif
 
 template class dminner2d<double, true> ;
 template <>

@@ -29,9 +29,9 @@ void sysrepacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    array1i_t parity;
    Base::encode(source, parity);
 #if DEBUG>=2
-   std::cerr << "Source:\n";
+   std::cerr << "Source:" << std::endl;
    source.serialize(std::cerr, '\n');
-   std::cerr << "Parity:\n";
+   std::cerr << "Parity:" << std::endl;
    parity.serialize(std::cerr, '\n');
 #endif
    encoded.init(This::output_block_size());

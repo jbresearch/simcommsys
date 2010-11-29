@@ -29,14 +29,14 @@ truerand::truerand()
 #ifdef WIN32
    if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
       {
-      std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << getlasterror() << ".\n";
+      std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << getlasterror() << "." << std::endl;
       exit(1);
       }
 #else
    fd = open("/dev/random", O_RDONLY);
    if (fd < 0)
       {
-      std::cerr << "ERROR (truerand): cannot open /dev/random.\n";
+      std::cerr << "ERROR (truerand): cannot open /dev/random." << std::endl;
       exit(1);
       }
 #endif
@@ -51,7 +51,7 @@ truerand::~truerand()
    assert(hCryptProv);
    if(!CryptReleaseContext(hCryptProv, 0))
       {
-      std::cerr << "ERROR (truerand): cannot release CryptoAPI context - " << getlasterror() << ".\n";
+      std::cerr << "ERROR (truerand): cannot release CryptoAPI context - " << getlasterror() << "." << std::endl;
       exit(1);
       }
 #else

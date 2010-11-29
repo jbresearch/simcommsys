@@ -88,7 +88,7 @@ void md5::selftest()
    {
    // set flag to avoid re-entry
    tested = true;
-   libbase::trace << "md5: Testing implementation\n";
+   libbase::trace << "md5: Testing implementation" << std::endl;
    // http://www.faqs.org/rfcs/rfc1321.html
    std::string sMessage, sHash;
    // Test libbase::vector 0

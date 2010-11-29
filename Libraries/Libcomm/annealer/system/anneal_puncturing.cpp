@@ -26,7 +26,7 @@ anneal_puncturing::anneal_puncturing(const char *fname, const int tau,
       {
       std::cerr
             << "FATAL ERROR (anneal_puncturing): Cannot open contribution file ("
-            << fname << ").\n";
+            << fname << ")." << std::endl;
       exit(1);
       }
    for (int i = 0; i < tau; i++)
@@ -136,7 +136,7 @@ std::ostream& anneal_puncturing::output(std::ostream& sout) const
       sout << pattern(i, 0);
       for (int j = 1; j < tau; j++)
          sout << "\t" << pattern(i, j);
-      sout << "\n";
+      sout << std::endl;
       }
    return sout;
    }

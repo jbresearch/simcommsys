@@ -10,11 +10,12 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 namespace libcomm {
 
 /*!
- * \brief   Alternative Forward-Backward Algorithm.
+ * \brief   Symbol-Level Forward-Backward Algorithm.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -110,6 +111,14 @@ public:
    // decode functions
    void decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable);
    void decode(const array1s_t& r, array1vr_t& ptable);
+
+   // Description
+   std::string description() const
+      {
+      std::ostringstream sout;
+      sout << "Symbol-level Forward-Backward Algorithm";
+      return sout.str();
+      }
 };
 
 template <class real, class sig, bool norm>

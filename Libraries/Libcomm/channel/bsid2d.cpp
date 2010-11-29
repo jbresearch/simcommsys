@@ -131,7 +131,7 @@ void bsid2d::set_parameter(const double p)
    set_pd(varyPd ? p : 0);
    set_pi(varyPi ? p : 0);
    libbase::trace << "DEBUG (bsid2d): Ps = " << Ps << ", Pd = " << Pd
-         << ", Pi = " << Pi << "\n";
+         << ", Pi = " << Pi << std::endl;
    }
 
 /*!
@@ -148,7 +148,7 @@ double bsid2d::get_parameter() const
       return Pd;
    if (varyPi)
       return Pi;
-   std::cerr << "ERROR: BSID channel has no parameters\n";
+   std::cerr << "ERROR: BSID channel has no parameters" << std::endl;
    exit(1);
    }
 
@@ -333,10 +333,10 @@ std::string bsid2d::description() const
 
 std::ostream& bsid2d::serialize(std::ostream& sout) const
    {
-   sout << 1 << "\n";
-   sout << varyPs << "\n";
-   sout << varyPd << "\n";
-   sout << varyPi << "\n";
+   sout << 1 << std::endl;
+   sout << varyPs << std::endl;
+   sout << varyPd << std::endl;
+   sout << varyPi << std::endl;
    return sout;
    }
 

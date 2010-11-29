@@ -8,7 +8,6 @@ namespace testbsid2d {
 
 using std::cout;
 using std::cerr;
-using std::flush;
 using libbase::matrix;
 using libbase::randgen;
 using libcomm::bsid2d;
@@ -32,7 +31,7 @@ void visualtest(int seed, int type, double p)
       default:
          failwith("Invalid type");
       }
-   cout << "Tx: " << tx << "\n";
+   cout << "Tx: " << tx << std::endl;
    // pass that through the channel
    matrix<bool> rx1, rx2;
    // seed generator
@@ -43,13 +42,13 @@ void visualtest(int seed, int type, double p)
    channel1.seedfrom(prng);
    channel1.set_parameter(p);
    channel1.transmit(tx, rx1);
-   cout << "Rx1: " << rx1 << "\n";
+   cout << "Rx1: " << rx1 << std::endl;
    // channel1 is an insdel-only channel
    bsid2d channel2(false, true, true);
    channel2.seedfrom(prng);
    channel2.set_parameter(p);
    channel2.transmit(tx, rx2);
-   cout << "Rx2: " << rx2 << "\n";
+   cout << "Rx2: " << rx2 << std::endl;
    }
 
 /*!
@@ -79,7 +78,7 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if (vm.count("help"))
       {
-      std::cerr << desc << "\n";
+      std::cerr << desc << std::endl;
       return 1;
       }
 

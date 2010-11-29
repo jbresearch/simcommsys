@@ -55,7 +55,6 @@ double timer::_cputime() const
    }
 
 #endif //(ifdef WIN32)
-
 // common functions
 
 timer::timer(const std::string& name)
@@ -66,14 +65,12 @@ timer::timer(const std::string& name)
 
 timer::~timer()
    {
-   using std::clog;
-
    if (running)
       {
-      clog << "Timer";
+      std::clog << "Timer";
       if (name != "")
-         clog << " (" << name << ")";
-      clog << " expired after " << *this << "\n" << std::flush;
+         std::clog << " (" << name << ")";
+      std::clog << " expired after " << *this << std::endl;
       }
    }
 
@@ -86,14 +83,7 @@ void timer::start()
 
 void timer::stop()
    {
-   if (!running)
-      {
-      std::cerr << "Warning: tried to stop a timer that was not running";
-      if (name != "")
-         std::cerr << " (" << name << ")";
-      std::cerr << ".\n";
-      return;
-      }
+   assert(running);
    wall = _wallclock() - wall;
    cpu = _cputime() - cpu;
    running = false;

@@ -24,10 +24,10 @@ void TestModem(blockmodem<S> &mdm)
    const int m = mdm.num_symbols();
    const int bits = int(log2(m));
    assert(m == 1<<bits);
-   cout << '\n' << mdm.description() << '\n';
-   cout << "Average Energy/symbol: " << mdm.energy() << '\n';
+   cout << std::endl << mdm.description() << std::endl;
+   cout << "Average Energy/symbol: " << mdm.energy() << std::endl;
    for (int i = 0; i < m; i++)
-      cout << bitfield(gray(i), bits) << '\t' << mdm.modulate(gray(i)) << '\n';
+      cout << bitfield(gray(i), bits) << '\t' << mdm.modulate(gray(i)) << std::endl;
    }
 
 void TestMPSK(int m)

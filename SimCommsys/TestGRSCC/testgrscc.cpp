@@ -96,21 +96,21 @@ matrix<bitfield> GetGeneratorBinary()
 
 void TestCreation()
    {
-   cout << "\nTest code creation:\n";
+   cout << std::endl << "Test code creation:" << std::endl;
    // Create RSC code from generator matrix for R=1/3, nu=2, GF(16)
    grscc<GF16> cc(GetGeneratorGF16());
    // Show code description
-   cout << "Code description:\n";
-   cout << cc.description() << "\n";
+   cout << "Code description:" << std::endl;
+   cout << cc.description() << std::endl;
    // Show code serialization
-   cout << "Code serialization: [" << &cc << "]\n";
+   cout << "Code serialization: [" << &cc << "]" << std::endl;
    }
 
 void CompareCode(fsm& enc, const int ns[], const int out[])
    {
-   cout << enc.description() << "\n";
+   cout << enc.description() << std::endl;
 
-   cout << "PS\tIn\tNS\tOut\n";
+   cout << "PS\tIn\tNS\tOut" << std::endl;
    for (int ps = 0, k = 0; ps < enc.num_states(); ps++)
       for (int i = 0; i < enc.num_input_combinations(); i++, k++)
          {
@@ -126,7 +126,7 @@ void CompareCode(fsm& enc, const int ns[], const int out[])
          const int n_out = enc.convert_output(enc.step(ip));
          const int n_ns = enc.convert_state(enc.state());
          cout << ns[k] << '-' << n_ns << '\t';
-         cout << out[k] << '-' << n_out << '\n';
+         cout << out[k] << '-' << n_out << std::endl;
          assert(out[k] == n_out);
          assert(ns[k] == n_ns);
          }
@@ -134,7 +134,7 @@ void CompareCode(fsm& enc, const int ns[], const int out[])
 
 void CompareCodes()
    {
-   cout << "\nTest comparison of recursive codes with known state table:\n";
+   cout << std::endl << "Test comparison of recursive codes with known state table:" << std::endl;
    /* Consider a RSC with G = [1011,1111]
     * PS        In      NS      Out
     * 000       0       000     00
@@ -159,26 +159,26 @@ void CompareCodes()
 
    // Compute, display, and compare the state table
 
-   cout << "\nGeneralized Code:\n";
+   cout << std::endl << "Generalized Code:" << std::endl;
    grscc<GF2> cc_new(GetGeneratorGF2());
    CompareCode(cc_new, ns, out);
 
-   cout << "\nBinary Code:\n";
+   cout << std::endl << "Binary Code:" << std::endl;
    rscc cc_old(GetGeneratorBinary());
    CompareCode(cc_old, ns, out);
    }
 
 void ShowCirculationTable(fsm& cc, int period)
    {
-   cout << "\nCode circulation table:\n";
+   cout << std::endl << "Code circulation table:" << std::endl;
    // Show code description
-   cout << cc.description() << "\n";
+   cout << cc.description() << std::endl;
    // Compute and display circulation state correspondence table
    for (int S = 0; S < cc.num_states(); S++)
       cout << '\t' << S;
    for (int N = 1; N < period; N++)
       {
-      cout << '\n' << N;
+      cout << std::endl << N;
       for (int S = 0; S < cc.num_states(); S++)
          {
          cc.resetcircular(cc.convert_state(S), N);
@@ -186,7 +186,7 @@ void ShowCirculationTable(fsm& cc, int period)
          cout << '\t' << Sc;
          }
       }
-   cout << '\n';
+   cout << std::endl;
    }
 
 void TestCirculationUsage(fsm& cc, int period)
@@ -225,14 +225,14 @@ void TestCirculationUsage(fsm& cc, int period)
             cc.advance(ip);
             }
          const int Sf = cc.convert_state(cc.state());
-         cout << "Sf = " << Sf << "\n";
+         cout << "Sf = " << Sf << std::endl;
          assert(Sf == Sc);
          }
    }
 
 void TestCirculation()
    {
-   cout << "\nTest code circulation:\n";
+   cout << std::endl << "Test code circulation:" << std::endl;
 
    // Create RSC code from generator matrix for R=1/2, nu=2, GF(8)
    grscc<GF8> cc(GetGeneratorGF8());

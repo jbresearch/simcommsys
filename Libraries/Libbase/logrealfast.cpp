@@ -46,10 +46,10 @@ double logrealfast::convertfromdouble(const double m)
       if (--warningcount > 0)
          trace
                << "WARNING (logrealfast): -Infinity values cannot be represented ("
-               << m << "); assuming infinitesimally small value.\n";
+               << m << "); assuming infinitesimally small value." << std::endl;
       else if (warningcount == 0)
          trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
 #endif
       return DBL_MAX;
       }
@@ -60,10 +60,10 @@ double logrealfast::convertfromdouble(const double m)
       if (--warningcount > 0)
          trace
                << "WARNING (logrealfast): +Infinity values cannot be represented ("
-               << m << "); assuming infinitesimally large value.\n";
+               << m << "); assuming infinitesimally large value." << std::endl;
       else if (warningcount == 0)
          trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
 #endif
       return -DBL_MAX;
       }
@@ -74,10 +74,10 @@ double logrealfast::convertfromdouble(const double m)
       static int warningcount = 10;
       if (--warningcount > 0)
          trace << "WARNING (logrealfast): NaN values cannot be represented ("
-               << m << "); assuming infinitesimally small value.\n";
+               << m << "); assuming infinitesimally small value." << std::endl;
       else if (warningcount == 0)
          trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
 #endif
       return DBL_MAX;
       }
@@ -89,10 +89,10 @@ double logrealfast::convertfromdouble(const double m)
       if (--warningcount > 0)
          trace
                << "WARNING (logrealfast): Non-positive numbers cannot be represented ("
-               << m << "); assuming infinitesimally small value.\n";
+               << m << "); assuming infinitesimally small value." << std::endl;
       else if (warningcount == 0)
          trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
 #endif
       return DBL_MAX;
       }

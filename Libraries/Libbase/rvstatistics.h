@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include <cmath>
+#include <cfloat>
 
 namespace libbase {
 
@@ -17,35 +18,13 @@ namespace libbase {
  * - $Date$
  * - $Author$
  *
- * \version 1.00
- * a class which gathers statistics about a random variable
- *
- * \version 1.01 (17 Oct 2001)
- * solved a bug where the variance returned negative due to
- * floating-point resolution - now this returns zero instead.
- * This used to affect the sigma() which had a domain error.
- *
- * \version 1.02 (6 Mar 2002)
- * changed vcs version variable from a global to a static class variable.
- * also changed use of iostream from global to std namespace.
- *
- * \version 1.03 (6 Apr 2002)
- * made the destructor virtual and inline; added a public reset() function which
- * resets the statistics, in order to start afresh on a new set of data. The
- * default constructor has been modified to make use of this function.
- *
- * \version 1.04 (23 Apr 2002)
- * added insert() functions for vectors and matrices - these avoid the loops that
- * are otherwise necessary.
- *
- * \version 1.80 (26 Oct 2006)
- * - defined class and associated data within "libbase" namespace.
+ * A class which gathers statistics about a random variable
  */
 
 class rvstatistics {
+   int64u m_n;
    double m_sum, m_sumsq;
    double m_hi, m_lo;
-   int m_n;
 public:
    rvstatistics()
       {
@@ -55,12 +34,40 @@ public:
       {
       }
 
-   void reset();
-   void insert(const double x);
-   void insert(const vector<double>& x);
-   void insert(const matrix<double>& x);
+   // reset gathered statistics (to start accumulating for a new set of data)
+   void reset()
+      {
+      m_n = 0;
+      m_sum = m_sumsq = 0;
+      m_hi = -DBL_MAX;
+      m_lo = DBL_MAX;
+      }
+   // inserts a single value
+   void insert(const double x)
+      {
+      m_n++;
+      m_sum += x;
+      m_sumsq += x * x;
+      if (x > m_hi)
+         m_hi = x;
+      if (x < m_lo)
+         m_lo = x;
+      }
+   // inserts all items in a vector
+   void insert(const vector<double>& x)
+      {
+      for (int i = 0; i < x.size(); i++)
+         insert(x(i));
+      }
+   // inserts all items in a matrix
+   void insert(const matrix<double>& x)
+      {
+      for (int i = 0; i < x.size().rows(); i++)
+         for (int j = 0; j < x.size().cols(); j++)
+            insert(x(i, j));
+      }
 
-   int count() const
+   int64u count() const
       {
       return m_n;
       }
@@ -72,25 +79,26 @@ public:
       {
       return m_lo;
       }
+   double sum() const
+      {
+      return m_sum;
+      }
    double mean() const
       {
       return m_sum / double(m_n);
       }
-   double var() const;
+   double var() const
+      {
+      double _mean = mean();
+      double _var = m_sumsq / double(m_n) - _mean * _mean;
+      // avoid negative values due to FP resolution - return zero instead.
+      return (_var > 0) ? _var : 0;
+      }
    double sigma() const
       {
       return sqrt(var());
       }
 };
-
-// inline functions
-
-inline double rvstatistics::var() const
-   {
-   double _mean = mean();
-   double _var = m_sumsq / double(m_n) - _mean * _mean;
-   return (_var > 0) ? _var : 0;
-   }
 
 } // end namespace
 

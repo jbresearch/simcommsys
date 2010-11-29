@@ -60,7 +60,7 @@ void awfilter<T>::estimate()
    if (m_autoestimate)
       {
       m_noise = rvglobal.mean();
-      libbase::trace << "Noise threshold = " << m_noise << "\n";
+      libbase::trace << "Noise threshold = " << m_noise << std::endl;
       }
    }
 

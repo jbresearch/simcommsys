@@ -9,6 +9,7 @@
 
 #include "bsid.h"
 #include "secant.h"
+#include "event_timer.h"
 #include <sstream>
 #include <limits>
 
@@ -16,7 +17,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show tx and rx vectors when computing RecvPr
+// 2 - Show transmit and insertion state vectors during transmission
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -38,14 +39,17 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
  * \note The smallest allowed value is \f$ I = 1 \f$; the largest value depends
  * on a user parameter.
  */
-int bsid::compute_I(int tau, double p, int Icap)
+int bsid::metric_computer::compute_I(int tau, double p, int Icap)
    {
    int I = int(ceil((log(1e-12) - log(double(tau))) / log(p))) - 1;
    I = std::max(I, 1);
-   libbase::trace << "DEBUG (bsid): for N = " << tau << ", I = " << I << "/";
+   libbase::trace << "DEBUG (bsid): for N = " << tau << ", I = " << I;
    if (Icap > 0)
+      {
       I = std::min(I, Icap);
-   libbase::trace << I << ".\n";
+      libbase::trace << ", capped to " << I;
+      }
+   libbase::trace << "." << std::endl;
    return I;
    }
 
@@ -64,69 +68,65 @@ int bsid::compute_I(int tau, double p, int Icap)
  * 
  * \note The smallest allowed value is \f$ x_{max} = I \f$
  */
-int bsid::compute_xmax(int tau, double p, int I)
+int bsid::metric_computer::compute_xmax(int tau, double p, int I)
    {
    // rather than computing the factor using a root-finding method,
    // we fix factor = 7.1305, corresponding to Qinv(1e-12/2.0)
    const double factor = 7.1305;
    int xmax = int(ceil(factor * sqrt(tau * p / (1 - p))));
    xmax = std::max(xmax, I);
-   libbase::trace << "DEBUG (bsid): for N = " << tau << ", xmax = " << xmax
-         << "/";
+   libbase::trace << "DEBUG (bsid): for N = " << tau << ", xmax = " << xmax;
    //xmax = min(xmax,25);
-   libbase::trace << xmax << ".\n";
+   //libbase::trace << ", capped to " << xmax;
+   libbase::trace << "." << std::endl;
    return xmax;
    }
 
 /*!
- * \copydoc bsid::compute_I()
+ * \brief Compute receiver coefficient value
  *
- * \note Provided for convenience; depends on object parameters
- */
-int bsid::compute_I(int tau)
-   {
-   return compute_I(tau, Pi, Icap);
-   }
-
-/*!
- * \copydoc bsid::compute_xmax()
+ * \param err Flag for last bit in error \f[ r_\mu \neq t \f]
+ * \param mu Number of insertions in received sequence (0 or more)
+ * \return Likelihood for the given sequence
  *
- * \note Provided for convenience; depends on object parameters
+ * When the last bit \f[ r_\mu = t \f]
+ * \f[ Rtable(0,\mu) =
+ * \left(\frac{P_i}{2}\right)^\mu
+ * \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
+ * , \mu \in (0, \ldots I) \f]
+ *
+ * When the last bit \f[ r_\mu \neq t \f]
+ * \f[ Rtable(1,\mu) =
+ * \left(\frac{P_i}{2}\right)^\mu
+ * \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
+ * , \mu \in (0, \ldots I) \f]
  */
-int bsid::compute_xmax(int tau)
+bsid::real bsid::metric_computer::compute_Rtable_entry(bool err, int mu,
+      double Ps, double Pd, double Pi)
    {
-   const int I = compute_I(tau, Pi, Icap);
-   return compute_xmax(tau, Pi, I);
+   const double a1 = (1 - Pi - Pd);
+   const double a2 = 0.5 * Pi * Pd;
+   const double a3 = pow(0.5 * Pi, mu);
+   const double a4 = err ? Ps : (1 - Ps);
+   return real(a3 * (a1 * a4 + a2));
    }
 
 /*!
  * \brief Compute receiver coefficient set
  * 
  * First row has elements where the last bit \f[ r_\mu = t \f]
- * \f[ Rtable(0,\mu) =
- * \left(\frac{P_i}{2}\right)^\mu
- * \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
- * , \mu \in (0, \ldots x_{max}) \f]
- * 
  * Second row has elements where the last bit \f[ r_\mu \neq t \f]
- * \f[ Rtable(1,\mu) =
- * \left(\frac{P_i}{2}\right)^\mu
- * \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
- * , \mu \in (0, \ldots x_{max}) \f]
  */
-void bsid::compute_Rtable(array2r_t& Rtable, int xmax, double Ps, double Pd,
-      double Pi)
+void bsid::metric_computer::compute_Rtable(array2r_t& Rtable, int I, double Ps,
+      double Pd, double Pi)
    {
    // Allocate required size
-   Rtable.init(2, xmax + 1);
+   Rtable.init(2, I + 1);
    // Set values for insertions
-   const double a1 = (1 - Pi - Pd);
-   const double a2 = 0.5 * Pi * Pd;
-   for (int mu = 0; mu <= xmax; mu++)
+   for (int mu = 0; mu <= I; mu++)
       {
-      const double a3 = pow(0.5 * Pi, mu);
-      Rtable(0, mu) = real(a3 * (a1 * (1 - Ps) + a2));
-      Rtable(1, mu) = real(a3 * (a1 * Ps + a2));
+      Rtable(0, mu) = compute_Rtable_entry(0, mu, Ps, Pd, Pi);
+      Rtable(1, mu) = compute_Rtable_entry(1, mu, Ps, Pd, Pi);
       }
    }
 
@@ -139,7 +139,8 @@ void bsid::compute_Rtable(array2r_t& Rtable, int xmax, double Ps, double Pd,
  * operations. Since these values depend on the channel conditions, this
  * function should be called any time a channel parameter is changed.
  */
-void bsid::precompute()
+void bsid::metric_computer::precompute(double Ps, double Pd, double Pi,
+      int Icap, bool biased)
    {
    if (N == 0)
       {
@@ -151,23 +152,144 @@ void bsid::precompute()
       }
    assert(N > 0);
    // fba decoder parameters
-   I = compute_I(N);
-   xmax = compute_xmax(N);
+   I = compute_I(N, Pi, Icap);
+   xmax = compute_xmax(N, Pi, I);
    // receiver coefficients
-   compute_Rtable(Rtable, xmax, Ps, Pd, Pi);
    Rval = real(biased ? Pd * Pd : Pd);
-#ifdef CUDA
-   // copy necessary data to device
-   dev_Rtable = Rtable;
-   dev_Rval = Rval;
+#ifdef USE_CUDA
+   // create local table and copy to device
+   array2r_t Rtable_temp;
+   compute_Rtable(Rtable_temp, I, Ps, Pd, Pi);
+   Rtable = Rtable_temp;
+#else
+   compute_Rtable(Rtable, I, Ps, Pd, Pi);
 #endif
    }
 
 /*!
  * \brief Initialization
  * 
- * Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any
- * of the parameters not flagged to change with channel SNR will remain zero.
+ * Sets the block size to an unusable value.
+ */
+void bsid::metric_computer::init()
+   {
+   // set block size to unusable value
+   N = 0;
+#ifdef USE_CUDA
+   // Initialize CUDA
+   cuda::cudaInitialize(std::cerr);
+#endif
+   }
+
+// Channel received for host
+
+#ifndef USE_CUDA
+bsid::real bsid::metric_computer::receive(const bitfield& tx,
+      const array1b_t& rx) const
+   {
+   using std::min;
+   using std::max;
+   using std::swap;
+   // Compute sizes
+   const int n = tx.size();
+   const int mu = rx.size() - n;
+   assert(n <= N);
+   assert(labs(mu) <= xmax);
+   // Set up two slices of forward matrix, and associated pointers
+   // Arrays are allocated on the stack as a fixed size; this avoids dynamic
+   // allocation (which would otherwise be necessary as the size is non-const)
+   const int arraysize = 2 * 15 + 1;
+   assert(2 * xmax + 1 <= arraysize);
+   real F0[arraysize];
+   real F1[arraysize];
+   real *Fthis = F1;
+   real *Fprev = F0;
+   // for prior list, reset all elements to zero
+   for (int x = 0; x < 2 * xmax + 1; x++)
+      Fprev[x] = 0;
+   // we also know x[0] = 0; ie. drift before transmitting bit t0 is zero.
+   Fprev[xmax + 0] = 1;
+   // compute remaining matrix values
+   for (int j = 1; j < n; ++j)
+      {
+      // for this list, reset all elements to zero
+      for (int x = 0; x < 2 * xmax + 1; x++)
+         Fthis[x] = 0;
+      // event must fit the received sequence:
+      // 1. j-1+a >= 0
+      // 2. j-1+y < rx.size()
+      // limits on insertions and deletions must be respected:
+      // 3. y-a <= I
+      // 4. y-a >= -1
+      // note: a and y are offset by xmax
+      const int ymin = max(0, xmax - j);
+      const int ymax = min(2 * xmax, xmax + rx.size() - j);
+      for (int y = ymin; y <= ymax; ++y)
+         {
+         real result = 0;
+         const int amin = max(max(0, xmax + 1 - j), y - I);
+         const int amax = min(2 * xmax, y + 1);
+         // check if the last element is a pure deletion
+         int amax_act = amax;
+         if (y - amax < 0)
+            {
+            result += Fprev[amax] * Rval;
+            amax_act--;
+            }
+         // elements requiring comparison of tx and rx bits
+         for (int a = amin; a <= amax_act; ++a)
+            {
+            // received subsequence has
+            // start:  j-1+a
+            // length: y-a+1
+            // therefore last element is: start+length-1 = j+y-1
+            const bool cmp = tx(j - 1) != rx(j + (y - xmax) - 1);
+            result += Fprev[a] * Rtable(cmp, y - a);
+            }
+         Fthis[y] = result;
+         }
+      // swap 'this' and 'prior' lists
+      swap(Fthis, Fprev);
+      }
+   // Compute forward metric for known drift, and return
+   real result = 0;
+   // event must fit the received sequence:
+   // 1. n-1+a >= 0
+   // 2. n-1+mu < rx.size() [automatically satisfied by definition of mu]
+   // limits on insertions and deletions must be respected:
+   // 3. mu-a <= I
+   // 4. mu-a >= -1
+   // note: muoff and a are offset by xmax
+   const int muoff = mu + xmax;
+   const int amin = max(max(0, muoff - I), xmax + 1 - n);
+   const int amax = min(2 * xmax, muoff + 1);
+   // check if the last element is a pure deletion
+   int amax_act = amax;
+   if (muoff - amax < 0)
+      {
+      result += Fprev[amax] * Rval;
+      amax_act--;
+      }
+   // elements requiring comparison of tx and rx bits
+   for (int a = amin; a <= amax_act; ++a)
+      {
+      // received subsequence has
+      // start:  n-1+a
+      // length: mu-a+1
+      // therefore last element is: start+length-1 = n+mu-1
+      const bool cmp = tx(n - 1) != rx(n + mu - 1);
+      result += Fprev[a] * Rtable(cmp, muoff - a);
+      }
+   // clean up and return
+   return result;
+   }
+#endif
+
+/*!
+ * \brief Initialization
+ *
+ * Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any of the
+ * parameters not flagged to change with channel parameter will remain zero.
  */
 void bsid::init()
    {
@@ -175,9 +297,9 @@ void bsid::init()
    Ps = 0;
    Pd = 0;
    Pi = 0;
-   // set block size to unusable value
-   N = 0;
-   precompute();
+   // initialize metric computer
+   computer.init();
+   computer.precompute(Ps, Pd, Pi, Icap, biased);
    }
 
 // Constructors / Destructors
@@ -213,7 +335,7 @@ void bsid::set_parameter(const double p)
    set_pd(varyPd ? p : 0);
    set_pi(varyPi ? p : 0);
    libbase::trace << "DEBUG (bsid): Ps = " << Ps << ", Pd = " << Pd
-         << ", Pi = " << Pi << "\n";
+         << ", Pi = " << Pi << std::endl;
    }
 
 /*!
@@ -231,40 +353,6 @@ double bsid::get_parameter() const
       return Pd;
    // must be varyPi
    return Pi;
-   }
-
-// Channel parameter setters
-
-void bsid::set_ps(const double Ps)
-   {
-   assert(Ps >= 0 && Ps <= 0.5);
-   bsid::Ps = Ps;
-   }
-
-void bsid::set_pd(const double Pd)
-   {
-   assert(Pd >= 0 && Pd <= 1);
-   assert(Pi + Pd >= 0 && Pi + Pd <= 1);
-   bsid::Pd = Pd;
-   precompute();
-   }
-
-void bsid::set_pi(const double Pi)
-   {
-   assert(Pi >= 0 && Pi <= 1);
-   assert(Pi + Pd >= 0 && Pi + Pd <= 1);
-   bsid::Pi = Pi;
-   precompute();
-   }
-
-void bsid::set_blocksize(int N)
-   {
-   if (N != bsid::N)
-      {
-      assert(N > 0);
-      bsid::N = N;
-      precompute();
-      }
    }
 
 // Channel function overrides
@@ -343,12 +431,9 @@ void bsid::transmit(const array1b_t& tx, array1b_t& rx)
          transmit(i) = 0;
       }
    // Initialize results vector
-#ifndef NDEBUG
-   if (tau < 100)
-      {
-      libbase::trace << "DEBUG (bsid): transmit = " << transmit << "\n";
-      libbase::trace << "DEBUG (bsid): insertions = " << insertions << "\n";
-      }
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bsid): transmit = " << transmit << std::endl;
+   libbase::trace << "DEBUG (bsid): insertions = " << insertions << std::endl;
 #endif
    array1b_t newrx;
    newrx.init(transmit.sum() + insertions.sum());
@@ -376,129 +461,6 @@ void bsid::receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable)
       ptable(0)(x) = bsid::receive(tx(x), rx);
    }
 
-bsid::real bsid::host_receive(const array1b_t& tx, const array1b_t& rx,
-      const array2r_t& Rtable, const real Rval, const int I, const int xmax,
-      const int N)
-   {
-   using std::min;
-   using std::max;
-   using std::swap;
-   // Compute sizes
-   const int n = tx.size();
-   const int mu = rx.size() - n;
-   assert(n <= N);
-   assert(labs(mu) <= xmax);
-   // Set up two slices of forward matrix, and associated pointers
-   // arrays must be allocated on the heap as the size is non-const
-   real *F0 = new real[2 * xmax + 1];
-   real *F1 = new real[2 * xmax + 1];
-   real *Fthis = F1;
-   real *Fprev = F0;
-   // for prior list, reset all elements to zero
-   for (int x = 0; x < 2 * xmax + 1; x++)
-      Fprev[x] = 0;
-   // we also know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   Fprev[xmax + 0] = 1;
-   // compute remaining matrix values
-   for (int j = 1; j < n; ++j)
-      {
-      // for this list, reset all elements to zero
-      for (int x = 0; x < 2 * xmax + 1; x++)
-         Fthis[x] = 0;
-      // event must fit the received sequence:
-      // 1. j-1+a >= 0
-      // 2. j-1+y < rx.size()
-      // limits on insertions and deletions must be respected:
-      // 3. y-a <= I
-      // 4. y-a >= -1
-      // note: a and y are offset by xmax
-      const int ymin = max(0, xmax - j);
-      const int ymax = min(2 * xmax, xmax + rx.size() - j);
-      for (int y = ymin; y <= ymax; ++y)
-         {
-         const int amin = max(max(0, xmax + 1 - j), y - I);
-         const int amax = min(2 * xmax, y + 1);
-         // check if the last element is a pure deletion
-         int amax_act = amax;
-         if (y - amax < 0)
-            {
-            Fthis[y] += Fprev[amax] * Rval;
-            amax_act--;
-            }
-         // elements requiring comparison of tx and rx bits
-         for (int a = amin; a <= amax_act; ++a)
-            {
-            // received subsequence has
-            // start:  j-1+a
-            // length: y-a+1
-            // therefore last element is: start+length-1 = j+y-1
-            const bool cmp = tx(j - 1) != rx(j + (y - xmax) - 1);
-            Fthis[y] += Fprev[a] * Rtable(cmp, y - a);
-            }
-         }
-      // swap 'this' and 'prior' lists
-      swap(Fthis, Fprev);
-      }
-   // Compute forward metric for known drift, and return
-   real result = 0;
-   // event must fit the received sequence:
-   // 1. n-1+a >= 0
-   // 2. n-1+mu < rx.size() [automatically satisfied by definition of mu]
-   // limits on insertions and deletions must be respected:
-   // 3. mu-a <= I
-   // 4. mu-a >= -1
-   // note: muoff and a are offset by xmax
-   const int muoff = mu + xmax;
-   const int amin = max(max(0, muoff - I), xmax + 1 - n);
-   const int amax = min(2 * xmax, muoff + 1);
-   // check if the last element is a pure deletion
-   int amax_act = amax;
-   if (muoff - amax < 0)
-      {
-      result += Fprev[amax] * Rval;
-      amax_act--;
-      }
-   // elements requiring comparison of tx and rx bits
-   for (int a = amin; a <= amax_act; ++a)
-      {
-      // received subsequence has
-      // start:  n-1+a
-      // length: mu-a+1
-      // therefore last element is: start+length-1 = n+mu-1
-      const bool cmp = tx(n - 1) != rx(n + mu - 1);
-      result += Fprev[a] * Rtable(cmp, muoff - a);
-      }
-   // clean up and return
-   delete[] F0;
-   delete[] F1;
-   return result;
-   }
-
-double bsid::receive(const array1b_t& tx, const array1b_t& rx) const
-   {
-#if DEBUG>=2
-   libbase::trace << "DEBUG (bsid): Computing RecvPr for\n";
-   libbase::trace << "tx = " << tx;
-   libbase::trace << "rx = " << rx;
-#endif
-
-#ifdef CUDA
-   cuda::vector<bool> dev_tx;
-   cuda::vector<bool> dev_rx;
-   dev_tx = tx;
-   dev_rx = rx;
-
-   real result = cuda::bsid_receive(dev_tx, dev_rx, dev_Rtable, dev_Rval, I, xmax, N);
-#else
-   real result = host_receive(tx, rx, Rtable, Rval, I, xmax, N);
-#endif
-
-#if DEBUG>=2
-   libbase::trace << "RecvPr = " << result << "\n";
-#endif
-   return result;
-   }
-
 // description output
 
 std::string bsid::description() const
@@ -508,6 +470,9 @@ std::string bsid::description() const
    if (biased)
       sout << ", biased";
    sout << ")";
+#ifdef USE_CUDA
+   sout << " [CUDA]";
+#endif
    return sout.str();
    }
 
@@ -515,12 +480,12 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
-   sout << 3 << "\n";
-   sout << biased << "\n";
-   sout << varyPs << "\n";
-   sout << varyPd << "\n";
-   sout << varyPi << "\n";
-   sout << Icap << "\n";
+   sout << 3 << std::endl;
+   sout << biased << std::endl;
+   sout << varyPs << std::endl;
+   sout << varyPd << std::endl;
+   sout << varyPi << std::endl;
+   sout << Icap << std::endl;
    return sout;
    }
 
@@ -556,6 +521,7 @@ std::istream& bsid::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> varyPs;
    sin >> libbase::eatcomments >> varyPd;
    sin >> libbase::eatcomments >> varyPi;
+   // read cap on insertions, if present
    if (version < 3)
       Icap = 2;
    else

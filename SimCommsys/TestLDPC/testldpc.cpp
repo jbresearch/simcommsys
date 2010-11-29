@@ -78,9 +78,9 @@ void compute_dual()
          }
       }
 
-   cout << "the parity check matrix for the (31,26) Hamming code looks like:\n";
+   cout << "the parity check matrix for the (31,26) Hamming code looks like:" << std::endl;
    test.serialize(cout, ' ');
-   cout<<"\n";
+   cout<<std::endl;
    //compute the minimum weight codewords
    array1i_t info_sym;
    array1i_t code_word;
@@ -90,14 +90,14 @@ void compute_dual()
       linear_code_utils<gf<1, 0x3> , double>::encode_cw(test,info_sym,code_word);
       cout<<"codeword "<<i+1<<": ";
       code_word.serialize(cout,' ');
-      cout<<" weight= "<<code_word.sum()<<"\n";
+      cout<<" weight= "<<code_word.sum()<<std::endl;
       }
 
    /*
     matrix<gf<1, 0x3> > dual;
     array1i_t systematic_perm;
     linear_code_utils<gf<1, 0x3> , double>::compute_dual_code(test, dual, systematic_perm);
-    cout << "the dual matrix is given by:\n";
+    cout << "the dual matrix is given by:" << std::endl;
     dual.serialize(cout, ' ');
     */
    }
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
    return 0;
    if (argc == 1)
       {
-      cerr << "\nPlease provide a path to a file";
+      cerr << std::endl << "Please provide a path to a file";
       return -1;
       }
    string in_str(argv[1]);

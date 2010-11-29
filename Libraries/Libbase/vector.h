@@ -17,8 +17,8 @@ namespace libbase {
 // 1 - Normal debug output only
 // 2 - Keep track of memory allocation/deallocation
 // 3 - Trace memory allocation/deallocation
-// NOTE: since this is a header, this is likely to affect other classes as well;
-//       please return this to '1' when committing.
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -122,8 +122,8 @@ public:
 template <class T>
 class vector {
 protected:
-   //aligned_allocator<T, 128> allocator;
-   std::allocator<T> allocator;
+   typedef std::allocator<T> Allocator;
+   Allocator allocator;
    size_type<libbase::vector> m_size;
    T *m_data;
 protected:
@@ -264,7 +264,7 @@ public:
    T& operator()(const int x)
       {
       test_invariant();
-      assert(x>=0 && x<m_size.length());
+      assert(x >= 0 && x < m_size.length());
       return m_data[x];
       }
    /*! \brief Index operator (read-only access)
@@ -273,7 +273,7 @@ public:
    const T& operator()(const int x) const
       {
       test_invariant();
-      assert(x>=0 && x<m_size.length());
+      assert(x >= 0 && x < m_size.length());
       return m_data[x];
       }
    // @}
@@ -403,7 +403,7 @@ inline void vector<T>::record_allocation() const
    {
 #if DEBUG>=3
    trace << "DEBUG (vector): allocated " << m_size.length() << " x "
-   << sizeof(T) << " bytes at " << m_data << "\n";
+   << sizeof(T) << " bytes at " << m_data << std::endl;
 #endif
 #if DEBUG>=2
    // confirm there was no prior allocation at this space
@@ -419,7 +419,7 @@ inline void vector<T>::remove_allocation() const
    {
 #if DEBUG>=3
    trace << "DEBUG (vector): freeing " << m_size.length() << " x " << sizeof(T)
-   << " bytes at " << m_data << "\n";
+   << " bytes at " << m_data << std::endl;
 #endif
 #if DEBUG>=2
    // first confirm any existing allocation is properly recorded
@@ -632,7 +632,7 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    {
    test_invariant();
    // this should never correspond to self-assignment
-   assert((void *)this != (void *)&x);
+   assert((void *) this != (void *) &x);
    init(x.size());
    // avoid down-cast warnings in Win32
 #ifdef WIN32
@@ -695,7 +695,7 @@ inline void vector<T>::serialize(std::ostream& sout, char spacer) const
       sout << m_data[0];
    for (int i = 1; i < m_size.length(); i++)
       sout << spacer << m_data[i];
-   sout << '\n';
+   sout << std::endl;
    }
 
 template <class T>
@@ -710,7 +710,7 @@ inline void vector<T>::serialize(std::istream& sin)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
    {
-   s << x.size() << "\n";
+   s << x.size() << std::endl;
    x.serialize(s);
    return s;
    }
@@ -1240,7 +1240,7 @@ inline T vector<T>::var() const
  * There is always a risk that the referenced vector is destroyed before
  * the indirect references, in which case those references become stale.
  *
- * It is intended that for the user, the use of masked vectors should be
+ * It is intended that for the user, the use of indirect vectors should be
  * essentially transparent (in that they can mostly be used in place of
  * normal vectors) and that the user should never create one explicitly,
  * but merely through a normal vector.
@@ -1271,7 +1271,7 @@ protected:
       {
       Base::test_invariant();
       assert(n >= 0);
-      assert(x.size().length() >= start+n);
+      assert(x.size().length() >= start + n);
       // update base class by shallow copy, if necessary
       if (n > 0)
          {
@@ -1337,7 +1337,7 @@ inline void indirect_vector<T>::record_reference() const
    {
 #if DEBUG>=3
    trace << "DEBUG (indirect_vector): referenced " << r_size.length() << " x "
-   << sizeof(T) << " bytes at " << r_data << "\n";
+   << sizeof(T) << " bytes at " << r_data << std::endl;
 #endif
 #if DEBUG>=2
    assert(r_data != NULL);
@@ -1355,7 +1355,7 @@ inline void indirect_vector<T>::remove_reference() const
    {
 #if DEBUG>=3
    trace << "DEBUG (indirect_vector): removing ref to " << r_size.length()
-   << " x " << sizeof(T) << " bytes at " << r_data << "\n";
+   << " x " << sizeof(T) << " bytes at " << r_data << std::endl;
 #endif
 #if DEBUG>=2
    // first confirm a reference to this data set is recorded
@@ -1664,6 +1664,12 @@ inline T masked_vector<T>::var() const
    const T _var = sumsq() / T(size()) - _mean * _mean;
    return (_var > 0) ? _var : 0;
    }
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

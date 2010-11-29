@@ -4,7 +4,12 @@
 #include "config.h"
 
 #include "dminner.h"
-#include "fba2.h"
+#ifdef USE_CUDA
+#  include "algorithm/fba2-cuda.h"
+#  include "dminner2-receiver.h"
+#else
+#  include "algorithm/fba2.h"
+#endif
 
 namespace libcomm {
 
@@ -23,7 +28,11 @@ namespace libcomm {
  */
 
 template <class real, bool norm>
-class dminner2 : public dminner<real, norm> , private fba2<real, bool, norm> {
+class dminner2 : public dminner<real, norm>
+#ifndef USE_CUDA
+      , private fba2<real, bool, norm>
+#endif
+{
 public:
    /*! \name Type definitions */
    typedef libbase::vector<bool> array1b_t;
@@ -37,14 +46,21 @@ private:
    typedef informed_modulator<bool> Interface;
    typedef dminner2<real, norm> This;
    typedef dminner<real, norm> Base;
+#ifndef USE_CUDA
    typedef fba2<real, bool, norm> FBA;
+#endif
 private:
+#ifdef USE_CUDA
+   cuda::fba2<real, bool, norm> fba;
+#else
    // Implementations of channel-specific metrics for fba2
    real R(int d, int i, const array1b_t& r) const;
+#endif
    // Setup procedure
-   void init(const channel<bool>& chan);
+   void init(const channel<bool>& chan, const int rho);
 protected:
    // Interface with derived classes
+   void advance() const;
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
          array1vd_t& ptable);
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,

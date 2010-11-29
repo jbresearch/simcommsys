@@ -36,7 +36,7 @@ double gammser(double a, double x)
    double gln = gammln(a);
    if (x < 0.0)
       {
-      cerr << "FATAL ERROR: gammser range error (" << x << ")\n";
+      cerr << "FATAL ERROR: gammser range error (" << x << ")" << std::endl;
       exit(1);
       }
    else if (x == 0.0)
@@ -57,7 +57,7 @@ double gammser(double a, double x)
             return sum * exp(-x + a * log(x) - gln);
          }
       cerr << "FATAL ERROR: gammser error - a too large, itmax too small ("
-            << a << ")\n";
+            << a << ")" << std::endl;
       exit(1);
       }
    }
@@ -96,7 +96,7 @@ double gammcf(double a, double x)
    if (i > itmax)
       {
       cerr << "FATAL ERROR: gammcf error - a too large, itmax too small (" << a
-            << ")\n";
+            << ")" << std::endl;
       exit(1);
       }
    return exp(-x + a * log(x) - gln) * h;
@@ -106,7 +106,7 @@ double gammp(double a, double x)
    {
    if (x < 0.0 || a <= 0.0)
       {
-      cerr << "FATAL ERROR: gammp range error (" << a << ", " << x << ")\n";
+      cerr << "FATAL ERROR: gammp range error (" << a << ", " << x << ")" << std::endl;
       exit(1);
       }
    if (x < a + 1.0) // use series representation
@@ -194,7 +194,7 @@ int factorial(int x)
    {
    if (x < 0)
       {
-      cerr << "FATAL ERROR: factorial range error (" << x << ")\n";
+      cerr << "FATAL ERROR: factorial range error (" << x << ")" << std::endl;
       exit(1);
       }
    int z = 1;
@@ -208,7 +208,7 @@ int permutations(int n, int r)
    if (n < r)
       {
       cerr << "FATAL ERROR: permutations range error (" << n << ", " << r
-            << ")\n";
+            << ")" << std::endl;
       exit(1);
       }
    int z = 1;
@@ -221,7 +221,7 @@ double factoriald(int x)
    {
    if (x < 0)
       {
-      cerr << "FATAL ERROR: factorial range error (" << x << ")\n";
+      cerr << "FATAL ERROR: factorial range error (" << x << ")" << std::endl;
       exit(1);
       }
    double z = 1;
@@ -235,7 +235,7 @@ double permutationsd(int n, int r)
    if (n < r)
       {
       cerr << "FATAL ERROR: permutations range error (" << n << ", " << r
-            << ")\n";
+            << ")" << std::endl;
       exit(1);
       }
    double z = 1;
@@ -257,7 +257,7 @@ string hexify(const string input)
       sout << int(int8u(input.at(i)));
       }
    string output = sout.str();
-   //trace << "(itfunc) hexify: (" << input << ") = " << output << ", length = " << output.length() << "\n";
+   //trace << "(itfunc) hexify: (" << input << ") = " << output << ", length = " << output.length() << std::endl;
    return output;
    }
 
@@ -273,7 +273,7 @@ string dehexify(const string input)
          s += '0';
       output += char(strtoul(s.c_str(), NULL, 16));
       }
-   //trace << "(itfunc) dehexify: " << input << " = (" << output << "), length = " << output.length() << "\n";
+   //trace << "(itfunc) dehexify: " << input << " = (" << output << "), length = " << output.length() << std::endl;
    return output;
    }
 

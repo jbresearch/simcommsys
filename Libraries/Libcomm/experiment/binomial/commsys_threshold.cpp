@@ -33,7 +33,7 @@ double commsys_threshold<S, R>::get_parameter() const
 template <class S, class R>
 std::ostream& commsys_threshold<S, R>::serialize(std::ostream& sout) const
    {
-   sout << this->sys->getchan()->get_parameter() << '\n';
+   sout << this->sys->getchan()->get_parameter() << std::endl;
    commsys_simulator<S, R>::serialize(sout);
    return sout;
    }

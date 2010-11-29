@@ -27,20 +27,6 @@ namespace libbase {
 
 // Debugging tools
 
-void reportassertionandfail(const char *expression, const char *file, int line)
-   {
-   std::string s;
-   s = "assertion " + std::string(expression) + " failed.";
-   reporterrorandfail(s.c_str(), file, line);
-   }
-
-void reporterrorandfail(const char *expression, const char *file, int line)
-   {
-   std::cerr << "ERROR (" << file << " line " << line << "): " << expression
-         << "\n";
-   exit(1);
-   }
-
 class tracestreambuf : public std::streambuf {
 protected:
    std::string buffer;
@@ -69,7 +55,7 @@ inline int tracestreambuf::overflow(int c)
 #ifdef WIN32
          TRACE("%s\n", buffer.c_str());
 #else
-         std::clog << buffer.c_str() << std::endl << std::flush;
+         std::clog << buffer.c_str() << std::endl;
 #endif
          buffer = "";
          }
@@ -190,13 +176,13 @@ static bool interrupt_caught = false;
  */
 static void catch_signal(int sig_num)
    {
-   trace << "DEBUG (catch_signal): caught signal " << sig_num << "\n.";
+   trace << "DEBUG (catch_signal): caught signal " << sig_num << std::endl;
    // re-set the signal handler again for next time
    signal(sig_num, catch_signal);
    // update variables accordingly
    if (sig_num == SIGINT)
       {
-      std::cerr << "Caught interrupt...\n";
+      std::cerr << "Caught interrupt..." << std::endl;
       interrupt_caught = true;
       }
    }
@@ -241,7 +227,7 @@ std::istream& eatwhite(std::istream& is)
    return is;
    }
 
-//! Function to skip over comments (and preceding whitespace)
+//! Function to skip over any combination of comments and whitespace
 
 std::istream& eatcomments(std::istream& is)
    {
@@ -276,7 +262,7 @@ bool isfailedload(std::istream &is)
       std::ios::iostate state = is.rdstate();
       is.clear();
       std::cerr << "ERROR: Failure loading object at position " << is.tellg()
-            << ".\n";
+            << "." << std::endl;
       is.clear(state);
       return true;
       }
@@ -297,10 +283,10 @@ bool isincompleteload(std::istream &is)
    if (!is.eof())
       {
       std::cerr << "ERROR: Incomplete loading, stopped at position "
-            << is.tellg() << ".\n";
+            << is.tellg() << "." << std::endl;
       std::string s;
       while (getline(is, s))
-         std::cerr << s << "\n";
+         std::cerr << s << std::endl;
       return true;
       }
    return false;

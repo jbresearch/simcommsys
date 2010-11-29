@@ -50,11 +50,11 @@ void TestBinaryField()
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
    typedef gf<1, 0x3> Binary;
    // Compute and display addition & multiplication tables
-   cout << "\nBinary Addition table:\n";
+   cout << std::endl << "Binary Addition table:" << std::endl;
    for (int x = 0; x < 2; x++)
       for (int y = 0; y < 2; y++)
          cout << Binary(x) + Binary(y) << (y == 1 ? '\n' : '\t');
-   cout << "\nBinary Multiplication table:\n";
+   cout << std::endl << "Binary Multiplication table:" << std::endl;
    for (int x = 0; x < 2; x++)
       for (int y = 0; y < 2; y++)
          cout << Binary(x) * Binary(y) << (y == 1 ? '\n' : '\t');
@@ -66,7 +66,7 @@ void TestRijndaelField()
    gf<8, 0x11B> E = 1;
    // Compute and display exponential table using {03} as a multiplier
    // using the tabular format in Gladman.
-   cout << "\nRijndael GF(2^8) exponentiation table:\n";
+   cout << std::endl << "Rijndael GF(2^8) exponentiation table:" << std::endl;
    cout << hex;
    for (int x = 0; x < 16; x++)
       for (int y = 0; y < 16; y++)
@@ -82,12 +82,12 @@ template <int m, int poly>
 void ListField()
    {
    // Compute and display exponential table using {2} as a multiplier
-   cout << "\nGF(" << m << ",0x" << hex << poly << dec << ") table:\n";
-   cout << 0 << '\t' << 0 << '\t' << bitfield(0, m) << '\n';
+   cout << std::endl << "GF(" << m << ",0x" << hex << poly << dec << ") table:" << std::endl;
+   cout << 0 << '\t' << 0 << '\t' << bitfield(0, m) << std::endl;
    gf<m, poly> E = 1;
    for (int x = 1; x < gf<m, poly>::elements(); x++)
       {
-      cout << x << "\ta" << x - 1 << '\t' << bitfield(E, m) << '\n';
+      cout << x << "\ta" << x - 1 << '\t' << bitfield(E, m) << std::endl;
       E *= 2;
       }
    }
@@ -96,21 +96,21 @@ template <int m, int poly>
 void TestMulDiv()
    {
    // Compute and display exponential table using {2} as a multiplier
-   cout << "\nGF(" << m << ",0x" << hex << poly << dec
-         << ") multiplication/division:\n";
-   cout << "power\tvalue\tinverse\tmul\n";
+   cout << std::endl << "GF(" << m << ",0x" << hex << poly << dec
+         << ") multiplication/division:" << std::endl;
+   cout << "power\tvalue\tinverse\tmul" << std::endl;
    gf<m, poly> E = 1;
    for (int x = 1; x < gf<m, poly>::elements(); x++)
       {
       cout << "a" << x - 1 << '\t' << bitfield(E, m) << '\t' << bitfield(
-            E.inverse(), m) << '\t' << bitfield(E.inverse() * E, m) << '\n';
+            E.inverse(), m) << '\t' << bitfield(E.inverse() * E, m) << std::endl;
       E *= 2;
       }
    }
 
 void TestGenPowerGF2()
    {
-   cout << "\nBinary generator matrix power sequence:\n";
+   cout << std::endl << "Binary generator matrix power sequence:" << std::endl;
    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
    typedef gf<1, 0x3> Binary;
    // Create generator matrix for DVB-CRSC code:
@@ -123,14 +123,14 @@ void TestGenPowerGF2()
    // Compute and display first 8 powers of G
    for (int i = 0; i < 8; i++)
       {
-      cout << "G^" << i << " = \n";
+      cout << "G^" << i << " = " << std::endl;
       pow(G, i).serialize(cout);
       }
    }
 
 void TestGenPowerGF8()
    {
-   cout << "\nGF(8) generator matrix power sequence:\n";
+   cout << std::endl << "GF(8) generator matrix power sequence:" << std::endl;
    // Create values in the field GF(8): m(x) = 1 { 011 }
    typedef gf<3, 0xB> GF8;
    // Create generator matrix:
@@ -142,7 +142,7 @@ void TestGenPowerGF8()
    // Compute and display first 16 powers of G
    for (int i = 0; i < 16; i++)
       {
-      cout << "G^" << i << " = \n";
+      cout << "G^" << i << " = " << std::endl;
       pow(G, i).serialize(cout);
       }
    }
@@ -155,7 +155,7 @@ void TestFastGF2()
    gf1 = gf<1, 0x3> (0);
    gf2 = gf<1, 0x3> (1);
 
-   cout << "\nChecking gf_fast<1.0x3> against gf<1,0x3>\n";
+   cout << std::endl << "Checking gf_fast<1.0x3> against gf<1,0x3>" << std::endl;
    //init the new gf
    gffast1 = gf_fast<1, 0x3> (0);
    gffast2 = gf_fast<1, 0x3> (1);
@@ -190,8 +190,8 @@ void TestFastGF4()
    int num_of_elements = 4;
    int power = 0;
 
-   cout << "\nChecking gf_fast<2, 0x7> against gf<2, 0x7>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<2, 0x7> against gf<2, 0x7>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<2, 0x7> (2);//alpha
    gf3 = gf1;
@@ -231,7 +231,7 @@ void TestFastGF4()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -281,7 +281,7 @@ void TestFastGF4()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -295,47 +295,47 @@ void TestFastGF4()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<2,0x7>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<2,0x7>" << std::endl;
    t1.start();
    gf1 = gf<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<2, 0x7> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<2, 0x7>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<2, 0x7>" << std::endl;
    t1.start();
    gffast1 = gf_fast<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<2, 0x7> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<2, 0x7> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<2, 0x7> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<2, 0x7> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
    }
 
 void TestFastGF8()
@@ -346,8 +346,8 @@ void TestFastGF8()
    int num_of_elements = 8;
    int power = 0;
 
-   cout << "\nChecking gf_fast<3, 0xB> against gf<3, 0xB>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<3, 0xB> against gf<3, 0xB>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<3, 0xB> (2);//alpha
    gf3 = gf1;
@@ -387,7 +387,7 @@ void TestFastGF8()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -437,7 +437,7 @@ void TestFastGF8()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -451,47 +451,47 @@ void TestFastGF8()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<3, 0xB>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<3, 0xB>" << std::endl;
    t1.start();
    gf1 = gf<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<3, 0xB> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<3, 0xB>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<3, 0xB>" << std::endl;
    t1.start();
    gffast1 = gf_fast<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<3, 0xB> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<3, 0xB> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<3, 0xB> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<3, 0xB> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    }
 
@@ -503,8 +503,8 @@ void TestFastGF16()
    int num_of_elements = 16;
    int power = 0;
 
-   cout << "\nChecking gf_fast<4, 0x13> against gf<4, 0x13>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<4, 0x13> against gf<4, 0x13>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<4, 0x13> (2);//alpha
    gf3 = gf1;
@@ -544,7 +544,7 @@ void TestFastGF16()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -594,7 +594,7 @@ void TestFastGF16()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -608,47 +608,47 @@ void TestFastGF16()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<4, 0x13>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<4, 0x13>" << std::endl;
    t1.start();
    gf1 = gf<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<4, 0x13> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<4, 0x13>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<4, 0x13>" << std::endl;
    t1.start();
    gffast1 = gf_fast<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<4, 0x13> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<4, 0x13> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<4, 0x13> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<4, 0x13> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    }
 
@@ -660,8 +660,8 @@ void TestFastGF32()
    int num_of_elements = 32;
    int power = 0;
 
-   cout << "\nChecking gf_fast<5, 0x25> against gf<5, 0x25>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<5, 0x25> against gf<5, 0x25>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<5, 0x25> (2);//alpha
    gf3 = gf1;
@@ -701,7 +701,7 @@ void TestFastGF32()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -751,7 +751,7 @@ void TestFastGF32()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -765,47 +765,47 @@ void TestFastGF32()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<5, 0x25>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<5, 0x25>" << std::endl;
    t1.start();
    gf1 = gf<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<5, 0x25> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<5, 0x25>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<5, 0x25>" << std::endl;
    t1.start();
    gffast1 = gf_fast<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<5, 0x25> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<5, 0x25> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<5, 0x25> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<5, 0x25> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
    }
 
 void TestFastGF64()
@@ -816,8 +816,8 @@ void TestFastGF64()
    int num_of_elements = 64;
    int power = 0;
 
-   cout << "\nChecking gf_fast<6, 0x43> against gf<6, 0x43>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<6, 0x43> against gf<6, 0x43>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<6, 0x43> (2);//alpha
    gf3 = gf1;
@@ -857,7 +857,7 @@ void TestFastGF64()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -907,7 +907,7 @@ void TestFastGF64()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -921,47 +921,47 @@ void TestFastGF64()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<6, 0x43>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<6, 0x43>" << std::endl;
    t1.start();
    gf1 = gf<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<6, 0x43> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<6, 0x43>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<6, 0x43>" << std::endl;
    t1.start();
    gffast1 = gf_fast<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<6, 0x43> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<6, 0x43> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<6, 0x43> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<6, 0x43> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
    }
 
 void TestFastGF128()
@@ -972,8 +972,8 @@ void TestFastGF128()
    int num_of_elements = 128;
    int power = 0;
 
-   cout << "\nChecking gf_fast<7, 0x89> against gf<7, 0x89>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<7, 0x89> against gf<7, 0x89>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<7, 0x89> (2);//alpha
    gf3 = gf1;
@@ -1013,7 +1013,7 @@ void TestFastGF128()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -1063,7 +1063,7 @@ void TestFastGF128()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -1077,47 +1077,47 @@ void TestFastGF128()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<7, 0x89>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<7, 0x89>" << std::endl;
    t1.start();
    gf1 = gf<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<7, 0x89> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<7, 0x89>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<7, 0x89>" << std::endl;
    t1.start();
    gffast1 = gf_fast<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<7, 0x89> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<7, 0x89> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<7, 0x89> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<7, 0x89> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    }
 
@@ -1129,8 +1129,8 @@ void TestFastGF256()
    int num_of_elements = 256;
    int power = 0;
 
-   cout << "\nChecking gf_fast<8, 0x11D> against gf<8, 0x11D>\n";
-   cout << "Checking the powers\n";
+   cout << std::endl << "Checking gf_fast<8, 0x11D> against gf<8, 0x11D>" << std::endl;
+   cout << "Checking the powers" << std::endl;
    //check the powers
    gf1 = gf<8, 0x11D> (2);//alpha
    gf3 = gf1;
@@ -1170,7 +1170,7 @@ void TestFastGF256()
          }
       }
 
-   cout << "Checking addition, subtraction,multiplication and division\n";
+   cout << "Checking addition, subtraction,multiplication and division" << std::endl;
    //check addition, subtraction, multiplication and division
    int tmp_val;
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
@@ -1220,7 +1220,7 @@ void TestFastGF256()
          }
       }
 
-   cout << "Checking inverses\n";
+   cout << "Checking inverses" << std::endl;
    //check the inverses
    for (int loop1 = 1; loop1 < num_of_elements; loop1++)
       {
@@ -1234,47 +1234,47 @@ void TestFastGF256()
       }
 
    timer t1;
-   cout << "Proving that gf_fast is faster at multiplication:\n";
+   cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf<8, 0x11D>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf<8, 0x11D>" << std::endl;
    t1.start();
    gf1 = gf<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 * gf<8, 0x11D> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<8, 0x11D>\n";
+         << "multiplying all non-zero field elements together 1,000,000 times in gf_fast<8, 0x11D>" << std::endl;
    t1.start();
    gffast1 = gf_fast<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 * gf_fast<8, 0x11D> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
-   cout << "Proving that gf_fast is as fast at additions as gf:\n";
+   cout << "Proving that gf_fast is as fast at additions as gf:" << std::endl;
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf" << std::endl;
    t1.start();
    gf1 = gf<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gf1 = gf1 + gf<8, 0x11D> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    cout
-         << "adding all non-zero field elements together 1,000,000 times in gf_fast\n";
+         << "adding all non-zero field elements together 1,000,000 times in gf_fast" << std::endl;
    t1.start();
    gffast1 = gf_fast<8, 0x11D> (1);
    for (int loop1 = 0; loop1 < 1000000; loop1++)
       for (int loop2 = 1; loop2 < non_zero; loop2++)
          gffast1 = gffast1 + gf_fast<8, 0x11D> (loop2);
    t1.stop();
-   cout << "This took " << t1 << "\n";
+   cout << "This took " << t1 << std::endl;
 
    }
 
@@ -1293,7 +1293,7 @@ void ProduceLookupTables()
    int pow_lut[num_of_elements];
    int log_lut[num_of_elements];
 
-   log_lut[0] = 0;//convention;
+   log_lut[0] = 0; //convention;
    pow_lut[non_zero] = 1;
    for (int loop = 0; loop < non_zero; loop++)
       {
@@ -1301,19 +1301,19 @@ void ProduceLookupTables()
       log_lut[pow_of_alpha] = loop;
       pow_of_alpha *= alpha;
       }
-   cout << "\ntemplate <> const int gf_fast<8, 0x11D>::log_lut[256] = {";
+   cout << std::endl << "template <> const int gf_fast<8, 0x11D>::log_lut[256] = {";
    for (int loop = 0; loop < non_zero; loop++)
       {
       cout << log_lut[loop] << ", ";
       }
-   cout << log_lut[non_zero] << "};\n";
+   cout << log_lut[non_zero] << "};" << std::endl;
 
-   cout << "\ntemplate <> const int gf_fast<8, 0x11D>::pow_lut[256] = {";
+   cout << std::endl << "template <> const int gf_fast<8, 0x11D>::pow_lut[256] = {";
    for (int loop = 0; loop < non_zero; loop++)
       {
       cout << pow_lut[loop] << ", ";
       }
-   cout << pow_lut[non_zero] << "};\n";
+   cout << pow_lut[non_zero] << "};" << std::endl;
 
    }
 

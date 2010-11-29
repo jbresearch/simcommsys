@@ -1,109 +1,229 @@
-# $Author$
-# $Revision$
-# $Date$
+# $Id$
+# Master makefile
 
-# Exported variables:
+### Exported variables:
 
-# Root folder for package
-export ROOTDIR := $(PWD)
 
-# Directory where the object files and binaries are placed
-# if OSARCH is available then use it - otherwise use the
-# processor architecture (ie i686 x86_64)
+## Control variables
+
+# Build Architecture (ie i686 x86_64).
 ifndef OSARCH
 export OSARCH := $(shell uname -m)
-else
-export OSARCH
 endif
-export BUILDDIR = $(RELEASE)/$(OSARCH)
+# Kernel version
+ifndef KERNEL
+export KERNEL := $(shell uname -k)
+endif
+# Number of CPUs
+ifndef CPUS
+export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
+endif
+# MPI Library (0 if absent)
+ifndef USE_MPI
+export USE_MPI := $(shell mpic++ -showme 2>/dev/null |wc -l)
+endif
+# CUDA compiler (0 if absent, architecture if present)
+ifndef USE_CUDA
+export USE_CUDA := $(shell nvcc -V 2>/dev/null |wc -l)
+endif
+ifneq ($(USE_CUDA),0)
+ifeq (,$(findstring getdevicearch,$(wildcard BuildUtils/bin/*)))
+USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
+endif
+USE_CUDA := $(shell BuildUtils/bin/getdevicearch)
+endif
+# Set default release to build
+ifndef RELEASE
+export RELEASE := Release
+endif
+
+
+## Build and installations details
+
+# Tag to identify build
+export TAG := $(notdir $(CURDIR))
+ifneq ($(USE_MPI),0)
+TAG := $(TAG)-mpi
+endif
+ifneq ($(USE_CUDA),0)
+TAG := $(TAG)-cuda$(USE_CUDA)
+endif
+
+## Folders
+
+# Root folder for package
+export ROOTDIR := $(CURDIR)
+# Folder for the build object files and binaries
+export BUILDDIR = $(RELEASE)/$(OSARCH)/$(TAG)
+# Folder for installed binaries
 ifndef BINDIR
+ifeq ($(shell [ -d ~/bin.$(KERNEL) ] && echo 1),1)
+export BINDIR = ~/bin.$(KERNEL)
+else
 export BINDIR = ~/bin.$(OSARCH)
+endif
 else
 export BINDIR
 endif
 
-# Version control information
+## User pacifier
+ifeq ($(MAKELEVEL),0)
+ifneq ($(USE_MPI),0)
+$(info Using MPI: yes)
+endif
+ifneq ($(USE_CUDA),0)
+$(info Using CUDA: yes, compute model $(USE_CUDA))
+endif
+$(info Install folder: $(BINDIR))
+$(info Build tag: $(TAG))
+endif
+
+## Version control information
+
 WCURL := $(shell svn info |gawk '/^URL/ { print $$2 }')
 WCVER := $(shell svnversion)
-export WCTAG := $(notdir $(PWD))
 
-# Linker settings
-export LDlibusr := -lcomm -limage -lbase
-LDlibsys := -lm -lstdc++ -lboost_program_options
-#LDlibmpi := `mpic++ -showme:link`
-#LDlibmpi := -lpmpich++ -lmpich
-LDlibmpi :=
-export LDlibs := $(LDlibusr) $(LDlibsys) $(LDlibmpi)
-# Define linking flags
-export LDflagProfile := -pg
-export LDflagRelease := 
-export LDflagDebug   := 
-#LDflagsCommon := -static-libgcc
-LDflagsCommon :=
-export LDflags = $(LDflagsCommon) $(LDflag$(RELEASE)) $(LDlibusr:-l%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 
-# Target-specific common options
-CCcomopt :=
-ifeq ($(OSARCH),i686)
-CCcomopt := -msse2 $(CCcomopt)
-else ifeq ($(OSARCH),x86_64)
-CCcomopt := -msse2 -m64 $(CCcomopt)
-endif
-# Compiler settings
-CCdbgopt := -g -DDEBUG $(CCcomopt)
-CCrelopt := -O3 -DNDEBUG $(CCcomopt)
-#CCprfopt := $(CCrelopt) -pg -fno-inline
-CCprfopt := $(CCrelopt) -pg
-CClibs := $(LDlibusr:-l%=-I$(ROOTDIR)/Libraries/Lib%)
-#CClang := -Wall -Werror -Wno-non-template-friend -Woverloaded-virtual
-CClang := -Wall -Werror
-#CCmpi := -DUSEMPI `mpic++ -showme:compile`
-#CCmpi := -DUSEMPI -DUSE_STDARG -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDARG_H=1 -DUSE_STDARG=1 -DMALLOC_RET_VOID=1
-CCmpi :=
-CCsvn := -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
-# Define compiling flags
-export CCflagProfile := $(CCprfopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
-export CCflagRelease := $(CCrelopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
-export CCflagDebug   := $(CCdbgopt) $(CClibs) $(CClang) $(CCmpi) $(CCsvn)
-export CCflags = $(CCflag$(RELEASE))
-export CCdepend := -MM -MP
+## List of users libraries (in linking order)
 
-# User library list
-export LIBS = $(foreach name,$(LDlibusr:-l%=%),$(ROOTDIR)/Libraries/Lib$(name)/$(BUILDDIR)/lib$(name).a)
+LIBNAMES := comm image base
 
-# Library builder settings
-export LIBflags := ru
 
-# Define the names for commands
+## Commands
+
 export MAKE := $(MAKE) --no-print-directory
 export MKDIR := mkdir -p
 export RM := rm -rf
 export CP := cp
+export NVCC := nvcc
 export CC := gcc
 export LD := gcc
 export LIB := ar
 export RAN := ranlib
 export DOXYGEN := doxygen
 
-# Still to define down here - BUILDDIR, CCflags ##
+
+## Linker settings
+
+# Common options
+LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
+LDopts := $(LDopts) $(LIBNAMES:%=-l%)
+LDopts := $(LDopts) -lm -lstdc++ -lboost_program_options
+# MPI options
+ifneq ($(USE_MPI),0)
+LDopts := $(LDopts) $(shell mpic++ -showme:link)
+endif
+# CUDA options
+ifneq ($(USE_CUDA),0)
+ifeq ($(OSARCH),x86_64)
+LDopts := $(LDopts) -L/usr/local/cuda/lib64 -lcudart
+else
+LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
+endif
+endif
+# Release-dependent linking options
+export LDflagDebug   := $(LDopts)
+export LDflagRelease := $(LDopts)
+export LDflagProfile := -pg $(LDflagRelease)
+# Select the linking options to use
+export LDflags = $(LDflag$(RELEASE))
 
 
-# Local variables:
+## Compiler settings
+
+# Common options
+CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
+CCopts := $(CCopts) -Wall -Werror
+CCopts := $(CCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
+# MPI options
+ifneq ($(USE_MPI),0)
+CCopts := $(CCopts) -DUSE_MPI $(shell mpic++ -showme:compile)
+endif
+# CUDA options
+ifneq ($(USE_CUDA),0)
+CCopts := $(CCopts) -DUSE_CUDA
+endif
+# Architecture-specific options
+ifeq ($(OSARCH),i686)
+CCopts := $(CCopts) -msse2
+else
+ifeq ($(OSARCH),x86_64)
+CCopts := $(CCopts) -msse2 -m64
+else
+$(error Unknown architecture: $(OSARCH))
+endif
+endif
+# Release-dependent compiler settings
+export CCflagDebug := -g -DDEBUG $(CCopts)
+export CCflagRelease := -O3 -DNDEBUG $(CCopts)
+export CCflagProfile := -pg $(CCflagRelease)
+# Select the compiler options to use
+export CCflags = $(CCflag$(RELEASE))
+
+
+## CUDA Compiler settings
+
+# Common options
+NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
+#NVCCopts := $(NVCCopts) -Xcompiler "-Wall,-Werror"
+NVCCopts := $(NVCCopts) -Xopencc "-woffall"
+NVCCopts := $(NVCCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
+NVCCopts := $(NVCCopts) -DUSE_CUDA
+NVCCopts := $(NVCCopts) -arch=compute_$(USE_CUDA) -code=compute_$(USE_CUDA),sm_$(USE_CUDA)
+ifeq ($(OSARCH),i686)
+NVCCopts := $(NVCCopts) -m32
+else
+ifeq ($(OSARCH),x86_64)
+NVCCopts := $(NVCCopts) -m64
+else
+$(error Unknown architecture: $(OSARCH))
+endif
+endif
+# Release-dependent compiler settings
+NVCCflagDebug := -O0 -g -G -DDEBUG $(NVCCopts)
+NVCCflagRelease := -O3 -DNDEBUG $(NVCCopts)
+NVCCflagProfile := -pg -DPROFILE $(NVCCflagRelease)
+# Select the compiler options to use
+export NVCCflags := $(NVCCflag$(RELEASE))
+
+
+## Library builder settings
+
+export LIBflags := ru
+
+
+## User library list
+
+export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(BUILDDIR)/lib$(name).a)
+
+
+### Local variables:
 
 TARGETS = $(wildcard SimCommsys/*)
 
-# Master targets
 
-all:     debug release
+### Build Targets
+
+
+## Master targets
+
+default:
+	@echo No default target.
+
+all:
+	@$(MAKE) -j$(CPUS) install
+	@$(MAKE) -j$(CPUS) USE_CUDA=0 USE_MPI=0 install
+
+build:     debug release
 
 profile:
-	@$(MAKE) RELEASE=Profile DOTARGET=all $(TARGETS)
+	@$(MAKE) RELEASE=Profile DOTARGET=build $(TARGETS)
 
 release:
-	@$(MAKE) RELEASE=Release DOTARGET=all $(TARGETS)
+	@$(MAKE) RELEASE=Release DOTARGET=build $(TARGETS)
 
 debug:
-	@$(MAKE) RELEASE=Debug DOTARGET=all $(TARGETS)
+	@$(MAKE) RELEASE=Debug DOTARGET=build $(TARGETS)
 
 install:	install-release install-debug
 
@@ -124,6 +244,9 @@ clean:
 	@$(MAKE) RELEASE=Release DOTARGET=clean $(TARGETS)
 	@$(MAKE) RELEASE=Profile DOTARGET=clean $(TARGETS)
 
+clean-all:
+	find . -depth \( -name doc -or -name Debug -or -name Release -or -name Profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -exec rm -rf '{}' \;
+
 showsettings:
 	$(CC) $(CCflagRelease) -Q --help=target --help=optimizers --help=warnings
 
@@ -131,14 +254,19 @@ FORCE:
 
 .PHONY:	all debug release profile install clean
 
-# Manual targets
 
-$(TARGETS):	$(LIBS) FORCE
-	@echo "----> Making target \"$(notdir $@)\" [$(RELEASE)]."
+## Manual targets
+
+$(TARGETS):	$(LIBRARIES) FORCE
+	@echo "----> Making target \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
-# Pattern-matched targets
+BuildUtils:	FORCE
+	@echo "----> Making target \"$@\"."
+	@$(MAKE) -C "$(ROOTDIR)/$@" build
+
+## Pattern-matched targets
 
 %.a:	FORCE
-	@echo "----> Making library \"$(notdir $@)\" [$(RELEASE)]."
+	@echo "----> Making library \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
 	@$(MAKE) -C $(ROOTDIR)/Libraries/$(patsubst lib%.a,Lib%,$(notdir $@)) $(DOTARGET)

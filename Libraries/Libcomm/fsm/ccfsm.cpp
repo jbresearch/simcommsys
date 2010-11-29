@@ -125,7 +125,7 @@ void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
 #if DEBUG>=2
-   trace << "Advance:\n";
+   trace << "Advance:" << std::endl;
    trace << "  Original Input:\t";
    input.serialize(trace);
 #endif
@@ -165,7 +165,7 @@ template <class G>
 vector<int> ccfsm<G>::output(const vector<int>& input) const
    {
 #if DEBUG>=2
-   trace << "Output:\n";
+   trace << "Output:" << std::endl;
    trace << "  Original Input:\t";
    input.serialize(trace);
 #endif
@@ -193,7 +193,7 @@ vector<int> ccfsm<G>::output(const vector<int>& input) const
          reg(i).serialize(trace);
          trace << "  Generator " << i << "," << j << ":\t";
          gen(i, j).serialize(trace);
-         trace << "  Accumulated Result:\t" << thisop << "\n";
+         trace << "  Accumulated Result:\t" << thisop << std::endl;
 #endif
          }
       op(j) = thisop;

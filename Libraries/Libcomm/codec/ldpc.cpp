@@ -74,7 +74,7 @@ template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
    this->decodingSuccess = false;
 
 #if DEBUG>=2
-   libbase::trace << "\nThe first 5 received likelihoods are:\n";
+   libbase::trace << std::endl << "The first 5 received likelihoods are:" << std::endl;
    libbase::trace<< ptable.extract(0,5);
 #endif
    this->received_probs.init(this->length_n);
@@ -95,9 +95,9 @@ template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
          this->received_probs, this->received_word_sd, this->received_word_hd);
 
 #if DEBUG>=2
-   libbase::trace << "\nCurrently, the most likely received word is:\n";
+   libbase::trace << std::endl << "Currently, the most likely received word is:" << std::endl;
    this->received_word_hd.serialize(libbase::trace, ' ');
-   libbase::trace << "\n the symbol probabilities are given by:\n";
+   libbase::trace << std::endl << " the symbol probabilities are given by:" << std::endl;
    this->received_word_sd.serialize(libbase::trace, ' ');
 #endif
    //do not check whether we have a solution already. This will force
@@ -160,7 +160,7 @@ template <class GF_q, class real> void ldpc<GF_q, real>::isCodeword()
 #if DEBUG>=2
    if (dec_success)
       {
-      libbase::trace << "We have a solution\n";
+      libbase::trace << "We have a solution" << std::endl;
       }
 #endif
    }
@@ -181,9 +181,9 @@ template <class GF_q, class real> void ldpc<GF_q, real>::encode(
       }
 #endif
 #if DEBUG>=2
-   libbase::trace << "The encoded word is:\n";
+   libbase::trace << "The encoded word is:" << std::endl;
    encoded.serialize(libbase::trace, ' ');
-   libbase::trace << "\n";
+   libbase::trace << std::endl;
 #endif
    }
 
@@ -207,9 +207,9 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
       this->spa_alg->spa_iteration(tmp_ro);
 
 #if DEBUG>=3
-      libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
+      libbase::trace << std::endl << "This is iteration: " << this->current_iteration << std::endl;
       libbase::trace
-      << "The newly computed normalised probabilities are given by:\n";
+      << "The newly computed normalised probabilities are given by:" << std::endl;
       ro.serialize(libbase::trace, ' ');
 #endif
 
@@ -237,10 +237,10 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
          }
 
 #if DEBUG>=2
-      libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
-      libbase::trace << "The most likely received word is now given by:\n";
+      libbase::trace << std::endl << "This is iteration: " << this->current_iteration << std::endl;
+      libbase::trace << "The most likely received word is now given by:" << std::endl;
       this->received_word_hd.serialize(libbase::trace, ' ');
-      libbase::trace << "\nIts symbol probabilities are given by:\n";
+      libbase::trace << std::endl << "Its symbol probabilities are given by:" << std::endl;
       this->received_word_sd.serialize(libbase::trace, ' ');
 #endif
       //finished decoding
@@ -252,8 +252,8 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
       ri(loop_i) = ro(this->info_symb_pos(loop_i));
       }
 #if DEBUG>=3
-   libbase::trace << "\nThis is iteration: " << this->current_iteration << "\n";
-   libbase::trace << "\nThe info symbol probabilities are given by:\n";
+   libbase::trace << std::endl << "This is iteration: " << this->current_iteration << std::endl;
+   libbase::trace << std::endl << "The info symbol probabilities are given by:" << std::endl;
    ri.serialize(libbase::trace, ' ');
 #endif
 
@@ -269,21 +269,21 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
          << this->spa_alg->get_almostzero() << ") ";
 #if DEBUG>=2
    this->serialize(libbase::trace);
-   libbase::trace << "\n";
+   libbase::trace << std::endl;
 #endif
 
 #if DEBUG>=2
-   libbase::trace << "Its parity check matrix is given by:\n";
+   libbase::trace << "Its parity check matrix is given by:" << std::endl;
    this->pchk_matrix.serialize(libbase::trace, '\n');
 
-   libbase::trace << "Its generator matrix is given by:\n";
+   libbase::trace << "Its generator matrix is given by:" << std::endl;
    this->gen_matrix.serialize(libbase::trace, '\n');
-   libbase::trace << "The information symbols are located in columns:\n";
+   libbase::trace << "The information symbols are located in columns:" << std::endl;
    for (int loop = 0; loop < this->dim_k; loop++)
       {
       libbase::trace << this->info_symb_pos(loop) + 1 << " ";
       }
-   libbase::trace << "\n";
+   libbase::trace << std::endl;
 #endif
    return sout.str();
    }
@@ -388,49 +388,49 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
    {
 
    assertalways(sout.good());
-   sout << "#version of this file format\n";
-   sout << 4 << "\n";
-   sout << "#SPA type\n";
-   sout << this->spa_alg->spa_type() << "\n";
-   sout << "# number of iterations\n";
-   sout << this->max_iter << "\n";
-   sout << "#clipping methods available\n";
-   sout << "# zero - replace only zeros with almostzero\n";
-   sout << "# clip - replace all values below almostzero with almostzero\n";
-   sout << "#this is followed by the value of almostzero\n";
-   sout << this->spa_alg->get_clipping_type() << "\n";
-   sout << this->spa_alg->get_almostzero() << "\n";
-   sout << "#reduce generator matrix to REF? (true|false)\n";
+   sout << "#version of this file format" << std::endl;
+   sout << 4 << std::endl;
+   sout << "#SPA type" << std::endl;
+   sout << this->spa_alg->spa_type() << std::endl;
+   sout << "# number of iterations" << std::endl;
+   sout << this->max_iter << std::endl;
+   sout << "#clipping methods available" << std::endl;
+   sout << "# zero - replace only zeros with almostzero" << std::endl;
+   sout << "# clip - replace all values below almostzero with almostzero" << std::endl;
+   sout << "#this is followed by the value of almostzero" << std::endl;
+   sout << this->spa_alg->get_clipping_type() << std::endl;
+   sout << this->spa_alg->get_almostzero() << std::endl;
+   sout << "#reduce generator matrix to REF? (true|false)" << std::endl;
    if (this->reduce_to_ref)
       {
-      sout << "true\n";
+      sout << "true" << std::endl;
       }
    else
       {
-      sout << "false\n";
+      sout << "false" << std::endl;
       }
-   sout << "# length n and dimension m\n";
-   sout << this->length_n << " " << this->dim_pchk << "\n";
-   sout << "#max col weight and max row weight\n";
-   sout << this->max_col_weight << " " << this->max_row_weight << "\n";
+   sout << "# length n and dimension m" << std::endl;
+   sout << this->length_n << " " << this->dim_pchk << std::endl;
+   sout << "#max col weight and max row weight" << std::endl;
+   sout << this->max_col_weight << " " << this->max_row_weight << std::endl;
 
-   sout << "#non-zero values:ones/random/provided\n";
-   sout << "#if random is chosen then it must be followed\n";
-   sout << "#by a positive integer which acts as the seed for the\n";
-   sout << "#random number generator\n";
-   sout << this->rand_prov_values << "\n";
+   sout << "#non-zero values:ones/random/provided" << std::endl;
+   sout << "#if random is chosen then it must be followed" << std::endl;
+   sout << "#by a positive integer which acts as the seed for the" << std::endl;
+   sout << "#random number generator" << std::endl;
+   sout << this->rand_prov_values << std::endl;
    if ("random" == this->rand_prov_values)
       {
-      sout << "#seed value\n";
-      sout << this->seed << "\n";
+      sout << "#seed value" << std::endl;
+      sout << this->seed << std::endl;
       }
 
-   sout << "#the column weight vector\n";
+   sout << "#the column weight vector" << std::endl;
    sout << this->col_weight;
-   sout << "#the row weight vector\n";
+   sout << "#the row weight vector" << std::endl;
    sout << this->row_weight;
 
-   sout << "#the non zero pos per col\n";
+   sout << "#the non zero pos per col" << std::endl;
    int num_of_non_zeros;
    int gf_val_int;
    int tmp_pos;
@@ -443,7 +443,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
    if ("provided" == this->rand_prov_values)
       {
       libbase::vector<GF_q> non_zero_vals_in_col;
-      sout << "#the non zero vals per col\n";
+      sout << "#the non zero vals per col" << std::endl;
       for (int loop1 = 0; loop1 < this->length_n; loop1++)
          {
          num_of_non_zeros = this->M_n(loop1).size();
@@ -760,8 +760,8 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::write_alist(
       {
       sout << " " << numOfElements;
       }
-   sout << "\n";
-   sout << this->max_col_weight << " " << this->max_row_weight << "\n";
+   sout << std::endl;
+   sout << this->max_col_weight << " " << this->max_row_weight << std::endl;
    this->col_weight.serialize(sout, ' ');
    this->row_weight.serialize(sout, ' ');
    int num_of_non_zeros;
@@ -791,7 +791,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::write_alist(
             sout << "0 ";
             }
          }
-      sout << "\n";
+      sout << std::endl;
       }
 
    //positions per row (and the non-zero values associated with them in the non-binary case)
@@ -817,7 +817,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::write_alist(
             sout << "0 ";
             }
          }
-      sout << "\n";
+      sout << std::endl;
       }
 
    return sout;

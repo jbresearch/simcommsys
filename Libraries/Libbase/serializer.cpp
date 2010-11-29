@@ -14,7 +14,6 @@ namespace libbase {
 
 using std::hex;
 using std::dec;
-using std::flush;
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -35,7 +34,7 @@ serializable* serializer::call(const std::string& base, const std::string& deriv
    {
    fptr func = (*cmap)[base + ":" + derived];
 #if DEBUG>=2
-   trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << ".\n";
+   trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
 #endif
    if (func == NULL)
       return NULL;
@@ -50,7 +49,7 @@ serializer::serializer(const std::string& base, const std::string& derived,
    if (cmap == NULL)
       cmap = new std::map<std::string, fptr>;
 #if DEBUG>=2
-   trace << "DEBUG (serializer): new map entry [" << count << "] for (" << base+":"+derived << ") = " << (void *)func << ".\n";
+   trace << "DEBUG (serializer): new map entry [" << count << "] for (" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
 #endif
    (*cmap)[base + ":" + derived] = func;
    classname = derived;

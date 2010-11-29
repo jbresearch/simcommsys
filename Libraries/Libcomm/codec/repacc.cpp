@@ -78,15 +78,20 @@ void repacc<real, dbl>::allocate()
    libbase::allocate(rp, This::input_block_size(), This::num_inputs());
    ra.init(This::acc_timesteps(), acc->num_input_combinations());
    R.init(This::acc_timesteps(), acc->num_output_combinations());
-
-   // determine memory occupied and tell user
-   std::ios::fmtflags flags = std::cerr.flags();
-   std::cerr << "RepAcc Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << (rp.size() + ra.size() + R.size()) * sizeof(dbl) / double(1
-         << 20) << "MB\n";
-   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+
+   // set required format, storing previous settings
+   const std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr.setf(std::ios::fixed, std::ios::floatfield);
+   const int prec = std::cerr.precision(1);
+   // determine memory occupied and tell user
+   const size_t bytes_used = sizeof(dbl) * (rp.size() + ra.size() + R.size());
+   std::cerr << "RepAcc Memory Usage: " << bytes_used / double(1 << 20)
+         << "MiB" << std::endl;
+   // revert cerr to original format
+   std::cerr.precision(prec);
+   std::cerr.setf(flags);
    }
 
 // constructor / destructor
@@ -184,7 +189,7 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Calculate internal sizes
    const int p = n - k;
 #if DEBUG>=2
-   std::cerr << "Source:\n";
+   std::cerr << "Source:" << std::endl;
    source.serialize(std::cerr, '\n');
 #endif
 
@@ -201,9 +206,9 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    inter->advance();
    inter->transform(rep1, rep2);
 #if DEBUG>=2
-   std::cerr << "Repeater:\n";
+   std::cerr << "Repeater:" << std::endl;
    rep1.serialize(std::cerr, '\n');
-   std::cerr << "Permuter:\n";
+   std::cerr << "Permuter:" << std::endl;
    rep2.serialize(std::cerr, '\n');
 #endif
 
@@ -221,7 +226,7 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    if (endatzero)
       assertalways(fsm::convert(acc->state(), acc->num_symbols()) == 0);
 #if DEBUG>=2
-   std::cerr << "Accumulator:\n";
+   std::cerr << "Accumulator:" << std::endl;
    encoded.serialize(std::cerr, '\n');
 #endif
    }
@@ -319,7 +324,7 @@ std::string repacc<real, dbl>::description() const
    sout << inter->description() << ", ";
    sout << iter << " iterations, ";
    sout << (endatzero ? "Terminated" : "Unterminated");
-   if(limitlo > dbl(0))
+   if (limitlo > dbl(0))
       sout << ", Clipping at " << limitlo;
    return sout.str();
    }
@@ -330,13 +335,13 @@ template <class real, class dbl>
 std::ostream& repacc<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
-   sout << 3 << '\n';
+   sout << 3 << std::endl;
    rep.serialize(sout);
    sout << acc;
    sout << inter;
-   sout << iter << '\n';
-   sout << int(endatzero) << '\n';
-   sout << limitlo << '\n';
+   sout << iter << std::endl;
+   sout << int(endatzero) << std::endl;
+   sout << limitlo << std::endl;
    return sout;
    }
 
@@ -361,7 +366,7 @@ std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> iter;
    sin >> libbase::eatcomments >> endatzero;
    // get version 3 items
-   if(version >= 3)
+   if (version >= 3)
       sin >> libbase::eatcomments >> limitlo;
    else
       limitlo = 0;

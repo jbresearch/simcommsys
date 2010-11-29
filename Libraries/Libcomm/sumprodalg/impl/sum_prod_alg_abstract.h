@@ -17,13 +17,6 @@
 
 namespace libcomm {
 
-// Determine debug level:
-// 1 - Normal debug output only
-#ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
-#endif
-
 /*! \brief Sum Product Algorithm(SPA) implementation
  *
  * Currently 2 types of the SPA: trad and gdl
@@ -223,6 +216,7 @@ protected:
    real almostzero;
 
 };
-}
+
+} // end namespace
 
 #endif /* SUM_PROD_ALG_ABSTRACT_H_ */

@@ -37,7 +37,7 @@ void masterslave::fregister(const std::string& name, functor *f)
    {
    trace << "DEBUG: Register function \"" << name << "\" - ";
    fmap[name] = f;
-   trace << fmap.size() << " functions registered, done.\n";
+   trace << fmap.size() << " functions registered, done." << std::endl;
    }
 
 void masterslave::fcall(const std::string& name)
@@ -46,11 +46,11 @@ void masterslave::fcall(const std::string& name)
    functor *f = fmap[name];
    if (f == NULL)
       {
-      cerr << "Function \"" << name << "\" unknown, cannot continue.\n";
+      cerr << "Function \"" << name << "\" unknown, cannot continue." << std::endl;
       exit(1);
       }
    f->call();
-   trace << "done.\n";
+   trace << "done." << std::endl;
    }
 
 /*! \brief Global enable/disable of master-slave system
@@ -90,7 +90,8 @@ void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
    // Otherwise, this must be the master process.
    master = new socket;
    assertalways(master->bind(port));
-   trace << "Master system bound to port " << port << "\n";
+   trace << "Master system bound to port " << port << std::endl;
+   t.start();
 
    initialized = true;
    }
@@ -100,7 +101,7 @@ void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
 void masterslave::close(libbase::socket *s)
    {
    cerr << "Losing connection with master [" << s->getip() << ":"
-         << s->getport() << "]\n";
+         << s->getport() << "]" << std::endl;
    delete s;
    s = NULL;
    }
@@ -116,11 +117,11 @@ void masterslave::setpriority(const int priority)
 
 void masterslave::connect(const std::string& hostname, const int16u port)
    {
-   cerr << "Connecting to " << hostname << ":" << port << "\n";
+   cerr << "Connecting to " << hostname << ":" << port << std::endl;
    master = new socket;
    if (!master->connect(hostname, port))
       {
-      cerr << "Connection failed, giving up.\n";
+      cerr << "Connection failed, giving up." << std::endl;
       exit(1);
       }
    }
@@ -135,15 +136,15 @@ std::string masterslave::gethostname()
 
 int masterslave::gettag()
    {
-   timer t;
+   timer tslave("masterslave_slave");
    int tag;
    if (!receive(tag))
       {
-      cerr << "Connection failed waiting for tag, dying here...\n";
+      cerr << "Connection failed waiting for tag, dying here..." << std::endl;
       exit(1);
       }
-   t.stop();
-   trace << "Slave latency = " << t << ": ";
+   tslave.stop();
+   trace << "Slave latency = " << tslave << ": ";
    return tag;
    }
 
@@ -152,10 +153,10 @@ void masterslave::sendname()
    std::string hostname = gethostname();
    if (!send(hostname))
       {
-      cerr << "Connection failed sending hostname, dying here...\n";
+      cerr << "Connection failed sending hostname, dying here..." << std::endl;
       exit(1);
       }
-   trace << "send hostname [" << hostname << "]\n" << flush;
+   trace << "send hostname [" << hostname << "]" << std::endl;
    }
 
 void masterslave::sendcputime()
@@ -164,11 +165,11 @@ void masterslave::sendcputime()
    t.start();
    if (!send(cputime))
       {
-      cerr << "Connection failed sending CPU time, dying here...\n";
+      cerr << "Connection failed sending CPU time, dying here..." << std::endl;
       exit(1);
       }
    cputimeused += cputime;
-   trace << "send usage [" << cputime << "]\n" << flush;
+   trace << "send usage [" << cputime << "]" << std::endl;
    }
 
 void masterslave::dowork()
@@ -177,10 +178,10 @@ void masterslave::dowork()
    if (!receive(key))
       {
       cerr
-            << "Connection failed waiting for function reference, dying here...\n";
+            << "Connection failed waiting for function reference, dying here..." << std::endl;
       exit(1);
       }
-   trace << "system working\n" << flush;
+   trace << "system working" << std::endl;
    fcall(key);
    }
 
@@ -190,347 +191,361 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
    setpriority(priority);
    connect(hostname, port);
    // Status information for user
-   cerr << "Slave system starting at priority " << priority << ".\n";
+   cerr << "Slave system starting at priority " << priority << "." << std::endl;
    // infinite loop, until we are explicitly told to die
    t.start();
    while (true)
-      switch (int tag = gettag())
+      {
+      const int tag = gettag();
+      switch (tag)
          {
          case GETNAME:
-         sendname();
-         break;
+            sendname();
+            break;
          case GETCPUTIME:
-         sendcputime();
-         break;
+            sendcputime();
+            break;
          case WORK:
-         dowork();
-         break;
+            dowork();
+            break;
          case DIE:
-         t.stop();
-         cerr << "Received die request, stopping after " << timer::format(getcputime()) << " CPU runtime (" << int(100*getusage()) << "%% usage).\n";
-         close(master);
-         exit(0);
+            t.stop();
+            cerr << "Received die request, stopping after " << timer::format(
+                  getcputime()) << " CPU runtime (" << int(100 * getusage())
+                  << "%% usage)." << std::endl;
+            close(master);
+            exit(0);
          default:
-         cerr << "received bad tag [" << tag << "]\n" << flush;
-         exit(1);
+            cerr << "received bad tag [" << tag << "]" << std::endl;
+            exit(1);
          }
       }
+   }
 
-   // slave -> master communication
+// slave -> master communication
 
-   bool masterslave::send(const void *buf, const size_t len)
+bool masterslave::send(const void *buf, const size_t len)
+   {
+   if (!master->insistwrite(buf, len))
       {
-      if(!master->insistwrite(buf, len))
-         {
-         close(master);
-         return false;
-         }
-      return true;
-      }
-
-   /*! \brief Send a vector<double> to the master
-    * \note Vector size is sent first; this makes foreknowledge of size and
-    * pre-initialization unnecessary.
-    */
-   bool masterslave::send(const vector<double>& x)
-      {
-      // determine and send vector size first
-      const int count = x.size();
-      if(!send(count))
+      close(master);
       return false;
-      // copy vector elements to an array and send at once
-      double *a = new double[count];
-      for(int i=0; i<count; i++)
+      }
+   return true;
+   }
+
+/*! \brief Send a vector<double> to the master
+ * \note Vector size is sent first; this makes foreknowledge of size and
+ * pre-initialization unnecessary.
+ */
+bool masterslave::send(const vector<double>& x)
+   {
+   // determine and send vector size first
+   const int count = x.size();
+   if (!send(count))
+      return false;
+   // copy vector elements to an array and send at once
+   double *a = new double[count];
+   for (int i = 0; i < count; i++)
       a[i] = x(i);
-      const bool success = send(a, sizeof(double)*count);
-      delete[] a;
-      return success;
-      }
+   const bool success = send(a, sizeof(double) * count);
+   delete[] a;
+   return success;
+   }
 
-   bool masterslave::send(const std::string& x)
-      {
-      int len = int(x.length());
-      if(!send(len))
+bool masterslave::send(const std::string& x)
+   {
+   int len = int(x.length());
+   if (!send(len))
       return false;
-      return send(x.c_str(), len);
-      }
+   return send(x.c_str(), len);
+   }
 
-   bool masterslave::receive(void *buf, const size_t len)
+bool masterslave::receive(void *buf, const size_t len)
+   {
+   if (!master->insistread(buf, len))
       {
-      if(!master->insistread(buf, len))
-         {
-         close(master);
-         return false;
-         }
-      return true;
-      }
-
-   bool masterslave::receive(std::string& x)
-      {
-      int len;
-      if(!receive(len))
+      close(master);
       return false;
-      char *buf = new char[len];
-      const bool success = receive(buf, len);
-      if(success)
+      }
+   return true;
+   }
+
+bool masterslave::receive(std::string& x)
+   {
+   int len;
+   if (!receive(len))
+      return false;
+   char *buf = new char[len];
+   const bool success = receive(buf, len);
+   if (success)
       x.assign(buf, len);
-      delete[] buf;
-      return success;
-      }
+   delete[] buf;
+   return success;
+   }
 
-   // non-static items (for use by master)
+// non-static items (for use by master)
 
-   void masterslave::close(slave *s)
-      {
-      cerr << "Slave [" << s->sock->getip() << ":" << s->sock->getport() << "] gone";
-      smap.erase(s->sock);
-      delete s->sock;
-      delete s;
-      cerr << ", currently have " << smap.size() << " clients\n";
-      }
+void masterslave::close(slave *s)
+   {
+   cerr << "Slave [" << s->sock->getip() << ":" << s->sock->getport()
+         << "] gone";
+   smap.erase(s->sock);
+   delete s->sock;
+   delete s;
+   cerr << ", currently have " << smap.size() << " clients" << std::endl;
+   }
 
-   // creation and destruction
+// creation and destruction
 
-   masterslave::masterslave()
-      {
-      initialized = false;
-      cputimeused = 0;
-      master = NULL;
-      }
+masterslave::masterslave() :
+   t("masterslave")
+   {
+   initialized = false;
+   cputimeused = 0;
+   master = NULL;
+   // we don't want to start the timer until something is happening
+   t.stop();
+   }
 
-   masterslave::~masterslave()
-      {
-      disable();
-      }
+masterslave::~masterslave()
+   {
+   disable();
+   }
 
-   // disable function
+// disable function
 
-   /*! \brief Shuts down master-slave system
-    * 
-    * \todo Specify what happens if the system was never initialized
-    */
-   void masterslave::disable()
-      {
-      // if the master-slave system is not initialized, there is nothing to do
-      if(!initialized)
+/*! \brief Shuts down master-slave system
+ *
+ * \todo Specify what happens if the system was never initialized
+ */
+void masterslave::disable()
+   {
+   // if the master-slave system is not initialized, there is nothing to do
+   if (!initialized)
       return;
 
-      // kill all remaining slaves
-      clog << "Killing idle slaves:" << flush;
-      while(slave *s = idleslave())
-         {
-         trace << "DEBUG (disable): Idle slave found (" << s << "), killing.\n";
-         clog << "." << flush;
-         send(s, int(DIE));
-         }
-      clog << " done\n";
-      // print timer information
-      t.stop();
-      clog << "Time elapsed: " << t << "\n" << flush;
-      clog << "CPU usage on master: " << int(t.usage()) << "%\n" << flush;
-      clog.precision(2);
-      clog << "Average speedup factor: " << getusage() << "\n" << flush;
-      // update flag
-      initialized = false;
-      }
-
-   // slave-interface functions
-
-   masterslave::slave *masterslave::newslave()
+   // kill all remaining slaves
+   clog << "Killing idle slaves:" << flush;
+   while (slave *s = idleslave())
       {
-      for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
-      if(i->second->state == slave::NEW)
+      trace << "DEBUG (disable): Idle slave found (" << s << "), killing." << std::endl;
+      clog << "." << flush;
+      send(s, int(DIE));
+      }
+   clog << " done" << std::endl;
+   // print timer information
+   t.stop();
+   clog << "Time elapsed: " << t << "" << std::endl;
+   clog << "CPU usage on master: " << int(t.usage()) << "%" << std::endl;
+   clog.precision(2);
+   clog << "Average speedup factor: " << getusage() << "" << std::endl;
+   // update flag
+   initialized = false;
+   }
+
+// slave-interface functions
+
+masterslave::slave *masterslave::newslave()
+   {
+   for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
+      if (i->second->state == slave::NEW)
          {
          i->second->state = slave::IDLE;
          return i->second;
          }
-      return NULL;
-      }
+   return NULL;
+   }
 
-   masterslave::slave *masterslave::idleslave()
-      {
-      for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
-      if(i->second->state == slave::IDLE)
+masterslave::slave *masterslave::idleslave()
+   {
+   for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
+      if (i->second->state == slave::IDLE)
          {
          i->second->state = slave::WORKING;
          return i->second;
          }
-      return NULL;
-      }
+   return NULL;
+   }
 
-   masterslave::slave *masterslave::pendingslave()
-      {
-      for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
-      if(i->second->state == slave::EVENT_PENDING)
+masterslave::slave *masterslave::pendingslave()
+   {
+   for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
+      if (i->second->state == slave::EVENT_PENDING)
          {
          i->second->state = slave::IDLE;
          return i->second;
          }
-      return NULL;
+   return NULL;
+   }
+
+/*! \brief Number of slaves currently in 'working' state
+ */
+int masterslave::workingslaves() const
+   {
+   int count = 0;
+   for (std::map<socket *, slave *>::const_iterator i = smap.begin(); i
+         != smap.end(); ++i)
+      if (i->second->state == slave::WORKING)
+         count++;
+   return count;
+   }
+
+bool masterslave::anyoneworking() const
+   {
+   for (std::map<socket *, slave *>::const_iterator i = smap.begin(); i
+         != smap.end(); ++i)
+      if (i->second->state == slave::WORKING)
+         return true;
+   return false;
+   }
+
+/*! \brief Waits for a socket event
+ * \param acceptnew Flag to indicate whether new connections are allowed
+ * (defaults to true)
+ * \param timeout Return with no event if this many seconds elapses (zero
+ * means wait forever; this is the default)
+ */
+void masterslave::waitforevent(const bool acceptnew, const double timeout)
+   {
+   static bool firsttime = true;
+   if (firsttime)
+      {
+      cerr << "Master system ready; waiting for clients." << std::endl;
+      firsttime = false;
       }
 
-   /*! \brief Number of slaves currently in 'working' state
-    */
-   int masterslave::workingslaves() const
+   static bool signalentry = true;
+   if (signalentry)
       {
-      int count = 0;
-      for(std::map<socket *, slave *>::const_iterator i=smap.begin(); i != smap.end(); ++i)
-      if(i->second->state == slave::WORKING)
-      count++;
-      return count;
+      trace << "DEBUG (estimate): Waiting for event." << std::endl;
+      signalentry = false;
       }
 
-   bool masterslave::anyoneworking() const
-      {
-      for(std::map<socket *, slave *>::const_iterator i=smap.begin(); i != smap.end(); ++i)
-      if(i->second->state == slave::WORKING)
-      return true;
-      return false;
-      }
+   // create list of sockets and select
+   std::list<socket *> sl, al;
 
-   /*! \brief Waits for a socket event
-    * \param acceptnew Flag to indicate whether new connections are allowed
-    * (defaults to true)
-    * \param timeout Return with no event if this many seconds elapses (zero
-    * means wait forever; this is the default)
-    */
-   void masterslave::waitforevent(const bool acceptnew, const double timeout)
-      {
-      static bool firsttime = true;
-      if(firsttime)
-         {
-         cerr << "Master system ready; waiting for clients.\n";
-         firsttime = false;
-         }
-
-      static bool signalentry = true;
-      if(signalentry)
-         {
-         trace << "DEBUG (estimate): Waiting for event.\n";
-         signalentry = false;
-         }
-
-      // create list of sockets and select
-      std::list<socket *> sl, al;
-
-      sl.push_back(master);
-      for(std::map<socket *, slave *>::iterator i=smap.begin(); i != smap.end(); ++i)
+   sl.push_back(master);
+   for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
       sl.push_back(i->second->sock);
 
-      al = socket::select(sl, timeout);
-      if(!al.empty())
+   al = socket::select(sl, timeout);
+   if (!al.empty())
       signalentry = true;
-      for(std::list<socket *>::iterator i=al.begin(); i != al.end(); ++i)
+   for (std::list<socket *>::iterator i = al.begin(); i != al.end(); ++i)
+      {
+      if ((*i)->islistener() && acceptnew)
          {
-         if((*i)->islistener() && acceptnew)
-            {
-            slave *newslave = new slave;
-            newslave->sock = (*i)->accept();
-            newslave->state = slave::NEW;
-            smap[newslave->sock] = newslave;
-            cerr << "New slave [" << newslave->sock->getip() << ":" << newslave->sock->getport() << "], currently have " << smap.size() << " clients\n";
-            }
-         else
-            {
-            slave *j = smap[*i];
-            j->state = slave::EVENT_PENDING;
-            }
+         slave *newslave = new slave;
+         newslave->sock = (*i)->accept();
+         newslave->state = slave::NEW;
+         smap[newslave->sock] = newslave;
+         cerr << "New slave [" << newslave->sock->getip() << ":"
+               << newslave->sock->getport() << "], currently have "
+               << smap.size() << " clients" << std::endl;
+         }
+      else
+         {
+         slave *j = smap[*i];
+         j->state = slave::EVENT_PENDING;
          }
       }
+   }
 
-   /*!
-    * \brief Reset given slave to the 'new' state
-    * 
-    * \note Slave must be in the 'idle' state
-    */
-   void masterslave::resetslave(slave *s)
-      {
-      assertalways(s->state == slave::IDLE);
+/*!
+ * \brief Reset given slave to the 'new' state
+ *
+ * \note Slave must be in the 'idle' state
+ */
+void masterslave::resetslave(slave *s)
+   {
+   assertalways(s->state == slave::IDLE);
+   s->state = slave::NEW;
+   }
+
+/*!
+ * \brief Reset all 'idle' slaves to the 'new' state
+ */
+void masterslave::resetslaves()
+   {
+   while (slave *s = idleslave())
       s->state = slave::NEW;
-      }
+   }
 
-   /*!
-    * \brief Reset all 'idle' slaves to the 'new' state
-    */
-   void masterslave::resetslaves()
+// master -> slave communication
+
+bool masterslave::send(slave *s, const void *buf, const size_t len)
+   {
+   if (!s->sock->insistwrite(buf, len))
       {
-      while(slave *s = idleslave())
-      s->state = slave::NEW;
-      }
-
-   // master -> slave communication
-
-   bool masterslave::send(slave *s, const void *buf, const size_t len)
-      {
-      if(!s->sock->insistwrite(buf, len))
-         {
-         close(s);
-         return false;
-         }
-      return true;
-      }
-
-   bool masterslave::send(slave *s, const std::string& x)
-      {
-      int len = int(x.length());
-      if(!send(s, len))
+      close(s);
       return false;
-      return send(s, x.c_str(), len);
       }
+   return true;
+   }
 
-   /*! \brief Accumulate CPU time for given slave
-    * \param s Slave from which to get CPU time
-    */
-   bool masterslave::updatecputime(slave *s)
-      {
-      double cputime;
-      if(!send(s, int(GETCPUTIME)) || !receive(s, cputime) )
+bool masterslave::send(slave *s, const std::string& x)
+   {
+   int len = int(x.length());
+   if (!send(s, len))
       return false;
-      cputimeused += cputime;
-      return true;
+   return send(s, x.c_str(), len);
+   }
+
+/*! \brief Accumulate CPU time for given slave
+ * \param s Slave from which to get CPU time
+ */
+bool masterslave::updatecputime(slave *s)
+   {
+   double cputime;
+   if (!send(s, int(GETCPUTIME)) || !receive(s, cputime))
+      return false;
+   cputimeused += cputime;
+   return true;
+   }
+
+bool masterslave::receive(slave *s, void *buf, const size_t len)
+   {
+   if (!s->sock->insistread(buf, len))
+      {
+      close(s);
+      return false;
       }
+   return true;
+   }
 
-   bool masterslave::receive(slave *s, void *buf, const size_t len)
-      {
-      if(!s->sock->insistread(buf, len))
-         {
-         close(s);
-         return false;
-         }
-      return true;
-      }
+/*! \brief Receive a vector<double> from given slave
+ * \note Vector size is obtained first; this makes foreknowledge of size and
+ * pre-initialization unnecessary.
+ */
+bool masterslave::receive(slave *s, vector<double>& x)
+   {
+   // get vector size first
+   int count;
+   if (!receive(s, count))
+      return false;
+   // get vector elements
+   double *a = new double[count];
+   if (!receive(s, a, sizeof(double) * count))
+      return false;
+   // initialize vector and copy elements over
+   x.assign(a, count);
+   delete[] a;
+   return true;
+   }
 
-   /*! \brief Receive a vector<double> from given slave
-    * \note Vector size is obtained first; this makes foreknowledge of size and
-    * pre-initialization unnecessary.
-    */
-   bool masterslave::receive(slave *s, vector<double>& x)
-      {
-      // get vector size first
-      int count;
-      if(!receive(s, count))
+bool masterslave::receive(slave *s, std::string& x)
+   {
+   int len;
+   if (!receive(s, len))
       return false;
-      // get vector elements
-      double *a = new double[count];
-      if(!receive(s, a, sizeof(double)*count))
-      return false;
-      // initialize vector and copy elements over
-      x.assign(a, count);
-      delete[] a;
-      return true;
-      }
-
-   bool masterslave::receive(slave *s, std::string& x)
-      {
-      int len;
-      if(!receive(s,len))
-      return false;
-      char *buf = new char[len];
-      const bool success = receive(s, buf, len);
-      if(success)
+   char *buf = new char[len];
+   const bool success = receive(s, buf, len);
+   if (success)
       x.assign(buf, len);
-      delete[] buf;
-      return success;
-      }
+   delete[] buf;
+   return success;
+   }
 
-   } // end namespace
+}
+// end namespace

@@ -13,6 +13,8 @@ namespace libbase {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Detailed matrix inversion
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -583,7 +585,7 @@ inline void matrix<T>::serialize(std::ostream& sout) const
       sout << m_data[i][0];
       for (int j = 1; j < m_size.cols(); j++)
          sout << "\t" << m_data[i][j];
-      sout << "\n";
+      sout << std::endl;
       }
    }
 
@@ -607,7 +609,7 @@ inline void matrix<T>::serialize(std::istream& sin)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix<T>& x)
    {
-   s << x.size() << "\n";
+   s << x.size() << std::endl;
    x.serialize(s);
    return s;
    }
@@ -1141,7 +1143,7 @@ inline matrix<T> matrix<T>::inverse() const
    for (int i = 0; i < n; i++)
       {
 #if DEBUG>=2
-      trace << "DEBUG (matrix): G-J elimination on row " << i << "\n";
+      trace << "DEBUG (matrix): G-J elimination on row " << i << std::endl;
       trace << "DEBUG (matrix): A = " << arows;
       trace << "DEBUG (matrix): R = " << rrows;
 #endif
@@ -1153,7 +1155,7 @@ inline matrix<T> matrix<T>::inverse() const
                std::swap(rrows(i), rrows(j));
                std::swap(arows(i), arows(j));
 #if DEBUG>=2
-               trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << "\n";
+               trace << "DEBUG (matrix): swapped rows " << i << "<->" << j << std::endl;
                trace << "DEBUG (matrix): A = " << arows;
                trace << "DEBUG (matrix): R = " << rrows;
 #endif
@@ -1734,6 +1736,12 @@ inline T masked_matrix<T>::var() const
    const T _var = sumsq() / T(size()) - _mean * _mean;
    return (_var > 0) ? _var : 0;
    }
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

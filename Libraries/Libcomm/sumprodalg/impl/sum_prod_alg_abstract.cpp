@@ -48,7 +48,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::spa_it
 
 #if DEBUG>=2
    libbase::trace
-   << "\nAfter the horizontal step, the marginal matrix at col x is given by:\n";
+   << std::endl << "After the horizontal step, the marginal matrix at col x is given by:" << std::endl;
    this->print_marginal_probs(3, libbase::trace);
 #endif
 
@@ -71,7 +71,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::spa_it
 #if DEBUG>=2
 
    libbase::trace
-   << "After the vertical step, the marginal matrix at col x is given by:\n";
+   << "After the vertical step, the marginal matrix at col x is given by:" << std::endl;
    this->print_marginal_probs(3, libbase::trace);
 #endif
 
@@ -81,7 +81,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::spa_it
 
 #if DEBUG>=3
    libbase::trace
-   << "The newly computed normalised probabilities are given by:\n";
+   << "The newly computed normalised probabilities are given by:" << std::endl;
    ro.serialize(libbase::trace, ' ');
 #endif
 
@@ -130,7 +130,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
    bool used;
    for (int loop_m = 0; loop_m < this->dim_m; loop_m++)
       {
-      sout << "\n[";
+      sout << std::endl << "[";
       for (int loop_n = 0; loop_n < this->length_n; loop_n++)
          {
          sout << " <q=(";
@@ -190,7 +190,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
             }
          sout << ")>";
          }
-      sout << "]\n";
+      sout << "]" << std::endl;
       }
    }
 template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(
@@ -208,14 +208,14 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
    for (int loop_m = 0; loop_m < num_of_elements_in_col; loop_m++)
       {
       tmp_row = this->M_n(col)(loop_m) - 1;
-      sout << "\nrow=" << tmp_row + 1;
-      sout << "\n[";
+      sout << std::endl << "row=" << tmp_row + 1;
+      sout << std::endl << "[";
       tmp_N_m = this->N_m(tmp_row);
       num_of_elements_in_row = tmp_N_m.size();
       for (int loop_n = 0; loop_n < num_of_elements_in_row; loop_n++)
          {
          tmp_col = tmp_N_m(loop_n) - 1;
-         sout << "\n <q=(";
+         sout << std::endl << " <q=(";
          for (int loop_e = 0; loop_e < num_of_elements - 1; loop_e++)
             {
             sout << this->marginal_probs(tmp_row, tmp_col).q_mxn(loop_e)
@@ -251,7 +251,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
 
          sout << ")>";
          }
-      sout << "]\n";
+      sout << "]" << std::endl;
       }
    }
 

@@ -15,7 +15,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
    // Communication system
    libcomm::commsys<S, C> *system = libcomm::loadfromfile<
          libcomm::commsys<S, C> >(fname);
-   std::cerr << system->description() << "\n";
+   std::cerr << system->description() << std::endl;
    // Set channel parameter
    system->getchan()->set_parameter(p);
    // Initialize system
@@ -54,7 +54,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
          decoded.serialize(sout, '\n');
          }
       libbase::eatwhite(sin);
-      std::cerr << "done.\n";
+      std::cerr << "done." << std::endl;
       }
    }
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
    if (vm.count("help") || vm.count("system-file") == 0
          || vm.count("parameter") == 0)
       {
-      std::cerr << desc << "\n";
+      std::cerr << desc << std::endl;
       return 1;
       }
    // Shorthand access for parameters
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
          process<sigspace, vector> (filename, parameter, softout);
       else
          {
-         std::cerr << "Unrecognized symbol type: " << type << "\n";
+         std::cerr << "Unrecognized symbol type: " << type << std::endl;
          return 1;
          }
       }
@@ -170,13 +170,13 @@ int main(int argc, char *argv[])
          process<sigspace, matrix> (filename, parameter, softout);
       else
          {
-         std::cerr << "Unrecognized symbol type: " << type << "\n";
+         std::cerr << "Unrecognized symbol type: " << type << std::endl;
          return 1;
          }
       }
    else
       {
-      std::cerr << "Unrecognized container type: " << container << "\n";
+      std::cerr << "Unrecognized container type: " << container << std::endl;
       return 1;
       }
 

@@ -155,9 +155,9 @@ std::string onetimepad<real>::description() const
 template <class real>
 std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
    {
-   sout << int(terminated) << "\n";
-   sout << int(renewable) << "\n";
-   sout << pad.size() << "\n";
+   sout << int(terminated) << std::endl;
+   sout << int(renewable) << std::endl;
+   sout << pad.size() << std::endl;
    sout << encoder;
    return sout;
    }

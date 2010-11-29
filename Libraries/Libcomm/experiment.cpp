@@ -23,7 +23,7 @@ void experiment::prettyprint_results(std::ostream& sout) const
       {
       sout << result_description(i) << '\t';
       sout << result(i) << '\t';
-      sout << "[+/- " << 100 * tolerance(i) / result(i) << "%]\n";
+      sout << "[+/- " << 100 * tolerance(i) / result(i) << "%]" << std::endl;
       }
    }
 

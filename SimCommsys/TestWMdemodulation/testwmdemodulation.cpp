@@ -1,6 +1,5 @@
 #include "timer.h"
 #include "randgen.h"
-#include "logrealfast.h"
 #include "modem/dminner.h"
 #include "modem/dminner2.h"
 #include "channel/bsid.h"
@@ -17,7 +16,6 @@ using std::cerr;
 using libbase::timer;
 using libbase::vector;
 using libbase::matrix;
-using libbase::logrealfast;
 
 using libcomm::blockmodem;
 using libcomm::channel;
@@ -36,17 +34,16 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
       if (math)
          {
          if (deep)
-            mdm = modem_ptr(new dminner2<double, true> (n, k, 1e-21, 1e-12));
+            mdm = modem_ptr(new dminner2<float, true> (n, k, 1e-21, 1e-12));
          else
-            mdm = modem_ptr(new dminner2<double, true> (n, k));
+            mdm = modem_ptr(new dminner2<float, true> (n, k));
          }
       else
          {
          if (deep)
-            mdm = modem_ptr(new dminner2<logrealfast, false> (n, k, 1e-21,
-                  1e-12));
+            mdm = modem_ptr(new dminner2<double, true> (n, k, 1e-21, 1e-12));
          else
-            mdm = modem_ptr(new dminner2<logrealfast, false> (n, k));
+            mdm = modem_ptr(new dminner2<double, true> (n, k));
          }
       }
    else
@@ -54,17 +51,16 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
       if (math)
          {
          if (deep)
-            mdm = modem_ptr(new dminner<double, true> (n, k, 1e-21, 1e-12));
+            mdm = modem_ptr(new dminner<float, true> (n, k, 1e-21, 1e-12));
          else
-            mdm = modem_ptr(new dminner<double, true> (n, k));
+            mdm = modem_ptr(new dminner<float, true> (n, k));
          }
       else
          {
          if (deep)
-            mdm = modem_ptr(
-                  new dminner<logrealfast, false> (n, k, 1e-21, 1e-12));
+            mdm = modem_ptr(new dminner<double, true> (n, k, 1e-21, 1e-12));
          else
-            mdm = modem_ptr(new dminner<logrealfast, false> (n, k));
+            mdm = modem_ptr(new dminner<double, true> (n, k));
          }
       }
    mdm->seedfrom(r);
@@ -86,15 +82,21 @@ vector<int> create_encoded(int k, int tau, bool display = true)
    for (int i = 0; i < tau; i++)
       encoded(i) = (i % (1 << k));
    if (display)
-      cout << "Encoded: " << encoded << "\n" << std::flush;
+      cout << "Encoded: " << encoded << std::endl;
    return encoded;
    }
 
 void print_signal(const std::string desc, int n, vector<bool> tx)
    {
-   cout << desc << ":\n";
+   cout << desc << ":" << std::endl;
    for (int i = 0; i < tx.size(); i++)
-      cout << tx(i) << ((i % n == n - 1 || i == tx.size() - 1) ? "\n" : "\t");
+      {
+      cout << tx(i);
+      if (i % n == n - 1 || i == tx.size() - 1)
+         cout << std::endl;
+      else
+         cout << "\t";
+      }
    cout << std::flush;
    }
 
@@ -127,8 +129,8 @@ vector<vector<double> > demodulate_encoded(channel<bool>& chan,
    mdm.demodulate(chan, rx, ptable);
    t.stop();
    if (display)
-      cout << "Ptable: " << ptable << "\n" << std::flush;
-   cout << "Time taken: " << t << "\n" << std::flush;
+      cout << "Ptable: " << ptable << std::endl;
+   cout << "Time taken: " << t << std::endl;
    return ptable;
    }
 
@@ -154,7 +156,7 @@ void count_errors(const vector<int>& encoded,
       }
    if (count > 0)
       cout << "Symbol errors: " << count << " (" << int(100 * count
-            / double(tau)) << "%)\n" << std::flush;
+            / double(tau)) << "%)" << std::endl;
    }
 
 void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k,
@@ -166,10 +168,10 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k,
    // create modem and channel
    modem_ptr mdm = create_modem(decoder, math, deep, tau, n, k, prng);
    channel_ptr chan = create_channel(Pe, prng);
-   cout << '\n';
-   cout << mdm->description() << '\n';
-   cout << chan->description() << '\n';
-   cout << "Block size: N = " << tau << '\n';
+   cout << std::endl;
+   cout << mdm->description() << std::endl;
+   cout << chan->description() << std::endl;
+   cout << "Block size: N = " << tau << std::endl;
 
    // define an alternating encoded sequence
    vector<int> encoded = create_encoded(k, tau, display);
@@ -204,15 +206,15 @@ int main(int argc, char *argv[])
    if (argc < 3)
       {
       cout << "Usage: " << argv[0]
-            << " <type> <decoder> [math [deep [seed [k [n [N [Pe]]]]]]]\n";
-      cout << "Where: type = 1 for multiple-cycle test\n";
-      cout << "       type = 2 for single-cycle test\n";
-      cout << "       decoder = 0/1 for classic/alternative decoder\n";
-      cout << "       math = 0/1 for logrealfast(default) / double\n";
-      cout << "       deep = 0/1 for shallow(default) / deep path following\n";
-      cout << "Code settings seed,n,k are used always;\n";
-      cout << "   Defaults to seed 0, k/n = 4/15\n";
-      cout << "Block size N and error probability Pe are for single-cycle.\n";
+            << " <type> <decoder> [math [deep [seed [k [n [N [Pe]]]]]]]" << std::endl;
+      cout << "Where: type = 1 for multiple-cycle test" << std::endl;
+      cout << "       type = 2 for single-cycle test" << std::endl;
+      cout << "       decoder = 0/1 for classic/alternative decoder" << std::endl;
+      cout << "       math = 0/1 for double(default) / float" << std::endl;
+      cout << "       deep = 0/1 for shallow(default) / deep path following" << std::endl;
+      cout << "Code settings seed,n,k are used always;" << std::endl;
+      cout << "   Defaults to seed 0, k/n = 4/15" << std::endl;
+      cout << "Block size N and error probability Pe are for single-cycle." << std::endl;
       exit(1);
       }
 
@@ -228,8 +230,8 @@ int main(int argc, char *argv[])
    const double Pe = ((argc > ++i) ? atof(argv[i]) : Plo);
 
    // show revision information
-   cout << "URL: " << __WCURL__ << "\n";
-   cout << "Version: " << __WCVER__ << "\n";
+   cout << "URL: " << __WCURL__ << std::endl;
+   cout << "Version: " << __WCVER__ << std::endl;
 
    // do what the user asked for
    switch (type)
@@ -249,7 +251,7 @@ int main(int argc, char *argv[])
          break;
 
       default:
-         cout << "Unknown type = " << type << "\n";
+         cout << "Unknown type = " << type << std::endl;
          break;
       }
 

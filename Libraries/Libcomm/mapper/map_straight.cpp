@@ -125,7 +125,7 @@ void map_straight<matrix, dbl>::dotransform(const array2i_t& in, array2i_t& out)
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_straight): Transform ";
    libbase::trace << in.size().rows() << "x" << in.size().cols() << " to ";
-   libbase::trace << out.size().rows() << "x" << out.size().cols() << "\n";
+   libbase::trace << out.size().rows() << "x" << out.size().cols() << std::endl;
 #endif
    // Map encoded stream (row-major order)
    int ii = 0, jj = 0;
@@ -156,9 +156,9 @@ void map_straight<matrix, dbl>::doinverse(const array2vd_t& pin,
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_straight): Inverse ";
    libbase::trace << pin.size().rows() << "x" << pin.size().cols() << " to ";
-   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << "\n";
+   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << std::endl;
 #endif
-   // Map channek receiver information (row-major order)
+   // Map channel receiver information (row-major order)
    int ii = 0, jj = 0;
    for (int i = 0; i < pin.size().rows(); i++)
       for (int j = 0; j < pin.size().cols(); j++)
@@ -189,7 +189,7 @@ std::string map_straight<matrix, dbl>::description() const
 template <class dbl>
 std::ostream& map_straight<matrix, dbl>::serialize(std::ostream& sout) const
    {
-   sout << size_out << '\n';
+   sout << size_out << std::endl;
    return sout;
    }
 

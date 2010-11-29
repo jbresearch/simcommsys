@@ -67,7 +67,7 @@ std::string qam::description() const
 
 std::ostream& qam::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << lut.size() << std::endl;
    return sout;
    }
 

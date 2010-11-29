@@ -27,7 +27,7 @@ void turbo<real, dbl>::init()
       assertalways(inter(i));
       assertalways(inter(i)->size() == inter(0)->size());
       libbase::trace << "Interleaver " << i << ": " << inter(i)->description()
-            << "\n";
+            << std::endl;
       }
 
    // check required components and initialize BCJR
@@ -107,22 +107,26 @@ void turbo<real, dbl>::allocate()
    const int N = alg_output_symbols();
 
    rp.init(tau, K);
-
    if (parallel)
       libbase::allocate(ra, sets, tau, K);
    else
       libbase::allocate(ra, 1, tau, K);
-
    libbase::allocate(R, sets, tau, N);
-
-   // determine memory occupied and tell user
-   std::ios::fmtflags flags = std::cerr.flags();
-   std::cerr << "Turbo Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << (rp.size() + ra.size() * ra(0).size() + R.size() * R(0).size())
-         * sizeof(dbl) / double(1 << 20) << "MB\n";
-   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+
+   // set required format, storing previous settings
+   const std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr.setf(std::ios::fixed, std::ios::floatfield);
+   const int prec = std::cerr.precision(1);
+   // determine memory occupied and tell user
+   const size_t bytes_used = sizeof(dbl) * (rp.size() + ra.size()
+         * ra(0).size() + R.size() * R(0).size());
+   std::cerr << "Turbo Memory Usage: " << bytes_used / double(1 << 20)
+         << "MiB" << std::endl;
+   // revert cerr to original format
+   std::cerr.precision(prec);
+   std::cerr.setf(flags);
    }
 
 // wrapping functions
@@ -488,15 +492,15 @@ template <class real, class dbl>
 std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
-   sout << 2 << '\n';
+   sout << 2 << std::endl;
    sout << encoder;
-   sout << num_sets() << '\n';
+   sout << num_sets() << std::endl;
    for (int i = 0; i < inter.size(); i++)
       sout << inter(i);
-   sout << int(endatzero) << '\n';
-   sout << int(circular) << '\n';
-   sout << int(parallel) << '\n';
-   sout << iter << '\n';
+   sout << int(endatzero) << std::endl;
+   sout << int(circular) << std::endl;
+   sout << int(parallel) << std::endl;
+   sout << iter << std::endl;
    return sout;
    }
 

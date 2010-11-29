@@ -21,7 +21,7 @@ void mpgnu::init()
    {
 #ifndef GMP
    std::cerr
-         << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - cannot initialise.\n";
+         << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - cannot initialise." << std::endl;
    exit(1);
 #else
    static bool ready = false;

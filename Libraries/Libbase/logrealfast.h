@@ -121,10 +121,10 @@ inline void logrealfast::ensurefinite(double& x)
 #ifndef NDEBUG
       static int warningcount = 10;
       if (--warningcount > 0)
-         trace << "WARNING (logrealfast): negative infinity.\n";
+         trace << "WARNING (logrealfast): negative infinity." << std::endl;
       else if (warningcount == 0)
          trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
 #endif
       }
    else if (inf > 0)
@@ -133,10 +133,10 @@ inline void logrealfast::ensurefinite(double& x)
 #ifndef NDEBUG
       static int warningcount = 10;
       if (--warningcount > 0)
-         trace << "WARNING (logrealfast): positive infinity.\n";
+         trace << "WARNING (logrealfast): positive infinity." << std::endl;
       else if (warningcount == 0)
          trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging.\n";
+               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
 #endif
       }
    }
@@ -204,12 +204,12 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
       const int index = int(round(diff * lutinvstep));
       logval -= lut[index];
 #ifdef DEBUGFILE
-      file << diff << "\t" << offset - lut[index] << "\n";
+      file << diff << "\t" << offset - lut[index] << std::endl;
 #endif
       }
 #ifdef DEBUGFILE
    else
-   file << diff << "\t" << offset << "\n";
+   file << diff << "\t" << offset << std::endl;
 #endif
 
    return *this;

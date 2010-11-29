@@ -25,7 +25,7 @@ void rectangular<real>::init(const int tau, const int rows, const int cols)
    if (blklen > tau)
       {
       std::cerr
-            << "FATAL ERROR (rectangular): Interleaver block size cannot be greater than BCJR block.\n";
+            << "FATAL ERROR (rectangular): Interleaver block size cannot be greater than BCJR block." << std::endl;
       exit(1);
       }
    this->lut.init(tau);
@@ -56,9 +56,9 @@ std::string rectangular<real>::description() const
 template <class real>
 std::ostream& rectangular<real>::serialize(std::ostream& sout) const
    {
-   sout << this->lut.size() << "\n";
-   sout << rows << "\n";
-   sout << cols << "\n";
+   sout << this->lut.size() << std::endl;
+   sout << rows << std::endl;
+   sout << cols << std::endl;
    return sout;
    }
 

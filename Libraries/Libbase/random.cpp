@@ -15,7 +15,7 @@ random::random()
    {
 #ifndef NDEBUG
    counter = 0;
-   //trace << "DEBUG: random (" << this << ") created.\n" << std::flush;
+   //trace << "DEBUG: random (" << this << ") created." << std::endl;
    initialized = false;
 #endif
    next_gval_available = false;
@@ -26,7 +26,7 @@ random::~random()
 #ifndef NDEBUG
    if (counter > 0)
       trace << "DEBUG: random (" << this << ") destroyed after " << counter
-            << " steps.\n" << std::flush;
+            << " steps." << std::endl;
 #endif
    }
 
@@ -35,7 +35,7 @@ void random::seed(int32u s)
 #ifndef NDEBUG
    if (counter > 0)
       trace << "DEBUG: random (" << this << ") reseeded with " << s
-            << " after " << counter << " steps.\n" << std::flush;
+            << " after " << counter << " steps." << std::endl;
    counter = 0;
    initialized = true;
 #endif

@@ -94,7 +94,7 @@ void annealer::display(const double T, const double percent,
       const libbase::rvstatistics E)
    {
    std::clog << T << "\t" << E.hi() << "\t" << E.lo() << "\t" << percent
-         << "%\n" << std::flush;
+         << "%" << std::endl;
    }
 
 } // end namespace

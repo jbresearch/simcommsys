@@ -13,7 +13,7 @@ namespace libbase {
 
 bstream::bstream()
    {
-   buffer.resize(32);
+   buffer.init(32);
    }
 
 obstream& obstream::operator<<(const bitfield& b)
@@ -24,7 +24,7 @@ obstream& obstream::operator<<(const bitfield& b)
    while (left)
       {
       int cur = std::min(left, 32 - ptr);
-      buffer = pending(cur - 1, 0) >> buffer;
+      buffer = pending.extract(cur - 1, 0) >> buffer;
       pending >>= cur;
       ptr += cur;
       if (ptr == 32)
@@ -44,7 +44,7 @@ ibstream& ibstream::operator>>(bitfield& b)
       if (ptr > 0)
          {
          int cur = std::min(ptr, left);
-         b = buffer(cur - 1, 0) >> b;
+         b = buffer.extract(cur - 1, 0) >> b;
          buffer >>= cur;
          ptr -= cur;
          left -= cur;

@@ -38,7 +38,7 @@ std::string flat<real>::description() const
 template <class real>
 std::ostream& flat<real>::serialize(std::ostream& sout) const
    {
-   sout << this->lut.size() << "\n";
+   sout << this->lut.size() << std::endl;
    return sout;
    }
 

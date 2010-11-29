@@ -119,7 +119,7 @@ inline double anneal_interleaver::energy_function(const int i, const int j)
          default:
             std::cerr
                   << "FATAL ERROR (anneal_interleaver): Energy function type ["
-                  << type << "] for 1 set not implemented\n";
+                  << type << "] for 1 set not implemented" << std::endl;
             exit(1);
          }
       }
@@ -155,7 +155,7 @@ inline double anneal_interleaver::energy_function(const int i, const int j)
          default:
             std::cerr
                   << "FATAL ERROR (anneal_interleaver): Energy function type ["
-                  << type << "] for " << sets << " set(s) not implemented\n";
+                  << type << "] for " << sets << " set(s) not implemented" << std::endl;
             exit(1);
          }
       }
@@ -227,9 +227,9 @@ std::ostream& anneal_interleaver::output(std::ostream& sout) const
    {
    for (int s = 0; s < sets; s++)
       {
-      sout << "#% Set " << s << "\n";
+      sout << "#% Set " << s << std::endl;
       for (int i = 0; i < tau; i++)
-         sout << lut(s, i) << "\n";
+         sout << lut(s, i) << std::endl;
       }
    return sout;
    }

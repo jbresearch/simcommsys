@@ -32,7 +32,7 @@ void ccbfsm::init()
       {
       // assume with of register of input 'i' from its generator sequence for first output
       int m = gen(i, 0).size() - 1;
-      reg(i).resize(m);
+      reg(i).init(m);
       nu += m;
       // check that the gen. seq. for all outputs are the same length
       for (int j = 1; j < n; j++)
@@ -93,7 +93,7 @@ void ccbfsm::advance(libbase::vector<int>& input)
    bitfield sin = determinefeedin(input);
    // Compute next state
    for (int i = 0; i < k; i++)
-      reg(i) = reg(i) << sin(i);
+      reg(i) = reg(i) << sin.extract(i);
    }
 
 libbase::vector<int> ccbfsm::output(const libbase::vector<int>& input) const
@@ -106,7 +106,7 @@ libbase::vector<int> ccbfsm::output(const libbase::vector<int>& input) const
       {
       bitfield thisop(0, 1);
       for (int i = 0; i < k; i++)
-         thisop ^= (reg(i) + sin(i)) * gen(i, j);
+         thisop ^= (reg(i) + sin.extract(i)) * gen(i, j);
       op(j) = thisop;
       }
    return op;

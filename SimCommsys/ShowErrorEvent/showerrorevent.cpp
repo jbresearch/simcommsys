@@ -27,14 +27,17 @@ libcomm::experiment *createsystem(const std::string& fname)
    return system;
    }
 
-void seed_experiment(libcomm::experiment *system)
+void seed_experiment(libcomm::experiment *system, libbase::int32u seed)
    {
-   libbase::truerand trng;
+   if (seed < 0)
+      {
+      libbase::truerand trng;
+      seed = trng.ival();
+      }
    libbase::randgen prng;
-   const libbase::int32u seed = trng.ival();
    prng.seed(seed);
    system->seedfrom(prng);
-   cerr << "Seed: " << seed << "\n";
+   cerr << "Seed: " << seed << std::endl;
    }
 
 /*!
@@ -58,14 +61,17 @@ int main(int argc, char *argv[])
          "input file containing system description");
    desc.add_options()("parameter,p", po::value<double>(),
          "simulation parameter");
+   desc.add_options()("seed,s", po::value<int>()->default_value(-1),
+         "system initialization seed (random if -1)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
    // Validate user parameters
-   if (vm.count("help"))
+   if (vm.count("help") || vm.count("system-file") == 0
+         || vm.count("parameter") == 0)
       {
-      cout << desc << "\n";
+      cout << desc << std::endl;
       return 0;
       }
 
@@ -76,23 +82,28 @@ int main(int argc, char *argv[])
 
    // Initialise running values
    system->reset();
-   seed_experiment(system);
+   seed_experiment(system, vm["seed"].as<int> ());
    cerr << "Simulating system at parameter = " << system->get_parameter()
-         << "\n";
+         << std::endl;
    // Simulate, waiting for an error event
    libbase::vector<double> result;
    do
       {
-      cerr << "Simulating sample " << system->get_samplecount() << "\n";
+      cerr << "Simulating sample " << system->get_samplecount() << std::endl;
       system->sample(result);
       system->accumulate(result);
       } while (result.min() == 0);
-   cerr << "Event found after " << system->get_samplecount() << " samples\n";
+   cerr << "Event found after " << system->get_samplecount() << " samples" << std::endl;
    // Display results
    libbase::vector<int> last_event = system->get_event();
    const int tau = last_event.size() / 2;
    for (int i = 0; i < tau; i++)
-      cout << last_event(i) << '\t' << last_event(i + tau) << '\n';
+      {
+      cout << i << '\t' << last_event(i) << '\t' << last_event(i + tau);
+      if (last_event(i) != last_event(i + tau))
+         cout << "\t*";
+      cout << std::endl;
+      }
 
    return 0;
    }

@@ -44,9 +44,9 @@ bitfield rscc::determinefeedin(const vector<int>& input) const
    for (int i = 0; i < k; i++)
       assert(input(i) != fsm::tail);
    // compute input junction
-   bitfield sin(0, 0), ip = bitfield(vector<bool>(input));
+   bitfield sin, ip = bitfield(vector<bool>(input));
    for (int i = 0; i < k; i++)
-      sin = ((reg(i) + ip(i)) * gen(i, i)) + sin;
+      sin = ((reg(i) + ip.extract(i)) * gen(i, i)) + sin;
    return sin;
    }
 

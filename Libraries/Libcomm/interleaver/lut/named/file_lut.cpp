@@ -31,7 +31,7 @@ file_lut<real>::file_lut(const char *filename, const int tau, const int m)
    if (file == NULL)
       {
       std::cerr << "FATAL ERROR (file_lut): Cannot open LUT file (" << filename
-            << ").\n";
+            << ")." << std::endl;
       exit(1);
       }
    for (int i = 0; i < tau - m; i++)
@@ -45,7 +45,7 @@ file_lut<real>::file_lut(const char *filename, const int tau, const int m)
       if (x != i)
          {
          std::cerr << "FATAL ERROR (file_lut): unexpected entry for line " << i
-               << ": " << x << ", " << y << "\n";
+               << ": " << x << ", " << y << std::endl;
          exit(1);
          }
       this->lut(i) = y;

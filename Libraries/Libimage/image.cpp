@@ -47,6 +47,11 @@ std::ostream& image<T>::serialize(std::ostream& sout) const
             else
                p = int(m_data(c)(i, j));
             assert(p >= 0 && p <= m_maxval);
+            if (m_maxval > 255) // 16-bit binary files (MSB first)
+               {
+               sout.put(p >> 8);
+               p &= 0xff;
+               }
             sout.put(p);
             }
    // done
@@ -90,13 +95,12 @@ std::istream& image<T>::serialize(std::istream& sin)
    if (descriptor == 1 || descriptor == 4)
       {
       m_maxval = 1;
-      assert(!binary); // cannot handle binary bitmaps (packed bits)
+      assertalways(!binary); // cannot handle binary bitmaps (packed bits)
       }
    else
       {
       std::getline(sin, line);
       std::istringstream(line) >> m_maxval;
-      assert(!binary || m_maxval <= 255); // cannot handle 16-bit binary files
       }
    libbase::trace << " (" << cols << "x" << rows << "x" << chan << ")...";
    // set up space to hold image
@@ -109,7 +113,12 @@ std::istream& image<T>::serialize(std::istream& sin)
          for (int c = 0; c < chan; c++)
             {
             if (binary)
-               m_data(c)(i, j) = T(sin.get());
+               {
+               int p = sin.get();
+               if (m_maxval > 255) // 16-bit binary files (MSB first)
+                  p = (p << 8) + sin.get();
+               m_data(c)(i, j) = T(p);
+               }
             else
                sin >> m_data(c)(i, j);
             assert(m_data(c)(i, j) >= 0 && m_data(c)(i, j) <= m_maxval);

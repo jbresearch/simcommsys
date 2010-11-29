@@ -33,6 +33,13 @@ private:
    int m_maxval;
 public:
    // Construction / destruction
+   explicit image(int rows = 0, int cols = 0, int c = 0, int maxval = 255) :
+      m_maxval(maxval)
+      {
+      m_data.init(c);
+      for (int i = 0; i < c; i++)
+         m_data(i).init(rows, cols);
+      }
    virtual ~image()
       {
       }

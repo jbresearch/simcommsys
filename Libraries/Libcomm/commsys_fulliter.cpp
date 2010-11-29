@@ -73,7 +73,7 @@ template <class S, template <class > class C>
 void commsys_fulliter<S, C>::receive_path(const C<S>& received)
    {
 #if DEBUG>=2
-   libbase::trace << "DEBUG (fulliter): Starting receive path.\n";
+   libbase::trace << "DEBUG (fulliter): Starting receive path." << std::endl;
 #endif
    // Store received vector
    last_received = received;
@@ -89,7 +89,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
    {
 #if DEBUG>=2
    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
-   << "/" << cur_cdc_iter << ".\n";
+   << "/" << cur_cdc_iter << "." << std::endl;
 #endif
    // If this is the first decode cycle, we need to do the receive-path first
    if (cur_cdc_iter == 0)
@@ -100,7 +100,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
             dynamic_cast<informed_modulator<S>&> (*this->mdm);
       m.demodulate(*this->chan, last_received, ptable_mapped, ptable_full);
 #if DEBUG>=3
-      libbase::trace << "DEBUG (fulliter): modem soft-output = \n";
+      libbase::trace << "DEBUG (fulliter): modem soft-output = " << std::endl;
       libbase::trace << ptable_mapped.extract(0,5);
 #endif
       // Compute extrinsic information for passing to codec
@@ -126,7 +126,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       // Compute extrinsic information for next demodulation cycle
       compute_extrinsic(ptable_mapped, ro, ptable_mapped);
 #if DEBUG>=3
-      libbase::trace << "DEBUG (fulliter): codec soft-output = \n";
+      libbase::trace << "DEBUG (fulliter): codec soft-output = " << std::endl;
       libbase::trace << ptable_mapped.extract(0,5);
 #endif
       // Reset decoder iteration count

@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if (vm.count("help"))
       {
-      cout << desc << "\n";
+      cout << desc << std::endl;
       return 0;
       }
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
          || (vm.count("step") == 0 && vm.count("mul") == 0)
          || (vm.count("step") && vm.count("mul")))
       {
-      cout << desc << "\n";
+      cout << desc << std::endl;
       return 0;
       }
 
@@ -155,14 +155,14 @@ int main(int argc, char *argv[])
       {
       system->set_parameter(pset(i));
 
-      cerr << "Simulating system at parameter = " << pset(i) << "\n";
+      cerr << "Simulating system at parameter = " << pset(i) << std::endl;
       libbase::vector<double> result, tolerance;
       estimator.estimate(result, tolerance);
 
       cerr << "Statistics: " << setprecision(4) << estimator.get_samplecount()
             << " frames in " << estimator.get_timer() << " - "
             << estimator.get_samplecount() / estimator.get_timer().elapsed()
-            << " frames/sec\n";
+            << " frames/sec" << std::endl;
 
       // handle pre-mature breaks
       if (estimator.interrupt() || result.min() < min_error)

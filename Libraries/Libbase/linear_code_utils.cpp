@@ -40,7 +40,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
    int dim_m = length_n - dim_k;
    matrix<GF_q> refOrgMat;
 #if DEBUG>=2
-   std::cout << "The original matrix is given by:\n";
+   std::cout << "The original matrix is given by:" << std::endl;
    orgMat.serialize(std::cout, '\n');
 #endif
    linear_code_utils::compute_row_dim(orgMat, refOrgMat);
@@ -77,7 +77,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
          col_pos++;
          }
 #if DEBUG>=2
-      std::cout << "\nThe permutation is given by:\n";
+      std::cout << std::endl << "The permutation is given by:" << std::endl;
       systematic_perm.serialize(std::cout, ' ');
 #endif
       if (needsPermutation)
@@ -96,7 +96,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
       }
    //the matrix should now be in the right format
 #if DEBUG>=2
-   std::cout << "After permuting any columns, the matrix is now given by:\n";
+   std::cout << "After permuting any columns, the matrix is now given by:" << std::endl;
    refOrgMat.serialize(std::cout, '\n');
 #endif
 
@@ -135,7 +135,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
       }
 
 #if DEBUG>=2
-   std::cout << "The generator matrix of the permuted dual code is given by:\n";
+   std::cout << "The generator matrix of the permuted dual code is given by:" << std::endl;
    dualCodeGenMatrix.serialize(std::cout, '\n');
 #endif
 
@@ -157,20 +157,20 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
 
 #if DEBUG>=2
    std::cout
-   << "After undoing the permutation, the generator matrix of the dual code is given by:\n";
+   << "After undoing the permutation, the generator matrix of the dual code is given by:" << std::endl;
    dualCodeGenMatrix.serialize(std::cout, '\n');
 #endif
 
 #if DEBUG>=2
    std::cout
-   << "we now multiply the generator matrix by the transpose of the original matrix, ie:\n";
-   std::cout << "the transpose of:\n";
+   << "we now multiply the generator matrix by the transpose of the original matrix, ie:" << std::endl;
+   std::cout << "the transpose of:" << std::endl;
    orgMat.serialize(std::cout, '\n');
-   std::cout << "is:\n";
+   std::cout << "is:" << std::endl;
    matrix<GF_q> trans(orgMat.transpose());
    trans.serialize(std::cout, '\n');
    matrix<GF_q> zeroTest(dualCodeGenMatrix*trans);
-   std::cout << "the result is:\n";
+   std::cout << "the result is:" << std::endl;
    zeroTest.serialize(std::cout, '\n');
    assertalways(GF_q(0)==zeroTest.max());
 #endif
@@ -187,7 +187,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_ro
    matrix<GF_q> refOrgMat(orgMat.reduce_to_ref());
 
 #if DEBUG>=2
-   std::cout << "The REF is given by:\n";
+   std::cout << "The REF is given by:" << std::endl;
    refOrgMat.serialize(std::cout, '\n');
 #endif
 
@@ -213,7 +213,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_ro
          }
       }
 #if DEBUG>=2
-   std::cout << "We have " << (dim_k - loop1) - 1 << " zero rows.\n";
+   std::cout << "We have " << (dim_k - loop1) - 1 << " zero rows." << std::endl;
 #endif
    //compensate for the fact the we start counting rows from 0
    loop1++;
@@ -228,7 +228,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_ro
          maxRowSpaceMat.insertrow(refOrgMat.extractrow(loop2), loop2);
          }
 #if DEBUG>=2
-      std::cout << "After dropping zero rows, the REF is given by:\n";
+      std::cout << "After dropping zero rows, the REF is given by:" << std::endl;
       maxRowSpaceMat.serialize(std::cout, '\n');
 #endif
       }
@@ -251,7 +251,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::encode_cw(
       const matrix<GF_q> & mat_G, const array1i_t & source, array1i_t & encoded)
    {
 #if DEBUG>=2
-   libbase::trace << "\nencoding";
+   libbase::trace << std::endl << "encoding";
 #endif
    //initialise encoded
    int length_n = mat_G.size().cols();
@@ -270,7 +270,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::encode_cw(
       encoded(i) = val;
       }
 #if DEBUG>=2
-   libbase::trace << "\nfinished encoding";
+   libbase::trace << std::endl << "finished encoding";
 #endif
    }
 

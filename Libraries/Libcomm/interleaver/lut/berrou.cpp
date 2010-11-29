@@ -22,7 +22,7 @@ void berrou<real>::init(const int M)
 
    if (libbase::weight(M) != 1)
       {
-      std::cerr << "FATAL ERROR (berrou): M must be an integral power of 2.\n";
+      std::cerr << "FATAL ERROR (berrou): M must be an integral power of 2." << std::endl;
       exit(1);
       }
    int tau = M * M;
@@ -53,7 +53,7 @@ std::string berrou<real>::description() const
 template <class real>
 std::ostream& berrou<real>::serialize(std::ostream& sout) const
    {
-   sout << M << "\n";
+   sout << M << std::endl;
    return sout;
    }
 

@@ -4,7 +4,7 @@
 #include "config.h"
 #include "vector.h"
 
-#ifdef USEMPI
+#ifdef USE_MPI
 #  include <mpi.h>
 #endif
 

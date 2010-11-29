@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
    // create a watermark code to start with
    libcomm::dminner<libbase::logrealfast, false> mdm;
    // get a new watermark from stdin
-   cerr << "Enter watermark code details:\n";
+   cerr << "Enter watermark code details:" << std::endl;
    mdm.serialize(cin);
-   cout << mdm.description() << "\n";
+   cout << mdm.description() << std::endl;
 
    // compute distance table
    const int n = mdm.get_symbolsize();

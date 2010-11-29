@@ -9,6 +9,8 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show input/output of blocks being reshaped
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -117,6 +119,12 @@ public:
    // Serialization Support
 DECLARE_SERIALIZER(codec_reshaped)
 };
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

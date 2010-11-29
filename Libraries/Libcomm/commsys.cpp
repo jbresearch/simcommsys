@@ -412,7 +412,7 @@ template <template <class > class C>
 void commsys<sigspace, C>::init()
    {
    // set up channel energy/bit (Eb)
-   libbase::trace << "DEBUG: overall code rate = " << this->rate() << "\n";
+   libbase::trace << "DEBUG: overall code rate = " << this->rate() << std::endl;
    this->chan->set_eb(this->mdm->bit_energy() / this->rate());
    }
 

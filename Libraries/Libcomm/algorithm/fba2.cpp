@@ -14,6 +14,15 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show allocated memory sizes
+// 3 - Show input and intermediate vectors when decoding
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 3
+#endif
+
 // Memory allocation
 
 /*! \brief Memory allocator for working matrices
@@ -31,8 +40,9 @@ void fba2<real, sig, norm>::allocate()
    beta.resize(boost::extents[range(1, N + 1)][range(-xmax, xmax + 1)]);
    // dynamically decide whether we want to use the gamma cache or not
    // decision is hardwired: use if memory requirement < 750MB
-   cache_enabled = sizeof(real) * (q * N * (2 * xmax + 1) * (dmax - dmin + 1))
-         < (750 << 20);
+   const libbase::int64s bytes_required = sizeof(real) * (q * N
+         * (2 * xmax + 1) * (dmax - dmin + 1));
+   cache_enabled = bytes_required < (750 << 20);
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
    // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
    if (cache_enabled)
@@ -46,17 +56,37 @@ void fba2<real, sig, norm>::allocate()
       {
       gamma.resize(boost::extents[0][0][0][0]);
       cached.resize(boost::extents[0][0][0]);
-      std::cerr << "FBA Cache Disabled.\n";
+      std::cerr << "FBA Cache Disabled, Required: " << bytes_required
+            / double(1 << 20) << "MiB" << std::endl;
       }
-   // determine memory occupied and tell user
-   std::ios::fmtflags flags = std::cerr.flags();
-   std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << (sizeof(bool) * cached.num_elements() + sizeof(real)
-         * (alpha.num_elements() + beta.num_elements() + gamma.num_elements()))
-         / double(1 << 20) << "MB\n";
-   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+
+   // set required format, storing previous settings
+   const std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr.setf(std::ios::fixed, std::ios::floatfield);
+   const int prec = std::cerr.precision(1);
+   // determine memory occupied and tell user
+   const size_t bytes_used = sizeof(bool) * cached.num_elements()
+         + sizeof(real) * (alpha.num_elements() + beta.num_elements()
+               + gamma.num_elements());
+   std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
+         << std::endl;
+   // revert cerr to original format
+   std::cerr.precision(prec);
+   std::cerr.setf(flags);
+
+#if DEBUG>=2
+   std::cerr << "Allocated FBA memory..." << std::endl;
+   std::cerr << "dmax = " << dmax << std::endl;
+   std::cerr << "dmin = " << dmin << std::endl;
+   std::cerr << "alpha = " << N << "x" << 2 * xmax + 1 << " = "
+         << alpha.num_elements() << std::endl;
+   std::cerr << "beta = " << N << "x" << 2 * xmax + 1 << " = "
+         << beta.num_elements() << std::endl;
+   std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
+         << dmax - dmin + 1 << " = " << gamma.num_elements() << std::endl;
+#endif
    }
 
 /*! \brief Release memory for working matrices
@@ -133,7 +163,8 @@ void fba2<real, sig, norm>::work_gamma(const array1s_t& r,
    This::app = app;
    if (app.size() == 0)
       libbase::trace
-            << "DEBUG (fba2): Empty a-priori probability table passed.\n";
+            << "DEBUG (fba2): Empty a-priori probability table passed."
+            << std::endl;
    }
 
 template <class real, class sig, bool norm>
@@ -336,9 +367,9 @@ void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
 #ifndef NDEBUG
    // show cache statistics
    std::cerr << "FBA Cache Usage: " << 100 * gamma_misses
-         / double(cached.num_elements()) << "%\n";
+         / double(cached.num_elements()) << "%" << std::endl;
    std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q)
-         << "x\n";
+         << "x" << std::endl;
 #endif
    }
 
@@ -367,6 +398,35 @@ void fba2<real, sig, norm>::decode(const array1s_t& r, array1vr_t& ptable)
    work_alpha(r.size());
    work_beta(r.size());
    work_results(r.size(), ptable);
+#if DEBUG>=3
+   std::cerr << "r = " << r << std::endl;
+   if (cache_enabled)
+      {
+      std::cerr << "gamma = " << std::endl;
+      // gamma has indices (d,i,x,deltax) where:
+      //    d in [0, q-1], i in [0, N-1], x in [-xmax, xmax], and
+      //    deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
+      for (int i = 0; i < N; i++)
+         {
+         std::cerr << "i = " << i << ":" << std::endl;
+         for (int d = 0; d < q; d++)
+            {
+            std::cerr << "d = " << d << ":" << std::endl;
+            for (int x = -xmax; x <= xmax; x++)
+               {
+               for (int deltax = dmin; deltax <= dmax; deltax++)
+                  std::cerr << '\t' << gamma[d][i][x][deltax];
+               std::cerr << std::endl;
+               }
+            }
+         }
+      }
+   std::cerr << "alpha = " << alpha << std::endl;
+   std::cerr << "beta = " << beta << std::endl;
+   std::cerr << "ptable = " << ptable << std::endl;
+   std::cerr << "norm = " << norm << std::endl;
+   std::cerr << "real = " << typeid(real).name() << std::endl;
+#endif
    }
 
 } // end namespace
@@ -378,8 +438,14 @@ void fba2<real, sig, norm>::decode(const array1s_t& r, array1vr_t& ptable)
 namespace libcomm {
 
 using libbase::logrealfast;
-
-template class fba2<double, bool, true> ;
+// specialist arithmetic
 template class fba2<logrealfast, bool, false> ;
+
+// no-normalization, for debugging
+template class fba2<float, bool, false> ;
+template class fba2<double, bool, false> ;
+// normalized, for normal use
+template class fba2<float, bool, true> ;
+template class fba2<double, bool, true> ;
 
 } // end namespace

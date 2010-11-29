@@ -98,7 +98,7 @@ void grscc<G>::initcsct()
    Gi = stategen;
    for (L = 1; (eye + Gi).max() > 0; L++)
       Gi *= stategen;
-   trace << "DEBUG (grscc): period = " << L << "\n";
+   trace << "DEBUG (grscc): period = " << L << std::endl;
    // correspondence table has first index for N%L, second index for S_N^0
    csct.init(L, this->num_states());
    // go through all combinations (except N%L=0, which is illegal) and fill in

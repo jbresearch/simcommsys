@@ -15,39 +15,52 @@ using libbase::vector;
 using libbase::matrix;
 using std::cout;
 
+void print_whitespace_test()
+   {
+   cout << std::endl;
+   cout << "Char:       \tWhitespace?:" << std::endl;
+   cout << "~~~~~       \t~~~~~~~~~~~~" << std::endl;
+
+   cout << "\\r         \t" << (isspace('\r') ? "yes" : "no") << std::endl;
+   cout << "\\n         \t" << (isspace('\n') ? "yes" : "no") << std::endl;
+   cout << "\\t         \t" << (isspace('\t') ? "yes" : "no") << std::endl;
+   }
+
 void print_standard_sizes()
    {
-   cout << '\n';
-   cout << "Type:      \tSize (bits):\n";
-   cout << "~~~~~      \t~~~~~~~~~~~~\n";
+   cout << std::endl;
+   cout << "Type:      \tSize (bits):" << std::endl;
+   cout << "~~~~~      \t~~~~~~~~~~~~" << std::endl;
 
-   cout << "bool       \t" << sizeof(bool) * 8 << "\n";
-   cout << "char       \t" << sizeof(char) * 8 << "\n";
-   cout << "short      \t" << sizeof(short) * 8 << "\n";
-   cout << "int        \t" << sizeof(int) * 8 << "\n";
-   cout << "long       \t" << sizeof(long) * 8 << "\n";
-   cout << "long long  \t" << sizeof(long long) * 8 << "\n";
+   cout << "bool       \t" << sizeof(bool) * 8 << std::endl;
+   cout << "char       \t" << sizeof(char) * 8 << std::endl;
+   cout << "short      \t" << sizeof(short) * 8 << std::endl;
+   cout << "int        \t" << sizeof(int) * 8 << std::endl;
+   cout << "long       \t" << sizeof(long) * 8 << std::endl;
+   cout << "long long  \t" << sizeof(long long) * 8 << std::endl;
 
-   cout << "float      \t" << sizeof(float) * 8 << "\n";
-   cout << "double     \t" << sizeof(double) * 8 << "\n";
-   cout << "long double\t" << sizeof(long double) * 8 << "\n";
+   cout << "float      \t" << sizeof(float) * 8 << std::endl;
+   cout << "double     \t" << sizeof(double) * 8 << std::endl;
+   cout << "long double\t" << sizeof(long double) * 8 << std::endl;
+
+   cout << "void*      \t" << sizeof(void*) * 8 << std::endl;
    }
 
 void print_new_sizes()
    {
-   cout << '\n';
-   cout << "Type:      \tSize (bits):\n";
-   cout << "~~~~~      \t~~~~~~~~~~~~\n";
+   cout << std::endl;
+   cout << "Type:      \tSize (bits):" << std::endl;
+   cout << "~~~~~      \t~~~~~~~~~~~~" << std::endl;
 
-   cout << "int8u      \t" << sizeof(libbase::int8u) * 8 << "\n";
-   cout << "int16u     \t" << sizeof(libbase::int16u) * 8 << "\n";
-   cout << "int32u     \t" << sizeof(libbase::int32u) * 8 << "\n";
-   cout << "int64u     \t" << sizeof(libbase::int64u) * 8 << "\n";
+   cout << "int8u      \t" << sizeof(libbase::int8u) * 8 << std::endl;
+   cout << "int16u     \t" << sizeof(libbase::int16u) * 8 << std::endl;
+   cout << "int32u     \t" << sizeof(libbase::int32u) * 8 << std::endl;
+   cout << "int64u     \t" << sizeof(libbase::int64u) * 8 << std::endl;
 
-   cout << "int8s      \t" << sizeof(libbase::int8s) * 8 << "\n";
-   cout << "int16s     \t" << sizeof(libbase::int16s) * 8 << "\n";
-   cout << "int32s     \t" << sizeof(libbase::int32s) * 8 << "\n";
-   cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << "\n";
+   cout << "int8s      \t" << sizeof(libbase::int8s) * 8 << std::endl;
+   cout << "int16s     \t" << sizeof(libbase::int16s) * 8 << std::endl;
+   cout << "int32s     \t" << sizeof(libbase::int32s) * 8 << std::endl;
+   cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << std::endl;
    }
 
 void print_vector_sizes()
@@ -56,51 +69,51 @@ void print_vector_sizes()
    vector<int> x;
    x.init(2);
 
-   cout << '\n';
-   cout << "Type:      \tSize (bits):\n";
-   cout << "~~~~~      \t~~~~~~~~~~~~\n";
+   cout << std::endl;
+   cout << "Type:      \tSize (bits):" << std::endl;
+   cout << "~~~~~      \t~~~~~~~~~~~~" << std::endl;
 
-   cout << "vector size type    \t" << sizeof(x.size()) * 8 << "\n";
-   cout << "vector container    \t" << sizeof(x) * 8 << "\n";
+   cout << "vector size type    \t" << sizeof(x.size()) * 8 << std::endl;
+   cout << "vector container    \t" << sizeof(x) * 8 << std::endl;
    cout << "int elements        \t" << ((char*) &x(1) - (char*) &x(0)) * 8
-         << "\n";
+         << std::endl;
    }
 
 vector<int> makerangevector()
    {
-   cout << "\nMake vector range:\n\n";
+   cout << std::endl << "Make vector range:" << std::endl << std::endl;
    // create space for result
    vector<int> x(10);
-   cout << "Local address: " << &x << "\n";
-   cout << "Size: " << x.size() << "\n";
+   cout << "Local address: " << &x << std::endl;
+   cout << "Size: " << x.size() << std::endl;
    // init values
    for (int i = 0; i < x.size(); i++)
       x(i) = i;
    cout << "Contents: {";
    x.serialize(cout, ',');
-   cout << "}\n";
+   cout << "}" << std::endl;
    // return result
    return x;
    }
 
 void accessvectorbyvalue(vector<int> x)
    {
-   cout << "\nAccess vector by value:\n\n";
-   cout << "Address: " << &x << "\n";
-   cout << "Size: " << x.size() << "\n";
+   cout << std::endl << "Access vector by value:" << std::endl << std::endl;
+   cout << "Address: " << &x << std::endl;
+   cout << "Size: " << x.size() << std::endl;
    cout << "Contents: {";
    x.serialize(cout, ',');
-   cout << "}\n";
+   cout << "}" << std::endl;
    }
 
 void accessvectorbyreference(vector<int>& x)
    {
-   cout << "\nAccess vector by reference:\n\n";
-   cout << "Address: " << &x << "\n";
-   cout << "Size: " << x.size() << "\n";
+   cout << std::endl << "Access vector by reference:" << std::endl << std::endl;
+   cout << "Address: " << &x << std::endl;
+   cout << "Size: " << x.size() << std::endl;
    cout << "Contents: {";
    x.serialize(cout, ',');
-   cout << "}\n";
+   cout << "}" << std::endl;
    }
 
 void testvector()
@@ -123,26 +136,26 @@ void testvector()
    assert(x.size() == 10);
    // test vector return by value
    vector<int> r = makerangevector();
-   cout << "\nTest vector return by value:\n\n";
-   cout << "Address: " << &r << "\n";
-   cout << "Size: " << r.size() << "\n";
+   cout << std::endl << "Test vector return by value:" << std::endl << std::endl;
+   cout << "Address: " << &r << std::endl;
+   cout << "Size: " << r.size() << std::endl;
    cout << "Contents: {";
    r.serialize(cout, ',');
-   cout << "}\n";
+   cout << "}" << std::endl;
    // test vector passing
-   cout << "\nTest vector access on:\n\n";
-   cout << "Address: " << &r << "\n";
-   cout << "Size: " << r.size() << "\n";
+   cout << std::endl << "Test vector access on:" << std::endl << std::endl;
+   cout << "Address: " << &r << std::endl;
+   cout << "Size: " << r.size() << std::endl;
    cout << "Contents: {";
    r.serialize(cout, ',');
-   cout << "}\n";
+   cout << "}" << std::endl;
    accessvectorbyreference(r);
    accessvectorbyvalue(r);
    }
 
 void testmatrixmul()
    {
-   cout << "\nMatrix Multiplication:\n\n";
+   cout << std::endl << "Matrix Multiplication:" << std::endl << std::endl;
    matrix<int> A(3, 2);
    A(0, 0) = 1;
    A(1, 0) = 0;
@@ -177,7 +190,7 @@ void testmatrixmul()
 
 void testmatrixinv()
    {
-   cout << "\nMatrix Inversion:\n\n";
+   cout << std::endl << "Matrix Inversion:" << std::endl << std::endl;
    matrix<int> A(3, 3);
    A(0, 0) = 1;
    A(1, 0) = 0;
@@ -198,7 +211,7 @@ void testmatrixinv()
 
 void testmatrixops()
    {
-   cout << "\nMatrix Operations:\n\n";
+   cout << std::endl << "Matrix Operations:" << std::endl << std::endl;
    matrix<int> A;
    std::istringstream s("4 4\n2 4 1 3\n-1 -2 1 0\n0 0 2 2\n3 6 2 5");
    s >> A;
@@ -206,7 +219,7 @@ void testmatrixops()
    matrix<int> Aref = A.reduce_to_ref();
    cout << "ref(A) = " << Aref;
    int r = A.rank();
-   cout << "rank(A) = " << r << "\n";
+   cout << "rank(A) = " << r << std::endl;
    assert(r == 2);
    }
 
@@ -216,9 +229,9 @@ void testboost_foreach(const std::string& s)
    typedef std::istream_iterator<int> in;
    std::istringstream sin(s);
 
-   std::cout << "\nBoost ForEach Test:\n\n";
+   std::cout << std::endl << "Boost ForEach Test:" << std::endl << std::endl;
    std::for_each(in(sin), in(), std::cout << (_1 * 3) << " ");
-   std::cout << "\n";
+   std::cout << std::endl;
    }
 
 void testboost_array()
@@ -232,7 +245,7 @@ void testboost_array()
    typedef boost::multi_array_types::extent_range range;
    array2d_t F(boost::extents[tau + 1][range(-xmax, xmax + 1)]);
 
-   std::cout << "\nBoost MultiArray Test:\n\n";
+   std::cout << std::endl << "Boost MultiArray Test:" << std::endl << std::endl;
    // Initial conditions
    //F = 0;
    F[0][0] = 1;
@@ -252,8 +265,8 @@ void testboost_array()
       }
    // output results
    for (index x = -xmax; x <= xmax; ++x)
-      std::cout << x << "\t" << F[tau][x] << "\n";
-   std::cout << "\n";
+      std::cout << x << "\t" << F[tau][x] << std::endl;
+   std::cout << std::endl;
    }
 
 template <class T>
@@ -262,16 +275,16 @@ void display_array(boost::multi_array<T, 2>& A)
    typedef boost::multi_array<T, 2> array2_t;
    typedef boost::multi_array<T, 1> array1_t;
    for (typename array2_t::iterator i = A.begin(); i != A.end(); ++i, std::cout
-         << "\n")
+         << std::endl)
       for (typename array1_t::iterator j = i->begin(); j != i->end(); ++j, std::cout
             << "\t")
          std::cout << *j;
-   std::cout << "\n";
+   std::cout << std::endl;
    }
 
 void testboost_iterators()
    {
-   std::cout << "\nBoost Iterator Usage Test:\n\n";
+   std::cout << std::endl << "Boost Iterator Usage Test:" << std::endl << std::endl;
    boost::assignable_multi_array<double, 2> A(boost::extents[3][4]);
    display_array(A);
    A = 1;
@@ -290,6 +303,7 @@ void testboost_iterators()
 
 int main(int argc, char *argv[])
    {
+   print_whitespace_test();
    print_standard_sizes();
    print_new_sizes();
    print_vector_sizes();

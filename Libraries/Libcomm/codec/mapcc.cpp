@@ -224,9 +224,9 @@ template <class real, class dbl>
 std::ostream& mapcc<real, dbl>::serialize(std::ostream& sout) const
    {
    sout << encoder;
-   sout << tau << "\n";
-   sout << int(endatzero) << "\n";
-   sout << int(circular) << "\n";
+   sout << tau << std::endl;
+   sout << int(endatzero) << std::endl;
+   sout << int(circular) << std::endl;
    return sout;
    }
 

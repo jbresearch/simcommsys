@@ -113,7 +113,7 @@ public:
    /*! \brief Stream output */ \
    friend std::ostream& operator<<(std::ostream& sout, const class_name* x) \
       { \
-      sout << x->name() << "\n"; \
+      sout << x->name() << std::endl; \
       x->serialize(sout); \
       return sout; \
       } \

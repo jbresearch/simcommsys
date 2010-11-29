@@ -130,7 +130,7 @@ myvector<int> create_srandom(const int tau, int& spread, libbase::int32u& seed,
    bool failed = true;
    while (failed)
       {
-      std::cerr << "Searching for solution at spread " << spread << "\n";
+      std::cerr << "Searching for solution at spread " << spread << std::endl;
       // loop for a number of attempts at the given Spread, then
       // reduce and continue as necessary
       libbase::timer tmain("Attempt timer");
@@ -177,9 +177,9 @@ myvector<int> create_srandom(const int tau, int& spread, libbase::int32u& seed,
          }
       // show user how fast we're working
       tmain.stop();
-      std::cerr << "Attempts: " << attempt << " in " << tmain << "\n";
+      std::cerr << "Attempts: " << attempt << " in " << tmain << std::endl;
       std::cerr << "Speed: " << double(attempt) / tmain.elapsed()
-            << " attempts/sec\n";
+            << " attempts/sec" << std::endl;
       // if this failed, prepare for the next attempt
       if (failed)
          spread--;
@@ -205,11 +205,11 @@ std::string compose_filename(int tau, int spread, libbase::int32u seed)
 void serialize_interleaver(std::ostream& sout, myvector<int> lut, int tau,
       int spread, libbase::int32u seed, double elapsed)
    {
-   sout << "#% Size: " << tau << "\n";
-   sout << "#% Spread: " << spread << "\n";
-   sout << "#% Seed: " << seed << "\n";
-   sout << "# Date: " << libbase::timer::date() << "\n";
-   sout << "# Time taken: " << libbase::timer::format(elapsed) << "\n";
+   sout << "#% Size: " << tau << std::endl;
+   sout << "#% Spread: " << spread << std::endl;
+   sout << "#% Seed: " << seed << std::endl;
+   sout << "# Date: " << libbase::timer::date() << std::endl;
+   sout << "# Time taken: " << libbase::timer::format(elapsed) << std::endl;
    lut.serialize(sout);
    }
 
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if (vm.count("help"))
       {
-      std::cerr << desc << "\n";
+      std::cerr << desc << std::endl;
       return 1;
       }
 

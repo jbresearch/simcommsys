@@ -16,15 +16,13 @@ namespace libbase {
  * - $Author$
  */
 
-// Aligned memory allocator
-
 template <class T, size_t alignment>
 class aligned_allocator : public std::allocator<T> {
 private:
-   typedef std::allocator<T> base;
+   typedef std::allocator<T> Base;
 public:
-   typedef typename base::pointer pointer;
-   typedef typename base::size_type size_type;
+   typedef typename Base::pointer pointer;
+   typedef typename Base::size_type size_type;
 
    template <class U>
    struct rebind {

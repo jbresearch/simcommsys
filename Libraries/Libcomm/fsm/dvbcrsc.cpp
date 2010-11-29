@@ -52,7 +52,7 @@ void dvbcrsc::resetcircular(const vector<int>& zerostate, int n)
    // TODO: check input state is valid
    // circulation state is obtainable only if the sequence length is not
    // a multiple of the period
-   assert(n%7 != 0);
+   assert(n % 7 != 0);
    // lookup the circulation state and set accordingly
    reset(fsm::convert(csct[n % 7][fsm::convert(zerostate, 2)], nu, 2));
    }
@@ -68,11 +68,11 @@ void dvbcrsc::advance(vector<int>& input)
    // process input
    bitfield ip = bitfield(vector<bool> (input));
    // compute the shift-register left input
-   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
+   bitfield lsi = ((ip.extract(0) ^ ip.extract(1)) + reg) * bitfield("1101");
    // do the shift
    reg = lsi >> reg;
    // apply the second input
-   reg ^= (bitfield("0") + ip(1) + ip(1));
+   reg ^= (bitfield("0") + ip.extract(1) + ip.extract(1));
    }
 
 vector<int> dvbcrsc::output(const vector<int>& input) const
@@ -83,7 +83,7 @@ vector<int> dvbcrsc::output(const vector<int>& input) const
    // process input
    bitfield ip = bitfield(vector<bool> (input));
    // compute the shift-register left input
-   bitfield lsi = ((ip(0) ^ ip(1)) + reg) * bitfield("1101");
+   bitfield lsi = ((ip.extract(0) ^ ip.extract(1)) + reg) * bitfield("1101");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
    bitfield op = ip;

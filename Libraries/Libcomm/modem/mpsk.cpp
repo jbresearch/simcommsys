@@ -55,7 +55,7 @@ std::string mpsk::description() const
 
 std::ostream& mpsk::serialize(std::ostream& sout) const
    {
-   sout << lut.size() << "\n";
+   sout << lut.size() << std::endl;
    return sout;
    }
 

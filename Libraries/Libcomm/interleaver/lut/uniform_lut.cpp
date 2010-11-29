@@ -70,8 +70,8 @@ std::string uniform_lut<real>::description() const
 template <class real>
 std::ostream& uniform_lut<real>::serialize(std::ostream& sout) const
    {
-   sout << this->lut.size() << "\n";
-   sout << m << "\n";
+   sout << this->lut.size() << std::endl;
+   sout << m << std::endl;
    return sout;
    }
 

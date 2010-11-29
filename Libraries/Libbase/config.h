@@ -45,10 +45,9 @@
 //#  pragma warning( disable : 4250 )
 //#endif
 
-// include files
+// system include files
 
 #include <cstdlib>
-#include <cassert>
 #include <iostream>
 #include <string>
 #include <math.h>
@@ -58,6 +57,11 @@
 #else
 #  include <stdint.h>
 #endif
+
+// module include files
+
+#include "assertalways.h"
+
 
 // *** Global namespace ***
 
@@ -69,25 +73,17 @@
 #  define __WCVER__ "undefined"
 #endif
 
-// An assertion that is implemented even in release builds
-
-#ifdef NDEBUG
-#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::reportassertionandfail(#_Expression, __FILE__, __LINE__), 0) )
-#else
-#  define assertalways(_Expression) assert(_Expression)
-#endif
-
-// Fail with error
-
-#define failwith(_String) libbase::reporterrorandfail(_String, __FILE__, __LINE__)
-
 // Implemented log2, round, and sgn if these are not already available
 
 #ifdef WIN32
 inline double log2(double x)
-   {return log(x)/log(double(2));}
+   {
+   return log(x)/log(double(2));
+   }
 inline double round(double x)
-   {return (floor(x + 0.5));}
+   {
+   return (floor(x + 0.5));
+   }
 #endif
 inline double round(double x, double r)
    {
@@ -152,7 +148,6 @@ inline int isinf(double value)
       }
    }
 #endif //ifdef WIN32
-
 // C99 Names for integer types
 
 #ifdef WIN32
@@ -172,8 +167,6 @@ namespace libbase {
 
 // Debugging tools
 
-void reportassertionandfail(const char *expression, const char *file, int line);
-void reporterrorandfail(const char *expression, const char *file, int line);
 extern std::ostream trace;
 
 // Names for integer types

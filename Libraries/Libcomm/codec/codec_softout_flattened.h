@@ -13,6 +13,8 @@ namespace libcomm {
 // 2 - Show mapping block sizes
 // 3 - Show soft-output for encoded symbols
 // 4 - Show intermediate encoded output
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -97,7 +99,7 @@ void codec_softout_flattened<base_codec_softout, dbl>::init(mapper<
    libbase::trace << "DEBUG: mapper setup from "
    << map.input_block_size() << "x" << N << " to "
    << map.output_block_size() << "x" << M << " to "
-   << map.input_block_size() << "x" << S << " symbols\n";
+   << map.input_block_size() << "x" << S << " symbols" << std::endl;
 #endif
    }
 
@@ -114,11 +116,11 @@ void codec_softout_flattened<base_codec_softout, dbl>::encode(
    Base::encode(source, encwide);
    map.transform(encwide, encoded);
 #if DEBUG>=4
-   std::cerr << "Source:\n";
+   std::cerr << "Source:" << std::endl;
    source.serialize(std::cerr, '\n');
-   std::cerr << "Encoded (wide):\n";
+   std::cerr << "Encoded (wide):" << std::endl;
    encwide.serialize(std::cerr, '\n');
-   std::cerr << "Encoded (flat):\n";
+   std::cerr << "Encoded (flat):" << std::endl;
    encoded.serialize(std::cerr, '\n');
 #endif
    }
@@ -179,6 +181,12 @@ void codec_softout_flattened<base_codec_softout, dbl>::softdecode(
    dec.serialize(libbase::trace, ' ');
 #endif
    }
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

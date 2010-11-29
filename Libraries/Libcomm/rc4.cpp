@@ -35,7 +35,7 @@ rc4::rc4()
       {
       using libbase::dehexify;
 
-      libbase::trace << "rc4: Testing implementation\n";
+      libbase::trace << "rc4: Testing implementation" << std::endl;
       // Date: Tue, 13 Sep 94 18:37:56 PDT
       // From: ekr@eit.COM (Eric Rescorla)
       // Message-Id: <9409140137.AA17743@eitech.eit.com>
@@ -106,7 +106,7 @@ void rc4::init(std::string key)
    // sanity checks
    assert(S.size() == 256);
    libbase::trace << "RC4 initialising state from key (" << key
-         << "), length = " << key.length() << "\n";
+         << "), length = " << key.length() << std::endl;
    // initialise linearly
    for (i = 0; i < 256; i++)
       S(i) = i;

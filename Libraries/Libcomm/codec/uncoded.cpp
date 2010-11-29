@@ -185,7 +185,7 @@ template <class dbl>
 std::ostream& uncoded<dbl>::serialize(std::ostream& sout) const
    {
    sout << encoder;
-   sout << tau << "\n";
+   sout << tau << std::endl;
    return sout;
    }
 

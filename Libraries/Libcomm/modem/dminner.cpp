@@ -18,9 +18,10 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show LUTs on manual update
+// 3 - Show
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 3
 #endif
 
 // internally-used functions
@@ -47,7 +48,7 @@ int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
    bitfield b;
 #ifndef NDEBUG
    if (n > 2)
-      libbase::trace << "Starting fill with:\t" << suffix << "\t" << w << "\n";
+      libbase::trace << "Starting fill with:\t" << suffix << "\t" << w << std::endl;
 #endif
    if (w == 0)
       lut(i++) = suffix;
@@ -56,7 +57,8 @@ int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
       w--;
       if (suffix.size() == 0)
          i = fill(i, suffix, w);
-      for (b = bitfield("1"); b.size() + suffix.size() + w <= n; b = b + bitfield("0"))
+      for (b = bitfield("1"); b.size() + suffix.size() + w <= n; b = b
+            + bitfield("0"))
          i = fill(i, b + suffix, w);
       }
    return i;
@@ -103,10 +105,10 @@ void dminner<real, norm>::copylut(libbase::vector<libbase::bitfield> lutb)
 template <class real, bool norm>
 void dminner<real, norm>::showlut(std::ostream& sout) const
    {
-   sout << "LUT (k=" << k << ", n=" << n << "):\n";
+   sout << "LUT (k=" << k << ", n=" << n << "):" << std::endl;
    for (int i = 0; i < lut.size(); i++)
       sout << i << "\t" << libbase::bitfield(lut(i), n) << "\t"
-            << libbase::weight(lut(i)) << "\n";
+            << libbase::weight(lut(i)) << std::endl;
    }
 
 /*!
@@ -139,7 +141,7 @@ void dminner<real, norm>::computemeandensity()
    f = w.sum() / double(n * w.size());
 #ifndef NDEBUG
    if (n > 2)
-      libbase::trace << "Watermark code density = " << f << "\n";
+      libbase::trace << "Watermark code density = " << f << std::endl;
 #endif
    }
 
@@ -152,8 +154,7 @@ void dminner<real, norm>::checkforchanges(int I, int xmax) const
    static int last_xmax = 0;
    if (last_I != I || last_xmax != xmax)
       {
-      std::cerr << "Watermark Demodulation: I = " << I << ", xmax = " << xmax
-            << ".\n";
+      std::cerr << "DMinner: I = " << I << ", xmax = " << xmax << std::endl;
       last_I = I;
       last_xmax = xmax;
       }
@@ -419,13 +420,10 @@ void dminner<real, norm>::domodulate(const int N, const array1i_t& encoded,
       {
       const int s = lut(encoded(i) & (q - 1)); // sparse vector
       const int w = ws(i); // watermark vector
-#ifndef NDEBUG
-      if (tau < 10)
-         {
-         libbase::trace << "DEBUG (This::modulate): word " << i << "\t";
-         libbase::trace << "s = " << libbase::bitfield(s, n) << "\t";
-         libbase::trace << "w = " << libbase::bitfield(w, n) << "\n";
-         }
+#if DEBUG>=3
+      libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
+      libbase::trace << "s = " << libbase::bitfield(s, n) << "\t";
+      libbase::trace << "w = " << libbase::bitfield(w, n) << std::endl;
 #endif
       // NOTE: we transmit the low-order bits first
       for (int bit = 0, t = s ^ w; bit < n; bit++, t >>= 1)
@@ -441,7 +439,7 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
    const int N = this->input_block_size();
    const int tau = N * n;
    assert(N > 0);
-   // Copy channel for access within Q()
+   // Copy channel for access within R()
    mychan = dynamic_cast<const bsid&> (chan);
    // Update substitution probability to take into account sparse addition
    const double Ps = mychan.get_ps();
@@ -522,21 +520,21 @@ std::string dminner<real, norm>::description() const
 template <class real, bool norm>
 std::ostream& dminner<real, norm>::serialize(std::ostream& sout) const
    {
-   sout << user_threshold << '\n';
+   sout << user_threshold << std::endl;
    if (user_threshold)
       {
-      sout << th_inner << '\n';
-      sout << th_outer << '\n';
+      sout << th_inner << std::endl;
+      sout << th_outer << std::endl;
       }
-   sout << n << '\n';
-   sout << k << '\n';
-   sout << lut_type << '\n';
+   sout << n << std::endl;
+   sout << k << std::endl;
+   sout << lut_type << std::endl;
    if (lut_type == lut_user)
       {
-      sout << lutname << '\n';
+      sout << lutname << std::endl;
       assert(lut.size() == num_symbols());
       for (int i = 0; i < lut.size(); i++)
-         sout << libbase::bitfield(lut(i), n) << '\n';
+         sout << libbase::bitfield(lut(i), n) << std::endl;
       }
    return sout;
    }
@@ -602,5 +600,10 @@ template class dminner<double, true> ;
 template <>
 const serializer dminner<double, true>::shelper = serializer("blockmodem",
       "dminner<double>", dminner<double, true>::create);
+
+template class dminner<float, true> ;
+template <>
+const serializer dminner<float, true>::shelper = serializer("blockmodem",
+      "dminner<float>", dminner<float, true>::create);
 
 } // end namespace

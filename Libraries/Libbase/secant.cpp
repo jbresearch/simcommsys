@@ -59,7 +59,7 @@ double secant::solve(const double y)
       }
 
    std::cerr
-         << "FATAL ERROR (secant): Maximum number of iterations exceeded.\n";
+         << "FATAL ERROR (secant): Maximum number of iterations exceeded." << std::endl;
    exit(1);
    }
 

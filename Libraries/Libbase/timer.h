@@ -97,7 +97,6 @@ inline std::ostream& operator<<(std::ostream& s, const timer& t)
    {
    return s << std::string(t);
    }
-;
 
 } // end namespace
 

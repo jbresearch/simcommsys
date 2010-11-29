@@ -66,7 +66,7 @@ void sha::process_block(const libbase::vector<libbase::int32u>& M)
       hash(2) = cshift(hash(1), 30);
       hash(1) = hash(0);
       hash(0) = temp;
-      //trace << "SHA: step " << t << "\t" << hex << hash(0) << " " << hash(1) << " " << hash(2) << " " << hash(3) << " " << hash(4) << dec << "\n";
+      //trace << "SHA: step " << t << "\t" << hex << hash(0) << " " << hash(1) << " " << hash(2) << " " << hash(3) << " " << hash(4) << dec << std::endl;
       }
    // add back variables
    m_hash += hash;
@@ -78,7 +78,7 @@ void sha::selftest()
    {
    // set flag to avoid re-entry
    tested = true;
-   libbase::trace << "sha: Testing implementation\n";
+   libbase::trace << "sha: Testing implementation" << std::endl;
    // http://www.faqs.org/rfcs/rfc3174.html
    std::string sMessage, sHash;
    // Test libbase::vector 0

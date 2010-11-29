@@ -340,13 +340,13 @@ inline void matrix3<T>::serialize(std::ostream& s) const
    {
    for (int k = 0; k < m_zsize; k++)
       {
-      s << "\n";
+      s << std::endl;
       for (int j = 0; j < m_ysize; j++)
          {
          s << m_data[0][j][k];
          for (int i = 1; i < m_xsize; i++)
             s << "\t" << m_data[i][j][k];
-         s << "\n";
+         s << std::endl;
          }
       }
    }
@@ -363,7 +363,7 @@ inline void matrix3<T>::serialize(std::istream& s)
 template <class T>
 inline std::ostream& operator<<(std::ostream& s, const matrix3<T>& x)
    {
-   s << x.xsize() << "\t" << x.ysize() << "\t" << x.zsize() << "\n";
+   s << x.xsize() << "\t" << x.ysize() << "\t" << x.zsize() << std::endl;
    x.serialize(s);
    return s;
    }

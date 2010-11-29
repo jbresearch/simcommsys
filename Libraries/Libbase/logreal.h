@@ -38,7 +38,7 @@ inline logreal::logreal(const double m)
    {
    if (m < 0)
       {
-      std::cerr << "FATAL ERROR (logreal): Negative numbers cannot be used.\n";
+      std::cerr << "FATAL ERROR (logreal): Negative numbers cannot be used." << std::endl;
       exit(1);
       }
    logval = (m == 0) ? DBL_MAX : -log(m);

@@ -10,7 +10,6 @@ namespace testbsid {
 
 using std::cout;
 using std::cerr;
-using std::flush;
 using libbase::vector;
 using libbase::randgen;
 using libcomm::bsid;
@@ -23,7 +22,7 @@ void visualtest()
    vector<bool> tx(tau);
    for (int i = 0; i < tau; i++)
       tx(i) = (i & 1);
-   cout << "Tx: " << tx << "\n";
+   cout << "Tx: " << tx << std::endl;
    // pass that through the channel
    vector<bool> rx1, rx2;
    // probability of error corresponding to SNR=12
@@ -37,7 +36,7 @@ void visualtest()
    channel1.set_parameter(p);
    channel1.set_ps(0.3);
    channel1.transmit(tx, rx1);
-   cout << "Rx1: " << rx1 << "\n";
+   cout << "Rx1: " << rx1 << std::endl;
    // channel1 is an insdel-only channel
    bsid channel2(tau);
    channel2.seedfrom(prng);
@@ -45,7 +44,7 @@ void visualtest()
    channel2.set_pi(0.3);
    channel2.set_pd(0.3);
    channel2.transmit(tx, rx2);
-   cout << "Rx2: " << rx2 << "\n";
+   cout << "Rx2: " << rx2 << std::endl;
    }
 
 void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
@@ -57,7 +56,7 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    channel.seedfrom(prng);
    channel.set_parameter(p);
    // run a number of transmissions with an all-zero source
-   cout << "Testing on an all-" << (src ? "one" : "zero") << " source:\n";
+   cout << "Testing on an all-" << (src ? "one" : "zero") << " source:" << std::endl;
    cout << "   type:\t";
    if (ins)
       cout << "insertions ";
@@ -65,9 +64,9 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
       cout << "deletions ";
    if (sub)
       cout << "substitutions";
-   cout << "\n";
-   cout << "      N:\t" << tau << "\n";
-   cout << "      p:\t" << p << "\n";
+   cout << std::endl;
+   cout << "      N:\t" << tau << std::endl;
+   cout << "      p:\t" << p << std::endl;
    // define input sequence
    vector<bool> tx(tau);
    tx = src;
@@ -84,11 +83,11 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
       zeros.insert(rx.size() - count);
       }
    // show results
-   cout << "   Value\tMean\tSigma\n";
-   cout << "  Drift:\t" << drift.mean() << "\t" << drift.sigma() << "\n";
-   cout << "  Zeros:\t" << zeros.mean() << "\t" << zeros.sigma() << "\n";
-   cout << "   Ones:\t" << ones.mean() << "\t" << ones.sigma() << "\n";
-   cout << "\n";
+   cout << "   Value\tMean\tSigma" << std::endl;
+   cout << "  Drift:\t" << drift.mean() << "\t" << drift.sigma() << std::endl;
+   cout << "  Zeros:\t" << zeros.mean() << "\t" << zeros.sigma() << std::endl;
+   cout << "   Ones:\t" << ones.mean() << "\t" << ones.sigma() << std::endl;
+   cout << std::endl;
    }
 
 /*!

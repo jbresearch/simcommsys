@@ -1,4 +1,3 @@
-#include "logrealfast.h"
 #include "modem/dminner2d.h"
 #include "itfunc.h"
 
@@ -23,11 +22,11 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // create a code to start with
-   libcomm::dminner2d<libbase::logrealfast, false> mdm;
+   libcomm::dminner2d<double, true> mdm;
    // get code definition from stdin
-   cerr << "Enter code details:\n";
+   cerr << "Enter code details:" << std::endl;
    mdm.serialize(cin);
-   cout << mdm.description() << "\n";
+   cout << mdm.description() << std::endl;
 
    // compute distance table
    const int m = mdm.get_symbol_rows();

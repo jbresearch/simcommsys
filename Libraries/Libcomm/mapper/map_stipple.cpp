@@ -90,7 +90,7 @@ template <template <class > class C, class dbl>
 std::ostream& map_stipple<C, dbl>::serialize(std::ostream& sout) const
    {
    Base::serialize(sout);
-   sout << sets << "\n";
+   sout << sets << std::endl;
    return sout;
    }
 

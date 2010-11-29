@@ -24,14 +24,20 @@ void fba<real, sig, norm>::allocate()
    typedef boost::multi_array_types::extent_range range;
    F.resize(boost::extents[tau][range(-xmax, xmax + 1)]);
    B.resize(boost::extents[range(1, tau + 1)][range(-xmax, xmax + 1)]);
-   // determine memory occupied and tell user
-   std::ios::fmtflags flags = std::cerr.flags();
-   std::cerr << "FBA Memory Usage: " << std::fixed << std::setprecision(1);
-   std::cerr << sizeof(real) * (F.num_elements() + B.num_elements()) / double(1
-         << 20) << "MB\n";
-   std::cerr.setf(flags);
    // flag the state of the arrays
    initialised = true;
+
+   // set required format, storing previous settings
+   const std::ios::fmtflags flags = std::cerr.flags();
+   std::cerr.setf(std::ios::fixed, std::ios::floatfield);
+   const int prec = std::cerr.precision(1);
+   // determine memory occupied and tell user
+   const size_t bytes_used = sizeof(real) * (F.num_elements()
+         + B.num_elements());
+   std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB" << std::endl;
+   // revert cerr to original format
+   std::cerr.precision(prec);
+   std::cerr.setf(flags);
    }
 
 /*! \brief Release memory for working matrices
@@ -214,7 +220,8 @@ namespace libcomm {
 
 using libbase::logrealfast;
 
-template class fba<double, bool, true> ;
 template class fba<logrealfast, bool, false> ;
+template class fba<double, bool, true> ;
+template class fba<float, bool, true> ;
 
 } // end namespace

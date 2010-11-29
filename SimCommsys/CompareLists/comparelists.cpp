@@ -117,11 +117,13 @@ std::vector<T> getsequence(const std::string& fname)
    // load sequence from file
    std::vector<T> sequence;
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
+   // skip comments and whitespace
+   file >> libbase::eatcomments;
    // load elements until we hit end of file
    T element;
    while (file >> element)
       sequence.push_back(element);
-   cerr << "done, length = " << sequence.size() << "\n";
+   cerr << "done, length = " << sequence.size() << std::endl;
    return sequence;
    }
 
@@ -210,23 +212,23 @@ void process(const std::string& fname1, const std::string& fname2,
       {
       const int hd = libbase::hamming<T>(libbase::vector<T>(s1),
             libbase::vector<T>(s2));
-      cout << "Hamming distance = " << hd << "\n";
+      cout << "Hamming distance = " << hd << std::endl;
       }
    if (lev)
       {
       const int ld = libbase::levenshtein<T>(libbase::vector<T>(s1),
             libbase::vector<T>(s2));
-      cout << "Levenshtein distance = " << ld << "\n";
+      cout << "Levenshtein distance = " << ld << std::endl;
       }
    if (rep)
       {
       const int count = repeatability<T> (s1, s2);
-      cout << "Repeatability = " << count << "\n";
+      cout << "Repeatability = " << count << std::endl;
       }
    if (mse)
       {
       const double mse = compute_mse<T> (s1, s2);
-      cout << "Mean-square error = " << mse << "\n";
+      cout << "Mean-square error = " << mse << std::endl;
       }
    }
 
@@ -277,7 +279,7 @@ int main(int argc, char *argv[])
          "sequence1-file") == 0 || (vm.count("hamming") + vm.count(
          "levenshtein") + vm.count("repeatability") + vm.count("mse")) == 0)
       {
-      cout << desc << "\n";
+      cout << desc << std::endl;
       return 0;
       }
 
