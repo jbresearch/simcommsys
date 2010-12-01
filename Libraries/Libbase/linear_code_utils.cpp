@@ -1,7 +1,7 @@
 /*!
  * \file
  * 
- * Copyright (c) 2010 Johann A. Briffa
+ * Copyright (c) 2010 Stephan Wesemeyer
  * 
  * This file is part of SimCommSys.
  *
@@ -20,13 +20,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*
- * linear_code_utils.cpp
- *
- *  Created on: 10 Jul 2009
- *      Author: swesemeyer
  */
 
 #include "linear_code_utils.h"

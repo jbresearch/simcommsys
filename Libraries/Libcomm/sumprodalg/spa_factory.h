@@ -1,7 +1,7 @@
 /*!
  * \file
  * 
- * Copyright (c) 2010 Johann A. Briffa
+ * Copyright (c) 2010 Stephan Wesemeyer
  * 
  * This file is part of SimCommSys.
  *
@@ -20,13 +20,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*
- * spa_factory.h
- *
- *  Created on: 22 Jul 2009
- *      Author: swesemeyer
  */
 
 #ifndef SPA_FACTORY_H_

@@ -1,7 +1,7 @@
 /*!
  * \file
  * 
- * Copyright (c) 2010 Johann A. Briffa
+ * Copyright (c) 2010 Stephan Wesemeyer
  * 
  * This file is part of SimCommSys.
  *

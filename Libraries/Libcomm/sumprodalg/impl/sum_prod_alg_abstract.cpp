@@ -1,7 +1,7 @@
 /*!
  * \file
  * 
- * Copyright (c) 2010 Johann A. Briffa
+ * Copyright (c) 2010 Stephan Wesemeyer
  * 
  * This file is part of SimCommSys.
  *
@@ -20,13 +20,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*
- * sum_product_alg.cpp
- *
- *  Created on: 21 Jul 2009
- *      Author: swesemeyer
  */
 
 #include "sum_prod_alg_abstract.h"

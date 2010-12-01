@@ -1,7 +1,7 @@
 /*!
  * \file
  * 
- * Copyright (c) 2010 Johann A. Briffa
+ * Copyright (c) 2010 Stephan Wesemeyer
  * 
  * This file is part of SimCommSys.
  *
@@ -20,13 +20,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*
- * gf_fast.h
- *
- *  Created on: 4 Aug 2009
- *      Author: swesemeyer
  */
 
 #ifndef GF_FAST_H_
