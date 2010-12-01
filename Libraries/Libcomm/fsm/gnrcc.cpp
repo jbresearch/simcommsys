@@ -20,15 +20,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
  * 
  * \see grscc.cpp
  */

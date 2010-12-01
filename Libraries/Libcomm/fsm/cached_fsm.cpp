@@ -22,18 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- *
- *  Created on: 4 Mar 2010
- *      Author: jabriffa
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "cached_fsm.h"
 
 namespace libcomm {

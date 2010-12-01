@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "commsys_iterative.h"
 
 #include "modem/informed_modulator.h"

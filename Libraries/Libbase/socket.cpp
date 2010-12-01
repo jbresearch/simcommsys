@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "socket.h"
 
 #ifdef WIN32

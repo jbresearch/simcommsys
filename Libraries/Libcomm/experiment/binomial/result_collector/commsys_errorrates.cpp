@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "commsys_errorrates.h"
 #include "fsm.h"
 #include "itfunc.h"

@@ -32,9 +32,9 @@ namespace cuda {
  * \author  Johann Briffa
  *
  * \section svn Version Control
- * - $Revision: 3739 $
- * - $Date: 2010-06-17 15:32:37 +0100 (Thu, 17 Jun 2010) $
- * - $Author: jabriffa $
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class T>

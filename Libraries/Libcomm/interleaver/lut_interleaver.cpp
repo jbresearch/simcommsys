@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "lut_interleaver.h"
 #include <cstdlib>
 #include <iostream>

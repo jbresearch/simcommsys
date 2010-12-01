@@ -1,5 +1,6 @@
 /*!
  * \file
+ * \brief   Parallel code for BSID channel.
  * 
  * Copyright (c) 2010 Johann A. Briffa
  * 
@@ -20,17 +21,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*!
- * \file
- * \brief   Parallel code for BSID channel.
- * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
  */
 
 #include "bsid.h"

@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "embedder.h"
 #include <cstdlib>
 #include <sstream>

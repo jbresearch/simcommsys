@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "commsys_simulator.h"
 #include "result_collector/commsys_prof_burst.h"
 #include "result_collector/commsys_prof_pos.h"

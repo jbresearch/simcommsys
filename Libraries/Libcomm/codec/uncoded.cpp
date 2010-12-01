@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "uncoded.h"
 #include "fsm/cached_fsm.h"
 #include "vectorutils.h"

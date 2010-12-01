@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #ifndef VECTORUTILS_H_
 #define VECTORUTILS_H_
 

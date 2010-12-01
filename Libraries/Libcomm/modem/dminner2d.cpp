@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "dminner2d.h"
 #include "channel/bsid2d.h"
 #include "dminner2.h"

@@ -20,15 +20,6 @@
  * 
  * \section svn Version Control
  * - $Id$
- */
-
-/*!
- * \file
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
  * 
  * \warning GCC complains if I don't explicitly refer to member variables from
  * parent class ccfm<G> using this-> or grscc<G>:: qualifiers. It turns

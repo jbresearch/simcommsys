@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "bsid2d.h"
 #include "secant.h"
 #include <sstream>

@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- * 
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "modem.h"
 #include "gf.h"
 #include <cstdlib>

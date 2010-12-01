@@ -22,15 +22,6 @@
  * - $Id$
  */
 
-/*!
- * \file
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- */
-
 #include "qim.h"
 #include "itfunc.h"
 #include <cmath>
