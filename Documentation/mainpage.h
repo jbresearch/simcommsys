@@ -90,4 +90,42 @@
  * development version of Boost v1.35 installed, together with the 'Program
  * Options' optional component. For Windows, install the Mutithread and
  * Mutithread Debug variants.
+ * 
+ * \section authors Contributing Authors
+ * This is the list of authors who have contributed directly to the code base,
+ * together with their last known contact details. Authors are listed in
+ * order of decreasing contribution. 
+ * - Johann A. Briffa <j.briffa@surrey.ac.uk>
+ * - Stephan Wesemeyer <s.wesemeyer@surrey.ac.uk>
+ * 
+ * \section funding Project Funding
+ * Various parts of this software have been developed with support from the
+ * following funding sources. Sources are listed in chronological order.
+ * - The Fourth Italo-Maltese Financial Protocol, 1997-1999.
+ * - EUMedGrid FP6 project, contract No 026024, 2007.
+ * - Engineering and Physical Sciences Research Council (EPSRC) UK,
+ *   grant EP/E056407/1, 2007-2010.
+ * 
+ * Parts of this software were developed while the authors were studying or
+ * employed with the following institutions. These are listed in chronological
+ * order.
+ * - University of Malta, 1997-1999
+ *   - JAB was employed as a Research Engineer on the project "Integrated
+ *     DigitalSignal Processing and Telecommunication Systems" in collaboration
+ *     with the University of Lecce, and later as an Assistant Lecturer.
+ *   - The software was developed as part of his M.Phil. studies.
+ * - Oakland University, Rochester MI, 2000-2003
+ *   - JAB was employed as a Graduate Assistant with the Dept of Electronics
+ *     and Systems Engineering.
+ *   - The software was developed as part of his PhD studies.
+ * - University of Malta, 2004-2007
+ *   - JAB was employed as a Lecturer.
+ *   - The software was developed as part of his ongoing research.
+ * - University of Surrey, 2007-
+ *   - JAB was employed as a Research Fellow on the Error-Control Watermaring
+ *     project, and later as a Lecturer.
+ *   - SW was employed as a Research Fellow on the same project, and later
+ *     as a Tutor.
+ *   - The software was developed for the ECW project and later as part of
+ *     the authors' ongoing research.
  */
