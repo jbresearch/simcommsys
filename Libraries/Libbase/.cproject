@@ -29,17 +29,26 @@
 <option id="gnu.cpp.compiler.lib.debug.option.optimization.level.985551170" name="Optimization Level" superClass="gnu.cpp.compiler.lib.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.lib.debug.option.debugging.level.1152733455" name="Debug Level" superClass="gnu.cpp.compiler.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.warnings.toerrors.1296970352" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
+<option id="gnu.cpp.compiler.option.include.paths.1573577981" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1974731688" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.398858410" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
 <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.lib.debug.option.optimization.level.424848110" name="Optimization Level" superClass="gnu.c.compiler.lib.debug.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.lib.debug.option.debugging.level.1384485689" name="Debug Level" superClass="gnu.c.compiler.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.c.compiler.option.warnings.toerrors.829723643" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
+<option id="gnu.c.compiler.option.include.paths.57705225" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.66128011" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.2128738756" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.392897036" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.lib.debug.1248859384" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.debug">
+<option id="gnu.both.asm.option.include.paths.155187669" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.530543617" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
@@ -2786,17 +2795,26 @@
 <option id="gnu.cpp.compiler.option.preprocessor.def.683300142" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 <listOptionValue builtIn="false" value="NDEBUG"/>
 </option>
+<option id="gnu.cpp.compiler.option.include.paths.1945677943" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.992963172" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.676940006" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
 <option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.330982604" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.lib.release.option.debugging.level.1777796737" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.c.compiler.option.warnings.toerrors.605706877" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
+<option id="gnu.c.compiler.option.include.paths.247076552" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.199707115" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.404976943" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.910828464" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 <tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.1785917088" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release">
+<option id="gnu.both.asm.option.include.paths.1501442869" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.873146899" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>

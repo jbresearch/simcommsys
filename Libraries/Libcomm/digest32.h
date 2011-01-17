@@ -30,6 +30,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 namespace libcomm {
 
@@ -63,7 +64,7 @@ protected:
    // @}
    /*! \name Internal functions */
    void reset();
-   void process(const char *buf, int size);
+   void process(const unsigned char *buf, int size);
    void flush()
       {
       process(NULL, 0);
@@ -81,10 +82,12 @@ public:
    /*! \name Conversion operations */
    digest32(const std::string& s);
    operator std::string() const;
+   operator std::vector<unsigned char>() const;
    // @}
 
    /*! \name Interface for computing digest */
    void process(std::istream& sin);
+   void process(const std::vector<unsigned char>& v);
    // @}
 
    /*! \name Comparison functions */

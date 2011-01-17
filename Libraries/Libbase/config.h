@@ -71,10 +71,13 @@
 
 // system include files
 
-#include <cstdlib>
 #include <iostream>
 #include <string>
-#include <math.h>
+#include <vector>
+
+#include <cstdlib>
+#include <cmath>
+
 #ifdef WIN32
 #  include <float.h>
 #  include <basetsd.h>
@@ -184,6 +187,19 @@ typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
 #endif
+
+// *** Within standard library namespace ***
+
+namespace std {
+
+//! Operator to concatenate vectors
+template <class T>
+void operator+=(std::vector<T>& a, const std::vector<T>& b)
+   {
+   a.insert(a.end(), b.begin(), b.end());
+   }
+
+} // end namespace
 
 // *** Within library namespace ***
 

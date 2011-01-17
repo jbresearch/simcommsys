@@ -31,10 +31,10 @@
 #  include <unistd.h>
 #  include <termios.h>
 #  include <sys/ioctl.h>
-#  include <errno.h>
-#  include <string.h>
+#  include <cerrno>
+#  include <cstring>
 #endif
-#include <signal.h>
+#include <csignal>
 #include <sstream>
 #include <cstdio>
 

@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Johann A. Briffa
-# 
+#
 # This file is part of SimCommSys.
 #
 # SimCommSys is free software: you can redistribute it and/or modify
@@ -40,12 +40,16 @@ endif
 ifndef USE_MPI
 export USE_MPI := $(shell mpic++ -showme 2>/dev/null |wc -l)
 endif
+# GMP Library (0 if absent)
+ifndef USE_GMP
+export USE_GMP := $(if $(wildcard /usr/include/gmp.h),1,0)
+endif
 # CUDA compiler (0 if absent, architecture if present)
 ifndef USE_CUDA
 export USE_CUDA := $(shell nvcc -V 2>/dev/null |wc -l)
 endif
 ifneq ($(USE_CUDA),0)
-ifeq (,$(findstring getdevicearch,$(wildcard BuildUtils/bin/*)))
+ifeq (,$(wildcard BuildUtils/bin/getdevicearch))
 USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
 endif
 USE_CUDA := $(shell BuildUtils/bin/getdevicearch)
@@ -62,6 +66,9 @@ endif
 export TAG := $(notdir $(CURDIR))
 ifneq ($(USE_MPI),0)
 TAG := $(TAG)-mpi
+endif
+ifneq ($(USE_GMP),0)
+TAG := $(TAG)-gmp
 endif
 ifneq ($(USE_CUDA),0)
 TAG := $(TAG)-cuda$(USE_CUDA)
@@ -88,6 +95,9 @@ endif
 ifeq ($(MAKELEVEL),0)
 ifneq ($(USE_MPI),0)
 $(info Using MPI: yes)
+endif
+ifneq ($(USE_GMP),0)
+$(info Using GMP: yes)
 endif
 ifneq ($(USE_CUDA),0)
 $(info Using CUDA: yes, compute model $(USE_CUDA))
@@ -131,6 +141,10 @@ LDopts := $(LDopts) -lm -lstdc++ -lboost_program_options
 ifneq ($(USE_MPI),0)
 LDopts := $(LDopts) $(shell mpic++ -showme:link)
 endif
+# GMP options
+ifneq ($(USE_GMP),0)
+LDopts := $(LDopts) -lgmpxx -lgmp
+endif
 # CUDA options
 ifneq ($(USE_CUDA),0)
 ifeq ($(OSARCH),x86_64)
@@ -156,6 +170,10 @@ CCopts := $(CCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 # MPI options
 ifneq ($(USE_MPI),0)
 CCopts := $(CCopts) -DUSE_MPI $(shell mpic++ -showme:compile)
+endif
+# GMP options
+ifneq ($(USE_GMP),0)
+CCopts := $(CCopts) -DUSE_GMP
 endif
 # CUDA options
 ifneq ($(USE_CUDA),0)
@@ -230,7 +248,7 @@ default:
 
 all:
 	@$(MAKE) -j$(CPUS) install
-	@$(MAKE) -j$(CPUS) USE_CUDA=0 USE_MPI=0 install
+	@$(MAKE) -j$(CPUS) USE_CUDA=0 USE_MPI=0 USE_GMP=0 install
 
 build:     debug release
 

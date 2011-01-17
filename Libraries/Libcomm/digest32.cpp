@@ -64,7 +64,7 @@ void digest32::reset()
  * \note If after padding there is enough space left, message length is
  * included.
  */
-void digest32::process(const char *buf, int size)
+void digest32::process(const unsigned char *buf, int size)
    {
    assert(size <= 64);
    if (m_padded && m_terminated)
@@ -134,6 +134,20 @@ digest32::operator std::string() const
    return sout.str();
    }
 
+digest32::operator std::vector<unsigned char>() const
+   {
+   assert(m_padded);
+   assert(m_terminated);
+   // write into a std::vector of bytes, msb first
+   std::vector<unsigned char> v(m_hash.size() * 4);
+   for (int i = 0; i < m_hash.size(); i++)
+      for (int j = 0; j < 4; j++)
+         {
+         v[i * 4 + j] = (m_hash(i) >> 8 * (3 - j)) & 0xff;
+         }
+   return v;
+   }
+
 // Interface for computing digest
 
 void digest32::process(std::istream& sin)
@@ -145,7 +159,27 @@ void digest32::process(std::istream& sin)
       {
       char buf[64];
       sin.read(buf, 64);
-      process(buf, sin.gcount());
+      process((unsigned char *)buf, sin.gcount());
+      }
+   // flush to include stream length if necessary
+   flush();
+   }
+
+void digest32::process(const std::vector<unsigned char>& v)
+   {
+   // initialize the variables
+   reset();
+   // process whole data array
+   int at = 0;
+   int left = v.size();
+   while (left > 0)
+      {
+      // determine current block size and process
+      const int cur = std::min(left, 64);
+      process(&v[at], cur);
+      // update array pointers
+      at += cur;
+      left -= cur;
       }
    // flush to include stream length if necessary
    flush();
