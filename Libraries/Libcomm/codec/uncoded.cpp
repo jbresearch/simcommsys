@@ -199,7 +199,9 @@ std::string uncoded<dbl>::description() const
 template <class dbl>
 std::ostream& uncoded<dbl>::serialize(std::ostream& sout) const
    {
+   sout << "# Encoder" << std::endl;
    sout << encoder;
+   sout << "# Block length" << std::endl;
    sout << tau << std::endl;
    return sout;
    }

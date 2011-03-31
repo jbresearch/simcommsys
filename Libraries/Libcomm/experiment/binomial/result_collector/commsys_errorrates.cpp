@@ -25,46 +25,10 @@
 #include "commsys_errorrates.h"
 #include "fsm.h"
 #include "itfunc.h"
+#include "hamming.h"
 #include <sstream>
 
 namespace libcomm {
-
-/*!
- * \brief Count the number of bit errors in the last encode/decode cycle
- * \return Error count in bits
- */
-int commsys_errorrates::countbiterrors(const libbase::vector<int>& source,
-      const libbase::vector<int>& decoded) const
-   {
-   assert(source.size() == get_symbolsperblock());
-   assert(decoded.size() == get_symbolsperblock());
-   int biterrors = 0;
-   for (int t = 0; t < get_symbolsperblock(); t++)
-      {
-      assert(source(t) != fsm::tail);
-      biterrors += libbase::weight(source(t) ^ decoded(t));
-      }
-   return biterrors;
-   }
-
-/*!
- * \brief Count the number of symbol errors in the last encode/decode cycle
- * \return Error count in symbols
- */
-int commsys_errorrates::countsymerrors(const libbase::vector<int>& source,
-      const libbase::vector<int>& decoded) const
-   {
-   assert(source.size() == get_symbolsperblock());
-   assert(decoded.size() == get_symbolsperblock());
-   int symerrors = 0;
-   for (int t = 0; t < get_symbolsperblock(); t++)
-      {
-      assert(source(t) != fsm::tail);
-      if (source(t) != decoded(t))
-         symerrors++;
-      }
-   return symerrors;
-   }
 
 /*!
  * \brief Update result set
@@ -83,7 +47,7 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result,
    {
    assert(i >= 0 && i < get_iter());
    // Count errors
-   int symerrors = countsymerrors(source, decoded);
+   int symerrors = libbase::hamming(source, decoded);
    // Estimate the BER, SER, FER
    result(2 * i + 0) += symerrors;
    result(2 * i + 1) += symerrors ? 1 : 0;

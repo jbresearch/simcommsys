@@ -49,6 +49,14 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
    // determine limits
    dmin = std::max(-n, -dxmax);
    dmax = std::min(n * I, dxmax);
+   // determine required space for inner metric caching
+#ifdef DEBUG
+   size_t entries = 0;
+   for (int delta = dmin; delta <= dmax; delta++)
+      entries += (1 << (delta + n));
+   std::cerr << "Inner Metric: " << q * entries * sizeof(float)
+         / double(1 << 20) << "MiB" << std::endl;
+#endif
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
    alpha.init(N, 2 * xmax + 1); // offsets: 0, xmax
@@ -74,7 +82,8 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
    // determine memory occupied and tell user
    const size_t bytes_used = sizeof(real) * (alpha.size() + beta.size()
          + gamma.size());
-   std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB" << std::endl;
+   std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
+         << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
    std::cerr.setf(flags);

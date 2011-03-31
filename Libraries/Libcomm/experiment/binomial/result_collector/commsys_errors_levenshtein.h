@@ -22,8 +22,8 @@
  * - $Id$
  */
 
-#ifndef __commsys_errorrates_h
-#define __commsys_errorrates_h
+#ifndef __commsys_errors_levenshtein_h
+#define __commsys_errors_levenshtein_h
 
 #include "config.h"
 #include "vector.h"
@@ -32,7 +32,7 @@
 namespace libcomm {
 
 /*!
- * \brief   CommSys Results - Symbol/Frame Error Rates.
+ * \brief   CommSys Results - SER (Hamming & Levenshtein), FER.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -40,9 +40,10 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * Implements standard error rate calculators.
+ * Implements error rate calculators for SER (using both Hamming and
+ * Levenshtein distances) and FER.
  */
-class commsys_errorrates {
+class commsys_errors_levenshtein {
 protected:
    /*! \name System Interface */
    //! The number of decoding iterations performed
@@ -53,7 +54,7 @@ protected:
    virtual int get_alphabetsize() const = 0;
    // @}
 public:
-   virtual ~commsys_errorrates()
+   virtual ~commsys_errors_levenshtein()
       {
       }
    /*! \name Public interface */
@@ -61,11 +62,12 @@ public:
          const libbase::vector<int>& source,
          const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the number of symbol and frame errors
+    * For each iteration, we count the number of symbol errors using
+    * Hamming and Levenshtein metrics, as well as the number of frame errors
     */
    int count() const
       {
-      return 2 * get_iter();
+      return 3 * get_iter();
       }
    int get_multiplicity(int i) const;
    std::string result_description(int i) const;

@@ -244,6 +244,7 @@ std::string ccfsm<G>::description() const
 template <class G>
 std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
    {
+   sout << "#: Generator matrix (k x n vectors)" << std::endl;
    sout << gen;
    return sout;
    }

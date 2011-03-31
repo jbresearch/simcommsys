@@ -87,11 +87,16 @@ public:
    enum lut_t {
       lut_straight = 0, lut_user
    };
+   enum ws_t {
+      ws_random = 0, ws_zero, ws_alt_symbol, ws_mod_vec
+   };
    // @}
 private:
    /*! \name User-defined parameters */
    int n; //!< number of bits in sparse (output) symbol
    int k; //!< number of bits in message (input) symbol
+   ws_t ws_type; //!< enum indicating LUT type
+   array1i_t ws_vectors; //!< modification vectors
    lut_t lut_type; //!< enum indicating LUT type
    std::string lutname; //!< name to describe codebook
    array1i_t lut; //!< sparsifier LUT
@@ -148,8 +153,9 @@ private:
       }
    int fill(int i = 0, libbase::bitfield suffix = libbase::bitfield(""),
          int weight = -1);
-   void copypilot(libbase::vector<libbase::bitfield> pilotb);
-   void copylut(libbase::vector<libbase::bitfield> lutb);
+   void validate_bitfield_length(const libbase::vector<libbase::bitfield>& table) const;
+   void copypilot(const libbase::vector<libbase::bitfield>& pilot_b);
+   void copylut(const libbase::vector<libbase::bitfield>& lut_b);
    void showlut(std::ostream& sout) const;
    void validatelut() const;
    void computemeandensity();

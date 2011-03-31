@@ -330,9 +330,13 @@ std::string basic_commsys<S, C>::description() const
 template <class S, template <class > class C>
 std::ostream& basic_commsys<S, C>::serialize(std::ostream& sout) const
    {
+   sout << "## Channel" << std::endl;
    sout << chan;
+   sout << "## Modem" << std::endl;
    sout << mdm;
+   sout << "## Mapper" << std::endl;
    sout << map;
+   sout << "## Codec" << std::endl;
    sout << cdc;
    return sout;
    }

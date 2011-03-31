@@ -309,24 +309,20 @@ ssize_t socket::write(const void *buf, size_t len)
    {
    return io(buf, len);
    }
-;
 
 ssize_t socket::read(void *buf, size_t len)
    {
    return io(buf, len);
    }
-;
 
 bool socket::insistwrite(const void *buf, size_t len)
    {
    return insistio(buf, len) == ssize_t(len);
    }
-;
 
 bool socket::insistread(void *buf, size_t len)
    {
    return insistio(buf, len) == ssize_t(len);
    }
-;
 
 } // end namespace

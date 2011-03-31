@@ -23,6 +23,7 @@
  */
 
 #include "commsys_hist_symerr.h"
+#include "hamming.h"
 #include <sstream>
 
 namespace libcomm {
@@ -34,7 +35,7 @@ void commsys_hist_symerr::updateresults(libbase::vector<double>& result,
             int>& decoded) const
    {
    const int skip = count() / get_iter();
-   int symerrors = countsymerrors(source, decoded);
+   int symerrors = libbase::hamming(source, decoded);
    // Update the count for that number of symbol errors (may be zero)
    result(skip * i + symerrors)++;
    }

@@ -278,20 +278,20 @@ template <class real, bool norm>
 libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_row(
       int i) const
    {
-   libbase::vector<libbase::bitfield> lutb(lut.size());
+   libbase::vector<libbase::bitfield> lut_b(lut.size());
    for (int k = 0; k < lut.size(); k++)
-      lutb(k) = libbase::bitfield(lut(k).extractrow(i));
-   return lutb;
+      lut_b(k) = libbase::bitfield(lut(k).extractrow(i));
+   return lut_b;
    }
 
 template <class real, bool norm>
 libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_col(
       int j) const
    {
-   libbase::vector<libbase::bitfield> lutb(lut.size());
+   libbase::vector<libbase::bitfield> lut_b(lut.size());
    for (int k = 0; k < lut.size(); k++)
-      lutb(k) = libbase::bitfield(lut(k).extractcol(j));
-   return lutb;
+      lut_b(k) = libbase::bitfield(lut(k).extractcol(j));
+   return lut_b;
    }
 
 /*!

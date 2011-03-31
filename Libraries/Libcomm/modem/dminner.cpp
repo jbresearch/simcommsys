@@ -33,7 +33,7 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show LUTs on manual update
-// 3 - Show
+// 3 - Show input and output of modulation process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 3
@@ -63,7 +63,8 @@ int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
    bitfield b;
 #ifndef NDEBUG
    if (n > 2)
-      libbase::trace << "Starting fill with:\t" << suffix << "\t" << w << std::endl;
+      libbase::trace << "Starting fill with:\t" << suffix << "\t" << w
+            << std::endl;
 #endif
    if (w == 0)
       lut(i++) = suffix;
@@ -80,37 +81,38 @@ int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
    }
 
 /*!
+ * \brief Check that all entries in table have correct length
+ */
+template <class real, bool norm>
+void dminner<real, norm>::validate_bitfield_length(const libbase::vector<
+      libbase::bitfield>& table) const
+   {
+   assertalways(table.size() > 0);
+   for (int i = 0; i < table.size(); i++)
+      assertalways(table(i).size() == n);
+   }
+
+/*!
  * \brief Set up pilot sequence for the current frame as given
  */
 template <class real, bool norm>
-void dminner<real, norm>::copypilot(libbase::vector<libbase::bitfield> pilotb)
+void dminner<real, norm>::copypilot(
+      const libbase::vector<libbase::bitfield>& pilot_b)
    {
-   assertalways(pilotb.size() > 0);
-   // initialize LUT
-   ws.init(pilotb.size());
-   // copy elements
-   for (int i = 0; i < ws.size(); i++)
-      {
-      assertalways(pilotb(i).size() == n);
-      ws(i) = pilotb(i);
-      }
+   validate_bitfield_length(pilot_b);
+   ws = pilot_b;
    }
 
 /*!
  * \brief Set up LUT with the given codewords
  */
 template <class real, bool norm>
-void dminner<real, norm>::copylut(libbase::vector<libbase::bitfield> lutb)
+void dminner<real, norm>::copylut(
+      const libbase::vector<libbase::bitfield>& lut_b)
    {
-   assertalways(lutb.size() == num_symbols());
-   // initialize LUT
-   lut.init(num_symbols());
-   // copy elements
-   for (int i = 0; i < lut.size(); i++)
-      {
-      assertalways(lutb(i).size() == n);
-      lut(i) = lutb(i);
-      }
+   assertalways(lut_b.size() == num_symbols());
+   validate_bitfield_length(lut_b);
+   lut = lut_b;
    }
 
 /*!
@@ -333,12 +335,12 @@ void dminner<real, norm>::set_pilot(libbase::vector<bool> pilot)
    {
    assertalways((pilot.size() % n) == 0);
    // init space for converted vector
-   libbase::vector<libbase::bitfield> pilotb(pilot.size() / n);
+   libbase::vector<libbase::bitfield> pilot_b(pilot.size() / n);
    // convert pilot sequence
-   for (int i = 0; i < pilotb.size(); i++)
-      pilotb(i) = libbase::bitfield(pilot.extract(i * n, n));
+   for (int i = 0; i < pilot_b.size(); i++)
+      pilot_b(i) = libbase::bitfield(pilot.extract(i * n, n));
    // pass through the standard method for setting pilot sequence
-   set_pilot(pilotb);
+   set_pilot(pilot_b);
    }
 
 /*!
@@ -407,9 +409,34 @@ void dminner<real, norm>::advance() const
       {
       // Initialize space
       ws.init(tau);
-      // creates 'tau' elements of 'n' bits each
-      for (int i = 0; i < tau; i++)
-         ws(i) = r.ival(1 << n);
+      switch (ws_type)
+         {
+         case ws_random:
+            // creates 'tau' elements of 'n' bits each
+            for (int i = 0; i < tau; i++)
+               ws(i) = r.ival(1 << n);
+            break;
+
+         case ws_zero:
+            ws = 0;
+            break;
+
+         case ws_alt_symbol:
+            // alternating all-ones and all-zeros for successive symbols
+            for (int i = 0; i < tau; i++)
+               ws(i) = (i % 2) == 0 ? 0 : (1 << n) - 1;
+            break;
+
+         case ws_mod_vec:
+            // repeated modification vectors from list
+            for (int i = 0; i < tau; i++)
+               ws(i) = ws_vectors(i % ws_vectors.size());
+            break;
+
+         default:
+            failwith("Unknown watermark sequence type");
+            break;
+         }
       }
    }
 
@@ -521,11 +548,37 @@ std::string dminner<real, norm>::description() const
       case lut_user:
          sout << lutname << " codebook";
          break;
+
+      default:
+         failwith("Unknown LUT type");
+         break;
       }
    if (user_threshold)
       sout << ", thresholds " << th_inner << "/" << th_outer;
    if (norm)
       sout << ", normalized";
+   switch (ws_type)
+      {
+      case ws_random:
+         sout << ", random watermark";
+         break;
+
+      case ws_zero:
+         sout << ", no watermark";
+         break;
+
+      case ws_alt_symbol:
+         sout << ", symbol-alternating watermark";
+         break;
+
+      case ws_mod_vec:
+         sout << ", modification vectors (length " << ws_vectors.size() << ")";
+         break;
+
+      default:
+         failwith("Unknown watermark sequence type");
+         break;
+      }
    sout << ")";
    return sout.str();
    }
@@ -535,31 +588,68 @@ std::string dminner<real, norm>::description() const
 template <class real, bool norm>
 std::ostream& dminner<real, norm>::serialize(std::ostream& sout) const
    {
+   sout << "# Version" << std::endl;
+   sout << 2 << std::endl;
+   sout << "# User threshold?" << std::endl;
    sout << user_threshold << std::endl;
    if (user_threshold)
       {
+      sout << "#: Inner threshold" << std::endl;
       sout << th_inner << std::endl;
+      sout << "#: Outer threshold" << std::endl;
       sout << th_outer << std::endl;
       }
+   sout << "# n" << std::endl;
    sout << n << std::endl;
+   sout << "# k" << std::endl;
    sout << k << std::endl;
+   sout << "# LUT type (0=sparse, 1=user)" << std::endl;
    sout << lut_type << std::endl;
    if (lut_type == lut_user)
       {
+      sout << "#: LUT name and entries" << std::endl;
       sout << lutname << std::endl;
       assert(lut.size() == num_symbols());
       for (int i = 0; i < lut.size(); i++)
          sout << libbase::bitfield(lut(i), n) << std::endl;
+      }
+   sout << "# WS type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)"
+         << std::endl;
+   sout << ws_type << std::endl;
+   if (ws_type == ws_mod_vec)
+      {
+      sout << "#: WS modification vectors" << std::endl;
+      sout << ws_vectors.size() << std::endl;
+      for (int i = 0; i < ws_vectors.size(); i++)
+         sout << libbase::bitfield(ws_vectors(i), n) << std::endl;
       }
    return sout;
    }
 
 // object serialization - loading
 
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added version numbering
+ *
+ * \version 2 Added watermark sequence type
+ */
+
 template <class real, bool norm>
 std::istream& dminner<real, norm>::serialize(std::istream& sin)
    {
    std::streampos start = sin.tellg();
+   // get format version
+   int version;
+   sin >> libbase::eatcomments >> version;
+   // handle old-format files (without version number)
+   if (version < 2)
+      {
+      //sin.clear();
+      sin.seekg(start);
+      version = 1;
+      }
    sin >> libbase::eatcomments >> user_threshold;
    // deal with inexistent flag as 'false'
    if (sin.fail())
@@ -583,11 +673,29 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
       {
       sin >> libbase::eatcomments >> lutname;
       // read LUT from stream
-      libbase::vector<libbase::bitfield> lutb;
-      lutb.init(num_symbols());
-      lutb.serialize(sin);
+      libbase::vector<libbase::bitfield> lut_b;
+      lut_b.init(num_symbols());
+      lut_b.serialize(sin);
       // use read LUT
-      copylut(lutb);
+      copylut(lut_b);
+      }
+   // read watermark sequence type if present
+   if (version < 2)
+      ws_type = ws_random;
+   else
+      {
+      int temp;
+      sin >> libbase::eatcomments >> temp;
+      ws_type = (ws_t) temp;
+      if (ws_type == ws_mod_vec)
+         {
+         // read WS modification vectors from stream
+         libbase::vector<libbase::bitfield> ws_vectors_b;
+         sin >> libbase::eatcomments >> ws_vectors_b;
+         // copy list of modification vectors
+         validate_bitfield_length(ws_vectors_b);
+         ws_vectors = ws_vectors_b;
+         }
       }
    init();
    return sin;

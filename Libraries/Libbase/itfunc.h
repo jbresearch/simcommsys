@@ -87,7 +87,6 @@ inline T limit(const T x, const T lo, const T hi)
    {
    return std::max(lo, std::min(hi, x));
    }
-;
 
 int weight(int cw);
 
@@ -107,7 +106,6 @@ inline int32u gray(int32u n)
    {
    return n ^ (n >> 1);
    }
-;
 int32u igray(int32u n);
 
 int gcd(int a, int b);

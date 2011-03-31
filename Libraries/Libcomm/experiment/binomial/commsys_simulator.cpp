@@ -23,6 +23,7 @@
  */
 
 #include "commsys_simulator.h"
+#include "result_collector/commsys_errors_levenshtein.h"
 #include "result_collector/commsys_prof_burst.h"
 #include "result_collector/commsys_prof_pos.h"
 #include "result_collector/commsys_prof_sym.h"
@@ -224,6 +225,8 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
 using libbase::serializer;
 using libbase::gf;
 
+// realizations for default results collector
+
 template class commsys_simulator<sigspace> ;
 template <>
 const serializer commsys_simulator<sigspace>::shelper("experiment",
@@ -286,6 +289,87 @@ template <>
 const serializer commsys_simulator<gf<10, 0x409> >::shelper("experiment",
       "commsys_simulator<gf<10,0x409>>",
       commsys_simulator<gf<10, 0x409> >::create);
+
+// realizations for levenshtein results collector
+
+template class commsys_simulator<bool, commsys_errors_levenshtein> ;
+template <>
+const serializer commsys_simulator<bool, commsys_errors_levenshtein>::shelper(
+      "experiment", "commsys_simulator<bool,levenshtein>", commsys_simulator<
+            bool, commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<1, 0x3> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<1, 0x3> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<1,0x3>,levenshtein>",
+            commsys_simulator<gf<1, 0x3> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<2, 0x7> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<2, 0x7> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<2,0x7>,levenshtein>",
+            commsys_simulator<gf<2, 0x7> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<3, 0xB> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<3, 0xB> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<3,0xB>,levenshtein>",
+            commsys_simulator<gf<3, 0xB> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<4, 0x13> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<4, 0x13> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<4,0x13>,levenshtein>",
+            commsys_simulator<gf<4, 0x13> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<5, 0x25> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<5, 0x25> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<5,0x25>,levenshtein>",
+            commsys_simulator<gf<5, 0x25> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<6, 0x43> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<6, 0x43> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<6,0x43>,levenshtein>",
+            commsys_simulator<gf<6, 0x43> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<7, 0x89> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<7, 0x89> , commsys_errors_levenshtein>::shelper(
+            "experiment", "commsys_simulator<gf<7,0x89>,levenshtein>",
+            commsys_simulator<gf<7, 0x89> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<8, 0x11D> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<8, 0x11D> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_simulator<gf<8,0x11D>,levenshtein>",
+            commsys_simulator<gf<8, 0x11D> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<9, 0x211> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<9, 0x211> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_simulator<gf<9,0x211>,levenshtein>",
+            commsys_simulator<gf<9, 0x211> , commsys_errors_levenshtein>::create);
+
+template class commsys_simulator<gf<10, 0x409> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_simulator<gf<10, 0x409> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_simulator<gf<10,0x409>,levenshtein>",
+            commsys_simulator<gf<10, 0x409> , commsys_errors_levenshtein>::create);
 
 // realizations for non-default containers
 

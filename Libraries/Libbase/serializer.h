@@ -119,6 +119,9 @@ public:
 
 class serializable {
 public:
+   virtual ~serializable()
+      {
+      }
    /*! \name Serialization Support */
    /*! \brief Cloning operation */
    virtual serializable *clone() const = 0;

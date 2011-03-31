@@ -495,11 +495,17 @@ std::string bsid::description() const
 
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
+   sout << "# Version" << std::endl;
    sout << 3 << std::endl;
+   sout << "# Biased?" << std::endl;
    sout << biased << std::endl;
+   sout << "# Vary Ps?" << std::endl;
    sout << varyPs << std::endl;
+   sout << "# Vary Pd?" << std::endl;
    sout << varyPd << std::endl;
+   sout << "# Vary Pi?" << std::endl;
    sout << varyPi << std::endl;
+   sout << "# Cap on I (0=uncapped)" << std::endl;
    sout << Icap << std::endl;
    return sout;
    }

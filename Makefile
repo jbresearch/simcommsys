@@ -30,7 +30,7 @@ export OSARCH := $(shell uname -m)
 endif
 # Kernel version
 ifndef KERNEL
-export KERNEL := $(shell uname -k)
+export KERNEL := $(shell uname -r)
 endif
 # Number of CPUs
 ifndef CPUS
@@ -52,7 +52,10 @@ ifneq ($(USE_CUDA),0)
 ifeq (,$(wildcard BuildUtils/bin/getdevicearch))
 USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
 endif
-USE_CUDA := $(shell BuildUtils/bin/getdevicearch)
+USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
+ifeq (,$(USE_CUDA))
+USE_CUDA := 10
+endif
 endif
 # Set default release to build
 ifndef RELEASE
@@ -248,7 +251,13 @@ default:
 
 all:
 	@$(MAKE) -j$(CPUS) install
-	@$(MAKE) -j$(CPUS) USE_CUDA=0 USE_MPI=0 USE_GMP=0 install
+	@$(MAKE) -j$(CPUS) plain-install
+
+plain-build:
+	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 build
+
+plain-install:
+	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 install
 
 build:     debug release
 
