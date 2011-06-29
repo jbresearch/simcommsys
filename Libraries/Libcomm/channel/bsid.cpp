@@ -24,7 +24,6 @@
 
 #include "bsid.h"
 #include "secant.h"
-#include "event_timer.h"
 #include <sstream>
 #include <limits>
 

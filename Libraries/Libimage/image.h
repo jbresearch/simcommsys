@@ -60,12 +60,17 @@ public:
    explicit image(int rows = 0, int cols = 0, int c = 0, int maxval = 255) :
       m_maxval(maxval)
       {
-      m_data.init(c);
-      for (int i = 0; i < c; i++)
-         m_data(i).init(rows, cols);
+      resize(rows, cols, c);
       }
    virtual ~image()
       {
+      }
+   // resizing
+   void resize(int rows, int cols, int c)
+      {
+      m_data.init(c);
+      for (int i = 0; i < c; i++)
+         m_data(i).init(rows, cols);
       }
 
    /*! \name Information functions */

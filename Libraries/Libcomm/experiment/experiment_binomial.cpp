@@ -30,20 +30,17 @@ namespace libcomm {
 
 void experiment_binomial::derived_reset()
    {
-   assert(count() > 0);
-   // Initialise space for running values
-   sum.init(count());
-   // Initialise running values
-   sum = 0;
+   // Initialise running values only if space is allocated
+   if (sum.size() > 0)
+      sum = 0;
    }
 
 void experiment_binomial::derived_accumulate(
       const libbase::vector<double>& result)
    {
-   assert(count() == result.size());
-   assert(count() == sum.size());
+   assert(result.size() > 0);
    // accumulate results
-   sum += result;
+   safe_accumulate(sum, result);
    }
 
 void experiment_binomial::accumulate_state(const libbase::vector<double>& state)

@@ -25,6 +25,7 @@
 #include "fba2-cuda.h"
 #include "pacifier.h"
 #include "vectorutils.h"
+#include "cuda/gputimer.h"
 #include <iomanip>
 
 namespace cuda {
@@ -54,8 +55,8 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
    size_t entries = 0;
    for (int delta = dmin; delta <= dmax; delta++)
       entries += (1 << (delta + n));
-   std::cerr << "Inner Metric: " << q * entries * sizeof(float)
-         / double(1 << 20) << "MiB" << std::endl;
+   std::cerr << "Inner Metric: " << q * entries * sizeof(float) / double(1
+         << 20) << "MiB" << std::endl;
 #endif
    // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
    // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
@@ -595,7 +596,7 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r,
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, dev_r, dev_app);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    // if debug mode is high enough, print the results obtained
 #if DEBUG>=3
    std::cerr << "gamma = " << std::endl;
@@ -618,7 +619,7 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r)
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, dev_r);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    // if debug mode is high enough, print the results obtained
 #if DEBUG>=3
    std::cerr << "gamma = " << std::endl;
@@ -629,7 +630,7 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r)
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_alpha(int rho)
+void fba2<real, sig, norm>::do_work_alpha(int rho, stream& sid)
    {
    static bool first_time = true;
    // Alpha computation:
@@ -646,15 +647,15 @@ void fba2<real, sig, norm>::do_work_alpha(int rho)
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
-      fba2_alpha_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real)>>>(*this, rho, i);
-      cudaSafeWaitForKernel();
+      fba2_alpha_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, rho, i);
+      //cudaSafeThreadSynchronize();
       // normalize if requested
       if (norm)
          {
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_alpha_kernel<real,sig,norm> <<<1,2*xmax+1>>>(*this, i);
-         cudaSafeWaitForKernel();
+fba2_normalize_alpha_kernel         <real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
+         //cudaSafeThreadSynchronize();
          }
       }
    // if debug mode is high enough, print the results obtained
@@ -666,32 +667,32 @@ void fba2<real, sig, norm>::do_work_alpha(int rho)
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_beta(int rho)
+void fba2<real, sig, norm>::do_work_beta(int rho, stream& sid)
    {
    static bool first_time = true;
    // Beta computation:
    if (first_time)
       {
       std::cerr << "Beta Kernel: " << 2 * xmax + 1 << " blocks x " << q
-            << " threads" << std::endl;
+      << " threads" << std::endl;
       if (norm)
-         std::cerr << "Normalization Kernel: " << 1 << " blocks x " << 2 * xmax
-               + 1 << " threads" << std::endl;
+      std::cerr << "Normalization Kernel: " << 1 << " blocks x " << 2 * xmax
+      + 1 << " threads" << std::endl;
       }
    for (int i = N; i > 0; i--)
       {
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
-      fba2_beta_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real)>>>(*this, rho, i);
-      cudaSafeWaitForKernel();
+      fba2_beta_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, rho, i);
+      //cudaSafeThreadSynchronize();
       // normalize if requested
       if (norm)
          {
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_beta_kernel<real,sig,norm> <<<1,2*xmax+1>>>(*this, i);
-         cudaSafeWaitForKernel();
+         fba2_normalize_beta_kernel<real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
+         //cudaSafeThreadSynchronize();
          }
       }
    // if debug mode is high enough, print the results obtained
@@ -710,10 +711,10 @@ void fba2<real, sig, norm>::do_work_results(int rho, dev_array2r_t& dev_ptable) 
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    if (first_time)
-      std::cerr << "Results Kernel: " << N << " blocks x " << q << " threads"
-            << std::endl;
+   std::cerr << "Results Kernel: " << N << " blocks x " << q << " threads"
+   << std::endl;
    fba2_results_kernel<real,sig,norm> <<<N,q>>>(*this, rho, dev_ptable);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    // reset pacifier monitor
    first_time = false;
    }
@@ -725,7 +726,7 @@ void fba2<real, sig, norm>::copy_results(const dev_array2r_t& dev_ptable,
    // initialise result vector (one sparse symbol per timestep) and copy back
    libbase::allocate(ptable, N, q);
    for (int i = 0; i < N; i++)
-      ptable(i) = array1r_t(dev_ptable.extract_row(i));
+   ptable(i) = array1r_t(dev_ptable.extract_row(i));
    // if debug mode is high enough, print the results obtained
 #if DEBUG>=3
    std::cerr << "ptable = " << ptable << std::endl;
@@ -735,8 +736,8 @@ void fba2<real, sig, norm>::copy_results(const dev_array2r_t& dev_ptable,
 // User procedures
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(const array1s_t& r, const array1vd_t& app,
-      array1vr_t& ptable)
+void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
+      const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
    {
    // allocate memory on device
    dev_array2r_t alpha;
@@ -762,15 +763,43 @@ void fba2<real, sig, norm>::decode(const array1s_t& r, const array1vd_t& app,
    dev_array2r_t dev_ptable;
    dev_ptable.init(N, q);
    // call the kernels
+   gputimer tg("t_gamma_app");
    do_work_gamma(dev_r, dev_app);
-   do_work_alpha(r.size());
-   do_work_beta(r.size());
+   collector.add_timer(tg);
+
+   gputimer tab("t_alpha+beta");
+   stream sa, sb;
+   gputimer ta("t_alpha", sa.get_id());
+   do_work_alpha(r.size(), sa);
+   ta.stop();
+   gputimer tb("t_beta", sb.get_id());
+   do_work_beta(r.size(), sb);
+   tb.stop();
+   cudaSafeThreadSynchronize();
+   collector.add_timer(ta);
+   collector.add_timer(tb);
+   collector.add_timer(tab);
+
+   gputimer tr("t_results");
    do_work_results(r.size(), dev_ptable);
+   collector.add_timer(tr);
+
+   gputimer tc("t_transfer");
    copy_results(dev_ptable, ptable);
+   collector.add_timer(tc);
+   // add values for limits that depend on channel conditions
+   collector.add_timer(I, "c_I");
+   collector.add_timer(xmax, "c_xmax");
+   collector.add_timer(dxmax, "c_dxmax");
+   // add memory usage
+   collector.add_timer(sizeof(real) * alpha.size(), "m_alpha"); 
+   collector.add_timer(sizeof(real) * beta.size(), "m_beta"); 
+   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma"); 
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(const array1s_t& r, array1vr_t& ptable)
+void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
+      const array1s_t& r, array1vr_t& ptable)
    {
    // allocate memory on device
    dev_array2r_t alpha;
@@ -800,20 +829,47 @@ void fba2<real, sig, norm>::decode(const array1s_t& r, array1vr_t& ptable)
    dev_array2r_t dev_ptable;
    dev_ptable.init(N, q);
    // call the kernels
+   gputimer tg("t_gamma");
    do_work_gamma(dev_r);
-   do_work_alpha(r.size());
-   do_work_beta(r.size());
+   collector.add_timer(tg);
+
+   gputimer tab("t_alpha+beta");
+   stream sa, sb;
+   gputimer ta("t_alpha", sa.get_id());
+   do_work_alpha(r.size(), sa);
+   ta.stop();
+   gputimer tb("t_beta", sb.get_id());
+   do_work_beta(r.size(), sb);
+   tb.stop();
+   cudaSafeThreadSynchronize();
+   collector.add_timer(ta);
+   collector.add_timer(tb);
+   collector.add_timer(tab);
+
+   gputimer tr("t_results");
    do_work_results(r.size(), dev_ptable);
+   collector.add_timer(tr);
+
+   gputimer tc("t_transfer");
    copy_results(dev_ptable, ptable);
+   collector.add_timer(tc);
+   // add values for limits that depend on channel conditions
+   collector.add_timer(I, "c_I");
+   collector.add_timer(xmax, "c_xmax");
+   collector.add_timer(dxmax, "c_dxmax");
+   // add memory usage
+   collector.add_timer(sizeof(real) * alpha.size(), "m_alpha"); 
+   collector.add_timer(sizeof(real) * beta.size(), "m_beta"); 
+   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma"); 
    }
 
 // Explicit Realizations
 
 // no-normalization, for debugging
-template class fba2<float, bool, false> ;
-template class fba2<double, bool, false> ;
+template class fba2<float, bool, false>;
+template class fba2<double, bool, false>;
 // normalized, for normal use
-template class fba2<float, bool, true> ;
-template class fba2<double, bool, true> ;
+template class fba2<float, bool, true>;
+template class fba2<double, bool, true>;
 
 } // end namespace

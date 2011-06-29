@@ -61,7 +61,8 @@ void masterslave::fcall(const std::string& name)
    functor *f = fmap[name];
    if (f == NULL)
       {
-      cerr << "Function \"" << name << "\" unknown, cannot continue." << std::endl;
+      cerr << "Function \"" << name << "\" unknown, cannot continue."
+            << std::endl;
       exit(1);
       }
    f->call();
@@ -106,7 +107,8 @@ void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
    master = new socket;
    assertalways(master->bind(port));
    trace << "Master system bound to port " << port << std::endl;
-   t.start();
+   twall.start();
+   tcpu.start();
 
    initialized = true;
    }
@@ -151,7 +153,7 @@ std::string masterslave::gethostname()
 
 int masterslave::gettag()
    {
-   timer tslave("masterslave_slave");
+   walltimer tslave("masterslave_slave");
    int tag;
    if (!receive(tag))
       {
@@ -176,8 +178,8 @@ void masterslave::sendname()
 
 void masterslave::sendcputime()
    {
-   const double cputime = t.cputime();
-   t.start();
+   const double cputime = tcpu.elapsed();
+   tcpu.start();
    if (!send(cputime))
       {
       cerr << "Connection failed sending CPU time, dying here..." << std::endl;
@@ -192,8 +194,8 @@ void masterslave::dowork()
    std::string key;
    if (!receive(key))
       {
-      cerr
-            << "Connection failed waiting for function reference, dying here..." << std::endl;
+      cerr << "Connection failed waiting for function reference, dying here..."
+            << std::endl;
       exit(1);
       }
    trace << "system working" << std::endl;
@@ -208,7 +210,8 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
    // Status information for user
    cerr << "Slave system starting at priority " << priority << "." << std::endl;
    // infinite loop, until we are explicitly told to die
-   t.start();
+   twall.start();
+   tcpu.start();
    while (true)
       {
       const int tag = gettag();
@@ -224,7 +227,8 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
             dowork();
             break;
          case DIE:
-            t.stop();
+            twall.stop();
+            tcpu.stop();
             cerr << "Received die request, stopping after " << timer::format(
                   getcputime()) << " CPU runtime (" << int(100 * getusage())
                   << "%% usage)." << std::endl;
@@ -314,13 +318,11 @@ void masterslave::close(slave *s)
 // creation and destruction
 
 masterslave::masterslave() :
-   t("masterslave")
+   twall("masterslave-wall", false), tcpu("masterslave-cpu", false)
    {
    initialized = false;
    cputimeused = 0;
    master = NULL;
-   // we don't want to start the timer until something is happening
-   t.stop();
    }
 
 masterslave::~masterslave()
@@ -344,15 +346,18 @@ void masterslave::disable()
    clog << "Killing idle slaves:" << flush;
    while (slave *s = idleslave())
       {
-      trace << "DEBUG (disable): Idle slave found (" << s << "), killing." << std::endl;
+      trace << "DEBUG (disable): Idle slave found (" << s << "), killing."
+            << std::endl;
       clog << "." << flush;
       send(s, int(DIE));
       }
    clog << " done" << std::endl;
    // print timer information
-   t.stop();
-   clog << "Time elapsed: " << t << "" << std::endl;
-   clog << "CPU usage on master: " << int(t.usage()) << "%" << std::endl;
+   twall.stop();
+   tcpu.stop();
+   clog << "Time elapsed: " << twall << "" << std::endl;
+   clog << "CPU usage on master: " << int(100 * tcpu.elapsed()
+         / twall.elapsed()) << "%" << std::endl;
    clog.precision(2);
    clog << "Average speedup factor: " << getusage() << "" << std::endl;
    // update flag

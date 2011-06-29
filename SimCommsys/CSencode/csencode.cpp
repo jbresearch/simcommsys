@@ -24,7 +24,7 @@
 
 #include "serializer_libcomm.h"
 #include "commsys.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -66,7 +66,7 @@ void process(const std::string& fname, std::istream& sin = std::cin,
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    namespace po = boost::program_options;

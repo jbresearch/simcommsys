@@ -24,7 +24,7 @@
 
 #include "levenshtein.h"
 #include "hamming.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -273,7 +273,7 @@ void process(const std::string& fname1, const std::string& fname2,
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    po::options_description desc("Allowed options");

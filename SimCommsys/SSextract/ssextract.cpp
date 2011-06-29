@@ -26,7 +26,7 @@
 #include "image.h"
 #include "blockembedder.h"
 #include "hard_decision.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -41,7 +41,7 @@ libimage::image<S> loadimage(std::istream& sin)
    // load image from stream
    libimage::image<S> im;
    im.serialize(sin);
-   libbase::verifycompleteload(sin);
+   libbase::verifycomplete(sin);
    return im;
    }
 
@@ -128,7 +128,7 @@ void process(const std::string& systemfile, const std::string& channelfile,
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    namespace po = boost::program_options;

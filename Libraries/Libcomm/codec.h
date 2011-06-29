@@ -30,6 +30,7 @@
 #include "vector.h"
 #include "serializer.h"
 #include "random.h"
+#include "instrumented.h"
 #include <string>
 
 namespace libcomm {
@@ -56,7 +57,7 @@ namespace libcomm {
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class codec : public libbase::serializable {
+class codec : public instrumented, public libbase::serializable {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;

@@ -148,7 +148,7 @@ int readkey(void)
    int error;
    struct termios otty, ntty;
 
-   fflush(stdout);
+   fflush( stdout);
    tcgetattr(STDIN_FILENO, &otty);
    ntty = otty;
 
@@ -277,7 +277,10 @@ bool isfailedload(std::istream &is)
       std::ios::iostate state = is.rdstate();
       is.clear();
       std::cerr << "ERROR: Failure loading object at position " << is.tellg()
-            << "." << std::endl;
+            << ", next line:" << std::endl;
+      std::string s;
+      getline(is, s);
+      std::cerr << s << std::endl;
       is.clear(state);
       return true;
       }
@@ -298,25 +301,39 @@ bool isincompleteload(std::istream &is)
    if (!is.eof())
       {
       std::cerr << "ERROR: Incomplete loading, stopped at position "
-            << is.tellg() << "." << std::endl;
+            << is.tellg() << ", next line:" << std::endl;
       std::string s;
-      while (getline(is, s))
-         std::cerr << s << std::endl;
+      getline(is, s);
+      std::cerr << s << std::endl;
       return true;
       }
    return false;
    }
 
 /*!
- * \brief Verify that all stream data was read without error.
+ * \brief Verify that the last stream data item was read without error.
  * 
+ * If the last stream input failed an error message is shown, and the program
+ * is stopped.
+ */
+std::istream& verify(std::istream& is)
+   {
+   if (isfailedload(is))
+      exit(1);
+   return is;
+   }
+
+/*!
+ * \brief Verify that all stream data was read without error.
+ *
  * If the last stream input failed, or if there is still data left on the
  * stream, an error message is shown, and the program is stopped.
  */
-void verifycompleteload(std::istream& is)
+std::istream& verifycomplete(std::istream& is)
    {
    if (isfailedload(is) || isincompleteload(is))
       exit(1);
+   return is;
    }
 
 } // end namespace

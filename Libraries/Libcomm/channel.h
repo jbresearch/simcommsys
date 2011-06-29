@@ -31,6 +31,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "vectorutils.h"
+#include "instrumented.h"
 
 #include "randgen.h"
 #include "sigspace.h"
@@ -63,7 +64,7 @@ namespace libcomm {
  */
 
 template <class S, template <class > class C>
-class basic_channel_interface : public parametric {
+class basic_channel_interface : public instrumented, public parametric {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<S> array1s_t;

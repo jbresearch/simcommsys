@@ -34,6 +34,7 @@
  */
 
 #include "cuda-all.h"
+#include "sysvar.h"
 
 namespace cuda {
 
@@ -210,7 +211,7 @@ int cudaGetComputeModel()
    dev_cm.init();
    // call the kernel
    getcomputemodel_kernel<<<1,1>>>(dev_cm);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    // copy results back
    return dev_cm;
    }
@@ -224,7 +225,12 @@ void cudaInitialize(std::ostream& sout)
       return;
    initialized = true;
    // select device to use
-   int device = cudaGetMaxGflopsDeviceId();
+   int device;
+   libbase::sysvar user_device("CUDA_DEVICE");
+   if (user_device.is_defined())
+      device = user_device.as_int();
+   else
+      device = cudaGetMaxGflopsDeviceId();
    cudaSafeCall(cudaSetDevice(device));
    // report to user
    sout << "CUDA device: " << device << " (" << cudaGetDeviceName() << ", "

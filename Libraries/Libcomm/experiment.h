@@ -53,6 +53,22 @@ private:
    // @}
 
 protected:
+   /*! \name Helpers for derived classes */
+   /*!
+    * \brief Add 'b' to 'a', initializing 'a' if necessary
+    * \param[in,out] a Accumulator vector
+    * \param[in] b Vector to be added to accumulator
+    */
+   static void safe_accumulate(libbase::vector<double>& a,
+         const libbase::vector<double>& b)
+      {
+      if (a.size() == 0)
+         a = b;
+      else
+         a += b;
+      }
+   // @}
+
    /*! \name Result accumulator interface */
    /*!
     * \brief Reset accumulated results
@@ -92,7 +108,7 @@ public:
     * \brief The number of elements making up a sample
     * \note This getter is likely to be redundant, as the value may be
     * easily obtained from the size of result in sample()
-    * \callergraph
+    * \todo Remove this method from interface.
     */
    virtual int count() const = 0;
    /*!

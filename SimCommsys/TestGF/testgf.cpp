@@ -26,7 +26,7 @@
 #include "gf_fast.h"
 #include "bitfield.h"
 #include "matrix.h"
-#include "timer.h"
+#include "cputimer.h"
 #include <iostream>
 
 namespace testgf {
@@ -35,7 +35,7 @@ using libbase::gf;
 using libbase::gf_fast;
 using libbase::bitfield;
 using libbase::matrix;
-using libbase::timer;
+using libbase::cputimer;
 
 using std::cout;
 using std::cerr;
@@ -318,7 +318,7 @@ void TestFastGF4()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<2,0x7>" << std::endl;
@@ -474,7 +474,7 @@ void TestFastGF8()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<3, 0xB>" << std::endl;
@@ -631,7 +631,7 @@ void TestFastGF16()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<4, 0x13>" << std::endl;
@@ -788,7 +788,7 @@ void TestFastGF32()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<5, 0x25>" << std::endl;
@@ -944,7 +944,7 @@ void TestFastGF64()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<6, 0x43>" << std::endl;
@@ -1100,7 +1100,7 @@ void TestFastGF128()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<7, 0x89>" << std::endl;
@@ -1257,7 +1257,7 @@ void TestFastGF256()
       assert((gf2 == gffast2) && (gffast2.log_gf() == gffast3.log_gf()));
       }
 
-   timer t1;
+   cputimer t1;
    cout << "Proving that gf_fast is faster at multiplication:" << std::endl;
    cout
          << "multiplying all non-zero field elements together 1,000,000 times in gf<8, 0x11D>" << std::endl;

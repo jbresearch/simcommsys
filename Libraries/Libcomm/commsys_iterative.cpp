@@ -66,7 +66,7 @@ std::string commsys_iterative<S, C>::description() const
 template <class S, template <class > class C>
 std::ostream& commsys_iterative<S, C>::serialize(std::ostream& sout) const
    {
-   sout << iter;
+   sout << iter << std::endl;
    commsys<S, C>::serialize(sout);
    return sout;
    }

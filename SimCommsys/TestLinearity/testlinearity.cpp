@@ -23,7 +23,7 @@
  */
 
 #include "serializer_libcomm.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 
@@ -87,7 +87,7 @@ void process(const std::string& fname, int count)
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    po::options_description desc("Allowed options");

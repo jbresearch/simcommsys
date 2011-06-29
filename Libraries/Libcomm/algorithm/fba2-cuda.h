@@ -31,6 +31,7 @@
 #include "fsm.h"
 #include "cuda-all.h"
 #include "modem/dminner2-receiver.h"
+#include "instrumented.h"
 
 #include <cmath>
 #include <iostream>
@@ -126,7 +127,7 @@ private:
       // host code path only
 #if DEBUG>=2
       std::cerr << "(" << d << "," << i << "," << x << "," << deltax << ":"
-            << ndx << ")";
+      << ndx << ")";
 #endif
 #endif
       return ndx;
@@ -150,11 +151,13 @@ private:
    // helper methods
    void print_gamma(std::ostream& sout) const;
    // de-reference kernel calls
+#ifdef __CUDACC__
    void do_work_gamma(const dev_array1s_t& dev_r, const dev_array2r_t& dev_app);
    void do_work_gamma(const dev_array1s_t& dev_r);
-   void do_work_alpha(int rho);
-   void do_work_beta(int rho);
+   void do_work_alpha(int rho, stream& sid);
+   void do_work_beta(int rho, stream& sid);
    void do_work_results(int rho, dev_array2r_t& dev_ptable) const;
+#endif
    void copy_results(const dev_array2r_t& dev_ptable, array1vr_t& ptable);
    // @}
 public:
@@ -209,8 +212,10 @@ public:
       }
 
    // decode functions
-   void decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable);
-   void decode(const array1s_t& r, array1vr_t& ptable);
+   void decode(libcomm::instrumented& collector, const array1s_t& r,
+         const array1vd_t& app, array1vr_t& ptable);
+   void decode(libcomm::instrumented& collector, const array1s_t& r,
+         array1vr_t& ptable);
 
    // Description
    std::string description() const

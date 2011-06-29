@@ -31,6 +31,7 @@
 #include "serializer.h"
 #include "random.h"
 #include "blockprocess.h"
+#include "instrumented.h"
 #include <iostream>
 #include <string>
 
@@ -50,7 +51,9 @@ namespace libcomm {
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class mapper : public blockprocess, public libbase::serializable {
+class mapper : public instrumented,
+      public blockprocess,
+      public libbase::serializable {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;

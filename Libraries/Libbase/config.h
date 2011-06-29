@@ -243,7 +243,8 @@ std::istream& eatcomments(std::istream& is);
 // Stream data loading verification functions
 bool isfailedload(std::istream &is);
 bool isincompleteload(std::istream &is);
-void verifycompleteload(std::istream& is);
+std::istream& verify(std::istream& is);
+std::istream& verifycomplete(std::istream& is);
 
 // Check for alignment
 inline bool isaligned(const void *buf, int bytes)

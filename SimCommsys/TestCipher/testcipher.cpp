@@ -22,7 +22,7 @@
  * - $Id$
  */
 
-#include "timer.h"
+#include "cputimer.h"
 #include "crypto/elgamal.h"
 #include "crypto/knowdisclog_zpschnorr.h"
 #include "math/gmp_bigint.h"
@@ -265,7 +265,7 @@ template class testset<libbase::gmp_bigint>;
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    namespace po = boost::program_options;

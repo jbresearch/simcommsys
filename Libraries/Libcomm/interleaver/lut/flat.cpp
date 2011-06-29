@@ -53,6 +53,7 @@ std::string flat<real>::description() const
 template <class real>
 std::ostream& flat<real>::serialize(std::ostream& sout) const
    {
+   sout << "# Interleaver size" << std::endl;
    sout << this->lut.size() << std::endl;
    return sout;
    }

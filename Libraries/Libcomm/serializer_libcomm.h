@@ -115,6 +115,7 @@
 // Experiments
 #include "experiment/binomial/commsys_simulator.h"
 #include "experiment/binomial/commsys_threshold.h"
+#include "experiment/normal/commsys_timer.h"
 // Result Collectors
 #include "experiment/binomial/result_collector/commsys_prof_burst.h"
 #include "experiment/binomial/result_collector/commsys_prof_pos.h"
@@ -138,7 +139,7 @@ namespace libcomm {
 // Serialization support
 class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       awgn,
-      laplacian<sigspace>,
+      laplacian<sigspace> ,
       lapgauss,
       bsid,
       bsid2d,
@@ -190,7 +191,7 @@ private:
    dminner2<double, true> _dminner2;
    dminner2d<double, true> _dminner2d;
    // Codecs
-   ldpc<libbase::gf<1, 0x3> , double> _ldpc_1_0x3_dbl;
+   ldpc<libbase::gf<1, 0x3>, double> _ldpc_1_0x3_dbl;
 
    reedsolomon<libbase::gf<3, 0xB> > _rscodec_3_0xB;
 
@@ -207,6 +208,7 @@ private:
    // Experiments
    commsys_simulator<bool> _commsys_simulator;
    commsys_threshold<bool> _commsys_threshold;
+   commsys_timer<bool> _commsys_timer;
 public:
    serializer_libcomm() :
       _mpsk(2), _qam(4)
@@ -221,8 +223,7 @@ T *loadandverify(std::istream& sin)
    {
    const serializer_libcomm my_serializer_libcomm;
    T *system;
-   sin >> libbase::eatcomments >> system;
-   libbase::verifycompleteload(sin);
+   sin >> libbase::eatcomments >> system >> libbase::verifycomplete;
    return system;
    }
 

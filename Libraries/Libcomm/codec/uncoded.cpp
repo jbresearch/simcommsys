@@ -214,7 +214,12 @@ std::istream& uncoded<dbl>::serialize(std::istream& sin)
    free();
    fsm *encoder_original;
    sin >> libbase::eatcomments >> encoder_original;
-   uncoded<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(*encoder_original));
+   cached_fsm *encoder_cached = dynamic_cast<cached_fsm*> (encoder_original);
+   if (encoder_cached)
+      uncoded<dbl>::encoder = dynamic_cast<fsm*> (encoder_original->clone());
+   else
+      uncoded<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(
+            *encoder_original));
    delete encoder_original;
    sin >> libbase::eatcomments >> tau;
    init();

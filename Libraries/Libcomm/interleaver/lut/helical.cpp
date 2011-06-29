@@ -71,8 +71,11 @@ std::string helical<real>::description() const
 template <class real>
 std::ostream& helical<real>::serialize(std::ostream& sout) const
    {
+   sout << "# Interleaver size" << std::endl;
    sout << this->lut.size() << std::endl;
+   sout << "# Number of rows" << std::endl;
    sout << rows << std::endl;
+   sout << "# Number of cols" << std::endl;
    sout << cols << std::endl;
    return sout;
    }

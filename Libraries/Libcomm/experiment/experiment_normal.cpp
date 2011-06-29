@@ -31,33 +31,29 @@ namespace libcomm {
 
 void experiment_normal::derived_reset()
    {
-   assert(count() > 0);
-   // Initialise space for running values
-   sum.init(count());
-   sumsq.init(count());
-   // Initialise running values
-   sum = 0;
-   sumsq = 0;
+   // Initialise running values only if space is allocated
+   if (sum.size() > 0)
+      sum = 0;
+   if (sumsq.size() > 0)
+      sumsq = 0;
    }
 
 void experiment_normal::derived_accumulate(
       const libbase::vector<double>& result)
    {
-   assert(count() == result.size());
-   assert(count() == sum.size());
-   assert(count() == sumsq.size());
+   assert(result.size() > 0);
    // accumulate results
    libbase::vector<double> sample = result;
-   sum += sample;
+   safe_accumulate(sum, sample);
    sample.apply(square);
-   sumsq += sample;
+   safe_accumulate(sumsq, sample);
    }
 
 void experiment_normal::accumulate_state(const libbase::vector<double>& state)
    {
    assert(count() == sum.size());
    assert(count() == sumsq.size());
-   assert(2*count() == state.size());
+   assert(2 * count() == state.size());
    for (int i = 0; i < count(); i++)
       {
       sum(i) += state(i);

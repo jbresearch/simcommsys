@@ -28,7 +28,8 @@
 #include "config.h"
 #include "vector.h"
 #include "socket.h"
-#include "timer.h"
+#include "walltimer.h"
+#include "cputimer.h"
 #include "functor.h"
 #include <map>
 
@@ -89,7 +90,8 @@ private:
    std::map<std::string, functor *> fmap;
    bool initialized;
    double cputimeused;
-   timer t;
+   walltimer twall;
+   cputimer tcpu;
 protected:
    void fregister(const std::string& name, functor *f);
    void fcall(const std::string& name);
@@ -104,11 +106,11 @@ public:
       }
    double getcputime() const
       {
-      return initialized ? cputimeused : t.cputime();
+      return initialized ? cputimeused : tcpu.elapsed();
       }
    double getwalltime() const
       {
-      return t.elapsed();
+      return twall.elapsed();
       }
    double getusage() const
       {

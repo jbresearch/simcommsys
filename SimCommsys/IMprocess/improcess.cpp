@@ -23,7 +23,8 @@
  */
 
 #include "image.h"
-#include "timer.h"
+#include "cputimer.h"
+#include "filter/limitfilter.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -38,12 +39,12 @@ libimage::image<S> loadimage(std::istream& sin)
    {
    libimage::image<S> im;
    im.serialize(sin);
-   libbase::verifycompleteload(sin);
+   libbase::verifycomplete(sin);
    return im;
    }
 
 /*!
- * \brief   Main process
+ * \brief   Image sub-sampling process
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -54,7 +55,7 @@ libimage::image<S> loadimage(std::istream& sin)
  */
 
 template <class S>
-void process(const int xoff, const int xinc, const int yoff, const int yinc,
+void subsample(const int xoff, const int xinc, const int yoff, const int yinc,
       std::istream& sin = std::cin, std::ostream& sout = std::cout)
    {
    // Load input image
@@ -85,8 +86,139 @@ void process(const int xoff, const int xinc, const int yoff, const int yinc,
    image_out.serialize(sout);
    }
 
+// Rounding
+
+template <class real>
+inline int round(real x)
+   {
+   return int(floor(x + 0.5));
+   }
+
+// Normalized sinc function
+
+template <class real>
+inline real sinc(real x)
+   {
+   const real pi = 3.14159265358979323846;
+   if (x != 0)
+      return sin(pi * x) / (pi * x);
+   return 1;
+   }
+
+template <class real>
+inline real sinc(real x, real y)
+   {
+   return sinc(x) * sinc(y);
+   }
+
+// Lanczos impulse response
+
+template <class real>
+inline real lanczos(real x, int a)
+   {
+   if (x > -a && x < a)
+      return sinc(x) * sinc(x / a);
+   return 0;
+   }
+
+template <class real>
+inline real lanczos(real x, real y, int a)
+   {
+   return lanczos(x, a) * lanczos(y, a);
+   }
+
+// Resample image using Lanczos filter
+
+template <class S, class real>
+real computeat(int i, int j, const libbase::matrix<S>& x, const real xoff,
+      const real yoff, const real R, const int a)
+   {
+   // determine input and output image sizes
+   const int xrows = x.size().rows();
+   const int xcols = x.size().cols();
+   // compute sample
+   real yy = 0;
+   const int imin = std::max(0, int(ceil(i / R - xoff - a)));
+   const int imax = std::min(xrows - 1, int(floor(i / R - xoff + a)));
+   const int jmin = std::max(0, int(ceil(j / R - yoff - a)));
+   const int jmax = std::min(xcols - 1, int(floor(j / R - yoff + a)));
+   for (int ii = imin; ii <= imax; ii++)
+      for (int jj = jmin; jj <= jmax; jj++)
+         yy += x(ii, jj) * lanczos<real> (i / R - xoff - ii, j / R - yoff - jj,
+               a);
+   return yy;
+   }
+
+template <class S, class real>
+libbase::matrix<S> resample(const libbase::matrix<S>& x, const real xoff,
+      const real yoff, const real R, const int a)
+   {
+   std::cerr << "Lanczos resampling (type " << typeid(real).name()
+         << ", off = (" << xoff << "," << yoff << "), R = " << R << ", a = "
+         << a << ")" << std::endl;
+   // determine input and output image sizes
+   const int xrows = x.size().rows();
+   const int xcols = x.size().cols();
+   const int yrows = round(xrows * R);
+   const int ycols = round(xcols * R);
+   std::cerr << "Channel: " << xcols << "x" << xrows << " -> " << ycols << "x"
+         << yrows << std::endl;
+   // create destination image
+   libbase::matrix<S> y(yrows, ycols);
+   // iterate through all destination pixels and compute
+   for (int i = 0; i < yrows; i++)
+      for (int j = 0; j < ycols; j++)
+         // TODO: remove round() for non-int types
+         y(i, j) = round(computeat<S, real> (i, j, x, xoff, yoff, R, a));
+   // end
+   return y;
+   }
+
 /*!
- * \brief   Stego-System Embedder
+ * \brief   Image re-sampling process using Lanczos filter
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ */
+
+template <class S, class real>
+void resample(const double xoff, const double yoff, const double scale,
+      const int limit, std::istream& sin = std::cin, std::ostream& sout =
+            std::cout)
+   {
+   // Load input image
+   libimage::image<S> image_in = loadimage<S> (sin);
+   // Tell use what we're doing
+   std::cerr << "Resampling: " << xoff << ',' << yoff << ',' << scale << ','
+         << limit << std::endl;
+   // Create output image
+   libimage::image<S> image_out;
+   // Process each channel
+   for (int c = 0; c < image_in.channels(); c++)
+      {
+      libbase::matrix<S> plane_in = image_in.getchannel(c);
+      libbase::matrix<S> plane_out = resample<S, real> (plane_in, xoff, yoff,
+            scale, limit);
+      if (c == 0)
+         image_out.resize(plane_out.size().rows(), plane_out.size().cols(),
+               image_in.channels());
+      // Limit values to usable range
+      libimage::limitfilter<S> filter(libimage::limitval<S>::lo(),
+            libimage::limitval<S>::hi());
+      filter.apply(plane_out, plane_out);
+      // Copy into output image
+      image_out.setchannel(c, plane_out);
+      }
+   // Save the resulting image
+   image_out.serialize(sout);
+   }
+
+/*!
+ * \brief   Image Processing Command
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -97,7 +229,7 @@ void process(const int xoff, const int xinc, const int yoff, const int yinc,
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    namespace po = boost::program_options;
@@ -107,36 +239,65 @@ int main(int argc, char *argv[])
          "image pixel type");
    desc.add_options()("subsample", po::value<std::string>(),
          "subsampling pattern (xoff,xinc,yoff,yinc)");
+   desc.add_options()("resample", po::value<std::string>(),
+         "resampling pattern (xoff,yoff,scale,limit)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
    // Validate user parameters
-   if (vm.count("help") || vm.count("subsample") == 0)
+   if (vm.count("help") || (vm.count("subsample") + vm.count("resample")) != 1)
       {
       std::cerr << desc << std::endl;
       return 1;
       }
    // Shorthand access for parameters
    const std::string type = vm["type"].as<std::string> ();
-   const std::string subsample = vm["subsample"].as<std::string> ();
-   // Process parameters
-   std::istringstream sin(subsample);
-   char c;
-   int xoff, xinc, yoff, yinc;
-   sin >> xoff >> c >> xinc >> c >> yoff >> c >> yinc;
 
-   // Main process
-   if (type == "int")
-      process<int> (xoff, xinc, yoff, yinc);
-   else if (type == "float")
-      process<float> (xoff, xinc, yoff, yinc);
-   else if (type == "double")
-      process<double> (xoff, xinc, yoff, yinc);
-   else
+   if (vm.count("subsample") == 1)
       {
-      std::cerr << "Unrecognized pixel type: " << type << std::endl;
-      return 1;
+      const std::string parameters = vm["subsample"].as<std::string> ();
+      // Process parameters
+      std::istringstream sin(parameters);
+      char c;
+      int xoff, xinc, yoff, yinc;
+      sin >> xoff >> c >> xinc >> c >> yoff >> c >> yinc;
+
+      // Main process
+      if (type == "int")
+         subsample<int> (xoff, xinc, yoff, yinc);
+      else if (type == "float")
+         subsample<float> (xoff, xinc, yoff, yinc);
+      else if (type == "double")
+         subsample<double> (xoff, xinc, yoff, yinc);
+      else
+         {
+         std::cerr << "Unrecognized pixel type: " << type << std::endl;
+         return 1;
+         }
+      }
+   else if (vm.count("resample") == 1)
+      {
+      const std::string parameters = vm["resample"].as<std::string> ();
+      // Process parameters
+      std::istringstream sin(parameters);
+      char c;
+      double xoff, yoff, scale;
+      int limit;
+      sin >> xoff >> c >> yoff >> c >> scale >> c >> limit;
+
+      // Main process
+      if (type == "int")
+         resample<int, float> (xoff, yoff, scale, limit);
+      else if (type == "float")
+         resample<float, float> (xoff, yoff, scale, limit);
+      else if (type == "double")
+         resample<double, double> (xoff, yoff, scale, limit);
+      else
+         {
+         std::cerr << "Unrecognized pixel type: " << type << std::endl;
+         return 1;
+         }
       }
 
    return 0;

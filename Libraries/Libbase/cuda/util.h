@@ -83,10 +83,13 @@ inline void __cudaSafeCall(const cudaError_t error, const char *file,
    exit(1);
    }
 
-// wait for kernel to finish
+// wait for kernels in all streams to finish
 
-#define cudaSafeWaitForKernel() cudaSafeCall(cudaThreadSynchronize());
-//#define cudaSafeWaitForKernel() do { cudaSafeCall(cudaThreadSynchronize()); cuda::cuda_assert_report(); } while(0)
+#define cudaSafeThreadSynchronize() cudaSafeCall(cudaThreadSynchronize());
+
+// wait for kernel in specified stream to finish
+
+#define cudaSafeStreamSynchronize(stream) cudaSafeCall(cudaStreamSynchronize(stream));
 
 // device functions for min/max and swap
 

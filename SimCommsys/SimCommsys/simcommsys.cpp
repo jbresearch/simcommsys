@@ -27,7 +27,7 @@
 #include "experiment/binomial/commsys_simulator.h"
 #include "montecarlo.h"
 #include "masterslave.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 
@@ -58,9 +58,7 @@ libcomm::experiment *createsystem(const std::string& fname)
    // load system from string representation
    libcomm::experiment *system;
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   file >> system;
-   // check for errors in loading system
-   libbase::verifycompleteload(file);
+   file >> system >> libbase::verifycomplete;
    return system;
    }
 
@@ -106,7 +104,7 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    po::options_description desc("Allowed options");

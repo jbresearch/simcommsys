@@ -30,6 +30,7 @@
 #include "matrix.h"
 #include "multi_array.h"
 #include "fsm.h"
+#include "instrumented.h"
 
 #include <cmath>
 #include <iostream>
@@ -133,8 +134,10 @@ public:
          double th_outer);
 
    // decode functions
-   void decode(const array1s_t& r, const array1vd_t& app, array1vr_t& ptable);
-   void decode(const array1s_t& r, array1vr_t& ptable);
+   void decode(libcomm::instrumented& collector, const array1s_t& r,
+         const array1vd_t& app, array1vr_t& ptable);
+   void decode(libcomm::instrumented& collector, const array1s_t& r,
+         array1vr_t& ptable);
 
    // Description
    std::string description() const

@@ -23,7 +23,7 @@
  */
 
 #include "pacifier.h"
-#include "timer.h"
+#include "cputimer.h"
 #include "randgen.h"
 #include "truerand.h"
 
@@ -157,7 +157,7 @@ myvector<int> create_srandom(const int tau, int& spread, libbase::int32u& seed,
       std::cerr << "Searching for solution at spread " << spread << std::endl;
       // loop for a number of attempts at the given Spread, then
       // reduce and continue as necessary
-      libbase::timer tmain("Attempt timer");
+      libbase::cputimer tmain("Attempt timer");
       int attempt;
       for (attempt = 0; attempt < max_attempts && failed; attempt++)
          {
@@ -249,7 +249,7 @@ void serialize_interleaver(std::ostream& sout, myvector<int> lut, int tau,
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    namespace po = boost::program_options;

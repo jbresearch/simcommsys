@@ -97,9 +97,9 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
    init(chan, rx.size().length());
    array1vr_t p;
 #ifdef USE_CUDA
-   fba.decode(rx, p);
+   fba.decode(*this, rx, p);
 #else
-   FBA::decode(rx, p);
+   FBA::decode(*this, rx, p);
 #endif
    Base::normalize_results(p, ptable);
    }
@@ -111,9 +111,9 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
    init(chan, rx.size().length());
    array1vr_t p;
 #ifdef USE_CUDA
-   fba.decode(rx, app, p);
+   fba.decode(*this, rx, app, p);
 #else
-   FBA::decode(rx, app, p);
+   FBA::decode(*this, rx, app, p);
 #endif
    Base::normalize_results(p, ptable);
    }

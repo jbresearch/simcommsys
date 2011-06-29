@@ -75,8 +75,8 @@ void cached_fsm::init(fsm& encoder)
 
 std::ostream& cached_fsm::serialize(std::ostream& sout) const
    {
-   sout << base_serialization;
    sout << "#: Base Encoder" << std::endl;
+   sout << base_serialization;
    return sout;
    }
 

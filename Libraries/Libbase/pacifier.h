@@ -26,7 +26,7 @@
 #define __pacifier_h
 
 #include "config.h"
-#include "timer.h"
+#include "walltimer.h"
 #include <string>
 
 namespace libbase {
@@ -61,7 +61,7 @@ public:
 
 private:
    std::string name;
-   timer t;
+   walltimer t;
    int last;
    size_t characters;
 public:

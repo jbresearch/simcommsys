@@ -22,7 +22,7 @@
  * - $Id$
  */
 
-#include "timer.h"
+#include "cputimer.h"
 #include "randgen.h"
 #include "modem/dminner.h"
 #include "modem/dminner2.h"
@@ -37,7 +37,7 @@ namespace testwmdemodulation {
 using std::cout;
 using std::cerr;
 
-using libbase::timer;
+using libbase::cputimer;
 using libbase::vector;
 using libbase::matrix;
 
@@ -149,7 +149,7 @@ vector<vector<double> > demodulate_encoded(channel<bool>& chan,
    {
    // demodulate received signal
    vector<vector<double> > ptable;
-   timer t;
+   cputimer t;
    mdm.demodulate(chan, rx, ptable);
    t.stop();
    if (display)

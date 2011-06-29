@@ -23,7 +23,7 @@
  */
 
 #include "config.h"
-#include "timer.h"
+#include "cputimer.h"
 #include "cuda-all.h"
 
 namespace testcuda {

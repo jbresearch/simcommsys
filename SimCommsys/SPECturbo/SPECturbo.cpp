@@ -176,27 +176,25 @@ int main(int argc, char *argv[])
       cout << "~~~~~~~~~~~~" << std::endl;
       cout << system->description() << std::endl;
       //cout << "Rate: " << system-> << std::endl;
-      cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%" << std::endl;
-      cout << "Confidence: " << 100 * estimator.get_confidence() << "%" << std::endl;
+      cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%"
+            << std::endl;
+      cout << "Confidence: " << 100 * estimator.get_confidence() << "%"
+            << std::endl;
       cout << "Date: " << libbase::timer::date() << std::endl;
       cout << "Simulating system at Eb/No = " << system->get_parameter()
             << std::endl;
 
       // Print results (for confirming accuracy)
       cout << std::endl;
-      cout << "Results: (SER, FER)" << std::endl;
-      cout << "~~~~~~~~~~~~~~~~~~~" << std::endl;
-      for (int j = 0; j < system->count(); j += 2)
+      cout << "Results:" << std::endl;
+      cout << "~~~~~~~~" << std::endl;
+      for (int j = 0; j < system->count(); j++)
          {
+         cout << system->result_description(j) << '\t';
          cout << setprecision(6) << estimate(j);
          if (!vm.count("system-file"))
-            cout << " (" << setprecision(3) << 100 * (estimate(j)
+            cout << "\t(" << setprecision(3) << 100 * (estimate(j)
                   - std_result[j]) / std_result[j] << "%)";
-         cout << "\t";
-         cout << setprecision(6) << estimate(j + 1);
-         if (!vm.count("system-file"))
-            cout << " (" << setprecision(3) << 100 * (estimate(j + 1)
-                  - std_result[j + 1]) / std_result[j + 1] << "%)";
          cout << std::endl;
          }
 

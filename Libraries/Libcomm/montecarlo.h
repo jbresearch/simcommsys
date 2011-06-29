@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#include "timer.h"
+#include "walltimer.h"
 #include "sha.h"
 #include "experiment.h"
 #include "masterslave.h"
@@ -59,8 +59,8 @@ class montecarlo : public libbase::masterslave, private resultsfile {
    /*! \name Internal variables */
    double confidence; //!< confidence level required
    double accuracy; //!< accuracy level required
-   libbase::timer t; //!< timer to keep track of running estimate
-   mutable libbase::timer tupdate; //!< timer to keep track of display rate
+   libbase::walltimer t; //!< timer to keep track of running estimate
+   mutable libbase::walltimer tupdate; //!< timer to keep track of display rate
    sha sysdigest; //!< digest of the currently-simulated system
    // @}
    /*! \name Slave process functions & their functors */

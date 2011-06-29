@@ -29,113 +29,20 @@
 
 namespace libbase {
 
-// system-dependent functions
+// Utility functions
 
-#ifdef WIN32
-
-double timer::_wallclock() const
+std::string timer::format(const double time)
    {
-   struct _timeb tb;
-   _ftime(&tb);
-   return convert(tb);
-   }
-
-double timer::_cputime() const
-   {
-   return clock()/double(CLOCKS_PER_SEC);
-   }
-
-#else //(ifdef WIN32)
-double timer::_wallclock() const
-   {
-   struct timeval tv;
-   struct timezone tz;
-
-   gettimeofday(&tv, &tz);
-
-   return convert(tv);
-   }
-
-double timer::_cputime() const
-   {
-   struct rusage usage;
-   double cpu;
-
-   getrusage(RUSAGE_SELF, &usage);
-   cpu = convert(usage.ru_utime);
-   getrusage(RUSAGE_CHILDREN, &usage);
-   cpu += convert(usage.ru_utime);
-
-   return (cpu);
-   }
-
-#endif //(ifdef WIN32)
-// common functions
-
-timer::timer(const std::string& name)
-   {
-   timer::name = name;
-   start();
-   }
-
-timer::~timer()
-   {
-   if (running)
-      {
-      std::clog << "Timer";
-      if (name != "")
-         std::clog << " (" << name << ")";
-      std::clog << " expired after " << *this << std::endl;
-      }
-   }
-
-void timer::start()
-   {
-   wall = _wallclock();
-   cpu = _cputime();
-   running = true;
-   }
-
-void timer::stop()
-   {
-   assert(running);
-   wall = _wallclock() - wall;
-   cpu = _cputime() - cpu;
-   running = false;
-   }
-
-double timer::elapsed() const
-   {
-   if (running)
-      return (_wallclock() - wall);
-   return wall;
-   }
-
-double timer::cputime() const
-   {
-   if (running)
-      return (_cputime() - cpu);
-   return cpu;
-   }
-
-double timer::usage() const
-   {
-   return 100.0 * cputime() / elapsed();
-   }
-
-// static functions
-
-std::string timer::format(const double elapsedtime)
-   {
+   // TODO: refactor using std::string
    const int max = 256;
    static char tempstring[max];
 
-   if (elapsedtime < 60)
+   if (time < 60)
       {
-      int order = int(ceil(-log10(elapsedtime) / 3.0));
+      int order = int(ceil(-log10(time) / 3.0));
       if (order > 3)
          order = 3;
-      sprintf(tempstring, "%0.2f", elapsedtime * pow(10.0, order * 3));
+      sprintf(tempstring, "%0.2f", time * pow(10.0, order * 3));
       switch (order)
          {
          case 0:
@@ -156,7 +63,7 @@ std::string timer::format(const double elapsedtime)
       {
       int days, hrs, min, sec;
 
-      sec = int(floor(elapsedtime));
+      sec = int(floor(time));
       min = sec / 60;
       sec = sec % 60;
       hrs = min / 60;
@@ -183,6 +90,23 @@ std::string timer::date()
    strftime(d, max, "%d %b %Y, %H:%M:%S", t2);
 
    return d;
+   }
+
+// Interface with derived class
+
+void timer::expire()
+   {
+   if (running)
+      {
+      stop();
+      std::clog << "Timer";
+      if (name != "")
+         std::clog << " (" << name << ")";
+      std::clog << " expired after " << *this << std::endl;
+      }
+   // Invalidate to indicate we're using this properly
+   assert(!running);
+   valid = false;
    }
 
 } // end namespace

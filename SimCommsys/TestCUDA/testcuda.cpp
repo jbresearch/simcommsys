@@ -30,8 +30,8 @@ namespace testcuda {
 void time_timer()
    {
    // definitions
-   libbase::timer t("CPU");
-   libbase::event_timer<libbase::timer> tinner("inner timer");
+   libbase::cputimer t("CPU");
+   libbase::event_timer<libbase::cputimer> tinner("inner timer");
    const int N = int(1e5);
    // timed loop
    t.start();

@@ -70,6 +70,7 @@ std::string mpsk::description() const
 
 std::ostream& mpsk::serialize(std::ostream& sout) const
    {
+   sout << "# Alphabet size in symbols" << std::endl;
    sout << lut.size() << std::endl;
    return sout;
    }

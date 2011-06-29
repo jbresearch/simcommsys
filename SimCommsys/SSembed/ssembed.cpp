@@ -26,7 +26,7 @@
 #include "image.h"
 #include "blockembedder.h"
 #include "filter/limitfilter.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -36,32 +36,6 @@
 namespace ssembed {
 
 template <class S>
-class limitval {
-public:
-   static S lo()
-      {
-      return 0.0;
-      }
-   static S hi()
-      {
-      return 1.0;
-      }
-};
-
-template <>
-class limitval<int> {
-public:
-   static int lo()
-      {
-      return 0;
-      }
-   static int hi()
-      {
-      return 255;
-      }
-};
-
-template <class S>
 libimage::image<S> loadimage(const std::string& fname)
    {
    // load image from file
@@ -69,7 +43,7 @@ libimage::image<S> loadimage(const std::string& fname)
    assertalways(file.is_open());
    libimage::image<S> im;
    im.serialize(file);
-   libbase::verifycompleteload(file);
+   libbase::verifycomplete(file);
    return im;
    }
 
@@ -124,7 +98,8 @@ void process(const std::string& systemfile, const std::string& hostfile,
       C<S> stego;
       system->embed(system->num_symbols(), data, host, stego);
       // Limit values to usable range
-      libimage::limitfilter<S> filter(limitval<S>::lo(), limitval<S>::hi());
+      libimage::limitfilter<S> filter(libimage::limitval<S>::lo(),
+            libimage::limitval<S>::hi());
       filter.apply(stego, stego);
       // Copy result into stego-image
       stegoimage.setchannel(c, stego);
@@ -148,7 +123,7 @@ void process(const std::string& systemfile, const std::string& hostfile,
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    namespace po = boost::program_options;

@@ -27,7 +27,7 @@
 #include "truerand.h"
 #include "serializer_libcomm.h"
 #include "experiment/binomial/commsys_simulator.h"
-#include "timer.h"
+#include "cputimer.h"
 
 #include <boost/program_options.hpp>
 
@@ -45,9 +45,7 @@ libcomm::experiment *createsystem(const std::string& fname)
    // load system from string representation
    libcomm::experiment *system;
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   file >> system;
-   // check for errors in loading system
-   libbase::verifycompleteload(file);
+   file >> system >> libbase::verifycomplete;
    return system;
    }
 
@@ -76,7 +74,7 @@ void seed_experiment(libcomm::experiment *system, libbase::int32u seed)
 
 int main(int argc, char *argv[])
    {
-   libbase::timer tmain("Main timer");
+   libbase::cputimer tmain("Main timer");
 
    // Set up user parameters
    po::options_description desc("Allowed options");
@@ -117,7 +115,8 @@ int main(int argc, char *argv[])
       system->sample(result);
       system->accumulate(result);
       } while (result.min() == 0);
-   cerr << "Event found after " << system->get_samplecount() << " samples" << std::endl;
+   cerr << "Event found after " << system->get_samplecount() << " samples"
+         << std::endl;
    // Display results
    libbase::vector<int> last_event = system->get_event();
    const int tau = last_event.size() / 2;

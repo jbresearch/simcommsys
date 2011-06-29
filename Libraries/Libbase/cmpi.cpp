@@ -24,13 +24,9 @@
 
 #include "cmpi.h"
 
-#include "timer.h"
+#include "cputimer.h"
+#include "walltimer.h"
 #include <iostream>
-
-#ifdef USE_MPI
-#include <sys/time.h>
-#include <sys/resource.h>
-#endif
 
 namespace libbase {
 
@@ -79,21 +75,21 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
       // Status information for user
       trace << "MPI child system starting on " << hostname << " (priority " << priority << ")." << std::endl;
       // infinite loop, until we are explicitly told to die
-      timer tim1, tim2;
-      // CPU usage timer
+      walltimer tim1("MPI latency");
+      cputimer tim2("MPI CPU usage");
       tim2.start();
       while(true)
          {
-         // Latency timer
-         tim1.start();
          // Child working function prototype
          void (*func)(void);
          // Get the tag from Root
+         tim1.start();
          MPI_Recv(&func, 1, MPI_LONG, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+         tim1.stop();
          // Status information for user
          trace << "MPI child (rank " << rank() << "/" << size() << ", latency = " << tim1 << "): ";
-         // Work out the %age CPU time used
-         double usage = tim2.usage();
+         // Work out the CPU time used
+         double usage = tim2.elapsed();
          // Decide what should be done, based on the tag
          switch(status.MPI_TAG)
             {
@@ -105,7 +101,7 @@ void cmpi::enable(int *argc, char **argv[], const int priority)
             case tag_getusage:
             // tell the root process how much CPU time we have used
             MPI_Send(&usage, 1, MPI_DOUBLE, root, tag_base, MPI_COMM_WORLD);
-            trace << "send usage [CPU " << usage << "%]" << std::endl;
+            trace << "send usage [CPU " << timer::format(usage) << "]" << std::endl;
             break;
             case tag_work:
             trace << "system working" << std::endl;
@@ -159,9 +155,9 @@ void cmpi::disable()
          MPI_Send(NULL, 0, MPI_LONG, i, tag_die, MPI_COMM_WORLD);
          cpu_usage += usage;
          // inform the user what is happening
-         clog << "\tCPU " << i << "\t(" << hostname << "):\t" << usage << "%" << std::endl;
+         clog << "\tCPU " << i << "\t(" << hostname << "):\t" << timer::format(usage) << std::endl;
          }
-      clog << "\tTotal:\t" << cpu_usage << "%" << std::endl;
+      clog << "\tTotal:\t" << timer::format(cpu_usage) << std::endl;
       }
    // cease MPI operations
    MPI_Finalize();

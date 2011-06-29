@@ -81,7 +81,7 @@ void montecarlo::slave_work(void)
    system->reset();
 
    // Iterate for 500ms, which is a good compromise between efficiency and usability
-   libbase::timer tslave("montecarlo_slave");
+   libbase::walltimer tslave("montecarlo_slave");
    while (tslave.elapsed() < 0.5)
       sampleandaccumulate();
    tslave.stop(); // to avoid expiry
@@ -257,7 +257,7 @@ void montecarlo::display() const
          clog << getnumslaves() << " clients, " << getcputime() / t.elapsed()
                << "x speedup, ";
       else
-         clog << "local, " << t.cputime() / t.elapsed() << "x usage, ";
+         clog << "local, ";// << t.cputime() / t.elapsed() << "x usage, ";
       clog << "pass " << system->get_samplecount() << "." << std::endl;
       clog << "Results:" << std::endl;
       system->prettyprint_results(clog);

@@ -43,6 +43,25 @@ using libbase::vector;
 
 // Results file helper functions
 
+/*! \brief If this is the first time, write the header
+ * \note This method also updates the write position so that the header is not
+ * overwritten on the next write.
+ */
+void resultsfile::writeheaderifneeded(std::fstream& file)
+   {
+   if (!headerwritten)
+      {
+      writeheader(file);
+      // update flag
+      headerwritten = true;
+      // update file-write position
+      fileptr = file.tellp();
+      }
+   }
+
+/*! \brief Close and truncate the file, and update digest
+ * Truncation is needed to remove any detritus from previously-saved states.
+ */
 void resultsfile::finishwithfile(std::fstream& file)
    {
    std::streampos length = file.tellp();
@@ -70,7 +89,7 @@ void resultsfile::truncate(std::streampos length)
 void resultsfile::checkformodifications(std::fstream& file)
    {
    assert(file.good());
-   trace << "DEBUG (montecarlo): checking file for modifications." << std::endl;
+   trace << "DEBUG (resultsfile): checking file for modifications." << std::endl;
    // check for user modifications
    sha curdigest;
    file.seekg(0);
@@ -88,44 +107,35 @@ void resultsfile::checkformodifications(std::fstream& file)
       }
    }
 
-// Constructor/destructor
-
-resultsfile::resultsfile() :
-   t("resultsfile")
-   {
-   headerwritten = false;
-   t.stop();
-   }
-
-resultsfile::~resultsfile()
-   {
-   assert(!t.isrunning());
-   }
-
 // File handling interface
 
 void resultsfile::init(const std::string& fname)
    {
    assert(!t.isrunning());
+   filesetup = false;
    headerwritten = false;
    resultsfile::fname = fname;
    }
 
 // Results handling interface
 
+/*! \brief Set up the results file and look for a state
+ * If the file does not exist, a new one is created. Otherwise, the write
+ * point is set to the end of file and a digest of the current file contents
+ * is kept. A search for a saved state is also initiated by this method.
+ *
+ * \note The current simulation must be already set up at this point, so that
+ * a valid comparison can be made.
+ */
 void resultsfile::setupfile()
    {
    assert(!fname.empty());
-   // start timer for interim results writing
-   t.start();
-   // if this is not the first time, that's all
-   if (headerwritten)
-      return;
+   assert(!filesetup);
    // open file for input and output
    std::fstream file(fname.c_str());
    if (!file)
       {
-      trace << "DEBUG (montecarlo): results file not found - creating." << std::endl;
+      trace << "DEBUG (resultsfile): results file not found - creating." << std::endl;
       // create the file first if necessary
       file.open(fname.c_str(), std::ios::out);
       assertalways(file.good());
@@ -136,22 +146,30 @@ void resultsfile::setupfile()
    assertalways(file.good());
    // look for saved-state
    lookforstate(file);
-   // write header at end
+   // set write position at end
    file.seekp(0, std::ios_base::end);
-   writeheader(file);
-   // update write-position
    fileptr = file.tellp();
    // update digest
    file.seekg(0);
    filedigest.process(file);
+   // start timer for interim results writing
+   t.start();
    // update flags
-   headerwritten = true;
+   filesetup = true;
    }
 
+/*! \brief Write current results and state
+ * This method can be called as many times as required; usually this is
+ * called after every update. File writes are limited to occur no more often
+ * than 30 seconds (this quantity is hard-wired).
+ *
+ * \note This method does not change the write position so that this result is
+ * overwritten on the next write.
+ */
 void resultsfile::writeinterimresults(libbase::vector<double>& result,
       libbase::vector<double>& tolerance)
    {
-   assert(!fname.empty());
+   assert(filesetup);
    assert(t.isrunning());
    // restrict updates to occur every 30 seconds or less
    if (t.elapsed() < 30)
@@ -160,6 +178,7 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result,
    std::fstream file(fname.c_str());
    assertalways(file.good());
    checkformodifications(file);
+   writeheaderifneeded(file);
    writeresults(file, result, tolerance);
    writestate(file);
    finishwithfile(file);
@@ -167,15 +186,25 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result,
    t.start();
    }
 
+/*! \brief Write final results and state
+ * This method is called when the final result is reached. A file write is
+ * guaranteed to occur. The write-limiting timer is also stopped to avoid
+ * lapsing on object destruction. If requested, the final state is also
+ * written.
+ *
+ * \note This method also updates the write position so that this result is not
+ * overwritten.
+ */
 void resultsfile::writefinalresults(libbase::vector<double>& result,
       libbase::vector<double>& tolerance, bool savestate)
    {
-   assert(!fname.empty());
+   assert(filesetup);
    assert(t.isrunning());
    // open file for input and output
    std::fstream file(fname.c_str());
    assertalways(file.good());
    checkformodifications(file);
+   writeheaderifneeded(file);
    writeresults(file, result, tolerance);
    if (savestate)
       writestate(file);

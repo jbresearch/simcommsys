@@ -29,6 +29,7 @@
 
 #include "cuda/util.h"
 #include "cuda/sharedmem.h"
+#include "cuda/stream.h"
 #include "cuda/cuda_assert.h"
 
 #include "cuda/value.h"

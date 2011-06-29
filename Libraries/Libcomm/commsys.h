@@ -32,6 +32,7 @@
 #include "blockmodem.h"
 #include "channel.h"
 #include "serializer.h"
+#include "instrumented.h"
 
 namespace libcomm {
 
@@ -53,7 +54,7 @@ namespace libcomm {
  */
 
 template <class S, template <class > class C = libbase::vector>
-class basic_commsys {
+class basic_commsys : public instrumented {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double> array1d_t;

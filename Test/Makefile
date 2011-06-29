@@ -21,11 +21,16 @@
 
 SYSTEMS := $(wildcard Systems/*.txt)
 SIMULATORS := $(SYSTEMS:Systems/%.txt=Simulators/%.txt)
+TIMERS := $(SYSTEMS:Systems/%.txt=Timers/%.txt)
 
 .force:
 
-all: $(SIMULATORS)
+all: $(SIMULATORS) $(TIMERS)
 
 Simulators/%.txt: Systems/%.txt
 	@echo Making $@
 	@gawk '/^commsys/ { x=$$0; sub(/commsys[^<]*/,"commsys_simulator",x); print x; } { print; }' < $< > $@
+
+Timers/%.txt: Systems/%.txt
+	@echo Making $@
+	@gawk '/^commsys/ { x=$$0; sub(/commsys[^<]*/,"commsys_timer",x); print x; } { print; }' < $< > $@

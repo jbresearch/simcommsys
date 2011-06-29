@@ -34,10 +34,8 @@ bool pacifier::quiet = false;
 // Constructors / Destructors
 
 pacifier::pacifier(const std::string& name) :
-   name(name), t(name + "Pacifier"), last(0), characters(0)
+   name(name), t(name + "Pacifier", false), last(0), characters(0)
    {
-   // we don't want to start the timer until something is happening
-   t.stop();
    }
 
 // Pacifier operation
@@ -49,8 +47,8 @@ pacifier::pacifier(const std::string& name) :
  */
 std::string pacifier::update(int complete, int total)
    {
-   // if output is disabled, return immediately
-   if (quiet)
+   // if output is disabled or not needed, return immediately
+   if (quiet || total == 0)
       return "";
    const int value = int(100 * complete / double(total));
    // if we detect that we've started from zero again,

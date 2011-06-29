@@ -189,14 +189,20 @@ C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
 #endif
    // Encode
    C<int> encoded;
+   this->cdc->reset_timers();
    this->cdc->encode(source, encoded);
+   this->add_timers(*this->cdc);
    // Map
    C<int> mapped;
+   this->map->reset_timers();
    this->map->transform(encoded, mapped);
+   this->add_timers(*this->map);
    // Modulate
    const int M = this->mdm->num_symbols();
    C<S> transmitted;
+   this->mdm->reset_timers();
    this->mdm->modulate(M, mapped, transmitted);
+   this->add_timers(*this->mdm);
    return transmitted;
    }
 
@@ -204,7 +210,9 @@ template <class S, template <class > class C>
 C<S> basic_commsys<S, C>::transmit(const C<S>& transmitted)
    {
    C<S> received;
+   this->chan->reset_timers();
    this->chan->transmit(transmitted, received);
+   this->add_timers(*this->chan);
    return received;
    }
 
@@ -229,7 +237,9 @@ void basic_commsys<S, C>::receive_path(const C<S>& received)
    {
    // Demodulate
    C<array1d_t> ptable_mapped;
+   this->mdm->reset_timers();
    this->mdm->demodulate(*this->chan, received, ptable_mapped);
+   this->add_timers(*this->mdm);
    // After-demodulation receive path
    softreceive_path(ptable_mapped);
    }
@@ -255,9 +265,13 @@ void basic_commsys<S, C>::softreceive_path(const C<array1d_t>& ptable_mapped)
    {
    // Inverse Map
    C<array1d_t> ptable_encoded;
+   this->map->reset_timers();
    this->map->inverse(ptable_mapped, ptable_encoded);
+   this->add_timers(*this->map);
    // Translate
+   this->cdc->reset_timers();
    this->cdc->init_decoder(ptable_encoded);
+   this->add_timers(*this->cdc);
    // This frame has not been decoded yet
 #if DEBUG>=2
    lastframecorrect = false;
@@ -268,7 +282,9 @@ template <class S, template <class > class C>
 void basic_commsys<S, C>::decode(C<int>& decoded)
    {
    // Decode
+   this->cdc->reset_timers();
    this->cdc->decode(decoded);
+   this->add_timers(*this->cdc);
    // Keep track of correct decodings
 #if DEBUG>=2
    if(lastsource.size() > 0)
@@ -345,12 +361,8 @@ template <class S, template <class > class C>
 std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    {
    free();
-   sin >> libbase::eatcomments >> chan;
-   if (chan == NULL)
-      failwith("Failed to load channel.");
-   sin >> libbase::eatcomments >> mdm;
-   if (mdm == NULL)
-      failwith("Failed to load modem.");
+   sin >> libbase::eatcomments >> chan >> libbase::verify;
+   sin >> libbase::eatcomments >> mdm >> libbase::verify;
    sin >> libbase::eatcomments >> map;
    if (sin.fail())
       {
@@ -358,9 +370,7 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
       map = new map_straight<C> ;
       sin.clear();
       }
-   sin >> libbase::eatcomments >> cdc;
-   if (cdc == NULL)
-      failwith("Failed to load codec.");
+   sin >> libbase::eatcomments >> cdc >> libbase::verify;
    internallyallocated = true;
    init();
    return sin;

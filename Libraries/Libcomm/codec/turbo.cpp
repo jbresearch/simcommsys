@@ -137,8 +137,8 @@ void turbo<real, dbl>::allocate()
    // determine memory occupied and tell user
    const size_t bytes_used = sizeof(dbl) * (rp.size() + ra.size()
          * ra(0).size() + R.size() * R(0).size());
-   std::cerr << "Turbo Memory Usage: " << bytes_used / double(1 << 20)
-         << "MiB" << std::endl;
+   std::cerr << "Turbo Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
+         << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
    std::cerr.setf(flags);
@@ -507,14 +507,24 @@ template <class real, class dbl>
 std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
+   sout << "# Version" << std::endl;
    sout << 2 << std::endl;
+   sout << "# Encoder" << std::endl;
    sout << encoder;
+   sout << "# Number of parallel sets" << std::endl;
    sout << num_sets() << std::endl;
    for (int i = 0; i < inter.size(); i++)
+      {
+      sout << "# Interleaver " << i << std::endl;
       sout << inter(i);
+      }
+   sout << "# Terminated?" << std::endl;
    sout << int(endatzero) << std::endl;
+   sout << "# Circular?" << std::endl;
    sout << int(circular) << std::endl;
+   sout << "# Parallel decoder?" << std::endl;
    sout << int(parallel) << std::endl;
+   sout << "# Number of iterations" << std::endl;
    sout << iter << std::endl;
    return sout;
    }
@@ -542,28 +552,28 @@ std::istream& turbo<real, dbl>::serialize(std::istream& sin)
       version = 0;
       sin.clear();
       }
-   sin >> libbase::eatcomments >> encoder;
+   sin >> libbase::eatcomments >> encoder >> libbase::verify;
    int tau = 0;
    if (version < 2)
-      sin >> libbase::eatcomments >> tau;
+      sin >> libbase::eatcomments >> tau >> libbase::verify;
    int sets;
-   sin >> libbase::eatcomments >> sets;
+   sin >> libbase::eatcomments >> sets >> libbase::verify;
    inter.init(sets);
    if (version < 1)
       {
       inter(0) = new flat<dbl> (tau);
       for (int i = 1; i < inter.size(); i++)
-         sin >> libbase::eatcomments >> inter(i);
+         sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
       }
    else
       {
       for (int i = 0; i < inter.size(); i++)
-         sin >> libbase::eatcomments >> inter(i);
+         sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
       }
-   sin >> libbase::eatcomments >> endatzero;
-   sin >> libbase::eatcomments >> circular;
-   sin >> libbase::eatcomments >> parallel;
-   sin >> libbase::eatcomments >> iter;
+   sin >> libbase::eatcomments >> endatzero >> libbase::verify;
+   sin >> libbase::eatcomments >> circular >> libbase::verify;
+   sin >> libbase::eatcomments >> parallel >> libbase::verify;
+   sin >> libbase::eatcomments >> iter >> libbase::verify;
    init();
    assertalways(sin.good());
    return sin;

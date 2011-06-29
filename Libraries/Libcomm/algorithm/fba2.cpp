@@ -25,6 +25,7 @@
 #include "fba2.h"
 #include "pacifier.h"
 #include "vectorutils.h"
+#include "cputimer.h"
 #include <iomanip>
 
 namespace libcomm {
@@ -391,28 +392,62 @@ void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
 // User procedures
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(const array1s_t& r, const array1vd_t& app,
-      array1vr_t& ptable)
+void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
+      const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
    {
    // initialise memory if necessary
    if (!initialised)
       allocate();
+   libbase::cputimer tg("t_gamma_app");
    work_gamma(r, app);
+   collector.add_timer(tg);
+   libbase::cputimer ta("t_alpha");
    work_alpha(r.size());
+   collector.add_timer(ta);
+   libbase::cputimer tb("t_beta");
    work_beta(r.size());
+   collector.add_timer(tb);
+   libbase::cputimer tr("t_results");
    work_results(r.size(), ptable);
+   collector.add_timer(tr);
+   // add values for limits that depend on channel conditions
+   collector.add_timer(I, "c_I");
+   collector.add_timer(xmax, "c_xmax");
+   collector.add_timer(dxmax, "c_dxmax");
+   // add memory usage
+   collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
+   collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
+   collector.add_timer(sizeof(real) * gamma.num_elements(), "m_gamma");
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(const array1s_t& r, array1vr_t& ptable)
+void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
+      const array1s_t& r, array1vr_t& ptable)
    {
    // initialise memory if necessary
    if (!initialised)
       allocate();
+   libbase::cputimer tg("t_gamma");
    work_gamma(r);
+   collector.add_timer(tg);
+   libbase::cputimer ta("t_alpha");
    work_alpha(r.size());
+   collector.add_timer(ta);
+   libbase::cputimer tb("t_beta");
    work_beta(r.size());
+   collector.add_timer(tb);
+   libbase::cputimer tr("t_results");
    work_results(r.size(), ptable);
+   collector.add_timer(tr);
+   // add values for limits that depend on channel conditions
+   collector.add_timer(I, "c_I");
+   collector.add_timer(xmax, "c_xmax");
+   collector.add_timer(dxmax, "c_dxmax");
+   // add memory usage
+   collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
+   collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
+   collector.add_timer(sizeof(real) * gamma.num_elements(), "m_gamma");
+
 #if DEBUG>=3
    std::cerr << "r = " << r << std::endl;
    if (cache_enabled)

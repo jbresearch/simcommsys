@@ -53,7 +53,7 @@ bsid::real bsid::metric_computer::receive(const bitfield& tx,
    dev_tx = tx;
    // call the kernel with a copy of this object
    cuda::receive_kernel<<<1,1>>>(*this, dev_result, dev_tx, dev_rx);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    // return the result
    return dev_result;
    }

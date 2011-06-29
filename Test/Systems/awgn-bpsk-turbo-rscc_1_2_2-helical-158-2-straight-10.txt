@@ -1,30 +1,39 @@
-## communication system
 commsys<sigspace>
-### channel
+## Channel
 awgn
-### modem
+## Modem
 mpsk
-2   # alphabet size in symbols
-### symbol mapper
+# Alphabet size in symbols
+2
+## Mapper
 map_straight<vector>
-### codec
+## Codec
 turbo<double>
-2   # format version
-#### encoder (fsm)
+# Version
+2
+# Encoder
 rscc
 1	2
-111
-101
-2   # number of sets
-#### interleaver 0
+111	101
+# Number of parallel sets
+2
+# Interleaver 0
 flat<double>
-158 # interleaver size
-#### interleaver 1
+# Interleaver size
+158
+# Interleaver 1
 helical<double>
-158 # interleaver size
-13  # rows
-12  # cols
-1   # terminated?
-0   # circular?
-0   # parallel decoder?
-10  # number of iterations
+# Interleaver size
+158
+# Number of rows
+13
+# Number of cols
+12
+# Terminated?
+1
+# Circular?
+0
+# Parallel decoder?
+0
+# Number of iterations
+10

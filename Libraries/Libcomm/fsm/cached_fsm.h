@@ -187,7 +187,7 @@ public:
    // Description
    std::string description() const
       {
-      return base_description;
+      return "Cached " + base_description;
       }
 
    // Serialization Support

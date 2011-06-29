@@ -30,6 +30,7 @@
 #include "matrix.h"
 #include "channel.h"
 #include "blockprocess.h"
+#include "instrumented.h"
 
 namespace libcomm {
 
@@ -47,7 +48,9 @@ namespace libcomm {
 
 template <class S, template <class > class C = libbase::vector,
       class dbl = double>
-class basic_blockmodem : public modem<S> , public blockprocess {
+class basic_blockmodem : public instrumented,
+      public modem<S> ,
+      public blockprocess {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;

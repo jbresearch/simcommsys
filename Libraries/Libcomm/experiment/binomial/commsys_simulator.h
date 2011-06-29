@@ -130,6 +130,21 @@ public:
       {
       return sys;
       }
+   //! Clear list of timers
+   void reset_timers()
+      {
+      sys->reset_timers();
+      }
+   //! Get the list of timings taken
+   std::vector<double> get_timings() const
+      {
+      return sys->get_timings();
+      }
+   //! Get the list of friendly names for timings taken
+   std::vector<std::string> get_names() const
+      {
+      return sys->get_names();
+      }
    // @}
 
    // Description

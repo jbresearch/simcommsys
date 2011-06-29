@@ -250,44 +250,41 @@ default:
 	@echo No default target.
 
 all:
-	@$(MAKE) -j$(CPUS) install
-	@$(MAKE) -j$(CPUS) plain-install
+	@$(MAKE) install
+	@$(MAKE) plain-install
 
-plain-build:
-	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 build
-
-plain-install:
-	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 install
+plain-%:
+	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 $*
 
 build:     debug release
 
 profile:
-	@$(MAKE) RELEASE=Profile DOTARGET=build $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=build $(TARGETS)
 
 release:
-	@$(MAKE) RELEASE=Release DOTARGET=build $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Release DOTARGET=build $(TARGETS)
 
 debug:
-	@$(MAKE) RELEASE=Debug DOTARGET=build $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Debug DOTARGET=build $(TARGETS)
 
 install:	install-release install-debug
 
 install-profile:
-	@$(MAKE) RELEASE=Profile DOTARGET=install $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=install $(TARGETS)
 
 install-release:
-	@$(MAKE) RELEASE=Release DOTARGET=install $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Release DOTARGET=install $(TARGETS)
 
 install-debug:
-	@$(MAKE) RELEASE=Debug DOTARGET=install $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Debug DOTARGET=install $(TARGETS)
 
 doc:
 	@$(DOXYGEN)
 
 clean:
-	@$(MAKE) RELEASE=Debug DOTARGET=clean $(TARGETS)
-	@$(MAKE) RELEASE=Release DOTARGET=clean $(TARGETS)
-	@$(MAKE) RELEASE=Profile DOTARGET=clean $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Debug DOTARGET=clean $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Release DOTARGET=clean $(TARGETS)
+	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=clean $(TARGETS)
 
 clean-all:
 	find . -depth \( -name doc -or -name Debug -or -name Release -or -name Profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -exec rm -rf '{}' \;

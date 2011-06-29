@@ -23,7 +23,7 @@
  */
 
 #include "testcuda.h"
-#include "cuda/timer.h"
+#include "cuda/gputimer.h"
 #include "cuda/vector.h"
 #include <cstdio>
 
@@ -50,14 +50,14 @@ namespace testcuda {
 void time_kernelcalls_with(int gridsize, int blocksize)
    {
    // definitions
-   cuda::timer t("GPU");
+   cuda::gputimer t("GPU");
    const int N = 1e3;
    // timed loop
    t.start();
    for (int i = 0; i < N; i++)
       {
       cuda::empty_thread <<<gridsize, blocksize>>> ();
-      cudaSafeWaitForKernel();
+      cudaSafeThreadSynchronize();
       }
    t.stop();
    // compute and show
@@ -179,7 +179,7 @@ void test_useofclasses()
    dev_x = x;
    // do kernel call
    cuda::test_useofclasses<<<1, N>>> (dev_x);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    // copy results back and display
    libbase::vector<cuda::complex> y;
    y = libbase::vector<cuda::complex>(dev_x);
@@ -289,7 +289,7 @@ void test_sizes()
    cuda::vector<int> gpu_dev;
    gpu_dev.init(14);
    cuda::get_sizes_thread <<<1,1>>> (gpu_dev);
-   cudaSafeWaitForKernel();
+   cudaSafeThreadSynchronize();
    libbase::vector<int> gpu = libbase::vector<int>(gpu_dev);
    // print results
    std::cout << std::endl << "Sizes on host CPU" << std::endl;
