@@ -287,7 +287,7 @@ clean:
 	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=clean $(TARGETS)
 
 clean-all:
-	find . -depth \( -name doc -or -name Debug -or -name Release -or -name Profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -exec rm -rf '{}' \;
+	find . -depth \( -name doc -or -name bin -or -name Debug -or -name Release -or -name Profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -exec rm -rf '{}' \;
 
 showsettings:
 	$(CC) $(CCflagRelease) -Q --help=target --help=optimizers --help=warnings
