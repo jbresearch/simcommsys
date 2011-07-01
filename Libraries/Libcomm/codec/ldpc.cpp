@@ -47,6 +47,108 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+template <class GF_q, class real> ldpc<GF_q, real>::ldpc(
+      libbase::matrix<GF_q> paritycheck_mat, const int num_of_iters)
+
+   {
+   //initialise the provided values;
+   this->pchk_matrix = paritycheck_mat;
+   this->max_iter = num_of_iters;
+
+   //compute some values from the parity check matrix
+   this->length_n = paritycheck_mat.size().cols();
+   this->dim_pchk = paritycheck_mat.size().rows();
+
+   //work out the col and row weights (including their maximums)
+   //also determine M_n(positions of non-zero entries per column)
+   //and N_m (positions of non-zero entries per row)
+   this->max_col_weight = 0;
+   this->max_row_weight = 0;
+
+   this->col_weight.init(this->length_n);
+   this->row_weight.init(this->dim_pchk);
+
+   array1i_t tmp_non_zero_pos;
+   tmp_non_zero_pos.init(this->dim_pchk);
+
+   int tmp_weight;
+   //do cols first
+   this->M_n.init(this->length_n);
+
+   for (int col_indx = 0; col_indx < this->length_n; col_indx++)
+      {
+      // reset tmp vars
+      tmp_weight = 0;
+      tmp_non_zero_pos *= 0;
+
+      for (int row_indx = 0; row_indx < this->dim_pchk; row_indx++)
+         {
+         if (paritycheck_mat(row_indx, col_indx) != GF_q(0))
+            {
+            tmp_non_zero_pos(tmp_weight) = row_indx + 1;//we count from 1
+            tmp_weight++;
+            }
+         }
+      this->col_weight(col_indx) = tmp_weight;
+      if (tmp_weight > this->max_col_weight)
+         {
+         this->max_col_weight = tmp_weight;
+         }
+      //now store the non-zero positions in M_n
+      this->M_n(col_indx).init(tmp_weight);
+      for (int i = 0; i < tmp_weight; i++)
+         {
+         this->M_n(col_indx)(i) = tmp_non_zero_pos(i);
+         }
+      }
+
+   //do rows next
+   tmp_non_zero_pos.init(this->length_n);
+   this->N_m.init(this->dim_pchk);
+
+   for (int row_indx = 0; row_indx < this->dim_pchk; row_indx++)
+      {
+      // reset tmp vars
+      tmp_weight = 0;
+      tmp_non_zero_pos *= 0;
+      for (int col_indx = 0; col_indx < this->length_n; col_indx++)
+         {
+         if (paritycheck_mat(row_indx, col_indx) != GF_q(0))
+            {
+            tmp_non_zero_pos(tmp_weight) = col_indx + 1;//we count from 1
+            tmp_weight++;
+            }
+         }
+      this->row_weight(row_indx) = tmp_weight;
+      if (tmp_weight > this->max_row_weight)
+         {
+         this->max_row_weight = tmp_weight;
+         }
+      //now store the non-zero positions in N_m
+      this->N_m(row_indx).init(tmp_weight);
+      for (int i = 0; i < tmp_weight; i++)
+         {
+         this->N_m(row_indx)(i) = tmp_non_zero_pos(i);
+         }
+      }
+
+   //use sensible default values for the rest
+   std::string spa_type = "gdl";
+   this->spa_alg = libcomm::spa_factory<GF_q, real>::get_spa(spa_type,
+         this->length_n, this->dim_pchk, this->M_n, this->N_m,
+         this->pchk_matrix);
+
+   std::string clipping_type = "zero";
+   real almost_zero = real(1E-100);
+   this->spa_alg->set_clipping(clipping_type, almost_zero);
+
+   this->reduce_to_ref = false;
+   this->rand_prov_values = "provided";
+   this->decodingSuccess = false;
+   //we are done and can call init now.
+   this->init();
+   }
+
 template <class GF_q, class real> void ldpc<GF_q, real>::init()
    {
 
@@ -420,7 +522,8 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
    sout << this->max_iter << std::endl;
    sout << "#clipping methods available" << std::endl;
    sout << "# zero - replace only zeros with almostzero" << std::endl;
-   sout << "# clip - replace all values below almostzero with almostzero" << std::endl;
+   sout << "# clip - replace all values below almostzero with almostzero"
+         << std::endl;
    sout << "#this is followed by the value of almostzero" << std::endl;
    sout << this->spa_alg->get_clipping_type() << std::endl;
    sout << this->spa_alg->get_almostzero() << std::endl;
@@ -476,6 +579,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
             {
             tmp_pos = this->M_n(loop1)(loop2) - 1;
             gf_val_int = this->pchk_matrix(tmp_pos, loop1);
+            assert(gf_val_int != GF_q(0));
             non_zero_vals_in_col(loop2) = gf_val_int;
             }
          sout << non_zero_vals_in_col;

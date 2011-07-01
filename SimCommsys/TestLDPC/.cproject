@@ -44,10 +44,12 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.294486197" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 <option id="gnu.cpp.link.option.paths.500540962" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase/Debug}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage/Debug}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm/Debug}&quot;"/>
 </option>
 <option id="gnu.cpp.link.option.libs.723621091" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="comm"/>
+<listOptionValue builtIn="false" value="image"/>
 <listOptionValue builtIn="false" value="base"/>
 <listOptionValue builtIn="false" value="boost_program_options"/>
 </option>
@@ -537,10 +539,12 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.260597812" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
 <option id="gnu.cpp.link.option.paths.1701975030" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libbase/Debug}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libimage/Debug}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Libcomm/Debug}&quot;"/>
 </option>
 <option id="gnu.cpp.link.option.libs.1487943983" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="comm"/>
+<listOptionValue builtIn="false" value="image"/>
 <listOptionValue builtIn="false" value="base"/>
 <listOptionValue builtIn="false" value="boost_program_options"/>
 </option>

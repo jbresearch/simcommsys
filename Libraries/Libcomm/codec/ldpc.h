@@ -82,6 +82,14 @@ public:
       {
       this->decodingSuccess = false;
       }
+   /*! \brief constructor using a parity check matrix
+    * and the number of iterations - the remaining
+    * parameters are either calculated or set to
+    * sensible defaults
+    *
+    */
+   ldpc(libbase::matrix<GF_q> paritycheck_mat, const int num_of_iters);
+
    /*! \brief default destructor
     *
     */
@@ -106,8 +114,7 @@ public:
     * aggregation of a set of symbols, the combination/division has to
     * be done externally.
     */
-   void
-   encode(const array1i_t & source, array1i_t& encoded);
+   void encode(const array1i_t & source, array1i_t& encoded);
 
    /*! \name Softout codec operations */
 
