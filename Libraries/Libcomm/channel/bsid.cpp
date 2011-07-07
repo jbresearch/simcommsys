@@ -345,9 +345,9 @@ bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
  */
 void bsid::set_parameter(const double p)
    {
-   set_ps(varyPs ? p : 0);
-   set_pd(varyPd ? p : 0);
-   set_pi(varyPi ? p : 0);
+   set_ps(varyPs ? p : fixedPs);
+   set_pd(varyPd ? p : fixedPd);
+   set_pi(varyPi ? p : fixedPi);
    libbase::trace << "DEBUG (bsid): Ps = " << Ps << ", Pd = " << Pd
          << ", Pi = " << Pi << std::endl;
    }
@@ -481,6 +481,12 @@ std::string bsid::description() const
    {
    std::ostringstream sout;
    sout << "BSID channel (" << varyPs << varyPd << varyPi;
+   if (!varyPs && fixedPs > 0)
+      sout << ", Ps=" << fixedPs;
+   if (!varyPd && fixedPd > 0)
+      sout << ", Pd=" << fixedPd;
+   if (!varyPi && fixedPi > 0)
+      sout << ", Pi=" << fixedPi;
    if (biased)
       sout << ", biased";
    sout << ")";
@@ -495,7 +501,7 @@ std::string bsid::description() const
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 3 << std::endl;
+   sout << 4 << std::endl;
    sout << "# Biased?" << std::endl;
    sout << biased << std::endl;
    sout << "# Vary Ps?" << std::endl;
@@ -506,6 +512,12 @@ std::ostream& bsid::serialize(std::ostream& sout) const
    sout << varyPi << std::endl;
    sout << "# Cap on I (0=uncapped)" << std::endl;
    sout << Icap << std::endl;
+   sout << "# Fixed Ps value" << std::endl;
+   sout << fixedPs << std::endl;
+   sout << "# Fixed Pd value" << std::endl;
+   sout << fixedPd << std::endl;
+   sout << "# Fixed Pi value" << std::endl;
+   sout << fixedPi << std::endl;
    return sout;
    }
 
@@ -519,6 +531,8 @@ std::ostream& bsid::serialize(std::ostream& sout) const
  * \version 2 Added 'biased' flag
  *
  * \version 3 Added 'Icap' parameter
+ *
+ * \version 4 Added fixed Ps,Pd,Pi values
  */
 std::istream& bsid::serialize(std::istream& sin)
    {
@@ -546,6 +560,20 @@ std::istream& bsid::serialize(std::istream& sin)
       Icap = 2;
    else
       sin >> libbase::eatcomments >> Icap;
+   // read fixed Ps,Pd,Pi values if present
+   if (version < 4)
+      {
+      fixedPs = 0;
+      fixedPd = 0;
+      fixedPi = 0;
+      }
+   else
+      {
+      sin >> libbase::eatcomments >> fixedPs;
+      sin >> libbase::eatcomments >> fixedPd;
+      sin >> libbase::eatcomments >> fixedPi;
+      }
+   // initialise the object and return
    init();
    return sin;
    }

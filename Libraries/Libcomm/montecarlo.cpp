@@ -494,7 +494,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
    std::istringstream is(systemstring);
    sysdigest.process(is);
 
-   // Initialize results-writing system
+   // Initialize results-writing system (if we're using it)
    if (resultsfile::isinitialized())
       setupfile();
 

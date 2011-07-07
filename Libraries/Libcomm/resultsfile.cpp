@@ -211,8 +211,9 @@ void resultsfile::writefinalresults(libbase::vector<double>& result,
    // update write-position
    fileptr = file.tellp();
    finishwithfile(file);
-   // stop timer
+   // stop timer and clear setup flag (in preparation for next simulation run)
    t.stop();
+   filesetup = false;
    }
 
 } // end namespace

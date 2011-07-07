@@ -77,6 +77,9 @@ private:
    bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
    int Icap; //!< Maximum usable value of I (0 indicates no cap is placed)
+   double fixedPs; //!< Value to use when \f$ P_s \f$ does not change with parameter
+   double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
+   double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter
    // @}
 public:
    /*! \name Metric computation */

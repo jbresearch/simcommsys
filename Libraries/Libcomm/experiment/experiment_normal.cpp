@@ -51,14 +51,12 @@ void experiment_normal::derived_accumulate(
 
 void experiment_normal::accumulate_state(const libbase::vector<double>& state)
    {
-   assert(count() == sum.size());
-   assert(count() == sumsq.size());
-   assert(2 * count() == state.size());
-   for (int i = 0; i < count(); i++)
-      {
-      sum(i) += state(i);
-      sumsq(i) += state(count() + i);
-      }
+   assert(state.size() > 0);
+   // divide state into constituent components and accumulate
+   const int n = state.size() / 2;
+   assert(state.size() == 2 * n);
+   safe_accumulate(sum, state.extract(0, n));
+   safe_accumulate(sumsq, state.extract(n, n));
    }
 
 void experiment_normal::get_state(libbase::vector<double>& state) const

@@ -36,7 +36,7 @@ namespace libcomm {
 // 3 - Show input and output of modulation process
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 // internally-used functions
