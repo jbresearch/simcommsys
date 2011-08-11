@@ -27,6 +27,7 @@
 
 #include "config.h"
 
+#ifdef USE_CUDA
 #include "cuda/util.h"
 #include "cuda/sharedmem.h"
 #include "cuda/stream.h"
@@ -35,5 +36,6 @@
 #include "cuda/value.h"
 #include "cuda/vector.h"
 #include "cuda/matrix.h"
+#endif
 
 #endif

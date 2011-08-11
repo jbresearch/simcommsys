@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="Canonicalize"
+	ProjectGUID="{FC77AFF3-38E7-4DC9-B524-DAEF66D7F175}"
 	RootNamespace="Canonicalize"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"

@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="IMprocess"
+	ProjectGUID="{063CD11D-F144-41C8-A995-E02FEE41CDBE}"
 	RootNamespace="IMprocess"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"

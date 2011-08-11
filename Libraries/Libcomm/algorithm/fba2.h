@@ -78,8 +78,8 @@ private:
    int I; //!< The maximum number of insertions considered before every transmission
    int xmax; //!< The maximum allowed overall drift is \f$ \pm x_{max} \f$
    int dxmax; //!< The maximum allowed drift within a q-ary symbol is \f$ \pm \delta_{max} \f$
-   double th_inner; //!< Threshold factor for inner cycle
-   double th_outer; //!< Threshold factor for outer cycle
+   real th_inner; //!< Threshold factor for inner cycle
+   real th_outer; //!< Threshold factor for outer cycle
    // @}
    /*! \name Internally-used objects */
    int dmin; //!< Offset for deltax index in gamma matrix
@@ -154,7 +154,7 @@ inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
    {
    real result = R(d, i, r.extract(n * i + x, n + deltax));
    if (app.size() > 0)
-      result *= app(i)(d);
+      result *= real(app(i)(d));
    return result;
    }
 

@@ -44,6 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\LibBase;..\LibComm"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -122,6 +123,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\LibBase;..\LibComm"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -180,6 +182,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\assertalways.cpp"
+				>
+			</File>
+			<File
 				RelativePath="bitfield.cpp"
 				>
 				<FileConfiguration
@@ -220,6 +226,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\crypto\ciphertext.cpp"
+				>
+			</File>
+			<File
 				RelativePath="cmpi.cpp"
 				>
 				<FileConfiguration
@@ -258,6 +268,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\crypto\elgamal.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\equalitydisclog_zpschnorr.cpp"
+				>
 			</File>
 			<File
 				RelativePath="fastsecant.cpp"
@@ -308,6 +326,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\math\gmp_bigint.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\group.cpp"
+				>
+			</File>
+			<File
 				RelativePath="histogram.cpp"
 				>
 				<FileConfiguration
@@ -346,6 +372,18 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\crypto\keygenerator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\keypair.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\knowdisclog_zpschnorr.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\linear_code_utils.cpp"
@@ -394,46 +432,6 @@
 			<File
 				RelativePath="masterslave.cpp"
 				>
-			</File>
-			<File
-				RelativePath="matrix.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="matrix3.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="mpgnu.cpp"
@@ -506,26 +504,6 @@
 			<File
 				RelativePath="randperm.cpp"
 				>
-			</File>
-			<File
-				RelativePath="rvstatistics.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="secant.cpp"
@@ -625,6 +603,14 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\aligned_allocator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\assertalways.h"
+				>
+			</File>
+			<File
 				RelativePath="bitfield.h"
 				>
 			</File>
@@ -633,11 +619,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crypto\ciphertext.h"
+				>
+			</File>
+			<File
 				RelativePath="cmpi.h"
 				>
 			</File>
 			<File
 				RelativePath="config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cputimer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cuda-all.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\elgamal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\equalitydisclog_zpschnorr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\event_timer.h"
 				>
 			</File>
 			<File
@@ -661,11 +671,39 @@
 				>
 			</File>
 			<File
+				RelativePath=".\math\gmp_bigint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\group.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hamming.h"
+				>
+			</File>
+			<File
 				RelativePath="histogram.h"
 				>
 			</File>
 			<File
 				RelativePath="itfunc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\keygenerator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\keypair.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypto\knowdisclog_zpschnorr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\levenshtein.h"
 				>
 			</File>
 			<File
@@ -745,6 +783,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sysvar.h"
+				>
+			</File>
+			<File
 				RelativePath="timer.h"
 				>
 			</File>
@@ -754,6 +796,14 @@
 			</File>
 			<File
 				RelativePath="vector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vectorutils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\walltimer.h"
 				>
 			</File>
 		</Filter>

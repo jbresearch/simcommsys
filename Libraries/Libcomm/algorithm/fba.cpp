@@ -84,7 +84,7 @@ void fba<real, sig, norm>::init(int tau, int I, int xmax, double th_inner)
    This::xmax = xmax;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
-   This::th_inner = th_inner;
+   This::th_inner = real(th_inner);
    }
 
 // Internal procedures
@@ -94,7 +94,7 @@ void fba<real, sig, norm>::work_forward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Forward Pass");
    // local flag for path thresholding
-   const bool thresholding = (th_inner > 0);
+   const bool thresholding = (th_inner > real(0));
    // initialise memory if necessary
    if (!initialised)
       allocate();
@@ -156,7 +156,7 @@ void fba<real, sig, norm>::work_backward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Backward Pass");
    // local flag for path thresholding
-   const bool thresholding = (th_inner > 0);
+   const bool thresholding = (th_inner > real(0));
    // initialise memory if necessary
    if (!initialised)
       allocate();

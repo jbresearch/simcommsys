@@ -28,6 +28,7 @@
 
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <typeinfo>
 
@@ -79,7 +80,7 @@ void subsample(const int xoff, const int xinc, const int yoff, const int yinc,
       for (int i = yoff, ii = 0; i < a.size().rows(); i += yinc, ii++)
          for (int j = xoff, jj = 0; j < a.size().cols(); j += xinc, jj++)
             b(ii, jj) = a(i, j);
-      // Copy result into stego-image
+      // Copy result into output image
       image_out.setchannel(c, b);
       }
    // Save the resulting image
@@ -99,7 +100,7 @@ inline int round(real x)
 template <class real>
 inline real sinc(real x)
    {
-   const real pi = 3.14159265358979323846;
+   const real pi = real(libbase::PI);
    if (x != 0)
       return sin(pi * x) / (pi * x);
    return 1;
@@ -169,7 +170,7 @@ libbase::matrix<S> resample(const libbase::matrix<S>& x, const real xoff,
    for (int i = 0; i < yrows; i++)
       for (int j = 0; j < ycols; j++)
          // TODO: remove round() for non-int types
-         y(i, j) = round(computeat<S, real> (i, j, x, xoff, yoff, R, a));
+         y(i, j) = S(round(computeat<S, real> (i, j, x, xoff, yoff, R, a)));
    // end
    return y;
    }
@@ -186,7 +187,7 @@ libbase::matrix<S> resample(const libbase::matrix<S>& x, const real xoff,
  */
 
 template <class S, class real>
-void resample(const double xoff, const double yoff, const double scale,
+void resample(const real xoff, const real yoff, const real scale,
       const int limit, std::istream& sin = std::cin, std::ostream& sout =
             std::cout)
    {
@@ -218,6 +219,56 @@ void resample(const double xoff, const double yoff, const double scale,
    }
 
 /*!
+ * \brief   Safe auto-scale process
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * Auto-scales the contrast in the image, forcing the scaling factor to be
+ * a power of 2. This ensures that the bits in the pixel values keep their
+ * statistics.
+ *
+ * \note This template expects 'S' to be an integer type.
+ */
+
+template <class S>
+void safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
+   {
+   // Load input image
+   libimage::image<S> image_in = loadimage<S> (sin);
+   // Tell use what we're doing
+   std::cerr << "Safe auto-scale: ";
+   // Determine size of resulting image
+   const int rows = image_in.size().rows();
+   const int cols = image_in.size().cols();
+   const int channels = image_in.channels();
+   const int range = image_in.range();
+   // Create output image
+   libimage::image<S> image_out(rows, cols, channels, range);
+   // Determine the largest pixel value in the input image
+   S maxval = 0;
+   for (int c = 0; c < channels; c++)
+      maxval = std::max(maxval, image_in.getchannel(c).max());
+   // Determine scaling factor and apply
+   const S scaling = (1 << int(floor(log2(range / maxval))));
+   std::cerr << "scaling factor = " << scaling << std::endl;
+   for (int c = 0; c < channels; c++)
+      {
+      // Extract channel
+      libbase::matrix<S> a = image_in.getchannel(c);
+      // Apply scaling
+      a *= scaling;
+      // Copy result into output image
+      image_out.setchannel(c, a);
+      }
+   // Save the resulting image
+   image_out.serialize(sout);
+   }
+
+/*!
  * \brief   Image Processing Command
  * \author  Johann Briffa
  *
@@ -237,39 +288,54 @@ int main(int argc, char *argv[])
    desc.add_options()("help,h", "print this help message");
    desc.add_options()("type,t", po::value<std::string>()->default_value("int"),
          "image pixel type");
+   desc.add_options()("input,i", po::value<std::string>(),
+         "input filename (stdin if absent)");
+   desc.add_options()("output,o", po::value<std::string>(),
+         "output filename (stdout if absent)");
    desc.add_options()("subsample", po::value<std::string>(),
          "subsampling pattern (xoff,xinc,yoff,yinc)");
    desc.add_options()("resample", po::value<std::string>(),
          "resampling pattern (xoff,yoff,scale,limit)");
+   desc.add_options()("safescale", "auto-scales contrast by a power of 2");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
    // Validate user parameters
-   if (vm.count("help") || (vm.count("subsample") + vm.count("resample")) != 1)
+   if (vm.count("help") || (vm.count("subsample") + vm.count("resample")
+         + vm.count("safescale")) != 1)
       {
       std::cerr << desc << std::endl;
       return 1;
       }
    // Shorthand access for parameters
    const std::string type = vm["type"].as<std::string> ();
+   // Interpret input/output filenames
+   std::fstream fin, fout;
+   if (vm.count("input") > 0)
+      fin.open(vm["input"].as<std::string> ().c_str(), std::ios::in | std::ios::binary);
+   if (vm.count("output") > 0)
+      fout.open(vm["output"].as<std::string> ().c_str(), std::ios::out | std::ios::binary);
+   // Choose between given files and standard I/O
+   std::istream& sin = fin.is_open() ? fin : std::cin;
+   std::ostream& sout = fout.is_open() ? fout : std::cout;
 
    if (vm.count("subsample") == 1)
       {
       const std::string parameters = vm["subsample"].as<std::string> ();
       // Process parameters
-      std::istringstream sin(parameters);
+      std::istringstream ssin(parameters);
       char c;
       int xoff, xinc, yoff, yinc;
-      sin >> xoff >> c >> xinc >> c >> yoff >> c >> yinc;
+      ssin >> xoff >> c >> xinc >> c >> yoff >> c >> yinc;
 
       // Main process
       if (type == "int")
-         subsample<int> (xoff, xinc, yoff, yinc);
+         subsample<int> (xoff, xinc, yoff, yinc, sin, sout);
       else if (type == "float")
-         subsample<float> (xoff, xinc, yoff, yinc);
+         subsample<float> (xoff, xinc, yoff, yinc, sin, sout);
       else if (type == "double")
-         subsample<double> (xoff, xinc, yoff, yinc);
+         subsample<double> (xoff, xinc, yoff, yinc, sin, sout);
       else
          {
          std::cerr << "Unrecognized pixel type: " << type << std::endl;
@@ -280,22 +346,33 @@ int main(int argc, char *argv[])
       {
       const std::string parameters = vm["resample"].as<std::string> ();
       // Process parameters
-      std::istringstream sin(parameters);
+      std::istringstream ssin(parameters);
       char c;
       double xoff, yoff, scale;
       int limit;
-      sin >> xoff >> c >> yoff >> c >> scale >> c >> limit;
+      ssin >> xoff >> c >> yoff >> c >> scale >> c >> limit;
 
       // Main process
       if (type == "int")
-         resample<int, float> (xoff, yoff, scale, limit);
+         resample<int, float> (float(xoff), float(yoff), float(scale), limit, sin, sout);
       else if (type == "float")
-         resample<float, float> (xoff, yoff, scale, limit);
+         resample<float, float> (float(xoff), float(yoff), float(scale), limit, sin, sout);
       else if (type == "double")
-         resample<double, double> (xoff, yoff, scale, limit);
+         resample<double, double> (xoff, yoff, scale, limit, sin, sout);
       else
          {
          std::cerr << "Unrecognized pixel type: " << type << std::endl;
+         return 1;
+         }
+      }
+   else if (vm.count("safescale") == 1)
+      {
+      // Main process
+      if (type == "int")
+         safescale<int> (sin, sout);
+      else
+         {
+         std::cerr << "Unsupported pixel type: " << type << std::endl;
          return 1;
          }
       }

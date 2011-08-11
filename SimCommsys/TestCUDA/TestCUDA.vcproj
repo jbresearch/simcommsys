@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="TestCUDA"
+	ProjectGUID="{D495B763-55C3-427F-8DF8-0FC7DE1854EE}"
 	RootNamespace="TestCUDA"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"

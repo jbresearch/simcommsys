@@ -121,7 +121,8 @@ double gammp(double a, double x)
    {
    if (x < 0.0 || a <= 0.0)
       {
-      cerr << "FATAL ERROR: gammp range error (" << a << ", " << x << ")" << std::endl;
+      cerr << "FATAL ERROR: gammp range error (" << a << ", " << x << ")"
+            << std::endl;
       exit(1);
       }
    if (x < a + 1.0) // use series representation
@@ -201,62 +202,6 @@ int gcd(int a, int b)
       a = t;
       }
    return a;
-   }
-
-// combinatorial statistics functions
-
-int factorial(int x)
-   {
-   if (x < 0)
-      {
-      cerr << "FATAL ERROR: factorial range error (" << x << ")" << std::endl;
-      exit(1);
-      }
-   int z = 1;
-   for (int i = x; i > 1; i--)
-      z *= i;
-   return z;
-   }
-
-int permutations(int n, int r)
-   {
-   if (n < r)
-      {
-      cerr << "FATAL ERROR: permutations range error (" << n << ", " << r
-            << ")" << std::endl;
-      exit(1);
-      }
-   int z = 1;
-   for (int i = n; i > (n - r); i--)
-      z *= i;
-   return z;
-   }
-
-double factoriald(int x)
-   {
-   if (x < 0)
-      {
-      cerr << "FATAL ERROR: factorial range error (" << x << ")" << std::endl;
-      exit(1);
-      }
-   double z = 1;
-   for (int i = x; i > 1; i--)
-      z *= i;
-   return z;
-   }
-
-double permutationsd(int n, int r)
-   {
-   if (n < r)
-      {
-      cerr << "FATAL ERROR: permutations range error (" << n << ", " << r
-            << ")" << std::endl;
-      exit(1);
-      }
-   double z = 1;
-   for (int i = n; i > (n - r); i--)
-      z *= i;
-   return z;
    }
 
 /*! \brief Converts a string to its hex representation

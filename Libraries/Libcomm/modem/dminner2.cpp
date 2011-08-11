@@ -43,7 +43,7 @@ real dminner2<real, norm>::R(int d, int i, const array1b_t& r) const
    for (int bit = 0, t = w ^ s; bit < n; bit++, t >>= 1)
       tx(bit) = (t & 1);
    // compute the conditional probability
-   return Base::mychan.receive(tx, r);
+   return real(Base::mychan.receive(tx, r));
    }
 #endif
 

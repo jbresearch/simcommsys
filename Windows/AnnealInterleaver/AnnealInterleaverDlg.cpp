@@ -312,8 +312,8 @@ void CAnnealInterleaverDlg::OnTimer(UINT nIDEvent)
       {
       case 1:
          GetDlgItem(IDC_TIME)->SetWindowText(std::string(m_tSimulation).c_str());
-         sTemp.Format("%0.1f%%", m_tSimulation.usage());
-         GetDlgItem(IDC_CPU)->SetWindowText(sTemp);
+         //sTemp.Format("%0.1f%%", m_tSimulation.usage());
+         //GetDlgItem(IDC_CPU)->SetWindowText(sTemp);
          break;
       }
 

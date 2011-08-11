@@ -101,8 +101,8 @@ private:
    std::string lutname; //!< name to describe codebook
    array1i_t lut; //!< sparsifier LUT
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
-   double th_inner; //!< Threshold factor for inner cycle
-   double th_outer; //!< Threshold factor for outer cycle
+   real th_inner; //!< Threshold factor for inner cycle
+   real th_outer; //!< Threshold factor for outer cycle
    // @}
    /*! \name Pre-computed parameters */
    double f; //!< average weight per bit of sparse symbol
@@ -148,8 +148,8 @@ private:
       assert(n >= 1 && n <= 32);
       assert(k >= 1 && k <= n);
       // check cutoff thresholds
-      assert(th_inner >= 0 && th_inner <= 1);
-      assert(th_outer >= 0 && th_outer <= 1);
+      assert(th_inner >= real(0) && th_inner <= real(1));
+      assert(th_outer >= real(0) && th_outer <= real(1));
       }
    int fill(int i = 0, libbase::bitfield suffix = libbase::bitfield(""),
          int weight = -1);
@@ -179,10 +179,10 @@ public:
    void set_pilot(libbase::vector<bool> pilot);
    void set_pilot(libbase::vector<libbase::bitfield> pilot);
    void set_lut(libbase::vector<libbase::bitfield> lut);
-   void set_thresholds(const double th_inner, const double th_outer);
+   void set_thresholds(const real th_inner, const real th_outer);
    void set_parameter(const double x)
       {
-      set_thresholds(x, x);
+      set_thresholds(real(x), real(x));
       }
    double get_parameter() const
       {

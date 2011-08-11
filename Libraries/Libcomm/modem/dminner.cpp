@@ -183,7 +183,7 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
    {
    libbase::pacifier progress("FBA Results");
    // local flag for path thresholding
-   const bool thresholding = (th_outer > 0);
+   const bool thresholding = (th_outer > real(0));
    // determine limits
    const int dmin = std::max(-n, -dxmax);
    const int dmax = std::min(n * I, dxmax);
@@ -237,8 +237,8 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
             for (int x2 = x2min; x2 <= x2max; x2++)
                {
                // compute the conditional probability
-               const real R = mychan.receive(t, r.extract(n * i + x1, x2 - x1
-                     + n));
+               const real R = real(mychan.receive(t, r.extract(n * i + x1, x2 - x1
+                     + n)));
                const real B = FBA::getB(n * (i + 1), x2);
                // include the probability for this particular sequence
                p += F * R * B;
@@ -296,8 +296,8 @@ void dminner<real, norm>::init()
    // set default thresholds if necessary
    if (!user_threshold)
       {
-      th_inner = 1e-15;
-      th_outer = 1e-6;
+      th_inner = real(1e-15);
+      th_outer = real(1e-6);
       }
    // Seed the watermark generator and clear the sequence
    r.seed(0);
@@ -319,7 +319,7 @@ template <class real, bool norm>
 dminner<real, norm>::dminner(const int n, const int k, const double th_inner,
       const double th_outer) :
    n(n), k(k), lut_type(lut_straight), user_threshold(true),
-         th_inner(th_inner), th_outer(th_outer)
+         th_inner(real(th_inner)), th_outer(real(th_outer))
    {
    init();
    }
@@ -374,8 +374,8 @@ void dminner<real, norm>::set_lut(libbase::vector<libbase::bitfield> lut)
    }
 
 template <class real, bool norm>
-void dminner<real, norm>::set_thresholds(const double th_inner,
-      const double th_outer)
+void dminner<real, norm>::set_thresholds(const real th_inner,
+      const real th_outer)
    {
    user_threshold = true;
    This::th_inner = th_inner;
@@ -394,7 +394,7 @@ real dminner<real, norm>::R(const int i, const array1b_t& r)
    const int bit = i % n;
    bool t = ((ws(word) >> bit) & 1);
    // compute the conditional probability
-   return mychan.receive(t, r);
+   return real(mychan.receive(t, r));
    }
 
 // block advance operation - update watermark sequence

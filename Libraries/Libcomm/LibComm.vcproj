@@ -250,10 +250,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\codec.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\codec\codec_reshaped.cpp"
 				>
 			</File>
@@ -267,6 +263,10 @@
 			</File>
 			<File
 				RelativePath=".\experiment\binomial\result_collector\commsys_errorrates.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys_errors_levenshtein.cpp"
 				>
 			</File>
 			<File
@@ -299,6 +299,10 @@
 			</File>
 			<File
 				RelativePath=".\experiment\binomial\commsys_threshold.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\normal\commsys_timer.cpp"
 				>
 			</File>
 			<File
@@ -358,11 +362,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fba.cpp"
+				RelativePath=".\algorithm\fba.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fba2.cpp"
+				RelativePath=".\algorithm\fba2.cpp"
 				>
 			</File>
 			<File
@@ -391,10 +395,6 @@
 			</File>
 			<File
 				RelativePath=".\modem\informed_modulator.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\interleaver.cpp"
 				>
 			</File>
 			<File
@@ -474,10 +474,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\parametric.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\modem\qam.cpp"
 				>
 			</File>
@@ -515,10 +511,6 @@
 			</File>
 			<File
 				RelativePath=".\fsm\rscc.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\serializer_libcomm.cpp"
 				>
 			</File>
 			<File
@@ -675,6 +667,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys_errors_levenshtein.h"
+				>
+			</File>
+			<File
 				RelativePath=".\commsys_fulliter.h"
 				>
 			</File>
@@ -704,6 +700,10 @@
 			</File>
 			<File
 				RelativePath=".\experiment\binomial\commsys_threshold.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\normal\commsys_timer.h"
 				>
 			</File>
 			<File
@@ -763,7 +763,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\algorithm\fba.h"
+				>
+			</File>
+			<File
 				RelativePath=".\fba.h"
+				>
+			</File>
+			<File
+				RelativePath=".\algorithm\fba2-cuda.h"
+				>
+			</File>
+			<File
+				RelativePath=".\algorithm\fba2.h"
 				>
 			</File>
 			<File
@@ -791,11 +803,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hard_decision.h"
+				>
+			</File>
+			<File
 				RelativePath=".\interleaver\lut\helical.h"
 				>
 			</File>
 			<File
 				RelativePath=".\modem\informed_modulator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\instrumented.h"
 				>
 			</File>
 			<File

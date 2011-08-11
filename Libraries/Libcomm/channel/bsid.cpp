@@ -24,6 +24,7 @@
 
 #include "bsid.h"
 #include "secant.h"
+#include <boost/math/special_functions/binomial.hpp>
 #include <sstream>
 #include <limits>
 
@@ -42,9 +43,38 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
 // FBA decoder parameter computation
 
 /*!
+ * \brief Determine the probability of drift x at the end of a frame of tau bits
+ *
+ * \todo Add formula
+ */
+double bsid::metric_computer::compute_drift_prob(int x, int tau, double Pi,
+      double Pd)
+   {
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   assert(Pd >= 0 && Pd < 1.0);
+   // set constants
+   const double Pt = 1 - Pi - Pd;
+   const int imin = (x < 0) ? -x : 0;
+   // main computation
+   double Pr = 0;
+   for (int i = imin; i <= tau; i++)
+      {
+      double tmp;
+      tmp = boost::math::binomial_coefficient<double>(tau + x + i - 1, x + i);
+      tmp *= boost::math::binomial_coefficient<double>(tau, i);
+      tmp *= pow(Pi * Pd / Pt, i);
+      Pr += tmp;
+      }
+   Pr *= pow(Pt, tau) * pow(Pi, x);
+   return Pr;
+   }
+
+/*!
  * \brief Determine limit for insertions between two time-steps
  * 
- * \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log p } \right\rceil - 1 \f]
+ * \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log P_i } \right\rceil - 1 \f]
  * where \f$ P_r \f$ is an arbitrary probability of having a block of size
  * \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
  * between successive time-steps.
@@ -53,9 +83,13 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
  * \note The smallest allowed value is \f$ I = 1 \f$; the largest value depends
  * on a user parameter.
  */
-int bsid::metric_computer::compute_I(int tau, double p, int Icap)
+int bsid::metric_computer::compute_I(int tau, double Pi, int Icap)
    {
-   int I = int(ceil((log(1e-12) - log(double(tau))) / log(p))) - 1;
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   // main computation
+   int I = int(ceil((log(1e-12) - log(double(tau))) / log(Pi))) - 1;
    I = std::max(I, 1);
    libbase::trace << "DEBUG (bsid): for N = " << tau << ", I = " << I;
    if (Icap > 0)
@@ -68,7 +102,7 @@ int bsid::metric_computer::compute_I(int tau, double p, int Icap)
    }
 
 /*!
- * \brief Determine maximum drift over a whole N-bit block
+ * \brief Determine maximum drift at the end of a frame of tau bits (Davey's algorithm)
  * 
  * \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
  * where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
@@ -79,20 +113,83 @@ int bsid::metric_computer::compute_I(int tau, double p, int Icap)
  * The calculation is based on the assumption that the end-of-frame drift has
  * a Gaussian distribution with zero mean and standard deviation given by
  * \f$ \sigma = \sqrt{\frac{\tau p}{1-p}} \f$.
- * 
- * \note The smallest allowed value is \f$ x_{max} = I \f$
  */
-int bsid::metric_computer::compute_xmax(int tau, double p, int I)
+int bsid::metric_computer::compute_xmax_davey(int tau, double Pi, double Pd)
    {
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   assert(Pd >= 0 && Pd < 1.0);
+   // set constants
+   assert(Pi == Pd); // assumed by this algorithm
+   const double p = Pi;
    // rather than computing the factor using a root-finding method,
    // we fix factor = 7.1305, corresponding to Qinv(1e-12/2.0)
    const double factor = 7.1305;
    int xmax = int(ceil(factor * sqrt(tau * p / (1 - p))));
+   // tell the user what we did and return
+   libbase::trace << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = "
+         << xmax << "." << std::endl;
+   return xmax;
+   }
+
+/*!
+ * \brief Determine maximum drift at the end of a frame of tau bits (exact algorithm)
+ *
+ * \todo Add formula
+ */
+int bsid::metric_computer::compute_xmax_exact(int tau, double Pi, double Pd)
+   {
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   assert(Pd >= 0 && Pd < 1.0);
+   // set constants
+   const double Pr = 1e-12;
+   // determine area that needs to be covered
+   double acc = 0.0;
+   // determine xmax to use
+   int xmax = 0;
+   acc += compute_drift_prob(xmax, tau, Pi, Pd);
+   while (true)
+      {
+      xmax++;
+      acc += compute_drift_prob(xmax, tau, Pi, Pd);
+      acc += compute_drift_prob(-xmax, tau, Pi, Pd);
+      if (acc >= 1.0 - Pr)
+         break;
+      }
+   // tell the user what we did and return
+   libbase::trace << "DEBUG (bsid): [exact] for N = " << tau << ", xmax = "
+         << xmax << "." << std::endl;
+   return xmax;
+   }
+
+/*!
+ * \brief Determine maximum drift at the end of a frame of tau bits
+ *
+ * This method uses Davey's algorithm for large frames where Pi=Pd, and the
+ * exact algorithm in all other cases.
+ *
+ * \note The smallest allowed value is \f$ x_{max} = I \f$
+ */
+int bsid::metric_computer::compute_xmax(int tau, double Pi, double Pd, int I)
+   {
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   assert(Pd >= 0 && Pd < 1.0);
+   // use the appropriate algorithm
+   int xmax;
+   if (tau > 100 && Pi == Pd)
+      xmax = compute_xmax_davey(tau, Pi, Pd);
+   else
+      xmax = compute_xmax_exact(tau, Pi, Pd);
+   // cap minimum value
    xmax = std::max(xmax, I);
-   libbase::trace << "DEBUG (bsid): for N = " << tau << ", xmax = " << xmax;
-   //xmax = min(xmax,25);
-   //libbase::trace << ", capped to " << xmax;
-   libbase::trace << "." << std::endl;
+   // tell the user what we did and return
+   libbase::trace << "DEBUG (bsid): for N = " << tau << ", xmax = " << xmax
+         << "." << std::endl;
    return xmax;
    }
 
@@ -167,7 +264,7 @@ void bsid::metric_computer::precompute(double Ps, double Pd, double Pi,
    assert(N > 0);
    // fba decoder parameters
    I = compute_I(N, Pi, Icap);
-   xmax = compute_xmax(N, Pi, I);
+   xmax = compute_xmax(N, Pi, Pd, I);
    // receiver coefficients
    Rval = real(biased ? Pd * Pd : Pd);
 #ifdef USE_CUDA

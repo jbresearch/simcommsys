@@ -146,8 +146,8 @@ void fba2<real, sig, norm>::init(int N, int n, int q, int I, int xmax,
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);
-   This::th_inner = th_inner;
-   This::th_outer = th_outer;
+   This::th_inner = real(th_inner);
+   This::th_outer = real(th_outer);
    }
 
 // Internal procedures
@@ -201,7 +201,7 @@ void fba2<real, sig, norm>::work_alpha(int rho)
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
    // local flag for path thresholding
-   const bool thresholding = (th_inner > 0);
+   const bool thresholding = (th_inner > real(0));
    // initialise array:
    // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    alpha = real(0);
@@ -265,7 +265,7 @@ void fba2<real, sig, norm>::work_beta(int rho)
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
    // local flag for path thresholding
-   const bool thresholding = (th_inner > 0);
+   const bool thresholding = (th_inner > real(0));
    // initialise array:
    // we also know x[tau] = rho-tau;
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
@@ -331,7 +331,7 @@ void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
    assert(initialised);
    libbase::pacifier progress("FBA Results");
    // local flag for path thresholding
-   const bool thresholding = (th_outer > 0);
+   const bool thresholding = (th_outer > real(0));
    // Initialise result vector (one sparse symbol per timestep)
    libbase::allocate(ptable, N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'

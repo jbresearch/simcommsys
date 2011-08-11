@@ -80,7 +80,7 @@ private:
    int tau; //!< The (transmitted) block size in bits
    int I; //!< The maximum number of insertions per time-step
    int xmax; //!< The maximum allowed drift overall
-   double th_inner; //!< Threshold factor for inner cycle
+   real th_inner; //!< Threshold factor for inner cycle
    // @}
    /*! \name Internally-used objects */
    bool initialised; //!< Flag to indicate when memory is allocated

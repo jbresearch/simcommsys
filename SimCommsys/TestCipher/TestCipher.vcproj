@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="TestCipher"
+	ProjectGUID="{41059B0E-26AE-4AD8-B9AB-7E932D8659BB}"
 	RootNamespace="TestCipher"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
@@ -40,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Libraries\Libbase"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase;..\..\Libraries\Libcomm"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -119,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\Libraries\Libbase"
+				AdditionalIncludeDirectories="..\..\Libraries\Libbase;..\..\Libraries\Libcomm"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"

@@ -98,8 +98,11 @@ public:
       // @}
    public:
       /*! \name FBA decoder parameter computation */
-      static int compute_I(int tau, double p, int Icap);
-      static int compute_xmax(int tau, double p, int I);
+      static double compute_drift_prob(int x, int tau, double Pi, double Pd);
+      static int compute_I(int tau, double Pi, int Icap);
+      static int compute_xmax_davey(int tau, double Pi, double Pd);
+      static int compute_xmax_exact(int tau, double Pi, double Pd);
+      static int compute_xmax(int tau, double Pi, double Pd, int I);
       static real compute_Rtable_entry(bool err, int mu, double Ps, double Pd,
             double Pi);
       static void compute_Rtable(array2r_t& Rtable, int I, double Ps,
@@ -269,7 +272,7 @@ public:
    int compute_xmax(int tau)
       {
       const int I = metric_computer::compute_I(tau, Pi, Icap);
-      return metric_computer::compute_xmax(tau, Pi, I);
+      return metric_computer::compute_xmax(tau, Pi, Pd, I);
       }
    // @}
 

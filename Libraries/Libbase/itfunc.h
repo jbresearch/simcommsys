@@ -110,20 +110,6 @@ int32u igray(int32u n);
 
 int gcd(int a, int b);
 
-int factorial(int x);
-int permutations(int n, int r);
-inline int combinations(int n, int r)
-   {
-   return permutations(n, r) / factorial(r);
-   }
-
-double factoriald(int x);
-double permutationsd(int n, int r);
-inline double combinationsd(int n, int r)
-   {
-   return permutationsd(n, r) / factoriald(r);
-   }
-
 std::string hexify(const std::string input);
 std::string dehexify(const std::string input);
 
