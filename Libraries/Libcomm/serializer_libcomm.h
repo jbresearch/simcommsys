@@ -46,6 +46,7 @@
 
 // Embedders - atomic
 #include "embedder.h"
+#include "embedder/lsb.h"
 #include "embedder/qim.h"
 #include "embedder/ssis.h"
 // Embedders - block
@@ -179,6 +180,7 @@ private:
    //named_lut<double>	_named_lut_double;
    // Embedders - atomic
    qim<int> _qim_int;
+   lsb<int> _lsb_int;
    // Embedders - block
    direct_blockembedder<int> _direct_blockembedder_int;
    ssis<int> _ssis_int;
