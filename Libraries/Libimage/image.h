@@ -54,13 +54,31 @@ class image : public libbase::serializable {
 private:
    //! Internal image representation
    libbase::vector<libbase::matrix<T> > m_data;
+   T m_lo;
+   T m_hi;
    int m_maxval;
+protected:
+   //! Set internal pixel value limits according to type
+   void set_limits()
+      {
+      if (typeid(T) == typeid(double) || typeid(T) == typeid(float))
+         {
+         m_lo = 0.0;
+         m_hi = 1.0;
+         }
+      else
+         {
+         m_lo = 0;
+         m_hi = m_maxval;
+         }
+      }
 public:
    // Construction / destruction
    explicit image(int rows = 0, int cols = 0, int c = 0, int maxval = 255) :
       m_maxval(maxval)
       {
       resize(rows, cols, c);
+      set_limits();
       }
    virtual ~image()
       {
@@ -74,7 +92,17 @@ public:
       }
 
    /*! \name Information functions */
-   //! Maximum pixel value
+   //! Minimum valid pixel value for internal representation
+   T lo() const
+      {
+      return m_lo;
+      }
+   //! Maximum valid pixel value for internal representation
+   T hi() const
+      {
+      return m_hi;
+      }
+   //! Maximum pixel value for saved file
    int range() const
       {
       return m_maxval;

@@ -98,8 +98,7 @@ void process(const std::string& systemfile, const std::string& hostfile,
       C<S> stego;
       system->embed(system->num_symbols(), data, host, stego);
       // Limit values to usable range
-      libimage::limitfilter<S> filter(libimage::limitval<S>::lo(),
-            libimage::limitval<S>::hi());
+      libimage::limitfilter<S> filter(hostimage.lo(), hostimage.hi());
       filter.apply(stego, stego);
       // Copy result into stego-image
       stegoimage.setchannel(c, stego);

@@ -208,8 +208,7 @@ void resample(const real xoff, const real yoff, const real scale,
          image_out.resize(plane_out.size().rows(), plane_out.size().cols(),
                image_in.channels());
       // Limit values to usable range
-      libimage::limitfilter<S> filter(libimage::limitval<S>::lo(),
-            libimage::limitval<S>::hi());
+      libimage::limitfilter<S> filter(image_in.lo(), image_in.hi());
       filter.apply(plane_out, plane_out);
       // Copy into output image
       image_out.setchannel(c, plane_out);
@@ -313,9 +312,11 @@ int main(int argc, char *argv[])
    // Interpret input/output filenames
    std::fstream fin, fout;
    if (vm.count("input") > 0)
-      fin.open(vm["input"].as<std::string> ().c_str(), std::ios::in | std::ios::binary);
+      fin.open(vm["input"].as<std::string> ().c_str(), std::ios::in
+            | std::ios::binary);
    if (vm.count("output") > 0)
-      fout.open(vm["output"].as<std::string> ().c_str(), std::ios::out | std::ios::binary);
+      fout.open(vm["output"].as<std::string> ().c_str(), std::ios::out
+            | std::ios::binary);
    // Choose between given files and standard I/O
    std::istream& sin = fin.is_open() ? fin : std::cin;
    std::ostream& sout = fout.is_open() ? fout : std::cout;
@@ -354,9 +355,11 @@ int main(int argc, char *argv[])
 
       // Main process
       if (type == "int")
-         resample<int, float> (float(xoff), float(yoff), float(scale), limit, sin, sout);
+         resample<int, float> (float(xoff), float(yoff), float(scale), limit,
+               sin, sout);
       else if (type == "float")
-         resample<float, float> (float(xoff), float(yoff), float(scale), limit, sin, sout);
+         resample<float, float> (float(xoff), float(yoff), float(scale), limit,
+               sin, sout);
       else if (type == "double")
          resample<double, double> (xoff, yoff, scale, limit, sin, sout);
       else

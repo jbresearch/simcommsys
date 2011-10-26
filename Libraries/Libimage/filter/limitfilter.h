@@ -63,7 +63,7 @@ public:
  * - $Date$
  * - $Author$
  *
- * This object defines pixel limits for integer types.
+ * This object defines pixel limits for (8-bit) integer types.
  */
 
 template <>

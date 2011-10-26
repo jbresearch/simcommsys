@@ -127,6 +127,8 @@ std::istream& image<T>::serialize(std::istream& sin)
       std::istringstream(line) >> m_maxval;
       }
    libbase::trace << " (" << cols << "x" << rows << "x" << chan << ")...";
+   // set interal representation limits
+   set_limits();
    // set up space to hold image
    m_data.init(chan);
    for (int c = 0; c < chan; c++)
