@@ -90,10 +90,13 @@ public:
          case AL_MATCHING:
             {
             int delta = i - (s % M);
+            // if the LSB is correct, leave as is
             if (delta == 0)
                return s;
+            // otherwise randomly decided to add/subtract
             if (r.ival(2) == 0)
-               delta = -delta;
+               delta = (delta > 0) ? delta - M : M - delta;
+            // return result (does not respect representation limits)
             return S(s + delta);
             }
          default:
