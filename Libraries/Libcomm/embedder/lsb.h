@@ -27,11 +27,12 @@
 
 #include "config.h"
 #include "embedder.h"
+#include "randgen.h"
 
 namespace libcomm {
 
 /*!
- * \brief   LSB Replacement Embedder/Extractor.
+ * \brief   LSB Embedder/Extractor.
  * \author  Johann Briffa
  *
  * \par Version Control:
@@ -39,8 +40,10 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * LSB replacement is defined in terms of modulo arithmetic and can be
- * applied to any integer class.
+ * This class implements LSB embedding that can be applied to any integer type.
+ * Two types of embedding are implemented:
+ * - LSB replacement (using modulo arithmetic)
+ * - LSB matching (or +/- 1 embedding)
  */
 
 template <class S>
@@ -48,6 +51,14 @@ class lsb : public embedder<S> {
 private:
    /*! \name User-defined parameters */
    int M; //! Alphabet size in symbols
+   enum al_enum {
+      AL_REPLACEMENT, //!< LSB replacement
+      AL_MATCHING, //!< LSB matching
+      AL_UNDEFINED
+   } algorithm;
+   // @}
+   /*! \name Internal representation */
+   mutable libbase::randgen r; //!< +/- selector for matching
    // @}
 protected:
    //! Verifies that object is in a valid state
@@ -57,15 +68,38 @@ protected:
       }
 public:
    lsb(const int M = 2) :
-      M(M)
+      M(M), algorithm(AL_REPLACEMENT)
       {
+      }
+
+   // Setup functions
+   void seedfrom(libbase::random& r)
+      {
+      libbase::int32u seed = r.ival();
+      this->r.seed(seed);
       }
 
    // Atomic embedder operations
    const S embed(const int i, const S s) const
       {
-      assert(i >=0 && i < M);
-      return S(s - (s % M) + i);
+      assert(i >= 0 && i < M);
+      switch (algorithm)
+         {
+         case AL_REPLACEMENT:
+            return S(s - (s % M) + i);
+         case AL_MATCHING:
+            {
+            int delta = i - (s % M);
+            if (delta == 0)
+               return s;
+            if (r.ival(2) == 0)
+               delta = -delta;
+            return S(s + delta);
+            }
+         default:
+            failwith("Unknown algorithm");
+            return s;
+         }
       }
    const int extract(const S& rx) const
       {
