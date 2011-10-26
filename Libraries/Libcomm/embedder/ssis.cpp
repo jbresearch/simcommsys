@@ -202,9 +202,12 @@ std::string ssis<S, matrix, dbl>::description() const
 template <class S, class dbl>
 std::ostream& ssis<S, matrix, dbl>::serialize(std::ostream& sout) const
    {
-   sout << 1; // version number
-   sout << A;
-   sout << preprocess;
+   sout << "# Version" << std::endl;
+   sout << 1 << std::endl;
+   sout << "# A" << std::endl;
+   sout << A << std::endl;
+   sout << "# Pre-processing (0=none, 1=AW(ES), 2=AW(Matlab))" << std::endl;
+   sout << preprocess << std::endl;
    return sout;
    }
 

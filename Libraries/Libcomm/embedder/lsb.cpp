@@ -46,15 +46,26 @@ std::string lsb<S>::description() const
 template <class S>
 std::ostream& lsb<S>::serialize(std::ostream& sout) const
    {
+   sout << "# Version" << std::endl;
+   sout << 1;
+   sout << "# M" << std::endl;
    sout << M << std::endl;
    return sout;
    }
 
 // object serialization - loading
 
+/*!
+ * \version 0 Initial version (un-numbered and unpublished)
+ *
+ * \version 1 Added version numbering
+ */
+
 template <class S>
 std::istream& lsb<S>::serialize(std::istream& sin)
    {
+   int version;
+   sin >> libbase::eatcomments >> version;
    sin >> libbase::eatcomments >> M;
    return sin;
    }

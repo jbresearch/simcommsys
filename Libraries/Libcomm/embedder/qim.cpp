@@ -51,13 +51,20 @@ std::string qim<S>::description() const
 template <class S>
 std::ostream& qim<S>::serialize(std::ostream& sout) const
    {
+   sout << "# M" << std::endl;
    sout << M << std::endl;
+   sout << "# delta" << std::endl;
    sout << delta << std::endl;
+   sout << "# alpha" << std::endl;
    sout << alpha << std::endl;
    return sout;
    }
 
 // object serialization - loading
+
+/*!
+ * \version 0 Initial version (un-numbered)
+ */
 
 template <class S>
 std::istream& qim<S>::serialize(std::istream& sin)
