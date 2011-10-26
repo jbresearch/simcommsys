@@ -30,56 +30,6 @@
 namespace libimage {
 
 /*
- * \brief   Standard Image Limit Values
- * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- *
- * This object defines pixel limits for real types.
- */
-
-template <class S>
-class limitval {
-public:
-   static S lo()
-      {
-      return 0.0;
-      }
-   static S hi()
-      {
-      return 1.0;
-      }
-};
-
-/*
- * \brief   Standard Image Limit Values - for integers
- * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- *
- * This object defines pixel limits for (8-bit) integer types.
- */
-
-template <>
-class limitval<int> {
-public:
-   static int lo()
-      {
-      return 0;
-      }
-   static int hi()
-      {
-      return 255;
-      }
-};
-
-/*
  * \brief   Limit Filter
  * \author  Johann Briffa
  *
