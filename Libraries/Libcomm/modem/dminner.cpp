@@ -237,8 +237,8 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
             for (int x2 = x2min; x2 <= x2max; x2++)
                {
                // compute the conditional probability
-               const real R = real(mychan.receive(t, r.extract(n * i + x1, x2 - x1
-                     + n)));
+               const real R = real(mychan.receive(t, r.extract(n * i + x1, x2
+                     - x1 + n)));
                const real B = FBA::getB(n * (i + 1), x2);
                // include the probability for this particular sequence
                p += F * R * B;
@@ -269,12 +269,13 @@ void dminner<real, norm>::normalize_results(const array1vr_t& in,
    for (int i = 0; i < N; i++)
       scale = std::max(scale, in(i).max());
    assert(scale != real(0));
+   scale = real(1) / scale;
    // allocate result space
    libbase::allocate(out, N, q);
    // normalize and copy results
    for (int i = 0; i < N; i++)
       for (int d = 0; d < q; d++)
-         out(i)(d) = in(i)(d) / scale;
+         out(i)(d) = in(i)(d) * scale;
    }
 
 // initialization / de-allocation
@@ -318,8 +319,8 @@ dminner<real, norm>::dminner(const int n, const int k) :
 template <class real, bool norm>
 dminner<real, norm>::dminner(const int n, const int k, const double th_inner,
       const double th_outer) :
-   n(n), k(k), lut_type(lut_straight), user_threshold(true),
-         th_inner(real(th_inner)), th_outer(real(th_outer))
+   n(n), k(k), lut_type(lut_straight), user_threshold(true), th_inner(real(
+         th_inner)), th_outer(real(th_outer))
    {
    init();
    }
@@ -460,16 +461,17 @@ void dminner<real, norm>::domodulate(const int N, const array1i_t& encoded,
    // Encode source stream
    for (int i = 0; i < tau; i++)
       {
-      const int s = lut(encoded(i) & (q - 1)); // sparse vector
       const int w = ws(i); // watermark vector
+      const int s = lut(encoded(i) & (q - 1)); // sparse vector
 #if DEBUG>=3
       libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
       libbase::trace << "s = " << libbase::bitfield(s, n) << "\t";
       libbase::trace << "w = " << libbase::bitfield(w, n) << std::endl;
 #endif
       // NOTE: we transmit the low-order bits first
-      for (int bit = 0, t = s ^ w; bit < n; bit++, t >>= 1)
-         tx(i * n + bit) = (t & 1);
+      libbase::bitfield t(w ^ s, n);
+      for (int bit = 0; bit < n; bit++)
+         tx(i * n + bit) = t(bit);
       }
    }
 
@@ -530,6 +532,16 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
       for (int d = 0; d < q; d++)
          ptable(i)(d) = p(i)(d) * app(i)(d);
       }
+   }
+
+template <class real, bool norm>
+void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
+      const array1b_t& rx, const array1d_t& sof_prior,
+      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
+      array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
+            libbase::vector> offset)
+   {
+   failwith("Function not implemented.");
    }
 
 // description output

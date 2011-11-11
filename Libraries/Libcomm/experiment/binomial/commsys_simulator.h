@@ -50,8 +50,6 @@ template <class S, class R = commsys_errorrates>
 class commsys_simulator : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */
-   //! Flag to indicate whether the objects should be released on destruction
-   bool internallyallocated;
    libbase::randgen *src; //!< Source data sequence generator
    commsys<S> *sys; //!< Communication systems
    // @}
@@ -81,7 +79,6 @@ protected:
       }
 public:
    /*! \name Constructors / Destructors */
-   commsys_simulator(libbase::randgen *src, commsys<S> *sys);
    commsys_simulator(const commsys_simulator<S, R>& c);
    commsys_simulator()
       {

@@ -62,8 +62,6 @@ public:
 
 protected:
    /*! \name Bound objects */
-   //! Flag to indicate whether the objects should be released on destruction
-   bool internallyallocated;
    codec<C> *cdc; //!< Error-control codec
    mapper<C> *map; //!< Symbol-mapper (encoded output to transmitted symbols)
    blockmodem<S, C> *mdm; //!< Modulation scheme
@@ -81,8 +79,6 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S, C> *mdm, channel<
-         S, C> *chan);
    basic_commsys(const basic_commsys<S, C>& c);
    basic_commsys()
       {

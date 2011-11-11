@@ -86,7 +86,6 @@ void basic_commsys<S, C>::clear()
    map = NULL;
    mdm = NULL;
    chan = NULL;
-   internallyallocated = true;
    }
 
 /*!
@@ -104,36 +103,17 @@ void basic_commsys<S, C>::clear()
 template <class S, template <class > class C>
 void basic_commsys<S, C>::free()
    {
-   if (internallyallocated)
-      {
-      delete cdc;
-      delete map;
-      delete mdm;
-      delete chan;
-      }
+   // note: delete can be safely called with null pointers
+   delete cdc;
+   delete map;
+   delete mdm;
+   delete chan;
    clear();
    }
 
 // Internal functions
 
 // Constructors / Destructors
-
-/*!
- * \brief Main public constructor
- * 
- * Initializes system with bound objects as supplied by user.
- */
-template <class S, template <class > class C>
-basic_commsys<S, C>::basic_commsys(codec<C> *cdc, mapper<C> *map, blockmodem<S,
-      C> *mdm, channel<S, C> *chan)
-   {
-   this->cdc = cdc;
-   this->map = map;
-   this->mdm = mdm;
-   this->chan = chan;
-   internallyallocated = false;
-   init();
-   }
 
 /*!
  * \brief Copy constructor
@@ -147,7 +127,6 @@ basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c)
    this->map = dynamic_cast<mapper<C>*> (c.map->clone());
    this->mdm = dynamic_cast<blockmodem<S, C>*> (c.mdm->clone());
    this->chan = dynamic_cast<channel<S, C>*> (c.chan->clone());
-   internallyallocated = true;
    init();
    }
 
@@ -352,7 +331,6 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
       sin.clear();
       }
    sin >> libbase::eatcomments >> cdc >> libbase::verify;
-   internallyallocated = true;
    init();
    return sin;
    }

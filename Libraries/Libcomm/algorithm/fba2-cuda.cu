@@ -139,11 +139,6 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    using cuda::min;
    using cuda::max;
 
-   if (app.size() == 0)
-      {
-      work_gamma(r);
-      return;
-      }
    // length of received sequence
    const int rho = r.size();
    // set up block & thread indexes
@@ -172,48 +167,9 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
          {
          real R = receiver.R(d, i, r.extract(n * i + x1, n + deltax));
-         R *= app(i, d);
+         if (app.size() > 0)
+            R *= app(i, d);
          get_gamma(d, i, x1, deltax) = R;
-         }
-      }
-   }
-
-template <class real, class sig, bool norm>
-__device__
-void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r)
-   {
-   using cuda::min;
-   using cuda::max;
-
-   // length of received sequence
-   const int rho = r.size();
-   // set up block & thread indexes
-   const int i = blockIdx.x;
-   const int d = threadIdx.x;
-   // - all threads are independent and indexes guaranteed in range
-   // compute all matrix values
-
-   // event must fit the received sequence:
-   // (this is limited to start and end conditions)
-   // 1. n*i+x1 >= 0
-   // 2. n*(i+1)-1+x2 <= rho-1
-   // limits on insertions and deletions must be respected:
-   // 3. x2-x1 <= n*I
-   // 4. x2-x1 >= -n
-   // limits on introduced drift in this section:
-   // (necessary for forward recursion on extracted segment)
-   // 5. x2-x1 <= dxmax
-   // 6. x2-x1 >= -dxmax
-   const int x1min = max(-xmax, -n * i);
-   const int x1max = xmax;
-   for (int x1 = x1min; x1 <= x1max; x1++)
-      {
-      const int x2min = max(-xmax, dmin + x1);
-      const int x2max = min(min(xmax, dmax + x1), rho - n * (i + 1));
-      for (int x2 = x2min; x2 <= x2max; x2++)
-         {
-         real R = receiver.R(d, i, r.extract(n * i + x1, n + x2 - x1));
-         get_gamma(d, i, x1, x2 - x1) = R;
          }
       }
    }
@@ -510,13 +466,6 @@ void fba2_gamma_kernel(fba2<real,sig,norm> object, const vector_reference<sig> r
 
 template <class real, class sig, bool norm>
 __global__
-void fba2_gamma_kernel(fba2<real,sig,norm> object, const vector_reference<sig> r)
-   {
-   object.work_gamma(r);
-   }
-
-template <class real, class sig, bool norm>
-__global__
 void fba2_alpha_kernel(fba2<real,sig,norm> object, const int rho, const int i)
    {
    object.work_alpha(rho, i);
@@ -596,29 +545,6 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r,
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, dev_r, dev_app);
-   cudaSafeThreadSynchronize();
-   // if debug mode is high enough, print the results obtained
-#if DEBUG>=3
-   std::cerr << "gamma = " << std::endl;
-   print_gamma(std::cerr);
-#endif
-   // reset pacifier monitor
-   first_time = false;
-   }
-
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r)
-   {
-   static bool first_time = true;
-   // Gamma computation:
-   if (first_time)
-      std::cerr << "Gamma Kernel: " << N << " blocks x " << q << " threads"
-            << std::endl;
-   // reset gamma values
-   gamma.fill(0);
-   // block index is for i in [0, N-1]: grid size = N
-   // thread index is for d in [0, q-1]: block size = q
-   fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, dev_r);
    cudaSafeThreadSynchronize();
    // if debug mode is high enough, print the results obtained
 #if DEBUG>=3
@@ -744,68 +670,6 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    dev_array2r_t beta;
    dev_array1r_t gamma;
    allocate(alpha, beta, gamma);
-   // allocate space on device for rx vector, and copy over
-   dev_array1s_t dev_r;
-   dev_r = r;
-   // allocate space on device for app table, and copy over if necessary
-   dev_array2r_t dev_app;
-   if (app.size() > 0)
-      {
-      dev_app.init(N, q);
-      assert(app.size() == N);
-      for (int i = 0; i < N; i++)
-         {
-         assert(app(i).size() == q);
-         dev_app.extract_row(i) = array1r_t(app(i));
-         }
-      }
-   // allocate space on device for result, and initialize
-   dev_array2r_t dev_ptable;
-   dev_ptable.init(N, q);
-   // call the kernels
-   gputimer tg("t_gamma_app");
-   do_work_gamma(dev_r, dev_app);
-   collector.add_timer(tg);
-
-   gputimer tab("t_alpha+beta");
-   stream sa, sb;
-   gputimer ta("t_alpha", sa.get_id());
-   do_work_alpha(r.size(), sa);
-   ta.stop();
-   gputimer tb("t_beta", sb.get_id());
-   do_work_beta(r.size(), sb);
-   tb.stop();
-   cudaSafeThreadSynchronize();
-   collector.add_timer(ta);
-   collector.add_timer(tb);
-   collector.add_timer(tab);
-
-   gputimer tr("t_results");
-   do_work_results(r.size(), dev_ptable);
-   collector.add_timer(tr);
-
-   gputimer tc("t_transfer");
-   copy_results(dev_ptable, ptable);
-   collector.add_timer(tc);
-   // add values for limits that depend on channel conditions
-   collector.add_timer(I, "c_I");
-   collector.add_timer(xmax, "c_xmax");
-   collector.add_timer(dxmax, "c_dxmax");
-   // add memory usage
-   collector.add_timer(sizeof(real) * alpha.size(), "m_alpha"); 
-   collector.add_timer(sizeof(real) * beta.size(), "m_beta"); 
-   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma"); 
-   }
-
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, array1vr_t& ptable)
-   {
-   // allocate memory on device
-   dev_array2r_t alpha;
-   dev_array2r_t beta;
-   dev_array1r_t gamma;
-   allocate(alpha, beta, gamma);
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << N << std::endl;
@@ -825,14 +689,26 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
 #if DEBUG>=3
    std::cerr << "r = " << array1s_t(dev_r) << std::endl;
 #endif
+   // allocate space on device for app table, and copy over if necessary
+   dev_array2r_t dev_app;
+   if (app.size() > 0)
+      {
+      dev_app.init(N, q);
+      assert(app.size() == N);
+      for (int i = 0; i < N; i++)
+         {
+         assert(app(i).size() == q);
+         dev_app.extract_row(i) = array1r_t(app(i));
+         }
+      }
    // allocate space on device for result, and initialize
    dev_array2r_t dev_ptable;
    dev_ptable.init(N, q);
-   // call the kernels
+   // Gamma
    gputimer tg("t_gamma");
-   do_work_gamma(dev_r);
+   do_work_gamma(dev_r, dev_app);
    collector.add_timer(tg);
-
+   // Alpha + Beta
    gputimer tab("t_alpha+beta");
    stream sa, sb;
    gputimer ta("t_alpha", sa.get_id());
@@ -845,11 +721,11 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    collector.add_timer(ta);
    collector.add_timer(tb);
    collector.add_timer(tab);
-
+   // Results computation
    gputimer tr("t_results");
    do_work_results(r.size(), dev_ptable);
    collector.add_timer(tr);
-
+   // Results transfer
    gputimer tc("t_transfer");
    copy_results(dev_ptable, ptable);
    collector.add_timer(tc);

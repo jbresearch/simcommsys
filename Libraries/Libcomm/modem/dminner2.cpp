@@ -28,29 +28,18 @@
 
 namespace libcomm {
 
-// implementations of channel-specific metrics for fba2
-
-#ifndef USE_CUDA
-template <class real, bool norm>
-real dminner2<real, norm>::R(int d, int i, const array1b_t& r) const
-   {
-   const int n = Base::n;
-   const int w = Base::ws(i);
-   const int s = Base::lut(d);
-   // 'tx' is the vector of transmitted symbols that we're considering
-   array1b_t tx(n);
-   // NOTE: we transmit the low-order bits first
-   for (int bit = 0, t = w ^ s; bit < n; bit++, t >>= 1)
-      tx(bit) = (t & 1);
-   // compute the conditional probability
-   return real(Base::mychan.receive(tx, r));
-   }
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show prior and posterior sof/eof probabilities when decoding
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
 #endif
 
 // Setup procedure
 
 template <class real, bool norm>
-void dminner2<real, norm>::init(const channel<bool>& chan, const int rho)
+void dminner2<real, norm>::init(const channel<bool>& chan)
    {
    // Inherit block size from last modulation step
    const int q = 1 << Base::k;
@@ -64,17 +53,13 @@ void dminner2<real, norm>::init(const channel<bool>& chan, const int rho)
    Base::mychan.set_blocksize(n);
    // Determine required FBA parameter values
    const int I = Base::mychan.compute_I(tau);
-   const int xmax = std::max(Base::mychan.compute_xmax(tau), abs(rho - tau));
+   const int xmax = Base::mychan.compute_xmax(tau);
    const int dxmax = Base::mychan.compute_xmax(n);
    Base::checkforchanges(I, xmax);
-#ifdef USE_CUDA
    // Initialize forward-backward algorithm
    fba.init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer);
    // initialize our embedded metric computer with unchanging elements
    fba.get_receiver().init(n, Base::lut, Base::mychan);
-#else
-   FBA::init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer);
-#endif
    }
 
 template <class real, bool norm>
@@ -82,10 +67,8 @@ void dminner2<real, norm>::advance() const
    {
    // advance the base class
    Base::advance();
-#ifdef USE_CUDA
    // initialize our embedded metric computer
    fba.get_receiver().init(Base::ws);
-#endif
    }
 
 // encoding and decoding functions
@@ -94,28 +77,106 @@ template <class real, bool norm>
 void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, array1vd_t& ptable)
    {
-   init(chan, rx.size().length());
-   array1vr_t p;
-#ifdef USE_CUDA
-   fba.decode(*this, rx, p);
-#else
-   FBA::decode(*this, rx, p);
-#endif
-   Base::normalize_results(p, ptable);
+   const array1vd_t app; // empty APP table
+   dodemodulate(chan, rx, app, ptable);
    }
 
 template <class real, bool norm>
 void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
-   init(chan, rx.size().length());
-   array1vr_t p;
-#ifdef USE_CUDA
-   fba.decode(*this, rx, app, p);
-#else
-   FBA::decode(*this, rx, app, p);
+   init(chan);
+   // Shorthand for transmitted and received frame sizes
+   const int tau = this->output_block_size();
+   const int rho = rx.size();
+   // Get access to the channel object in stream-oriented mode
+   const bsid& c = dynamic_cast<const bsid&> (chan);
+   // Determine offset from channel
+   const int xmax = c.compute_xmax(tau);
+   // Check that rx size is within valid range
+   assertalways(xmax >= abs(rho - tau));
+   // Set up start-of-frame drift pdf (drift = 0)
+   array1d_t sof_prior;
+   sof_prior.init(2 * xmax + 1);
+   sof_prior = 0;
+   sof_prior(xmax + 0) = 1;
+   // Set up end-of-frame drift pdf (drift = rho-tau)
+   array1d_t eof_prior;
+   eof_prior.init(2 * xmax + 1);
+   eof_prior = 0;
+   eof_prior(xmax + rho - tau) = 1;
+   // Offset rx by xmax and pad to a total size of tau+2*xmax
+   array1b_t r;
+   r.init(tau + 2 * xmax);
+   r.segment(xmax, rho) = rx;
+   // Call FBA and normalize results
+#if DEBUG>=2
+   std::cerr << "sof_prior = " << sof_prior << std::endl;
+   std::cerr << "eof_prior = " << eof_prior << std::endl;
 #endif
-   Base::normalize_results(p, ptable);
+   array1vr_t ptable_r;
+   array1r_t sof_post_r;
+   array1r_t eof_post_r;
+   fba.decode(*this, r, sof_prior, eof_prior, app, ptable_r, sof_post_r,
+         eof_post_r, xmax);
+   Base::normalize_results(ptable_r, ptable);
+#if DEBUG>=2
+   array1d_t sof_post;
+   array1d_t eof_post;
+   normalize(sof_post_r, sof_post);
+   normalize(eof_post_r, eof_post);
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
+   }
+
+template <class real, bool norm>
+void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
+      const array1b_t& rx, const array1d_t& sof_prior,
+      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
+      array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
+            libbase::vector> offset)
+   {
+   init(chan);
+   // Call FBA and normalize results
+#if DEBUG>=2
+   std::cerr << "sof_prior = " << sof_prior << std::endl;
+   std::cerr << "eof_prior = " << eof_prior << std::endl;
+#endif
+   array1vr_t ptable_r;
+   array1r_t sof_post_r;
+   array1r_t eof_post_r;
+   fba.decode(*this, rx, sof_prior, eof_prior, app, ptable_r, sof_post_r,
+         eof_post_r, offset);
+   Base::normalize_results(ptable_r, ptable);
+   normalize(sof_post_r, sof_post);
+   normalize(eof_post_r, eof_post);
+#if DEBUG>=2
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
+   }
+
+/*!
+ * \brief Normalize probability table
+ *
+ * The input probability table is normalized such that the largest value is
+ * equal to 1; result is converted to double.
+ */
+template <class real, bool norm>
+void dminner2<real, norm>::normalize(const array1r_t& in, array1d_t& out) const
+   {
+   const int N = in.size();
+   assert(N > 0);
+   // check for numerical underflow
+   real scale = in.max();
+   assert(scale != real(0));
+   scale = real(1) / scale;
+   // allocate result space
+   out.init(N);
+   // normalize and copy results
+   for (int i = 0; i < N; i++)
+      out(i) = in(i) * scale;
    }
 
 // description output
@@ -125,11 +186,7 @@ std::string dminner2<real, norm>::description() const
    {
    std::ostringstream sout;
    sout << "Symbol-level " << Base::description();
-#ifdef USE_CUDA
    sout << ", " << fba.description();
-#else
-   sout << ", " << FBA::description();
-#endif
    return sout.str();
    }
 

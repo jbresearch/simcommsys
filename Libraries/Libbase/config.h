@@ -192,7 +192,7 @@ typedef unsigned __int64 uint64_t;
 
 namespace std {
 
-//! Operator to concatenate vectors
+//! Operator to concatenate STL vectors
 template <class T>
 void operator+=(std::vector<T>& a, const std::vector<T>& b)
    {

@@ -57,7 +57,6 @@ void commsys_simulator<S, R>::clear()
    {
    src = NULL;
    sys = NULL;
-   internallyallocated = true;
    }
 
 /*!
@@ -75,11 +74,9 @@ void commsys_simulator<S, R>::clear()
 template <class S, class R>
 void commsys_simulator<S, R>::free()
    {
-   if (internallyallocated)
-      {
-      delete src;
-      delete sys;
-      }
+   // note: delete can be safely called with null pointers
+   delete src;
+   delete sys;
    clear();
    }
 
@@ -105,20 +102,6 @@ libbase::vector<int> commsys_simulator<S, R>::createsource()
 // Constructors / Destructors
 
 /*!
- * \brief Main public constructor
- * 
- * Initializes system with bound objects as supplied by user.
- */
-template <class S, class R>
-commsys_simulator<S, R>::commsys_simulator(libbase::randgen *src,
-      commsys<S> *sys)
-   {
-   this->src = src;
-   this->sys = sys;
-   internallyallocated = false;
-   }
-
-/*!
  * \brief Copy constructor
  * 
  * Initializes system with bound objects cloned from supplied system.
@@ -126,9 +109,8 @@ commsys_simulator<S, R>::commsys_simulator(libbase::randgen *src,
 template <class S, class R>
 commsys_simulator<S, R>::commsys_simulator(const commsys_simulator<S, R>& c)
    {
-   this->src = new libbase::randgen;
+   this->src = new libbase::randgen(*c.src);
    this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
-   internallyallocated = true;
    }
 
 // Experiment parameter handling
@@ -146,8 +128,8 @@ void commsys_simulator<S, R>::seedfrom(libbase::random& r)
  * \brief Perform a complete encode->transmit->receive cycle
  * \param[out] result   Vector containing the set of results to be updated
  *
- * Results are organized as (BER,SER,FER), repeated for every iteration that
- * needs to be performed.
+ * Results are organized according to the collector used, as a function of
+ * the iteration count.
  *
  * \note The results collector assumes that the result vector is an accumulator,
  * so that every call adds to the existing result. This explains the need to
@@ -211,7 +193,6 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
    free();
    src = new libbase::randgen;
    sin >> libbase::eatcomments >> sys;
-   internallyallocated = true;
    return sin;
    }
 

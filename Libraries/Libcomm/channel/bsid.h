@@ -96,8 +96,15 @@ public:
       array2r_t Rtable; //!< Receiver coefficient set for mu >= 0
 #endif
       // @}
+      /*! \name Hardwired parameters */
+      static const int arraysize = 2 * 31 + 1; //!< Size of stack-allocated arrays
+      // @}
    public:
       /*! \name FBA decoder parameter computation */
+      static double compute_drift_prob_davey(int x, int tau, double Pi,
+            double Pd);
+      static double compute_drift_prob_exact(int x, int tau, double Pi,
+            double Pd);
       static double compute_drift_prob(int x, int tau, double Pi, double Pd);
       static int compute_I(int tau, double Pi, int Icap);
       static int compute_xmax_davey(int tau, double Pi, double Pd);
@@ -129,7 +136,6 @@ public:
          // Set up two slices of forward matrix, and associated pointers
          // Arrays are allocated on the stack as a fixed size; this avoids dynamic
          // allocation (which would otherwise be necessary as the size is non-const)
-         const int arraysize = 2 * 15 + 1;
          cuda_assert(2 * xmax + 1 <= arraysize);
          real F0[arraysize];
          real F1[arraysize];
@@ -260,7 +266,7 @@ public:
     *
     * \note Provided for use by clients; depends on object parameters
     */
-   int compute_I(int tau)
+   int compute_I(int tau) const
       {
       return metric_computer::compute_I(tau, Pi, Icap);
       }
@@ -269,7 +275,7 @@ public:
     *
     * \note Provided for use by clients; depends on object parameters
     */
-   int compute_xmax(int tau)
+   int compute_xmax(int tau) const
       {
       const int I = metric_computer::compute_I(tau, Pi, Icap);
       return metric_computer::compute_xmax(tau, Pi, Pd, I);
@@ -332,6 +338,14 @@ public:
       {
       return Pi;
       }
+   // @}
+
+   /*! \name Stream-oriented channel characteristics */
+   void get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
+         libbase::size_type<libbase::vector>& offset) const;
+   void get_drift_pdf(int tau, const libbase::vector<double>& sof_pdf,
+         libbase::vector<double>& eof_pdf,
+         libbase::size_type<libbase::vector>& offset) const;
    // @}
 
    // Channel functions

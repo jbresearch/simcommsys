@@ -49,11 +49,11 @@ void fba2<real, sig, norm>::allocate()
    // determine limits
    dmin = std::max(-n, -dxmax);
    dmax = std::min(n * I, dxmax);
-   // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
-   // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
+   // alpha needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
+   // beta needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
    typedef boost::multi_array_types::extent_range range;
-   alpha.resize(boost::extents[N][range(-xmax, xmax + 1)]);
-   beta.resize(boost::extents[range(1, N + 1)][range(-xmax, xmax + 1)]);
+   alpha.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
+   beta.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
    // dynamically decide whether we want to use the gamma cache or not
    // decision is hardwired: use if memory requirement < 750MB
    const libbase::int64s bytes_required = sizeof(real) * (q * N
@@ -96,12 +96,12 @@ void fba2<real, sig, norm>::allocate()
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "dmax = " << dmax << std::endl;
    std::cerr << "dmin = " << dmin << std::endl;
-   std::cerr << "alpha = " << N << "x" << 2 * xmax + 1 << " = "
-         << alpha.num_elements() << std::endl;
-   std::cerr << "beta = " << N << "x" << 2 * xmax + 1 << " = "
-         << beta.num_elements() << std::endl;
+   std::cerr << "alpha = " << N + 1 << "x" << 2 * xmax + 1 << " = "
+   << alpha.num_elements() << std::endl;
+   std::cerr << "beta = " << N + 1 << "x" << 2 * xmax + 1 << " = "
+   << beta.num_elements() << std::endl;
    std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
-         << dmax - dmin + 1 << " = " << gamma.num_elements() << std::endl;
+   << dmax - dmin + 1 << " = " << gamma.num_elements() << std::endl;
 #endif
    }
 
@@ -175,41 +175,30 @@ void fba2<real, sig, norm>::work_gamma(const array1s_t& r,
       reset_cache();
    // copy received vector, needed for lazy computation
    This::r = r;
-   // copy a-priori statistics, needed for lazy computation
+   // copy a-priori statistics, needed for lazy computation (may be empty)
    This::app = app;
+#ifndef NDEBUG
    if (app.size() == 0)
-      libbase::trace
-            << "DEBUG (fba2): Empty a-priori probability table passed."
-            << std::endl;
+      std::cerr << "DEBUG (fba2): Empty APP table." << std::endl;
+#endif
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_gamma(const array1s_t& r)
-   {
-   assert(initialised);
-   if (cache_enabled)
-      reset_cache();
-   // copy received vector, needed for lazy computation
-   This::r = r;
-   // reset a-priori statistics
-   This::app.init(0);
-   }
-
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_alpha(int rho)
+void fba2<real, sig, norm>::work_alpha(const array1d_t& sof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
    // local flag for path thresholding
    const bool thresholding = (th_inner > real(0));
    // initialise array:
-   // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
    alpha = real(0);
-   alpha[0][0] = real(1);
+   // set initial drift distribution
+   for (int x = -xmax; x <= xmax; x++)
+      alpha[0][x] = real(sof_prior(xmax + x));
    // compute remaining matrix values
-   for (int i = 1; i < N; i++)
+   for (int i = 1; i <= N; i++)
       {
-      std::cerr << progress.update(i - 1, N - 1);
+      std::cerr << progress.update(i - 1, N);
       // determine the strongest path at this point
       real threshold = 0;
       if (thresholding)
@@ -219,32 +208,27 @@ void fba2<real, sig, norm>::work_alpha(int rho)
                threshold = alpha[i - 1][x1];
          threshold *= th_inner;
          }
-      // event must fit the received sequence:
-      // (this is limited to start and end conditions)
-      // 1. n*(i-1)+x1 >= 0
-      // 2. n*i-1+x2 <= rho-1
       // limits on insertions and deletions must be respected:
-      // 3. x2-x1 <= n*I
-      // 4. x2-x1 >= -n
+      //   x2-x1 <= n*I
+      //   x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= dxmax
-      // 6. x2-x1 >= -dxmax
-      const int x1min = std::max(-xmax, -n * (i - 1));
-      const int x1max = xmax;
-      for (int x1 = x1min; x1 <= x1max; x1++)
+      //   x2-x1 <= dxmax
+      //   x2-x1 >= -dxmax
+      for (int x1 = -xmax; x1 <= xmax; x1++)
          {
          // ignore paths below a certain threshold
          if (thresholding && alpha[i - 1][x1] < threshold)
             continue;
          const int x2min = std::max(-xmax, dmin + x1);
-         const int x2max = std::min(std::min(xmax, dmax + x1), rho - n * i);
+         const int x2max = std::min(xmax, dmax + x1);
          for (int x2 = x2min; x2 <= x2max; x2++)
             for (int d = 0; d < q; d++)
                alpha[i][x2] += alpha[i - 1][x1] * get_gamma(d, i - 1, x1, x2
                      - x1);
          }
       // normalize if requested
+      // TODO: refactor this out to a separate method
       if (norm)
          {
          real scale = 0;
@@ -256,27 +240,25 @@ void fba2<real, sig, norm>::work_alpha(int rho)
             alpha[i][x] *= scale;
          }
       }
-   std::cerr << progress.update(N - 1, N - 1);
+   std::cerr << progress.update(N, N);
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_beta(int rho)
+void fba2<real, sig, norm>::work_beta(const array1d_t& eof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
    // local flag for path thresholding
    const bool thresholding = (th_inner > real(0));
    // initialise array:
-   // we also know x[tau] = rho-tau;
-   // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
-   const int tau = N * n;
    beta = real(0);
-   assertalways(abs(rho-tau) <= xmax);
-   beta[N][rho - tau] = real(1);
+   // set initial drift distribution
+   for (int x = -xmax; x <= xmax; x++)
+      beta[N][x] = real(eof_prior(xmax + x));
    // compute remaining matrix values
-   for (int i = N - 1; i > 0; i--)
+   for (int i = N - 1; i >= 0; i--)
       {
-      std::cerr << progress.update(N - 1 - i, N - 1);
+      std::cerr << progress.update(N - 1 - i, N);
       // determine the strongest path at this point
       real threshold = 0;
       if (thresholding)
@@ -286,31 +268,26 @@ void fba2<real, sig, norm>::work_beta(int rho)
                threshold = beta[i + 1][x2];
          threshold *= th_inner;
          }
-      // event must fit the received sequence:
-      // (this is limited to start and end conditions)
-      // 1. n*i+x1 >= 0
-      // 2. n*(i+1)-1+x2 <= rho-1
       // limits on insertions and deletions must be respected:
-      // 3. x2-x1 <= n*I
-      // 4. x2-x1 >= -n
+      //   x2-x1 <= n*I
+      //   x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= dxmax
-      // 6. x2-x1 >= -dxmax
-      const int x2min = -xmax;
-      const int x2max = std::min(xmax, rho - n * (i + 1));
-      for (int x2 = x2min; x2 <= x2max; x2++)
+      //   x2-x1 <= dxmax
+      //   x2-x1 >= -dxmax
+      for (int x2 = -xmax; x2 <= xmax; x2++)
          {
          // ignore paths below a certain threshold
          if (thresholding && beta[i + 1][x2] < threshold)
             continue;
-         const int x1min = std::max(std::max(-xmax, x2 - dmax), -n * i);
+         const int x1min = std::max(-xmax, x2 - dmax);
          const int x1max = std::min(xmax, x2 - dmin);
          for (int x1 = x1min; x1 <= x1max; x1++)
             for (int d = 0; d < q; d++)
                beta[i][x1] += beta[i + 1][x2] * get_gamma(d, i, x1, x2 - x1);
          }
       // normalize if requested
+      // TODO: refactor this out to a separate method
       if (norm)
          {
          real scale = 0;
@@ -322,11 +299,12 @@ void fba2<real, sig, norm>::work_beta(int rho)
             beta[i][x] *= scale;
          }
       }
-   std::cerr << progress.update(N - 1, N - 1);
+   std::cerr << progress.update(N, N);
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
+void fba2<real, sig, norm>::work_results(array1vr_t& ptable,
+      array1r_t& sof_post, array1r_t& eof_post) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -350,27 +328,20 @@ void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
       for (int d = 0; d < q; d++)
          {
          real p = 0;
-         // event must fit the received sequence:
-         // (this is limited to start and end conditions)
-         // 1. n*i+x1 >= 0
-         // 2. n*(i+1)-1+x2 <= rho-1
          // limits on insertions and deletions must be respected:
-         // 3. x2-x1 <= n*I
-         // 4. x2-x1 >= -n
+         //   x2-x1 <= n*I
+         //   x2-x1 >= -n
          // limits on introduced drift in this section:
          // (necessary for forward recursion on extracted segment)
-         // 5. x2-x1 <= dxmax
-         // 6. x2-x1 >= -dxmax
-         const int x1min = std::max(-xmax, -n * i);
-         const int x1max = xmax;
-         for (int x1 = x1min; x1 <= x1max; x1++)
+         //   x2-x1 <= dxmax
+         //   x2-x1 >= -dxmax
+         for (int x1 = -xmax; x1 <= xmax; x1++)
             {
             // ignore paths below a certain threshold
             if (thresholding && alpha[i][x1] < threshold)
                continue;
             const int x2min = std::max(-xmax, dmin + x1);
-            const int x2max = std::min(std::min(xmax, dmax + x1), rho - n * (i
-                  + 1));
+            const int x2max = std::min(xmax, dmax + x1);
             for (int x2 = x2min; x2 <= x2max; x2++)
                p += alpha[i][x1] * get_gamma(d, i, x1, x2 - x1)
                      * beta[i + 1][x2];
@@ -387,63 +358,81 @@ void fba2<real, sig, norm>::work_results(int rho, array1vr_t& ptable) const
    std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q)
          << "x" << std::endl;
 #endif
+   // compute posterior probabilities for start-of-frame
+   sof_post.init(2 * xmax + 1);
+   for (int x = -xmax; x <= xmax; x++)
+      sof_post(xmax + x) = alpha[0][x] * beta[0][x];
+   // compute posterior probabilities for end-of-frame
+   eof_post.init(2 * xmax + 1);
+   for (int x = -xmax; x <= xmax; x++)
+      eof_post(xmax + x) = alpha[N][x] * beta[N][x];
    }
 
 // User procedures
 
+/*!
+ * \brief Frame decode cycle
+ * \param[in] collector Reference to (instrumented) results collector object
+ * \param[in] r Received frame
+ * \param[in] sof_prior Prior probabilities for start-of-frame position
+ *                      (zero-index matches zero-index of r)
+ * \param[in] eof_prior Prior probabilities for end-of-frame position
+ *                      (zero-index matches tau-index of r, where tau is the
+ *                      length of the transmitted frame)
+ * \param[in] app A-Priori Probabilities for message
+ * \param[out] ptable Posterior Probabilities for message
+ * \param[out] sof_post Posterior probabilities for start-of-frame position
+ *                      (indexing same as prior)
+ * \param[out] eof_post Posterior probabilities for end-of-frame position
+ *                      (indexing same as prior)
+ * \param[in] offset Index offset for prior, post, and r vectors
+ *
+ * \note If APP table is empty, it is assumed that symbols are equiprobable.
+ *
+ * \note Priors for start and end-of-frame *must* be supplied; in the case of a
+ *       received frame with exactly known boundaries, this must be offset by
+ *       xmax and padded to a total length of tau + 2*xmax, where tau is the
+ *       length of the transmitted frame. This avoids special handling for such
+ *       vectors.
+ *
+ * \note Offset is the same as for stream_modulator.
+ */
 template <class real, class sig, bool norm>
 void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
+      const array1s_t& r, const array1d_t& sof_prior,
+      const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
+      array1r_t& sof_post, array1r_t& eof_post, const int offset)
    {
-   // initialise memory if necessary
+   // Initialise memory if necessary
    if (!initialised)
       allocate();
-   libbase::cputimer tg("t_gamma_app");
+   // Validate sizes and offset
+   const int tau = N * n;
+   assertalways(offset == xmax);
+   assertalways(r.size() == tau + 2 * xmax);
+   assertalways(sof_prior.size() == 2 * xmax + 1);
+   assertalways(eof_prior.size() == 2 * xmax + 1);
+   // Gamma
+   libbase::cputimer tg("t_gamma");
    work_gamma(r, app);
    collector.add_timer(tg);
+   // Alpha
    libbase::cputimer ta("t_alpha");
-   work_alpha(r.size());
+   work_alpha(sof_prior);
    collector.add_timer(ta);
+   // Beta
    libbase::cputimer tb("t_beta");
-   work_beta(r.size());
+   work_beta(eof_prior);
    collector.add_timer(tb);
+   // Compute results
    libbase::cputimer tr("t_results");
-   work_results(r.size(), ptable);
+   work_results(ptable, sof_post, eof_post);
    collector.add_timer(tr);
-   // add values for limits that depend on channel conditions
+   // Add values for limits that depend on channel conditions
    collector.add_timer(I, "c_I");
    collector.add_timer(xmax, "c_xmax");
    collector.add_timer(dxmax, "c_dxmax");
-   // add memory usage
-   collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
-   collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
-   collector.add_timer(sizeof(real) * gamma.num_elements(), "m_gamma");
-   }
-
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, array1vr_t& ptable)
-   {
-   // initialise memory if necessary
-   if (!initialised)
-      allocate();
-   libbase::cputimer tg("t_gamma");
-   work_gamma(r);
-   collector.add_timer(tg);
-   libbase::cputimer ta("t_alpha");
-   work_alpha(r.size());
-   collector.add_timer(ta);
-   libbase::cputimer tb("t_beta");
-   work_beta(r.size());
-   collector.add_timer(tb);
-   libbase::cputimer tr("t_results");
-   work_results(r.size(), ptable);
-   collector.add_timer(tr);
-   // add values for limits that depend on channel conditions
-   collector.add_timer(I, "c_I");
-   collector.add_timer(xmax, "c_xmax");
-   collector.add_timer(dxmax, "c_dxmax");
-   // add memory usage
+   // Add memory usage
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
    collector.add_timer(sizeof(real) * gamma.num_elements(), "m_gamma");
@@ -465,7 +454,7 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
             for (int x = -xmax; x <= xmax; x++)
                {
                for (int deltax = dmin; deltax <= dmax; deltax++)
-                  std::cerr << '\t' << gamma[d][i][x][deltax];
+               std::cerr << '\t' << gamma[d][i][x][deltax];
                std::cerr << std::endl;
                }
             }

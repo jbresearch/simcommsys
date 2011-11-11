@@ -22,13 +22,14 @@
  * - $Id$
  */
 
-#ifndef __dminner2_receiver_h
-#define __dminner2_receiver_h
+#ifndef __dminner2_receiver_cuda_h
+#define __dminner2_receiver_cuda_h
 
 #include "config.h"
+#include "cuda-all.h"
 #include "channel/bsid.h"
 
-namespace libcomm {
+namespace cuda {
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -41,7 +42,7 @@ namespace libcomm {
 #endif
 
 /*!
- * \brief   Davey-MacKay Inner Code support.
+ * \brief   Davey-MacKay Inner Code support [CUDA].
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -54,8 +55,8 @@ template <class real>
 class dminner2_receiver {
 private:
    int n; //!< Number of bits in 'sparse' symbol
-   mutable libbase::vector<int> ws; //!< Local copy of pilot sequence
-   libbase::vector<int> lut; //!< Local copy of 'sparsifier' LUT
+   mutable cuda::vector<int> ws; //!< Device copy of pilot sequence
+   cuda::vector_auto<int> lut; //!< Device copy of 'sparsifier' LUT
    libcomm::bsid::metric_computer computer; //!< Channel object for computing receiver metric
 public:
    // initialization routines
@@ -88,16 +89,19 @@ public:
 #endif
       }
    // receiver interface
-   real R(int d, int i, const libbase::vector<bool>& r) const
+#ifdef __CUDACC__
+   __device__
+   real R(int d, int i, const cuda::vector_reference<bool>& r) const
       {
-      const int w = ws(i); // watermark vector
-      const int s = lut(d); // sparse vector
-      // 't' is the vector of transmitted symbols that we're considering
-      // NOTE: we transmit the low-order bits first
-      libbase::bitfield t(w ^ s, n);
+      const int w = ws(i);
+      const int s = lut(d);
+      // 'tx' is the vector of transmitted symbols that we're considering
+      cuda::bitfield tx(n);
+      tx = w ^ s;
       // compute the conditional probability
-      return computer.receive(t, r);
+      return computer.receive(tx, r);
       }
+#endif
 };
 
 // Reset debug level, to avoid affecting other files

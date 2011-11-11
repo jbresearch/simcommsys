@@ -30,7 +30,7 @@
 #include "matrix.h"
 #include "fsm.h"
 #include "cuda-all.h"
-#include "modem/dminner2-receiver.h"
+#include "modem/dminner2-receiver-cuda.h"
 #include "instrumented.h"
 
 #include <cmath>
@@ -103,7 +103,7 @@ private:
    dev_array2r_ref_t alpha; //!< Forward recursion metric
    dev_array2r_ref_t beta; //!< Backward recursion metric
    dev_array1r_ref_t gamma; //!< Receiver metric
-   mutable libcomm::dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
+   mutable dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
    // @}
 private:
    /*! \name Internal functions */
@@ -153,7 +153,6 @@ private:
    // de-reference kernel calls
 #ifdef __CUDACC__
    void do_work_gamma(const dev_array1s_t& dev_r, const dev_array2r_t& dev_app);
-   void do_work_gamma(const dev_array1s_t& dev_r);
    void do_work_alpha(int rho, stream& sid);
    void do_work_beta(int rho, stream& sid);
    void do_work_results(int rho, dev_array2r_t& dev_ptable) const;
@@ -166,8 +165,6 @@ public:
 #ifdef __CUDACC__
    __device__
    void work_gamma(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app);
-   __device__
-   void work_gamma(const dev_array1s_ref_t& r);
    __device__
    static real get_threshold(const dev_array2r_ref_t& metric, int row, int cols, real factor);
    __device__
@@ -206,7 +203,7 @@ public:
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
          double th_outer);
    // access metric computation
-   libcomm::dminner2_receiver<real>& get_receiver() const
+   dminner2_receiver<real>& get_receiver() const
       {
       return receiver;
       }
@@ -214,8 +211,6 @@ public:
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,
          const array1vd_t& app, array1vr_t& ptable);
-   void decode(libcomm::instrumented& collector, const array1s_t& r,
-         array1vr_t& ptable);
 
    // Description
    std::string description() const
