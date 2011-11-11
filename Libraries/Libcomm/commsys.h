@@ -129,8 +129,6 @@ public:
    virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
    //! Perform a decoding iteration, with hard decision
    virtual void decode(C<int>& decoded);
-   //! Perform an encode/transmit/receive cycle, except for final decoding
-   virtual void transmitandreceive(const C<int>& source);
    // @}
 
    /*! \name Informative functions */

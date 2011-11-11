@@ -251,6 +251,8 @@ void safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
    S maxval = 0;
    for (int c = 0; c < channels; c++)
       maxval = std::max(maxval, image_in.getchannel(c).max());
+   const S depth = int(ceil(log2(maxval + 1)));
+   std::cerr << "used bit depth = " << depth << ", ";
    // Determine scaling factor and apply
    const S scaling = (1 << int(floor(log2(range / maxval))));
    std::cerr << "scaling factor = " << scaling << std::endl;

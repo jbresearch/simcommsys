@@ -206,6 +206,20 @@ C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
    return transmitted;
    }
 
+/*!
+ * The cycle consists of the steps depicted in the following diagram:
+ * \dot
+ * digraph transmit {
+ * // Make figure left-to-right
+ * rankdir = LR;
+ * // block definitions
+ * node [ shape=box ];
+ * transmit [ label="Transmit" ];
+ * // path definitions
+ * -> transmit ->;
+ * }
+ * \enddot
+ */
 template <class S, template <class > class C>
 C<S> basic_commsys<S, C>::transmit(const C<S>& transmitted)
    {
@@ -294,39 +308,6 @@ void basic_commsys<S, C>::decode(C<int>& decoded)
       lastframecorrect = thisframecorrect;
       }
 #endif
-   }
-
-/*!
- * The cycle consists of the steps depicted in the following diagram:
- * \dot
- * digraph txrxcycle {
- * // Make figure left-to-right
- * rankdir = LR;
- * // block definitions
- * node [ shape=box ];
- * encode [ label="Encode" ];
- * map [ label="Map" ];
- * modulate [ label="Modulate" ];
- * transmit [ label="Transmit" ];
- * demodulate [ label="Demodulate" ];
- * unmap [ label="Inverse Map" ];
- * init_decoder [ label="Initialize Decoder" ];
- * // path definitions
- * encode -> map -> modulate;
- * modulate -> transmit -> demodulate;
- * demodulate -> unmap -> init_decoder;
- * }
- * \enddot
- */
-template <class S, template <class > class C>
-void basic_commsys<S, C>::transmitandreceive(const C<int>& source)
-   {
-   // Encode -> Map -> Modulate
-   C<S> transmitted = encode_path(source);
-   // Transmit
-   C<S> received = transmit(transmitted);
-   // Demodulate -> Inverse Map -> Translate
-   receive_path(received);
    }
 
 // Description & Serialization

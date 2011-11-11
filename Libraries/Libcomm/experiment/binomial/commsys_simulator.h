@@ -65,7 +65,6 @@ protected:
    // @}
    /*! \name Internal functions */
    libbase::vector<int> createsource();
-   void cycleonce(libbase::vector<double>& result);
    // @}
    // System Interface for Results
    int get_iter() const

@@ -54,12 +54,12 @@ USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
 endif
 USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
 ifeq (,$(USE_CUDA))
-USE_CUDA := 10
+USE_CUDA := 0
 endif
 endif
 # Set default release to build
 ifndef RELEASE
-export RELEASE := Release
+export RELEASE := release
 endif
 
 
@@ -156,12 +156,12 @@ else
 LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
 endif
 endif
-# Release-dependent linking options
-export LDflagDebug   := $(LDopts)
-export LDflagRelease := $(LDopts)
-export LDflagProfile := -pg $(LDflagRelease)
+# release-dependent linking options
+export LDflag_debug   := $(LDopts)
+export LDflag_release := $(LDopts)
+export LDflag_profile := -pg $(LDflag_release)
 # Select the linking options to use
-export LDflags = $(LDflag$(RELEASE))
+export LDflags = $(LDflag_$(RELEASE))
 
 
 ## Compiler settings
@@ -192,12 +192,12 @@ else
 $(error Unknown architecture: $(OSARCH))
 endif
 endif
-# Release-dependent compiler settings
-export CCflagDebug := -g -DDEBUG $(CCopts)
-export CCflagRelease := -O3 -DNDEBUG $(CCopts)
-export CCflagProfile := -pg $(CCflagRelease)
+# release-dependent compiler settings
+export CCflag_debug := -g -DDEBUG $(CCopts)
+export CCflag_release := -O3 -DNDEBUG $(CCopts)
+export CCflag_profile := -pg $(CCflag_release)
 # Select the compiler options to use
-export CCflags = $(CCflag$(RELEASE))
+export CCflags = $(CCflag_$(RELEASE))
 
 
 ## CUDA Compiler settings
@@ -208,7 +208,7 @@ NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 NVCCopts := $(NVCCopts) -Xopencc "-woffall"
 NVCCopts := $(NVCCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 NVCCopts := $(NVCCopts) -DUSE_CUDA
-NVCCopts := $(NVCCopts) -arch=compute_$(USE_CUDA) -code=compute_$(USE_CUDA),sm_$(USE_CUDA)
+NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
 ifeq ($(OSARCH),i686)
 NVCCopts := $(NVCCopts) -m32
 else
@@ -218,12 +218,12 @@ else
 $(error Unknown architecture: $(OSARCH))
 endif
 endif
-# Release-dependent compiler settings
-NVCCflagDebug := -O0 -g -G -DDEBUG $(NVCCopts)
-NVCCflagRelease := -O3 -DNDEBUG $(NVCCopts)
-NVCCflagProfile := -pg -DPROFILE $(NVCCflagRelease)
+# release-dependent compiler settings
+NVCCflag_debug := -O0 -g -G -DDEBUG $(NVCCopts)
+NVCCflag_release := -O3 -DNDEBUG $(NVCCopts)
+NVCCflag_profile := -pg -DPROFILE $(NVCCflag_release)
 # Select the compiler options to use
-export NVCCflags := $(NVCCflag$(RELEASE))
+export NVCCflags := $(NVCCflag_$(RELEASE))
 
 
 ## Library builder settings
@@ -256,46 +256,34 @@ all:
 plain-%:
 	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 $*
 
-build:     debug release
+build:     build-debug build-release
 
-profile:
-	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=build $(TARGETS)
+build-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS)
 
-release:
-	@$(MAKE) -j$(CPUS) RELEASE=Release DOTARGET=build $(TARGETS)
+install:	install-debug install-release
 
-debug:
-	@$(MAKE) -j$(CPUS) RELEASE=Debug DOTARGET=build $(TARGETS)
-
-install:	install-release install-debug
-
-install-profile:
-	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=install $(TARGETS)
-
-install-release:
-	@$(MAKE) -j$(CPUS) RELEASE=Release DOTARGET=install $(TARGETS)
-
-install-debug:
-	@$(MAKE) -j$(CPUS) RELEASE=Debug DOTARGET=install $(TARGETS)
+install-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS)
 
 doc:
 	@$(DOXYGEN)
 
-clean:
-	@$(MAKE) -j$(CPUS) RELEASE=Debug DOTARGET=clean $(TARGETS)
-	@$(MAKE) -j$(CPUS) RELEASE=Release DOTARGET=clean $(TARGETS)
-	@$(MAKE) -j$(CPUS) RELEASE=Profile DOTARGET=clean $(TARGETS)
+clean:	clean-debug clean-release clean-profile
+
+clean-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS)
 
 clean-all:
 	@echo "----> Cleaning all binaries."
-	@find . -depth \( -name doc -or -name bin -or -name Debug -or -name Release -or -name Profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -print0 | xargs -0 rm -rf
+	@find . -depth \( -name doc -or -name bin -or -iname debug -or -iname release -or -iname profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -print0 | xargs -0 rm -rf
 
 showsettings:
-	$(CC) $(CCflagRelease) -Q --help=target --help=optimizers --help=warnings
+	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
 
 FORCE:
 
-.PHONY:	all debug release profile install clean
+.PHONY:	all build install clean
 
 
 ## Manual targets

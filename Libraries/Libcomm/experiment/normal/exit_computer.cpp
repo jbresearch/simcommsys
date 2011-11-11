@@ -115,8 +115,12 @@ void exit_computer<S>::cycleonce(libbase::vector<double>& result)
    assert(result.size() == count());
    // Create source stream
    libbase::vector<int> source = createsource();
-   // Full cycle from Encode through Demodulate
-   sys->transmitandreceive(source);
+   // Encode -> Map -> Modulate
+   libbase::vector<S> transmitted = sys->encode_path(source);
+   // Transmit
+   libbase::vector<S> received = sys->transmit(transmitted);
+   // Demodulate -> Inverse Map -> Translate
+   sys->receive_path(received);
    // For every iteration
    libbase::vector<int> decoded;
    for (int i = 0; i < sys->num_iter(); i++)

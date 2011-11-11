@@ -102,46 +102,6 @@ libbase::vector<int> commsys_simulator<S, R>::createsource()
    return source;
    }
 
-/*!
- * \brief Perform a complete encode->transmit->receive cycle
- * \param[out] result   Vector containing the set of results to be updated
- * 
- * Results are organized as (BER,SER,FER), repeated for every iteration that
- * needs to be performed.
- * 
- * \note It is assumed that the result vector serves as an accumulator, so that
- * every cycle effectively adds to this result. The caller is responsible
- * to divide by the appropriate amount at the end to compute a meaningful
- * average.
- */
-template <class S, class R>
-void commsys_simulator<S, R>::cycleonce(libbase::vector<double>& result)
-   {
-   assert(result.size() == count());
-   // Create source stream
-   libbase::vector<int> source = createsource();
-   // Full cycle from Encode through Demodulate
-   sys->transmitandreceive(source);
-   // For every iteration
-   libbase::vector<int> decoded;
-   for (int i = 0; i < sys->num_iter(); i++)
-      {
-      // Decode & update results
-      sys->decode(decoded);
-      R::updateresults(result, i, source, decoded);
-      }
-   // Keep record of what we last simulated
-   const int tau = sys->input_block_size();
-   assert(source.size() == tau);
-   assert(decoded.size() == tau);
-   last_event.init(2 * tau);
-   for (int i = 0; i < tau; i++)
-      {
-      last_event(i) = source(i);
-      last_event(i + tau) = decoded(i);
-      }
-   }
-
 // Constructors / Destructors
 
 /*!
@@ -182,14 +142,49 @@ void commsys_simulator<S, R>::seedfrom(libbase::random& r)
 
 // Experiment handling
 
+/*!
+ * \brief Perform a complete encode->transmit->receive cycle
+ * \param[out] result   Vector containing the set of results to be updated
+ *
+ * Results are organized as (BER,SER,FER), repeated for every iteration that
+ * needs to be performed.
+ *
+ * \note The results collector assumes that the result vector is an accumulator,
+ * so that every call adds to the existing result. This explains the need to
+ * initialize the result vector to zero.
+ */
 template <class S, class R>
 void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    {
-   // initialise result vector
+   // Initialise result vector
    result.init(count());
    result = 0;
-   // compute a single cycle
-   cycleonce(result);
+   // Create source stream
+   libbase::vector<int> source = createsource();
+   // Encode -> Map -> Modulate
+   libbase::vector<S> transmitted = sys->encode_path(source);
+   // Transmit
+   libbase::vector<S> received = sys->transmit(transmitted);
+   // Demodulate -> Inverse Map -> Translate
+   sys->receive_path(received);
+   // For every iteration
+   libbase::vector<int> decoded;
+   for (int i = 0; i < sys->num_iter(); i++)
+      {
+      // Decode & update results
+      sys->decode(decoded);
+      R::updateresults(result, i, source, decoded);
+      }
+   // Keep record of what we last simulated
+   const int tau = sys->input_block_size();
+   assert(source.size() == tau);
+   assert(decoded.size() == tau);
+   last_event.init(2 * tau);
+   for (int i = 0; i < tau; i++)
+      {
+      last_event(i) = source(i);
+      last_event(i + tau) = decoded(i);
+      }
    }
 
 // Description & Serialization

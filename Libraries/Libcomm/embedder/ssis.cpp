@@ -1,8 +1,8 @@
 /*!
  * \file
- * 
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * \section svn Version Control
  * - $Id$
  */
@@ -204,7 +204,7 @@ std::ostream& ssis<S, matrix, dbl>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
    sout << 1 << std::endl;
-   sout << "# A" << std::endl;
+   sout << "# Embedding strength (amplitude)" << std::endl;
    sout << A << std::endl;
    sout << "# Pre-processing (0=none, 1=AW(ES), 2=AW(Matlab))" << std::endl;
    sout << preprocess << std::endl;
