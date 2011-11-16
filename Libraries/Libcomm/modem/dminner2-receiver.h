@@ -57,11 +57,11 @@ class dminner2_receiver {
 private:
    int n; //!< Number of bits in 'sparse' symbol
    mutable cuda::vector<int> ws; //!< Device copy of pilot sequence
-   cuda::vector_auto<int> lut; //!< Device copy of 'sparsifier' LUT
+   cuda::matrix_auto<int> lut; //!< Device copy of 'sparsifier' LUT
    libcomm::bsid::metric_computer computer; //!< Channel object for computing receiver metric
 public:
    // initialization routines
-   void init(const int n, const libbase::vector<int>& lut,
+   void init(const int n, const libbase::matrix<int>& lut,
          const libcomm::bsid& chan)
       {
       this->n = n;
@@ -70,7 +70,7 @@ public:
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
-      std::cerr << "lut = " << libbase::vector<int>(this->lut) << std::endl;
+      std::cerr << "lut = " << libbase::matrix<int>(this->lut) << std::endl;
       std::cerr << "sizeof(lut) = " << sizeof(this->lut) << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
@@ -100,14 +100,14 @@ public:
          printf("R(%d,%d): sizeof(ws)=%d\n", d, i, sizeof(ws));
          printf("R(%d,%d): sizeof(lut)=%d\n", d, i, sizeof(lut));
          printf("R(%d,%d): ws.data=%p, ws.size()=%d\n", d, i, &ws(0), ws.size());
-         printf("R(%d,%d): lut.data=%p, lut.size()=%d\n", d, i, &lut(0), lut.size());
+         printf("R(%d,%d): lut.data=%p, lut.size()=%d\n", d, i, &lut(0,0), lut.size());
          }
 #endif
       const int w = ws(i);
-      const int s = lut(d);
+      const int s = lut(i % lut.get_rows(), d);
 #if DEBUG>=3
       printf("R(%d,%d): ws(%d)=%d\n", d, i, i, w);
-      printf("R(%d,%d): lut(%d)=%d\n", d, i, d, s);
+      printf("R(%d,%d): lut(%d,%d)=%d\n", d, i, i % lut.get_rows(), d, s);
 #endif
       // 'tx' is the vector of transmitted symbols that we're considering
       cuda::bitfield tx(n);

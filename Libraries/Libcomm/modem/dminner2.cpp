@@ -34,14 +34,8 @@ namespace libcomm {
 template <class real, bool norm>
 real dminner2<real, norm>::R(int d, int i, const array1b_t& r) const
    {
-   const int n = Base::n;
-   const int w = Base::ws(i);
-   const int s = Base::lut(d);
    // 'tx' is the vector of transmitted symbols that we're considering
-   array1b_t tx(n);
-   // NOTE: we transmit the low-order bits first
-   for (int bit = 0, t = w ^ s; bit < n; bit++, t >>= 1)
-      tx(bit) = (t & 1);
+   const array1b_t tx = Base::encode(i, d);
    // compute the conditional probability
    return real(Base::mychan.receive(tx, r));
    }
