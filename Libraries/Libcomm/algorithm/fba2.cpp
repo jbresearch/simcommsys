@@ -252,7 +252,7 @@ void fba2<real, sig, norm>::work_beta(const array1d_t& eof_prior)
    const bool thresholding = (th_inner > real(0));
    // initialise array:
    beta = real(0);
-   // set initial drift distribution
+   // set final drift distribution
    for (int x = -xmax; x <= xmax; x++)
       beta[N][x] = real(eof_prior(xmax + x));
    // compute remaining matrix values

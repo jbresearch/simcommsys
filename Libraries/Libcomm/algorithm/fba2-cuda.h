@@ -152,10 +152,11 @@ private:
    void print_gamma(std::ostream& sout) const;
    // de-reference kernel calls
 #ifdef __CUDACC__
-   void do_work_gamma(const dev_array1s_t& dev_r, const dev_array2r_t& dev_app);
-   void do_work_alpha(int rho, stream& sid);
-   void do_work_beta(int rho, stream& sid);
-   void do_work_results(int rho, dev_array2r_t& dev_ptable) const;
+   void do_work_gamma(const dev_array1s_t& r, const dev_array2r_t& app);
+   void do_work_alpha(const dev_array1r_t& sof_prior, stream& sid);
+   void do_work_beta(const dev_array1r_t& eof_prior, stream& sid);
+   void do_work_results(dev_array2r_t& ptable, dev_array1r_t& sof_post,
+         dev_array1r_t& eof_post) const;
 #endif
    void copy_results(const dev_array2r_t& dev_ptable, array1vr_t& ptable);
    // @}
@@ -184,11 +185,12 @@ public:
       normalize(beta, i - 1, 2 * xmax + 1);
       }
    __device__
-   void work_alpha(int rho, int i);
+   void work_alpha(const dev_array1r_ref_t& sof_prior, int i);
    __device__
-   void work_beta(int rho, int i);
+   void work_beta(const dev_array1r_ref_t& eof_prior, int i);
    __device__
-   void work_results(int rho, dev_array2r_ref_t& ptable) const;
+   void work_results(dev_array2r_ref_t& ptable, dev_array1r_ref_t& sof_post,
+         dev_array1r_ref_t& eof_post) const;
 #endif
    // @}
 public:
@@ -210,7 +212,9 @@ public:
 
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,
-         const array1vd_t& app, array1vr_t& ptable);
+         const array1d_t& sof_prior, const array1d_t& eof_prior,
+         const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
+         array1r_t& eof_post, const int offset);
 
    // Description
    std::string description() const
