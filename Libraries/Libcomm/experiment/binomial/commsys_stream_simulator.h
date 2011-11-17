@@ -130,6 +130,12 @@ public:
       Base::seedfrom(r);
       reset();
       }
+   void set_parameter(const double x)
+      {
+      Base::set_parameter(x);
+      if (sys_tx)
+         sys_tx->getchan()->set_parameter(x);
+      }
    // @}
 
    // Experiment handling
