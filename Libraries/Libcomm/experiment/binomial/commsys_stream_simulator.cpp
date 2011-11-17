@@ -60,6 +60,10 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       libbase::vector<S> transmitted = sys_tx->encode_path(source_next);
       // Transmit next frame
       received_next = sys_tx->transmit(transmitted);
+#ifndef NDEBUG
+      // update counters
+      frames_encoded++;
+#endif
       } while (source_this.size() == 0);
 
    // Shorthand for transmitted and received frame sizes
@@ -110,6 +114,10 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    s.receive_path(received, sof_prior, eof_prior, offset);
    // Store posterior end-of-frame drift probabilities
    eof_post = s.get_eof_post();
+#ifndef NDEBUG
+   // update counters
+   frames_decoded++;
+#endif
 
    // Determine estimated drift
    int drift;
@@ -137,6 +145,10 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
          << drift << std::endl;
    std::cerr << "DEBUG (commsys_stream_simulator): Acc. drift error at eof = "
          << drift_error << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): Frames encoded = "
+         << frames_encoded << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): Frames decoded = "
+         << frames_decoded << std::endl;
 #endif
 
    // Initialise result vector

@@ -68,6 +68,10 @@ private:
    int drift_error; //!< Error in channel drift estimation at end-of-frame
    int cumulative_drift; //!< Actual cumulative channel drift at end-of-frame
    commsys<S>* sys_tx; //!< Copy of the commsys object for transmitter operations
+#ifndef NDEBUG
+   int frames_encoded; //!< Number of frames encoded since seeding
+   int frames_decoded; //!< Number of frames decoded since seeding
+#endif
    // @}
 
 protected:
@@ -94,6 +98,11 @@ protected:
          sys_tx = dynamic_cast<commsys<S>*> (this->sys->clone());
       else
          sys_tx = NULL;
+#ifndef NDEBUG
+      // reset counters
+      frames_encoded = 0;
+      frames_decoded = 0;
+#endif
       }
    // @}
 
