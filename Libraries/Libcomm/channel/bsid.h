@@ -97,7 +97,7 @@ public:
 #endif
       // @}
       /*! \name Hardwired parameters */
-      static const int arraysize = 2 * 31 + 1; //!< Size of stack-allocated arrays
+      static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
       // @}
    public:
       /*! \name FBA decoder parameter computation */
@@ -136,7 +136,7 @@ public:
          // Set up two slices of forward matrix, and associated pointers
          // Arrays are allocated on the stack as a fixed size; this avoids dynamic
          // allocation (which would otherwise be necessary as the size is non-const)
-         cuda_assert(2 * xmax + 1 <= arraysize);
+         cuda_assertalways(2 * xmax + 1 <= arraysize);
          real F0[arraysize];
          real F1[arraysize];
          real *Fthis = F1;

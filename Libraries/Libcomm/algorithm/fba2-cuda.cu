@@ -50,7 +50,7 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
    // determine limits
    dmin = std::max(-n, -dxmax);
    dmax = std::min(n * I, dxmax);
-   // determine required space for inner metric caching
+   // determine required space for inner metric caching (Jiao-Armand method)
 #ifdef DEBUG
    size_t entries = 0;
    for (int delta = dmin; delta <= dmax; delta++)

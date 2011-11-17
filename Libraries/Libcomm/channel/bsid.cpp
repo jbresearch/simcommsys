@@ -55,6 +55,7 @@ double bsid::metric_computer::compute_drift_prob_davey(int x, int tau,
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
    assert(Pd >= 0 && Pd < 1.0);
+   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
    // set constants
    assert(Pi == Pd); // assumed by this algorithm
    const double p = Pi;
@@ -166,6 +167,7 @@ int bsid::metric_computer::compute_xmax_davey(int tau, double Pi, double Pd)
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
    assert(Pd >= 0 && Pd < 1.0);
+   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
    // set constants
    assert(Pi == Pd); // assumed by this algorithm
    const double p = Pi;
@@ -191,6 +193,7 @@ int bsid::metric_computer::compute_xmax_exact(int tau, double Pi, double Pd)
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
    assert(Pd >= 0 && Pd < 1.0);
+   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
    // set constants
    const double Pr = 1e-12;
    // determine area that needs to be covered
@@ -227,6 +230,7 @@ int bsid::metric_computer::compute_xmax(int tau, double Pi, double Pd, int I)
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
    assert(Pd >= 0 && Pd < 1.0);
+   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
    // use the appropriate algorithm
    int xmax;
    if (tau > 100 && Pi == Pd)
@@ -357,7 +361,7 @@ bsid::real bsid::metric_computer::receive(const bitfield& tx,
    // Set up two slices of forward matrix, and associated pointers
    // Arrays are allocated on the stack as a fixed size; this avoids dynamic
    // allocation (which would otherwise be necessary as the size is non-const)
-   assert(2 * xmax + 1 <= arraysize);
+   assertalways(2 * xmax + 1 <= arraysize);
    real F0[arraysize];
    real F1[arraysize];
    real *Fthis = F1;
