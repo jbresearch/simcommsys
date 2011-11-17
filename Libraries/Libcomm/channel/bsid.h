@@ -129,8 +129,8 @@ public:
          // Set up two slices of forward matrix, and associated pointers
          // Arrays are allocated on the stack as a fixed size; this avoids dynamic
          // allocation (which would otherwise be necessary as the size is non-const)
-         const int arraysize = 2 * 15 + 1;
-         cuda_assert(2 * xmax + 1 <= arraysize);
+         const int arraysize = 2 * 63 + 1;
+         cuda_assertalways(2 * xmax + 1 <= arraysize);
          real F0[arraysize];
          real F1[arraysize];
          real *Fthis = F1;
