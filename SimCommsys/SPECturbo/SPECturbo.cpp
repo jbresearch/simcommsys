@@ -181,7 +181,8 @@ int main(int argc, char *argv[])
       cout << "Confidence: " << 100 * estimator.get_confidence() << "%"
             << std::endl;
       cout << "Date: " << libbase::timer::date() << std::endl;
-      cout << "Simulating system at Eb/No = " << system->get_parameter()
+      // TODO: add method to system to get parameter name
+      cout << "Simulating at system parameter = " << system->get_parameter()
             << std::endl;
 
       // Print results (for confirming accuracy)
