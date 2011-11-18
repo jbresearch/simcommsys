@@ -36,7 +36,7 @@ namespace libcomm {
 // 3 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 3
 #endif
 
 // Memory allocation
@@ -416,6 +416,19 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
       const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
       array1r_t& sof_post, array1r_t& eof_post, const int offset)
    {
+#if DEBUG>=3
+   std::cerr << "Starting decode..." << std::endl;
+   std::cerr << "N = " << N << std::endl;
+   std::cerr << "n = " << n << std::endl;
+   std::cerr << "q = " << q << std::endl;
+   std::cerr << "I = " << I << std::endl;
+   std::cerr << "xmax = " << xmax << std::endl;
+   std::cerr << "dxmax = " << dxmax << std::endl;
+   std::cerr << "th_inner = " << th_inner << std::endl;
+   std::cerr << "th_outer = " << th_outer << std::endl;
+   std::cerr << "norm = " << norm << std::endl;
+   std::cerr << "real = " << typeid(real).name() << std::endl;
+#endif
    // Initialise memory if necessary
    if (!initialised)
       allocate();
@@ -452,6 +465,8 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
 
 #if DEBUG>=3
    std::cerr << "r = " << r << std::endl;
+   std::cerr << "sof_prior = " << sof_prior << std::endl;
+   std::cerr << "eof_prior = " << eof_prior << std::endl;
    if (cache_enabled)
       {
       std::cerr << "gamma = " << std::endl;
@@ -476,8 +491,8 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    std::cerr << "alpha = " << alpha << std::endl;
    std::cerr << "beta = " << beta << std::endl;
    std::cerr << "ptable = " << ptable << std::endl;
-   std::cerr << "norm = " << norm << std::endl;
-   std::cerr << "real = " << typeid(real).name() << std::endl;
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
 #endif
    }
 

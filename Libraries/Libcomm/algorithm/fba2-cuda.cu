@@ -36,7 +36,7 @@ namespace cuda {
 // 3 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 3
 #endif
 
 // Memory allocation
@@ -678,11 +678,6 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
       const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
       array1r_t& sof_post, array1r_t& eof_post, const int offset)
    {
-   // allocate memory on device
-   dev_array2r_t alpha;
-   dev_array2r_t beta;
-   dev_array1r_t gamma;
-   allocate(alpha, beta, gamma);
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << N << std::endl;
@@ -696,6 +691,11 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    std::cerr << "norm = " << norm << std::endl;
    std::cerr << "real = " << typeid(real).name() << std::endl;
 #endif
+   // allocate memory on device
+   dev_array2r_t alpha;
+   dev_array2r_t beta;
+   dev_array1r_t gamma;
+   allocate(alpha, beta, gamma);
    // allocate space on device for rx vector, and copy over
    dev_array1s_t dev_r;
    dev_r = r;
