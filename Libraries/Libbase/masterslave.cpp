@@ -231,7 +231,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
             tcpu.stop();
             cerr << "Received die request, stopping after " << timer::format(
                   getcputime()) << " CPU runtime (" << int(100 * getusage())
-                  << "%% usage)." << std::endl;
+                  << "% usage)." << std::endl;
             close(master);
             exit(0);
          default:
