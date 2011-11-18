@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
    for (int i = 0; i < q; i++)
       for (int j = i + 1; j < q; j++)
          {
-         int t = libbase::weight(mdm.get_symbol(i) ^ mdm.get_symbol(j));
+         int t = libbase::weight(mdm.get_symbol(0, i) ^ mdm.get_symbol(0, j));
          c(i, t - 1)++;
          c(j, t - 1)++;
          }
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
    for (int i = 0; i < q; i++)
       {
       cout << i << '\t';
-      cout << libbase::bitfield(mdm.get_symbol(i), n) << '\t';
+      cout << libbase::bitfield(mdm.get_symbol(0, i), n) << '\t';
       for (int t = 1; t <= n; t++)
          cout << c(i, t - 1) << (t == n ? '\n' : '\t');
       }

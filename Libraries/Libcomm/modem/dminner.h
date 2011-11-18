@@ -78,13 +78,14 @@ private:
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
+   typedef libbase::matrix<int> array2i_t;
    typedef libbase::vector<bool> array1b_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::vector<array1r_t> array1vr_t;
    enum lut_t {
-      lut_straight = 0, lut_user
+      lut_straight = 0, lut_user, lut_tvb
    };
    enum ws_t {
       ws_random = 0, ws_zero, ws_alt_symbol, ws_mod_vec
@@ -98,7 +99,7 @@ private:
    array1i_t ws_vectors; //!< modification vectors
    lut_t lut_type; //!< enum indicating LUT type
    std::string lutname; //!< name to describe codebook
-   array1i_t lut; //!< sparsifier LUT
+   array2i_t lut; //!< sparsifier LUT
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
@@ -154,15 +155,16 @@ private:
       assert(th_inner >= real(0) && th_inner <= real(1));
       assert(th_outer >= real(0) && th_outer <= real(1));
       }
-   int fill(int i = 0, libbase::bitfield suffix = libbase::bitfield(""),
-         int weight = -1);
+   // LUT wrapper operations
+   array1b_t encode(const int i, const int d) const;
    void validate_bitfield_length(
          const libbase::vector<libbase::bitfield>& table) const;
    void copypilot(const libbase::vector<libbase::bitfield>& pilot_b);
-   void copylut(const libbase::vector<libbase::bitfield>& lut_b);
+   void copylut(const int i, const libbase::vector<libbase::bitfield>& lut_b);
    void showlut(std::ostream& sout) const;
    void validatelut() const;
    void computemeandensity();
+   // Other utilities
    void checkforchanges(int I, int xmax) const;
    void work_results(const array1b_t& r, array1vr_t& ptable, const int xmax,
          const int dxmax, const int I) const;
@@ -182,7 +184,7 @@ public:
    /*! \name Watermark-specific setup functions */
    void set_pilot(libbase::vector<bool> pilot);
    void set_pilot(libbase::vector<libbase::bitfield> pilot);
-   void set_lut(libbase::vector<libbase::bitfield> lut);
+   void set_lut(libbase::vector<libbase::bitfield> lut_b);
    void set_thresholds(const real th_inner, const real th_outer);
    void set_parameter(const double x)
       {
@@ -200,9 +202,14 @@ public:
       {
       return n;
       }
-   int get_symbol(int i) const
+   int num_codebooks() const
       {
-      return lut(i);
+      return lut.size().rows();
+      }
+   int get_symbol(int i, int d) const
+      {
+      assert(i >= 0 && i < num_codebooks());
+      return lut(i, d);
       }
    double get_th_inner() const
       {

@@ -23,6 +23,7 @@
  */
 
 #include "dminner.h"
+#include "sparse.h"
 #include "timer.h"
 #include "pacifier.h"
 #include "vectorutils.h"
@@ -33,7 +34,7 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show LUTs on manual update
-// 3 - Show input and output of modulation process
+// 3 - Show input and output of encoding process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -42,42 +43,34 @@ namespace libcomm {
 // internally-used functions
 
 /*!
- * \brief Set up LUT with the lowest weight codewords
+ * \brief Return encoding of data 'd' at position 'i'
  */
 template <class real, bool norm>
-int dminner<real, norm>::fill(int i, libbase::bitfield suffix, int w)
+libbase::vector<bool> dminner<real, norm>::encode(const int i, const int d) const
    {
-   assert(lut_type == lut_straight);
-   using libbase::bitfield;
-   // set up if this is the first (root) call
-   if (i == 0 && w == -1)
-      {
-      lut.init(num_symbols());
-      suffix = bitfield("");
-      w = n;
-      }
-   // stop here if we've reached the end
-   if (i >= lut.size())
-      return i;
-   // otherwise, it all depends on the weight we're considering
-   bitfield b;
 #ifndef NDEBUG
-   if (n > 2)
-      libbase::trace << "Starting fill with:\t" << suffix << "\t" << w
-            << std::endl;
+   // Inherit sizes
+   const int q = 1 << k;
+   const int tau = this->input_block_size();
+   // validate input
+   assert(i >= 0 && i < tau);
+   assert(d >= 0 && d < q);
 #endif
-   if (w == 0)
-      lut(i++) = suffix;
-   else
-      {
-      w--;
-      if (suffix.size() == 0)
-         i = fill(i, suffix, w);
-      for (b = bitfield("1"); b.size() + suffix.size() + w <= n; b = b
-            + bitfield("0"))
-         i = fill(i, b + suffix, w);
-      }
-   return i;
+   // extract marker sequence and codeword
+   const int w = ws(i);
+   const int s = lut(i % num_codebooks(), d);
+#if DEBUG>=3
+   libbase::trace << "DEBUG (dminner::encode): word " << i << "\t";
+   libbase::trace << "s = " << libbase::bitfield(s, n) << "\t";
+   libbase::trace << "w = " << libbase::bitfield(w, n) << std::endl;
+#endif
+   // 'tx' is the vector of transmitted symbols that we're considering
+   array1b_t tx(n);
+   // NOTE: we transmit the low-order bits first
+   for (int bit = 0, t = w ^ s; bit < n; bit++, t >>= 1)
+      tx(bit) = (t & 1);
+   // compute the conditional probability
+   return tx;
    }
 
 /*!
@@ -107,12 +100,17 @@ void dminner<real, norm>::copypilot(
  * \brief Set up LUT with the given codewords
  */
 template <class real, bool norm>
-void dminner<real, norm>::copylut(
-      const libbase::vector<libbase::bitfield>& lut_b)
+void dminner<real, norm>::copylut(const int i, const libbase::vector<
+      libbase::bitfield>& lut_b)
    {
    assertalways(lut_b.size() == num_symbols());
    validate_bitfield_length(lut_b);
-   lut = lut_b;
+   // convert to vector of integers
+   const libbase::vector<int> lut_i(lut_b);
+   // insert into matrix
+   assertalways(i >= 0 && i < num_codebooks());
+   assertalways(lut.size().cols() == num_symbols());
+   lut.insertrow(lut_i, i);
    }
 
 /*!
@@ -122,10 +120,15 @@ void dminner<real, norm>::copylut(
 template <class real, bool norm>
 void dminner<real, norm>::showlut(std::ostream& sout) const
    {
-   sout << "LUT (k=" << k << ", n=" << n << "):" << std::endl;
-   for (int i = 0; i < lut.size(); i++)
-      sout << i << "\t" << libbase::bitfield(lut(i), n) << "\t"
-            << libbase::weight(lut(i)) << std::endl;
+   assert(num_codebooks() >= 1);
+   assert(lut.size().cols() == num_symbols());
+   for (int i = 0; i < num_codebooks(); i++)
+      {
+      sout << "LUT " << i << " (k=" << k << ", n=" << n << "):" << std::endl;
+      for (int d = 0; d < num_symbols(); d++)
+         sout << d << "\t" << libbase::bitfield(lut(i, d), n) << "\t"
+               << libbase::weight(lut(i, d)) << std::endl;
+      }
    }
 
 /*!
@@ -137,15 +140,17 @@ void dminner<real, norm>::showlut(std::ostream& sout) const
 template <class real, bool norm>
 void dminner<real, norm>::validatelut() const
    {
-   assertalways(lut.size() == num_symbols());
-   for (int i = 0; i < lut.size(); i++)
-      {
-      // all entries should be within size
-      assertalways(lut(i) >= 0 && lut(i) < (1<<n));
-      // all entries should be distinct
-      for (int j = 0; j < i; j++)
-         assertalways(lut(i) != lut(j));
-      }
+   assertalways(num_codebooks() >= 1);
+   assertalways(lut.size().cols() == num_symbols());
+   for (int i = 0; i < num_codebooks(); i++)
+      for (int d = 0; d < num_symbols(); d++)
+         {
+         // all entries should be within size
+         assertalways(lut(i,d) >= 0 && lut(i,d) < (1<<n));
+         // all entries should be distinct for each LUT index
+         for (int dd = 0; dd < d; dd++)
+            assertalways(lut(i, dd) != lut(i, d));
+         }
    }
 
 //! Compute and update mean density of sparse alphabet
@@ -153,7 +158,7 @@ void dminner<real, norm>::validatelut() const
 template <class real, bool norm>
 void dminner<real, norm>::computemeandensity()
    {
-   array1i_t w = lut;
+   array2i_t w = lut;
    w.apply(libbase::weight);
    f = w.sum() / double(n * w.size());
 #ifndef NDEBUG
@@ -209,9 +214,7 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
          {
          real p = 0;
          // create the considered transmitted sequence
-         array1b_t t(n);
-         for (int j = 0, tval = ws(i) ^ lut(d); j < n; j++, tval >>= 1)
-            t(j) = (tval & 1);
+         array1b_t t = encode(i, d);
          // event must fit the received sequence:
          // (this is limited to start and end conditions)
          // 1. n*i+x1 >= 0
@@ -285,7 +288,11 @@ void dminner<real, norm>::init()
    {
    // Fill default LUT if necessary
    if (lut_type == lut_straight)
-      fill();
+      {
+      libbase::sparse codebook(1 << k, n);
+      lut.init(1, num_symbols());
+      lut.insertrow(array1i_t(codebook), 0);
+      }
 #ifndef NDEBUG
    // Display LUT when debugging
    if (n > 2)
@@ -365,9 +372,12 @@ void dminner<real, norm>::set_pilot(libbase::vector<libbase::bitfield> pilot)
  * in derived algorithms, such as the 2D extension.
  */
 template <class real, bool norm>
-void dminner<real, norm>::set_lut(libbase::vector<libbase::bitfield> lut)
+void dminner<real, norm>::set_lut(libbase::vector<libbase::bitfield> lut_b)
    {
-   copylut(lut);
+   // allocate memory and copy read LUT
+   lut.init(1, num_symbols());
+   copylut(0, lut_b);
+   // update LUT-dependent values
    computemeandensity();
 #if DEBUG>=2
    showlut(libbase::trace);
@@ -460,19 +470,7 @@ void dminner<real, norm>::domodulate(const int N, const array1i_t& encoded,
    assertalways(ws.size() == tau);
    // Encode source stream
    for (int i = 0; i < tau; i++)
-      {
-      const int w = ws(i); // watermark vector
-      const int s = lut(encoded(i) & (q - 1)); // sparse vector
-#if DEBUG>=3
-      libbase::trace << "DEBUG (dminner::modulate): word " << i << "\t";
-      libbase::trace << "s = " << libbase::bitfield(s, n) << "\t";
-      libbase::trace << "w = " << libbase::bitfield(w, n) << std::endl;
-#endif
-      // NOTE: we transmit the low-order bits first
-      libbase::bitfield t(w ^ s, n);
-      for (int bit = 0; bit < n; bit++)
-         tx(i * n + bit) = t(bit);
-      }
+      tx.segment(i * n, n) = encode(i, encoded(i));
    }
 
 template <class real, bool norm>
@@ -561,6 +559,10 @@ std::string dminner<real, norm>::description() const
          sout << lutname << " codebook";
          break;
 
+      case lut_tvb:
+         sout << lutname << " codebook [TVB]";
+         break;
+
       default:
          failwith("Unknown LUT type");
          break;
@@ -615,15 +617,41 @@ std::ostream& dminner<real, norm>::serialize(std::ostream& sout) const
    sout << n << std::endl;
    sout << "# k" << std::endl;
    sout << k << std::endl;
-   sout << "# LUT type (0=sparse, 1=user)" << std::endl;
+   sout << "# LUT type (0=sparse, 1=user, 2=tvb)" << std::endl;
    sout << lut_type << std::endl;
-   if (lut_type == lut_user)
+   switch (lut_type)
       {
-      sout << "#: LUT name and entries" << std::endl;
-      sout << lutname << std::endl;
-      assert(lut.size() == num_symbols());
-      for (int i = 0; i < lut.size(); i++)
-         sout << libbase::bitfield(lut(i), n) << std::endl;
+      case lut_straight:
+         break;
+
+      case lut_user:
+         sout << "#: LUT name" << std::endl;
+         sout << lutname << std::endl;
+         sout << "#: LUT entries" << std::endl;
+         assert(num_codebooks() == 1);
+         assert(lut.size().cols() == num_symbols());
+         for (int d = 0; d < num_symbols(); d++)
+            sout << libbase::bitfield(lut(0, d), n) << std::endl;
+         break;
+
+      case lut_tvb:
+         sout << "#: LUT name" << std::endl;
+         sout << lutname << std::endl;
+         sout << "#: LUT count" << std::endl;
+         sout << num_codebooks() << std::endl;
+         assert(num_codebooks() >= 1);
+         assert(lut.size().cols() == num_symbols());
+         for (int i = 0; i < num_codebooks(); i++)
+            {
+            sout << "#: LUT entries (table " << i << ")" << std::endl;
+            for (int d = 0; d < num_symbols(); d++)
+               sout << libbase::bitfield(lut(i, d), n) << std::endl;
+            }
+         break;
+
+      default:
+         failwith("Unknown LUT type");
+         break;
       }
    sout << "# WS type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)"
          << std::endl;
@@ -681,15 +709,47 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
    int temp;
    sin >> libbase::eatcomments >> temp;
    lut_type = (lut_t) temp;
-   if (lut_type == lut_user)
+   switch (lut_type)
       {
-      sin >> libbase::eatcomments >> lutname;
-      // read LUT from stream
-      libbase::vector<libbase::bitfield> lut_b;
-      lut_b.init(num_symbols());
-      lut_b.serialize(sin);
-      // use read LUT
-      copylut(lut_b);
+      case lut_straight:
+         break;
+
+      case lut_user:
+         {
+         sin >> libbase::eatcomments >> lutname;
+         // allocate memory
+         lut.init(1, num_symbols());
+         // read LUT from stream
+         libbase::vector<libbase::bitfield> lut_b;
+         lut_b.init(num_symbols());
+         sin >> libbase::eatcomments;
+         lut_b.serialize(sin);
+         // copy read LUT
+         copylut(0, lut_b);
+         }
+         break;
+
+      case lut_tvb:
+         sin >> libbase::eatcomments >> lutname;
+         // read LUT count
+         sin >> libbase::eatcomments >> temp;
+         // allocate memory
+         lut.init(temp, num_symbols());
+         for (int i = 0; i < num_codebooks(); i++)
+            {
+            // read LUT from stream
+            libbase::vector<libbase::bitfield> lut_b;
+            lut_b.init(num_symbols());
+            sin >> libbase::eatcomments;
+            lut_b.serialize(sin);
+            // copy read LUT
+            copylut(i, lut_b);
+            }
+         break;
+
+      default:
+         failwith("Unknown LUT type");
+         break;
       }
    // read watermark sequence type if present
    if (version < 2)
