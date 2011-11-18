@@ -158,7 +158,7 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
       const int deltaxmax = min(xmax - x1, dmax);
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
          {
-         real R = receiver.R(d, i, r.extract(n * i + x1, n + deltax));
+         real R = receiver.R(d, i, r.extract(xmax + n * i + x1, n + deltax));
          if (app.size() > 0)
             R *= app(i, d);
          get_gamma(d, i, x1, deltax) = R;
