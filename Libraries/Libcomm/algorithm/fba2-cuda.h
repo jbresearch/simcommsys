@@ -182,7 +182,7 @@ public:
    __device__
    void normalize_beta(int i)
       {
-      normalize(beta, i - 1, 2 * xmax + 1);
+      normalize(beta, i, 2 * xmax + 1);
       }
    __device__
    void work_alpha(const dev_array1r_ref_t& sof_prior, int i);

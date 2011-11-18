@@ -719,6 +719,10 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    dev_array1r_t dev_eof_table;
    dev_sof_table = array1r_t(sof_prior);
    dev_eof_table = array1r_t(eof_prior);
+#if DEBUG>=3
+   std::cerr << "sof_prior = " << array1r_t(dev_sof_table) << std::endl;
+   std::cerr << "eof_prior = " << array1r_t(dev_eof_table) << std::endl;
+#endif
    // allocate space on device for result, and initialize
    dev_array2r_t dev_ptable;
    dev_ptable.init(N, q);
@@ -748,6 +752,10 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    copy_results(dev_ptable, ptable);
    sof_post = array1r_t(dev_sof_table);
    eof_post = array1r_t(dev_eof_table);
+#if DEBUG>=3
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
    collector.add_timer(tc);
    // add values for limits that depend on channel conditions
    collector.add_timer(I, "c_I");
