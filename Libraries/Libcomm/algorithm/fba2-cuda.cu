@@ -139,36 +139,28 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    using cuda::min;
    using cuda::max;
 
-   // length of received sequence
-   const int rho = r.size();
    // set up block & thread indexes
    const int i = blockIdx.x;
    const int d = threadIdx.x;
    // compute all matrix values
    // - all threads are independent and indexes guaranteed in range
 
-   // event must fit the received sequence:
-   // (this is limited to start and end conditions)
-   // 1. n*i+x1 >= 0
-   // 2. n*(i+1)-1+x2 <= rho-1
    // limits on insertions and deletions must be respected:
-   // 3. x2-x1 <= n*I
-   // 4. x2-x1 >= -n
+   //   x2-x1 <= n*I
+   //   x2-x1 >= -n
    // limits on introduced drift in this section:
    // (necessary for forward recursion on extracted segment)
-   // 5. x2-x1 <= dxmax
-   // 6. x2-x1 >= -dxmax
-   const int x1min = max(-xmax, -n * i);
-   const int x1max = xmax;
-   for (int x1 = x1min; x1 <= x1max; x1++)
+   //   x2-x1 <= dxmax
+   //   x2-x1 >= -dxmax
+   for (int x1 = -xmax; x1 <= xmax; x1++)
       {
       const int deltaxmin = max(-xmax - x1, dmin);
-      const int deltaxmax = min(min(xmax - x1, dmax), rho - n * (i + 1) - x1);
+      const int deltaxmax = min(xmax - x1, dmax);
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
          {
          real R = receiver.R(d, i, r.extract(n * i + x1, n + deltax));
          if (app.size() > 0)
-         R *= app(i, d);
+            R *= app(i, d);
          get_gamma(d, i, x1, deltax) = R;
          }
       }
