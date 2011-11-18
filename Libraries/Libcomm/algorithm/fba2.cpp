@@ -303,8 +303,7 @@ void fba2<real, sig, norm>::work_beta(const array1d_t& eof_prior)
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_results(array1vr_t& ptable,
-      array1r_t& sof_post, array1r_t& eof_post) const
+void fba2<real, sig, norm>::work_message_app(array1vr_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -358,14 +357,28 @@ void fba2<real, sig, norm>::work_results(array1vr_t& ptable,
    std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q)
          << "x" << std::endl;
 #endif
-   // compute posterior probabilities for start-of-frame
-   sof_post.init(2 * xmax + 1);
+   }
+
+template <class real, class sig, bool norm>
+void fba2<real, sig, norm>::work_state_app(array1r_t& ptable, const int i) const
+   {
+   assert(initialised);
+   assert(i >= 0 && i <= N);
+   // compute posterior probabilities for given index
+   ptable.init(2 * xmax + 1);
    for (int x = -xmax; x <= xmax; x++)
-      sof_post(xmax + x) = alpha[0][x] * beta[0][x];
-   // compute posterior probabilities for end-of-frame
-   eof_post.init(2 * xmax + 1);
-   for (int x = -xmax; x <= xmax; x++)
-      eof_post(xmax + x) = alpha[N][x] * beta[N][x];
+      ptable(xmax + x) = alpha[i][x] * beta[i][x];
+   }
+
+template <class real, class sig, bool norm>
+void fba2<real, sig, norm>::work_results(array1vr_t& ptable,
+      array1r_t& sof_post, array1r_t& eof_post) const
+   {
+   // compute APPs of message
+   work_message_app(ptable);
+   // compute APPs of sof/eof state values
+   work_state_app(sof_post, 0);
+   work_state_app(eof_post, N);
    }
 
 // User procedures

@@ -441,7 +441,7 @@ void fba2<real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
    {
    // Check result vector and requested index
    cuda_assertalways(ptable.size()==2*xmax+1);
-   cuda_assertalways(i >= 0 && i <= N);
+   cuda_assert(i >= 0 && i <= N);
    // set up block & thread indexes
    const int x = blockIdx.x - xmax;
    //const int d = threadIdx.x;

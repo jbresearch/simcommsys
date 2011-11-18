@@ -114,6 +114,8 @@ protected:
    void work_gamma(const array1s_t& r, const array1vd_t& app);
    void work_alpha(const array1d_t& sof_prior);
    void work_beta(const array1d_t& eof_prior);
+   void work_message_app(array1vr_t& ptable) const;
+   void work_state_app(array1r_t& ptable, const int i) const;
    void work_results(array1vr_t& ptable, array1r_t& sof_post,
          array1r_t& eof_post) const;
    // @}
