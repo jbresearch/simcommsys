@@ -386,8 +386,7 @@ void fba2<real, sig, norm>::work_beta(const dev_array1r_ref_t& eof_prior, int i)
 
 template <class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_results(dev_array2r_ref_t& ptable,
-      dev_array1r_ref_t& sof_post, dev_array1r_ref_t& eof_post) const
+void fba2<real, sig, norm>::work_message_app(dev_array2r_ref_t& ptable) const
    {
    using cuda::min;
    using cuda::max;
@@ -432,20 +431,22 @@ void fba2<real, sig, norm>::work_results(dev_array2r_ref_t& ptable,
       }
    // store result
    ptable(i,d) = p;
-   // if we're at the end
-   if(i == N - 1)
-      {
-      // set array initial conditions (parallelized):
-      if (d == 0)
-         {
-         // compute posterior probabilities for start-of-frame
-         for (int x = -xmax; x <= xmax; x++)
-            sof_post(x + xmax) = alpha(0, x + xmax) * beta(0, x + xmax);
-         // compute posterior probabilities for end-of-frame
-         for (int x = -xmax; x <= xmax; x++)
-            eof_post(x + xmax) = alpha(N, x + xmax) * beta(N, x + xmax);
-         }
-      }
+   }
+
+
+template <class real, class sig, bool norm>
+__device__
+void fba2<real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
+      const int i) const
+   {
+   // Check result vector and requested index
+   cuda_assertalways(ptable.size()==2*xmax+1);
+   cuda_assertalways(i >= 0 && i <= N);
+   // set up block & thread indexes
+   const int x = blockIdx.x - xmax;
+   //const int d = threadIdx.x;
+   // compute posterior probabilities for given index
+   ptable(x + xmax) = alpha(i, x + xmax) * beta(i, x + xmax);
    }
 
 // Kernels
@@ -488,10 +489,16 @@ void fba2_normalize_beta_kernel(fba2<real,sig,norm> object, const int i)
 
 template <class real, class sig, bool norm>
 __global__
-void fba2_results_kernel(fba2<real,sig,norm> object, matrix_reference<real> ptable,
-      vector_reference<real> sof_post, vector_reference<real> eof_post)
+void fba2_message_app_kernel(fba2<real,sig,norm> object, matrix_reference<real> ptable)
    {
-   object.work_results(ptable, sof_post, eof_post);
+   object.work_message_app(ptable);
+   }
+
+template <class real, class sig, bool norm>
+__global__
+void fba2_state_app_kernel(fba2<real,sig,norm> object, vector_reference<real> ptable, const int i)
+   {
+   object.work_state_app(ptable, i);
    }
 
 // helper methods
@@ -633,9 +640,17 @@ void fba2<real, sig, norm>::do_work_results(dev_array2r_t& ptable,
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    if (first_time)
-   std::cerr << "Results Kernel: " << N << " blocks x " << q << " threads"
-   << std::endl;
-   fba2_results_kernel<real,sig,norm> <<<N,q>>>(*this, ptable, sof_post, eof_post);
+      {
+      std::cerr << "Message APP Kernel: " << N << " blocks x " << q << " threads"
+      << std::endl;
+      std::cerr << "State APP Kernel (x2): " << 2 * xmax + 1 << " blocks x " << 1 << " threads"
+      << std::endl;
+      }
+   // compute APPs of message
+   fba2_message_app_kernel<real,sig,norm> <<<N,q>>>(*this, ptable);
+   // compute APPs of sof/eof state values 
+   fba2_state_app_kernel<real,sig,norm> <<<2*xmax+1,1>>>(*this, sof_post, 0);
+   fba2_state_app_kernel<real,sig,norm> <<<2*xmax+1,1>>>(*this, eof_post, N);
    cudaSafeThreadSynchronize();
    // reset pacifier monitor
    first_time = false;

@@ -189,8 +189,9 @@ public:
    __device__
    void work_beta(const dev_array1r_ref_t& eof_prior, int i);
    __device__
-   void work_results(dev_array2r_ref_t& ptable, dev_array1r_ref_t& sof_post,
-         dev_array1r_ref_t& eof_post) const;
+   void work_message_app(dev_array2r_ref_t& ptable) const;
+   __device__
+   void work_state_app(dev_array1r_ref_t& ptable, const int i) const;
 #endif
    // @}
 public:
