@@ -30,6 +30,45 @@
 
 namespace libbase {
 
+/*! \brief Concatenates vectors
+ * Creates a vector containing a concatenation of two vectors.
+ */
+template <class T>
+vector<T> concatenate(const vector<T>& v1, const vector<T>& v2)
+   {
+   // shorthand for sizes
+   const int s1 = v1.size();
+   const int s2 = v2.size();
+   // allocate memory for result
+   vector<T> result;
+   result.init(s1 + s2);
+   // do the concatenation
+   result.segment(0, s1) = v1;
+   result.segment(s1, s2) = v2;
+   return result;
+   }
+
+/*! \brief Concatenates vectors
+ * Creates a vector containing a concatenation of three vectors.
+ */
+template <class T>
+vector<T> concatenate(const vector<T>& v1, const vector<T>& v2,
+      const vector<T>& v3)
+   {
+   // shorthand for sizes
+   const int s1 = v1.size();
+   const int s2 = v2.size();
+   const int s3 = v3.size();
+   // allocate memory for result
+   vector<T> result;
+   result.init(s1 + s2 + s3);
+   // do the concatenation
+   result.segment(0, s1) = v1;
+   result.segment(s1, s2) = v2;
+   result.segment(s1 + s2, s3) = v3;
+   return result;
+   }
+
 /*! \brief Allocates memory for a vector of vectors
  * For object vv, allocates memory such that vv has 'outer' vectors each of
  * size 'inner'.

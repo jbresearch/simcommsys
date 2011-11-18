@@ -58,10 +58,10 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
    std::cerr << "Inner Metric: " << q * entries * sizeof(float) / double(1
          << 20) << "MiB" << std::endl;
 #endif
-   // alpha needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
-   // beta needs indices (i,x) where i in [1, N] and x in [-xmax, xmax]
-   alpha.init(N, 2 * xmax + 1); // offsets: 0, xmax
-   beta.init(N, 2 * xmax + 1); // offsets: -1, xmax
+   // alpha needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
+   // beta needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
+   alpha.init(N + 1, 2 * xmax + 1); // offsets: 0, xmax
+   beta.init(N + 1, 2 * xmax + 1); // offsets: 0, xmax
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
    // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
    gamma.init(q * N * (2 * xmax + 1) * (dmax - dmin + 1));
@@ -93,12 +93,12 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "dmax = " << dmax << std::endl;
    std::cerr << "dmin = " << dmin << std::endl;
-   std::cerr << "alpha = " << N << "x" << 2 * xmax + 1 << " = " << alpha.size()
-         << std::endl;
-   std::cerr << "beta = " << N << "x" << 2 * xmax + 1 << " = " << beta.size()
-         << std::endl;
+   std::cerr << "alpha = " << N + 1 << "x" << 2 * xmax + 1 << " = " << alpha.size()
+   << std::endl;
+   std::cerr << "beta = " << N + 1 << "x" << 2 * xmax + 1 << " = " << beta.size()
+   << std::endl;
    std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
-         << dmax - dmin + 1 << " = " << gamma.size() << std::endl;
+   << dmax - dmin + 1 << " = " << gamma.size() << std::endl;
 #endif
    }
 
@@ -139,81 +139,29 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    using cuda::min;
    using cuda::max;
 
-   if (app.size() == 0)
-      {
-      work_gamma(r);
-      return;
-      }
-   // length of received sequence
-   const int rho = r.size();
    // set up block & thread indexes
    const int i = blockIdx.x;
    const int d = threadIdx.x;
    // compute all matrix values
    // - all threads are independent and indexes guaranteed in range
 
-   // event must fit the received sequence:
-   // (this is limited to start and end conditions)
-   // 1. n*i+x1 >= 0
-   // 2. n*(i+1)-1+x2 <= rho-1
    // limits on insertions and deletions must be respected:
-   // 3. x2-x1 <= n*I
-   // 4. x2-x1 >= -n
+   //   x2-x1 <= n*I
+   //   x2-x1 >= -n
    // limits on introduced drift in this section:
    // (necessary for forward recursion on extracted segment)
-   // 5. x2-x1 <= dxmax
-   // 6. x2-x1 >= -dxmax
-   const int x1min = max(-xmax, -n * i);
-   const int x1max = xmax;
-   for (int x1 = x1min; x1 <= x1max; x1++)
+   //   x2-x1 <= dxmax
+   //   x2-x1 >= -dxmax
+   for (int x1 = -xmax; x1 <= xmax; x1++)
       {
       const int deltaxmin = max(-xmax - x1, dmin);
-      const int deltaxmax = min(min(xmax - x1, dmax), rho - n * (i + 1) - x1);
+      const int deltaxmax = min(xmax - x1, dmax);
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
          {
-         real R = receiver.R(d, i, r.extract(n * i + x1, n + deltax));
-         R *= app(i, d);
+         real R = receiver.R(d, i, r.extract(xmax + n * i + x1, n + deltax));
+         if (app.size() > 0)
+            R *= app(i, d);
          get_gamma(d, i, x1, deltax) = R;
-         }
-      }
-   }
-
-template <class real, class sig, bool norm>
-__device__
-void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r)
-   {
-   using cuda::min;
-   using cuda::max;
-
-   // length of received sequence
-   const int rho = r.size();
-   // set up block & thread indexes
-   const int i = blockIdx.x;
-   const int d = threadIdx.x;
-   // - all threads are independent and indexes guaranteed in range
-   // compute all matrix values
-
-   // event must fit the received sequence:
-   // (this is limited to start and end conditions)
-   // 1. n*i+x1 >= 0
-   // 2. n*(i+1)-1+x2 <= rho-1
-   // limits on insertions and deletions must be respected:
-   // 3. x2-x1 <= n*I
-   // 4. x2-x1 >= -n
-   // limits on introduced drift in this section:
-   // (necessary for forward recursion on extracted segment)
-   // 5. x2-x1 <= dxmax
-   // 6. x2-x1 >= -dxmax
-   const int x1min = max(-xmax, -n * i);
-   const int x1max = xmax;
-   for (int x1 = x1min; x1 <= x1max; x1++)
-      {
-      const int x2min = max(-xmax, dmin + x1);
-      const int x2max = min(min(xmax, dmax + x1), rho - n * (i + 1));
-      for (int x2 = x2min; x2 <= x2max; x2++)
-         {
-         real R = receiver.R(d, i, r.extract(n * i + x1, n + x2 - x1));
-         get_gamma(d, i, x1, x2 - x1) = R;
          }
       }
    }
@@ -290,7 +238,7 @@ void fba2<real, sig, norm>::normalize(dev_array2r_ref_t& metric, int row, int co
 
 template <class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_alpha(int rho, int i)
+void fba2<real, sig, norm>::work_alpha(const dev_array1r_ref_t& sof_prior, int i)
    {
    using cuda::min;
    using cuda::max;
@@ -309,8 +257,8 @@ void fba2<real, sig, norm>::work_alpha(int rho, int i)
       // set array initial conditions (parallelized):
       if (d == 0)
          {
-         // we know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-         alpha(0, x2 + xmax) = real(x2 == 0);
+         // set initial drift distribution
+         alpha(0, x2 + xmax) = sof_prior(x2 + xmax);
          }
       }
    else
@@ -320,20 +268,14 @@ void fba2<real, sig, norm>::work_alpha(int rho, int i)
       const real threshold = get_threshold(alpha, i - 1, 2 * xmax + 1, th_inner);
       // initialize result holder
       this_alpha[d] = 0;
-      // event must fit the received sequence:
-      // (this is limited to start and end conditions)
-      // 1. n*(i-1)+x1 >= 0
-      // 2. n*i-1+x2 <= rho-1
       // limits on insertions and deletions must be respected:
-      // 3. x2-x1 <= n*I
-      // 4. x2-x1 >= -n
+      //   x2-x1 <= n*I
+      //   x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= dxmax
-      // 6. x2-x1 >= -dxmax
-      const int x1min = max(-xmax, -n * (i - 1));
-      const int x1max = xmax;
-      for (int x1 = x1min; x1 <= x1max; x1++)
+      //   x2-x1 <= dxmax
+      //   x2-x1 >= -dxmax
+      for (int x1 = -xmax; x1 <= xmax; x1++)
          {
          // cache previous alpha value in a register
          real prev_alpha = alpha(i - 1, x1 + xmax);
@@ -342,7 +284,7 @@ void fba2<real, sig, norm>::work_alpha(int rho, int i)
             {
             // each block computes for a different end-state (x2)
             const int x2min = max(-xmax, dmin + x1);
-            const int x2max = min(min(xmax, dmax + x1), rho - n * i);
+            const int x2max = min(xmax, dmax + x1);
             if (x2 >= x2min && x2 <= x2max)
                {
                // each thread in a block is computing for a different 'd'
@@ -366,7 +308,7 @@ void fba2<real, sig, norm>::work_alpha(int rho, int i)
 
 template <class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_beta(int rho, int i)
+void fba2<real, sig, norm>::work_beta(const dev_array1r_ref_t& eof_prior, int i)
    {
    using cuda::min;
    using cuda::max;
@@ -385,42 +327,33 @@ void fba2<real, sig, norm>::work_beta(int rho, int i)
       // set array initial conditions (parallelized):
       if (d == 0)
          {
-         // we know x[tau] = rho-tau; ie. drift before transmitting bit t[tau] is
-         // the discrepancy in the received vector size from tau
-         const int tau = N * n;
-         cuda_assertalways(abs(rho - tau) <= xmax);
-         beta(N - 1, x1 + xmax) = real(x1 == rho - tau);
+         // set final drift distribution
+         beta(N, x1 + xmax) = eof_prior(x1 + xmax);
          }
       }
    else
       {
       // compute remaining matrix values:
       // determine the strongest path at this point
-      const real threshold = get_threshold(beta, i + 1 - 1, 2 * xmax + 1, th_inner);
+      const real threshold = get_threshold(beta, i + 1, 2 * xmax + 1, th_inner);
       // initialize result holder
       this_beta[d] = 0;
-      // event must fit the received sequence:
-      // (this is limited to start and end conditions)
-      // 1. n*i+x1 >= 0
-      // 2. n*(i+1)-1+x2 <= rho-1
       // limits on insertions and deletions must be respected:
-      // 3. x2-x1 <= n*I
-      // 4. x2-x1 >= -n
+      //   x2-x1 <= n*I
+      //   x2-x1 >= -n
       // limits on introduced drift in this section:
       // (necessary for forward recursion on extracted segment)
-      // 5. x2-x1 <= dxmax
-      // 6. x2-x1 >= -dxmax
-      const int x2min = -xmax;
-      const int x2max = min(xmax, rho - n * (i + 1));
-      for (int x2 = x2min; x2 <= x2max; x2++)
+      //   x2-x1 <= dxmax
+      //   x2-x1 >= -dxmax
+      for (int x2 = -xmax; x2 <= xmax; x2++)
          {
          // cache next beta value in a register
-         real next_beta = beta(i + 1 - 1, x2 + xmax);
+         real next_beta = beta(i + 1, x2 + xmax);
          // ignore paths below a certain threshold
          if (!thresholding || next_beta >= threshold)
             {
             // each block computes for a different start-state (x1)
-            const int x1min = max(max(-xmax, x2 - dmax), -n * i);
+            const int x1min = max(-xmax, x2 - dmax);
             const int x1max = min(xmax, x2 - dmin);
             if (x1 >= x1min && x1 <= x1max)
                {
@@ -438,14 +371,14 @@ void fba2<real, sig, norm>::work_beta(int rho, int i)
       // store result
       if (d == 0)
          {
-         beta(i - 1, x1 + xmax) = temp;
+         beta(i, x1 + xmax) = temp;
          }
       }
    }
 
 template <class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_results(int rho, dev_array2r_ref_t& ptable) const
+void fba2<real, sig, norm>::work_message_app(dev_array2r_ref_t& ptable) const
    {
    using cuda::min;
    using cuda::max;
@@ -463,20 +396,14 @@ void fba2<real, sig, norm>::work_results(int rho, dev_array2r_ref_t& ptable) con
    const real threshold = get_threshold(alpha, i, 2 * xmax + 1, th_outer);
    // initialize result holder
    real p = 0;
-   // event must fit the received sequence:
-   // (this is limited to start and end conditions)
-   // 1. n*i+x1 >= 0
-   // 2. n*(i+1)-1+x2 <= rho-1
    // limits on insertions and deletions must be respected:
-   // 3. x2-x1 <= n*I
-   // 4. x2-x1 >= -n
+   //   x2-x1 <= n*I
+   //   x2-x1 >= -n
    // limits on introduced drift in this section:
    // (necessary for forward recursion on extracted segment)
-   // 5. x2-x1 <= dxmax
-   // 6. x2-x1 >= -dxmax
-   const int x1min = max(-xmax, -n * i);
-   const int x1max = xmax;
-   for (int x1 = x1min; x1 <= x1max; x1++)
+   //   x2-x1 <= dxmax
+   //   x2-x1 >= -dxmax
+   for (int x1 = -xmax; x1 <= xmax; x1++)
       {
       // cache this alpha value in a register
       real this_alpha = alpha(i, x1 + xmax);
@@ -484,11 +411,11 @@ void fba2<real, sig, norm>::work_results(int rho, dev_array2r_ref_t& ptable) con
       if (!thresholding || this_alpha >= threshold)
          {
          const int x2min = max(-xmax, dmin + x1);
-         const int x2max = min(min(xmax, dmax + x1), rho - n * (i + 1));
+         const int x2max = min(xmax, dmax + x1);
          for (int x2 = x2min; x2 <= x2max; x2++)
             {
             real temp = this_alpha;
-            temp *= beta(i + 1 - 1, x2 + xmax);
+            temp *= beta(i + 1, x2 + xmax);
             temp *= get_gamma(d, i, x1, x2 - x1);
             p += temp;
             }
@@ -496,6 +423,22 @@ void fba2<real, sig, norm>::work_results(int rho, dev_array2r_ref_t& ptable) con
       }
    // store result
    ptable(i,d) = p;
+   }
+
+
+template <class real, class sig, bool norm>
+__device__
+void fba2<real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
+      const int i) const
+   {
+   // Check result vector and requested index
+   cuda_assertalways(ptable.size()==2*xmax+1);
+   cuda_assert(i >= 0 && i <= N);
+   // set up block & thread indexes
+   const int x = blockIdx.x - xmax;
+   //const int d = threadIdx.x;
+   // compute posterior probabilities for given index
+   ptable(x + xmax) = alpha(i, x + xmax) * beta(i, x + xmax);
    }
 
 // Kernels
@@ -510,16 +453,9 @@ void fba2_gamma_kernel(fba2<real,sig,norm> object, const vector_reference<sig> r
 
 template <class real, class sig, bool norm>
 __global__
-void fba2_gamma_kernel(fba2<real,sig,norm> object, const vector_reference<sig> r)
+void fba2_alpha_kernel(fba2<real,sig,norm> object, const vector_reference<real> sof_prior, const int i)
    {
-   object.work_gamma(r);
-   }
-
-template <class real, class sig, bool norm>
-__global__
-void fba2_alpha_kernel(fba2<real,sig,norm> object, const int rho, const int i)
-   {
-   object.work_alpha(rho, i);
+   object.work_alpha(sof_prior, i);
    }
 
 template <class real, class sig, bool norm>
@@ -531,9 +467,9 @@ void fba2_normalize_alpha_kernel(fba2<real,sig,norm> object, const int i)
 
 template <class real, class sig, bool norm>
 __global__
-void fba2_beta_kernel(fba2<real,sig,norm> object, const int rho, const int i)
+void fba2_beta_kernel(fba2<real,sig,norm> object, const vector_reference<real> eof_prior, const int i)
    {
-   object.work_beta(rho, i);
+   object.work_beta(eof_prior, i);
    }
 
 template <class real, class sig, bool norm>
@@ -545,10 +481,16 @@ void fba2_normalize_beta_kernel(fba2<real,sig,norm> object, const int i)
 
 template <class real, class sig, bool norm>
 __global__
-void fba2_results_kernel(fba2<real,sig,norm> object, const int rho,
-      matrix_reference<real> ptable)
+void fba2_message_app_kernel(fba2<real,sig,norm> object, matrix_reference<real> ptable)
    {
-   object.work_results(rho, ptable);
+   object.work_message_app(ptable);
+   }
+
+template <class real, class sig, bool norm>
+__global__
+void fba2_state_app_kernel(fba2<real,sig,norm> object, vector_reference<real> ptable, const int i)
+   {
+   object.work_state_app(ptable, i);
    }
 
 // helper methods
@@ -583,8 +525,8 @@ void fba2<real, sig, norm>::print_gamma(std::ostream& sout) const
 // de-reference kernel calls
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r,
-      const dev_array2r_t& dev_app)
+void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& r,
+      const dev_array2r_t& app)
    {
    static bool first_time = true;
    // Gamma computation:
@@ -595,7 +537,7 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r,
    gamma.fill(0);
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
-   fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, dev_r, dev_app);
+   fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, r, app);
    cudaSafeThreadSynchronize();
    // if debug mode is high enough, print the results obtained
 #if DEBUG>=3
@@ -607,30 +549,8 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r,
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& dev_r)
-   {
-   static bool first_time = true;
-   // Gamma computation:
-   if (first_time)
-      std::cerr << "Gamma Kernel: " << N << " blocks x " << q << " threads"
-            << std::endl;
-   // reset gamma values
-   gamma.fill(0);
-   // block index is for i in [0, N-1]: grid size = N
-   // thread index is for d in [0, q-1]: block size = q
-   fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, dev_r);
-   cudaSafeThreadSynchronize();
-   // if debug mode is high enough, print the results obtained
-#if DEBUG>=3
-   std::cerr << "gamma = " << std::endl;
-   print_gamma(std::cerr);
-#endif
-   // reset pacifier monitor
-   first_time = false;
-   }
-
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_alpha(int rho, stream& sid)
+void fba2<real, sig, norm>::do_work_alpha(const dev_array1r_t& sof_prior,
+      stream& sid)
    {
    static bool first_time = true;
    // Alpha computation:
@@ -642,19 +562,19 @@ void fba2<real, sig, norm>::do_work_alpha(int rho, stream& sid)
          std::cerr << "Normalization Kernel: " << 1 << " blocks x " << 2 * xmax
                + 1 << " threads" << std::endl;
       }
-   for (int i = 0; i < N; i++)
+   for (int i = 0; i <= N; i++)
       {
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
-      fba2_alpha_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, rho, i);
+      fba2_alpha_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, sof_prior, i);
       //cudaSafeThreadSynchronize();
       // normalize if requested
       if (norm)
          {
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-fba2_normalize_alpha_kernel         <real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
+         fba2_normalize_alpha_kernel<real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
          //cudaSafeThreadSynchronize();
          }
       }
@@ -667,7 +587,7 @@ fba2_normalize_alpha_kernel         <real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_beta(int rho, stream& sid)
+void fba2<real, sig, norm>::do_work_beta(const dev_array1r_t& eof_prior, stream& sid)
    {
    static bool first_time = true;
    // Beta computation:
@@ -679,12 +599,12 @@ void fba2<real, sig, norm>::do_work_beta(int rho, stream& sid)
       std::cerr << "Normalization Kernel: " << 1 << " blocks x " << 2 * xmax
       + 1 << " threads" << std::endl;
       }
-   for (int i = N; i > 0; i--)
+   for (int i = N; i >= 0; i--)
       {
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
-      fba2_beta_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, rho, i);
+      fba2_beta_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, eof_prior, i);
       //cudaSafeThreadSynchronize();
       // normalize if requested
       if (norm)
@@ -704,16 +624,25 @@ void fba2<real, sig, norm>::do_work_beta(int rho, stream& sid)
    }
 
 template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_results(int rho, dev_array2r_t& dev_ptable) const
+void fba2<real, sig, norm>::do_work_results(dev_array2r_t& ptable,
+      dev_array1r_t& sof_post, dev_array1r_t& eof_post) const
    {
    static bool first_time = true;
    // Results computation:
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    if (first_time)
-   std::cerr << "Results Kernel: " << N << " blocks x " << q << " threads"
-   << std::endl;
-   fba2_results_kernel<real,sig,norm> <<<N,q>>>(*this, rho, dev_ptable);
+      {
+      std::cerr << "Message APP Kernel: " << N << " blocks x " << q << " threads"
+      << std::endl;
+      std::cerr << "State APP Kernel (x2): " << 2 * xmax + 1 << " blocks x " << 1 << " threads"
+      << std::endl;
+      }
+   // compute APPs of message
+   fba2_message_app_kernel<real,sig,norm> <<<N,q>>>(*this, ptable);
+   // compute APPs of sof/eof state values 
+   fba2_state_app_kernel<real,sig,norm> <<<2*xmax+1,1>>>(*this, sof_post, 0);
+   fba2_state_app_kernel<real,sig,norm> <<<2*xmax+1,1>>>(*this, eof_post, N);
    cudaSafeThreadSynchronize();
    // reset pacifier monitor
    first_time = false;
@@ -737,75 +666,10 @@ void fba2<real, sig, norm>::copy_results(const dev_array2r_t& dev_ptable,
 
 template <class real, class sig, bool norm>
 void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, const array1vd_t& app, array1vr_t& ptable)
+      const array1s_t& r, const array1d_t& sof_prior,
+      const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
+      array1r_t& sof_post, array1r_t& eof_post, const int offset)
    {
-   // allocate memory on device
-   dev_array2r_t alpha;
-   dev_array2r_t beta;
-   dev_array1r_t gamma;
-   allocate(alpha, beta, gamma);
-   // allocate space on device for rx vector, and copy over
-   dev_array1s_t dev_r;
-   dev_r = r;
-   // allocate space on device for app table, and copy over if necessary
-   dev_array2r_t dev_app;
-   if (app.size() > 0)
-      {
-      dev_app.init(N, q);
-      assert(app.size() == N);
-      for (int i = 0; i < N; i++)
-         {
-         assert(app(i).size() == q);
-         dev_app.extract_row(i) = array1r_t(app(i));
-         }
-      }
-   // allocate space on device for result, and initialize
-   dev_array2r_t dev_ptable;
-   dev_ptable.init(N, q);
-   // call the kernels
-   gputimer tg("t_gamma_app");
-   do_work_gamma(dev_r, dev_app);
-   collector.add_timer(tg);
-
-   gputimer tab("t_alpha+beta");
-   stream sa, sb;
-   gputimer ta("t_alpha", sa.get_id());
-   do_work_alpha(r.size(), sa);
-   ta.stop();
-   gputimer tb("t_beta", sb.get_id());
-   do_work_beta(r.size(), sb);
-   tb.stop();
-   cudaSafeThreadSynchronize();
-   collector.add_timer(ta);
-   collector.add_timer(tb);
-   collector.add_timer(tab);
-
-   gputimer tr("t_results");
-   do_work_results(r.size(), dev_ptable);
-   collector.add_timer(tr);
-
-   gputimer tc("t_transfer");
-   copy_results(dev_ptable, ptable);
-   collector.add_timer(tc);
-   // add values for limits that depend on channel conditions
-   collector.add_timer(I, "c_I");
-   collector.add_timer(xmax, "c_xmax");
-   collector.add_timer(dxmax, "c_dxmax");
-   // add memory usage
-   collector.add_timer(sizeof(real) * alpha.size(), "m_alpha"); 
-   collector.add_timer(sizeof(real) * beta.size(), "m_beta"); 
-   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma"); 
-   }
-
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, array1vr_t& ptable)
-   {
-   // allocate memory on device
-   dev_array2r_t alpha;
-   dev_array2r_t beta;
-   dev_array1r_t gamma;
-   allocate(alpha, beta, gamma);
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << N << std::endl;
@@ -819,48 +683,80 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    std::cerr << "norm = " << norm << std::endl;
    std::cerr << "real = " << typeid(real).name() << std::endl;
 #endif
+   // allocate memory on device
+   dev_array2r_t alpha;
+   dev_array2r_t beta;
+   dev_array1r_t gamma;
+   allocate(alpha, beta, gamma);
    // allocate space on device for rx vector, and copy over
    dev_array1s_t dev_r;
    dev_r = r;
 #if DEBUG>=3
    std::cerr << "r = " << array1s_t(dev_r) << std::endl;
 #endif
+   // allocate space on device for app table, and copy over if necessary
+   dev_array2r_t dev_app;
+   if (app.size() > 0)
+      {
+      dev_app.init(N, q);
+      assert(app.size() == N);
+      for (int i = 0; i < N; i++)
+         {
+         assert(app(i).size() == q);
+         dev_app.extract_row(i) = array1r_t(app(i));
+         }
+      }
+   // allocate space on device for sof/eof tables, and copy over priors
+   dev_array1r_t dev_sof_table;
+   dev_array1r_t dev_eof_table;
+   dev_sof_table = array1r_t(sof_prior);
+   dev_eof_table = array1r_t(eof_prior);
+#if DEBUG>=3
+   std::cerr << "sof_prior = " << array1r_t(dev_sof_table) << std::endl;
+   std::cerr << "eof_prior = " << array1r_t(dev_eof_table) << std::endl;
+#endif
    // allocate space on device for result, and initialize
    dev_array2r_t dev_ptable;
    dev_ptable.init(N, q);
-   // call the kernels
+   // Gamma
    gputimer tg("t_gamma");
-   do_work_gamma(dev_r);
+   do_work_gamma(dev_r, dev_app);
    collector.add_timer(tg);
-
+   // Alpha + Beta
    gputimer tab("t_alpha+beta");
    stream sa, sb;
    gputimer ta("t_alpha", sa.get_id());
-   do_work_alpha(r.size(), sa);
+   do_work_alpha(dev_sof_table, sa);
    ta.stop();
    gputimer tb("t_beta", sb.get_id());
-   do_work_beta(r.size(), sb);
+   do_work_beta(dev_eof_table, sb);
    tb.stop();
    cudaSafeThreadSynchronize();
    collector.add_timer(ta);
    collector.add_timer(tb);
    collector.add_timer(tab);
-
+   // Results computation
    gputimer tr("t_results");
-   do_work_results(r.size(), dev_ptable);
+   do_work_results(dev_ptable, dev_sof_table, dev_eof_table);
    collector.add_timer(tr);
-
+   // Results transfer
    gputimer tc("t_transfer");
    copy_results(dev_ptable, ptable);
+   sof_post = array1r_t(dev_sof_table);
+   eof_post = array1r_t(dev_eof_table);
+#if DEBUG>=3
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
    collector.add_timer(tc);
    // add values for limits that depend on channel conditions
    collector.add_timer(I, "c_I");
    collector.add_timer(xmax, "c_xmax");
    collector.add_timer(dxmax, "c_dxmax");
    // add memory usage
-   collector.add_timer(sizeof(real) * alpha.size(), "m_alpha"); 
-   collector.add_timer(sizeof(real) * beta.size(), "m_beta"); 
-   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma"); 
+   collector.add_timer(sizeof(real) * alpha.size(), "m_alpha");
+   collector.add_timer(sizeof(real) * beta.size(), "m_beta");
+   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma");
    }
 
 // Explicit Realizations

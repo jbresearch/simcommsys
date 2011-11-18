@@ -30,7 +30,7 @@
 #include "matrix.h"
 #include "fsm.h"
 #include "cuda-all.h"
-#include "modem/dminner2-receiver.h"
+#include "modem/dminner2-receiver-cuda.h"
 #include "instrumented.h"
 
 #include <cmath>
@@ -103,7 +103,7 @@ private:
    dev_array2r_ref_t alpha; //!< Forward recursion metric
    dev_array2r_ref_t beta; //!< Backward recursion metric
    dev_array1r_ref_t gamma; //!< Receiver metric
-   mutable libcomm::dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
+   mutable dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
    // @}
 private:
    /*! \name Internal functions */
@@ -152,11 +152,11 @@ private:
    void print_gamma(std::ostream& sout) const;
    // de-reference kernel calls
 #ifdef __CUDACC__
-   void do_work_gamma(const dev_array1s_t& dev_r, const dev_array2r_t& dev_app);
-   void do_work_gamma(const dev_array1s_t& dev_r);
-   void do_work_alpha(int rho, stream& sid);
-   void do_work_beta(int rho, stream& sid);
-   void do_work_results(int rho, dev_array2r_t& dev_ptable) const;
+   void do_work_gamma(const dev_array1s_t& r, const dev_array2r_t& app);
+   void do_work_alpha(const dev_array1r_t& sof_prior, stream& sid);
+   void do_work_beta(const dev_array1r_t& eof_prior, stream& sid);
+   void do_work_results(dev_array2r_t& ptable, dev_array1r_t& sof_post,
+         dev_array1r_t& eof_post) const;
 #endif
    void copy_results(const dev_array2r_t& dev_ptable, array1vr_t& ptable);
    // @}
@@ -166,8 +166,6 @@ public:
 #ifdef __CUDACC__
    __device__
    void work_gamma(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app);
-   __device__
-   void work_gamma(const dev_array1s_ref_t& r);
    __device__
    static real get_threshold(const dev_array2r_ref_t& metric, int row, int cols, real factor);
    __device__
@@ -184,14 +182,16 @@ public:
    __device__
    void normalize_beta(int i)
       {
-      normalize(beta, i - 1, 2 * xmax + 1);
+      normalize(beta, i, 2 * xmax + 1);
       }
    __device__
-   void work_alpha(int rho, int i);
+   void work_alpha(const dev_array1r_ref_t& sof_prior, int i);
    __device__
-   void work_beta(int rho, int i);
+   void work_beta(const dev_array1r_ref_t& eof_prior, int i);
    __device__
-   void work_results(int rho, dev_array2r_ref_t& ptable) const;
+   void work_message_app(dev_array2r_ref_t& ptable) const;
+   __device__
+   void work_state_app(dev_array1r_ref_t& ptable, const int i) const;
 #endif
    // @}
 public:
@@ -206,16 +206,16 @@ public:
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
          double th_outer);
    // access metric computation
-   libcomm::dminner2_receiver<real>& get_receiver() const
+   dminner2_receiver<real>& get_receiver() const
       {
       return receiver;
       }
 
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,
-         const array1vd_t& app, array1vr_t& ptable);
-   void decode(libcomm::instrumented& collector, const array1s_t& r,
-         array1vr_t& ptable);
+         const array1d_t& sof_prior, const array1d_t& eof_prior,
+         const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
+         array1r_t& eof_post, const int offset);
 
    // Description
    std::string description() const

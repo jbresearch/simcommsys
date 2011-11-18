@@ -30,6 +30,7 @@
 #include "matrix.h"
 #include "multi_array.h"
 #include "fsm.h"
+#include "modem/dminner2-receiver.h"
 #include "instrumented.h"
 
 #include <cmath>
@@ -96,6 +97,7 @@ private:
    mutable int gamma_calls; //!< Number of gamma computations
    mutable int gamma_misses; //!< Number of gamma computations causing a cache miss
 #endif
+   mutable dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
    // @}
 private:
    /*! \name Internal functions */
@@ -108,14 +110,14 @@ private:
    // @}
 protected:
    /*! \name Internal functions */
-   // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real R(int d, int i, const array1s_t& r) const = 0;
    // decode functions
    void work_gamma(const array1s_t& r, const array1vd_t& app);
-   void work_gamma(const array1s_t& r);
-   void work_alpha(int rho);
-   void work_beta(int rho);
-   void work_results(int rho, array1vr_t& ptable) const;
+   void work_alpha(const array1d_t& sof_prior);
+   void work_beta(const array1d_t& eof_prior);
+   void work_message_app(array1vr_t& ptable) const;
+   void work_state_app(array1r_t& ptable, const int i) const;
+   void work_results(array1vr_t& ptable, array1r_t& sof_post,
+         array1r_t& eof_post) const;
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -124,20 +126,22 @@ public:
       {
       initialised = false;
       }
-   virtual ~fba2()
-      {
-      }
    // @}
 
    // main initialization routine - constructor essentially just calls this
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
          double th_outer);
+   // access metric computation
+   dminner2_receiver<real>& get_receiver() const
+      {
+      return receiver;
+      }
 
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,
-         const array1vd_t& app, array1vr_t& ptable);
-   void decode(libcomm::instrumented& collector, const array1s_t& r,
-         array1vr_t& ptable);
+         const array1d_t& sof_prior, const array1d_t& eof_prior,
+         const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
+         array1r_t& eof_post, const int offset);
 
    // Description
    std::string description() const
@@ -152,7 +156,7 @@ template <class real, class sig, bool norm>
 inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
       int deltax) const
    {
-   real result = R(d, i, r.extract(n * i + x, n + deltax));
+   real result = receiver.R(d, i, r.extract(xmax + n * i + x, n + deltax));
    if (app.size() > 0)
       result *= real(app(i)(d));
    return result;

@@ -32,7 +32,8 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show transmit and insertion state vectors during transmission
+// 2 - Show results of computation of xmax
+// 3 - Show transmit and insertion state vectors during transmission process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -47,14 +48,36 @@ const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
  *
  * \todo Add formula
  */
-double bsid::metric_computer::compute_drift_prob(int x, int tau, double Pi,
-      double Pd)
+double bsid::metric_computer::compute_drift_prob_davey(int x, int tau,
+      double Pi, double Pd)
    {
    // sanity checks
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
    assert(Pd >= 0 && Pd < 1.0);
    assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
+   // set constants
+   assert(Pi == Pd); // assumed by this algorithm
+   const double p = Pi;
+   // the distribution is approximately Gaussian with:
+   const double sigma = sqrt(tau * p / (1 - p));
+   // main computation
+   double Pr = libbase::gauss(x / sigma);
+   return Pr;
+   }
+
+/*!
+ * \brief Determine the probability of drift x at the end of a frame of tau bits
+ *
+ * \todo Add formula
+ */
+double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
+      double Pi, double Pd)
+   {
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   assert(Pd >= 0 && Pd < 1.0);
    // set constants
    const double Pt = 1 - Pi - Pd;
    const int imin = (x < 0) ? -x : 0;
@@ -69,6 +92,29 @@ double bsid::metric_computer::compute_drift_prob(int x, int tau, double Pi,
       Pr += tmp;
       }
    Pr *= pow(Pt, tau) * pow(Pi, x);
+   return Pr;
+   }
+
+/*!
+ * \brief Determine the probability of drift x at the end of a frame of tau bits
+ *
+ * \todo Add formula
+ */
+double bsid::metric_computer::compute_drift_prob(int x, int tau, double Pi,
+      double Pd)
+   {
+   // sanity checks
+   assert(tau > 0);
+   assert(Pi >= 0 && Pi < 1.0);
+   assert(Pd >= 0 && Pd < 1.0);
+   // use the appropriate algorithm
+   double Pr;
+   if (tau > 100 && Pi == Pd)
+      Pr = compute_drift_prob_davey(x, tau, Pi, Pd);
+   else
+      Pr = compute_drift_prob_exact(x, tau, Pi, Pd);
+   // confirm that this value is finite and valid
+   assert(Pr >= 0 && Pr < std::numeric_limits<double>::infinity());
    return Pr;
    }
 
@@ -130,8 +176,9 @@ int bsid::metric_computer::compute_xmax_davey(int tau, double Pi, double Pd)
    const double factor = 7.1305;
    int xmax = int(ceil(factor * sqrt(tau * p / (1 - p))));
    // tell the user what we did and return
-   libbase::trace << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = "
-         << xmax << "." << std::endl;
+#if DEBUG>=2
+   std::cerr << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
+#endif
    return xmax;
    }
 
@@ -163,8 +210,9 @@ int bsid::metric_computer::compute_xmax_exact(int tau, double Pi, double Pd)
          break;
       }
    // tell the user what we did and return
-   libbase::trace << "DEBUG (bsid): [exact] for N = " << tau << ", xmax = "
-         << xmax << "." << std::endl;
+#if DEBUG>=2
+   std::cerr << "DEBUG (bsid): [exact] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
+#endif
    return xmax;
    }
 
@@ -313,7 +361,6 @@ bsid::real bsid::metric_computer::receive(const bitfield& tx,
    // Set up two slices of forward matrix, and associated pointers
    // Arrays are allocated on the stack as a fixed size; this avoids dynamic
    // allocation (which would otherwise be necessary as the size is non-const)
-   const int arraysize = 2 * 63 + 1;
    assertalways(2 * xmax + 1 <= arraysize);
    real F0[arraysize];
    real F1[arraysize];
@@ -491,6 +538,54 @@ bool bsid::corrupt(const bool& s)
    return s;
    }
 
+// Stream-oriented channel characteristics
+
+/*!
+ * \brief Get the expected drift distribution after transmitting 'tau' bits
+ * This method assumes the start-of-frame drift is zero.
+ */
+void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
+      libbase::size_type<libbase::vector>& offset) const
+   {
+   // determine the range of drifts we're interested in
+   const int xmax = compute_xmax(tau);
+   // store the necessary offset
+   offset = libbase::size_type<libbase::vector>(xmax);
+   // initialize result vector
+   eof_pdf.init(2 * xmax + 1);
+   // compute the probability at each possible drift
+   for (int x = -xmax; x <= xmax; x++)
+      {
+      eof_pdf(x + xmax) = metric_computer::compute_drift_prob(x, tau, Pi, Pd);
+      }
+   }
+
+/*!
+ * \brief Get the expected drift distribution after transmitting 'tau' bits
+ * This method assumes the start-of-frame distribution is as given.
+ */
+void bsid::get_drift_pdf(int tau, const libbase::vector<double>& sof_pdf,
+      libbase::vector<double>& eof_pdf,
+      libbase::size_type<libbase::vector>& offset) const
+   {
+   // determine the range of drifts we're interested in
+   const int xmax = compute_xmax(tau);
+   // store the necessary offset
+   offset = libbase::size_type<libbase::vector>(xmax);
+   // initialize result vector
+   eof_pdf.init(2 * xmax + 1);
+   eof_pdf = 0;
+   // compute the probability at each possible drift
+   assert(sof_pdf.size() == eof_pdf.size());
+   for (int x1 = -xmax; x1 <= xmax; x1++)
+      for (int x2 = -xmax; x2 <= xmax; x2++)
+         {
+         const double p = metric_computer::compute_drift_prob(x1 - x2, tau, Pi,
+               Pd);
+         eof_pdf(x1 + xmax) += sof_pdf(x2 + xmax) * p;
+         }
+   }
+
 // Channel functions
 
 /*!
@@ -546,7 +641,7 @@ void bsid::transmit(const array1b_t& tx, array1b_t& rx)
          transmit(i) = 0;
       }
    // Initialize results vector
-#if DEBUG>=2
+#if DEBUG>=3
    libbase::trace << "DEBUG (bsid): transmit = " << transmit << std::endl;
    libbase::trace << "DEBUG (bsid): insertions = " << insertions << std::endl;
 #endif

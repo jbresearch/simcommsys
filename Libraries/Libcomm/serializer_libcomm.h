@@ -115,6 +115,7 @@
 
 // Experiments
 #include "experiment/binomial/commsys_simulator.h"
+#include "experiment/binomial/commsys_stream_simulator.h"
 #include "experiment/binomial/commsys_threshold.h"
 #include "experiment/normal/commsys_timer.h"
 // Result Collectors
@@ -209,6 +210,7 @@ private:
    commsys_fulliter<bool> _commsys_fulliter;
    // Experiments
    commsys_simulator<bool> _commsys_simulator;
+   commsys_stream_simulator<bool> _commsys_stream_simulator;
    commsys_threshold<bool> _commsys_threshold;
    commsys_timer<bool> _commsys_timer;
 public:

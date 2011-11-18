@@ -35,6 +35,14 @@
 
 namespace showerrorevent {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show event for each sample
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 using std::cout;
 using std::cerr;
 namespace po = boost::program_options;
@@ -60,6 +68,19 @@ void seed_experiment(libcomm::experiment *system, libbase::int32u seed)
    prng.seed(seed);
    system->seedfrom(prng);
    cerr << "Seed: " << seed << std::endl;
+   }
+
+void display_event(libcomm::experiment *system)
+   {
+   libbase::vector<int> last_event = system->get_event();
+   const int tau = last_event.size() / 2;
+   for (int i = 0; i < tau; i++)
+      {
+      cout << i << '\t' << last_event(i) << '\t' << last_event(i + tau);
+      if (last_event(i) != last_event(i + tau))
+         cout << "\t*";
+      cout << std::endl;
+      }
    }
 
 /*!
@@ -114,19 +135,16 @@ int main(int argc, char *argv[])
       cerr << "Simulating sample " << system->get_samplecount() << std::endl;
       system->sample(result);
       system->accumulate(result);
+#if DEBUG>=2
+      cerr << "Event for sample " << system->get_samplecount() << ":"
+            << std::endl;
+      display_event(system);
+#endif
       } while (result.min() == 0);
    cerr << "Event found after " << system->get_samplecount() << " samples"
          << std::endl;
    // Display results
-   libbase::vector<int> last_event = system->get_event();
-   const int tau = last_event.size() / 2;
-   for (int i = 0; i < tau; i++)
-      {
-      cout << i << '\t' << last_event(i) << '\t' << last_event(i + tau);
-      if (last_event(i) != last_event(i + tau))
-         cout << "\t*";
-      cout << std::endl;
-      }
+   display_event(system);
 
    return 0;
    }

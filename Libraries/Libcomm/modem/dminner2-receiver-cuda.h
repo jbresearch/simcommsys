@@ -22,13 +22,14 @@
  * - $Id$
  */
 
-#ifndef __dminner2_receiver_h
-#define __dminner2_receiver_h
+#ifndef __dminner2_receiver_cuda_h
+#define __dminner2_receiver_cuda_h
 
 #include "config.h"
+#include "cuda-all.h"
 #include "channel/bsid.h"
 
-namespace libcomm {
+namespace cuda {
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -42,7 +43,7 @@ namespace libcomm {
 #endif
 
 /*!
- * \brief   Davey-MacKay Inner Code support.
+ * \brief   Davey-MacKay Inner Code support [CUDA].
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -55,8 +56,8 @@ template <class real>
 class dminner2_receiver {
 private:
    int n; //!< Number of bits in 'sparse' symbol
-   mutable libbase::vector<int> ws; //!< Local copy of pilot sequence
-   libbase::matrix<int> lut; //!< Local copy of 'sparsifier' LUT
+   mutable cuda::vector<int> ws; //!< Device copy of pilot sequence
+   cuda::matrix_auto<int> lut; //!< Device copy of 'sparsifier' LUT
    libcomm::bsid::metric_computer computer; //!< Channel object for computing receiver metric
 public:
    // initialization routines
@@ -69,7 +70,7 @@ public:
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
-      std::cerr << "lut = " << libbase::matrix<int>(this->lut) << std::endl;
+      std::cerr << "lut = " << libbase::vector<int>(this->lut) << std::endl;
       std::cerr << "sizeof(lut) = " << sizeof(this->lut) << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
@@ -89,16 +90,33 @@ public:
 #endif
       }
    // receiver interface
-   real R(int d, int i, const libbase::vector<bool>& r) const
+#ifdef __CUDACC__
+   __device__
+   real R(int d, int i, const cuda::vector_reference<bool>& r) const
       {
-      const int w = ws(i); // watermark vector
-      const int s = lut(i % lut.size().rows(), d);
+#if DEBUG>=3
+      if(d == 0 && i == 0)
+         {
+         printf("R(%d,%d): sizeof(ws)=%d\n", d, i, sizeof(ws));
+         printf("R(%d,%d): sizeof(lut)=%d\n", d, i, sizeof(lut));
+         printf("R(%d,%d): ws.data=%p, ws.size()=%d\n", d, i, &ws(0), ws.size());
+         printf("R(%d,%d): lut.data=%p, lut.size()=%d\n", d, i, &lut(0,0), lut.size());
+         }
+#endif
+      const int w = ws(i);
+      const int s = lut(i % lut.get_rows(), d);
+#if DEBUG>=3
+      printf("R(%d,%d): ws(%d)=%d\n", d, i, i, w);
+      printf("R(%d,%d): lut(%d,%d)=%d\n", d, i, i % lut.get_rows(), d, s);
+#endif
       // 'tx' is the vector of transmitted symbols that we're considering
       // TODO: find a way to use dminner::encode()
-      libbase::bitfield tx(w ^ s, n);
+      cuda::bitfield tx(n);
+      tx = w ^ s;
       // compute the conditional probability
       return computer.receive(tx, r);
       }
+#endif
 };
 
 // Reset debug level, to avoid affecting other files

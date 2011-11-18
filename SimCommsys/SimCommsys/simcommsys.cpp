@@ -44,11 +44,45 @@ using std::setprecision;
 namespace po = boost::program_options;
 
 class mymontecarlo : public libcomm::montecarlo {
+private:
+   bool hard_int; //!< Flag indicating a hard interrupt (stop completely)
+   bool soft_int; //!< Flag indicating a soft interrupt (skip to next point)
 public:
-   // make interrupt function public to allow use by main program
+   mymontecarlo() :
+      hard_int(false), soft_int(false)
+      {
+      }
+   /*! \brief User-interrupt check (public to allow use by main program)
+    * This function returns true if the user has requested a soft or hard
+    * interrupt. As required by the interface, once it returns true, all
+    * subsequent evaluations keep returning true again.
+    * A soft interrupt can be checked for and reset; hard interrupts cannot.
+    * Checks for user pressing 's' (soft), 'q' or Ctrl-C (hard).
+    */
    bool interrupt()
       {
-      return montecarlo::interrupt();
+      if (hard_int || soft_int)
+         return true;
+      if (libbase::interrupted())
+         hard_int = true;
+      else if (libbase::keypressed() > 0)
+         {
+         const char k = libbase::readkey();
+         hard_int = (k == 'q');
+         soft_int = (k == 's');
+         }
+      return hard_int || soft_int;
+      }
+   /*! \brief Soft-interrupt check and reset
+    * This should be called after interrupt(), and returns true if the
+    * interrupt found was a soft interrupt. This method also resets the
+    * soft interrupt condition when found.
+    */
+   bool interrupt_was_soft()
+      {
+      const bool result = soft_int;
+      soft_int = false;
+      return result;
       }
 };
 
@@ -187,7 +221,8 @@ int main(int argc, char *argv[])
             << " frames/sec" << std::endl;
 
       // handle pre-mature breaks
-      if (estimator.interrupt() || result.min() < min_error)
+      if ((estimator.interrupt() && !estimator.interrupt_was_soft())
+            || result.min() < min_error)
          break;
       }
 

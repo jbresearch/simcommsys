@@ -272,12 +272,13 @@ void dminner<real, norm>::normalize_results(const array1vr_t& in,
    for (int i = 0; i < N; i++)
       scale = std::max(scale, in(i).max());
    assert(scale != real(0));
+   scale = real(1) / scale;
    // allocate result space
    libbase::allocate(out, N, q);
    // normalize and copy results
    for (int i = 0; i < N; i++)
       for (int d = 0; d < q; d++)
-         out(i)(d) = in(i)(d) / scale;
+         out(i)(d) = in(i)(d) * scale;
    }
 
 // initialization / de-allocation
@@ -529,6 +530,16 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
       for (int d = 0; d < q; d++)
          ptable(i)(d) = p(i)(d) * app(i)(d);
       }
+   }
+
+template <class real, bool norm>
+void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
+      const array1b_t& rx, const array1d_t& sof_prior,
+      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
+      array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
+            libbase::vector> offset)
+   {
+   failwith("Function not implemented.");
    }
 
 // description output

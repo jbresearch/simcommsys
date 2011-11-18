@@ -118,6 +118,10 @@ public:
    /*!
     * \brief Return the simulated event from the last sample
     * \return An experiment-specific description of the last event
+    *
+    * This hook is used by the showerrorevent program, which assumes the
+    * vector contains a concatenation of the source and decoded vectors
+    * for the current frame.
     */
    virtual libbase::vector<int> get_event() const = 0;
    // @}

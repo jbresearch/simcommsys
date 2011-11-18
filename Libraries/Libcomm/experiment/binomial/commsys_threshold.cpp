@@ -24,6 +24,8 @@
 
 #include "commsys_threshold.h"
 
+#include <sstream>
+
 namespace libcomm {
 
 // Experiment parameter handling
@@ -43,13 +45,22 @@ double commsys_threshold<S, R>::get_parameter() const
    return m.get_parameter();
    }
 
-// Serialization Support
+// Description & Serialization
+
+template <class S, class R>
+std::string commsys_threshold<S, R>::description() const
+   {
+   std::ostringstream sout;
+   sout << "Modem-threshold-varying ";
+   sout << Base::description();
+   return sout.str();
+   }
 
 template <class S, class R>
 std::ostream& commsys_threshold<S, R>::serialize(std::ostream& sout) const
    {
    sout << this->sys->getchan()->get_parameter() << std::endl;
-   commsys_simulator<S, R>::serialize(sout);
+   Base::serialize(sout);
    return sout;
    }
 
@@ -58,7 +69,7 @@ std::istream& commsys_threshold<S, R>::serialize(std::istream& sin)
    {
    double x;
    sin >> libbase::eatcomments >> x;
-   commsys_simulator<S, R>::serialize(sin);
+   Base::serialize(sin);
    this->sys->getchan()->set_parameter(x);
    return sin;
    }

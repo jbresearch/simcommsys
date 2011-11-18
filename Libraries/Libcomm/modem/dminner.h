@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#include "informed_modulator.h"
+#include "stream_modulator.h"
 #include "algorithm/fba.h"
 #include "channel/bsid.h"
 
@@ -68,9 +68,8 @@ template <class real, bool norm>
 class dminner2;
 
 template <class real, bool norm>
-class dminner : public informed_modulator<bool> ,
-      public parametric,
-      private fba<real, bool, norm> {
+class dminner : public stream_modulator<bool> , public parametric, private fba<
+      real, bool, norm> {
    friend class dminner2<real, norm> ;
 private:
    // Shorthand for class hierarchy
@@ -119,17 +118,17 @@ private:
    // Atomic modem operations (private as these should never be used)
    const bool modulate(const int index) const
       {
-      assert("Function should not be used.");
+      failwith("Function should not be used.");
       return false;
       }
    const int demodulate(const bool& signal) const
       {
-      assert("Function should not be used.");
+      failwith("Function should not be used.");
       return 0;
       }
    const int demodulate(const bool& signal, const libbase::vector<double>& app) const
       {
-      assert("Function should not be used.");
+      failwith("Function should not be used.");
       return 0;
       }
 protected:
@@ -140,6 +139,10 @@ protected:
          array1vd_t& ptable);
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
          const array1vd_t& app, array1vd_t& ptable);
+   void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
+         const array1d_t& sof_prior, const array1d_t& eof_prior,
+         const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
+         array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
 
 private:
    /*! \name Internal functions */
