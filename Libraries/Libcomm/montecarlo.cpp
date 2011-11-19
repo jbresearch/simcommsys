@@ -150,7 +150,8 @@ void montecarlo::writeheader(std::ostream& sout) const
    assert(system != NULL);
    trace << "DEBUG (montecarlo): writing results header." << std::endl;
    // Print information on the simulation being performed
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << std::endl;
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp()
+         << std::endl;
    sout << "#% " << system->description() << std::endl;
    sout << "#% Tolerance: " << 100 * accuracy << "%" << std::endl;
    sout << "#% Confidence: " << 100 * confidence << "%" << std::endl;
@@ -163,7 +164,8 @@ void montecarlo::writeheader(std::ostream& sout) const
    for (int i = 0; i < system->count(); i++)
       sout << "\t" << system->result_description(i) << "\tTol";
    sout << "\tSamples\tCPUtime" << std::endl;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << std::endl;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp()
+         << std::endl;
    }
 
 void montecarlo::writeresults(std::ostream& sout,
@@ -174,13 +176,15 @@ void montecarlo::writeresults(std::ostream& sout,
       return;
    trace << "DEBUG (montecarlo): writing results." << std::endl;
    // Write current estimates to file
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << std::endl;
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp()
+         << std::endl;
    sout << system->get_parameter();
    for (int i = 0; i < system->count(); i++)
       sout << '\t' << result(i) << '\t' << result(i) * tolerance(i);
    sout << '\t' << get_samplecount();
    sout << '\t' << getcputime() << std::endl;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << std::endl;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp()
+         << std::endl;
    }
 
 void montecarlo::writestate(std::ostream& sout) const
@@ -190,7 +194,8 @@ void montecarlo::writestate(std::ostream& sout) const
       return;
    trace << "DEBUG (montecarlo): writing state." << std::endl;
    // Write accumulated values to file
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp() << std::endl;
+   trace << "DEBUG (montecarlo): position before = " << sout.tellp()
+         << std::endl;
    libbase::vector<double> state;
    system->get_state(state);
    sout << "## System: " << sysdigest << std::endl;
@@ -199,7 +204,8 @@ void montecarlo::writestate(std::ostream& sout) const
    sout << "## State: " << state.size() << '\t';
    state.serialize(sout, '\t');
    sout << std::flush;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp() << std::endl;
+   trace << "DEBUG (montecarlo): position after = " << sout.tellp()
+         << std::endl;
    }
 
 void montecarlo::lookforstate(std::istream& sin)
@@ -234,7 +240,8 @@ void montecarlo::lookforstate(std::istream& sin)
    // check that results correspond to system under simulation
    if (digest == std::string(sysdigest) && parameter == system->get_parameter())
       {
-      cerr << "NOTICE: Reloading state with " << samplecount << " samples." << std::endl;
+      cerr << "NOTICE: Reloading state with " << samplecount << " samples."
+            << std::endl;
       system->accumulate_state(samplecount, state);
       }
    }
@@ -254,11 +261,12 @@ void montecarlo::display() const
       const int prec = clog.precision(3);
       clog << "Timer: " << t << ", ";
       if (isenabled())
-         clog << getnumslaves() << " clients, " << getcputime() / t.elapsed()
-               << "x speedup, ";
+         clog << getnumslaves() << " clients, ";
       else
-         clog << "local, ";// << t.cputime() / t.elapsed() << "x usage, ";
+         clog << "local, ";
+      clog << getcputime() / t.elapsed() << "x usage, ";
       clog << "pass " << system->get_samplecount() << "." << std::endl;
+      clog << "System parameter: " << system->get_parameter() << std::endl;
       clog << "Results:" << std::endl;
       system->prettyprint_results(clog);
       clog << "Press 'q' to interrupt." << std::endl;
@@ -382,7 +390,8 @@ void montecarlo::initslave(slave *s, std::string systemstring)
       return;
    if (!send(s, system->get_parameter()))
       return;
-   trace << "DEBUG (estimate): Slave (" << s << ") initialized ok." << std::endl;
+   trace << "DEBUG (estimate): Slave (" << s << ") initialized ok."
+         << std::endl;
    }
 
 /*!
@@ -396,8 +405,8 @@ void montecarlo::initnewslaves(std::string systemstring)
    {
    while (slave *s = newslave())
       {
-      trace << "DEBUG (estimate): New slave found (" << s
-            << "), initializing." << std::endl;
+      trace << "DEBUG (estimate): New slave found (" << s << "), initializing."
+            << std::endl;
       initslave(s, systemstring);
       }
    }
@@ -422,7 +431,8 @@ void montecarlo::workidleslaves(bool converged)
             << "), assigning work." << std::endl;
       if (!call(s, "slave_work"))
          continue;
-      trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok." << std::endl;
+      trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok."
+            << std::endl;
       }
    }
 
@@ -469,7 +479,8 @@ bool montecarlo::readpendingslaves()
       // update usage information and return flag
       updatecputime(s);
       results_available = true;
-      trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded." << std::endl;
+      trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded."
+            << std::endl;
       }
    return results_available;
    }
