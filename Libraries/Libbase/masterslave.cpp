@@ -99,18 +99,23 @@ void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
       pacifier::disable_output();
    // Handle option for local computation only
    if (hostname.compare("local") == 0 && port == 0)
-      return;
-   // If the hostname part isn't empty, it's a slave process
-   if (hostname.length() > 0)
-      slaveprocess(hostname, port, priority);
-   // Otherwise, this must be the master process.
-   master = new socket;
-   assertalways(master->bind(port));
-   trace << "Master system bound to port " << port << std::endl;
+      trace << "Master system using local computation" << std::endl;
+   else
+      {
+      // If the hostname part isn't empty, it's a slave process
+      if (hostname.length() > 0)
+         slaveprocess(hostname, port, priority);
+      else
+         {
+         // Otherwise, this must be the master process.
+         master = new socket;
+         assertalways(master->bind(port));
+         trace << "Master system bound to port " << port << std::endl;
+         initialized = true;
+         }
+      }
    twall.start();
    tcpu.start();
-
-   initialized = true;
    }
 
 // static items (for use by slaves)
