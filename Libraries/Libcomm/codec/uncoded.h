@@ -94,7 +94,15 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   uncoded();
+   uncoded() :
+      encoder(NULL)
+      {
+      }
+   //! Copy constructor
+   uncoded(const uncoded<dbl>& x) :
+      encoder(dynamic_cast<fsm*> (x.encoder->clone())), tau(x.tau), rp(x.rp), R(x.R)
+      {
+      }
    uncoded(const fsm& encoder, const int tau);
    ~uncoded()
       {
@@ -116,7 +124,7 @@ public:
    libbase::size_type<libbase::vector> output_block_size() const
       {
       const int n = enc_outputs();
-      return libbase::size_type<libbase::vector>(tau*n);
+      return libbase::size_type<libbase::vector>(tau * n);
       }
    int num_inputs() const
       {

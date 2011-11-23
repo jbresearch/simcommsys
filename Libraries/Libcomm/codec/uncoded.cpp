@@ -49,12 +49,6 @@ void uncoded<dbl>::free()
 // constructor / destructor
 
 template <class dbl>
-uncoded<dbl>::uncoded() :
-   encoder(NULL)
-   {
-   }
-
-template <class dbl>
 uncoded<dbl>::uncoded(const fsm& encoder, const int tau) :
    tau(tau)
    {
