@@ -69,6 +69,9 @@ void cached_fsm::init(fsm& encoder)
          lut_m(mdash, i) = encoder.convert_state(encoder.state());
          assert(lut_m(mdash, i) >= 0 && lut_m(mdash, i) < M);
          }
+
+   // initialize state
+   reset();
    }
 
 // Serialization

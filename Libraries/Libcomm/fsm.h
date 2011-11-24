@@ -30,6 +30,7 @@
 #include "vector.h"
 #include <iostream>
 #include <string>
+#include <limits>
 
 namespace libcomm {
 
@@ -82,11 +83,13 @@ public:
     */
    static int convert(const array1i_t& vec, int S)
       {
-      int nu = vec.size();
+      const int nu = vec.size();
+      assert(pow(S, nu) - 1 <= std::numeric_limits<int>::max());
       int val = 0;
       for (int i = nu - 1; i >= 0; i--)
          {
          val *= S;
+         assert(vec(i) >= 0 && vec(i) < S);
          val += vec(i);
          }
       return val;
@@ -105,6 +108,7 @@ public:
    static array1i_t convert(int val, int nu, int S)
       {
       array1i_t vec(nu);
+      assert(val >= 0);
       for (int i = 0; i < nu; i++)
          {
          vec(i) = val % S;

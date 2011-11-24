@@ -151,7 +151,7 @@ std::istream& image<T>::serialize(std::istream& sin)
             }
    assertalways(sin);
    // scale down if we're using floating-point
-   if (typeid(T) == typeid(double) || typeid(T) == typeid(float))
+   if (is_scaled())
       for (int c = 0; c < chan; c++)
          m_data(c) /= T(m_maxval);
    // done
