@@ -50,6 +50,17 @@ void print_whitespace_test()
    cout << "\\t         \t" << (isspace('\t') ? "yes" : "no") << std::endl;
    }
 
+void print_standard_limits()
+   {
+   cout << std::endl;
+   cout << "Type:      \tValue:" << std::endl;
+   cout << "~~~~~      \t~~~~" << std::endl;
+
+   cout << "epsilon (f)\t" << std::numeric_limits<float>::epsilon() << std::endl;
+   cout << "epsilon (d)\t" << std::numeric_limits<double>::epsilon() << std::endl;
+   cout << "epsilon (ld)\t" << std::numeric_limits<long double>::epsilon() << std::endl;
+   }
+
 void print_standard_sizes()
    {
    cout << std::endl;
@@ -328,6 +339,7 @@ void testboost_iterators()
 int main(int argc, char *argv[])
    {
    print_whitespace_test();
+   print_standard_limits();
    print_standard_sizes();
    print_new_sizes();
    print_vector_sizes();

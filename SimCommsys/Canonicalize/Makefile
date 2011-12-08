@@ -79,13 +79,13 @@ $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(TAG): $(RELEASE)]"
 	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $@ $<
-	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,\($*\)\.o[ :]*,\1.o $@ : ,g' -i $@
+	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(TAG): $(RELEASE)]"
 	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$@ $<
-	@sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' -i $@
+	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 # Dependency information
 

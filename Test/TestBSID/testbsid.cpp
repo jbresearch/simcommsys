@@ -171,12 +171,12 @@ void compute_parameters(int tau, double p, bool ins, bool del, bool sim)
    const int xmax_auto = bsid::metric_computer::compute_xmax(tau, Pi, Pd);
    cout << "\t" << xmax_auto;
    const int xmax_davey = bsid::metric_computer::compute_xmax_with(
-         bsid::metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
+         &bsid::metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
    cout << "\t" << xmax_davey;
    try
       {
       const int xmax_exact = bsid::metric_computer::compute_xmax_with(
-            bsid::metric_computer::compute_drift_prob_exact, tau, Pi, Pd);
+            &bsid::metric_computer::compute_drift_prob_exact, tau, Pi, Pd);
       cout << "\t" << xmax_exact;
       }
    catch (std::exception& e)

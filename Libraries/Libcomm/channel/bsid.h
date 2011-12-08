@@ -103,46 +103,64 @@ public:
    private:
       //! Functor for drift probability computation with prior
       class compute_drift_prob_functor {
+      public:
+         typedef double (*pdf_func_t)(int, int, double, double);
       private:
+         const pdf_func_t func;
          const libbase::vector<double>& sof_pdf;
          const int offset;
       public:
-         compute_drift_prob_functor(const libbase::vector<double>& sof_pdf,
-               const int offset) :
-            sof_pdf(sof_pdf), offset(offset)
+         compute_drift_prob_functor(const pdf_func_t& func,
+               const libbase::vector<double>& sof_pdf, const int offset) :
+            func(func), sof_pdf(sof_pdf), offset(offset)
             {
             }
          double operator()(int x, int tau, double Pi, double Pd) const
             {
-            return compute_drift_prob(x, tau, Pi, Pd, sof_pdf, offset);
+            return compute_drift_prob_with(func, x, tau, Pi, Pd, sof_pdf,
+                  offset);
             }
       };
    public:
       /*! \name FBA decoder parameter computation */
+      // drift PDF - known start of frame
       static double compute_drift_prob_davey(int x, int tau, double Pi,
             double Pd);
       static double compute_drift_prob_exact(int x, int tau, double Pi,
             double Pd);
-      static double compute_drift_prob_auto(int x, int tau, double Pi,
-            double Pd);
-      static double compute_drift_prob(int x, int tau, double Pi, double Pd,
+      // drift PDF - given start of frame pdf
+      template <typename F>
+      static double compute_drift_prob_with(const F& compute_pdf, int x,
+            int tau, double Pi, double Pd,
             const libbase::vector<double>& sof_pdf, const int offset);
+      // limit on successive insertions
       static int compute_I(int tau, double Pi, int Icap);
+      // limit on drift
       static int compute_xmax_davey(int tau, double Pi, double Pd);
       template <typename F>
-      static int compute_xmax_with(F compute_drift_prob, int tau, double Pi,
-            double Pd);
+      static int
+      compute_xmax_with(const F& compute_pdf, int tau, double Pi, double Pd);
       static int compute_xmax(int tau, double Pi, double Pd,
             const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
             const int offset = 0)
          {
-         compute_drift_prob_functor f(sof_pdf, offset);
-         return compute_xmax_with<const compute_drift_prob_functor&> (f, tau,
-               Pi, Pd);
+         try
+            {
+            compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf,
+                  offset);
+            return compute_xmax_with(f, tau, Pi, Pd);
+            }
+         catch (std::exception& e)
+            {
+            compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf,
+                  offset);
+            return compute_xmax_with(f, tau, Pi, Pd);
+            }
          }
       static int compute_xmax(int tau, double Pi, double Pd, int I,
             const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
             const int offset = 0);
+      // receiver metric pre-computation
       static real compute_Rtable_entry(bool err, int mu, double Ps, double Pd,
             double Pi);
       static void compute_Rtable(array2r_t& Rtable, int I, double Ps,

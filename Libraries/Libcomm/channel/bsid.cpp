@@ -80,7 +80,7 @@ double bsid::metric_computer::compute_drift_prob_davey(int x, int tau,
    const double this_p = libbase::Q(x1) - libbase::Q(x2);
 #if DEBUG>=3
    std::cerr << "DEBUG (bsid): [pdf-davey] x = " << x << ", sigma = " << sigma
-         << ", this_p = " << this_p << "." << std::endl;
+   << ", this_p = " << this_p << "." << std::endl;
 #endif
    return this_p;
    }
@@ -129,7 +129,7 @@ double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
    p0 = exp(p0);
 #if DEBUG>=3
    std::cerr << "DEBUG (bsid): [pdf-exact] x = " << x << ", p0 = " << p0
-         << std::endl;
+   << std::endl;
 #endif
    if (p0 == 0)
       throw std::overflow_error("zero factor");
@@ -146,7 +146,7 @@ double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
       this_p += p0;
 #if DEBUG>=3
       std::cerr << "DEBUG (bsid): [pdf-exact] i = " << i << ", p0 = " << p0
-            << ", this_p = " << this_p << std::endl;
+      << ", this_p = " << this_p << std::endl;
 #endif
       // early cutoff
       if (this_p == last_p)
@@ -166,51 +166,31 @@ double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
    }
 
 /*!
- * \brief The probability of drift x after transmitting tau bits
- *
- * This method uses the exact algorithm wherever this gives valid values
- * (depends only on precision of internal computation), and Davey's algorithm
- * otherwise (when Pi=Pd only).
- */
-double bsid::metric_computer::compute_drift_prob_auto(int x, int tau,
-      double Pi, double Pd)
-   {
-   // sanity checks
-   assert(tau > 0);
-   validate(Pd, Pi);
-   // use the appropriate algorithm
-   double this_p = 0;
-   if (Pi == Pd && Pi*tau >= 150)
-      this_p = compute_drift_prob_davey(x, tau, Pi, Pd);
-   else
-      this_p = compute_drift_prob_exact(x, tau, Pi, Pd);
-   // confirm that this value is finite and valid
-   assert(std::isfinite(this_p) && this_p >= 0);
-   return this_p;
-   }
-
-/*!
  * \brief The probability of drift x after transmitting tau bits, given the
  * supplied drift pdf at start of transmission.
  *
  * The final drift pdf is obtained by convolving the expected pdf for a
  * known start of frame position with the actual start of frame distribution.
  */
-double bsid::metric_computer::compute_drift_prob(int x, int tau, double Pi,
-      double Pd, const libbase::vector<double>& sof_pdf, const int offset)
+template <typename F>
+double bsid::metric_computer::compute_drift_prob_with(const F& compute_pdf,
+      int x, int tau, double Pi, double Pd,
+      const libbase::vector<double>& sof_pdf, const int offset)
    {
    // if sof_pdf is empty, delegate automatically
    if (sof_pdf.size() == 0)
-      return compute_drift_prob_auto(x, tau, Pi, Pd);
+      return compute_pdf(x, tau, Pi, Pd);
    // compute the probability at requested drift
    double this_p = 0;
    const int imin = -offset;
    const int imax = sof_pdf.size() - offset;
    for (int i = imin; i < imax; i++)
       {
-      const double p = compute_drift_prob_auto(x - i, tau, Pi, Pd);
+      const double p = compute_pdf(x - i, tau, Pi, Pd);
       this_p += sof_pdf(i + offset) * p;
       }
+   // normalize
+   this_p /= sof_pdf.sum();
    // confirm that this value is finite and valid
    assert(this_p >= 0 && this_p < std::numeric_limits<double>::infinity());
    return this_p;
@@ -295,7 +275,7 @@ int bsid::metric_computer::compute_xmax_davey(int tau, double Pi, double Pd)
  * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
  */
 template <typename F>
-int bsid::metric_computer::compute_xmax_with(F compute_drift_prob, int tau,
+int bsid::metric_computer::compute_xmax_with(const F& compute_pdf, int tau,
       double Pi, double Pd)
    {
    // sanity checks
@@ -305,27 +285,27 @@ int bsid::metric_computer::compute_xmax_with(F compute_drift_prob, int tau,
    double acc = 1.0;
    // determine xmax to use
    int xmax = 0;
-   acc -= compute_drift_prob(xmax, tau, Pi, Pd);
+   acc -= compute_pdf(xmax, tau, Pi, Pd);
 #if DEBUG>=3
    std::cerr << "DEBUG (bsid): xmax = " << xmax << ", acc = " << acc << "."
-         << std::endl;
+   << std::endl;
 #endif
    while (acc >= Pr)
       {
       xmax++;
-      acc -= compute_drift_prob(xmax, tau, Pi, Pd);
-      acc -= compute_drift_prob(-xmax, tau, Pi, Pd);
+      acc -= compute_pdf(xmax, tau, Pi, Pd);
+      acc -= compute_pdf(-xmax, tau, Pi, Pd);
 #if DEBUG>=3
       std::cerr << "DEBUG (bsid): xmax = " << xmax << ", acc = " << acc << "."
-            << std::endl;
+      << std::endl;
 #endif
       }
    // tell the user what we did and return
 #if DEBUG>=2
    std::cerr << "DEBUG (bsid): [computed] for N = " << tau << ", xmax = "
-         << xmax << "." << std::endl;
+   << xmax << "." << std::endl;
    std::cerr << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = "
-         << compute_xmax_davey(tau, Pi, Pd) << "." << std::endl;
+   << compute_xmax_davey(tau, Pi, Pd) << "." << std::endl;
 #endif
    return xmax;
    }
@@ -334,8 +314,9 @@ int bsid::metric_computer::compute_xmax_with(F compute_drift_prob, int tau,
 
 template int bsid::metric_computer::compute_xmax_with(
       const compute_drift_prob_functor& f, int tau, double Pi, double Pd);
-template int bsid::metric_computer::compute_xmax_with(double(*function)(int x,
-      int tau, double Pi, double Pd), int tau, double Pi, double Pd);
+template int bsid::metric_computer::compute_xmax_with(
+      const compute_drift_prob_functor::pdf_func_t& f, int tau, double Pi,
+      double Pd);
 
 /*!
  * \brief Determine maximum drift at the end of a frame of tau bits, given the
@@ -356,7 +337,7 @@ int bsid::metric_computer::compute_xmax(int tau, double Pi, double Pd, int I,
    // tell the user what we did and return
 #if DEBUG>=2
    std::cerr << "DEBUG (bsid): [adjusted] for N = " << tau << ", xmax = "
-         << xmax << "." << std::endl;
+   << xmax << "." << std::endl;
 #endif
    return xmax;
    }
@@ -692,10 +673,21 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
    // initialize result vector
    eof_pdf.init(2 * xmax + 1);
    // compute the probability at each possible drift
-   for (int x = -xmax; x <= xmax; x++)
+   try
       {
-      eof_pdf(x + xmax) = metric_computer::compute_drift_prob_auto(x, tau, Pi,
-            Pd);
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_exact(x, tau,
+               Pi, Pd);
+         }
+      }
+   catch (std::exception& e)
+      {
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_davey(x, tau,
+               Pi, Pd);
+         }
       }
    }
 
@@ -716,10 +708,23 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
    // initialize result vector
    eof_pdf.init(2 * xmax + 1);
    // compute the probability at each possible drift
-   for (int x = -xmax; x <= xmax; x++)
+   try
       {
-      eof_pdf(x + xmax) = metric_computer::compute_drift_prob(x, tau, Pi, Pd,
-            sof_pdf, offset);
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_with(
+               metric_computer::compute_drift_prob_exact, x, tau, Pi, Pd,
+               sof_pdf, offset);
+         }
+      }
+   catch (std::exception& e)
+      {
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_with(
+               metric_computer::compute_drift_prob_davey, x, tau, Pi, Pd,
+               sof_pdf, offset);
+         }
       }
    // resize start-of-frame pdf
    sof_pdf = resize_drift(sof_pdf, offset, xmax);
