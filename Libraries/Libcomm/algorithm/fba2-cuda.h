@@ -205,11 +205,46 @@ public:
    // main initialization routine
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
          double th_outer);
-   // access metric computation
+
+   /*! \name Parameter getters */
+   //! Access metric computation
    dminner2_receiver<real>& get_receiver() const
       {
       return receiver;
       }
+   int get_N() const
+      {
+      return N;
+      }
+   int get_n() const
+      {
+      return n;
+      }
+   int get_q() const
+      {
+      return q;
+      }
+   int get_I() const
+      {
+      return I;
+      }
+   int get_xmax() const
+      {
+      return xmax;
+      }
+   int get_dxmax() const
+      {
+      return dxmax;
+      }
+   double get_th_inner() const
+      {
+      return th_inner;
+      }
+   double get_th_outer() const
+      {
+      return th_outer;
+      }
+   // @}
 
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,

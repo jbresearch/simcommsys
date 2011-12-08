@@ -50,7 +50,7 @@ namespace libcomm {
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 /*!

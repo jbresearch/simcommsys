@@ -181,7 +181,7 @@ void bcjr<real, dbl, norm>::allocate()
          << "MiB" << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
-   std::cerr.setf(flags);
+   std::cerr.flags(flags);
    }
 
 /*! \brief State probability metric

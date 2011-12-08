@@ -90,7 +90,7 @@ void fba2<real, sig, norm>::allocate()
          << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
-   std::cerr.setf(flags);
+   std::cerr.flags(flags);
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;

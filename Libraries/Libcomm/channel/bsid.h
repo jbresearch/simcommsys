@@ -28,7 +28,6 @@
 #include "config.h"
 #include "bitfield.h"
 #include "channel.h"
-#include "itfunc.h"
 #include "serializer.h"
 #include "matrix.h"
 #include "cuda-all.h"
@@ -65,6 +64,7 @@ public:
    /*! \name Type definitions */
    typedef float real;
    typedef libbase::matrix<real> array2r_t;
+   typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<bool> array1b_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -98,24 +98,64 @@ public:
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
+      static const double Pr = 1e-10; //!< Probability of event outside range
       // @}
+   private:
+      //! Functor for drift probability computation with prior
+      class compute_drift_prob_functor {
+      private:
+         const libbase::vector<double>& sof_pdf;
+         const int offset;
+      public:
+         compute_drift_prob_functor(const libbase::vector<double>& sof_pdf,
+               const int offset) :
+            sof_pdf(sof_pdf), offset(offset)
+            {
+            }
+         double operator()(int x, int tau, double Pi, double Pd) const
+            {
+            return compute_drift_prob(x, tau, Pi, Pd, sof_pdf, offset);
+            }
+      };
    public:
       /*! \name FBA decoder parameter computation */
       static double compute_drift_prob_davey(int x, int tau, double Pi,
             double Pd);
       static double compute_drift_prob_exact(int x, int tau, double Pi,
             double Pd);
-      static double compute_drift_prob(int x, int tau, double Pi, double Pd);
+      static double compute_drift_prob_auto(int x, int tau, double Pi,
+            double Pd);
+      static double compute_drift_prob(int x, int tau, double Pi, double Pd,
+            const libbase::vector<double>& sof_pdf, const int offset);
       static int compute_I(int tau, double Pi, int Icap);
       static int compute_xmax_davey(int tau, double Pi, double Pd);
-      static int compute_xmax_exact(int tau, double Pi, double Pd);
-      static int compute_xmax(int tau, double Pi, double Pd, int I);
+      template <typename F>
+      static int compute_xmax_with(F compute_drift_prob, int tau, double Pi,
+            double Pd);
+      static int compute_xmax(int tau, double Pi, double Pd,
+            const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+            const int offset = 0)
+         {
+         compute_drift_prob_functor f(sof_pdf, offset);
+         return compute_xmax_with<const compute_drift_prob_functor&> (f, tau,
+               Pi, Pd);
+         }
+      static int compute_xmax(int tau, double Pi, double Pd, int I,
+            const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+            const int offset = 0);
       static real compute_Rtable_entry(bool err, int mu, double Ps, double Pd,
             double Pi);
       static void compute_Rtable(array2r_t& Rtable, int I, double Ps,
             double Pd, double Pi);
       // @}
       /*! \name Internal functions */
+      //! Check validity of Pi and Pd
+      static void validate(double Pd, double Pi)
+         {
+         assert(Pi >= 0 && Pi < 1.0);
+         assert(Pd >= 0 && Pd < 1.0);
+         assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
+         }
       void precompute(double Ps, double Pd, double Pi, int Icap, bool biased);
       void init();
       // @}
@@ -123,16 +163,17 @@ public:
       /*! \name Device methods */
 #ifdef __CUDACC__
       __device__
-      real receive(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx) const
+      void receive(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx,
+            cuda::vector_reference<real>& ptable) const
          {
          using cuda::min;
          using cuda::max;
          using cuda::swap;
          // Compute sizes
          const int n = tx.size();
-         const int mu = rx.size() - n;
+         const int rho = rx.size();
          cuda_assert(n <= N);
-         cuda_assert(labs(mu) <= xmax);
+         cuda_assert(labs(rho - n) <= xmax);
          // Set up two slices of forward matrix, and associated pointers
          // Arrays are allocated on the stack as a fixed size; this avoids dynamic
          // allocation (which would otherwise be necessary as the size is non-const)
@@ -144,13 +185,15 @@ public:
          // for prior list, reset all elements to zero
          for (int x = 0; x < 2 * xmax + 1; x++)
             {
-            Fprev[x] = 0;
+            Fthis[x] = 0;
             }
          // we also know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-         Fprev[xmax + 0] = 1;
+         Fthis[xmax + 0] = 1;
          // compute remaining matrix values
-         for (int j = 1; j < n; ++j)
+         for (int j = 1; j <= n; ++j)
             {
+            // swap 'this' and 'prior' lists
+            swap(Fthis, Fprev);
             // for this list, reset all elements to zero
             for (int x = 0; x < 2 * xmax + 1; x++)
                {
@@ -164,7 +207,7 @@ public:
             // 4. y-a >= -1
             // note: a and y are offset by xmax
             const int ymin = max(0, xmax - j);
-            const int ymax = min(2 * xmax, xmax + rx.size() - j);
+            const int ymax = min(2 * xmax, xmax + rho - j);
             for (int y = ymin; y <= ymax; ++y)
                {
                real result = 0;
@@ -189,51 +232,22 @@ public:
                   }
                Fthis[y] = result;
                }
-            // swap 'this' and 'prior' lists
-            swap(Fthis, Fprev);
             }
-         // Compute forward metric for known drift, and return
-         real result = 0;
-         // event must fit the received sequence:
-         // 1. n-1+a >= 0
-         // 2. n-1+mu < rx.size() [automatically satisfied by definition of mu]
-         // limits on insertions and deletions must be respected:
-         // 3. mu-a <= I
-         // 4. mu-a >= -1
-         // note: muoff and a are offset by xmax
-         const int muoff = mu + xmax;
-         const int amin = max(max(0, muoff - I), xmax + 1 - n);
-         const int amax = min(2 * xmax, muoff + 1);
-         // check if the last element is a pure deletion
-         int amax_act = amax;
-         if (muoff - amax < 0)
+         // copy results and return
+         cuda_assertalways(ptable.size() == 2 * xmax + 1);
+         for (int x = 0; x < 2 * xmax + 1; x++)
             {
-            result += Fprev[amax] * Rval;
-            amax_act--;
+            ptable(x) = Fthis[x];
             }
-         // elements requiring comparison of tx and rx bits
-         for (int a = amin; a <= amax_act; ++a)
-            {
-            // received subsequence has
-            // start:  n-1+a
-            // length: mu-a+1
-            // therefore last element is: start+length-1 = n+mu-1
-            const bool cmp = tx(n - 1) != rx(n + mu - 1);
-            result += Fprev[a] * Rtable(cmp, muoff - a);
-            }
-         // clean up and return
-         return result;
          }
 #endif
       // @}
-      /*! \name Kernel starters */
-      real receive(const bitfield& tx, const array1b_t& rx) const;
-      // @}
-#else
+#endif
       /*! \name Host methods */
       real receive(const bitfield& tx, const array1b_t& rx) const;
+      void
+      receive(const bitfield& tx, const array1b_t& rx, array1r_t& ptable) const;
       // @}
-#endif
    };
    // @}
 private:
@@ -246,6 +260,8 @@ private:
 private:
    /*! \name Internal functions */
    void init();
+   static array1d_t resize_drift(const array1d_t& in, const int offset,
+         const int xmax);
    // @}
 protected:
    // Channel function overrides
@@ -279,6 +295,17 @@ public:
       {
       const int I = metric_computer::compute_I(tau, Pi, Icap);
       return metric_computer::compute_xmax(tau, Pi, Pd, I);
+      }
+   /*!
+    * \copydoc bsid::metric_computer::compute_xmax()
+    *
+    * \note Provided for use by clients; depends on object parameters
+    */
+   int compute_xmax(int tau, const libbase::vector<double>& sof_pdf,
+         const int offset) const
+      {
+      const int I = metric_computer::compute_I(tau, Pi, Icap);
+      return metric_computer::compute_xmax(tau, Pi, Pd, I, sof_pdf, offset);
       }
    // @}
 
@@ -343,7 +370,7 @@ public:
    /*! \name Stream-oriented channel characteristics */
    void get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const;
-   void get_drift_pdf(int tau, const libbase::vector<double>& sof_pdf,
+   void get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
          libbase::vector<double>& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const;
    // @}

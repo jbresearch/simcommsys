@@ -141,7 +141,7 @@ void turbo<real, dbl>::allocate()
          << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
-   std::cerr.setf(flags);
+   std::cerr.flags(flags);
    }
 
 // wrapping functions

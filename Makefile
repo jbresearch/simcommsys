@@ -238,41 +238,34 @@ export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(
 
 ### Local variables:
 
-TARGETS = $(wildcard SimCommsys/*)
-
-
 ### Build Targets
 
+TARGETS_MAIN = $(wildcard SimCommsys/*)
+TARGETS_TEST = $(wildcard Test/*)
+TARGETS = $(TARGETS_MAIN) $(TARGETS_TEST)
 
 ## Master targets
 
 default:
-	@echo No default target.
+	@echo "No default target. General targets:"
+	@echo "   <plain>-<cmd>-<set>-<release>"
+	@echo "Where:"
+	@echo "   <plain> = plain : disable optional libraries [optional]"
+	@echo "   <cmd> = build|install|clean : build-only, install, or remove"
+	@echo "   <set> = main|test|libs : what to build [default:both]"
+	@echo "   <release> = debug|release|profile : [default:debug+release]"
+	@echo "Master targets:"
+	@echo "   all : equivalent to install and plain-install"
+	@echo "   doc : compile code documentation"
+	@echo "   clean-all : removes all binaries"
+	@echo "   showsettings : outputs compiler settings used"
 
 all:
 	@$(MAKE) install
 	@$(MAKE) plain-install
 
-plain-%:
-	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 $*
-
-build:     build-debug build-release
-
-build-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS)
-
-install:	install-debug install-release
-
-install-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS)
-
 doc:
 	@$(DOXYGEN)
-
-clean:	clean-debug clean-release clean-profile
-
-clean-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS)
 
 clean-all:
 	@echo "----> Cleaning all binaries."
@@ -281,10 +274,49 @@ clean-all:
 showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
 
+## Matched targets
+
+plain-%:
+	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 $*
+
+build:	build-main build-test
+build-main:	build-main-debug build-main-release
+build-test:	build-test-debug build-test-release
+
+build-main-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
+build-test-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
+build-libs-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(LIBRARIES)
+
+install:	install-main install-test
+install-main:	install-main-debug install-main-release
+install-test:	install-test-debug install-test-release
+
+install-main-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
+install-test-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
+install-libs-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(LIBRARIES)
+
+clean:	clean-main clean-test
+clean-main:	clean-main-release clean-main-debug
+clean-test:	clean-test-release clean-test-debug
+
+clean-main-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_MAIN)
+clean-test-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_TEST)
+clean-libs-%:
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(LIBRARIES)
+
+## Setting targets
+
 FORCE:
 
 .PHONY:	all build install clean
-
 
 ## Manual targets
 

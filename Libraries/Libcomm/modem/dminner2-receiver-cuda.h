@@ -34,7 +34,6 @@ namespace cuda {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show settings when initializing the dminner2 computer
-// 3 - Show running information from R() kernel
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
@@ -89,32 +88,19 @@ public:
       std::cerr << "sizeof(ws) = " << sizeof(this->ws) << std::endl;
 #endif
       }
-   // receiver interface
 #ifdef __CUDACC__
+   // batch receiver interface
    __device__
-   real R(int d, int i, const cuda::vector_reference<bool>& r) const
+   void R(int d, int i, const cuda::vector_reference<bool>& r,
+         cuda::vector_reference<libcomm::bsid::real>& ptable) const
       {
-#if DEBUG>=3
-      if(d == 0 && i == 0)
-         {
-         printf("R(%d,%d): sizeof(ws)=%d\n", d, i, sizeof(ws));
-         printf("R(%d,%d): sizeof(lut)=%d\n", d, i, sizeof(lut));
-         printf("R(%d,%d): ws.data=%p, ws.size()=%d\n", d, i, &ws(0), ws.size());
-         printf("R(%d,%d): lut.data=%p, lut.size()=%d\n", d, i, &lut(0,0), lut.size());
-         }
-#endif
-      const int w = ws(i);
+      const int w = ws(i); // watermark vector
       const int s = lut(i % lut.get_rows(), d);
-#if DEBUG>=3
-      printf("R(%d,%d): ws(%d)=%d\n", d, i, i, w);
-      printf("R(%d,%d): lut(%d,%d)=%d\n", d, i, i % lut.get_rows(), d, s);
-#endif
       // 'tx' is the vector of transmitted symbols that we're considering
       // TODO: find a way to use dminner::encode()
-      cuda::bitfield tx(n);
-      tx = w ^ s;
-      // compute the conditional probability
-      return computer.receive(tx, r);
+      cuda::bitfield tx(w ^ s, n);
+      // compute the conditional probabilities
+      computer.receive(tx, r, ptable);
       }
 #endif
 };

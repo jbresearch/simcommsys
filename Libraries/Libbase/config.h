@@ -123,22 +123,22 @@ inline double sign(double x)
 
 // Automatic upgrading of various math functions with int parameter
 
-inline double sqrt(int x)
-   {
-   return sqrt(double(x));
-   }
+//inline double sqrt(int x)
+//   {
+//   return sqrt(double(x));
+//   }
 
-inline double log(int x)
-   {
-   return log(double(x));
-   }
+//inline double log(int x)
+//   {
+//   return log(double(x));
+//   }
 
-#ifdef WIN32
-inline double pow(int x, int y)
-   {
-   return pow(double(x), y);
-   }
-#endif
+//#ifdef WIN32
+//inline double pow(int x, int y)
+//   {
+//   return pow(double(x), y);
+//   }
+//#endif
 
 // Define a function that returns the square of the input
 

@@ -87,7 +87,7 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
          << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
-   std::cerr.setf(flags);
+   std::cerr.flags(flags);
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
@@ -145,6 +145,10 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    // compute all matrix values
    // - all threads are independent and indexes guaranteed in range
 
+   // set up space for batch results
+   libcomm::bsid::real ptable_data[libcomm::bsid::metric_computer::arraysize];
+   cuda_assertalways(libcomm::bsid::metric_computer::arraysize >= 2 * dxmax + 1);
+   cuda::vector_reference<libcomm::bsid::real> ptable(ptable_data, 2 * dxmax + 1);
    // limits on insertions and deletions must be respected:
    //   x2-x1 <= n*I
    //   x2-x1 >= -n
@@ -152,16 +156,25 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    // (necessary for forward recursion on extracted segment)
    //   x2-x1 <= dxmax
    //   x2-x1 >= -dxmax
-   for (int x1 = -xmax; x1 <= xmax; x1++)
+   for (int x = -xmax; x <= xmax; x++)
       {
-      const int deltaxmin = max(-xmax - x1, dmin);
-      const int deltaxmax = min(xmax - x1, dmax);
+      // determine received segment to extract
+      const int start = xmax + n * i + x;
+      const int length = min(n + dmax, r.size() - start);
+      // call batch receiver method
+      receiver.R(d, i, r.extract(start, length), ptable);
+      // copy results
+      const int deltaxmin = max(-xmax - x, dmin);
+      const int deltaxmax = min(xmax - x, dmax);
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
          {
-         real R = receiver.R(d, i, r.extract(xmax + n * i + x1, n + deltax));
+         real R = ptable(dxmax + deltax);
+         // apply priors if applicable
          if (app.size() > 0)
-            R *= app(i, d);
-         get_gamma(d, i, x1, deltax) = R;
+            {
+            R *= real(app(i,d));
+            }
+         get_gamma(d, i, x, deltax) = R;
          }
       }
    }
@@ -425,7 +438,6 @@ void fba2<real, sig, norm>::work_message_app(dev_array2r_ref_t& ptable) const
    ptable(i,d) = p;
    }
 
-
 template <class real, class sig, bool norm>
 __device__
 void fba2<real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
@@ -574,7 +586,7 @@ void fba2<real, sig, norm>::do_work_alpha(const dev_array1r_t& sof_prior,
          {
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_alpha_kernel<real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
+fba2_normalize_alpha_kernel         <real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
          //cudaSafeThreadSynchronize();
          }
       }

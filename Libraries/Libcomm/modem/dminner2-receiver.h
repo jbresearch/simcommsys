@@ -33,7 +33,6 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show settings when initializing the dminner2 computer
-// 3 - Show running information from R() kernel
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
@@ -98,6 +97,18 @@ public:
       libbase::bitfield tx(w ^ s, n);
       // compute the conditional probability
       return computer.receive(tx, r);
+      }
+   // batch receiver interface
+   void R(int d, int i, const libbase::vector<bool>& r,
+         libbase::vector<bsid::real>& ptable) const
+      {
+      const int w = ws(i); // watermark vector
+      const int s = lut(i % lut.size().rows(), d);
+      // 'tx' is the vector of transmitted symbols that we're considering
+      // TODO: find a way to use dminner::encode()
+      libbase::bitfield tx(w ^ s, n);
+      // compute the conditional probabilities
+      computer.receive(tx, r, ptable);
       }
 };
 

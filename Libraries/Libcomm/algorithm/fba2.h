@@ -36,7 +36,6 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 
 namespace libcomm {
 
@@ -101,6 +100,7 @@ private:
    // @}
 private:
    /*! \name Internal functions */
+   void compute_gamma(int d, int i, int x, array1r_t& ptable) const;
    real compute_gamma(int d, int i, int x, int deltax) const;
    real get_gamma(int d, int i, int x, int deltax) const;
    // memory allocation
@@ -131,11 +131,46 @@ public:
    // main initialization routine - constructor essentially just calls this
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
          double th_outer);
-   // access metric computation
+
+   /*! \name Parameter getters */
+   //! Access metric computation
    dminner2_receiver<real>& get_receiver() const
       {
       return receiver;
       }
+   int get_N() const
+      {
+      return N;
+      }
+   int get_n() const
+      {
+      return n;
+      }
+   int get_q() const
+      {
+      return q;
+      }
+   int get_I() const
+      {
+      return I;
+      }
+   int get_xmax() const
+      {
+      return xmax;
+      }
+   int get_dxmax() const
+      {
+      return dxmax;
+      }
+   double get_th_inner() const
+      {
+      return th_inner;
+      }
+   double get_th_outer() const
+      {
+      return th_outer;
+      }
+   // @}
 
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,
@@ -146,11 +181,27 @@ public:
    // Description
    std::string description() const
       {
-      std::ostringstream sout;
-      sout << "Symbol-level Forward-Backward Algorithm";
-      return sout.str();
+      return "Symbol-level Forward-Backward Algorithm";
       }
 };
+
+template <class real, class sig, bool norm>
+inline void fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
+      array1r_t& ptable) const
+   {
+   // determine received segment to extract
+   const int start = xmax + n * i + x;
+   const int length = std::min(n + dmax, r.size() - start);
+   // set up space for results
+   static libbase::vector<bsid::real> ptable_r;
+   ptable_r.init(ptable.size());
+   // call batch receiver method and convert results
+   receiver.R(d, i, r.extract(start, length), ptable_r);
+   ptable = ptable_r;
+   // apply priors if applicable
+   if (app.size() > 0)
+      ptable *= real(app(i)(d));
+   }
 
 template <class real, class sig, bool norm>
 inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
@@ -170,9 +221,19 @@ real fba2<real, sig, norm>::get_gamma(int d, int i, int x, int deltax) const
 
    if (!cached[i][x][deltax])
       {
-      cached[i][x][deltax] = true;
+      // mark results as cached now
+      for (int deltax = dmin; deltax <= dmax; deltax++)
+         cached[i][x][deltax] = true;
+      // allocate space for results
+      static array1r_t ptable;
+      ptable.init(2 * dxmax + 1);
+      // call computation method and store results
       for (int d = 0; d < q; d++)
-         gamma[d][i][x][deltax] = compute_gamma(d, i, x, deltax);
+         {
+         compute_gamma(d, i, x, ptable);
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma[d][i][x][deltax] = ptable(dxmax + deltax);
+         }
 #ifndef NDEBUG
       gamma_misses++;
 #endif

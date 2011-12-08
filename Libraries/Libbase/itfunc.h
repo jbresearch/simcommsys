@@ -31,6 +31,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <boost/math/special_functions/erf.hpp>
+
 /*!
  * \file
  * \brief   Information Theory Functions.
@@ -45,37 +47,18 @@
 
 namespace libbase {
 
-/*! \name Gamma functions */
-//! \sa Numerical Recipes in C, p.216-219
-double gammln(double xx);
-double gammser(double a, double x);
-double gammcf(double a, double x);
-double gammp(double a, double x);
-// @}
-
-/*! \name Error function */
-double cerf(double x);
-double cerfc(double x);
-/*! \brief Error function based on incomplete Gamma functions
- * More accurate but much slower than Chebychev fitting
- */
-inline double erff(double x)
-   {
-   return x < 0.0 ? -gammp(0.5, x * x) : gammp(0.5, x * x);
-   }
-/*! \brief Complementary rrror function based on incomplete Gamma functions
- * More accurate but much slower than Chebychev fitting
- */
-inline double erffc(double x)
-   {
-   return x < 0.0 ? 1.0 + gammp(0.5, x * x) : 1.0 - gammp(0.5, x * x);
-   }
-// @}
-
+//! Tail probability of the standard normal distribution
 inline double Q(double x)
    {
-   return 0.5 * erffc(x / sqrt(2.0));
+   return 0.5 * boost::math::erfc(x / sqrt(2.0));
    }
+
+//! Inverse tail probability of the standard normal distribution
+inline double Qinv(double y)
+   {
+   return sqrt(2.0) * boost::math::erfc_inv(2 * y);
+   }
+
 inline double gauss(double x)
    {
    return exp(-0.5 * x * x) / sqrt(2.0 * PI);

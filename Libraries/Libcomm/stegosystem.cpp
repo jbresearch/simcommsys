@@ -26,10 +26,12 @@
 
 #include "rvstatistics.h"
 #include "randgen.h"
-#include "fastsecant.h"
 #include "bitfield.h"
 #include "fbstream.h"
 #include <cstring>
+
+#include <boost/math/special_functions/gamma.hpp>
+#include <boost/math/special_functions/erf.hpp>
 
 namespace libcomm {
 
@@ -303,7 +305,7 @@ double stegosystem::ComputeChiSquare(const vector<sigspace>& rx, const vector<
       }
    // compute probability of null hypothesis for that chi-square metric
 #ifndef NDEBUG
-   const double p = 1.0 - libbase::gammp(0.5 * (nBins - 1), 0.5 * chisq);
+   const double p = 1.0 - boost::math::gamma_p(0.5 * (nBins - 1), 0.5 * chisq);
    trace << "Probability of null hypothesis = " << p << ", given ChiSq = "
          << chisq << std::endl;
 #endif
@@ -360,7 +362,7 @@ void stegosystem::ConvertToUniform(const vector<double>& g, vector<double>& v)
       {
       if ((i & 0xff) == 0)
          DisplayProgress(i, g.size(), 2, (m_pCodec == NULL) ? 3 : 5);
-      v(i) = (libbase::cerf(g(i) / sqrt(double(2))) + 1.0) / 2.0;
+      v(i) = (boost::math::erf(g(i) / sqrt(double(2))) + 1.0) / 2.0;
       }
    }
 
@@ -368,13 +370,11 @@ void stegosystem::ConvertToGaussian(const vector<double>& v, vector<double>& g)
    {
    assert(v.size() > 0);
    g.init(v.size());
-   libbase::fastsecant erfinv(libbase::cerf);
-   erfinv.init(-0.99, 0.99, 1000);
    for (int i = 0; i < v.size(); i++)
       {
       if ((i & 0xff) == 0)
          DisplayProgress(i, v.size(), 1, 4);
-      g(i) = erfinv(2 * v(i) - 1) * sqrt(double(2));
+      g(i) = boost::math::erf_inv(2 * v(i) - 1) * sqrt(double(2));
       }
    }
 

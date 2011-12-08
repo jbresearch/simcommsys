@@ -111,7 +111,8 @@ protected:
          interrupted = (libbase::readkey() == 'q');
       return interrupted;
       }
-   virtual void display() const;
+   virtual void display(const libbase::vector<double>& result,
+         const libbase::vector<double>& tolerance) const;
    // @}
 public:
    /*! \name Constructor/destructor */

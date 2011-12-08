@@ -2,7 +2,7 @@
 #$Id$
 
 # top-level folders for libraries and targets
-for folder in Libraries SimCommsys Steganography Windows; do
+for folder in Libraries SimCommsys Steganography Test Windows; do
    echo "*** $folder"
    propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'*.suo$'\n'*.ncb$'\n'*cache.dat
    svn ps svn:ignore "$propval" $folder

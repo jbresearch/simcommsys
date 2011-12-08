@@ -39,7 +39,8 @@ namespace libcomm {
 // Setup procedure
 
 template <class real, bool norm>
-void dminner2<real, norm>::init(const channel<bool>& chan)
+void dminner2<real, norm>::init(const channel<bool>& chan,
+      const array1d_t& sof_pdf, const int offset)
    {
    // Inherit block size from last modulation step
    const int q = 1 << Base::k;
@@ -53,7 +54,7 @@ void dminner2<real, norm>::init(const channel<bool>& chan)
    Base::mychan.set_blocksize(n);
    // Determine required FBA parameter values
    const int I = Base::mychan.compute_I(tau);
-   const int xmax = Base::mychan.compute_xmax(tau);
+   const int xmax = Base::mychan.compute_xmax(tau, sof_pdf, offset);
    const int dxmax = Base::mychan.compute_xmax(n);
    Base::checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
@@ -85,14 +86,13 @@ template <class real, bool norm>
 void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
+   // Initialize for known-start
    init(chan);
    // Shorthand for transmitted and received frame sizes
    const int tau = this->output_block_size();
    const int rho = rx.size();
-   // Get access to the channel object in stream-oriented mode
-   const bsid& c = dynamic_cast<const bsid&> (chan);
-   // Determine offset from channel
-   const int xmax = c.compute_xmax(tau);
+   // Algorithm parameters
+   const int xmax = fba.get_xmax();
    // Check that rx size is within valid range
    assertalways(xmax >= abs(rho - tau));
    // Set up start-of-frame drift pdf (drift = 0)
@@ -109,25 +109,11 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
    array1b_t r;
    r.init(tau + 2 * xmax);
    r.segment(xmax, rho) = rx;
-   // Call FBA and normalize results
-#if DEBUG>=2
-   std::cerr << "sof_prior = " << sof_prior << std::endl;
-   std::cerr << "eof_prior = " << eof_prior << std::endl;
-#endif
-   array1vr_t ptable_r;
-   array1r_t sof_post_r;
-   array1r_t eof_post_r;
-   fba.decode(*this, r, sof_prior, eof_prior, app, ptable_r, sof_post_r,
-         eof_post_r, xmax);
-   Base::normalize_results(ptable_r, ptable);
-#if DEBUG>=2
+   // Delegate
    array1d_t sof_post;
    array1d_t eof_post;
-   normalize(sof_post_r, sof_post);
-   normalize(eof_post_r, eof_post);
-   std::cerr << "sof_post = " << sof_post << std::endl;
-   std::cerr << "eof_post = " << eof_post << std::endl;
-#endif
+   demodulate_wrapper(chan, r, sof_prior, eof_prior, app, ptable, sof_post,
+         eof_post, libbase::size_type<libbase::vector>(xmax));
    }
 
 template <class real, bool norm>
@@ -137,7 +123,31 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
       array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
             libbase::vector> offset)
    {
-   init(chan);
+   // Initialize for known-start
+   init(chan, sof_prior, offset);
+   // TODO: validate priors have required size?
+#ifndef NDEBUG
+   std::cerr << "DEBUG (dminner2): offset = " << offset << ", xmax = "
+         << fba.get_xmax() << "." << std::endl;
+#endif
+   assert(offset == fba.get_xmax());
+   // Delegate
+   demodulate_wrapper(chan, rx, sof_prior, eof_prior, app, ptable, sof_post,
+         eof_post, offset);
+   }
+
+/*!
+ * \brief Wrapper for calling demodulation algorithm
+ *
+ * This method assumes that the init() method has already been called with
+ * the appropriate parameters.
+ */
+template <class real, bool norm>
+void dminner2<real, norm>::demodulate_wrapper(const channel<bool>& chan,
+      const array1b_t& rx, const array1d_t& sof_prior,
+      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
+      array1d_t& sof_post, array1d_t& eof_post, const int offset)
+   {
    // Call FBA and normalize results
 #if DEBUG>=2
    std::cerr << "sof_prior = " << sof_prior << std::endl;
@@ -164,7 +174,7 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
  * equal to 1; result is converted to double.
  */
 template <class real, bool norm>
-void dminner2<real, norm>::normalize(const array1r_t& in, array1d_t& out) const
+void dminner2<real, norm>::normalize(const array1r_t& in, array1d_t& out)
    {
    const int N = in.size();
    assert(N > 0);

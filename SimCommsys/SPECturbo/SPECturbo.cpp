@@ -193,6 +193,7 @@ int main(int argc, char *argv[])
          {
          cout << system->result_description(j) << '\t';
          cout << setprecision(6) << estimate(j);
+         cout << "\t[+/-" << setprecision(3) << 100 * tolerance(j) << "%]";
          if (!vm.count("system-file"))
             cout << "\t(" << setprecision(3) << 100 * (estimate(j)
                   - std_result[j]) / std_result[j] << "%)";
