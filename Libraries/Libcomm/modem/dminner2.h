@@ -64,7 +64,7 @@ public:
    // @}
 private:
    // Shorthand for class hierarchy
-   typedef informed_modulator<bool> Interface;
+   typedef stream_modulator<bool> Interface;
    typedef dminner2<real, norm> This;
    typedef dminner<real, norm> Base;
 private:

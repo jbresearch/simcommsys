@@ -34,6 +34,7 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show results of computation of xmax and I
+//     and details of pdf resizing
 // 3 - Show intermediate computation details for (2)
 // 4 - Show transmit and insertion state vectors during transmission process
 #ifndef NDEBUG
@@ -560,8 +561,6 @@ void bsid::init()
  *
  * The input pdf table can be any size, with any offset; the data is copied
  * into the output pdf table, going from -xmax to +xmax.
- *
- * \todo Refactor to use segment/extract
  */
 libbase::vector<double> bsid::resize_drift(const array1d_t& in,
       const int offset, const int xmax)
@@ -571,9 +570,15 @@ libbase::vector<double> bsid::resize_drift(const array1d_t& in,
    out = 0;
    // copy over common elements
    const int imin = std::max(-offset, -xmax);
-   const int imax = std::min(in.size() - offset, xmax);
-   for (int i = imin; i <= imax; i++)
-      out(xmax + i) = in(offset + i);
+   const int imax = std::min(in.size() - 1 - offset, xmax);
+   const int length = imax - imin + 1;
+#if DEBUG>=2
+   std::cerr << "DEBUG (bsid): [resize] offset = " << offset << ", xmax = "
+         << xmax << "." << std::endl;
+   std::cerr << "DEBUG (bsid): [resize] imin = " << imin << ", imax = "
+         << imax << "." << std::endl;
+#endif
+   out.segment(xmax + imin, length) = in.extract(offset + imin, length);
    // return results
    return out;
    }

@@ -59,6 +59,9 @@ public:
    /*! \name Type definitions */
    typedef libbase::vector<double> array1d_t;
    // @}
+private:
+   // Shorthand for class hierarchy
+   typedef informed_modulator<S, C> Interface;
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()
@@ -119,6 +122,11 @@ public:
       this->mark_as_dirty();
       }
    // @}
+
+   // Block modem operations
+   // (necessary because inheriting methods from templated base)
+   using Interface::modulate;
+   using Interface::demodulate;
 };
 
 } // end namespace

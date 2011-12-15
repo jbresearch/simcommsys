@@ -75,7 +75,6 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    // Determine start-of-frame and end-of-frame probabilities
    libbase::vector<double> sof_prior;
    libbase::vector<double> eof_prior;
-   libbase::size_type<libbase::vector> offset;
    if (eof_post.size() == 0) // this is the first frame
       {
       // Initialize as drift pdf after transmitting one frame
@@ -94,6 +93,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       // Use previous (centralized) end-of-frame posterior probability
       sof_prior = eof_post;
       // Initialize as drift pdf after transmitting one frame, given sof priors
+      // (offset gets updated and sof_prior gets resized as needed)
       c.get_drift_pdf(tau, sof_prior, eof_prior, offset);
       eof_prior /= eof_prior.max();
       }

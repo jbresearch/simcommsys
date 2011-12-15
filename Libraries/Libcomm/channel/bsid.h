@@ -38,7 +38,8 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show tx and rx vectors when computing RecvPr
+// 2 - Show result of computation of xmax
+// 3 - Show tx and rx vectors when computing RecvPr
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
@@ -148,13 +149,23 @@ public:
             {
             compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf,
                   offset);
-            return compute_xmax_with(f, tau, Pi, Pd);
+            const int xmax = compute_xmax_with(f, tau, Pi, Pd);
+#if DEBUG>=2
+            std::cerr << "DEBUG (bsid): [with exact] for N = " << tau
+                  << ", xmax = " << xmax << "." << std::endl;
+#endif
+            return xmax;
             }
          catch (std::exception& e)
             {
             compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf,
                   offset);
-            return compute_xmax_with(f, tau, Pi, Pd);
+            const int xmax = compute_xmax_with(f, tau, Pi, Pd);
+#if DEBUG>=2
+            std::cerr << "DEBUG (bsid): [with davey] for N = " << tau
+                  << ", xmax = " << xmax << "." << std::endl;
+#endif
+            return xmax;
             }
          }
       static int compute_xmax(int tau, double Pi, double Pd, int I,
@@ -400,13 +411,13 @@ public:
    receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const;
    double receive(const array1b_t& tx, const array1b_t& rx) const
       {
-#if DEBUG>=2
+#if DEBUG>=3
       libbase::trace << "DEBUG (bsid): Computing RecvPr for" << std::endl;
       libbase::trace << "tx = " << tx;
       libbase::trace << "rx = " << rx;
 #endif
       const real result = computer.receive(bitfield(tx), rx);
-#if DEBUG>=2
+#if DEBUG>=3
       libbase::trace << "RecvPr = " << result << std::endl;
 #endif
       return result;

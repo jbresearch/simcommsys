@@ -65,6 +65,7 @@ private:
    libbase::vector<S> received_this; //!< Received sequence for current frame
    libbase::vector<S> received_next; //!< Received sequence for next frame
    libbase::vector<double> eof_post; //!< Centralized posterior probabilities at end-of-frame
+   libbase::size_type<libbase::vector> offset; //!< Index offset for eof_post
    int drift_error; //!< Error in channel drift estimation at end-of-frame
    int cumulative_drift; //!< Actual cumulative channel drift at end-of-frame
    commsys<S>* sys_tx; //!< Copy of the commsys object for transmitter operations
