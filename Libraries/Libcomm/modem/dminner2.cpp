@@ -54,9 +54,9 @@ void dminner2<real, norm>::init(const channel<bool>& chan,
    Base::mychan.set_blocksize(n);
    // Determine required FBA parameter values
    const int I = Base::mychan.compute_I(tau);
-   // No need to recompute xmax - we can get this from the given PDF
-   //const int xmax = Base::mychan.compute_xmax(tau, sof_pdf, offset);
-   const int xmax = offset;
+   // No need to recompute xmax if we are given a prior PDF
+   const int xmax = sof_pdf.size() > 0 ? offset : Base::mychan.compute_xmax(
+         tau, sof_pdf, offset);
    const int dxmax = Base::mychan.compute_xmax(n);
    Base::checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
