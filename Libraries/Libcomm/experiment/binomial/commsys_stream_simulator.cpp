@@ -120,9 +120,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 #endif
 
    // Determine estimated drift
-   int drift;
-   eof_post.max(drift);
-   drift -= offset;
+   const int drift = libbase::index_of_max(eof_post) - offset;
    // Centralize posterior probabilities
    eof_post = 0;
    const int sh_a = std::max(0, -drift);

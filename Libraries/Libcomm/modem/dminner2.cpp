@@ -33,7 +33,7 @@ namespace libcomm {
 // 2 - Show prior and posterior sof/eof probabilities when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 2
 #endif
 
 // Setup procedure
@@ -152,8 +152,11 @@ void dminner2<real, norm>::demodulate_wrapper(const channel<bool>& chan,
    {
    // Call FBA and normalize results
 #if DEBUG>=2
+   using libbase::index_of_max;
    std::cerr << "sof_prior = " << sof_prior << std::endl;
+   std::cerr << "max at " << index_of_max(sof_prior) - offset << std::endl;
    std::cerr << "eof_prior = " << eof_prior << std::endl;
+   std::cerr << "max at " << index_of_max(eof_prior) - offset << std::endl;
 #endif
    array1vr_t ptable_r;
    array1r_t sof_post_r;
@@ -165,7 +168,9 @@ void dminner2<real, norm>::demodulate_wrapper(const channel<bool>& chan,
    normalize(eof_post_r, eof_post);
 #if DEBUG>=2
    std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "max at " << index_of_max(sof_post) - offset << std::endl;
    std::cerr << "eof_post = " << eof_post << std::endl;
+   std::cerr << "max at " << index_of_max(eof_post) - offset << std::endl;
 #endif
    }
 

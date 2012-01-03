@@ -74,6 +74,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include <cstdlib>
 #include <cmath>
@@ -88,7 +89,6 @@
 // module include files
 
 #include "assertalways.h"
-
 
 // *** Global namespace ***
 
@@ -240,9 +240,18 @@ std::string getlasterror();
 std::istream& eatwhite(std::istream& is);
 std::istream& eatcomments(std::istream& is);
 
+// Exception class for stream load errors
+class load_error : public std::runtime_error {
+public:
+   explicit load_error(const std::string& what_arg) :
+      std::runtime_error(what_arg)
+      {
+      }
+};
+
 // Stream data loading verification functions
-bool isfailedload(std::istream &is);
-bool isincompleteload(std::istream &is);
+void check_failedload(std::istream &is);
+void check_incompleteload(std::istream &is);
 std::istream& verify(std::istream& is);
 std::istream& verifycomplete(std::istream& is);
 

@@ -65,7 +65,7 @@ public:
    typedef libbase::vector<array1r_t> array1vr_t;
    typedef boost::assignable_multi_array<real, 2> array2r_t;
    typedef boost::assignable_multi_array<real, 4> array4r_t;
-   typedef boost::assignable_multi_array<bool, 3> array3b_t;
+   typedef boost::assignable_multi_array<bool, 2> array2b_t;
    // @}
 private:
    // Shorthand for class hierarchy
@@ -89,7 +89,7 @@ private:
    array2r_t alpha; //!< Forward recursion metric
    array2r_t beta; //!< Backward recursion metric
    mutable array4r_t gamma; //!< Receiver metric
-   mutable array3b_t cached; //!< Flag for caching of receiver metric
+   mutable array2b_t cached; //!< Flag for caching of receiver metric
    array1s_t r; //!< Copy of received sequence, for lazy computation of gamma
    array1vd_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
 #ifndef NDEBUG
@@ -219,11 +219,10 @@ real fba2<real, sig, norm>::get_gamma(int d, int i, int x, int deltax) const
    if (!cache_enabled)
       return compute_gamma(d, i, x, deltax);
 
-   if (!cached[i][x][deltax])
+   if (!cached[i][x])
       {
       // mark results as cached now
-      for (int deltax = dmin; deltax <= dmax; deltax++)
-         cached[i][x][deltax] = true;
+      cached[i][x] = true;
       // allocate space for results
       static array1r_t ptable;
       ptable.init(2 * dxmax + 1);

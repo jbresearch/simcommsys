@@ -65,13 +65,12 @@ void fba2<real, sig, norm>::allocate()
       {
       gamma.resize(boost::extents[q][N][range(-xmax, xmax + 1)][range(dmin,
             dmax + 1)]);
-      cached.resize(boost::extents[N][range(-xmax, xmax + 1)][range(dmin, dmax
-            + 1)]);
+      cached.resize(boost::extents[N][range(-xmax, xmax + 1)]);
       }
    else
       {
       gamma.resize(boost::extents[0][0][0][0]);
-      cached.resize(boost::extents[0][0][0]);
+      cached.resize(boost::extents[0][0]);
       std::cerr << "FBA Cache Disabled, Required: " << bytes_required
             / double(1 << 20) << "MiB" << std::endl;
       }
@@ -114,7 +113,7 @@ void fba2<real, sig, norm>::free()
    beta.resize(boost::extents[0][0]);
    cache_enabled = false;
    gamma.resize(boost::extents[0][0][0][0]);
-   cached.resize(boost::extents[0][0][0]);
+   cached.resize(boost::extents[0][0]);
    // flag the state of the arrays
    initialised = false;
    }
@@ -354,8 +353,8 @@ void fba2<real, sig, norm>::work_message_app(array1vr_t& ptable) const
    // show cache statistics
    std::cerr << "FBA Cache Usage: " << 100 * gamma_misses
          / double(cached.num_elements()) << "%" << std::endl;
-   std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q)
-         << "x" << std::endl;
+   std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q
+         * (dmax - dmin + 1)) << "x" << std::endl;
 #endif
    }
 
