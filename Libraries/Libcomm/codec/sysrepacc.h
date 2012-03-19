@@ -46,6 +46,11 @@ namespace libcomm {
 
 template <class real, class dbl = double>
 class sysrepacc : public codec_softout_flattened<repacc<real, dbl> , dbl> {
+private:
+   // Shorthand for class hierarchy
+   typedef sysrepacc<real, dbl> This;
+   typedef codec_softout_flattened<repacc<real, dbl> , dbl> Base;
+   typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -54,10 +59,6 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 private:
-   // Shorthand for class hierarchy
-   typedef sysrepacc<real, dbl> This;
-   typedef codec_softout_flattened<repacc<real, dbl> , dbl> Base;
-   typedef safe_bcjr<real, dbl> BCJR;
    // Grant access to inherited fields and methods
    using Base::ra;
    using Base::rp;

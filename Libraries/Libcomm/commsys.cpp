@@ -26,7 +26,6 @@
 
 #include "mapper/map_straight.h"
 #include "fsm.h"
-#include "gf.h"
 #include "itfunc.h"
 #include "secant.h"
 #include "timer.h"
@@ -335,37 +334,6 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    return sin;
    }
 
-// Explicit Realizations
-
-using libbase::gf;
-using libbase::matrix;
-
-template class basic_commsys<sigspace> ;
-template class basic_commsys<bool> ;
-template class basic_commsys<gf<1, 0x3> > ;
-template class basic_commsys<gf<2, 0x7> > ;
-template class basic_commsys<gf<3, 0xB> > ;
-template class basic_commsys<gf<4, 0x13> > ;
-template class basic_commsys<gf<5, 0x25> > ;
-template class basic_commsys<gf<6, 0x43> > ;
-template class basic_commsys<gf<7, 0x89> > ;
-template class basic_commsys<gf<8, 0x11D> > ;
-template class basic_commsys<gf<9, 0x211> > ;
-template class basic_commsys<gf<10, 0x409> > ;
-
-template class basic_commsys<sigspace, matrix> ;
-template class basic_commsys<bool, matrix> ;
-template class basic_commsys<gf<1, 0x3> , matrix> ;
-template class basic_commsys<gf<2, 0x7> , matrix> ;
-template class basic_commsys<gf<3, 0xB> , matrix> ;
-template class basic_commsys<gf<4, 0x13> , matrix> ;
-template class basic_commsys<gf<5, 0x25> , matrix> ;
-template class basic_commsys<gf<6, 0x43> , matrix> ;
-template class basic_commsys<gf<7, 0x89> , matrix> ;
-template class basic_commsys<gf<8, 0x11D> , matrix> ;
-template class basic_commsys<gf<9, 0x211> , matrix> ;
-template class basic_commsys<gf<10, 0x409> , matrix> ;
-
 // *** General Communication System ***
 
 // Serialization Support
@@ -420,11 +388,47 @@ std::istream& commsys<sigspace, C>::serialize(std::istream& sin)
    return sin;
    }
 
+} // end namespace
+
+#include "gf.h"
+
+namespace libcomm {
+
 // Explicit Realizations
 
 using libbase::serializer;
 using libbase::gf;
 using libbase::matrix;
+
+// *** Templated Common Base ***
+
+template class basic_commsys<sigspace> ;
+template class basic_commsys<bool> ;
+template class basic_commsys<gf<1, 0x3> > ;
+template class basic_commsys<gf<2, 0x7> > ;
+template class basic_commsys<gf<3, 0xB> > ;
+template class basic_commsys<gf<4, 0x13> > ;
+template class basic_commsys<gf<5, 0x25> > ;
+template class basic_commsys<gf<6, 0x43> > ;
+template class basic_commsys<gf<7, 0x89> > ;
+template class basic_commsys<gf<8, 0x11D> > ;
+template class basic_commsys<gf<9, 0x211> > ;
+template class basic_commsys<gf<10, 0x409> > ;
+
+template class basic_commsys<sigspace, matrix> ;
+template class basic_commsys<bool, matrix> ;
+template class basic_commsys<gf<1, 0x3> , matrix> ;
+template class basic_commsys<gf<2, 0x7> , matrix> ;
+template class basic_commsys<gf<3, 0xB> , matrix> ;
+template class basic_commsys<gf<4, 0x13> , matrix> ;
+template class basic_commsys<gf<5, 0x25> , matrix> ;
+template class basic_commsys<gf<6, 0x43> , matrix> ;
+template class basic_commsys<gf<7, 0x89> , matrix> ;
+template class basic_commsys<gf<8, 0x11D> , matrix> ;
+template class basic_commsys<gf<9, 0x211> , matrix> ;
+template class basic_commsys<gf<10, 0x409> , matrix> ;
+
+// *** General Communication System ***
 
 template class commsys<sigspace> ;
 template <>

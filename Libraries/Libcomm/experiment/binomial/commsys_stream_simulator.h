@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "commsys_simulator.h"
+#include <list>
 
 namespace libcomm {
 
@@ -56,23 +57,26 @@ private:
    typedef experiment Interface;
    typedef commsys_stream_simulator<S, R> This;
    typedef commsys_simulator<S, R> Base;
+public:
+   /*! \name Type definitions */
+   //typedef libbase::vector<double> array1d_t;
+   // @}
 
 private:
+   /*! \name User-defined parameters */
+   int N; //!< maximum number of frames between resets (0=don't reset)
+   // @}
    /*! \name Internally-used objects */
-   libbase::vector<int> source_this; //!< Message for current frame
-   libbase::vector<int> source_next; //!< Message for next frame
-   libbase::vector<S> received_prev; //!< Received sequence for previous frame
-   libbase::vector<S> received_this; //!< Received sequence for current frame
-   libbase::vector<S> received_next; //!< Received sequence for next frame
+   std::list<libbase::vector<int> > source; //!< List of message sequences in order of transmission
+   libbase::vector<S> received; //!< Received sequence as a stream
    libbase::vector<double> eof_post; //!< Centralized posterior probabilities at end-of-frame
    libbase::size_type<libbase::vector> offset; //!< Index offset for eof_post
-   int drift_error; //!< Error in channel drift estimation at end-of-frame
-   int cumulative_drift; //!< Actual cumulative channel drift at end-of-frame
-   commsys<S>* sys_tx; //!< Copy of the commsys object for transmitter operations
-#ifndef NDEBUG
-   int frames_encoded; //!< Number of frames encoded since seeding
-   int frames_decoded; //!< Number of frames decoded since seeding
-#endif
+   int estimated_drift; //!< Estimated drift in last decoded frame
+   std::list<int> actual_drift; //!< Actual channel drift at end of each received frame
+   int drift_error; //!< Cumulative error in channel drift estimation at end of last decoded frame
+   commsys<S>* sys_enc; //!< Copy of the commsys object for encoder operations
+   int frames_encoded; //!< Number of frames encoded since stream reset
+   int frames_decoded; //!< Number of frames decoded since stream reset
    // @}
 
 protected:
@@ -84,44 +88,46 @@ protected:
     */
    void reset()
       {
-      // Clear internal state
-      source_this.init(0);
-      source_next.init(0);
-      received_prev.init(0);
-      received_this.init(0);
-      received_next.init(0);
+      // clear internal state
+      source.clear();
+      received.init(0);
       eof_post.init(0);
+      offset = libbase::size_type<libbase::vector>(0);
+      estimated_drift = 0;
+      // reset drift trackers
+      actual_drift.clear();
       drift_error = 0;
-      cumulative_drift = 0;
       // Make a copy of the commsys object for transmitter operations
-      delete sys_tx;
+      delete sys_enc;
       if (this->sys)
-         sys_tx = dynamic_cast<commsys<S>*> (this->sys->clone());
+         sys_enc = dynamic_cast<commsys<S>*> (this->sys->clone());
       else
-         sys_tx = NULL;
-#ifndef NDEBUG
+         sys_enc = NULL;
       // reset counters
       frames_encoded = 0;
       frames_decoded = 0;
-#endif
       }
    // @}
 
 public:
    /*! \name Constructors / Destructors */
    commsys_stream_simulator(const commsys_stream_simulator<S, R>& c) :
-      commsys_simulator<S, R> (c), sys_tx(NULL)
+      commsys_simulator<S, R> (c), N(c.N), source(c.source), received(
+            c.received), eof_post(c.eof_post), offset(c.offset),
+            estimated_drift(c.estimated_drift), actual_drift(c.actual_drift),
+            drift_error(c.drift_error), frames_encoded(c.frames_encoded),
+            frames_decoded(c.frames_decoded)
       {
-      reset();
+      sys_enc = dynamic_cast<commsys<S>*> (c.sys_enc->clone());
       }
    commsys_stream_simulator() :
-      sys_tx(NULL)
+      N(0), sys_enc(NULL)
       {
       reset();
       }
    virtual ~commsys_stream_simulator()
       {
-      delete sys_tx;
+      delete sys_enc;
       }
    // @}
 
@@ -134,8 +140,9 @@ public:
    void set_parameter(const double x)
       {
       Base::set_parameter(x);
-      if (sys_tx)
-         sys_tx->getchan()->set_parameter(x);
+      // we should already have a copy at this point
+      assert(sys_enc);
+      sys_enc->getchan()->set_parameter(x);
       }
    // @}
 

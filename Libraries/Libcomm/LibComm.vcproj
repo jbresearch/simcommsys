@@ -298,6 +298,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\commsys_stream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\commsys_stream_simulator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\experiment\binomial\commsys_threshold.cpp"
 				>
 			</File>
@@ -410,6 +418,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\embedder\lsb.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\interleaver\lut_interleaver.cpp"
 				>
 			</File>
@@ -475,6 +487,10 @@
 			</File>
 			<File
 				RelativePath=".\modem\qam.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\channel\qids.cpp"
 				>
 			</File>
 			<File
@@ -555,6 +571,10 @@
 			</File>
 			<File
 				RelativePath=".\codec\turbo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\tvb.cpp"
 				>
 			</File>
 			<File
@@ -643,6 +663,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\channel_stream.h"
+				>
+			</File>
+			<File
 				RelativePath=".\codec.h"
 				>
 			</File>
@@ -696,6 +720,14 @@
 			</File>
 			<File
 				RelativePath=".\experiment\binomial\commsys_simulator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\commsys_stream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\commsys_stream_simulator.h"
 				>
 			</File>
 			<File
@@ -763,11 +795,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\algorithm\fba.h"
+				RelativePath=".\fba.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fba.h"
+				RelativePath=".\algorithm\fba.h"
 				>
 			</File>
 			<File
@@ -775,11 +807,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\algorithm\fba2.h"
+				RelativePath=".\fba2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fba2.h"
+				RelativePath=".\algorithm\fba2.h"
 				>
 			</File>
 			<File
@@ -832,6 +864,10 @@
 			</File>
 			<File
 				RelativePath=".\codec\ldpc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\embedder\lsb.h"
 				>
 			</File>
 			<File
@@ -904,6 +940,10 @@
 			</File>
 			<File
 				RelativePath=".\modem\qam.h"
+				>
+			</File>
+			<File
+				RelativePath=".\channel\qids.h"
 				>
 			</File>
 			<File
@@ -1000,6 +1040,18 @@
 			</File>
 			<File
 				RelativePath=".\codec\turbo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\tvb-receiver-cuda.h"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\tvb-receiver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\modem\tvb.h"
 				>
 			</File>
 			<File

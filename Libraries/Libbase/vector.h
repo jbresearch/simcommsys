@@ -683,6 +683,7 @@ inline vector<T>& vector<T>::operator=(const A x)
 #ifdef WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
+#  pragma warning( disable : 4800 )
 #endif
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x;
@@ -1340,6 +1341,17 @@ public:
       return *this;
       }
    // @}
+
+   /*! \brief Sets all vector elements to the given value
+    * \note There is an advantage in using overloaded '=' instead of an
+    * init_value() method: this works even with nested vectors.
+    */
+   template <class A>
+   indirect_vector<T>& operator=(const A x)
+      {
+      Base::operator=(x);
+      return *this;
+      }
 
    /*! \brief Auto-converting copy assignment for vectors
     * \note Naturally this requires a deep copy.

@@ -180,49 +180,66 @@ int main(int argc, char *argv[])
 
    // Create estimator object and initilize cluster
    mymontecarlo estimator;
-   estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<bool> (),
-         vm["priority"].as<int> ());
-
-   // If this is a server instance, check the remaining parameters
-   if (vm.count("system-file") == 0 || vm.count("results-file") == 0
-         || vm.count("start") == 0 || vm.count("stop") == 0
-         || (vm.count("step") == 0 && vm.count("mul") == 0)
-         || (vm.count("step") && vm.count("mul")))
+   switch (estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<
+         bool> (), vm["priority"].as<int> ()))
       {
-      cout << desc << std::endl;
-      return 0;
-      }
+      case mymontecarlo::mode_slave:
+         break;
 
-   // Simulation system & parameters
-   estimator.set_resultsfile(vm["results-file"].as<std::string> ());
-   libcomm::experiment *system = createsystem(
-         vm["system-file"].as<std::string> ());
-   estimator.bind(system);
-   const double min_error = vm["min-error"].as<double> ();
-   libbase::vector<double> pset = vm.count("step") ? getlinrange(
-         vm["start"].as<double> (), vm["stop"].as<double> (), vm["step"].as<
-               double> ()) : getlogrange(vm["start"].as<double> (),
-         vm["stop"].as<double> (), vm["mul"].as<double> ());
-   estimator.set_confidence(vm["confidence"].as<double> ());
-   estimator.set_accuracy(vm["tolerance"].as<double> ());
+      case mymontecarlo::mode_local:
+      case mymontecarlo::mode_master:
+         // If this is a server instance, check the remaining parameters
+         if (vm.count("system-file") == 0 || vm.count("results-file") == 0
+               || vm.count("start") == 0 || vm.count("stop") == 0 || (vm.count(
+               "step") == 0 && vm.count("mul") == 0) || (vm.count("step")
+               && vm.count("mul")))
+            {
+            cout << desc << std::endl;
+            return 0;
+            }
 
-   // Work out the following for every SNR value required
-   for (int i = 0; i < pset.size(); i++)
-      {
-      system->set_parameter(pset(i));
+         // main process
+            {
+            // Simulation system & parameters
+            estimator.set_resultsfile(vm["results-file"].as<std::string> ());
+            libcomm::experiment *system = createsystem(vm["system-file"].as<
+                  std::string> ());
+            estimator.bind(system);
+            const double min_error = vm["min-error"].as<double> ();
+            libbase::vector<double> pset = vm.count("step") ? getlinrange(
+                  vm["start"].as<double> (), vm["stop"].as<double> (),
+                  vm["step"].as<double> ()) : getlogrange(
+                  vm["start"].as<double> (), vm["stop"].as<double> (),
+                  vm["mul"].as<double> ());
+            estimator.set_confidence(vm["confidence"].as<double> ());
+            estimator.set_accuracy(vm["tolerance"].as<double> ());
 
-      cerr << "Simulating system at parameter = " << pset(i) << std::endl;
-      libbase::vector<double> result, tolerance;
-      estimator.estimate(result, tolerance);
+            // Work out the following for every SNR value required
+            for (int i = 0; i < pset.size(); i++)
+               {
+               system->set_parameter(pset(i));
 
-      cerr << "Statistics: " << setprecision(4) << estimator.get_samplecount()
-            << " frames in " << estimator.get_timer() << " - "
-            << estimator.get_samplecount() / estimator.get_timer().elapsed()
-            << " frames/sec" << std::endl;
+               cerr << "Simulating system at parameter = " << pset(i)
+                     << std::endl;
+               libbase::vector<double> result, tolerance;
+               estimator.estimate(result, tolerance);
 
-      // handle pre-mature breaks
-      if ((estimator.interrupt() && !estimator.interrupt_was_soft())
-            || result.min() < min_error)
+               cerr << "Statistics: " << setprecision(4)
+                     << estimator.get_samplecount() << " frames in "
+                     << estimator.get_timer() << " - "
+                     << estimator.get_samplecount()
+                           / estimator.get_timer().elapsed() << " frames/sec"
+                     << std::endl;
+
+               // handle pre-mature breaks
+               if ((estimator.interrupt() && !estimator.interrupt_was_soft())
+                     || result.min() < min_error)
+                  break;
+               }
+
+            // Destroy what was created on the heap
+            delete system;
+            }
          break;
       }
 

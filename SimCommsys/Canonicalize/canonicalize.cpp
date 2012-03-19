@@ -41,6 +41,8 @@ void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
    std::cerr << system->description() << std::endl;
    // Write system in canonical form on output stream
    std::cout << system;
+   // Destroy what was created on the heap
+   delete system;
    }
 
 /*!

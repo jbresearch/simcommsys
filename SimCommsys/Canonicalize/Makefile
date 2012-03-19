@@ -49,7 +49,13 @@ clean:
 	@echo "Cleaning [$(TAG): $(RELEASE)]"
 	@$(RM) $(BUILDDIR)
 
-.PHONY:	all install clean
+## Setting targets
+
+.PHONY:	default build install clean
+
+.SUFFIXES: # Delete the default suffixes
+
+.DELETE_ON_ERROR:
 
 # Manual targets
 

@@ -30,7 +30,6 @@
 #include "matrix.h"
 #include "fsm.h"
 #include "cuda-all.h"
-#include "modem/dminner2-receiver-cuda.h"
 #include "instrumented.h"
 
 #include <cmath>
@@ -67,7 +66,7 @@ namespace cuda {
  * interpreted properly by NVCC.
  */
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 class fba2 {
 public:
    /*! \name Type definitions */
@@ -103,7 +102,7 @@ private:
    dev_array2r_ref_t alpha; //!< Forward recursion metric
    dev_array2r_ref_t beta; //!< Backward recursion metric
    dev_array1r_ref_t gamma; //!< Receiver metric
-   mutable dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
+   mutable receiver_t receiver; //!< Inner code receiver metric computation
    // @}
 private:
    /*! \name Internal functions */
@@ -208,7 +207,7 @@ public:
 
    /*! \name Parameter getters */
    //! Access metric computation
-   dminner2_receiver<real>& get_receiver() const
+   receiver_t& get_receiver() const
       {
       return receiver;
       }

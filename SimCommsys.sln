@@ -65,7 +65,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimCommsys", "SimCommsys\Si
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWMdemodulation", "SimCommsys\TestWMdemodulation\TestWMdemodulation.vcproj", "{71C4D6A6-46B5-4AD4-9637-D9AA5419262F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWMdemodulation", "Test\TestWMdemodulation\TestWMdemodulation.vcproj", "{71C4D6A6-46B5-4AD4-9637-D9AA5419262F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -75,7 +75,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWMdemodulation", "SimCo
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBSID", "SimCommsys\TestBSID\TestBSID.vcproj", "{B09D7BBA-E67F-48A2-991C-3335874C0E22}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBSID", "Test\TestBSID\TestBSID.vcproj", "{B09D7BBA-E67F-48A2-991C-3335874C0E22}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -85,7 +85,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBSID", "SimCommsys\Test
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestConfig", "SimCommsys\TestConfig\TestConfig.vcproj", "{6E47387D-6DD0-4146-8FA7-BFBE02EDCE8B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestConfig", "Test\TestConfig\TestConfig.vcproj", "{6E47387D-6DD0-4146-8FA7-BFBE02EDCE8B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 	EndProjectSection
@@ -94,26 +94,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestConfig", "SimCommsys\Te
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWatermark", "SimCommsys\TestWatermark\TestWatermark.vcproj", "{D3F3B85A-F29C-4245-8CF0-4C51D9033555}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
-		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
-	EndProjectSection
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGF", "SimCommsys\TestGF\TestGF.vcproj", "{14CF7B43-B4BD-4F56-90B0-1CBF1D45449A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
-	EndProjectSection
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGRSCC", "SimCommsys\TestGRSCC\TestGRSCC.vcproj", "{EAED79B6-F5A0-43D5-B213-2C14D94E8864}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWatermark", "Test\TestWatermark\TestWatermark.vcproj", "{D3F3B85A-F29C-4245-8CF0-4C51D9033555}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -123,7 +104,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGRSCC", "SimCommsys\Tes
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestModem", "SimCommsys\TestModem\TestModem.vcproj", "{FAA2EEEB-6F63-4B5B-8330-F28AEBCB1147}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGF", "Test\TestGF\TestGF.vcproj", "{14CF7B43-B4BD-4F56-90B0-1CBF1D45449A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGRSCC", "Test\TestGRSCC\TestGRSCC.vcproj", "{EAED79B6-F5A0-43D5-B213-2C14D94E8864}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -133,7 +123,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestModem", "SimCommsys\Tes
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestQSC", "SimCommsys\TestQSC\TestQSC.vcproj", "{8E869B73-F6C3-4E25-A96A-81C5DE1617FA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestModem", "Test\TestModem\TestModem.vcproj", "{FAA2EEEB-6F63-4B5B-8330-F28AEBCB1147}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
+		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestQSC", "Test\TestQSC\TestQSC.vcproj", "{8E869B73-F6C3-4E25-A96A-81C5DE1617FA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -207,7 +207,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MakeSRandom", "SimCommsys\M
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBSID2D", "SimCommsys\TestBSID2D\TestBSID2D.vcproj", "{D62809CF-C46E-481E-B412-FFC374CE3854}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBSID2D", "Test\TestBSID2D\TestBSID2D.vcproj", "{D62809CF-C46E-481E-B412-FFC374CE3854}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -217,7 +217,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBSID2D", "SimCommsys\Te
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestDMinner2D", "SimCommsys\TestDMinner2D\TestDMinner2D.vcproj", "{C5B60508-9454-4A69-A40C-5F480CAEC87B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestDMinner2D", "Test\TestDMinner2D\TestDMinner2D.vcproj", "{C5B60508-9454-4A69-A40C-5F480CAEC87B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -227,7 +227,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestDMinner2D", "SimCommsys
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestFSM", "SimCommsys\TestFSM\TestFSM.vcproj", "{B59E5527-6B5B-40EC-9AC2-62925F663379}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestFSM", "Test\TestFSM\TestFSM.vcproj", "{B59E5527-6B5B-40EC-9AC2-62925F663379}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -237,13 +237,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestFSM", "SimCommsys\TestF
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLDPC", "SimCommsys\TestLDPC\TestLDPC.vcproj", "{B6E529B1-DF90-4559-BEDB-15A75D434E50}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLDPC", "Test\TestLDPC\TestLDPC.vcproj", "{B6E529B1-DF90-4559-BEDB-15A75D434E50}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLinearity", "SimCommsys\TestLinearity\TestLinearity.vcproj", "{E57EF277-B62D-4A12-9D3E-0B30BE198C99}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLinearity", "Test\TestLinearity\TestLinearity.vcproj", "{E57EF277-B62D-4A12-9D3E-0B30BE198C99}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
@@ -299,13 +299,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IMprocess", "SimCommsys\IMp
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCipher", "SimCommsys\TestCipher\TestCipher.vcproj", "{41059B0E-26AE-4AD8-B9AB-7E932D8659BB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCipher", "Test\TestCipher\TestCipher.vcproj", "{41059B0E-26AE-4AD8-B9AB-7E932D8659BB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 		{71894951-8BBE-4395-AE64-56F6966A7F82} = {71894951-8BBE-4395-AE64-56F6966A7F82}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCUDA", "SimCommsys\TestCUDA\TestCUDA.vcproj", "{D495B763-55C3-427F-8DF8-0FC7DE1854EE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCUDA", "Test\TestCUDA\TestCUDA.vcproj", "{D495B763-55C3-427F-8DF8-0FC7DE1854EE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B5D3D4E-F023-458A-AE92-CD8A6C30C715} = {9B5D3D4E-F023-458A-AE92-CD8A6C30C715}
 	EndProjectSection

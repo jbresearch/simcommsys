@@ -44,7 +44,7 @@ namespace libcomm {
  * - $Author$
  *
  * Implements a 2D version of the Davey-MacKay inner code, using iterative
- * row/column decoding, where the sparse symbols are now two-dimensional.
+ * row/column decoding, where the codewords are now two-dimensional.
  *
  * \todo This class seems to assume the old (col,row) convention for matrix.
  * Need to make changes as necessary to conform with the new convention.
@@ -61,18 +61,18 @@ public:
 private:
    /*! \name User-defined parameters */
    int iter; //!< number of iterations
-   std::string lutname; //!< name to describe codebook
-   libbase::vector<array2b_t> lut; //!< sparsifier LUT, one 'm'x'n' matrix per symbol
+   std::string codebookname; //!< name to describe codebook
+   libbase::vector<array2b_t> codebook; //!< codebook, one 'm'x'n' matrix per symbol
    // @}
    /*! \name Pre-computed parameters */
    int q; //!< number of symbols in message (input) alphabet
-   int m; //!< number of rows in sparse (output) symbol
-   int n; //!< number of columns in sparse (output) symbol
+   int m; //!< number of rows in (output) codewords
+   int n; //!< number of columns in (output) codewords
    // @}
    /*! \name Internally-used objects */
    //bsid2d   mychan;           //!< bound channel object
-   mutable libbase::randgen r; //!< pilot sequence generator
-   mutable array2b_t pilot; //!< pilot sequence (same size as frame)
+   mutable libbase::randgen r; //!< marker sequence generator
+   mutable array2b_t marker; //!< marker sequence (same size as frame)
    // @}
 private:
    // Implementations of channel-specific metrics for fba
@@ -107,7 +107,7 @@ protected:
 
 private:
    /*! \name Internal functions */
-   void validatelut() const;
+   void validatecodebook() const;
    libbase::vector<libbase::bitfield> get_alphabet_row(int i) const;
    libbase::vector<libbase::bitfield> get_alphabet_col(int j) const;
    // @}
@@ -128,7 +128,7 @@ public:
       }
    array2b_t get_symbol(int i) const
       {
-      return lut(i);
+      return codebook(i);
       }
    // @}
 

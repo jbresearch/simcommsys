@@ -103,6 +103,14 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
       cout << "   xmax:\t" << channel.compute_xmax(tau) << std::endl;
       cout << "      I:\t" << channel.compute_I(tau) << std::endl;
       }
+   // show end-of-frame priors
+   libbase::vector<double> eof_pdf;
+   libbase::size_type<libbase::vector> offset;
+   channel.get_drift_pdf(tau, eof_pdf, offset);
+   cout << "eof prior pdf:" << std::endl;
+   cout << "\ti\tPr(i)" << std::endl;
+   for (int i = 0; i < eof_pdf.size(); i++)
+      cout << "\t" << i - offset << "\t" << eof_pdf(i) << std::endl;
    // define input sequence
    vector<bool> tx(tau);
    tx = src;
@@ -195,7 +203,7 @@ void compute_parameters(int tau, bool ins, bool del, bool sim)
    {
    const double pstart = 1e-4;
    const double pstop = 0.5;
-   const double pmul = pow(10, 1.0 / 10);
+   const double pmul = pow(10.0, 1.0 / 10);
    cout << "p\tI\txmax_auto\txmax_davey\txmax_exact\txmax_est" << std::endl;
    for (double p = pstart; p < pstop; p *= pmul)
       compute_parameters(tau, p, ins, del, sim);

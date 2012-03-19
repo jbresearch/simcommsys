@@ -24,8 +24,6 @@
 
 #include "commsys_stream.h"
 
-#include "gf.h"
-#include "modem/stream_modulator.h"
 #include <sstream>
 
 namespace libcomm {
@@ -38,7 +36,7 @@ void commsys_stream<S, C>::receive_path(const C<S>& received,
       const libbase::size_type<C> offset)
    {
    // Get access to the commsys modem in stream-oriented mode
-   stream_modulator<S>& m = dynamic_cast<stream_modulator<S>&> (*this->mdm);
+   stream_modulator<S, C>& m = getmodem_stream();
    // Demodulate
    C<array1d_t> ptable_mapped;
    m.reset_timers();
@@ -74,76 +72,85 @@ std::istream& commsys_stream<S, C>::serialize(std::istream& sin)
    return sin;
    }
 
+} // end namespace
+
+#include "gf.h"
+
+namespace libcomm {
+
 // Explicit Realizations
+
+using libbase::serializer;
+using libbase::gf;
 
 template class commsys_stream<sigspace> ;
 template <>
-const libbase::serializer commsys_stream<sigspace>::shelper("commsys",
+const serializer commsys_stream<sigspace>::shelper("commsys",
       "commsys_stream<sigspace>", commsys_stream<sigspace>::create);
 
 template class commsys_stream<bool> ;
 template <>
-const libbase::serializer commsys_stream<bool>::shelper("commsys",
+const serializer commsys_stream<bool>::shelper("commsys",
       "commsys_stream<bool>", commsys_stream<bool>::create);
 
-template class commsys_stream<libbase::gf<1, 0x3> > ;
+template class commsys_stream<gf<1, 0x3> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<1, 0x3> >::shelper(
+const serializer commsys_stream<gf<1, 0x3> >::shelper(
       "commsys", "commsys_stream<gf<1,0x3>>", commsys_stream<
-            libbase::gf<1, 0x3> >::create);
+            gf<1, 0x3> >::create);
 
-template class commsys_stream<libbase::gf<2, 0x7> > ;
+template class commsys_stream<gf<2, 0x7> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<2, 0x7> >::shelper(
+const serializer commsys_stream<gf<2, 0x7> >::shelper(
       "commsys", "commsys_stream<gf<2,0x7>>", commsys_stream<
-            libbase::gf<2, 0x7> >::create);
+            gf<2, 0x7> >::create);
 
-template class commsys_stream<libbase::gf<3, 0xB> > ;
+template class commsys_stream<gf<3, 0xB> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<3, 0xB> >::shelper(
+const serializer commsys_stream<gf<3, 0xB> >::shelper(
       "commsys", "commsys_stream<gf<3,0xB>>", commsys_stream<
-            libbase::gf<3, 0xB> >::create);
+            gf<3, 0xB> >::create);
 
-template class commsys_stream<libbase::gf<4, 0x13> > ;
+template class commsys_stream<gf<4, 0x13> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<4, 0x13> >::shelper(
-      "commsys", "commsys_stream<gf<4,0x13>>", commsys_stream<libbase::gf<4,
+const serializer commsys_stream<gf<4, 0x13> >::shelper(
+      "commsys", "commsys_stream<gf<4,0x13>>", commsys_stream<gf<4,
             0x13> >::create);
 
-template class commsys_stream<libbase::gf<5, 0x25> > ;
+template class commsys_stream<gf<5, 0x25> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<5, 0x25> >::shelper(
-      "commsys", "commsys_stream<gf<5,0x25>>", commsys_stream<libbase::gf<5,
+const serializer commsys_stream<gf<5, 0x25> >::shelper(
+      "commsys", "commsys_stream<gf<5,0x25>>", commsys_stream<gf<5,
             0x25> >::create);
 
-template class commsys_stream<libbase::gf<6, 0x43> > ;
+template class commsys_stream<gf<6, 0x43> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<6, 0x43> >::shelper(
-      "commsys", "commsys_stream<gf<6,0x43>>", commsys_stream<libbase::gf<6,
+const serializer commsys_stream<gf<6, 0x43> >::shelper(
+      "commsys", "commsys_stream<gf<6,0x43>>", commsys_stream<gf<6,
             0x43> >::create);
 
-template class commsys_stream<libbase::gf<7, 0x89> > ;
+template class commsys_stream<gf<7, 0x89> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<7, 0x89> >::shelper(
-      "commsys", "commsys_stream<gf<7,0x89>>", commsys_stream<libbase::gf<7,
+const serializer commsys_stream<gf<7, 0x89> >::shelper(
+      "commsys", "commsys_stream<gf<7,0x89>>", commsys_stream<gf<7,
             0x89> >::create);
 
-template class commsys_stream<libbase::gf<8, 0x11D> > ;
+template class commsys_stream<gf<8, 0x11D> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<8, 0x11D> >::shelper(
-      "commsys", "commsys_stream<gf<8,0x11D>>", commsys_stream<libbase::gf<8,
+const serializer commsys_stream<gf<8, 0x11D> >::shelper(
+      "commsys", "commsys_stream<gf<8,0x11D>>", commsys_stream<gf<8,
             0x11D> >::create);
 
-template class commsys_stream<libbase::gf<9, 0x211> > ;
+template class commsys_stream<gf<9, 0x211> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<9, 0x211> >::shelper(
-      "commsys", "commsys_stream<gf<9,0x211>>", commsys_stream<libbase::gf<9,
+const serializer commsys_stream<gf<9, 0x211> >::shelper(
+      "commsys", "commsys_stream<gf<9,0x211>>", commsys_stream<gf<9,
             0x211> >::create);
 
-template class commsys_stream<libbase::gf<10, 0x409> > ;
+template class commsys_stream<gf<10, 0x409> > ;
 template <>
-const libbase::serializer commsys_stream<libbase::gf<10, 0x409> >::shelper(
-      "commsys", "commsys_stream<gf<10,0x409>>", commsys_stream<libbase::gf<10,
+const serializer commsys_stream<gf<10, 0x409> >::shelper(
+      "commsys", "commsys_stream<gf<10,0x409>>", commsys_stream<gf<10,
             0x409> >::create);
 
 } // end namespace

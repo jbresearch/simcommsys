@@ -54,6 +54,11 @@ namespace libcomm {
 
 template <class real, bool norm>
 class dminner2 : public dminner<real, norm> {
+private:
+   // Shorthand for class hierarchy
+   typedef stream_modulator<bool> Interface;
+   typedef dminner2<real, norm> This;
+   typedef dminner<real, norm> Base;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<bool> array1b_t;
@@ -63,16 +68,11 @@ public:
    typedef libbase::vector<array1r_t> array1vr_t;
    // @}
 private:
-   // Shorthand for class hierarchy
-   typedef stream_modulator<bool> Interface;
-   typedef dminner2<real, norm> This;
-   typedef dminner<real, norm> Base;
-private:
    // algorithm object
 #ifdef USE_CUDA
-   cuda::fba2<real, bool, norm> fba;
+   cuda::fba2<cuda::dminner2_receiver<real>, real, bool, norm> fba;
 #else
-   fba2<real, bool, norm> fba;
+   fba2<dminner2_receiver<real>, real, bool, norm> fba;
 #endif
 private:
    // Setup procedure

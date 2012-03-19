@@ -63,16 +63,16 @@ class map_straight : public mapper<C, dbl> {
 
 template <class dbl>
 class map_straight<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+private:
+   // Shorthand for class hierarchy
+   typedef mapper<libbase::vector, dbl> Base;
+   typedef map_straight<libbase::vector, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef mapper<libbase::vector, dbl> Base;
-   typedef map_straight<libbase::vector, dbl> This;
 
 private:
    /*! \name Internal object representation */
@@ -129,16 +129,16 @@ DECLARE_SERIALIZER(map_straight)
 
 template <class dbl>
 class map_straight<libbase::matrix, dbl> : public mapper<libbase::matrix, dbl> {
+private:
+   // Shorthand for class hierarchy
+   typedef mapper<libbase::matrix, dbl> Base;
+   typedef map_straight<libbase::matrix, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
    typedef libbase::matrix<int> array2i_t;
    typedef libbase::matrix<array1d_t> array2vd_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef mapper<libbase::matrix, dbl> Base;
-   typedef map_straight<libbase::matrix, dbl> This;
 
 private:
    /*! \name Internal object representation */

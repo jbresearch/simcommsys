@@ -27,7 +27,7 @@
 
 #include "config.h"
 #include "bitfield.h"
-#include "channel.h"
+#include "channel_stream.h"
 #include "serializer.h"
 #include "matrix.h"
 #include "cuda-all.h"
@@ -57,10 +57,10 @@ namespace libcomm {
  * - $Author$
  */
 
-class bsid : public channel<bool> {
+class bsid : public channel_stream<bool> {
 private:
    // Shorthand for class hierarchy
-   typedef channel<bool> Base;
+   typedef channel_stream<bool> Base;
 public:
    /*! \name Type definitions */
    typedef float real;
@@ -99,7 +99,7 @@ public:
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
-      static const double Pr = 1e-10; //!< Probability of event outside range
+      static const double Pr; //!< Probability of event outside range
       // @}
    private:
       //! Functor for drift probability computation with prior
@@ -156,7 +156,7 @@ public:
 #endif
             return xmax;
             }
-         catch (std::exception& e)
+         catch (std::exception&)
             {
             compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf,
                   offset);

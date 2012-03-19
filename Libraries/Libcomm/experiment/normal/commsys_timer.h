@@ -68,8 +68,6 @@ public:
    // Experiment handling
    void sample(libbase::vector<double>& result)
       {
-      // Reset timers
-      simulator.reset_timers();
       // Run the system simulation
       libbase::vector<double> temp;
       simulator.sample(temp);

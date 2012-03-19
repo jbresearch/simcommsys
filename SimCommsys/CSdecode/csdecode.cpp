@@ -26,6 +26,7 @@
 #include "commsys.h"
 #include "commsys_fulliter.h"
 #include "commsys_stream.h"
+#include "channel_stream.h"
 #include "codec/codec_softout.h"
 #include "cputimer.h"
 
@@ -151,24 +152,26 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
       libbase::vector>* system,
       const libbase::size_type<libbase::vector>& blocksize)
    {
-   typedef libbase::vector<double> array1d_t;
-   using libcomm::bsid;
+   // Keep posterior probabilities at end-of-frame and computed drift
+   static libbase::vector<double> eof_post;
+   static libbase::size_type<libbase::vector> offset;
+   static int estimated_drift;
+   // Keep received sequence
+   static libbase::vector<S> received;
 
    // Shorthand for transmitted frame size
    const int tau = system->output_block_size();
    // Get access to the commsys channel object in stream-oriented mode
-   const bsid& c = dynamic_cast<const bsid&> (*system->getchan());
-   // Keep posterior probabilities at end-of-frame and computed drift
-   static array1d_t eof_post;
-   static libbase::size_type<libbase::vector> offset;
-   static int drift;
-   // Keep received sequence
-   static libbase::vector<S> received;
+   using libcomm::channel_stream;
+   const channel_stream<S>& c =
+         dynamic_cast<const channel_stream<S>&> (*system->getchan());
+
+   // Keep a copy of the last frame's offset (in case x_max changes)
+   const libbase::size_type<libbase::vector> oldoffset = offset;
 
    // Determine start-of-frame and end-of-frame probabilities
-   const libbase::size_type<libbase::vector> oldoffset = offset;
-   array1d_t sof_prior;
-   array1d_t eof_prior;
+   libbase::vector<double> sof_prior;
+   libbase::vector<double> eof_prior;
    if (eof_post.size() == 0) // this is the first frame
       {
       // Initialize as drift pdf after transmitting one frame
@@ -189,7 +192,7 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
       eof_prior /= eof_prior.max();
       }
 
-   // Extract required segment of previous frame
+   // Extract required segment of existing stream
    libbase::vector<S> received_prev;
    if (received.size() == 0)
       {
@@ -198,32 +201,48 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
       }
    else
       {
-      const int start = tau + drift + oldoffset - offset;
+      const int start = tau + estimated_drift + oldoffset - offset;
       const int length = received.size() - start;
       received_prev = received.extract(start, length);
       }
    // Tell user what we're doing
 #ifndef NDEBUG
-   std::cerr << "DEBUG: drift = " << drift << std::endl;
+   std::cerr << "DEBUG: est drift = " << estimated_drift << std::endl;
    std::cerr << "DEBUG: old offset = " << oldoffset << std::endl;
    std::cerr << "DEBUG: new offset = " << offset << std::endl;
    std::cerr << "DEBUG: prev segment = " << received_prev.size() << std::endl;
 #endif
-   // Read required segment from file
-   libbase::vector<S> received_next;
+   // Determine required segment size
    const int length = (tau + eof_prior.size() - 1) - received_prev.size();
 #ifndef NDEBUG
    std::cerr << "DEBUG: this segment = " << length << std::endl;
 #endif
+   // Read required segment from file
+   libbase::vector<S> received_next;
    read(sin, received_next, libbase::size_type<libbase::vector>(length));
-   // Stop here if we reached the last block
-   if (received_next.size() < length)
-      {
-      std::cerr << "Stopping here." << std::endl;
-      exit(0);
-      }
    // Assemble received sequence
    received = concatenate(received_prev, received_next);
+   // Stop here if the received sequence is too short
+   if (received.size() < tau)
+      {
+      std::cerr << "Received sequence too short, stopping here." << std::endl;
+      exit(1);
+      }
+   // Handle short received sequences
+   else if (received.size() < tau + eof_prior.size() - 1)
+      {
+      libbase::vector<S> padding;
+      padding.init(tau + eof_prior.size() - 1 - received.size());
+      padding = 0; // value is irrelevant as this is not used
+      received = concatenate(received, padding);
+      const int start = eof_prior.size() - padding.size() - 1;
+      const int n = padding.size();
+      eof_prior.segment(start, n) = 0;
+#ifndef NDEBUG
+      std::cerr << "DEBUG: padding size = " << padding.size() << std::endl;
+      std::cerr << "DEBUG: eof_prior = " << eof_prior << std::endl;
+#endif
+      }
 
    // Demodulate -> Inverse Map -> Translate
    system->receive_path(received, sof_prior, eof_prior, offset);
@@ -231,12 +250,12 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    eof_post = system->get_eof_post();
 
    // Determine estimated drift
-   drift = libbase::index_of_max(eof_post) - offset;
+   estimated_drift = libbase::index_of_max(eof_post) - offset;
    // Centralize posterior probabilities
    eof_post = 0;
-   const int sh_a = std::max(0, -drift);
-   const int sh_b = std::max(0, drift);
-   const int sh_n = eof_post.size() - abs(drift);
+   const int sh_a = std::max(0, -estimated_drift);
+   const int sh_b = std::max(0, estimated_drift);
+   const int sh_n = eof_post.size() - abs(estimated_drift);
    eof_post.segment(sh_a, sh_n) = system->get_eof_post().extract(sh_b, sh_n);
    }
 
@@ -280,8 +299,8 @@ void decode(std::ostream& sout, libcomm::commsys<S, C>* system)
 
 template <class S, template <class > class C>
 void process(const std::string& fname, double p, bool softin, bool softout,
-      bool singleblock, libbase::size_type<C>& blocksize, std::istream& sin =
-            std::cin, std::ostream& sout = std::cout)
+      bool knownend, int count, libbase::size_type<C>& blocksize,
+      std::istream& sin = std::cin, std::ostream& sout = std::cout)
    {
    // define types
    typedef libcomm::commsys<S, C> commsys;
@@ -297,24 +316,26 @@ void process(const std::string& fname, double p, bool softin, bool softout,
    r.seed(0);
    system->seedfrom(r);
    // Determine block size to use if necessary
-   if (!singleblock && blocksize == 0)
+   if (!knownend && blocksize == 0)
       blocksize = system->output_block_size();
    // Check if this is a stream-oriented system
    commsys_stream* system_stream = dynamic_cast<commsys_stream*> (system);
 
-   // Repeat until end of stream
-   while (!sin.eof())
+   // Repeat until required number of blocks read or end of stream
+   bool ready = false;
+   for (int i = 0; !ready;)
       {
+      // read next frame and pass through receiver
       if (softin)
          {
-         if (singleblock)
+         if (knownend)
             receiver_soft_single(sin, system, blocksize);
          else
             receiver_soft_multi(sin, system, blocksize);
          }
       else
          {
-         if (singleblock)
+         if (knownend)
             receiver_single(sin, system, blocksize);
          else
             {
@@ -325,11 +346,18 @@ void process(const std::string& fname, double p, bool softin, bool softout,
             }
          }
       libbase::eatwhite(sin);
+      // decode and output result
       if (softout)
          decode_soft(sout, system);
       else
          decode(sout, system);
+      // loop advance
+      i++;
+      ready = (count > 0) ? (i >= count) : sin.eof();
       }
+
+   // Destroy what was created on the heap
+   delete system;
    }
 
 /*!
@@ -360,17 +388,16 @@ int main(int argc, char *argv[])
    desc.add_options()("parameter,p", po::value<double>(), "channel parameter");
    desc.add_options()("soft-in,s", po::bool_switch(), "enable soft input");
    desc.add_options()("soft-out,o", po::bool_switch(), "enable soft output");
-   desc.add_options()("single-block,k", po::bool_switch(),
-         "enable single-block");
+   desc.add_options()("known-end,k", po::bool_switch(),
+         "enable known end-of-frame for last frame in stream-oriented systems");
+   desc.add_options()("block-count,n", po::value<int>()->default_value(0),
+         "number of blocks to read (default: read until end-of-file)");
    desc.add_options()("block-length", po::value<int>(),
-         "block length to read for vector container (defaults to transmitted "
-            "size for multi-block or complete sequence for single-block input");
+         "block length to read for vector container (default: tx size)");
    desc.add_options()("row-size", po::value<int>(),
-         "row size to read for matrix container (defaults to transmitted "
-            "size for multi-block or complete sequence for single-block input");
+         "row size to read for matrix container (default: tx size)");
    desc.add_options()("col-size", po::value<int>(),
-         "column size to read for matrix container (defaults to transmitted "
-            "size for multi-block or complete sequence for single-block input");
+         "column size to read for matrix container (default: tx size)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -389,7 +416,11 @@ int main(int argc, char *argv[])
    const double parameter = vm["parameter"].as<double> ();
    const bool softin = vm["soft-in"].as<bool> ();
    const bool softout = vm["soft-out"].as<bool> ();
-   const bool singleblock = vm["single-block"].as<bool> ();
+   const bool knownend = vm["known-end"].as<bool> ();
+   const int count = vm["block-count"].as<int> ();
+   // Check for compatibility
+   if (knownend && count != 1)
+      failwith("Known-end only implemented for single-block input.");
 
    // Main process
    if (container == "vector")
@@ -406,41 +437,41 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if (type == "bool")
-         process<bool, vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+         process<bool, vector> (filename, parameter, softin, softout, knownend,
+               count, blocksize);
       else if (type == "gf2")
          process<gf<1, 0x3> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf4")
          process<gf<2, 0x7> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf8")
          process<gf<3, 0xB> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf16")
          process<gf<4, 0x13> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf32")
          process<gf<5, 0x25> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf64")
          process<gf<6, 0x43> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf128")
          process<gf<7, 0x89> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf256")
          process<gf<8, 0x11D> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf512")
          process<gf<9, 0x211> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf1024")
          process<gf<10, 0x409> , vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "sigspace")
          process<sigspace, vector> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else
          {
          std::cerr << "Unrecognized symbol type: " << type << std::endl;
@@ -462,41 +493,41 @@ int main(int argc, char *argv[])
       using libbase::gf;
       using libcomm::sigspace;
       if (type == "bool")
-         process<bool, matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+         process<bool, matrix> (filename, parameter, softin, softout, knownend,
+               count, blocksize);
       else if (type == "gf2")
          process<gf<1, 0x3> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf4")
          process<gf<2, 0x7> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf8")
          process<gf<3, 0xB> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf16")
          process<gf<4, 0x13> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf32")
          process<gf<5, 0x25> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf64")
          process<gf<6, 0x43> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf128")
          process<gf<7, 0x89> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf256")
          process<gf<8, 0x11D> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf512")
          process<gf<9, 0x211> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "gf1024")
          process<gf<10, 0x409> , matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else if (type == "sigspace")
          process<sigspace, matrix> (filename, parameter, softin, softout,
-               singleblock, blocksize);
+               knownend, count, blocksize);
       else
          {
          std::cerr << "Unrecognized symbol type: " << type << std::endl;

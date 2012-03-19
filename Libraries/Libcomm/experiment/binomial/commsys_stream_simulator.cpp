@@ -26,11 +26,19 @@
 #include "result_collector/commsys_errors_levenshtein.h"
 
 #include "commsys_stream.h"
-#include "channel/bsid.h"
 #include "vectorutils.h"
 #include <sstream>
 
 namespace libcomm {
+
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of encoded/decoded frame sizes and drift
+// 3 - Observe prior and posterior PDF's
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 3
+#endif
 
 // Experiment handling
 
@@ -48,30 +56,21 @@ namespace libcomm {
 template <class S, class R>
 void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    {
-   do
-      {
-      // Advance by one frame
-      received_prev = received_this;
-      source_this = source_next;
-      received_this = received_next;
-      // Create next source frame
-      source_next = Base::createsource();
-      // Encode -> Map -> Modulate next frame
-      libbase::vector<S> transmitted = sys_tx->encode_path(source_next);
-      // Transmit next frame
-      received_next = sys_tx->transmit(transmitted);
-#ifndef NDEBUG
-      // update counters
-      frames_encoded++;
-#endif
-      } while (source_this.size() == 0);
+   assert(sys_enc);
 
-   // Shorthand for transmitted and received frame sizes
+   // reset if we have reached the user-set limit for stream length
+   if (N > 0 && frames_decoded >= N)
+      reset();
+
+   // Shorthand for transmitted frame size
    const int tau = this->sys->output_block_size();
-   const int rho = received_this.size();
-
    // Get access to the commsys channel object in stream-oriented mode
-   const bsid& c = dynamic_cast<const bsid&> (*this->sys->getchan());
+   const channel_stream<S>& c =
+         dynamic_cast<const channel_stream<S>&> (*this->sys->getchan());
+
+   // Keep a copy of the last frame's offset (in case x_max changes)
+   const libbase::size_type<libbase::vector> oldoffset = offset;
+
    // Determine start-of-frame and end-of-frame probabilities
    libbase::vector<double> sof_prior;
    libbase::vector<double> eof_prior;
@@ -84,9 +83,6 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       sof_prior.init(eof_prior.size());
       sof_prior = 0;
       sof_prior(0 + offset) = 1;
-      // Initialize previous frame so we have something to copy
-      received_prev.init(offset);
-      received_prev = 0; // value not important as content is unused
       }
    else
       {
@@ -98,57 +94,114 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       eof_prior /= eof_prior.max();
       }
 
-   // Assemble stream
-   libbase::vector<S> stream = concatenate(received_prev, received_this,
-         received_next);
-   // Extract received vector
-   const int start = received_prev.size() - offset + drift_error;
+   // Extract required segment of existing stream
+   libbase::vector<S> received_prev;
+   if (received.size() == 0)
+      {
+      received_prev.init(offset);
+      received_prev = 0; // value is irrelevant as this is not used
+      }
+   else
+      {
+      const int start = tau + estimated_drift + oldoffset - offset;
+      const int length = received.size() - start;
+      received_prev = received.extract(start, length);
+      }
+   received = received_prev;
+   // Tell user what we're doing
+#if DEBUG>=2
+   std::cerr << "DEBUG (commsys_stream_simulator): est drift = "
+         << estimated_drift << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): old offset = " << oldoffset
+         << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): new offset = " << offset
+         << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): existing segment = "
+         << received.size() << std::endl;
+#endif
+   // Determine required segment size
    const int length = tau + eof_prior.size() - 1;
-   assertalways(start >= 0 && start <= stream.size());
-   assertalways(length >= 0 && length <= stream.size() - start);
-   libbase::vector<S> received = stream.extract(start, length);
+#if DEBUG>=2
+   std::cerr << "DEBUG (commsys_stream_simulator): final segment size = "
+         << length << std::endl;
+#endif
+   // Append required segment by simulating frame transmission
+   // Also make sure that we have transmitted the frame corresponding to the
+   // received one.
+   for (int left = length - received.size(); left > 0 || source.empty();)
+      {
+      // Create next source frame
+      const libbase::vector<int> source_next = Base::createsource();
+      // Encode -> Map -> Modulate next frame
+      const libbase::vector<S> transmitted = sys_enc->encode_path(source_next);
+      // Transmit next frame
+      const libbase::vector<S> received_next = this->sys->transmit(transmitted);
+      // shorthand for received frame size
+      const int rho = received_next.size();
+      // store what we need to keep
+      source.push_back(source_next);
+      received = concatenate(received, received_next);
+      actual_drift.push_back(rho - tau);
+      // update counters
+      frames_encoded++;
+      left -= rho;
+      // Tell user what we're doing
+#if DEBUG>=2
+      std::cerr << "DEBUG (commsys_stream_simulator): Actual received frame = "
+            << rho << std::endl;
+      std::cerr << "DEBUG (commsys_stream_simulator): Remaining length = "
+            << left << std::endl;
+      std::cerr << "DEBUG (commsys_stream_simulator): Frames encoded = "
+            << frames_encoded << std::endl;
+#endif
+      }
 
    // Get access to the commsys object in stream-oriented mode
    commsys_stream<S>& s = dynamic_cast<commsys_stream<S>&> (*this->sys);
    // Demodulate -> Inverse Map -> Translate
-   s.receive_path(received, sof_prior, eof_prior, offset);
+   s.receive_path(received.extract(0, length), sof_prior, eof_prior, offset);
    // Store posterior end-of-frame drift probabilities
    eof_post = s.get_eof_post();
-#ifndef NDEBUG
    // update counters
    frames_decoded++;
-#endif
 
    // Determine estimated drift
-   const int drift = libbase::index_of_max(eof_post) - offset;
+   estimated_drift = libbase::index_of_max(eof_post) - offset;
    // Centralize posterior probabilities
    eof_post = 0;
-   const int sh_a = std::max(0, -drift);
-   const int sh_b = std::max(0, drift);
-   const int sh_n = eof_post.size() - abs(drift);
+   const int sh_a = std::max(0, -estimated_drift);
+   const int sh_b = std::max(0, estimated_drift);
+   const int sh_n = eof_post.size() - abs(estimated_drift);
    eof_post.segment(sh_a, sh_n) = s.get_eof_post().extract(sh_b, sh_n);
+   // Tell user what we're doing
+#if DEBUG>=3
+   std::cerr << "DEBUG (commsys_stream_simulator): eof prior = " << eof_prior
+         << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): eof post = " << eof_post
+         << std::endl;
+#endif
+
    // Determine actual cumulative drift and error in drift estimation
-   cumulative_drift += rho - tau;
-   drift_error += drift - (rho - tau);
-#ifndef NDEBUG
-   std::cerr << "DEBUG (commsys_stream_simulator): Actual acc. drift at sof = "
-         << cumulative_drift - (rho - tau) << std::endl;
+   assert(!actual_drift.empty());
+   const int actual_drift_this = actual_drift.front();
+   actual_drift.pop_front();
+   drift_error += estimated_drift - actual_drift_this;
+   // Tell user what we're doing
+#if DEBUG>=2
    std::cerr << "DEBUG (commsys_stream_simulator): Actual frame drift = "
-         << rho - tau << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): Actual acc. drift at eof = "
-         << cumulative_drift << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): Acc. drift error at sof = "
-         << drift_error - (drift - (rho - tau)) << std::endl;
+         << actual_drift_this << std::endl;
    std::cerr << "DEBUG (commsys_stream_simulator): Estimated frame drift = "
-         << drift << std::endl;
+         << estimated_drift << std::endl;
    std::cerr << "DEBUG (commsys_stream_simulator): Acc. drift error at eof = "
          << drift_error << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): Frames encoded = "
-         << frames_encoded << std::endl;
    std::cerr << "DEBUG (commsys_stream_simulator): Frames decoded = "
          << frames_decoded << std::endl;
 #endif
 
+   // Get source message to compare against
+   assert(!source.empty());
+   libbase::vector<int> source_this = source.front();
+   source.pop_front();
    // Initialise result vector
    result.init(Base::count());
    result = 0;
@@ -172,43 +225,273 @@ std::string commsys_stream_simulator<S, R>::description() const
    std::ostringstream sout;
    sout << "Stream-oriented ";
    sout << Base::description();
+   if (N > 0)
+      sout << ", stream reset every " << N << " frames";
    return sout.str();
    }
+
+// object serialization - saving
 
 template <class S, class R>
 std::ostream& commsys_stream_simulator<S, R>::serialize(std::ostream& sout) const
    {
+   // format version
+   sout << "# Version" << std::endl;
+   sout << 1 << std::endl;
+   sout << "# Frame count between resets (0=don't reset)" << std::endl;
+   sout << N << std::endl;
+   // continue writing underlying system
    Base::serialize(sout);
    return sout;
    }
 
+// object serialization - loading
+
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added version numbering; added frame count to reset
+ */
+
 template <class S, class R>
 std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
    {
-   reset();
+   assertalways(sin.good());
+   // get format version
+   int version;
+   sin >> libbase::eatcomments >> version;
+   // handle old-format files
+   if (sin.fail())
+      {
+      version = 0;
+      sin.clear();
+      }
+   // read frame count between resets
+   N = 0;
+   if (version >= 1)
+      sin >> libbase::eatcomments >> N >> libbase::verify;
+   // continue reading underlying system
    Base::serialize(sin);
+   reset();
+   assertalways(sin.good());
    return sin;
    }
+
+} // end namespace
+
+#include "gf.h"
+#include "result_collector/commsys_errors_levenshtein.h"
+#include "result_collector/commsys_prof_burst.h"
+#include "result_collector/commsys_prof_pos.h"
+#include "result_collector/commsys_prof_sym.h"
+#include "result_collector/commsys_hist_symerr.h"
+
+namespace libcomm {
 
 // Explicit Realizations
 
 using libbase::serializer;
-//using libbase::gf;
+using libbase::gf;
 
 // realizations for default results collector
+
+template class commsys_stream_simulator<sigspace> ;
+template <>
+const serializer commsys_stream_simulator<sigspace>::shelper("experiment",
+      "commsys_stream_simulator<sigspace>",
+      commsys_stream_simulator<sigspace>::create);
 
 template class commsys_stream_simulator<bool> ;
 template <>
 const serializer commsys_stream_simulator<bool>::shelper("experiment",
       "commsys_stream_simulator<bool>", commsys_stream_simulator<bool>::create);
 
+template class commsys_stream_simulator<gf<1, 0x3> > ;
+template <>
+const serializer commsys_stream_simulator<gf<1, 0x3> >::shelper("experiment",
+      "commsys_stream_simulator<gf<1,0x3>>", commsys_stream_simulator<
+            gf<1, 0x3> >::create);
+
+template class commsys_stream_simulator<gf<2, 0x7> > ;
+template <>
+const serializer commsys_stream_simulator<gf<2, 0x7> >::shelper("experiment",
+      "commsys_stream_simulator<gf<2,0x7>>", commsys_stream_simulator<
+            gf<2, 0x7> >::create);
+
+template class commsys_stream_simulator<gf<3, 0xB> > ;
+template <>
+const serializer commsys_stream_simulator<gf<3, 0xB> >::shelper("experiment",
+      "commsys_stream_simulator<gf<3,0xB>>", commsys_stream_simulator<
+            gf<3, 0xB> >::create);
+
+template class commsys_stream_simulator<gf<4, 0x13> > ;
+template <>
+const serializer commsys_stream_simulator<gf<4, 0x13> >::shelper("experiment",
+      "commsys_stream_simulator<gf<4,0x13>>", commsys_stream_simulator<gf<4,
+            0x13> >::create);
+
+template class commsys_stream_simulator<gf<5, 0x25> > ;
+template <>
+const serializer commsys_stream_simulator<gf<5, 0x25> >::shelper("experiment",
+      "commsys_stream_simulator<gf<5,0x25>>", commsys_stream_simulator<gf<5,
+            0x25> >::create);
+
+template class commsys_stream_simulator<gf<6, 0x43> > ;
+template <>
+const serializer commsys_stream_simulator<gf<6, 0x43> >::shelper("experiment",
+      "commsys_stream_simulator<gf<6,0x43>>", commsys_stream_simulator<gf<6,
+            0x43> >::create);
+
+template class commsys_stream_simulator<gf<7, 0x89> > ;
+template <>
+const serializer commsys_stream_simulator<gf<7, 0x89> >::shelper("experiment",
+      "commsys_stream_simulator<gf<7,0x89>>", commsys_stream_simulator<gf<7,
+            0x89> >::create);
+
+template class commsys_stream_simulator<gf<8, 0x11D> > ;
+template <>
+const serializer commsys_stream_simulator<gf<8, 0x11D> >::shelper("experiment",
+      "commsys_stream_simulator<gf<8,0x11D>>", commsys_stream_simulator<gf<8,
+            0x11D> >::create);
+
+template class commsys_stream_simulator<gf<9, 0x211> > ;
+template <>
+const serializer commsys_stream_simulator<gf<9, 0x211> >::shelper("experiment",
+      "commsys_stream_simulator<gf<9,0x211>>", commsys_stream_simulator<gf<9,
+            0x211> >::create);
+
+template class commsys_stream_simulator<gf<10, 0x409> > ;
+template <>
+const serializer commsys_stream_simulator<gf<10, 0x409> >::shelper(
+      "experiment", "commsys_stream_simulator<gf<10,0x409>>",
+      commsys_stream_simulator<gf<10, 0x409> >::create);
+
 // realizations for levenshtein results collector
 
-template class commsys_simulator<bool, commsys_errors_levenshtein> ;
+template class commsys_stream_simulator<bool, commsys_errors_levenshtein> ;
 template <>
 const serializer
       commsys_stream_simulator<bool, commsys_errors_levenshtein>::shelper(
             "experiment", "commsys_stream_simulator<bool,levenshtein>",
             commsys_stream_simulator<bool, commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<1, 0x3> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<1, 0x3> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<1,0x3>,levenshtein>",
+            commsys_stream_simulator<gf<1, 0x3> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<2, 0x7> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<2, 0x7> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<2,0x7>,levenshtein>",
+            commsys_stream_simulator<gf<2, 0x7> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<3, 0xB> , commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<3, 0xB> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<3,0xB>,levenshtein>",
+            commsys_stream_simulator<gf<3, 0xB> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<4, 0x13> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<4, 0x13> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<4,0x13>,levenshtein>",
+            commsys_stream_simulator<gf<4, 0x13> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<5, 0x25> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<5, 0x25> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<5,0x25>,levenshtein>",
+            commsys_stream_simulator<gf<5, 0x25> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<6, 0x43> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<6, 0x43> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<6,0x43>,levenshtein>",
+            commsys_stream_simulator<gf<6, 0x43> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<7, 0x89> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<7, 0x89> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<7,0x89>,levenshtein>",
+            commsys_stream_simulator<gf<7, 0x89> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<8, 0x11D> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<8, 0x11D> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<8,0x11D>,levenshtein>",
+            commsys_stream_simulator<gf<8, 0x11D> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<9, 0x211> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<9, 0x211> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<9,0x211>,levenshtein>",
+            commsys_stream_simulator<gf<9, 0x211> , commsys_errors_levenshtein>::create);
+
+template class commsys_stream_simulator<gf<10, 0x409> ,
+      commsys_errors_levenshtein> ;
+template <>
+const serializer
+      commsys_stream_simulator<gf<10, 0x409> , commsys_errors_levenshtein>::shelper(
+            "experiment",
+            "commsys_stream_simulator<gf<10,0x409>,levenshtein>",
+            commsys_stream_simulator<gf<10, 0x409> , commsys_errors_levenshtein>::create);
+
+// realizations for non-default containers
+
+// template class commsys_stream_simulator<bool,matrix>;
+// template <>
+// const serializer commsys_stream_simulator<bool,matrix>::shelper("experiment", "commsys_stream_simulator<bool,matrix>", commsys_stream_simulator<bool,matrix>::create);
+
+// realizations for non-default results collectors
+
+template class commsys_stream_simulator<bool, commsys_prof_burst> ;
+template <>
+const serializer commsys_stream_simulator<bool, commsys_prof_burst>::shelper(
+      "experiment", "commsys_stream_simulator<bool,prof_burst>",
+      commsys_stream_simulator<bool, commsys_prof_burst>::create);
+
+template class commsys_stream_simulator<bool, commsys_prof_pos> ;
+template <>
+const serializer commsys_stream_simulator<bool, commsys_prof_pos>::shelper(
+      "experiment", "commsys_stream_simulator<bool,prof_pos>",
+      commsys_stream_simulator<bool, commsys_prof_pos>::create);
+
+template class commsys_stream_simulator<bool, commsys_prof_sym> ;
+template <>
+const serializer commsys_stream_simulator<bool, commsys_prof_sym>::shelper(
+      "experiment", "commsys_stream_simulator<bool,prof_sym>",
+      commsys_stream_simulator<bool, commsys_prof_sym>::create);
+
+template class commsys_stream_simulator<bool, commsys_hist_symerr> ;
+template <>
+const serializer commsys_stream_simulator<bool, commsys_hist_symerr>::shelper(
+      "experiment", "commsys_stream_simulator<bool,hist_symerr>",
+      commsys_stream_simulator<bool, commsys_hist_symerr>::create);
 
 } // end namespace

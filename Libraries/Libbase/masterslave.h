@@ -69,7 +69,8 @@ namespace libbase {
  */
 
 class masterslave {
-   // constants (tags)
+private:
+   // Internally-used constants (tags)
    typedef enum {
       GETNAME = 0xFA, GETCPUTIME, WORK = 0xFE, DIE
    } tag_t;
@@ -84,6 +85,10 @@ public:
          NEW, EVENT_PENDING, IDLE, WORKING
       } state;
    };
+   // operating mode - returned by enable()
+   typedef enum {
+      mode_local = 0, mode_master, mode_slave
+   } mode_t;
 
    // items for use by everyone (?)
 private:
@@ -97,7 +102,7 @@ protected:
    void fcall(const std::string& name);
 public:
    // global enable of cluster system
-   void enable(const std::string& endpoint, bool quiet = false, int priority =
+   mode_t enable(const std::string& endpoint, bool quiet = false, int priority =
          10);
    // informative functions
    bool isenabled() const

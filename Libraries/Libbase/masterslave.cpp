@@ -71,6 +71,9 @@ void masterslave::fcall(const std::string& name)
 
 /*! \brief Global enable/disable of master-slave system
  * 
+ * Returns the operating mode used; for local and master, return is immediate.
+ * For slaves, return is only when the slave dies gracefully.
+ *
  * \note Endpoint can be:
  * - 'local', indicating local-computation model; in this case, the
  * class will not be initialized.
@@ -78,7 +81,8 @@ void masterslave::fcall(const std::string& name)
  * - 'hostname:port', indicating client-mode, connecting to given
  * host/port combination
  */
-void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
+masterslave::mode_t masterslave::enable(const std::string& endpoint,
+      bool quiet, int priority)
    {
    assert(!initialized);
 
@@ -99,23 +103,32 @@ void masterslave::enable(const std::string& endpoint, bool quiet, int priority)
       pacifier::disable_output();
    // Handle option for local computation only
    if (hostname.compare("local") == 0 && port == 0)
-      trace << "Master system using local computation" << std::endl;
+      {
+      trace << "Using local computation" << std::endl;
+      // start timers
+      twall.start();
+      tcpu.start();
+      return mode_local;
+      }
+   // If the hostname part isn't empty, it's a slave process
+   else if (hostname.length() > 0)
+      {
+      slaveprocess(hostname, port, priority);
+      return mode_slave;
+      }
    else
       {
-      // If the hostname part isn't empty, it's a slave process
-      if (hostname.length() > 0)
-         slaveprocess(hostname, port, priority);
-      else
-         {
-         // Otherwise, this must be the master process.
-         master = new socket;
-         assertalways(master->bind(port));
-         trace << "Master system bound to port " << port << std::endl;
-         initialized = true;
-         }
+      // Otherwise, this must be the master process.
+      master = new socket;
+      assertalways(master->bind(port));
+      trace << "Master system bound to port " << port << std::endl;
+      initialized = true;
+      // start timers
+      twall.start();
+      tcpu.start();
+      return mode_master;
       }
-   twall.start();
-   tcpu.start();
+   // we should never get here
    }
 
 // static items (for use by slaves)
@@ -238,7 +251,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
                   getcputime()) << " CPU runtime (" << int(100 * getusage())
                   << "% usage)." << std::endl;
             close(master);
-            exit(0);
+            return;
          default:
             cerr << "received bad tag [" << tag << "]" << std::endl;
             exit(1);

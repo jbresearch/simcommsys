@@ -54,13 +54,13 @@ template <template <class > class C = libbase::vector, class dbl = double>
 class mapper : public instrumented,
       public blockprocess,
       public libbase::serializable {
+private:
+   // Shorthand for class hierarchy
+   typedef mapper<C, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef mapper<C, dbl> This;
 
 protected:
    /*! \name User-defined parameters */

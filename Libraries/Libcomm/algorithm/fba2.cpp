@@ -43,8 +43,8 @@ namespace libcomm {
 
 /*! \brief Memory allocator for working matrices
  */
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::allocate()
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::allocate()
    {
    // determine limits
    dmin = std::max(-n, -dxmax);
@@ -106,8 +106,8 @@ void fba2<real, sig, norm>::allocate()
 
 /*! \brief Release memory for working matrices
  */
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::free()
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::free()
    {
    alpha.resize(boost::extents[0][0]);
    beta.resize(boost::extents[0][0]);
@@ -120,9 +120,9 @@ void fba2<real, sig, norm>::free()
 
 // Initialization
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::init(int N, int n, int q, int I, int xmax,
-      int dxmax, double th_inner, double th_outer)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::init(int N, int n, int q, int I,
+      int xmax, int dxmax, double th_inner, double th_outer)
    {
    // if any parameters that effect memory have changed, release memory
    if (initialised && (N != This::N || n != This::n || q != This::q || I
@@ -151,8 +151,8 @@ void fba2<real, sig, norm>::init(int N, int n, int q, int I, int xmax,
 
 // Internal procedures
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::reset_cache() const
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::reset_cache() const
    {
    // initialise array
    gamma = real(0);
@@ -165,8 +165,8 @@ void fba2<real, sig, norm>::reset_cache() const
 #endif
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_gamma(const array1s_t& r,
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::work_gamma(const array1s_t& r,
       const array1vd_t& app)
    {
    assert(initialised);
@@ -182,8 +182,8 @@ void fba2<real, sig, norm>::work_gamma(const array1s_t& r,
 #endif
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_alpha(const array1d_t& sof_prior)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::work_alpha(const array1d_t& sof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
@@ -242,8 +242,8 @@ void fba2<real, sig, norm>::work_alpha(const array1d_t& sof_prior)
    std::cerr << progress.update(N, N);
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_beta(const array1d_t& eof_prior)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::work_beta(const array1d_t& eof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
@@ -301,14 +301,14 @@ void fba2<real, sig, norm>::work_beta(const array1d_t& eof_prior)
    std::cerr << progress.update(N, N);
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_message_app(array1vr_t& ptable) const
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::work_message_app(array1vr_t& ptable) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
    // local flag for path thresholding
    const bool thresholding = (th_outer > real(0));
-   // Initialise result vector (one sparse symbol per timestep)
+   // Initialise result vector (one symbol per timestep)
    libbase::allocate(ptable, N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for (int i = 0; i < N; i++)
@@ -358,8 +358,9 @@ void fba2<real, sig, norm>::work_message_app(array1vr_t& ptable) const
 #endif
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_state_app(array1r_t& ptable, const int i) const
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::work_state_app(array1r_t& ptable,
+      const int i) const
    {
    assert(initialised);
    assert(i >= 0 && i <= N);
@@ -369,8 +370,8 @@ void fba2<real, sig, norm>::work_state_app(array1r_t& ptable, const int i) const
       ptable(xmax + x) = alpha[i][x] * beta[i][x];
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::work_results(array1vr_t& ptable,
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::work_results(array1vr_t& ptable,
       array1r_t& sof_post, array1r_t& eof_post) const
    {
    // compute APPs of message
@@ -409,11 +410,12 @@ void fba2<real, sig, norm>::work_results(array1vr_t& ptable,
  *
  * \note Offset is the same as for stream_modulator.
  */
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, const array1d_t& sof_prior,
-      const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
-      array1r_t& sof_post, array1r_t& eof_post, const int offset)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::decode(
+      libcomm::instrumented& collector, const array1s_t& r,
+      const array1d_t& sof_prior, const array1d_t& eof_prior,
+      const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
+      array1r_t& eof_post, const int offset)
    {
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
@@ -499,19 +501,55 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
 
 // Explicit Realizations
 
+#include "modem/dminner2-receiver.h"
+#include "modem/tvb-receiver.h"
 #include "logrealfast.h"
+#include "gf.h"
+
+using libbase::logrealfast;
+using libbase::gf;
 
 namespace libcomm {
 
-using libbase::logrealfast;
 // specialist arithmetic
-template class fba2<logrealfast, bool, false> ;
-
+template class fba2<dminner2_receiver<logrealfast> , logrealfast, bool, false> ;
 // no-normalization, for debugging
-template class fba2<float, bool, false> ;
-template class fba2<double, bool, false> ;
+template class fba2<dminner2_receiver<float> , float, bool, false> ;
+template class fba2<dminner2_receiver<double> , double, bool, false> ;
 // normalized, for normal use
-template class fba2<float, bool, true> ;
-template class fba2<double, bool, true> ;
+template class fba2<dminner2_receiver<float> , float, bool, true> ;
+template class fba2<dminner2_receiver<double> , double, bool, true> ;
+
+// specialist arithmetic
+template class fba2<tvb_receiver<logrealfast, gf<1, 0x3> > , logrealfast, gf<1,
+      0x3> , false> ;
+// no-normalization, for debugging
+template class fba2<tvb_receiver<float, gf<1, 0x3> > , float, gf<1, 0x3> ,
+      false> ;
+template class fba2<tvb_receiver<double, gf<1, 0x3> > , double, gf<1, 0x3> ,
+      false> ;
+// normalized, for normal use
+template class fba2<tvb_receiver<float, gf<1, 0x3> > , float, gf<1, 0x3> , true> ;
+
+template class fba2<tvb_receiver<double, gf<1, 0x3> > , double, gf<1, 0x3> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<2, 0x7> > , double, gf<2, 0x7> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<3, 0xB> > , double, gf<3, 0xB> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<4, 0x13> > , double, gf<4, 0x13> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<5, 0x25> > , double, gf<5, 0x25> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<6, 0x43> > , double, gf<6, 0x43> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<7, 0x89> > , double, gf<7, 0x89> ,
+      true> ;
+template class fba2<tvb_receiver<double, gf<8, 0x11D> > , double,
+      gf<8, 0x11D> , true> ;
+template class fba2<tvb_receiver<double, gf<9, 0x211> > , double,
+      gf<9, 0x211> , true> ;
+template class fba2<tvb_receiver<double, gf<10, 0x409> > , double,
+      gf<10, 0x409> , true> ;
 
 } // end namespace

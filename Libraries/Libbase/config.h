@@ -128,17 +128,17 @@ inline double sign(double x)
 //   return sqrt(double(x));
 //   }
 
-//inline double log(int x)
-//   {
-//   return log(double(x));
-//   }
+#ifdef WIN32
+inline double log(int x)
+   {
+   return log(double(x));
+   }
 
-//#ifdef WIN32
-//inline double pow(int x, int y)
-//   {
-//   return pow(double(x), y);
-//   }
-//#endif
+inline double pow(int x, int y)
+   {
+   return pow(double(x), y);
+   }
+#endif
 
 // Define a function that returns the square of the input
 
@@ -175,6 +175,7 @@ inline int isinf(double value)
       }
    }
 #endif //ifdef WIN32
+
 // C99 Names for integer types
 
 #ifdef WIN32
@@ -191,6 +192,24 @@ typedef unsigned __int64 uint64_t;
 // *** Within standard library namespace ***
 
 namespace std {
+
+// Define math functions to identify NaN and Inf values
+
+#ifdef WIN32
+inline bool isfinite(double value)
+   {
+   switch(_fpclass(value))
+      {
+      case _FPCLASS_SNAN:
+      case _FPCLASS_QNAN:
+      case _FPCLASS_NINF:
+      case _FPCLASS_PINF:
+      return false;
+      default:
+      return true;
+      }
+   }
+#endif //ifdef WIN32
 
 //! Operator to concatenate STL vectors
 template <class T>

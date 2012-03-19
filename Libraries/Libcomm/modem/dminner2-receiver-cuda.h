@@ -54,23 +54,23 @@ namespace cuda {
 template <class real>
 class dminner2_receiver {
 private:
-   int n; //!< Number of bits in 'sparse' symbol
-   mutable cuda::vector<int> ws; //!< Device copy of pilot sequence
-   cuda::matrix_auto<int> lut; //!< Device copy of 'sparsifier' LUT
+   int n; //!< Number of bits per codeword
+   mutable cuda::vector<int> marker; //!< Device copy of marker sequence
+   cuda::matrix_auto<int> codebook; //!< Device copy of codebook
    libcomm::bsid::metric_computer computer; //!< Channel object for computing receiver metric
 public:
    // initialization routines
-   void init(const int n, const libbase::matrix<int>& lut,
+   void init(const int n, const libbase::matrix<int>& codebook,
          const libcomm::bsid& chan)
       {
       this->n = n;
-      this->lut = lut;
+      this->codebook = codebook;
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
-      std::cerr << "lut = " << libbase::vector<int>(this->lut) << std::endl;
-      std::cerr << "sizeof(lut) = " << sizeof(this->lut) << std::endl;
+      std::cerr << "codebook = " << libbase::vector<int>(this->codebook) << std::endl;
+      std::cerr << "sizeof(codebook) = " << sizeof(this->codebook) << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
       std::cerr << "xmax = " << computer.xmax << std::endl;
@@ -79,13 +79,13 @@ public:
             computer.Rtable) << std::endl;
 #endif
       }
-   void init(const libbase::vector<int>& ws) const
+   void init(const libbase::vector<int>& marker) const
       {
-      this->ws = ws;
+      this->marker = marker;
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
-      std::cerr << "ws = " << libbase::vector<int>(this->ws) << std::endl;
-      std::cerr << "sizeof(ws) = " << sizeof(this->ws) << std::endl;
+      std::cerr << "marker = " << libbase::vector<int>(this->marker) << std::endl;
+      std::cerr << "sizeof(marker) = " << sizeof(this->marker) << std::endl;
 #endif
       }
 #ifdef __CUDACC__
@@ -94,8 +94,8 @@ public:
    void R(int d, int i, const cuda::vector_reference<bool>& r,
          cuda::vector_reference<libcomm::bsid::real>& ptable) const
       {
-      const int w = ws(i); // watermark vector
-      const int s = lut(i % lut.get_rows(), d);
+      const int w = marker(i); // marker vector
+      const int s = codebook(i % codebook.get_rows(), d);
       // 'tx' is the vector of transmitted symbols that we're considering
       // TODO: find a way to use dminner::encode()
       cuda::bitfield tx(w ^ s, n);

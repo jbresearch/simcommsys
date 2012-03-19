@@ -55,13 +55,13 @@ namespace libcomm {
 
 template <class S, template <class > class C = libbase::vector>
 class stream_modulator : public informed_modulator<S, C> {
+private:
+   // Shorthand for class hierarchy
+   typedef informed_modulator<S, C> Interface;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double> array1d_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef informed_modulator<S, C> Interface;
 protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()

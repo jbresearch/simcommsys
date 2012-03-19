@@ -33,7 +33,7 @@ namespace libcomm {
 // 2 - Show prior and posterior sof/eof probabilities when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 // Setup procedure
@@ -45,7 +45,7 @@ void dminner2<real, norm>::init(const channel<bool>& chan,
    // Inherit block size from last modulation step
    const int q = 1 << Base::k;
    const int n = Base::n;
-   const int N = Base::ws.size();
+   const int N = Base::marker.size();
    const int tau = N * n;
    assert(N > 0);
    // Copy channel for access within R()
@@ -62,7 +62,7 @@ void dminner2<real, norm>::init(const channel<bool>& chan,
    // Initialize forward-backward algorithm
    fba.init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer);
    // initialize our embedded metric computer with unchanging elements
-   fba.get_receiver().init(n, Base::lut, Base::mychan);
+   fba.get_receiver().init(n, Base::codebook, Base::mychan);
    }
 
 template <class real, bool norm>
@@ -71,7 +71,7 @@ void dminner2<real, norm>::advance() const
    // advance the base class
    Base::advance();
    // initialize our embedded metric computer
-   fba.get_receiver().init(Base::ws);
+   fba.get_receiver().init(Base::marker);
    }
 
 // encoding and decoding functions

@@ -67,14 +67,14 @@ namespace libcomm {
 
 template <class real, class sig, bool norm>
 class fba {
+private:
+   // Shorthand for class hierarchy
+   typedef fba<real, sig, norm> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
    typedef boost::assignable_multi_array<real, 2> array2r_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef fba<real, sig, norm> This;
 private:
    /*! \name User-defined parameters */
    int tau; //!< The (transmitted) block size in bits

@@ -25,21 +25,27 @@
 #ifndef __logrealfast_h
 #define __logrealfast_h
 
-#ifndef NDEBUG
-//#define DEBUGFILE
-#endif
-
 #include "config.h"
 #include "itfunc.h"
 #include <cmath>
 #include <cfloat>
 #include <cstdlib>
 #include <iostream>
-#ifdef DEBUGFILE
-#  include <fstream>
-#endif
+#include <fstream>
+#include <limits>
 
 namespace libbase {
+
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of out-of-range values (infinity and zero)
+// 3 - Log difference values and the errors for all LUT access to a file
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
 
 /*!
  * \brief   Fast Logarithm Arithmetic.
@@ -50,10 +56,6 @@ namespace libbase {
  * - $Date$
  * - $Author$
  *
- * \note There is a hook to allow debugging by printing to a file the
- * difference values and the errors for all LUT access.
- * To activate, define DEBUGFILE.
- *
  * Implements log-scale arithmetic with table-lookup for speeding up
  * addition. The choice of LUT size and range is optimized at 128k entries
  * over [0,12].
@@ -61,7 +63,6 @@ namespace libbase {
  * \note Constructor traps infinite values and NaN. Zero values are trapped
  * first; since zero is the default argument, there are many more calls
  * with this value than any other, so this should improve performance.
- *
  *
  * \note Comparison operators are provided between variables of this kind -
  * these are required by the turbo decoder when taking a hard decision
@@ -76,7 +77,7 @@ class logrealfast {
    static const double lutrange;
    static double *lut;
    static bool lutready;
-#ifdef DEBUGFILE
+#if DEBUG>=3
    static std::ofstream file;
 #endif
 private:
@@ -138,30 +139,24 @@ public:
 
 inline void logrealfast::ensurefinite(double& x)
    {
+   // trap infinity
    const int inf = isinf(x);
    if (inf < 0)
       {
-      x = -DBL_MAX;
-#ifndef NDEBUG
-      static int warningcount = 10;
-      if (--warningcount > 0)
-         trace << "WARNING (logrealfast): negative infinity." << std::endl;
-      else if (warningcount == 0)
-         trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
+#if DEBUG>=2
+      std::cerr << "DEBUG (logrealfast): negative infinity." << std::endl;
 #endif
       }
    else if (inf > 0)
       {
-      x = DBL_MAX;
-#ifndef NDEBUG
-      static int warningcount = 10;
-      if (--warningcount > 0)
-         trace << "WARNING (logrealfast): positive infinity." << std::endl;
-      else if (warningcount == 0)
-         trace
-               << "WARNING (logrealfast): last warning repeated too many times; stopped logging." << std::endl;
+#if DEBUG>=2
+      std::cerr << "DEBUG (logrealfast): positive infinity." << std::endl;
 #endif
+      }
+   // trap NaN
+   else if (isnan(x))
+      {
+      failwith("NaN cannot be represented");
       }
    }
 
@@ -218,7 +213,7 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
    if (a.logval < logval)
       logval = a.logval;
 
-#ifdef DEBUGFILE
+#if DEBUG>=3
    const double offset = log(1 + exp(-diff));
    logval -= offset;
 #endif
@@ -227,11 +222,11 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
       {
       const int index = int(round(diff * lutinvstep));
       logval -= lut[index];
-#ifdef DEBUGFILE
+#if DEBUG>=3
       file << diff << "\t" << offset - lut[index] << std::endl;
 #endif
       }
-#ifdef DEBUGFILE
+#if DEBUG>=3
    else
    file << diff << "\t" << offset << std::endl;
 #endif
@@ -285,6 +280,12 @@ inline logrealfast pow(const logrealfast& a, const double b)
    logrealfast::ensurefinite(result.logval);
    return result;
    }
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

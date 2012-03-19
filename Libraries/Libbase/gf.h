@@ -203,19 +203,32 @@ gf<m, poly> operator/(const gf<m, poly>& a, const gf<m, poly>& b)
 /*! \name Stream Input/Output */
 
 template <int m, int poly>
-std::ostream& operator<<(std::ostream& s, const gf<m, poly>& b)
+std::ostream& operator<<(std::ostream& os, const gf<m, poly>& b)
    {
-   s << std::string(b);
-   return s;
+   os << std::string(b);
+   return os;
    }
 
 template <int m, int poly>
-std::istream& operator>>(std::istream& s, gf<m, poly>& b)
+std::istream& operator>>(std::istream& is, gf<m, poly>& b)
    {
    std::string str;
-   s >> str;
+   // skip any initial whitespace
+   is >> libbase::eatwhite;
+   // read up to 'm' digits from stream
+   char c;
+   for (int i=0; i<m && is.get(c); i++)
+      {
+      if (isspace(c))
+         {
+         is.putback(c);
+         break;
+         }
+      str += c;
+      }
+   // convert
    b = str.c_str();
-   return s;
+   return is;
    }
 
 // @}

@@ -2,7 +2,7 @@ commsys<bool>
 ## Channel
 bsid
 # Version
-3
+4
 # Biased?
 0
 # Vary Ps?
@@ -13,6 +13,12 @@ bsid
 1
 # Cap on I (0=uncapped)
 2
+# Fixed Ps value
+0
+# Fixed Pd value
+0
+# Fixed Pi value
+0
 ## Modem
 dminner2<float>
 # Version
@@ -27,10 +33,11 @@ dminner2<float>
 8
 # k
 4
-# LUT type (0=sparse, 1=user)
+# codebook type (0=sparse, 1=user, 2=tvb)
 1
-#: LUT name and entries
+#: codebook name
 (8,16)-ld3-modvec6
+#: codebook entries
 01110011
 00011111
 10101111
@@ -47,9 +54,9 @@ dminner2<float>
 11000111
 11111110
 01101100
-# WS type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
+# marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
 3
-#: WS modification vectors
+#: modification vectors
 6
 00000000
 01001001

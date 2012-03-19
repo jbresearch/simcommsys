@@ -30,7 +30,6 @@
 #include "matrix.h"
 #include "multi_array.h"
 #include "fsm.h"
-#include "modem/dminner2-receiver.h"
 #include "instrumented.h"
 
 #include <cmath>
@@ -54,8 +53,11 @@ namespace libcomm {
  * Trans. IT, 47(2), Feb 2001.
  */
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 class fba2 {
+private:
+   // Shorthand for class hierarchy
+   typedef fba2<receiver_t, real, sig, norm> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
@@ -67,9 +69,6 @@ public:
    typedef boost::assignable_multi_array<real, 4> array4r_t;
    typedef boost::assignable_multi_array<bool, 2> array2b_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef fba2<real, sig, norm> This;
 private:
    /*! \name User-defined parameters */
    int N; //!< The transmitted block size in symbols
@@ -96,7 +95,7 @@ private:
    mutable int gamma_calls; //!< Number of gamma computations
    mutable int gamma_misses; //!< Number of gamma computations causing a cache miss
 #endif
-   mutable dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
+   mutable receiver_t receiver; //!< Inner code receiver metric computation
    // @}
 private:
    /*! \name Internal functions */
@@ -134,7 +133,7 @@ public:
 
    /*! \name Parameter getters */
    //! Access metric computation
-   dminner2_receiver<real>& get_receiver() const
+   receiver_t& get_receiver() const
       {
       return receiver;
       }
@@ -185,27 +184,23 @@ public:
       }
 };
 
-template <class real, class sig, bool norm>
-inline void fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
-      array1r_t& ptable) const
+template <class receiver_t, class real, class sig, bool norm>
+inline void fba2<receiver_t, real, sig, norm>::compute_gamma(int d, int i,
+      int x, array1r_t& ptable) const
    {
    // determine received segment to extract
    const int start = xmax + n * i + x;
    const int length = std::min(n + dmax, r.size() - start);
-   // set up space for results
-   static libbase::vector<bsid::real> ptable_r;
-   ptable_r.init(ptable.size());
-   // call batch receiver method and convert results
-   receiver.R(d, i, r.extract(start, length), ptable_r);
-   ptable = ptable_r;
+   // call batch receiver method
+   receiver.R(d, i, r.extract(start, length), ptable);
    // apply priors if applicable
    if (app.size() > 0)
       ptable *= real(app(i)(d));
    }
 
-template <class real, class sig, bool norm>
-inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
-      int deltax) const
+template <class receiver_t, class real, class sig, bool norm>
+inline real fba2<receiver_t, real, sig, norm>::compute_gamma(int d, int i,
+      int x, int deltax) const
    {
    real result = receiver.R(d, i, r.extract(xmax + n * i + x, n + deltax));
    if (app.size() > 0)
@@ -213,8 +208,9 @@ inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
    return result;
    }
 
-template <class real, class sig, bool norm>
-real fba2<real, sig, norm>::get_gamma(int d, int i, int x, int deltax) const
+template <class receiver_t, class real, class sig, bool norm>
+real fba2<receiver_t, real, sig, norm>::get_gamma(int d, int i, int x,
+      int deltax) const
    {
    if (!cache_enabled)
       return compute_gamma(d, i, x, deltax);

@@ -61,6 +61,10 @@ endif
 ifndef RELEASE
 export RELEASE := release
 endif
+# Validate release
+ifneq ($(RELEASE),$(filter $(RELEASE),release debug profile))
+$(error Invalid release '$(RELEASE)')
+endif
 
 
 ## Build and installations details
@@ -122,7 +126,9 @@ LIBNAMES := comm image base
 
 ## Commands
 
+ifeq (,$(findstring no-print-directory,$(MAKEFLAGS)))
 export MAKE := $(MAKE) --no-print-directory
+endif
 export MKDIR := mkdir -p
 export RM := rm -rf
 export CP := cp
@@ -205,7 +211,8 @@ export CCflags = $(CCflag_$(RELEASE))
 # Common options
 NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 #NVCCopts := $(NVCCopts) -Xcompiler "-Wall,-Werror"
-NVCCopts := $(NVCCopts) -Xopencc "-woffall"
+#NVCCopts := $(NVCCopts) -Xopencc "-woffall"
+NVCCopts := $(NVCCopts) -w
 NVCCopts := $(NVCCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 NVCCopts := $(NVCCopts) -DUSE_CUDA
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
@@ -252,17 +259,17 @@ default:
 	@echo "Where:"
 	@echo "   <plain> = plain : disable optional libraries [optional]"
 	@echo "   <cmd> = build|install|clean : build-only, install, or remove"
-	@echo "   <set> = main|test|libs : what to build [default:both]"
+	@echo "   <set> = main|test|libs : what to build [default:main+test]"
 	@echo "   <release> = debug|release|profile : [default:debug+release]"
 	@echo "Master targets:"
 	@echo "   all : equivalent to install and plain-install"
 	@echo "   doc : compile code documentation"
 	@echo "   clean-all : removes all binaries"
+	@echo "   clean-dep : removes all dependency files"
 	@echo "   showsettings : outputs compiler settings used"
 
 all:
-	@$(MAKE) install
-	@$(MAKE) plain-install
+	@$(MAKE) install plain-install
 
 doc:
 	@$(DOXYGEN)
@@ -270,6 +277,10 @@ doc:
 clean-all:
 	@echo "----> Cleaning all binaries."
 	@find . -depth \( -name doc -or -name bin -or -iname debug -or -iname release -or -iname profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -print0 | xargs -0 rm -rf
+
+clean-dep:
+	@echo "----> Cleaning all dependency files."
+	@find . -depth \( -name '*.d' \) -print0 | xargs -0 rm -rf
 
 showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
@@ -283,6 +294,7 @@ plain-%:
 build:	build-main build-test
 build-main:	build-main-debug build-main-release
 build-test:	build-test-debug build-test-release
+build-libs:	build-libs-debug build-libs-release
 
 build-main-%:
 	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
@@ -294,6 +306,7 @@ build-libs-%:
 install:	install-main install-test
 install-main:	install-main-debug install-main-release
 install-test:	install-test-debug install-test-release
+install-libs:	install-libs-debug install-libs-release
 
 install-main-%:
 	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
@@ -305,6 +318,7 @@ install-libs-%:
 clean:	clean-main clean-test
 clean-main:	clean-main-release clean-main-debug
 clean-test:	clean-test-release clean-test-debug
+clean-libs:	clean-libs-release clean-libs-debug
 
 clean-main-%:
 	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_MAIN)
@@ -318,6 +332,10 @@ clean-libs-%:
 FORCE:
 
 .PHONY:	all build install clean
+
+.SUFFIXES: # Delete the default suffixes
+
+.DELETE_ON_ERROR:
 
 ## Manual targets
 

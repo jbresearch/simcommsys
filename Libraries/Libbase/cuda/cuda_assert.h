@@ -39,9 +39,11 @@
 // An assertion that is valid for host and gpu code
 
 #ifndef NDEBUG // Debug build
-#  ifdef __CUDA_ARCH__ // GPU code
-#    define cuda_assert(_Expression) (void)( (!!(_Expression)) || (cuda::reportassertionandfail(#_Expression, __FILE__, __LINE__), 0) )
-#  else // Host code
+#  ifndef __CUDA_ARCH__ // Host code
+#    define cuda_assert(_Expression) assert(_Expression)
+#  elif __CUDA_ARCH__ < 200 // pre-Fermi
+#    define cuda_assert(_Expression) (void)0
+#  else // Fermi
 #    define cuda_assert(_Expression) assert(_Expression)
 #  endif
 #else // Release build

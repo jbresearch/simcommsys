@@ -19,8 +19,13 @@
 #
 # Simulator test files makefile
 
+# List of symbol types to work with
+STREAM_LIMITS := 1 10 100 1000 10000
+
+# List of systems to work with
 SYSTEMS := $(wildcard Systems/*.txt)
-SIMULATORS := $(SYSTEMS:Systems/%.txt=Simulators/%.txt)
+SIMULATORS := $(SYSTEMS:Systems/%.txt=Simulators/%.txt) \
+	$(foreach A,$(STREAM_LIMITS),$(SYSTEMS:Systems/stream-%.txt=Simulators/stream-$(A)-%.txt))
 TIMERS := $(SYSTEMS:Systems/%.txt=Timers/%.txt)
 
 .force:
@@ -34,17 +39,21 @@ clean:
 
 # GAWK programs
 
-define GAWK_SIMULATOR
+define GAWK_SIMULATOR_CREATOR
+define GAWK_SIMULATOR_$(1)
 /^commsys_stream/ {
-	x=$$0
+	x=$$$$0
 	# stream-oriented systems
 	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
 	# add levenshtein-distance error rate
 	x = gensub(/<(.+)>/,"<\\1,levenshtein>","g",x)
 	print x;
+	# add version and stream limit
+	print 1
+	print $(1)
 	}
 /^commsys/ && !/^commsys_stream/ {
-	x=$$0
+	x=$$$$0
 	# all other matched objects
 	sub(/commsys[^<]*/,"commsys_simulator",x)
 	# add levenshtein-distance error rate
@@ -53,7 +62,13 @@ define GAWK_SIMULATOR
 	}
 { print; }
 endef
-export GAWK_SIMULATOR
+export GAWK_SIMULATOR_$(1)
+endef
+
+$(eval $(call GAWK_SIMULATOR_CREATOR,0))
+
+$(foreach A,$(STREAM_LIMITS),\
+	$(eval $(call GAWK_SIMULATOR_CREATOR,$(A))) )
 
 define GAWK_TIMER
 /^commsys/ {
@@ -67,9 +82,18 @@ export GAWK_TIMER
 
 # pattern-matched targets
 
+define GenerateSimulators
+Simulators/stream-$(1)-%.txt: Systems/stream-%.txt
+	@echo Making $$@
+	@gawk "$$$$GAWK_SIMULATOR_$(1)" < $$< > $$@
+endef
+
+$(foreach A,$(STREAM_LIMITS),\
+	$(eval $(call GenerateSimulators,$(A))) )
+
 Simulators/%.txt: Systems/%.txt
 	@echo Making $@
-	@gawk "$$GAWK_SIMULATOR" < $< > $@
+	@gawk "$$GAWK_SIMULATOR_0" < $< > $@
 
 Timers/%.txt: Systems/%.txt
 	@echo Making $@

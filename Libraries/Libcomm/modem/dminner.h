@@ -84,33 +84,33 @@ public:
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::vector<array1r_t> array1vr_t;
-   enum lut_t {
-      lut_straight = 0, lut_user, lut_tvb
+   enum codebook_t {
+      codebook_sparse = 0, codebook_user, codebook_tvb
    };
-   enum ws_t {
-      ws_random = 0, ws_zero, ws_alt_symbol, ws_mod_vec
+   enum marker_t {
+      marker_random = 0, marker_zero, marker_alt_symbol, marker_mod_vec
    };
    // @}
 private:
    /*! \name User-defined parameters */
    int n; //!< number of bits in sparse (output) symbol
    int k; //!< number of bits in message (input) symbol
-   ws_t ws_type; //!< enum indicating LUT type
-   array1i_t ws_vectors; //!< modification vectors
-   lut_t lut_type; //!< enum indicating LUT type
-   std::string lutname; //!< name to describe codebook
-   array2i_t lut; //!< sparsifier LUT
+   marker_t marker_type; //!< enum indicating codebook type
+   array1i_t marker_vectors; //!< modification vectors
+   codebook_t codebook_type; //!< enum indicating codebook type
+   std::string codebookname; //!< name to describe codebook
+   array2i_t codebook; //!< codebook
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
    // @}
    /*! \name Pre-computed parameters */
-   double f; //!< average weight per bit of sparse symbol
+   double f; //!< average weight per codeword bit
    // @}
    /*! \name Internally-used objects */
    bsid mychan; //!< bound channel object
-   mutable libbase::randgen r; //!< watermark sequence generator
-   mutable array1i_t ws; //!< watermark sequence
+   mutable libbase::randgen r; //!< marker sequence generator
+   mutable array1i_t marker; //!< marker sequence
    // @}
 private:
    // Implementations of channel-specific metrics for fba
@@ -155,14 +155,15 @@ private:
       assert(th_inner >= real(0) && th_inner <= real(1));
       assert(th_outer >= real(0) && th_outer <= real(1));
       }
-   // LUT wrapper operations
+   // codebook wrapper operations
    array1b_t encode(const int i, const int d) const;
    void validate_bitfield_length(
          const libbase::vector<libbase::bitfield>& table) const;
-   void copypilot(const libbase::vector<libbase::bitfield>& pilot_b);
-   void copylut(const int i, const libbase::vector<libbase::bitfield>& lut_b);
-   void showlut(std::ostream& sout) const;
-   void validatelut() const;
+   void copymarker(const libbase::vector<libbase::bitfield>& marker_b);
+   void copycodebook(const int i,
+         const libbase::vector<libbase::bitfield>& codebook_b);
+   void showcodebook(std::ostream& sout) const;
+   void validatecodebook() const;
    void computemeandensity();
    // Other utilities
    void checkforchanges(int I, int xmax) const;
@@ -176,15 +177,24 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   explicit dminner(const int n = 2, const int k = 1);
+   explicit dminner(const int n = 2, const int k = 1) :
+      n(n), k(k), codebook_type(codebook_sparse), user_threshold(false)
+      {
+      init();
+      }
    dminner(const int n, const int k, const double th_inner,
-         const double th_outer);
+         const double th_outer) :
+      n(n), k(k), codebook_type(codebook_sparse), user_threshold(true),
+            th_inner(real(th_inner)), th_outer(real(th_outer))
+      {
+      init();
+      }
    // @}
 
-   /*! \name Watermark-specific setup functions */
-   void set_pilot(libbase::vector<bool> pilot);
-   void set_pilot(libbase::vector<libbase::bitfield> pilot);
-   void set_lut(libbase::vector<libbase::bitfield> lut_b);
+   /*! \name Marker-specific setup functions */
+   void set_marker(libbase::vector<bool> marker);
+   void set_marker(libbase::vector<libbase::bitfield> marker);
+   void set_codebook(libbase::vector<libbase::bitfield> codebook_b);
    void set_thresholds(const real th_inner, const real th_outer);
    void set_parameter(const double x)
       {
@@ -204,12 +214,12 @@ public:
       }
    int num_codebooks() const
       {
-      return lut.size().rows();
+      return codebook.size().rows();
       }
    int get_symbol(int i, int d) const
       {
       assert(i >= 0 && i < num_codebooks());
-      return lut(i, d);
+      return codebook(i, d);
       }
    double get_th_inner() const
       {

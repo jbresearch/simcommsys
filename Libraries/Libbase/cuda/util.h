@@ -68,6 +68,12 @@ void cudaQueryDevices(std::ostream& sout);
 
 #ifdef __CUDACC__
 
+// Disable printf() for devices of compute capability < 2.0
+// [removed as it conflicts with stdio]
+//#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 200)
+//#define printf(f, ...) ((void)(f, __VA_ARGS__),0)
+//#endif
+
 // error wrappers
 
 #define cudaSafeCall(error) cuda::__cudaSafeCall(error, __FILE__, __LINE__)

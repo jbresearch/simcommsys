@@ -52,6 +52,8 @@ void process(const std::string& fname, std::istream& sin = std::cin,
       transmitted.serialize(sout, '\n');
       libbase::eatwhite(sin);
       }
+   // Destroy what was created on the heap
+   delete system;
    }
 
 /*!

@@ -144,73 +144,88 @@ int main(int argc, char *argv[])
 
    // Create estimator object and initilize cluster
    mymontecarlo estimator;
-   estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<bool> (),
-         vm["priority"].as<int> ());
-   // Set up the estimator
-   libcomm::experiment *system;
-   if (vm.count("system-file"))
-      system = libcomm::loadfromfile<libcomm::experiment>(vm["system-file"].as<
-            std::string> ());
-   else
-      system = libcomm::loadfromstring<libcomm::experiment>(std_systemstring);
-   estimator.bind(system);
-   estimator.set_confidence(vm["confidence"].as<double> ());
-   estimator.set_accuracy(vm["tolerance"].as<double> ());
-   estimator.timeout = vm["time"].as<double> ();
-   // Work out at the SNR value required
-   system->set_parameter(vm["parameter"].as<double> ());
-
-   // Print some debug information
-   libbase::trace << system->description() << std::endl;
-
-   // Perform the simulation
-   libbase::vector<double> estimate, tolerance;
-   estimator.estimate(estimate, tolerance);
-   const libbase::int64u frames = estimator.get_samplecount();
-
-   if (!vm["quiet"].as<bool> ())
+   switch (estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<
+         bool> (), vm["priority"].as<int> ()))
       {
-      // Write some information on the code
-      cout << std::endl << std::endl;
-      cout << "System Used:" << std::endl;
-      cout << "~~~~~~~~~~~~" << std::endl;
-      cout << system->description() << std::endl;
-      //cout << "Rate: " << system-> << std::endl;
-      cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%"
-            << std::endl;
-      cout << "Confidence: " << 100 * estimator.get_confidence() << "%"
-            << std::endl;
-      cout << "Date: " << libbase::timer::date() << std::endl;
-      // TODO: add method to system to get parameter name
-      cout << "Simulating at system parameter = " << system->get_parameter()
-            << std::endl;
+      case mymontecarlo::mode_slave:
+         break;
 
-      // Print results (for confirming accuracy)
-      cout << std::endl;
-      cout << "Results:" << std::endl;
-      cout << "~~~~~~~~" << std::endl;
-      for (int j = 0; j < system->count(); j++)
+      case mymontecarlo::mode_local:
+      case mymontecarlo::mode_master:
          {
-         cout << system->result_description(j) << '\t';
-         cout << setprecision(6) << estimate(j);
-         cout << "\t[+/-" << setprecision(3) << 100 * tolerance(j) << "%]";
-         if (!vm.count("system-file"))
-            cout << "\t(" << setprecision(3) << 100 * (estimate(j)
-                  - std_result[j]) / std_result[j] << "%)";
-         cout << std::endl;
+         // Set up the estimator
+         libcomm::experiment *system;
+         if (vm.count("system-file"))
+            system = libcomm::loadfromfile<libcomm::experiment>(
+                  vm["system-file"].as<std::string> ());
+         else
+            system = libcomm::loadfromstring<libcomm::experiment>(
+                  std_systemstring);
+         estimator.bind(system);
+         estimator.set_confidence(vm["confidence"].as<double> ());
+         estimator.set_accuracy(vm["tolerance"].as<double> ());
+         estimator.timeout = vm["time"].as<double> ();
+         // Work out at the SNR value required
+         system->set_parameter(vm["parameter"].as<double> ());
+
+         // Print some debug information
+         libbase::trace << system->description() << std::endl;
+
+         // Perform the simulation
+         libbase::vector<double> estimate, tolerance;
+         estimator.estimate(estimate, tolerance);
+         const libbase::int64u frames = estimator.get_samplecount();
+
+         if (!vm["quiet"].as<bool> ())
+            {
+            // Write some information on the code
+            cout << std::endl << std::endl;
+            cout << "System Used:" << std::endl;
+            cout << "~~~~~~~~~~~~" << std::endl;
+            cout << system->description() << std::endl;
+            //cout << "Rate: " << system-> << std::endl;
+            cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%"
+                  << std::endl;
+            cout << "Confidence: " << 100 * estimator.get_confidence() << "%"
+                  << std::endl;
+            cout << "Date: " << libbase::timer::date() << std::endl;
+            // TODO: add method to system to get parameter name
+            cout << "Simulating at system parameter = "
+                  << system->get_parameter() << std::endl;
+
+            // Print results (for confirming accuracy)
+            cout << std::endl;
+            cout << "Results:" << std::endl;
+            cout << "~~~~~~~~" << std::endl;
+            for (int j = 0; j < system->count(); j++)
+               {
+               cout << system->result_description(j) << '\t';
+               cout << setprecision(6) << estimate(j);
+               cout << "\t[+/-" << setprecision(3) << 100 * tolerance(j)
+                     << "%]";
+               if (!vm.count("system-file"))
+                  cout << "\t(" << setprecision(3) << 100 * (estimate(j)
+                        - std_result[j]) / std_result[j] << "%)";
+               cout << std::endl;
+               }
+
+            // Output timing statistics
+            cout << std::endl;
+            cout << "URL: " << __WCURL__ << std::endl;
+            cout << "Version: " << __WCVER__ << std::endl;
+            cout << "Statistics: " << frames << " frames in "
+                  << estimator.get_timer() << "." << std::endl;
+            }
+
+         // Output overall benchmark
+         cout << "SPECturbo: " << setprecision(4) << frames
+               / estimator.get_timer().elapsed() << " frames/sec" << std::endl;
+
+         // Destroy what was created on the heap
+         delete system;
          }
-
-      // Output timing statistics
-      cout << std::endl;
-      cout << "URL: " << __WCURL__ << std::endl;
-      cout << "Version: " << __WCVER__ << std::endl;
-      cout << "Statistics: " << frames << " frames in "
-            << estimator.get_timer() << "." << std::endl;
+         break;
       }
-
-   // Output overall benchmark
-   cout << "SPECturbo: " << setprecision(4) << frames
-         / estimator.get_timer().elapsed() << " frames/sec" << std::endl;
    return 0;
    }
 

@@ -43,6 +43,7 @@ namespace libcomm {
 #endif
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
+const double bsid::metric_computer::Pr = 1e-10;
 
 // FBA decoder parameter computation
 
@@ -606,10 +607,13 @@ bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
 /*!
  * \brief Set channel parameter
  * 
- * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
- * parameters that are not flagged to change will instead be set to zero. This ensures
- * that there is no leakage between successive uses of this class. (i.e. once this
- * function is called, the class will be in a known determined state).
+ * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of
+ * these parameters that are not flagged to change will instead be set to the
+ * specified fixed value.
+ *
+ * \note We set fixed values every time to ensure that there is no leakage
+ * between successive uses of this class. (i.e. once this function is called,
+ * the class will be in a known determined state).
  */
 void bsid::set_parameter(const double p)
    {
@@ -623,8 +627,9 @@ void bsid::set_parameter(const double p)
 /*!
  * \brief Get channel parameter
  * 
- * This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
- * If none of these are flagged to change, this constitutes an error condition.
+ * This returns the value of the first of Ps, Pd, or Pi that are flagged to
+ * change. If none of these are flagged to change, this constitutes an error
+ * condition.
  */
 double bsid::get_parameter() const
    {
@@ -642,13 +647,12 @@ double bsid::get_parameter() const
 /*!
  * \copydoc channel::corrupt()
  * 
- * \note Due to limitations of the interface, which was designed for substitution channels,
- * only the substitution part of the channel model is handled here.
+ * \note Due to limitations of the interface, which was designed for
+ * substitution channels, only the substitution part of the channel model is
+ * handled here.
  * 
- * For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
- * This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
- * modulation. For MPSK modulation, this causes the output to be the symbol farthest away
- * from the input.
+ * For the purposes of this channel, a \e substitution corresponds to a symbol
+ * inversion.
  */
 bool bsid::corrupt(const bool& s)
    {
@@ -686,7 +690,7 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
                Pi, Pd);
          }
       }
-   catch (std::exception& e)
+   catch (std::exception&)
       {
       for (int x = -xmax; x <= xmax; x++)
          {
@@ -722,7 +726,7 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
                sof_pdf, offset);
          }
       }
-   catch (std::exception& e)
+   catch (std::exception&)
       {
       for (int x = -xmax; x <= xmax; x++)
          {
