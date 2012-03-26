@@ -245,11 +245,11 @@ export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(
 
 ### Local variables:
 
-### Build Targets
+### Build Targets (libs is selective to avoid Libwin)
 
 TARGETS_MAIN = $(wildcard SimCommsys/*)
 TARGETS_TEST = $(wildcard Test/*)
-TARGETS = $(TARGETS_MAIN) $(TARGETS_TEST)
+TARGETS_LIBS = $(foreach name,$(LIBNAMES),/Libraries/Lib$(name))
 
 ## Master targets
 
@@ -301,7 +301,7 @@ build-main-%:
 build-test-%:
 	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
 build-libs-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(LIBRARIES)
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
 
 install:	install-main install-test
 install-main:	install-main-debug install-main-release
@@ -313,7 +313,7 @@ install-main-%:
 install-test-%:
 	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
 install-libs-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(LIBRARIES)
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
 clean:	clean-main clean-test
 clean-main:	clean-main-release clean-main-debug
@@ -325,7 +325,7 @@ clean-main-%:
 clean-test-%:
 	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_TEST)
 clean-libs-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(LIBRARIES)
+	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_LIBS)
 
 ## Setting targets
 
@@ -339,16 +339,14 @@ FORCE:
 
 ## Manual targets
 
-$(TARGETS):	$(LIBRARIES) FORCE
+$(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
 	@echo "----> Making target \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
+	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
+
+$(TARGETS_LIBS):	FORCE
+	@echo "----> Making library \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
 BuildUtils:	FORCE
 	@echo "----> Making target \"$@\"."
 	@$(MAKE) -C "$(ROOTDIR)/$@" build
-
-## Pattern-matched targets
-
-%.a:	FORCE
-	@echo "----> Making library \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
-	@$(MAKE) -C $(ROOTDIR)/Libraries/$(patsubst lib%.a,Lib%,$(notdir $@)) $(DOTARGET)
