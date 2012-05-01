@@ -26,8 +26,7 @@
 #define __commsys_errors_levenshtein_h
 
 #include "config.h"
-#include "vector.h"
-#include <string>
+#include "commsys_errorrates.h"
 
 namespace libcomm {
 
@@ -43,20 +42,8 @@ namespace libcomm {
  * Implements error rate calculators for SER (using both Hamming and
  * Levenshtein distances) and FER.
  */
-class commsys_errors_levenshtein {
-protected:
-   /*! \name System Interface */
-   //! The number of decoding iterations performed
-   virtual int get_iter() const = 0;
-   //! The number of information symbols per block
-   virtual int get_symbolsperblock() const = 0;
-   //! The information symbol alphabet size
-   virtual int get_alphabetsize() const = 0;
-   // @}
+class commsys_errors_levenshtein : public commsys_errorrates {
 public:
-   virtual ~commsys_errors_levenshtein()
-      {
-      }
    /*! \name Public interface */
    void updateresults(libbase::vector<double>& result, const int i,
          const libbase::vector<int>& source,

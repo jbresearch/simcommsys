@@ -106,8 +106,9 @@ void process(const std::string& systemfile, const std::string& hostfile,
    // Save the resulting image
    stegoimage.serialize(sout);
    // Verify that there is no pending data
-   if (libbase::isincompleteload(sin))
-      exit(1);
+   sin >> libbase::verifycomplete;
+   // Destroy what was created on the heap
+   delete system;
    }
 
 /*!

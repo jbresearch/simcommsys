@@ -30,13 +30,11 @@
 #include "matrix.h"
 #include "multi_array.h"
 #include "fsm.h"
-#include "modem/dminner2-receiver.h"
 #include "instrumented.h"
 
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 
 namespace libcomm {
 
@@ -55,8 +53,11 @@ namespace libcomm {
  * Trans. IT, 47(2), Feb 2001.
  */
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 class fba2 {
+private:
+   // Shorthand for class hierarchy
+   typedef fba2<receiver_t, real, sig, norm> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
@@ -66,11 +67,8 @@ public:
    typedef libbase::vector<array1r_t> array1vr_t;
    typedef boost::assignable_multi_array<real, 2> array2r_t;
    typedef boost::assignable_multi_array<real, 4> array4r_t;
-   typedef boost::assignable_multi_array<bool, 3> array3b_t;
+   typedef boost::assignable_multi_array<bool, 2> array2b_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef fba2<real, sig, norm> This;
 private:
    /*! \name User-defined parameters */
    int N; //!< The transmitted block size in symbols
@@ -90,17 +88,18 @@ private:
    array2r_t alpha; //!< Forward recursion metric
    array2r_t beta; //!< Backward recursion metric
    mutable array4r_t gamma; //!< Receiver metric
-   mutable array3b_t cached; //!< Flag for caching of receiver metric
+   mutable array2b_t cached; //!< Flag for caching of receiver metric
    array1s_t r; //!< Copy of received sequence, for lazy computation of gamma
    array1vd_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
 #ifndef NDEBUG
    mutable int gamma_calls; //!< Number of gamma computations
    mutable int gamma_misses; //!< Number of gamma computations causing a cache miss
 #endif
-   mutable dminner2_receiver<real> receiver; //!< Inner code receiver metric computation
+   mutable receiver_t receiver; //!< Inner code receiver metric computation
    // @}
 private:
    /*! \name Internal functions */
+   void compute_gamma(int d, int i, int x, array1r_t& ptable) const;
    real compute_gamma(int d, int i, int x, int deltax) const;
    real get_gamma(int d, int i, int x, int deltax) const;
    // memory allocation
@@ -131,11 +130,46 @@ public:
    // main initialization routine - constructor essentially just calls this
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
          double th_outer);
-   // access metric computation
-   dminner2_receiver<real>& get_receiver() const
+
+   /*! \name Parameter getters */
+   //! Access metric computation
+   receiver_t& get_receiver() const
       {
       return receiver;
       }
+   int get_N() const
+      {
+      return N;
+      }
+   int get_n() const
+      {
+      return n;
+      }
+   int get_q() const
+      {
+      return q;
+      }
+   int get_I() const
+      {
+      return I;
+      }
+   int get_xmax() const
+      {
+      return xmax;
+      }
+   int get_dxmax() const
+      {
+      return dxmax;
+      }
+   double get_th_inner() const
+      {
+      return th_inner;
+      }
+   double get_th_outer() const
+      {
+      return th_outer;
+      }
+   // @}
 
    // decode functions
    void decode(libcomm::instrumented& collector, const array1s_t& r,
@@ -146,15 +180,27 @@ public:
    // Description
    std::string description() const
       {
-      std::ostringstream sout;
-      sout << "Symbol-level Forward-Backward Algorithm";
-      return sout.str();
+      return "Symbol-level Forward-Backward Algorithm";
       }
 };
 
-template <class real, class sig, bool norm>
-inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
-      int deltax) const
+template <class receiver_t, class real, class sig, bool norm>
+inline void fba2<receiver_t, real, sig, norm>::compute_gamma(int d, int i,
+      int x, array1r_t& ptable) const
+   {
+   // determine received segment to extract
+   const int start = xmax + n * i + x;
+   const int length = std::min(n + dmax, r.size() - start);
+   // call batch receiver method
+   receiver.R(d, i, r.extract(start, length), ptable);
+   // apply priors if applicable
+   if (app.size() > 0)
+      ptable *= real(app(i)(d));
+   }
+
+template <class receiver_t, class real, class sig, bool norm>
+inline real fba2<receiver_t, real, sig, norm>::compute_gamma(int d, int i,
+      int x, int deltax) const
    {
    real result = receiver.R(d, i, r.extract(xmax + n * i + x, n + deltax));
    if (app.size() > 0)
@@ -162,17 +208,27 @@ inline real fba2<real, sig, norm>::compute_gamma(int d, int i, int x,
    return result;
    }
 
-template <class real, class sig, bool norm>
-real fba2<real, sig, norm>::get_gamma(int d, int i, int x, int deltax) const
+template <class receiver_t, class real, class sig, bool norm>
+real fba2<receiver_t, real, sig, norm>::get_gamma(int d, int i, int x,
+      int deltax) const
    {
    if (!cache_enabled)
       return compute_gamma(d, i, x, deltax);
 
-   if (!cached[i][x][deltax])
+   if (!cached[i][x])
       {
-      cached[i][x][deltax] = true;
+      // mark results as cached now
+      cached[i][x] = true;
+      // allocate space for results
+      static array1r_t ptable;
+      ptable.init(2 * dxmax + 1);
+      // call computation method and store results
       for (int d = 0; d < q; d++)
-         gamma[d][i][x][deltax] = compute_gamma(d, i, x, deltax);
+         {
+         compute_gamma(d, i, x, ptable);
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma[d][i][x][deltax] = ptable(dxmax + deltax);
+         }
 #ifndef NDEBUG
       gamma_misses++;
 #endif

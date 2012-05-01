@@ -1,0 +1,81 @@
+commsys<bool>
+## Channel
+bsid
+# Version
+4
+# Biased?
+0
+# Vary Ps?
+0
+# Vary Pd?
+1
+# Vary Pi?
+1
+# Cap on I (0=uncapped)
+2
+# Fixed Ps value
+0
+# Fixed Pd value
+0
+# Fixed Pi value
+0
+## Modem
+dminner2<float>
+# Version
+2
+# User threshold?
+1
+#: Inner threshold
+0
+#: Outer threshold
+0
+# n
+8
+# k
+4
+# codebook type (0=sparse, 1=user, 2=tvb)
+1
+#: codebook name
+(8,16)-ld3-modvec6
+#: codebook entries
+01110011
+00011111
+10101111
+11111001
+00111000
+01001001
+10000001
+11100000
+11001010
+01010000
+00110101
+00000110
+10001100
+11000111
+11111110
+01101100
+# marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
+3
+#: modification vectors
+6
+00000000
+01001001
+11111111
+10110010
+10110110
+01001101
+## Mapper
+map_straight<vector>
+## Codec
+uncoded<double>
+# Encoder
+cached_fsm
+#: Base Encoder
+gnrcc<gf<4,0x13>>
+#: Generator matrix (k x n vectors)
+1	1
+1
+0001
+
+# Block length
+5

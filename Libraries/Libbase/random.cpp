@@ -26,31 +26,21 @@
 
 namespace libbase {
 
-random::random()
-   {
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Track reseeding
 #ifndef NDEBUG
-   counter = 0;
-   //trace << "DEBUG: random (" << this << ") created." << std::endl;
-   initialized = false;
+#  undef DEBUG
+#  define DEBUG 1
 #endif
-   next_gval_available = false;
-   }
-
-random::~random()
-   {
-#ifndef NDEBUG
-   if (counter > 0)
-      trace << "DEBUG: random (" << this << ") destroyed after " << counter
-            << " steps." << std::endl;
-#endif
-   }
 
 void random::seed(int32u s)
    {
+#if DEBUG>=2
+   std::cerr << "DEBUG: random (" << this << ") reseeded with " << s
+         << " after " << counter << " steps." << std::endl;
+#endif
 #ifndef NDEBUG
-   if (counter > 0)
-      trace << "DEBUG: random (" << this << ") reseeded with " << s
-            << " after " << counter << " steps." << std::endl;
    counter = 0;
    initialized = true;
 #endif

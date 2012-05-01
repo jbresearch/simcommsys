@@ -26,6 +26,7 @@
 #include "pacifier.h"
 #include "vectorutils.h"
 #include "cuda/gputimer.h"
+#include "channel/bsid.h"
 #include <iomanip>
 
 namespace cuda {
@@ -43,9 +44,9 @@ namespace cuda {
 
 /*! \brief Memory allocator for working matrices
  */
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
-      dev_array1r_t& gamma)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::allocate(dev_array2r_t& alpha,
+      dev_array2r_t& beta, dev_array1r_t& gamma)
    {
    // determine limits
    dmin = std::max(-n, -dxmax);
@@ -87,7 +88,7 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
          << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
-   std::cerr.setf(flags);
+   std::cerr.flags(flags);
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
@@ -104,9 +105,9 @@ void fba2<real, sig, norm>::allocate(dev_array2r_t& alpha, dev_array2r_t& beta,
 
 // Initialization
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::init(int N, int n, int q, int I, int xmax,
-      int dxmax, double th_inner, double th_outer)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::init(int N, int n, int q, int I,
+      int xmax, int dxmax, double th_inner, double th_outer)
    {
    // code parameters
    assert(N > 0);
@@ -131,9 +132,9 @@ void fba2<real, sig, norm>::init(int N, int n, int q, int I, int xmax,
 
 // Internal procedures
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
+void fba2<receiver_t, real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
       const dev_array2r_ref_t& app)
    {
    using cuda::min;
@@ -145,6 +146,10 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    // compute all matrix values
    // - all threads are independent and indexes guaranteed in range
 
+   // set up space for batch results
+   libcomm::bsid::real ptable_data[libcomm::bsid::metric_computer::arraysize];
+   cuda_assertalways(libcomm::bsid::metric_computer::arraysize >= 2 * dxmax + 1);
+   cuda::vector_reference<libcomm::bsid::real> ptable(ptable_data, 2 * dxmax + 1);
    // limits on insertions and deletions must be respected:
    //   x2-x1 <= n*I
    //   x2-x1 >= -n
@@ -152,23 +157,32 @@ void fba2<real, sig, norm>::work_gamma(const dev_array1s_ref_t& r,
    // (necessary for forward recursion on extracted segment)
    //   x2-x1 <= dxmax
    //   x2-x1 >= -dxmax
-   for (int x1 = -xmax; x1 <= xmax; x1++)
+   for (int x = -xmax; x <= xmax; x++)
       {
-      const int deltaxmin = max(-xmax - x1, dmin);
-      const int deltaxmax = min(xmax - x1, dmax);
+      // determine received segment to extract
+      const int start = xmax + n * i + x;
+      const int length = min(n + dmax, r.size() - start);
+      // call batch receiver method
+      receiver.R(d, i, r.extract(start, length), ptable);
+      // copy results
+      const int deltaxmin = max(-xmax - x, dmin);
+      const int deltaxmax = min(xmax - x, dmax);
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
          {
-         real R = receiver.R(d, i, r.extract(xmax + n * i + x1, n + deltax));
+         real R = ptable(dxmax + deltax);
+         // apply priors if applicable
          if (app.size() > 0)
-            R *= app(i, d);
-         get_gamma(d, i, x1, deltax) = R;
+            {
+            R *= real(app(i,d));
+            }
+         get_gamma(d, i, x, deltax) = R;
          }
       }
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-real fba2<real, sig, norm>::get_threshold(const dev_array2r_ref_t& metric, int row, int cols, real factor)
+real fba2<receiver_t, real, sig, norm>::get_threshold(const dev_array2r_ref_t& metric, int row, int cols, real factor)
    {
    const bool thresholding = (factor > 0);
    real threshold = 0;
@@ -186,9 +200,9 @@ real fba2<real, sig, norm>::get_threshold(const dev_array2r_ref_t& metric, int r
    return threshold;
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-real fba2<real, sig, norm>::parallel_sum(real array[])
+real fba2<receiver_t, real, sig, norm>::parallel_sum(real array[])
    {
    const int N = blockDim.x; // Total number of active threads
    const int i = threadIdx.x;
@@ -207,9 +221,9 @@ real fba2<real, sig, norm>::parallel_sum(real array[])
    return array[0];
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-real fba2<real, sig, norm>::get_scale(const dev_array2r_ref_t& metric, int row, int cols)
+real fba2<receiver_t, real, sig, norm>::get_scale(const dev_array2r_ref_t& metric, int row, int cols)
    {
    real scale = 0;
    for (int col = 0; col < cols; col++)
@@ -223,9 +237,9 @@ real fba2<real, sig, norm>::get_scale(const dev_array2r_ref_t& metric, int row, 
    return scale;
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::normalize(dev_array2r_ref_t& metric, int row, int cols)
+void fba2<receiver_t, real, sig, norm>::normalize(dev_array2r_ref_t& metric, int row, int cols)
    {
 
    // set up thread index
@@ -236,9 +250,9 @@ void fba2<real, sig, norm>::normalize(dev_array2r_ref_t& metric, int row, int co
    metric(row, col) *= scale;
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_alpha(const dev_array1r_ref_t& sof_prior, int i)
+void fba2<receiver_t, real, sig, norm>::work_alpha(const dev_array1r_ref_t& sof_prior, int i)
    {
    using cuda::min;
    using cuda::max;
@@ -306,9 +320,9 @@ void fba2<real, sig, norm>::work_alpha(const dev_array1r_ref_t& sof_prior, int i
       }
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_beta(const dev_array1r_ref_t& eof_prior, int i)
+void fba2<receiver_t, real, sig, norm>::work_beta(const dev_array1r_ref_t& eof_prior, int i)
    {
    using cuda::min;
    using cuda::max;
@@ -376,16 +390,16 @@ void fba2<real, sig, norm>::work_beta(const dev_array1r_ref_t& eof_prior, int i)
       }
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_message_app(dev_array2r_ref_t& ptable) const
+void fba2<receiver_t, real, sig, norm>::work_message_app(dev_array2r_ref_t& ptable) const
    {
    using cuda::min;
    using cuda::max;
 
    // local flag for path thresholding
    const bool thresholding = (th_outer > 0);
-   // Check result vector (one sparse symbol per timestep)
+   // Check result vector (one symbol per timestep)
    cuda_assertalways(ptable.get_rows()==N && ptable.get_cols()==q);
    // set up block & thread indexes
    const int i = blockIdx.x;
@@ -425,10 +439,9 @@ void fba2<real, sig, norm>::work_message_app(dev_array2r_ref_t& ptable) const
    ptable(i,d) = p;
    }
 
-
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __device__
-void fba2<real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
+void fba2<receiver_t, real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
       const int i) const
    {
    // Check result vector and requested index
@@ -443,60 +456,60 @@ void fba2<real, sig, norm>::work_state_app(dev_array1r_ref_t& ptable,
 
 // Kernels
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_gamma_kernel(fba2<real,sig,norm> object, const vector_reference<sig> r,
+void fba2_gamma_kernel(fba2<receiver_t,real,sig,norm> object, const vector_reference<sig> r,
       const matrix_reference<real> app)
    {
    object.work_gamma(r, app);
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_alpha_kernel(fba2<real,sig,norm> object, const vector_reference<real> sof_prior, const int i)
+void fba2_alpha_kernel(fba2<receiver_t,real,sig,norm> object, const vector_reference<real> sof_prior, const int i)
    {
    object.work_alpha(sof_prior, i);
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_normalize_alpha_kernel(fba2<real,sig,norm> object, const int i)
+void fba2_normalize_alpha_kernel(fba2<receiver_t,real,sig,norm> object, const int i)
    {
    object.normalize_alpha(i);
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_beta_kernel(fba2<real,sig,norm> object, const vector_reference<real> eof_prior, const int i)
+void fba2_beta_kernel(fba2<receiver_t,real,sig,norm> object, const vector_reference<real> eof_prior, const int i)
    {
    object.work_beta(eof_prior, i);
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_normalize_beta_kernel(fba2<real,sig,norm> object, const int i)
+void fba2_normalize_beta_kernel(fba2<receiver_t,real,sig,norm> object, const int i)
    {
    object.normalize_beta(i);
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_message_app_kernel(fba2<real,sig,norm> object, matrix_reference<real> ptable)
+void fba2_message_app_kernel(fba2<receiver_t,real,sig,norm> object, matrix_reference<real> ptable)
    {
    object.work_message_app(ptable);
    }
 
-template <class real, class sig, bool norm>
+template <class receiver_t, class real, class sig, bool norm>
 __global__
-void fba2_state_app_kernel(fba2<real,sig,norm> object, vector_reference<real> ptable, const int i)
+void fba2_state_app_kernel(fba2<receiver_t,real,sig,norm> object, vector_reference<real> ptable, const int i)
    {
    object.work_state_app(ptable, i);
    }
 
 // helper methods
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::print_gamma(std::ostream& sout) const
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::print_gamma(std::ostream& sout) const
    {
    // copy the data set from the device
    libbase::vector<real> host_gamma = libbase::vector<real>(gamma);
@@ -524,8 +537,8 @@ void fba2<real, sig, norm>::print_gamma(std::ostream& sout) const
 
 // de-reference kernel calls
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& r,
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::do_work_gamma(const dev_array1s_t& r,
       const dev_array2r_t& app)
    {
    static bool first_time = true;
@@ -537,7 +550,7 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& r,
    gamma.fill(0);
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
-   fba2_gamma_kernel<real,sig,norm> <<<N,q>>>(*this, r, app);
+   fba2_gamma_kernel<receiver_t,real,sig,norm> <<<N,q>>>(*this, r, app);
    cudaSafeThreadSynchronize();
    // if debug mode is high enough, print the results obtained
 #if DEBUG>=3
@@ -548,9 +561,9 @@ void fba2<real, sig, norm>::do_work_gamma(const dev_array1s_t& r,
    first_time = false;
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_alpha(const dev_array1r_t& sof_prior,
-      stream& sid)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::do_work_alpha(
+      const dev_array1r_t& sof_prior, stream& sid)
    {
    static bool first_time = true;
    // Alpha computation:
@@ -567,14 +580,14 @@ void fba2<real, sig, norm>::do_work_alpha(const dev_array1r_t& sof_prior,
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
-      fba2_alpha_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, sof_prior, i);
+      fba2_alpha_kernel<receiver_t,real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, sof_prior, i);
       //cudaSafeThreadSynchronize();
       // normalize if requested
       if (norm)
          {
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_alpha_kernel<real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
+         fba2_normalize_alpha_kernel<receiver_t,real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
          //cudaSafeThreadSynchronize();
          }
       }
@@ -586,8 +599,8 @@ void fba2<real, sig, norm>::do_work_alpha(const dev_array1r_t& sof_prior,
    first_time = false;
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_beta(const dev_array1r_t& eof_prior, stream& sid)
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::do_work_beta(const dev_array1r_t& eof_prior, stream& sid)
    {
    static bool first_time = true;
    // Beta computation:
@@ -604,14 +617,14 @@ void fba2<real, sig, norm>::do_work_beta(const dev_array1r_t& eof_prior, stream&
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
-      fba2_beta_kernel<real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, eof_prior, i);
+      fba2_beta_kernel<receiver_t,real,sig,norm> <<<2*xmax+1,q,q*sizeof(real),sid.get_id()>>>(*this, eof_prior, i);
       //cudaSafeThreadSynchronize();
       // normalize if requested
       if (norm)
          {
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_beta_kernel<real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
+         fba2_normalize_beta_kernel<receiver_t,real,sig,norm> <<<1,2*xmax+1,0,sid.get_id()>>>(*this, i);
          //cudaSafeThreadSynchronize();
          }
       }
@@ -623,8 +636,8 @@ void fba2<real, sig, norm>::do_work_beta(const dev_array1r_t& eof_prior, stream&
    first_time = false;
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::do_work_results(dev_array2r_t& ptable,
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::do_work_results(dev_array2r_t& ptable,
       dev_array1r_t& sof_post, dev_array1r_t& eof_post) const
    {
    static bool first_time = true;
@@ -639,20 +652,20 @@ void fba2<real, sig, norm>::do_work_results(dev_array2r_t& ptable,
       << std::endl;
       }
    // compute APPs of message
-   fba2_message_app_kernel<real,sig,norm> <<<N,q>>>(*this, ptable);
+   fba2_message_app_kernel<receiver_t,real,sig,norm> <<<N,q>>>(*this, ptable);
    // compute APPs of sof/eof state values 
-   fba2_state_app_kernel<real,sig,norm> <<<2*xmax+1,1>>>(*this, sof_post, 0);
-   fba2_state_app_kernel<real,sig,norm> <<<2*xmax+1,1>>>(*this, eof_post, N);
+   fba2_state_app_kernel<receiver_t,real,sig,norm> <<<2*xmax+1,1>>>(*this, sof_post, 0);
+   fba2_state_app_kernel<receiver_t,real,sig,norm> <<<2*xmax+1,1>>>(*this, eof_post, N);
    cudaSafeThreadSynchronize();
    // reset pacifier monitor
    first_time = false;
    }
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::copy_results(const dev_array2r_t& dev_ptable,
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::copy_results(const dev_array2r_t& dev_ptable,
       array1vr_t& ptable)
    {
-   // initialise result vector (one sparse symbol per timestep) and copy back
+   // initialise result vector (one symbol per timestep) and copy back
    libbase::allocate(ptable, N, q);
    for (int i = 0; i < N; i++)
    ptable(i) = array1r_t(dev_ptable.extract_row(i));
@@ -664,8 +677,8 @@ void fba2<real, sig, norm>::copy_results(const dev_array2r_t& dev_ptable,
 
 // User procedures
 
-template <class real, class sig, bool norm>
-void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
+template <class receiver_t, class real, class sig, bool norm>
+void fba2<receiver_t, real, sig, norm>::decode(libcomm::instrumented& collector,
       const array1s_t& r, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
       array1r_t& sof_post, array1r_t& eof_post, const int offset)
@@ -759,13 +772,19 @@ void fba2<real, sig, norm>::decode(libcomm::instrumented& collector,
    collector.add_timer(sizeof(real) * gamma.size(), "m_gamma");
    }
 
+} // end namespace
+
 // Explicit Realizations
 
+#include "modem/dminner2-receiver-cuda.h"
+
+namespace cuda {
+
 // no-normalization, for debugging
-template class fba2<float, bool, false>;
-template class fba2<double, bool, false>;
+template class fba2<dminner2_receiver<float>, float, bool, false> ;
+template class fba2<dminner2_receiver<double>, double, bool, false> ;
 // normalized, for normal use
-template class fba2<float, bool, true>;
-template class fba2<double, bool, true>;
+template class fba2<dminner2_receiver<float>, float, bool, true> ;
+template class fba2<dminner2_receiver<double>, double, bool, true> ;
 
 } // end namespace

@@ -41,6 +41,7 @@
 #include "channel/lapgauss.h"
 #include "channel/bsid.h"
 #include "channel/bsid2d.h"
+#include "channel/qids.h"
 #include "channel/bsc.h"
 #include "channel/qsc.h"
 
@@ -62,6 +63,7 @@
 #include "modem/dminner.h"
 #include "modem/dminner2.h"
 #include "modem/dminner2d.h"
+#include "modem/tvb.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -168,6 +170,8 @@ class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
 private:
    typedef libbase::logrealfast logrealfast;
 private:
+   // Channels
+   qids<libbase::gf<1, 0x3> > _qids;
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
    //padded<double>	_padded_double;
@@ -193,6 +197,7 @@ private:
    dminner<double, true> _dminner;
    dminner2<double, true> _dminner2;
    dminner2d<double, true> _dminner2d;
+   tvb<double, libbase::gf<1, 0x3>, true> _tvb;
    // Codecs
    ldpc<libbase::gf<1, 0x3>, double> _ldpc_1_0x3_dbl;
 

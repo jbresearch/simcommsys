@@ -37,7 +37,6 @@ namespace showerrorevent {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show event for each sample
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -106,6 +105,8 @@ int main(int argc, char *argv[])
          "simulation parameter");
    desc.add_options()("seed,s", po::value<int>()->default_value(-1),
          "system initialization seed (random if -1)");
+   desc.add_options()("show-all,a", po::bool_switch(),
+         "show all simulated frames (not just first error event)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -118,11 +119,12 @@ int main(int argc, char *argv[])
       return 0;
       }
 
+   // Interpret user parameters
+   const bool showall = vm["show-all"].as<bool> ();
    // Simulation system & parameters
    libcomm::experiment *system = createsystem(
          vm["system-file"].as<std::string> ());
    system->set_parameter(vm["parameter"].as<double> ());
-
    // Initialise running values
    system->reset();
    seed_experiment(system, vm["seed"].as<int> ());
@@ -135,17 +137,21 @@ int main(int argc, char *argv[])
       cerr << "Simulating sample " << system->get_samplecount() << std::endl;
       system->sample(result);
       system->accumulate(result);
-#if DEBUG>=2
-      cerr << "Event for sample " << system->get_samplecount() << ":"
-            << std::endl;
-      display_event(system);
-#endif
+      if (showall)
+         {
+         cerr << "Event for sample " << system->get_samplecount() << ":"
+               << std::endl;
+         display_event(system);
+         }
       } while (result.min() == 0);
    cerr << "Event found after " << system->get_samplecount() << " samples"
          << std::endl;
-   // Display results
-   display_event(system);
+   // Display results if necessary
+   if (!showall)
+      display_event(system);
 
+   // Destroy what was created on the heap
+   delete system;
    return 0;
    }
 

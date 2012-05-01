@@ -26,6 +26,8 @@
 #define __commsys_stream_h
 
 #include "commsys.h"
+#include "modem/stream_modulator.h"
+#include "channel_stream.h"
 
 namespace libcomm {
 
@@ -46,6 +48,9 @@ namespace libcomm {
  *    likely to begin/end, and
  * 3) allows the user to extract posterior information on where the frame is
  *    likely to begin/end.
+ *
+ * This class requires the underlying modem and channel to support stream
+ * operations. Access methods are also provided.
  */
 
 template <class S, template <class > class C = libbase::vector>
@@ -66,7 +71,20 @@ private:
    // @}
 
 public:
-   // Communication System Interface Extensions
+   /*! \name Communication System Setup Extensions */
+   //! Get modulation scheme in stream mode
+   stream_modulator<S, C>& getmodem_stream() const
+      {
+      return dynamic_cast<stream_modulator<S, C>&> (*this->mdm);
+      }
+   //! Get channel model in stream mode
+   channel_stream<S>& getchan_stream() const
+      {
+      return dynamic_cast<channel_stream<S>&> (*this->chan);
+      }
+   // @}
+
+   /*! \name Communication System Interface Extensions */
    void receive_path(const C<S>& received, const C<double>& sof_prior, const C<
          double>& eof_prior, const libbase::size_type<C> offset);
    const C<double>& get_sof_post() const
@@ -77,6 +95,7 @@ public:
       {
       return eof_post;
       }
+   // @}
 
    // Description
    std::string description() const;

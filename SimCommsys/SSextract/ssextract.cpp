@@ -112,8 +112,10 @@ void process(const std::string& systemfile, const std::string& channelfile,
          }
       }
    // Verify that there is no pending data
-   if (libbase::isincompleteload(sin))
-      exit(1);
+   sin >> libbase::verifycomplete;
+   // Destroy what was created on the heap
+   delete system;
+   delete chan;
    }
 
 /*!

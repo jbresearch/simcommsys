@@ -26,7 +26,6 @@
 
 #include "fsm.h"
 #include "itfunc.h"
-#include "secant.h"
 #include "truerand.h"
 #include "randgen.h"
 #include <sstream>
@@ -98,7 +97,7 @@ void montecarlo::slave_work(void)
    // print something to inform the user of our progress
    vector<double> result, tolerance;
    updateresults(result, tolerance);
-   display();
+   display(result, tolerance);
    }
 
 // helper functions
@@ -253,7 +252,8 @@ void montecarlo::lookforstate(std::istream& sin)
  * 
  * \note Display updates are rate-limited
  */
-void montecarlo::display() const
+void montecarlo::display(const libbase::vector<double>& result,
+      const libbase::vector<double>& tolerance) const
    {
    if (tupdate.elapsed() > 0.5)
       {
@@ -268,7 +268,7 @@ void montecarlo::display() const
       clog << "pass " << system->get_samplecount() << "." << std::endl;
       clog << "System parameter: " << system->get_parameter() << std::endl;
       clog << "Results:" << std::endl;
-      system->prettyprint_results(clog);
+      system->prettyprint_results(clog, result, tolerance);
       clog << "Press 'q' to interrupt." << std::endl;
       clog.precision(prec);
       tupdate.start();
@@ -356,9 +356,7 @@ void montecarlo::sampleandaccumulate()
 void montecarlo::updateresults(vector<double>& result,
       vector<double>& tolerance) const
    {
-   // init Qinv as the inverse of Q(), using the secant method
-   libbase::secant Qinv(libbase::Q);
-   const double cfactor = Qinv((1.0 - confidence) / 2.0);
+   const double cfactor = libbase::Qinv((1.0 - confidence) / 2.0);
    // determine a new estimate
    system->estimate(result, tolerance);
    assert(result.size() == tolerance.size());
@@ -553,7 +551,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
          if (acc <= accuracy && system->get_samplecount() >= min_samples)
             converged = true;
          // print something to inform the user of our progress
-         display();
+         display(result, tolerance);
          // write interim results
          if (resultsfile::isinitialized())
             writeinterimresults(result, tolerance);

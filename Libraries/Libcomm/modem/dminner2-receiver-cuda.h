@@ -34,7 +34,6 @@ namespace cuda {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show settings when initializing the dminner2 computer
-// 3 - Show running information from R() kernel
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
@@ -55,23 +54,23 @@ namespace cuda {
 template <class real>
 class dminner2_receiver {
 private:
-   int n; //!< Number of bits in 'sparse' symbol
-   mutable cuda::vector<int> ws; //!< Device copy of pilot sequence
-   cuda::matrix_auto<int> lut; //!< Device copy of 'sparsifier' LUT
+   int n; //!< Number of bits per codeword
+   mutable cuda::vector<int> marker; //!< Device copy of marker sequence
+   cuda::matrix_auto<int> codebook; //!< Device copy of codebook
    libcomm::bsid::metric_computer computer; //!< Channel object for computing receiver metric
 public:
    // initialization routines
-   void init(const int n, const libbase::matrix<int>& lut,
+   void init(const int n, const libbase::matrix<int>& codebook,
          const libcomm::bsid& chan)
       {
       this->n = n;
-      this->lut = lut;
+      this->codebook = codebook;
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
-      std::cerr << "lut = " << libbase::vector<int>(this->lut) << std::endl;
-      std::cerr << "sizeof(lut) = " << sizeof(this->lut) << std::endl;
+      std::cerr << "codebook = " << libbase::vector<int>(this->codebook) << std::endl;
+      std::cerr << "sizeof(codebook) = " << sizeof(this->codebook) << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
       std::cerr << "xmax = " << computer.xmax << std::endl;
@@ -80,41 +79,28 @@ public:
             computer.Rtable) << std::endl;
 #endif
       }
-   void init(const libbase::vector<int>& ws) const
+   void init(const libbase::vector<int>& marker) const
       {
-      this->ws = ws;
+      this->marker = marker;
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
-      std::cerr << "ws = " << libbase::vector<int>(this->ws) << std::endl;
-      std::cerr << "sizeof(ws) = " << sizeof(this->ws) << std::endl;
+      std::cerr << "marker = " << libbase::vector<int>(this->marker) << std::endl;
+      std::cerr << "sizeof(marker) = " << sizeof(this->marker) << std::endl;
 #endif
       }
-   // receiver interface
 #ifdef __CUDACC__
+   // batch receiver interface
    __device__
-   real R(int d, int i, const cuda::vector_reference<bool>& r) const
+   void R(int d, int i, const cuda::vector_reference<bool>& r,
+         cuda::vector_reference<libcomm::bsid::real>& ptable) const
       {
-#if DEBUG>=3
-      if(d == 0 && i == 0)
-         {
-         printf("R(%d,%d): sizeof(ws)=%d\n", d, i, sizeof(ws));
-         printf("R(%d,%d): sizeof(lut)=%d\n", d, i, sizeof(lut));
-         printf("R(%d,%d): ws.data=%p, ws.size()=%d\n", d, i, &ws(0), ws.size());
-         printf("R(%d,%d): lut.data=%p, lut.size()=%d\n", d, i, &lut(0,0), lut.size());
-         }
-#endif
-      const int w = ws(i);
-      const int s = lut(i % lut.get_rows(), d);
-#if DEBUG>=3
-      printf("R(%d,%d): ws(%d)=%d\n", d, i, i, w);
-      printf("R(%d,%d): lut(%d,%d)=%d\n", d, i, i % lut.get_rows(), d, s);
-#endif
+      const int w = marker(i); // marker vector
+      const int s = codebook(i % codebook.get_rows(), d);
       // 'tx' is the vector of transmitted symbols that we're considering
       // TODO: find a way to use dminner::encode()
-      cuda::bitfield tx(n);
-      tx = w ^ s;
-      // compute the conditional probability
-      return computer.receive(tx, r);
+      cuda::bitfield tx(w ^ s, n);
+      // compute the conditional probabilities
+      computer.receive(tx, r, ptable);
       }
 #endif
 };

@@ -43,6 +43,16 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of construction
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 /*!
  * \brief   Cached FSM.
  * \author  Johann Briffa
@@ -102,14 +112,22 @@ public:
    //! Principal constructor
    explicit cached_fsm(fsm& encoder)
       {
+#if DEBUG>=2
+      std::cerr << "DEBUG: cached_fsm(fsm&) constructor" << std::endl;
+#endif
       init(encoder);
+      reset(encoder.state());
       }
    //! Principal constructor (for const argument)
    explicit cached_fsm(const fsm& encoder)
       {
+#if DEBUG>=2
+      std::cerr << "DEBUG: cached_fsm(const fsm&) constructor" << std::endl;
+#endif
       fsm *encoder_copy = dynamic_cast<fsm*> (encoder.clone());
       init(*encoder_copy);
       delete encoder_copy;
+      reset(encoder.state());
       }
    //! Default constructor
    cached_fsm()
@@ -132,7 +150,7 @@ public:
       }
    void resetcircular(const array1i_t& zerostate, int n)
       {
-      assertalways("Function not implemented");
+      failwith("Function not implemented");
       }
 
    // FSM operations (advance/output/step)
@@ -193,6 +211,12 @@ public:
    // Serialization Support
 DECLARE_SERIALIZER(cached_fsm)
 };
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

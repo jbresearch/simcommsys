@@ -1,0 +1,50 @@
+commsys<gf<4,0x13>>
+## Channel
+qids<gf<4,0x13>>
+# Version
+1
+# Vary Ps?
+0
+# Vary Pd?
+1
+# Vary Pi?
+1
+# Cap on I (0=uncapped)
+0
+# Fixed Ps value
+0
+# Fixed Pd value
+0
+# Fixed Pi value
+0
+## Modem
+tvb<gf<4,0x13>,double>
+# Version
+1
+#: Inner threshold
+0
+#: Outer threshold
+0
+# n
+2
+# k
+1
+# codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
+1
+# marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
+0
+## Mapper
+map_straight<vector>
+## Codec
+uncoded<double>
+# Encoder
+cached_fsm
+#: Base Encoder
+gnrcc<gf<4,0x13>>
+#: Generator matrix (k x n vectors)
+1	1
+1
+0001
+
+# Block length
+50

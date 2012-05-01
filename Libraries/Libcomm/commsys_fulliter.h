@@ -54,14 +54,14 @@ namespace libcomm {
 
 template <class S, template <class > class C = libbase::vector>
 class commsys_fulliter : public commsys<S, C> {
-public:
-   /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
-   // @}
 private:
    // Shorthand for class hierarchy
    typedef commsys<S, C> Base;
    typedef commsys_fulliter<S, C> This;
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<double> array1d_t;
+   // @}
 private:
    /*! \name User parameters */
    int iter; //!< Number of full-system iterations

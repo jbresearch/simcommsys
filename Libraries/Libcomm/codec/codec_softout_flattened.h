@@ -56,6 +56,10 @@ namespace libcomm {
 
 template <class base_codec_softout, class dbl = double>
 class codec_softout_flattened : public base_codec_softout {
+private:
+   // Shorthand for class hierarchy
+   typedef base_codec_softout Base;
+   typedef codec_softout_flattened<base_codec_softout, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -63,10 +67,6 @@ public:
    typedef libbase::matrix<dbl> array2d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef base_codec_softout Base;
-   typedef codec_softout_flattened<base_codec_softout, dbl> This;
 private:
    /*! \name Internal functions */
    template <class D> void init(mapper<libbase::vector, D>& map) const;

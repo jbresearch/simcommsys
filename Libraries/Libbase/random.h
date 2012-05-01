@@ -31,6 +31,14 @@
 
 namespace libbase {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Track construction/destruction
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 /*!
  * \brief   Random Generator Base Class.
  * \author  Johann Briffa
@@ -76,19 +84,74 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
-   random();
-   virtual ~random();
+   random()
+      {
+#ifndef NDEBUG
+      counter = 0;
+      initialized = false;
+#endif
+#if DEBUG>=2
+      std::cerr << "DEBUG: random (" << this << ") created." << std::endl;
+#endif
+      next_gval_available = false;
+      }
+   //! Copy constructor
+   random(const random& r) :
+#ifndef NDEBUG
+            counter(r.counter), initialized(r.initialized),
+#endif
+            next_gval_available(r.next_gval_available), next_gval(r.next_gval)
+      {
+#if DEBUG>=2
+      std::cerr << "DEBUG: random (" << this << ") created as a copy of ("
+            << &r << ")." << std::endl;
+#endif
+      }
+   //! Copy assignment
+   random& operator=(const random& r)
+      {
+#ifndef NDEBUG
+      counter = r.counter;
+      initialized = r.initialized;
+#endif
+      next_gval_available = r.next_gval_available;
+      next_gval = r.next_gval;
+#if DEBUG>=2
+      std::cerr << "DEBUG: random (" << this << ") copied from (" << &r << ")."
+            << std::endl;
+#endif
+      return *this;
+      }
+   //! Virtual destructor
+   virtual ~random()
+      {
+#if DEBUG>=2
+      std::cerr << "DEBUG: random (" << this << ") destroyed after " << counter
+            << " steps." << std::endl;
+#endif
+      }
    // @}
 
    /*! \name Random generator interface */
    //! Seed random generator
    void seed(int32u s);
    //! Uniformly-distributed unsigned integer in closed interval [0,get_max()]
-   int32u ival();
+   int32u ival()
+      {
+#ifndef NDEBUG
+      counter++;
+      // check for counter roll-over (change to 64-bit counter if this ever happens)
+      assert(counter != 0);
+      // check for explicit seeding prior to use
+      assert(initialized);
+#endif
+      advance();
+      return get_value();
+      }
    //! Uniformly-distributed unsigned integer in half-open interval [0,m)
    int32u ival(int32u m)
       {
-      assert(m-1 <= get_max());
+      assert(m - 1 <= get_max());
       return int(floor(fval_halfopen() * m));
       }
    //! Uniformly-distributed floating point value in closed interval [0,1]
@@ -99,7 +162,7 @@ public:
    //! Uniformly-distributed floating point value in half-open interval [0,1)
    double fval_halfopen()
       {
-      return ival() / (double(get_max())+1.0);
+      return ival() / (double(get_max()) + 1.0);
       }
    //! Return Gaussian-distributed double (zero mean, unit variance)
    double gval();
@@ -111,18 +174,11 @@ public:
    // @}
 };
 
-inline int32u random::ival()
-   {
+// Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
-   counter++;
-   // check for counter roll-over (change to 64-bit counter if this ever happens)
-   assert(counter != 0);
-   // check for explicit seeding prior to use
-   assert(initialized);
+#  undef DEBUG
+#  define DEBUG
 #endif
-   advance();
-   return get_value();
-   }
 
 } // end namespace
 

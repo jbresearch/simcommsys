@@ -35,8 +35,8 @@
 #  include <cstring>
 #endif
 #include <csignal>
-#include <sstream>
 #include <cstdio>
+#include <sstream>
 
 namespace libbase {
 
@@ -265,49 +265,47 @@ std::istream& eatcomments(std::istream& is)
 
 /*!
  * \brief Check for a failure during the last stream input.
- * \return True if the last stream input did not succeed.
  * 
- * If the last stream input did not succeed, an error message is also shown,
- * detailing the stream position where this occurred.
+ * If the last stream input did not succeed, throws an exception with
+ * details on the stream position where this occurred.
  */
-bool isfailedload(std::istream &is)
+void check_failedload(std::istream &is)
    {
    if (is.fail())
       {
       std::ios::iostate state = is.rdstate();
       is.clear();
-      std::cerr << "ERROR: Failure loading object at position " << is.tellg()
+      std::ostringstream sout;
+      sout << "Failure loading object at position " << is.tellg()
             << ", next line:" << std::endl;
       std::string s;
       getline(is, s);
-      std::cerr << s << std::endl;
+      sout << s;
       is.clear(state);
-      return true;
+      throw load_error(sout.str());
       }
-   return false;
    }
 
 /*!
  * \brief Check for a unloaded data on the stream.
- * \return True if there is still data left on the stream.
  * 
- * If there is still data left on the stream an error message is also shown,
- * detailing the stream position where this occurred. All data left from this
- * position onwards is also printed. Note that comments are excluded.
+ * If there is still data left on the stream (excluding any initial comments),
+ * throws an exception with details on the stream position where this occurred.
+ * All data left from this position onwards is also returned.
  */
-bool isincompleteload(std::istream &is)
+void check_incompleteload(std::istream &is)
    {
    libbase::eatcomments(is);
    if (!is.eof())
       {
-      std::cerr << "ERROR: Incomplete loading, stopped at position "
-            << is.tellg() << ", next line:" << std::endl;
+      std::ostringstream sout;
+      sout << "Incomplete loading, stopped at position " << is.tellg()
+            << ", next line:" << std::endl;
       std::string s;
       getline(is, s);
-      std::cerr << s << std::endl;
-      return true;
+      sout << s;
+      throw load_error(sout.str());
       }
-   return false;
    }
 
 /*!
@@ -318,8 +316,7 @@ bool isincompleteload(std::istream &is)
  */
 std::istream& verify(std::istream& is)
    {
-   if (isfailedload(is))
-      exit(1);
+   check_failedload(is);
    return is;
    }
 
@@ -331,8 +328,8 @@ std::istream& verify(std::istream& is)
  */
 std::istream& verifycomplete(std::istream& is)
    {
-   if (isfailedload(is) || isincompleteload(is))
-      exit(1);
+   check_failedload(is);
+   check_incompleteload(is);
    return is;
    }
 

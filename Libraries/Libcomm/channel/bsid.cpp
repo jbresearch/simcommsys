@@ -23,99 +23,179 @@
  */
 
 #include "bsid.h"
-#include "secant.h"
-#include <boost/math/special_functions/binomial.hpp>
+#include "itfunc.h"
 #include <sstream>
 #include <limits>
+#include <exception>
+#include <cmath>
 
 namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show results of computation of xmax
-// 3 - Show transmit and insertion state vectors during transmission process
+// 2 - Show results of computation of xmax and I
+//     and details of pdf resizing
+// 3 - Show intermediate computation details for (2)
+// 4 - Show transmit and insertion state vectors during transmission process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
 #endif
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
+const double bsid::metric_computer::Pr = 1e-10;
 
 // FBA decoder parameter computation
 
 /*!
- * \brief Determine the probability of drift x at the end of a frame of tau bits
+ * \brief The probability of drift x after transmitting tau bits
  *
- * \todo Add formula
+ * Computes the required probability using Davey's Gaussian approximation.
+ *
+ * The calculation is based on the assumption that the end-of-frame drift has
+ * a Gaussian distribution with zero mean and standard deviation given by
+ * \f$ \sigma = \sqrt{\frac{2 \tau p}{1-p}} \f$
+ * where \f$ p = P_i = P_d \f$.
+ *
+ * To preserve the property that the sum over x should be 1, rather than
+ * returning a discrete sample of the Gaussian pdf at x, we return the
+ * integral over x +/- 0.5.
+ *
+ * Since the probability is symmetric about x=0, we always use positive x;
+ * this ensures the subtraction does not fail due to resolution of double.
  */
 double bsid::metric_computer::compute_drift_prob_davey(int x, int tau,
       double Pi, double Pd)
    {
    // sanity checks
    assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   assert(Pd >= 0 && Pd < 1.0);
-   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
+   validate(Pd, Pi);
    // set constants
    assert(Pi == Pd); // assumed by this algorithm
    const double p = Pi;
    // the distribution is approximately Gaussian with:
-   const double sigma = sqrt(tau * p / (1 - p));
+   const double sigma = sqrt(2 * tau * p / (1 - p));
    // main computation
-   double Pr = libbase::gauss(x / sigma);
-   return Pr;
+   const double xa = abs(x);
+   const double x1 = (xa - 0.5) / sigma;
+   const double x2 = (xa + 0.5) / sigma;
+   const double this_p = libbase::Q(x1) - libbase::Q(x2);
+#if DEBUG>=3
+   std::cerr << "DEBUG (bsid): [pdf-davey] x = " << x << ", sigma = " << sigma
+   << ", this_p = " << this_p << "." << std::endl;
+#endif
+   return this_p;
    }
 
 /*!
- * \brief Determine the probability of drift x at the end of a frame of tau bits
+ * \brief The probability of drift x after transmitting tau bits
+ *
+ * Computes the required probability using the exact metric from our
+ * Trans. Inf. Theory submission.
  *
  * \todo Add formula
  */
 double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
       double Pi, double Pd)
    {
+   typedef long double real;
    // sanity checks
    assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   assert(Pd >= 0 && Pd < 1.0);
+   validate(Pd, Pi);
    // set constants
    const double Pt = 1 - Pi - Pd;
+   const double Pf = Pi * Pd / Pt;
    const int imin = (x < 0) ? -x : 0;
-   // main computation
-   double Pr = 0;
-   for (int i = imin; i <= tau; i++)
+   // shortcut for out-of-range values
+   if (imin > tau)
+      return 0;
+   // compute initial value
+   real p0 = 1;
+   // inner and outer factors (do this in log domain)
+   p0 = log(p0);
+   // inner factor if x > 0 (and therefore imin = 0)
+   for (int xi = 1; xi <= x + imin; xi++)
       {
-      double tmp;
-      tmp = boost::math::binomial_coefficient<double>(tau + x + i - 1, x + i);
-      tmp *= boost::math::binomial_coefficient<double>(tau, i);
-      tmp *= pow(Pi * Pd / Pt, i);
-      Pr += tmp;
+      p0 += log(real(tau + xi - 1)) - log(real(xi));
       }
-   Pr *= pow(Pt, tau) * pow(Pi, x);
-   return Pr;
+   // inner factor if x < 0 (and therefore imin > 0)
+   if (imin > 0)
+      p0 += log(Pf) * imin;
+   for (int i = 1; i <= imin; i++)
+      {
+      p0 += log(real(tau - i + 1)) - log(real(i));
+      }
+   // outer factors
+   p0 += log(real(Pt)) * tau;
+   p0 += log(real(Pi)) * x;
+   p0 = exp(p0);
+#if DEBUG>=3
+   std::cerr << "DEBUG (bsid): [pdf-exact] x = " << x << ", p0 = " << p0
+   << std::endl;
+#endif
+   if (p0 == 0)
+      throw std::overflow_error("zero factor");
+   // main computation
+   real this_p = p0;
+   for (int i = imin + 1; i <= tau; i++)
+      {
+      // update factor
+      p0 *= Pf;
+      p0 *= real(tau + x + i - 1) / real(x + i);
+      p0 *= real(tau - i + 1) / real(i);
+      // update main result
+      const real last_p = this_p;
+      this_p += p0;
+#if DEBUG>=3
+      std::cerr << "DEBUG (bsid): [pdf-exact] i = " << i << ", p0 = " << p0
+      << ", this_p = " << this_p << std::endl;
+#endif
+      // early cutoff
+      if (this_p == last_p)
+         break;
+      }
+#if DEBUG>=3
+   std::cerr << "DEBUG (bsid): [pdf-exact] this_p = " << this_p << std::endl;
+#endif
+   // validate and return result
+   if (!std::isfinite(this_p))
+      throw std::overflow_error("value not finite");
+   else if (this_p == 0)
+      throw std::overflow_error("zero value");
+   else if (this_p < 0)
+      throw std::overflow_error("negative value");
+   return this_p;
    }
 
 /*!
- * \brief Determine the probability of drift x at the end of a frame of tau bits
+ * \brief The probability of drift x after transmitting tau bits, given the
+ * supplied drift pdf at start of transmission.
  *
- * \todo Add formula
+ * The final drift pdf is obtained by convolving the expected pdf for a
+ * known start of frame position with the actual start of frame distribution.
  */
-double bsid::metric_computer::compute_drift_prob(int x, int tau, double Pi,
-      double Pd)
+template <typename F>
+double bsid::metric_computer::compute_drift_prob_with(const F& compute_pdf,
+      int x, int tau, double Pi, double Pd,
+      const libbase::vector<double>& sof_pdf, const int offset)
    {
-   // sanity checks
-   assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   assert(Pd >= 0 && Pd < 1.0);
-   // use the appropriate algorithm
-   double Pr;
-   if (tau > 100 && Pi == Pd)
-      Pr = compute_drift_prob_davey(x, tau, Pi, Pd);
-   else
-      Pr = compute_drift_prob_exact(x, tau, Pi, Pd);
+   // if sof_pdf is empty, delegate automatically
+   if (sof_pdf.size() == 0)
+      return compute_pdf(x, tau, Pi, Pd);
+   // compute the probability at requested drift
+   double this_p = 0;
+   const int imin = -offset;
+   const int imax = sof_pdf.size() - offset;
+   for (int i = imin; i < imax; i++)
+      {
+      const double p = compute_pdf(x - i, tau, Pi, Pd);
+      this_p += sof_pdf(i + offset) * p;
+      }
+   // normalize
+   this_p /= sof_pdf.sum();
    // confirm that this value is finite and valid
-   assert(Pr >= 0 && Pr < std::numeric_limits<double>::infinity());
-   return Pr;
+   assert(this_p >= 0 && this_p < std::numeric_limits<double>::infinity());
+   return this_p;
    }
 
 /*!
@@ -136,112 +216,131 @@ int bsid::metric_computer::compute_I(int tau, double Pi, int Icap)
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
    // main computation
-   int I = int(ceil((log(1e-12) - log(double(tau))) / log(Pi))) - 1;
+   int I = int(ceil((log(Pr) - log(double(tau))) / log(Pi))) - 1;
    I = std::max(I, 1);
-   libbase::trace << "DEBUG (bsid): for N = " << tau << ", I = " << I;
+#if DEBUG>=2
+   std::cerr << "DEBUG (bsid): for N = " << tau << ", I = " << I;
+#endif
    if (Icap > 0)
       {
       I = std::min(I, Icap);
-      libbase::trace << ", capped to " << I;
+#if DEBUG>=2
+      std::cerr << ", capped to " << I;
+#endif
       }
-   libbase::trace << "." << std::endl;
+#if DEBUG>=2
+   std::cerr << "." << std::endl;
+#endif
    return I;
    }
 
 /*!
  * \brief Determine maximum drift at the end of a frame of tau bits (Davey's algorithm)
- * 
+ *
  * \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
  * where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
  * having a block of size \f$ \tau \f$ where the drift at the end is greater
  * than \f$ \pm x_{max} \f$.
  * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
- * 
+ *
  * The calculation is based on the assumption that the end-of-frame drift has
  * a Gaussian distribution with zero mean and standard deviation given by
- * \f$ \sigma = \sqrt{\frac{\tau p}{1-p}} \f$.
+ * \f$ \sigma = \sqrt{\frac{2 \tau p}{1-p}} \f$.
  */
 int bsid::metric_computer::compute_xmax_davey(int tau, double Pi, double Pd)
    {
    // sanity checks
    assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   assert(Pd >= 0 && Pd < 1.0);
-   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
+   validate(Pd, Pi);
    // set constants
    assert(Pi == Pd); // assumed by this algorithm
    const double p = Pi;
-   // rather than computing the factor using a root-finding method,
-   // we fix factor = 7.1305, corresponding to Qinv(1e-12/2.0)
-   const double factor = 7.1305;
-   int xmax = int(ceil(factor * sqrt(tau * p / (1 - p))));
-   // tell the user what we did and return
-#if DEBUG>=2
-   std::cerr << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
+   // determine required multiplier
+   const double factor = libbase::Qinv(Pr / 2.0);
+#if DEBUG>=3
+   std::cerr << "DEBUG (bsid): [davey] Q(" << factor << ") = " << libbase::Q(
+         factor) << std::endl;
 #endif
+   // main computation
+   const int xmax = int(ceil(factor * sqrt(2 * tau * p / (1 - p))));
+   // tell the user what we did and return
    return xmax;
    }
 
 /*!
- * \brief Determine maximum drift at the end of a frame of tau bits (exact algorithm)
+ * \brief Determine maximum drift at the end of a frame of tau bits, given the
+ * supplied drift pdf at start of transmission.
  *
- * \todo Add formula
+ * The drift range is chosen such that the probability of having the drift
+ * after transmitting \f$ \tau \f$ bits being greater than \f$ \pm x_{max} \f$
+ * is less than an arbirarty value \f$ P_r \f$.
+ * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
  */
-int bsid::metric_computer::compute_xmax_exact(int tau, double Pi, double Pd)
+template <typename F>
+int bsid::metric_computer::compute_xmax_with(const F& compute_pdf, int tau,
+      double Pi, double Pd)
    {
    // sanity checks
    assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   assert(Pd >= 0 && Pd < 1.0);
-   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
-   // set constants
-   const double Pr = 1e-12;
+   validate(Pd, Pi);
    // determine area that needs to be covered
-   double acc = 0.0;
+   double acc = 1.0;
    // determine xmax to use
    int xmax = 0;
-   acc += compute_drift_prob(xmax, tau, Pi, Pd);
-   while (true)
+   acc -= compute_pdf(xmax, tau, Pi, Pd);
+#if DEBUG>=3
+   std::cerr << "DEBUG (bsid): xmax = " << xmax << ", acc = " << acc << "."
+   << std::endl;
+#endif
+   while (acc >= Pr)
       {
       xmax++;
-      acc += compute_drift_prob(xmax, tau, Pi, Pd);
-      acc += compute_drift_prob(-xmax, tau, Pi, Pd);
-      if (acc >= 1.0 - Pr)
-         break;
+      acc -= compute_pdf(xmax, tau, Pi, Pd);
+      acc -= compute_pdf(-xmax, tau, Pi, Pd);
+#if DEBUG>=3
+      std::cerr << "DEBUG (bsid): xmax = " << xmax << ", acc = " << acc << "."
+      << std::endl;
+#endif
       }
    // tell the user what we did and return
 #if DEBUG>=2
-   std::cerr << "DEBUG (bsid): [exact] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
+   std::cerr << "DEBUG (bsid): [computed] for N = " << tau << ", xmax = "
+   << xmax << "." << std::endl;
+   std::cerr << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = "
+   << compute_xmax_davey(tau, Pi, Pd) << "." << std::endl;
 #endif
    return xmax;
    }
 
+// Explicit instantiations
+
+template int bsid::metric_computer::compute_xmax_with(
+      const compute_drift_prob_functor& f, int tau, double Pi, double Pd);
+template int bsid::metric_computer::compute_xmax_with(
+      const compute_drift_prob_functor::pdf_func_t& f, int tau, double Pi,
+      double Pd);
+
 /*!
- * \brief Determine maximum drift at the end of a frame of tau bits
+ * \brief Determine maximum drift at the end of a frame of tau bits, given the
+ * supplied drift pdf at start of transmission.
  *
- * This method uses Davey's algorithm for large frames where Pi=Pd, and the
- * exact algorithm in all other cases.
- *
- * \note The smallest allowed value is \f$ x_{max} = I \f$
+ * This method caps the minimum value of xmax, so it is at least equal to I.
  */
-int bsid::metric_computer::compute_xmax(int tau, double Pi, double Pd, int I)
+int bsid::metric_computer::compute_xmax(int tau, double Pi, double Pd, int I,
+      const libbase::vector<double>& sof_pdf, const int offset)
    {
    // sanity checks
    assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   assert(Pd >= 0 && Pd < 1.0);
-   assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
+   validate(Pd, Pi);
    // use the appropriate algorithm
-   int xmax;
-   if (tau > 100 && Pi == Pd)
-      xmax = compute_xmax_davey(tau, Pi, Pd);
-   else
-      xmax = compute_xmax_exact(tau, Pi, Pd);
+   int xmax = compute_xmax(tau, Pi, Pd, sof_pdf, offset);
    // cap minimum value
    xmax = std::max(xmax, I);
    // tell the user what we did and return
-   libbase::trace << "DEBUG (bsid): for N = " << tau << ", xmax = " << xmax
-         << "." << std::endl;
+#if DEBUG>=2
+   std::cerr << "DEBUG (bsid): [adjusted] for N = " << tau << ", xmax = "
+   << xmax << "." << std::endl;
+#endif
    return xmax;
    }
 
@@ -346,18 +445,32 @@ void bsid::metric_computer::init()
 
 // Channel received for host
 
-#ifndef USE_CUDA
 bsid::real bsid::metric_computer::receive(const bitfield& tx,
       const array1b_t& rx) const
+   {
+   // Compute sizes
+   const int n = tx.size();
+   const int mu = rx.size() - n;
+   // Allocate space for results and call main receiver
+   static array1r_t ptable;
+   ptable.init(2 * xmax + 1);
+   receive(tx, rx, ptable);
+   // return result
+   return ptable(xmax + mu);
+   }
+
+#ifndef USE_CUDA
+void bsid::metric_computer::receive(const bitfield& tx, const array1b_t& rx,
+      array1r_t& ptable) const
    {
    using std::min;
    using std::max;
    using std::swap;
    // Compute sizes
    const int n = tx.size();
-   const int mu = rx.size() - n;
+   const int rho = rx.size();
    assert(n <= N);
-   assert(labs(mu) <= xmax);
+   assert(labs(rho - n) <= xmax);
    // Set up two slices of forward matrix, and associated pointers
    // Arrays are allocated on the stack as a fixed size; this avoids dynamic
    // allocation (which would otherwise be necessary as the size is non-const)
@@ -366,17 +479,24 @@ bsid::real bsid::metric_computer::receive(const bitfield& tx,
    real F1[arraysize];
    real *Fthis = F1;
    real *Fprev = F0;
+   // initialize for j=0
    // for prior list, reset all elements to zero
    for (int x = 0; x < 2 * xmax + 1; x++)
-      Fprev[x] = 0;
-   // we also know x[0] = 0; ie. drift before transmitting bit t0 is zero.
-   Fprev[xmax + 0] = 1;
-   // compute remaining matrix values
-   for (int j = 1; j < n; ++j)
       {
+      Fthis[x] = 0;
+      }
+   // we also know x[0] = 0; ie. drift before transmitting bit t0 is zero.
+   Fthis[xmax + 0] = 1;
+   // compute remaining matrix values
+   for (int j = 1; j <= n; ++j)
+      {
+      // swap 'this' and 'prior' lists
+      swap(Fthis, Fprev);
       // for this list, reset all elements to zero
       for (int x = 0; x < 2 * xmax + 1; x++)
+         {
          Fthis[x] = 0;
+         }
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y < rx.size()
@@ -385,7 +505,7 @@ bsid::real bsid::metric_computer::receive(const bitfield& tx,
       // 4. y-a >= -1
       // note: a and y are offset by xmax
       const int ymin = max(0, xmax - j);
-      const int ymax = min(2 * xmax, xmax + rx.size() - j);
+      const int ymax = min(2 * xmax, xmax + rho - j);
       for (int y = ymin; y <= ymax; ++y)
          {
          real result = 0;
@@ -410,58 +530,58 @@ bsid::real bsid::metric_computer::receive(const bitfield& tx,
             }
          Fthis[y] = result;
          }
-      // swap 'this' and 'prior' lists
-      swap(Fthis, Fprev);
       }
-   // Compute forward metric for known drift, and return
-   real result = 0;
-   // event must fit the received sequence:
-   // 1. n-1+a >= 0
-   // 2. n-1+mu < rx.size() [automatically satisfied by definition of mu]
-   // limits on insertions and deletions must be respected:
-   // 3. mu-a <= I
-   // 4. mu-a >= -1
-   // note: muoff and a are offset by xmax
-   const int muoff = mu + xmax;
-   const int amin = max(max(0, muoff - I), xmax + 1 - n);
-   const int amax = min(2 * xmax, muoff + 1);
-   // check if the last element is a pure deletion
-   int amax_act = amax;
-   if (muoff - amax < 0)
+   // copy results and return
+   assertalways(ptable.size() == 2 * xmax + 1);
+   for (int x = 0; x < 2 * xmax + 1; x++)
       {
-      result += Fprev[amax] * Rval;
-      amax_act--;
+      ptable(x) = Fthis[x];
       }
-   // elements requiring comparison of tx and rx bits
-   for (int a = amin; a <= amax_act; ++a)
-      {
-      // received subsequence has
-      // start:  n-1+a
-      // length: mu-a+1
-      // therefore last element is: start+length-1 = n+mu-1
-      const bool cmp = tx(n - 1) != rx(n + mu - 1);
-      result += Fprev[a] * Rtable(cmp, muoff - a);
-      }
-   // clean up and return
-   return result;
    }
 #endif
 
 /*!
  * \brief Initialization
  *
- * Sets the channel with \f$ P_s = P_d = P_i = 0 \f$. This way, any of the
- * parameters not flagged to change with channel parameter will remain zero.
+ * Sets the channel with fixed values for Ps, Pd, Pi. This way, if the user
+ * never calls set_parameter(), the values are valid.
  */
 void bsid::init()
    {
    // channel parameters
-   Ps = 0;
-   Pd = 0;
-   Pi = 0;
+   Ps = fixedPs;
+   Pd = fixedPd;
+   Pi = fixedPi;
    // initialize metric computer
    computer.init();
    computer.precompute(Ps, Pd, Pi, Icap, biased);
+   }
+
+/*!
+ * \brief Resize drift pdf table
+ *
+ * The input pdf table can be any size, with any offset; the data is copied
+ * into the output pdf table, going from -xmax to +xmax.
+ */
+libbase::vector<double> bsid::resize_drift(const array1d_t& in,
+      const int offset, const int xmax)
+   {
+   // allocate space an initialize
+   array1d_t out(2 * xmax + 1);
+   out = 0;
+   // copy over common elements
+   const int imin = std::max(-offset, -xmax);
+   const int imax = std::min(in.size() - 1 - offset, xmax);
+   const int length = imax - imin + 1;
+#if DEBUG>=2
+   std::cerr << "DEBUG (bsid): [resize] offset = " << offset << ", xmax = "
+         << xmax << "." << std::endl;
+   std::cerr << "DEBUG (bsid): [resize] imin = " << imin << ", imax = "
+         << imax << "." << std::endl;
+#endif
+   out.segment(xmax + imin, length) = in.extract(offset + imin, length);
+   // return results
+   return out;
    }
 
 // Constructors / Destructors
@@ -473,7 +593,8 @@ void bsid::init()
  */
 bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
       const bool biased) :
-   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(2)
+   biased(biased), varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(0),
+         fixedPs(0), fixedPd(0), fixedPi(0)
    {
    // channel update flags
    assert(varyPs || varyPd || varyPi);
@@ -486,10 +607,13 @@ bsid::bsid(const bool varyPs, const bool varyPd, const bool varyPi,
 /*!
  * \brief Set channel parameter
  * 
- * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of these
- * parameters that are not flagged to change will instead be set to zero. This ensures
- * that there is no leakage between successive uses of this class. (i.e. once this
- * function is called, the class will be in a known determined state).
+ * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of
+ * these parameters that are not flagged to change will instead be set to the
+ * specified fixed value.
+ *
+ * \note We set fixed values every time to ensure that there is no leakage
+ * between successive uses of this class. (i.e. once this function is called,
+ * the class will be in a known determined state).
  */
 void bsid::set_parameter(const double p)
    {
@@ -503,8 +627,9 @@ void bsid::set_parameter(const double p)
 /*!
  * \brief Get channel parameter
  * 
- * This returns the value of the first of Ps, Pd, or Pi that are flagged to change.
- * If none of these are flagged to change, this constitutes an error condition.
+ * This returns the value of the first of Ps, Pd, or Pi that are flagged to
+ * change. If none of these are flagged to change, this constitutes an error
+ * condition.
  */
 double bsid::get_parameter() const
    {
@@ -522,13 +647,12 @@ double bsid::get_parameter() const
 /*!
  * \copydoc channel::corrupt()
  * 
- * \note Due to limitations of the interface, which was designed for substitution channels,
- * only the substitution part of the channel model is handled here.
+ * \note Due to limitations of the interface, which was designed for
+ * substitution channels, only the substitution part of the channel model is
+ * handled here.
  * 
- * For the purposes of this channel, a \e substitution corresponds to a symbol inversion.
- * This corresponds to the \f$ 0 \Leftrightarrow 1 \f$ binary substitution when used with BPSK
- * modulation. For MPSK modulation, this causes the output to be the symbol farthest away
- * from the input.
+ * For the purposes of this channel, a \e substitution corresponds to a symbol
+ * inversion.
  */
 bool bsid::corrupt(const bool& s)
    {
@@ -541,8 +665,12 @@ bool bsid::corrupt(const bool& s)
 // Stream-oriented channel characteristics
 
 /*!
- * \brief Get the expected drift distribution after transmitting 'tau' bits
- * This method assumes the start-of-frame drift is zero.
+ * \brief Get the expected drift distribution after transmitting 'tau' bits,
+ * assuming the start-of-frame drift is zero.
+ *
+ * This method determines the required limit on state space, and computes the
+ * end-of-frame distribution for this range. It returns the necessary offset
+ * accordingly.
  */
 void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
       libbase::size_type<libbase::vector>& offset) const
@@ -554,36 +682,63 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
    // initialize result vector
    eof_pdf.init(2 * xmax + 1);
    // compute the probability at each possible drift
-   for (int x = -xmax; x <= xmax; x++)
+   try
       {
-      eof_pdf(x + xmax) = metric_computer::compute_drift_prob(x, tau, Pi, Pd);
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_exact(x, tau,
+               Pi, Pd);
+         }
+      }
+   catch (std::exception&)
+      {
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_davey(x, tau,
+               Pi, Pd);
+         }
       }
    }
 
 /*!
- * \brief Get the expected drift distribution after transmitting 'tau' bits
- * This method assumes the start-of-frame distribution is as given.
+ * \brief Get the expected drift distribution after transmitting 'tau' bits,
+ * assuming the start-of-frame distribution is as given.
+ *
+ * This method determines an updated limit on state space, and computes the
+ * end-of-frame distribution for this range. It also resizes the start-of-frame
+ * pdf accordingly and updates the given offset.
  */
-void bsid::get_drift_pdf(int tau, const libbase::vector<double>& sof_pdf,
+void bsid::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
       libbase::vector<double>& eof_pdf,
       libbase::size_type<libbase::vector>& offset) const
    {
    // determine the range of drifts we're interested in
-   const int xmax = compute_xmax(tau);
-   // store the necessary offset
-   offset = libbase::size_type<libbase::vector>(xmax);
+   const int xmax = compute_xmax(tau, sof_pdf, offset);
    // initialize result vector
    eof_pdf.init(2 * xmax + 1);
-   eof_pdf = 0;
    // compute the probability at each possible drift
-   assert(sof_pdf.size() == eof_pdf.size());
-   for (int x1 = -xmax; x1 <= xmax; x1++)
-      for (int x2 = -xmax; x2 <= xmax; x2++)
+   try
+      {
+      for (int x = -xmax; x <= xmax; x++)
          {
-         const double p = metric_computer::compute_drift_prob(x1 - x2, tau, Pi,
-               Pd);
-         eof_pdf(x1 + xmax) += sof_pdf(x2 + xmax) * p;
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_with(
+               metric_computer::compute_drift_prob_exact, x, tau, Pi, Pd,
+               sof_pdf, offset);
          }
+      }
+   catch (std::exception&)
+      {
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_with(
+               metric_computer::compute_drift_prob_davey, x, tau, Pi, Pd,
+               sof_pdf, offset);
+         }
+      }
+   // resize start-of-frame pdf
+   sof_pdf = resize_drift(sof_pdf, offset, xmax);
+   // update with the new offset
+   offset = libbase::size_type<libbase::vector>(xmax);
    }
 
 // Channel functions
@@ -641,7 +796,7 @@ void bsid::transmit(const array1b_t& tx, array1b_t& rx)
          transmit(i) = 0;
       }
    // Initialize results vector
-#if DEBUG>=3
+#if DEBUG>=4
    libbase::trace << "DEBUG (bsid): transmit = " << transmit << std::endl;
    libbase::trace << "DEBUG (bsid): insertions = " << insertions << std::endl;
 #endif

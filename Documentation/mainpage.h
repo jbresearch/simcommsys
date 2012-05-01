@@ -1,8 +1,8 @@
 /*!
  * \file
- * 
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * \section svn Version Control
  * - $Id$
  */
@@ -77,27 +77,50 @@
  * \section software Software Required
  * The code base is meant to be edited using an IDE; requirements depend on
  * the operating system:
- * - Windows development assumes Microsoft Visual Studio 2005; the Team
- * Edition is suggested for its performance-related tools. The Refactor!
- * plugin from Developer Express Inc. is also recommended.
- * - Linux development assumes Eclipse 3.5, with Subclipse 1.4.x for SVN
+ * - Windows development is based on a Windows XP SP3 (32-bit) reference
+ * platform, and assumes Microsoft Visual Studio 2008; the Team System is
+ * suggested for its performance-related tools.
+ * The Refactor! plugin from Developer Express Inc. is also recommended (this
+ * has not been tested with VS 2008).
+ * - Linux development is based on an Ubuntu 10.04 LTS (64-bit) reference
+ * platform, and assumes Eclipse 3.5, with Subversive plugin for SVN
  * integration (install both the main items and the SVNKit to work in
- * Ubuntu 9.04) and Eclox for Doxygen access.
+ * Ubuntu) and Eclox for Doxygen access (this is optional).
  *
  * Compilation on Windows uses the Microsoft built-in compiler; on Linux G++
  * is used. Any recent G++ package should work - the current reference
- * standard is 4.3.3 as in Ubuntu 9.04. Both operating systems need the
- * development version of Boost v1.35 installed, together with the 'Program
- * Options' optional component. For Windows, install the Mutithread and
- * Mutithread Debug variants.
- * 
+ * standard is 4.4.3 as in the standard Ubuntu repositories; some earlier
+ * compilers will work - for example it is known that 4.3.4 works fine (as in
+ * Scientific Linux 5).
+ *
+ * Both operating systems need the development version of Boost v1.40 installed
+ * (later versions should also probably work), together with the 'Program
+ * Options' optional component (it is suggested to install all optional
+ * components, as these may be used in later versions of this software).
+ * For Windows, install the Mutithread and Mutithread Debug variants.
+ * If the version in your OS repos is too old (or if you do not have the
+ * authority to do the installation), it is possible to install this locally
+ * (in your home directory) with the following commands:
+ *
+ * svn co http://svn.boost.org/svn/boost/tags/release/Boost_1_47_0
+ * cd Boost_1_47_0
+ * ./bootstrap.sh --prefix=$HOME
+ * ./b2 install
+ *
+ * Of course you will need to add the local folders into your compiler and
+ * linker search paths, using (for bash):
+ *
+ * export LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
+ * export C_INCLUDE_PATH=$HOME/include:$C_INCLUDE_PATH
+ * export CPLUS_INCLUDE_PATH=$HOME/include:$CPLUS_INCLUDE_PATH
+ *
  * \section authors Contributing Authors
  * This is the list of authors who have contributed directly to the code base,
  * together with their last known contact details. Authors are listed in
- * order of decreasing contribution. 
+ * order of decreasing contribution.
  * - Johann A. Briffa <j.briffa@surrey.ac.uk>
  * - Stephan Wesemeyer <s.wesemeyer@surrey.ac.uk>
- * 
+ *
  * \section funding Project Funding
  * Various parts of this software have been developed with support from the
  * following funding sources. Sources are listed in chronological order.
@@ -105,7 +128,7 @@
  * - EUMedGrid FP6 project, contract No 026024, 2007.
  * - Engineering and Physical Sciences Research Council (EPSRC) UK,
  *   grant EP/E056407/1, 2007-2010.
- * 
+ *
  * Parts of this software were developed while the authors were studying or
  * employed with the following institutions. These are listed in chronological
  * order.

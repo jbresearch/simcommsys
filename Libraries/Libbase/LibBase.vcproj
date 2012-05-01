@@ -550,6 +550,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sparse.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\symbol.cpp"
 				>
 			</File>
@@ -776,6 +780,10 @@
 			</File>
 			<File
 				RelativePath="socket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sparse.h"
 				>
 			</File>
 			<File

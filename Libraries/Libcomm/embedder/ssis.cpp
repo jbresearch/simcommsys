@@ -23,16 +23,13 @@
  */
 
 #include "ssis.h"
-#include "fastsecant.h"
-#include "itfunc.h"
 #include "filter/atmfilter.h"
 #include "filter/awfilter.h"
 #include <cstdlib>
 #include <sstream>
 #include <vectorutils.h>
 
-using libbase::fastsecant;
-using libbase::cerf;
+#include <boost/math/special_functions/erf.hpp>
 
 namespace libcomm {
 
@@ -62,14 +59,7 @@ const S ssis<S, matrix, dbl>::embed(const int data, const S host, const dbl u,
    // Modulate uniform sequence
    const dbl v = (data == 0) ? u : plmod(u);
    // Convert to Gaussian
-   static libbase::fastsecant erfinv(libbase::cerf);
-   static bool initialized = false;
-   if (!initialized)
-      {
-      erfinv.init(-0.99, 0.99, 1000);
-      initialized = true;
-      }
-   const dbl gtilde = erfinv(2 * v - 1) * sqrt(2.0);
+   const dbl gtilde = boost::math::erf_inv(2 * v - 1) * sqrt(2.0);
    // Scale and embed
    return host + S(gtilde * A);
    }

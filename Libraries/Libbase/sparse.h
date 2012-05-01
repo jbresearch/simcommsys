@@ -46,8 +46,8 @@ namespace libbase {
 class sparse {
 private:
    /*! \name Object representation */
-   //! Table to hold codeword values
-   vector<int> lut;
+   int n; //<! Codeword length
+   vector<int> lut; //<! Table to hold codeword values
    // @}
 
 private:

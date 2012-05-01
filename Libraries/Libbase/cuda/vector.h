@@ -491,26 +491,6 @@ protected:
       }
    // @}
 
-   /*! \name Internal functions */
-   //! Unique constructor, can be called only by friends
-#ifdef __CUDACC__
-   __device__ __host__
-#endif
-   vector_reference(T* start, const int n)
-      {
-      // update base class by shallow copy, as needed
-      if (n > 0)
-         {
-         Base::length = n;
-         Base::data = start;
-         }
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " new ";
-      debug_trailer(std::cerr);
-#endif
-      }
-   // @}
    /*! \name Resizing operations */
    /*! \brief Set to given size, freeing if and as required
     *
@@ -550,6 +530,24 @@ public:
 #if DEBUG>=2 && !defined(__CUDA_ARCH__)
       debug_header(std::cerr);
       std::cerr << " copy construction from base object " << &x << " - new ";
+      debug_trailer(std::cerr);
+#endif
+      }
+   //! Unique constructor
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
+   vector_reference(T* start, const int n)
+      {
+      // update base class by shallow copy, as needed
+      if (n > 0)
+         {
+         Base::length = n;
+         Base::data = start;
+         }
+#if DEBUG>=2 && !defined(__CUDA_ARCH__)
+      debug_header(std::cerr);
+      std::cerr << " new ";
       debug_trailer(std::cerr);
 #endif
       }

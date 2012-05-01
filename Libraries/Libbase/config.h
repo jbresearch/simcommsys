@@ -74,6 +74,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include <cstdlib>
 #include <cmath>
@@ -88,7 +89,6 @@
 // module include files
 
 #include "assertalways.h"
-
 
 // *** Global namespace ***
 
@@ -123,17 +123,17 @@ inline double sign(double x)
 
 // Automatic upgrading of various math functions with int parameter
 
-inline double sqrt(int x)
-   {
-   return sqrt(double(x));
-   }
+//inline double sqrt(int x)
+//   {
+//   return sqrt(double(x));
+//   }
 
+#ifdef WIN32
 inline double log(int x)
    {
    return log(double(x));
    }
 
-#ifdef WIN32
 inline double pow(int x, int y)
    {
    return pow(double(x), y);
@@ -175,6 +175,7 @@ inline int isinf(double value)
       }
    }
 #endif //ifdef WIN32
+
 // C99 Names for integer types
 
 #ifdef WIN32
@@ -191,6 +192,24 @@ typedef unsigned __int64 uint64_t;
 // *** Within standard library namespace ***
 
 namespace std {
+
+// Define math functions to identify NaN and Inf values
+
+#ifdef WIN32
+inline bool isfinite(double value)
+   {
+   switch(_fpclass(value))
+      {
+      case _FPCLASS_SNAN:
+      case _FPCLASS_QNAN:
+      case _FPCLASS_NINF:
+      case _FPCLASS_PINF:
+      return false;
+      default:
+      return true;
+      }
+   }
+#endif //ifdef WIN32
 
 //! Operator to concatenate STL vectors
 template <class T>
@@ -240,9 +259,18 @@ std::string getlasterror();
 std::istream& eatwhite(std::istream& is);
 std::istream& eatcomments(std::istream& is);
 
+// Exception class for stream load errors
+class load_error : public std::runtime_error {
+public:
+   explicit load_error(const std::string& what_arg) :
+      std::runtime_error(what_arg)
+      {
+      }
+};
+
 // Stream data loading verification functions
-bool isfailedload(std::istream &is);
-bool isincompleteload(std::istream &is);
+void check_failedload(std::istream &is);
+void check_incompleteload(std::istream &is);
 std::istream& verify(std::istream& is);
 std::istream& verifycomplete(std::istream& is);
 

@@ -52,6 +52,11 @@ namespace libcomm {
 template <class real, class dbl = double>
 class mapcc : public codec_softout<libbase::vector, dbl> , private safe_bcjr<
       real, dbl> {
+private:
+   // Shorthand for class hierarchy
+   typedef mapcc<real, dbl> This;
+   typedef codec_softout<libbase::vector, dbl> Base;
+   typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -60,11 +65,6 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::matrix<dbl> array2d_t;
    // @}
-private:
-   // Shorthand for class hierarchy
-   typedef mapcc<real, dbl> This;
-   typedef codec_softout<libbase::vector, dbl> Base;
-   typedef safe_bcjr<real, dbl> BCJR;
 private:
    /*! \name User-defined parameters */
    fsm *encoder;

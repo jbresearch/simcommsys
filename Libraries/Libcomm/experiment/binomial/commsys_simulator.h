@@ -50,7 +50,7 @@ template <class S, class R = commsys_errorrates>
 class commsys_simulator : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */
-   libbase::randgen *src; //!< Source data sequence generator
+   libbase::randgen src; //!< Source data sequence generator
    commsys<S> *sys; //!< Communication systems
    // @}
    /*! \name Internal state */
@@ -58,8 +58,24 @@ protected:
    // @}
 protected:
    /*! \name Setup functions */
-   void clear();
-   void free();
+   /*!
+    * \brief Removes association with bound objects
+    *
+    * This function performs two things:
+    * - Deletes any internally-allocated bound objects
+    * - Sets up the system with no bound objects
+    *
+    * \note This function is only responsible for deleting bound
+    * objects that are specific to this object/derivation.
+    * Anything else should get done automatically when the base
+    * serializer or constructor is called.
+    */
+   void free()
+      {
+      // note: delete can be safely called with null pointers
+      delete sys;
+      sys = NULL;
+      }
    // @}
    /*! \name Internal functions */
    libbase::vector<int> createsource();
@@ -79,10 +95,19 @@ protected:
       }
 public:
    /*! \name Constructors / Destructors */
-   commsys_simulator(const commsys_simulator<S, R>& c);
-   commsys_simulator()
+   /*!
+    * \brief Copy constructor
+    *
+    * Initializes system with bound objects cloned from supplied system.
+    */
+   commsys_simulator(const commsys_simulator<S, R>& c) :
+      src(c.src)
       {
-      clear();
+      this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
+      }
+   commsys_simulator() :
+      sys(NULL)
+      {
       }
    virtual ~commsys_simulator()
       {
@@ -91,7 +116,11 @@ public:
    // @}
 
    // Experiment parameter handling
-   void seedfrom(libbase::random& r);
+   void seedfrom(libbase::random& r)
+      {
+      src.seed(r.ival());
+      sys->seedfrom(r);
+      }
    void set_parameter(const double x)
       {
       sys->getchan()->set_parameter(x);

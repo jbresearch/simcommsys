@@ -58,18 +58,23 @@ private:
    T m_hi;
    int m_maxval;
 protected:
+   //! Returns true if pixel values are scaled to [0.0,1.0]
+   static bool is_scaled()
+      {
+      return (typeid(T) == typeid(double) || typeid(T) == typeid(float));
+      }
    //! Set internal pixel value limits according to type
    void set_limits()
       {
-      if (typeid(T) == typeid(double) || typeid(T) == typeid(float))
+      if (is_scaled())
          {
-         m_lo = 0.0;
-         m_hi = 1.0;
+         m_lo = T(0.0);
+         m_hi = T(1.0);
          }
       else
          {
-         m_lo = 0;
-         m_hi = m_maxval;
+         m_lo = T(0);
+         m_hi = T(m_maxval);
          }
       }
 public:

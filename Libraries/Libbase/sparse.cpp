@@ -47,8 +47,8 @@ int sparse::fill(int i, bitfield suffix, int weight)
       weight--;
       if (suffix.size() == 0)
          i = fill(i, suffix, weight);
-      for (b = bitfield("1"); b.size() + suffix.size() + weight <= lut.size(); b
-            = b + bitfield("0"))
+      for (b = bitfield("1"); b.size() + suffix.size() + weight <= n; b = b
+            + bitfield("0"))
          i = fill(i, b + suffix, weight);
       }
    return i;
@@ -58,6 +58,8 @@ void sparse::init(const int q, const int n)
    {
    assert(q >= 0);
    assert(q <= (1 << n));
+   // set codeword size
+   this->n = n;
    // initialize array to hold permuted positions
    lut.init(q);
    if (q == 0)

@@ -52,7 +52,7 @@ void fba<real, sig, norm>::allocate()
    std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB" << std::endl;
    // revert cerr to original format
    std::cerr.precision(prec);
-   std::cerr.setf(flags);
+   std::cerr.flags(flags);
    }
 
 /*! \brief Release memory for working matrices

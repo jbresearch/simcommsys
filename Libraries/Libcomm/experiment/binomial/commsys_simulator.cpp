@@ -23,15 +23,9 @@
  */
 
 #include "commsys_simulator.h"
-#include "result_collector/commsys_errors_levenshtein.h"
-#include "result_collector/commsys_prof_burst.h"
-#include "result_collector/commsys_prof_pos.h"
-#include "result_collector/commsys_prof_sym.h"
-#include "result_collector/commsys_hist_symerr.h"
 
 #include "mapper/map_straight.h"
 #include "fsm.h"
-#include "gf.h"
 #include "itfunc.h"
 #include "secant.h"
 #include "timer.h"
@@ -41,44 +35,6 @@
 namespace libcomm {
 
 // *** Templated Common Base ***
-
-// Setup functions
-
-/*!
- * \brief Sets up system with no bound objects.
- * 
- * \note This function is only responsible for clearing pointers to
- * objects that are specific to this object/derivation.
- * Anything else should get done automatically when the base
- * serializer or constructor is called.
- */
-template <class S, class R>
-void commsys_simulator<S, R>::clear()
-   {
-   src = NULL;
-   sys = NULL;
-   }
-
-/*!
- * \brief Removes association with bound objects
- * 
- * This function performs two things:
- * - Deletes any internally-allocated bound objects
- * - Sets up the system with no bound objects
- * 
- * \note This function is only responsible for deleting bound
- * objects that are specific to this object/derivation.
- * Anything else should get done automatically when the base
- * serializer or constructor is called.
- */
-template <class S, class R>
-void commsys_simulator<S, R>::free()
-   {
-   // note: delete can be safely called with null pointers
-   delete src;
-   delete sys;
-   clear();
-   }
 
 // Internal functions
 
@@ -95,31 +51,8 @@ libbase::vector<int> commsys_simulator<S, R>::createsource()
    const int tau = sys->input_block_size();
    libbase::vector<int> source(tau);
    for (int t = 0; t < tau; t++)
-      source(t) = src->ival(sys->num_inputs());
+      source(t) = src.ival(sys->num_inputs());
    return source;
-   }
-
-// Constructors / Destructors
-
-/*!
- * \brief Copy constructor
- * 
- * Initializes system with bound objects cloned from supplied system.
- */
-template <class S, class R>
-commsys_simulator<S, R>::commsys_simulator(const commsys_simulator<S, R>& c)
-   {
-   this->src = new libbase::randgen(*c.src);
-   this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
-   }
-
-// Experiment parameter handling
-
-template <class S, class R>
-void commsys_simulator<S, R>::seedfrom(libbase::random& r)
-   {
-   src->seed(r.ival());
-   sys->seedfrom(r);
    }
 
 // Experiment handling
@@ -138,6 +71,8 @@ void commsys_simulator<S, R>::seedfrom(libbase::random& r)
 template <class S, class R>
 void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    {
+   // Reset timers
+   this->reset_timers();
    // Initialise result vector
    result.init(count());
    result = 0;
@@ -191,10 +126,20 @@ template <class S, class R>
 std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
    {
    free();
-   src = new libbase::randgen;
    sin >> libbase::eatcomments >> sys;
    return sin;
    }
+
+} // end namespace
+
+#include "gf.h"
+#include "result_collector/commsys_errors_levenshtein.h"
+#include "result_collector/commsys_prof_burst.h"
+#include "result_collector/commsys_prof_pos.h"
+#include "result_collector/commsys_prof_sym.h"
+#include "result_collector/commsys_hist_symerr.h"
+
+namespace libcomm {
 
 // Explicit Realizations
 

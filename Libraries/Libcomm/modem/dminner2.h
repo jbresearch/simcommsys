@@ -54,6 +54,11 @@ namespace libcomm {
 
 template <class real, bool norm>
 class dminner2 : public dminner<real, norm> {
+private:
+   // Shorthand for class hierarchy
+   typedef stream_modulator<bool> Interface;
+   typedef dminner2<real, norm> This;
+   typedef dminner<real, norm> Base;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<bool> array1b_t;
@@ -63,18 +68,22 @@ public:
    typedef libbase::vector<array1r_t> array1vr_t;
    // @}
 private:
-   // Shorthand for class hierarchy
-   typedef informed_modulator<bool> Interface;
-   typedef dminner2<real, norm> This;
-   typedef dminner<real, norm> Base;
-private:
+   // algorithm object
 #ifdef USE_CUDA
-   cuda::fba2<real, bool, norm> fba;
+   cuda::fba2<cuda::dminner2_receiver<real>, real, bool, norm> fba;
 #else
-   fba2<real, bool, norm> fba;
+   fba2<dminner2_receiver<real>, real, bool, norm> fba;
 #endif
+private:
    // Setup procedure
-   void init(const channel<bool>& chan);
+   void init(const channel<bool>& chan, const array1d_t& sof_pdf,
+         const int offset);
+   void init(const channel<bool>& chan)
+      {
+      const array1d_t eof_pdf;
+      const int offset = 0;
+      init(chan, eof_pdf, offset);
+      }
 protected:
    // Interface with derived classes
    void advance() const;
@@ -86,9 +95,14 @@ protected:
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
          array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
+   // Internal methods
+   void demodulate_wrapper(const channel<bool>& chan, const array1b_t& rx,
+         const array1d_t& sof_prior, const array1d_t& eof_prior,
+         const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
+         array1d_t& eof_post, const int offset);
 private:
    /*! \name Internal functions */
-   void normalize(const array1r_t& in, array1d_t& out) const;
+   static void normalize(const array1r_t& in, array1d_t& out);
    // @}
 public:
    /*! \name Constructors / Destructors */

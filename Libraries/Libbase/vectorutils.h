@@ -30,6 +30,30 @@
 
 namespace libbase {
 
+/*! \brief Returns the index of the min value
+ * \param v vector to examine
+ * \param getfirst flag to return first value found (rather than last)
+ */
+template <class T>
+int index_of_min(const vector<T>& v, const bool getfirst = true)
+   {
+   int index;
+   v.min(index, getfirst);
+   return index;
+   }
+
+/*! \brief Returns the index of the max value
+ * \param v vector to examine
+ * \param getfirst flag to return first value found (rather than last)
+ */
+template <class T>
+int index_of_max(const vector<T>& v, const bool getfirst = true)
+   {
+   int index;
+   v.max(index, getfirst);
+   return index;
+   }
+
 /*! \brief Concatenates vectors
  * Creates a vector containing a concatenation of two vectors.
  */

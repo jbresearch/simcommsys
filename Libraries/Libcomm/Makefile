@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Johann A. Briffa
-# 
+#
 # This file is part of SimCommSys.
 #
 # SimCommSys is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # $Id$
 #
 # Library makefile
@@ -49,7 +49,13 @@ clean:
 	@echo "Cleaning [$(TAG): $(RELEASE)]"
 	@$(RM) $(BUILDDIR)
 
+## Setting targets
+     
 .PHONY:	default build install clean
+
+.SUFFIXES: # Delete the default suffixes
+
+.DELETE_ON_ERROR:
 
 # Manual targets
 
@@ -73,14 +79,14 @@ $(BUILDDIR)/%.o:	%.cpp
 $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(TAG): $(RELEASE)]"
-	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $@ $< 
-	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,\($*\)\.o[ :]*,\1.o $@ : ,g' -i $@
+	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $@ $<
+	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(TAG): $(RELEASE)]"
-	@$(CC) $(CCflags) -MM -MP -MT$(BUILDDIR)/$*.o -MF$@ $< 
-	@sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' -i $@
+	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$@ $<
+	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 # Dependency information
 

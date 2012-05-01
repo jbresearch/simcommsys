@@ -33,7 +33,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show pilot & received rows/cols as they are being decoded
+// 2 - Show marker & received rows/cols as they are being decoded
 // 3 - Also show input/output probability tables
 #ifndef NDEBUG
 #  undef DEBUG
@@ -43,7 +43,7 @@ namespace libcomm {
 /*!
  * \copydoc blockmodem::advance()
  * 
- * Updates 2D pilot sequence
+ * Updates 2D marker sequence
  */
 
 template <class real, bool norm>
@@ -53,29 +53,29 @@ void dminner2d<real, norm>::advance() const
    const int N = this->input_block_size().cols();
    const int M = this->input_block_size().rows();
    // Initialize space
-   pilot.init(M * m, N * n);
+   marker.init(M * m, N * n);
    // creates 'tau' elements of 'n' bits each
-   for (int j = 0; j < pilot.size().rows(); j++)
-      for (int i = 0; i < pilot.size().cols(); i++)
-         pilot(j, i) = (r.ival(2) != 0);
+   for (int j = 0; j < marker.size().rows(); j++)
+      for (int i = 0; i < marker.size().cols(); i++)
+         marker(j, i) = (r.ival(2) != 0);
    }
 
 /*!
  * \copydoc blockmodem::domodulate()
  * 
  * Performs modulation; this is similar to the original (1D) DM code, except
- * that here both the input sequence, pilot sequence, and sparse symbols are
+ * that here both the input sequence, marker sequence, and codewords are
  * two-dimensional:
  * - input sequence (from codec) is M x N symbols
- * - sparse symbols are each m x n bits
- * - pilot and output (transmitted) sequences are therefore M m  x N n bits
+ * - codewords are each m x n bits
+ * - marker and output (transmitted) sequences are therefore M m  x N n bits
  */
 
 template <class real, bool norm>
 void dminner2d<real, norm>::domodulate(const int q,
       const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx)
    {
-   // Each 'encoded' symbol must be representable by a single sparse matrix
+   // Each 'encoded' symbol must be representable by a single codeword
    assertalways(this->q == q);
    // Inherit sizes
    const int N = this->input_block_size().cols();
@@ -84,7 +84,7 @@ void dminner2d<real, norm>::domodulate(const int q,
    assertalways(N == encoded.size().cols());
    assertalways(M == encoded.size().rows());
    // Initialise result vector
-   tx = pilot;
+   tx = marker;
    assert(tx.size().cols() == N*n);
    assert(tx.size().rows() == M*m);
    // Encode source
@@ -92,7 +92,7 @@ void dminner2d<real, norm>::domodulate(const int q,
       for (int j = 0; j < N; j++)
          for (int ii = 0; ii < m; ii++)
             for (int jj = 0; jj < n; jj++)
-               tx(i * m + ii, j * n + jj) ^= lut(encoded(i, j))(ii, jj);
+               tx(i * m + ii, j * n + jj) ^= codebook(encoded(i, j))(ii, jj);
    }
 
 /*!
@@ -135,10 +135,10 @@ void dminner2d<real, norm>::dodemodulate(
  * use with the row decoder (call this 'pacc')
  * b) Consider each transmitted row of bits for this row of symbols,
  * one at a time (call this 'ii'):
- * i) Construct a 1D DM decoder for the row, where the sparse symbol
- * alphabet is extracted from the corresponding row of the 2D
- * alphabet, and the pilot sequence is extracted from the
- * corresponding row of the 2D pilot sequence.
+ * i) Construct a 1D DM decoder for the row, where the codebook
+ * is extracted from the corresponding row of the 2D codebook
+ * and the marker sequence is extracted from the
+ * corresponding row of the 2D marker sequence.
  * ii) Decode using the row decoder
  * iii) Update 'pacc' by multiplying with the corresponding output
  * from the row decoder
@@ -169,7 +169,7 @@ void dminner2d<real, norm>::dodemodulate(
    ptable = app;
    // Temporary variables
    libbase::vector<bool> rxvec;
-   libbase::vector<bool> wsvec;
+   libbase::vector<bool> markervec;
    libbase::vector<array1d_t> pin;
    libbase::vector<array1d_t> pout;
    libbase::vector<array1d_t> pacc;
@@ -194,13 +194,13 @@ void dminner2d<real, norm>::dodemodulate(
 #if DEBUG>=2
             libbase::trace << "DEBUG (dminner2d): Decoding row " << ii << " of symbol row " << i << std::endl;
 #endif
-            // set up row decoder's sparse alphabet & pilot sequence
-            rowdec.set_lut(get_alphabet_row(ii));
-            pilot.extractrow(wsvec, i * m + ii);
-            rowdec.set_pilot(wsvec);
+            // set up row decoder's codebook & marker sequence
+            rowdec.set_codebook(get_alphabet_row(ii));
+            marker.extractrow(markervec, i * m + ii);
+            rowdec.set_marker(markervec);
             rx.extractrow(rxvec, i * m + ii);
 #if DEBUG>=2
-            libbase::trace << "DEBUG (dminner2d): pilot = " << wsvec;
+            libbase::trace << "DEBUG (dminner2d): marker = " << markervec;
             libbase::trace << "DEBUG (dminner2d): rx = " << rxvec;
 #endif
 #if DEBUG>=3
@@ -229,13 +229,13 @@ void dminner2d<real, norm>::dodemodulate(
 #if DEBUG>=2
             libbase::trace << "DEBUG (dminner2d): Decoding col " << jj << " of symbol col " << j << std::endl;
 #endif
-            // set up col decoder's sparse alphabet & pilot sequence
-            coldec.set_lut(get_alphabet_col(jj));
-            pilot.extractcol(wsvec, j * n + jj);
-            coldec.set_pilot(wsvec);
+            // set up col decoder's codebook & marker sequence
+            coldec.set_codebook(get_alphabet_col(jj));
+            marker.extractcol(markervec, j * n + jj);
+            coldec.set_marker(markervec);
             rx.extractcol(rxvec, j * n + jj);
 #if DEBUG>=2
-            libbase::trace << "DEBUG (dminner2d): pilot = " << wsvec;
+            libbase::trace << "DEBUG (dminner2d): marker = " << markervec;
             libbase::trace << "DEBUG (dminner2d): rx = " << rxvec;
 #endif
 #if DEBUG>=3
@@ -254,23 +254,23 @@ void dminner2d<real, norm>::dodemodulate(
    }
 
 /*!
- * \brief Confirm that LUT is valid
- * Checks that all LUT entries are of the correct size and that there are no
+ * \brief Confirm that codebook is valid
+ * Checks that all codebook entries are of the correct size and that there are no
  * duplicate entries.
  */
 
 template <class real, bool norm>
-void dminner2d<real, norm>::validatelut() const
+void dminner2d<real, norm>::validatecodebook() const
    {
-   assertalways(lut.size() == num_symbols());
-   for (int i = 0; i < lut.size(); i++)
+   assertalways(codebook.size() == num_symbols());
+   for (int i = 0; i < codebook.size(); i++)
       {
       // all entries should be of the correct size
-      assertalways(lut(i).size().cols() == n);
-      assertalways(lut(i).size().rows() == m);
+      assertalways(codebook(i).size().cols() == n);
+      assertalways(codebook(i).size().rows() == m);
       // all entries should be distinct
       for (int j = 0; j < i; j++)
-         assertalways(lut(i).isnotequalto(lut(j)));
+         assertalways(codebook(i).isnotequalto(codebook(j)));
       }
    }
 
@@ -278,42 +278,42 @@ template <class real, bool norm>
 libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_row(
       int i) const
    {
-   libbase::vector<libbase::bitfield> lut_b(lut.size());
-   for (int k = 0; k < lut.size(); k++)
-      lut_b(k) = libbase::bitfield(lut(k).extractrow(i));
-   return lut_b;
+   libbase::vector<libbase::bitfield> codebook_b(codebook.size());
+   for (int k = 0; k < codebook.size(); k++)
+      codebook_b(k) = libbase::bitfield(codebook(k).extractrow(i));
+   return codebook_b;
    }
 
 template <class real, bool norm>
 libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_col(
       int j) const
    {
-   libbase::vector<libbase::bitfield> lut_b(lut.size());
-   for (int k = 0; k < lut.size(); k++)
-      lut_b(k) = libbase::bitfield(lut(k).extractcol(j));
-   return lut_b;
+   libbase::vector<libbase::bitfield> codebook_b(codebook.size());
+   for (int k = 0; k < codebook.size(); k++)
+      codebook_b(k) = libbase::bitfield(codebook(k).extractcol(j));
+   return codebook_b;
    }
 
 /*!
  * \brief Object initialization
- * Determines code parameters from LUT and sets up object for use.
- * This includes validating the LUT, setting up the pilot generator,
- * and clearing the pilot sequence.
+ * Determines code parameters from codebook and sets up object for use.
+ * This includes validating the codebook, setting up the marker generator,
+ * and clearing the marker sequence.
  */
 
 template <class real, bool norm>
 void dminner2d<real, norm>::init()
    {
-   // Determine code parameters from LUT
-   q = lut.size();
+   // Determine code parameters from codebook
+   q = codebook.size();
    assertalways(q > 0);
-   m = lut(0).size().rows();
-   n = lut(0).size().cols();
-   // Validate LUT
-   validatelut();
-   // Seed the pilot generator and clear the sequence
+   m = codebook(0).size().rows();
+   n = codebook(0).size().cols();
+   // Validate codebook
+   validatecodebook();
+   // Seed the marker generator and clear the sequence
    r.seed(0);
-   pilot.init(0, 0);
+   marker.init(0, 0);
    }
 
 // description output
@@ -324,7 +324,7 @@ std::string dminner2d<real, norm>::description() const
    std::ostringstream sout;
    sout << "Iterative 2D DM Inner Code (";
    sout << m << "x" << n << "/" << q << ", ";
-   sout << lutname << " codebook)";
+   sout << codebookname << " codebook)";
    return sout.str();
    }
 
@@ -333,8 +333,8 @@ std::string dminner2d<real, norm>::description() const
 template <class real, bool norm>
 std::ostream& dminner2d<real, norm>::serialize(std::ostream& sout) const
    {
-   sout << lutname;
-   sout << lut;
+   sout << codebookname;
+   sout << codebook;
    return sout;
    }
 
@@ -344,8 +344,8 @@ template <class real, bool norm>
 std::istream& dminner2d<real, norm>::serialize(std::istream& sin)
    {
    sin >> libbase::eatcomments >> iter;
-   sin >> libbase::eatcomments >> lutname;
-   sin >> libbase::eatcomments >> lut;
+   sin >> libbase::eatcomments >> codebookname;
+   sin >> libbase::eatcomments >> codebook;
    init();
    return sin;
    }
