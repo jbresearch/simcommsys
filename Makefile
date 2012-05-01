@@ -115,8 +115,8 @@ endif
 
 ## Version control information
 
-WCURL := $(shell svn info |gawk '/^URL/ { print $$2 }')
-WCVER := $(shell svnversion)
+WCURL := $(shell svn info 2> /dev/null |gawk '/^URL/ { print $$2 }' 2> /dev/null)
+WCVER := $(shell svnversion 2> /dev/null)
 
 
 ## List of users libraries (in linking order)
@@ -195,7 +195,11 @@ else
 ifeq ($(OSARCH),x86_64)
 CCopts := $(CCopts) -msse2 -m64
 else
+ifeq ($(OSARCH),ppc64)
+CCopts := $(CCopts) -maltivec -m64
+else
 $(error Unknown architecture: $(OSARCH))
+endif
 endif
 endif
 # release-dependent compiler settings
@@ -222,7 +226,11 @@ else
 ifeq ($(OSARCH),x86_64)
 NVCCopts := $(NVCCopts) -m64
 else
+ifeq ($(OSARCH),ppc64)
+NVCCopts := $(NVCCopts) -m64
+else
 $(error Unknown architecture: $(OSARCH))
+endif
 endif
 endif
 # release-dependent compiler settings
