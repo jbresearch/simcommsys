@@ -196,7 +196,8 @@ ifeq ($(OSARCH),x86_64)
 CCopts := $(CCopts) -msse2 -m64
 else
 ifeq ($(OSARCH),ppc64)
-CCopts := $(CCopts) -maltivec -m64
+#CCopts := $(CCopts) -maltivec -m64
+CCopts := $(CCopts)
 else
 $(error Unknown architecture: $(OSARCH))
 endif
@@ -227,7 +228,7 @@ ifeq ($(OSARCH),x86_64)
 NVCCopts := $(NVCCopts) -m64
 else
 ifeq ($(OSARCH),ppc64)
-NVCCopts := $(NVCCopts) -m64
+NVCCopts := $(NVCCopts)
 else
 $(error Unknown architecture: $(OSARCH))
 endif
