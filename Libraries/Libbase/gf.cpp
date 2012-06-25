@@ -149,4 +149,14 @@ template class gf<10, 0x409> ; // 1 { 00 0000 1001 }
 
 template class gf<8, 0x11B> ; // 1 { 0001 1011 }
 
+/* NOTE: We cannot use the following loop because C++ does not allow explicit
+ * instantiation using typedefs...
+   #include <boost/preprocessor/seq/for_each.hpp>
+
+   #define INSTANTIATE(r, x, type) \
+         template class type;
+
+   BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
+ */
+
 } // end namespace

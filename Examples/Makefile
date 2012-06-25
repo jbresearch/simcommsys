@@ -20,33 +20,69 @@
 # Simulator test files makefile
 
 # List of symbol types to work with
-STREAM_LIMITS := 1 10 100 1000 10000
+#STREAM_LIMITS := 1 10 100 1000 10000
+STREAM_LIMITS := 10
+# List of results collectors to work with
+COLLECTOR_TYPES := errors_levenshtein prof_pos
+
+# Set default tag and release to test with
+ifndef TAG
+export TAG := $(notdir $(shell cd .. && pwd))
+endif
+ifndef RELEASE
+export RELEASE := debug
+endif
 
 # List of systems to work with
 SYSTEMS := $(wildcard Systems/*.txt)
-SIMULATORS := $(SYSTEMS:Systems/%.txt=Simulators/%.txt) \
-	$(foreach A,$(STREAM_LIMITS),$(SYSTEMS:Systems/stream-%.txt=Simulators/stream-$(A)-%.txt))
+SIMULATORS := $(foreach B,$(COLLECTOR_TYPES), $(SYSTEMS:Systems/%.txt=Simulators/$(B)-%.txt) \
+	$(foreach A,$(STREAM_LIMITS),$(SYSTEMS:Systems/stream-%.txt=Simulators/$(B)-stream-$(A)-%.txt)))
 TIMERS := $(SYSTEMS:Systems/%.txt=Timers/%.txt)
-
-.force:
 
 # main targets
 
-all: $(SIMULATORS) $(TIMERS)
+default:
+	@echo "No default target. Choose from:"
+	@echo "   all : equivalent to simulators and timers"
+	@echo "   simulators : create a simulator for each system"
+	@echo "   timers : create a timer sim for each system"
+	@echo "   test-all : equivalent to test-simulators and test-timers"
+	@echo "   test-simulators : create a test log for each simulator"
+	@echo "   test-timers : create a test log for each timer"
+	@echo "   clean : removes all generated files"
+
+all: simulators timers
+simulators: $(SIMULATORS)
+timers: $(TIMERS)
+
+test-all: test-simulators test-timers
+test-simulators: $(SIMULATORS:Simulators/%.txt=TestLogs/sim.%.txt)
+test-timers: $(TIMERS:Timers/%.txt=TestLogs/tim.%.txt)
 
 clean:
-	@rm -f Simulators/*.txt Timers/*.txt
+	@rm -f Simulators/*.txt Timers/*.txt TestLogs/*.txt
+
+## Setting targets
+
+FORCE:
+
+.PHONY:	all simulators timers testlogs clean
+
+.SUFFIXES: # Delete the default suffixes
+
+.DELETE_ON_ERROR:
 
 # GAWK programs
 
 define GAWK_SIMULATOR_CREATOR
-define GAWK_SIMULATOR_$(1)
+define GAWK_SIMULATOR_$(1)_$(2)
 /^commsys_stream/ {
 	x=$$$$0
 	# stream-oriented systems
 	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
+	# remove container type and
 	# add levenshtein-distance error rate
-	x = gensub(/<(.+)>/,"<\\1,levenshtein>","g",x)
+	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
 	print x;
 	# add version and stream limit
 	print 1
@@ -56,24 +92,27 @@ define GAWK_SIMULATOR_$(1)
 	x=$$$$0
 	# all other matched objects
 	sub(/commsys[^<]*/,"commsys_simulator",x)
-	# add levenshtein-distance error rate
-	x = gensub(/<(.+)>/,"<\\1,levenshtein>","g",x)
+        # remove container type and
+        # add levenshtein-distance error rate
+	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
 	print x;
 	}
 { print; }
 endef
-export GAWK_SIMULATOR_$(1)
+export GAWK_SIMULATOR_$(1)_$(2)
 endef
 
-$(eval $(call GAWK_SIMULATOR_CREATOR,0))
-
-$(foreach A,$(STREAM_LIMITS),\
-	$(eval $(call GAWK_SIMULATOR_CREATOR,$(A))) )
+$(foreach B,0 $(COLLECTOR_TYPES),\
+	$(foreach A,0 $(STREAM_LIMITS),\
+		$(eval $(call GAWK_SIMULATOR_CREATOR,$(A),$(B))) ))
 
 define GAWK_TIMER
 /^commsys/ {
 	x=$$0
+	# all matched objects
 	sub(/commsys[^<]*/,"commsys_timer",x)
+	# remove container type
+	x = gensub(/<(.+),vector>/,"<\\1>","g",x)
 	print x;
 	}
 { print; }
@@ -83,18 +122,27 @@ export GAWK_TIMER
 # pattern-matched targets
 
 define GenerateSimulators
-Simulators/stream-$(1)-%.txt: Systems/stream-%.txt
+Simulators/$(2)-%.txt: Systems/%.txt
 	@echo Making $$@
-	@gawk "$$$$GAWK_SIMULATOR_$(1)" < $$< > $$@
+	@gawk "$$$$GAWK_SIMULATOR_0_$(2)" < $$< > $$@
+
+Simulators/$(2)-stream-$(1)-%.txt: Systems/stream-%.txt
+	@echo Making $$@
+	@gawk "$$$$GAWK_SIMULATOR_$(1)_$(2)" < $$< > $$@
 endef
 
-$(foreach A,$(STREAM_LIMITS),\
-	$(eval $(call GenerateSimulators,$(A))) )
-
-Simulators/%.txt: Systems/%.txt
-	@echo Making $@
-	@gawk "$$GAWK_SIMULATOR_0" < $< > $@
+$(foreach B,0 $(COLLECTOR_TYPES),\
+	$(foreach A,0 $(STREAM_LIMITS),\
+		$(eval $(call GenerateSimulators,$(A),$(B))) ))
 
 Timers/%.txt: Systems/%.txt
 	@echo Making $@
 	@gawk "$$GAWK_TIMER" < $< > $@
+
+TestLogs/sim.%.txt: Simulators/%.txt
+	@echo Testing $<
+	@SPECturbo.$(TAG).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
+
+TestLogs/tim.%.txt: Timers/%.txt
+	@echo Testing $<
+	@SPECturbo.$(TAG).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1

@@ -361,11 +361,11 @@ std::istream& bsid2d::serialize(std::istream& sin)
    {
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    // read parameters
-   sin >> libbase::eatcomments >> varyPs;
-   sin >> libbase::eatcomments >> varyPd;
-   sin >> libbase::eatcomments >> varyPi;
+   sin >> libbase::eatcomments >> varyPs >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPd >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPi >> libbase::verify;
    init();
    return sin;
    }

@@ -581,8 +581,6 @@ std::istream& turbo<real, dbl>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "mpreal.h"
 #include "mpgnu.h"
 #include "logreal.h"
@@ -590,47 +588,41 @@ std::istream& turbo<real, dbl>::serialize(std::istream& sin)
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
 using libbase::mpreal;
 using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
-using libbase::serializer;
+#define REAL1_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
+#define REAL2_TYPE_SEQ \
+   (float)(double) \
+   (logrealfast)
 
-template class turbo<float, float> ;
-template <>
-const serializer turbo<float, float>::shelper = serializer("codec",
-      "turbo<float>", turbo<float, float>::create);
+/* Serialization string: turbo<real1,real2>
+ * where:
+ *      real1 = float | double | mpreal | mpgnu | logreal | logrealfast
+ *              [real1 is the internal arithmetic type]
+ *      real2 = float | double | logrealfast
+ *              [real2 is the inter-iteration statistics type]
+ */
+#define INSTANTIATE(r, args) \
+      template class turbo<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer turbo<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "codec", \
+            "turbo<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            turbo<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class turbo<double> ;
-template <>
-const serializer turbo<double>::shelper = serializer("codec", "turbo<double>",
-      turbo<double>::create);
-
-template class turbo<mpreal> ;
-template <>
-const serializer turbo<mpreal>::shelper = serializer("codec", "turbo<mpreal>",
-      turbo<mpreal>::create);
-
-template class turbo<mpgnu> ;
-template <>
-const serializer turbo<mpgnu>::shelper = serializer("codec", "turbo<mpgnu>",
-      turbo<mpgnu>::create);
-
-template class turbo<logreal> ;
-template <>
-const serializer turbo<logreal>::shelper = serializer("codec",
-      "turbo<logreal>", turbo<logreal>::create);
-
-template class turbo<logrealfast> ;
-template <>
-const serializer turbo<logrealfast>::shelper = serializer("codec",
-      "turbo<logrealfast>", turbo<logrealfast>::create);
-
-template class turbo<logrealfast, logrealfast> ;
-template <>
-const serializer turbo<logrealfast, logrealfast>::shelper =
-      serializer("codec", "turbo<logrealfast,logrealfast>", turbo<logrealfast,
-            logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

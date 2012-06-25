@@ -372,17 +372,17 @@ std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    free();
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    assertalways(version >= 2);
    // get version 2 items
    rep.serialize(sin);
-   sin >> libbase::eatcomments >> acc;
-   sin >> libbase::eatcomments >> inter;
-   sin >> libbase::eatcomments >> iter;
-   sin >> libbase::eatcomments >> endatzero;
+   sin >> libbase::eatcomments >> acc >> libbase::verify;
+   sin >> libbase::eatcomments >> inter >> libbase::verify;
+   sin >> libbase::eatcomments >> iter >> libbase::verify;
+   sin >> libbase::eatcomments >> endatzero >> libbase::verify;
    // get version 3 items
    if (version >= 3)
-      sin >> libbase::eatcomments >> limitlo;
+      sin >> libbase::eatcomments >> limitlo >> libbase::verify;
    else
       limitlo = 0;
    init();
@@ -392,39 +392,48 @@ std::istream& repacc<real, dbl>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
+#include "mpreal.h"
+#include "mpgnu.h"
+#include "logreal.h"
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::logrealfast;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
+using libbase::mpreal;
+using libbase::mpgnu;
+using libbase::logreal;
+using libbase::logrealfast;
 
-template class repacc<float, float> ;
-template <>
-const serializer repacc<float, float>::shelper = serializer("codec",
-      "repacc<float,float>", repacc<float, float>::create);
+#define REAL1_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
+#define REAL2_TYPE_SEQ \
+   (float)(double) \
+   (logrealfast)
 
-template class repacc<float> ;
-template <>
-const serializer repacc<float>::shelper = serializer("codec", "repacc<float>",
-      repacc<float>::create);
+/* Serialization string: repacc<real1,real2>
+ * where:
+ *      real1 = float | double | mpreal | mpgnu | logreal | logrealfast
+ *              [real1 is the internal arithmetic type]
+ *      real2 = float | double | logrealfast
+ *              [real2 is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class repacc<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer repacc<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "codec", \
+            "repacc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            repacc<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class repacc<double> ;
-template <>
-const serializer repacc<double>::shelper = serializer("codec",
-      "repacc<double>", repacc<double>::create);
-
-template class repacc<logrealfast> ;
-template <>
-const serializer repacc<logrealfast>::shelper = serializer("codec",
-      "repacc<logrealfast>", repacc<logrealfast>::create);
-
-template class repacc<logrealfast, logrealfast> ;
-template <>
-const serializer repacc<logrealfast, logrealfast>::shelper = serializer(
-      "codec", "repacc<logrealfast,logrealfast>", repacc<logrealfast,
-            logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

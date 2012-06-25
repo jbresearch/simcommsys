@@ -39,6 +39,7 @@ namespace cuda {
 
 // explicit instantiations
 
+template class matrix<bool> ;
 template class matrix<int> ;
 template class matrix<float> ;
 template class matrix<double> ;

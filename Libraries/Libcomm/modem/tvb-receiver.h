@@ -55,7 +55,7 @@ namespace libcomm {
  * encodings are done at init, rather than repeating every time.
  */
 
-template <class real, class sig>
+template <class sig, class real>
 class tvb_receiver {
 public:
    /*! \name Type definitions */

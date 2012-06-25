@@ -26,7 +26,6 @@
 #define LINEARCODEUTILS_H_
 
 #include "matrix.h"
-#include "gf.h"
 
 namespace libbase {
 /*!

@@ -77,26 +77,38 @@ std::ostream& berrou<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& berrou<real>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> M;
+   sin >> libbase::eatcomments >> M >> libbase::verify;
    init(M);
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class berrou<float> ;
-template <>
-const libbase::serializer berrou<float>::shelper("interleaver",
-      "berrou<float>", berrou<float>::create);
+namespace libcomm {
 
-template class berrou<double> ;
-template <>
-const libbase::serializer berrou<double>::shelper("interleaver",
-      "berrou<double>", berrou<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class berrou<libbase::logrealfast> ;
-template <>
-const libbase::serializer berrou<libbase::logrealfast>::shelper("interleaver",
-      "berrou<logrealfast>", berrou<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: berrou<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class berrou<type>; \
+   template <> \
+   const serializer berrou<type>::shelper( \
+         "interleaver", \
+         "berrou<" BOOST_PP_STRINGIZE(type) ">", \
+         berrou<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

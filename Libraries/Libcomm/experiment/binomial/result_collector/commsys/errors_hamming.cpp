@@ -22,7 +22,7 @@
  * - $Id$
  */
 
-#include "commsys_errorrates.h"
+#include "errors_hamming.h"
 #include "fsm.h"
 #include "itfunc.h"
 #include "hamming.h"
@@ -41,7 +41,7 @@ namespace libcomm {
  * every iteration that needs to be performed. Eventually these will be
  * divided by the respective multiplicity to get the average error rates.
  */
-void commsys_errorrates::updateresults(libbase::vector<double>& result,
+void errors_hamming::updateresults(libbase::vector<double>& result,
       const int i, const libbase::vector<int>& source, const libbase::vector<
             int>& decoded) const
    {
@@ -60,7 +60,7 @@ void commsys_errorrates::updateresults(libbase::vector<double>& result,
  * every iteration, the multiplicity is respectively the number of symbols
  * and the number of frames (=1) per sample.
  */
-int commsys_errorrates::get_multiplicity(int i) const
+int errors_hamming::get_multiplicity(int i) const
    {
    assert(i >= 0 && i < count());
    if (i % 2 == 0)
@@ -75,7 +75,7 @@ int commsys_errorrates::get_multiplicity(int i) const
  * symbol or frame error rates respectively. 'Y' is the iteration,
  * starting at 1.
  */
-std::string commsys_errorrates::result_description(int i) const
+std::string errors_hamming::result_description(int i) const
    {
    assert(i >= 0 && i < count());
    std::ostringstream sout;

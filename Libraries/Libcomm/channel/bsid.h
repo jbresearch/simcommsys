@@ -87,15 +87,15 @@ public:
    class metric_computer {
    public:
       /*! \name Channel-state and pre-computed parameters */
-      int N; //!< Block size in bits over which we want to synchronize
-      int I; //!< Assumed limit for insertions between two time-steps
-      int xmax; //!< Assumed maximum drift over a whole \c N -bit block
-      real Rval; //!< Receiver coefficient value for mu = -1
 #ifdef USE_CUDA
       cuda::matrix_auto<real> Rtable; //!< Receiver coefficient set for mu >= 0
 #else
       array2r_t Rtable; //!< Receiver coefficient set for mu >= 0
 #endif
+      real Rval; //!< Receiver coefficient value for mu = -1
+      int N; //!< Block size in bits over which we want to synchronize
+      int I; //!< Assumed limit for insertions between two time-steps
+      int xmax; //!< Assumed maximum drift over a whole \c N -bit block
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
@@ -152,7 +152,7 @@ public:
             const int xmax = compute_xmax_with(f, tau, Pi, Pd);
 #if DEBUG>=2
             std::cerr << "DEBUG (bsid): [with exact] for N = " << tau
-                  << ", xmax = " << xmax << "." << std::endl;
+            << ", xmax = " << xmax << "." << std::endl;
 #endif
             return xmax;
             }
@@ -163,7 +163,7 @@ public:
             const int xmax = compute_xmax_with(f, tau, Pi, Pd);
 #if DEBUG>=2
             std::cerr << "DEBUG (bsid): [with davey] for N = " << tau
-                  << ", xmax = " << xmax << "." << std::endl;
+            << ", xmax = " << xmax << "." << std::endl;
 #endif
             return xmax;
             }
@@ -191,6 +191,22 @@ public:
 #ifdef USE_CUDA
       /*! \name Device methods */
 #ifdef __CUDACC__
+      //! Receiver interface
+      __device__
+      real receive(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx) const
+         {
+         // Compute sizes
+         const int n = tx.size();
+         const int mu = rx.size() - n;
+         // Allocate space for results and call main receiver
+         real ptable_data[arraysize];
+         cuda_assertalways(arraysize >= 2 * xmax + 1);
+         cuda::vector_reference<real> ptable(ptable_data, 2 * xmax + 1);
+         receive(tx, rx, ptable);
+         // return result
+         return ptable(xmax + mu);
+         }
+      //! Batch receiver interface
       __device__
       void receive(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx,
             cuda::vector_reference<real>& ptable) const
@@ -273,8 +289,10 @@ public:
       // @}
 #endif
       /*! \name Host methods */
+      //! Receiver interface
       real receive(const bitfield& tx, const array1b_t& rx) const;
       void
+      //! Batch receiver interface
       receive(const bitfield& tx, const array1b_t& rx, array1r_t& ptable) const;
       // @}
    };

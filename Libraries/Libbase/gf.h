@@ -92,7 +92,7 @@ private:
    void init(int value)
       {
       assert(m < 32);
-      assert(value >=0 && value < (1<<m));
+      assert(value >= 0 && value < (1 << m));
       gf::value = value;
       }
    void init(const char *s);
@@ -217,7 +217,7 @@ std::istream& operator>>(std::istream& is, gf<m, poly>& b)
    is >> libbase::eatwhite;
    // read up to 'm' digits from stream
    char c;
-   for (int i=0; i<m && is.get(c); i++)
+   for (int i = 0; i < m && is.get(c); i++)
       {
       if (isspace(c))
          {
@@ -233,6 +233,41 @@ std::istream& operator>>(std::istream& is, gf<m, poly>& b)
 
 // @}
 
+// Typedefs for explicit instantiations
+
+// Degenerate case GF(2):
+typedef gf<1, 0x3> gf2; // 1 { 1 }
+
+// Lin & Costello, 2004, App. A:
+typedef gf<2, 0x7> gf4; // 1 { 11 }
+typedef gf<3, 0xB> gf8; // 1 { 011 }
+typedef gf<4, 0x13> gf16; // 1 { 0011 }
+typedef gf<5, 0x25> gf32; // 1 { 0 0101 }
+typedef gf<6, 0x43> gf64; // 1 { 00 0011 }
+typedef gf<7, 0x89> gf128; // 1 { 000 1001 }
+typedef gf<8, 0x11D> gf256; // 1 { 0001 1101 }
+typedef gf<9, 0x211> gf512; // 1 { 0 0001 0001 }
+typedef gf<10, 0x409> gf1024; // 1 { 00 0000 1001 }
+
+// Rijndael field cf. Gladman, 2003, p.5:
+typedef gf<8, 0x11B> gf256aes; // 1 { 0001 1011 }
+
 } // end namespace
+
+
+// Pre-processor sequence for explicit instantiations
+
+#define GF_TYPE_SEQ \
+      (gf2) \
+      (gf4) \
+      (gf8) \
+      (gf16) \
+      (gf32) \
+      (gf64) \
+      (gf128) \
+      (gf256) \
+      (gf512) \
+      (gf1024) \
+      (gf256aes)
 
 #endif

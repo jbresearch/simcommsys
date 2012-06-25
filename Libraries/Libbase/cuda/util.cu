@@ -291,6 +291,8 @@ void cudaQueryDevices(std::ostream& sout)
       sout << "  Memory per block:\t" << prop.sharedMemPerBlock << " bytes"
             << std::endl;
       sout << "  Threads per block:\t" << prop.maxThreadsPerBlock << std::endl;
+      sout << "  Concurrent kernels:\t" << (prop.concurrentKernels ? "Yes"
+            : "No") << std::endl;
       }
    }
 

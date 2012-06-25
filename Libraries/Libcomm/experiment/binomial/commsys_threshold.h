@@ -44,7 +44,7 @@ namespace libcomm {
  *
  * \todo Remove assumption of a dminner-derived modem.
  */
-template <class S, class R = commsys_errorrates>
+template <class S, class R>
 class commsys_threshold : public commsys_simulator<S, R> {
 private:
    // Shorthand for class hierarchy

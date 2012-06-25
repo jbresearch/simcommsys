@@ -1,4 +1,4 @@
-commsys<sigspace>
+commsys<sigspace,vector>
 ## Channel
 awgn
 ## Modem
@@ -6,9 +6,9 @@ mpsk
 # Alphabet size in symbols
 2
 ## Mapper
-map_straight<vector>
+map_straight<vector,double>
 ## Codec
-turbo<double>
+turbo<double,double>
 # Version
 2
 # Encoder

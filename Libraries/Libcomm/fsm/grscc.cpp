@@ -244,65 +244,33 @@ std::istream& grscc<G>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "gf.h"
 
 namespace libcomm {
 
-using libbase::gf;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
 
-// Degenerate case GF(2)
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class grscc<gf<1, 0x3> > ;
-template <>
-const serializer grscc<gf<1, 0x3> >::shelper = serializer("fsm",
-      "grscc<gf<1,0x3>>", grscc<gf<1, 0x3> >::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-// cf. Lin & Costello, 2004, App. A
+/* Serialization string: grscc<type>
+ * where:
+ *      type = gf2 | gf4 ...
+ */
+#define INSTANTIATE(r, x, type) \
+   template class grscc<type>; \
+   template <> \
+   const serializer grscc<type>::shelper( \
+         "fsm", \
+         "grscc<" BOOST_PP_STRINGIZE(type) ">", \
+         grscc<type>::create);
 
-template class grscc<gf<2, 0x7> > ;
-template <>
-const serializer grscc<gf<2, 0x7> >::shelper = serializer("fsm",
-      "grscc<gf<2,0x7>>", grscc<gf<2, 0x7> >::create);
-template class grscc<gf<3, 0xB> > ;
-template <>
-const serializer grscc<gf<3, 0xB> >::shelper = serializer("fsm",
-      "grscc<gf<3,0xB>>", grscc<gf<3, 0xB> >::create);
-template class grscc<gf<4, 0x13> > ;
-template <>
-const serializer grscc<gf<4, 0x13> >::shelper = serializer("fsm",
-      "grscc<gf<4,0x13>>", grscc<gf<4, 0x13> >::create);
-
-template class grscc<gf<5, 0x25> > ;
-template <>
-const serializer grscc<gf<5, 0x25> >::shelper("fsm", "grscc<gf<5,0x25>>",
-      grscc<gf<5, 0x25> >::create);
-
-template class grscc<gf<6, 0x43> > ;
-template <>
-const serializer grscc<gf<6, 0x43> >::shelper("fsm", "grscc<gf<6,0x43>>",
-      grscc<gf<6, 0x43> >::create);
-
-template class grscc<gf<7, 0x89> > ;
-template <>
-const serializer grscc<gf<7, 0x89> >::shelper("fsm", "grscc<gf<7,0x89>>",
-      grscc<gf<7, 0x89> >::create);
-
-template class grscc<gf<8, 0x11D> > ;
-template <>
-const serializer grscc<gf<8, 0x11D> >::shelper("fsm", "grscc<gf<8,0x11D>>",
-      grscc<gf<8, 0x11D> >::create);
-
-template class grscc<gf<9, 0x211> > ;
-template <>
-const serializer grscc<gf<9, 0x211> >::shelper("fsm", "grscc<gf<9,0x211>>",
-      grscc<gf<9, 0x211> >::create);
-
-template class grscc<gf<10, 0x409> > ;
-template <>
-const serializer grscc<gf<10, 0x409> >::shelper("fsm", "grscc<gf<10,0x409>>",
-      grscc<gf<10, 0x409> >::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
 } // end namespace

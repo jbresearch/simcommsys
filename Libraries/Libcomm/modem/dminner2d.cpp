@@ -46,8 +46,8 @@ namespace libcomm {
  * Updates 2D marker sequence
  */
 
-template <class real, bool norm>
-void dminner2d<real, norm>::advance() const
+template <class real>
+void dminner2d<real>::advance() const
    {
    // Inherit sizes
    const int N = this->input_block_size().cols();
@@ -71,8 +71,8 @@ void dminner2d<real, norm>::advance() const
  * - marker and output (transmitted) sequences are therefore M m  x N n bits
  */
 
-template <class real, bool norm>
-void dminner2d<real, norm>::domodulate(const int q,
+template <class real>
+void dminner2d<real>::domodulate(const int q,
       const libbase::matrix<int>& encoded, libbase::matrix<bool>& tx)
    {
    // Each 'encoded' symbol must be representable by a single codeword
@@ -85,8 +85,8 @@ void dminner2d<real, norm>::domodulate(const int q,
    assertalways(M == encoded.size().rows());
    // Initialise result vector
    tx = marker;
-   assert(tx.size().cols() == N*n);
-   assert(tx.size().rows() == M*m);
+   assert(tx.size().cols() == N * n);
+   assert(tx.size().rows() == M * m);
    // Encode source
    for (int i = 0; i < M; i++)
       for (int j = 0; j < N; j++)
@@ -101,9 +101,8 @@ void dminner2d<real, norm>::domodulate(const int q,
  * Wrapper for decoder function assuming equiprobable APP table.
  */
 
-template <class real, bool norm>
-void dminner2d<real, norm>::dodemodulate(
-      const channel<bool, libbase::matrix>& chan,
+template <class real>
+void dminner2d<real>::dodemodulate(const channel<bool, libbase::matrix>& chan,
       const libbase::matrix<bool>& rx, libbase::matrix<array1d_t>& ptable)
    {
    // Inherit sizes
@@ -147,9 +146,8 @@ void dminner2d<real, norm>::dodemodulate(
  * 4) Repeat from step 2 for a given number of iterations
  */
 
-template <class real, bool norm>
-void dminner2d<real, norm>::dodemodulate(
-      const channel<bool, libbase::matrix>& chan,
+template <class real>
+void dminner2d<real>::dodemodulate(const channel<bool, libbase::matrix>& chan,
       const libbase::matrix<bool>& rx, const libbase::matrix<array1d_t>& app,
       libbase::matrix<array1d_t>& ptable)
    {
@@ -173,8 +171,8 @@ void dminner2d<real, norm>::dodemodulate(
    libbase::vector<array1d_t> pin;
    libbase::vector<array1d_t> pout;
    libbase::vector<array1d_t> pacc;
-   dminner2<real, norm> rowdec(n, int(log2(q)));
-   dminner2<real, norm> coldec(m, int(log2(q)));
+   dminner2<real> rowdec(n, int(log2(q)));
+   dminner2<real> coldec(m, int(log2(q)));
    rowdec.set_thresholds(0, 0);
    coldec.set_thresholds(0, 0);
    // Iterate as requested
@@ -259,8 +257,8 @@ void dminner2d<real, norm>::dodemodulate(
  * duplicate entries.
  */
 
-template <class real, bool norm>
-void dminner2d<real, norm>::validatecodebook() const
+template <class real>
+void dminner2d<real>::validatecodebook() const
    {
    assertalways(codebook.size() == num_symbols());
    for (int i = 0; i < codebook.size(); i++)
@@ -274,9 +272,8 @@ void dminner2d<real, norm>::validatecodebook() const
       }
    }
 
-template <class real, bool norm>
-libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_row(
-      int i) const
+template <class real>
+libbase::vector<libbase::bitfield> dminner2d<real>::get_alphabet_row(int i) const
    {
    libbase::vector<libbase::bitfield> codebook_b(codebook.size());
    for (int k = 0; k < codebook.size(); k++)
@@ -284,9 +281,8 @@ libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_row(
    return codebook_b;
    }
 
-template <class real, bool norm>
-libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_col(
-      int j) const
+template <class real>
+libbase::vector<libbase::bitfield> dminner2d<real>::get_alphabet_col(int j) const
    {
    libbase::vector<libbase::bitfield> codebook_b(codebook.size());
    for (int k = 0; k < codebook.size(); k++)
@@ -301,8 +297,8 @@ libbase::vector<libbase::bitfield> dminner2d<real, norm>::get_alphabet_col(
  * and clearing the marker sequence.
  */
 
-template <class real, bool norm>
-void dminner2d<real, norm>::init()
+template <class real>
+void dminner2d<real>::init()
    {
    // Determine code parameters from codebook
    q = codebook.size();
@@ -318,8 +314,8 @@ void dminner2d<real, norm>::init()
 
 // description output
 
-template <class real, bool norm>
-std::string dminner2d<real, norm>::description() const
+template <class real>
+std::string dminner2d<real>::description() const
    {
    std::ostringstream sout;
    sout << "Iterative 2D DM Inner Code (";
@@ -330,48 +326,63 @@ std::string dminner2d<real, norm>::description() const
 
 // object serialization - saving
 
-template <class real, bool norm>
-std::ostream& dminner2d<real, norm>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& dminner2d<real>::serialize(std::ostream& sout) const
    {
-   sout << codebookname;
-   sout << codebook;
+   sout << "# Number of iterations" << std::endl;
+   sout << iter << std::endl;
+   sout << "# Name of the code book" << std::endl;
+   sout << codebookname << std::endl;
+   sout << "# The code book entries" << std::endl;
+   sout << codebook << std::endl;
    return sout;
    }
 
 // object serialization - loading
 
-template <class real, bool norm>
-std::istream& dminner2d<real, norm>::serialize(std::istream& sin)
+template <class real>
+std::istream& dminner2d<real>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> iter;
-   sin >> libbase::eatcomments >> codebookname;
-   sin >> libbase::eatcomments >> codebook;
+   sin >> libbase::eatcomments >> iter >> libbase::verify;
+   sin >> libbase::eatcomments >> codebookname >> libbase::verify;
+   sin >> libbase::eatcomments >> codebook >> libbase::verify;
    init();
    return sin;
    }
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::logrealfast;
-using libbase::serializer;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-#ifndef USE_CUDA
-template class dminner2d<logrealfast, false> ;
-template <>
-const serializer dminner2d<logrealfast, false>::shelper = serializer(
-      "blockmodem", "dminner2d<logrealfast>",
-      dminner2d<logrealfast, false>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#ifdef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
 #endif
 
-template class dminner2d<double, true> ;
-template <>
-const serializer dminner2d<double, true>::shelper = serializer("blockmodem",
-      "dminner2d<double>", dminner2d<double, true>::create);
+/* Serialization string: dminner2d<real,norm>
+ * where:
+ *      real = float | double | logrealfast (CPU only)
+ */
+#define INSTANTIATE(r, x, type) \
+      template class dminner2d<type>; \
+      template <> \
+      const serializer dminner2d<type>::shelper( \
+            "blockmodem", \
+            "dminner2d<" BOOST_PP_STRINGIZE(type) ">", \
+            dminner2d<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

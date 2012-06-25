@@ -55,40 +55,53 @@ namespace libbase {
 class walltimer : public timer {
 private:
    /*! \name Internal representation */
-   double event_start; //!< Start event time
-   mutable double event_stop; //!< Stop event time
+#ifdef WIN32
+   struct _timeb event_start; //!< Start event time object
+   mutable struct _timeb event_stop; //!< Stop event time object
+#else
+   struct timeval event_start; //!< Start event time object
+   mutable struct timeval event_stop; //!< Stop event time object
+#endif
    // @}
 
 private:
    /*! \name Internal helper methods */
-   static double get_time()
-      {
 #ifdef WIN32
-      struct _timeb tb;
-      _ftime(&tb);
-      return (double) tb.time + (double) tb.millitm * 1E-3;
-#else
-      struct timeval tv;
-      struct timezone tz;
-      gettimeofday(&tv, &tz);
-      return (double) tv.tv_sec + (double) tv.tv_usec * 1E-6;
-#endif
+   static double convert(const struct _timeb& tb)
+      {
+      return tb.time + double(tb.millitm) * 1E-3;
       }
+#else
+   static double convert(const struct timeval& tv)
+      {
+      return tv.tv_sec + double(tv.tv_usec) * 1E-6;
+      }
+#endif
    // @}
 
 protected:
    /*! \name Interface with derived class */
    void do_start()
       {
-      event_start = get_time();
+#ifdef WIN32
+      _ftime(&event_start);
+#else
+      struct timezone tz;
+      gettimeofday(&event_start, &tz);
+#endif
       }
    void do_stop() const
       {
-      event_stop = get_time();
+#ifdef WIN32
+      _ftime(&event_stop);
+#else
+      struct timezone tz;
+      gettimeofday(&event_stop, &tz);
+#endif
       }
    double get_elapsed() const
       {
-      return event_stop - event_start;
+      return convert(event_stop) - convert(event_start);
       }
    // @}
 
@@ -104,6 +117,17 @@ public:
    ~walltimer()
       {
       expire();
+      }
+   // @}
+
+   /*! \name Timer information */
+   double resolution() const
+      {
+#ifdef WIN32
+      return 1e-3;
+#else
+      return 1e-6;
+#endif
       }
    // @}
 };

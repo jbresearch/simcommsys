@@ -74,11 +74,6 @@ void direct_blockmodem_implementation<G, vector, dbl>::dodemodulate(
    ptable = ptable_double;
    }
 
-// Explicit Realizations
-
-template class direct_blockmodem_implementation<bool, vector, double> ;
-template class direct_blockmodem_implementation<bool, vector, logrealfast> ;
-
 // *** Templated GF(q) blockmodem ***
 
 // Description
@@ -105,144 +100,55 @@ std::istream& direct_blockmodem<G, C, dbl>::serialize(std::istream& sin)
    return sin;
    }
 
+} // end namespace
+
+#include "gf.h"
+#include "logrealfast.h"
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-// Vector, double-precision
+using libbase::serializer;
+using libbase::logrealfast;
+using libbase::matrix;
+using libbase::vector;
 
-template class direct_blockmodem<gf<1, 0x3> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<1, 0x3> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<1,0x3>>", direct_blockmodem<gf<1, 0x3> ,
-            vector, double>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class direct_blockmodem<gf<2, 0x7> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<2, 0x7> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<2,0x7>>", direct_blockmodem<gf<2, 0x7> ,
-            vector, double>::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class direct_blockmodem<gf<3, 0xB> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<3, 0xB> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<3,0xB>>", direct_blockmodem<gf<3, 0xB> ,
-            vector, double>::create);
+#define SYMBOL_TYPE_SEQ \
+   (bool) \
+   GF_TYPE_SEQ
+#define CONTAINER_TYPE_SEQ \
+   (vector)
+   //(vector)(matrix)
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
 
-template class direct_blockmodem<gf<4, 0x13> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<4, 0x13> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<4,0x13>>", direct_blockmodem<gf<4, 0x13> ,
-            vector, double>::create);
+/* Serialization string: direct_blockmodem<type,container,real>
+ * where:
+ *      type = gf2 | gf4 ...
+ *      container = vector | matrix
+ *      real = float | double | logrealfast
+ */
+#define INSTANTIATE(r, args) \
+      template class direct_blockmodem_implementation<BOOST_PP_SEQ_ENUM(args)>; \
+      template class direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "blockmodem", \
+            "direct_blockmodem<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
+            direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>::create);
 
-template class direct_blockmodem<gf<5, 0x25> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<5, 0x25> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<5,0x25>>", direct_blockmodem<gf<5,
-            0x25> , vector, double>::create);
-
-template class direct_blockmodem<gf<6, 0x43> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<6, 0x43> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<6,0x43>>", direct_blockmodem<gf<6,
-            0x43> , vector, double>::create);
-
-template class direct_blockmodem<gf<7, 0x89> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<7, 0x89> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<7,0x89>>", direct_blockmodem<gf<7,
-            0x89> , vector, double>::create);
-
-template class direct_blockmodem<gf<8, 0x11D> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<8, 0x11D> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<8,0x11D>>", direct_blockmodem<gf<8,
-            0x11D> , vector, double>::create);
-
-template class direct_blockmodem<gf<9, 0x211> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<9, 0x211> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<9,0x211>>", direct_blockmodem<gf<9,
-            0x211> , vector, double>::create);
-
-template class direct_blockmodem<gf<10, 0x409> , vector, double> ;
-template <>
-const serializer direct_blockmodem<gf<10, 0x409> , vector, double>::shelper(
-      "blockmodem", "blockmodem<gf<10,0x409>>", direct_blockmodem<gf<10,
-            0x409> , vector, double>::create);
-
-template class direct_blockmodem<bool, vector, double> ;
-template <>
-const serializer direct_blockmodem<bool, vector, double>::shelper("blockmodem",
-      "blockmodem<bool>", direct_blockmodem<bool, vector, double>::create);
-
-// Vector, logrealfast-precision
-
-template class direct_blockmodem<gf<1, 0x3> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<1, 0x3> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<1,0x3>,logrealfast>", direct_blockmodem<gf<
-            1, 0x3> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<2, 0x7> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<2, 0x7> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<2,0x7>,logrealfast>", direct_blockmodem<gf<
-            2, 0x7> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<3, 0xB> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<3, 0xB> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<3,0xB>,logrealfast>", direct_blockmodem<gf<
-            3, 0xB> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<4, 0x13> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<4, 0x13> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<4,0x13>,logrealfast>", direct_blockmodem<gf<
-            4, 0x13> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<5, 0x25> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<5, 0x25> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<5,0x25>,logrealfast>",
-      direct_blockmodem<gf<5, 0x25> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<6, 0x43> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<6, 0x43> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<6,0x43>,logrealfast>",
-      direct_blockmodem<gf<6, 0x43> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<7, 0x89> , vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<gf<7, 0x89> , vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<gf<7,0x89>,logrealfast>",
-      direct_blockmodem<gf<7, 0x89> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<8, 0x11D> , vector, logrealfast> ;
-template <>
-const serializer
-      direct_blockmodem<gf<8, 0x11D> , vector, logrealfast>::shelper(
-            "blockmodem", "blockmodem<gf<8,0x11D>,logrealfast>",
-            direct_blockmodem<gf<8, 0x11D> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<9, 0x211> , vector, logrealfast> ;
-template <>
-const serializer
-      direct_blockmodem<gf<9, 0x211> , vector, logrealfast>::shelper(
-            "blockmodem", "blockmodem<gf<9,0x211>,logrealfast>",
-            direct_blockmodem<gf<9, 0x211> , vector, logrealfast>::create);
-
-template class direct_blockmodem<gf<10, 0x409> , vector, logrealfast> ;
-template <>
-const serializer
-      direct_blockmodem<gf<10, 0x409> , vector, logrealfast>::shelper(
-            "blockmodem", "blockmodem<gf<10,0x409>,logrealfast>",
-            direct_blockmodem<gf<10, 0x409> , vector, logrealfast>::create);
-
-template class direct_blockmodem<bool, vector, logrealfast> ;
-template <>
-const serializer direct_blockmodem<bool, vector, logrealfast>::shelper(
-      "blockmodem", "blockmodem<bool,logrealfast>", direct_blockmodem<bool,
-            vector, logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

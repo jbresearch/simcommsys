@@ -246,10 +246,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\channel.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\codec\codec_reshaped.cpp"
 				>
 			</File>
@@ -262,35 +258,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_errorrates.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_errors_levenshtein.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\commsys_fulliter.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_hist_symerr.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\commsys_iterative.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_prof_burst.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_prof_pos.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_prof_sym.cpp"
 				>
 			</File>
 			<File
@@ -354,6 +326,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\errors_hamming.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\errors_levenshtein.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\experiment\normal\exit_computer.cpp"
 				>
 			</File>
@@ -399,6 +379,10 @@
 			</File>
 			<File
 				RelativePath=".\interleaver\lut\helical.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\hist_symerr.cpp"
 				>
 			</File>
 			<File
@@ -483,6 +467,18 @@
 			</File>
 			<File
 				RelativePath=".\interleaver\padded.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\prof_burst.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\prof_pos.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\prof_sym.cpp"
 				>
 			</File>
 			<File
@@ -687,35 +683,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_errorrates.h"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_errors_levenshtein.h"
-				>
-			</File>
-			<File
 				RelativePath=".\commsys_fulliter.h"
 				>
 			</File>
 			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_hist_symerr.h"
-				>
-			</File>
-			<File
 				RelativePath=".\commsys_iterative.h"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_prof_burst.h"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_prof_pos.h"
-				>
-			</File>
-			<File
-				RelativePath=".\experiment\binomial\result_collector\commsys_prof_sym.h"
 				>
 			</File>
 			<File
@@ -779,6 +751,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\errors_hamming.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\errors_levenshtein.h"
+				>
+			</File>
+			<File
 				RelativePath=".\experiment\normal\exit_computer.h"
 				>
 			</File>
@@ -795,11 +775,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fba.h"
+				RelativePath=".\algorithm\fba.h"
 				>
 			</File>
 			<File
-				RelativePath=".\algorithm\fba.h"
+				RelativePath=".\fba.h"
 				>
 			</File>
 			<File
@@ -807,11 +787,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fba2.h"
+				RelativePath=".\algorithm\fba2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\algorithm\fba2.h"
+				RelativePath=".\fba2.h"
 				>
 			</File>
 			<File
@@ -840,6 +820,10 @@
 			</File>
 			<File
 				RelativePath=".\interleaver\lut\helical.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\hist_symerr.h"
 				>
 			</File>
 			<File
@@ -936,6 +920,18 @@
 			</File>
 			<File
 				RelativePath=".\parametric.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\prof_burst.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\prof_pos.h"
+				>
+			</File>
+			<File
+				RelativePath=".\experiment\binomial\result_collector\commsys\prof_sym.h"
 				>
 			</File>
 			<File

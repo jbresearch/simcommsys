@@ -1,6 +1,6 @@
-commsys<gf<1,0x3>>
+commsys<gf2,vector>
 ## Channel
-qids<gf<1,0x3>>
+qids<gf2>
 # Version
 1
 # Vary Ps?
@@ -18,13 +18,21 @@ qids<gf<1,0x3>>
 # Fixed Pi value
 0
 ## Modem
-tvb<gf<1,0x3>,double>
+tvb<gf2,double>
 # Version
-1
+3
 #: Inner threshold
 0
 #: Outer threshold
 0
+# Normalize metrics between time-steps?
+1
+# Use batch receiver computation?
+1
+# Lazy computation of gamma?
+1
+# Global storage / caching of computed gamma values?
+1
 # n
 8
 # k
@@ -34,13 +42,13 @@ tvb<gf<1,0x3>,double>
 # marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
 0
 ## Mapper
-map_straight<vector>
+map_straight<vector,double>
 ## Codec
 uncoded<double>
 # Encoder
 cached_fsm
 #: Base Encoder
-gnrcc<gf<4,0x13>>
+gnrcc<gf16>
 #: Generator matrix (k x n vectors)
 1	1
 1

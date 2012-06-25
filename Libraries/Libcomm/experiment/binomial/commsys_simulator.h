@@ -26,7 +26,6 @@
 #define __commsys_simulator_h
 
 #include "config.h"
-#include "experiment/binomial/result_collector/commsys_errorrates.h"
 #include "experiment/experiment_binomial.h"
 #include "randgen.h"
 #include "commsys.h"
@@ -46,7 +45,7 @@ namespace libcomm {
  * \todo Clean up interface with commsys object, particularly in cycleonce()
  */
 
-template <class S, class R = commsys_errorrates>
+template <class S, class R>
 class commsys_simulator : public experiment_binomial, public R {
 protected:
    /*! \name Bound objects */

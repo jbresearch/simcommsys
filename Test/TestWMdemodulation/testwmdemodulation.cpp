@@ -61,18 +61,16 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
       if (math)
          {
          if (deep)
-            mdm = modem_ptr(
-                  new dminner2<float, true> (n, k, th_inner, th_outer));
+            mdm = modem_ptr(new dminner2<float> (n, k, th_inner, th_outer));
          else
-            mdm = modem_ptr(new dminner2<float, true> (n, k));
+            mdm = modem_ptr(new dminner2<float> (n, k));
          }
       else
          {
          if (deep)
-            mdm = modem_ptr(new dminner2<double, true> (n, k, th_inner,
-                  th_outer));
+            mdm = modem_ptr(new dminner2<double> (n, k, th_inner, th_outer));
          else
-            mdm = modem_ptr(new dminner2<double, true> (n, k));
+            mdm = modem_ptr(new dminner2<double> (n, k));
          }
       }
    else
@@ -80,19 +78,16 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
       if (math)
          {
          if (deep)
-            mdm
-                  = modem_ptr(new dminner<float, true> (n, k, th_inner,
-                        th_outer));
+            mdm = modem_ptr(new dminner<float> (n, k, th_inner, th_outer));
          else
-            mdm = modem_ptr(new dminner<float, true> (n, k));
+            mdm = modem_ptr(new dminner<float> (n, k));
          }
       else
          {
          if (deep)
-            mdm = modem_ptr(
-                  new dminner<double, true> (n, k, th_inner, th_outer));
+            mdm = modem_ptr(new dminner<double> (n, k, th_inner, th_outer));
          else
-            mdm = modem_ptr(new dminner<double, true> (n, k));
+            mdm = modem_ptr(new dminner<double> (n, k));
          }
       }
    mdm->seedfrom(r);

@@ -149,7 +149,7 @@ std::ostream& ccbfsm::serialize(std::ostream& sout) const
 
 std::istream& ccbfsm::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> gen;
+   sin >> libbase::eatcomments >> gen >> libbase::verify;
    init();
    return sin;
    }

@@ -55,20 +55,32 @@ void codec_softout<libbase::vector, dbl>::decode(array1i_t& decoded)
 
 } // end namespace
 
-// Explicit Realizations
-
-#include "logrealfast.h"
 #include "mpreal.h"
+#include "mpgnu.h"
+#include "logreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::vector;
-using libbase::logrealfast;
-using libbase::mpreal;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class codec_softout<vector, float> ;
-template class codec_softout<vector, double> ;
-template class codec_softout<vector, logrealfast> ;
-template class codec_softout<vector, mpreal> ;
+using libbase::vector;
+
+using libbase::mpreal;
+using libbase::mpgnu;
+using libbase::logreal;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
+
+#define INSTANTIATE(r, x, type) \
+      template class codec_softout<vector, type>;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

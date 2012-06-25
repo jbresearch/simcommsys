@@ -80,12 +80,12 @@ template <class S>
 std::istream& lsb<S>::serialize(std::istream& sin)
    {
    int version;
-   sin >> libbase::eatcomments >> version;
-   sin >> libbase::eatcomments >> M;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
+   sin >> libbase::eatcomments >> M >> libbase::verify;
    if (version >= 2)
       {
       int temp;
-      sin >> libbase::eatcomments >> temp;
+      sin >> libbase::eatcomments >> temp >> libbase::verify;
       assertalways(temp >=0 && temp < AL_UNDEFINED);
       algorithm = static_cast<al_enum> (temp);
       }
@@ -94,10 +94,31 @@ std::istream& lsb<S>::serialize(std::istream& sin)
    return sin;
    }
 
-// Explicit Realizations
+} // end namespace
 
-template class lsb<int> ;
-template <>
-const serializer lsb<int>::shelper("embedder", "lsb<int>", lsb<int>::create);
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+
+#define SYMBOL_TYPE_SEQ \
+   (int)
+
+/* Serialization string: lsb<type>
+ * where:
+ *      type = int
+ */
+#define INSTANTIATE(r, x, type) \
+      template class lsb<type>; \
+      template <> \
+      const serializer lsb<type>::shelper( \
+            "embedder", \
+            "lsb<" BOOST_PP_STRINGIZE(type) ">", \
+            lsb<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // end namespace

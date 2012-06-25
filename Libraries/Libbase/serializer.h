@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include <map>
+#include <list>
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -71,16 +72,6 @@ class serializable;
  * \note In the constructor, the function pointer is passed directly, not by
  * reference. This is required to pass anything except global functions.
  *
- * \note The map is held as a static pointer to map. For some obscure reason,
- * static or global maps are leading to access violations. The pointer is
- * initially NULL, and when the first serializer object is created, space
- * for this is allocated.
- * A static counter keeps track of how many serializer objects are
- * defined. When this drops to zero, the global map is deallocated. Note
- * that this should only drop to zero on program end, assuming all
- * serializer objects are created with either global or static member
- * scope.
- *
  * \note Macros are defined to standardize declarations in serializable
  * classes; this mirrors what Microsoft do in MFC.
  */
@@ -89,15 +80,17 @@ class serializer {
 public:
    typedef serializable*(*fptr)();
 private:
-   static std::map<std::string, fptr>* cmap;
-   static int count;
+   static std::map<std::string, fptr> cmap;
    std::string classname;
 public:
    static serializable* call(const std::string& base,
          const std::string& derived);
+   //! Returns a list of base classes
+   static std::list<std::string> get_base_classes();
+   //! Returns a list of derived classes for given base class
+   static std::list<std::string> get_derived_classes(const std::string& base);
 public:
    serializer(const std::string& base, const std::string& derived, fptr func);
-   ~serializer();
    const char *name() const
       {
       return classname.c_str();
@@ -157,7 +150,10 @@ public:
          sin.clear( std::ios::failbit ); \
          } \
       else \
-         assertalways(x->serialize(sin)); \
+         { \
+         x->serialize(sin); \
+         libbase::verify(sin); \
+         } \
       return sin; \
       } \
    /* @} */

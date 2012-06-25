@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // create a code to start with
-   libcomm::dminner2d<double, true> mdm;
+   libcomm::dminner2d<double> mdm;
    // get code definition from stdin
    cerr << "Enter code details:" << std::endl;
    mdm.serialize(cin);

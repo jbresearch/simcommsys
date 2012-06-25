@@ -45,8 +45,8 @@ namespace libcomm {
 /*!
  * \brief Return encoding of data 'd' at position 'i'
  */
-template <class real, bool norm>
-libbase::vector<bool> dminner<real, norm>::encode(const int i, const int d) const
+template <class real>
+libbase::vector<bool> dminner<real>::encode(const int i, const int d) const
    {
 #ifndef NDEBUG
    // Inherit sizes
@@ -73,8 +73,8 @@ libbase::vector<bool> dminner<real, norm>::encode(const int i, const int d) cons
 /*!
  * \brief Check that all entries in table have correct length
  */
-template <class real, bool norm>
-void dminner<real, norm>::validate_bitfield_length(const libbase::vector<
+template <class real>
+void dminner<real>::validate_bitfield_length(const libbase::vector<
       libbase::bitfield>& table) const
    {
    assertalways(table.size() > 0);
@@ -85,8 +85,8 @@ void dminner<real, norm>::validate_bitfield_length(const libbase::vector<
 /*!
  * \brief Set up marker sequence for the current frame as given
  */
-template <class real, bool norm>
-void dminner<real, norm>::copymarker(
+template <class real>
+void dminner<real>::copymarker(
       const libbase::vector<libbase::bitfield>& marker_b)
    {
    validate_bitfield_length(marker_b);
@@ -96,8 +96,8 @@ void dminner<real, norm>::copymarker(
 /*!
  * \brief Set up codebook with the given codewords
  */
-template <class real, bool norm>
-void dminner<real, norm>::copycodebook(const int i, const libbase::vector<
+template <class real>
+void dminner<real>::copycodebook(const int i, const libbase::vector<
       libbase::bitfield>& codebook_b)
    {
    assertalways(codebook_b.size() == num_symbols());
@@ -114,8 +114,8 @@ void dminner<real, norm>::copycodebook(const int i, const libbase::vector<
  * \brief Display codebook on given stream
  */
 
-template <class real, bool norm>
-void dminner<real, norm>::showcodebook(std::ostream& sout) const
+template <class real>
+void dminner<real>::showcodebook(std::ostream& sout) const
    {
    assert(num_codebooks() >= 1);
    assert(codebook.size().cols() == num_symbols());
@@ -135,8 +135,8 @@ void dminner<real, norm>::showcodebook(std::ostream& sout) const
  * duplicate entries.
  */
 
-template <class real, bool norm>
-void dminner<real, norm>::validatecodebook() const
+template <class real>
+void dminner<real>::validatecodebook() const
    {
    assertalways(num_codebooks() >= 1);
    assertalways(codebook.size().cols() == num_symbols());
@@ -153,8 +153,8 @@ void dminner<real, norm>::validatecodebook() const
 
 //! Compute and update mean density of codebook
 
-template <class real, bool norm>
-void dminner<real, norm>::computemeandensity()
+template <class real>
+void dminner<real>::computemeandensity()
    {
    array2i_t w = codebook;
    w.apply(libbase::weight);
@@ -167,8 +167,8 @@ void dminner<real, norm>::computemeandensity()
 
 //! Inform user if I or xmax have changed
 
-template <class real, bool norm>
-void dminner<real, norm>::checkforchanges(int I, int xmax) const
+template <class real>
+void dminner<real>::checkforchanges(int I, int xmax) const
    {
    static int last_I = 0;
    static int last_xmax = 0;
@@ -180,8 +180,8 @@ void dminner<real, norm>::checkforchanges(int I, int xmax) const
       }
    }
 
-template <class real, bool norm>
-void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
+template <class real>
+void dminner<real>::work_results(const array1b_t& r, array1vr_t& ptable,
       const int xmax, const int dxmax, const int I) const
    {
    libbase::pacifier progress("FBA Results");
@@ -258,9 +258,8 @@ void dminner<real, norm>::work_results(const array1b_t& r, array1vr_t& ptable,
  * The input probability table is normalized such that the largest value is
  * equal to 1; result is converted to double.
  */
-template <class real, bool norm>
-void dminner<real, norm>::normalize_results(const array1vr_t& in,
-      array1vd_t& out) const
+template <class real>
+void dminner<real>::normalize_results(const array1vr_t& in, array1vd_t& out) const
    {
    const int N = in.size();
    assert(N > 0);
@@ -281,8 +280,8 @@ void dminner<real, norm>::normalize_results(const array1vr_t& in,
 
 // initialization / de-allocation
 
-template <class real, bool norm>
-void dminner<real, norm>::init()
+template <class real>
+void dminner<real>::init()
    {
    // Fill default codebook if necessary
    if (codebook_type == codebook_sparse)
@@ -318,8 +317,8 @@ void dminner<real, norm>::init()
  * \copydoc set_marker()
  * \todo Consider moving this method to the dminner2d class
  */
-template <class real, bool norm>
-void dminner<real, norm>::set_marker(libbase::vector<bool> marker)
+template <class real>
+void dminner<real>::set_marker(libbase::vector<bool> marker)
    {
    assertalways((marker.size() % n) == 0);
    // init space for converted vector
@@ -339,8 +338,8 @@ void dminner<real, norm>::set_marker(libbase::vector<bool> marker)
  * 
  * \todo merge with copymarker()
  */
-template <class real, bool norm>
-void dminner<real, norm>::set_marker(libbase::vector<libbase::bitfield> marker)
+template <class real>
+void dminner<real>::set_marker(libbase::vector<libbase::bitfield> marker)
    {
    copymarker(marker);
    }
@@ -351,9 +350,8 @@ void dminner<real, norm>::set_marker(libbase::vector<libbase::bitfield> marker)
  * The intent of this method is to allow users to apply the dminner decoder
  * in derived algorithms, such as the 2D extension.
  */
-template <class real, bool norm>
-void dminner<real, norm>::set_codebook(
-      libbase::vector<libbase::bitfield> codebook_b)
+template <class real>
+void dminner<real>::set_codebook(libbase::vector<libbase::bitfield> codebook_b)
    {
    // allocate memory and copy read codebook
    codebook.init(1, num_symbols());
@@ -365,9 +363,8 @@ void dminner<real, norm>::set_codebook(
 #endif
    }
 
-template <class real, bool norm>
-void dminner<real, norm>::set_thresholds(const real th_inner,
-      const real th_outer)
+template <class real>
+void dminner<real>::set_thresholds(const real th_inner, const real th_outer)
    {
    user_threshold = true;
    This::th_inner = th_inner;
@@ -377,8 +374,8 @@ void dminner<real, norm>::set_thresholds(const real th_inner,
 
 // implementations of channel-specific metrics for fba
 
-template <class real, bool norm>
-real dminner<real, norm>::R(const int i, const array1b_t& r)
+template <class real>
+real dminner<real>::R(const int i, const array1b_t& r)
    {
    // 'tx' is a matrix of all possible transmitted symbols
    // we know exactly what was transmitted at this timestep
@@ -391,8 +388,8 @@ real dminner<real, norm>::R(const int i, const array1b_t& r)
 
 // block advance operation - update marker sequence
 
-template <class real, bool norm>
-void dminner<real, norm>::advance() const
+template <class real>
+void dminner<real>::advance() const
    {
    // Inherit sizes
    const int tau = this->input_block_size();
@@ -434,8 +431,8 @@ void dminner<real, norm>::advance() const
 
 // encoding and decoding functions
 
-template <class real, bool norm>
-void dminner<real, norm>::domodulate(const int N, const array1i_t& encoded,
+template <class real>
+void dminner<real>::domodulate(const int N, const array1i_t& encoded,
       array1b_t& tx)
    {
    // TODO: when N is removed from the interface, rename 'tau' to 'N'
@@ -454,8 +451,8 @@ void dminner<real, norm>::domodulate(const int N, const array1i_t& encoded,
       tx.segment(i * n, n) = encode(i, encoded(i));
    }
 
-template <class real, bool norm>
-void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
+template <class real>
+void dminner<real>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, array1vd_t& ptable)
    {
    // Inherit sizes
@@ -475,7 +472,7 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
    const int dxmax = mychan.compute_xmax(n);
    checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
-   FBA::init(tau, I, xmax, th_inner);
+   FBA::init(tau, I, xmax, th_inner, norm);
    FBA::prepare(rx);
    // Reset substitution probability to original value
    mychan.set_ps(Ps);
@@ -487,8 +484,8 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
    normalize_results(p, ptable);
    }
 
-template <class real, bool norm>
-void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
+template <class real>
+void dminner<real>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    array1vd_t p;
@@ -513,8 +510,8 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
       }
    }
 
-template <class real, bool norm>
-void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
+template <class real>
+void dminner<real>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
@@ -525,11 +522,12 @@ void dminner<real, norm>::dodemodulate(const channel<bool>& chan,
 
 // description output
 
-template <class real, bool norm>
-std::string dminner<real, norm>::description() const
+template <class real>
+std::string dminner<real>::description() const
    {
    std::ostringstream sout;
-   sout << "DM Inner Code (" << n << "/" << k << ", ";
+   const int q = num_symbols();
+   sout << "DM Inner Code (" << n << "," << q << ", ";
    switch (codebook_type)
       {
       case codebook_sparse:
@@ -548,10 +546,6 @@ std::string dminner<real, norm>::description() const
          failwith("Unknown codebook type");
          break;
       }
-   if (user_threshold)
-      sout << ", thresholds " << th_inner << "/" << th_outer;
-   if (norm)
-      sout << ", normalized";
    switch (marker_type)
       {
       case marker_random:
@@ -567,25 +561,29 @@ std::string dminner<real, norm>::description() const
          break;
 
       case marker_mod_vec:
-         sout << ", modification vectors (length " << marker_vectors.size()
-               << ")";
+         sout << ", AMVs [" << marker_vectors.size()
+               << ", sequential]";
          break;
 
       default:
          failwith("Unknown marker sequence type");
          break;
       }
+   if (user_threshold)
+      sout << ", thresholds " << th_inner << "/" << th_outer;
+   if (norm)
+      sout << ", normalized";
    sout << ")";
    return sout.str();
    }
 
 // object serialization - saving
 
-template <class real, bool norm>
-std::ostream& dminner<real, norm>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& dminner<real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 2 << std::endl;
+   sout << 3 << std::endl;
    sout << "# User threshold?" << std::endl;
    sout << user_threshold << std::endl;
    if (user_threshold)
@@ -595,6 +593,8 @@ std::ostream& dminner<real, norm>::serialize(std::ostream& sout) const
       sout << "#: Outer threshold" << std::endl;
       sout << th_outer << std::endl;
       }
+   sout << "# Normalize metrics between time-steps?" << std::endl;
+   sout << norm << std::endl;
    sout << "# n" << std::endl;
    sout << n << std::endl;
    sout << "# k" << std::endl;
@@ -657,15 +657,17 @@ std::ostream& dminner<real, norm>::serialize(std::ostream& sout) const
  * \version 1 Added version numbering
  *
  * \version 2 Added marker sequence type
+ *
+ * \version 3 Added normalization flag
  */
 
-template <class real, bool norm>
-std::istream& dminner<real, norm>::serialize(std::istream& sin)
+template <class real>
+std::istream& dminner<real>::serialize(std::istream& sin)
    {
    std::streampos start = sin.tellg();
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    // handle old-format files (without version number)
    if (version < 2)
       {
@@ -673,7 +675,7 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
       sin.seekg(start);
       version = 1;
       }
-   sin >> libbase::eatcomments >> user_threshold;
+   sin >> libbase::eatcomments >> user_threshold >> libbase::verify;
    // deal with inexistent flag as 'false'
    if (sin.fail())
       {
@@ -684,13 +686,20 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
    // read or set default thresholds
    if (user_threshold)
       {
-      sin >> libbase::eatcomments >> th_inner;
-      sin >> libbase::eatcomments >> th_outer;
+      sin >> libbase::eatcomments >> th_inner >> libbase::verify;
+      sin >> libbase::eatcomments >> th_outer >> libbase::verify;
       }
-   sin >> libbase::eatcomments >> n;
-   sin >> libbase::eatcomments >> k;
+   // read decoder parameters
+   if (version >= 3)
+      sin >> libbase::eatcomments >> norm >> libbase::verify;
+   else
+      norm = true;
+   // read code size
+   sin >> libbase::eatcomments >> n >> libbase::verify;
+   sin >> libbase::eatcomments >> k >> libbase::verify;
+   // read codebook
    int temp;
-   sin >> libbase::eatcomments >> temp;
+   sin >> libbase::eatcomments >> temp >> libbase::verify;
    codebook_type = (codebook_t) temp;
    switch (codebook_type)
       {
@@ -699,7 +708,7 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
 
       case codebook_user:
          {
-         sin >> libbase::eatcomments >> codebookname;
+         sin >> libbase::eatcomments >> codebookname >> libbase::verify;
          // allocate memory
          codebook.init(1, num_symbols());
          // read codebook from stream
@@ -707,15 +716,16 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
          codebook_b.init(num_symbols());
          sin >> libbase::eatcomments;
          codebook_b.serialize(sin);
+         libbase::verify(sin);
          // copy read codebook
          copycodebook(0, codebook_b);
          }
          break;
 
       case codebook_tvb:
-         sin >> libbase::eatcomments >> codebookname;
+         sin >> libbase::eatcomments >> codebookname >> libbase::verify;
          // read codebook count
-         sin >> libbase::eatcomments >> temp;
+         sin >> libbase::eatcomments >> temp >> libbase::verify;
          // allocate memory
          codebook.init(temp, num_symbols());
          for (int i = 0; i < num_codebooks(); i++)
@@ -725,6 +735,7 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
             codebook_b.init(num_symbols());
             sin >> libbase::eatcomments;
             codebook_b.serialize(sin);
+            libbase::verify(sin);
             // copy read codebook
             copycodebook(i, codebook_b);
             }
@@ -740,13 +751,13 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
    else
       {
       int temp;
-      sin >> libbase::eatcomments >> temp;
+      sin >> libbase::eatcomments >> temp >> libbase::verify;
       marker_type = (marker_t) temp;
       if (marker_type == marker_mod_vec)
          {
          // read modification vectors from stream
          libbase::vector<libbase::bitfield> marker_vectors_b;
-         sin >> libbase::eatcomments >> marker_vectors_b;
+         sin >> libbase::eatcomments >> marker_vectors_b >> libbase::verify;
          // copy list of modification vectors
          validate_bitfield_length(marker_vectors_b);
          marker_vectors = marker_vectors_b;
@@ -758,29 +769,32 @@ std::istream& dminner<real, norm>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::logrealfast;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
+using libbase::logrealfast;
 
-template class dminner<logrealfast, false> ;
-template <>
-const serializer dminner<logrealfast, false>::shelper =
-      serializer("blockmodem", "dminner<logrealfast>", dminner<logrealfast,
-            false>::create);
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
 
-template class dminner<double, true> ;
-template <>
-const serializer dminner<double, true>::shelper = serializer("blockmodem",
-      "dminner<double>", dminner<double, true>::create);
+/* Serialization string: dminner<real,norm>
+ * where:
+ *      real = float | double | logrealfast (CPU only)
+ */
+#define INSTANTIATE(r, x, type) \
+      template class dminner<type>; \
+      template <> \
+      const serializer dminner<type>::shelper( \
+            "blockmodem", \
+            "dminner<" BOOST_PP_STRINGIZE(type) ">", \
+            dminner<type>::create);
 
-template class dminner<float, true> ;
-template <>
-const serializer dminner<float, true>::shelper = serializer("blockmodem",
-      "dminner<float>", dminner<float, true>::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

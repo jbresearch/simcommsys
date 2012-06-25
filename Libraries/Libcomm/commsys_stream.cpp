@@ -79,78 +79,41 @@ std::istream& commsys_stream<S, C>::serialize(std::istream& sin)
 namespace libcomm {
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
-using libbase::gf;
+using libbase::matrix;
+using libbase::vector;
 
-template class commsys_stream<sigspace> ;
-template <>
-const serializer commsys_stream<sigspace>::shelper("commsys",
-      "commsys_stream<sigspace>", commsys_stream<sigspace>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class commsys_stream<bool> ;
-template <>
-const serializer commsys_stream<bool>::shelper("commsys",
-      "commsys_stream<bool>", commsys_stream<bool>::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class commsys_stream<gf<1, 0x3> > ;
-template <>
-const serializer commsys_stream<gf<1, 0x3> >::shelper(
-      "commsys", "commsys_stream<gf<1,0x3>>", commsys_stream<
-            gf<1, 0x3> >::create);
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
+#define CONTAINER_TYPE_SEQ \
+   (vector)
+   //(vector)(matrix)
 
-template class commsys_stream<gf<2, 0x7> > ;
-template <>
-const serializer commsys_stream<gf<2, 0x7> >::shelper(
-      "commsys", "commsys_stream<gf<2,0x7>>", commsys_stream<
-            gf<2, 0x7> >::create);
+/* Serialization string: commsys_stream<type>
+ * where:
+ *      type = sigspace | bool | gf2 | gf4 ...
+ *      container = vector | matrix
+ */
+#define INSTANTIATE(r, args) \
+      template class commsys_stream<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer commsys_stream<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "commsys", \
+            "commsys_stream<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            commsys_stream<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class commsys_stream<gf<3, 0xB> > ;
-template <>
-const serializer commsys_stream<gf<3, 0xB> >::shelper(
-      "commsys", "commsys_stream<gf<3,0xB>>", commsys_stream<
-            gf<3, 0xB> >::create);
-
-template class commsys_stream<gf<4, 0x13> > ;
-template <>
-const serializer commsys_stream<gf<4, 0x13> >::shelper(
-      "commsys", "commsys_stream<gf<4,0x13>>", commsys_stream<gf<4,
-            0x13> >::create);
-
-template class commsys_stream<gf<5, 0x25> > ;
-template <>
-const serializer commsys_stream<gf<5, 0x25> >::shelper(
-      "commsys", "commsys_stream<gf<5,0x25>>", commsys_stream<gf<5,
-            0x25> >::create);
-
-template class commsys_stream<gf<6, 0x43> > ;
-template <>
-const serializer commsys_stream<gf<6, 0x43> >::shelper(
-      "commsys", "commsys_stream<gf<6,0x43>>", commsys_stream<gf<6,
-            0x43> >::create);
-
-template class commsys_stream<gf<7, 0x89> > ;
-template <>
-const serializer commsys_stream<gf<7, 0x89> >::shelper(
-      "commsys", "commsys_stream<gf<7,0x89>>", commsys_stream<gf<7,
-            0x89> >::create);
-
-template class commsys_stream<gf<8, 0x11D> > ;
-template <>
-const serializer commsys_stream<gf<8, 0x11D> >::shelper(
-      "commsys", "commsys_stream<gf<8,0x11D>>", commsys_stream<gf<8,
-            0x11D> >::create);
-
-template class commsys_stream<gf<9, 0x211> > ;
-template <>
-const serializer commsys_stream<gf<9, 0x211> >::shelper(
-      "commsys", "commsys_stream<gf<9,0x211>>", commsys_stream<gf<9,
-            0x211> >::create);
-
-template class commsys_stream<gf<10, 0x409> > ;
-template <>
-const serializer commsys_stream<gf<10, 0x409> >::shelper(
-      "commsys", "commsys_stream<gf<10,0x409>>", commsys_stream<gf<10,
-            0x409> >::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
 } // end namespace

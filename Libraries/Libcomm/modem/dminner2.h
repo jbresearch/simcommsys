@@ -52,13 +52,13 @@ namespace libcomm {
  * with Insertions, Deletions, and Substitutions", Trans. IT, Feb 2001.
  */
 
-template <class real, bool norm>
-class dminner2 : public dminner<real, norm> {
+template <class real>
+class dminner2 : public dminner<real> {
 private:
    // Shorthand for class hierarchy
    typedef stream_modulator<bool> Interface;
-   typedef dminner2<real, norm> This;
-   typedef dminner<real, norm> Base;
+   typedef dminner2<real> This;
+   typedef dminner<real> Base;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<bool> array1b_t;
@@ -68,12 +68,19 @@ public:
    typedef libbase::vector<array1r_t> array1vr_t;
    // @}
 private:
+   /*! \name User-defined parameters */
+   bool batch; //!< Flag indicating use of batch receiver interface
+   bool lazy; //!< Flag indicating lazy computation of gamma metric
+   bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
+   // @}
+   /*! \name Internally-used objects */
    // algorithm object
 #ifdef USE_CUDA
-   cuda::fba2<cuda::dminner2_receiver<real>, real, bool, norm> fba;
+   cuda::fba2<cuda::dminner2_receiver<real>, bool, real> fba;
 #else
-   fba2<dminner2_receiver<real>, real, bool, norm> fba;
+   fba2<dminner2_receiver<real>, bool, real> fba;
 #endif
+   // @}
 private:
    // Setup procedure
    void init(const channel<bool>& chan, const array1d_t& sof_pdf,
@@ -107,12 +114,12 @@ private:
 public:
    /*! \name Constructors / Destructors */
    explicit dminner2(const int n = 2, const int k = 1) :
-      dminner<real, norm> (n, k)
+      dminner<real> (n, k)
       {
       }
    dminner2(const int n, const int k, const double th_inner,
          const double th_outer) :
-      dminner<real, norm> (n, k, th_inner, th_outer)
+      dminner<real> (n, k, th_inner, th_outer)
       {
       }
    // @}

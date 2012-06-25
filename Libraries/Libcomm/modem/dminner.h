@@ -64,17 +64,17 @@ namespace libcomm {
  * should be extracted into a common base
  */
 
-template <class real, bool norm>
+template <class real>
 class dminner2;
 
-template <class real, bool norm>
+template <class real>
 class dminner : public stream_modulator<bool> , public parametric, private fba<
-      real, bool, norm> {
-   friend class dminner2<real, norm> ;
+      bool, real> {
+   friend class dminner2<real> ;
 private:
    // Shorthand for class hierarchy
-   typedef dminner<real, norm> This;
-   typedef fba<real, bool, norm> FBA;
+   typedef dminner<real> This;
+   typedef fba<bool, real> FBA;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -103,6 +103,7 @@ private:
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    // @}
    /*! \name Pre-computed parameters */
    double f; //!< average weight per codeword bit

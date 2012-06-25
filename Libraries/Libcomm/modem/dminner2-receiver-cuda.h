@@ -54,10 +54,10 @@ namespace cuda {
 template <class real>
 class dminner2_receiver {
 private:
-   int n; //!< Number of bits per codeword
-   mutable cuda::vector<int> marker; //!< Device copy of marker sequence
-   cuda::matrix_auto<int> codebook; //!< Device copy of codebook
    libcomm::bsid::metric_computer computer; //!< Channel object for computing receiver metric
+   cuda::matrix_auto<int> codebook; //!< Device copy of codebook
+   mutable cuda::vector<int> marker; //!< Device copy of marker sequence
+   int n; //!< Number of bits per codeword
 public:
    // initialization routines
    void init(const int n, const libbase::matrix<int>& codebook,
@@ -89,7 +89,19 @@ public:
 #endif
       }
 #ifdef __CUDACC__
-   // batch receiver interface
+   //! Receiver interface
+   __device__
+   real R(int d, int i, const cuda::vector_reference<bool>& r) const
+      {
+      const int w = marker(i); // marker vector
+      const int s = codebook(i % codebook.get_rows(), d);
+      // 'tx' is the vector of transmitted symbols that we're considering
+      // TODO: find a way to use dminner::encode()
+      cuda::bitfield tx(w ^ s, n);
+      // compute the conditional probability
+      return computer.receive(tx, r);
+      }
+   //! Batch receiver interface
    __device__
    void R(int d, int i, const cuda::vector_reference<bool>& r,
          cuda::vector_reference<libcomm::bsid::real>& ptable) const

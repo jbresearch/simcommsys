@@ -20,7 +20,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * \section svn Version Control
- * - $Id: qids-cuda.cu 6402 2011-12-05 17:34:30Z jabriffa $
+ * - $Id$
  */
 
 #include "qids.h"

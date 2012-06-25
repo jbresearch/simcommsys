@@ -159,22 +159,31 @@ std::istream& image<T>::serialize(std::istream& sin)
    return sin;
    }
 
+} // end namespace
+
+namespace libimage {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
 
-template class image<int> ;
-template <>
-const serializer image<int>::shelper("image", "image<int>", image<int>::create);
+#define SYMBOL_TYPE_SEQ \
+   (int)(float)(double)
 
-template class image<float> ;
-template <>
-const serializer image<float>::shelper("image", "image<float>",
-      image<float>::create);
+/* Serialization string: image<type>
+ * where:
+ *      type = int | float | double
+ */
+#define INSTANTIATE(r, x, type) \
+      template class image<type>; \
+      template <> \
+      const serializer image<type>::shelper( \
+            "image", \
+            "image<" BOOST_PP_STRINGIZE(type) ">", \
+            image<type>::create);
 
-template class image<double> ;
-template <>
-const serializer image<double>::shelper("image", "image<double>",
-      image<double>::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // end namespace

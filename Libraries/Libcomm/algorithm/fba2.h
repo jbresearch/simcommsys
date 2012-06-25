@@ -53,11 +53,11 @@ namespace libcomm {
  * Trans. IT, 47(2), Feb 2001.
  */
 
-template <class receiver_t, class real, class sig, bool norm>
+template <class receiver_t, class sig, class real>
 class fba2 {
 private:
    // Shorthand for class hierarchy
-   typedef fba2<receiver_t, real, sig, norm> This;
+   typedef fba2<receiver_t, sig, real> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
@@ -70,51 +70,199 @@ public:
    typedef boost::assignable_multi_array<bool, 2> array2b_t;
    // @}
 private:
+   /*! \name Internally-used objects */
+   mutable receiver_t receiver; //!< Inner code receiver metric computation
+   array2r_t alpha; //!< Forward recursion metric
+   array2r_t beta; //!< Backward recursion metric
+   mutable array4r_t gamma; //!< Receiver metric
+   mutable array2b_t cached; //!< Flag for globalstore of receiver metric
+   array1s_t r; //!< Copy of received sequence, for lazy computation of gamma
+   array1vd_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
+   int dmin; //!< Offset for deltax index in gamma matrix
+   int dmax; //!< Maximum value for deltax index in gamma matrix
+   bool initialised; //!< Flag to indicate when memory is allocated
+#ifndef NDEBUG
+   mutable int gamma_calls; //!< Number of gamma computations
+   mutable int gamma_misses; //!< Number of gamma computations causing a cache miss
+#endif
+   // @}
    /*! \name User-defined parameters */
+   real th_inner; //!< Threshold factor for inner cycle
+   real th_outer; //!< Threshold factor for outer cycle
    int N; //!< The transmitted block size in symbols
    int n; //!< The number of bits encoding each q-ary symbol
    int q; //!< The number of symbols in the q-ary alphabet
    int I; //!< The maximum number of insertions considered before every transmission
    int xmax; //!< The maximum allowed overall drift is \f$ \pm x_{max} \f$
    int dxmax; //!< The maximum allowed drift within a q-ary symbol is \f$ \pm \delta_{max} \f$
-   real th_inner; //!< Threshold factor for inner cycle
-   real th_outer; //!< Threshold factor for outer cycle
-   // @}
-   /*! \name Internally-used objects */
-   int dmin; //!< Offset for deltax index in gamma matrix
-   int dmax; //!< Maximum value for deltax index in gamma matrix
-   bool initialised; //!< Flag to indicate when memory is allocated
-   bool cache_enabled; //!< Flag to indicate when cache is usable
-   array2r_t alpha; //!< Forward recursion metric
-   array2r_t beta; //!< Backward recursion metric
-   mutable array4r_t gamma; //!< Receiver metric
-   mutable array2b_t cached; //!< Flag for caching of receiver metric
-   array1s_t r; //!< Copy of received sequence, for lazy computation of gamma
-   array1vd_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
-#ifndef NDEBUG
-   mutable int gamma_calls; //!< Number of gamma computations
-   mutable int gamma_misses; //!< Number of gamma computations causing a cache miss
-#endif
-   mutable receiver_t receiver; //!< Inner code receiver metric computation
+   struct {
+      bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
+      bool batch; //!< Flag indicating use of batch receiver interface
+      bool lazy; //!< Flag indicating lazy computation of gamma metric
+      bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
+   } flags;
    // @}
 private:
-   /*! \name Internal functions */
-   void compute_gamma(int d, int i, int x, array1r_t& ptable) const;
-   real compute_gamma(int d, int i, int x, int deltax) const;
-   real get_gamma(int d, int i, int x, int deltax) const;
+   /*! \name Internal functions - computer */
+   //! Compute gamma metric using independent receiver interface
+   real compute_gamma_single(int d, int i, int x, int deltax,
+         const array1s_t& r, const array1vd_t& app) const
+      {
+      // determine received segment to extract
+      const int start = xmax + n * i + x;
+      const int length = n + deltax;
+      // call receiver method
+      real result = receiver.R(d, i, r.extract(start, length));
+      // apply priors if applicable
+      if (app.size() > 0)
+         result *= real(app(i)(d));
+      return result;
+      }
+   //! Compute gamma metric using batch receiver interface
+   void compute_gamma_batch(int d, int i, int x, array1r_t& ptable,
+         const array1s_t& r, const array1vd_t& app) const
+      {
+      // determine received segment to extract
+      const int start = xmax + n * i + x;
+      const int length = std::min(n + dmax, r.size() - start);
+      // call batch receiver method
+      receiver.R(d, i, r.extract(start, length), ptable);
+      // apply priors if applicable
+      if (app.size() > 0)
+         ptable *= real(app(i)(d));
+      }
+   //! Compute gamma metric using batch interface, keeping a small local cache
+   real compute_gamma_batch_cached(int d, int i, int x, int deltax) const
+      {
+      // keep track of parameters for cached results
+      static int last_d = -1;
+      static int last_i = -1;
+      static int last_x = -1;
+      // space for results
+      static array1r_t ptable;
+      // recompute and store if any parameter changed
+      if (d != last_d || i != last_i || x != last_x)
+         {
+         last_d = d;
+         last_i = i;
+         last_x = x;
+         ptable.init(2 * dxmax + 1);
+         compute_gamma_batch(d, i, x, ptable, r, app);
+         }
+      // return stored result
+      return ptable(dxmax + deltax);
+      }
+   //! Fill indicated cache entries for gamma metric - batch interface
+   void fill_gamma_cache_batch(int i, int x) const
+      {
+      // allocate space for results
+      static array1r_t ptable;
+      ptable.init(2 * dxmax + 1);
+      // for each symbol value
+      for (int d = 0; d < q; d++)
+         {
+         // compute metric with batch interface
+         compute_gamma_batch(d, i, x, ptable, r, app);
+         // store in corresponding place in cache
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma[d][i][x][deltax] = ptable(dxmax + deltax);
+         }
+      }
+   //! Fill indicated cache entries for gamma metric - independent interface
+   void fill_gamma_cache_single(int i, int x) const
+      {
+      // TODO: no need to compute for all deltax if 'cached' is sufficiently fine
+      for (int d = 0; d < q; d++)
+         {
+         const int deltaxmin = std::max(-xmax - x, dmin);
+         const int deltaxmax = std::min(xmax - x, dmax);
+         for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
+            gamma[d][i][x][deltax] = compute_gamma_single(d, i, x, deltax, r,
+                  app);
+         }
+      }
+   //! Wrapper to fill indicated cache entries for gamma metric as needed
+   void fill_gamma_cache_conditional(int i, int x) const
+      {
+      // if we not have this already, fill in this part of cache
+      if (!cached[i][x])
+         {
+#ifndef NDEBUG
+         gamma_misses++;
+#endif
+         // mark as filled in
+         cached[i][x] = true;
+         // call computation method and store results
+         if (flags.batch)
+            fill_gamma_cache_batch(i, x);
+         else
+            fill_gamma_cache_single(i, x);
+         }
+      }
+   /*! \brief Wrapper for retrieving gamma metric value
+    * This method is called from nested loops as follows:
+    * - from work_alpha:
+    *        i,x,d=outer loops
+    *        deltax=inner loop
+    * - from work_beta:
+    *        i,x,d=outer loops
+    *        deltax=inner loop
+    * - from work_message_app:
+    *        i,d,x=outer loops
+    *        deltax=inner loop
+    */
+   real get_gamma(int d, int i, int x, int deltax) const
+      {
+#ifndef NDEBUG
+      gamma_calls++;
+#endif
+      // pre-computed values
+      if (!flags.lazy)
+         return gamma[d][i][x][deltax];
+      // lazy computation, without global storage
+      if (!flags.globalstore)
+         {
+         if (flags.batch)
+            return compute_gamma_batch_cached(d, i, x, deltax);
+         else
+            return compute_gamma_single(d, i, x, deltax, r, app);
+         }
+      // lazy computation, with global storage
+      fill_gamma_cache_conditional(i, x);
+      return gamma[d][i][x][deltax];
+      }
+   // common small tasks
+   static real get_threshold(const array2r_t& metric, int row, int col_min,
+         int col_max, real factor);
+   static real get_scale(const array2r_t& metric, int row, int col_min,
+         int col_max);
+   static void normalize(array2r_t& metric, int row, int col_min, int col_max);
+   void normalize_alpha(int i)
+      {
+      normalize(alpha, i, -xmax, xmax);
+      }
+   void normalize_beta(int i)
+      {
+      normalize(beta, i, -xmax, xmax);
+      }
+   // specialized components for decode funtions
+   void work_gamma_single(const array1s_t& r, const array1vd_t& app);
+   void work_gamma_batch(const array1s_t& r, const array1vd_t& app);
+   void work_message_app(array1vr_t& ptable) const;
+   void work_state_app(array1r_t& ptable, const int i) const;
+   // @}
+private:
+   /*! \name Internal functions - main */
    // memory allocation
    void allocate();
    void free();
+   // helper methods
    void reset_cache() const;
-   // @}
-protected:
-   /*! \name Internal functions */
+   void print_gamma(std::ostream& sout) const;
    // decode functions
    void work_gamma(const array1s_t& r, const array1vd_t& app);
    void work_alpha(const array1d_t& sof_prior);
    void work_beta(const array1d_t& eof_prior);
-   void work_message_app(array1vr_t& ptable) const;
-   void work_state_app(array1r_t& ptable, const int i) const;
    void work_results(array1vr_t& ptable, array1r_t& sof_post,
          array1r_t& eof_post) const;
    // @}
@@ -129,7 +277,7 @@ public:
 
    // main initialization routine - constructor essentially just calls this
    void init(int N, int n, int q, int I, int xmax, int dxmax, double th_inner,
-         double th_outer);
+         double th_outer, bool norm, bool batch, bool lazy, bool globalstore);
 
    /*! \name Parameter getters */
    //! Access metric computation
@@ -183,62 +331,6 @@ public:
       return "Symbol-level Forward-Backward Algorithm";
       }
 };
-
-template <class receiver_t, class real, class sig, bool norm>
-inline void fba2<receiver_t, real, sig, norm>::compute_gamma(int d, int i,
-      int x, array1r_t& ptable) const
-   {
-   // determine received segment to extract
-   const int start = xmax + n * i + x;
-   const int length = std::min(n + dmax, r.size() - start);
-   // call batch receiver method
-   receiver.R(d, i, r.extract(start, length), ptable);
-   // apply priors if applicable
-   if (app.size() > 0)
-      ptable *= real(app(i)(d));
-   }
-
-template <class receiver_t, class real, class sig, bool norm>
-inline real fba2<receiver_t, real, sig, norm>::compute_gamma(int d, int i,
-      int x, int deltax) const
-   {
-   real result = receiver.R(d, i, r.extract(xmax + n * i + x, n + deltax));
-   if (app.size() > 0)
-      result *= real(app(i)(d));
-   return result;
-   }
-
-template <class receiver_t, class real, class sig, bool norm>
-real fba2<receiver_t, real, sig, norm>::get_gamma(int d, int i, int x,
-      int deltax) const
-   {
-   if (!cache_enabled)
-      return compute_gamma(d, i, x, deltax);
-
-   if (!cached[i][x])
-      {
-      // mark results as cached now
-      cached[i][x] = true;
-      // allocate space for results
-      static array1r_t ptable;
-      ptable.init(2 * dxmax + 1);
-      // call computation method and store results
-      for (int d = 0; d < q; d++)
-         {
-         compute_gamma(d, i, x, ptable);
-         for (int deltax = dmin; deltax <= dmax; deltax++)
-            gamma[d][i][x][deltax] = ptable(dxmax + deltax);
-         }
-#ifndef NDEBUG
-      gamma_misses++;
-#endif
-      }
-#ifndef NDEBUG
-   gamma_calls++;
-#endif
-
-   return gamma[d][i][x][deltax];
-   }
 
 } // end namespace
 

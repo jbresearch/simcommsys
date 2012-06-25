@@ -1295,8 +1295,9 @@ protected:
 #endif
       {
       Base::test_invariant();
+      assert(start >= 0);
       assert(n >= 0);
-      assert(x.size().length() >= start + n);
+      assert(start + n <= x.size().length());
       // update base class by shallow copy, if necessary
       if (n > 0)
          {

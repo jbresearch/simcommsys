@@ -64,26 +64,38 @@ template <class real>
 std::istream& flat<real>::serialize(std::istream& sin)
    {
    int tau;
-   sin >> libbase::eatcomments >> tau;
+   sin >> libbase::eatcomments >> tau >> libbase::verify;
    init(tau);
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class flat<float> ;
-template <>
-const libbase::serializer flat<float>::shelper("interleaver", "flat<float>",
-      flat<float>::create);
+namespace libcomm {
 
-template class flat<double> ;
-template <>
-const libbase::serializer flat<double>::shelper("interleaver", "flat<double>",
-      flat<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class flat<libbase::logrealfast> ;
-template <>
-const libbase::serializer flat<libbase::logrealfast>::shelper("interleaver",
-      "flat<logrealfast>", flat<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: flat<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class flat<type>; \
+   template <> \
+   const serializer flat<type>::shelper( \
+         "interleaver", \
+         "flat<" BOOST_PP_STRINGIZE(type) ">", \
+         flat<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

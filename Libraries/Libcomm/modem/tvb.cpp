@@ -41,8 +41,8 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
-template <class real, class sig, bool norm>
-libbase::vector<libbase::vector<sig> > tvb<real, sig, norm>::select_codebook(
+template <class sig, class real>
+libbase::vector<libbase::vector<sig> > tvb<sig, real>::select_codebook(
       const int i) const
    {
    // Inherit sizes
@@ -96,8 +96,8 @@ libbase::vector<libbase::vector<sig> > tvb<real, sig, norm>::select_codebook(
    return codebook;
    }
 
-template <class real, class sig, bool norm>
-libbase::vector<sig> tvb<real, sig, norm>::select_marker(const int i) const
+template <class sig, class real>
+libbase::vector<sig> tvb<sig, real>::select_marker(const int i) const
    {
    // Initialize space for result
    array1s_t marker;
@@ -134,8 +134,8 @@ libbase::vector<sig> tvb<real, sig, norm>::select_marker(const int i) const
    return marker;
    }
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::advance() const
+template <class sig, class real>
+void tvb<sig, real>::advance() const
    {
    // Inherit sizes
    const int q = num_symbols();
@@ -169,8 +169,8 @@ void tvb<real, sig, norm>::advance() const
 
 // encoding and decoding functions
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::domodulate(const int N, const array1i_t& encoded,
+template <class sig, class real>
+void tvb<sig, real>::domodulate(const int N, const array1i_t& encoded,
       array1s_t& tx)
    {
    // TODO: when N is removed from the interface, rename 'tau' to 'N'
@@ -190,16 +190,16 @@ void tvb<real, sig, norm>::domodulate(const int N, const array1i_t& encoded,
       tx.segment(i * n, n) = encoding_table(i, encoded(i));
    }
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::dodemodulate(const channel<sig>& chan,
+template <class sig, class real>
+void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
       const array1s_t& rx, array1vd_t& ptable)
    {
    const array1vd_t app; // empty APP table
    dodemodulate(chan, rx, app, ptable);
    }
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::dodemodulate(const channel<sig>& chan,
+template <class sig, class real>
+void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
       const array1s_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    // Initialize for known-start
@@ -232,8 +232,8 @@ void tvb<real, sig, norm>::dodemodulate(const channel<sig>& chan,
          eof_post, libbase::size_type<libbase::vector>(xmax));
    }
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::dodemodulate(const channel<sig>& chan,
+template <class sig, class real>
+void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
       const array1s_t& rx, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
@@ -258,8 +258,8 @@ void tvb<real, sig, norm>::dodemodulate(const channel<sig>& chan,
  * This method assumes that the init() method has already been called with
  * the appropriate parameters.
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::demodulate_wrapper(const channel<sig>& chan,
+template <class sig, class real>
+void tvb<sig, real>::demodulate_wrapper(const channel<sig>& chan,
       const array1s_t& rx, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const int offset)
@@ -294,8 +294,8 @@ void tvb<real, sig, norm>::demodulate_wrapper(const channel<sig>& chan,
  * The input probability table is normalized such that the largest value is
  * equal to 1; result is converted to double.
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::normalize(const array1r_t& in, array1d_t& out)
+template <class sig, class real>
+void tvb<sig, real>::normalize(const array1r_t& in, array1d_t& out)
    {
    const int N = in.size();
    assert(N > 0);
@@ -316,9 +316,8 @@ void tvb<real, sig, norm>::normalize(const array1r_t& in, array1d_t& out)
  * The input probability table is normalized such that the largest value is
  * equal to 1; result is converted to double.
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::normalize_results(const array1vr_t& in,
-      array1vd_t& out)
+template <class sig, class real>
+void tvb<sig, real>::normalize_results(const array1vr_t& in, array1vd_t& out)
    {
    const int N = in.size();
    assert(N > 0);
@@ -339,9 +338,9 @@ void tvb<real, sig, norm>::normalize_results(const array1vr_t& in,
 
 // Setup procedure
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::init(const channel<sig>& chan,
-      const array1d_t& sof_pdf, const int offset)
+template <class sig, class real>
+void tvb<sig, real>::init(const channel<sig>& chan, const array1d_t& sof_pdf,
+      const int offset)
    {
    // Inherit block size from last modulation step
    const int q = num_symbols();
@@ -360,13 +359,14 @@ void tvb<real, sig, norm>::init(const channel<sig>& chan,
    const int dxmax = mychan.compute_xmax(n);
    checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
-   fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer);
+   fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer, flags.norm,
+         flags.batch, flags.lazy, flags.globalstore);
    // initialize our embedded metric computer with unchanging elements
    fba.get_receiver().init(n, mychan);
    }
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::init()
+template <class sig, class real>
+void tvb<sig, real>::init()
    {
    // Build codebook if necessary
    switch (codebook_type)
@@ -418,8 +418,8 @@ void tvb<real, sig, norm>::init()
 /*!
  * \brief Check that all entries in table have correct length
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::validate_sequence_length(const array1vs_t& table) const
+template <class sig, class real>
+void tvb<sig, real>::validate_sequence_length(const array1vs_t& table) const
    {
    assertalways(table.size() > 0);
    for (int i = 0; i < table.size(); i++)
@@ -429,8 +429,8 @@ void tvb<real, sig, norm>::validate_sequence_length(const array1vs_t& table) con
 /*!
  * \brief Set up marker sequence for the current frame as given
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::copymarker(const array1vs_t& marker_s)
+template <class sig, class real>
+void tvb<sig, real>::copymarker(const array1vs_t& marker_s)
    {
    validate_sequence_length(marker_s);
    encoding_table = marker_s;
@@ -439,9 +439,8 @@ void tvb<real, sig, norm>::copymarker(const array1vs_t& marker_s)
 /*!
  * \brief Set up codebook with the given codewords
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::copycodebook(const int i,
-      const array1vs_t& codebook_s)
+template <class sig, class real>
+void tvb<sig, real>::copycodebook(const int i, const array1vs_t& codebook_s)
    {
    assertalways(codebook_s.size() == num_symbols());
    validate_sequence_length(codebook_s);
@@ -455,8 +454,8 @@ void tvb<real, sig, norm>::copycodebook(const int i,
  * \brief Display given codebook on given stream
  */
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::showcodebook(std::ostream& sout,
+template <class sig, class real>
+void tvb<sig, real>::showcodebook(std::ostream& sout,
       const array1vs_t& codebook) const
    {
    assert(codebook.size() == num_symbols());
@@ -471,8 +470,8 @@ void tvb<real, sig, norm>::showcodebook(std::ostream& sout,
  * \brief Display codebook on given stream
  */
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::showcodebooks(std::ostream& sout) const
+template <class sig, class real>
+void tvb<sig, real>::showcodebooks(std::ostream& sout) const
    {
    assert(num_codebooks() >= 1);
    assert(codebook_tables.size().cols() == num_symbols());
@@ -489,8 +488,8 @@ void tvb<real, sig, norm>::showcodebooks(std::ostream& sout) const
  * duplicate entries.
  */
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::validatecodebook() const
+template <class sig, class real>
+void tvb<sig, real>::validatecodebook() const
    {
    assertalways(num_codebooks() >= 1);
    assertalways(codebook_tables.size().cols() == num_symbols());
@@ -506,8 +505,8 @@ void tvb<real, sig, norm>::validatecodebook() const
 
 //! Inform user if I or xmax have changed
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::checkforchanges(int I, int xmax) const
+template <class sig, class real>
+void tvb<sig, real>::checkforchanges(int I, int xmax) const
    {
    static int last_I = 0;
    static int last_xmax = 0;
@@ -529,8 +528,8 @@ void tvb<real, sig, norm>::checkforchanges(int I, int xmax) const
  *
  * \todo merge with copymarker()
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::set_marker(const array1vs_t& marker_s)
+template <class sig, class real>
+void tvb<sig, real>::set_marker(const array1vs_t& marker_s)
    {
    copymarker(marker_s);
    }
@@ -541,17 +540,16 @@ void tvb<real, sig, norm>::set_marker(const array1vs_t& marker_s)
  * The intent of this method is to allow users to apply the tvb decoder
  * in derived algorithms, such as the 2D extension.
  */
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::set_codebook(const array1vs_t& codebook_s)
+template <class sig, class real>
+void tvb<sig, real>::set_codebook(const array1vs_t& codebook_s)
    {
    // allocate memory and copy read codebook
    codebook_tables.init(1, num_symbols());
    copycodebook(0, codebook_s);
    }
 
-template <class real, class sig, bool norm>
-void tvb<real, sig, norm>::set_thresholds(const real th_inner,
-      const real th_outer)
+template <class sig, class real>
+void tvb<sig, real>::set_thresholds(const real th_inner, const real th_outer)
    {
    This::th_inner = th_inner;
    This::th_outer = th_outer;
@@ -560,8 +558,8 @@ void tvb<real, sig, norm>::set_thresholds(const real th_inner,
 
 // description output
 
-template <class real, class sig, bool norm>
-std::string tvb<real, sig, norm>::description() const
+template <class sig, class real>
+std::string tvb<sig, real>::description() const
    {
    std::ostringstream sout;
    const int q = num_symbols();
@@ -590,9 +588,6 @@ std::string tvb<real, sig, norm>::description() const
          failwith("Unknown codebook type");
          break;
       }
-   sout << ", thresholds " << th_inner << "/" << th_outer;
-   if (norm)
-      sout << ", normalized";
    switch (marker_type)
       {
       case marker_zero:
@@ -615,21 +610,40 @@ std::string tvb<real, sig, norm>::description() const
          failwith("Unknown marker sequence type");
          break;
       }
+   sout << ", thresholds " << th_inner << "/" << th_outer;
+   if (flags.norm)
+      sout << ", normalized";
+   if (flags.batch)
+      sout << ", batch computation";
+   if (flags.lazy)
+      {
+      sout << ", lazy computation";
+      if (flags.globalstore)
+         sout << ", cached";
+      }
    sout << "), " << fba.description();
    return sout.str();
    }
 
 // object serialization - saving
 
-template <class real, class sig, bool norm>
-std::ostream& tvb<real, sig, norm>::serialize(std::ostream& sout) const
+template <class sig, class real>
+std::ostream& tvb<sig, real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
+   sout << 3 << std::endl;
    sout << "#: Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "#: Outer threshold" << std::endl;
    sout << th_outer << std::endl;
+   sout << "# Normalize metrics between time-steps?" << std::endl;
+   sout << flags.norm << std::endl;
+   sout << "# Use batch receiver computation?" << std::endl;
+   sout << flags.batch << std::endl;
+   sout << "# Lazy computation of gamma?" << std::endl;
+   sout << flags.lazy << std::endl;
+   sout << "# Global storage / caching of computed gamma values?" << std::endl;
+   sout << flags.globalstore << std::endl;
    sout << "# n" << std::endl;
    sout << n << std::endl;
    sout << "# k" << std::endl;
@@ -700,22 +714,48 @@ std::ostream& tvb<real, sig, norm>::serialize(std::ostream& sout) const
  *      - no user-threshold flag (specification is mandatory)
  *      - codebook and marker type field has incompatible values
  *      - codebook stored as vectors (so lsb is on left rather than right)
+ *
+ * \version 2 Added normalization, batch, lazy, caching flags; caching is only
+ *      specified if lazy is true (otherwise it is meaningless)
+ *
+ * \version 3 Changed 'caching' flag to 'global store', now also defined for
+ *      pre-computation cases
  */
 
-template <class real, class sig, bool norm>
-std::istream& tvb<real, sig, norm>::serialize(std::istream& sin)
+template <class sig, class real>
+std::istream& tvb<sig, real>::serialize(std::istream& sin)
    {
    std::streampos start = sin.tellg();
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    // read thresholds
-   sin >> libbase::eatcomments >> th_inner;
-   sin >> libbase::eatcomments >> th_outer;
-   sin >> libbase::eatcomments >> n;
-   sin >> libbase::eatcomments >> k;
+   sin >> libbase::eatcomments >> th_inner >> libbase::verify;
+   sin >> libbase::eatcomments >> th_outer >> libbase::verify;
+   // read decoder parameters
+   if (version >= 2)
+      {
+      sin >> libbase::eatcomments >> flags.norm >> libbase::verify;
+      sin >> libbase::eatcomments >> flags.batch >> libbase::verify;
+      sin >> libbase::eatcomments >> flags.lazy >> libbase::verify;
+      if (flags.lazy || version >= 3)
+         sin >> libbase::eatcomments >> flags.globalstore >> libbase::verify;
+      else
+         flags.globalstore = true;
+      }
+   else
+      {
+      flags.norm = true;
+      flags.batch = true;
+      flags.lazy = true;
+      flags.globalstore = true;
+      }
+   // read code size
+   sin >> libbase::eatcomments >> n >> libbase::verify;
+   sin >> libbase::eatcomments >> k >> libbase::verify;
+   // read codebook
    int temp;
-   sin >> libbase::eatcomments >> temp;
+   sin >> libbase::eatcomments >> temp >> libbase::verify;
    codebook_type = (codebook_t) temp;
    switch (codebook_type)
       {
@@ -726,9 +766,9 @@ std::istream& tvb<real, sig, norm>::serialize(std::istream& sin)
 
       case codebook_user_sequential:
       case codebook_user_random:
-         sin >> libbase::eatcomments >> codebook_name;
+         sin >> libbase::eatcomments >> codebook_name >> libbase::verify;
          // read codebook count
-         sin >> libbase::eatcomments >> temp;
+         sin >> libbase::eatcomments >> temp >> libbase::verify;
          // allocate memory
          codebook_tables.init(temp, num_symbols());
          for (int i = 0; i < num_codebooks(); i++)
@@ -738,7 +778,10 @@ std::istream& tvb<real, sig, norm>::serialize(std::istream& sin)
             libbase::allocate(codebook_s, num_symbols(), n);
             sin >> libbase::eatcomments;
             for (int d = 0; d < num_symbols(); d++)
+               {
                codebook_s(d).serialize(sin);
+               libbase::verify(sin);
+               }
             // copy read codebook
             copycodebook(i, codebook_s);
             }
@@ -749,7 +792,7 @@ std::istream& tvb<real, sig, norm>::serialize(std::istream& sin)
          break;
       }
    // read marker sequence type
-   sin >> libbase::eatcomments >> temp;
+   sin >> libbase::eatcomments >> temp >> libbase::verify;
    marker_type = (marker_t) temp;
    switch (marker_type)
       {
@@ -761,12 +804,15 @@ std::istream& tvb<real, sig, norm>::serialize(std::istream& sin)
       case marker_user_sequential:
       case marker_user_random:
          // read count of modification vectors
-         sin >> libbase::eatcomments >> temp;
+         sin >> libbase::eatcomments >> temp >> libbase::verify;
          // read modification vectors from stream
          libbase::allocate(marker_vectors, temp, n);
          sin >> libbase::eatcomments;
          for (int i = 0; i < temp; i++)
+            {
             marker_vectors(i).serialize(sin);
+            libbase::verify(sin);
+            }
          // validate list of modification vectors
          validate_sequence_length(marker_vectors);
          break;
@@ -781,71 +827,47 @@ std::istream& tvb<real, sig, norm>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
-#include "logrealfast.h"
 #include "gf.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
 using libbase::logrealfast;
-using libbase::gf;
 
-//#ifndef USE_CUDA
-#if 1
-template class tvb<logrealfast, gf<1, 0x3> , false> ;
-template <>
-const serializer tvb<logrealfast, gf<1, 0x3> , false>::shelper = serializer(
-      "blockmodem", "tvb<gf<1,0x3>,logrealfast>", tvb<logrealfast, gf<1, 0x3> ,
-            false>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
+
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#ifdef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
 #endif
 
-template class tvb<float, gf<1, 0x3> , true> ;
-template <>
-const serializer tvb<float, gf<1, 0x3> , true>::shelper = serializer(
-      "blockmodem", "tvb<gf<1,0x3>,float>",
-      tvb<float, gf<1, 0x3> , true>::create);
+/* Serialization string: tvb<type,real,norm>
+ * where:
+ *      type = gf2 | gf4 ...
+ *      real = float | double | logrealfast (CPU only)
+ */
+#define INSTANTIATE(r, args) \
+      template class tvb<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer tvb<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "blockmodem", \
+            "tvb<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            tvb<BOOST_PP_SEQ_ENUM(args)>::create);
 
-template class tvb<double, gf<1, 0x3> , true> ;
-template <>
-const serializer tvb<double, gf<1, 0x3> , true>::shelper("blockmodem",
-      "tvb<gf<1,0x3>,double>", tvb<double, gf<1, 0x3> , true>::create);
-
-template <>
-const serializer tvb<double, gf<2, 0x7> , true>::shelper("blockmodem",
-      "tvb<gf<2,0x7>,double>", tvb<double, gf<2, 0x7> , true>::create);
-
-template <>
-const serializer tvb<double, gf<3, 0xB> , true>::shelper("blockmodem",
-      "tvb<gf<3,0xB>,double>", tvb<double, gf<3, 0xB> , true>::create);
-
-template <>
-const serializer tvb<double, gf<4, 0x13> , true>::shelper("blockmodem",
-      "tvb<gf<4,0x13>,double>", tvb<double, gf<4, 0x13> , true>::create);
-
-template <>
-const serializer tvb<double, gf<5, 0x25> , true>::shelper("blockmodem",
-      "tvb<gf<5,0x25>,double>", tvb<double, gf<5, 0x25> , true>::create);
-
-template <>
-const serializer tvb<double, gf<6, 0x43> , true>::shelper("blockmodem",
-      "tvb<gf<6,0x43>,double>", tvb<double, gf<6, 0x43> , true>::create);
-
-template <>
-const serializer tvb<double, gf<7, 0x89> , true>::shelper("blockmodem",
-      "tvb<gf<7,0x89>,double>", tvb<double, gf<7, 0x89> , true>::create);
-
-template <>
-const serializer tvb<double, gf<8, 0x11D> , true>::shelper("blockmodem",
-      "tvb<gf<8,0x11D>,double>", tvb<double, gf<8, 0x11D> , true>::create);
-
-template <>
-const serializer tvb<double, gf<9, 0x211> , true>::shelper("blockmodem",
-      "tvb<gf<9,0x211>,double>", tvb<double, gf<9, 0x211> , true>::create);
-
-template <>
-const serializer tvb<double, gf<10, 0x409> , true>::shelper("blockmodem",
-      "tvb<gf<10,0x409>,double>", tvb<double, gf<10, 0x409> , true>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

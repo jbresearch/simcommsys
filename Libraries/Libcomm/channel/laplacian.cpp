@@ -42,82 +42,54 @@ std::istream& laplacian<S, C>::serialize(std::istream& sin)
    return sin;
    }
 
-// Explicit instantiations
-
-using libbase::serializer;
-using libbase::vector;
-using libbase::matrix;
-
-template class laplacian<int> ;
-template <>
-const serializer laplacian<int>::shelper("channel", "laplacian<int>",
-      laplacian<int>::create);
-
-template class laplacian<float> ;
-template <>
-const serializer laplacian<float>::shelper("channel", "laplacian<float>",
-      laplacian<float>::create);
-
-template class laplacian<double> ;
-template <>
-const serializer laplacian<double>::shelper("channel", "laplacian<double>",
-      laplacian<double>::create);
-
-template class laplacian<int, matrix> ;
-template <>
-const serializer laplacian<int, matrix>::shelper("channel",
-      "laplacian<int,matrix>", laplacian<int, matrix>::create);
-
-template class laplacian<float, matrix> ;
-template <>
-const serializer laplacian<float, matrix>::shelper("channel",
-      "laplacian<float,matrix>", laplacian<float, matrix>::create);
-
-template class laplacian<double, matrix> ;
-template <>
-const serializer laplacian<double, matrix>::shelper("channel",
-      "laplacian<double,matrix>", laplacian<double, matrix>::create);
-
-// *** sigspace specialization ***
-
-// handle functions
-
-void laplacian<sigspace>::compute_parameters(const double Eb, const double No)
-   {
-   const double sigma = sqrt(Eb * No);
-   lambda = sigma / sqrt(double(2));
-   }
-
-// channel handle functions
-
-sigspace laplacian<sigspace>::corrupt(const sigspace& s)
-   {
-   const double x = Finv(r.fval_closed());
-   const double y = Finv(r.fval_closed());
-   return s + sigspace(x, y);
-   }
-
-double laplacian<sigspace>::pdf(const sigspace& tx, const sigspace& rx) const
-   {
-   sigspace n = rx - tx;
-   return f(n.i()) * f(n.q());
-   }
+// *** sigspace partial specialization ***
 
 // object serialization
 
-std::ostream& laplacian<sigspace>::serialize(std::ostream& sout) const
+template <template <class > class C>
+std::ostream& laplacian<sigspace, C>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
-std::istream& laplacian<sigspace>::serialize(std::istream& sin)
+template <template <class > class C>
+std::istream& laplacian<sigspace, C>::serialize(std::istream& sin)
    {
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-const libbase::serializer laplacian<sigspace>::shelper("channel",
-      "laplacian<sigspace>", laplacian<sigspace>::create);
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+
+using libbase::serializer;
+using libbase::matrix;
+using libbase::vector;
+
+#define SYMBOL_TYPE_SEQ \
+   (int)(float)(double)(sigspace)
+#define CONTAINER_TYPE_SEQ \
+   (vector)(matrix)
+
+/* Serialization string: laplacian<type,container>
+ * where:
+ *      type = int | float | double | sigspace
+ *      container = vector | matrix
+ */
+#define INSTANTIATE(r, args) \
+      template class laplacian<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer laplacian<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "channel", \
+            "laplacian<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            laplacian<BOOST_PP_SEQ_ENUM(args)>::create);
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
 } // end namespace

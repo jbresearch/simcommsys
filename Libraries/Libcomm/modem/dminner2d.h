@@ -50,7 +50,7 @@ namespace libcomm {
  * Need to make changes as necessary to conform with the new convention.
  */
 
-template <class real, bool norm>
+template <class real>
 class dminner2d : public informed_modulator<bool, libbase::matrix> {
    //private fba2<real,bool,norm> {
 public:

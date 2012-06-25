@@ -22,16 +22,16 @@
  * - $Id$
  */
 
-#ifndef __commsys_prof_sym_h
-#define __commsys_prof_sym_h
+#ifndef __prof_burst_h
+#define __prof_burst_h
 
 #include "config.h"
-#include "commsys_errorrates.h"
+#include "errors_hamming.h"
 
 namespace libcomm {
 
 /*!
- * \brief   CommSys Results - Symbol-Value Error Profile.
+ * \brief   CommSys Results - Error Burstiness Profile.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -39,31 +39,32 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * Computes symbol-error histogram as dependent on source symbol value.
+ * Determines separately the error probabilities for:
+ * the first symbol in a frame
+ * a symbol following a correctly-decoded one
+ * a symbol following an incorrectly-decoded one
  */
 
-class commsys_prof_sym : public commsys_errorrates {
+class prof_burst : public errors_hamming {
 public:
    // Public interface
    void updateresults(libbase::vector<double>& result, const int i,
          const libbase::vector<int>& source,
          const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the number of symbol errors for
-    * every input alphabet symbol value.
+    * For each iteration, we count respectively the number symbol errors:
+    * - in the first frame symbol
+    * - in subsequent symbols:
+    * - if the prior symbol was correct (ie. joint probability)
+    * - if the prior symbol was in error
+    * - in the prior symbol (required when applying Bayes' rule
+    * to the above two counts)
     */
    int count() const
       {
-      return get_alphabetsize() * get_iter();
+      return 4 * get_iter();
       }
-   /*! \copydoc experiment::get_multiplicity()
-    * A total equal to the number of symbols/frame may be incremented
-    * in every sample.
-    */
-   int get_multiplicity(int i) const
-      {
-      return get_symbolsperblock();
-      }
+   int get_multiplicity(int i) const;
    std::string result_description(int i) const;
 };
 

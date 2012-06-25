@@ -78,9 +78,23 @@ void lut_interleaver<real>::inverse(const libbase::matrix<real>& in,
             out(lut(t), i) = in(t, i);
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class lut_interleaver<float> ;
-template class lut_interleaver<double> ;
-template class lut_interleaver<libbase::logrealfast> ;
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+#define INSTANTIATE(r, x, type) \
+   template class lut_interleaver<type>;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
+
 } // end namespace

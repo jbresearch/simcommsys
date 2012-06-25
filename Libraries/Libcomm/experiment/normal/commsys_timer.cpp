@@ -43,69 +43,41 @@ std::istream& commsys_timer<S>::serialize(std::istream& sin)
    return sin;
    }
 
+} // end namespace
+
+#include "gf.h"
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
-using libbase::gf;
 
-template class commsys_timer<sigspace> ;
-template <>
-const serializer commsys_timer<sigspace>::shelper("experiment",
-      "commsys_timer<sigspace>", commsys_timer<sigspace>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class commsys_timer<bool> ;
-template <>
-const serializer commsys_timer<bool>::shelper("experiment",
-      "commsys_timer<bool>", commsys_timer<bool>::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class commsys_timer<gf<1, 0x3> > ;
-template <>
-const serializer commsys_timer<gf<1, 0x3> >::shelper("experiment",
-      "commsys_timer<gf<1,0x3>>", commsys_timer<gf<1, 0x3> >::create);
+// *** General Communication System ***
 
-template class commsys_timer<gf<2, 0x7> > ;
-template <>
-const serializer commsys_timer<gf<2, 0x7> >::shelper("experiment",
-      "commsys_timer<gf<2,0x7>>", commsys_timer<gf<2, 0x7> >::create);
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
 
-template class commsys_timer<gf<3, 0xB> > ;
-template <>
-const serializer commsys_timer<gf<3, 0xB> >::shelper("experiment",
-      "commsys_timer<gf<3,0xB>>", commsys_timer<gf<3, 0xB> >::create);
+/* Serialization string: commsys_timer<type>
+ * where:
+ *      type = sigspace | bool | gf2 | gf4 ...
+ */
+#define INSTANTIATE(r, x, type) \
+      template class commsys_timer<type>; \
+      template <> \
+      const serializer commsys_timer<type>::shelper( \
+            "experiment", \
+            "commsys_timer<" BOOST_PP_STRINGIZE(type) ">", \
+            commsys_timer<type>::create);
 
-template class commsys_timer<gf<4, 0x13> > ;
-template <>
-const serializer commsys_timer<gf<4, 0x13> >::shelper("experiment",
-      "commsys_timer<gf<4,0x13>>", commsys_timer<gf<4, 0x13> >::create);
-
-template class commsys_timer<gf<5, 0x25> > ;
-template <>
-const serializer commsys_timer<gf<5, 0x25> >::shelper("experiment",
-      "commsys_timer<gf<5,0x25>>", commsys_timer<gf<5, 0x25> >::create);
-
-template class commsys_timer<gf<6, 0x43> > ;
-template <>
-const serializer commsys_timer<gf<6, 0x43> >::shelper("experiment",
-      "commsys_timer<gf<6,0x43>>", commsys_timer<gf<6, 0x43> >::create);
-
-template class commsys_timer<gf<7, 0x89> > ;
-template <>
-const serializer commsys_timer<gf<7, 0x89> >::shelper("experiment",
-      "commsys_timer<gf<7,0x89>>", commsys_timer<gf<7, 0x89> >::create);
-
-template class commsys_timer<gf<8, 0x11D> > ;
-template <>
-const serializer commsys_timer<gf<8, 0x11D> >::shelper("experiment",
-      "commsys_timer<gf<8,0x11D>>", commsys_timer<gf<8, 0x11D> >::create);
-
-template class commsys_timer<gf<9, 0x211> > ;
-template <>
-const serializer commsys_timer<gf<9, 0x211> >::shelper("experiment",
-      "commsys_timer<gf<9,0x211>>", commsys_timer<gf<9, 0x211> >::create);
-
-template class commsys_timer<gf<10, 0x409> > ;
-template <>
-const serializer commsys_timer<gf<10, 0x409> >::shelper("experiment",
-      "commsys_timer<gf<10,0x409>>", commsys_timer<gf<10, 0x409> >::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // end namespace

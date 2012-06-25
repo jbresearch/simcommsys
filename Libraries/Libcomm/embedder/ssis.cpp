@@ -209,32 +209,52 @@ template <class S, class dbl>
 std::istream& ssis<S, matrix, dbl>::serialize(std::istream& sin)
    {
    int version;
-   sin >> libbase::eatcomments >> version;
-   sin >> libbase::eatcomments >> A;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
+   sin >> libbase::eatcomments >> A >> libbase::verify;
    int temp;
-   sin >> libbase::eatcomments >> temp;
+   sin >> libbase::eatcomments >> temp >> libbase::verify;
    assertalways(temp >=0 && temp < PP_UNDEFINED);
    preprocess = static_cast<pp_enum> (temp);
    return sin;
    }
 
+} // end namespace
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-// Matrix
+using libbase::serializer;
+using libbase::matrix;
+using libbase::vector;
 
-template class ssis<int, matrix, double> ;
-template <>
-const serializer ssis<int, matrix, double>::shelper("blockembedder",
-      "ssis<int,matrix>", ssis<int, matrix, double>::create);
+#define SYMBOL_TYPE_SEQ \
+   (int)(float)(double)
+#define CONTAINER_TYPE_SEQ \
+   (matrix)
+#define REAL_TYPE_SEQ \
+   (double)
 
-template class ssis<float, matrix, double> ;
-template <>
-const serializer ssis<float, matrix, double>::shelper("blockembedder",
-      "ssis<float,matrix>", ssis<float, matrix, double>::create);
+/* Serialization string: ssis<type,container,real>
+ * where:
+ *      type = int | float | double
+ *      container = matrix
+ *      real = double
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class ssis<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer ssis<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "blockembedder", \
+            "ssis<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
+            ssis<BOOST_PP_SEQ_ENUM(args)>::create);
 
-template class ssis<double, matrix, double> ;
-template <>
-const serializer ssis<double, matrix, double>::shelper("blockembedder",
-      "ssis<double,matrix>", ssis<double, matrix, double>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

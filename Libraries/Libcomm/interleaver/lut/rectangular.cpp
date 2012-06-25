@@ -83,29 +83,40 @@ template <class real>
 std::istream& rectangular<real>::serialize(std::istream& sin)
    {
    int tau;
-   sin >> libbase::eatcomments >> tau;
-   sin >> libbase::eatcomments >> rows;
-   sin >> libbase::eatcomments >> cols;
+   sin >> libbase::eatcomments >> tau >> libbase::verify;
+   sin >> libbase::eatcomments >> rows >> libbase::verify;
+   sin >> libbase::eatcomments >> cols >> libbase::verify;
    init(tau, rows, cols);
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class rectangular<float> ;
-template <>
-const libbase::serializer rectangular<float>::shelper("interleaver",
-      "rectangular<float>", rectangular<float>::create);
+namespace libcomm {
 
-template class rectangular<double> ;
-template <>
-const libbase::serializer rectangular<double>::shelper("interleaver",
-      "rectangular<double>", rectangular<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class rectangular<libbase::logrealfast> ;
-template <>
-const libbase::serializer rectangular<libbase::logrealfast>::shelper(
-      "interleaver", "rectangular<logrealfast>", rectangular<
-            libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: rectangular<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class rectangular<type>; \
+   template <> \
+   const serializer rectangular<type>::shelper( \
+         "interleaver", \
+         "rectangular<" BOOST_PP_STRINGIZE(type) ">", \
+         rectangular<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

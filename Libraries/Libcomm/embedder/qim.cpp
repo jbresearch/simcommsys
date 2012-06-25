@@ -69,24 +69,37 @@ std::ostream& qim<S>::serialize(std::ostream& sout) const
 template <class S>
 std::istream& qim<S>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> M;
-   sin >> libbase::eatcomments >> delta;
-   sin >> libbase::eatcomments >> alpha;
+   sin >> libbase::eatcomments >> M >> libbase::verify;
+   sin >> libbase::eatcomments >> delta >> libbase::verify;
+   sin >> libbase::eatcomments >> alpha >> libbase::verify;
    return sin;
    }
 
+} // end namespace
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class qim<int>;
-template <>
-const serializer qim<int>::shelper("embedder", "qim<int>", qim<int>::create);
+using libbase::serializer;
 
-template class qim<float>;
-template <>
-const serializer qim<float>::shelper("embedder", "qim<float>", qim<float>::create);
+#define SYMBOL_TYPE_SEQ \
+   (int)(float)(double)
 
-template class qim<double>;
-template <>
-const serializer qim<double>::shelper("embedder", "qim<double>", qim<double>::create);
+/* Serialization string: qim<type>
+ * where:
+ *      type = int | float | double
+ */
+#define INSTANTIATE(r, x, type) \
+      template class qim<type>; \
+      template <> \
+      const serializer qim<type>::shelper( \
+            "embedder", \
+            "qim<" BOOST_PP_STRINGIZE(type) ">", \
+            qim<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // end namespace

@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * \section svn Version Control
- * - $Id: qids.cpp 6452 2011-12-15 10:23:57Z jabriffa $
+ * - $Id$
  */
 
 #include "qids.h"
@@ -912,18 +912,18 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
    {
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    assertalways(version >= 1);
    // read flags
-   sin >> libbase::eatcomments >> varyPs;
-   sin >> libbase::eatcomments >> varyPd;
-   sin >> libbase::eatcomments >> varyPi;
+   sin >> libbase::eatcomments >> varyPs >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPd >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPi >> libbase::verify;
    // read cap on insertions
-   sin >> libbase::eatcomments >> Icap;
+   sin >> libbase::eatcomments >> Icap >> libbase::verify;
    // read fixed Ps,Pd,Pi values
-   sin >> libbase::eatcomments >> fixedPs;
-   sin >> libbase::eatcomments >> fixedPd;
-   sin >> libbase::eatcomments >> fixedPi;
+   sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
+   sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
+   sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
    // initialise the object and return
    init();
    return sin;
@@ -936,78 +936,30 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
 namespace libcomm {
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
-using libbase::gf;
 
-template class qids<gf<1, 0x3> > ;
-template <>
-const serializer qids<gf<1, 0x3> >::shelper("channel", "qids<gf<1,0x3>>", qids<
-      gf<1, 0x3> >::create);
-template <>
-const double qids<gf<1, 0x3> >::metric_computer::Pr = 1e-10;
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class qids<gf<2, 0x7> > ;
-template <>
-const serializer qids<gf<2, 0x7> >::shelper("channel", "qids<gf<2,0x7>>", qids<
-      gf<2, 0x7> >::create);
-template <>
-const double qids<gf<2, 0x7> >::metric_computer::Pr = 1e-10;
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class qids<gf<3, 0xB> > ;
-template <>
-const serializer qids<gf<3, 0xB> >::shelper("channel", "qids<gf<3,0xB>>", qids<
-      gf<3, 0xB> >::create);
-template <>
-const double qids<gf<3, 0xB> >::metric_computer::Pr = 1e-10;
+/* Serialization string: qids<type>
+ * where:
+ *      type = gf2 | gf4 ...
+ */
+#define INSTANTIATE(r, x, type) \
+      template class qids<type>; \
+      template <> \
+      const serializer qids<type>::shelper( \
+            "channel", \
+            "qids<" BOOST_PP_STRINGIZE(type) ">", \
+            qids<type>::create); \
+      template <> \
+      const double qids<type>::metric_computer::Pr = 1e-10;
 
-template class qids<gf<4, 0x13> > ;
-template <>
-const serializer qids<gf<4, 0x13> >::shelper("channel", "qids<gf<4,0x13>>",
-      qids<gf<4, 0x13> >::create);
-template <>
-const double qids<gf<4, 0x13> >::metric_computer::Pr = 1e-10;
-
-template class qids<gf<5, 0x25> > ;
-template <>
-const serializer qids<gf<5, 0x25> >::shelper("channel", "qids<gf<5,0x25>>",
-      qids<gf<5, 0x25> >::create);
-template <>
-const double qids<gf<5, 0x25> >::metric_computer::Pr = 1e-10;
-
-template class qids<gf<6, 0x43> > ;
-template <>
-const serializer qids<gf<6, 0x43> >::shelper("channel", "qids<gf<6,0x43>>",
-      qids<gf<6, 0x43> >::create);
-template <>
-const double qids<gf<6, 0x43> >::metric_computer::Pr = 1e-10;
-
-template class qids<gf<7, 0x89> > ;
-template <>
-const serializer qids<gf<7, 0x89> >::shelper("channel", "qids<gf<7,0x89>>",
-      qids<gf<7, 0x89> >::create);
-template <>
-const double qids<gf<7, 0x89> >::metric_computer::Pr = 1e-10;
-
-template class qids<gf<8, 0x11D> > ;
-template <>
-const serializer qids<gf<8, 0x11D> >::shelper("channel", "qids<gf<8,0x11D>>",
-      qids<gf<8, 0x11D> >::create);
-template <>
-const double qids<gf<8, 0x11D> >::metric_computer::Pr = 1e-10;
-
-template class qids<gf<9, 0x211> > ;
-template <>
-const serializer qids<gf<9, 0x211> >::shelper("channel", "qids<gf<9,0x211>>",
-      qids<gf<9, 0x211> >::create);
-template <>
-const double qids<gf<9, 0x211> >::metric_computer::Pr = 1e-10;
-
-template class qids<gf<10, 0x409> > ;
-template <>
-const serializer qids<gf<10, 0x409> >::shelper("channel", "qids<gf<10,0x409>>",
-      qids<gf<10, 0x409> >::create);
-template <>
-const double qids<gf<10, 0x409> >::metric_computer::Pr = 1e-10;
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
 } // end namespace

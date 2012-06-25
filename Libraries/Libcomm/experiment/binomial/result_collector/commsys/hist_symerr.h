@@ -22,16 +22,16 @@
  * - $Id$
  */
 
-#ifndef __commsys_prof_pos_h
-#define __commsys_prof_pos_h
+#ifndef __hist_symerr_h
+#define __hist_symerr_h
 
 #include "config.h"
-#include "commsys_errorrates.h"
+#include "errors_hamming.h"
 
 namespace libcomm {
 
 /*!
- * \brief   CommSys Results - Frame-Position Error Profile.
+ * \brief   CommSys Results - Symbol-Error per Frame Histogram.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -39,30 +39,29 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * Profiler of error with respect to position within block.
+ * Computes histogram of symbol error count for each block simulated.
  */
 
-class commsys_prof_pos : public commsys_errorrates {
+class hist_symerr : public errors_hamming {
 public:
    // Public interface
    void updateresults(libbase::vector<double>& result, const int i,
          const libbase::vector<int>& source,
          const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the number of symbol errors for
-    * every frame position.
+    * For each iteration, we count the frequency of each possible
+    * symbol-error count, including zero
     */
    int count() const
       {
-      return get_symbolsperblock() * get_iter();
+      return (get_symbolsperblock() + 1) * get_iter();
       }
    /*! \copydoc experiment::get_multiplicity()
-    * A total equal to the number of symbols/frame may be incremented
-    * in every sample.
+    * Only one result can be incremented for every frame.
     */
    int get_multiplicity(int i) const
       {
-      return get_symbolsperblock();
+      return 1;
       }
    std::string result_description(int i) const;
 };

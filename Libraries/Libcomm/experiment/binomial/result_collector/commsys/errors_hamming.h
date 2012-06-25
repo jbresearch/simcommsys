@@ -22,8 +22,8 @@
  * - $Id$
  */
 
-#ifndef __commsys_errorrates_h
-#define __commsys_errorrates_h
+#ifndef __errors_hamming_h
+#define __errors_hamming_h
 
 #include "config.h"
 #include "vector.h"
@@ -42,7 +42,7 @@ namespace libcomm {
  *
  * Implements standard error rate calculators.
  */
-class commsys_errorrates {
+class errors_hamming {
 protected:
    /*! \name System Interface */
    //! The number of decoding iterations performed
@@ -53,7 +53,7 @@ protected:
    virtual int get_alphabetsize() const = 0;
    // @}
 public:
-   virtual ~commsys_errorrates()
+   virtual ~errors_hamming()
       {
       }
    /*! \name Public interface */

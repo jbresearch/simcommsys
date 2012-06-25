@@ -68,17 +68,64 @@ template <class S, class R>
 std::istream& commsys_threshold<S, R>::serialize(std::istream& sin)
    {
    double x;
-   sin >> libbase::eatcomments >> x;
+   sin >> libbase::eatcomments >> x >> libbase::verify;
    Base::serialize(sin);
    this->sys->getchan()->set_parameter(x);
    return sin;
    }
 
-// Explicit Realizations
+} // end namespace
 
-template class commsys_threshold<bool> ;
-template <>
-const libbase::serializer commsys_threshold<bool>::shelper("experiment",
-      "commsys_threshold<bool>", commsys_threshold<bool>::create);
+#include "gf.h"
+#include "result_collector/commsys/errors_hamming.h"
+#include "result_collector/commsys/errors_levenshtein.h"
+#include "result_collector/commsys/prof_burst.h"
+#include "result_collector/commsys/prof_pos.h"
+#include "result_collector/commsys/prof_sym.h"
+#include "result_collector/commsys/hist_symerr.h"
+
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+
+#define USING_GF(r, x, type) \
+      using libbase::type;
+
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+// *** General Communication System ***
+
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
+#define COLLECTOR_TYPE_SEQ \
+   (errors_hamming) \
+   (errors_levenshtein) \
+   (prof_burst) \
+   (prof_pos) \
+   (prof_sym) \
+   (hist_symerr)
+
+/* Serialization string: commsys_threshold<type,collector>
+ * where:
+ *      type = sigspace | bool | gf2 | gf4 ...
+ *      collector = errors_hamming | errors_levenshtein | ...
+ */
+#define INSTANTIATE(r, args) \
+      template class commsys_threshold<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "experiment", \
+            "commsys_threshold<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create); \
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // end namespace

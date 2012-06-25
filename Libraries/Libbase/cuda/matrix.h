@@ -79,9 +79,9 @@ private:
 protected:
    /*! \name Object representation */
    T* data __attribute__((aligned(8))); //!< Pointer to allocated memory in global device space
+   size_t pitch __attribute__((aligned(8))); //!< Padded length of each row in bytes
    int rows __attribute__((aligned(8))); //!< Number of matrix rows in elements
    int cols; //!< Number of matrix columns in elements
-   size_t pitch __attribute__((aligned(8))); //!< Padded length of each row in bytes
    // @}
 
 protected:
@@ -164,9 +164,7 @@ protected:
 #endif
    T* get_rowaddress(const int i)
       {
-#ifndef __CUDA_ARCH__ // Host code path
-      assert(i >= 0 && i < rows);
-#endif
+      cuda_assert(i >= 0 && i < rows);
       return (T*) ((char*) data + i * pitch);
       }
    /*! \brief Returns row start address (read-only access)
@@ -177,9 +175,7 @@ protected:
 #endif
    const T* get_rowaddress(const int i) const
       {
-#ifndef __CUDA_ARCH__ // Host code path
-      assert(i >= 0 && i < rows);
-#endif
+      cuda_assert(i >= 0 && i < rows);
       return (T*) ((char*) data + i * pitch);
       }
    // @}
@@ -193,7 +189,7 @@ public:
    __device__ __host__
 #endif
    matrix() :
-      data(NULL), rows(0), cols(0), pitch(0)
+      data(NULL), pitch(0), rows(0), cols(0)
       {
       }
    // @}
@@ -371,7 +367,7 @@ inline void matrix<T>::free()
 
 template <class T>
 inline matrix<T>::matrix(const matrix<T>& x) :
-data(NULL), rows(0), cols(0), pitch(0)
+data(NULL), pitch(0), rows(0), cols(0)
    {
 #ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
    copyfrom(x);

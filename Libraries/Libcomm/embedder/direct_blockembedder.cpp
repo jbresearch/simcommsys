@@ -103,7 +103,7 @@ std::ostream& direct_blockembedder<S, vector, dbl>::serialize(
 template <class S, class dbl>
 std::istream& direct_blockembedder<S, vector, dbl>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> implementation;
+   sin >> libbase::eatcomments >> implementation >> libbase::verify;
    return sin;
    }
 
@@ -181,26 +181,47 @@ std::ostream& direct_blockembedder<S, matrix, dbl>::serialize(
 template <class S, class dbl>
 std::istream& direct_blockembedder<S, matrix, dbl>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> implementation;
+   sin >> libbase::eatcomments >> implementation >> libbase::verify;
    return sin;
    }
 
+} // end namespace
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-// Vector
+using libbase::serializer;
+using libbase::matrix;
+using libbase::vector;
 
-template class direct_blockembedder<int, vector, double> ;
-template <>
-const serializer direct_blockembedder<int, vector, double>::shelper(
-      "blockembedder", "blockembedder<int,vector>", direct_blockembedder<int,
-            vector, double>::create);
+#define SYMBOL_TYPE_SEQ \
+   (int)(float)(double)
+#define CONTAINER_TYPE_SEQ \
+   (vector)(matrix)
+#define REAL_TYPE_SEQ \
+   (double)
 
-// Matrix
+/* Serialization string: direct_blockembedder<type,container,real>
+ * where:
+ *      type = int | float | double
+ *      container = vector | matrix
+ *      real = double
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class direct_blockembedder<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer direct_blockembedder<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "blockembedder", \
+            "direct_blockembedder<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
+            direct_blockembedder<BOOST_PP_SEQ_ENUM(args)>::create);
 
-template class direct_blockembedder<int, matrix, double> ;
-template <>
-const serializer direct_blockembedder<int, matrix, double>::shelper(
-      "blockembedder", "blockembedder<int,matrix>", direct_blockembedder<int,
-            matrix, double>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

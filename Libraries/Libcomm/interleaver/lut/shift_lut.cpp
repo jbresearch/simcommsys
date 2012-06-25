@@ -65,27 +65,39 @@ template <class real>
 std::istream& shift_lut<real>::serialize(std::istream& sin)
    {
    int tau, amount;
-   sin >> libbase::eatcomments >> tau >> amount;
+   sin >> libbase::eatcomments >> tau >> libbase::verify;
+   sin >> libbase::eatcomments >> amount >> libbase::verify;
    init(amount, tau);
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class shift_lut<float> ;
-template <>
-const libbase::serializer shift_lut<float>::shelper("interleaver",
-      "shift_lut<float>", shift_lut<float>::create);
+namespace libcomm {
 
-template class shift_lut<double> ;
-template <>
-const libbase::serializer shift_lut<double>::shelper("interleaver",
-      "shift_lut<double>", shift_lut<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class shift_lut<libbase::logrealfast> ;
-template <>
-const libbase::serializer shift_lut<libbase::logrealfast>::shelper(
-      "interleaver", "shift_lut<logrealfast>",
-      shift_lut<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: shift_lut<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class shift_lut<type>; \
+   template <> \
+   const serializer shift_lut<type>::shelper( \
+         "interleaver", \
+         "shift_lut<" BOOST_PP_STRINGIZE(type) ">", \
+         shift_lut<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

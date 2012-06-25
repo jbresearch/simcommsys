@@ -120,11 +120,6 @@
 #include "experiment/binomial/commsys_stream_simulator.h"
 #include "experiment/binomial/commsys_threshold.h"
 #include "experiment/normal/commsys_timer.h"
-// Result Collectors
-#include "experiment/binomial/result_collector/commsys_prof_burst.h"
-#include "experiment/binomial/result_collector/commsys_prof_pos.h"
-#include "experiment/binomial/result_collector/commsys_prof_sym.h"
-#include "experiment/binomial/result_collector/commsys_hist_symerr.h"
 
 #include <iostream>
 
@@ -155,7 +150,7 @@ class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       gnrcc<libbase::gf<1, 0x3> > ,
       uncoded<double> ,
       mapcc<double> ,
-      turbo<double> ,
+      turbo<double, double> ,
       onetimepad<double> ,
       padded<double> ,
       berrou<double> ,
@@ -166,7 +161,7 @@ class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       shift_lut<double> ,
       uniform_lut<double> ,
       named_lut<double> ,
-      codec_reshaped<turbo<double> > {
+      codec_reshaped<turbo<double, double> > {
 private:
    typedef libbase::logrealfast logrealfast;
 private:
@@ -194,10 +189,10 @@ private:
    direct_blockmodem<bool> _direct_blockmodem_bool;
    mpsk _mpsk;
    qam _qam;
-   dminner<double, true> _dminner;
-   dminner2<double, true> _dminner2;
-   dminner2d<double, true> _dminner2d;
-   tvb<double, libbase::gf<1, 0x3>, true> _tvb;
+   dminner<double> _dminner;
+   dminner2<double> _dminner2;
+   dminner2d<double> _dminner2d;
+   tvb<libbase::gf<1, 0x3>, double> _tvb;
    // Codecs
    ldpc<libbase::gf<1, 0x3>, double> _ldpc_1_0x3_dbl;
 
@@ -214,9 +209,9 @@ private:
    commsys_iterative<bool> _commsys_iterative;
    commsys_fulliter<bool> _commsys_fulliter;
    // Experiments
-   commsys_simulator<bool> _commsys_simulator;
-   commsys_stream_simulator<bool> _commsys_stream_simulator;
-   commsys_threshold<bool> _commsys_threshold;
+   commsys_simulator<bool, errors_hamming> _commsys_simulator;
+   commsys_stream_simulator<bool, errors_hamming> _commsys_stream_simulator;
+   commsys_threshold<bool, errors_hamming> _commsys_threshold;
    commsys_timer<bool> _commsys_timer;
 public:
    serializer_libcomm() :

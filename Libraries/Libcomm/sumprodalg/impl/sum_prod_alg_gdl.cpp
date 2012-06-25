@@ -23,6 +23,7 @@
  */
 
 #include "sum_prod_alg_gdl.h"
+#include "gf.h"
 #include <cmath>
 
 namespace libcomm {
@@ -33,8 +34,6 @@ namespace libcomm {
 #  undef DEBUG
 #  define DEBUG 1
 #endif
-
-using libbase::gf;
 
 template <class GF_q, class real>
 void sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
@@ -163,7 +162,7 @@ void sum_prod_alg_gdl<GF_q, real>::compute_convs(array1d_t & conv_out,
 
 //specialisation for GF(2)
 template <>
-void sum_prod_alg_gdl<gf<1, 0x3> , double>::compute_r_mn(int m, int n,
+void sum_prod_alg_gdl<libbase::gf2 , double>::compute_r_mn(int m, int n,
       const array1i_t & tmpN_m)
    {
    //the number of participating symbols
@@ -340,23 +339,36 @@ void sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n,
          num_of_elements - 1);
 
    }
-}
-//Explicit realisations
+
+} // end namespace
+
 #include "mpreal.h"
 
 namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+
 using libbase::mpreal;
 
-template class sum_prod_alg_gdl<gf<1, 0x3> > ;
-template class sum_prod_alg_gdl<gf<2, 0x7> > ;
-template class sum_prod_alg_gdl<gf<3, 0xB> > ;
-template class sum_prod_alg_gdl<gf<3, 0xB> , mpreal> ;
-template class sum_prod_alg_gdl<gf<4, 0x13> > ;
-template class sum_prod_alg_gdl<gf<4, 0x13> , mpreal> ;
-template class sum_prod_alg_gdl<gf<5, 0x25> > ;
-template class sum_prod_alg_gdl<gf<6, 0x43> > ;
-template class sum_prod_alg_gdl<gf<7, 0x89> > ;
-template class sum_prod_alg_gdl<gf<8, 0x11D> > ;
-template class sum_prod_alg_gdl<gf<9, 0x211> > ;
-template class sum_prod_alg_gdl<gf<10, 0x409> > ;
-}
+#define USING_GF(r, x, type) \
+      using libbase::type;
+
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define REAL_TYPE_SEQ \
+   (double)(mpreal)
+
+/* Serialization string: ldpc<type,real>
+ * where:
+ *      type = gf2 | gf4 ...
+ *      real = double | mpreal
+ */
+#define INSTANTIATE(r, args) \
+      template class sum_prod_alg_gdl<BOOST_PP_SEQ_ENUM(args)>;
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
+
+} // end namespace

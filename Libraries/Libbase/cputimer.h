@@ -28,7 +28,11 @@
 #include "timer.h"
 
 #include <ctime>
-#ifndef WIN32
+#ifdef WIN32
+// NOTE: the following line avoids problems with including winsock2.h later
+#  define _WINSOCKAPI_
+#  include <windows.h>
+#else
 #  include <sys/resource.h>
 #endif
 
@@ -43,13 +47,9 @@ namespace libbase {
  * - $Date$
  * - $Author$
  *
- * A class implementing a CPU-usage timer; resolution is in microseconds
- * on UNIX and CPU-ticks on Win32 (usually centi-seconds).
- *
- * \note On Win32, this is implemented using clock(), which is not a good
- *      approximation for CPU usage.
- *
- * \todo Re-implement on Win32 using more appropriate timers.
+ * A class implementing a CPU-usage timer; this keeps track of all (user +
+ * system) time used by the process (including any threads, but no children);
+ * resolution is in microseconds on UNIX and sub-microsecond on Win32 systems.
  *
  * \todo Extract common base class for walltimer and cputimer
  */
@@ -57,45 +57,58 @@ namespace libbase {
 class cputimer : public timer {
 private:
    /*! \name Internal representation */
-   double event_start; //!< Start event time
-   mutable double event_stop; //!< Stop event time
+#ifdef WIN32
+   LARGE_INTEGER event_start; //!< Start event usage info
+   mutable LARGE_INTEGER event_stop; //!< Stop event usage info
+#else
+   struct rusage event_start; //!< Start event usage info
+   mutable struct rusage event_stop; //!< Stop event usage info
+#endif
    // @}
 
 private:
    /*! \name Internal helper methods */
-   static double get_time()
-      {
 #ifdef WIN32
-      return clock() / double(CLOCKS_PER_SEC);
 #else
-      struct rusage usage;
-      double cpu;
-
-      getrusage(RUSAGE_SELF, &usage);
-      cpu = (double) usage.ru_utime.tv_sec + (double) usage.ru_utime.tv_usec
-            * 1E-6;
-      getrusage(RUSAGE_CHILDREN, &usage);
-      cpu += (double) usage.ru_utime.tv_sec + (double) usage.ru_utime.tv_usec
-            * 1E-6;
-
-      return cpu;
-#endif
+   static double convert(const struct timeval& tv)
+      {
+      return tv.tv_sec + double(tv.tv_usec) * 1E-6;
       }
+#endif
    // @}
 
 protected:
    /*! \name Interface with derived class */
    void do_start()
       {
-      event_start = get_time();
+#ifdef WIN32
+      QueryPerformanceCounter(&event_start);
+#else
+      getrusage(RUSAGE_SELF, &event_start);
+#endif
       }
    void do_stop() const
       {
-      event_stop = get_time();
+#ifdef WIN32
+      QueryPerformanceCounter(&event_stop);
+#else
+      getrusage(RUSAGE_SELF, &event_stop);
+#endif
       }
    double get_elapsed() const
       {
-      return event_stop - event_start;
+#ifdef WIN32
+      // get ticks per second
+      LARGE_INTEGER frequency;
+      QueryPerformanceFrequency(&frequency);
+      return double(event_stop.QuadPart - event_start.QuadPart) / double(frequency.QuadPart);
+#else
+      const double utime = convert(event_stop.ru_utime) - convert(
+            event_start.ru_utime);
+      const double stime = convert(event_stop.ru_stime) - convert(
+            event_start.ru_stime);
+      return utime + stime;
+#endif
       }
    // @}
 
@@ -111,6 +124,20 @@ public:
    ~cputimer()
       {
       expire();
+      }
+   // @}
+
+   /*! \name Timer information */
+   double resolution() const
+      {
+#ifdef WIN32
+      // get ticks per second
+      LARGE_INTEGER frequency;
+      QueryPerformanceFrequency(&frequency);
+      return 1.0 / double(frequency.QuadPart);
+#else
+      return 1e-6;
+#endif
       }
    // @}
 };

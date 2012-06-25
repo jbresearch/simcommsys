@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * \section svn Version Control
- * - $Id: qids.h 6455 2011-12-15 10:35:33Z jabriffa $
+ * - $Id$
  */
 
 #ifndef __qids_h
@@ -50,9 +50,9 @@ namespace libcomm {
  * \author  Johann Briffa
  *
  * \section svn Version Control
- * - $Revision: 6455 $
- * - $Date: 2011-12-15 10:35:33 +0000 (Thu, 15 Dec 2011) $
- * - $Author: jabriffa $
+ * - $Revision$
+ * - $Date$
+ * - $Author$
  */
 
 template <class G, class real = float>

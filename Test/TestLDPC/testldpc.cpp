@@ -34,7 +34,6 @@
 #include "sumprodalg/impl/sum_prod_alg_gdl.h"
 #include "linear_code_utils.h"
 #include "randgen.h"
-#include "logrealfast.h"
 #include <fstream>
 
 using std::cerr;
@@ -131,8 +130,6 @@ void compute_dual()
     dual.serialize(cout, ' ');
     */
    }
-
-
 
 void test_ra_code()
    {
@@ -269,9 +266,6 @@ void test_ra_code()
 
    }
 
-
-
-
 void test_cc_code()
    {
    //needed for serialisation
@@ -283,7 +277,7 @@ void test_cc_code()
    string tmp_dir = "/user/cscssst/sw0024/";
    string filename = tmp_dir + "turbocode_paras.txt";
 
-   libcomm::turbo<libbase::logrealfast> turbo;
+   libcomm::turbo<double, double> turbo;
 
    ifstream sin(filename.c_str());
    turbo.serialize(sin);

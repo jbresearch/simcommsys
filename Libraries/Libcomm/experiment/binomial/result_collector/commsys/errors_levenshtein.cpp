@@ -22,7 +22,7 @@
  * - $Id$
  */
 
-#include "commsys_errors_levenshtein.h"
+#include "errors_levenshtein.h"
 #include "fsm.h"
 #include "itfunc.h"
 #include "hamming.h"
@@ -43,7 +43,7 @@ namespace libcomm {
  * Eventually these will be divided by the respective multiplicity to get the
  * average error rates.
  */
-void commsys_errors_levenshtein::updateresults(libbase::vector<double>& result,
+void errors_levenshtein::updateresults(libbase::vector<double>& result,
       const int i, const libbase::vector<int>& source, const libbase::vector<
             int>& decoded) const
    {
@@ -67,7 +67,7 @@ void commsys_errors_levenshtein::updateresults(libbase::vector<double>& result,
  * \warning In the case of Levenshtein distance, it is not clear how the
  * multiplicity should be computed.
  */
-int commsys_errors_levenshtein::get_multiplicity(int i) const
+int errors_levenshtein::get_multiplicity(int i) const
    {
    assert(i >= 0 && i < count());
    switch(i % 3)
@@ -88,7 +88,7 @@ int commsys_errors_levenshtein::get_multiplicity(int i) const
  * symbol error rate (Hamming distance), Levenshtein distance, or frame error
  * rate respectively. 'Y' is the iteration, starting at 1.
  */
-std::string commsys_errors_levenshtein::result_description(int i) const
+std::string errors_levenshtein::result_description(int i) const
    {
    assert(i >= 0 && i < count());
    std::ostringstream sout;

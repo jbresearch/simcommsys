@@ -10,7 +10,7 @@ for folder in Libraries SimCommsys Steganography Test Windows; do
    # individual folders for libraries and targets
    for target in $folder/*; do
       echo "*** $target"
-      propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'*.vcproj.*.user
+      propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'*.s$'\n'*.ii$'\n'*.vcproj.*.user
       svn ps svn:ignore "$propval" $target
       #svn pg svn:ignore $target
    done

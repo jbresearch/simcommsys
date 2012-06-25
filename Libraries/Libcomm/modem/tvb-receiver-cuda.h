@@ -51,7 +51,7 @@ namespace cuda {
  * - $Author$
  */
 
-template <class real, class sig>
+template <class sig, class real>
 class tvb_receiver {
 public:
    /*! \name Type definitions */

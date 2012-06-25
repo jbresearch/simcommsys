@@ -78,7 +78,7 @@ typename bcjr<real, dbl, norm>::array1d_t bcjr<real, dbl, norm>::getstart() cons
    {
    array1d_t r(M);
    for (int m = 0; m < M; m++)
-      r(m) = beta(0, m);
+      r(m) = dbl(beta(0, m));
    return r;
    }
 
@@ -87,7 +87,7 @@ typename bcjr<real, dbl, norm>::array1d_t bcjr<real, dbl, norm>::getend() const
    {
    array1d_t r(M);
    for (int m = 0; m < M; m++)
-      r(m) = alpha(tau, m);
+      r(m) = dbl(alpha(tau, m));
    return r;
    }
 
@@ -372,7 +372,7 @@ void bcjr<real, dbl, norm>::work_results(array2d_t& ri, array2d_t& ro)
          for (int i = 0; i < K; i++) // for each possible input, given present state
             {
             int X = lut_X(mdash, i);
-            dbl delta = sigma(t, mdash, i) / Py;
+            dbl delta = dbl(sigma(t, mdash, i) / Py);
             ri(t - 1, i) += delta;
             ro(t - 1, X) += delta;
             }
@@ -406,7 +406,7 @@ void bcjr<real, dbl, norm>::work_results(array2d_t& ri)
          for (int mdash = 0; mdash < M; mdash++) // for each possible state at time t-1
             delta += sigma(t, mdash, i);
          // copy results into their final place
-         ri(t - 1, i) = delta / Py;
+         ri(t - 1, i) = dbl(delta / Py);
          }
    }
 
@@ -530,8 +530,6 @@ void bcjr<real, dbl, norm>::fdecode(const array2d_t& R, const array2d_t& app,
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "mpreal.h"
 #include "mpgnu.h"
 #include "logreal.h"
@@ -539,18 +537,29 @@ void bcjr<real, dbl, norm>::fdecode(const array2d_t& R, const array2d_t& app,
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::mpreal;
 using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
-template class bcjr<float, float, true> ;
-template class bcjr<float, double, true> ;
-template class bcjr<double, double, true> ;
-template class bcjr<mpreal> ;
-template class bcjr<mpgnu> ;
-template class bcjr<logreal> ;
-template class bcjr<logrealfast> ;
-template class bcjr<logrealfast, logrealfast> ;
+#define TF_SEQ \
+   (false)(true)
+#define REAL1_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
+#define REAL2_TYPE_SEQ \
+   (float)(double) \
+   (logrealfast)
+
+#define INSTANTIATE(r, args) \
+      template class bcjr<BOOST_PP_SEQ_ENUM(args)>;
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ)(TF_SEQ))
 
 } // end namespace

@@ -79,6 +79,7 @@ void print_standard_sizes()
    cout << "long double\t" << sizeof(long double) * 8 << std::endl;
 
    cout << "void*      \t" << sizeof(void*) * 8 << std::endl;
+   cout << "size_t     \t" << sizeof(size_t) * 8 << std::endl;
    }
 
 void print_new_sizes()
@@ -96,6 +97,30 @@ void print_new_sizes()
    cout << "int16s     \t" << sizeof(libbase::int16s) * 8 << std::endl;
    cout << "int32s     \t" << sizeof(libbase::int32s) * 8 << std::endl;
    cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << std::endl;
+   }
+
+void print_struct_sizes()
+   {
+   typedef struct {
+      bool a:1;
+      bool b:1;
+      bool c:1;
+      bool d:1;
+   } struct_field_t;
+
+   typedef struct {
+      bool a;
+      bool b;
+      bool c;
+      bool d;
+   } struct_bool_t;
+
+   cout << std::endl;
+   cout << "Type:         \tSize (bits):" << std::endl;
+   cout << "~~~~~         \t~~~~~~~~~~~~" << std::endl;
+
+   cout << "struct_bool_t \t" << sizeof(struct_bool_t) * 8 << std::endl;
+   cout << "struct_field_t\t" << sizeof(struct_field_t) * 8 << std::endl;
    }
 
 void print_vector_sizes()
@@ -342,6 +367,7 @@ int main(int argc, char *argv[])
    print_standard_limits();
    print_standard_sizes();
    print_new_sizes();
+   print_struct_sizes();
    print_vector_sizes();
    testvector();
    testmatrixmul();

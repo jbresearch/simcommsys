@@ -211,55 +211,46 @@ std::ostream& map_straight<matrix, dbl>::serialize(std::ostream& sout) const
 template <class dbl>
 std::istream& map_straight<matrix, dbl>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> size_out;
+   sin >> libbase::eatcomments >> size_out >> libbase::verify;
    return sin;
    }
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "logrealfast.h"
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
 using libbase::logrealfast;
+using libbase::matrix;
+using libbase::vector;
 
-/*** Vector Specialization ***/
+#define CONTAINER_TYPE_SEQ \
+   (vector)(matrix)
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
 
-template class map_straight<vector> ;
-template <>
-const serializer map_straight<vector>::shelper("mapper",
-      "map_straight<vector>", map_straight<vector>::create);
+/* Serialization string: map_straight<container,real>
+ * where:
+ *      container = vector | matrix
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class map_straight<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer map_straight<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "mapper", \
+            "map_straight<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            map_straight<BOOST_PP_SEQ_ENUM(args)>::create);
 
-template class map_straight<vector, float> ;
-template <>
-const serializer map_straight<vector, float>::shelper("mapper",
-      "map_straight<vector,float>", map_straight<vector, float>::create);
-
-template class map_straight<vector, logrealfast> ;
-template <>
-const serializer map_straight<vector, logrealfast>::shelper("mapper",
-      "map_straight<vector,logrealfast>",
-      map_straight<vector, logrealfast>::create);
-
-/*** Matrix Specialization ***/
-
-template class map_straight<matrix> ;
-template <>
-const serializer map_straight<matrix>::shelper("mapper",
-      "map_straight<matrix>", map_straight<matrix>::create);
-
-template class map_straight<matrix, float> ;
-template <>
-const serializer map_straight<matrix, float>::shelper("mapper",
-      "map_straight<matrix,float>", map_straight<matrix, float>::create);
-
-template class map_straight<matrix, logrealfast> ;
-template <>
-const serializer map_straight<matrix, logrealfast>::shelper("mapper",
-      "map_straight<matrix,logrealfast>",
-      map_straight<matrix, logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

@@ -24,70 +24,67 @@
 
 #include "testcuda.h"
 #include "cuda/gputimer.h"
+#include "cuda/stream.h"
 #include "cuda/vector.h"
+#include "cuda/value.h"
 #include <cstdio>
+
+#include "algorithm/fba2-cuda.h"
+#include "modem/dminner2-receiver-cuda.h"
 
 // *** Timing: kernel call overhead
 
 namespace cuda {
 
 __global__
-void empty_thread()
+void empty_kernel(bool show)
    {
 #if __CUDA_ARCH__ >= 200
    const int i = blockIdx.x * blockDim.x + threadIdx.x;
-   if (i == 0)
+   if (show && i == 0)
       {
-      printf("Thread %d\n", i);
+      printf("Thread %d/%d of Block %d/%d\n", threadIdx.x, blockDim.x, blockIdx.x, gridDim.x);
       }
 #endif
    }
 
-} // end namespace
-
-namespace testcuda {
-
 void time_kernelcalls_with(int gridsize, int blocksize)
    {
    // definitions
-   cuda::gputimer t("GPU");
+   gputimer t("GPU");
    const int N = 1e3;
    // timed loop
    t.start();
    for (int i = 0; i < N; i++)
       {
-      cuda::empty_thread <<<gridsize, blocksize>>> ();
-      cudaSafeThreadSynchronize();
+empty_kernel      <<<gridsize, blocksize>>> (i == 0);
       }
    t.stop();
    // compute and show
    const double time = t.elapsed() / N;
    std::cout << "Kernel overhead (" << gridsize << "x" << blocksize << "): "
-         << libbase::timer::format(time) << std::endl;
+   << libbase::timer::format(time) << std::endl;
    }
 
 void time_kernelcalls()
    {
-   const int mpcount = cuda::cudaGetMultiprocessorCount();
-   const int mpsize = cuda::cudaGetMultiprocessorSize();
-   const int warp = cuda::cudaGetWarpSize();
+   const int mpcount = cudaGetMultiprocessorCount();
+   const int mpsize = cudaGetMultiprocessorSize();
+   const int warp = cudaGetWarpSize();
 
    for (int g = 0; g <= mpcount * 4; g += mpcount)
-      for (int b = 0; b <= warp; b += mpsize)
-         {
-         const int gridsize = g == 0 ? 1 : g;
-         const int blocksize = b == 0 ? 1 : b;
-         time_kernelcalls_with(gridsize, blocksize);
-         }
+   for (int b = 0; b <= warp; b += mpsize)
+      {
+      const int gridsize = g == 0 ? 1 : g;
+      const int blocksize = b == 0 ? 1 : b;
+      time_kernelcalls_with(gridsize, blocksize);
+      }
    }
-
-} // end namespace
 
 // *** Capability test: use of classes in device code
 
-namespace cuda {
-
-class complex {
+class complex
+   {
 private:
    float r, i;
 public:
@@ -96,7 +93,7 @@ public:
    __device__ __host__
 #endif
    complex(float r = 0.0, float i = 0.0) :
-      r(r), i(i)
+   r(r), i(i)
       {
       }
    // operators (works on host or device)
@@ -138,30 +135,26 @@ public:
       sout << x.r << " + j" << x.i;
       return sout;
       }
-};
+   };
 
 __global__
-void test_useofclasses(vector_reference<complex> x)
+void test_useofclasses_kernel(vector_reference<complex> x)
    {
    const int N = x.size();
    const int i = blockIdx.x * blockDim.x + threadIdx.x;
    if (i < N)
-      x(i) += complex(1.0, -1.0);
+   x(i) += complex(1.0, -1.0);
    }
 
 // explicit instantiations
 
-template class vector<complex> ;
+template class vector<complex>;
 
-} // end namespace
-
-namespace testcuda {
-
-void test_useofclasses(libbase::vector<cuda::complex>& x)
+void test_useofclasses(libbase::vector<complex>& x)
    {
    const int N = x.size();
    for (int i = 0; i < N; i++)
-      x(i) += cuda::complex(1.0, -1.0);
+   x(i) += complex(1.0, -1.0);
    }
 
 void test_useofclasses()
@@ -172,17 +165,17 @@ void test_useofclasses()
    // create and fill in host vector
    libbase::vector<cuda::complex> x(N);
    for (int i = 0; i < x.size(); i++)
-      x(i) = cuda::complex(i, i);
+   x(i) = complex(i, i);
    std::cout << "Input = " << x;
    // create and copy device vector
-   cuda::vector<cuda::complex> dev_x;
+   vector<complex> dev_x;
    dev_x = x;
    // do kernel call
-   cuda::test_useofclasses<<<1, N>>> (dev_x);
+   test_useofclasses_kernel<<<1, N>>> (dev_x);
    cudaSafeThreadSynchronize();
    // copy results back and display
-   libbase::vector<cuda::complex> y;
-   y = libbase::vector<cuda::complex>(dev_x);
+   libbase::vector<complex> y;
+   y = libbase::vector<complex>(dev_x);
    std::cout << "Output (GPU) = " << y;
    // compute results on CPU and display
    test_useofclasses(x);
@@ -191,112 +184,272 @@ void test_useofclasses()
    assert(x.isequalto(y));
    }
 
-} // end namespace
+// *** Capability test: parallel execution of streams
+
+__global__
+void test_streams_kernel(value_reference<double> result)
+   {
+   const int N = 1e5;
+   const int i = blockIdx.x * blockDim.x + threadIdx.x;
+   // waste some time
+   double r = 0;
+   for (int j=1; j<N; j+=4)
+   r += 4.0 / j - 4.0 / (j+2);
+   // return result
+   result() = r;
+   }
+
+void test_streams()
+   {
+   std::cout << std::endl;
+   std::cout << "Test parallel execution of streams:" << std::endl;
+   // space for stream data
+   const int N = 2 * cudaGetMultiprocessorCount();
+   stream vs[N];
+   gputimer vt[N];
+   value<double> vr[N];
+   for (int i=0; i<N; i++)
+      {
+      vt[i].set_stream(vs[i].get_id());
+      vr[i].init();
+      }
+   // call the two kernels in parallel as separate streams
+   libbase::cputimer tcpu("sequence");
+   gputimer tgpu("sequence");
+   for (int i=0; i<N; i++)
+      {
+      vt[i].start();
+      test_streams_kernel<<<1,1,0,vs[i].get_id()>>>(vr[i]);
+      }
+   // delay issue of stream stop timer, to avoid breaking concurrency
+   for (int i=0; i<N; i++)
+      {
+      vt[i].stop();
+      }
+   tgpu.stop();
+   // wait for all CUDA events to finish before stopping CPU timer
+   cudaSafeThreadSynchronize();
+   tcpu.stop();
+   // show what happened
+   for (int i=0; i<N; i++)
+      {
+      std::cout << "Kernel " << i << ": " << vt[i] << "\t";
+      std::cout << "Result = " << vr[i] << std::endl;
+      }
+   std::cout << "Kernel sequence: " << tgpu << std::endl;
+   std::cout << "Kernel sequence (CPU): " << tcpu << std::endl;
+   }
 
 // *** Capability test: item sizes
 
-namespace cuda {
-
-void get_sizes(libbase::vector<int>& result)
+void get_descriptors(libbase::vector<std::string>& names)
    {
    int i = 0;
 
-   result(i++) = sizeof(bool);
-   result(i++) = sizeof(char);
-   result(i++) = sizeof(short);
-   result(i++) = sizeof(int);
-   result(i++) = sizeof(long);
-   result(i++) = sizeof(long long);
+   names(i++) = "bool";
+   names(i++) = "char";
+   names(i++) = "short";
+   names(i++) = "int";
+   names(i++) = "long";
+   names(i++) = "long long";
 
-   result(i++) = sizeof(float);
-   result(i++) = sizeof(double);
-   result(i++) = sizeof(long double);
+   names(i++) = "float";
+   names(i++) = "double";
+   names(i++) = "long double";
 
-   result(i++) = sizeof(void *);
-   result(i++) = sizeof(cuda::vector<int>);
-   result(i++) = sizeof(cuda::vector_auto<int>);
-   result(i++) = sizeof(cuda::matrix<int>);
-   result(i++) = sizeof(cuda::matrix_auto<int>);
+   names(i++) = "void*";
+   names(i++) = "size_t";
+
+   names(i++) = "vector<int>";
+   names(i++) = "vector_auto<int>";
+   names(i++) = "matrix<int>";
+   names(i++) = "matrix_auto<int>";
+
+   names(i++) = "bsid::metric_computer";
+   names(i++) = "dminner2_receiver<float>";
+   names(i++) = "dminner2_receiver<double>";
+   names(i++) = "fba2<dminner2_receiver<float>,bool,float>::metric_computer";
+   names(i++) = "fba2<dminner2_receiver<double>,bool,double>::metric_computer";
+   names(i++) = "fba2<dminner2_receiver<float>,bool,float>";
+   names(i++) = "fba2<dminner2_receiver<double>,bool,double>";
+   }
+
+void get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
+   {
+   int i;
+
+   // sizes
+   i = 0;
+   sizes(i++) = sizeof(bool);
+   sizes(i++) = sizeof(char);
+   sizes(i++) = sizeof(short);
+   sizes(i++) = sizeof(int);
+   sizes(i++) = sizeof(long);
+   sizes(i++) = sizeof(long long);
+
+   sizes(i++) = sizeof(float);
+   sizes(i++) = sizeof(double);
+   sizes(i++) = sizeof(long double);
+
+   sizes(i++) = sizeof(void *);
+   sizes(i++) = sizeof(size_t);
+
+   sizes(i++) = sizeof(vector<int>);
+   sizes(i++) = sizeof(vector_auto<int>);
+   sizes(i++) = sizeof(matrix<int>);
+   sizes(i++) = sizeof(matrix_auto<int>);
+
+   sizes(i++) = sizeof(libcomm::bsid::metric_computer);
+   sizes(i++) = sizeof(dminner2_receiver<float>);
+   sizes(i++) = sizeof(dminner2_receiver<double>);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<float>, bool, float>::metric_computer);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<double>, bool, double>::metric_computer);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<float>, bool, float>);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<double>, bool, double>);
+
+   // alignment
+   i = 0;
+   align(i++) = __alignof__(bool);
+   align(i++) = __alignof__(char);
+   align(i++) = __alignof__(short);
+   align(i++) = __alignof__(int);
+   align(i++) = __alignof__(long);
+   align(i++) = __alignof__(long long);
+
+   align(i++) = __alignof__(float);
+   align(i++) = __alignof__(double);
+   align(i++) = __alignof__(long double);
+
+   align(i++) = __alignof__(void *);
+   align(i++) = __alignof__(size_t);
+
+   align(i++) = __alignof__(vector<int>);
+   align(i++) = __alignof__(vector_auto<int>);
+   align(i++) = __alignof__(matrix<int>);
+   align(i++) = __alignof__(matrix_auto<int>);
+
+   align(i++) = __alignof__(libcomm::bsid::metric_computer);
+   align(i++) = __alignof__(dminner2_receiver<float>);
+   align(i++) = __alignof__(dminner2_receiver<double>);
+   align(i++) = __alignof__(fba2<dminner2_receiver<float>, bool, float>::metric_computer);
+   align(i++) = __alignof__(fba2<dminner2_receiver<double>, bool, double>::metric_computer);
+   align(i++) = __alignof__(fba2<dminner2_receiver<float>, bool, float>);
+   align(i++) = __alignof__(fba2<dminner2_receiver<double>, bool, double>);
    }
 
 __device__
-void get_sizes(cuda::vector_reference<int>& result)
+void get_sizes(vector_reference<int>& sizes, vector_reference<int>& align)
    {
-   int i = 0;
+   int i;
 
-   result(i++) = sizeof(bool);
-   result(i++) = sizeof(char);
-   result(i++) = sizeof(short);
-   result(i++) = sizeof(int);
-   result(i++) = sizeof(long);
-   result(i++) = sizeof(long long);
+   // sizes
+   i = 0;
+   sizes(i++) = sizeof(bool);
+   sizes(i++) = sizeof(char);
+   sizes(i++) = sizeof(short);
+   sizes(i++) = sizeof(int);
+   sizes(i++) = sizeof(long);
+   sizes(i++) = sizeof(long long);
 
-   result(i++) = sizeof(float);
-   result(i++) = sizeof(double);
-   result(i++) = sizeof(long double);
+   sizes(i++) = sizeof(float);
+   sizes(i++) = sizeof(double);
+   sizes(i++) = sizeof(long double);
 
-   result(i++) = sizeof(void *);
-   result(i++) = sizeof(cuda::vector<int>);
-   result(i++) = sizeof(cuda::vector_auto<int>);
-   result(i++) = sizeof(cuda::matrix<int>);
-   result(i++) = sizeof(cuda::matrix_auto<int>);
+   sizes(i++) = sizeof(void *);
+   sizes(i++) = sizeof(size_t);
+
+   sizes(i++) = sizeof(vector<int>);
+   sizes(i++) = sizeof(vector_auto<int>);
+   sizes(i++) = sizeof(matrix<int>);
+   sizes(i++) = sizeof(matrix_auto<int>);
+
+   sizes(i++) = sizeof(libcomm::bsid::metric_computer);
+   sizes(i++) = sizeof(dminner2_receiver<float>);
+   sizes(i++) = sizeof(dminner2_receiver<double>);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<float>, bool, float>::metric_computer);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<double>, bool, double>::metric_computer);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<float>, bool, float>);
+   sizes(i++) = sizeof(fba2<dminner2_receiver<double>, bool, double>);
+
+   // alignment
+   i = 0;
+   align(i++) = __alignof__(bool);
+   align(i++) = __alignof__(char);
+   align(i++) = __alignof__(short);
+   align(i++) = __alignof__(int);
+   align(i++) = __alignof__(long);
+   align(i++) = __alignof__(long long);
+
+   align(i++) = __alignof__(float);
+   align(i++) = __alignof__(double);
+   align(i++) = __alignof__(long double);
+
+   align(i++) = __alignof__(void *);
+   align(i++) = __alignof__(size_t);
+
+   align(i++) = __alignof__(vector<int>);
+   align(i++) = __alignof__(vector_auto<int>);
+   align(i++) = __alignof__(matrix<int>);
+   align(i++) = __alignof__(matrix_auto<int>);
+
+   align(i++) = __alignof__(libcomm::bsid::metric_computer);
+   align(i++) = __alignof__(dminner2_receiver<float>);
+   align(i++) = __alignof__(dminner2_receiver<double>);
+   align(i++) = __alignof__(fba2<dminner2_receiver<float>, bool, float>::metric_computer);
+   align(i++) = __alignof__(fba2<dminner2_receiver<double>, bool, double>::metric_computer);
+   align(i++) = __alignof__(fba2<dminner2_receiver<float>, bool, float>);
+   align(i++) = __alignof__(fba2<dminner2_receiver<double>, bool, double>);
    }
 
 // kernel function
 
 __global__
-void get_sizes_thread(vector_reference<int> result)
+void get_sizes_kernel(vector_reference<int> sizes, vector_reference<int> align)
    {
-   get_sizes(result);
+   get_sizes(sizes, align);
    }
 
-} // end namespace
-
-namespace testcuda {
-
-void print_sizes(libbase::vector<int>& result)
+void print_sizes(libbase::vector<std::string>& names,
+      libbase::vector<int>& host, libbase::vector<int>& gpu)
    {
-   std::cout << std::endl;
-   std::cout << "Type       \tSize (bytes)" << std::endl;
-   std::cout << "~~~~       \t~~~~~~~~~~~~" << std::endl;
+   std::cout << "Host\tGPU\tType" << std::endl;
+   std::cout << "~~~~\t~~~\t~~~~" << std::endl;
 
-   int i = 0;
-   std::cout << "bool       \t" << result(i++) << std::endl;
-   std::cout << "char       \t" << result(i++) << std::endl;
-   std::cout << "short      \t" << result(i++) << std::endl;
-   std::cout << "int        \t" << result(i++) << std::endl;
-   std::cout << "long       \t" << result(i++) << std::endl;
-   std::cout << "long long  \t" << result(i++) << std::endl;
-   std::cout << std::endl;
-   std::cout << "float      \t" << result(i++) << std::endl;
-   std::cout << "double     \t" << result(i++) << std::endl;
-   std::cout << "long double\t" << result(i++) << std::endl;
-   std::cout << std::endl;
-   std::cout << "void *     \t" << result(i++) << std::endl;
-   std::cout << "\'int\' containers:" << std::endl;
-   std::cout << "vector     \t" << result(i++) << std::endl;
-   std::cout << "vector_auto\t" << result(i++) << std::endl;
-   std::cout << "matrix     \t" << result(i++) << std::endl;
-   std::cout << "matrix_auto\t" << result(i++) << std::endl;
+   for (int i = 0; i < names.size(); i++)
+   std::cout << host(i) << "\t" << gpu(i) << "\t" << names(i) << std::endl;
    }
 
 void test_sizes()
    {
+   const int N = 22;
+   // get descriptors
+   libbase::vector<std::string> names(N);
+   get_descriptors(names);
    // determine sizes on host
-   libbase::vector<int> host(14);
-   cuda::get_sizes(host);
+   libbase::vector<int> sizes_h(N);
+   libbase::vector<int> align_h(N);
+   get_sizes(sizes_h, align_h);
    // determine sizes on gpu
-   cuda::vector<int> gpu_dev;
-   gpu_dev.init(14);
-   cuda::get_sizes_thread <<<1,1>>> (gpu_dev);
+   vector<int> sizes_g_d;
+   vector<int> align_g_d;
+   sizes_g_d.init(N);
+   align_g_d.init(N);
+   get_sizes_kernel<<<1,1>>> (sizes_g_d, align_g_d);
    cudaSafeThreadSynchronize();
-   libbase::vector<int> gpu = libbase::vector<int>(gpu_dev);
+   libbase::vector<int> sizes_g = libbase::vector<int>(sizes_g_d);
+   libbase::vector<int> align_g = libbase::vector<int>(align_g_d);
    // print results
-   std::cout << std::endl << "Sizes on host CPU" << std::endl;
-   print_sizes(host);
-   std::cout << std::endl << "Sizes on GPU" << std::endl;
-   print_sizes(gpu);
-   assert(host.isequalto(gpu));
+   std::cout << std::endl;
+   std::cout << "Type/object size comparison (in bytes)" << std::endl;
+   std::cout << std::endl;
+   print_sizes(names, sizes_h, sizes_g);
+   std::cout << std::endl;
+   std::cout << "Type/object alignment comparison (in bytes)" << std::endl;
+   std::cout << std::endl;
+   print_sizes(names, align_h, align_g);
+   // debug checks
+   assert(sizes_h.isequalto(sizes_g));
+   assert(align_h.isequalto(align_g));
    }
 
 } // end namespace

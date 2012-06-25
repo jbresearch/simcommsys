@@ -22,7 +22,7 @@
  * - $Id$
  */
 
-#include "commsys_prof_burst.h"
+#include "prof_burst.h"
 #include "fsm.h"
 #include <sstream>
 
@@ -30,7 +30,7 @@ namespace libcomm {
 
 // commsys functions
 
-void commsys_prof_burst::updateresults(libbase::vector<double>& result,
+void prof_burst::updateresults(libbase::vector<double>& result,
       const int i, const libbase::vector<int>& source, const libbase::vector<
             int>& decoded) const
    {
@@ -71,7 +71,7 @@ void commsys_prof_burst::updateresults(libbase::vector<double>& result,
  * to the above two counts)
  * (all three above: at most #symbols/frame - 1)
  */
-int commsys_prof_burst::get_multiplicity(int i) const
+int prof_burst::get_multiplicity(int i) const
    {
    assert(i >= 0 && i < count());
    switch (i % 4)
@@ -89,7 +89,7 @@ int commsys_prof_burst::get_multiplicity(int i) const
  * The description is a string X_Y, where 'X' is a string indicating
  * the probability represented. 'Y' is the iteration, starting at 1.
  */
-std::string commsys_prof_burst::result_description(int i) const
+std::string prof_burst::result_description(int i) const
    {
    assert(i >= 0 && i < count());
    std::ostringstream sout;

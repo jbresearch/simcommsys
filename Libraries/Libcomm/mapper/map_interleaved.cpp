@@ -91,11 +91,42 @@ std::istream& map_interleaved<C, dbl>::serialize(std::istream& sin)
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class map_interleaved<libbase::vector> ;
-template <>
-const libbase::serializer map_interleaved<libbase::vector>::shelper("mapper",
-      "map_interleaved<vector>", map_interleaved<libbase::vector>::create);
+#include "logrealfast.h"
+
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+using libbase::logrealfast;
+using libbase::matrix;
+using libbase::vector;
+
+#define CONTAINER_TYPE_SEQ \
+   (vector)
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: map_interleaved<container,real>
+ * where:
+ *      container = vector
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class map_interleaved<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer map_interleaved<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "mapper", \
+            "map_interleaved<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            map_interleaved<BOOST_PP_SEQ_ENUM(args)>::create);
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

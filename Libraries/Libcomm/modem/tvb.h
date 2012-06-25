@@ -63,12 +63,12 @@ namespace libcomm {
  * Correcting Codes", Submitted to Trans. IT, 2011.
  */
 
-template <class real, class sig, bool norm>
+template <class sig, class real>
 class tvb : public stream_modulator<sig> , public parametric {
 private:
    // Shorthand for class hierarchy
    typedef stream_modulator<sig> Interface;
-   typedef tvb<real, sig, norm> This;
+   typedef tvb<sig, real> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -105,16 +105,22 @@ private:
    array2vs_t codebook_tables; //!< user set of codebooks
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   struct {
+      bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
+      bool batch; //!< Flag indicating use of batch receiver interface
+      bool lazy; //!< Flag indicating lazy computation of gamma metric
+      bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
+   } flags;
    // @}
    /*! \name Internally-used objects */
    qids<sig> mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
-//#ifdef USE_CUDA
+   //#ifdef USE_CUDA
 #if 0
-   cuda::fba2<cuda::tvb_receiver<real, sig>, real, sig, norm> fba; //!< algorithm object
+   cuda::fba2<cuda::tvb_receiver<sig, real>, sig, real> fba; //!< algorithm object
 #else
-   fba2<tvb_receiver<real, sig> , real, sig, norm> fba; //!< algorithm object
+   fba2<tvb_receiver<sig, real> , sig, real> fba; //!< algorithm object
 #endif
    // @}
 private:

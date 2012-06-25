@@ -73,7 +73,8 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Main constructor
-   explicit gputimer(const std::string& name = "", const cudaStream_t stream = 0, const bool running = true) :
+   explicit gputimer(const std::string& name = "", const cudaStream_t stream =
+         0, const bool running = true) :
       timer(name), stream(stream)
       {
       cudaEventCreate(&event_start);
@@ -86,6 +87,21 @@ public:
       expire();
       cudaEventDestroy(event_start);
       cudaEventDestroy(event_stop);
+      }
+   // @}
+
+   /*! \name GPU-specific methods */
+   void set_stream(const cudaStream_t stream)
+      {
+      this->stream = stream;
+      }
+   // @}
+
+   /*! \name Timer information */
+   double resolution() const
+      {
+      // Note: this resolution is approximate, as given in CUDA docs
+      return 0.5e-6;
       }
    // @}
 };

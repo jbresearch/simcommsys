@@ -22,11 +22,11 @@
  * - $Id$
  */
 
-#ifndef __commsys_errors_levenshtein_h
-#define __commsys_errors_levenshtein_h
+#ifndef __errors_levenshtein_h
+#define __errors_levenshtein_h
 
 #include "config.h"
-#include "commsys_errorrates.h"
+#include "errors_hamming.h"
 
 namespace libcomm {
 
@@ -42,7 +42,7 @@ namespace libcomm {
  * Implements error rate calculators for SER (using both Hamming and
  * Levenshtein distances) and FER.
  */
-class commsys_errors_levenshtein : public commsys_errorrates {
+class errors_levenshtein : public errors_hamming {
 public:
    /*! \name Public interface */
    void updateresults(libbase::vector<double>& result, const int i,

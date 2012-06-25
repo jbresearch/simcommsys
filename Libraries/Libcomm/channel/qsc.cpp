@@ -102,48 +102,28 @@ std::istream& qsc<G>::serialize(std::istream& sin)
 namespace libcomm {
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
-using libbase::gf;
 
-template <>
-const serializer qsc<gf<1, 0x3> >::shelper("channel", "qsc<gf<1,0x3>>", qsc<gf<
-      1, 0x3> >::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template <>
-const serializer qsc<gf<2, 0x7> >::shelper("channel", "qsc<gf<2,0x7>>", qsc<gf<
-      2, 0x7> >::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template <>
-const serializer qsc<gf<3, 0xB> >::shelper("channel", "qsc<gf<3,0xB>>", qsc<gf<
-      3, 0xB> >::create);
+/* Serialization string: qsc<type>
+ * where:
+ *      type = gf2 | gf4 ...
+ */
+#define INSTANTIATE(r, x, type) \
+   template class qsc<type>; \
+   template <> \
+   const serializer qsc<type>::shelper( \
+         "channel", \
+         "qsc<" BOOST_PP_STRINGIZE(type) ">", \
+         qsc<type>::create);
 
-template <>
-const serializer qsc<gf<4, 0x13> >::shelper("channel", "qsc<gf<4,0x13>>", qsc<
-      gf<4, 0x13> >::create);
-
-template <>
-const serializer qsc<gf<5, 0x25> >::shelper("channel", "qsc<gf<5,0x25>>", qsc<
-      gf<5, 0x25> >::create);
-
-template <>
-const serializer qsc<gf<6, 0x43> >::shelper("channel", "qsc<gf<6,0x43>>", qsc<
-      gf<6, 0x43> >::create);
-
-template <>
-const serializer qsc<gf<7, 0x89> >::shelper("channel", "qsc<gf<7,0x89>>", qsc<
-      gf<7, 0x89> >::create);
-
-template <>
-const serializer qsc<gf<8, 0x11D> >::shelper("channel", "qsc<gf<8,0x11D>>",
-      qsc<gf<8, 0x11D> >::create);
-
-template <>
-const serializer qsc<gf<9, 0x211> >::shelper("channel", "qsc<gf<9,0x211>>",
-      qsc<gf<9, 0x211> >::create);
-
-template <>
-const serializer qsc<gf<10, 0x409> >::shelper("channel", "qsc<gf<10,0x409>>",
-      qsc<gf<10, 0x409> >::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
 } // end namespace

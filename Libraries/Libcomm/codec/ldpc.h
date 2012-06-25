@@ -36,7 +36,6 @@
 #include "config.h"
 #include "vector.h"
 #include "matrix.h"
-#include "gf.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
 
 #include "boost/shared_ptr.hpp"

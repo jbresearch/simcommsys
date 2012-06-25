@@ -182,31 +182,42 @@ std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& onetimepad<real>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> terminated;
-   sin >> libbase::eatcomments >> renewable;
+   sin >> libbase::eatcomments >> terminated >> libbase::verify;
+   sin >> libbase::eatcomments >> renewable >> libbase::verify;
    int N;
-   sin >> libbase::eatcomments >> N;
+   sin >> libbase::eatcomments >> N >> libbase::verify;
    pad.init(N);
-   sin >> libbase::eatcomments >> encoder;
+   sin >> libbase::eatcomments >> encoder >> libbase::verify;
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class onetimepad<float> ;
-template <>
-const libbase::serializer onetimepad<float>::shelper("interleaver",
-      "onetimepad<float>", onetimepad<float>::create);
+namespace libcomm {
 
-template class onetimepad<double> ;
-template <>
-const libbase::serializer onetimepad<double>::shelper("interleaver",
-      "onetimepad<double>", onetimepad<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class onetimepad<libbase::logrealfast> ;
-template <>
-const libbase::serializer onetimepad<libbase::logrealfast>::shelper(
-      "interleaver", "onetimepad<logrealfast>",
-      onetimepad<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: onetimepad<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class onetimepad<type>; \
+   template <> \
+   const serializer onetimepad<type>::shelper( \
+         "interleaver", \
+         "onetimepad<" BOOST_PP_STRINGIZE(type) ">", \
+         onetimepad<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

@@ -688,11 +688,11 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    {
    assertalways(sin.good());
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    assertalways(version>=2);
    std::string spa_type;
-   sin >> libbase::eatcomments >> spa_type;
-   sin >> libbase::eatcomments >> this->max_iter;
+   sin >> libbase::eatcomments >> spa_type >> libbase::verify;
+   sin >> libbase::eatcomments >> this->max_iter >> libbase::verify;
    assertalways(this->max_iter>=1);
    //default clipping settings for version 2 files
    //my method of avoiding probs of zero is labelled "zero"
@@ -704,10 +704,10 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    real almost_zero = real(1E-100);
    if (version > 2)
       {
-      sin >> libbase::eatcomments >> clipping_type;
+      sin >> libbase::eatcomments >> clipping_type >> libbase::verify;
       assertalways(("clip"==clipping_type)||("zero"==clipping_type));
       double tmp_az;
-      sin >> libbase::eatcomments >> tmp_az;
+      sin >> libbase::eatcomments >> tmp_az >> libbase::verify;
       almost_zero = real(tmp_az);
       }
    //default flag for files with versions less than 4
@@ -715,43 +715,41 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    if (version > 3)
       {
       std::string tmp_flag;
-      sin >> libbase::eatcomments >> tmp_flag;
+      sin >> libbase::eatcomments >> tmp_flag >> libbase::verify;
       assertalways(("true"==tmp_flag)||("false"==tmp_flag));
       if ("true" == tmp_flag)
          {
          this->reduce_to_ref = true;
          }
       }
-   sin >> libbase::eatcomments >> this->length_n;
-   sin >> libbase::eatcomments >> this->dim_pchk;
+   sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
+   sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
 
-   sin >> libbase::eatcomments >> this->max_col_weight;
-   sin >> libbase::eatcomments >> this->max_row_weight;
+   sin >> libbase::eatcomments >> this->max_col_weight >> libbase::verify;
+   sin >> libbase::eatcomments >> this->max_row_weight >> libbase::verify;
 
    libbase::randgen rng;
    //are the non-zero values provided or do we randomly generate them?
-   sin >> libbase::eatcomments >> this->rand_prov_values;
+   sin >> libbase::eatcomments >> this->rand_prov_values >> libbase::verify;
    assertalways(("ones"==this->rand_prov_values) ||
          ("random"==this->rand_prov_values) ||
          ("provided"==this->rand_prov_values));
    if ("random" == this->rand_prov_values)
       {
       //read the seed value;
-      sin >> libbase::eatcomments >> this-> seed;
+      sin >> libbase::eatcomments >> this-> seed >> libbase::verify;
       assertalways(this->seed>=0);
       rng.seed(this->seed);
       }
    //read the col weights and ensure they are sensible
    this->col_weight.init(this->length_n);
-   sin >> libbase::eatcomments;
-   sin >> this->col_weight;
+   sin >> libbase::eatcomments >> this->col_weight >> libbase::verify;
 
    assertalways((1<=this->col_weight.min())&&(this->col_weight.max()<=this->max_col_weight));
 
    //read the row weights and ensure they are sensible
    this->row_weight.init(this->dim_pchk);
-   sin >> libbase::eatcomments;
-   sin >> this->row_weight;
+   sin >> libbase::eatcomments >> this->row_weight >> libbase::verify;
    assertalways((0<this->row_weight.min())&&(this->row_weight.max()<=this->max_row_weight));
 
    this->M_n.init(this->length_n);
@@ -760,8 +758,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
       this->M_n(loop1).init(this->col_weight(loop1));
-      sin >> libbase::eatcomments;
-      sin >> this ->M_n(loop1);
+      sin >> libbase::eatcomments >> this ->M_n(loop1) >> libbase::verify;
       //ensure that the number of non-zero pos matches the previously read value
       assertalways(this->M_n(loop1).size()==this->col_weight(loop1));
       }
@@ -793,8 +790,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
          }
       else
          {
-         sin >> libbase::eatcomments;
-         sin >> non_zero_vals;
+         sin >> libbase::eatcomments >> non_zero_vals >> libbase::verify;
          assertalways(non_zero_vals.min()!=GF_q(0));
          }
       for (int loop2 = 0; loop2 < tmp_entries; loop2++)
@@ -999,24 +995,24 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
    int numOfElements = GF_q::elements();
    bool nonbinary = (numOfElements > 2);
 
-   sin >> libbase::eatcomments >> this->length_n;
-   sin >> libbase::eatcomments >> this->dim_pchk;
+   sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
+   sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
    if (nonbinary)
       {
       int q;
-      sin >> libbase::eatcomments >> q;
+      sin >> libbase::eatcomments >> q >> libbase::verify;
       assertalways(numOfElements==q);
       }
 
-   sin >> libbase::eatcomments >> this->max_col_weight;
-   sin >> libbase::eatcomments >> this->max_row_weight;
+   sin >> libbase::eatcomments >> this->max_col_weight >> libbase::verify;
+   sin >> libbase::eatcomments >> this->max_row_weight >> libbase::verify;
 
    //read the col weights and ensure they are sensible
    int tmp_col_weight;
    this->col_weight.init(this->length_n);
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
-      sin >> libbase::eatcomments >> tmp_col_weight;
+      sin >> libbase::eatcomments >> tmp_col_weight >> libbase::verify;
       //is it between 1 and max_col_weight?
       assertalways((1<=tmp_col_weight)&&(tmp_col_weight<=this->max_col_weight));
       this ->col_weight(loop1) = tmp_col_weight;
@@ -1027,7 +1023,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
    this->row_weight.init(this->dim_pchk);
    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++)
       {
-      sin >> libbase::eatcomments >> tmp_row_weight;
+      sin >> libbase::eatcomments >> tmp_row_weight >> libbase::verify;
       //is it between 1 and max_row_weight?
       assertalways((1<=tmp_row_weight)&&(tmp_row_weight<=this->max_row_weight));
       this ->row_weight(loop1) = tmp_row_weight;
@@ -1048,14 +1044,14 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
       this->M_n(loop1).init(tmp_entries);
       for (int loop2 = 0; loop2 < tmp_entries; loop2++)
          {
-         sin >> libbase::eatcomments >> tmp_pos;
+         sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
          this->M_n(loop1)(loop2) = tmp_pos;
          tmp_pos--;//we start counting at 0 internally
          assertalways((0<=tmp_pos)&&(tmp_pos<this->dim_pchk));
          // read the non-zero element in the non-binary case
          if (nonbinary)
             {
-            sin >> libbase::eatcomments >> tmp_val;
+            sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
             assertalways((0<=tmp_val)&&(tmp_val<numOfElements));
             }
          this->pchk_matrix(tmp_pos, loop1) = GF_q(tmp_val);
@@ -1063,11 +1059,11 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
       //discard any padded 0 zeros if necessary
       for (int loop2 = 0; loop2 < (this->max_col_weight - tmp_entries); loop2++)
          {
-         sin >> libbase::eatcomments >> tmp_pos;
+         sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
          assertalways(0==tmp_pos);
          if (nonbinary)
             {
-            sin >> libbase::eatcomments >> tmp_val;
+            sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
             assertalways((0==tmp_val));
             }
          }
@@ -1081,14 +1077,14 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
       this->N_m(loop1).init(tmp_entries);
       for (int loop2 = 0; loop2 < tmp_entries; loop2++)
          {
-         sin >> libbase::eatcomments >> tmp_pos;
+         sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
          this->N_m(loop1)(loop2) = tmp_pos;
          tmp_pos--;//we start counting at 0 internally
          assertalways((0<=tmp_pos)&&(tmp_pos<this->length_n));
          // read the non-zero element in the non-binary case
          if (nonbinary)
             {
-            sin >> libbase::eatcomments >> tmp_val;
+            sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
             assertalways((0<=tmp_val)&&(tmp_val<numOfElements));
             }
          assertalways(GF_q(tmp_val)==this->pchk_matrix(loop1,tmp_pos));
@@ -1096,11 +1092,11 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
       //discard any padded 0 zeros if necessary
       for (int loop2 = 0; loop2 < (this->max_row_weight - tmp_entries); loop2++)
          {
-         sin >> libbase::eatcomments >> tmp_pos;
+         sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
          assertalways(0==tmp_pos);
          if (nonbinary)
             {
-            sin >> libbase::eatcomments >> tmp_val;
+            sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
             assertalways((0==tmp_val));
             }
          }
@@ -1123,74 +1119,44 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
    return sin;
    }
 
-}//end namespace
+} // end namespace
 
-//Explicit realisations
+#include "gf.h"
 #include "mpreal.h"
 
 namespace libcomm {
-using libbase::mpreal;
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
-using libbase::gf;
+using libbase::mpreal;
 
-template class ldpc<gf<1, 0x3> , double> ;
-template <>
-const serializer ldpc<gf<1, 0x3> , double>::shelper = serializer("codec",
-      "ldpc<gf<1,0x3>>", ldpc<gf<1, 0x3> , double>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class ldpc<gf<2, 0x7> > ;
-template <>
-const serializer ldpc<gf<2, 0x7> >::shelper = serializer("codec",
-      "ldpc<gf<2,0x7>>", ldpc<gf<2, 0x7> >::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class ldpc<gf<3, 0xB> > ;
-template <>
-const serializer ldpc<gf<3, 0xB> >::shelper = serializer("codec",
-      "ldpc<gf<3,0xB>>", ldpc<gf<3, 0xB> >::create);
+#define REAL_TYPE_SEQ \
+   (double)(mpreal)
 
-template class ldpc<gf<3, 0xB> , mpreal> ;
-template <>
-const serializer ldpc<gf<3, 0xB> , mpreal>::shelper = serializer("codec",
-      "ldpc<gf<3,0xB>(mpreal)>", ldpc<gf<3, 0xB> , mpreal>::create);
+/* Serialization string: ldpc<type,real>
+ * where:
+ *      type = gf2 | gf4 ...
+ *      real = double | mpreal
+ */
+#define INSTANTIATE(r, args) \
+      template class ldpc<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer ldpc<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "codec", \
+            "ldpc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            ldpc<BOOST_PP_SEQ_ENUM(args)>::create);
 
-template class ldpc<gf<4, 0x13> > ;
-template <>
-const serializer ldpc<gf<4, 0x13> >::shelper = serializer("codec",
-      "ldpc<gf<4,0x13>>", ldpc<gf<4, 0x13> >::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-template class ldpc<gf<4, 0x13> , mpreal> ;
-template <>
-const serializer ldpc<gf<4, 0x13> , mpreal>::shelper = serializer("codec",
-      "ldpc<gf<4,0x13>(mpreal)>", ldpc<gf<4, 0x13> , mpreal>::create);
-
-template class ldpc<gf<5, 0x25> > ;
-template <>
-const serializer ldpc<gf<5, 0x25> >::shelper = serializer("codec",
-      "ldpc<gf<5,0x25>>", ldpc<gf<5, 0x25> >::create);
-
-template class ldpc<gf<6, 0x43> > ;
-template <>
-const serializer ldpc<gf<6, 0x43> >::shelper = serializer("codec",
-      "ldpc<gf<6,0x43>>", ldpc<gf<6, 0x43> >::create);
-
-template class ldpc<gf<7, 0x89> > ;
-template <>
-const serializer ldpc<gf<7, 0x89> >::shelper = serializer("codec",
-      "ldpc<gf<7,0x89>>", ldpc<gf<7, 0x89> >::create);
-
-template class ldpc<gf<8, 0x11D> > ;
-template <>
-const serializer ldpc<gf<8, 0x11D> >::shelper = serializer("codec",
-      "ldpc<gf<8,0x11D>>", ldpc<gf<8, 0x11D> >::create);
-
-template class ldpc<gf<9, 0x211> > ;
-template <>
-const serializer ldpc<gf<9, 0x211> >::shelper = serializer("codec",
-      "ldpc<gf<9,0x211>>", ldpc<gf<9, 0x211> >::create);
-
-template class ldpc<gf<10, 0x409> > ;
-template <>
-const serializer ldpc<gf<10, 0x409> >::shelper = serializer("codec",
-      "ldpc<gf<10,0x409>>", ldpc<gf<10, 0x409> >::create);
-
-}
+} // end namespace

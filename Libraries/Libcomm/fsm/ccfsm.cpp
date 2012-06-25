@@ -252,35 +252,31 @@ std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
 template <class G>
 std::istream& ccfsm<G>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> gen;
+   sin >> libbase::eatcomments >> gen >> libbase::verify;
    init(gen);
    return sin;
    }
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "gf.h"
 
 namespace libcomm {
 
-using libbase::gf;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-// Degenerate case GF(2)
+using libbase::serializer;
 
-template class ccfsm<gf<1, 0x3> > ;
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-// cf. Lin & Costello, 2004, App. A
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class ccfsm<gf<2, 0x7> > ;
-template class ccfsm<gf<3, 0xB> > ;
-template class ccfsm<gf<4, 0x13> > ;
-template class ccfsm<gf<5, 0x25> > ;
-template class ccfsm<gf<6, 0x43> > ;
-template class ccfsm<gf<7, 0x89> > ;
-template class ccfsm<gf<8, 0x11D> > ;
-template class ccfsm<gf<9, 0x211> > ;
-template class ccfsm<gf<10, 0x409> > ;
+#define INSTANTIATE(r, x, type) \
+   template class ccfsm<type>;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
 } // end namespace

@@ -57,28 +57,39 @@ std::ostream& named_lut<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& named_lut<real>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> m;
-   sin >> libbase::eatcomments >> lutname;
-   sin >> libbase::eatcomments >> this->lut;
+   sin >> libbase::eatcomments >> m >> libbase::verify;
+   sin >> libbase::eatcomments >> lutname >> libbase::verify;
+   sin >> libbase::eatcomments >> this->lut >> libbase::verify;
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class named_lut<float> ;
-template <>
-const libbase::serializer named_lut<float>::shelper("interleaver",
-      "named_lut<float>", named_lut<float>::create);
+namespace libcomm {
 
-template class named_lut<double> ;
-template <>
-const libbase::serializer named_lut<double>::shelper("interleaver",
-      "named_lut<double>", named_lut<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class named_lut<libbase::logrealfast> ;
-template <>
-const libbase::serializer named_lut<libbase::logrealfast>::shelper(
-      "interleaver", "named_lut<logrealfast>",
-      named_lut<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: named_lut<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class named_lut<type>; \
+   template <> \
+   const serializer named_lut<type>::shelper( \
+         "interleaver", \
+         "named_lut<" BOOST_PP_STRINGIZE(type) ">", \
+         named_lut<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

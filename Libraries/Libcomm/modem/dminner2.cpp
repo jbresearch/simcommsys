@@ -38,9 +38,9 @@ namespace libcomm {
 
 // Setup procedure
 
-template <class real, bool norm>
-void dminner2<real, norm>::init(const channel<bool>& chan,
-      const array1d_t& sof_pdf, const int offset)
+template <class real>
+void dminner2<real>::init(const channel<bool>& chan, const array1d_t& sof_pdf,
+      const int offset)
    {
    // Inherit block size from last modulation step
    const int q = 1 << Base::k;
@@ -60,13 +60,14 @@ void dminner2<real, norm>::init(const channel<bool>& chan,
    const int dxmax = Base::mychan.compute_xmax(n);
    Base::checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
-   fba.init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer);
+   fba.init(N, n, q, I, xmax, dxmax, Base::th_inner, Base::th_outer,
+         Base::norm, batch, lazy, globalstore);
    // initialize our embedded metric computer with unchanging elements
    fba.get_receiver().init(n, Base::codebook, Base::mychan);
    }
 
-template <class real, bool norm>
-void dminner2<real, norm>::advance() const
+template <class real>
+void dminner2<real>::advance() const
    {
    // advance the base class
    Base::advance();
@@ -76,16 +77,16 @@ void dminner2<real, norm>::advance() const
 
 // encoding and decoding functions
 
-template <class real, bool norm>
-void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
+template <class real>
+void dminner2<real>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, array1vd_t& ptable)
    {
    const array1vd_t app; // empty APP table
    dodemodulate(chan, rx, app, ptable);
    }
 
-template <class real, bool norm>
-void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
+template <class real>
+void dminner2<real>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, const array1vd_t& app, array1vd_t& ptable)
    {
    // Initialize for known-start
@@ -118,8 +119,8 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
          eof_post, libbase::size_type<libbase::vector>(xmax));
    }
 
-template <class real, bool norm>
-void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
+template <class real>
+void dminner2<real>::dodemodulate(const channel<bool>& chan,
       const array1b_t& rx, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
@@ -144,8 +145,8 @@ void dminner2<real, norm>::dodemodulate(const channel<bool>& chan,
  * This method assumes that the init() method has already been called with
  * the appropriate parameters.
  */
-template <class real, bool norm>
-void dminner2<real, norm>::demodulate_wrapper(const channel<bool>& chan,
+template <class real>
+void dminner2<real>::demodulate_wrapper(const channel<bool>& chan,
       const array1b_t& rx, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const int offset)
@@ -180,8 +181,8 @@ void dminner2<real, norm>::demodulate_wrapper(const channel<bool>& chan,
  * The input probability table is normalized such that the largest value is
  * equal to 1; result is converted to double.
  */
-template <class real, bool norm>
-void dminner2<real, norm>::normalize(const array1r_t& in, array1d_t& out)
+template <class real>
+void dminner2<real>::normalize(const array1r_t& in, array1d_t& out)
    {
    const int N = in.size();
    assert(N > 0);
@@ -198,58 +199,125 @@ void dminner2<real, norm>::normalize(const array1r_t& in, array1d_t& out)
 
 // description output
 
-template <class real, bool norm>
-std::string dminner2<real, norm>::description() const
+template <class real>
+std::string dminner2<real>::description() const
    {
    std::ostringstream sout;
    sout << "Symbol-level " << Base::description();
-   sout << ", " << fba.description();
+   sout.seekp(-1, std::ios_base::cur);
+   if (batch)
+      sout << ", batch computation";
+   if (lazy)
+      {
+      sout << ", lazy computation";
+      if (globalstore)
+         sout << ", cached";
+      }
+   sout << "), " << fba.description();
    return sout.str();
    }
 
 // object serialization - saving
 
-template <class real, bool norm>
-std::ostream& dminner2<real, norm>::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& dminner2<real>::serialize(std::ostream& sout) const
    {
-   return Base::serialize(sout);
+   // serialize base object
+   Base::serialize(sout);
+   sout << "# Version" << std::endl;
+   sout << 3 << std::endl;
+   sout << "# Use batch receiver computation?" << std::endl;
+   sout << batch << std::endl;
+   sout << "# Lazy computation of gamma?" << std::endl;
+   sout << lazy << std::endl;
+   sout << "# Global storage / caching of computed gamma values?" << std::endl;
+   sout << globalstore << std::endl;
+   return sout;
    }
 
 // object serialization - loading
 
-template <class real, bool norm>
-std::istream& dminner2<real, norm>::serialize(std::istream& sin)
+/*!
+ * \version 0 Initial version (un-numbered, no extensions)
+ *
+ * \version 1 Added version numbering
+ *
+ * \version 2 Added batch, lazy, caching flags; caching is only
+ *      specified if lazy is true (otherwise it is meaningless)
+ *
+ * \version 3 Changed 'caching' flag to 'global store', now also defined for
+ *      pre-computation cases
+ */
+
+template <class real>
+std::istream& dminner2<real>::serialize(std::istream& sin)
    {
-   return Base::serialize(sin);
+   // serialize base object
+   Base::serialize(sin);
+   // serialize dminner2 extensions
+   std::streampos start = sin.tellg();
+   // get format version
+   int version;
+   sin >> libbase::eatcomments >> version;
+   // handle old-format files (without version number)
+   if (sin.fail() || version < 2)
+      {
+      sin.clear();
+      sin.seekg(start);
+      version = 1;
+      }
+   // read decoder parameters
+   if (version >= 2)
+      {
+      sin >> libbase::eatcomments >> batch >> libbase::verify;
+      sin >> libbase::eatcomments >> lazy >> libbase::verify;
+      if (lazy || version >= 3)
+         sin >> libbase::eatcomments >> globalstore >> libbase::verify;
+      else
+         globalstore = true;
+      }
+   else
+      {
+      batch = true;
+      lazy = true;
+      globalstore = true;
+      }
+   return sin;
    }
 
 } // end namespace
-
-// Explicit Realizations
 
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::logrealfast;
-using libbase::serializer;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-#ifndef USE_CUDA
-template class dminner2<logrealfast, false> ;
-template <>
-const serializer dminner2<logrealfast, false>::shelper = serializer(
-      "blockmodem", "dminner2<logrealfast>",
-      dminner2<logrealfast, false>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#ifdef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
 #endif
 
-template class dminner2<double, true> ;
-template <>
-const serializer dminner2<double, true>::shelper = serializer("blockmodem",
-      "dminner2<double>", dminner2<double, true>::create);
+/* Serialization string: dminner2<real,norm>
+ * where:
+ *      real = float | double | logrealfast (CPU only)
+ */
+#define INSTANTIATE(r, x, type) \
+      template class dminner2<type>; \
+      template <> \
+      const serializer dminner2<type>::shelper( \
+            "blockmodem", \
+            "dminner2<" BOOST_PP_STRINGIZE(type) ">", \
+            dminner2<type>::create);
 
-template class dminner2<float, true> ;
-template <>
-const serializer dminner2<float, true>::shelper = serializer("blockmodem",
-      "dminner2<float>", dminner2<float, true>::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

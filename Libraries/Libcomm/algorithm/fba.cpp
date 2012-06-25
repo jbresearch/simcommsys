@@ -30,8 +30,8 @@ namespace libcomm {
 
 /*! \brief Memory allocator for working matrices
  */
-template <class real, class sig, bool norm>
-void fba<real, sig, norm>::allocate()
+template <class sig, class real>
+void fba<sig, real>::allocate()
    {
    // Allocate required size
    // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
@@ -57,8 +57,8 @@ void fba<real, sig, norm>::allocate()
 
 /*! \brief Release memory for working matrices
  */
-template <class real, class sig, bool norm>
-void fba<real, sig, norm>::free()
+template <class sig, class real>
+void fba<sig, real>::free()
    {
    F.resize(boost::extents[0][0]);
    B.resize(boost::extents[0][0]);
@@ -68,8 +68,8 @@ void fba<real, sig, norm>::free()
 
 // Initialization
 
-template <class real, class sig, bool norm>
-void fba<real, sig, norm>::init(int tau, int I, int xmax, double th_inner)
+template <class sig, class real>
+void fba<sig, real>::init(int tau, int I, int xmax, double th_inner, bool norm)
    {
    // if any parameters that effect memory have changed, release memory
    if (initialised && (tau != This::tau || xmax != This::xmax))
@@ -85,12 +85,14 @@ void fba<real, sig, norm>::init(int tau, int I, int xmax, double th_inner)
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    This::th_inner = real(th_inner);
+   // decoding mode parameters
+   This::norm = norm;
    }
 
 // Internal procedures
 
-template <class real, class sig, bool norm>
-void fba<real, sig, norm>::work_forward(const array1s_t& r)
+template <class sig, class real>
+void fba<sig, real>::work_forward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Forward Pass");
    // local flag for path thresholding
@@ -151,8 +153,8 @@ void fba<real, sig, norm>::work_forward(const array1s_t& r)
    std::cerr << progress.update(tau - 1, tau - 1);
    }
 
-template <class real, class sig, bool norm>
-void fba<real, sig, norm>::work_backward(const array1s_t& r)
+template <class sig, class real>
+void fba<sig, real>::work_backward(const array1s_t& r)
    {
    libbase::pacifier progress("FBA Backward Pass");
    // local flag for path thresholding
@@ -217,8 +219,8 @@ void fba<real, sig, norm>::work_backward(const array1s_t& r)
 
 // User procedures
 
-template <class real, class sig, bool norm>
-void fba<real, sig, norm>::prepare(const array1s_t& r)
+template <class sig, class real>
+void fba<sig, real>::prepare(const array1s_t& r)
    {
    // compute forwards and backwards passes
    work_forward(r);
@@ -227,16 +229,22 @@ void fba<real, sig, norm>::prepare(const array1s_t& r)
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "logrealfast.h"
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+
 using libbase::logrealfast;
 
-template class fba<logrealfast, bool, false> ;
-template class fba<double, bool, true> ;
-template class fba<float, bool, true> ;
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+#define INSTANTIATE(r, x, type) \
+      template class fba<bool, type> ;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

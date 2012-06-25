@@ -200,25 +200,36 @@ void sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m, int n,
    this->marginal_probs(pos_m, n).q_mxn = q_mn;
    }
 
-}
-//Explicit realisations
+} // end namespace
+
+#include "gf.h"
 #include "mpreal.h"
 
 namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+
 using libbase::mpreal;
-using libbase::gf;
 
-template class sum_prod_alg_trad<gf<1, 0x3> > ;
-template class sum_prod_alg_trad<gf<2, 0x7> > ;
-template class sum_prod_alg_trad<gf<3, 0xB> > ;
-template class sum_prod_alg_trad<gf<3, 0xB> , mpreal> ;
-template class sum_prod_alg_trad<gf<4, 0x13> > ;
-template class sum_prod_alg_trad<gf<4, 0x13> , mpreal> ;
-template class sum_prod_alg_trad<gf<5, 0x25> > ;
-template class sum_prod_alg_trad<gf<6, 0x43> > ;
-template class sum_prod_alg_trad<gf<7, 0x89> > ;
-template class sum_prod_alg_trad<gf<8, 0x11D> > ;
-template class sum_prod_alg_trad<gf<9, 0x211> > ;
-template class sum_prod_alg_trad<gf<10, 0x409> > ;
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-}
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define REAL_TYPE_SEQ \
+   (double)(mpreal)
+
+/* Serialization string: ldpc<type,real>
+ * where:
+ *      type = gf2 | gf4 ...
+ *      real = double | mpreal
+ */
+#define INSTANTIATE(r, args) \
+      template class sum_prod_alg_trad<BOOST_PP_SEQ_ENUM(args)>;
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
+
+} // end namespace

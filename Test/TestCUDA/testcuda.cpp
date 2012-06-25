@@ -25,6 +25,8 @@
 #include "testcuda.h"
 #include "event_timer.h"
 
+#include <boost/program_options.hpp>
+
 namespace testcuda {
 
 void time_timer()
@@ -59,13 +61,40 @@ void time_timer()
 
 int main(int argc, char *argv[])
    {
-   time_timer();
+   // Set up user parameters
+   namespace po = boost::program_options;
+   po::options_description desc("Allowed options");
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("test,t", po::value<int>()->default_value(0),
+         "test to run (0=all)");
+   po::variables_map vm;
+   po::store(po::parse_command_line(argc, argv, desc), vm);
+   po::notify(vm);
+
+   // Validate user parameters
+   if (vm.count("help"))
+      {
+      std::cerr << desc << std::endl;
+      return 1;
+      }
+   // Shorthand access for parameters
+   const int t = vm["test"].as<int> ();
+
+   if (t == 0 || t == 1)
+      time_timer();
 #ifdef USE_CUDA
+   if (t == 0 || t == 2)
    cuda::cudaInitialize(std::cout);
+   if (t == 0 || t == 3)
    cuda::cudaQueryDevices(std::cout);
-   time_kernelcalls();
-   test_useofclasses();
-   test_sizes();
+   if (t == 0 || t == 4)
+   cuda::time_kernelcalls();
+   if (t == 0 || t == 5)
+   cuda::test_useofclasses();
+   if (t == 0 || t == 6)
+   cuda::test_streams();
+   if (t == 0 || t == 7)
+   cuda::test_sizes();
 #else
    failwith("CUDA support not enabled on this system");
 #endif

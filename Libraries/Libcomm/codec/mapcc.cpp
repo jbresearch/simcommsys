@@ -251,67 +251,58 @@ template <class real, class dbl>
 std::istream& mapcc<real, dbl>::serialize(std::istream& sin)
    {
    free();
-   sin >> libbase::eatcomments >> encoder;
-   sin >> libbase::eatcomments >> tau;
-   sin >> libbase::eatcomments >> endatzero;
-   sin >> libbase::eatcomments >> circular;
+   sin >> libbase::eatcomments >> encoder >> libbase::verify;
+   sin >> libbase::eatcomments >> tau >> libbase::verify;
+   sin >> libbase::eatcomments >> endatzero >> libbase::verify;
+   sin >> libbase::eatcomments >> circular >> libbase::verify;
    init();
    return sin;
    }
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "mpreal.h"
 #include "mpgnu.h"
 #include "logreal.h"
 #include "logrealfast.h"
-#include "mapper/map_straight.h"
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
 using libbase::mpreal;
 using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
 
-using libbase::serializer;
+#define REAL1_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
+#define REAL2_TYPE_SEQ \
+   (float)(double) \
+   (logrealfast)
 
-template class mapcc<float, float> ;
-template <>
-const serializer mapcc<float, float>::shelper = serializer("codec",
-      "mapcc<float>", mapcc<float, float>::create);
+/* Serialization string: mapcc<real1,real2>
+ * where:
+ *      real1 = float | double | mpreal | mpgnu | logreal | logrealfast
+ *              [real1 is the internal arithmetic type]
+ *      real2 = float | double | logrealfast
+ *              [real2 is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class mapcc<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer mapcc<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "codec", \
+            "mapcc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            mapcc<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class mapcc<double> ;
-template <>
-const serializer mapcc<double>::shelper = serializer("codec", "mapcc<double>",
-      mapcc<double>::create);
-
-template class mapcc<mpreal> ;
-template <>
-const serializer mapcc<mpreal>::shelper = serializer("codec", "mapcc<mpreal>",
-      mapcc<mpreal>::create);
-
-template class mapcc<mpgnu> ;
-template <>
-const serializer mapcc<mpgnu>::shelper = serializer("codec", "mapcc<mpgnu>",
-      mapcc<mpgnu>::create);
-
-template class mapcc<logreal> ;
-template <>
-const serializer mapcc<logreal>::shelper = serializer("codec",
-      "mapcc<logreal>", mapcc<logreal>::create);
-
-template class mapcc<logrealfast> ;
-template <>
-const serializer mapcc<logrealfast>::shelper = serializer("codec",
-      "mapcc<logrealfast>", mapcc<logrealfast>::create);
-
-template class mapcc<logrealfast, logrealfast> ;
-template <>
-const serializer mapcc<logrealfast, logrealfast>::shelper =
-      serializer("codec", "mapcc<logrealfast,logrealfast>", mapcc<logrealfast,
-            logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

@@ -189,81 +189,55 @@ std::ostream& commsys_fulliter<S, C>::serialize(std::ostream& sout) const
 template <class S, template <class > class C>
 std::istream& commsys_fulliter<S, C>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> iter;
+   sin >> libbase::eatcomments >> iter >> libbase::verify;
    Base::serialize(sin);
    return sin;
    }
 
+} // end namespace
+
+#include "gf.h"
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class commsys_fulliter<sigspace> ;
-template <>
-const libbase::serializer commsys_fulliter<sigspace>::shelper("commsys",
-      "commsys_fulliter<sigspace>", commsys_fulliter<sigspace>::create);
+using libbase::serializer;
+using libbase::matrix;
+using libbase::vector;
 
-template class commsys_fulliter<bool> ;
-template <>
-const libbase::serializer commsys_fulliter<bool>::shelper("commsys",
-      "commsys_fulliter<bool>", commsys_fulliter<bool>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class commsys_fulliter<libbase::gf<1, 0x3> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<1, 0x3> >::shelper(
-      "commsys", "commsys_fulliter<gf<1,0x3>>", commsys_fulliter<libbase::gf<1,
-            0x3> >::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class commsys_fulliter<libbase::gf<2, 0x7> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<2, 0x7> >::shelper(
-      "commsys", "commsys_fulliter<gf<2,0x7>>", commsys_fulliter<libbase::gf<2,
-            0x7> >::create);
+// *** General Communication System ***
 
-template class commsys_fulliter<libbase::gf<3, 0xB> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<3, 0xB> >::shelper(
-      "commsys", "commsys_fulliter<gf<3,0xB>>", commsys_fulliter<libbase::gf<3,
-            0xB> >::create);
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
+#define CONTAINER_TYPE_SEQ \
+   (vector)
+   //(vector)(matrix)
 
-template class commsys_fulliter<libbase::gf<4, 0x13> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<4, 0x13> >::shelper(
-      "commsys", "commsys_fulliter<gf<4,0x13>>", commsys_fulliter<libbase::gf<
-            4, 0x13> >::create);
+/* Serialization string: commsys_fulliter<type,container>
+ * where:
+ *      type = sigspace | bool | gf2 | gf4 ...
+ *      container = vector | matrix
+ */
+#define INSTANTIATE(r, args) \
+      template class commsys_fulliter<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer commsys_fulliter<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "commsys", \
+            "commsys_fulliter<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            commsys_fulliter<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class commsys_fulliter<libbase::gf<5, 0x25> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<5, 0x25> >::shelper(
-      "commsys", "commsys_fulliter<gf<5,0x25>>", commsys_fulliter<libbase::gf<
-            5, 0x25> >::create);
-
-template class commsys_fulliter<libbase::gf<6, 0x43> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<6, 0x43> >::shelper(
-      "commsys", "commsys_fulliter<gf<6,0x43>>", commsys_fulliter<libbase::gf<
-            6, 0x43> >::create);
-
-template class commsys_fulliter<libbase::gf<7, 0x89> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<7, 0x89> >::shelper(
-      "commsys", "commsys_fulliter<gf<7,0x89>>", commsys_fulliter<libbase::gf<
-            7, 0x89> >::create);
-
-template class commsys_fulliter<libbase::gf<8, 0x11D> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<8, 0x11D> >::shelper(
-      "commsys", "commsys_fulliter<gf<8,0x11D>>", commsys_fulliter<libbase::gf<
-            8, 0x11D> >::create);
-
-template class commsys_fulliter<libbase::gf<9, 0x211> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<9, 0x211> >::shelper(
-      "commsys", "commsys_fulliter<gf<9,0x211>>", commsys_fulliter<libbase::gf<
-            9, 0x211> >::create);
-
-template class commsys_fulliter<libbase::gf<10, 0x409> > ;
-template <>
-const libbase::serializer commsys_fulliter<libbase::gf<10, 0x409> >::shelper(
-      "commsys", "commsys_fulliter<gf<10,0x409>>", commsys_fulliter<
-            libbase::gf<10, 0x409> >::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
 } // end namespace

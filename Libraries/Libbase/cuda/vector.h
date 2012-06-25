@@ -267,10 +267,9 @@ public:
 #endif
    const vector_reference<T> extract(const int start, const int n) const
       {
-#ifndef __CUDA_ARCH__ // Host code path
-      assert(start >= 0 && start < length);
-      assert(n >= 0 && start + n < length);
-#endif
+      cuda_assert(start >= 0);
+      cuda_assert(n >= 0);
+      cuda_assert(start + n <= length);
       return vector_reference<T> (const_cast<T*> (data + start), n);
       }
    /*! \brief Access part of this vector as a sub-vector
@@ -282,10 +281,9 @@ public:
 #endif
    vector_reference<T> segment(const int start, const int n)
       {
-#ifndef __CUDA_ARCH__ // Host code path
-      assert(start >= 0 && start < length);
-      assert(n >= 0 && start + n < length);
-#endif
+      cuda_assert(start >= 0);
+      cuda_assert(n >= 0);
+      cuda_assert(start + n <= length);
       return vector_reference<T> (data + start, n);
       }
    // @}

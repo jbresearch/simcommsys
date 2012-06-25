@@ -139,6 +139,8 @@ public:
          do_stop();
       return get_elapsed();
       }
+   //! Return the timer resolution in seconds
+   virtual double resolution() const = 0;
    //! Return true if timer is currently running
    bool isrunning() const
       {

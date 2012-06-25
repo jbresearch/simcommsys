@@ -206,45 +206,62 @@ template <class dbl>
 std::istream& uncoded<dbl>::serialize(std::istream& sin)
    {
    free();
+   // load the encoder into a temporary space
    fsm *encoder_original;
-   sin >> libbase::eatcomments >> encoder_original;
+   sin >> libbase::eatcomments >> encoder_original >> libbase::verify;
+   // see if this is already a cached fsm;
    cached_fsm *encoder_cached = dynamic_cast<cached_fsm*> (encoder_original);
    if (encoder_cached)
+      // if it is, just make a copy
       uncoded<dbl>::encoder = dynamic_cast<fsm*> (encoder_original->clone());
    else
+      // otherwise, create a cached fsm copy on the fly
       uncoded<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(
             *encoder_original));
+   // clean up
    delete encoder_original;
-   sin >> libbase::eatcomments >> tau;
+   // read the block length
+   sin >> libbase::eatcomments >> tau >> libbase::verify;
    init();
    return sin;
    }
 
 } // end namespace
 
-// Explicit Realizations
-
+#include "mpreal.h"
+#include "mpgnu.h"
+#include "logreal.h"
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::logrealfast;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::mpreal;
+using libbase::mpgnu;
+using libbase::logreal;
+using libbase::logrealfast;
 
-template class uncoded<float> ;
-template <>
-const serializer uncoded<float>::shelper = serializer("codec",
-      "uncoded<float>", uncoded<float>::create);
+#define REAL_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
 
-template class uncoded<double> ;
-template <>
-const serializer uncoded<double>::shelper = serializer("codec",
-      "uncoded<double>", uncoded<double>::create);
+/* Serialization string: uncoded<real>
+ * where:
+ *      real = float | double | mpreal | mpgnu | logreal | logrealfast
+ */
+#define INSTANTIATE(r, x, type) \
+      template class uncoded<type>; \
+      template <> \
+      const serializer uncoded<type>::shelper( \
+            "codec", \
+            "uncoded<" BOOST_PP_STRINGIZE(type) ">", \
+            uncoded<type>::create); \
 
-template class uncoded<logrealfast> ;
-template <>
-const serializer uncoded<logrealfast>::shelper = serializer("codec",
-      "uncoded<logrealfast>", uncoded<logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

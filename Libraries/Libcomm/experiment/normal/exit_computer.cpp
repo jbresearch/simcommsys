@@ -26,7 +26,6 @@
 
 #include "mapper/map_straight.h"
 #include "fsm.h"
-#include "gf.h"
 #include "itfunc.h"
 #include "secant.h"
 #include "timer.h"
@@ -213,80 +212,46 @@ std::istream& exit_computer<S>::serialize(std::istream& sin)
    {
    free();
    src = new libbase::randgen;
-   sin >> libbase::eatcomments >> sys;
+   sin >> libbase::eatcomments >> sys >> libbase::verify;
    internallyallocated = true;
    return sin;
    }
 
+} // end namespace
+
+#include "gf.h"
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
-using libbase::gf;
 
-template class exit_computer<sigspace> ;
-template <>
-const serializer exit_computer<sigspace>::shelper("experiment",
-      "exit_computer<sigspace>", exit_computer<sigspace>::create);
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class exit_computer<bool> ;
-template <>
-const serializer exit_computer<bool>::shelper("experiment",
-      "exit_computer<bool>", exit_computer<bool>::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class exit_computer<gf<1, 0x3> > ;
-template <>
-const serializer exit_computer<gf<1, 0x3> >::shelper("experiment",
-      "exit_computer<gf<1,0x3>>", exit_computer<gf<1, 0x3> >::create);
+// *** General Communication System ***
 
-template class exit_computer<gf<2, 0x7> > ;
-template <>
-const serializer exit_computer<gf<2, 0x7> >::shelper("experiment",
-      "exit_computer<gf<2,0x7>>", exit_computer<gf<2, 0x7> >::create);
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
 
-template class exit_computer<gf<3, 0xB> > ;
-template <>
-const serializer exit_computer<gf<3, 0xB> >::shelper("experiment",
-      "exit_computer<gf<3,0xB>>", exit_computer<gf<3, 0xB> >::create);
+/* Serialization string: exit_computer<type>
+ * where:
+ *      type = sigspace | bool | gf2 | gf4 ...
+ */
+#define INSTANTIATE(r, x, type) \
+      template class exit_computer<type>; \
+      template <> \
+      const serializer exit_computer<type>::shelper( \
+            "experiment", \
+            "exit_computer<" BOOST_PP_STRINGIZE(type) ">", \
+            exit_computer<type>::create);
 
-template class exit_computer<gf<4, 0x13> > ;
-template <>
-const serializer exit_computer<gf<4, 0x13> >::shelper("experiment",
-      "exit_computer<gf<4,0x13>>", exit_computer<gf<4, 0x13> >::create);
-
-template class exit_computer<gf<5, 0x25> > ;
-template <>
-const serializer exit_computer<gf<5, 0x25> >::shelper("experiment",
-      "exit_computer<gf<5,0x25>>", exit_computer<gf<5, 0x25> >::create);
-
-template class exit_computer<gf<6, 0x43> > ;
-template <>
-const serializer exit_computer<gf<6, 0x43> >::shelper("experiment",
-      "exit_computer<gf<6,0x43>>", exit_computer<gf<6, 0x43> >::create);
-
-template class exit_computer<gf<7, 0x89> > ;
-template <>
-const serializer exit_computer<gf<7, 0x89> >::shelper("experiment",
-      "exit_computer<gf<7,0x89>>", exit_computer<gf<7, 0x89> >::create);
-
-template class exit_computer<gf<8, 0x11D> > ;
-template <>
-const serializer exit_computer<gf<8, 0x11D> >::shelper("experiment",
-      "exit_computer<gf<8,0x11D>>", exit_computer<gf<8, 0x11D> >::create);
-
-template class exit_computer<gf<9, 0x211> > ;
-template <>
-const serializer exit_computer<gf<9, 0x211> >::shelper("experiment",
-      "exit_computer<gf<9,0x211>>", exit_computer<gf<9, 0x211> >::create);
-
-template class exit_computer<gf<10, 0x409> > ;
-template <>
-const serializer exit_computer<gf<10, 0x409> >::shelper("experiment",
-      "exit_computer<gf<10,0x409>>", exit_computer<gf<10, 0x409> >::create);
-
-// realizations for non-default containers
-
-// template class exit_computer<bool,matrix>;
-// template <>
-// const serializer exit_computer<bool,matrix>::shelper("experiment", "exit_computer<bool,matrix>", exit_computer<bool,matrix>::create);
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // end namespace

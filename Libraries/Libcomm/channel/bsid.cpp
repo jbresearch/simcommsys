@@ -890,7 +890,7 @@ std::istream& bsid::serialize(std::istream& sin)
    std::streampos start = sin.tellg();
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    // handle old-format files (without version number)
    if (version < 2)
       {
@@ -902,15 +902,15 @@ std::istream& bsid::serialize(std::istream& sin)
    if (version < 2)
       biased = false;
    else
-      sin >> libbase::eatcomments >> biased;
-   sin >> libbase::eatcomments >> varyPs;
-   sin >> libbase::eatcomments >> varyPd;
-   sin >> libbase::eatcomments >> varyPi;
+      sin >> libbase::eatcomments >> biased >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPs >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPd >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPi >> libbase::verify;
    // read cap on insertions, if present
    if (version < 3)
       Icap = 2;
    else
-      sin >> libbase::eatcomments >> Icap;
+      sin >> libbase::eatcomments >> Icap >> libbase::verify;
    // read fixed Ps,Pd,Pi values if present
    if (version < 4)
       {
@@ -920,9 +920,9 @@ std::istream& bsid::serialize(std::istream& sin)
       }
    else
       {
-      sin >> libbase::eatcomments >> fixedPs;
-      sin >> libbase::eatcomments >> fixedPd;
-      sin >> libbase::eatcomments >> fixedPi;
+      sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
+      sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
+      sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
       }
    // initialise the object and return
    init();

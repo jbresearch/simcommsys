@@ -22,7 +22,7 @@
  * - $Id$
  */
 
-#include "commsys_prof_sym.h"
+#include "prof_sym.h"
 #include "fsm.h"
 #include <sstream>
 
@@ -30,7 +30,7 @@ namespace libcomm {
 
 // commsys functions
 
-void commsys_prof_sym::updateresults(libbase::vector<double>& result,
+void prof_sym::updateresults(libbase::vector<double>& result,
       const int i, const libbase::vector<int>& source, const libbase::vector<
             int>& decoded) const
    {
@@ -53,7 +53,7 @@ void commsys_prof_sym::updateresults(libbase::vector<double>& result,
  * The description is a string SER_X_Y, where 'X' is the symbol value
  * (starting at zero), and 'Y' is the iteration, starting at 1.
  */
-std::string commsys_prof_sym::result_description(int i) const
+std::string prof_sym::result_description(int i) const
    {
    assert(i >= 0 && i < count());
    std::ostringstream sout;

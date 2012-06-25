@@ -59,116 +59,32 @@ void basic_blockmodem<S, C, dbl>::demodulate(const channel<S, C>& chan,
    }
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::vector;
 using libbase::matrix;
-using libbase::gf;
 using libbase::logrealfast;
 
-template class basic_blockmodem<gf<1, 0x3> , vector, double> ;
-template class basic_blockmodem<gf<2, 0x7> , vector, double> ;
-template class basic_blockmodem<gf<3, 0xB> , vector, double> ;
-template class basic_blockmodem<gf<4, 0x13> , vector, double> ;
-template class basic_blockmodem<gf<5, 0x25> , vector, double> ;
-template class basic_blockmodem<gf<6, 0x43> , vector, double> ;
-template class basic_blockmodem<gf<7, 0x89> , vector, double> ;
-template class basic_blockmodem<gf<8, 0x11D> , vector, double> ;
-template class basic_blockmodem<gf<9, 0x211> , vector, double> ;
-template class basic_blockmodem<gf<10, 0x409> , vector, double> ;
-template class basic_blockmodem<bool, vector, double> ;
-template class basic_blockmodem<sigspace, vector, double> ;
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class basic_blockmodem<gf<1, 0x3> , matrix, double> ;
-template class basic_blockmodem<gf<2, 0x7> , matrix, double> ;
-template class basic_blockmodem<gf<3, 0xB> , matrix, double> ;
-template class basic_blockmodem<gf<4, 0x13> , matrix, double> ;
-template class basic_blockmodem<gf<5, 0x25> , matrix, double> ;
-template class basic_blockmodem<gf<6, 0x43> , matrix, double> ;
-template class basic_blockmodem<gf<7, 0x89> , matrix, double> ;
-template class basic_blockmodem<gf<8, 0x11D> , matrix, double> ;
-template class basic_blockmodem<gf<9, 0x211> , matrix, double> ;
-template class basic_blockmodem<gf<10, 0x409> , matrix, double> ;
-template class basic_blockmodem<bool, matrix, double> ;
-template class basic_blockmodem<sigspace, matrix, double> ;
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class basic_blockmodem<gf<1, 0x3> , vector, logrealfast> ;
-template class basic_blockmodem<gf<2, 0x7> , vector, logrealfast> ;
-template class basic_blockmodem<gf<3, 0xB> , vector, logrealfast> ;
-template class basic_blockmodem<gf<4, 0x13> , vector, logrealfast> ;
-template class basic_blockmodem<gf<5, 0x25> , vector, logrealfast> ;
-template class basic_blockmodem<gf<6, 0x43> , vector, logrealfast> ;
-template class basic_blockmodem<gf<7, 0x89> , vector, logrealfast> ;
-template class basic_blockmodem<gf<8, 0x11D> , vector, logrealfast> ;
-template class basic_blockmodem<gf<9, 0x211> , vector, logrealfast> ;
-template class basic_blockmodem<gf<10, 0x409> , vector, logrealfast> ;
-template class basic_blockmodem<bool, vector, logrealfast> ;
-template class basic_blockmodem<sigspace, vector, logrealfast> ;
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
+#define CONTAINER_TYPE_SEQ \
+   (vector)(matrix)
+#define REAL_TYPE_SEQ \
+   (double)(logrealfast)
 
-template class basic_blockmodem<gf<1, 0x3> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<2, 0x7> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<3, 0xB> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<4, 0x13> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<5, 0x25> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<6, 0x43> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<7, 0x89> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<8, 0x11D> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<9, 0x211> , matrix, logrealfast> ;
-template class basic_blockmodem<gf<10, 0x409> , matrix, logrealfast> ;
-template class basic_blockmodem<bool, matrix, logrealfast> ;
-template class basic_blockmodem<sigspace, matrix, logrealfast> ;
+#define INSTANTIATE(r, args) \
+      template class basic_blockmodem<BOOST_PP_SEQ_ENUM(args)>; \
+      template class blockmodem<BOOST_PP_SEQ_ENUM(args)>;
 
-// *** Blockwise Modulator Common Interface ***
-
-template class blockmodem<gf<1, 0x3> , vector, double> ;
-template class blockmodem<gf<2, 0x7> , vector, double> ;
-template class blockmodem<gf<3, 0xB> , vector, double> ;
-template class blockmodem<gf<4, 0x13> , vector, double> ;
-template class blockmodem<gf<5, 0x25> , vector, double> ;
-template class blockmodem<gf<6, 0x43> , vector, double> ;
-template class blockmodem<gf<7, 0x89> , vector, double> ;
-template class blockmodem<gf<8, 0x11D> , vector, double> ;
-template class blockmodem<gf<9, 0x211> , vector, double> ;
-template class blockmodem<gf<10, 0x409> , vector, double> ;
-template class blockmodem<bool, vector, double> ;
-template class blockmodem<sigspace, vector, double> ;
-
-template class blockmodem<gf<1, 0x3> , matrix, double> ;
-template class blockmodem<gf<2, 0x7> , matrix, double> ;
-template class blockmodem<gf<3, 0xB> , matrix, double> ;
-template class blockmodem<gf<4, 0x13> , matrix, double> ;
-template class blockmodem<gf<5, 0x25> , matrix, double> ;
-template class blockmodem<gf<6, 0x43> , matrix, double> ;
-template class blockmodem<gf<7, 0x89> , matrix, double> ;
-template class blockmodem<gf<8, 0x11D> , matrix, double> ;
-template class blockmodem<gf<9, 0x211> , matrix, double> ;
-template class blockmodem<gf<10, 0x409> , matrix, double> ;
-template class blockmodem<bool, matrix, double> ;
-template class blockmodem<sigspace, matrix, double> ;
-
-template class blockmodem<gf<1, 0x3> , vector, logrealfast> ;
-template class blockmodem<gf<2, 0x7> , vector, logrealfast> ;
-template class blockmodem<gf<3, 0xB> , vector, logrealfast> ;
-template class blockmodem<gf<4, 0x13> , vector, logrealfast> ;
-template class blockmodem<gf<5, 0x25> , vector, logrealfast> ;
-template class blockmodem<gf<6, 0x43> , vector, logrealfast> ;
-template class blockmodem<gf<7, 0x89> , vector, logrealfast> ;
-template class blockmodem<gf<8, 0x11D> , vector, logrealfast> ;
-template class blockmodem<gf<9, 0x211> , vector, logrealfast> ;
-template class blockmodem<gf<10, 0x409> , vector, logrealfast> ;
-template class blockmodem<bool, vector, logrealfast> ;
-template class blockmodem<sigspace, vector, logrealfast> ;
-
-template class blockmodem<gf<1, 0x3> , matrix, logrealfast> ;
-template class blockmodem<gf<2, 0x7> , matrix, logrealfast> ;
-template class blockmodem<gf<3, 0xB> , matrix, logrealfast> ;
-template class blockmodem<gf<4, 0x13> , matrix, logrealfast> ;
-template class blockmodem<gf<5, 0x25> , matrix, logrealfast> ;
-template class blockmodem<gf<6, 0x43> , matrix, logrealfast> ;
-template class blockmodem<gf<7, 0x89> , matrix, logrealfast> ;
-template class blockmodem<gf<8, 0x11D> , matrix, logrealfast> ;
-template class blockmodem<gf<9, 0x211> , matrix, logrealfast> ;
-template class blockmodem<gf<10, 0x409> , matrix, logrealfast> ;
-template class blockmodem<bool, matrix, logrealfast> ;
-template class blockmodem<sigspace, matrix, logrealfast> ;
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

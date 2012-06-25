@@ -44,28 +44,94 @@ std::istream& codec_reshaped<base_codec>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
 #include "turbo.h"
 #include "uncoded.h"
+#include "ldpc.h"
+
+#include "gf.h"
+#include "mpreal.h"
+#include "mpgnu.h"
+#include "logreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
+using libbase::mpreal;
+using libbase::mpgnu;
+using libbase::logreal;
+using libbase::logrealfast;
+
+#define USING_GF(r, x, type) \
+      using libbase::type;
+
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define REAL_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
 
 /*** Turbo codes ***/
 
-template class codec_reshaped<turbo<double> > ;
-template <>
-const serializer codec_reshaped<turbo<double> >::shelper = serializer("codec",
-      "codec_reshaped<turbo<double>>", codec_reshaped<turbo<double> >::create);
+/* Serialization string: codec_reshaped<turbo<real1,real2>>
+ * where:
+ *      real1 = float | double | mpreal | mpgnu | logreal | logrealfast
+ *      real1 is the internal arithmetic type
+ *      real2 is the inter-iteration statistics type (must be double)
+ */
+#define INSTANTIATE_TURBO(r, x, type) \
+      template class codec_reshaped<turbo<type, double> >; \
+      template <> \
+      const serializer codec_reshaped<turbo<type, double> >::shelper( \
+            "codec", \
+            "codec_reshaped<turbo<" BOOST_PP_STRINGIZE(type) ",double>>", \
+            codec_reshaped<turbo<type, double> >::create); \
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_TURBO, x, REAL_TYPE_SEQ)
 
 /*** Uncoded/repetition codes ***/
 
-template class codec_reshaped<uncoded<double> > ;
-template <>
-const serializer codec_reshaped<uncoded<double> >::shelper = serializer(
-      "codec", "codec_reshaped<uncoded<double>>", codec_reshaped<
-            uncoded<double> >::create);
+/* Serialization string: codec_reshaped<uncoded<real>>
+ * where:
+ *      real = float | double | mpreal | mpgnu | logreal | logrealfast
+ */
+#define INSTANTIATE_UNCODED(r, x, type) \
+      template class codec_reshaped<uncoded<type> >; \
+      template <> \
+      const serializer codec_reshaped<uncoded<type> >::shelper( \
+            "codec", \
+            "codec_reshaped<uncoded<" BOOST_PP_STRINGIZE(type) ">>", \
+            codec_reshaped<uncoded<type> >::create); \
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_UNCODED, x, (double))
+
+/*** LDPC codes ***/
+
+#undef  REAL_TYPE_SEQ
+#define REAL_TYPE_SEQ \
+   (double)(mpreal)
+
+/* Serialization string: ldpc<type,real>
+ * where:
+ *      type = gf2 | gf4 ...
+ *      real = double | mpreal
+ */
+#define INSTANTIATE_LDPC(r, args) \
+      template class codec_reshaped<ldpc<BOOST_PP_SEQ_ENUM(args)> >; \
+      template <> \
+      const serializer codec_reshaped<ldpc<BOOST_PP_SEQ_ENUM(args)> >::shelper( \
+            "codec", \
+            "codec_reshaped<ldpc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">>", \
+            codec_reshaped<ldpc<BOOST_PP_SEQ_ENUM(args)> >::create);
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE_LDPC, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

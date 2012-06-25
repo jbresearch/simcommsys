@@ -96,27 +96,39 @@ template <class real>
 std::istream& uniform_lut<real>::serialize(std::istream& sin)
    {
    int tau, m;
-   sin >> libbase::eatcomments >> tau >> m;
+   sin >> libbase::eatcomments >> tau >> libbase::verify;
+   sin >> libbase::eatcomments >> m >> libbase::verify;
    init(tau, m);
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class uniform_lut<float> ;
-template <>
-const libbase::serializer uniform_lut<float>::shelper("interleaver",
-      "uniform_lut<float>", uniform_lut<float>::create);
+namespace libcomm {
 
-template class uniform_lut<double> ;
-template <>
-const libbase::serializer uniform_lut<double>::shelper("interleaver",
-      "uniform_lut<double>", uniform_lut<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class uniform_lut<libbase::logrealfast> ;
-template <>
-const libbase::serializer uniform_lut<libbase::logrealfast>::shelper(
-      "interleaver", "uniform_lut<logrealfast>", uniform_lut<
-            libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: uniform_lut<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class uniform_lut<type>; \
+   template <> \
+   const serializer uniform_lut<type>::shelper( \
+         "interleaver", \
+         "uniform_lut<" BOOST_PP_STRINGIZE(type) ">", \
+         uniform_lut<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

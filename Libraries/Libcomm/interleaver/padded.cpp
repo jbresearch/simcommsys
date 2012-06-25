@@ -130,26 +130,38 @@ std::ostream& padded<real>::serialize(std::ostream& sout) const
 template <class real>
 std::istream& padded<real>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> otp;
-   sin >> libbase::eatcomments >> inter;
+   sin >> libbase::eatcomments >> otp >> libbase::verify;
+   sin >> libbase::eatcomments >> inter >> libbase::verify;
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class padded<float> ;
-template <>
-const libbase::serializer padded<float>::shelper("interleaver",
-      "padded<float>", padded<float>::create);
+namespace libcomm {
 
-template class padded<double> ;
-template <>
-const libbase::serializer padded<double>::shelper("interleaver",
-      "padded<double>", padded<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class padded<libbase::logrealfast> ;
-template <>
-const libbase::serializer padded<libbase::logrealfast>::shelper("interleaver",
-      "padded<logrealfast>", padded<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: padded<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class padded<type>; \
+   template <> \
+   const serializer padded<type>::shelper( \
+         "interleaver", \
+         "padded<" BOOST_PP_STRINGIZE(type) ">", \
+         padded<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

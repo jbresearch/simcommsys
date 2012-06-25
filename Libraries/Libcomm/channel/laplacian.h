@@ -122,14 +122,30 @@ DECLARE_SERIALIZER(laplacian)
  * - $Author$
  */
 
-template <>
-class laplacian<sigspace, libbase::vector> : public basic_laplacian<sigspace> {
+template <template <class > class C>
+class laplacian<sigspace, C> : public basic_laplacian<sigspace, C> {
+private:
+   // Shorthand for class hierarchy
+   typedef basic_laplacian<sigspace, C> Base;
 protected:
    // handle functions
-   void compute_parameters(const double Eb, const double No);
+   void compute_parameters(const double Eb, const double No)
+      {
+      const double sigma = sqrt(Eb * No);
+      Base::lambda = sigma / sqrt(double(2));
+      }
    // channel handle functions
-   sigspace corrupt(const sigspace& s);
-   double pdf(const sigspace& tx, const sigspace& rx) const;
+   sigspace corrupt(const sigspace& s)
+      {
+      const double x = Base::Finv(Base::r.fval_closed());
+      const double y = Base::Finv(Base::r.fval_closed());
+      return s + sigspace(x, y);
+      }
+   double pdf(const sigspace& tx, const sigspace& rx) const
+      {
+      sigspace n = rx - tx;
+      return Base::f(n.i()) * Base::f(n.q());
+      }
 public:
    // Serialization Support
 DECLARE_SERIALIZER(laplacian)

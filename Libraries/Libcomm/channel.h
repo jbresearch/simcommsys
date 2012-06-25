@@ -450,8 +450,8 @@ DECLARE_BASE_SERIALIZER(channel)
  * channel model.
  */
 
-template <>
-class channel<sigspace> : public basic_channel<sigspace, libbase::vector> ,
+template <template <class > class C>
+class channel<sigspace, C> : public basic_channel<sigspace, C> ,
       public libbase::serializable {
 private:
    /*! \name User-defined parameters */
@@ -463,7 +463,12 @@ private:
    // @}
 private:
    /*! \name Internal functions */
-   void compute_noise();
+   void compute_noise()
+      {
+      No = 0.5 * pow(10.0, -snr_db / 10.0);
+      // call derived class handle
+      compute_parameters(Eb, No);
+      }
    // @}
 protected:
    /*! \name Channel function overrides */
@@ -481,14 +486,26 @@ protected:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   channel();
+   channel()
+      {
+      Eb = 1;
+      set_parameter(0);
+      }
    // @}
 
    /*! \name Channel parameter handling */
    //! Set the bit-equivalent signal energy
-   void set_eb(const double Eb);
+   void set_eb(const double Eb)
+      {
+      channel::Eb = Eb;
+      compute_noise();
+      }
    //! Set the normalized noise energy
-   void set_no(const double No);
+   void set_no(const double No)
+      {
+      snr_db = -10.0 * log10(2 * No);
+      compute_noise();
+      }
    //! Get the bit-equivalent signal energy
    double get_eb() const
       {
@@ -500,7 +517,11 @@ public:
       return No;
       }
    //! Set the signal-to-noise ratio
-   void set_parameter(const double snr_db);
+   void set_parameter(const double snr_db)
+      {
+      channel::snr_db = snr_db;
+      compute_noise();
+      }
    //! Get the signal-to-noise ratio
    double get_parameter() const
       {

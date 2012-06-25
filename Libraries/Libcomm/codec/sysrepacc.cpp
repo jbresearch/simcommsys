@@ -137,34 +137,48 @@ std::istream& sysrepacc<real, dbl>::serialize(std::istream& sin)
 
 } // end namespace
 
-// Explicit Realizations
-
+#include "mpreal.h"
+#include "mpgnu.h"
+#include "logreal.h"
 #include "logrealfast.h"
 
 namespace libcomm {
 
-using libbase::logrealfast;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 using libbase::serializer;
+using libbase::mpreal;
+using libbase::mpgnu;
+using libbase::logreal;
+using libbase::logrealfast;
 
-template class sysrepacc<float, float> ;
-template <>
-const serializer sysrepacc<float, float>::shelper = serializer("codec",
-      "sysrepacc<float>", sysrepacc<float, float>::create);
+#define REAL1_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
+#define REAL2_TYPE_SEQ \
+   (float)(double) \
+   (logrealfast)
 
-template class sysrepacc<double> ;
-template <>
-const serializer sysrepacc<double>::shelper = serializer("codec",
-      "sysrepacc<double>", sysrepacc<double>::create);
+/* Serialization string: sysrepacc<real1,real2>
+ * where:
+ *      real1 = float | double | mpreal | mpgnu | logreal | logrealfast
+ *              [real1 is the internal arithmetic type]
+ *      real2 = float | double | logrealfast
+ *              [real2 is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class sysrepacc<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer sysrepacc<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "codec", \
+            "sysrepacc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            sysrepacc<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class sysrepacc<logrealfast> ;
-template <>
-const serializer sysrepacc<logrealfast>::shelper = serializer("codec",
-      "sysrepacc<logrealfast>", sysrepacc<logrealfast>::create);
-
-template class sysrepacc<logrealfast, logrealfast> ;
-template <>
-const serializer sysrepacc<logrealfast, logrealfast>::shelper = serializer(
-      "codec", "sysrepacc<logrealfast,logrealfast>", sysrepacc<logrealfast,
-            logrealfast>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

@@ -459,24 +459,23 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_kr
       }
    }
 
-}
-//Explicit realisations
+} // end namespace
+
+#include "gf.h"
 #include "mpreal.h"
 
 namespace libbase {
-using libbase::mpreal;
 
-template class linear_code_utils<gf<1, 0x3> > ;
-template class linear_code_utils<gf<2, 0x7> > ;
-template class linear_code_utils<gf<3, 0xB> > ;
-template class linear_code_utils<gf<3, 0xB> , mpreal> ;
-template class linear_code_utils<gf<4, 0x13> > ;
-template class linear_code_utils<gf<4, 0x13> , mpreal> ;
-template class linear_code_utils<gf<5, 0x25> > ;
-template class linear_code_utils<gf<6, 0x43> > ;
-template class linear_code_utils<gf<7, 0x89> > ;
-template class linear_code_utils<gf<8, 0x11D> > ;
-template class linear_code_utils<gf<9, 0x211> > ;
-template class linear_code_utils<gf<10, 0x409> > ;
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
 
-}
+#define REAL_TYPE_SEQ \
+   (double)(mpreal)
+
+#define INSTANTIATE(r, args) \
+      template class linear_code_utils<BOOST_PP_SEQ_ENUM(args)>;
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
+
+} // end namespace

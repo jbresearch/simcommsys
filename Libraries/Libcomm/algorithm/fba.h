@@ -65,11 +65,11 @@ namespace libcomm {
  * bit j instead of j+1.
  */
 
-template <class real, class sig, bool norm>
+template <class sig, class real>
 class fba {
 private:
    // Shorthand for class hierarchy
-   typedef fba<real, sig, norm> This;
+   typedef fba<sig, real> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
@@ -81,6 +81,7 @@ private:
    int I; //!< The maximum number of insertions per time-step
    int xmax; //!< The maximum allowed drift overall
    real th_inner; //!< Threshold factor for inner cycle
+   bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    // @}
    /*! \name Internally-used objects */
    bool initialised; //!< Flag to indicate when memory is allocated
@@ -110,7 +111,7 @@ public:
    // @}
 
    // main initialization routine
-   void init(int tau, int I, int xmax, double th_inner);
+   void init(int tau, int I, int xmax, double th_inner, bool norm);
    // getters for forward and backward metrics
    real getF(const int j, const int y) const
       {

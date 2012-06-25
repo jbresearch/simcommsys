@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
    using std::cerr;
 
    // create a watermark code to start with
-   libcomm::dminner<libbase::logrealfast, false> mdm;
+   libcomm::dminner<libbase::logrealfast> mdm;
    // get a new watermark from stdin
    cerr << "Enter watermark code details:" << std::endl;
    mdm.serialize(cin);

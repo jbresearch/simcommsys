@@ -23,7 +23,6 @@
  */
 
 #include "commsys_stream_simulator.h"
-#include "result_collector/commsys_errors_levenshtein.h"
 
 #include "commsys_stream.h"
 #include "vectorutils.h"
@@ -280,218 +279,55 @@ std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
 } // end namespace
 
 #include "gf.h"
-#include "result_collector/commsys_errors_levenshtein.h"
-#include "result_collector/commsys_prof_burst.h"
-#include "result_collector/commsys_prof_pos.h"
-#include "result_collector/commsys_prof_sym.h"
-#include "result_collector/commsys_hist_symerr.h"
+#include "result_collector/commsys/errors_hamming.h"
+#include "result_collector/commsys/errors_levenshtein.h"
+#include "result_collector/commsys/prof_burst.h"
+#include "result_collector/commsys/prof_pos.h"
+#include "result_collector/commsys/prof_sym.h"
+#include "result_collector/commsys/hist_symerr.h"
 
 namespace libcomm {
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
-using libbase::gf;
 
-// realizations for default results collector
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-template class commsys_stream_simulator<sigspace> ;
-template <>
-const serializer commsys_stream_simulator<sigspace>::shelper("experiment",
-      "commsys_stream_simulator<sigspace>",
-      commsys_stream_simulator<sigspace>::create);
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-template class commsys_stream_simulator<bool> ;
-template <>
-const serializer commsys_stream_simulator<bool>::shelper("experiment",
-      "commsys_stream_simulator<bool>", commsys_stream_simulator<bool>::create);
+// *** General Communication System ***
 
-template class commsys_stream_simulator<gf<1, 0x3> > ;
-template <>
-const serializer commsys_stream_simulator<gf<1, 0x3> >::shelper("experiment",
-      "commsys_stream_simulator<gf<1,0x3>>", commsys_stream_simulator<
-            gf<1, 0x3> >::create);
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
+#define COLLECTOR_TYPE_SEQ \
+   (errors_hamming) \
+   (errors_levenshtein) \
+   (prof_burst) \
+   (prof_pos) \
+   (prof_sym) \
+   (hist_symerr)
 
-template class commsys_stream_simulator<gf<2, 0x7> > ;
-template <>
-const serializer commsys_stream_simulator<gf<2, 0x7> >::shelper("experiment",
-      "commsys_stream_simulator<gf<2,0x7>>", commsys_stream_simulator<
-            gf<2, 0x7> >::create);
+/* Serialization string: commsys_stream_simulator<type,collector>
+ * where:
+ *      type = sigspace | bool | gf2 | gf4 ...
+ *      collector = errors_hamming | errors_levenshtein | ...
+ */
+#define INSTANTIATE(r, args) \
+      template class commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "experiment", \
+            "commsys_stream_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-template class commsys_stream_simulator<gf<3, 0xB> > ;
-template <>
-const serializer commsys_stream_simulator<gf<3, 0xB> >::shelper("experiment",
-      "commsys_stream_simulator<gf<3,0xB>>", commsys_stream_simulator<
-            gf<3, 0xB> >::create);
-
-template class commsys_stream_simulator<gf<4, 0x13> > ;
-template <>
-const serializer commsys_stream_simulator<gf<4, 0x13> >::shelper("experiment",
-      "commsys_stream_simulator<gf<4,0x13>>", commsys_stream_simulator<gf<4,
-            0x13> >::create);
-
-template class commsys_stream_simulator<gf<5, 0x25> > ;
-template <>
-const serializer commsys_stream_simulator<gf<5, 0x25> >::shelper("experiment",
-      "commsys_stream_simulator<gf<5,0x25>>", commsys_stream_simulator<gf<5,
-            0x25> >::create);
-
-template class commsys_stream_simulator<gf<6, 0x43> > ;
-template <>
-const serializer commsys_stream_simulator<gf<6, 0x43> >::shelper("experiment",
-      "commsys_stream_simulator<gf<6,0x43>>", commsys_stream_simulator<gf<6,
-            0x43> >::create);
-
-template class commsys_stream_simulator<gf<7, 0x89> > ;
-template <>
-const serializer commsys_stream_simulator<gf<7, 0x89> >::shelper("experiment",
-      "commsys_stream_simulator<gf<7,0x89>>", commsys_stream_simulator<gf<7,
-            0x89> >::create);
-
-template class commsys_stream_simulator<gf<8, 0x11D> > ;
-template <>
-const serializer commsys_stream_simulator<gf<8, 0x11D> >::shelper("experiment",
-      "commsys_stream_simulator<gf<8,0x11D>>", commsys_stream_simulator<gf<8,
-            0x11D> >::create);
-
-template class commsys_stream_simulator<gf<9, 0x211> > ;
-template <>
-const serializer commsys_stream_simulator<gf<9, 0x211> >::shelper("experiment",
-      "commsys_stream_simulator<gf<9,0x211>>", commsys_stream_simulator<gf<9,
-            0x211> >::create);
-
-template class commsys_stream_simulator<gf<10, 0x409> > ;
-template <>
-const serializer commsys_stream_simulator<gf<10, 0x409> >::shelper(
-      "experiment", "commsys_stream_simulator<gf<10,0x409>>",
-      commsys_stream_simulator<gf<10, 0x409> >::create);
-
-// realizations for levenshtein results collector
-
-template class commsys_stream_simulator<bool, commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<bool, commsys_errors_levenshtein>::shelper(
-            "experiment", "commsys_stream_simulator<bool,levenshtein>",
-            commsys_stream_simulator<bool, commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<1, 0x3> , commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<1, 0x3> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<1,0x3>,levenshtein>",
-            commsys_stream_simulator<gf<1, 0x3> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<2, 0x7> , commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<2, 0x7> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<2,0x7>,levenshtein>",
-            commsys_stream_simulator<gf<2, 0x7> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<3, 0xB> , commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<3, 0xB> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<3,0xB>,levenshtein>",
-            commsys_stream_simulator<gf<3, 0xB> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<4, 0x13> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<4, 0x13> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<4,0x13>,levenshtein>",
-            commsys_stream_simulator<gf<4, 0x13> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<5, 0x25> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<5, 0x25> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<5,0x25>,levenshtein>",
-            commsys_stream_simulator<gf<5, 0x25> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<6, 0x43> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<6, 0x43> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<6,0x43>,levenshtein>",
-            commsys_stream_simulator<gf<6, 0x43> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<7, 0x89> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<7, 0x89> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<7,0x89>,levenshtein>",
-            commsys_stream_simulator<gf<7, 0x89> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<8, 0x11D> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<8, 0x11D> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<8,0x11D>,levenshtein>",
-            commsys_stream_simulator<gf<8, 0x11D> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<9, 0x211> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<9, 0x211> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<9,0x211>,levenshtein>",
-            commsys_stream_simulator<gf<9, 0x211> , commsys_errors_levenshtein>::create);
-
-template class commsys_stream_simulator<gf<10, 0x409> ,
-      commsys_errors_levenshtein> ;
-template <>
-const serializer
-      commsys_stream_simulator<gf<10, 0x409> , commsys_errors_levenshtein>::shelper(
-            "experiment",
-            "commsys_stream_simulator<gf<10,0x409>,levenshtein>",
-            commsys_stream_simulator<gf<10, 0x409> , commsys_errors_levenshtein>::create);
-
-// realizations for non-default containers
-
-// template class commsys_stream_simulator<bool,matrix>;
-// template <>
-// const serializer commsys_stream_simulator<bool,matrix>::shelper("experiment", "commsys_stream_simulator<bool,matrix>", commsys_stream_simulator<bool,matrix>::create);
-
-// realizations for non-default results collectors
-
-template class commsys_stream_simulator<bool, commsys_prof_burst> ;
-template <>
-const serializer commsys_stream_simulator<bool, commsys_prof_burst>::shelper(
-      "experiment", "commsys_stream_simulator<bool,prof_burst>",
-      commsys_stream_simulator<bool, commsys_prof_burst>::create);
-
-template class commsys_stream_simulator<bool, commsys_prof_pos> ;
-template <>
-const serializer commsys_stream_simulator<bool, commsys_prof_pos>::shelper(
-      "experiment", "commsys_stream_simulator<bool,prof_pos>",
-      commsys_stream_simulator<bool, commsys_prof_pos>::create);
-
-template class commsys_stream_simulator<bool, commsys_prof_sym> ;
-template <>
-const serializer commsys_stream_simulator<bool, commsys_prof_sym>::shelper(
-      "experiment", "commsys_stream_simulator<bool,prof_sym>",
-      commsys_stream_simulator<bool, commsys_prof_sym>::create);
-
-template class commsys_stream_simulator<bool, commsys_hist_symerr> ;
-template <>
-const serializer commsys_stream_simulator<bool, commsys_hist_symerr>::shelper(
-      "experiment", "commsys_stream_simulator<bool,hist_symerr>",
-      commsys_stream_simulator<bool, commsys_hist_symerr>::create);
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // end namespace

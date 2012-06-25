@@ -1,4 +1,4 @@
-commsys_iterative<bool>
+commsys_iterative<bool,vector>
 2
 ## Channel
 bsid
@@ -23,12 +23,14 @@ bsid
 ## Modem
 dminner2<logrealfast>
 # Version
-2
+3
 # User threshold?
 1
 #: Inner threshold
 0
 #: Outer threshold
+0
+# Normalize metrics between time-steps?
 0
 # n
 8
@@ -57,14 +59,22 @@ balanced-nozero
 10001000
 # marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
 0
+# Version
+3
+# Use batch receiver computation?
+1
+# Lazy computation of gamma?
+1
+# Global storage / caching of computed gamma values?
+1
 ## Mapper
-map_straight<vector>
+map_straight<vector,double>
 ## Codec
 uncoded<double>
 # Encoder
 cached_fsm
 #: Base Encoder
-gnrcc<gf<4,0x13>>
+gnrcc<gf16>
 #: Generator matrix (k x n vectors)
 1	1
 1

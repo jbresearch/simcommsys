@@ -99,27 +99,38 @@ template <class real>
 std::istream& rand_lut<real>::serialize(std::istream& sin)
    {
    int tau, m;
-   sin >> libbase::eatcomments >> tau >> m;
+   sin >> libbase::eatcomments >> tau >> m >> libbase::verify;
    init(tau, m);
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class rand_lut<float> ;
-template <>
-const libbase::serializer rand_lut<float>::shelper("interleaver",
-      "rand_lut<float>", rand_lut<float>::create);
+namespace libcomm {
 
-template class rand_lut<double> ;
-template <>
-const libbase::serializer rand_lut<double>::shelper("interleaver",
-      "rand_lut<double>", rand_lut<double>::create);
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class rand_lut<libbase::logrealfast> ;
-template <>
-const libbase::serializer rand_lut<libbase::logrealfast>::shelper(
-      "interleaver", "rand_lut<logrealfast>",
-      rand_lut<libbase::logrealfast>::create);
+using libbase::serializer;
+using libbase::logrealfast;
+
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: rand_lut<real>
+ * where:
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, x, type) \
+   template class rand_lut<type>; \
+   template <> \
+   const serializer rand_lut<type>::shelper( \
+         "interleaver", \
+         "rand_lut<" BOOST_PP_STRINGIZE(type) ">", \
+         rand_lut<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

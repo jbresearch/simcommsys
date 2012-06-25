@@ -24,8 +24,6 @@
 
 #include "informed_modulator.h"
 
-#include "gf.h"
-
 namespace libcomm {
 
 // Block modem operations
@@ -39,21 +37,34 @@ void informed_modulator<S, C>::demodulate(const channel<S, C>& chan,
    this->mark_as_dirty();
    }
 
+} // end namespace
+
+#include "gf.h"
+
+namespace libcomm {
+
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
 
-using libbase::gf;
+using libbase::matrix;
+using libbase::vector;
 
-template class informed_modulator<gf<1, 0x3> > ;
-template class informed_modulator<gf<2, 0x7> > ;
-template class informed_modulator<gf<3, 0xB> > ;
-template class informed_modulator<gf<4, 0x13> > ;
-template class informed_modulator<gf<5, 0x25> > ;
-template class informed_modulator<gf<6, 0x43> > ;
-template class informed_modulator<gf<7, 0x89> > ;
-template class informed_modulator<gf<8, 0x11D> > ;
-template class informed_modulator<gf<9, 0x211> > ;
-template class informed_modulator<gf<10, 0x409> > ;
-template class informed_modulator<bool> ;
-template class informed_modulator<sigspace> ;
+#define USING_GF(r, x, type) \
+      using libbase::type;
+
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define SYMBOL_TYPE_SEQ \
+   (sigspace)(bool) \
+   GF_TYPE_SEQ
+#define CONTAINER_TYPE_SEQ \
+   (vector)(matrix)
+
+#define INSTANTIATE(r, args) \
+      template class informed_modulator<BOOST_PP_SEQ_ENUM(args)>;
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
 } // end namespace

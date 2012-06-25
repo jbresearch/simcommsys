@@ -176,6 +176,10 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) -Wall -Werror
 CCopts := $(CCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
+# note: below disabled to avoid problems with parallel builds
+# note: below should be replaced with the following when we move to gcc > 4.4
+#CCopts := $(CCopts) -save-temps
+#CCopts := $(CCopts) -save-temps=obj
 # MPI options
 ifneq ($(USE_MPI),0)
 CCopts := $(CCopts) -DUSE_MPI $(shell mpic++ -showme:compile)
@@ -285,7 +289,7 @@ doc:
 
 clean-all:
 	@echo "----> Cleaning all binaries."
-	@find . -depth \( -name doc -or -name bin -or -iname debug -or -iname release -or -iname profile -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -print0 | xargs -0 rm -rf
+	@find . -depth \( -name doc -or -name bin -or -iname debug -or -iname release -or -iname profile -or -name '*.s' -or -name '*.ii' -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -print0 | xargs -0 rm -rf
 
 clean-dep:
 	@echo "----> Cleaning all dependency files."
@@ -305,24 +309,28 @@ build-main:	build-main-debug build-main-release
 build-test:	build-test-debug build-test-release
 build-libs:	build-libs-debug build-libs-release
 
-build-main-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
-build-test-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
+# libs build target is explicit here to avoid duplicate making
+# TODO: check if this is needed any more
+build-main-%:	build-libs-%
+	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
+build-test-%:	build-libs-%
+	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
 build-libs-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
+	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
 
 install:	install-main install-test
 install-main:	install-main-debug install-main-release
 install-test:	install-test-debug install-test-release
 install-libs:	install-libs-debug install-libs-release
 
-install-main-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
-install-test-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
+# libs install target is explicit here to avoid duplicate making
+# TODO: check if this is needed any more
+install-main-%:	install-libs-%
+	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
+install-test-%:	install-libs-%
+	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
 install-libs-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
+	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
 clean:	clean-main clean-test
 clean-main:	clean-main-release clean-main-debug
@@ -330,11 +338,11 @@ clean-test:	clean-test-release clean-test-debug
 clean-libs:	clean-libs-release clean-libs-debug
 
 clean-main-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_MAIN)
+	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_MAIN)
 clean-test-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_TEST)
+	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_TEST)
 clean-libs-%:
-	@$(MAKE) -j$(CPUS) RELEASE=$* DOTARGET=clean $(TARGETS_LIBS)
+	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_LIBS)
 
 ## Setting targets
 

@@ -83,7 +83,7 @@ void map_stipple<C, dbl>::doinverse(const C<array1d_t>& pin, C<array1d_t>& pout)
       else
          {
          for (int j = 0; j < M; j++)
-            ptable(i)(j) = 1.0 / M;
+            ptable(i)(j) = dbl(1.0 / M);
          }
    // do the base (straight) inverse mapping
    Base::doinverse(ptable, pout);
@@ -114,15 +114,46 @@ template <template <class > class C, class dbl>
 std::istream& map_stipple<C, dbl>::serialize(std::istream& sin)
    {
    Base::serialize(sin);
-   sin >> libbase::eatcomments >> sets;
+   sin >> libbase::eatcomments >> sets >> libbase::verify;
    return sin;
    }
 
-// Explicit instantiations
+} // end namespace
 
-template class map_stipple<libbase::vector> ;
-template <>
-const libbase::serializer map_stipple<libbase::vector>::shelper("mapper",
-      "map_stipple<vector>", map_stipple<libbase::vector>::create);
+#include "logrealfast.h"
+
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+using libbase::logrealfast;
+using libbase::matrix;
+using libbase::vector;
+
+#define CONTAINER_TYPE_SEQ \
+   (vector)
+#define REAL_TYPE_SEQ \
+   (float)(double)(logrealfast)
+
+/* Serialization string: map_stipple<container,real>
+ * where:
+ *      container = vector
+ *      real = float | double | logrealfast
+ *              [real is the interface arithmetic type]
+ */
+#define INSTANTIATE(r, args) \
+      template class map_stipple<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer map_stipple<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "mapper", \
+            "map_stipple<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            map_stipple<BOOST_PP_SEQ_ENUM(args)>::create);
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

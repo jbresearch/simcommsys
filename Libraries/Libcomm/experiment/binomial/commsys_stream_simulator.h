@@ -50,7 +50,7 @@ namespace libcomm {
  * previous frame simulation. The a-priori end-of-frame information is set
  * according to the distribution provided by the channel.
  */
-template <class S, class R = commsys_errorrates>
+template <class S, class R>
 class commsys_stream_simulator : public commsys_simulator<S, R> {
 private:
    // Shorthand for class hierarchy
