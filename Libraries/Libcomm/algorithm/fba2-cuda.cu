@@ -631,13 +631,6 @@ void fba2<receiver_t, sig, real>::work_gamma(const dev_array1s_t& r,
    const int N = computer.N;
    const int q = computer.q;
    // Gamma computation:
-   static bool first_time = true;
-   if (first_time)
-      {
-      std::cerr << "Gamma Kernel: " << N << " blocks x " << q << " threads"
-            << std::endl;
-      first_time = false;
-      }
    if (computer.flags.lazy)
       {
       // keep a copy of received vector and a-priori statistics
@@ -651,6 +644,14 @@ void fba2<receiver_t, sig, real>::work_gamma(const dev_array1s_t& r,
       }
    else
       {
+      // inform user what the kernel sizes are
+      static bool first_time = true;
+      if (first_time)
+         {
+         std::cerr << "Gamma Kernel: " << N << " blocks x " << q << " threads"
+               << std::endl;
+         first_time = false;
+         }
       // pre-computation
       if (computer.flags.batch)
          {
@@ -677,7 +678,7 @@ void fba2<receiver_t, sig, real>::work_alpha(const dev_array1r_t& sof_prior)
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
-   // Alpha computation:
+   // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
@@ -690,6 +691,7 @@ void fba2<receiver_t, sig, real>::work_alpha(const dev_array1r_t& sof_prior)
          }
       first_time = false;
       }
+   // Alpha computation:
    for (int i = 0; i <= N; i++)
       {
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
@@ -716,7 +718,7 @@ void fba2<receiver_t, sig, real>::work_beta(const dev_array1r_t& eof_prior)
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
-   // Beta computation:
+   // Alpha computation:
    static bool first_time = true;
    if (first_time)
       {
@@ -729,6 +731,7 @@ void fba2<receiver_t, sig, real>::work_beta(const dev_array1r_t& eof_prior)
          }
       first_time = false;
       }
+   // Beta computation:
    for (int i = N; i >= 0; i--)
       {
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
@@ -756,16 +759,17 @@ void fba2<receiver_t, sig, real>::work_results(dev_array2r_t& ptable,
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
-   // Results computation:
+   // Beta computation:
    static bool first_time = true;
    if (first_time)
       {
       std::cerr << "Message APP Kernel: " << N << " blocks x " << q
             << " threads" << std::endl;
-      std::cerr << "State APP Kernel (x2): " << 2 * xmax + 1 << " blocks x "
-            << 1 << " threads" << std::endl;
+      std::cerr << "State APP Kernel (x2): " << 1 << " blocks x " << 2 * xmax
+            + 1 << " threads" << std::endl;
       first_time = false;
       }
+   // Results computation:
    // compute APPs of message
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
@@ -817,7 +821,7 @@ void fba2<receiver_t, sig, real>::init(int N, int n, int q, int I, int xmax,
    computer.th_inner = th_inner;
    computer.th_outer = th_outer;
    // decoding mode parameters
-   assert(lazy || globalstore); // pre-compute without global storage not yet supported
+   assertalways(lazy || globalstore); // pre-compute without global storage not yet supported
    computer.flags.norm = norm;
    computer.flags.batch = batch;
    computer.flags.lazy = lazy;

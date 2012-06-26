@@ -509,7 +509,7 @@ void fba2<receiver_t, sig, real>::init(int N, int n, int q, int I, int xmax,
    This::th_inner = real(th_inner);
    This::th_outer = real(th_outer);
    // decoding mode parameters
-   assert(lazy || globalstore); // pre-compute without global storage not yet supported
+   assertalways(lazy || globalstore); // pre-compute without global storage not yet supported
    This::flags.norm = norm;
    This::flags.batch = batch;
    This::flags.lazy = lazy;
