@@ -66,7 +66,7 @@ clean:
 
 FORCE:
 
-.PHONY:	all simulators timers testlogs clean
+.PHONY:	all simulators timers test-all test-simulators test-timers clean
 
 .SUFFIXES: # Delete the default suffixes
 

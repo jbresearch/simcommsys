@@ -36,7 +36,7 @@ namespace cuda {
 // 3 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 3
 #endif
 
 // *** Metric Computer ***
@@ -65,13 +65,19 @@ real fba2<receiver_t, sig, real>::metric_computer::get_threshold(const dev_array
    return threshold;
    }
 
+/*! \brief Returns the sum of the elements in the given array (length N)
+ * The sum is computed in parallel between the threads in a given block.
+ * A limitation for this to work is that N must be a multiple of 2, and
+ * the block size has to be at least N/2 threads.
+ * \warning The contents of the array are destroyed in the process.
+ */
 template <class receiver_t, class sig, class real>
 __device__
-real fba2<receiver_t, sig, real>::metric_computer::parallel_sum(real array[])
+real fba2<receiver_t, sig, real>::metric_computer::parallel_sum(real array[], const int N)
    {
-   const int N = blockDim.x; // Total number of active threads
    const int i = threadIdx.x;
    cuda_assert(N % 2 == 0);
+   cuda_assert(N / 2 <= blockDim.x); // Total number of active threads
    for(int n = N; n > 1; n >>= 1)
       {
       const int half = (n >> 1); // divide by two
@@ -97,8 +103,6 @@ real fba2<receiver_t, sig, real>::metric_computer::get_scale(const dev_array2r_r
       }
    cuda_assertalways(scale > real(0));
    scale = real(1) / scale;
-   // wait until all threads have completed their part
-   __syncthreads();
    return scale;
    }
 
@@ -108,8 +112,11 @@ void fba2<receiver_t, sig, real>::metric_computer::normalize(dev_array2r_ref_t& 
    {
    // set up thread index
    const int col = threadIdx.x;
-   // determine the scale factor to use (each block has to do this)
+   cuda_assert(col < cols);
+   // determine the scale factor to use (each thread has to do this)
    const real scale = get_scale(metric, row, cols);
+   // wait until all threads have completed the computation
+   __syncthreads();
    // scale all results
    metric(row, col) *= scale;
    }
@@ -139,6 +146,14 @@ void fba2<receiver_t, sig, real>::metric_computer::work_gamma_single(const dev_a
    //   x2-x1 >= -dxmax
    for (int x = -xmax; x <= xmax; x++)
       {
+      // clear gamma entries
+      for (int deltax = dmin; deltax <= dmax; deltax++)
+         {
+         gamma(get_gamma_index(d, i, x, deltax)) = 0;
+         }
+      // limit on end-state (-xmax <= x2 <= xmax):
+      //   x2-x1 <= xmax-x1
+      //   x2-x1 >= -xmax-x1
       const int deltaxmin = max(-xmax - x, dmin);
       const int deltaxmax = min(xmax - x, dmax);
       for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
@@ -166,13 +181,7 @@ void fba2<receiver_t, sig, real>::metric_computer::work_gamma_batch(const dev_ar
    libcomm::bsid::real ptable_data[libcomm::bsid::metric_computer::arraysize];
    cuda_assertalways(libcomm::bsid::metric_computer::arraysize >= 2 * dxmax + 1);
    cuda::vector_reference<libcomm::bsid::real> ptable(ptable_data, 2 * dxmax + 1);
-   // limits on insertions and deletions must be respected:
-   //   x2-x1 <= n*I
-   //   x2-x1 >= -n
-   // limits on introduced drift in this section:
-   // (necessary for forward recursion on extracted segment)
-   //   x2-x1 <= dxmax
-   //   x2-x1 >= -dxmax
+   // compute metric with batch interface
    for (int x = -xmax; x <= xmax; x++)
       {
       compute_gamma_batch(d, i, x, ptable, r, app);
@@ -216,13 +225,9 @@ void fba2<receiver_t, sig, real>::metric_computer::work_alpha(const dev_array1r_
       const real threshold = get_threshold(alpha, i - 1, 2 * xmax + 1, th_inner);
       // initialize result holder
       this_alpha[d] = 0;
-      // limits on insertions and deletions must be respected:
-      //   x2-x1 <= n*I
-      //   x2-x1 >= -n
-      // limits on introduced drift in this section:
-      // (necessary for forward recursion on extracted segment)
-      //   x2-x1 <= dxmax
-      //   x2-x1 >= -dxmax
+      // limits on deltax can be combined as (c.f. allocate() for details):
+      //   x2-x1 <= dmax
+      //   x2-x1 >= dmin
       const int x1min = max(-xmax, x2 - dmax);
       const int x1max = min(xmax, x2 - dmin);
       for (int x1 = x1min; x1 <= x1max; x1++)
@@ -242,7 +247,7 @@ void fba2<receiver_t, sig, real>::metric_computer::work_alpha(const dev_array1r_
       // make sure all threads in block have finished updating this_alpha
       __syncthreads();
       // compute sum of shared array
-      const real temp = parallel_sum(this_alpha);
+      const real temp = parallel_sum(this_alpha, q);
       // store result (first thread in block)
       if (d == 0)
          {
@@ -283,13 +288,9 @@ void fba2<receiver_t, sig, real>::metric_computer::work_beta(const dev_array1r_r
       const real threshold = get_threshold(beta, i + 1, 2 * xmax + 1, th_inner);
       // initialize result holder
       this_beta[d] = 0;
-      // limits on insertions and deletions must be respected:
-      //   x2-x1 <= n*I
-      //   x2-x1 >= -n
-      // limits on introduced drift in this section:
-      // (necessary for forward recursion on extracted segment)
-      //   x2-x1 <= dxmax
-      //   x2-x1 >= -dxmax
+      // limits on deltax can be combined as (c.f. allocate() for details):
+      //   x2-x1 <= dmax
+      //   x2-x1 >= dmin
       const int x2min = max(-xmax, dmin + x1);
       const int x2max = min(xmax, dmax + x1);
       for (int x2 = x2min; x2 <= x2max; x2++)
@@ -309,7 +310,7 @@ void fba2<receiver_t, sig, real>::metric_computer::work_beta(const dev_array1r_r
       // make sure all threads in block have finished updating this_beta
       __syncthreads();
       // compute sum of shared array
-      const real temp = parallel_sum(this_beta);
+      const real temp = parallel_sum(this_beta, q);
       // store result
       if (d == 0)
          {
@@ -338,13 +339,6 @@ void fba2<receiver_t, sig, real>::metric_computer::work_message_app(dev_array2r_
    const real threshold = get_threshold(alpha, i, 2 * xmax + 1, th_outer);
    // initialize result holder
    real p = 0;
-   // limits on insertions and deletions must be respected:
-   //   x2-x1 <= n*I
-   //   x2-x1 >= -n
-   // limits on introduced drift in this section:
-   // (necessary for forward recursion on extracted segment)
-   //   x2-x1 <= dxmax
-   //   x2-x1 >= -dxmax
    for (int x1 = -xmax; x1 <= xmax; x1++)
       {
       // cache this alpha value in a register
@@ -352,6 +346,9 @@ void fba2<receiver_t, sig, real>::metric_computer::work_message_app(dev_array2r_
       // ignore paths below a certain threshold
       if (!thresholding || this_alpha >= threshold)
          {
+         // limits on deltax can be combined as (c.f. allocate() for details):
+         //   x2-x1 <= dmax
+         //   x2-x1 >= dmin
          const int x2min = max(-xmax, dmin + x1);
          const int x2max = min(xmax, dmax + x1);
          for (int x2 = x2min; x2 <= x2max; x2++)
@@ -455,7 +452,17 @@ void fba2<receiver_t, sig, real>::allocate()
    // flag the state of the arrays
    initialised = true;
 
-   // determine limits
+   // determine allowed limits on deltax:
+   // limits on insertions and deletions:
+   //   x2-x1 <= n*I
+   //   x2-x1 >= -n
+   // limits on introduced drift in this section:
+   // (necessary for forward recursion on extracted segment)
+   //   x2-x1 <= dxmax
+   //   x2-x1 >= -dxmax
+   // the above two sets of limits can be combined as:
+   //   x2-x1 <= min(n*I, dxmax) = dmax
+   //   x2-x1 >= max(-n, -dxmax) = dmin
    computer.dmin = std::max(-computer.n, -computer.dxmax);
    computer.dmax = std::min(computer.n * computer.I, computer.dxmax);
    // alpha needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
@@ -464,7 +471,7 @@ void fba2<receiver_t, sig, real>::allocate()
    beta.init(computer.N + 1, 2 * computer.xmax + 1); // offsets: 0, xmax
 
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
-   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
+   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-dxmax), min(nI,dxmax)]
    // (note: this is allocated as a flat sequence)
    if (computer.flags.globalstore)
       {
@@ -525,9 +532,13 @@ void fba2<receiver_t, sig, real>::allocate()
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "dmax = " << computer.dmax << std::endl;
    std::cerr << "dmin = " << computer.dmin << std::endl;
-   std::cerr << "alpha = " << computer.N + 1 << "x" << 2 * computer.xmax + 1 << " = " << alpha.size() << std::endl;
-   std::cerr << "beta = " << computer.N + 1 << "x" << 2 * computer.xmax + 1 << " = " << beta.size() << std::endl;
-   std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2 * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1 << " = " << gamma.size() << std::endl;
+   std::cerr << "alpha = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
+         << " = " << alpha.size() << std::endl;
+   std::cerr << "beta = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
+         << " = " << beta.size() << std::endl;
+   std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2
+         * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1
+         << " = " << gamma.size() << std::endl;
 #endif
    }
 
@@ -702,6 +713,8 @@ void fba2<receiver_t, sig, real>::work_alpha(const dev_array1r_t& sof_prior)
       // normalize if requested
       if (computer.flags.norm)
          {
+         // NOTE: this has to be done in one block, as we need to sync after
+         //       determining the scale to use 
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
          fba2_normalize_alpha_kernel <receiver_t, sig, real> <<<1,2*xmax+1>>>(dev_object, i);
@@ -742,6 +755,8 @@ void fba2<receiver_t, sig, real>::work_beta(const dev_array1r_t& eof_prior)
       // normalize if requested
       if (computer.flags.norm)
          {
+         // NOTE: this has to be done in one block, as we need to sync after
+         //       determining the scale to use 
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
          fba2_normalize_beta_kernel <receiver_t, sig, real> <<<1,2*xmax+1>>>(dev_object, i);
@@ -869,21 +884,42 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    // create a copy of the device object (to pass to kernels)
    dev_object = computer;
    collector.add_timer(ts);
+#if DEBUG>=3
+   // show input data, as on device
+   std::cerr << "r = " << array1s_t(dev_r) << std::endl;
+   std::cerr << "app = " << array2r_t(dev_app) << std::endl;
+   std::cerr << "sof_prior = " << array1r_t(dev_sof_table) << std::endl;
+   std::cerr << "eof_prior = " << array1r_t(dev_eof_table) << std::endl;
+#endif
+
    // Gamma
    gputimer tg("t_gamma");
    work_gamma(dev_r, dev_app);
    collector.add_timer(tg);
+#if DEBUG>=3
+   if (!computer.flags.lazy && computer.flags.globalstore)
+      {
+      std::cerr << "gamma = " << std::endl;
+      print_gamma(std::cerr);
+      }
+#endif
    // Alpha + Beta
    gputimer tab("t_alpha+beta");
    // Alpha
    gputimer ta("t_alpha");
    work_alpha( dev_sof_table);
    collector.add_timer(ta);
+#if DEBUG>=3
+   std::cerr << "alpha = " << libbase::matrix<real>(alpha) << std::endl;
+#endif
    // Beta
    gputimer tb("t_beta");
    work_beta( dev_eof_table);
    collector.add_timer(tb);
    collector.add_timer(tab);
+#if DEBUG>=3
+   std::cerr << "beta = " << libbase::matrix<real>(beta) << std::endl;
+#endif
    // Results computation
    gputimer tr("t_results");
    work_results(dev_ptable, dev_sof_table, dev_eof_table);
@@ -894,6 +930,13 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    sof_post = array1r_t(dev_sof_table);
    eof_post = array1r_t(dev_eof_table);
    collector.add_timer(tc);
+#if DEBUG>=3
+   // show output data
+   std::cerr << "ptable = " << ptable << std::endl;
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
+
    // add values for limits that depend on channel conditions
    collector.add_timer(computer.I, "c_I");
    collector.add_timer(computer.xmax, "c_xmax");
@@ -902,22 +945,6 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    collector.add_timer(sizeof(real) * alpha.size(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.size(), "m_beta");
    collector.add_timer(sizeof(real) * gamma.size(), "m_gamma");
-
-#if DEBUG>=3
-   std::cerr << "r = " << array1s_t(dev_r) << std::endl;
-   std::cerr << "sof_prior = " << array1r_t(dev_sof_table) << std::endl;
-   std::cerr << "eof_prior = " << array1r_t(dev_eof_table) << std::endl;
-   if (!computer.flags.lazy || computer.flags.globalstore)
-      {
-      std::cerr << "gamma = " << std::endl;
-      print_gamma(std::cerr);
-      }
-   std::cerr << "alpha = " << libbase::matrix<real>(alpha) << std::endl;
-   std::cerr << "beta = " << libbase::matrix<real>(beta) << std::endl;
-   std::cerr << "ptable = " << ptable << std::endl;
-   std::cerr << "sof_post = " << sof_post << std::endl;
-   std::cerr << "eof_post = " << eof_post << std::endl;
-#endif
    }
 
 } // end namespace

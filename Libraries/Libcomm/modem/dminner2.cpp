@@ -206,12 +206,24 @@ std::string dminner2<real>::description() const
    sout << "Symbol-level " << Base::description();
    sout.seekp(-1, std::ios_base::cur);
    if (batch)
-      sout << ", batch computation";
+      sout << ", batch interface";
+   else
+      sout << ", single interface";
    if (lazy)
       {
       sout << ", lazy computation";
       if (globalstore)
-         sout << ", cached";
+         sout << ", global caching";
+      else
+         sout << ", local caching";
+      }
+   else
+      {
+      sout << ", pre-computation";
+      if (globalstore)
+         sout << ", global";
+      else
+         sout << ", local";
       }
    sout << "), " << fba.description();
    return sout.str();

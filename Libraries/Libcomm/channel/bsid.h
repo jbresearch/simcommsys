@@ -227,6 +227,7 @@ public:
          real F1[arraysize];
          real *Fthis = F1;
          real *Fprev = F0;
+         // initialize for j=0
          // for prior list, reset all elements to zero
          for (int x = 0; x < 2 * xmax + 1; x++)
             {
@@ -291,8 +292,8 @@ public:
       /*! \name Host methods */
       //! Receiver interface
       real receive(const bitfield& tx, const array1b_t& rx) const;
-      void
       //! Batch receiver interface
+      void
       receive(const bitfield& tx, const array1b_t& rx, array1r_t& ptable) const;
       // @}
    };

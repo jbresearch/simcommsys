@@ -100,6 +100,7 @@ endif
 
 ## User pacifier
 ifeq ($(MAKELEVEL),0)
+ifeq ($(MAKECMDGOALS),)
 ifneq ($(USE_MPI),0)
 $(info Using MPI: yes)
 endif
@@ -111,6 +112,7 @@ $(info Using CUDA: yes, compute model $(USE_CUDA))
 endif
 $(info Install folder: $(BINDIR))
 $(info Build tag: $(TAG))
+endif
 endif
 
 ## Version control information
@@ -280,6 +282,7 @@ default:
 	@echo "   clean-all : removes all binaries"
 	@echo "   clean-dep : removes all dependency files"
 	@echo "   showsettings : outputs compiler settings used"
+	@echo "   tag : outputs the tag to be used for the given settings"
 
 all:
 	@$(MAKE) install plain-install
@@ -298,6 +301,8 @@ clean-dep:
 showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
 
+tag:
+	@echo $(TAG)
 
 ## Matched targets
 
@@ -310,7 +315,6 @@ build-test:	build-test-debug build-test-release
 build-libs:	build-libs-debug build-libs-release
 
 # libs build target is explicit here to avoid duplicate making
-# TODO: check if this is needed any more
 build-main-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
 build-test-%:	build-libs-%
@@ -324,7 +328,6 @@ install-test:	install-test-debug install-test-release
 install-libs:	install-libs-debug install-libs-release
 
 # libs install target is explicit here to avoid duplicate making
-# TODO: check if this is needed any more
 install-main-%:	install-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
 install-test-%:	install-libs-%
@@ -348,7 +351,7 @@ clean-libs-%:
 
 FORCE:
 
-.PHONY:	all build install clean
+.PHONY:	all build install clean showsettings tag
 
 .SUFFIXES: # Delete the default suffixes
 

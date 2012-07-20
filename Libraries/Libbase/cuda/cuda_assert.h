@@ -70,7 +70,7 @@ inline void reportassertionandfail(const char *expression, const char *file, int
 #elif __CUDA_ARCH__ >= 200
    printf("CUDA ERROR (%s line %d): assertion %s failed.\n", file, line, expression);
    //TODO: we really want to stop everything here, but there is no function to do so.
-   //exit(1);
+   assert(0);
 #endif
    }
 
@@ -84,7 +84,7 @@ inline void reporterrorandfail(const char *expression, const char *file, int lin
 #elif __CUDA_ARCH__ >= 200
    printf("CUDA ERROR (%s line %d): %s\n", file, line, expression);
    //TODO: we really want to stop everything here, but there is no function to do so.
-   //exit(1);
+   assert(0);
 #endif
    }
 

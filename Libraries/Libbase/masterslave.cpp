@@ -34,6 +34,8 @@
 #else
 #include <unistd.h>
 #include <signal.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #endif
 
 #ifndef HOST_NAME_MAX

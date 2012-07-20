@@ -36,7 +36,7 @@ namespace libcomm {
 // 3 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 3
 #endif
 
 // *** Internal functions - computer
@@ -97,6 +97,12 @@ void fba2<receiver_t, sig, real>::work_gamma_single(const array1s_t& r,
       for (int d = 0; d < q; d++)
          for (int x = -xmax; x <= xmax; x++)
             {
+            // clear gamma entries
+            for (int deltax = dmin; deltax <= dmax; deltax++)
+               gamma[d][i][x][deltax] = 0;
+            // limit on end-state (-xmax <= x2 <= xmax):
+            //   x2-x1 <= xmax-x1
+            //   x2-x1 >= -xmax-x1
             const int deltaxmin = std::max(-xmax - x, dmin);
             const int deltaxmax = std::min(xmax - x, dmax);
             for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
@@ -149,13 +155,6 @@ void fba2<receiver_t, sig, real>::work_message_app(array1vr_t& ptable) const
          {
          // initialize result holder
          real p = 0;
-         // limits on insertions and deletions must be respected:
-         //   x2-x1 <= n*I
-         //   x2-x1 >= -n
-         // limits on introduced drift in this section:
-         // (necessary for forward recursion on extracted segment)
-         //   x2-x1 <= dxmax
-         //   x2-x1 >= -dxmax
          for (int x1 = -xmax; x1 <= xmax; x1++)
             {
             // cache this alpha value in a register
@@ -163,6 +162,9 @@ void fba2<receiver_t, sig, real>::work_message_app(array1vr_t& ptable) const
             // ignore paths below a certain threshold
             if (thresholding && this_alpha < threshold)
                continue;
+            // limits on deltax can be combined as (c.f. allocate() for details):
+            //   x2-x1 <= dmax
+            //   x2-x1 >= dmin
             const int x2min = std::max(-xmax, dmin + x1);
             const int x2max = std::min(xmax, dmax + x1);
             for (int x2 = x2min; x2 <= x2max; x2++)
@@ -210,7 +212,17 @@ void fba2<receiver_t, sig, real>::allocate()
    // flag the state of the arrays
    initialised = true;
 
-   // determine limits
+   // determine allowed limits on deltax:
+   // limits on insertions and deletions:
+   //   x2-x1 <= n*I
+   //   x2-x1 >= -n
+   // limits on introduced drift in this section:
+   // (necessary for forward recursion on extracted segment)
+   //   x2-x1 <= dxmax
+   //   x2-x1 >= -dxmax
+   // the above two sets of limits can be combined as:
+   //   x2-x1 <= min(n*I, dxmax) = dmax
+   //   x2-x1 >= max(-n, -dxmax) = dmin
    dmin = std::max(-n, -dxmax);
    dmax = std::min(n * I, dxmax);
    // alpha needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
@@ -226,7 +238,7 @@ void fba2<receiver_t, sig, real>::allocate()
    //      / double(1 << 20) << "MiB" << std::endl;
 
    // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
-   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
+   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-dxmax), min(nI,dxmax)]
    if (flags.globalstore)
       gamma.resize(boost::extents[q][N][range(-xmax, xmax + 1)][range(dmin,
             dmax + 1)]);
@@ -275,11 +287,11 @@ void fba2<receiver_t, sig, real>::allocate()
    std::cerr << "dmax = " << dmax << std::endl;
    std::cerr << "dmin = " << dmin << std::endl;
    std::cerr << "alpha = " << N + 1 << "x" << 2 * xmax + 1 << " = "
-   << alpha.num_elements() << std::endl;
+         << alpha.num_elements() << std::endl;
    std::cerr << "beta = " << N + 1 << "x" << 2 * xmax + 1 << " = "
-   << beta.num_elements() << std::endl;
+         << beta.num_elements() << std::endl;
    std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
-   << dmax - dmin + 1 << " = " << gamma.num_elements() << std::endl;
+         << dmax - dmin + 1 << " = " << gamma.num_elements() << std::endl;
 #endif
    }
 
@@ -376,19 +388,15 @@ void fba2<receiver_t, sig, real>::work_alpha(const array1d_t& sof_prior)
    // set initial drift distribution
    for (int x = -xmax; x <= xmax; x++)
       alpha[0][x] = real(sof_prior(xmax + x));
+   // normalize if requested
+   if (flags.norm)
+      normalize_alpha(0);
    // compute remaining matrix values
    for (int i = 1; i <= N; i++)
       {
       std::cerr << progress.update(i - 1, N);
       // determine the strongest path at this point
       const real threshold = get_threshold(alpha, i - 1, -xmax, xmax, th_inner);
-      // limits on insertions and deletions must be respected:
-      //   x2-x1 <= n*I
-      //   x2-x1 >= -n
-      // limits on introduced drift in this section:
-      // (necessary for forward recursion on extracted segment)
-      //   x2-x1 <= dxmax
-      //   x2-x1 >= -dxmax
       for (int x1 = -xmax; x1 <= xmax; x1++)
          {
          // cache previous alpha value in a register
@@ -396,16 +404,23 @@ void fba2<receiver_t, sig, real>::work_alpha(const array1d_t& sof_prior)
          // ignore paths below a certain threshold
          if (thresholding && prev_alpha < threshold)
             continue;
-         // consider all possible symbol (d) and end-state (x2)
+         // limits on deltax can be combined as (c.f. allocate() for details):
+         //   x2-x1 <= dmax
+         //   x2-x1 >= dmin
          const int x2min = std::max(-xmax, dmin + x1);
          const int x2max = std::min(xmax, dmax + x1);
-         for (int d = 0; d < q; d++)
-            for (int x2 = x2min; x2 <= x2max; x2++)
+         for (int x2 = x2min; x2 <= x2max; x2++)
+            {
+            // NOTE: we're repeating the loop on x2, so we need to increment this
+            real this_alpha = alpha[i][x2];
+            for (int d = 0; d < q; d++)
                {
                real temp = prev_alpha;
                temp *= get_gamma(d, i - 1, x1, x2 - x1);
-               alpha[i][x2] += temp;
+               this_alpha += temp;
                }
+            alpha[i][x2] = this_alpha;
+            }
          }
       // normalize if requested
       if (flags.norm)
@@ -422,39 +437,44 @@ void fba2<receiver_t, sig, real>::work_beta(const array1d_t& eof_prior)
    // local flag for path thresholding
    const bool thresholding = (th_inner > real(0));
    // initialise array:
+   // NOTE: technically we should not need to do this, as we're initializing
+   //       this_beta for every value
    beta = real(0);
    // set final drift distribution
    for (int x = -xmax; x <= xmax; x++)
       beta[N][x] = real(eof_prior(xmax + x));
+   // normalize if requested
+   if (flags.norm)
+      normalize_beta(N);
    // compute remaining matrix values
    for (int i = N - 1; i >= 0; i--)
       {
       std::cerr << progress.update(N - 1 - i, N);
       // determine the strongest path at this point
       const real threshold = get_threshold(beta, i + 1, -xmax, xmax, th_inner);
-      // limits on insertions and deletions must be respected:
-      //   x2-x1 <= n*I
-      //   x2-x1 >= -n
-      // limits on introduced drift in this section:
-      // (necessary for forward recursion on extracted segment)
-      //   x2-x1 <= dxmax
-      //   x2-x1 >= -dxmax
       for (int x1 = -xmax; x1 <= xmax; x1++)
          {
+         real this_beta = 0;
+         // limits on deltax can be combined as (c.f. allocate() for details):
+         //   x2-x1 <= dmax
+         //   x2-x1 >= dmin
          const int x2min = std::max(-xmax, dmin + x1);
          const int x2max = std::min(xmax, dmax + x1);
-         for (int d = 0; d < q; d++)
-            for (int x2 = x2min; x2 <= x2max; x2++)
+         for (int x2 = x2min; x2 <= x2max; x2++)
+            {
+            // cache next beta value in a register
+            const real next_beta = beta[i + 1][x2];
+            // ignore paths below a certain threshold
+            if (thresholding && next_beta < threshold)
+               continue;
+            for (int d = 0; d < q; d++)
                {
-               // cache next beta value in a register
-               const real next_beta = beta[i + 1][x2];
-               // ignore paths below a certain threshold
-               if (thresholding && next_beta < threshold)
-                  continue;
                real temp = next_beta;
                temp *= get_gamma(d, i, x1, x2 - x1);
-               beta[i][x1] += temp;
+               this_beta += temp;
                }
+            }
+         beta[i][x1] = this_beta;
          }
       // normalize if requested
       if (flags.norm)
@@ -559,7 +579,7 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    std::cerr << "dxmax = " << dxmax << std::endl;
    std::cerr << "th_inner = " << th_inner << std::endl;
    std::cerr << "th_outer = " << th_outer << std::endl;
-   std::cerr << "norm = " << norm << std::endl;
+   std::cerr << "norm = " << flags.norm << std::endl;
    std::cerr << "real = " << typeid(real).name() << std::endl;
 #endif
    // Initialise memory if necessary
@@ -571,23 +591,50 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    assertalways(r.size() == tau + 2 * xmax);
    assertalways(sof_prior.size() == 2 * xmax + 1);
    assertalways(eof_prior.size() == 2 * xmax + 1);
+#if DEBUG>=3
+   // show input data
+   std::cerr << "r = " << r << std::endl;
+   std::cerr << "app = " << app << std::endl;
+   std::cerr << "sof_prior = " << sof_prior << std::endl;
+   std::cerr << "eof_prior = " << eof_prior << std::endl;
+#endif
 
    // Gamma
    libbase::cputimer tg("t_gamma");
    work_gamma(r, app);
    collector.add_timer(tg);
+#if DEBUG>=3
+   if (!flags.lazy && flags.globalstore)
+      {
+      std::cerr << "gamma = " << std::endl;
+      print_gamma(std::cerr);
+      }
+#endif
    // Alpha
    libbase::cputimer ta("t_alpha");
    work_alpha(sof_prior);
    collector.add_timer(ta);
+#if DEBUG>=3
+   std::cerr << "alpha = " << alpha << std::endl;
+#endif
    // Beta
    libbase::cputimer tb("t_beta");
    work_beta(eof_prior);
    collector.add_timer(tb);
+#if DEBUG>=3
+   std::cerr << "beta = " << beta << std::endl;
+#endif
    // Compute results
    libbase::cputimer tr("t_results");
    work_results(ptable, sof_post, eof_post);
    collector.add_timer(tr);
+#if DEBUG>=3
+   // show output data
+   std::cerr << "ptable = " << ptable << std::endl;
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
+
    // Add values for limits that depend on channel conditions
    collector.add_timer(I, "c_I");
    collector.add_timer(xmax, "c_xmax");
@@ -596,22 +643,6 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
    collector.add_timer(sizeof(real) * gamma.num_elements(), "m_gamma");
-
-#if DEBUG>=3
-   std::cerr << "r = " << r << std::endl;
-   std::cerr << "sof_prior = " << sof_prior << std::endl;
-   std::cerr << "eof_prior = " << eof_prior << std::endl;
-   if (!flags.lazy || flags.globalstore)
-      {
-      std::cerr << "gamma = " << std::endl;
-      print_gamma(std::cerr);
-      }
-   std::cerr << "alpha = " << alpha << std::endl;
-   std::cerr << "beta = " << beta << std::endl;
-   std::cerr << "ptable = " << ptable << std::endl;
-   std::cerr << "sof_post = " << sof_post << std::endl;
-   std::cerr << "eof_post = " << eof_post << std::endl;
-#endif
    }
 
 } // end namespace

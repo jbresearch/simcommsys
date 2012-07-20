@@ -32,8 +32,6 @@
 // NOTE: the following line avoids problems with including winsock2.h later
 #  define _WINSOCKAPI_
 #  include <windows.h>
-#else
-#  include <sys/resource.h>
 #endif
 
 namespace libbase {
@@ -47,9 +45,9 @@ namespace libbase {
  * - $Date$
  * - $Author$
  *
- * A class implementing a CPU-usage timer; this keeps track of all (user +
- * system) time used by the process (including any threads, but no children);
- * resolution is in microseconds on UNIX and sub-microsecond on Win32 systems.
+ * A class implementing a CPU-usage timer; this keeps track of time used by the
+ * process (including any threads, but no children); uses the hardware
+ * high-precision even timer, so resolution is sub-microsecond on all systems.
  *
  * \todo Extract common base class for walltimer and cputimer
  */
@@ -61,8 +59,8 @@ private:
    LARGE_INTEGER event_start; //!< Start event usage info
    mutable LARGE_INTEGER event_stop; //!< Stop event usage info
 #else
-   struct rusage event_start; //!< Start event usage info
-   mutable struct rusage event_stop; //!< Stop event usage info
+   struct timespec event_start; //!< Start event usage info
+   mutable struct timespec event_stop; //!< Stop event usage info
 #endif
    // @}
 
@@ -70,9 +68,9 @@ private:
    /*! \name Internal helper methods */
 #ifdef WIN32
 #else
-   static double convert(const struct timeval& tv)
+   static double convert(const struct timespec& tv)
       {
-      return tv.tv_sec + double(tv.tv_usec) * 1E-6;
+      return tv.tv_sec + double(tv.tv_nsec) * 1E-9;
       }
 #endif
    // @}
@@ -84,7 +82,7 @@ protected:
 #ifdef WIN32
       QueryPerformanceCounter(&event_start);
 #else
-      getrusage(RUSAGE_SELF, &event_start);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &event_start);
 #endif
       }
    void do_stop() const
@@ -92,7 +90,7 @@ protected:
 #ifdef WIN32
       QueryPerformanceCounter(&event_stop);
 #else
-      getrusage(RUSAGE_SELF, &event_stop);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &event_stop);
 #endif
       }
    double get_elapsed() const
@@ -103,11 +101,7 @@ protected:
       QueryPerformanceFrequency(&frequency);
       return double(event_stop.QuadPart - event_start.QuadPart) / double(frequency.QuadPart);
 #else
-      const double utime = convert(event_stop.ru_utime) - convert(
-            event_start.ru_utime);
-      const double stime = convert(event_stop.ru_stime) - convert(
-            event_start.ru_stime);
-      return utime + stime;
+      return convert(event_stop) - convert(event_start);
 #endif
       }
    // @}
@@ -136,7 +130,9 @@ public:
       QueryPerformanceFrequency(&frequency);
       return 1.0 / double(frequency.QuadPart);
 #else
-      return 1e-6;
+      struct timespec res;
+      clock_getres(CLOCK_PROCESS_CPUTIME_ID, &res);
+      return convert(res);
 #endif
       }
    // @}

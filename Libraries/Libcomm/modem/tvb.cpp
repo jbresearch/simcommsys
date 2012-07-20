@@ -614,12 +614,24 @@ std::string tvb<sig, real>::description() const
    if (flags.norm)
       sout << ", normalized";
    if (flags.batch)
-      sout << ", batch computation";
+      sout << ", batch interface";
+   else
+      sout << ", single interface";
    if (flags.lazy)
       {
       sout << ", lazy computation";
       if (flags.globalstore)
-         sout << ", cached";
+         sout << ", global caching";
+      else
+         sout << ", local caching";
+      }
+   else
+      {
+      sout << ", pre-computation";
+      if (flags.globalstore)
+         sout << ", global";
+      else
+         sout << ", local";
       }
    sout << "), " << fba.description();
    return sout.str();

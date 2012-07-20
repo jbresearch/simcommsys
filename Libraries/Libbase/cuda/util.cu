@@ -62,12 +62,37 @@ int cudaGetMultiprocessorCount(int device)
 
 int cudaGetMultiprocessorSize(int device)
    {
+   // Structure to map SM version to # of cores per SM
+   typedef struct {
+      int SM; // 0xMm (hex), M = SM Major version, and m = SM minor version
+      int Cores;
+   } sSMtoCores;
+
+   sSMtoCores nGpuArchCoresPerSM[] = {
+         {0x10, 8}, // Tesla Generation (SM 1.0) G80 class
+         {0x11, 8}, // Tesla Generation (SM 1.1) G8x class
+         {0x12, 8}, // Tesla Generation (SM 1.2) G9x class
+         {0x13, 8}, // Tesla Generation (SM 1.3) GT200 class
+         {0x20, 32}, // Fermi Generation (SM 2.0) GF100 class
+         {0x21, 48}, // Fermi Generation (SM 2.1) GF10x class
+         {0x30, 192}, // Kepler Generation (SM 3.0) GK10x class
+         {-1, -1}}; // Undefined
+
+   // If no device is specified, pick the current one
    if (device < 0)
       device = cudaGetCurrentDevice();
-   const int nGpuArchCoresPerSM[] = {-1, 8, 32};
+   // Get properties for chosen device
    cudaDeviceProp prop;
    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-   return nGpuArchCoresPerSM[prop.major];
+   // Find the SM version in the table
+   for (int i = 0; nGpuArchCoresPerSM[i].SM != -1; i++)
+      {
+      if (nGpuArchCoresPerSM[i].SM == ((prop.major << 4) + prop.minor))
+         return nGpuArchCoresPerSM[i].Cores;
+      }
+   std::cerr << "WARNING: SM " << prop.major << "." << prop.minor
+         << " is undefined!" << std::endl;
+   return -1;
    }
 
 //! Get the warp size for the given device

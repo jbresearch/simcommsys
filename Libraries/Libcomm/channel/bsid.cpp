@@ -443,7 +443,7 @@ void bsid::metric_computer::init()
 #endif
    }
 
-// Channel received for host
+// Channel receiver for host
 
 bsid::real bsid::metric_computer::receive(const bitfield& tx,
       const array1b_t& rx) const
@@ -831,12 +831,21 @@ void bsid::receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable)
 std::string bsid::description() const
    {
    std::ostringstream sout;
-   sout << "BSID channel (" << varyPs << varyPd << varyPi;
-   if (!varyPs && fixedPs > 0)
+   sout << "BSID channel (";
+   // List varying components
+   if(varyPs)
+      sout << "Ps=";
+   if(varyPi)
+      sout << "Pi=";
+   if(varyPd)
+      sout << "Pd=";
+   sout << "p";
+   // List non-varying components, with their value
+   if (!varyPs)
       sout << ", Ps=" << fixedPs;
-   if (!varyPd && fixedPd > 0)
+   if (!varyPd)
       sout << ", Pd=" << fixedPd;
-   if (!varyPi && fixedPi > 0)
+   if (!varyPi)
       sout << ", Pi=" << fixedPi;
    if (biased)
       sout << ", biased";

@@ -141,10 +141,14 @@ public:
          {
          // gamma has indices (d,i,x,deltax) where:
          //    d in [0, q-1], i in [0, N-1], x in [-xmax, xmax], and
-         //    deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
+         //    deltax in [dmin, dmax] = [max(-n,-dxmax), min(nI,dxmax)]
          const int pitch3 = (dmax - dmin + 1);
          const int pitch2 = pitch3 * (2 * xmax + 1);
          const int pitch1 = pitch2 * N;
+         cuda_assert(d >= 0 && d < q);
+         cuda_assert(i >= 0 && i < N);
+         cuda_assert(x >= -xmax && x <= xmax);
+         cuda_assert(deltax >= dmin && deltax <= dmax);
          const int off1 = d;
          const int off2 = i;
          const int off3 = x + xmax;
@@ -190,7 +194,7 @@ public:
          // apply priors if applicable
          if (app.size() > 0)
             {
-            for (int deltax = dmin; deltax <= dmax; deltax++)
+            for (int deltax = -dxmax; deltax <= dxmax; deltax++)
                {
                ptable(dxmax + deltax) *= real(app(i,d));
                }
@@ -304,7 +308,7 @@ public:
       __device__
       static real get_threshold(const dev_array2r_ref_t& metric, int row, int cols, real factor);
       __device__
-      static real parallel_sum(real array[]);
+      static real parallel_sum(real array[], const int N);
       __device__
       static real get_scale(const dev_array2r_ref_t& metric, int row, int cols);
       __device__
