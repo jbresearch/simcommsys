@@ -503,11 +503,12 @@ void tvb<sig, real>::validatecodebook() const
          }
    }
 
-//! Inform user if I or xmax have changed
+//! Inform user if I or xmax have changed (debug build only)
 
 template <class sig, class real>
 void tvb<sig, real>::checkforchanges(int I, int xmax) const
    {
+#ifndef NDEBUG
    static int last_I = 0;
    static int last_xmax = 0;
    if (last_I != I || last_xmax != xmax)
@@ -516,6 +517,7 @@ void tvb<sig, real>::checkforchanges(int I, int xmax) const
       last_I = I;
       last_xmax = xmax;
       }
+#endif
    }
 
 // Marker-specific setup functions

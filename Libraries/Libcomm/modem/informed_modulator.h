@@ -61,7 +61,7 @@ protected:
    // @}
 
 public:
-   /*! \name Atomic modem operations */
+   /*! \name Atomic modem operations - informed extensions */
    /*!
     * \brief Demodulate a single time-step
     * \param[in]  signal   Received signal
@@ -72,7 +72,7 @@ public:
    virtual const int demodulate(const S& signal, const array1d_t& app) const = 0;
    // @}
 
-   /*! \name Block modem operations */
+   /*! \name Block modem operations - informed extensions */
    /*!
     * \brief Demodulate a sequence of time-steps
     * \param[in]  chan     The channel model (used to obtain likelihoods)

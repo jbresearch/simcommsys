@@ -155,16 +155,12 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    // Keep posterior probabilities at end-of-frame and computed drift
    static libbase::vector<double> eof_post;
    static libbase::size_type<libbase::vector> offset;
-   static int estimated_drift;
+   static libbase::size_type<libbase::vector> estimated_drift;
    // Keep received sequence
    static libbase::vector<S> received;
 
    // Shorthand for transmitted frame size
    const int tau = system->output_block_size();
-   // Get access to the commsys channel object in stream-oriented mode
-   using libcomm::channel_stream;
-   const channel_stream<S>& c =
-         dynamic_cast<const channel_stream<S>&> (*system->getchan());
 
    // Keep a copy of the last frame's offset (in case x_max changes)
    const libbase::size_type<libbase::vector> oldoffset = offset;
@@ -172,25 +168,7 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    // Determine start-of-frame and end-of-frame probabilities
    libbase::vector<double> sof_prior;
    libbase::vector<double> eof_prior;
-   if (eof_post.size() == 0) // this is the first frame
-      {
-      // Initialize as drift pdf after transmitting one frame
-      c.get_drift_pdf(tau, eof_prior, offset);
-      eof_prior /= eof_prior.max();
-      // Initialize as zero-drift is assured
-      sof_prior.init(eof_prior.size());
-      sof_prior = 0;
-      sof_prior(0 + offset) = 1;
-      }
-   else
-      {
-      // Use previous (centralized) end-of-frame posterior probability
-      sof_prior = eof_post;
-      // Initialize as drift pdf after transmitting one frame, given sof priors
-      // (offset gets updated and sof_prior gets resized as needed)
-      c.get_drift_pdf(tau, sof_prior, eof_prior, offset);
-      eof_prior /= eof_prior.max();
-      }
+   system->compute_priors(eof_post, sof_prior, eof_prior, offset);
 
    // Extract required segment of existing stream
    libbase::vector<S> received_prev;
@@ -250,13 +228,11 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    eof_post = system->get_eof_post();
 
    // Determine estimated drift
-   estimated_drift = libbase::index_of_max(eof_post) - offset;
+   estimated_drift = libcomm::commsys_stream<S>::estimate_drift(eof_post,
+         offset);
    // Centralize posterior probabilities
-   eof_post = 0;
-   const int sh_a = std::max(0, -estimated_drift);
-   const int sh_b = std::max(0, estimated_drift);
-   const int sh_n = eof_post.size() - abs(estimated_drift);
-   eof_post.segment(sh_a, sh_n) = system->get_eof_post().extract(sh_b, sh_n);
+   eof_post = libcomm::commsys_stream<S>::centralize_pdf(eof_post,
+         estimated_drift);
    }
 
 template <class S>
@@ -310,7 +286,7 @@ void process(const std::string& fname, double p, bool softin, bool softout,
    commsys *system = libcomm::loadfromfile<commsys>(fname);
    std::cerr << system->description() << std::endl;
    // Set channel parameter
-   system->getchan()->set_parameter(p);
+   system->getrxchan()->set_parameter(p);
    // Initialize system
    libbase::randgen r;
    r.seed(0);

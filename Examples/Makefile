@@ -19,11 +19,11 @@
 #
 # Simulator test files makefile
 
-# List of symbol types to work with
-#STREAM_LIMITS := 1 10 100 1000 10000
-STREAM_LIMITS := 10
+# List of stream lengths to work with for reset and termination respectively
+STREAM_RESET_N := 1 10
+STREAM_TERM_N := 1 10
 # List of results collectors to work with
-COLLECTOR_TYPES := errors_levenshtein prof_pos
+COLLECTOR_TYPES := errors_levenshtein prof_pos fidelity_pos
 
 # Set default tag and release to test with
 ifndef TAG
@@ -35,8 +35,11 @@ endif
 
 # List of systems to work with
 SYSTEMS := $(wildcard Systems/*.txt)
-SIMULATORS := $(foreach B,$(COLLECTOR_TYPES), $(SYSTEMS:Systems/%.txt=Simulators/$(B)-%.txt) \
-	$(foreach A,$(STREAM_LIMITS),$(SYSTEMS:Systems/stream-%.txt=Simulators/$(B)-stream-$(A)-%.txt)))
+SIMULATORS := $(foreach B,$(COLLECTOR_TYPES), \
+	$(SYSTEMS:Systems/%.txt=Simulators/$(B)-%.txt) \
+	$(foreach A,$(STREAM_RESET_N),$(SYSTEMS:Systems/stream-%.txt=Simulators/$(B)-stream-reset-$(A)-%.txt)) \
+	$(foreach A,$(STREAM_TERM_N),$(SYSTEMS:Systems/stream-%.txt=Simulators/$(B)-stream-term-$(A)-%.txt)) \
+	)
 TIMERS := $(SYSTEMS:Systems/%.txt=Timers/%.txt)
 
 # main targets
@@ -72,44 +75,108 @@ FORCE:
 
 .DELETE_ON_ERROR:
 
-# GAWK programs
+## GAWK programs
 
-define GAWK_SIMULATOR_CREATOR
-define GAWK_SIMULATOR_$(1)_$(2)
+# Simulators with parameters: streams with reset
+
+define GAWK_SIMULATOR_STREAM_RESET_CREATOR
+define GAWK_SIMULATOR_STREAM_RESET_$(1)_$(2)
+# stream-oriented systems
 /^commsys_stream/ {
 	x=$$$$0
-	# stream-oriented systems
+	# use stream simulator
 	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
-	# remove container type and
-	# add levenshtein-distance error rate
+	# remove container type and add results collector
 	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
 	print x;
-	# add version and stream limit
+	# add version, streaming mode, and corresponding length
+	print "# Version"
+	print 2
+	print "# Streaming mode (0=open, 1=reset, 2=terminated)"
 	print 1
+	print "# Number of frames to reset"
 	print $(1)
 	}
+{ print; }
+endef
+export GAWK_SIMULATOR_STREAM_RESET_$(1)_$(2)
+endef
+
+$(foreach B,$(COLLECTOR_TYPES),\
+	$(foreach A,$(STREAM_RESET_N),\
+		$(eval $(call GAWK_SIMULATOR_STREAM_RESET_CREATOR,$(A),$(B))) ))
+
+# Simulators with parameters: streams with termination
+
+define GAWK_SIMULATOR_STREAM_TERM_CREATOR
+define GAWK_SIMULATOR_STREAM_TERM_$(1)_$(2)
+# stream-oriented systems
+/^commsys_stream/ {
+	x=$$$$0
+	# use stream simulator
+	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
+	# remove container type and add results collector
+	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
+	print x;
+	# add version, streaming mode, and corresponding length
+	print "# Version"
+	print 2
+	print "# Streaming mode (0=open, 1=reset, 2=terminated)"
+	print 2
+	print "# Length of stream in frames"
+	print $(1)
+	}
+{ print; }
+endef
+export GAWK_SIMULATOR_STREAM_TERM_$(1)_$(2)
+endef
+
+$(foreach B,$(COLLECTOR_TYPES),\
+	$(foreach A,$(STREAM_TERM_N),\
+		$(eval $(call GAWK_SIMULATOR_STREAM_TERM_CREATOR,$(A),$(B))) ))
+
+# Simulators without parameters: standard commsys and open-ended streams
+
+define GAWK_SIMULATOR_CREATOR
+define GAWK_SIMULATOR_$(1)
+# stream-oriented systems
+/^commsys_stream/ {
+	x=$$$$0
+	# use stream simulator
+	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
+	# remove container type and add results collector
+	x = gensub(/<(.+),vector>/,"<\\1,$(1)>","g",x)
+	print x;
+	# add version and open-ended streaming mode
+	print "# Version"
+	print 2
+	print "# Streaming mode (0=open, 1=reset, 2=terminated)"
+	print 0
+	}
+# all other matched systems
 /^commsys/ && !/^commsys_stream/ {
 	x=$$$$0
-	# all other matched objects
+	# use standard simulator
 	sub(/commsys[^<]*/,"commsys_simulator",x)
-        # remove container type and
-        # add levenshtein-distance error rate
-	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
+	# remove container type and add results collector
+	x = gensub(/<(.+),vector>/,"<\\1,$(1)>","g",x)
 	print x;
 	}
 { print; }
 endef
-export GAWK_SIMULATOR_$(1)_$(2)
+export GAWK_SIMULATOR_$(1)
 endef
 
-$(foreach B,0 $(COLLECTOR_TYPES),\
-	$(foreach A,0 $(STREAM_LIMITS),\
-		$(eval $(call GAWK_SIMULATOR_CREATOR,$(A),$(B))) ))
+$(foreach A,$(COLLECTOR_TYPES),\
+	$(eval $(call GAWK_SIMULATOR_CREATOR,$(A))) )
+
+# Timer simulations
 
 define GAWK_TIMER
+# all matched systems
 /^commsys/ {
 	x=$$0
-	# all matched objects
+	# use timer simulator
 	sub(/commsys[^<]*/,"commsys_timer",x)
 	# remove container type
 	x = gensub(/<(.+),vector>/,"<\\1>","g",x)
@@ -119,21 +186,39 @@ define GAWK_TIMER
 endef
 export GAWK_TIMER
 
-# pattern-matched targets
+## pattern-matched targets
 
+# standard commsys and open-ended streams
 define GenerateSimulators
-Simulators/$(2)-%.txt: Systems/%.txt
+Simulators/$(1)-%.txt: Systems/%.txt
 	@echo Making $$@
-	@gawk "$$$$GAWK_SIMULATOR_0_$(2)" < $$< > $$@
-
-Simulators/$(2)-stream-$(1)-%.txt: Systems/stream-%.txt
-	@echo Making $$@
-	@gawk "$$$$GAWK_SIMULATOR_$(1)_$(2)" < $$< > $$@
+	@gawk "$$$$GAWK_SIMULATOR_$(1)" < $$< > $$@
 endef
 
-$(foreach B,0 $(COLLECTOR_TYPES),\
-	$(foreach A,0 $(STREAM_LIMITS),\
-		$(eval $(call GenerateSimulators,$(A),$(B))) ))
+$(foreach A,$(COLLECTOR_TYPES),\
+	$(eval $(call GenerateSimulators,$(A))) )
+
+# streams with reset
+define GenerateSimulatorsStreamReset
+Simulators/$(2)-stream-reset-$(1)-%.txt: Systems/stream-%.txt
+	@echo Making $$@
+	@gawk "$$$$GAWK_SIMULATOR_STREAM_RESET_$(1)_$(2)" < $$< > $$@
+endef
+
+$(foreach B,$(COLLECTOR_TYPES),\
+	$(foreach A,$(STREAM_RESET_N),\
+		$(eval $(call GenerateSimulatorsStreamReset,$(A),$(B))) ))
+
+# streams with termination
+define GenerateSimulatorsStreamTerm
+Simulators/$(2)-stream-term-$(1)-%.txt: Systems/stream-%.txt
+	@echo Making $$@
+	@gawk "$$$$GAWK_SIMULATOR_STREAM_TERM_$(1)_$(2)" < $$< > $$@
+endef
+
+$(foreach B,$(COLLECTOR_TYPES),\
+	$(foreach A,$(STREAM_TERM_N),\
+		$(eval $(call GenerateSimulatorsStreamTerm,$(A),$(B))) ))
 
 Timers/%.txt: Systems/%.txt
 	@echo Making $@

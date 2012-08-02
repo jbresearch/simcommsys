@@ -61,12 +61,15 @@ private:
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::vector<array1r_t> array1vr_t;
    typedef boost::assignable_multi_array<real, 2> array2r_t;
+   typedef boost::assignable_multi_array<real, 3> array3r_t;
    typedef boost::assignable_multi_array<real, 4> array4r_t;
+   typedef boost::assignable_multi_array<bool, 1> array1b_t;
    typedef boost::assignable_multi_array<bool, 2> array2b_t;
    // @}
 private:
@@ -74,8 +77,14 @@ private:
    mutable receiver_t receiver; //!< Inner code receiver metric computation
    array2r_t alpha; //!< Forward recursion metric
    array2r_t beta; //!< Backward recursion metric
-   mutable array4r_t gamma; //!< Receiver metric
-   mutable array2b_t cached; //!< Flag for globalstore of receiver metric
+   mutable struct {
+      array4r_t global; // indices (d,i,x,deltax)
+      array3r_t local; // indices (d,x,deltax)
+   } gamma; //!< Receiver metric
+   mutable struct {
+      array2b_t global; // indices (i,x)
+      array1b_t local; // indices (x)
+   } cached; //!< Flag for caching of receiver metric
    array1s_t r; //!< Copy of received sequence, for lazy computation of gamma
    array1vd_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
    int dmin; //!< Offset for deltax index in gamma matrix
@@ -99,7 +108,7 @@ private:
       bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
       bool batch; //!< Flag indicating use of batch receiver interface
       bool lazy; //!< Flag indicating lazy computation of gamma metric
-      bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
+      bool globalstore; //!< Flag indicating global pre-computation or caching of gamma values
    } flags;
    // @}
 private:
@@ -131,26 +140,13 @@ private:
       if (app.size() > 0)
          ptable *= real(app(i)(d));
       }
-   //! Compute gamma metric using batch interface, keeping a small local cache
-   real compute_gamma_batch_cached(int d, int i, int x, int deltax) const
+   //! Get a reference to the corresponding gamma cache entry
+   real& get_cache_entry(int d, int i, int x, int deltax) const
       {
-      // keep track of parameters for cached results
-      static int last_d = -1;
-      static int last_i = -1;
-      static int last_x = -1;
-      // space for results
-      static array1r_t ptable;
-      // recompute and store if any parameter changed
-      if (d != last_d || i != last_i || x != last_x)
-         {
-         last_d = d;
-         last_i = i;
-         last_x = x;
-         ptable.init(2 * dxmax + 1);
-         compute_gamma_batch(d, i, x, ptable, r, app);
-         }
-      // return stored result
-      return ptable(dxmax + deltax);
+      if (flags.globalstore)
+         return gamma.global[d][i][x][deltax];
+      else
+         return gamma.local[d][x][deltax];
       }
    //! Fill indicated cache entries for gamma metric - batch interface
    void fill_gamma_cache_batch(int i, int x) const
@@ -165,7 +161,7 @@ private:
          compute_gamma_batch(d, i, x, ptable, r, app);
          // store in corresponding place in cache
          for (int deltax = dmin; deltax <= dmax; deltax++)
-            gamma[d][i][x][deltax] = ptable(dxmax + deltax);
+            get_cache_entry(d, i, x, deltax) = ptable(dxmax + deltax);
          }
       }
    //! Fill indicated cache entries for gamma metric - independent interface
@@ -177,21 +173,45 @@ private:
          const int deltaxmin = std::max(-xmax - x, dmin);
          const int deltaxmax = std::min(xmax - x, dmax);
          for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-            gamma[d][i][x][deltax] = compute_gamma_single(d, i, x, deltax, r,
-                  app);
+            get_cache_entry(d, i, x, deltax) = compute_gamma_single(d, i, x,
+                  deltax, r, app);
          }
       }
    //! Wrapper to fill indicated cache entries for gamma metric as needed
    void fill_gamma_cache_conditional(int i, int x) const
       {
-      // if we not have this already, fill in this part of cache
-      if (!cached[i][x])
+      bool miss = false;
+      if (flags.globalstore)
+         {
+         // if we not have this already, mark to fill in this part of cache
+         if (!cached.global[i][x])
+            {
+            miss = true;
+            cached.global[i][x] = true;
+            }
+         }
+      else
+         {
+         // keep track of position index, to reset local cache on change
+         static int last_i = -1;
+         if (last_i != i)
+            {
+            last_i = i;
+            gamma.local = real(0);
+            cached.local = false;
+            }
+         // if we not have this already, mark to fill in this part of cache
+         if (!cached.local[x])
+            {
+            miss = true;
+            cached.local[x] = true;
+            }
+         }
+      if (miss)
          {
 #ifndef NDEBUG
          gamma_misses++;
 #endif
-         // mark as filled in
-         cached[i][x] = true;
          // call computation method and store results
          if (flags.batch)
             fill_gamma_cache_batch(i, x);
@@ -218,18 +238,10 @@ private:
 #endif
       // pre-computed values
       if (!flags.lazy)
-         return gamma[d][i][x][deltax];
-      // lazy computation, without global storage
-      if (!flags.globalstore)
-         {
-         if (flags.batch)
-            return compute_gamma_batch_cached(d, i, x, deltax);
-         else
-            return compute_gamma_single(d, i, x, deltax, r, app);
-         }
-      // lazy computation, with global storage
+         return gamma.global[d][i][x][deltax];
+      // lazy computation, with local or global storage
       fill_gamma_cache_conditional(i, x);
-      return gamma[d][i][x][deltax];
+      return get_cache_entry(d, i, x, deltax);
       }
    // common small tasks
    static real get_threshold(const array2r_t& metric, int row, int col_min,
@@ -324,6 +336,7 @@ public:
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
          array1r_t& eof_post, const int offset);
+   void get_drift_pdf(array1vr_t& pdftable) const;
 
    // Description
    std::string description() const

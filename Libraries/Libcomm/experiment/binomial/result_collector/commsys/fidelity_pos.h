@@ -22,16 +22,17 @@
  * - $Id$
  */
 
-#ifndef __prof_pos_h
-#define __prof_pos_h
+#ifndef __fidelity_pos_h
+#define __fidelity_pos_h
 
 #include "config.h"
-#include "errors_hamming.h"
+#include "vector.h"
+#include <string>
 
 namespace libcomm {
 
 /*!
- * \brief   CommSys Results - Frame-Position Error Profile.
+ * \brief   CommSys Results - Codeword Boundary Fidelity.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -39,22 +40,35 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * Profiler of error with respect to position within block.
+ * Implements computation of the fidelity metric at frame and codeword
+ * boundary positions.
  */
-
-class prof_pos : public errors_hamming {
+class fidelity_pos {
+protected:
+   /*! \name System Interface */
+   //! The number of information symbols per block
+   virtual int get_symbolsperblock() const = 0;
+   // @}
 public:
-   // Public interface
+   virtual ~fidelity_pos()
+      {
+      }
+   /*! \name Public interface */
    void updateresults(libbase::vector<double>& result, const int i,
          const libbase::vector<int>& source,
-         const libbase::vector<int>& decoded) const;
+         const libbase::vector<int>& decoded) const
+      {
+      failwith("This function should never be called.");
+      }
+   void updateresults(libbase::vector<double>& result, const libbase::vector<
+         int>& act_drift, const libbase::vector<int>& est_drift) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we determine the (symbol) error rate for
-    * every frame position.
+    * For each iteration, we count the fidelity at codeword boundary positions.
+    * \warning This assumes that the codec and modem output sizes are the same!
     */
    int count() const
       {
-      return get_symbolsperblock() * get_iter();
+      return get_symbolsperblock() + 1;
       }
    /*! \copydoc experiment::get_multiplicity()
     * Only one result can be incremented for every position.
@@ -64,6 +78,7 @@ public:
       return 1;
       }
    std::string result_description(int i) const;
+   // @}
 };
 
 } // end namespace

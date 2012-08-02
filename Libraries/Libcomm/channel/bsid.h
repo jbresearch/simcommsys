@@ -55,6 +55,13 @@ namespace libcomm {
  * - $Revision$
  * - $Date$
  * - $Author$
+ *
+ * Implements the binary channel with unbounded random insertion, deletion and
+ * substitution errors as described in:
+ * Davey, M.C. and Mackay, D.J.C., "Reliable communication over channels with
+ * insertions, deletions, and substitutions," IEEE Transactions on Information
+ * Theory, vol.47, no.2, pp.687-698, Feb 2001
+ * URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=910582&isnumber=19638
  */
 
 class bsid : public channel_stream<bool> {
@@ -66,6 +73,7 @@ public:
    typedef float real;
    typedef libbase::matrix<real> array2r_t;
    typedef libbase::vector<real> array1r_t;
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<bool> array1b_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -299,11 +307,13 @@ public:
    };
    // @}
 private:
-   /*! \name Metric computation */
+   /*! \name Internal representation */
    metric_computer computer;
    double Ps; //!< Bit-substitution probability \f$ P_s \f$
    double Pd; //!< Bit-deletion probability \f$ P_d \f$
    double Pi; //!< Bit-insertion probability \f$ P_i \f$
+   array1i_t state_ins; //!< State vector with number of insertions before transmission of bit 'i'
+   array1b_t state_tx; //!< State vector with flag indicating transmission of bit 'i'
    // @}
 private:
    /*! \name Internal functions */
@@ -422,6 +432,28 @@ public:
          libbase::vector<double>& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const;
    // @}
+
+   // Insertion-deletion channel functions
+   int get_drift(int t) const
+      {
+#ifndef NDEBUG
+      // shorthand for length of last transmitted frame
+      const int tau = state_ins.size();
+      assert(state_tx.size() == tau);
+      // sanity check
+      assert(t >= 0);
+      assert(t <= tau);
+#endif
+      // accumulate drift up to time 't'
+      int drift = 0;
+      for (int i = 0; i < t; i++)
+         {
+         drift += state_ins(i);
+         if (!state_tx(i))
+            drift--;
+         }
+      return drift;
+      }
 
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);

@@ -62,6 +62,7 @@ private:
 public:
    /*! \name Type definitions */
    typedef libbase::vector<bool> array1b_t;
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -78,13 +79,14 @@ private:
 #ifdef USE_CUDA
    cuda::fba2<cuda::dminner2_receiver<real>, bool, real> fba;
 #else
-   fba2<dminner2_receiver<real>, bool, real> fba;
+   fba2<dminner2_receiver<real> , bool, real> fba;
 #endif
    // @}
 private:
-   // Setup procedure
+   //! Set up for given channel parameters and sof prior
    void init(const channel<bool>& chan, const array1d_t& sof_pdf,
          const int offset);
+   //! Set up for given channel parameters and known start
    void init(const channel<bool>& chan)
       {
       const array1d_t eof_pdf;
@@ -128,6 +130,26 @@ public:
    // (necessary because inheriting methods from templated base)
    using Interface::modulate;
    using Interface::demodulate;
+
+   // Block modem operations - streaming extensions
+   void get_post_drift_pdf(array1vd_t& pdftable) const
+      {
+      // get the posterior channel drift pdf at codeword boundaries
+      array1vr_t pdftable_r;
+      fba.get_drift_pdf(pdftable_r);
+      Base::normalize_results(pdftable_r, pdftable);
+      }
+   array1i_t get_boundaries(void) const
+      {
+      // inherit block size from last modulation step
+      const int n = Base::n;
+      const int N = Base::marker.size();
+      // construct list of codeword boundary positions
+      array1i_t postable(N + 1);
+      for (int i = 0; i <= N; i++)
+         postable(i) = i * n;
+      return postable;
+      }
 
    // Description
    std::string description() const;

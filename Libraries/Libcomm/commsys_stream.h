@@ -71,20 +71,46 @@ private:
    // @}
 
 public:
-   /*! \name Communication System Setup Extensions */
+   /*! \name Stream Utilities */
+   static libbase::size_type<C> estimate_drift(const C<double>& pdf,
+         const libbase::size_type<C> offset)
+      {
+      const int drift = libbase::index_of_max(pdf) - offset;
+      return libbase::size_type<C>(drift);
+      }
+   static C<double> centralize_pdf(const C<double>& pdf, const libbase::size_type<C> drift)
+      {
+      C<double> newpdf(pdf.size());
+      newpdf = 0;
+      const int sh_a = std::max(0, -drift);
+      const int sh_b = std::max(0, int(drift));
+      const int sh_n = pdf.size() - abs(drift);
+      newpdf.segment(sh_a, sh_n) = pdf.extract(sh_b, sh_n);
+      return newpdf;
+      }
+   // @}
+
+   /*! \name Communication System Setup - Stream Extensions */
    //! Get modulation scheme in stream mode
    stream_modulator<S, C>& getmodem_stream() const
       {
       return dynamic_cast<stream_modulator<S, C>&> (*this->mdm);
       }
-   //! Get channel model in stream mode
-   channel_stream<S>& getchan_stream() const
+   //! Get receiver channel model in stream mode
+   channel_stream<S>& getrxchan_stream() const
       {
-      return dynamic_cast<channel_stream<S>&> (*this->chan);
+      return dynamic_cast<channel_stream<S>&> (*this->rxchan);
+      }
+   //! Get transmit channel model in stream mode
+   channel_stream<S>& gettxchan_stream() const
+      {
+      return dynamic_cast<channel_stream<S>&> (*this->txchan);
       }
    // @}
 
-   /*! \name Communication System Interface Extensions */
+   /*! \name Communication System Interface - Stream Extensions */
+   void compute_priors(const C<double>& eof_post, C<double>& sof_prior, C<
+         double>& eof_prior, libbase::size_type<C>& offset) const;
    void receive_path(const C<S>& received, const C<double>& sof_prior, const C<
          double>& eof_prior, const libbase::size_type<C> offset);
    const C<double>& get_sof_post() const

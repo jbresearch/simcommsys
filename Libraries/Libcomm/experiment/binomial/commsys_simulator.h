@@ -122,11 +122,14 @@ public:
       }
    void set_parameter(const double x)
       {
-      sys->getchan()->set_parameter(x);
+      sys->gettxchan()->set_parameter(x);
+      sys->getrxchan()->set_parameter(x);
       }
    double get_parameter() const
       {
-      return sys->getchan()->get_parameter();
+      const double p = sys->gettxchan()->get_parameter();
+      assert(p == sys->getrxchan()->get_parameter());
+      return p;
       }
 
    // Experiment handling

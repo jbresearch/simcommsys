@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "commsys_simulator.h"
+#include "commsys_stream.h"
 #include <list>
 
 namespace libcomm {
@@ -59,27 +60,45 @@ private:
    typedef commsys_simulator<S, R> Base;
 public:
    /*! \name Type definitions */
-   //typedef libbase::vector<double> array1d_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<S> array1s_t;
+   typedef libbase::vector<double> array1d_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
 private:
    /*! \name User-defined parameters */
-   int N; //!< maximum number of frames between resets (0=don't reset)
+   enum mode_enum {
+      mode_open = 0, //!< Open-ended (non-terminating) stream
+      mode_reset, //!< Open-ended stream with reset after N frames
+      mode_terminated, //!< Stream of length N frames
+      mode_undefined
+   } mode; //!< enum indicating streaming mode
+   int N; //!< number of frames to reset or end of stream
    // @}
    /*! \name Internally-used objects */
-   std::list<libbase::vector<int> > source; //!< List of message sequences in order of transmission
-   libbase::vector<S> received; //!< Received sequence as a stream
-   libbase::vector<double> eof_post; //!< Centralized posterior probabilities at end-of-frame
+   std::list<array1i_t> source; //!< List of message sequences in order of transmission
+   array1s_t received; //!< Received sequence as a stream
+   array1d_t eof_post; //!< Centralized posterior probabilities at end-of-frame
    libbase::size_type<libbase::vector> offset; //!< Index offset for eof_post
-   int estimated_drift; //!< Estimated drift in last decoded frame
+   libbase::size_type<libbase::vector> estimated_drift; //!< Estimated drift in last decoded frame
+   std::list<array1i_t> act_bdry_drift; //!< Actual channel drift at codeword boundaries of each received frame
    std::list<int> actual_drift; //!< Actual channel drift at end of each received frame
    int drift_error; //!< Cumulative error in channel drift estimation at end of last decoded frame
-   commsys<S>* sys_enc; //!< Copy of the commsys object for encoder operations
+   commsys_stream<S>* sys_enc; //!< Copy of the commsys object for encoder operations
    int frames_encoded; //!< Number of frames encoded since stream reset
    int frames_decoded; //!< Number of frames decoded since stream reset
    // @}
 
 protected:
+   /*! \name Stream Extensions */
+   //! Get communication system in stream mode
+   commsys_stream<S>& getsys_stream() const
+      {
+      return dynamic_cast<commsys_stream<S>&> (*this->sys);
+      }
+   // @}
+
    /*! \name Setup functions */
    /*!
     * \brief Prepares to simulate a new sequence
@@ -93,14 +112,15 @@ protected:
       received.init(0);
       eof_post.init(0);
       offset = libbase::size_type<libbase::vector>(0);
-      estimated_drift = 0;
+      estimated_drift = libbase::size_type<libbase::vector>(0);
       // reset drift trackers
+      act_bdry_drift.clear();
       actual_drift.clear();
       drift_error = 0;
       // Make a copy of the commsys object for transmitter operations
       delete sys_enc;
       if (this->sys)
-         sys_enc = dynamic_cast<commsys<S>*> (this->sys->clone());
+         sys_enc = dynamic_cast<commsys_stream<S>*> (this->sys->clone());
       else
          sys_enc = NULL;
       // reset counters
@@ -112,16 +132,17 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    commsys_stream_simulator(const commsys_stream_simulator<S, R>& c) :
-      commsys_simulator<S, R> (c), N(c.N), source(c.source), received(
-            c.received), eof_post(c.eof_post), offset(c.offset),
-            estimated_drift(c.estimated_drift), actual_drift(c.actual_drift),
+      commsys_simulator<S, R> (c), mode(c.mode), N(c.N), source(c.source),
+            received(c.received), eof_post(c.eof_post), offset(c.offset),
+            estimated_drift(c.estimated_drift),
+            act_bdry_drift(c.act_bdry_drift), actual_drift(c.actual_drift),
             drift_error(c.drift_error), frames_encoded(c.frames_encoded),
             frames_decoded(c.frames_decoded)
       {
-      sys_enc = dynamic_cast<commsys<S>*> (c.sys_enc->clone());
+      sys_enc = dynamic_cast<commsys_stream<S>*> (c.sys_enc->clone());
       }
    commsys_stream_simulator() :
-      N(0), sys_enc(NULL)
+      mode(mode_open), N(0), sys_enc(NULL)
       {
       reset();
       }
@@ -142,7 +163,8 @@ public:
       Base::set_parameter(x);
       // we should already have a copy at this point
       assert(sys_enc);
-      sys_enc->getchan()->set_parameter(x);
+      // set the TX channel parameter only (we should not need to use the RX)
+      sys_enc->gettxchan()->set_parameter(x);
       }
    // @}
 

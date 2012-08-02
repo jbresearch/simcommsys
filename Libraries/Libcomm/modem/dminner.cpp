@@ -165,11 +165,12 @@ void dminner<real>::computemeandensity()
 #endif
    }
 
-//! Inform user if I or xmax have changed
+//! Inform user if I or xmax have changed (debug build only)
 
 template <class real>
 void dminner<real>::checkforchanges(int I, int xmax) const
    {
+#ifndef NDEBUG
    static int last_I = 0;
    static int last_xmax = 0;
    if (last_I != I || last_xmax != xmax)
@@ -178,6 +179,7 @@ void dminner<real>::checkforchanges(int I, int xmax) const
       last_I = I;
       last_xmax = xmax;
       }
+#endif
    }
 
 template <class real>
@@ -700,7 +702,8 @@ std::istream& dminner<real>::serialize(std::istream& sin)
    // read codebook
    int temp;
    sin >> libbase::eatcomments >> temp >> libbase::verify;
-   codebook_type = (codebook_t) temp;
+   assertalways(temp >=0 && temp < codebook_undefined);
+   codebook_type = static_cast<codebook_t> (temp);
    switch (codebook_type)
       {
       case codebook_sparse:
@@ -752,7 +755,8 @@ std::istream& dminner<real>::serialize(std::istream& sin)
       {
       int temp;
       sin >> libbase::eatcomments >> temp >> libbase::verify;
-      marker_type = (marker_t) temp;
+      assertalways(temp >=0 && temp < marker_undefined);
+      marker_type = static_cast<marker_t> (temp);
       if (marker_type == marker_mod_vec)
          {
          // read modification vectors from stream

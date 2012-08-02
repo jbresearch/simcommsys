@@ -41,7 +41,8 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
          libcomm::commsys<S, C> >(fname);
    std::cerr << system->description() << std::endl;
    // Set channel parameter
-   system->getchan()->set_parameter(p);
+   system->gettxchan()->set_parameter(p);
+   system->getrxchan()->set_parameter(p);
    // Initialize system
    libbase::randgen r;
    r.seed(0);

@@ -50,9 +50,11 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * Implements 'Watermark' Codes as described by Davey and MacKay in "Reliable
- * Communication over Channels with Insertions, Deletions, and Substitutions",
- * Trans. IT, Feb 2001.
+ * Implements 'Watermark' Codes as described in:
+ * Davey, M.C. and Mackay, D.J.C., "Reliable communication over channels with
+ * insertions, deletions, and substitutions," IEEE Transactions on Information
+ * Theory, vol.47, no.2, pp.687-698, Feb 2001
+ * URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=910582&isnumber=19638
  *
  * \note In demodulate(), the ptable is internally computed as type 'real',
  * and then copied over after normalization. We norm over the whole
@@ -84,20 +86,25 @@ public:
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::vector<array1r_t> array1vr_t;
-   enum codebook_t {
-      codebook_sparse = 0, codebook_user, codebook_tvb
-   };
-   enum marker_t {
-      marker_random = 0, marker_zero, marker_alt_symbol, marker_mod_vec
-   };
    // @}
 private:
    /*! \name User-defined parameters */
    int n; //!< number of bits in sparse (output) symbol
    int k; //!< number of bits in message (input) symbol
-   marker_t marker_type; //!< enum indicating codebook type
+   enum marker_t {
+      marker_random = 0, //!< Random marker sequence
+      marker_zero, //!< No marker sequence
+      marker_alt_symbol, //!< Alternating all-zero/all-one marker
+      marker_mod_vec, //!< User-supplier marker sequence (repeating)
+      marker_undefined
+   } marker_type; //!< enum indicating codebook type
    array1i_t marker_vectors; //!< modification vectors
-   codebook_t codebook_type; //!< enum indicating codebook type
+   enum codebook_t {
+      codebook_sparse = 0, //!< Sparse codebook
+      codebook_user, //!< User-supplied codebook (single)
+      codebook_tvb, //!< User-supplied codebooks (sequence)
+      codebook_undefined
+   } codebook_type; //!< enum indicating codebook type
    std::string codebookname; //!< name to describe codebook
    array2i_t codebook; //!< codebook
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
@@ -250,6 +257,18 @@ public:
    double energy() const
       {
       return n;
+      }
+
+   // Block modem operations - streaming extensions
+   void get_post_drift_pdf(array1vd_t& pdftable) const
+      {
+      failwith("Function not implemented.");
+      }
+   array1i_t get_boundaries(void) const
+      {
+      failwith("Function not implemented.");
+      array1i_t postable;
+      return postable;
       }
 
    // Description

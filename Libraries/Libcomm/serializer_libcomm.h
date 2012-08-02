@@ -42,6 +42,7 @@
 #include "channel/bsid.h"
 #include "channel/bsid2d.h"
 #include "channel/qids.h"
+#include "channel/bpmr.h"
 #include "channel/bsc.h"
 #include "channel/qsc.h"
 
@@ -167,6 +168,7 @@ private:
 private:
    // Channels
    qids<libbase::gf<1, 0x3> > _qids;
+   bpmr _bpmr;
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
    //padded<double>	_padded_double;

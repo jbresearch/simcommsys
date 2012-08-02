@@ -126,7 +126,7 @@ void dminner2<real>::dodemodulate(const channel<bool>& chan,
       array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
             libbase::vector> offset)
    {
-   // Initialize for known-start
+   // Initialize for given start distribution
    init(chan, sof_prior, offset);
    // TODO: validate priors have required size?
 #ifndef NDEBUG

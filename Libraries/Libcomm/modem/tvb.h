@@ -263,6 +263,25 @@ public:
       return n;
       }
 
+   // Block modem operations - streaming extensions
+   void get_post_drift_pdf(array1vd_t& pdftable) const
+      {
+      // get the posterior channel drift pdf at codeword boundaries
+      array1vr_t pdftable_r;
+      fba.get_drift_pdf(pdftable_r);
+      normalize_results(pdftable_r, pdftable);
+      }
+   array1i_t get_boundaries(void) const
+      {
+      // Inherit sizes
+      const int N = this->input_block_size();
+      // construct list of codeword boundary positions
+      array1i_t postable(N + 1);
+      for (int i = 0; i <= N; i++)
+         postable(i) = i * n;
+      return postable;
+      }
+
    // Description
    std::string description() const;
 

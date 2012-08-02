@@ -36,7 +36,7 @@ namespace libcomm {
 // 3 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 // *** Internal functions - computer
@@ -99,15 +99,15 @@ void fba2<receiver_t, sig, real>::work_gamma_single(const array1s_t& r,
             {
             // clear gamma entries
             for (int deltax = dmin; deltax <= dmax; deltax++)
-               gamma[d][i][x][deltax] = 0;
+               gamma.global[d][i][x][deltax] = 0;
             // limit on end-state (-xmax <= x2 <= xmax):
             //   x2-x1 <= xmax-x1
             //   x2-x1 >= -xmax-x1
             const int deltaxmin = std::max(-xmax - x, dmin);
             const int deltaxmax = std::min(xmax - x, dmax);
             for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-               gamma[d][i][x][deltax] = compute_gamma_single(d, i, x, deltax,
-                     r, app);
+               gamma.global[d][i][x][deltax] = compute_gamma_single(d, i, x,
+                     deltax, r, app);
             }
       }
    std::cerr << progress.update(N, N);
@@ -131,7 +131,7 @@ void fba2<receiver_t, sig, real>::work_gamma_batch(const array1s_t& r,
             {
             compute_gamma_batch(d, i, x, ptable, r, app);
             for (int deltax = dmin; deltax <= dmax; deltax++)
-               gamma[d][i][x][deltax] = ptable(dxmax + deltax);
+               gamma.global[d][i][x][deltax] = ptable(dxmax + deltax);
             }
       }
    std::cerr << progress.update(N, N);
@@ -184,7 +184,7 @@ void fba2<receiver_t, sig, real>::work_message_app(array1vr_t& ptable) const
 #ifndef NDEBUG
    // show cache statistics
    std::cerr << "FBA Cache Usage: " << 100 * gamma_misses
-         / double(cached.num_elements()) << "%" << std::endl;
+         / double(cached.global.num_elements()) << "%" << std::endl;
    std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q
          * (dmax - dmin + 1)) << "x" << std::endl;
 #endif
@@ -237,19 +237,43 @@ void fba2<receiver_t, sig, real>::allocate()
    //std::cerr << "FBA Cache Disabled, Required: " << bytes_required
    //      / double(1 << 20) << "MiB" << std::endl;
 
-   // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
-   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-dxmax), min(nI,dxmax)]
    if (flags.globalstore)
-      gamma.resize(boost::extents[q][N][range(-xmax, xmax + 1)][range(dmin,
+      {
+      // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
+      // x in [-xmax, xmax], and deltax in [dmin, dmax]
+      gamma.global.resize(boost::extents[q][N][range(-xmax, xmax + 1)][range(
+            dmin, dmax + 1)]);
+      gamma.local.resize(boost::extents[0][0][0]);
+      }
+   else
+      {
+      // gamma needs indices (d,x,deltax) where d in [0, q-1]
+      // x in [-xmax, xmax], and deltax in [dmin, dmax]
+      gamma.local.resize(boost::extents[q][range(-xmax, xmax + 1)][range(dmin,
             dmax + 1)]);
+      gamma.global.resize(boost::extents[0][0][0][0]);
+      }
+   // need to keep track only if we're caching lazy computations
+   if (flags.lazy)
+      {
+      if (flags.globalstore)
+         {
+         // cached needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
+         cached.global.resize(boost::extents[N][range(-xmax, xmax + 1)]);
+         cached.local.resize(boost::extents[0]);
+         }
+      else
+         {
+         // cached needs indices (x) where x in [-xmax, xmax]
+         cached.local.resize(boost::extents[range(-xmax, xmax + 1)]);
+         cached.global.resize(boost::extents[0][0]);
+         }
+      }
    else
-      gamma.resize(boost::extents[0][0][0][0]);
-   // need to keep track only if we're globally storing lazy computations
-   // cached needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
-   if (flags.lazy && flags.globalstore)
-      cached.resize(boost::extents[N][range(-xmax, xmax + 1)]);
-   else
-      cached.resize(boost::extents[0][0]);
+      {
+      cached.global.resize(boost::extents[0][0]);
+      cached.local.resize(boost::extents[0]);
+      }
 
    // if this is not the first time, skip the rest
    static bool first_time = true;
@@ -259,18 +283,19 @@ void fba2<receiver_t, sig, real>::allocate()
 
 #ifndef NDEBUG
    // set required format, storing previous settings
-   const std::ios::fmtflags flags = std::cerr.flags();
+   const std::ios::fmtflags old_flags = std::cerr.flags();
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const int prec = std::cerr.precision(1);
+   const int old_precision = std::cerr.precision(1);
    // determine memory occupied and tell user
-   const size_t bytes_used = sizeof(bool) * cached.num_elements()
-         + sizeof(real) * (alpha.num_elements() + beta.num_elements()
-               + gamma.num_elements());
+   const size_t bytes_used = sizeof(bool) * (cached.global.num_elements()
+         + cached.local.num_elements()) + sizeof(real) * (alpha.num_elements()
+         + beta.num_elements() + gamma.global.num_elements()
+         + gamma.local.num_elements());
    std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
          << std::endl;
    // revert cerr to original format
-   std::cerr.precision(prec);
-   std::cerr.flags(flags);
+   std::cerr.precision(old_precision);
+   std::cerr.flags(old_flags);
 #endif
 
 #ifndef NDEBUG
@@ -287,11 +312,30 @@ void fba2<receiver_t, sig, real>::allocate()
    std::cerr << "dmax = " << dmax << std::endl;
    std::cerr << "dmin = " << dmin << std::endl;
    std::cerr << "alpha = " << N + 1 << "x" << 2 * xmax + 1 << " = "
-         << alpha.num_elements() << std::endl;
+   << alpha.num_elements() << std::endl;
    std::cerr << "beta = " << N + 1 << "x" << 2 * xmax + 1 << " = "
-         << beta.num_elements() << std::endl;
-   std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
-         << dmax - dmin + 1 << " = " << gamma.num_elements() << std::endl;
+   << beta.num_elements() << std::endl;
+   if (flags.globalstore)
+      {
+      std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
+      << dmax - dmin + 1 << " = " << gamma.global.num_elements()
+      << std::endl;
+      if (flags.lazy)
+         {
+         std::cerr << "cached = " << N << "x" << 2 * xmax + 1 << " = "
+         << cached.global.num_elements() << std::endl;
+         }
+      }
+   else
+      {
+      std::cerr << "gamma = " << q << "x" << 2 * xmax + 1 << "x" << dmax - dmin
+      + 1 << " = " << gamma.local.num_elements() << std::endl;
+      if (flags.lazy)
+         {
+         std::cerr << "cached = " << 2 * xmax + 1 << " = "
+         << cached.local.num_elements() << std::endl;
+         }
+      }
 #endif
    }
 
@@ -302,8 +346,10 @@ void fba2<receiver_t, sig, real>::free()
    {
    alpha.resize(boost::extents[0][0]);
    beta.resize(boost::extents[0][0]);
-   gamma.resize(boost::extents[0][0][0][0]);
-   cached.resize(boost::extents[0][0]);
+   gamma.global.resize(boost::extents[0][0][0][0]);
+   gamma.local.resize(boost::extents[0][0][0]);
+   cached.global.resize(boost::extents[0][0]);
+   cached.local.resize(boost::extents[0]);
    // flag the state of the arrays
    initialised = false;
    }
@@ -313,10 +359,17 @@ void fba2<receiver_t, sig, real>::free()
 template <class receiver_t, class sig, class real>
 void fba2<receiver_t, sig, real>::reset_cache() const
    {
-   // initialise array
-   gamma = real(0);
-   // initialize cache
-   cached = false;
+   // initialise array and cache flags
+   if (flags.globalstore)
+      {
+      gamma.global = real(0);
+      cached.global = false;
+      }
+   else
+      {
+      gamma.local = real(0);
+      cached.local = false;
+      }
 #ifndef NDEBUG
    // reset cache counters
    gamma_calls = 0;
@@ -339,7 +392,7 @@ void fba2<receiver_t, sig, real>::print_gamma(std::ostream& sout) const
          for (int x = -xmax; x <= xmax; x++)
             {
             for (int deltax = dmin; deltax <= dmax; deltax++)
-               sout << '\t' << gamma[d][i][x][deltax];
+               sout << '\t' << gamma.global[d][i][x][deltax];
             sout << std::endl;
             }
          }
@@ -362,12 +415,13 @@ void fba2<receiver_t, sig, real>::work_gamma(const array1s_t& r,
       // keep a copy of received vector and a-priori statistics
       This::r = r;
       This::app = app;
-      // reset cache values if we're using it
-      if (flags.globalstore)
-         reset_cache();
+      // reset cache values
+      reset_cache();
       }
    else
       {
+      // NOTE: pre-computation with local storage not yet implemented
+      assert(flags.globalstore);
       // pre-computation
       if (flags.batch)
          work_gamma_batch(r, app);
@@ -642,7 +696,27 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    // Add memory usage
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
-   collector.add_timer(sizeof(real) * gamma.num_elements(), "m_gamma");
+   collector.add_timer(sizeof(real) * gamma.global.num_elements(), "m_gamma");
+   }
+
+/*!
+ * \brief Get the posterior channel drift pdf at codeword boundaries
+ * \param[out] pdftable Posterior Probabilities for codeword boundaries
+ *
+ * Codeword boundaries are taken to include frame boundaries, such that
+ * pdftable(i) corresponds to the boundary between codewords 'i' and 'i+1'.
+ * This method must be called after a call to decode(), so that it can return
+ * posteriors for the last transmitted frame.
+ */
+template <class receiver_t, class sig, class real>
+void fba2<receiver_t, sig, real>::get_drift_pdf(array1vr_t& pdftable) const
+   {
+   assert(initialised);
+   // allocate space for results
+   pdftable.init(N + 1);
+   // consider each time index in the order given
+   for (int i = 0; i <= N; i++)
+      work_state_app(pdftable(i), i);
    }
 
 } // end namespace

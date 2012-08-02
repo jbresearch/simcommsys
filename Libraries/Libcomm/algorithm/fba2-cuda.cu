@@ -36,7 +36,7 @@ namespace cuda {
 // 3 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 1
 #endif
 
 // *** Metric Computer ***
@@ -533,12 +533,12 @@ void fba2<receiver_t, sig, real>::allocate()
    std::cerr << "dmax = " << computer.dmax << std::endl;
    std::cerr << "dmin = " << computer.dmin << std::endl;
    std::cerr << "alpha = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
-         << " = " << alpha.size() << std::endl;
+   << " = " << alpha.size() << std::endl;
    std::cerr << "beta = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
-         << " = " << beta.size() << std::endl;
+   << " = " << beta.size() << std::endl;
    std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2
-         * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1
-         << " = " << gamma.size() << std::endl;
+   * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1
+   << " = " << gamma.size() << std::endl;
 #endif
    }
 
@@ -731,7 +731,7 @@ void fba2<receiver_t, sig, real>::work_beta(const dev_array1r_t& eof_prior)
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
-   // Alpha computation:
+   // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
@@ -774,7 +774,7 @@ void fba2<receiver_t, sig, real>::work_results(dev_array2r_t& ptable,
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
-   // Beta computation:
+   // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
@@ -843,6 +843,33 @@ void fba2<receiver_t, sig, real>::init(int N, int n, int q, int I, int xmax,
    computer.flags.globalstore = globalstore;
    }
 
+/*!
+ * \brief Frame decode cycle
+ * \param[in] collector Reference to (instrumented) results collector object
+ * \param[in] r Received frame
+ * \param[in] sof_prior Prior probabilities for start-of-frame position
+ *                      (zero-index matches zero-index of r)
+ * \param[in] eof_prior Prior probabilities for end-of-frame position
+ *                      (zero-index matches tau-index of r, where tau is the
+ *                      length of the transmitted frame)
+ * \param[in] app A-Priori Probabilities for message
+ * \param[out] ptable Posterior Probabilities for message
+ * \param[out] sof_post Posterior probabilities for start-of-frame position
+ *                      (indexing same as prior)
+ * \param[out] eof_post Posterior probabilities for end-of-frame position
+ *                      (indexing same as prior)
+ * \param[in] offset Index offset for prior, post, and r vectors
+ *
+ * \note If APP table is empty, it is assumed that symbols are equiprobable.
+ *
+ * \note Priors for start and end-of-frame *must* be supplied; in the case of a
+ *       received frame with exactly known boundaries, this must be offset by
+ *       xmax and padded to a total length of tau + 2*xmax, where tau is the
+ *       length of the transmitted frame. This avoids special handling for such
+ *       vectors.
+ *
+ * \note Offset is the same as for stream_modulator.
+ */
 template <class receiver_t, class sig, class real>
 void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
       const array1s_t& r, const array1d_t& sof_prior,
@@ -945,6 +972,46 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    collector.add_timer(sizeof(real) * alpha.size(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.size(), "m_beta");
    collector.add_timer(sizeof(real) * gamma.size(), "m_gamma");
+   }
+
+/*!
+ * \brief Get the posterior channel drift pdf at codeword boundaries
+ * \param[out] pdftable Posterior Probabilities for codeword boundaries
+ *
+ * Codeword boundaries are taken to include frame boundaries, such that
+ * pdftable(i) corresponds to the boundary between codewords 'i' and 'i+1'.
+ * This method must be called after a call to decode(), so that it can return
+ * posteriors for the last transmitted frame.
+ */
+template <class receiver_t, class sig, class real>
+void fba2<receiver_t, sig, real>::get_drift_pdf(array1vr_t& pdftable) const
+   {
+   assert( initialised);
+   // Shorthand
+   const int N = computer.N;
+   const int q = computer.q;
+   const int xmax = computer.xmax;
+   // inform user what the kernel sizes are
+   static bool first_time = true;
+   if (first_time)
+      {
+      std::cerr << "State APP Kernel (x" << N + 1 << "): " << 1 << " blocks x "
+            << 2 * xmax + 1 << " threads" << std::endl;
+      first_time = false;
+      }
+   // Drift PDF computation:
+   // allocate space for results
+   pdftable.init(N + 1);
+   // consider each time index in the order given
+   for (int i = 0; i <= N; i++)
+      {
+      // block index is not used: grid size = 1
+      // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+      fba2_state_app_kernel<receiver_t, sig, real> <<<1,2*xmax+1>>>(dev_object, dev_sof_table, i);
+      cudaSafeThreadSynchronize();
+      // copy result from temporary space
+      pdftable(i) = array1r_t(dev_sof_table);
+      }
    }
 
 } // end namespace

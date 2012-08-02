@@ -65,7 +65,9 @@ protected:
    codec<C> *cdc; //!< Error-control codec
    mapper<C> *map; //!< Symbol-mapper (encoded output to transmitted symbols)
    blockmodem<S, C> *mdm; //!< Modulation scheme
-   channel<S, C> *chan; //!< Channel model
+   channel<S, C> *txchan; //!< Channel model - transmitter side
+   channel<S, C> *rxchan; //!< Channel model - receiver side
+   bool singlechannel; //!< Flag indicating RX = TX channel
    // @}
 #ifndef NDEBUG
    bool lastframecorrect;
@@ -107,10 +109,15 @@ public:
       {
       return mdm;
       }
-   //! Get channel model
-   channel<S, C> *getchan() const
+   //! Get channel model - transmitter side
+   channel<S, C> *gettxchan() const
       {
-      return chan;
+      return txchan;
+      }
+   //! Get channel model - receiver side
+   channel<S, C> *getrxchan() const
+      {
+      return rxchan;
       }
    // @}
 

@@ -128,7 +128,7 @@ public:
          bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
          bool batch; //!< Flag indicating use of batch receiver interface
          bool lazy; //!< Flag indicating lazy computation of gamma metric
-         bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
+         bool globalstore; //!< Flag indicating global pre-computation or caching of gamma values
       } flags;
       // @}
    public:
@@ -433,6 +433,7 @@ public:
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
          array1r_t& eof_post, const int offset);
+   void get_drift_pdf(array1vr_t& pdftable) const;
 
    // Description
    std::string description() const

@@ -430,7 +430,7 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd,
    xmax = compute_xmax(N, Pi, Pd, I);
    // receiver coefficients
    Rval = real(Pd);
-//#ifdef USE_CUDA
+   //#ifdef USE_CUDA
 #if 0
    // create local table and copy to device
    array2r_t Rtable_temp;
@@ -451,7 +451,7 @@ void qids<G, real>::metric_computer::init()
    {
    // set block size to unusable value
    N = 0;
-//#ifdef USE_CUDA
+   //#ifdef USE_CUDA
 #if 0
    // Initialize CUDA
    cuda::cudaInitialize(std::cerr);
@@ -810,32 +810,32 @@ template <class G, class real>
 void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
    {
    const int tau = tx.size();
-   libbase::vector<int> insertions(tau);
-   insertions = 0;
-   libbase::vector<int> transmit(tau);
-   transmit = 1;
+   state_ins.init(tau);
+   state_ins = 0;
+   state_tx.init(tau);
+   state_tx = true;
    // determine state sequence
    for (int i = 0; i < tau; i++)
       {
       double p;
       while ((p = this->r.fval_closed()) < Pi)
-         insertions(i)++;
+         state_ins(i)++;
       if (p < (Pi + Pd))
-         transmit(i) = 0;
+         state_tx(i) = false;
       }
    // Initialize results vector
 #if DEBUG>=4
-   libbase::trace << "DEBUG (qids): transmit = " << transmit << std::endl;
-   libbase::trace << "DEBUG (qids): insertions = " << insertions << std::endl;
+   libbase::trace << "DEBUG (qids): transmit = " << state_tx << std::endl;
+   libbase::trace << "DEBUG (qids): insertions = " << state_ins << std::endl;
 #endif
    array1g_t newrx;
-   newrx.init(transmit.sum() + insertions.sum());
+   newrx.init(tau + get_drift(tau));
    // Corrupt the modulation symbols (simulate the channel)
    for (int i = 0, j = 0; i < tau; i++)
       {
-      while (insertions(i)--)
+      for (int ins = 0; ins < state_ins(i); ins++)
          newrx(j++) = (this->r.fval_closed() < 0.5);
-      if (transmit(i))
+      if (state_tx(i))
          newrx(j++) = corrupt(tx(i));
       }
    // copy results back
@@ -862,16 +862,24 @@ template <class G, class real>
 std::string qids<G, real>::description() const
    {
    std::ostringstream sout;
-   sout << G::elements() << "-ary IDS channel";
-   sout << " (" << varyPs << varyPd << varyPi;
-   if (!varyPs && fixedPs > 0)
+   sout << G::elements() << "-ary IDS channel (";
+   // List varying components
+   if (varyPs)
+      sout << "Ps=";
+   if (varyPi)
+      sout << "Pi=";
+   if (varyPd)
+      sout << "Pd=";
+   sout << "p";
+   // List non-varying components, with their value
+   if (!varyPs)
       sout << ", Ps=" << fixedPs;
-   if (!varyPd && fixedPd > 0)
+   if (!varyPd)
       sout << ", Pd=" << fixedPd;
-   if (!varyPi && fixedPi > 0)
+   if (!varyPi)
       sout << ", Pi=" << fixedPi;
    sout << ")";
-//#ifdef USE_CUDA
+   //#ifdef USE_CUDA
 #if 0
    sout << " [CUDA]";
 #endif

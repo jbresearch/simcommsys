@@ -64,6 +64,8 @@ public:
    /*! \name Type definitions */
    typedef libbase::matrix<real> array2r_t;
    typedef libbase::vector<real> array1r_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<bool> array1b_t;
    typedef libbase::vector<G> array1g_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -87,7 +89,7 @@ public:
       int I; //!< Assumed limit for insertions between two time-steps
       int xmax; //!< Assumed maximum drift over a whole \c N -symbol block
       real Rval; //!< Receiver coefficient value for mu = -1
-//#ifdef USE_CUDA
+      //#ifdef USE_CUDA
 #if 0
       cuda::matrix_auto<real> Rtable; //!< Receiver coefficient set for mu >= 0
 #else
@@ -185,7 +187,7 @@ public:
       void precompute(double Ps, double Pd, double Pi, int Icap);
       void init();
       // @}
-//#ifdef USE_CUDA
+      //#ifdef USE_CUDA
 #if 0
       /*! \name Device methods */
 #ifdef __CUDACC__
@@ -278,11 +280,13 @@ public:
    };
    // @}
 private:
-   /*! \name Metric computation */
+   /*! \name Internal representation */
    metric_computer computer;
    double Ps; //!< Symbol substitution probability \f$ P_s \f$
    double Pd; //!< Symbol deletion probability \f$ P_d \f$
    double Pi; //!< Symbol insertion probability \f$ P_i \f$
+   array1i_t state_ins; //!< State vector with number of insertions before transmission of bit 'i'
+   array1b_t state_tx; //!< State vector with flag indicating transmission of bit 'i'
    // @}
 private:
    /*! \name Internal functions */
@@ -401,6 +405,28 @@ public:
          libbase::vector<double>& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const;
    // @}
+
+   // Insertion-deletion channel functions
+   int get_drift(int t) const
+      {
+#ifndef NDEBUG
+      // shorthand for length of last transmitted frame
+      const int tau = state_ins.size();
+      assert(state_tx.size() == tau);
+      // sanity check
+      assert(t >= 0);
+      assert(t <= tau);
+#endif
+      // accumulate drift up to time 't'
+      int drift = 0;
+      for (int i = 0; i < t; i++)
+         {
+         drift += state_ins(i);
+         if (!state_tx(i))
+            drift--;
+         }
+      return drift;
+      }
 
    // Channel functions
    void transmit(const array1g_t& tx, array1g_t& rx);

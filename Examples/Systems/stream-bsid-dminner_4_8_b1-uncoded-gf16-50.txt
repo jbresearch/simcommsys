@@ -1,4 +1,8 @@
 commsys_stream<bool,vector>
+# Version
+1
+# Single channel?
+1
 ## Channel
 bsid
 # Version

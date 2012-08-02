@@ -30,6 +30,45 @@ namespace libcomm {
 
 // Communication System Interface
 
+/*! \brief Determine SOF/EOF priors for next frame, given EOF post of this frame
+ *
+ * Determine start-of-frame and end-of-frame probabilities for the next frame,
+ * given the (possibly empty) end-of-frame posterior probability for the
+ * current frame.
+ *
+ * If the EOF post is supplied, the corresponding offset must also be supplied.
+ * This is updated with the offset for the posterior probabilities.
+ */
+template <class S, template <class > class C>
+void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
+      C<double>& sof_prior, C<double>& eof_prior, libbase::size_type<C>& offset) const
+   {
+   // Shorthand for transmitted frame size
+   const int tau = this->output_block_size();
+   // Get access to the channel object in stream-oriented mode
+   const channel_stream<S>& c = getrxchan_stream();
+
+   if (eof_post.size() == 0) // this is the first frame
+      {
+      // Initialize as drift pdf after transmitting one frame
+      c.get_drift_pdf(tau, eof_prior, offset);
+      eof_prior /= eof_prior.max();
+      // Initialize as zero-drift is assured
+      sof_prior.init(eof_prior.size());
+      sof_prior = 0;
+      sof_prior(0 + offset) = 1;
+      }
+   else
+      {
+      // Use previous (centralized) end-of-frame posterior probability
+      sof_prior = eof_post;
+      // Initialize as drift pdf after transmitting one frame, given sof priors
+      // (offset gets updated and sof_prior gets resized as needed)
+      c.get_drift_pdf(tau, sof_prior, eof_prior, offset);
+      eof_prior /= eof_prior.max();
+      }
+   }
+
 template <class S, template <class > class C>
 void commsys_stream<S, C>::receive_path(const C<S>& received,
       const C<double>& sof_prior, const C<double>& eof_prior,
@@ -40,7 +79,7 @@ void commsys_stream<S, C>::receive_path(const C<S>& received,
    // Demodulate
    C<array1d_t> ptable_mapped;
    m.reset_timers();
-   m.demodulate(*this->chan, received, sof_prior, eof_prior, ptable_mapped,
+   m.demodulate(*this->rxchan, received, sof_prior, eof_prior, ptable_mapped,
          ptable_mapped, sof_post, eof_post, offset);
    this->add_timers(m);
    // After-demodulation receive path
@@ -98,7 +137,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    GF_TYPE_SEQ
 #define CONTAINER_TYPE_SEQ \
    (vector)
-   //(vector)(matrix)
+//(vector)(matrix)
 
 /* Serialization string: commsys_stream<type>
  * where:

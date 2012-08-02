@@ -1,4 +1,8 @@
 commsys<gf16,vector>
+# Version
+1
+# Single channel?
+1
 ## Channel
 qids<gf16>
 # Version

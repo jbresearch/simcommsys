@@ -122,7 +122,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       C<array1d_t> ptable_full;
       informed_modulator<S>& m =
             dynamic_cast<informed_modulator<S>&> (*this->mdm);
-      m.demodulate(*this->chan, last_received, ptable_mapped, ptable_full);
+      m.demodulate(*this->rxchan, last_received, ptable_mapped, ptable_full);
 #if DEBUG>=3
       libbase::trace << "DEBUG (fulliter): modem soft-output = " << std::endl;
       libbase::trace << ptable_mapped.extract(0,5);

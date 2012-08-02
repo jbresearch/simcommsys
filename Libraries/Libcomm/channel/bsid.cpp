@@ -33,13 +33,13 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show results of computation of xmax and I
+// 2 - Show transmit and insertion state vectors during transmission process
+// 3 - Show results of computation of xmax and I
 //     and details of pdf resizing
-// 3 - Show intermediate computation details for (2)
-// 4 - Show transmit and insertion state vectors during transmission process
+// 4 - Show intermediate computation details for (3)
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 2
 #endif
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);
@@ -80,7 +80,7 @@ double bsid::metric_computer::compute_drift_prob_davey(int x, int tau,
    const double x1 = (xa - 0.5) / sigma;
    const double x2 = (xa + 0.5) / sigma;
    const double this_p = libbase::Q(x1) - libbase::Q(x2);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (bsid): [pdf-davey] x = " << x << ", sigma = " << sigma
    << ", this_p = " << this_p << "." << std::endl;
 #endif
@@ -129,7 +129,7 @@ double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
    p0 += log(real(Pt)) * tau;
    p0 += log(real(Pi)) * x;
    p0 = exp(p0);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (bsid): [pdf-exact] x = " << x << ", p0 = " << p0
    << std::endl;
 #endif
@@ -146,7 +146,7 @@ double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
       // update main result
       const real last_p = this_p;
       this_p += p0;
-#if DEBUG>=3
+#if DEBUG>=4
       std::cerr << "DEBUG (bsid): [pdf-exact] i = " << i << ", p0 = " << p0
       << ", this_p = " << this_p << std::endl;
 #endif
@@ -154,7 +154,7 @@ double bsid::metric_computer::compute_drift_prob_exact(int x, int tau,
       if (this_p == last_p)
          break;
       }
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (bsid): [pdf-exact] this_p = " << this_p << std::endl;
 #endif
    // validate and return result
@@ -218,17 +218,17 @@ int bsid::metric_computer::compute_I(int tau, double Pi, int Icap)
    // main computation
    int I = int(ceil((log(Pr) - log(double(tau))) / log(Pi))) - 1;
    I = std::max(I, 1);
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (bsid): for N = " << tau << ", I = " << I;
 #endif
    if (Icap > 0)
       {
       I = std::min(I, Icap);
-#if DEBUG>=2
+#if DEBUG>=3
       std::cerr << ", capped to " << I;
 #endif
       }
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "." << std::endl;
 #endif
    return I;
@@ -257,7 +257,7 @@ int bsid::metric_computer::compute_xmax_davey(int tau, double Pi, double Pd)
    const double p = Pi;
    // determine required multiplier
    const double factor = libbase::Qinv(Pr / 2.0);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (bsid): [davey] Q(" << factor << ") = " << libbase::Q(
          factor) << std::endl;
 #endif
@@ -288,7 +288,7 @@ int bsid::metric_computer::compute_xmax_with(const F& compute_pdf, int tau,
    // determine xmax to use
    int xmax = 0;
    acc -= compute_pdf(xmax, tau, Pi, Pd);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (bsid): xmax = " << xmax << ", acc = " << acc << "."
    << std::endl;
 #endif
@@ -297,13 +297,13 @@ int bsid::metric_computer::compute_xmax_with(const F& compute_pdf, int tau,
       xmax++;
       acc -= compute_pdf(xmax, tau, Pi, Pd);
       acc -= compute_pdf(-xmax, tau, Pi, Pd);
-#if DEBUG>=3
+#if DEBUG>=4
       std::cerr << "DEBUG (bsid): xmax = " << xmax << ", acc = " << acc << "."
       << std::endl;
 #endif
       }
    // tell the user what we did and return
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (bsid): [computed] for N = " << tau << ", xmax = "
    << xmax << "." << std::endl;
    std::cerr << "DEBUG (bsid): [davey] for N = " << tau << ", xmax = "
@@ -337,7 +337,7 @@ int bsid::metric_computer::compute_xmax(int tau, double Pi, double Pd, int I,
    // cap minimum value
    xmax = std::max(xmax, I);
    // tell the user what we did and return
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (bsid): [adjusted] for N = " << tau << ", xmax = "
    << xmax << "." << std::endl;
 #endif
@@ -573,11 +573,11 @@ libbase::vector<double> bsid::resize_drift(const array1d_t& in,
    const int imin = std::max(-offset, -xmax);
    const int imax = std::min(in.size() - 1 - offset, xmax);
    const int length = imax - imin + 1;
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (bsid): [resize] offset = " << offset << ", xmax = "
-         << xmax << "." << std::endl;
+   << xmax << "." << std::endl;
    std::cerr << "DEBUG (bsid): [resize] imin = " << imin << ", imax = "
-         << imax << "." << std::endl;
+   << imax << "." << std::endl;
 #endif
    out.segment(xmax + imin, length) = in.extract(offset + imin, length);
    // return results
@@ -664,14 +664,6 @@ bool bsid::corrupt(const bool& s)
 
 // Stream-oriented channel characteristics
 
-/*!
- * \brief Get the expected drift distribution after transmitting 'tau' bits,
- * assuming the start-of-frame drift is zero.
- *
- * This method determines the required limit on state space, and computes the
- * end-of-frame distribution for this range. It returns the necessary offset
- * accordingly.
- */
 void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
       libbase::size_type<libbase::vector>& offset) const
    {
@@ -700,14 +692,6 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
       }
    }
 
-/*!
- * \brief Get the expected drift distribution after transmitting 'tau' bits,
- * assuming the start-of-frame distribution is as given.
- *
- * This method determines an updated limit on state space, and computes the
- * end-of-frame distribution for this range. It also resizes the start-of-frame
- * pdf accordingly and updates the given offset.
- */
 void bsid::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
       libbase::vector<double>& eof_pdf,
       libbase::size_type<libbase::vector>& offset) const
@@ -782,32 +766,32 @@ void bsid::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
 void bsid::transmit(const array1b_t& tx, array1b_t& rx)
    {
    const int tau = tx.size();
-   libbase::vector<int> insertions(tau);
-   insertions = 0;
-   libbase::vector<int> transmit(tau);
-   transmit = 1;
+   state_ins.init(tau);
+   state_ins = 0;
+   state_tx.init(tau);
+   state_tx = true;
    // determine state sequence
    for (int i = 0; i < tau; i++)
       {
       double p;
       while ((p = r.fval_closed()) < Pi)
-         insertions(i)++;
+         state_ins(i)++;
       if (p < (Pi + Pd))
-         transmit(i) = 0;
+         state_tx(i) = false;
       }
    // Initialize results vector
-#if DEBUG>=4
-   libbase::trace << "DEBUG (bsid): transmit = " << transmit << std::endl;
-   libbase::trace << "DEBUG (bsid): insertions = " << insertions << std::endl;
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bsid): transmit = " << state_tx << std::endl;
+   libbase::trace << "DEBUG (bsid): insertions = " << state_ins << std::endl;
 #endif
    array1b_t newrx;
-   newrx.init(transmit.sum() + insertions.sum());
+   newrx.init(tau + get_drift(tau));
    // Corrupt the modulation symbols (simulate the channel)
    for (int i = 0, j = 0; i < tau; i++)
       {
-      while (insertions(i)--)
+      for (int ins = 0; ins < state_ins(i); ins++)
          newrx(j++) = (r.fval_closed() < 0.5);
-      if (transmit(i))
+      if (state_tx(i))
          newrx(j++) = corrupt(tx(i));
       }
    // copy results back
@@ -833,11 +817,11 @@ std::string bsid::description() const
    std::ostringstream sout;
    sout << "BSID channel (";
    // List varying components
-   if(varyPs)
+   if (varyPs)
       sout << "Ps=";
-   if(varyPi)
+   if (varyPi)
       sout << "Pi=";
-   if(varyPd)
+   if (varyPd)
       sout << "Pd=";
    sout << "p";
    // List non-varying components, with their value

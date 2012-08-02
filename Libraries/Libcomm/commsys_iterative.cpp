@@ -43,7 +43,7 @@ void commsys_iterative<S, C>::receive_path(const C<S>& received)
       libbase::trace
             << "DEBUG (commsys_iterative): Starting demodulation iteration "
             << i << std::endl;
-      m.demodulate(*this->chan, received, ptable_mapped, ptable_mapped);
+      m.demodulate(*this->rxchan, received, ptable_mapped, ptable_mapped);
       m.mark_as_clean();
       }
    m.mark_as_dirty();

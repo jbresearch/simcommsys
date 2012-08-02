@@ -24,7 +24,7 @@
 
 #include "commsys_stream_simulator.h"
 
-#include "commsys_stream.h"
+#include "result_collector/commsys/fidelity_pos.h"
 #include "vectorutils.h"
 #include <sstream>
 
@@ -34,9 +34,10 @@ namespace libcomm {
 // 1 - Normal debug output only
 // 2 - Keep track of encoded/decoded frame sizes and drift
 // 3 - Observe prior and posterior PDF's
+// 4 - For fidelity collector, observe actual/estimated boundary drifts
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 3
+#  define DEBUG 4
 #endif
 
 // Experiment handling
@@ -58,43 +59,34 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    assert(sys_enc);
 
    // reset if we have reached the user-set limit for stream length
-   if (N > 0 && frames_decoded >= N)
-      reset();
+   switch (mode)
+      {
+      case mode_reset:
+      case mode_terminated:
+         if (frames_decoded >= N)
+            reset();
+         break;
+      default:
+         break;
+      }
+
+   // Get access to the results collector in codeword boundary analysis mode
+   fidelity_pos* rc = dynamic_cast<fidelity_pos*> (this);
+   // Get access to the decoder-side commsys object in stream-oriented mode
+   commsys_stream<S>& sys_dec = getsys_stream();
 
    // Shorthand for transmitted frame size
-   const int tau = this->sys->output_block_size();
-   // Get access to the commsys channel object in stream-oriented mode
-   const channel_stream<S>& c =
-         dynamic_cast<const channel_stream<S>&> (*this->sys->getchan());
-
+   const int tau = sys_dec.output_block_size();
    // Keep a copy of the last frame's offset (in case x_max changes)
    const libbase::size_type<libbase::vector> oldoffset = offset;
 
-   // Determine start-of-frame and end-of-frame probabilities
+   // Determine start-of-frame and end-of-frame prior probabilities
    libbase::vector<double> sof_prior;
    libbase::vector<double> eof_prior;
-   if (eof_post.size() == 0) // this is the first frame
-      {
-      // Initialize as drift pdf after transmitting one frame
-      c.get_drift_pdf(tau, eof_prior, offset);
-      eof_prior /= eof_prior.max();
-      // Initialize as zero-drift is assured
-      sof_prior.init(eof_prior.size());
-      sof_prior = 0;
-      sof_prior(0 + offset) = 1;
-      }
-   else
-      {
-      // Use previous (centralized) end-of-frame posterior probability
-      sof_prior = eof_post;
-      // Initialize as drift pdf after transmitting one frame, given sof priors
-      // (offset gets updated and sof_prior gets resized as needed)
-      c.get_drift_pdf(tau, sof_prior, eof_prior, offset);
-      eof_prior /= eof_prior.max();
-      }
+   sys_dec.compute_priors(eof_post, sof_prior, eof_prior, offset);
 
    // Extract required segment of existing stream
-   libbase::vector<S> received_prev;
+   array1s_t received_prev;
    if (received.size() == 0)
       {
       received_prev.init(offset);
@@ -109,32 +101,40 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    received = received_prev;
    // Tell user what we're doing
 #if DEBUG>=2
-   std::cerr << "DEBUG (commsys_stream_simulator): est drift = "
-         << estimated_drift << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): old offset = " << oldoffset
-         << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): new offset = " << offset
-         << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): existing segment = "
-         << received.size() << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): est drift = " << estimated_drift << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): old offset = " << oldoffset << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): new offset = " << offset << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): existing segment = " << received.size() << std::endl;
 #endif
    // Determine required segment size
    const int length = tau + eof_prior.size() - 1;
 #if DEBUG>=2
-   std::cerr << "DEBUG (commsys_stream_simulator): final segment size = "
-         << length << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): final segment size = " << length << std::endl;
 #endif
    // Append required segment by simulating frame transmission
    // Also make sure that we have transmitted the frame corresponding to the
    // received one.
+   // NOTE: it does not matter if we transmit more frames than needed for a
+   // terminated stream (and we most likely will), as once we set the eof prior
+   // the decoder will know at which point to stop in the received sequence.
    for (int left = length - received.size(); left > 0 || source.empty();)
       {
       // Create next source frame
-      const libbase::vector<int> source_next = Base::createsource();
+      const array1i_t source_next = Base::createsource();
       // Encode -> Map -> Modulate next frame
-      const libbase::vector<S> transmitted = sys_enc->encode_path(source_next);
+      const array1s_t transmitted = sys_enc->encode_path(source_next);
       // Transmit next frame
-      const libbase::vector<S> received_next = this->sys->transmit(transmitted);
+      const array1s_t received_next = sys_dec.transmit(transmitted);
+      // keep data for codeword boundary analysis if this is indicated
+      if (rc)
+         {
+         // get codeword boundary positions from modem (encoder-side)
+         const array1i_t boundary_pos = sys_enc->getmodem_stream().get_boundaries();
+         // get actual drift at codeword boundary positions from channel (decoder-side)
+         const array1i_t act_drift = sys_dec.gettxchan_stream().get_drift(boundary_pos);
+         // store what we need to keep
+         act_bdry_drift.push_back(act_drift);
+         }
       // shorthand for received frame size
       const int rho = received_next.size();
       // store what we need to keep
@@ -146,38 +146,39 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       left -= rho;
       // Tell user what we're doing
 #if DEBUG>=2
-      std::cerr << "DEBUG (commsys_stream_simulator): Actual received frame = "
-            << rho << std::endl;
-      std::cerr << "DEBUG (commsys_stream_simulator): Remaining length = "
-            << left << std::endl;
-      std::cerr << "DEBUG (commsys_stream_simulator): Frames encoded = "
-            << frames_encoded << std::endl;
+      std::cerr << "DEBUG (commsys_stream_simulator): Actual received frame = " << rho << std::endl;
+      std::cerr << "DEBUG (commsys_stream_simulator): Remaining length = " << left << std::endl;
+      std::cerr << "DEBUG (commsys_stream_simulator): Frames encoded = " << frames_encoded << std::endl;
 #endif
       }
+   // If it's the last frame in a terminated stream, set eof prior accordingly.
+   if (mode == mode_terminated && frames_decoded == N - 1)
+      {
+      // determine the actual drift at the end of the frame to be decoder
+      const int drift = actual_drift.front() - drift_error;
+      // make sure this is within the range that can be expressed
+      assertalways(drift + offset >= 0);
+      assertalways(drift + offset < eof_prior.size());
+      // set eof prior to fix end of frame position
+      eof_prior = 0;
+      eof_prior(drift + offset) = 1;
+      }
 
-   // Get access to the commsys object in stream-oriented mode
-   commsys_stream<S>& s = dynamic_cast<commsys_stream<S>&> (*this->sys);
    // Demodulate -> Inverse Map -> Translate
-   s.receive_path(received.extract(0, length), sof_prior, eof_prior, offset);
+   sys_dec.receive_path(received.extract(0, length), sof_prior, eof_prior, offset);
    // Store posterior end-of-frame drift probabilities
-   eof_post = s.get_eof_post();
+   eof_post = sys_dec.get_eof_post();
    // update counters
    frames_decoded++;
 
    // Determine estimated drift
-   estimated_drift = libbase::index_of_max(eof_post) - offset;
+   estimated_drift = commsys_stream<S>::estimate_drift(eof_post, offset);
    // Centralize posterior probabilities
-   eof_post = 0;
-   const int sh_a = std::max(0, -estimated_drift);
-   const int sh_b = std::max(0, estimated_drift);
-   const int sh_n = eof_post.size() - abs(estimated_drift);
-   eof_post.segment(sh_a, sh_n) = s.get_eof_post().extract(sh_b, sh_n);
+   eof_post = commsys_stream<S>::centralize_pdf(eof_post, estimated_drift);
    // Tell user what we're doing
 #if DEBUG>=3
-   std::cerr << "DEBUG (commsys_stream_simulator): eof prior = " << eof_prior
-         << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): eof post = " << eof_post
-         << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): eof prior = " << eof_prior << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): eof post = " << eof_post << std::endl;
 #endif
 
    // Determine actual cumulative drift and error in drift estimation
@@ -187,30 +188,51 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    drift_error += estimated_drift - actual_drift_this;
    // Tell user what we're doing
 #if DEBUG>=2
-   std::cerr << "DEBUG (commsys_stream_simulator): Actual frame drift = "
-         << actual_drift_this << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): Estimated frame drift = "
-         << estimated_drift << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): Acc. drift error at eof = "
-         << drift_error << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): Frames decoded = "
-         << frames_decoded << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): Actual frame drift = " << actual_drift_this << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): Estimated frame drift = " << estimated_drift << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): Acc. drift error at eof = " << drift_error << std::endl;
+   std::cerr << "DEBUG (commsys_stream_simulator): Frames decoded = " << frames_decoded << std::endl;
 #endif
+
+   // Initialise result vector
+   result.init(R::count());
+   result = 0;
+
+   // and perform codeword boundary analysis if this is indicated
+   if (rc)
+      {
+      // get estimated drift pdfs
+      array1vd_t post_pdftable;
+      sys_dec.getmodem_stream().get_post_drift_pdf(post_pdftable);
+      // get most probable estimated drift positions
+      array1i_t est_drift(post_pdftable.size());
+      for (int i = 0; i < post_pdftable.size(); i++)
+         est_drift(i) = commsys_stream<S>::estimate_drift(post_pdftable(i), offset);
+      // get actual drift at codeword boundary positions to compare against
+      assert(!act_bdry_drift.empty());
+      const array1i_t act_drift = act_bdry_drift.front();
+      act_bdry_drift.pop_front();
+      // Tell user what we're doing
+#if DEBUG>=4
+      std::cerr << "DEBUG (commsys_stream_simulator): act bdry drift = " << act_drift << std::endl;
+      std::cerr << "DEBUG (commsys_stream_simulator): est bdry drift = " << est_drift << std::endl;
+#endif
+      // accumulate results
+      rc->updateresults(result, act_drift, est_drift);
+      }
 
    // Get source message to compare against
    assert(!source.empty());
-   libbase::vector<int> source_this = source.front();
+   array1i_t source_this = source.front();
    source.pop_front();
-   // Initialise result vector
-   result.init(Base::count());
-   result = 0;
    // For every iteration
-   libbase::vector<int> decoded;
-   for (int i = 0; i < this->sys->num_iter(); i++)
+   array1i_t decoded;
+   for (int i = 0; i < sys_dec.num_iter(); i++)
       {
-      // Decode & update results
-      this->sys->decode(decoded);
-      R::updateresults(result, i, source_this, decoded);
+      // Decode & update results if necessary
+      sys_dec.decode(decoded);
+      if (!rc)
+         R::updateresults(result, i, source_this, decoded);
       }
    // Keep record of what we last simulated
    this->last_event = concatenate(source_this, decoded);
@@ -224,8 +246,20 @@ std::string commsys_stream_simulator<S, R>::description() const
    std::ostringstream sout;
    sout << "Stream-oriented ";
    sout << Base::description();
-   if (N > 0)
-      sout << ", stream reset every " << N << " frames";
+   switch (mode)
+      {
+      case mode_open:
+         sout << ", open-ended stream";
+         break;
+      case mode_reset:
+         sout << ", stream reset every " << N << " frames";
+         break;
+      case mode_terminated:
+         sout << ", stream ends after " << N << " frames";
+         break;
+      default:
+         break;
+      }
    return sout.str();
    }
 
@@ -236,9 +270,22 @@ std::ostream& commsys_stream_simulator<S, R>::serialize(std::ostream& sout) cons
    {
    // format version
    sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
-   sout << "# Frame count between resets (0=don't reset)" << std::endl;
-   sout << N << std::endl;
+   sout << 2 << std::endl;
+   sout << "# Streaming mode (0=open, 1=reset, 2=terminated)" << std::endl;
+   sout << mode << std::endl;
+   switch (mode)
+      {
+      case mode_reset:
+         sout << "# Number of frames to reset" << std::endl;
+         sout << N << std::endl;
+         break;
+      case mode_terminated:
+         sout << "# Length of stream in frames" << std::endl;
+         sout << N << std::endl;
+         break;
+      default:
+         break;
+      }
    // continue writing underlying system
    Base::serialize(sout);
    return sout;
@@ -249,7 +296,9 @@ std::ostream& commsys_stream_simulator<S, R>::serialize(std::ostream& sout) cons
 /*!
  * \version 0 Initial version (un-numbered)
  *
- * \version 1 Added version numbering; added frame count to reset
+ * \version 1 Added version numbering; added frame count to stream reset
+ *
+ * \version 2 Changed format to include mode, and terminating streams
  */
 
 template <class S, class R>
@@ -265,10 +314,36 @@ std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
       version = 0;
       sin.clear();
       }
-   // read frame count between resets
+   // reset (valid for version 0)
+   mode = mode_open;
    N = 0;
-   if (version >= 1)
+   // handle version 1: read frame count and determine mode
+   if (version == 1)
+      {
       sin >> libbase::eatcomments >> N >> libbase::verify;
+      if (N > 0)
+         mode = mode_reset;
+      }
+   // handle later versions
+   if (version >= 2)
+      {
+      int temp;
+      // read streaming mode
+      sin >> libbase::eatcomments >> temp >> libbase::verify;
+      assertalways(temp >=0 && temp < mode_undefined);
+      mode = static_cast<mode_enum> (temp);
+      // read mode-dependent parameters
+      switch (mode)
+         {
+         case mode_reset:
+         case mode_terminated:
+            sin >> libbase::eatcomments >> N >> libbase::verify;
+            assert(N > 0);
+            break;
+         default:
+            break;
+         }
+      }
    // continue reading underlying system
    Base::serialize(sin);
    reset();
@@ -312,7 +387,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (prof_burst) \
    (prof_pos) \
    (prof_sym) \
-   (hist_symerr)
+   (hist_symerr) \
+   (fidelity_pos)
 
 /* Serialization string: commsys_stream_simulator<type,collector>
  * where:

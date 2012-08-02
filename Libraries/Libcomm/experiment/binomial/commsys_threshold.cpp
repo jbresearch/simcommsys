@@ -59,7 +59,7 @@ std::string commsys_threshold<S, R>::description() const
 template <class S, class R>
 std::ostream& commsys_threshold<S, R>::serialize(std::ostream& sout) const
    {
-   sout << this->sys->getchan()->get_parameter() << std::endl;
+   sout << Base::get_parameter() << std::endl;
    Base::serialize(sout);
    return sout;
    }
@@ -70,7 +70,7 @@ std::istream& commsys_threshold<S, R>::serialize(std::istream& sin)
    double x;
    sin >> libbase::eatcomments >> x >> libbase::verify;
    Base::serialize(sin);
-   this->sys->getchan()->set_parameter(x);
+   Base::set_parameter(x);
    return sin;
    }
 

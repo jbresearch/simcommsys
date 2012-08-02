@@ -72,7 +72,7 @@ protected:
    // @}
 
 public:
-   /*! \name Block modem operations */
+   /*! \name Block modem operations - streaming extensions */
    /*!
     * \brief Demodulate a sequence of time-steps
     * \param[in]  chan     The channel model (used to obtain likelihoods)
@@ -121,6 +121,28 @@ public:
             eof_post, offset);
       this->mark_as_dirty();
       }
+   /*!
+    * \brief Get the posterior channel drift pdf at codeword boundaries
+    * \param[out] pdftable Posterior Probabilities for codeword boundaries
+    *
+    * Codeword boundaries are taken to include frame boundaries, such that
+    * pdftable(i) corresponds to the boundary between codewords 'i-1' and 'i',
+    * where codewords are zero-indexed.
+    *
+    * This method must be called after a call to demodulate(), so that it can
+    * return posteriors for the last transmitted frame.
+    */
+   virtual void get_post_drift_pdf(C<array1d_t>& pdftable) const = 0;
+   /*!
+    * \brief Get the positions of codeword boundaries
+    * \return Positions of codeword boundaries
+    *
+    * Codeword boundaries are taken to include frame boundaries.
+    *
+    * This method must be called after a call to modulate(), so that it can
+    * return boundaries for the last transmitted frame.
+    */
+   virtual C<int> get_boundaries(void) const = 0;
    // @}
 
    // Block modem operations

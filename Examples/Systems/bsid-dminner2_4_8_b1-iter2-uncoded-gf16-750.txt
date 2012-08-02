@@ -1,5 +1,9 @@
 commsys_iterative<bool,vector>
 2
+# Version
+1
+# Single channel?
+1
 ## Channel
 bsid
 # Version

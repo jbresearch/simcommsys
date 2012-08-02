@@ -84,7 +84,8 @@ void basic_commsys<S, C>::clear()
    cdc = NULL;
    map = NULL;
    mdm = NULL;
-   chan = NULL;
+   txchan = NULL;
+   rxchan = NULL;
    }
 
 /*!
@@ -106,7 +107,8 @@ void basic_commsys<S, C>::free()
    delete cdc;
    delete map;
    delete mdm;
-   delete chan;
+   delete txchan;
+   delete rxchan;
    clear();
    }
 
@@ -120,12 +122,14 @@ void basic_commsys<S, C>::free()
  * Initializes system with bound objects cloned from supplied system.
  */
 template <class S, template <class > class C>
-basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c)
+basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c) :
+   singlechannel(c.singlechannel)
    {
    this->cdc = dynamic_cast<codec<C>*> (c.cdc->clone());
    this->map = dynamic_cast<mapper<C>*> (c.map->clone());
    this->mdm = dynamic_cast<blockmodem<S, C>*> (c.mdm->clone());
-   this->chan = dynamic_cast<channel<S, C>*> (c.chan->clone());
+   this->txchan = dynamic_cast<channel<S, C>*> (c.txchan->clone());
+   this->rxchan = dynamic_cast<channel<S, C>*> (c.rxchan->clone());
    init();
    }
 
@@ -137,7 +141,8 @@ void basic_commsys<S, C>::seedfrom(libbase::random& r)
    cdc->seedfrom(r);
    map->seedfrom(r);
    mdm->seedfrom(r);
-   chan->seedfrom(r);
+   txchan->seedfrom(r);
+   rxchan->seedfrom(r);
    }
 
 // Communication System Interface
@@ -202,9 +207,9 @@ template <class S, template <class > class C>
 C<S> basic_commsys<S, C>::transmit(const C<S>& transmitted)
    {
    C<S> received;
-   this->chan->reset_timers();
-   this->chan->transmit(transmitted, received);
-   this->add_timers(*this->chan);
+   this->txchan->reset_timers();
+   this->txchan->transmit(transmitted, received);
+   this->add_timers(*this->txchan);
    return received;
    }
 
@@ -230,7 +235,7 @@ void basic_commsys<S, C>::receive_path(const C<S>& received)
    // Demodulate
    C<array1d_t> ptable_mapped;
    this->mdm->reset_timers();
-   this->mdm->demodulate(*this->chan, received, ptable_mapped);
+   this->mdm->demodulate(*this->rxchan, received, ptable_mapped);
    this->add_timers(*this->mdm);
    // After-demodulation receive path
    softreceive_path(ptable_mapped);
@@ -298,15 +303,38 @@ std::string basic_commsys<S, C>::description() const
    sout << cdc->description() << ", ";
    sout << map->description() << ", ";
    sout << mdm->description() << ", ";
-   sout << chan->description();
+   if (singlechannel)
+      sout << txchan->description();
+   else
+      {
+      sout << "TX: " << txchan->description() << ", ";
+      sout << "RX: " << rxchan->description();
+      }
    return sout.str();
    }
+
+// object serialization - saving
 
 template <class S, template <class > class C>
 std::ostream& basic_commsys<S, C>::serialize(std::ostream& sout) const
    {
-   sout << "## Channel" << std::endl;
-   sout << chan;
+   // format version
+   sout << "# Version" << std::endl;
+   sout << 1 << std::endl;
+   sout << "# Single channel?" << std::endl;
+   sout << singlechannel << std::endl;
+   if (singlechannel)
+      {
+      sout << "## Channel" << std::endl;
+      sout << txchan;
+      }
+   else
+      {
+      sout << "## TX Channel" << std::endl;
+      sout << txchan;
+      sout << "## RX Channel" << std::endl;
+      sout << rxchan;
+      }
    sout << "## Modem" << std::endl;
    sout << mdm;
    sout << "## Mapper" << std::endl;
@@ -316,21 +344,54 @@ std::ostream& basic_commsys<S, C>::serialize(std::ostream& sout) const
    return sout;
    }
 
+// object serialization - loading
+
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added version numbering; added split channel model
+ */
 template <class S, template <class > class C>
 std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    {
+   assertalways(sin.good());
    free();
-   sin >> libbase::eatcomments >> chan >> libbase::verify;
-   sin >> libbase::eatcomments >> mdm >> libbase::verify;
-   sin >> libbase::eatcomments >> map;
+   // get format version
+   int version;
+   sin >> libbase::eatcomments >> version;
+   // handle old-format files
    if (sin.fail())
+      {
+      version = 0;
+      sin.clear();
+      }
+   // get channel split flag
+   if (version >= 1)
+      sin >> libbase::eatcomments >> singlechannel >> libbase::verify;
+   else
+      singlechannel = true;
+   // get channel model(s)
+   sin >> libbase::eatcomments >> txchan >> libbase::verify;
+   if (singlechannel)
+      rxchan = dynamic_cast<channel<S, C>*> (txchan->clone());
+   else
+      sin >> libbase::eatcomments >> rxchan >> libbase::verify;
+   // get modem
+   sin >> libbase::eatcomments >> mdm >> libbase::verify;
+   // get mapper (if present)
+   sin >> libbase::eatcomments >> map;
+   if (version == 0 && sin.fail())
       {
       assert(map == NULL);
       map = new map_straight<C> ;
       sin.clear();
       }
+   sin >> libbase::verify;
+   // get codec
    sin >> libbase::eatcomments >> cdc >> libbase::verify;
+   // initialize and return
    init();
+   assertalways(sin.good());
    return sin;
    }
 
@@ -369,7 +430,8 @@ void commsys<sigspace, C>::init()
    {
    // set up channel energy/bit (Eb)
    libbase::trace << "DEBUG: overall code rate = " << this->rate() << std::endl;
-   this->chan->set_eb(this->mdm->bit_energy() / this->rate());
+   this->txchan->set_eb(this->mdm->bit_energy() / this->rate());
+   this->rxchan->set_eb(this->mdm->bit_energy() / this->rate());
    }
 
 // Serialization Support

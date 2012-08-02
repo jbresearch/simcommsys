@@ -74,7 +74,7 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    // Reset timers
    this->reset_timers();
    // Initialise result vector
-   result.init(count());
+   result.init(R::count());
    result = 0;
    // Create source stream
    libbase::vector<int> source = createsource();
@@ -139,6 +139,7 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
 #include "result_collector/commsys/prof_pos.h"
 #include "result_collector/commsys/prof_sym.h"
 #include "result_collector/commsys/hist_symerr.h"
+#include "result_collector/commsys/fidelity_pos.h"
 
 namespace libcomm {
 
@@ -166,7 +167,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (prof_burst) \
    (prof_pos) \
    (prof_sym) \
-   (hist_symerr)
+   (hist_symerr) \
+   (fidelity_pos)
 
 /* Serialization string: commsys_simulator<type,collector>
  * where:
