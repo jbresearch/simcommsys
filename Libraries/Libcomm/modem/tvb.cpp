@@ -228,16 +228,16 @@ void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
    // Delegate
    array1d_t sof_post;
    array1d_t eof_post;
-   demodulate_wrapper(chan, r, sof_prior, eof_prior, app, ptable, sof_post,
+   demodulate_wrapper(chan, r, 0, sof_prior, eof_prior, app, ptable, sof_post,
          eof_post, libbase::size_type<libbase::vector>(xmax));
    }
 
 template <class sig, class real>
 void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
-      const array1s_t& rx, const array1d_t& sof_prior,
-      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
-      array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
-            libbase::vector> offset)
+      const array1s_t& rx, const libbase::size_type<libbase::vector> lookahead,
+      const array1d_t& sof_prior, const array1d_t& eof_prior,
+      const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
+      array1d_t& eof_post, const libbase::size_type<libbase::vector> offset)
    {
    // Initialize for known-start
    init(chan, sof_prior, offset);
@@ -248,8 +248,8 @@ void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
 #endif
    assert(offset == fba.get_xmax());
    // Delegate
-   demodulate_wrapper(chan, rx, sof_prior, eof_prior, app, ptable, sof_post,
-         eof_post, offset);
+   demodulate_wrapper(chan, rx, lookahead, sof_prior, eof_prior, app, ptable,
+         sof_post, eof_post, offset);
    }
 
 /*!
@@ -260,7 +260,7 @@ void tvb<sig, real>::dodemodulate(const channel<sig>& chan,
  */
 template <class sig, class real>
 void tvb<sig, real>::demodulate_wrapper(const channel<sig>& chan,
-      const array1s_t& rx, const array1d_t& sof_prior,
+      const array1s_t& rx, const int lookahead, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const int offset)
    {
@@ -635,6 +635,10 @@ std::string tvb<sig, real>::description() const
       else
          sout << ", local";
       }
+   if (lookahead == 0)
+      sout << ", no look-ahead";
+   else
+      sout << ", look-ahead " << lookahead << " codewords";
    sout << "), " << fba.description();
    return sout.str();
    }
@@ -739,7 +743,6 @@ std::ostream& tvb<sig, real>::serialize(std::ostream& sout) const
 template <class sig, class real>
 std::istream& tvb<sig, real>::serialize(std::istream& sin)
    {
-   std::streampos start = sin.tellg();
    // get format version
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;

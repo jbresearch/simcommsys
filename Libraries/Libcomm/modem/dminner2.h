@@ -73,6 +73,7 @@ private:
    bool batch; //!< Flag indicating use of batch receiver interface
    bool lazy; //!< Flag indicating lazy computation of gamma metric
    bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
+   int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
    // algorithm object
@@ -101,14 +102,15 @@ protected:
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
          const array1vd_t& app, array1vd_t& ptable);
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
+         const libbase::size_type<libbase::vector> lookahead,
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
          array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
    // Internal methods
    void demodulate_wrapper(const channel<bool>& chan, const array1b_t& rx,
-         const array1d_t& sof_prior, const array1d_t& eof_prior,
-         const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
-         array1d_t& eof_post, const int offset);
+         const int lookahead, const array1d_t& sof_prior,
+         const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
+         array1d_t& sof_post, array1d_t& eof_post, const int offset);
 private:
    /*! \name Internal functions */
    static void normalize(const array1r_t& in, array1d_t& out);
@@ -134,14 +136,16 @@ public:
    // Block modem operations - streaming extensions
    void get_post_drift_pdf(array1vd_t& pdftable) const
       {
+      // inherit block size from last modulation step
+      const int N = Base::marker.size();
       // get the posterior channel drift pdf at codeword boundaries
       array1vr_t pdftable_r;
       fba.get_drift_pdf(pdftable_r);
-      Base::normalize_results(pdftable_r, pdftable);
+      Base::normalize_results(pdftable_r.extract(0, N + 1), pdftable);
       }
    array1i_t get_boundaries(void) const
       {
-      // inherit block size from last modulation step
+      // inherit codeword and block sizes from last modulation step
       const int n = Base::n;
       const int N = Base::marker.size();
       // construct list of codeword boundary positions
@@ -149,6 +153,12 @@ public:
       for (int i = 0; i <= N; i++)
          postable(i) = i * n;
       return postable;
+      }
+   libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
+      {
+      // inherit codeword size
+      const int n = Base::n;
+      return libbase::size_type<libbase::vector>(n * lookahead);
       }
 
    // Description

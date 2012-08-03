@@ -514,10 +514,10 @@ void dminner<real>::dodemodulate(const channel<bool>& chan,
 
 template <class real>
 void dminner<real>::dodemodulate(const channel<bool>& chan,
-      const array1b_t& rx, const array1d_t& sof_prior,
-      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
-      array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
-            libbase::vector> offset)
+      const array1b_t& rx, const libbase::size_type<libbase::vector> lookahead,
+      const array1d_t& sof_prior, const array1d_t& eof_prior,
+      const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
+      array1d_t& eof_post, const libbase::size_type<libbase::vector> offset)
    {
    failwith("Function not implemented.");
    }
@@ -563,8 +563,7 @@ std::string dminner<real>::description() const
          break;
 
       case marker_mod_vec:
-         sout << ", AMVs [" << marker_vectors.size()
-               << ", sequential]";
+         sout << ", AMVs [" << marker_vectors.size() << ", sequential]";
          break;
 
       default:

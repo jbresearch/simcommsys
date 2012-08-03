@@ -1,4 +1,4 @@
-commsys<bool,vector>
+commsys_stream<bool,vector>
 # Version
 1
 # Single channel?
@@ -42,26 +42,34 @@ dminner2<float>
 # codebook type (0=sparse, 1=user, 2=tvb)
 1
 #: codebook name
-extended-hamming
+(8,16)-ld3-modvec6
 #: codebook entries
-00000000
-00011110
-00101101
-00110011
-01001011
-01010101
-01100110
-01111000
-10000111
-10011001
-10101010
-10110100
-11001100
-11010010
-11100001
-11111111
+01110011
+00011111
+10101111
+11111001
+00111000
+01001001
+10000001
+11100000
+11001010
+01010000
+00110101
+00000110
+10001100
+11000111
+11111110
+01101100
 # marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
-0
+3
+#: modification vectors
+6
+00000000
+01001001
+11111111
+10110010
+10110110
+01001101
 # Version
 4
 # Use batch receiver computation?
@@ -71,7 +79,7 @@ extended-hamming
 # Global storage / caching of computed gamma values?
 1
 # Number of codewords to look ahead when stream decoding
-0
+10
 ## Mapper
 map_straight<vector,double>
 ## Codec

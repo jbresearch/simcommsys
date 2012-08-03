@@ -148,6 +148,7 @@ protected:
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
          const array1vd_t& app, array1vd_t& ptable);
    void dodemodulate(const channel<bool>& chan, const array1b_t& rx,
+         const libbase::size_type<libbase::vector> lookahead,
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
          array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
@@ -269,6 +270,10 @@ public:
       failwith("Function not implemented.");
       array1i_t postable;
       return postable;
+      }
+   libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
+      {
+      return libbase::size_type<libbase::vector>(0);
       }
 
    // Description

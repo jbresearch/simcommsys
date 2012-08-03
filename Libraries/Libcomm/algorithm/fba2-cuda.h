@@ -433,6 +433,7 @@ public:
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
          array1r_t& eof_post, const int offset);
+   void get_drift_pdf(array1r_t& pdf, const int i) const;
    void get_drift_pdf(array1vr_t& pdftable) const;
 
    // Description

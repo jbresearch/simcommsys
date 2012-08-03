@@ -37,7 +37,7 @@ namespace libcomm {
 // 4 - For fidelity collector, observe actual/estimated boundary drifts
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 4
+#  define DEBUG 1
 #endif
 
 // Experiment handling
@@ -80,10 +80,13 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    // Keep a copy of the last frame's offset (in case x_max changes)
    const libbase::size_type<libbase::vector> oldoffset = offset;
 
+   // Determine the suggested look-ahead quantity
+   const libbase::size_type<libbase::vector> lookahead =
+         sys_dec.getmodem_stream().get_suggested_lookahead();
    // Determine start-of-frame and end-of-frame prior probabilities
    libbase::vector<double> sof_prior;
    libbase::vector<double> eof_prior;
-   sys_dec.compute_priors(eof_post, sof_prior, eof_prior, offset);
+   sys_dec.compute_priors(eof_post, lookahead, sof_prior, eof_prior, offset);
 
    // Extract required segment of existing stream
    array1s_t received_prev;
@@ -107,7 +110,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    std::cerr << "DEBUG (commsys_stream_simulator): existing segment = " << received.size() << std::endl;
 #endif
    // Determine required segment size
-   const int length = tau + eof_prior.size() - 1;
+   const int length = tau + lookahead + eof_prior.size() - 1;
 #if DEBUG>=2
    std::cerr << "DEBUG (commsys_stream_simulator): final segment size = " << length << std::endl;
 #endif
@@ -129,9 +132,11 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       if (rc)
          {
          // get codeword boundary positions from modem (encoder-side)
-         const array1i_t boundary_pos = sys_enc->getmodem_stream().get_boundaries();
+         const array1i_t boundary_pos =
+               sys_enc->getmodem_stream().get_boundaries();
          // get actual drift at codeword boundary positions from channel (decoder-side)
-         const array1i_t act_drift = sys_dec.gettxchan_stream().get_drift(boundary_pos);
+         const array1i_t act_drift = sys_dec.gettxchan_stream().get_drift(
+               boundary_pos);
          // store what we need to keep
          act_bdry_drift.push_back(act_drift);
          }
@@ -152,6 +157,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 #endif
       }
    // If it's the last frame in a terminated stream, set eof prior accordingly.
+   // TODO: this needs to be fixed to work with lookahead > 0
    if (mode == mode_terminated && frames_decoded == N - 1)
       {
       // determine the actual drift at the end of the frame to be decoder
@@ -165,7 +171,8 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       }
 
    // Demodulate -> Inverse Map -> Translate
-   sys_dec.receive_path(received.extract(0, length), sof_prior, eof_prior, offset);
+   sys_dec.receive_path(received.extract(0, length), lookahead, sof_prior,
+         eof_prior, offset);
    // Store posterior end-of-frame drift probabilities
    eof_post = sys_dec.get_eof_post();
    // update counters
@@ -207,7 +214,8 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       // get most probable estimated drift positions
       array1i_t est_drift(post_pdftable.size());
       for (int i = 0; i < post_pdftable.size(); i++)
-         est_drift(i) = commsys_stream<S>::estimate_drift(post_pdftable(i), offset);
+         est_drift(i) = commsys_stream<S>::estimate_drift(post_pdftable(i),
+               offset);
       // get actual drift at codeword boundary positions to compare against
       assert(!act_bdry_drift.empty());
       const array1i_t act_drift = act_bdry_drift.front();

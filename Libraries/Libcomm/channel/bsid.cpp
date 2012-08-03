@@ -39,7 +39,7 @@ namespace libcomm {
 // 4 - Show intermediate computation details for (3)
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 2
+#  define DEBUG 1
 #endif
 
 const libbase::serializer bsid::shelper("channel", "bsid", bsid::create);

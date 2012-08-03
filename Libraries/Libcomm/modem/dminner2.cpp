@@ -42,12 +42,14 @@ template <class real>
 void dminner2<real>::init(const channel<bool>& chan, const array1d_t& sof_pdf,
       const int offset)
    {
-   // Inherit block size from last modulation step
+   // Sanity checks
+   assert(Base::marker.size() > 0);
+   assertalways(lookahead == 0 || Base::marker.size() % Base::num_codebooks() == 0);
+   // Inherit block size from last modulation step (and include lookahead)
    const int q = 1 << Base::k;
    const int n = Base::n;
-   const int N = Base::marker.size();
+   const int N = Base::marker.size() + lookahead;
    const int tau = N * n;
-   assert(N > 0);
    // Copy channel for access within R()
    Base::mychan = dynamic_cast<const bsid&> (chan);
    // Set channel block size to q-ary symbol size
@@ -71,8 +73,28 @@ void dminner2<real>::advance() const
    {
    // advance the base class
    Base::advance();
-   // initialize our embedded metric computer
-   fba.get_receiver().init(Base::marker);
+   // if we have no lookahead, just initialize with this marker
+   if (lookahead == 0)
+      {
+      // initialize our embedded metric computer
+      fba.get_receiver().init(Base::marker);
+      }
+   else // otherwise make a copy of base and advance as necessary for lookahead
+      {
+      // note the copy is for a base object, to avoid recursing into this method
+      dminner<real> copy(*this);
+      // make a copy of marker to grow
+      array1i_t marker = Base::marker;
+      for (int left = lookahead; left > 0;)
+         {
+         copy.advance();
+         const int length = std::min(int(copy.marker.size()), left);
+         marker = libbase::concatenate(marker, copy.marker.extract(0, length));
+         left -= length;
+         }
+      // initialize our embedded metric computer
+      fba.get_receiver().init(marker);
+      }
    }
 
 // encoding and decoding functions
@@ -115,16 +137,16 @@ void dminner2<real>::dodemodulate(const channel<bool>& chan,
    // Delegate
    array1d_t sof_post;
    array1d_t eof_post;
-   demodulate_wrapper(chan, r, sof_prior, eof_prior, app, ptable, sof_post,
+   demodulate_wrapper(chan, r, 0, sof_prior, eof_prior, app, ptable, sof_post,
          eof_post, libbase::size_type<libbase::vector>(xmax));
    }
 
 template <class real>
 void dminner2<real>::dodemodulate(const channel<bool>& chan,
-      const array1b_t& rx, const array1d_t& sof_prior,
-      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
-      array1d_t& sof_post, array1d_t& eof_post, const libbase::size_type<
-            libbase::vector> offset)
+      const array1b_t& rx, const libbase::size_type<libbase::vector> lookahead,
+      const array1d_t& sof_prior, const array1d_t& eof_prior,
+      const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
+      array1d_t& eof_post, const libbase::size_type<libbase::vector> offset)
    {
    // Initialize for given start distribution
    init(chan, sof_prior, offset);
@@ -135,8 +157,8 @@ void dminner2<real>::dodemodulate(const channel<bool>& chan,
 #endif
    assert(offset == fba.get_xmax());
    // Delegate
-   demodulate_wrapper(chan, rx, sof_prior, eof_prior, app, ptable, sof_post,
-         eof_post, offset);
+   demodulate_wrapper(chan, rx, lookahead, sof_prior, eof_prior, app, ptable,
+         sof_post, eof_post, offset);
    }
 
 /*!
@@ -147,7 +169,7 @@ void dminner2<real>::dodemodulate(const channel<bool>& chan,
  */
 template <class real>
 void dminner2<real>::demodulate_wrapper(const channel<bool>& chan,
-      const array1b_t& rx, const array1d_t& sof_prior,
+      const array1b_t& rx, const int lookahead, const array1d_t& sof_prior,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const int offset)
    {
@@ -164,7 +186,12 @@ void dminner2<real>::demodulate_wrapper(const channel<bool>& chan,
    array1r_t eof_post_r;
    fba.decode(*this, rx, sof_prior, eof_prior, app, ptable_r, sof_post_r,
          eof_post_r, offset);
-   Base::normalize_results(ptable_r, ptable);
+   // Inherit block size from last modulation step
+   const int N = Base::marker.size();
+   // In cases with lookahead, re-compute EOF posterior at actual frame boundary
+   if (lookahead > 0)
+      fba.get_drift_pdf(eof_post_r, N);
+   Base::normalize_results(ptable_r.extract(0, N), ptable);
    normalize(sof_post_r, sof_post);
    normalize(eof_post_r, eof_post);
 #if DEBUG>=2
@@ -225,6 +252,10 @@ std::string dminner2<real>::description() const
       else
          sout << ", local";
       }
+   if (lookahead == 0)
+      sout << ", no look-ahead";
+   else
+      sout << ", look-ahead " << lookahead << " codewords";
    sout << "), " << fba.description();
    return sout.str();
    }
@@ -237,13 +268,16 @@ std::ostream& dminner2<real>::serialize(std::ostream& sout) const
    // serialize base object
    Base::serialize(sout);
    sout << "# Version" << std::endl;
-   sout << 3 << std::endl;
+   sout << 4 << std::endl;
    sout << "# Use batch receiver computation?" << std::endl;
    sout << batch << std::endl;
    sout << "# Lazy computation of gamma?" << std::endl;
    sout << lazy << std::endl;
    sout << "# Global storage / caching of computed gamma values?" << std::endl;
    sout << globalstore << std::endl;
+   sout << "# Number of codewords to look ahead when stream decoding"
+         << std::endl;
+   sout << lookahead << std::endl;
    return sout;
    }
 
@@ -259,6 +293,8 @@ std::ostream& dminner2<real>::serialize(std::ostream& sout) const
  *
  * \version 3 Changed 'caching' flag to 'global store', now also defined for
  *      pre-computation cases
+ *
+ * \version 4 Added look-ahead quantity for stream decoding
  */
 
 template <class real>
@@ -294,6 +330,11 @@ std::istream& dminner2<real>::serialize(std::istream& sin)
       lazy = true;
       globalstore = true;
       }
+   // read look-ahead quantity
+   if (version >= 4)
+      sin >> libbase::eatcomments >> lookahead >> libbase::verify;
+   else
+      lookahead = 0;
    return sin;
    }
 

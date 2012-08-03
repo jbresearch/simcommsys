@@ -111,6 +111,7 @@ private:
       bool lazy; //!< Flag indicating lazy computation of gamma metric
       bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
    } flags;
+   int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
    qids<sig> mychan; //!< bound channel object
@@ -149,6 +150,7 @@ protected:
    void dodemodulate(const channel<sig>& chan, const array1s_t& rx,
          const array1vd_t& app, array1vd_t& ptable);
    void dodemodulate(const channel<sig>& chan, const array1s_t& rx,
+         const libbase::size_type<libbase::vector> lookahead,
          const array1d_t& sof_prior, const array1d_t& eof_prior,
          const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
          array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
@@ -156,9 +158,9 @@ protected:
    array1vs_t select_codebook(const int i) const;
    array1s_t select_marker(const int i) const;
    void demodulate_wrapper(const channel<sig>& chan, const array1s_t& rx,
-         const array1d_t& sof_prior, const array1d_t& eof_prior,
-         const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
-         array1d_t& eof_post, const int offset);
+         const int lookahead, const array1d_t& sof_prior,
+         const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
+         array1d_t& sof_post, array1d_t& eof_post, const int offset);
 private:
    /*! \name Internal functions */
    static void normalize(const array1r_t& in, array1d_t& out);
@@ -280,6 +282,10 @@ public:
       for (int i = 0; i <= N; i++)
          postable(i) = i * n;
       return postable;
+      }
+   libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
+      {
+      return libbase::size_type<libbase::vector>(n * lookahead);
       }
 
    // Description

@@ -975,6 +975,41 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    }
 
 /*!
+ * \brief Get the posterior channel drift pdf at specified boundary
+ * \param[out] pdf Posterior Probabilities for codeword boundary
+ *
+ * Codeword boundaries are taken to include frame boundaries, such that
+ * index 'i' corresponds to the boundary between codewords 'i' and 'i+1'.
+ * This method must be called after a call to decode(), so that it can return
+ * posteriors for the last transmitted frame.
+ */
+template <class receiver_t, class sig, class real>
+void fba2<receiver_t, sig, real>::get_drift_pdf(array1r_t& pdf, const int i) const
+   {
+   assert( initialised);
+   // Shorthand
+   const int N = computer.N;
+   const int q = computer.q;
+   const int xmax = computer.xmax;
+   // inform user what the kernel sizes are
+   static bool first_time = true;
+   if (first_time)
+      {
+      std::cerr << "State APP Kernel: " << 1 << " blocks x "
+            << 2 * xmax + 1 << " threads" << std::endl;
+      first_time = false;
+      }
+   // Drift PDF computation:
+   assert(i>=0 && i<=N);
+   // block index is not used: grid size = 1
+   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+   fba2_state_app_kernel<receiver_t, sig, real> <<<1,2*xmax+1>>>(dev_object, dev_sof_table, i);
+   cudaSafeThreadSynchronize();
+   // copy result from temporary space
+   pdf = array1r_t(dev_sof_table);
+   }
+
+/*!
  * \brief Get the posterior channel drift pdf at codeword boundaries
  * \param[out] pdftable Posterior Probabilities for codeword boundaries
  *

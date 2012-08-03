@@ -147,7 +147,7 @@ export DOXYGEN := doxygen
 # Common options
 LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 LDopts := $(LDopts) $(LIBNAMES:%=-l%)
-LDopts := $(LDopts) -lm -lstdc++ -lboost_program_options
+LDopts := $(LDopts) -lm -lrt -lstdc++ -lboost_program_options
 # MPI options
 ifneq ($(USE_MPI),0)
 LDopts := $(LDopts) $(shell mpic++ -showme:link)

@@ -47,10 +47,12 @@ namespace libcomm {
  * iterative loop with the channel codec. Such a blockmodem can also determine
  * posterior probabilities for the start and end of frame positions.
  *
- * This interface is a superset of the informed blockmodem, defining new
- * (vector) demodulation methods that make use of prior frame-edge information.
- * Overloaded versions are provided to work with or without prior symbol
- * information, as well as to return (or not) posterior frame-edge information.
+ * This interface is a superset of the informed blockmodem, defining:
+ * - Vector demodulation methods that make use of prior frame-edge information
+ *   and support look-ahead
+ * - A method to get the posterior channel drift pdf at codeword boundaries
+ * - A method to get the positions of codeword boundaries
+ * - A getter for the suggested look-ahead
  */
 
 template <class S, template <class > class C = libbase::vector>
@@ -66,9 +68,10 @@ protected:
    /*! \name Interface with derived classes */
    //! \copydoc demodulate()
    virtual void dodemodulate(const channel<S, C>& chan, const C<S>& rx,
-         const C<double>& sof_prior, const C<double>& eof_prior, const C<
-               array1d_t>& app, C<array1d_t>& ptable, C<double>& sof_post, C<
-               double>& eof_post, const libbase::size_type<C> offset) = 0;
+         const libbase::size_type<C> lookahead, const C<double>& sof_prior,
+         const C<double>& eof_prior, const C<array1d_t>& app,
+         C<array1d_t>& ptable, C<double>& sof_post, C<double>& eof_post,
+         const libbase::size_type<C> offset) = 0;
    // @}
 
 public:
@@ -77,11 +80,12 @@ public:
     * \brief Demodulate a sequence of time-steps
     * \param[in]  chan     The channel model (used to obtain likelihoods)
     * \param[in]  rx       Sequence of received symbols
+    * \param[in]  lookahead Number of modulation symbols beyond EOF supplied
     * \param[in]  sof_prior Prior probabilities for start-of-frame position
     *                      (zero-index matches zero-index of rx)
     * \param[in]  eof_prior Prior probabilities for end-of-frame position
     *                      (zero-index matches N-index of rx, where N is the
-    *                      length of the transmitted frame)
+    *                      length of the transmitted frame + lookahead)
     * \param[in]  app      Prior probabilities of transmitted sequence
     * \param[out] ptable   Posterior probabilities of transmitted sequence
     * \param[out] sof_post Posterior probabilities for start-of-frame position
@@ -112,13 +116,14 @@ public:
     * information is available
     */
    void demodulate(const channel<S, C>& chan, const C<S>& rx,
-         const C<double>& sof_prior, const C<double>& eof_prior, const C<
-               array1d_t>& app, C<array1d_t>& ptable, C<double>& sof_post, C<
-               double>& eof_post, const libbase::size_type<C> offset)
+         const libbase::size_type<C> lookahead, const C<double>& sof_prior,
+         const C<double>& eof_prior, const C<array1d_t>& app,
+         C<array1d_t>& ptable, C<double>& sof_post, C<double>& eof_post,
+         const libbase::size_type<C> offset)
       {
       this->advance_if_dirty();
-      dodemodulate(chan, rx, sof_prior, eof_prior, app, ptable, sof_post,
-            eof_post, offset);
+      dodemodulate(chan, rx, lookahead, sof_prior, eof_prior, app, ptable,
+            sof_post, eof_post, offset);
       this->mark_as_dirty();
       }
    /*!
@@ -143,6 +148,11 @@ public:
     * return boundaries for the last transmitted frame.
     */
    virtual C<int> get_boundaries(void) const = 0;
+   /*!
+    * \brief Get the suggested look-ahead quantity
+    * \return Number of modulation symbols to look into the next frame
+    */
+   virtual libbase::size_type<C> get_suggested_lookahead(void) const = 0;
    // @}
 
    // Block modem operations

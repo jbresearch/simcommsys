@@ -123,13 +123,13 @@ void basic_commsys<S, C>::free()
  */
 template <class S, template <class > class C>
 basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c) :
-   singlechannel(c.singlechannel)
+   cdc(dynamic_cast<codec<C>*> (c.cdc->clone())), map(
+         dynamic_cast<mapper<C>*> (c.map->clone())), mdm(
+         dynamic_cast<blockmodem<S, C>*> (c.mdm->clone())), txchan(
+         dynamic_cast<channel<S, C>*> (c.txchan->clone())), rxchan(
+         dynamic_cast<channel<S, C>*> (c.rxchan->clone())), singlechannel(
+         c.singlechannel)
    {
-   this->cdc = dynamic_cast<codec<C>*> (c.cdc->clone());
-   this->map = dynamic_cast<mapper<C>*> (c.map->clone());
-   this->mdm = dynamic_cast<blockmodem<S, C>*> (c.mdm->clone());
-   this->txchan = dynamic_cast<channel<S, C>*> (c.txchan->clone());
-   this->rxchan = dynamic_cast<channel<S, C>*> (c.rxchan->clone());
    init();
    }
 

@@ -31,27 +31,29 @@ namespace libcomm {
 // Communication System Interface
 
 /*! \brief Determine SOF/EOF priors for next frame, given EOF post of this frame
+ *         and the look-ahead quantity required
  *
- * Determine start-of-frame and end-of-frame probabilities for the next frame,
- * given the (possibly empty) end-of-frame posterior probability for the
- * current frame.
+ * Determine start-of-frame and end-of-frame probabilities for the next frame
+ * (plus the specified look-ahead quantity), given the (possibly empty)
+ * end-of-frame posterior probability for the current frame.
  *
  * If the EOF post is supplied, the corresponding offset must also be supplied.
  * This is updated with the offset for the posterior probabilities.
  */
 template <class S, template <class > class C>
 void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
-      C<double>& sof_prior, C<double>& eof_prior, libbase::size_type<C>& offset) const
+      const libbase::size_type<C> lookahead, C<double>& sof_prior,
+      C<double>& eof_prior, libbase::size_type<C>& offset) const
    {
-   // Shorthand for transmitted frame size
-   const int tau = this->output_block_size();
+   // Shorthand for transmitted frame size + required look-ahead
+   const int tau = this->output_block_size() + lookahead;
    // Get access to the channel object in stream-oriented mode
-   const channel_stream<S>& c = getrxchan_stream();
+   const channel_stream<S>& rxchan = getrxchan_stream();
 
    if (eof_post.size() == 0) // this is the first frame
       {
       // Initialize as drift pdf after transmitting one frame
-      c.get_drift_pdf(tau, eof_prior, offset);
+      rxchan.get_drift_pdf(tau, eof_prior, offset);
       eof_prior /= eof_prior.max();
       // Initialize as zero-drift is assured
       sof_prior.init(eof_prior.size());
@@ -64,24 +66,24 @@ void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
       sof_prior = eof_post;
       // Initialize as drift pdf after transmitting one frame, given sof priors
       // (offset gets updated and sof_prior gets resized as needed)
-      c.get_drift_pdf(tau, sof_prior, eof_prior, offset);
+      rxchan.get_drift_pdf(tau, sof_prior, eof_prior, offset);
       eof_prior /= eof_prior.max();
       }
    }
 
 template <class S, template <class > class C>
 void commsys_stream<S, C>::receive_path(const C<S>& received,
-      const C<double>& sof_prior, const C<double>& eof_prior,
-      const libbase::size_type<C> offset)
+      const libbase::size_type<C> lookahead, const C<double>& sof_prior,
+      const C<double>& eof_prior, const libbase::size_type<C> offset)
    {
    // Get access to the commsys modem in stream-oriented mode
-   stream_modulator<S, C>& m = getmodem_stream();
+   stream_modulator<S, C>& mdm = getmodem_stream();
    // Demodulate
    C<array1d_t> ptable_mapped;
-   m.reset_timers();
-   m.demodulate(*this->rxchan, received, sof_prior, eof_prior, ptable_mapped,
-         ptable_mapped, sof_post, eof_post, offset);
-   this->add_timers(m);
+   mdm.reset_timers();
+   mdm.demodulate(*this->rxchan, received, lookahead, sof_prior, eof_prior,
+         ptable_mapped, ptable_mapped, sof_post, eof_post, offset);
+   this->add_timers(mdm);
    // After-demodulation receive path
    Base::softreceive_path(ptable_mapped);
    }

@@ -44,9 +44,11 @@ namespace libcomm {
  * the reception process has an enhanced interface. This:
  * 1) allows the user to supply a received sequence that overlaps with the
  *    previous and next frames,
- * 2) allows the user to supply prior information on where the frame is
- *    likely to begin/end, and
- * 3) allows the user to extract posterior information on where the frame is
+ * 2) supports demodulation with look-ahead (where we decode a sequence longer
+ *    than the current frame and discard the excess)
+ * 3) allows the user to supply prior information on where the frame (plus
+ *    any look-ahead sequence) is likely to begin/end, and
+ * 4) allows the user to extract posterior information on where the frame is
  *    likely to begin/end.
  *
  * This class requires the underlying modem and channel to support stream
@@ -78,7 +80,8 @@ public:
       const int drift = libbase::index_of_max(pdf) - offset;
       return libbase::size_type<C>(drift);
       }
-   static C<double> centralize_pdf(const C<double>& pdf, const libbase::size_type<C> drift)
+   static C<double> centralize_pdf(const C<double>& pdf,
+         const libbase::size_type<C> drift)
       {
       C<double> newpdf(pdf.size());
       newpdf = 0;
@@ -109,10 +112,12 @@ public:
    // @}
 
    /*! \name Communication System Interface - Stream Extensions */
-   void compute_priors(const C<double>& eof_post, C<double>& sof_prior, C<
-         double>& eof_prior, libbase::size_type<C>& offset) const;
-   void receive_path(const C<S>& received, const C<double>& sof_prior, const C<
-         double>& eof_prior, const libbase::size_type<C> offset);
+   void compute_priors(const C<double>& eof_post,
+         const libbase::size_type<C> lookahead, C<double>& sof_prior,
+         C<double>& eof_prior, libbase::size_type<C>& offset) const;
+   void receive_path(const C<S>& received,
+         const libbase::size_type<C> lookahead, const C<double>& sof_prior,
+         const C<double>& eof_prior, const libbase::size_type<C> offset);
    const C<double>& get_sof_post() const
       {
       return sof_post;

@@ -18,10 +18,9 @@ Development
 
 Feature Requests
 ~~~~~~~~~~~~~~~~
-* Implement streaming support for tvb
-* Implement dual-frame decoding with tvb
-* Implement system iteration with streaming
-* Make BPMR work with TVB [shelve for now]
+* Implement look-ahead decoding in tvb
+* Implement full-system iteration with streaming
+* Generalize BPMR model to work with TVB [shelve for now]
 * Implement BPMR receiver side [shelve for now]
 * Implement simulator to capture boundary pdf entropy [shelve for now]
 * Implement simulator to capture symbol pdf entropy [shelve for now]

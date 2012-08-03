@@ -100,9 +100,8 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    commsys_simulator(const commsys_simulator<S, R>& c) :
-      src(c.src)
+      src(c.src), sys(dynamic_cast<commsys<S> *> (c.sys->clone()))
       {
-      this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
       }
    commsys_simulator() :
       sys(NULL)

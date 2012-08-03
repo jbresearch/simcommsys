@@ -161,11 +161,10 @@ exit_computer<S>::exit_computer(libbase::randgen *src, commsys<S> *sys)
  * Initializes system with bound objects cloned from supplied system.
  */
 template <class S>
-exit_computer<S>::exit_computer(const exit_computer<S>& c)
+exit_computer<S>::exit_computer(const exit_computer<S>& c) :
+   internallyallocated(true), src(new libbase::randgen), sys(
+         dynamic_cast<commsys<S> *> (c.sys->clone()))
    {
-   this->src = new libbase::randgen;
-   this->sys = dynamic_cast<commsys<S> *> (c.sys->clone());
-   internallyallocated = true;
    }
 
 // Experiment parameter handling

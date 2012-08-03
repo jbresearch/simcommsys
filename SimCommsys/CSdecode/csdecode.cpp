@@ -165,10 +165,13 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    // Keep a copy of the last frame's offset (in case x_max changes)
    const libbase::size_type<libbase::vector> oldoffset = offset;
 
+   // Determine the suggested look-ahead quantity
+   const libbase::size_type<libbase::vector> lookahead =
+         system->getmodem_stream().get_suggested_lookahead();
    // Determine start-of-frame and end-of-frame probabilities
    libbase::vector<double> sof_prior;
    libbase::vector<double> eof_prior;
-   system->compute_priors(eof_post, sof_prior, eof_prior, offset);
+   system->compute_priors(eof_post, lookahead, sof_prior, eof_prior, offset);
 
    // Extract required segment of existing stream
    libbase::vector<S> received_prev;
@@ -191,7 +194,8 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    std::cerr << "DEBUG: prev segment = " << received_prev.size() << std::endl;
 #endif
    // Determine required segment size
-   const int length = (tau + eof_prior.size() - 1) - received_prev.size();
+   const int length = (tau + lookahead + eof_prior.size() - 1)
+         - received_prev.size();
 #ifndef NDEBUG
    std::cerr << "DEBUG: this segment = " << length << std::endl;
 #endif
@@ -223,7 +227,7 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
       }
 
    // Demodulate -> Inverse Map -> Translate
-   system->receive_path(received, sof_prior, eof_prior, offset);
+   system->receive_path(received, lookahead, sof_prior, eof_prior, offset);
    // Store posterior end-of-frame drift probabilities
    eof_post = system->get_eof_post();
 

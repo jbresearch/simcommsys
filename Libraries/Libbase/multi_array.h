@@ -44,7 +44,7 @@ template <typename T, std::size_t NumDims>
 class assignable_multi_array : public multi_array<T, NumDims> {
 public:
    /*! \name Constructors / Destructors */
-   explicit assignable_multi_array() :
+   assignable_multi_array() :
       multi_array<T, NumDims> ()
       {
       }
@@ -53,7 +53,7 @@ public:
       multi_array<T, NumDims> (ranges)
       {
       }
-   explicit assignable_multi_array(const assignable_multi_array& x) :
+   assignable_multi_array(const assignable_multi_array& x) :
             multi_array<T, NumDims> (
                   dynamic_cast<const multi_array<T, NumDims>&> (x))
       {
