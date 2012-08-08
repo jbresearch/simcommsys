@@ -85,12 +85,14 @@ void dminner2<real>::advance() const
       dminner<real> copy(*this);
       // make a copy of marker to grow
       array1i_t marker = Base::marker;
-      for (int left = lookahead; left > 0;)
+      // inherit block size
+      const int N = marker.size();
+      // advance the copy and append marker segment
+      for (int left = lookahead; left > 0; left -= N)
          {
          copy.advance();
-         const int length = std::min(int(copy.marker.size()), left);
+         const int length = std::min(N, left);
          marker = libbase::concatenate(marker, copy.marker.extract(0, length));
-         left -= length;
          }
       // initialize our embedded metric computer
       fba.get_receiver().init(marker);

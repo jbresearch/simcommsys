@@ -157,6 +157,8 @@ protected:
    // Internal methods
    array1vs_t select_codebook(const int i) const;
    array1s_t select_marker(const int i) const;
+   void fill_encoding_table(array2vs_t& encoding_table, const int offset,
+         const int length) const;
    void demodulate_wrapper(const channel<sig>& chan, const array1s_t& rx,
          const int lookahead, const array1d_t& sof_prior,
          const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
@@ -187,7 +189,6 @@ private:
       }
    // codebook wrapper operations
    void validate_sequence_length(const array1vs_t& table) const;
-   void copymarker(const array1vs_t& marker_s);
    void copycodebook(const int i, const array1vs_t& codebook_s);
    void showcodebook(std::ostream& sout, const array1vs_t& codebook) const;
    void showcodebooks(std::ostream& sout) const;
@@ -268,10 +269,12 @@ public:
    // Block modem operations - streaming extensions
    void get_post_drift_pdf(array1vd_t& pdftable) const
       {
+      // Inherit sizes
+      const int N = this->input_block_size();
       // get the posterior channel drift pdf at codeword boundaries
       array1vr_t pdftable_r;
       fba.get_drift_pdf(pdftable_r);
-      normalize_results(pdftable_r, pdftable);
+      normalize_results(pdftable_r.extract(0, N + 1), pdftable);
       }
    array1i_t get_boundaries(void) const
       {

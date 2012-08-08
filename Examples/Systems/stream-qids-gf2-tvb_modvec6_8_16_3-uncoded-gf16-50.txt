@@ -1,4 +1,4 @@
-commsys<gf2,vector>
+commsys_stream<gf2,vector>
 # Version
 1
 # Single channel?
@@ -44,9 +44,38 @@ tvb<gf2,double>
 # k
 4
 # codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
+2
+#: codebook name
+(8,16)-ld3-modvec6
+#: codebook count
 1
+#: codebook entries (table 0)
+0 1 1 1 0 0 1 1
+0 0 0 1 1 1 1 1
+1 0 1 0 1 1 1 1
+1 1 1 1 1 0 0 1
+0 0 1 1 1 0 0 0
+0 1 0 0 1 0 0 1
+1 0 0 0 0 0 0 1
+1 1 1 0 0 0 0 0
+1 1 0 0 1 0 1 0
+0 1 0 1 0 0 0 0
+0 0 1 1 0 1 0 1
+0 0 0 0 0 1 1 0
+1 0 0 0 1 1 0 0
+1 1 0 0 0 1 1 1
+1 1 1 1 1 1 1 0
+0 1 1 0 1 1 0 0
 # marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
-0
+2
+#: marker vectors
+6
+0 0 0 0 0 0 0 0
+0 1 0 0 1 0 0 1
+1 1 1 1 1 1 1 1
+1 0 1 1 0 0 1 0
+1 0 1 1 0 1 1 0
+0 1 0 0 1 1 0 1
 ## Mapper
 map_straight<vector,double>
 ## Codec

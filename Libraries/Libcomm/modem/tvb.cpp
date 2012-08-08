@@ -41,6 +41,14 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+/*! \brief Determines and returns codebook to be used at index 'i'
+ *
+ * In determining the codebook to be used, this method advances the internal
+ * state as necessary. This means that this method should only be called once
+ * per index, in a deterministic order (ideally sequentially for all 'i').
+ *
+ * \warning Although this is a const method, the internal state is updated
+ */
 template <class sig, class real>
 libbase::vector<libbase::vector<sig> > tvb<sig, real>::select_codebook(
       const int i) const
@@ -96,6 +104,14 @@ libbase::vector<libbase::vector<sig> > tvb<sig, real>::select_codebook(
    return codebook;
    }
 
+/*! \brief Determines and returns marker vector to be used at index 'i'
+ *
+ * In determining the marker to be used, this method advances the internal
+ * state as necessary. This means that this method should only be called once
+ * per index, in a deterministic order (ideally sequentially for all 'i').
+ *
+ * \warning Although this is a const method, the internal state is updated
+ */
 template <class sig, class real>
 libbase::vector<sig> tvb<sig, real>::select_marker(const int i) const
    {
@@ -134,6 +150,55 @@ libbase::vector<sig> tvb<sig, real>::select_marker(const int i) const
    return marker;
    }
 
+/*! \brief Fills the entries of the encoding table, as requested
+ *
+ * This method calls select_codebook() and select_marker() sequentially for
+ * each index requested, starting with zero and repeating 'length' times.
+ * The result is placed in the corresponding index in encoding_table, offset
+ * by the given amount.
+ *
+ * In determining the codebook and marker to be used at each index, this method
+ * therefore advances the internal state as necessary. This means that this
+ * method should only be called once for the given index range, in a
+ * deterministic order over the range of indices for a frame (ideally
+ * sequentially for all indices).
+ *
+ * \note The encoding table passed as a parameter must be already allocated
+ * \warning Although this is a const method, the internal state is updated
+ */
+template <class sig, class real>
+void tvb<sig, real>::fill_encoding_table(array2vs_t& encoding_table,
+      const int offset, const int length) const
+   {
+   // Inherit sizes
+   const int q = num_symbols();
+#ifndef NDEBUG
+   const int N = this->input_block_size();
+#endif
+   // Sanity checks
+   assert(offset >= 0 && offset < encoding_table.size().rows());
+   assert(length > 0 && offset + length <= encoding_table.size().rows());
+   assert(q == encoding_table.size().cols());
+   assert(length <= N);
+   // Advance and fill encoding table
+   for (int i = 0; i < length; i++)
+      {
+      // Select codebook and marker vector
+      const array1vs_t codebook = select_codebook(i);
+      const array1s_t marker = select_marker(i);
+#if DEBUG>=2
+      std::cerr << "Codebook for i = " << i << std::endl;
+      showcodebook(std::cerr, codebook);
+      std::cerr << "Marker for i = " << i << std::endl;
+      std::cerr << "\t";
+      marker.serialize(std::cerr, ' ');
+#endif
+      // Encode each possible input symbol
+      for (int d = 0; d < q; d++)
+         encoding_table(offset + i, d) = marker + codebook(d);
+      }
+   }
+
 template <class sig, class real>
 void tvb<sig, real>::advance() const
    {
@@ -144,23 +209,21 @@ void tvb<sig, real>::advance() const
    if (N > 0)
       {
       // Initialize space for encoding table
-      libbase::allocate(encoding_table, N, q, n);
-      // Go through each symbol index
-      for (int i = 0; i < N; i++)
+      libbase::allocate(encoding_table, N + lookahead, q, n);
+      // Advance this system and set up the corresponding encoding table
+      fill_encoding_table(encoding_table, 0, N);
+      // if we have lookahead, make a copy and advance as necessary
+      if (lookahead)
          {
-         // Select codebook and marker vector
-         const array1vs_t codebook = select_codebook(i);
-         const array1s_t marker = select_marker(i);
-#if DEBUG>=2
-         std::cerr << "Codebook for i = " << i << std::endl;
-         showcodebook(std::cerr, codebook);
-         std::cerr << "Marker for i = " << i << std::endl;
-         std::cerr << "\t";
-         marker.serialize(std::cerr, ' ');
-#endif
-         // Encode each possible input symbol
-         for (int d = 0; d < q; d++)
-            encoding_table(i, d) = marker + codebook(d);
+         // make a copy of this object
+         tvb<sig, real> copy(*this);
+         // advance the copy and set up the corresponding entries in table
+         for (int offset = N, left = lookahead; left > 0; offset += N, left
+               -= N)
+            {
+            const int length = std::min(N, left);
+            copy.fill_encoding_table(encoding_table, offset, length);
+            }
          }
       }
    // initialize our embedded metric computer
@@ -183,7 +246,7 @@ void tvb<sig, real>::domodulate(const int N, const array1i_t& encoded,
    assertalways(N == q);
    // Initialise result vector
    tx.init(n * tau);
-   assertalways(encoding_table.size().rows() == tau);
+   assertalways(encoding_table.size().rows() == tau + lookahead);
    assertalways(encoding_table.size().cols() == q);
    // Encode source stream
    for (int i = 0; i < tau; i++)
@@ -277,7 +340,12 @@ void tvb<sig, real>::demodulate_wrapper(const channel<sig>& chan,
    array1r_t eof_post_r;
    fba.decode(*this, rx, sof_prior, eof_prior, app, ptable_r, sof_post_r,
          eof_post_r, offset);
-   normalize_results(ptable_r, ptable);
+   // Inherit block size from last modulation step
+   const int N = this->input_block_size();
+   // In cases with lookahead, re-compute EOF posterior at actual frame boundary
+   if (lookahead > 0)
+      fba.get_drift_pdf(eof_post_r, N);
+   normalize_results(ptable_r.extract(0, N), ptable);
    normalize(sof_post_r, sof_post);
    normalize(eof_post_r, eof_post);
 #if DEBUG>=9
@@ -342,9 +410,9 @@ template <class sig, class real>
 void tvb<sig, real>::init(const channel<sig>& chan, const array1d_t& sof_pdf,
       const int offset)
    {
-   // Inherit block size from last modulation step
+   // Inherit block size from last modulation step (and include lookahead)
    const int q = num_symbols();
-   const int N = this->input_block_size();
+   const int N = this->input_block_size() + lookahead;
    const int tau = N * n;
    assert(N > 0);
    // Copy channel for access within R()
@@ -424,16 +492,6 @@ void tvb<sig, real>::validate_sequence_length(const array1vs_t& table) const
    assertalways(table.size() > 0);
    for (int i = 0; i < table.size(); i++)
       assertalways(table(i).size() == n);
-   }
-
-/*!
- * \brief Set up marker sequence for the current frame as given
- */
-template <class sig, class real>
-void tvb<sig, real>::copymarker(const array1vs_t& marker_s)
-   {
-   validate_sequence_length(marker_s);
-   encoding_table = marker_s;
    }
 
 /*!
@@ -527,13 +585,11 @@ void tvb<sig, real>::checkforchanges(int I, int xmax) const
  *
  * The intent of this method is to allow users to apply the tvb decoder
  * in derived algorithms, such as the 2D extension.
- *
- * \todo merge with copymarker()
  */
 template <class sig, class real>
 void tvb<sig, real>::set_marker(const array1vs_t& marker_s)
    {
-   copymarker(marker_s);
+   failwith("Function not implemented.");
    }
 
 /*!
@@ -649,7 +705,7 @@ template <class sig, class real>
 std::ostream& tvb<sig, real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 3 << std::endl;
+   sout << 4 << std::endl;
    sout << "#: Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "#: Outer threshold" << std::endl;
@@ -662,6 +718,9 @@ std::ostream& tvb<sig, real>::serialize(std::ostream& sout) const
    sout << flags.lazy << std::endl;
    sout << "# Global storage / caching of computed gamma values?" << std::endl;
    sout << flags.globalstore << std::endl;
+   sout << "# Number of codewords to look ahead when stream decoding"
+         << std::endl;
+   sout << lookahead << std::endl;
    sout << "# n" << std::endl;
    sout << n << std::endl;
    sout << "# k" << std::endl;
@@ -738,6 +797,8 @@ std::ostream& tvb<sig, real>::serialize(std::ostream& sout) const
  *
  * \version 3 Changed 'caching' flag to 'global store', now also defined for
  *      pre-computation cases
+ *
+ * \version 4 Added look-ahead quantity for stream decoding
  */
 
 template <class sig, class real>
@@ -767,6 +828,11 @@ std::istream& tvb<sig, real>::serialize(std::istream& sin)
       flags.lazy = true;
       flags.globalstore = true;
       }
+   // read look-ahead quantity
+   if (version >= 4)
+      sin >> libbase::eatcomments >> lookahead >> libbase::verify;
+   else
+      lookahead = 0;
    // read code size
    sin >> libbase::eatcomments >> n >> libbase::verify;
    sin >> libbase::eatcomments >> k >> libbase::verify;

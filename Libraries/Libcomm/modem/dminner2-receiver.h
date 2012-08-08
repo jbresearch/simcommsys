@@ -91,8 +91,8 @@ public:
       this->marker = marker;
 #if DEBUG>=2
       std::cerr << "Initialize dminner2 computer..." << std::endl;
-      std::cerr << "marker = " << libbase::vector<int>(this->encoding_table) << std::endl;
-      std::cerr << "sizeof(marker) = " << sizeof(this->encoding_table) << std::endl;
+      std::cerr << "marker = " << libbase::vector<int>(this->marker) << std::endl;
+      std::cerr << "sizeof(marker) = " << sizeof(this->marker) << std::endl;
 #endif
       }
    // @}

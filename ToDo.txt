@@ -18,7 +18,7 @@ Development
 
 Feature Requests
 ~~~~~~~~~~~~~~~~
-* Implement look-ahead decoding in tvb
+* Change simulator stopping criterion to include absolute error (beside %age)
 * Implement full-system iteration with streaming
 * Generalize BPMR model to work with TVB [shelve for now]
 * Implement BPMR receiver side [shelve for now]

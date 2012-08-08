@@ -24,7 +24,7 @@ qids<gf2>
 ## Modem
 tvb<gf2,double>
 # Version
-3
+4
 #: Inner threshold
 0
 #: Outer threshold
@@ -37,6 +37,8 @@ tvb<gf2,double>
 1
 # Global storage / caching of computed gamma values?
 1
+# Number of codewords to look ahead when stream decoding
+0
 # n
 8
 # k
