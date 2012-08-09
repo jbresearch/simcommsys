@@ -132,7 +132,10 @@ int main(int argc, char *argv[])
    desc.add_options()("confidence", po::value<double>()->default_value(0.999),
          "confidence level (e.g. 0.90 for 90%)");
    desc.add_options()("tolerance", po::value<double>()->default_value(0.001),
-         "confidence interval (e.g. 0.15 for +/- 15%)");
+         "confidence interval (e.g. 0.15 for ±15%)");
+   desc.add_options()("margin", po::value<double>(),
+         "absolute error margin (e.g. 0.1 for ±0.1); "
+         "overrides tolerance if specified");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -165,7 +168,10 @@ int main(int argc, char *argv[])
                   std_systemstring);
          estimator.bind(system);
          estimator.set_confidence(vm["confidence"].as<double> ());
-         estimator.set_accuracy(vm["tolerance"].as<double> ());
+         if (vm.count("margin"))
+            estimator.set_errormargin(vm["margin"].as<double> ());
+         else
+            estimator.set_accuracy(vm["tolerance"].as<double> ());
          estimator.timeout = vm["time"].as<double> ();
          // Work out at the SNR value required
          system->set_parameter(vm["parameter"].as<double> ());
@@ -174,8 +180,8 @@ int main(int argc, char *argv[])
          libbase::trace << system->description() << std::endl;
 
          // Perform the simulation
-         libbase::vector<double> estimate, tolerance;
-         estimator.estimate(estimate, tolerance);
+         libbase::vector<double> estimate, errormargin;
+         estimator.estimate(estimate, errormargin);
          const libbase::int64u frames = estimator.get_samplecount();
 
          if (!vm["quiet"].as<bool> ())
@@ -186,10 +192,8 @@ int main(int argc, char *argv[])
             cout << "~~~~~~~~~~~~" << std::endl;
             cout << system->description() << std::endl;
             //cout << "Rate: " << system-> << std::endl;
-            cout << "Tolerance: " << 100 * estimator.get_accuracy() << "%"
-                  << std::endl;
-            cout << "Confidence: " << 100 * estimator.get_confidence() << "%"
-                  << std::endl;
+            cout << "Confidence Interval: "
+                  << estimator.get_confidence_interval() << std::endl;
             cout << "Date: " << libbase::timer::date() << std::endl;
             // TODO: add method to system to get parameter name
             cout << "Simulating at system parameter = "
@@ -203,8 +207,8 @@ int main(int argc, char *argv[])
                {
                cout << system->result_description(j) << '\t';
                cout << setprecision(6) << estimate(j);
-               cout << "\t[+/-" << setprecision(3) << 100 * tolerance(j)
-                     << "%]";
+               cout << "\t[±" << setprecision(3) << 100 * errormargin(j)
+                     / estimate(j) << "%]";
                if (!vm.count("system-file"))
                   cout << "\t(" << setprecision(3) << 100 * (estimate(j)
                         - std_result[j]) / std_result[j] << "%)";

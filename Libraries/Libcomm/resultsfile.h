@@ -98,7 +98,7 @@ protected:
    virtual void writeheader(std::ostream& sout) const = 0;
    virtual void
    writeresults(std::ostream& sout, libbase::vector<double>& result,
-         libbase::vector<double>& tolerance) const = 0;
+         libbase::vector<double>& errormargin) const = 0;
    virtual void writestate(std::ostream& sout) const = 0;
    virtual void lookforstate(std::istream& sin) = 0;
    // @}
@@ -132,9 +132,9 @@ public:
    /*! \name Results handling interface */
    void setupfile();
    void writeinterimresults(libbase::vector<double>& result, libbase::vector<
-         double>& tolerance);
+         double>& errormargin);
    void writefinalresults(libbase::vector<double>& result, libbase::vector<
-         double>& tolerance, bool savestate = false);
+         double>& errormargin, bool savestate = false);
    // @}
 };
 

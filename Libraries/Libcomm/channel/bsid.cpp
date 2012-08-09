@@ -59,7 +59,7 @@ const double bsid::metric_computer::Pr = 1e-10;
  *
  * To preserve the property that the sum over x should be 1, rather than
  * returning a discrete sample of the Gaussian pdf at x, we return the
- * integral over x +/- 0.5.
+ * integral over x ± 0.5.
  *
  * Since the probability is symmetric about x=0, we always use positive x;
  * this ensures the subtraction does not fail due to resolution of double.

@@ -32,6 +32,7 @@
 #include "experiment.h"
 #include "masterslave.h"
 #include "resultsfile.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -46,6 +47,7 @@ namespace libcomm {
  */
 
 class montecarlo : public libbase::masterslave, private resultsfile {
+private:
    /*! \name Object-wide constants */
    static const libbase::int64u min_samples; //!< minimum number of samples
    // @}
@@ -58,11 +60,13 @@ class montecarlo : public libbase::masterslave, private resultsfile {
    // @}
    /*! \name Internal variables */
    double confidence; //!< confidence level required
-   double accuracy; //!< accuracy level required
+   double accuracy; //!< accuracy level required (margin of error must be less than this)
+   bool absolute; //!< flag indicating that accuracy is an absolute value
    libbase::walltimer t; //!< timer to keep track of running estimate
    mutable libbase::walltimer tupdate; //!< timer to keep track of display rate
    sha sysdigest; //!< digest of the currently-simulated system
    // @}
+private:
    /*! \name Slave process functions & their functors */
    void slave_getcode(void);
    void slave_getparameter(void);
@@ -79,9 +83,17 @@ private:
    void destroyfunctors(void);
    // @}
    /*! \name Main estimator helper functions */
-   void sampleandaccumulate();
+   /*!
+    * \brief Compute a single sample and accumulate results
+    */
+   void sampleandaccumulate()
+      {
+      libbase::vector<double> result;
+      system->sample(result);
+      system->accumulate(result);
+      }
    void updateresults(libbase::vector<double>& result,
-         libbase::vector<double>& tolerance) const;
+         libbase::vector<double>& errormargin) const;
    void initslave(slave *s, std::string systemstring);
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool converged);
@@ -91,7 +103,7 @@ protected:
    // System-specific file-handler functions
    void writeheader(std::ostream& sout) const;
    void writeresults(std::ostream& sout, libbase::vector<double>& result,
-         libbase::vector<double>& tolerance) const;
+         libbase::vector<double>& errormargin) const;
    void writestate(std::ostream& sout) const;
    void lookforstate(std::istream& sin);
    /*! \name Overrideable user-interface functions */
@@ -112,36 +124,83 @@ protected:
       return interrupted;
       }
    virtual void display(const libbase::vector<double>& result,
-         const libbase::vector<double>& tolerance) const;
+         const libbase::vector<double>& errormargin) const;
    // @}
 public:
    /*! \name Constructor/destructor */
-   montecarlo();
-   virtual ~montecarlo();
+   montecarlo() :
+      bound(false), system(NULL), confidence(0.95), accuracy(0.10), absolute(
+            false), t("montecarlo"), tupdate("montecarlo_update")
+      {
+      createfunctors();
+      }
+   virtual ~montecarlo()
+      {
+      release();
+      delete system;
+      destroyfunctors();
+      tupdate.stop();
+      }
    // @}
    /*! \name Simulation binding/releasing */
-   void bind(experiment *system);
-   void release();
+   void bind(experiment *system)
+      {
+      release();
+      assert(montecarlo::system == NULL);
+      bound = true;
+      montecarlo::system = system;
+      }
+   void release()
+      {
+      if (!bound)
+         return;
+      assert(system != NULL);
+      bound = false;
+      system = NULL;
+      }
    // @}
    /*! \name Simulation parameters */
    //! Set confidence limit, say, 0.95 => 95% probability
-   void set_confidence(double confidence);
+   void set_confidence(double confidence)
+      {
+      assertalways(confidence > 0.5 && confidence < 1.0);
+      libbase::trace << "DEBUG (montecarlo): setting confidence level of "
+            << confidence << std::endl;
+      montecarlo::confidence = confidence;
+      }
    //! Set target accuracy, say, 0.10 => 10% of mean
-   void set_accuracy(double accuracy);
+   void set_accuracy(double accuracy)
+      {
+      assertalways(accuracy > 0 && accuracy < 1.0);
+      libbase::trace << "DEBUG (montecarlo): setting accuracy level of "
+            << accuracy << std::endl;
+      montecarlo::accuracy = accuracy;
+      montecarlo::absolute = false;
+      }
+   //! Set target margin of error (as an absolute value)
+   void set_errormargin(double errormargin)
+      {
+      assertalways(errormargin > 0);
+      libbase::trace << "DEBUG (montecarlo): setting margin of error of "
+            << errormargin << std::endl;
+      montecarlo::accuracy = errormargin;
+      montecarlo::absolute = true;
+      }
    //! Associates with given results file
    void set_resultsfile(const std::string& fname)
       {
       resultsfile::init(fname);
       }
-   //! Get confidence limit
-   double get_confidence() const
+   //! Get confidence interval as a string
+   std::string get_confidence_interval() const
       {
-      return confidence;
-      }
-   //! Get target accuracy
-   double get_accuracy() const
-      {
-      return accuracy;
+      std::ostringstream sout;
+      if (absolute)
+         sout << "±" << accuracy;
+      else
+         sout << "±" << 100 * accuracy << "%";
+      sout << " @ " << 100 * confidence << "%";
+      return sout.str();
       }
    // @}
    /*! \name Simulation results */
@@ -158,7 +217,7 @@ public:
    // @}
    /*! \name Main process */
    void estimate(libbase::vector<double>& result,
-         libbase::vector<double>& tolerance);
+         libbase::vector<double>& errormargin);
    // @}
 };
 

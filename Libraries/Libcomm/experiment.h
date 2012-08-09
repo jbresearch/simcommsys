@@ -191,7 +191,7 @@ public:
     * \brief Display accumulated results in human-readable form
     */
    virtual void prettyprint_results(std::ostream& sout, const libbase::vector<
-         double>& result, const libbase::vector<double>& tolerance) const;
+         double>& result, const libbase::vector<double>& errormargin) const;
    // @}
 
    /*! \name Description */

@@ -167,7 +167,7 @@ void resultsfile::setupfile()
  * overwritten on the next write.
  */
 void resultsfile::writeinterimresults(libbase::vector<double>& result,
-      libbase::vector<double>& tolerance)
+      libbase::vector<double>& errormargin)
    {
    assert(filesetup);
    assert(t.isrunning());
@@ -179,7 +179,7 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result,
    assertalways(file.good());
    checkformodifications(file);
    writeheaderifneeded(file);
-   writeresults(file, result, tolerance);
+   writeresults(file, result, errormargin);
    writestate(file);
    finishwithfile(file);
    // restart timer
@@ -196,7 +196,7 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result,
  * overwritten.
  */
 void resultsfile::writefinalresults(libbase::vector<double>& result,
-      libbase::vector<double>& tolerance, bool savestate)
+      libbase::vector<double>& errormargin, bool savestate)
    {
    assert(filesetup);
    assert(t.isrunning());
@@ -205,7 +205,7 @@ void resultsfile::writefinalresults(libbase::vector<double>& result,
    assertalways(file.good());
    checkformodifications(file);
    writeheaderifneeded(file);
-   writeresults(file, result, tolerance);
+   writeresults(file, result, errormargin);
    if (savestate)
       writestate(file);
    // update write-position

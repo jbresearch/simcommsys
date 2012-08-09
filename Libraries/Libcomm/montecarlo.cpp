@@ -95,9 +95,9 @@ void montecarlo::slave_work(void)
    assertalways(send(state));
 
    // print something to inform the user of our progress
-   vector<double> result, tolerance;
-   updateresults(result, tolerance);
-   display(result, tolerance);
+   vector<double> result, errormargin;
+   updateresults(result, errormargin);
+   display(result, errormargin);
    }
 
 // helper functions
@@ -152,8 +152,7 @@ void montecarlo::writeheader(std::ostream& sout) const
    trace << "DEBUG (montecarlo): position before = " << sout.tellp()
          << std::endl;
    sout << "#% " << system->description() << std::endl;
-   sout << "#% Tolerance: " << 100 * accuracy << "%" << std::endl;
-   sout << "#% Confidence: " << 100 * confidence << "%" << std::endl;
+   sout << "#% Confidence Interval: " << get_confidence_interval() << std::endl;
    sout << "#% Date: " << libbase::timer::date() << std::endl;
    sout << "#% URL: " << __WCURL__ << std::endl;
    sout << "#% Version: " << __WCVER__ << std::endl;
@@ -168,7 +167,7 @@ void montecarlo::writeheader(std::ostream& sout) const
    }
 
 void montecarlo::writeresults(std::ostream& sout,
-      libbase::vector<double>& result, libbase::vector<double>& tolerance) const
+      libbase::vector<double>& result, libbase::vector<double>& errormargin) const
    {
    assert(sout.good());
    if (get_samplecount() == 0)
@@ -179,7 +178,7 @@ void montecarlo::writeresults(std::ostream& sout,
          << std::endl;
    sout << system->get_parameter();
    for (int i = 0; i < system->count(); i++)
-      sout << '\t' << result(i) << '\t' << result(i) * tolerance(i);
+      sout << '\t' << result(i) << '\t' << errormargin(i);
    sout << '\t' << get_samplecount();
    sout << '\t' << getcputime() << std::endl;
    trace << "DEBUG (montecarlo): position after = " << sout.tellp()
@@ -253,7 +252,7 @@ void montecarlo::lookforstate(std::istream& sin)
  * \note Display updates are rate-limited
  */
 void montecarlo::display(const libbase::vector<double>& result,
-      const libbase::vector<double>& tolerance) const
+      const libbase::vector<double>& errormargin) const
    {
    if (tupdate.elapsed() > 0.5)
       {
@@ -268,106 +267,29 @@ void montecarlo::display(const libbase::vector<double>& result,
       clog << "pass " << system->get_samplecount() << "." << std::endl;
       clog << "System parameter: " << system->get_parameter() << std::endl;
       clog << "Results:" << std::endl;
-      system->prettyprint_results(clog, result, tolerance);
+      system->prettyprint_results(clog, result, errormargin);
       clog << "Press 'q' to interrupt." << std::endl;
       clog.precision(prec);
       tupdate.start();
       }
    }
 
-// constructor/destructor
-
-montecarlo::montecarlo() :
-   t("montecarlo"), tupdate("montecarlo_update")
-   {
-   createfunctors();
-   bound = false;
-   system = NULL;
-   // set default parameter settings
-   set_confidence(0.95);
-   set_accuracy(0.10);
-   }
-
-montecarlo::~montecarlo()
-   {
-   release();
-   delete system;
-   destroyfunctors();
-   tupdate.stop();
-   }
-
-// simulation initialization/finalization
-
-void montecarlo::bind(experiment *system)
-   {
-   release();
-   assert(montecarlo::system == NULL);
-   bound = true;
-   montecarlo::system = system;
-   }
-
-void montecarlo::release()
-   {
-   if (!bound)
-      return;
-   assert(system != NULL);
-   bound = false;
-   system = NULL;
-   }
-
-// simulation parameters
-
-void montecarlo::set_confidence(double confidence)
-   {
-   assertalways(confidence > 0.5 && confidence < 1.0);
-   trace << "DEBUG (montecarlo): setting confidence level of " << confidence
-         << std::endl;
-   montecarlo::confidence = confidence;
-   }
-
-void montecarlo::set_accuracy(double accuracy)
-   {
-   assertalways(accuracy > 0 && accuracy < 1.0);
-   trace << "DEBUG (montecarlo): setting accuracy level of " << accuracy
-         << std::endl;
-   montecarlo::accuracy = accuracy;
-   }
-
 // main process
-
-/*!
- * \brief Compute a single sample and accumulate results
- */
-void montecarlo::sampleandaccumulate()
-   {
-   vector<double> result;
-   system->sample(result);
-   system->accumulate(result);
-   }
 
 /*!
  * \brief Determine overall estimate from accumulated results
  * \param[out] result      Vector containing the set of estimates
- * \param[out] tolerance   Corresponding confidence interval as a fraction of estimate
- * 
- * \note If the accuracy cannot be computed yet (there has been no error event), then the
- * accuracy reached takes the special largest-double value.
+ * \param[out] errormargin Corresponding margin of error (radius of confidence interval)
  */
 void montecarlo::updateresults(vector<double>& result,
-      vector<double>& tolerance) const
+      vector<double>& errormargin) const
    {
    const double cfactor = libbase::Qinv((1.0 - confidence) / 2.0);
    // determine a new estimate
-   system->estimate(result, tolerance);
-   assert(result.size() == tolerance.size());
+   system->estimate(result, errormargin);
+   assert(result.size() == errormargin.size());
    // determine confidence interval from standard error
-   for (int i = 0; i < result.size(); i++)
-      {
-      if (result(i) > 0)
-         tolerance(i) *= cfactor / result(i);
-      else
-         tolerance(i) = std::numeric_limits<double>::max();
-      }
+   errormargin *= cfactor;
    }
 
 /*!
@@ -489,9 +411,9 @@ bool montecarlo::readpendingslaves()
  * \brief Simulate the system until convergence to given accuracy & confidence,
  * and return estimated results
  * \param[out] result      Vector of results
- * \param[out] tolerance   Vector of corresponding result accuracy (at given confidence level)
+ * \param[out] errormargin Vector of corresponding margin of error (radius of confidence interval)
  */
-void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
+void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
    {
    t.start();
 
@@ -545,16 +467,30 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
       // if we did get any results, update the statistics
       if (results_available)
          {
-         updateresults(result, tolerance);
-         const double acc = tolerance.max();
-         // check if we have reached the required accuracy
-         if (acc <= accuracy && system->get_samplecount() >= min_samples)
-            converged = true;
+         updateresults(result, errormargin);
+         // if we have done enough samples, check accuracy reached
+         if (system->get_samplecount() >= min_samples)
+            {
+            if (absolute)
+               {
+               // check if we have reached the required accuracy
+               if (errormargin.max() <= accuracy)
+                  converged = true;
+               }
+            else
+               {
+               // determine the relative accuracy reached for every result
+               const vector<double> result_acc = errormargin / result;
+               // check if we have reached the required accuracy
+               if (result_acc.max() <= accuracy)
+                  converged = true;
+               }
+            }
          // print something to inform the user of our progress
-         display(result, tolerance);
+         display(result, errormargin);
          // write interim results
          if (resultsfile::isinitialized())
-            writeinterimresults(result, tolerance);
+            writeinterimresults(result, errormargin);
          }
       // consider our work done if the user has interrupted the processing
       // (note: this overrides everything)
@@ -564,7 +500,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& tolerance)
 
    // write final results
    if (resultsfile::isinitialized())
-      writefinalresults(result, tolerance, interrupt());
+      writefinalresults(result, errormargin, interrupt());
 
    t.stop();
    }

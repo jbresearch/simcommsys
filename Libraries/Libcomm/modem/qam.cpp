@@ -41,7 +41,7 @@ const libbase::serializer qam::shelper("blockmodem", "qam", qam::create);
  * code values.
  * 
  * The constellation is centered about the origin, and uses the conventional
- * scaling where symbols take amplitudes +/- 1, 3, 5, ...
+ * scaling where symbols take amplitudes ± 1, 3, 5, ...
  * 
  * \sa Sklar, 2nd edition, p.565.
  * 

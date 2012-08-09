@@ -43,7 +43,7 @@ namespace libcomm {
  * This class implements LSB embedding that can be applied to any integer type.
  * Two types of embedding are implemented:
  * - LSB replacement (using modulo arithmetic)
- * - LSB matching (or +/- 1 embedding)
+ * - LSB matching (or ±1 embedding)
  */
 
 template <class S>
@@ -58,7 +58,7 @@ private:
    } algorithm;
    // @}
    /*! \name Internal representation */
-   mutable libbase::randgen r; //!< +/- selector for matching
+   mutable libbase::randgen r; //!< ± selector for matching
    // @}
 protected:
    //! Verifies that object is in a valid state

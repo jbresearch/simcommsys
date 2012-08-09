@@ -166,7 +166,10 @@ int main(int argc, char *argv[])
    desc.add_options()("confidence", po::value<double>()->default_value(0.90),
          "confidence level (e.g. 0.90 for 90%)");
    desc.add_options()("tolerance", po::value<double>()->default_value(0.15),
-         "confidence interval (e.g. 0.15 for +/- 15%)");
+         "confidence interval (e.g. 0.15 for ±15%)");
+   desc.add_options()("margin", po::value<double>(),
+         "absolute error margin (e.g. 0.1 for ±0.1); "
+         "overrides tolerance if specified");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -212,7 +215,10 @@ int main(int argc, char *argv[])
                   vm["start"].as<double> (), vm["stop"].as<double> (),
                   vm["mul"].as<double> ());
             estimator.set_confidence(vm["confidence"].as<double> ());
-            estimator.set_accuracy(vm["tolerance"].as<double> ());
+            if (vm.count("margin"))
+               estimator.set_errormargin(vm["margin"].as<double> ());
+            else
+               estimator.set_accuracy(vm["tolerance"].as<double> ());
 
             // Work out the following for every SNR value required
             for (int i = 0; i < pset.size(); i++)
@@ -221,8 +227,8 @@ int main(int argc, char *argv[])
 
                cerr << "Simulating system at parameter = " << pset(i)
                      << std::endl;
-               libbase::vector<double> result, tolerance;
-               estimator.estimate(result, tolerance);
+               libbase::vector<double> result, errormargin;
+               estimator.estimate(result, errormargin);
 
                cerr << "Statistics: " << setprecision(4)
                      << estimator.get_samplecount() << " frames in "
