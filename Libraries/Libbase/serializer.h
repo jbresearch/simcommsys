@@ -72,6 +72,18 @@ class serializable;
  * \note In the constructor, the function pointer is passed directly, not by
  * reference. This is required to pass anything except global functions.
  *
+ * \note The map is held as a static pointer to map; this is to avoid the
+ * "static initialization order fiasco", where the map might be created after
+ * the first call to the serializer constructor (from some global object).
+ * This would lead to access violations / segfaults. The pointer is
+ * initially NULL, and when the first serializer object is created, space
+ * for this is allocated.
+ * A static counter keeps track of how many serializer objects are
+ * defined. When this drops to zero, the global map is deallocated. Note
+ * that this should only drop to zero on program end, assuming all
+ * serializer objects are created with either global or static member
+ * scope.
+ *
  * \note Macros are defined to standardize declarations in serializable
  * classes; this mirrors what Microsoft do in MFC.
  */
@@ -80,7 +92,8 @@ class serializer {
 public:
    typedef serializable*(*fptr)();
 private:
-   static std::map<std::string, fptr> cmap;
+   static std::map<std::string, fptr>* cmap;
+   static int count;
    std::string classname;
 public:
    static serializable* call(const std::string& base,
@@ -91,6 +104,7 @@ public:
    static std::list<std::string> get_derived_classes(const std::string& base);
 public:
    serializer(const std::string& base, const std::string& derived, fptr func);
+   ~serializer();
    const char *name() const
       {
       return classname.c_str();
