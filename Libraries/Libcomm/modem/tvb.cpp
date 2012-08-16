@@ -327,6 +327,23 @@ void tvb<sig, real>::demodulate_wrapper(const channel<sig>& chan,
       const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
       array1d_t& sof_post, array1d_t& eof_post, const int offset)
    {
+   // Inherit block size from last modulation step
+   const int N = this->input_block_size();
+   const int q = this->num_symbols();
+   // In cases with lookahead, extend app table if supplied
+   array1vd_t app_x;
+   if (lookahead > 0 && app.size() > 0)
+      {
+      // Initialise extended app table (one symbol per timestep)
+      assert(lookahead % n == 0);
+      libbase::allocate(app_x, N + lookahead / n, q);
+      app_x = 1.0; // equiprobable
+      // Copy supplied prior to initial segment
+      assert(app.size() == N);
+      app_x.segment(0, N) = app;
+      }
+   else
+      app_x = app;
    // Call FBA and normalize results
 #if DEBUG>=9
    using libbase::index_of_max;
@@ -338,10 +355,8 @@ void tvb<sig, real>::demodulate_wrapper(const channel<sig>& chan,
    array1vr_t ptable_r;
    array1r_t sof_post_r;
    array1r_t eof_post_r;
-   fba.decode(*this, rx, sof_prior, eof_prior, app, ptable_r, sof_post_r,
+   fba.decode(*this, rx, sof_prior, eof_prior, app_x, ptable_r, sof_post_r,
          eof_post_r, offset);
-   // Inherit block size from last modulation step
-   const int N = this->input_block_size();
    // In cases with lookahead, re-compute EOF posterior at actual frame boundary
    if (lookahead > 0)
       fba.get_drift_pdf(eof_post_r, N);
