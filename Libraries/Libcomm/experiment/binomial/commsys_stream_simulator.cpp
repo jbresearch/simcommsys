@@ -24,8 +24,10 @@
 
 #include "commsys_stream_simulator.h"
 
-#include "result_collector/commsys/fidelity_pos.h"
 #include "vectorutils.h"
+#include "commsys_fulliter.h"
+#include "hard_decision.h"
+#include "mapper/map_straight.h"
 #include <sstream>
 
 namespace libcomm {
@@ -89,26 +91,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    sys_dec.compute_priors(eof_post, lookahead, sof_prior, eof_prior, offset);
 
    // Extract required segment of existing stream
-   array1s_t received_prev;
-   if (received.size() == 0)
-      {
-      received_prev.init(offset);
-      received_prev = 0; // value is irrelevant as this is not used
-      }
-   else
-      {
-      const int start = tau + estimated_drift + oldoffset - offset;
-      const int length = received.size() - start;
-      received_prev = received.extract(start, length);
-      }
-   received = received_prev;
-   // Tell user what we're doing
-#if DEBUG>=2
-   std::cerr << "DEBUG (commsys_stream_simulator): est drift = " << estimated_drift << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): old offset = " << oldoffset << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): new offset = " << offset << std::endl;
-   std::cerr << "DEBUG (commsys_stream_simulator): existing segment = " << received.size() << std::endl;
-#endif
+   sys_dec.stream_advance(received, oldoffset, estimated_drift, offset);
    // Determine required segment size
    const int length = tau + lookahead + eof_prior.size() - 1;
 #if DEBUG>=2
@@ -158,6 +141,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       }
    // If it's the last frame in a terminated stream, set eof prior accordingly.
    // TODO: this needs to be fixed to work with lookahead > 0
+   assertalways(!(mode == mode_terminated && lookahead > 0));
    if (mode == mode_terminated && frames_decoded == N - 1)
       {
       // determine the actual drift at the end of the frame to be decoder
@@ -169,15 +153,99 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       eof_prior = 0;
       eof_prior(drift + offset) = 1;
       }
+   // Shorthand for curent segment in received sequences
+   const array1s_t& received_segment = received.extract(0, length);
 
-   // Demodulate -> Inverse Map -> Translate
-   sys_dec.receive_path(received.extract(0, length), lookahead, sof_prior,
-         eof_prior, offset);
+   // Initialise result vector
+   result.init(this->count());
+   result = 0;
+   // Initialize extrinsic information vector
+   array1vd_t ptable_ext;
+   // Inner code (modem) iterations
+   for (int iter_modem = 0; iter_modem < sys_dec.sys_iter(); iter_modem++)
+      {
+      // Demodulate
+      array1vd_t ptable_post;
+      array1d_t sof_post;
+      sys_dec.getmodem_stream().demodulate(*sys_dec.getrxchan(),
+            received_segment, lookahead, sof_prior, eof_prior, ptable_ext,
+            ptable_post, sof_post, eof_post, offset);
+      // Compute extrinsic information for passing to codec
+      commsys_fulliter<S>::compute_extrinsic(ptable_ext, ptable_post,
+            ptable_ext);
+      // After-demodulation receive path
+      // Inverse Map -> Translate
+      sys_dec.softreceive_path(ptable_ext);
+      //sys_dec.receive_path(received_segment, lookahead, sof_prior, eof_prior, offset);
+
+      // and perform codeword boundary analysis if this is indicated
+      if (rc)
+         {
+         // get estimated drift pdfs
+         array1vd_t post_pdftable;
+         sys_dec.getmodem_stream().get_post_drift_pdf(post_pdftable);
+         // get most probable estimated drift positions
+         array1i_t est_drift(post_pdftable.size());
+         for (int i = 0; i < post_pdftable.size(); i++)
+            est_drift(i) = commsys_stream<S>::estimate_drift(post_pdftable(i),
+                  offset);
+         // get actual drift at codeword boundary positions to compare against
+         assert(!act_bdry_drift.empty());
+         const array1i_t act_drift = act_bdry_drift.front();
+         // Tell user what we're doing
+#if DEBUG>=4
+         std::cerr << "DEBUG (commsys_stream_simulator): act bdry drift = " << act_drift << std::endl;
+         std::cerr << "DEBUG (commsys_stream_simulator): est bdry drift = " << est_drift << std::endl;
+#endif
+         // accumulate results
+         libbase::indirect_vector<double> result_segment = result.segment(
+               R::count() * iter_modem, R::count());
+         rc->updateresults(result_segment, act_drift, est_drift);
+         }
+
+      // Get source message to compare against
+      assert(!source.empty());
+      array1i_t source_this = source.front();
+      // For every iteration
+      array1i_t decoded;
+      array1vd_t ri;
+      array1vd_t ro;
+      for (int iter_codec = 0; iter_codec < sys_dec.num_iter(); iter_codec++)
+         {
+         // Perform soft-output decoding
+         sys_dec.getcodec_softout().softdecode(ri, ro);
+         // Compute hard-decision for results gatherer
+         hard_decision<libbase::vector, double> functor;
+         functor(ri, decoded);
+         // Update results if necessary
+         if (!rc)
+            {
+            libbase::indirect_vector<double> result_segment = result.segment(
+                  R::count() * (iter_modem * sys_dec.num_iter() + iter_codec),
+                  R::count());
+            R::updateresults(result_segment, source_this, decoded);
+            }
+         }
+      // TODO: Pass posterior information through mapper
+      assertalways(typeid(*sys_dec.getmapper()) == typeid(map_straight<libbase::vector>));
+      // Compute extrinsic information for next demodulation cycle
+      commsys_fulliter<S>::compute_extrinsic(ptable_ext, ro, ptable_ext);
+      // Keep record of what we last simulated
+      this->last_event = concatenate(source_this, decoded);
+      // If this was not the last iteration, mark components as clean
+      if (iter_modem + 1 < sys_dec.sys_iter())
+         {
+         sys_dec.getmodem()->mark_as_clean();
+         sys_dec.getmapper()->mark_as_clean();
+         }
+      }
+
+   // Prepare comparison sequences for next frame
+   source.pop_front();
+   if (rc)
+      act_bdry_drift.pop_front();
    // Store posterior end-of-frame drift probabilities
-   eof_post = sys_dec.get_eof_post();
-   // update counters
-   frames_decoded++;
-
+   //eof_post = sys_dec.get_eof_post();
    // Determine estimated drift
    estimated_drift = commsys_stream<S>::estimate_drift(eof_post, offset);
    // Centralize posterior probabilities
@@ -187,7 +255,6 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    std::cerr << "DEBUG (commsys_stream_simulator): eof prior = " << eof_prior << std::endl;
    std::cerr << "DEBUG (commsys_stream_simulator): eof post = " << eof_post << std::endl;
 #endif
-
    // Determine actual cumulative drift and error in drift estimation
    assert(!actual_drift.empty());
    const int actual_drift_this = actual_drift.front();
@@ -200,50 +267,8 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    std::cerr << "DEBUG (commsys_stream_simulator): Acc. drift error at eof = " << drift_error << std::endl;
    std::cerr << "DEBUG (commsys_stream_simulator): Frames decoded = " << frames_decoded << std::endl;
 #endif
-
-   // Initialise result vector
-   result.init(R::count());
-   result = 0;
-
-   // and perform codeword boundary analysis if this is indicated
-   if (rc)
-      {
-      // get estimated drift pdfs
-      array1vd_t post_pdftable;
-      sys_dec.getmodem_stream().get_post_drift_pdf(post_pdftable);
-      // get most probable estimated drift positions
-      array1i_t est_drift(post_pdftable.size());
-      for (int i = 0; i < post_pdftable.size(); i++)
-         est_drift(i) = commsys_stream<S>::estimate_drift(post_pdftable(i),
-               offset);
-      // get actual drift at codeword boundary positions to compare against
-      assert(!act_bdry_drift.empty());
-      const array1i_t act_drift = act_bdry_drift.front();
-      act_bdry_drift.pop_front();
-      // Tell user what we're doing
-#if DEBUG>=4
-      std::cerr << "DEBUG (commsys_stream_simulator): act bdry drift = " << act_drift << std::endl;
-      std::cerr << "DEBUG (commsys_stream_simulator): est bdry drift = " << est_drift << std::endl;
-#endif
-      // accumulate results
-      rc->updateresults(result, act_drift, est_drift);
-      }
-
-   // Get source message to compare against
-   assert(!source.empty());
-   array1i_t source_this = source.front();
-   source.pop_front();
-   // For every iteration
-   array1i_t decoded;
-   for (int i = 0; i < sys_dec.num_iter(); i++)
-      {
-      // Decode & update results if necessary
-      sys_dec.decode(decoded);
-      if (!rc)
-         R::updateresults(result, i, source_this, decoded);
-      }
-   // Keep record of what we last simulated
-   this->last_event = concatenate(source_this, decoded);
+   // update counters
+   frames_decoded++;
    }
 
 // Description & Serialization

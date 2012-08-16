@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "errors_hamming.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -45,16 +46,16 @@ namespace libcomm {
 class prof_sym : public errors_hamming {
 public:
    // Public interface
-   void updateresults(libbase::vector<double>& result, const int i,
+   void updateresults(libbase::vector<double>& result,
          const libbase::vector<int>& source,
          const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the number of symbol errors for
-    * every input alphabet symbol value.
+    * We count the number of symbol errors for every input alphabet symbol
+    * value.
     */
    int count() const
       {
-      return get_alphabetsize() * get_iter();
+      return get_alphabetsize();
       }
    /*! \copydoc experiment::get_multiplicity()
     * A total equal to the number of symbols/frame may be incremented
@@ -64,7 +65,18 @@ public:
       {
       return get_symbolsperblock();
       }
-   std::string result_description(int i) const;
+   /*! \copydoc experiment::result_description()
+    *
+    * The description is a string SER_X, where 'X' is the symbol value
+    * (starting at zero).
+    */
+   std::string result_description(int i) const
+      {
+      assert(i >= 0 && i < count());
+      std::ostringstream sout;
+      sout << "SER_" << i;
+      return sout.str();
+      }
 };
 
 } // end namespace

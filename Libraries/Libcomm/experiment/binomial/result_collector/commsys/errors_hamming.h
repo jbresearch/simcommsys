@@ -45,8 +45,6 @@ namespace libcomm {
 class errors_hamming {
 protected:
    /*! \name System Interface */
-   //! The number of decoding iterations performed
-   virtual int get_iter() const = 0;
    //! The number of information symbols per block
    virtual int get_symbolsperblock() const = 0;
    //! The information symbol alphabet size
@@ -57,18 +55,36 @@ public:
       {
       }
    /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const int i,
-         const libbase::vector<int>& source,
-         const libbase::vector<int>& decoded) const;
+   void updateresults(libbase::vector<double>& result, const libbase::vector<
+         int>& source, const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the number of symbol and frame errors
+    * We count the number of symbol and frame errors
     */
    int count() const
       {
-      return 2 * get_iter();
+      return 2;
       }
-   int get_multiplicity(int i) const;
-   std::string result_description(int i) const;
+   /*! \copydoc experiment::get_multiplicity()
+    *
+    * Since results are organized as (symbol,frame) error count, the
+    * multiplicity is respectively the number of symbols and the number of
+    * frames (=1) per sample.
+    */
+   int get_multiplicity(int i) const
+      {
+      assert(i >= 0 && i < count());
+      return (i == 0) ? get_symbolsperblock() : 1;
+      }
+   /*! \copydoc experiment::result_description()
+    *
+    * The description is a string XER, where 'X' is S,F to indicate symbol or
+    * frame error rates respectively.
+    */
+   std::string result_description(int i) const
+      {
+      assert(i >= 0 && i < count());
+      return (i == 0) ? "SER" : "FER";
+      }
    // @}
 };
 

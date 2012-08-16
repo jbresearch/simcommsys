@@ -24,7 +24,6 @@
 
 #include "commsys_simulator.h"
 
-#include "mapper/map_straight.h"
 #include "fsm.h"
 #include "itfunc.h"
 #include "secant.h"
@@ -74,7 +73,7 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    // Reset timers
    this->reset_timers();
    // Initialise result vector
-   result.init(R::count());
+   result.init(count());
    result = 0;
    // Create source stream
    libbase::vector<int> source = createsource();
@@ -90,7 +89,9 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
       {
       // Decode & update results
       sys->decode(decoded);
-      R::updateresults(result, i, source, decoded);
+      libbase::indirect_vector<double> result_segment = result.segment(
+            R::count() * i, R::count());
+      R::updateresults(result_segment, source, decoded);
       }
    // Keep record of what we last simulated
    const int tau = sys->input_block_size();

@@ -30,6 +30,7 @@
 #include "randgen.h"
 #include "commsys.h"
 #include "serializer.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -80,10 +81,6 @@ protected:
    libbase::vector<int> createsource();
    // @}
    // System Interface for Results
-   int get_iter() const
-      {
-      return sys->num_iter();
-      }
    int get_symbolsperblock() const
       {
       return sys->input_block_size();
@@ -135,15 +132,22 @@ public:
    void sample(libbase::vector<double>& result);
    int count() const
       {
-      return R::count();
+      return R::count() * sys->num_iter();
       }
    int get_multiplicity(int i) const
       {
-      return R::get_multiplicity(i);
+      assert(i >= 0 && i < count());
+      const int index = i % R::count();
+      return R::get_multiplicity(index);
       }
    std::string result_description(int i) const
       {
-      return R::result_description(i);
+      assert(i >= 0 && i < count());
+      const int iter = i / R::count();
+      const int index = i % R::count();
+      std::ostringstream sout;
+      sout << R::result_description(index) << "_" << iter;
+      return sout.str();
       }
    libbase::vector<int> get_event() const
       {

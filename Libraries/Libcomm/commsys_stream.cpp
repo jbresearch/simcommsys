@@ -28,7 +28,56 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of encoded/decoded frame sizes and drift
+// 3 - Observe prior and posterior PDF's
+// 4 - For fidelity collector, observe actual/estimated boundary drifts
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 // Communication System Interface
+
+/*! \brief Advance the stream, skipping over last decoded frame
+ * \parameter[in] recevied      The received stream (to be updated)
+ * \parameter[in] oldoffset     The offset value that applied for the last decoding
+ * \parameter[in] drift         The estimated drift at the end of decoded frame
+ * \parameter[in] newoffset     The offset value that applies for the next decoding
+ *
+ * This method initializes the received stream, if empty, by the new offset.
+ * Otherwise, it will skip over all material from the last decoding that is
+ * no longer needed (keeping the last segment as required by the new offset).
+ */
+template <class S, template <class > class C>
+void commsys_stream<S, C>::stream_advance(C<S>& received,
+      const libbase::size_type<C>& oldoffset,
+      const libbase::size_type<C>& drift,
+      const libbase::size_type<C>& newoffset)
+   {
+   C<S> received_prev;
+   if (received.size() == 0)
+      {
+      received_prev.init(newoffset);
+      received_prev = 0; // value is irrelevant as this is not used
+      }
+   else
+      {
+      const int tau = this->output_block_size();
+      const int start = tau + drift + oldoffset - newoffset;
+      const int length = received.size() - start;
+      received_prev = received.extract(start, length);
+      }
+   received = received_prev;
+   // Tell user what we're doing
+#if DEBUG>=2
+   std::cerr << "DEBUG (commsys_stream): old offset = " << oldoffset << std::endl;
+   std::cerr << "DEBUG (commsys_stream): frame drift = " << drift << std::endl;
+   std::cerr << "DEBUG (commsys_stream): new offset = " << newoffset << std::endl;
+   std::cerr << "DEBUG (commsys_stream): existing segment = " << received.size() << std::endl;
+#endif
+   }
 
 /*! \brief Determine SOF/EOF priors for next frame, given EOF post of this frame
  *         and the look-ahead quantity required
@@ -96,20 +145,56 @@ std::string commsys_stream<S, C>::description() const
    std::ostringstream sout;
    sout << "Stream-oriented ";
    sout << Base::description();
+   if (iter > 1)
+      sout << ", " << iter << " full-system iterations";
    return sout.str();
    }
+
+// object serialization - saving
 
 template <class S, template <class > class C>
 std::ostream& commsys_stream<S, C>::serialize(std::ostream& sout) const
    {
+   // first write underlying system
    Base::serialize(sout);
+   // format version
+   sout << "# Version (stream extensions)" << std::endl;
+   sout << 1 << std::endl;
+   sout << "# Number of full-system iterations" << std::endl;
+   sout << iter << std::endl;
    return sout;
    }
+
+// object serialization - loading
+
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added version numbering; added number of full-system iterations
+ */
 
 template <class S, template <class > class C>
 std::istream& commsys_stream<S, C>::serialize(std::istream& sin)
    {
+   assertalways(sin.good());
+   // first read underlying system
    Base::serialize(sin);
+   // get format version
+   int version;
+   sin >> libbase::eatcomments >> version;
+   // handle old-format files
+   if (sin.fail())
+      {
+      version = 0;
+      sin.clear();
+      }
+   // reset (valid for version 0)
+   iter = 1;
+   // read number of full-system iterations
+   if (version >= 1)
+      sin >> libbase::eatcomments >> iter >> libbase::verify;
+   // we're done
+   assertalways(sin.good());
    return sin;
    }
 

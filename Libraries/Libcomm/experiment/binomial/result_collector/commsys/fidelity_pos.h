@@ -28,6 +28,7 @@
 #include "config.h"
 #include "vector.h"
 #include <string>
+#include <sstream>
 
 namespace libcomm {
 
@@ -54,12 +55,6 @@ public:
       {
       }
    /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const int i,
-         const libbase::vector<int>& source,
-         const libbase::vector<int>& decoded) const
-      {
-      failwith("This function should never be called.");
-      }
    void updateresults(libbase::vector<double>& result, const libbase::vector<
          int>& act_drift, const libbase::vector<int>& est_drift) const;
    /*! \copydoc experiment::count()
@@ -77,7 +72,19 @@ public:
       {
       return 1;
       }
-   std::string result_description(int i) const;
+   /*! \copydoc experiment::result_description()
+    *
+    * The description is a string FID_X, where 'X' is the symbol position
+    * (starting at zero), denoting the fidelity at the start of the
+    * corresponding symbol.
+    */
+   std::string result_description(int i) const
+      {
+      assert(i >= 0 && i < count());
+      std::ostringstream sout;
+      sout << "FID_" << i;
+      return sout.str();
+      }
    // @}
 };
 

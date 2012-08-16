@@ -45,19 +45,59 @@ namespace libcomm {
 class errors_levenshtein : public errors_hamming {
 public:
    /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const int i,
-         const libbase::vector<int>& source,
-         const libbase::vector<int>& decoded) const;
+   void updateresults(libbase::vector<double>& result, const libbase::vector<
+         int>& source, const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the number of symbol errors using
-    * Hamming and Levenshtein metrics, as well as the number of frame errors
+    * We count the number of symbol errors using Hamming and Levenshtein
+    * metrics, as well as the number of frame errors.
     */
    int count() const
       {
-      return 3 * get_iter();
+      return 3;
       }
-   int get_multiplicity(int i) const;
-   std::string result_description(int i) const;
+   /*! \copydoc experiment::get_multiplicity()
+    *
+    * Since results are organized as (symbol_hamming, symbol_levenshtein,frame)
+    * error count, the multiplicity is respectively the number of symbols
+    * (twice) and the number of frames (=1) per sample.
+    *
+    * \warning In the case of Levenshtein distance, it is not clear how the
+    * multiplicity should be computed.
+    */
+   int get_multiplicity(int i) const
+      {
+      assert(i >= 0 && i < count());
+      switch (i)
+         {
+         case 0:
+         case 1:
+            return get_symbolsperblock();
+         case 2:
+            return 1;
+         }
+      return -1; // This should never happen
+      }
+
+   /*! \copydoc experiment::result_description()
+    *
+    * The description is a string of SER,LD,FER to indicate symbol error rate
+    * (Hamming distance), Levenshtein distance, or frame error rate
+    * respectively.
+    */
+   std::string result_description(int i) const
+      {
+      assert(i >= 0 && i < count());
+      switch (i)
+         {
+         case 0:
+            return "SER";
+         case 1:
+            return "LD";
+         case 2:
+            return "FER";
+         }
+      return ""; // This should never happen
+      }
    // @}
 };
 

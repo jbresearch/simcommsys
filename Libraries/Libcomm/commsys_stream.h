@@ -28,6 +28,7 @@
 #include "commsys.h"
 #include "modem/stream_modulator.h"
 #include "channel_stream.h"
+#include "codec/codec_softout.h"
 
 namespace libcomm {
 
@@ -68,6 +69,10 @@ public:
    // @}
 
 private:
+   /*! \name User-defined parameters */
+   int iter; //!< number of full-system iterations to perform
+   // @}
+
    /*! \name Internally-used objects */
    C<double> sof_post, eof_post;
    // @}
@@ -93,6 +98,14 @@ public:
       }
    // @}
 
+   /*! \name Informative functions - Stream Extensions */
+   //! Number of full-system iterations to perform
+   int sys_iter() const
+      {
+      return iter;
+      }
+   // @}
+
    /*! \name Communication System Setup - Stream Extensions */
    //! Get modulation scheme in stream mode
    stream_modulator<S, C>& getmodem_stream() const
@@ -109,9 +122,17 @@ public:
       {
       return dynamic_cast<channel_stream<S>&> (*this->txchan);
       }
+   //! Get codec in soft-output mode
+   codec_softout<C>& getcodec_softout() const
+      {
+      return dynamic_cast<codec_softout<C>&> (*this->cdc);
+      }
    // @}
 
    /*! \name Communication System Interface - Stream Extensions */
+   void stream_advance(C<S>& received, const libbase::size_type<C>& oldoffset,
+         const libbase::size_type<C>& drift,
+         const libbase::size_type<C>& newoffset);
    void compute_priors(const C<double>& eof_post,
          const libbase::size_type<C> lookahead, C<double>& sof_prior,
          C<double>& eof_prior, libbase::size_type<C>& offset) const;

@@ -6,20 +6,19 @@ the second involves new features (ie tasks that reach a research objective).
 It is good to annotate these by how important they are:
 - Urgent: fixes for bugs causing problems with plain build
 - Important: fixes for bugs causing problems with other builds
-The above two refer to problems that cause broken builds or erronous results,
+The above two refer to problems that cause broken builds or erroneous results,
 and should be done before a merge to trunk.
-- High: high-priority tasks that do not cause broken builds or erronous results
+- High: high-priority tasks that do not cause broken builds or erroneous results
 
 Development
 ~~~~~~~~~~~
 * Implement local caching of fba2 in fba2-cuda [High]
   (needed to support CUDA sims where gamma table does not fit in memory)
-* Implement CUDA port of tvb
+* Implement CUDA port of tvb [High]
+* Apply changes in stream simulator to csdecode
 
 Feature Requests
 ~~~~~~~~~~~~~~~~
-* Change simulator stopping criterion to include absolute error (beside %age)
-* Implement full-system iteration with streaming
 * Generalize BPMR model to work with TVB [shelve for now]
 * Implement BPMR receiver side [shelve for now]
 * Implement simulator to capture boundary pdf entropy [shelve for now]

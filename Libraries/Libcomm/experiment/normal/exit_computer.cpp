@@ -24,7 +24,6 @@
 
 #include "exit_computer.h"
 
-#include "mapper/map_straight.h"
 #include "fsm.h"
 #include "itfunc.h"
 #include "secant.h"

@@ -91,3 +91,7 @@ gnrcc<gf16>
 
 # Block length
 50
+# Version (stream extensions)
+1
+# Number of full-system iterations
+1

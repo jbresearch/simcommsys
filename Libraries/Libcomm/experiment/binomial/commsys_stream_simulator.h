@@ -28,6 +28,7 @@
 #include "config.h"
 #include "commsys_simulator.h"
 #include "commsys_stream.h"
+#include "result_collector/commsys/fidelity_pos.h"
 #include <list>
 
 namespace libcomm {
@@ -95,7 +96,7 @@ protected:
    //! Get communication system in stream mode
    commsys_stream<S>& getsys_stream() const
       {
-      return dynamic_cast<commsys_stream<S>&> (*this->sys);
+      return dynamic_cast<commsys_stream<S>&>(*this->sys);
       }
    // @}
 
@@ -120,7 +121,7 @@ protected:
       // Make a copy of the commsys object for transmitter operations
       delete sys_enc;
       if (this->sys)
-         sys_enc = dynamic_cast<commsys_stream<S>*> (this->sys->clone());
+         sys_enc = dynamic_cast<commsys_stream<S>*>(this->sys->clone());
       else
          sys_enc = NULL;
       // reset counters
@@ -129,20 +130,29 @@ protected:
       }
    // @}
 
+   // System Interface for Results
+   int get_symbolsperblock() const
+      {
+      // Get access to the results collector in codeword boundary analysis mode
+      const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
+      if (rc)
+         return sys_enc->getmodem()->input_block_size();
+      return Base::get_symbolsperblock();
+      }
+
 public:
    /*! \name Constructors / Destructors */
    commsys_stream_simulator(const commsys_stream_simulator<S, R>& c) :
-      commsys_simulator<S, R> (c), mode(c.mode), N(c.N), source(c.source),
-            received(c.received), eof_post(c.eof_post), offset(c.offset),
-            estimated_drift(c.estimated_drift),
-            act_bdry_drift(c.act_bdry_drift), actual_drift(c.actual_drift),
-            drift_error(c.drift_error), frames_encoded(c.frames_encoded),
-            frames_decoded(c.frames_decoded)
+         commsys_simulator<S, R>(c), mode(c.mode), N(c.N), source(c.source), received(
+               c.received), eof_post(c.eof_post), offset(c.offset), estimated_drift(
+               c.estimated_drift), act_bdry_drift(c.act_bdry_drift), actual_drift(
+               c.actual_drift), drift_error(c.drift_error), frames_encoded(
+               c.frames_encoded), frames_decoded(c.frames_decoded)
       {
-      sys_enc = dynamic_cast<commsys_stream<S>*> (c.sys_enc->clone());
+      sys_enc = dynamic_cast<commsys_stream<S>*>(c.sys_enc->clone());
       }
    commsys_stream_simulator() :
-      mode(mode_open), N(0), sys_enc(NULL)
+         mode(mode_open), N(0), sys_enc(NULL)
       {
       reset();
       }
@@ -170,12 +180,19 @@ public:
 
    // Experiment handling
    void sample(libbase::vector<double>& result);
+   int count() const
+      {
+      // Get access to the results collector in codeword boundary analysis mode
+      const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
+      const int base_count = (rc) ? R::count() : Base::count();
+      return base_count * getsys_stream().sys_iter();
+      }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(commsys_stream_simulator)
+   DECLARE_SERIALIZER (commsys_stream_simulator)
 };
 
 } // end namespace

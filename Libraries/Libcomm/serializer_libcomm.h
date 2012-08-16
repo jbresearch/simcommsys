@@ -196,13 +196,12 @@ private:
    dminner2d<double> _dminner2d;
    tvb<libbase::gf<1, 0x3>, double> _tvb;
    // Codecs
-   ldpc<libbase::gf<1, 0x3>, double> _ldpc_1_0x3_dbl;
-
-   reedsolomon<libbase::gf<3, 0xB> > _rscodec_3_0xB;
-
+   ldpc<libbase::gf<1, 0x3>, double> _ldpc;
+   reedsolomon<libbase::gf<3, 0xB> > _reedsolomon;
    repacc<double> _repacc;
    sysrepacc<double> _sysrepacc;
    // Mappers
+   map_straight<libbase::vector> _map_straight;
    map_interleaved<libbase::vector> _map_interleaved;
    map_permuted<libbase::vector> _map_permuted;
    map_stipple<libbase::vector> _map_stipple;

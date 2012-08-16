@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "errors_hamming.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -45,16 +46,14 @@ namespace libcomm {
 class hist_symerr : public errors_hamming {
 public:
    // Public interface
-   void updateresults(libbase::vector<double>& result, const int i,
-         const libbase::vector<int>& source,
-         const libbase::vector<int>& decoded) const;
+   void updateresults(libbase::vector<double>& result, const libbase::vector<
+         int>& source, const libbase::vector<int>& decoded) const;
    /*! \copydoc experiment::count()
-    * For each iteration, we count the frequency of each possible
-    * symbol-error count, including zero
+    * We count the frequency of each possible symbol-error count, including zero
     */
    int count() const
       {
-      return (get_symbolsperblock() + 1) * get_iter();
+      return get_symbolsperblock() + 1;
       }
    /*! \copydoc experiment::get_multiplicity()
     * Only one result can be incremented for every frame.
@@ -63,7 +62,18 @@ public:
       {
       return 1;
       }
-   std::string result_description(int i) const;
+   /*! \copydoc experiment::result_description()
+    *
+    * The description is a string ER_X, where 'X' is the symbol-error
+    * count (starting at zero).
+    */
+   std::string result_description(int i) const
+      {
+      assert(i >= 0 && i < count());
+      std::ostringstream sout;
+      sout << "ER_" << i;
+      return sout.str();
+      }
 };
 
 } // end namespace

@@ -23,7 +23,6 @@
  */
 
 #include "fidelity_pos.h"
-#include <sstream>
 
 namespace libcomm {
 
@@ -48,21 +47,6 @@ void fidelity_pos::updateresults(libbase::vector<double>& result,
    // Accumulate fidelity errors
    for (int t = 0; t < N; t++)
       result(t) += (act_drift(t) == est_drift(t)) ? 1 : 0;
-   }
-
-/*!
- * \copydoc experiment::result_description()
- * 
- * The description is a string FID_X, where 'X' is the symbol position
- * (starting at zero), denoting the fidelity at the start of the corresponding
- * symbol.
- */
-std::string fidelity_pos::result_description(int i) const
-   {
-   assert(i >= 0 && i < count());
-   std::ostringstream sout;
-   sout << "FID_" << i;
-   return sout.str();
    }
 
 } // end namespace
