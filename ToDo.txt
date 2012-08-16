@@ -16,6 +16,7 @@ Development
   (needed to support CUDA sims where gamma table does not fit in memory)
 * Implement CUDA port of tvb [High]
 * Apply changes in stream simulator to csdecode
+* Copy lattice decoder to qids
 
 Feature Requests
 ~~~~~~~~~~~~~~~~

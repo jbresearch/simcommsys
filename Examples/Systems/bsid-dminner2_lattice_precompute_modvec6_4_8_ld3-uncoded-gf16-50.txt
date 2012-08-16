@@ -1,5 +1,4 @@
-commsys_iterative<bool,vector>
-2
+commsys<bool,vector>
 # Version
 1
 # Single channel?
@@ -17,7 +16,7 @@ bsid
 # Vary Pi?
 1
 # Cap on I (0=uncapped)
-2
+0
 # Fixed Ps value
 0
 # Fixed Pd value
@@ -25,9 +24,9 @@ bsid
 # Fixed Pi value
 0
 # Mode for receiver (0=trellis, 1=lattice)
-0
+1
 ## Modem
-dminner<logrealfast>
+dminner2<double>
 # Version
 3
 # User threshold?
@@ -37,7 +36,7 @@ dminner<logrealfast>
 #: Outer threshold
 0
 # Normalize metrics between time-steps?
-0
+1
 # n
 8
 # k
@@ -45,25 +44,43 @@ dminner<logrealfast>
 # codebook type (0=sparse, 1=user, 2=tvb)
 1
 #: codebook name
-balanced-nozero
+(8,16)-ld3-modvec6
 #: codebook entries
-00000001
-00000010
-00000100
-00001000
-00010000
-00100000
-01000000
-10000000
-00000011
-00001100
-00110000
-11000000
-00000101
+01110011
+00011111
+10101111
+11111001
+00111000
+01001001
+10000001
+11100000
+11001010
 01010000
-00100010
-10001000
+00110101
+00000110
+10001100
+11000111
+11111110
+01101100
 # marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
+3
+#: modification vectors
+6
+00000000
+01001001
+11111111
+10110010
+10110110
+01001101
+# Version
+4
+# Use batch receiver computation?
+1
+# Lazy computation of gamma?
+0
+# Global storage / caching of computed gamma values?
+1
+# Number of codewords to look ahead when stream decoding
 0
 ## Mapper
 map_straight<vector,double>
@@ -79,4 +96,4 @@ gnrcc<gf16>
 0001
 
 # Block length
-750
+50

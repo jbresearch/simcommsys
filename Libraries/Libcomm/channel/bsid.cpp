@@ -426,6 +426,11 @@ void bsid::metric_computer::precompute(double Ps, double Pd, double Pi,
 #else
    compute_Rtable(Rtable, I, Ps, Pd, Pi);
 #endif
+   // lattice coefficients
+   Pval_d = Pd;
+   Pval_i = 0.5 * Pi;
+   Pval_tc = (1 - Pi - Pd) * (1 - Ps);
+   Pval_te = (1 - Pi - Pd) * Ps;
    }
 
 /*!
@@ -445,23 +450,11 @@ void bsid::metric_computer::init()
 
 // Channel receiver for host
 
-bsid::real bsid::metric_computer::receive(const bitfield& tx,
-      const array1b_t& rx) const
-   {
-   // Compute sizes
-   const int n = tx.size();
-   const int mu = rx.size() - n;
-   // Allocate space for results and call main receiver
-   static array1r_t ptable;
-   ptable.init(2 * xmax + 1);
-   receive(tx, rx, ptable);
-   // return result
-   return ptable(xmax + mu);
-   }
-
 #ifndef USE_CUDA
-void bsid::metric_computer::receive(const bitfield& tx, const array1b_t& rx,
-      array1r_t& ptable) const
+
+// Batch receiver interface - trellis computation
+void bsid::metric_computer::receive_trellis(const bitfield& tx,
+      const array1b_t& rx, array1r_t& ptable) const
    {
    using std::min;
    using std::max;
@@ -536,6 +529,69 @@ void bsid::metric_computer::receive(const bitfield& tx, const array1b_t& rx,
    for (int x = 0; x < 2 * xmax + 1; x++)
       {
       ptable(x) = Fthis[x];
+      }
+   }
+
+// Batch receiver interface - lattice computation
+void bsid::metric_computer::receive_lattice(const bitfield& tx,
+      const array1b_t& rx, array1r_t& ptable) const
+   {
+   using std::swap;
+   // Compute sizes
+   const int n = tx.size();
+   const int rho = rx.size();
+   // Set up two slices of lattice, and associated pointers
+   // Arrays are allocated on the stack as a fixed size; this avoids dynamic
+   // allocation (which would otherwise be necessary as the size is non-const)
+   assertalways(rho + 1 <= arraysize);
+   real F0[arraysize];
+   real F1[arraysize];
+   real *Fthis = F1;
+   real *Fprev = F0;
+   // initialize for i=0 (first row of lattice)
+   Fthis[0] = 1;
+   for (int j = 1; j <= rho; j++)
+      Fthis[j] = Fthis[j - 1] * Pval_i;
+   // compute remaining rows, except last
+   for (int i = 1; i < n; i++)
+      {
+      // swap 'this' and 'prior' rows
+      swap(Fthis, Fprev);
+      // handle first column as a special case
+      Fthis[0] = Fprev[0] * Pval_d;
+      // remaining columns
+      for (int j = 1; j <= rho; j++)
+         {
+         const double pi = Fthis[j - 1] * Pval_i;
+         const double pd = Fprev[j] * Pval_d;
+         const bool cmp = tx(i - 1) == rx(j - 1);
+         const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+         Fthis[j] = pi + ps + pd;
+         }
+      }
+   // compute last row as a special case (no insertions)
+   // swap 'this' and 'prior' rows
+   swap(Fthis, Fprev);
+   // handle first column as a special case
+   Fthis[0] = Fprev[0] * Pval_d;
+   // remaining columns
+   for (int j = 1; j <= rho; j++)
+      {
+      const double pd = Fprev[j] * Pval_d;
+      const bool cmp = tx(n - 1) == rx(j - 1);
+      const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+      Fthis[j] = ps + pd;
+      }
+   // copy results and return
+   assertalways(ptable.size() == 2 * xmax + 1);
+   for (int x = -xmax; x <= xmax; x++)
+      {
+      // convert index
+      const int j = x + n;
+      if (j >= 0 && j <= rho)
+         ptable(x + xmax) = Fthis[j];
+      else
+         ptable(x + xmax) = 0;
       }
    }
 #endif
@@ -833,6 +889,10 @@ std::string bsid::description() const
       sout << ", Pi=" << fixedPi;
    if (biased)
       sout << ", biased";
+   if (computer.lattice)
+      sout << ", lattice computation";
+   else
+      sout << ", trellis computation";
    sout << ")";
 #ifdef USE_CUDA
    sout << " [CUDA]";
@@ -845,7 +905,7 @@ std::string bsid::description() const
 std::ostream& bsid::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 4 << std::endl;
+   sout << 5 << std::endl;
    sout << "# Biased?" << std::endl;
    sout << biased << std::endl;
    sout << "# Vary Ps?" << std::endl;
@@ -862,6 +922,8 @@ std::ostream& bsid::serialize(std::ostream& sout) const
    sout << fixedPd << std::endl;
    sout << "# Fixed Pi value" << std::endl;
    sout << fixedPi << std::endl;
+   sout << "# Mode for receiver (0=trellis, 1=lattice)" << std::endl;
+   sout << computer.lattice << std::endl;
    return sout;
    }
 
@@ -877,6 +939,8 @@ std::ostream& bsid::serialize(std::ostream& sout) const
  * \version 3 Added 'Icap' parameter
  *
  * \version 4 Added fixed Ps,Pd,Pi values
+ *
+ * \version 5 Added mode for receiver (trellis or lattice)
  */
 std::istream& bsid::serialize(std::istream& sin)
    {
@@ -917,6 +981,11 @@ std::istream& bsid::serialize(std::istream& sin)
       sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
       sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
       }
+   // read receiver mode if present
+   if (version < 5)
+      computer.lattice = false;
+   else
+      sin >> libbase::eatcomments >> computer.lattice >> libbase::verify;
    // initialise the object and return
    init();
    return sin;

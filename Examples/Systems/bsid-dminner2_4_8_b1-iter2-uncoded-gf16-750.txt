@@ -7,7 +7,7 @@ commsys_iterative<bool,vector>
 ## Channel
 bsid
 # Version
-4
+5
 # Biased?
 0
 # Vary Ps?
@@ -23,6 +23,8 @@ bsid
 # Fixed Pd value
 0
 # Fixed Pi value
+0
+# Mode for receiver (0=trellis, 1=lattice)
 0
 ## Modem
 dminner2<logrealfast>

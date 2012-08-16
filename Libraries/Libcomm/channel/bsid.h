@@ -94,6 +94,9 @@ public:
    /*! \name Metric computation */
    class metric_computer {
    public:
+      /*! \name User-defined parameters */
+      bool lattice; //!< True for lattice (rather than trellis) computation
+      // @}
       /*! \name Channel-state and pre-computed parameters */
 #ifdef USE_CUDA
       cuda::matrix_auto<real> Rtable; //!< Receiver coefficient set for mu >= 0
@@ -101,6 +104,10 @@ public:
       array2r_t Rtable; //!< Receiver coefficient set for mu >= 0
 #endif
       real Rval; //!< Receiver coefficient value for mu = -1
+      real Pval_d; //!< Lattice coefficient value for deletion event
+      real Pval_i; //!< Lattice coefficient value for insertion event
+      real Pval_tc; //!< Lattice coefficient value for correct transmission event
+      real Pval_te; //!< Lattice coefficient value for error transmission event
       int N; //!< Block size in bits over which we want to synchronize
       int I; //!< Assumed limit for insertions between two time-steps
       int xmax; //!< Assumed maximum drift over a whole \c N -bit block
@@ -219,6 +226,16 @@ public:
       void receive(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx,
             cuda::vector_reference<real>& ptable) const
          {
+         if (lattice)
+            receive_lattice(tx, rx, ptable);
+         else
+            receive_trellis(tx, rx, ptable);
+         }
+      //! Batch receiver interface - trellis computation
+      __device__
+      void receive_trellis(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx,
+            cuda::vector_reference<real>& ptable) const
+         {
          using cuda::min;
          using cuda::max;
          using cuda::swap;
@@ -294,15 +311,100 @@ public:
             ptable(x) = Fthis[x];
             }
          }
+      //! Batch receiver interface - lattice computation
+      __device__
+      void receive_lattice(const cuda::bitfield& tx, const cuda::vector_reference<bool>& rx,
+            cuda::vector_reference<real>& ptable) const
+         {
+         using cuda::swap;
+         // Compute sizes
+         const int n = tx.size();
+         const int rho = rx.size();
+         // Set up two slices of lattice, and associated pointers
+         // Arrays are allocated on the stack as a fixed size; this avoids dynamic
+         // allocation (which would otherwise be necessary as the size is non-const)
+         cuda_assertalways(rho + 1 <= arraysize);
+         real F0[arraysize];
+         real F1[arraysize];
+         real *Fthis = F1;
+         real *Fprev = F0;
+         // initialize for i=0 (first row of lattice)
+         Fthis[0] = 1;
+         for (int j = 1; j <= rho; j++)
+            Fthis[j] = Fthis[j - 1] * Pval_i;
+         // compute remaining rows, except last
+         for (int i = 1; i < n; i++)
+            {
+            // swap 'this' and 'prior' rows
+            swap(Fthis, Fprev);
+            // handle first column as a special case
+            Fthis[0] = Fprev[0] * Pval_d;
+            // remaining columns
+            for (int j = 1; j <= rho; j++)
+               {
+               const double pi = Fthis[j - 1] * Pval_i;
+               const double pd = Fprev[j] * Pval_d;
+               const bool cmp = tx(i - 1) == rx(j - 1);
+               const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+               Fthis[j] = pi + ps + pd;
+               }
+            }
+         // compute last row as a special case (no insertions)
+         // swap 'this' and 'prior' rows
+         swap(Fthis, Fprev);
+         // handle first column as a special case
+         Fthis[0] = Fprev[0] * Pval_d;
+         // remaining columns
+         for (int j = 1; j <= rho; j++)
+            {
+            const double pd = Fprev[j] * Pval_d;
+            const bool cmp = tx(n - 1) == rx(j - 1);
+            const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+            Fthis[j] = ps + pd;
+            }
+         // copy results and return
+         cuda_assertalways(ptable.size() == 2 * xmax + 1);
+         for (int x = -xmax; x <= xmax; x++)
+            {
+            // convert index
+            const int j = x + n;
+            if (j >= 0 && j <= rho)
+               ptable(x + xmax) = Fthis[j];
+            else
+               ptable(x + xmax) = 0;
+            }
+         }
 #endif
       // @}
 #endif
       /*! \name Host methods */
       //! Receiver interface
-      real receive(const bitfield& tx, const array1b_t& rx) const;
+      real receive(const bitfield& tx, const array1b_t& rx) const
+         {
+         // Compute sizes
+         const int n = tx.size();
+         const int mu = rx.size() - n;
+         // Allocate space for results and call main receiver
+         static array1r_t ptable;
+         ptable.init(2 * xmax + 1);
+         receive(tx, rx, ptable);
+         // return result
+         return ptable(xmax + mu);
+         }
       //! Batch receiver interface
-      void
-      receive(const bitfield& tx, const array1b_t& rx, array1r_t& ptable) const;
+      void receive(const bitfield& tx, const array1b_t& rx, array1r_t& ptable) const
+         {
+         if (lattice)
+            receive_lattice(tx, rx, ptable);
+         else
+            receive_trellis(tx, rx, ptable);
+         }
+      //! Batch receiver interface - trellis computation
+      void receive_trellis(const bitfield& tx, const array1b_t& rx,
+            array1r_t& ptable) const;
+      //! Batch receiver interface - lattice computation
+      void receive_lattice(const bitfield& tx, const array1b_t& rx,
+            array1r_t& ptable) const;
       // @}
    };
    // @}
