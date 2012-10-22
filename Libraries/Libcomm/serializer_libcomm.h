@@ -106,6 +106,7 @@
 #include "mapper/map_permuted.h"
 #include "mapper/map_stipple.h"
 #include "mapper/map_aggregating.h"
+#include "mapper/map_dividing.h"
 
 // Systems
 #include "commsys.h"
@@ -197,6 +198,7 @@ private:
    map_permuted<libbase::vector> _map_permuted;
    map_stipple<libbase::vector> _map_stipple;
    map_aggregating<libbase::vector> _map_aggregating;
+   map_dividing<libbase::vector> _map_dividing;
    // Systems
    commsys<bool> _commsys;
    commsys_iterative<bool> _commsys_iterative;
