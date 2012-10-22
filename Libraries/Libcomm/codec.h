@@ -44,14 +44,8 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * \todo Current model assumes one symbol per timestep; this needs to change
- * so we can represent multiple input/output symbols per timestep.
- *
- * \todo Change class interface to better model the actual representation of
- * input and output sequences of the codec and to better separate this
- * class from the modulation class.
- *
- * \todo Merge num_symbols() with num_outputs() as these should be the same
+ * \todo Original model assumed one symbol per timestep; this is no longer the
+ * case. Confirm there are no lingering assumptions of this.
  *
  * \todo Remove tail_length() as tailing should be handled internally
  */
@@ -78,32 +72,23 @@ public:
       }
    /*!
     * \brief Encoding process
-    * \param[in] source Sequence of source symbols, one per timestep
-    * \param[out] encoded Sequence of output (encoded) symbols, one per timestep
-    *
-    * \note If the input or output symbols at every timestep represent the
-    * aggregation of a set of symbols, the combination/division has to
-    * be done externally.
+    * \param[in] source Sequence of source symbols
+    * \param[out] encoded Sequence of output (encoded) symbols
     */
    virtual void encode(const C<int>& source, C<int>& encoded) = 0;
    /*!
     * \brief Receiver translation process
-    * \param[in] ptable Likelihoods of each possible modulation symbol at every
-    * (modulation) timestep
+    * \param[in] ptable Likelihoods of each possible encoded symbol at every index
     *
-    * This function computes the necessary prabability tables for the codec
-    * from the probabilities of each modulation symbol as received from the
-    * channel. This function should be called before the first decode iteration
+    * This function initializes the decoder with the probability tables for
+    * each encoded symbol as received from the blockmodem.
+    * This function should be called before the first decode iteration
     * for each block.
-    *
-    * \note The number of possible modulation symbols does not necessarily
-    * correspond to the number of encoder output symbols, and therefore
-    * the number of modulation timesteps may be different from tau.
     */
    virtual void init_decoder(const C<array1d_t>& ptable) = 0;
    /*!
     * \brief Decoding process
-    * \param[out] decoded Most likely sequence of information symbols, one per timestep
+    * \param[out] decoded Most likely sequence of information symbols
     *
     * \note Observe that this output necessarily constitutes a hard decision.
     *
@@ -122,11 +107,6 @@ public:
    virtual int num_inputs() const = 0;
    //! Output alphabet size (number of valid symbols)
    virtual int num_outputs() const = 0;
-   //! Channel symbol alphabet size required for translation
-   virtual int num_symbols() const
-      {
-      return num_outputs();
-      }
    //! Length of tail in timesteps
    virtual int tail_length() const = 0;
    //! Number of iterations per decoding cycle

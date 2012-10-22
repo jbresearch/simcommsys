@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "codec_softout.h"
-#include "codec_softout_flattened.h"
 #include "uncoded.h"
 #include "fsm.h"
 #include "interleaver.h"
@@ -73,7 +72,7 @@ private:
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
    //! MAP representation of repetition code
-   codec_softout_flattened<uncoded<dbl> , dbl> rep;
+   uncoded<dbl> rep;
    fsm *acc; //!< Encoder representation of accumulator
    int iter; //!< Number of iterations to perform
    bool endatzero; //!< Flag to indicate that trellises are terminated

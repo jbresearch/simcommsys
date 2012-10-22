@@ -403,8 +403,8 @@ void test_cc_code()
 
 int main(int argc, char *argv[])
    {
-   test_ra_code();
-   return 0;
+   //test_ra_code();
+   //return 0;
    //test_cc_code();
    //return 0;
    if (argc == 1)

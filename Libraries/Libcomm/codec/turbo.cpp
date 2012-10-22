@@ -306,7 +306,7 @@ void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
    const int tau = num_timesteps();
    const int k = enc_inputs();
    const int p = enc_parity();
-   const int S = This::num_symbols();
+   const int S = enc_symbols();
    const int K = alg_input_symbols();
    const int N = alg_output_symbols();
    // Derived sizes
@@ -381,7 +381,7 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    const int tau = num_timesteps();
    const int k = enc_inputs();
    const int p = enc_parity();
-   const int S = This::num_symbols();
+   const int S = enc_symbols();
    // Derived sizes
    const int s = k + p * sets;
 

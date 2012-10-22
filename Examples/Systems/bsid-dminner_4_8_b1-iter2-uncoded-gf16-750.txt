@@ -5,11 +5,9 @@ commsys_iterative<bool,vector>
 # Single channel?
 1
 ## Channel
-bsid
+qids<bool,float>
 # Version
-5
-# Biased?
-0
+2
 # Vary Ps?
 0
 # Vary Pd?

@@ -14,12 +14,15 @@ Development
 ~~~~~~~~~~~
 * Implement local caching of fba2 in fba2-cuda [High]
   (needed to support CUDA sims where gamma table does not fit in memory)
-* Implement CUDA port of tvb [High]
-* Apply changes in stream simulator to csdecode
-* Copy lattice decoder to qids
+* Refactor codec_softout_mapped and codec_reshaped to take base class by
+  serialization rather than as a template parameter
+* Remove mapper class from commsys objects; replace functionality with the
+  use of codec_softout_mapped
 
 Feature Requests
 ~~~~~~~~~~~~~~~~
+* Add facility for puncturing/padding at the mapper interface
+* Plot posterior PDF at given boundary locations
 * Generalize BPMR model to work with TVB [shelve for now]
 * Implement BPMR receiver side [shelve for now]
 * Implement simulator to capture boundary pdf entropy [shelve for now]

@@ -29,7 +29,7 @@
 
 #include "stream_modulator.h"
 #include "algorithm/fba.h"
-#include "channel/bsid.h"
+#include "channel/qids.h"
 
 #include "bitfield.h"
 #include "randgen.h"
@@ -61,18 +61,11 @@ namespace libcomm {
  * block instead of independently for each timestep. This should be
  * equivalent to no-normalization, and is a precursor to a change in the
  * architecture to allow higher-range ptables.
- *
- * \todo Separate this class from friendship with dminner2; common elements
- * should be extracted into a common base
  */
-
-template <class real>
-class dminner2;
 
 template <class real>
 class dminner : public stream_modulator<bool> , public parametric, private fba<
       bool, real> {
-   friend class dminner2<real> ;
 private:
    // Shorthand for class hierarchy
    typedef dminner<real> This;
@@ -116,7 +109,7 @@ private:
    double f; //!< average weight per codeword bit
    // @}
    /*! \name Internally-used objects */
-   bsid mychan; //!< bound channel object
+   qids<bool,float> mychan; //!< bound channel object
    mutable libbase::randgen r; //!< marker sequence generator
    mutable array1i_t marker; //!< marker sequence
    // @}
@@ -201,9 +194,6 @@ public:
    // @}
 
    /*! \name Marker-specific setup functions */
-   void set_marker(libbase::vector<bool> marker);
-   void set_marker(libbase::vector<libbase::bitfield> marker);
-   void set_codebook(libbase::vector<libbase::bitfield> codebook_b);
    void set_thresholds(const real th_inner, const real th_outer);
    void set_parameter(const double x)
       {

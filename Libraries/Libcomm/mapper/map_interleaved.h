@@ -25,14 +25,14 @@
 #ifndef __map_interleaved_h
 #define __map_interleaved_h
 
-#include "map_straight.h"
+#include "mapper.h"
 #include "randperm.h"
 #include "randgen.h"
 
 namespace libcomm {
 
 /*!
- * \brief   Random Interleaving Mapper.
+ * \brief   Random Interleaving Mapper - Template base.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -40,18 +40,38 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * This class defines an interleaved version of the straight mapper.
+ * This class is a template definition for random interleaving mappers; this
+ * needs to be specialized for actual use. Template parameter defaults are
+ * provided here.
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class map_interleaved : public map_straight<C, dbl> {
+class map_interleaved : public mapper<C, dbl> {
+};
+
+/*!
+ * \brief   Random Interleaving Mapper - Vector containers.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * This class defines an interleaved mapper.
+ */
+
+template <class dbl>
+class map_interleaved<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
-   typedef map_straight<C, dbl> Base;
-   typedef map_interleaved<C, dbl> This;
+   typedef mapper<libbase::vector, dbl> Base;
+   typedef map_interleaved<libbase::vector, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
 private:
@@ -63,8 +83,9 @@ private:
 protected:
    // Interface with mapper
    void advance() const;
-   void dotransform(const C<int>& in, C<int>& out) const;
-   void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
+   void dotransform(const array1i_t& in, array1i_t& out) const;
+   void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
+   void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
 
 public:
    // Setup functions

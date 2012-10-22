@@ -56,9 +56,12 @@ void print_standard_limits()
    cout << "Type:      \tValue:" << std::endl;
    cout << "~~~~~      \t~~~~" << std::endl;
 
-   cout << "epsilon (f)\t" << std::numeric_limits<float>::epsilon() << std::endl;
-   cout << "epsilon (d)\t" << std::numeric_limits<double>::epsilon() << std::endl;
-   cout << "epsilon (ld)\t" << std::numeric_limits<long double>::epsilon() << std::endl;
+   cout << "epsilon (f)\t" << std::numeric_limits<float>::epsilon()
+         << std::endl;
+   cout << "epsilon (d)\t" << std::numeric_limits<double>::epsilon()
+         << std::endl;
+   cout << "epsilon (ld)\t" << std::numeric_limits<long double>::epsilon()
+         << std::endl;
    }
 
 void print_standard_sizes()
@@ -102,10 +105,10 @@ void print_new_sizes()
 void print_struct_sizes()
    {
    typedef struct {
-      bool a:1;
-      bool b:1;
-      bool c:1;
-      bool d:1;
+      bool a :1;
+      bool b :1;
+      bool c :1;
+      bool d :1;
    } struct_field_t;
 
    typedef struct {
@@ -196,7 +199,8 @@ void testvector()
    assert(x.size() == 10);
    // test vector return by value
    vector<int> r = makerangevector();
-   cout << std::endl << "Test vector return by value:" << std::endl << std::endl;
+   cout << std::endl << "Test vector return by value:" << std::endl
+         << std::endl;
    cout << "Address: " << &r << std::endl;
    cout << "Size: " << r.size() << std::endl;
    cout << "Contents: {";
@@ -344,11 +348,34 @@ void display_array(boost::multi_array<T, 2>& A)
 
 void testboost_iterators()
    {
-   std::cout << std::endl << "Boost Iterator Usage Test:" << std::endl << std::endl;
+   std::cout << std::endl << "Boost Iterator Usage Test:" << std::endl
+         << std::endl;
    boost::assignable_multi_array<double, 2> A(boost::extents[3][4]);
    display_array(A);
    A = 1;
    display_array(A);
+   }
+
+void testbool_ops()
+   {
+   std::cout << std::endl << "Bool Operator Test:" << std::endl << std::endl;
+   for (int i = 0; i < 2; i++)
+      for (int j = 0; j < 2; j++)
+         {
+         const bool a = bool(i);
+         const bool b = bool(j);
+         const bool c = a + b;
+         std::cout << a << " + " << b << " = " << c << std::endl;
+         }
+   std::cout << std::endl;
+   for (int i = 0; i < 2; i++)
+      for (int j = 0; j < 2; j++)
+         {
+         const bool a = bool(i);
+         const bool b = bool(j);
+         const bool c = a * b;
+         std::cout << a << " * " << b << " = " << c << std::endl;
+         }
    }
 
 /*!
@@ -376,6 +403,7 @@ int main(int argc, char *argv[])
    testboost_foreach("1 2 3\n");
    testboost_array();
    testboost_iterators();
+   testbool_ops();
    return 0;
    }
 

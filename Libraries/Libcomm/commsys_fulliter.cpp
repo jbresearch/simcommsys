@@ -37,7 +37,6 @@
 #include "codec/codec_softout.h"
 #include "gf.h"
 #include "hard_decision.h"
-#include "mapper/map_straight.h"
 
 #include <sstream>
 #include <typeinfo>
@@ -148,10 +147,11 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       // Compute hard-decision for results gatherer
       hard_decision<C, double> functor;
       functor(ri, decoded);
-      // TODO: Pass posterior information through mapper
-      assertalways(typeid(*this->map) == typeid(map_straight<C>));
+      // Pass posterior information through mapper
+      C<array1d_t> ro_mapped;
+      this->map->transform(ro, ro_mapped);
       // Compute extrinsic information for next demodulation cycle
-      compute_extrinsic(ptable_mapped, ro, ptable_mapped);
+      compute_extrinsic(ptable_mapped, ro_mapped, ptable_mapped);
 #if DEBUG>=3
       libbase::trace << "DEBUG (fulliter): codec soft-output = " << std::endl;
       libbase::trace << ptable_mapped.extract(0,5);

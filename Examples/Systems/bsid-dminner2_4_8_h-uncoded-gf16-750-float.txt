@@ -4,11 +4,9 @@ commsys<bool,vector>
 # Single channel?
 1
 ## Channel
-bsid
+qids<bool,float>
 # Version
-5
-# Biased?
-0
+2
 # Vary Ps?
 0
 # Vary Pd?
@@ -26,54 +24,52 @@ bsid
 # Mode for receiver (0=trellis, 1=lattice)
 0
 ## Modem
-dminner2<float>
+tvb<bool,float,float>
 # Version
-3
-# User threshold?
-1
+5
 #: Inner threshold
 0
 #: Outer threshold
 0
 # Normalize metrics between time-steps?
 1
-# n
-8
-# k
-4
-# codebook type (0=sparse, 1=user, 2=tvb)
-1
-#: codebook name
-extended-hamming
-#: codebook entries
-00000000
-00011110
-00101101
-00110011
-01001011
-01010101
-01100110
-01111000
-10000111
-10011001
-10101010
-10110100
-11001100
-11010010
-11100001
-11111111
-# marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
-0
-# Version
-4
 # Use batch receiver computation?
 1
 # Lazy computation of gamma?
 1
-# Global storage / caching of computed gamma values?
+# Storage mode for gamma (0=local, 1=global, 2=conditional)
 1
 # Number of codewords to look ahead when stream decoding
 0
+# n
+8
+# k
+4
+# codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
+2
+#: codebook name
+extended-hamming
+#: codebook count
+1
+#: codebook entries (table 0)
+0 0 0 0 0 0 0 0
+0 1 1 1 1 0 0 0
+1 0 1 1 0 1 0 0
+1 1 0 0 1 1 0 0
+1 1 0 1 0 0 1 0
+1 0 1 0 1 0 1 0
+0 1 1 0 0 1 1 0
+0 0 0 1 1 1 1 0
+1 1 1 0 0 0 0 1
+1 0 0 1 1 0 0 1
+0 1 0 1 0 1 0 1
+0 0 1 0 1 1 0 1
+0 0 1 1 0 0 1 1
+0 1 0 0 1 0 1 1
+1 0 0 0 0 1 1 1
+1 1 1 1 1 1 1 1
+# marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
+1
 ## Mapper
 map_straight<vector,double>
 ## Codec

@@ -48,16 +48,22 @@ namespace libcomm {
  * - $Author$
  *
  * Implements the forward-backward algorithm for a HMM, as required for the
- * new decoder for Davey & McKay's inner codes, originally introduced in
- * "Watermark Codes: Reliable communication over Insertion/Deletion channels",
- * Trans. IT, 47(2), Feb 2001.
+ * MAP decoding algorithm for a generalized class of synchronization-correcting
+ * codes described in
+ * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
+ * Correcting Codes", Submitted to Trans. IT, 2011.
+ *
+ * \tparam receiver_t Type for receiver metric computer
+ * \tparam sig Channel symbol type
+ * \tparam real Floating-point type for internal computation
+ * \tparam real2 Floating-point type for receiver metric computation
  */
 
-template <class receiver_t, class sig, class real>
+template <class receiver_t, class sig, class real, class real2>
 class fba2 {
 private:
    // Shorthand for class hierarchy
-   typedef fba2<receiver_t, sig, real> This;
+   typedef fba2<receiver_t, sig, real, real2> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
@@ -238,7 +244,12 @@ private:
 #endif
       // pre-computed values
       if (!flags.lazy)
-         return gamma.global[d][i][x][deltax];
+         {
+         if (flags.globalstore)
+            return gamma.global[d][i][x][deltax];
+         else
+            return gamma.local[d][x][deltax];
+         }
       // lazy computation, with local or global storage
       fill_gamma_cache_conditional(i, x);
       return get_cache_entry(d, i, x, deltax);
@@ -258,8 +269,33 @@ private:
       normalize(beta, i, -xmax, xmax);
       }
    // specialized components for decode funtions
-   void work_gamma_single(const array1s_t& r, const array1vd_t& app);
-   void work_gamma_batch(const array1s_t& r, const array1vd_t& app);
+   void work_gamma_global_single(const array1s_t& r, const array1vd_t& app,
+         const int i) const;
+   void work_gamma_global_batch(const array1s_t& r, const array1vd_t& app,
+         const int i) const;
+   void work_gamma_global(const array1s_t& r, const array1vd_t& app,
+         const int i) const
+      {
+      if (flags.batch)
+         work_gamma_global_batch(r, app, i);
+      else
+         work_gamma_global_single(r, app, i);
+      }
+   void work_gamma_local_single(const array1s_t& r, const array1vd_t& app,
+         const int i) const;
+   void work_gamma_local_batch(const array1s_t& r, const array1vd_t& app,
+         const int i) const;
+   void work_gamma_local(const array1s_t& r, const array1vd_t& app,
+         const int i) const
+      {
+      if (flags.batch)
+         work_gamma_local_batch(r, app, i);
+      else
+         work_gamma_local_single(r, app, i);
+      }
+   void work_alpha(const array1d_t& sof_prior, const int i);
+   void work_beta(const array1d_t& eof_prior, const int i);
+   void work_message_app(array1vr_t& ptable, const int i) const;
    void work_message_app(array1vr_t& ptable) const;
    void work_state_app(array1r_t& ptable, const int i) const;
    // @}
@@ -292,6 +328,18 @@ public:
          double th_outer, bool norm, bool batch, bool lazy, bool globalstore);
 
    /*! \name Parameter getters */
+   //! Determine memory required for global storage mode (in MiB)
+   static int get_memory_required(int N, int n, int q, int I, int xmax,
+         int dxmax)
+      {
+      // determine allowed limits on deltax: see allocate() for documentation
+      const int dmin = std::max(-n, -dxmax);
+      const int dmax = std::min(n * I, dxmax);
+      // determine memory required
+      const libbase::int64s bytes_required = sizeof(real)
+            * (q * N * (2 * xmax + 1) * (dmax - dmin + 1));
+      return int(bytes_required >> 20);
+      }
    //! Access metric computation
    receiver_t& get_receiver() const
       {

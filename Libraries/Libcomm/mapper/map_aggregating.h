@@ -22,17 +22,15 @@
  * - $Id$
  */
 
-#ifndef __map_permuted_h
-#define __map_permuted_h
+#ifndef __map_aggregating_h
+#define __map_aggregating_h
 
 #include "mapper.h"
-#include "randperm.h"
-#include "randgen.h"
 
 namespace libcomm {
 
 /*!
- * \brief   Random Symbol Permutation Mapper - Template base.
+ * \brief   Aggregating Mapper - Template base.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -40,17 +38,17 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * This class is a template definition for random symbol-permuting mappers;
- * this needs to be specialized for actual use. Template parameter defaults are
- * provided here.
+ * This class is a template definition for aggregating mappers; this needs to
+ * be specialized for actual use. Template parameter defaults are provided
+ * here.
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class map_permuted : public mapper<C, dbl> {
+class map_aggregating : public mapper<C, dbl> {
 };
 
 /*!
- * \brief   Random Symbol Permutation Mapper - Vector containers.
+ * \brief   Aggregating Mapper - Vector containers.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -58,15 +56,17 @@ class map_permuted : public mapper<C, dbl> {
  * - $Date$
  * - $Author$
  *
- * This class defines a symbol-permuting mapper.
+ * This class defines an aggregating symbol mapper; this is a rate-1 mapper
+ * for cases where each modulation symbol encodes more than one encoder symbol.
+ * For example, it will allow the use of binary codecs on q-ary modulators.
  */
 
 template <class dbl>
-class map_permuted<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+class map_aggregating<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef mapper<libbase::vector, dbl> Base;
-   typedef map_permuted<libbase::vector, dbl> This;
+   typedef map_aggregating<libbase::vector, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -76,34 +76,38 @@ public:
 
 private:
    /*! \name Internal object representation */
-   mutable libbase::vector<libbase::randperm> lut;
-   mutable libbase::randgen r;
+   int n_per_m; //!< Number of encoder output symbols per blockmodem symbol
    // @}
 
 protected:
-   // Pull in base class variables
-   using Base::M;
-   using Base::N;
-
-protected:
    // Interface with mapper
-   void advance() const;
+   /*! \copydoc mapper::setup()
+    *
+    * \note Each modulation symbol must be representable by an integral number
+    * of encoder outputs; additionally, the encoder output sequence must be
+    * representable by an integral number of modulation symbols.
+    */
+   void setup()
+      {
+      n_per_m = get_rate(Base::N, Base::M);
+      assertalways(this->input_block_size() == output_block_size() * n_per_m);
+      }
    void dotransform(const array1i_t& in, array1i_t& out) const;
    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
    void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
 
 public:
-   // Setup functions
-   void seedfrom(libbase::random& r)
+   // Informative functions
+   libbase::size_type<libbase::vector> output_block_size() const
       {
-      this->r.seed(r.ival());
+      return libbase::size_type<libbase::vector>(this->size / n_per_m);
       }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_permuted)
+DECLARE_SERIALIZER(map_aggregating)
 };
 
 } // end namespace

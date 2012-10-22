@@ -24,16 +24,28 @@
 
 #include "tvb-receiver.h"
 
+#include "gf.h"
+
 namespace libcomm {
 
-// disable compilation until CUDA version is properly written
-#if 0
-
 // Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
 
-template class tvb_receiver<float> ;
-template class tvb_receiver<double> ;
+#define USING_GF(r, x, type) \
+      using libbase::type;
 
-#endif
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#define REAL2_TYPE_SEQ \
+   (float)(double)
+
+#define INSTANTIATE(r, args) \
+      template class tvb_receiver<BOOST_PP_SEQ_ENUM(args)>;
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

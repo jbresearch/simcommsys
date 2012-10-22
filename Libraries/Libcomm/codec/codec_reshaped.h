@@ -121,10 +121,6 @@ public:
       {
       return base.num_outputs();
       }
-   int num_symbols() const
-      {
-      return base.num_symbols();
-      }
    int tail_length() const
       {
       return base.tail_length();

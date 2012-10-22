@@ -39,179 +39,56 @@ namespace libcomm {
 
 /*** Vector Specialization ***/
 
-using libbase::vector;
-
-// Interface with mapper
-
-/*! \copydoc mapper::setup()
- * 
- * \note Each encoder output must be represented by an integral number of
- * modulation symbols
- */
-template <class dbl>
-void map_straight<vector, dbl>::setup()
-   {
-   s1 = get_rate(Base::M, Base::N);
-   s2 = get_rate(Base::M, Base::S);
-   upsilon = Base::size.length() * s1 / s2;
-   assertalways(Base::size.length()*s1 == upsilon*s2);
-   }
-
-template <class dbl>
-void map_straight<vector, dbl>::dotransform(const array1i_t& in, array1i_t& out) const
-   {
-   assertalways(in.size() == This::input_block_size());
-   // Initialize results vector
-   out.init(This::output_block_size());
-   // Modulate encoded stream (least-significant first)
-   for (int t = 0, k = 0; t < Base::size.length(); t++)
-      for (int i = 0, x = in(t); i < s1; i++, k++, x /= Base::M)
-         out(k) = x % Base::M;
-   }
-
-template <class dbl>
-void map_straight<vector, dbl>::doinverse(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   // Confirm modulation symbol space is what we expect
-   assertalways(pin.size() > 0);
-   assertalways(pin(0).size() == Base::M);
-   // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == This::output_block_size());
-   // Initialize results vector
-   libbase::allocate(pout, upsilon, Base::S);
-   // Get the necessary data from the channel
-   for (int t = 0; t < upsilon; t++)
-      for (int x = 0; x < Base::S; x++)
-         {
-         pout(t)(x) = 1;
-         for (int i = 0, thisx = x; i < s2; i++, thisx /= Base::M)
-            pout(t)(x) *= pin(t * s2 + i)(thisx % Base::M);
-         }
-   }
-
 // Description
 
 template <class dbl>
-std::string map_straight<vector, dbl>::description() const
+std::string map_straight<libbase::vector, dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Straight Mapper (Vector)";
+   sout << " [" << this->input_block_size() << "]";
    return sout.str();
    }
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_straight<vector, dbl>::serialize(std::ostream& sout) const
+std::ostream& map_straight<libbase::vector, dbl>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
 template <class dbl>
-std::istream& map_straight<vector, dbl>::serialize(std::istream& sin)
+std::istream& map_straight<libbase::vector, dbl>::serialize(std::istream& sin)
    {
    return sin;
    }
 
 /*** Matrix Specialization ***/
 
-using libbase::matrix;
-
-// Interface with mapper
-
-/*! \copydoc mapper::setup()
- * 
- * \note Symbol alphabets must be the same size
- */
-template <class dbl>
-void map_straight<matrix, dbl>::setup()
-   {
-   assertalways(Base::M == Base::N);
-   assertalways(Base::M == Base::S);
-   }
-
-template <class dbl>
-void map_straight<matrix, dbl>::dotransform(const array2i_t& in, array2i_t& out) const
-   {
-   assertalways(in.size() == This::input_block_size());
-   // Initialize results matrix
-   out.init(This::output_block_size());
-#if DEBUG>=2
-   libbase::trace << "DEBUG (map_straight): Transform ";
-   libbase::trace << in.size().rows() << "x" << in.size().cols() << " to ";
-   libbase::trace << out.size().rows() << "x" << out.size().cols() << std::endl;
-#endif
-   // Map encoded stream (row-major order)
-   int ii = 0, jj = 0;
-   for (int i = 0; i < in.size().rows(); i++)
-      for (int j = 0; j < in.size().cols(); j++)
-         {
-         out(ii, jj) = in(i, j);
-         jj++;
-         if (jj >= out.size().cols())
-            {
-            jj = 0;
-            ii++;
-            }
-         }
-   }
-
-template <class dbl>
-void map_straight<matrix, dbl>::doinverse(const array2vd_t& pin,
-      array2vd_t& pout) const
-   {
-   // Confirm modulation symbol space is what we expect
-   assertalways(pin.size() > 0);
-   assertalways(pin(0,0).size() == Base::M);
-   // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == This::output_block_size());
-   // Initialize results vector
-   pout.init(This::input_block_size());
-#if DEBUG>=2
-   libbase::trace << "DEBUG (map_straight): Inverse ";
-   libbase::trace << pin.size().rows() << "x" << pin.size().cols() << " to ";
-   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << std::endl;
-#endif
-   // Map channel receiver information (row-major order)
-   int ii = 0, jj = 0;
-   for (int i = 0; i < pin.size().rows(); i++)
-      for (int j = 0; j < pin.size().cols(); j++)
-         {
-         pout(ii, jj) = pin(i, j);
-         jj++;
-         if (jj >= pout.size().cols())
-            {
-            jj = 0;
-            ii++;
-            }
-         }
-   }
-
 // Description
 
 template <class dbl>
-std::string map_straight<matrix, dbl>::description() const
+std::string map_straight<libbase::matrix, dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Straight Mapper (Matrix ";
-   sout << size_out.rows() << "x" << size_out.cols() << ")";
+   sout << "Straight Mapper (Matrix) ";
+   sout << " [" << this->input_block_size().rows() << "x"
+         << this->input_block_size().cols() << "]";
    return sout.str();
    }
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_straight<matrix, dbl>::serialize(std::ostream& sout) const
+std::ostream& map_straight<libbase::matrix, dbl>::serialize(std::ostream& sout) const
    {
-   sout << size_out << std::endl;
    return sout;
    }
 
 template <class dbl>
-std::istream& map_straight<matrix, dbl>::serialize(std::istream& sin)
+std::istream& map_straight<libbase::matrix, dbl>::serialize(std::istream& sin)
    {
-   sin >> libbase::eatcomments >> size_out >> libbase::verify;
    return sin;
    }
 

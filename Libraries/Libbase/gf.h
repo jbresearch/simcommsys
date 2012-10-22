@@ -57,6 +57,8 @@ namespace libbase {
  *
  * \warning Due to the internal representation, this class is limited to
  * \f$ GF(2^31) \f$.
+ *
+ * \note This class has CUDA device support.
  */
 
 template <int m, int poly>
@@ -64,12 +66,18 @@ class gf {
 public:
    /*! \name Class parameters */
    //! Number of elements in the field
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    static int elements()
       {
       return 1 << m;
       }
 
    //! dimension of the field over GF(2)
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    static int dimension()
       {
       return m;
@@ -89,6 +97,9 @@ private:
     *
     * \todo Validate \c poly - this should be a primitive polynomial [cf. Lin & Costello, 2004, p.41]
     */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    void init(int value)
       {
       assert(m < 32);
@@ -101,6 +112,9 @@ private:
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    gf(int value = 0)
       {
       init(value);
@@ -112,6 +126,9 @@ public:
    // @}
 
    /*! \name Type conversion */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    operator int() const
       {
       return value;
@@ -128,6 +145,9 @@ public:
     * in the polynomial representation. When the field characteristic is 2 (ie. for extensions
     * of a binary field), addition of the coefficients is equivalent to an XOR operation.
     */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    gf& operator+=(const gf& x)
       {
       value ^= x.value;
@@ -142,12 +162,51 @@ public:
     * of a binary field), subtraction of the coefficients is equivalent to an XOR operation, and
     * therefore equivalent to addition.
     */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    gf& operator-=(const gf& x)
       {
       value ^= x.value;
       return *this;
       }
-   gf& operator*=(const gf& x);
+   /*!
+    * \brief Multiplication
+    * \param   x  Field element we want to multiply to this one (ie. multiplicand).
+    *
+    * Multiplication within extensions of a field is the multiplication of the polynomials
+    * representing the two values. This can be done by the usual long-multiplication
+    * algorithm. Every time the result overflows, we need to subtract the modular polynomial;
+    * for extensions of a binary field, this is achieved by an XOR operation.
+    *
+    * [cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, pp.3-4]
+    */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
+   gf& operator*=(const gf& x)
+      {
+      // Copy the multiplier (A) and multiplicand (B)
+      int32u A = value;
+      int32u B = x.value;
+      // Initialize result
+      value = 0;
+      // Loop over all bits in multiplicand
+      for (int i = 0; i < m && B != 0; i++)
+         {
+         // If the corresponding bit in the multiplicand is set,
+         // add (XOR) the shifted multiplier
+         if (B & 1)
+            value ^= A;
+         // Shift the multiplicand
+         B >>= 1;
+         // Shift the multiplier, subtracting the polynomial on overflow
+         A <<= 1;
+         if (A & (1 << m))
+            A ^= poly;
+         }
+      return *this;
+      }
    /*!
     * \brief Division
     * \param   x  Field element we want to divide this one by (i.e. divisor).
@@ -159,11 +218,37 @@ public:
     *
     * In this implementation, we use the multiplicatve inverse method.
     */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    gf& operator/=(const gf& x)
       {
       return *this *= x.inverse();
       }
-   gf inverse() const;
+   /*!
+    * \brief Multiplicative inverse
+    *
+    * The multiplicative inverse \f$ b^{-1} \f$ of \f$ b \f$ is such that:
+    * \f[ b^{-1} a = 1 \f]
+    *
+    * In this implementation, we use the brute force search method.
+    */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
+   gf inverse() const
+      {
+      gf<m, poly> I = 1;
+      gf<m, poly> r = 1;
+      for (int i = 1; i < elements(); i++)
+         {
+         if (r * *this == I)
+            break;
+         r *= 2;
+         }
+      assert(r * *this == I);
+      return r;
+      }
    // @}
 
 };
@@ -171,6 +256,9 @@ public:
 /*! \name Arithmetic operations */
 
 template <int m, int poly>
+#ifdef __CUDACC__
+__device__ __host__
+#endif
 gf<m, poly> operator+(const gf<m, poly>& a, const gf<m, poly>& b)
    {
    gf<m, poly> c = a;
@@ -178,6 +266,9 @@ gf<m, poly> operator+(const gf<m, poly>& a, const gf<m, poly>& b)
    }
 
 template <int m, int poly>
+#ifdef __CUDACC__
+__device__ __host__
+#endif
 gf<m, poly> operator-(const gf<m, poly>& a, const gf<m, poly>& b)
    {
    gf<m, poly> c = a;
@@ -185,6 +276,9 @@ gf<m, poly> operator-(const gf<m, poly>& a, const gf<m, poly>& b)
    }
 
 template <int m, int poly>
+#ifdef __CUDACC__
+__device__ __host__
+#endif
 gf<m, poly> operator*(const gf<m, poly>& a, const gf<m, poly>& b)
    {
    gf<m, poly> c = a;
@@ -192,6 +286,9 @@ gf<m, poly> operator*(const gf<m, poly>& a, const gf<m, poly>& b)
    }
 
 template <int m, int poly>
+#ifdef __CUDACC__
+__device__ __host__
+#endif
 gf<m, poly> operator/(const gf<m, poly>& a, const gf<m, poly>& b)
    {
    gf<m, poly> c = a;

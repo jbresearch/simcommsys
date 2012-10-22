@@ -133,9 +133,6 @@ public:
       return GF_q::elements();
       }
 
-   // Channel symbol alphabet size required for translation - use provided implementation.
-   // int num_symbols() const
-
    //! Length of tail in timesteps, not required for linear block codes
    int tail_length() const
       {

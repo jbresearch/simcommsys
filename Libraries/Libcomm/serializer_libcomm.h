@@ -39,11 +39,8 @@
 #include "channel/awgn.h"
 #include "channel/laplacian.h"
 #include "channel/lapgauss.h"
-#include "channel/bsid.h"
-#include "channel/bsid2d.h"
 #include "channel/qids.h"
 #include "channel/bpmr.h"
-#include "channel/bsc.h"
 #include "channel/qsc.h"
 
 // Embedders - atomic
@@ -62,8 +59,6 @@
 #include "modem/mpsk.h"
 #include "modem/qam.h"
 #include "modem/dminner.h"
-#include "modem/dminner2.h"
-#include "modem/dminner2d.h"
 #include "modem/tvb.h"
 
 // Convolutional Encoders
@@ -110,6 +105,7 @@
 #include "mapper/map_interleaved.h"
 #include "mapper/map_permuted.h"
 #include "mapper/map_stipple.h"
+#include "mapper/map_aggregating.h"
 
 // Systems
 #include "commsys.h"
@@ -141,9 +137,6 @@ class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       awgn,
       laplacian<sigspace> ,
       lapgauss,
-      bsid,
-      bsid2d,
-      bsc,
       nrcc,
       rscc,
       dvbcrsc,
@@ -167,7 +160,7 @@ private:
    typedef libbase::logrealfast logrealfast;
 private:
    // Channels
-   qids<libbase::gf<1, 0x3> > _qids;
+   qids<libbase::gf<1, 0x3>, float> _qids;
    bpmr _bpmr;
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
@@ -192,9 +185,7 @@ private:
    mpsk _mpsk;
    qam _qam;
    dminner<double> _dminner;
-   dminner2<double> _dminner2;
-   dminner2d<double> _dminner2d;
-   tvb<libbase::gf<1, 0x3>, double> _tvb;
+   tvb<libbase::gf<1, 0x3>, double, float> _tvb;
    // Codecs
    ldpc<libbase::gf<1, 0x3>, double> _ldpc;
    reedsolomon<libbase::gf<3, 0xB> > _reedsolomon;
@@ -205,6 +196,7 @@ private:
    map_interleaved<libbase::vector> _map_interleaved;
    map_permuted<libbase::vector> _map_permuted;
    map_stipple<libbase::vector> _map_stipple;
+   map_aggregating<libbase::vector> _map_aggregating;
    // Systems
    commsys<bool> _commsys;
    commsys_iterative<bool> _commsys_iterative;

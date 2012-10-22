@@ -32,7 +32,7 @@ namespace libcomm {
 template <class G>
 void qsc<G>::set_parameter(const double Ps)
    {
-   const double q = G::elements();
+   const double q = field_utils<G>::elements();
    assertalways(Ps >=0 && Ps <= (q-1)/q);
    qsc::Ps = Ps;
    }
@@ -44,7 +44,7 @@ void qsc<G>::set_parameter(const double Ps)
  * 
  * The channel model implemented is described by the following state diagram:
  * \dot
- * digraph bsidstates {
+ * digraph states {
  * // Make figure left-to-right
  * rankdir = LR;
  * // state definitions
@@ -65,7 +65,7 @@ G qsc<G>::corrupt(const G& s)
    {
    const double p = this->r.fval_closed();
    if (p < Ps)
-      return s + G(this->r.ival(G::elements() - 1) + 1);
+      return field_utils<G>::corrupt(s, this->r);
    return s;
    }
 
@@ -75,7 +75,7 @@ template <class G>
 std::string qsc<G>::description() const
    {
    std::ostringstream sout;
-   sout << G::elements() << "-ary Symmetric channel";
+   sout << field_utils<G>::elements() << "-ary Symmetric channel";
    return sout.str();
    }
 
@@ -112,9 +112,13 @@ using libbase::serializer;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
+#define SYMBOL_TYPE_SEQ \
+   (bool) \
+   GF_TYPE_SEQ
+
 /* Serialization string: qsc<type>
  * where:
- *      type = gf2 | gf4 ...
+ *      type = bool | gf2 | gf4 ...
  */
 #define INSTANTIATE(r, x, type) \
    template class qsc<type>; \
@@ -124,6 +128,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          "qsc<" BOOST_PP_STRINGIZE(type) ">", \
          qsc<type>::create);
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // end namespace

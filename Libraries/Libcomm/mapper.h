@@ -37,6 +37,16 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show input/output for mapping process
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 /*!
  * \brief   Mapper Interface.
  * \author  Johann Briffa
@@ -46,8 +56,19 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * This class defines the interface for mapper classes. It integrates within
- * commsys as a layer between codec and blockmodem.
+ * This class defines the interface for mapper classes. It is used within
+ * commsys as a layer between codec and blockmodem. It transforms the codec
+ * output sequence to a blockmodem input sequence, and inverts the
+ * transformation for the symbol probabilities from the blockmodem. The codec
+ * reads these to set up its receiver (ie the probabilities of what was
+ * received).
+ *
+ * For full-system iteration, an additional method transforms the (extrinsic)
+ * probabilities from codec output to modem input (where these are used as
+ * priors).
+ *
+ * \tparam C Container class for codec/modem blocks
+ * \tparam dbl Floating-point type for probability tables
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
@@ -64,18 +85,21 @@ public:
 
 protected:
    /*! \name User-defined parameters */
-   int N; //!< Number of possible values of each encoder output
-   int M; //!< Number of possible values of each modulation symbol
-   int S; //!< Number of possible values of each translation symbol
+   int N; //!< Alphabet size for encoder output
+   int M; //!< Alphabet size for blockmodem input
    libbase::size_type<C> size; //!< Input block size in symbols
    // @}
 
 protected:
    /*! \name Interface with derived classes */
    //! Setup function, called from set_parameters and set_blocksize
-   virtual void setup() = 0;
+   virtual void setup()
+      {
+      }
    //! \copydoc transform()
    virtual void dotransform(const C<int>& in, C<int>& out) const = 0;
+   //! \copydoc transform()
+   virtual void dotransform(const C<array1d_t>& pin, C<array1d_t>& pout) const = 0;
    //! \copydoc inverse()
    virtual void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const = 0;
    // @}
@@ -90,29 +114,68 @@ public:
    /*! \name Helper functions */
    /*!
     * \brief Determines the number of input symbols per output symbol
-    * \param[in]  input    Number of possible values of each input symbol
-    * \param[in]  output   Number of possible values of each output symbol
+    * \param[in]  input    Alphabet size for input
+    * \param[in]  output   Alphabet size for output
     */
-   static int get_rate(const int input, const int output);
+   static int get_rate(const int input, const int output)
+      {
+      const int s = int(round(log(double(output)) / log(double(input))));
+      assertalways(output == pow(input,s));
+      return s;
+      }
    // @}
 
    /*! \name Vector mapper operations */
    /*!
-    * \brief Transform a sequence of encoder outputs to a channel-compatible
-    * alphabet
-    * \param[in]  in    Sequence of encoder output values
-    * \param[out] out   Sequence of symbols to be modulated
+    * \brief Transform a encoder output sequence to blockmodem input (N->M)
+    * \param[in]  in    Encoder output sequence
+    * \param[out] out   Modulator input sequence
     */
-   void transform(const C<int>& in, C<int>& out) const;
+   void transform(const C<int>& in, C<int>& out) const
+      {
+      advance_always();
+      dotransform(in, out);
+#if DEBUG>=2
+      std::cerr << "DEBUG (mapper): transform in = " << in;
+      std::cerr << "DEBUG (mapper): transform out = " << out;
+#endif
+      }
    /*!
-    * \brief Inverse-transform the received symbol probabilities to a decoder-
-    * comaptible set
-    * \param[in]  pin   Table of likelihoods of possible modulation symbols
-    * \param[out] pout  Table of likelihoods of possible translation symbols
+    * \brief Transform the encoder output posteriors to blockmodem priors (N->M)
+    * \param[in]  pin   Table of output posterior likelihoods from decoder
+    * \param[out] pout  Table of prior likelihoods for blockmodem
+    *
+    * \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
+    *
+    * \note Since this method is always called as part of an iterative process,
+    * there is never a reason to advance or mark as dirty.
+    */
+   void transform(const C<array1d_t>& pin, C<array1d_t>& pout) const
+      {
+      dotransform(pin, pout);
+#if DEBUG>=2
+      std::cerr << "DEBUG (mapper): transform pin = " << pin;
+      std::cerr << "DEBUG (mapper): transform pout = " << pout;
+#endif
+      }
+   /*!
+    * \brief Inverse-transform the blockmodem receiver probabilities to decoder
+    * input (M->N)
+    * \param[in]  pin   Table of likelihoods from demodulator
+    * \param[out] pout  Table of likelihoods for decoder
     *
     * \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
     */
-   void inverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
+   void inverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
+      {
+      advance_if_dirty();
+      doinverse(pin, pout);
+      mark_as_dirty();
+#if DEBUG>=2
+      std::cerr << "DEBUG (mapper): inverse pin = " << pin;
+      std::cerr << "DEBUG (mapper): inverse pout = " << pout;
+#endif
+      }
    // @}
 
    /*! \name Setup functions */
@@ -122,12 +185,16 @@ public:
       }
    /*!
     * \brief Sets input and output alphabet sizes
-    * \param[in]  N  Number of possible values of each encoder output
-    * \param[in]  M  Number of possible values of each modulation symbol
-    * \param[in]  S  Number of possible values of each translation symbol
+    * \param[in]  N  Alphabet size for encoder output
+    * \param[in]  M  Alphabet size for blockmodem input
     */
-   void set_parameters(const int N, const int M, const int S);
-   //! Sets input block size
+   void set_parameters(const int N, const int M)
+      {
+      this->N = N;
+      this->M = M;
+      setup();
+      }
+   //! Sets input block size (as at encoder output)
    void set_blocksize(libbase::size_type<C> size)
       {
       assert(size > 0);
@@ -138,7 +205,10 @@ public:
 
    /*! \name Informative functions */
    //! Overall mapper rate
-   virtual double rate() const = 0;
+   virtual double rate() const
+      {
+      return 1;
+      }
    //! Gets input block size
    libbase::size_type<C> input_block_size() const
       {
@@ -159,6 +229,12 @@ public:
    // Serialization Support
 DECLARE_BASE_SERIALIZER(mapper)
 };
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

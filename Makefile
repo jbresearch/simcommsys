@@ -45,6 +45,7 @@ ifndef USE_GMP
 export USE_GMP := $(if $(wildcard /usr/include/gmp.h),1,0)
 endif
 # CUDA compiler (0 if absent, architecture if present)
+# Check for min supported architecture
 ifndef USE_CUDA
 export USE_CUDA := $(shell nvcc -V 2>/dev/null |wc -l)
 endif
@@ -54,6 +55,9 @@ USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
 endif
 USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
 ifeq (,$(USE_CUDA))
+USE_CUDA := 0
+endif
+ifneq (,$(filter 10 11 12 13,$(USE_CUDA)))
 USE_CUDA := 0
 endif
 endif

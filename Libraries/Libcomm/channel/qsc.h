@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "channel.h"
+#include "field_utils.h"
 #include "serializer.h"
 #include <cmath>
 
@@ -92,7 +93,7 @@ DECLARE_SERIALIZER(qsc)
 template <class G>
 inline double qsc<G>::pdf(const G& tx, const G& rx) const
    {
-   return (tx == rx) ? 1 - Ps : Ps / G::elements();
+   return (tx == rx) ? 1 - Ps : Ps / field_utils<G>::elements();
    }
 
 } // end namespace

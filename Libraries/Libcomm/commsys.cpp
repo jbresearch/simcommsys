@@ -64,7 +64,7 @@ void basic_commsys<S, C>::init()
    // confirm that source is representable in binary
    assertalways(K == 1<<k);
    // set up mapper with required parameters
-   map->set_parameters(N, M, cdc->num_symbols());
+   map->set_parameters(N, M);
    map->set_blocksize(cdc->output_block_size());
    // set up modem with appropriate block size
    mdm->set_blocksize(map->output_block_size());

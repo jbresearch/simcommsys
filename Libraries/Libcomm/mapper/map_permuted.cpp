@@ -1,8 +1,8 @@
 /*!
  * \file
- * 
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * \section svn Version Control
  * - $Id$
  */
@@ -29,51 +29,62 @@
 
 namespace libcomm {
 
-// Interface with mapper
+/*** Vector Specialization ***/
 
-template <template <class > class C, class dbl>
-void map_permuted<C, dbl>::advance() const
+// Interface with mapper
+template <class dbl>
+void map_permuted<libbase::vector, dbl>::advance() const
    {
    lut.init(This::output_block_size());
    for (int i = 0; i < This::output_block_size(); i++)
-      lut(i).init(M, r);
+      lut(i).init(Base::M, r);
    }
 
-template <template <class > class C, class dbl>
-void map_permuted<C, dbl>::dotransform(const C<int>& in, C<int>& out) const
+template <class dbl>
+void map_permuted<libbase::vector, dbl>::dotransform(const array1i_t& in,
+      array1i_t& out) const
    {
-   // do the base (straight) mapping into a temporary space
-   C<int> s;
-   Base::dotransform(in, s);
-   // final vector is the same size as straight-mapped one
-   out.init(s.size());
+   assert(in.size() == lut.size());
+   // final vector is the same size as input one
+   out.init(lut.size());
    // permute the results
-   assert(out.size() == lut.size());
-   for (int i = 0; i < out.size(); i++)
-      out(i) = lut(i)(s(i));
+   for (int i = 0; i < lut.size(); i++)
+      out(i) = lut(i)(in(i));
    }
 
-template <template <class > class C, class dbl>
-void map_permuted<C, dbl>::doinverse(const C<array1d_t>& pin,
-      C<array1d_t>& pout) const
+template <class dbl>
+void map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+      array1vd_t& pout) const
+   {
+   assert(Base::M == Base::N); // otherwise the map would lose all meaning
+   assert(pin.size() == lut.size());
+   assert(pin(0).size() == Base::N);
+   // final matrix is the same size as input
+   libbase::allocate(pout, lut.size(), Base::N);
+   // permute the likelihood tables
+   for (int i = 0; i < lut.size(); i++)
+      for (int j = 0; j < Base::N; j++)
+         pout(i)(lut(i)(j)) = pin(i)(j);
+   }
+
+template <class dbl>
+void map_permuted<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+      array1vd_t& pout) const
    {
    assert(pin.size() == lut.size());
-   assert(pin(0).size() == M);
-   // temporary matrix is the same size as input
-   C<array1d_t> ptable;
-   libbase::allocate(ptable, lut.size(), M);
+   assert(pin(0).size() == Base::M);
+   // final matrix is the same size as input
+   libbase::allocate(pout, lut.size(), Base::M);
    // invert the permutation
    for (int i = 0; i < lut.size(); i++)
-      for (int j = 0; j < M; j++)
-         ptable(i)(j) = pin(i)(lut(i)(j));
-   // do the base (straight) mapping
-   Base::doinverse(ptable, pout);
+      for (int j = 0; j < Base::M; j++)
+         pout(i)(j) = pin(i)(lut(i)(j));
    }
 
 // Description
 
-template <template <class > class C, class dbl>
-std::string map_permuted<C, dbl>::description() const
+template <class dbl>
+std::string map_permuted<libbase::vector, dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Permuted Mapper";
@@ -82,17 +93,16 @@ std::string map_permuted<C, dbl>::description() const
 
 // Serialization Support
 
-template <template <class > class C, class dbl>
-std::ostream& map_permuted<C, dbl>::serialize(std::ostream& sout) const
+template <class dbl>
+std::ostream& map_permuted<libbase::vector, dbl>::serialize(
+      std::ostream& sout) const
    {
-   Base::serialize(sout);
    return sout;
    }
 
-template <template <class > class C, class dbl>
-std::istream& map_permuted<C, dbl>::serialize(std::istream& sin)
+template <class dbl>
+std::istream& map_permuted<libbase::vector, dbl>::serialize(std::istream& sin)
    {
-   Base::serialize(sin);
    return sin;
    }
 

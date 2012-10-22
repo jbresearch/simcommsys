@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "vector.h"
+#include "cuda/cuda_assert.h"
 
 #include <iostream>
 #include <string>
@@ -41,6 +42,8 @@ namespace libbase {
  * - $Revision$
  * - $Date$
  * - $Author$
+ *
+ * \note This class has CUDA device support.
  */
 
 class bitfield {
@@ -48,12 +51,20 @@ private:
    int32u field; //!< bit field value
    int bits; //!< number of bits
 private:
-   // check that given field size is representable by class
+   //! Check that given field size is representable by class
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    static void check_fieldsize(int b)
       {
+#ifndef __CUDA_ARCH__ // Host code path
       assertalways(b>=0 && b<=32);
+#endif
       }
-   // Get binary mask covering bitfield
+   //! Get binary mask covering bitfield
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    int32u mask() const
       {
       return bits == 32 ? 0xffffffff : ((1L << bits) - 1L);
@@ -63,11 +74,17 @@ private:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    explicit bitfield(const int bits = 0) :
       field(0), bits(bits)
       {
       }
    //! Constructor to directly convert an integer at a specified width
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield(const int32u field, const int bits) :
       field(field), bits(bits)
       {
@@ -82,6 +99,9 @@ public:
    // @}
 
    /*! \name Type conversion */
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    operator int32u() const
       {
       return field;
@@ -91,10 +111,16 @@ public:
    // @}
 
    // Field size methods
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    int size() const
       {
       return bits;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    void init(const int b)
       {
       check_fieldsize(b);
@@ -103,40 +129,58 @@ public:
       }
 
    // Copy and Assignment
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator=(const bitfield& x)
       {
       bits = x.bits;
       field = x.field;
       return *this;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator=(const int32u x)
       {
-      assert((x & ~mask()) == 0);
+      cuda_assert((x & ~mask()) == 0);
       field = x;
       return *this;
       }
 
    // Partial extraction
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield extract(const int hi, const int lo) const
       {
       bitfield c;
-      assert(hi < bits && lo >= 0 && lo <= hi);
+      cuda_assert(hi < bits && lo >= 0 && lo <= hi);
       c.bits = hi - lo + 1;
       c.field = (field >> lo) & c.mask();
       return c;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield extract(const int b) const
       {
       return extract(b, b);
       }
    // Indexed access
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bool operator()(const int b) const
       {
-      assert(b < bits && b >= 0);
+      cuda_assert(b < bits && b >= 0);
       return (field >> b) & 1;
       }
 
    // Bit-reversal method
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield reverse() const
       {
       bitfield result;
@@ -146,47 +190,68 @@ public:
       }
 
    // Logical operators - OR, AND, XOR
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator|(const bitfield& x) const
       {
       bitfield y = *this;
       y |= x;
       return y;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator&(const bitfield& x) const
       {
       bitfield y = *this;
       y &= x;
       return y;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator^(const bitfield& x) const
       {
       bitfield y = *this;
       y ^= x;
       return y;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator|=(const bitfield& x)
       {
-      assert(bits == x.bits);
+      cuda_assert(bits == x.bits);
       field |= x.field;
       return *this;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator&=(const bitfield& x)
       {
-      assert(bits == x.bits);
+      cuda_assert(bits == x.bits);
       field &= x.field;
       return *this;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator^=(const bitfield& x)
       {
-      assert(bits == x.bits);
+      cuda_assert(bits == x.bits);
       field ^= x.field;
       return *this;
       }
 
    // Convolution operator
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator*(const bitfield& x) const
       {
-      assert(this->bits == x.bits);
+      cuda_assert(this->bits == x.bits);
       bitfield y;
       y.bits = 1;
       int32u r = this->field & x.field;
@@ -196,6 +261,9 @@ public:
       return y;
       }
    // Concatenation operator
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator+(const bitfield& x) const
       {
       bitfield y;
@@ -204,6 +272,9 @@ public:
       return y;
       }
    // Shift-register operators - sequence shift-in
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator<<(const bitfield& x) const
       {
       bitfield y;
@@ -212,6 +283,9 @@ public:
       y.field &= y.mask();
       return y;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator>>(const bitfield& x) const
       {
       bitfield y;
@@ -222,24 +296,36 @@ public:
       return y;
       }
    // Shift-register operators - zero shift-in
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator<<(const int x) const
       {
       bitfield c = *this;
       c <<= x;
       return c;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield operator>>(const int x) const
       {
       bitfield c = *this;
       c >>= x;
       return c;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator<<=(const int x)
       {
       field <<= x;
       field &= mask();
       return *this;
       }
+#ifdef __CUDACC__
+   __device__ __host__
+#endif
    bitfield& operator>>=(const int x)
       {
       if (x >= 32) // avoid a subtle bug in gcc (or the Pentium, not sure which...)

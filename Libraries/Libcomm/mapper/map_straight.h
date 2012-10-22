@@ -30,7 +30,7 @@
 namespace libcomm {
 
 /*!
- * \brief   Straight Mapper Template.
+ * \brief   Straight Mapper - Template base.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -56,9 +56,8 @@ class map_straight : public mapper<C, dbl> {
  * - $Date$
  * - $Author$
  *
- * This class defines a straight symbol mapper with:
- * forward transform from blockmodem
- * inverse transform from the various codecs.
+ * This class defines a straight symbol mapper; this is a rate-1 mapper
+ * for cases where each modulation symbol encodes exactly one encoder symbol.
  */
 
 template <class dbl>
@@ -74,42 +73,35 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
-private:
-   /*! \name Internal object representation */
-   int s1; //!< Number of modulation symbols per encoder output
-   int s2; //!< Number of modulation symbols per translation symbol
-   int upsilon; //!< Block size in symbols at codec translation
-   // @}
-
-protected:
-   // Pull in base class variables
-   using Base::size;
-   using Base::M;
-   using Base::N;
-   using Base::S;
-
 protected:
    // Interface with mapper
-   void setup();
-   void dotransform(const array1i_t& in, array1i_t& out) const;
-   void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
+   /*! \copydoc mapper::setup()
+    *
+    * \note Symbol alphabets must be the same size
+    */
+   void setup()
+      {
+      assertalways(Base::M == Base::N);
+      }
+   void dotransform(const array1i_t& in, array1i_t& out) const
+      {
+      out = in;
+      }
+   void dotransform(const array1vd_t& pin, array1vd_t& pout) const
+      {
+      pout = pin;
+      }
+   void doinverse(const array1vd_t& pin, array1vd_t& pout) const
+      {
+      pout = pin;
+      }
 
 public:
-   // Informative functions
-   double rate() const
-      {
-      return 1;
-      }
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      return libbase::size_type<libbase::vector>(size * s1);
-      }
-
    // Description
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_straight)
+   DECLARE_SERIALIZER (map_straight)
 };
 
 /*!
@@ -121,10 +113,10 @@ DECLARE_SERIALIZER(map_straight)
  * - $Date$
  * - $Author$
  *
- * This class defines a straight symbol mapper, where it is assumed that:
- * - the input and output alphabet sizes are the same
- * - matrix reshaping occurs by reading and writing elements in row-major
- * order
+ * This class defines a straight symbol mapper; this is a rate-1 mapper
+ * for cases where each modulation symbol encodes exactly one encoder symbol.
+ * Additionally, for matrix containers, the encoder output and blockmodem
+ * input containers have the same shape.
  */
 
 template <class dbl>
@@ -140,40 +132,35 @@ public:
    typedef libbase::matrix<array1d_t> array2vd_t;
    // @}
 
-private:
-   /*! \name Internal object representation */
-   libbase::size_type<libbase::matrix> size_out;
-   // @}
-
-protected:
-   // Pull in base class variables
-   using Base::size;
-   using Base::M;
-   using Base::N;
-   using Base::S;
-
 protected:
    // Interface with mapper
-   void setup();
-   void dotransform(const array2i_t& in, array2i_t& out) const;
-   void doinverse(const array2vd_t& pin, array2vd_t& pout) const;
+   /*! \copydoc mapper::setup()
+    *
+    * \note Symbol alphabets must be the same size
+    */
+   void setup()
+      {
+      assertalways(Base::M == Base::N);
+      }
+   void dotransform(const array2i_t& in, array2i_t& out) const
+      {
+      out = in;
+      }
+   void dotransform(const array2vd_t& pin, array2vd_t& pout) const
+      {
+      pout = pin;
+      }
+   void doinverse(const array2vd_t& pin, array2vd_t& pout) const
+      {
+      pout = pin;
+      }
 
 public:
-   // Informative functions
-   double rate() const
-      {
-      return 1;
-      }
-   libbase::size_type<libbase::matrix> output_block_size() const
-      {
-      return size_out;
-      }
-
    // Description
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_straight)
+   DECLARE_SERIALIZER (map_straight)
 };
 
 } // end namespace

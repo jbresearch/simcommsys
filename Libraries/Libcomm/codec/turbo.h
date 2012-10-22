@@ -150,6 +150,12 @@ protected:
       assertalways(inter(0));
       return inter(0)->size();
       }
+   //! Encoder alphabet size
+   int enc_symbols() const
+      {
+      assert(encoder);
+      return encoder->num_symbols();
+      }
    //! Number of encoder input symbols / timestep
    int enc_inputs() const
       {
@@ -187,14 +193,14 @@ protected:
    int alg_input_symbols() const
       {
       const int k = enc_inputs();
-      const int S = This::num_symbols();
+      const int S = enc_symbols();
       return int(pow(S, k));
       }
    //! Output alphabet size for algorithm
    int alg_output_symbols() const
       {
       const int n = enc_outputs();
-      const int S = This::num_symbols();
+      const int S = enc_symbols();
       return int(pow(S, n));
       }
    // @}
@@ -241,16 +247,11 @@ public:
       }
    int num_inputs() const
       {
-      return This::num_symbols();
+      return enc_symbols();
       }
    int num_outputs() const
       {
-      return This::num_symbols();
-      }
-   int num_symbols() const
-      {
-      assert(encoder);
-      return encoder->num_symbols();
+      return enc_symbols();
       }
    int tail_length() const
       {

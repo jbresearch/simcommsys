@@ -43,8 +43,8 @@ namespace libcomm {
 
 // common small tasks
 
-template <class receiver_t, class sig, class real>
-real fba2<receiver_t, sig, real>::get_threshold(const array2r_t& metric,
+template <class receiver_t, class sig, class real, class real2>
+real fba2<receiver_t, sig, real, real2>::get_threshold(const array2r_t& metric,
       int row, int col_min, int col_max, real factor)
    {
    const bool thresholding = (factor > real(0));
@@ -59,9 +59,9 @@ real fba2<receiver_t, sig, real>::get_threshold(const array2r_t& metric,
    return threshold;
    }
 
-template <class receiver_t, class sig, class real>
-real fba2<receiver_t, sig, real>::get_scale(const array2r_t& metric, int row,
-      int col_min, int col_max)
+template <class receiver_t, class sig, class real, class real2>
+real fba2<receiver_t, sig, real, real2>::get_scale(const array2r_t& metric,
+      int row, int col_min, int col_max)
    {
    real scale = 0;
    for (int col = col_min; col <= col_max; col++)
@@ -71,8 +71,8 @@ real fba2<receiver_t, sig, real>::get_scale(const array2r_t& metric, int row,
    return scale;
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::normalize(array2r_t& metric, int row,
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::normalize(array2r_t& metric, int row,
       int col_min, int col_max)
    {
    // determine the scale factor to use (each block has to do this)
@@ -84,114 +84,154 @@ void fba2<receiver_t, sig, real>::normalize(array2r_t& metric, int row,
 
 // specialized components for decode funtions
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_gamma_single(const array1s_t& r,
-      const array1vd_t& app)
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_gamma_global_single(
+      const array1s_t& r, const array1vd_t& app, const int i) const
    {
-   // pre-computation of gamma values
-   libbase::pacifier progress("FBA Gamma");
-   // compute metric with independent interface
-   for (int i = 0; i < N; i++)
-      {
-      std::cerr << progress.update(i, N);
-      for (int d = 0; d < q; d++)
-         for (int x = -xmax; x <= xmax; x++)
-            {
-            // clear gamma entries
-            for (int deltax = dmin; deltax <= dmax; deltax++)
-               gamma.global[d][i][x][deltax] = 0;
-            // limit on end-state (-xmax <= x2 <= xmax):
-            //   x2-x1 <= xmax-x1
-            //   x2-x1 >= -xmax-x1
-            const int deltaxmin = std::max(-xmax - x, dmin);
-            const int deltaxmax = std::min(xmax - x, dmax);
-            for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-               gamma.global[d][i][x][deltax] = compute_gamma_single(d, i, x,
-                     deltax, r, app);
-            }
-      }
-   std::cerr << progress.update(N, N);
+   // compute metric with single interface
+   for (int d = 0; d < q; d++)
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         // clear gamma entries
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma.global[d][i][x][deltax] = 0;
+         // limit on end-state (-xmax <= x2 <= xmax):
+         //   x2-x1 <= xmax-x1
+         //   x2-x1 >= -xmax-x1
+         const int deltaxmin = std::max(-xmax - x, dmin);
+         const int deltaxmax = std::min(xmax - x, dmax);
+         for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
+            gamma.global[d][i][x][deltax] = compute_gamma_single(d, i, x,
+                  deltax, r, app);
+         }
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_gamma_batch(const array1s_t& r,
-      const array1vd_t& app)
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_gamma_global_batch(
+      const array1s_t& r, const array1vd_t& app, const int i) const
    {
-   // pre-computation of gamma values
-   libbase::pacifier progress("FBA Gamma");
    // allocate space for results
    static array1r_t ptable;
    ptable.init(2 * dxmax + 1);
    // compute metric with batch interface
-   for (int i = 0; i < N; i++)
-      {
-      std::cerr << progress.update(i, N);
-      for (int d = 0; d < q; d++)
-         for (int x = -xmax; x <= xmax; x++)
-            {
-            compute_gamma_batch(d, i, x, ptable, r, app);
-            for (int deltax = dmin; deltax <= dmax; deltax++)
-               gamma.global[d][i][x][deltax] = ptable(dxmax + deltax);
-            }
-      }
-   std::cerr << progress.update(N, N);
+   for (int d = 0; d < q; d++)
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         compute_gamma_batch(d, i, x, ptable, r, app);
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma.global[d][i][x][deltax] = ptable(dxmax + deltax);
+         }
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_message_app(array1vr_t& ptable) const
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_gamma_local_single(
+      const array1s_t& r, const array1vd_t& app, const int i) const
    {
-   libbase::pacifier progress("FBA Results");
+   // compute metric with single interface
+   for (int d = 0; d < q; d++)
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         // clear gamma entries
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma.local[d][x][deltax] = 0;
+         // limit on end-state (-xmax <= x2 <= xmax):
+         //   x2-x1 <= xmax-x1
+         //   x2-x1 >= -xmax-x1
+         const int deltaxmin = std::max(-xmax - x, dmin);
+         const int deltaxmax = std::min(xmax - x, dmax);
+         for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
+            gamma.local[d][x][deltax] = compute_gamma_single(d, i, x, deltax, r,
+                  app);
+         }
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_gamma_local_batch(
+      const array1s_t& r, const array1vd_t& app, const int i) const
+   {
+   // allocate space for results
+   static array1r_t ptable;
+   ptable.init(2 * dxmax + 1);
+   // compute metric with batch interface
+   for (int d = 0; d < q; d++)
+      for (int x = -xmax; x <= xmax; x++)
+         {
+         compute_gamma_batch(d, i, x, ptable, r, app);
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma.local[d][x][deltax] = ptable(dxmax + deltax);
+         }
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_message_app(array1vr_t& ptable,
+      const int i) const
+   {
    // local flag for path thresholding
    const bool thresholding = (th_outer > real(0));
+   // determine the strongest path at this point
+   const real threshold = get_threshold(alpha, i, -xmax, xmax, th_outer);
+   for (int d = 0; d < q; d++)
+      {
+      // initialize result holder
+      real p = 0;
+      for (int x1 = -xmax; x1 <= xmax; x1++)
+         {
+         // cache this alpha value in a register
+         const real this_alpha = alpha[i][x1];
+         // ignore paths below a certain threshold
+         if (thresholding && this_alpha < threshold)
+            continue;
+         // limits on deltax can be combined as (c.f. allocate() for details):
+         //   x2-x1 <= dmax
+         //   x2-x1 >= dmin
+         const int x2min = std::max(-xmax, dmin + x1);
+         const int x2max = std::min(xmax, dmax + x1);
+         for (int x2 = x2min; x2 <= x2max; x2++)
+            {
+            real temp = this_alpha;
+            temp *= beta[i + 1][x2];
+            temp *= get_gamma(d, i, x1, x2 - x1);
+            p += temp;
+            }
+         }
+      // store result
+      ptable(i)(d) = p;
+      }
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_message_app(
+      array1vr_t& ptable) const
+   {
+   libbase::pacifier progress("FBA Results");
    // Initialise result vector (one symbol per timestep)
    libbase::allocate(ptable, N, q);
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    for (int i = 0; i < N; i++)
       {
       std::cerr << progress.update(i, N);
-      // determine the strongest path at this point
-      const real threshold = get_threshold(alpha, i, -xmax, xmax, th_outer);
-      for (int d = 0; d < q; d++)
-         {
-         // initialize result holder
-         real p = 0;
-         for (int x1 = -xmax; x1 <= xmax; x1++)
-            {
-            // cache this alpha value in a register
-            const real this_alpha = alpha[i][x1];
-            // ignore paths below a certain threshold
-            if (thresholding && this_alpha < threshold)
-               continue;
-            // limits on deltax can be combined as (c.f. allocate() for details):
-            //   x2-x1 <= dmax
-            //   x2-x1 >= dmin
-            const int x2min = std::max(-xmax, dmin + x1);
-            const int x2max = std::min(xmax, dmax + x1);
-            for (int x2 = x2min; x2 <= x2max; x2++)
-               {
-               real temp = this_alpha;
-               temp *= beta[i + 1][x2];
-               temp *= get_gamma(d, i, x1, x2 - x1);
-               p += temp;
-               }
-            }
-         // store result
-         ptable(i)(d) = p;
-         }
+      // pre-compute local gamma values, if necessary
+      if (!flags.lazy && !flags.globalstore)
+         work_gamma_local(r, app, i);
+      // compute partial result
+      work_message_app(ptable, i);
       }
    if (N > 0)
       std::cerr << progress.update(N, N);
 #ifndef NDEBUG
    // show cache statistics
-   std::cerr << "FBA Cache Usage: " << 100 * gamma_misses
-         / double(cached.global.num_elements()) << "%" << std::endl;
-   std::cerr << "FBA Cache Reuse: " << gamma_calls / double(gamma_misses * q
-         * (dmax - dmin + 1)) << "x" << std::endl;
+   std::cerr << "FBA Cache Usage: "
+         << 100 * gamma_misses / double(cached.global.num_elements()) << "%"
+         << std::endl;
+   std::cerr << "FBA Cache Reuse: "
+         << gamma_calls / double(gamma_misses * q * (dmax - dmin + 1)) << "x"
+         << std::endl;
 #endif
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_state_app(array1r_t& ptable, const int i) const
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_state_app(array1r_t& ptable,
+      const int i) const
    {
    assert(i >= 0 && i <= N);
    // compute posterior probabilities for given index
@@ -206,8 +246,8 @@ void fba2<receiver_t, sig, real>::work_state_app(array1r_t& ptable, const int i)
 
 /*! \brief Memory allocator for working matrices
  */
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::allocate()
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::allocate()
    {
    // flag the state of the arrays
    initialised = true;
@@ -231,26 +271,20 @@ void fba2<receiver_t, sig, real>::allocate()
    alpha.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
    beta.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
 
-   // TODO: add dynamic decision based on user-supplied memory limit
-   //const libbase::int64s bytes_required = sizeof(real) * (q * N
-   //      * (2 * xmax + 1) * (dmax - dmin + 1));
-   //std::cerr << "FBA Cache Disabled, Required: " << bytes_required
-   //      / double(1 << 20) << "MiB" << std::endl;
-
    if (flags.globalstore)
       {
       // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
       // x in [-xmax, xmax], and deltax in [dmin, dmax]
-      gamma.global.resize(boost::extents[q][N][range(-xmax, xmax + 1)][range(
-            dmin, dmax + 1)]);
+      gamma.global.resize(
+            boost::extents[q][N][range(-xmax, xmax + 1)][range(dmin, dmax + 1)]);
       gamma.local.resize(boost::extents[0][0][0]);
       }
    else
       {
       // gamma needs indices (d,x,deltax) where d in [0, q-1]
       // x in [-xmax, xmax], and deltax in [dmin, dmax]
-      gamma.local.resize(boost::extents[q][range(-xmax, xmax + 1)][range(dmin,
-            dmax + 1)]);
+      gamma.local.resize(
+            boost::extents[q][range(-xmax, xmax + 1)][range(dmin, dmax + 1)]);
       gamma.global.resize(boost::extents[0][0][0][0]);
       }
    // need to keep track only if we're caching lazy computations
@@ -287,10 +321,13 @@ void fba2<receiver_t, sig, real>::allocate()
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
    const int old_precision = std::cerr.precision(1);
    // determine memory occupied and tell user
-   const size_t bytes_used = sizeof(bool) * (cached.global.num_elements()
-         + cached.local.num_elements()) + sizeof(real) * (alpha.num_elements()
-         + beta.num_elements() + gamma.global.num_elements()
-         + gamma.local.num_elements());
+   const size_t bytes_used =
+         sizeof(bool)
+               * (cached.global.num_elements() + cached.local.num_elements())
+               + sizeof(real)
+                     * (alpha.num_elements() + beta.num_elements()
+                           + gamma.global.num_elements()
+                           + gamma.local.num_elements());
    std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
          << std::endl;
    // revert cerr to original format
@@ -303,8 +340,8 @@ void fba2<receiver_t, sig, real>::allocate()
    size_t entries = 0;
    for (int delta = dmin; delta <= dmax; delta++)
       entries += (1 << (delta + n));
-   std::cerr << "Jiao-Armand Table Size: " << q * entries * sizeof(float)
-         / double(1 << 20) << "MiB" << std::endl;
+   std::cerr << "Jiao-Armand Table Size: "
+         << q * entries * sizeof(float) / double(1 << 20) << "MiB" << std::endl;
 #endif
 
 #if DEBUG>=2
@@ -341,8 +378,8 @@ void fba2<receiver_t, sig, real>::allocate()
 
 /*! \brief Release memory for working matrices
  */
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::free()
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::free()
    {
    alpha.resize(boost::extents[0][0]);
    beta.resize(boost::extents[0][0]);
@@ -356,8 +393,8 @@ void fba2<receiver_t, sig, real>::free()
 
 // helper methods
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::reset_cache() const
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::reset_cache() const
    {
    // initialise array and cache flags
    if (flags.globalstore)
@@ -377,8 +414,8 @@ void fba2<receiver_t, sig, real>::reset_cache() const
 #endif
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::print_gamma(std::ostream& sout) const
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
    {
    // gamma has indices (d,i,x,deltax) where:
    //    d in [0, q-1], i in [0, N-1], x in [-xmax, xmax], and
@@ -401,8 +438,8 @@ void fba2<receiver_t, sig, real>::print_gamma(std::ostream& sout) const
 
 // decode functions
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_gamma(const array1s_t& r,
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_gamma(const array1s_t& r,
       const array1vd_t& app)
    {
    assert(initialised);
@@ -418,25 +455,72 @@ void fba2<receiver_t, sig, real>::work_gamma(const array1s_t& r,
       // reset cache values
       reset_cache();
       }
+   else if (flags.globalstore)
+      {
+      // global pre-computation of gamma values
+      libbase::pacifier progress("FBA Gamma");
+      // compute metric with independent interface
+      for (int i = 0; i < N; i++)
+         {
+         std::cerr << progress.update(i, N);
+         // compute partial result
+         work_gamma_global(r, app, i);
+         }
+      std::cerr << progress.update(N, N);
+#if DEBUG>=3
+      std::cerr << "gamma = " << std::endl;
+      print_gamma(std::cerr);
+#endif
+      }
    else
       {
-      // NOTE: pre-computation with local storage not yet implemented
-      assert(flags.globalstore);
-      // pre-computation
-      if (flags.batch)
-         work_gamma_batch(r, app);
-      else
-         work_gamma_single(r, app);
+      // local pre-computation is integrated with alpha/beta/results computation
+      // keep a copy of received vector and a-priori statistics
+      This::r = r;
+      This::app = app;
       }
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_alpha(const array1d_t& sof_prior)
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior,
+      const int i)
+   {
+   // local flag for path thresholding
+   const bool thresholding = (th_inner > real(0));
+   // determine the strongest path at this point
+   const real threshold = get_threshold(alpha, i - 1, -xmax, xmax, th_inner);
+   for (int x1 = -xmax; x1 <= xmax; x1++)
+      {
+      // cache previous alpha value in a register
+      const real prev_alpha = alpha[i - 1][x1];
+      // ignore paths below a certain threshold
+      if (thresholding && prev_alpha < threshold)
+         continue;
+      // limits on deltax can be combined as (c.f. allocate() for details):
+      //   x2-x1 <= dmax
+      //   x2-x1 >= dmin
+      const int x2min = std::max(-xmax, dmin + x1);
+      const int x2max = std::min(xmax, dmax + x1);
+      for (int x2 = x2min; x2 <= x2max; x2++)
+         {
+         // NOTE: we're repeating the loop on x2, so we need to increment this
+         real this_alpha = alpha[i][x2];
+         for (int d = 0; d < q; d++)
+            {
+            real temp = prev_alpha;
+            temp *= get_gamma(d, i - 1, x1, x2 - x1);
+            this_alpha += temp;
+            }
+         alpha[i][x2] = this_alpha;
+         }
+      }
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
-   // local flag for path thresholding
-   const bool thresholding = (th_inner > real(0));
    // initialise array:
    alpha = real(0);
    // set initial drift distribution
@@ -449,47 +533,66 @@ void fba2<receiver_t, sig, real>::work_alpha(const array1d_t& sof_prior)
    for (int i = 1; i <= N; i++)
       {
       std::cerr << progress.update(i - 1, N);
-      // determine the strongest path at this point
-      const real threshold = get_threshold(alpha, i - 1, -xmax, xmax, th_inner);
-      for (int x1 = -xmax; x1 <= xmax; x1++)
-         {
-         // cache previous alpha value in a register
-         const real prev_alpha = alpha[i - 1][x1];
-         // ignore paths below a certain threshold
-         if (thresholding && prev_alpha < threshold)
-            continue;
-         // limits on deltax can be combined as (c.f. allocate() for details):
-         //   x2-x1 <= dmax
-         //   x2-x1 >= dmin
-         const int x2min = std::max(-xmax, dmin + x1);
-         const int x2max = std::min(xmax, dmax + x1);
-         for (int x2 = x2min; x2 <= x2max; x2++)
-            {
-            // NOTE: we're repeating the loop on x2, so we need to increment this
-            real this_alpha = alpha[i][x2];
-            for (int d = 0; d < q; d++)
-               {
-               real temp = prev_alpha;
-               temp *= get_gamma(d, i - 1, x1, x2 - x1);
-               this_alpha += temp;
-               }
-            alpha[i][x2] = this_alpha;
-            }
-         }
+      // pre-compute local gamma values, if necessary
+      if (!flags.lazy && !flags.globalstore)
+         work_gamma_local(r, app, i - 1);
+      // compute partial result
+      work_alpha(sof_prior, i);
       // normalize if requested
       if (flags.norm)
          normalize_alpha(i);
       }
    std::cerr << progress.update(N, N);
+#if DEBUG>=3
+   std::cerr << "alpha = " << alpha << std::endl;
+   // show after alpha if computing lazily
+   if (flags.globalstore && flags.lazy)
+      {
+      std::cerr << "gamma = " << std::endl;
+      print_gamma(std::cerr);
+      }
+#endif
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_beta(const array1d_t& eof_prior)
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_beta(const array1d_t& eof_prior,
+      const int i)
+   {
+   // local flag for path thresholding
+   const bool thresholding = (th_inner > real(0));
+   // determine the strongest path at this point
+   const real threshold = get_threshold(beta, i + 1, -xmax, xmax, th_inner);
+   for (int x1 = -xmax; x1 <= xmax; x1++)
+      {
+      real this_beta = 0;
+      // limits on deltax can be combined as (c.f. allocate() for details):
+      //   x2-x1 <= dmax
+      //   x2-x1 >= dmin
+      const int x2min = std::max(-xmax, dmin + x1);
+      const int x2max = std::min(xmax, dmax + x1);
+      for (int x2 = x2min; x2 <= x2max; x2++)
+         {
+         // cache next beta value in a register
+         const real next_beta = beta[i + 1][x2];
+         // ignore paths below a certain threshold
+         if (thresholding && next_beta < threshold)
+            continue;
+         for (int d = 0; d < q; d++)
+            {
+            real temp = next_beta;
+            temp *= get_gamma(d, i, x1, x2 - x1);
+            this_beta += temp;
+            }
+         }
+      beta[i][x1] = this_beta;
+      }
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_beta(const array1d_t& eof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Beta");
-   // local flag for path thresholding
-   const bool thresholding = (th_inner > real(0));
    // initialise array:
    // NOTE: technically we should not need to do this, as we're initializing
    //       this_beta for every value
@@ -504,41 +607,23 @@ void fba2<receiver_t, sig, real>::work_beta(const array1d_t& eof_prior)
    for (int i = N - 1; i >= 0; i--)
       {
       std::cerr << progress.update(N - 1 - i, N);
-      // determine the strongest path at this point
-      const real threshold = get_threshold(beta, i + 1, -xmax, xmax, th_inner);
-      for (int x1 = -xmax; x1 <= xmax; x1++)
-         {
-         real this_beta = 0;
-         // limits on deltax can be combined as (c.f. allocate() for details):
-         //   x2-x1 <= dmax
-         //   x2-x1 >= dmin
-         const int x2min = std::max(-xmax, dmin + x1);
-         const int x2max = std::min(xmax, dmax + x1);
-         for (int x2 = x2min; x2 <= x2max; x2++)
-            {
-            // cache next beta value in a register
-            const real next_beta = beta[i + 1][x2];
-            // ignore paths below a certain threshold
-            if (thresholding && next_beta < threshold)
-               continue;
-            for (int d = 0; d < q; d++)
-               {
-               real temp = next_beta;
-               temp *= get_gamma(d, i, x1, x2 - x1);
-               this_beta += temp;
-               }
-            }
-         beta[i][x1] = this_beta;
-         }
+      // pre-compute local gamma values, if necessary
+      if (!flags.lazy && !flags.globalstore)
+         work_gamma_local(r, app, i);
+      // compute partial result
+      work_beta(eof_prior, i);
       // normalize if requested
       if (flags.norm)
          normalize_beta(i);
       }
    std::cerr << progress.update(N, N);
+#if DEBUG>=3
+   std::cerr << "beta = " << beta << std::endl;
+#endif
    }
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::work_results(array1vr_t& ptable,
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_results(array1vr_t& ptable,
       array1r_t& sof_post, array1r_t& eof_post) const
    {
    assert(initialised);
@@ -547,21 +632,29 @@ void fba2<receiver_t, sig, real>::work_results(array1vr_t& ptable,
    // compute APPs of sof/eof state values
    work_state_app(sof_post, 0);
    work_state_app(eof_post, N);
+#if DEBUG>=3
+   // show output data
+   std::cerr << "ptable = " << ptable << std::endl;
+   std::cerr << "sof_post = " << sof_post << std::endl;
+   std::cerr << "eof_post = " << eof_post << std::endl;
+#endif
    }
 
 // User procedures
 
 // Initialization
 
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::init(int N, int n, int q, int I, int xmax,
-      int dxmax, double th_inner, double th_outer, bool norm, bool batch,
-      bool lazy, bool globalstore)
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::init(int N, int n, int q, int I,
+      int xmax, int dxmax, double th_inner, double th_outer, bool norm,
+      bool batch, bool lazy, bool globalstore)
    {
    // if any parameters that effect memory have changed, release memory
-   if (initialised && (N != This::N || n != This::n || q != This::q || I
-         != This::I || xmax != This::xmax || dxmax != This::dxmax || lazy
-         != This::flags.lazy || globalstore != This::flags.globalstore))
+   if (initialised
+         && (N != This::N || n != This::n || q != This::q || I != This::I
+               || xmax != This::xmax || dxmax != This::dxmax
+               || lazy != This::flags.lazy
+               || globalstore != This::flags.globalstore))
       free();
    // code parameters
    assert(N > 0);
@@ -583,7 +676,6 @@ void fba2<receiver_t, sig, real>::init(int N, int n, int q, int I, int xmax,
    This::th_inner = real(th_inner);
    This::th_outer = real(th_outer);
    // decoding mode parameters
-   assertalways(lazy || globalstore); // pre-compute without global storage not yet supported
    This::flags.norm = norm;
    This::flags.batch = batch;
    This::flags.lazy = lazy;
@@ -617,11 +709,12 @@ void fba2<receiver_t, sig, real>::init(int N, int n, int q, int I, int xmax,
  *
  * \note Offset is the same as for stream_modulator.
  */
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
-      const array1s_t& r, const array1d_t& sof_prior,
-      const array1d_t& eof_prior, const array1vd_t& app, array1vr_t& ptable,
-      array1r_t& sof_post, array1r_t& eof_post, const int offset)
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::decode(
+      libcomm::instrumented& collector, const array1s_t& r,
+      const array1d_t& sof_prior, const array1d_t& eof_prior,
+      const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
+      array1r_t& eof_post, const int offset)
    {
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
@@ -657,37 +750,18 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
    libbase::cputimer tg("t_gamma");
    work_gamma(r, app);
    collector.add_timer(tg);
-#if DEBUG>=3
-   if (!flags.lazy && flags.globalstore)
-      {
-      std::cerr << "gamma = " << std::endl;
-      print_gamma(std::cerr);
-      }
-#endif
    // Alpha
    libbase::cputimer ta("t_alpha");
    work_alpha(sof_prior);
    collector.add_timer(ta);
-#if DEBUG>=3
-   std::cerr << "alpha = " << alpha << std::endl;
-#endif
    // Beta
    libbase::cputimer tb("t_beta");
    work_beta(eof_prior);
    collector.add_timer(tb);
-#if DEBUG>=3
-   std::cerr << "beta = " << beta << std::endl;
-#endif
    // Compute results
    libbase::cputimer tr("t_results");
    work_results(ptable, sof_post, eof_post);
    collector.add_timer(tr);
-#if DEBUG>=3
-   // show output data
-   std::cerr << "ptable = " << ptable << std::endl;
-   std::cerr << "sof_post = " << sof_post << std::endl;
-   std::cerr << "eof_post = " << eof_post << std::endl;
-#endif
 
    // Add values for limits that depend on channel conditions
    collector.add_timer(I, "c_I");
@@ -708,8 +782,9 @@ void fba2<receiver_t, sig, real>::decode(libcomm::instrumented& collector,
  * This method must be called after a call to decode(), so that it can return
  * posteriors for the last transmitted frame.
  */
-template <class receiver_t, class sig, class real>
-void fba2<receiver_t, sig, real>::get_drift_pdf(array1vr_t& pdftable) const
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::get_drift_pdf(
+      array1vr_t& pdftable) const
    {
    assert(initialised);
    // allocate space for results
@@ -723,7 +798,6 @@ void fba2<receiver_t, sig, real>::get_drift_pdf(array1vr_t& pdftable) const
 
 #include "gf.h"
 #include "logrealfast.h"
-#include "modem/dminner2-receiver.h"
 #include "modem/tvb-receiver.h"
 
 namespace libcomm {
@@ -740,15 +814,13 @@ using libbase::logrealfast;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
+#define SYMBOL_TYPE_SEQ \
+   (bool) \
+   GF_TYPE_SEQ
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
-
-// *** Instantiations for dminner2: bool only ***
-
-#define INSTANTIATE_DM(r, x, type) \
-      template class fba2<dminner2_receiver<type> , bool, type> ;
-
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_DM, x, REAL_TYPE_SEQ)
+#define REAL2_TYPE_SEQ \
+   (float)(double)
 
 // *** Instantiations for tvb: gf types only ***
 
@@ -756,6 +828,7 @@ BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_DM, x, REAL_TYPE_SEQ)
       template class fba2<tvb_receiver<BOOST_PP_SEQ_ENUM(args)> , \
          BOOST_PP_SEQ_ENUM(args)> ;
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE_TVB, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE_TVB,
+      (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

@@ -27,7 +27,6 @@
 
 #include "config.h"
 #include "repacc.h"
-#include "codec_softout_flattened.h"
 
 namespace libcomm {
 
@@ -45,11 +44,11 @@ namespace libcomm {
  */
 
 template <class real, class dbl = double>
-class sysrepacc : public codec_softout_flattened<repacc<real, dbl> , dbl> {
+class sysrepacc : public repacc<real, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef sysrepacc<real, dbl> This;
-   typedef codec_softout_flattened<repacc<real, dbl> , dbl> Base;
+   typedef repacc<real, dbl> Base;
    typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */

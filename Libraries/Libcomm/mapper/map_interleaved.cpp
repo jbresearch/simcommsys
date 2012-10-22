@@ -28,47 +28,55 @@
 
 namespace libcomm {
 
-// Interface with mapper
+/*** Vector Specialization ***/
 
-template <template <class > class C, class dbl>
-void map_interleaved<C, dbl>::advance() const
+// Interface with mapper
+template <class dbl>
+void map_interleaved<libbase::vector, dbl>::advance() const
    {
    lut.init(This::output_block_size(), r);
    }
 
-template <template <class > class C, class dbl>
-void map_interleaved<C, dbl>::dotransform(const C<int>& in, C<int>& out) const
+template <class dbl>
+void map_interleaved<libbase::vector, dbl>::dotransform(const array1i_t& in,
+      array1i_t& out) const
    {
-   // do the base (straight) mapping into a temporary space
-   C<int> s;
-   Base::dotransform(in, s);
-   // final vector is the same size as straight-mapped one
-   out.init(s.size());
+   assert(in.size() == lut.size());
+   // final vector is the same size as input one
+   out.init(lut.size());
    // shuffle the results
-   assert(out.size() == lut.size());
-   for (int i = 0; i < out.size(); i++)
-      out(lut(i)) = s(i);
+   for (int i = 0; i < lut.size(); i++)
+      out(lut(i)) = in(i);
    }
 
-template <template <class > class C, class dbl>
-void map_interleaved<C, dbl>::doinverse(const C<array1d_t>& pin,
-      C<array1d_t>& pout) const
+template <class dbl>
+void map_interleaved<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+      array1vd_t& pout) const
    {
    assert(pin.size() == lut.size());
-   // temporary matrix is the same size as input
-   C<array1d_t> ptable;
-   ptable.init(lut.size());
+   // final matrix is the same size as input
+   pout.init(lut.size());
+   // shuffle the likelihood tables
+   for (int i = 0; i < lut.size(); i++)
+      pout(lut(i)) = pin(i);
+   }
+
+template <class dbl>
+void map_interleaved<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+      array1vd_t& pout) const
+   {
+   assert(pin.size() == lut.size());
+   // final matrix is the same size as input
+   pout.init(lut.size());
    // invert the shuffling
    for (int i = 0; i < lut.size(); i++)
-      ptable(i) = pin(lut(i));
-   // do the base (straight) mapping
-   Base::doinverse(ptable, pout);
+      pout(i) = pin(lut(i));
    }
 
 // Description
 
-template <template <class > class C, class dbl>
-std::string map_interleaved<C, dbl>::description() const
+template <class dbl>
+std::string map_interleaved<libbase::vector, dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Interleaved Mapper";
@@ -77,17 +85,17 @@ std::string map_interleaved<C, dbl>::description() const
 
 // Serialization Support
 
-template <template <class > class C, class dbl>
-std::ostream& map_interleaved<C, dbl>::serialize(std::ostream& sout) const
+template <class dbl>
+std::ostream& map_interleaved<libbase::vector, dbl>::serialize(
+      std::ostream& sout) const
    {
-   Base::serialize(sout);
    return sout;
    }
 
-template <template <class > class C, class dbl>
-std::istream& map_interleaved<C, dbl>::serialize(std::istream& sin)
+template <class dbl>
+std::istream& map_interleaved<libbase::vector, dbl>::serialize(
+      std::istream& sin)
    {
-   Base::serialize(sin);
    return sin;
    }
 

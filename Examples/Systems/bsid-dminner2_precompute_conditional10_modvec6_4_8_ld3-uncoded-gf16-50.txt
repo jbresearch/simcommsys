@@ -36,9 +36,11 @@ tvb<bool,double,float>
 # Use batch receiver computation?
 1
 # Lazy computation of gamma?
-1
-# Storage mode for gamma (0=local, 1=global, 2=conditional)
 0
+# Storage mode for gamma (0=local, 1=global, 2=conditional)
+2
+#: Memory threshold for global storage (in MiB)
+10
 # Number of codewords to look ahead when stream decoding
 0
 # n

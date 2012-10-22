@@ -34,14 +34,26 @@
  */
 
 #include "cuda-all.h"
+#include "gf.h"
 
 namespace cuda {
 
-// explicit instantiations
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
-template class vector<bool> ;
-template class vector<int> ;
-template class vector<float> ;
-template class vector<double> ;
+#define USING_GF(r, x, type) \
+      using libbase::type;
+
+BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define TYPE_SEQ \
+   (bool)(int)(float)(double) \
+   GF_TYPE_SEQ
+
+#define INSTANTIATE(r, x, type) \
+      template class vector<type>;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, TYPE_SEQ)
 
 } // end namespace

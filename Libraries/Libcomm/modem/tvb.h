@@ -37,8 +37,7 @@
 #include <cmath>
 #include <memory>
 
-//#ifdef USE_CUDA
-#if 0
+#ifdef USE_CUDA
 #  include "algorithm/fba2-cuda.h"
 #  include "tvb-receiver-cuda.h"
 #else
@@ -61,14 +60,18 @@ namespace libcomm {
  * synchronization-correcting codes. The algorithm is described in
  * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
  * Correcting Codes", Submitted to Trans. IT, 2011.
+ *
+ * \tparam sig Channel symbol type
+ * \tparam real Floating-point type for internal computation
+ * \tparam real2 Floating-point type for receiver metric computation
  */
 
-template <class sig, class real>
+template <class sig, class real, class real2>
 class tvb : public stream_modulator<sig> , public parametric {
 private:
    // Shorthand for class hierarchy
    typedef stream_modulator<sig> Interface;
-   typedef tvb<sig, real> This;
+   typedef tvb<sig, real, real2> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -93,6 +96,12 @@ public:
       marker_user_random, //!< randomly-applied user sequence
       marker_undefined
    };
+   enum storage_t {
+      storage_local = 0, //!< always use local storage
+      storage_global, //!< always use global storage
+      storage_conditional, //!< use global storage below memory limit
+      storage_undefined
+   };
    // @}
 private:
    /*! \name User-defined parameters */
@@ -109,19 +118,19 @@ private:
       bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
       bool batch; //!< Flag indicating use of batch receiver interface
       bool lazy; //!< Flag indicating lazy computation of gamma metric
-      bool globalstore; //!< Flag indicating we will try to cache lazily computed gamma values
    } flags;
+   storage_t storage_type; //!< enum indicating storage mode for gamma metric
+   int globalstore_limit; //!< fba memory threshold in MiB for global storage, if applicable
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
-   qids<sig> mychan; //!< bound channel object
+   qids<sig,real2> mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
-   //#ifdef USE_CUDA
-#if 0
-   cuda::fba2<cuda::tvb_receiver<sig, real>, sig, real> fba; //!< algorithm object
+#ifdef USE_CUDA
+   cuda::fba2<cuda::tvb_receiver<sig, real, real2>, sig, real, real2> fba; //!< algorithm object
 #else
-   fba2<tvb_receiver<sig, real> , sig, real> fba; //!< algorithm object
+   fba2<tvb_receiver<sig, real, real2> , sig, real, real2> fba; //!< algorithm object
 #endif
    // @}
 private:
@@ -195,6 +204,7 @@ private:
    void validatecodebook() const;
    // Other utilities
    void checkforchanges(int I, int xmax) const;
+   void checkforchanges(bool globalstore, int required) const;
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -208,8 +218,6 @@ public:
    // @}
 
    /*! \name Marker-specific setup functions */
-   void set_marker(const array1vs_t& marker_s);
-   void set_codebook(const array1vs_t& codebook_s);
    void set_thresholds(const real th_inner, const real th_outer);
    void set_parameter(const double x)
       {
@@ -255,7 +263,7 @@ public:
    // Informative functions
    int num_symbols() const
       {
-      return int(pow(sig::elements(), k));
+      return int(pow(field_utils<sig>::elements(), k));
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {

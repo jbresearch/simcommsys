@@ -41,10 +41,10 @@ namespace libcomm {
 // Communication System Interface
 
 /*! \brief Advance the stream, skipping over last decoded frame
- * \parameter[in] recevied      The received stream (to be updated)
- * \parameter[in] oldoffset     The offset value that applied for the last decoding
- * \parameter[in] drift         The estimated drift at the end of decoded frame
- * \parameter[in] newoffset     The offset value that applies for the next decoding
+ * \param[in] recevied      The received stream (to be updated)
+ * \param[in] oldoffset     The offset value that applied for the last decoding
+ * \param[in] drift         The estimated drift at the end of decoded frame
+ * \param[in] newoffset     The offset value that applies for the next decoding
  *
  * This method initializes the received stream, if empty, by the new offset.
  * Otherwise, it will skip over all material from the last decoding that is

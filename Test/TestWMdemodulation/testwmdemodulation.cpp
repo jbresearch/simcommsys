@@ -25,8 +25,7 @@
 #include "cputimer.h"
 #include "randgen.h"
 #include "modem/dminner.h"
-#include "modem/dminner2.h"
-#include "channel/bsid.h"
+#include "modem/tvb.h"
 
 #include <memory>
 #include <iostream>
@@ -44,7 +43,6 @@ using libbase::matrix;
 using libcomm::blockmodem;
 using libcomm::channel;
 using libcomm::dminner;
-using libcomm::dminner2;
 
 typedef std::auto_ptr<blockmodem<bool> > modem_ptr;
 typedef std::auto_ptr<channel<bool> > channel_ptr;
@@ -61,16 +59,16 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
       if (math)
          {
          if (deep)
-            mdm = modem_ptr(new dminner2<float> (n, k, th_inner, th_outer));
+            mdm = modem_ptr(new libcomm::tvb<bool,float,float> (n, k, th_inner, th_outer));
          else
-            mdm = modem_ptr(new dminner2<float> (n, k));
+            mdm = modem_ptr(new libcomm::tvb<bool,float,float> (n, k));
          }
       else
          {
          if (deep)
-            mdm = modem_ptr(new dminner2<double> (n, k, th_inner, th_outer));
+            mdm = modem_ptr(new libcomm::tvb<bool,double,float> (n, k, th_inner, th_outer));
          else
-            mdm = modem_ptr(new dminner2<double> (n, k));
+            mdm = modem_ptr(new libcomm::tvb<bool,double,float> (n, k));
          }
       }
    else
@@ -97,7 +95,7 @@ modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
 
 channel_ptr create_channel(double Pe, libbase::random& r)
    {
-   channel_ptr chan = channel_ptr(new libcomm::bsid);
+   channel_ptr chan = channel_ptr(new libcomm::qids<bool,float>);
    chan->seedfrom(r);
    chan->set_parameter(Pe);
    return chan;

@@ -25,12 +25,12 @@
 #ifndef __map_stipple_h
 #define __map_stipple_h
 
-#include "map_straight.h"
+#include "mapper.h"
 
 namespace libcomm {
 
 /*!
- * \brief   Stipple Mapper.
+ * \brief   Stipple Mapper - Template base.
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -38,29 +38,42 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * This class defines an punctured version of the straight mapper, suitable
- * for turbo codes, where:
- * - all information symbols are transmitted
- * - parity symbols are taken from successive sets to result in an overall
- * rate of 1/2
- * For a two-set turbo code, this corresponds to odd/even puncturing.
- *
- * \note This supersedes the puncture_stipple class; observe though that the
- * number of sets here corresponds to the definition used in the turbo
- * code, and is one less than that for puncture_stipple.
- *
- * \bug This is really only properly defined for vector containers.
+ * This class is a template definition for stipple mappers; this needs to
+ * be specialized for actual use. Template parameter defaults are provided
+ * here.
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class map_stipple : public map_straight<C, dbl> {
+class map_stipple : public mapper<C, dbl> {
+};
+
+/*!
+ * \brief   Stipple Mapper - Vector containers.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ * This class defines a punctured mapper suitable for turbo codes, where:
+ * - all information symbols are transmitted
+ * - parity symbols are taken from successive sets
+ * This results in an overall rate of 1/2
+ * For a two-set turbo code, this corresponds to odd/even puncturing.
+ */
+
+template <class dbl>
+class map_stipple<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
-   typedef map_straight<C, dbl> Base;
-   typedef map_stipple<C, dbl> This;
+   typedef mapper<libbase::vector, dbl> Base;
+   typedef map_stipple<libbase::vector, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
 private:
@@ -68,37 +81,33 @@ private:
    int sets; //!< Number of turbo code parallel sets
    // @}
    /*! \name Internal object representation */
-   mutable C<bool> pattern; //!< Pre-computed puncturing pattern
+   mutable libbase::vector<bool> pattern; //!< Pre-computed puncturing pattern
    // @}
 
 protected:
    // Pull in base class variables
    using Base::size;
+   using Base::N;
    using Base::M;
 
 protected:
    // Interface with mapper
    void advance() const;
-   void dotransform(const C<int>& in, C<int>& out) const;
-   void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
+   void dotransform(const array1i_t& in, array1i_t& out) const;
+   void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
+   void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
 
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~map_stipple()
-      {
-      }
-   // @}
-
    // Informative functions
    double rate() const
       {
       return (sets + 1) / 2.0;
       }
-   libbase::size_type<C> output_block_size() const
+   libbase::size_type<libbase::vector> output_block_size() const
       {
       const int tau = size.length() / (sets + 1);
       assert(size.length() == tau * (sets + 1));
-      return libbase::size_type<C>(tau * 2);
+      return libbase::size_type<libbase::vector>(tau * 2);
       }
 
    // Description

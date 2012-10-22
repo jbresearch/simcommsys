@@ -315,56 +315,6 @@ void dminner<real>::init()
 
 // Marker-specific setup functions
 
-/*!
- * \copydoc set_marker()
- * \todo Consider moving this method to the dminner2d class
- */
-template <class real>
-void dminner<real>::set_marker(libbase::vector<bool> marker)
-   {
-   assertalways((marker.size() % n) == 0);
-   // init space for converted vector
-   libbase::vector<libbase::bitfield> marker_b(marker.size() / n);
-   // convert marker sequence
-   for (int i = 0; i < marker_b.size(); i++)
-      marker_b(i) = libbase::bitfield(marker.extract(i * n, n));
-   // pass through the standard method for setting marker sequence
-   set_marker(marker_b);
-   }
-
-/*!
- * \brief Overrides the internally-generated marker sequence with given one
- * 
- * The intent of this method is to allow users to apply the dminner decoder
- * in derived algorithms, such as the 2D extension.
- * 
- * \todo merge with copymarker()
- */
-template <class real>
-void dminner<real>::set_marker(libbase::vector<libbase::bitfield> marker)
-   {
-   copymarker(marker);
-   }
-
-/*!
- * \brief Overrides the codebook with given one
- * 
- * The intent of this method is to allow users to apply the dminner decoder
- * in derived algorithms, such as the 2D extension.
- */
-template <class real>
-void dminner<real>::set_codebook(libbase::vector<libbase::bitfield> codebook_b)
-   {
-   // allocate memory and copy read codebook
-   codebook.init(1, num_symbols());
-   copycodebook(0, codebook_b);
-   // update codebook-dependent values
-   computemeandensity();
-#if DEBUG>=2
-   showcodebook(libbase::trace);
-#endif
-   }
-
 template <class real>
 void dminner<real>::set_thresholds(const real th_inner, const real th_outer)
    {
@@ -462,7 +412,7 @@ void dminner<real>::dodemodulate(const channel<bool>& chan,
    const int tau = N * n;
    assert(N > 0);
    // Copy channel for access within R()
-   mychan = dynamic_cast<const bsid&> (chan);
+   mychan = dynamic_cast<const qids<bool,float>&> (chan);
    // Update substitution probability to take into account codeword addition
    const double Ps = mychan.get_ps();
    mychan.set_ps(Ps * (1 - f) + (1 - Ps) * f);

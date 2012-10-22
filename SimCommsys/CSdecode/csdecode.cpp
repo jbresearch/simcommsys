@@ -174,28 +174,10 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    system->compute_priors(eof_post, lookahead, sof_prior, eof_prior, offset);
 
    // Extract required segment of existing stream
-   libbase::vector<S> received_prev;
-   if (received.size() == 0)
-      {
-      received_prev.init(offset);
-      received_prev = 0; // value is irrelevant as this is not used
-      }
-   else
-      {
-      const int start = tau + estimated_drift + oldoffset - offset;
-      const int length = received.size() - start;
-      received_prev = received.extract(start, length);
-      }
-   // Tell user what we're doing
-#ifndef NDEBUG
-   std::cerr << "DEBUG: est drift = " << estimated_drift << std::endl;
-   std::cerr << "DEBUG: old offset = " << oldoffset << std::endl;
-   std::cerr << "DEBUG: new offset = " << offset << std::endl;
-   std::cerr << "DEBUG: prev segment = " << received_prev.size() << std::endl;
-#endif
+   system->stream_advance(received, oldoffset, estimated_drift, offset);
    // Determine required segment size
-   const int length = (tau + lookahead + eof_prior.size() - 1)
-         - received_prev.size();
+   const int length = tau + lookahead + eof_prior.size() - 1
+         - received.size();
 #ifndef NDEBUG
    std::cerr << "DEBUG: this segment = " << length << std::endl;
 #endif
@@ -203,7 +185,7 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    libbase::vector<S> received_next;
    read(sin, received_next, libbase::size_type<libbase::vector>(length));
    // Assemble received sequence
-   received = concatenate(received_prev, received_next);
+   received = concatenate(received, received_next);
    // Stop here if the received sequence is too short
    if (received.size() < tau)
       {

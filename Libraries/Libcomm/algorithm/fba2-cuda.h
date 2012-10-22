@@ -31,7 +31,6 @@
 #include "fsm.h"
 #include "cuda-all.h"
 #include "instrumented.h"
-#include "channel/bsid.h"
 
 #include <cmath>
 #include <iostream>
@@ -59,15 +58,21 @@ namespace cuda {
  * - $Author$
  *
  * Implements the forward-backward algorithm for a HMM, as required for the
- * new decoder for Davey & McKay's inner codes, originally introduced in
- * "Watermark Codes: Reliable communication over Insertion/Deletion channels",
- * Trans. IT, 47(2), Feb 2001.
+ * MAP decoding algorithm for a generalized class of synchronization-correcting
+ * codes described in
+ * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
+ * Correcting Codes", Submitted to Trans. IT, 2011.
  *
  * \warning Do not use shorthand for class hierarchy, as these are not
  * interpreted properly by NVCC.
+ *
+ * \tparam receiver_t Type for receiver metric computer
+ * \tparam sig Channel symbol type
+ * \tparam real Floating-point type for internal computation
+ * \tparam real2 Floating-point type for receiver metric computation
  */
 
-template <class receiver_t, class sig, class real>
+template <class receiver_t, class sig, class real, class real2>
 class fba2 {
 public:
    // forward definition
@@ -79,14 +84,14 @@ public:
    typedef cuda::vector<real> dev_array1r_t;
    typedef cuda::matrix<real> dev_array2r_t;
    typedef cuda::matrix<bool> dev_array2b_t;
-   typedef cuda::value<fba2<receiver_t, sig, real>::metric_computer>
+   typedef cuda::value<fba2<receiver_t, sig, real, real2>::metric_computer>
          dev_object_t;
    // Device-based types - references
    typedef cuda::vector_reference<sig> dev_array1s_ref_t;
    typedef cuda::vector_reference<real> dev_array1r_ref_t;
    typedef cuda::matrix_reference<real> dev_array2r_ref_t;
    typedef cuda::matrix_reference<bool> dev_array2b_ref_t;
-   typedef cuda::value_reference<fba2<receiver_t, sig, real>::metric_computer>
+   typedef cuda::value_reference<fba2<receiver_t, sig, real, real2>::metric_computer>
          dev_object_ref_t;
    // Host-based types
    typedef libbase::vector<sig> array1s_t;
@@ -130,6 +135,9 @@ public:
          bool lazy; //!< Flag indicating lazy computation of gamma metric
          bool globalstore; //!< Flag indicating global pre-computation or caching of gamma values
       } flags;
+      // @}
+      /*! \name Hardwired parameters */
+      static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
       // @}
    public:
       /*! \name Internal functions - computer */
@@ -183,7 +191,7 @@ public:
          }
       //! Compute gamma metric using batch receiver interface
       __device__
-      void compute_gamma_batch(int d, int i, int x, vector_reference<libcomm::bsid::real>& ptable,
+      void compute_gamma_batch(int d, int i, int x, vector_reference<real2>& ptable,
             const dev_array1s_ref_t& r, const dev_array2r_ref_t& app) const
          {
          // determine received segment to extract
@@ -208,9 +216,9 @@ public:
          // a recomputation every time, degrading performance to the 'single'
          // interface.
          // space for results
-         libcomm::bsid::real ptable_data[libcomm::bsid::metric_computer::arraysize];
-         cuda_assertalways(libcomm::bsid::metric_computer::arraysize >= 2 * dxmax + 1);
-         cuda::vector_reference<libcomm::bsid::real> ptable(ptable_data, 2 * dxmax + 1);
+         real2 ptable_data[arraysize];
+         cuda_assertalways(arraysize >= 2 * dxmax + 1);
+         cuda::vector_reference<real2> ptable(ptable_data, 2 * dxmax + 1);
          // recompute and store every time
          compute_gamma_batch(d, i, x, ptable, r, app);
          // return stored result
@@ -221,9 +229,9 @@ public:
       void fill_gamma_cache_batch(int i, int x) const
          {
          // allocate space for results
-         libcomm::bsid::real ptable_data[libcomm::bsid::metric_computer::arraysize];
-         cuda_assertalways(libcomm::bsid::metric_computer::arraysize >= 2 * dxmax + 1);
-         cuda::vector_reference<libcomm::bsid::real> ptable(ptable_data, 2 * dxmax + 1);
+         real2 ptable_data[arraysize];
+         cuda_assertalways(arraysize >= 2 * dxmax + 1);
+         cuda::vector_reference<real2> ptable(ptable_data, 2 * dxmax + 1);
          // get symbol value from thread index
          const int d = threadIdx.x;
          // compute metric with batch interface
@@ -389,6 +397,18 @@ public:
          double th_outer, bool norm, bool batch, bool lazy, bool globalstore);
 
    /*! \name Parameter getters */
+   //! Determine memory required for global storage mode (in MiB)
+   static int get_memory_required(int N, int n, int q, int I, int xmax,
+         int dxmax)
+      {
+      // determine allowed limits on deltax: see allocate() for documentation
+      const int dmin = std::max(-n, -dxmax);
+      const int dmax = std::min(n * I, dxmax);
+      // determine memory required
+      const libbase::int64s bytes_required = sizeof(real)
+            * (q * N * (2 * xmax + 1) * (dmax - dmin + 1));
+      return int(bytes_required >> 20);
+      }
    //! Access metric computation
    receiver_t& get_receiver() const
       {

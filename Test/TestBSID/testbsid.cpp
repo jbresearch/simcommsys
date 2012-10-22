@@ -24,7 +24,7 @@
 
 #include "logrealfast.h"
 #include "modem/dminner.h"
-#include "channel/bsid.h"
+#include "channel/qids.h"
 #include "randgen.h"
 #include "rvstatistics.h"
 #include "itfunc.h"
@@ -40,7 +40,6 @@ using std::cout;
 using std::cerr;
 using libbase::vector;
 using libbase::randgen;
-using libcomm::bsid;
 using libcomm::sigspace;
 namespace po = boost::program_options;
 
@@ -60,14 +59,14 @@ void visualtest()
    randgen prng;
    prng.seed(0);
    // channel1 is a substitution-only channel
-   bsid channel1(tau);
+   libcomm::qids<bool, float> channel1(tau);
    channel1.seedfrom(prng);
    channel1.set_parameter(p);
    channel1.set_ps(0.3);
    channel1.transmit(tx, rx1);
    cout << "Rx1: " << rx1 << std::endl;
    // channel1 is an insdel-only channel
-   bsid channel2(tau);
+   libcomm::qids<bool, float> channel2(tau);
    channel2.seedfrom(prng);
    channel2.set_parameter(p);
    channel2.set_pi(0.3);
@@ -79,7 +78,7 @@ void visualtest()
 void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
    {
    // define channel according to specifications
-   bsid channel(sub, del, ins);
+   libcomm::qids<bool, float> channel(sub, del, ins);
    randgen prng;
    prng.seed(0);
    channel.seedfrom(prng);
@@ -138,7 +137,7 @@ void testtransmission(int tau, double p, bool ins, bool del, bool sub, bool src)
 double estimate_drift_sd(int tau, double Pi, double Pd)
    {
    // define channel according to specifications
-   bsid channel;
+   libcomm::qids<bool, float> channel;
    randgen prng;
    prng.seed(0);
    channel.seedfrom(prng);
@@ -161,8 +160,9 @@ double estimate_drift_sd(int tau, double Pi, double Pd)
 
 int estimate_xmax(int tau, double Pi, double Pd)
    {
+   typedef libcomm::qids<bool, float>::metric_computer metric_computer;
    // determine required multiplier
-   const double factor = libbase::Qinv(bsid::metric_computer::Pr / 2.0);
+   const double factor = libbase::Qinv(metric_computer::Pr / 2.0);
    // main computation
    int xmax = int(ceil(factor * estimate_drift_sd(tau, Pi, Pd)));
    // return result
@@ -171,20 +171,21 @@ int estimate_xmax(int tau, double Pi, double Pd)
 
 void compute_parameters(int tau, double p, bool ins, bool del, bool sim)
    {
+   typedef libcomm::qids<bool, float>::metric_computer metric_computer;
    const double Pi = ins ? p : 0;
    const double Pd = del ? p : 0;
    cout << p;
-   const int I = bsid::metric_computer::compute_I(tau, Pi, 0);
+   const int I = metric_computer::compute_I(tau, Pi, 0);
    cout << "\t" << I;
-   const int xmax_auto = bsid::metric_computer::compute_xmax(tau, Pi, Pd);
+   const int xmax_auto = metric_computer::compute_xmax(tau, Pi, Pd);
    cout << "\t" << xmax_auto;
-   const int xmax_davey = bsid::metric_computer::compute_xmax_with(
-         &bsid::metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
+   const int xmax_davey = metric_computer::compute_xmax_with(
+         &metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
    cout << "\t" << xmax_davey;
    try
       {
-      const int xmax_exact = bsid::metric_computer::compute_xmax_with(
-            &bsid::metric_computer::compute_drift_prob_exact, tau, Pi, Pd);
+      const int xmax_exact = metric_computer::compute_xmax_with(
+            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd);
       cout << "\t" << xmax_exact;
       }
    catch (std::exception& e)

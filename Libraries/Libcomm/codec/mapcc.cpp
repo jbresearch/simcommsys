@@ -105,10 +105,9 @@ void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
 
    // Set up mapper
    map_straight<libbase::vector, dbl> map;
-   const int N = BCJR::num_input_symbols(); // # enc outputs
-   const int M = This::num_inputs(); // # mod symbols
-   const int S = BCJR::num_input_symbols(); // # tran symbols
-   map.set_parameters(N, M, S);
+   const int N = BCJR::num_input_symbols(); // codec output alphabet
+   const int M = This::num_inputs(); // blockmodem input alphabet
+   map.set_parameters(N, M);
    map.set_blocksize(BCJR::block_size());
    // Convert to a temporary space
    array1vd_t ptable_bcjr;
@@ -124,7 +123,7 @@ void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
 template <class real, class dbl>
 void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
    {
-   // Encoder symbol space must be the same as modulation symbol space
+   // Confirm input alphabet size same as encoded alphabet
    assertalways(ptable.size() > 0);
    assertalways(ptable(0).size() == This::num_outputs());
    // Confirm input sequence to be of the correct length

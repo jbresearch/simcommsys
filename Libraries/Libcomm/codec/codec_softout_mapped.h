@@ -22,8 +22,8 @@
  * - $Id$
  */
 
-#ifndef __codec_softout_flattened_h
-#define __codec_softout_flattened_h
+#ifndef __codec_softout_mapped_h
+#define __codec_softout_mapped_h
 
 #include "config.h"
 #include "mapper/map_straight.h"
@@ -55,11 +55,11 @@ namespace libcomm {
  */
 
 template <class base_codec_softout, class dbl = double>
-class codec_softout_flattened : public base_codec_softout {
+class codec_softout_mapped : public base_codec_softout {
 private:
    // Shorthand for class hierarchy
    typedef base_codec_softout Base;
-   typedef codec_softout_flattened<base_codec_softout, dbl> This;
+   typedef codec_softout_mapped<base_codec_softout, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -73,7 +73,7 @@ private:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   ~codec_softout_flattened()
+   ~codec_softout_mapped()
       {
       }
    // @}
@@ -110,27 +110,25 @@ public:
 
 template <class base_codec_softout, class dbl>
 template <class D>
-void codec_softout_flattened<base_codec_softout, dbl>::init(mapper<
+void codec_softout_mapped<base_codec_softout, dbl>::init(mapper<
       libbase::vector, D>& map) const
    {
    // Set up mapper
-   const int N = Base::num_outputs(); // # enc outputs
-   const int M = This::num_outputs(); // # mod symbols
-   const int S = Base::num_outputs(); // # tran symbols
-   map.set_parameters(N, M, S);
+   const int N = Base::num_outputs(); // codec output alphabet
+   const int M = This::num_outputs(); // blockmodem input alphabet
+   map.set_parameters(N, M);
    map.set_blocksize(Base::output_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG: mapper setup from "
    << map.input_block_size() << "x" << N << " to "
-   << map.output_block_size() << "x" << M << " to "
-   << map.input_block_size() << "x" << S << " symbols" << std::endl;
+   << map.output_block_size() << "x" << M << " symbols" << std::endl;
 #endif
    }
 
 // Codec operations
 
 template <class base_codec_softout, class dbl>
-void codec_softout_flattened<base_codec_softout, dbl>::encode(
+void codec_softout_mapped<base_codec_softout, dbl>::encode(
       const array1i_t& source, array1i_t& encoded)
    {
    map_straight<libbase::vector, dbl> map;
@@ -150,7 +148,7 @@ void codec_softout_flattened<base_codec_softout, dbl>::encode(
    }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_flattened<base_codec_softout, dbl>::init_decoder(
+void codec_softout_mapped<base_codec_softout, dbl>::init_decoder(
       const array1vd_t& ptable)
    {
    map_straight<libbase::vector, dbl> map;
@@ -162,7 +160,7 @@ void codec_softout_flattened<base_codec_softout, dbl>::init_decoder(
    }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_flattened<base_codec_softout, dbl>::init_decoder(
+void codec_softout_mapped<base_codec_softout, dbl>::init_decoder(
       const array1vd_t& ptable, const array1vd_t& app)
    {
    map_straight<libbase::vector, dbl> map;
@@ -174,7 +172,7 @@ void codec_softout_flattened<base_codec_softout, dbl>::init_decoder(
    }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_flattened<base_codec_softout, dbl>::softdecode(
+void codec_softout_mapped<base_codec_softout, dbl>::softdecode(
       array1vd_t& ri, array1vd_t& ro)
    {
    // Decode to a temporary space

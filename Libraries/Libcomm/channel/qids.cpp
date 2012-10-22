@@ -25,7 +25,6 @@
 #include "qids.h"
 #include "itfunc.h"
 #include <sstream>
-#include <limits>
 #include <exception>
 #include <cmath>
 
@@ -33,10 +32,10 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show results of computation of xmax and I
+// 2 - Show transmit and insertion state vectors during transmission process
+// 3 - Show results of computation of xmax and I
 //     and details of pdf resizing
-// 3 - Show intermediate computation details for (2)
-// 4 - Show transmit and insertion state vectors during transmission process
+// 4 - Show intermediate computation details for (3)
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -78,7 +77,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
    const double x1 = (xa - 0.5) / sigma;
    const double x2 = (xa + 0.5) / sigma;
    const double this_p = libbase::Q(x1) - libbase::Q(x2);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (qids): [pdf-davey] x = " << x << ", sigma = " << sigma
    << ", this_p = " << this_p << "." << std::endl;
 #endif
@@ -128,7 +127,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
    p0 += log(myreal(Pt)) * tau;
    p0 += log(myreal(Pi)) * x;
    p0 = exp(p0);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (qids): [pdf-exact] x = " << x << ", p0 = " << p0
    << std::endl;
 #endif
@@ -145,7 +144,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
       // update main result
       const myreal last_p = this_p;
       this_p += p0;
-#if DEBUG>=3
+#if DEBUG>=4
       std::cerr << "DEBUG (qids): [pdf-exact] i = " << i << ", p0 = " << p0
       << ", this_p = " << this_p << std::endl;
 #endif
@@ -153,7 +152,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
       if (this_p == last_p)
          break;
       }
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (qids): [pdf-exact] this_p = " << this_p << std::endl;
 #endif
    // validate and return result
@@ -163,38 +162,6 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
       throw std::overflow_error("zero value");
    else if (this_p < 0)
       throw std::overflow_error("negative value");
-   return this_p;
-   }
-
-/*!
- * \brief The probability of drift x after transmitting tau symbols, given the
- * supplied drift pdf at start of transmission.
- *
- * The final drift pdf is obtained by convolving the expected pdf for a
- * known start of frame position with the actual start of frame distribution.
- */
-template <class G, class real>
-template <typename F>
-double qids<G, real>::metric_computer::compute_drift_prob_with(
-      const F& compute_pdf, int x, int tau, double Pi, double Pd,
-      const libbase::vector<double>& sof_pdf, const int offset)
-   {
-   // if sof_pdf is empty, delegate automatically
-   if (sof_pdf.size() == 0)
-      return compute_pdf(x, tau, Pi, Pd);
-   // compute the probability at requested drift
-   double this_p = 0;
-   const int imin = -offset;
-   const int imax = sof_pdf.size() - offset;
-   for (int i = imin; i < imax; i++)
-      {
-      const double p = compute_pdf(x - i, tau, Pi, Pd);
-      this_p += sof_pdf(i + offset) * p;
-      }
-   // normalize
-   this_p /= sof_pdf.sum();
-   // confirm that this value is finite and valid
-   assert(this_p >= 0 && this_p < std::numeric_limits<double>::infinity());
    return this_p;
    }
 
@@ -219,17 +186,17 @@ int qids<G, real>::metric_computer::compute_I(int tau, double Pi, int Icap)
    // main computation
    int I = int(ceil((log(Pr) - log(double(tau))) / log(Pi))) - 1;
    I = std::max(I, 1);
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (qids): for N = " << tau << ", I = " << I;
 #endif
    if (Icap > 0)
       {
       I = std::min(I, Icap);
-#if DEBUG>=2
+#if DEBUG>=3
       std::cerr << ", capped to " << I;
 #endif
       }
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "." << std::endl;
 #endif
    return I;
@@ -260,7 +227,7 @@ int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
    const double p = Pi;
    // determine required multiplier
    const double factor = libbase::Qinv(Pr / 2.0);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "DEBUG (qids): [davey] Q(" << factor << ") = " << libbase::Q(
          factor) << std::endl;
 #endif
@@ -273,60 +240,32 @@ int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
 /*!
  * \brief Determine maximum drift at the end of a frame of tau symbols, given the
  * supplied drift pdf at start of transmission.
- *
- * The drift range is chosen such that the probability of having the drift
- * after transmitting \f$ \tau \f$ symbols being greater than \f$ \pm x_{max} \f$
- * is less than an arbirarty value \f$ P_r \f$.
- * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
  */
 template <class G, class real>
-template <typename F>
-int qids<G, real>::metric_computer::compute_xmax_with(const F& compute_pdf,
-      int tau, double Pi, double Pd)
+int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
+      const libbase::vector<double>& sof_pdf, const int offset)
    {
-   // sanity checks
-   assert(tau > 0);
-   validate(Pd, Pi);
-   // determine area that needs to be covered
-   double acc = 1.0;
-   // determine xmax to use
-   int xmax = 0;
-   acc -= compute_pdf(xmax, tau, Pi, Pd);
-#if DEBUG>=3
-   std::cerr << "DEBUG (qids): xmax = " << xmax << ", acc = " << acc << "."
-   << std::endl;
-#endif
-   while (acc >= Pr)
+   try
       {
-      xmax++;
-      acc -= compute_pdf(xmax, tau, Pi, Pd);
-      acc -= compute_pdf(-xmax, tau, Pi, Pd);
-#if DEBUG>=3
-      std::cerr << "DEBUG (qids): xmax = " << xmax << ", acc = " << acc << "."
-      << std::endl;
+      compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf,
+            offset);
+      const int xmax = compute_xmax_with(f, tau, Pi, Pd);
+#if DEBUG>=4
+      std::cerr << "DEBUG (qids): [with exact] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
 #endif
+      return xmax;
       }
-   // tell the user what we did and return
-#if DEBUG>=2
-   std::cerr << "DEBUG (qids): [computed] for N = " << tau << ", xmax = "
-   << xmax << "." << std::endl;
-   std::cerr << "DEBUG (qids): [davey] for N = " << tau << ", xmax = "
-   << compute_xmax_davey(tau, Pi, Pd) << "." << std::endl;
+   catch (std::exception&)
+      {
+      compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf,
+            offset);
+      const int xmax = compute_xmax_with(f, tau, Pi, Pd);
+#if DEBUG>=4
+      std::cerr << "DEBUG (qids): [with davey] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
 #endif
-   return xmax;
+      return xmax;
+      }
    }
-
-// Explicit instantiations
-
-/*
- template <class G, class real>
- int qids<G,real>::metric_computer::compute_xmax_with(
- const compute_drift_prob_functor& f, int tau, double Pi, double Pd);
- template <class G, class real>
- int qids<G,real>::metric_computer::compute_xmax_with(
- const compute_drift_prob_functor::pdf_func_t& f, int tau, double Pi,
- double Pd);
- */
 
 /*!
  * \brief Determine maximum drift at the end of a frame of tau symbols, given the
@@ -346,7 +285,7 @@ int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
    // cap minimum value
    xmax = std::max(xmax, I);
    // tell the user what we did and return
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (qids): [adjusted] for N = " << tau << ", xmax = "
    << xmax << "." << std::endl;
 #endif
@@ -430,8 +369,7 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd,
    xmax = compute_xmax(N, Pi, Pd, I);
    // receiver coefficients
    Rval = real(Pd);
-   //#ifdef USE_CUDA
-#if 0
+#ifdef USE_CUDA
    // create local table and copy to device
    array2r_t Rtable_temp;
    compute_Rtable(Rtable_temp, I, Ps, Pd, Pi);
@@ -439,6 +377,11 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd,
 #else
    compute_Rtable(Rtable, I, Ps, Pd, Pi);
 #endif
+   // lattice coefficients
+   Pval_d = Pd;
+   Pval_i = 0.5 * Pi;
+   Pval_tc = (1 - Pi - Pd) * (1 - Ps);
+   Pval_te = (1 - Pi - Pd) * Ps;
    }
 
 /*!
@@ -451,34 +394,19 @@ void qids<G, real>::metric_computer::init()
    {
    // set block size to unusable value
    N = 0;
-   //#ifdef USE_CUDA
-#if 0
+#ifdef USE_CUDA
    // Initialize CUDA
    cuda::cudaInitialize(std::cerr);
 #endif
    }
 
-// Channel received for host
+// Channel receiver for host
 
-template <class G, class real>
-real qids<G, real>::metric_computer::receive(const array1g_t& tx,
-      const array1g_t& rx) const
-   {
-   // Compute sizes
-   const int n = tx.size();
-   const int mu = rx.size() - n;
-   // Allocate space for results and call main receiver
-   static array1r_t ptable;
-   ptable.init(2 * xmax + 1);
-   receive(tx, rx, ptable);
-   // return result
-   return ptable(xmax + mu);
-   }
+#ifndef USE_CUDA
 
-//#ifndef USE_CUDA
-#if 1
+// Batch receiver interface - trellis computation
 template <class G, class real>
-void qids<G, real>::metric_computer::receive(const array1g_t& tx,
+void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
       const array1g_t& rx, array1r_t& ptable) const
    {
    using std::min;
@@ -556,6 +484,70 @@ void qids<G, real>::metric_computer::receive(const array1g_t& tx,
       ptable(x) = Fthis[x];
       }
    }
+
+// Batch receiver interface - lattice computation
+template <class G, class real>
+void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
+      const array1g_t& rx, array1r_t& ptable) const
+   {
+   using std::swap;
+   // Compute sizes
+   const int n = tx.size();
+   const int rho = rx.size();
+   // Set up two slices of lattice, and associated pointers
+   // Arrays are allocated on the stack as a fixed size; this avoids dynamic
+   // allocation (which would otherwise be necessary as the size is non-const)
+   assertalways(rho + 1 <= arraysize);
+   real F0[arraysize];
+   real F1[arraysize];
+   real *Fthis = F1;
+   real *Fprev = F0;
+   // initialize for i=0 (first row of lattice)
+   Fthis[0] = 1;
+   for (int j = 1; j <= rho; j++)
+      Fthis[j] = Fthis[j - 1] * Pval_i;
+   // compute remaining rows, except last
+   for (int i = 1; i < n; i++)
+      {
+      // swap 'this' and 'prior' rows
+      swap(Fthis, Fprev);
+      // handle first column as a special case
+      Fthis[0] = Fprev[0] * Pval_d;
+      // remaining columns
+      for (int j = 1; j <= rho; j++)
+         {
+         const double pi = Fthis[j - 1] * Pval_i;
+         const double pd = Fprev[j] * Pval_d;
+         const bool cmp = tx(i - 1) == rx(j - 1);
+         const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+         Fthis[j] = pi + ps + pd;
+         }
+      }
+   // compute last row as a special case (no insertions)
+   // swap 'this' and 'prior' rows
+   swap(Fthis, Fprev);
+   // handle first column as a special case
+   Fthis[0] = Fprev[0] * Pval_d;
+   // remaining columns
+   for (int j = 1; j <= rho; j++)
+      {
+      const double pd = Fprev[j] * Pval_d;
+      const bool cmp = tx(n - 1) == rx(j - 1);
+      const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+      Fthis[j] = ps + pd;
+      }
+   // copy results and return
+   assertalways(ptable.size() == 2 * xmax + 1);
+   for (int x = -xmax; x <= xmax; x++)
+      {
+      // convert index
+      const int j = x + n;
+      if (j >= 0 && j <= rho)
+         ptable(x + xmax) = Fthis[j];
+      else
+         ptable(x + xmax) = 0;
+      }
+   }
 #endif
 
 /*!
@@ -593,7 +585,7 @@ libbase::vector<double> qids<G, real>::resize_drift(const array1d_t& in,
    const int imin = std::max(-offset, -xmax);
    const int imax = std::min(in.size() - 1 - offset, xmax);
    const int length = imax - imin + 1;
-#if DEBUG>=2
+#if DEBUG>=3
    std::cerr << "DEBUG (qids): [resize] offset = " << offset << ", xmax = "
    << xmax << "." << std::endl;
    std::cerr << "DEBUG (qids): [resize] imin = " << imin << ", imax = "
@@ -638,7 +630,7 @@ qids<G, real>::qids(const bool varyPs, const bool varyPd, const bool varyPi) :
 template <class G, class real>
 void qids<G, real>::set_parameter(const double p)
    {
-   const double q = G::elements();
+   const double q = field_utils<G>::elements();
    assertalways(p >=0 && p <= (q-1)/q);
    set_ps(varyPs ? p : fixedPs);
    set_pd(varyPd ? p : fixedPd);
@@ -683,7 +675,7 @@ G qids<G, real>::corrupt(const G& s)
    {
    const double p = this->r.fval_closed();
    if (p < Ps)
-      return s + G(this->r.ival(G::elements() - 1) + 1);
+      return field_utils<G>::corrupt(s, this->r);
    return s;
    }
 
@@ -775,7 +767,7 @@ void qids<G, real>::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
  * 
  * The channel model implemented is described by the following state diagram:
  * \dot
- * digraph qidsstates {
+ * digraph states {
  * // Make figure left-to-right
  * rankdir = LR;
  * // state definitions
@@ -824,7 +816,7 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
          state_tx(i) = false;
       }
    // Initialize results vector
-#if DEBUG>=4
+#if DEBUG>=2
    libbase::trace << "DEBUG (qids): transmit = " << state_tx << std::endl;
    libbase::trace << "DEBUG (qids): insertions = " << state_ins << std::endl;
 #endif
@@ -862,7 +854,7 @@ template <class G, class real>
 std::string qids<G, real>::description() const
    {
    std::ostringstream sout;
-   sout << G::elements() << "-ary IDS channel (";
+   sout << field_utils<G>::elements() << "-ary IDS channel (";
    // List varying components
    if (varyPs)
       sout << "Ps=";
@@ -878,9 +870,12 @@ std::string qids<G, real>::description() const
       sout << ", Pd=" << fixedPd;
    if (!varyPi)
       sout << ", Pi=" << fixedPi;
+   if (computer.lattice)
+      sout << ", lattice computation";
+   else
+      sout << ", trellis computation";
    sout << ")";
-   //#ifdef USE_CUDA
-#if 0
+#ifdef USE_CUDA
    sout << " [CUDA]";
 #endif
    return sout.str();
@@ -892,7 +887,7 @@ template <class G, class real>
 std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
+   sout << 2 << std::endl;
    sout << "# Vary Ps?" << std::endl;
    sout << varyPs << std::endl;
    sout << "# Vary Pd?" << std::endl;
@@ -907,6 +902,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    sout << fixedPd << std::endl;
    sout << "# Fixed Pi value" << std::endl;
    sout << fixedPi << std::endl;
+   sout << "# Mode for receiver (0=trellis, 1=lattice)" << std::endl;
+   sout << computer.lattice << std::endl;
    return sout;
    }
 
@@ -914,6 +911,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
 
 /*!
  * \version 1 Initial version (based on bsid v.4, without biased flag)
+ *
+ * \version 2 Added mode for receiver (trellis or lattice)
  */
 template <class G, class real>
 std::istream& qids<G, real>::serialize(std::istream& sin)
@@ -932,6 +931,11 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
+   // read receiver mode if present
+   if (version < 2)
+      computer.lattice = false;
+   else
+      sin >> libbase::eatcomments >> computer.lattice >> libbase::verify;
    // initialise the object and return
    init();
    return sin;
@@ -945,6 +949,8 @@ namespace libcomm {
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
@@ -954,20 +960,39 @@ using libbase::serializer;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-/* Serialization string: qids<type>
- * where:
- *      type = gf2 | gf4 ...
- */
-#define INSTANTIATE(r, x, type) \
-      template class qids<type>; \
-      template <> \
-      const serializer qids<type>::shelper( \
-            "channel", \
-            "qids<" BOOST_PP_STRINGIZE(type) ">", \
-            qids<type>::create); \
-      template <> \
-      const double qids<type>::metric_computer::Pr = 1e-10;
+#define SYMBOL_TYPE_SEQ \
+   (bool) \
+   GF_TYPE_SEQ
+#define REAL_TYPE_SEQ \
+   (float)(double)
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
+/* Serialization string: qids<type,real>
+ * where:
+ *      type = bool | gf2 | gf4 ...
+ *      real = float | double
+ */
+#define INSTANTIATE(r, args) \
+      template class qids<BOOST_PP_SEQ_ENUM(args)>; \
+      template <> \
+      const serializer qids<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "channel", \
+            "qids<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            qids<BOOST_PP_SEQ_ENUM(args)>::create); \
+      template <> \
+      const double qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::Pr = 1e-10;
+/*
+      template <> \
+      template <> \
+      int qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::compute_xmax_with( \
+            const compute_drift_prob_functor& f, \
+            int tau, double Pi, double Pd); \
+      template <> \
+      template <> \
+      int qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::compute_xmax_with( \
+            const compute_drift_prob_functor::pdf_func_t& f, \
+            int tau, double Pi, double Pd);
+*/
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

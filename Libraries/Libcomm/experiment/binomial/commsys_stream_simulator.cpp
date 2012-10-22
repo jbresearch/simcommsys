@@ -27,7 +27,6 @@
 #include "vectorutils.h"
 #include "commsys_fulliter.h"
 #include "hard_decision.h"
-#include "mapper/map_straight.h"
 #include <sstream>
 
 namespace libcomm {
@@ -226,10 +225,11 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
             R::updateresults(result_segment, source_this, decoded);
             }
          }
-      // TODO: Pass posterior information through mapper
-      assertalways(typeid(*sys_dec.getmapper()) == typeid(map_straight<libbase::vector>));
+      // Pass posterior information through mapper
+      array1vd_t ro_mapped;
+      sys_dec.getmapper()->transform(ro, ro_mapped);
       // Compute extrinsic information for next demodulation cycle
-      commsys_fulliter<S>::compute_extrinsic(ptable_ext, ro, ptable_ext);
+      commsys_fulliter<S>::compute_extrinsic(ptable_ext, ro_mapped, ptable_ext);
       // Keep record of what we last simulated
       this->last_event = concatenate(source_this, decoded);
       // If this was not the last iteration, mark components as clean

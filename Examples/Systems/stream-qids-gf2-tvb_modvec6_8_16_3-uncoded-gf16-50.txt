@@ -4,9 +4,9 @@ commsys_stream<gf2,vector>
 # Single channel?
 1
 ## Channel
-qids<gf2>
+qids<gf2,float>
 # Version
-1
+2
 # Vary Ps?
 0
 # Vary Pd?
@@ -21,10 +21,12 @@ qids<gf2>
 0
 # Fixed Pi value
 0
+# Mode for receiver (0=trellis, 1=lattice)
+0
 ## Modem
-tvb<gf2,double>
+tvb<gf2,double,float>
 # Version
-4
+5
 #: Inner threshold
 0
 #: Outer threshold
@@ -34,8 +36,8 @@ tvb<gf2,double>
 # Use batch receiver computation?
 1
 # Lazy computation of gamma?
-1
-# Global storage / caching of computed gamma values?
+0
+# Storage mode for gamma (0=local, 1=global, 2=conditional)
 1
 # Number of codewords to look ahead when stream decoding
 0

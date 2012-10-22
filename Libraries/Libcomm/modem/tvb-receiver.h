@@ -49,17 +49,15 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * \todo Move tvb::encode() here (and access this from tvb when needed).
- *
- * \todo Change init() and internal representation so that all possible
- * encodings are done at init, rather than repeating every time.
+ * \tparam sig Channel symbol type
+ * \tparam real Floating-point type for returning results
+ * \tparam real2 Floating-point type for internal computation
  */
 
-template <class sig, class real>
+template <class sig, class real, class real2>
 class tvb_receiver {
 public:
    /*! \name Type definitions */
-   typedef float qids_real;
    typedef libbase::vector<sig> array1s_t;
    typedef libbase::vector<array1s_t> array1vs_t;
    typedef libbase::matrix<array1s_t> array2vs_t;
@@ -69,14 +67,14 @@ private:
    /*! \name User-defined parameters */
    int n; //!< Number of bits per codeword
    mutable array2vs_t encoding_table; //!< Local copy of per-frame encoding table
-   typename qids<sig>::metric_computer computer; //!< Channel object for computing receiver metric
+   typename qids<sig,real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
 public:
    /*! \name User initialization (can be adapted for needs of user class) */
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const libcomm::qids<sig>& chan)
+   void init(const int n, const libcomm::qids<sig,real2>& chan)
       {
       this->n = n;
       computer = chan.get_computer();
@@ -87,8 +85,7 @@ public:
       std::cerr << "I = " << computer.I << std::endl;
       std::cerr << "xmax = " << computer.xmax << std::endl;
       std::cerr << "Rval = " << computer.Rval << std::endl;
-      std::cerr << "Rtable = " << libbase::matrix<qids_real>(
-            computer.Rtable) << std::endl;
+      std::cerr << "Rtable = " << libbase::matrix<real2>(computer.Rtable) << std::endl;
 #endif
       }
    /*! \brief Set up encoding table
@@ -118,7 +115,7 @@ public:
       {
       const array1s_t& tx = encoding_table(i, d);
       // set up space for results
-      static libbase::vector<qids_real> ptable_r;
+      static libbase::vector<real2> ptable_r;
       ptable_r.init(ptable.size());
       // call batch receiver method and convert results
       computer.receive(tx, r, ptable_r);
