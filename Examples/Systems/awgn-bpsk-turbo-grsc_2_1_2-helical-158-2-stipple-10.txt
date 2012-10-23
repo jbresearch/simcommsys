@@ -11,7 +11,7 @@ mpsk
 2
 ## Mapper
 map_stipple<vector,double>
-# Stipple stride
+# Stride for stipple mapper
 2
 ## Codec
 turbo<double,double>
