@@ -68,6 +68,7 @@
 #include "fsm/dvbcrsc.h"
 #include "fsm/grscc.h"
 #include "fsm/gnrcc.h"
+#include "fsm/zsm.h"
 
 // Interleavers
 #include "interleaver.h"
@@ -143,6 +144,7 @@ class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       dvbcrsc,
       grscc<libbase::gf<1, 0x3> > ,
       gnrcc<libbase::gf<1, 0x3> > ,
+      zsm<libbase::gf<1, 0x3> > ,
       uncoded<double> ,
       mapcc<double> ,
       turbo<double, double> ,

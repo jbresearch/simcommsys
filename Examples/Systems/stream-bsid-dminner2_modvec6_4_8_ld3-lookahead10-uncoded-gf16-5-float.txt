@@ -26,7 +26,7 @@ qids<bool,float>
 ## Modem
 tvb<bool,float,float>
 # Version
-5
+6
 #: Inner threshold
 0
 #: Outer threshold
@@ -43,8 +43,8 @@ tvb<bool,float,float>
 10
 # n
 8
-# k
-4
+# q
+16
 # codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
 2
 #: codebook name

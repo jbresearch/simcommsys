@@ -53,8 +53,6 @@ template <class sig, class real, class real2>
 libbase::vector<libbase::vector<sig> > tvb<sig, real, real2>::select_codebook(
       const int i) const
    {
-   // Inherit sizes
-   const int q = num_symbols();
    // Initialize space for result
    array1vs_t codebook;
    libbase::allocate(codebook, q, n);
@@ -100,7 +98,7 @@ libbase::vector<libbase::vector<sig> > tvb<sig, real, real2>::select_codebook(
          break;
       }
    // Copy chosen codebook and return
-   for (int d = 0; d < num_symbols(); d++)
+   for (int d = 0; d < q; d++)
       codebook(d) = codebook_tables(cb_index, d);
    return codebook;
    }
@@ -171,8 +169,6 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
       const int offset, const int length) const
    {
-   // Inherit sizes
-   const int q = num_symbols();
    // Sanity checks
    assert(offset >= 0 && offset < encoding_table.size().rows());
    assert(length > 0 && offset + length <= encoding_table.size().rows());
@@ -202,7 +198,6 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::advance() const
    {
    // Inherit sizes
-   const int q = num_symbols();
    const int N = this->input_block_size();
    // Advance only for non-zero block sizes
    if (N > 0)
@@ -237,7 +232,6 @@ void tvb<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
    {
    // TODO: when N is removed from the interface, rename 'tau' to 'N'
    // Inherit sizes
-   const int q = num_symbols();
    const int tau = this->input_block_size();
    // Check validity
    assertalways(tau == encoded.size());
@@ -328,7 +322,6 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    {
    // Inherit block size from last modulation step
    const int N = this->input_block_size();
-   const int q = this->num_symbols();
    // In cases with lookahead, extend app table if supplied
    array1vd_t app_x;
    if (lookahead > 0 && app.size() > 0)
@@ -426,7 +419,6 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
       const array1d_t& sof_pdf, const int offset)
    {
    // Inherit block size from last modulation step (and include lookahead)
-   const int q = num_symbols();
    const int N = this->input_block_size() + lookahead;
    const int tau = N * n;
    assert(N > 0);
@@ -480,7 +472,6 @@ void tvb<sig, real, real2>::init()
          {
          // sparse codebooks defined only for GF(2)
          assertalways(field_utils<sig>::elements() == 2);
-         const int q = num_symbols();
          libbase::sparse mycodebook(q, n);
          codebook_tables.init(1, q);
          for (int i = 0; i < q; i++)
@@ -538,11 +529,11 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::copycodebook(const int i,
       const array1vs_t& codebook_s)
    {
-   assertalways(codebook_s.size() == num_symbols());
+   assertalways(codebook_s.size() == q);
    validate_sequence_length(codebook_s);
    // insert into matrix
    assertalways(i >= 0 && i < num_codebooks());
-   assertalways(codebook_tables.size().cols() == num_symbols());
+   assertalways(codebook_tables.size().cols() == q);
    codebook_tables.insertrow(codebook_s, i);
    }
 
@@ -554,8 +545,8 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::showcodebook(std::ostream& sout,
       const array1vs_t& codebook) const
    {
-   assert(codebook.size() == num_symbols());
-   for (int d = 0; d < num_symbols(); d++)
+   assert(codebook.size() == q);
+   for (int d = 0; d < q; d++)
       {
       sout << d << "\t";
       codebook(d).serialize(sout, ' ');
@@ -570,7 +561,7 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::showcodebooks(std::ostream& sout) const
    {
    assert(num_codebooks() >= 1);
-   assert(codebook_tables.size().cols() == num_symbols());
+   assert(codebook_tables.size().cols() == q);
    for (int i = 0; i < num_codebooks(); i++)
       {
       sout << "Codebook " << i << ":" << std::endl;
@@ -588,9 +579,9 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::validatecodebook() const
    {
    assertalways(num_codebooks() >= 1);
-   assertalways(codebook_tables.size().cols() == num_symbols());
+   assertalways(codebook_tables.size().cols() == q);
    for (int i = 0; i < num_codebooks(); i++)
-      for (int d = 0; d < num_symbols(); d++)
+      for (int d = 0; d < q; d++)
          {
          // all entries should be distinct for each codebook index
          for (int dd = 0; dd < d; dd++)
@@ -653,7 +644,6 @@ template <class sig, class real, class real2>
 std::string tvb<sig, real, real2>::description() const
    {
    std::ostringstream sout;
-   const int q = num_symbols();
    sout << "Time-Varying Block Code (" << n << "," << q << ", ";
    switch (codebook_type)
       {
@@ -744,7 +734,7 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 5 << std::endl;
+   sout << 6 << std::endl;
    sout << "#: Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "#: Outer threshold" << std::endl;
@@ -767,8 +757,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    sout << lookahead << std::endl;
    sout << "# n" << std::endl;
    sout << n << std::endl;
-   sout << "# k" << std::endl;
-   sout << k << std::endl;
+   sout << "# q" << std::endl;
+   sout << q << std::endl;
    sout << "# codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])"
          << std::endl;
    sout << codebook_type << std::endl;
@@ -785,11 +775,11 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
          sout << "#: codebook count" << std::endl;
          sout << num_codebooks() << std::endl;
          assert(num_codebooks() >= 1);
-         assert(codebook_tables.size().cols() == num_symbols());
+         assert(codebook_tables.size().cols() == q);
          for (int i = 0; i < num_codebooks(); i++)
             {
             sout << "#: codebook entries (table " << i << ")" << std::endl;
-            for (int d = 0; d < num_symbols(); d++)
+            for (int d = 0; d < q; d++)
                {
                codebook_tables(i, d).serialize(sout, ' ');
                //sout << std::endl;
@@ -845,6 +835,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 4 Added look-ahead quantity for stream decoding
  *
  * \version 5 Replaced globalstore flag with storage mode and memory threshold
+ *
+ * \version 6 Replaced k with q
  */
 
 template <class sig, class real, class real2>
@@ -893,7 +885,14 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
       lookahead = 0;
    // read code size
    sin >> libbase::eatcomments >> n >> libbase::verify;
-   sin >> libbase::eatcomments >> k >> libbase::verify;
+   if (version >= 6)
+      sin >> libbase::eatcomments >> q >> libbase::verify;
+   else
+      {
+      int k;
+      sin >> libbase::eatcomments >> k >> libbase::verify;
+      q = int(pow(field_utils<sig>::elements(), k));
+      }
    // read codebook
    sin >> libbase::eatcomments >> temp >> libbase::verify;
    codebook_type = (codebook_t) temp;
@@ -910,14 +909,14 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
          // read codebook count
          sin >> libbase::eatcomments >> temp >> libbase::verify;
          // allocate memory
-         codebook_tables.init(temp, num_symbols());
+         codebook_tables.init(temp, q);
          for (int i = 0; i < num_codebooks(); i++)
             {
             // read codebook from stream
             array1vs_t codebook_s;
-            libbase::allocate(codebook_s, num_symbols(), n);
+            libbase::allocate(codebook_s, q, n);
             sin >> libbase::eatcomments;
-            for (int d = 0; d < num_symbols(); d++)
+            for (int d = 0; d < q; d++)
                {
                codebook_s(d).serialize(sin);
                libbase::verify(sin);
@@ -986,7 +985,7 @@ using libbase::logrealfast;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-#define SYMBOL_TYPE_SEQ \
+#define ALL_SYMBOL_TYPE_SEQ \
    (bool) \
    GF_TYPE_SEQ
 #ifdef USE_CUDA
@@ -1015,6 +1014,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             tvb<BOOST_PP_SEQ_ENUM(args)>::create);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
 } // end namespace

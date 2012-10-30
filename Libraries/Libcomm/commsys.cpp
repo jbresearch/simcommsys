@@ -59,10 +59,6 @@ void basic_commsys<S, C>::init()
    {
    const int M = mdm->num_symbols();
    const int N = cdc->num_outputs();
-   const int K = cdc->num_inputs();
-   const int k = int(round(log2(double(K))));
-   // confirm that source is representable in binary
-   assertalways(K == 1<<k);
    // set up mapper with required parameters
    map->set_parameters(N, M);
    map->set_blocksize(cdc->output_block_size());

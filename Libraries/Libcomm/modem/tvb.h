@@ -105,8 +105,8 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int n; //!< number of symbols in output sequence (per codeword)
-   int k; //!< number of symbols in input sequence (per codeword)
+   int n; //!< codeword length in symbols
+   int q; //!< number of codewords (input alphabet size)
    marker_t marker_type; //!< enum indicating codebook type
    array1vs_t marker_vectors; //!< user set of marker vectors
    codebook_t codebook_type; //!< enum indicating codebook type
@@ -138,7 +138,7 @@ private:
    const sig modulate(const int index) const
       {
       failwith("Function should not be used.");
-      return false;
+      return sig();
       }
    const int demodulate(const sig& signal) const
       {
@@ -191,7 +191,7 @@ private:
       {
       // check code parameters
       assert(n >= 1 && n <= 32);
-      assert(k >= 1 && k <= n);
+      assert(q >= 2 && q <= int(pow(field_utils<sig>::elements(), n)));
       // check cutoff thresholds
       assert(th_inner >= real(0) && th_inner <= real(1));
       assert(th_outer >= real(0) && th_outer <= real(1));
@@ -208,9 +208,9 @@ private:
    // @}
 public:
    /*! \name Constructors / Destructors */
-   explicit tvb(const int n = 2, const int k = 1, const double th_inner = 0,
+   explicit tvb(const int n = 2, const int q = 2, const double th_inner = 0,
          const double th_outer = 0) :
-      n(n), k(k), marker_type(marker_random), codebook_type(codebook_random),
+      n(n), q(q), marker_type(marker_random), codebook_type(codebook_random),
             th_inner(real(th_inner)), th_outer(real(th_outer))
       {
       init();
@@ -263,7 +263,7 @@ public:
    // Informative functions
    int num_symbols() const
       {
-      return int(pow(field_utils<sig>::elements(), k));
+      return q;
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {

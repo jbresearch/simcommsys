@@ -26,7 +26,7 @@ qids<gf16,float>
 ## Modem
 tvb<gf16,double,float>
 # Version
-5
+6
 #: Inner threshold
 0
 #: Outer threshold
@@ -43,8 +43,8 @@ tvb<gf16,double,float>
 0
 # n
 2
-# k
-1
+# q
+16
 # codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
 1
 # marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])

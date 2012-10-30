@@ -30,36 +30,6 @@
 namespace libcomm {
 
 /*!
- * \brief   Finite symbol base class.
- * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
- *
- * Created to abstract the concept of a symbol from a finite alphabet.
- * This is an abstract class which defines the interface to such an object.
- */
-
-class symbol {
-public:
-   /*! \name Constructors / Destructors */
-   virtual ~symbol() = 0;
-   // @}
-
-   /*! \name Type conversion */
-   virtual operator int() const = 0;
-   virtual symbol& operator=(const int value) = 0;
-   // @}
-
-   /*! \name Class parameters */
-   //! Number of elements in the finite alphabet
-   virtual int elements() const = 0;
-   // @}
-};
-
-/*!
  * \brief   Finite q-ary symbol.
  * \author  Johann Briffa
  *
@@ -68,32 +38,38 @@ public:
  * - $Date$
  * - $Author$
  *
+ * Implements the concept of a symbol from a finite alphabet.
  * Uses an integer to represent symbol value; value is initialized to zero
  * on creation.
  */
 
 template <int q>
-class finite_symbol {
+class symbol {
 private:
    /*! \name Object representation */
-   //! Representation of this element by its polynomial coefficients
+   //! Representation of this element as an index into the alphabet
    int value;
    // @}
 
 private:
    /*! \name Internal functions */
-   void init(int value);
+   /*!
+    * \brief Initialization
+    * \param   value Integer representation of element
+    */
+   void init(int value)
+      {
+      assert(value >= 0 && value < q);
+      this->value = value;
+      }
    // @}
 
 public:
    /*! \name Constructors / Destructors */
    //! Principal constructor
-   explicit finite_symbol(int value = 0)
+   explicit symbol(int value = 0)
       {
       init(value);
-      }
-   ~finite_symbol()
-      {
       }
    // @}
 
@@ -111,7 +87,7 @@ public:
 
    /*! \name Class parameters */
    //! Number of elements in the finite alphabet
-   int elements() const
+   static int elements()
       {
       return q;
       }
@@ -119,5 +95,16 @@ public:
 };
 
 } // end namespace
+
+
+// Pre-processor sequence for explicit instantiations
+
+#include <boost/preprocessor/repetition/repeat_from_to.hpp>
+
+#define SYMBOL_TYPE(z, n, text) \
+   (symbol<n>)
+
+#define SYMBOL_TYPE_SEQ \
+   BOOST_PP_REPEAT_FROM_TO(2, 101, SYMBOL_TYPE, _)
 
 #endif

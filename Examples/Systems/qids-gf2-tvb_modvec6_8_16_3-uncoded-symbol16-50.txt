@@ -1,10 +1,10 @@
-commsys_stream<bool,vector>
+commsys<gf2,vector>
 # Version
 1
 # Single channel?
 1
 ## Channel
-qids<bool,float>
+qids<gf2,float>
 # Version
 2
 # Vary Ps?
@@ -14,7 +14,7 @@ qids<bool,float>
 # Vary Pi?
 1
 # Cap on I (0=uncapped)
-2
+0
 # Fixed Ps value
 0
 # Fixed Pd value
@@ -24,7 +24,7 @@ qids<bool,float>
 # Mode for receiver (0=trellis, 1=lattice)
 0
 ## Modem
-tvb<bool,float,float>
+tvb<gf2,double,float>
 # Version
 6
 #: Inner threshold
@@ -36,7 +36,7 @@ tvb<bool,float,float>
 # Use batch receiver computation?
 1
 # Lazy computation of gamma?
-1
+0
 # Storage mode for gamma (0=local, 1=global, 2=conditional)
 1
 # Number of codewords to look ahead when stream decoding
@@ -52,32 +52,32 @@ tvb<bool,float,float>
 #: codebook count
 1
 #: codebook entries (table 0)
-1 1 0 0 1 1 1 0
-1 1 1 1 1 0 0 0
-1 1 1 1 0 1 0 1
-1 0 0 1 1 1 1 1
-0 0 0 1 1 1 0 0
-1 0 0 1 0 0 1 0
+0 1 1 1 0 0 1 1
+0 0 0 1 1 1 1 1
+1 0 1 0 1 1 1 1
+1 1 1 1 1 0 0 1
+0 0 1 1 1 0 0 0
+0 1 0 0 1 0 0 1
 1 0 0 0 0 0 0 1
-0 0 0 0 0 1 1 1
-0 1 0 1 0 0 1 1
-0 0 0 0 1 0 1 0
-1 0 1 0 1 1 0 0
-0 1 1 0 0 0 0 0
-0 0 1 1 0 0 0 1
-1 1 1 0 0 0 1 1
-0 1 1 1 1 1 1 1
-0 0 1 1 0 1 1 0
+1 1 1 0 0 0 0 0
+1 1 0 0 1 0 1 0
+0 1 0 1 0 0 0 0
+0 0 1 1 0 1 0 1
+0 0 0 0 0 1 1 0
+1 0 0 0 1 1 0 0
+1 1 0 0 0 1 1 1
+1 1 1 1 1 1 1 0
+0 1 1 0 1 1 0 0
 # marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
 2
 #: marker vectors
 6
 0 0 0 0 0 0 0 0
-1 0 0 1 0 0 1 0
+0 1 0 0 1 0 0 1
 1 1 1 1 1 1 1 1
-0 1 0 0 1 1 0 1
-0 1 1 0 1 1 0 1
 1 0 1 1 0 0 1 0
+1 0 1 1 0 1 1 0
+0 1 0 0 1 1 0 1
 ## Mapper
 map_straight<vector,double>
 ## Codec
@@ -85,15 +85,8 @@ uncoded<double>
 # Encoder
 cached_fsm
 #: Base Encoder
-gnrcc<gf16>
-#: Generator matrix (k x n vectors)
-1	1
+zsm<symbol<16>>
+#: Repetition count
 1
-0001
-
 # Block length
-5
-# Version (stream extensions)
-1
-# Number of full-system iterations
-1
+50
