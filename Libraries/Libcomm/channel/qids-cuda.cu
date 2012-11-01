@@ -112,12 +112,12 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 namespace cuda {
 
 #define INSTANTIATE_FUNC(r, args) \
-      template void receive_trellis_kernel( \
+      template __global__ void receive_trellis_kernel( \
             const typename libcomm::qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer object, \
             const cuda::vector_reference<BOOST_PP_SEQ_ELEM(0,args)> tx, \
             const cuda::vector_reference<BOOST_PP_SEQ_ELEM(0,args)> rx, \
             cuda::vector_reference<BOOST_PP_SEQ_ELEM(1,args)> ptable); \
-      template void receive_lattice_kernel( \
+      template __global__ void receive_lattice_kernel( \
             const typename libcomm::qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer object, \
             const cuda::vector_reference<BOOST_PP_SEQ_ELEM(0,args)> tx, \
             const cuda::vector_reference<BOOST_PP_SEQ_ELEM(0,args)> rx, \

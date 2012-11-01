@@ -407,28 +407,35 @@ int main(int argc, char *argv[])
    //return 0;
    //test_cc_code();
    //return 0;
-   if (argc == 1)
+   if (argc != 2)
       {
-      cerr << std::endl << "Please provide a path to a file";
+      std::cerr << "Usage: " << argv[0] << " -s|-a" << std::endl;
+      std::cerr << "Where: -s = convert alist to serialized format" << std::endl;
+      std::cerr << "       -a = convert alist to alist format" << std::endl;
+      std::cerr << "Input is read from stdin and output written to stdout." << std::endl;
       return -1;
       }
-   string in_str(argv[1]);
-   string infile = in_str + ".txt";
-   string outfile_ser = in_str + "_ser.txt";
-   string outfile_al = in_str + "_al.txt";
-   ldpc<gf<1, 0x3> , double> ldpc_bin;
 
-   //read the alist LDPC code
-   ifstream sin(infile.c_str());
-   ldpc_bin.read_alist(sin);
+   // read the alist LDPC code
+   ldpc<libbase::gf2, double> codec;
+   codec.read_alist(std::cin);
 
-   //write it in serialised format
-   ofstream sout_ser(outfile_ser.c_str());
-   ldpc_bin.serialize(sout_ser);
-
-   //write it in alist format
-   ofstream sout_al(outfile_al.c_str());
-   ldpc_bin.write_alist(sout_al);
+   string mode(argv[1]);
+   if (mode == "-a")
+      {
+      // write it in alist format
+      codec.write_alist(std::cout);
+      }
+   else if (mode == "-s")
+      {
+      // write it in serialised format
+      codec.serialize(std::cout);
+      }
+   else
+      {
+      std::cerr << "Unrecognized mode." << std::endl;
+      return -1;
+      }
    return 0;
    }
 
