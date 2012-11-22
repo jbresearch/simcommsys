@@ -34,8 +34,9 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show codebooks on frame advance
-// 3 - Show input and output of encoding process
-// 9 - Show prior and posterior sof/eof probabilities when decoding
+// 3 - Show transmitted sequence and the encoded message it represents
+// 4 - Show prior and posterior sof/eof probabilities when decoding
+// 5 - Show prior and posterior symbol probabilities when decoding
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -244,6 +245,10 @@ void tvb<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
    // Encode source stream
    for (int i = 0; i < tau; i++)
       tx.segment(i * n, n) = encoding_table(i, encoded(i));
+#if DEBUG>=3
+   std::cerr << "encoded = " << encoded << std::endl;
+   std::cerr << "tx = " << tx << std::endl;
+#endif
    }
 
 template <class sig, class real, class real2>
@@ -337,12 +342,15 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    else
       app_x = app;
    // Call FBA and normalize results
-#if DEBUG>=9
+#if DEBUG>=4
    using libbase::index_of_max;
    std::cerr << "sof_prior = " << sof_prior << std::endl;
    std::cerr << "max at " << index_of_max(sof_prior) - offset << std::endl;
    std::cerr << "eof_prior = " << eof_prior << std::endl;
    std::cerr << "max at " << index_of_max(eof_prior) - offset << std::endl;
+#endif
+#if DEBUG>=5
+   std::cerr << "app = " << app << std::endl;
 #endif
    array1vr_t ptable_r;
    array1r_t sof_post_r;
@@ -352,64 +360,18 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    // In cases with lookahead, re-compute EOF posterior at actual frame boundary
    if (lookahead > 0)
       fba.get_drift_pdf(eof_post_r, N);
-   normalize_results(ptable_r.extract(0, N), ptable);
-   normalize(sof_post_r, sof_post);
-   normalize(eof_post_r, eof_post);
-#if DEBUG>=9
+   libbase::normalize_results(ptable_r.extract(0, N), ptable);
+   libbase::normalize(sof_post_r, sof_post);
+   libbase::normalize(eof_post_r, eof_post);
+#if DEBUG>=4
    std::cerr << "sof_post = " << sof_post << std::endl;
    std::cerr << "max at " << index_of_max(sof_post) - offset << std::endl;
    std::cerr << "eof_post = " << eof_post << std::endl;
    std::cerr << "max at " << index_of_max(eof_post) - offset << std::endl;
 #endif
-   }
-
-/*!
- * \brief Normalize probability table
- *
- * The input probability table is normalized such that the largest value is
- * equal to 1; result is converted to double.
- */
-template <class sig, class real, class real2>
-void tvb<sig, real, real2>::normalize(const array1r_t& in, array1d_t& out)
-   {
-   const int N = in.size();
-   assert(N > 0);
-   // check for numerical underflow
-   real scale = in.max();
-   assert(scale != real(0));
-   scale = real(1) / scale;
-   // allocate result space
-   out.init(N);
-   // normalize and copy results
-   for (int i = 0; i < N; i++)
-      out(i) = in(i) * scale;
-   }
-
-/*!
- * \brief Normalize probability table
- *
- * The input probability table is normalized such that the largest value is
- * equal to 1; result is converted to double.
- */
-template <class sig, class real, class real2>
-void tvb<sig, real, real2>::normalize_results(const array1vr_t& in,
-      array1vd_t& out)
-   {
-   const int N = in.size();
-   assert(N > 0);
-   const int q = in(0).size();
-   // check for numerical underflow
-   real scale = 0;
-   for (int i = 0; i < N; i++)
-      scale = std::max(scale, in(i).max());
-   assert(scale != real(0));
-   scale = real(1) / scale;
-   // allocate result space
-   libbase::allocate(out, N, q);
-   // normalize and copy results
-   for (int i = 0; i < N; i++)
-      for (int d = 0; d < q; d++)
-         out(i)(d) = in(i)(d) * scale;
+#if DEBUG>=5
+   std::cerr << "ptable = " << ptable << std::endl;
+#endif
    }
 
 // Setup procedure

@@ -69,7 +69,7 @@ protected:
     */
    void setup()
       {
-      assertalways(Base::M == Base::N);
+      assertalways(Base::M == Base::q);
       }
    void dotransform(const array2i_t& in, array2i_t& out) const;
    void dotransform(const array2vd_t& pin, array2vd_t& pout) const;

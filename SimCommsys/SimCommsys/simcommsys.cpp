@@ -49,7 +49,7 @@ private:
    bool soft_int; //!< Flag indicating a soft interrupt (skip to next point)
 public:
    mymontecarlo() :
-      hard_int(false), soft_int(false)
+         hard_int(false), soft_int(false)
       {
       }
    /*! \brief User-interrupt check (public to allow use by main program)
@@ -147,10 +147,11 @@ int main(int argc, char *argv[])
          "suppress all output except benchmark");
    desc.add_options()("priority,p", po::value<int>()->default_value(10),
          "process priority");
-   desc.add_options()("endpoint,e", po::value<std::string>()->default_value(
-         "local"), "- 'local', for local-computation model\n"
-      "- ':port', for server-mode, bound to given port\n"
-      "- 'hostname:port', for client-mode connection");
+   desc.add_options()("endpoint,e",
+         po::value<std::string>()->default_value("local"),
+         "- 'local', for local-computation model\n"
+               "- ':port', for server-mode, bound to given port\n"
+               "- 'hostname:port', for client-mode connection");
    desc.add_options()("system-file,i", po::value<std::string>(),
          "input file containing system description");
    desc.add_options()("results-file,o", po::value<std::string>(),
@@ -161,15 +162,17 @@ int main(int argc, char *argv[])
          "parameter increment (for a linear range)");
    desc.add_options()("mul", po::value<double>(),
          "parameter multiplier (for a logarithmic range)");
-   desc.add_options()("min-error", po::value<double>()->default_value(1e-5),
-         "stop simulation when result falls below this threshold");
+   desc.add_options()("floor-min", po::value<double>(),
+         "stop simulation when at least one result converges below this threshold");
+   desc.add_options()("floor-max", po::value<double>(),
+         "stop simulation when all results converge below this threshold");
    desc.add_options()("confidence", po::value<double>()->default_value(0.90),
          "confidence level (e.g. 0.90 for 90%)");
    desc.add_options()("tolerance", po::value<double>()->default_value(0.15),
          "confidence interval (e.g. 0.15 for ±15%)");
    desc.add_options()("margin", po::value<double>(),
          "absolute error margin (e.g. 0.1 for ±0.1); "
-         "overrides tolerance if specified");
+               "overrides tolerance if specified");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -183,8 +186,8 @@ int main(int argc, char *argv[])
 
    // Create estimator object and initilize cluster
    mymontecarlo estimator;
-   switch (estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<
-         bool> (), vm["priority"].as<int> ()))
+   switch (estimator.enable(vm["endpoint"].as<std::string>(),
+         vm["quiet"].as<bool>(), vm["priority"].as<int>()))
       {
       case mymontecarlo::mode_slave:
          break;
@@ -193,9 +196,9 @@ int main(int argc, char *argv[])
       case mymontecarlo::mode_master:
          // If this is a server instance, check the remaining parameters
          if (vm.count("system-file") == 0 || vm.count("results-file") == 0
-               || vm.count("start") == 0 || vm.count("stop") == 0 || (vm.count(
-               "step") == 0 && vm.count("mul") == 0) || (vm.count("step")
-               && vm.count("mul")))
+               || vm.count("start") == 0 || vm.count("stop") == 0
+               || (vm.count("step") == 0 && vm.count("mul") == 0)
+               || (vm.count("step") && vm.count("mul")))
             {
             cout << desc << std::endl;
             return 0;
@@ -204,21 +207,22 @@ int main(int argc, char *argv[])
          // main process
             {
             // Simulation system & parameters
-            estimator.set_resultsfile(vm["results-file"].as<std::string> ());
-            libcomm::experiment *system = createsystem(vm["system-file"].as<
-                  std::string> ());
+            estimator.set_resultsfile(vm["results-file"].as<std::string>());
+            libcomm::experiment *system = createsystem(
+                  vm["system-file"].as<std::string>());
             estimator.bind(system);
-            const double min_error = vm["min-error"].as<double> ();
-            libbase::vector<double> pset = vm.count("step") ? getlinrange(
-                  vm["start"].as<double> (), vm["stop"].as<double> (),
-                  vm["step"].as<double> ()) : getlogrange(
-                  vm["start"].as<double> (), vm["stop"].as<double> (),
-                  vm["mul"].as<double> ());
-            estimator.set_confidence(vm["confidence"].as<double> ());
+            libbase::vector<double> pset =
+                  vm.count("step") ?
+                        getlinrange(vm["start"].as<double>(),
+                              vm["stop"].as<double>(),
+                              vm["step"].as<double>()) :
+                        getlogrange(vm["start"].as<double>(),
+                              vm["stop"].as<double>(), vm["mul"].as<double>());
+            estimator.set_confidence(vm["confidence"].as<double>());
             if (vm.count("margin"))
-               estimator.set_errormargin(vm["margin"].as<double> ());
+               estimator.set_errormargin(vm["margin"].as<double>());
             else
-               estimator.set_accuracy(vm["tolerance"].as<double> ());
+               estimator.set_accuracy(vm["tolerance"].as<double>());
 
             // Work out the following for every SNR value required
             for (int i = 0; i < pset.size(); i++)
@@ -238,8 +242,13 @@ int main(int argc, char *argv[])
                      << std::endl;
 
                // handle pre-mature breaks
-               if ((estimator.interrupt() && !estimator.interrupt_was_soft())
-                     || result.min() < min_error)
+               if (estimator.interrupt() && !estimator.interrupt_was_soft())
+                  break;
+               if (vm.count("floor-min")
+                     && result.min() < vm["floor-min"].as<double>())
+                  break;
+               if (vm.count("floor-max")
+                     && result.max() < vm["floor-max"].as<double>())
                   break;
                }
 

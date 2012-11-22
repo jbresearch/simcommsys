@@ -86,23 +86,3 @@ public:
 }
 
 #endif /* SPA_FACTORY_H_ */
-
-//Explicit realisations
-#include "mpreal.h"
-
-namespace libcomm {
-
-template class spa_factory<libbase::gf<1, 0x3> > ;
-template class spa_factory<libbase::gf<2, 0x7> > ;
-template class spa_factory<libbase::gf<3, 0xB> > ;
-template class spa_factory<libbase::gf<3, 0xB>, libbase::mpreal> ;
-template class spa_factory<libbase::gf<4, 0x13> > ;
-template class spa_factory<libbase::gf<4, 0x13>, libbase::mpreal> ;
-template class spa_factory<libbase::gf<5, 0x25> > ;
-template class spa_factory<libbase::gf<6, 0x43> > ;
-template class spa_factory<libbase::gf<7, 0x89> > ;
-template class spa_factory<libbase::gf<8, 0x11D> > ;
-template class spa_factory<libbase::gf<9, 0x211> > ;
-template class spa_factory<libbase::gf<10, 0x409> > ;
-
-}

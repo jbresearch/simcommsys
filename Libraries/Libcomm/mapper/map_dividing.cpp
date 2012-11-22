@@ -46,10 +46,19 @@ void map_dividing<libbase::vector, dbl>::dotransform(const array1i_t& in,
    assertalways(in.size() == This::input_block_size());
    // Initialize results vector
    out.init(This::output_block_size());
-   // Modulate encoded stream (least-significant first)
-   for (int t = 0, k = 0; t < Base::size.length(); t++)
-      for (int i = 0, x = in(t); i < m_per_n; i++, k++, x /= Base::M)
-         out(k) = x % Base::M;
+   // Repeat for each q-ary encoded symbol
+   for (int t = 0; t < in.size(); t++)
+      // Divide this q-ary encoded symbol into 'k' M-ary modulated symbols
+      for (int i = 0, x = in(t); i < k; i++, x /= Base::M)
+         {
+         // t: current q-ary encoded symbol index
+         // i: index into k-set of M-ary modulated symbols, least-significant first
+         // x: starts as current q-ary encoded symbol value, shifted down so
+         //    that component from index i is in lsb position, = in(t) / M^i
+         // j: corresponding index into full sequence of M-ary modulated symbols
+         const int j = t * k + i;
+         out(j) = x % Base::M;
+         }
    }
 
 template <class dbl>
@@ -58,25 +67,35 @@ void map_dividing<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
    {
    // Confirm input symbol space is what we expect
    assertalways(pin.size() > 0);
-   assertalways(pin(0).size() == Base::N);
+   assertalways(pin(0).size() == Base::q);
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::input_block_size());
    // Initialize results vector
    libbase::allocate(pout, This::output_block_size(), Base::M);
-   // Transform the encoder output posteriors to blockmodem priors
+   // Repeat for each M-ary modulation symbol (index)
    for (int t = 0, mul = 1; t < This::output_block_size(); t++, mul *= Base::M)
       {
-      const int k = t / m_per_n;
-      const int offset = t - k * m_per_n;
-      if (offset == 0)
+      const int j = t / k;
+      const int i = t % k;
+      if (i == 0)
          mul = 1;
+      // Repeat for each M-ary modulation symbol (value)
       for (int x = 0; x < Base::M; x++)
          {
-         double temp = 0;
-         for (int d = 0; d < Base::N; d++)
+         // Aggregate the probabilities for the q-ary encoded symbols with
+         // index and values corresponding to this M-ary modulation symbol
+         // t: current M-ary modulation symbol index
+         // x: current M-ary modulation symbol value
+         // j: corresponding index into full sequence of q-ary encoded symbols
+         //    (remains the same for each k-set of M-ary modulation symbols)
+         // i: index into k-set of M-ary modulation symbols, least-significant first
+         // mul: corresponding multiplier, = M^i
+         // d: q-ary encoded symbol being considered
+         dbl p = 0;
+         for (int d = 0; d < Base::q; d++)
             if ((d / mul) % Base::M == x)
-               temp += pin(k)(d);
-         pout(t)(x) = temp;
+               p += pin(j)(d);
+         pout(t)(x) = p;
          }
       }
    }
@@ -91,15 +110,27 @@ void map_dividing<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
-   libbase::allocate(pout, This::input_block_size(), Base::N);
-   // Get the necessary data from the channel
+   libbase::allocate(pout, This::input_block_size(), Base::q);
+   // Repeat for each q-ary encoded symbol (index and value)
    for (int t = 0; t < This::input_block_size(); t++)
-      for (int x = 0; x < Base::N; x++)
+      for (int x = 0; x < Base::q; x++)
          {
-         double temp = 1;
-         for (int i = 0, thisx = x; i < m_per_n; i++, thisx /= Base::M)
-            temp *= pin(t * m_per_n + i)(thisx % Base::M);
-         pout(t)(x) = temp;
+         // Aggregate the probabilities for the M-ary modulation symbols with
+         // index and values corresponding to this q-ary encoded symbol
+         // t: current q-ary encoded symbol index
+         // x: current q-ary encoded symbol value
+         // i: index into k-set of M-ary modulation symbols, least-significant first
+         // thisx: x, shifted down so that component from index i is in lsb
+         //    position, = x / M^i
+         // j: corresponding index into full sequence of M-ary modulation symbols
+         dbl p = 1;
+         for (int i = 0, thisx = x; i < k; i++, thisx /= Base::M)
+            {
+            const int j = t * k + i;
+            const int y = thisx % Base::M;
+            p *= pin(j)(y);
+            }
+         pout(t)(x) = p;
          }
    }
 

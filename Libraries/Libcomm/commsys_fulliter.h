@@ -73,11 +73,6 @@ private:
    C<array1d_t> ptable_mapped; //!< Prior information to use in demodulation
    // @}
 public:
-   /*! \name Helper functions */
-   static void compute_extrinsic(C<array1d_t>& re, const C<array1d_t>& ro,
-         const C<array1d_t>& ri);
-   // @}
-
    // Communication System Interface
    void receive_path(const C<S>& received);
    void decode(C<int>& decoded);

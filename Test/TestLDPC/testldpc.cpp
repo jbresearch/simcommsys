@@ -34,6 +34,9 @@
 #include "sumprodalg/impl/sum_prod_alg_gdl.h"
 #include "linear_code_utils.h"
 #include "randgen.h"
+
+#include <boost/program_options.hpp>
+
 #include <fstream>
 
 using std::cerr;
@@ -115,7 +118,7 @@ void compute_dual()
    for (int i = 0; i < 31; i++)
       {
       info_sym = test.extractcol(i);
-      linear_code_utils<gf<1, 0x3> , double>::encode_cw(test, info_sym,
+      linear_code_utils<gf<1, 0x3>, double>::encode_cw(test, info_sym,
             code_word);
       cout << "codeword " << i + 1 << ": ";
       code_word.serialize(cout, ' ');
@@ -175,7 +178,7 @@ void test_ra_code()
    output2.init(n);
    for (int i = 0; i < k; i++)
       {
-      input *= 0;//reset to zero
+      input *= 0; //reset to zero
       input(i) = 1;
       sys_ra.encode(input, output);
       cout << "encoding: " << input << std::endl;
@@ -236,7 +239,7 @@ void test_ra_code()
 
    for (int i = 0; i < k; i++)
       {
-      input *= 0;//reset to zero
+      input *= 0; //reset to zero
       input(i) = 1;
       sys_ra.encode(input, output);
       linear_code_utils<gf_t, double>::encode_cw(gen_matrix_inter, input,
@@ -310,7 +313,7 @@ void test_cc_code()
    output2.init(n);
    for (int i = 0; i < k; i++)
       {
-      input *= 0;//reset to zero
+      input *= 0; //reset to zero
       input(i) = 1;
       turbo.encode(input, output);
       cout << "encoding: " << input << std::endl;
@@ -371,7 +374,7 @@ void test_cc_code()
 
    for (int i = 0; i < k; i++)
       {
-      input *= 0;//reset to zero
+      input *= 0; //reset to zero
       input(i) = 1;
       turbo.encode(input, output);
       linear_code_utils<gf_t, double>::encode_cw(gen_matrix_inter, input,
@@ -401,40 +404,82 @@ void test_cc_code()
 
    }
 
-int main(int argc, char *argv[])
+template <class GF>
+void process(bool serialized)
    {
-   //test_ra_code();
-   //return 0;
-   //test_cc_code();
-   //return 0;
-   if (argc != 2)
-      {
-      std::cerr << "Usage: " << argv[0] << " -s|-a" << std::endl;
-      std::cerr << "Where: -s = convert alist to serialized format" << std::endl;
-      std::cerr << "       -a = convert alist to alist format" << std::endl;
-      std::cerr << "Input is read from stdin and output written to stdout." << std::endl;
-      return -1;
-      }
-
    // read the alist LDPC code
-   ldpc<libbase::gf2, double> codec;
+   ldpc<GF, double> codec;
    codec.read_alist(std::cin);
+   std::cerr << "Codec: " << codec.description() << std::endl;
 
-   string mode(argv[1]);
-   if (mode == "-a")
+   if (serialized)
+      {
+      // write it in serialised format
+      std::cout << &codec;
+      }
+   else
       {
       // write it in alist format
       codec.write_alist(std::cout);
       }
-   else if (mode == "-s")
+   }
+
+int main(int argc, char *argv[])
+   {
+   namespace po = boost::program_options;
+
+   // Set up user parameters
+   po::options_description desc("Allowed options");
+   desc.add_options()("help", "print this help message");
+   desc.add_options()("serialized,s", po::bool_switch(),
+         "convert alist to serialized format");
+   desc.add_options()("alist,a", po::bool_switch(),
+         "convert alist to alist format");
+   desc.add_options()("type,t", po::value<std::string>()->default_value("gf2"),
+         "LDPC alphabet");
+   po::variables_map vm;
+   po::store(po::parse_command_line(argc, argv, desc), vm);
+   po::notify(vm);
+
+   // read switch parameters
+   const bool s = vm["serialized"].as<bool>();
+   const bool a = vm["alist"].as<bool>();
+
+   // Validate user parameters
+   if (vm.count("help") || (!s && !a) || (s && a))
       {
-      // write it in serialised format
-      codec.serialize(std::cout);
+      cout << desc << std::endl;
+      return 1;
       }
+
+   // Shorthand access for parameters
+   const std::string type = vm["type"].as<std::string>();
+
+   using libbase::gf;
+   if (type == "gf2")
+      process<gf<1, 0x3> >(s);
+   else if (type == "gf4")
+      process<gf<2, 0x7> >(s);
+   else if (type == "gf8")
+      process<gf<3, 0xB> >(s);
+   else if (type == "gf16")
+      process<gf<4, 0x13> >(s);
+   else if (type == "gf32")
+      process<gf<5, 0x25> >(s);
+   else if (type == "gf64")
+      process<gf<6, 0x43> >(s);
+   else if (type == "gf128")
+      process<gf<7, 0x89> >(s);
+   else if (type == "gf256")
+      process<gf<8, 0x11D> >(s);
+   else if (type == "gf512")
+      process<gf<9, 0x211> >(s);
+   else if (type == "gf1024")
+      process<gf<10, 0x409> >(s);
    else
       {
-      std::cerr << "Unrecognized mode." << std::endl;
-      return -1;
+      std::cerr << "Unrecognized symbol type: " << type << std::endl;
+      return 1;
       }
    return 0;
    }

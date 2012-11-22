@@ -33,6 +33,7 @@
 
 #include "commsys_fulliter.h"
 #include "vectorutils.h"
+#include "vector_itfunc.h"
 #include "modem/informed_modulator.h"
 #include "codec/codec_softout.h"
 #include "gf.h"
@@ -51,46 +52,6 @@ namespace libcomm {
 #  undef DEBUG
 #  define DEBUG 1
 #endif
-
-// Helper functions
-
-/*! \brief Compute extrinsic information
- *
- * \param[out] re extrinsic information
- * \param[in] ro 'full' posterior information
- * \param[in] ri (extrinsic) prior information
- *
- * Computes extrinsic information as re = ro/ri, except cases where ri=0, where
- * re=ro.
- *
- * \note re may point to the same memory as ro/ri, so care must be taken.
- */
-template <class S, template <class > class C>
-void commsys_fulliter<S, C>::compute_extrinsic(C<array1d_t>& re, const C<
-      array1d_t>& ro, const C<array1d_t>& ri)
-   {
-   // Handle the case where the prior information is empty
-   if (ri.size() == 0)
-      re = ro;
-   else
-      {
-      // Determine size
-      const int tau = ro.size();
-      const int N = ro(0).size();
-      // Check for validity
-      assert(ri.size() == tau);
-      assert(ri(0).size() == N);
-      // Allocate space for re (if necessary)
-      libbase::allocate(re, tau, N);
-      // Perform computation
-      for (int i = 0; i < tau; i++)
-         for (int x = 0; x < N; x++)
-            if (ri(i)(x) > 0)
-               re(i)(x) = ro(i)(x) / ri(i)(x);
-            else
-               re(i)(x) = ro(i)(x);
-      }
-   }
 
 // Communication System Interface
 
@@ -129,7 +90,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       libbase::trace << ptable_mapped.extract(0,5);
 #endif
       // Compute extrinsic information for passing to codec
-      compute_extrinsic(ptable_mapped, ptable_full, ptable_mapped);
+      libbase::compute_extrinsic(ptable_mapped, ptable_full, ptable_mapped);
       // After-demodulation receive path
       softreceive_path(ptable_mapped);
       }
@@ -151,7 +112,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       C<array1d_t> ro_mapped;
       this->map->transform(ro, ro_mapped);
       // Compute extrinsic information for next demodulation cycle
-      compute_extrinsic(ptable_mapped, ro_mapped, ptable_mapped);
+      libbase::compute_extrinsic(ptable_mapped, ro_mapped, ptable_mapped);
 #if DEBUG>=3
       libbase::trace << "DEBUG (fulliter): codec soft-output = " << std::endl;
       libbase::trace << ptable_mapped.extract(0,5);

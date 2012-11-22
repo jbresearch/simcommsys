@@ -56,14 +56,14 @@ template <class dbl>
 void map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
       array1vd_t& pout) const
    {
-   assert(Base::M == Base::N); // otherwise the map would lose all meaning
+   assert(Base::M == Base::q); // otherwise the map would lose all meaning
    assert(pin.size() == lut.size());
-   assert(pin(0).size() == Base::N);
+   assert(pin(0).size() == Base::q);
    // final matrix is the same size as input
-   libbase::allocate(pout, lut.size(), Base::N);
+   libbase::allocate(pout, lut.size(), Base::q);
    // permute the likelihood tables
    for (int i = 0; i < lut.size(); i++)
-      for (int j = 0; j < Base::N; j++)
+      for (int j = 0; j < Base::q; j++)
          pout(i)(lut(i)(j)) = pin(i)(j);
    }
 

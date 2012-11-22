@@ -10,7 +10,7 @@ mpsk
 # Alphabet size in symbols
 4
 ## Mapper
-map_aggregating<vector,double>
+map_aggregating<vector,double,double>
 ## Codec
 turbo<double,double>
 # Version

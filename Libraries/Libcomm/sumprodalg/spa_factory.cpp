@@ -1,8 +1,8 @@
 /*!
  * \file
- * 
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,35 +17,35 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * \section svn Version Control
  * - $Id$
  */
 
-#include "modem.h"
-#include "gf.h"
-#include <cstdlib>
-#include <sstream>
+#include "spa_factory.h"
+#include "mpreal.h"
 
 namespace libcomm {
 
-// *** Common Modulator Interface ***
-
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::mpreal;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-#define SYMBOL_TYPE_SEQ \
-   (sigspace)(bool) \
-   GF_TYPE_SEQ
+#define REAL_TYPE_SEQ \
+   (double)(mpreal)
 
-#define INSTANTIATE(r, x, type) \
-      template class basic_modem<type>;
+#define INSTANTIATE(r, args) \
+      template class spa_factory<BOOST_PP_SEQ_ENUM(args)>;
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

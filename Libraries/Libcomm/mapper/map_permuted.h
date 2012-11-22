@@ -83,7 +83,7 @@ private:
 protected:
    // Pull in base class variables
    using Base::M;
-   using Base::N;
+   using Base::q;
 
 protected:
    // Interface with mapper

@@ -32,6 +32,7 @@
 
 #include "randgen.h"
 #include "itfunc.h"
+#include "vector_itfunc.h"
 #include "serializer.h"
 #include <cstdlib>
 #include <cmath>
@@ -174,8 +175,6 @@ protected:
          array1d_t& sof_post, array1d_t& eof_post, const int offset);
 private:
    /*! \name Internal functions */
-   static void normalize(const array1r_t& in, array1d_t& out);
-   static void normalize_results(const array1vr_t& in, array1vd_t& out);
    // Setup function
    void init(const channel<sig>& chan, const array1d_t& sof_pdf,
          const int offset);
@@ -282,7 +281,7 @@ public:
       // get the posterior channel drift pdf at codeword boundaries
       array1vr_t pdftable_r;
       fba.get_drift_pdf(pdftable_r);
-      normalize_results(pdftable_r.extract(0, N + 1), pdftable);
+      libbase::normalize_results(pdftable_r.extract(0, N + 1), pdftable);
       }
    array1i_t get_boundaries(void) const
       {

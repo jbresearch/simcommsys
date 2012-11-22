@@ -68,9 +68,9 @@ void map_stipple<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
       array1vd_t& pout) const
    {
    assertalways(pin.size() == pattern.size());
-   assertalways(pin(0).size() == Base::N);
+   assertalways(pin(0).size() == Base::q);
    // final matrix size depends on the number of set positions
-   libbase::allocate(pout, This::output_block_size(), Base::N);
+   libbase::allocate(pout, This::output_block_size(), Base::q);
    // puncture the likelihood tables
    for (int i = 0, ii = 0; i < pin.size(); i++)
       if (pattern(i))

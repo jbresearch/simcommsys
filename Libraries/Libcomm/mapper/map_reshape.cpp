@@ -71,7 +71,7 @@ void map_reshape<dbl>::dotransform(const array2vd_t& pin,
    {
    // Confirm input symbol space is what we expect
    assertalways(pin.size() > 0);
-   assertalways(pin(0, 0).size() == Base::N);
+   assertalways(pin(0, 0).size() == Base::q);
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::input_block_size());
    // Initialize results vector

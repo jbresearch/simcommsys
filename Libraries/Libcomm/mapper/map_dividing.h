@@ -77,7 +77,7 @@ public:
 
 private:
    /*! \name Internal object representation */
-   int m_per_n; //!< Number of blockmodem symbols per encoder output symbol
+   int k; //!< Number of blockmodem symbols per encoder output symbol
    // @}
 
 protected:
@@ -89,7 +89,7 @@ protected:
     */
    void setup()
       {
-      m_per_n = get_rate(Base::M, Base::N);
+      k = get_rate(Base::M, Base::q);
       }
    void dotransform(const array1i_t& in, array1i_t& out) const;
    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
@@ -99,7 +99,7 @@ public:
    // Informative functions
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      return libbase::size_type<libbase::vector>(this->size * m_per_n);
+      return libbase::size_type<libbase::vector>(this->size * k);
       }
 
    // Description

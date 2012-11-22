@@ -25,7 +25,7 @@
 #include "commsys_stream_simulator.h"
 
 #include "vectorutils.h"
-#include "commsys_fulliter.h"
+#include "vector_itfunc.h"
 #include "hard_decision.h"
 #include <sstream>
 
@@ -72,7 +72,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       }
 
    // Get access to the results collector in codeword boundary analysis mode
-   fidelity_pos* rc = dynamic_cast<fidelity_pos*> (this);
+   fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
    // Get access to the decoder-side commsys object in stream-oriented mode
    commsys_stream<S>& sys_dec = getsys_stream();
 
@@ -139,8 +139,6 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 #endif
       }
    // If it's the last frame in a terminated stream, set eof prior accordingly.
-   // TODO: this needs to be fixed to work with lookahead > 0
-   assertalways(!(mode == mode_terminated && lookahead > 0));
    if (mode == mode_terminated && frames_decoded == N - 1)
       {
       // determine the actual drift at the end of the frame to be decoder
@@ -169,12 +167,18 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       sys_dec.getmodem_stream().demodulate(*sys_dec.getrxchan(),
             received_segment, lookahead, sof_prior, eof_prior, ptable_ext,
             ptable_post, sof_post, eof_post, offset);
+      // Normalize posterior information
+      libbase::normalize_results(ptable_post, ptable_post);
       // Compute extrinsic information for passing to codec
-      commsys_fulliter<S>::compute_extrinsic(ptable_ext, ptable_post,
-            ptable_ext);
+      libbase::compute_extrinsic(ptable_ext, ptable_post, ptable_ext);
       // After-demodulation receive path
+      // Inverse Map
+      array1vd_t ptable_encoded;
+      sys_dec.getmapper()->inverse(ptable_ext, ptable_encoded);
+      // Translate
+      sys_dec.getcodec()->init_decoder(ptable_encoded);
       // Inverse Map -> Translate
-      sys_dec.softreceive_path(ptable_ext);
+      //sys_dec.softreceive_path(ptable_ext);
       //sys_dec.receive_path(received_segment, lookahead, sof_prior, eof_prior, offset);
 
       // and perform codeword boundary analysis if this is indicated
@@ -225,11 +229,16 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
             R::updateresults(result_segment, source_this, decoded);
             }
          }
-      // Pass posterior information through mapper
-      array1vd_t ro_mapped;
-      sys_dec.getmapper()->transform(ro, ro_mapped);
+      // Normalize posterior information
+      libbase::normalize_results(ro, ro);
       // Compute extrinsic information for next demodulation cycle
-      commsys_fulliter<S>::compute_extrinsic(ptable_ext, ro_mapped, ptable_ext);
+      libbase::compute_extrinsic(ptable_encoded, ro, ptable_encoded);
+      // Pass through mapper
+      sys_dec.getmapper()->transform(ptable_encoded, ptable_ext);
+      //array1vd_t ro_mapped;
+      //sys_dec.getmapper()->transform(ro, ro_mapped);
+      // Compute extrinsic information for next demodulation cycle
+      //libbase::compute_extrinsic(ptable_ext, ro_mapped, ptable_ext);
       // Keep record of what we last simulated
       this->last_event = concatenate(source_this, decoded);
       // If this was not the last iteration, mark components as clean
@@ -299,7 +308,8 @@ std::string commsys_stream_simulator<S, R>::description() const
 // object serialization - saving
 
 template <class S, class R>
-std::ostream& commsys_stream_simulator<S, R>::serialize(std::ostream& sout) const
+std::ostream& commsys_stream_simulator<S, R>::serialize(
+      std::ostream& sout) const
    {
    // format version
    sout << "# Version" << std::endl;
@@ -363,8 +373,8 @@ std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
       int temp;
       // read streaming mode
       sin >> libbase::eatcomments >> temp >> libbase::verify;
-      assertalways(temp >=0 && temp < mode_undefined);
-      mode = static_cast<mode_enum> (temp);
+      assertalways(temp >= 0 && temp < mode_undefined);
+      mode = static_cast<mode_enum>(temp);
       // read mode-dependent parameters
       switch (mode)
          {
@@ -437,6 +447,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+      (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // end namespace

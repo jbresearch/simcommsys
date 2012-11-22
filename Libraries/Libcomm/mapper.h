@@ -85,7 +85,7 @@ public:
 
 protected:
    /*! \name User-defined parameters */
-   int N; //!< Alphabet size for encoder output
+   int q; //!< Alphabet size for encoder output
    int M; //!< Alphabet size for blockmodem input
    libbase::size_type<C> size; //!< Input block size in symbols
    // @}
@@ -185,12 +185,12 @@ public:
       }
    /*!
     * \brief Sets input and output alphabet sizes
-    * \param[in]  N  Alphabet size for encoder output
+    * \param[in]  q  Alphabet size for encoder output
     * \param[in]  M  Alphabet size for blockmodem input
     */
-   void set_parameters(const int N, const int M)
+   void set_parameters(const int q, const int M)
       {
-      this->N = N;
+      this->q = q;
       this->M = M;
       setup();
       }

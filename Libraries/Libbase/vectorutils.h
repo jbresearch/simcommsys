@@ -28,6 +28,18 @@
 #include "vector.h"
 #include "matrix.h"
 
+/*!
+ * \file
+ * \brief   Generic Utility Functions for Vectors.
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ *
+ */
+
 namespace libbase {
 
 /*! \brief Returns the index of the min value

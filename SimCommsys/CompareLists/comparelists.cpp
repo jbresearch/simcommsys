@@ -298,10 +298,15 @@ int main(int argc, char *argv[])
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
 
+   // read switch parameters
+   const bool ham = vm["hamming"].as<bool> ();
+   const bool lev = vm["levenshtein"].as<bool> ();
+   const bool rep = vm["repeatability"].as<bool> ();
+   const bool mse = vm["mse"].as<bool> ();
+
    // Validate user parameters
    if (vm.count("help") || vm.count("sequence1-file") == 0 || vm.count(
-         "sequence1-file") == 0 || (vm.count("hamming") + vm.count(
-         "levenshtein") + vm.count("repeatability") + vm.count("mse")) == 0)
+         "sequence1-file") == 0 || (!ham && !lev && !rep && !mse))
       {
       cout << desc << std::endl;
       return 0;
@@ -312,10 +317,6 @@ int main(int argc, char *argv[])
    const std::string fname2 = vm["sequence2-file"].as<std::string> ();
    const double t = vm["threshold"].as<double> ();
    const bool coordinates = vm["coordinates"].as<bool> ();
-   const bool ham = vm["hamming"].as<bool> ();
-   const bool lev = vm["levenshtein"].as<bool> ();
-   const bool rep = vm["repeatability"].as<bool> ();
-   const bool mse = vm["mse"].as<bool> ();
 
    // call main process
 

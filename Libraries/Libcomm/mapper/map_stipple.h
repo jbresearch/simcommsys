@@ -87,7 +87,7 @@ private:
 protected:
    // Pull in base class variables
    using Base::size;
-   using Base::N;
+   using Base::q;
    using Base::M;
 
 protected:

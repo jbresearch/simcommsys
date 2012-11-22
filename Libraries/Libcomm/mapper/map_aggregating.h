@@ -41,9 +41,11 @@ namespace libcomm {
  * This class is a template definition for aggregating mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
  * here.
+ *
+ * \tparam dbl2 Floating-point type for internal computation (pre-normalization)
  */
 
-template <template <class > class C = libbase::vector, class dbl = double>
+template <template <class > class C = libbase::vector, class dbl = double, class dbl2 = double>
 class map_aggregating : public mapper<C, dbl> {
 };
 
@@ -61,12 +63,12 @@ class map_aggregating : public mapper<C, dbl> {
  * For example, it will allow the use of binary codecs on q-ary modulators.
  */
 
-template <class dbl>
-class map_aggregating<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+template <class dbl, class dbl2>
+class map_aggregating<libbase::vector, dbl, dbl2> : public mapper<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef mapper<libbase::vector, dbl> Base;
-   typedef map_aggregating<libbase::vector, dbl> This;
+   typedef map_aggregating<libbase::vector, dbl, dbl2> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -76,7 +78,7 @@ public:
 
 private:
    /*! \name Internal object representation */
-   int n_per_m; //!< Number of encoder output symbols per blockmodem symbol
+   int k; //!< Number of encoder output symbols per blockmodem symbol
    // @}
 
 protected:
@@ -89,8 +91,8 @@ protected:
     */
    void setup()
       {
-      n_per_m = get_rate(Base::N, Base::M);
-      assertalways(this->input_block_size() == output_block_size() * n_per_m);
+      k = get_rate(Base::q, Base::M);
+      assertalways(this->input_block_size() == output_block_size() * k);
       }
    void dotransform(const array1i_t& in, array1i_t& out) const;
    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
@@ -100,7 +102,7 @@ public:
    // Informative functions
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      return libbase::size_type<libbase::vector>(this->size / n_per_m);
+      return libbase::size_type<libbase::vector>(this->size / k);
       }
 
    // Description
