@@ -55,7 +55,7 @@ void sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
          {
          //Clipping HACK
          tmp_prob = recvd_probs(loop_n)(loop_e);
-         perform_clipping(tmp_prob);
+         this->perform_clipping(tmp_prob);
          this->received_probs(loop_n)(loop_e) = tmp_prob;
          alpha += tmp_prob;
          }
@@ -231,7 +231,7 @@ void sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m, int n,
    for (int loop1 = 0; loop1 < num_of_elements; loop1++)
       {
       //Clipping HACK
-      perform_clipping(q_nm_conv_prod(loop1));
+      this->perform_clipping(q_nm_conv_prod(loop1));
       sum_qnm += q_nm_conv_prod(loop1);
       }
 
@@ -275,7 +275,7 @@ void sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n,
             }
          }
       //Clipping HACK
-      perform_clipping(q_mn(loop_e));
+      this->perform_clipping(q_mn(loop_e));
       }
 
    //normalise the q_mxn's so that q_mxn_0+q_mxn_1=1
@@ -343,6 +343,7 @@ void sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n,
 } // end namespace
 
 #include "mpreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -352,6 +353,7 @@ namespace libcomm {
 #include <boost/preprocessor/seq/enum.hpp>
 
 using libbase::mpreal;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -359,12 +361,12 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-   (double)(mpreal)
+      (double)(logrealfast)(mpreal)
 
 /* Serialization string: ldpc<type,real>
  * where:
  *      type = gf2 | gf4 ...
- *      real = double | mpreal
+ *      real = double | logrealfast | mpreal
  */
 #define INSTANTIATE(r, args) \
       template class sum_prod_alg_gdl<BOOST_PP_SEQ_ENUM(args)>;

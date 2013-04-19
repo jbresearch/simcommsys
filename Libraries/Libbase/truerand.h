@@ -46,13 +46,15 @@ namespace libbase {
  * - $Date$
  * - $Author$
  *
- * Provide true random numbers (through OS routines), originally created
- * to facilitate seeding slave workers in the master-slave mode
- *
- * \note
- * - idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
+ * Provide "true" random numbers, through OS routines. This was originally
+ * created to facilitate seeding slave workers with independent seeds.
+ * The random source used is a non-blocking cryptographically secure PRNG,
+ * regularly re-seeded from entropy sources available to the kernel.
+ * Specifically:
  * - Win32 support provided through CryptoAPI
- * - UNIX support provided through /dev/random
+ * - UNIX support provided through /dev/urandom
+ *
+ * \note Idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
  */
 
 class truerand : public random {

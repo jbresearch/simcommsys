@@ -65,7 +65,10 @@ class sigspace {
    double inphase, quad;
 public:
    // creator / destructor
-   sigspace(const double i = 0, const double q = 0);
+   sigspace(const double i = 0, const double q = 0) :
+         inphase(i), quad(q)
+      {
+      }
 
    double i() const
       {
@@ -89,126 +92,92 @@ public:
       }
 
    // arithmetic operations
-   sigspace& operator+=(const sigspace& a);
-   sigspace& operator-=(const sigspace& a);
-   sigspace& operator*=(const double a);
-   sigspace& operator/=(const double a);
+   sigspace& operator+=(const sigspace& a)
+      {
+      inphase += a.inphase;
+      quad += a.quad;
+      return *this;
+      }
+   sigspace& operator-=(const sigspace& a)
+      {
+      inphase -= a.inphase;
+      quad -= a.quad;
+      return *this;
+      }
+   sigspace& operator*=(const double a)
+      {
+      inphase *= a;
+      quad *= a;
+      return *this;
+      }
+   sigspace& operator/=(const double a)
+      {
+      inphase /= a;
+      quad /= a;
+      return *this;
+      }
+
    // arithmetic operations - friends
-   friend bool operator==(const sigspace& a, const sigspace& b);
-   friend bool operator!=(const sigspace& a, const sigspace& b);
-   friend sigspace operator-(const sigspace& a);
-   friend sigspace operator+(const sigspace& a, const sigspace& b);
-   friend sigspace operator-(const sigspace& a, const sigspace& b);
-   friend sigspace operator*(const sigspace& a, const double b);
-   friend sigspace operator/(const sigspace& a, const double b);
-   friend sigspace operator*(const double a, const sigspace& b);
-   friend sigspace operator/(const double a, const sigspace& b);
+
+   // comparison operations
+   friend bool operator==(const sigspace& a, const sigspace& b)
+      {
+      return (a.inphase == b.inphase && a.quad == b.quad);
+      }
+
+   friend bool operator!=(const sigspace& a, const sigspace& b)
+      {
+      return (a.inphase != b.inphase || a.quad != b.quad);
+      }
+
+   // arithmetic operations - unary
+   friend sigspace operator-(const sigspace& a)
+      {
+      return sigspace(-a.inphase, -a.quad);
+      }
+
+   // arithmetic operations - friends
+   friend sigspace operator+(const sigspace& a, const sigspace& b)
+      {
+      sigspace c = a;
+      c += b;
+      return c;
+      }
+   friend sigspace operator-(const sigspace& a, const sigspace& b)
+      {
+      sigspace c = a;
+      c -= b;
+      return c;
+      }
+   friend sigspace operator*(const sigspace& a, const double b)
+      {
+      sigspace c = a;
+      c *= b;
+      return c;
+      }
+   friend sigspace operator/(const sigspace& a, const double b)
+      {
+      sigspace c = a;
+      c /= b;
+      return c;
+      }
+   friend sigspace operator*(const double a, const sigspace& b)
+      {
+      sigspace c = b;
+      c *= a;
+      return c;
+      }
+   friend sigspace operator/(const double a, const sigspace& b)
+      {
+      sigspace c = b;
+      c /= a;
+      return c;
+      }
 
    // stream input / output
    friend std::ostream& operator<<(std::ostream& s, const sigspace& x);
    friend std::istream& operator>>(std::istream& s, sigspace& x);
 };
-
-// creator / destructor
-
-inline sigspace::sigspace(const double i, const double q)
-   {
-   inphase = i;
-   quad = q;
-   }
-
-// arithmetic operations
-
-inline sigspace& sigspace::operator+=(const sigspace& a)
-   {
-   inphase += a.inphase;
-   quad += a.quad;
-   return *this;
-   }
-
-inline sigspace& sigspace::operator-=(const sigspace& a)
-   {
-   inphase -= a.inphase;
-   quad -= a.quad;
-   return *this;
-   }
-
-inline sigspace& sigspace::operator*=(const double a)
-   {
-   inphase *= a;
-   quad *= a;
-   return *this;
-   }
-
-inline sigspace& sigspace::operator/=(const double a)
-   {
-   inphase /= a;
-   quad /= a;
-   return *this;
-   }
-
-// comparison operations
-
-inline bool operator==(const sigspace& a, const sigspace& b)
-   {
-   return (a.inphase == b.inphase && a.quad == b.quad);
-   }
-
-inline bool operator!=(const sigspace& a, const sigspace& b)
-   {
-   return (a.inphase != b.inphase || a.quad != b.quad);
-   }
-
-// arithmetic operations - unary
-
-inline sigspace operator-(const sigspace& a)
-   {
-   return sigspace(-a.inphase, -a.quad);
-   }
-
-// arithmetic operations - friends
-
-inline sigspace operator+(const sigspace& a, const sigspace& b)
-   {
-   sigspace c = a;
-   c += b;
-   return c;
-   }
-
-inline sigspace operator-(const sigspace& a, const sigspace& b)
-   {
-   sigspace c = a;
-   c -= b;
-   return c;
-   }
-
-inline sigspace operator*(const sigspace& a, const double b)
-   {
-   sigspace c = a;
-   c *= b;
-   return c;
-   }
-
-inline sigspace operator/(const sigspace& a, const double b)
-   {
-   sigspace c = a;
-   c /= b;
-   return c;
-   }
-
-inline sigspace operator*(const double a, const sigspace& b)
-   {
-   sigspace c = b;
-   c *= a;
-   return c;
-   }
-
-inline sigspace operator/(const double a, const sigspace& b)
-   {
-   sigspace c = b;
-   c /= a;
-   return c;
-   }
 
 } // end namespace
 

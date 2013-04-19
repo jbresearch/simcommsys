@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "codec.h"
+#include "hard_decision.h"
 
 namespace libcomm {
 
@@ -42,10 +43,15 @@ namespace libcomm {
 
 template <template <class > class C = libbase::vector, class dbl = double>
 class codec_softout_interface : public codec<C, dbl> {
+private:
+   // Shorthand for class hierarchy
+   typedef codec<C, dbl> Base;
+
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
    // @}
+
 protected:
    /*! \name Internal codec operations */
    /*!
@@ -73,15 +79,28 @@ protected:
     */
    virtual void setreceiver(const C<array1d_t>& ptable) = 0;
    // @}
+protected:
+   /*! \name Interface with derived classes */
+   //! \copydoc init_decoder()
+   virtual void do_init_decoder(const C<array1d_t>& ptable,
+         const C<array1d_t>& app) = 0;
+   // @}
 public:
    /*! \name Codec operations */
+   using Base::init_decoder;
    /*!
     * \copydoc codec::init_decoder()
     * \param[in] app Likelihoods of each possible input symbol at every
     * (input) timestep
     */
-   virtual void init_decoder(const C<array1d_t>& ptable,
-         const C<array1d_t>& app) = 0;
+   void init_decoder(const C<array1d_t>& ptable, const C<array1d_t>& app)
+      {
+      //libbase::cputimer t("t_init_decoder");
+      this->advance_if_dirty();
+      do_init_decoder(ptable, app);
+      this->mark_as_dirty();
+      //add_timer(t);
+      }
    /*!
     * \brief Decoding process
     * \param[out] ri Likelihood table for input symbols at every timestep
@@ -142,11 +161,39 @@ public:
    typedef libbase::vector<dbl> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
+private:
+   /*! \name Internally-used objects */
+   hard_decision<libbase::vector, dbl, int> hd_functor; //!< Hard-decision box
+   // @}
+protected:
+   // Interface with derived classes
+   void do_init_decoder(const array1vd_t& ptable)
+      {
+      array1vd_t temp;
+      temp = ptable;
+      this->setreceiver(temp);
+      this->resetpriors();
+      }
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+      {
+      this->setreceiver(ptable);
+      this->setpriors(app);
+      }
 public:
    // Codec operations
-   void init_decoder(const array1vd_t& ptable);
-   void init_decoder(const array1vd_t& ptable, const array1vd_t& app);
-   void decode(array1i_t& decoded);
+   void seedfrom(libbase::random& r)
+      {
+      // Call base method first
+      codec_softout_interface<libbase::vector, dbl>::seedfrom(r);
+      // Seed hard-decision box
+      hd_functor.seedfrom(r);
+      }
+   void decode(array1i_t& decoded)
+      {
+      array1vd_t ri;
+      this->softdecode(ri);
+      hd_functor(ri, decoded);
+      }
 };
 
 } // end namespace

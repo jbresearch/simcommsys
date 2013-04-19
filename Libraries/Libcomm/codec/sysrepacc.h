@@ -57,6 +57,7 @@ public:
    typedef libbase::matrix<dbl> array2d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
+
 private:
    // Grant access to inherited fields and methods
    using Base::ra;
@@ -65,18 +66,14 @@ private:
    using Base::initialised;
    using Base::allocate;
    using Base::reset;
+
+protected:
+   // Interface with derived classes
+   void do_encode(const array1i_t& source, array1i_t& encoded);
+   void do_init_decoder(const array1vd_t& ptable);
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
+
 public:
-   /*! \name Constructors / Destructors */
-   ~sysrepacc()
-      {
-      }
-   // @}
-
-   // Codec operations
-   void encode(const array1i_t& source, array1i_t& encoded);
-   void init_decoder(const array1vd_t& ptable);
-   void init_decoder(const array1vd_t& ptable, const array1vd_t& app);
-
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> output_block_size() const
       {

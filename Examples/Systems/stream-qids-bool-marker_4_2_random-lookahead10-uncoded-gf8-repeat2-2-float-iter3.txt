@@ -1,0 +1,55 @@
+commsys_stream<bool,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+qids<bool,float>
+# Version
+3
+# Vary Ps?
+0
+# Vary Pd?
+1
+# Vary Pi?
+1
+# Cap on I (0=uncapped)
+0
+# Fixed Ps value
+0
+# Fixed Pd value
+0
+# Fixed Pi value
+0
+# Mode for receiver (0=trellis, 1=lattice, 2=lattice corridor)
+0
+## Modem
+marker<bool,float,float>
+# Version
+1
+# Normalize metrics between time-steps?
+1
+# Number of codewords to look ahead when stream decoding
+10
+# d (number of data symbols between markers)
+4
+# m (length of marker sequence)
+2
+# marker type (0=random, 1=user[seq], 2=user[ran])
+0
+## Mapper
+map_dividing<vector,double,double>
+## Codec
+uncoded<double>
+# Encoder
+cached_fsm
+#: Base Encoder
+zsm<gf8>
+#: Repetition count
+2
+# Block length
+2
+# Version (stream extensions)
+1
+# Number of full-system iterations
+3

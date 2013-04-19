@@ -36,6 +36,7 @@
 #include "codec.h"
 #include "gf.h"
 #include "matrix.h"
+#include "hard_decision.h"
 #include <string>
 
 namespace libcomm {
@@ -56,21 +57,8 @@ public:
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<array1d_t> array1vd_t;
 
-public:
-   //!default constructor needed for serialization
-   reedsolomon()
-      {
-      //nothing to do
-      }
-   ~reedsolomon()
-      {
-      //nothing to do
-      }
-
-   /*! \name Codec operations */
-   //! Seeds any random generators from a pseudo-random sequence
-   void seedfrom(libbase::random& r);
-
+protected:
+   // Interface with derived classes
    /*!
     * \brief Encoding process
     * \param[in] source Sequence of source symbols, one per timestep
@@ -80,7 +68,7 @@ public:
     * aggregation of a set of symbols, the combination/division has to
     * be done externally.
     */
-   void encode(const array1i_t& source, array1i_t& encoded);
+   void do_encode(const array1i_t& source, array1i_t& encoded);
    /*!
     * \brief Receiver translation process
     * \param[in] ptable Likelihoods of each possible modulation symbol at every
@@ -95,7 +83,23 @@ public:
     * correspond to the number of encoder output symbols, and therefore
     * the number of modulation timesteps may be different from tau.
     */
-   void init_decoder(const array1vd_t& ptable);
+   void do_init_decoder(const array1vd_t& ptable);
+
+public:
+   //!default constructor needed for serialization
+   reedsolomon()
+      {
+      //nothing to do
+      }
+
+   /*! \name Codec operations */
+   //! Seeds any random generators from a pseudo-random sequence
+   void seedfrom(libbase::random& r)
+      {
+      // Seed hard-decision box
+      hd_functor.seedfrom(r);
+      }
+
    /*!
     * \brief Decoding process
     * \param[out] decoded Most likely sequence of information symbols, one per timestep
@@ -197,6 +201,8 @@ private:
    array1vd_t received_likelihoods;
    array1d_t received_word_sd;
 
+   //! Hard-decision box
+   hard_decision<libbase::vector, double, GF_q> hd_functor;
 };
 
 }

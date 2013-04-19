@@ -23,16 +23,12 @@
  */
 
 #include "direct_blockmodem.h"
-#include "gf.h"
-#include "logrealfast.h"
 #include <cstdlib>
 #include <sstream>
 
 namespace libcomm {
 
 using libbase::serializer;
-using libbase::gf;
-using libbase::logrealfast;
 using libbase::vector;
 using libbase::matrix;
 
@@ -103,6 +99,7 @@ std::istream& direct_blockmodem<G, C, dbl>::serialize(std::istream& sin)
 } // end namespace
 
 #include "gf.h"
+#include "erasable.h"
 #include "logrealfast.h"
 
 namespace libcomm {
@@ -114,6 +111,7 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::erasable;
 using libbase::logrealfast;
 using libbase::matrix;
 using libbase::vector;
@@ -132,6 +130,12 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
+#define ADD_ERASABLE(r, x, type) \
+   (type)(erasable<type>)
+
+#define ALL_SYMBOL_TYPE_SEQ \
+   BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, SYMBOL_TYPE_SEQ)
+
 /* Serialization string: direct_blockmodem<type,container,real>
  * where:
  *      type = gf2 | gf4 ...
@@ -149,6 +153,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>::create);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

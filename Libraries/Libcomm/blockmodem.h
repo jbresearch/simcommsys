@@ -31,6 +31,7 @@
 #include "channel.h"
 #include "blockprocess.h"
 #include "instrumented.h"
+#include "cputimer.h"
 
 namespace libcomm {
 
@@ -105,7 +106,14 @@ public:
     * \note This function is non-const, to support time-variant modulation
     * schemes such as DM inner codes.
     */
-   void modulate(const int N, const C<int>& encoded, C<S>& tx);
+   void modulate(const int N, const C<int>& encoded, C<S>& tx)
+      {
+      test_invariant();
+      //libbase::cputimer t("t_modulate");
+      advance_always();
+      domodulate(N, encoded, tx);
+      //add_timer(t);
+      }
    /*!
     * \brief Demodulate a sequence of time-steps
     * \param[in]  chan     The channel model (used to obtain likelihoods)
@@ -119,7 +127,15 @@ public:
     * schemes such as DM inner codes.
     */
    void demodulate(const channel<S, C>& chan, const C<S>& rx,
-         C<array1d_t>& ptable);
+         C<array1d_t>& ptable)
+      {
+      test_invariant();
+      libbase::cputimer t("t_demodulate");
+      advance_if_dirty();
+      dodemodulate(chan, rx, ptable);
+      mark_as_dirty();
+      add_timer(t);
+      }
    // @}
 
    /*! \name Setup functions */

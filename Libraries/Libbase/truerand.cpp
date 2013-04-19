@@ -48,10 +48,10 @@ truerand::truerand()
       exit(1);
       }
 #else
-   fd = open("/dev/random", O_RDONLY);
+   fd = open("/dev/urandom", O_RDONLY);
    if (fd < 0)
       {
-      std::cerr << "ERROR (truerand): cannot open /dev/random." << std::endl;
+      std::cerr << "ERROR (truerand): cannot open /dev/urandom." << std::endl;
       exit(1);
       }
 #endif

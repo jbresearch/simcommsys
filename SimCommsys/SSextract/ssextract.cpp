@@ -92,6 +92,9 @@ void process(const std::string& systemfile, const std::string& channelfile,
    r.seed(0);
    system->seedfrom(r);
    system->set_blocksize(stegoimage.size());
+   // Set up and initialize hard-decision box
+   libcomm::hard_decision<C, double, int> hd_functor;
+   hd_functor.seedfrom(r);
    // Repeat for all image channels
    for (int c = 0; c < stegoimage.channels(); c++)
       {
@@ -106,8 +109,7 @@ void process(const std::string& systemfile, const std::string& channelfile,
       else
          {
          C<int> decoded;
-         libcomm::hard_decision<C, double> functor;
-         functor(ptable, decoded);
+         hd_functor(ptable, decoded);
          decoded.serialize(sout, '\n');
          }
       }

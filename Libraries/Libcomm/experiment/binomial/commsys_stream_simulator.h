@@ -29,6 +29,7 @@
 #include "commsys_simulator.h"
 #include "commsys_stream.h"
 #include "result_collector/commsys/fidelity_pos.h"
+#include "hard_decision.h"
 #include <list>
 
 namespace libcomm {
@@ -69,12 +70,12 @@ public:
 
 private:
    /*! \name User-defined parameters */
-   enum mode_enum {
-      mode_open = 0, //!< Open-ended (non-terminating) stream
-      mode_reset, //!< Open-ended stream with reset after N frames
-      mode_terminated, //!< Stream of length N frames
-      mode_undefined
-   } mode; //!< enum indicating streaming mode
+   enum stream_mode_enum {
+      stream_mode_open = 0, //!< Open-ended (non-terminating) stream
+      stream_mode_reset, //!< Open-ended stream with reset after N frames
+      stream_mode_terminated, //!< Stream of length N frames
+      stream_mode_undefined
+   } stream_mode; //!< enum indicating streaming mode
    int N; //!< number of frames to reset or end of stream
    // @}
    /*! \name Internally-used objects */
@@ -89,6 +90,7 @@ private:
    commsys_stream<S>* sys_enc; //!< Copy of the commsys object for encoder operations
    int frames_encoded; //!< Number of frames encoded since stream reset
    int frames_decoded; //!< Number of frames decoded since stream reset
+   hard_decision<libbase::vector, double, int> hd_functor; //!< Hard-decision box
    // @}
 
 protected:
@@ -143,7 +145,7 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    commsys_stream_simulator(const commsys_stream_simulator<S, R>& c) :
-         commsys_simulator<S, R>(c), mode(c.mode), N(c.N), source(c.source), received(
+         commsys_simulator<S, R>(c), stream_mode(c.stream_mode), N(c.N), source(c.source), received(
                c.received), eof_post(c.eof_post), offset(c.offset), estimated_drift(
                c.estimated_drift), act_bdry_drift(c.act_bdry_drift), actual_drift(
                c.actual_drift), drift_error(c.drift_error), frames_encoded(
@@ -152,7 +154,7 @@ public:
       sys_enc = dynamic_cast<commsys_stream<S>*>(c.sys_enc->clone());
       }
    commsys_stream_simulator() :
-         mode(mode_open), N(0), sys_enc(NULL)
+         stream_mode(stream_mode_open), N(0), sys_enc(NULL)
       {
       reset();
       }
@@ -165,7 +167,11 @@ public:
    /*! \name Communication System Setup */
    void seedfrom(libbase::random& r)
       {
+      // Call base method first
       Base::seedfrom(r);
+      // Seed hard-decision box
+      hd_functor.seedfrom(r);
+      // Clear internal state
       reset();
       }
    void set_parameter(const double x)

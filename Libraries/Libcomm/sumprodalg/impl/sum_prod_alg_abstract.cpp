@@ -276,6 +276,7 @@ template <class GF_q, class real> void sum_prod_alg_abstract<GF_q, real>::print_
 
 #include "gf.h"
 #include "mpreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -285,6 +286,7 @@ namespace libcomm {
 #include <boost/preprocessor/seq/enum.hpp>
 
 using libbase::mpreal;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -292,12 +294,12 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-   (double)(mpreal)
+   (double)(logrealfast)(mpreal)
 
 /* Serialization string: ldpc<type,real>
  * where:
  *      type = gf2 | gf4 ...
- *      real = double | mpreal
+ *      real = double | logrealfast | mpreal
  */
 #define INSTANTIATE(r, args) \
       template class sum_prod_alg_abstract<BOOST_PP_SEQ_ENUM(args)>;

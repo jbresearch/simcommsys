@@ -28,42 +28,114 @@
 #include "config.h"
 #include "vector.h"
 #include "matrix.h"
+#include "randgen.h"
+
+#include <list>
+#include <iostream>
 
 namespace libcomm {
 
-template <class dbl>
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of tie-breaks
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
+template <class dbl, class S>
 class basic_hard_decision {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
    // @}
+private:
+   /*! \name Internal object representation */
+   libbase::randgen r; //!< Random source for resolving tie-breaks
+#if DEBUG>=2
+   int calls; //!< Number of hard decisions taken
+   int ties; //!< Number of tie-breaks resolved
+#endif
+   // @}
 public:
-   int operator()(const array1d_t& ri)
+#if DEBUG>=2
+   //! Default constructor
+   basic_hard_decision() :
+         calls(0), ties(0)
       {
+      }
+   //! Destructor
+   ~basic_hard_decision()
+      {
+      if (calls > 0)
+         std::cerr << "DEBUG (hard_decision): " << ties << " tie-breaks in "
+               << calls << " hard decisions." << std::endl;
+      }
+#endif
+   //! Seeds random generator from a pseudo-random sequence
+   void seedfrom(libbase::random& r)
+      {
+      this->r.seed(r.ival());
+      }
+   /*!
+    * \brief Hard decision on soft information
+    * \param[in] ri Likelihood table for input symbols
+    * \return Index of the most likely input symbol
+    *
+    * Decide which input symbol was most probable. In case of ties, pick
+    * randomly from tied values.
+    */
+   S operator()(const array1d_t& ri)
+      {
+#if DEBUG>=2
+      calls++;
+#endif
       // Inherit size
       const int K = ri.size();
       assert(K > 0);
-      // Process
-      int decoded = 0;
-      for (int i = 1; i < K; i++)
-         if (ri(i) > ri(decoded))
-            decoded = i;
-      return decoded;
+      // Keep track of maximum value and list of indices
+      dbl maxval = 0;
+      std::list<int> indices;
+      // Find list of indices with maximum value
+      for (int i = 0; i < K; i++)
+         if (ri(i) > maxval)
+            {
+            maxval = ri(i);
+            indices.clear();
+            indices.push_back(i);
+            }
+         else if (ri(i) == maxval)
+            indices.push_back(i);
+      // Return index of maximum value, if there is only one
+      assert(indices.size() > 0);
+      if (indices.size() == 1)
+         return S(indices.front());
+      // pick randomly in case of ties
+#if DEBUG>=2
+      ties++;
+#endif
+      std::list<int>::const_iterator it = indices.begin();
+      const int skip = r.ival(indices.size());
+      for (int i = 0; i < skip; i++)
+         it++;
+      return S(*it);
       }
 };
 
-template <template <class > class C, class dbl>
-class hard_decision : public basic_hard_decision<dbl> {
+template <template <class > class C, class dbl, class S>
+class hard_decision : public basic_hard_decision<dbl, S> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
    // @}
 public:
-   int operator()(const C<array1d_t>& ri, C<int>& decoded);
+   void operator()(const C<array1d_t>& ri, C<S>& decoded);
 };
 
-template <class dbl>
-class hard_decision<libbase::vector, dbl> : public basic_hard_decision<dbl> {
+template <class dbl, class S>
+class hard_decision<libbase::vector, dbl, S> : public basic_hard_decision<dbl, S> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -78,7 +150,7 @@ public:
     * Decide which input sequence was most probable.
     */
    void operator()(const libbase::vector<array1d_t>& ri,
-         libbase::vector<int>& decoded)
+         libbase::vector<S>& decoded)
       {
       // Determine sizes from input matrix
       const int tau = ri.size();
@@ -92,13 +164,13 @@ public:
       for (int t = 0; t < tau; t++)
          {
          assert(ri(t).size() == K);
-         decoded(t) = basic_hard_decision<dbl>::operator()(ri(t));
+         decoded(t) = basic_hard_decision<dbl, S>::operator()(ri(t));
          }
       }
 };
 
-template <class dbl>
-class hard_decision<libbase::matrix, dbl> : public basic_hard_decision<dbl> {
+template <class dbl, class S>
+class hard_decision<libbase::matrix, dbl, S> : public basic_hard_decision<dbl, S> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -113,7 +185,7 @@ public:
     * Decide which input sequence was most probable.
     */
    void operator()(const libbase::matrix<array1d_t>& ri,
-         libbase::matrix<int>& decoded)
+         libbase::matrix<S>& decoded)
       {
       // Determine sizes from input matrix
       const int rows = ri.size().rows();
@@ -129,10 +201,16 @@ public:
          for (int j = 0; j < cols; j++)
             {
             assert(ri(i, j).size() == K);
-            decoded(i, j) = basic_hard_decision<dbl>::operator()(ri(i, j));
+            decoded(i, j) = basic_hard_decision<dbl, S>::operator()(ri(i, j));
             }
       }
 };
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

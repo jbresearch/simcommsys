@@ -48,14 +48,33 @@ namespace libcomm {
 
 template <class S, class R>
 class commsys_simulator : public experiment_binomial, public R {
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<double> array1d_t;
+   enum input_mode_t {
+      input_mode_zero = 0, //!< All-zero input
+      input_mode_random, //!< Random input
+      input_mode_user_sequential, //!< Sequentially-applied user sequence
+      input_mode_undefined
+   };
+   // @}
+
+private:
+   /*! \name User-defined parameters */
+   input_mode_t input_mode; //!< enum indicating input mode
+   array1i_t input_vectors; //!< user sequence of input symbols
+   // @}
+
 protected:
    /*! \name Bound objects */
    libbase::randgen src; //!< Source data sequence generator
    commsys<S> *sys; //!< Communication systems
    // @}
    /*! \name Internal state */
-   libbase::vector<int> last_event;
+   array1i_t last_event;
    // @}
+
 protected:
    /*! \name Setup functions */
    /*!
@@ -78,7 +97,7 @@ protected:
       }
    // @}
    /*! \name Internal functions */
-   libbase::vector<int> createsource();
+   array1i_t createsource();
    // @}
    // System Interface for Results
    int get_symbolsperblock() const
@@ -89,6 +108,7 @@ protected:
       {
       return sys->num_inputs();
       }
+
 public:
    /*! \name Constructors / Destructors */
    /*!
@@ -129,7 +149,7 @@ public:
       }
 
    // Experiment handling
-   void sample(libbase::vector<double>& result);
+   void sample(array1d_t& result);
    int count() const
       {
       return R::count() * sys->num_iter();
@@ -149,7 +169,7 @@ public:
       sout << R::result_description(index) << "_" << iter;
       return sout.str();
       }
-   libbase::vector<int> get_event() const
+   array1i_t get_event() const
       {
       return last_event;
       }

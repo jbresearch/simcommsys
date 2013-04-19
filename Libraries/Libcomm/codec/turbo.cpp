@@ -133,7 +133,7 @@ void turbo<real, dbl>::allocate()
    // set required format, storing previous settings
    const std::ios::fmtflags flags = std::cerr.flags();
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const int prec = std::cerr.precision(1);
+   const std::streamsize prec = std::cerr.precision(1);
    // determine memory occupied and tell user
    const size_t bytes_used = sizeof(dbl) * (rp.size() + ra.size()
          * ra(0).size() + R.size() * R(0).size());
@@ -373,7 +373,7 @@ void turbo<real, dbl>::seedfrom(libbase::random& r)
    }
 
 template <class real, class dbl>
-void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
    // Inherit sizes
@@ -398,8 +398,6 @@ void turbo<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
    // Consider sets in order
    for (int set = 0; set < sets; set++)
       {
-      // Advance interleaver to the next block
-      inter(set)->advance();
       // Create interleaved version of source
       for (int i = 0; i < k; i++)
          {

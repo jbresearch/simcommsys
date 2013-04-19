@@ -106,6 +106,13 @@ protected:
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
+   // Interface with derived classes
+   void advance() const
+      {
+      // Advance interleaver to the next block
+      inter->advance();
+      }
+   void do_encode(const array1i_t& source, array1i_t& encoded);
 public:
    /*! \name Constructors / Destructors */
    repacc();
@@ -116,8 +123,13 @@ public:
    // @}
 
    // Codec operations
-   void seedfrom(libbase::random& r);
-   void encode(const array1i_t& source, array1i_t& encoded);
+   void seedfrom(libbase::random& r)
+      {
+      // Call base method first
+      codec_softout<libbase::vector, dbl>::seedfrom(r);
+      // Seed interleaver
+      inter->seedfrom(r);
+      }
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 

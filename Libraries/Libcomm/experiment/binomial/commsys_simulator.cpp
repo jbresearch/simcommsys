@@ -47,10 +47,34 @@ namespace libcomm {
 template <class S, class R>
 libbase::vector<int> commsys_simulator<S, R>::createsource()
    {
+   // determine size and allocate space
    const int tau = sys->input_block_size();
    libbase::vector<int> source(tau);
-   for (int t = 0; t < tau; t++)
-      source(t) = src.ival(sys->num_inputs());
+   // fill as required
+   switch (input_mode)
+      {
+      case input_mode_zero:
+         source = 0;
+         break;
+
+      case input_mode_random:
+         for (int t = 0; t < tau; t++)
+            source(t) = src.ival(sys->num_inputs());
+         break;
+
+      case input_mode_user_sequential:
+         assert(input_vectors.size() >= 1);
+         for (int t = 0; t < tau; t++)
+            {
+            source(t) = input_vectors(t % input_vectors.size());
+            assertalways(source(t) >= 0 && source(t) < sys->num_inputs());
+            }
+         break;
+
+      default:
+         failwith("Unknown input mode");
+         break;
+      }
    return source;
    }
 
@@ -113,27 +137,124 @@ std::string commsys_simulator<S, R>::description() const
    std::ostringstream sout;
    sout << "Simulator for ";
    sout << sys->description();
+   switch (input_mode)
+      {
+      case input_mode_zero:
+         sout << ", all-zero input";
+         break;
+
+      case input_mode_random:
+         sout << ", random input";
+         break;
+
+      case input_mode_user_sequential:
+         sout << ", user input [" << input_vectors.size() << ", sequential]";
+         break;
+
+      default:
+         failwith("Unknown input mode");
+         break;
+      }
    return sout.str();
    }
+
+// object serialization - saving
 
 template <class S, class R>
 std::ostream& commsys_simulator<S, R>::serialize(std::ostream& sout) const
    {
+   // format version
+   sout << "# Version" << std::endl;
+   sout << 2 << std::endl;
+   sout << "# Input mode (0=zero, 1=random, 2=user[seq])" << std::endl;
+   sout << input_mode << std::endl;
+   switch (input_mode)
+      {
+      case input_mode_zero:
+      case input_mode_random:
+         break;
+
+      case input_mode_user_sequential:
+         sout << "#: input symbols - count" << std::endl;
+         sout << input_vectors.size() << std::endl;
+         sout << "#: input symbols - values" << std::endl;
+         input_vectors.serialize(sout, '\n');
+         break;
+
+      default:
+         failwith("Unknown input mode");
+         break;
+      }
+   sout << "# Communication system" << std::endl;
    sout << sys;
    return sout;
    }
+
+// object serialization - loading
+
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added input mode parameter and support for all-zero input
+ *
+ * \version 2 Added support for user-supplied sequence of input symbols
+ */
 
 template <class S, class R>
 std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
    {
    free();
+   assertalways(sin.good());
+   // get format version
+   int version;
+   sin >> libbase::eatcomments >> version;
+   // handle old-format files
+   if (sin.fail())
+      {
+      version = 0;
+      sin.clear();
+      }
+   // input mode
+   input_mode = input_mode_random;
+   if (version >= 1)
+      {
+      int temp;
+      // read input mode
+      sin >> libbase::eatcomments >> temp >> libbase::verify;
+      assertalways(temp >= 0 && temp < input_mode_undefined);
+      input_mode = static_cast<input_mode_t>(temp);
+      switch (input_mode)
+         {
+         case input_mode_zero:
+         case input_mode_random:
+            // gets generated automatically
+            break;
+
+         case input_mode_user_sequential:
+            // read count of input symbols
+            sin >> libbase::eatcomments >> temp >> libbase::verify;
+            // read input symbols from stream
+            input_vectors.init(temp);
+            sin >> libbase::eatcomments;
+            input_vectors.serialize(sin);
+            libbase::verify(sin);
+            break;
+
+         default:
+            failwith("Unknown input mode");
+            break;
+         }
+      }
+   // communication system object
    sin >> libbase::eatcomments >> sys >> libbase::verify;
+   assertalways(sin.good());
    return sin;
    }
 
 } // end namespace
 
 #include "gf.h"
+#include "erasable.h"
 #include "result_collector/commsys/errors_hamming.h"
 #include "result_collector/commsys/errors_levenshtein.h"
 #include "result_collector/commsys/prof_burst.h"
@@ -151,17 +272,28 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::erasable;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
+#define FINITE_TYPE_SEQ \
+   (bool) \
+   GF_TYPE_SEQ
+
+#define ADD_ERASABLE(r, x, type) \
+   (type)(erasable<type>)
+
+#define ALL_FINITE_TYPE_SEQ \
+   BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, FINITE_TYPE_SEQ)
+
 // *** General Communication System ***
 
 #define SYMBOL_TYPE_SEQ \
-   (sigspace)(bool) \
-   GF_TYPE_SEQ
+   (sigspace) \
+   ALL_FINITE_TYPE_SEQ
 #define COLLECTOR_TYPE_SEQ \
    (errors_hamming) \
    (errors_levenshtein) \
@@ -185,6 +317,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+      (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // end namespace

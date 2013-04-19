@@ -217,14 +217,11 @@ template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
       }
 
    //determine the most likely symbol
-   libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(
-         this->received_probs, this->received_word_sd, this->received_word_hd);
+   hd_functor(this->received_probs, this->received_word_hd);
 
 #if DEBUG>=2
    libbase::trace << std::endl << "Currently, the most likely received word is:" << std::endl;
    this->received_word_hd.serialize(libbase::trace, ' ');
-   libbase::trace << std::endl << " the symbol probabilities are given by:" << std::endl;
-   this->received_word_sd.serialize(libbase::trace, ' ');
 #endif
    //do not check whether we have a solution already. This will force
    //the algorithm to do at least 1 iteration. That should be enough
@@ -290,7 +287,7 @@ template <class GF_q, class real> void ldpc<GF_q, real>::isCodeword()
       }
 #endif
    }
-template <class GF_q, class real> void ldpc<GF_q, real>::encode(
+template <class GF_q, class real> void ldpc<GF_q, real>::do_encode(
       const libbase::vector<int>& source, libbase::vector<int>& encoded)
    {
    libbase::linear_code_utils<GF_q>::encode_cw(this->gen_matrix, source,
@@ -340,8 +337,7 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
 #endif
 
       //determine the most likely symbol
-      libbase::linear_code_utils<GF_q, real>::get_most_likely_received_word(
-            tmp_ro, this->received_word_sd, this->received_word_hd);
+      hd_functor(tmp_ro, this->received_word_hd);
 
       //cast the values back from real to double
       int num_of_elements = GF_q::elements();
@@ -366,8 +362,6 @@ template <class GF_q, class real> void ldpc<GF_q, real>::softdecode(
       libbase::trace << std::endl << "This is iteration: " << this->current_iteration << std::endl;
       libbase::trace << "The most likely received word is now given by:" << std::endl;
       this->received_word_hd.serialize(libbase::trace, ' ');
-      libbase::trace << std::endl << "Its symbol probabilities are given by:" << std::endl;
-      this->received_word_sd.serialize(libbase::trace, ' ');
 #endif
       //finished decoding
       }
@@ -392,7 +386,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
          << this->dim_k << ", spa=" << this->spa_alg->spa_type() << ", iter="
          << this->max_iter << ", clipping="
          << this->spa_alg->get_clipping_type() << ", almostzero="
-         << this->spa_alg->get_almostzero() << ") ";
+         << this->spa_alg->get_almostzero() << ")";
 #if DEBUG>=2
    this->serialize(libbase::trace);
    libbase::trace << std::endl;
@@ -1123,6 +1117,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
 
 #include "gf.h"
 #include "mpreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -1134,6 +1129,7 @@ namespace libcomm {
 
 using libbase::serializer;
 using libbase::mpreal;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -1141,12 +1137,12 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-   (double)(mpreal)
+   (double)(logrealfast)(mpreal)
 
 /* Serialization string: ldpc<type,real>
  * where:
  *      type = gf2 | gf4 ...
- *      real = double | mpreal
+ *      real = double | logrealfast | mpreal
  */
 #define INSTANTIATE(r, args) \
       template class ldpc<BOOST_PP_SEQ_ENUM(args)>; \

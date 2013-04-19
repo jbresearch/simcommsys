@@ -159,7 +159,7 @@ void digest32::process(std::istream& sin)
       {
       char buf[64];
       sin.read(buf, 64);
-      process((unsigned char *)buf, sin.gcount());
+      process((unsigned char *)buf, int(sin.gcount()));
       }
    // flush to include stream length if necessary
    flush();

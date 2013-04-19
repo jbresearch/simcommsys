@@ -60,19 +60,9 @@ private:
    /*! \name Internal representation */
    base_codec base;
    // @}
-public:
-   /*! \name Constructors / Destructors */
-   ~codec_reshaped()
-      {
-      }
-   // @}
-
-   // Codec operations
-   void seedfrom(libbase::random& r)
-      {
-      base.seedfrom(r);
-      }
-   void encode(const libbase::matrix<int>& source,
+protected:
+   // Interface with derived classes
+   void do_encode(const libbase::matrix<int>& source,
          libbase::matrix<int>& encoded)
       {
       libbase::vector<int> source_v = source.rowmajor();
@@ -88,10 +78,22 @@ public:
       libbase::trace << "DEBUG (codec_reshaped): encoded_v = " << encoded_v;
 #endif
       }
-   void init_decoder(const libbase::matrix<array1d_t>& ptable)
+   void do_init_decoder(const libbase::matrix<array1d_t>& ptable)
       {
       libbase::vector<array1d_t> ptable_v = ptable.rowmajor();
       base.init_decoder(ptable_v);
+      }
+public:
+   /*! \name Constructors / Destructors */
+   ~codec_reshaped()
+      {
+      }
+   // @}
+
+   // Codec operations
+   void seedfrom(libbase::random& r)
+      {
+      base.seedfrom(r);
       }
    void decode(libbase::matrix<int>& decoded)
       {

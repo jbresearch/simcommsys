@@ -37,18 +37,8 @@ namespace libbase {
 #  define DEBUG 1
 #endif
 
-template <class GF_q, class real> linear_code_utils<GF_q, real>::linear_code_utils()
-   {
-   //nothing to do
-
-   }
-
-template <class GF_q, class real> linear_code_utils<GF_q, real>::~linear_code_utils()
-   {
-   //nothing to do
-   }
-
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_dual_code(
+template <class GF_q, class real>
+void linear_code_utils<GF_q, real>::compute_dual_code(
       const matrix<GF_q> & orgMat, matrix<GF_q> & dualCodeGenMatrix,
       array1i_t & systematic_perm)
    {
@@ -194,8 +184,9 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_du
 
    }
 
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_row_dim(
-      const matrix<GF_q>& orgMat, matrix<GF_q> & maxRowSpaceMat)
+template <class GF_q, class real>
+void linear_code_utils<GF_q, real>::compute_row_dim(const matrix<GF_q>& orgMat,
+      matrix<GF_q> & maxRowSpaceMat)
    {
    int length_n = orgMat.size().cols();
    int dim_k = orgMat.size().rows();
@@ -256,16 +247,18 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_ro
       }
    }
 
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::remove_zero_cols(
-      const matrix<GF_q>& mat_G, matrix<GF_q> noZeroCols_G)
+template <class GF_q, class real>
+void linear_code_utils<GF_q, real>::remove_zero_cols(const matrix<GF_q>& mat_G,
+      matrix<GF_q> noZeroCols_G)
    {
    //dummy implementations
    //TODO fix me
    noZeroCols_G = mat_G;
 
    }
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::encode_cw(
-      const matrix<GF_q> & mat_G, const array1i_t & source, array1i_t & encoded)
+template <class GF_q, class real>
+void linear_code_utils<GF_q, real>::encode_cw(const matrix<GF_q> & mat_G,
+      const array1i_t & source, array1i_t & encoded)
    {
 #if DEBUG>=2
    libbase::trace << std::endl << "encoding";
@@ -291,7 +284,8 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::encode_cw(
 #endif
    }
 
-template <class GF_q, class real> bool linear_code_utils<GF_q, real>::compute_syndrome(
+template <class GF_q, class real>
+bool linear_code_utils<GF_q, real>::compute_syndrome(
       const matrix<GF_q> & parMat, const array1gfq_t & received_word_hd,
       array1gfq_t & syndrome_vec)
    {
@@ -324,8 +318,8 @@ template <class GF_q, class real> bool linear_code_utils<GF_q, real>::compute_sy
 
    }
 
-template <class GF_q, class real> bool linear_code_utils<GF_q, real>::is_systematic(
-      const matrix<GF_q> & genMat)
+template <class GF_q, class real>
+bool linear_code_utils<GF_q, real>::is_systematic(const matrix<GF_q> & genMat)
    {
    int dim_k = genMat.size().rows();
    int loop1 = 0;
@@ -359,42 +353,8 @@ template <class GF_q, class real> bool linear_code_utils<GF_q, real>::is_systema
    return isSystematic;
    }
 
-//determine the most likely symbol
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::get_most_likely_received_word(
-      const array1dv_t& received_likelihoods, array1d_t & received_word_sd,
-      array1gfq_t& received_word_hd)
-   {
-   //some helper variables
-   int length_n = received_likelihoods.size();
-   real mostlikely_sofar = real(0.0);
-   int indx = 0;
-   array1d_t tmp_vec;
-   int num_of_symbs;
-
-   received_word_sd.init(length_n);
-   received_word_hd.init(length_n);
-
-   for (int loop_n = 0; loop_n < length_n; loop_n++)
-      {
-      mostlikely_sofar = 0;
-      indx = 0;
-      tmp_vec = received_likelihoods(loop_n);
-      num_of_symbs = tmp_vec.size();
-      for (int loop_q = 0; loop_q < num_of_symbs; loop_q++)
-         {
-         if (mostlikely_sofar <= tmp_vec(loop_q))
-            {
-            mostlikely_sofar = tmp_vec(loop_q);
-            indx = loop_q;
-            }
-         }
-      received_word_sd(loop_n) = mostlikely_sofar;
-      received_word_hd(loop_n) = GF_q(indx);
-      }
-   }
-
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::create_hadamard(
-      matrix<int>& hadMat, int m)
+template <class GF_q, class real>
+void linear_code_utils<GF_q, real>::create_hadamard(matrix<int>& hadMat, int m)
    {
    assertalways(m>1);
    int num_of_elements = 1 << m;
@@ -406,7 +366,7 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::create_had
    int size = 2;
    if (num_of_elements == 2)
       {
-      std::swap(hadMat, A);//hadMat=A;
+      std::swap(hadMat, A); //hadMat=A;
       }
    else
       {
@@ -418,15 +378,16 @@ template <class GF_q, class real> void linear_code_utils<GF_q, real>::create_had
          std::swap(B, C);
          size = size * 2;
          }
-      std::swap(hadMat, B);//B contains the Hadamard matrix
+      std::swap(hadMat, B); //B contains the Hadamard matrix
 #if DEBUB>=2
-      hadMat.serialize(std::cerr,' ');
+            hadMat.serialize(std::cerr,' ');
 #endif
       }
    }
 
-template <class GF_q, class real> void linear_code_utils<GF_q, real>::compute_kronecker(
-      const matrix<int>& A, const matrix<int>& B, matrix<int>& prod)
+template <class GF_q, class real>
+void linear_code_utils<GF_q, real>::compute_kronecker(const matrix<int>& A,
+      const matrix<int>& B, matrix<int>& prod)
    {
    //ensure the product is big enough
    int row_a = A.size().rows();

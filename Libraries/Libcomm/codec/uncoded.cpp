@@ -94,7 +94,7 @@ void uncoded<dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class dbl>
-void uncoded<dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void uncoded<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
    // Inherit sizes

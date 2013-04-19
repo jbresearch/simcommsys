@@ -1338,7 +1338,7 @@ public:
    indirect_vector<T>& operator=(const indirect_vector<T>& x)
       {
       assert(Base::m_size == x.m_size);
-      copy(Base::m_data, x.m_data, Base::m_size.length());
+      this->copy(Base::m_data, x.m_data, Base::m_size.length());
       return *this;
       }
    // @}

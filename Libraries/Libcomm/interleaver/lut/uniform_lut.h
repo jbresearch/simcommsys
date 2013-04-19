@@ -63,7 +63,10 @@ public:
       {
       }
 
-   void seedfrom(libbase::random& r);
+   void seedfrom(libbase::random& r)
+      {
+      this->r.seed(r.ival());
+      }
    void advance();
 
    // Description

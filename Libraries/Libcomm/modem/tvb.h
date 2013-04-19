@@ -108,7 +108,7 @@ private:
    /*! \name User-defined parameters */
    int n; //!< codeword length in symbols
    int q; //!< number of codewords (input alphabet size)
-   marker_t marker_type; //!< enum indicating codebook type
+   marker_t marker_type; //!< enum indicating marker sequence type
    array1vs_t marker_vectors; //!< user set of marker vectors
    codebook_t codebook_type; //!< enum indicating codebook type
    std::string codebook_name; //!< name to describe codebook
@@ -119,6 +119,7 @@ private:
       bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
       bool batch; //!< Flag indicating use of batch receiver interface
       bool lazy; //!< Flag indicating lazy computation of gamma metric
+      bool splitpriors; //!< Flag indicating channel-symbol-level priors
    } flags;
    storage_t storage_type; //!< enum indicating storage mode for gamma metric
    int globalstore_limit; //!< fba memory threshold in MiB for global storage, if applicable

@@ -1,0 +1,83 @@
+commsys_stream<bool,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+qids<bool,float>
+# Version
+3
+# Vary Ps?
+0
+# Vary Pd?
+1
+# Vary Pi?
+1
+# Cap on I (0=uncapped)
+2
+# Fixed Ps value
+0
+# Fixed Pd value
+0
+# Fixed Pi value
+0
+# Mode for receiver (0=trellis, 1=lattice, 2=lattice corridor)
+0
+## Modem
+dminner<double>
+# Version
+3
+# User threshold?
+1
+#: Inner threshold
+0
+#: Outer threshold
+0
+# Normalize metrics between time-steps?
+1
+# n
+8
+# k
+4
+# codebook type (0=sparse, 1=user, 2=tvb)
+1
+#: codebook name
+balanced-nozero
+#: codebook entries
+00000001
+00000010
+00000100
+00001000
+00010000
+00100000
+01000000
+10000000
+00000011
+00001100
+00110000
+11000000
+00000101
+01010000
+00100010
+10001000
+# marker type (0=random, 1=zero, 2=symbol-alternating, 3=mod-vectors)
+0
+## Mapper
+map_straight<vector,double>
+## Codec
+uncoded<double>
+# Encoder
+cached_fsm
+#: Base Encoder
+gnrcc<gf16>
+#: Generator matrix (k x n vectors)
+1	1
+1
+0001
+
+# Block length
+50
+# Version (stream extensions)
+1
+# Number of full-system iterations
+1

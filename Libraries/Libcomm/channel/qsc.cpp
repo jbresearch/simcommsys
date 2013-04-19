@@ -27,16 +27,6 @@
 
 namespace libcomm {
 
-// Channel parameter handling
-
-template <class G>
-void qsc<G>::set_parameter(const double Ps)
-   {
-   const double q = field_utils<G>::elements();
-   assertalways(Ps >=0 && Ps <= (q-1)/q);
-   qsc::Ps = Ps;
-   }
-
 // Channel function overrides
 
 /*!

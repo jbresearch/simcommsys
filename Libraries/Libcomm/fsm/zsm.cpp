@@ -90,6 +90,7 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::symbol;
 
 #define USING_GF(r, x, type) \
       using libbase::type;

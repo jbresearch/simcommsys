@@ -36,6 +36,10 @@ endif
 ifndef CPUS
 export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
 endif
+# OpenMP Library (0 if absent)
+ifndef USE_OMP
+export USE_OMP := 1
+endif
 # MPI Library (0 if absent)
 ifndef USE_MPI
 export USE_MPI := $(shell mpic++ -showme 2>/dev/null |wc -l)
@@ -75,6 +79,9 @@ endif
 
 # Tag to identify build
 export TAG := $(notdir $(CURDIR))
+ifneq ($(USE_OMP),0)
+TAG := $(TAG)-omp
+endif
 ifneq ($(USE_MPI),0)
 TAG := $(TAG)-mpi
 endif
@@ -105,6 +112,9 @@ endif
 ## User pacifier
 ifeq ($(MAKELEVEL),0)
 ifeq ($(MAKECMDGOALS),)
+ifneq ($(USE_OMP),0)
+$(info Using OMP: yes)
+endif
 ifneq ($(USE_MPI),0)
 $(info Using MPI: yes)
 endif
@@ -152,6 +162,10 @@ export DOXYGEN := doxygen
 LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 LDopts := $(LDopts) $(LIBNAMES:%=-l%)
 LDopts := $(LDopts) -lm -lrt -lstdc++ -lboost_program_options
+# OMP options
+ifneq ($(USE_OMP),0)
+LDopts := $(LDopts) -fopenmp
+endif
 # MPI options
 ifneq ($(USE_MPI),0)
 LDopts := $(LDopts) $(shell mpic++ -showme:link)
@@ -181,11 +195,16 @@ export LDflags = $(LDflag_$(RELEASE))
 # Common options
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) -Wall -Werror
+CCopts := $(CCopts) -std=c++0x
 CCopts := $(CCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 # note: below disabled to avoid problems with parallel builds
 # note: below should be replaced with the following when we move to gcc > 4.4
 #CCopts := $(CCopts) -save-temps
 #CCopts := $(CCopts) -save-temps=obj
+# OMP options
+ifneq ($(USE_OMP),0)
+CCopts := $(CCopts) -DUSE_OMP -fopenmp
+endif
 # MPI options
 ifneq ($(USE_MPI),0)
 CCopts := $(CCopts) -DUSE_MPI $(shell mpic++ -showme:compile)
@@ -311,7 +330,7 @@ tag:
 ## Matched targets
 
 plain-%:
-	@$(MAKE) USE_CUDA=0 USE_MPI=0 USE_GMP=0 $*
+	@$(MAKE) USE_OMP=0 USE_MPI=0 USE_GMP=0 USE_CUDA=0 $*
 
 build:	build-main build-test
 build-main:	build-main-debug build-main-release
@@ -339,7 +358,7 @@ install-test-%:	install-libs-%
 install-libs-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
-clean:	clean-main clean-test
+clean:	clean-main clean-test clean-libs
 clean-main:	clean-main-release clean-main-debug
 clean-test:	clean-test-release clean-test-debug
 clean-libs:	clean-libs-release clean-libs-debug
@@ -370,7 +389,3 @@ $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
 $(TARGETS_LIBS):	FORCE
 	@echo "----> Making library \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
-
-BuildUtils:	FORCE
-	@echo "----> Making target \"$@\"."
-	@$(MAKE) -C "$(ROOTDIR)/$@" build

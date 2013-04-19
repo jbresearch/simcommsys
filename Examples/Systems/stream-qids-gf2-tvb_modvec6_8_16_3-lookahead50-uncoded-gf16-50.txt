@@ -6,7 +6,7 @@ commsys_stream<gf2,vector>
 ## Channel
 qids<gf2,float>
 # Version
-2
+3
 # Vary Ps?
 0
 # Vary Pd?
@@ -21,12 +21,12 @@ qids<gf2,float>
 0
 # Fixed Pi value
 0
-# Mode for receiver (0=trellis, 1=lattice)
+# Mode for receiver (0=trellis, 1=lattice, 2=lattice corridor)
 0
 ## Modem
 tvb<gf2,double,float>
 # Version
-6
+7
 #: Inner threshold
 0
 #: Outer threshold
@@ -36,6 +36,8 @@ tvb<gf2,double,float>
 # Use batch receiver computation?
 1
 # Lazy computation of gamma?
+0
+# Apply priors at channel-symbol level?
 0
 # Storage mode for gamma (0=local, 1=global, 2=conditional)
 1

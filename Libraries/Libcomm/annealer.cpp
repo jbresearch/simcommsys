@@ -64,7 +64,7 @@ void annealer::set_iterations(const int min_iter, const int min_changes)
 void annealer::improve()
    {
    // set stderr to precision 4
-   int prec = std::clog.precision(4);
+   std::streamsize prec = std::clog.precision(4);
 
    // 'E' holds the instantaneous system energy
    // 'stability' denotes the number of successive steps for which system did not change

@@ -257,7 +257,7 @@ void montecarlo::display(const libbase::vector<double>& result,
    if (tupdate.elapsed() > 0.5)
       {
       using std::clog;
-      const int prec = clog.precision(3);
+      const std::streamsize prec = clog.precision(3);
       clog << "Timer: " << t << ", ";
       if (isenabled())
          clog << getnumslaves() << " clients, ";

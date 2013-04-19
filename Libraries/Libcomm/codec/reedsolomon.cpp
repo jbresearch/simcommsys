@@ -48,48 +48,23 @@ using libbase::matrix;
 
 //implementation of the relevant codec methods
 
-template <class GF_q> void reedsolomon<GF_q>::seedfrom(libbase::random & r)
-   {
-   //not needed
-   }
-
-template <class GF_q> void reedsolomon<GF_q>::encode(const array1i_t & source,
+template <class GF_q> void reedsolomon<GF_q>::do_encode(const array1i_t & source,
       array1i_t & encoded)
    {
    libbase::linear_code_utils<GF_q, double>::encode_cw(this->gen_ref_matrix,
          source, encoded);
    }
 
-template <class GF_q> void reedsolomon<GF_q>::init_decoder(
+template <class GF_q> void reedsolomon<GF_q>::do_init_decoder(
       const array1vd_t & ptable)
    {
    //Keep the likelihoods for future reference
    this->received_likelihoods = ptable;
 
    //determine the most likely symbol
-   int length = this->received_likelihoods.size();
-   this->received_word_sd.init(length);
-   this->received_word_hd.init(length);
+   hd_functor(this->received_likelihoods, this->received_word_hd);
 
-   for (int i = 0; i < this->received_likelihoods.size(); i++)
-      {
-      double mostlikely_sofar = 0;
-      int pos = 0;
-      array1d_t tmp_vec = this->received_likelihoods(i);
-      for (int j = 0; j < tmp_vec.size(); j++)
-         {
-         if (mostlikely_sofar <= tmp_vec(j))
-            {
-            mostlikely_sofar = tmp_vec(j);
-            pos = j;
-            }
-         }
-      this->received_word_sd(i) = mostlikely_sofar;
-      this->received_word_hd(i) = GF_q(pos);
-      }
 #if DEBUG>=2
-   this->received_word_sd.serialize(std::cout, ',');
-   std::cout << std::endl;
    this->received_word_hd.serialize(std::cout, ',');
    std::cout << std::endl;
 #endif

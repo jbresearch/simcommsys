@@ -37,7 +37,6 @@
 #include "modem/informed_modulator.h"
 #include "codec/codec_softout.h"
 #include "gf.h"
-#include "hard_decision.h"
 
 #include <sstream>
 #include <typeinfo>
@@ -92,7 +91,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       // Compute extrinsic information for passing to codec
       libbase::compute_extrinsic(ptable_mapped, ptable_full, ptable_mapped);
       // After-demodulation receive path
-      softreceive_path(ptable_mapped);
+      this->softreceive_path(ptable_mapped);
       }
    // Just do a plain decoder iteration if this is not the last one in the cycle
    if (++cur_cdc_iter < this->cdc->num_iter())
@@ -106,8 +105,7 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
       C<array1d_t> ro;
       c.softdecode(ri, ro);
       // Compute hard-decision for results gatherer
-      hard_decision<C, double> functor;
-      functor(ri, decoded);
+      hd_functor(ri, decoded);
       // Pass posterior information through mapper
       C<array1d_t> ro_mapped;
       this->map->transform(ro, ro_mapped);

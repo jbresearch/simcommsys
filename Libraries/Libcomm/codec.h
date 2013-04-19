@@ -31,6 +31,7 @@
 #include "serializer.h"
 #include "random.h"
 #include "instrumented.h"
+#include "blockprocess.h"
 #include <string>
 
 namespace libcomm {
@@ -51,10 +52,20 @@ namespace libcomm {
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class codec : public instrumented, public libbase::serializable {
+class codec : public instrumented,
+      public blockprocess,
+      public libbase::serializable {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
+   // @}
+
+protected:
+   /*! \name Interface with derived classes */
+   //! \copydoc encode()
+   virtual void do_encode(const C<int>& source, C<int>& encoded) = 0;
+   //! \copydoc init_decoder()
+   virtual void do_init_decoder(const C<array1d_t>& ptable) = 0;
    // @}
 
 public:
@@ -75,7 +86,13 @@ public:
     * \param[in] source Sequence of source symbols
     * \param[out] encoded Sequence of output (encoded) symbols
     */
-   virtual void encode(const C<int>& source, C<int>& encoded) = 0;
+   void encode(const C<int>& source, C<int>& encoded)
+      {
+      //libbase::cputimer t("t_encode");
+      advance_always();
+      do_encode(source, encoded);
+      //add_timer(t);
+      }
    /*!
     * \brief Receiver translation process
     * \param[in] ptable Likelihoods of each possible encoded symbol at every index
@@ -85,7 +102,14 @@ public:
     * This function should be called before the first decode iteration
     * for each block.
     */
-   virtual void init_decoder(const C<array1d_t>& ptable) = 0;
+   void init_decoder(const C<array1d_t>& ptable)
+      {
+      //libbase::cputimer t("t_init_decoder");
+      advance_if_dirty();
+      do_init_decoder(ptable);
+      mark_as_dirty();
+      //add_timer(t);
+      }
    /*!
     * \brief Decoding process
     * \param[out] decoded Most likely sequence of information symbols

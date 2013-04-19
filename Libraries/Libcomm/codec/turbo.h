@@ -208,6 +208,14 @@ protected:
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
+   // Interface with derived classes
+   void advance() const
+      {
+      // Advance interleavers to the next block
+      for (int set = 0; set < num_sets(); set++)
+         inter(set)->advance();
+      }
+   void do_encode(const array1i_t& source, array1i_t& encoded);
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -223,7 +231,6 @@ public:
 
    // Codec operations
    void seedfrom(libbase::random& r);
-   void encode(const array1i_t& source, array1i_t& encoded);
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
    // (necessary because inheriting methods from templated base)

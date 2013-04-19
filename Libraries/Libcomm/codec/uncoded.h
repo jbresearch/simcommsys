@@ -91,6 +91,8 @@ protected:
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
+   // Interface with derived classes
+   void do_encode(const array1i_t& source, array1i_t& encoded);
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -111,7 +113,6 @@ public:
    // @}
 
    // Codec operations
-   void encode(const array1i_t& source, array1i_t& encoded);
    void softdecode(array1vd_t& ri);
    void softdecode(array1vd_t& ri, array1vd_t& ro);
 

@@ -99,7 +99,7 @@ void repacc<real, dbl>::allocate()
    // set required format, storing previous settings
    const std::ios::fmtflags flags = std::cerr.flags();
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const int prec = std::cerr.precision(1);
+   const std::streamsize prec = std::cerr.precision(1);
    // determine memory occupied and tell user
    const size_t bytes_used = sizeof(dbl) * (rp.size() + ra.size() + R.size());
    std::cerr << "RepAcc Memory Usage: " << bytes_used / double(1 << 20)
@@ -188,13 +188,7 @@ void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class real, class dbl>
-void repacc<real, dbl>::seedfrom(libbase::random& r)
-   {
-   inter->seedfrom(r);
-   }
-
-template <class real, class dbl>
-void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
    // Inherit sizes
@@ -218,7 +212,6 @@ void repacc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
       rep1(i) = fsm::tail;
    // Create interleaved sequence
    array1i_t rep2;
-   inter->advance();
    inter->transform(rep1, rep2);
 #if DEBUG>=2
    std::cerr << "Repeater:" << std::endl;
@@ -287,7 +280,7 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
 
 #if DEBUG>=2
    array1i_t dec;
-   hard_decision<libbase::vector, dbl> functor;
+   hard_decision<libbase::vector, dbl, int> functor;
    functor(ravd,dec);
    libbase::trace << "DEBUG (repacc): ravd = ";
    dec.serialize(libbase::trace, ' ');
@@ -350,12 +343,19 @@ template <class real, class dbl>
 std::ostream& repacc<real, dbl>::serialize(std::ostream& sout) const
    {
    // format version
+   sout << "# Version" << std::endl;
    sout << 3 << std::endl;
+   sout << "# Repetition codec" << std::endl;
    rep.serialize(sout);
+   sout << "# Accumulator" << std::endl;
    sout << acc;
+   sout << "# Interleaver" << std::endl;
    sout << inter;
+   sout << "# Number of iterations" << std::endl;
    sout << iter << std::endl;
+   sout << "# Terminated?" << std::endl;
    sout << int(endatzero) << std::endl;
+   sout << "# Lower clipping threshold" << std::endl;
    sout << limitlo << std::endl;
    return sout;
    }

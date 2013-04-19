@@ -42,38 +42,77 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * \warning Currently this is just a placeholder; functionality still needs
- * to be written.
+ * A simulator object for computing the EXIT curves for the inner (modem) and
+ * outer (codec) codes in a serially concatenated iterative communication
+ * system. The system's channel parameter to be used is serialized as part
+ * of this object.
+ *
+ * The parameter passed by the simulator determines the mutual
+ * information at the input; this is used when generating the multi-binary
+ * priors (with Gaussian assumption). These are passed through the first stage
+ * decoding; the extrinsic information generated is passed to the second stage
+ * decoder. The mutual information at the input and output of the second stage
+ * decoder are computed and returned as results. The process is repeated with
+ * the decoders swapped.
  */
 
 template <class S>
 class exit_computer : public experiment_normal {
-protected:
-   /*! \name Bound objects */
-   //! Flag to indicate whether the objects should be released on destruction
-   bool internallyallocated;
-   libbase::randgen *src; //!< Source data sequence generator
-   commsys<S> *sys; //!< Communication systems
+public:
+   /*! \name Type definitions */
+   typedef libbase::vector<int> array1i_t;
+   typedef libbase::vector<S> array1s_t;
+   typedef libbase::vector<double> array1d_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    // @}
-   /*! \name Internal state */
-   libbase::vector<int> last_event;
+
+protected:
+/*! \name User-defined parameters */
+   commsys<S> *sys; //!< Communication systems
+   double sigma; //!< Sigma value to use when generating binary priors
+   // @}
+   /*! \name Internally-used objects */
+   libbase::randgen src; //!< Random generator for source data sequence and prior probabilities
    // @}
 protected:
    /*! \name Setup functions */
-   void clear();
-   void free();
+   /*!
+    * \brief Removes association with bound objects
+    *
+    * This function performs two things:
+    * - Deletes any internally-allocated bound objects
+    * - Sets up the system with no bound objects
+    *
+    * \note This function is only responsible for deleting bound
+    * objects that are specific to this object/derivation.
+    * Anything else should get done automatically when the base
+    * serializer or constructor is called.
+    */
+   void free()
+      {
+      delete sys;
+      sys = NULL;
+      }
    // @}
    /*! \name Internal functions */
-   libbase::vector<int> createsource();
-   void cycleonce(libbase::vector<double>& result);
+   array1i_t createsource();
+   array1vd_t createpriors(const array1i_t& tx);
+   static double compute_mutual_information(const array1i_t& x, const array1vd_t& p);
    // @}
 public:
    /*! \name Constructors / Destructors */
-   exit_computer(libbase::randgen *src, commsys<S> *sys);
-   exit_computer(const exit_computer<S>& c);
-   exit_computer()
+   /*!
+    * \brief Copy constructor
+    *
+    * Initializes system with bound objects cloned from supplied system.
+    */
+   exit_computer(const exit_computer<S>& c) :
+         sys(dynamic_cast<commsys<S> *>(c.sys->clone())), src(c.src)
       {
-      clear();
+      }
+   exit_computer() :
+         sys(NULL)
+      {
       }
    virtual ~exit_computer()
       {
@@ -82,24 +121,25 @@ public:
    // @}
 
    // Experiment parameter handling
-   void seedfrom(libbase::random& r);
+   void seedfrom(libbase::random& r)
+      {
+      src.seed(r.ival());
+      sys->seedfrom(r);
+      }
    void set_parameter(const double x)
       {
-      sys->gettxchan()->set_parameter(x);
-      sys->getrxchan()->set_parameter(x);
+      sigma = x;
       }
    double get_parameter() const
       {
-      const double p = sys->gettxchan()->get_parameter();
-      assert(p == sys->getrxchan()->get_parameter());
-      return p;
+      return sigma;
       }
 
    // Experiment handling
-   void sample(libbase::vector<double>& result);
+   void sample(array1d_t& result);
    int count() const
       {
-      return 1;
+      return 4;
       }
    int get_multiplicity(int i) const
       {
@@ -107,11 +147,23 @@ public:
       }
    std::string result_description(int i) const
       {
-      return "";
+      assert(i >= 0 && i < count());
+      switch (i)
+         {
+         case 0:
+            return "H(priors)";
+         case 1:
+            return "H(mapped)";
+         case 2:
+            return "H(encoded)";
+         case 3:
+            return "H(ro)";
+         }
+      return ""; // This should never happen
       }
-   libbase::vector<int> get_event() const
+   array1i_t get_event() const
       {
-      return last_event;
+      return array1i_t();
       }
 
    /*! \name Component object handles */

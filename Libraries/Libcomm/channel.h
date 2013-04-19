@@ -249,7 +249,7 @@ void basic_channel<S, libbase::vector>::transmit(const array1s_t& tx,
    rx.init(tx.size());
    // Corrupt the modulation symbols (simulate the channel)
    for (int i = 0; i < tx.size(); i++)
-      rx(i) = corrupt(tx(i));
+      rx(i) = this->corrupt(tx(i));
    }
 
 template <class S>
@@ -264,7 +264,7 @@ void basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
    // Work out the probabilities of each possible signal
    for (int t = 0; t < tau; t++)
       for (int x = 0; x < M; x++)
-         ptable(t)(x) = pdf(tx(x), rx(t));
+         ptable(t)(x) = this->pdf(tx(x), rx(t));
    }
 
 template <class S>
@@ -283,7 +283,7 @@ void basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
       {
       assert(tx(t).size() == M);
       for (int x = 0; x < M; x++)
-         ptable(t)(x) = pdf(tx(t)(x), rx(t));
+         ptable(t)(x) = this->pdf(tx(t)(x), rx(t));
       }
    }
 
@@ -298,7 +298,7 @@ double basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
    // Work out the combined probability of the sequence
    double p = 1;
    for (int t = 0; t < tau; t++)
-      p *= pdf(tx(t), rx(t));
+      p *= this->pdf(tx(t), rx(t));
    return p;
    }
 
@@ -309,7 +309,7 @@ double basic_channel<S, libbase::vector>::receive(const S& tx,
    // This implementation only works for substitution channels
    assert(rx.size() == 1);
    // Work out the probability of receiving the particular symbol
-   return pdf(tx, rx(0));
+   return this->pdf(tx, rx(0));
    }
 
 /*!
@@ -343,7 +343,7 @@ public:
       // Corrupt the modulation symbols (simulate the channel)
       for (int i = 0; i < tx.size().rows(); i++)
          for (int j = 0; j < tx.size().cols(); j++)
-            rx(i, j) = corrupt(tx(i, j));
+            rx(i, j) = this->corrupt(tx(i, j));
       }
    void receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const
       {
@@ -355,7 +355,7 @@ public:
       for (int i = 0; i < rx.size().rows(); i++)
          for (int j = 0; j < rx.size().cols(); j++)
             for (int x = 0; x < M; x++)
-               ptable(i, j)(x) = pdf(tx(x), rx(i, j));
+               ptable(i, j)(x) = this->pdf(tx(x), rx(i, j));
       }
    void receive(const array2vs_t& tx, const array2s_t& rx, array2vd_t& ptable) const
       {
@@ -371,7 +371,7 @@ public:
             {
             assert(tx(i, j).size() == M);
             for (int x = 0; x < M; x++)
-               ptable(i, j)(x) = pdf(tx(i, j)(x), rx(i, j));
+               ptable(i, j)(x) = this->pdf(tx(i, j)(x), rx(i, j));
             }
       }
    double receive(const array2s_t& tx, const array2s_t& rx) const
@@ -383,7 +383,7 @@ public:
       double p = 1;
       for (int i = 0; i < rx.size().rows(); i++)
          for (int j = 0; j < rx.size().cols(); j++)
-            p *= pdf(tx(i, j), rx(i, j));
+            p *= this->pdf(tx(i, j), rx(i, j));
       return p;
       }
    double receive(const S& tx, const array2s_t& rx) const
@@ -391,7 +391,7 @@ public:
       // This implementation only works for substitution channels
       assert(rx.size() == 1);
       // Work out the probability of receiving the particular symbol
-      return pdf(tx, rx(0, 0));
+      return this->pdf(tx, rx(0, 0));
       }
 };
 

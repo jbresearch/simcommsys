@@ -37,6 +37,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
+#include "hard_decision.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -72,6 +73,18 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
+protected:
+   // Interface with derived classes
+   /*!
+    * \brief Encoding process
+    * \param[in] source Sequence of source symbols, one per timestep
+    * \param[out] encoded Sequence of output (encoded) symbols, one per timestep
+    *
+    * \note If the input or output symbols at every timestep represent the
+    * aggregation of a set of symbols, the combination/division has to
+    * be done externally.
+    */
+   void do_encode(const array1i_t & source, array1i_t& encoded);
 
 public:
    /*! \brief default constructor
@@ -89,31 +102,15 @@ public:
     */
    ldpc(libbase::matrix<GF_q> paritycheck_mat, const int num_of_iters);
 
-   /*! \brief default destructor
-    *
-    */
-   ~ldpc()
-      {
-      //nothing to do
-      }
 
    /*! \name Codec operations */
    //! Seeds any random generators from a pseudo-random sequence
    void seedfrom(libbase::random& r)
       {
-      //not needed
+      // Seed hard-decision box
+      hd_functor.seedfrom(r);
       }
 
-   /*!
-    * \brief Encoding process
-    * \param[in] source Sequence of source symbols, one per timestep
-    * \param[out] encoded Sequence of output (encoded) symbols, one per timestep
-    *
-    * \note If the input or output symbols at every timestep represent the
-    * aggregation of a set of symbols, the combination/division has to
-    * be done externally.
-    */
-   void encode(const array1i_t & source, array1i_t& encoded);
 
    /*! \name Softout codec operations */
 
@@ -336,9 +333,6 @@ private:
    //Note that it is not guaranteed that they will be in the first
    //k positions though.
    bool reduce_to_ref;
-   //!this is the most likely received word (eg the maximum value of the
-   //received likelihoods are used to form this word)
-   array1d_t received_word_sd;
 
    //!this is the hard decision received word. This is used to compute
    //the syndrome
@@ -349,6 +343,9 @@ private:
    //currently we have trad(=traditional and slow) and
    //gdl(=general distribution law and fast)
    boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
+
+   //! Hard-decision box
+   hard_decision<libbase::vector, real, GF_q> hd_functor;
 
 };
 

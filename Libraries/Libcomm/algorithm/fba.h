@@ -39,7 +39,7 @@
 namespace libcomm {
 
 /*!
- * \brief   Forward-Backward Algorithm.
+ * \brief   Bit-Level Forward-Backward Algorithm (for Davey-MacKay codes).
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -47,7 +47,7 @@ namespace libcomm {
  * - $Date$
  * - $Author$
  *
- * Implements Forward-Backward Algorithm for a HMM. This is based on the
+ * Implements a Forward-Backward Algorithm for a HMM. This is based on the
  * paper by Davey & McKay, "Watermark Codes: Reliable communication over
  * Insertion/Deletion channels", Trans. IT, 47(2), Feb 2001.
  *
@@ -63,6 +63,9 @@ namespace libcomm {
  *
  * \todo Confirm correctness of the backward matrix computation referring to
  * bit j instead of j+1.
+ *
+ * \tparam sig Channel symbol type
+ * \tparam real Floating-point type for internal computation
  */
 
 template <class sig, class real>
@@ -101,9 +104,9 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   fba()
+   fba() :
+         initialised(false)
       {
-      initialised = false;
       }
    virtual ~fba()
       {

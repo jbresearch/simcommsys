@@ -143,6 +143,7 @@ std::string ccbfsm::description() const
 
 std::ostream& ccbfsm::serialize(std::ostream& sout) const
    {
+   sout << "#: Generator matrix (k x n bitfields)" << std::endl;
    sout << gen;
    return sout;
    }

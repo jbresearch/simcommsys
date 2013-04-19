@@ -119,8 +119,8 @@ void bcjr<real, dbl, norm>::setstart(int state)
    if (!initialised)
       allocate();
    for (int m = 0; m < M; m++)
-      alpha(0, m) = 0;
-   alpha(0, state) = 1;
+      alpha(0, m) = real(0);
+   alpha(0, state) = real(1);
    }
 
 template <class real, class dbl, bool norm>
@@ -129,8 +129,8 @@ void bcjr<real, dbl, norm>::setend(int state)
    if (!initialised)
       allocate();
    for (int m = 0; m < M; m++)
-      beta(tau, m) = 0;
-   beta(tau, state) = 1;
+      beta(tau, m) = real(0);
+   beta(tau, state) = real(1);
    }
 
 // Set start- and end-state probabilities - direct
@@ -173,7 +173,7 @@ void bcjr<real, dbl, norm>::allocate()
    // set required format, storing previous settings
    const std::ios::fmtflags flags = std::cerr.flags();
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const int prec = std::cerr.precision(1);
+   const std::streamsize prec = std::cerr.precision(1);
    // determine memory occupied and tell user
    const size_t bytes_used = sizeof(real) * (alpha.size() + beta.size()
          + gamma.size());

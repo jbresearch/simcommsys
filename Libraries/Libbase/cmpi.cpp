@@ -27,8 +27,9 @@
 #include "cputimer.h"
 #include "walltimer.h"
 #include <iostream>
-#include <sys/time.h>
-#include <sys/resource.h>
+#ifndef WIN32
+#  include <sys/resource.h>
+#endif
 
 namespace libbase {
 

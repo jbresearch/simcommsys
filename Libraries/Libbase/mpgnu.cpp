@@ -27,14 +27,14 @@
 
 namespace libbase {
 
-#ifdef GMP
+#ifdef USE_GMP
 mpf_t mpgnu::dblmin;
 mpf_t mpgnu::dblmax;
 #endif
 
 void mpgnu::init()
    {
-#ifndef GMP
+#ifndef USE_GMP
    std::cerr
          << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - cannot initialise." << std::endl;
    exit(1);

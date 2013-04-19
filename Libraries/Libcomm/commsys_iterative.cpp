@@ -48,7 +48,7 @@ void commsys_iterative<S, C>::receive_path(const C<S>& received)
       }
    m.mark_as_dirty();
    // After-demodulation receive path
-   softreceive_path(ptable_mapped);
+   this->softreceive_path(ptable_mapped);
    }
 
 // Description & Serialization

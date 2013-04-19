@@ -421,7 +421,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer, flags.norm,
          flags.batch, flags.lazy, globalstore);
    // initialize our embedded metric computer with unchanging elements
-   fba.get_receiver().init(n, mychan);
+   fba.get_receiver().init(n, flags.splitpriors, mychan);
    }
 
 template <class sig, class real, class real2>
@@ -562,7 +562,7 @@ void tvb<sig, real, real2>::checkforchanges(int I, int xmax) const
    static int last_xmax = 0;
    if (last_I != I || last_xmax != xmax)
       {
-      std::cerr << "TVB: I = " << I << ", xmax = " << xmax << std::endl;
+      std::cerr << "DEBUG (tvb): I = " << I << ", xmax = " << xmax << std::endl;
       last_I = I;
       last_xmax = xmax;
       }
@@ -642,11 +642,11 @@ std::string tvb<sig, real, real2>::description() const
          break;
 
       case marker_user_sequential:
-         sout << ", AMVs [" << marker_vectors.size() << ", sequential]";
+         sout << ", user [" << marker_vectors.size() << ", sequential]";
          break;
 
       case marker_user_random:
-         sout << ", AMVs [" << marker_vectors.size() << ", random]";
+         sout << ", user [" << marker_vectors.size() << ", random]";
          break;
 
       default:
@@ -664,6 +664,10 @@ std::string tvb<sig, real, real2>::description() const
       sout << ", lazy computation";
    else
       sout << ", pre-computation";
+   if (flags.splitpriors)
+      sout << ", channel-symbol-level priors";
+   else
+      sout << ", codeword-level priors";
    switch (storage_type)
       {
       case storage_local:
@@ -696,7 +700,7 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 6 << std::endl;
+   sout << 7 << std::endl;
    sout << "#: Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "#: Outer threshold" << std::endl;
@@ -707,6 +711,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    sout << flags.batch << std::endl;
    sout << "# Lazy computation of gamma?" << std::endl;
    sout << flags.lazy << std::endl;
+   sout << "# Apply priors at channel-symbol level?" << std::endl;
+   sout << flags.splitpriors << std::endl;
    sout << "# Storage mode for gamma (0=local, 1=global, 2=conditional)" << std::endl;
    sout << storage_type << std::endl;
    if (storage_type == storage_conditional)
@@ -799,6 +805,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 5 Replaced globalstore flag with storage mode and memory threshold
  *
  * \version 6 Replaced k with q
+ *
+ * \version 7 Added option for channel-symbol-level priors
  */
 
 template <class sig, class real, class real2>
@@ -823,6 +831,14 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
       flags.norm = true;
       flags.batch = true;
       flags.lazy = true;
+      }
+   if (version >= 7)
+      {
+      sin >> libbase::eatcomments >> flags.splitpriors >> libbase::verify;
+      }
+   else
+      {
+      flags.splitpriors = false;
       }
    // read storage mode
    if (version >= 5)
@@ -904,9 +920,9 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
 
       case marker_user_sequential:
       case marker_user_random:
-         // read count of modification vectors
+         // read count of marker vectors
          sin >> libbase::eatcomments >> temp >> libbase::verify;
-         // read modification vectors from stream
+         // read marker vectors from stream
          libbase::allocate(marker_vectors, temp, n);
          sin >> libbase::eatcomments;
          for (int i = 0; i < temp; i++)
@@ -914,7 +930,7 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
             marker_vectors(i).serialize(sin);
             libbase::verify(sin);
             }
-         // validate list of modification vectors
+         // validate list of marker vectors
          validate_sequence_length(marker_vectors);
          break;
 
@@ -929,6 +945,7 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
 } // end namespace
 
 #include "gf.h"
+#include "mpgnu.h"
 #include "logrealfast.h"
 
 namespace libcomm {
@@ -940,6 +957,7 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::mpgnu;
 using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
@@ -955,16 +973,14 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (float)(double)
 #else
 #define REAL_TYPE_SEQ \
-   (float)(double)(logrealfast)
+   (float)(double)(mpgnu)(logrealfast)
 #endif
-#define REAL2_TYPE_SEQ \
-   (float)(double)
 
 /* Serialization string: tvb<type,real,real2>
  * where:
  *      type = bool | gf2 | gf4 ...
- *      real = float | double | logrealfast (CPU only)
- *      real2 = float | double
+ *      real = float | double | [mpgnu | logrealfast (CPU only)]
+ *      real2 = float | double | [mpgnu | logrealfast (CPU only)]
  */
 #define INSTANTIATE(r, args) \
       template class tvb<BOOST_PP_SEQ_ENUM(args)>; \
@@ -976,6 +992,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             tvb<BOOST_PP_SEQ_ENUM(args)>::create);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

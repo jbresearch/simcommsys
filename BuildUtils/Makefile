@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Johann A. Briffa
-# 
+#
 # This file is part of SimCommSys.
 #
 # SimCommSys is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # $Id$
 #
 # Utils binary makefile
@@ -37,9 +37,9 @@ endif
 
 ## Reset flags
 
-CCflags := 
-NVCCflags := 
-LDflags := 
+CCflags :=
+NVCCflags :=
+LDflags :=
 
 ## Commands
 
@@ -55,8 +55,8 @@ default: build
 build:	$(TARGETS)
 
 clean:
-	@echo "Cleaning [$(TAG): $(RELEASE)]"
-	@$(RM) $(BUILDDIR)
+	@echo "Cleaning"
+	@$(RM) bin/*
 
 .PHONY:	default build clean
 

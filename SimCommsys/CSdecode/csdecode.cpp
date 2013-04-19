@@ -397,8 +397,12 @@ int main(int argc, char *argv[])
       // call main process with correct template parameters
       using libbase::vector;
       using libbase::gf;
+      using libbase::erasable;
       using libcomm::sigspace;
-      if (type == "bool")
+      if (type == "erasable<bool>")
+         process<erasable<bool>, vector> (filename, parameter, softin, softout, knownend,
+               count, blocksize);
+      else if (type == "bool")
          process<bool, vector> (filename, parameter, softin, softout, knownend,
                count, blocksize);
       else if (type == "gf2")

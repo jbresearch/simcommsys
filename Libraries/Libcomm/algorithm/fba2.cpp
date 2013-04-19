@@ -319,7 +319,7 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    // set required format, storing previous settings
    const std::ios::fmtflags old_flags = std::cerr.flags();
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const int old_precision = std::cerr.precision(1);
+   const std::streamsize old_precision = std::cerr.precision(1);
    // determine memory occupied and tell user
    const size_t bytes_used =
          sizeof(bool)
@@ -797,6 +797,7 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(
 } // end namespace
 
 #include "gf.h"
+#include "mpgnu.h"
 #include "logrealfast.h"
 #include "modem/tvb-receiver.h"
 
@@ -807,6 +808,7 @@ namespace libcomm {
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 
+using libbase::mpgnu;
 using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
@@ -818,17 +820,15 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (bool) \
    GF_TYPE_SEQ
 #define REAL_TYPE_SEQ \
-   (float)(double)(logrealfast)
-#define REAL2_TYPE_SEQ \
-   (float)(double)
+   (float)(double)(mpgnu)(logrealfast)
 
-// *** Instantiations for tvb: gf types only ***
+// *** Instantiations for tvb: bool and gf types only ***
 
-#define INSTANTIATE_TVB(r, args) \
+#define INSTANTIATE(r, args) \
       template class fba2<tvb_receiver<BOOST_PP_SEQ_ENUM(args)> , \
          BOOST_PP_SEQ_ENUM(args)> ;
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE_TVB,
-      (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+      (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

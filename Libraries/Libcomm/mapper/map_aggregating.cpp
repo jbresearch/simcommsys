@@ -116,7 +116,7 @@ void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(const array1vd_t& 
             {
             const int j = t * k + i;
             const int y = thisx % Base::q;
-            p *= pin(j)(y);
+            p *= dbl2(pin(j)(y));
 #if DEBUG>=2
             std::cerr << "DEBUG: pout(" << t << ")(" << x << ") *= pin(" << j
                   << ")(" << y << ")" << std::endl;
@@ -170,7 +170,7 @@ void map_aggregating<libbase::vector, dbl, dbl2>::doinverse(const array1vd_t& pi
          for (int d = 0; d < Base::M; d++)
             if ((d / mul) % Base::q == x)
                {
-               p += pin(j)(d);
+               p += dbl2(pin(j)(d));
 #if DEBUG>=2
                std::cerr << "DEBUG: pout(" << t << ")(" << x << ") += pin(" << j
                      << ")(" << d << ")" << std::endl;

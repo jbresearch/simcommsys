@@ -52,11 +52,14 @@ std::string direct_modem_implementation<bool>::description() const
 } // end namespace
 
 #include "gf.h"
+#include "erasable.h"
 
 namespace libcomm {
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
+
+using libbase::erasable;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -67,14 +70,16 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (bool) \
    GF_TYPE_SEQ
 
-#define INSTANTIATE_BASE(r, x, type) \
-      template class direct_modem_implementation<type>;
+#define ADD_ERASABLE(r, x, type) \
+   (type)(erasable<type>)
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_BASE, x, GF_TYPE_SEQ)
+#define ALL_SYMBOL_TYPE_SEQ \
+   BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, SYMBOL_TYPE_SEQ)
 
 #define INSTANTIATE(r, x, type) \
+      template class direct_modem_implementation<type>; \
       template class direct_modem<type>;
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, ALL_SYMBOL_TYPE_SEQ)
 
 } // end namespace

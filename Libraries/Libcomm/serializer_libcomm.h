@@ -27,6 +27,7 @@
 
 // Utilities
 #include "gf.h"
+#include "erasable.h"
 
 // Arithmetic Types
 #include "mpgnu.h"
@@ -42,6 +43,7 @@
 #include "channel/qids.h"
 #include "channel/bpmr.h"
 #include "channel/qsc.h"
+#include "channel/qec.h"
 
 // Embedders - atomic
 #include "embedder.h"
@@ -60,6 +62,7 @@
 #include "modem/qam.h"
 #include "modem/dminner.h"
 #include "modem/tvb.h"
+#include "modem/marker.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -119,6 +122,7 @@
 #include "experiment/binomial/commsys_stream_simulator.h"
 #include "experiment/binomial/commsys_threshold.h"
 #include "experiment/normal/commsys_timer.h"
+#include "experiment/normal/exit_computer.h"
 
 #include <iostream>
 
@@ -135,19 +139,16 @@ namespace libcomm {
  */
 
 // Serialization support
-class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
-      awgn,
-      laplacian<sigspace> ,
-      lapgauss,
+class serializer_libcomm : private
       nrcc,
       rscc,
       dvbcrsc,
-      grscc<libbase::gf<1, 0x3> > ,
-      gnrcc<libbase::gf<1, 0x3> > ,
-      zsm<libbase::gf<1, 0x3> > ,
-      uncoded<double> ,
+      grscc<libbase::gf2> ,
+      gnrcc<libbase::gf2> ,
+      zsm<libbase::gf2> ,
+
       mapcc<double> ,
-      turbo<double, double> ,
+
       onetimepad<double> ,
       padded<double> ,
       berrou<double> ,
@@ -157,13 +158,17 @@ class serializer_libcomm : private qsc<libbase::gf<1, 0x3> > ,
       rectangular<double> ,
       shift_lut<double> ,
       uniform_lut<double> ,
-      named_lut<double> ,
-      codec_reshaped<turbo<double, double> > {
+      named_lut<double> {
 private:
    typedef libbase::logrealfast logrealfast;
 private:
    // Channels
-   qids<libbase::gf<1, 0x3>, float> _qids;
+   awgn _awgn;
+   laplacian<sigspace> _laplacian;
+   lapgauss _lapgauss;
+   qsc<libbase::gf2> _qsc;
+   qec<libbase::erasable<libbase::gf2> > _qec;
+   qids<libbase::gf2, float> _qids;
    bpmr _bpmr;
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
@@ -188,10 +193,22 @@ private:
    mpsk _mpsk;
    qam _qam;
    dminner<double> _dminner;
-   tvb<libbase::gf<1, 0x3>, double, float> _tvb;
+   tvb<bool, double, float> _tvb;
+   marker<bool, double, float> _marker;
+   // Convolutional Encoders
+   //nrcc _nrcc;
+   //rscc _rscc;
+   //dvbcrsc _dvbcrsc;
+   //grscc<libbase::gf2> _grscc;
+   //gnrcc<libbase::gf2> _gnrcc;
+   //zsm<libbase::gf2> _zsm;
    // Codecs
-   ldpc<libbase::gf<1, 0x3>, double> _ldpc;
-   reedsolomon<libbase::gf<3, 0xB> > _reedsolomon;
+   uncoded<double> _uncoded;
+   //mapcc<double> _mapcc;
+   turbo<double, double> _turbo;
+   codec_reshaped<turbo<double, double> > _reshaped_turbo;
+   ldpc<libbase::gf2, double> _ldpc;
+   reedsolomon<libbase::gf8> _reedsolomon;
    repacc<double> _repacc;
    sysrepacc<double> _sysrepacc;
    // Mappers
@@ -210,6 +227,7 @@ private:
    commsys_stream_simulator<bool, errors_hamming> _commsys_stream_simulator;
    commsys_threshold<bool, errors_hamming> _commsys_threshold;
    commsys_timer<bool> _commsys_timer;
+   exit_computer<bool> _exit_computer;
 public:
    serializer_libcomm() :
       _mpsk(2), _qam(4)

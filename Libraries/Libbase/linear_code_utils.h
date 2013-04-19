@@ -49,9 +49,6 @@ public:
    typedef libbase::vector<GF_q> array1gfq_t;
    typedef libbase::vector<array1d_t> array1dv_t;
 
-   linear_code_utils();
-   virtual ~linear_code_utils();
-
    /*!This computes the dual code of the given matrix as follows:
     * 1) reduce orgMat to REF, call this matrix G
     * 2) Let G'=\pi(G) so that it is in the following format G'=(I|P)
@@ -98,13 +95,6 @@ public:
     *
     */
    static bool is_systematic(const libbase::matrix<GF_q> & genMat);
-
-   /*!
-    * This simply extracts the most likely received word in soft decision format
-    */
-   static void get_most_likely_received_word(
-         const array1dv_t& received_likelihoods, array1d_t & received_word_sd,
-         array1gfq_t & received_word_hd);
 
    /*!
     * This creates a Hadamard matrix of size=2^m

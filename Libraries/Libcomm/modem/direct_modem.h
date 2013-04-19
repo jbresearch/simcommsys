@@ -44,6 +44,8 @@ namespace libcomm {
  * the field size.
  *
  * \todo Merge modulate and demodulate between this function and lut_modulator (?)
+ *
+ * \todo Require symbol class to provide description() method
  */
 
 template <class G>

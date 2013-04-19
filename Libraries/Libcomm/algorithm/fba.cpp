@@ -42,10 +42,17 @@ void fba<sig, real>::allocate()
    // flag the state of the arrays
    initialised = true;
 
+   // if this is not the first time, skip the rest
+   static bool first_time = true;
+   if (!first_time)
+      return;
+   first_time = false;
+
+#ifndef NDEBUG
    // set required format, storing previous settings
    const std::ios::fmtflags flags = std::cerr.flags();
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const int prec = std::cerr.precision(1);
+   const std::streamsize prec = std::cerr.precision(1);
    // determine memory occupied and tell user
    const size_t bytes_used = sizeof(real) * (F.num_elements()
          + B.num_elements());
@@ -53,6 +60,7 @@ void fba<sig, real>::allocate()
    // revert cerr to original format
    std::cerr.precision(prec);
    std::cerr.flags(flags);
+#endif
    }
 
 /*! \brief Release memory for working matrices

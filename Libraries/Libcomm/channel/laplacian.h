@@ -94,7 +94,7 @@ protected:
    double pdf(const S& tx, const S& rx) const
       {
       const S n = rx - tx;
-      return f(n);
+      return this->f(n);
       }
 public:
    // Parameter handling

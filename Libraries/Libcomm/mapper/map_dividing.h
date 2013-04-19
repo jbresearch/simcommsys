@@ -41,9 +41,11 @@ namespace libcomm {
  * This class is a template definition for dividing mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
  * here.
+ *
+ * \tparam dbl2 Floating-point type for internal computation (pre-normalization)
  */
 
-template <template <class > class C = libbase::vector, class dbl = double>
+template <template <class > class C = libbase::vector, class dbl = double, class dbl2 = double>
 class map_dividing : public mapper<C, dbl> {
 };
 
@@ -62,12 +64,12 @@ class map_dividing : public mapper<C, dbl> {
  * modulators.
  */
 
-template <class dbl>
-class map_dividing<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+template <class dbl, class dbl2>
+class map_dividing<libbase::vector, dbl, dbl2> : public mapper<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef mapper<libbase::vector, dbl> Base;
-   typedef map_dividing<libbase::vector, dbl> This;
+   typedef map_dividing<libbase::vector, dbl, dbl2> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -89,7 +91,7 @@ protected:
     */
    void setup()
       {
-      k = get_rate(Base::M, Base::q);
+      k = this->get_rate(Base::M, Base::q);
       }
    void dotransform(const array1i_t& in, array1i_t& out) const;
    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;

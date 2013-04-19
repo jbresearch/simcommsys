@@ -91,7 +91,7 @@ protected:
     */
    void setup()
       {
-      k = get_rate(Base::q, Base::M);
+      k = this->get_rate(Base::q, Base::M);
       assertalways(this->input_block_size() == output_block_size() * k);
       }
    void dotransform(const array1i_t& in, array1i_t& out) const;

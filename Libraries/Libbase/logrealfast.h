@@ -73,36 +73,74 @@ namespace libbase {
  */
 
 class logrealfast {
+private:
    static const int lutsize;
    static const double lutrange;
-   static double *lut;
+   static double *lut_add;
+   static double *lut_sub;
    static bool lutready;
 #if DEBUG>=3
    static std::ofstream file;
 #endif
+
 private:
    double logval;
    void buildlut();
    static double convertfromdouble(const double m);
    static void ensurefinite(double& x);
-   // define these as private to ensure no-one uses them
+   // define as private to ensure no-one uses it
    logrealfast& operator-();
-   logrealfast& operator-=(const logrealfast& a);
-   logrealfast& operator-(const logrealfast& a) const;
+
 public:
    // construction
-   logrealfast();
-   logrealfast(const double m);
-   logrealfast(const logrealfast& a);
+   logrealfast()
+      {
+      if (!lutready)
+         buildlut();
+      }
+   logrealfast(const double m)
+      {
+      if (!lutready)
+         buildlut();
+      logval = convertfromdouble(m);
+      }
+   logrealfast(const logrealfast& a)
+      {
+      // copy constructor need not check for lutready since at least one object
+      // must have been created already.
+      logval = a.logval;
+      }
    // copy assignment
-   logrealfast& operator=(const logrealfast& a);
+   logrealfast& operator=(const logrealfast& a)
+      {
+      logval = a.logval;
+      return *this;
+      }
    // conversion
-   operator double() const;
-   logrealfast& operator=(const double m);
+   operator double() const
+      {
+      return exp(-logval);
+      }
+   logrealfast& operator=(const double m)
+      {
+      logval = convertfromdouble(m);
+      return *this;
+      }
    // arithmetic - unary
-   logrealfast& operator+=(const logrealfast& a);
-   logrealfast& operator*=(const logrealfast& a);
-   logrealfast& operator/=(const logrealfast& a);
+   logrealfast& operator+=(const logrealfast& b);
+   logrealfast& operator-=(const logrealfast& b);
+   logrealfast& operator*=(const logrealfast& a)
+      {
+      logval += a.logval;
+      ensurefinite(logval);
+      return *this;
+      }
+   logrealfast& operator/=(const logrealfast& a)
+      {
+      logval -= a.logval;
+      ensurefinite(logval);
+      return *this;
+      }
    // comparison
    bool operator==(const logrealfast& a) const
       {
@@ -132,7 +170,13 @@ public:
    friend std::ostream& operator<<(std::ostream& sout, const logrealfast& x);
    friend std::istream& operator>>(std::istream& sin, logrealfast& x);
    // specialized power function
-   friend logrealfast pow(const logrealfast& a, const double b);
+   friend logrealfast pow(const logrealfast& a, const double b)
+      {
+      logrealfast result = a;
+      result.logval *= b;
+      logrealfast::ensurefinite(result.logval);
+      return result;
+      }
 };
 
 // private helper functions
@@ -160,70 +204,37 @@ inline void logrealfast::ensurefinite(double& x)
       }
    }
 
-// construction operations
-
-inline logrealfast::logrealfast()
-   {
-   if (!lutready)
-      buildlut();
-   }
-
-inline logrealfast::logrealfast(const double m)
-   {
-   if (!lutready)
-      buildlut();
-   logval = convertfromdouble(m);
-   }
-
-inline logrealfast::logrealfast(const logrealfast& a)
-   {
-   // copy constructor need not check for lutready since at least one object
-   // must have been created already.
-   logval = a.logval;
-   }
-
-// copy assignment
-
-inline logrealfast& logrealfast::operator=(const logrealfast& a)
-   {
-   logval = a.logval;
-   return *this;
-   }
-
-// conversion operations
-
-inline logrealfast::operator double() const
-   {
-   return exp(-logval);
-   }
-
-inline logrealfast& logrealfast::operator=(const double m)
-   {
-   logval = convertfromdouble(m);
-   return *this;
-   }
-
 // arithmetic operations - unary
 
-inline logrealfast& logrealfast::operator+=(const logrealfast& a)
+/*! \brief add the value of 'b' to this value (let's call it 'a')
+ * This method makes use of the equality:
+ *      log(a + b) = log(a) + log(1 + exp(log(b) - log(a)))
+ * which is derived from:
+ *      a + b = a * (1 + (b / a))
+ * It also makes use of the commutative property:
+ *      log(a + b) = log(b + a)
+ * by swapping a,b as needed, so that we only need to take the exponent of a
+ * positive quantity.
+ */
+inline logrealfast& logrealfast::operator+=(const logrealfast& b)
    {
    static const double lutinvstep = (lutsize - 1) / lutrange;
-   const double diff = fabs(logval - a.logval);
+   const double diff = fabs(b.logval - logval);
 
-   if (a.logval < logval)
-      logval = a.logval;
+   if (b.logval < logval)
+      logval = b.logval;
 
 #if DEBUG>=3
    const double offset = log(1 + exp(-diff));
-   logval -= offset;
+   //logval -= offset;
 #endif
 
    if (diff < lutrange)
       {
       const int index = int(round(diff * lutinvstep));
-      logval -= lut[index];
+      logval -= lut_add[index];
 #if DEBUG>=3
-      file << diff << "\t" << offset - lut[index] << std::endl;
+      file << diff << "\t" << offset - lut_add[index] << std::endl;
 #endif
       }
 #if DEBUG>=3
@@ -234,17 +245,27 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& a)
    return *this;
    }
 
-inline logrealfast& logrealfast::operator*=(const logrealfast& a)
+/*! \brief subtract the value of 'b' from this value (let's call it 'a')
+ * This method makes use of the equality:
+ *      log(a - b) = log(a) + log(1 - exp(log(b) - log(a)))
+ * which is derived from:
+ *      a - b = a * (1 - (b / a))
+ * Since this class cannot represent a negative number, the above is only
+ * valid when a > b.
+ */
+inline logrealfast& logrealfast::operator-=(const logrealfast& b)
    {
-   logval += a.logval;
-   ensurefinite(logval);
-   return *this;
-   }
+   static const double lutinvstep = (lutsize - 1) / lutrange;
+   const double diff = logval - b.logval;
 
-inline logrealfast& logrealfast::operator/=(const logrealfast& a)
-   {
-   logval -= a.logval;
-   ensurefinite(logval);
+   assertalways(logval > b.logval);
+
+   if (diff < lutrange)
+      {
+      const int index = int(round(diff * lutinvstep));
+      logval -= lut_sub[index];
+      }
+
    return *this;
    }
 
@@ -254,6 +275,13 @@ inline logrealfast operator+(const logrealfast& a, const logrealfast& b)
    {
    logrealfast result = a;
    result += b;
+   return result;
+   }
+
+inline logrealfast operator-(const logrealfast& a, const logrealfast& b)
+   {
+   logrealfast result = a;
+   result -= b;
    return result;
    }
 
@@ -268,16 +296,6 @@ inline logrealfast operator/(const logrealfast& a, const logrealfast& b)
    {
    logrealfast result = a;
    result /= b;
-   return result;
-   }
-
-// specialized power function
-
-inline logrealfast pow(const logrealfast& a, const double b)
-   {
-   logrealfast result = a;
-   result.logval *= b;
-   logrealfast::ensurefinite(result.logval);
    return result;
    }
 

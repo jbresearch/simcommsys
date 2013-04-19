@@ -26,6 +26,7 @@
 #define __commsys_fulliter_h
 
 #include "commsys.h"
+#include "hard_decision.h"
 
 namespace libcomm {
 
@@ -71,8 +72,17 @@ private:
    int cur_mdm_iter; //!< Current modem iteration
    C<S> last_received; //!< Last received block
    C<array1d_t> ptable_mapped; //!< Prior information to use in demodulation
+   hard_decision<C, double, int> hd_functor; //!< Hard-decision box
    // @}
 public:
+   // Communication System Setup
+   void seedfrom(libbase::random& r)
+      {
+      // Call base method first
+      Base::seedfrom(r);
+      // Seed hard-decision box
+      hd_functor.seedfrom(r);
+      }
    // Communication System Interface
    void receive_path(const C<S>& received);
    void decode(C<int>& decoded);

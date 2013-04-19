@@ -63,11 +63,12 @@
 #  define NOMINMAX
 #endif
 
-// Disable dominance warning
+// Disable specific warnings
 
-//#ifdef WIN32
-//#  pragma warning( disable : 4250 )
-//#endif
+#ifdef WIN32
+//#  pragma warning( disable : 4250 ) // dominance warning
+#  pragma warning( disable : 4800 ) // forcing int to bool
+#endif
 
 // system include files
 
@@ -176,9 +177,9 @@ inline int isinf(double value)
    }
 #endif //ifdef WIN32
 
-// C99 Names for integer types
+// C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
 
-#ifdef WIN32
+#if defined(WIN32) && (_MSC_VER < 1600)
 typedef __int8 int8_t;
 typedef __int16 int16_t;
 typedef __int32 int32_t;
@@ -187,6 +188,18 @@ typedef unsigned __int8 uint8_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
+#else
+#  include <cstdint>
+#endif
+
+// Non-standard 128-bit integer types
+
+#if defined(WIN32)
+typedef __int128 int128_t;
+typedef unsigned __int128 uint128_t;
+#else
+typedef __int128_t int128_t;
+typedef __uint128_t uint128_t;
 #endif
 
 // *** Within standard library namespace ***
@@ -234,10 +247,24 @@ typedef uint8_t int8u;
 typedef uint16_t int16u;
 typedef uint32_t int32u;
 typedef uint64_t int64u;
+typedef uint128_t int128u;
 typedef int8_t int8s;
 typedef int16_t int16s;
 typedef int32_t int32s;
 typedef int64_t int64s;
+typedef int128_t int128s;
+
+// Names for floating-point types
+
+typedef float float32;
+typedef double float64;
+typedef long double float80;
+//typedef __float128 float128;
+
+// Friendly names for high-precision floating-point types
+
+typedef float80 extended;
+//typedef float128 quadruple;
 
 // Constants
 

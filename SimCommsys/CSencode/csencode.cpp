@@ -101,8 +101,11 @@ int main(int argc, char *argv[])
       {
       using libbase::vector;
       using libbase::gf;
+      using libbase::erasable;
       using libcomm::sigspace;
-      if (type == "bool")
+      if (type == "erasable<bool>")
+         process<erasable<bool>, vector> (filename);
+      else if (type == "bool")
          process<bool, vector> (filename);
       else if (type == "gf2")
          process<gf<1, 0x3> , vector> (filename);

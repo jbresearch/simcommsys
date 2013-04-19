@@ -68,7 +68,8 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
    assert(tau > 0);
    validate(Pd, Pi);
    // set constants
-   assert(Pi == Pd); // assumed by this algorithm
+   assert(Pi == Pd);
+   // assumed by this algorithm
    const double p = Pi;
    // the distribution is approximately Gaussian with:
    const double sigma = sqrt(2 * tau * p / (1 - p));
@@ -223,7 +224,8 @@ int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
    assert(tau > 0);
    validate(Pd, Pi);
    // set constants
-   assert(Pi == Pd); // assumed by this algorithm
+   assert(Pi == Pd);
+   // assumed by this algorithm
    const double p = Pi;
    // determine required multiplier
    const double factor = libbase::Qinv(Pr / 2.0);
@@ -247,8 +249,7 @@ int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
    {
    try
       {
-      compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf,
-            offset);
+      compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf, offset);
       const int xmax = compute_xmax_with(f, tau, Pi, Pd);
 #if DEBUG>=4
       std::cerr << "DEBUG (qids): [with exact] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
@@ -257,8 +258,7 @@ int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
       }
    catch (std::exception&)
       {
-      compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf,
-            offset);
+      compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf, offset);
       const int xmax = compute_xmax_with(f, tau, Pi, Pd);
 #if DEBUG>=4
       std::cerr << "DEBUG (qids): [with davey] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
@@ -352,8 +352,8 @@ void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int I,
  * function should be called any time a channel parameter is changed.
  */
 template <class G, class real>
-void qids<G, real>::metric_computer::precompute(double Ps, double Pd,
-      double Pi, int Icap)
+void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
+      int Icap)
    {
    if (N == 0)
       {
@@ -378,10 +378,10 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd,
    compute_Rtable(Rtable, I, Ps, Pd, Pi);
 #endif
    // lattice coefficients
-   Pval_d = Pd;
-   Pval_i = 0.5 * Pi;
-   Pval_tc = (1 - Pi - Pd) * (1 - Ps);
-   Pval_te = (1 - Pi - Pd) * Ps;
+   Pval_d = real(Pd);
+   Pval_i = real(0.5 * Pi);
+   Pval_tc = real((1 - Pi - Pd) * (1 - Ps));
+   Pval_te = real((1 - Pi - Pd) * Ps);
    }
 
 /*!
@@ -407,7 +407,7 @@ void qids<G, real>::metric_computer::init()
 // Batch receiver interface - trellis computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
-      const array1g_t& rx, array1r_t& ptable) const
+      const array1g_t& rx, const array1r_t& app, array1r_t& ptable) const
    {
    using std::min;
    using std::max;
@@ -423,23 +423,23 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
    assertalways(2 * xmax + 1 <= arraysize);
    real F0[arraysize];
    real F1[arraysize];
-   real *Fthis = F1;
-   real *Fprev = F0;
+   real *Fthis = F1 + xmax; // offset by 'xmax' elements
+   real *Fprev = F0 + xmax; // offset by 'xmax' elements
    // initialize for j=0
    // for prior list, reset all elements to zero
-   for (int x = 0; x < 2 * xmax + 1; x++)
+   for (int x = -xmax; x <= xmax; x++)
       {
       Fthis[x] = 0;
       }
    // we also know x[0] = 0; ie. drift before transmitting symbol t0 is zero.
-   Fthis[xmax + 0] = 1;
+   Fthis[0] = 1;
    // compute remaining matrix values
    for (int j = 1; j <= n; ++j)
       {
       // swap 'this' and 'prior' lists
       swap(Fthis, Fprev);
       // for this list, reset all elements to zero
-      for (int x = 0; x < 2 * xmax + 1; x++)
+      for (int x = -xmax; x <= xmax; x++)
          {
          Fthis[x] = 0;
          }
@@ -449,19 +449,22 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
       // limits on insertions and deletions must be respected:
       // 3. y-a <= I
       // 4. y-a >= -1
-      // note: a and y are offset by xmax
-      const int ymin = max(0, xmax - j);
-      const int ymax = min(2 * xmax, xmax + rho - j);
+      const int ymin = max(-xmax, -j);
+      const int ymax = min(xmax, rho - j);
       for (int y = ymin; y <= ymax; ++y)
          {
          real result = 0;
-         const int amin = max(max(0, xmax + 1 - j), y - I);
-         const int amax = min(2 * xmax, y + 1);
+         const int amin = max(max(-xmax, 1 - j), y - I);
+         const int amax = min(xmax, y + 1);
          // check if the last element is a pure deletion
          int amax_act = amax;
          if (y - amax < 0)
             {
-            result += Fprev[amax] * Rval;
+            real temp = Fprev[amax];
+            temp *= Rval;
+            if (app.size() > 0)
+               temp *= app(j - 1);
+            result += temp;
             amax_act--;
             }
          // elements requiring comparison of tx and rx symbols
@@ -471,24 +474,28 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
             // start:  j-1+a
             // length: y-a+1
             // therefore last element is: start+length-1 = j+y-1
-            const bool cmp = tx(j - 1) != rx(j + (y - xmax) - 1);
-            result += Fprev[a] * Rtable(cmp, y - a);
+            const bool cmp = tx(j - 1) != rx(j + y - 1);
+            real temp = Fprev[a];
+            temp *= Rtable(cmp, y - a);
+            if (app.size() > 0)
+               temp *= app(j - 1);
+            result += temp;
             }
          Fthis[y] = result;
          }
       }
    // copy results and return
    assertalways(ptable.size() == 2 * xmax + 1);
-   for (int x = 0; x < 2 * xmax + 1; x++)
+   for (int x = -xmax; x <= xmax; x++)
       {
-      ptable(x) = Fthis[x];
+      ptable(xmax + x) = Fthis[x];
       }
    }
 
 // Batch receiver interface - lattice computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
-      const array1g_t& rx, array1r_t& ptable) const
+      const array1g_t& rx, const array1r_t& app, array1r_t& ptable) const
    {
    using std::swap;
    // Compute sizes
@@ -512,29 +519,44 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       // swap 'this' and 'prior' rows
       swap(Fthis, Fprev);
       // handle first column as a special case
-      Fthis[0] = Fprev[0] * Pval_d;
+      real temp = Fprev[0];
+      temp *= Pval_d;
+      if (app.size() > 0)
+         temp *= app(i - 1);
+      Fthis[0] = temp;
       // remaining columns
       for (int j = 1; j <= rho; j++)
          {
-         const double pi = Fthis[j - 1] * Pval_i;
-         const double pd = Fprev[j] * Pval_d;
+         const real pi = Fthis[j - 1] * Pval_i;
+         const real pd = Fprev[j] * Pval_d;
          const bool cmp = tx(i - 1) == rx(j - 1);
-         const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
-         Fthis[j] = pi + ps + pd;
+         const real ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+         real temp = ps + pd;
+         if (app.size() > 0)
+            temp *= app(i - 1);
+         temp += pi;
+         Fthis[j] = temp;
          }
       }
    // compute last row as a special case (no insertions)
    // swap 'this' and 'prior' rows
    swap(Fthis, Fprev);
    // handle first column as a special case
-   Fthis[0] = Fprev[0] * Pval_d;
+   real temp = Fprev[0];
+   temp *= Pval_d;
+   if (app.size() > 0)
+      temp *= app(n - 1);
+   Fthis[0] = temp;
    // remaining columns
    for (int j = 1; j <= rho; j++)
       {
-      const double pd = Fprev[j] * Pval_d;
+      const real pd = Fprev[j] * Pval_d;
       const bool cmp = tx(n - 1) == rx(j - 1);
-      const double ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
-      Fthis[j] = ps + pd;
+      const real ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+      real temp = ps + pd;
+      if (app.size() > 0)
+         temp *= app(n - 1);
+      Fthis[j] = temp;
       }
    // copy results and return
    assertalways(ptable.size() == 2 * xmax + 1);
@@ -543,9 +565,107 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       // convert index
       const int j = x + n;
       if (j >= 0 && j <= rho)
-         ptable(x + xmax) = Fthis[j];
+         ptable(xmax + x) = Fthis[j];
       else
-         ptable(x + xmax) = 0;
+         ptable(xmax + x) = 0;
+      }
+   }
+
+// Batch receiver interface - lattice computation
+template <class G, class real>
+void qids<G, real>::metric_computer::receive_lattice_corridor(
+      const array1g_t& tx, const array1g_t& rx, const array1r_t& app,
+      array1r_t& ptable) const
+   {
+   using std::swap;
+   using std::min;
+   using std::max;
+   // Compute sizes
+   const int n = tx.size();
+   const int rho = rx.size();
+   // Set up two slices of lattice, and associated pointers
+   // Arrays are allocated on the stack as a fixed size; this avoids dynamic
+   // allocation (which would otherwise be necessary as the size is non-const)
+   assertalways(rho + 1 <= arraysize);
+   real F0[arraysize];
+   real F1[arraysize];
+   real *Fthis = F1;
+   real *Fprev = F0;
+   // initialize for i=0 (first row of lattice)
+   Fthis[0] = 1;
+   const int jmax = min(xmax, rho);
+   for (int j = 1; j <= jmax; j++)
+      Fthis[j] = Fthis[j - 1] * Pval_i;
+   // compute remaining rows, except last
+   for (int i = 1; i < n; i++)
+      {
+      // swap 'this' and 'prior' rows
+      swap(Fthis, Fprev);
+      // handle first column as a special case, if necessary
+      if (i - xmax <= 0)
+         {
+         real temp = Fprev[0] * Pval_d;
+         if (app.size() > 0)
+            temp *= app(i - 1);
+         Fthis[0] = temp;
+         }
+      // remaining columns
+      const int jmin = max(i - xmax, 1);
+      const int jmax = min(i + xmax, rho);
+      for (int j = jmin; j <= jmax; j++)
+         {
+         // transmission/substitution path
+         const bool cmp = tx(i - 1) == rx(j - 1);
+         real temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+         // deletion path (if previous row was within corridor)
+         if (j < i + xmax)
+            temp += Fprev[j] * Pval_d;
+         // apply prior information to transmission/deletion paths
+         if (app.size() > 0)
+            temp *= app(i - 1);
+         // insertion path
+         temp += Fthis[j - 1] * Pval_i;
+         // store result
+         Fthis[j] = temp;
+         }
+      }
+   // compute last row as a special case (no insertions)
+   const int i = n;
+   // swap 'this' and 'prior' rows
+   swap(Fthis, Fprev);
+   // handle first column as a special case, if necessary
+   if (i - xmax <= 0)
+      {
+      real temp = Fprev[0] * Pval_d;
+      if (app.size() > 0)
+         temp *= app(i - 1);
+      Fthis[0] = temp;
+      }
+   // remaining columns
+   for (int j = 1; j <= rho; j++)
+      {
+      // transmission/substitution path
+      const bool cmp = tx(i - 1) == rx(j - 1);
+      real temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+      // deletion path (if previous row was within corridor)
+      if (j < i + xmax)
+         temp += Fprev[j] * Pval_d;
+      // apply prior information to transmission/deletion paths
+      if (app.size() > 0)
+         temp *= app(i - 1);
+      // store result
+      Fthis[j] = temp;
+      }
+   // copy results and return
+   assertalways(ptable.size() == 2 * xmax + 1);
+   for (int x = -xmax; x <= xmax; x++)
+      {
+      // convert index
+      const int j = x + n;
+      if (j >= 0 && j <= rho)
+         ptable(xmax + x) = Fthis[j];
+      else
+         ptable(xmax + x) = 0;
       }
    }
 #endif
@@ -596,24 +716,6 @@ libbase::vector<double> qids<G, real>::resize_drift(const array1d_t& in,
    return out;
    }
 
-// Constructors / Destructors
-
-/*!
- * \brief Principal constructor
- * 
- * \sa init()
- */
-template <class G, class real>
-qids<G, real>::qids(const bool varyPs, const bool varyPd, const bool varyPi) :
-   varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(0), fixedPs(0),
-         fixedPd(0), fixedPi(0)
-   {
-   // channel update flags
-   assert(varyPs || varyPd || varyPi);
-   // other initialization
-   init();
-   }
-
 // Channel parameter handling
 
 /*!
@@ -635,8 +737,8 @@ void qids<G, real>::set_parameter(const double p)
    set_ps(varyPs ? p : fixedPs);
    set_pd(varyPd ? p : fixedPd);
    set_pi(varyPi ? p : fixedPi);
-   libbase::trace << "DEBUG (qids): Ps = " << Ps << ", Pd = " << Pd
-         << ", Pi = " << Pi << std::endl;
+   libbase::trace << "DEBUG (qids): Ps = " << Ps << ", Pd = " << Pd << ", Pi = "
+         << Pi << std::endl;
    }
 
 /*!
@@ -811,9 +913,9 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
       {
       double p;
       while ((p = this->r.fval_closed()) < Pi)
-         state_ins(i)++;
-      if (p < (Pi + Pd))
-         state_tx(i) = false;
+         state_ins(i)++;if
+(      p < (Pi + Pd))
+      state_tx(i) = false;
       }
    // Initialize results vector
 #if DEBUG>=2
@@ -832,20 +934,6 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
       }
    // copy results back
    rx = newrx;
-   }
-
-template <class G, class real>
-void qids<G, real>::receive(const array1g_t& tx, const array1g_t& rx,
-      array1vd_t& ptable) const
-   {
-   // Compute sizes
-   const int M = tx.size();
-   // Initialize results vector
-   ptable.init(1);
-   ptable(0).init(M);
-   // Compute results for each possible signal
-   for (int x = 0; x < M; x++)
-      ptable(0)(x) = qids<G, real>::receive(tx(x), rx);
    }
 
 // description output
@@ -870,10 +958,21 @@ std::string qids<G, real>::description() const
       sout << ", Pd=" << fixedPd;
    if (!varyPi)
       sout << ", Pi=" << fixedPi;
-   if (computer.lattice)
-      sout << ", lattice computation";
-   else
-      sout << ", trellis computation";
+   switch (computer.receiver_type)
+      {
+      case receiver_trellis:
+         sout << ", trellis computation";
+         break;
+      case receiver_lattice:
+         sout << ", lattice computation";
+         break;
+      case receiver_lattice_corridor:
+         sout << ", lattice-corridor computation";
+         break;
+      default:
+         failwith("Unknown receiver mode");
+         break;
+      }
    sout << ")";
 #ifdef USE_CUDA
    sout << " [CUDA]";
@@ -887,7 +986,7 @@ template <class G, class real>
 std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 2 << std::endl;
+   sout << 3 << std::endl;
    sout << "# Vary Ps?" << std::endl;
    sout << varyPs << std::endl;
    sout << "# Vary Pd?" << std::endl;
@@ -902,8 +1001,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    sout << fixedPd << std::endl;
    sout << "# Fixed Pi value" << std::endl;
    sout << fixedPi << std::endl;
-   sout << "# Mode for receiver (0=trellis, 1=lattice)" << std::endl;
-   sout << computer.lattice << std::endl;
+   sout << "# Mode for receiver (0=trellis, 1=lattice, 2=lattice corridor)" << std::endl;
+   sout << computer.receiver_type << std::endl;
    return sout;
    }
 
@@ -913,6 +1012,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
  * \version 1 Initial version (based on bsid v.4, without biased flag)
  *
  * \version 2 Added mode for receiver (trellis or lattice)
+ *
+ * \version 3 Added support for corridor-lattice receiver
  */
 template <class G, class real>
 std::istream& qids<G, real>::serialize(std::istream& sin)
@@ -932,10 +1033,14 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
    // read receiver mode if present
-   if (version < 2)
-      computer.lattice = false;
+   if (version >= 2)
+      {
+      int temp;
+      sin >> libbase::eatcomments >> temp >> libbase::verify;
+      computer.receiver_type = (receiver_t) temp;
+      }
    else
-      sin >> libbase::eatcomments >> computer.lattice >> libbase::verify;
+      computer.receiver_type = receiver_trellis;
    // initialise the object and return
    init();
    return sin;
@@ -944,6 +1049,8 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
 } // end namespace
 
 #include "gf.h"
+#include "mpgnu.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -954,6 +1061,8 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::mpgnu;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -963,13 +1072,18 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define SYMBOL_TYPE_SEQ \
    (bool) \
    GF_TYPE_SEQ
+#ifdef USE_CUDA
 #define REAL_TYPE_SEQ \
    (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(mpgnu)(logrealfast)
+#endif
 
 /* Serialization string: qids<type,real>
  * where:
  *      type = bool | gf2 | gf4 ...
- *      real = float | double
+ *      real = float | double | [mpgnu | logrealfast (CPU only)]
  */
 #define INSTANTIATE(r, args) \
       template class qids<BOOST_PP_SEQ_ENUM(args)>; \
@@ -982,7 +1096,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
       template <> \
       const double qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::Pr = 1e-10;
 /*
-      template <> \
+ template <> \
       template <> \
       int qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::compute_xmax_with( \
             const compute_drift_prob_functor& f, \
@@ -992,7 +1106,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
       int qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::compute_xmax_with( \
             const compute_drift_prob_functor::pdf_func_t& f, \
             int tau, double Pi, double Pd);
-*/
+ */
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

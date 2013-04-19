@@ -1,0 +1,89 @@
+commsys<bool,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+qids<bool,float>
+# Version
+3
+# Vary Ps?
+0
+# Vary Pd?
+1
+# Vary Pi?
+1
+# Cap on I (0=uncapped)
+2
+# Fixed Ps value
+0
+# Fixed Pd value
+0
+# Fixed Pi value
+0
+# Mode for receiver (0=trellis, 1=lattice, 2=lattice corridor)
+0
+## Modem
+tvb<bool,float,float>
+# Version
+7
+#: Inner threshold
+0
+#: Outer threshold
+0
+# Normalize metrics between time-steps?
+1
+# Use batch receiver computation?
+1
+# Lazy computation of gamma?
+1
+# Apply priors at channel-symbol level?
+0
+# Storage mode for gamma (0=local, 1=global, 2=conditional)
+1
+# Number of codewords to look ahead when stream decoding
+0
+# n
+8
+# q
+16
+# codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
+2
+#: codebook name
+extended-hamming
+#: codebook count
+1
+#: codebook entries (table 0)
+0 0 0 0 0 0 0 0
+0 1 1 1 1 0 0 0
+1 0 1 1 0 1 0 0
+1 1 0 0 1 1 0 0
+1 1 0 1 0 0 1 0
+1 0 1 0 1 0 1 0
+0 1 1 0 0 1 1 0
+0 0 0 1 1 1 1 0
+1 1 1 0 0 0 0 1
+1 0 0 1 1 0 0 1
+0 1 0 1 0 1 0 1
+0 0 1 0 1 1 0 1
+0 0 1 1 0 0 1 1
+0 1 0 0 1 0 1 1
+1 0 0 0 0 1 1 1
+1 1 1 1 1 1 1 1
+# marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
+1
+## Mapper
+map_straight<vector,double>
+## Codec
+uncoded<double>
+# Encoder
+cached_fsm
+#: Base Encoder
+gnrcc<gf16>
+#: Generator matrix (k x n vectors)
+1	1
+1
+0001
+
+# Block length
+50

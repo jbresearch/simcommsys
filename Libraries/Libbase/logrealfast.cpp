@@ -39,7 +39,8 @@ namespace libbase {
 
 const int logrealfast::lutsize = 1 << 17;
 const double logrealfast::lutrange = 12.0;
-double *logrealfast::lut;
+double *logrealfast::lut_add;
+double *logrealfast::lut_sub;
 bool logrealfast::lutready = false;
 #if DEBUG>=3
 std::ofstream logrealfast::file;
@@ -49,11 +50,18 @@ std::ofstream logrealfast::file;
 
 void logrealfast::buildlut()
    {
-   lut = new double[lutsize];
+   // set up LUT for addition operation
+   lut_add = new double[lutsize];
    for (int i = 0; i < lutsize; i++)
-      lut[i] = log(1 + exp(-lutrange * i / (lutsize - 1)));
+      lut_add[i] = log(1 + exp(-lutrange * i / (lutsize - 1)));
+   // set up LUT for subtraction operation
+   lut_sub = new double[lutsize];
+   for (int i = 0; i < lutsize; i++)
+      lut_sub[i] = log(1 - exp(-lutrange * i / (lutsize - 1)));
+   // flag that we're done
    lutready = true;
 #if DEBUG>=3
+   // set up file to log difference and error values for LUT access
    file.open("logrealfast-table.txt");
    file.precision(6);
 #endif

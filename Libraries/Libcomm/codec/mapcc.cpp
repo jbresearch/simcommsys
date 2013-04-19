@@ -147,7 +147,7 @@ void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class real, class dbl>
-void mapcc<real, dbl>::encode(const array1i_t& source, array1i_t& encoded)
+void mapcc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
    // Inherit sizes

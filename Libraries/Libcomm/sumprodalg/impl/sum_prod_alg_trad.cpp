@@ -54,7 +54,7 @@ void sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
          {
          tmp_prob = recvd_probs(loop_n)(loop_e);
          //Clipping HACK
-         perform_clipping(tmp_prob);
+         this->perform_clipping(tmp_prob);
          this->received_probs(loop_n)(loop_e) = tmp_prob;
          alpha += tmp_prob;
          }
@@ -204,6 +204,7 @@ void sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m, int n,
 
 #include "gf.h"
 #include "mpreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -213,6 +214,7 @@ namespace libcomm {
 #include <boost/preprocessor/seq/enum.hpp>
 
 using libbase::mpreal;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -220,12 +222,12 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-   (double)(mpreal)
+      (double)(logrealfast)(mpreal)
 
 /* Serialization string: ldpc<type,real>
  * where:
  *      type = gf2 | gf4 ...
- *      real = double | mpreal
+ *      real = double | logrealfast | mpreal
  */
 #define INSTANTIATE(r, args) \
       template class sum_prod_alg_trad<BOOST_PP_SEQ_ENUM(args)>;

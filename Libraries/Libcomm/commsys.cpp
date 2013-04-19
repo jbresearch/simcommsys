@@ -449,6 +449,7 @@ std::istream& commsys<sigspace, C>::serialize(std::istream& sin)
 } // end namespace
 
 #include "gf.h"
+#include "erasable.h"
 
 namespace libcomm {
 
@@ -459,6 +460,7 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::erasable;
 using libbase::matrix;
 using libbase::vector;
 
@@ -467,11 +469,21 @@ using libbase::vector;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
+#define FINITE_TYPE_SEQ \
+   (bool) \
+   GF_TYPE_SEQ
+
+#define ADD_ERASABLE(r, x, type) \
+   (type)(erasable<type>)
+
+#define ALL_FINITE_TYPE_SEQ \
+   BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, FINITE_TYPE_SEQ)
+
 // *** General Communication System ***
 
 #define SYMBOL_TYPE_SEQ \
-   (sigspace)(bool) \
-   GF_TYPE_SEQ
+   (sigspace) \
+   ALL_FINITE_TYPE_SEQ
 #define CONTAINER_TYPE_SEQ \
    (vector)(matrix)
 

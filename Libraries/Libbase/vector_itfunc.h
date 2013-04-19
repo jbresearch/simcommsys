@@ -42,6 +42,17 @@
 
 namespace libbase {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Keep track of problematic extrinsic computations
+// 3 - Show results of extrinsic computation and results normalization
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 /*! \brief Compute extrinsic information
  *
  * \param[out] re extrinsic information
@@ -57,6 +68,10 @@ template <class dbl>
 void compute_extrinsic(vector<vector<dbl> >& re, const vector<vector<dbl> >& ro,
       const vector<vector<dbl> >& ri)
    {
+#if DEBUG>=3
+   std::cerr << "DEBUG (compute_extrinsic): ro = " << ro << std::endl;
+   std::cerr << "DEBUG (compute_extrinsic): ri = " << ri << std::endl;
+#endif
    // Handle the case where the prior information is empty
    if (ri.size() == 0)
       {
@@ -71,13 +86,38 @@ void compute_extrinsic(vector<vector<dbl> >& re, const vector<vector<dbl> >& ro,
    assert(ri(0).size() == N);
    // Allocate space for re (if necessary)
    libbase::allocate(re, tau, N);
+#if DEBUG>=2
+   int count = 0;
+#endif
    // Perform computation
    for (int i = 0; i < tau; i++)
       for (int x = 0; x < N; x++)
          if (ri(i)(x) > 0)
+            {
+            // normal extrinsic computation
             re(i)(x) = ro(i)(x) / ri(i)(x);
+            }
+         else if (ro(i)(x) == 0)
+            {
+            // if prior was also zero
+            re(i)(x) = 0;
+            }
          else
-            re(i)(x) = ro(i)(x);
+            {
+            // problematic cases
+#if DEBUG>=2
+            count++;
+#endif
+            re(i)(x) = 0;
+            }
+#if DEBUG>=2
+   if (count > 0)
+      std::cerr << "DEBUG (compute_extrinsic): " << count
+            << " problematic cases of " << tau * N << std::endl;
+#endif
+#if DEBUG>=3
+   std::cerr << "DEBUG (compute_extrinsic): re = " << re << std::endl;
+#endif
    }
 
 /*!
@@ -107,7 +147,7 @@ void normalize(const vector<real>& in, vector<dbl>& out)
    out.init(N);
    // normalize and copy results
    for (int i = 0; i < N; i++)
-      out(i) = in(i) * scale;
+      out(i) = dbl(in(i) * scale);
    }
 
 /*!
@@ -125,8 +165,12 @@ void normalize(const vector<real>& in, vector<dbl>& out)
  * \note The output and input vectors may point to the same memory
  */
 template <class real, class dbl>
-void normalize_results(const vector<vector<real> >& in, vector<vector<dbl> >& out)
+void normalize_results(const vector<vector<real> >& in,
+      vector<vector<dbl> >& out)
    {
+#if DEBUG>=3
+   std::cerr << "DEBUG (normalize_results): in = " << in << std::endl;
+#endif
    const int N = in.size();
    assert(N > 0);
    const int q = in(0).size();
@@ -135,7 +179,45 @@ void normalize_results(const vector<vector<real> >& in, vector<vector<dbl> >& ou
    // normalize and copy results
    for (int i = 0; i < N; i++)
       normalize(in(i), out(i));
+#if DEBUG>=3
+   std::cerr << "DEBUG (normalize_results): out = " << out << std::endl;
+#endif
    }
+
+/*!
+ * \brief Determine the entropy of the given pdf
+ */
+template <class real>
+double compute_entropy(const vector<real>& p)
+   {
+   double H = 0;
+   for (int i = 0; i < p.size(); i++)
+      H += -p(i) * log2(p(i));
+   return H;
+   }
+
+/*!
+ * \brief Determine the average entropy of the given set of pdfs
+ */
+template <class real>
+double compute_entropy(const vector<vector<real> >& ptable)
+   {
+   // determine sizes
+   const int N = ptable.size();
+   assert(N > 0);
+   // compute entropy
+   double H = 0;
+   for (int i = 0; i < N; i++)
+      H += compute_entropy(ptable(i));
+   H /= N;
+   return H;
+   }
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG
+#endif
 
 } // end namespace
 

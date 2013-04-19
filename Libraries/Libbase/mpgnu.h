@@ -29,7 +29,7 @@
 #include <cfloat>
 #include <iostream>
 
-#ifdef GMP
+#ifdef USE_GMP
 #include <gmp.h>
 #endif
 
@@ -55,18 +55,20 @@ namespace libbase {
 
 class mpgnu {
    static void init();
-#ifdef GMP
+#ifdef USE_GMP
    static mpf_t dblmin, dblmax;
    mpf_t value;
 #endif
 public:
    ~mpgnu();
-   mpgnu(const double m = 0);
+   mpgnu();
    mpgnu(const mpgnu& a);
+   mpgnu(const double a);
 
    operator double() const;
 
    mpgnu& operator=(const mpgnu& a);
+   mpgnu& operator=(const double a);
 
    mpgnu& operator-();
    mpgnu& operator+=(const mpgnu& a);
@@ -80,32 +82,41 @@ public:
    friend mpgnu operator/(const mpgnu& a, const mpgnu& b);
 
    friend std::ostream& operator<<(std::ostream& s, const mpgnu& x);
+   friend std::istream& operator>>(std::istream& s, mpgnu& x);
 };
 
 // Initialisation / Destruction
 
 inline mpgnu::~mpgnu()
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_clear(value);
 #endif
    }
 
-inline mpgnu::mpgnu(const double m)
+inline mpgnu::mpgnu()
    {
    init();
-#ifdef GMP
+#ifdef USE_GMP
    mpf_init2(value, 256);
-   mpf_set_d(value, m);
 #endif
    }
 
 inline mpgnu::mpgnu(const mpgnu& a)
    {
    init();
-#ifdef GMP
+#ifdef USE_GMP
    mpf_init2(value, 256);
    mpf_set(value, a.value);
+#endif
+   }
+
+inline mpgnu::mpgnu(const double a)
+   {
+   init();
+#ifdef USE_GMP
+   mpf_init2(value, 256);
+   mpf_set_d(value, a);
 #endif
    }
 
@@ -113,7 +124,7 @@ inline mpgnu::mpgnu(const mpgnu& a)
 
 inline mpgnu::operator double() const
    {
-#ifndef GMP
+#ifndef USE_GMP
    double result = 0;
 #else
    double result;
@@ -129,8 +140,16 @@ inline mpgnu::operator double() const
 
 inline mpgnu& mpgnu::operator=(const mpgnu& a)
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_set(value, a.value);
+#endif
+   return *this;
+   }
+
+inline mpgnu& mpgnu::operator=(const double a)
+   {
+#ifdef USE_GMP
+   mpf_set_d(value, a);
 #endif
    return *this;
    }
@@ -139,7 +158,7 @@ inline mpgnu& mpgnu::operator=(const mpgnu& a)
 
 inline mpgnu& mpgnu::operator-()
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_neg(value, value);
 #endif
    return *this;
@@ -147,7 +166,7 @@ inline mpgnu& mpgnu::operator-()
 
 inline mpgnu& mpgnu::operator+=(const mpgnu& a)
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_add(value, value, a.value);
 #endif
    return *this;
@@ -155,7 +174,7 @@ inline mpgnu& mpgnu::operator+=(const mpgnu& a)
 
 inline mpgnu& mpgnu::operator-=(const mpgnu& a)
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_sub(value, value, a.value);
 #endif
    return *this;
@@ -163,7 +182,7 @@ inline mpgnu& mpgnu::operator-=(const mpgnu& a)
 
 inline mpgnu& mpgnu::operator*=(const mpgnu& a)
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_mul(value, value, a.value);
 #endif
    return *this;
@@ -171,7 +190,7 @@ inline mpgnu& mpgnu::operator*=(const mpgnu& a)
 
 inline mpgnu& mpgnu::operator/=(const mpgnu& a)
    {
-#ifdef GMP
+#ifdef USE_GMP
    mpf_div(value, value, a.value);
 #endif
    return *this;
@@ -182,7 +201,7 @@ inline mpgnu& mpgnu::operator/=(const mpgnu& a)
 inline mpgnu operator+(const mpgnu& a, const mpgnu& b)
    {
    mpgnu result;
-#ifdef GMP
+#ifdef USE_GMP
    mpf_add(result.value, a.value, b.value);
 #endif
    return result;
@@ -191,7 +210,7 @@ inline mpgnu operator+(const mpgnu& a, const mpgnu& b)
 inline mpgnu operator-(const mpgnu& a, const mpgnu& b)
    {
    mpgnu result;
-#ifdef GMP
+#ifdef USE_GMP
    mpf_sub(result.value, a.value, b.value);
 #endif
    return result;
@@ -200,7 +219,7 @@ inline mpgnu operator-(const mpgnu& a, const mpgnu& b)
 inline mpgnu operator*(const mpgnu& a, const mpgnu& b)
    {
    mpgnu result;
-#ifdef GMP
+#ifdef USE_GMP
    mpf_mul(result.value, a.value, b.value);
 #endif
    return result;
@@ -209,7 +228,7 @@ inline mpgnu operator*(const mpgnu& a, const mpgnu& b)
 inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
    {
    mpgnu result;
-#ifdef GMP
+#ifdef USE_GMP
    mpf_div(result.value, a.value, b.value);
 #endif
    return result;
@@ -219,10 +238,10 @@ inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
 
 inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
    {
-#ifdef GMP
+#ifdef USE_GMP
    using std::ios;
 
-   int flags = s.flags();
+   const ios::fmtflags flags = s.flags();
    s.setf(ios::fixed, ios::floatfield);
 
    const int digits = 6;
@@ -234,6 +253,17 @@ inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
    s << "e" << exponent;
 
    s.flags(flags);
+#endif
+   return s;
+   }
+
+inline std::istream& operator>>(std::istream& s, mpgnu& x)
+   {
+#ifdef USE_GMP
+   std::string str;
+   s >> str;
+
+   mpf_set_str(x.value, str.c_str(), 10);
 #endif
    return s;
    }

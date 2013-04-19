@@ -39,7 +39,7 @@
 namespace libcomm {
 
 /*!
- * \brief   Symbol-Level Forward-Backward Algorithm.
+ * \brief   Symbol-Level Forward-Backward Algorithm (for TVB codes).
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -127,11 +127,7 @@ private:
       const int start = xmax + n * i + x;
       const int length = n + deltax;
       // call receiver method
-      real result = receiver.R(d, i, r.extract(start, length));
-      // apply priors if applicable
-      if (app.size() > 0)
-         result *= real(app(i)(d));
-      return result;
+      return receiver.R(d, i, r.extract(start, length), app);
       }
    //! Compute gamma metric using batch receiver interface
    void compute_gamma_batch(int d, int i, int x, array1r_t& ptable,
@@ -141,10 +137,7 @@ private:
       const int start = xmax + n * i + x;
       const int length = std::min(n + dmax, r.size() - start);
       // call batch receiver method
-      receiver.R(d, i, r.extract(start, length), ptable);
-      // apply priors if applicable
-      if (app.size() > 0)
-         ptable *= real(app(i)(d));
+      receiver.R(d, i, r.extract(start, length), app, ptable);
       }
    //! Get a reference to the corresponding gamma cache entry
    real& get_cache_entry(int d, int i, int x, int deltax) const
@@ -317,9 +310,9 @@ private:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   fba2()
+   fba2() :
+         initialised(false)
       {
-      initialised = false;
       }
    // @}
 

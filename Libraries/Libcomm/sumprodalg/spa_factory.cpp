@@ -24,6 +24,7 @@
 
 #include "spa_factory.h"
 #include "mpreal.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -34,6 +35,7 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::mpreal;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -41,7 +43,7 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-   (double)(mpreal)
+      (double)(logrealfast)(mpreal)
 
 #define INSTANTIATE(r, args) \
       template class spa_factory<BOOST_PP_SEQ_ENUM(args)>;

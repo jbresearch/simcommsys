@@ -42,8 +42,6 @@ std::ostream& operator<<(std::ostream& s, const sigspace& x)
 
 std::istream& operator>>(std::istream& s, sigspace& x)
    {
-   using std::ios;
-
    double i = 0, q = 0;
    char c = 0;
 
@@ -54,12 +52,12 @@ std::istream& operator>>(std::istream& s, sigspace& x)
       if (c == ',')
          s >> q >> c;
       else
-         s.clear(ios::badbit);
+         s.clear(std::ios::failbit);
       if (c != ']')
-         s.clear(ios::badbit);
+         s.clear(std::ios::failbit);
       }
    else
-      s.clear(ios::badbit);
+      s.clear(std::ios::failbit);
 
    if (s)
       x = sigspace(i, q);

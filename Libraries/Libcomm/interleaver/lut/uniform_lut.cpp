@@ -40,13 +40,6 @@ void uniform_lut<real>::init(const int tau, const int m)
 // intra-frame functions
 
 template <class real>
-void uniform_lut<real>::seedfrom(libbase::random& r)
-   {
-   this->r.seed(r.ival());
-   advance();
-   }
-
-template <class real>
 void uniform_lut<real>::advance()
    {
    // create array to hold 'used' status of possible lut values
@@ -85,7 +78,9 @@ std::string uniform_lut<real>::description() const
 template <class real>
 std::ostream& uniform_lut<real>::serialize(std::ostream& sout) const
    {
+   sout << "# Interleaver size" << std::endl;
    sout << this->lut.size() << std::endl;
+   sout << "# Forced tail length" << std::endl;
    sout << m << std::endl;
    return sout;
    }

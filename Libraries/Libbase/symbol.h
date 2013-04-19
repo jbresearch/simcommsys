@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-namespace libcomm {
+namespace libbase {
 
 /*!
  * \brief   Finite q-ary symbol.

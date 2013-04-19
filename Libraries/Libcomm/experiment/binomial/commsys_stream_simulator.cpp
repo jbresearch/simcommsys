@@ -26,7 +26,6 @@
 
 #include "vectorutils.h"
 #include "vector_itfunc.h"
-#include "hard_decision.h"
 #include <sstream>
 
 namespace libcomm {
@@ -60,10 +59,10 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    assert(sys_enc);
 
    // reset if we have reached the user-set limit for stream length
-   switch (mode)
+   switch (stream_mode)
       {
-      case mode_reset:
-      case mode_terminated:
+      case stream_mode_reset:
+      case stream_mode_terminated:
          if (frames_decoded >= N)
             reset();
          break;
@@ -139,7 +138,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 #endif
       }
    // If it's the last frame in a terminated stream, set eof prior accordingly.
-   if (mode == mode_terminated && frames_decoded == N - 1)
+   if (stream_mode == stream_mode_terminated && frames_decoded == N - 1)
       {
       // determine the actual drift at the end of the frame to be decoder
       const int drift = actual_drift.front() - drift_error;
@@ -218,8 +217,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
          // Perform soft-output decoding
          sys_dec.getcodec_softout().softdecode(ri, ro);
          // Compute hard-decision for results gatherer
-         hard_decision<libbase::vector, double> functor;
-         functor(ri, decoded);
+         hd_functor(ri, decoded);
          // Update results if necessary
          if (!rc)
             {
@@ -288,15 +286,15 @@ std::string commsys_stream_simulator<S, R>::description() const
    std::ostringstream sout;
    sout << "Stream-oriented ";
    sout << Base::description();
-   switch (mode)
+   switch (stream_mode)
       {
-      case mode_open:
+      case stream_mode_open:
          sout << ", open-ended stream";
          break;
-      case mode_reset:
+      case stream_mode_reset:
          sout << ", stream reset every " << N << " frames";
          break;
-      case mode_terminated:
+      case stream_mode_terminated:
          sout << ", stream ends after " << N << " frames";
          break;
       default:
@@ -315,14 +313,14 @@ std::ostream& commsys_stream_simulator<S, R>::serialize(
    sout << "# Version" << std::endl;
    sout << 2 << std::endl;
    sout << "# Streaming mode (0=open, 1=reset, 2=terminated)" << std::endl;
-   sout << mode << std::endl;
-   switch (mode)
+   sout << stream_mode << std::endl;
+   switch (stream_mode)
       {
-      case mode_reset:
+      case stream_mode_reset:
          sout << "# Number of frames to reset" << std::endl;
          sout << N << std::endl;
          break;
-      case mode_terminated:
+      case stream_mode_terminated:
          sout << "# Length of stream in frames" << std::endl;
          sout << N << std::endl;
          break;
@@ -341,7 +339,7 @@ std::ostream& commsys_stream_simulator<S, R>::serialize(
  *
  * \version 1 Added version numbering; added frame count to stream reset
  *
- * \version 2 Changed format to include mode, and terminating streams
+ * \version 2 Changed format to include stream mode, and terminating streams
  */
 
 template <class S, class R>
@@ -357,15 +355,16 @@ std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
       version = 0;
       sin.clear();
       }
+   // *** Stream mode
    // reset (valid for version 0)
-   mode = mode_open;
+   stream_mode = stream_mode_open;
    N = 0;
    // handle version 1: read frame count and determine mode
    if (version == 1)
       {
       sin >> libbase::eatcomments >> N >> libbase::verify;
       if (N > 0)
-         mode = mode_reset;
+         stream_mode = stream_mode_reset;
       }
    // handle later versions
    if (version >= 2)
@@ -373,13 +372,13 @@ std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
       int temp;
       // read streaming mode
       sin >> libbase::eatcomments >> temp >> libbase::verify;
-      assertalways(temp >= 0 && temp < mode_undefined);
-      mode = static_cast<mode_enum>(temp);
+      assertalways(temp >= 0 && temp < stream_mode_undefined);
+      stream_mode = static_cast<stream_mode_enum>(temp);
       // read mode-dependent parameters
-      switch (mode)
+      switch (stream_mode)
          {
-         case mode_reset:
-         case mode_terminated:
+         case stream_mode_reset:
+         case stream_mode_terminated:
             sin >> libbase::eatcomments >> N >> libbase::verify;
             assert(N > 0);
             break;

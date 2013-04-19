@@ -151,7 +151,7 @@ vector<int> grscc<G>::determineinput(const vector<int>& input) const
          // Handle tailing out
          const G zero;
          for (int i = 0; i < this->k; i++)
-            ip(i) = convolve(zero, this->reg(i), this->gen(i, i));
+            ip(i) = this->convolve(zero, this->reg(i), this->gen(i, i));
          }
    return ip;
    }
@@ -164,7 +164,7 @@ vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
    // Determine the shift-in values by convolution
    vector<G> sin(this->k);
    for (int i = 0; i < this->k; i++)
-      sin(i) = convolve(input(i), this->reg(i), this->gen(i, i));
+      sin(i) = this->convolve(input(i), this->reg(i), this->gen(i, i));
    return sin;
    }
 
