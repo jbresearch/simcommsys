@@ -184,6 +184,9 @@ endif
 endif
 # Standard libraries
 LDopts := $(LDopts) -lm -lrt -lstdc++
+# Debugging options
+#LDopts := $(LDopts) -Wl,-v # show full ld command issued
+#LDopts := $(LDopts) -Wl,-t # show full paths of linked objects
 # release-dependent linking options
 export LDflag_debug   := $(LDopts)
 export LDflag_release := $(LDopts)
