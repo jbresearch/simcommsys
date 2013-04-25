@@ -161,7 +161,7 @@ export DOXYGEN := doxygen
 # Common options
 LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 LDopts := $(LDopts) $(LIBNAMES:%=-l%)
-LDopts := $(LDopts) -lm -lrt -lstdc++ -lboost_program_options
+LDopts := $(LDopts) -lboost_program_options
 # OMP options
 ifneq ($(USE_OMP),0)
 LDopts := $(LDopts) -fopenmp
@@ -182,6 +182,8 @@ else
 LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
 endif
 endif
+# Standard libraries
+LDopts := $(LDopts) -lm -lrt -lstdc++
 # release-dependent linking options
 export LDflag_debug   := $(LDopts)
 export LDflag_release := $(LDopts)
@@ -195,7 +197,7 @@ export LDflags = $(LDflag_$(RELEASE))
 # Common options
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) -Wall -Werror
-CCopts := $(CCopts) -std=c++0x
+#CCopts := $(CCopts) -std=c++0x
 CCopts := $(CCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 # note: below disabled to avoid problems with parallel builds
 # note: below should be replaced with the following when we move to gcc > 4.4

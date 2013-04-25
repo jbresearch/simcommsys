@@ -79,13 +79,8 @@
 
 #include <cstdlib>
 #include <cmath>
-
-#ifdef WIN32
-#  include <float.h>
-#  include <basetsd.h>
-#else
-#  include <stdint.h>
-#endif
+#include <cfloat>
+#include <stdint.h>
 
 // module include files
 
@@ -179,6 +174,10 @@ inline int isinf(double value)
 
 // C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
 
+#ifdef WIN32
+#  include <basetsd.h>
+#endif
+
 #if defined(WIN32) && (_MSC_VER < 1600)
 typedef __int8 int8_t;
 typedef __int16 int16_t;
@@ -188,8 +187,6 @@ typedef unsigned __int8 uint8_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
-#else
-#  include <cstdint>
 #endif
 
 // Non-standard 128-bit integer types
