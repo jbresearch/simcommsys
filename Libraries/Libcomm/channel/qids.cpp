@@ -159,7 +159,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
    // include first binomial coefficient term in p_j0
    for (int i = 1; i <= j0; i++)
       {
-      pj += log(myreal(T - i + 1)) - log(myreal(i));
+      pj += log(myreal(T - j0 + i)) - log(myreal(i));
       }
    // include second binomial coefficient term in p_j0
    for (int i = 1; i <= m + j0; i++)
