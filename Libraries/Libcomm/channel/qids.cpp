@@ -129,9 +129,22 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
  * C(T, j0) = product for i=1..j0 of (T-j0-i)/i
  * C(T+m+j0-1, m+j0) = product for i=1..m+j0 of (T-1-i)/i
  *
- * Degenerate cases include:
- * 1) Pi = 0
- * 2) Pd = 0
+ * Degenerate cases:
+ *
+ * 1) Pi > 0, Pd = 0
+ *    p_j is non-zero only for j=0, so that:
+ *    Pr{ S_T = m } = Pt^T Pi^m C(T+m-1, m) for m >= 0,
+ *                  = 0 otherwise
+ *
+ * 2) Pd > 0, Pi = 0
+ *    p_j is non-zero only for j=-m, so that:
+ *    Pr{ S_T = m } = Pt^{T+m} Pd^-m C(T, -m) for m <= 0,
+ *                  = 0 otherwise
+ *
+ * 3) Pi = Pd = 0
+ *    p_j is non-zero only for j=0 and m=0, so that:
+ *    Pr{ S_T = m } = 1 for m = 0,
+ *                  = 0 otherwise
  */
 template <class G, class real>
 double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
@@ -141,13 +154,57 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
    // sanity checks
    assert(T > 0);
    validate(Pd, Pi);
+   // shortcut for out-of-range values (too many deletions required)
+   if (m < -T)
+      return 0;
    // set constants
    const double Pt = 1 - Pi - Pd;
+   // handle degenerate case 3: Pi = Pd = 0
+   if (Pi == 0 && Pd == 0)
+      {
+      return (m == 0) ? 1 : 0;
+      }
+   // handle degenerate case 2: Pd > 0, Pi = 0
+   else if (Pi == 0)
+      {
+      // shortcut for out-of-range values (insertions required)
+      if (m > 0)
+         return 0;
+      // compute result in log domain
+      myreal result = 0;
+      // include first two terms in result
+      result += log(myreal(Pt)) * (T+m);
+      result += log(myreal(Pd)) * (-m);
+      // include binomial coefficient term in result
+      for (int i = 1; i <= -m; i++)
+         {
+         result += log(myreal(T + m + i)) - log(myreal(i));
+         }
+      // convert factor back from log domain
+      return exp(result);
+      }
+   // handle degenerate case 1: Pi > 0, Pd = 0
+   else if (Pd == 0)
+      {
+      // shortcut for out-of-range values (deletions required)
+      if (m < 0)
+         return 0;
+      // compute result in log domain
+      myreal result = 0;
+      // include first two terms in result
+      result += log(myreal(Pt)) * T;
+      result += log(myreal(Pi)) * m;
+      // include binomial coefficient term in result
+      for (int i = 1; i <= m; i++)
+         {
+         result += log(myreal(T - 1 + i)) - log(myreal(i));
+         }
+      // convert factor back from log domain
+      return exp(result);
+      }
+   // set constants
    const double Pf = Pi * Pd / Pt;
    const int j0 = std::max(-m, 0);
-   // shortcut for out-of-range values (too many deletions required)
-   if (j0 > T)
-      return 0;
    // compute common factor (in log domain) for j=j0
    myreal pj = 0;
    // include first two terms in p_j0
