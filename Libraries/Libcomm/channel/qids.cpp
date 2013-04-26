@@ -281,6 +281,9 @@ int qids<G, real>::metric_computer::compute_I(int tau, double Pi, int Icap)
    // sanity checks
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
+   // shortcut for no-insertion case
+   if (Pi == 0)
+      return 0;
    // main computation
    int I = int(ceil((log(Pr) - log(double(tau))) / log(Pi))) - 1;
    I = std::max(I, 1);
@@ -321,7 +324,7 @@ int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
    assert(tau > 0);
    validate(Pd, Pi);
    // set constants
-   assert(Pi == Pd);
+   assertalways(Pi == Pd);
    // assumed by this algorithm
    const double p = Pi;
    // determine required multiplier
