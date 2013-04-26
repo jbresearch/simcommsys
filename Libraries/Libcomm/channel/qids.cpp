@@ -68,7 +68,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
    assert(tau > 0);
    validate(Pd, Pi);
    // set constants
-   assert(Pi == Pd);
+   assertalways(Pi == Pd);
    // assumed by this algorithm
    const double p = Pi;
    // the distribution is approximately Gaussian with:
@@ -104,8 +104,8 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
    // set constants
    const double Pt = 1 - Pi - Pd;
    const double Pf = Pi * Pd / Pt;
-   const int imin = (x < 0) ? -x : 0;
-   // shortcut for out-of-range values
+   const int imin = std::max(-x, 0);
+   // shortcut for out-of-range values (too many deletions required)
    if (imin > tau)
       return 0;
    // compute initial value

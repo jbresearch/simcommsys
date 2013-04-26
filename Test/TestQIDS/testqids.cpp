@@ -194,9 +194,16 @@ void compute_statespace(int tau, double p, bool ins, bool del, bool sim)
    cout << "\t" << I;
    const int xmax_auto = metric_computer::compute_xmax(tau, Pi, Pd);
    cout << "\t" << xmax_auto;
-   const int xmax_davey = metric_computer::compute_xmax_with(
-         &metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
-   cout << "\t" << xmax_davey;
+   if (Pi == Pd)
+      {
+      const int xmax_davey = metric_computer::compute_xmax_with(
+            &metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
+      cout << "\t" << xmax_davey;
+      }
+   else
+      {
+      cout << "\tN/A";
+      }
    try
       {
       const int xmax_exact = metric_computer::compute_xmax_with(
