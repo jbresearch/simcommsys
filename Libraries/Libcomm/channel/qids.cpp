@@ -86,67 +86,107 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
    }
 
 /*!
- * \brief The probability of drift x after transmitting tau symbols
+ * \brief The probability of drift 'm' after transmitting 'T' symbols
  *
  * Computes the required probability using the exact metric from our
  * Trans. Inf. Theory submission.
  *
- * \todo Add formula
+ * The required probability Pr{ S_T = m } is calculated as:
+ *
+ * sum for j=j0..T of
+ *
+ *    p_j = Pt^T Pi^m Pf^j C(T, j) C(T+m+j-1, m+j)
+ *
+ * where j0 = max(-m,0),
+ *       Pf = Pi Pd / Pt,
+ *       Pt = 1 - Pi - Pd,
+ * and the binomial coefficient is expressed as
+ *    C(n,k) = n! / [ k! (n-k)! ] for k ≤ n
+ *           = n(n-1)...(n-k-1) / k(k-1)...1
+ *           = 0 for k > n
+ *
+ * Note that:
+ * a) the summation is empty if j0 > T, resulting in zero probability
+ * b) the first binomial coefficient is always non-zero
+ * c) the second b.c. is non-zero if T-1 >= 0, or equivalently T > 0
+ *
+ * By expanding the binomial coefficients using factorials, note also that:
+ *
+ *    p_j = p_{j-1} . Pf . (T+m+j-1) . (T-j+1)
+ *                           (m+j)        j
+ *
+ * This allows successive factors to be determined easily from previous ones.
+ * The initial factor required is the one at j0, determined as:
+ *
+ *    p_j0 = Pt^T . Pi^m . Pf^j0 . C(T, j0) . C(T+m+j0-1, m+j0)
+ *
+ * Now the binomial coefficients can be computed using the multiplicative
+ * formula:
+ *    C(n,k) = product for i=1..k of (n-k-i)/i
+ *
+ * Therefore the binomial coefficients in p_j0 are computed as:
+ *
+ * C(T, j0) = product for i=1..j0 of (T-j0-i)/i
+ * C(T+m+j0-1, m+j0) = product for i=1..m+j0 of (T-1-i)/i
+ *
+ * Degenerate cases include:
+ * 1) Pi = 0
+ * 2) Pd = 0
  */
 template <class G, class real>
-double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
+double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
       double Pi, double Pd)
    {
    typedef long double myreal;
    // sanity checks
-   assert(tau > 0);
+   assert(T > 0);
    validate(Pd, Pi);
    // set constants
    const double Pt = 1 - Pi - Pd;
    const double Pf = Pi * Pd / Pt;
-   const int imin = std::max(-x, 0);
+   const int j0 = std::max(-m, 0);
    // shortcut for out-of-range values (too many deletions required)
-   if (imin > tau)
+   if (j0 > T)
       return 0;
-   // compute initial value
-   myreal p0 = 1;
-   // inner and outer factors (do this in log domain)
-   p0 = log(p0);
-   // inner factor if x > 0 (and therefore imin = 0)
-   for (int xi = 1; xi <= x + imin; xi++)
+   // compute common factor (in log domain) for j=j0
+   myreal pj = 0;
+   // include first two terms in p_j0
+   pj += log(myreal(Pt)) * T;
+   pj += log(myreal(Pi)) * m;
+   // include third term in p_j0
+   if (j0 > 0)
+      pj += log(Pf) * j0;
+   // include first binomial coefficient term in p_j0
+   for (int i = 1; i <= j0; i++)
       {
-      p0 += log(myreal(tau + xi - 1)) - log(myreal(xi));
+      pj += log(myreal(T - i + 1)) - log(myreal(i));
       }
-   // inner factor if x < 0 (and therefore imin > 0)
-   if (imin > 0)
-      p0 += log(Pf) * imin;
-   for (int i = 1; i <= imin; i++)
+   // include second binomial coefficient term in p_j0
+   for (int i = 1; i <= m + j0; i++)
       {
-      p0 += log(myreal(tau - i + 1)) - log(myreal(i));
+      pj += log(myreal(T - 1 + i)) - log(myreal(i));
       }
-   // outer factors
-   p0 += log(myreal(Pt)) * tau;
-   p0 += log(myreal(Pi)) * x;
-   p0 = exp(p0);
+   // convert factor back from log domain
+   pj = exp(pj);
 #if DEBUG>=4
-   std::cerr << "DEBUG (qids): [pdf-exact] x = " << x << ", p0 = " << p0
+   std::cerr << "DEBUG (qids): [pdf-exact] m = " << m << ", p_j0 = " << pj
    << std::endl;
 #endif
-   if (p0 == 0)
+   if (pj == 0)
       throw std::overflow_error("zero factor");
    // main computation
-   myreal this_p = p0;
-   for (int i = imin + 1; i <= tau; i++)
+   myreal this_p = pj;
+   for (int j = j0 + 1; j <= T; j++)
       {
       // update factor
-      p0 *= Pf;
-      p0 *= myreal(tau + x + i - 1) / myreal(x + i);
-      p0 *= myreal(tau - i + 1) / myreal(i);
+      pj *= Pf;
+      pj *= myreal(T + m + j - 1) / myreal(m + j);
+      pj *= myreal(T - j + 1) / myreal(j);
       // update main result
       const myreal last_p = this_p;
-      this_p += p0;
+      this_p += pj;
 #if DEBUG>=4
-      std::cerr << "DEBUG (qids): [pdf-exact] i = " << i << ", p0 = " << p0
+      std::cerr << "DEBUG (qids): [pdf-exact] j = " << j << ", p_j = " << pj
       << ", this_p = " << this_p << std::endl;
 #endif
       // early cutoff
