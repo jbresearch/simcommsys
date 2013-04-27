@@ -86,8 +86,8 @@ void fba<sig, real>::init(int tau, int I, int xmax, double th_inner, bool norm)
    assert(tau > 0);
    This::tau = tau;
    // decoder parameters
-   assert(I > 0);
-   assert(xmax > 0);
+   assert(I >= 0);
+   assert(xmax >= 0);
    This::I = I;
    This::xmax = xmax;
    // path truncation parameters
