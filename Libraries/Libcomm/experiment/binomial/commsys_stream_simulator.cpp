@@ -160,6 +160,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    // Inner code (modem) iterations
    for (int iter_modem = 0; iter_modem < sys_dec.sys_iter(); iter_modem++)
       {
+      // ** Inner code (modem class) **
       // Demodulate
       array1vd_t ptable_post;
       array1d_t sof_post;
@@ -170,15 +171,9 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       libbase::normalize_results(ptable_post, ptable_post);
       // Compute extrinsic information for passing to codec
       libbase::compute_extrinsic(ptable_ext, ptable_post, ptable_ext);
-      // After-demodulation receive path
       // Inverse Map
       array1vd_t ptable_encoded;
       sys_dec.getmapper()->inverse(ptable_ext, ptable_encoded);
-      // Translate
-      sys_dec.getcodec()->init_decoder(ptable_encoded);
-      // Inverse Map -> Translate
-      //sys_dec.softreceive_path(ptable_ext);
-      //sys_dec.receive_path(received_segment, lookahead, sof_prior, eof_prior, offset);
 
       // and perform codeword boundary analysis if this is indicated
       if (rc)
@@ -205,10 +200,13 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
          rc->updateresults(result_segment, act_drift, est_drift);
          }
 
+      // ** Outer code (codec class) **
       // Get source message to compare against
       assert(!source.empty());
       array1i_t source_this = source.front();
-      // For every iteration
+      // Translate
+      sys_dec.getcodec()->init_decoder(ptable_encoded);
+      // Perform necessary number of codec iterations
       array1i_t decoded;
       array1vd_t ri;
       array1vd_t ro;

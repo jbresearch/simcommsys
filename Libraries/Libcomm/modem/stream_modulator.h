@@ -86,8 +86,8 @@ public:
     * \param[in]  eof_prior Prior probabilities for end-of-frame position
     *                      (zero-index matches N-index of rx, where N is the
     *                      length of the transmitted frame + lookahead)
-    * \param[in]  app      Prior probabilities of transmitted sequence
-    * \param[out] ptable   Posterior probabilities of transmitted sequence
+    * \param[in]  app      Prior probabilities of uncoded transmitted sequence
+    * \param[out] ptable   Posterior probabilities of uncoded transmitted sequence
     * \param[out] sof_post Posterior probabilities for start-of-frame position
     *                      (zero-index matches zero-index of rx)
     * \param[out] eof_post Posterior probabilities for end-of-frame position
