@@ -507,7 +507,7 @@ void qids<G, real>::metric_computer::init()
 // Batch receiver interface - trellis computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
-      const array1g_t& rx, const array1r_t& app, array1r_t& ptable) const
+      const array1g_t& rx, array1r_t& ptable) const
    {
    using std::min;
    using std::max;
@@ -562,8 +562,6 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
             {
             real temp = Fprev[amax];
             temp *= Rval;
-            if (app.size() > 0)
-               temp *= app(j - 1);
             result += temp;
             amax_act--;
             }
@@ -577,8 +575,6 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
             const bool cmp = tx(j - 1) != rx(j + y - 1);
             real temp = Fprev[a];
             temp *= Rtable(cmp, y - a);
-            if (app.size() > 0)
-               temp *= app(j - 1);
             result += temp;
             }
          Fthis[y] = result;
@@ -595,7 +591,7 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
 // Batch receiver interface - lattice computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
-      const array1g_t& rx, const array1r_t& app, array1r_t& ptable) const
+      const array1g_t& rx, array1r_t& ptable) const
    {
    using std::swap;
    // Compute sizes
@@ -621,8 +617,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       // handle first column as a special case
       real temp = Fprev[0];
       temp *= Pval_d;
-      if (app.size() > 0)
-         temp *= app(i - 1);
       Fthis[0] = temp;
       // remaining columns
       for (int j = 1; j <= rho; j++)
@@ -632,8 +626,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
          const bool cmp = tx(i - 1) == rx(j - 1);
          const real ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
          real temp = ps + pd;
-         if (app.size() > 0)
-            temp *= app(i - 1);
          temp += pi;
          Fthis[j] = temp;
          }
@@ -644,8 +636,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
    // handle first column as a special case
    real temp = Fprev[0];
    temp *= Pval_d;
-   if (app.size() > 0)
-      temp *= app(n - 1);
    Fthis[0] = temp;
    // remaining columns
    for (int j = 1; j <= rho; j++)
@@ -654,8 +644,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       const bool cmp = tx(n - 1) == rx(j - 1);
       const real ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
       real temp = ps + pd;
-      if (app.size() > 0)
-         temp *= app(n - 1);
       Fthis[j] = temp;
       }
    // copy results and return
@@ -671,10 +659,10 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       }
    }
 
-// Batch receiver interface - lattice computation
+// Batch receiver interface - lattice corridor computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_lattice_corridor(
-      const array1g_t& tx, const array1g_t& rx, const array1r_t& app,
+      const array1g_t& tx, const array1g_t& rx,
       array1r_t& ptable) const
    {
    using std::swap;
@@ -705,8 +693,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       if (i - xmax <= 0)
          {
          real temp = Fprev[0] * Pval_d;
-         if (app.size() > 0)
-            temp *= app(i - 1);
          Fthis[0] = temp;
          }
       // remaining columns
@@ -720,9 +706,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
          // deletion path (if previous row was within corridor)
          if (j < i + xmax)
             temp += Fprev[j] * Pval_d;
-         // apply prior information to transmission/deletion paths
-         if (app.size() > 0)
-            temp *= app(i - 1);
          // insertion path
          temp += Fthis[j - 1] * Pval_i;
          // store result
@@ -737,8 +720,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
    if (i - xmax <= 0)
       {
       real temp = Fprev[0] * Pval_d;
-      if (app.size() > 0)
-         temp *= app(i - 1);
       Fthis[0] = temp;
       }
    // remaining columns
@@ -750,9 +731,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       // deletion path (if previous row was within corridor)
       if (j < i + xmax)
          temp += Fprev[j] * Pval_d;
-      // apply prior information to transmission/deletion paths
-      if (app.size() > 0)
-         temp *= app(i - 1);
       // store result
       Fthis[j] = temp;
       }
@@ -768,6 +746,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
          ptable(xmax + x) = 0;
       }
    }
+
 #endif
 
 /*!
@@ -1013,9 +992,9 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
       {
       double p;
       while ((p = this->r.fval_closed()) < Pi)
-         state_ins(i)++;if
-(      p < (Pi + Pd))
-      state_tx(i) = false;
+         state_ins(i)++;
+      if (p < (Pi + Pd))
+         state_tx(i) = false;
       }
    // Initialize results vector
 #if DEBUG>=2

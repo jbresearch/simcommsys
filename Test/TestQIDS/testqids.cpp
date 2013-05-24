@@ -223,49 +223,6 @@ void compute_statespace(int tau, double p, bool ins, bool del, bool sim)
    }
 
 template <class real>
-void test_priors(int tau, double p, bool ins, bool del, bool sub)
-   {
-   // define channel according to specifications
-   libcomm::qids<bool, real> channel(sub, del, ins);
-   randgen prng;
-   prng.seed(0);
-   channel.seedfrom(prng);
-   channel.set_parameter(p);
-   channel.set_blocksize(tau);
-   // determine state-space parameters
-   const int xmax = channel.compute_xmax(tau);
-   // define input sequences and prior/posterior tables
-   vector<bool> tx(tau);
-   vector<bool> rx(tau + xmax);
-   vector<real> app_empty;
-   vector<real> app_bit(tau);
-   vector<real> ptable_symbol(2 * xmax + 1);
-   vector<real> ptable_bit(2 * xmax + 1);
-   // generate tx/rx vectors
-   createsource(tx, prng, tau);
-   vector<bool> rx_temp;
-   channel.transmit(tx, rx_temp);
-   rx = 0;
-   rx.segment(0, rx_temp.size()) = rx_temp;
-   // generate random priors
-   real app_symbol = 1;
-   for (int i = 0; i < tau; i++)
-      {
-      const real p = real(std::max(std::min(prng.gval(0.1) + 0.6, 1.0), 0.0));
-      app_bit(i) = p;
-      app_symbol *= p;
-      }
-   // determine results with priors applied at bit and symbol level
-   channel.get_computer().receive_trellis(tx, rx, app_empty, ptable_symbol);
-   ptable_symbol *= app_symbol;
-   channel.get_computer().receive_trellis(tx, rx, app_bit, ptable_bit);
-   // compare results
-   cout << "Priors: " << app_bit << std::endl;
-   cout << "Posteriors (symbol-level): " << ptable_symbol << std::endl;
-   cout << "Posteriors (bit-level): " << ptable_bit << std::endl;
-   }
-
-template <class real>
 void test_receiver(int tau, double p, bool ins, bool del, bool sub)
    {
    // define channel according to specifications
@@ -285,7 +242,6 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub)
    vector<real> ptable_trellis(2 * xmax + 1);
    vector<real> ptable_lattice(2 * xmax + 1);
    vector<real> ptable_corridor(2 * xmax + 1);
-   vector<real> app;
    // compare results
    const int count = 1000;
    libbase::rvstatistics mse_trellis, mse_corridor;
@@ -298,10 +254,9 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub)
       rx = 0;
       rx.segment(0, temp.size()) = temp;
       // determine results with all receivers
-      channel.get_computer().receive_trellis(tx, rx, app, ptable_trellis);
-      channel.get_computer().receive_lattice(tx, rx, app, ptable_lattice);
-      channel.get_computer().receive_lattice_corridor(tx, rx, app,
-            ptable_corridor);
+      channel.get_computer().receive_trellis(tx, rx, ptable_trellis);
+      channel.get_computer().receive_lattice(tx, rx, ptable_lattice);
+      channel.get_computer().receive_lattice_corridor(tx, rx, ptable_corridor);
       // compare results
       mse_trellis.insert(
             (ptable_trellis - ptable_lattice).sumsq() / (2 * xmax + 1));
@@ -338,10 +293,8 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub)
    rx = 0;
    vector<real> ptable_trellis_real(2 * xmax + 1);
    vector<real> ptable_corridor_real(2 * xmax + 1);
-   vector<real> app_real;
    vector<reference> ptable_trellis_reference(2 * xmax + 1);
    vector<reference> ptable_corridor_reference(2 * xmax + 1);
-   vector<reference> app_reference;
    // compare results
    const int count = 1000;
    libbase::rvstatistics mse_trellis, mse_corridor;
@@ -354,15 +307,14 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub)
       rx = 0;
       rx.segment(0, temp.size()) = temp;
       // determine results with two receivers - test system
-      channel_real.get_computer().receive_trellis(tx, rx, app_real,
-            ptable_trellis_real);
-      channel_real.get_computer().receive_lattice_corridor(tx, rx, app_real,
+      channel_real.get_computer().receive_trellis(tx, rx, ptable_trellis_real);
+      channel_real.get_computer().receive_lattice_corridor(tx, rx,
             ptable_corridor_real);
       // determine results with two receivers - reference system
-      channel_reference.get_computer().receive_trellis(tx, rx, app_reference,
+      channel_reference.get_computer().receive_trellis(tx, rx,
             ptable_trellis_reference);
       channel_reference.get_computer().receive_lattice_corridor(tx, rx,
-            app_reference, ptable_corridor_reference);
+            ptable_corridor_reference);
       // compare results
       mse_trellis.insert(
             (vector<reference>(ptable_trellis_real) - ptable_trellis_reference).sumsq()
@@ -401,58 +353,31 @@ void compute_timings(int tau, double p, bool ins, bool del, bool sub)
    tx = 0;
    rx = 0;
    vector<real> ptable(2 * xmax + 1);
-   vector<real> app;
    // determine timings - setup
    libbase::cputimer t;
    int j;
-   const int count = 1000;
+   const int count = 10000;
    const double cutoff = 0.01;
 
    // determine timings - trellis
    t.start();
    for (j = 0; t.elapsed() < cutoff; j++)
       for (int i = 0; i < count; i++)
-         computer.receive_trellis(tx, rx, app, ptable);
+         computer.receive_trellis(tx, rx, ptable);
    t.stop();
    cout << "\t" << t.elapsed() / (j * count);
    // determine timings - lattice
    t.start();
    for (j = 0; t.elapsed() < cutoff; j++)
       for (int i = 0; i < count; i++)
-         computer.receive_lattice(tx, rx, app, ptable);
+         computer.receive_lattice(tx, rx, ptable);
    t.stop();
    cout << "\t" << t.elapsed() / (j * count);
    // determine timings - lattice corridor
    t.start();
    for (j = 0; t.elapsed() < cutoff; j++)
       for (int i = 0; i < count; i++)
-         computer.receive_lattice_corridor(tx, rx, app, ptable);
-   t.stop();
-   cout << "\t" << t.elapsed() / (j * count);
-
-   // set up priors
-   app.init(tau);
-   app = 1;
-
-   // determine timings - trellis
-   t.start();
-   for (j = 0; t.elapsed() < cutoff; j++)
-      for (int i = 0; i < count; i++)
-         computer.receive_trellis(tx, rx, app, ptable);
-   t.stop();
-   cout << "\t" << t.elapsed() / (j * count);
-   // determine timings - lattice
-   t.start();
-   for (j = 0; t.elapsed() < cutoff; j++)
-      for (int i = 0; i < count; i++)
-         computer.receive_lattice(tx, rx, app, ptable);
-   t.stop();
-   cout << "\t" << t.elapsed() / (j * count);
-   // determine timings - lattice corridor
-   t.start();
-   for (j = 0; t.elapsed() < cutoff; j++)
-      for (int i = 0; i < count; i++)
-         computer.receive_lattice_corridor(tx, rx, app, ptable);
+         computer.receive_lattice_corridor(tx, rx, ptable);
    t.stop();
    cout << "\t" << t.elapsed() / (j * count);
 
@@ -479,8 +404,6 @@ int main(int argc, char *argv[])
    desc.add_options()("default", "default test set");
    desc.add_options()("visual", "visual test");
    desc.add_options()("transmission", "simulate and validate transmission");
-   desc.add_options()("priors",
-         "compare trellis receiver with symbol-level and bit-level priors");
    desc.add_options()("receiver",
          "determine equivalence for trellis and lattice (full and corridor) "
                "receiver, in single precision");
@@ -512,9 +435,8 @@ int main(int argc, char *argv[])
    // Validate user parameters
    if (vm.count("help")
          || (vm.count("default") + vm.count("visual") + vm.count("transmission")
-               + vm.count("priors") + vm.count("receiver")
-               + vm.count("precision") + vm.count("timings")
-               + vm.count("state-space") != 1))
+               + vm.count("receiver") + vm.count("precision")
+               + vm.count("timings") + vm.count("state-space") != 1))
       {
       cout << desc << std::endl;
       return 0;
@@ -551,16 +473,6 @@ int main(int argc, char *argv[])
       const bool del = vm["del"].as<bool>();
       const bool sub = vm["sub"].as<bool>();
       test_transmission(N, p, ins, del, sub, 0);
-      }
-   // compare trellis receiver with symbol-level and bit-level priors
-   else if (vm.count("priors"))
-      {
-      const int N = vm["blocksize"].as<int>();
-      const double p = vm["parameter"].as<double>();
-      const bool ins = vm["ins"].as<bool>();
-      const bool del = vm["del"].as<bool>();
-      const bool sub = vm["sub"].as<bool>();
-      test_priors<float>(N, p, ins, del, sub);
       }
    // determine equivalence for trellis and lattice (full and corridor) receiver
    else if (vm.count("receiver"))
@@ -617,10 +529,10 @@ int main(int argc, char *argv[])
       const double pstop =
             vm.count("parameter") ? vm["parameter"].as<double>() : 0.5;
       const double pmul = pow(10.0, 1.0 / 10);
-      cout << "Timings (single precision, without and with priors):"
+      cout << "Timings (single precision):"
             << std::endl;
       cout
-            << "p\tI\txmax\ttrellis\tlattice\tcorridor\ttrellis\tlattice\tcorridor"
+            << "p\tI\txmax\ttrellis\tlattice\tcorridor"
             << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
          compute_timings<float>(N, p, ins, del, sub);

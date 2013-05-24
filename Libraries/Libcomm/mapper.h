@@ -147,12 +147,17 @@ public:
     *
     * \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
     *
+    * \note An empty input matrix is handled as a special condition
+    *
     * \note Since this method is always called as part of an iterative process,
     * there is never a reason to advance or mark as dirty.
     */
    void transform(const C<array1d_t>& pin, C<array1d_t>& pout) const
       {
-      dotransform(pin, pout);
+      if (pin.size() == 0)
+         pout = pin;
+      else
+         dotransform(pin, pout);
 #if DEBUG>=2
       std::cerr << "DEBUG (mapper): transform pin = " << pin;
       std::cerr << "DEBUG (mapper): transform pout = " << pout;
@@ -164,12 +169,17 @@ public:
     * \param[in]  pin   Table of likelihoods from demodulator
     * \param[out] pout  Table of likelihoods for decoder
     *
+    * \note An empty input matrix is handled as a special condition
+    *
     * \note p(i,d) is the a posteriori probability of symbol 'd' at time 'i'
     */
    void inverse(const C<array1d_t>& pin, C<array1d_t>& pout) const
       {
       advance_if_dirty();
-      doinverse(pin, pout);
+      if (pin.size() == 0)
+         pout = pin;
+      else
+         doinverse(pin, pout);
       mark_as_dirty();
 #if DEBUG>=2
       std::cerr << "DEBUG (mapper): inverse pin = " << pin;
