@@ -664,9 +664,9 @@ void fba2<receiver_t, sig, real, real2>::init(int N, int n, int q, int I,
    assert(q > 1);
    This::q = q;
    // decoder parameters
-   assert(I > 0);
-   assert(xmax > 0);
-   assert(dxmax > 0);
+   assert(I >= 0);
+   assert(xmax >= 0);
+   assert(dxmax >= 0);
    This::I = I;
    This::xmax = xmax;
    This::dxmax = dxmax;

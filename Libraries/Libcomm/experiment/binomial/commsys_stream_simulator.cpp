@@ -155,30 +155,31 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    // Initialise result vector
    result.init(this->count());
    result = 0;
-   // Initialize extrinsic information vector
-   array1vd_t ptable_ext;
+   // Initialize extrinsic information vectors (modem + codec alphabets)
+   array1vd_t ptable_ext_modem;
+   array1vd_t ptable_ext_codec;
    // Inner code (modem) iterations
    for (int iter_modem = 0; iter_modem < sys_dec.sys_iter(); iter_modem++)
       {
+      // ** Inner code (modem class) **
       // Demodulate
-      array1vd_t ptable_post;
+      array1vd_t ptable_post_modem;
       array1d_t sof_post;
       sys_dec.getmodem_stream().demodulate(*sys_dec.getrxchan(),
-            received_segment, lookahead, sof_prior, eof_prior, ptable_ext,
-            ptable_post, sof_post, eof_post, offset);
+            received_segment, lookahead, sof_prior, eof_prior, ptable_ext_modem,
+            ptable_post_modem, sof_post, eof_post, offset);
       // Normalize posterior information
-      libbase::normalize_results(ptable_post, ptable_post);
-      // Compute extrinsic information for passing to codec
-      libbase::compute_extrinsic(ptable_ext, ptable_post, ptable_ext);
-      // After-demodulation receive path
-      // Inverse Map
-      array1vd_t ptable_encoded;
-      sys_dec.getmapper()->inverse(ptable_ext, ptable_encoded);
-      // Translate
-      sys_dec.getcodec()->init_decoder(ptable_encoded);
-      // Inverse Map -> Translate
-      //sys_dec.softreceive_path(ptable_ext);
-      //sys_dec.receive_path(received_segment, lookahead, sof_prior, eof_prior, offset);
+      libbase::normalize_results(ptable_post_modem, ptable_post_modem);
+      // Inverse Map posterior information
+      array1vd_t ptable_post_codec;
+      sys_dec.getmapper()->inverse(ptable_post_modem, ptable_post_codec);
+      // Compute extrinsic information from uncoded posteriors and priors
+      // (codec alphabet)
+      libbase::compute_extrinsic(ptable_ext_codec, ptable_post_codec,
+            ptable_ext_codec);
+      // Pass extrinsic information through mapper
+      sys_dec.getmapper()->transform(ptable_ext_codec, ptable_ext_modem);
+      //libbase::compute_extrinsic(ptable_ext_modem, ptable_post_modem, ptable_ext_modem);
 
       // and perform codeword boundary analysis if this is indicated
       if (rc)
@@ -205,19 +206,22 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
          rc->updateresults(result_segment, act_drift, est_drift);
          }
 
+      // ** Outer code (codec class) **
       // Get source message to compare against
       assert(!source.empty());
       array1i_t source_this = source.front();
-      // For every iteration
+      // Translate
+      sys_dec.getcodec()->init_decoder(ptable_ext_codec);
+      // Perform necessary number of codec iterations
       array1i_t decoded;
-      array1vd_t ri;
-      array1vd_t ro;
+      array1vd_t ri_codec;
+      array1vd_t ro_codec;
       for (int iter_codec = 0; iter_codec < sys_dec.num_iter(); iter_codec++)
          {
          // Perform soft-output decoding
-         sys_dec.getcodec_softout().softdecode(ri, ro);
+         sys_dec.getcodec_softout().softdecode(ri_codec, ro_codec);
          // Compute hard-decision for results gatherer
-         hd_functor(ri, decoded);
+         hd_functor(ri_codec, decoded);
          // Update results if necessary
          if (!rc)
             {
@@ -228,15 +232,16 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
             }
          }
       // Normalize posterior information
-      libbase::normalize_results(ro, ro);
-      // Compute extrinsic information for next demodulation cycle
-      libbase::compute_extrinsic(ptable_encoded, ro, ptable_encoded);
-      // Pass through mapper
-      sys_dec.getmapper()->transform(ptable_encoded, ptable_ext);
-      //array1vd_t ro_mapped;
-      //sys_dec.getmapper()->transform(ro, ro_mapped);
-      // Compute extrinsic information for next demodulation cycle
-      //libbase::compute_extrinsic(ptable_ext, ro_mapped, ptable_ext);
+      libbase::normalize_results(ro_codec, ro_codec);
+      // Pass posterior information through mapper
+      array1vd_t ro_modem;
+      sys_dec.getmapper()->transform(ro_codec, ro_modem);
+      // Compute extrinsic information from encoded posteriors and priors
+      // (modem alphabet)
+      libbase::compute_extrinsic(ptable_ext_modem, ro_modem, ptable_ext_modem);
+      // Inverse Map extrinsic information
+      sys_dec.getmapper()->inverse(ptable_ext_modem, ptable_ext_codec);
+      //libbase::compute_extrinsic(ptable_ext_codec, ro_codec, ptable_ext_codec);
       // Keep record of what we last simulated
       this->last_event = concatenate(source_this, decoded);
       // If this was not the last iteration, mark components as clean

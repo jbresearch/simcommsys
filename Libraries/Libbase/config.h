@@ -36,6 +36,11 @@
  * - $Author$
  */
 
+// Global compilation settings / options (pre-deployment only)
+
+// Uncoment to include definitions and testing of 128-bit integer types
+//#define USE_128BIT_INT
+
 // Enable secure function overload for CRT in Win32
 
 #ifdef WIN32
@@ -79,13 +84,8 @@
 
 #include <cstdlib>
 #include <cmath>
-
-#ifdef WIN32
-#  include <float.h>
-#  include <basetsd.h>
-#else
-#  include <stdint.h>
-#endif
+#include <cfloat>
+#include <stdint.h>
 
 // module include files
 
@@ -179,6 +179,10 @@ inline int isinf(double value)
 
 // C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
 
+#ifdef WIN32
+#  include <basetsd.h>
+#endif
+
 #if defined(WIN32) && (_MSC_VER < 1600)
 typedef __int8 int8_t;
 typedef __int16 int16_t;
@@ -192,12 +196,14 @@ typedef unsigned __int64 uint64_t;
 
 // Non-standard 128-bit integer types
 
+#if defined(USE_128BIT_INT)
 #if defined(WIN32)
 typedef __int128 int128_t;
 typedef unsigned __int128 uint128_t;
 #else
 typedef __int128_t int128_t;
 typedef __uint128_t uint128_t;
+#endif
 #endif
 
 // *** Within standard library namespace ***
@@ -245,12 +251,15 @@ typedef uint8_t int8u;
 typedef uint16_t int16u;
 typedef uint32_t int32u;
 typedef uint64_t int64u;
-typedef uint128_t int128u;
 typedef int8_t int8s;
 typedef int16_t int16s;
 typedef int32_t int32s;
 typedef int64_t int64s;
+
+#if defined(USE_128BIT_INT)
+typedef uint128_t int128u;
 typedef int128_t int128s;
+#endif
 
 // Names for floating-point types
 

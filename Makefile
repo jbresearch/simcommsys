@@ -161,7 +161,7 @@ export DOXYGEN := doxygen
 # Common options
 LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 LDopts := $(LDopts) $(LIBNAMES:%=-l%)
-LDopts := $(LDopts) -lm -lrt -lstdc++ -lboost_program_options
+LDopts := $(LDopts) -lboost_program_options
 # OMP options
 ifneq ($(USE_OMP),0)
 LDopts := $(LDopts) -fopenmp
@@ -182,6 +182,11 @@ else
 LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
 endif
 endif
+# Standard libraries
+LDopts := $(LDopts) -lm -lrt -lstdc++
+# Debugging options
+#LDopts := $(LDopts) -Wl,-v # show full ld command issued
+#LDopts := $(LDopts) -Wl,-t # show full paths of linked objects
 # release-dependent linking options
 export LDflag_debug   := $(LDopts)
 export LDflag_release := $(LDopts)

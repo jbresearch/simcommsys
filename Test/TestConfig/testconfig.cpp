@@ -96,13 +96,17 @@ void print_new_sizes()
    cout << "int16u     \t" << sizeof(libbase::int16u) * 8 << std::endl;
    cout << "int32u     \t" << sizeof(libbase::int32u) * 8 << std::endl;
    cout << "int64u     \t" << sizeof(libbase::int64u) * 8 << std::endl;
+#if defined(USE_128BIT_INT)
    cout << "int128u    \t" << sizeof(libbase::int128u) * 8 << std::endl;
+#endif
 
    cout << "int8s      \t" << sizeof(libbase::int8s) * 8 << std::endl;
    cout << "int16s     \t" << sizeof(libbase::int16s) * 8 << std::endl;
    cout << "int32s     \t" << sizeof(libbase::int32s) * 8 << std::endl;
    cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << std::endl;
+#if defined(USE_128BIT_INT)
    cout << "int128s    \t" << sizeof(libbase::int128s) * 8 << std::endl;
+#endif
    }
 
 void print_struct_sizes()
@@ -383,6 +387,7 @@ void testbool_ops()
 
 void test128bit()
    {
+#if defined(USE_128BIT_INT)
    std::cout << std::endl << "128-bit Integer Test:" << std::endl << std::endl;
    libbase::int128u x = 0;
    for (int i = 0; i < 128/4; i++)
@@ -397,6 +402,7 @@ void test128bit()
       std::cout << std::dec << std::endl;
       std::cout.flags(flags);
       }
+#endif
    }
 
 /*!

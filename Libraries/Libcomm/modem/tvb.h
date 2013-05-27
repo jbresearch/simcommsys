@@ -119,7 +119,6 @@ private:
       bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
       bool batch; //!< Flag indicating use of batch receiver interface
       bool lazy; //!< Flag indicating lazy computation of gamma metric
-      bool splitpriors; //!< Flag indicating channel-symbol-level priors
    } flags;
    storage_t storage_type; //!< enum indicating storage mode for gamma metric
    int globalstore_limit; //!< fba memory threshold in MiB for global storage, if applicable

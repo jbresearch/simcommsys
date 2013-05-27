@@ -69,7 +69,6 @@ public:
 private:
    /*! \name User-defined parameters */
    int n; //!< Number of bits per codeword
-   bool splitpriors; //!< Flag indicating channel-symbol-level priors
    mutable array2vs_t encoding_table; //!< Local copy of per-frame encoding table
    typename qids<sig, real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
@@ -78,10 +77,9 @@ public:
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const bool splitpriors, const libcomm::qids<sig, real2>& chan)
+   void init(const int n, const libcomm::qids<sig, real2>& chan)
       {
       this->n = n;
-      this->splitpriors = splitpriors;
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
@@ -105,30 +103,6 @@ public:
       std::cerr << "sizeof(encoding_table) = " << sizeof(this->encoding_table) << std::endl;
 #endif
       }
-   //! Determine priors for each transmitted symbol
-   void compute_priors(const int i, const array1s_t& tx, const array1vd_t& app,
-         array1r2_t& tx_app) const
-      {
-      // short-circuit when no priors were submitted
-      if (app.size() == 0)
-         {
-         tx_app.init(0);
-         return;
-         }
-      // convert codeword priors to symbol priors
-      tx_app.init(n);
-      const int q = app(i).size();
-      for (int j = 0; j < n; j++)
-         {
-         real2 p = 0;
-         for (int d = 0; d < q; d++)
-            {
-            if(tx(j) == encoding_table(i,d)(j))
-               p += real2(app(i)(d));
-            }
-         tx_app(j) = p;
-         }
-      }
    // @}
    /*! \name Interface with fba2 algorithm (cannot be changed) */
    //! Receiver interface
@@ -136,25 +110,12 @@ public:
       {
       // 'tx' is the vector of transmitted symbols that we're considering
       const array1s_t& tx = encoding_table(i, d);
-      if(splitpriors)
-         {
-         // determine priors for each transmitted symbol
-         static array1r2_t tx_app;
-         compute_priors(i, tx, app, tx_app);
          // compute the conditional probability
-         return real(computer.receive(tx, r, tx_app));
-         }
-      else
-         {
-         // empty channel-symbol-level priors
-         array1r2_t tx_app;
-         // compute the conditional probability
-         real result = real(computer.receive(tx, r, tx_app));
+         real result = real(computer.receive(tx, r));
          // apply priors at codeword level if applicable
          if (app.size() > 0)
             result *= real(app(i)(d));
          return result;
-         }
       }
    //! Batch receiver interface
    void R(int d, int i, const array1s_t& r, const array1vd_t& app,
@@ -165,27 +126,13 @@ public:
       // set up space for results
       static array1r2_t ptable_r;
       ptable_r.init(ptable.size());
-      if(splitpriors)
-         {
-         // determine priors for each transmitted symbol
-         static array1r2_t tx_app;
-         compute_priors(i, tx, app, tx_app);
-         // call batch receiver method and convert results
-         computer.receive(tx, r, tx_app, ptable_r);
-         ptable = ptable_r;
-         }
-      else
-         {
-         // empty channel-symbol-level priors
-         array1r2_t tx_app;
          // call batch receiver method
-         computer.receive(tx, r, tx_app, ptable_r);
+         computer.receive(tx, r, ptable_r);
          // apply priors at codeword level if applicable
          if (app.size() > 0)
             ptable_r *= real2(app(i)(d));
          // convert results
          ptable = ptable_r;
-         }
       }
    // @}
 };

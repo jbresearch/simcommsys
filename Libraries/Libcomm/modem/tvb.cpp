@@ -421,7 +421,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer, flags.norm,
          flags.batch, flags.lazy, globalstore);
    // initialize our embedded metric computer with unchanging elements
-   fba.get_receiver().init(n, flags.splitpriors, mychan);
+   fba.get_receiver().init(n, mychan);
    }
 
 template <class sig, class real, class real2>
@@ -664,10 +664,6 @@ std::string tvb<sig, real, real2>::description() const
       sout << ", lazy computation";
    else
       sout << ", pre-computation";
-   if (flags.splitpriors)
-      sout << ", channel-symbol-level priors";
-   else
-      sout << ", codeword-level priors";
    switch (storage_type)
       {
       case storage_local:
@@ -700,7 +696,7 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 7 << std::endl;
+   sout << 8 << std::endl;
    sout << "#: Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "#: Outer threshold" << std::endl;
@@ -711,8 +707,6 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    sout << flags.batch << std::endl;
    sout << "# Lazy computation of gamma?" << std::endl;
    sout << flags.lazy << std::endl;
-   sout << "# Apply priors at channel-symbol level?" << std::endl;
-   sout << flags.splitpriors << std::endl;
    sout << "# Storage mode for gamma (0=local, 1=global, 2=conditional)" << std::endl;
    sout << storage_type << std::endl;
    if (storage_type == storage_conditional)
@@ -807,6 +801,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 6 Replaced k with q
  *
  * \version 7 Added option for channel-symbol-level priors
+ * 
+ * \version 8 Removed option for channel-symbol-level priors
  */
 
 template <class sig, class real, class real2>
@@ -832,13 +828,11 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
       flags.batch = true;
       flags.lazy = true;
       }
-   if (version >= 7)
+   if (version == 7)
       {
-      sin >> libbase::eatcomments >> flags.splitpriors >> libbase::verify;
-      }
-   else
-      {
-      flags.splitpriors = false;
+      bool splitpriors;
+      sin >> libbase::eatcomments >> splitpriors >> libbase::verify;
+      assertalways(splitpriors == false);
       }
    // read storage mode
    if (version >= 5)

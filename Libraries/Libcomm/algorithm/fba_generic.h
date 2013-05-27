@@ -143,8 +143,8 @@ public:
       assert(N > 0);
       This::N = N;
       // decoder parameters
-      assert(I > 0);
-      assert(xmax > 0);
+      assert(I >= 0);
+      assert(xmax >= 0);
       This::I = I;
       This::xmax = xmax;
       // decoding mode parameters

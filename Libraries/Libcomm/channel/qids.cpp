@@ -68,7 +68,7 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
    assert(tau > 0);
    validate(Pd, Pi);
    // set constants
-   assert(Pi == Pd);
+   assertalways(Pi == Pd);
    // assumed by this algorithm
    const double p = Pi;
    // the distribution is approximately Gaussian with:
@@ -86,67 +86,164 @@ double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
    }
 
 /*!
- * \brief The probability of drift x after transmitting tau symbols
+ * \brief The probability of drift 'm' after transmitting 'T' symbols
  *
  * Computes the required probability using the exact metric from our
  * Trans. Inf. Theory submission.
  *
- * \todo Add formula
+ * The required probability Pr{ S_T = m } is calculated as:
+ *
+ * sum for j=j0..T of
+ *
+ *    p_j = Pt^T Pi^m Pf^j C(T, j) C(T+m+j-1, m+j)
+ *
+ * where j0 = max(-m,0),
+ *       Pf = Pi Pd / Pt,
+ *       Pt = 1 - Pi - Pd,
+ * and the binomial coefficient is expressed as
+ *    C(n,k) = n! / [ k! (n-k)! ] for k ≤ n
+ *           = n(n-1)...(n-k-1) / k(k-1)...1
+ *           = 0 for k > n
+ *
+ * Note that:
+ * a) the summation is empty if j0 > T, resulting in zero probability
+ * b) the first binomial coefficient is always non-zero
+ * c) the second b.c. is non-zero if T-1 >= 0, or equivalently T > 0
+ *
+ * By expanding the binomial coefficients using factorials, note also that:
+ *
+ *    p_j = p_{j-1} . Pf . (T+m+j-1) . (T-j+1)
+ *                           (m+j)        j
+ *
+ * This allows successive factors to be determined easily from previous ones.
+ * The initial factor required is the one at j0, determined as:
+ *
+ *    p_j0 = Pt^T . Pi^m . Pf^j0 . C(T, j0) . C(T+m+j0-1, m+j0)
+ *
+ * Now the binomial coefficients can be computed using the multiplicative
+ * formula:
+ *    C(n,k) = product for i=1..k of (n-k-i)/i
+ *
+ * Therefore the binomial coefficients in p_j0 are computed as:
+ *
+ * C(T, j0) = product for i=1..j0 of (T-j0-i)/i
+ * C(T+m+j0-1, m+j0) = product for i=1..m+j0 of (T-1-i)/i
+ *
+ * Degenerate cases:
+ *
+ * 1) Pi > 0, Pd = 0
+ *    p_j is non-zero only for j=0, so that:
+ *    Pr{ S_T = m } = Pt^T Pi^m C(T+m-1, m) for m >= 0,
+ *                  = 0 otherwise
+ *
+ * 2) Pd > 0, Pi = 0
+ *    p_j is non-zero only for j=-m, so that:
+ *    Pr{ S_T = m } = Pt^{T+m} Pd^-m C(T, -m) for m <= 0,
+ *                  = 0 otherwise
+ *
+ * 3) Pi = Pd = 0
+ *    p_j is non-zero only for j=0 and m=0, so that:
+ *    Pr{ S_T = m } = 1 for m = 0,
+ *                  = 0 otherwise
  */
 template <class G, class real>
-double qids<G, real>::metric_computer::compute_drift_prob_exact(int x, int tau,
+double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
       double Pi, double Pd)
    {
    typedef long double myreal;
    // sanity checks
-   assert(tau > 0);
+   assert(T > 0);
    validate(Pd, Pi);
+   // shortcut for out-of-range values (too many deletions required)
+   if (m < -T)
+      return 0;
    // set constants
    const double Pt = 1 - Pi - Pd;
+   // handle degenerate case 3: Pi = Pd = 0
+   if (Pi == 0 && Pd == 0)
+      {
+      return (m == 0) ? 1 : 0;
+      }
+   // handle degenerate case 2: Pd > 0, Pi = 0
+   else if (Pi == 0)
+      {
+      // shortcut for out-of-range values (insertions required)
+      if (m > 0)
+         return 0;
+      // compute result in log domain
+      myreal result = 0;
+      // include first two terms in result
+      result += log(myreal(Pt)) * (T+m);
+      result += log(myreal(Pd)) * (-m);
+      // include binomial coefficient term in result
+      for (int i = 1; i <= -m; i++)
+         {
+         result += log(myreal(T + m + i)) - log(myreal(i));
+         }
+      // convert factor back from log domain
+      return exp(result);
+      }
+   // handle degenerate case 1: Pi > 0, Pd = 0
+   else if (Pd == 0)
+      {
+      // shortcut for out-of-range values (deletions required)
+      if (m < 0)
+         return 0;
+      // compute result in log domain
+      myreal result = 0;
+      // include first two terms in result
+      result += log(myreal(Pt)) * T;
+      result += log(myreal(Pi)) * m;
+      // include binomial coefficient term in result
+      for (int i = 1; i <= m; i++)
+         {
+         result += log(myreal(T - 1 + i)) - log(myreal(i));
+         }
+      // convert factor back from log domain
+      return exp(result);
+      }
+   // set constants
    const double Pf = Pi * Pd / Pt;
-   const int imin = (x < 0) ? -x : 0;
-   // shortcut for out-of-range values
-   if (imin > tau)
-      return 0;
-   // compute initial value
-   myreal p0 = 1;
-   // inner and outer factors (do this in log domain)
-   p0 = log(p0);
-   // inner factor if x > 0 (and therefore imin = 0)
-   for (int xi = 1; xi <= x + imin; xi++)
+   const int j0 = std::max(-m, 0);
+   // compute common factor (in log domain) for j=j0
+   myreal pj = 0;
+   // include first two terms in p_j0
+   pj += log(myreal(Pt)) * T;
+   pj += log(myreal(Pi)) * m;
+   // include third term in p_j0
+   if (j0 > 0)
+      pj += log(Pf) * j0;
+   // include first binomial coefficient term in p_j0
+   for (int i = 1; i <= j0; i++)
       {
-      p0 += log(myreal(tau + xi - 1)) - log(myreal(xi));
+      pj += log(myreal(T - j0 + i)) - log(myreal(i));
       }
-   // inner factor if x < 0 (and therefore imin > 0)
-   if (imin > 0)
-      p0 += log(Pf) * imin;
-   for (int i = 1; i <= imin; i++)
+   // include second binomial coefficient term in p_j0
+   for (int i = 1; i <= m + j0; i++)
       {
-      p0 += log(myreal(tau - i + 1)) - log(myreal(i));
+      pj += log(myreal(T - 1 + i)) - log(myreal(i));
       }
-   // outer factors
-   p0 += log(myreal(Pt)) * tau;
-   p0 += log(myreal(Pi)) * x;
-   p0 = exp(p0);
+   // convert factor back from log domain
+   pj = exp(pj);
 #if DEBUG>=4
-   std::cerr << "DEBUG (qids): [pdf-exact] x = " << x << ", p0 = " << p0
+   std::cerr << "DEBUG (qids): [pdf-exact] m = " << m << ", p_j0 = " << pj
    << std::endl;
 #endif
-   if (p0 == 0)
+   if (pj == 0)
       throw std::overflow_error("zero factor");
    // main computation
-   myreal this_p = p0;
-   for (int i = imin + 1; i <= tau; i++)
+   myreal this_p = pj;
+   for (int j = j0 + 1; j <= T; j++)
       {
       // update factor
-      p0 *= Pf;
-      p0 *= myreal(tau + x + i - 1) / myreal(x + i);
-      p0 *= myreal(tau - i + 1) / myreal(i);
+      pj *= Pf;
+      pj *= myreal(T + m + j - 1) / myreal(m + j);
+      pj *= myreal(T - j + 1) / myreal(j);
       // update main result
       const myreal last_p = this_p;
-      this_p += p0;
+      this_p += pj;
 #if DEBUG>=4
-      std::cerr << "DEBUG (qids): [pdf-exact] i = " << i << ", p0 = " << p0
+      std::cerr << "DEBUG (qids): [pdf-exact] j = " << j << ", p_j = " << pj
       << ", this_p = " << this_p << std::endl;
 #endif
       // early cutoff
@@ -184,6 +281,9 @@ int qids<G, real>::metric_computer::compute_I(int tau, double Pi, int Icap)
    // sanity checks
    assert(tau > 0);
    assert(Pi >= 0 && Pi < 1.0);
+   // shortcut for no-insertion case
+   if (Pi == 0)
+      return 0;
    // main computation
    int I = int(ceil((log(Pr) - log(double(tau))) / log(Pi))) - 1;
    I = std::max(I, 1);
@@ -224,7 +324,7 @@ int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
    assert(tau > 0);
    validate(Pd, Pi);
    // set constants
-   assert(Pi == Pd);
+   assertalways(Pi == Pd);
    // assumed by this algorithm
    const double p = Pi;
    // determine required multiplier
@@ -407,7 +507,7 @@ void qids<G, real>::metric_computer::init()
 // Batch receiver interface - trellis computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
-      const array1g_t& rx, const array1r_t& app, array1r_t& ptable) const
+      const array1g_t& rx, array1r_t& ptable) const
    {
    using std::min;
    using std::max;
@@ -462,8 +562,6 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
             {
             real temp = Fprev[amax];
             temp *= Rval;
-            if (app.size() > 0)
-               temp *= app(j - 1);
             result += temp;
             amax_act--;
             }
@@ -477,8 +575,6 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
             const bool cmp = tx(j - 1) != rx(j + y - 1);
             real temp = Fprev[a];
             temp *= Rtable(cmp, y - a);
-            if (app.size() > 0)
-               temp *= app(j - 1);
             result += temp;
             }
          Fthis[y] = result;
@@ -495,7 +591,7 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
 // Batch receiver interface - lattice computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
-      const array1g_t& rx, const array1r_t& app, array1r_t& ptable) const
+      const array1g_t& rx, array1r_t& ptable) const
    {
    using std::swap;
    // Compute sizes
@@ -521,8 +617,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       // handle first column as a special case
       real temp = Fprev[0];
       temp *= Pval_d;
-      if (app.size() > 0)
-         temp *= app(i - 1);
       Fthis[0] = temp;
       // remaining columns
       for (int j = 1; j <= rho; j++)
@@ -532,8 +626,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
          const bool cmp = tx(i - 1) == rx(j - 1);
          const real ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
          real temp = ps + pd;
-         if (app.size() > 0)
-            temp *= app(i - 1);
          temp += pi;
          Fthis[j] = temp;
          }
@@ -544,8 +636,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
    // handle first column as a special case
    real temp = Fprev[0];
    temp *= Pval_d;
-   if (app.size() > 0)
-      temp *= app(n - 1);
    Fthis[0] = temp;
    // remaining columns
    for (int j = 1; j <= rho; j++)
@@ -554,8 +644,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       const bool cmp = tx(n - 1) == rx(j - 1);
       const real ps = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
       real temp = ps + pd;
-      if (app.size() > 0)
-         temp *= app(n - 1);
       Fthis[j] = temp;
       }
    // copy results and return
@@ -571,10 +659,10 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       }
    }
 
-// Batch receiver interface - lattice computation
+// Batch receiver interface - lattice corridor computation
 template <class G, class real>
 void qids<G, real>::metric_computer::receive_lattice_corridor(
-      const array1g_t& tx, const array1g_t& rx, const array1r_t& app,
+      const array1g_t& tx, const array1g_t& rx,
       array1r_t& ptable) const
    {
    using std::swap;
@@ -605,8 +693,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       if (i - xmax <= 0)
          {
          real temp = Fprev[0] * Pval_d;
-         if (app.size() > 0)
-            temp *= app(i - 1);
          Fthis[0] = temp;
          }
       // remaining columns
@@ -620,9 +706,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
          // deletion path (if previous row was within corridor)
          if (j < i + xmax)
             temp += Fprev[j] * Pval_d;
-         // apply prior information to transmission/deletion paths
-         if (app.size() > 0)
-            temp *= app(i - 1);
          // insertion path
          temp += Fthis[j - 1] * Pval_i;
          // store result
@@ -637,8 +720,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
    if (i - xmax <= 0)
       {
       real temp = Fprev[0] * Pval_d;
-      if (app.size() > 0)
-         temp *= app(i - 1);
       Fthis[0] = temp;
       }
    // remaining columns
@@ -650,9 +731,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       // deletion path (if previous row was within corridor)
       if (j < i + xmax)
          temp += Fprev[j] * Pval_d;
-      // apply prior information to transmission/deletion paths
-      if (app.size() > 0)
-         temp *= app(i - 1);
       // store result
       Fthis[j] = temp;
       }
@@ -668,6 +746,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
          ptable(xmax + x) = 0;
       }
    }
+
 #endif
 
 /*!
@@ -913,9 +992,9 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
       {
       double p;
       while ((p = this->r.fval_closed()) < Pi)
-         state_ins(i)++;if
-(      p < (Pi + Pd))
-      state_tx(i) = false;
+         state_ins(i)++;
+      if (p < (Pi + Pd))
+         state_tx(i) = false;
       }
    // Initialize results vector
 #if DEBUG>=2

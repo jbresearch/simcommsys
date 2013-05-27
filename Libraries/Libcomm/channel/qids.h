@@ -182,8 +182,7 @@ public:
          // normalize
          this_p /= sof_pdf.sum();
          // confirm that this value is finite and valid
-         assert(
-               this_p >= 0 && this_p < std::numeric_limits<double>::infinity());
+         assert(this_p >= 0 && this_p < std::numeric_limits<double>::infinity());
          return this_p;
          }
       // limit on successive insertions
@@ -285,13 +284,20 @@ public:
       void receive(const cuda::vector_reference<G>& tx, const cuda::vector_reference<G>& rx,
             cuda::vector_reference<real>& ptable) const
          {
-         if (lattice)
+         switch(receiver_type)
             {
-            receive_lattice(tx, rx, ptable);
-            }
-         else
-            {
-            receive_trellis(tx, rx, ptable);
+            case receiver_trellis:
+               receive_trellis(tx, rx, ptable);
+               break;
+            case receiver_lattice:
+               receive_lattice(tx, rx, ptable);
+               break;
+            case receiver_lattice_corridor:
+               receive_lattice_corridor(tx, rx, ptable);
+               break;
+            default:
+               cuda_failwith("Unknown receiver mode");
+               break;
             }
          }
       //! Batch receiver interface - trellis computation
@@ -443,6 +449,97 @@ public:
                }
             }
          }
+      //! Batch receiver interface - lattice corridor computation
+      __device__
+      void receive_lattice_corridor(const cuda::vector_reference<G>& tx, const cuda::vector_reference<G>& rx,
+            cuda::vector_reference<real>& ptable) const
+         {
+         using cuda::min;
+         using cuda::max;
+         using cuda::swap;
+         // Compute sizes
+         const int n = tx.size();
+         const int rho = rx.size();
+         // Set up two slices of lattice, and associated pointers
+         // Arrays are allocated on the stack as a fixed size; this avoids dynamic
+         // allocation (which would otherwise be necessary as the size is non-const)
+         cuda_assertalways(rho + 1 <= arraysize);
+         real F0[arraysize];
+         real F1[arraysize];
+         real *Fthis = F1;
+         real *Fprev = F0;
+         // initialize for i=0 (first row of lattice)
+         Fthis[0] = 1;
+         const int jmax = min(xmax, rho);
+         for (int j = 1; j <= jmax; j++)
+            {
+            Fthis[j] = Fthis[j - 1] * Pval_i;
+            }
+         // compute remaining rows, except last
+         for (int i = 1; i < n; i++)
+            {
+            // swap 'this' and 'prior' rows
+            swap(Fthis, Fprev);
+            // handle first column as a special case, if necessary
+            if (i - xmax <= 0)
+               {
+               Fthis[0] = Fprev[0] * Pval_d;
+               }
+            // handle first column as a special case
+            // remaining columns
+            const int jmin = max(i - xmax, 1);
+            const int jmax = min(i + xmax, rho);
+            for (int j = jmin; j <= jmax; j++)
+               {
+               // transmission/substitution path
+               const bool cmp = tx(i - 1) == rx(j - 1);
+               real temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+               // deletion path (if previous row was within corridor)
+               if (j < i + xmax)
+                  temp += Fprev[j] * Pval_d;
+               // insertion path
+               temp += Fthis[j - 1] * Pval_i;
+               // store result
+               Fthis[j] = temp;
+               }
+            }
+         // compute last row as a special case (no insertions)
+         const int i = n;
+         // swap 'this' and 'prior' rows
+         swap(Fthis, Fprev);
+         // handle first column as a special case, if necessary
+         if (i - xmax <= 0)
+            {
+            Fthis[0] = Fprev[0] * Pval_d;
+            }
+         // remaining columns
+         for (int j = 1; j <= rho; j++)
+            {
+            // transmission/substitution path
+            const bool cmp = tx(i - 1) == rx(j - 1);
+            real temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+            // deletion path (if previous row was within corridor)
+            if (j < i + xmax)
+               temp += Fprev[j] * Pval_d;
+            // store result
+            Fthis[j] = temp;
+            }
+         // copy results and return
+         cuda_assertalways(ptable.size() == 2 * xmax + 1);
+         for (int x = -xmax; x <= xmax; x++)
+            {
+            // convert index
+            const int j = x + n;
+            if (j >= 0 && j <= rho)
+               {
+               ptable(x + xmax) = Fthis[j];
+               }
+            else
+               {
+               ptable(x + xmax) = 0;
+               }
+            }
+         }
 #endif
       // @}
 #endif
@@ -454,13 +551,21 @@ public:
          const int mu = rx.size() - 1;
          // If this was not a deletion, return result from table
          if (mu >= 0)
+            {
+#ifdef USE_CUDA
+            // create local table and copy from device
+            array2r_t Rtable_temp;
+            Rtable_temp = Rtable;
+            return Rtable_temp(tx != rx(mu), mu);
+#else
             return Rtable(tx != rx(mu), mu);
+#endif
+            }
          // If this was a deletion, it's a fixed value
          return Rval;
          }
       //! Receiver interface
-      real receive(const array1g_t& tx, const array1g_t& rx,
-            const array1r_t& app) const
+      real receive(const array1g_t& tx, const array1g_t& rx) const
          {
          // Compute sizes
          const int n = tx.size();
@@ -468,24 +573,23 @@ public:
          // Allocate space for results and call main receiver
          static array1r_t ptable;
          ptable.init(2 * xmax + 1);
-         receive(tx, rx, app, ptable);
+         receive(tx, rx, ptable);
          // return result
          return ptable(xmax + mu);
          }
       //! Batch receiver interface
-      void receive(const array1g_t& tx, const array1g_t& rx,
-            const array1r_t& app, array1r_t& ptable) const
+      void receive(const array1g_t& tx, const array1g_t& rx, array1r_t& ptable) const
          {
          switch(receiver_type)
             {
             case receiver_trellis:
-               receive_trellis(tx, rx, app, ptable);
+               receive_trellis(tx, rx, ptable);
                break;
             case receiver_lattice:
-               receive_lattice(tx, rx, app, ptable);
+               receive_lattice(tx, rx, ptable);
                break;
             case receiver_lattice_corridor:
-               receive_lattice_corridor(tx, rx, app, ptable);
+               receive_lattice_corridor(tx, rx, ptable);
                break;
             default:
                failwith("Unknown receiver mode");
@@ -493,14 +597,13 @@ public:
             }
          }
       //! Batch receiver interface - trellis computation
-      void receive_trellis(const array1g_t& tx, const array1g_t& rx,
-            const array1r_t& app, array1r_t& ptable) const;
+      void receive_trellis(const array1g_t& tx, const array1g_t& rx, array1r_t& ptable) const;
       //! Batch receiver interface - lattice computation
       void receive_lattice(const array1g_t& tx, const array1g_t& rx,
-            const array1r_t& app, array1r_t& ptable) const;
+            array1r_t& ptable) const;
       //! Batch receiver interface - lattice computation, restricted to corridor
       void receive_lattice_corridor(const array1g_t& tx, const array1g_t& rx,
-            const array1r_t& app, array1r_t& ptable) const;
+            array1r_t& ptable) const;
       // @}
    };
    // @}
@@ -688,14 +791,13 @@ public:
       libbase::trace << "tx = " << tx;
       libbase::trace << "rx = " << rx;
 #endif
-      const array1r_t myapp;
-      const real result = computer.receive(tx, rx, myapp);
+      const real result = computer.receive(tx, rx);
 #if DEBUG>=2
       libbase::trace << "RecvPr = " << result << std::endl;
 #endif
       return result;
       }
-   double receive(const G& tx, const array1g_t& rx) const
+/*   double receive(const G& tx, const array1g_t& rx) const
       {
 #if DEBUG>=2
       libbase::trace << "DEBUG (qids): Computing RecvPr for" << std::endl;
@@ -708,7 +810,7 @@ public:
 #endif
       return result;
       }
-
+*/
    // Interface for CUDA
    const metric_computer& get_computer() const
       {
