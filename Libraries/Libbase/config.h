@@ -73,6 +73,9 @@
 #ifdef WIN32
 //#  pragma warning( disable : 4250 ) // dominance warning
 #  pragma warning( disable : 4800 ) // forcing int to bool
+#  pragma warning( disable : 4804 ) // '>=': unsafe use of type 'bool' in operation
+#  pragma warning( disable : 4244 ) // 'initializing' : conversion from 'std::streamsize' to 'const int', possible loss of data
+
 #endif
 
 // system include files
@@ -90,6 +93,12 @@
 // module include files
 
 #include "assertalways.h"
+
+
+#ifdef WIN32
+#  include <basetsd.h>
+#endif
+
 
 // *** Global namespace ***
 
@@ -178,11 +187,6 @@ inline int isinf(double value)
 #endif //ifdef WIN32
 
 // C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
-
-#ifdef WIN32
-#  include <basetsd.h>
-#endif
-
 #if defined(WIN32) && (_MSC_VER < 1600)
 typedef __int8 int8_t;
 typedef __int16 int16_t;

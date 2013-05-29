@@ -65,7 +65,7 @@ protected:
          return 1.0 / G::elements();
       // otherwise the only option with non-zero probability is if we
       // received the same symbol that was transmitted
-      if (tx == rx)
+      if ((int)tx == (int)rx)
          return 1;
       return 0;
       }
