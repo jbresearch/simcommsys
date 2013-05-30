@@ -73,13 +73,19 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define ADD_ERASABLE(r, x, type) \
    (type)(erasable<type>)
 
+#define ALL_GF_TYPE_SEQ \
+   BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, GF_TYPE_SEQ)
+
 #define ALL_SYMBOL_TYPE_SEQ \
    BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, SYMBOL_TYPE_SEQ)
 
-#define INSTANTIATE(r, x, type) \
-      template class direct_modem_implementation<type>; \
+#define INSTANTIATE1(r, x, type) \
+      template class direct_modem_implementation<type>;
+
+#define INSTANTIATE2(r, x, type) \
       template class direct_modem<type>;
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, ALL_SYMBOL_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE1, x, (erasable<bool>) ALL_GF_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, x, ALL_SYMBOL_TYPE_SEQ)
 
 } // end namespace
