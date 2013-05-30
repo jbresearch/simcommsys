@@ -71,11 +71,11 @@
 // Disable specific warnings
 
 #ifdef WIN32
+// TODO: consider each of these and decide whether to remove the pragma and fix the code
 //#  pragma warning( disable : 4250 ) // dominance warning
 #  pragma warning( disable : 4800 ) // forcing int to bool
 #  pragma warning( disable : 4804 ) // '>=': unsafe use of type 'bool' in operation
 #  pragma warning( disable : 4244 ) // 'initializing' : conversion from 'std::streamsize' to 'const int', possible loss of data
-
 #endif
 
 // system include files
