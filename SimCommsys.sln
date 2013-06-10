@@ -71,7 +71,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCipher", "Test\TestCiph
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCUDA", "Test\TestCUDA\TestCUDA.vcxproj", "{D495B763-55C3-427F-8DF8-0FC7DE1854EE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visual Studio Stuff", "Visual Studio Stuff", "{7A5CD1E8-BF25-43A1-80BA-A608CF0D2D7D}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install", "Windows\Install\Install.vdproj", "{158CC00E-1712-4D03-AF5A-3F6E5F3D121D}"
+EndProject
 Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
@@ -201,6 +209,9 @@ Global
 		{D495B763-55C3-427F-8DF8-0FC7DE1854EE}.Debug|Win32.Build.0 = Debug|Win32
 		{D495B763-55C3-427F-8DF8-0FC7DE1854EE}.Release|Win32.ActiveCfg = Release|Win32
 		{D495B763-55C3-427F-8DF8-0FC7DE1854EE}.Release|Win32.Build.0 = Release|Win32
+		{158CC00E-1712-4D03-AF5A-3F6E5F3D121D}.Debug|Win32.ActiveCfg = Debug
+		{158CC00E-1712-4D03-AF5A-3F6E5F3D121D}.Release|Win32.ActiveCfg = Release
+		{158CC00E-1712-4D03-AF5A-3F6E5F3D121D}.Release|Win32.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -237,5 +248,6 @@ Global
 		{D495B763-55C3-427F-8DF8-0FC7DE1854EE} = {0438887B-6799-4E18-B4D3-1C58C4F8ECE1}
 		{CD338C16-06CB-442A-B6AD-F85580B9F3A6} = {A64B6DED-1E8B-49F7-AA9B-B83CCC8B6004}
 		{A1541E91-1497-4F44-BF84-8ECA2F6A8CFB} = {A64B6DED-1E8B-49F7-AA9B-B83CCC8B6004}
+		{158CC00E-1712-4D03-AF5A-3F6E5F3D121D} = {7A5CD1E8-BF25-43A1-80BA-A608CF0D2D7D}
 	EndGlobalSection
 EndGlobal
