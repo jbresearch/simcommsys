@@ -119,6 +119,8 @@ void awfilter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out)
 
 // Explicit Realizations
 
+#ifdef WIN32
+
 //Visual C++ seems to have a problem using explicit instantiation when the constructor
 //has the same templated class, hence force instantiation using actual objects
 awfilter<double> a1aw(1);
@@ -130,5 +132,13 @@ awfilter<int> c2aw(1, 0);
 awfilter<double> a3aw(a1aw);
 awfilter<float> b3aw(b1aw);
 awfilter<int> c3aw(c1aw);
+
+#else
+
+template class awfilter<double> ;
+template class awfilter<float> ;
+template class awfilter<int> ;
+
+#endif
 
 } // end namespace
