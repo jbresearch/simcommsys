@@ -77,6 +77,12 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install Win32", "Windows\In
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install x64", "Windows\Install\Install x64.vdproj", "{15AE192B-516A-442C-8D21-0797395A2096}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{C20FD55E-5852-4118-81C0-56487BAE35A9}"
+	ProjectSection(SolutionItems) = preProject
+		Windows\Readme.txt = Windows\Readme.txt
+		SimCommSysPropSheet.props = SimCommSysPropSheet.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
