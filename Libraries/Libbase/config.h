@@ -76,6 +76,9 @@
 #  pragma warning( disable : 4800 ) // forcing int to bool
 #  pragma warning( disable : 4804 ) // '>=': unsafe use of type 'bool' in operation
 #  pragma warning( disable : 4244 ) // 'initializing' : conversion from 'std::streamsize' to 'const int', possible loss of data
+#  pragma warning( disable : 4267 ) // 'initializing' : conversion from 'size_t' to 'const int', possible loss of data	
+#  pragma warning( disable : 4090 ) // 'initializing' : different '__unaligned' qualifiers
+
 #endif
 
 // system include files

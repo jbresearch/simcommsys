@@ -24,6 +24,7 @@
 
 #include "stdafx.h"
 #include "FolderDialog.h"
+#include "config.h"
 
 namespace libwin {
 
