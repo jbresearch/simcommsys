@@ -153,6 +153,11 @@ public:
     * \return Number of modulation symbols to look into the next frame
     */
    virtual libbase::size_type<C> get_suggested_lookahead(void) const = 0;
+   /*!
+    * \brief Get the suggested state space exclusion probability
+    * \return Probability of channel event outside chosen limits
+    */
+   virtual double get_suggested_exclusion(void) const = 0;
    // @}
 
    // Block modem operations

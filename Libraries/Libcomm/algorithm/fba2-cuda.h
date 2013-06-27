@@ -83,6 +83,7 @@ public:
    typedef cuda::vector<sig> dev_array1s_t;
    typedef cuda::vector<real> dev_array1r_t;
    typedef cuda::matrix<real> dev_array2r_t;
+   typedef cuda::vector<bool> dev_array1b_t;
    typedef cuda::matrix<bool> dev_array2b_t;
    typedef cuda::value<fba2<receiver_t, sig, real, real2>::metric_computer>
          dev_object_t;
@@ -90,6 +91,7 @@ public:
    typedef cuda::vector_reference<sig> dev_array1s_ref_t;
    typedef cuda::vector_reference<real> dev_array1r_ref_t;
    typedef cuda::matrix_reference<real> dev_array2r_ref_t;
+   typedef cuda::vector_reference<bool> dev_array1b_ref_t;
    typedef cuda::matrix_reference<bool> dev_array2b_ref_t;
    typedef cuda::value_reference<fba2<receiver_t, sig, real, real2>::metric_computer>
          dev_object_ref_t;
@@ -113,10 +115,16 @@ public:
       mutable receiver_t receiver; //!< Inner code receiver metric computation
       dev_array2r_ref_t alpha; //!< Forward recursion metric
       dev_array2r_ref_t beta; //!< Backward recursion metric
-      mutable dev_array1r_ref_t gamma; //!< Receiver metric
-      mutable dev_array2b_ref_t cached; //!< Flag for globalstore of receiver metric
-      dev_array1s_ref_t r; //!< Copy of received sequence, for lazy computation of gamma
-      dev_array2r_ref_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
+      mutable struct {
+         dev_array1r_ref_t global; // indices (i,x,d,deltax)
+         dev_array1r_ref_t local; // indices (x,d,deltax)
+      } gamma; //!< Receiver metric
+      mutable struct {
+         dev_array2b_ref_t global; // indices (i,x)
+         dev_array1b_ref_t local; // indices (x)
+      } cached; //!< Flag for caching of receiver metric
+      dev_array1s_ref_t r; //!< Copy of received sequence, for lazy or local computation of gamma
+      dev_array2r_ref_t app; //!< Copy of a-priori statistics, for lazy or local computation of gamma
       int dmin; //!< Offset for deltax index in gamma matrix
       int dmax; //!< Maximum value for deltax index in gamma matrix
       // @}
@@ -141,38 +149,43 @@ public:
       // @}
    public:
       /*! \name Internal functions - computer */
-      // Methods for device and host
 #ifdef __CUDACC__
       __device__ __host__
-#endif
       int get_gamma_index(int d, int i, int x, int deltax) const
          {
-         // gamma has indices (d,i,x,deltax) where:
-         //    d in [0, q-1], i in [0, N-1], x in [-xmax, xmax], and
-         //    deltax in [dmin, dmax] = [max(-n,-dxmax), min(nI,dxmax)]
-         const int pitch3 = (dmax - dmin + 1);
-         const int pitch2 = pitch3 * (2 * xmax + 1);
-         const int pitch1 = pitch2 * N;
          cuda_assert(d >= 0 && d < q);
          cuda_assert(i >= 0 && i < N);
          cuda_assert(x >= -xmax && x <= xmax);
          cuda_assert(deltax >= dmin && deltax <= dmax);
-         const int off1 = d;
-         const int off2 = i;
-         const int off3 = x + xmax;
-         const int off4 = deltax - dmin;
-         const int ndx = off1 * pitch1 + off2 * pitch2 + off3 * pitch3 + off4;
-#ifndef __CUDA_ARCH__
+         // determine index to use
+         int ndx = 0;
+         /* gamma needs indices:
+          *   (i,x,deltax,d) for global storage
+          *   (x,deltax,d) for local storage
+          * where:
+          *   i in [0, N-1]
+          *   x in [-xmax, xmax]
+          *   d in [0, q-1]
+          *   deltax in [dmin, dmax]
+          */
+         const int pitch1 = q;
+         const int pitch2 = pitch1 * (dmax - dmin + 1);
+         if (flags.globalstore)
+            {
+            const int pitch3 = pitch2 * (2 * xmax + 1);
+            ndx += pitch3 * i;
+            }
+         ndx += pitch2 * (x + xmax);
+         ndx += pitch1 * (deltax - dmin);
+         ndx += d;
          // host code path only
+#ifndef __CUDA_ARCH__
 #if DEBUG>=2
-         std::cerr << "(" << d << "," << i << "," << x << "," << deltax << ":"
-         << ndx << ")";
+         std::cerr << "(" << d << "," << i << "," << x << "," << deltax << ":" << ndx << ")";
 #endif
 #endif
          return ndx;
          }
-      // Device-only methods
-#ifdef __CUDACC__
       //! Compute gamma metric using independent receiver interface
       __device__
       real compute_gamma_single(int d, int i, int x, int deltax, const dev_array1s_ref_t& r, const dev_array2r_ref_t& app) const
@@ -184,9 +197,7 @@ public:
          real result = receiver.R(d, i, r.extract(start, length));
          // apply priors if applicable
          if (app.size() > 0)
-            {
             result *= real(app(i,d));
-            }
          return result;
          }
       //! Compute gamma metric using batch receiver interface
@@ -201,32 +212,21 @@ public:
          receiver.R(d, i, r.extract(start, length), ptable);
          // apply priors if applicable
          if (app.size() > 0)
-            {
             for (int deltax = -dxmax; deltax <= dxmax; deltax++)
-               {
                ptable(dxmax + deltax) *= real(app(i,d));
-               }
-            }
          }
-      //! Compute gamma metric using batch interface, keeping a small local cache
+      //! Get a reference to the corresponding gamma storage entry
       __device__
-      real compute_gamma_batch_cached(int d, int i, int x, int deltax) const
+      real& gamma_storage_entry(int d, int i, int x, int deltax) const
          {
-         // NOTE: cuda does not support static in device code, so this requires
-         // a recomputation every time, degrading performance to the 'single'
-         // interface.
-         // space for results
-         real2 ptable_data[arraysize];
-         cuda_assertalways(arraysize >= 2 * dxmax + 1);
-         cuda::vector_reference<real2> ptable(ptable_data, 2 * dxmax + 1);
-         // recompute and store every time
-         compute_gamma_batch(d, i, x, ptable, r, app);
-         // return stored result
-         return ptable(dxmax + deltax);
+         if (flags.globalstore)
+            return gamma.global(get_gamma_index(d, i, x, deltax));
+         else
+            return gamma.local(get_gamma_index(d, i, x, deltax));
          }
-      //! Fill indicated cache entries for gamma metric - batch interface
+      //! Fill indicated storage entries for gamma metric - batch interface
       __device__
-      void fill_gamma_cache_batch(int i, int x) const
+      void fill_gamma_storage_batch(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app, int i, int x) const
          {
          // allocate space for results
          real2 ptable_data[arraysize];
@@ -238,42 +238,63 @@ public:
          compute_gamma_batch(d, i, x, ptable, r, app);
          // store in corresponding place in cache
          for (int deltax = dmin; deltax <= dmax; deltax++)
-            {
-            gamma(get_gamma_index(d, i, x, deltax)) = ptable(dxmax + deltax);
-            }
+            gamma_storage_entry(d, i, x, deltax) = ptable(dxmax + deltax);
          }
-      //! Fill indicated cache entries for gamma metric - independent interface
+      /*! \brief Fill indicated storage entries for gamma metric - independent interface
+       * \todo No need to compute for all deltax if 'cached' is sufficiently fine
+       */
       __device__
-      void fill_gamma_cache_single(int i, int x) const
+      void fill_gamma_storage_single(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app, int i, int x) const
          {
-         // get symbol value from thread index
-         const int d = threadIdx.x;
-         // TODO: no need to compute for all deltax if 'cached' is sufficiently fine
+         // limit on end-state (-xmax <= x2 <= xmax):
+         //   x2-x1 <= xmax-x1
+         //   x2-x1 >= -xmax-x1
          const int deltaxmin = max(-xmax - x, dmin);
          const int deltaxmax = min(xmax - x, dmax);
+         // get symbol value from thread index
+         const int d = threadIdx.x;
+         // clear gamma entries
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma_storage_entry(d, i, x, deltax) = 0;
+         // compute entries within required limits
          for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-            {
-            gamma(get_gamma_index(d, i, x, deltax)) = compute_gamma_single(d, i, x, deltax, r, app);
-            }
+            gamma_storage_entry(d, i, x, deltax) = compute_gamma_single(d, i, x, deltax, r, app);
          }
-      //! Wrapper to fill indicated cache entries for gamma metric as needed
+      /*! \brief Fill indicated cache entries for gamma metric as needed
+       *
+       * This method is called on every get_gamma call when doing lazy computation.
+       * It will update the cache as needed, for both local/global storage,
+       * and choosing between batch/single methods as required.
+       */
       __device__
       void fill_gamma_cache_conditional(int i, int x) const
          {
-         // if we not have this already, fill in this part of cache
-         if (!cached(i, x + xmax))
+         bool miss = false;
+         if (flags.globalstore)
             {
-            // mark as filled in
-            cached(i, x + xmax) = true;
+            // if we not have this already, mark to fill in this part of cache
+            if (!cached.global(i, x + xmax))
+               {
+               miss = true;
+               cached.global(i, x + xmax) = true;
+               }
+            }
+         else
+            {
+            // if we not have this already, mark to fill in this part of cache
+            if (!cached.local(x + xmax))
+               {
+               miss = true;
+               cached.local(x + xmax) = true;
+               }
+            }
+         if (miss)
+            {
             // call computation method and store results
             if (flags.batch)
-               {
-               fill_gamma_cache_batch(i, x);
-               }
+               fill_gamma_storage_batch(r, app, i, x);
             else
-               {
-               fill_gamma_cache_single(i, x);
-               }
+               fill_gamma_storage_single(r, app, i, x);
             }
          }
       /*! \brief Wrapper for retrieving gamma metric value
@@ -291,26 +312,10 @@ public:
       __device__
       real get_gamma(int d, int i, int x, int deltax) const
          {
-         // pre-computed values
-         if (!flags.lazy)
-            {
-            return gamma(get_gamma_index(d, i, x, deltax));
-            }
-         // lazy computation, without global storage
-         if (!flags.globalstore)
-            {
-            if (flags.batch)
-               {
-               return compute_gamma_batch_cached(d, i, x, deltax);
-               }
-            else
-               {
-               return compute_gamma_single(d, i, x, deltax, r, app);
-               }
-            }
-         // lazy computation, with global storage
-         fill_gamma_cache_conditional(i, x);
-         return gamma(get_gamma_index(d, i, x, deltax));
+         // update cache values if necessary
+         if (flags.lazy)
+            fill_gamma_cache_conditional(i, x);
+         return gamma_storage_entry(d, i, x, deltax);
          }
       // common small tasks
       __device__
@@ -331,17 +336,23 @@ public:
          {
          normalize(beta, i, 2 * xmax + 1);
          }
-      // decode functions
+      // decode functions - partial computations
       __device__
-      void work_gamma_single(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app);
+      void work_gamma(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app, const int i) const
+         {
+         // get start drift from block index
+         const int x = blockIdx.y - xmax;
+         if (flags.batch)
+            fill_gamma_storage_batch(r, app, i, x);
+         else
+            fill_gamma_storage_single(r, app, i, x);
+         }
       __device__
-      void work_gamma_batch(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app);
+      void work_alpha(const dev_array1r_ref_t& sof_prior, const int i);
       __device__
-      void work_alpha(const dev_array1r_ref_t& sof_prior, int i);
+      void work_beta(const dev_array1r_ref_t& eof_prior, const int i);
       __device__
-      void work_beta(const dev_array1r_ref_t& eof_prior, int i);
-      __device__
-      void work_message_app(dev_array2r_ref_t& ptable) const;
+      void work_message_app(dev_array2r_ref_t& ptable, const int i) const;
       __device__
       void work_state_app(dev_array1r_ref_t& ptable, const int i) const;
 #endif
@@ -353,8 +364,15 @@ private:
    metric_computer computer; //!< Wrapper object for device computation
    dev_array2r_t alpha; //!< Forward recursion metric
    dev_array2r_t beta; //!< Backward recursion metric
-   mutable dev_array1r_t gamma; //!< Receiver metric
-   mutable dev_array2b_t cached; //!< Flag for globalstore of receiver metric
+   mutable struct {
+      dev_array1r_t global; // indices (i,x,d,deltax)
+      dev_array1r_t local; // indices (x,d,deltax)
+   } gamma; //!< Receiver metric
+   mutable struct {
+      dev_array2b_t global; // indices (i,x)
+      dev_array1b_t local; // indices (x)
+   } cached; //!< Flag for caching of receiver metric
+
    dev_array1s_t dev_r; //!< Device copy of received sequence
    dev_array2r_t dev_app; //!< Device copy of a-priori statistics
    dev_array1r_t dev_sof_table; //!< Device copy of sof table
@@ -374,21 +392,40 @@ private:
    // data movement
    static void copy_table(const dev_array2r_t& dev_table, array1vr_t& table);
    static void copy_table(const array1vd_t& table, dev_array2r_t& dev_table);
-   // decode functions (implemented using kernel calls)
 #ifdef __CUDACC__
+   // decode functions - global path (implemented using kernel calls)
    void work_gamma(const dev_array1s_t& r, const dev_array2r_t& app);
-   void work_alpha(const dev_array1r_t& sof_prior);
-   void work_beta(const dev_array1r_t& eof_prior);
+   void work_alpha_and_beta(const dev_array1r_t& sof_prior,
+         const dev_array1r_t& eof_prior);
    void work_results(dev_array2r_t& ptable, dev_array1r_t& sof_post,
          dev_array1r_t& eof_post) const;
+   // decode functions - local path (implemented using kernel calls)
+   void work_alpha(const dev_array1r_t& sof_prior);
+   void work_beta_and_results(const dev_array1r_t& eof_prior,
+         dev_array2r_t& ptable, dev_array1r_t& sof_post, dev_array1r_t& eof_post);
 #endif
    // @}
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   fba2()
+   fba2() :
+      initialised(false)
       {
-      initialised = false;
+      }
+   /*! \brief Copy constructor
+    * \note Copy construction is a deep copy, except for:
+    *       - metric tables (alpha, beta, gamma, cached), on device
+    *       - copies of received and prior statistics, on device
+    *       - copies of sof/eof and results tables, on device
+    *       - copy of computer object on device
+    *
+    * \todo This will not be necessary (can keep the default copy constructor)
+    *       when/if the TX and RX side of commsys objects are separated, as we
+    *       won't need to clone the RX commsys object in stream simulations.
+    */
+   fba2(const fba2<receiver_t, sig, real, real2>& x) :
+      computer(x.computer), initialised(false)
+      {
       }
    // @}
 
@@ -405,9 +442,14 @@ public:
       const int dmin = std::max(-n, -dxmax);
       const int dmax = std::min(n * I, dxmax);
       // determine memory required
-      const libbase::int64s bytes_required = sizeof(real)
-            * (q * N * (2 * xmax + 1) * (dmax - dmin + 1));
-      return int(bytes_required >> 20);
+      // NOTE: do all computations at 64-bit, or we get intermediate overflow!
+      libbase::int64u bytes_required = sizeof(real);
+      bytes_required *= q;
+      bytes_required *= N;
+      bytes_required *= (2 * xmax + 1);
+      bytes_required *= (dmax - dmin + 1);
+      bytes_required >>= 20;
+      return int(bytes_required);
       }
    //! Access metric computation
    receiver_t& get_receiver() const

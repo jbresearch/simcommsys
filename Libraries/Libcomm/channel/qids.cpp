@@ -223,32 +223,24 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
       {
       pj += log(myreal(T - 1 + i)) - log(myreal(i));
       }
-   // convert factor back from log domain
-   pj = exp(pj);
 #if DEBUG>=4
    std::cerr << "DEBUG (qids): [pdf-exact] m = " << m << ", p_j0 = " << pj
    << std::endl;
 #endif
-   if (pj == 0)
-      throw std::overflow_error("zero factor");
    // main computation
-   myreal this_p = pj;
+   myreal this_p = exp(pj);
    for (int j = j0 + 1; j <= T; j++)
       {
       // update factor
-      pj *= Pf;
-      pj *= myreal(T + m + j - 1) / myreal(m + j);
-      pj *= myreal(T - j + 1) / myreal(j);
+      pj += log(Pf);
+      pj += log(myreal(T + m + j - 1)) - log(myreal(m + j));
+      pj += log(myreal(T - j + 1)) - log(myreal(j));
       // update main result
-      const myreal last_p = this_p;
-      this_p += pj;
+      this_p += exp(pj);
 #if DEBUG>=4
       std::cerr << "DEBUG (qids): [pdf-exact] j = " << j << ", p_j = " << pj
       << ", this_p = " << this_p << std::endl;
 #endif
-      // early cutoff
-      if (this_p == last_p)
-         break;
       }
 #if DEBUG>=4
    std::cerr << "DEBUG (qids): [pdf-exact] this_p = " << this_p << std::endl;
@@ -256,8 +248,6 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
    // validate and return result
    if (!std::isfinite(this_p))
       throw std::overflow_error("value not finite");
-   else if (this_p == 0)
-      throw std::overflow_error("zero value");
    else if (this_p < 0)
       throw std::overflow_error("negative value");
    return this_p;
@@ -270,13 +260,13 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
  * where \f$ P_r \f$ is an arbitrary probability of having a block of size
  * \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
  * between successive time-steps.
- * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+ * In this class, this value is fixed.
  * 
  * \note The smallest allowed value is \f$ I = 1 \f$; the largest value depends
  * on a user parameter.
  */
 template <class G, class real>
-int qids<G, real>::metric_computer::compute_I(int tau, double Pi, int Icap)
+int qids<G, real>::metric_computer::compute_I(int tau, double Pi, double Pr, int Icap)
    {
    // sanity checks
    assert(tau > 0);
@@ -310,7 +300,7 @@ int qids<G, real>::metric_computer::compute_I(int tau, double Pi, int Icap)
  * where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
  * having a block of size \f$ \tau \f$ where the drift at the end is greater
  * than \f$ \pm x_{max} \f$.
- * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+ * In this class, this value is fixed.
  *
  * The calculation is based on the assumption that the end-of-frame drift has
  * a Gaussian distribution with zero mean and standard deviation given by
@@ -318,7 +308,7 @@ int qids<G, real>::metric_computer::compute_I(int tau, double Pi, int Icap)
  */
 template <class G, class real>
 int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
-      double Pd)
+      double Pd, double Pr)
    {
    // sanity checks
    assert(tau > 0);
@@ -344,13 +334,13 @@ int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
  * supplied drift pdf at start of transmission.
  */
 template <class G, class real>
-int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
+int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd, double Pr,
       const libbase::vector<double>& sof_pdf, const int offset)
    {
    try
       {
       compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf, offset);
-      const int xmax = compute_xmax_with(f, tau, Pi, Pd);
+      const int xmax = compute_xmax_with(f, tau, Pi, Pd, Pr);
 #if DEBUG>=4
       std::cerr << "DEBUG (qids): [with exact] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
 #endif
@@ -359,7 +349,7 @@ int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
    catch (std::exception&)
       {
       compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf, offset);
-      const int xmax = compute_xmax_with(f, tau, Pi, Pd);
+      const int xmax = compute_xmax_with(f, tau, Pi, Pd, Pr);
 #if DEBUG>=4
       std::cerr << "DEBUG (qids): [with davey] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
 #endif
@@ -374,14 +364,14 @@ int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
  * This method caps the minimum value of xmax, so it is at least equal to I.
  */
 template <class G, class real>
-int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd,
+int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd, double Pr,
       int I, const libbase::vector<double>& sof_pdf, const int offset)
    {
    // sanity checks
    assert(tau > 0);
    validate(Pd, Pi);
    // use the appropriate algorithm
-   int xmax = compute_xmax(tau, Pi, Pd, sof_pdf, offset);
+   int xmax = compute_xmax(tau, Pi, Pd, Pr, sof_pdf, offset);
    // cap minimum value
    xmax = std::max(xmax, I);
    // tell the user what we did and return
@@ -452,7 +442,7 @@ void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int I,
  * function should be called any time a channel parameter is changed.
  */
 template <class G, class real>
-void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
+void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi, double Pr,
       int Icap)
    {
    if (N == 0)
@@ -465,8 +455,8 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
       }
    assert(N > 0);
    // fba decoder parameters
-   I = compute_I(N, Pi, Icap);
-   xmax = compute_xmax(N, Pi, Pd, I);
+   I = compute_I(N, Pi, Pr, Icap);
+   xmax = compute_xmax(N, Pi, Pd, Pr, I);
    // receiver coefficients
    Rval = real(Pd);
 #ifdef USE_CUDA
@@ -762,9 +752,11 @@ void qids<G, real>::init()
    Ps = fixedPs;
    Pd = fixedPd;
    Pi = fixedPi;
+   // drift exclusion probability
+   Pr = 1e-10;
    // initialize metric computer
    computer.init();
-   computer.precompute(Ps, Pd, Pi, Icap);
+   computer.precompute(Ps, Pd, Pi, Pr, Icap);
    }
 
 /*!
@@ -871,11 +863,11 @@ G qids<G, real>::corrupt(const G& s)
  * accordingly.
  */
 template <class G, class real>
-void qids<G, real>::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
+void qids<G, real>::get_drift_pdf(int tau, double Pr, libbase::vector<double>& eof_pdf,
       libbase::size_type<libbase::vector>& offset) const
    {
    // determine the range of drifts we're interested in
-   const int xmax = compute_xmax(tau);
+   const int xmax = compute_xmax(tau, Pr);
    // store the necessary offset
    offset = libbase::size_type<libbase::vector>(xmax);
    // initialize result vector
@@ -908,12 +900,12 @@ void qids<G, real>::get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
  * pdf accordingly and updates the given offset.
  */
 template <class G, class real>
-void qids<G, real>::get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
+void qids<G, real>::get_drift_pdf(int tau, double Pr, libbase::vector<double>& sof_pdf,
       libbase::vector<double>& eof_pdf,
       libbase::size_type<libbase::vector>& offset) const
    {
    // determine the range of drifts we're interested in
-   const int xmax = compute_xmax(tau, sof_pdf, offset);
+   const int xmax = compute_xmax(tau, Pr, sof_pdf, offset);
    // initialize result vector
    eof_pdf.init(2 * xmax + 1);
    // compute the probability at each possible drift
@@ -1171,21 +1163,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "channel", \
             "qids<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            qids<BOOST_PP_SEQ_ENUM(args)>::create); \
-      template <> \
-      const double qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::Pr = 1e-10;
-/*
- template <> \
-      template <> \
-      int qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::compute_xmax_with( \
-            const compute_drift_prob_functor& f, \
-            int tau, double Pi, double Pd); \
-      template <> \
-      template <> \
-      int qids<BOOST_PP_SEQ_ENUM(args)>::metric_computer::compute_xmax_with( \
-            const compute_drift_prob_functor::pdf_func_t& f, \
-            int tau, double Pi, double Pd);
- */
+            qids<BOOST_PP_SEQ_ENUM(args)>::create);
+
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

@@ -57,7 +57,7 @@ public:
     * required limit, and computes the end-of-frame distribution for this range.
     * It returns the necessary offset accordingly.
     */
-   virtual void get_drift_pdf(int tau, array1d_t& eof_pdf, libbase::size_type<
+   virtual void get_drift_pdf(int tau, double Pr, array1d_t& eof_pdf, libbase::size_type<
          libbase::vector>& offset) const = 0;
    /*!
     * \brief Get the expected drift distribution after transmitting 'tau'
@@ -68,7 +68,7 @@ public:
     * It also resizes the start-of-frame pdf accordingly and updates the given
     * offset.
     */
-   virtual void get_drift_pdf(int tau, array1d_t& sof_pdf, array1d_t& eof_pdf,
+   virtual void get_drift_pdf(int tau, double Pr, array1d_t& sof_pdf, array1d_t& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const = 0;
    // @}
 };

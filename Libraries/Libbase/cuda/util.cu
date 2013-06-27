@@ -130,7 +130,7 @@ std::string cudaGetDeviceName(int device)
 
 //! Get the amount of global memory (in bytes) for the given device
 
-int cudaGetGlobalMem(int device)
+size_t cudaGetGlobalMem(int device)
    {
    if (device < 0)
       device = cudaGetCurrentDevice();
@@ -236,7 +236,6 @@ int cudaGetComputeModel()
    dev_cm.init();
    // call the kernel
    getcomputemodel_kernel<<<1,1>>>(dev_cm);
-   cudaSafeThreadSynchronize();
    // copy results back
    return dev_cm;
    }

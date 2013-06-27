@@ -333,12 +333,14 @@ void marker<sig, real, real2>::init(const channel<sig>& chan,
    mychan = dynamic_cast<const qids<sig, real2>&>(chan);
    // Set channel block size to actual block size
    mychan.set_blocksize(tau);
+   // Set the probability of channel event outside chosen limits
+   mychan.set_pr(Pr);
    // Determine required FBA parameter values
-   const int I = mychan.compute_I(tau);
+   const int I = mychan.compute_I(tau, Pr);
    // No need to recompute xmax if we are given a prior PDF
    const int xmax =
          sof_pdf.size() > 0 ? offset :
-               mychan.compute_xmax(tau, sof_pdf, offset);
+               mychan.compute_xmax(tau, Pr, sof_pdf, offset);
    checkforchanges(I, xmax);
    // Initialize forward-backward algorithm
    fba.init(tau, I, xmax, norm, mychan);
@@ -409,6 +411,7 @@ std::string marker<sig, real, real2>::description() const
          failwith("Unknown marker sequence type");
          break;
       }
+   sout << ", Pr=" << Pr;
    if (norm)
       sout << ", normalized";
    if (lookahead == 0)
@@ -425,7 +428,9 @@ template <class sig, class real, class real2>
 std::ostream& marker<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
+   sout << 2 << std::endl;
+   sout << "# Probability of channel event outside chosen limits" << std::endl;
+   sout << Pr << std::endl;
    sout << "# Normalize metrics between time-steps?" << std::endl;
    sout << norm << std::endl;
    sout << "# Number of codewords to look ahead when stream decoding"
@@ -464,6 +469,8 @@ std::ostream& marker<sig, real, real2>::serialize(std::ostream& sout) const
 
 /*!
  * \version 1 Initial version
+ *
+ * \version 2 Added probability of channel event outside chosen limits
  */
 
 template <class sig, class real, class real2>
@@ -473,6 +480,11 @@ std::istream& marker<sig, real, real2>::serialize(std::istream& sin)
    // get format version
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;
+   // read probability of channel event outside chosen limits
+   if (version >= 2)
+      sin >> libbase::eatcomments >> Pr >> libbase::verify;
+   else
+      Pr = 1e-10;
    // read decoder parameters
    sin >> libbase::eatcomments >> norm >> libbase::verify;
    // read look-ahead quantity

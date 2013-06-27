@@ -124,7 +124,6 @@ public:
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
-      static const double Pr; //!< Probability of event outside range
       // @}
    private:
       //! Functor for drift probability computation with prior
@@ -149,6 +148,7 @@ public:
       };
    public:
       /*! \name FBA decoder parameter computation */
+      // TODO: extract all static methods to a helper file
       // drift PDF - known start of frame
       static double compute_drift_prob_davey(int x, int tau, double Pi,
             double Pd);
@@ -186,21 +186,116 @@ public:
          return this_p;
          }
       // limit on successive insertions
-      static int compute_I(int tau, double Pi, int Icap);
+      static int compute_I(int tau, double Pi, double Pr, int Icap);
       // limit on drift
-      static int compute_xmax_davey(int tau, double Pi, double Pd);
+      static int compute_xmax_davey(int tau, double Pi, double Pd, double Pr);
+      /*!
+       * \brief Determine upper/lower limit for drift at the end of a frame of T
+       * channel symbols, given the supplied drift pdf at start of transmission.
+       *
+       * The drift range is chosen such that the probability of having a drift
+       * \f$ m \f$ after transmitting \f$ T \f$ symbols, \f$ \phi_T(m) \f$,
+       * is less than an arbitrary value \f$ \frac{P_r}{2} \f$ for any
+       * \f$ m \f$ outside the given limit.
+       * In this class, this value is fixed.
+       */
+      template <typename F>
+      static void compute_limits_with(const F& compute_pdf, int T,
+            double Pi, double Pd, double Pr, int& lower, int& upper)
+         {
+         // sanity checks
+         assert(T > 0);
+         validate(Pd, Pi);
+         // keep track of coverage
+         double coverage = 1.0;
+         coverage -= compute_pdf(0, T, Pi, Pd);
+         // determine lower limit first
+         double p_lower;
+         for(int m = -1; ; m--)
+            {
+            p_lower = compute_pdf(m, T, Pi, Pd);
+            if (p_lower < Pr/2)
+               {
+               lower = m + 1;
+               break;
+               }
+            coverage -= p_lower;
+            }
+         // next determine upper limit
+         double p_upper;
+         for(int m = 1; ; m++)
+            {
+            p_upper = compute_pdf(m, T, Pi, Pd);
+            if (p_upper < Pr/2)
+               {
+               upper = m - 1;
+               break;
+               }
+            coverage -= p_upper;
+            }
+         // now fine-tune the selection
+         while (coverage >= Pr)
+            {
+            // extend in the direction of the largest gain
+            if (p_upper > p_lower)
+               {
+               upper++;
+               coverage -= p_upper;
+               // note: p_upper always corresponds to next higher state
+               p_upper = compute_pdf(upper+1, T, Pi, Pd);
+               }
+            else
+               {
+               lower--;
+               coverage -= p_lower;
+               // note: p_lower always corresponds to next lower state
+               p_lower = compute_pdf(lower-1, T, Pi, Pd);
+               }
+            }
+         }
+      /*!
+       * \brief Determine the probability of the drift at the end of a frame
+       * of T channel symbols being outside the upper and lower limits, given
+       * the supplied drift pdf at start of transmission.
+       */
+      template <typename F>
+      static double compute_outofbounds_with(const F& compute_pdf, int T,
+            double Pi, double Pd, int upper, int lower)
+         {
+         // sanity checks
+         assert(T > 0);
+         validate(Pd, Pi);
+         assert(upper >= 0);
+         assert(lower <= 0);
+         // determine area that needs to be covered
+         double coverage = 1.0;
+         // subtract area that is covered, starting from center
+         coverage -= compute_pdf(0, T, Pi, Pd);
+         const int m1 = std::min(upper, -lower) + 1;
+         for (int m = 1; m < m1; m++)
+            {
+            coverage -= compute_pdf(m, T, Pi, Pd);
+            coverage -= compute_pdf(-m, T, Pi, Pd);
+            }
+         for (int m = m1; m <= upper; m++)
+            coverage -= compute_pdf(m, T, Pi, Pd);
+         for (int m = -m1; m >= lower; m--)
+            coverage -= compute_pdf(m, T, Pi, Pd);
+         // return result
+         return coverage;
+         }
       /*!
        * \brief Determine maximum drift at the end of a frame of tau symbols, given the
        * supplied drift pdf at start of transmission.
        *
        * The drift range is chosen such that the probability of having the drift
        * after transmitting \f$ \tau \f$ symbols being greater than \f$ \pm x_{max} \f$
-       * is less than an arbirarty value \f$ P_r \f$.
-       * In this class, this value is fixed at \f$ P_r = 10^{-12} \f$.
+       * is less than an arbitrary value \f$ P_r \f$.
+       * In this class, this value is fixed.
        */
       template <typename F>
       static int compute_xmax_with(const F& compute_pdf, int tau, double Pi,
-            double Pd)
+            double Pd, double Pr)
          {
          // sanity checks
          assert(tau > 0);
@@ -225,14 +320,14 @@ public:
          // tell the user what we did and return
 #if DEBUG>=3
          std::cerr << "DEBUG (qids): [computed] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
-         std::cerr << "DEBUG (qids): [davey] for N = " << tau << ", xmax = " << compute_xmax_davey(tau, Pi, Pd) << "." << std::endl;
+         std::cerr << "DEBUG (qids): [davey] for N = " << tau << ", xmax = " << compute_xmax_davey(tau, Pi, Pd, Pr) << "." << std::endl;
 #endif
          return xmax;
          }
-      static int compute_xmax(int tau, double Pi, double Pd,
+      static int compute_xmax(int tau, double Pi, double Pd, double Pr,
             const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
             const int offset = 0);
-      static int compute_xmax(int tau, double Pi, double Pd, int I,
+      static int compute_xmax(int tau, double Pi, double Pd, double Pr, int I,
             const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
             const int offset = 0);
       // receiver metric pre-computation
@@ -258,7 +353,7 @@ public:
          }
       // @}
       /*! \name Internal functions */
-      void precompute(double Ps, double Pd, double Pi, int Icap);
+      void precompute(double Ps, double Pd, double Pi, double Pr, int Icap);
       void init();
       // @}
 #ifdef USE_CUDA
@@ -613,6 +708,7 @@ private:
    double Ps; //!< Symbol substitution probability \f$ P_s \f$
    double Pd; //!< Symbol deletion probability \f$ P_d \f$
    double Pi; //!< Symbol insertion probability \f$ P_i \f$
+   double Pr; //!< Probability of channel event outside chosen limits
    array1i_t state_ins; //!< State vector with number of insertions before transmission of bit 'i'
    array1b_t state_tx; //!< State vector with flag indicating transmission of bit 'i'
    // @}
@@ -653,31 +749,37 @@ public:
     * \copydoc qids::metric_computer::compute_I()
     *
     * \note Provided for use by clients; depends on object parameters
+    *
+    * \todo Consider removing this method
     */
-   int compute_I(int tau) const
+   int compute_I(int tau, double Pr) const
       {
-      return metric_computer::compute_I(tau, Pi, Icap);
+      return metric_computer::compute_I(tau, Pi, Pr, Icap);
       }
    /*!
     * \copydoc qids::metric_computer::compute_xmax()
     *
     * \note Provided for use by clients; depends on object parameters
+    *
+    * \todo Consider removing this method
     */
-   int compute_xmax(int tau) const
+   int compute_xmax(int tau, double Pr) const
       {
-      const int I = metric_computer::compute_I(tau, Pi, Icap);
-      return metric_computer::compute_xmax(tau, Pi, Pd, I);
+      const int I = metric_computer::compute_I(tau, Pi, Pr, Icap);
+      return metric_computer::compute_xmax(tau, Pi, Pd, Pr, I);
       }
    /*!
     * \copydoc qids::metric_computer::compute_xmax()
     *
     * \note Provided for use by clients; depends on object parameters
+    *
+    * \todo Consider removing this method
     */
-   int compute_xmax(int tau, const libbase::vector<double>& sof_pdf,
+   int compute_xmax(int tau, double Pr, const libbase::vector<double>& sof_pdf,
          const int offset) const
       {
-      const int I = metric_computer::compute_I(tau, Pi, Icap);
-      return metric_computer::compute_xmax(tau, Pi, Pd, I, sof_pdf, offset);
+      const int I = metric_computer::compute_I(tau, Pi, Pr, Icap);
+      return metric_computer::compute_xmax(tau, Pi, Pd, Pr, I, sof_pdf, offset);
       }
    // @}
 
@@ -699,7 +801,7 @@ public:
       assert(Pd >= 0 && Pd <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pd = Pd;
-      computer.precompute(Ps, Pd, Pi, Icap);
+      computer.precompute(Ps, Pd, Pi, Pr, Icap);
       }
    //! Set the symbol-insertion probability
    void set_pi(const double Pi)
@@ -707,7 +809,14 @@ public:
       assert(Pi >= 0 && Pi <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
-      computer.precompute(Ps, Pd, Pi, Icap);
+      computer.precompute(Ps, Pd, Pi, Pr, Icap);
+      }
+   //! Set the probability of channel event outside chosen limits
+   void set_pr(const double Pr)
+      {
+      assert(Pr > 0 && Pr < 1);
+      this->Pr = Pr;
+      computer.precompute(Ps, Pd, Pi, Pr, Icap);
       }
    //! Set the block size
    void set_blocksize(int N)
@@ -716,7 +825,7 @@ public:
          {
          assert(N > 0);
          computer.N = N;
-         computer.precompute(Ps, Pd, Pi, Icap);
+         computer.precompute(Ps, Pd, Pi, Pr, Icap);
          }
       }
    // @}
@@ -740,9 +849,9 @@ public:
    // @}
 
    /*! \name Stream-oriented channel characteristics */
-   void get_drift_pdf(int tau, libbase::vector<double>& eof_pdf,
+   void get_drift_pdf(int tau, double Pr, libbase::vector<double>& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const;
-   void get_drift_pdf(int tau, libbase::vector<double>& sof_pdf,
+   void get_drift_pdf(int tau, double Pr, libbase::vector<double>& sof_pdf,
          libbase::vector<double>& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const;
    // @}

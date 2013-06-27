@@ -115,6 +115,7 @@ private:
    array2vs_t codebook_tables; //!< user set of codebooks
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   double Pr; //!< Probability of channel event outside chosen limits
    struct {
       bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
       bool batch; //!< Flag indicating use of batch receiver interface
@@ -296,6 +297,10 @@ public:
    libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
       {
       return libbase::size_type<libbase::vector>(n * lookahead);
+      }
+   double get_suggested_exclusion(void) const
+      {
+      return Pr;
       }
 
    // Description

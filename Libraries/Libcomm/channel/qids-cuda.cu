@@ -74,7 +74,6 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
    dev_rx = rx;
    // call the kernel with a copy of this object
    cuda::receive_trellis_kernel<G,real> <<<1,1>>>(*this, dev_tx, dev_rx, dev_ptable);
-   cudaSafeThreadSynchronize();
    // return the result
    ptable = array1r_t(dev_ptable);
    }
@@ -93,7 +92,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
    dev_rx = rx;
    // call the kernel with a copy of this object
    cuda::receive_lattice_kernel<G,real> <<<1,1>>>(*this, dev_tx, dev_rx, dev_ptable);
-   cudaSafeThreadSynchronize();
    // return the result
    ptable = array1r_t(dev_ptable);
    }
@@ -112,7 +110,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(const array1g_t& t
    dev_rx = rx;
    // call the kernel with a copy of this object
    cuda::receive_lattice_corridor_kernel<G,real> <<<1,1>>>(*this, dev_tx, dev_rx, dev_ptable);
-   cudaSafeThreadSynchronize();
    // return the result
    ptable = array1r_t(dev_ptable);
    }

@@ -96,13 +96,15 @@ void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
    {
    // Shorthand for transmitted frame size + required look-ahead
    const int tau = this->output_block_size() + lookahead;
+   // Shorthand for probability of channel event outside chosen limits
+   const double Pr = getmodem_stream().get_suggested_exclusion();
    // Get access to the channel object in stream-oriented mode
    const channel_stream<S>& rxchan = getrxchan_stream();
 
    if (eof_post.size() == 0) // this is the first frame
       {
       // Initialize as drift pdf after transmitting one frame
-      rxchan.get_drift_pdf(tau, eof_prior, offset);
+      rxchan.get_drift_pdf(tau, Pr, eof_prior, offset);
       eof_prior /= eof_prior.max();
       // Initialize as zero-drift is assured
       sof_prior.init(eof_prior.size());
@@ -115,7 +117,7 @@ void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
       sof_prior = eof_post;
       // Initialize as drift pdf after transmitting one frame, given sof priors
       // (offset gets updated and sof_prior gets resized as needed)
-      rxchan.get_drift_pdf(tau, sof_prior, eof_prior, offset);
+      rxchan.get_drift_pdf(tau, Pr, sof_prior, eof_prior, offset);
       eof_prior /= eof_prior.max();
       }
    }

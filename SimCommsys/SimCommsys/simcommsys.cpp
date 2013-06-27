@@ -45,12 +45,24 @@ namespace po = boost::program_options;
 
 class mymontecarlo : public libcomm::montecarlo {
 private:
+   bool quiet; //!< Flag to disable intermediate displays
    bool hard_int; //!< Flag indicating a hard interrupt (stop completely)
    bool soft_int; //!< Flag indicating a soft interrupt (skip to next point)
 public:
-   mymontecarlo() :
-         hard_int(false), soft_int(false)
+   mymontecarlo(bool quiet) :
+         quiet(quiet), hard_int(false), soft_int(false)
       {
+      }
+   /*! \brief Conditional progress display
+    *
+    * If the object was set up to be quiet, then no display occurs, otherwise
+    * use the default.
+    */
+   void display(const libbase::vector<double>& result,
+         const libbase::vector<double>& errormargin) const
+      {
+      if (!quiet)
+         libcomm::montecarlo::display(result, errormargin);
       }
    /*! \brief User-interrupt check (public to allow use by main program)
     * This function returns true if the user has requested a soft or hard
@@ -185,7 +197,7 @@ int main(int argc, char *argv[])
       }
 
    // Create estimator object and initilize cluster
-   mymontecarlo estimator;
+   mymontecarlo estimator(vm["quiet"].as<bool>());
    switch (estimator.enable(vm["endpoint"].as<std::string>(),
          vm["quiet"].as<bool>(), vm["priority"].as<int>()))
       {

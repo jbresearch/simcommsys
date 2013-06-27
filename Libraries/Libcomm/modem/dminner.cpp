@@ -418,10 +418,12 @@ void dminner<real>::dodemodulate(const channel<bool>& chan,
    mychan.set_ps(Ps * (1 - f) + (1 - Ps) * f);
    // Set block size for main forward-backward pass
    mychan.set_blocksize(tau);
+   // Set the probability of channel event outside chosen limits
+   mychan.set_pr(Pr);
    // Determine required FBA parameter values
-   const int I = mychan.compute_I(tau);
-   const int xmax = mychan.compute_xmax(tau);
-   const int dxmax = mychan.compute_xmax(n);
+   const int I = mychan.compute_I(tau, Pr);
+   const int xmax = mychan.compute_xmax(tau, Pr);
+   const int dxmax = mychan.compute_xmax(n, Pr);
    checkforchanges(I, xmax);
    // Initialize & perform forward-backward algorithm
    FBA::init(tau, I, xmax, th_inner, norm);
@@ -522,6 +524,7 @@ std::string dminner<real>::description() const
       }
    if (user_threshold)
       sout << ", thresholds " << th_inner << "/" << th_outer;
+   sout << ", Pr=" << Pr;
    if (norm)
       sout << ", normalized";
    sout << ")";
@@ -534,7 +537,7 @@ template <class real>
 std::ostream& dminner<real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 3 << std::endl;
+   sout << 4 << std::endl;
    sout << "# User threshold?" << std::endl;
    sout << user_threshold << std::endl;
    if (user_threshold)
@@ -544,6 +547,8 @@ std::ostream& dminner<real>::serialize(std::ostream& sout) const
       sout << "#: Outer threshold" << std::endl;
       sout << th_outer << std::endl;
       }
+   sout << "# Probability of channel event outside chosen limits" << std::endl;
+   sout << Pr << std::endl;
    sout << "# Normalize metrics between time-steps?" << std::endl;
    sout << norm << std::endl;
    sout << "# n" << std::endl;
@@ -610,6 +615,8 @@ std::ostream& dminner<real>::serialize(std::ostream& sout) const
  * \version 2 Added marker sequence type
  *
  * \version 3 Added normalization flag
+ *
+ * \version 4 Added probability of channel event outside chosen limits
  */
 
 template <class real>
@@ -640,6 +647,11 @@ std::istream& dminner<real>::serialize(std::istream& sin)
       sin >> libbase::eatcomments >> th_inner >> libbase::verify;
       sin >> libbase::eatcomments >> th_outer >> libbase::verify;
       }
+   // read probability of channel event outside chosen limits
+   if (version >= 4)
+      sin >> libbase::eatcomments >> Pr >> libbase::verify;
+   else
+      Pr = 1e-10;
    // read decoder parameters
    if (version >= 3)
       sin >> libbase::eatcomments >> norm >> libbase::verify;

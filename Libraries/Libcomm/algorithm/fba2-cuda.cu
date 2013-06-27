@@ -121,77 +121,7 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::normalize(dev_array2r_
    metric(row, col) *= scale;
    }
 
-// decode functions
-
-template <class receiver_t, class sig, class real, class real2>
-__device__
-void fba2<receiver_t, sig, real, real2>::metric_computer::work_gamma_single(const dev_array1s_ref_t& r,
-      const dev_array2r_ref_t& app)
-   {
-   using cuda::min;
-   using cuda::max;
-
-   // set up block & thread indexes
-   const int i = blockIdx.x;
-   const int d = threadIdx.x;
-   // compute all matrix values
-   // - all threads are independent and indexes guaranteed in range
-
-   // limits on insertions and deletions must be respected:
-   //   x2-x1 <= n*I
-   //   x2-x1 >= -n
-   // limits on introduced drift in this section:
-   // (necessary for forward recursion on extracted segment)
-   //   x2-x1 <= dxmax
-   //   x2-x1 >= -dxmax
-   for (int x = -xmax; x <= xmax; x++)
-      {
-      // clear gamma entries
-      for (int deltax = dmin; deltax <= dmax; deltax++)
-         {
-         gamma(get_gamma_index(d, i, x, deltax)) = 0;
-         }
-      // limit on end-state (-xmax <= x2 <= xmax):
-      //   x2-x1 <= xmax-x1
-      //   x2-x1 >= -xmax-x1
-      const int deltaxmin = max(-xmax - x, dmin);
-      const int deltaxmax = min(xmax - x, dmax);
-      for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-         {
-         gamma(get_gamma_index(d, i, x, deltax)) = compute_gamma_single(d, i, x, deltax, r, app);
-         }
-      }
-   }
-
-template <class receiver_t, class sig, class real, class real2>
-__device__
-void fba2<receiver_t, sig, real, real2>::metric_computer::work_gamma_batch(const dev_array1s_ref_t& r,
-      const dev_array2r_ref_t& app)
-   {
-   using cuda::min;
-   using cuda::max;
-
-   // set up block & thread indexes
-   const int i = blockIdx.x;
-   const int d = threadIdx.x;
-   // compute all matrix values
-   // - all threads are independent and indexes guaranteed in range
-
-   // set up space for batch results
-   real2 ptable_data[arraysize];
-   cuda_assertalways(arraysize >= 2 * dxmax + 1);
-   cuda::vector_reference<real2> ptable(ptable_data, 2 * dxmax + 1);
-   // compute metric with batch interface
-   for (int x = -xmax; x <= xmax; x++)
-      {
-      compute_gamma_batch(d, i, x, ptable, r, app);
-      // copy results
-      for (int deltax = dmin; deltax <= dmax; deltax++)
-         {
-         gamma(get_gamma_index(d, i, x, deltax)) = ptable(dxmax + deltax);
-         }
-      }
-   }
+// decode functions - partial computations
 
 template <class receiver_t, class sig, class real, class real2>
 __device__
@@ -202,7 +132,7 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_alpha(const dev_a
 
    // local flag for path thresholding
    const bool thresholding = (th_inner > 0);
-   // set up block & thread indexes
+   // get end drift from block index and symbol value from thread index
    const int x2 = blockIdx.x - xmax;
    const int d = threadIdx.x;
    // set up variables shared within block
@@ -265,7 +195,7 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_beta(const dev_ar
 
    // local flag for path thresholding
    const bool thresholding = (th_inner > 0);
-   // set up block & thread indexes
+   // get start drift from block index and symbol value from thread index
    const int x1 = blockIdx.x - xmax;
    const int d = threadIdx.x;
    // set up variables shared within block
@@ -321,7 +251,7 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_beta(const dev_ar
 
 template <class receiver_t, class sig, class real, class real2>
 __device__
-void fba2<receiver_t, sig, real, real2>::metric_computer::work_message_app(dev_array2r_ref_t& ptable) const
+void fba2<receiver_t, sig, real, real2>::metric_computer::work_message_app(dev_array2r_ref_t& ptable, const int i) const
    {
    using cuda::min;
    using cuda::max;
@@ -330,8 +260,7 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_message_app(dev_a
    const bool thresholding = (th_outer > 0);
    // Check result vector (one symbol per timestep)
    cuda_assertalways(ptable.get_rows()==N && ptable.get_cols()==q);
-   // set up block & thread indexes
-   const int i = blockIdx.x;
+   // get symbol value from thread index
    const int d = threadIdx.x;
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
    // - all threads are independent and indexes guaranteed in range
@@ -374,28 +303,36 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_state_app(dev_arr
    cuda_assert(i >= 0 && i <= N);
    // set up block & thread indexes
    const int x = threadIdx.x - xmax;
-   //const int d = threadIdx.x;
    // compute posterior probabilities for given index
    ptable(x + xmax) = alpha(i, x + xmax) * beta(i, x + xmax);
    }
 
-// Kernels
-// NOTE: these *must* be global functions
+// *** Kernels *** NOTE: all kernels *must* be global functions
+
+// common small tasks
 
 template <class receiver_t, class sig, class real, class real2>
 __global__
-void fba2_gamma_single_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<sig> r,
-      const matrix_reference<real> app)
+void fba2_normalize_alpha_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const int i)
    {
-   object().work_gamma_single(r, app);
+   object().normalize_alpha(i);
    }
 
 template <class receiver_t, class sig, class real, class real2>
 __global__
-void fba2_gamma_batch_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<sig> r,
-      const matrix_reference<real> app)
+void fba2_normalize_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const int i)
    {
-   object().work_gamma_batch(r, app);
+   object().normalize_beta(i);
+   }
+
+// decode functions - partial computations
+
+template <class receiver_t, class sig, class real, class real2>
+__global__
+void fba2_gamma_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<sig> r,
+      const matrix_reference<real> app, const int i)
+   {
+   object().work_gamma(r, app, i);
    }
 
 template <class receiver_t, class sig, class real, class real2>
@@ -407,13 +344,6 @@ void fba2_alpha_kernel(value_reference<typename fba2<receiver_t, sig, real, real
 
 template <class receiver_t, class sig, class real, class real2>
 __global__
-void fba2_normalize_alpha_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const int i)
-   {
-   object().normalize_alpha(i);
-   }
-
-template <class receiver_t, class sig, class real, class real2>
-__global__
 void fba2_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<real> eof_prior, const int i)
    {
    object().work_beta(eof_prior, i);
@@ -421,16 +351,9 @@ void fba2_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2
 
 template <class receiver_t, class sig, class real, class real2>
 __global__
-void fba2_normalize_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const int i)
+void fba2_message_app_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, matrix_reference<real> ptable, const int i)
    {
-   object().normalize_beta(i);
-   }
-
-template <class receiver_t, class sig, class real, class real2>
-__global__
-void fba2_message_app_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, matrix_reference<real> ptable)
-   {
-   object().work_message_app(ptable);
+   object().work_message_app(ptable, i);
    }
 
 template <class receiver_t, class sig, class real, class real2>
@@ -438,6 +361,27 @@ __global__
 void fba2_state_app_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, vector_reference<real> ptable, const int i)
    {
    object().work_state_app(ptable, i);
+   }
+
+// decode functions - global path
+
+template <class receiver_t, class sig, class real, class real2>
+__global__
+void fba2_gamma_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<sig> r,
+      const matrix_reference<real> app)
+   {
+   // get symbol index from block index
+   const int i = blockIdx.x;
+   object().work_gamma(r, app, i);
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+__global__
+void fba2_message_app_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, matrix_reference<real> ptable)
+   {
+   // get symbol index from block index
+   const int i = blockIdx.x;
+   object().work_message_app(ptable, i);
    }
 
 // *** Main Class
@@ -470,33 +414,64 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    alpha.init(computer.N + 1, 2 * computer.xmax + 1); // offsets: 0, xmax
    beta.init(computer.N + 1, 2 * computer.xmax + 1); // offsets: 0, xmax
 
-   // gamma needs indices (d,i,x,deltax) where d in [0, q-1], i in [0, N-1]
-   // x in [-xmax, xmax], and deltax in [dmin, dmax] = [max(-n,-dxmax), min(nI,dxmax)]
-   // (note: this is allocated as a flat sequence)
    if (computer.flags.globalstore)
       {
-      gamma.init(computer.q * computer.N * (2 * computer.xmax + 1)
-            * (computer.dmax - computer.dmin + 1));
+      /* gamma needs indices (i,x,d,deltax) where
+       * i in [0, N-1]
+       * x in [-xmax, xmax]
+       * d in [0, q-1]
+       * deltax in [dmin, dmax]
+       * NOTE: this is allocated as a flat sequence
+       */
+      gamma.global.init(computer.N * (2 * computer.xmax + 1) * computer.q
+                  * (computer.dmax - computer.dmin + 1));
+      gamma.local.init(0);
       }
    else
       {
-      gamma.init(0);
+      /* gamma needs indices (x,d,deltax) where
+       * x in [-xmax, xmax]
+       * d in [0, q-1]
+       * deltax in [dmin, dmax]
+       * NOTE: this is allocated as a flat sequence
+       */
+      gamma.local.init((2 * computer.xmax + 1) * computer.q
+                  * (computer.dmax - computer.dmin + 1));
+      gamma.global.init(0);
       }
-   // need to keep track only if we're globally storing lazy computations
-   // cached needs indices (i,x) where i in [0, N-1] and x in [-xmax, xmax]
-   if (computer.flags.lazy && computer.flags.globalstore)
+   // need to keep track only if we're caching lazy computations
+   if (computer.flags.lazy)
       {
-      cached.init(computer.N, 2 * computer.xmax + 1); // offsets: 0, xmax
+      if (computer.flags.globalstore)
+         {
+         /* cached needs indices (i,x) where
+          * i in [0, N-1]
+          * x in [-xmax, xmax]
+          */
+         cached.global.init(computer.N, 2 * computer.xmax + 1); // offsets: 0, xmax
+         cached.local.init(0);
+         }
+      else
+         {
+         /* cached needs indices (x) where
+          * x in [-xmax, xmax]
+          */
+         cached.local.init(2 * computer.xmax + 1); // offsets: xmax
+         cached.global.init(0, 0);
+         }
       }
    else
       {
-      cached.init(0, 0);
+      cached.global.init(0, 0);
+      cached.local.init(0);
       }
    // copy over to references
    computer.alpha = alpha;
    computer.beta = beta;
-   computer.gamma = gamma;
-   computer.cached = cached;
+   computer.gamma.global = gamma.global;
+   computer.gamma.local = gamma.local;
+   computer.cached.global = cached.global;
+   computer.cached.local = cached.local;
 
    // if this is not the first time, skip the rest
    static bool first_time = true;
@@ -510,8 +485,13 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
    const int prec = std::cerr.precision(1);
    // determine memory occupied and tell user
-   const size_t bytes_used = sizeof(bool) * cached.size() + sizeof(real)
-         * (alpha.size() + beta.size() + gamma.size());
+   size_t bytes_used = 0;
+   bytes_used += sizeof(bool) * cached.global.size();
+   bytes_used += sizeof(bool) * cached.local.size();
+   bytes_used += sizeof(real) * alpha.size();
+   bytes_used += sizeof(real) * beta.size();
+   bytes_used += sizeof(real) * gamma.global.size();
+   bytes_used += sizeof(real) * gamma.local.size();
    std::cerr << "FBA Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
          << std::endl;
    // revert cerr to original format
@@ -524,8 +504,9 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    size_t entries = 0;
    for (int delta = computer.dmin; delta <= computer.dmax; delta++)
       entries += (1 << (delta + computer.n));
-   std::cerr << "Jiao-Armand Table Size: " << computer.q * entries
-         * sizeof(float) / double(1 << 20) << "MiB" << std::endl;
+   entries *= computer.q;
+   std::cerr << "Jiao-Armand Table Size: "
+         << sizeof(float) * entries / double(1 << 20) << "MiB" << std::endl;
 #endif
 
 #if DEBUG>=2
@@ -536,9 +517,27 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    << " = " << alpha.size() << std::endl;
    std::cerr << "beta = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
    << " = " << beta.size() << std::endl;
-   std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2
-   * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1
-   << " = " << gamma.size() << std::endl;
+   if (flags.globalstore)
+      {
+      std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2 * computer.xmax + 1 << "x"
+      << computer.dmax - computer.dmin + 1 << " = " << gamma.global.size()
+      << std::endl;
+      if (flags.lazy)
+         {
+         std::cerr << "cached = " << computer.N << "x" << 2 * computer.xmax + 1 << " = "
+         << cached.global.size() << std::endl;
+         }
+      }
+   else
+      {
+      std::cerr << "gamma = " << computer.q << "x" << 2 * computer.xmax + 1 << "x" <<
+            computer.dmax - computer.dmin + 1 << " = " << gamma.local.size() << std::endl;
+      if (flags.lazy)
+         {
+         std::cerr << "cached = " << 2 * computer.xmax + 1 << " = "
+         << cached.local.size() << std::endl;
+         }
+      }
 #endif
    }
 
@@ -549,13 +548,17 @@ void fba2<receiver_t, sig, real, real2>::free()
    {
    alpha.init(0, 0);
    beta.init(0, 0);
-   gamma.init(0);
-   cached.init(0, 0);
+   gamma.global.init(0);
+   gamma.local.init(0);
+   cached.global.init(0, 0);
+   cached.local.init(0);
    // copy over to references
    computer.alpha = alpha;
    computer.beta = beta;
-   computer.gamma = gamma;
-   computer.cached = cached;
+   computer.gamma.global = gamma.global;
+   computer.gamma.local = gamma.local;
+   computer.cached.global = cached.global;
+   computer.cached.local = cached.local;
    // flag the state of the arrays
    initialised = false;
    }
@@ -565,20 +568,25 @@ void fba2<receiver_t, sig, real, real2>::free()
 template <class receiver_t, class sig, class real, class real2>
 void fba2<receiver_t, sig, real, real2>::reset_cache() const
    {
-   // initialise array
-   gamma.fill(0);
-   // initialize cache
-   cached.fill(false);
+   // initialise array and cache flags
+   if (computer.flags.globalstore)
+      {
+      gamma.global.fill(real(0));
+      cached.global.fill(false);
+      }
+   else
+      {
+      gamma.local.fill(real(0));
+      cached.local.fill(false);
+      }
    }
 
 template <class receiver_t, class sig, class real, class real2>
 void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
    {
    // copy the data set from the device
-   libbase::vector<real> host_gamma = libbase::vector<real>(gamma);
-   // gamma has indices (d,i,x,deltax) where:
-   //    d in [0, q-1], i in [0, N-1], x in [-xmax, xmax], and
-   //    deltax in [dmin, dmax] = [max(-n,-xmax), min(nI,xmax)]
+   libbase::vector<real> host_gamma = libbase::vector<real>(gamma.global);
+   sout << "gamma = " << std::endl;
    for (int i = 0; i < computer.N; i++)
       {
       sout << "i = " << i << ":" << std::endl;
@@ -631,7 +639,7 @@ void fba2<receiver_t, sig, real, real2>::copy_table(const array1vd_t& table,
       }
    }
 
-// de-reference kernel calls
+// decode functions - global path (implemented using kernel calls)
 
 template <class receiver_t, class sig, class real, class real2>
 void fba2<receiver_t, sig, real, real2>::work_gamma(const dev_array1s_t& r,
@@ -641,48 +649,30 @@ void fba2<receiver_t, sig, real, real2>::work_gamma(const dev_array1s_t& r,
    // Shorthand
    const int N = computer.N;
    const int q = computer.q;
-   // Gamma computation:
-   if (computer.flags.lazy)
+   const int xmax = computer.xmax;
+   // inform user what the kernel sizes are
+   static bool first_time = true;
+   if (first_time)
       {
-      // keep a copy of received vector and a-priori statistics
-      computer.r = dev_r;
-      computer.app = dev_app;
-      // re-create a copy of the device object (to pass to kernels)
-      dev_object = computer;
-      // reset cache values if we're using it
-      if (computer.flags.globalstore)
-         reset_cache();
+      std::cerr << "Gamma Kernel: (" << N << "x" << 2 * xmax + 1 << ") x " << q << std::endl;
+      first_time = false;
       }
-   else
-      {
-      // inform user what the kernel sizes are
-      static bool first_time = true;
-      if (first_time)
-         {
-         std::cerr << "Gamma Kernel: " << N << " blocks x " << q << " threads"
-               << std::endl;
-         first_time = false;
-         }
-      // pre-computation
-      if (computer.flags.batch)
-         {
-         // block index is for i in [0, N-1]: grid size = N
-         // thread index is for d in [0, q-1]: block size = q
-         fba2_gamma_batch_kernel<receiver_t, sig, real, real2> <<<N,q>>>(dev_object, r, app);
-         cudaSafeThreadSynchronize();
-         }
-      else
-         {
-         // block index is for i in [0, N-1]: grid size = N
-         // thread index is for d in [0, q-1]: block size = q
-         fba2_gamma_single_kernel<receiver_t, sig, real, real2> <<<N,q>>>(dev_object, r, app);
-         cudaSafeThreadSynchronize();
-         }
-      }
+   // global pre-computation of gamma values
+   // block index is for (i,x) where:
+   //   i in [0, N-1]: x-grid size = N
+   //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
+   // thread index is for d in [0, q-1]: block size = q
+   dim3 gridSize(N, 2*xmax+1);
+   fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridSize,q>>>(dev_object, r, app);
+
+#if DEBUG>=3
+   print_gamma(std::cerr);
+#endif
    }
 
 template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_alpha(const dev_array1r_t& sof_prior)
+void fba2<receiver_t, sig, real, real2>::work_alpha_and_beta(const dev_array1r_t& sof_prior,
+      const dev_array1r_t& eof_prior)
    {
    assert( initialised);
    // Shorthand
@@ -693,23 +683,23 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const dev_array1r_t& sof_pri
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "Alpha Kernel: " << 2 * xmax + 1 << " blocks x " << q
-            << " threads" << std::endl;
+      std::cerr << "Alpha Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
+      std::cerr << "Beta Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
       if (computer.flags.norm)
-         {
-         std::cerr << "Normalization Kernel: " << 1 << " blocks x " << 2 * xmax
-               + 1 << " threads" << std::endl;
-         }
+         std::cerr << "Norm. Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
       first_time = false;
       }
-   // Alpha computation:
+   // Alpha + Beta computations:
+   // Alpha starts from 0 to N, inclusive
+   // Beta starts from N to 0, inclusive
+   // TODO: run alpha/beta in separate streams to parallelize
    for (int i = 0; i <= N; i++)
       {
       // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
       // thread index is for d in [0, q-1]: block size = q
       // shared memory: array of q 'real's
       fba2_alpha_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, sof_prior, i);
-      cudaSafeThreadSynchronize();
+      fba2_beta_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, eof_prior, N - i);
       // normalize if requested
       if (computer.flags.norm)
          {
@@ -718,51 +708,17 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const dev_array1r_t& sof_pri
          // block index is not used: grid size = 1
          // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
          fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
-         cudaSafeThreadSynchronize();
+         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, N - i);
          }
       }
-   }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_beta(const dev_array1r_t& eof_prior)
-   {
-   assert( initialised);
-   // Shorthand
-   const int N = computer.N;
-   const int q = computer.q;
-   const int xmax = computer.xmax;
-   // inform user what the kernel sizes are
-   static bool first_time = true;
-   if (first_time)
-      {
-      std::cerr << "Beta Kernel: " << 2 * xmax + 1 << " blocks x " << q
-            << " threads" << std::endl;
-      if (computer.flags.norm)
-         {
-         std::cerr << "Normalization Kernel: " << 1 << " blocks x " << 2 * xmax
-               + 1 << " threads" << std::endl;
-         }
-      first_time = false;
-      }
-   // Beta computation:
-   for (int i = N; i >= 0; i--)
-      {
-      // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
-      // thread index is for d in [0, q-1]: block size = q
-      // shared memory: array of q 'real's
-      fba2_beta_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, eof_prior, i);
-      cudaSafeThreadSynchronize();
-      // normalize if requested
-      if (computer.flags.norm)
-         {
-         // NOTE: this has to be done in one block, as we need to sync after
-         //       determining the scale to use 
-         // block index is not used: grid size = 1
-         // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
-         cudaSafeThreadSynchronize();
-         }
-      }
+#if DEBUG>=3
+   std::cerr << "alpha = " << libbase::matrix<real>(alpha) << std::endl;
+   std::cerr << "beta = " << libbase::matrix<real>(beta) << std::endl;
+   // show gamma as well if computing lazily
+   if (computer.flags.lazy)
+      print_gamma(std::cerr);
+#endif
    }
 
 template <class receiver_t, class sig, class real, class real2>
@@ -778,10 +734,8 @@ void fba2<receiver_t, sig, real, real2>::work_results(dev_array2r_t& ptable,
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "Message APP Kernel: " << N << " blocks x " << q
-            << " threads" << std::endl;
-      std::cerr << "State APP Kernel (x2): " << 1 << " blocks x " << 2 * xmax
-            + 1 << " threads" << std::endl;
+      std::cerr << "Message APP Kernel: " << N << " x " << q << std::endl;
+      std::cerr << "State APP Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
       first_time = false;
       }
    // Results computation:
@@ -789,14 +743,166 @@ void fba2<receiver_t, sig, real, real2>::work_results(dev_array2r_t& ptable,
    // block index is for i in [0, N-1]: grid size = N
    // thread index is for d in [0, q-1]: block size = q
    fba2_message_app_kernel<receiver_t, sig, real, real2> <<<N,q>>>(dev_object, ptable);
-   cudaSafeThreadSynchronize();
-   // compute APPs of sof/eof state values 
+   // compute APPs of sof/eof state values
    // block index is not used: grid size = 1
    // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
    fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, sof_post, 0);
-   cudaSafeThreadSynchronize();
    fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, eof_post, N);
-   cudaSafeThreadSynchronize();
+
+#if DEBUG>=3
+   array1vr_t ptable;
+   copy_table(dev_ptable, ptable);
+   std::cerr << "ptable = " << ptable << std::endl;
+   std::cerr << "sof_post = " << array1r_t(dev_sof_table) << std::endl;
+   std::cerr << "eof_post = " << array1r_t(dev_eof_table) << std::endl;
+#endif
+   }
+
+// decode functions - local path (implemented using kernel calls)
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_alpha(const dev_array1r_t& sof_prior)
+   {
+   assert( initialised);
+   // Shorthand
+   const int N = computer.N;
+   const int q = computer.q;
+   const int xmax = computer.xmax;
+   // inform user what the kernel sizes are
+   static bool first_time = true;
+   if (first_time)
+      {
+      std::cerr << "Gamma Kernel: (1x" << 2 * xmax + 1 << ") x " << q << std::endl;
+      std::cerr << "Alpha Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
+      if (computer.flags.norm)
+         std::cerr << "Norm. Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+      first_time = false;
+      }
+   // Alpha computation:
+   for (int i = 0; i <= N; i++)
+      {
+      // local storage, index value where we need gamma values
+      if (!computer.flags.globalstore && i > 0)
+         {
+         // pre-compute local gamma values, if necessary
+         if (!computer.flags.lazy)
+            {
+            // global pre-computation of gamma values
+            // block index is for (i,x) where:
+            //   i is not used: x-grid size = 1
+            //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
+            // thread index is for d in [0, q-1]: block size = q
+            dim3 gridSize(1, 2*xmax+1);
+            fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridSize,q>>>(dev_object, dev_r, dev_app, i - 1);
+            }
+         // reset local cache, if necessary
+         else
+            {
+            gamma.local.fill(real(0));
+            cached.local.fill(false);
+            }
+         }
+      // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
+      // thread index is for d in [0, q-1]: block size = q
+      // shared memory: array of q 'real's
+      fba2_alpha_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, sof_prior, i);
+      // normalize if requested
+      if (computer.flags.norm)
+         {
+         // NOTE: this has to be done in one block, as we need to sync after
+         //       determining the scale to use 
+         // block index is not used: grid size = 1
+         // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+         fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
+         }
+      }
+
+#if DEBUG>=3
+   std::cerr << "alpha = " << libbase::matrix<real>(alpha) << std::endl;
+#endif
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+void fba2<receiver_t, sig, real, real2>::work_beta_and_results(const dev_array1r_t& eof_prior,
+      dev_array2r_t& ptable, dev_array1r_t& sof_post, dev_array1r_t& eof_post)
+   {
+   assert( initialised);
+   // Shorthand
+   const int N = computer.N;
+   const int q = computer.q;
+   const int xmax = computer.xmax;
+   // inform user what the kernel sizes are
+   static bool first_time = true;
+   if (first_time)
+      {
+      std::cerr << "Gamma Kernel: (1x" << 2 * xmax + 1 << ") x " << q << std::endl;
+      std::cerr << "Beta Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
+      if (computer.flags.norm)
+         std::cerr << "Norm. Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+      std::cerr << "Message APP Kernel: " << N << " x " << q << std::endl;
+      std::cerr << "State APP Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+      first_time = false;
+      }
+   // Beta + Results computation:
+   for (int i = N; i >= 0; i--)
+      {
+      // local storage, index value where we need gamma values
+      if (!computer.flags.globalstore && i < N)
+         {
+         // pre-compute local gamma values, if necessary
+         if (!computer.flags.lazy)
+            {
+            // global pre-computation of gamma values
+            // block index is for (i,x) where:
+            //   i is not used: x-grid size = 1
+            //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
+            // thread index is for d in [0, q-1]: block size = q
+            dim3 gridSize(1, 2*xmax+1);
+            fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridSize,q>>>(dev_object, dev_r, dev_app, i);
+            }
+         // reset local cache, if necessary
+         else
+            {
+            gamma.local.fill(real(0));
+            cached.local.fill(false);
+            }
+         }
+      // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
+      // thread index is for d in [0, q-1]: block size = q
+      // shared memory: array of q 'real's
+      fba2_beta_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, eof_prior, i);
+      // normalize if requested
+      if (computer.flags.norm)
+         {
+         // NOTE: this has to be done in one block, as we need to sync after
+         //       determining the scale to use
+         // block index is not used: grid size = 1
+         // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
+         }
+      // compute partial result
+      if (i < N)
+         {
+         // compute APPs of message
+         // block index is not used: grid size = 1
+         // thread index is for d in [0, q-1]: block size = q
+         fba2_message_app_kernel<receiver_t, sig, real, real2> <<<1,q>>>(dev_object, ptable, i);
+         }
+      }
+   // compute APPs of sof/eof state values
+   // block index is not used: grid size = 1
+   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, sof_post, 0);
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, eof_post, N);
+
+#if DEBUG>=3
+   std::cerr << "beta = " << libbase::matrix<real>(beta) << std::endl;
+   array1vr_t ptable;
+   copy_table(dev_ptable, ptable);
+   std::cerr << "ptable = " << ptable << std::endl;
+   std::cerr << "sof_post = " << array1r_t(dev_sof_table) << std::endl;
+   std::cerr << "eof_post = " << array1r_t(dev_eof_table) << std::endl;
+#endif
    }
 
 // User procedures
@@ -836,7 +942,6 @@ void fba2<receiver_t, sig, real, real2>::init(int N, int n, int q, int I, int xm
    computer.th_inner = th_inner;
    computer.th_outer = th_outer;
    // decoding mode parameters
-   assertalways(lazy || globalstore); // pre-compute without global storage not yet supported
    computer.flags.norm = norm;
    computer.flags.batch = batch;
    computer.flags.lazy = lazy;
@@ -920,56 +1025,54 @@ void fba2<receiver_t, sig, real, real2>::decode(libcomm::instrumented& collector
 #endif
 
    // Gamma
-   gputimer tg("t_gamma");
-   work_gamma(dev_r, dev_app);
-   collector.add_timer(tg);
-#if DEBUG>=3
-   // show immediately if pre-computing
-   if (computer.flags.globalstore && !computer.flags.lazy)
+   if (!computer.flags.lazy && computer.flags.globalstore)
       {
-      std::cerr << "gamma = " << std::endl;
-      print_gamma(std::cerr);
+      // compute immediately for global pre-compute mode
+      gputimer tg("t_gamma");
+      work_gamma(dev_r, dev_app);
+      collector.add_timer(tg);
       }
-#endif
-   // Alpha + Beta
-   gputimer tab("t_alpha+beta");
-   // Alpha
-   gputimer ta("t_alpha");
-   work_alpha( dev_sof_table);
-   collector.add_timer(ta);
-#if DEBUG>=3
-   std::cerr << "alpha = " << libbase::matrix<real>(alpha) << std::endl;
-   // show after alpha if computing lazily
-   if (computer.flags.globalstore && computer.flags.lazy)
+   else
       {
-      std::cerr << "gamma = " << std::endl;
-      print_gamma(std::cerr);
+      // keep a copy of received vector and a-priori statistics
+      // (we need them later when computing gamma lazily or locally)
+      computer.r = dev_r;
+      computer.app = dev_app;
+      // re-create a copy of the device object (to pass to kernels)
+      dev_object = computer;
+      // reset cache values if necessary
+      if (computer.flags.lazy)
+         reset_cache();
       }
-#endif
-   // Beta
-   gputimer tb("t_beta");
-   work_beta( dev_eof_table);
-   collector.add_timer(tb);
-   collector.add_timer(tab);
-#if DEBUG>=3
-   std::cerr << "beta = " << libbase::matrix<real>(beta) << std::endl;
-#endif
-   // Results computation
-   gputimer tr("t_results");
-   work_results(dev_ptable, dev_sof_table, dev_eof_table);
-   collector.add_timer(tr);
+   // Alpha + Beta + Results
+   if (computer.flags.globalstore)
+      {
+      // Alpha + Beta
+      gputimer tab("t_alpha+beta");
+      work_alpha_and_beta(dev_sof_table, dev_eof_table);
+      collector.add_timer(tab);
+      // Compute results
+      gputimer tr("t_results");
+      work_results(dev_ptable, dev_sof_table, dev_eof_table);
+      collector.add_timer(tr);
+      }
+   else
+      {
+      // Alpha
+      gputimer ta("t_alpha");
+      work_alpha(dev_sof_table);
+      collector.add_timer(ta);
+      // Beta
+      gputimer tbr("t_beta+results");
+      work_beta_and_results(dev_eof_table, dev_ptable, dev_sof_table, dev_eof_table);
+      collector.add_timer(tbr);
+      }
    // Results transfer
    gputimer tc("t_transfer");
    copy_table(dev_ptable, ptable);
    sof_post = array1r_t(dev_sof_table);
    eof_post = array1r_t(dev_eof_table);
    collector.add_timer(tc);
-#if DEBUG>=3
-   // show output data
-   std::cerr << "ptable = " << ptable << std::endl;
-   std::cerr << "sof_post = " << sof_post << std::endl;
-   std::cerr << "eof_post = " << eof_post << std::endl;
-#endif
 
    // add values for limits that depend on channel conditions
    collector.add_timer(computer.I, "c_I");
@@ -978,7 +1081,7 @@ void fba2<receiver_t, sig, real, real2>::decode(libcomm::instrumented& collector
    // add memory usage
    collector.add_timer(sizeof(real) * alpha.size(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.size(), "m_beta");
-   collector.add_timer(sizeof(real) * gamma.size(), "m_gamma");
+   collector.add_timer(sizeof(real) * (gamma.global.size() + gamma.local.size()), "m_gamma");
    }
 
 /*!
@@ -1011,7 +1114,6 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(array1r_t& pdf, const int
    // block index is not used: grid size = 1
    // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
    fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, dev_sof_table, i);
-   cudaSafeThreadSynchronize();
    // copy result from temporary space
    pdf = array1r_t(dev_sof_table);
    }
@@ -1050,7 +1152,6 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(array1vr_t& pdftable) con
       // block index is not used: grid size = 1
       // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
       fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, dev_sof_table, i);
-      cudaSafeThreadSynchronize();
       // copy result from temporary space
       pdftable(i) = array1r_t(dev_sof_table);
       }

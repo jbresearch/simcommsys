@@ -84,21 +84,21 @@ private:
    array2r_t alpha; //!< Forward recursion metric
    array2r_t beta; //!< Backward recursion metric
    mutable struct {
-      array4r_t global; // indices (d,i,x,deltax)
-      array3r_t local; // indices (d,x,deltax)
+      array4r_t global; // indices (i,x,d,deltax)
+      array3r_t local; // indices (x,d,deltax)
    } gamma; //!< Receiver metric
    mutable struct {
       array2b_t global; // indices (i,x)
       array1b_t local; // indices (x)
    } cached; //!< Flag for caching of receiver metric
-   array1s_t r; //!< Copy of received sequence, for lazy computation of gamma
-   array1vd_t app; //!< Copy of a-priori statistics, for lazy computation of gamma
+   array1s_t r; //!< Copy of received sequence, for lazy or local computation of gamma
+   array1vd_t app; //!< Copy of a-priori statistics, for lazy or local computation of gamma
    int dmin; //!< Offset for deltax index in gamma matrix
    int dmax; //!< Maximum value for deltax index in gamma matrix
    bool initialised; //!< Flag to indicate when memory is allocated
 #ifndef NDEBUG
-   mutable int gamma_calls; //!< Number of gamma computations
-   mutable int gamma_misses; //!< Number of gamma computations causing a cache miss
+   mutable int gamma_calls; //!< Number of calls requesting gamma values
+   mutable int gamma_misses; //!< Number of cache misses in such calls
 #endif
    // @}
    /*! \name User-defined parameters */
@@ -139,16 +139,16 @@ private:
       // call batch receiver method
       receiver.R(d, i, r.extract(start, length), app, ptable);
       }
-   //! Get a reference to the corresponding gamma cache entry
-   real& get_cache_entry(int d, int i, int x, int deltax) const
+   //! Get a reference to the corresponding gamma storage entry
+   real& gamma_storage_entry(int d, int i, int x, int deltax) const
       {
       if (flags.globalstore)
-         return gamma.global[d][i][x][deltax];
+         return gamma.global[i][x][d][deltax];
       else
-         return gamma.local[d][x][deltax];
+         return gamma.local[x][d][deltax];
       }
-   //! Fill indicated cache entries for gamma metric - batch interface
-   void fill_gamma_cache_batch(int i, int x) const
+   //! Fill indicated storage entries for gamma metric - batch interface
+   void fill_gamma_storage_batch(const array1s_t& r, const array1vd_t& app, int i, int x) const
       {
       // allocate space for results
       static array1r_t ptable;
@@ -158,27 +158,43 @@ private:
          {
          // compute metric with batch interface
          compute_gamma_batch(d, i, x, ptable, r, app);
-         // store in corresponding place in cache
+         // store in corresponding place in storage
          for (int deltax = dmin; deltax <= dmax; deltax++)
-            get_cache_entry(d, i, x, deltax) = ptable(dxmax + deltax);
+            gamma_storage_entry(d, i, x, deltax) = ptable(dxmax + deltax);
          }
       }
-   //! Fill indicated cache entries for gamma metric - independent interface
-   void fill_gamma_cache_single(int i, int x) const
+   /*! \brief Fill indicated storage entries for gamma metric - independent interface
+    * \todo No need to compute for all deltax if 'cached' is sufficiently fine
+    */
+   void fill_gamma_storage_single(const array1s_t& r, const array1vd_t& app, int i, int x) const
       {
-      // TODO: no need to compute for all deltax if 'cached' is sufficiently fine
+      // limit on end-state (-xmax <= x2 <= xmax):
+      //   x2-x1 <= xmax-x1
+      //   x2-x1 >= -xmax-x1
+      const int deltaxmin = std::max(-xmax - x, dmin);
+      const int deltaxmax = std::min(xmax - x, dmax);
       for (int d = 0; d < q; d++)
          {
-         const int deltaxmin = std::max(-xmax - x, dmin);
-         const int deltaxmax = std::min(xmax - x, dmax);
+         // clear gamma entries
+         for (int deltax = dmin; deltax <= dmax; deltax++)
+            gamma_storage_entry(d, i, x, deltax) = 0;
+         // compute entries within required limits
          for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-            get_cache_entry(d, i, x, deltax) = compute_gamma_single(d, i, x,
+            gamma_storage_entry(d, i, x, deltax) = compute_gamma_single(d, i, x,
                   deltax, r, app);
          }
       }
-   //! Wrapper to fill indicated cache entries for gamma metric as needed
+   /*! \brief Fill indicated cache entries for gamma metric as needed
+    *
+    * This method is called on every get_gamma call when doing lazy computation.
+    * It will update the cache as needed, for both local/global storage,
+    * and choosing between batch/single methods as required.
+    */
    void fill_gamma_cache_conditional(int i, int x) const
       {
+#ifndef NDEBUG
+      gamma_calls++;
+#endif
       bool miss = false;
       if (flags.globalstore)
          {
@@ -191,14 +207,6 @@ private:
          }
       else
          {
-         // keep track of position index, to reset local cache on change
-         static int last_i = -1;
-         if (last_i != i)
-            {
-            last_i = i;
-            gamma.local = real(0);
-            cached.local = false;
-            }
          // if we not have this already, mark to fill in this part of cache
          if (!cached.local[x])
             {
@@ -213,9 +221,9 @@ private:
 #endif
          // call computation method and store results
          if (flags.batch)
-            fill_gamma_cache_batch(i, x);
+            fill_gamma_storage_batch(r, app, i, x);
          else
-            fill_gamma_cache_single(i, x);
+            fill_gamma_storage_single(r, app, i, x);
          }
       }
    /*! \brief Wrapper for retrieving gamma metric value
@@ -232,20 +240,10 @@ private:
     */
    real get_gamma(int d, int i, int x, int deltax) const
       {
-#ifndef NDEBUG
-      gamma_calls++;
-#endif
-      // pre-computed values
-      if (!flags.lazy)
-         {
-         if (flags.globalstore)
-            return gamma.global[d][i][x][deltax];
-         else
-            return gamma.local[d][x][deltax];
-         }
-      // lazy computation, with local or global storage
-      fill_gamma_cache_conditional(i, x);
-      return get_cache_entry(d, i, x, deltax);
+      // update cache values if necessary
+      if (flags.lazy)
+         fill_gamma_cache_conditional(i, x);
+      return gamma_storage_entry(d, i, x, deltax);
       }
    // common small tasks
    static real get_threshold(const array2r_t& metric, int row, int col_min,
@@ -261,35 +259,19 @@ private:
       {
       normalize(beta, i, -xmax, xmax);
       }
-   // specialized components for decode funtions
-   void work_gamma_global_single(const array1s_t& r, const array1vd_t& app,
-         const int i) const;
-   void work_gamma_global_batch(const array1s_t& r, const array1vd_t& app,
-         const int i) const;
-   void work_gamma_global(const array1s_t& r, const array1vd_t& app,
+   // decode functions - partial computations
+   void work_gamma(const array1s_t& r, const array1vd_t& app,
          const int i) const
       {
-      if (flags.batch)
-         work_gamma_global_batch(r, app, i);
-      else
-         work_gamma_global_single(r, app, i);
-      }
-   void work_gamma_local_single(const array1s_t& r, const array1vd_t& app,
-         const int i) const;
-   void work_gamma_local_batch(const array1s_t& r, const array1vd_t& app,
-         const int i) const;
-   void work_gamma_local(const array1s_t& r, const array1vd_t& app,
-         const int i) const
-      {
-      if (flags.batch)
-         work_gamma_local_batch(r, app, i);
-      else
-         work_gamma_local_single(r, app, i);
+      for (int x = -xmax; x <= xmax; x++)
+         if (flags.batch)
+            fill_gamma_storage_batch(r, app, i, x);
+         else
+            fill_gamma_storage_single(r, app, i, x);
       }
    void work_alpha(const array1d_t& sof_prior, const int i);
    void work_beta(const array1d_t& eof_prior, const int i);
    void work_message_app(array1vr_t& ptable, const int i) const;
-   void work_message_app(array1vr_t& ptable) const;
    void work_state_app(array1r_t& ptable, const int i) const;
    // @}
 private:
@@ -300,18 +282,37 @@ private:
    // helper methods
    void reset_cache() const;
    void print_gamma(std::ostream& sout) const;
-   // decode functions
+   // decode functions - global path
    void work_gamma(const array1s_t& r, const array1vd_t& app);
-   void work_alpha(const array1d_t& sof_prior);
-   void work_beta(const array1d_t& eof_prior);
+   void work_alpha_and_beta(const array1d_t& sof_prior,
+         const array1d_t& eof_prior);
    void work_results(array1vr_t& ptable, array1r_t& sof_post,
          array1r_t& eof_post) const;
+   // decode functions - local path
+   void work_alpha(const array1d_t& sof_prior);
+   void work_beta_and_results(const array1d_t& eof_prior, array1vr_t& ptable,
+         array1r_t& sof_post, array1r_t& eof_post);
    // @}
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
    fba2() :
          initialised(false)
+      {
+      }
+   /*! \brief Copy constructor
+    * \note Copy construction is a deep copy, except for:
+    *       - metric tables (alpha, beta, gamma, cached)
+    *
+    * \todo This will not be necessary (can keep the default copy constructor)
+    *       when/if the TX and RX side of commsys objects are separated, as we
+    *       won't need to clone the RX commsys object in stream simulations.
+    */
+   fba2(const fba2<receiver_t, sig, real, real2>& x) :
+         receiver(x.receiver), r(x.r), app(x.app), dmin(x.dmin), dmax(x.dmax),
+         initialised(false), th_inner(x.th_inner), th_outer(x.th_outer),
+         N(x.N), n(x.n), q(x.q), I(x.I), xmax(x.xmax), dxmax(x.dxmax),
+         flags(x.flags)
       {
       }
    // @}
@@ -329,9 +330,14 @@ public:
       const int dmin = std::max(-n, -dxmax);
       const int dmax = std::min(n * I, dxmax);
       // determine memory required
-      const libbase::int64s bytes_required = sizeof(real)
-            * (q * N * (2 * xmax + 1) * (dmax - dmin + 1));
-      return int(bytes_required >> 20);
+      // NOTE: do all computations at 64-bit, or we get intermediate overflow!
+      libbase::int64u bytes_required = sizeof(real);
+      bytes_required *= q;
+      bytes_required *= N;
+      bytes_required *= (2 * xmax + 1);
+      bytes_required *= (dmax - dmin + 1);
+      bytes_required >>= 20;
+      return int(bytes_required);
       }
    //! Access metric computation
    receiver_t& get_receiver() const

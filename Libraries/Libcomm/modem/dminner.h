@@ -103,6 +103,7 @@ private:
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   double Pr; //!< Probability of channel event outside chosen limits
    bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    // @}
    /*! \name Pre-computed parameters */
@@ -264,6 +265,10 @@ public:
    libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
       {
       return libbase::size_type<libbase::vector>(0);
+      }
+   double get_suggested_exclusion(void) const
+      {
+      return Pr;
       }
 
    // Description

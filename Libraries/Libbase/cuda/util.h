@@ -52,7 +52,7 @@ int cudaGetMultiprocessorSize(int device = -1);
 int cudaGetWarpSize(int device = -1);
 double cudaGetClockRate(int device = -1);
 std::string cudaGetDeviceName(int device = -1);
-int cudaGetGlobalMem(int device = -1);
+size_t cudaGetGlobalMem(int device = -1);
 int cudaGetComputeCapability(int device = -1);
 
 int cudaGetDeviceCount();

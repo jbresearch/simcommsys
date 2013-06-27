@@ -93,6 +93,7 @@ private:
    int m; //!< length of marker sequence
    marker_t marker_type; //!< enum indicating marker sequence type
    array1vs_t marker_vectors; //!< user set of marker vectors
+   double Pr; //!< Probability of channel event outside chosen limits
    bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
@@ -223,6 +224,10 @@ public:
    libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
       {
       return libbase::size_type<libbase::vector>((d + m) * lookahead);
+      }
+   double get_suggested_exclusion(void) const
+      {
+      return Pr;
       }
 
    // Description
