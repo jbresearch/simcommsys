@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "dminner.h"
@@ -256,7 +254,7 @@ void dminner<real>::work_results(const array1b_t& r, array1vr_t& ptable,
 
 /*!
  * \brief Normalize probability table
- * 
+ *
  * The input probability table is normalized such that the largest value is
  * equal to 1; result is converted to double.
  */

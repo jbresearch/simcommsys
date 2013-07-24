@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #include "tvb.h"
@@ -815,7 +813,7 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 6 Replaced k with q
  *
  * \version 7 Added option for channel-symbol-level priors
- * 
+ *
  * \version 8 Removed option for channel-symbol-level priors
  *
  * \version 9 Added probability of channel event outside chosen limits

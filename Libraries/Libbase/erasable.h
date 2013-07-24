@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __erasable_h
@@ -32,11 +30,7 @@ namespace libbase {
 /*!
  * \brief   Erasable symbol - Templated base.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Implements the concept of a symbol that can be erased, where the symbol type
  * is specified as a template parameter. The symbol type must support the
@@ -118,11 +112,7 @@ public:
 /*!
  * \brief   Erasable symbol - Bool specialization.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Implements the concept of a bool symbol that can be erased. Specialization
  * is necessary as the bool type does not support the required methods.

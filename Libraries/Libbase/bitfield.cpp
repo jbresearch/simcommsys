@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "bitfield.h"
@@ -65,7 +63,7 @@ std::string bitfield::asstring() const
 
 /*!
  * \brief Constructor that converts a vector of bits
- * 
+ *
  * Bits are held in the vector as low-order first; this means that the first
  * (index 0) element in the vector is the right-most (or least-significant) bit.
  * This convention is consistent with the convention used for bit indexing

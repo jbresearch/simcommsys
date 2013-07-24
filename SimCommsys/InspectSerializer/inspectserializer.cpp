@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #include "serializer_libcomm.h"
@@ -33,11 +31,7 @@ namespace inspectserializer {
 /*!
  * \brief   Serializer Class Support Inspector
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This program returns a list of base classes supported by the serializer.
  * If a base class is given, then this program returns supported derived

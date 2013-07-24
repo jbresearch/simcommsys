@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "config.h"
@@ -265,7 +263,7 @@ std::istream& eatcomments(std::istream& is)
 
 /*!
  * \brief Check for a failure during the last stream input.
- * 
+ *
  * If the last stream input did not succeed, throws an exception with
  * details on the stream position where this occurred.
  */
@@ -288,7 +286,7 @@ void check_failedload(std::istream &is)
 
 /*!
  * \brief Check for a unloaded data on the stream.
- * 
+ *
  * If there is still data left on the stream (excluding any initial comments),
  * throws an exception with details on the stream position where this occurred.
  * All data left from this position onwards is also returned.
@@ -310,7 +308,7 @@ void check_incompleteload(std::istream &is)
 
 /*!
  * \brief Verify that the last stream data item was read without error.
- * 
+ *
  * If the last stream input failed an error message is shown, and the program
  * is stopped.
  */

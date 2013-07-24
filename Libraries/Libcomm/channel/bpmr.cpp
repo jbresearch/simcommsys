@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "bpmr.h"
@@ -58,7 +56,7 @@ void bpmr::init()
 
 /*!
  * \brief Principal constructor
- * 
+ *
  * \sa init()
  */
 bpmr::bpmr(const bool varyPd, const bool varyPi) :
@@ -74,7 +72,7 @@ bpmr::bpmr(const bool varyPd, const bool varyPi) :
 
 /*!
  * \brief Set channel parameter
- * 
+ *
  * This function sets any of Pd, or Pi that are flagged to change. Any of
  * these parameters that are not flagged to change will instead be set to the
  * specified fixed value.
@@ -93,7 +91,7 @@ void bpmr::set_parameter(const double p)
 
 /*!
  * \brief Get channel parameter
- * 
+ *
  * This returns the value of the first of Pd, or Pi that are flagged to
  * change. If none of these are flagged to change, this constitutes an error
  * condition.
@@ -111,7 +109,7 @@ double bpmr::get_parameter() const
 
 /*!
  * \copydoc channel::transmit()
- * 
+ *
  * The channel model implemented is described by the following general case
  * state transition probabilities:
  *
@@ -121,7 +119,7 @@ double bpmr::get_parameter() const
  *
  * with all other transitions having zero probability. Exceptions to the above
  * occur where z-1 or z+1 are not valid states:
- * 
+ *
  * For z = Zmax:
  *   Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
  *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_d
@@ -138,12 +136,12 @@ double bpmr::get_parameter() const
  *
  * where it is further assumed that any X_i for an index 'i' outside the defined
  * range is equiprobable.
- * 
+ *
  * \note We have to make sure that we don't corrupt the vector we're reading
  * from (in the case where tx and rx are the same vector); therefore,
  * the result is first created as a new vector and only copied over at
  * the end.
- * 
+ *
  * \sa corrupt()
  */
 void bpmr::transmit(const array1b_t& tx, array1b_t& rx)

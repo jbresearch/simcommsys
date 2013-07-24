@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "qids.h"
@@ -255,13 +253,13 @@ double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
 
 /*!
  * \brief Determine limit for insertions between two time-steps
- * 
+ *
  * \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log P_i } \right\rceil - 1 \f]
  * where \f$ P_r \f$ is an arbitrary probability of having a block of size
  * \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
  * between successive time-steps.
  * In this class, this value is fixed.
- * 
+ *
  * \note The smallest allowed value is \f$ I = 1 \f$; the largest value depends
  * on a user parameter.
  */
@@ -414,7 +412,7 @@ real qids<G, real>::metric_computer::compute_Rtable_entry(bool err, int mu,
 
 /*!
  * \brief Compute receiver coefficient set
- * 
+ *
  * First row has elements where the last symbol \f[ r_\mu = t \f]
  * Second row has elements where the last symbol \f[ r_\mu \neq t \f]
  */
@@ -436,7 +434,7 @@ void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int I,
 
 /*!
  * \brief Sets up pre-computed values
- * 
+ *
  * This function computes all cached quantities used within actual channel
  * operations. Since these values depend on the channel conditions, this
  * function should be called any time a channel parameter is changed.
@@ -476,7 +474,7 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
 
 /*!
  * \brief Initialization
- * 
+ *
  * Sets the block size to an unusable value.
  */
 template <class G, class real>
@@ -811,7 +809,7 @@ libbase::vector<double> qids<G, real>::resize_drift(const array1d_t& in,
 
 /*!
  * \brief Set channel parameter
- * 
+ *
  * This function sets any of Ps, Pd, or Pi that are flagged to change. Any of
  * these parameters that are not flagged to change will instead be set to the
  * specified fixed value.
@@ -834,7 +832,7 @@ void qids<G, real>::set_parameter(const double p)
 
 /*!
  * \brief Get channel parameter
- * 
+ *
  * This returns the value of the first of Ps, Pd, or Pi that are flagged to
  * change. If none of these are flagged to change, this constitutes an error
  * condition.
@@ -855,11 +853,11 @@ double qids<G, real>::get_parameter() const
 
 /*!
  * \copydoc channel::corrupt()
- * 
+ *
  * \note Due to limitations of the interface, which was designed for
  * substitution channels, only the substitution part of the channel model is
  * handled here.
- * 
+ *
  * For symbols that are substituted, any of the remaining symbols are equally
  * likely.
  */
@@ -957,7 +955,7 @@ void qids<G, real>::get_drift_pdf(int tau, double Pr, libbase::vector<double>& s
 
 /*!
  * \copydoc channel::transmit()
- * 
+ *
  * The channel model implemented is described by the following state diagram:
  * \dot
  * digraph states {
@@ -977,18 +975,18 @@ void qids<G, real>::get_drift_pdf(int tau, double Pr, libbase::vector<double>& s
  * Substitute -> next;
  * }
  * \enddot
- * 
+ *
  * \note We have initially no idea how long the received sequence will be, so
  * we first determine the state sequence at every timestep, keeping
  * track of:
  * - the number of insertions \e before given position, and
  * - whether the given position is transmitted or deleted.
- * 
+ *
  * \note We have to make sure that we don't corrupt the vector we're reading
  * from (in the case where tx and rx are the same vector); therefore,
  * the result is first created as a new vector and only copied over at
  * the end.
- * 
+ *
  * \sa corrupt()
  */
 template <class G, class real>

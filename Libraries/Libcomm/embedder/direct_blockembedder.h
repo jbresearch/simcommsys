@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __direct_blockembedder_h
@@ -33,11 +31,7 @@ namespace libcomm {
 /*!
  * \brief   Position-Independent Blockwise Data Embedder/Extractor.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This class is a template definition for position-independent block
  * embedders; this needs to be specialized for actual use. Template parameter
@@ -52,11 +46,7 @@ class direct_blockembedder : public blockembedder<S, C, dbl> {
 /*!
  * \brief   Position-Independent Vector Data Embedder/Extractor
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Vector implementation of a position-independent block embedder.
  */
@@ -95,11 +85,7 @@ DECLARE_SERIALIZER(direct_blockembedder)
 /*!
  * \brief   Position-Independent Matrix Data Embedder/Extractor
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Matrix implementation of a position-independent block embedder.
  */

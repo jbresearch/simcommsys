@@ -1,0 +1,113 @@
+/*!
+\file
+
+Copyright (c) 2013 Johann A. Briffa
+
+This file is part of SimCommSys.
+
+SimCommSys is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+SimCommSys is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
+
+
+\page plotresults How to plot the results of a simulation
+\author   Stephan Wesemeyer
+$Id$
+
+\todo Update formatting for doxygen and review.
+
+
+Assumption:
+-----------
+
+1) You have a working svn directory:/path_to_svn_dir/ with the following
+projects checked out
+
+   Projects/ECW
+   Programming
+   Scripts
+
+2) You have followed the SimulationHowto and ran a couple of simulations.
+
+Pre-requisites:
+---------------
+
+1) You need the following python packages installed:
+
+   python
+   ipython
+   python-matplotlib
+   python-numpy
+   python-tk
+   (plus the various dependencies these pull in)
+
+2) You also need set and export PYTHONPATH as follows:
+
+   PYTHONPATH=/path_to_svn_dir/Scripts/Python/
+   export PYTHONPATH
+
+If you use bash then simply add the above 2 lines to your .bashrc. For any other
+shell, please refer to the shells documentation
+
+3) Ensure your directory contains the folder structure as described in the
+SimulationHowto, in particular you need to have a folder called Figures.
+
+NB: The current process creates figures in the Figures folder but those should
+be ignored by svn and hence not checked in. The reason is that they can be
+re-generated quickly and would simply take up too much space. Plots intended for
+publication need to be copied to the appropriate folder containing the details
+of the paper.
+
+
+Plotting the graphs:
+--------------------
+
+1) Ensure you have the plot_graphs.py file in your
+/path_to/ECW/Results/YourSimulation/ folder.
+
+2) Rename it to give a more meaningful name that indicates what it plots (look
+at OtherSimulations for inspiration)
+
+3) Change the file to suit your needs. It should be fairly well-documented and
+be self-explanatory but you might need to check the online Python documentation
+every now and then.
+
+4) Once you have made your changes, save it.
+
+5) Ensure that it is executable by your user - if not do a chmod 755 on the file
+
+6) In the same directory as the file, execute it by calling
+./nameOfYourPlotGraphs.py
+
+Troubleshooting:
+----------------
+
+1) If you get an error that indicates no module simcommsys can be found then
+your PYTHONPATH is not set properly. Do an
+
+   echo $PYTHONPATH
+
+to check what it is set to and if it is set, ensure that it points to the
+correct directory. If it does then type
+
+   export PYTHONPATH and try again.
+
+2) Any other error is likely to be either in your code or your results file.
+
+Make sure that your results file does not contain any spurious new lines: the
+descriptions of any of the components in your system must not return a
+description that includes \n
+
+Coding errors are best investigated by looking at other plot files in
+OtherSimulations and looking for differences.
+
+*/

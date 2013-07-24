@@ -1,0 +1,346 @@
+/*!
+\file
+
+Copyright (c) 2013 Johann A. Briffa
+
+This file is part of SimCommSys.
+
+SimCommSys is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+SimCommSys is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
+
+
+\page developmentenvironment How to set up your development environment
+\authors   Stephan Wesemeyer, Johann Briffa
+$Id$
+
+
+
+\section intro Introduction
+
+The SimCommSys project can be built on either Linux or Windows.
+However, Windows is usually a second-class citizen and the main development
+branch will not always compile for Windows.
+Main development takes place on Linux and effort is made to ensure that the
+main development branch compiles and works.
+Tagged stable branches, however, should always be tested to compile and run
+on all supported operating systems and development environments.
+
+This document describes the pre-requisites for developing on Linux and Windows
+and how to set up the development environments.
+
+
+\section software Software Required
+
+The code base is meant to be edited using an IDE; requirements depend on
+the operating system:
+- Linux development is based on an Ubuntu 12.04 LTS (64-bit) reference
+   platform, and includes:
+   - G++ 4.6.3
+   - Eclipse 3.7.2 with Subversive plugin for SVN integration and Eclox for
+   Doxygen access.
+- Windows development is based on a Windows XP SP3 (32-bit) reference
+   platform, and assumes Microsoft Visual Studio 2008; the Team System is
+   suggested for its performance-related tools.  The Refactor! plugin from
+   Developer Express Inc. is also recommended (this has not been tested with
+   VS 2008).
+
+\note Windows support is currently on hold, pending transition to a 64-bit
+edition of Windows and Visual Studio 2010.
+
+Other than G++ and GNU Make, the principal build requirement for SimCommSys
+is a recent development version of Boost, together with the 'Program
+Options' optional component.
+The reference version is Boost 1.46.1 as found in the standard Ubuntu repos
+(later versions should also probably work).
+It is suggested to install all optional components, as these may be used in
+later versions of this software.
+
+Further details on how to install each platform follows.
+
+
+\section linux Linux Development Environment
+
+
+\subsection install Installing the Necessary Software
+
+This document assumes that you are working with an Ubuntu 12.04 LTS
+(64-bit) server as that's the current University of Surrey supported desktop
+environment.
+If you are starting from scratch, download the necessary ISO from Canonical
+(http://www.ubuntu.com/download/server).
+Next, add the following third-party repositories.
+
+\verbatim
+# Johann Briffa's repo (for the development meta-packages):
+echo "deb http://guinevere.res.um.edu.mt/packages/ precise main" | sudo tee /etc/apt/sources.list.d/jb.list
+wget -q -O - http://guinevere.res.um.edu.mt/keys/jabriffa.pub | sudo apt-key add -
+# Canonical Partner:
+sudo sed -i '/precise partner/ s/# //' /etc/apt/sources.list
+# Chrome:
+echo "deb http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+# Medibuntu:
+sudo wget --output-document=/etc/apt/sources.list.d/medibuntu.list http://www.medibuntu.org/sources.list.d/$(lsb_release -cs).list
+sudo aptitude update && sudo aptitude install -y medibuntu-keyring
+# VirtualBox:
+echo "deb http://download.virtualbox.org/virtualbox/debian precise contrib non-free" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | sudo apt-key add -
+\endverbatim
+
+\note The VirtualBox repository is only needed if you want to install a virtual
+machine, for example for Windows development.
+
+Once this has been done, update the package lists and install the meta-packages.
+This will automatically install the necessary dependencies for SimCommSys
+development.
+
+\verbatim
+# once we're done, update the package lists
+sudo aptitude update
+# install the meta-packages
+sudo aptitude install jbdevelopment jbdesktop
+\endverbatim
+
+\note The 'jbdevelopment' package is required for building the project.
+The 'jbdesktop' package is only needed for a desktop system, and provides the
+necessary software and environment.
+
+
+\subsection boost Installing Boost Manually
+
+If the version in your OS repos is too old (or if you do not have the
+authority to do the installation), it is possible to install this locally
+(in your home directory) with the following commands, replacing the version
+as needed:
+
+\verbatim
+svn co http://svn.boost.org/svn/boost/tags/release/Boost_1_47_0
+cd Boost_1_47_0
+./bootstrap.sh --prefix=$HOME
+./b2 install
+\endverbatim
+
+Of course you will need to add the local folders into your compiler and
+linker search paths, using (for bash):
+
+\verbatim
+export LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=$HOME/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$HOME/include:$CPLUS_INCLUDE_PATH
+\endverbatim
+
+
+\subsection other Other Distributions
+
+The code base is meant to be as platform-independent as possible.
+However, the varying support of standard C++ and other odd differences
+between compilers mean that untested platforms may cause problems.
+We document here the platforms currently in use (in addition to the reference
+platform documented earlier):
+- Fedora Core 6 with G++ 4.1.2 and Boost 1.33.1
+- RHEL AS 4 with G++ 3.4.6 and Boost 1.32
+- Scientific Linux CERN 3 with G++ 3.2.3 and Boost 1.32
+
+\todo In the above, document which system each is, to facilitate removal
+or updating in the future.
+
+
+\subsection eclipse Eclipse Integrated Development Environment
+
+The currently supported IDE on Linux is Eclipse, which will need to be
+configured as follows:
+
+1) In the development folder create another folder called eclipse_workspaces and
+within it a directory called myBranchName:
+
+\verbatim
+cd ~/development
+mkdir -p eclipse_workspaces/mbn
+\endverbatim
+
+2) Start eclipse and choose the mbn(=myBranchName) directory as the location for
+your workspace.
+
+3) Close the welcome screen.
+
+4) Install the svn plugin by clicking Help->Install New Software and
+doing the following:
+   - Next to 'Work With' choose 'All Available Sites'
+   - Type 'svn' into the filter
+   - Select the following packages, and install them:
+      - Subversive SVN Team Provider
+      - Subversive SVN Connectors
+      - SVNKit 1.3.5 Implementation
+
+5) Accept the licence and the offer to restart eclipse for you.
+
+6) Import the JAB code style file:
+
+   Window->Preferences->C/C++->Code Style->Import
+
+browse to ~/development/svn/Programming/branches/mbn/JAB C++ Code Style.xml and
+click OK followed by Apply & then OK again.
+
+7) Import the various projects in your branch by selecting
+File->Import->General->Existing Projects into Workspace & clicking Next,
+selecting the root direcory of the project & clicking finish.
+Initially, the most important projects to import are the following:
+\verbatim
+Libraries/
+   Libbase/
+   Libcomm/
+
+SimCommSys/
+   CSdecode/
+   CSencode/
+   CStransmit/
+   CSfullcycle/
+   SimCommsys/
+   SPECturbo/
+\endverbatim
+It is safe to import all projects but initially this should be more
+than sufficient.
+
+9) Use Ctrl-B to compile the whole project. There should be no compilation
+problems.
+
+8) If the version control information is not accessible through Eclipse, you
+will need to associate the Eclipse projects with their version control metadata.
+To do this, right-click on each project and select Team.
+If you get presented with 2 options (Apply Patch/Share Project), select
+Share Project and accept the following screens.
+
+You are now set up!
+Important Eclipse shortcuts:
+   - Ctrl-Shift-F: format the current file (according to the coding style)
+   - Ctrl-B: build all
+   - Ctrl-s: save
+   - Ctrl-o: show outline of class
+   - Ctrl-Space: command completion
+   - Ctrl-Shift-r: open resource
+
+
+\section windows Windows Development Environment
+
+\note Visual Studio 2008 support is currently on hold.  The project is
+currently being transitioned to Visual Studio 2010.
+
+The current supported IDE for Windows is Microsoft Visual Studio 2008.
+It is recommended to use the Team Suite edition, as this contains the useful
+profiling tools.
+Installing this is simply a matter of:
+- Downloading the Team Suite DVD and installing it.
+- Downloading the latest service pack (currently SP1) and installing it.
+- Downloading the MSDN Library documentation and installing it.
+
+All DVDs above may be obtained through MSDNAA.
+
+\subsection boost Installing Boost
+
+Windows development also requires the development Boost libraries to be
+installed. The installer may be downloaded from BoostPro computing at:
+
+http://www.boostpro.com/download
+
+It is recommended to use the same version as in Linux builds.
+For Windows, you need to install the Mutithread and Mutithread Debug variants.
+
+\subsection setup Setting up
+
+Style setup is done by importing "JAB C++ Code Style.vssettings" through
+Tools->Import and Export Settings. This also sets up the necessary folder
+settings for Boost usage.
+
+
+\section checkout Checking out the source code
+
+\note In this section we assume you're working with a Linux system.
+
+In order to access the svn repository you need to provide Johann Briffa with a
+username and a hashed password.
+
+1) Create a password by calling
+
+\verbatim
+htpasswd -nm <username>
+\endverbatim
+
+where <username> is the username you would like to use to access the svn
+repository.
+Note that it does not have to be your Unix username.
+Please use a different password from your standard login password.
+
+2) Provide Johann Briffa with the output so that he can set you up on the svn
+server.
+
+3) Once you are set up, change into your development directory (for example,
+a folder called 'development' under your home directory)
+
+\verbatim
+cd ~/development
+\endverbatim
+
+4) create a directory called svn and change into it
+
+\verbatim
+mkdir svn
+cd svn
+\endverbatim
+
+5) check out the following folders:
+
+\verbatim
+svn co https://guinevere.res.um.edu.mt/svn/shared/Programming
+svn co https://guinevere.res.um.edu.mt/svn/shared/Scripts
+\endverbatim
+
+\note If you have only been given access to a specific branch, you will need
+to replace the URL in the first line with that for your specific branch.
+
+6) Create your own branch of the project:
+
+\note Ignore if you have only been given access to a specific branch.
+
+\verbatim
+cd Programming/branches
+mkdir mbn
+svn copy ../../trunk mbn
+svn commit -m "create mbn"
+\endverbatim
+
+Replace mbn(=myBranchName) with something appropriate.
+The current convention is to use initials, e.g. jab.
+
+
+\section conventions Coding Conventions and Formatting
+
+Conventions for code formatting that are used within this project include:
+- Use of spaces rather than tabs in text files; tabs, when present, should
+   be replaced by spaces.
+- Indenting using 3-space, at all levels
+- Indenting braces, which are to be usually on separate lines
+- Wherever possible, lines should be kept to less than 80 characters width;
+   please use line-breakers only where strictly necessary
+- Doxygen documentation should use '\' to indicate keywords; short-style
+   comment forms should only be used where a brief description only is to
+   be given.
+
+Please set your editor preferences accordingly; for Eclipse and Visual
+Studio these can be found under 'Code Style'.
+When adding to or modifying existing code, please keep to the coding style
+already present, as far as possible, unless this is already non-conforming.
+Setting your editor preference helps avoid needless automatic editing, which
+complicates merges.
+Edits which are primarily sylistic should be committed separately.
+
+*/

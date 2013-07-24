@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "ccfsm.h"
@@ -45,7 +43,7 @@ using libbase::matrix;
 /*!
  * \brief Initialization
  * \param  generator   Generator matrix of size \f$ k \times n \f$
- * 
+ *
  * Each generator matrix element is a vector over G, laid out in the same format
  * as the internal registers - lower index positions are considered to lie on
  * the left, and correspond with register positions closest to the input
@@ -88,7 +86,7 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
  * \param  r  The register
  * \param  g  The corresponding generator polynomial
  * \return The output
- * 
+ *
  * \todo Document this function with a diagram.
  */
 template <class G>

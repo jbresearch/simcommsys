@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "repacc.h"
@@ -141,9 +139,9 @@ void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
    }
 
 /*! \copydoc codec_softout::setreceiver()
- * 
+ *
  * Sets: ra, R
- * 
+ *
  * \note The BCJR normalization method is used to normalize the channel-derived
  * (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
  * probabilities are now created normalized.
@@ -240,7 +238,7 @@ void repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    }
 
 /*! \copydoc codec_softout::softdecode()
- * 
+ *
  * \note Implements soft-decision decoding according to Alexandre's
  * interpretation:
  * - when computing final output at repetition code, use only extrinsic

@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "commsys.h"
@@ -48,7 +46,7 @@ namespace libcomm {
 
 /*!
  * \brief Initialize internal computed parameters
- * 
+ *
  * \note This function is only responsible for initializing parameters
  * that are specific to this object/derivation. Anything else
  * should get done automatically when the base serializer or
@@ -68,7 +66,7 @@ void basic_commsys<S, C>::init()
 
 /*!
  * \brief Sets up system with no bound objects.
- * 
+ *
  * \note This function is only responsible for clearing pointers to
  * objects that are specific to this object/derivation.
  * Anything else should get done automatically when the base
@@ -86,11 +84,11 @@ void basic_commsys<S, C>::clear()
 
 /*!
  * \brief Removes association with bound objects
- * 
+ *
  * This function performs two things:
  * - Deletes any internally-allocated bound objects
  * - Sets up the system with no bound objects
- * 
+ *
  * \note This function is only responsible for deleting bound
  * objects that are specific to this object/derivation.
  * Anything else should get done automatically when the base
@@ -114,7 +112,7 @@ void basic_commsys<S, C>::free()
 
 /*!
  * \brief Copy constructor
- * 
+ *
  * Initializes system with bound objects cloned from supplied system.
  */
 template <class S, template <class > class C>

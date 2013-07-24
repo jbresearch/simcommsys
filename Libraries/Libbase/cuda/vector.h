@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __cuda_vector_h
@@ -48,11 +46,7 @@ class vector_reference;
 /*!
  * \brief   A one-dimensional array in device memory
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This class represents a '1D array in device memory'. It consists of two
  * parts:
@@ -444,11 +438,7 @@ class matrix;
 /*!
  * \brief   A reference to a one-dimensional array in device memory.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * A vector reference is a vector that does not own its allocated memory.
  * Consequently, all operations that require a resize are forbidden.
@@ -651,11 +641,7 @@ inline vector_reference<T>& vector_reference<T>::operator=(const libbase::vector
 /*!
  * \brief   A one-dimensional array in device memory - automatic
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * The first automatic object creates an actual vector on the device.
  * Copies of this object (through copy construction) create shallow copies

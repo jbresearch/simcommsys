@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "gf.h"
@@ -36,7 +34,7 @@ using std::cerr;
 /*!
  * \brief Conversion from string
  * \param   s     String representation of element by its polynomial coefficients (binary)
- * 
+ *
  * This function converts the string to an integer and calls init().
  * The string must only contain 1's and 0's.
  */

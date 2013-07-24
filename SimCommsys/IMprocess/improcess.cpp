@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "image.h"
@@ -47,11 +45,7 @@ libimage::image<S> loadimage(std::istream& sin)
 /*!
  * \brief   Image sub-sampling process
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  */
 
@@ -178,11 +172,7 @@ libbase::matrix<S> resample(const libbase::matrix<S>& x, const real xoff,
 /*!
  * \brief   Image re-sampling process using Lanczos filter
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  */
 
@@ -220,11 +210,7 @@ void resample(const real xoff, const real yoff, const real scale,
 /*!
  * \brief   Safe auto-scale process
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Auto-scales the contrast in the image, forcing the scaling factor to be
  * a power of 2. This ensures that the bits in the pixel values keep their
@@ -272,11 +258,7 @@ void safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
 /*!
  * \brief   Image Processing Command
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 int main(int argc, char *argv[])

@@ -316,7 +316,7 @@ default:
 all:
 	@$(MAKE) install plain-install
 
-doc:
+doc:	FORCE
 	@$(DOXYGEN)
 
 clean-all:

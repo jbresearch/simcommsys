@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "masterslave.h"
@@ -72,7 +70,7 @@ void masterslave::fcall(const std::string& name)
    }
 
 /*! \brief Global enable/disable of master-slave system
- * 
+ *
  * Returns the operating mode used; for local and master, return is immediate.
  * For slaves, return is only when the slave dies gracefully.
  *
