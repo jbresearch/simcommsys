@@ -279,6 +279,10 @@ public:
    matrix<T>& operator=(const libbase::matrix<T>& x);
    //! copy to standard matrix
    operator libbase::matrix<T>() const;
+   //! copy from standard vector (matrix in row major order)
+   matrix<T>& operator=(const libbase::vector<T>& x);
+   //! copy to standard vector (matrix in row major order)
+   operator libbase::vector<T>() const;
    // @}
 
    /*! \name Element access */
@@ -438,6 +442,35 @@ inline matrix<T>::operator libbase::matrix<T>() const
          {
          cudaSafeMemcpy(&x(i, 0), get_rowaddress(i), cols, cudaMemcpyDeviceToHost);
          }
+      }
+
+   return x;
+   }
+
+template <class T>
+inline matrix<T>& matrix<T>::operator=(const libbase::vector<T>& x)
+   {
+   // can only copy from vector of the right size
+   assertalways(x.size() == rows * cols);
+
+   // copy data from host to device if necessary
+   if (data != NULL)
+      {
+      cudaSafeMemcpy2D(data, pitch, &x(0), cols * sizeof(T), cols, rows, cudaMemcpyHostToDevice);
+      }
+
+   return *this;
+   }
+
+template <class T>
+inline matrix<T>::operator libbase::vector<T>() const
+   {
+   libbase::vector<T> x(rows * cols);
+
+   // copy data from device to host if necessary
+   if (data != NULL)
+      {
+      cudaSafeMemcpy2D(&x(0), cols * sizeof(T), data, pitch, cols, rows, cudaMemcpyDeviceToHost);
       }
 
    return x;

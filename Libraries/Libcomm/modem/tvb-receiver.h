@@ -68,7 +68,6 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int n; //!< Number of bits per codeword
    mutable array2vs_t encoding_table; //!< Local copy of per-frame encoding table
    typename qids<sig, real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
@@ -77,13 +76,11 @@ public:
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const libcomm::qids<sig, real2>& chan)
+   void init(const int n, const int q, const libcomm::qids<sig, real2>& chan)
       {
-      this->n = n;
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
-      std::cerr << "n = " << this->n << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
       std::cerr << "xmax = " << computer.xmax << std::endl;

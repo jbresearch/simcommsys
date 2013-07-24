@@ -22,21 +22,26 @@
  * - $Id$
  */
 
-#ifndef __cuda_all_h
-#define __cuda_all_h
+/*!
+ * \file
+ * \brief   A CUDA stream
+ * \author  Johann Briffa
+ *
+ * \section svn Version Control
+ * - $Revision$
+ * - $Date$
+ * - $Author$
+ */
 
-#include "config.h"
+#include "cuda-all.h"
 
-#ifdef USE_CUDA
-#include "cuda/util.h"
-#include "cuda/sharedmem.h"
-#include "cuda/stream.h"
-#include "cuda/event.h"
-#include "cuda/cuda_assert.h"
+namespace cuda {
 
-#include "cuda/value.h"
-#include "cuda/vector.h"
-#include "cuda/matrix.h"
-#endif
+// need to define this here as we need complete definition of event class
 
-#endif
+void stream::wait(const event& e) const
+   {
+   cudaSafeCall(cudaStreamWaitEvent(sid, e.get_id(), 0));
+   }
+
+} // end namespace

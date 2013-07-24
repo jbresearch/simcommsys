@@ -183,14 +183,28 @@ int estimate_xmax(int tau, double Pi, double Pd, double Pr)
    return xmax;
    }
 
+double compute_oob_over_multiple(double Pe, int tau)
+   {
+   return 1 - pow(1-Pe, tau);
+   }
+
 void compute_statespace(int tau, double p, bool ins, bool del, bool sim, double Pr)
    {
    typedef libcomm::qids<bool, float>::metric_computer metric_computer;
    const double Pi = ins ? p : 0;
    const double Pd = del ? p : 0;
+   const int Icap = 2;
    cout << p;
    const int I = metric_computer::compute_I(tau, Pi, Pr, 0);
    cout << "\t" << I;
+   const double error_I = metric_computer::compute_outofbounds_with(
+         &metric_computer::compute_drift_prob_exact, 1, Pi, Pd, I, -1);
+   cout << "\t" << compute_oob_over_multiple(error_I, tau);
+   cout << "\t" << Icap;
+   const double error_Icap = metric_computer::compute_outofbounds_with(
+         &metric_computer::compute_drift_prob_exact, 1, Pi, Pd, Icap, -1);
+   cout << "\t" << compute_oob_over_multiple(error_Icap, tau);
+
    const int xmax_auto = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
    cout << "\t" << xmax_auto;
    if (Pi == Pd)
@@ -205,7 +219,7 @@ void compute_statespace(int tau, double p, bool ins, bool del, bool sim, double 
       }
    else
       {
-      cout << "\tN/A\t";
+      cout << "\tN/A\tN/A";
       }
    try
       {
@@ -591,7 +605,7 @@ int main(int argc, char *argv[])
       const double pstop =
             vm.count("parameter") ? vm["parameter"].as<double>() : 0.5;
       const double pmul = pow(10.0, 1.0 / 10);
-      cout << "p\tI\txmax_auto\txmax_davey\tp(e)\txmax_exact\tp(e)\tupper\tlower\tp(e)";
+      cout << "p\tI\tp(e)\tI_cap\tp(e)\txmax_auto\txmax_davey\tp(e)\txmax_exact\tp(e)\tupper\tlower\tp(e)";
       if (sim)
          cout << "\txmax_est";
       cout << std::endl;

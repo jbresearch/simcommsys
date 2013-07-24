@@ -25,6 +25,7 @@
 #include "tvb.h"
 #include "sparse.h"
 #include "timer.h"
+#include "cputimer.h"
 #include "pacifier.h"
 #include "vectorutils.h"
 #include <sstream>
@@ -221,8 +222,8 @@ void tvb<sig, real, real2>::advance() const
             }
          }
       }
-   // initialize our embedded metric computer
-   fba.get_receiver().init(encoding_table);
+   // indicate the encoding table has changed
+   changed_encoding_table = true;
    }
 
 // encoding and decoding functions
@@ -341,6 +342,14 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
       }
    else
       app_x = app;
+   // Initialize FBA metric computer as needed
+   if (changed_encoding_table)
+      {
+      libbase::cputimer t("t_enctable");
+      fba.get_receiver().init(encoding_table);
+      changed_encoding_table = false;
+      this->add_timer(t);
+      }
    // Call FBA and normalize results
 #if DEBUG>=4
    using libbase::index_of_max;
@@ -423,7 +432,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer, flags.norm,
          flags.batch, flags.lazy, globalstore);
    // initialize our embedded metric computer with unchanging elements
-   fba.get_receiver().init(n, mychan);
+   fba.get_receiver().init(n, q, mychan);
    }
 
 template <class sig, class real, class real2>

@@ -269,8 +269,8 @@ private:
          else
             fill_gamma_storage_single(r, app, i, x);
       }
-   void work_alpha(const array1d_t& sof_prior, const int i);
-   void work_beta(const array1d_t& eof_prior, const int i);
+   void work_alpha(const int i);
+   void work_beta(const int i);
    void work_message_app(array1vr_t& ptable, const int i) const;
    void work_state_app(array1r_t& ptable, const int i) const;
    // @}

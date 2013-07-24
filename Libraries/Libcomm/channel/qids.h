@@ -555,69 +555,95 @@ public:
          // Compute sizes
          const int n = tx.size();
          const int rho = rx.size();
-         // Set up two slices of lattice, and associated pointers
-         // Arrays are allocated on the stack as a fixed size; this avoids dynamic
-         // allocation (which would otherwise be necessary as the size is non-const)
+         // Set up single slice of lattice on the stack as a fixed size;
+         // this avoids dynamic allocation (which would otherwise be necessary
+         // as the size is non-const)
+         /*
          cuda_assertalways(rho + 1 <= arraysize);
-         real F0[arraysize];
-         real F1[arraysize];
-         real *Fthis = F1;
-         real *Fprev = F0;
+         real F[arraysize];
+         */
+         // set up variable to keep track of Fprev[j-1]
+         real Fprev;
+         // get access to slice of lattice in shared memory
+         cuda::SharedMemory<real> smem;
+         const int pitch = n + xmax + 1;
+         cuda_assertalways(rho + 1 <= pitch);
+         real *F = smem.getPointer() + threadIdx.x * pitch;
          // initialize for i=0 (first row of lattice)
-         Fthis[0] = 1;
+         // Fthis[0] = 1;
+         F[0] = 1;
          const int jmax = min(xmax, rho);
          for (int j = 1; j <= jmax; j++)
             {
-            Fthis[j] = Fthis[j - 1] * Pval_i;
+            // Fthis[j] = Fthis[j - 1] * Pval_i;
+            F[j] = F[j - 1] * Pval_i;
             }
          // compute remaining rows, except last
          for (int i = 1; i < n; i++)
             {
-            // swap 'this' and 'prior' rows
-            swap(Fthis, Fprev);
+            // keep Fprev[0]
+            Fprev = F[0];
             // handle first column as a special case, if necessary
             if (i - xmax <= 0)
                {
-               Fthis[0] = Fprev[0] * Pval_d;
+               // Fthis[0] = Fprev[0] * Pval_d;
+               F[0] = Fprev * Pval_d;
                }
-            // handle first column as a special case
-            // remaining columns
+            // determine limits for remaining columns (after first)
             const int jmin = max(i - xmax, 1);
             const int jmax = min(i + xmax, rho);
+            // keep Fprev[jmin - 1], if necessary
+            if (jmin > 1)
+               {
+               Fprev = F[jmin - 1];
+               }
+            // remaining columns
             for (int j = jmin; j <= jmax; j++)
                {
                // transmission/substitution path
                const bool cmp = tx(i - 1) == rx(j - 1);
-               real temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+               // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+               real temp = Fprev * (cmp ? Pval_tc : Pval_te);
+               // keep Fprev[j] for next time (to use as Fprev[j-1])
+               Fprev = F[j];
                // deletion path (if previous row was within corridor)
                if (j < i + xmax)
-                  temp += Fprev[j] * Pval_d;
+                  // temp += Fprev[j] * Pval_d;
+                  temp += Fprev * Pval_d;
                // insertion path
-               temp += Fthis[j - 1] * Pval_i;
+               // temp += Fthis[j - 1] * Pval_i;
+               temp += F[j - 1] * Pval_i;
                // store result
-               Fthis[j] = temp;
+               // Fthis[j] = temp;
+               F[j] = temp;
                }
             }
          // compute last row as a special case (no insertions)
          const int i = n;
-         // swap 'this' and 'prior' rows
-         swap(Fthis, Fprev);
+         // keep Fprev[0]
+         Fprev = F[0];
          // handle first column as a special case, if necessary
          if (i - xmax <= 0)
             {
-            Fthis[0] = Fprev[0] * Pval_d;
+            // Fthis[0] = Fprev[0] * Pval_d;
+            F[0] = Fprev * Pval_d;
             }
          // remaining columns
          for (int j = 1; j <= rho; j++)
             {
             // transmission/substitution path
             const bool cmp = tx(i - 1) == rx(j - 1);
-            real temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+            // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+            real temp = Fprev * (cmp ? Pval_tc : Pval_te);
+            // keep Fprev[j] for next time (to use as Fprev[j-1])
+            Fprev = F[j];
             // deletion path (if previous row was within corridor)
             if (j < i + xmax)
-               temp += Fprev[j] * Pval_d;
+               // temp += Fprev[j] * Pval_d;
+               temp += Fprev * Pval_d;
             // store result
-            Fthis[j] = temp;
+            // Fthis[j] = temp;
+            F[j] = temp;
             }
          // copy results and return
          cuda_assertalways(ptable.size() == 2 * xmax + 1);
@@ -626,19 +652,31 @@ public:
             // convert index
             const int j = x + n;
             if (j >= 0 && j <= rho)
-               {
-               ptable(x + xmax) = Fthis[j];
-               }
+               ptable(x + xmax) = F[j];
             else
-               {
                ptable(x + xmax) = 0;
-               }
             }
          }
 #endif
       // @}
 #endif
       /*! \name Host methods */
+      //! Determine the amount of shared memory required per thread
+      size_t receiver_sharedmem(const int n, const int dxmax) const
+         {
+         switch(receiver_type)
+            {
+            case receiver_trellis:
+               return 0;
+            case receiver_lattice:
+               return 0;
+            case receiver_lattice_corridor:
+               return (n + dxmax + 1) * sizeof(real);
+            default:
+               failwith("Unknown receiver mode");
+               return 0;
+            }
+         }
       //! Receiver interface
       real receive(const G& tx, const array1g_t& rx) const
          {

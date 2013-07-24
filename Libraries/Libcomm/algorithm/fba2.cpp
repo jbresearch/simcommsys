@@ -85,8 +85,7 @@ void fba2<receiver_t, sig, real, real2>::normalize(array2r_t& metric, int row,
 // decode functions - partial computations
 
 template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior,
-      const int i)
+void fba2<receiver_t, sig, real, real2>::work_alpha(const int i)
    {
    // local flag for path thresholding
    const bool thresholding = (th_inner > real(0));
@@ -120,8 +119,7 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior,
    }
 
 template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_beta(const array1d_t& eof_prior,
-      const int i)
+void fba2<receiver_t, sig, real, real2>::work_beta(const int i)
    {
    // local flag for path thresholding
    const bool thresholding = (th_inner > real(0));
@@ -461,8 +459,8 @@ void fba2<receiver_t, sig, real, real2>::work_alpha_and_beta(
       {
       std::cerr << progress.update(i - 1, N);
       // compute partial result
-      work_alpha(sof_prior, i);
-      work_beta(eof_prior, N - i);
+      work_alpha(i);
+      work_beta(N - i);
       // normalize if requested
       if (flags.norm)
          {
@@ -540,7 +538,7 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior)
             }
          }
       // compute partial result
-      work_alpha(sof_prior, i);
+      work_alpha(i);
       // normalize if requested
       if (flags.norm)
          normalize_alpha(i);
@@ -588,7 +586,7 @@ void fba2<receiver_t, sig, real, real2>::work_beta_and_results(
             }
          }
       // compute partial result
-      work_beta(eof_prior, i);
+      work_beta(i);
       // normalize if requested
       if (flags.norm)
          normalize_beta(i);

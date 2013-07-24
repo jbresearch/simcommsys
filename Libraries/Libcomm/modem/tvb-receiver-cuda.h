@@ -66,8 +66,9 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int n; //!< Number of bits per codeword
-   mutable cuda::matrix_auto<cuda::vector_auto<sig> > encoding_table; //!< Local copy of per-frame encoding table
+   int n; //!< codeword length in symbols
+   int q; //!< number of codewords (input alphabet size)
+   mutable cuda::vector_auto<sig> encoding_table; //!< Local copy of per-frame encoding table, flattened
    typename libcomm::qids<sig,real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
 public:
@@ -75,13 +76,15 @@ public:
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const libcomm::qids<sig,real2>& chan)
+   void init(const int n, const int q, const libcomm::qids<sig,real2>& chan)
       {
       this->n = n;
+      this->q = q;
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
+      std::cerr << "q = " << this->q << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
       std::cerr << "xmax = " << computer.xmax << std::endl;
@@ -95,16 +98,29 @@ public:
     */
    void init(const array2vs_t& encoding_table) const
       {
-      // copy contents to device first
-      static libbase::matrix<cuda::vector_auto<sig> > temp;
-      temp = encoding_table;
-      // now make a table of references on device
+      // shorthand
+      const int N = encoding_table.size().rows();
+      assert(q == encoding_table.size().cols());
+      // flatten on host first
+      static array1s_t temp;
+      temp.init(N * q * n);
+      for (int i = 0; i < N; i++)
+         for (int d = 0; d < q; d++)
+            temp.segment((i * q + d) * n, n) = encoding_table(i, d);
+      // copy to device
       this->encoding_table = temp;
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
-      std::cerr << "encoding_table = " << array2vs_t(this->encoding_table) << std::endl;
+      std::cerr << "encoding_table = " << array1s_t(this->encoding_table) << std::endl;
       std::cerr << "sizeof(encoding_table) = " << sizeof(this->encoding_table) << std::endl;
 #endif
+      }
+   // @}
+   /*! \name Information functions */
+   //! Determine the amount of shared memory required per receiver thread
+   size_t receiver_sharedmem(const int n, const int dxmax) const
+      {
+      return computer.receiver_sharedmem(n, dxmax);
       }
    // @}
 #ifdef __CUDACC__
@@ -114,7 +130,7 @@ public:
    real R(int d, int i, const cuda::vector_reference<sig>& r) const
       {
       // 'tx' is the vector of transmitted symbols that we're considering
-      const cuda::vector<sig>& tx = encoding_table(i, d);
+      const cuda::vector<sig>& tx = encoding_table.extract((i * q + d) * n, n);
       // compute the conditional probability
       return computer.receive(tx, r);
       }
@@ -123,7 +139,7 @@ public:
    void R(int d, int i, const cuda::vector_reference<sig>& r,
          cuda::vector_reference<real2>& ptable) const
       {
-      const cuda::vector<sig>& tx = encoding_table(i, d);
+      const cuda::vector<sig>& tx = encoding_table.extract((i * q + d) * n, n);
       // call batch receiver method
       computer.receive(tx, r, ptable);
       }

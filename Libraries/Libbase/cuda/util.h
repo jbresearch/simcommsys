@@ -82,16 +82,15 @@ inline void __cudaSafeCall(const cudaError_t error, const char *file,
       const int line)
    {
    if (error == cudaSuccess)
-   return;
-   std::cerr << "CUDA error in file <" << file << ">, line " << line << " : "
-   << cudaGetErrorString(error) << "." << std::endl;
-   cudaThreadExit();
+      return;
+   std::cerr << "CUDA error in file <" << file << ">, line " << line << " : " << cudaGetErrorString(error) << "." << std::endl;
+   cudaDeviceReset();
    exit(1);
    }
 
 // wait for kernels in all streams to finish
 
-#define cudaSafeThreadSynchronize() cudaSafeCall(cudaThreadSynchronize());
+#define cudaSafeDeviceSynchronize() cudaSafeCall(cudaDeviceSynchronize());
 
 // wait for kernel in specified stream to finish
 
@@ -254,6 +253,22 @@ inline size_t cudaSafeGetSymbolSize(const T& symbol)
    std::cerr << "DEBUG (util): symbol has size " << n << std::endl;
 #endif
    return n;
+   }
+
+inline std::ostream& operator<<(std::ostream& sout, const dim3& size)
+   {
+   sout << "[" << size.x;
+   if (size.y > 1 || size.z > 1)
+      sout << "x" << size.y;
+   if (size.z > 1)
+      sout << "x" << size.z;
+   sout << "]";
+   return sout;
+   }
+
+inline int count(const dim3& size)
+   {
+   return size.x * size.y * size.z;
    }
 
 #endif

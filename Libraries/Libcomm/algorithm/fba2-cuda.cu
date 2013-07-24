@@ -26,6 +26,8 @@
 #include "pacifier.h"
 #include "vectorutils.h"
 #include "cuda/gputimer.h"
+#include "cuda/stream.h"
+#include "cuda/event.h"
 #include <iomanip>
 
 namespace cuda {
@@ -49,16 +51,13 @@ template <class receiver_t, class sig, class real, class real2>
 __device__
 real fba2<receiver_t, sig, real, real2>::metric_computer::get_threshold(const dev_array2r_ref_t& metric, int row, int cols, real factor)
    {
-   const bool thresholding = (factor > 0);
    real threshold = 0;
-   if (thresholding)
+   if (factor > 0)
       {
       for (int col = 0; col < cols; col++)
          {
          if (metric(row, col) > threshold)
-            {
             threshold = metric(row, col);
-            }
          }
       threshold *= factor;
       }
@@ -67,7 +66,7 @@ real fba2<receiver_t, sig, real, real2>::metric_computer::get_threshold(const de
 
 /*! \brief Returns the sum of the elements in the given array (length N)
  * The sum is computed in parallel between the threads in a given block.
- * A limitation for this to work is that N must be a multiple of 2, and
+ * A limitation for this to work is that N must be a power of 2, and
  * the block size has to be at least N/2 threads.
  * \warning The contents of the array are destroyed in the process.
  */
@@ -76,16 +75,14 @@ __device__
 real fba2<receiver_t, sig, real, real2>::metric_computer::parallel_sum(real array[], const int N)
    {
    const int i = threadIdx.x;
-   cuda_assert(N % 2 == 0);
    cuda_assert(N / 2 <= blockDim.x); // Total number of active threads
    for(int n = N; n > 1; n >>= 1)
       {
       const int half = (n >> 1); // divide by two
+      cuda_assert(2 * half == N);
       // only the first half of the threads will be active.
       if (i < half)
-         {
          array[i] += array[i + half];
-         }
       // wait until all threads have completed their part
       __syncthreads();
       }
@@ -98,9 +95,7 @@ real fba2<receiver_t, sig, real, real2>::metric_computer::get_scale(const dev_ar
    {
    real scale = 0;
    for (int col = 0; col < cols; col++)
-      {
       scale += metric(row, col);
-      }
    cuda_assertalways(scale > real(0));
    scale = real(1) / scale;
    return scale;
@@ -125,128 +120,132 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::normalize(dev_array2r_
 
 template <class receiver_t, class sig, class real, class real2>
 __device__
-void fba2<receiver_t, sig, real, real2>::metric_computer::work_alpha(const dev_array1r_ref_t& sof_prior, int i)
+void fba2<receiver_t, sig, real, real2>::metric_computer::init_alpha(const dev_array1r_ref_t& sof_prior)
    {
-   using cuda::min;
-   using cuda::max;
+   // get end drift from thread index
+   const int x2 = threadIdx.x - xmax;
 
-   // local flag for path thresholding
-   const bool thresholding = (th_inner > 0);
-   // get end drift from block index and symbol value from thread index
-   const int x2 = blockIdx.x - xmax;
-   const int d = threadIdx.x;
-   // set up variables shared within block
-   SharedMemory<real> shared;
-   real* this_alpha = shared.getPointer();
-
-   if(i == 0)
-      {
-      // set array initial conditions (parallelized):
-      if (d == 0)
-         {
-         // set initial drift distribution
-         alpha(0, x2 + xmax) = sof_prior(x2 + xmax);
-         }
-      }
-   else
-      {
-      // compute remaining matrix values:
-      // determine the strongest path at this point
-      const real threshold = get_threshold(alpha, i - 1, 2 * xmax + 1, th_inner);
-      // initialize result holder
-      this_alpha[d] = 0;
-      // limits on deltax can be combined as (c.f. allocate() for details):
-      //   x2-x1 <= dmax
-      //   x2-x1 >= dmin
-      const int x1min = max(-xmax, x2 - dmax);
-      const int x1max = min(xmax, x2 - dmin);
-      for (int x1 = x1min; x1 <= x1max; x1++)
-         {
-         // cache previous alpha value in a register
-         const real prev_alpha = alpha(i - 1, x1 + xmax);
-         // ignore paths below a certain threshold
-         if (!thresholding || prev_alpha >= threshold)
-            {
-            // each block computes for a different end-state (x2)
-            // each thread in a block is computing for a different symbol (d)
-            real temp = prev_alpha;
-            temp *= get_gamma(d, i - 1, x1, x2 - x1);
-            this_alpha[d] += temp;
-            }
-         }
-      // make sure all threads in block have finished updating this_alpha
-      __syncthreads();
-      // compute sum of shared array
-      const real temp = parallel_sum(this_alpha, q);
-      // store result (first thread in block)
-      if (d == 0)
-         {
-         alpha(i, x2 + xmax) = temp;
-         }
-      }
+   // set array initial conditions (parallelized):
+   // set initial drift distribution
+   alpha(0, x2 + xmax) = sof_prior(x2 + xmax);
    }
 
 template <class receiver_t, class sig, class real, class real2>
 __device__
-void fba2<receiver_t, sig, real, real2>::metric_computer::work_beta(const dev_array1r_ref_t& eof_prior, int i)
+void fba2<receiver_t, sig, real, real2>::metric_computer::init_beta(const dev_array1r_ref_t& eof_prior)
+   {
+   // get start drift from thread index
+   const int x1 = threadIdx.x - xmax;
+
+   // set array initial conditions (parallelized):
+   // set final drift distribution
+   beta(N, x1 + xmax) = eof_prior(x1 + xmax);
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+__device__
+void fba2<receiver_t, sig, real, real2>::metric_computer::work_alpha(int i)
    {
    using cuda::min;
    using cuda::max;
 
-   // local flag for path thresholding
-   const bool thresholding = (th_inner > 0);
+   // get end drift from block index and symbol value from thread index
+   const int x2 = blockIdx.x - xmax;
+   const int d = threadIdx.x;
+   // set up variables shared within block
+   SharedMemory<real> smem;
+   real *this_alpha = smem.getPointer();
+   real *alpha_slice = smem.getPointer() + q;
+
+   cuda_assert(i > 0);
+   // copy required slice from main memory (in parallel)
+   for (int x = threadIdx.x; x < 2 * xmax + 1; x += blockDim.x)
+      alpha_slice[x] = alpha(i - 1, x);
+   // make sure all threads have done their bit
+   __syncthreads();
+
+   // compute remaining matrix values:
+   {
+   // determine the strongest path at this point
+   const real threshold = get_threshold(alpha, i - 1, 2 * xmax + 1, th_inner);
+   // initialize result holder
+   this_alpha[d] = 0;
+   // limits on deltax can be combined as (c.f. allocate() for details):
+   //   x2-x1 <= dmax
+   //   x2-x1 >= dmin
+   const int x1min = max(-xmax, x2 - dmax);
+   const int x1max = min(xmax, x2 - dmin);
+   for (int x1 = x1min; x1 <= x1max; x1++)
+      {
+      // ignore paths below a certain threshold
+      if (alpha_slice[x1 + xmax] >= threshold)
+         {
+         // each block computes for a different end-state (x2)
+         // each thread in a block is computing for a different symbol (d)
+         this_alpha[d] += alpha_slice[x1 + xmax] * get_gamma(d, i - 1, x1, x2 - x1);
+         }
+      }
+   // make sure all threads in block have finished updating this_alpha
+   __syncthreads();
+   }
+   // compute sum of shared array
+   const real temp = parallel_sum(this_alpha, q);
+   // store result (first thread in block)
+   if (threadIdx.x == 0)
+      alpha(i, x2 + xmax) = temp;
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+__device__
+void fba2<receiver_t, sig, real, real2>::metric_computer::work_beta(int i)
+   {
+   using cuda::min;
+   using cuda::max;
+
    // get start drift from block index and symbol value from thread index
    const int x1 = blockIdx.x - xmax;
    const int d = threadIdx.x;
    // set up variables shared within block
-   SharedMemory<real> shared;
-   real* this_beta = shared.getPointer();
+   SharedMemory<real> smem;
+   real *this_beta = smem.getPointer();
+   real *beta_slice = smem.getPointer() + q;
 
-   if(i == N)
+   cuda_assert(i < N);
+   // copy required slice from main memory (in parallel)
+   for (int x = threadIdx.x; x < 2 * xmax + 1; x += blockDim.x)
+      beta_slice[x] = beta(i + 1, x);
+   // make sure all threads have done their bit
+   __syncthreads();
+
+   // compute remaining matrix values:
+   {
+   // determine the strongest path at this point
+   const real threshold = get_threshold(beta, i + 1, 2 * xmax + 1, th_inner);
+   // initialize result holder
+   this_beta[d] = 0;
+   // limits on deltax can be combined as (c.f. allocate() for details):
+   //   x2-x1 <= dmax
+   //   x2-x1 >= dmin
+   const int x2min = max(-xmax, dmin + x1);
+   const int x2max = min(xmax, dmax + x1);
+   for (int x2 = x2min; x2 <= x2max; x2++)
       {
-      // set array initial conditions (parallelized):
-      if (d == 0)
+      // ignore paths below a certain threshold
+      if (beta_slice[x2 + xmax] >= threshold)
          {
-         // set final drift distribution
-         beta(N, x1 + xmax) = eof_prior(x1 + xmax);
+         // each block computes for a different start-state (x1)
+         // each thread in a block is computing for a different symbol (d)
+         this_beta[d] += beta_slice[x2 + xmax] * get_gamma(d, i, x1, x2 - x1);
          }
       }
-   else
-      {
-      // compute remaining matrix values:
-      // determine the strongest path at this point
-      const real threshold = get_threshold(beta, i + 1, 2 * xmax + 1, th_inner);
-      // initialize result holder
-      this_beta[d] = 0;
-      // limits on deltax can be combined as (c.f. allocate() for details):
-      //   x2-x1 <= dmax
-      //   x2-x1 >= dmin
-      const int x2min = max(-xmax, dmin + x1);
-      const int x2max = min(xmax, dmax + x1);
-      for (int x2 = x2min; x2 <= x2max; x2++)
-         {
-         // cache next beta value in a register
-         const real next_beta = beta(i + 1, x2 + xmax);
-         // ignore paths below a certain threshold
-         if (!thresholding || next_beta >= threshold)
-            {
-            // each block computes for a different start-state (x1)
-            // each thread in a block is computing for a different symbol (d)
-            real temp = next_beta;
-            temp *= get_gamma(d, i, x1, x2 - x1);
-            this_beta[d] += temp;
-            }
-         }
-      // make sure all threads in block have finished updating this_beta
-      __syncthreads();
-      // compute sum of shared array
-      const real temp = parallel_sum(this_beta, q);
-      // store result
-      if (d == 0)
-         {
-         beta(i, x1 + xmax) = temp;
-         }
-      }
+   // make sure all threads in block have finished updating this_beta
+   __syncthreads();
+   }
+   // compute sum of shared array
+   const real temp = parallel_sum(this_beta, q);
+   // store result (first thread in block)
+   if (threadIdx.x == 0)
+      beta(i, x1 + xmax) = temp;
    }
 
 template <class receiver_t, class sig, class real, class real2>
@@ -256,8 +255,19 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_message_app(dev_a
    using cuda::min;
    using cuda::max;
 
-   // local flag for path thresholding
-   const bool thresholding = (th_outer > 0);
+   // get access to alpha and beta slices in shared memory
+   SharedMemory<real> smem;
+   real *alpha_slice = smem.getPointer();
+   real *beta_slice = smem.getPointer() + (2 * xmax + 1);
+   // copy required slices from main memory (in parallel)
+   for (int x = threadIdx.x; x < 2 * xmax + 1; x += blockDim.x)
+      {
+      alpha_slice[x] = alpha(i, x);
+      beta_slice[x] = beta(i + 1, x);
+      }
+   // make sure all threads have done their bit
+   __syncthreads();
+
    // Check result vector (one symbol per timestep)
    cuda_assertalways(ptable.get_rows()==N && ptable.get_cols()==q);
    // get symbol value from thread index
@@ -270,23 +280,18 @@ void fba2<receiver_t, sig, real, real2>::metric_computer::work_message_app(dev_a
    real p = 0;
    for (int x1 = -xmax; x1 <= xmax; x1++)
       {
-      // cache this alpha value in a register
-      const real this_alpha = alpha(i, x1 + xmax);
       // ignore paths below a certain threshold
-      if (!thresholding || this_alpha >= threshold)
+      if (alpha_slice[x1 + xmax] >= threshold)
          {
          // limits on deltax can be combined as (c.f. allocate() for details):
          //   x2-x1 <= dmax
          //   x2-x1 >= dmin
          const int x2min = max(-xmax, dmin + x1);
          const int x2max = min(xmax, dmax + x1);
+         real temp = 0;
          for (int x2 = x2min; x2 <= x2max; x2++)
-            {
-            real temp = this_alpha;
-            temp *= beta(i + 1, x2 + xmax);
-            temp *= get_gamma(d, i, x1, x2 - x1);
-            p += temp;
-            }
+            temp += beta_slice[x2 + xmax] * get_gamma(d, i, x1, x2 - x1);
+         p += temp * alpha_slice[x1 + xmax];
          }
       }
    // store result
@@ -337,16 +342,30 @@ void fba2_gamma_kernel(value_reference<typename fba2<receiver_t, sig, real, real
 
 template <class receiver_t, class sig, class real, class real2>
 __global__
-void fba2_alpha_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<real> sof_prior, const int i)
+void fba2_init_alpha_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<real> sof_prior)
    {
-   object().work_alpha(sof_prior, i);
+   object().init_alpha(sof_prior);
    }
 
 template <class receiver_t, class sig, class real, class real2>
 __global__
-void fba2_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<real> eof_prior, const int i)
+void fba2_init_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const vector_reference<real> eof_prior)
    {
-   object().work_beta(eof_prior, i);
+   object().init_beta(eof_prior);
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+__global__
+void fba2_alpha_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const int i)
+   {
+   object().work_alpha(i);
+   }
+
+template <class receiver_t, class sig, class real, class real2>
+__global__
+void fba2_beta_kernel(value_reference<typename fba2<receiver_t, sig, real, real2>::metric_computer> object, const int i)
+   {
+   object().work_beta(i);
    }
 
 template <class receiver_t, class sig, class real, class real2>
@@ -423,9 +442,9 @@ void fba2<receiver_t, sig, real, real2>::allocate()
        * deltax in [dmin, dmax]
        * NOTE: this is allocated as a flat sequence
        */
-      gamma.global.init(computer.N * (2 * computer.xmax + 1) * computer.q
+      gamma.global.init(computer.N, (2 * computer.xmax + 1) * computer.q
                   * (computer.dmax - computer.dmin + 1));
-      gamma.local.init(0);
+      gamma.local.init(0, 0);
       }
    else
       {
@@ -435,9 +454,9 @@ void fba2<receiver_t, sig, real, real2>::allocate()
        * deltax in [dmin, dmax]
        * NOTE: this is allocated as a flat sequence
        */
-      gamma.local.init((2 * computer.xmax + 1) * computer.q
+      gamma.local.init(computer.depth, (2 * computer.xmax + 1) * computer.q
                   * (computer.dmax - computer.dmin + 1));
-      gamma.global.init(0);
+      gamma.global.init(0, 0);
       }
    // need to keep track only if we're caching lazy computations
    if (computer.flags.lazy)
@@ -449,21 +468,21 @@ void fba2<receiver_t, sig, real, real2>::allocate()
           * x in [-xmax, xmax]
           */
          cached.global.init(computer.N, 2 * computer.xmax + 1); // offsets: 0, xmax
-         cached.local.init(0);
+         cached.local.init(0, 0);
          }
       else
          {
          /* cached needs indices (x) where
           * x in [-xmax, xmax]
           */
-         cached.local.init(2 * computer.xmax + 1); // offsets: xmax
+         cached.local.init(computer.depth, 2 * computer.xmax + 1); // offsets: 0, xmax
          cached.global.init(0, 0);
          }
       }
    else
       {
       cached.global.init(0, 0);
-      cached.local.init(0);
+      cached.local.init(0, 0);
       }
    // copy over to references
    computer.alpha = alpha;
@@ -513,30 +532,19 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "dmax = " << computer.dmax << std::endl;
    std::cerr << "dmin = " << computer.dmin << std::endl;
-   std::cerr << "alpha = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
-   << " = " << alpha.size() << std::endl;
-   std::cerr << "beta = " << computer.N + 1 << "x" << 2 * computer.xmax + 1
-   << " = " << beta.size() << std::endl;
+   std::cerr << "alpha = " << computer.N + 1 << "x" << 2 * computer.xmax + 1 << " = " << alpha.size() << std::endl;
+   std::cerr << "beta = " << computer.N + 1 << "x" << 2 * computer.xmax + 1 << " = " << beta.size() << std::endl;
    if (flags.globalstore)
       {
-      std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2 * computer.xmax + 1 << "x"
-      << computer.dmax - computer.dmin + 1 << " = " << gamma.global.size()
-      << std::endl;
+      std::cerr << "gamma = " << computer.q << "x" << computer.N << "x" << 2 * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1 << " = " << gamma.global.size() << std::endl;
       if (flags.lazy)
-         {
-         std::cerr << "cached = " << computer.N << "x" << 2 * computer.xmax + 1 << " = "
-         << cached.global.size() << std::endl;
-         }
+         std::cerr << "cached = " << computer.N << "x" << 2 * computer.xmax + 1 << " = " << cached.global.size() << std::endl;
       }
    else
       {
-      std::cerr << "gamma = " << computer.q << "x" << 2 * computer.xmax + 1 << "x" <<
-            computer.dmax - computer.dmin + 1 << " = " << gamma.local.size() << std::endl;
+      std::cerr << "gamma = " << computer.q << "x" << 2 * computer.xmax + 1 << "x" << computer.dmax - computer.dmin + 1 << " = " << gamma.local.size() << std::endl;
       if (flags.lazy)
-         {
-         std::cerr << "cached = " << 2 * computer.xmax + 1 << " = "
-         << cached.local.size() << std::endl;
-         }
+         std::cerr << "cached = " << computer.depth << "x" << 2 * computer.xmax + 1 << " = " << cached.local.size() << std::endl;
       }
 #endif
    }
@@ -548,10 +556,10 @@ void fba2<receiver_t, sig, real, real2>::free()
    {
    alpha.init(0, 0);
    beta.init(0, 0);
-   gamma.global.init(0);
-   gamma.local.init(0);
+   gamma.global.init(0, 0);
+   gamma.local.init(0, 0);
    cached.global.init(0, 0);
-   cached.local.init(0);
+   cached.local.init(0, 0);
    // copy over to references
    computer.alpha = alpha;
    computer.beta = beta;
@@ -571,13 +579,13 @@ void fba2<receiver_t, sig, real, real2>::reset_cache() const
    // initialise array and cache flags
    if (computer.flags.globalstore)
       {
-      gamma.global.fill(real(0));
-      cached.global.fill(false);
+      gamma.global.fill(0);
+      cached.global.fill(0);
       }
    else
       {
-      gamma.local.fill(real(0));
-      cached.local.fill(false);
+      gamma.local.fill(0);
+      cached.local.fill(0);
       }
    }
 
@@ -585,7 +593,7 @@ template <class receiver_t, class sig, class real, class real2>
 void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
    {
    // copy the data set from the device
-   libbase::vector<real> host_gamma = libbase::vector<real>(gamma.global);
+   array2r_t host_gamma = array2r_t(gamma.global);
    sout << "gamma = " << std::endl;
    for (int i = 0; i < computer.N; i++)
       {
@@ -597,8 +605,8 @@ void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
             {
             for (int deltax = computer.dmin; deltax <= computer.dmax; deltax++)
                {
-               const int ndx = computer.get_gamma_index(d, i, x, deltax);
-               sout << '\t' << host_gamma(ndx);
+               const int ndx = computer.get_gamma_index(d, x, deltax);
+               sout << '\t' << host_gamma(i, ndx);
                }
             sout << std::endl;
             }
@@ -615,12 +623,12 @@ void fba2<receiver_t, sig, real, real2>::copy_table(const dev_array2r_t& dev_tab
    // determine source sizes
    const int rows = dev_table.get_rows();
    const int cols = dev_table.get_cols();
+   // copy from device in a single operation
+   array1r_t data = array1r_t(dev_table);
    // initialise result table and copy one row at a time
    libbase::allocate(table, rows, cols);
    for (int i = 0; i < rows; i++)
-      {
-      table(i) = array1r_t(dev_table.extract_row(i));
-      }
+      table(i) = data.extract(i * cols, cols);
    }
 
 template <class receiver_t, class sig, class real, class real2>
@@ -630,13 +638,16 @@ void fba2<receiver_t, sig, real, real2>::copy_table(const array1vd_t& table,
    // determine source sizes
    const int rows = table.size();
    const int cols = (rows > 0) ? table(0).size() : 0;
-   // initialise result table and copy one row at a time
-   dev_table.init(rows, cols);
+   // initialise contiguous vector and copy one row at a time
+   array1r_t data(rows * cols);
    for (int i = 0; i < rows; i++)
       {
       assert(table(i).size() == cols);
-      dev_table.extract_row(i) = array1r_t(table(i));
+      data.segment(i * cols, cols) = table(i);
       }
+   // initialize result table and copy to device in a single operation
+   dev_table.init(rows, cols);
+   dev_table = data;
    }
 
 // decode functions - global path (implemented using kernel calls)
@@ -648,23 +659,30 @@ void fba2<receiver_t, sig, real, real2>::work_gamma(const dev_array1s_t& r,
    assert( initialised);
    // Shorthand
    const int N = computer.N;
+   const int n = computer.n;
    const int q = computer.q;
    const int xmax = computer.xmax;
-   // inform user what the kernel sizes are
-   static bool first_time = true;
-   if (first_time)
-      {
-      std::cerr << "Gamma Kernel: (" << N << "x" << 2 * xmax + 1 << ") x " << q << std::endl;
-      first_time = false;
-      }
-   // global pre-computation of gamma values
+   const int dxmax = computer.dxmax;
+   // set up kernel sizes
+   // Gamma computation:
    // block index is for (i,x) where:
    //   i in [0, N-1]: x-grid size = N
    //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
    // thread index is for d in [0, q-1]: block size = q
-   dim3 gridSize(N, 2*xmax+1);
-   fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridSize,q>>>(dev_object, r, app);
-
+   // shared memory: real2 array of size (n + dxmax + 1) for each thread
+   const dim3 gridDimG(N, 2*xmax+1);
+   const dim3 blockDimG(get_gamma_threadcount());
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, dxmax) * count(blockDimG);
+   // inform user what the kernel sizes are
+   static bool first_time = true;
+   if (first_time)
+      {
+      std::cerr << "Gamma Kernel: " << gridDimG << " x " << blockDimG << ", [" << sharedMemG << " bytes]" << std::endl;
+      first_time = false;
+      }
+   // global pre-computation of gamma values
+   fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridDimG,blockDimG,sharedMemG>>>(dev_object, r, app);
+   cudaSafeCall(cudaPeekAtLastError());
 #if DEBUG>=3
    print_gamma(std::cerr);
 #endif
@@ -679,36 +697,67 @@ void fba2<receiver_t, sig, real, real2>::work_alpha_and_beta(const dev_array1r_t
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
+   // set up kernel sizes
+   // Alpha (and Beta) initialization:
+   // block index is not used: grid size = 1
+   // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimI(1);
+   const dim3 blockDimI(2*xmax+1);
+   // Alpha (and Beta) computations:
+   // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: real value for each thread + real array of size 2*xmax+1
+   const dim3 gridDimA(2*xmax+1);
+   const dim3 blockDimA(q);
+   const size_t sharedMemA = (count(blockDimA) + 2*xmax+1) * sizeof(real);
+   // Normalization computation:
+   // NOTE: this has to be done in one block, as we need to sync after
+   //       determining the scale to use
+   // block index is not used: grid size = 1
+   // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimN(1);
+   const dim3 blockDimN(2*xmax+1);
    // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "Alpha Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
-      std::cerr << "Beta Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
+      std::cerr << "Alpha/Beta Init. Kernel: " << gridDimI << " x " << blockDimI << std::endl;
+      std::cerr << "Alpha/Beta Kernel: " << gridDimA << " x " << blockDimA << ", [" << sharedMemA << " bytes]" << std::endl;
       if (computer.flags.norm)
-         std::cerr << "Norm. Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+         std::cerr << "Norm. Kernel: " << gridDimN << " x " << blockDimN << std::endl;
       first_time = false;
       }
-   // Alpha + Beta computations:
-   // Alpha starts from 0 to N, inclusive
-   // Beta starts from N to 0, inclusive
-   // TODO: run alpha/beta in separate streams to parallelize
-   for (int i = 0; i <= N; i++)
+   // Set up streams to parallelize alpha/beta computations
+   stream sa, sb;
+   // Alpha + Beta initialization:
+   fba2_init_alpha_kernel<receiver_t, sig, real, real2> <<<gridDimI,blockDimI,0,sa.get_id()>>>(dev_object, sof_prior);
+   cudaSafeCall(cudaPeekAtLastError());
+   fba2_init_beta_kernel<receiver_t, sig, real, real2> <<<gridDimI,blockDimI,0,sb.get_id()>>>(dev_object, eof_prior);
+   cudaSafeCall(cudaPeekAtLastError());
+   // normalize if requested
+   if (computer.flags.norm)
       {
-      // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
-      // thread index is for d in [0, q-1]: block size = q
-      // shared memory: array of q 'real's
-      fba2_alpha_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, sof_prior, i);
-      fba2_beta_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, eof_prior, N - i);
+      fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,sa.get_id()>>>(dev_object, 0);
+      cudaSafeCall(cudaPeekAtLastError());
+      fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,sb.get_id()>>>(dev_object, N);
+      cudaSafeCall(cudaPeekAtLastError());
+      }
+   // Alpha + Beta computations:
+   // Alpha computes from 1 to N, inclusive (after init at 0)
+   // Beta starts from N-1 to 0, inclusive (after init at N)
+   for (int i = 1; i <= N; i++)
+      {
+      fba2_alpha_kernel<receiver_t, sig, real, real2> <<<gridDimA,blockDimA,sharedMemA,sa.get_id()>>>(dev_object, i);
+      cudaSafeCall(cudaPeekAtLastError());
+      fba2_beta_kernel<receiver_t, sig, real, real2> <<<gridDimA,blockDimA,sharedMemA,sb.get_id()>>>(dev_object, N - i);
+      cudaSafeCall(cudaPeekAtLastError());
       // normalize if requested
       if (computer.flags.norm)
          {
-         // NOTE: this has to be done in one block, as we need to sync after
-         //       determining the scale to use 
-         // block index is not used: grid size = 1
-         // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
-         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, N - i);
+         fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,sa.get_id()>>>(dev_object, i);
+         cudaSafeCall(cudaPeekAtLastError());
+         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,sb.get_id()>>>(dev_object, N - i);
+         cudaSafeCall(cudaPeekAtLastError());
          }
       }
 
@@ -730,24 +779,36 @@ void fba2<receiver_t, sig, real, real2>::work_results(dev_array2r_t& ptable,
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
+   // set up kernel sizes
+   // compute APPs of message
+   // block index is for i in [0, N-1]: grid size = N
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: two real arrays of size 2*xmax+1
+   const dim3 gridDimR(N);
+   const dim3 blockDimR(q);
+   const size_t sharedMemR = 2 * (2*xmax+1) * sizeof(real);
+   // compute APPs of sof/eof state values
+   // block index is not used: grid size = 1
+   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimS(1);
+   const dim3 blockDimS(2*xmax+1);
    // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "Message APP Kernel: " << N << " x " << q << std::endl;
-      std::cerr << "State APP Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+      std::cerr << "Message APP Kernel: " << gridDimR << " x " << blockDimR << ", [" << sharedMemR << " bytes]" << std::endl;
+      std::cerr << "State APP Kernel: " << gridDimS << " x " << blockDimS << std::endl;
       first_time = false;
       }
    // Results computation:
    // compute APPs of message
-   // block index is for i in [0, N-1]: grid size = N
-   // thread index is for d in [0, q-1]: block size = q
-   fba2_message_app_kernel<receiver_t, sig, real, real2> <<<N,q>>>(dev_object, ptable);
+   fba2_message_app_kernel<receiver_t, sig, real, real2> <<<gridDimR,blockDimR,sharedMemR>>>(dev_object, ptable);
+   cudaSafeCall(cudaPeekAtLastError());
    // compute APPs of sof/eof state values
-   // block index is not used: grid size = 1
-   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
-   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, sof_post, 0);
-   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, eof_post, N);
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<gridDimS,blockDimS,0>>>(dev_object, sof_post, 0);
+   cudaSafeCall(cudaPeekAtLastError());
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<gridDimS,blockDimS,0>>>(dev_object, eof_post, N);
+   cudaSafeCall(cudaPeekAtLastError());
 
 #if DEBUG>=3
    array1vr_t ptable;
@@ -766,55 +827,103 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const dev_array1r_t& sof_pri
    assert( initialised);
    // Shorthand
    const int N = computer.N;
+   const int n = computer.n;
    const int q = computer.q;
    const int xmax = computer.xmax;
+   const int dxmax = computer.dxmax;
+   // set up kernel sizes
+   // Gamma computation:
+   // block index is for (i,x) where:
+   //   i is not used: x-grid size = 1
+   //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: real2 array of size (n + dxmax + 1) for each thread
+   const dim3 gridDimG(1, 2*xmax+1);
+   const dim3 blockDimG(get_gamma_threadcount());
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, dxmax) * count(blockDimG);
+   // Alpha initialization:
+   // block index is not used: grid size = 1
+   // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimI(1);
+   const dim3 blockDimI(2*xmax+1);
+   // Alpha computation:
+   // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: real value for each thread + real array of size 2*xmax+1
+   const dim3 gridDimA(2*xmax+1);
+   const dim3 blockDimA(q);
+   const size_t sharedMemA = (count(blockDimA) + 2*xmax+1) * sizeof(real);
+   // Normalization computation:
+   // NOTE: this has to be done in one block, as we need to sync after
+   //       determining the scale to use
+   // block index is not used: grid size = 1
+   // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimN(1);
+   const dim3 blockDimN(2*xmax+1);
    // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "Gamma Kernel: (1x" << 2 * xmax + 1 << ") x " << q << std::endl;
-      std::cerr << "Alpha Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
+      std::cerr << "Gamma Kernel: " << gridDimG << " x " << blockDimG << ", [" << sharedMemG << " bytes]" << std::endl;
+      std::cerr << "Alpha Init. Kernel: " << gridDimI << " x " << blockDimI << std::endl;
+      std::cerr << "Alpha Kernel: " << gridDimA << " x " << blockDimA << ", [" << sharedMemA << " bytes]" << std::endl;
       if (computer.flags.norm)
-         std::cerr << "Norm. Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+         std::cerr << "Norm. Kernel: " << gridDimN << " x " << blockDimN << std::endl;
       first_time = false;
       }
-   // Alpha computation:
-   for (int i = 0; i <= N; i++)
+   // Set up streams and events to pipeline gamma+alpha+norm computations
+   stream s[computer.depth];
+   event e[computer.depth];
+   // Alpha initialization:
+   {
+   // shorthand
+   const int i = 0;
+   const int bi = i & (computer.depth-1);
+   fba2_init_alpha_kernel<receiver_t, sig, real, real2> <<<gridDimI,blockDimI,0,s[bi].get_id()>>>(dev_object, sof_prior);
+   cudaSafeCall(cudaPeekAtLastError());
+   // normalize if requested
+   if (computer.flags.norm)
       {
+      fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,s[bi].get_id()>>>(dev_object, i);
+      cudaSafeCall(cudaPeekAtLastError());
+      }
+   // event to sync dependent alpha computation
+   e[bi].record(s[bi]);
+   }
+   // Alpha computation:
+   for (int i = 1; i <= N; i++)
+      {
+      // shorthand
+      const int bi = i & (computer.depth-1);
       // local storage, index value where we need gamma values
-      if (!computer.flags.globalstore && i > 0)
+      if (!computer.flags.globalstore)
          {
          // pre-compute local gamma values, if necessary
          if (!computer.flags.lazy)
             {
-            // global pre-computation of gamma values
-            // block index is for (i,x) where:
-            //   i is not used: x-grid size = 1
-            //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
-            // thread index is for d in [0, q-1]: block size = q
-            dim3 gridSize(1, 2*xmax+1);
-            fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridSize,q>>>(dev_object, dev_r, dev_app, i - 1);
+            fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridDimG,blockDimG,sharedMemG,s[bi].get_id()>>>(dev_object, dev_r, dev_app, i - 1);
+            cudaSafeCall(cudaPeekAtLastError());
             }
          // reset local cache, if necessary
          else
             {
-            gamma.local.fill(real(0));
-            cached.local.fill(false);
+            // TODO: make async on stream
+            gamma.local.extract_row(i & (computer.depth-1)).fill(0);
+            cached.local.extract_row(i & (computer.depth-1)).fill(0);
             }
          }
-      // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
-      // thread index is for d in [0, q-1]: block size = q
-      // shared memory: array of q 'real's
-      fba2_alpha_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, sof_prior, i);
+      // alpha(i) depends on alpha(i-1)
+      s[bi].wait(e[(i-1) & (computer.depth-1)]);
+      fba2_alpha_kernel<receiver_t, sig, real, real2> <<<gridDimA,blockDimA,sharedMemA,s[bi].get_id()>>>(dev_object, i);
+      cudaSafeCall(cudaPeekAtLastError());
       // normalize if requested
       if (computer.flags.norm)
          {
-         // NOTE: this has to be done in one block, as we need to sync after
-         //       determining the scale to use 
-         // block index is not used: grid size = 1
-         // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
+         fba2_normalize_alpha_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,s[bi].get_id()>>>(dev_object, i);
+         cudaSafeCall(cudaPeekAtLastError());
          }
+      // event to sync dependent alpha computation
+      e[bi].record(s[bi]);
       }
 
 #if DEBUG>=3
@@ -829,71 +938,126 @@ void fba2<receiver_t, sig, real, real2>::work_beta_and_results(const dev_array1r
    assert( initialised);
    // Shorthand
    const int N = computer.N;
+   const int n = computer.n;
    const int q = computer.q;
    const int xmax = computer.xmax;
+   const int dxmax = computer.dxmax;
+   // set up kernel sizes
+   // Gamma computation:
+   // block index is for (i,x) where:
+   //   i is not used: x-grid size = 1
+   //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: real2 array of size (n + dxmax + 1) for each thread
+   const dim3 gridDimG(1, 2*xmax+1);
+   const dim3 blockDimG(get_gamma_threadcount());
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, dxmax) * count(blockDimG);
+   // Beta initialization:
+   // block index is not used: grid size = 1
+   // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimI(1);
+   const dim3 blockDimI(2*xmax+1);
+   // Beta computation:
+   // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: real value for each thread + real array of size 2*xmax+1
+   const dim3 gridDimA(2*xmax+1);
+   const dim3 blockDimA(q);
+   const size_t sharedMemA = (count(blockDimA) + 2*xmax+1) * sizeof(real);
+   // Normalization computation:
+   // NOTE: this has to be done in one block, as we need to sync after
+   //       determining the scale to use
+   // block index is not used: grid size = 1
+   // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimN(1);
+   const dim3 blockDimN(2*xmax+1);
+   // compute APPs of message
+   // block index is not used: grid size = 1
+   // thread index is for d in [0, q-1]: block size = q
+   // shared memory: two real arrays of size 2*xmax+1
+   const dim3 gridDimR(1);
+   const dim3 blockDimR(q);
+   const size_t sharedMemR = 2 * (2*xmax+1) * sizeof(real);
+   // compute APPs of sof/eof state values
+   // block index is not used: grid size = 1
+   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimS(1);
+   const dim3 blockDimS(2*xmax+1);
    // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "Gamma Kernel: (1x" << 2 * xmax + 1 << ") x " << q << std::endl;
-      std::cerr << "Beta Kernel: " << 2 * xmax + 1 << " x " << q << std::endl;
+      std::cerr << "Gamma Kernel: " << gridDimG << " x " << blockDimG << ", [" << sharedMemG << " bytes]" << std::endl;
+      std::cerr << "Beta Init. Kernel: " << gridDimI << " x " << blockDimI << std::endl;
+      std::cerr << "Beta Kernel: " << gridDimA << " x " << blockDimA << ", [" << sharedMemA << " bytes]" << std::endl;
       if (computer.flags.norm)
-         std::cerr << "Norm. Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
-      std::cerr << "Message APP Kernel: " << N << " x " << q << std::endl;
-      std::cerr << "State APP Kernel: " << 1 << " x " << 2 * xmax + 1 << std::endl;
+         std::cerr << "Norm. Kernel: " << gridDimN << " x " << blockDimN << std::endl;
+      std::cerr << "Message APP Kernel: " << gridDimR << " x " << blockDimR << ", [" << sharedMemR << " bytes]" << std::endl;
+      std::cerr << "State APP Kernel: " << gridDimS << " x " << blockDimS << std::endl;
       first_time = false;
       }
-   // Beta + Results computation:
-   for (int i = N; i >= 0; i--)
+   // Set up streams and events to pipeline gamma+beta+norm+result computations
+   stream s[computer.depth];
+   event e[computer.depth];
+   // Beta initialization:
+   {
+   // shorthand
+   const int i = N;
+   const int bi = i & (computer.depth-1);
+   fba2_init_beta_kernel<receiver_t, sig, real, real2> <<<gridDimI,blockDimI,0,s[bi].get_id()>>>(dev_object, eof_prior);
+   cudaSafeCall(cudaPeekAtLastError());
+   // normalize if requested
+   if (computer.flags.norm)
       {
+      fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,s[bi].get_id()>>>(dev_object, i);
+      cudaSafeCall(cudaPeekAtLastError());
+      }
+   // event to sync dependent beta computation
+   e[bi].record(s[bi]);
+   }
+   // Beta + Results computation:
+   for (int i = N-1; i >= 0; i--)
+      {
+      // shorthand
+      const int bi = i & (computer.depth-1);
       // local storage, index value where we need gamma values
-      if (!computer.flags.globalstore && i < N)
+      if (!computer.flags.globalstore)
          {
          // pre-compute local gamma values, if necessary
          if (!computer.flags.lazy)
             {
-            // global pre-computation of gamma values
-            // block index is for (i,x) where:
-            //   i is not used: x-grid size = 1
-            //   x in [-xmax, xmax]: y-grid size = 2*xmax+1
-            // thread index is for d in [0, q-1]: block size = q
-            dim3 gridSize(1, 2*xmax+1);
-            fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridSize,q>>>(dev_object, dev_r, dev_app, i);
+            fba2_gamma_kernel<receiver_t, sig, real, real2> <<<gridDimG,blockDimG,sharedMemG,s[bi].get_id()>>>(dev_object, dev_r, dev_app, i);
+            cudaSafeCall(cudaPeekAtLastError());
             }
          // reset local cache, if necessary
          else
             {
-            gamma.local.fill(real(0));
-            cached.local.fill(false);
+            // TODO: make async on stream
+            gamma.local.extract_row(i & (computer.depth-1)).fill(0);
+            cached.local.extract_row(i & (computer.depth-1)).fill(0);
             }
          }
-      // block index is for x2 in [-xmax, xmax]: grid size = 2*xmax+1
-      // thread index is for d in [0, q-1]: block size = q
-      // shared memory: array of q 'real's
-      fba2_beta_kernel<receiver_t, sig, real, real2> <<<2*xmax+1,q,q*sizeof(real)>>>(dev_object, eof_prior, i);
+      // beta(i) depends on beta(i+1)
+      s[bi].wait(e[(i+1) & (computer.depth-1)]);
+      fba2_beta_kernel<receiver_t, sig, real, real2> <<<gridDimA,blockDimA,sharedMemA,s[bi].get_id()>>>(dev_object, i);
+      cudaSafeCall(cudaPeekAtLastError());
       // normalize if requested
       if (computer.flags.norm)
          {
-         // NOTE: this has to be done in one block, as we need to sync after
-         //       determining the scale to use
-         // block index is not used: grid size = 1
-         // thread index is for x2 in [-xmax, xmax]: block size = 2*xmax+1
-         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, i);
+         fba2_normalize_beta_kernel <receiver_t, sig, real, real2> <<<gridDimN,blockDimN,0,s[bi].get_id()>>>(dev_object, i);
+         cudaSafeCall(cudaPeekAtLastError());
          }
+      // event to sync dependent beta computation
+      e[bi].record(s[bi]);
       // compute partial result
-      if (i < N)
-         {
-         // compute APPs of message
-         // block index is not used: grid size = 1
-         // thread index is for d in [0, q-1]: block size = q
-         fba2_message_app_kernel<receiver_t, sig, real, real2> <<<1,q>>>(dev_object, ptable, i);
-         }
+      fba2_message_app_kernel<receiver_t, sig, real, real2> <<<gridDimR,blockDimR,sharedMemR,s[bi].get_id()>>>(dev_object, ptable, i);
+      cudaSafeCall(cudaPeekAtLastError());
       }
    // compute APPs of sof/eof state values
-   // block index is not used: grid size = 1
-   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
-   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, sof_post, 0);
-   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, eof_post, N);
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<gridDimS,blockDimS,0>>>(dev_object, sof_post, 0);
+   cudaSafeCall(cudaPeekAtLastError());
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<gridDimS,blockDimS,0>>>(dev_object, eof_post, N);
+   cudaSafeCall(cudaPeekAtLastError());
 
 #if DEBUG>=3
    std::cerr << "beta = " << libbase::matrix<real>(beta) << std::endl;
@@ -1101,19 +1265,23 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(array1r_t& pdf, const int
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
+   // set up kernel sizes
+   // compute APPs of sof/eof state values
+   // block index is not used: grid size = 1
+   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimS(1);
+   const dim3 blockDimS(2*xmax+1);
    // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "State APP Kernel: " << 1 << " blocks x " << 2 * xmax + 1
-            << " threads" << std::endl;
+      std::cerr << "State APP Kernel: " << gridDimS << " x " << blockDimS << std::endl;
       first_time = false;
       }
    // Drift PDF computation:
    assert(i >= 0 && i <= N);
-   // block index is not used: grid size = 1
-   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
-   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, dev_sof_table, i);
+   fba2_state_app_kernel<receiver_t, sig, real, real2> <<<gridDimS,blockDimS,0>>>(dev_object, dev_sof_table, i);
+   cudaSafeCall(cudaPeekAtLastError());
    // copy result from temporary space
    pdf = array1r_t(dev_sof_table);
    }
@@ -1135,12 +1303,17 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(array1vr_t& pdftable) con
    const int N = computer.N;
    const int q = computer.q;
    const int xmax = computer.xmax;
+   // set up kernel sizes
+   // compute APPs of sof/eof state values
+   // block index is not used: grid size = 1
+   // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
+   const dim3 gridDimS(1);
+   const dim3 blockDimS(2*xmax+1);
    // inform user what the kernel sizes are
    static bool first_time = true;
    if (first_time)
       {
-      std::cerr << "State APP Kernel (x" << N + 1 << "): " << 1 << " blocks x "
-            << 2 * xmax + 1 << " threads" << std::endl;
+      std::cerr << "State APP Kernel (x" << N + 1 << "): " << gridDimS << " x " << blockDimS << std::endl;
       first_time = false;
       }
    // Drift PDF computation:
@@ -1149,9 +1322,8 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(array1vr_t& pdftable) con
    // consider each time index in the order given
    for (int i = 0; i <= N; i++)
       {
-      // block index is not used: grid size = 1
-      // thread index is for x in [-xmax, xmax]: block size = 2*xmax+1
-      fba2_state_app_kernel<receiver_t, sig, real, real2> <<<1,2*xmax+1>>>(dev_object, dev_sof_table, i);
+      fba2_state_app_kernel<receiver_t, sig, real, real2> <<<gridDimS,blockDimS,0>>>(dev_object, dev_sof_table, i);
+      cudaSafeCall(cudaPeekAtLastError());
       // copy result from temporary space
       pdftable(i) = array1r_t(dev_sof_table);
       }
@@ -1159,39 +1331,7 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(array1vr_t& pdftable) con
 
 } // end namespace
 
-// Explicit Realizations
-
-#include "modem/tvb-receiver-cuda.h"
-#include "gf.h"
-
-namespace cuda {
-
-// Explicit Realizations
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
-
-#define USING_GF(r, x, type) \
-      using libbase::type;
-
-BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
-
-#define SYMBOL_TYPE_SEQ \
-   (bool) \
-   GF_TYPE_SEQ
-#define REAL_TYPE_SEQ \
-   (float)(double)
-#define REAL2_TYPE_SEQ \
-   (float)(double)
-
-// *** Instantiations for tvb: gf types only ***
-
-#define INSTANTIATE_TVB(r, args) \
-      template class fba2<tvb_receiver<BOOST_PP_SEQ_ENUM(args)> , \
-         BOOST_PP_SEQ_ENUM(args)> ; \
-      template class value<fba2<tvb_receiver<BOOST_PP_SEQ_ENUM(args)> , \
-         BOOST_PP_SEQ_ENUM(args)>::metric_computer> ; \
-
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE_TVB, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
-
-} // end namespace
+/* \note There are no explicit realizations here, as for this module we need to
+ * split the realizations over separate units, or ptxas will complain with
+ * excessive cmem usage. All realizations are in the fba2-cuda-instX.cu files.
+ */

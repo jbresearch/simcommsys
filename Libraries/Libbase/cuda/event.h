@@ -22,8 +22,8 @@
  * - $Id$
  */
 
-#ifndef __cuda_stream_h
-#define __cuda_stream_h
+#ifndef __cuda_event_h
+#define __cuda_event_h
 
 #include "config.h"
 #include "cuda-all.h"
@@ -41,11 +41,8 @@ namespace cuda {
 
 #ifdef __CUDACC__
 
-// forward declaration
-class event;
-
 /*!
- * \brief   A CUDA stream
+ * \brief   A CUDA event
  * \author  Johann Briffa
  *
  * \section svn Version Control
@@ -53,17 +50,17 @@ class event;
  * - $Date$
  * - $Author$
  *
- * This class represents an identifier for a sequence of commands that
- * executes in order.
+ * This class represents an identifier for an event on a stream. An event has
+ * occurred when all other preceding commands on the same stream have completed.
+ * This can be used to set dependencies between streams.
  *
- * Note that this is a host-only object. Device code has no interface to other
- * streams.
+ * Note that this is a host-only object. Device code has no interface to events.
  */
 
-class stream {
+class event {
 protected:
    /*! \name Object representation */
-   cudaStream_t sid; //!< Stream identifier
+   cudaEvent_t eid; //!< Event identifier
    // @}
 
 private:
@@ -71,49 +68,56 @@ private:
    /*! \brief Copy constructor
     * \note Copy construction is disabled as it has no meaning.
     */
-   stream(const stream& x);
+   event(const event& x);
    /*! \brief Copy assignment operator
     * \note Copy assignment is disabled as it has no meaning.
     */
-   stream& operator=(const stream& x);
+   event& operator=(const event& x);
    // @}
 
 public:
    /*! \name Constructors */
    /*! \brief Default constructor
-    * Creates and initializes stream object.
+    * Creates and initializes event object.
     */
-   stream()
+   event()
       {
-      cudaSafeCall(cudaStreamCreate(&sid));
+      cudaSafeCall(cudaEventCreateWithFlags(&eid, cudaEventDisableTiming));
       }
    // @}
 
    /*! \name Law of the Big Three */
    /*! \brief Destructor
-    * Waits for all tasks in this stream to finish, then destroys the stream
-    * object.
+    * Destroys the event object.
     */
    //!
-   ~stream()
+   ~event()
       {
-      cudaSafeCall(cudaStreamDestroy(sid));
+      cudaSafeCall(cudaEventDestroy(eid));
       }
    // @}
 
    /*! \name User interface */
-   //! Returns stream identifier to use in kernel calls
-   const cudaStream_t& get_id() const
+   //! Returns event identifier to use where needed
+   const cudaEvent_t& get_id() const
       {
-      return sid;
+      return eid;
       }
-   //! Waits for all tasks in this stream to finish
+   //! Waits for this event to complete
    void sync() const
       {
-      cudaSafeCall(cudaStreamSynchronize(sid));
+      cudaSafeCall(cudaEventSynchronize(eid));
       }
-   //! Adds dependency on event completion before further tasks are scheduled
-   void wait(const event& e) const;
+   //! Records an event on given stream
+   void record(const stream& s) const
+      {
+      cudaSafeCall(cudaEventRecord(eid, s.get_id()));
+      }
+   //! Records an event on default stream
+   void record() const
+      {
+      cudaSafeCall(cudaEventRecord(eid, 0));
+      }
    // @}
 };
 

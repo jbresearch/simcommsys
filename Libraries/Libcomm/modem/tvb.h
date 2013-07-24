@@ -129,6 +129,7 @@ private:
    qids<sig,real2> mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
+   mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
 #ifdef USE_CUDA
    cuda::fba2<cuda::tvb_receiver<sig, real, real2>, sig, real, real2> fba; //!< algorithm object
 #else

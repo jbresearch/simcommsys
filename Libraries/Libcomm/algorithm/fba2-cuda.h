@@ -116,12 +116,12 @@ public:
       dev_array2r_ref_t alpha; //!< Forward recursion metric
       dev_array2r_ref_t beta; //!< Backward recursion metric
       mutable struct {
-         dev_array1r_ref_t global; // indices (i,x,d,deltax)
-         dev_array1r_ref_t local; // indices (x,d,deltax)
+         dev_array2r_ref_t global; // indices (i,x,d,deltax)
+         dev_array2r_ref_t local; // indices (i%depth,x,d,deltax)
       } gamma; //!< Receiver metric
       mutable struct {
          dev_array2b_ref_t global; // indices (i,x)
-         dev_array1b_ref_t local; // indices (x)
+         dev_array2b_ref_t local; // indices (i%depth,x)
       } cached; //!< Flag for caching of receiver metric
       dev_array1s_ref_t r; //!< Copy of received sequence, for lazy or local computation of gamma
       dev_array2r_ref_t app; //!< Copy of a-priori statistics, for lazy or local computation of gamma
@@ -146,42 +146,35 @@ public:
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
+      static const int depth = 4; //!< Number of indices that can be processed simultaneously (must be a power of 2)
       // @}
    public:
       /*! \name Internal functions - computer */
 #ifdef __CUDACC__
       __device__ __host__
-      int get_gamma_index(int d, int i, int x, int deltax) const
+      int get_gamma_index(int d, int x, int deltax) const
          {
          cuda_assert(d >= 0 && d < q);
-         cuda_assert(i >= 0 && i < N);
          cuda_assert(x >= -xmax && x <= xmax);
          cuda_assert(deltax >= dmin && deltax <= dmax);
          // determine index to use
          int ndx = 0;
          /* gamma needs indices:
-          *   (i,x,deltax,d) for global storage
-          *   (x,deltax,d) for local storage
+          *   (x,deltax,d)
           * where:
-          *   i in [0, N-1]
           *   x in [-xmax, xmax]
           *   d in [0, q-1]
           *   deltax in [dmin, dmax]
           */
          const int pitch1 = q;
          const int pitch2 = pitch1 * (dmax - dmin + 1);
-         if (flags.globalstore)
-            {
-            const int pitch3 = pitch2 * (2 * xmax + 1);
-            ndx += pitch3 * i;
-            }
          ndx += pitch2 * (x + xmax);
          ndx += pitch1 * (deltax - dmin);
          ndx += d;
          // host code path only
 #ifndef __CUDA_ARCH__
 #if DEBUG>=2
-         std::cerr << "(" << d << "," << i << "," << x << "," << deltax << ":" << ndx << ")";
+         std::cerr << "(" << d << "," << x << "," << deltax << ":" << ndx << ")";
 #endif
 #endif
          return ndx;
@@ -220,9 +213,9 @@ public:
       real& gamma_storage_entry(int d, int i, int x, int deltax) const
          {
          if (flags.globalstore)
-            return gamma.global(get_gamma_index(d, i, x, deltax));
+            return gamma.global(i, get_gamma_index(d, x, deltax));
          else
-            return gamma.local(get_gamma_index(d, i, x, deltax));
+            return gamma.local(i & (depth-1), get_gamma_index(d, x, deltax));
          }
       //! Fill indicated storage entries for gamma metric - batch interface
       __device__
@@ -233,12 +226,14 @@ public:
          cuda_assertalways(arraysize >= 2 * dxmax + 1);
          cuda::vector_reference<real2> ptable(ptable_data, 2 * dxmax + 1);
          // get symbol value from thread index
-         const int d = threadIdx.x;
-         // compute metric with batch interface
-         compute_gamma_batch(d, i, x, ptable, r, app);
-         // store in corresponding place in cache
-         for (int deltax = dmin; deltax <= dmax; deltax++)
-            gamma_storage_entry(d, i, x, deltax) = ptable(dxmax + deltax);
+         for(int d = threadIdx.x; d < q; d += blockDim.x)
+            {
+            // compute metric with batch interface
+            compute_gamma_batch(d, i, x, ptable, r, app);
+            // store in corresponding place in cache
+            for (int deltax = dmin; deltax <= dmax; deltax++)
+               gamma_storage_entry(d, i, x, deltax) = ptable(dxmax + deltax);
+            }
          }
       /*! \brief Fill indicated storage entries for gamma metric - independent interface
        * \todo No need to compute for all deltax if 'cached' is sufficiently fine
@@ -246,19 +241,21 @@ public:
       __device__
       void fill_gamma_storage_single(const dev_array1s_ref_t& r, const dev_array2r_ref_t& app, int i, int x) const
          {
-         // limit on end-state (-xmax <= x2 <= xmax):
-         //   x2-x1 <= xmax-x1
-         //   x2-x1 >= -xmax-x1
-         const int deltaxmin = max(-xmax - x, dmin);
-         const int deltaxmax = min(xmax - x, dmax);
          // get symbol value from thread index
-         const int d = threadIdx.x;
-         // clear gamma entries
-         for (int deltax = dmin; deltax <= dmax; deltax++)
-            gamma_storage_entry(d, i, x, deltax) = 0;
-         // compute entries within required limits
-         for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
-            gamma_storage_entry(d, i, x, deltax) = compute_gamma_single(d, i, x, deltax, r, app);
+         for(int d = threadIdx.x; d < q; d += blockDim.x)
+            {
+            // clear gamma entries
+            for (int deltax = dmin; deltax <= dmax; deltax++)
+               gamma_storage_entry(d, i, x, deltax) = 0;
+            // limit on end-state (-xmax <= x2 <= xmax):
+            //   x2-x1 <= xmax-x1
+            //   x2-x1 >= -xmax-x1
+            const int deltaxmin = max(-xmax - x, dmin);
+            const int deltaxmax = min(xmax - x, dmax);
+            // compute entries within required limits
+            for (int deltax = deltaxmin; deltax <= deltaxmax; deltax++)
+               gamma_storage_entry(d, i, x, deltax) = compute_gamma_single(d, i, x, deltax, r, app);
+            }
          }
       /*! \brief Fill indicated cache entries for gamma metric as needed
        *
@@ -282,10 +279,10 @@ public:
          else
             {
             // if we not have this already, mark to fill in this part of cache
-            if (!cached.local(x + xmax))
+            if (!cached.local(i & (depth-1), x + xmax))
                {
                miss = true;
-               cached.local(x + xmax) = true;
+               cached.local(i & (depth-1), x + xmax) = true;
                }
             }
          if (miss)
@@ -348,9 +345,13 @@ public:
             fill_gamma_storage_single(r, app, i, x);
          }
       __device__
-      void work_alpha(const dev_array1r_ref_t& sof_prior, const int i);
+      void init_alpha(const dev_array1r_ref_t& sof_prior);
       __device__
-      void work_beta(const dev_array1r_ref_t& eof_prior, const int i);
+      void init_beta(const dev_array1r_ref_t& eof_prior);
+      __device__
+      void work_alpha(const int i);
+      __device__
+      void work_beta(const int i);
       __device__
       void work_message_app(dev_array2r_ref_t& ptable, const int i) const;
       __device__
@@ -365,14 +366,13 @@ private:
    dev_array2r_t alpha; //!< Forward recursion metric
    dev_array2r_t beta; //!< Backward recursion metric
    mutable struct {
-      dev_array1r_t global; // indices (i,x,d,deltax)
-      dev_array1r_t local; // indices (x,d,deltax)
+      dev_array2r_t global; // indices (i,x,d,deltax)
+      dev_array2r_t local; // indices (i%depth,x,d,deltax)
    } gamma; //!< Receiver metric
    mutable struct {
       dev_array2b_t global; // indices (i,x)
-      dev_array1b_t local; // indices (x)
+      dev_array2b_t local; // indices (i%depth,x)
    } cached; //!< Flag for caching of receiver metric
-
    dev_array1s_t dev_r; //!< Device copy of received sequence
    dev_array2r_t dev_app; //!< Device copy of a-priori statistics
    dev_array1r_t dev_sof_table; //!< Device copy of sof table
@@ -380,6 +380,8 @@ private:
    dev_array2r_t dev_ptable; //!< Device copy of results table
    dev_object_t dev_object; //!< Device copy of computer object
    bool initialised; //!< Flag to indicate when memory is allocated
+   /*! \name Hardwired parameters */
+   static const int max_threads = 1024; //!< Maximum number of threads per block (ideally a multiple of the warp size)
    // @}
 private:
    /*! \name Internal functions - main */
@@ -389,6 +391,12 @@ private:
    // helper methods
    void reset_cache() const;
    void print_gamma(std::ostream& sout) const;
+   int get_gamma_threadcount() const
+      {
+      if (computer.q < max_threads)
+         return computer.q;
+      return max_threads;
+      }
    // data movement
    static void copy_table(const dev_array2r_t& dev_table, array1vr_t& table);
    static void copy_table(const array1vd_t& table, dev_array2r_t& dev_table);
