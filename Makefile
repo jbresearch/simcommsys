@@ -318,6 +318,7 @@ all:
 
 doc:	FORCE
 	@$(DOXYGEN)
+#	@echo "*** To compile latex documentation: $(MAKE) -C doc/latex/"
 
 clean-all:
 	@echo "----> Cleaning all binaries."

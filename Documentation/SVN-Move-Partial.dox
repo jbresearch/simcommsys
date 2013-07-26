@@ -23,38 +23,35 @@ along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 \author   Stephan Wesemeyer
 $Id$
 
-\todo Update formatting for doxygen and review.
+
+\section req Requirements
+
+-# Filesystem access to the destination repo (mandatory)
+-# Filesystem or remote access to the source repo
 
 
-Requirements:
+\section method Method
 
-1) Filesystem access to the destination repo (mandatory)
-2) Filesystem or remote access to the sources repo
-
-
-Method:
-
-1) Create a dump for the required parts of the source repo. This can be done
+-# Create a dump for the required parts of the source repo. This can be done
    in one of two ways:
-
-   a) Directly, using rsvndump. This method is simplest, as it automatically
+   -# Directly, using rsvndump. This method is simplest, as it automatically
       creates files that were copied from other paths in the repo, without
       having to include those other paths as well. The disadvantage is that
       any revisions in the earlier paths are now merged in a single revision.
       Further, there are cases where rsvndump creates unusable dumps, usually
-      because of extraneous deletes on non-existent files. This seems to be a
-      bug in rsvndump. To use this method:
-
-         rsvndump URL:repo/path |gzip -9c > source.dump.gz
-
-   b) Indirectly, using svndumpfilter on a complete dump created earlier.
+      because of extraneous deletes on non-existent files. This seems to be
+      a bug in rsvndump. To use this method:
+\verbatim
+rsvndump URL:repo/path |gzip -9c > source.dump.gz
+\endverbatim
+   -# Indirectly, using svndumpfilter on a complete dump created earlier.
       This method avoids the problems mentioned above.
-
-      [document this]
-
-2) Load the dump into the target repo. The path within the repo must already
+-# Load the dump into the target repo. The path within the repo must already
    exist. Note that this needs filesystem access to the repo. To do this:
+\verbatim
+gzip -cd < filtered.dump.gz |svnadmin load --parent-dir path/ ./repo/
+\endverbatim
 
-      gzip -cd < filtered.dump.gz |svnadmin load --parent-dir path/ ./repo/
+\todo Document use of svndumpfilter.
 
 */

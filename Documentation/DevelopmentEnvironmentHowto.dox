@@ -160,20 +160,16 @@ or updating in the future.
 The currently supported IDE on Linux is Eclipse, which will need to be
 configured as follows:
 
-1) In the development folder create another folder called eclipse_workspaces and
+-# In the development folder create another folder called eclipse_workspaces and
 within it a directory called myBranchName:
-
 \verbatim
 cd ~/development
 mkdir -p eclipse_workspaces/mbn
 \endverbatim
-
-2) Start eclipse and choose the mbn(=myBranchName) directory as the location for
+-# Start eclipse and choose the mbn(=myBranchName) directory as the location for
 your workspace.
-
-3) Close the welcome screen.
-
-4) Install the svn plugin by clicking Help->Install New Software and
+-# Close the welcome screen.
+-# Install the svn plugin by clicking Help->Install New Software and
 doing the following:
    - Next to 'Work With' choose 'All Available Sites'
    - Type 'svn' into the filter
@@ -181,17 +177,12 @@ doing the following:
       - Subversive SVN Team Provider
       - Subversive SVN Connectors
       - SVNKit 1.3.5 Implementation
-
-5) Accept the licence and the offer to restart eclipse for you.
-
-6) Import the JAB code style file:
-
-   Window->Preferences->C/C++->Code Style->Import
-
-browse to ~/development/svn/Programming/branches/mbn/JAB C++ Code Style.xml and
-click OK followed by Apply & then OK again.
-
-7) Import the various projects in your branch by selecting
+-# Accept the licence and the offer to restart eclipse for you.
+-# Import the JAB code style file:
+   - Select Window->Preferences->C/C++->Code Style->Import
+   - Browse to ~/development/svn/Programming/branches/mbn/JAB C++ Code Style.xml
+   and click OK followed by Apply & then OK again.
+-# Import the various projects in your branch by selecting
 File->Import->General->Existing Projects into Workspace & clicking Next,
 selecting the root direcory of the project & clicking finish.
 Initially, the most important projects to import are the following:
@@ -210,11 +201,9 @@ SimCommSys/
 \endverbatim
 It is safe to import all projects but initially this should be more
 than sufficient.
-
-9) Use Ctrl-B to compile the whole project. There should be no compilation
+-# Use Ctrl-B to compile the whole project. There should be no compilation
 problems.
-
-8) If the version control information is not accessible through Eclipse, you
+-# If the version control information is not accessible through Eclipse, you
 will need to associate the Eclipse projects with their version control metadata.
 To do this, right-click on each project and select Team.
 If you get presented with 2 options (Apply Patch/Share Project), select
@@ -269,46 +258,35 @@ settings for Boost usage.
 In order to access the svn repository you need to provide Johann Briffa with a
 username and a hashed password.
 
-1) Create a password by calling
-
+-# Create a password by calling
 \verbatim
 htpasswd -nm <username>
 \endverbatim
-
 where <username> is the username you would like to use to access the svn
 repository.
 Note that it does not have to be your Unix username.
 Please use a different password from your standard login password.
-
-2) Provide Johann Briffa with the output so that he can set you up on the svn
+-# Provide Johann Briffa with the output so that he can set you up on the svn
 server.
-
-3) Once you are set up, change into your development directory (for example,
+-# Once you are set up, change into your development directory (for example,
 a folder called 'development' under your home directory)
-
 \verbatim
 cd ~/development
 \endverbatim
-
-4) create a directory called svn and change into it
-
+-# create a directory called svn and change into it
 \verbatim
 mkdir svn
 cd svn
 \endverbatim
-
-5) check out the following folders:
-
+-# check out the following folders:
 \verbatim
 svn co https://guinevere.res.um.edu.mt/svn/shared/Programming
 svn co https://guinevere.res.um.edu.mt/svn/shared/Scripts
 \endverbatim
-
 \note If you have only been given access to a specific branch, you will need
 to replace the URL in the first line with that for your specific branch.
 
-6) Create your own branch of the project:
-
+-# Create your own branch of the project:
 \note Ignore if you have only been given access to a specific branch.
 
 \verbatim
@@ -317,7 +295,6 @@ mkdir mbn
 svn copy ../../trunk mbn
 svn commit -m "create mbn"
 \endverbatim
-
 Replace mbn(=myBranchName) with something appropriate.
 The current convention is to use initials, e.g. jab.
 

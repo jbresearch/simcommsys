@@ -23,6 +23,7 @@ along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 \author   Johann Briffa
 $Id$
 
+
 \section intro Introduction
 
 The SimCommSys project consists of a set of C++ libraries for simulating
@@ -35,6 +36,7 @@ stages of the communication system (such as the encoder, decoder, and a
 complete simulator) and a system benchmark.
 Finally, a number of shell and python scripts are provided to encapsulate
 routine use cases.
+
 
 \section classes Principal Classes
 
@@ -52,7 +54,11 @@ The most important classes in this project are:
    - libcomm::blockmodem, the modulation scheme
    - libcomm::channel, a model for the communications channel
 
-\image html "../../Documentation/Figures/CommSysFlowchart.png" "Data Flow in CommSys"
+\image html CommSysFlowchart.png "Data Flow in CommSys"
+\image latex CommSysFlowchart.pdf "Data Flow in CommSys" width=\textwidth
+
+A ToDo list for the project is kept at \ref todo.
+
 
 \section howtos HowTos
 
@@ -69,20 +75,20 @@ The following set of HowTos will be available:
    - details on the required development packages
    - instructions on how to set up Eclipse/Visual Studio
    - details on how to check out the code
-
 - My First Codec (not written yet), provides a quick introduction to:
    - the classes required to write a codec
    - the serialisation Macros
-
+- \ref profiling, for guidance on using the profiler to help with code
+   optimization.
 - \ref simulation, provides details on how to:
    - set up a new simulation
    - run a simulation locally and on the cluster
-
 - \ref plotresults, provides details on how to turn the simulation results
    into graphs.
-
 - \ref innercodes, explains how to define insertion/deletion correcting
    inner codes.
+- \ref svnmove, useful for moving material to a new repository, keeping
+   version history
 
 \section authors Contributing Authors
 
@@ -91,6 +97,7 @@ together with their last known contact details. Authors are listed in
 order of decreasing contribution.
 - Johann A. Briffa <j.briffa@surrey.ac.uk>
 - Stephan Wesemeyer <s.wesemeyer@surrey.ac.uk>
+
 
 \section funding Project Funding
 
