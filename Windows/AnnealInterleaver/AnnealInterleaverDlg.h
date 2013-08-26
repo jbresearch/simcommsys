@@ -103,12 +103,12 @@ protected:
    virtual void OnCancel();
    afx_msg void OnStop();
    afx_msg void OnSave();
-   afx_msg void OnTimer(UINT nIDEvent);
+   afx_msg void OnTimer(UINT_PTR nIDEvent);
    afx_msg void OnSuspend();
    afx_msg void OnResume();
    //}}AFX_MSG
-   afx_msg LONG OnThreadDisplay(WPARAM wParam, LPARAM lParam);
-   afx_msg LONG OnThreadFinish(WPARAM wParam, LPARAM lParam);
+   afx_msg LRESULT OnThreadDisplay(WPARAM wParam, LPARAM lParam);
+   afx_msg LRESULT OnThreadFinish(WPARAM wParam, LPARAM lParam);
    DECLARE_MESSAGE_MAP()
 };
 
