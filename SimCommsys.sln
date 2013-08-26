@@ -16,6 +16,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibWin", "Libraries\Libwin\LibWin.vcxproj", "{6F1A4B11-07E1-48B2-8D13-82FC02B70AE0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SPECturbo", "SimCommsys\SPECturbo\SPECturbo.vcxproj", "{7777AB22-FDBF-436B-9A14-34DD498A2E5E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B877E04A-B5B4-4FE0-8694-22A9EA985415} = {B877E04A-B5B4-4FE0-8694-22A9EA985415}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimCommsys", "SimCommsys\SimCommsys\SimCommsys.vcxproj", "{72FBB4CF-2BC0-4290-9937-09C698F94C04}"
 EndProject
@@ -56,6 +59,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnalyseInterleaver", "Windows\AnalyseInterleaver\AnalyseInterleaver.vcxproj", "{CD338C16-06CB-442A-B6AD-F85580B9F3A6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnnealInterleaver", "Windows\AnnealInterleaver\AnnealInterleaver.vcxproj", "{A1541E91-1497-4F44-BF84-8ECA2F6A8CFB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B877E04A-B5B4-4FE0-8694-22A9EA985415} = {B877E04A-B5B4-4FE0-8694-22A9EA985415}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CompareLists", "SimCommsys\CompareLists\CompareLists.vcxproj", "{B43A183D-E559-44F3-977A-0DF9D2F3937D}"
 EndProject
@@ -64,6 +70,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSextract", "SimCommsys\SSextract\SSextract.vcxproj", "{208392AF-6000-443E-B154-F93CF4F8E356}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Canonicalize", "SimCommsys\Canonicalize\Canonicalize.vcxproj", "{FC77AFF3-38E7-4DC9-B524-DAEF66D7F175}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B877E04A-B5B4-4FE0-8694-22A9EA985415} = {B877E04A-B5B4-4FE0-8694-22A9EA985415}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IMprocess", "SimCommsys\IMprocess\IMprocess.vcxproj", "{063CD11D-F144-41C8-A995-E02FEE41CDBE}"
 EndProject
