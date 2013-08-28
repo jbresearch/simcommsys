@@ -251,6 +251,7 @@ export CCflags = $(CCflag_$(RELEASE))
 NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 #NVCCopts := $(NVCCopts) -Xcompiler "-Wall,-Werror"
 #NVCCopts := $(NVCCopts) -Xopencc "-woffall"
+#NVCCopts := $(NVCCopts) -Xptxas "-v"
 NVCCopts := $(NVCCopts) -w
 NVCCopts := $(NVCCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
 NVCCopts := $(NVCCopts) -DUSE_CUDA
@@ -315,8 +316,9 @@ default:
 all:
 	@$(MAKE) install plain-install
 
-doc:
+doc:	FORCE
 	@$(DOXYGEN)
+#	@echo "*** To compile latex documentation: $(MAKE) -C doc/latex/"
 
 clean-all:
 	@echo "----> Cleaning all binaries."

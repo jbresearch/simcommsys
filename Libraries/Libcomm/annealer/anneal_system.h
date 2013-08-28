@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __anneal_system_h
@@ -34,11 +32,7 @@ namespace libcomm {
 /*!
  * \brief   Simulated Annealing System base.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * \version 1.00 (10 Jul 1998)
  *

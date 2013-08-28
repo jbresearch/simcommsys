@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,14 +18,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #include "tvb.h"
 #include "sparse.h"
 #include "timer.h"
+#include "cputimer.h"
 #include "pacifier.h"
 #include "vectorutils.h"
 #include <sstream>
@@ -221,8 +220,8 @@ void tvb<sig, real, real2>::advance() const
             }
          }
       }
-   // initialize our embedded metric computer
-   fba.get_receiver().init(encoding_table);
+   // indicate the encoding table has changed
+   changed_encoding_table = true;
    }
 
 // encoding and decoding functions
@@ -341,6 +340,14 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
       }
    else
       app_x = app;
+   // Initialize FBA metric computer as needed
+   if (changed_encoding_table)
+      {
+      libbase::cputimer t("t_enctable");
+      fba.get_receiver().init(encoding_table);
+      changed_encoding_table = false;
+      this->add_timer(t);
+      }
    // Call FBA and normalize results
 #if DEBUG>=4
    using libbase::index_of_max;
@@ -388,12 +395,14 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    // Set channel block size to q-ary symbol size
    mychan.set_blocksize(n);
+   // Set the probability of channel event outside chosen limits
+   mychan.set_pr(Pr);
    // Determine required FBA parameter values
-   const int I = mychan.compute_I(tau);
+   const int I = mychan.compute_I(tau, Pr);
    // No need to recompute xmax if we are given a prior PDF
-   const int xmax = sof_pdf.size() > 0 ? offset : mychan.compute_xmax(tau,
+   const int xmax = sof_pdf.size() > 0 ? offset : mychan.compute_xmax(tau, Pr,
          sof_pdf, offset);
-   const int dxmax = mychan.compute_xmax(n);
+   const int dxmax = mychan.compute_xmax(n, Pr);
    checkforchanges(I, xmax);
    // Determine whether to use global storage
    bool globalstore = false; // set to avoid compiler warning
@@ -421,7 +430,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer, flags.norm,
          flags.batch, flags.lazy, globalstore);
    // initialize our embedded metric computer with unchanging elements
-   fba.get_receiver().init(n, mychan);
+   fba.get_receiver().init(n, q, mychan);
    }
 
 template <class sig, class real, class real2>
@@ -654,6 +663,7 @@ std::string tvb<sig, real, real2>::description() const
          break;
       }
    sout << ", thresholds " << th_inner << "/" << th_outer;
+   sout << ", Pr=" << Pr;
    if (flags.norm)
       sout << ", normalized";
    if (flags.batch)
@@ -696,11 +706,13 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 8 << std::endl;
-   sout << "#: Inner threshold" << std::endl;
+   sout << 9 << std::endl;
+   sout << "# Inner threshold" << std::endl;
    sout << th_inner << std::endl;
-   sout << "#: Outer threshold" << std::endl;
+   sout << "# Outer threshold" << std::endl;
    sout << th_outer << std::endl;
+   sout << "# Probability of channel event outside chosen limits" << std::endl;
+   sout << Pr << std::endl;
    sout << "# Normalize metrics between time-steps?" << std::endl;
    sout << flags.norm << std::endl;
    sout << "# Use batch receiver computation?" << std::endl;
@@ -801,8 +813,10 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 6 Replaced k with q
  *
  * \version 7 Added option for channel-symbol-level priors
- * 
+ *
  * \version 8 Removed option for channel-symbol-level priors
+ *
+ * \version 9 Added probability of channel event outside chosen limits
  */
 
 template <class sig, class real, class real2>
@@ -815,6 +829,11 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
    // read thresholds
    sin >> libbase::eatcomments >> th_inner >> libbase::verify;
    sin >> libbase::eatcomments >> th_outer >> libbase::verify;
+   // read probability of channel event outside chosen limits
+   if (version >= 9)
+      sin >> libbase::eatcomments >> Pr >> libbase::verify;
+   else
+      Pr = 1e-10;
    // read decoder parameters
    if (version >= 2)
       {

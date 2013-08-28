@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,20 +18,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 /*!
  * \file
  * \brief   CUDA utilities.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 #include "cuda-all.h"
@@ -130,7 +124,7 @@ std::string cudaGetDeviceName(int device)
 
 //! Get the amount of global memory (in bytes) for the given device
 
-int cudaGetGlobalMem(int device)
+size_t cudaGetGlobalMem(int device)
    {
    if (device < 0)
       device = cudaGetCurrentDevice();
@@ -236,7 +230,6 @@ int cudaGetComputeModel()
    dev_cm.init();
    // call the kernel
    getcomputemodel_kernel<<<1,1>>>(dev_cm);
-   cudaSafeThreadSynchronize();
    // copy results back
    return dev_cm;
    }

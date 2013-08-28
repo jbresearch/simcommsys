@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __vector_h
@@ -65,11 +63,7 @@ class masked_vector;
 /*!
  * \brief   Size specialization for vector.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <>
@@ -120,11 +114,7 @@ public:
 /*!
  * \brief   Generic Vector.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * \note Supports the concept of an empty vector
  *
@@ -1251,11 +1241,7 @@ inline T vector<T>::var() const
 /*!
  * \brief   Indirect Vector.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * An indirect vector is a vector that does not own its allocated memory.
  * Consequently, all operations that require a resize are forbidden.
@@ -1419,11 +1405,7 @@ inline void indirect_vector<T>::validate_reference() const
 /*!
  * \brief   Masked Vector.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * A masked vector is a vector with a binary element-mask. Arithmetic,
  * statistical, user-defined operation, and copy/value init functions are

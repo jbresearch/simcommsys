@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __tvb_receiver_h
@@ -43,11 +41,7 @@ namespace libcomm {
 /*!
  * \brief   Time-Varying Block Code support.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for returning results
@@ -68,7 +62,6 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int n; //!< Number of bits per codeword
    mutable array2vs_t encoding_table; //!< Local copy of per-frame encoding table
    typename qids<sig, real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
@@ -77,13 +70,11 @@ public:
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const libcomm::qids<sig, real2>& chan)
+   void init(const int n, const int q, const libcomm::qids<sig, real2>& chan)
       {
-      this->n = n;
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
-      std::cerr << "n = " << this->n << std::endl;
       std::cerr << "N = " << computer.N << std::endl;
       std::cerr << "I = " << computer.I << std::endl;
       std::cerr << "xmax = " << computer.xmax << std::endl;
@@ -110,12 +101,12 @@ public:
       {
       // 'tx' is the vector of transmitted symbols that we're considering
       const array1s_t& tx = encoding_table(i, d);
-         // compute the conditional probability
-         real result = real(computer.receive(tx, r));
-         // apply priors at codeword level if applicable
-         if (app.size() > 0)
-            result *= real(app(i)(d));
-         return result;
+      // compute the conditional probability
+      real result = real(computer.receive(tx, r));
+      // apply priors at codeword level if applicable
+      if (app.size() > 0)
+         result *= real(app(i)(d));
+      return result;
       }
    //! Batch receiver interface
    void R(int d, int i, const array1s_t& r, const array1vd_t& app,
@@ -126,13 +117,13 @@ public:
       // set up space for results
       static array1r2_t ptable_r;
       ptable_r.init(ptable.size());
-         // call batch receiver method
-         computer.receive(tx, r, ptable_r);
-         // apply priors at codeword level if applicable
-         if (app.size() > 0)
-            ptable_r *= real2(app(i)(d));
-         // convert results
-         ptable = ptable_r;
+      // call batch receiver method
+      computer.receive(tx, r, ptable_r);
+      // apply priors at codeword level if applicable
+      if (app.size() > 0)
+         ptable_r *= real2(app(i)(d));
+      // convert results
+      ptable = ptable_r;
       }
    // @}
 };

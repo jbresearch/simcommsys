@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef VECTOR_ITFUNC_H_
@@ -32,11 +30,7 @@
  * \file
  * \brief   Information-Theory Utility Functions for Vectors.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  */
 

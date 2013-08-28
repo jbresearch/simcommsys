@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "bcjr.h"
@@ -33,7 +31,7 @@ namespace libcomm {
  * \brief   Creator for class 'bcjr'.
  * \param   encoder     The finite state machine used to encode the source.
  * \param   tau         The block length of decoder (including tail bits).
- * 
+ *
  * \note If the trellis is not defined as starting or ending at zero, then it
  * is assumed that all starting and ending states (respectively) are
  * equiprobable.
@@ -207,7 +205,7 @@ inline real bcjr<real, dbl, norm>::sigma(const int t, const int m, const int i)
  * \brief   Computes the gamma matrix.
  * \param   R     R(t-1, X) is the probability of receiving "whatever we
  * received" at time t, having transmitted X
- * 
+ *
  * For all values of t in [1,tau], the gamma values are worked out as specified
  * by the BCJR equation.
  */
@@ -229,7 +227,7 @@ void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R)
  * received" at time t, having transmitted X
  * \param   app   app(t-1, i) is the 'a priori' probability of having
  * transmitted (input value) i at time t
- * 
+ *
  * For all values of t in [1,tau], the gamma values are worked out as specified
  * by the BCJR equation. This function also makes use of the a priori
  * probabilities associated with the input.
@@ -248,11 +246,11 @@ void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R, const array2d_t& app)
 
 /*!
  * \brief   Computes the alpha matrix.
- * 
+ *
  * Alpha values only depend on the initial values (for t=0) and on the computed
  * gamma values; the matrix is recursively computed. Initial alpha values are
  * set in the creator and are never changed in the object's lifetime.
- * 
+ *
  * \note Metrics are normalized using a variation of Matt Valenti's CML Theory
  * slides; this was initially an attempt at solving the numerical range
  * problems in multiple (sets>2) Turbo codes.
@@ -293,11 +291,11 @@ void bcjr<real, dbl, norm>::work_alpha()
 
 /*!
  * \brief   Computes the beta matrix.
- * 
+ *
  * Beta values only depend on the final values (for t=tau) and on the computed
  * gamma values; the matrix is recursively computed. Final beta values are set
  * in the creator and are never changed in the object's lifetime.
- * 
+ *
  * \sa See notes for work_alpha()
  */
 template <class real, class dbl, bool norm>
@@ -335,12 +333,12 @@ void bcjr<real, dbl, norm>::work_beta()
  * (input value) i at time t
  * \param   ro    ro(t-1, X) is the probability that we transmitted
  * (output value) X at time t
- * 
+ *
  * Once we have worked out the gamma, alpha, and beta matrices, we are in a
  * position to compute Py (the probability of having received the received
  * sequence of modulation symbols). Next, we compute the results by doing
  * the appropriate summations on sigma.
- * 
+ *
  * \warning Initially, I used to work out the delta probability as:
  * delta = lambda(t-1, mdash)/Py * sigma(t, mdash, m)/Py
  * I suspected this reasoning to be false, and am now working the
@@ -350,7 +348,7 @@ void bcjr<real, dbl, norm>::work_beta()
  * the probability of being in state mdash before the transition being
  * considered (we care about the transition because this determines
  * the input and output symbols represented).
- * 
+ *
  * \todo Update according to the changes in work_results(ri)
  */
 template <class real, class dbl, bool norm>
@@ -382,7 +380,7 @@ void bcjr<real, dbl, norm>::work_results(array2d_t& ri, array2d_t& ro)
  * \brief   Computes the final results for the BCJR algorithm (input only).
  * \param   ri    ri(t-1, i) is the probability that we transmitted
  * (input value) i at time t
- * 
+ *
  * Once we have worked out the gamma, alpha, and beta matrices, we are in a
  * position to compute Py (the probability of having received the received
  * sequence of modulation symbols). Next, we compute the results by doing the
@@ -415,7 +413,7 @@ void bcjr<real, dbl, norm>::work_results(array2d_t& ri)
 /*!
  * \brief   Function to normalize results vectors
  * \param   r     matrix with results - first index represents time-step
- * 
+ *
  * This function is provided for derived classes to use; rather than
  * normalizing the a-priori and a-posteriori probabilities in this class, it
  * is up to derived classes to decide when that should be done. The reason
@@ -473,7 +471,7 @@ void bcjr<real, dbl, norm>::decode(const array2d_t& R, array2d_t& ri,
  * transmitted (input value) i at time t (result)
  * \param   ro    ro(t-1, X) = (result) a posteriori probability of having
  * transmitted (output value) X at time t (result)
- * 
+ *
  * This is the same as the regular decoder, but does not produce a posteriori
  * statistics on the decoder's output.
  */
@@ -494,7 +492,7 @@ void bcjr<real, dbl, norm>::decode(const array2d_t& R, const array2d_t& app,
  * received" at time t, having transmitted X
  * \param   ri    ri(t-1, i) is the a posteriori probability of having
  * transmitted (input value) i at time t (result)
- * 
+ *
  * This is the same as the regular decoder, but does not produce a posteriori
  * statistics on the decoder's output.
  */

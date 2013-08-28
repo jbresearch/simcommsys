@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "digest32.h"
@@ -54,13 +52,13 @@ void digest32::reset()
 
 /*!
  * \brief Converts a 64-byte block and passes for processing
- * 
+ *
  * Depending on flag, bytes in the input buffer are placed in least-
  * significant byte positions of the 16x32-bit block first (ie. message
  * block is little-endian).
- * 
+ *
  * \note If there are less than 64 bytes, padding is applied
- * 
+ *
  * \note If after padding there is enough space left, message length is
  * included.
  */

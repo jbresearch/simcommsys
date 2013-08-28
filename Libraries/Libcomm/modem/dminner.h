@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __dminner_h
@@ -44,11 +42,7 @@ namespace libcomm {
 /*!
  * \brief   Davey-MacKay Inner Code, original bit-level decoding.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Implements 'Watermark' Codes as described in:
  * Davey, M.C. and Mackay, D.J.C., "Reliable communication over channels with
@@ -103,6 +97,7 @@ private:
    bool user_threshold; //!< flag indicating that thresholds are supplied by user
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   double Pr; //!< Probability of channel event outside chosen limits
    bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    // @}
    /*! \name Pre-computed parameters */
@@ -264,6 +259,10 @@ public:
    libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
       {
       return libbase::size_type<libbase::vector>(0);
+      }
+   double get_suggested_exclusion(void) const
+      {
+      return Pr;
       }
 
    // Description

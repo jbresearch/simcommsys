@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "serializer_libcomm.h"
@@ -48,11 +46,7 @@ libimage::image<S> loadimage(std::istream& sin)
 /*!
  * \brief   Main data-extraction process
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This method extracts an embedded data sequence from a given stego-medium;
  * the stego-system used is described by a system file. The stego-medium is
@@ -123,11 +117,7 @@ void process(const std::string& systemfile, const std::string& channelfile,
 /*!
  * \brief   Stego-System Embedder
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 int main(int argc, char *argv[])

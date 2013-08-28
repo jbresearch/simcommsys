@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __cuda_gputimer_h
@@ -32,11 +30,7 @@ namespace cuda {
 /*!
  * \brief   GPU Timer.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * A class which can be used to time subroutines, etc. using timers on the
  * GPU itself. Resolution is about half a microsecond.
@@ -54,18 +48,18 @@ protected:
    /*! \name Interface with derived class */
    void do_start()
       {
-      cudaEventRecord(event_start, stream);
+      cudaSafeCall(cudaEventRecord(event_start, stream));
       }
    void do_stop() const
       {
-      cudaEventRecord(event_stop, stream);
+      cudaSafeCall(cudaEventRecord(event_stop, stream));
       }
    double get_elapsed() const
       {
       // determine time difference between start and stop events, in milli-sec
       float time;
-      cudaEventSynchronize(event_stop);
-      cudaEventElapsedTime(&time, event_start, event_stop);
+      cudaSafeCall(cudaEventSynchronize(event_stop));
+      cudaSafeCall(cudaEventElapsedTime(&time, event_start, event_stop));
       return time * 1e-3;
       }
    // @}
@@ -77,16 +71,16 @@ public:
          0, const bool running = true) :
       timer(name), stream(stream)
       {
-      cudaEventCreate(&event_start);
-      cudaEventCreate(&event_stop);
+      cudaSafeCall(cudaEventCreate(&event_start));
+      cudaSafeCall(cudaEventCreate(&event_stop));
       init(running);
       }
    //! Destructor
    ~gputimer()
       {
       expire();
-      cudaEventDestroy(event_start);
-      cudaEventDestroy(event_stop);
+      cudaSafeCall(cudaEventDestroy(event_start));
+      cudaSafeCall(cudaEventDestroy(event_stop));
       }
    // @}
 

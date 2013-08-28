@@ -1,0 +1,173 @@
+/*!
+\file
+
+Copyright (c) 2013 Johann A. Briffa
+
+This file is part of SimCommSys.
+
+SimCommSys is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+SimCommSys is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
+
+
+\page innercodes Defining inner codes
+\author   Stephan Wesemeyer
+$Id$
+
+\todo Review for consistency with current class structure and serialization
+version.
+
+
+\section hierarchy Class Hierarchy
+
+Inner Codes for insertion/deletion correction are implemented as a
+'stream_modulator' object, which itself is derived as follows:
+
+stream_modulator -> informed_modulator -> blockmodem
+
+The base class 'blockmodem' defines an interface where a fixed-size block of
+input symbols is represented by a block of channel symbols, where the alphabet
+sizes are possibly different. The 'informed_modulator' adds a demodulation
+interface that can make use of prior information, while 'stream_modulator'
+adds support for stream transmission and reception.
+
+
+\section classes Inner Code Classes
+
+Inner codes can be specified using one of two classes:
+-# dminner - sparse code + distributed marker, BSID channel, bit-level
+   (suboptimal) decoder, according to Davey-MacKay model.
+-# marker - data bits + marker bits, bit-level MAP decoder, according to
+   Ratzer model.
+-# tvb - a generalization of dminner construction, with QIDS channel and some
+   other options, uses a symbol-level (MAP) decoder.
+We consider the details for each in turn. In the following we explain those
+elements in the latest canonical representation that are not self-evident.
+In general, a comment phrased as a question indicates a boolean flag.
+
+General recommendations for all classes:
+- It is suggested that the math used is 'double' generally, and 'float' for
+     the channel receiver metric computation, with normalization on. If there
+     is any doubt with respect to math range problems, then use 'double'
+     for the channel receiver metric computation and 'logrealfast' otherwise
+     (without normalization should also be fine for logrealfast). This is
+     significantly slower (about 6x between logrealfast and double if memory
+     serves me right).
+
+
+\subsection dminner DMinner (version 3)
+
+-# User threshold: if the flag is set, this is followed by two floating-point
+   numbers, representing the threshold multipliers for the inner (forward and
+   backward passes) and outer (results computation) loops. If not set, these
+   default to 1e-15 and 1e-6 respectively.
+-# Normalization: when set, the metrics are normalized between time-steps, so
+   that the sum of the metrics is equal to 1. This is necessary for
+   floating-point types without an extended range (includes float and double).
+-# n: the number of bits in sparse (output) symbol
+-# k: the number of bits in message (input) symbol
+-# Codebook type:
+   -# a sparse codebook is generated internally by filling the codebook
+      with the lowest-weight codewords available, in increasing numerical
+      value.
+   -# a user codebook is defined as a name (with no spaces) followed by a
+      list of 2^k binary codewords; these are represented as bitfields,
+      so that the lsb (transmitted first) is on the right hand side.
+   -# a tvb codebook is a sequence of codebooks, used in the order they are
+      defined, with each new frame starting from the first codebook. These are
+      defined as a name (with no spaces) followed by the number of codebooks
+      and a list of count * 2^k binary codewords.
+-# Marker type:
+   -# a random marker consists of a random sequence of bits re-generated
+      for every block.
+   -# a zero marker is effectively no marker at all
+   -# a symbol-alternating marker uses no marker for the even symbols and a
+      binary inversion for odd symbols
+   -# modification vectors are specified by a count followed by that number of
+      bit-strings; these are used in order as a marker sequence. Every block
+      starts using these from the beginning.
+
+
+\subsection tvb TVB (version 6)
+
+This class was implemented as a generalization of DMinner2 (which is now
+obsolete). In generalizing, a decision was taken to harmonize the available
+options, removing those that can be easily implemented in a more general way.
+This leads to some incompatibilities with the DMinner2 (and DMinner)
+serialization; note in particular:
+- there is no user-threshold flag (specification is mandatory)
+- codebook and marker type fields have values incompatible with dminner2
+- codebook stored as vectors not bitfields (lsb is on left rather than right)
+.
+This should only be useful when converting from one class to the other - a
+script (updatesystem.py) was written to automate this process, and all
+historical systems were already updated and canonicalized.
+
+-# Inner/Outer threshold: floating-point numbers, representing the threshold
+   multipliers for the inner (alpha and beta computation) and outer (results
+   computation) loops. [should normally be kept at 0 for no path truncation]
+-# Flags:
+   -# Normalization: when set, the metrics are normalized between time-steps,
+      so that the sum of the metrics is equal to 1. This is necessary for
+      floating-point types without an extended range (includes float and
+      double). [as for dminner]
+   -# Batch: flag indicating whether to use the batch receiver computation
+      interface.  This interface allows us to simultaneously compute the gamma
+      metric for the same symbol d at index i with the same start-of-symbol
+      drift and all possible end-of-symbol drifts. Use of this interface
+      results in a considerable speed increase. [recommended: always]
+   -# Lazy Computation: flag indicating whether to lazily compute the gamma
+      metric (as opposed to pre-computation). Speed implications of this
+      depend on path truncation - for no path truncation, pre-computation
+      is marginally faster on CPUs; speed difference on GPUs is unknown but
+      is likely to be significant.  When using batch computation, the batch
+      results are cached and re-used for all storage modes, so that we still
+      get the batch advantage.  [recommended: only if using path truncation]
+   -# Storage Mode: setting indicating storage / computation mode of
+      gamma values - can be local, global, or conditional.
+      The gamma metric represents the only serious memory constraint on
+      the MAP decoder, and its computation is generally the dominant CPU
+      usage. This allows for a CPU-memory trade-off. Global storage is faster
+      by a factor of 2, as each gamma value is re-computed for the alpha
+      and beta+results computations.  (Originally this was a factor of 3;
+      it was reduced to 2 by computing beta and results together).
+      \note Conditional is followed by the memory threshold in MiB; if the
+         gamma matrix takes less than this amount of memory, it uses global
+         storage.
+
+      [recommended: conditional, with a reasonable memory limit]
+-# Lookahead: the number of codewords to look ahead when stream decoding. That
+   is, the forward-backward algorithm is applied to the augmented frame,
+   and the symbols decoded beyond the end of frame are then discarded. This
+   improves the streaming performance at the end of frame.
+-# n: the codeword length in symbols
+-# q: the number of codewords
+-# Codebook type:
+   -# The user and tvb codebooks of DMinner are now both defined as a user
+      set of codebooks; the count is therefore mandatory. These can be applied
+      sequentially (compatible to DMinner/2) or randomly. In the latter case,
+      the sequence is generated again for each block.
+   -# We can also opt for a random codebook. In this case, each symbol is
+      associated with a randomly generated codebook, where the only restriction
+      is that no two codewords can be the same (ie the codebook is uniquely
+      decodable). Again, everything is re-generated for every new block.
+   -# Note that the lsb is now on the left, so if converting from dminner/2 to
+      this class, you need to reverse all codebook strings. This can be
+      easily achieved with the shared reverse.py script (which can be added
+      as a context command to geany)
+-# Marker type:
+   -# The symbol-alternating marker has been removed (can easily be recreated
+      as a user marker)
+   -# Modification vectors are now called a 'user' marker. As for the codebook,
+      this can be applied sequentially or randomly.
+
+*/

@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "turbo.h"
@@ -152,10 +150,10 @@ void turbo<real, dbl>::allocate()
  * \param[in]  ri  A-posteriori probabilities of input values
  * \param[in]  r   A-priori intrinsic probabilities of input values
  * \param[out] re  Extrinsic probabilities of input values
- * 
+ *
  * \note It is counter-productive to vectorize this, as it would require
  * many unnecessary temporary matrix creations.
- * 
+ *
  * \warning The return matrix re may actually be one of the input matrices,
  * so one must be careful not to overwrite positions that still
  * need to be read.
@@ -178,14 +176,14 @@ void turbo<real, dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri,
  * \param[out] ri  A-posteriori probabilities of input values
  * \param[out] re  Extrinsic probabilities of input values (will be used later
  * as the new 'a-priori' probabilities)
- * 
+ *
  * This method performs a complete decoding cycle, including start/end state
  * probability settings for circular decoding, and any interleaving/de-
  * interleaving.
- * 
+ *
  * \note When using a circular trellis, the start- and end-state probabilities
  * are re-initialize with the stored values from the previous turn.
- * 
+ *
  * \warning The return matrix re may actually be the input matrix ra,
  * so one must be careful not to overwrite positions that still
  * need to be read.
@@ -213,7 +211,7 @@ void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
    }
 
 /*! \brief Perform a complete serial-decoding cycle
- * 
+ *
  * \note The BCJR normalization method is used to normalize the extrinsic
  * probabilities.
  */
@@ -231,10 +229,10 @@ void turbo<real, dbl>::decode_serial(array2d_t& ri)
    }
 
 /*! \brief Perform a complete parallel-decoding cycle
- * 
+ *
  * \note The BCJR normalization method is used to normalize the extrinsic
  * probabilities.
- * 
+ *
  * \warning Simulations show that parallel-decoding works well with the
  * 1/4-rate, 3-code, K=3 (111/101), N=4096 code from divs95b;
  * however, when simulating larger codes (N=8192) the system seems
@@ -288,13 +286,13 @@ void turbo<real, dbl>::setpriors(const array1vd_t& ptable)
    }
 
 /*! \copydoc codec_softout::setreceiver()
- * 
+ *
  * Sets: rp, ra, R, [ss, se, through reset()]
- * 
+ *
  * \note The BCJR normalization method is used to normalize the channel-derived
  * (intrinsic) probabilities 'r' and 'R'; in view of this, the a-priori
  * probabilities are now created normalized.
- * 
+ *
  * \note Clean up this function, removing unnecessary symbol-conversion
  */
 template <class real, class dbl>
@@ -531,9 +529,9 @@ std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
 
 /*!
  * \version 0 Initial version (un-numbered)
- * 
+ *
  * \version 1 Added version numbering; added explicit first interleaver
- * 
+ *
  * \version 2 Removed explicit 'tau'
  */
 template <class real, class dbl>

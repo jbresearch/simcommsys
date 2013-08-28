@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Stephan Wesemeyer
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 /*
@@ -51,11 +49,7 @@ namespace libcomm {
  * This class will decode an LDPC code over F_{q} of length n and dimension m
  * The LDPC code is defined by a sparse parity check matrix which needs to be
  * provided in the alist format (see MacKay:http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html)
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <class GF_q, class real = double>

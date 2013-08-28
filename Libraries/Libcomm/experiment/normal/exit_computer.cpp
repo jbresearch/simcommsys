@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "exit_computer.h"
@@ -43,7 +41,7 @@ namespace libcomm {
 /*!
  * \brief Create source sequence to be encoded
  * \return Source sequence of the required length
- * 
+ *
  * The source sequence consists of uniformly random symbols followed by a
  * tail sequence if required by the given codec.
  */
@@ -146,7 +144,7 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
 /*!
  * \brief Determine mutual information at input and output of inner and outer decoders
  * \param[out] result   Vector containing the set of results to be updated
- * 
+ *
  * Results are organized as ...
  */
 template <class S>

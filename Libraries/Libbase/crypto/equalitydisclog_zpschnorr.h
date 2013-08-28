@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __equalitydisclog_zpschnorr_h
@@ -35,11 +33,7 @@ namespace libbase {
 /*!
  * \brief   Log-domain comparison
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * The class takes a BigInteger template parameter.
  */

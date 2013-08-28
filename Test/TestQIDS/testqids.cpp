@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "logrealfast.h"
@@ -90,7 +88,7 @@ void test_visual()
    }
 
 void test_transmission(int tau, double p, bool ins, bool del, bool sub,
-      bool src)
+      bool src, double Pr)
    {
    // define channel according to specifications
    libcomm::qids<bool, float> channel(sub, del, ins);
@@ -114,13 +112,13 @@ void test_transmission(int tau, double p, bool ins, bool del, bool sub,
    // show xmax,I for well-behaved channels
    if ((ins && del) || tau <= 100)
       {
-      cout << "   xmax:\t" << channel.compute_xmax(tau) << std::endl;
-      cout << "      I:\t" << channel.compute_I(tau) << std::endl;
+      cout << "   xmax:\t" << channel.compute_xmax(tau, Pr) << std::endl;
+      cout << "      I:\t" << channel.compute_I(tau, Pr) << std::endl;
       }
    // show end-of-frame priors
    libbase::vector<double> eof_pdf;
    libbase::size_type<libbase::vector> offset;
-   channel.get_drift_pdf(tau, eof_pdf, offset);
+   channel.get_drift_pdf(tau, Pr, eof_pdf, offset);
    cout << "eof prior pdf:" << std::endl;
    cout << "\ti\tPr(i)" << std::endl;
    for (int i = 0; i < eof_pdf.size(); i++)
@@ -173,42 +171,73 @@ double estimate_drift_sd(int tau, double Pi, double Pd)
    return drift.sigma();
    }
 
-int estimate_xmax(int tau, double Pi, double Pd)
+int estimate_xmax(int tau, double Pi, double Pd, double Pr)
    {
-   typedef libcomm::qids<bool, float>::metric_computer metric_computer;
    // determine required multiplier
-   const double factor = libbase::Qinv(metric_computer::Pr / 2.0);
+   const double factor = libbase::Qinv(Pr / 2.0);
    // main computation
    int xmax = int(ceil(factor * estimate_drift_sd(tau, Pi, Pd)));
    // return result
    return xmax;
    }
 
-void compute_statespace(int tau, double p, bool ins, bool del, bool sim)
+double compute_oob_over_multiple(double Pe, int tau)
+   {
+   return 1 - pow(1-Pe, tau);
+   }
+
+void compute_statespace(int tau, double p, bool ins, bool del, bool sim, double Pr)
    {
    typedef libcomm::qids<bool, float>::metric_computer metric_computer;
    const double Pi = ins ? p : 0;
    const double Pd = del ? p : 0;
+   const int Icap = 2;
    cout << p;
-   const int I = metric_computer::compute_I(tau, Pi, 0);
+   const int I = metric_computer::compute_I(tau, Pi, Pr, 0);
    cout << "\t" << I;
-   const int xmax_auto = metric_computer::compute_xmax(tau, Pi, Pd);
+   const double error_I = metric_computer::compute_outofbounds_with(
+         &metric_computer::compute_drift_prob_exact, 1, Pi, Pd, I, -1);
+   cout << "\t" << compute_oob_over_multiple(error_I, tau);
+   cout << "\t" << Icap;
+   const double error_Icap = metric_computer::compute_outofbounds_with(
+         &metric_computer::compute_drift_prob_exact, 1, Pi, Pd, Icap, -1);
+   cout << "\t" << compute_oob_over_multiple(error_Icap, tau);
+
+   const int xmax_auto = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
    cout << "\t" << xmax_auto;
    if (Pi == Pd)
       {
       const int xmax_davey = metric_computer::compute_xmax_with(
-            &metric_computer::compute_drift_prob_davey, tau, Pi, Pd);
+            &metric_computer::compute_drift_prob_davey, tau, Pi, Pd, Pr);
       cout << "\t" << xmax_davey;
+      const double error_davey = metric_computer::compute_outofbounds_with(
+            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, xmax_davey,
+            -xmax_davey);
+      cout << "\t" << error_davey;
       }
    else
       {
-      cout << "\tN/A";
+      cout << "\tN/A\tN/A";
       }
    try
       {
       const int xmax_exact = metric_computer::compute_xmax_with(
-            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd);
+            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, Pr);
       cout << "\t" << xmax_exact;
+      const double error_exact = metric_computer::compute_outofbounds_with(
+            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, xmax_exact,
+            -xmax_exact);
+      cout << "\t" << error_exact;
+      int lower, upper;
+      metric_computer::compute_limits_with(
+            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, Pr, lower,
+            upper);
+      cout << "\t" << upper;
+      cout << "\t" << lower;
+      const double error_ul = metric_computer::compute_outofbounds_with(
+            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, upper,
+            lower);
+      cout << "\t" << error_ul;
       }
    catch (std::exception& e)
       {
@@ -216,14 +245,30 @@ void compute_statespace(int tau, double p, bool ins, bool del, bool sim)
       }
    if (sim)
       {
-      const int xmax_est = estimate_xmax(tau, Pi, Pd);
+      const int xmax_est = estimate_xmax(tau, Pi, Pd, Pr);
       cout << "\t" << xmax_est;
       }
    cout << std::endl;
    }
 
+void compute_drift_pdf(int tau, double p, bool ins, bool del, double Pr)
+   {
+   typedef libcomm::qids<bool, float>::metric_computer metric_computer;
+   const double Pi = ins ? p : 0;
+   const double Pd = del ? p : 0;
+   cout << "p = " << p << std::endl;
+   const int xmax = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
+   cout << "m\tP(m)" << std::endl;
+   for (int m = -xmax; m <= xmax; m++)
+      {
+      const double prob = metric_computer::compute_drift_prob_exact(m, tau, Pi,
+            Pd);
+      cout << m << "\t" << prob << std::endl;
+      }
+   }
+
 template <class real>
-void test_receiver(int tau, double p, bool ins, bool del, bool sub)
+void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
    {
    // define channel according to specifications
    libcomm::qids<bool, real> channel(sub, del, ins);
@@ -233,7 +278,7 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub)
    channel.set_parameter(p);
    channel.set_blocksize(tau);
    // determine state-space parameters
-   const int xmax = channel.compute_xmax(tau);
+   const int xmax = channel.compute_xmax(tau, Pr);
    // define input sequences and output tables
    vector<bool> tx(tau);
    vector<bool> rx(tau + xmax);
@@ -270,7 +315,7 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub)
    }
 
 template <class real, class reference>
-void test_precision(int tau, double p, bool ins, bool del, bool sub)
+void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
    {
    // define two identical channels according to specifications
    libcomm::qids<bool, real> channel_real(sub, del, ins);
@@ -285,7 +330,7 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub)
    channel_reference.set_parameter(p);
    channel_reference.set_blocksize(tau);
    // determine state-space parameters
-   const int xmax = channel_real.compute_xmax(tau);
+   const int xmax = channel_real.compute_xmax(tau, Pr);
    // define input sequences and output tables
    vector<bool> tx(tau);
    vector<bool> rx(tau + xmax);
@@ -330,7 +375,7 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub)
    }
 
 template <class real>
-void compute_timings(int tau, double p, bool ins, bool del, bool sub)
+void compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
    {
    typedef typename libcomm::qids<bool, real>::metric_computer metric_computer;
    const double Pi = ins ? p : 0;
@@ -338,15 +383,15 @@ void compute_timings(int tau, double p, bool ins, bool del, bool sub)
    const double Ps = sub ? p : 0;
    // determine state-space parameters
    cout << p;
-   const int I = metric_computer::compute_I(tau, Pi, 0);
+   const int I = metric_computer::compute_I(tau, Pi, Pr, 0);
    cout << "\t" << I;
-   const int xmax = metric_computer::compute_xmax(tau, Pi, Pd);
+   const int xmax = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
    cout << "\t" << xmax;
    // set up metric computer
    metric_computer computer;
    computer.init();
    computer.N = tau;
-   computer.precompute(Ps, Pd, Pi, 0);
+   computer.precompute(Ps, Pd, Pi, Pr, 0);
    // define input sequences and output table
    vector<bool> tx(tau);
    vector<bool> rx(tau + xmax);
@@ -388,11 +433,7 @@ void compute_timings(int tau, double p, bool ins, bool del, bool sub)
 /*!
  * \brief   Test program for QIDS channel
  * \author  Johann Briffa
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 int main(int argc, char *argv[])
@@ -413,6 +454,7 @@ int main(int argc, char *argv[])
    desc.add_options()("timings",
          "determine timings for lattice and trellis receiver");
    desc.add_options()("state-space", "determine state-space limits");
+   desc.add_options()("drift-pdf", "determine drift probability distribution");
    // test-specific parameters
    desc.add_options()("simulate", po::bool_switch(),
          "when determining state-space limits, also perform simulation to "
@@ -428,6 +470,8 @@ int main(int argc, char *argv[])
          "allow deletions");
    desc.add_options()("sub,s", po::value<bool>()->default_value(false),
          "allow substitutions");
+   desc.add_options()("exclusion,e", po::value<double>()->default_value(1e-10),
+         "probability of event outside range");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -436,7 +480,8 @@ int main(int argc, char *argv[])
    if (vm.count("help")
          || (vm.count("default") + vm.count("visual") + vm.count("transmission")
                + vm.count("receiver") + vm.count("precision")
-               + vm.count("timings") + vm.count("state-space") != 1))
+               + vm.count("timings") + vm.count("state-space")
+               + vm.count("drift-pdf") != 1))
       {
       cout << desc << std::endl;
       return 0;
@@ -445,18 +490,19 @@ int main(int argc, char *argv[])
    // default test set
    if (vm.count("default"))
       {
+      const double Pr = vm["exclusion"].as<double>();
       // test insertion-only channels
-      test_transmission(1000, 0.01, true, false, false, 0);
-      test_transmission(1000, 0.25, true, false, false, 0);
+      test_transmission(1000, 0.01, true, false, false, 0, Pr);
+      test_transmission(1000, 0.25, true, false, false, 0, Pr);
       // test deletion-only channels
-      test_transmission(1000, 0.01, false, true, false, 0);
-      test_transmission(1000, 0.25, false, true, false, 0);
+      test_transmission(1000, 0.01, false, true, false, 0, Pr);
+      test_transmission(1000, 0.25, false, true, false, 0, Pr);
       // test substitution-only channels
-      test_transmission(1000, 0.1, false, false, true, 0);
-      test_transmission(1000, 0.1, false, false, true, 1);
+      test_transmission(1000, 0.1, false, false, true, 0, Pr);
+      test_transmission(1000, 0.1, false, false, true, 1, Pr);
       // test insertion-deletion channels
-      test_transmission(1000, 0.01, true, true, false, 0);
-      test_transmission(1000, 0.25, true, true, false, 0);
+      test_transmission(1000, 0.01, true, true, false, 0, Pr);
+      test_transmission(1000, 0.25, true, true, false, 0, Pr);
       }
    // visual test
    else if (vm.count("visual"))
@@ -472,7 +518,8 @@ int main(int argc, char *argv[])
       const bool ins = vm["ins"].as<bool>();
       const bool del = vm["del"].as<bool>();
       const bool sub = vm["sub"].as<bool>();
-      test_transmission(N, p, ins, del, sub, 0);
+      const double Pr = vm["exclusion"].as<double>();
+      test_transmission(N, p, ins, del, sub, 0, Pr);
       }
    // determine equivalence for trellis and lattice (full and corridor) receiver
    else if (vm.count("receiver"))
@@ -481,6 +528,7 @@ int main(int argc, char *argv[])
       const bool ins = vm["ins"].as<bool>();
       const bool del = vm["del"].as<bool>();
       const bool sub = vm["sub"].as<bool>();
+      const double Pr = vm["exclusion"].as<double>();
       // if a specific parameter is given, determine equivalence at that point
       // otherwise determine equivalence for pre-set range
       const double pstart =
@@ -492,7 +540,7 @@ int main(int argc, char *argv[])
       cout << "p\ttrellis (μ)\ttrellis (σ)\tcorridor (μ)\tcorridor (σ)"
             << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
-         test_receiver<float>(N, p, ins, del, sub);
+         test_receiver<float>(N, p, ins, del, sub, Pr);
       }
    // determine equivalence for receivers in single and double precision
    else if (vm.count("precision"))
@@ -501,6 +549,7 @@ int main(int argc, char *argv[])
       const bool ins = vm["ins"].as<bool>();
       const bool del = vm["del"].as<bool>();
       const bool sub = vm["sub"].as<bool>();
+      const double Pr = vm["exclusion"].as<double>();
       // if a specific parameter is given, determine equivalence at that point
       // otherwise determine equivalence for pre-set range
       const double pstart =
@@ -513,7 +562,7 @@ int main(int argc, char *argv[])
       cout << "p\ttrellis (μ)\ttrellis (σ)\tcorridor (μ)\tcorridor (σ)"
             << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
-         test_precision<float, double>(N, p, ins, del, sub);
+         test_precision<float, double>(N, p, ins, del, sub, Pr);
       }
    // determine timings for lattice and trellis receiver
    else if (vm.count("timings"))
@@ -522,6 +571,7 @@ int main(int argc, char *argv[])
       const bool ins = vm["ins"].as<bool>();
       const bool del = vm["del"].as<bool>();
       const bool sub = vm["sub"].as<bool>();
+      const double Pr = vm["exclusion"].as<double>();
       // if a specific parameter is given, determine equivalence at that point
       // otherwise determine equivalence for pre-set range
       const double pstart =
@@ -529,13 +579,10 @@ int main(int argc, char *argv[])
       const double pstop =
             vm.count("parameter") ? vm["parameter"].as<double>() : 0.5;
       const double pmul = pow(10.0, 1.0 / 10);
-      cout << "Timings (single precision):"
-            << std::endl;
-      cout
-            << "p\tI\txmax\ttrellis\tlattice\tcorridor"
-            << std::endl;
+      cout << "Timings (single precision):" << std::endl;
+      cout << "p\tI\txmax\ttrellis\tlattice\tcorridor" << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
-         compute_timings<float>(N, p, ins, del, sub);
+         compute_timings<float>(N, p, ins, del, sub, Pr);
       }
    // determine state-space limits
    else if (vm.count("state-space"))
@@ -544,6 +591,7 @@ int main(int argc, char *argv[])
       const bool ins = vm["ins"].as<bool>();
       const bool del = vm["del"].as<bool>();
       const bool sim = vm["simulate"].as<bool>();
+      const double Pr = vm["exclusion"].as<double>();
       // if a specific parameter is given, determine equivalence at that point
       // otherwise determine equivalence for pre-set range
       const double pstart =
@@ -551,9 +599,22 @@ int main(int argc, char *argv[])
       const double pstop =
             vm.count("parameter") ? vm["parameter"].as<double>() : 0.5;
       const double pmul = pow(10.0, 1.0 / 10);
-      cout << "p\tI\txmax_auto\txmax_davey\txmax_exact\txmax_est" << std::endl;
+      cout << "p\tI\tp(e)\tI_cap\tp(e)\txmax_auto\txmax_davey\tp(e)\txmax_exact\tp(e)\tupper\tlower\tp(e)";
+      if (sim)
+         cout << "\txmax_est";
+      cout << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
-         compute_statespace(N, p, ins, del, sim);
+         compute_statespace(N, p, ins, del, sim, Pr);
+      }
+   // determine drift probability distribution
+   else if (vm.count("drift-pdf"))
+      {
+      const int N = vm["blocksize"].as<int>();
+      const bool ins = vm["ins"].as<bool>();
+      const bool del = vm["del"].as<bool>();
+      const double p = vm["parameter"].as<double>();
+      const double Pr = vm["exclusion"].as<double>();
+      compute_drift_pdf(N, p, ins, del, Pr);
       }
 
    return 0;

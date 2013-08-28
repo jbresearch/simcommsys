@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __cuda_util_h
@@ -52,7 +50,7 @@ int cudaGetMultiprocessorSize(int device = -1);
 int cudaGetWarpSize(int device = -1);
 double cudaGetClockRate(int device = -1);
 std::string cudaGetDeviceName(int device = -1);
-int cudaGetGlobalMem(int device = -1);
+size_t cudaGetGlobalMem(int device = -1);
 int cudaGetComputeCapability(int device = -1);
 
 int cudaGetDeviceCount();
@@ -82,16 +80,15 @@ inline void __cudaSafeCall(const cudaError_t error, const char *file,
       const int line)
    {
    if (error == cudaSuccess)
-   return;
-   std::cerr << "CUDA error in file <" << file << ">, line " << line << " : "
-   << cudaGetErrorString(error) << "." << std::endl;
-   cudaThreadExit();
+      return;
+   std::cerr << "CUDA error in file <" << file << ">, line " << line << " : " << cudaGetErrorString(error) << "." << std::endl;
+   cudaDeviceReset();
    exit(1);
    }
 
 // wait for kernels in all streams to finish
 
-#define cudaSafeThreadSynchronize() cudaSafeCall(cudaThreadSynchronize());
+#define cudaSafeDeviceSynchronize() cudaSafeCall(cudaDeviceSynchronize());
 
 // wait for kernel in specified stream to finish
 
@@ -254,6 +251,22 @@ inline size_t cudaSafeGetSymbolSize(const T& symbol)
    std::cerr << "DEBUG (util): symbol has size " << n << std::endl;
 #endif
    return n;
+   }
+
+inline std::ostream& operator<<(std::ostream& sout, const dim3& size)
+   {
+   sout << "[" << size.x;
+   if (size.y > 1 || size.z > 1)
+      sout << "x" << size.y;
+   if (size.z > 1)
+      sout << "x" << size.z;
+   sout << "]";
+   return sout;
+   }
+
+inline int count(const dim3& size)
+   {
+   return size.x * size.y * size.z;
    }
 
 #endif

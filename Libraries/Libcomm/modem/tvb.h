@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __tvb_h
@@ -51,11 +49,7 @@ namespace libcomm {
 /*!
  * \brief   Time-Varying Block Code.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Implements a MAP decoding algorithm for a generalized class of
  * synchronization-correcting codes. The algorithm is described in
@@ -115,6 +109,7 @@ private:
    array2vs_t codebook_tables; //!< user set of codebooks
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   double Pr; //!< Probability of channel event outside chosen limits
    struct {
       bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
       bool batch; //!< Flag indicating use of batch receiver interface
@@ -128,6 +123,7 @@ private:
    qids<sig,real2> mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
+   mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
 #ifdef USE_CUDA
    cuda::fba2<cuda::tvb_receiver<sig, real, real2>, sig, real, real2> fba; //!< algorithm object
 #else
@@ -296,6 +292,10 @@ public:
    libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
       {
       return libbase::size_type<libbase::vector>(n * lookahead);
+      }
+   double get_suggested_exclusion(void) const
+      {
+      return Pr;
       }
 
    // Description

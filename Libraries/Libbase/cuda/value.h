@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __cuda_value_h
@@ -47,11 +45,7 @@ class value_reference;
 /*!
  * \brief   A single object in device memory
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This class represents a 'single object in device memory'. It consists of two
  * parts:
@@ -319,11 +313,7 @@ inline value<T>::operator T() const
 /*!
  * \brief   A reference to a single object in device memory.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * A value reference is a value that does not own its allocated memory.
  * Consequently, all operations that require memory operations are forbidden.
@@ -470,11 +460,7 @@ inline value_reference<T>& value_reference<T>::operator=(const T& x)
 /*!
  * \brief   A single object in device memory - automatic
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * The first automatic object creates an actual value on the device.
  * Copies of this object (through copy construction) create shallow copies

@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "serializer_libcomm.h"
@@ -50,11 +48,7 @@ libimage::image<S> loadimage(const std::string& fname)
 /*!
  * \brief   Main data-embedding process
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This method embeds a given data sequence into a given cover (host); the
  * stego-system used is described by a system file. The data sequence is
@@ -114,11 +108,7 @@ void process(const std::string& systemfile, const std::string& hostfile,
 /*!
  * \brief   Stego-System Embedder
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 int main(int argc, char *argv[])

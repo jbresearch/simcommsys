@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "testcuda.h"
@@ -173,7 +171,7 @@ void test_useofclasses()
    dev_x = x;
    // do kernel call
    test_useofclasses_kernel<<<1, N>>> (dev_x);
-   cudaSafeThreadSynchronize();
+   cudaSafeDeviceSynchronize();
    // copy results back and display
    libbase::vector<complex> y;
    y = libbase::vector<complex>(dev_x);
@@ -229,7 +227,7 @@ void test_streams()
       }
    tgpu.stop();
    // wait for all CUDA events to finish before stopping CPU timer
-   cudaSafeThreadSynchronize();
+   cudaSafeDeviceSynchronize();
    tcpu.stop();
    // show what happened
    for (int i=0; i<N; i++)
@@ -436,7 +434,7 @@ void test_sizes()
    sizes_g_d.init(N);
    align_g_d.init(N);
    get_sizes_kernel<<<1,1>>> (sizes_g_d, align_g_d);
-   cudaSafeThreadSynchronize();
+   cudaSafeDeviceSynchronize();
    libbase::vector<int> sizes_g = libbase::vector<int>(sizes_g_d);
    libbase::vector<int> align_g = libbase::vector<int>(align_g_d);
    // print results

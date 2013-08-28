@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __group_h
@@ -34,11 +32,7 @@ namespace libbase {
 /*!
  * \brief   Group.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Class that represents the group. Used to save and load previously generated
  * groups.

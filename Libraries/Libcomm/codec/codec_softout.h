@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __codec_softout_h
@@ -34,11 +32,7 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with Soft Output Interface.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
@@ -124,11 +118,7 @@ public:
 /*!
  * \brief   Channel Codec with Soft Output Base.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Templated soft-output codec base. This extra level is required to allow
  * partial specialization of the container.
@@ -142,11 +132,7 @@ public:
 /*!
  * \brief   Channel Codec with Soft Output Base Specialization.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Templated soft-output codec base. This extra level is required to allow
  * partial specialization of the container.

@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,30 +18,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
- * 
+ *
  * \warning GCC complains if I don't explicitly refer to member variables from
  * parent class ccfm<G> using this-> or grscc<G>:: qualifiers. It turns
  * out this is a known "feature" of GCC:
  * (c.f. http://gcc.gnu.org/bugs.html#known)
- * 
+ *
  * \code
  * # This also affects members of base classes, see [14.6.2]:
- * 
+ *
  * template <typename> struct A
  * {
  * int i, j;
  * };
- * 
+ *
  * template <typename T> struct B : A<T>
  * {
  * int foo1() { return i; }       // error
  * int foo2() { return this->i; } // OK
  * int foo3() { return B<T>::i; } // OK
  * int foo4() { return A<T>::i; } // OK
- * 
+ *
  * using A<T>::j;
  * int foo5() { return j; }       // OK
  * };
@@ -63,12 +61,12 @@ using libbase::matrix;
  * \brief Create state-generator matrix in the required format for
  * determining circulation state
  * \return State-generator matrix
- * 
+ *
  * The size of state-generator matrix \f$ G \f$ is \f$ \nu \times \nu \f$
  * elements. Each row contains the multipliers corresponding to a particular
  * memory element's input. In turn, each column contains the multiplier
  * (weight) corresponding to successive present-state memory elements.
- * 
+ *
  * Note that by definition, \f$ G \f$ contains only the taps corresponding to
  * the feedforward and feedback paths for the next-state generation; thus the
  * polynomials corresponding to the output generation have no bearing.
@@ -97,7 +95,7 @@ matrix<G> grscc<G>::getstategen() const
 
 /*!
  * \brief Initialize circulation state correspondence table
- * 
+ *
  * If the feedback polynomial is primitive, the system behaves as a maximal-length
  * linear feedback shift register. We verify the period by computing the necessary
  * powers of the state-generator matrix.

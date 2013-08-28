@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "commsys_stream_simulator.h"
@@ -179,7 +177,8 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
             ptable_ext_codec);
       // Pass extrinsic information through mapper
       sys_dec.getmapper()->transform(ptable_ext_codec, ptable_ext_modem);
-      //libbase::compute_extrinsic(ptable_ext_modem, ptable_post_modem, ptable_ext_modem);
+      // Mark mapper as clean (we will need to use again this cycle)
+      sys_dec.getmapper()->mark_as_clean();
 
       // and perform codeword boundary analysis if this is indicated
       if (rc)
@@ -241,7 +240,6 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       libbase::compute_extrinsic(ptable_ext_modem, ro_modem, ptable_ext_modem);
       // Inverse Map extrinsic information
       sys_dec.getmapper()->inverse(ptable_ext_modem, ptable_ext_codec);
-      //libbase::compute_extrinsic(ptable_ext_codec, ro_codec, ptable_ext_codec);
       // Keep record of what we last simulated
       this->last_event = concatenate(source_this, decoded);
       // If this was not the last iteration, mark components as clean

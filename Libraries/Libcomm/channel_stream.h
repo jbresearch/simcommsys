@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __channel_stream_h
@@ -32,11 +30,7 @@ namespace libcomm {
 /*!
  * \brief   Stream-Oriented Channel Interface.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Defines the additional interface methods for stream-oriented channels.
  */
@@ -57,7 +51,7 @@ public:
     * required limit, and computes the end-of-frame distribution for this range.
     * It returns the necessary offset accordingly.
     */
-   virtual void get_drift_pdf(int tau, array1d_t& eof_pdf, libbase::size_type<
+   virtual void get_drift_pdf(int tau, double Pr, array1d_t& eof_pdf, libbase::size_type<
          libbase::vector>& offset) const = 0;
    /*!
     * \brief Get the expected drift distribution after transmitting 'tau'
@@ -68,7 +62,7 @@ public:
     * It also resizes the start-of-frame pdf accordingly and updates the given
     * offset.
     */
-   virtual void get_drift_pdf(int tau, array1d_t& sof_pdf, array1d_t& eof_pdf,
+   virtual void get_drift_pdf(int tau, double Pr, array1d_t& sof_pdf, array1d_t& eof_pdf,
          libbase::size_type<libbase::vector>& offset) const = 0;
    // @}
 };

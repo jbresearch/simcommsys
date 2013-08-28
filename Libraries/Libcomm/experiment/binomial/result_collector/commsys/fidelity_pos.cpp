@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "fidelity_pos.h"
@@ -31,7 +29,7 @@ namespace libcomm {
  * \param[out] result   Vector containing the set of results to be updated
  * \param[in]  act_drift  Actual drift positions
  * \param[in]  est_drift  Estimated drift positions
- * 
+ *
  * Results are organized as (symbol,frame) error count, repeated for
  * every iteration that needs to be performed. Eventually these will be
  * divided by the respective multiplicity to get the average error rates.

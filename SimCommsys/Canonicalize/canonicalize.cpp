@@ -1,5 +1,6 @@
 /*!
  * \file
+ * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #include "serializer_libcomm.h"
@@ -48,11 +46,7 @@ void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
 /*!
  * \brief   Communication Systems File Canonicalizer
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This program reads the system specified on standard input and rewrites
  * it to standard output in its canonical form.

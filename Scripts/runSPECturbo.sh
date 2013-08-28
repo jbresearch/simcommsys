@@ -8,28 +8,28 @@
 if (( $# > 0 )); then
    PORT=$1
 else
-   PORT=9998
+   PORT=9999
 fi
 
 if (( $# > 1 )); then
    COUNT=$2
 else
-   COUNT=$CPUS
+   COUNT=`grep processor /proc/cpuinfo |wc -l`
 fi
 
 if (( $# > 2 )); then
    RELEASE=$3
 else
-   RELEASE=Release
+   RELEASE=release
 fi
 
-BRANCH=`basename $PWD`
+BRANCH=`make tag`
 
 # start slave processes (one/CPU)
 declare -i i
 for (( i=0; $i < $COUNT; i++ )); do
    echo Starting slave $i
-   ( sleep 1; SPECturbo.$BRANCH.$RELEASE -e localhost:$PORT >/dev/null 2>&1 )&
+   ( sleep 1; SPECturbo.$BRANCH.$RELEASE -q -p 0 -e localhost:$PORT >/dev/null 2>&1 )&
 done
 
 # start master process

@@ -1,9 +1,9 @@
 /*!
  * \file
  * \brief   Parallel code for BSID channel.
- * 
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -18,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "qids.h"
@@ -74,7 +71,6 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
    dev_rx = rx;
    // call the kernel with a copy of this object
    cuda::receive_trellis_kernel<G,real> <<<1,1>>>(*this, dev_tx, dev_rx, dev_ptable);
-   cudaSafeThreadSynchronize();
    // return the result
    ptable = array1r_t(dev_ptable);
    }
@@ -93,7 +89,6 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
    dev_rx = rx;
    // call the kernel with a copy of this object
    cuda::receive_lattice_kernel<G,real> <<<1,1>>>(*this, dev_tx, dev_rx, dev_ptable);
-   cudaSafeThreadSynchronize();
    // return the result
    ptable = array1r_t(dev_ptable);
    }
@@ -112,7 +107,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(const array1g_t& t
    dev_rx = rx;
    // call the kernel with a copy of this object
    cuda::receive_lattice_corridor_kernel<G,real> <<<1,1>>>(*this, dev_tx, dev_rx, dev_ptable);
-   cudaSafeThreadSynchronize();
    // return the result
    ptable = array1r_t(dev_ptable);
    }

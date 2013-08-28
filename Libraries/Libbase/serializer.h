@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __serializer_h
@@ -41,11 +39,7 @@ class serializable;
 /*!
  * \brief   Serialization helper.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Class created to allow the implementation of serialization functions
  * similar to MFC's. Concept is that derived classes should have a static
@@ -114,11 +108,7 @@ public:
 /*!
  * \brief   Serializable class base.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * All serializable classes inherit from this. Implements part of the required
  * functionality, in conjunction with DECLARE_BASE_SERIALIZER() macro.

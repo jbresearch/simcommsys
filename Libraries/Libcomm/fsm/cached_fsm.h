@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,21 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
- */
-
-/*!
- * \file
- *
- *  Created on: 4 Mar 2010
- *      Author: jabriffa
- * 
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
  */
 
 #ifndef CACHED_FSM_H_
@@ -56,11 +42,7 @@ namespace libcomm {
 /*!
  * \brief   Cached FSM.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Class representing an FSM held internally by its state table. This can
  * be constructed from any other FSM class, memory permitting, by iteratively

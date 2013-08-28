@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __cuda_matrix_h
@@ -48,11 +46,7 @@ class matrix_reference;
 /*!
  * \brief   A two-dimensional array in device memory
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This class represents a '2D array in device memory'. It consists of two
  * parts:
@@ -279,6 +273,10 @@ public:
    matrix<T>& operator=(const libbase::matrix<T>& x);
    //! copy to standard matrix
    operator libbase::matrix<T>() const;
+   //! copy from standard vector (matrix in row major order)
+   matrix<T>& operator=(const libbase::vector<T>& x);
+   //! copy to standard vector (matrix in row major order)
+   operator libbase::vector<T>() const;
    // @}
 
    /*! \name Element access */
@@ -442,6 +440,35 @@ inline matrix<T>::operator libbase::matrix<T>() const
 
    return x;
    }
+
+template <class T>
+inline matrix<T>& matrix<T>::operator=(const libbase::vector<T>& x)
+   {
+   // can only copy from vector of the right size
+   assertalways(x.size() == rows * cols);
+
+   // copy data from host to device if necessary
+   if (data != NULL)
+      {
+      cudaSafeMemcpy2D(data, pitch, &x(0), cols * sizeof(T), cols, rows, cudaMemcpyHostToDevice);
+      }
+
+   return *this;
+   }
+
+template <class T>
+inline matrix<T>::operator libbase::vector<T>() const
+   {
+   libbase::vector<T> x(rows * cols);
+
+   // copy data from device to host if necessary
+   if (data != NULL)
+      {
+      cudaSafeMemcpy2D(&x(0), cols * sizeof(T), data, pitch, cols, rows, cudaMemcpyDeviceToHost);
+      }
+
+   return x;
+   }
 #endif
 
 // Prior definition of matrix class
@@ -452,11 +479,7 @@ class matrix;
 /*!
  * \brief   A reference to a two-dimensional array in device memory.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * A matrix reference is a matrix that does not own its allocated memory.
  * Consequently, all operations that require a resize are forbidden.
@@ -624,11 +647,7 @@ inline matrix_reference<T>& matrix_reference<T>::operator=(const libbase::matrix
 /*!
  * \brief   A two-dimensional array in device memory - automatic
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * The first automatic object creates an actual matrix on the device.
  * Copies of this object (through copy construction) create shallow copies

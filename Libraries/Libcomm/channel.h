@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __channel_h
@@ -44,11 +42,7 @@ namespace libcomm {
 /*!
  * \brief   Common Channel Interface.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Base channel definition provides:
  * - random generator accessible by derived classes
@@ -193,11 +187,7 @@ public:
 /*!
  * \brief   Common Channel Base.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Templated common channel base. This extra level is required to allow partial
  * specialization of the container.
@@ -210,11 +200,7 @@ class basic_channel : public basic_channel_interface<S, C> {
 /*!
  * \brief   Common Channel Base Specialization.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Templated common channel base. Partial specialization for vector container.
  */
@@ -315,11 +301,7 @@ double basic_channel<S, libbase::vector>::receive(const S& tx,
 /*!
  * \brief   Common Channel Base Specialization.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Templated common channel base. Partial specialization for matrix container.
  */
@@ -398,11 +380,7 @@ public:
 /*!
  * \brief   Channel Base.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Templated base channel model.
  */
@@ -416,11 +394,7 @@ DECLARE_BASE_SERIALIZER(channel)
 /*!
  * \brief   Signal-Space Channel.
  * \author  Johann Briffa
- *
- * \section svn Version Control
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Class specialization including elements specific to the signal-space
  * channel model.

@@ -1,8 +1,9 @@
 /*!
  * \file
- * 
+ * $Id$
+ *
  * Copyright (c) 2010 Johann A. Briffa
- * 
+ *
  * This file is part of SimCommSys.
  *
  * SimCommSys is free software: you can redistribute it and/or modify
@@ -17,9 +18,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * \section svn Version Control
- * - $Id$
  */
 
 #include "montecarlo.h"
@@ -248,7 +246,7 @@ void montecarlo::lookforstate(std::istream& sin)
 
 /*!
  * \brief Default progress display routine.
- * 
+ *
  * \note Display updates are rate-limited
  */
 void montecarlo::display(const libbase::vector<double>& result,
@@ -296,7 +294,7 @@ void montecarlo::updateresults(vector<double>& result,
  * \brief Initialize given slave
  * \param   s              Slave to be initialized
  * \param   systemstring   Serialized system description
- * 
+ *
  * Initialize given slave by sending the system being simulated and the
  * current simulation parameter.
  */
@@ -317,7 +315,7 @@ void montecarlo::initslave(slave *s, std::string systemstring)
 /*!
  * \brief Initialize any new slaves
  * \param   systemstring   Serialized system description
- * 
+ *
  * If there are any slaves in the NEW state, initialize them by sending the system
  * being simulated and the current simulation parameters.
  */
@@ -334,7 +332,7 @@ void montecarlo::initnewslaves(std::string systemstring)
 /*!
  * \brief Get idle slaves to work if we're not yet done
  * \param   converged  True if results have already converged
- * 
+ *
  * If there are any slaves in the IDLE state, ask them to start working. We ask *all* IDLE
  * slaves to work, as long as the results have not yet converged. Therefore, this happens
  * when the target accuracy is not yet reached or if the number of samples gathered is not
@@ -359,10 +357,10 @@ void montecarlo::workidleslaves(bool converged)
 /*!
  * \brief Read and accumulate results from any pending slaves
  * \return  True if any new results have been added, false otherwise
- * 
+ *
  * If there are any slaves in the EVENT_PENDING state, read their results. Values
  * returned are accumulated into the running totals.
- * 
+ *
  * If any slave returns a result that does not correspond to the same system
  * or parameter that are now being simulated, this is discarded and the slave
  * is marked as 'new'.
