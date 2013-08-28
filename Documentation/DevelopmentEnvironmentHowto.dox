@@ -48,11 +48,9 @@ the operating system:
    - G++ 4.6.3
    - Eclipse 3.7.2 with Subversive plugin for SVN integration and Eclox for
    Doxygen access.
-- Windows development is based on a Windows XP SP3 (32-bit) reference
-   platform, and assumes Microsoft Visual Studio 2008; the Team System is
-   suggested for its performance-related tools.  The Refactor! plugin from
-   Developer Express Inc. is also recommended (this has not been tested with
-   VS 2008).
+- Windows development is based on a Windows Server 2008 R2 (64-bit) reference
+   platform, and assumes Microsoft Visual Studio 2010; the Premium version is
+   suggested for its performance-related tools.
 
 \note Windows support is currently on hold, pending transition to a 64-bit
 edition of Windows and Visual Studio 2010.
