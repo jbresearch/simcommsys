@@ -4,7 +4,7 @@
 # top-level folders for libraries and targets
 for folder in Libraries SimCommsys Steganography Test Windows; do
    echo "*** $folder"
-   propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'*.suo$'\n'*.ncb$'\n'*cache.dat
+   propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'*.suo$'\n'*.ncb$'\n'*cache.dat$'\n'*.aps
    svn ps svn:ignore "$propval" $folder
    #svn pg svn:ignore $folder
    # individual folders for libraries and targets
