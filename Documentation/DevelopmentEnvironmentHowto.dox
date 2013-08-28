@@ -254,8 +254,9 @@ This will create a subfolder according to the version installed
 -# Set the \c BOOST_ROOT environment variable to this folder; in Windows 7 and
 above this can be done through the 'Edit environment variables for your account'
 link available through the start menu.
--# In order to build the binaries for the 64-bit version of Boost, from within
-the boost root folder you need to issue the command
+-# Open a terminal and go into this folder. To prepare the installation process
+run \c bootstrap.bat.
+-# In order to build the binaries for the 64-bit version of Boost, issue
 \verbatim
 bjam --toolset=msvc-10.0 address-model=64 --build-type=complete stage
 \endverbatim
