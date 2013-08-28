@@ -248,7 +248,9 @@ http://www.boost.org/users/download/
 \endverbatim
 It is recommended to use the same version as in Linux builds.
 -# Extract this to a suitable folder
-(e.g. <tt>C:\\Program Files\\boost_1_54_0</tt>)
+(e.g. <tt>C:\\Program Files\\boost</tt>)
+This will create a subfolder according to the version installed
+(e.g. <tt>C:\\Program Files\\boost\\boost_1_54_0</tt>)
 -# Set the \c BOOST_ROOT environment variable to this folder; in Windows 7 and
 above this can be done through the 'Edit environment variables for your account'
 link available through the start menu.
