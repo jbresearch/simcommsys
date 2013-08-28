@@ -339,7 +339,7 @@ void fba2<receiver_t, sig, real, real2>::allocate()
    // determine required space for inner metric table (Jiao-Armand method)
    size_t entries = 0;
    for (int delta = dmin; delta <= dmax; delta++)
-      entries += (1 << (delta + n));
+      entries += (1ULL << (delta + n));
    std::cerr << "Jiao-Armand Table Size: "
          << q * entries * sizeof(float) / double(1 << 20) << "MiB" << std::endl;
 #endif
