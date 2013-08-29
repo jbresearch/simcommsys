@@ -4,7 +4,7 @@
 # root-level folder
 folder="."
 echo "*** $folder"
-propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'Win32$'\n'x64
+propval=[Dd]ebug$'\n'[Rr]elease$'\n'[Pp]rofile$'\n'Win32$'\n'x64$'\n'*.suo$'\n'*.ncb
 svn ps svn:ignore "$propval" $folder
 #svn pg svn:ignore $folder
 # top-level folders for libraries and targets
