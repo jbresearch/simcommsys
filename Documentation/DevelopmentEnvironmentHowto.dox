@@ -52,9 +52,6 @@ the operating system:
    platform, and assumes Microsoft Visual Studio 2010; the Premium version is
    suggested for its performance-related tools.
 
-\note Windows support is currently on hold, pending transition to a 64-bit
-edition of Windows and Visual Studio 2010.
-
 Other than G++ and GNU Make, the principal build requirement for SimCommSys
 is a recent development version of Boost, together with the 'Program
 Options' optional component.
@@ -263,7 +260,7 @@ Then move the contents of <tt>stage\\lib</tt> to <tt>lib\\x64</tt>.
 \verbatim
 bjam --toolset=msvc-9.0 --build-type=complete stage
 \endverbatim
-Then move the contents of \c stage\lib to \c lib\win32.
+Then move the contents of <tt>stage\\lib</tt> to <tt>lib\\win32</tt>.
 Between builds remove the directories \c bin.v2 and \c stage.
 
 \subsection setup Setting up
