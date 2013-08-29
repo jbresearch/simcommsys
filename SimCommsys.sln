@@ -88,15 +88,10 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install x64", "Windows\Inst
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{C20FD55E-5852-4118-81C0-56487BAE35A9}"
 	ProjectSection(SolutionItems) = preProject
-		Windows\Readme.txt = Windows\Readme.txt
 		SimCommSysPropSheet.props = SimCommSysPropSheet.props
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
@@ -402,5 +397,9 @@ Global
 		{A1541E91-1497-4F44-BF84-8ECA2F6A8CFB} = {A64B6DED-1E8B-49F7-AA9B-B83CCC8B6004}
 		{158CC00E-1712-4D03-AF5A-3F6E5F3D121D} = {7A5CD1E8-BF25-43A1-80BA-A608CF0D2D7D}
 		{15AE192B-516A-442C-8D21-0797395A2096} = {7A5CD1E8-BF25-43A1-80BA-A608CF0D2D7D}
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal
