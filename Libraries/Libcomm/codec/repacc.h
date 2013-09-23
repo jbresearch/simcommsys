@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include "codec_softout.h"
-#include "uncoded.h"
+#include "memoryless.h"
 #include "fsm.h"
 #include "interleaver.h"
 #include "safe_bcjr.h"
@@ -66,7 +66,7 @@ private:
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
    //! MAP representation of repetition code
-   uncoded<dbl> rep;
+   memoryless<dbl> rep;
    fsm *acc; //!< Encoder representation of accumulator
    int iter; //!< Number of iterations to perform
    bool endatzero; //!< Flag to indicate that trellises are terminated
