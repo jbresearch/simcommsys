@@ -267,10 +267,10 @@ void get_descriptors(libbase::vector<std::string>& names)
    names(i++) = "libcomm::qids<bool,float>::metric_computer";
    names(i++) = "tvb_receiver<bool,float,float>";
    names(i++) = "tvb_receiver<bool,double,float>";
-   names(i++) = "fba2<tvb_receiver<bool,float,float>,bool,float,float>::metric_computer";
-   names(i++) = "fba2<tvb_receiver<bool,double,float>,bool,double,float>::metric_computer";
-   names(i++) = "fba2<tvb_receiver<bool,float,float>,bool,float,float>";
-   names(i++) = "fba2<tvb_receiver<bool,double,float>,bool,double,float>";
+   names(i++) = "fba2<tvb_receiver,bool,float,float>::metric_computer";
+   names(i++) = "fba2<tvb_receiver,bool,double,float>::metric_computer";
+   names(i++) = "fba2<tvb_receiver,bool,float,float>";
+   names(i++) = "fba2<tvb_receiver,bool,double,float>";
    }
 
 void get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
@@ -301,10 +301,10 @@ void get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
    sizes(i++) = sizeof(libcomm::qids<bool,float>::metric_computer);
    sizes(i++) = sizeof(tvb_receiver<bool,float,float>);
    sizes(i++) = sizeof(tvb_receiver<bool,double,float>);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float>::metric_computer);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float>::metric_computer);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float>);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float>);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>::metric_computer);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>::metric_computer);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>);
 
    // alignment
    i = 0;
@@ -330,10 +330,10 @@ void get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
    align(i++) = __alignof__(libcomm::qids<bool,float>::metric_computer);
    align(i++) = __alignof__(tvb_receiver<bool,float,float>);
    align(i++) = __alignof__(tvb_receiver<bool,double,float>);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float>::metric_computer);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float>::metric_computer);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float>);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float>);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>::metric_computer);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>::metric_computer);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>);
    }
 
 __device__
@@ -365,10 +365,10 @@ void get_sizes(vector_reference<int>& sizes, vector_reference<int>& align)
    sizes(i++) = sizeof(libcomm::qids<bool,float>::metric_computer);
    sizes(i++) = sizeof(tvb_receiver<bool,float,float>);
    sizes(i++) = sizeof(tvb_receiver<bool,double,float>);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float>::metric_computer);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float>::metric_computer);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float>);
-   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float>);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>::metric_computer);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>::metric_computer);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>);
+   sizes(i++) = sizeof(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>);
 
    // alignment
    i = 0;
@@ -394,10 +394,10 @@ void get_sizes(vector_reference<int>& sizes, vector_reference<int>& align)
    align(i++) = __alignof__(libcomm::qids<bool,float>::metric_computer);
    align(i++) = __alignof__(tvb_receiver<bool,float,float>);
    align(i++) = __alignof__(tvb_receiver<bool,double,float>);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float>::metric_computer);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float>::metric_computer);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float>);
-   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float>);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>::metric_computer);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>::metric_computer);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,float,float>, bool, float, float, false, false, true>);
+   align(i++) = __alignof__(fba2<tvb_receiver<bool,double,float>, bool, double, float, false, false, true>);
    }
 
 // kernel function

@@ -160,7 +160,7 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    // Shorthand for transmitted frame size
    const int tau = system->output_block_size();
 
-   // Keep a copy of the last frame's offset (in case x_max changes)
+   // Keep a copy of the last frame's offset (in case state space changes)
    const libbase::size_type<libbase::vector> oldoffset = offset;
 
    // Determine the suggested look-ahead quantity

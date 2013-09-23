@@ -75,9 +75,11 @@ public:
       computer = chan.get_computer();
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
-      std::cerr << "N = " << computer.N << std::endl;
-      std::cerr << "I = " << computer.I << std::endl;
-      std::cerr << "xmax = " << computer.xmax << std::endl;
+      std::cerr << "T = " << computer.T << std::endl;
+      std::cerr << "mT_min = " << computer.mT_min << std::endl;
+      std::cerr << "mT_max = " << computer.mT_max << std::endl;
+      std::cerr << "m1_min = " << computer.m1_min << std::endl;
+      std::cerr << "m1_max = " << computer.m1_max << std::endl;
       std::cerr << "Rval = " << computer.Rval << std::endl;
       std::cerr << "Rtable = " << libbase::matrix<real2>(computer.Rtable) << std::endl;
 #endif
@@ -96,18 +98,6 @@ public:
       }
    // @}
    /*! \name Interface with fba2 algorithm (cannot be changed) */
-   //! Receiver interface
-   real R(int d, int i, const array1s_t& r, const array1vd_t& app) const
-      {
-      // 'tx' is the vector of transmitted symbols that we're considering
-      const array1s_t& tx = encoding_table(i, d);
-      // compute the conditional probability
-      real result = real(computer.receive(tx, r));
-      // apply priors at codeword level if applicable
-      if (app.size() > 0)
-         result *= real(app(i)(d));
-      return result;
-      }
    //! Batch receiver interface
    void R(int d, int i, const array1s_t& r, const array1vd_t& app,
          array1r_t& ptable) const

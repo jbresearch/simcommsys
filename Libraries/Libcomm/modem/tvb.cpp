@@ -21,6 +21,7 @@
  */
 
 #include "tvb.h"
+#include "algorithm/fba2-factory.h"
 #include "sparse.h"
 #include "timer.h"
 #include "cputimer.h"
@@ -41,7 +42,8 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
-/*! \brief Determines and returns codebook to be used at index 'i'
+/*! \brief Determines and returns codebook to be used at index 'i'.
+ * \return Index for codebook to use (into the codebook tables)
  *
  * In determining the codebook to be used, this method advances the internal
  * state as necessary. This means that this method should only be called once
@@ -50,12 +52,8 @@ namespace libcomm {
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-libbase::vector<libbase::vector<sig> > tvb<sig, real, real2>::select_codebook(
-      const int i) const
+int tvb<sig, real, real2>::select_codebook(const int i) const
    {
-   // Initialize space for result
-   array1vs_t codebook;
-   libbase::allocate(codebook, q, n);
    // Select codebook
    int cb_index = 0;
    switch (codebook_type)
@@ -66,22 +64,26 @@ libbase::vector<libbase::vector<sig> > tvb<sig, real, real2>::select_codebook(
          break;
 
       case codebook_random:
+         // NOTE: in the following, we cast away the const nature of
+         //       codebook_tables; this won't matter because this is not saved
+         //       if we have a random codebook.
+         // Generate codebook
          for (int d = 0; d < q; d++)
             for (bool ready = false; !ready;)
                {
                for (int s = 0; s < n; s++)
-                  codebook(d)(s) = sig(this->r.ival(
-                        field_utils<sig>::elements()));
+                  const_cast<sig&>(codebook_tables(0, d)(s)) = sig(
+                        this->r.ival(field_utils<sig>::elements()));
                // this entry should be distinct from earlier entries
                ready = true;
                for (int dd = 0; dd < d; dd++)
-                  if (codebook(dd).isequalto(codebook(d)))
+                  if (codebook_tables(0, dd).isequalto(codebook_tables(0, d)))
                      {
                      ready = false;
                      break;
                      }
                }
-         return codebook;
+         break;
 
       case codebook_user_sequential:
          assert(num_codebooks() >= 1);
@@ -97,10 +99,8 @@ libbase::vector<libbase::vector<sig> > tvb<sig, real, real2>::select_codebook(
          failwith("Unknown codebook type");
          break;
       }
-   // Copy chosen codebook and return
-   for (int d = 0; d < q; d++)
-      codebook(d) = codebook_tables(cb_index, d);
-   return codebook;
+   // Return index to chosen codebook
+   return cb_index;
    }
 
 /*! \brief Determines and returns marker vector to be used at index 'i'
@@ -112,23 +112,21 @@ libbase::vector<libbase::vector<sig> > tvb<sig, real, real2>::select_codebook(
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-libbase::vector<sig> tvb<sig, real, real2>::select_marker(const int i) const
+int tvb<sig, real, real2>::select_marker(const int i) const
    {
-   // Initialize space for result
-   array1s_t marker;
-   marker.init(n);
    // Select marker vector
    int mv_index = 0;
    switch (marker_type)
       {
       case marker_zero:
-         marker = 0;
-         return marker;
+         // nothing to do
+         break;
 
       case marker_random:
          for (int s = 0; s < n; s++)
-            marker(s) = sig(this->r.ival(field_utils<sig>::elements()));
-         return marker;
+            const_cast<sig&>(marker_vectors(0)(s)) = sig(
+                  this->r.ival(field_utils<sig>::elements()));
+         break;
 
       case marker_user_sequential:
          assert(marker_vectors.size() >= 1);
@@ -144,9 +142,8 @@ libbase::vector<sig> tvb<sig, real, real2>::select_marker(const int i) const
          failwith("Unknown marker sequence type");
          break;
       }
-   // Copy chosen marker vector and return
-   marker = marker_vectors(mv_index);
-   return marker;
+   // Return index to chosen marker vector
+   return mv_index;
    }
 
 /*! \brief Fills the entries of the encoding table, as requested
@@ -178,19 +175,23 @@ void tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
    for (int i = 0; i < length; i++)
       {
       // Select codebook and marker vector
-      const array1vs_t codebook = select_codebook(i);
-      const array1s_t marker = select_marker(i);
+      const int cb_index = select_codebook(i);
+      const int mv_index = select_marker(i);
 #if DEBUG>=2
       std::cerr << "Codebook for i = " << i << std::endl;
-      showcodebook(std::cerr, codebook);
+      showcodebook(std::cerr, codebook_tables.row(cb_index));
       std::cerr << "Marker for i = " << i << std::endl;
       std::cerr << "\t";
       marker.serialize(std::cerr, ' ');
 #endif
       // Encode each possible input symbol
       for (int d = 0; d < q; d++)
-         encoding_table(offset + i, d) = field_utils<sig>::add(marker,
-               codebook(d));
+         {
+         encoding_table(offset + i, d) = codebook_tables(cb_index, d);
+         if (marker_type != marker_zero)
+            field_utils<sig>::add_to(encoding_table(offset + i, d),
+                  marker_vectors(mv_index));
+         }
       }
    }
 
@@ -202,6 +203,7 @@ void tvb<sig, real, real2>::advance() const
    // Advance only for non-zero block sizes
    if (N > 0)
       {
+      libbase::cputimer t("t_advance");
       // Initialize space for encoding table
       libbase::allocate(encoding_table, N + lookahead, q, n);
       // Advance this system and set up the corresponding encoding table
@@ -219,6 +221,7 @@ void tvb<sig, real, real2>::advance() const
             copy.fill_encoding_table(encoding_table, offset, length);
             }
          }
+      const_cast<tvb<sig, real, real2>*>(this)->add_timer(t);
       }
    // indicate the encoding table has changed
    changed_encoding_table = true;
@@ -267,29 +270,27 @@ void tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    // Shorthand for transmitted and received frame sizes
    const int tau = this->output_block_size();
    const int rho = rx.size();
-   // Algorithm parameters
-   const int xmax = fba.get_xmax();
    // Check that rx size is within valid range
-   assertalways(xmax >= abs(rho - tau));
+   assertalways(mtau_max >= abs(rho - tau));
    // Set up start-of-frame drift pdf (drift = 0)
    array1d_t sof_prior;
-   sof_prior.init(2 * xmax + 1);
+   sof_prior.init(mtau_max - mtau_min + 1);
    sof_prior = 0;
-   sof_prior(xmax + 0) = 1;
+   sof_prior(0 - mtau_min) = 1;
    // Set up end-of-frame drift pdf (drift = rho-tau)
    array1d_t eof_prior;
-   eof_prior.init(2 * xmax + 1);
+   eof_prior.init(mtau_max - mtau_min + 1);
    eof_prior = 0;
-   eof_prior(xmax + rho - tau) = 1;
-   // Offset rx by xmax and pad to a total size of tau+2*xmax
+   eof_prior(rho - tau - mtau_min) = 1;
+   // Offset rx by mtau_max and pad to a total size of tau+mtau_max-mtau_min
    array1s_t r;
-   r.init(tau + 2 * xmax);
-   r.segment(xmax, rho) = rx;
+   r.init(tau + mtau_max - mtau_min);
+   r.segment(mtau_max, rho) = rx;
    // Delegate
    array1d_t sof_post;
    array1d_t eof_post;
    demodulate_wrapper(chan, r, 0, sof_prior, eof_prior, app, ptable, sof_post,
-         eof_post, libbase::size_type<libbase::vector>(xmax));
+         eof_post, libbase::size_type<libbase::vector>(-mtau_min));
    }
 
 template <class sig, class real, class real2>
@@ -303,10 +304,10 @@ void tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    init(chan, sof_prior, offset);
    // TODO: validate priors have required size?
 #ifndef NDEBUG
-   std::cerr << "DEBUG (tvb): offset = " << offset << ", xmax = "
-         << fba.get_xmax() << "." << std::endl;
+   std::cerr << "DEBUG (tvb): offset = " << offset << ", mtau_min = "
+         << mtau_min << "." << std::endl;
 #endif
-   assert(offset == fba.get_xmax());
+   assert(offset == -mtau_min);
    // Delegate
    demodulate_wrapper(chan, rx, lookahead, sof_prior, eof_prior, app, ptable,
          sof_post, eof_post, offset);
@@ -327,6 +328,7 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    // Inherit block size from last modulation step
    const int N = this->input_block_size();
    // In cases with lookahead, extend app table if supplied
+   libbase::cputimer t1("t_priors");
    array1vd_t app_x;
    if (lookahead > 0 && app.size() > 0)
       {
@@ -340,13 +342,14 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
       }
    else
       app_x = app;
+   this->add_timer(t1);
    // Initialize FBA metric computer as needed
    if (changed_encoding_table)
       {
-      libbase::cputimer t("t_enctable");
-      fba.get_receiver().init(encoding_table);
+      libbase::cputimer te("t_enctable");
+      fba_ptr->get_receiver().init(encoding_table);
       changed_encoding_table = false;
-      this->add_timer(t);
+      this->add_timer(te);
       }
    // Call FBA and normalize results
 #if DEBUG>=4
@@ -362,14 +365,16 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    array1vr_t ptable_r;
    array1r_t sof_post_r;
    array1r_t eof_post_r;
-   fba.decode(*this, rx, sof_prior, eof_prior, app_x, ptable_r, sof_post_r,
+   fba_ptr->decode(*this, rx, sof_prior, eof_prior, app_x, ptable_r, sof_post_r,
          eof_post_r, offset);
    // In cases with lookahead, re-compute EOF posterior at actual frame boundary
+   libbase::cputimer t2("t_posteriors");
    if (lookahead > 0)
-      fba.get_drift_pdf(eof_post_r, N);
+      fba_ptr->get_drift_pdf(eof_post_r, N);
    libbase::normalize_results(ptable_r.extract(0, N), ptable);
    libbase::normalize(sof_post_r, sof_post);
    libbase::normalize(eof_post_r, eof_post);
+   this->add_timer(t2);
 #if DEBUG>=4
    std::cerr << "sof_post = " << sof_post << std::endl;
    std::cerr << "max at " << index_of_max(sof_post) - offset << std::endl;
@@ -387,6 +392,9 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::init(const channel<sig>& chan,
       const array1d_t& sof_pdf, const int offset)
    {
+#ifndef NDEBUG
+   libbase::cputimer t("t_init");
+#endif
    // Inherit block size from last modulation step (and include lookahead)
    const int N = this->input_block_size() + lookahead;
    const int tau = N * n;
@@ -396,17 +404,24 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    // Set channel block size to q-ary symbol size
    mychan.set_blocksize(n);
    // Set the probability of channel event outside chosen limits
-   mychan.set_pr(Pr);
+   mychan.set_pr(qids_utils::divide_error_probability(Pr, N));
    // Determine required FBA parameter values
-   const int I = mychan.compute_I(tau, Pr);
-   // No need to recompute xmax if we are given a prior PDF
-   const int xmax = sof_pdf.size() > 0 ? offset : mychan.compute_xmax(tau, Pr,
-         sof_pdf, offset);
-   const int dxmax = mychan.compute_xmax(n, Pr);
-   checkforchanges(I, xmax);
-   // Determine whether to use global storage
+   // No need to recompute mtau_min/max if we are given a prior PDF
+   mtau_min = -offset;
+   mtau_max = sof_pdf.size() - offset - 1;
+   if (sof_pdf.size() == 0)
+      mychan.compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
+   int mn_min, mn_max;
+   mychan.compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
+         mn_max);
+   int m1_min, m1_max;
+   mychan.compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
+         m1_min, m1_max);
+   checkforchanges(m1_min, m1_max, mn_min, mn_max, mtau_min, mtau_max);
+   //! Determine whether to use global storage
    bool globalstore = false; // set to avoid compiler warning
-   const int required = fba.get_memory_required(N, n, q, I, xmax, dxmax);
+   const int required = fba_type::get_memory_required(N, n, q, mtau_min,
+         mtau_max, mn_min, mn_max);
    switch (storage_type)
       {
       case storage_local:
@@ -426,47 +441,24 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
          failwith("Unknown storage mode");
          break;
       }
+   // Create an embedded algorithm object of the correct type
+   const bool thresholding = th_inner > real(0) || th_outer > real(0);
+   fba_ptr = fba2_factory<recv_type, sig, real, real2>::get_instance(
+         thresholding, flags.lazy, globalstore);
+   // Initialize our embedded metric computer with unchanging elements
+   // (needs to happen before fba initialization)
+   fba_ptr->get_receiver().init(n, q, mychan);
    // Initialize forward-backward algorithm
-   fba.init(N, n, q, I, xmax, dxmax, th_inner, th_outer, flags.norm,
-         flags.batch, flags.lazy, globalstore);
-   // initialize our embedded metric computer with unchanging elements
-   fba.get_receiver().init(n, q, mychan);
+   fba_ptr->init(N, n, q, mtau_min, mtau_max, mn_min, mn_max, m1_min, m1_max,
+         th_inner, th_outer);
+#ifndef NDEBUG
+   this->add_timer(t);
+#endif
    }
 
 template <class sig, class real, class real2>
 void tvb<sig, real, real2>::init()
    {
-   // Build codebook if necessary
-   switch (codebook_type)
-      {
-      case codebook_sparse:
-         {
-         // sparse codebooks defined only for GF(2)
-         assertalways(field_utils<sig>::elements() == 2);
-         libbase::sparse mycodebook(q, n);
-         codebook_tables.init(1, q);
-         for (int i = 0; i < q; i++)
-            {
-            const libbase::bitfield codeword(mycodebook(i), n);
-            codebook_tables(0, i) = codeword.asvector();
-            }
-         }
-         break;
-
-      case codebook_random:
-         // gets generated per symbol index on advance()
-         codebook_tables.init(0, 0);
-         break;
-
-      case codebook_user_sequential:
-      case codebook_user_random:
-         // nothing to do
-         break;
-
-      default:
-         failwith("Unknown codebook type");
-         break;
-      }
 #ifndef NDEBUG
    // If applicable, display codebook
    if (n > 2 && codebook_type != codebook_random)
@@ -561,19 +553,36 @@ void tvb<sig, real, real2>::validatecodebook() const
          }
    }
 
-//! Inform user if I or xmax have changed (debug build only)
+//! Inform user if state space limits have changed (debug build only)
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::checkforchanges(int I, int xmax) const
+void tvb<sig, real, real2>::checkforchanges(int m1_min, int m1_max, int mn_min,
+      int mn_max, int mtau_min, int mtau_max) const
    {
 #ifndef NDEBUG
-   static int last_I = 0;
-   static int last_xmax = 0;
-   if (last_I != I || last_xmax != xmax)
+   static int last_m1_min = 0;
+   static int last_m1_max = 0;
+   if (last_m1_min != m1_min || last_m1_max != m1_max)
       {
-      std::cerr << "DEBUG (tvb): I = " << I << ", xmax = " << xmax << std::endl;
-      last_I = I;
-      last_xmax = xmax;
+      std::cerr << "DEBUG (tvb): m1_min = " << m1_min << ", m1_max = " << m1_max << std::endl;
+      last_m1_min = m1_min;
+      last_m1_max = m1_max;
+      }
+   static int last_mn_min = 0;
+   static int last_mn_max = 0;
+   if (last_mn_min != mn_min || last_mn_max != mn_max)
+      {
+      std::cerr << "DEBUG (tvb): mn_min = " << mn_min << ", mn_max = " << mn_max << std::endl;
+      last_mn_min = mn_min;
+      last_mn_max = mn_max;
+      }
+   static int last_mtau_min = 0;
+   static int last_mtau_max = 0;
+   if (last_mtau_min != mtau_min || last_mtau_max != mtau_max)
+      {
+      std::cerr << "DEBUG (tvb): mtau_min = " << mtau_min << ", mtau_max = " << mtau_max << std::endl;
+      last_mtau_min = mtau_min;
+      last_mtau_max = mtau_max;
       }
 #endif
    }
@@ -664,12 +673,8 @@ std::string tvb<sig, real, real2>::description() const
       }
    sout << ", thresholds " << th_inner << "/" << th_outer;
    sout << ", Pr=" << Pr;
-   if (flags.norm)
-      sout << ", normalized";
-   if (flags.batch)
-      sout << ", batch interface";
-   else
-      sout << ", single interface";
+   sout << ", normalized";
+   sout << ", batch interface";
    if (flags.lazy)
       sout << ", lazy computation";
    else
@@ -696,7 +701,11 @@ std::string tvb<sig, real, real2>::description() const
       sout << ", no look-ahead";
    else
       sout << ", look-ahead " << lookahead << " codewords";
-   sout << "), " << fba.description();
+   sout << "), ";
+   if (fba_ptr)
+      sout << fba_ptr->description();
+   else
+      sout << "FBA object not initialized";
    return sout.str();
    }
 
@@ -706,17 +715,13 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 9 << std::endl;
+   sout << 10 << std::endl;
    sout << "# Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "# Outer threshold" << std::endl;
    sout << th_outer << std::endl;
    sout << "# Probability of channel event outside chosen limits" << std::endl;
    sout << Pr << std::endl;
-   sout << "# Normalize metrics between time-steps?" << std::endl;
-   sout << flags.norm << std::endl;
-   sout << "# Use batch receiver computation?" << std::endl;
-   sout << flags.batch << std::endl;
    sout << "# Lazy computation of gamma?" << std::endl;
    sout << flags.lazy << std::endl;
    sout << "# Storage mode for gamma (0=local, 1=global, 2=conditional)" << std::endl;
@@ -817,6 +822,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 8 Removed option for channel-symbol-level priors
  *
  * \version 9 Added probability of channel event outside chosen limits
+ *
+ * \version 10 Removed normalization and batch flags (both always enabled)
  */
 
 template <class sig, class real, class real2>
@@ -835,18 +842,20 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
    else
       Pr = 1e-10;
    // read decoder parameters
+   if (version >= 2 && version <= 9)
+      {
+      bool norm, batch;
+      sin >> libbase::eatcomments >> norm >> libbase::verify;
+      sin >> libbase::eatcomments >> batch >> libbase::verify;
+      if(!norm)
+         std::cerr << "WARNING: no-normalization not supported." << std::endl;
+      if(!batch)
+         std::cerr << "WARNING: non-batch interface not supported." << std::endl;
+      }
    if (version >= 2)
-      {
-      sin >> libbase::eatcomments >> flags.norm >> libbase::verify;
-      sin >> libbase::eatcomments >> flags.batch >> libbase::verify;
       sin >> libbase::eatcomments >> flags.lazy >> libbase::verify;
-      }
    else
-      {
-      flags.norm = true;
-      flags.batch = true;
       flags.lazy = true;
-      }
    if (version == 7)
       {
       bool splitpriors;
@@ -890,8 +899,23 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
    switch (codebook_type)
       {
       case codebook_sparse:
+         {
+         // sparse codebooks defined only for GF(2)
+         assertalways(field_utils<sig>::elements() == 2);
+         libbase::sparse mycodebook(q, n);
+         codebook_tables.init(1, q);
+         for (int i = 0; i < q; i++)
+            {
+            const libbase::bitfield codeword(mycodebook(i), n);
+            codebook_tables(0, i) = codeword.asvector();
+            }
+         }
+         break;
+
       case codebook_random:
-         // gets generated automatically
+         // Initialize space for single codebook
+         libbase::allocate(codebook_tables, 1, q, n);
+         // Codebook gets re-generated for each symbol index on advance()
          break;
 
       case codebook_user_sequential:
@@ -928,7 +952,11 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
       {
       case marker_zero:
       case marker_random:
-         // gets generated automatically
+         // Initialize space for a single marker vector
+         libbase::allocate(marker_vectors, 1, n);
+         // Reset to zero (really only necessary for marker_zero)
+         marker_vectors(0) = 0;
+         // Marker gets re-generated for each symbol index on advance()
          break;
 
       case marker_user_sequential:
@@ -967,6 +995,7 @@ namespace libcomm {
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
@@ -982,20 +1011,26 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (bool) \
    GF_TYPE_SEQ
 #ifdef USE_CUDA
-#define REAL_TYPE_SEQ \
-   (float)(double)
+#define REAL_PAIRS_SEQ \
+   ((double)(double)) \
+   ((double)(float)) \
+   ((float)(float))
 #else
-#define REAL_TYPE_SEQ \
-   (float)(double)(mpgnu)(logrealfast)
+#define REAL_PAIRS_SEQ \
+   ((mpgnu)(mpgnu)) \
+   ((logrealfast)(logrealfast)) \
+   ((double)(double)) \
+   ((double)(float)) \
+   ((float)(float))
 #endif
 
 /* Serialization string: tvb<type,real,real2>
  * where:
  *      type = bool | gf2 | gf4 ...
- *      real = float | double | [mpgnu | logrealfast (CPU only)]
- *      real2 = float | double | [mpgnu | logrealfast (CPU only)]
+ *      real = float | double | [logrealfast | mpgnu (CPU only)]
+ *      real2 = float | double | [logrealfast | mpgnu (CPU only)]
  */
-#define INSTANTIATE(r, args) \
+#define INSTANTIATE3(args) \
       template class tvb<BOOST_PP_SEQ_ENUM(args)>; \
       template <> \
       const serializer tvb<BOOST_PP_SEQ_ENUM(args)>::shelper( \
@@ -1005,6 +1040,13 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             tvb<BOOST_PP_SEQ_ENUM(args)>::create);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL_TYPE_SEQ))
+#define INSTANTIATE2(r, symbol, reals) \
+      INSTANTIATE3( symbol reals )
+
+#define INSTANTIATE1(r, symbol) \
+      BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, symbol, REAL_PAIRS_SEQ)
+
+// NOTE: we *have* to use for-each product here as we cannot nest for-each
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1, (ALL_SYMBOL_TYPE_SEQ))
 
 } // end namespace

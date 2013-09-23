@@ -57,11 +57,17 @@ public:
       {
       return s + G(r.ival(G::elements() - 1) + 1);
       }
-   //! Add vectors of symbols, modulo the field size
+   //! Add vectors of symbols, modulo the field size - binary operator
    static libbase::vector<G> add(const libbase::vector<G>& a,
          const libbase::vector<G>& b)
       {
       return a + b;
+      }
+   //! Add vectors of symbols, modulo the field size - unary operator
+   static libbase::vector<G>& add_to(libbase::vector<G>& a,
+         const libbase::vector<G>& b)
+      {
+      return a += b;
       }
 };
 
@@ -91,11 +97,17 @@ public:
       {
       return !s;
       }
-   //! Add vectors of symbols, modulo 2
+   //! Add vectors of symbols, modulo 2 - binary operator
    static libbase::vector<bool> add(const libbase::vector<bool>& a,
          const libbase::vector<bool>& b)
       {
       return a ^ b;
+      }
+   //! Add vectors of symbols, modulo 2 - unary operator
+   static libbase::vector<bool>& add_to(libbase::vector<bool>& a,
+         const libbase::vector<bool>& b)
+      {
+      return a ^= b;
       }
 };
 

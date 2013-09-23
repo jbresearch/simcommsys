@@ -24,22 +24,18 @@
 #define __qids_h
 
 #include "config.h"
+#include "matrix.h"
+#include "qids-utils.h"
 #include "channel_stream.h"
 #include "field_utils.h"
 #include "serializer.h"
-#include "matrix.h"
 #include "cuda-all.h"
-#include <cmath>
-#include <limits>
 
 namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show tx and rx vectors when computing RecvPr
-// 3 - Show results of computation of xmax and I
-//     and details of pdf resizing
-// 4 - Show intermediate computation details for (3)
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
@@ -89,7 +85,7 @@ private:
    bool varyPs; //!< Flag to indicate that \f$ P_s \f$ should change with parameter
    bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
-   int Icap; //!< Maximum usable value of I (0 indicates no cap is placed)
+   int Icap; //!< Maximum usable value of m1_max (0 indicates no cap is placed)
    double fixedPs; //!< Value to use when \f$ P_s \f$ does not change with parameter
    double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
    double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter
@@ -112,232 +108,21 @@ public:
       real Pval_i; //!< Lattice coefficient value for insertion event
       real Pval_tc; //!< Lattice coefficient value for correct transmission event
       real Pval_te; //!< Lattice coefficient value for error transmission event
-      int N; //!< Block size in symbols over which we want to synchronize
-      int I; //!< Assumed limit for insertions between two time-steps
-      int xmax; //!< Assumed maximum drift over a whole \c N -symbol block
+      int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ \m_T^{-} \f$
+      int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ \m_T^{+} \f$
+      int m1_min; //!< Assumed largest negative drift over a single channel symbol is \f$ \m_1^{-} \f$
+      int m1_max; //!< Assumed largest positive drift over a single channel symbol is \f$ \m_1^{+} \f$
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
       // @}
-   private:
-      //! Functor for drift probability computation with prior
-      class compute_drift_prob_functor {
-      public:
-         typedef double (*pdf_func_t)(int, int, double, double);
-      private:
-         const pdf_func_t func;
-         const libbase::vector<double>& sof_pdf;
-         const int offset;
-      public:
-         compute_drift_prob_functor(const pdf_func_t& func,
-               const libbase::vector<double>& sof_pdf, const int offset) :
-               func(func), sof_pdf(sof_pdf), offset(offset)
-            {
-            }
-         double operator()(int x, int tau, double Pi, double Pd) const
-            {
-            return compute_drift_prob_with(func, x, tau, Pi, Pd, sof_pdf,
-                  offset);
-            }
-      };
    public:
       /*! \name FBA decoder parameter computation */
-      // TODO: extract all static methods to a helper file
-      // drift PDF - known start of frame
-      static double compute_drift_prob_davey(int x, int tau, double Pi,
-            double Pd);
-      static double compute_drift_prob_exact(int x, int tau, double Pi,
-            double Pd);
-      // drift PDF - given start of frame pdf
-      /*!
-       * \brief The probability of drift x after transmitting tau symbols, given the
-       * supplied drift pdf at start of transmission.
-       *
-       * The final drift pdf is obtained by convolving the expected pdf for a
-       * known start of frame position with the actual start of frame distribution.
-       */
-      template <typename F>
-      static double compute_drift_prob_with(const F& compute_pdf, int x,
-            int tau, double Pi, double Pd,
-            const libbase::vector<double>& sof_pdf, const int offset)
-         {
-         // if sof_pdf is empty, delegate automatically
-         if (sof_pdf.size() == 0)
-            return compute_pdf(x, tau, Pi, Pd);
-         // compute the probability at requested drift
-         double this_p = 0;
-         const int imin = -offset;
-         const int imax = sof_pdf.size() - offset;
-         for (int i = imin; i < imax; i++)
-            {
-            const double p = compute_pdf(x - i, tau, Pi, Pd);
-            this_p += sof_pdf(i + offset) * p;
-            }
-         // normalize
-         this_p /= sof_pdf.sum();
-         // confirm that this value is finite and valid
-         assert(this_p >= 0 && this_p < std::numeric_limits<double>::infinity());
-         return this_p;
-         }
-      // limit on successive insertions
-      static int compute_I(int tau, double Pi, double Pr, int Icap);
-      // limit on drift
-      static int compute_xmax_davey(int tau, double Pi, double Pd, double Pr);
-      /*!
-       * \brief Determine upper/lower limit for drift at the end of a frame of T
-       * channel symbols, given the supplied drift pdf at start of transmission.
-       *
-       * The drift range is chosen such that the probability of having a drift
-       * \f$ m \f$ after transmitting \f$ T \f$ symbols, \f$ \phi_T(m) \f$,
-       * is less than an arbitrary value \f$ \frac{P_r}{2} \f$ for any
-       * \f$ m \f$ outside the given limit.
-       * In this class, this value is fixed.
-       */
-      template <typename F>
-      static void compute_limits_with(const F& compute_pdf, int T,
-            double Pi, double Pd, double Pr, int& lower, int& upper)
-         {
-         // sanity checks
-         assert(T > 0);
-         validate(Pd, Pi);
-         // keep track of coverage
-         double coverage = 1.0;
-         coverage -= compute_pdf(0, T, Pi, Pd);
-         // determine lower limit first
-         double p_lower;
-         for(int m = -1; ; m--)
-            {
-            p_lower = compute_pdf(m, T, Pi, Pd);
-            if (p_lower < Pr/2)
-               {
-               lower = m + 1;
-               break;
-               }
-            coverage -= p_lower;
-            }
-         // next determine upper limit
-         double p_upper;
-         for(int m = 1; ; m++)
-            {
-            p_upper = compute_pdf(m, T, Pi, Pd);
-            if (p_upper < Pr/2)
-               {
-               upper = m - 1;
-               break;
-               }
-            coverage -= p_upper;
-            }
-         // now fine-tune the selection
-         while (coverage >= Pr)
-            {
-            // extend in the direction of the largest gain
-            if (p_upper > p_lower)
-               {
-               upper++;
-               coverage -= p_upper;
-               // note: p_upper always corresponds to next higher state
-               p_upper = compute_pdf(upper+1, T, Pi, Pd);
-               }
-            else
-               {
-               lower--;
-               coverage -= p_lower;
-               // note: p_lower always corresponds to next lower state
-               p_lower = compute_pdf(lower-1, T, Pi, Pd);
-               }
-            }
-         }
-      /*!
-       * \brief Determine the probability of the drift at the end of a frame
-       * of T channel symbols being outside the upper and lower limits, given
-       * the supplied drift pdf at start of transmission.
-       */
-      template <typename F>
-      static double compute_outofbounds_with(const F& compute_pdf, int T,
-            double Pi, double Pd, int upper, int lower)
-         {
-         // sanity checks
-         assert(T > 0);
-         validate(Pd, Pi);
-         assert(upper >= 0);
-         assert(lower <= 0);
-         // determine area that needs to be covered
-         double coverage = 1.0;
-         // subtract area that is covered, starting from center
-         coverage -= compute_pdf(0, T, Pi, Pd);
-         const int m1 = std::min(upper, -lower) + 1;
-         for (int m = 1; m < m1; m++)
-            {
-            coverage -= compute_pdf(m, T, Pi, Pd);
-            coverage -= compute_pdf(-m, T, Pi, Pd);
-            }
-         for (int m = m1; m <= upper; m++)
-            coverage -= compute_pdf(m, T, Pi, Pd);
-         for (int m = -m1; m >= lower; m--)
-            coverage -= compute_pdf(m, T, Pi, Pd);
-         // return result
-         return coverage;
-         }
-      /*!
-       * \brief Determine maximum drift at the end of a frame of tau symbols, given the
-       * supplied drift pdf at start of transmission.
-       *
-       * The drift range is chosen such that the probability of having the drift
-       * after transmitting \f$ \tau \f$ symbols being greater than \f$ \pm x_{max} \f$
-       * is less than an arbitrary value \f$ P_r \f$.
-       * In this class, this value is fixed.
-       */
-      template <typename F>
-      static int compute_xmax_with(const F& compute_pdf, int tau, double Pi,
-            double Pd, double Pr)
-         {
-         // sanity checks
-         assert(tau > 0);
-         validate(Pd, Pi);
-         // determine area that needs to be covered
-         double acc = 1.0;
-         // determine xmax to use
-         int xmax = 0;
-         acc -= compute_pdf(xmax, tau, Pi, Pd);
-#if DEBUG>=4
-         std::cerr << "DEBUG (qids): xmax = " << xmax << ", acc = " << acc << "." << std::endl;
-#endif
-         while (acc >= Pr)
-            {
-            xmax++;
-            acc -= compute_pdf(xmax, tau, Pi, Pd);
-            acc -= compute_pdf(-xmax, tau, Pi, Pd);
-#if DEBUG>=4
-            std::cerr << "DEBUG (qids): xmax = " << xmax << ", acc = " << acc << "." << std::endl;
-#endif
-            }
-         // tell the user what we did and return
-#if DEBUG>=3
-         std::cerr << "DEBUG (qids): [computed] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
-         std::cerr << "DEBUG (qids): [davey] for N = " << tau << ", xmax = " << compute_xmax_davey(tau, Pi, Pd, Pr) << "." << std::endl;
-#endif
-         return xmax;
-         }
-      static int compute_xmax(int tau, double Pi, double Pd, double Pr,
-            const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
-            const int offset = 0);
-      static int compute_xmax(int tau, double Pi, double Pd, double Pr, int I,
-            const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
-            const int offset = 0);
       // receiver metric pre-computation
       static real compute_Rtable_entry(bool err, int mu, double Ps, double Pd,
             double Pi);
-      static void compute_Rtable(array2r_t& Rtable, int I, double Ps, double Pd,
+      static void compute_Rtable(array2r_t& Rtable, int m1_max, double Ps, double Pd,
             double Pi);
-      // @}
-      /*! \name Internal functions */
-      //! Check validity of Pi and Pd
-      static void validate(double Pd, double Pi)
-         {
-         assert(Pi >= 0 && Pi < 1.0);
-         assert(Pd >= 0 && Pd < 1.0);
-         assert(Pi + Pd >= 0 && Pi + Pd < 1.0);
-         }
       // @}
    public:
       /*! \name Constructors / Destructors */
@@ -347,7 +132,7 @@ public:
          }
       // @}
       /*! \name Internal functions */
-      void precompute(double Ps, double Pd, double Pi, double Pr, int Icap);
+      void precompute(double Ps, double Pd, double Pi, int mT_min, int mT_max, int m1_min, int m1_max);
       void init();
       // @}
 #ifdef USE_CUDA
@@ -362,11 +147,11 @@ public:
          const int mu = rx.size() - n;
          // Allocate space for results and call main receiver
          real ptable_data[arraysize];
-         cuda_assertalways(arraysize >= 2 * xmax + 1);
-         cuda::vector_reference<real> ptable(ptable_data, 2 * xmax + 1);
+         cuda_assertalways(arraysize >= mT_max - mT_min + 1);
+         cuda::vector_reference<real> ptable(ptable_data, mT_max - mT_min + 1);
          receive(tx, rx, ptable);
          // return result
-         return ptable(xmax + mu);
+         return ptable(mu - mT_min);
          }
       //! Batch receiver interface
       __device__
@@ -400,48 +185,44 @@ public:
          // Compute sizes
          const int n = tx.size();
          const int rho = rx.size();
-         cuda_assert(n <= N);
-         cuda_assert(labs(rho - n) <= xmax);
+         //cuda_assert(n <= T);
+         assert(rho - n <= mT_max);
+         assert(rho - n >= mT_min);
          // Set up two slices of forward matrix, and associated pointers
          // Arrays are allocated on the stack as a fixed size; this avoids dynamic
          // allocation (which would otherwise be necessary as the size is non-const)
-         cuda_assertalways(2 * xmax + 1 <= arraysize);
+         cuda_assertalways(mT_max - mT_min + 1 <= arraysize);
          real F0[arraysize];
          real F1[arraysize];
-         real *Fthis = F1;
-         real *Fprev = F0;
+         __restrict__ real* Fthis = F1 - mT_min; // offset: first element is index 'mT_min'
+         __restrict__ real* Fprev = F0 - mT_min; // offset: first element is index 'mT_min'
          // initialize for j=0
          // for prior list, reset all elements to zero
-         for (int x = 0; x < 2 * xmax + 1; x++)
-            {
+         for (int x = mT_min; x <= mT_max; x++)
             Fthis[x] = 0;
-            }
          // we also know x[0] = 0; ie. drift before transmitting symbol t0 is zero.
-         Fthis[xmax + 0] = 1;
+         Fthis[0] = 1;
          // compute remaining matrix values
          for (int j = 1; j <= n; ++j)
             {
             // swap 'this' and 'prior' lists
             swap(Fthis, Fprev);
             // for this list, reset all elements to zero
-            for (int x = 0; x < 2 * xmax + 1; x++)
-               {
+            for (int x = mT_min; x <= mT_max; x++)
                Fthis[x] = 0;
-               }
             // event must fit the received sequence:
             // 1. j-1+a >= 0
             // 2. j-1+y < rx.size()
             // limits on insertions and deletions must be respected:
-            // 3. y-a <= I
-            // 4. y-a >= -1
-            // note: a and y are offset by xmax
-            const int ymin = max(0, xmax - j);
-            const int ymax = min(2 * xmax, xmax + rho - j);
+            // 3. y-a <= m1_max
+            // 4. y-a >= m1_min
+            const int ymin = max(mT_min, -j);
+            const int ymax = min(mT_max, rho - j);
             for (int y = ymin; y <= ymax; ++y)
                {
                real result = 0;
-               const int amin = max(max(0, xmax + 1 - j), y - I);
-               const int amax = min(2 * xmax, y + 1);
+               const int amin = max(max(mT_min, 1 - j), y - m1_max);
+               const int amax = min(mT_max, y - m1_min);
                // check if the last element is a pure deletion
                int amax_act = amax;
                if (y - amax < 0)
@@ -456,18 +237,16 @@ public:
                   // start:  j-1+a
                   // length: y-a+1
                   // therefore last element is: start+length-1 = j+y-1
-                  const bool cmp = tx(j - 1) != rx(j + (y - xmax) - 1);
+                  const bool cmp = tx(j - 1) != rx(j + y - 1);
                   result += Fprev[a] * Rtable(cmp, y - a);
                   }
                Fthis[y] = result;
                }
             }
          // copy results and return
-         cuda_assertalways(ptable.size() == 2 * xmax + 1);
-         for (int x = 0; x < 2 * xmax + 1; x++)
-            {
-            ptable(x) = Fthis[x];
-            }
+         cuda_assertalways(ptable.size() == mT_max - mT_min + 1);
+         for (int x = mT_min; x <= mT_max; x++)
+            ptable(x - mT_min) = Fthis[x];
          }
       //! Batch receiver interface - lattice computation
       __device__
@@ -484,8 +263,8 @@ public:
          cuda_assertalways(rho + 1 <= arraysize);
          real F0[arraysize];
          real F1[arraysize];
-         real *Fthis = F1;
-         real *Fprev = F0;
+         __restrict__ real* Fthis = F1;
+         __restrict__ real* Fprev = F0;
          // initialize for i=0 (first row of lattice)
          Fthis[0] = 1;
          for (int j = 1; j <= rho; j++)
@@ -523,19 +302,15 @@ public:
             Fthis[j] = ps + pd;
             }
          // copy results and return
-         cuda_assertalways(ptable.size() == 2 * xmax + 1);
-         for (int x = -xmax; x <= xmax; x++)
+         cuda_assertalways(ptable.size() == mT_max - mT_min + 1);
+         for (int x = mT_min; x <= mT_max; x++)
             {
             // convert index
             const int j = x + n;
             if (j >= 0 && j <= rho)
-               {
-               ptable(x + xmax) = Fthis[j];
-               }
+               ptable(x - mT_min) = Fthis[j];
             else
-               {
-               ptable(x + xmax) = 0;
-               }
+               ptable(x - mT_min) = 0;
             }
          }
       //! Batch receiver interface - lattice corridor computation
@@ -560,13 +335,13 @@ public:
          real Fprev;
          // get access to slice of lattice in shared memory
          cuda::SharedMemory<real> smem;
-         const int pitch = n + xmax + 1;
+         const int pitch = n + mT_max + 1;
          cuda_assertalways(rho + 1 <= pitch);
-         real *F = smem.getPointer() + threadIdx.x * pitch;
+         __restrict__ real* F = smem.getPointer() + (threadIdx.x + threadIdx.y * blockDim.x) * pitch;
          // initialize for i=0 (first row of lattice)
          // Fthis[0] = 1;
          F[0] = 1;
-         const int jmax = min(xmax, rho);
+         const int jmax = min(mT_max, rho);
          for (int j = 1; j <= jmax; j++)
             {
             // Fthis[j] = Fthis[j - 1] * Pval_i;
@@ -578,19 +353,17 @@ public:
             // keep Fprev[0]
             Fprev = F[0];
             // handle first column as a special case, if necessary
-            if (i - xmax <= 0)
+            if (i + mT_min <= 0)
                {
                // Fthis[0] = Fprev[0] * Pval_d;
                F[0] = Fprev * Pval_d;
                }
             // determine limits for remaining columns (after first)
-            const int jmin = max(i - xmax, 1);
-            const int jmax = min(i + xmax, rho);
+            const int jmin = max(i + mT_min, 1);
+            const int jmax = min(i + mT_max, rho);
             // keep Fprev[jmin - 1], if necessary
             if (jmin > 1)
-               {
                Fprev = F[jmin - 1];
-               }
             // remaining columns
             for (int j = jmin; j <= jmax; j++)
                {
@@ -601,7 +374,7 @@ public:
                // keep Fprev[j] for next time (to use as Fprev[j-1])
                Fprev = F[j];
                // deletion path (if previous row was within corridor)
-               if (j < i + xmax)
+               if (j < i + mT_max)
                   // temp += Fprev[j] * Pval_d;
                   temp += Fprev * Pval_d;
                // insertion path
@@ -617,7 +390,7 @@ public:
          // keep Fprev[0]
          Fprev = F[0];
          // handle first column as a special case, if necessary
-         if (i - xmax <= 0)
+         if (i + mT_min <= 0)
             {
             // Fthis[0] = Fprev[0] * Pval_d;
             F[0] = Fprev * Pval_d;
@@ -632,7 +405,7 @@ public:
             // keep Fprev[j] for next time (to use as Fprev[j-1])
             Fprev = F[j];
             // deletion path (if previous row was within corridor)
-            if (j < i + xmax)
+            if (j < i + mT_max)
                // temp += Fprev[j] * Pval_d;
                temp += Fprev * Pval_d;
             // store result
@@ -640,15 +413,15 @@ public:
             F[j] = temp;
             }
          // copy results and return
-         cuda_assertalways(ptable.size() == 2 * xmax + 1);
-         for (int x = -xmax; x <= xmax; x++)
+         cuda_assertalways(ptable.size() == mT_max - mT_min + 1);
+         for (int x = mT_min; x <= mT_max; x++)
             {
             // convert index
             const int j = x + n;
             if (j >= 0 && j <= rho)
-               ptable(x + xmax) = F[j];
+               ptable(x - mT_min) = F[j];
             else
-               ptable(x + xmax) = 0;
+               ptable(x - mT_min) = 0;
             }
          }
 #endif
@@ -656,7 +429,7 @@ public:
 #endif
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread
-      size_t receiver_sharedmem(const int n, const int dxmax) const
+      size_t receiver_sharedmem(const int n, const int mn_max) const
          {
          switch(receiver_type)
             {
@@ -665,7 +438,7 @@ public:
             case receiver_lattice:
                return 0;
             case receiver_lattice_corridor:
-               return (n + dxmax + 1) * sizeof(real);
+               return (n + mn_max + 1) * sizeof(real);
             default:
                failwith("Unknown receiver mode");
                return 0;
@@ -699,10 +472,10 @@ public:
          const int mu = rx.size() - n;
          // Allocate space for results and call main receiver
          static array1r_t ptable;
-         ptable.init(2 * xmax + 1);
+         ptable.init(mT_max - mT_min + 1);
          receive(tx, rx, ptable);
          // return result
-         return ptable(xmax + mu);
+         return ptable(mu - mT_min);
          }
       //! Batch receiver interface
       void receive(const array1g_t& tx, const array1g_t& rx, array1r_t& ptable) const
@@ -741,14 +514,27 @@ private:
    double Pd; //!< Symbol deletion probability \f$ P_d \f$
    double Pi; //!< Symbol insertion probability \f$ P_i \f$
    double Pr; //!< Probability of channel event outside chosen limits
+   int T; //!< Block size in channel symbols over which we want to synchronize
    array1i_t state_ins; //!< State vector with number of insertions before transmission of bit 'i'
    array1b_t state_tx; //!< State vector with flag indicating transmission of bit 'i'
    // @}
 private:
    /*! \name Internal functions */
    void init();
+   void precompute()
+      {
+      if (T > 0)
+         {
+         int mT_min, mT_max;
+         compute_limits(T, Pr, mT_min, mT_max);
+         int m1_min, m1_max;
+         compute_limits(1, qids_utils::divide_error_probability(Pr, T), m1_min,
+               m1_max);
+         computer.precompute(Ps, Pd, Pi, mT_min, mT_max, m1_min, m1_max);
+         }
+      }
    static array1d_t resize_drift(const array1d_t& in, const int offset,
-         const int xmax);
+         const int mT_min, const int mT_max);
    // @}
 protected:
    // Channel function overrides
@@ -778,40 +564,42 @@ public:
 
    /*! \name FBA decoder parameter computation */
    /*!
-    * \copydoc qids::metric_computer::compute_I()
+    * \copydoc qids_utils::compute_I()
     *
     * \note Provided for use by clients; depends on object parameters
-    *
-    * \todo Consider removing this method
     */
    int compute_I(int tau, double Pr) const
       {
-      return metric_computer::compute_I(tau, Pi, Pr, Icap);
+      int I = qids_utils::compute_I(tau, Pi, Pr);
+      if (Icap > 0)
+         I = std::min(I, Icap);
+      return I;
       }
    /*!
-    * \copydoc qids::metric_computer::compute_xmax()
+    * \copydoc qids_utils::compute_xmax()
     *
     * \note Provided for use by clients; depends on object parameters
-    *
-    * \todo Consider removing this method
     */
-   int compute_xmax(int tau, double Pr) const
+   int compute_xmax(int tau, double Pr,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const
       {
-      const int I = metric_computer::compute_I(tau, Pi, Pr, Icap);
-      return metric_computer::compute_xmax(tau, Pi, Pd, Pr, I);
+      int xmax = qids_utils::compute_xmax(tau, Pi, Pd, Pr, sof_pdf, offset);
+      // cap minimum value
+      const int I = compute_I(tau, Pr);
+      xmax = std::max(xmax, I);
+      return xmax;
       }
    /*!
-    * \copydoc qids::metric_computer::compute_xmax()
+    * \copydoc qids_utils::compute_limits()
     *
     * \note Provided for use by clients; depends on object parameters
-    *
-    * \todo Consider removing this method
     */
-   int compute_xmax(int tau, double Pr, const libbase::vector<double>& sof_pdf,
-         const int offset) const
+   void compute_limits(int tau, double Pr, int& lower, int& upper,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const
       {
-      const int I = metric_computer::compute_I(tau, Pi, Pr, Icap);
-      return metric_computer::compute_xmax(tau, Pi, Pd, Pr, I, sof_pdf, offset);
+      qids_utils::compute_limits(tau, Pi, Pd, Pr, lower, upper, sof_pdf, offset);
       }
    // @}
 
@@ -833,7 +621,7 @@ public:
       assert(Pd >= 0 && Pd <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pd = Pd;
-      computer.precompute(Ps, Pd, Pi, Pr, Icap);
+      precompute();
       }
    //! Set the symbol-insertion probability
    void set_pi(const double Pi)
@@ -841,23 +629,23 @@ public:
       assert(Pi >= 0 && Pi <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
-      computer.precompute(Ps, Pd, Pi, Pr, Icap);
+      precompute();
       }
    //! Set the probability of channel event outside chosen limits
    void set_pr(const double Pr)
       {
       assert(Pr > 0 && Pr < 1);
       this->Pr = Pr;
-      computer.precompute(Ps, Pd, Pi, Pr, Icap);
+      precompute();
       }
    //! Set the block size
-   void set_blocksize(int N)
+   void set_blocksize(int T)
       {
-      if (N != computer.N)
+      if (this->T != T)
          {
-         assert(N > 0);
-         computer.N = N;
-         computer.precompute(Ps, Pd, Pi, Pr, Icap);
+         assert(T > 0);
+         this->T = T;
+         precompute();
          }
       }
    // @}
@@ -912,7 +700,23 @@ public:
 
    // Channel functions
    void transmit(const array1g_t& tx, array1g_t& rx);
-   using Base::receive;
+   //! \note Used by qids::receive(tx, rx, ptable)
+   double receive(const G& tx, const array1g_t& rx) const
+      {
+#if DEBUG>=2
+      libbase::trace << "DEBUG (qids): Computing RecvPr for" << std::endl;
+      libbase::trace << "tx = " << tx;
+      libbase::trace << "rx = " << rx;
+#endif
+      const real result = computer.receive(tx, rx);
+#if DEBUG>=2
+      libbase::trace << "RecvPr = " << result << std::endl;
+#endif
+      return result;
+      }
+   /*! \note Used by: direct_blockembedder, ssis, direct_blockmodem,
+    * lut_modulator
+    */
    void receive(const array1g_t& tx, const array1g_t& rx,
          array1vd_t& ptable) const
       {
@@ -925,6 +729,7 @@ public:
       for (int x = 0; x < M; x++)
          ptable(0)(x) = qids<G, real>::receive(tx(x), rx);
       }
+   //! \note Used by dminner
    double receive(const array1g_t& tx, const array1g_t& rx) const
       {
 #if DEBUG>=2
@@ -938,20 +743,7 @@ public:
 #endif
       return result;
       }
-/*   double receive(const G& tx, const array1g_t& rx) const
-      {
-#if DEBUG>=2
-      libbase::trace << "DEBUG (qids): Computing RecvPr for" << std::endl;
-      libbase::trace << "tx = " << tx;
-      libbase::trace << "rx = " << rx;
-#endif
-      const real result = computer.receive(tx, rx);
-#if DEBUG>=2
-      libbase::trace << "RecvPr = " << result << std::endl;
-#endif
-      return result;
-      }
-*/
+
    // Interface for CUDA
    const metric_computer& get_computer() const
       {

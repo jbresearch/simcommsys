@@ -66,14 +66,9 @@ balanced-nozero
 map_straight<vector,double>
 ## Codec
 uncoded<double>
-# Encoder
-cached_fsm
-#: Base Encoder
-gnrcc<gf16>
-#: Generator matrix (k x n vectors)
-1	1
+# Version
 1
-0001
-
+# Alphabet size
+16
 # Block length
 750

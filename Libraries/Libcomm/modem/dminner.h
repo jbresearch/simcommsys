@@ -163,9 +163,10 @@ private:
    void validatecodebook() const;
    void computemeandensity();
    // Other utilities
-   void checkforchanges(int I, int xmax) const;
-   void work_results(const array1b_t& r, array1vr_t& ptable, const int xmax,
-         const int dxmax, const int I) const;
+   void checkforchanges(int m1_min, int m1_max, int mn_min,
+         int mn_max, int mtau_min, int mtau_max) const;
+   void work_results(const array1b_t& r, array1vr_t& ptable, const int mtau_min,
+         const int mtau_max, const int mn_min, const int mn_max) const;
    void normalize_results(const array1vr_t& in, array1vd_t& out) const;
    // @}
 protected:

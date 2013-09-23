@@ -27,6 +27,7 @@
 
 #include "stream_modulator.h"
 #include "channel/qids.h"
+#include "algorithm/fba2-interface.h"
 
 #include "randgen.h"
 #include "itfunc.h"
@@ -36,11 +37,11 @@
 #include <cmath>
 #include <memory>
 
+#include "boost/shared_ptr.hpp"
+
 #ifdef USE_CUDA
-#  include "algorithm/fba2-cuda.h"
 #  include "tvb-receiver-cuda.h"
 #else
-#  include "algorithm/fba2.h"
 #  include "tvb-receiver.h"
 #endif
 
@@ -111,8 +112,6 @@ private:
    real th_outer; //!< Threshold factor for outer cycle
    double Pr; //!< Probability of channel event outside chosen limits
    struct {
-      bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
-      bool batch; //!< Flag indicating use of batch receiver interface
       bool lazy; //!< Flag indicating lazy computation of gamma metric
    } flags;
    storage_t storage_type; //!< enum indicating storage mode for gamma metric
@@ -124,11 +123,15 @@ private:
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
+   int mtau_min; //!< The largest negative drift within a whole frame is \f$ \m_\tau^{-} \f$
+   int mtau_max; //!< The largest positive drift within a whole frame is \f$ \m_\tau^{+} \f$
 #ifdef USE_CUDA
-   cuda::fba2<cuda::tvb_receiver<sig, real, real2>, sig, real, real2> fba; //!< algorithm object
+   typedef cuda::tvb_receiver<sig, real, real2> recv_type;
 #else
-   fba2<tvb_receiver<sig, real, real2> , sig, real, real2> fba; //!< algorithm object
+   typedef tvb_receiver<sig, real, real2> recv_type;
 #endif
+   typedef fba2_interface<recv_type, sig, real> fba_type;
+   boost::shared_ptr<fba_type> fba_ptr; //!< pointer to algorithm object
    // @}
 private:
    // Atomic modem operations (private as these should never be used)
@@ -161,8 +164,8 @@ protected:
          const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
          array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
    // Internal methods
-   array1vs_t select_codebook(const int i) const;
-   array1s_t select_marker(const int i) const;
+   int select_codebook(const int i) const;
+   int select_marker(const int i) const;
    void fill_encoding_table(array2vs_t& encoding_table, const int offset,
          const int length) const;
    void demodulate_wrapper(const channel<sig>& chan, const array1s_t& rx,
@@ -181,11 +184,11 @@ private:
       init(chan, eof_pdf, offset);
       }
    void init();
-   // Invariance test
+   //! Invariance test
    void test_invariant() const
       {
       // check code parameters
-      assert(n >= 1 && n <= 32);
+      assert(n >= 1);
       assert(q >= 2 && q <= int(pow(field_utils<sig>::elements(), n)));
       // check cutoff thresholds
       assert(th_inner >= real(0) && th_inner <= real(1));
@@ -198,7 +201,8 @@ private:
    void showcodebooks(std::ostream& sout) const;
    void validatecodebook() const;
    // Other utilities
-   void checkforchanges(int I, int xmax) const;
+   void checkforchanges(int m1_min, int m1_max, int mn_min,
+         int mn_max, int mtau_min, int mtau_max) const;
    void checkforchanges(bool globalstore, int required) const;
    // @}
 public:
@@ -209,6 +213,27 @@ public:
             th_inner(real(th_inner)), th_outer(real(th_outer))
       {
       init();
+      }
+   // @}
+   /*! \name Fix to avoid duplicate memory usage. */
+   /*! \brief Copy constructor
+    * Copies all serialized elements and internal state but excluding
+    * the FBA object; this avoids having a duplicate copy of its tables.
+    *
+    * \todo This will not be necessary (can keep the compiler defaults)
+    *       when/if the TX and RX side of commsys objects are separated, as we
+    *       won't need to clone the RX commsys object in stream simulations.
+    */
+   tvb(const tvb& x) :
+         n(x.n), q(x.q), marker_type(x.marker_type), marker_vectors(
+               x.marker_vectors), codebook_type(x.codebook_type), codebook_name(
+               x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
+               x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
+               x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
+               x.lookahead), mychan(x.mychan), r(x.r), encoding_table(
+               x.encoding_table), changed_encoding_table(
+               x.changed_encoding_table)
+      {
       }
    // @}
 
@@ -276,7 +301,7 @@ public:
       const int N = this->input_block_size();
       // get the posterior channel drift pdf at codeword boundaries
       array1vr_t pdftable_r;
-      fba.get_drift_pdf(pdftable_r);
+      fba_ptr->get_drift_pdf(pdftable_r);
       libbase::normalize_results(pdftable_r.extract(0, N + 1), pdftable);
       }
    array1i_t get_boundaries(void) const

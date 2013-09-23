@@ -40,7 +40,7 @@ marker<bool,float,float>
 ## Mapper
 map_dividing<vector,double,double>
 ## Codec
-uncoded<double>
+memoryless<double>
 # Encoder
 cached_fsm
 #: Base Encoder

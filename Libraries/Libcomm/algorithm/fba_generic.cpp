@@ -43,11 +43,11 @@ template <class sig, class real, class real2>
 void fba_generic<sig, real, real2>::allocate()
    {
    // Allocate required size
-   // alpha needs indices (j,y) where j in [0, N] and y in [-xmax, xmax]
-   // beta needs indices (j,y) where j in [0, N] and y in [-xmax, xmax]
+   // alpha needs indices (j,y) where j in [0, tau] and y in [mtau_min, mtau_max]
+   // beta needs indices (j,y) where j in [0, tau] and y in [mtau_min, mtau_max]
    typedef boost::multi_array_types::extent_range range;
-   alpha.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
-   beta.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
+   alpha.resize(boost::extents[tau + 1][range(mtau_min, mtau_max + 1)]);
+   beta.resize(boost::extents[tau + 1][range(mtau_min, mtau_max + 1)]);
    // flag the state of the arrays
    initialised = true;
 
@@ -74,9 +74,9 @@ void fba_generic<sig, real, real2>::allocate()
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
-   std::cerr << "alpha = " << N + 1 << "x" << 2 * xmax + 1 << " = "
+   std::cerr << "alpha = " << tau + 1 << "x" << mtau_max - mtau_min + 1 << " = "
    << alpha.num_elements() << std::endl;
-   std::cerr << "beta = " << N + 1 << "x" << 2 * xmax + 1 << " = "
+   std::cerr << "beta = " << tau + 1 << "x" << mtau_max - mtau_min + 1 << " = "
    << beta.num_elements() << std::endl;
 #endif
    }
@@ -126,29 +126,29 @@ void fba_generic<sig, real, real2>::work_alpha(const array1s_t& r,
    // initialise array:
    alpha = real(0);
    // set initial drift distribution
-   for (int x = -xmax; x <= xmax; x++)
-      alpha[0][x] = real(sof_prior(xmax + x));
+   for (int x = mtau_min; x <= mtau_max; x++)
+      alpha[0][x] = real(sof_prior(x - mtau_min));
    // normalize if requested
    if (norm)
       normalize_alpha(0);
    // compute remaining matrix values
-   for (int i = 1; i <= N; i++)
+   for (int i = 1; i <= tau; i++)
       {
-      std::cerr << progress.update(i - 1, N);
+      std::cerr << progress.update(i - 1, tau);
       // compute partial result
-      for (int x1 = -xmax; x1 <= xmax; x1++)
+      for (int x1 = mtau_min; x1 <= mtau_max; x1++)
          {
          // cache previous alpha value in a register
          const real prev_alpha = alpha[i - 1][x1];
          // limits on insertions and deletions must be respected:
-         //   x2-x1 <= I
-         //   x2-x1 >= -1
-         const int x2min = std::max(-xmax, x1 - 1);
-         const int x2max = std::min(xmax, x1 + I);
+         //   x2-x1 <= m1_max
+         //   x2-x1 >= m1_min
+         const int x2min = std::max(mtau_min, x1 + m1_min);
+         const int x2max = std::min(mtau_max, x1 + m1_max);
          for (int x2 = x2min; x2 <= x2max; x2++)
             {
             // determine received segment to extract
-            const int start = xmax + (i - 1) + x1;
+            const int start = (i - 1) + x1 - mtau_min;
             const int length = 1 + (x2 - x1);
             const array1s_t& r_segment = r.extract(start, length);
             // NOTE: we're repeating the loop on x2, so we need to increment this
@@ -170,7 +170,7 @@ void fba_generic<sig, real, real2>::work_alpha(const array1s_t& r,
       if (norm)
          normalize_alpha(i);
       }
-   std::cerr << progress.update(N, N);
+   std::cerr << progress.update(tau, tau);
 #if DEBUG>=3
    std::cerr << "alpha = " << alpha << std::endl;
 #endif
@@ -187,28 +187,28 @@ void fba_generic<sig, real, real2>::work_beta(const array1s_t& r,
    //       this_beta for every value
    beta = real(0);
    // set final drift distribution
-   for (int x = -xmax; x <= xmax; x++)
-      beta[N][x] = real(eof_prior(xmax + x));
+   for (int x = mtau_min; x <= mtau_max; x++)
+      beta[tau][x] = real(eof_prior(x - mtau_min));
    // normalize if requested
    if (norm)
-      normalize_beta(N);
+      normalize_beta(tau);
    // compute remaining matrix values
-   for (int i = N - 1; i >= 0; i--)
+   for (int i = tau - 1; i >= 0; i--)
       {
-      std::cerr << progress.update(N - 1 - i, N);
+      std::cerr << progress.update(tau - 1 - i, tau);
       // compute partial result
-      for (int x1 = -xmax; x1 <= xmax; x1++)
+      for (int x1 = mtau_min; x1 <= mtau_max; x1++)
          {
          real this_beta = 0;
          // limits on insertions and deletions must be respected:
-         //   x2-x1 <= I
-         //   x2-x1 >= -1
-         const int x2min = std::max(-xmax, x1 - 1);
-         const int x2max = std::min(xmax, x1 + I);
+         //   x2-x1 <= m1_max
+         //   x2-x1 >= m1_min
+         const int x2min = std::max(mtau_min, x1 + m1_min);
+         const int x2max = std::min(mtau_max, x1 + m1_max);
          for (int x2 = x2min; x2 <= x2max; x2++)
             {
             // determine received segment to extract
-            const int start = xmax + i + x1;
+            const int start = i + x1 - mtau_min;
             const int length = 1 + (x2 - x1);
             const array1s_t& r_segment = r.extract(start, length);
             // cache next beta value in a register
@@ -230,7 +230,7 @@ void fba_generic<sig, real, real2>::work_beta(const array1s_t& r,
       if (norm)
          normalize_beta(i);
       }
-   std::cerr << progress.update(N, N);
+   std::cerr << progress.update(tau, tau);
 #if DEBUG>=3
    std::cerr << "beta = " << beta << std::endl;
 #endif
@@ -242,29 +242,29 @@ void fba_generic<sig, real, real2>::work_message_app(const array1s_t& r,
    {
    libbase::pacifier progress("FBA Results");
    // Initialise result vector (one symbol per timestep)
-   libbase::allocate(ptable, N, field_utils<sig>::elements());
+   libbase::allocate(ptable, tau, field_utils<sig>::elements());
    // ptable(i,d) is the a posteriori probability of having transmitted symbol 'd' at time 'i'
-   for (int i = 0; i < N; i++)
+   for (int i = 0; i < tau; i++)
       {
-      std::cerr << progress.update(i, N);
+      std::cerr << progress.update(i, tau);
       // compute partial result
       for (int d = 0; d < field_utils<sig>::elements(); d++)
          {
          // initialize result holder
          real p = 0;
-         for (int x1 = -xmax; x1 <= xmax; x1++)
+         for (int x1 = mtau_min; x1 <= mtau_max; x1++)
             {
             // cache this alpha value in a register
             const real this_alpha = alpha[i][x1];
             // limits on insertions and deletions must be respected:
-            //   x2-x1 <= I
-            //   x2-x1 >= -1
-            const int x2min = std::max(-xmax, x1 - 1);
-            const int x2max = std::min(xmax, x1 + I);
+            //   x2-x1 <= m1_max
+            //   x2-x1 >= m1_min
+            const int x2min = std::max(mtau_min, x1 + m1_min);
+            const int x2max = std::min(mtau_max, x1 + m1_max);
             for (int x2 = x2min; x2 <= x2max; x2++)
                {
                // determine received segment to extract
-               const int start = xmax + i + x1;
+               const int start = i + x1 - mtau_min;
                const int length = 1 + (x2 - x1);
                const array1s_t& r_segment = r.extract(start, length);
                // accumulate result
@@ -282,8 +282,8 @@ void fba_generic<sig, real, real2>::work_message_app(const array1s_t& r,
          ptable(i)(d) = p;
          }
       }
-   if (N > 0)
-      std::cerr << progress.update(N, N);
+   if (tau > 0)
+      std::cerr << progress.update(tau, tau);
 #if DEBUG>=3
    std::cerr << "ptable = " << ptable << std::endl;
 #endif
@@ -293,11 +293,11 @@ template <class sig, class real, class real2>
 void fba_generic<sig, real, real2>::work_state_app(array1r_t& ptable,
       const int i) const
    {
-   assert(i >= 0 && i <= N);
+   assert(i >= 0 && i <= tau);
    // compute posterior probabilities for given index
-   ptable.init(2 * xmax + 1);
-   for (int x = -xmax; x <= xmax; x++)
-      ptable(xmax + x) = alpha[i][x] * beta[i][x];
+   ptable.init(mtau_max - mtau_min + 1);
+   for (int x = mtau_min; x <= mtau_max; x++)
+      ptable(x - mtau_min) = alpha[i][x] * beta[i][x];
 #if DEBUG>=3
    std::cerr << "state_post(" << i << ") = " << ptable << std::endl;
 #endif
@@ -326,7 +326,7 @@ void fba_generic<sig, real, real2>::work_state_app(array1r_t& ptable,
  *
  * \note Priors for start and end-of-frame *must* be supplied; in the case of a
  *       received frame with exactly known boundaries, this must be offset by
- *       xmax and padded to a total length of tau + 2*xmax, where tau is the
+ *       mtau_max and padded to a total length of tau + mtau_max-mtau_min, where tau is the
  *       length of the transmitted frame. This avoids special handling for such
  *       vectors.
  *
@@ -340,9 +340,11 @@ void fba_generic<sig, real, real2>::decode(libcomm::instrumented& collector,
    {
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
-   std::cerr << "N = " << N << std::endl;
-   std::cerr << "I = " << I << std::endl;
-   std::cerr << "xmax = " << xmax << std::endl;
+   std::cerr << "tau = " << tau << std::endl;
+   std::cerr << "m1_min = " << m1_min << std::endl;
+   std::cerr << "m1_max = " << m1_max << std::endl;
+   std::cerr << "mtau_min = " << mtau_min << std::endl;
+   std::cerr << "mtau_max = " << mtau_max << std::endl;
    std::cerr << "norm = " << norm << std::endl;
    std::cerr << "real = " << typeid(real).name() << std::endl;
 #endif
@@ -350,10 +352,10 @@ void fba_generic<sig, real, real2>::decode(libcomm::instrumented& collector,
    if (!initialised)
       allocate();
    // Validate sizes and offset
-   assertalways(offset == xmax);
-   assertalways(r.size() == N + 2 * xmax);
-   assertalways(sof_prior.size() == 2 * xmax + 1);
-   assertalways(eof_prior.size() == 2 * xmax + 1);
+   assertalways(offset == -mtau_min);
+   assertalways(r.size() == tau + mtau_max - mtau_min);
+   assertalways(sof_prior.size() == mtau_max - mtau_min + 1);
+   assertalways(eof_prior.size() == mtau_max - mtau_min + 1);
 #if DEBUG>=3
    // show input data
    std::cerr << "r = " << r << std::endl;
@@ -376,8 +378,10 @@ void fba_generic<sig, real, real2>::decode(libcomm::instrumented& collector,
    collector.add_timer(tr);
 
    // Add values for limits that depend on channel conditions
-   collector.add_timer(I, "c_I");
-   collector.add_timer(xmax, "c_xmax");
+   collector.add_timer(m1_min, "c_m1_min");
+   collector.add_timer(m1_max, "c_m1_max");
+   collector.add_timer(mtau_min, "c_mtau_min");
+   collector.add_timer(mtau_max, "c_mtau_max");
    // Add memory usage
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");

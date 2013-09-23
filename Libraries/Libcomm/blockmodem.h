@@ -103,10 +103,10 @@ public:
    void modulate(const int N, const C<int>& encoded, C<S>& tx)
       {
       test_invariant();
-      //libbase::cputimer t("t_modulate");
+      libbase::cputimer t("t_modulate");
       advance_always();
       domodulate(N, encoded, tx);
-      //add_timer(t);
+      add_timer(t);
       }
    /*!
     * \brief Demodulate a sequence of time-steps

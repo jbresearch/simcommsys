@@ -181,87 +181,107 @@ int estimate_xmax(int tau, double Pi, double Pd, double Pr)
    return xmax;
    }
 
-double compute_oob_over_multiple(double Pe, int tau)
+void compute_statespace(int tau, int n, double p, bool ins, bool del, bool sim,
+      double Pr)
    {
-   return 1 - pow(1-Pe, tau);
-   }
-
-void compute_statespace(int tau, double p, bool ins, bool del, bool sim, double Pr)
-   {
-   typedef libcomm::qids<bool, float>::metric_computer metric_computer;
+   using libcomm::qids_utils;
    const double Pi = ins ? p : 0;
    const double Pd = del ? p : 0;
-   const int Icap = 2;
    cout << p;
-   const int I = metric_computer::compute_I(tau, Pi, Pr, 0);
-   cout << "\t" << I;
-   const double error_I = metric_computer::compute_outofbounds_with(
-         &metric_computer::compute_drift_prob_exact, 1, Pi, Pd, I, -1);
-   cout << "\t" << compute_oob_over_multiple(error_I, tau);
-   cout << "\t" << Icap;
-   const double error_Icap = metric_computer::compute_outofbounds_with(
-         &metric_computer::compute_drift_prob_exact, 1, Pi, Pd, Icap, -1);
-   cout << "\t" << compute_oob_over_multiple(error_Icap, tau);
 
-   const int xmax_auto = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
-   cout << "\t" << xmax_auto;
+   // Davey-MacKay Gaussian approximation
+   const int I_dm = 2;
+   cout << "\t" << I_dm;
+   const double error_I_dm = qids_utils::multiply_error_probability(
+         qids_utils::compute_outofbounds_with(
+               qids_utils::compute_drift_prob_exact, 1, Pi, Pd, I_dm, -1), tau);
+   cout << "\t" << error_I_dm;
    if (Pi == Pd)
       {
-      const int xmax_davey = metric_computer::compute_xmax_with(
-            &metric_computer::compute_drift_prob_davey, tau, Pi, Pd, Pr);
-      cout << "\t" << xmax_davey;
-      const double error_davey = metric_computer::compute_outofbounds_with(
-            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, xmax_davey,
-            -xmax_davey);
-      cout << "\t" << error_davey;
+      const int xmax_dm = qids_utils::compute_xmax_with(
+            qids_utils::compute_drift_prob_davey, tau, Pi, Pd, Pr);
+      cout << "\t" << xmax_dm;
+      const double error_xmax_dm = qids_utils::compute_outofbounds_with(
+            qids_utils::compute_drift_prob_exact, tau, Pi, Pd, xmax_dm,
+            -xmax_dm);
+      cout << "\t" << error_xmax_dm;
       }
    else
       {
       cout << "\tN/A\tN/A";
       }
-   try
-      {
-      const int xmax_exact = metric_computer::compute_xmax_with(
-            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, Pr);
-      cout << "\t" << xmax_exact;
-      const double error_exact = metric_computer::compute_outofbounds_with(
-            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, xmax_exact,
-            -xmax_exact);
-      cout << "\t" << error_exact;
-      int lower, upper;
-      metric_computer::compute_limits_with(
-            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, Pr, lower,
-            upper);
-      cout << "\t" << upper;
-      cout << "\t" << lower;
-      const double error_ul = metric_computer::compute_outofbounds_with(
-            &metric_computer::compute_drift_prob_exact, tau, Pi, Pd, upper,
-            lower);
-      cout << "\t" << error_ul;
-      }
-   catch (std::exception& e)
-      {
-      cout << "\tEXC (" << e.what() << ")";
-      }
+
+   // Exact computation - I/xmax method
+   const int I_exact = qids_utils::compute_I(tau, Pi, Pr);
+   cout << "\t" << I_exact;
+   const double error_I_exact = qids_utils::multiply_error_probability(
+         qids_utils::compute_outofbounds_with(
+               qids_utils::compute_drift_prob_exact, 1, Pi, Pd, I_exact, -1),
+         tau);
+   cout << "\t" << error_I_exact;
+   const int xmax_exact = qids_utils::compute_xmax(tau, Pi, Pd, Pr);
+   cout << "\t" << xmax_exact;
+   const double error_xmax_exact = qids_utils::compute_outofbounds_with(
+         qids_utils::compute_drift_prob_exact, tau, Pi, Pd, xmax_exact,
+         -xmax_exact);
+   cout << "\t" << error_xmax_exact;
+
+   // Exact computation - m1/mtau method
+   int m1_min, m1_max;
+   qids_utils::compute_limits_with(qids_utils::compute_drift_prob_exact, 1, Pi,
+         Pd, qids_utils::divide_error_probability(Pr, tau), m1_min, m1_max);
+   cout << "\t" << m1_min;
+   cout << "\t" << m1_max;
+   const double error_m1 = qids_utils::multiply_error_probability(
+         qids_utils::compute_outofbounds_with(
+               qids_utils::compute_drift_prob_exact, 1, Pi, Pd, m1_max,
+               m1_min), tau);
+   cout << "\t" << error_m1;
+
+   const int N = tau / n;
+   assertalways(tau == N * n);
+   int mn_min, mn_max;
+   qids_utils::compute_limits_with(qids_utils::compute_drift_prob_exact, n, Pi,
+         Pd, qids_utils::divide_error_probability(Pr, N), mn_min, mn_max);
+   cout << "\t" << mn_min;
+   cout << "\t" << mn_max;
+   const double error_mn = qids_utils::multiply_error_probability(
+         qids_utils::compute_outofbounds_with(
+               qids_utils::compute_drift_prob_exact, n, Pi, Pd, mn_max,
+               mn_min), N);
+   cout << "\t" << error_mn;
+
+   int mtau_min, mtau_max;
+   qids_utils::compute_limits_with(qids_utils::compute_drift_prob_exact, tau,
+         Pi, Pd, Pr, mtau_min, mtau_max);
+   cout << "\t" << mtau_min;
+   cout << "\t" << mtau_max;
+   const double error_mtau = qids_utils::compute_outofbounds_with(
+         qids_utils::compute_drift_prob_exact, tau, Pi, Pd, mtau_max, mtau_min);
+   cout << "\t" << error_mtau;
+
+   // determine xmax empirically, if requested
    if (sim)
       {
       const int xmax_est = estimate_xmax(tau, Pi, Pd, Pr);
       cout << "\t" << xmax_est;
       }
+
    cout << std::endl;
    }
 
 void compute_drift_pdf(int tau, double p, bool ins, bool del, double Pr)
    {
-   typedef libcomm::qids<bool, float>::metric_computer metric_computer;
+   using libcomm::qids_utils;
    const double Pi = ins ? p : 0;
    const double Pd = del ? p : 0;
    cout << "p = " << p << std::endl;
-   const int xmax = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
+   int mtau_min, mtau_max;
+   qids_utils::compute_limits(tau, Pi, Pd, Pr, mtau_min, mtau_max);
    cout << "m\tP(m)" << std::endl;
-   for (int m = -xmax; m <= xmax; m++)
+   for (int m = mtau_min; m <= mtau_max; m++)
       {
-      const double prob = metric_computer::compute_drift_prob_exact(m, tau, Pi,
+      const double prob = qids_utils::compute_drift_prob_exact(m, tau, Pi,
             Pd);
       cout << m << "\t" << prob << std::endl;
       }
@@ -278,15 +298,16 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
    channel.set_parameter(p);
    channel.set_blocksize(tau);
    // determine state-space parameters
-   const int xmax = channel.compute_xmax(tau, Pr);
+   int mtau_min, mtau_max;
+   channel.compute_limits(tau, Pr, mtau_min, mtau_max);
    // define input sequences and output tables
    vector<bool> tx(tau);
-   vector<bool> rx(tau + xmax);
+   vector<bool> rx(tau + mtau_max);
    tx = 0;
    rx = 0;
-   vector<real> ptable_trellis(2 * xmax + 1);
-   vector<real> ptable_lattice(2 * xmax + 1);
-   vector<real> ptable_corridor(2 * xmax + 1);
+   vector<real> ptable_trellis(mtau_max - mtau_min + 1);
+   vector<real> ptable_lattice(mtau_max - mtau_min + 1);
+   vector<real> ptable_corridor(mtau_max - mtau_min + 1);
    // compare results
    const int count = 1000;
    libbase::rvstatistics mse_trellis, mse_corridor;
@@ -304,9 +325,9 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
       channel.get_computer().receive_lattice_corridor(tx, rx, ptable_corridor);
       // compare results
       mse_trellis.insert(
-            (ptable_trellis - ptable_lattice).sumsq() / (2 * xmax + 1));
+            (ptable_trellis - ptable_lattice).sumsq() / (mtau_max - mtau_min + 1));
       mse_corridor.insert(
-            (ptable_corridor - ptable_lattice).sumsq() / (2 * xmax + 1));
+            (ptable_corridor - ptable_lattice).sumsq() / (mtau_max - mtau_min + 1));
       }
    // show results
    cout << p << "\t";
@@ -330,16 +351,17 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
    channel_reference.set_parameter(p);
    channel_reference.set_blocksize(tau);
    // determine state-space parameters
-   const int xmax = channel_real.compute_xmax(tau, Pr);
+   int mtau_min, mtau_max;
+   channel_real.compute_limits(tau, Pr, mtau_min, mtau_max);
    // define input sequences and output tables
    vector<bool> tx(tau);
-   vector<bool> rx(tau + xmax);
+   vector<bool> rx(tau + mtau_max);
    tx = 0;
    rx = 0;
-   vector<real> ptable_trellis_real(2 * xmax + 1);
-   vector<real> ptable_corridor_real(2 * xmax + 1);
-   vector<reference> ptable_trellis_reference(2 * xmax + 1);
-   vector<reference> ptable_corridor_reference(2 * xmax + 1);
+   vector<real> ptable_trellis_real(mtau_max - mtau_min + 1);
+   vector<real> ptable_corridor_real(mtau_max - mtau_min + 1);
+   vector<reference> ptable_trellis_reference(mtau_max - mtau_min + 1);
+   vector<reference> ptable_corridor_reference(mtau_max - mtau_min + 1);
    // compare results
    const int count = 1000;
    libbase::rvstatistics mse_trellis, mse_corridor;
@@ -363,10 +385,10 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
       // compare results
       mse_trellis.insert(
             (vector<reference>(ptable_trellis_real) - ptable_trellis_reference).sumsq()
-                  / (2 * xmax + 1));
+                  / (mtau_max - mtau_min + 1));
       mse_corridor.insert(
             (vector<reference>(ptable_corridor_real) - ptable_corridor_reference).sumsq()
-                  / (2 * xmax + 1));
+                  / (mtau_max - mtau_min + 1));
       }
    // show results
    cout << p << "\t";
@@ -378,26 +400,29 @@ template <class real>
 void compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
    {
    typedef typename libcomm::qids<bool, real>::metric_computer metric_computer;
+   using libcomm::qids_utils;
    const double Pi = ins ? p : 0;
    const double Pd = del ? p : 0;
    const double Ps = sub ? p : 0;
    // determine state-space parameters
    cout << p;
-   const int I = metric_computer::compute_I(tau, Pi, Pr, 0);
-   cout << "\t" << I;
-   const int xmax = metric_computer::compute_xmax(tau, Pi, Pd, Pr);
-   cout << "\t" << xmax;
+   int mtau_min, mtau_max;
+   qids_utils::compute_limits(tau, Pi, Pd, Pr, mtau_min, mtau_max);
+   cout << "\t" << mtau_min << "\t" << mtau_max;
+   int m1_min, m1_max;
+   qids_utils::compute_limits(1, Pi, Pd,
+         qids_utils::divide_error_probability(Pr, tau), m1_min, m1_max);
+   cout << "\t" << m1_min << "\t" << m1_max;
    // set up metric computer
    metric_computer computer;
    computer.init();
-   computer.N = tau;
-   computer.precompute(Ps, Pd, Pi, Pr, 0);
+   computer.precompute(Ps, Pd, Pi, mtau_min, mtau_max, m1_min, m1_max);
    // define input sequences and output table
    vector<bool> tx(tau);
-   vector<bool> rx(tau + xmax);
+   vector<bool> rx(tau + mtau_max);
    tx = 0;
    rx = 0;
-   vector<real> ptable(2 * xmax + 1);
+   vector<real> ptable(mtau_max - mtau_min + 1);
    // determine timings - setup
    libbase::cputimer t;
    int j;
@@ -458,9 +483,11 @@ int main(int argc, char *argv[])
    // test-specific parameters
    desc.add_options()("simulate", po::bool_switch(),
          "when determining state-space limits, also perform simulation to "
-               "estimate xmax");
+               "estimate xmax empirically");
    desc.add_options()("blocksize,N", po::value<int>(),
          "block size in channel symbols");
+   desc.add_options()("codesize,n", po::value<int>(),
+         "codeword size in channel symbols");
    desc.add_options()("parameter,r", po::value<double>(),
          "channel parameter to use; if not specified for timings and "
                "state-space, use pre-set range");
@@ -580,7 +607,7 @@ int main(int argc, char *argv[])
             vm.count("parameter") ? vm["parameter"].as<double>() : 0.5;
       const double pmul = pow(10.0, 1.0 / 10);
       cout << "Timings (single precision):" << std::endl;
-      cout << "p\tI\txmax\ttrellis\tlattice\tcorridor" << std::endl;
+      cout << "p\tmtau_min\tmtau_max\tm1_min\tm1_max\ttrellis\tlattice\tcorridor" << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
          compute_timings<float>(N, p, ins, del, sub, Pr);
       }
@@ -588,6 +615,7 @@ int main(int argc, char *argv[])
    else if (vm.count("state-space"))
       {
       const int N = vm["blocksize"].as<int>();
+      const int n = vm["codesize"].as<int>();
       const bool ins = vm["ins"].as<bool>();
       const bool del = vm["del"].as<bool>();
       const bool sim = vm["simulate"].as<bool>();
@@ -599,12 +627,14 @@ int main(int argc, char *argv[])
       const double pstop =
             vm.count("parameter") ? vm["parameter"].as<double>() : 0.5;
       const double pmul = pow(10.0, 1.0 / 10);
-      cout << "p\tI\tp(e)\tI_cap\tp(e)\txmax_auto\txmax_davey\tp(e)\txmax_exact\tp(e)\tupper\tlower\tp(e)";
+      cout << "p" << "\tI_dm\tp(e)\txmax_dm\tp(e)"
+            << "\tI_exact\tp(e)\txmax_exact\tp(e)" << "\tm1_min\tm1_max\tp(e)"
+            << "\tmn_min\tmn_max\tp(e)" << "\tmtau_min\tmtau_max\tp(e)";
       if (sim)
          cout << "\txmax_est";
       cout << std::endl;
       for (double p = pstart; p <= pstop; p *= pmul)
-         compute_statespace(N, p, ins, del, sim, Pr);
+         compute_statespace(N, n, p, ins, del, sim, Pr);
       }
    // determine drift probability distribution
    else if (vm.count("drift-pdf"))

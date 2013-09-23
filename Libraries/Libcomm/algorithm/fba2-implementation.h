@@ -41,24 +41,23 @@ namespace libcomm {
 
 // common small tasks
 
-template <class receiver_t, class sig, class real, class real2>
-real fba2<receiver_t, sig, real, real2>::get_threshold(const array2r_t& metric,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_threshold(const array2r_t& metric,
       int row, int col_min, int col_max, real factor)
    {
-   const bool thresholding = (factor > real(0));
+   // early short-cut for no-thresholding
+   if (!thresholding || factor == real(0))
+      return 0;
+   // actual computation
    real threshold = 0;
-   if (thresholding)
-      {
       for (int col = col_max; col <= col_max; col++)
          if (metric[row][col] > threshold)
             threshold = metric[row][col];
-      threshold *= factor;
-      }
-   return threshold;
+   return threshold * factor;
    }
 
-template <class receiver_t, class sig, class real, class real2>
-real fba2<receiver_t, sig, real, real2>::get_scale(const array2r_t& metric,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_scale(const array2r_t& metric,
       int row, int col_min, int col_max)
    {
    real scale = 0;
@@ -69,8 +68,8 @@ real fba2<receiver_t, sig, real, real2>::get_scale(const array2r_t& metric,
    return scale;
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::normalize(array2r_t& metric, int row,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::normalize(array2r_t& metric, int row,
       int col_min, int col_max)
    {
    // determine the scale factor to use (each block has to do this)
@@ -82,14 +81,12 @@ void fba2<receiver_t, sig, real, real2>::normalize(array2r_t& metric, int row,
 
 // decode functions - partial computations
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_alpha(const int i)
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(const int i)
    {
-   // local flag for path thresholding
-   const bool thresholding = (th_inner > real(0));
    // determine the strongest path at this point
-   const real threshold = get_threshold(alpha, i - 1, -xmax, xmax, th_inner);
-   for (int x1 = -xmax; x1 <= xmax; x1++)
+   const real threshold = get_threshold(alpha, i - 1, mtau_min, mtau_max, th_inner);
+   for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       // cache previous alpha value in a register
       const real prev_alpha = alpha[i - 1][x1];
@@ -97,10 +94,10 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const int i)
       if (thresholding && prev_alpha < threshold)
          continue;
       // limits on deltax can be combined as (c.f. allocate() for details):
-      //   x2-x1 <= dmax
-      //   x2-x1 >= dmin
-      const int x2min = std::max(-xmax, dmin + x1);
-      const int x2max = std::min(xmax, dmax + x1);
+      //   x2-x1 <= mn_max
+      //   x2-x1 >= mn_min
+      const int x2min = std::max(mtau_min, mn_min + x1);
+      const int x2max = std::min(mtau_max, mn_max + x1);
       for (int x2 = x2min; x2 <= x2max; x2++)
          {
          // NOTE: we're repeating the loop on x2, so we need to increment this
@@ -116,21 +113,19 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const int i)
       }
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_beta(const int i)
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta(const int i)
    {
-   // local flag for path thresholding
-   const bool thresholding = (th_inner > real(0));
    // determine the strongest path at this point
-   const real threshold = get_threshold(beta, i + 1, -xmax, xmax, th_inner);
-   for (int x1 = -xmax; x1 <= xmax; x1++)
+   const real threshold = get_threshold(beta, i + 1, mtau_min, mtau_max, th_inner);
+   for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
       // limits on deltax can be combined as (c.f. allocate() for details):
-      //   x2-x1 <= dmax
-      //   x2-x1 >= dmin
-      const int x2min = std::max(-xmax, dmin + x1);
-      const int x2max = std::min(xmax, dmax + x1);
+      //   x2-x1 <= mn_max
+      //   x2-x1 >= mn_min
+      const int x2min = std::max(mtau_min, mn_min + x1);
+      const int x2max = std::min(mtau_max, mn_max + x1);
       for (int x2 = x2min; x2 <= x2max; x2++)
          {
          // cache next beta value in a register
@@ -149,19 +144,17 @@ void fba2<receiver_t, sig, real, real2>::work_beta(const int i)
       }
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_message_app(array1vr_t& ptable,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_message_app(array1vr_t& ptable,
       const int i) const
    {
-   // local flag for path thresholding
-   const bool thresholding = (th_outer > real(0));
    // determine the strongest path at this point
-   const real threshold = get_threshold(alpha, i, -xmax, xmax, th_outer);
+   const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_outer);
    for (int d = 0; d < q; d++)
       {
       // initialize result holder
       real p = 0;
-      for (int x1 = -xmax; x1 <= xmax; x1++)
+      for (int x1 = mtau_min; x1 <= mtau_max; x1++)
          {
          // cache this alpha value in a register
          const real this_alpha = alpha[i][x1];
@@ -169,10 +162,10 @@ void fba2<receiver_t, sig, real, real2>::work_message_app(array1vr_t& ptable,
          if (thresholding && this_alpha < threshold)
             continue;
          // limits on deltax can be combined as (c.f. allocate() for details):
-         //   x2-x1 <= dmax
-         //   x2-x1 >= dmin
-         const int x2min = std::max(-xmax, dmin + x1);
-         const int x2max = std::min(xmax, dmax + x1);
+         //   x2-x1 <= mn_max
+         //   x2-x1 >= mn_min
+         const int x2min = std::max(mtau_min, mn_min + x1);
+         const int x2max = std::min(mtau_max, mn_max + x1);
          for (int x2 = x2min; x2 <= x2max; x2++)
             {
             real temp = this_alpha;
@@ -186,15 +179,15 @@ void fba2<receiver_t, sig, real, real2>::work_message_app(array1vr_t& ptable,
       }
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_state_app(array1r_t& ptable,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_state_app(array1r_t& ptable,
       const int i) const
    {
    assert(i >= 0 && i <= N);
    // compute posterior probabilities for given index
-   ptable.init(2 * xmax + 1);
-   for (int x = -xmax; x <= xmax; x++)
-      ptable(xmax + x) = alpha[i][x] * beta[i][x];
+   ptable.init(mtau_max - mtau_min + 1);
+   for (int x = mtau_min; x <= mtau_max; x++)
+      ptable(x - mtau_min) = alpha[i][x] * beta[i][x];
    }
 
 // *** Internal functions - main
@@ -203,72 +196,59 @@ void fba2<receiver_t, sig, real, real2>::work_state_app(array1r_t& ptable,
 
 /*! \brief Memory allocator for working matrices
  */
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::allocate()
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::allocate()
    {
    // flag the state of the arrays
    initialised = true;
 
-   // determine allowed limits on deltax:
-   // limits on insertions and deletions:
-   //   x2-x1 <= n*I
-   //   x2-x1 >= -n
-   // limits on introduced drift in this section:
-   // (necessary for forward recursion on extracted segment)
-   //   x2-x1 <= dxmax
-   //   x2-x1 >= -dxmax
-   // the above two sets of limits can be combined as:
-   //   x2-x1 <= min(n*I, dxmax) = dmax
-   //   x2-x1 >= max(-n, -dxmax) = dmin
-   dmin = std::max(-n, -dxmax);
-   dmax = std::min(n * I, dxmax);
-   // alpha needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
-   // beta needs indices (i,x) where i in [0, N] and x in [-xmax, xmax]
+   // alpha needs indices (i,x) where i in [0, N] and x in [mtau_min, mtau_max]
+   // beta needs indices (i,x) where i in [0, N] and x in [mtau_min, mtau_max]
    typedef boost::multi_array_types::extent_range range;
-   alpha.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
-   beta.resize(boost::extents[N + 1][range(-xmax, xmax + 1)]);
+   alpha.resize(boost::extents[N + 1][range(mtau_min, mtau_max + 1)]);
+   beta.resize(boost::extents[N + 1][range(mtau_min, mtau_max + 1)]);
 
-   if (flags.globalstore)
+   if (globalstore)
       {
       /* gamma needs indices (i,x,d,deltax) where
        * i in [0, N-1]
-       * x in [-xmax, xmax]
+       * x in [mtau_min, mtau_max]
        * d in [0, q-1]
-       * deltax in [dmin, dmax]
+       * deltax in [mn_min, mn_max]
        */
       gamma.global.resize(
-            boost::extents[N][range(-xmax, xmax + 1)][q][range(dmin, dmax + 1)]);
+            boost::extents[N][range(mtau_min, mtau_max + 1)][q][range(mn_min, mn_max + 1)]);
       gamma.local.resize(boost::extents[0][0][0]);
       }
    else
       {
       /* gamma needs indices (x,d,deltax) where
-       * x in [-xmax, xmax]
+       * x in [mtau_min, mtau_max]
        * d in [0, q-1]
-       * deltax in [dmin, dmax]
+       * deltax in [mn_min, mn_max]
        */
       gamma.local.resize(
-            boost::extents[range(-xmax, xmax + 1)][q][range(dmin, dmax + 1)]);
+            boost::extents[range(mtau_min, mtau_max + 1)][q][range(mn_min, mn_max + 1)]);
       gamma.global.resize(boost::extents[0][0][0][0]);
       }
    // need to keep track only if we're caching lazy computations
-   if (flags.lazy)
+   if (lazy)
       {
-      if (flags.globalstore)
+      if (globalstore)
          {
          /* cached needs indices (i,x) where
           * i in [0, N-1]
-          * x in [-xmax, xmax]
+          * x in [mtau_min, mtau_max]
           */
-         cached.global.resize(boost::extents[N][range(-xmax, xmax + 1)]);
+         cached.global.resize(boost::extents[N][range(mtau_min, mtau_max + 1)]);
          cached.local.resize(boost::extents[0]);
          }
       else
          {
          /* cached needs indices (x) where
-          * x in [-xmax, xmax]
+          * x in [mtau_min, mtau_max]
           */
-         cached.local.resize(boost::extents[range(-xmax, xmax + 1)]);
+         cached.local.resize(boost::extents[range(mtau_min, mtau_max + 1)]);
          cached.global.resize(boost::extents[0][0]);
          }
       }
@@ -307,7 +287,7 @@ void fba2<receiver_t, sig, real, real2>::allocate()
 #ifndef NDEBUG
    // determine required space for inner metric table (Jiao-Armand method)
    size_t entries = 0;
-   for (int delta = dmin; delta <= dmax; delta++)
+   for (int delta = mn_min; delta <= mn_max; delta++)
       entries += (1 << (delta + n));
    entries *= q;
    std::cerr << "Jiao-Armand Table Size: "
@@ -316,30 +296,30 @@ void fba2<receiver_t, sig, real, real2>::allocate()
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
-   std::cerr << "dmax = " << dmax << std::endl;
-   std::cerr << "dmin = " << dmin << std::endl;
-   std::cerr << "alpha = " << N + 1 << "x" << 2 * xmax + 1 << " = "
+   std::cerr << "mn_max = " << mn_max << std::endl;
+   std::cerr << "mn_min = " << mn_min << std::endl;
+   std::cerr << "alpha = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = "
    << alpha.num_elements() << std::endl;
-   std::cerr << "beta = " << N + 1 << "x" << 2 * xmax + 1 << " = "
+   std::cerr << "beta = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = "
    << beta.num_elements() << std::endl;
-   if (flags.globalstore)
+   if (globalstore)
       {
-      std::cerr << "gamma = " << q << "x" << N << "x" << 2 * xmax + 1 << "x"
-      << dmax - dmin + 1 << " = " << gamma.global.num_elements()
+      std::cerr << "gamma = " << q << "x" << N << "x" << mtau_max - mtau_min + 1 << "x"
+      << mn_max - mn_min + 1 << " = " << gamma.global.num_elements()
       << std::endl;
-      if (flags.lazy)
+      if (lazy)
          {
-         std::cerr << "cached = " << N << "x" << 2 * xmax + 1 << " = "
+         std::cerr << "cached = " << N << "x" << mtau_max - mtau_min + 1 << " = "
          << cached.global.num_elements() << std::endl;
          }
       }
    else
       {
-      std::cerr << "gamma = " << q << "x" << 2 * xmax + 1 << "x" << dmax - dmin
+      std::cerr << "gamma = " << q << "x" << mtau_max - mtau_min + 1 << "x" << mn_max - mn_min
       + 1 << " = " << gamma.local.num_elements() << std::endl;
-      if (flags.lazy)
+      if (lazy)
          {
-         std::cerr << "cached = " << 2 * xmax + 1 << " = "
+         std::cerr << "cached = " << mtau_max - mtau_min + 1 << " = "
          << cached.local.num_elements() << std::endl;
          }
       }
@@ -348,8 +328,8 @@ void fba2<receiver_t, sig, real, real2>::allocate()
 
 /*! \brief Release memory for working matrices
  */
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::free()
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::free()
    {
    alpha.resize(boost::extents[0][0]);
    beta.resize(boost::extents[0][0]);
@@ -363,11 +343,11 @@ void fba2<receiver_t, sig, real, real2>::free()
 
 // helper methods
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::reset_cache() const
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::reset_cache() const
    {
    // initialise array and cache flags
-   if (flags.globalstore)
+   if (globalstore)
       {
       gamma.global = real(0);
       cached.global = false;
@@ -384,8 +364,8 @@ void fba2<receiver_t, sig, real, real2>::reset_cache() const
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::print_gamma(std::ostream& sout) const
    {
    sout << "gamma = " << std::endl;
    for (int i = 0; i < N; i++)
@@ -394,9 +374,9 @@ void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
       for (int d = 0; d < q; d++)
          {
          sout << "d = " << d << ":" << std::endl;
-         for (int x = -xmax; x <= xmax; x++)
+         for (int x = mtau_min; x <= mtau_max; x++)
             {
-            for (int deltax = dmin; deltax <= dmax; deltax++)
+            for (int deltax = mn_min; deltax <= mn_max; deltax++)
                sout << '\t' << gamma.global[i][x][d][deltax];
             sout << std::endl;
             }
@@ -406,8 +386,8 @@ void fba2<receiver_t, sig, real, real2>::print_gamma(std::ostream& sout) const
 
 // decode functions - global path
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_gamma(const array1s_t& r,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_gamma(const array1s_t& r,
       const array1vd_t& app)
    {
    assert(initialised);
@@ -430,8 +410,8 @@ void fba2<receiver_t, sig, real, real2>::work_gamma(const array1s_t& r,
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_alpha_and_beta(
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha_and_beta(
       const array1d_t& sof_prior, const array1d_t& eof_prior)
    {
    assert(initialised);
@@ -441,17 +421,14 @@ void fba2<receiver_t, sig, real, real2>::work_alpha_and_beta(
    alpha = real(0);
    beta = real(0);
    // set initial and final drift distribution
-   for (int x = -xmax; x <= xmax; x++)
+   for (int x = mtau_min; x <= mtau_max; x++)
       {
-      alpha[0][x] = real(sof_prior(xmax + x));
-      beta[N][x] = real(eof_prior(xmax + x));
+      alpha[0][x] = real(sof_prior(x - mtau_min));
+      beta[N][x] = real(eof_prior(x - mtau_min));
       }
-   // normalize if requested
-   if (flags.norm)
-      {
-      normalize_alpha(0);
-      normalize_beta(N);
-      }
+   // normalize
+   normalize_alpha(0);
+   normalize_beta(N);
    // compute remaining matrix values
    for (int i = 1; i <= N; i++)
       {
@@ -459,25 +436,22 @@ void fba2<receiver_t, sig, real, real2>::work_alpha_and_beta(
       // compute partial result
       work_alpha(i);
       work_beta(N - i);
-      // normalize if requested
-      if (flags.norm)
-         {
-         normalize_alpha(i);
-         normalize_beta(N - i);
-         }
+      // normalize
+      normalize_alpha(i);
+      normalize_beta(N - i);
       }
    std::cerr << progress.update(N, N);
 #if DEBUG>=3
    std::cerr << "alpha = " << alpha << std::endl;
    std::cerr << "beta = " << beta << std::endl;
    // show gamma as well if computing lazily
-   if (flags.lazy)
+   if (lazy)
       print_gamma(std::cerr);
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_results(array1vr_t& ptable,
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_results(array1vr_t& ptable,
       array1r_t& sof_post, array1r_t& eof_post) const
    {
    assert(initialised);
@@ -505,28 +479,27 @@ void fba2<receiver_t, sig, real, real2>::work_results(array1vr_t& ptable,
 
 // decode functions - local path
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior)
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(const array1d_t& sof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
    // initialise array:
    alpha = real(0);
    // set initial drift distribution
-   for (int x = -xmax; x <= xmax; x++)
-      alpha[0][x] = real(sof_prior(xmax + x));
-   // normalize if requested
-   if (flags.norm)
-      normalize_alpha(0);
+   for (int x = mtau_min; x <= mtau_max; x++)
+      alpha[0][x] = real(sof_prior(x - mtau_min));
+   // normalize
+   normalize_alpha(0);
    // compute remaining matrix values
    for (int i = 1; i <= N; i++)
       {
       std::cerr << progress.update(i - 1, N);
       // local storage
-      if (!flags.globalstore)
+      if (!globalstore)
          {
          // pre-compute local gamma values, if necessary
-         if (!flags.lazy)
+         if (!lazy)
             work_gamma(r, app, i - 1);
          // reset local cache, if necessary
          else
@@ -537,9 +510,8 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior)
          }
       // compute partial result
       work_alpha(i);
-      // normalize if requested
-      if (flags.norm)
-         normalize_alpha(i);
+      // normalize
+      normalize_alpha(i);
       }
    std::cerr << progress.update(N, N);
 #if DEBUG>=3
@@ -547,8 +519,8 @@ void fba2<receiver_t, sig, real, real2>::work_alpha(const array1d_t& sof_prior)
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::work_beta_and_results(
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta_and_results(
       const array1d_t& eof_prior, array1vr_t& ptable, array1r_t& sof_post,
       array1r_t& eof_post)
    {
@@ -561,20 +533,19 @@ void fba2<receiver_t, sig, real, real2>::work_beta_and_results(
    // NOTE: technically unnecessary, as we initialize this_beta for every value
    beta = real(0);
    // set final drift distribution
-   for (int x = -xmax; x <= xmax; x++)
-      beta[N][x] = real(eof_prior(xmax + x));
-   // normalize if requested
-   if (flags.norm)
-      normalize_beta(N);
+   for (int x = mtau_min; x <= mtau_max; x++)
+      beta[N][x] = real(eof_prior(x - mtau_min));
+   // normalize
+   normalize_beta(N);
    // compute remaining matrix values
    for (int i = N - 1; i >= 0; i--)
       {
       std::cerr << progress.update(N - 1 - i, N);
       // local storage
-      if (!flags.globalstore)
+      if (!globalstore)
          {
          // pre-compute local gamma values, if necessary
-         if (!flags.lazy)
+         if (!lazy)
             work_gamma(r, app, i);
          // reset local cache, if necessary
          else
@@ -585,9 +556,8 @@ void fba2<receiver_t, sig, real, real2>::work_beta_and_results(
          }
       // compute partial result
       work_beta(i);
-      // normalize if requested
-      if (flags.norm)
-         normalize_beta(i);
+      // normalize
+      normalize_beta(i);
       // compute partial result
       work_message_app(ptable, i);
       }
@@ -607,17 +577,18 @@ void fba2<receiver_t, sig, real, real2>::work_beta_and_results(
 
 // Initialization
 
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::init(int N, int n, int q, int I,
-      int xmax, int dxmax, double th_inner, double th_outer, bool norm,
-      bool batch, bool lazy, bool globalstore)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy,
+      globalstore>::init(int N, int n, int q, int mtau_min, int mtau_max,
+      int mn_min, int mn_max, int m1_min, int m1_max, double th_inner,
+      double th_outer)
    {
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != This::N || n != This::n || q != This::q || I != This::I
-               || xmax != This::xmax || dxmax != This::dxmax
-               || lazy != This::flags.lazy
-               || globalstore != This::flags.globalstore))
+         && (N != This::N || n != This::n || q != This::q
+               || mtau_min != This::mtau_min || mtau_max != This::mtau_max
+               || mn_min != This::mn_min || mn_max != This::mn_max))
       free();
    // code parameters
    assert(N > 0);
@@ -627,22 +598,24 @@ void fba2<receiver_t, sig, real, real2>::init(int N, int n, int q, int I,
    assert(q > 1);
    This::q = q;
    // decoder parameters
-   assert(I >= 0);
-   assert(xmax >= 0);
-   assert(dxmax >= 0);
-   This::I = I;
-   This::xmax = xmax;
-   This::dxmax = dxmax;
+   assert(mtau_min <= 0);
+   assert(mtau_max >= 0);
+   This::mtau_min = mtau_min;
+   This::mtau_max = mtau_max;
+   assert(mn_min <= 0);
+   assert(mn_max >= 0);
+   This::mn_min = mn_min;
+   This::mn_max = mn_max;
+   assert(m1_min <= 0);
+   assert(m1_max >= 0);
+   This::m1_min = m1_min;
+   This::m1_max = m1_max;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);
+   assert(thresholding || (th_inner == 0 && th_outer == 0));
    This::th_inner = real(th_inner);
    This::th_outer = real(th_outer);
-   // decoding mode parameters
-   This::flags.norm = norm;
-   This::flags.batch = batch;
-   This::flags.lazy = lazy;
-   This::flags.globalstore = globalstore;
    }
 
 /*!
@@ -666,14 +639,14 @@ void fba2<receiver_t, sig, real, real2>::init(int N, int n, int q, int I,
  *
  * \note Priors for start and end-of-frame *must* be supplied; in the case of a
  *       received frame with exactly known boundaries, this must be offset by
- *       xmax and padded to a total length of tau + 2*xmax, where tau is the
+ *       mtau_max and padded to a total length of tau + mtau_max-mtau_min, where tau is the
  *       length of the transmitted frame. This avoids special handling for such
  *       vectors.
  *
  * \note Offset is the same as for stream_modulator.
  */
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::decode(
+template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode(
       libcomm::instrumented& collector, const array1s_t& r,
       const array1d_t& sof_prior, const array1d_t& eof_prior,
       const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
@@ -684,33 +657,33 @@ void fba2<receiver_t, sig, real, real2>::decode(
    std::cerr << "N = " << N << std::endl;
    std::cerr << "n = " << n << std::endl;
    std::cerr << "q = " << q << std::endl;
-   std::cerr << "I = " << I << std::endl;
-   std::cerr << "xmax = " << xmax << std::endl;
-   std::cerr << "dxmax = " << dxmax << std::endl;
+   std::cerr << "mtau_min = " << mtau_min << std::endl;
+   std::cerr << "mtau_max = " << mtau_max << std::endl;
+   std::cerr << "mn_min = " << mn_min << std::endl;
+   std::cerr << "mn_max = " << mn_max << std::endl;
+   std::cerr << "m1_min = " << m1_min << std::endl;
+   std::cerr << "m1_max = " << m1_max << std::endl;
    std::cerr << "th_inner = " << th_inner << std::endl;
    std::cerr << "th_outer = " << th_outer << std::endl;
-   std::cerr << "norm = " << flags.norm << std::endl;
    std::cerr << "real = " << typeid(real).name() << std::endl;
-#endif
-   // Initialise memory if necessary
-   if (!initialised)
-      allocate();
-   // Validate sizes and offset
-   const int tau = N * n;
-   assertalways(offset == xmax);
-   assertalways(r.size() == tau + 2 * xmax);
-   assertalways(sof_prior.size() == 2 * xmax + 1);
-   assertalways(eof_prior.size() == 2 * xmax + 1);
-#if DEBUG>=3
    // show input data
    std::cerr << "r = " << r << std::endl;
    std::cerr << "app = " << app << std::endl;
    std::cerr << "sof_prior = " << sof_prior << std::endl;
    std::cerr << "eof_prior = " << eof_prior << std::endl;
 #endif
+   // Initialise memory if necessary
+   if (!initialised)
+      allocate();
+   // Validate sizes and offset
+   const int tau = N * n;
+   assertalways(offset == -mtau_min);
+   assertalways(r.size() == tau + mtau_max - mtau_min);
+   assertalways(sof_prior.size() == mtau_max - mtau_min + 1);
+   assertalways(eof_prior.size() == mtau_max - mtau_min + 1);
 
    // Gamma
-   if (!flags.lazy && flags.globalstore)
+   if (!lazy && globalstore)
       {
       // compute immediately for global pre-compute mode
       libbase::cputimer tg("t_gamma");
@@ -724,11 +697,11 @@ void fba2<receiver_t, sig, real, real2>::decode(
       This::r = r;
       This::app = app;
       // reset cache values if necessary
-      if (flags.lazy)
+      if (lazy)
          reset_cache();
       }
    // Alpha + Beta + Results
-   if (flags.globalstore)
+   if (globalstore)
       {
       // Alpha + Beta
       libbase::cputimer tab("t_alpha+beta");
@@ -752,9 +725,12 @@ void fba2<receiver_t, sig, real, real2>::decode(
       }
 
    // Add values for limits that depend on channel conditions
-   collector.add_timer(I, "c_I");
-   collector.add_timer(xmax, "c_xmax");
-   collector.add_timer(dxmax, "c_dxmax");
+   collector.add_timer(mtau_min, "c_mtau_min");
+   collector.add_timer(mtau_max, "c_mtau_max");
+   collector.add_timer(mn_min, "c_mn_min");
+   collector.add_timer(mn_max, "c_mn_max");
+   collector.add_timer(m1_min, "c_m1_min");
+   collector.add_timer(m1_max, "c_m1_max");
    // Add memory usage
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
@@ -762,11 +738,11 @@ void fba2<receiver_t, sig, real, real2>::decode(
 
 #ifndef NDEBUG
    // show cache statistics if applicable
-   if (flags.lazy)
+   if (lazy)
       {
-      const double usage = gamma_misses / double(N * (2 * xmax + 1));
+      const double usage = gamma_misses / double(N * (mtau_max - mtau_min + 1));
       const double reuse = gamma_calls
-            / double(gamma_misses * q * (dmax - dmin + 1));
+            / double(gamma_misses * q * (mn_max - mn_min + 1));
       std::cerr << "FBA Cache Usage: " << 100 * usage << "%" << std::endl;
       std::cerr << "FBA Cache Reuse: " << reuse << "x" << std::endl;
       }
@@ -782,9 +758,10 @@ void fba2<receiver_t, sig, real, real2>::decode(
  * This method must be called after a call to decode(), so that it can return
  * posteriors for the last transmitted frame.
  */
-template <class receiver_t, class sig, class real, class real2>
-void fba2<receiver_t, sig, real, real2>::get_drift_pdf(
-      array1vr_t& pdftable) const
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy,
+      globalstore>::get_drift_pdf(array1vr_t& pdftable) const
    {
    assert(initialised);
    // allocate space for results
@@ -796,39 +773,7 @@ void fba2<receiver_t, sig, real, real2>::get_drift_pdf(
 
 } // end namespace
 
-#include "gf.h"
-#include "mpgnu.h"
-#include "logrealfast.h"
-#include "modem/tvb-receiver.h"
-
-namespace libcomm {
-
-// Explicit Realizations
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
-
-using libbase::mpgnu;
-using libbase::logrealfast;
-
-#define USING_GF(r, x, type) \
-      using libbase::type;
-
-BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
-
-#define SYMBOL_TYPE_SEQ \
-   (bool) \
-   GF_TYPE_SEQ
-#define REAL_TYPE_SEQ \
-   (float)(double)(mpgnu)(logrealfast)
-
-// *** Instantiations for tvb: bool and gf types only ***
-
-#define INSTANTIATE(r, args) \
-      template class fba2<tvb_receiver<BOOST_PP_SEQ_ENUM(args)> , \
-         BOOST_PP_SEQ_ENUM(args)> ;
-
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-      (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL_TYPE_SEQ))
-
-} // end namespace
+/* \note There are no explicit realizations here, as for this module we need to
+ * split the realizations over separate units, or g++ will run out of memory.
+ * All realizations are in the fba2-instXX.cpp files.
+ */

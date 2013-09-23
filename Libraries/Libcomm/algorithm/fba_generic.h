@@ -68,9 +68,11 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int N; //!< The (transmitted) block size in bits
-   int I; //!< The maximum number of insertions per time-step
-   int xmax; //!< The maximum allowed drift overall
+   int tau; //!< The (transmitted) block size in bits
+   int mtau_min; //!< The largest negative drift within a whole frame is \f$ \m_\tau^{-} \f$
+   int mtau_max; //!< The largest positive drift within a whole frame is \f$ \m_\tau^{+} \f$
+   int m1_min; //!< The largest negative drift over a single channel symbol is \f$ \m_1^{-} \f$
+   int m1_max; //!< The largest positive drift over a single channel symbol is \f$ \m_1^{+} \f$
    bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    typename qids<sig, real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
@@ -90,11 +92,11 @@ private:
    static void normalize(array2r_t& metric, int row, int col_min, int col_max);
    void normalize_alpha(int i)
       {
-      normalize(alpha, i, -xmax, xmax);
+      normalize(alpha, i, mtau_min, mtau_max);
       }
    void normalize_beta(int i)
       {
-      normalize(beta, i, -xmax, xmax);
+      normalize(beta, i, mtau_min, mtau_max);
       }
    // decode functions
    void work_alpha(const array1s_t& r, const array1vd_t& app,
@@ -112,7 +114,7 @@ private:
       work_message_app(r, app, ptable);
       // compute APPs of sof/eof state values
       work_state_app(sof_post, 0);
-      work_state_app(eof_post, N);
+      work_state_app(eof_post, tau);
       }
    // @}
 public:
@@ -127,20 +129,26 @@ public:
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(int N, int I, int xmax, bool norm,
+   void init(int tau, int mtau_min, int mtau_max, int m1_min, int m1_max, bool norm,
          const libcomm::qids<sig, real2>& chan)
       {
       // if any parameters that effect memory have changed, release memory
-      if (initialised && (N != This::N || xmax != This::xmax))
+      if (initialised
+            && (tau != This::tau || mtau_min != This::mtau_min
+                  || mtau_max != This::mtau_max))
          free();
       // code parameters
-      assert(N > 0);
-      This::N = N;
+      assert(tau > 0);
+      This::tau = tau;
       // decoder parameters
-      assert(I >= 0);
-      assert(xmax >= 0);
-      This::I = I;
-      This::xmax = xmax;
+      assert(mtau_min <= 0);
+      assert(mtau_max >= 0);
+      This::mtau_min = mtau_min;
+      This::mtau_max = mtau_max;
+      assert(m1_min <= 0);
+      assert(m1_max >= 0);
+      This::m1_min = m1_min;
+      This::m1_max = m1_max;
       // decoding mode parameters
       This::norm = norm;
       // channel receiver
@@ -148,13 +156,21 @@ public:
       }
 
    /*! \name Parameter getters */
-   int get_I() const
+   int get_mtau_min() const
       {
-      return I;
+      return mtau_min;
       }
-   int get_xmax() const
+   int get_mtau_max() const
       {
-      return xmax;
+      return mtau_max;
+      }
+   int get_m1_min() const
+      {
+      return m1_min;
+      }
+   int get_m1_max() const
+      {
+      return m1_max;
       }
    // @}
 
