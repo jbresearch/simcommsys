@@ -35,8 +35,6 @@ using std::cerr;
 using libbase::trace;
 using libbase::vector;
 
-const libbase::int64u montecarlo::min_samples = 128;
-
 // worker processes
 
 void montecarlo::slave_getcode(void)
@@ -468,7 +466,7 @@ void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
          {
          updateresults(result, errormargin);
          // if we have done enough samples, check accuracy reached
-         if (system->get_samplecount() >= min_samples)
+         if (system->get_samplecount() >= libbase::int64u(min_samples))
             {
             switch (mode)
                {

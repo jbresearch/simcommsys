@@ -42,9 +42,6 @@ namespace libcomm {
 
 class montecarlo : public libbase::masterslave, private resultsfile {
 private:
-   /*! \name Object-wide constants */
-   static const libbase::int64u min_samples; //!< minimum number of samples
-   // @}
    /*! \name Bound objects */
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
     * object at this address. This should be deleted when no longer necessary.
@@ -53,6 +50,7 @@ private:
    experiment *system; //!< System being sampled
    // @}
    /*! \name Internal variables */
+   int min_samples; //!< minimum number of samples
    double confidence; //!< confidence level for computing margin of error
    double threshold; //!< threshold for convergence (interpretation depends on mode)
    enum mode_t {
@@ -128,8 +126,8 @@ protected:
 public:
    /*! \name Constructor/destructor */
    montecarlo() :
-         bound(false), system(NULL), confidence(0.95), threshold(0.10), mode(
-               mode_relative_error), t("montecarlo"), tupdate(
+         bound(false), system(NULL), min_samples(128), confidence(0.95), threshold(
+               0.10), mode(mode_relative_error), t("montecarlo"), tupdate(
                "montecarlo_update")
       {
       createfunctors();
@@ -160,6 +158,15 @@ public:
       }
    // @}
    /*! \name Simulation parameters */
+   //! Set minimum number of samples
+   void set_min_samples(int min_samples)
+      {
+      assertalways(min_samples > 0);
+      libbase::trace
+            << "DEBUG (montecarlo): setting minimum number of samples to "
+            << min_samples << std::endl;
+      montecarlo::min_samples = min_samples;
+      }
    //! Set confidence limit, say, 0.95 => 95% probability
    void set_confidence(double confidence)
       {
