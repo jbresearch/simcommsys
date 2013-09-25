@@ -182,6 +182,8 @@ int main(int argc, char *argv[])
    desc.add_options()("accumulated-result", po::value<double>(),
          "target accumulated result (i.e. result mean x sample count); "
                "overrides absolute and relative error if specified");
+   desc.add_options()("min-samples", po::value<int>(),
+         "minimum number of samples");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -234,6 +236,8 @@ int main(int argc, char *argv[])
                estimator.set_absolute_error(vm["absolute-error"].as<double>());
             else
                estimator.set_relative_error(vm["relative-error"].as<double>());
+            if (vm.count("min-samples"))
+               estimator.set_min_samples(vm["min-samples"].as<int>());
 
             // Work out the following for every SNR value required
             for (int i = 0; i < pset.size(); i++)
