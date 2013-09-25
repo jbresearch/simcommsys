@@ -36,51 +36,6 @@ namespace QuickSimulation {
 
 namespace po = boost::program_options;
 
-//! Standard benchmark system
-
-const std::string std_systemstring = "# simulator\n"
-   "commsys_simulator<sigspace,errors_hamming>\n"
-   "## communication system\n"
-   "commsys<sigspace,vector>\n"
-   "1   # version\n"
-   "1   # single channel?\n"
-   "### channel\n"
-   "awgn\n"
-   "### modem\n"
-   "mpsk\n"
-   "2   # alphabet size in symbols\n"
-   "### symbol mapper\n"
-   "map_stipple<vector,double>\n"
-   "2   # stipple stride\n"
-   "### codec\n"
-   "turbo<double,double>\n"
-   "2   # format version\n"
-   "#### encoder (fsm)\n"
-   "rscc\n"
-   "1\t2\n"
-   "111\n"
-   "101\n"
-   "2   # number of sets\n"
-   "#### interleaver 0\n"
-   "flat<double>\n"
-   "158 # interleaver size\n"
-   "#### interleaver 1\n"
-   "helical<double>\n"
-   "158 # interleaver size\n"
-   "13  # rows\n"
-   "12  # cols\n"
-   "1   # terminated?\n"
-   "0   # circular?\n"
-   "0   # parallel decoder?\n"
-   "10  # number of iterations\n";
-
-//! Standard benchmark result set
-
-const double std_result[] = {0.0924156, 0.993763, 0.073373, 0.894948,
-      0.0671458, 0.798102, 0.0646009, 0.740787, 0.0634388, 0.70745, 0.0628046,
-      0.690988, 0.0622686, 0.679999, 0.0620079, 0.670621, 0.0619153, 0.666856,
-      0.0618174, 0.662668};
-
 class mymontecarlo : public libcomm::montecarlo {
 protected:
    bool interrupt()
@@ -92,13 +47,13 @@ public:
 };
 
 /*!
- * \brief   QuickSimulation benchmark
+ * \brief   Quick Simulation
  * \author  Johann Briffa
  * $Id$
  *
- * \note Following the update to bcjr, where the alpha and beta metrics are
- * normalized, QuickSimulation now uses the double-precision based turbo and
- * bcjr algorithms, resulting in more than 6x increase in speed.
+ * This program implements a quick simulation for a given system; this is
+ * useful to benchmark the speed of the decoder and to obtain a quick estimate
+ * for the performance of a code under given conditions.
  */
 
 int main(int argc, char *argv[])
@@ -119,7 +74,7 @@ int main(int argc, char *argv[])
       "- 'hostname:port', for client-mode connection");
    desc.add_options()("time,t", po::value<double>()->default_value(60),
          "benchmark duration in seconds");
-   desc.add_options()("parameter,r", po::value<double>()->default_value(0.5),
+   desc.add_options()("parameter,r", po::value<double>(),
          "channel parameter (e.g. SNR)");
    desc.add_options()("system-file,i", po::value<std::string>(),
          "file containing system description");
@@ -157,14 +112,16 @@ int main(int argc, char *argv[])
       case mymontecarlo::mode_local:
       case mymontecarlo::mode_master:
          {
+         // If this is a server instance, check the remaining parameters
+         if (vm.count("system-file") == 0 || vm.count("parameter") == 0)
+            {
+            cout << desc << std::endl;
+            return 0;
+            }
          // Set up the estimator
          libcomm::experiment *system;
-         if (vm.count("system-file"))
-            system = libcomm::loadfromfile<libcomm::experiment>(
-                  vm["system-file"].as<std::string> ());
-         else
-            system = libcomm::loadfromstring<libcomm::experiment>(
-                  std_systemstring);
+         system = libcomm::loadfromfile<libcomm::experiment>(
+               vm["system-file"].as<std::string> ());
          estimator.bind(system);
          estimator.set_confidence(vm["confidence"].as<double> ());
          if (vm.count("accumulated-result"))
@@ -185,7 +142,7 @@ int main(int argc, char *argv[])
          // Perform the simulation
          libbase::vector<double> estimate, errormargin;
          estimator.estimate(estimate, errormargin);
-         const libbase::int64u frames = estimator.get_samplecount();
+         const libbase::int64u samples = estimator.get_samplecount();
 
          if (!vm["quiet"].as<bool> ())
             {
@@ -214,9 +171,6 @@ int main(int argc, char *argv[])
                cout << setprecision(6) << estimate(j);
                cout << "\t[±" << setprecision(3) << 100 * errormargin(j)
                      / estimate(j) << "%]";
-               if (!vm.count("system-file"))
-                  cout << "\t(" << setprecision(3) << 100 * (estimate(j)
-                        - std_result[j]) / std_result[j] << "%)";
                cout << std::endl;
                }
 
@@ -224,13 +178,13 @@ int main(int argc, char *argv[])
             cout << std::endl;
             cout << "URL: " << __WCURL__ << std::endl;
             cout << "Version: " << __WCVER__ << std::endl;
-            cout << "Statistics: " << frames << " frames in "
+            cout << "Statistics: " << samples << " samples in "
                   << estimator.get_timer() << "." << std::endl;
             }
 
          // Output overall benchmark
-         cout << "Simulation Speed: " << setprecision(4) << frames
-               / estimator.get_timer().elapsed() << " frames/sec" << std::endl;
+         cout << "Simulation Speed: " << setprecision(4) << samples
+               / estimator.get_timer().elapsed() << " samples/sec" << std::endl;
 
          // Destroy what was created on the heap
          delete system;

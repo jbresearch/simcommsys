@@ -250,10 +250,10 @@ int main(int argc, char *argv[])
                estimator.estimate(result, errormargin);
 
                cerr << "Statistics: " << setprecision(4)
-                     << estimator.get_samplecount() << " frames in "
+                     << estimator.get_samplecount() << " samples in "
                      << estimator.get_timer() << " - "
                      << estimator.get_samplecount()
-                           / estimator.get_timer().elapsed() << " frames/sec"
+                           / estimator.get_timer().elapsed() << " samples/sec"
                      << std::endl;
 
                // handle pre-mature breaks
