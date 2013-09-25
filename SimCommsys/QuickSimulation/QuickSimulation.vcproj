@@ -2,9 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="SPECturbo"
-	ProjectGUID="{7777AB22-FDBF-436B-9A14-34DD498A2E5E}"
-	RootNamespace="SPECturbo"
+	Name="QuickSimulation"
+	RootNamespace="QuickSimulation"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -40,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/SPECturbo.tlb"
+				TypeLibraryName=".\Debug/QuickSimulation.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -133,7 +132,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/SPECturbo.tlb"
+				TypeLibraryName=".\Release/QuickSimulation.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -212,7 +211,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="SPECturbo.cpp"
+				RelativePath="QuickSimulation.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

@@ -32,7 +32,7 @@
 #include <iostream>
 #include <iomanip>
 
-namespace SPECturbo {
+namespace QuickSimulation {
 
 namespace po = boost::program_options;
 
@@ -92,12 +92,12 @@ public:
 };
 
 /*!
- * \brief   SPECturbo benchmark
+ * \brief   QuickSimulation benchmark
  * \author  Johann Briffa
  * $Id$
  *
  * \note Following the update to bcjr, where the alpha and beta metrics are
- * normalized, SPECturbo now uses the double-precision based turbo and
+ * normalized, QuickSimulation now uses the double-precision based turbo and
  * bcjr algorithms, resulting in more than 6x increase in speed.
  */
 
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
             }
 
          // Output overall benchmark
-         cout << "SPECturbo: " << setprecision(4) << frames
+         cout << "Simulation Speed: " << setprecision(4) << frames
                / estimator.get_timer().elapsed() << " frames/sec" << std::endl;
 
          // Destroy what was created on the heap
@@ -244,5 +244,5 @@ int main(int argc, char *argv[])
 
 int main(int argc, char *argv[])
    {
-   return SPECturbo::main(argc, argv);
+   return QuickSimulation::main(argc, argv);
    }
