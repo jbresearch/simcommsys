@@ -124,12 +124,15 @@ int main(int argc, char *argv[])
    desc.add_options()("system-file,i", po::value<std::string>(),
          "file containing system description");
    desc.add_options()("confidence", po::value<double>()->default_value(0.999),
-         "confidence level (e.g. 0.90 for 90%)");
-   desc.add_options()("tolerance", po::value<double>()->default_value(0.001),
-         "confidence interval (e.g. 0.15 for ±15%)");
-   desc.add_options()("margin", po::value<double>(),
-         "absolute error margin (e.g. 0.1 for ±0.1); "
-         "overrides tolerance if specified");
+         "confidence level for computing margin of error (e.g. 0.90 for 90%)");
+   desc.add_options()("relative-error", po::value<double>()->default_value(0.001),
+         "target error margin, as a fraction of result mean (e.g. 0.15 for ±15%)");
+   desc.add_options()("absolute-error", po::value<double>(),
+         "target error margin, as an absolute value (e.g. 0.1 for ±0.1); "
+               "overrides relative-error if specified");
+   desc.add_options()("accumulated-result", po::value<double>(),
+         "target accumulated result (i.e. result mean x sample count); "
+               "overrides absolute and relative error if specified");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -162,10 +165,12 @@ int main(int argc, char *argv[])
                   std_systemstring);
          estimator.bind(system);
          estimator.set_confidence(vm["confidence"].as<double> ());
-         if (vm.count("margin"))
-            estimator.set_absolute_error(vm["margin"].as<double> ());
+         if (vm.count("accumulated-result"))
+            estimator.set_accumulated_result(vm["accumulated-result"].as<double>());
+         else if (vm.count("absolute-error"))
+            estimator.set_absolute_error(vm["absolute-error"].as<double>());
          else
-            estimator.set_relative_error(vm["tolerance"].as<double> ());
+            estimator.set_relative_error(vm["relative-error"].as<double>());
          estimator.timeout = vm["time"].as<double> ();
          // Work out at the SNR value required
          system->set_parameter(vm["parameter"].as<double> ());
