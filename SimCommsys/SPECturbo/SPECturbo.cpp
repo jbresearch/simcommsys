@@ -163,9 +163,9 @@ int main(int argc, char *argv[])
          estimator.bind(system);
          estimator.set_confidence(vm["confidence"].as<double> ());
          if (vm.count("margin"))
-            estimator.set_errormargin(vm["margin"].as<double> ());
+            estimator.set_absolute_error(vm["margin"].as<double> ());
          else
-            estimator.set_accuracy(vm["tolerance"].as<double> ());
+            estimator.set_relative_error(vm["tolerance"].as<double> ());
          estimator.timeout = vm["time"].as<double> ();
          // Work out at the SNR value required
          system->set_parameter(vm["parameter"].as<double> ());
@@ -186,8 +186,10 @@ int main(int argc, char *argv[])
             cout << "~~~~~~~~~~~~" << std::endl;
             cout << system->description() << std::endl;
             //cout << "Rate: " << system-> << std::endl;
-            cout << "Confidence Interval: "
-                  << estimator.get_confidence_interval() << std::endl;
+            cout << "Confidence Level: " << estimator.get_confidence_level()
+                  << std::endl;
+            cout << "Convergence Mode: " << estimator.get_convergence_mode()
+                  << std::endl;
             cout << "Date: " << libbase::timer::date() << std::endl;
             // TODO: add method to system to get parameter name
             cout << "Simulating at system parameter = "

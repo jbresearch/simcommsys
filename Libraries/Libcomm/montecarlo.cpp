@@ -150,7 +150,8 @@ void montecarlo::writeheader(std::ostream& sout) const
    trace << "DEBUG (montecarlo): position before = " << sout.tellp()
          << std::endl;
    sout << "#% " << system->description() << std::endl;
-   sout << "#% Confidence Interval: " << get_confidence_interval() << std::endl;
+   sout << "#% Confidence Level: " << get_confidence_level() << std::endl;
+   sout << "#% Convergence Mode: " << get_convergence_mode() << std::endl;
    sout << "#% Date: " << libbase::timer::date() << std::endl;
    sout << "#% URL: " << __WCURL__ << std::endl;
    sout << "#% Version: " << __WCVER__ << std::endl;
@@ -469,19 +470,36 @@ void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
          // if we have done enough samples, check accuracy reached
          if (system->get_samplecount() >= min_samples)
             {
-            if (absolute)
+            switch (mode)
                {
-               // check if we have reached the required accuracy
-               if (errormargin.max() <= accuracy)
-                  converged = true;
-               }
-            else
-               {
-               // determine the relative accuracy reached for every result
-               const vector<double> result_acc = errormargin / result;
-               // check if we have reached the required accuracy
-               if (result_acc.max() <= accuracy)
-                  converged = true;
+               case mode_relative_error:
+                  {
+                  // determine error margin as a fraction of result mean
+                  const vector<double> result_acc = errormargin / result;
+                  // check if this is less than threshold
+                  if (result_acc.max() <= threshold)
+                     converged = true;
+                  break;
+                  }
+               case mode_absolute_error:
+                  {
+                  // check if error margin is less than threshold
+                  if (errormargin.max() <= threshold)
+                     converged = true;
+                  break;
+                  }
+               case mode_accumulated_result:
+                  {
+                  // determine the absolute accumulated result
+                  const vector<double> result_acc = result * system->get_samplecount();
+                  // check if this is more than threshold
+                  if (result_acc.min() >= threshold)
+                     converged = true;
+                  break;
+                  }
+               default:
+                  failwith("Convergence mode not supported.");
+                  break;
                }
             }
          // print something to inform the user of our progress

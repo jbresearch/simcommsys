@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
    desc.add_options()("floor-max", po::value<double>(),
          "stop simulation when all results converge below this threshold");
    desc.add_options()("confidence", po::value<double>()->default_value(0.90),
-         "confidence level (e.g. 0.90 for 90%)");
+         "confidence level for computing margin of error (e.g. 0.90 for 90%)");
    desc.add_options()("tolerance", po::value<double>()->default_value(0.15),
          "confidence interval (e.g. 0.15 for ±15%)");
    desc.add_options()("margin", po::value<double>(),
@@ -217,18 +217,18 @@ int main(int argc, char *argv[])
             libcomm::experiment *system = createsystem(
                   vm["system-file"].as<std::string>());
             estimator.bind(system);
-            libbase::vector<double> pset =
-                  vm.count("step") ?
-                        getlinrange(vm["start"].as<double>(),
-                              vm["stop"].as<double>(),
-                              vm["step"].as<double>()) :
-                        getlogrange(vm["start"].as<double>(),
-                              vm["stop"].as<double>(), vm["mul"].as<double>());
+            libbase::vector<double> pset;
+            if (vm.count("step"))
+               pset = getlinrange(vm["start"].as<double>(),
+                     vm["stop"].as<double>(), vm["step"].as<double>());
+            else
+               pset = getlogrange(vm["start"].as<double>(),
+                     vm["stop"].as<double>(), vm["mul"].as<double>());
             estimator.set_confidence(vm["confidence"].as<double>());
             if (vm.count("margin"))
-               estimator.set_errormargin(vm["margin"].as<double>());
+               estimator.set_absolute_error(vm["margin"].as<double>());
             else
-               estimator.set_accuracy(vm["tolerance"].as<double>());
+               estimator.set_relative_error(vm["tolerance"].as<double>());
 
             // Work out the following for every SNR value required
             for (int i = 0; i < pset.size(); i++)

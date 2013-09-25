@@ -53,9 +53,14 @@ private:
    experiment *system; //!< System being sampled
    // @}
    /*! \name Internal variables */
-   double confidence; //!< confidence level required
-   double accuracy; //!< accuracy level required (margin of error must be less than this)
-   bool absolute; //!< flag indicating that accuracy is an absolute value
+   double confidence; //!< confidence level for computing margin of error
+   double threshold; //!< threshold for convergence (interpretation depends on mode)
+   enum mode_t {
+      mode_relative_error = 0, //!< converge when error margin as a fraction of result mean is less than threshold
+      mode_absolute_error, //!< converge when error margin (ie its absolute value) is less than threshold
+      mode_accumulated_result, //!< converge when absolute accumulated result (ie result mean x sample count) is more than threshold
+      mode_undefined
+   } mode; //! mode for interpreting convergence threshold
    libbase::walltimer t; //!< timer to keep track of running estimate
    mutable libbase::walltimer tupdate; //!< timer to keep track of display rate
    sha sysdigest; //!< digest of the currently-simulated system
@@ -123,8 +128,9 @@ protected:
 public:
    /*! \name Constructor/destructor */
    montecarlo() :
-      bound(false), system(NULL), confidence(0.95), accuracy(0.10), absolute(
-            false), t("montecarlo"), tupdate("montecarlo_update")
+         bound(false), system(NULL), confidence(0.95), threshold(0.10), mode(
+               mode_relative_error), t("montecarlo"), tupdate(
+               "montecarlo_update")
       {
       createfunctors();
       }
@@ -162,38 +168,68 @@ public:
             << confidence << std::endl;
       montecarlo::confidence = confidence;
       }
-   //! Set target accuracy, say, 0.10 => 10% of mean
-   void set_accuracy(double accuracy)
+   //! Set target error margin as a fraction of result mean (eg 0.10 => 10% of mean)
+   void set_relative_error(double threshold)
       {
-      assertalways(accuracy > 0 && accuracy < 1.0);
-      libbase::trace << "DEBUG (montecarlo): setting accuracy level of "
-            << accuracy << std::endl;
-      montecarlo::accuracy = accuracy;
-      montecarlo::absolute = false;
+      assertalways(threshold > 0 && threshold < 1.0);
+      libbase::trace
+            << "DEBUG (montecarlo): setting threshold for relative error to "
+            << threshold << std::endl;
+      montecarlo::threshold = threshold;
+      montecarlo::mode = mode_relative_error;
       }
-   //! Set target margin of error (as an absolute value)
-   void set_errormargin(double errormargin)
+   //! Set target error margin (as an absolute value)
+   void set_absolute_error(double threshold)
       {
-      assertalways(errormargin > 0);
-      libbase::trace << "DEBUG (montecarlo): setting margin of error of "
-            << errormargin << std::endl;
-      montecarlo::accuracy = errormargin;
-      montecarlo::absolute = true;
+      assertalways(threshold > 0);
+      libbase::trace
+            << "DEBUG (montecarlo): setting threshold for absolute error to "
+            << threshold << std::endl;
+      montecarlo::threshold = threshold;
+      montecarlo::mode = mode_absolute_error;
+      }
+   //! Set target accumulated result (ie result mean x sample count)
+   void set_accumulated_result(double threshold)
+      {
+      assertalways(threshold > 0);
+      libbase::trace
+            << "DEBUG (montecarlo): setting threshold for accumulated result to "
+            << threshold << std::endl;
+      montecarlo::threshold = threshold;
+      montecarlo::mode = mode_accumulated_result;
       }
    //! Associates with given results file
    void set_resultsfile(const std::string& fname)
       {
       resultsfile::init(fname);
       }
-   //! Get confidence interval as a string
-   std::string get_confidence_interval() const
+   //! Get confidence level as a string
+   std::string get_confidence_level() const
       {
       std::ostringstream sout;
-      if (absolute)
-         sout << "±" << accuracy;
-      else
-         sout << "±" << 100 * accuracy << "%";
-      sout << " @ " << 100 * confidence << "%";
+      sout << 100 * confidence << "%";
+      return sout.str();
+      }
+   //! Get convergence mode as a string
+   std::string get_convergence_mode() const
+      {
+      std::ostringstream sout;
+      switch (mode)
+         {
+         case mode_relative_error:
+            sout << "Margin of error within";
+            sout << " ±" << 100 * threshold << "% of result";
+            break;
+         case mode_absolute_error:
+            sout << "Margin of Error within ±" << threshold;
+            break;
+         case mode_accumulated_result:
+            sout << "Accumulated result ≥" << threshold;
+            break;
+         default:
+            failwith("Convergence mode not supported.");
+            break;
+         }
       return sout.str();
       }
    // @}
