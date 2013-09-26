@@ -128,12 +128,12 @@ public:
       int N; //!< The transmitted block size in symbols
       int n; //!< The number of bits encoding each q-ary symbol
       int q; //!< The number of symbols in the q-ary alphabet
-      int mtau_min; //!< The largest negative drift within a whole frame is \f$ \m_\tau^{-} \f$
-      int mtau_max; //!< The largest positive drift within a whole frame is \f$ \m_\tau^{+} \f$
-      int mn_min; //!< The largest negative drift within a q-ary symbol is \f$ \m_n^{-} \f$
-      int mn_max; //!< The largest positive drift within a q-ary symbol is \f$ \m_n^{+} \f$
-      int m1_min; //!< The largest negative drift over a single channel symbol is \f$ \m_1^{-} \f$
-      int m1_max; //!< The largest positive drift over a single channel symbol is \f$ \m_1^{+} \f$
+      int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
+      int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
+      int mn_min; //!< The largest negative drift within a q-ary symbol is \f$ m_n^{-} \f$
+      int mn_max; //!< The largest positive drift within a q-ary symbol is \f$ m_n^{+} \f$
+      int m1_min; //!< The largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
+      int m1_max; //!< The largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays

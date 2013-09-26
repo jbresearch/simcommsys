@@ -108,10 +108,10 @@ public:
       real Pval_i; //!< Lattice coefficient value for insertion event
       real Pval_tc; //!< Lattice coefficient value for correct transmission event
       real Pval_te; //!< Lattice coefficient value for error transmission event
-      int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ \m_T^{-} \f$
-      int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ \m_T^{+} \f$
-      int m1_min; //!< Assumed largest negative drift over a single channel symbol is \f$ \m_1^{-} \f$
-      int m1_max; //!< Assumed largest positive drift over a single channel symbol is \f$ \m_1^{+} \f$
+      int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ m_T^{-} \f$
+      int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
+      int m1_min; //!< Assumed largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
+      int m1_max; //!< Assumed largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays

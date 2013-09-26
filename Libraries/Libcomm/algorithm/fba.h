@@ -75,10 +75,10 @@ public:
 private:
    /*! \name User-defined parameters */
    int tau; //!< The (transmitted) block size in channel symbols
-   int mtau_min; //!< The largest negative drift within a whole frame is \f$ \m_\tau^{-} \f$
-   int mtau_max; //!< The largest positive drift within a whole frame is \f$ \m_\tau^{+} \f$
-   int m1_min; //!< The largest negative drift over a single channel symbol is \f$ \m_1^{-} \f$
-   int m1_max; //!< The largest positive drift over a single channel symbol is \f$ \m_1^{+} \f$
+   int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
+   int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
+   int m1_min; //!< The largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
+   int m1_max; //!< The largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
    real th_inner; //!< Threshold factor for inner cycle
    bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    // @}

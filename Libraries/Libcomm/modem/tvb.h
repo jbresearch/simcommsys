@@ -123,8 +123,8 @@ private:
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
-   int mtau_min; //!< The largest negative drift within a whole frame is \f$ \m_\tau^{-} \f$
-   int mtau_max; //!< The largest positive drift within a whole frame is \f$ \m_\tau^{+} \f$
+   int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
+   int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
 #ifdef USE_CUDA
    typedef cuda::tvb_receiver<sig, real, real2> recv_type;
 #else
