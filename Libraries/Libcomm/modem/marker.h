@@ -157,7 +157,7 @@ private:
    // codebook wrapper operations
    void validate_marker_length(const array1vs_t& table) const;
    // Other utilities
-   void checkforchanges(int I, int xmax) const;
+   void checkforchanges(int m1_min, int m1_max, int mtau_min, int mtau_max) const;
    // @}
 public:
    /*! \name Constructors / Destructors */

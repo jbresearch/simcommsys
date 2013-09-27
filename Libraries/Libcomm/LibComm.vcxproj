@@ -211,6 +211,19 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="algorithm\fba2-factory.cpp" />
+    <ClCompile Include="algorithm\fba2-inst0.cpp" />
+    <ClCompile Include="algorithm\fba2-inst1.cpp" />
+    <ClCompile Include="algorithm\fba2-inst10.cpp" />
+    <ClCompile Include="algorithm\fba2-inst11.cpp" />
+    <ClCompile Include="algorithm\fba2-inst2.cpp" />
+    <ClCompile Include="algorithm\fba2-inst3.cpp" />
+    <ClCompile Include="algorithm\fba2-inst4.cpp" />
+    <ClCompile Include="algorithm\fba2-inst5.cpp" />
+    <ClCompile Include="algorithm\fba2-inst6.cpp" />
+    <ClCompile Include="algorithm\fba2-inst7.cpp" />
+    <ClCompile Include="algorithm\fba2-inst8.cpp" />
+    <ClCompile Include="algorithm\fba2-inst9.cpp" />
     <ClCompile Include="algorithm\fba_generic.cpp" />
     <ClCompile Include="annealer\system\anneal_interleaver.cpp" />
     <ClCompile Include="annealer\system\anneal_puncturing.cpp" />
@@ -220,6 +233,8 @@
     <ClCompile Include="bcjr.cpp" />
     <ClCompile Include="channel\bpmr.cpp" />
     <ClCompile Include="channel\qec.cpp" />
+    <ClCompile Include="channel\qids-utils.cpp" />
+    <ClCompile Include="codec\memoryless.cpp" />
     <ClCompile Include="experiment\binomial\result_collector\commsys\fidelity_pos.cpp" />
     <ClCompile Include="fsm\zsm.cpp" />
     <ClCompile Include="interleaver\lut\berrou.cpp" />
@@ -255,7 +270,6 @@
     <ClCompile Include="experiment\experiment_binomial.cpp" />
     <ClCompile Include="experiment\experiment_normal.cpp" />
     <ClCompile Include="algorithm\fba.cpp" />
-    <ClCompile Include="algorithm\fba2.cpp" />
     <ClCompile Include="interleaver\lut\named\file_lut.cpp" />
     <ClCompile Include="interleaver\lut\flat.cpp" />
     <ClCompile Include="fsm.cpp" />

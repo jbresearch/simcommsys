@@ -47,6 +47,9 @@ namespace cuda {
 int cudaGetCurrentDevice();
 int cudaGetMultiprocessorCount(int device = -1);
 int cudaGetMultiprocessorSize(int device = -1);
+int cudaGetSharedMemPerBlock(int device = -1);
+int cudaGetRegsPerBlock(int device = -1);
+int cudaGetMaxThreadsPerBlock(int device = -1);
 int cudaGetWarpSize(int device = -1);
 double cudaGetClockRate(int device = -1);
 std::string cudaGetDeviceName(int device = -1);
@@ -63,6 +66,11 @@ int cudaGetComputeModel();
 
 void cudaInitialize(std::ostream& sout);
 void cudaQueryDevices(std::ostream& sout);
+
+size_t cudaGetSharedSize(const void* func);
+size_t cudaGetLocalSize(const void* func);
+int cudaGetNumRegsPerThread(const void* func);
+int cudaGetMaxThreadsPerBlock(const void* func);
 
 #ifdef __CUDACC__
 

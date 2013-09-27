@@ -119,9 +119,6 @@
     <ClCompile Include="algorithm\fba.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="algorithm\fba2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="interleaver\lut\named\file_lut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -318,6 +315,51 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fsm\zsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst7.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\qids-utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\memoryless.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

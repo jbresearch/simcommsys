@@ -75,7 +75,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 
    // Shorthand for transmitted frame size
    const int tau = sys_dec.output_block_size();
-   // Keep a copy of the last frame's offset (in case x_max changes)
+   // Keep a copy of the last frame's offset (in case state space changes)
    const libbase::size_type<libbase::vector> oldoffset = offset;
 
    // Determine the suggested look-ahead quantity

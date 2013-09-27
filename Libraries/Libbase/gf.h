@@ -232,16 +232,16 @@ public:
 #endif
    gf inverse() const
       {
-      gf<m, poly> I = 1;
-      gf<m, poly> r = 1;
+      const gf<m, poly> one = 1;
+      gf<m, poly> result = 1;
       for (int i = 1; i < elements(); i++)
          {
-         if (r * *this == I)
+         if (result * *this == one)
             break;
-         r *= 2;
+         result *= 2;
          }
-      assert(r * *this == I);
-      return r;
+      assert(result * *this == one);
+      return result;
       }
    // @}
 

@@ -197,28 +197,29 @@ void marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    const int tau = this->output_block_size();
    const int rho = rx.size();
    // Algorithm parameters
-   const int xmax = fba.get_xmax();
+   const int mtau_min = fba.get_mtau_min();
+   const int mtau_max = fba.get_mtau_max();
    // Check that rx size is within valid range
-   assertalways(xmax >= abs(rho - tau));
+   assertalways(mtau_max >= abs(rho - tau));
    // Set up start-of-frame drift pdf (drift = 0)
    array1d_t sof_prior;
-   sof_prior.init(2 * xmax + 1);
+   sof_prior.init(mtau_max - mtau_min + 1);
    sof_prior = 0;
-   sof_prior(xmax + 0) = 1;
+   sof_prior(0 - mtau_min) = 1;
    // Set up end-of-frame drift pdf (drift = rho-tau)
    array1d_t eof_prior;
-   eof_prior.init(2 * xmax + 1);
+   eof_prior.init(mtau_max - mtau_min + 1);
    eof_prior = 0;
-   eof_prior(xmax + rho - tau) = 1;
-   // Offset rx by xmax and pad to a total size of tau+2*xmax
+   eof_prior(rho - tau - mtau_min) = 1;
+   // Offset rx by mtau_max and pad to a total size of tau+mtau_max-mtau_min
    array1s_t r;
-   r.init(tau + 2 * xmax);
-   r.segment(xmax, rho) = rx;
+   r.init(tau + mtau_max - mtau_min);
+   r.segment(mtau_max, rho) = rx;
    // Delegate
    array1d_t sof_post;
    array1d_t eof_post;
    demodulate_wrapper(chan, r, 0, sof_prior, eof_prior, app, ptable, sof_post,
-         eof_post, libbase::size_type<libbase::vector>(xmax));
+         eof_post, libbase::size_type<libbase::vector>(mtau_max));
    }
 
 template <class sig, class real, class real2>
@@ -232,10 +233,10 @@ void marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    init(chan, sof_prior, offset);
    // TODO: validate priors have required size?
 #ifndef NDEBUG
-   std::cerr << "DEBUG (marker): offset = " << offset << ", xmax = "
-         << fba.get_xmax() << "." << std::endl;
+   std::cerr << "DEBUG (marker): offset = " << offset << ", mtau_min = "
+         << fba.get_mtau_min() << "." << std::endl;
 #endif
-   assert(offset == fba.get_xmax());
+   assert(offset == -fba.get_mtau_min());
    // Delegate
    demodulate_wrapper(chan, rx, lookahead, sof_prior, eof_prior, app, ptable,
          sof_post, eof_post, offset);
@@ -334,14 +335,17 @@ void marker<sig, real, real2>::init(const channel<sig>& chan,
    // Set the probability of channel event outside chosen limits
    mychan.set_pr(Pr);
    // Determine required FBA parameter values
-   const int I = mychan.compute_I(tau, Pr);
-   // No need to recompute xmax if we are given a prior PDF
-   const int xmax =
-         sof_pdf.size() > 0 ? offset :
-               mychan.compute_xmax(tau, Pr, sof_pdf, offset);
-   checkforchanges(I, xmax);
+   // No need to recompute mtau_min/max if we are given a prior PDF
+   int mtau_min = -offset;
+   int mtau_max = sof_pdf.size() - offset - 1;
+   if (sof_pdf.size() == 0)
+      mychan.compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
+   int m1_min, m1_max;
+   mychan.compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
+         m1_min, m1_max);
+   checkforchanges(m1_min, m1_max, mtau_min, mtau_max);
    // Initialize forward-backward algorithm
-   fba.init(tau, I, xmax, norm, mychan);
+   fba.init(tau, mtau_min, mtau_max, m1_min, m1_max, norm, mychan);
    }
 
 template <class sig, class real, class real2>
@@ -366,20 +370,27 @@ void marker<sig, real, real2>::validate_marker_length(
       assertalways(table(i).size() == m);
    }
 
-//! Inform user if I or xmax have changed (debug build only)
+//! Inform user if state space limits have changed (debug build only)
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::checkforchanges(int I, int xmax) const
+void marker<sig, real, real2>::checkforchanges(int m1_min, int m1_max, int mtau_min, int mtau_max) const
    {
 #ifndef NDEBUG
-   static int last_I = 0;
-   static int last_xmax = 0;
-   if (last_I != I || last_xmax != xmax)
+   static int last_m1_min = 0;
+   static int last_m1_max = 0;
+   if (last_m1_min != m1_min || last_m1_max != m1_max)
       {
-      std::cerr << "DEBUG (marker): I = " << I << ", xmax = " << xmax
-            << std::endl;
-      last_I = I;
-      last_xmax = xmax;
+      std::cerr << "DEBUG (marker): m1_min = " << m1_min << ", m1_max = " << m1_max << std::endl;
+      last_m1_min = m1_min;
+      last_m1_max = m1_max;
+      }
+   static int last_mtau_min = 0;
+   static int last_mtau_max = 0;
+   if (last_mtau_min != mtau_min || last_mtau_max != mtau_max)
+      {
+      std::cerr << "DEBUG (marker): mtau_min = " << mtau_min << ", mtau_max = " << mtau_max << std::endl;
+      last_mtau_min = mtau_min;
+      last_mtau_max = mtau_max;
       }
 #endif
    }

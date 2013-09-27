@@ -21,364 +21,21 @@
  */
 
 #include "qids.h"
-#include "itfunc.h"
 #include <sstream>
 #include <exception>
-#include <cmath>
 
 namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show transmit and insertion state vectors during transmission process
-// 3 - Show results of computation of xmax and I
-//     and details of pdf resizing
-// 4 - Show intermediate computation details for (3)
+// 3 - Show details of pdf resizing
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
 #endif
 
 // FBA decoder parameter computation
-
-/*!
- * \brief The probability of drift x after transmitting tau symbols
- *
- * Computes the required probability using Davey's Gaussian approximation.
- *
- * The calculation is based on the assumption that the end-of-frame drift has
- * a Gaussian distribution with zero mean and standard deviation given by
- * \f$ \sigma = \sqrt{\frac{2 \tau p}{1-p}} \f$
- * where \f$ p = P_i = P_d \f$.
- *
- * To preserve the property that the sum over x should be 1, rather than
- * returning a discrete sample of the Gaussian pdf at x, we return the
- * integral over x ± 0.5.
- *
- * Since the probability is symmetric about x=0, we always use positive x;
- * this ensures the subtraction does not fail due to resolution of double.
- */
-template <class G, class real>
-double qids<G, real>::metric_computer::compute_drift_prob_davey(int x, int tau,
-      double Pi, double Pd)
-   {
-   // sanity checks
-   assert(tau > 0);
-   validate(Pd, Pi);
-   // set constants
-   assertalways(Pi == Pd);
-   // assumed by this algorithm
-   const double p = Pi;
-   // the distribution is approximately Gaussian with:
-   const double sigma = sqrt(2 * tau * p / (1 - p));
-   // main computation
-   const double xa = abs(x);
-   const double x1 = (xa - 0.5) / sigma;
-   const double x2 = (xa + 0.5) / sigma;
-   const double this_p = libbase::Q(x1) - libbase::Q(x2);
-#if DEBUG>=4
-   std::cerr << "DEBUG (qids): [pdf-davey] x = " << x << ", sigma = " << sigma
-   << ", this_p = " << this_p << "." << std::endl;
-#endif
-   return this_p;
-   }
-
-/*!
- * \brief The probability of drift 'm' after transmitting 'T' symbols
- *
- * Computes the required probability using the exact metric from our
- * Trans. Inf. Theory submission.
- *
- * The required probability Pr{ S_T = m } is calculated as:
- *
- * sum for j=j0..T of
- *
- *    p_j = Pt^T Pi^m Pf^j C(T, j) C(T+m+j-1, m+j)
- *
- * where j0 = max(-m,0),
- *       Pf = Pi Pd / Pt,
- *       Pt = 1 - Pi - Pd,
- * and the binomial coefficient is expressed as
- *    C(n,k) = n! / [ k! (n-k)! ] for k ≤ n
- *           = n(n-1)...(n-k-1) / k(k-1)...1
- *           = 0 for k > n
- *
- * Note that:
- * a) the summation is empty if j0 > T, resulting in zero probability
- * b) the first binomial coefficient is always non-zero
- * c) the second b.c. is non-zero if T-1 >= 0, or equivalently T > 0
- *
- * By expanding the binomial coefficients using factorials, note also that:
- *
- *    p_j = p_{j-1} . Pf . (T+m+j-1) . (T-j+1)
- *                           (m+j)        j
- *
- * This allows successive factors to be determined easily from previous ones.
- * The initial factor required is the one at j0, determined as:
- *
- *    p_j0 = Pt^T . Pi^m . Pf^j0 . C(T, j0) . C(T+m+j0-1, m+j0)
- *
- * Now the binomial coefficients can be computed using the multiplicative
- * formula:
- *    C(n,k) = product for i=1..k of (n-k-i)/i
- *
- * Therefore the binomial coefficients in p_j0 are computed as:
- *
- * C(T, j0) = product for i=1..j0 of (T-j0-i)/i
- * C(T+m+j0-1, m+j0) = product for i=1..m+j0 of (T-1-i)/i
- *
- * Degenerate cases:
- *
- * 1) Pi > 0, Pd = 0
- *    p_j is non-zero only for j=0, so that:
- *    Pr{ S_T = m } = Pt^T Pi^m C(T+m-1, m) for m >= 0,
- *                  = 0 otherwise
- *
- * 2) Pd > 0, Pi = 0
- *    p_j is non-zero only for j=-m, so that:
- *    Pr{ S_T = m } = Pt^{T+m} Pd^-m C(T, -m) for m <= 0,
- *                  = 0 otherwise
- *
- * 3) Pi = Pd = 0
- *    p_j is non-zero only for j=0 and m=0, so that:
- *    Pr{ S_T = m } = 1 for m = 0,
- *                  = 0 otherwise
- */
-template <class G, class real>
-double qids<G, real>::metric_computer::compute_drift_prob_exact(int m, int T,
-      double Pi, double Pd)
-   {
-   typedef long double myreal;
-   // sanity checks
-   assert(T > 0);
-   validate(Pd, Pi);
-   // shortcut for out-of-range values (too many deletions required)
-   if (m < -T)
-      return 0;
-   // set constants
-   const double Pt = 1 - Pi - Pd;
-   // handle degenerate case 3: Pi = Pd = 0
-   if (Pi == 0 && Pd == 0)
-      {
-      return (m == 0) ? 1 : 0;
-      }
-   // handle degenerate case 2: Pd > 0, Pi = 0
-   else if (Pi == 0)
-      {
-      // shortcut for out-of-range values (insertions required)
-      if (m > 0)
-         return 0;
-      // compute result in log domain
-      myreal result = 0;
-      // include first two terms in result
-      result += log(myreal(Pt)) * (T+m);
-      result += log(myreal(Pd)) * (-m);
-      // include binomial coefficient term in result
-      for (int i = 1; i <= -m; i++)
-         {
-         result += log(myreal(T + m + i)) - log(myreal(i));
-         }
-      // convert factor back from log domain
-      return exp(result);
-      }
-   // handle degenerate case 1: Pi > 0, Pd = 0
-   else if (Pd == 0)
-      {
-      // shortcut for out-of-range values (deletions required)
-      if (m < 0)
-         return 0;
-      // compute result in log domain
-      myreal result = 0;
-      // include first two terms in result
-      result += log(myreal(Pt)) * T;
-      result += log(myreal(Pi)) * m;
-      // include binomial coefficient term in result
-      for (int i = 1; i <= m; i++)
-         {
-         result += log(myreal(T - 1 + i)) - log(myreal(i));
-         }
-      // convert factor back from log domain
-      return exp(result);
-      }
-   // set constants
-   const double Pf = Pi * Pd / Pt;
-   const int j0 = std::max(-m, 0);
-   // compute common factor (in log domain) for j=j0
-   myreal pj = 0;
-   // include first two terms in p_j0
-   pj += log(myreal(Pt)) * T;
-   pj += log(myreal(Pi)) * m;
-   // include third term in p_j0
-   if (j0 > 0)
-      pj += log(Pf) * j0;
-   // include first binomial coefficient term in p_j0
-   for (int i = 1; i <= j0; i++)
-      {
-      pj += log(myreal(T - j0 + i)) - log(myreal(i));
-      }
-   // include second binomial coefficient term in p_j0
-   for (int i = 1; i <= m + j0; i++)
-      {
-      pj += log(myreal(T - 1 + i)) - log(myreal(i));
-      }
-#if DEBUG>=4
-   std::cerr << "DEBUG (qids): [pdf-exact] m = " << m << ", p_j0 = " << pj
-   << std::endl;
-#endif
-   // main computation
-   myreal this_p = exp(pj);
-   for (int j = j0 + 1; j <= T; j++)
-      {
-      // update factor
-      pj += log(Pf);
-      pj += log(myreal(T + m + j - 1)) - log(myreal(m + j));
-      pj += log(myreal(T - j + 1)) - log(myreal(j));
-      // update main result
-      this_p += exp(pj);
-#if DEBUG>=4
-      std::cerr << "DEBUG (qids): [pdf-exact] j = " << j << ", p_j = " << pj
-      << ", this_p = " << this_p << std::endl;
-#endif
-      }
-#if DEBUG>=4
-   std::cerr << "DEBUG (qids): [pdf-exact] this_p = " << this_p << std::endl;
-#endif
-   // validate and return result
-   if (!std::isfinite(this_p))
-      throw std::overflow_error("value not finite");
-   else if (this_p < 0)
-      throw std::overflow_error("negative value");
-   return this_p;
-   }
-
-/*!
- * \brief Determine limit for insertions between two time-steps
- *
- * \f[ I = \left\lceil \frac{ \log{P_r} - \log \tau }{ \log P_i } \right\rceil - 1 \f]
- * where \f$ P_r \f$ is an arbitrary probability of having a block of size
- * \f$ \tau \f$ with at least one event of more than \f$ I \f$ insertions
- * between successive time-steps.
- * In this class, this value is fixed.
- *
- * \note The smallest allowed value is \f$ I = 1 \f$; the largest value depends
- * on a user parameter.
- */
-template <class G, class real>
-int qids<G, real>::metric_computer::compute_I(int tau, double Pi, double Pr, int Icap)
-   {
-   // sanity checks
-   assert(tau > 0);
-   assert(Pi >= 0 && Pi < 1.0);
-   // shortcut for no-insertion case
-   if (Pi == 0)
-      return 0;
-   // main computation
-   int I = int(ceil((log(Pr) - log(double(tau))) / log(Pi))) - 1;
-   I = std::max(I, 1);
-#if DEBUG>=3
-   std::cerr << "DEBUG (qids): for N = " << tau << ", I = " << I;
-#endif
-   if (Icap > 0)
-      {
-      I = std::min(I, Icap);
-#if DEBUG>=3
-      std::cerr << ", capped to " << I;
-#endif
-      }
-#if DEBUG>=3
-   std::cerr << "." << std::endl;
-#endif
-   return I;
-   }
-
-/*!
- * \brief Determine maximum drift at the end of a frame of tau symbols (Davey's algorithm)
- *
- * \f[ x_{max} = Q^{-1}(\frac{P_r}{2}) \sqrt{\frac{\tau p}{1-p}} \f]
- * where \f$ p = P_i = P_d \f$ and \f$ P_r \f$ is an arbitrary probability of
- * having a block of size \f$ \tau \f$ where the drift at the end is greater
- * than \f$ \pm x_{max} \f$.
- * In this class, this value is fixed.
- *
- * The calculation is based on the assumption that the end-of-frame drift has
- * a Gaussian distribution with zero mean and standard deviation given by
- * \f$ \sigma = \sqrt{\frac{2 \tau p}{1-p}} \f$.
- */
-template <class G, class real>
-int qids<G, real>::metric_computer::compute_xmax_davey(int tau, double Pi,
-      double Pd, double Pr)
-   {
-   // sanity checks
-   assert(tau > 0);
-   validate(Pd, Pi);
-   // set constants
-   assertalways(Pi == Pd);
-   // assumed by this algorithm
-   const double p = Pi;
-   // determine required multiplier
-   const double factor = libbase::Qinv(Pr / 2.0);
-#if DEBUG>=4
-   std::cerr << "DEBUG (qids): [davey] Q(" << factor << ") = " << libbase::Q(
-         factor) << std::endl;
-#endif
-   // main computation
-   const int xmax = int(ceil(factor * sqrt(2 * tau * p / (1 - p))));
-   // tell the user what we did and return
-   return xmax;
-   }
-
-/*!
- * \brief Determine maximum drift at the end of a frame of tau symbols, given the
- * supplied drift pdf at start of transmission.
- */
-template <class G, class real>
-int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd, double Pr,
-      const libbase::vector<double>& sof_pdf, const int offset)
-   {
-   try
-      {
-      compute_drift_prob_functor f(compute_drift_prob_exact, sof_pdf, offset);
-      const int xmax = compute_xmax_with(f, tau, Pi, Pd, Pr);
-#if DEBUG>=4
-      std::cerr << "DEBUG (qids): [with exact] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
-#endif
-      return xmax;
-      }
-   catch (std::exception&)
-      {
-      compute_drift_prob_functor f(compute_drift_prob_davey, sof_pdf, offset);
-      const int xmax = compute_xmax_with(f, tau, Pi, Pd, Pr);
-#if DEBUG>=4
-      std::cerr << "DEBUG (qids): [with davey] for N = " << tau << ", xmax = " << xmax << "." << std::endl;
-#endif
-      return xmax;
-      }
-   }
-
-/*!
- * \brief Determine maximum drift at the end of a frame of tau symbols, given the
- * supplied drift pdf at start of transmission.
- *
- * This method caps the minimum value of xmax, so it is at least equal to I.
- */
-template <class G, class real>
-int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd, double Pr,
-      int I, const libbase::vector<double>& sof_pdf, const int offset)
-   {
-   // sanity checks
-   assert(tau > 0);
-   validate(Pd, Pi);
-   // use the appropriate algorithm
-   int xmax = compute_xmax(tau, Pi, Pd, Pr, sof_pdf, offset);
-   // cap minimum value
-   xmax = std::max(xmax, I);
-   // tell the user what we did and return
-#if DEBUG>=3
-   std::cerr << "DEBUG (qids): [adjusted] for N = " << tau << ", xmax = "
-   << xmax << "." << std::endl;
-#endif
-   return xmax;
-   }
 
 /*!
  * \brief Compute receiver coefficient value
@@ -391,13 +48,13 @@ int qids<G, real>::metric_computer::compute_xmax(int tau, double Pi, double Pd, 
  * \f[ Rtable(0,\mu) =
  * \left(\frac{P_i}{2}\right)^\mu
  * \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
- * , \mu \in (0, \ldots I) \f]
+ * , \mu \in (0, \ldots m1_max) \f]
  *
  * When the last symbol \f[ r_\mu \neq t \f]
  * \f[ Rtable(1,\mu) =
  * \left(\frac{P_i}{2}\right)^\mu
  * \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
- * , \mu \in (0, \ldots I) \f]
+ * , \mu \in (0, \ldots m1_max) \f]
  */
 template <class G, class real>
 real qids<G, real>::metric_computer::compute_Rtable_entry(bool err, int mu,
@@ -417,13 +74,13 @@ real qids<G, real>::metric_computer::compute_Rtable_entry(bool err, int mu,
  * Second row has elements where the last symbol \f[ r_\mu \neq t \f]
  */
 template <class G, class real>
-void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int I,
+void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int m1_max,
       double Ps, double Pd, double Pi)
    {
    // Allocate required size
-   Rtable.init(2, I + 1);
+   Rtable.init(2, m1_max + 1);
    // Set values for insertions
-   for (int mu = 0; mu <= I; mu++)
+   for (int mu = 0; mu <= m1_max; mu++)
       {
       Rtable(0, mu) = compute_Rtable_entry(0, mu, Ps, Pd, Pi);
       Rtable(1, mu) = compute_Rtable_entry(1, mu, Ps, Pd, Pi);
@@ -440,30 +97,23 @@ void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int I,
  * function should be called any time a channel parameter is changed.
  */
 template <class G, class real>
-void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi, double Pr,
-      int Icap)
+void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
+      int mT_min, int mT_max, int m1_min, int m1_max)
    {
-   if (N == 0)
-      {
-      I = 0;
-      xmax = 0;
-      // reset array
-      Rtable.init(0, 0);
-      return;
-      }
-   assert(N > 0);
    // fba decoder parameters
-   I = compute_I(N, Pi, Pr, Icap);
-   xmax = compute_xmax(N, Pi, Pd, Pr, I);
+   this->mT_min = mT_min;
+   this->mT_max = mT_max;
+   this->m1_min = m1_min;
+   this->m1_max = m1_max;
    // receiver coefficients
    Rval = real(Pd);
 #ifdef USE_CUDA
    // create local table and copy to device
    array2r_t Rtable_temp;
-   compute_Rtable(Rtable_temp, I, Ps, Pd, Pi);
+   compute_Rtable(Rtable_temp, m1_max, Ps, Pd, Pi);
    Rtable = Rtable_temp;
 #else
-   compute_Rtable(Rtable, I, Ps, Pd, Pi);
+   compute_Rtable(Rtable, m1_max, Ps, Pd, Pi);
 #endif
    // lattice coefficients
    Pval_d = real(Pd);
@@ -480,8 +130,6 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
 template <class G, class real>
 void qids<G, real>::metric_computer::init()
    {
-   // set block size to unusable value
-   N = 0;
 #ifdef USE_CUDA
    // Initialize CUDA
    cuda::cudaInitialize(std::cerr);
@@ -503,22 +151,21 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
-   assert(n <= N);
-   assert(labs(rho - n) <= xmax);
+   //assert(n <= T);
+   assert(rho - n <= mT_max);
+   assert(rho - n >= mT_min);
    // Set up two slices of forward matrix, and associated pointers
    // Arrays are allocated on the stack as a fixed size; this avoids dynamic
    // allocation (which would otherwise be necessary as the size is non-const)
-   assertalways(2 * xmax + 1 <= arraysize);
+   assertalways(mT_max - mT_min + 1 <= arraysize);
    real F0[arraysize];
    real F1[arraysize];
-   real *Fthis = F1 + xmax; // offset by 'xmax' elements
-   real *Fprev = F0 + xmax; // offset by 'xmax' elements
+   real *Fthis = F1 - mT_min; // offset: first element is index 'mT_min'
+   real *Fprev = F0 - mT_min; // offset: first element is index 'mT_min'
    // initialize for j=0
    // for prior list, reset all elements to zero
-   for (int x = -xmax; x <= xmax; x++)
-      {
+   for (int x = mT_min; x <= mT_max; x++)
       Fthis[x] = 0;
-      }
    // we also know x[0] = 0; ie. drift before transmitting symbol t0 is zero.
    Fthis[0] = 1;
    // compute remaining matrix values
@@ -527,30 +174,26 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
       // swap 'this' and 'prior' lists
       swap(Fthis, Fprev);
       // for this list, reset all elements to zero
-      for (int x = -xmax; x <= xmax; x++)
-         {
+      for (int x = mT_min; x <= mT_max; x++)
          Fthis[x] = 0;
-         }
       // event must fit the received sequence:
       // 1. j-1+a >= 0
       // 2. j-1+y < rx.size()
       // limits on insertions and deletions must be respected:
-      // 3. y-a <= I
-      // 4. y-a >= -1
-      const int ymin = max(-xmax, -j);
-      const int ymax = min(xmax, rho - j);
+      // 3. y-a <= m1_max
+      // 4. y-a >= m1_min
+      const int ymin = max(mT_min, -j);
+      const int ymax = min(mT_max, rho - j);
       for (int y = ymin; y <= ymax; ++y)
          {
          real result = 0;
-         const int amin = max(max(-xmax, 1 - j), y - I);
-         const int amax = min(xmax, y + 1);
+         const int amin = max(max(mT_min, 1 - j), y - m1_max);
+         const int amax = min(mT_max, y - m1_min);
          // check if the last element is a pure deletion
          int amax_act = amax;
          if (y - amax < 0)
             {
-            real temp = Fprev[amax];
-            temp *= Rval;
-            result += temp;
+            result += Fprev[amax] * Rval;
             amax_act--;
             }
          // elements requiring comparison of tx and rx symbols
@@ -561,19 +204,15 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
             // length: y-a+1
             // therefore last element is: start+length-1 = j+y-1
             const bool cmp = tx(j - 1) != rx(j + y - 1);
-            real temp = Fprev[a];
-            temp *= Rtable(cmp, y - a);
-            result += temp;
+            result += Fprev[a] * Rtable(cmp, y - a);
             }
          Fthis[y] = result;
          }
       }
    // copy results and return
-   assertalways(ptable.size() == 2 * xmax + 1);
-   for (int x = -xmax; x <= xmax; x++)
-      {
-      ptable(xmax + x) = Fthis[x];
-      }
+   assertalways(ptable.size() == mT_max - mT_min + 1);
+   for (int x = mT_min; x <= mT_max; x++)
+      ptable(x - mT_min) = Fthis[x];
    }
 
 // Batch receiver interface - lattice computation
@@ -635,15 +274,15 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       Fthis[j] = temp;
       }
    // copy results and return
-   assertalways(ptable.size() == 2 * xmax + 1);
-   for (int x = -xmax; x <= xmax; x++)
+   assertalways(ptable.size() == mT_max - mT_min + 1);
+   for (int x = mT_min; x <= mT_max; x++)
       {
       // convert index
       const int j = x + n;
       if (j >= 0 && j <= rho)
-         ptable(xmax + x) = Fthis[j];
+         ptable(x - mT_min) = Fthis[j];
       else
-         ptable(xmax + x) = 0;
+         ptable(x - mT_min) = 0;
       }
    }
 
@@ -669,7 +308,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
    // initialize for i=0 (first row of lattice)
    // Fthis[0] = 1;
    F[0] = 1;
-   const int jmax = min(xmax, rho);
+   const int jmax = min(mT_max, rho);
    for (int j = 1; j <= jmax; j++)
       {
       // Fthis[j] = Fthis[j - 1] * Pval_i;
@@ -681,19 +320,17 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       // keep Fprev[0]
       Fprev = F[0];
       // handle first column as a special case, if necessary
-      if (i - xmax <= 0)
+      if (i + mT_min <= 0)
          {
          // Fthis[0] = Fprev[0] * Pval_d;
          F[0] = Fprev * Pval_d;
          }
       // determine limits for remaining columns (after first)
-      const int jmin = max(i - xmax, 1);
-      const int jmax = min(i + xmax, rho);
+      const int jmin = max(i + mT_min, 1);
+      const int jmax = min(i + mT_max, rho);
       // keep Fprev[jmin - 1], if necessary
       if (jmin > 1)
-         {
          Fprev = F[jmin - 1];
-         }
       // remaining columns
       for (int j = jmin; j <= jmax; j++)
          {
@@ -704,7 +341,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
          // keep Fprev[j] for next time (to use as Fprev[j-1])
          Fprev = F[j];
          // deletion path (if previous row was within corridor)
-         if (j < i + xmax)
+         if (j < i + mT_max)
             // temp += Fprev[j] * Pval_d;
             temp += Fprev * Pval_d;
          // insertion path
@@ -720,7 +357,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
    // keep Fprev[0]
    Fprev = F[0];
    // handle first column as a special case, if necessary
-   if (i - xmax <= 0)
+   if (i + mT_min <= 0)
       {
       // Fthis[0] = Fprev[0] * Pval_d;
       F[0] = Fprev * Pval_d;
@@ -735,7 +372,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       // keep Fprev[j] for next time (to use as Fprev[j-1])
       Fprev = F[j];
       // deletion path (if previous row was within corridor)
-      if (j < i + xmax)
+      if (j < i + mT_max)
          // temp += Fprev[j] * Pval_d;
          temp += Fprev * Pval_d;
       // store result
@@ -743,15 +380,15 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       F[j] = temp;
       }
    // copy results and return
-   assertalways(ptable.size() == 2 * xmax + 1);
-   for (int x = -xmax; x <= xmax; x++)
+   assertalways(ptable.size() == mT_max - mT_min + 1);
+   for (int x = mT_min; x <= mT_max; x++)
       {
       // convert index
       const int j = x + n;
       if (j >= 0 && j <= rho)
-         ptable(xmax + x) = F[j];
+         ptable(x - mT_min) = F[j];
       else
-         ptable(xmax + x) = 0;
+         ptable(x - mT_min) = 0;
       }
    }
 
@@ -772,35 +409,35 @@ void qids<G, real>::init()
    Pi = fixedPi;
    // drift exclusion probability
    Pr = 1e-10;
+   // set block size to unusable value
+   T = 0;
    // initialize metric computer
    computer.init();
-   computer.precompute(Ps, Pd, Pi, Pr, Icap);
    }
 
 /*!
  * \brief Resize drift pdf table
  *
  * The input pdf table can be any size, with any offset; the data is copied
- * into the output pdf table, going from -xmax to +xmax.
+ * into the output pdf table, going from mT_min to mT_max.
  */
 template <class G, class real>
 libbase::vector<double> qids<G, real>::resize_drift(const array1d_t& in,
-      const int offset, const int xmax)
+      const int offset, const int mT_min, const int mT_max)
    {
    // allocate space an initialize
-   array1d_t out(2 * xmax + 1);
+   array1d_t out(mT_max - mT_min + 1);
    out = 0;
    // copy over common elements
-   const int imin = std::max(-offset, -xmax);
-   const int imax = std::min(in.size() - 1 - offset, xmax);
+   const int imin = std::max(-offset, mT_min);
+   const int imax = std::min(in.size() - 1 - offset, mT_max);
    const int length = imax - imin + 1;
 #if DEBUG>=3
-   std::cerr << "DEBUG (qids): [resize] offset = " << offset << ", xmax = "
-   << xmax << "." << std::endl;
-   std::cerr << "DEBUG (qids): [resize] imin = " << imin << ", imax = "
-   << imax << "." << std::endl;
+   std::cerr << "DEBUG (qids): [resize] offset = " << offset << "." << std::endl;
+   std::cerr << "DEBUG (qids): [resize] mT_min = " << mT_min << ", mT_max = " << mT_max << "." << std::endl;
+   std::cerr << "DEBUG (qids): [resize] imin = " << imin << ", imax = " << imax << "." << std::endl;
 #endif
-   out.segment(xmax + imin, length) = in.extract(offset + imin, length);
+   out.segment(imin - mT_min, length) = in.extract(imin + offset, length);
    // return results
    return out;
    }
@@ -885,27 +522,16 @@ void qids<G, real>::get_drift_pdf(int tau, double Pr, libbase::vector<double>& e
       libbase::size_type<libbase::vector>& offset) const
    {
    // determine the range of drifts we're interested in
-   const int xmax = compute_xmax(tau, Pr);
+   int mT_min, mT_max;
+   compute_limits(tau, Pr, mT_min, mT_max);
    // store the necessary offset
-   offset = libbase::size_type<libbase::vector>(xmax);
+   offset = libbase::size_type<libbase::vector>(-mT_min);
    // initialize result vector
-   eof_pdf.init(2 * xmax + 1);
+   eof_pdf.init(mT_max - mT_min + 1);
    // compute the probability at each possible drift
-   try
+   for (int x = mT_min; x <= mT_max; x++)
       {
-      for (int x = -xmax; x <= xmax; x++)
-         {
-         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_exact(x, tau,
-               Pi, Pd);
-         }
-      }
-   catch (std::exception&)
-      {
-      for (int x = -xmax; x <= xmax; x++)
-         {
-         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_davey(x, tau,
-               Pi, Pd);
-         }
+      eof_pdf(x - mT_min) = qids_utils::compute_drift_prob_exact(x, tau, Pi, Pd);
       }
    }
 
@@ -923,32 +549,21 @@ void qids<G, real>::get_drift_pdf(int tau, double Pr, libbase::vector<double>& s
       libbase::size_type<libbase::vector>& offset) const
    {
    // determine the range of drifts we're interested in
-   const int xmax = compute_xmax(tau, Pr, sof_pdf, offset);
+   int mT_min, mT_max;
+   compute_limits(tau, Pr, mT_min, mT_max, sof_pdf, offset);
    // initialize result vector
-   eof_pdf.init(2 * xmax + 1);
+   eof_pdf.init(mT_max - mT_min + 1);
    // compute the probability at each possible drift
-   try
+   for (int x = mT_min; x <= mT_max; x++)
       {
-      for (int x = -xmax; x <= xmax; x++)
-         {
-         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_with(
-               metric_computer::compute_drift_prob_exact, x, tau, Pi, Pd,
-               sof_pdf, offset);
-         }
-      }
-   catch (std::exception&)
-      {
-      for (int x = -xmax; x <= xmax; x++)
-         {
-         eof_pdf(x + xmax) = metric_computer::compute_drift_prob_with(
-               metric_computer::compute_drift_prob_davey, x, tau, Pi, Pd,
-               sof_pdf, offset);
-         }
+      eof_pdf(x - mT_min) = qids_utils::compute_drift_prob_with(
+            qids_utils::compute_drift_prob_exact, x, tau, Pi, Pd, sof_pdf,
+            offset);
       }
    // resize start-of-frame pdf
-   sof_pdf = resize_drift(sof_pdf, offset, xmax);
+   sof_pdf = resize_drift(sof_pdf, offset, mT_min, mT_max);
    // update with the new offset
-   offset = libbase::size_type<libbase::vector>(xmax);
+   offset = libbase::size_type<libbase::vector>(-mT_min);
    }
 
 // Channel functions
@@ -1082,7 +697,7 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    sout << varyPd << std::endl;
    sout << "# Vary Pi?" << std::endl;
    sout << varyPi << std::endl;
-   sout << "# Cap on I (0=uncapped)" << std::endl;
+   sout << "# Cap on m1_max (0=uncapped) [trellis receiver only]" << std::endl;
    sout << Icap << std::endl;
    sout << "# Fixed Ps value" << std::endl;
    sout << fixedPs << std::endl;

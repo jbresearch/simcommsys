@@ -93,6 +93,7 @@
 // Codecs
 #include "codec.h"
 #include "codec/codec_reshaped.h"
+#include "codec/memoryless.h"
 #include "codec/uncoded.h"
 #include "codec/mapcc.h"
 #include "codec/turbo.h"
@@ -197,6 +198,7 @@ private:
    //gnrcc<libbase::gf2> _gnrcc;
    //zsm<libbase::gf2> _zsm;
    // Codecs
+   memoryless<double> _memoryless;
    uncoded<double> _uncoded;
    //mapcc<double> _mapcc;
    turbo<double, double> _turbo;

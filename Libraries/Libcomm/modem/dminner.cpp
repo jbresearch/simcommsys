@@ -163,33 +163,48 @@ void dminner<real>::computemeandensity()
 #endif
    }
 
-//! Inform user if I or xmax have changed (debug build only)
+//! Inform user if state space limits have changed (debug build only)
 
 template <class real>
-void dminner<real>::checkforchanges(int I, int xmax) const
+void dminner<real>::checkforchanges(int m1_min, int m1_max, int mn_min,
+      int mn_max, int mtau_min, int mtau_max) const
    {
 #ifndef NDEBUG
-   static int last_I = 0;
-   static int last_xmax = 0;
-   if (last_I != I || last_xmax != xmax)
+   static int last_m1_min = 0;
+   static int last_m1_max = 0;
+   if (last_m1_min != m1_min || last_m1_max != m1_max)
       {
-      std::cerr << "DMinner: I = " << I << ", xmax = " << xmax << std::endl;
-      last_I = I;
-      last_xmax = xmax;
+      std::cerr << "DEBUG (dminner): m1_min = " << m1_min << ", m1_max = " << m1_max << std::endl;
+      last_m1_min = m1_min;
+      last_m1_max = m1_max;
+      }
+   static int last_mn_min = 0;
+   static int last_mn_max = 0;
+   if (last_mn_min != mn_min || last_mn_max != mn_max)
+      {
+      std::cerr << "DEBUG (dminner): mn_min = " << mn_min << ", mn_max = " << mn_max << std::endl;
+      last_mn_min = mn_min;
+      last_mn_max = mn_max;
+      }
+   static int last_mtau_min = 0;
+   static int last_mtau_max = 0;
+   if (last_mtau_min != mtau_min || last_mtau_max != mtau_max)
+      {
+      std::cerr << "DEBUG (dminner): mtau_min = " << mtau_min << ", mtau_max = " << mtau_max << std::endl;
+      last_mtau_min = mtau_min;
+      last_mtau_max = mtau_max;
       }
 #endif
    }
 
 template <class real>
 void dminner<real>::work_results(const array1b_t& r, array1vr_t& ptable,
-      const int xmax, const int dxmax, const int I) const
+      const int mtau_min, const int mtau_max, const int mn_min,
+      const int mn_max) const
    {
    libbase::pacifier progress("FBA Results");
    // local flag for path thresholding
    const bool thresholding = (th_outer > real(0));
-   // determine limits
-   const int dmin = std::max(-n, -dxmax);
-   const int dmax = std::min(n * I, dxmax);
    // Inherit block size from last modulation step
    const int q = 1 << k;
    const int N = marker.size();
@@ -203,7 +218,7 @@ void dminner<real>::work_results(const array1b_t& r, array1vr_t& ptable,
       real threshold = 0;
       if (thresholding)
          {
-         for (int x1 = -xmax; x1 <= xmax; x1++)
+         for (int x1 = mtau_min; x1 <= mtau_max; x1++)
             if (FBA::getF(n * i, x1) > threshold)
                threshold = FBA::getF(n * i, x1);
          threshold *= th_outer;
@@ -217,24 +232,21 @@ void dminner<real>::work_results(const array1b_t& r, array1vr_t& ptable,
          // (this is limited to start and end conditions)
          // 1. n*i+x1 >= 0
          // 2. n*(i+1)-1+x2 <= r.size()-1
-         // limits on insertions and deletions must be respected:
-         // 3. x2-x1 <= n*I
-         // 4. x2-x1 >= -n
          // limits on introduced drift in this section:
          // (necessary for forward recursion on extracted segment)
-         // 5. x2-x1 <= dxmax
-         // 6. x2-x1 >= -dxmax
-         const int x1min = std::max(-xmax, -n * i);
-         const int x1max = xmax;
-         const int x2max_bnd = std::min(xmax, r.size() - n * (i + 1));
+         // 3. x2-x1 <= mn_max
+         // 4. x2-x1 >= mn_min
+         const int x1min = std::max(mtau_min, -n * i);
+         const int x1max = mtau_max;
+         const int x2max_bnd = std::min(mtau_max, r.size() - n * (i + 1));
          for (int x1 = x1min; x1 <= x1max; x1++)
             {
             const real F = FBA::getF(n * i, x1);
             // ignore paths below a certain threshold
             if (thresholding && F < threshold)
                continue;
-            const int x2min = std::max(-xmax, dmin + x1);
-            const int x2max = std::min(x2max_bnd, dmax + x1);
+            const int x2min = std::max(mtau_min, mn_min + x1);
+            const int x2max = std::min(x2max_bnd, mn_max + x1);
             for (int x2 = x2min; x2 <= x2max; x2++)
                {
                // compute the conditional probability
@@ -419,20 +431,27 @@ void dminner<real>::dodemodulate(const channel<bool>& chan,
    // Set the probability of channel event outside chosen limits
    mychan.set_pr(Pr);
    // Determine required FBA parameter values
-   const int I = mychan.compute_I(tau, Pr);
-   const int xmax = mychan.compute_xmax(tau, Pr);
-   const int dxmax = mychan.compute_xmax(n, Pr);
-   checkforchanges(I, xmax);
+   int mtau_min, mtau_max;
+   mychan.compute_limits(tau, Pr, mtau_min, mtau_max);
+   int mn_min, mn_max;
+   mychan.compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
+         mn_max);
+   int m1_min, m1_max;
+   mychan.compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
+         m1_min, m1_max);
+   checkforchanges(m1_min, m1_max, mn_min, mn_max, mtau_min, mtau_max);
    // Initialize & perform forward-backward algorithm
-   FBA::init(tau, I, xmax, th_inner, norm);
+   FBA::init(tau, mtau_min, mtau_max, m1_min, m1_max, th_inner, norm);
    FBA::prepare(rx);
    // Reset substitution probability to original value
    mychan.set_ps(Ps);
    // Set block size for results-computation pass to q-ary symbol size
    mychan.set_blocksize(n);
+   // Set the probability of channel event outside chosen limits
+   mychan.set_pr(qids_utils::divide_error_probability(Pr, N));
    // Compute and normalize results
    array1vr_t p;
-   work_results(rx, p, xmax, dxmax, I);
+   work_results(rx, p, mtau_min, mtau_max, mn_min, mn_max);
    normalize_results(p, ptable);
    }
 

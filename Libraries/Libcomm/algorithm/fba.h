@@ -74,9 +74,11 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int tau; //!< The (transmitted) block size in bits
-   int I; //!< The maximum number of insertions per time-step
-   int xmax; //!< The maximum allowed drift overall
+   int tau; //!< The (transmitted) block size in channel symbols
+   int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
+   int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
+   int m1_min; //!< The largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
+   int m1_max; //!< The largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
    real th_inner; //!< Threshold factor for inner cycle
    bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
    // @}
@@ -108,7 +110,7 @@ public:
    // @}
 
    // main initialization routine
-   void init(int tau, int I, int xmax, double th_inner, bool norm);
+   void init(int tau, int mtau_min, int mtau_max, int m1_min, int m1_max, double th_inner, bool norm);
    // getters for forward and backward metrics
    real getF(const int j, const int y) const
       {
