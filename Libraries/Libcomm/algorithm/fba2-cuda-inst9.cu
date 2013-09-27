@@ -64,7 +64,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          BOOST_PP_SEQ_ENUM(args)>::metric_computer> ; \
 
 #define INSTANTIATE2(r, flags, reals) \
-      INSTANTIATE3( (BOOST_PP_SEQ_ELEM(1,SYMBOL_TYPE_SEQ)) reals flags )
+      INSTANTIATE3( (BOOST_PP_SEQ_ELEM(9,SYMBOL_TYPE_SEQ)) reals flags )
 
 #define INSTANTIATE1(r, flags) \
       BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, flags, REAL_PAIRS_SEQ)

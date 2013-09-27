@@ -85,7 +85,7 @@ tvb<bool,float,float>
 ## Mapper
 map_aggregating<vector,double,double>
 ## Codec
-uncoded<double>
+memoryless<double>
 # Encoder
 cached_fsm
 #: Base Encoder

@@ -89,6 +89,39 @@ int cudaGetMultiprocessorSize(int device)
    return -1;
    }
 
+//! Get the amount of shared memory available per block
+
+int cudaGetSharedMemPerBlock(int device)
+   {
+   if (device < 0)
+      device = cudaGetCurrentDevice();
+   cudaDeviceProp prop;
+   cudaSafeCall(cudaGetDeviceProperties(&prop, device));
+   return prop.sharedMemPerBlock;
+   }
+
+//! Get the number of registers available per block
+
+int cudaGetRegsPerBlock(int device)
+   {
+   if (device < 0)
+      device = cudaGetCurrentDevice();
+   cudaDeviceProp prop;
+   cudaSafeCall(cudaGetDeviceProperties(&prop, device));
+   return prop.regsPerBlock;
+   }
+
+//! Get the maximum number of threads per block
+
+int cudaGetMaxThreadsPerBlock(int device)
+   {
+   if (device < 0)
+      device = cudaGetCurrentDevice();
+   cudaDeviceProp prop;
+   cudaSafeCall(cudaGetDeviceProperties(&prop, device));
+   return prop.maxThreadsPerBlock;
+   }
+
 //! Get the warp size for the given device
 
 int cudaGetWarpSize(int device)
@@ -312,6 +345,48 @@ void cudaQueryDevices(std::ostream& sout)
       sout << "  Concurrent kernels:\t" << (prop.concurrentKernels ? "Yes"
             : "No") << std::endl;
       }
+   }
+
+/*! \name Get the size in bytes of statically-allocated shared memory per block
+ * required by this function.
+ */
+
+size_t cudaGetSharedSize(const void* func)
+   {
+   cudaFuncAttributes attr;
+   cudaSafeCall(cudaFuncGetAttributes(&attr, func));
+   return attr.sharedSizeBytes;
+   }
+
+/*! \name Get the size in bytes of local memory per thread used by this
+ * function.
+ */
+
+size_t cudaGetLocalSize(const void* func)
+   {
+   cudaFuncAttributes attr;
+   cudaSafeCall(cudaFuncGetAttributes(&attr, func));
+   return attr.localSizeBytes;
+   }
+
+//! Get the number of registers used by each thread of the given function
+
+int cudaGetNumRegsPerThread(const void* func)
+   {
+   cudaFuncAttributes attr;
+   cudaSafeCall(cudaFuncGetAttributes(&attr, func));
+   return attr.numRegs;
+   }
+
+/*! \brief Get the maximum number of threads per block, beyond which a launch
+ * of the function would fail.
+ */
+
+int cudaGetMaxThreadsPerBlock(const void* func)
+   {
+   cudaFuncAttributes attr;
+   cudaSafeCall(cudaFuncGetAttributes(&attr, func));
+   return attr.maxThreadsPerBlock;
    }
 
 } // end namespace
