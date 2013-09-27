@@ -1,0 +1,470 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{71894951-8BBE-4395-AE64-56F6966A7F82}</ProjectGuid>
+    <RootNamespace>LibComm</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="$(SolutionDir)SimCommSysPropSheet.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="$(SolutionDir)SimCommSysPropSheet.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="$(SolutionDir)SimCommSysPropSheet.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="$(SolutionDir)SimCommSysPropSheet.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\LibBase;..\LibComm;..\LibImage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AssemblerListingLocation>
+      </AssemblerListingLocation>
+      <BrowseInformation>
+      </BrowseInformation>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\LibBase;..\LibComm;..\LibImage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AssemblerListingLocation>
+      </AssemblerListingLocation>
+      <BrowseInformation>
+      </BrowseInformation>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\LibBase;..\LibComm;..\LibImage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AssemblerListingLocation>
+      </AssemblerListingLocation>
+      <BrowseInformation>
+      </BrowseInformation>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\LibBase;..\LibComm;..\LibImage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AssemblerListingLocation>
+      </AssemblerListingLocation>
+      <BrowseInformation>
+      </BrowseInformation>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="algorithm\fba2-factory.cpp" />
+    <ClCompile Include="algorithm\fba2-inst0.cpp" />
+    <ClCompile Include="algorithm\fba2-inst1.cpp" />
+    <ClCompile Include="algorithm\fba2-inst10.cpp" />
+    <ClCompile Include="algorithm\fba2-inst11.cpp" />
+    <ClCompile Include="algorithm\fba2-inst2.cpp" />
+    <ClCompile Include="algorithm\fba2-inst3.cpp" />
+    <ClCompile Include="algorithm\fba2-inst4.cpp" />
+    <ClCompile Include="algorithm\fba2-inst5.cpp" />
+    <ClCompile Include="algorithm\fba2-inst6.cpp" />
+    <ClCompile Include="algorithm\fba2-inst7.cpp" />
+    <ClCompile Include="algorithm\fba2-inst8.cpp" />
+    <ClCompile Include="algorithm\fba2-inst9.cpp" />
+    <ClCompile Include="algorithm\fba_generic.cpp" />
+    <ClCompile Include="annealer\system\anneal_interleaver.cpp" />
+    <ClCompile Include="annealer\system\anneal_puncturing.cpp" />
+    <ClCompile Include="annealer\anneal_system.cpp" />
+    <ClCompile Include="annealer.cpp" />
+    <ClCompile Include="channel\awgn.cpp" />
+    <ClCompile Include="bcjr.cpp" />
+    <ClCompile Include="channel\bpmr.cpp" />
+    <ClCompile Include="channel\qec.cpp" />
+    <ClCompile Include="channel\qids-utils.cpp" />
+    <ClCompile Include="codec\memoryless.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\fidelity_pos.cpp" />
+    <ClCompile Include="fsm\zsm.cpp" />
+    <ClCompile Include="interleaver\lut\berrou.cpp" />
+    <ClCompile Include="blockembedder.cpp" />
+    <ClCompile Include="blockprocess.cpp" />
+    <ClCompile Include="fsm\cached_fsm.cpp" />
+    <ClCompile Include="fsm\ccbfsm.cpp" />
+    <ClCompile Include="fsm\ccfsm.cpp" />
+    <ClCompile Include="codec\codec_reshaped.cpp" />
+    <ClCompile Include="commsys.cpp" />
+    <ClCompile Include="commsys_fulliter.cpp" />
+    <ClCompile Include="commsys_iterative.cpp" />
+    <ClCompile Include="experiment\binomial\commsys_simulator.cpp" />
+    <ClCompile Include="commsys_stream.cpp" />
+    <ClCompile Include="experiment\binomial\commsys_stream_simulator.cpp" />
+    <ClCompile Include="experiment\binomial\commsys_threshold.cpp" />
+    <ClCompile Include="experiment\normal\commsys_timer.cpp" />
+    <ClCompile Include="crypt.cpp" />
+    <ClCompile Include="digest32.cpp" />
+    <ClCompile Include="embedder\direct_blockembedder.cpp" />
+    <ClCompile Include="mapper\map_aggregating.cpp" />
+    <ClCompile Include="mapper\map_dividing.cpp" />
+    <ClCompile Include="mapper\map_reshape.cpp" />
+    <ClCompile Include="modem\direct_blockmodem.cpp" />
+    <ClCompile Include="modem\direct_modem.cpp" />
+    <ClCompile Include="modem\dminner.cpp" />
+    <ClCompile Include="fsm\dvbcrsc.cpp" />
+    <ClCompile Include="embedder.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\errors_hamming.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\errors_levenshtein.cpp" />
+    <ClCompile Include="experiment\normal\exit_computer.cpp" />
+    <ClCompile Include="experiment.cpp" />
+    <ClCompile Include="experiment\experiment_binomial.cpp" />
+    <ClCompile Include="experiment\experiment_normal.cpp" />
+    <ClCompile Include="algorithm\fba.cpp" />
+    <ClCompile Include="interleaver\lut\named\file_lut.cpp" />
+    <ClCompile Include="interleaver\lut\flat.cpp" />
+    <ClCompile Include="fsm.cpp" />
+    <ClCompile Include="fsm\gnrcc.cpp" />
+    <ClCompile Include="fsm\grscc.cpp" />
+    <ClCompile Include="interleaver\lut\helical.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\hist_symerr.cpp" />
+    <ClCompile Include="modem\informed_modulator.cpp" />
+    <ClCompile Include="channel\lapgauss.cpp" />
+    <ClCompile Include="channel\laplacian.cpp" />
+    <ClCompile Include="codec\ldpc.cpp" />
+    <ClCompile Include="embedder\lsb.cpp" />
+    <ClCompile Include="interleaver\lut_interleaver.cpp" />
+    <ClCompile Include="modem\lut_modulator.cpp" />
+    <ClCompile Include="mapper\map_interleaved.cpp" />
+    <ClCompile Include="mapper\map_permuted.cpp" />
+    <ClCompile Include="mapper\map_stipple.cpp" />
+    <ClCompile Include="mapper\map_straight.cpp" />
+    <ClCompile Include="codec\mapcc.cpp" />
+    <ClCompile Include="md5.cpp" />
+    <ClCompile Include="modem.cpp" />
+    <ClCompile Include="modem\marker.cpp" />
+    <ClCompile Include="montecarlo.cpp" />
+    <ClCompile Include="modem\mpsk.cpp" />
+    <ClCompile Include="interleaver\lut\named_lut.cpp" />
+    <ClCompile Include="fsm\nrcc.cpp" />
+    <ClCompile Include="interleaver\onetimepad.cpp" />
+    <ClCompile Include="interleaver\padded.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\prof_burst.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\prof_pos.cpp" />
+    <ClCompile Include="experiment\binomial\result_collector\commsys\prof_sym.cpp" />
+    <ClCompile Include="modem\qam.cpp" />
+    <ClCompile Include="channel\qids.cpp" />
+    <ClCompile Include="embedder\qim.cpp" />
+    <ClCompile Include="channel\qsc.cpp" />
+    <ClCompile Include="interleaver\lut\rand_lut.cpp" />
+    <ClCompile Include="rc4.cpp" />
+    <ClCompile Include="interleaver\lut\rectangular.cpp" />
+    <ClCompile Include="codec\reedsolomon.cpp" />
+    <ClCompile Include="codec\repacc.cpp" />
+    <ClCompile Include="resultsfile.cpp" />
+    <ClCompile Include="fsm\rscc.cpp" />
+    <ClCompile Include="sha.cpp" />
+    <ClCompile Include="interleaver\lut\shift_lut.cpp" />
+    <ClCompile Include="sigspace.cpp" />
+    <ClCompile Include="embedder\ssis.cpp" />
+    <ClCompile Include="stegosystem.cpp" />
+    <ClCompile Include="interleaver\lut\named\stream_lut.cpp" />
+    <ClCompile Include="sumprodalg\impl\sum_prod_alg_abstract.cpp" />
+    <ClCompile Include="sumprodalg\impl\sum_prod_alg_gdl.cpp" />
+    <ClCompile Include="sumprodalg\impl\sum_prod_alg_trad.cpp" />
+    <ClCompile Include="codec\sysrepacc.cpp" />
+    <ClCompile Include="codec\turbo.cpp" />
+    <ClCompile Include="modem\tvb.cpp" />
+    <ClCompile Include="codec\uncoded.cpp" />
+    <ClCompile Include="interleaver\lut\uniform_lut.cpp" />
+    <ClCompile Include="interleaver\lut\named\vale96int.cpp" />
+    <ClCompile Include="sumprodalg\spa_factory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="algorithm\fba_generic.h" />
+    <ClInclude Include="annealer\system\anneal_interleaver.h" />
+    <ClInclude Include="annealer\system\anneal_puncturing.h" />
+    <ClInclude Include="annealer\anneal_system.h" />
+    <ClInclude Include="annealer.h" />
+    <ClInclude Include="channel\awgn.h" />
+    <ClInclude Include="bcjr.h" />
+    <ClInclude Include="channel\bpmr.h" />
+    <ClInclude Include="channel\qec.h" />
+    <ClInclude Include="channel_insdel.h" />
+    <ClInclude Include="codec\codec_softout_mapped.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\fidelity_pos.h" />
+    <ClInclude Include="field_utils.h" />
+    <ClInclude Include="fsm\zsm.h" />
+    <ClInclude Include="interleaver\lut\berrou.h" />
+    <ClInclude Include="blockembedder.h" />
+    <ClInclude Include="blockmodem.h" />
+    <ClInclude Include="blockprocess.h" />
+    <ClInclude Include="fsm\cached_fsm.h" />
+    <ClInclude Include="fsm\ccbfsm.h" />
+    <ClInclude Include="fsm\ccfsm.h" />
+    <ClInclude Include="channel.h" />
+    <ClInclude Include="channel_stream.h" />
+    <ClInclude Include="codec.h" />
+    <ClInclude Include="codec\codec_reshaped.h" />
+    <ClInclude Include="codec\codec_softout.h" />
+    <ClInclude Include="commsys.h" />
+    <ClInclude Include="commsys_fulliter.h" />
+    <ClInclude Include="commsys_iterative.h" />
+    <ClInclude Include="experiment\binomial\commsys_simulator.h" />
+    <ClInclude Include="commsys_stream.h" />
+    <ClInclude Include="experiment\binomial\commsys_stream_simulator.h" />
+    <ClInclude Include="experiment\binomial\commsys_threshold.h" />
+    <ClInclude Include="experiment\normal\commsys_timer.h" />
+    <ClInclude Include="crypt.h" />
+    <ClInclude Include="digest32.h" />
+    <ClInclude Include="embedder\direct_blockembedder.h" />
+    <ClInclude Include="mapper\map_aggregating.h" />
+    <ClInclude Include="mapper\map_dividing.h" />
+    <ClInclude Include="mapper\map_reshape.h" />
+    <ClInclude Include="modem\direct_blockmodem.h" />
+    <ClInclude Include="modem\direct_modem.h" />
+    <ClInclude Include="modem\dminner.h" />
+    <ClInclude Include="fsm\dvbcrsc.h" />
+    <ClInclude Include="embedder.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\errors_hamming.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\errors_levenshtein.h" />
+    <ClInclude Include="experiment\normal\exit_computer.h" />
+    <ClInclude Include="experiment.h" />
+    <ClInclude Include="experiment\experiment_binomial.h" />
+    <ClInclude Include="experiment\experiment_normal.h" />
+    <ClInclude Include="algorithm\fba.h" />
+    <ClInclude Include="algorithm\fba2-cuda.h" />
+    <ClInclude Include="algorithm\fba2.h" />
+    <ClInclude Include="interleaver\lut\named\file_lut.h" />
+    <ClInclude Include="interleaver\lut\flat.h" />
+    <ClInclude Include="fsm.h" />
+    <ClInclude Include="fsm\gnrcc.h" />
+    <ClInclude Include="fsm\grscc.h" />
+    <ClInclude Include="hard_decision.h" />
+    <ClInclude Include="interleaver\lut\helical.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\hist_symerr.h" />
+    <ClInclude Include="modem\informed_modulator.h" />
+    <ClInclude Include="instrumented.h" />
+    <ClInclude Include="interleaver.h" />
+    <ClInclude Include="channel\lapgauss.h" />
+    <ClInclude Include="channel\laplacian.h" />
+    <ClInclude Include="codec\ldpc.h" />
+    <ClInclude Include="embedder\lsb.h" />
+    <ClInclude Include="interleaver\lut_interleaver.h" />
+    <ClInclude Include="modem\lut_modulator.h" />
+    <ClInclude Include="mapper\map_interleaved.h" />
+    <ClInclude Include="mapper\map_permuted.h" />
+    <ClInclude Include="mapper\map_stipple.h" />
+    <ClInclude Include="mapper\map_straight.h" />
+    <ClInclude Include="codec\mapcc.h" />
+    <ClInclude Include="mapper.h" />
+    <ClInclude Include="md5.h" />
+    <ClInclude Include="modem.h" />
+    <ClInclude Include="modem\marker.h" />
+    <ClInclude Include="modem\stream_modulator.h" />
+    <ClInclude Include="montecarlo.h" />
+    <ClInclude Include="modem\mpsk.h" />
+    <ClInclude Include="interleaver\lut\named_lut.h" />
+    <ClInclude Include="fsm\nrcc.h" />
+    <ClInclude Include="interleaver\onetimepad.h" />
+    <ClInclude Include="interleaver\padded.h" />
+    <ClInclude Include="parametric.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\prof_burst.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\prof_pos.h" />
+    <ClInclude Include="experiment\binomial\result_collector\commsys\prof_sym.h" />
+    <ClInclude Include="modem\qam.h" />
+    <ClInclude Include="channel\qids.h" />
+    <ClInclude Include="embedder\qim.h" />
+    <ClInclude Include="channel\qsc.h" />
+    <ClInclude Include="interleaver\lut\rand_lut.h" />
+    <ClInclude Include="rc4.h" />
+    <ClInclude Include="interleaver\lut\rectangular.h" />
+    <ClInclude Include="codec\reedsolomon.h" />
+    <ClInclude Include="codec\repacc.h" />
+    <ClInclude Include="resultsfile.h" />
+    <ClInclude Include="fsm\rscc.h" />
+    <ClInclude Include="safe_bcjr.h" />
+    <ClInclude Include="serializer_libcomm.h" />
+    <ClInclude Include="sha.h" />
+    <ClInclude Include="interleaver\lut\shift_lut.h" />
+    <ClInclude Include="sigspace.h" />
+    <ClInclude Include="sumprodalg\spa_factory.h" />
+    <ClInclude Include="embedder\ssis.h" />
+    <ClInclude Include="stegosystem.h" />
+    <ClInclude Include="interleaver\lut\named\stream_lut.h" />
+    <ClInclude Include="sumprodalg\impl\sum_prod_alg_abstract.h" />
+    <ClInclude Include="sumprodalg\impl\sum_prod_alg_gdl.h" />
+    <ClInclude Include="sumprodalg\sum_prod_alg_inf.h" />
+    <ClInclude Include="sumprodalg\impl\sum_prod_alg_trad.h" />
+    <ClInclude Include="codec\sysrepacc.h" />
+    <ClInclude Include="codec\turbo.h" />
+    <ClInclude Include="modem\tvb-receiver-cuda.h" />
+    <ClInclude Include="modem\tvb-receiver.h" />
+    <ClInclude Include="modem\tvb.h" />
+    <ClInclude Include="codec\uncoded.h" />
+    <ClInclude Include="interleaver\lut\uniform_lut.h" />
+    <ClInclude Include="interleaver\lut\named\vale96int.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Libbase\LibBase.vcxproj">
+      <Project>{9b5d3d4e-f023-458a-ae92-cd8a6c30c715}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Libimage\LibImage.vcxproj">
+      <Project>{b877e04a-b5b4-4fe0-8694-22a9ea985415}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

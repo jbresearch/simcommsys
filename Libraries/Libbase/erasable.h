@@ -100,6 +100,17 @@ public:
       }
    // @}
 
+   /*! \name Comparison operators */
+   bool operator==(const erasable<symbol>& rhs) const
+      {
+      if (erased && rhs.erased)
+         return true;
+      if (!erased && !rhs.erased && value == rhs.value)
+         return true;
+      return false;
+      }
+   // @}
+
    /*! \name Class parameters */
    //! Number of elements in the finite alphabet
    static int elements()
@@ -179,6 +190,17 @@ public:
    bool is_erased() const
       {
       return erased;
+      }
+   // @}
+
+   /*! \name Comparison operators */
+   bool operator==(const erasable<bool>& rhs) const
+      {
+      if (erased && rhs.erased)
+         return true;
+      if (!erased && !rhs.erased && value == rhs.value)
+         return true;
+      return false;
       }
    // @}
 
