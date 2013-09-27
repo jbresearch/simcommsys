@@ -584,7 +584,7 @@ inline vector<T>::vector(const vector<A>& x) :
    test_invariant();
    alloc(x.size().length());
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 4800 )
 #endif
@@ -592,7 +592,7 @@ inline vector<T>::vector(const vector<A>& x) :
    // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -606,7 +606,7 @@ inline vector<T>::vector(const std::vector<A>& x) :
    test_invariant();
    alloc(x.size());
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 4800 )
 #endif
@@ -614,7 +614,7 @@ inline vector<T>::vector(const std::vector<A>& x) :
    // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x[i];
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -664,7 +664,7 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    assert((void *) this != (void *) &x);
    init(x.size());
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
@@ -672,7 +672,7 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    // vector, the process can continue recursively
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -685,14 +685,14 @@ inline vector<T>& vector<T>::operator=(const A x)
    {
    test_invariant();
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #  pragma warning( disable : 4800 )
 #endif
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x;
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -898,13 +898,13 @@ inline vector<T>& vector<T>::operator+=(const vector<T>& x)
    test_invariant();
    assert(x.m_size.length() == m_size.length());
    // avoid bool-related warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4804 4800 )
 #endif
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] += x.m_data[i];
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();

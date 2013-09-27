@@ -27,7 +27,7 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #else
 #include <unistd.h>
@@ -86,7 +86,7 @@ masterslave::mode_t masterslave::enable(const std::string& endpoint,
    {
    assert(!initialized);
 
-#ifndef WIN32
+#ifndef _WIN32
    signal(SIGPIPE, SIG_IGN);
 #endif
 
@@ -143,7 +143,7 @@ void masterslave::close(libbase::socket *s)
 
 void masterslave::setpriority(const int priority)
    {
-#ifdef WIN32
+#ifdef _WIN32
 #else
    const int PRIO_CURRENT = 0;
    ::setpriority(PRIO_PROCESS, PRIO_CURRENT, priority);

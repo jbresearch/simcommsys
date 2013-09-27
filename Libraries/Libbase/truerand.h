@@ -26,7 +26,7 @@
 #include "config.h"
 #include "random.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <wincrypt.h>
 #else
@@ -54,7 +54,7 @@ namespace libbase {
 class truerand : public random {
 private:
    /*! \name Object representation */
-#ifdef WIN32
+#ifdef _WIN32
    HCRYPTPROV hCryptProv;
 #else
    int fd;

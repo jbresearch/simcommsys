@@ -26,7 +26,7 @@
 #include "timer.h"
 
 #include <ctime>
-#ifdef WIN32
+#ifdef _WIN32
 // NOTE: the following line avoids problems with including winsock2.h later
 #  define _WINSOCKAPI_
 #  include <windows.h>
@@ -49,7 +49,7 @@ namespace libbase {
 class cputimer : public timer {
 private:
    /*! \name Internal representation */
-#ifdef WIN32
+#ifdef _WIN32
    LARGE_INTEGER event_start; //!< Start event usage info
    mutable LARGE_INTEGER event_stop; //!< Stop event usage info
 #else
@@ -60,7 +60,7 @@ private:
 
 private:
    /*! \name Internal helper methods */
-#ifdef WIN32
+#ifdef _WIN32
 #else
    static double convert(const struct timespec& tv)
       {
@@ -73,7 +73,7 @@ protected:
    /*! \name Interface with derived class */
    void do_start()
       {
-#ifdef WIN32
+#ifdef _WIN32
       QueryPerformanceCounter(&event_start);
 #else
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &event_start);
@@ -81,7 +81,7 @@ protected:
       }
    void do_stop() const
       {
-#ifdef WIN32
+#ifdef _WIN32
       QueryPerformanceCounter(&event_stop);
 #else
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &event_stop);
@@ -89,7 +89,7 @@ protected:
       }
    double get_elapsed() const
       {
-#ifdef WIN32
+#ifdef _WIN32
       // get ticks per second
       LARGE_INTEGER frequency;
       QueryPerformanceFrequency(&frequency);
@@ -118,7 +118,7 @@ public:
    /*! \name Timer information */
    double resolution() const
       {
-#ifdef WIN32
+#ifdef _WIN32
       // get ticks per second
       LARGE_INTEGER frequency;
       QueryPerformanceFrequency(&frequency);

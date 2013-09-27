@@ -24,7 +24,7 @@
 
 #include <fstream>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <io.h>
 #  include <fcntl.h>
 #  include <sys/stat.h>
@@ -74,7 +74,7 @@ void resultsfile::finishwithfile(std::fstream& file)
 void resultsfile::truncate(std::streampos length)
    {
    assert(!fname.empty());
-#ifdef WIN32
+#ifdef _WIN32
    int fd;
    _sopen_s(&fd, fname.c_str(), _O_RDWR, _SH_DENYNO, _S_IREAD | _S_IWRITE);
    _chsize_s(fd, length);

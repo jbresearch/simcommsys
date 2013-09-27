@@ -117,7 +117,7 @@ void awfilter<T>::process(const libbase::matrix<T>& in, libbase::matrix<T>& out)
 
 // Explicit Realizations
 
-#ifdef WIN32
+#ifdef _WIN32
 
 /* Visual C++ seems to have a problem using explicit instantiation when the
  * constructor has the same templated class, hence force instantiation using
