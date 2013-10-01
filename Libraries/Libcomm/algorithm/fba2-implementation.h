@@ -287,8 +287,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
 #ifndef NDEBUG
    // determine required space for inner metric table (Jiao-Armand method)
    size_t entries = 0;
+   const size_t one = 1;
    for (int delta = mn_min; delta <= mn_max; delta++)
-      entries += (1 << (delta + n));
+      entries += (one << (delta + n));
    entries *= q;
    std::cerr << "Jiao-Armand Table Size: "
          << sizeof(float) * entries / double(1 << 20) << "MiB" << std::endl;
