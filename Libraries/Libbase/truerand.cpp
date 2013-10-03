@@ -23,7 +23,7 @@
 #include "truerand.h"
 #include "stdlib.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <windows.h>
 #  include <wincrypt.h>
 #else
@@ -39,7 +39,7 @@ namespace libbase {
 
 truerand::truerand()
    {
-#ifdef WIN32
+#ifdef _WIN32
    if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
       {
       std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - " << getlasterror() << "." << std::endl;
@@ -60,7 +60,7 @@ truerand::truerand()
 
 truerand::~truerand()
    {
-#ifdef WIN32
+#ifdef _WIN32
    assert(hCryptProv);
    if(!CryptReleaseContext(hCryptProv, 0))
       {
@@ -76,7 +76,7 @@ truerand::~truerand()
 
 inline void truerand::advance()
    {
-#ifdef WIN32
+#ifdef _WIN32
    assertalways(CryptGenRandom(hCryptProv, sizeof(x), (BYTE *)&x));
 #else
    assertalways(read(fd, &x, sizeof(x)) == sizeof(x));

@@ -48,14 +48,9 @@ the operating system:
    - G++ 4.6.3
    - Eclipse 3.7.2 with Subversive plugin for SVN integration and Eclox for
    Doxygen access.
-- Windows development is based on a Windows XP SP3 (32-bit) reference
-   platform, and assumes Microsoft Visual Studio 2008; the Team System is
-   suggested for its performance-related tools.  The Refactor! plugin from
-   Developer Express Inc. is also recommended (this has not been tested with
-   VS 2008).
-
-\note Windows support is currently on hold, pending transition to a 64-bit
-edition of Windows and Visual Studio 2010.
+- Windows development is based on a Windows Server 2008 R2 (64-bit) reference
+   platform, and assumes Microsoft Visual Studio 2010; the Premium version is
+   suggested for its performance-related tools.
 
 Other than G++ and GNU Make, the principal build requirement for SimCommSys
 is a recent development version of Boost, together with the 'Program
@@ -221,14 +216,11 @@ Important Eclipse shortcuts:
 
 \section windows Windows Development Environment
 
-\note Visual Studio 2008 support is currently on hold.  The project is
-currently being transitioned to Visual Studio 2010.
-
-The current supported IDE for Windows is Microsoft Visual Studio 2008.
-It is recommended to use the Team Suite edition, as this contains the useful
-profiling tools.
+The current supported IDE for Windows is Microsoft Visual Studio 2010.
+It is recommended to use the Premium or Ultimate edition, as these contains
+the useful profiling tools.
 Installing this is simply a matter of:
-- Downloading the Team Suite DVD and installing it.
+- Downloading the DVD and installing it.
 - Downloading the latest service pack (currently SP1) and installing it.
 - Downloading the MSDN Library documentation and installing it.
 
@@ -237,18 +229,79 @@ All DVDs above may be obtained through MSDNAA.
 \subsection boost Installing Boost
 
 Windows development also requires the development Boost libraries to be
-installed. The installer may be downloaded from BoostPro computing at:
+installed.
+However, since the Solution may be built either as 32-bit (Win32) or 64-bit
+(x64), you need two versions for the Boost libraries, one for each platform.
+The location of the Boost root directory should be pointed to by the
+environmental variable \c BOOST_ROOT.
+The 32-bit libraries are assumed to be under \c BOOST_ROOT/lib/w32, whereas the
+64-bit libraries are assumed to be under \c BOOST_ROOT/lib/x64.
 
-http://www.boostpro.com/download
-
+-# Download the distribution from
+\verbatim
+http://www.boost.org/users/download/
+\endverbatim
 It is recommended to use the same version as in Linux builds.
-For Windows, you need to install the Mutithread and Mutithread Debug variants.
+-# Extract this to a suitable folder
+(e.g. <tt>C:\\Program Files\\boost</tt>)
+This will create a subfolder according to the version installed
+(e.g. <tt>C:\\Program Files\\boost\\boost_1_54_0</tt>)
+-# Set the \c BOOST_ROOT environment variable to this folder; in Windows 7 and
+above this can be done through the 'Edit environment variables for your account'
+link available through the start menu.
+-# Open a terminal and go into this folder. To prepare the installation process
+run \c bootstrap.bat.
+-# In order to build the binaries for the 64-bit version of Boost, issue
+\verbatim
+bjam --toolset=msvc-10.0 address-model=64 --build-type=complete stage
+\endverbatim
+Then move the contents of <tt>stage\\lib</tt> to <tt>lib\\x64</tt>.
+-# For the 32-bit version, you need the command
+\verbatim
+bjam --toolset=msvc-10.0 --build-type=complete stage
+\endverbatim
+Then move the contents of <tt>stage\\lib</tt> to <tt>lib\\win32</tt>.
+Between builds remove the directories \c bin.v2 and \c stage.
 
 \subsection setup Setting up
 
 Style setup is done by importing "JAB C++ Code Style.vssettings" through
 Tools->Import and Export Settings. This also sets up the necessary folder
 settings for Boost usage.
+
+\subsection tagging Executables Tagging
+
+For Exectutables to be tagged properly with the branch label, you need to
+load the macro file SimCommSys.vsmacros.
+Unfortunately this would apply to all Visual Studio solutions, so you can
+only load one whatever branch you are in.
+Therefore it is suggested that you load the one in the trunk.
+If you need to modify this in a particular branch, it is suggested that
+you temporarily unload the macro file from trunk and load the one from the
+required branch.
+
+\note The macro file includes also a macro that stops the build process when
+a a build error is encountered.  The normal behaviour of Visual Studio is
+to proceed the build process.  With a Solution with lots of projects this
+could be a problem.
+
+\subsection install Installing SimCommsys Executables
+
+To install the 32-bit binaries right click on the "Install Win32" project
+file under the folder Installer and choose "Install".
+If this is greyed out, you need to build the solution first.
+Make sure that you select the Win32 platform when doing so.
+It is recommended that the binaries are installed under
+<tt>c:\\Program Files (x86)\\SimCommSys</tt>,
+which is the default option in this case.
+
+To install the 64-bit binaries right click on the "Install x64" project file
+under the folder Installer and choose "Install".
+If this is greyed out, you need to build the solution first.
+Make sure that you select the x64 platform when doing so.
+It is recommended that the binaries are installed under
+<tt>c:\\Program Files\\SimCommSys</tt>,
+which is the default option in this case.
 
 
 \section checkout Checking out the source code

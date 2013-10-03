@@ -32,11 +32,11 @@ template <class sig, class real>
 void fba<sig, real>::allocate()
    {
    // Allocate required size
-   // F needs indices (j,y) where j in [0, tau-1] and y in [-xmax, xmax]
-   // B needs indices (j,y) where j in [1, tau] and y in [-xmax, xmax]
+   // F needs indices (j,y) where j in [0, tau-1] and y in [mtau_min, mtau_max]
+   // B needs indices (j,y) where j in [1, tau] and y in [mtau_min, mtau_max]
    typedef boost::multi_array_types::extent_range range;
-   F.resize(boost::extents[tau][range(-xmax, xmax + 1)]);
-   B.resize(boost::extents[range(1, tau + 1)][range(-xmax, xmax + 1)]);
+   F.resize(boost::extents[tau][range(mtau_min, mtau_max + 1)]);
+   B.resize(boost::extents[range(1, tau + 1)][range(mtau_min, mtau_max + 1)]);
    // flag the state of the arrays
    initialised = true;
 
@@ -75,19 +75,25 @@ void fba<sig, real>::free()
 // Initialization
 
 template <class sig, class real>
-void fba<sig, real>::init(int tau, int I, int xmax, double th_inner, bool norm)
+void fba<sig, real>::init(int tau, int mtau_min, int mtau_max, int m1_min, int m1_max, double th_inner, bool norm)
    {
    // if any parameters that effect memory have changed, release memory
-   if (initialised && (tau != This::tau || xmax != This::xmax))
+   if (initialised
+         && (tau != This::tau || mtau_min != This::mtau_min
+               || mtau_max != This::mtau_max))
       free();
    // code parameters
    assert(tau > 0);
    This::tau = tau;
    // decoder parameters
-   assert(I >= 0);
-   assert(xmax >= 0);
-   This::I = I;
-   This::xmax = xmax;
+   assert(mtau_min <= 0);
+   assert(mtau_max >= 0);
+   This::mtau_min = mtau_min;
+   This::mtau_max = mtau_max;
+   assert(m1_min <= 0);
+   assert(m1_max >= 0);
+   This::m1_min = m1_min;
+   This::m1_max = m1_max;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    This::th_inner = real(th_inner);
@@ -119,7 +125,7 @@ void fba<sig, real>::work_forward(const array1s_t& r)
       real threshold = 0;
       if (thresholding)
          {
-         for (index a = -xmax; a <= xmax; ++a)
+         for (index a = mtau_min; a <= mtau_max; ++a)
             if (F[j - 1][a] > threshold)
                threshold = F[j - 1][a];
          threshold *= th_inner;
@@ -128,18 +134,18 @@ void fba<sig, real>::work_forward(const array1s_t& r)
       // 1. j-1+a >= 0
       // 2. j-1+y <= r.size()-1
       // limits on insertions and deletions must be respected:
-      // 3. y-a <= I
-      // 4. y-a >= -1
-      const index amin = std::max(-xmax, 1 - int(j));
-      const index amax = xmax;
-      const index ymax_bnd = std::min(xmax, r.size() - int(j));
+      // 3. y-a <= m1_max
+      // 4. y-a >= m1_min
+      const index amin = std::max(mtau_min, 1 - int(j));
+      const index amax = mtau_max;
+      const index ymax_bnd = std::min(mtau_max, r.size() - int(j));
       for (index a = amin; a <= amax; ++a)
          {
          // ignore paths below a certain threshold
          if (thresholding && F[j - 1][a] < threshold)
             continue;
-         const index ymin = std::max(-xmax, int(a) - 1);
-         const index ymax = std::min(int(ymax_bnd), int(a) + I);
+         const index ymin = std::max(mtau_min, int(a) + m1_min);
+         const index ymax = std::min(int(ymax_bnd), int(a) + m1_max);
          for (index y = ymin; y <= ymax; ++y)
             F[j][y] += F[j - 1][a] * R(int(j - 1), r.extract(int(j - 1 + a),
                   int(y - a + 1)));
@@ -148,11 +154,11 @@ void fba<sig, real>::work_forward(const array1s_t& r)
       if (norm)
          {
          real scale = 0;
-         for (index y = -xmax; y <= xmax; ++y)
+         for (index y = mtau_min; y <= mtau_max; ++y)
             scale += F[j][y];
          assertalways(scale > real(0));
          scale = real(1) / scale;
-         for (index y = -xmax; y <= xmax; ++y)
+         for (index y = mtau_min; y <= mtau_max; ++y)
             F[j][y] *= scale;
          }
       }
@@ -173,7 +179,7 @@ void fba<sig, real>::work_backward(const array1s_t& r)
    // ie. drift before transmitting bit t[tau] is the discrepancy in the received vector size from tau
    typedef typename array2r_t::index index;
    B = real(0);
-   assertalways(abs(r.size()-tau) <= xmax);
+   assertalways(abs(r.size()-tau) <= mtau_max);
    B[tau][r.size() - tau] = real(1);
    // compute remaining matrix values
    for (index j = tau - 1; j > 0; --j)
@@ -183,7 +189,7 @@ void fba<sig, real>::work_backward(const array1s_t& r)
       real threshold = 0;
       if (thresholding)
          {
-         for (index b = -xmax; b <= xmax; ++b)
+         for (index b = mtau_min; b <= mtau_max; ++b)
             if (B[j + 1][b] > threshold)
                threshold = B[j + 1][b];
          threshold *= th_inner;
@@ -192,18 +198,18 @@ void fba<sig, real>::work_backward(const array1s_t& r)
       // 1. j+y >= 0
       // 2. j+b <= r.size()-1
       // limits on insertions and deletions must be respected:
-      // 3. b-y <= I
-      // 4. b-y >= -1
-      const index bmin = -xmax;
-      const index bmax = std::min(xmax, r.size() - int(j) - 1);
-      const index ymin_bnd = std::max(-xmax, int(-j));
+      // 3. b-y <= m1_max
+      // 4. b-y >= m1_min
+      const index bmin = mtau_min;
+      const index bmax = std::min(mtau_max, r.size() - int(j) - 1);
+      const index ymin_bnd = std::max(mtau_min, int(-j));
       for (index b = bmin; b <= bmax; ++b)
          {
          // ignore paths below a certain threshold
          if (thresholding && B[j + 1][b] < threshold)
             continue;
-         const index ymin = std::max(int(ymin_bnd), int(b) - I);
-         const index ymax = std::min(xmax, int(b) + 1);
+         const index ymin = std::max(int(ymin_bnd), int(b) - m1_max);
+         const index ymax = std::min(mtau_max, int(b) - m1_min);
          for (index y = ymin; y <= ymax; ++y)
             B[j][y] += B[j + 1][b] * R(int(j), r.extract(int(j + y), int(b - y
                   + 1)));
@@ -212,11 +218,11 @@ void fba<sig, real>::work_backward(const array1s_t& r)
       if (norm)
          {
          real scale = 0;
-         for (index y = -xmax; y <= xmax; ++y)
+         for (index y = mtau_min; y <= mtau_max; ++y)
             scale += B[j][y];
          assertalways(scale > real(0));
          scale = real(1) / scale;
-         for (index y = -xmax; y <= xmax; ++y)
+         for (index y = mtau_min; y <= mtau_max; ++y)
             B[j][y] *= scale;
          }
       }

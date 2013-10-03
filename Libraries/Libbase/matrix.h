@@ -217,9 +217,41 @@ public:
       }
    // @}
 
-   /*! \name Index operators (perform boundary checking) */
-   T& operator()(const int i, const int j);
-   const T& operator()(const int i, const int j) const;
+   /*! \name Element access */
+   /*! \brief Extract a row as a reference into this matrix
+    * This allows read access to row data without array copying.
+    */
+   const indirect_vector<T> row(const int i) const
+      {
+      assert(i>=0 && i<m_size.rows());
+      return indirect_vector<T> (const_cast<T*> (m_data[i]), m_size.cols());
+      }
+   /*! \brief Access a row of this matrix as a vector
+    * This allows write access to row data without array copying.
+    */
+   indirect_vector<T> row(const int i)
+      {
+      assert(i>=0 && i<m_size.rows());
+      return indirect_vector<T> (m_data[i], m_size.cols());
+      }
+   /*! \brief Index operator (write-access)
+    * \note Performs boundary checking.
+    */
+   T& operator()(const int i, const int j)
+      {
+      assert(i>=0 && i<m_size.rows());
+      assert(j>=0 && j<m_size.cols());
+      return m_data[i][j];
+      }
+   /*! \brief Index operator (read-only access)
+    * \note Performs boundary checking.
+    */
+   const T& operator()(const int i, const int j) const
+      {
+      assert(i>=0 && i<m_size.rows());
+      assert(j>=0 && j<m_size.cols());
+      return m_data[i][j];
+      }
    // @}
 
    /*! \name Information functions */
@@ -567,24 +599,6 @@ inline vector<T> matrix<T>::extractcol(const int j) const
    vector<T> v;
    extractcol(v, j);
    return v;
-   }
-
-// index operators (perform boundary checking)
-
-template <class T>
-inline T& matrix<T>::operator()(const int i, const int j)
-   {
-   assert(i>=0 && i<m_size.rows());
-   assert(j>=0 && j<m_size.cols());
-   return m_data[i][j];
-   }
-
-template <class T>
-inline const T& matrix<T>::operator()(const int i, const int j) const
-   {
-   assert(i>=0 && i<m_size.rows());
-   assert(j>=0 && j<m_size.cols());
-   return m_data[i][j];
    }
 
 /*! \brief Writes matrix data to output stream.
@@ -1213,60 +1227,47 @@ inline matrix<T> matrix<T>::inverse() const
 template <class T>
 inline matrix<T> matrix<T>::reduce_to_ref() const
    {
+   // shorthand
    const int dim = m_size.rows();
    const int len = m_size.cols();
-   // create copy of rows of this matrix
-   vector<vector<T> > arows(dim);
-   for (int i = 0; i < dim; i++)
-      extractrow(arows(i), i);
-   int cur_row = 0;
-   T cur_pivot = 0;
-   T tmp_entry = 0;
-   int n = 0;
-   while ((n < len) && (cur_row < dim))
+   // create copy of this matrix, to compute result in-place
+   matrix<T> ref = *this;
+   // loop through the columns until we have pivoted each row
+   for (int cur_col = 0, cur_row = 0; (cur_col < len) && (cur_row < dim); cur_col++)
       {
-      int findpivot = cur_row;
-      //this while loop relies on lazy evaluation to avoid reading an
-      //out-of-range value.
-      while ((findpivot < dim) && (arows(findpivot)(n) == 0))
-         findpivot++;
-      //did we find a pivot for this column?
-      if ((findpivot) != dim)
+      for (int pivot_row = cur_row; pivot_row < dim; pivot_row++)
          {
-         //is the pivot in the right place?
-         //if we found a pivot which is not in the current row
-         //swap the findpivot row with the current row
-         if ((findpivot != cur_row))
-            std::swap(arows(findpivot), arows(cur_row));
-         //get the pivot value
-         cur_pivot = arows(cur_row)(n);
-         //divide the row by the pivot (only needed if the pivot value is not 1)
-         if (cur_pivot != 1)
-            arows(cur_row) /= cur_pivot;
-         //now subtract appropriate multiples of this row from the ones above it
-         for (int loop = 0; loop < cur_row; loop++)
+         //did we find a pivot for this column?
+         if (ref(pivot_row, cur_col) != 0)
             {
-            //only need to subtract if the entry at this position is non-zero
-            tmp_entry = arows(loop)(n);
-            if (tmp_entry != 0)
-               arows(loop) -= (arows(cur_row) * tmp_entry);
+            //is the pivot in the right place?
+            //if we found a pivot which is not in the current row
+            //swap the findpivot row with the current row
+            if (pivot_row != cur_row)
+               std::swap(ref.m_data[pivot_row], ref.m_data[cur_row]);
+            //get the pivot value
+            const T pivot_value = ref(cur_row, cur_col);
+            //divide the row by the pivot (only needed if the pivot value is not 1)
+            if (pivot_value != 1)
+               for (int j = 0; j < len; j++)
+                  ref(cur_row, j) /= pivot_value;
+            //subtract appropriate multiples of this row from rows above and below
+            for (int i = 0; i < dim; i++)
+               {
+               if (i != cur_row)
+                  {
+                  //only need to subtract if the entry at this position is non-zero
+                  const T multiple = ref(i, cur_col);
+                  if (multiple != 0)
+                     for (int j = 0; j < len; j++)
+                        ref(i, j) -= ref(cur_row, j) * multiple;
+                  }
+               }
+            cur_row++;
+            break;
             }
-         //now subtract appropriate multiples of this row from the ones below it
-         for (int loop = cur_row + 1; loop < dim; loop++)
-            {
-            //only need to subtract if the entry at this position is non-zero
-            T tmp_entry = arows(loop)(n);
-            if (tmp_entry != 0)
-               arows(loop) -= (arows(cur_row) * tmp_entry);
-            }
-         cur_row++;
          }
-      n++;
       }
-   //the arows now contain our new matrix
-   matrix<T> ref(dim, len);
-   for (int k = 0; k < dim; k++)
-      ref.insertrow(arows(k), k);
    return ref;
    }
 

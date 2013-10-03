@@ -63,7 +63,7 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
    {
    // allocate space on device for result, and initialize
    cuda::vector<real> dev_ptable;
-   dev_ptable.init(2 * xmax + 1);
+   dev_ptable.init(mT_max - mT_min + 1);
    // allocate space on device for tx and rx vectors, and copy over
    cuda::vector<G> dev_tx;
    cuda::vector<G> dev_rx;
@@ -81,7 +81,7 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
    {
    // allocate space on device for result, and initialize
    cuda::vector<real> dev_ptable;
-   dev_ptable.init(2 * xmax + 1);
+   dev_ptable.init(mT_max - mT_min + 1);
    // allocate space on device for tx and rx vectors, and copy over
    cuda::vector<G> dev_tx;
    cuda::vector<G> dev_rx;
@@ -99,7 +99,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(const array1g_t& t
    {
    // allocate space on device for result, and initialize
    cuda::vector<real> dev_ptable;
-   dev_ptable.init(2 * xmax + 1);
+   dev_ptable.init(mT_max - mT_min + 1);
    // allocate space on device for tx and rx vectors, and copy over
    cuda::vector<G> dev_tx;
    cuda::vector<G> dev_rx;

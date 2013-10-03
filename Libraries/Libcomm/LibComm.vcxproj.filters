@@ -1,0 +1,737 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{e0b17ccf-c99a-4bd3-a3c2-a9673294a4bd}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{530854b2-8ac1-43df-972f-534c7e15ad7d}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="annealer\system\anneal_interleaver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="annealer\system\anneal_puncturing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="annealer\anneal_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="annealer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\awgn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bcjr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\berrou.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blockembedder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blockprocess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\cached_fsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\ccbfsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\ccfsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\codec_reshaped.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commsys.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commsys_fulliter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commsys_iterative.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\commsys_simulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commsys_stream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\commsys_stream_simulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\commsys_threshold.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\normal\commsys_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="crypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="digest32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="embedder\direct_blockembedder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\direct_blockmodem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\direct_modem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\dminner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\dvbcrsc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="embedder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\errors_hamming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\errors_levenshtein.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\normal\exit_computer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\experiment_binomial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\experiment_normal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\named\file_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\flat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\gnrcc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\grscc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\helical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\hist_symerr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\informed_modulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\lapgauss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\laplacian.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\ldpc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="embedder\lsb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut_interleaver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\lut_modulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_interleaved.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_permuted.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_stipple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_straight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\mapcc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="montecarlo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\mpsk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\named_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\nrcc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\onetimepad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\padded.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\prof_burst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\prof_pos.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\prof_sym.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\qam.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\qids.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="embedder\qim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\qsc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\rand_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rc4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\rectangular.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\reedsolomon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\repacc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resultsfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\rscc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\shift_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sigspace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="embedder\ssis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stegosystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\named\stream_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sumprodalg\impl\sum_prod_alg_abstract.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sumprodalg\impl\sum_prod_alg_gdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sumprodalg\impl\sum_prod_alg_trad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\sysrepacc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\turbo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\tvb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\uncoded.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\uniform_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interleaver\lut\named\vale96int.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_dividing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\qec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sumprodalg\spa_factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\bpmr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\marker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba_generic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_aggregating.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_reshape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment\binomial\result_collector\commsys\fidelity_pos.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsm\zsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst7.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithm\fba2-inst11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="channel\qids-utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\memoryless.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="annealer\system\anneal_interleaver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="annealer\system\anneal_puncturing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="annealer\anneal_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="annealer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\awgn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bcjr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\berrou.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blockembedder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blockmodem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blockprocess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\cached_fsm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\ccbfsm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\ccfsm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel_stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\codec_reshaped.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\codec_softout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commsys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commsys_fulliter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commsys_iterative.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\commsys_simulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commsys_stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\commsys_stream_simulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\commsys_threshold.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\normal\commsys_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="digest32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="embedder\direct_blockembedder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\direct_blockmodem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\direct_modem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\dminner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\dvbcrsc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="embedder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\errors_hamming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\errors_levenshtein.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\normal\exit_computer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\experiment_binomial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\experiment_normal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm\fba.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm\fba2-cuda.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm\fba2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\named\file_lut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\flat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\gnrcc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\grscc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hard_decision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\helical.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\hist_symerr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\informed_modulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instrumented.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\lapgauss.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\laplacian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\ldpc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="embedder\lsb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut_interleaver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\lut_modulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_interleaved.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_permuted.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_stipple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_straight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\mapcc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="montecarlo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\mpsk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\named_lut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\nrcc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\onetimepad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\padded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parametric.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\prof_burst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\prof_pos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\prof_sym.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\qam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\qids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="embedder\qim.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\qsc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\rand_lut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rc4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\rectangular.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\reedsolomon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\repacc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resultsfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\rscc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="safe_bcjr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer_libcomm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\shift_lut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sigspace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sumprodalg\spa_factory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="embedder\ssis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stegosystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\named\stream_lut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sumprodalg\impl\sum_prod_alg_abstract.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sumprodalg\impl\sum_prod_alg_gdl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sumprodalg\sum_prod_alg_inf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sumprodalg\impl\sum_prod_alg_trad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\sysrepacc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\turbo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\tvb-receiver-cuda.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\tvb-receiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\tvb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\uncoded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\uniform_lut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interleaver\lut\named\vale96int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\stream_modulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_dividing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm\fba_generic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\qec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel\bpmr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="channel_insdel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\marker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_reshape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapper\map_aggregating.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment\binomial\result_collector\commsys\fidelity_pos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\codec_softout_mapped.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="field_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsm\zsm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

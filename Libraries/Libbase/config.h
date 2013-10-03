@@ -37,7 +37,7 @@
 
 // Enable secure function overload for CRT in Win32
 
-#ifdef WIN32
+#ifdef _WIN32
 #  if defined(_CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES)
 #     undef _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES
 #     undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
@@ -52,24 +52,30 @@
 
 // Disable checked-iterator warning
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define _SCL_SECURE_NO_WARNINGS
 #endif
 
 // Disable min/max macros
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define NOMINMAX
 #endif
 
 // Disable specific warnings
 
-#ifdef WIN32
+#ifdef _WIN32
+// TODO: consider each of these and decide whether to remove the pragma and fix the code
 //#  pragma warning( disable : 4250 ) // dominance warning
 #  pragma warning( disable : 4800 ) // forcing int to bool
+#  pragma warning( disable : 4804 ) // '>=': unsafe use of type 'bool' in operation
+#  pragma warning( disable : 4244 ) // 'initializing' : conversion from 'std::streamsize' to 'const int', possible loss of data
+#  pragma warning( disable : 4267 ) // 'initializing' : conversion from 'size_t' to 'const int', possible loss of data	
+#  pragma warning( disable : 4090 ) // 'initializing' : different '__unaligned' qualifiers
+
 #endif
 
-// system include files
+// system include files - all architectures
 
 #include <iostream>
 #include <string>
@@ -81,9 +87,16 @@
 #include <cfloat>
 #include <stdint.h>
 
+// system include files - specific architectures
+
+#ifdef _WIN32
+#  include <basetsd.h>
+#endif
+
 // module include files
 
 #include "assertalways.h"
+
 
 // *** Global namespace ***
 
@@ -97,7 +110,7 @@
 
 // Implemented log2, round, and sgn if these are not already available
 
-#ifdef WIN32
+#ifdef _WIN32
 inline double log2(double x)
    {
    return log(x)/log(double(2));
@@ -123,7 +136,7 @@ inline double sign(double x)
 //   return sqrt(double(x));
 //   }
 
-#ifdef WIN32
+#ifdef _WIN32
 inline double log(int x)
    {
    return log(double(x));
@@ -145,13 +158,13 @@ inline T square(const T x)
 
 // Define signed size type
 
-#ifdef WIN32
+#ifdef _WIN32
 typedef SSIZE_T ssize_t;
 #endif
 
 // Define math functions to identify NaN and Inf values
 
-#ifdef WIN32
+#ifdef _WIN32
 inline int isnan(double value)
    {
    return _isnan(value);
@@ -169,15 +182,10 @@ inline int isinf(double value)
       return 0;
       }
    }
-#endif //ifdef WIN32
+#endif //ifdef _WIN32
 
 // C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
-
-#ifdef WIN32
-#  include <basetsd.h>
-#endif
-
-#if defined(WIN32) && (_MSC_VER < 1600)
+#if defined(_WIN32) && (_MSC_VER < 1600)
 typedef __int8 int8_t;
 typedef __int16 int16_t;
 typedef __int32 int32_t;
@@ -191,7 +199,7 @@ typedef unsigned __int64 uint64_t;
 // Non-standard 128-bit integer types
 
 #if defined(USE_128BIT_INT)
-#if defined(WIN32)
+#if defined(_WIN32)
 typedef __int128 int128_t;
 typedef unsigned __int128 uint128_t;
 #else
@@ -206,7 +214,7 @@ namespace std {
 
 // Define math functions to identify NaN and Inf values
 
-#ifdef WIN32
+#ifdef _WIN32
 inline bool isfinite(double value)
    {
    switch(_fpclass(value))
@@ -220,7 +228,7 @@ inline bool isfinite(double value)
       return true;
       }
    }
-#endif //ifdef WIN32
+#endif //ifdef _WIN32
 
 //! Operator to concatenate STL vectors
 template <class T>

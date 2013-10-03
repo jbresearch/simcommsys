@@ -84,7 +84,6 @@ public:
    /*! \brief Destructor
     * Destroys the event object.
     */
-   //!
    ~event()
       {
       cudaSafeCall(cudaEventDestroy(eid));

@@ -22,7 +22,7 @@
 
 #include "socket.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <winsock2.h>
 #else
 #  include <cstdlib>
@@ -39,7 +39,7 @@
 #  include <netinet/ip.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 typedef int socklen_t;
 #endif
 
@@ -54,7 +54,7 @@ const int socket::connect_delay = 10;
 
 // static values
 
-#ifdef WIN32
+#ifdef _WIN32
 int socket::objectcount = 0;
 #endif
 
@@ -71,7 +71,7 @@ ssize_t socket::io(T buf, size_t len)
 template <>
 ssize_t socket::io(const void *buf, size_t len)
    {
-#ifdef WIN32
+#ifdef _WIN32
    return send(sd, (const char *)buf, int(len), 0);
 #else
    return ::write(sd, buf, len);
@@ -81,7 +81,7 @@ ssize_t socket::io(const void *buf, size_t len)
 template <>
 ssize_t socket::io(void *buf, size_t len)
    {
-#ifdef WIN32
+#ifdef _WIN32
    return recv(sd, (char *)buf, int(len), 0);
 #else
    return ::read(sd, buf, len);
@@ -115,7 +115,7 @@ socket::socket()
    {
    sd = -1;
    listener = true;
-#ifdef WIN32
+#ifdef _WIN32
    if(objectcount == 0)
       {
       WORD wVersionRequested = MAKEWORD(2,0);
@@ -141,13 +141,13 @@ socket::~socket()
    if (sd >= 0)
       {
       trace << "DEBUG (~socket): closing socket " << sd << std::endl;
-#ifdef WIN32
+#ifdef _WIN32
       closesocket(sd);
 #else
       close(sd);
 #endif
       }
-#ifdef WIN32
+#ifdef _WIN32
    objectcount--;
    if(objectcount == 0)
       {
@@ -176,7 +176,7 @@ bool socket::bind(int16u port)
    sin.sin_port = htons(port);
 
    int opt = 1;
-#ifdef WIN32
+#ifdef _WIN32
    if(setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt)))
 #else
    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
@@ -286,7 +286,7 @@ bool socket::connect(std::string hostname, int16u port)
          return false;
          }
       else
-#ifdef WIN32
+#ifdef _WIN32
          Sleep(connect_delay*1000);
 #else
          sleep(connect_delay);

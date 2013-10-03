@@ -40,6 +40,7 @@ namespace libcomm {
  * - An elements() methods that returns the alphabet size
  * - An erase() method that marks the symbol as erased
  * - An is_erased() method that queries the erasure status of the symbol
+ * - An operator==() comparison between two symbols of that type
  * Typically this will be provided by the erasable<> templated class.
  */
 

@@ -237,6 +237,21 @@ public:
       }
    // @}
 
+   /*! \brief Swap two vectors (constant time)
+    *  This exchanges the elements between two vectors in constant time.
+    *  This is meant to be picked up instead of the global std::swap() function
+    *  using argument-dependent lookup.
+    *  \todo Test this before inclusion.
+    */
+   /*
+   friend void swap(vector<T>& lhs, vector<T>& rhs)
+      {
+      std::swap(lhs.allocator, rhs.allocator);
+      std::swap(lhs.m_data, rhs.m_data);
+      std::swap(lhs.m_size, rhs.m_size);
+      }
+      */
+
    /*! \name Resizing operations */
    /*! \brief Set vector to given size, freeing if and as required
     * This method is guaranteed to leave the vector untouched if the size is
@@ -569,7 +584,7 @@ inline vector<T>::vector(const vector<A>& x) :
    test_invariant();
    alloc(x.size().length());
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 4800 )
 #endif
@@ -577,7 +592,7 @@ inline vector<T>::vector(const vector<A>& x) :
    // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -591,7 +606,7 @@ inline vector<T>::vector(const std::vector<A>& x) :
    test_invariant();
    alloc(x.size());
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 4800 )
 #endif
@@ -599,7 +614,7 @@ inline vector<T>::vector(const std::vector<A>& x) :
    // vector, the process can continue through the assignment operator
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x[i];
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -649,7 +664,7 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    assert((void *) this != (void *) &x);
    init(x.size());
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #endif
@@ -657,7 +672,7 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
    // vector, the process can continue recursively
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x(i);
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -670,14 +685,14 @@ inline vector<T>& vector<T>::operator=(const A x)
    {
    test_invariant();
    // avoid down-cast warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4244 )
 #  pragma warning( disable : 4800 )
 #endif
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] = x;
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -883,13 +898,13 @@ inline vector<T>& vector<T>::operator+=(const vector<T>& x)
    test_invariant();
    assert(x.m_size.length() == m_size.length());
    // avoid bool-related warnings in Win32
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( push )
 #  pragma warning( disable : 4804 4800 )
 #endif
    for (int i = 0; i < m_size.length(); i++)
       m_data[i] += x.m_data[i];
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma warning( pop )
 #endif
    test_invariant();
@@ -1273,11 +1288,13 @@ protected:
    void remove_reference() const;
    //! Validates the current pointer from records
    void validate_reference() const;
+   // @}
+   /*! \name Constructors */
    //! Unique constructor, can be called only by friends
    indirect_vector(vector<T>& x, const int start, const int n)
 #if DEBUG>=2
    :
-   r_size(x.size()), r_data(&x(start))
+   r_size(x.size()), r_data(x.m_data)
 #endif
       {
       Base::test_invariant();
@@ -1295,6 +1312,27 @@ protected:
       }
    // @}
 public:
+   /*! \name Constructors */
+   //! Unique constructor
+   indirect_vector(T* start, const int n)
+#if DEBUG>=2
+   :
+   r_size(n), r_data(start)
+#endif
+      {
+      Base::test_invariant();
+      assert(start);
+      assert(n >= 0);
+      // update base class by shallow copy, if necessary
+      if (n > 0)
+         {
+         Base::m_size = size_type<libbase::vector> (n);
+         Base::m_data = start;
+         }
+      record_reference();
+      Base::test_invariant();
+      }
+   // @}
    /*! \name Law of the Big Three */
    //! Destructor
    virtual ~indirect_vector()

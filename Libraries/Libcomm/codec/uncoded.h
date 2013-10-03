@@ -26,10 +26,7 @@
 #include "config.h"
 
 #include "codec_softout.h"
-#include "fsm.h"
 #include "serializer.h"
-#include <cstdlib>
-#include <cmath>
 
 namespace libcomm {
 
@@ -38,6 +35,9 @@ namespace libcomm {
  * \author  Johann Briffa
  * $Id$
  *
+ * This class represents the simplest possible encoding, where the output is
+ * simply a copy of the input. Equivalently, at the receiving end, the
+ * decoder soft-output is simply a copy of its soft-input.
  */
 
 template <class dbl = double>
@@ -54,34 +54,15 @@ public:
    // @}
 private:
    /*! \name User-specified parameters */
-   //! FSM specifying input-output mapping; must have no memory
-   fsm *encoder;
-   int tau; //!< Number of time-steps
+   int q; //!< Alphabet size (input and output)
+   int N; //!< Length of input/output sequence
    // @}
    /*! \name Computed parameters */
    array1vd_t rp; //!< Intrinsic source statistics
    array1vd_t R; //!< Intrinsic output statistics
    // @}
 protected:
-   /*! \name Internal functions */
-   void init();
-   void free();
-   // @}
-   /*! \name Codec information functions - internal */
-   //! Number of encoder input symbols / timestep
-   int enc_inputs() const
-      {
-      assert(encoder);
-      return encoder->num_inputs();
-      }
-   //! Number of encoder output symbols / timestep
-   int enc_outputs() const
-      {
-      assert(encoder);
-      return encoder->num_outputs();
-      }
-   // @}
-   // Internal codec operations
+   // Internal codec_softout operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
@@ -90,19 +71,9 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   uncoded() :
-      encoder(NULL)
+   uncoded(int q=2, int N=1) :
+      q(q), N(N)
       {
-      }
-   //! Copy constructor
-   uncoded(const uncoded<dbl>& x) :
-      encoder(dynamic_cast<fsm*> (x.encoder->clone())), tau(x.tau), rp(x.rp), R(x.R)
-      {
-      }
-   uncoded(const fsm& encoder, const int tau);
-   ~uncoded()
-      {
-      free();
       }
    // @}
 
@@ -113,21 +84,19 @@ public:
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> input_block_size() const
       {
-      const int k = enc_inputs();
-      return libbase::size_type<libbase::vector>(tau * k);
+      return libbase::size_type<libbase::vector>(N);
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      const int n = enc_outputs();
-      return libbase::size_type<libbase::vector>(tau * n);
+      return libbase::size_type<libbase::vector>(N);
       }
    int num_inputs() const
       {
-      return encoder->num_symbols();
+      return q;
       }
    int num_outputs() const
       {
-      return encoder->num_symbols();
+      return q;
       }
    int tail_length() const
       {

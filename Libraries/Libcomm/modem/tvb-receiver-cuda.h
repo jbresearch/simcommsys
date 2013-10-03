@@ -79,9 +79,11 @@ public:
       std::cerr << "Initialize tvb computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
       std::cerr << "q = " << this->q << std::endl;
-      std::cerr << "N = " << computer.N << std::endl;
-      std::cerr << "I = " << computer.I << std::endl;
-      std::cerr << "xmax = " << computer.xmax << std::endl;
+      std::cerr << "T = " << computer.T << std::endl;
+      std::cerr << "mT_min = " << computer.mT_min << std::endl;
+      std::cerr << "mT_max = " << computer.mT_max << std::endl;
+      std::cerr << "m1_min = " << computer.m1_min << std::endl;
+      std::cerr << "m1_max = " << computer.m1_max << std::endl;
       std::cerr << "Rval = " << computer.Rval << std::endl;
       std::cerr << "Rtable = " << libbase::matrix<real2>(
             computer.Rtable) << std::endl;
@@ -112,22 +114,13 @@ public:
    // @}
    /*! \name Information functions */
    //! Determine the amount of shared memory required per receiver thread
-   size_t receiver_sharedmem(const int n, const int dxmax) const
+   size_t receiver_sharedmem(const int n, const int mn_max) const
       {
-      return computer.receiver_sharedmem(n, dxmax);
+      return computer.receiver_sharedmem(n, mn_max);
       }
    // @}
 #ifdef __CUDACC__
    /*! \name Interface with fba2 algorithm (cannot be changed) */
-   //! Receiver interface
-   __device__
-   real R(int d, int i, const cuda::vector_reference<sig>& r) const
-      {
-      // 'tx' is the vector of transmitted symbols that we're considering
-      const cuda::vector<sig>& tx = encoding_table.extract((i * q + d) * n, n);
-      // compute the conditional probability
-      return computer.receive(tx, r);
-      }
    //! Batch receiver interface
    __device__
    void R(int d, int i, const cuda::vector_reference<sig>& r,

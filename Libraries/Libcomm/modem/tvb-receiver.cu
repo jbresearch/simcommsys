@@ -36,14 +36,21 @@ namespace libcomm {
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
-#define REAL_TYPE_SEQ \
-   (float)(double)
-#define REAL2_TYPE_SEQ \
-   (float)(double)
+#define REAL_PAIRS_SEQ \
+   ((double)(double)) \
+   ((double)(float)) \
+   ((float)(float))
 
-#define INSTANTIATE(r, args) \
+#define INSTANTIATE3(args) \
       template class tvb_receiver<BOOST_PP_SEQ_ENUM(args)>;
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL2_TYPE_SEQ))
+#define INSTANTIATE2(r, symbol, reals) \
+      INSTANTIATE3( symbol reals )
+
+#define INSTANTIATE1(r, symbol) \
+      BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, symbol, REAL_PAIRS_SEQ)
+
+// NOTE: we *have* to use for-each product here as we cannot nest for-each
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1, (GF_TYPE_SEQ))
 
 } // end namespace

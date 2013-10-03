@@ -304,7 +304,7 @@ void CAnnealInterleaverDlg::OnSave()
 /////////////////////////////////////////////////////////////////////////////
 // User Interface message functions
 
-void CAnnealInterleaverDlg::OnTimer(UINT nIDEvent)
+void CAnnealInterleaverDlg::OnTimer(UINT_PTR nIDEvent)
    {
    CString sTemp;
 
@@ -320,7 +320,7 @@ void CAnnealInterleaverDlg::OnTimer(UINT nIDEvent)
         //CDialog::OnTimer(nIDEvent);
    }
 
-LONG CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
+LRESULT CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
    {
    CString sTemp;
 
@@ -346,7 +346,7 @@ LONG CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
    return 0;
    }
 
-LONG CAnnealInterleaverDlg::OnThreadFinish(WPARAM wParam, LPARAM lParam)
+LRESULT CAnnealInterleaverDlg::OnThreadFinish(WPARAM wParam, LPARAM lParam)
    {
    ThreadWaitFinish();
    UpdateButtons(false);

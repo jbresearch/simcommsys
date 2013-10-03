@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <afx.h>
 #  include <conio.h>
 #else
@@ -65,7 +65,7 @@ inline int tracestreambuf::overflow(int c)
       {
       if (!buffer.empty())
          {
-#ifdef WIN32
+#ifdef _WIN32
          TRACE("%s\n", buffer.c_str());
 #else
          std::clog << buffer.c_str() << std::endl;
@@ -73,7 +73,7 @@ inline int tracestreambuf::overflow(int c)
          buffer = "";
          }
       }
-#ifdef WIN32
+#ifdef _WIN32
    // handle TRACE limit in Windows (512 chars including NULL)
 
    else if(buffer.length() == 511)
@@ -95,7 +95,7 @@ std::ostream trace(&g_tracebuf);
 
 const double PI = 3.14159265358979323846;
 
-#ifdef WIN32
+#ifdef _WIN32
 const char DIR_SEPARATOR = '\\';
 #else
 const char DIR_SEPARATOR = '/';
@@ -108,7 +108,7 @@ const int ALIGNMENT = 128;
  */
 int keypressed(void)
    {
-#ifdef WIN32
+#ifdef _WIN32
    return _kbhit();
 #else
    int count = 0;
@@ -139,7 +139,7 @@ int keypressed(void)
  */
 int readkey(void)
    {
-#ifdef WIN32
+#ifdef _WIN32
    return _getch();
 #else
    unsigned char ch;
@@ -213,7 +213,7 @@ bool interrupted(void)
 std::string getlasterror()
    {
    std::ostringstream sout;
-#ifdef WIN32
+#ifdef _WIN32
    TCHAR buf[80];
    DWORD code = GetLastError();
    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, NULL, buf, 80, NULL);

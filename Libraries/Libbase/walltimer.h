@@ -26,7 +26,7 @@
 #include "timer.h"
 
 #include <ctime>
-#ifdef WIN32
+#ifdef _WIN32
 #  include <sys/types.h>
 #  include <sys/timeb.h>
 #else
@@ -49,7 +49,7 @@ namespace libbase {
 class walltimer : public timer {
 private:
    /*! \name Internal representation */
-#ifdef WIN32
+#ifdef _WIN32
    struct _timeb event_start; //!< Start event time object
    mutable struct _timeb event_stop; //!< Stop event time object
 #else
@@ -60,7 +60,7 @@ private:
 
 private:
    /*! \name Internal helper methods */
-#ifdef WIN32
+#ifdef _WIN32
    static double convert(const struct _timeb& tb)
       {
       return tb.time + double(tb.millitm) * 1E-3;
@@ -77,7 +77,7 @@ protected:
    /*! \name Interface with derived class */
    void do_start()
       {
-#ifdef WIN32
+#ifdef _WIN32
       _ftime(&event_start);
 #else
       struct timezone tz;
@@ -86,7 +86,7 @@ protected:
       }
    void do_stop() const
       {
-#ifdef WIN32
+#ifdef _WIN32
       _ftime(&event_stop);
 #else
       struct timezone tz;
@@ -117,7 +117,7 @@ public:
    /*! \name Timer information */
    double resolution() const
       {
-#ifdef WIN32
+#ifdef _WIN32
       return 1e-3;
 #else
       return 1e-6;

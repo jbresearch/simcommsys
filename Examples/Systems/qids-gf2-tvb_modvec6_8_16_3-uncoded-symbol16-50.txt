@@ -84,11 +84,9 @@ tvb<gf2,double,float>
 map_straight<vector,double>
 ## Codec
 uncoded<double>
-# Encoder
-cached_fsm
-#: Base Encoder
-zsm<symbol<16>>
-#: Repetition count
+# Version
 1
+# Alphabet size
+16
 # Block length
 50
