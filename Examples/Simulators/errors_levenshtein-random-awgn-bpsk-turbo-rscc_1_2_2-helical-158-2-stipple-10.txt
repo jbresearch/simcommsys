@@ -1,0 +1,51 @@
+commsys_simulator<sigspace,errors_levenshtein>
+# Version
+2
+# Input mode (0=zero, 1=random, 2=user[seq])
+1
+# Communication system
+commsys<sigspace,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+mpsk
+# Alphabet size in symbols
+2
+## Mapper
+map_stipple<vector,double>
+# Stride for stipple mapper
+2
+## Codec
+turbo<double,double>
+# Version
+2
+# Encoder
+rscc
+1       2
+111     101
+# Number of parallel sets
+2
+# Interleaver 0
+flat<double>
+# Interleaver size
+158
+# Interleaver 1
+helical<double>
+# Interleaver size
+158
+# Number of rows
+13
+# Number of cols
+12
+# Terminated?
+1
+# Circular?
+0
+# Parallel decoder?
+0
+# Number of iterations
+10
