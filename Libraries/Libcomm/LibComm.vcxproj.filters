@@ -733,5 +733,8 @@
     <ClInclude Include="fsm\zsm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="channel\qids-utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

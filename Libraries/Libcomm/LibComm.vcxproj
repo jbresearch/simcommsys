@@ -339,6 +339,7 @@
     <ClInclude Include="bcjr.h" />
     <ClInclude Include="channel\bpmr.h" />
     <ClInclude Include="channel\qec.h" />
+    <ClInclude Include="channel\qids-utils.h" />
     <ClInclude Include="channel_insdel.h" />
     <ClInclude Include="codec\codec_softout_mapped.h" />
     <ClInclude Include="experiment\binomial\result_collector\commsys\fidelity_pos.h" />
