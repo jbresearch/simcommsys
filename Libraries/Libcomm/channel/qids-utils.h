@@ -94,7 +94,7 @@ private:
    struct compare_pairs {
       bool operator()(const pair& lhs, const pair& rhs) const
          {
-         return lhs.a < rhs.a || lhs.b < rhs.b;
+         return lhs.a < rhs.a || (lhs.a == rhs.a && lhs.b < rhs.b);
          }
    };
    // @}
