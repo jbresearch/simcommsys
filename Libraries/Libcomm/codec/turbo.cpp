@@ -374,6 +374,19 @@ template <class real, class dbl>
 void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
    assert(source.size() == This::input_block_size());
+   
+   /*Test code added by nf - BEGIN
+   for(int i = 0; i < source.size(); i++)
+      {
+      std::cout << source(i) << std::endl;
+      }
+
+   for(int i = 0; i < encoded.size(); i++)
+      {
+      std::cout << encoded(i) << std::endl;
+      }
+   /*Test code added by nf - BEGIN*/
+   
    // Inherit sizes
    const int sets = num_sets();
    const int tau = num_timesteps();
@@ -459,6 +472,19 @@ void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 template <class real, class dbl>
 void turbo<real, dbl>::softdecode(array1vd_t& ri)
    {
+   
+   /*Test code added by nf - BEGIN*/
+   for(int i = 0; i < ri.size(); i++)
+      {
+      std::cout << "i = " << i << std::endl;
+      std::cin.get();
+      for(int j = 0; j < ri(i).size(); j++)
+         {
+         std::cout << ri(i)(j) << std::endl;
+         }
+      }
+   /*Test code added by nf - BEGIN*/
+
    // temporary space to hold complete results (ie. with tail)
    array2d_t rif;
    // do one iteration, in serial or parallel as required
