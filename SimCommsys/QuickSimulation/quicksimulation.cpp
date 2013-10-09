@@ -201,4 +201,5 @@ int main(int argc, char *argv[])
    std::cout << "test";
    std::cin.get();
    return QuickSimulation::main(argc, argv);
+   std::cin.get();
    }
