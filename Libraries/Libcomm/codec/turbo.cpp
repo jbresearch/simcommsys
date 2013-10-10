@@ -472,16 +472,11 @@ void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 template <class real, class dbl>
 void turbo<real, dbl>::softdecode(array1vd_t& ri)
    {
+   //array1d_t test = ra.m_data;
    /*Test code added by nf - BEGIN*/
-   for(int i = 0; i < ra.size(); i++)
+   for(int i = 0; i < ra.m_size; i++)
       {
-      std::cout << ra(i) << std::endl;
-      /*std::cout << "i = " << i << std::endl;
-      //std::cin.get();
-      for(int j = 0; j < ra(i).size(); j++)
-         {
-         std::cout << ra(i)(j) << std::endl;
-         }*/
+      std::cout << ra << std::endl;
       }
    /*Test code added by nf - BEGIN*/
 
