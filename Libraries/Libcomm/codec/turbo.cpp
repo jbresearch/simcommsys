@@ -474,10 +474,10 @@ void turbo<real, dbl>::softdecode(array1vd_t& ri)
    {
    //array1d_t test = ra.m_data;
    /*Test code added by nf - BEGIN*/
-   for(int i = 0; i < ra.m_size; i++)
+   /*for(int i = 0; i < ra.m_size; i++)
       {
       std::cout << ra << std::endl;
-      }
+      }*/
    /*Test code added by nf - BEGIN*/
 
    // temporary space to hold complete results (ie. with tail)
