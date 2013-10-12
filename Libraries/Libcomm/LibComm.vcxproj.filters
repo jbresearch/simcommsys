@@ -362,6 +362,9 @@
     <ClCompile Include="codec\memoryless.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="codec\conv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annealer\system\anneal_interleaver.h">
@@ -734,6 +737,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="channel\qids-utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\conv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
