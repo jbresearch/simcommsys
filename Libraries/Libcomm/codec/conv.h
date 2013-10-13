@@ -23,6 +23,8 @@
 #ifndef __conv_h
 #define __conv_h
 
+#include <string>
+
 #include "config.h"
 
 #include "codec_softout.h"
@@ -56,6 +58,9 @@ private:
    /*! \name User-specified parameters */
    int q; //!< Alphabet size (input and output)
    int N; //!< Length of input/output sequence
+   int inp_bits; //number of input bits
+   int out_bits; //number of output bits
+   std::string temp;
    // @}
    /*! \name Computed parameters */
    array1vd_t rp; //!< Intrinsic source statistics
