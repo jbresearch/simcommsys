@@ -191,7 +191,6 @@ int main(int argc, char *argv[])
          }
          break;
       }
-   std::cin.get();
    return 0;
    }
 
@@ -199,7 +198,5 @@ int main(int argc, char *argv[])
 
 int main(int argc, char *argv[])
    {
-   std::cout << "test";
-   std::cin.get();
    return QuickSimulation::main(argc, argv);
    }

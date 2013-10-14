@@ -127,15 +127,22 @@ std::ostream& conv<dbl>::serialize(std::ostream& sout) const
 template <class dbl>
 std::istream& conv<dbl>::serialize(std::istream& sin)
    {
-   // get format version
    int version;
+   sin >> libbase::eatcomments >> version;
+   // read the alphabet size and block length
+   sin >> libbase::eatcomments >> q >> libbase::verify;
+   sin >> libbase::eatcomments >> N >> libbase::verify;
+   return sin;
+   
+   // get format version
+   /*int version;
    sin >> libbase::eatcomments >> version;
    // read the alphabet size and block length
    sin >> libbase::eatcomments >> inp_bits >> libbase::verify;
    sin >> libbase::eatcomments >> out_bits >> libbase::verify;
    sin >> libbase::eatcomments >> temp >> libbase::verify;
    sin >> libbase::eatcomments >> temp >> libbase::verify;
-   return sin;
+   return sin;*/
    }
 
 } // end namespace
