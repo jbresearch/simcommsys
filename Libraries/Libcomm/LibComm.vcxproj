@@ -234,7 +234,6 @@
     <ClCompile Include="channel\bpmr.cpp" />
     <ClCompile Include="channel\qec.cpp" />
     <ClCompile Include="channel\qids-utils.cpp" />
-    <ClCompile Include="codec\conv.cpp" />
     <ClCompile Include="codec\memoryless.cpp" />
     <ClCompile Include="experiment\binomial\result_collector\commsys\fidelity_pos.cpp" />
     <ClCompile Include="fsm\zsm.cpp" />
@@ -343,7 +342,6 @@
     <ClInclude Include="channel\qids-utils.h" />
     <ClInclude Include="channel_insdel.h" />
     <ClInclude Include="codec\codec_softout_mapped.h" />
-    <ClInclude Include="codec\conv.h" />
     <ClInclude Include="experiment\binomial\result_collector\commsys\fidelity_pos.h" />
     <ClInclude Include="field_utils.h" />
     <ClInclude Include="fsm\zsm.h" />

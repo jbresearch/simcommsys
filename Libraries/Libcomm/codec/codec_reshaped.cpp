@@ -44,7 +44,6 @@ std::istream& codec_reshaped<base_codec>::serialize(std::istream& sin)
 
 #include "turbo.h"
 #include "uncoded.h"
-#include "conv.h"
 #include "ldpc.h"
 
 #include "gf.h"
@@ -110,18 +109,6 @@ BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_TURBO, x, REAL_TYPE_SEQ)
             codec_reshaped<uncoded<type> >::create); \
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_UNCODED, x, (double))
-
-/**** Conv code ****/
-#define INSTANTIATE_CONV(r, x, type) \
-      template class codec_reshaped<conv<type> >; \
-      template <> \
-      const serializer codec_reshaped<conv<type> >::shelper( \
-            "codec", \
-            "codec_reshaped<conv<" BOOST_PP_STRINGIZE(type) ">>", \
-            codec_reshaped<conv<type> >::create); \
-
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_CONV, x, (double))
-/**** Conv code ****/
 
 /*** LDPC codes ***/
 

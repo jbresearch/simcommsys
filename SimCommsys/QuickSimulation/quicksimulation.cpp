@@ -191,7 +191,6 @@ int main(int argc, char *argv[])
          }
          break;
       }
-   std::cin.get();
    return 0;
    }
 

@@ -22,6 +22,19 @@
 
 #include "config.h"
 
+/* Define the version of Windows required (assume that this will work with
+ * the last version)
+ * NOTE: Moving the definition to config.h is breaking other files (since this
+ *    is included in quite a number of places if not from everywhere). While
+ *    this is not the cleanest solution, it is not doing any harm. Please
+ *    investigate further before moving.
+ */
+#ifdef _WIN32
+#  ifndef _WIN32_WINNT
+#    define _WIN32_WINNT _WIN32_WINNT_MAXVER
+#  endif
+#endif
+
 #ifdef _WIN32
 #  include <afx.h>
 #  include <conio.h>

@@ -327,12 +327,6 @@
     <ClInclude Include="wmdefines.h" />
     <ClInclude Include="WorkerThread.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Libbase\LibBase.vcxproj">
-      <Project>{9b5d3d4e-f023-458a-ae92-cd8a6c30c715}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

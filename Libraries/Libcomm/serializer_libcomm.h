@@ -101,7 +101,6 @@
 #include "codec/sysrepacc.h"
 #include "codec/reedsolomon.h"
 #include "codec/ldpc.h"
-#include "codec/conv.h"
 
 // Signal Mappers
 #include "mapper.h"
@@ -201,7 +200,6 @@ private:
    // Codecs
    memoryless<double> _memoryless;
    uncoded<double> _uncoded;
-   conv<double> _conv;
    //mapcc<double> _mapcc;
    turbo<double, double> _turbo;
    codec_reshaped<turbo<double, double> > _reshaped_turbo;

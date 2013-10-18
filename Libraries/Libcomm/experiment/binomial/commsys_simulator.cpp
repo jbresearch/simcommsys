@@ -99,14 +99,6 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    result = 0;
    // Create source stream
    libbase::vector<int> source = createsource();
-   
-   /*Code added by nf for testing - BEGIN
-   for(int i = 0; i < source.size(); i++)
-      {
-      std::cout << source(i) << std::endl;
-      }
-   /*Code added by nf for testing - END*/
-      
    // Encode -> Map -> Modulate
    libbase::vector<S> transmitted = sys->encode_path(source);
    // Transmit
