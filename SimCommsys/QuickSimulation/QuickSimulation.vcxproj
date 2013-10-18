@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <ProjectGuid>{F05E942A-AAA8-D2E5-4EAE-6A06AB0514CF}</ProjectGuid>
     <RootNamespace>QuickSimulation</RootNamespace>
     <Keyword>MFCProj</Keyword>
   </PropertyGroup>

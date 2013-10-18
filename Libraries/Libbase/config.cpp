@@ -23,6 +23,12 @@
 #include "config.h"
 
 #ifdef _WIN32
+
+//Define the version of Windows required (assume that this will work with the last version)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_MAXVER
+#endif
+
 #  include <afx.h>
 #  include <conio.h>
 #else

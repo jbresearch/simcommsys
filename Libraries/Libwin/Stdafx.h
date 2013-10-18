@@ -27,6 +27,11 @@
 //      are changed infrequently
 //
 
+//Define the version of Windows required (assume that this will work with the last version)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_MAXVER
+#endif
+
 #if !defined(AFX_STDAFX_H__BE2799D9_4B73_4F77_AFC9_9FFCAC17D8C5__INCLUDED_)
 #define AFX_STDAFX_H__BE2799D9_4B73_4F77_AFC9_9FFCAC17D8C5__INCLUDED_
 

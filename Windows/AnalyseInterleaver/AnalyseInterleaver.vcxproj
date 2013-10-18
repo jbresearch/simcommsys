@@ -335,6 +335,9 @@
       <Project>{71894951-8bbe-4395-ae64-56f6966a7f82}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\..\Libraries\Libimage\LibImage.vcxproj">
+      <Project>{b877e04a-b5b4-4fe0-8694-22a9ea985415}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Libraries\Libwin\LibWin.vcxproj">
       <Project>{6f1a4b11-07e1-48b2-8d13-82fc02b70ae0}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
