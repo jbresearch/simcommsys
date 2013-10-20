@@ -61,6 +61,7 @@
 #include "modem/dminner.h"
 #include "modem/tvb.h"
 #include "modem/marker.h"
+#include "modem/conv.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -185,6 +186,8 @@ private:
    // Modulators
    direct_modem<bool> _direct_modem_bool;
    direct_blockmodem<bool> _direct_blockmodem_bool;
+
+   conv _conv;
    mpsk _mpsk;
    qam _qam;
    dminner<double> _dminner;
@@ -226,7 +229,7 @@ private:
    exit_computer<bool> _exit_computer;
 public:
    serializer_libcomm() :
-      _mpsk(2), _qam(4)
+      _mpsk(2), _qam(4), _conv()
       {
       }
 };
