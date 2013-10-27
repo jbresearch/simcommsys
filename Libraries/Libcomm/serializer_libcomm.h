@@ -187,11 +187,11 @@ private:
    direct_modem<bool> _direct_modem_bool;
    direct_blockmodem<bool> _direct_blockmodem_bool;
 
-   conv _conv;
    mpsk _mpsk;
    qam _qam;
    dminner<double> _dminner;
    tvb<bool, double, float> _tvb;
+   conv<bool, double, float> _conv;
    marker<bool, double, float> _marker;
    // Convolutional Encoders
    //nrcc _nrcc;
