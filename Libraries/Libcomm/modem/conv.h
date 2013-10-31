@@ -111,10 +111,11 @@ private:
    /*Conv Codes parameters - END*/
 
    /*Conv Codes Functions - BEGIN*/
-   std::string oct2bin(std::string input, int size);
+   std::string oct2bin(std::string input, int size, int type);
    int bin2int(std::string binary);
    bool toBool(char const& bit);
-   void fill_state_diagram();
+   void fill_state_diagram_fb();
+   void fill_state_diagram_ff(int* m_arr);
    void disp_statetable();
    /*Conv Codes Functions - END*/
 

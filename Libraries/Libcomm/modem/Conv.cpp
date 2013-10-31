@@ -493,44 +493,204 @@ std::istream& conv<sig, real, real2>::serialize(std::istream& sin)
 
    sin >> libbase::eatcomments >> n >> libbase::verify;
    
-   sin >> libbase::eatcomments >> m >> libbase::verify;
-
-   ffcodebook.init(k,n);
-   fbcodebook.init(k,n);  
-
-   std::string temp;
-
    sin >> libbase::eatcomments;
 
-   for(int row = 0; row < k; row++)
+   //FeedForward
+   if(type == 0)
       {
-      for(int col = 0; col < n; col++)
+      ffcodebook.init(k,n);
+      std::string temp;
+      
+      std::string* ff_arr = new std::string[n*k];
+      
+      int * m_arr = new int[k];
+      //Initializing m_arr to all 0
+      for(int i = 0; i < k; i++)
+         m_arr[i] = 0;
+
+      //Getting m for each input, and setting m
+      int str_size = 0;
+      int cnt = 0;
+      for(int row = 0; row < k; row++)
          {
-         sin >> temp;
-         ffcodebook(row,col) = oct2bin(temp,m+1);
-         std::cout << ffcodebook(row,col) << std::endl;
+         for(int col = 0; col < n; col++)
+            {
+            sin >> temp;
+            ff_arr[cnt] = temp;
+            cnt++;
+            str_size = oct2bin(temp,0,0).size()-1;
+            if(str_size > m_arr[row])
+               m_arr[row] = str_size;
+            }
          }
+
+      cnt = 0;
+      for(int row = 0; row < k; row++)
+         {
+         for(int col = 0; col < n; col++)
+            {
+            std::cout << ff_arr[cnt] << std::endl;
+            std::cout << oct2bin(ff_arr[cnt], m_arr[row]+1, type) << std::endl;
+            ffcodebook(row,col) = oct2bin(ff_arr[cnt], m_arr[row]+1, type);
+            cnt++;
+            std::cout << ffcodebook(row,col) << std::endl;
+            }
+         }
+
+      fill_state_diagram_ff(m_arr);
+
       }
 
-   sin >> libbase::eatcomments;
-
-   for(int row = 0; row < k; row++)
+   //Feedback
+   if(type > 0)
       {
-      for(int col = 0; col < n; col++)
+      ffcodebook.init(k,n);
+      fbcodebook.init(k,n);  
+
+      std::string temp;
+      m = 0;
+      std::string* ff_arr = new std::string[n*k];
+      std::string* fb_arr = new std::string[n*k];
+
+      for(int cnt = 0; cnt < (k*n); cnt++)
          {
-         sin >> temp;
-         fbcodebook(row,col) = oct2bin(temp,m+1);
-         std::cout << fbcodebook(row,col) << std::endl;
+            sin >> temp;
+            ff_arr[cnt] = temp;
+            if(oct2bin(temp,0,0).size() > m)
+               m = oct2bin(temp,0,0).size();
          }
+
+      sin >> libbase::eatcomments;
+
+      for(int cnt = 0; cnt < (k*n); cnt++)
+         {
+            sin >> temp;
+            fb_arr[cnt] = temp;
+            if(oct2bin(temp,0,0).size() > m)
+               m = oct2bin(temp,0,0).size();
+         }
+
+      int counter = 0;
+      for(int row = 0; row < k; row++)
+         {
+         for(int col = 0; col < n; col++)
+            {            
+            ffcodebook(row,col) = oct2bin(ff_arr[counter],m, type);
+            counter++;
+            std::cout << ffcodebook(row,col) << std::endl;
+            }
+         }
+
+      counter = 0;
+      for(int row = 0; row < k; row++)
+         {
+         for(int col = 0; col < n; col++)
+            {
+            fbcodebook(row,col) = oct2bin(fb_arr[counter],m, type);
+            counter++;
+            std::cout << fbcodebook(row,col) << std::endl;
+            }
+         }
+      delete[] fb_arr;
+      delete[] ff_arr;
+      m--;
+      fill_state_diagram_fb();
       }
-   
-   fill_state_diagram();
+
    //init();
    return sin;
    }
 
 template <class sig, class real, class real2>
-void conv<sig,real,real2>::fill_state_diagram()
+void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
+   {
+   //Getting the number of states
+   int num_states = 0;
+
+   for(int i=0;i<k;i++)
+      num_states+=m_arr[i];
+   
+   //Fill the state table
+   int comb = k+num_states;
+   int no_rows = pow(2,comb);
+   int no_cols = k+(2*num_states)+n;
+
+   statetable.init(no_rows,no_cols);
+
+   bool currbit = 0;
+   int cnt_rows = no_rows;
+   int counter = cnt_rows/2;
+   //Filling input and current state
+   for(int col = 0; col < no_cols; col++)
+      {
+      cnt_rows /= 2;
+      counter = cnt_rows;
+      currbit = 0;
+      for(int row = 0; row < no_rows; row++)
+         {
+         if(col >= comb)
+            statetable(row,col)=currbit;
+         else
+            {
+            if(counter == 0)
+               {
+               counter = cnt_rows;
+               currbit = !currbit;
+               }
+            statetable(row,col)=currbit;
+            counter--;
+            }
+         }
+      }
+
+   //Fill output and next state
+   int state_begin = k;
+   int state_end = k+m_arr[0]-1;
+   int state_cnt = state_begin;
+   bool temp_out = 0;
+   int out_start = k+(num_states*2);
+   for(int inp_cnt = 0; inp_cnt < k; inp_cnt++)
+      {
+         for(int row = 0; row < no_rows; row++)
+            {
+            //Working outputs
+            for(int out_cnt = 0; out_cnt < n; out_cnt++)
+               {
+               temp_out = 0;
+               state_cnt = state_begin;
+               //Working effect of input
+               bool a = statetable(row,inp_cnt);
+               bool b = toBool(ffcodebook(inp_cnt,out_cnt)[0]);
+               temp_out = temp_out ^ (statetable(row,inp_cnt) & toBool(ffcodebook(inp_cnt,out_cnt)[0]));
+               //Working effect of shift registers
+               for(int conn_cnt = 1; conn_cnt < (m_arr[inp_cnt]+1); conn_cnt++)
+                  {
+                     bool c = statetable(row,state_cnt);
+                     bool d = toBool(ffcodebook(inp_cnt,out_cnt)[conn_cnt]);
+                     temp_out = temp_out ^ (statetable(row,state_cnt) & toBool(ffcodebook(inp_cnt,out_cnt)[conn_cnt]));
+                     state_cnt++;
+                  }
+               statetable(row,out_cnt+out_start) ^= temp_out;
+               }
+            //Working next state
+            state_cnt = state_begin;
+            statetable(row,state_cnt+num_states) = statetable(row,inp_cnt);
+            //state_begin++;
+            for(int i = 0; i < m_arr[inp_cnt]-1;i++)
+               {
+               statetable(row, state_cnt+num_states+1) = statetable(row,state_cnt);
+               state_cnt++;
+               }
+            }
+         state_begin = state_end + 1;
+         state_end = state_end + m_arr[inp_cnt]-1;
+      }
+
+   disp_statetable();
+   }
+   
+template <class sig, class real, class real2>
+void conv<sig,real,real2>::fill_state_diagram_fb()
    {
    //Fill the state table
    int comb = k+m;
@@ -567,7 +727,7 @@ void conv<sig,real,real2>::fill_state_diagram()
    
 
    //Filling Output and Next State
-   if(type == 0)
+   if(type == 1)
       {
       bool feedback = 0;
       bool feedback_worked = 0;
@@ -631,8 +791,99 @@ void conv<sig,real,real2>::fill_state_diagram()
             statetable(row,(m+1)) = feedback;
          }
       }
-   else if (type == 1)
+   else if (type == 2)
       {
+      bool feedback = 0;
+      int output_col = k+2*m;//location of first output index
+      int input_col = 0;
+      bool output = 0;
+      bool temp_out = 0;
+
+      int fb_loc = 0;
+
+      for(int row = 0; row < no_rows; row++)
+         {
+         /*Resetting every iteration*/
+         feedback = 0;
+         output_col = k+2*m;//location of first output index
+         input_col = 0;
+         //output = 0;
+         temp_out = 0;
+         
+         if(row == 2)
+            {
+              std::cout << "h";
+            }
+         //Working the outputs
+         for(int out_cnt =0;out_cnt < n; out_cnt++)
+            {
+            for(int inp_cnt = 0; inp_cnt < k; inp_cnt++)
+               {
+               int state_loc = (k+m)-1; 
+               temp_out = 0;
+               if(bin2int(fbcodebook(inp_cnt,out_cnt)) == 0)//no feedback
+                  {
+                  for(int i = 0; i < (m+1); i++)
+                     {
+                     if(i < m) //Getting the states
+                        {
+                        bool x = toBool(ffcodebook(inp_cnt,out_cnt)[i]);
+                        bool y = statetable(row,state_loc);
+                        temp_out = temp_out ^ (toBool(ffcodebook(inp_cnt,out_cnt)[i]) & statetable(row,state_loc));
+                        state_loc--;   
+                        }
+                     else //Getting the relevant input
+                        {
+                        bool x = toBool(ffcodebook(inp_cnt,out_cnt)[i]);
+                        bool y = statetable(row,inp_cnt);
+                        temp_out = temp_out ^ (toBool(ffcodebook(inp_cnt,out_cnt)[i]) & statetable(row,inp_cnt));
+                        }
+                     }
+                  output = output ^ temp_out;
+                  }
+               else//has feedback
+                  {
+                  fb_loc = out_cnt;
+                  bool x = toBool(ffcodebook(inp_cnt,out_cnt)[m]);
+                  bool y = statetable(row,inp_cnt);
+                  output = output ^ (toBool(ffcodebook(inp_cnt,out_cnt)[m]) & statetable(row,inp_cnt));
+                  if(inp_cnt == (k-1))
+                     {
+                     output = output ^ statetable(row,(k+m)-1);
+                     feedback = output;
+                     }
+                  }
+               }
+            statetable(row,output_col) = output;
+            output = 0;
+            output_col++;
+            }
+
+            //Working next state
+            int state_loc = k+m;
+            bool state = 0;
+            int inp_cnt = 0;
+            for(int i = 0; i < m; i++)
+               {
+               for(inp_cnt = 0; inp_cnt < k; inp_cnt++)
+                  {
+                  bool x = toBool(ffcodebook(inp_cnt,fb_loc)[i]);
+                  bool y = statetable(row,inp_cnt);
+                  state = state ^ ( toBool(ffcodebook(inp_cnt,fb_loc)[i]) & statetable(row,inp_cnt));
+                  }
+               bool t = toBool(fbcodebook(0,fb_loc)[i]);
+               state = state ^ ( toBool(fbcodebook(0,fb_loc)[i]) & feedback);
+               //check whether it has previous state
+               if((state_loc-1) >= (k+m))
+                  {
+                  bool a = statetable(row, (state_loc-m-1));
+                  state = state ^ statetable(row, (state_loc-m-1));
+                  }
+               statetable(row,state_loc) = state;
+               state = 0;
+               state_loc++;
+               }
+         }
       }
 
    disp_statetable();
@@ -644,7 +895,7 @@ Input is the integer that needs to be converted
 Size is the number of bits that you want the result
 Ex. Converting the integer 1, with size 3 will give 001 instead of just 1*/
 template <class sig, class real, class real2>
-std::string conv<sig, real, real2>::oct2bin(std::string input, int size)
+std::string conv<sig, real, real2>::oct2bin(std::string input, int size, int type)
    {
    int div = 0;
    int rem = 0;
@@ -673,14 +924,17 @@ std::string conv<sig, real, real2>::oct2bin(std::string input, int size)
       if(div == 0)
          {
          reverse(binary_stream.begin(), binary_stream.end());
-			
-         if(binary_stream.size() != size)
+	 
+         if(binary_stream.size() != size && size > 0)
             {
             int bitstream_size = binary_stream.size();
 				
             for(int i = 0; i < size - bitstream_size; i++)
                {
-               binary_stream = binary_stream + "0";
+               if(type == 1)
+                  binary_stream = binary_stream + "0";
+               else
+                  binary_stream = "0" + binary_stream;
                }
             }
 
