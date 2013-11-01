@@ -105,6 +105,7 @@ private:
    int k; //input
    int n; //output
    int m; //m highest degree polynomial of G(D)
+   int no_states;
    libbase::matrix<std::string> ffcodebook; //Feedforward connection string
    libbase::matrix<std::string> fbcodebook; //Feedback connection string
    libbase::matrix<bool> statetable;
@@ -117,6 +118,8 @@ private:
    void fill_state_diagram_fb();
    void fill_state_diagram_ff(int* m_arr);
    void disp_statetable();
+   std::string toString(int number);
+   char toChar(bool bit);
    /*Conv Codes Functions - END*/
 
 

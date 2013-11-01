@@ -30,6 +30,9 @@
 #include <sstream>
 #include <iostream>
 
+#include <bitset>
+#include <limits>
+
 namespace libcomm {
 
 // Determine debug level:
@@ -48,42 +51,72 @@ void conv<sig, real, real2>::advance() const
    {
    }
 
-
-
 // encoding and decoding functions
 
 template <class sig, class real, class real2>
 void conv<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
       array1s_t& tx)
    {
-   tx.init(encoded.size());
-   for(int i = 0; i < encoded.size(); i++)
+   //Display encoded stream
+   for(int z = 0; z < encoded.size();z++)
       {
-      std::cout << encoded(i) << std::endl;
-      tx(i) = encoded(i);
-      //std::cout << tx(i) << std::endl;
+      std::cout << encoded(z) << std::endl;
       }
-   //tx = encoded;
-   // TODO: when N is removed from the interface, rename 'tau' to 'N'
-   // Inherit sizes
-   /*const int tau = this->input_block_size();
-   // Check validity
-   assertalways(tau == encoded.size());
-   // Each 'encoded' symbol must be representable by a single codeword
-   assertalways(N == q);
-   // Initialise result vector
-   tx.init(n * tau);
-   assertalways(encoding_table.size().rows() == tau + lookahead);
-   assertalways(encoding_table.size().cols() == q);
-   // Encode source stream
-   for (int i = 0; i < tau; i++)
-      tx.segment(i * n, n) = encoding_table(i, encoded(i));
    
+   //TODO: Check Setting transmission size, no. of encoded bits *
+   int tx_size = (ceil((double)(encoded.size()/k)))*n;
+   tx.init(tx_size);
+
+   int tx_cnt = 0;
+
+   int out_loc = k+(no_states*2);
+   int ns_loc = k+no_states;//next state location
+
+   std::string curr_state = "";
+
+   std::string input_and_state = "";
+
+   for(int s = 0; s < no_states;s++)
+      {
+      curr_state = curr_state + "0";
+      }
    
-#if DEBUG>=3
-   std::cerr << "encoded = " << encoded << std::endl;
-   std::cerr << "tx = " << tx << std::endl;
-#endif*/
+   //for(int i = 0; i < encoded.size(); i++)
+   std::string input = "";
+   int i = 0;
+   int ab = encoded.size();
+   while(i < encoded.size())
+      {
+      input = "";
+      for(int j = 0;j < k;j++)
+         {
+         if(i > encoded.size())
+            input += "0";
+         else
+            input += toString(encoded(i));
+
+         i++;
+         }
+
+      input_and_state = input + curr_state;
+      int row = bin2int(input_and_state);
+      for(int out_cnt = 0; out_cnt < n; out_cnt++)
+         {
+         tx(tx_cnt) = statetable(row, out_loc+out_cnt);
+         tx_cnt++;
+         }
+      
+      for(int cnt = 0; cnt < no_states; cnt++)
+         {
+         curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
+         }
+      }
+      
+      std::cout << "Encoded" << std::endl;
+      for(int d = 0; d < tx.size();d++)
+         {
+         std::cout << tx(d) << " ";
+         }  
    }
 
 template <class sig, class real, class real2>
@@ -605,15 +638,15 @@ template <class sig, class real, class real2>
 void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
    {
    //Getting the number of states
-   int num_states = 0;
+   no_states = 0;
 
    for(int i=0;i<k;i++)
-      num_states+=m_arr[i];
+      no_states+=m_arr[i];
    
    //Fill the state table
-   int comb = k+num_states;
+   int comb = k+no_states;
    int no_rows = pow(2,comb);
-   int no_cols = k+(2*num_states)+n;
+   int no_cols = k+(2*no_states)+n;
 
    statetable.init(no_rows,no_cols);
 
@@ -648,7 +681,7 @@ void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
    int state_end = k+m_arr[0]-1;
    int state_cnt = state_begin;
    bool temp_out = 0;
-   int out_start = k+(num_states*2);
+   int out_start = k+(no_states*2);
    for(int inp_cnt = 0; inp_cnt < k; inp_cnt++)
       {
          for(int row = 0; row < no_rows; row++)
@@ -674,11 +707,11 @@ void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
                }
             //Working next state
             state_cnt = state_begin;
-            statetable(row,state_cnt+num_states) = statetable(row,inp_cnt);
+            statetable(row,state_cnt+no_states) = statetable(row,inp_cnt);
             //state_begin++;
             for(int i = 0; i < m_arr[inp_cnt]-1;i++)
                {
-               statetable(row, state_cnt+num_states+1) = statetable(row,state_cnt);
+               statetable(row, state_cnt+no_states+1) = statetable(row,state_cnt);
                state_cnt++;
                }
             }
@@ -693,6 +726,7 @@ template <class sig, class real, class real2>
 void conv<sig,real,real2>::fill_state_diagram_fb()
    {
    //Fill the state table
+   no_states = m;
    int comb = k+m;
    int no_rows = pow(2,comb);
    int no_cols = k+(2*m)+n;
@@ -810,10 +844,6 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
          //output = 0;
          temp_out = 0;
          
-         if(row == 2)
-            {
-              std::cout << "h";
-            }
          //Working the outputs
          for(int out_cnt =0;out_cnt < n; out_cnt++)
             {
@@ -978,6 +1008,23 @@ void conv<sig,real,real2>::disp_statetable()
          }
       std::cout << std::endl;
       }
+   }
+
+template<class sig, class real, class real2>
+std::string conv<sig,real,real2>::toString(int number)
+   {
+   std::stringstream ss;//create a stringstream
+   ss << number;
+   return ss.str();
+   }
+
+template<class sig, class real, class real2>
+char conv<sig,real,real2>::toChar(bool bit)
+   {
+   if(bit)
+      return '1';
+   else
+      return '0';
    }
 } // end namespace
 
