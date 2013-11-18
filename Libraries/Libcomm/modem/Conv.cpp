@@ -287,9 +287,10 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 
    double beta_total = 0.0;
 
-   for(int col = beta.size().cols()-1; col > 0; col--)
+   for(int col = beta.size().cols()-2; col > 0; col--)
       {
-      for(int row = 0; row > beta.size().rows();row++)
+      beta_total = 0.0;
+      for(int row = 0; row < beta.size().rows();row++)
          {
          for(int input = 0; input < inp_combinations; input++)
             {
@@ -304,7 +305,7 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
                }
             _nxt_state = bin2int(str_nxt_state);
 
-            beta(row,col) += beta(_nxt_state,col+1)*gamma(_nxt_state,col)[row];
+            beta(row,col) += beta(_nxt_state,col+1)*gamma(_nxt_state,col)[row];//error here
             }
          beta_total += beta(row,col); 
          }
