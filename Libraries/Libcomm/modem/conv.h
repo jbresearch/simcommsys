@@ -114,12 +114,14 @@ private:
    /*Conv Codes Functions - BEGIN*/
    std::string oct2bin(std::string input, int size, int type);
    int bin2int(std::string binary);
+   std::string int2bin(int input, int size);
    bool toBool(char const& bit);
    void fill_state_diagram_fb();
    void fill_state_diagram_ff(int* m_arr);
    void disp_statetable();
    std::string toString(int number);
    char toChar(bool bit);
+   int toInt(bool bit);
    /*Conv Codes Functions - END*/
 
 

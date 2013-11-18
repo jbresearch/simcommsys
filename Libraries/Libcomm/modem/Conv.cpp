@@ -123,8 +123,216 @@ template <class sig, class real, class real2>
 void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
       const array1s_t& rx, array1vd_t& ptable)
    {
-   const array1vd_t app; // empty APP table
-   dodemodulate(chan, rx, app, ptable);
+
+   system("cls");
+   /*BCJR Algorithm - BEGIN*/
+   double recv[] = {0.3,0.1,-0.5,0.2,0.8,0.5,-0.5,0.3,0.1,-0.7,1.5,-0.4};
+   
+   libbase::matrix<std::vector<double>> gamma;
+   gamma.init(pow(2,no_states), 6);
+
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      for(int row = 0; row < pow(2,no_states); row++)
+         {
+         for(int i = 0; i < pow(2,no_states);i++)
+            {
+            gamma(row,col).push_back(-1.0);
+            }
+         }
+      }
+
+   int inp_combinations = pow(2,k);
+   double Lc = 5.0;
+   double temp_gamma = 0.0;
+   int out_loc = 0;
+   int recv_loc = 0;
+   int state_table_row = 0;
+   int next_state_loc = 0;
+   std::string str_nxt_state = "";
+   int _nxt_state = 0;
+   /*Working Gamma - BEGIN*/
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      for(int row = 0; row < pow(2,no_states); row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            temp_gamma = 0.0;
+            out_loc = k+(2*no_states);
+            recv_loc = col * n;
+
+            state_table_row = bin2int(int2bin(input, k) + int2bin(row,no_states));
+
+            str_nxt_state = "";
+            next_state_loc = k + no_states;
+            for(int cnt = 0; cnt < no_states;cnt++)
+               {
+               str_nxt_state += toChar(statetable(state_table_row,next_state_loc));
+               next_state_loc++;
+               }
+            _nxt_state = bin2int(str_nxt_state);
+
+            for(int output = 0; output < n;output++)
+               {
+               int a = toInt(statetable(state_table_row,out_loc));
+               double b = recv[recv_loc];
+
+               temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
+               out_loc++;
+               recv_loc++;
+               }
+            double test = exp((Lc/2)*(temp_gamma));
+            gamma(_nxt_state,col)[row] = exp((Lc/2)*(temp_gamma));
+            //gamma(_nxt_state,col).insert(gamma(_nxt_state,col).begin()+row,exp((Lc/2)*(temp_gamma)));
+            }
+         }
+      }
+
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      for(int row = 0; row < pow(2,no_states); row++)
+         {
+         std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
+         for(int i = 0; i < pow(2,no_states);i++)
+            {
+            std::cout << gamma(row,col)[i] << " ";
+            }
+         std::cout << std::endl;
+         }
+      }
+   /*Working Gamma - END*/
+
+   /*Working alphas - BEGIN*/
+   libbase::matrix<double> alpha;
+   alpha.init(pow(2,no_states),7);
+
+   //Initialising alpha
+   for(int row = 0; row < alpha.size().rows();row++)
+      {
+      for(int col = 0; col < alpha.size().cols();col++)
+         {
+         alpha(row,col) = 0.0;
+         }
+      }
+   alpha(0,0) = 1.0;
+
+   double alpha_total = 0.0;
+
+   for(int col = 1; col < alpha.size().cols();col++)
+      {
+      alpha_total = 0.0;
+      for(int row = 0; row < alpha.size().rows();row++)
+         {
+            for(int gamma_cnt = 0; gamma_cnt < pow(2,no_states);gamma_cnt++)
+               {
+               if(gamma(row,col-1)[gamma_cnt] != -1)
+                  {
+                  alpha(row,col) += gamma(row,col-1)[gamma_cnt] * alpha(gamma_cnt,col-1);
+                  //alpha_total += alpha(row,col);
+                  }
+               }
+            alpha_total += alpha(row,col);
+         }
+      for(int r = 0; r < alpha.size().rows();r++)//Normalisation
+         {
+         alpha(r,col) /= alpha_total;
+         }
+      }
+   
+   /**/
+   std::cout << std::endl;
+   std::cout << std::endl;
+
+   for(int col = 0; col < alpha.size().cols();col++)
+      {
+      for(int row = 0; row < alpha.size().rows();row++)
+         {
+         std::cout << alpha(row,col) << " ";
+         }
+      std::cout << std::endl;
+      }
+   /**/
+   /*Working alphas - END*/
+
+   /*Working bets - BEGIN*/
+   libbase::matrix<double> beta;
+   beta.init(pow(2,no_states),7);
+
+   //Initialising beta
+   for(int row = 0; row < beta.size().rows();row++)
+      {
+      for(int col = 0; col < beta.size().cols();col++)
+         {
+         beta(row,col) = 0.0;
+         }
+      }
+   beta(0,beta.size().cols()-1) = 1.0;
+
+      std::cout << std::endl;
+   std::cout << std::endl;
+
+   for(int col = 0; col < beta.size().cols();col++)
+      {
+      for(int row = 0; row < beta.size().rows();row++)
+         {
+         std::cout << beta(row,col) << " ";
+         }
+      std::cout << std::endl;
+      }
+
+   inp_combinations = pow(2,k);
+   state_table_row = 0;
+   _nxt_state = 0;
+
+   double beta_total = 0.0;
+
+   for(int col = beta.size().cols()-1; col > 0; col--)
+      {
+      for(int row = 0; row > beta.size().rows();row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            state_table_row = bin2int(int2bin(input, k) + int2bin(row,no_states));
+
+            str_nxt_state = "";
+            next_state_loc = k + no_states;
+            for(int cnt = 0; cnt < no_states;cnt++)
+               {
+               str_nxt_state += toChar(statetable(state_table_row,next_state_loc));
+               next_state_loc++;
+               }
+            _nxt_state = bin2int(str_nxt_state);
+
+            beta(row,col) += beta(_nxt_state,col+1)*gamma(_nxt_state,col)[row];
+            }
+         beta_total += beta(row,col); 
+         }
+      for(int r = 0; r < beta.size().rows();r++)//Normalisation
+         {
+         beta(r,col) /= beta_total;
+         }
+      }
+   /*Working beta - END*/
+   
+   /**/
+   std::cout << std::endl;
+   std::cout << std::endl;
+
+   for(int col = 0; col < beta.size().cols();col++)
+      {
+      for(int row = 0; row < beta.size().rows();row++)
+         {
+         std::cout << beta(row,col) << " ";
+         }
+      std::cout << std::endl;
+      }
+   /**/
+
+   /*BCJR Algorithm - END*/
+
+   //const array1vd_t app; // empty APP table
+   //dodemodulate(chan, rx, app, ptable);
    }
 
 template <class sig, class real, class real2>
@@ -137,7 +345,7 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    const int tau = this->output_block_size();
    const int rho = rx.size();
    // Check that rx size is within valid range
-   assertalways(mtau_max >= abs(rho - tau));
+   //assertalways(mtau_max >= abs(rho - tau));
    // Set up start-of-frame drift pdf (drift = 0)
    array1d_t sof_prior;
    sof_prior.init(mtau_max - mtau_min + 1);
@@ -991,6 +1199,43 @@ int conv<sig, real, real2>::bin2int(std::string binary)
 }
 
 template <class sig, class real, class real2>
+std::string conv<sig, real, real2>::int2bin(int input, int size)
+   {
+   std::string binary_stream = "";
+   std::stringstream out;
+
+   int div = input;
+   int rem = 0;
+	
+   while(1)
+      {
+      rem = div % 2;
+      div = (int) floor((double)(div / 2));
+
+      out << rem;
+
+      binary_stream += out.str();
+      out.str("");
+
+      if(div == 0)
+         {
+         reverse(binary_stream.begin(), binary_stream.end());
+			
+         if(binary_stream.size() != size)
+            {
+            int bitstream_size = binary_stream.size();
+				
+            for(int i = 0; i < size - bitstream_size; i++)
+               {
+               binary_stream = "0" + binary_stream;
+               }
+            }
+         return binary_stream;
+         }
+      }
+   }
+
+template <class sig, class real, class real2>
 bool conv<sig, real, real2>::toBool(char const& bit)
    {
      return bit != '0';
@@ -1025,6 +1270,15 @@ char conv<sig,real,real2>::toChar(bool bit)
       return '1';
    else
       return '0';
+   }
+
+template<class sig, class real, class real2>
+int conv<sig,real,real2>::toInt(bool bit)
+   {
+   if(bit)
+      return 1;
+   else
+      return -1;
    }
 } // end namespace
 
