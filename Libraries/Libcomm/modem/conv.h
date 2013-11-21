@@ -122,6 +122,7 @@ private:
    std::string toString(int number);
    char toChar(bool bit);
    int toInt(bool bit);
+   void settoval(libbase::matrix<double>& mat, double value);
    /*Conv Codes Functions - END*/
 
 

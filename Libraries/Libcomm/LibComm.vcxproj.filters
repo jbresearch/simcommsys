@@ -362,7 +362,7 @@
     <ClCompile Include="codec\memoryless.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modem\Conv.cpp">
+    <ClCompile Include="modem\conv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -739,7 +739,7 @@
     <ClInclude Include="channel\qids-utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modem\Conv.h">
+    <ClInclude Include="modem\conv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

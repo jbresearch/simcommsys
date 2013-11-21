@@ -151,6 +151,13 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    int next_state_loc = 0;
    std::string str_nxt_state = "";
    int _nxt_state = 0;
+
+   std::vector<int> current_state;
+   std::vector<int> next_state;
+   bool init_done = false;
+   current_state.push_back(0);
+
+   int encoded_bits = 4;
    /*Working Gamma - BEGIN*/
    for(int col = 0; col < gamma.size().cols(); col++)
       {
@@ -172,20 +179,82 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
                next_state_loc++;
                }
             _nxt_state = bin2int(str_nxt_state);
-
-            for(int output = 0; output < n;output++)
+            
+            if(init_done == false)//Initial special case
                {
-               int a = toInt(statetable(state_table_row,out_loc));
-               double b = recv[recv_loc];
+               /*Checking if the current state is in the current state vector*/
+               if(std::find(current_state.begin(), current_state.end(), row)!=current_state.end())
+                  {
+                  /*Found*/
+                  next_state.push_back(_nxt_state);
+                  for(int output = 0; output < n;output++)
+                     {
+                     int a = toInt(statetable(state_table_row,out_loc));
+                     double b = recv[recv_loc];
 
-               temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
-               out_loc++;
-               recv_loc++;
+                     temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
+                     out_loc++;
+                     recv_loc++;
+                     }
+                  double test = exp((Lc/2)*(temp_gamma));
+                  gamma(_nxt_state,col)[row] = exp((Lc/2)*(temp_gamma));
+                  }
+               else
+                  {
+                  /*Not Found*/
+                  gamma(_nxt_state,col)[row] = 0;
+                  }
                }
-            double test = exp((Lc/2)*(temp_gamma));
-            gamma(_nxt_state,col)[row] = exp((Lc/2)*(temp_gamma));
-            //gamma(_nxt_state,col).insert(gamma(_nxt_state,col).begin()+row,exp((Lc/2)*(temp_gamma)));
+            else if(col >= encoded_bits)//Tailing off
+               {
+               if(input==0 && std::find(current_state.begin(), current_state.end(), row)!=current_state.end())
+                  {
+                     for(int output = 0; output < n;output++)
+                        {
+                        int a = toInt(statetable(state_table_row,out_loc));
+                        double b = recv[recv_loc];
+
+                        temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
+                        out_loc++;
+                        recv_loc++;
+                        }
+                     double test = exp((Lc/2)*(temp_gamma));
+                     gamma(_nxt_state,col)[row] = exp((Lc/2)*(temp_gamma));
+                     next_state.push_back(_nxt_state);
+                  }
+               else
+                  {
+                     gamma(_nxt_state,col)[row] = 0;
+                  }
+               }
+            else
+               {
+               for(int output = 0; output < n;output++)
+                  {
+                  int a = toInt(statetable(state_table_row,out_loc));
+                  double b = recv[recv_loc];
+
+                  temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
+                  out_loc++;
+                  recv_loc++;
+                  }
+               double test = exp((Lc/2)*(temp_gamma));
+               gamma(_nxt_state,col)[row] = exp((Lc/2)*(temp_gamma));
+               }
             }
+         }
+      
+      if(init_done == false && next_state.size() == pow(2,no_states))
+         {
+         init_done = true;
+         current_state = next_state;
+         next_state.clear();
+         //current_state.clear();
+         }
+      else if(init_done == false || col >= encoded_bits)
+         {
+         current_state = next_state;
+         next_state.clear();
          }
       }
 
@@ -287,7 +356,7 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 
    double beta_total = 0.0;
 
-   for(int col = beta.size().cols()-2; col > 0; col--)
+   for(int col = beta.size().cols()-2; col >= 0; col--)
       {
       beta_total = 0.0;
       for(int row = 0; row < beta.size().rows();row++)
@@ -330,8 +399,127 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
       }
    /**/
 
-   /*BCJR Algorithm - END*/
+   /*Calculating the probabilities and decoding - BEGIN*/
+   inp_combinations = pow(2,k);
+   libbase::matrix<double> output_symbol;
+   output_symbol.init(inp_combinations,gamma.size().cols());
 
+   settoval(output_symbol,0.0);
+
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      for(int row = 0; row < alpha.size().rows(); row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            state_table_row = bin2int(int2bin(input, k) + int2bin(row,no_states));
+
+            str_nxt_state = "";
+            next_state_loc = k + no_states;
+            for(int cnt = 0; cnt < no_states;cnt++)
+               {
+               str_nxt_state += toChar(statetable(state_table_row,next_state_loc));
+               next_state_loc++;
+               }
+            _nxt_state = bin2int(str_nxt_state);
+
+            if(gamma(_nxt_state,col)[row] != -1)
+               {
+               output_symbol(input,col) += alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
+               }
+            }
+         }
+      }
+   /*Calculating the probabilities and decoding - END*/
+
+   /**/
+   std::cout << std::endl;
+   std::cout << std::endl;
+
+   for(int col = 0; col < output_symbol.size().cols();col++)
+      {
+      for(int row = 0; row < output_symbol.size().rows();row++)
+         {
+         std::cout << output_symbol(row,col) << " ";
+         }
+      std::cout << std::endl;
+      }
+   /**/
+
+   /*Dealing with multiple inputs - BEGIN*/
+   libbase::matrix<double> output_bit;
+   output_bit.init(2,gamma.size().cols());
+   
+   settoval(output_bit,0.0);
+
+   std::string binary_input = "";
+   
+   if(k > 1)
+      {
+      for(int col = 0; col < output_symbol.size().cols(); col++)
+         {
+         for(int row = 0; row < output_symbol.size().rows(); row++)
+            {
+            binary_input = int2bin(row,k);
+            for(int str_cnt = 0; str_cnt < binary_input.size(); str_cnt++)
+               {
+               if(binary_input[str_cnt] == '0')
+                  {
+                  output_bit(0,(col*k)+str_cnt) += output_symbol(row,col);
+                  }
+               else
+                  {
+                  output_bit(1,(col*k)+str_cnt) += output_symbol(row,col);
+                  }
+               }
+            }
+         }
+      }
+   else
+      {
+      output_bit = output_symbol;
+      }
+   /*Dealing with multiple inputs - END*/
+
+   /*Normalisation - Begin*/
+   double output_total;
+   for(int col = 0; col < output_bit.size().cols();col++)
+      {
+      output_total = 0.0;
+      for(int row = 0; row < output_bit.size().rows();row++)
+         {
+         output_total += output_bit(row,col);
+         }
+      for(int row = 0; row < output_bit.size().rows();row++)
+         {
+         output_bit(row,col) /= output_total;
+         }
+      }
+   /*Normalisation - END*/
+
+   /**/
+   std::cout << std::endl;
+   std::cout << std::endl;
+
+   for(int col = 0; col < output_bit.size().cols();col++)
+      {
+      for(int row = 0; row < output_bit.size().rows();row++)
+         {
+         std::cout << output_bit(row,col) << " ";
+         }
+      std::cout << std::endl;
+      }
+   /**/
+   /*BCJR Algorithm - END*/
+   std::vector<bool> output;
+
+   for(int cnt = 0; cnt < output_bit.size().cols(); cnt++)
+      {
+      if(log(output_bit(1,cnt)/output_bit(0,cnt)) >= 0)
+         output.push_back(1);
+      else
+         output.push_back(0);
+      }
    //const array1vd_t app; // empty APP table
    //dodemodulate(chan, rx, app, ptable);
    }
@@ -1280,6 +1468,18 @@ int conv<sig,real,real2>::toInt(bool bit)
       return 1;
    else
       return -1;
+   }
+
+template<class sig, class real, class real2>
+void conv<sig,real,real2>::settoval(libbase::matrix<double>& mat, double value)
+   {
+   for(int row = 0; row < mat.size().rows(); row++)
+      {
+      for(int col = 0; col < mat.size().cols(); col++)
+         {
+         mat(row,col) = value;
+         }
+      }
    }
 } // end namespace
 
