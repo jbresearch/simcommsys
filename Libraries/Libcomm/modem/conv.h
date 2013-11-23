@@ -106,12 +106,37 @@ private:
    int n; //output
    int m; //m highest degree polynomial of G(D)
    int no_states;
+   int recv_sequence; //length of received sequence
+   int encoded_bits; ////length of encoded bits
+   std::string ff_octal;
+   std::string fb_octal;
    libbase::matrix<std::string> ffcodebook; //Feedforward connection string
    libbase::matrix<std::string> fbcodebook; //Feedback connection string
    libbase::matrix<bool> statetable;
    /*Conv Codes parameters - END*/
 
    /*Conv Codes Functions - BEGIN*/
+   
+   void init_matrices(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit);   
+   void init_gamma(libbase::matrix<std::vector<double>>& gamma);
+   void init_alpha(libbase::matrix<double>& alpha);
+   void init_beta(libbase::matrix<double>& beta);
+   void init_output_symbol(libbase::matrix<double>& output_symbol);
+   void init_output_bit(libbase::matrix<double>& output_bit);
+
+   void work_gamma(libbase::matrix<std::vector<double>>& gamma, double* recv);
+   double calc_gamma_AWGN(int state_table_row, int col, double* recv, double Lc);
+   void work_alpha(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& alpha);
+   void work_beta(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& beta);
+
+   void decode(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol);
+   void multiple_inputs(libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit);
+   void work_softout(libbase::matrix<double>& output_bit, libbase::vector<double>& softout);
+
+   void normalize(libbase::matrix<double>& mat);
+   int get_next_state(int input, int curr_state);
+   int get_next_state(int input, int curr_state, int& state_table_row);
+
    std::string oct2bin(std::string input, int size, int type);
    int bin2int(std::string binary);
    std::string int2bin(int input, int size);
