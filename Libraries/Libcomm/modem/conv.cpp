@@ -63,7 +63,7 @@ void conv<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
    //   std::cout << encoded(z) << std::endl;
    //   }
    
-   encoded_bits = encoded.size();
+   encoding_steps = 0;
    //TODO: Check Setting transmission size, no. of encoded bits *
    libbase::vector<sig> temp_tx;
    int tx_size = (ceil((double)(encoded.size()/k)))*n;
@@ -85,7 +85,7 @@ void conv<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
    
    std::string input = "";
    int i = 0;
-   int ab = encoded.size();
+   //int ab = encoded.size();
    while(i < encoded.size())
       {
       input = "";
@@ -111,6 +111,7 @@ void conv<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
          {
          curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
          }
+      encoding_steps++;
       }
    
    /*Tailing off*/
@@ -152,12 +153,12 @@ template <class sig, class real, class real2>
 void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
       const array1s_t& rx, array1vd_t& ptable)
    {
-   system("cls");
+   //system("cls");
    double recv[] = {0.3,0.1,-0.5,0.2,0.8,0.5,-0.5,0.3,0.1,-0.7,1.5,-0.4};
-   
+   encoding_steps = 4;
    recv_sequence = 12;
 
-   libbase::matrix<std::vector<double>> gamma;
+   libbase::matrix<std::vector<double> > gamma;
    libbase::matrix<double> alpha;
    libbase::matrix<double> beta;
    libbase::matrix<double> output_symbol;
@@ -180,12 +181,17 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    libbase::vector<double> softout;
    softout.init((recv_sequence/n)*k);
 
+   fill_ptable(ptable, output_bit);
+   /*Fill ptable To be made a function - BEGIN*/
+   
+   /*Fill ptable To be made a function - END*/
+
    work_softout(output_bit, softout);
 
    for(int i = 0; i < softout.size();i++)
       std::cout << softout(i) << " ";
 
-   std::vector<bool> output;
+   /*std::vector<bool> output;
 
    for(int cnt = 0; cnt < output_bit.size().cols(); cnt++)
       {
@@ -193,13 +199,13 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
          output.push_back(1);
       else
          output.push_back(0);
-      }
+      }*/
    //const array1vd_t app; // empty APP table
    //dodemodulate(chan, rx, app, ptable);
    }
 
 template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_matrices(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
+void conv<sig, real, real2>::init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
    {
    init_gamma(gamma);
    init_alpha(alpha);
@@ -209,7 +215,7 @@ void conv<sig, real, real2>::init_matrices(libbase::matrix<std::vector<double>>&
    }
 
 template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_gamma(libbase::matrix<std::vector<double>>& gamma)
+void conv<sig, real, real2>::init_gamma(libbase::matrix<std::vector<double> >& gamma)
    {
    gamma.init(pow(2,no_states), recv_sequence/n);
 
@@ -250,7 +256,7 @@ void conv<sig, real, real2>::init_output_bit(libbase::matrix<double>& output_bit
    }
 
 template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double>>& gamma, double* recv)
+void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double> >& gamma, double* recv)
    {
    int inp_combinations = pow(2,k);
    double Lc = 5.0;
@@ -285,7 +291,7 @@ void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double>>& ga
                   gamma(_nxt_state,col)[row] = 0;
                   }
                }
-            else if(col >= encoded_bits)//Tailing off
+            else if(col >= encoding_steps)//Tailing off
                {
                if(input==0 && std::find(current_state.begin(), current_state.end(), row)!=current_state.end())
                   {
@@ -310,7 +316,7 @@ void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double>>& ga
          current_state = next_state;
          next_state.clear();
          }
-      else if(init_done == false || col >= encoded_bits)
+      else if(init_done == false || col >= encoding_steps)
          {
          current_state = next_state;
          next_state.clear();
@@ -335,7 +341,7 @@ double conv<sig, real, real2>::calc_gamma_AWGN(int state_table_row, int col, dou
    }
 
 template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_alpha(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& alpha)
+void conv<sig, real, real2>::work_alpha(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha)
    {
    double alpha_total = 0.0;
 
@@ -361,13 +367,13 @@ void conv<sig, real, real2>::work_alpha(libbase::matrix<std::vector<double>>& ga
    }
 
 template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_beta(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& beta)
+void conv<sig, real, real2>::work_beta(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& beta)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
    double beta_total = 0.0;
 
-   for(int col = beta.size().cols()-2; col >= 0; col--)
+   for(int col = (int)(beta.size().cols()-2); col >= 0; col--)
       {
       beta_total = 0.0;
       for(int row = 0; row < beta.size().rows();row++)
@@ -387,7 +393,7 @@ void conv<sig, real, real2>::work_beta(libbase::matrix<std::vector<double>>& gam
    }
 
 template <class sig, class real, class real2>
-void conv<sig, real, real2>::decode(libbase::matrix<std::vector<double>>& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
+void conv<sig, real, real2>::decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
@@ -421,7 +427,7 @@ void conv<sig, real, real2>::multiple_inputs(libbase::matrix<double>& output_sym
          for(int row = 0; row < output_symbol.size().rows(); row++)
             {
             binary_input = int2bin(row,k);
-            for(int str_cnt = 0; str_cnt < binary_input.size(); str_cnt++)
+            for(int str_cnt = 0; str_cnt < (int)binary_input.size(); str_cnt++)
                {
                if(binary_input[str_cnt] == '0')
                   {
@@ -438,6 +444,20 @@ void conv<sig, real, real2>::multiple_inputs(libbase::matrix<double>& output_sym
    else
       {
       output_bit = output_symbol;
+      }
+   }
+
+template <class sig, class real, class real2>
+void conv<sig, real, real2>::fill_ptable(array1vd_t& ptable, libbase::matrix<double>& output_bit)
+   {
+   ptable.init(output_bit.size().cols());
+   for(int col = 0; col < ptable.size(); col++)
+      {
+      ptable(col).init(2);
+      for(int row = 0; row < ptable(col).size(); row++)
+         {
+         ptable(col)(row) = output_bit(row,col);
+         }
       }
    }
 
@@ -769,7 +789,7 @@ std::istream& conv<sig, real, real2>::serialize(std::istream& sin)
             sin >> temp;
             ff_octal += temp + " ";
             ff_arr[cnt] = temp;
-            if(oct2bin(temp,0,0).size() > m)
+            if((int)oct2bin(temp,0,0).size() > m)
                m = oct2bin(temp,0,0).size();
          }
 
@@ -780,7 +800,7 @@ std::istream& conv<sig, real, real2>::serialize(std::istream& sin)
             sin >> temp;
             fb_octal += temp + " ";
             fb_arr[cnt] = temp;
-            if(oct2bin(temp,0,0).size() > m)
+            if((int)oct2bin(temp,0,0).size() > m)
                m = oct2bin(temp,0,0).size();
          }
 
@@ -873,14 +893,14 @@ void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
                temp_out = 0;
                state_cnt = state_begin;
                //Working effect of input
-               bool a = statetable(row,inp_cnt);
-               bool b = toBool(ffcodebook(inp_cnt,out_cnt)[0]);
+               //bool a = statetable(row,inp_cnt);
+               //bool b = toBool(ffcodebook(inp_cnt,out_cnt)[0]);
                temp_out = temp_out ^ (statetable(row,inp_cnt) & toBool(ffcodebook(inp_cnt,out_cnt)[0]));
                //Working effect of shift registers
                for(int conn_cnt = 1; conn_cnt < (m_arr[inp_cnt]+1); conn_cnt++)
                   {
-                     bool c = statetable(row,state_cnt);
-                     bool d = toBool(ffcodebook(inp_cnt,out_cnt)[conn_cnt]);
+                     //bool c = statetable(row,state_cnt);
+                     //bool d = toBool(ffcodebook(inp_cnt,out_cnt)[conn_cnt]);
                      temp_out = temp_out ^ (statetable(row,state_cnt) & toBool(ffcodebook(inp_cnt,out_cnt)[conn_cnt]));
                      state_cnt++;
                   }
@@ -969,8 +989,8 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
                   {
                   for(int i = 0; i < (m+1);i++)
                      {
-                     bool x = toBool(fbcodebook(input_col,out_cnt)[i]);
-                     bool y = statetable(row,i);
+                     //bool x = toBool(fbcodebook(input_col,out_cnt)[i]);
+                     //bool y = statetable(row,i);
                      feedback = feedback ^ (toBool(fbcodebook(input_col,out_cnt)[i]) & statetable(row,i));
                      }
                   feedback_worked = 1;
@@ -982,14 +1002,14 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
                   {
                   if(i == 0)//Replace input with feedback result
                      {
-                     bool x = toBool(ffcodebook(input_col,out_cnt)[i]);
-                     bool y = feedback;
+                     //bool x = toBool(ffcodebook(input_col,out_cnt)[i]);
+                     //bool y = feedback;
                      output = output ^ (toBool(ffcodebook(input_col,out_cnt)[i]) & feedback);
                      }
                   else
                      {
-                     bool x = toBool(ffcodebook(input_col,out_cnt)[i]);
-                     bool y = statetable(row,(k+i)-1);
+                     //bool x = toBool(ffcodebook(input_col,out_cnt)[i]);
+                     //bool y = statetable(row,(k+i)-1);
                      output = output ^ (toBool(ffcodebook(input_col,out_cnt)[i]) & statetable(row,(k+i)-1));
                      }
                   }
@@ -1010,7 +1030,6 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
       {
       bool feedback = 0;
       int output_col = k+2*m;//location of first output index
-      int input_col = 0;
       bool output = 0;
       bool temp_out = 0;
 
@@ -1021,8 +1040,6 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
          /*Resetting every iteration*/
          feedback = 0;
          output_col = k+2*m;//location of first output index
-         input_col = 0;
-         //output = 0;
          temp_out = 0;
          
          //Working the outputs
@@ -1038,15 +1055,15 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
                      {
                      if(i < m) //Getting the states
                         {
-                        bool x = toBool(ffcodebook(inp_cnt,out_cnt)[i]);
-                        bool y = statetable(row,state_loc);
+                        //bool x = toBool(ffcodebook(inp_cnt,out_cnt)[i]);
+                        //bool y = statetable(row,state_loc);
                         temp_out = temp_out ^ (toBool(ffcodebook(inp_cnt,out_cnt)[i]) & statetable(row,state_loc));
                         state_loc--;   
                         }
                      else //Getting the relevant input
                         {
-                        bool x = toBool(ffcodebook(inp_cnt,out_cnt)[i]);
-                        bool y = statetable(row,inp_cnt);
+                        //bool x = toBool(ffcodebook(inp_cnt,out_cnt)[i]);
+                        //bool y = statetable(row,inp_cnt);
                         temp_out = temp_out ^ (toBool(ffcodebook(inp_cnt,out_cnt)[i]) & statetable(row,inp_cnt));
                         }
                      }
@@ -1055,8 +1072,8 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
                else//has feedback
                   {
                   fb_loc = out_cnt;
-                  bool x = toBool(ffcodebook(inp_cnt,out_cnt)[m]);
-                  bool y = statetable(row,inp_cnt);
+                  //bool x = toBool(ffcodebook(inp_cnt,out_cnt)[m]);
+                  //bool y = statetable(row,inp_cnt);
                   output = output ^ (toBool(ffcodebook(inp_cnt,out_cnt)[m]) & statetable(row,inp_cnt));
                   if(inp_cnt == (k-1))
                      {
@@ -1078,16 +1095,16 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
                {
                for(inp_cnt = 0; inp_cnt < k; inp_cnt++)
                   {
-                  bool x = toBool(ffcodebook(inp_cnt,fb_loc)[i]);
-                  bool y = statetable(row,inp_cnt);
+                  //bool x = toBool(ffcodebook(inp_cnt,fb_loc)[i]);
+                  //bool y = statetable(row,inp_cnt);
                   state = state ^ ( toBool(ffcodebook(inp_cnt,fb_loc)[i]) & statetable(row,inp_cnt));
                   }
-               bool t = toBool(fbcodebook(0,fb_loc)[i]);
+               //bool t = toBool(fbcodebook(0,fb_loc)[i]);
                state = state ^ ( toBool(fbcodebook(0,fb_loc)[i]) & feedback);
                //check whether it has previous state
                if((state_loc-1) >= (k+m))
                   {
-                  bool a = statetable(row, (state_loc-m-1));
+                  //bool a = statetable(row, (state_loc-m-1));
                   state = state ^ statetable(row, (state_loc-m-1));
                   }
                statetable(row,state_loc) = state;
@@ -1113,7 +1130,8 @@ std::string conv<sig, real, real2>::oct2bin(std::string input, int size, int typ
    
    //From octal to decimal
    int counter = 0;
-   for(int i = input.length()-1; i >= 0; i--)
+   /*Changed here : std::size_t*/
+   for(int i = (int)(input.length()-1); i >= 0; i--)
       {
       div = div + (((int)input[i]-48)*pow(8.0,counter));
       counter++;
@@ -1136,7 +1154,7 @@ std::string conv<sig, real, real2>::oct2bin(std::string input, int size, int typ
          {
          reverse(binary_stream.begin(), binary_stream.end());
 	 
-         if(binary_stream.size() != size && size > 0)
+         if((int)binary_stream.size() != size && size > 0)
             {
             int bitstream_size = binary_stream.size();
 				
@@ -1194,7 +1212,7 @@ std::string conv<sig, real, real2>::int2bin(int input, int size)
          {
          reverse(binary_stream.begin(), binary_stream.end());
 			
-         if(binary_stream.size() != size)
+         if((int)binary_stream.size() != size)
             {
             int bitstream_size = binary_stream.size();
 				
@@ -1217,7 +1235,7 @@ bool conv<sig, real, real2>::toBool(char const& bit)
 template<class sig, class real, class real2>
 void conv<sig,real,real2>::disp_statetable()
    {
-   system("cls");
+   //system("cls");
    for(int row = 0; row < statetable.size().rows(); row++)
       {
       for(int col = 0; col < statetable.size().cols(); col++)
