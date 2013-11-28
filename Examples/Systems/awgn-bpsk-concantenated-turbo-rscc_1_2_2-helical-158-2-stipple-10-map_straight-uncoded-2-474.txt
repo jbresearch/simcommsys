@@ -14,6 +14,12 @@ map_stipple<vector,double>
 # Stride for stipple mapper
 2
 ## Codec
+codec_concatenated<double>
+# Version
+1
+# Number of concatenated codecs
+2
+# Codec 1
 turbo<double,double>
 # Version
 2
@@ -44,3 +50,13 @@ helical<double>
 0
 # Number of iterations
 10
+# Codec 2
+uncoded<double>
+# Version
+1
+# Alphabet size
+2
+# Block length
+474
+# Mapper 1
+map_straight<vector,double>

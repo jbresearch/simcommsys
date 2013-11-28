@@ -13,7 +13,7 @@ qids<gf16,float>
 1
 # Vary Pi?
 1
-# Cap on I (0=uncapped)
+# Cap on m1_max (0=uncapped) [trellis receiver only]
 0
 # Fixed Ps value
 0
@@ -26,18 +26,14 @@ qids<gf16,float>
 ## Modem
 tvb<gf16,double,float>
 # Version
-7
-#: Inner threshold
+10
+# Inner threshold
 0
-#: Outer threshold
+# Outer threshold
 0
-# Normalize metrics between time-steps?
-1
-# Use batch receiver computation?
-1
+# Probability of channel event outside chosen limits
+1e-10
 # Lazy computation of gamma?
-0
-# Apply priors at channel-symbol level?
 0
 # Storage mode for gamma (0=local, 1=global, 2=conditional)
 1

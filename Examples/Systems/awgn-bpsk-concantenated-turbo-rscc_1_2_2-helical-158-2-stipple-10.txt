@@ -14,6 +14,12 @@ map_stipple<vector,double>
 # Stride for stipple mapper
 2
 ## Codec
+codec_concatenated<double>
+# Version
+1
+# Number of concatenated codecs
+1
+# Codec 1
 turbo<double,double>
 # Version
 2

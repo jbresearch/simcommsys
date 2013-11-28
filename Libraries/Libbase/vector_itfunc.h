@@ -25,6 +25,7 @@
 
 #include "vector.h"
 #include "matrix.h"
+#include "vectorutils.h"
 
 /*!
  * \file

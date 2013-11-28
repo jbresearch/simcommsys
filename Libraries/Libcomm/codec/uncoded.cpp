@@ -26,41 +26,6 @@
 
 namespace libcomm {
 
-// internal codec operations
-
-template <class dbl>
-void uncoded<dbl>::resetpriors()
-   {
-   // Allocate space for prior input statistics
-   libbase::allocate(rp, This::input_block_size(), This::num_inputs());
-   // Initialize
-   rp = 1.0;
-   }
-
-template <class dbl>
-void uncoded<dbl>::setpriors(const array1vd_t& ptable)
-   {
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == This::num_inputs());
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == This::input_block_size());
-   // Copy the input statistics
-   rp = ptable;
-   }
-
-template <class dbl>
-void uncoded<dbl>::setreceiver(const array1vd_t& ptable)
-   {
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == This::num_outputs());
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == This::output_block_size());
-   // Copy the output statistics
-   R = ptable;
-   }
-
 // encoding and decoding functions
 
 template <class dbl>
@@ -77,21 +42,40 @@ void uncoded<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    }
 
 template <class dbl>
+void uncoded<dbl>::do_init_decoder(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_outputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::output_block_size());
+   // Copy the received (output-referred) statistics
+   R = ptable;
+   }
+
+template <class dbl>
+void uncoded<dbl>::do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+   {
+   // Initialize results to received statistics
+   do_init_decoder(ptable);
+   // Multiply with prior statistics
+   R *= app;
+   }
+
+template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri)
    {
-   // Initialize results to prior statistics
-   ri = rp;
-   // Multiply with received statistics
-   ri *= R;
+   // Set input-referred statistics to stored values
+   ri = R;
    }
 
 template <class dbl>
 void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
-   // Determine input-referred statistics
-   softdecode(ri);
-   // Copy output-referred statistics from input-referred ones
-   ro = ri;
+   // Set input-referred statistics to stored values
+   ri = R;
+   // Set output-referred statistics to stored values
+   ro = R;
    }
 
 // description output
@@ -128,7 +112,7 @@ std::istream& uncoded<dbl>::serialize(std::istream& sin)
    {
    // get format version
    int version;
-   sin >> libbase::eatcomments >> version;
+   sin >> libbase::eatcomments >> version >> libbase::verify;
    // read the alphabet size and block length
    sin >> libbase::eatcomments >> q >> libbase::verify;
    sin >> libbase::eatcomments >> N >> libbase::verify;

@@ -92,6 +92,8 @@
 
 // Codecs
 #include "codec.h"
+#include "codec/codec_concatenated.h"
+#include "codec/codec_multiblock.h"
 #include "codec/codec_reshaped.h"
 #include "codec/memoryless.h"
 #include "codec/uncoded.h"
@@ -104,6 +106,7 @@
 
 // Signal Mappers
 #include "mapper.h"
+#include "mapper/map_concatenated.h"
 #include "mapper/map_straight.h"
 #include "mapper/map_interleaved.h"
 #include "mapper/map_permuted.h"
@@ -198,6 +201,8 @@ private:
    //gnrcc<libbase::gf2> _gnrcc;
    //zsm<libbase::gf2> _zsm;
    // Codecs
+   codec_concatenated<libbase::vector, double> _codec_concatenated;
+   codec_multiblock<libbase::vector, double> _codec_multiblock;
    memoryless<double> _memoryless;
    uncoded<double> _uncoded;
    //mapcc<double> _mapcc;
@@ -208,6 +213,7 @@ private:
    repacc<double> _repacc;
    sysrepacc<double> _sysrepacc;
    // Mappers
+   map_concatenated<libbase::vector> _map_concatenated;
    map_straight<libbase::vector> _map_straight;
    map_interleaved<libbase::vector> _map_interleaved;
    map_permuted<libbase::vector> _map_permuted;

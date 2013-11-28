@@ -31,7 +31,7 @@
 #define REEDSOLOMON_H_
 
 #include "config.h"
-#include "codec.h"
+#include "codec_softout.h"
 #include "gf.h"
 #include "matrix.h"
 #include "hard_decision.h"
@@ -48,7 +48,7 @@ namespace libcomm {
  *
  */
 template <class GF_q>
-class reedsolomon : public libcomm::codec<libbase::vector, double> {
+class reedsolomon : public codec_softout<libbase::vector, double> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double> array1d_t;
@@ -82,6 +82,7 @@ protected:
     * the number of modulation timesteps may be different from tau.
     */
    void do_init_decoder(const array1vd_t& ptable);
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
 
 public:
    //!default constructor needed for serialization
@@ -100,14 +101,26 @@ public:
 
    /*!
     * \brief Decoding process
-    * \param[out] decoded Most likely sequence of information symbols, one per timestep
-    *
-    * \note Observe that this output necessarily constitutes a hard decision.
+    * \param[out] ri Likelihood table for input symbols at every timestep
     *
     * \note Each call to decode will perform a single iteration (with respect
     * to num_iter).
     */
-   void decode(array1i_t& decoded);
+   void softdecode(array1vd_t& ri)
+      {
+      // set up space for output-referred statistics (to be discarded)
+      array1vd_t ro;
+      softdecode(ri, ro);
+      }
+   /*!
+    * \brief Decoding process
+    * \param[out] ri Likelihood table for input symbols at every timestep
+    * \param[out] ro Likelihood table for output symbols at every timestep
+    *
+    * \note Each call to decode will perform a single iteration (with respect
+    * to num_iter).
+    */
+   void softdecode(array1vd_t& ri, array1vd_t& ro);
    // @}
 
    /*! \name Codec information functions - fundamental */

@@ -79,6 +79,30 @@ protected:
     * be done externally.
     */
    void do_encode(const array1i_t & source, array1i_t& encoded);
+   /*!
+    * \brief Receiver translation process
+    * \param[in] ptable Likelihoods of each possible encoded symbol at every index
+    *
+    * This function initializes the decoder with the probability tables for
+    * each encoded symbol as received from the blockmodem.
+    * This function should be called before the first decode iteration
+    * for each block.
+    */
+   void do_init_decoder(const array1vdbl_t& ptable);
+   /*!
+    * \brief Receiver translation process (with given priors)
+    * \param[in] ptable Likelihoods of each possible encoded symbol at every index
+    * \param[in] app Likelihoods of each possible input symbol at every index
+    *
+    * This function initializes the decoder with the probability tables for
+    * each encoded symbol as received from the blockmodem.
+    * This function should be called before the first decode iteration
+    * for each block.
+    */
+   void do_init_decoder(const array1vdbl_t& ptable, const array1vdbl_t& app)
+      {
+      failwith("Not implemented");
+      }
 
 public:
    /*! \brief default constructor
@@ -198,40 +222,6 @@ public:
 
    // Serialization Support
 DECLARE_SERIALIZER(ldpc)
-
-protected:
-   /*! \name Internal codec operations */
-   /*!
-    * \brief A-priori probability initialization
-    *
-    * This function resets the a-priori prabability tables for the codec to
-    * equally-likely. This function (or setpriors) should be called before the
-    * first decode iteration for each block.
-    */
-   void resetpriors()
-      {
-      //nothing to do
-      }
-   /*!
-    * \brief A-priori probability setup
-    * \param[in] ptable Likelihoods of each possible input symbol at every
-    * (input) timestep
-    *
-    * This function updates the a-priori prabability tables for the codec.
-    * This function (or resetpriors) should be called before the first decode
-    * iteration for each block.
-    */
-   void setpriors(const array1vdbl_t& ptable)
-      {
-      failwith("Not implemented as this function is not needed");
-      }
-
-   /*!
-    * \note Sets up receiver likelihood tables only.
-    */
-   void setreceiver(const array1vdbl_t& ptable);
-   // @}
-
 
 private:
    //! \brief initialises the LDPC codec

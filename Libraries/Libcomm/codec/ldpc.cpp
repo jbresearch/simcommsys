@@ -190,7 +190,7 @@ template <class GF_q, class real> void ldpc<GF_q, real>::init()
       }
    }
 
-template <class GF_q, class real> void ldpc<GF_q, real>::setreceiver(
+template <class GF_q, class real> void ldpc<GF_q, real>::do_init_decoder(
       const array1vdbl_t& ptable)
    {
 

@@ -58,16 +58,13 @@ private:
    int N; //!< Length of input/output sequence
    // @}
    /*! \name Computed parameters */
-   array1vd_t rp; //!< Intrinsic source statistics
-   array1vd_t R; //!< Intrinsic output statistics
+   array1vd_t R; //!< Stored statistics from receiver and priors
    // @}
 protected:
-   // Internal codec_softout operations
-   void resetpriors();
-   void setpriors(const array1vd_t& ptable);
-   void setreceiver(const array1vd_t& ptable);
    // Interface with derived classes
    void do_encode(const array1i_t& source, array1i_t& encoded);
+   void do_init_decoder(const array1vd_t& ptable);
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor

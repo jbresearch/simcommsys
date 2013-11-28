@@ -23,7 +23,7 @@
 STREAM_RESET_N := 1 10
 STREAM_TERM_N := 1 10
 # List of results collectors to work with
-COLLECTOR_TYPES := errors_levenshtein prof_pos fidelity_pos
+COLLECTOR_TYPES := errors_levenshtein errors_hamming prof_pos fidelity_pos
 # List of input stream modes
 INPUT_TYPES := random zero user
 

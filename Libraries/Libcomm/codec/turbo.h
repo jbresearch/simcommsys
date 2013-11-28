@@ -198,10 +198,6 @@ protected:
       return int(pow(S, n));
       }
    // @}
-   // Internal codec operations
-   void resetpriors();
-   void setpriors(const array1vd_t& ptable);
-   void setreceiver(const array1vd_t& ptable);
    // Interface with derived classes
    void advance() const
       {
@@ -210,6 +206,8 @@ protected:
          inter(set)->advance();
       }
    void do_encode(const array1i_t& source, array1i_t& encoded);
+   void do_init_decoder(const array1vd_t& ptable);
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor

@@ -13,7 +13,7 @@ qids<bool,float>
 1
 # Vary Pi?
 1
-# Cap on I (0=uncapped)
+# Cap on m1_max (0=uncapped) [trellis receiver only]
 0
 # Fixed Ps value
 0
@@ -26,7 +26,9 @@ qids<bool,float>
 ## Modem
 marker<bool,float,float>
 # Version
-1
+2
+# Probability of channel event outside chosen limits
+1e-10
 # Normalize metrics between time-steps?
 1
 # Number of codewords to look ahead when stream decoding

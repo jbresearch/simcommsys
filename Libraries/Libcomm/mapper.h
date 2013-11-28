@@ -201,8 +201,7 @@ public:
    //! Sets input block size (as at encoder output)
    void set_blocksize(libbase::size_type<C> size)
       {
-      assert(size > 0);
-      This::size = size;
+      this->size = size;
       setup();
       }
    // @}
