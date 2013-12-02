@@ -1,0 +1,8 @@
+doc
+[Dd]ebug
+[Rr]elease
+[Pp]rofile
+Win32
+x64
+*.suo
+*.ncb
