@@ -135,7 +135,7 @@ endif
 
 ## Build Version from git
 
-SIMCOMMSYS_VERSION := $(shell git describe --all --always --dirty)
+SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 
 
 ## List of users libraries (in linking order)
