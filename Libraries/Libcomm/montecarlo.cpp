@@ -151,8 +151,7 @@ void montecarlo::writeheader(std::ostream& sout) const
    sout << "#% Confidence Level: " << get_confidence_level() << std::endl;
    sout << "#% Convergence Mode: " << get_convergence_mode() << std::endl;
    sout << "#% Date: " << libbase::timer::date() << std::endl;
-   sout << "#% URL: " << __WCURL__ << std::endl;
-   sout << "#% Version: " << __WCVER__ << std::endl;
+   sout << "#% Version: " << SIMCOMMSYS_VERSION << std::endl;
    sout << "#" << std::endl;
    // Print results header
    sout << "# Par";

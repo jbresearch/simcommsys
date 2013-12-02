@@ -133,10 +133,9 @@ ifeq ($(MAKELEVEL),0)
    endif
 endif
 
-## Version control information
+## Build Version from git
 
-WCURL := $(shell svn info 2> /dev/null |gawk '/^URL/ { print $$2 }' 2> /dev/null)
-WCVER := $(shell svnversion 2> /dev/null)
+SIMCOMMSYS_VERSION := $(shell git describe --all --always --dirty)
 
 
 ## List of users libraries (in linking order)
@@ -205,7 +204,7 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) -Wall -Werror
 #CCopts := $(CCopts) -std=c++0x
-CCopts := $(CCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
+CCopts := $(CCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\"
 # note: below disabled to avoid problems with parallel builds
 # note: below should be replaced with the following when we move to gcc > 4.4
 #CCopts := $(CCopts) -save-temps
@@ -257,7 +256,7 @@ NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 #NVCCopts := $(NVCCopts) -Xopencc "-woffall"
 #NVCCopts := $(NVCCopts) -Xptxas "-v"
 NVCCopts := $(NVCCopts) -w
-NVCCopts := $(NVCCopts) -D__WCVER__=\"$(WCVER)\" -D__WCURL__=\"$(WCURL)\"
+NVCCopts := $(NVCCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\"
 NVCCopts := $(NVCCopts) -DUSE_CUDA
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
 ifeq ($(OSARCH),i686)

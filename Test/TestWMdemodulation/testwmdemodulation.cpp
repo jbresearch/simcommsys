@@ -253,8 +253,7 @@ int main(int argc, char *argv[])
    const double Pe = ((argc > ++i) ? atof(argv[i]) : Plo);
 
    // show revision information
-   cout << "URL: " << __WCURL__ << std::endl;
-   cout << "Version: " << __WCVER__ << std::endl;
+   cout << "Version: " << SIMCOMMSYS_VERSION << std::endl;
 
    // do what the user asked for
    switch (type)

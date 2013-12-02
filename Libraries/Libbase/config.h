@@ -102,10 +102,10 @@
 
 // Dummy entries for version-control macros, currently useful only in Windows
 // builds; UNIX builds get the values automatically determined on build.
+// TODO: update VS build to set these properly from working copy
 
-#ifndef __WCURL__
-#  define __WCURL__ "undefined"
-#  define __WCVER__ "undefined"
+#ifndef SIMCOMMSYS_VERSION
+#  define SIMCOMMSYS_VERSION "undefined"
 #endif
 
 // Implemented log2, round, and sgn if these are not already available
