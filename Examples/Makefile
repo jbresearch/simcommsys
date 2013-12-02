@@ -28,8 +28,8 @@ COLLECTOR_TYPES := errors_levenshtein errors_hamming prof_pos fidelity_pos
 INPUT_TYPES := random zero user
 
 # Set default tag and release to test with
-ifndef TAG
-export TAG := $(notdir $(shell cd .. && pwd))
+ifndef BUILDID
+export BUILDID := $(notdir $(shell cd .. && pwd))
 endif
 ifndef RELEASE
 export RELEASE := debug
@@ -309,8 +309,8 @@ Timers/%.txt: Systems/%.txt
 
 TestLogs/sim.%.txt: Simulators/%.txt
 	@echo Testing $<
-	@SPECturbo.$(TAG).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
+	@SPECturbo.$(BUILDID).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
 
 TestLogs/tim.%.txt: Timers/%.txt
 	@echo Testing $<
-	@SPECturbo.$(TAG).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
+	@SPECturbo.$(BUILDID).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1

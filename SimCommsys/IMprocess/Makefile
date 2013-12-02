@@ -34,7 +34,7 @@ endif
 DEPEND := $(OBJECTS:%.o=%.d)
 # Automatically determine the final target name
 TARGET := $(SOURCES:%.cpp=$(BUILDDIR)/%)
-FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(TAG).$(RELEASE))
+FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(BUILDID).$(RELEASE))
 
 # Master targets
 
@@ -46,7 +46,7 @@ build:	$(TARGET)
 install:	$(FINAL)
 
 clean:
-	@echo "Cleaning [$(TAG): $(RELEASE)]"
+	@echo "Cleaning [$(BUILDID): $(RELEASE)]"
 	@$(RM) $(BUILDDIR)
 
 ## Setting targets
@@ -62,35 +62,35 @@ clean:
 
 $(TARGET):	$(OBJECTS) $(LIBRARIES)
 	@$(MKDIR) $(dir $@)
-	@echo "Linking $(notdir $@) [$(TAG): $(RELEASE)]"
+	@echo "Linking $(notdir $@) [$(BUILDID): $(RELEASE)]"
 	@$(LD) -o $@ $(OBJECTS) $(LDflags)
 
 # Pattern-matched targets
 
-$(BINDIR)/%.$(TAG).$(RELEASE):	$(BUILDDIR)/%
+$(BINDIR)/%.$(BUILDID).$(RELEASE):	$(BUILDDIR)/%
 	@$(MKDIR) $(dir $@)
-	@echo "Installing $* [$(TAG): $(RELEASE)]"
+	@echo "Installing $* [$(BUILDID): $(RELEASE)]"
 	@$(CP) $< $@
 
 $(BUILDDIR)/%.o:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(TAG): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
 	@$(NVCC) $(NVCCflags) -c $< -o $@
 
 $(BUILDDIR)/%.o:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(TAG): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
 	@$(CC) $(CCflags) -c $< -o $@
 
 $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(TAG): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
 	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $@ $<
 	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(TAG): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
 	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$@ $<
 	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 

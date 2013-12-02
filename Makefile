@@ -79,21 +79,26 @@ ifneq ($(RELEASE),$(filter $(RELEASE),release debug profile))
 endif
 
 
+## Build version and branch from git
+
+SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
+SIMCOMMSYS_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+
 ## Build and installations details
 
-# Tag to identify build
-export TAG := $(shell git rev-parse --abbrev-ref HEAD)
+# String to identify build
+export BUILDID := $(SIMCOMMSYS_BRANCH)
 ifneq ($(USE_OMP),0)
-   TAG := $(TAG)-omp
+   BUILDID := $(BUILDID)-omp
 endif
 ifneq ($(USE_MPI),0)
-   TAG := $(TAG)-mpi
+   BUILDID := $(BUILDID)-mpi
 endif
 ifneq ($(USE_GMP),0)
-   TAG := $(TAG)-gmp
+   BUILDID := $(BUILDID)-gmp
 endif
 ifneq ($(USE_CUDA),0)
-   TAG := $(TAG)-cuda$(USE_CUDA)
+   BUILDID := $(BUILDID)-cuda$(USE_CUDA)
 endif
 
 ## Folders
@@ -101,7 +106,7 @@ endif
 # Root folder for package
 export ROOTDIR := $(CURDIR)
 # Folder for the build object files and binaries
-export BUILDDIR = $(RELEASE)/$(OSARCH)/$(TAG)
+export BUILDDIR = $(RELEASE)/$(OSARCH)/$(BUILDID)
 # Folder for installed binaries
 ifndef BINDIR
    ifeq ($(shell [ -d ~/bin.$(KERNEL) ] && echo 1),1)
@@ -129,13 +134,9 @@ ifeq ($(MAKELEVEL),0)
          $(info Using CUDA: yes, compute model $(USE_CUDA))
       endif
       $(info Install folder: $(BINDIR))
-      $(info Build tag: $(TAG))
+      $(info Build tag: $(BUILDID))
    endif
 endif
-
-## Build Version from git
-
-SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 
 
 ## List of users libraries (in linking order)
@@ -314,7 +315,9 @@ default:
 	@echo "   clean-all : removes all binaries"
 	@echo "   clean-dep : removes all dependency files"
 	@echo "   showsettings : outputs compiler settings used"
-	@echo "   tag : outputs the tag to be used for the given settings"
+	@echo "   buildid : outputs the build identifier string for the given settings"
+	@echo "   branch : outputs the branch string"
+	@echo "   version : outputs the version string"
 
 all:
 	@$(MAKE) install plain-install
@@ -334,8 +337,14 @@ clean-dep:
 showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
 
-tag:
-	@echo $(TAG)
+buildid:
+	@echo $(BUILDID)
+
+branch:
+	@echo $(SIMCOMMSYS_BRANCH)
+
+version:
+	@echo $(SIMCOMMSYS_VERSION)
 
 ## Matched targets
 
@@ -393,9 +402,9 @@ FORCE:
 ## Manual targets
 
 $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
-	@echo "----> Making target \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
+	@echo "----> Making target \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
 $(TARGETS_LIBS):	FORCE
-	@echo "----> Making library \"$(notdir $@)\" [$(TAG): $(RELEASE)]."
+	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
