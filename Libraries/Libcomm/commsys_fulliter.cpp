@@ -20,15 +20,6 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*!
- \file
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
- */
-
 #include "commsys_fulliter.h"
 #include "vectorutils.h"
 #include "vector_itfunc.h"

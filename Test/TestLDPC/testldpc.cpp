@@ -46,18 +46,15 @@ using std::ofstream;
 using libcomm::sum_prod_alg_gdl;
 
 namespace testldpc {
+
 using libbase::matrix;
 using libbase::gf;
 using libbase::randgen;
 using libbase::linear_code_utils;
+
 /*!
  \brief Test program for LDPC class
  \author  Steve Wesemeyer
-
- \section svn Version Control
- - $Revision$
- - $Date$
- - $Author$
  */
 
 typedef libbase::vector<double> array1d_t;

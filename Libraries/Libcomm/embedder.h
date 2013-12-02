@@ -34,11 +34,7 @@ namespace libcomm {
 /*!
  * \brief   Common Data Embedder/Extractor Interface.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Class defines common interface for embedder classes.
  */
@@ -90,11 +86,7 @@ public:
 /*!
  * \brief   Data Embedder/Extractor Base.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <class S>

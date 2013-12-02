@@ -1,7 +1,5 @@
 #!/bin/bash
-# $Author$
-# $Revision$
-# $Date$
+#$Id$
 
 # Usage: benchmark.sh [Port [Count [Release]]]
 

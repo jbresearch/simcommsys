@@ -30,11 +30,7 @@ namespace libcomm {
 /*!
  * \brief   Q-ary Modulator Implementation.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Specific implementation of q-ary channel modulation.
  *
@@ -73,11 +69,7 @@ public:
 /*!
  * \brief   Binary Modulator Implementation Specialization.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Specific implementation of binary channel modulation.
  */
@@ -109,11 +101,7 @@ public:
 /*!
  * \brief   Direct Modulator Implementation.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <class G>

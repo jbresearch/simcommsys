@@ -34,11 +34,7 @@ namespace libcomm {
 /*!
  * \brief   Common Modulator Interface.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * Class defines common interface for modem classes.
  */
@@ -99,11 +95,7 @@ public:
 /*!
  * \brief   Modulator Base.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <class S>
@@ -113,11 +105,7 @@ class modem : public basic_modem<S> {
 /*!
  * \brief   Signal-Space Modulator Specialization.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <>

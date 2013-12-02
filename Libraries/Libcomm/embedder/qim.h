@@ -31,11 +31,7 @@ namespace libcomm {
 /*!
  * \brief   Quantization Index Modulation (QIM) Embedder/Extractor.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  */
 
 template <class S>

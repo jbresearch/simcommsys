@@ -32,11 +32,7 @@ namespace libcomm {
 /*!
  * \brief   LSB Embedder/Extractor.
  * \author  Johann Briffa
- *
- * \par Version Control:
- * - $Revision$
- * - $Date$
- * - $Author$
+ * $Id$
  *
  * This class implements LSB embedding that can be applied to any integer type.
  * Two types of embedding are implemented:
