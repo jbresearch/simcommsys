@@ -19,8 +19,8 @@ nrcc
 1	2
 1011011	1111001
 # Message length (including tail, if any)
-8160
+8166
 # Terminated?
-0
+1
 # Circular?
 0
