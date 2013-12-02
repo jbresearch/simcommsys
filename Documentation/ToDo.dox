@@ -45,6 +45,7 @@ and should be done before a merge to trunk.
 
 \section features Feature Requests
 
+- Add support for specifying interface arithmethic type in commsys objects
 - Add facility for puncturing/padding at the mapper interface
 - Plot posterior PDF at given boundary locations
 - Generalize BPMR model to work with TVB [shelve for now]
