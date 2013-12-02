@@ -176,6 +176,7 @@ int main(int argc, char *argv[])
 
             // Output timing statistics
             cout << std::endl;
+            cout << "Branch: " << SIMCOMMSYS_BRANCH << std::endl;
             cout << "Version: " << SIMCOMMSYS_VERSION << std::endl;
             cout << "Statistics: " << samples << " samples in "
                   << estimator.get_timer() << "." << std::endl;
