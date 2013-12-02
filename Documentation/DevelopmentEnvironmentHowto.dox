@@ -275,10 +275,10 @@ For Exectutables to be tagged properly with the branch label, you need to
 load the macro file SimCommSys.vsmacros.
 Unfortunately this would apply to all Visual Studio solutions, so you can
 only load one whatever branch you are in.
-Therefore it is suggested that you load the one in the trunk.
-If you need to modify this in a particular branch, it is suggested that
-you temporarily unload the macro file from trunk and load the one from the
-required branch.
+Therefore it is suggested that you load the one in the master branch.
+If you need to modify this in a particular branch, it is suggested that you
+temporarily unload the macro file from the master branch and load the one
+from the required branch.
 
 \note The macro file includes also a macro that stops the build process when
 a a build error is encountered.  The normal behaviour of Visual Studio is

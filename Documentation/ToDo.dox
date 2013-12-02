@@ -33,8 +33,14 @@ It is good to annotate these by how important they are:
 - Urgent: fixes for bugs causing problems with plain build
 - Important: fixes for bugs causing problems with other builds
 The above two refer to problems that cause broken builds or erroneous results,
-and should be done before a merge to trunk.
+and should be done before a merge to the master branch.
 - High: high-priority tasks that do not cause broken builds or erroneous results
+
+\section documentation Documentation
+
+- Update development documentation to reflect use of git [High]
+- Add user documentation explaining parameters accepted for every commsys
+  component available (ie. the list given in the paper) [High]
 
 \section development Development
 
