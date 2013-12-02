@@ -3,7 +3,7 @@
 # $Revision$
 # $Date$
 
-# Usage: runSPECturbo [Port [Count [Release]]]
+# Usage: benchmark.sh [Port [Count [Release]]]
 
 if (( $# > 0 )); then
    PORT=$1
@@ -23,15 +23,15 @@ else
    RELEASE=release
 fi
 
-BRANCH=`make tag`
+BUILD=`make --no-print-directory -C .. buildid`
 
 # start slave processes (one/CPU)
 declare -i i
 for (( i=0; $i < $COUNT; i++ )); do
    echo Starting slave $i
-   ( sleep 1; SPECturbo.$BRANCH.$RELEASE -q -p 0 -e localhost:$PORT >/dev/null 2>&1 )&
+   ( sleep 1; quicksimulation.$BUILD.$RELEASE -q -p 0 -e localhost:$PORT >/dev/null 2>&1 )&
 done
 
 # start master process
 echo Starting master
-SPECturbo.$BRANCH.$RELEASE -e :$PORT
+quicksimulation.$BUILD.$RELEASE -e :$PORT -r 0.5 -i Simulators/errors_hamming-random-awgn-bpsk-turbo-rscc_1_2_2-helical-158-2-stipple-10.txt

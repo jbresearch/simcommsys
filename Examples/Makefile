@@ -309,8 +309,8 @@ Timers/%.txt: Systems/%.txt
 
 TestLogs/sim.%.txt: Simulators/%.txt
 	@echo Testing $<
-	@SPECturbo.$(BUILDID).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
+	@quicksimulation.$(BUILDID).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
 
 TestLogs/tim.%.txt: Timers/%.txt
 	@echo Testing $<
-	@SPECturbo.$(BUILDID).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1
+	@quicksimulation.$(BUILDID).$(RELEASE) -t 1 -r 1e-2 -i $< > $@ 2>&1

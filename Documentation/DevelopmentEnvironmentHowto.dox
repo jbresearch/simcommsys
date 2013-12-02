@@ -186,13 +186,13 @@ Libraries/
    Libbase/
    Libcomm/
 
-SimCommSys/
+SimCommsys/
    CSdecode/
    CSencode/
    CStransmit/
    CSfullcycle/
    SimCommsys/
-   SPECturbo/
+   QuickSimulation/
 \endverbatim
 It is safe to import all projects but initially this should be more
 than sufficient.
