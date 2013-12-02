@@ -106,7 +106,7 @@
 
 #ifndef SIMCOMMSYS_VERSION
 #  define SIMCOMMSYS_VERSION "undefined"
-#  define SIMCOMMSYS_BRANCH "undefined"
+#  define SIMCOMMSYS_BUILD "undefined"
 #endif
 
 // Implemented log2, round, and sgn if these are not already available

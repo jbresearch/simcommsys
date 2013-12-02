@@ -79,15 +79,14 @@ ifneq ($(RELEASE),$(filter $(RELEASE),release debug profile))
 endif
 
 
-## Build version and branch from git
+## Build version from git
 
 SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
-SIMCOMMSYS_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
 ## Build and installations details
 
 # String to identify build
-export BUILDID := $(SIMCOMMSYS_BRANCH)
+export BUILDID := $(shell git rev-parse --abbrev-ref HEAD)
 ifneq ($(USE_OMP),0)
    BUILDID := $(BUILDID)-omp
 endif
@@ -205,7 +204,7 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) -Wall -Werror
 #CCopts := $(CCopts) -std=c++0x
-CCopts := $(CCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\"
+CCopts := $(CCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\" -DSIMCOMMSYS_BUILD=\"$(BUIILDID)\"
 # note: below disabled to avoid problems with parallel builds
 # note: below should be replaced with the following when we move to gcc > 4.4
 #CCopts := $(CCopts) -save-temps
@@ -257,7 +256,7 @@ NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 #NVCCopts := $(NVCCopts) -Xopencc "-woffall"
 #NVCCopts := $(NVCCopts) -Xptxas "-v"
 NVCCopts := $(NVCCopts) -w
-NVCCopts := $(NVCCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\"
+NVCCopts := $(NVCCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\" -DSIMCOMMSYS_BUILD=\"$(BUIILDID)\"
 NVCCopts := $(NVCCopts) -DUSE_CUDA
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
 ifeq ($(OSARCH),i686)
@@ -316,7 +315,6 @@ default:
 	@echo "   clean-dep : removes all dependency files"
 	@echo "   showsettings : outputs compiler settings used"
 	@echo "   buildid : outputs the build identifier string for the given settings"
-	@echo "   branch : outputs the branch string"
 	@echo "   version : outputs the version string"
 
 all:
@@ -339,9 +337,6 @@ showsettings:
 
 buildid:
 	@echo $(BUILDID)
-
-branch:
-	@echo $(SIMCOMMSYS_BRANCH)
 
 version:
 	@echo $(SIMCOMMSYS_VERSION)
