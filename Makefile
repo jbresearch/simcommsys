@@ -82,7 +82,7 @@ endif
 ## Build and installations details
 
 # Tag to identify build
-export TAG := $(notdir $(CURDIR))
+export TAG := $(shell git rev-parse --abbrev-ref HEAD)
 ifneq ($(USE_OMP),0)
    TAG := $(TAG)-omp
 endif
