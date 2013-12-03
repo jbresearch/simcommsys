@@ -255,7 +255,7 @@ template <class dbl>
 void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<double> >& gamma, array1vd_t& recv_ptable)
    {
    int inp_combinations = pow(2,k);
-   double Lc = 5.0;
+   //double Lc = 5.0;
    int state_table_row = 0;
    int _nxt_state = 0;
 

@@ -24,4 +24,4 @@ conv_codec<double>
 # Alphabet size
 2
 # Block length
-10
+100
