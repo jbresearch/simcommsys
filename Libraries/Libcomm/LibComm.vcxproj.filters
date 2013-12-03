@@ -365,6 +365,9 @@
     <ClCompile Include="modem\conv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="codec\conv_codec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annealer\system\anneal_interleaver.h">
@@ -740,6 +743,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modem\conv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codec\conv_codec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

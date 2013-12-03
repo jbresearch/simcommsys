@@ -4,25 +4,7 @@ commsys<gf2,vector>
 # Single channel?
 1
 ## Channel
-qids<gf2,float>
-# Version
-3
-# Vary Ps?
-0
-# Vary Pd?
-1
-# Vary Pi?
-1
-# Cap on I (0=uncapped)
-0
-# Fixed Ps value
-0
-# Fixed Pd value
-0
-# Fixed Pi value
-0
-# Mode for receiver (0=trellis, 1=lattice, 2=lattice corridor)
-0
+awgn
 ## Modem
 conv<gf2,double,float>
 # Type (0 = feedforward, 1 = 1 feedback path, 2 = Multiple feeedback paths)

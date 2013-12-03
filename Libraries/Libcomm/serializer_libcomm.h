@@ -102,6 +102,7 @@
 #include "codec/sysrepacc.h"
 #include "codec/reedsolomon.h"
 #include "codec/ldpc.h"
+#include "codec/conv_codec.h"
 
 // Signal Mappers
 #include "mapper.h"
@@ -191,6 +192,7 @@ private:
    qam _qam;
    dminner<double> _dminner;
    tvb<bool, double, float> _tvb;
+   //conv<bool, double, float> _conv;
    conv<bool, double, float> _conv;
    marker<bool, double, float> _marker;
    // Convolutional Encoders
@@ -210,6 +212,7 @@ private:
    reedsolomon<libbase::gf8> _reedsolomon;
    repacc<double> _repacc;
    sysrepacc<double> _sysrepacc;
+   conv_codec<double> _conv_codec;
    // Mappers
    map_straight<libbase::vector> _map_straight;
    map_interleaved<libbase::vector> _map_interleaved;

@@ -1,6 +1,6 @@
 /*!
  * \file
- * $Id: tvb.cpp 9909 2013-09-23 08:43:23Z jabriffa $
+ * $Id: uncoded.cpp 9909 2013-09-23 08:43:23Z jabriffa $
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -20,90 +20,126 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "conv.h"
-#include "algorithm/fba2-factory.h"
-#include "sparse.h"
-#include "timer.h"
-#include "cputimer.h"
-#include "pacifier.h"
+#include "conv_codec.h"
 #include "vectorutils.h"
 #include <sstream>
-#include <iostream>
-
-#include <bitset>
-#include <limits>
 
 namespace libcomm {
 
-// Determine debug level:
-// 1 - Normal debug output only
-// 2 - Show codebooks on frame advance
-// 3 - Show transmitted sequence and the encoded message it represents
-// 4 - Show prior and posterior sof/eof probabilities when decoding
-// 5 - Show prior and posterior symbol probabilities when decoding
-#ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
-#endif
+// internal codec operations
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::advance() const
+template <class dbl>
+void conv_codec<dbl>::resetpriors()
    {
+   // Allocate space for prior input statistics
+   libbase::allocate(rp, This::input_block_size(), This::num_inputs());
+   // Initialize
+   rp = 1.0;
+   }
+
+template <class dbl>
+void conv_codec<dbl>::setpriors(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::input_block_size());
+   // Copy the input statistics
+   rp = ptable;
+   }
+
+template <class dbl>
+void conv_codec<dbl>::setreceiver(const array1vd_t& ptable)
+   {
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == This::num_outputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == This::output_block_size());
+   // Copy the output statistics
+   R = ptable;
    }
 
 // encoding and decoding functions
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
-      array1s_t& tx)
+template <class dbl>
+void conv_codec<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
-   //Display encoded stream
-   for(int z = 0; z < encoded.size();z++)
-      {
-      std::cout << encoded(z) << std::endl;
-      }
-   
-   encoding_steps = 0;
-   //TODO: Check Setting transmission size, no. of encoded bits *
-   libbase::vector<sig> temp_tx;
-   int tx_size = (ceil((double)(encoded.size()/k)))*n;
-   temp_tx.init(tx_size);
+   /*std::cout << std::endl;
+   std::cout << std::endl;
+   std::cout << "Original Data" << std::endl;
+   for(int i = 0;i<source.size();i++)
+      std::cout << source(i) << " ";*/
 
-   int tx_cnt = 0;
+   encoded.init(block_length_w_tail);
+   encode_data(source, encoded);
+   }
 
+template <class dbl>
+void conv_codec<dbl>::encode_data(const array1i_t& source, array1i_t& encoded)
+   {
    int out_loc = k+(no_states*2);
    int ns_loc = k+no_states;//next state location
+   int encoding_counter = 0;
+   int tx_cnt = 0;
+   int row = 0;
+   
+   //Resetting encoding steps to 0
+   encoding_steps = 0;
 
    std::string curr_state = "";
-
    std::string input_and_state = "";
-
    for(int s = 0; s < no_states;s++)
-      {
       curr_state = curr_state + "0";
-      }
    
    std::string input = "";
-   int i = 0;
-   //int ab = encoded.size();
-   while(i < encoded.size())
+   
+   while(encoding_counter < source.size())
       {
       input = "";
-      for(int j = 0;j < k;j++)
+      //Getting input
+      for(int inp_cnt = 0;inp_cnt < k;inp_cnt++)
          {
-         if(i > encoded.size())
+         if(encoding_counter > source.size())
             input += "0";
          else
-            input += toString(encoded(i));
+            input += toString(source(encoding_counter));
 
-         i++;
+         encoding_counter++;
          }
 
       input_and_state = input + curr_state;
-      int row = bin2int(input_and_state);
+      row = bin2int(input_and_state);
+      //Encoding
       for(int out_cnt = 0; out_cnt < n; out_cnt++)
          {
-         temp_tx(tx_cnt) = statetable(row, out_loc+out_cnt);
+         encoded(tx_cnt) = statetable(row, out_loc+out_cnt);
+         tx_cnt++;
+         }
+      
+      //Changing current state
+      for(int cnt = 0; cnt < no_states; cnt++)
+         {
+         curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
+         }
+      encoding_steps++;
+      }
+
+   //Tailing off
+   for(int tailoff_cnt = 0; tailoff_cnt < m; tailoff_cnt++)
+      {
+      input = "";
+      for(int inp_cnt = 0;inp_cnt < k;inp_cnt++)
+         {
+         input += "0";
+         }
+
+      input_and_state = input + curr_state;
+      row = bin2int(input_and_state);
+      for(int out_cnt = 0; out_cnt < n; out_cnt++)
+         {
+         encoded(tx_cnt) = statetable(row, out_loc+out_cnt);
          tx_cnt++;
          }
       
@@ -111,58 +147,15 @@ void conv<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
          {
          curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
          }
-      encoding_steps++;
-      }
-   
-   /*Tailing off*/
-   std::vector<sig> vec_tailoff;
-   //while(bin2int(curr_state) != 0)
-   for(int tailoff_cnt = 0; tailoff_cnt < m; tailoff_cnt++)
-      {
-      input = "";
-      for(int j = 0;j < k;j++)
-         {
-         input += "0";
-         i++;
-         }
-
-      input_and_state = input + curr_state;
-      int row = bin2int(input_and_state);
-      for(int out_cnt = 0; out_cnt < n; out_cnt++)
-         {
-         vec_tailoff.push_back(statetable(row, out_loc+out_cnt));
-         }
-      
-      for(int cnt = 0; cnt < no_states; cnt++)
-         {
-         curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
-         }
-      }
-
-   tx.init(temp_tx.size()+vec_tailoff.size());
-   tx.copyfrom(temp_tx);
-
-   int t_cnt = 0;
-   for(int cnt = temp_tx.size(); cnt < tx.size();cnt++)
-      {
-      tx(cnt) = vec_tailoff[t_cnt];
-      t_cnt++;
       }
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-      const array1s_t& rx, array1vd_t& ptable)
+template <class dbl>
+void conv_codec<dbl>::softdecode(array1vd_t& ri)
    {
-   //system("cls");
-   for(int z = 0; z < rx.size();z++)
-      {
-      std::cout << rx(z) << std::endl;
-      }
-
-   double recv[] = {0.3,0.1,-0.5,0.2,0.8,0.5,-0.5,0.3,0.1,-0.7,1.5,-0.4};
-   encoding_steps = 4;
-   recv_sequence = 12;
+   //double recv[] = {0.3,0.1,-0.5,0.2,0.8,0.5,-0.5,0.3,0.1,-0.7,1.5,-0.4};
+   //encoding_steps = 4;
+   recv_sequence = R.size();
 
    libbase::matrix<std::vector<double> > gamma;
    libbase::matrix<double> alpha;
@@ -172,7 +165,7 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 
    init_matrices(gamma, alpha, beta, output_symbol, output_bit);
 
-   work_gamma(gamma, recv);
+   work_gamma(gamma, R);
    work_alpha(gamma, alpha);
    work_beta(gamma, beta);
 
@@ -187,31 +180,28 @@ void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    libbase::vector<double> softout;
    softout.init((recv_sequence/n)*k);
 
-   fill_ptable(ptable, output_bit);
-   /*Fill ptable To be made a function - BEGIN*/
+   fill_ptable(ri, output_bit);
+
+   /*work_softout(output_bit, softout);
    
-   /*Fill ptable To be made a function - END*/
-
-   work_softout(output_bit, softout);
-
+   std::cout << std::endl;
+   std::cout << std::endl;
+   std::cout << "Decoded Data (prob)" << std::endl;
    for(int i = 0; i < softout.size();i++)
-      std::cout << softout(i) << " ";
-
-   /*std::vector<bool> output;
-
-   for(int cnt = 0; cnt < output_bit.size().cols(); cnt++)
-      {
-      if(log(output_bit(1,cnt)/output_bit(0,cnt)) >= 0)
-         output.push_back(1);
-      else
-         output.push_back(0);
-      }*/
-   //const array1vd_t app; // empty APP table
-   //dodemodulate(chan, rx, app, ptable);
+      std::cout << softout(i) << " ";*/
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
+template <class dbl>
+void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+   {
+   // Determine input-referred statistics
+   softdecode(ri);
+   // Copy output-referred statistics from input-referred ones
+   ro = ri;
+   }
+
+template <class dbl>
+void conv_codec<dbl>::init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
    {
    init_gamma(gamma);
    init_alpha(alpha);
@@ -220,8 +210,8 @@ void conv<sig, real, real2>::init_matrices(libbase::matrix<std::vector<double> >
    init_output_bit(output_bit);
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_gamma(libbase::matrix<std::vector<double> >& gamma)
+template <class dbl>
+void conv_codec<dbl>::init_gamma(libbase::matrix<std::vector<double> >& gamma)
    {
    gamma.init(pow(2,no_states), recv_sequence/n);
 
@@ -231,38 +221,38 @@ void conv<sig, real, real2>::init_gamma(libbase::matrix<std::vector<double> >& g
             gamma(row,col).push_back(-1.0);
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_alpha(libbase::matrix<double>& alpha)
+template <class dbl>
+void conv_codec<dbl>::init_alpha(libbase::matrix<double>& alpha)
    {
    alpha.init(pow(2,no_states), recv_sequence/n + 1);
-   settoval(alpha, 0.0);
+   alpha = 0;
    alpha(0,0) = 1.0;
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_beta(libbase::matrix<double>& beta)
+template <class dbl>
+void conv_codec<dbl>::init_beta(libbase::matrix<double>& beta)
    {
    beta.init(pow(2,no_states),recv_sequence/n + 1);
-   settoval(beta, 0.0);
+   beta = 0;
    beta(0,beta.size().cols()-1) = 1.0;
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init_output_symbol(libbase::matrix<double>& output_symbol)
+template <class dbl>
+void conv_codec<dbl>::init_output_symbol(libbase::matrix<double>& output_symbol)
    {
    output_symbol.init(pow(2,k),recv_sequence/n);
-   settoval(output_symbol,0.0);
+   output_symbol = 0;
    }
 
-template <class sig, class real, class real2>   
-void conv<sig, real, real2>::init_output_bit(libbase::matrix<double>& output_bit)
+template <class dbl>   
+void conv_codec<dbl>::init_output_bit(libbase::matrix<double>& output_bit)
    {
    output_bit.init(2,(recv_sequence/n)*k);
-   settoval(output_bit,0.0);
+   output_bit = 0;
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double> >& gamma, double* recv)
+template <class dbl>
+void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<double> >& gamma, array1vd_t& recv_ptable)
    {
    int inp_combinations = pow(2,k);
    double Lc = 5.0;
@@ -289,7 +279,8 @@ void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double> >& g
                   {
                   /*Found*/
                   next_state.push_back(_nxt_state);
-                  gamma(_nxt_state,col)[row] = calc_gamma_AWGN(state_table_row, col, recv, Lc);
+                  //gamma(_nxt_state,col)[row] = calc_gamma_AWGN(state_table_row, col, recv, Lc);
+                  gamma(_nxt_state,col)[row] = calc_gamma_prob(state_table_row, col, recv_ptable);
                   }
                else
                   {
@@ -301,7 +292,8 @@ void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double> >& g
                {
                if(input==0 && std::find(current_state.begin(), current_state.end(), row)!=current_state.end())
                   {
-                     gamma(_nxt_state,col)[row] = calc_gamma_AWGN(state_table_row, col, recv, Lc);
+                     //gamma(_nxt_state,col)[row] = calc_gamma_AWGN(state_table_row, col, recv, Lc);
+                     gamma(_nxt_state,col)[row] = calc_gamma_prob(state_table_row, col, recv_ptable);
                      next_state.push_back(_nxt_state);
                   }
                else
@@ -311,7 +303,8 @@ void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double> >& g
                }
             else
                {
-               gamma(_nxt_state,col)[row] = calc_gamma_AWGN(state_table_row, col, recv, Lc);
+               //gamma(_nxt_state,col)[row] = calc_gamma_AWGN(state_table_row, col, recv, Lc);
+               gamma(_nxt_state,col)[row] = calc_gamma_prob(state_table_row, col, recv_ptable);
                }
             }
          }
@@ -330,8 +323,27 @@ void conv<sig, real, real2>::work_gamma(libbase::matrix<std::vector<double> >& g
       }
    }
 
-template <class sig, class real, class real2>
-double conv<sig, real, real2>::calc_gamma_AWGN(int state_table_row, int col, double* recv, double Lc)
+template <class dbl>
+double conv_codec<dbl>::calc_gamma_prob(int state_table_row, int col, array1vd_t& recv_ptable)
+   {
+   double temp_gamma = 0.0;
+   int out_loc = k+(2*no_states);
+   int recv_loc = col * n;
+
+   for(int output = 0; output < n;output++)
+      {
+      if(output == 0)
+         temp_gamma = recv_ptable(recv_loc)(toInt(statetable(state_table_row,out_loc)));
+      else
+         temp_gamma *= recv_ptable(recv_loc)(toInt(statetable(state_table_row,out_loc)));
+      out_loc++;
+      recv_loc++;
+      }
+   return temp_gamma;
+   }
+
+template <class dbl>
+double conv_codec<dbl>::calc_gamma_AWGN(int state_table_row, int col, double* recv, double Lc)
    {
    double temp_gamma = 0.0;
    int out_loc = k+(2*no_states);
@@ -346,8 +358,8 @@ double conv<sig, real, real2>::calc_gamma_AWGN(int state_table_row, int col, dou
    return exp((Lc/2)*(temp_gamma));
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_alpha(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha)
+template <class dbl>
+void conv_codec<dbl>::work_alpha(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha)
    {
    double alpha_total = 0.0;
 
@@ -372,8 +384,8 @@ void conv<sig, real, real2>::work_alpha(libbase::matrix<std::vector<double> >& g
       }
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_beta(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& beta)
+template <class dbl>
+void conv_codec<dbl>::work_beta(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& beta)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
@@ -398,8 +410,8 @@ void conv<sig, real, real2>::work_beta(libbase::matrix<std::vector<double> >& ga
       }
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
+template <class dbl>
+void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
@@ -421,8 +433,8 @@ void conv<sig, real, real2>::decode(libbase::matrix<std::vector<double> >& gamma
       }
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::multiple_inputs(libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
+template <class dbl>
+void conv_codec<dbl>::multiple_inputs(libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
    {
    std::string binary_input = "";
    
@@ -453,10 +465,11 @@ void conv<sig, real, real2>::multiple_inputs(libbase::matrix<double>& output_sym
       }
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::fill_ptable(array1vd_t& ptable, libbase::matrix<double>& output_bit)
+template <class dbl>
+void conv_codec<dbl>::fill_ptable(array1vd_t& ptable, libbase::matrix<double>& output_bit)
    {
-   ptable.init(output_bit.size().cols());
+   //ptable.init(output_bit.size().cols());
+   ptable.init(block_length);
    for(int col = 0; col < ptable.size(); col++)
       {
       ptable(col).init(2);
@@ -467,15 +480,15 @@ void conv<sig, real, real2>::fill_ptable(array1vd_t& ptable, libbase::matrix<dou
       }
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::work_softout(libbase::matrix<double>& output_bit, libbase::vector<double>& softout)
+template <class dbl>
+void conv_codec<dbl>::work_softout(libbase::matrix<double>& output_bit, libbase::vector<double>& softout)
    {
    for(int cnt = 0; cnt < softout.size(); cnt++)
       softout(cnt) = log(output_bit(1,cnt)/output_bit(0,cnt));
    }
 
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::normalize(libbase::matrix<double>& mat)
+template <class dbl>
+void conv_codec<dbl>::normalize(libbase::matrix<double>& mat)
    {
    double norm_total;
    for(int col = 0; col < mat.size().cols();col++)
@@ -492,8 +505,8 @@ void conv<sig, real, real2>::normalize(libbase::matrix<double>& mat)
       }
    }
 
-template <class sig, class real, class real2>
-int conv<sig, real, real2>::get_next_state(int input, int curr_state)
+template <class dbl>
+int conv_codec<dbl>::get_next_state(int input, int curr_state)
    {
    int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
    int next_state_loc = k + no_states;
@@ -508,8 +521,8 @@ int conv<sig, real, real2>::get_next_state(int input, int curr_state)
    return bin2int(str_nxt_state);
    }
 
-template <class sig, class real, class real2>
-int conv<sig, real, real2>::get_next_state(int input, int curr_state, int& state_table_row)
+template <class dbl>
+int conv_codec<dbl>::get_next_state(int input, int curr_state, int& state_table_row)
    {
    state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
    int next_state_loc = k + no_states;
@@ -524,189 +537,25 @@ int conv<sig, real, real2>::get_next_state(int input, int curr_state, int& state
    return bin2int(str_nxt_state);
    }
 
-// Setup procedure
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init(const channel<sig>& chan,
-      const array1d_t& sof_pdf, const int offset)
-   {
-//#ifndef NDEBUG
-//   libbase::cputimer t("t_init");
-//#endif
-//   // Inherit block size from last modulation step (and include lookahead)
-//   const int N = this->input_block_size() + lookahead;
-//   const int tau = N * n;
-//   assert(N > 0);
-//   // Copy channel for access within R()
-//   mychan = dynamic_cast<const qids<sig, real2>&> (chan);
-//   // Set channel block size to q-ary symbol size
-//   mychan.set_blocksize(n);
-//   // Set the probability of channel event outside chosen limits
-//   mychan.set_pr(qids_utils::divide_error_probability(Pr, N));
-//   // Determine required FBA parameter values
-//   // No need to recompute mtau_min/max if we are given a prior PDF
-//   mtau_min = -offset;
-//   mtau_max = sof_pdf.size() - offset - 1;
-//   if (sof_pdf.size() == 0)
-//      mychan.compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
-//   int mn_min, mn_max;
-//   mychan.compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
-//         mn_max);
-//   int m1_min, m1_max;
-//   mychan.compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
-//         m1_min, m1_max);
-//   checkforchanges(m1_min, m1_max, mn_min, mn_max, mtau_min, mtau_max);
-//   //! Determine whether to use global storage
-//   bool globalstore = false; // set to avoid compiler warning
-//   const int required = fba_type::get_memory_required(N, n, q, mtau_min,
-//         mtau_max, mn_min, mn_max);
-//   switch (storage_type)
-//      {
-//      case storage_local:
-//         globalstore = false;
-//         break;
-//
-//      case storage_global:
-//         globalstore = true;
-//         break;
-//
-//      case storage_conditional:
-//         globalstore = (required <= globalstore_limit);
-//         checkforchanges(globalstore, required);
-//         break;
-//
-//      default:
-//         failwith("Unknown storage mode");
-//         break;
-//      }
-//   // Create an embedded algorithm object of the correct type
-//   const bool thresholding = th_inner > real(0) || th_outer > real(0);
-//   fba_ptr = fba2_factory<recv_type, sig, real, real2>::get_instance(
-//         thresholding, flags.lazy, globalstore);
-//   // Initialize our embedded metric computer with unchanging elements
-//   // (needs to happen before fba initialization)
-//   fba_ptr->get_receiver().init(n, q, mychan);
-//   // Initialize forward-backward algorithm
-//   fba_ptr->init(N, n, q, mtau_min, mtau_max, mn_min, mn_max, m1_min, m1_max,
-//         th_inner, th_outer);
-//#ifndef NDEBUG
-//   this->add_timer(t);
-//#endif
-   }
-
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::init()
-   {
-   }
-
-// Marker-specific setup functions
-
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::set_thresholds(const real th_inner,
-      const real th_outer)
-   {
-//   /*This::th_inner = th_inner;
-//   This::th_outer = th_outer;
-//   test_invariant();*/
-   }
-
 // description output
-
-template <class sig, class real, class real2>
-std::string conv<sig, real, real2>::description() const
+template <class dbl>
+std::string conv_codec<dbl>::description() const
    {
    std::ostringstream sout;
-   //sout << "Time-Varying Block Code (" << n << "," << q << ", ";
-   //switch (codebook_type)
-   //   {
-   //   case codebook_sparse:
-   //      sout << "sparse codebook";
-   //      break;
-
-   //   case codebook_random:
-   //      sout << "random codebooks";
-   //      break;
-
-   //   case codebook_user_sequential:
-   //      sout << codebook_name << " codebook ["
-   //            << codebook_tables.size().rows() << ", sequential]";
-   //      break;
-
-   //   case codebook_user_random:
-   //      sout << codebook_name << " codebook ["
-   //            << codebook_tables.size().rows() << ", random]";
-   //      break;
-
-   //   default:
-   //      failwith("Unknown codebook type");
-   //      break;
-   //   }
-   //switch (marker_type)
-   //   {
-   //   case marker_zero:
-   //      sout << ", no marker";
-   //      break;
-
-   //   case marker_random:
-   //      sout << ", random marker";
-   //      break;
-
-   //   case marker_user_sequential:
-   //      sout << ", user [" << marker_vectors.size() << ", sequential]";
-   //      break;
-
-   //   case marker_user_random:
-   //      sout << ", user [" << marker_vectors.size() << ", random]";
-   //      break;
-
-   //   default:
-   //      failwith("Unknown marker sequence type");
-   //      break;
-   //   }
-   //sout << ", thresholds " << th_inner << "/" << th_outer;
-   //sout << ", Pr=" << Pr;
-   //sout << ", normalized";
-   //sout << ", batch interface";
-   //if (flags.lazy)
-   //   sout << ", lazy computation";
-   //else
-   //   sout << ", pre-computation";
-   //switch (storage_type)
-   //   {
-   //   case storage_local:
-   //      sout << ", local storage";
-   //      break;
-
-   //   case storage_global:
-   //      sout << ", global storage";
-   //      break;
-
-   //   case storage_conditional:
-   //      sout << ", global storage [≤" << globalstore_limit << " MiB]";
-   //      break;
-
-   //   default:
-   //      failwith("Unknown storage mode");
-   //      break;
-   //   }
-   //if (lookahead == 0)
-   //   sout << ", no look-ahead";
-   //else
-   //   sout << ", look-ahead " << lookahead << " codewords";
-   //sout << "), ";
-   //if (fba_ptr)
-   //   sout << fba_ptr->description();
-   //else
-   //   sout << "FBA object not initialized";
+   sout << "Uncoded Representation (" << block_length << "x" << alphabet_size << ")";
    return sout.str();
    }
 
 // object serialization - saving
-
-template <class sig, class real, class real2>
-std::ostream& conv<sig, real, real2>::serialize(std::ostream& sout) const
+template <class dbl>
+std::ostream& conv_codec<dbl>::serialize(std::ostream& sout) const
    {
    sout << "# Type (0 = feedforward, 1 = 1 feedback path, 2 = Multiple feeedback paths)" << std::endl;
    sout << type << std::endl;
+   sout << "# Alphabet size" << std::endl;
+   sout << alphabet_size << std::endl;
+   sout << "# Block length" << std::endl;
+   sout << block_length << std::endl;
    sout << "# no. of inputs" << std::endl;
    sout << k << std::endl;
    sout << "# no. of outputs" << std::endl;
@@ -721,131 +570,137 @@ std::ostream& conv<sig, real, real2>::serialize(std::ostream& sout) const
    return sout;
    }
 
-template <class sig, class real, class real2>
-std::istream& conv<sig, real, real2>::serialize(std::istream& sin)
+// object serialization - loading
+template <class dbl>
+std::istream& conv_codec<dbl>::serialize(std::istream& sin)
    {
    sin >> libbase::eatcomments >> type >> libbase::verify;
-
    sin >> libbase::eatcomments >> k >> libbase::verify;
-
    sin >> libbase::eatcomments >> n >> libbase::verify;
-   
    sin >> libbase::eatcomments;
 
-   //FeedForward
    if(type == 0)
-      {
-      ffcodebook.init(k,n);
-      std::string temp;
-      
-      std::string* ff_arr = new std::string[n*k];
-      
-      int * m_arr = new int[k];
-      m = 0;
-      //Initializing m_arr to all 0
-      for(int i = 0; i < k; i++)
-         m_arr[i] = 0;
+      feedforward(sin);
+   else if(type > 0)
+      feedback(sin);
 
-      //Getting m for each input, and setting m
-      int str_size = 0;
-      int cnt = 0;
-      for(int row = 0; row < k; row++)
-         {
-         for(int col = 0; col < n; col++)
-            {
-            sin >> temp;
-            ff_octal += temp + " ";
-            ff_arr[cnt] = temp;
-            cnt++;
-            str_size = oct2bin(temp,0,0).size()-1;
-            if(str_size > m_arr[row])
-               m_arr[row] = str_size;
-            if(m_arr[row] > m)
-               m = m_arr[row];
-            }
-         }
+   sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
+   sin >> libbase::eatcomments >> block_length >> libbase::verify;
 
-      cnt = 0;
-      for(int row = 0; row < k; row++)
-         {
-         for(int col = 0; col < n; col++)
-            {
-            std::cout << ff_arr[cnt] << std::endl;
-            std::cout << oct2bin(ff_arr[cnt], m_arr[row]+1, type) << std::endl;
-            ffcodebook(row,col) = oct2bin(ff_arr[cnt], m_arr[row]+1, type);
-            cnt++;
-            std::cout << ffcodebook(row,col) << std::endl;
-            }
-         }
+   block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
-      fill_state_diagram_ff(m_arr);
-
-      }
-
-   //Feedback
-   if(type > 0)
-      {
-      ffcodebook.init(k,n);
-      fbcodebook.init(k,n);  
-
-      std::string temp;
-      m = 0;
-      std::string* ff_arr = new std::string[n*k];
-      std::string* fb_arr = new std::string[n*k];
-
-      for(int cnt = 0; cnt < (k*n); cnt++)
-         {
-            sin >> temp;
-            ff_octal += temp + " ";
-            ff_arr[cnt] = temp;
-            if((int)oct2bin(temp,0,0).size() > m)
-               m = oct2bin(temp,0,0).size();
-         }
-
-      sin >> libbase::eatcomments;
-
-      for(int cnt = 0; cnt < (k*n); cnt++)
-         {
-            sin >> temp;
-            fb_octal += temp + " ";
-            fb_arr[cnt] = temp;
-            if((int)oct2bin(temp,0,0).size() > m)
-               m = oct2bin(temp,0,0).size();
-         }
-
-      int counter = 0;
-      for(int row = 0; row < k; row++)
-         {
-         for(int col = 0; col < n; col++)
-            {            
-            ffcodebook(row,col) = oct2bin(ff_arr[counter],m, type);
-            counter++;
-            std::cout << ffcodebook(row,col) << std::endl;
-            }
-         }
-
-      counter = 0;
-      for(int row = 0; row < k; row++)
-         {
-         for(int col = 0; col < n; col++)
-            {
-            fbcodebook(row,col) = oct2bin(fb_arr[counter],m, type);
-            counter++;
-            std::cout << fbcodebook(row,col) << std::endl;
-            }
-         }
-      delete[] fb_arr;
-      delete[] ff_arr;
-      m--;
-      fill_state_diagram_fb();
-      }
-
-   //init();
    return sin;
    }
 
-template <class sig, class real, class real2>
-void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
+template <class dbl>
+void conv_codec<dbl>::feedforward(std::istream& sin)
+   {
+   ffcodebook.init(k,n);
+   std::string temp;
+      
+   std::string* ff_arr = new std::string[n*k];
+      
+   int * m_arr = new int[k];
+   m = 0;
+   //Initializing m_arr to all 0
+   for(int i = 0; i < k; i++)
+      m_arr[i] = 0;
+
+   //Getting m for each input, and setting m
+   int str_size = 0;
+   int cnt = 0;
+   for(int row = 0; row < k; row++)
+      {
+      for(int col = 0; col < n; col++)
+         {
+         sin >> temp;
+         ff_octal += temp + " ";
+         ff_arr[cnt] = temp;
+         cnt++;
+         str_size = oct2bin(temp,0,0).size()-1;
+         if(str_size > m_arr[row])
+            m_arr[row] = str_size;
+         if(m_arr[row] > m)
+            m = m_arr[row];
+         }
+      }
+
+   cnt = 0;
+   for(int row = 0; row < k; row++)
+      {
+      for(int col = 0; col < n; col++)
+         {
+         /*std::cout << ff_arr[cnt] << std::endl;
+         std::cout << oct2bin(ff_arr[cnt], m_arr[row]+1, type) << std::endl;*/
+         ffcodebook(row,col) = oct2bin(ff_arr[cnt], m_arr[row]+1, type);
+         cnt++;
+         //std::cout << ffcodebook(row,col) << std::endl;
+         }
+      }
+
+   fill_state_diagram_ff(m_arr);
+   }
+
+template <class dbl>
+void conv_codec<dbl>::feedback(std::istream& sin)
+   {
+   ffcodebook.init(k,n);
+   fbcodebook.init(k,n);  
+
+   std::string temp;
+   m = 0;
+   std::string* ff_arr = new std::string[n*k];
+   std::string* fb_arr = new std::string[n*k];
+
+   for(int cnt = 0; cnt < (k*n); cnt++)
+      {
+         sin >> temp;
+         ff_octal += temp + " ";
+         ff_arr[cnt] = temp;
+         if((int)oct2bin(temp,0,0).size() > m)
+            m = oct2bin(temp,0,0).size();
+      }
+
+   sin >> libbase::eatcomments;
+
+   for(int cnt = 0; cnt < (k*n); cnt++)
+      {
+         sin >> temp;
+         fb_octal += temp + " ";
+         fb_arr[cnt] = temp;
+         if((int)oct2bin(temp,0,0).size() > m)
+            m = oct2bin(temp,0,0).size();
+      }
+
+   int counter = 0;
+   for(int row = 0; row < k; row++)
+      {
+      for(int col = 0; col < n; col++)
+         {            
+         ffcodebook(row,col) = oct2bin(ff_arr[counter],m, type);
+         counter++;
+         //std::cout << ffcodebook(row,col) << std::endl;
+         }
+      }
+
+   counter = 0;
+   for(int row = 0; row < k; row++)
+      {
+      for(int col = 0; col < n; col++)
+         {
+         fbcodebook(row,col) = oct2bin(fb_arr[counter],m, type);
+         counter++;
+         //std::cout << fbcodebook(row,col) << std::endl;
+         }
+      }
+   delete[] fb_arr;
+   delete[] ff_arr;
+   m--;
+   fill_state_diagram_fb();
+   }
+
+template <class dbl>
+void conv_codec<dbl>::fill_state_diagram_ff(int *m_arr)
    {
    //Getting the number of states
    no_states = 0;
@@ -929,11 +784,13 @@ void conv<sig,real,real2>::fill_state_diagram_ff(int *m_arr)
          state_end = state_end + m_arr[inp_cnt]-1;
       }
 
-   disp_statetable();
+   //disp_statetable();
    }
-   
-template <class sig, class real, class real2>
-void conv<sig,real,real2>::fill_state_diagram_fb()
+
+
+
+template <class dbl>
+void conv_codec<dbl>::fill_state_diagram_fb()
    {
    //Fill the state table
    no_states = m;
@@ -1123,7 +980,7 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
          }
       }
 
-   disp_statetable();
+   //disp_statetable();
 
    }
 
@@ -1131,8 +988,8 @@ void conv<sig,real,real2>::fill_state_diagram_fb()
 Input is the integer that needs to be converted
 Size is the number of bits that you want the result
 Ex. Converting the integer 1, with size 3 will give 001 instead of just 1*/
-template <class sig, class real, class real2>
-std::string conv<sig, real, real2>::oct2bin(std::string input, int size, int type)
+template <class dbl>
+std::string conv_codec<dbl>::oct2bin(std::string input, int size, int type)
    {
    int div = 0;
    int rem = 0;
@@ -1181,8 +1038,8 @@ std::string conv<sig, real, real2>::oct2bin(std::string input, int size, int typ
       }
    }
 
-template <class sig, class real, class real2>
-int conv<sig, real, real2>::bin2int(std::string binary)
+template <class dbl>
+int conv_codec<dbl>::bin2int(std::string binary)
 {
 	int result = 0;
 
@@ -1198,8 +1055,8 @@ int conv<sig, real, real2>::bin2int(std::string binary)
 	return result;
 }
 
-template <class sig, class real, class real2>
-std::string conv<sig, real, real2>::int2bin(int input, int size)
+template <class dbl>
+std::string conv_codec<dbl>::int2bin(int input, int size)
    {
    std::string binary_stream = "";
    std::stringstream out;
@@ -1235,14 +1092,14 @@ std::string conv<sig, real, real2>::int2bin(int input, int size)
       }
    }
 
-template <class sig, class real, class real2>
-bool conv<sig, real, real2>::toBool(char const& bit)
+template <class dbl>
+bool conv_codec<dbl>::toBool(char const& bit)
    {
      return bit != '0';
    }
 
-template<class sig, class real, class real2>
-void conv<sig,real,real2>::disp_statetable()
+template <class dbl>
+void conv_codec<dbl>::disp_statetable()
    {
    //system("cls");
    for(int row = 0; row < statetable.size().rows(); row++)
@@ -1255,16 +1112,16 @@ void conv<sig,real,real2>::disp_statetable()
       }
    }
 
-template<class sig, class real, class real2>
-std::string conv<sig,real,real2>::toString(int number)
+template <class dbl>
+std::string conv_codec<dbl>::toString(int number)
    {
    std::stringstream ss;//create a stringstream
    ss << number;
    return ss.str();
    }
 
-template<class sig, class real, class real2>
-char conv<sig,real,real2>::toChar(bool bit)
+template <class dbl>
+char conv_codec<dbl>::toChar(bool bit)
    {
    if(bit)
       return '1';
@@ -1272,111 +1129,60 @@ char conv<sig,real,real2>::toChar(bool bit)
       return '0';
    }
 
-template<class sig, class real, class real2>
-int conv<sig,real,real2>::toInt(bool bit)
+template <class dbl>
+int conv_codec<dbl>::toInt(bool bit)
    {
    if(bit)
       return 1;
    else
-      return -1;
+      return 0;
    }
 
-template<class sig, class real, class real2>
-void conv<sig,real,real2>::settoval(libbase::matrix<double>& mat, double value)
-   {
-   for(int row = 0; row < mat.size().rows(); row++)
-      for(int col = 0; col < mat.size().cols(); col++)
-         mat(row,col) = value;
-   }
+//template <class dbl>
+//void conv_codec<dbl>::settoval(libbase::matrix<double>& mat, double value)
+//   {
+//   for(int row = 0; row < mat.size().rows(); row++)
+//      for(int col = 0; col < mat.size().cols(); col++)
+//         mat(row,col) = value;
+//   }
 
 
-
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-      const array1s_t& rx, const array1vd_t& app, array1vd_t& ptable)
-   {
-   }
-
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-      const array1s_t& rx, const libbase::size_type<libbase::vector> lookahead,
-      const array1d_t& sof_prior, const array1d_t& eof_prior,
-      const array1vd_t& app, array1vd_t& ptable, array1d_t& sof_post,
-      array1d_t& eof_post, const libbase::size_type<libbase::vector> offset)
-   {
-   }
-
-template <class sig, class real, class real2>
-void conv<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
-      const array1s_t& rx, const int lookahead, const array1d_t& sof_prior,
-      const array1d_t& eof_prior, const array1vd_t& app, array1vd_t& ptable,
-      array1d_t& sof_post, array1d_t& eof_post, const int offset)
-   {   
-   }
 } // end namespace
 
-#include "gf.h"
+#include "mpreal.h"
 #include "mpgnu.h"
+#include "logreal.h"
 #include "logrealfast.h"
 
 namespace libcomm {
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
-#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::mpreal;
 using libbase::mpgnu;
+using libbase::logreal;
 using libbase::logrealfast;
 
-#define USING_GF(r, x, type) \
-      using libbase::type;
+#define REAL_TYPE_SEQ \
+   (float)(double) \
+   (mpreal)(mpgnu) \
+   (logreal)(logrealfast)
 
-BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
-
-#define ALL_SYMBOL_TYPE_SEQ \
-   (bool) \
-   GF_TYPE_SEQ
-#ifdef USE_CUDA
-#define REAL_PAIRS_SEQ \
-   ((double)(double)) \
-   ((double)(float)) \
-   ((float)(float))
-#else
-#define REAL_PAIRS_SEQ \
-   ((mpgnu)(mpgnu)) \
-   ((logrealfast)(logrealfast)) \
-   ((double)(double)) \
-   ((double)(float)) \
-   ((float)(float))
-#endif
-
-/* Serialization string: tvb<type,real,real2>
+/* Serialization string: uncoded<real>
  * where:
- *      type = bool | gf2 | gf4 ...
- *      real = float | double | [logrealfast | mpgnu (CPU only)]
- *      real2 = float | double | [logrealfast | mpgnu (CPU only)]
+ *      real = float | double | mpreal | mpgnu | logreal | logrealfast
  */
-#define INSTANTIATE3(args) \
-      template class conv<BOOST_PP_SEQ_ENUM(args)>; \
+#define INSTANTIATE(r, x, type) \
+      template class conv_codec<type>; \
       template <> \
-      const serializer conv<BOOST_PP_SEQ_ENUM(args)>::shelper( \
-            "blockmodem", \
-            "conv<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
-            conv<BOOST_PP_SEQ_ENUM(args)>::create);
+      const serializer conv_codec<type>::shelper( \
+            "codec", \
+            "conv_codec<" BOOST_PP_STRINGIZE(type) ">", \
+            conv_codec<type>::create); \
 
-#define INSTANTIATE2(r, symbol, reals) \
-      INSTANTIATE3( symbol reals )
-
-#define INSTANTIATE1(r, symbol) \
-      BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, symbol, REAL_PAIRS_SEQ)
-
-// NOTE: we *have* to use for-each product here as we cannot nest for-each
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1, (ALL_SYMBOL_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

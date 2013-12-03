@@ -171,7 +171,7 @@ private:
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
-   qids<sig,real2> mychan; //!< bound channel object
+   qids<bool,real2> mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
