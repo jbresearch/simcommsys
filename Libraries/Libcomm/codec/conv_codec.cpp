@@ -552,10 +552,6 @@ std::ostream& conv_codec<dbl>::serialize(std::ostream& sout) const
    {
    sout << "# Type (0 = feedforward, 1 = 1 feedback path, 2 = Multiple feeedback paths)" << std::endl;
    sout << type << std::endl;
-   sout << "# Alphabet size" << std::endl;
-   sout << alphabet_size << std::endl;
-   sout << "# Block length" << std::endl;
-   sout << block_length << std::endl;
    sout << "# no. of inputs" << std::endl;
    sout << k << std::endl;
    sout << "# no. of outputs" << std::endl;
@@ -567,6 +563,10 @@ std::ostream& conv_codec<dbl>::serialize(std::ostream& sout) const
       sout << "# connection matrix for feedback (octal)" << std::endl;
       sout << fb_octal << std::endl;
       }
+   sout << "# Alphabet size" << std::endl;
+   sout << alphabet_size << std::endl;
+   sout << "# Block length" << std::endl;
+   sout << block_length << std::endl;
    return sout;
    }
 
