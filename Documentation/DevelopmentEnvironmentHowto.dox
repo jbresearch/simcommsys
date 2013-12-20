@@ -46,8 +46,7 @@ the operating system:
 - Linux development is based on an Ubuntu 12.04 LTS (64-bit) reference
    platform, and includes:
    - G++ 4.6.3
-   - Eclipse 3.7.2 with Subversive plugin for SVN integration and Eclox for
-   Doxygen access.
+   - Eclipse 3.7.2 with EGit plugin and Eclox for Doxygen access.
 - Windows development is based on a Windows Server 2008 R2 (64-bit) reference
    platform, and assumes Microsoft Visual Studio 2010; the Premium version is
    suggested for its performance-related tools.
@@ -106,8 +105,8 @@ sudo aptitude update
 sudo aptitude install jbdevelopment jbdesktop
 \endverbatim
 
-\note The 'jbdevelopment' package is required for building the project.
-The 'jbdesktop' package is only needed for a desktop system, and provides the
+\note The \c jbdevelopment package is required for building the project.
+The \c jbdesktop package is only needed for a desktop system, and provides the
 necessary software and environment.
 
 
@@ -152,30 +151,20 @@ or updating in the future.
 
 \subsection eclipse Eclipse Integrated Development Environment
 
-The currently supported IDE on Linux is Eclipse, which will need to be
-configured as follows:
+The currently supported IDE on Linux is Eclipse.
+This can be installed by adding the packages \c eclipse, \c eclipse-cdt,
+and \c eclipse-egit on Ubuntu; note that these are already included as
+dependencies of the \c jbdevelopment meta-package.
+An equivalent alternative is to use NVIDIA Nsight Eclipse Edition.
+Eclipse will need to be configured as follows:
 
--# In the development folder create another folder called eclipse_workspaces and
-within it a directory called myBranchName:
-\verbatim
-cd ~/development
-mkdir -p eclipse_workspaces/mbn
-\endverbatim
--# Start eclipse and choose the mbn(=myBranchName) directory as the location for
-your workspace.
+-# Start eclipse and create a new directory as the location for your workspace.
+   This may be conveniently kept as a subfolder in the default 'workspace'
+   folder of your home directory.
 -# Close the welcome screen.
--# Install the svn plugin by clicking Help->Install New Software and
-doing the following:
-   - Next to 'Work With' choose 'All Available Sites'
-   - Type 'svn' into the filter
-   - Select the following packages, and install them:
-      - Subversive SVN Team Provider
-      - Subversive SVN Connectors
-      - SVNKit 1.3.5 Implementation
--# Accept the licence and the offer to restart eclipse for you.
 -# Import the JAB code style file:
    - Select Window->Preferences->C/C++->Code Style->Import
-   - Browse to ~/development/svn/Programming/branches/mbn/JAB C++ Code Style.xml
+   - Browse to Code Style/JAB C++ Code Style.xml
    and click OK followed by Apply & then OK again.
 -# Import the various projects in your branch by selecting
 File->Import->General->Existing Projects into Workspace & clicking Next,
@@ -308,48 +297,56 @@ which is the default option in this case.
 
 \note In this section we assume you're working with a Linux system.
 
-In order to access the svn repository you need to provide Johann Briffa with a
-username and a hashed password.
+In order to access the git repository you need to generate yourself a SSH
+key pair, and provide Johann Briffa with the public key.
 
--# Create a password by calling
+-# Create a key pair by calling
 \verbatim
-htpasswd -nm <username>
+ssh-keygen
 \endverbatim
-where <username> is the username you would like to use to access the svn
-repository.
-Note that it does not have to be your Unix username.
-Please use a different password from your standard login password.
--# Provide Johann Briffa with the output so that he can set you up on the svn
-server.
--# Once you are set up, change into your development directory (for example,
-a folder called 'development' under your home directory)
+-# Provide Johann Briffa with the public key component (this will be in
+\c ~/.ssh/id_rsa.pub unless you have specified a different location) so that
+he can set you up on the repository.
+You will be provided with a user id that determines your personal branch
+namespace - the current convention is to use initials, e.g. jab.
+-# Once you are set up, change into your git development directory (for
+example, a folder called 'git' under your home directory)
 \verbatim
-cd ~/development
+cd ~/git
 \endverbatim
--# create a directory called svn and change into it
+-# clone the repository:
 \verbatim
-mkdir svn
-cd svn
+git clone ssh://git@guinevere.res.um.edu.mt:2222/simcommsys.git
 \endverbatim
--# check out the following folders:
+-# SimCommSys follows a centralized workflow with a single shared repository,
+where the master branch is writable only by the project maintainer.
+Any development should happen in separate branches; to share work with
+other developers, you can push your own branches within your personal branch
+namespace.
+-# For example, you create and start using a (local) branch \c development
+with:
 \verbatim
-svn co https://guinevere.res.um.edu.mt/svn/shared/Programming
-svn co https://guinevere.res.um.edu.mt/svn/shared/Scripts
+git branch development
+git checkout development
 \endverbatim
-\note If you have only been given access to a specific branch, you will need
-to replace the URL in the first line with that for your specific branch.
-
--# Create your own branch of the project:
-\note Ignore if you have only been given access to a specific branch.
-
+You can replace \c development with any appropriate branch name.
+-# This is followed by development work within this branch, committing changes
+as you go.
+Up to this point, any commits are only to your local repository clone.
+-# To share your work with other developers (including the project maintainer),
+push your branch to the shared repository within your personal namespace.
+For example:
 \verbatim
-cd Programming/branches
-mkdir mbn
-svn copy ../../trunk mbn
-svn commit -m "create mbn"
+git push origin development:personal/uid/development
 \endverbatim
-Replace mbn(=myBranchName) with something appropriate.
-The current convention is to use initials, e.g. jab.
+where 'uid' should be changed to your user id, and it is assumed that 'origin'
+is the name of the remote repository (this is the default).
+This will push your local \c development branch to the shared repository
+as branch name \c personal/uid/development.
+You may create as many branches as needed under the \c personal/uid/ namespace.
+-# Typically this is followed by a pull request to the maintainer (or any
+other developers with whom you wish to share the work).
+When the work is mature, the maintainer will merge this into the master branch.
 
 
 \section conventions Coding Conventions and Formatting
