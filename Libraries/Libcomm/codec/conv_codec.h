@@ -72,6 +72,7 @@ private:
    libbase::matrix<std::string> ffcodebook; //Feedforward connection string
    libbase::matrix<std::string> fbcodebook; //Feedback connection string
    libbase::matrix<bool> statetable;
+   //array1vd_t ro_var;
    /*Conv Codes parameters - END*/
 
    /*Conv Codes Functions - BEGIN*/

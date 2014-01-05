@@ -153,8 +153,6 @@ void conv_codec<dbl>::encode_data(const array1i_t& source, array1i_t& encoded)
 template <class dbl>
 void conv_codec<dbl>::softdecode(array1vd_t& ri)
    {
-   //double recv[] = {0.3,0.1,-0.5,0.2,0.8,0.5,-0.5,0.3,0.1,-0.7,1.5,-0.4};
-   //encoding_steps = 4;
    recv_sequence = R.size();
 
    libbase::matrix<std::vector<double> > gamma;
@@ -176,13 +174,20 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri)
 
    /*Normalisation*/
    normalize(output_bit);
-
-   libbase::vector<double> softout;
-   softout.init((recv_sequence/n)*k);
+   //normalize(output_symbol);
 
    fill_ptable(ri, output_bit);
+   //fill_ptable(ro_var, output_symbol);
+  
+   /*For testing purposes - BEGIN*/
+   //for(int i = 0; i < ri.size(); i++)
+   //   std::cout << ri(i) << std::endl;
+   /*For testing purposes - END*/
 
-   /*work_softout(output_bit, softout);
+   /*libbase::vector<double> softout;
+   softout.init((recv_sequence/n)*k);
+   
+   work_softout(output_bit, softout);
    
    std::cout << std::endl;
    std::cout << std::endl;
@@ -196,8 +201,7 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    // Determine input-referred statistics
    softdecode(ri);
-   // Copy output-referred statistics from input-referred ones
-   ro = ri;
+   ro = R;
    }
 
 template <class dbl>
