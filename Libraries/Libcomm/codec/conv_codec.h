@@ -72,6 +72,7 @@ private:
    libbase::matrix<std::string> ffcodebook; //Feedforward connection string
    libbase::matrix<std::string> fbcodebook; //Feedback connection string
    libbase::matrix<bool> statetable;
+   
    //array1vd_t ro_var;
    /*Conv Codes parameters - END*/
 
@@ -82,7 +83,7 @@ private:
    void feedback(std::istream& sin);
 
    void init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit);   
-   void init_gamma(libbase::matrix<std::vector<double> >& gamma);
+   void init_gamma(libbase::matrix<std::vector<double> >& gamma, double value);
    void init_alpha(libbase::matrix<double>& alpha);
    void init_beta(libbase::matrix<double>& beta);
    void init_output_symbol(libbase::matrix<double>& output_symbol);
@@ -95,6 +96,10 @@ private:
    void work_beta(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& beta);
 
    void decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol);
+
+   void decode_normalise(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol);
+
+   void decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, array1vd_t& output_posteriors);
    void multiple_inputs(libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit);
    void fill_ptable(array1vd_t& ptable, libbase::matrix<double>& output_bit);
    void work_softout(libbase::matrix<double>& output_bit, libbase::vector<double>& softout);
@@ -102,6 +107,7 @@ private:
    void normalize(libbase::matrix<double>& mat);
    int get_next_state(int input, int curr_state);
    int get_next_state(int input, int curr_state, int& state_table_row);
+   std::string get_output(int input, int curr_state);
 
    std::string oct2bin(std::string input, int size, int type);
    int bin2int(std::string binary);

@@ -155,6 +155,8 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri)
    {
    recv_sequence = R.size();
 
+   //recv_sequence = 12;
+
    libbase::matrix<std::vector<double> > gamma;
    libbase::matrix<double> alpha;
    libbase::matrix<double> beta;
@@ -163,17 +165,44 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri)
 
    init_matrices(gamma, alpha, beta, output_symbol, output_bit);
 
+   //recv_sequence = 12;
+   //encoding_steps = 4;
+
    work_gamma(gamma, R);
+
+   //for(int col = 0; col < gamma.size().cols(); col++)
+   //{
+   //for(int row = 0; row < pow(2,no_states); row++)
+   //   {
+   //   std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
+   //   for(int i = 0; i < pow(2,no_states);i++)
+   //      {
+   //      std::cout << gamma(row,col)[i] << " ";
+   //      }
+   //   std::cout << std::endl;
+   //   }
+   //}
+
    work_alpha(gamma, alpha);
    work_beta(gamma, beta);
 
-   decode(gamma, alpha, beta, output_symbol);
-
+   //decode(gamma, alpha, beta, output_symbol);
+   
+   decode_normalise(gamma, alpha, beta, output_symbol);
+   
+   //for(int c = 0; c < output_symbol.size().cols(); c++)
+   //   {
+   //   for(int r = 0; r < output_symbol.size().rows(); r++)
+   //      {
+   //      std::cout << output_symbol(r,c) << " \t";
+   //      }
+   //   std::cout << std::endl;
+   //   }
    /*Dealing with multiple inputs*/
    multiple_inputs(output_symbol, output_bit);
 
    /*Normalisation*/
-   normalize(output_bit);
+   //normalize(output_bit);
    //normalize(output_symbol);
 
    fill_ptable(ri, output_bit);
@@ -199,15 +228,53 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri)
 template <class dbl>
 void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
-   // Determine input-referred statistics
-   softdecode(ri);
-   ro = R;
+   recv_sequence = R.size();
+
+   for(int cnt = 0; cnt < R.size(); cnt++)
+         std::cout << R(cnt);
+
+   libbase::matrix<std::vector<double> > gamma;
+   libbase::matrix<double> alpha;
+   libbase::matrix<double> beta;
+   libbase::matrix<double> output_symbol;
+   libbase::matrix<double> output_bit;
+
+   init_matrices(gamma, alpha, beta, output_symbol, output_bit);
+     
+   work_gamma(gamma, R);
+   work_alpha(gamma, alpha);
+   work_beta(gamma, beta);
+
+   decode(gamma, alpha, beta, output_symbol, ro);
+
+   system("cls");
+
+   for(int c = 0; c < output_symbol.size().cols(); c++)
+      {
+      for(int r = 0; r < output_symbol.size().rows(); r++)
+         {
+         std::cout << output_symbol(r,c) << " \t";
+         }
+      std::cout << std::endl;
+      }
+
+   /*Dealing with multiple inputs*/
+   multiple_inputs(output_symbol, output_bit);
+
+   /*Normalisation*/
+   normalize(output_bit);
+   //normalize(output_symbol);
+
+   fill_ptable(ri, output_bit);
+
+   for(int cnt = 0; cnt < ro.size(); cnt++)
+         std::cout << ro(cnt);
    }
 
 template <class dbl>
 void conv_codec<dbl>::init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
    {
-   init_gamma(gamma);
+   init_gamma(gamma, -1.0);
    init_alpha(alpha);
    init_beta(beta);
    init_output_symbol(output_symbol);
@@ -215,14 +282,14 @@ void conv_codec<dbl>::init_matrices(libbase::matrix<std::vector<double> >& gamma
    }
 
 template <class dbl>
-void conv_codec<dbl>::init_gamma(libbase::matrix<std::vector<double> >& gamma)
+void conv_codec<dbl>::init_gamma(libbase::matrix<std::vector<double> >& gamma, double value)
    {
    gamma.init(pow(2,no_states), recv_sequence/n);
 
    for(int col = 0; col < gamma.size().cols(); col++)
       for(int row = 0; row < gamma.size().rows(); row++)
          for(int i = 0; i < pow(2,no_states);i++)
-            gamma(row,col).push_back(-1.0);
+            gamma(row,col).push_back(value);
    }
 
 template <class dbl>
@@ -260,6 +327,8 @@ void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<double> >& gamma, a
    {
    int inp_combinations = pow(2,k);
    //double Lc = 5.0;
+   //double recv[] = {0.3, 0.1, -0.5, 0.2, 0.8, 0.5, -0.5, 0.3, 0.1, -0.7, 1.5, -0.4};
+
    int state_table_row = 0;
    int _nxt_state = 0;
 
@@ -352,10 +421,16 @@ double conv_codec<dbl>::calc_gamma_AWGN(int state_table_row, int col, double* re
    double temp_gamma = 0.0;
    int out_loc = k+(2*no_states);
    int recv_loc = col * n;
+   int out_value = 0;
 
    for(int output = 0; output < n;output++)
       {
-      temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
+      out_value = toInt(statetable(state_table_row,out_loc));
+      if(out_value == 0)
+         out_value = -1;
+      
+      temp_gamma = temp_gamma + ( out_value ) * (recv[recv_loc]);
+      //temp_gamma = temp_gamma + ( toInt(statetable(state_table_row,out_loc)) ) * (recv[recv_loc]);
       out_loc++;
       recv_loc++;
       }
@@ -419,6 +494,35 @@ void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libba
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
+   
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      for(int row = 0; row < alpha.size().rows(); row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            _nxt_state = get_next_state(input, row);
+            
+            if(gamma(_nxt_state,col)[row] != -1)
+               {
+               output_symbol(input,col) += alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
+               }
+            }
+         }
+      }
+   }
+
+template <class dbl>
+void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
+   {
+   int inp_combinations = pow(2,k);
+   int _nxt_state = 0;
+   
+   libbase::matrix<std::vector<double> > p_norm;
+
+   init_gamma(p_norm, 0.0);
+
+   double norm = 0.0;
 
    for(int col = 0; col < gamma.size().cols(); col++)
       {
@@ -427,10 +531,108 @@ void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libba
          for(int input = 0; input < inp_combinations; input++)
             {
             _nxt_state = get_next_state(input, row);
+            
+            if(gamma(_nxt_state,col)[row] != -1)
+               {
+               double a = alpha(row,col);
+               double b = gamma(_nxt_state,col)[row];
+               double c = beta(_nxt_state,col+1);
+               
+               p_norm(_nxt_state,col)[row] = alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
+               
+               double d = p_norm(_nxt_state,col)[row];
+
+               norm += p_norm(_nxt_state,col)[row];
+               }
+            }
+         }
+      
+      /*Normalisation - BEGIN*/
+      for(int norm_row = 0; norm_row < p_norm.size().rows(); norm_row++)
+            for(int i = 0; i < pow(2,no_states);i++)
+               p_norm(norm_row,col)[i] /= norm;
+      
+      norm = 0.0;
+      /*Normalisation - END*/
+      }
+
+   //system("cls");
+
+   //for(int col = 0; col < p_norm.size().cols(); col++)
+   //   {
+   //   for(int row = 0; row < p_norm.size().rows(); row++)
+   //      {
+   //      std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
+   //      for(int i = 0; i < pow(2,no_states);i++)
+   //         {
+   //         std::cout << p_norm(row,col)[i] << " ";
+   //         }
+   //      std::cout << std::endl;
+   //      }
+   //   std::cout << std::endl;
+   //   }
+
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      for(int row = 0; row < alpha.size().rows(); row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            _nxt_state = get_next_state(input, row);
+            
+            double x = p_norm(_nxt_state,col)[row];
+            
+            output_symbol(input,col) += p_norm(_nxt_state,col)[row];
+            }
+         }
+      }
+
+   //for(int c = 0; c < output_symbol.size().cols(); c++)
+   //   {
+   //   for(int r = 0; r < output_symbol.size().rows(); r++)
+   //      {
+   //      std::cout << output_symbol(r,c) << " \t";
+   //      }
+   //   std::cout << std::endl;
+   //   }
+      
+   }
+
+template <class dbl>
+void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, array1vd_t& output_posteriors)
+   {
+   int inp_combinations = pow(2,k);
+   int _nxt_state = 0;
+   std::string output = "";
+
+   output_posteriors.init(R.size());
+
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      /*Initialising outputposteriors to 0*/
+      for(int cnt = 0; cnt < n; cnt++)
+         output_posteriors(cnt+col).init(2);
+      
+      /*row = current state in decimal*/
+      for(int row = 0; row < alpha.size().rows(); row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            _nxt_state = get_next_state(input, row);
+            output = get_output(input, row);
 
             if(gamma(_nxt_state,col)[row] != -1)
                {
                output_symbol(input,col) += alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
+
+               /*Filling output posteriors*/
+               for(int out_cnt = 0; out_cnt < n; out_cnt++)
+                  {
+                  if(output[out_cnt] == '0')
+                     output_posteriors(col+out_cnt)(0) += output_symbol(input,col);
+                  else
+                     output_posteriors(col+out_cnt)(1) += output_symbol(input,col);
+                  }
                }
             }
          }
@@ -539,6 +741,22 @@ int conv_codec<dbl>::get_next_state(int input, int curr_state, int& state_table_
       }
 
    return bin2int(str_nxt_state);
+   }
+
+template <class dbl>
+std::string conv_codec<dbl>::get_output(int input, int curr_state)
+   {
+   int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
+   int out_loc = k + (no_states * 2);
+   std::string str_output = "";
+   
+   for(int cnt = 0; cnt < n;cnt++)
+      {
+      str_output += toChar(statetable(state_table_row, out_loc));
+      out_loc++;
+      }
+
+   return str_output;
    }
 
 // description output
@@ -790,8 +1008,6 @@ void conv_codec<dbl>::fill_state_diagram_ff(int *m_arr)
 
    //disp_statetable();
    }
-
-
 
 template <class dbl>
 void conv_codec<dbl>::fill_state_diagram_fb()
