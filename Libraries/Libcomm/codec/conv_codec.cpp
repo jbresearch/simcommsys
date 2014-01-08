@@ -247,7 +247,7 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 
    decode(gamma, alpha, beta, output_symbol, ro);
 
-   system("cls");
+   //system("cls");
 
    for(int c = 0; c < output_symbol.size().cols(); c++)
       {
@@ -534,13 +534,13 @@ void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& ga
             
             if(gamma(_nxt_state,col)[row] != -1)
                {
-               double a = alpha(row,col);
-               double b = gamma(_nxt_state,col)[row];
-               double c = beta(_nxt_state,col+1);
+               //double a = alpha(row,col);
+               //double b = gamma(_nxt_state,col)[row];
+               //double c = beta(_nxt_state,col+1);
                
                p_norm(_nxt_state,col)[row] = alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
                
-               double d = p_norm(_nxt_state,col)[row];
+               //double d = p_norm(_nxt_state,col)[row];
 
                norm += p_norm(_nxt_state,col)[row];
                }
@@ -580,7 +580,7 @@ void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& ga
             {
             _nxt_state = get_next_state(input, row);
             
-            double x = p_norm(_nxt_state,col)[row];
+            //double x = p_norm(_nxt_state,col)[row];
             
             output_symbol(input,col) += p_norm(_nxt_state,col)[row];
             }
