@@ -3,8 +3,19 @@
 
 import sys
 import os
-import jbutil
 import shutil
+
+def graceful_execute(cmd):
+   st, out = commands.getstatusoutput(cmd)
+   if st != 0:
+      retval = os.WEXITSTATUS(st)
+      print "Error executing command:"
+      print cmd
+      print "Status:", retval
+      print "Output:"
+      print out
+      return None
+   return out
 
 def get_type_and_container(fname):
    # look for a system
@@ -38,7 +49,7 @@ def process(executable,file):
    if system:
       type, container = system
       cmd = "%s -t '%s' -c '%s' < '%s' > '%s'" % (executable, type, container, file, tmpfile)
-      output = jbutil.graceful_execute(cmd)
+      output = graceful_execute(cmd)
       if output is not None:
          shutil.move(tmpfile,file)
          print output
@@ -53,7 +64,7 @@ def main():
    files = sys.argv[2:]
    # determine executable to use
    executable = "canonicalize.%s.release" % tag
-   if not jbutil.safe_execute("which %s" % executable):
+   if not graceful_execute("which %s" % executable):
       print "Executable not found - bad tag? (%s)" % tag
       sys.exit(1)
    # main process
