@@ -1,0 +1,36 @@
+# (c) 2007-2008: Johann A. Briffa <j.briffa@ieee.org>
+# derived from scripts by Hans Georg Schaathun <georg@ii.uib.no>
+#
+# Job description for submissions of SimCommSys slaves.
+#
+# Required variables to be set:
+#   count - the number of identical jobs to queue
+#   tag - the identification tag for the binary, e.g. stable-x.x.x
+#   host - the binary to be
+#   port - any command-line arguments to go with the binary
+#
+# Optional variables to be set:
+#   requirements - e.g. (OpSys == "LINUX" && Arch == "X86_64")
+#
+# $Revision$
+# $Date$
+# $Author$
+
+coresize        = 0
+universe        = vanilla
+#getenv         = True
+notification    = NEVER
+transfer_files  = ALWAYS
+
+periodic_hold   = ImageSize > 1000000
+executable      = bin.$$(OpSys).$$(Arch)/simcommsys.$(tag).release
+rank            = KFlops
+
+#input          = /dev/null
+output          = logs/$(Cluster).$(Process).out
+error           = logs/$(Cluster).$(Process).err
+log             = logs/$(Cluster).$(Process).log
+
+arguments       = -q -p 0 -e $(host):$(port)
+
+queue $(count)

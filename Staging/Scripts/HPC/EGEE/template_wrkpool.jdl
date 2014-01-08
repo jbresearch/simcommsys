@@ -1,0 +1,20 @@
+Type = "Job";
+JobType = "Normal";
+
+Executable = "WRKPOOL_COMMAND";
+StdOutput = "WRKPOOL_OUTPUT_FILE";
+StdError = "WRKPOOL_ERROR_FILE";
+
+InputSandbox = {"WRKPOOL_EXECUTABLE"};
+OutputSandbox = {"WRKPOOL_OUTPUT_FILE", "WRKPOOL_ERROR_FILE"};
+
+RetryCount = 7;
+Arguments = "WRKPOOL_ARGS";
+
+VirtualOrganisation = "eumed";
+Requirements = 
+#    ( other.GlueCEStateStatus == "Production" ) &&
+#    ( other.GlueHostOperatingSystemName == "linux" ) &&
+#    ( other.GlueHostMainMemoryRAMSize >= 512 ) &&
+    ( other.GlueHostNetworkAdapterOutboundIP == true );
+Rank = other.GlueHostBenchmarkSF00;
