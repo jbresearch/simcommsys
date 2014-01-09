@@ -1,5 +1,3 @@
-* $Id$
-*
 * Copyright (c) 2013 Johann A. Briffa
 *
 * This file is part of SimCommSys.

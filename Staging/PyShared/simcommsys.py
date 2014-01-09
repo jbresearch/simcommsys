@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#$Id$
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -62,8 +61,7 @@ def average_weight(k):
 
    Computes the average weight of all k-bit sequences.
    Since the sequence is complete, this should really be k/2.
-
-   $Id$'''
+   '''
 
    w = 0
    for i in xrange(1<<k):
@@ -142,8 +140,7 @@ def correct_ser_to_ber(ser):
    Converts the SER to an equivalent BER, assuming:
    * exactly 'k' (integral) bits are required to represent the symbols
    * the symbol error rate is symmetric across all pairs of symbols
-
-   $Id$'''
+   '''
 
    # it can be shown that the factor is equal to the average weight of all
    # k-bit representations divided by k. The former is easily shown to be
@@ -164,8 +161,7 @@ def correct_bsid_to_normerror(par, Ps, Pd, Pi, Reff):
 
    Converts the BSID parameter values to a normalized rate of channel
    error events per information bit.
-
-   $Id$'''
+   '''
 
    Ps *= par
    Pd *= par
@@ -184,8 +180,7 @@ def loaddata(filename,latest=True):
       latest = only load the latest simulation (=True)
       data = matrix of data values
       comments = string comments in file, in order of appearance
-
-   $Id$'''
+   '''
 
    fid = open(filename,'r')
    if not fid:
@@ -235,8 +230,7 @@ def loadresults(filename,latest=True):
          - BER,SER,FER repeated as above
          - SER for each successive symbol value, repeated as above
       Interpretation can be done using the 'header' field.
-
-   $Id$'''
+   '''
 
    # get data from file
    (data,comments) = loaddata(filename,latest)
@@ -398,8 +392,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
 
    Note: types 1 & 2 use the same data set (symbol-error), but just
          change the axis labels this facilitates use with binary codes.
-
-   $Id$'''
+   '''
 
    # Load data from file, and reorganize as necessary
    legendlist = []
@@ -678,8 +671,7 @@ def typeset(hf=[],figsize=(6.00,4.50),fontname='serif'):
    hf = figure handle (defaults to current figure)
    figsize = (width,height) size tuple in inches (default 6 x 4.5)
    fontname = font to use (default to serif)
-
-   $Id$'''
+   '''
 
    if hf==[]:
       hf = plt.gcf()
@@ -738,8 +730,7 @@ def loadexcel(fname, sheet, skiprows=0, skipcols=0):
       skiprows = number of rows to skip from top (=0)
       skipcols = number of cols to skip from left (=0)
       data = matrix of data values (as list of lists)
-
-   $Id$'''
+   '''
 
    book = xlrd.open_workbook(fname)
    data = []

@@ -1,5 +1,4 @@
 #!/bin/bash
-# $Id$
 
 if (( $# < 4 )); then
    echo "Usage: ${0##*/} <tag> <port> <other> [<systems>]"

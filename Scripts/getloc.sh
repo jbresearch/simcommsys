@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # main process
 echo "Analysis for all C/C++ code:"

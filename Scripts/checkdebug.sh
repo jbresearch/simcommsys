@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # main process
 echo "Source files with DEBUG > 1:"

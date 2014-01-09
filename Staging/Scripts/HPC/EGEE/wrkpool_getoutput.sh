@@ -5,8 +5,6 @@
 #     Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
 #
 # Date: Apr 2007
-#
-# $Id$
 
 if ( which edg-job-get-output > /dev/null 2>&1 ); then
         JOB_GET_OUTPUT=edg-job-get-output

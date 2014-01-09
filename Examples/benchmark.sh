@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # Usage: benchmark.sh [Port [Count [Release]]]
 

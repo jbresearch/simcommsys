@@ -5,8 +5,6 @@
 #     Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
 #
 # Date: Apr 2007
-#
-# $Id$
 
 ########################
 # ENVIRONMENT VARIABLES

@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # first make sure we have all systems set up
 make all

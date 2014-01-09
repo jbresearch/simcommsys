@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # build id
 if [[ $# < 1 ]]; then

@@ -17,9 +17,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \section svn Version Control
- * - $Id$
  */
 
 #ifndef __psplugin_h

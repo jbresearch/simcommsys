@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # root-level folder
 folder="."

@@ -1,5 +1,4 @@
 #!/bin/bash
-#$Id$
 
 # system file and simulation parameters
 file="Simulators/errors_levenshtein-random-qids-bool-tvb_precompute_modvec6_4_8_ld3-uncoded-gf16-50.txt"

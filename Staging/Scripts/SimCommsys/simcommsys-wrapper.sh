@@ -1,5 +1,4 @@
 #!/bin/bash -l
-# $Id$
 
 if (( $# < 3 )); then
    echo "Usage: ${0##*/} [<path to>/]<system> <tag> <port> [<vlimit>] [<other>]"
