@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id$
-#
 # Target binary makefile
 
 # All compiling, linking, and library flags are imported

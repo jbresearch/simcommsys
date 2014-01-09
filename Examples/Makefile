@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id$
-#
 # Simulator test files makefile
 
 # List of stream lengths to work with for reset and termination respectively
