@@ -157,9 +157,8 @@ dependencies of the \c jbdevelopment meta-package.
 An equivalent alternative is to use NVIDIA Nsight Eclipse Edition.
 Eclipse will need to be configured as follows:
 
--# Start eclipse and create a new directory as the location for your workspace.
-   This may be conveniently kept as a subfolder in the default 'workspace'
-   folder of your home directory.
+-# Start eclipse and choose your local repository as the location for your
+workspace.
 -# Close the welcome screen.
 -# Import the JAB code style file:
    - Select Window->Preferences->C/C++->Code Style->Import
@@ -167,7 +166,7 @@ Eclipse will need to be configured as follows:
    and click OK followed by Apply & then OK again.
 -# Import the various projects in your branch by selecting
 File->Import->General->Existing Projects into Workspace & clicking Next,
-selecting the root direcory of the project & clicking finish.
+(you should now be in the root direcory of the project) & clicking finish.
 Initially, the most important projects to import are the following:
 \verbatim
 Libraries/
