@@ -29,44 +29,27 @@ def plotset(type):
    # create new figure
    plt.figure()
    # set up
-   legendlist = []
-
-   #specify the x-scale possible values are 'log' (base 10) or 'linear'
-   xscale = 'log'
-
+   xscale = 'log' # possible values are 'log' (base 10) or 'linear'
    showiter = False
    showtol = False
    limit = False
 
-   #plot graphs with BER
-   if type==1:
-      #the following 2 lines will generate the graph of your result
-      sc.plotresults('Results/name_of_your_sim_results.txt',type,xscale,showiter,showtol,'k+-',limit)
-      legendlist.append(r'NameOfGraph')
-      #repeat the above 2 lines as many  times as needed to include other graphs
+   # Example for generating the graph of your result
+   sc.plotresults('Results/name_of_your_sim_results.txt', \
+      type,xscale,showiter,showtol,'k+-',limit, \
+      label=r'NameOfGraph')
+   # repeat the above line as needed to include other graphs
 
-   #plot graphs with SER
-   if type==2:
-      #the following 2 lines will generate the graph of your result
-      sc.plotresults('Results/name_of_your_sim_results.txt',type,xscale,showiter,showtol,'k+-',limit)
-      legendlist.append(r'NameOfGraph')
-      #repeat the above 2 lines as many  times as needed to include other graphs
-
-   #plot graphs with FER
+   # plot graphs with FER only
    if type==3:
-      #the following 2 lines will generate the graph of your result
-      sc.plotresults('Results/name_of_your_sim_results.txt',type,xscale,showiter,showtol,'k+-',limit)
-      legendlist.append(r'NameOfGraph')
-      #repeat the above 2 lines as many  times as needed to include other graphs
-
-      #Alternatively, you can specify manual data points as follows
+      # Example for results specified manually
       p = [0.0015, 0.00176, 0.00201, 0.00225, 0.00251, 0.00301, 0.00354, 0.004, 0.00503];
       fer = [0.00015, 0.000244, 0.000426, 0.000609, 0.000971, 0.00302, 0.013, 0.033, 0.207];
       plt.plot(p,fer,'k*-')
       legendlist.append(r'NameOfGraph')
       # This can be useful if we only have published graphs and need to read off
-      # the data points from the published image. That way we can show how our results
-      # compare to any published results.
+      # the data points from the published image. That way we can show how our
+      # results compare to any published results.
 
    # Ancillary
    # Specify the title and x and y labels if required
@@ -74,9 +57,7 @@ def plotset(type):
    plt.title(r'TitleOfGraph with Maths notation $(1,2)$')
    plt.xlabel(r'SomeDescription')
    sc.xlim(0.001,0.2)
-
-   #again depending on the type of graphs(BER, SER and FER) the
-   # y-range might need to be set differently
+   # Example how to set y-range depending on the type of graph (SER/FER/etc)
    if type==1:
       sc.ylim(1e-6,1)
    elif type==2:
@@ -84,8 +65,12 @@ def plotset(type):
    else:
       sc.ylim(1e-4,1)
 
-   #specify where the legend should appear: upper/lower left/right/center or best
-   plt.legend(legendlist, loc='upper left')
+   # Specify where the legend should appear: upper/lower left/right/center or best
+   plt.legend(loc='upper left')
+   # Example for legend outside axes:
+   # sc.shrink_axes(0.8,0.95,0.0,0.05)
+   # plt.legend(bbox_to_anchor=(1.02, 1), borderaxespad=0., loc='upper left')
+   # Finally show the grid and set fonts etc.
    plt.grid()
    sc.typeset()
    return

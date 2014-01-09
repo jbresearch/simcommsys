@@ -359,7 +359,7 @@ def get_styles2(N1=None, N2=None, N3=None):
 # Plotting functions
 
 def plotresults(filename, type=2, xscale='linear', showiter=False,
-   showtol=True, style=None, limit=False, correct=[]):
+   showtol=True, style=None, limit=False, correct=[],label=None):
    '''Returns:
    if plot requested: handle
    otherwise: (par,results,tolret,passes,cputime)
@@ -389,6 +389,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
               if a number 'n', one marker is printed for every 'n' points
    correct:   data set for BSID parameter correction (default: no correction)
               contains: [Ps, Pd, Pi, Reff]
+   label:     legend label
 
    Note: types 1 & 2 use the same data set (symbol-error), but just
          change the axis labels this facilitates use with binary codes.
@@ -447,7 +448,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
    # do the appropriate plot
    if type==1 or type==2 or type==3 or type==4:
       label = { 1: 'Bit Error Rate', 2: 'Symbol Error Rate', 3: 'Frame Error Rate', 4: 'Generalized Symbol Error Rate' }
-      h = plotitem(par,results,tolerance,style,xscale,'log',ns)
+      h = plotitem(par,results,tolerance,style,xscale,'log',ns,label)
       plt.xlabel('Channel Parameter')
       plt.ylabel(label[type])
    elif type==5:
@@ -459,28 +460,28 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
       plt.zlabel('Symbol Error Rate')
    elif type==6:
       cols = np.size(results,1)
-      h = plotitem(range(cols),results.transpose(),tolerance.transpose(),style,'linear','log',ns)
+      h = plotitem(range(cols),results.transpose(),tolerance.transpose(),style,'linear','log',ns,label)
       plt.xlabel('Value/Position')
       plt.ylabel('Symbol Error Rate')
       legendlist = [ '%g' % n for n in par ]
    elif type==7:
-      h = plotitem(par,results,[],style,xscale,'log',ns)
+      h = plotitem(par,results,[],style,xscale,'log',ns,label)
       plt.xlabel('Channel Parameter')
       plt.ylabel(r'Burstiness $Pr[e_i|e_{i-1}] / Pr[e_i]$')
    elif type==8:
       # Plot the number of samples
-      h = plotitem(par,passes,[],style,xscale,'log',ns)
+      h = plotitem(par,passes,[],style,xscale,'log',ns,label)
       plt.ylabel('Number of Samples (Frames)')
    elif type==9:
       # Plot the CPU time used
-      h = plotitem(par,cputime/3600,[],style,xscale,'log',ns)
+      h = plotitem(par,cputime/3600,[],style,xscale,'log',ns,label)
       plt.ylabel('Compute Time Used (Hours)')
    elif type==10:
       # Plot the CPU time used per sample
-      h = plotitem(par,cputime/passes,[],style,xscale,'log',ns)
+      h = plotitem(par,cputime/passes,[],style,xscale,'log',ns,label)
       plt.ylabel('Compute Time per Sample (Seconds)')
    else: # catch-all
-      h = plotitem(par,results,tolerance,style,xscale,'log',ns)
+      h = plotitem(par,results,tolerance,style,xscale,'log',ns,label)
       plt.xlabel('Channel Parameter')
       plt.ylabel('Value')
 
