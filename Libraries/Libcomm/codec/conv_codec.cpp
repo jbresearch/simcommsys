@@ -165,31 +165,38 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri)
 
    init_matrices(gamma, alpha, beta, output_symbol, output_bit);
 
-   //recv_sequence = 12;
-   //encoding_steps = 4;
+   /*recv_sequence = 12;
+   encoding_steps = 4;*/
 
    work_gamma(gamma, R);
 
-   //for(int col = 0; col < gamma.size().cols(); col++)
-   //{
-   //for(int row = 0; row < pow(2,no_states); row++)
-   //   {
-   //   std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
-   //   for(int i = 0; i < pow(2,no_states);i++)
-   //      {
-   //      std::cout << gamma(row,col)[i] << " ";
-   //      }
-   //   std::cout << std::endl;
-   //   }
-   //}
+   /*for(int col = 0; col < gamma.size().cols(); col++)
+   {
+   for(int row = 0; row < pow(2,no_states); row++)
+      {
+      std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
+      for(int i = 0; i < pow(2,no_states);i++)
+         {
+         std::cout << gamma(row,col)[i] << " ";
+         }
+      std::cout << std::endl;
+      }
+   }*/
 
    work_alpha(gamma, alpha);
    work_beta(gamma, beta);
 
    //decode(gamma, alpha, beta, output_symbol);
    
-   decode_normalise(gamma, alpha, beta, output_symbol);
+   //decode_normalise(gamma, alpha, beta, output_symbol);
    
+   /*array1vd_t ro;
+   decode(gamma, alpha, beta, output_symbol, ro);
+   
+   system("cls");
+            for(int i = 0; i < ro.size(); i++)
+               std::cout << ro(i);*/
+
    //for(int c = 0; c < output_symbol.size().cols(); c++)
    //   {
    //   for(int r = 0; r < output_symbol.size().rows(); r++)
@@ -230,8 +237,8 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    recv_sequence = R.size();
 
-   for(int cnt = 0; cnt < R.size(); cnt++)
-         std::cout << R(cnt);
+   /*for(int cnt = 0; cnt < R.size(); cnt++)
+         std::cout << R(cnt);*/
 
    libbase::matrix<std::vector<double> > gamma;
    libbase::matrix<double> alpha;
@@ -249,26 +256,26 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 
    //system("cls");
 
-   for(int c = 0; c < output_symbol.size().cols(); c++)
-      {
-      for(int r = 0; r < output_symbol.size().rows(); r++)
-         {
-         std::cout << output_symbol(r,c) << " \t";
-         }
-      std::cout << std::endl;
-      }
+   //for(int c = 0; c < output_symbol.size().cols(); c++)
+   //   {
+   //   for(int r = 0; r < output_symbol.size().rows(); r++)
+   //      {
+   //      std::cout << output_symbol(r,c) << " \t";
+   //      }
+   //   std::cout << std::endl;
+   //   }
 
    /*Dealing with multiple inputs*/
    multiple_inputs(output_symbol, output_bit);
 
    /*Normalisation*/
-   normalize(output_bit);
+   //normalize(output_bit);
    //normalize(output_symbol);
 
    fill_ptable(ri, output_bit);
 
-   for(int cnt = 0; cnt < ro.size(); cnt++)
-         std::cout << ro(cnt);
+   /*for(int cnt = 0; cnt < ro.size(); cnt++)
+         std::cout << ro(cnt);*/
    }
 
 template <class dbl>
@@ -326,8 +333,8 @@ template <class dbl>
 void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<double> >& gamma, array1vd_t& recv_ptable)
    {
    int inp_combinations = pow(2,k);
-   //double Lc = 5.0;
-   //double recv[] = {0.3, 0.1, -0.5, 0.2, 0.8, 0.5, -0.5, 0.3, 0.1, -0.7, 1.5, -0.4};
+   /*double Lc = 5.0;
+   double recv[] = {0.3, 0.1, -0.5, 0.2, 0.8, 0.5, -0.5, 0.3, 0.1, -0.7, 1.5, -0.4};*/
 
    int state_table_row = 0;
    int _nxt_state = 0;
@@ -603,37 +610,89 @@ void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libba
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
-   std::string output = "";
+   
+   libbase::matrix<std::vector<double> > p_norm;
 
-   output_posteriors.init(R.size());
+   init_gamma(p_norm, 0.0);
+
+   double norm = 0.0;
 
    for(int col = 0; col < gamma.size().cols(); col++)
       {
-      /*Initialising outputposteriors to 0*/
-      for(int cnt = 0; cnt < n; cnt++)
-         output_posteriors(cnt+col).init(2);
+      for(int row = 0; row < alpha.size().rows(); row++)
+         {
+         for(int input = 0; input < inp_combinations; input++)
+            {
+            _nxt_state = get_next_state(input, row);
+            
+            if(gamma(_nxt_state,col)[row] != -1)
+               {
+               p_norm(_nxt_state,col)[row] = alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
+               norm += p_norm(_nxt_state,col)[row];
+               }
+            }
+         }
       
-      /*row = current state in decimal*/
+      /*Normalisation - BEGIN*/
+      for(int norm_row = 0; norm_row < p_norm.size().rows(); norm_row++)
+            for(int i = 0; i < pow(2,no_states);i++)
+               p_norm(norm_row,col)[i] /= norm;
+      
+      norm = 0.0;
+      /*Normalisation - END*/
+      }
+   /*std::cout << std::endl;
+   std::cout << std::endl;
+   std::cout << std::endl;
+      for(int col = 0; col < p_norm.size().cols(); col++)
+      {
+      for(int row = 0; row < p_norm.size().rows(); row++)
+         {
+         std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
+         for(int i = 0; i < pow(2,no_states);i++)
+            {
+            std::cout << p_norm(row,col)[i] << " ";
+            }
+         std::cout << std::endl;
+         }
+      std::cout << std::endl;
+      }*/
+
+   output_posteriors.init(R.size());
+   std::string output = "";
+   
+   int out_p_loc = 0;
+
+   for(int col = 0; col < gamma.size().cols(); col++)
+      {
+      out_p_loc = col * n;
+      /*Initialising outputposteriors */
+      for(int cnt = 0; cnt < n; cnt++)
+         output_posteriors(cnt+out_p_loc).init(2);
+
       for(int row = 0; row < alpha.size().rows(); row++)
          {
          for(int input = 0; input < inp_combinations; input++)
             {
             _nxt_state = get_next_state(input, row);
             output = get_output(input, row);
+            
+            output_symbol(input,col) += p_norm(_nxt_state,col)[row];
+            
+            //double a = p_norm(_nxt_state,col)[row];
 
-            if(gamma(_nxt_state,col)[row] != -1)
+            /*Filling output posteriors*/
+            for(int out_cnt = 0; out_cnt < n; out_cnt++)
                {
-               output_symbol(input,col) += alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
-
-               /*Filling output posteriors*/
-               for(int out_cnt = 0; out_cnt < n; out_cnt++)
-                  {
-                  if(output[out_cnt] == '0')
-                     output_posteriors(col+out_cnt)(0) += output_symbol(input,col);
-                  else
-                     output_posteriors(col+out_cnt)(1) += output_symbol(input,col);
-                  }
+               if(output[out_cnt] == '0')
+                  output_posteriors(out_p_loc+out_cnt)(0) += p_norm(_nxt_state,col)[row];
+               else
+                  output_posteriors(out_p_loc+out_cnt)(1) += p_norm(_nxt_state,col)[row];
                }
+
+            /*system("cls");
+            for(int i = 0; i < output_posteriors.size(); i++)
+               std::cout << output_posteriors(i);*/
             }
          }
       }
