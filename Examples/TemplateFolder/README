@@ -1,5 +1,6 @@
-Please see the ECW/Howtos folder for details on how to use this template folder.
+Please see the HowTos in the SimCommSys documentation for details on how to
+use this template folder.
 
-The relevant Howtos are:
-SimulationHowto and
-PlotResultsHowto
+The relevant HowTos are:
+1. How to set up and run a simulation
+2. How to plot the results of a simulation.
