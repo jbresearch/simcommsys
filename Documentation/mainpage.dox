@@ -68,7 +68,9 @@ grips with the system and hopefully provide enough detail to get going,
 If you find that any of the howtos is unclear or contains wrong/out-of-date
 information then please update them so that the next person doesn't have to
 rediscover the mistakes.
-The following set of HowTos will be available:
+Available HowTos are listed below, grouped separately for developers and users.
+
+\subsection devhowto Development HowTos
 
 - \ref developmentenvironment, provides:
    - details on the required development packages
@@ -79,6 +81,9 @@ The following set of HowTos will be available:
    - the serialisation Macros
 - \ref profiling, for guidance on using the profiler to help with code
    optimization.
+
+\subsection userhowto User HowTos
+
 - \ref simulation, provides details on how to:
    - set up a new simulation
    - run a simulation locally and on the cluster
@@ -86,8 +91,13 @@ The following set of HowTos will be available:
    into graphs.
 - \ref innercodes, explains how to define insertion/deletion correcting
    inner codes.
-- \ref svnmove, useful for moving material to a new repository, keeping
-   version history
+
+\subsection otherhowto Other HowTos
+
+- \ref svnmove, useful for moving material to a new SVN repository, keeping
+   version history. This is currently of little use to this project, since
+   the move from svn to git, but has been kept for completeness.
+
 
 \section authors Contributing Authors
 
