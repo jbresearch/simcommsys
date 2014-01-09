@@ -21,7 +21,6 @@ along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 
 \page profiling Profiling your code
 \author   Stephan Wesemeyer
-$Id$
 
 \todo Update according to current Makefile.
 

@@ -21,7 +21,6 @@ along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 
 \page innercodes Defining inner codes
 \author   Stephan Wesemeyer
-$Id$
 
 \todo Review for consistency with current class structure and serialization
 version.

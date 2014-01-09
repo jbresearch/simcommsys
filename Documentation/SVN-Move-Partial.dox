@@ -21,7 +21,6 @@ along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 
 \page svnmove How to move parts of a repository into another repository
 \author   Stephan Wesemeyer
-$Id$
 
 
 \section req Requirements
