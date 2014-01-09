@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   q-ary erasure channel.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements an erasure channel; the symbol type is specified as a template
  * parameter. The symbol type must support the following methods:

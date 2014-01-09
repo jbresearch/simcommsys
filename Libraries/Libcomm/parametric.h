@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Parametric Class Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines a class that takes a scalar parameter.
  */

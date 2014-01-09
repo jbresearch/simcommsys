@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Semi-cached root-finding by Secant method.
  * \author  Johann Briffa
- * $Id$
  *
  * Speeded-up version of the secant method module - we build a cache on seeding
  * which we then use to initialise the starting points for the algorithm.

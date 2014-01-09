@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -133,7 +132,6 @@ namespace libcomm {
 /*!
  * \brief   Communications Library Serializer.
  * \author  Johann Briffa
- * $Id$
  */
 
 // Serialization support

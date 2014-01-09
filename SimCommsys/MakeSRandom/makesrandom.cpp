@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -238,7 +237,6 @@ void serialize_interleaver(std::ostream& sout, myvector<int> lut, int tau,
 /*!
  * \brief   S-Random Interleaver Creator
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

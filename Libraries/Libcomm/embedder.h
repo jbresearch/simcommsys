@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Common Data Embedder/Extractor Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Class defines common interface for embedder classes.
  */
@@ -86,7 +84,6 @@ public:
 /*!
  * \brief   Data Embedder/Extractor Base.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class S>

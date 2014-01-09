@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Additive White Gaussian Noise Channel.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.10 (15 Apr 1999)
  * Changed the definition of set_snr to avoid using the pow() function.

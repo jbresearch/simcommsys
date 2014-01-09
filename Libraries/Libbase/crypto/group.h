@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Group.
  * \author  Johann Briffa
- * $Id$
  *
  * Class that represents the group. Used to save and load previously generated
  * groups.

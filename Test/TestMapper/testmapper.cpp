@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -97,7 +96,6 @@ void test_aggregating(int N, int q, int M)
 /*!
  * \brief   Test program for non-trivial mappers
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

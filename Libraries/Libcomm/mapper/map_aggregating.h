@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Aggregating Mapper - Template base.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for aggregating mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
@@ -46,7 +44,6 @@ class map_aggregating : public mapper<C, dbl> {
 /*!
  * \brief   Aggregating Mapper - Vector containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines an aggregating symbol mapper; this is a rate-1 mapper
  * for cases where each modulation symbol encodes more than one encoder symbol.

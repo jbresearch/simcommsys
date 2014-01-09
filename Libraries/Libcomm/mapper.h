@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -48,7 +47,6 @@ namespace libcomm {
 /*!
  * \brief   Mapper Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines the interface for mapper classes. It is used within
  * commsys as a layer between codec and blockmodem. It transforms the codec

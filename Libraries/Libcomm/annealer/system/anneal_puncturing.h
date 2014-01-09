@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Simulated Annealing Puncturing Pattern Design.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (5 Jun 1999)
  * In this version, we load the contribution of each data and parity bit from a file; then we try to

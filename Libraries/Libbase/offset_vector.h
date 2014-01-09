@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -42,7 +41,6 @@ namespace libbase {
 /*!
  * \brief   Offset Vector
  * \author  Johann Briffa
- * $Id$
  *
  * An offset vector is a vector with a user-selected base index.
  */

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -1342,7 +1341,6 @@ void ProduceLookupTables()
 /*!
  * \brief Test program for GF class
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

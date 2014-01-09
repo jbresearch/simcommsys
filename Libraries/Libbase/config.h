@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -27,7 +26,6 @@
  * \file
  * \brief   Main Configuration.
  * \author  Johann Briffa
- * $Id$
  */
 
 // Global compilation settings / options (pre-deployment only)

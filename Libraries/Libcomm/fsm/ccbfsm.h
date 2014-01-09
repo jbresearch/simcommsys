@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Controller-Canonical Binary Finite State Machine.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements common elements of a controller-canonical binary fsm.
  * The generator matrix is held such that the least-significant bit is

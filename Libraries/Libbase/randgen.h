@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libbase {
 /*!
  * \brief   Knuth's Subtractive Random Generator.
  * \author  Johann Briffa
- * $Id$
  *
  * A pseudo-random generator using the subtractive technique due to
  * Knuth. This algorithm was found to give very good results in the

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Straight Mapper - Template base.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for straight mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
@@ -44,7 +42,6 @@ class map_straight : public mapper<C, dbl> {
 /*!
  * \brief   Straight Mapper - Vector containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a straight symbol mapper; this is a rate-1 mapper
  * for cases where each modulation symbol encodes exactly one encoder symbol.
@@ -97,7 +94,6 @@ public:
 /*!
  * \brief   Straight Mapper - Matrix containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a straight symbol mapper; this is a rate-1 mapper
  * for cases where each modulation symbol encodes exactly one encoder symbol.

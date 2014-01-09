@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -63,7 +62,6 @@ class masked_vector;
 /*!
  * \brief   Size specialization for vector.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <>
@@ -114,7 +112,6 @@ public:
 /*!
  * \brief   Generic Vector.
  * \author  Johann Briffa
- * $Id$
  *
  * \note Supports the concept of an empty vector
  *
@@ -1256,7 +1253,6 @@ inline T vector<T>::var() const
 /*!
  * \brief   Indirect Vector.
  * \author  Johann Briffa
- * $Id$
  *
  * An indirect vector is a vector that does not own its allocated memory.
  * Consequently, all operations that require a resize are forbidden.
@@ -1443,7 +1439,6 @@ inline void indirect_vector<T>::validate_reference() const
 /*!
  * \brief   Masked Vector.
  * \author  Johann Briffa
- * $Id$
  *
  * A masked vector is a vector with a binary element-mask. Arithmetic,
  * statistical, user-defined operation, and copy/value init functions are

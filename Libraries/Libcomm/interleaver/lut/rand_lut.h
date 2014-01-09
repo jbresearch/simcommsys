@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Random LUT Interleaver.
  * \author  Johann Briffa
- * $Id$
  *
  * \note This assumes the implementation of a random simile interleaver; there
  * is therefore a restriction that the interleaver size must be a

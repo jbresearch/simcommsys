@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Codeword Boundary Fidelity.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements computation of the fidelity metric at frame and codeword
  * boundary positions.

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Galois Field Element.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements extensions of the binary field: \f$ GF(2^n) \f$.
  *

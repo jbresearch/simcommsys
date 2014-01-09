@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Instrumented Class Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines a class that is instrumented for internal timings.
  * Classes that inherit this public interface need to call reset() at the

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Communication System supporting stream synchronization.
  * \author  Johann Briffa
- * $Id$
  *
  * Communication system that supports stream synchronization. Consequently,
  * the reception process has an enhanced interface. This:

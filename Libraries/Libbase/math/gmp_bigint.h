@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace libbase {
 /*!
  * \brief   BigInteger based on GNU MP.
  * \author  Johann Briffa
- * $Id$
  *
  * C++ wrapper for GNU MP integer; provides the following features:
  * - default construction; construction from integer

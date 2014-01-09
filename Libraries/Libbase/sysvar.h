@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   System variable.
  * \author  Johann Briffa
- * $Id$
  *
  * Encapsulates a system environment variable, facilitating reading its value
  * as a string. Also provides automatic conversion to int and float.

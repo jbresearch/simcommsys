@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Simulated Annealing Interleaver Design.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00
  * Six different energy functions were used, as detailed in my Feb 1 report "On the importance

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Q-ary Blockwise Modulator Implementation.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for q-ary channel block modems; this
  * needs to be specialized for actual use. Template parameter defaults are
@@ -46,7 +44,6 @@ class direct_blockmodem_implementation : public direct_modem_implementation<G> {
 /*!
  * \brief   Q-ary Blockwise Modulator Vector Implementation.
  * \author  Johann Briffa
- * $Id$
  *
  * Vector implementation of plain q-ary channel modulation.
  */
@@ -70,7 +67,6 @@ protected:
 /*!
  * \brief   Q-ary Blockwise Modulator.
  * \author  Johann Briffa
- * $Id$
  *
  * Implementation of plain q-ary channel modulation.
  *

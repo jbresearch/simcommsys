@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -49,7 +48,6 @@ public:
 /*!
  * \brief   Quick Simulation
  * \author  Johann Briffa
- * $Id$
  *
  * This program implements a quick simulation for a given system; this is
  * useful to benchmark the speed of the decoder and to obtain a quick estimate

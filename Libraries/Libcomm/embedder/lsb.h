@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   LSB Embedder/Extractor.
  * \author  Johann Briffa
- * $Id$
  *
  * This class implements LSB embedding that can be applied to any integer type.
  * Two types of embedding are implemented:

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -37,7 +36,6 @@ namespace libcomm {
 /*!
  * \brief   Monte Carlo Estimator.
  * \author  Johann Briffa
- * $Id$
  */
 
 class montecarlo : public libbase::masterslave, private resultsfile {

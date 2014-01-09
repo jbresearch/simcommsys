@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace cuda {
 /*!
  * \brief   GPU Timer.
  * \author  Johann Briffa
- * $Id$
  *
  * A class which can be used to time subroutines, etc. using timers on the
  * GPU itself. Resolution is about half a microsecond.

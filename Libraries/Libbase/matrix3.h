@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Generic 3D Matrix.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (31 Oct 2001)
  * separated 3D matrix class from the 2D matrix header.

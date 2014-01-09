@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Systematic Repeat-Accumulate (SRA) codes.
  * \author  Johann Briffa
- * $Id$
  *
  * Extension of the Repeat-Accumulate (RA) codes, also transmitting
  * systematic data on the channel.

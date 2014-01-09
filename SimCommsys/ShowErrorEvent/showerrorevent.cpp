@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -83,7 +82,6 @@ void display_event(libcomm::experiment *system)
 /*!
  * \brief   Error Event Analysis for Experiments
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   UNIX Crypt Algorithm.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 0.01 (28 Feb 2003)
  * initial version - class that implements UNIX Crypt Algorithm, built by

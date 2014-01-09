@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace boost {
 /*!
  * \brief   Assignable version of Boost MultiArray.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <typename T, std::size_t NumDims>

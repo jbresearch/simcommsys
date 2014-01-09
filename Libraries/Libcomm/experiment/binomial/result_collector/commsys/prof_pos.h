@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Frame-Position Error Profile.
  * \author  Johann Briffa
- * $Id$
  *
  * Profiler of error with respect to position within block.
  */

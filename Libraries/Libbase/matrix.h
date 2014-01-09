@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -50,7 +49,6 @@ class masked_matrix;
 /*!
  * \brief   Size specialization for matrix.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <>
@@ -109,7 +107,6 @@ public:
 /*!
  * \brief   Generic 2D Matrix.
  * \author  Johann Briffa
- * $Id$
  *
  * Arithmetic functions are part of the matrix class. This includes arithmetic
  * operations between matrices, constant matrix initialisation routines, and
@@ -1441,7 +1438,6 @@ namespace libbase {
 /*!
  * \brief   Masked 2D Matrix.
  * \author  Johann Briffa
- * $Id$
  *
  * A masked matrix is a matrix with a binary element-mask. Arithmetic,
  * statistical, user-defined operation, and copy/value init functions are

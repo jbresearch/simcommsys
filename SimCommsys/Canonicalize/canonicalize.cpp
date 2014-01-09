@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -46,7 +45,6 @@ void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
 /*!
  * \brief   Communication Systems File Canonicalizer
  * \author  Johann Briffa
- * $Id$
  *
  * This program reads the system specified on standard input and rewrites
  * it to standard output in its canonical form.

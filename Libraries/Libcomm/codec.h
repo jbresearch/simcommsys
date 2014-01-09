@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -37,7 +36,6 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec Base.
  * \author  Johann Briffa
- * $Id$
  *
  * \todo Original model assumed one symbol per timestep; this is no longer the
  * case. Confirm there are no lingering assumptions of this.

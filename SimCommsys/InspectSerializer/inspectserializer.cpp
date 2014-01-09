@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace inspectserializer {
 /*!
  * \brief   Serializer Class Support Inspector
  * \author  Johann Briffa
- * $Id$
  *
  * This program returns a list of base classes supported by the serializer.
  * If a base class is given, then this program returns supported derived

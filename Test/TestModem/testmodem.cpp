@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -67,7 +66,6 @@ void TestQAM(int m)
 /*!
  * \brief   Test program for modem class
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

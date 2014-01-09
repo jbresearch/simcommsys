@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -28,7 +27,6 @@ namespace libbase {
 /*!
  * \brief   Base Function Pointer.
  * \author  Johann Briffa
- * $Id$
  *
  * Abstract base functor class for functions that take no argmuents and return
  * nothing.
@@ -53,7 +51,6 @@ public:
 /*!
  * \brief   Function Pointer.
  * \author  Johann Briffa
- * $Id$
  *
  * Specific functor class for class member functions.
  */

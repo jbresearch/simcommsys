@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Informed Modulator Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines common interface for informed blockmodem classes. An informed
  * blockmodem is one which can use a-priori symbol probabilities during the

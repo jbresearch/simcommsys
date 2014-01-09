@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace libcomm {
 /*!
  * \brief   Blockwise Modulator Common Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Class defines common interface for blockmodem classes.
  */
@@ -159,7 +157,6 @@ public:
 /*!
  * \brief   Blockwise Modulator Base.
  * \author  Johann Briffa
- * $Id$
  *
  * Class defines base interface for blockmodem classes.
  */

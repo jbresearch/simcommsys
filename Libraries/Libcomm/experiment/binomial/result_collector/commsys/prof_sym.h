@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Symbol-Value Error Profile.
  * \author  Johann Briffa
- * $Id$
  *
  * Computes symbol-error histogram as dependent on source symbol value.
  */

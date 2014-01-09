@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Timer - base class
  * \author  Johann Briffa
- * $Id$
  *
  * A base class for timers which can be used to time subroutines, etc.
  * Time is expressed in seconds and resolution depends on implementation;

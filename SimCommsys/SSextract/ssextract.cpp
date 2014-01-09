@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -46,7 +45,6 @@ libimage::image<S> loadimage(std::istream& sin)
 /*!
  * \brief   Main data-extraction process
  * \author  Johann Briffa
- * $Id$
  *
  * This method extracts an embedded data sequence from a given stego-medium;
  * the stego-system used is described by a system file. The stego-medium is
@@ -117,7 +115,6 @@ void process(const std::string& systemfile, const std::string& channelfile,
 /*!
  * \brief   Stego-System Embedder
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

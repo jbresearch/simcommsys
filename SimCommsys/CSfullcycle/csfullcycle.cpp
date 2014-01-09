@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -86,7 +85,6 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
 /*!
  * \brief   Communication Systems Encoder-Transmit-Decoder Cycle
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Generalized Non-Recursive Convolutional Code.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (13 Dec 2007)
  * - Initial version; implements NRCC where polynomial coefficients are elements

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -44,7 +43,6 @@ namespace libcomm {
 /*!
  * \brief   Helper class for q-ary insertion/deletion/substitution channel.
  * \author  Johann Briffa
- * $Id$
  *
  * This is a helper class for the q-ary insertion, deletion and substitution
  * error channel (qids). It implements (as static methods) a number of

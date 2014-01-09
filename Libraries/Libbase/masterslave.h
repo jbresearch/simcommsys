@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace libbase {
 /*!
  * \brief   Socket-based Master-Slave computation.
  * \author  Johann Briffa
- * $Id$
  *
  * Class supporting socket-based master-slave relationship.
  * - supports dynamic slave list

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Communication System with Full-System Iteration.
  * \author  Johann Briffa
- * $Id$
  *
  * Communication system with iterative demodulation and decoding; the model here
  * is such that we demodulate once, then decode for M iterations. After that,

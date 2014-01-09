@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   LUT Modulator.
  * \author  Johann Briffa
- * $Id$
  */
 
 class lut_modulator : public blockmodem<sigspace> {

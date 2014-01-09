@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Additive Laplacian-Gaussian Channel.
  * \author  Johann Briffa
- * $Id$
  *
  * \todo this class is still unfinished, and only implements the plain
  * Gaussian channel right now

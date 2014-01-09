@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Symbol-Error per Frame Histogram.
  * \author  Johann Briffa
- * $Id$
  *
  * Computes histogram of symbol error count for each block simulated.
  */

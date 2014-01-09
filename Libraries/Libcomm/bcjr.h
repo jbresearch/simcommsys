@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -40,7 +39,6 @@ namespace libcomm {
 /*!
  * \brief   Bahl-Cocke-Jelinek-Raviv (BCJR) decoding algorithm.
  * \author  Johann Briffa
- * $Id$
  *
  * All internal metrics are held as type 'real', which is user-defined. This
  * allows internal working at any required level of accuracy. This is required

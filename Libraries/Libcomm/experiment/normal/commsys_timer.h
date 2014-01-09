@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Communication System Simulator - Timing collector.
  * \author  Johann Briffa
- * $Id$
  *
  * A variation on the regular commsys_simulator object, returning component
  * timings as main result.

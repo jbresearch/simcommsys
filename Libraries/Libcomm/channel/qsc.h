@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   q-ary symmetric channel.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a q-ary symmetric channel as a templated class.
  */

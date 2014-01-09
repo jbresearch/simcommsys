@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -44,7 +43,6 @@ namespace libcomm {
 /*!
  * \brief   Bit-Patterned Media Recording channel.
  * \author  Johann Briffa
- * $Id$
  *
  * This class implements the BPM recording channel using an extension of the
  * K-ary Markov state channel described in:

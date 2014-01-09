@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Uniform Interleaver.
  * \author  Johann Briffa
- * $Id$
  *
  * \note This interleaver allows JPL termination.
  */

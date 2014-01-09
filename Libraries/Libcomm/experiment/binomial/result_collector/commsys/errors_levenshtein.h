@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - SER (Hamming & Levenshtein), FER.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements error rate calculators for SER (using both Hamming and
  * Levenshtein distances) and FER.

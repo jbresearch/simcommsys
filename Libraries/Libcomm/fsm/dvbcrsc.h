@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   DVB-Standard Circular Recursive Systematic Convolutional Coder.
  * \author  Johann Briffa
- * $Id$
  *
  */
 

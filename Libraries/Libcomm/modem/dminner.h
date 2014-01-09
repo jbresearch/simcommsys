@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -42,7 +41,6 @@ namespace libcomm {
 /*!
  * \brief   Davey-MacKay Inner Code, original bit-level decoding.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements 'Watermark' Codes as described in:
  * Davey, M.C. and Mackay, D.J.C., "Reliable communication over channels with

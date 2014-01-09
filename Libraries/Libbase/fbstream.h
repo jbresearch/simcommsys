@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Bitstream File-handling.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.01 (27 Nov 2001)
  * added a function which returns the number of bits left in the buffer for ifbstream.

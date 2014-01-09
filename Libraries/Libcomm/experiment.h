@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -37,7 +36,6 @@ namespace libcomm {
 /*!
  * \brief   Generic experiment.
  * \author  Johann Briffa
- * $Id$
  */
 
 class experiment : public parametric, public libbase::serializable {

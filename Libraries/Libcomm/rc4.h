@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   RSA RC4 Algorithm.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (03 Jul 2003)
  * initial version - class that implements RSA RC4 Algorithm, as specified in

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libimage {
 /*
  * \brief   Alpha-Trimmed Mean Filter
  * \author  Johann Briffa
- * $Id$
  *
  * This filter computes the alpha-trimmed mean within a given neighbourhood.
  */

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -458,7 +457,6 @@ void compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
 /*!
  * \brief   Test program for QIDS channel
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

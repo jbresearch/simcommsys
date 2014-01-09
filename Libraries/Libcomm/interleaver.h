@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -38,7 +37,6 @@ namespace libcomm {
 /*!
  * \brief   Interleaver Base.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class real>

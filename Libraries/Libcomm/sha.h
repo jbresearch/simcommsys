@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Secure Hash Algorithm.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements Secure Hash Algorithm SHA-1 (160-bit), as specified in
  * Schneier, "Applied Cryptography", 1996, pp.442-445.

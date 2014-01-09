@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -270,7 +269,6 @@ void TestCirculation()
 /*!
  * \brief   Test program for GRSCC class
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

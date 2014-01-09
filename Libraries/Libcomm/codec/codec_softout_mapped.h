@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -45,7 +44,6 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with Soft Output and same Input/Output Symbol Space.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class base_codec_softout, class dbl = double>

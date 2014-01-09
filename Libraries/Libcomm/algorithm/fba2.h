@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace libcomm {
 /*!
  * \brief   Symbol-Level Forward-Backward Algorithm (for TVB codes).
  * \author  Johann Briffa
- * $Id$
  *
  * Implements the forward-backward algorithm for a HMM, as required for the
  * MAP decoding algorithm for a generalized class of synchronization-correcting

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Stream-Oriented Modulator Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines common interface for stream-oriented blockmodem classes. A stream-
  * oriented blockmodem is one which can determine frame synchronization and

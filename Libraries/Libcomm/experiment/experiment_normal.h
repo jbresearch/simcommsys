@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Experiment with normally distributed samples.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements the accumulator functions required by the experiment class,
  * moved from previous implementation in montecarlo.

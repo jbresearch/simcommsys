@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Padded Interleaver.
  * \author  Johann Briffa
- * $Id$
  *
  * \note The member onetimepad object is a pointer; this allows us to create
  * an empty "padded" class without access to onetimepad's default

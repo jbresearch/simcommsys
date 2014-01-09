@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -42,7 +41,6 @@ namespace libcomm {
 /*!
  * \brief   Cached FSM.
  * \author  Johann Briffa
- * $Id$
  *
  * Class representing an FSM held internally by its state table. This can
  * be constructed from any other FSM class, memory permitting, by iteratively

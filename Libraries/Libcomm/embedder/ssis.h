@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Spread Spectrum Image Steganography Embedder/Extractor.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for SSIS-based embedders;
  * this needs to be specialized for actual use. Template parameter
@@ -46,7 +44,6 @@ class ssis : public blockembedder<S, C, dbl> {
 /*!
  * \brief   SSIS Matrix Embedder/Extractor
  * \author  Johann Briffa
- * $Id$
  *
  * Matrix implementation of Marvel et al.'s SSIS algorithm for data embedding
  * in images.

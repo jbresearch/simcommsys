@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   EXIT Chart Computer.
  * \author  Johann Briffa
- * $Id$
  *
  * A simulator object for computing the EXIT curves for the inner (modem) and
  * outer (codec) codes in a serially concatenated iterative communication

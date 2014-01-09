@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libbase {
 /*!
  * \brief   Networking sockets.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (27 Jun 2002)
  * original version; just a placeholder

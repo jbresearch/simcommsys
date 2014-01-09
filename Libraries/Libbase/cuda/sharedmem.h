@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -27,7 +26,6 @@
  * \file
  * \brief   Templatized dynamic shared memory.
  * \author  Johann Briffa
- * $Id$
  *
  * Workaround for use of dynamic shared memory arrays in templatized classes.
  * Code adapted from CUDA SDK, original copyright follows:

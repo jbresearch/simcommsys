@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Blockwise Data Embedder/Extractor Common Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Class defines common interface for blockembedder classes.
  */
@@ -153,7 +151,6 @@ public:
 /*!
  * \brief   Blockwise Data Embedder/Extractor Base.
  * \author  Johann Briffa
- * $Id$
  *
  * Class defines base interface for blockembedder classes.
  */

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libbase {
 /*!
  * \brief   Finite q-ary symbol.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements the concept of a symbol from a finite alphabet.
  * Uses an integer to represent symbol value; value is initialized to zero

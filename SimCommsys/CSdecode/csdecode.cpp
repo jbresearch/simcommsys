@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -323,7 +322,6 @@ void process(const std::string& fname, double p, bool softin, bool softout,
 /*!
  * \brief   Communication Systems Decoder
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

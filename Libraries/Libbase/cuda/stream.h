@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -45,7 +44,6 @@ class event;
 /*!
  * \brief   A CUDA stream
  * \author  Johann Briffa
- * $Id$
  *
  * This class represents an identifier for a sequence of commands that
  * executes in order.

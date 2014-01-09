@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -139,7 +138,6 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
 /*!
  * \brief   Simulation of Communication Systems
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

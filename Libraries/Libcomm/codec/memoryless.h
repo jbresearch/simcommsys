@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace libcomm {
 /*!
  * \brief   Memoryless Encoding (simple mapping, with or without repetition).
  * \author  Johann Briffa
- * $Id$
  *
  * This class implements a memoryless encoding, ie a simple mapping between
  * input symbols and output sequences. Note that the rate may be less than one,

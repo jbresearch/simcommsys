@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libbase {
 /*!
  * \brief   Histogram.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (8 Jun 2000)
  * Initial version - computes the histogram of the values in a vector or

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   Controller-Canonical Finite State Machine.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements common elements of a controller-canonical fsm, where each
  * coefficient is an element in a finite field.

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Reshaping Mapper for Matrix containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a symbol mapper where matrix reshaping occurs by reading
  * and writing elements in row-major order. Note that the input and output

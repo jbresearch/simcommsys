@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace testwatermark {
 /*!
  * \brief   Test program for DM inner code creation
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

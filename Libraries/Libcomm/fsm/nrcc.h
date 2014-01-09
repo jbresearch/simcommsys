@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Non-Recursive Convolutional Coder.
  * \author  Johann Briffa
- * $Id$
  */
 
 class nrcc : public ccbfsm {

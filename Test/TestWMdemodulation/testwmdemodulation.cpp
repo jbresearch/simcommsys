@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -212,7 +211,6 @@ void testcycle(bool decoder, bool math, bool deep, int seed, int n, int k,
 /*!
  * \brief   Test program for DM inner decoder
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

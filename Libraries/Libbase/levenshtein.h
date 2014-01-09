@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Compute Levenshtein Distance
  * \author  Johann Briffa
- * $Id$
  *
  * A method that computes the Levenshtein distance between two sequences.
  * Templatized for any type for which a definition of equality exists.

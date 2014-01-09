@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -41,7 +40,6 @@ namespace libcomm {
 /*!
  * \brief   Time-Varying Block Code support.
  * \author  Johann Briffa
- * $Id$
  *
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for returning results

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   Simulated Annealing System base.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (10 Jul 1998)
  *

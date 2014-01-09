@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -39,7 +38,6 @@ class serializable;
 /*!
  * \brief   Serialization helper.
  * \author  Johann Briffa
- * $Id$
  *
  * Class created to allow the implementation of serialization functions
  * similar to MFC's. Concept is that derived classes should have a static
@@ -108,7 +106,6 @@ public:
 /*!
  * \brief   Serializable class base.
  * \author  Johann Briffa
- * $Id$
  *
  * All serializable classes inherit from this. Implements part of the required
  * functionality, in conjunction with DECLARE_BASE_SERIALIZER() macro.

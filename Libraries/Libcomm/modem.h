@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Common Modulator Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Class defines common interface for modem classes.
  */
@@ -95,7 +93,6 @@ public:
 /*!
  * \brief   Modulator Base.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class S>
@@ -105,7 +102,6 @@ class modem : public basic_modem<S> {
 /*!
  * \brief   Signal-Space Modulator Specialization.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <>

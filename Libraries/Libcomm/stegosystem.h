@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Stegosystem encoder/decoder.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.00 (15 Nov 2002)
  * initial version - created by moving embedding/extraction routines from the embed/extract

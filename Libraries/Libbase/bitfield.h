@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libbase {
 /*!
  * \brief   Bitfield (register of a set size).
  * \author  Johann Briffa
- * $Id$
  *
  * \note This class has CUDA device support.
  */

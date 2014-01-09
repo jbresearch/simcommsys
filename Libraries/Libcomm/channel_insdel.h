@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Insertion-Deletion Channel Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines the additional interface methods for insertion-deletion channels.
  */

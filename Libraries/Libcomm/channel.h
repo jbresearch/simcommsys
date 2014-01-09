@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -42,7 +41,6 @@ namespace libcomm {
 /*!
  * \brief   Common Channel Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * Base channel definition provides:
  * - random generator accessible by derived classes
@@ -187,7 +185,6 @@ public:
 /*!
  * \brief   Common Channel Base.
  * \author  Johann Briffa
- * $Id$
  *
  * Templated common channel base. This extra level is required to allow partial
  * specialization of the container.
@@ -200,7 +197,6 @@ class basic_channel : public basic_channel_interface<S, C> {
 /*!
  * \brief   Common Channel Base Specialization.
  * \author  Johann Briffa
- * $Id$
  *
  * Templated common channel base. Partial specialization for vector container.
  */
@@ -301,7 +297,6 @@ double basic_channel<S, libbase::vector>::receive(const S& tx,
 /*!
  * \brief   Common Channel Base Specialization.
  * \author  Johann Briffa
- * $Id$
  *
  * Templated common channel base. Partial specialization for matrix container.
  */
@@ -380,7 +375,6 @@ public:
 /*!
  * \brief   Channel Base.
  * \author  Johann Briffa
- * $Id$
  *
  * Templated base channel model.
  */
@@ -394,7 +388,6 @@ DECLARE_BASE_SERIALIZER(channel)
 /*!
  * \brief   Signal-Space Channel.
  * \author  Johann Briffa
- * $Id$
  *
  * Class specialization including elements specific to the signal-space
  * channel model.

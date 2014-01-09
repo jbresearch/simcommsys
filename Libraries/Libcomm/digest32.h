@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Common 32-bit Digest Implementation.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements methods and data handling that are common for digests using
  * 32-bit integer arithmetic and 64-byte block sizes.

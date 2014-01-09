@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Error Burstiness Profile.
  * \author  Johann Briffa
- * $Id$
  *
  * Determines separately the error probabilities for:
  * the first symbol in a frame

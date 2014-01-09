@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   Helper class for field types - template base
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a helper implementing various methods required when using field
  * types as symbols. The template base implements the methods as suitable for
@@ -74,7 +72,6 @@ public:
 /*!
  * \brief   Helper class for field types - bool specialization
  * \author  Johann Briffa
- * $Id$
  *
  * This template specialization implements the methods suitable for bool types.
  */

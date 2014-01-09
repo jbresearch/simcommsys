@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Message Digest MD5 Algorithm.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements Message Digest MD5, as specified in Schneier, "Applied
  * Cryptography", 1996, pp.436-441.

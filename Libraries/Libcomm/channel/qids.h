@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -46,7 +45,6 @@ namespace libcomm {
 /*!
  * \brief   q-ary insertion/deletion/substitution channel.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a q-ary extension of the channel with unbounded random insertion,
  * deletion and substitution errors as described in:

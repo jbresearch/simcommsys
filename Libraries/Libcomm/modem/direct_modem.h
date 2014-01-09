@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Q-ary Modulator Implementation.
  * \author  Johann Briffa
- * $Id$
  *
  * Specific implementation of q-ary channel modulation.
  *
@@ -69,7 +67,6 @@ public:
 /*!
  * \brief   Binary Modulator Implementation Specialization.
  * \author  Johann Briffa
- * $Id$
  *
  * Specific implementation of binary channel modulation.
  */
@@ -101,7 +98,6 @@ public:
 /*!
  * \brief   Direct Modulator Implementation.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class G>

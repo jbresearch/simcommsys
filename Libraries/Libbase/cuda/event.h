@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -42,7 +41,6 @@ namespace cuda {
 /*!
  * \brief   A CUDA event
  * \author  Johann Briffa
- * $Id$
  *
  * This class represents an identifier for an event on a stream. An event has
  * occurred when all other preceding commands on the same stream have completed.

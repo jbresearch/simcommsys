@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
  * \brief   Factory to return the desired Symbol-Level Forward-Backward
  *          Algorithm (for TVB codes).
  * \author  Johann Briffa
- * $Id$
  *
  * This factory automatically chooses between CPU and GPU implementations
  * depending on compiler flags, and takes as parameters the flag values

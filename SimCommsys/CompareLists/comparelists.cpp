@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -257,7 +256,6 @@ void process(const std::string& fname1, const std::string& fname2,
 /*!
  * \brief   Compare two sequences
  * \author  Johann Briffa
- * $Id$
  *
  * Comparison can be one of:
  * - Levenshtein distance (# of ins/del/sub)

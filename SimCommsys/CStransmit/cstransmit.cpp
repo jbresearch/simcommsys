@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -59,7 +58,6 @@ void process(const std::string& fname, double p, std::istream& sin = std::cin,
 /*!
  * \brief   Communication Systems Transmitter
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

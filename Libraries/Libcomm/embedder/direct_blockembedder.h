@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Position-Independent Blockwise Data Embedder/Extractor.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for position-independent block
  * embedders; this needs to be specialized for actual use. Template parameter
@@ -46,7 +44,6 @@ class direct_blockembedder : public blockembedder<S, C, dbl> {
 /*!
  * \brief   Position-Independent Vector Data Embedder/Extractor
  * \author  Johann Briffa
- * $Id$
  *
  * Vector implementation of a position-independent block embedder.
  */
@@ -85,7 +82,6 @@ DECLARE_SERIALIZER(direct_blockembedder)
 /*!
  * \brief   Position-Independent Matrix Data Embedder/Extractor
  * \author  Johann Briffa
- * $Id$
  *
  * Matrix implementation of a position-independent block embedder.
  */

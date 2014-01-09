@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Random Permutation Class.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines a random permutation of the set {0,1,..N-1} for given size N.
  */

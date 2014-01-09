@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libbase {
 /*!
  * \brief   Utility class to manipulate key shares
  * \author  Johann Briffa
- * $Id$
  *
  * Utility class to generate key shares and combine the shares into
  * a single public key.

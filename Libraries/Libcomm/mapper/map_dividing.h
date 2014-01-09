@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Dividing Mapper - Template base.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for dividing mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
@@ -46,7 +44,6 @@ class map_dividing : public mapper<C, dbl> {
 /*!
  * \brief   Dividing Mapper - Vector containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a dividing symbol mapper; this is a rate-1 mapper for
  * cases where each encoder symbol is represented by more than one modulation

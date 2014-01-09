@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libbase {
 /*!
  * \brief   Allocator that guarantees aligned memory.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class T, size_t alignment>

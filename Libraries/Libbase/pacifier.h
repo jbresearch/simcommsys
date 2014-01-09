@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   User Pacifier.
  * \author  Johann Briffa
- * $Id$
  *
  * A class that formats output suitable for keeping user updated with the
  * progress of an operation.

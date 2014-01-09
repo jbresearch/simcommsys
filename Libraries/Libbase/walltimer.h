@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -38,7 +37,6 @@ namespace libbase {
 /*!
  * \brief   Wallclock Timer.
  * \author  Johann Briffa
- * $Id$
  *
  * A class implementing a wall-clock timer; resolution is in microseconds
  * on UNIX and milliseconds on Win32.

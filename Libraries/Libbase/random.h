@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -40,7 +39,6 @@ namespace libbase {
 /*!
  * \brief   Random Generator Base Class.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines interface for random generators, and also provides common
  * integer, real (uniform), and Gaussian deviate conversion facility.

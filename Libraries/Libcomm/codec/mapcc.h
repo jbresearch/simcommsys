@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -38,7 +37,6 @@ namespace libcomm {
 /*!
  * \brief   Maximum A-Posteriori Decoder.
  * \author  Johann Briffa
- * $Id$
  *
  * \todo Update decoding process for changes in FSM model.
  */

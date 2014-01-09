@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -45,7 +44,6 @@ libimage::image<S> loadimage(std::istream& sin)
 /*!
  * \brief   Image sub-sampling process
  * \author  Johann Briffa
- * $Id$
  *
  */
 
@@ -172,7 +170,6 @@ libbase::matrix<S> resample(const libbase::matrix<S>& x, const real xoff,
 /*!
  * \brief   Image re-sampling process using Lanczos filter
  * \author  Johann Briffa
- * $Id$
  *
  */
 
@@ -210,7 +207,6 @@ void resample(const real xoff, const real yoff, const real scale,
 /*!
  * \brief   Safe auto-scale process
  * \author  Johann Briffa
- * $Id$
  *
  * Auto-scales the contrast in the image, forcing the scaling factor to be
  * a power of 2. This ensures that the bits in the pixel values keep their
@@ -258,7 +254,6 @@ void safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
 /*!
  * \brief   Image Processing Command
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Block-Processed Interface.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines the interface for an object that gets processed in a
  * blockwise fashion.

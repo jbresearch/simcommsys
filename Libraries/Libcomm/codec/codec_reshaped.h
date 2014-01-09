@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -41,7 +40,6 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with matrix container from vector container.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class base_codec>

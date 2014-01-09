@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Stephan Wesemeyer
  *
@@ -49,7 +48,6 @@ namespace libcomm {
  * This class will decode an LDPC code over F_{q} of length n and dimension m
  * The LDPC code is defined by a sparse parity check matrix which needs to be
  * provided in the alist format (see MacKay:http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html)
- * $Id$
  */
 
 template <class GF_q, class real = double>

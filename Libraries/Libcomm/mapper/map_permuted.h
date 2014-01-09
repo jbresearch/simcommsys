@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   Random Symbol Permutation Mapper - Template base.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for random symbol-permuting mappers;
  * this needs to be specialized for actual use. Template parameter defaults are
@@ -46,7 +44,6 @@ class map_permuted : public mapper<C, dbl> {
 /*!
  * \brief   Random Symbol Permutation Mapper - Vector containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a symbol-permuting mapper.
  */

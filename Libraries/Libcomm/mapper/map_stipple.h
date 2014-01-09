@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Stipple Mapper - Template base.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is a template definition for stipple mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
@@ -44,7 +42,6 @@ class map_stipple : public mapper<C, dbl> {
 /*!
  * \brief   Stipple Mapper - Vector containers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a punctured mapper suitable for turbo codes, where:
  * - all information symbols are transmitted

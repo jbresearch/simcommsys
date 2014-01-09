@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -50,7 +49,6 @@ void time_timer()
 /*!
  * \brief   Test program for CUDA interface
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

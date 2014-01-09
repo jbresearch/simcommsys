@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -42,7 +41,6 @@ namespace cuda {
 /*!
  * \brief   Time-Varying Block Code support [CUDA].
  * \author  Johann Briffa
- * $Id$
  *
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for returning results

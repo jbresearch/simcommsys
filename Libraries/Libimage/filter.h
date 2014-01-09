@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libimage {
 /*
  * \brief   Filter interface
  * \author  Johann Briffa
- * $Id$
  *
  * This class specifies the interface that any filter class should provide.
  * The specification supports tiled filtering through a two-pass process.

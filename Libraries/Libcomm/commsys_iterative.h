@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Communication System with Iterative Demodulation.
  * \author  Johann Briffa
- * $Id$
  *
  * Communication system with iterative demodulation (and possibly iterative
  * decoding); result set is for the given number of iterative demodulations

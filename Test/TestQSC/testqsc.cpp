@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -82,7 +81,6 @@ void TestQSC()
 /*!
  * \brief   Test program for q-ary symmetric channel
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

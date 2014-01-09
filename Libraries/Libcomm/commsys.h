@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -37,7 +36,6 @@ namespace libcomm {
 /*!
  * \brief   Common Base for Communication System.
  * \author  Johann Briffa
- * $Id$
  *
  * General templated commsys.
  * - Integrates functionality of binary variant.
@@ -170,7 +168,6 @@ public:
 /*!
  * \brief   General Communication System.
  * \author  Johann Briffa
- * $Id$
  *
  * General templated commsys, directly derived from common base.
  */
@@ -186,7 +183,6 @@ DECLARE_SERIALIZER(commsys)
 /*!
  * \brief   Signal-Space Communication System.
  * \author  Johann Briffa
- * $Id$
  *
  * This explicit specialization for sigspace channel contains objects and
  * functions remaining from the templated base, and is generally equivalent

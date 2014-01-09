@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libimage {
 /*
  * \brief   Limit Filter
  * \author  Johann Briffa
- * $Id$
  *
  * This filter limits pixels between given values.
  */

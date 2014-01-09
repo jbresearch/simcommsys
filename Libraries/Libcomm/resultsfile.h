@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libcomm {
 /*!
  * \brief   Results File Handler.
  * \author  Johann Briffa
- * $Id$
  *
  * This class encapsulates the process of writing results to a file. It opens
  * and closes the file for every write, ensuring that written results are

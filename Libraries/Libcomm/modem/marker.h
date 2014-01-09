@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -44,7 +43,6 @@ namespace libcomm {
 /*!
  * \brief   Marker Code.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a bit-level MAP decoding algorithm for data protected by marker
  * sequences. The original construction and decoding algorithm are described in

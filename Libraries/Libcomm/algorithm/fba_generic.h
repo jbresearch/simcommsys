@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -37,7 +36,6 @@ namespace libcomm {
 /*!
  * \brief   Generic Forward-Backward Algorithm (for Marker codes).
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a generic Forward-Backward Algorithm for decoding bits received
  * from a random insertion-deletion channel. This is meant primarily for

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -46,7 +45,6 @@ class matrix_reference;
 /*!
  * \brief   A two-dimensional array in device memory
  * \author  Johann Briffa
- * $Id$
  *
  * This class represents a '2D array in device memory'. It consists of two
  * parts:
@@ -479,7 +477,6 @@ class matrix;
 /*!
  * \brief   A reference to a two-dimensional array in device memory.
  * \author  Johann Briffa
- * $Id$
  *
  * A matrix reference is a matrix that does not own its allocated memory.
  * Consequently, all operations that require a resize are forbidden.
@@ -647,7 +644,6 @@ inline matrix_reference<T>& matrix_reference<T>::operator=(const libbase::matrix
 /*!
  * \brief   A two-dimensional array in device memory - automatic
  * \author  Johann Briffa
- * $Id$
  *
  * The first automatic object creates an actual matrix on the device.
  * Copies of this object (through copy construction) create shallow copies

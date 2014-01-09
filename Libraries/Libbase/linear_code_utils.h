@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Stephan Wesemeyer
  *
@@ -31,7 +30,6 @@ namespace libbase {
  *  \author  S Wesemeyer
  * This class is a helper class and provides utility methods for
  * linear block codes over GF(2^p) with p>=1
- * $Id$
  */
 
 template <class GF_q, class real = double>

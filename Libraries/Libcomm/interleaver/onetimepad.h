@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   One Time Pad Interleaver.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class real>

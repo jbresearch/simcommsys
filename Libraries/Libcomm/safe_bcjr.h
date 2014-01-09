@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libcomm {
 /*!
  * \brief   Safe version of BCJR - Standard template (no normalization).
  * \author  Johann Briffa
- * $Id$
  *
  */
 
@@ -53,7 +51,6 @@ public:
 /*!
  * \brief   Safe version of BCJR - 'double' specialization (normalized).
  * \author  Johann Briffa
- * $Id$
  *
  */
 
@@ -76,7 +73,6 @@ public:
 /*!
  * \brief   Safe version of BCJR - 'float' specialization (normalized).
  * \author  Johann Briffa
- * $Id$
  *
  */
 
@@ -100,7 +96,6 @@ public:
  * \brief   Safe version of BCJR - 'float' specialization with 'double'
  * interface (normalized).
  * \author  Johann Briffa
- * $Id$
  *
  */
 

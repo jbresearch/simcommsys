@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   File-loaded LUT Interleaver.
  * \author  Johann Briffa
- * $Id$
  *
  */
 

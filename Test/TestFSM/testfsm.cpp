@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace testfsm {
 /*!
  * \brief   Test program for FSM objects
  * \author  Johann Briffa
- * $Id$
  *
  * Serializes a FSM object from standard input; computes and displays
  * state table.

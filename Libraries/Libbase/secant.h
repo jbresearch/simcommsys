@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libbase {
 /*!
  * \brief   Root-finding by Secant method.
  * \author  Johann Briffa
- * $Id$
  *
  */
 

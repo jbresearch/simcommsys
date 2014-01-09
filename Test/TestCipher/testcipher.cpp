@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace testcipher {
 /*!
  * \brief   Test class for running ElGamal cipher
  * \author  Johann Briffa
- * $Id$
  *
  * The class takes a BigInteger template parameter.
  */
@@ -250,7 +248,6 @@ template class testset<libbase::gmp_bigint>;
 /*!
  * \brief   Test for ElGamal cipher
  * \author  Johann Briffa
- * $Id$
  */
 
 int main(int argc, char *argv[])

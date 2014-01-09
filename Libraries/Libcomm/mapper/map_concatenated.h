@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Mapper representing a concatenation of mappers.
  * \author  Johann Briffa
- * $Id$
  *
  * This class defines a concatenation of mappers.
  */

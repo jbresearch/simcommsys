@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libbase {
 /*!
  * \brief   ElGamal cipher
  * \author  Johann Briffa
- * $Id$
  *
  * Main cipher class that performs encryption, decryption, generation
  * of decryption proofs and combining of shares.

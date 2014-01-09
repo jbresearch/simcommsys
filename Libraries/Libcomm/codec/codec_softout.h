@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   Channel Codec with Soft Output.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>

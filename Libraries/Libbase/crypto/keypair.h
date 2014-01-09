@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libbase {
 /*!
  * \brief   Utility class to hold public and private key
  * \author  Johann Briffa
- * $Id$
  *
  * Also contains methods for saving and loading keys.
  *

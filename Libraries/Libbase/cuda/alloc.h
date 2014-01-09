@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -28,7 +27,6 @@ namespace cuda {
 /*!
  * \brief   Allocator for host pinned (non-pageable) memory.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class T>

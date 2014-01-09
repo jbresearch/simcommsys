@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -37,7 +36,6 @@ namespace libbase {
 /*!
  * \brief   CPU-usage Timer.
  * \author  Johann Briffa
- * $Id$
  *
  * A class implementing a CPU-usage timer; this keeps track of time used by the
  * process (including any threads, but no children); uses the hardware

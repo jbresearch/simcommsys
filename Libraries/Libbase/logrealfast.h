@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -48,7 +47,6 @@ namespace libbase {
 /*!
  * \brief   Fast Logarithm Arithmetic.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements log-scale arithmetic with table-lookup for speeding up
  * addition. The choice of LUT size and range is optimized at 128k entries

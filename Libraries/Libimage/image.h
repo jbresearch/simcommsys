@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libimage {
 /*!
  * \brief   Image Class.
  * \author  Johann Briffa
- * $Id$
  *
  * This class encapsulates the data and functions for dealing with a single
  * image, potentially containing a number of channels. According to common

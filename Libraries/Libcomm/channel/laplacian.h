@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Common Base for Additive Laplacian Noise Channel.
  * \author  Johann Briffa
- * $Id$
  *
  * \note The distribution has zero mean.
  */
@@ -66,7 +64,6 @@ public:
 /*!
  * \brief   General Additive Laplacian Noise Channel.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <class S, template <class > class C = libbase::vector>
@@ -105,7 +102,6 @@ DECLARE_SERIALIZER(laplacian)
 /*!
  * \brief   Signal-Space Additive Laplacian Noise Channel.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <template <class > class C>

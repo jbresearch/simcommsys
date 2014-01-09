@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -50,7 +49,6 @@ namespace libcomm {
 /*!
  * \brief   Time-Varying Block Code.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a MAP decoding algorithm for a generalized class of
  * synchronization-correcting codes. The algorithm is described in

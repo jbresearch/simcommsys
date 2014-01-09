@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Sparse Codebook Class.
  * \author  Johann Briffa
- * $Id$
  *
  * Defines a codebook with the 'q' lowest-weight codewords of length 'n'.
  */

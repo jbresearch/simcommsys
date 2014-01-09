@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -24,7 +23,6 @@
  * \file
  * \brief   CUDA assertion.
  * \author  Johann Briffa
- * $Id$
  */
 
 #include "cuda_assert.h"

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -34,7 +33,6 @@ namespace libbase {
 /*!
  * \brief   Random Variable Statistics.
  * \author  Johann Briffa
- * $Id$
  *
  * A class which gathers statistics about a random variable
  */

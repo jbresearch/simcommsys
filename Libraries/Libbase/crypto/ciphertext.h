@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -30,7 +29,6 @@ namespace libbase {
 /*!
  * \brief   The two parts of the Ciphertext
  * \author  Johann Briffa
- * $Id$
  *
  * The class takes a BigInteger template parameter.
  */

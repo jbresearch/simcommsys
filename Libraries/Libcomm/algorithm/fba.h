@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -39,7 +38,6 @@ namespace libcomm {
 /*!
  * \brief   Bit-Level Forward-Backward Algorithm (for Davey-MacKay codes).
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a Forward-Backward Algorithm for a HMM. This is based on the
  * paper by Davey & McKay, "Watermark Codes: Reliable communication over

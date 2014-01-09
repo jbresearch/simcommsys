@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libbase {
 /*!
  * \brief   Log-domain comparison
  * \author  Johann Briffa
- * $Id$
  *
  * The class takes a BigInteger template parameter.
  */

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Communication System Simulator - Variation of modem threshold.
  * \author  Johann Briffa
- * $Id$
  *
  * A variation on the regular commsys_simulator object, taking a fixed channel
  * parameter and varying modem threshold.

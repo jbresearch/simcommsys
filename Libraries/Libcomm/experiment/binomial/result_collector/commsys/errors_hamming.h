@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   CommSys Results - Symbol/Frame Error Rates.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements standard error rate calculators.
  */

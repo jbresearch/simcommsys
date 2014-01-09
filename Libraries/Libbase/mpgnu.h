@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -36,7 +35,6 @@ namespace libbase {
 /*!
  * \brief   GNU Multi-Precision Arithmetic.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.01 (6 Mar 2002)
  * changed vcs version variable from a global to a static class variable.

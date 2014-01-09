@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -47,7 +46,6 @@ namespace cuda {
 /*!
  * \brief   Symbol-Level Forward-Backward Algorithm for CUDA.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements the forward-backward algorithm for a HMM, as required for the
  * MAP decoding algorithm for a generalized class of synchronization-correcting

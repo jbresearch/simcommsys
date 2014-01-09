@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -28,7 +27,6 @@ namespace libbase {
 /*!
  * \brief   Size of templated parameter object.
  * \author  Johann Briffa
- * $Id$
  */
 
 template <template <class > class T>

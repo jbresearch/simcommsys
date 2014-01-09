@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -38,7 +37,6 @@ namespace libbase {
 /*!
  * \brief   True Random Number Generator.
  * \author  Johann Briffa
- * $Id$
  *
  * Provide "true" random numbers, through OS routines. This was originally
  * created to facilitate seeding slave workers with independent seeds.

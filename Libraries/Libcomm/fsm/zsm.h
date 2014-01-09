@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -31,7 +30,6 @@ namespace libcomm {
 /*!
  * \brief   Zero State Machine.
  * \author  Johann Briffa
- * $Id$
  *
  * Implements a zero-state machine, or in other words a repeater.
  * The symbol type is specified as a template parameter; this must support:

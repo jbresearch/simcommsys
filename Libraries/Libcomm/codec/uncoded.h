@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Uncoded transmission.
  * \author  Johann Briffa
- * $Id$
  *
  * This class represents the simplest possible encoding, where the output is
  * simply a copy of the input. Equivalently, at the receiving end, the

@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libcomm {
 /*!
  * \brief   M-PSK Modulator.
  * \author  Johann Briffa
- * $Id$
  *
  * \note Gray code mapping is used for binary representation of
  * adjacent points on the constellation.

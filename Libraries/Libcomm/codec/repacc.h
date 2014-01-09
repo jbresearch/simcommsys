@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Repeat-Accumulate (RA) codes.
  * \author  Johann Briffa
- * $Id$
  *
  * These codes are decoded using the MAP decoder, rather than the
  * sum-product algorithm.

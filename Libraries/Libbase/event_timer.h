@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -32,7 +31,6 @@ namespace libbase {
 /*!
  * \brief   Event time-keeper.
  * \author  Johann Briffa
- * $Id$
  *
  * This class is used to gather statistics on events, automatically printing
  * these statistics when the object goes out of scope. This makes it easy to

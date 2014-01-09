@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Simulated Annealing Algorithm.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.01 (10 Oct 2001)
  * added a virtual display function, to facilitate deriving from the class to produce a

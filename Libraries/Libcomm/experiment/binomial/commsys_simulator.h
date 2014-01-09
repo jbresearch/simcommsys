@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libcomm {
 /*!
  * \brief   Communication Systems Simulator.
  * \author  Johann Briffa
- * $Id$
  *
  * \todo Clean up interface with commsys object, particularly in cycleonce()
  */

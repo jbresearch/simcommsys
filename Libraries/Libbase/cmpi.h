@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -35,7 +34,6 @@ namespace libbase {
 /*!
  * \brief   MPI Multi-Computer Environment.
  * \author  Johann Briffa
- * $Id$
  *
  * \version 1.01 (5 Mar 1999)
  * updated mpi child functions to print the latency between jobs.

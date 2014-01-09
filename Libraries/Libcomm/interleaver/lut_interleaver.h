@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id$
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
@@ -33,7 +32,6 @@ namespace libcomm {
 /*!
  * \brief   Lookup Table Interleaver.
  * \author  Johann Briffa
- * $Id$
  *
  * \todo Document concept of forced tail interleavers (as in divs95)
  */
