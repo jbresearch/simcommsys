@@ -40,12 +40,14 @@ namespace libcomm {
  * decoder soft-output is simply a copy of its soft-input.
  */
 
-template <class dbl = double>
+//template <class dbl = double>
+template <class dbl>
 class conv_codec : public codec_softout<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef conv_codec<dbl> This;
    typedef codec_softout<libbase::vector, dbl> Base;
+   typedef dbl t_dbl;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -73,38 +75,37 @@ private:
    libbase::matrix<std::string> fbcodebook; //Feedback connection string
    libbase::matrix<bool> statetable;
    
-   //array1vd_t ro_var;
    /*Conv Codes parameters - END*/
 
-   /*Conv Codes Functions - BEGIN*/
+   /*Conv Codes Functions - BEGIN*/  
    void encode_data(const array1i_t& source, array1i_t& encoded);
 
    void feedforward(std::istream& sin);
    void feedback(std::istream& sin);
 
-   void init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit);   
-   void init_gamma(libbase::matrix<std::vector<double> >& gamma, double value);
-   void init_alpha(libbase::matrix<double>& alpha);
-   void init_beta(libbase::matrix<double>& beta);
-   void init_output_symbol(libbase::matrix<double>& output_symbol);
-   void init_output_bit(libbase::matrix<double>& output_bit);
+   void init_matrices(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol, libbase::matrix<dbl>& output_bit);   
+   void init_gamma(libbase::matrix<std::vector<dbl> >& gamma, dbl value);
+   void init_alpha(libbase::matrix<dbl>& alpha);
+   void init_beta(libbase::matrix<dbl>& beta);
+   void init_output_symbol(libbase::matrix<dbl>& output_symbol);
+   void init_output_bit(libbase::matrix<dbl>& output_bit);
 
-   void work_gamma(libbase::matrix<std::vector<double> >& gamma, array1vd_t& recv_ptable);
-   double calc_gamma_prob(int state_table_row, int col, array1vd_t& recv_ptable);
+   void work_gamma(libbase::matrix<std::vector<dbl> >& gamma, array1vd_t& recv_ptable);
+   dbl calc_gamma_prob(int state_table_row, int col, array1vd_t& recv_ptable);
    double calc_gamma_AWGN(int state_table_row, int col, double* recv, double Lc);
-   void work_alpha(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha);
-   void work_beta(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& beta);
+   void work_alpha(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha);
+   void work_beta(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& beta);
 
-   void decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol);
+   void decode(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol);
 
-   void decode_normalise(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol);
+   void decode_normalise(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol);
 
-   void decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, array1vd_t& output_posteriors);
-   void multiple_inputs(libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit);
-   void fill_ptable(array1vd_t& ptable, libbase::matrix<double>& output_bit);
-   void work_softout(libbase::matrix<double>& output_bit, libbase::vector<double>& softout);
+   void decode(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol, array1vd_t& output_posteriors);
+   void multiple_inputs(libbase::matrix<dbl>& output_symbol, libbase::matrix<dbl>& output_bit);
+   void fill_ptable(array1vd_t& ptable, libbase::matrix<dbl>& output_bit);
+   void work_softout(libbase::matrix<dbl>& output_bit, libbase::vector<dbl>& softout);
 
-   void normalize(libbase::matrix<double>& mat);
+   void normalize(libbase::matrix<dbl>& mat);
    int get_next_state(int input, int curr_state);
    int get_next_state(int input, int curr_state, int& state_table_row);
    std::string get_output(int input, int curr_state);

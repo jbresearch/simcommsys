@@ -66,14 +66,20 @@ void conv_codec<dbl>::setreceiver(const array1vd_t& ptable)
 template <class dbl>
 void conv_codec<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
    {
-   /*std::cout << std::endl;
-   std::cout << std::endl;
-   std::cout << "Original Data" << std::endl;
-   for(int i = 0;i<source.size();i++)
-      std::cout << source(i) << " ";*/
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+   //std::cout << "Original Data" << std::endl;
+   //for(int i = 0;i<source.size();i++)
+   //   std::cout << source(i) << " ";
 
    encoded.init(block_length_w_tail);
    encode_data(source, encoded);
+
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+   //std::cout << "encoded Data" << std::endl;
+   //for(int i = 0;i<encoded.size();i++)
+   //   std::cout << encoded(i) << " ";
    }
 
 template <class dbl>
@@ -85,9 +91,6 @@ void conv_codec<dbl>::encode_data(const array1i_t& source, array1i_t& encoded)
    int tx_cnt = 0;
    int row = 0;
    
-   //Resetting encoding steps to 0
-   encoding_steps = 0;
-
    std::string curr_state = "";
    std::string input_and_state = "";
    for(int s = 0; s < no_states;s++)
@@ -123,7 +126,6 @@ void conv_codec<dbl>::encode_data(const array1i_t& source, array1i_t& encoded)
          {
          curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
          }
-      encoding_steps++;
       }
 
    //Tailing off
@@ -154,14 +156,15 @@ template <class dbl>
 void conv_codec<dbl>::softdecode(array1vd_t& ri)
    {
    recv_sequence = R.size();
-
+   
+   encoding_steps = block_length/k;
    //recv_sequence = 12;
 
-   libbase::matrix<std::vector<double> > gamma;
-   libbase::matrix<double> alpha;
-   libbase::matrix<double> beta;
-   libbase::matrix<double> output_symbol;
-   libbase::matrix<double> output_bit;
+   libbase::matrix<std::vector<dbl> > gamma;
+   libbase::matrix<dbl> alpha;
+   libbase::matrix<dbl> beta;
+   libbase::matrix<dbl> output_symbol;
+   libbase::matrix<dbl> output_bit;
 
    init_matrices(gamma, alpha, beta, output_symbol, output_bit);
 
@@ -237,21 +240,66 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    recv_sequence = R.size();
 
-   /*for(int cnt = 0; cnt < R.size(); cnt++)
-         std::cout << R(cnt);*/
+   encoding_steps = block_length/k;
 
-   libbase::matrix<std::vector<double> > gamma;
-   libbase::matrix<double> alpha;
-   libbase::matrix<double> beta;
-   libbase::matrix<double> output_symbol;
-   libbase::matrix<double> output_bit;
+   /*for(int cnt = 0; cnt < R.size(); cnt++)
+         std::cout << "0: " << R(cnt)(0) << " 1: " << R(cnt)(1) << std::endl;*/
+
+   libbase::matrix<std::vector<dbl> > gamma;
+   libbase::matrix<dbl> alpha;
+   libbase::matrix<dbl> beta;
+   libbase::matrix<dbl> output_symbol;
+   libbase::matrix<dbl> output_bit;
 
    init_matrices(gamma, alpha, beta, output_symbol, output_bit);
      
    work_gamma(gamma, R);
+
+   //system("cls");
+
+   //for(int col = 0; col < gamma.size().cols(); col++)
+   //{
+   //for(int row = 0; row < pow(2,no_states); row++)
+   //   {
+   //   std::cout << "Row: " << row << " " << "Col: " << col << std::endl;
+   //   for(int i = 0; i < pow(2,no_states);i++)
+   //      {
+   //      std::cout << gamma(row,col)[i] << " ";
+   //      }
+   //   std::cout << std::endl;
+   //   }
+   //std::cout << std::endl;
+   //}
+
    work_alpha(gamma, alpha);
+
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+
+   //for(int c = 0; c < alpha.size().cols(); c++)
+   //   {
+   //   for(int r = 0; r < alpha.size().rows(); r++)
+   //      {
+   //      std::cout << alpha(r,c) << " \t";
+   //      }
+   //   std::cout << std::endl;
+   //   }
+
    work_beta(gamma, beta);
 
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+
+   //for(int c = 0; c < beta.size().cols(); c++)
+   //   {
+   //   for(int r = 0; r < beta.size().rows(); r++)
+   //      {
+   //      std::cout << beta(r,c) << " \t";
+   //      }
+   //   std::cout << std::endl;
+   //   }
+
+   //decode(gamma, alpha, beta, output_symbol);
    decode(gamma, alpha, beta, output_symbol, ro);
 
    //system("cls");
@@ -274,12 +322,18 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 
    fill_ptable(ri, output_bit);
 
+   /*std::cout << std::endl;
+   std::cout << std::endl;
+
+   for(int cnt = 0; cnt < ri.size(); cnt++)
+         std::cout << "0: " << ri(cnt)(0) << " 1: " << ri(cnt)(1) << std::endl;*/
+
    /*for(int cnt = 0; cnt < ro.size(); cnt++)
          std::cout << ro(cnt);*/
    }
 
 template <class dbl>
-void conv_codec<dbl>::init_matrices(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
+void conv_codec<dbl>::init_matrices(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol, libbase::matrix<dbl>& output_bit)
    {
    init_gamma(gamma, -1.0);
    init_alpha(alpha);
@@ -289,7 +343,7 @@ void conv_codec<dbl>::init_matrices(libbase::matrix<std::vector<double> >& gamma
    }
 
 template <class dbl>
-void conv_codec<dbl>::init_gamma(libbase::matrix<std::vector<double> >& gamma, double value)
+void conv_codec<dbl>::init_gamma(libbase::matrix<std::vector<dbl> >& gamma, dbl value)
    {
    gamma.init(pow(2,no_states), recv_sequence/n);
 
@@ -300,7 +354,7 @@ void conv_codec<dbl>::init_gamma(libbase::matrix<std::vector<double> >& gamma, d
    }
 
 template <class dbl>
-void conv_codec<dbl>::init_alpha(libbase::matrix<double>& alpha)
+void conv_codec<dbl>::init_alpha(libbase::matrix<dbl>& alpha)
    {
    alpha.init(pow(2,no_states), recv_sequence/n + 1);
    alpha = 0;
@@ -308,7 +362,7 @@ void conv_codec<dbl>::init_alpha(libbase::matrix<double>& alpha)
    }
 
 template <class dbl>
-void conv_codec<dbl>::init_beta(libbase::matrix<double>& beta)
+void conv_codec<dbl>::init_beta(libbase::matrix<dbl>& beta)
    {
    beta.init(pow(2,no_states),recv_sequence/n + 1);
    beta = 0;
@@ -316,21 +370,21 @@ void conv_codec<dbl>::init_beta(libbase::matrix<double>& beta)
    }
 
 template <class dbl>
-void conv_codec<dbl>::init_output_symbol(libbase::matrix<double>& output_symbol)
+void conv_codec<dbl>::init_output_symbol(libbase::matrix<dbl>& output_symbol)
    {
    output_symbol.init(pow(2,k),recv_sequence/n);
    output_symbol = 0;
    }
 
 template <class dbl>   
-void conv_codec<dbl>::init_output_bit(libbase::matrix<double>& output_bit)
+void conv_codec<dbl>::init_output_bit(libbase::matrix<dbl>& output_bit)
    {
    output_bit.init(2,(recv_sequence/n)*k);
    output_bit = 0;
    }
 
 template <class dbl>
-void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<double> >& gamma, array1vd_t& recv_ptable)
+void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<dbl> >& gamma, array1vd_t& recv_ptable)
    {
    int inp_combinations = pow(2,k);
    /*double Lc = 5.0;
@@ -404,9 +458,9 @@ void conv_codec<dbl>::work_gamma(libbase::matrix<std::vector<double> >& gamma, a
    }
 
 template <class dbl>
-double conv_codec<dbl>::calc_gamma_prob(int state_table_row, int col, array1vd_t& recv_ptable)
+dbl conv_codec<dbl>::calc_gamma_prob(int state_table_row, int col, array1vd_t& recv_ptable)
    {
-   double temp_gamma = 0.0;
+   dbl temp_gamma = 0.0;
    int out_loc = k+(2*no_states);
    int recv_loc = col * n;
 
@@ -445,9 +499,9 @@ double conv_codec<dbl>::calc_gamma_AWGN(int state_table_row, int col, double* re
    }
 
 template <class dbl>
-void conv_codec<dbl>::work_alpha(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha)
+void conv_codec<dbl>::work_alpha(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha)
    {
-   double alpha_total = 0.0;
+   dbl alpha_total = 0.0;
 
    for(int col = 1; col < alpha.size().cols();col++)
       {
@@ -471,11 +525,11 @@ void conv_codec<dbl>::work_alpha(libbase::matrix<std::vector<double> >& gamma, l
    }
 
 template <class dbl>
-void conv_codec<dbl>::work_beta(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& beta)
+void conv_codec<dbl>::work_beta(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& beta)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
-   double beta_total = 0.0;
+   dbl beta_total = 0.0;
 
    for(int col = (int)(beta.size().cols()-2); col >= 0; col--)
       {
@@ -497,7 +551,7 @@ void conv_codec<dbl>::work_beta(libbase::matrix<std::vector<double> >& gamma, li
    }
 
 template <class dbl>
-void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
+void conv_codec<dbl>::decode(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
@@ -520,16 +574,16 @@ void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libba
    }
 
 template <class dbl>
-void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol)
+void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
    
-   libbase::matrix<std::vector<double> > p_norm;
+   libbase::matrix<std::vector<dbl> > p_norm;
 
    init_gamma(p_norm, 0.0);
 
-   double norm = 0.0;
+   dbl norm = 0.0;
 
    for(int col = 0; col < gamma.size().cols(); col++)
       {
@@ -541,13 +595,13 @@ void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& ga
             
             if(gamma(_nxt_state,col)[row] != -1)
                {
-               //double a = alpha(row,col);
-               //double b = gamma(_nxt_state,col)[row];
-               //double c = beta(_nxt_state,col+1);
+               //dbl a = alpha(row,col);
+               //dbl b = gamma(_nxt_state,col)[row];
+               //dbl c = beta(_nxt_state,col+1);
                
                p_norm(_nxt_state,col)[row] = alpha(row,col)*gamma(_nxt_state,col)[row]*beta(_nxt_state,col+1);
                
-               //double d = p_norm(_nxt_state,col)[row];
+               //dbl d = p_norm(_nxt_state,col)[row];
 
                norm += p_norm(_nxt_state,col)[row];
                }
@@ -587,7 +641,7 @@ void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& ga
             {
             _nxt_state = get_next_state(input, row);
             
-            //double x = p_norm(_nxt_state,col)[row];
+            //dbl x = p_norm(_nxt_state,col)[row];
             
             output_symbol(input,col) += p_norm(_nxt_state,col)[row];
             }
@@ -606,16 +660,16 @@ void conv_codec<dbl>::decode_normalise(libbase::matrix<std::vector<double> >& ga
    }
 
 template <class dbl>
-void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libbase::matrix<double>& alpha, libbase::matrix<double>& beta, libbase::matrix<double>& output_symbol, array1vd_t& output_posteriors)
+void conv_codec<dbl>::decode(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol, array1vd_t& output_posteriors)
    {
    int inp_combinations = pow(2,k);
    int _nxt_state = 0;
    
-   libbase::matrix<std::vector<double> > p_norm;
+   libbase::matrix<std::vector<dbl> > p_norm;
 
    init_gamma(p_norm, 0.0);
 
-   double norm = 0.0;
+   dbl norm = 0.0;
 
    for(int col = 0; col < gamma.size().cols(); col++)
       {
@@ -679,7 +733,7 @@ void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libba
             
             output_symbol(input,col) += p_norm(_nxt_state,col)[row];
             
-            //double a = p_norm(_nxt_state,col)[row];
+            //dbl a = p_norm(_nxt_state,col)[row];
 
             /*Filling output posteriors*/
             for(int out_cnt = 0; out_cnt < n; out_cnt++)
@@ -699,7 +753,7 @@ void conv_codec<dbl>::decode(libbase::matrix<std::vector<double> >& gamma, libba
    }
 
 template <class dbl>
-void conv_codec<dbl>::multiple_inputs(libbase::matrix<double>& output_symbol, libbase::matrix<double>& output_bit)
+void conv_codec<dbl>::multiple_inputs(libbase::matrix<dbl>& output_symbol, libbase::matrix<dbl>& output_bit)
    {
    std::string binary_input = "";
    
@@ -731,7 +785,7 @@ void conv_codec<dbl>::multiple_inputs(libbase::matrix<double>& output_symbol, li
    }
 
 template <class dbl>
-void conv_codec<dbl>::fill_ptable(array1vd_t& ptable, libbase::matrix<double>& output_bit)
+void conv_codec<dbl>::fill_ptable(array1vd_t& ptable, libbase::matrix<dbl>& output_bit)
    {
    //ptable.init(output_bit.size().cols());
    ptable.init(block_length);
@@ -746,16 +800,16 @@ void conv_codec<dbl>::fill_ptable(array1vd_t& ptable, libbase::matrix<double>& o
    }
 
 template <class dbl>
-void conv_codec<dbl>::work_softout(libbase::matrix<double>& output_bit, libbase::vector<double>& softout)
+void conv_codec<dbl>::work_softout(libbase::matrix<dbl>& output_bit, libbase::vector<dbl>& softout)
    {
    for(int cnt = 0; cnt < softout.size(); cnt++)
       softout(cnt) = log(output_bit(1,cnt)/output_bit(0,cnt));
    }
 
 template <class dbl>
-void conv_codec<dbl>::normalize(libbase::matrix<double>& mat)
+void conv_codec<dbl>::normalize(libbase::matrix<dbl>& mat)
    {
-   double norm_total;
+   dbl norm_total;
    for(int col = 0; col < mat.size().cols();col++)
       {
       norm_total = 0.0;
@@ -1447,8 +1501,8 @@ using libbase::logrealfast;
 
 #define REAL_TYPE_SEQ \
    (float)(double) \
-   (mpreal)(mpgnu) \
-   (logreal)(logrealfast)
+   (mpreal)(mpgnu) //\
+   //(logreal)(logrealfast)
 
 /* Serialization string: uncoded<real>
  * where:
