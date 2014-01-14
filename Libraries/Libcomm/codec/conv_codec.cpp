@@ -1501,7 +1501,7 @@ using libbase::logrealfast;
 
 #define REAL_TYPE_SEQ \
    (float)(double) \
-   (mpreal)(mpgnu) //\
+   (mpreal)(mpgnu) //
    //(logreal)(logrealfast)
 
 /* Serialization string: uncoded<real>
