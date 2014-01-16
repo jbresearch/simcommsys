@@ -1,0 +1,27 @@
+commsys<gf2,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+conv<gf2,double,float>
+# Type (0 = feedforward, 1 = 1 feedback path, 2 = Multiple feeedback paths)
+0
+# no. of inputs
+1
+# no. of outputs
+2
+# connection matrix for feedforward (octal)
+7 5
+## Mapper
+map_straight<vector,double>
+## Codec
+uncoded<double>
+# Version
+1
+# Alphabet size
+2
+# Block length
+50

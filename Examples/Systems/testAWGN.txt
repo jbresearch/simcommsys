@@ -1,0 +1,28 @@
+commsys<sigspace,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+mpsk
+# Alphabet size in symbols
+2
+## Mapper
+map_straight<vector,double>
+## Codec
+conv_codec<double>
+# Type (0 = feedforward, 1 = 1 feedback path, 2 = Multiple feeedback paths)
+0
+# no. of inputs
+2
+# no. of outputs
+3
+# connection matrix for feedforward (octal)
+6 3 0
+1 2 2
+# Alphabet size
+2
+# Block length
+10

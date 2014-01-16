@@ -61,6 +61,7 @@
 #include "modem/dminner.h"
 #include "modem/tvb.h"
 #include "modem/marker.h"
+#include "modem/conv.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -103,6 +104,7 @@
 #include "codec/sysrepacc.h"
 #include "codec/reedsolomon.h"
 #include "codec/ldpc.h"
+#include "codec/conv_codec.h"
 
 // Signal Mappers
 #include "mapper.h"
@@ -188,10 +190,13 @@ private:
    // Modulators
    direct_modem<bool> _direct_modem_bool;
    direct_blockmodem<bool> _direct_blockmodem_bool;
+
    mpsk _mpsk;
    qam _qam;
    dminner<double> _dminner;
    tvb<bool, double, float> _tvb;
+   //conv<bool, double, float> _conv;
+   conv<bool, double, float> _conv;
    marker<bool, double, float> _marker;
    // Convolutional Encoders
    //nrcc _nrcc;
@@ -212,6 +217,7 @@ private:
    reedsolomon<libbase::gf8> _reedsolomon;
    repacc<double> _repacc;
    sysrepacc<double> _sysrepacc;
+   conv_codec<double> _conv_codec;
    // Mappers
    map_concatenated<libbase::vector> _map_concatenated;
    map_straight<libbase::vector> _map_straight;
@@ -232,7 +238,7 @@ private:
    exit_computer<bool> _exit_computer;
 public:
    serializer_libcomm() :
-      _mpsk(2), _qam(4)
+      _mpsk(2), _qam(4), _conv()
       {
       }
 };
