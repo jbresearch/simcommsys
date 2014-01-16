@@ -77,23 +77,70 @@ protected:
    void free();
    void reset();
    // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   mapcc();
-   // @}
    // Internal codec operations
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
    // Interface with derived classes
    void do_encode(const array1i_t& source, array1i_t& encoded);
+   void do_init_decoder(const array1vd_t& ptable)
+      {
+      setreceiver(ptable);
+      resetpriors();
+      }
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+      {
+      setreceiver(ptable);
+      setpriors(app);
+      }
 public:
-   /*! \name Constructors / Destructors */
-   mapcc(const fsm& encoder, const int tau, const bool endatzero,
-         const bool circular = false);
-   ~mapcc()
+   /*! \name Law of the Big Three */
+   //! Destructor
+   virtual ~mapcc()
       {
       free();
+      }
+   //! Copy constructor
+   mapcc(const mapcc<real, dbl>& x) :
+         tau(x.tau), endatzero(x.endatzero), circular(x.circular)
+      {
+      if (x.encoder)
+         {
+         encoder = dynamic_cast<fsm*>(x.encoder->clone());
+         init();
+         }
+      else
+         encoder = NULL;
+      }
+   //! Copy assignment operator
+   mapcc<real, dbl>& operator=(const mapcc<real, dbl>& x)
+      {
+      tau = x.tau;
+      endatzero = x.endatzero;
+      circular = x.circular;
+      if (x.encoder)
+         {
+         encoder = dynamic_cast<fsm*>(x.encoder->clone());
+         init();
+         }
+      else
+         encoder = NULL;
+      return *this;
+      }
+   // @}
+   /*! \name Constructors / Destructors */
+   //! Default constructor
+   mapcc() :
+      encoder(NULL)
+      {
+      }
+   //! Principal constructor
+   mapcc(const fsm& encoder, const int tau, const bool endatzero,
+         const bool circular) :
+         encoder(dynamic_cast<fsm*>(encoder.clone())), tau(tau), endatzero(
+               endatzero), circular(circular)
+      {
+      init();
       }
    // @}
 
@@ -104,6 +151,7 @@ public:
    // Codec information functions - fundamental
    libbase::size_type<libbase::vector> input_block_size() const
       {
+      assertalways(encoder);
       const int nu = This::tail_length();
       const int k = encoder->num_inputs();
       const int result = (tau - nu) * k;
@@ -111,20 +159,24 @@ public:
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
+      assertalways(encoder);
       const int n = encoder->num_outputs();
       const int result = tau * n;
       return libbase::size_type<libbase::vector>(result);
       }
    int num_inputs() const
       {
+      assertalways(encoder);
       return encoder->num_symbols();
       }
    int num_outputs() const
       {
+      assertalways(encoder);
       return encoder->num_symbols();
       }
    int tail_length() const
       {
+      assertalways(encoder);
       return endatzero ? encoder->mem_order() : 0;
       }
    int num_iter() const

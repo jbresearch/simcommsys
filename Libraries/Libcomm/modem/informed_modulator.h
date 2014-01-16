@@ -87,7 +87,12 @@ public:
     * information is available
     */
    void demodulate(const channel<S, C>& chan, const C<S>& rx,
-         const C<array1d_t>& app, C<array1d_t>& ptable);
+         const C<array1d_t>& app, C<array1d_t>& ptable)
+      {
+      this->advance_if_dirty();
+      dodemodulate(chan, rx, app, ptable);
+      this->mark_as_dirty();
+      }
    // @}
 };
 

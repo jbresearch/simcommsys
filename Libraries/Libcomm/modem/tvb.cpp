@@ -419,7 +419,8 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
          m1_min, m1_max);
    checkforchanges(m1_min, m1_max, mn_min, mn_max, mtau_min, mtau_max);
    //! Determine whether to use global storage
-   bool globalstore = false; // set to avoid compiler warning
+   static bool globalstore = false; // set to avoid compiler warning
+   bool last_globalstore = globalstore; // keep track of last setting
    const int required = fba_type::get_memory_required(N, n, q, mtau_min,
          mtau_max, mn_min, mn_max);
    switch (storage_type)
@@ -441,10 +442,15 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
          failwith("Unknown storage mode");
          break;
       }
-   // Create an embedded algorithm object of the correct type
-   const bool thresholding = th_inner > real(0) || th_outer > real(0);
-   fba_ptr = fba2_factory<recv_type, sig, real, real2>::get_instance(
-         thresholding, flags.lazy, globalstore);
+   // Create an embedded algorithm object of the correct type, as needed
+   if (!fba_ptr || globalstore != last_globalstore)
+      {
+      const bool thresholding = th_inner > real(0) || th_outer > real(0);
+      fba_ptr = fba2_factory<recv_type, sig, real, real2>::get_instance(
+            thresholding, flags.lazy, globalstore);
+      // Mark the encoding table as changed, to force receiver init
+      changed_encoding_table = true;
+      }
    // Initialize our embedded metric computer with unchanging elements
    // (needs to happen before fba initialization)
    fba_ptr->get_receiver().init(n, q, mychan);

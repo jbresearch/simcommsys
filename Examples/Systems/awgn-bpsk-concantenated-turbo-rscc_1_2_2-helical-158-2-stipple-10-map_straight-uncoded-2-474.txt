@@ -1,0 +1,62 @@
+commsys<sigspace,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+mpsk
+# Alphabet size in symbols
+2
+## Mapper
+map_stipple<vector,double>
+# Stride for stipple mapper
+2
+## Codec
+codec_concatenated<double>
+# Version
+1
+# Number of concatenated codecs
+2
+# Codec 1
+turbo<double,double>
+# Version
+2
+# Encoder
+rscc
+#: Generator matrix (k x n bitfields)
+1	2
+111	101
+# Number of parallel sets
+2
+# Interleaver 0
+flat<double>
+# Interleaver size
+158
+# Interleaver 1
+helical<double>
+# Interleaver size
+158
+# Number of rows
+13
+# Number of cols
+12
+# Terminated?
+1
+# Circular?
+0
+# Parallel decoder?
+0
+# Number of iterations
+10
+# Codec 2
+uncoded<double>
+# Version
+1
+# Alphabet size
+2
+# Block length
+474
+# Mapper 1
+map_straight<vector,double>

@@ -264,27 +264,6 @@ void turbo<real, dbl>::decode_parallel(array2d_t& ri)
    BCJR::normalize(ri);
    }
 
-// internal codec operations
-
-template <class real, class dbl>
-void turbo<real, dbl>::resetpriors()
-   {
-   }
-
-template <class real, class dbl>
-void turbo<real, dbl>::setpriors(const array1vd_t& ptable)
-   {
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(ptable.size() > 0);
-   assertalways(ptable(0).size() == This::num_inputs());
-   // Confirm input sequence to be of the correct length
-   assertalways(ptable.size() == This::input_block_size());
-   // Copy the input statistics for the BCJR Algorithm
-   for (int t = 0; t < rp.size().rows(); t++)
-      for (int i = 0; i < rp.size().cols(); i++)
-         rp(t, i) *= ptable(t)(i);
-   }
-
 /*! \copydoc codec_softout::setreceiver()
  *
  * Sets: rp, ra, R, [ss, se, through reset()]
@@ -296,7 +275,7 @@ void turbo<real, dbl>::setpriors(const array1vd_t& ptable)
  * \note Clean up this function, removing unnecessary symbol-conversion
  */
 template <class real, class dbl>
-void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
+void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
    {
    assert(ptable.size() == This::output_block_size());
    // Inherit sizes
@@ -359,6 +338,22 @@ void turbo<real, dbl>::setreceiver(const array1vd_t& ptable)
 
    // Reset start- and end-state probabilities
    reset();
+   }
+
+template <class real, class dbl>
+void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+   {
+   // Start by setting receiver statistics
+   do_init_decoder(ptable);
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(app.size() > 0);
+   assertalways(app(0).size() == This::num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(app.size() == This::input_block_size());
+   // Copy the input statistics for the BCJR Algorithm
+   for (int t = 0; t < rp.size().rows(); t++)
+      for (int i = 0; i < rp.size().cols(); i++)
+         rp(t, i) *= app(t)(i);
    }
 
 // encoding and decoding functions

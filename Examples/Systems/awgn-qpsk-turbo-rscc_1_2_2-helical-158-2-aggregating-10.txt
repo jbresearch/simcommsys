@@ -17,6 +17,7 @@ turbo<double,double>
 2
 # Encoder
 rscc
+#: Generator matrix (k x n bitfields)
 1	2
 111	101
 # Number of parallel sets

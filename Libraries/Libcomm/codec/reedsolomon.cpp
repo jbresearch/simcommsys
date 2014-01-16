@@ -46,30 +46,53 @@ using libbase::matrix;
 
 //implementation of the relevant codec methods
 
-template <class GF_q> void reedsolomon<GF_q>::do_encode(const array1i_t & source,
-      array1i_t & encoded)
+template <class GF_q>
+void reedsolomon<GF_q>::do_encode(const array1i_t & source, array1i_t & encoded)
    {
    libbase::linear_code_utils<GF_q, double>::encode_cw(this->gen_ref_matrix,
          source, encoded);
    }
 
-template <class GF_q> void reedsolomon<GF_q>::do_init_decoder(
-      const array1vd_t & ptable)
+template <class GF_q>
+void reedsolomon<GF_q>::do_init_decoder(const array1vd_t & ptable)
    {
-   //Keep the likelihoods for future reference
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(ptable.size() > 0);
+   assertalways(ptable(0).size() == this->num_outputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(ptable.size() == this->output_block_size());
+   // Keep the likelihoods for future reference
    this->received_likelihoods = ptable;
+   }
 
+template <class GF_q>
+void reedsolomon<GF_q>::do_init_decoder(const array1vd_t & ptable, const array1vd_t& app)
+   {
+   // Start by setting receiver statistics
+   do_init_decoder(ptable);
+   // Encoder symbol space must be the same as modulation symbol space
+   assertalways(app.size() > 0);
+   assertalways(app(0).size() == this->num_inputs());
+   // Confirm input sequence to be of the correct length
+   assertalways(app.size() == this->input_block_size());
+   // Update likelihoods with prior statistics for info symbols
+   for (int i = 0; i < this->dim_k; i++)
+      {
+      //the last k entries of the received word are the info symbols
+      this->received_likelihoods(this->dim_pchk + i) *= app(i);
+      }
+   }
+
+template <class GF_q>
+void reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
+   {
    //determine the most likely symbol
    hd_functor(this->received_likelihoods, this->received_word_hd);
-
 #if DEBUG>=2
    this->received_word_hd.serialize(std::cout, ',');
    std::cout << std::endl;
 #endif
-   }
 
-template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
-   {
    //we use the PGZ algorithm for decoding General BCH codes (note that RS codes are
    //narrow-sense BCH codes.
    //see
@@ -85,27 +108,15 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
     *
     */
 
-   //did we decode successfully?
-   bool dec_success = true;
-   //this will hold the decoded information
-   decoded.init(this->dim_k);
-   libbase::vector<GF_q> tmp_received_hd;
-   tmp_received_hd = this->received_word_hd;
-   GF_q tmp_val;
+   // in case of decoding failure we simply return the received probabilities
+   ro = this->received_likelihoods;
 
-   //in case of decoding failure or if the syndrome is actually 0
-   //we simply return the info symbols of the received word
-
-   for (int i = 0; i < this->dim_k; i++)
-      {
-      //the last k entries of the received word are the info symbols
-      decoded(i) = this->received_word_hd(this->dim_pchk + i);
-      }
-
-   //Calculate the syndrome of the received word
+   // Calculate the syndrome of the received word
+   // (and flag whether we decoded successfully)
    libbase::vector<GF_q> syndrome_vec;
-   dec_success = libbase::linear_code_utils<GF_q, double>::compute_syndrome(
-         this->pchk_matrix, this->received_word_hd, syndrome_vec);
+   const bool dec_success =
+         libbase::linear_code_utils<GF_q, double>::compute_syndrome(
+               this->pchk_matrix, this->received_word_hd, syndrome_vec);
 
 #if DEBUG>=2
    std::cout << std::endl << "The received word is given by:" << std::endl;
@@ -113,9 +124,14 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
    std::cout << std::endl << "Its syndrome is given by:" << std::endl;
    syndrome_vec.serialize(std::cout, ',');
 #endif
-   if (dec_success == false)
-   //do some error correction as the syndrome is non-zero
-
+   if (dec_success)
+      {
+      // HD word must be correct, so set posteriors from this
+      ro = double(0);
+      for (int i = 0; i < this->length_n; i++)
+         ro(i)(this->received_word_hd(i)) = double(1);
+      }
+   else //do some error correction as the syndrome is non-zero
       {
       //we can correct t errors and dmin=n-k+1.
       //note that we have dim_pck=(n-k)>=2t
@@ -132,8 +148,7 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
       //determine the error locator polynomial of the form
       // \lambda(x)=1 + \lambda_1 x +\lambda_2 x^2 + .. + \lambda_w x^w
       //where w<=t.
-      do
-         {
+      do {
          //we now generate the t*(t+1) syndrome matrix
          /*
           *    [ s_1    s_2     s_3   ...     s_t   ]
@@ -209,16 +224,16 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
          //we can stop as soon as we have found t=deg(\lambda(x)) roots
          array1i_t error_pos;
          error_pos.init(t);
-         GF_q alpha = GF_q(2);//represents \alpha
+         GF_q alpha = GF_q(2); //represents \alpha
          int counter = 0;
-         GF_q pow_aplha = GF_q(1); // represent \alpha^counter;
+         GF_q pow_alpha = GF_q(1); // represent \alpha^counter;
          int rootsfound = 0;
          while ((rootsfound < t) && (counter < this->length_n))
             {
-            tmp_val = error_loc_poly(t);
+            GF_q tmp_val = error_loc_poly(t);
             for (int j = t; j > 0; j--)
                {
-               tmp_val = tmp_val * pow_aplha + error_loc_poly(j - 1);
+               tmp_val = tmp_val * pow_alpha + error_loc_poly(j - 1);
                }
             if (tmp_val == GF_q(0))
                {
@@ -237,7 +252,7 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
             //increment the counter
             counter++;
             //up the power
-            pow_aplha = pow_aplha * alpha;
+            pow_alpha *= alpha;
             }
 
 #if DEBUG>=2
@@ -262,8 +277,8 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
                {
                for (int cols = 0; cols < rootsfound; cols++)
                   {
-                  error_mat(rows, cols) = this->pchk_matrix(rows, error_pos(
-                        cols));
+                  error_mat(rows, cols) = this->pchk_matrix(rows,
+                        error_pos(cols));
                   }
                }
             for (int rows = 0; rows < this->dim_pchk; rows++)
@@ -283,13 +298,15 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
             //we only have a consistent solution if the following value is 0
             if (error_ref_mat(rootsfound, rootsfound) == GF_q(0))
                {
+               libbase::vector<GF_q> tmp_received_hd;
+               tmp_received_hd = this->received_word_hd;
 
                //work out the proper code word
                for (int rows = 0; rows < rootsfound; rows++)
                   {
                   int col = error_pos(rows);
-                  tmp_val = GF_q(tmp_received_hd(col)) - error_ref_mat(rows,
-                        rootsfound);
+                  GF_q tmp_val = GF_q(tmp_received_hd(col))
+                        - error_ref_mat(rows, rootsfound);
                   tmp_received_hd(col) = tmp_val;
                   }
 #if DEBUG>=2
@@ -297,15 +314,17 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
                tmp_received_hd.serialize(std::cout, ',');
                std::cout << std::endl;
 #endif
-               for (int i = 0; i < this->dim_k; i++)
-                  {
-                  //the last k entries of the received word are the info symbols
-                  decoded(i) = tmp_received_hd(this->dim_pchk + i);
-                  }
+               // decoded HD word is consistent, so set posteriors from this
+               ro = double(0);
+               for (int i = 0; i < this->length_n; i++)
+                  ro(i)(tmp_received_hd(i)) = double(1);
                }
             }
          }
       }
+   // Set input-referred posteriors from output-refered ones
+   ri = ro.extract(this->dim_pchk, this->dim_k);
+
 #if DEBUG>=2
    std::cout << std::endl << "The decoded word is given by:" << std::endl;
    decoded.serialize(std::cout, ',');
@@ -313,7 +332,8 @@ template <class GF_q> void reedsolomon<GF_q>::decode(array1i_t& decoded)
 #endif
    }
 
-template <class GF_q> std::string reedsolomon<GF_q>::description() const
+template <class GF_q>
+std::string reedsolomon<GF_q>::description() const
    {
 
    std::ostringstream sout;
@@ -332,7 +352,8 @@ template <class GF_q> std::string reedsolomon<GF_q>::description() const
    return sout.str();
    }
 
-template <class GF_q> void reedsolomon<GF_q>::checkParams(int length, int dim)
+template <class GF_q>
+void reedsolomon<GF_q>::checkParams(int length, int dim)
    {
 
    //ensure the length makes sense
@@ -340,7 +361,7 @@ template <class GF_q> void reedsolomon<GF_q>::checkParams(int length, int dim)
    //TODO extend this to singly-extended RS codes
    int maxlength = GF_q::elements() - 1;
 
-   assertalways(length==maxlength);
+   assertalways(length == maxlength);
 
    this->length_n = length;
 
@@ -350,7 +371,8 @@ template <class GF_q> void reedsolomon<GF_q>::checkParams(int length, int dim)
    this->dim_k = dim;
    }
 
-template <class GF_q> void reedsolomon<GF_q>::init()
+template <class GF_q>
+void reedsolomon<GF_q>::init()
    {
    /*
     * Assume the multiplicative group GF(2^m)\{0}=<alpha>.
@@ -431,7 +453,6 @@ template <class GF_q> void reedsolomon<GF_q>::init()
    int alpha = GF_q(2); //2 in binary is 10 which represents the generating element alpha
    int powerOfAlpha = GF_q(1); //this is alpha^0=1;
 
-
    //Determine whether we are dealing with an extended RS code
    bool extendedRS = (this->length_n == GF_q::elements());
 
@@ -457,7 +478,7 @@ template <class GF_q> void reedsolomon<GF_q>::init()
       this->pchk_matrix(0, codelength - 1) = 1;
       for (int k = 1; k < this->dim_pchk; k++)
          {
-         this -> pchk_matrix(k, codelength - 1) = 0;
+         this->pchk_matrix(k, codelength - 1) = 0;
          }
       }
 
@@ -473,8 +494,8 @@ template <class GF_q> void reedsolomon<GF_q>::init()
 
    for (int loop = this->dim_pchk; loop < this->length_n; loop++)
       {
-      tmp_p_transpose.insertcol(this->pchk_ref_matrix.extractcol(loop), loop
-            - this->dim_pchk);
+      tmp_p_transpose.insertcol(this->pchk_ref_matrix.extractcol(loop),
+            loop - this->dim_pchk);
       }
 
    //this will hold P
@@ -495,7 +516,8 @@ template <class GF_q> void reedsolomon<GF_q>::init()
 
    //now add the identity matrix
    int counter = 0;
-   for (int loop = (this->length_n - this->dim_k); loop < this->length_n; loop++)
+   for (int loop = (this->length_n - this->dim_k); loop < this->length_n;
+         loop++)
       {
       this->gen_ref_matrix.insertcol(id_k.extractcol(counter), loop);
       counter++;
@@ -505,22 +527,23 @@ template <class GF_q> void reedsolomon<GF_q>::init()
 /*! serialization of the codec information
  * This method outputs the following format
  *
- * reedsolomon
+ * reedsolomon<gfq>
  * n
  * k
- * m
  *
  * where
+ * q is the size of the finite field, ie GF(q)
  * n is the length of the code
  * k is its dimension
- * m determines the size of the finite field, eg GF(2^m)
  *
  */
-template <class GF_q> std::ostream& reedsolomon<GF_q>::serialize(
-      std::ostream& sout) const
+template <class GF_q>
+std::ostream& reedsolomon<GF_q>::serialize(std::ostream& sout) const
    {
    // format version
+   sout << "# Length of the code (n)" << std::endl;
    sout << this->length_n << std::endl;
+   sout << "# Dimension of the code (k)" << std::endl;
    sout << this->dim_k << std::endl;
    return sout;
    }
@@ -542,8 +565,8 @@ template <class GF_q> std::ostream& reedsolomon<GF_q>::serialize(
  *
  */
 
-template <class GF_q> std::istream& reedsolomon<GF_q>::serialize(
-      std::istream& sin)
+template <class GF_q>
+std::istream& reedsolomon<GF_q>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
 

@@ -91,6 +91,16 @@ protected:
    void setreceiver(const array1vd_t& ptable);
    // Interface with derived classes
    void do_encode(const array1i_t& source, array1i_t& encoded);
+   void do_init_decoder(const array1vd_t& ptable)
+      {
+      setreceiver(ptable);
+      resetpriors();
+      }
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+      {
+      setreceiver(ptable);
+      setpriors(app);
+      }
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor

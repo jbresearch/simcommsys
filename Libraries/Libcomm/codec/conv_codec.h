@@ -74,16 +74,16 @@ private:
    libbase::matrix<std::string> ffcodebook; //Feedforward connection string
    libbase::matrix<std::string> fbcodebook; //Feedback connection string
    libbase::matrix<bool> statetable;
-   
+
    /*Conv Codes parameters - END*/
 
-   /*Conv Codes Functions - BEGIN*/  
+   /*Conv Codes Functions - BEGIN*/
    void encode_data(const array1i_t& source, array1i_t& encoded);
 
    void feedforward(std::istream& sin);
    void feedback(std::istream& sin);
 
-   void init_matrices(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol, libbase::matrix<dbl>& output_bit);   
+   void init_matrices(libbase::matrix<std::vector<dbl> >& gamma, libbase::matrix<dbl>& alpha, libbase::matrix<dbl>& beta, libbase::matrix<dbl>& output_symbol, libbase::matrix<dbl>& output_bit);
    void init_gamma(libbase::matrix<std::vector<dbl> >& gamma, dbl value);
    void init_alpha(libbase::matrix<dbl>& alpha);
    void init_beta(libbase::matrix<dbl>& beta);
@@ -130,6 +130,16 @@ protected:
    void setreceiver(const array1vd_t& ptable);
    // Interface with derived classes
    void do_encode(const array1i_t& source, array1i_t& encoded);
+   void do_init_decoder(const array1vd_t& ptable)
+      {
+      setreceiver(ptable);
+      resetpriors();
+      }
+   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+      {
+      setreceiver(ptable);
+      setpriors(app);
+      }
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor

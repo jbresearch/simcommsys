@@ -21,7 +21,7 @@
  */
 
 #include "mapcc.h"
-#include "mapper/map_straight.h"
+#include "mapper/map_dividing.h"
 #include "vectorutils.h"
 #include <sstream>
 
@@ -41,7 +41,10 @@ template <class real, class dbl>
 void mapcc<real, dbl>::free()
    {
    if (encoder != NULL)
+      {
       delete encoder;
+      encoder = NULL;
+      }
    }
 
 template <class real, class dbl>
@@ -62,23 +65,6 @@ void mapcc<real, dbl>::reset()
       BCJR::setstart(0);
       BCJR::setend();
       }
-   }
-
-// constructor / destructor
-
-template <class real, class dbl>
-mapcc<real, dbl>::mapcc() :
-   encoder(NULL)
-   {
-   }
-
-template <class real, class dbl>
-mapcc<real, dbl>::mapcc(const fsm& encoder, const int tau,
-      const bool endatzero, const bool circular) :
-   tau(tau), endatzero(endatzero), circular(circular)
-   {
-   This::encoder = dynamic_cast<fsm*> (encoder.clone());
-   init();
    }
 
 // internal codec functions
@@ -102,16 +88,18 @@ void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
    // Convert the input statistics for the BCJR Algorithm
 
    // Set up mapper
-   map_straight<libbase::vector, dbl> map;
-   const int N = BCJR::num_input_symbols(); // codec output alphabet
-   const int M = This::num_inputs(); // blockmodem input alphabet
-   map.set_parameters(N, M);
-   map.set_blocksize(BCJR::block_size());
+   map_dividing<libbase::vector, dbl> map;
+   const int q = encoder->num_input_combinations(); // codec output alphabet
+   const int M = encoder->num_symbols(); // blockmodem input alphabet
+   map.set_parameters(q, M);
+   map.set_blocksize(libbase::size_type<libbase::vector>(tau));
    // Convert to a temporary space
    array1vd_t ptable_bcjr;
    map.inverse(ptable, ptable_bcjr);
    // Initialize input probability vector
-   app.init(BCJR::block_size(), BCJR::num_input_symbols());
+   assertalways(BCJR::block_size() == tau);
+   assertalways(BCJR::num_input_symbols() == q);
+   app.init(tau, q);
    // Copy the input statistics for the BCJR Algorithm
    for (int t = 0; t < app.size().rows(); t++)
       for (int i = 0; i < app.size().cols(); i++)
@@ -126,18 +114,26 @@ void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
    assertalways(ptable(0).size() == This::num_outputs());
    // Confirm input sequence to be of the correct length
    assertalways(ptable.size() == This::output_block_size());
-   // Inherit sizes
-   const int S = encoder->num_symbols();
-   const int N = encoder->num_output_combinations();
-   const int n = encoder->num_outputs();
-   // Initialize receiver probability vector
-   R.init(tau, N);
+   // Convert the input statistics for the BCJR Algorithm
+
+   // Set up mapper
+   map_dividing<libbase::vector, dbl> map;
+   const int q = encoder->num_output_combinations(); // codec output alphabet
+   const int M = encoder->num_symbols(); // blockmodem input alphabet
+   map.set_parameters(q, M);
+   map.set_blocksize(libbase::size_type<libbase::vector>(tau));
+   // Convert to a temporary space
+   array1vd_t ptable_bcjr;
+   map.inverse(ptable, ptable_bcjr);
+   // Initialize input probability vector
+   assertalways(BCJR::block_size() == tau);
+   assertalways(BCJR::num_output_symbols() == q);
+   R.init(tau, q);
    // Copy the input statistics for the BCJR Algorithm
-   R = 1.0;
-   for (int t = 0; t < tau; t++)
-      for (int x = 0; x < N; x++)
-         for (int i = 0, thisx = x; i < n; i++, thisx /= S)
-            R(t, x) *= dbl(ptable(t * n + i)(thisx % S));
+   for (int t = 0; t < R.size().rows(); t++)
+      for (int i = 0; i < R.size().cols(); i++)
+         R(t, i) = ptable_bcjr(t)(i);
+
    // Reset start- and end-state probabilities
    reset();
    }
@@ -186,34 +182,74 @@ template <class real, class dbl>
 void mapcc<real, dbl>::softdecode(array1vd_t& ri)
    {
    // temporary space to hold complete results (ie. with tail)
-   array2d_t rif;
+   array2d_t rif_bcjr;
    // perform decoding
-   BCJR::fdecode(R, app, rif);
-   // initialise results set
-   libbase::allocate(ri, This::input_block_size(), This::num_inputs());
-   // remove any tail bits from input set
-   for (int i = 0; i < This::input_block_size(); i++)
-      for (int j = 0; j < This::num_inputs(); j++)
-         ri(i)(j) = rif(i, j);
+   BCJR::fdecode(R, app, rif_bcjr);
+   // Convert the message statistics from the BCJR Algorithm
+      {
+      const int nu = This::tail_length();
+      const int q = encoder->num_input_combinations(); // codec output alphabet
+      const int M = encoder->num_symbols(); // blockmodem input alphabet
+      // Copy to a temporary space, excluding any tail bits
+      array1vd_t rif;
+      libbase::allocate(rif, tau - nu, q);
+      // Copy the message statistics
+      for (int t = 0; t < tau - nu; t++)
+         for (int i = 0; i < q; i++)
+            rif(t)(i) = rif_bcjr(t, i);
+      // Set up mapper
+      map_dividing<libbase::vector, dbl> map;
+      map.set_parameters(q, M);
+      map.set_blocksize(libbase::size_type<libbase::vector>(tau - nu));
+      // Convert the message statistics
+      map.transform(rif, ri);
+      }
    }
 
 template <class real, class dbl>
 void mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
    // temporary space to hold complete results (ie. with tail)
-   array2d_t rif, rof;
+   array2d_t rif_bcjr, rof_bcjr;
    // perform decoding
-   BCJR::decode(R, rif, rof);
-   // remove any tail bits from input set
-   libbase::allocate(ri, This::input_block_size(), This::num_inputs());
-   for (int i = 0; i < This::input_block_size(); i++)
-      for (int j = 0; j < This::num_inputs(); j++)
-         ri(i)(j) = rif(i, j);
-   // copy output set
-   libbase::allocate(ro, This::output_block_size(), This::num_outputs());
-   for (int i = 0; i < This::output_block_size(); i++)
-      for (int j = 0; j < This::num_outputs(); j++)
-         ro(i)(j) = rof(i, j);
+   BCJR::decode(R, app, rif_bcjr, rof_bcjr);
+   // Convert the message statistics from the BCJR Algorithm
+      {
+      const int nu = This::tail_length();
+      const int q = encoder->num_input_combinations(); // codec output alphabet
+      const int M = encoder->num_symbols(); // blockmodem input alphabet
+      // Copy to a temporary space, excluding any tail bits
+      array1vd_t rif;
+      libbase::allocate(rif, tau - nu, q);
+      // Copy the message statistics
+      for (int t = 0; t < tau - nu; t++)
+         for (int i = 0; i < q; i++)
+            rif(t)(i) = rif_bcjr(t, i);
+      // Set up mapper
+      map_dividing<libbase::vector, dbl> map;
+      map.set_parameters(q, M);
+      map.set_blocksize(libbase::size_type<libbase::vector>(tau - nu));
+      // Convert the message statistics
+      map.transform(rif, ri);
+      }
+   // Convert the output statistics from the BCJR Algorithm
+      {
+      const int q = encoder->num_output_combinations(); // codec output alphabet
+      const int M = encoder->num_symbols(); // blockmodem input alphabet
+      // Copy to a temporary space
+      array1vd_t rof;
+      libbase::allocate(rof, tau, q);
+      // Copy the message statistics
+      for (int t = 0; t < tau; t++)
+         for (int i = 0; i < q; i++)
+            rof(t)(i) = rof_bcjr(t, i);
+      // Set up mapper
+      map_dividing<libbase::vector, dbl> map;
+      map.set_parameters(q, M);
+      map.set_blocksize(libbase::size_type<libbase::vector>(tau));
+      // Convert the message statistics
+      map.transform(rof, ro);
+      }
    }
 
 // description output
@@ -235,9 +271,13 @@ std::string mapcc<real, dbl>::description() const
 template <class real, class dbl>
 std::ostream& mapcc<real, dbl>::serialize(std::ostream& sout) const
    {
+   sout << "# Encoder" << std::endl;
    sout << encoder;
+   sout << "# Message length (including tail, if any)" << std::endl;
    sout << tau << std::endl;
+   sout << "# Terminated?" << std::endl;
    sout << int(endatzero) << std::endl;
+   sout << "# Circular?" << std::endl;
    sout << int(circular) << std::endl;
    return sout;
    }

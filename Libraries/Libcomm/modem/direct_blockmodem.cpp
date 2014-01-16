@@ -136,7 +136,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 /* Serialization string: direct_blockmodem<type,container,real>
  * where:
- *      type = gf2 | gf4 ...
+ *      type = bool | gf2 | gf4 ... (or erasable<type> for all these)
  *      container = vector | matrix
  *      real = float | double | logrealfast
  */
