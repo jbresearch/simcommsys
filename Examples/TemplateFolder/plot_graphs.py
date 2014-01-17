@@ -45,8 +45,8 @@ def plotset(type):
       # Example for results specified manually
       p = [0.0015, 0.00176, 0.00201, 0.00225, 0.00251, 0.00301, 0.00354, 0.004, 0.00503];
       fer = [0.00015, 0.000244, 0.000426, 0.000609, 0.000971, 0.00302, 0.013, 0.033, 0.207];
-      plt.plot(p,fer,'k*-')
-      legendlist.append(r'NameOfGraph')
+      plt.plot(p,fer,'k*-', \
+      label=r'NameOfGraph')
       # This can be useful if we only have published graphs and need to read off
       # the data points from the published image. That way we can show how our
       # results compare to any published results.
