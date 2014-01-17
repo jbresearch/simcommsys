@@ -34,8 +34,9 @@ def plot_all(typeid,compare=True):
    showtol = False
    limit = False
 
-   # Plot theoretical results
    if compare and typeid==2:
+      ## Plot theoretical results
+
       # Uncoded transmission using BPSK over AWGN
       p = np.arange(0,10,0.1)
       ebno = np.power(10.0, p/10.0)
@@ -43,8 +44,8 @@ def plot_all(typeid,compare=True):
       plt.plot(p,ber,'b.-',markevery=5, \
          label=r'Uncoded (theoretical)')
 
-   # Plot results from handbook
-   if compare and typeid==2:
+      ## Plot results from handbook
+
       # Unconcatenated Convolutional K=7 133,171
       p = [0.5, 1.03, 1.59, 2.02, 2.41, 2.69, 3.13, 3.52, 3.86, 4.25]
       ber = [0.0979, 0.0471, 0.0164, 0.00655, 0.0025, 0.00114, 0.00034, 0.000109, 3.53e-05, 1.03e-05]
@@ -64,8 +65,8 @@ def plot_all(typeid,compare=True):
       label=r'Uncoded')
 
    sc.plotresults('Results/sim.jab.errors_hamming-random-awgn-bpsk-nrcc_133_171.txt', \
-      typeid,xscale,showiter,showtol,'k+-',limit)
-   legendlist.append(r'Unconcatenated')
+      typeid,xscale,showiter,showtol,'k+-',limit, \
+      label=r'Unconcatenated')
 
    sc.plotresults('Results/sim.jab.errors_hamming-random-awgn-bpsk-concantenated-reedsolomon_255_223_gf256-map_interleaved-nrcc_133_171.txt', \
       typeid,xscale,showiter,showtol,'kx-',limit, \

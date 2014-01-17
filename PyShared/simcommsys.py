@@ -359,7 +359,7 @@ def get_styles2(N1=None, N2=None, N3=None):
 # Plotting functions
 
 def plotresults(filename, type=2, xscale='linear', showiter=False,
-   showtol=True, style=None, limit=False, correct=[],label=None):
+   showtol=True, style=None, limit=False, correct=[], label=None):
    '''Returns:
    if plot requested: handle
    otherwise: (par,results,tolret,passes,cputime)
@@ -447,10 +447,10 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
 
    # do the appropriate plot
    if type==1 or type==2 or type==3 or type==4:
-      label = { 1: 'Bit Error Rate', 2: 'Symbol Error Rate', 3: 'Frame Error Rate', 4: 'Generalized Symbol Error Rate' }
+      ylabel = { 1: 'Bit Error Rate', 2: 'Symbol Error Rate', 3: 'Frame Error Rate', 4: 'Generalized Symbol Error Rate' }
       h = plotitem(par,results,tolerance,style,xscale,'log',ns,label)
       plt.xlabel('Channel Parameter')
-      plt.ylabel(label[type])
+      plt.ylabel(ylabel[type])
    elif type==5:
       print "Not supported"
       sys.exit(1)
