@@ -24,72 +24,90 @@ import simcommsys as sc
 import matplotlib.pyplot as plt
 import numpy as np
 
-# sets up the plots. Note that type indicates BER (1), SER(2) or FER(3)
-def plotset(type):
+# sets up the plots. Note that typeid indicates BER (1), SER(2) or FER(3)
+def plot_all(typeid,compare=True):
    # create new figure
    plt.figure()
    # set up
-   xscale = 'log' # possible values are 'log' (base 10) or 'linear'
+   xscale = 'linear'
    showiter = False
    showtol = False
    limit = False
 
-   # Example for generating the graph of your result
-   sc.plotresults('Results/name_of_your_sim_results.txt', \
-      type,xscale,showiter,showtol,'k+-',limit, \
-      label=r'NameOfGraph')
-   # repeat the above line as needed to include other graphs
+   # Plot theoretical results
+   if compare and typeid==2:
+      # Uncoded transmission using BPSK over AWGN
+      p = np.arange(0,10,0.1)
+      ebno = np.power(10.0, p/10.0)
+      ber = sc.qfunc(np.sqrt(2 * ebno))
+      plt.plot(p,ber,'b.-',markevery=5, \
+         label=r'Uncoded (theoretical)')
 
-   # plot graphs with FER only
-   if type==3:
-      # Example for results specified manually
-      p = [0.0015, 0.00176, 0.00201, 0.00225, 0.00251, 0.00301, 0.00354, 0.004, 0.00503];
-      fer = [0.00015, 0.000244, 0.000426, 0.000609, 0.000971, 0.00302, 0.013, 0.033, 0.207];
-      plt.plot(p,fer,'k*-')
-      legendlist.append(r'NameOfGraph')
-      # This can be useful if we only have published graphs and need to read off
-      # the data points from the published image. That way we can show how our
-      # results compare to any published results.
+   # Plot results from handbook
+   if compare and typeid==2:
+      # Unconcatenated Convolutional K=7 133,171
+      p = [0.5, 1.03, 1.59, 2.02, 2.41, 2.69, 3.13, 3.52, 3.86, 4.25]
+      ber = [0.0979, 0.0471, 0.0164, 0.00655, 0.0025, 0.00114, 0.00034, 0.000109, 3.53e-05, 1.03e-05]
+      plt.plot(p,ber,'b+-', \
+         label=r'Unconcatenated (NASA)')
+
+      # Concatenated RS (255,233) + Convolutional K=7 133,171
+      p = [1.54, 1.75, 1.9, 2.1, 2.23, 2.31]
+      ber = [0.0435, 0.0222, 0.00984, 0.000911, 0.000103, 1.01e-05]
+      plt.plot(p,ber,'bx-', \
+         label=r'Concatenated (NASA)')
+
+   # Plot our sim results
+
+   sc.plotresults('Results/sim.jab.errors_hamming-random-awgn-bpsk-uncoded.txt', \
+      typeid,xscale,showiter,showtol,'k.-',5, \
+      label=r'Uncoded')
+
+   sc.plotresults('Results/sim.jab.errors_hamming-random-awgn-bpsk-nrcc_133_171.txt', \
+      typeid,xscale,showiter,showtol,'k+-',limit)
+   legendlist.append(r'Unconcatenated')
+
+   sc.plotresults('Results/sim.jab.errors_hamming-random-awgn-bpsk-concantenated-reedsolomon_255_223_gf256-map_interleaved-nrcc_133_171.txt', \
+      typeid,xscale,showiter,showtol,'kx-',limit, \
+      label=r'Concatenated')
+
+   # Plot requirements
+   #if compare and typeid==2:
+   #   plt.plot([0,10], [5e-3,5e-3], 'r--') # uncompressed data
+   #   plt.plot([0,10], [5e-6,5e-6], 'r-.') # compressed data
 
    # Ancillary
    # Specify the title and x and y labels if required
    # Note Tex notation is allowed
-   plt.title(r'TitleOfGraph with Maths notation $(1,2)$')
-   plt.xlabel(r'SomeDescription')
-   sc.xlim(0.001,0.2)
-   # Example how to set y-range depending on the type of graph (SER/FER/etc)
-   if type==1:
-      sc.ylim(1e-6,1)
-   elif type==2:
-      sc.ylim(1e-5,1)
-   else:
-      sc.ylim(1e-4,1)
+   plt.title(r'Performance of NASA Voyager Codes')
+   plt.xlabel(r'Signal-to-Noise Ratio (per information bit) in dB')
+   if typeid==2:
+      plt.ylabel(r'Bit Error Rate')
+   sc.xlim(1,10)
+   if typeid==2:
+      sc.ylim(1e-5,1e-1)
 
    # Specify where the legend should appear: upper/lower left/right/center or best
-   plt.legend(loc='upper left')
-   # Example for legend outside axes:
-   # sc.shrink_axes(0.8,0.95,0.0,0.05)
-   # plt.legend(bbox_to_anchor=(1.02, 1), borderaxespad=0., loc='upper left')
-   # Finally show the grid and set fonts etc.
+   plt.legend(labelspacing=0.15, loc='best')
    plt.grid()
    sc.typeset()
    return
 #end of plotset
 
-# main body of code
+# Main body of code
 def main():
    # find out if user wants us to show plot or not
    showplot = True
    if len(sys.argv) >= 2 and sys.argv[1] == 'noshow':
       showplot = False
 
-   # do the plots - delete as appropriate
-   plotset(1)
-   plt.savefig('Figures/NameOfGraph-ber.pdf')
-   plotset(2)
-   plt.savefig('Figures/NameOfGraph-ser.pdf')
-   plotset(3)
-   plt.savefig('Figures/NameOfGraph-fer.pdf')
+   # do the plots
+   plot_all(2)
+   plt.savefig('Figures/nasa-all-ber.pdf')
+   plot_all(10)
+   plt.savefig('Figures/nasa-all-cpu.pdf')
+   plot_all(2,False)
+   plt.savefig('Figures/nasa-ber.pdf')
 
    # Display all figures
    if showplot:

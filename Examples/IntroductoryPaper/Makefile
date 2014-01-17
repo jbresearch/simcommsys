@@ -21,7 +21,7 @@
 STREAM_RESET_N := 1
 STREAM_TERM_N := 1
 # List of results collectors to work with
-COLLECTOR_TYPES := errors_levenshtein
+COLLECTOR_TYPES := errors_hamming
 # List of input stream modes
 INPUT_TYPES := random
 

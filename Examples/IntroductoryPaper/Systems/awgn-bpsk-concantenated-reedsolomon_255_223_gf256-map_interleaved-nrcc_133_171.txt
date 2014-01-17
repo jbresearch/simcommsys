@@ -1,0 +1,56 @@
+commsys<sigspace,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+mpsk
+# Alphabet size in symbols
+2
+## Mapper
+map_straight<vector,double>
+## Codec
+codec_concatenated<double>
+# Version
+1
+# Number of concatenated codecs
+2
+# Codec 1
+codec_multiblock<double>
+# Version
+1
+# Underlying codec
+reedsolomon<gf256>
+# Length of the code (n)
+255
+# Dimension of the code (k)
+223
+# Number of blocks to aggregate
+4
+# Codec 2
+mapcc<double,double>
+# Encoder
+nrcc
+#: Generator matrix (k x n bitfields)
+1	2
+1011011	1111001
+# Message length (including tail, if any)
+8166
+# Terminated?
+1
+# Circular?
+0
+# Mapper 1
+map_concatenated<vector,double>
+# Version
+1
+# Number of concatenated mappers
+2
+# Mapper 1
+map_interleaved<vector,double>
+# Interface size
+256
+# Mapper 2
+map_dividing<vector,double,double>

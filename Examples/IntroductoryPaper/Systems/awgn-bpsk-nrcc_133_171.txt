@@ -1,0 +1,26 @@
+commsys<sigspace,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+mpsk
+# Alphabet size in symbols
+2
+## Mapper
+map_straight<vector,double>
+## Codec
+mapcc<double,double>
+# Encoder
+nrcc
+#: Generator matrix (k x n bitfields)
+1	2
+1011011	1111001
+# Message length (including tail, if any)
+8166
+# Terminated?
+1
+# Circular?
+0

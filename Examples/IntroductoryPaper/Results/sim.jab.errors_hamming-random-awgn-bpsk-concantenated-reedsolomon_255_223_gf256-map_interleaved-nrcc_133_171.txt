@@ -1,0 +1,43 @@
+#% Simulator for Communication System: Concatenated codec (2 codecs, 1 mappers) [C1: Multi-block codec (4 blocks) [RS code [255, 223] ], C2: Unterminated, Non-circular, MAP-decoded Convolutional Code (16320,8160) - NRC code (nu=6, rate 1/2, G=[1011011, 1111001]), M1: Concatenated mapper (2 mappers) [M1: Interleaved Mapper, Interface size=256, M2: Dividing Mapper (Vector) [1020<->8160]]], Straight Mapper (Vector) [16320], BPSK blockmodem, AWGN channel, random input
+#% Confidence Level: 95%
+#% Convergence Mode: Margin of error within ±5% of result
+#% Date: 28 Nov 2013, 12:29:19
+#% URL: https://guinevere.res.um.edu.mt/svn/shared/Programming/branches/jab
+#% Version: 10298
+#
+# Par	SER_0	Tol	FER_0	Tol	Samples	CPUtime
+1.5	0.109042	0.00180795	1	0	128	9.04899
+1.6	0.0870323	0.00163504	0.984375	0.0214849	128	18.1838
+1.7	0.0660822	0.00144098	0.953125	0.0366175	128	27.5031
+1.8	0.0434371	0.000763456	0.833876	0.0416338	307	51.3256
+1.9	0.0239992	0.000329697	0.623922	0.0311658	928	128.25
+2	0.0109113	0.000130767	0.361295	0.0180594	2718	359.305
+2.1	0.00400134	4.72489e-05	0.166623	0.00832971	7688	1020.91
+2.2	0.00127272	1.51621e-05	0.0606417	0.00303146	23812	3062.74
+2.3	0.000335006	4.07577e-06	0.0173923	0.000869575	86820	10419.3
+2.4	7.0567e-05	8.74326e-07	0.00385141	0.000192549	397517	43631.8
+2.5	1.441e-05	3.81382e-07	0.000810975	8.54164e-05	426647	78664.7
+## System: 46569549ba9b11a77758b88562725014f1c79a16
+## Parameter: 2.5
+## Samples: 426647
+## State: 2	5484	346
+#% Simulator for Communication System: Concatenated codec (2 codecs, 1 mappers) [C1: Multi-block codec (4 blocks) [RS code [255, 223] ], C2: Terminated, Non-circular, MAP-decoded Convolutional Code (16332,8160) - NRC code (nu=6, rate 1/2, G=[1011011, 1111001]), M1: Concatenated mapper (2 mappers) [M1: Interleaved Mapper, Interface size=256, M2: Dividing Mapper (Vector) [1020<->8160]]], Straight Mapper (Vector) [16332], BPSK blockmodem, AWGN channel, random input
+#% Confidence Level: 95%
+#% Convergence Mode: Margin of error within ±5% of result
+#% Date: 29 Nov 2013, 11:27:46
+#% URL: https://guinevere.res.um.edu.mt/svn/shared/Programming/branches/jab
+#% Version: 10242
+#
+# Par	SER_0	Tol	FER_0	Tol	Samples	CPUtime
+1.5	0.106502	0.00164742	1	0	151	26.5179
+1.6	0.0919456	0.00166952	1	0	129	37.9843
+1.7	0.0710942	0.00144082	0.934307	0.0414852	137	42.4572
+1.8	0.049849	0.00119017	0.923611	0.0433837	144	44.8576
+1.9	0.024823	0.000360535	0.657107	0.0328517	802	152.863
+2	0.0105301	0.000127	0.355859	0.0177909	2782	490.534
+2.1	0.00420176	4.93459e-05	0.172162	0.00860149	7400	1287.35
+2.2	0.00122649	1.45912e-05	0.0583962	0.00291966	24779	4292.88
+2.3	0.000318754	3.85496e-06	0.0163844	0.000818788	92344	14943.1
+2.4	6.82072e-05	8.50201e-07	0.00376779	0.000188377	406339	61313.9
+2.5	1.3585e-05	1.70682e-07	0.000764864	3.82358e-05	2008201	299308
+2.6	2.13703e-06	2.71198e-08	0.00012283	6.14032e-06	12513180	1.91459e+06

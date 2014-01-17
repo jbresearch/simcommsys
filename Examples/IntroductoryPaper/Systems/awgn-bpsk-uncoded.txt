@@ -1,0 +1,21 @@
+commsys<sigspace,vector>
+# Version
+1
+# Single channel?
+1
+## Channel
+awgn
+## Modem
+mpsk
+# Alphabet size in symbols
+2
+## Mapper
+map_straight<vector,double>
+## Codec
+uncoded<double>
+# Version
+1
+# Alphabet size
+2
+# Block length
+16320
