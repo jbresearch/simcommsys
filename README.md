@@ -1,3 +1,5 @@
+# SimCommSys
+
 The SimCommSys project consists of a set of C++ libraries for simulating
 communication systems using a distributed Monte Carlo simulator.
 Of principal interest is the error-control coding component, where various
