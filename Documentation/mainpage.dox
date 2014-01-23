@@ -20,7 +20,7 @@ along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 
 
 \mainpage SimCommSys Project
-\author   Johann Briffa
+\author   Johann A. Briffa
 
 
 \section intro Introduction
@@ -39,7 +39,9 @@ routine use cases.
 
 \section classes Principal Classes
 
-The most important classes in this project are:
+Please consult the Wiki for an overview of the SimCommSys architecture.
+To help you navigate this API documentation, the most important classes in
+this project are:
 - libcomm::montecarlo, which implements a distributed Monte Carlo simulator.
    The simulator automatically detects convergence and terminates according
    to the required confidence and tolerance level.
@@ -52,92 +54,5 @@ The most important classes in this project are:
    - libcomm::mapper, a symbol-mapping between the codec and modulator
    - libcomm::blockmodem, the modulation scheme
    - libcomm::channel, a model for the communications channel
-
-\image html CommSysFlowchart.png "Data Flow in CommSys"
-\image latex CommSysFlowchart.pdf "Data Flow in CommSys" width=\textwidth
-
-A ToDo list for the project is kept at \ref todo.
-
-
-\section howtos HowTos
-
-SimCommSys is a very powerful and as a consequence complex system which
-requires a fairly steep learning curve.
-This section contains a set of howtos aimed at helping someone getting to
-grips with the system and hopefully provide enough detail to get going,
-If you find that any of the howtos is unclear or contains wrong/out-of-date
-information then please update them so that the next person doesn't have to
-rediscover the mistakes.
-Available HowTos are listed below, grouped separately for developers and users.
-
-\subsection devhowto Development HowTos
-
-- \ref developmentenvironment, provides:
-   - details on the required development packages
-   - instructions on how to set up Eclipse/Visual Studio
-   - details on how to check out the code
-- My First Codec (not written yet), provides a quick introduction to:
-   - the classes required to write a codec
-   - the serialisation Macros
-- \ref profiling, for guidance on using the profiler to help with code
-   optimization.
-
-\subsection userhowto User HowTos
-
-- \ref simulation, provides details on how to:
-   - set up a new simulation
-   - run a simulation locally and on the cluster
-- \ref plotresults, provides details on how to turn the simulation results
-   into graphs.
-- \ref innercodes, explains how to define insertion/deletion correcting
-   inner codes.
-
-\subsection otherhowto Other HowTos
-
-- \ref svnmove, useful for moving material to a new SVN repository, keeping
-   version history. This is currently of little use to this project, since
-   the move from svn to git, but has been kept for completeness.
-
-
-\section authors Contributing Authors
-
-This is the list of authors who have contributed directly to the code base,
-together with their last known contact details. Authors are listed in
-order of decreasing contribution.
-- Johann A. Briffa <j.briffa@surrey.ac.uk>
-- Stephan Wesemeyer <s.wesemeyer@surrey.ac.uk>
-
-
-\section funding Project Funding
-
-Various parts of this software have been developed with support from the
-following funding sources. Sources are listed in chronological order.
-- The Fourth Italo-Maltese Financial Protocol, 1997-1999.
-- EUMedGrid FP6 project, contract No 026024, 2007.
-- Engineering and Physical Sciences Research Council (EPSRC) UK,
-   grant EP/E056407/1, 2007-2010.
-
-Parts of this software were developed while the authors were studying or
-employed with the following institutions. These are listed in chronological
-order.
-- University of Malta, 1997-1999
-   - JAB was employed as a Research Engineer on the project "Integrated
-      DigitalSignal Processing and Telecommunication Systems" in collaboration
-      with the University of Lecce, and later as an Assistant Lecturer.
-   - The software was developed as part of his M.Phil. studies.
-- Oakland University, Rochester MI, 2000-2003
-   - JAB was employed as a Graduate Assistant with the Dept of Electronics
-      and Systems Engineering.
-   - The software was developed as part of his PhD studies.
-- University of Malta, 2004-2007
-   - JAB was employed as a Lecturer.
-   - The software was developed as part of his ongoing research.
-- University of Surrey, 2007-
-   - JAB was employed as a Research Fellow on the Error-Control Watermaring
-      project, and later as a Lecturer.
-   - SW was employed as a Research Fellow on the same project, and later
-      as a Tutor.
-   - The software was developed for the ECW project and later as part of
-      the authors' ongoing research.
 
 */
