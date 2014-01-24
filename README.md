@@ -12,17 +12,21 @@ Finally, a number of shell and python scripts are provided to encapsulate
 routine use cases.
 
 Documentation is available as follows:
-- User documentation can be found in the Wiki. This includes instructions for:
-  - Building and installing the executables
-  - Setting up and running simulations
-  - Collecting and plotting results
+- User documentation can be found in the [Wiki](https://github.com/jbresearch/simcommsys/wiki).
+   This includes instructions for:
+   - Building and installing the executables
+   - Setting up and running simulations
+   - Collecting and plotting results
 - Technical documentation is divided as follows:
-  - High level technical documentation can be found in the Wiki. This includes:
-    - An overview of the SimCommSys framework
-    - An example extension of the framework (adding a new codec)
-  - Detailed documentation for the API can be built from the code:
-    1. Build the doxygen documentation using 'make doc'
-    2. Start with the main page: doc/html/index.html
+   - High level technical documentation can be found in the [Wiki](https://github.com/jbresearch/simcommsys/wiki).
+      This includes:
+      - An overview of the SimCommSys framework
+      - An example extension of the framework (adding a new codec)
+   - An introduction to SimCommSys can be found in our paper:
+      [SimCommSys: Taking the errors out of error-correcting code simulations]()
+   - Detailed documentation for the API can be built from the code:
+      1. Build the doxygen documentation using `make doc`
+      2. Start with the main page: `doc/html/index.html`
 
 
 # Copyright and license
