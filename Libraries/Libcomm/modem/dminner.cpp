@@ -764,7 +764,7 @@ using libbase::logrealfast;
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
-/* Serialization string: dminner<real,norm>
+/* Serialization string: dminner<real>
  * where:
  *      real = float | double | logrealfast (CPU only)
  */

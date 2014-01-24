@@ -46,7 +46,6 @@ namespace libcomm {
 
 template <class GF_q, class real> ldpc<GF_q, real>::ldpc(
       libbase::matrix<GF_q> paritycheck_mat, const int num_of_iters)
-
    {
    //initialise the provided values;
    this->pchk_matrix = paritycheck_mat;
@@ -410,7 +409,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
 /*
  *  This method write out the following format
  *
- * ldpc<gf<m,n>>
+ * ldpc<type,real>
  * version
  * clipping
  * spa_type
@@ -425,7 +424,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
  * vals of each non-zero entry per col - optional
  *
  * where
- * - ldpc<gf<n,m>> is actually written by the serialisation code and not this method
+ * - ldpc<type,real> is actually written by the serialisation code and not this method
  * - version is the file format version used
  * - spa_type is the impl of the SPA used
  * - max_iter is the maximum number of iterations used by the decoder
@@ -452,7 +451,7 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
  * 3 0 2 1 0
  *
  * An example file would be
- * ldpc<gf<2,0x7>>
+ * ldpc<gf2,double>
  * #version
  * 4
  * #SPA
@@ -503,73 +502,56 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
 template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
       std::ostream& sout) const
    {
-
    assertalways(sout.good());
-   sout << "#version of this file format" << std::endl;
-   sout << 4 << std::endl;
-   sout << "#SPA type" << std::endl;
+   sout << "# Version" << std::endl;
+   sout << 5 << std::endl;
+   sout << "# SPA type (trad|gdl)" << std::endl;
    sout << this->spa_alg->spa_type() << std::endl;
-   sout << "# number of iterations" << std::endl;
+   sout << "# Number of iterations" << std::endl;
    sout << this->max_iter << std::endl;
-   sout << "#clipping methods available" << std::endl;
-   sout << "# zero - replace only zeros with almostzero" << std::endl;
-   sout << "# clip - replace all values below almostzero with almostzero"
-         << std::endl;
-   sout << "#this is followed by the value of almostzero" << std::endl;
+   sout << "# Clipping method (zero=replace only zeros, clip=replace values below almostzero)" << std::endl;
    sout << this->spa_alg->get_clipping_type() << std::endl;
+   sout << "# Value of almostzero" << std::endl;
    sout << this->spa_alg->get_almostzero() << std::endl;
-   sout << "#reduce generator matrix to REF? (true|false)" << std::endl;
-   if (this->reduce_to_ref)
-      {
-      sout << "true" << std::endl;
-      }
-   else
-      {
-      sout << "false" << std::endl;
-      }
-   sout << "# length n and dimension m" << std::endl;
-   sout << this->length_n << " " << this->dim_pchk << std::endl;
-   sout << "#max col weight and max row weight" << std::endl;
-   sout << this->max_col_weight << " " << this->max_row_weight << std::endl;
-
-   sout << "#non-zero values:ones/random/provided" << std::endl;
-   sout << "#if random is chosen then it must be followed" << std::endl;
-   sout << "#by a positive integer which acts as the seed for the" << std::endl;
-   sout << "#random number generator" << std::endl;
+   sout << "# Reduce generator matrix to REF? (true|false)" << std::endl;
+   sout << this->reduce_to_ref << std::endl;
+   sout << "# Length (n)" << std::endl;
+   sout << this->length_n << std::endl;
+   sout << "# Dimension (m)" << std::endl;
+   sout << this->dim_pchk << std::endl;
+   sout << "# Max column weight" << std::endl;
+   sout << this->max_col_weight << std::endl;
+   sout << "# Max row weight" << std::endl;
+   sout << this->max_row_weight << std::endl;
+   sout << "# Non-zero values (ones|random|provided)" << std::endl;
    sout << this->rand_prov_values << std::endl;
    if ("random" == this->rand_prov_values)
       {
-      sout << "#seed value" << std::endl;
+      sout << "# Seed for random generator" << std::endl;
       sout << this->seed << std::endl;
       }
 
-   sout << "#the column weight vector" << std::endl;
+   sout << "# Column weight vector" << std::endl;
    sout << this->col_weight;
-   sout << "#the row weight vector" << std::endl;
+   sout << "# Row weight vector" << std::endl;
    sout << this->row_weight;
 
-   sout << "#the non zero pos per col" << std::endl;
-   int num_of_non_zeros;
-   int gf_val_int;
-   int tmp_pos;
+   sout << "# Non zero positions per col" << std::endl;
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
-      {
       sout << this->M_n(loop1);
-      }
    // only output non-zero entries if needed
-
    if ("provided" == this->rand_prov_values)
       {
       libbase::vector<GF_q> non_zero_vals_in_col;
-      sout << "#the non zero vals per col" << std::endl;
+      sout << "# Non zero values per col" << std::endl;
       for (int loop1 = 0; loop1 < this->length_n; loop1++)
          {
-         num_of_non_zeros = this->M_n(loop1).size();
+         int num_of_non_zeros = this->M_n(loop1).size();
          non_zero_vals_in_col.init(num_of_non_zeros);
          for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++)
             {
-            tmp_pos = this->M_n(loop1)(loop2) - 1;
-            gf_val_int = this->pchk_matrix(tmp_pos, loop1);
+            int tmp_pos = this->M_n(loop1)(loop2) - 1;
+            int gf_val_int = this->pchk_matrix(tmp_pos, loop1);
             assert(gf_val_int != GF_q(0));
             non_zero_vals_in_col(loop2) = gf_val_int;
             }
@@ -584,7 +566,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
 /* loading of the serialized codec information
  * This method expects the following format
  *
- * ldpc<gf<m,n>>
+ * ldpc<type,real>
  * version
  * spa_type
  * max_iter
@@ -598,7 +580,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
  * vals of each non-zero entry per col - optional
  *
  * where
- * - ldpc<gf<n,m>> is actually written by the serialisation code and not this method
+ * - ldpc<type,real> is actually written by the serialisation code and not this method
  * - version is the file format version used
  * - spa_type is the impl of the SPA used
  * - max_iter is the maximum number of iterations used by the decoder
@@ -625,7 +607,7 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
  * 3 0 2 1 0
  *
  * An example file would be
- * ldpc<gf<2,0x7>>
+ * ldpc<gf2,double>
  * #version
  * 2
  * #SPA
@@ -685,33 +667,32 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    sin >> libbase::eatcomments >> spa_type >> libbase::verify;
    sin >> libbase::eatcomments >> this->max_iter >> libbase::verify;
    assertalways(this->max_iter>=1);
-   //default clipping settings for version 2 files
-   //my method of avoiding probs of zero is labelled "zero"
-   //the method of clipping all probs below a certain value
-   //is called  "clip"
-   //In either case we need to replace a value by
-   //almostzero.
+   // Default clipping settings for files with versions less than 3
    std::string clipping_type = "zero";
    real almost_zero = real(1E-100);
-   if (version > 2)
+   if (version >= 3)
       {
+      /* My method of avoiding probs of zero is labelled "zero", while
+       * the method of clipping all probs below a certain value is "clip".
+       * In either case we need to replace a value by almostzero.
+       */
       sin >> libbase::eatcomments >> clipping_type >> libbase::verify;
       assertalways(("clip"==clipping_type)||("zero"==clipping_type));
       double tmp_az;
       sin >> libbase::eatcomments >> tmp_az >> libbase::verify;
       almost_zero = real(tmp_az);
       }
-   //default flag for files with versions less than 4
+   // Default flag for files with versions less than 4
    this->reduce_to_ref = false;
-   if (version > 3)
+   if (version >= 5)
+      sin >> libbase::eatcomments >> this->reduce_to_ref >> libbase::verify;
+   else if (version >= 4)
       {
       std::string tmp_flag;
       sin >> libbase::eatcomments >> tmp_flag >> libbase::verify;
       assertalways(("true"==tmp_flag)||("false"==tmp_flag));
       if ("true" == tmp_flag)
-         {
          this->reduce_to_ref = true;
-         }
       }
    sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
    sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
@@ -735,7 +716,6 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    //read the col weights and ensure they are sensible
    this->col_weight.init(this->length_n);
    sin >> libbase::eatcomments >> this->col_weight >> libbase::verify;
-
    assertalways((1<=this->col_weight.min())&&(this->col_weight.max()<=this->max_col_weight));
 
    //read the row weights and ensure they are sensible
@@ -757,13 +737,11 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    //init the parity check matrix and read in the non-zero entries
    this->pchk_matrix.init(this->dim_pchk, this->length_n);
    this->pchk_matrix = GF_q(0);
-   int tmp_entries;
-   int tmp_pos;
    libbase::vector<GF_q> non_zero_vals;
-   int num_of_non_zero_elements = GF_q::elements() - 1;
+   const int num_of_non_zero_elements = GF_q::elements() - 1;
    for (int loop1 = 0; loop1 < this->length_n; loop1++)
       {
-      tmp_entries = this->M_n(loop1).size();
+      const int tmp_entries = this->M_n(loop1).size();
       non_zero_vals.init(tmp_entries);
       if ("ones" == this->rand_prov_values)
          {
@@ -786,7 +764,7 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
          }
       for (int loop2 = 0; loop2 < tmp_entries; loop2++)
          {
-         tmp_pos = this->M_n(loop1)(loop2) - 1;//we count from 0
+         const int tmp_pos = this->M_n(loop1)(loop2) - 1;//we count from 0
          this->pchk_matrix(tmp_pos, loop1) = non_zero_vals(loop2);
          }
       }
@@ -795,9 +773,9 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
    this->N_m.init(this->dim_pchk);
    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++)
       {
-      tmp_entries = this->row_weight(loop1);
+      const int tmp_entries = this->row_weight(loop1);
       this->N_m(loop1).init(tmp_entries);
-      tmp_pos = 0;
+      int tmp_pos = 0;
       for (int loop2 = 0; loop2 < this->length_n; loop2++)
          {
          if (GF_q(0) != this->pchk_matrix(loop1, loop2))
@@ -864,7 +842,6 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
 template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::write_alist(
       std::ostream& sout) const
    {
-
    assertalways(sout.good());
    int numOfElements = GF_q::elements();
    bool nonbinary = (numOfElements > 2);
