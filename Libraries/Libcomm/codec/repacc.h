@@ -63,7 +63,7 @@ private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
    interleaver<dbl> *inter;
-   //! MAP representation of repetition code
+   //! Memoryless codec representation of repetition code
    memoryless<dbl> rep;
    fsm *acc; //!< Encoder representation of accumulator
    int iter; //!< Number of iterations to perform
