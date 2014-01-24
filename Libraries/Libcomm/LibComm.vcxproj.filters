@@ -140,9 +140,6 @@
     <ClCompile Include="experiment\binomial\result_collector\commsys\hist_symerr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modem\informed_modulator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="channel\lapgauss.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -366,6 +363,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="codec\conv_codec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\codec_concatenated.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="codec\codec_multiblock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\map_concatenated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
