@@ -404,47 +404,9 @@ template <class GF_q, class real> std::string ldpc<GF_q, real>::description() co
    return sout.str();
    }
 
-// object serialization - writing
-
-/*
- *  This method write out the following format
+/* object serialization - writing
  *
- * ldpc<type,real>
- * version
- * clipping
- * spa_type
- * max_iter
- * n m
- * max_n max_m
- * rand_prov_vals
- * seed (only present if rand_only if rand_prov_vals=random)
- * list of the number of non-zero entries for each column
- * list of the number of non-zero entries for each row
- * pos of each non-zero entry per col
- * vals of each non-zero entry per col - optional
- *
- * where
- * - ldpc<type,real> is actually written by the serialisation code and not this method
- * - version is the file format version used
- * - spa_type is the impl of the SPA used
- * - max_iter is the maximum number of iterations used by the decoder
- * - n is the length of the code
- * - m is the dimension of the parity check matrix
- * - max_n is the maxiumum number of non-zero entries per column
- * - max_m is the maximum number of non-zero entries per row
- * - rand_prov_vals is either ones, random, provided and indicates how
- *   the non-zero values are to be determined:
- *      - ones sets all entries to 1
- *      - provided reads them from the file
- *      - random generates non-zero entries randomly using the provided seed
- * - seed is an unsigned 32bit integer which contains the seed for the random number generator
- *   It is only present when rand_prov_vals has been set to random
- *
- *
- * Note that in the binary case the values are left out as they will be 1
- * anyway.
- *
- * given the matrix (5,3) over GF(4):
+ * As an example, given the matrix (5,3) over GF(4):
  *
  * 2 1 0 0 1
  * 0 2 2 3 3
@@ -561,99 +523,9 @@ template <class GF_q, class real> std::ostream& ldpc<GF_q, real>::serialize(
    return sout;
    }
 
-// object serialization - loading
-
-/* loading of the serialized codec information
- * This method expects the following format
+/* object serialization - loading
  *
- * ldpc<type,real>
- * version
- * spa_type
- * max_iter
- * n m
- * max_n max_m
- * rand_prov_vals
- * seed (only present if rand_only if rand_prov_vals=random)
- * list of the number of non-zero entries for each column
- * list of the number of non-zero entries for each row
- * pos of each non-zero entry per col
- * vals of each non-zero entry per col - optional
- *
- * where
- * - ldpc<type,real> is actually written by the serialisation code and not this method
- * - version is the file format version used
- * - spa_type is the impl of the SPA used
- * - max_iter is the maximum number of iterations used by the decoder
- * - n is the length of the code
- * - m is the dimension of the parity check matrix
- * - max_n is the maxiumum number of non-zero entries per column
- * - max_m is the maximum number of non-zero entries per row
- * - rand_prov_vals is either ones, random, provided and indicates how
- *   the non-zero values are to be determined:
- *      - ones sets all entries to 1
- *      - provided reads them from the file
- *      - random generates non-zero entries randomly using the provided seed
- * - seed is an unsigned 32bit integer which contains the seed for the random number generator
- *   It is only present when rand_prov_vals has been set to random
- *
- * Note that in the binary case the values are left out as they will be 1
- * anyway.
- *
- *
- * given the matrix (5,3) over GF(4):
- *
- * 2 1 0 0 1
- * 0 2 2 3 3
- * 3 0 2 1 0
- *
- * An example file would be
- * ldpc<gf2,double>
- * #version
- * 2
- * #SPA
- * trad
- * #iter
- * 10
- * #clipping method and almost_zero value
- * zero
- * 1e-100
- * # reduce generator matrix to REF? (true|false)
- * false
- * # length dim
- * 5 3
- * # max col/row weight
- * 2 2
- * #non-zero vals
- * provided
- * # col weights
- * 5
- * 2 2 2 2 2
- * # row weights
- * 3
- * 3 4 3
- * #non-zero pos in cols
- * 2
- * 1 3
- * 2
- * 1 2
- * 2
- * 2 3
- * 2
- * 2 3
- * 2
- * 1 2
- * #non-zero vals in cols
- * 2
- * 2 3
- * 2
- * 1 2
- * 2
- * 2 2
- * 2
- * 3 1
- * 2
- * 1 3
- *
+ * For an example, see the writing method
  */
 
 template <class GF_q, class real> std::istream& ldpc<GF_q, real>::serialize(
