@@ -23,11 +23,12 @@
 #include "conv_codec.h"
 #include "vectorutils.h"
 #include <sstream>
+#include <iostream>
+#include <fstream>
 
 namespace libcomm {
 
 // internal codec operations
-
 template <class dbl>
 void conv_codec<dbl>::resetpriors()
    {
@@ -74,6 +75,8 @@ void conv_codec<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 
    encoded.init(block_length_w_tail);
    encode_data(source, encoded);
+
+   //datatofile(source, encoded);
 
    //std::cout << std::endl;
    //std::cout << std::endl;
@@ -330,6 +333,7 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 
    /*for(int cnt = 0; cnt < ro.size(); cnt++)
          std::cout << ro(cnt);*/
+   writetofile(R, ri);
    }
 
 template <class dbl>
@@ -1469,6 +1473,67 @@ int conv_codec<dbl>::toInt(bool bit)
       return 1;
    else
       return 0;
+   }
+
+template <class dbl>
+void conv_codec<dbl>::writetofile(array1vd_t& received, array1vd_t& decoded)
+   {
+   std::ofstream myfile;
+   myfile.open ("D:\\SkyDrive\\M.Sc\\Thesis\\Matlab\\received.txt", std::ios::app);
+   
+   for(int recv_cnt = 0; recv_cnt < received.size(); recv_cnt++)
+      {
+
+      if(received(recv_cnt)(0) > 100 || received(recv_cnt)(1) > 100)
+         {
+         std::cout << "Value bigger than 100 in received at location: " << recv_cnt << std::endl;
+         std::cout << "Value for 0 is : " << received(recv_cnt)(0) << std::endl;
+         std::cout << "Value for 1 is : " << received(recv_cnt)(1) << std::endl;
+         std::cin.get();
+         }
+
+      myfile << received(recv_cnt)(0) << "\t" << received(recv_cnt)(1) << std::endl;
+      }
+   myfile << std::endl << std::endl;
+   myfile.close();
+
+   myfile.open ("D:\\SkyDrive\\M.Sc\\Thesis\\Matlab\\decoded.txt", std::ios::app);
+   
+   for(int dec_cnt = 0; dec_cnt  < decoded.size(); dec_cnt++)
+      {
+      myfile << decoded(dec_cnt )(0) << "\t" << decoded(dec_cnt )(1) << std::endl;
+      }
+   myfile << std::endl << std::endl;
+   myfile.close();
+   }
+
+template <class dbl>
+void conv_codec<dbl>::datatofile(const array1i_t& source, array1i_t& encoded)
+   {
+   std::ofstream myfile;
+   myfile.open ("D:\\SkyDrive\\M.Sc\\Thesis\\Matlab\\source.txt", std::ios::app);
+   
+   for(int src_cnt = 0; src_cnt < source.size(); src_cnt++)
+      {
+      if(source(src_cnt) == 0)
+         myfile << "1 0\t"<< std::endl;
+      else
+         myfile << "0 1\t"<< std::endl;
+      }
+   myfile << std::endl << std::endl;
+   myfile.close();
+
+   myfile.open ("D:\\SkyDrive\\M.Sc\\Thesis\\Matlab\\encoded.txt", std::ios::app);
+   
+   for(int enc_cnt = 0; enc_cnt  < encoded.size(); enc_cnt++)
+      {
+      if(encoded(enc_cnt) == 0)
+         myfile << "1 0\t"<< std::endl;
+      else
+         myfile << "0 1\t"<< std::endl;
+      }
+   myfile << std::endl << std::endl;
+   myfile.close();
    }
 
 //template <class dbl>
