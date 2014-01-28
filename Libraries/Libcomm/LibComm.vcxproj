@@ -234,6 +234,8 @@
     <ClCompile Include="channel\bpmr.cpp" />
     <ClCompile Include="channel\qec.cpp" />
     <ClCompile Include="channel\qids-utils.cpp" />
+    <ClCompile Include="codec\codec_concatenated.cpp" />
+    <ClCompile Include="codec\codec_multiblock.cpp" />
     <ClCompile Include="codec\memoryless.cpp" />
     <ClCompile Include="experiment\binomial\result_collector\commsys\fidelity_pos.cpp" />
     <ClCompile Include="fsm\zsm.cpp" />
@@ -256,6 +258,7 @@
     <ClCompile Include="digest32.cpp" />
     <ClCompile Include="embedder\direct_blockembedder.cpp" />
     <ClCompile Include="mapper\map_aggregating.cpp" />
+    <ClCompile Include="mapper\map_concatenated.cpp" />
     <ClCompile Include="mapper\map_dividing.cpp" />
     <ClCompile Include="mapper\map_reshape.cpp" />
     <ClCompile Include="modem\direct_blockmodem.cpp" />
@@ -277,7 +280,6 @@
     <ClCompile Include="fsm\grscc.cpp" />
     <ClCompile Include="interleaver\lut\helical.cpp" />
     <ClCompile Include="experiment\binomial\result_collector\commsys\hist_symerr.cpp" />
-    <ClCompile Include="modem\informed_modulator.cpp" />
     <ClCompile Include="channel\lapgauss.cpp" />
     <ClCompile Include="channel\laplacian.cpp" />
     <ClCompile Include="codec\ldpc.cpp" />

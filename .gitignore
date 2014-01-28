@@ -7,3 +7,6 @@ Win32
 x64
 *.suo
 *.ncb
+*.sdf
+*.opensdf
+*.bak
