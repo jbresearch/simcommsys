@@ -119,7 +119,7 @@ private:
    std::string toString(int number);
    char toChar(bool bit);
    int toInt(bool bit);
-   void writetofile(array1vd_t& received, array1vd_t& decoded);
+   void writetofile(array1vd_t& received, array1vd_t& decoded, array1vd_t& output);
    void datatofile(const array1i_t& source, array1i_t& encoded);
    //void settoval(libbase::matrix<double>& mat, double value);
    /*Conv Codes Functions - END*/

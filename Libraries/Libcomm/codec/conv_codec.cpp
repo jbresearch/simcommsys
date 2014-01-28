@@ -22,9 +22,11 @@
 
 #include "conv_codec.h"
 #include "vectorutils.h"
+#include "vector_itfunc.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
+
 
 namespace libcomm {
 
@@ -241,6 +243,8 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri)
 template <class dbl>
 void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    {
+   libbase::normalize_results(R,R);
+   
    recv_sequence = R.size();
 
    encoding_steps = block_length/k;
@@ -333,7 +337,7 @@ void conv_codec<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 
    /*for(int cnt = 0; cnt < ro.size(); cnt++)
          std::cout << ro(cnt);*/
-   writetofile(R, ri);
+   writetofile(R, ri, ro);
    }
 
 template <class dbl>
@@ -1476,22 +1480,13 @@ int conv_codec<dbl>::toInt(bool bit)
    }
 
 template <class dbl>
-void conv_codec<dbl>::writetofile(array1vd_t& received, array1vd_t& decoded)
+void conv_codec<dbl>::writetofile(array1vd_t& received, array1vd_t& decoded, array1vd_t& output)
    {
    std::ofstream myfile;
    myfile.open ("D:\\SkyDrive\\M.Sc\\Thesis\\Matlab\\received.txt", std::ios::app);
    
    for(int recv_cnt = 0; recv_cnt < received.size(); recv_cnt++)
       {
-
-      if(received(recv_cnt)(0) > 100 || received(recv_cnt)(1) > 100)
-         {
-         std::cout << "Value bigger than 100 in received at location: " << recv_cnt << std::endl;
-         std::cout << "Value for 0 is : " << received(recv_cnt)(0) << std::endl;
-         std::cout << "Value for 1 is : " << received(recv_cnt)(1) << std::endl;
-         std::cin.get();
-         }
-
       myfile << received(recv_cnt)(0) << "\t" << received(recv_cnt)(1) << std::endl;
       }
    myfile << std::endl << std::endl;
@@ -1501,7 +1496,16 @@ void conv_codec<dbl>::writetofile(array1vd_t& received, array1vd_t& decoded)
    
    for(int dec_cnt = 0; dec_cnt  < decoded.size(); dec_cnt++)
       {
-      myfile << decoded(dec_cnt )(0) << "\t" << decoded(dec_cnt )(1) << std::endl;
+      myfile << decoded(dec_cnt)(0) << "\t" << decoded(dec_cnt)(1) << std::endl;
+      }
+   myfile << std::endl << std::endl;
+   myfile.close();
+
+   myfile.open ("D:\\SkyDrive\\M.Sc\\Thesis\\Matlab\\output.txt", std::ios::app);
+   
+   for(int out_cnt = 0; out_cnt  < output.size(); out_cnt++)
+      {
+      myfile << output(out_cnt)(0) << "\t" << output(out_cnt)(1) << std::endl;
       }
    myfile << std::endl << std::endl;
    myfile.close();
