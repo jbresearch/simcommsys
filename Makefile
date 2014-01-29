@@ -84,7 +84,7 @@ SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 ## Build and installations details
 
 # String to identify build
-export BUILDID := $(shell git rev-parse --abbrev-ref HEAD)
+export BUILDID := $(notdir $(shell git rev-parse --abbrev-ref HEAD))
 ifneq ($(USE_OMP),0)
    BUILDID := $(BUILDID)-omp
 endif
