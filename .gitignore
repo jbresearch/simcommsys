@@ -5,6 +5,7 @@ doc
 [Pp]rofile
 Win32
 x64
+ipch
 *.suo
 *.ncb
 *.sdf
