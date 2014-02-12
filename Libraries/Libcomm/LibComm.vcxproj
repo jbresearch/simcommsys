@@ -263,6 +263,8 @@
     <ClCompile Include="mapper\map_dividing.cpp" />
     <ClCompile Include="mapper\map_reshape.cpp" />
     <ClCompile Include="modem\conv.cpp" />
+    <ClCompile Include="modem\conv_modem.cpp" />
+    <ClCompile Include="modem\conv_modem_class.cpp" />
     <ClCompile Include="modem\direct_blockmodem.cpp" />
     <ClCompile Include="modem\direct_modem.cpp" />
     <ClCompile Include="modem\dminner.cpp" />
@@ -377,6 +379,8 @@
     <ClInclude Include="mapper\map_dividing.h" />
     <ClInclude Include="mapper\map_reshape.h" />
     <ClInclude Include="modem\conv.h" />
+    <ClInclude Include="modem\conv_modem.h" />
+    <ClInclude Include="modem\conv_modem_class.h" />
     <ClInclude Include="modem\direct_blockmodem.h" />
     <ClInclude Include="modem\direct_modem.h" />
     <ClInclude Include="modem\dminner.h" />

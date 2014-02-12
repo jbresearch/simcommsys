@@ -374,6 +374,12 @@
     <ClCompile Include="mapper\map_concatenated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="modem\conv_modem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modem\conv_modem_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annealer\system\anneal_interleaver.h">
@@ -752,6 +758,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="codec\conv_codec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\conv_modem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modem\conv_modem_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

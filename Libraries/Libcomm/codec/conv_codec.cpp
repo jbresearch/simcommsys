@@ -27,7 +27,6 @@
 #include <iostream>
 #include <fstream>
 
-
 namespace libcomm {
 
 // internal codec operations

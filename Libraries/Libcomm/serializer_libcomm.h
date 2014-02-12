@@ -62,6 +62,7 @@
 #include "modem/tvb.h"
 #include "modem/marker.h"
 #include "modem/conv.h"
+#include "modem/conv_modem.h"
 
 // Convolutional Encoders
 #include "fsm.h"
@@ -195,6 +196,7 @@ private:
    qam _qam;
    dminner<double> _dminner;
    tvb<bool, double, float> _tvb;
+   conv_modem<bool, double, float> _conv_modem;
    //conv<bool, double, float> _conv;
    conv<bool, double, float> _conv;
    marker<bool, double, float> _marker;
