@@ -79,6 +79,7 @@ std::string qam::description() const
 
 std::ostream& qam::serialize(std::ostream& sout) const
    {
+   sout << "# Alphabet size in symbols" << std::endl;
    sout << lut.size() << std::endl;
    return sout;
    }
