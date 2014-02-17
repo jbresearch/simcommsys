@@ -28,6 +28,7 @@
 #include "pacifier.h"
 #include "vectorutils.h"
 #include <sstream>
+#include <vector>
 
 namespace libcomm {
 
@@ -131,10 +132,119 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
    }
 
 template <class sig, class real, class real2>
-void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-      const array1s_t& rx, array1vd_t& ptable)
+void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
+   
+   for(int x = 0; x < rx.size(); x++)
+      std::cout << rx(x) << " ";
 
+   mychan = dynamic_cast<const qids<sig, real2>&> (chan);
+   mychan.set_blocksize(2);
+   
+   unsigned int no_del = 1;//max num del
+   unsigned int no_ins = 1;//max num ins
+
+   unsigned int no_insdels = no_del + no_ins + 1;
+
+   unsigned int b_size = block_length + m;
+
+   unsigned int num_states = pow(2,no_states);
+
+   vector<b_storage> b_vector(b_size, b_storage(num_states));
+
+   /*Setting up the first alpha value - BEGIN*/
+   b_vector[0].setmin_bs(0);
+   //b_vector[0].state_bs_vector.resize(1);
+   b_vector[0].state_bs_vector[0].push_back(state_bs_storage(1));
+   /*Setting up the first alpha value - END*/
+
+   unsigned int inp_combinations = pow(2,k);
+   unsigned int next_state = 0;
+
+   array1s_t orig_codeword;
+   array1s_t recv_codeword;               
+
+   double gamma = 0.0;
+   double alpha = 0.0;
+   unsigned int num_bs = 0;
+
+   unsigned int cur_bs = 0;
+   unsigned int next_bs = 0;
+
+   //For all decoded bits
+   b_size--;
+   for(unsigned int b = 0; b < b_size; b++)
+      {
+      b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+      //For all the number of states
+      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+         {
+         num_bs = b_vector[b].state_bs_vector[cur_state].size();
+         
+         //For all the number of bitshifts available
+         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+         //for(unsigned int cur_bs = 0; cur_bs < num_bs; cur_bs++)
+            {
+            cur_bs = b_vector[b].getmin_bs() + cnt_bs;
+
+            for(unsigned int input = 0; input < inp_combinations; input++)
+               {
+               next_state = get_next_state(input, cur_state);
+               next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
+
+               //b_vector[b+1].state_bs_vector[next_state].resize(no_insdels);//TODO:Check THIS!!!
+               
+               get_output(input, cur_state, orig_codeword);
+               
+               for(unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
+                  {
+                  get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+
+                  system("cls");
+                  std::cout << "Original" << std::endl;
+                  print_sig(orig_codeword);
+                  std::cout << "Received" << std::endl;
+                  print_sig(recv_codeword);
+
+                  //Work gamma
+                  gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                  //Work alpha
+                  unsigned int st_cur_bs = (cur_bs-b_vector[b].getmin_bs());//the actual store location for current bs
+                  unsigned int st_nxt_bs = (next_bs - b_vector[b+1].getmin_bs());//the actual store location for next bs
+                  //For debugging
+                  alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                  alpha = gamma * alpha;
+                  //For release
+                  //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
+
+                  //storing gamma
+                  /*Check whether bit shift location is already available - Begin*/
+                  unsigned int sz = b_vector[b+1].state_bs_vector[next_state].size();
+
+                  if(b_vector[b+1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
+                     b_vector[b+1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
+                  /*Check whether bit shift location is already available - End*/
+
+                  b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state,st_cur_bs,gamma));
+                  //storing alpha
+                  b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+
+                  next_bs++;//Incrementing next_bs
+                  }
+               }
+            }
+         }
+      }
+
+   }
+
+template <class sig, class real, class real2>
+void conv_modem<sig, real, real2>::print_sig(array1s_t& data)
+   {
+   for(int a = 0; a < data.size(); a++)
+      std::cout << data(a) << " ";
+
+   std::cout << std::endl;
    }
 
 template <class sig, class real, class real2>
@@ -153,6 +263,97 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    {
 
    }
+
+/*Current state, current bitshift, next state, next bs*/
+template <class sig, class real, class real2>
+double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq)
+   {
+   
+   if(gamma_storage[cur_state].size() < (cur_bs + 1)) //checking if current bit-shift location exists, if not create one
+      {
+      //Does not exist
+      gamma_storage[cur_state].resize(cur_bs + 1);
+      }
+
+   int search_cnt = gamma_storage[cur_state][cur_bs].size();
+
+   for(int i = 0; i < search_cnt; i++)
+      {
+      if( (gamma_storage[cur_state][cur_bs][i].getstate() == next_state) && (gamma_storage[cur_state][cur_bs][i].getbitshift() == next_bs) )
+         {
+         return gamma_storage[cur_state][cur_bs][i].getgamma();//The value of gamma is found
+         }
+      }
+
+   //The value of gamma is not found need to be worked out
+   double gamma = work_gamma(orig_seq,recv_seq);
+   gamma_storage[cur_state][cur_bs].push_back(Gamma_Storage(next_state, next_bs, gamma));
+
+   return gamma;
+   }
+
+template <class sig, class real, class real2>
+double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
+   {
+   computer = mychan.get_computer();
+   return computer.receive(orig_seq, recv_seq);
+   }
+
+template <class sig, class real, class real2>
+int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
+   {
+   int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
+   int next_state_loc = k + no_states;
+   std::string str_nxt_state = "";
+   
+   for(int cnt = 0; cnt < no_states;cnt++)
+      {
+      str_nxt_state += toChar(statetable(state_table_row,next_state_loc));
+      next_state_loc++;
+      }
+
+   return bin2int(str_nxt_state);
+   }
+
+template <class sig, class real, class real2>
+void conv_modem<sig, real, real2>::get_output(int input, int curr_state, array1s_t& output)
+   {
+   int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
+   int out_loc = k + (no_states * 2);
+   
+   output.init(n);
+   
+   //std::string str_output = "";
+   for(int cnt = 0; cnt < n;cnt++)
+      {
+      output(cnt) = statetable(state_table_row, out_loc);
+      //std::cout << output(cnt) << std::endl;
+      //str_output += toChar(statetable(state_table_row, out_loc));
+      out_loc++;
+      }
+   }
+
+template <class sig, class real, class real2>
+void conv_modem<sig, real, real2>::get_received(unsigned int b, unsigned int cur_bs, unsigned int next_bs, unsigned int no_del, const array1s_t& rx, array1s_t& recv_codeword)
+   {
+   recv_codeword.init(next_bs-cur_bs);               
+
+   unsigned int count = 0;
+
+   for(unsigned int i = cur_bs; i < next_bs; i++)
+      {
+      if(i < (unsigned int) rx.size())
+         {
+         recv_codeword(count) = rx(i);
+         count++;
+         }
+      else
+         {
+         break;
+         }
+      }
+   }
+
 
 // Marker-specific setup functions
 
@@ -215,6 +416,9 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> block_length >> libbase::verify;
 
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
+
+   //TODO:CHECK THIS
+   gamma_storage.resize(pow(2,no_states));
 
    return sin;
    }

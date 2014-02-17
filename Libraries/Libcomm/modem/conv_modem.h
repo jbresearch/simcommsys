@@ -45,6 +45,8 @@
 #  include "tvb-receiver.h"
 //#endif
 
+#include "conv_modem_class.h"
+
 namespace libcomm {
 
 /*!
@@ -205,7 +207,9 @@ public:
 
    // Description
    std::string description() const;
-
+public:
+   typedef vector<vector<vector<Gamma_Storage> > > vector_3d;
+   typedef vector<b_storage> vec_b_storage;
 private:
       /*Conv Codes parameters - BEGIN*/
       int type;
@@ -216,13 +220,17 @@ private:
       int n; //output
       int m; //m highest degree polynomial of G(D)
       int no_states;
-      int recv_sequence; //length of received sequence
       int encoding_steps; //number of steps in the trellis diagram for the data not the tailing off. The number of hops from the trellis diagram
       std::string ff_octal;
       std::string fb_octal;
       libbase::matrix<std::string> ffcodebook; //Feedforward connection string
       libbase::matrix<std::string> fbcodebook; //Feedback connection string
       libbase::matrix<bool> statetable;
+
+      vector_3d gamma_storage;
+
+      typename qids<sig, real2>::metric_computer computer;
+      qids<sig,real2> mychan;
       /*Conv Codes parameters - END*/
       
        /*Conv Codes Functions - BEGIN*/
@@ -230,6 +238,13 @@ private:
       
       void encode_data(const array1i_t& encoded, array1s_t& tx);
 
+      double get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq);
+      double work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
+      
+      int get_next_state(int input, int curr_state);
+      
+      void get_output(int input, int curr_state, array1s_t& output);
+      void get_received(unsigned int b, unsigned int cur_bs, unsigned int next_bs, unsigned int no_del, const array1s_t& rx, array1s_t& recv_codeword);//Get the bits from the received sequence considering ins/dels
       std::string oct2bin(std::string input, int size, int type);
       int bin2int(std::string binary);
       std::string int2bin(int input, int size);
@@ -239,9 +254,11 @@ private:
       std::string toString(int number);
       char toChar(bool bit);
       int toInt(bool bit);
+
+      void print_sig(array1s_t& data);
       /*Conv Codes Functions - END*/
 
-   // Serialization Support
+//Serialization Support
 DECLARE_SERIALIZER(conv_modem)
 };
 
