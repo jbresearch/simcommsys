@@ -28,6 +28,12 @@ Documentation is available as follows:
       1. Build the doxygen documentation using `make doc`
       2. Start with the main page: `doc/html/index.html`
 
+To contact us:
+- For bug reports, use the [issue tracker](https://github.com/jbresearch/simcommsys/issues)
+- [User and developer project forums](https://groups.google.com/d/forum/simcommsys)
+   - Discussions about the use of simcommsys should be tagged with the 'User' category.
+   - Longer discussions about simcommsys development should be tagged with the 'Developer' category.
+
 
 # Copyright and license
 
