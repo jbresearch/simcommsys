@@ -243,6 +243,8 @@ private:
       
       int get_next_state(int input, int curr_state);
       
+      unsigned int get_input(unsigned int cur_state, unsigned int prev_state);
+
       void get_output(int input, int curr_state, array1s_t& output);
       void get_received(unsigned int b, unsigned int cur_bs, unsigned int next_bs, unsigned int no_del, const array1s_t& rx, array1s_t& recv_codeword);//Get the bits from the received sequence considering ins/dels
       std::string oct2bin(std::string input, int size, int type);

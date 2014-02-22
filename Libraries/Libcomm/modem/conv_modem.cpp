@@ -54,11 +54,19 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
       array1s_t& tx)
    {
-   //TODO:Check that the encoder is working as expected
    //Checking that the block lenghts match
    assert(encoded.size() == block_length);
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
+
+   std::cout << "Encoded" << std::endl;
+   for(int x = 0; x < encoded.size(); x++)
+      std::cout << encoded(x) << " ";
+
+   std::cout << std::endl;
+   std::cout << "Transmitted" << std::endl;
+   for(int x = 0; x < tx.size(); x++)
+      std::cout << tx(x) << " ";
    }
 
 template <class sig, class real, class real2>
@@ -135,18 +143,20 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
    
+   std::cout << std::endl;
+   std::cout << "Received" << std::endl;
    for(int x = 0; x < rx.size(); x++)
       std::cout << rx(x) << " ";
 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
    
-   unsigned int no_del = 1;//max num del
-   unsigned int no_ins = 1;//max num ins
+   unsigned int no_del = 0;//max num del
+   unsigned int no_ins = 0;//max num ins
 
    unsigned int no_insdels = no_del + no_ins + 1;
 
-   unsigned int b_size = block_length + m;
+   unsigned int b_size = block_length + m + 1;
 
    unsigned int num_states = pow(2,no_states);
 
@@ -158,6 +168,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    b_vector[0].state_bs_vector[0].push_back(state_bs_storage(1));
    /*Setting up the first alpha value - END*/
 
+   /*Setting up the first beta value - BEGIN*/
+   b_vector[b_size-1].state_bs_vector[0].resize(1);
+   b_vector[b_size-1].state_bs_vector[0][0].setbeta(1);
+   /*Setting up the first beta value - END*/
+
    unsigned int inp_combinations = pow(2,k);
    unsigned int next_state = 0;
 
@@ -166,15 +181,30 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    double gamma = 0.0;
    double alpha = 0.0;
+   double beta = 0.0;
    unsigned int num_bs = 0;
 
    unsigned int cur_bs = 0;
    unsigned int next_bs = 0;
 
+
+   /*initialising ptable - BEGIN*/
+   ptable.init(b_size-1);
+   
+   for(int cnt = 0; cnt < ptable.size(); cnt++)
+      {
+      ptable(cnt).init(2);
+      ptable(cnt) = 0;
+      }
+   /*initialising ptable - END*/
+
    //For all decoded bits
    b_size--;
    for(unsigned int b = 0; b < b_size; b++)
       {
+      if(b >= (unsigned int) block_length) //this is tailing so input is always 0
+         inp_combinations = 1;
+
       b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
       //For all the number of states
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
@@ -200,11 +230,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   {
                   get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
 
-                  system("cls");
-                  std::cout << "Original" << std::endl;
-                  print_sig(orig_codeword);
-                  std::cout << "Received" << std::endl;
-                  print_sig(recv_codeword);
+                  //system("cls");
+                  //std::cout << "Original" << std::endl;
+                  //print_sig(orig_codeword);
+                  //std::cout << "Received" << std::endl;
+                  //print_sig(recv_codeword);
 
                   //Work gamma
                   gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
@@ -236,7 +266,62 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          }
       }
 
+   unsigned int size_gamma = 0;
+
+   unsigned int prev_bs = 0;
+   unsigned int prev_state = 0;
+   
+   for(unsigned int b = b_size; b > 0; b--)
+      {
+      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+         {
+         num_bs = b_vector[b].state_bs_vector[cur_state].size();
+         
+         //For all the number of bitshifts available
+         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+            {
+            size_gamma = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma.size();
+
+            for(unsigned int cnt_gamma = 0; cnt_gamma < size_gamma; cnt_gamma++)
+               {
+               //Getting gamma
+               gamma = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getgamma();
+               //Getting beta
+               beta = b_vector[b].state_bs_vector[cur_state][cnt_bs].getbeta();
+               beta = beta * gamma;
+
+               //Calculating next beta
+               prev_state = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getstate();
+               prev_bs = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getbitshift();
+               
+               b_vector[b-1].state_bs_vector[prev_state][prev_bs].setbeta(beta);
+
+               //Working out the output
+               alpha = b_vector[b-1].state_bs_vector[prev_state][prev_bs].getalpha();
+               ptable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+               }
+            }
+         }
+      }
+
+   std::cout << std::endl;
+   std::cout << "Decoded" << std::endl;
+
+   for(int x = 0; x < ptable.size(); x++)
+      {
+      if(ptable(x)(0) > ptable(x)(1))
+         std::cout << "0 ";
+      else
+         std::cout << "1 ";
+      }
+
+   std::cout << std::endl;
+   std::cout << "Decoded Probabilities" << std::endl;
+   for(int x = 0; x < ptable.size(); x++)
+      std::cout << ptable(x);
    }
+
+
 
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::print_sig(array1s_t& data)
@@ -313,6 +398,17 @@ int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
       }
 
    return bin2int(str_nxt_state);
+   }
+
+template <class sig, class real, class real2>
+unsigned int conv_modem<sig, real, real2>::get_input(unsigned int cur_state, unsigned int next_state)
+   {
+   for(int inp = 0; inp < pow(2,k); inp++)
+      {
+      if(next_state == get_next_state(inp, cur_state))
+         return inp;
+      }
+   return 0;
    }
 
 template <class sig, class real, class real2>

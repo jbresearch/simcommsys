@@ -46,7 +46,7 @@ class state_bs_storage
       double getbeta(){return beta;}
       /*Setters*/
       void setalpha(double alpha){this->alpha += alpha;}
-      void setbeta(double beta){this->beta = beta;}
+      void setbeta(double beta){this->beta += beta;}
 
       state_bs_storage()
          {
