@@ -47,7 +47,11 @@ class state_bs_storage
       /*Setters*/
       void setalpha(double alpha){this->alpha += alpha;}
       void setbeta(double beta){this->beta += beta;}
+      /*Normalizers*/
+      void normalpha(double alpha_total);
+      void normbeta(double beta_total);
 
+      /*Constructors*/
       state_bs_storage()
          {
          this->alpha = 0;

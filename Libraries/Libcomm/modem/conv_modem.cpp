@@ -59,14 +59,14 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
-   std::cout << "Encoded" << std::endl;
-   for(int x = 0; x < encoded.size(); x++)
-      std::cout << encoded(x) << " ";
+   //std::cout << "Encoded" << std::endl;
+   //for(int x = 0; x < encoded.size(); x++)
+   //   std::cout << encoded(x) << " ";
 
-   std::cout << std::endl;
-   std::cout << "Transmitted" << std::endl;
-   for(int x = 0; x < tx.size(); x++)
-      std::cout << tx(x) << " ";
+   //std::cout << std::endl;
+   //std::cout << "Transmitted" << std::endl;
+   //for(int x = 0; x < tx.size(); x++)
+   //   std::cout << tx(x) << " ";
    }
 
 template <class sig, class real, class real2>
@@ -143,16 +143,16 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
    
-   std::cout << std::endl;
-   std::cout << "Received" << std::endl;
-   for(int x = 0; x < rx.size(); x++)
-      std::cout << rx(x) << " ";
+   //std::cout << std::endl;
+   //std::cout << "Received" << std::endl;
+   //for(int x = 0; x < rx.size(); x++)
+   //   std::cout << rx(x) << " ";
 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
    
-   unsigned int no_del = 0;//max num del
-   unsigned int no_ins = 0;//max num ins
+   unsigned int no_del = 1;//max num del
+   unsigned int no_ins = 1;//max num ins
 
    unsigned int no_insdels = no_del + no_ins + 1;
 
@@ -182,26 +182,34 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    double gamma = 0.0;
    double alpha = 0.0;
    double beta = 0.0;
+   double alpha_total = 0.0;
+   double beta_total = 0.0;
    unsigned int num_bs = 0;
 
    unsigned int cur_bs = 0;
    unsigned int next_bs = 0;
 
+   unsigned int norm_b = 0;
 
-   /*initialising ptable - BEGIN*/
-   ptable.init(b_size-1);
+   /*initialising outtable - BEGIN*/
+   array1vd_t outtable;
+   outtable.init(b_size-1);
    
-   for(int cnt = 0; cnt < ptable.size(); cnt++)
+   for(int cnt = 0; cnt < outtable.size(); cnt++)
       {
-      ptable(cnt).init(2);
-      ptable(cnt) = 0;
+      outtable(cnt).init(2);
+      outtable(cnt) = 0;
       }
-   /*initialising ptable - END*/
+   /*initialising outtable - END*/
 
    //For all decoded bits
    b_size--;
    for(unsigned int b = 0; b < b_size; b++)
       {
+      //Resetting alpha and beta values every iteration
+      alpha_total = 0.0;
+      beta_total = 0.0;
+
       if(b >= (unsigned int) block_length) //this is tailing so input is always 0
          inp_combinations = 1;
 
@@ -244,6 +252,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   //For debugging
                   alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
                   alpha = gamma * alpha;
+                  alpha_total += alpha;
                   //For release
                   //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
 
@@ -264,6 +273,55 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                }
             }
          }
+
+      //Normalisation
+      norm_b = b+1;
+      //system("cls");
+      //std::cout << "Before Norm" << std::endl;
+      //std::cout << std::endl;
+
+      //double total = 0.0;
+      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      //   {
+      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+      //   //For all the number of bitshifts available
+      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+      //      {
+      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
+      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
+      //      }
+      //   }
+      //std::cout << std::endl;
+      //std::cout << "Total is: " << total << std::endl;
+
+      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+         {
+         num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+         //For all the number of bitshifts available
+         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+            {
+            b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normalpha(alpha_total);
+            }
+         }
+
+      //total = 0.0;
+      //std::cout << std::endl;
+      //std::cout << "After Norm" << std::endl;
+      //std::cout << std::endl;
+
+      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      //   {
+      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+      //   //For all the number of bitshifts available
+      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+      //      {
+      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
+      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
+      //      }
+      //   }
+      //std::cout << std::endl;
+      //std::cout << "Total is: " << total << std::endl;
+
       }
 
    unsigned int size_gamma = 0;
@@ -273,6 +331,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    
    for(unsigned int b = b_size; b > 0; b--)
       {
+      beta_total = 0.0;
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
          num_bs = b_vector[b].state_bs_vector[cur_state].size();
@@ -289,6 +348,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Getting beta
                beta = b_vector[b].state_bs_vector[cur_state][cnt_bs].getbeta();
                beta = beta * gamma;
+               beta_total += beta;
 
                //Calculating next beta
                prev_state = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getstate();
@@ -298,27 +358,63 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
                //Working out the output
                alpha = b_vector[b-1].state_bs_vector[prev_state][prev_bs].getalpha();
-               ptable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+               outtable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
                }
             }
          }
+
+      //Normalisation
+      norm_b = b-1;
+      //system("cls");
+      //std::cout << "Before Norm" << std::endl;
+      //std::cout << std::endl;
+
+      //double total = 0.0;
+      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      //   {
+      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+      //   //For all the number of bitshifts available
+      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+      //      {
+      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
+      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
+      //      }
+      //   }
+      //std::cout << std::endl;
+      //std::cout << "Total is: " << total << std::endl;
+
+      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+         {
+         num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+         //For all the number of bitshifts available
+         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+            {
+            b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normbeta(beta_total);
+            }
+         }
+
+      
+
+      //total = 0.0;
+      //std::cout << std::endl;
+      //std::cout << "After Norm" << std::endl;
+      //std::cout << std::endl;
+
+      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      //   {
+      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+      //   //For all the number of bitshifts available
+      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+      //      {
+      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
+      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
+      //      }
+      //   }
+      //std::cout << std::endl;
+      //std::cout << "Total is: " << total << std::endl;
+
       }
-
-   std::cout << std::endl;
-   std::cout << "Decoded" << std::endl;
-
-   for(int x = 0; x < ptable.size(); x++)
-      {
-      if(ptable(x)(0) > ptable(x)(1))
-         std::cout << "0 ";
-      else
-         std::cout << "1 ";
-      }
-
-   std::cout << std::endl;
-   std::cout << "Decoded Probabilities" << std::endl;
-   for(int x = 0; x < ptable.size(); x++)
-      std::cout << ptable(x);
+   ptable = outtable.extract(0,block_length);
    }
 
 
