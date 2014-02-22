@@ -497,9 +497,9 @@ int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
 template <class sig, class real, class real2>
 unsigned int conv_modem<sig, real, real2>::get_input(unsigned int cur_state, unsigned int next_state)
    {
-   for(int inp = 0; inp < pow(2,k); inp++)
+   for(unsigned int inp = 0; inp < pow(2,k); inp++)
       {
-      if(next_state == get_next_state(inp, cur_state))
+      if(next_state == (unsigned int) get_next_state(inp, cur_state))
          return inp;
       }
    return 0;
