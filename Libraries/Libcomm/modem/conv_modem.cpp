@@ -258,8 +258,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
                   //storing gamma
                   /*Check whether bit shift location is already available - Begin*/
-                  unsigned int sz = b_vector[b+1].state_bs_vector[next_state].size();
-
                   if(b_vector[b+1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
                      b_vector[b+1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
                   /*Check whether bit shift location is already available - End*/
@@ -555,7 +553,7 @@ void conv_modem<sig, real, real2>::set_thresholds(const real th_inner,
    {
    This::th_inner = th_inner;
    This::th_outer = th_outer;
-   test_invariant();
+   //test_invariant();
    }
 
 // description output
