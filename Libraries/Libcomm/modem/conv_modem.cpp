@@ -29,6 +29,7 @@
 #include "vectorutils.h"
 #include <sstream>
 #include <vector>
+#include <Windows.h>
 
 namespace libcomm {
 
@@ -148,6 +149,10 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    //for(int x = 0; x < rx.size(); x++)
    //   std::cout << rx(x) << " ";
 
+   /*Timing - begin*/
+   long int before = GetTickCount();
+   /*Timing - end*/
+
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
    
@@ -245,7 +250,12 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   //print_sig(recv_codeword);
 
                   //Work gamma
-                  gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                  /**/
+                  gamma = work_gamma(orig_codeword,recv_codeword);
+                  
+                  //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                  
+                  
                   //Work alpha
                   unsigned int st_cur_bs = (cur_bs-b_vector[b].getmin_bs());//the actual store location for current bs
                   unsigned int st_nxt_bs = (next_bs - b_vector[b+1].getmin_bs());//the actual store location for next bs
@@ -413,6 +423,13 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       }
    ptable = outtable.extract(0,block_length);
+
+   /*Timing - begin*/
+   long int after = GetTickCount();
+   std::cout << "Time(ms): " << after-before << std::endl;
+   std::cout << "Time(s): " << (double) (after-before)/1000 << std::endl;
+   std::cout << "Time(min): " << (double) ((after-before)/1000)/60 << std::endl;
+   /*Timing - end*/
    }
 
 
@@ -608,7 +625,7 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
    //TODO:CHECK THIS
-   gamma_storage.resize(pow(2,no_states));
+   //gamma_storage.resize(pow(2,no_states));
 
    return sin;
    }
