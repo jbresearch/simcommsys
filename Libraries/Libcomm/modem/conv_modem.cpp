@@ -60,14 +60,14 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
-   //std::cout << "Encoded" << std::endl;
-   //for(int x = 0; x < encoded.size(); x++)
-   //   std::cout << encoded(x) << " ";
+   std::cout << "Encoded" << std::endl;
+   for(int x = 0; x < encoded.size(); x++)
+      std::cout << encoded(x) << " ";
 
-   //std::cout << std::endl;
-   //std::cout << "Transmitted" << std::endl;
-   //for(int x = 0; x < tx.size(); x++)
-   //   std::cout << tx(x) << " ";
+   std::cout << std::endl;
+   std::cout << "Transmitted" << std::endl;
+   for(int x = 0; x < tx.size(); x++)
+      std::cout << tx(x) << " ";
    }
 
 template <class sig, class real, class real2>
@@ -144,10 +144,10 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
    
-   //std::cout << std::endl;
-   //std::cout << "Received" << std::endl;
-   //for(int x = 0; x < rx.size(); x++)
-   //   std::cout << rx(x) << " ";
+   std::cout << std::endl;
+   std::cout << "Received" << std::endl;
+   for(int x = 0; x < rx.size(); x++)
+      std::cout << rx(x) << " ";
 
    /*Timing - begin*/
    long int before = GetTickCount();
@@ -172,11 +172,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    //b_vector[0].state_bs_vector.resize(1);
    b_vector[0].state_bs_vector[0].push_back(state_bs_storage(1));
    /*Setting up the first alpha value - END*/
-
-   /*Setting up the first beta value - BEGIN*/
-   b_vector[b_size-1].state_bs_vector[0].resize(1);
-   b_vector[b_size-1].state_bs_vector[0][0].setbeta(1);
-   /*Setting up the first beta value - END*/
 
    unsigned int inp_combinations = pow(2,k);
    unsigned int next_state = 0;
@@ -284,7 +279,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       //Normalisation
       norm_b = b+1;
-      //system("cls");
+      ////system("cls");
       //std::cout << "Before Norm" << std::endl;
       //std::cout << std::endl;
 
@@ -332,6 +327,14 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       }
 
+   /*Setting up the first beta value - BEGIN*/
+   /*int test = n * b_size;
+   int test2 = b_vector[b_size].getmin_bs();
+
+   int result_loc = test - test2;*/
+   b_vector[b_size].state_bs_vector[0][(n*b_size) - b_vector[b_size].getmin_bs()].setbeta(1);
+   /*Setting up the first beta value - END*/
+
    unsigned int size_gamma = 0;
 
    unsigned int prev_bs = 0;
@@ -366,6 +369,9 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
                //Working out the output
                alpha = b_vector[b-1].state_bs_vector[prev_state][prev_bs].getalpha();
+               unsigned int inp = get_input(prev_state, cur_state);
+               double temp = alpha * gamma * beta;
+
                outtable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
                }
             }
@@ -373,7 +379,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       //Normalisation
       norm_b = b-1;
-      //system("cls");
+      ////system("cls");
       //std::cout << "Before Norm" << std::endl;
       //std::cout << std::endl;
 
@@ -424,6 +430,25 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       }
    ptable = outtable.extract(0,block_length);
 
+   std::cout << std::endl;
+   std::cout << "Decoded" << std::endl;   
+   for(int k = 0; k < ptable.size(); k++)
+      {
+      if(ptable(k)(0) > ptable(k)(1))
+         std::cout << "0 ";
+      else
+         std::cout << "1 ";
+      }
+
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+
+   //for(int k = 0; k < ptable.size(); k++)
+   //   std::cout << ptable(k) << std::endl;
+      
+
+   std::cout << std::endl;
+   std::cout << std::endl;
    /*Timing - begin*/
    long int after = GetTickCount();
    std::cout << "Time(ms): " << after-before << std::endl;
@@ -491,6 +516,11 @@ double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned 
 template <class sig, class real, class real2>
 double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
    {
+   //if(orig_seq.isequalto(recv_seq))
+   //   return 1;
+   //else
+   //   return 0;
+
    computer = mychan.get_computer();
    return computer.receive(orig_seq, recv_seq);
    }
