@@ -29,7 +29,7 @@
 #include "vectorutils.h"
 #include <sstream>
 #include <vector>
-#include <Windows.h>
+//#include <Windows.h>
 
 namespace libcomm {
 
@@ -60,14 +60,14 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
-   std::cout << "Encoded" << std::endl;
-   for(int x = 0; x < encoded.size(); x++)
-      std::cout << encoded(x) << " ";
+   //std::cout << "Encoded" << std::endl;
+   //for(int x = 0; x < encoded.size(); x++)
+   //   std::cout << encoded(x) << " ";
 
-   std::cout << std::endl;
-   std::cout << "Transmitted" << std::endl;
-   for(int x = 0; x < tx.size(); x++)
-      std::cout << tx(x) << " ";
+   //std::cout << std::endl;
+   //std::cout << "Transmitted" << std::endl;
+   //for(int x = 0; x < tx.size(); x++)
+   //   std::cout << tx(x) << " ";
    }
 
 template <class sig, class real, class real2>
@@ -144,13 +144,13 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
    
-   std::cout << std::endl;
-   std::cout << "Received" << std::endl;
-   for(int x = 0; x < rx.size(); x++)
-      std::cout << rx(x) << " ";
+   //std::cout << std::endl;
+   //std::cout << "Received" << std::endl;
+   //for(int x = 0; x < rx.size(); x++)
+   //   std::cout << rx(x) << " ";
 
    /*Timing - begin*/
-   long int before = GetTickCount();
+   //long int before = GetTickCount();
    /*Timing - end*/
 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
@@ -158,6 +158,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    
    unsigned int no_del = 1;//max num del
    unsigned int no_ins = 1;//max num ins
+   unsigned int rho = 10;//max allowable symbol shift
 
    unsigned int no_insdels = no_del + no_ins + 1;
 
@@ -191,6 +192,9 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    unsigned int norm_b = 0;
 
+   unsigned int drift = 0;
+   unsigned int symb_shift = 0;//the current number of symbol shifts
+
    /*initialising outtable - BEGIN*/
    array1vd_t outtable;
    outtable.init(b_size-1);
@@ -221,7 +225,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          
          //For all the number of bitshifts available
          for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-         //for(unsigned int cur_bs = 0; cur_bs < num_bs; cur_bs++)
             {
             cur_bs = b_vector[b].getmin_bs() + cnt_bs;
 
@@ -230,48 +233,60 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                next_state = get_next_state(input, cur_state);
                next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
 
-               //b_vector[b+1].state_bs_vector[next_state].resize(no_insdels);//TODO:Check THIS!!!
-               
                get_output(input, cur_state, orig_codeword);
                
                for(unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
                   {
-                  get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+                  /*Calculating the current drift - BEGIN*/
+                  drift = abs(int (next_bs - (b+1)*n));
+                  symb_shift = floor(double(drift)/double(n));
+                  /*Calculating the current drift - END*/
 
-                  //system("cls");
-                  //std::cout << "Original" << std::endl;
-                  //print_sig(orig_codeword);
-                  //std::cout << "Received" << std::endl;
-                  //print_sig(recv_codeword);
+                  if(symb_shift <= rho)
+                     {
+                     get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
 
-                  //Work gamma
-                  /**/
-                  gamma = work_gamma(orig_codeword,recv_codeword);
+                     //system("cls");
+                     //std::cout << "Original" << std::endl;
+                     //print_sig(orig_codeword);
+                     //std::cout << "Received" << std::endl;
+                     //print_sig(recv_codeword);
+
+                     //Work gamma
+                     /**/
+                     //gamma = work_gamma(orig_codeword,recv_codeword);
                   
-                  //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                     gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
                   
                   
-                  //Work alpha
-                  unsigned int st_cur_bs = (cur_bs-b_vector[b].getmin_bs());//the actual store location for current bs
-                  unsigned int st_nxt_bs = (next_bs - b_vector[b+1].getmin_bs());//the actual store location for next bs
-                  //For debugging
-                  alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
-                  alpha = gamma * alpha;
-                  alpha_total += alpha;
-                  //For release
-                  //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
+                     //Work alpha
+                     unsigned int st_cur_bs = (cur_bs-b_vector[b].getmin_bs());//the actual store location for current bs
+                     unsigned int st_nxt_bs = (next_bs - b_vector[b+1].getmin_bs());//the actual store location for next bs
+                     //For debugging
+                     alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                     alpha = gamma * alpha;
+                     alpha_total += alpha;
+                     //For release
+                     //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
 
-                  //storing gamma
-                  /*Check whether bit shift location is already available - Begin*/
-                  if(b_vector[b+1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
-                     b_vector[b+1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
-                  /*Check whether bit shift location is already available - End*/
+                     //storing gamma
+                     /*Check whether bit shift location is already available - Begin*/
+                     if(b_vector[b+1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
+                        b_vector[b+1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
+                     /*Check whether bit shift location is already available - End*/
 
-                  b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state,st_cur_bs,gamma));
-                  //storing alpha
-                  b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+                     b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state,st_cur_bs,gamma));
+                     //storing alpha
+                     b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
 
-                  next_bs++;//Incrementing next_bs
+                     next_bs++;//Incrementing next_bs
+                     }
+                  else
+                     {
+                     if(b_vector[b+1].getmin_bs() == next_bs)
+                        b_vector[b+1].setmin_bs(++next_bs);
+                     }
+
                   }
                }
             }
@@ -340,8 +355,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    unsigned int prev_bs = 0;
    unsigned int prev_state = 0;
    
+   //std::cout << "Beta and output" << std::endl;
+
    for(unsigned int b = b_size; b > 0; b--)
       {
+      //std::cout << b << std::endl;
       beta_total = 0.0;
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
@@ -369,8 +387,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
                //Working out the output
                alpha = b_vector[b-1].state_bs_vector[prev_state][prev_bs].getalpha();
-               unsigned int inp = get_input(prev_state, cur_state);
-               double temp = alpha * gamma * beta;
+               //unsigned int inp = get_input(prev_state, cur_state);
+               //double temp = alpha * gamma * beta;
 
                outtable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
                }
@@ -430,15 +448,15 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       }
    ptable = outtable.extract(0,block_length);
 
-   std::cout << std::endl;
-   std::cout << "Decoded" << std::endl;   
-   for(int k = 0; k < ptable.size(); k++)
-      {
-      if(ptable(k)(0) > ptable(k)(1))
-         std::cout << "0 ";
-      else
-         std::cout << "1 ";
-      }
+   //std::cout << std::endl;
+   //std::cout << "Decoded" << std::endl;   
+   //for(int k = 0; k < ptable.size(); k++)
+   //   {
+   //   if(ptable(k)(0) > ptable(k)(1))
+   //      std::cout << "0 ";
+   //   else
+   //      std::cout << "1 ";
+   //   }
 
    //std::cout << std::endl;
    //std::cout << std::endl;
@@ -447,13 +465,13 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    //   std::cout << ptable(k) << std::endl;
       
 
-   std::cout << std::endl;
-   std::cout << std::endl;
-   /*Timing - begin*/
-   long int after = GetTickCount();
-   std::cout << "Time(ms): " << after-before << std::endl;
-   std::cout << "Time(s): " << (double) (after-before)/1000 << std::endl;
-   std::cout << "Time(min): " << (double) ((after-before)/1000)/60 << std::endl;
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+   ///*Timing - begin*/
+   //long int after = GetTickCount();
+   //std::cout << "Time(ms): " << after-before << std::endl;
+   //std::cout << "Time(s): " << (double) (after-before)/1000 << std::endl;
+   //std::cout << "Time(min): " << (double) ((after-before)/1000)/60 << std::endl;
    /*Timing - end*/
    }
 
@@ -655,7 +673,7 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
    //TODO:CHECK THIS
-   //gamma_storage.resize(pow(2,no_states));
+   gamma_storage.resize(pow(2,no_states));
 
    return sin;
    }

@@ -83,12 +83,4 @@ class b_storage
          state_bs_vector.resize(no_cols);
          min_bs = 0;
          }
-      //b_storage(unsigned int no_cols)
-      //   {
-      //   //vector< vector<double> > matrix;
-      //   //now we have an empty 2D-matrix of size (0,0). Resizing it with one single command:
-      //   //matrix.resize( num_of col , vector<double>( num_of_row , init_value ) );
-      //   // and we are good to go ... 
-      //   state_bs_vector.resize(no_cols);
-      //   }
    };
