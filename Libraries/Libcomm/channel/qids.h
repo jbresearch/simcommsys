@@ -79,6 +79,7 @@ public:
       receiver_lattice_corridor, //!< lattice-based receiver with drift constraint
       receiver_undefined
    };
+   
    // @}
 private:
    /*! \name User-defined parameters */

@@ -143,7 +143,9 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
-   
+   gamma_storage.clear();
+   gamma_storage.resize(pow(2,no_states));
+
    //std::cout << std::endl;
    //std::cout << "Received" << std::endl;
    //for(int x = 0; x < rx.size(); x++)
@@ -156,8 +158,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
    
-   unsigned int no_del = 1;//max num del
-   unsigned int no_ins = 1;//max num ins
+   unsigned int no_del = 2;//max num del
+   unsigned int no_ins = 2;//max num ins
    unsigned int rho = 10;//max allowable symbol shift
 
    unsigned int no_insdels = no_del + no_ins + 1;
@@ -673,7 +675,7 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
    //TODO:CHECK THIS
-   gamma_storage.resize(pow(2,no_states));
+   
 
    return sin;
    }
