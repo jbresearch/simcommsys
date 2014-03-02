@@ -157,10 +157,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
-   
-   unsigned int no_del = 2;//max num del
-   unsigned int no_ins = 2;//max num ins
-   unsigned int rho = 10;//max allowable symbol shift
 
    unsigned int no_insdels = no_del + no_ins + 1;
 
@@ -654,6 +650,14 @@ std::ostream& conv_modem<sig, real, real2>::serialize(std::ostream& sout) const
    sout << alphabet_size << std::endl;
    sout << "# Block length" << std::endl;
    sout << block_length << std::endl;
+   
+   sout << "# Maximum Allowable Deletions" << std::endl;
+   sout << no_del << std::endl;
+   sout << "# Maximum Allowable Insertions" << std::endl;
+   sout << no_ins << std::endl;
+   sout << "# Maximum Allowable Symbol Shifts" << std::endl;
+   sout << rho << std::endl;
+
    return sout;
    }
 
@@ -674,9 +678,10 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
 
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
-   //TODO:CHECK THIS
+   sin >> libbase::eatcomments >> no_del >> libbase::verify;
+   sin >> libbase::eatcomments >> no_ins >> libbase::verify;
+   sin >> libbase::eatcomments >> rho >> libbase::verify;
    
-
    return sin;
    }
 

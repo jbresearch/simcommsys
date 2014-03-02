@@ -231,6 +231,10 @@ private:
 
       typename qids<sig, real2>::metric_computer computer;
       qids<sig,real2> mychan;
+
+      unsigned int no_del;//max num del
+      unsigned int no_ins;//max num ins
+      unsigned int rho;//max allowable symbol shift
       /*Conv Codes parameters - END*/
       
        /*Conv Codes Functions - BEGIN*/
