@@ -144,6 +144,7 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
    gamma_storage.clear();
+   vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
 
    //std::cout << std::endl;
@@ -445,6 +446,9 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       }
    ptable = outtable.extract(0,block_length);
+
+   b_vector.clear();
+   vector<b_storage>().swap(b_vector);
 
    //std::cout << std::endl;
    //std::cout << "Decoded" << std::endl;   
