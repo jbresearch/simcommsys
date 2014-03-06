@@ -138,11 +138,9 @@ std::vector<T> getsequence(const std::string& fname)
    // load sequence from file
    std::vector<T> sequence;
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   // skip comments and whitespace
-   file >> libbase::eatcomments;
-   // load elements until we hit end of file
+   // load elements until we hit end of file, skipping comments and whitespace
    T element;
-   while (file >> element)
+   while (file >> libbase::eatcomments >> element)
       sequence.push_back(element);
    cerr << "done, length = " << sequence.size() << std::endl;
    return sequence;
