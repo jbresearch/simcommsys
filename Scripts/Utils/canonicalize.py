@@ -3,6 +3,7 @@
 import sys
 import os
 import shutil
+import commands
 
 def graceful_execute(cmd):
    st, out = commands.getstatusoutput(cmd)
