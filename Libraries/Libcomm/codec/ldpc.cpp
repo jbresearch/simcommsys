@@ -942,7 +942,8 @@ template <class GF_q, class real> std::istream& ldpc<GF_q, real>::read_alist(
          }
       }
    //set some default values
-   this->max_iter = 50;
+   this->max_iter = 100;
+   this->reduce_to_ref = false;
    if (GF_q::dimension() == 1)
       {
       this->rand_prov_values = "ones";
