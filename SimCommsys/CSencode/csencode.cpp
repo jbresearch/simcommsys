@@ -43,10 +43,18 @@ void process(const std::string& fname, std::istream& sin = std::cin,
    // Repeat until end of stream
    while (!sin.eof())
       {
+      // skip any comments
+      libbase::eatcomments(sin);
+      // attempt to read a block of the required size
       C<int> source(system->input_block_size());
       source.serialize(sin);
+      // stop here if something went wrong (e.g. incomplete block)
+      if (sin.fail())
+         break;
+      // encode block and push to output stream
       C<S> transmitted = system->encode_path(source);
       transmitted.serialize(sout, '\n');
+      // skip any trailing whitespace (before check for EOF)
       libbase::eatwhite(sin);
       }
    // Destroy what was created on the heap
