@@ -2,7 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <Branch>nf</Branch>
+    <Branch>Value_is_set_automatically_by_macro</Branch>
+    <BOOSTLIB>Value_is_set_automatically_by_macro</BOOSTLIB>
   </PropertyGroup>
   <PropertyGroup>
     <TargetName>$(ProjectName).$(Branch).$(Configuration)</TargetName>
@@ -14,7 +15,7 @@
       <AdditionalIncludeDirectories>$(BOOST_ROOT)\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib\$(Platform);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\$(BOOSTLIB)\</AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -22,6 +23,10 @@
   <ItemGroup>
     <BuildMacro Include="Branch">
       <Value>$(Branch)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="BOOSTLIB">
+      <Value>$(BOOSTLIB)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>

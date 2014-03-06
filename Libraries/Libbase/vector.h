@@ -32,6 +32,7 @@
 #include <map>
 #include <vector>
 #include <typeinfo>
+#include <algorithm>	//Included becasuse with issue with VS2013 see http://www.suodenjoki.dk/us/archive/2010/min-max.htm
 
 namespace libbase {
 

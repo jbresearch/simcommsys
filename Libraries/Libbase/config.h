@@ -72,7 +72,7 @@
 #  pragma warning( disable : 4244 ) // 'initializing' : conversion from 'std::streamsize' to 'const int', possible loss of data
 #  pragma warning( disable : 4267 ) // 'initializing' : conversion from 'size_t' to 'const int', possible loss of data	
 #  pragma warning( disable : 4090 ) // 'initializing' : different '__unaligned' qualifiers
-
+#  pragma warning( disable : 4996 ) // MBCS support in MFC is deprecated and may be removed in a future version of MFC.
 #endif
 
 // system include files - all architectures
