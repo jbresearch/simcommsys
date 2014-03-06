@@ -111,8 +111,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
     <ResourceCompile>
@@ -153,8 +151,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
     <ResourceCompile>
@@ -193,8 +189,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
@@ -235,8 +229,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>

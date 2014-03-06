@@ -99,8 +99,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -129,8 +127,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -156,8 +152,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -187,8 +181,6 @@
       </BrowseInformation>
       <BrowseInformationFile>
       </BrowseInformationFile>
-      <WarningLevel>Level3</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
