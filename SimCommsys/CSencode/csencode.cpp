@@ -41,7 +41,7 @@ void process(const std::string& fname, std::istream& sin = std::cin,
    r.seed(0);
    system->seedfrom(r);
    // Repeat until end of stream
-   while (!sin.eof())
+   for (int i=0; !sin.eof(); i++)
       {
       // skip any comments
       libbase::eatcomments(sin);
@@ -50,7 +50,10 @@ void process(const std::string& fname, std::istream& sin = std::cin,
       source.serialize(sin);
       // stop here if something went wrong (e.g. incomplete block)
       if (sin.fail())
+         {
+         std::cerr << "Failed to read block " << i << std::endl;
          break;
+         }
       // encode block and push to output stream
       C<S> transmitted = system->encode_path(source);
       transmitted.serialize(sout, '\n');
