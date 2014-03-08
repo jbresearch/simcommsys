@@ -29,7 +29,10 @@
 #include "vectorutils.h"
 #include <sstream>
 #include <vector>
-//#include <Windows.h>
+/*For vector*/
+#include <numeric>
+#include <algorithm>
+#include <functional>
 
 namespace libcomm {
 
@@ -356,10 +359,18 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    
    //std::cout << "Beta and output" << std::endl;
 
+   std::vector< std::vector<double> > vec_tmp_output;
+   vec_tmp_output.resize(pow(2,k));
+
+   double out_summation = 0.0;
+   double temp_out = 0.0;
+
    for(unsigned int b = b_size; b > 0; b--)
       {
       //std::cout << b << std::endl;
       beta_total = 0.0;
+      out_summation = 0.0;
+
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
          num_bs = b_vector[b].state_bs_vector[cur_state].size();
@@ -387,13 +398,26 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Working out the output
                alpha = b_vector[b-1].state_bs_vector[prev_state][prev_bs].getalpha();
                //unsigned int inp = get_input(prev_state, cur_state);
-               //double temp = alpha * gamma * beta;
+               temp_out = alpha * gamma * beta;
 
-               outtable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+               /*Inserting output values for normalisation - BEGIN*/
+               vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+               out_summation += temp_out;
+               /*Inserting output values for normalisation - END*/
+               //outtable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
                }
             }
          }
 
+      transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
+      transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<double>(), out_summation));
+
+      outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0);
+      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0);
+
+      vec_tmp_output[0].clear();
+      vec_tmp_output[1].clear();
+       
       //Normalisation
       norm_b = b-1;
       ////system("cls");
@@ -447,6 +471,9 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       }
    ptable = outtable.extract(0,block_length);
 
+   vec_tmp_output.clear();
+   vector< vector<double> >().swap(vec_tmp_output);
+   
    b_vector.clear();
    vector<b_storage>().swap(b_vector);
 
