@@ -369,7 +369,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       {
       //std::cout << b << std::endl;
       beta_total = 0.0;
-      out_summation = 0.0;
+      //out_summation = 0.0;
 
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
@@ -409,15 +409,16 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
             }
          }
 
+
       transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
       transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<double>(), out_summation));
 
-      outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0);
-      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0);
+      outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0.0);
+      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);
 
       vec_tmp_output[0].clear();
       vec_tmp_output[1].clear();
-       
+
       //Normalisation
       norm_b = b-1;
       ////system("cls");
@@ -425,7 +426,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       //std::cout << std::endl;
 
       //double total = 0.0;
-      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      //for(unsigned int cur_state  = 0; cur_state < num_states; cur_state++)
       //   {
       //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
       //   //For all the number of bitshifts available
