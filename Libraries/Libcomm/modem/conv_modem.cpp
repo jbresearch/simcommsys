@@ -33,6 +33,10 @@
 #include <numeric>
 #include <algorithm>
 #include <functional>
+/*For overflow*/
+//#include <cfenv>
+//#include <iostream>
+
 
 namespace libcomm {
 
@@ -146,6 +150,14 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
+
+   //std::feclearexcept(FE_OVERFLOW);
+   //std::feclearexcept(FE_UNDERFLOW);
+
+
+   //std::cout << "Overflow flag before: " << (bool)std::fetestexcept(FE_OVERFLOW) << std::endl;
+   //std::cout << "Underflow flag before: " << (bool)std::fetestexcept(FE_UNDERFLOW) << std::endl;
+
    gamma_storage.clear();
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
@@ -503,6 +515,16 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    //std::cout << "Time(s): " << (double) (after-before)/1000 << std::endl;
    //std::cout << "Time(min): " << (double) ((after-before)/1000)/60 << std::endl;
    /*Timing - end*/
+
+   //if ((bool)std::fetestexcept(FE_OVERFLOW) == 1 || (bool)std::fetestexcept(FE_UNDERFLOW) == 1)
+   //   {
+   //   std::cout << "Overflow/underflow" << std::endl;
+   //   std::cin.get();
+   //   }
+
+   //std::cout << "Overflow flag after: " << (bool)std::fetestexcept(FE_OVERFLOW) << std::endl;
+   //std::cout << "Underflow flag after: " << (bool)std::fetestexcept(FE_UNDERFLOW) << std::endl;
+
    }
 
 
@@ -537,7 +559,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 template <class sig, class real, class real2>
 double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq)
    {
-   
+  
    if(gamma_storage[cur_state].size() < (cur_bs + 1)) //checking if current bit-shift location exists, if not create one
       {
       //Does not exist
@@ -564,13 +586,34 @@ double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned 
 template <class sig, class real, class real2>
 double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
    {
-   //if(orig_seq.isequalto(recv_seq))
-   //   return 1;
-   //else
-   //   return 0;
+   
+   double P_err = mychan.get_ps();
+   double P_no_err = 1 - P_err;
 
-   computer = mychan.get_computer();
-   return computer.receive(orig_seq, recv_seq);
+   int no_err = 0;
+
+   double gamma = 0.0;
+
+   if (orig_seq.size() == recv_seq.size())
+      {
+      //Calculating the Hamming distance
+      for (int cnt = 0; cnt < orig_seq.size(); cnt++)
+         {
+         if (orig_seq(cnt) != recv_seq(cnt))
+            no_err++;
+         }
+
+      gamma = pow(P_err, no_err);
+      gamma *= pow(P_no_err, orig_seq.size() - no_err);
+
+      return gamma;
+
+      }
+   else
+      return gamma;
+
+   //computer = mychan.get_computer();
+   //return computer.receive(orig_seq, recv_seq);
    }
 
 template <class sig, class real, class real2>
