@@ -36,7 +36,8 @@
 /*For overflow*/
 //#include <cfenv>
 //#include <iostream>
-
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>
 
 namespace libcomm {
 
@@ -63,7 +64,7 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
       array1s_t& tx)
    {
    //Checking that the block lenghts match
-   assert(encoded.size() == block_length);
+   //assert(encoded.size() == block_length);
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
@@ -80,6 +81,20 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s_t& tx)
    {
+
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+   //
+   //std::cout << "Original Data" << std::endl;
+
+   //for (int i = 0; i < encoded.size(); i++)
+   //   {
+   //   std::cout << encoded(i) << " ";
+   //   }
+   //std::cout << std::endl;
+   
+
+
    int out_loc = k+(no_states*2);
    int ns_loc = k+no_states;//next state location
    int encoding_counter = 0;
@@ -145,6 +160,9 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
          curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
          }
       }
+   
+   //std::cout << "Encoded data" << std::endl;
+   //print_sig(tx);
    }
 
 template <class sig, class real, class real2>
@@ -381,7 +399,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       {
       //std::cout << b << std::endl;
       beta_total = 0.0;
-      //out_summation = 0.0;
+      out_summation = 0.0;
 
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
@@ -394,29 +412,32 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
             for(unsigned int cnt_gamma = 0; cnt_gamma < size_gamma; cnt_gamma++)
                {
-               //Getting gamma
-               gamma = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getgamma();
-               //Getting beta
-               beta = b_vector[b].state_bs_vector[cur_state][cnt_bs].getbeta();
-               beta = beta * gamma;
-               beta_total += beta;
-
-               //Calculating next beta
+               //Getting previous state and bitshift
                prev_state = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getstate();
                prev_bs = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getbitshift();
                
-               b_vector[b-1].state_bs_vector[prev_state][prev_bs].setbeta(beta);
-
+               //Getting gamma
+               gamma = b_vector[b].state_bs_vector[cur_state][cnt_bs].gamma[cnt_gamma].getgamma();
+               
+               //Getting alpha
+               alpha = b_vector[b - 1].state_bs_vector[prev_state][prev_bs].getalpha();
+               
+               //Getting beta
+               beta = b_vector[b].state_bs_vector[cur_state][cnt_bs].getbeta();
+               
                //Working out the output
-               alpha = b_vector[b-1].state_bs_vector[prev_state][prev_bs].getalpha();
                //unsigned int inp = get_input(prev_state, cur_state);
-               temp_out = alpha * gamma * beta;
-
                /*Inserting output values for normalisation - BEGIN*/
+               temp_out = alpha * gamma * beta;
                vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
                out_summation += temp_out;
                /*Inserting output values for normalisation - END*/
-               //outtable(b-1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+               //outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+
+               //Working out next beta
+               beta = beta * gamma;
+               beta_total += beta;
+               b_vector[b-1].state_bs_vector[prev_state][prev_bs].setbeta(beta);
                }
             }
          }
@@ -424,7 +445,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
       transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<double>(), out_summation));
-
+      
       outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0.0);
       outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);
 
@@ -483,6 +504,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       }
    ptable = outtable.extract(0,block_length);
+   //ptable = outtable;
 
    vec_tmp_output.clear();
    vector< vector<double> >().swap(vec_tmp_output);

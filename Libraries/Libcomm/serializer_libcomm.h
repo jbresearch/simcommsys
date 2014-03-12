@@ -196,7 +196,7 @@ private:
    qam _qam;
    dminner<double> _dminner;
    tvb<bool, double, float> _tvb;
-   conv_modem<bool, double, float> _conv_modem;
+   conv_modem<bool, double, double> _conv_modem;
    //conv<bool, double, float> _conv;
    conv<bool, double, float> _conv;
    marker<bool, double, float> _marker;
