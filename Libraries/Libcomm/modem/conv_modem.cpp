@@ -609,33 +609,33 @@ template <class sig, class real, class real2>
 double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
    {
    
-   double P_err = mychan.get_ps();
-   double P_no_err = 1 - P_err;
+   //double P_err = mychan.get_ps();
+   //double P_no_err = 1 - P_err;
 
-   int no_err = 0;
+   //int no_err = 0;
 
-   double gamma = 0.0;
+   //double gamma = 0.0;
 
-   if (orig_seq.size() == recv_seq.size())
-      {
-      //Calculating the Hamming distance
-      for (int cnt = 0; cnt < orig_seq.size(); cnt++)
-         {
-         if (orig_seq(cnt) != recv_seq(cnt))
-            no_err++;
-         }
+   //if (orig_seq.size() == recv_seq.size())
+   //   {
+   //   //Calculating the Hamming distance
+   //   for (int cnt = 0; cnt < orig_seq.size(); cnt++)
+   //      {
+   //      if (orig_seq(cnt) != recv_seq(cnt))
+   //         no_err++;
+   //      }
 
-      gamma = pow(P_err, no_err);
-      gamma *= pow(P_no_err, orig_seq.size() - no_err);
+   //   gamma = pow(P_err, no_err);
+   //   gamma *= pow(P_no_err, orig_seq.size() - no_err);
 
-      return gamma;
+   //   return gamma;
 
-      }
-   else
-      return gamma;
+   //   }
+   //else
+   //   return gamma;
 
-   //computer = mychan.get_computer();
-   //return computer.receive(orig_seq, recv_seq);
+   computer = mychan.get_computer();
+   return computer.receive(orig_seq, recv_seq);
    }
 
 template <class sig, class real, class real2>
