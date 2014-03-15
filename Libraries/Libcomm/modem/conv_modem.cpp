@@ -249,7 +249,12 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       if(b >= (unsigned int) block_length) //this is tailing so input is always 0
          inp_combinations = 1;
 
-      b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+      /*Taking care of tailing for last decoded bit*/
+      if ((b + 1) == b_size)
+         b_vector[b + 1].setmin_bs(b_size*n);
+      else
+         b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+      
       //For all the number of states
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
@@ -274,7 +279,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   symb_shift = floor(double(drift)/double(n));
                   /*Calculating the current drift - END*/
 
-                  if(symb_shift <= rho)
+                  //if(symb_shift <= rho)
+                  if ( (((b + 1) == b_size) && drift == 0) || (((b+1) < b_size) && (symb_shift <= rho)))
                      {
                      get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
 
@@ -315,8 +321,10 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                      }
                   else
                      {
-                     if(b_vector[b+1].getmin_bs() == next_bs)
-                        b_vector[b+1].setmin_bs(++next_bs);
+                     if (b_vector[b + 1].getmin_bs() == next_bs)
+                        b_vector[b + 1].setmin_bs(++next_bs);
+                     else
+                        next_bs++;
                      }
 
                   }
