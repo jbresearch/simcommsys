@@ -332,35 +332,35 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
             }
          }
 
-      //Normalisation
-      norm_b = b+1;
-      ////system("cls");
-      //std::cout << "Before Norm" << std::endl;
-      //std::cout << std::endl;
+      ////Normalisation
+      //norm_b = b+1;
+      //////system("cls");
+      ////std::cout << "Before Norm" << std::endl;
+      ////std::cout << std::endl;
 
-      //double total = 0.0;
+      ////double total = 0.0;
+      ////for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      ////   {
+      ////   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+      ////   //For all the number of bitshifts available
+      ////   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+      ////      {
+      ////      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
+      ////      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
+      ////      }
+      ////   }
+      ////std::cout << std::endl;
+      ////std::cout << "Total is: " << total << std::endl;
+
       //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
       //   {
       //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
       //   //For all the number of bitshifts available
       //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
       //      {
-      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
-      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
+      //      b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normalpha(alpha_total);
       //      }
       //   }
-      //std::cout << std::endl;
-      //std::cout << "Total is: " << total << std::endl;
-
-      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
-         {
-         num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-         //For all the number of bitshifts available
-         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-            {
-            b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normalpha(alpha_total);
-            }
-         }
 
       //total = 0.0;
       //std::cout << std::endl;
@@ -436,11 +436,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Working out the output
                //unsigned int inp = get_input(prev_state, cur_state);
                /*Inserting output values for normalisation - BEGIN*/
-               temp_out = alpha * gamma * beta;
+               /*temp_out = alpha * gamma * beta;
                vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
-               out_summation += temp_out;
+               out_summation += temp_out;*/
                /*Inserting output values for normalisation - END*/
-               //outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+               outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
 
                //Working out next beta
                beta = beta * gamma;
@@ -451,44 +451,44 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          }
 
 
-      transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
+      /*transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
       transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<double>(), out_summation));
       
       outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0.0);
-      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);
+      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);*/
 
       vec_tmp_output[0].clear();
       vec_tmp_output[1].clear();
 
-      //Normalisation
-      norm_b = b-1;
-      ////system("cls");
-      //std::cout << "Before Norm" << std::endl;
-      //std::cout << std::endl;
+      ////Normalisation
+      //norm_b = b-1;
+      //////system("cls");
+      ////std::cout << "Before Norm" << std::endl;
+      ////std::cout << std::endl;
 
-      //double total = 0.0;
-      //for(unsigned int cur_state  = 0; cur_state < num_states; cur_state++)
+      ////double total = 0.0;
+      ////for(unsigned int cur_state  = 0; cur_state < num_states; cur_state++)
+      ////   {
+      ////   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+      ////   //For all the number of bitshifts available
+      ////   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+      ////      {
+      ////      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
+      ////      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
+      ////      }
+      ////   }
+      ////std::cout << std::endl;
+      ////std::cout << "Total is: " << total << std::endl;
+
+      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
       //   {
       //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
       //   //For all the number of bitshifts available
       //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
       //      {
-      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
-      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
+      //      b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normbeta(beta_total);
       //      }
       //   }
-      //std::cout << std::endl;
-      //std::cout << "Total is: " << total << std::endl;
-
-      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
-         {
-         num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-         //For all the number of bitshifts available
-         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-            {
-            b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normbeta(beta_total);
-            }
-         }
 
       
 
@@ -556,8 +556,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    //std::cout << "Underflow flag after: " << (bool)std::fetestexcept(FE_UNDERFLOW) << std::endl;
 
    }
-
-
 
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::print_sig(array1s_t& data)
@@ -644,7 +642,109 @@ double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& 
 
    computer = mychan.get_computer();
    return computer.receive(orig_seq, recv_seq);
+
+   //std::string original = "";
+   //std::string received = "";
+   //
+   //for (int i = 0; i < orig_seq.size(); i++)
+   //   {
+   //   original = original + toString(orig_seq(i));
+   //   }
+
+   //for (int i = 0; i < recv_seq.size(); i++)
+   //   {
+   //   received = received + toString(recv_seq(i));
+   //   }
+
+   //return sleven(original, received, 0, 100000, 100000);
    }
+
+/*Levenshtein Distance*/
+template <class sig, class real, class real2>
+int conv_modem<sig, real, real2>::sleven(std::string string1, std::string string2, int sub, int ins, int del)
+   {
+   int i, j,
+      *dist1,
+      *dist2,
+      *logic1,
+      *logic2,
+      //*swap_temp,
+      cost,
+      newd,
+      distance;
+
+
+   int len1 = string1.size();
+   int len2 = string2.size();
+
+   /*Allocate memory to store two columns in the distance matrix */
+   dist1 = (int *)malloc(sizeof(*dist1) * (size_t)(len2 + 1));
+   dist2 = (int *)malloc(sizeof(*dist2) * (size_t)(len2 + 1));
+
+
+   /*Initialise the logical pointers to the two columns, these would be swapped
+   as we go along so as to maintain always the last two columns */
+   logic1 = &dist1[0];
+   logic2 = &dist2[0];
+
+   /*Initialise the first column to all insertions */
+   logic1[0] = 0;
+   for (j = 1; j <= len2; j++)
+      logic1[j] = logic1[j - 1] + ins;
+
+
+
+   /*Do for all columns */
+   for (i = 0; i<len1; i++)
+      {              /*Initialise always the first row to all deletions */
+      logic2[0] = logic1[0] + del;
+
+
+      for (j = 0; j<len2; j++)
+         {
+         /*Determine if this is an insertion, deletion or a possible
+         substitution by choosing the minimum*/
+         if (string1[i] == string2[j])
+            cost = 0;
+         else
+            cost = sub;
+
+
+         /*Try substitution*/
+         cost += logic1[j];
+
+
+
+         /*Try insertion*/
+         newd = logic2[j] + ins;
+         if (newd < cost)
+            cost = newd;
+
+
+
+         /*Try deletion*/
+         newd = logic1[j + 1] + del;
+         if (newd < cost)
+            cost = newd;
+
+
+         logic2[j + 1] = cost;
+
+         }
+
+      /*Make the last calculated column to be logic1*/
+      swap(logic1, logic2);
+      }
+
+
+   distance = logic1[len2];
+   free(dist1);
+   free(dist2);
+
+   return distance;
+
+   }
+
 
 template <class sig, class real, class real2>
 int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
