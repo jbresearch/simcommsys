@@ -250,7 +250,7 @@ private:
       double get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq);
       double work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
       
-      int conv_modem<sig, real, real2>::sleven(std::string string1, std::string string2, int sub, int ins, int del);
+      int sleven(std::string string1, std::string string2, int sub, int ins, int del);
 
       int get_next_state(int input, int curr_state);
       

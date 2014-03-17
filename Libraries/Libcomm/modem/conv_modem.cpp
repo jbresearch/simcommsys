@@ -332,35 +332,35 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
             }
          }
 
-      ////Normalisation
-      //norm_b = b+1;
-      //////system("cls");
-      ////std::cout << "Before Norm" << std::endl;
-      ////std::cout << std::endl;
+      //Normalisation
+      norm_b = b+1;
+      ////system("cls");
+      //std::cout << "Before Norm" << std::endl;
+      //std::cout << std::endl;
 
-      ////double total = 0.0;
-      ////for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
-      ////   {
-      ////   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-      ////   //For all the number of bitshifts available
-      ////   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-      ////      {
-      ////      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
-      ////      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
-      ////      }
-      ////   }
-      ////std::cout << std::endl;
-      ////std::cout << "Total is: " << total << std::endl;
-
+      //double total = 0.0;
       //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
       //   {
       //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
       //   //For all the number of bitshifts available
       //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
       //      {
-      //      b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normalpha(alpha_total);
+      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
+      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
       //      }
       //   }
+      //std::cout << std::endl;
+      //std::cout << "Total is: " << total << std::endl;
+
+      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+         {
+         num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+         //For all the number of bitshifts available
+         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+            {
+            b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normalpha(alpha_total);
+            }
+         }
 
       //total = 0.0;
       //std::cout << std::endl;
@@ -436,11 +436,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Working out the output
                //unsigned int inp = get_input(prev_state, cur_state);
                /*Inserting output values for normalisation - BEGIN*/
-               /*temp_out = alpha * gamma * beta;
+               temp_out = alpha * gamma * beta;
                vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
-               out_summation += temp_out;*/
+               out_summation += temp_out;
                /*Inserting output values for normalisation - END*/
-               outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
+               //outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
 
                //Working out next beta
                beta = beta * gamma;
@@ -451,44 +451,44 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          }
 
 
-      /*transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
+      transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
       transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<double>(), out_summation));
       
       outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0.0);
-      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);*/
+      outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);
 
       vec_tmp_output[0].clear();
       vec_tmp_output[1].clear();
 
-      ////Normalisation
-      //norm_b = b-1;
-      //////system("cls");
-      ////std::cout << "Before Norm" << std::endl;
-      ////std::cout << std::endl;
+      //Normalisation
+      norm_b = b-1;
+      ////system("cls");
+      //std::cout << "Before Norm" << std::endl;
+      //std::cout << std::endl;
 
-      ////double total = 0.0;
-      ////for(unsigned int cur_state  = 0; cur_state < num_states; cur_state++)
-      ////   {
-      ////   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-      ////   //For all the number of bitshifts available
-      ////   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-      ////      {
-      ////      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
-      ////      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
-      ////      }
-      ////   }
-      ////std::cout << std::endl;
-      ////std::cout << "Total is: " << total << std::endl;
-
-      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+      //double total = 0.0;
+      //for(unsigned int cur_state  = 0; cur_state < num_states; cur_state++)
       //   {
       //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
       //   //For all the number of bitshifts available
       //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
       //      {
-      //      b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normbeta(beta_total);
+      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
+      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
       //      }
       //   }
+      //std::cout << std::endl;
+      //std::cout << "Total is: " << total << std::endl;
+
+      for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
+         {
+         num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+         //For all the number of bitshifts available
+         for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
+            {
+            b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normbeta(beta_total);
+            }
+         }
 
       
 
@@ -554,6 +554,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    //std::cout << "Overflow flag after: " << (bool)std::fetestexcept(FE_OVERFLOW) << std::endl;
    //std::cout << "Underflow flag after: " << (bool)std::fetestexcept(FE_UNDERFLOW) << std::endl;
+
+   //ptable = outtable.extract(0, block_length);
 
    }
 
