@@ -227,6 +227,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    unsigned int drift = 0;
    unsigned int symb_shift = 0;//the current number of symbol shifts
 
+   unsigned int recv_size = rx.size()-1;
+
    /*initialising outtable - BEGIN*/
    array1vd_t outtable;
    outtable.init(b_size-1);
@@ -251,7 +253,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       /*Taking care of tailing for last decoded bit*/
       if ((b + 1) == b_size)
-         b_vector[b + 1].setmin_bs(b_size*n);
+         b_vector[b + 1].setmin_bs(recv_size);
+         //b_vector[b + 1].setmin_bs(b_size*n);
       else
          b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
       
@@ -276,11 +279,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   {
                   /*Calculating the current drift - BEGIN*/
                   drift = abs(int (next_bs - (b+1)*n));
-                  symb_shift = floor(double(drift)/double(n));
+                  symb_shift = ceil(double(drift)/double(n));
                   /*Calculating the current drift - END*/
 
                   //if(symb_shift <= rho)
-                  if ( (((b + 1) == b_size) && drift == 0) || (((b+1) < b_size) && (symb_shift <= rho)))
+                  if ( (((b + 1) == b_size) && next_bs == recv_size) || (((b+1) < b_size) && (symb_shift <= rho)))
                      {
                      get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
 
@@ -387,7 +390,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    int test2 = b_vector[b_size].getmin_bs();
 
    int result_loc = test - test2;*/
-   b_vector[b_size].state_bs_vector[0][(n*b_size) - b_vector[b_size].getmin_bs()].setbeta(1);
+   b_vector[b_size].state_bs_vector[0][0].setbeta(1);
+   //b_vector[b_size].state_bs_vector[0][(n*b_size) - b_vector[b_size].getmin_bs()].setbeta(1);
    /*Setting up the first beta value - END*/
 
    unsigned int size_gamma = 0;
