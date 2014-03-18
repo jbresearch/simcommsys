@@ -64,37 +64,14 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
       array1s_t& tx)
    {
    //Checking that the block lenghts match
-   //assert(encoded.size() == block_length);
+   assert(encoded.size() == block_length);
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
-
-   //std::cout << "Encoded" << std::endl;
-   //for(int x = 0; x < encoded.size(); x++)
-   //   std::cout << encoded(x) << " ";
-
-   //std::cout << std::endl;
-   //std::cout << "Transmitted" << std::endl;
-   //for(int x = 0; x < tx.size(); x++)
-   //   std::cout << tx(x) << " ";
    }
 
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s_t& tx)
    {
-
-   //std::cout << std::endl;
-   //std::cout << std::endl;
-   //
-   //std::cout << "Original Data" << std::endl;
-
-   //for (int i = 0; i < encoded.size(); i++)
-   //   {
-   //   std::cout << encoded(i) << " ";
-   //   }
-   //std::cout << std::endl;
-   
-
-
    int out_loc = k+(no_states*2);
    int ns_loc = k+no_states;//next state location
    int encoding_counter = 0;
@@ -161,33 +138,15 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
          }
       }
    
-   //std::cout << "Encoded data" << std::endl;
-   //print_sig(tx);
    }
 
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
 
-   //std::feclearexcept(FE_OVERFLOW);
-   //std::feclearexcept(FE_UNDERFLOW);
-
-
-   //std::cout << "Overflow flag before: " << (bool)std::fetestexcept(FE_OVERFLOW) << std::endl;
-   //std::cout << "Underflow flag before: " << (bool)std::fetestexcept(FE_UNDERFLOW) << std::endl;
-
    gamma_storage.clear();
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
-
-   //std::cout << std::endl;
-   //std::cout << "Received" << std::endl;
-   //for(int x = 0; x < rx.size(); x++)
-   //   std::cout << rx(x) << " ";
-
-   /*Timing - begin*/
-   //long int before = GetTickCount();
-   /*Timing - end*/
 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
@@ -286,33 +245,17 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                         symb_shift = ceil(double(drift) / double(n));
                         /*Calculating the current drift - END*/
 
-                        //if(symb_shift <= rho)
                         if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-
-                           //system("cls");
-                           //std::cout << "Original" << std::endl;
-                           //print_sig(orig_codeword);
-                           //std::cout << "Received" << std::endl;
-                           //print_sig(recv_codeword);
-
-                           //Work gamma
-                           /**/
-                           //gamma = work_gamma(orig_codeword,recv_codeword);
-
                            gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
-
 
                            //Work alpha
                            unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
                            unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
-                           //For debugging
-                           alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
-                           alpha = gamma * alpha;
-                           alpha_total += alpha;
                            //For release
-                           //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
+                           alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                           alpha_total += alpha;
 
                            //storing gamma
                            /*Check whether bit shift location is already available - Begin*/
@@ -343,61 +286,21 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       //Normalisation
       norm_b = b+1;
-      ////system("cls");
-      //std::cout << "Before Norm" << std::endl;
-      //std::cout << std::endl;
-
-      //double total = 0.0;
-      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
-      //   {
-      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-      //   //For all the number of bitshifts available
-      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-      //      {
-      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
-      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
-      //      }
-      //   }
-      //std::cout << std::endl;
-      //std::cout << "Total is: " << total << std::endl;
 
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
          num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
+         
          //For all the number of bitshifts available
          for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
             {
             b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normalpha(alpha_total);
             }
          }
-
-      //total = 0.0;
-      //std::cout << std::endl;
-      //std::cout << "After Norm" << std::endl;
-      //std::cout << std::endl;
-
-      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
-      //   {
-      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-      //   //For all the number of bitshifts available
-      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-      //      {
-      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha() << std::endl;
-      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getalpha();
-      //      }
-      //   }
-      //std::cout << std::endl;
-      //std::cout << "Total is: " << total << std::endl;
-
       }
 
    /*Setting up the first beta value - BEGIN*/
-   /*int test = n * b_size;
-   int test2 = b_vector[b_size].getmin_bs();
-
-   int result_loc = test - test2;*/
    b_vector[b_size].state_bs_vector[0][0].setbeta(1);
-   //b_vector[b_size].state_bs_vector[0][(n*b_size) - b_vector[b_size].getmin_bs()].setbeta(1);
    /*Setting up the first beta value - END*/
 
    unsigned int size_gamma = 0;
@@ -405,8 +308,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    unsigned int prev_bs = 0;
    unsigned int prev_state = 0;
    
-   //std::cout << "Beta and output" << std::endl;
-
    std::vector< std::vector<double> > vec_tmp_output;
    vec_tmp_output.resize(pow(2,k));
 
@@ -415,7 +316,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    for(unsigned int b = b_size; b > 0; b--)
       {
-      //std::cout << b << std::endl;
       beta_total = 0.0;
       out_summation = 0.0;
 
@@ -444,13 +344,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                beta = b_vector[b].state_bs_vector[cur_state][cnt_bs].getbeta();
                
                //Working out the output
-               //unsigned int inp = get_input(prev_state, cur_state);
                /*Inserting output values for normalisation - BEGIN*/
                temp_out = alpha * gamma * beta;
                vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
                out_summation += temp_out;
                /*Inserting output values for normalisation - END*/
-               //outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
 
                //Working out next beta
                beta = beta * gamma;
@@ -472,23 +370,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
       //Normalisation
       norm_b = b-1;
-      ////system("cls");
-      //std::cout << "Before Norm" << std::endl;
-      //std::cout << std::endl;
-
-      //double total = 0.0;
-      //for(unsigned int cur_state  = 0; cur_state < num_states; cur_state++)
-      //   {
-      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-      //   //For all the number of bitshifts available
-      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-      //      {
-      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
-      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
-      //      }
-      //   }
-      //std::cout << std::endl;
-      //std::cout << "Total is: " << total << std::endl;
 
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
          {
@@ -499,74 +380,14 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
             b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].normbeta(beta_total);
             }
          }
-
-      
-
-      //total = 0.0;
-      //std::cout << std::endl;
-      //std::cout << "After Norm" << std::endl;
-      //std::cout << std::endl;
-
-      //for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
-      //   {
-      //   num_bs = b_vector[norm_b].state_bs_vector[cur_state].size();
-      //   //For all the number of bitshifts available
-      //   for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
-      //      {
-      //      std::cout << b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta() << std::endl;
-      //      total += b_vector[norm_b].state_bs_vector[cur_state][cnt_bs].getbeta();
-      //      }
-      //   }
-      //std::cout << std::endl;
-      //std::cout << "Total is: " << total << std::endl;
-
       }
    ptable = outtable.extract(0,block_length);
-   //ptable = outtable;
 
    vec_tmp_output.clear();
    vector< vector<double> >().swap(vec_tmp_output);
    
    b_vector.clear();
    vector<b_storage>().swap(b_vector);
-
-   //std::cout << std::endl;
-   //std::cout << "Decoded" << std::endl;   
-   //for(int k = 0; k < ptable.size(); k++)
-   //   {
-   //   if(ptable(k)(0) > ptable(k)(1))
-   //      std::cout << "0 ";
-   //   else
-   //      std::cout << "1 ";
-   //   }
-
-   //std::cout << std::endl;
-   //std::cout << std::endl;
-
-   //for(int k = 0; k < ptable.size(); k++)
-   //   std::cout << ptable(k) << std::endl;
-      
-
-   //std::cout << std::endl;
-   //std::cout << std::endl;
-   ///*Timing - begin*/
-   //long int after = GetTickCount();
-   //std::cout << "Time(ms): " << after-before << std::endl;
-   //std::cout << "Time(s): " << (double) (after-before)/1000 << std::endl;
-   //std::cout << "Time(min): " << (double) ((after-before)/1000)/60 << std::endl;
-   /*Timing - end*/
-
-   //if ((bool)std::fetestexcept(FE_OVERFLOW) == 1 || (bool)std::fetestexcept(FE_UNDERFLOW) == 1)
-   //   {
-   //   std::cout << "Overflow/underflow" << std::endl;
-   //   std::cin.get();
-   //   }
-
-   //std::cout << "Overflow flag after: " << (bool)std::fetestexcept(FE_OVERFLOW) << std::endl;
-   //std::cout << "Underflow flag after: " << (bool)std::fetestexcept(FE_UNDERFLOW) << std::endl;
-
-   //ptable = outtable.extract(0, block_length);
-
    }
 
 template <class sig, class real, class real2>
