@@ -227,7 +227,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    unsigned int drift = 0;
    unsigned int symb_shift = 0;//the current number of symbol shifts
 
-   unsigned int recv_size = rx.size()-1;
+   unsigned int recv_size = rx.size();
 
    /*initialising outtable - BEGIN*/
    array1vd_t outtable;
@@ -267,69 +267,75 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          for(unsigned int cnt_bs = 0; cnt_bs < num_bs; cnt_bs++)
             {
             cur_bs = b_vector[b].getmin_bs() + cnt_bs;
-
-            for(unsigned int input = 0; input < inp_combinations; input++)
+            
+            if (cur_bs < recv_size)
                {
-               next_state = get_next_state(input, cur_state);
-               next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
-
-               get_output(input, cur_state, orig_codeword);
-               
-               for(unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
+               for (unsigned int input = 0; input < inp_combinations; input++)
                   {
-                  /*Calculating the current drift - BEGIN*/
-                  drift = abs(int (next_bs - (b+1)*n));
-                  symb_shift = ceil(double(drift)/double(n));
-                  /*Calculating the current drift - END*/
+                  next_state = get_next_state(input, cur_state);
+                  next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
 
-                  //if(symb_shift <= rho)
-                  if ( (((b + 1) == b_size) && next_bs == recv_size) || (((b+1) < b_size) && (symb_shift <= rho)))
+                  if (next_bs <= recv_size)
                      {
-                     get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+                     get_output(input, cur_state, orig_codeword);
 
-                     //system("cls");
-                     //std::cout << "Original" << std::endl;
-                     //print_sig(orig_codeword);
-                     //std::cout << "Received" << std::endl;
-                     //print_sig(recv_codeword);
+                     for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
+                        {
+                        /*Calculating the current drift - BEGIN*/
+                        drift = abs(int(next_bs - (b + 1)*n));
+                        symb_shift = ceil(double(drift) / double(n));
+                        /*Calculating the current drift - END*/
 
-                     //Work gamma
-                     /**/
-                     //gamma = work_gamma(orig_codeword,recv_codeword);
-                  
-                     gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
-                  
-                  
-                     //Work alpha
-                     unsigned int st_cur_bs = (cur_bs-b_vector[b].getmin_bs());//the actual store location for current bs
-                     unsigned int st_nxt_bs = (next_bs - b_vector[b+1].getmin_bs());//the actual store location for next bs
-                     //For debugging
-                     alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
-                     alpha = gamma * alpha;
-                     alpha_total += alpha;
-                     //For release
-                     //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
+                        //if(symb_shift <= rho)
+                        if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
+                           {
+                           get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
 
-                     //storing gamma
-                     /*Check whether bit shift location is already available - Begin*/
-                     if(b_vector[b+1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
-                        b_vector[b+1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
-                     /*Check whether bit shift location is already available - End*/
+                           //system("cls");
+                           //std::cout << "Original" << std::endl;
+                           //print_sig(orig_codeword);
+                           //std::cout << "Received" << std::endl;
+                           //print_sig(recv_codeword);
 
-                     b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state,st_cur_bs,gamma));
-                     //storing alpha
-                     b_vector[b+1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+                           //Work gamma
+                           /**/
+                           //gamma = work_gamma(orig_codeword,recv_codeword);
 
-                     next_bs++;//Incrementing next_bs
+                           gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+
+
+                           //Work alpha
+                           unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
+                           unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
+                           //For debugging
+                           alpha = b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                           alpha = gamma * alpha;
+                           alpha_total += alpha;
+                           //For release
+                           //alpha = gamma * b_vector[b].state_bs_vector[cur_state][cur_bs].getalpha();
+
+                           //storing gamma
+                           /*Check whether bit shift location is already available - Begin*/
+                           if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
+                              b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
+                           /*Check whether bit shift location is already available - End*/
+
+                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
+                           //storing alpha
+                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+
+                           next_bs++;//Incrementing next_bs
+                           }
+                        else
+                           {
+                           if (b_vector[b + 1].getmin_bs() == next_bs)
+                              b_vector[b + 1].setmin_bs(++next_bs);
+                           else
+                              next_bs++;
+                           }
+
+                        }
                      }
-                  else
-                     {
-                     if (b_vector[b + 1].getmin_bs() == next_bs)
-                        b_vector[b + 1].setmin_bs(++next_bs);
-                     else
-                        next_bs++;
-                     }
-
                   }
                }
             }
@@ -611,7 +617,7 @@ double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned 
       }
 
    //The value of gamma is not found need to be worked out
-   double gamma = work_gamma(orig_seq,recv_seq);
+   double gamma = work_gamma(orig_seq, recv_seq);
    gamma_storage[cur_state][cur_bs].push_back(Gamma_Storage(next_state, next_bs, gamma));
 
    return gamma;
@@ -800,6 +806,16 @@ void conv_modem<sig, real, real2>::get_output(int input, int curr_state, array1s
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::get_received(unsigned int b, unsigned int cur_bs, unsigned int next_bs, unsigned int no_del, const array1s_t& rx, array1s_t& recv_codeword)
    {
+   
+   //if (cur_bs > rx.size())
+   //   {
+   //   recv_codeword.init(0);
+   //   break;
+   //   }
+
+   //if (next_bs > (unsigned int) (rx.size()+1))
+   //   recv_codeword.init(rx.size() - cur_bs);
+   //else
    recv_codeword.init(next_bs-cur_bs);               
 
    unsigned int count = 0;
