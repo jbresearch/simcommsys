@@ -232,7 +232,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       /*Taking care of tailing for last decoded bit*/
       if ((b + 1) == b_size)
          b_vector[b + 1].setmin_bs(recv_size);
-         //b_vector[b + 1].setmin_bs(b_size*n);
       else
          b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
       
@@ -253,8 +252,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   next_state = get_next_state(input, cur_state);
                   next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
 
-                  if (next_bs <= recv_size)
-                     {
+                  //if (next_bs <= recv_size)
+                     //{
                      get_output(input, cur_state, orig_codeword);
 
                      for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
@@ -297,7 +296,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                            }
 
                         }
-                     }
+                     //}
                   }
                }
             }
