@@ -84,3 +84,23 @@ class b_storage
          min_bs = 0;
          }
    };
+
+class state_output
+   {
+   private:
+      unsigned int next_state, output;
+   public:
+      /*Setters*/
+      void set_next_state(unsigned int next_state){ this->next_state = next_state; }
+      void set_output(unsigned int output){ this->output = output; }
+      /*Getters*/
+      unsigned int get_next_state(void){ return next_state; }
+      unsigned int get_output(void){ return output; }
+
+      /*Constructor*/
+      state_output()
+         {
+         next_state = 0;
+         output = 0;
+         }
+   };

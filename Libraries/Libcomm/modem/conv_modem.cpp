@@ -67,6 +67,26 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    assert(encoded.size() == block_length);
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
+
+   //std::cout << "Encoded: " << std::endl;
+
+   //for (int i = 0; i < encoded.size(); i++)
+   //   {
+   //   std::cout << encoded(i) << " ";
+   //   }
+
+   //std::cout << std::endl;
+   //std::cout << "Tx: " << std::endl;
+
+   //for (int i = 0; i < tx.size(); i++)
+   //   {
+   //   std::cout << tx(i) << " ";
+   //   }
+
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+   //disp_statetable();
+
    }
 
 template <class sig, class real, class real2>
@@ -144,6 +164,8 @@ template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
 
+   int t = bin2int("1101");
+
    gamma_storage.clear();
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
@@ -155,7 +177,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    unsigned int b_size = block_length + m + 1;
 
-   unsigned int num_states = pow(2,no_states);
+   unsigned int num_states = pow(2, no_states);
 
    vector<b_storage> b_vector(b_size, b_storage(num_states));
 
@@ -582,7 +604,8 @@ int conv_modem<sig, real, real2>::sleven(std::string string1, std::string string
 template <class sig, class real, class real2>
 int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
    {
-   int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
+   return int_statetable[input][curr_state].get_next_state();
+   /*int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
    int next_state_loc = k + no_states;
    std::string str_nxt_state = "";
    
@@ -592,7 +615,7 @@ int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
       next_state_loc++;
       }
 
-   return bin2int(str_nxt_state);
+   return bin2int(str_nxt_state);*/
    }
 
 template <class sig, class real, class real2>
@@ -609,19 +632,26 @@ unsigned int conv_modem<sig, real, real2>::get_input(unsigned int cur_state, uns
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::get_output(int input, int curr_state, array1s_t& output)
    {
-   int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
+   output.init(n);
+
+   int _output = int_statetable[input][curr_state].get_output();
+   
+   for (int cnt = n - 1; cnt >= 0; cnt--)
+      {
+      output(cnt) = _output & 1;
+      _output = _output >> 1;
+      }
+
+   /*int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
    int out_loc = k + (no_states * 2);
    
-   output.init(n);
+   t_output.init(n);
    
-   //std::string str_output = "";
    for(int cnt = 0; cnt < n;cnt++)
       {
-      output(cnt) = statetable(state_table_row, out_loc);
-      //std::cout << output(cnt) << std::endl;
-      //str_output += toChar(statetable(state_table_row, out_loc));
+      t_output(cnt) = statetable(state_table_row, out_loc);
       out_loc++;
-      }
+      }*/
    }
 
 template <class sig, class real, class real2>
@@ -730,6 +760,8 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> no_ins >> libbase::verify;
    sin >> libbase::eatcomments >> rho >> libbase::verify;
    
+   /*Filling int_statetable*/
+   fill_intstatetable();
    return sin;
    }
 
@@ -870,6 +902,48 @@ void conv_modem<sig, real, real2>::fill_state_diagram_ff(int *m_arr)
    //disp_statetable();
    }
 
+template <class sig, class real, class real2>
+void conv_modem<sig, real, real2>::fill_intstatetable(void)
+   {
+   unsigned int rows = pow(2, k);
+   unsigned int cols = pow(2, no_states);
+
+   int_statetable.resize(rows, vector<state_output>(cols));
+
+   unsigned int out_loc = k + (no_states * 2);
+   unsigned int cur_state_loc = k;
+   unsigned int next_state_loc = k + no_states;
+
+   std::string input = "";
+   std::string cur_state = "";
+   std::string next_state = "";
+   std::string output = "";
+
+   for (int state_table_row = 0; state_table_row < statetable.size().rows(); state_table_row++)
+      {
+      /*Getting Input*/
+      for (int cnt = 0; cnt < k; cnt++)
+         input += toChar(statetable(state_table_row, cnt));
+      /*Getting Current State*/
+      for (int cnt = 0; cnt < no_states; cnt++)
+         cur_state += toChar(statetable(state_table_row, cnt + cur_state_loc));
+      /*Getting Next State*/
+      for (int cnt = 0; cnt < no_states; cnt++)
+         next_state += toChar(statetable(state_table_row, cnt + next_state_loc));
+      /*Getting Output*/
+      for (int cnt = 0; cnt < n; cnt++)
+         output += toChar(statetable(state_table_row, cnt + out_loc));
+
+      int_statetable[bin2int(input)][bin2int(cur_state)].set_next_state(bin2int(next_state));
+      int_statetable[bin2int(input)][bin2int(cur_state)].set_output(bin2int(output));
+
+      /*Resetting Variables*/
+      input = "";
+      cur_state = "";
+      next_state = "";
+      output = "";
+      }
+   }
 
 /*This function converts an integer to a binary String stream.
 Input is the integer that needs to be converted
@@ -929,22 +1003,33 @@ template <class sig, class real, class real2>
 int conv_modem<sig, real, real2>::bin2int(std::string binary)
 {
 	int result = 0;
+        unsigned int str_size = binary.size() - 1;
 
-	reverse(binary.begin(), binary.end());
+        for (unsigned int i = 0; i < str_size; i++)
+           {
+           result = (result | (binary[i]-'0')) << 1;
+           }
 
-	for(unsigned int i = 0; i < binary.size();i++)
-	{
-		if(binary[i] == '1')
-		{
-			result = result + (int) pow(2,i);
-		}
-	}
-	return result;
+        result = result | (binary[str_size] - '0');
+
+        return result;
+
+	//reverse(binary.begin(), binary.end());
+
+	//for(unsigned int i = 0; i < binary.size();i++)
+	//{
+	//	if(binary[i] == '1')
+	//	{
+	//		result = result + (int) pow(2,i);
+	//	}
+	//}
+	
 }
 
 template <class sig, class real, class real2>
 std::string conv_modem<sig, real, real2>::int2bin(int input, int size)
    {
+
    std::string binary_stream = "";
    std::stringstream out;
 
