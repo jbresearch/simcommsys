@@ -163,9 +163,6 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
-
-   int t = bin2int("1101");
-
    gamma_storage.clear();
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
