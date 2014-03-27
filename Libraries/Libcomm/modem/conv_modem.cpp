@@ -34,10 +34,10 @@
 #include <algorithm>
 #include <functional>
 /*For overflow*/
-//#include <cfenv>
-//#include <iostream>
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>
+#include <cfenv>
+#include <iostream>
+//#include <stdlib.h>     /* srand, rand */
+//#include <time.h>
 
 namespace libcomm {
 
@@ -135,29 +135,31 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
          }
       }
 
-   //Tailing off
-   for(int tailoff_cnt = 0; tailoff_cnt < m; tailoff_cnt++)
+   if (no_states > 0)//1 state change
       {
-      input = "";
-      for(int inp_cnt = 0;inp_cnt < k;inp_cnt++)
+      //Tailing off
+      for (int tailoff_cnt = 0; tailoff_cnt < m; tailoff_cnt++)
          {
-         input += "0";
-         }
+         input = "";
+         for (int inp_cnt = 0; inp_cnt < k; inp_cnt++)
+            {
+            input += "0";
+            }
 
-      input_and_state = input + curr_state;
-      row = bin2int(input_and_state);
-      for(int out_cnt = 0; out_cnt < n; out_cnt++)
-         {
-         tx(tx_cnt) = statetable(row, out_loc+out_cnt);
-         tx_cnt++;
-         }
-      
-      for(int cnt = 0; cnt < no_states; cnt++)
-         {
-         curr_state[cnt] = toChar(statetable(row,ns_loc+cnt));
+         input_and_state = input + curr_state;
+         row = bin2int(input_and_state);
+         for (int out_cnt = 0; out_cnt < n; out_cnt++)
+            {
+            tx(tx_cnt) = statetable(row, out_loc + out_cnt);
+            tx_cnt++;
+            }
+
+         for (int cnt = 0; cnt < no_states; cnt++)
+            {
+            curr_state[cnt] = toChar(statetable(row, ns_loc + cnt));
+            }
          }
       }
-   
    }
 
 template <class sig, class real, class real2>
@@ -226,14 +228,25 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       alpha_total = 0.0;
       beta_total = 0.0;
 
-      if(b >= (unsigned int) block_length) //this is tailing so input is always 0
-         inp_combinations = 1;
+      
+      if (no_states > 0)//1 state change
+         {
+         if (b >= (unsigned int)block_length) //this is tailing so input is always 0
+            inp_combinations = 1;
+         }
 
       /*Taking care of tailing for last decoded bit*/
-      if ((b + 1) == b_size)
-         b_vector[b + 1].setmin_bs(recv_size);
+      if (no_states > 0)
+         {
+         if ((b + 1) == b_size)
+            b_vector[b + 1].setmin_bs(recv_size);
+         else
+            b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+         }
       else
-         b_vector[b+1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+         {
+            b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+         }
       
       //For all the number of states
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
@@ -266,7 +279,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                         if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                           gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                           gamma = work_gamma(orig_codeword, recv_codeword);
+                           //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
                            //Work alpha
                            unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
@@ -332,6 +346,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    double out_summation = 0.0;
    double temp_out = 0.0;
 
+   int counter = 0;//1 state change
+
    for(unsigned int b = b_size; b > 0; b--)
       {
       beta_total = 0.0;
@@ -364,7 +380,16 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Working out the output
                /*Inserting output values for normalisation - BEGIN*/
                temp_out = alpha * gamma * beta;
-               vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+               if (no_states == 0)//1 state change
+                  {
+                  vec_tmp_output[counter].push_back(temp_out);
+                  counter++;
+                  if (counter == 2) counter = 0;
+                  }
+               else
+                  {
+                  vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+                  }
                out_summation += temp_out;
                /*Inserting output values for normalisation - END*/
 
@@ -507,7 +532,7 @@ double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& 
    //   received = received + toString(recv_seq(i));
    //   }
 
-   //return sleven(original, received, 0, 100000, 100000);
+   //return sleven(original, received, 100000, 1, 1);
    }
 
 /*Levenshtein Distance*/
@@ -901,43 +926,59 @@ void conv_modem<sig, real, real2>::fill_state_diagram_ff(int *m_arr)
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::fill_intstatetable(void)
    {
-   unsigned int rows = pow(2, k);
-   unsigned int cols = pow(2, no_states);
-
-   int_statetable.resize(rows, vector<state_output>(cols));
-
-   unsigned int out_loc = k + (no_states * 2);
-   unsigned int cur_state_loc = k;
-   unsigned int next_state_loc = k + no_states;
-
-   std::string input = "";
-   std::string cur_state = "";
-   std::string next_state = "";
-   std::string output = "";
-
-   for (int state_table_row = 0; state_table_row < statetable.size().rows(); state_table_row++)
+   if (no_states == 0)
       {
-      /*Getting Input*/
-      for (int cnt = 0; cnt < k; cnt++)
-         input += toChar(statetable(state_table_row, cnt));
-      /*Getting Current State*/
-      for (int cnt = 0; cnt < no_states; cnt++)
-         cur_state += toChar(statetable(state_table_row, cnt + cur_state_loc));
-      /*Getting Next State*/
-      for (int cnt = 0; cnt < no_states; cnt++)
-         next_state += toChar(statetable(state_table_row, cnt + next_state_loc));
-      /*Getting Output*/
-      for (int cnt = 0; cnt < n; cnt++)
-         output += toChar(statetable(state_table_row, cnt + out_loc));
+      unsigned int rows = 2;
+      unsigned int cols = 1;
 
-      int_statetable[bin2int(input)][bin2int(cur_state)].set_next_state(bin2int(next_state));
-      int_statetable[bin2int(input)][bin2int(cur_state)].set_output(bin2int(output));
+      int_statetable.resize(rows, vector<state_output>(cols));
 
-      /*Resetting Variables*/
-      input = "";
-      cur_state = "";
-      next_state = "";
-      output = "";
+      int_statetable[0][0].set_next_state(0);
+      int_statetable[0][0].set_output(0);
+
+      int_statetable[1][0].set_next_state(0);
+      int_statetable[1][0].set_output(7);
+      }
+   else
+      {
+      unsigned int rows = pow(2, k);
+      unsigned int cols = pow(2, no_states);
+
+      int_statetable.resize(rows, vector<state_output>(cols));
+
+      unsigned int out_loc = k + (no_states * 2);
+      unsigned int cur_state_loc = k;
+      unsigned int next_state_loc = k + no_states;
+
+      std::string input = "";
+      std::string cur_state = "";
+      std::string next_state = "";
+      std::string output = "";
+
+      for (int state_table_row = 0; state_table_row < statetable.size().rows(); state_table_row++)
+         {
+         /*Getting Input*/
+         for (int cnt = 0; cnt < k; cnt++)
+            input += toChar(statetable(state_table_row, cnt));
+         /*Getting Current State*/
+         for (int cnt = 0; cnt < no_states; cnt++)
+            cur_state += toChar(statetable(state_table_row, cnt + cur_state_loc));
+         /*Getting Next State*/
+         for (int cnt = 0; cnt < no_states; cnt++)
+            next_state += toChar(statetable(state_table_row, cnt + next_state_loc));
+         /*Getting Output*/
+         for (int cnt = 0; cnt < n; cnt++)
+            output += toChar(statetable(state_table_row, cnt + out_loc));
+
+         int_statetable[bin2int(input)][bin2int(cur_state)].set_next_state(bin2int(next_state));
+         int_statetable[bin2int(input)][bin2int(cur_state)].set_output(bin2int(output));
+
+         /*Resetting Variables*/
+         input = "";
+         cur_state = "";
+         next_state = "";
+         output = "";
+         }
       }
    }
 
