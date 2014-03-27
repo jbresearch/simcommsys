@@ -281,10 +281,10 @@ void tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
    eof_prior.init(mtau_max - mtau_min + 1);
    eof_prior = 0;
    eof_prior(rho - tau - mtau_min) = 1;
-   // Offset rx by mtau_max and pad to a total size of tau+mtau_max-mtau_min
+   // Offset rx by -mtau_min and pad to a total size of tau+mtau_max-mtau_min
    array1s_t r;
    r.init(tau + mtau_max - mtau_min);
-   r.segment(mtau_max, rho) = rx;
+   r.segment(-mtau_min, rho) = rx;
    // Delegate
    array1d_t sof_post;
    array1d_t eof_post;
