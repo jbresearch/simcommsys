@@ -253,6 +253,8 @@ private:
       double work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
       
       int sleven(std::string string1, std::string string2, int sub, int ins, int del);
+      double uleven_low_soft(array1s_t& orig_seq, array1s_t& recv_seq, double sub, double ins, double del, double tx);
+
 
       int get_next_state(int input, int curr_state);
       

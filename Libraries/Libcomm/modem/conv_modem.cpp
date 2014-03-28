@@ -279,7 +279,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                         if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                           gamma = work_gamma(orig_codeword, recv_codeword);
+                           gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
                            //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
                            //Work alpha
@@ -516,8 +516,15 @@ double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& 
    //else
    //   return gamma;
 
+   
+
    computer = mychan.get_computer();
-   return computer.receive(orig_seq, recv_seq);
+   
+   double pi = mychan.get_pi();
+   double pd = mychan.get_pd();
+
+   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   //return computer.receive(orig_seq, recv_seq);
 
    //std::string original = "";
    //std::string received = "";
@@ -619,6 +626,81 @@ int conv_modem<sig, real, real2>::sleven(std::string string1, std::string string
 
    return distance;
 
+   }
+
+template <class sig, class real, class real2>
+double conv_modem<sig, real, real2>::uleven_low_soft(array1s_t& orig_seq, array1s_t& recv_seq, double sub, double ins, double del, double tx)
+   {
+   int reflen = orig_seq.size();
+   int length = recv_seq.size();
+   
+   unsigned long *bits1 = new unsigned long[orig_seq.size()];
+   unsigned long *bits2 = new unsigned long[recv_seq.size()];
+
+   double *dist1 = new double[orig_seq.size() + 1];
+   double *dist2 = new double[recv_seq.size() + 1];
+
+   int i, j;
+   double  *logic1,
+      *logic2,
+      cost_nosub = tx * (1 - sub),
+      cost_sub = tx * sub;
+
+   //Adjust ins to take into account that an insertion of a 0 or a 1 are equi-probable (this is
+   //the probability of having a '0' inserted or a '1' inserted
+   ins *= 0.5;
+
+
+   //Pre-extract the individual bits of the two words for faster computation
+   //Note that these are still retained in the msb
+   for (i = 0; i < orig_seq.size(); i++)
+      bits1[i] = orig_seq(i);
+
+   for (i = 0; i < recv_seq.size(); i++)
+      bits2[i] = recv_seq(i);
+
+   /*Initialise the logical pointers to the two columns, these would be swapped
+   as we go along so as to maintain always the last two columns */
+   logic1 = dist1;
+   logic2 = dist2;
+
+   /*Initialise the first column to all insertions */
+   logic1[0] = 1.0;
+   for (j = 1; j <= length; j++)
+      {
+      logic1[j] = logic1[j - 1] * ins;
+      }
+
+   /*Do for all columns, except for the last one which is considered separately since no insertions can occur in the last column */
+   for (i = 0; i<reflen - 1; i++)
+      {   /*Initialise always the first row to all deletions */
+      logic2[0] = logic1[0] * del;
+
+      for (j = 0; j<length; j++)
+         {
+
+         //Determine the soft Levenshtein distance
+         //this is the summation of all the probabilities of all possible
+         //paths within the lattice.
+         //Probabilities along one path are multiplied.
+         //Probabilities of different paths are added.
+         logic2[j + 1] = logic1[j] * (bits1[i] == bits2[j] ? cost_nosub : cost_sub) + logic2[j] * ins + logic1[j + 1] * del;
+         }
+
+      /*Make the last calculated column to be logic1*/
+      swap(logic1, logic2);
+      }
+
+   //Note that insertions in the last codeword bit are not being considered.
+   //We are therefore doing the relative calculations separately to increase
+   //speed
+   logic2[0] = logic1[0] * del;
+   for (j = 0; j<length; j++)
+      {
+      logic2[j + 1] = logic1[j] * (bits1[i] == bits2[j] ? cost_nosub : cost_sub) + logic1[j + 1] * del;
+      }
+
+   return logic2[length];
    }
 
 
