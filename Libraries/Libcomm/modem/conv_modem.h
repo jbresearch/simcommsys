@@ -242,6 +242,12 @@ private:
       unsigned int no_del;//max num del
       unsigned int no_ins;//max num ins
       unsigned int rho;//max allowable symbol shift
+
+      double bits1[100];
+      double bits2[100];
+      double dist1[100];
+      double dist2[100];
+
       /*Conv Codes parameters - END*/
       
        /*Conv Codes Functions - BEGIN*/

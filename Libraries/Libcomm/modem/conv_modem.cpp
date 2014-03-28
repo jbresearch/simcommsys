@@ -634,15 +634,10 @@ double conv_modem<sig, real, real2>::uleven_low_soft(array1s_t& orig_seq, array1
    int reflen = orig_seq.size();
    int length = recv_seq.size();
    
-   unsigned long *bits1 = new unsigned long[orig_seq.size()];
-   unsigned long *bits2 = new unsigned long[recv_seq.size()];
-
-   double *dist1 = new double[orig_seq.size() + 1];
-   double *dist2 = new double[recv_seq.size() + 1];
-
    int i, j;
    double  *logic1,
       *logic2,
+      *swap_temp,
       cost_nosub = tx * (1 - sub),
       cost_sub = tx * sub;
 
@@ -688,7 +683,7 @@ double conv_modem<sig, real, real2>::uleven_low_soft(array1s_t& orig_seq, array1
          }
 
       /*Make the last calculated column to be logic1*/
-      swap(logic1, logic2);
+      swap_ls(logic1, logic2);
       }
 
    //Note that insertions in the last codeword bit are not being considered.
@@ -699,7 +694,7 @@ double conv_modem<sig, real, real2>::uleven_low_soft(array1s_t& orig_seq, array1
       {
       logic2[j + 1] = logic1[j] * (bits1[i] == bits2[j] ? cost_nosub : cost_sub) + logic1[j + 1] * del;
       }
-
+   
    return logic2[length];
    }
 
