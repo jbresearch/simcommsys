@@ -34,7 +34,7 @@
 #include <algorithm>
 #include <functional>
 /*For overflow*/
-#include <cfenv>
+//#include <cfenv>
 #include <iostream>
 //#include <stdlib.h>     /* srand, rand */
 //#include <time.h>
@@ -326,7 +326,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                               rho = vec_symbshift[b + 1].getmax();
                            /*Calculating the current drift - END*/
 
-                           if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
+                           if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                               {
                               get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
                               //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
