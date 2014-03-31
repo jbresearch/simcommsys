@@ -181,7 +181,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
 
-   computer = mychan.get_computer();
+   //computer = mychan.get_computer();
 
    int min, max;
    /*
@@ -195,8 +195,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       mychan.compute_limits(block_length_w_tail, 0.00000000001, min, max);
       no_ins = max;
       no_del = abs(min);
-      computer.mT_min = min;
-      computer.mT_max = max;
+      //computer.mT_min = min;
+      //computer.mT_max = max;
       /*Setting up inital values for lambda - end*/
 
       /*Setting up dynamic rho vector - begin*/
@@ -573,13 +573,13 @@ double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& 
 
    //computer = mychan.get_computer();
    
-   //double pi = mychan.get_pi();
-   //double pd = mychan.get_pd();
+   double pi = mychan.get_pi();
+   double pd = mychan.get_pd();
 
-   //return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
    //double test = computer.mT_max;
    
-   return computer.receive(orig_seq, recv_seq);
+   //return computer.receive(orig_seq, recv_seq);
 
    //std::string original = "";
    //std::string received = "";
