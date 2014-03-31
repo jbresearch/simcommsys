@@ -169,7 +169,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
 
-   unsigned int no_insdels;
+   unsigned int no_insdels=0;
 
    unsigned int b_size = block_length + m + 1;
 
