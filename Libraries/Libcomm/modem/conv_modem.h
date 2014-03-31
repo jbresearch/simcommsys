@@ -215,6 +215,13 @@ public:
 public:
    typedef vector<vector<vector<Gamma_Storage> > > vector_3d;
    typedef vector<b_storage> vec_b_storage;
+   typedef double dbl;
+
+   /*Constructor*/
+   conv_modem()
+      {
+      old_pd = old_pi = 0.0;
+      }
 private:
       /*Conv Codes parameters - BEGIN*/
       int type;
@@ -232,6 +239,8 @@ private:
       libbase::matrix<std::string> fbcodebook; //Feedback connection string
       libbase::matrix<bool> statetable;
 
+      double old_pi,old_pd;//variables for storing previous Pi and Pd
+
       vector_3d gamma_storage;
 
       vector<vector<state_output> > int_statetable;
@@ -241,7 +250,7 @@ private:
 
       unsigned int no_del;//max num del
       unsigned int no_ins;//max num ins
-      unsigned int rho;//max allowable symbol shift
+      int rho;//max allowable symbol shift
 
       double bits1[100];
       double bits2[100];

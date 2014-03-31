@@ -68,13 +68,13 @@ class state_bs_storage
 class b_storage
    {
    private: 
-      unsigned int min_bs;
+      int min_bs;
    public:
       
       /*Setters*/
       void setmin_bs(unsigned int min_bs){this->min_bs = min_bs;}
       /*Getters*/
-      unsigned int getmin_bs(){return min_bs;}
+      int getmin_bs(){return min_bs;}
 
       vector< vector< state_bs_storage > > state_bs_vector;
 
@@ -103,4 +103,28 @@ class state_output
          next_state = 0;
          output = 0;
          }
+   };
+
+class dynamic_symbshift
+   {
+   private:
+      unsigned int min, max;
+   public:
+
+      dynamic_symbshift(){ min = max = 0; }
+
+      dynamic_symbshift(unsigned int min, unsigned int max)
+         {
+         this->min = min;
+         this->max = max;
+         }
+
+      void setminmax(unsigned int min, unsigned int max)
+         {
+         this->min = min;
+         this->max = max;
+         }
+
+      unsigned int getmin(){ return min; }
+      unsigned int getmax(){ return max; }
    };

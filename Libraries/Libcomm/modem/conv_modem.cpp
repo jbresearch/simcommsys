@@ -135,8 +135,8 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
          }
       }
 
-   if (no_states > 0)//1 state change
-      {
+   //if (no_states > 0)//1 state change
+      //{
       //Tailing off
       for (int tailoff_cnt = 0; tailoff_cnt < m; tailoff_cnt++)
          {
@@ -159,7 +159,7 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
             curr_state[cnt] = toChar(statetable(row, ns_loc + cnt));
             }
          }
-      }
+      //}
    }
 
 template <class sig, class real, class real2>
@@ -169,10 +169,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
 
-   mychan = dynamic_cast<const qids<sig, real2>&> (chan);
-   mychan.set_blocksize(2);
-
-   unsigned int no_insdels = no_del + no_ins + 1;
+   unsigned int no_insdels;
 
    unsigned int b_size = block_length + m + 1;
 
@@ -180,6 +177,39 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    vector<b_storage> b_vector(b_size, b_storage(num_states));
 
+   /*Channel related initialisations - BEGIN*/
+   mychan = dynamic_cast<const qids<sig, real2>&> (chan);
+   mychan.set_blocksize(2);
+
+   computer = mychan.get_computer();
+
+   int min, max;
+   /*
+   Channel conditions have changed
+   Initialising lambda and rho accordingly
+   */
+   vector <dynamic_symbshift> vec_symbshift(b_size);
+   if (old_pi != mychan.get_pi() || old_pd != mychan.get_pd())
+      {
+      /*Setting up inital values for lambda - begin*/
+      mychan.compute_limits(block_length_w_tail, 0.00000000001, min, max);
+      no_ins = max;
+      no_del = abs(min);
+      computer.mT_min = min;
+      computer.mT_max = max;
+      /*Setting up inital values for lambda - end*/
+
+      /*Setting up dynamic rho vector - begin*/
+      for (unsigned int i = 1; i < b_size; i++)
+         {
+         mychan.compute_limits(i*n, 0.00000000001, min, max);
+         vec_symbshift[i].setminmax(abs(min), max);
+         }
+      /*Setting up dynamic rho vector - end*/
+      no_insdels = no_del + no_ins + 1;
+      }
+   /*Channel related initialisations - END*/
+   
    /*Setting up the first alpha value - BEGIN*/
    b_vector[0].setmin_bs(0);
    //b_vector[0].state_bs_vector.resize(1);
@@ -200,12 +230,12 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    unsigned int num_bs = 0;
 
    unsigned int cur_bs = 0;
-   unsigned int next_bs = 0;
+   int next_bs = 0;
 
    unsigned int norm_b = 0;
 
-   unsigned int drift = 0;
-   unsigned int symb_shift = 0;//the current number of symbol shifts
+   int drift = 0;
+   int symb_shift = 0;//the current number of symbol shifts
 
    unsigned int recv_size = rx.size();
 
@@ -229,24 +259,32 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       beta_total = 0.0;
 
       
-      if (no_states > 0)//1 state change
-         {
-         if (b >= (unsigned int)block_length) //this is tailing so input is always 0
-            inp_combinations = 1;
-         }
+      //if (no_states > 0)//1 state change
+      //   {
+      //   if (b >= (unsigned int)block_length) //this is tailing so input is always 0
+      //      inp_combinations = 1;
+      //   }
+
+      if (b >= (unsigned int)block_length) //this is tailing so input is always 0
+         inp_combinations = 1;
 
       /*Taking care of tailing for last decoded bit*/
-      if (no_states > 0)
-         {
-         if ((b + 1) == b_size)
-            b_vector[b + 1].setmin_bs(recv_size);
-         else
-            b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
-         }
+      if ((b + 1) == b_size)
+         b_vector[b + 1].setmin_bs(recv_size);
       else
-         {
-            b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
-         }
+         b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+                  
+      //if (no_states > 0)
+      //   {
+      //   if ((b + 1) == b_size)
+      //      b_vector[b + 1].setmin_bs(recv_size);
+      //   else
+      //      b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+      //   }
+      //else
+      //   {
+      //      b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+      //   }
       
       //For all the number of states
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
@@ -264,53 +302,69 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   {
                   next_state = get_next_state(input, cur_state);
                   next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
-
-                  //if (next_bs <= recv_size)
-                     //{
+                     
+                  if (next_bs <= (int) recv_size)
+                     {
                      get_output(input, cur_state, orig_codeword);
 
                      for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
                         {
-                        /*Calculating the current drift - BEGIN*/
-                        drift = abs(int(next_bs - (b + 1)*n));
-                        symb_shift = ceil(double(drift) / double(n));
-                        /*Calculating the current drift - END*/
-
-                        if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
+                        if (next_bs > (int) cur_bs)
                            {
-                           get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                           gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                           //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                           if (b_vector[b + 1].getmin_bs() <= 0)
+                              {
+                              b_vector[b + 1].setmin_bs(next_bs);
+                              }
+                           
+                           /*Calculating the current drift - BEGIN*/
+                           drift = next_bs - (b + 1)*n;
+                           symb_shift = floor(double(abs(drift)) / double(n));
 
-                           //Work alpha
-                           unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
-                           unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
-                           //For release
-                           alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
-                           alpha_total += alpha;
+                           if (drift < 0)
+                              rho = vec_symbshift[b + 1].getmin();
+                           else
+                              rho = vec_symbshift[b + 1].getmax();
+                           /*Calculating the current drift - END*/
 
-                           //storing gamma
-                           /*Check whether bit shift location is already available - Begin*/
-                           if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
-                              b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
-                           /*Check whether bit shift location is already available - End*/
+                           if ((((b + 1) == b_size) && next_bs == recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
+                              {
+                              get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+                              //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
+                              gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
-                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
-                           //storing alpha
-                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+                              //Work alpha
+                              unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
+                              unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
+                              //For release
+                              alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                              alpha_total += alpha;
 
-                           next_bs++;//Incrementing next_bs
+                              //storing gamma
+                              /*Check whether bit shift location is already available - Begin*/
+                              if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
+                                 b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
+                              /*Check whether bit shift location is already available - End*/
+
+                              b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
+                              //storing alpha
+                              b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+
+                              next_bs++;//Incrementing next_bs
+                              }
+                           else
+                              {
+                              if (b_vector[b + 1].getmin_bs() == next_bs)
+                                 b_vector[b + 1].setmin_bs(++next_bs);
+                              else
+                                 next_bs++;
+                              }
                            }
                         else
                            {
-                           if (b_vector[b + 1].getmin_bs() == next_bs)
-                              b_vector[b + 1].setmin_bs(++next_bs);
-                           else
-                              next_bs++;
+                           next_bs++;
                            }
-
                         }
-                     //}
+                     }
                   }
                }
             }
@@ -346,7 +400,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    double out_summation = 0.0;
    double temp_out = 0.0;
 
-   int counter = 0;//1 state change
+   //int counter = 0;//1 state change
 
    for(unsigned int b = b_size; b > 0; b--)
       {
@@ -380,16 +434,17 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Working out the output
                /*Inserting output values for normalisation - BEGIN*/
                temp_out = alpha * gamma * beta;
-               if (no_states == 0)//1 state change
-                  {
-                  vec_tmp_output[counter].push_back(temp_out);
-                  counter++;
-                  if (counter == 2) counter = 0;
-                  }
-               else
-                  {
-                  vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
-                  }
+               //if (no_states == 0)//1 state change
+               //   {
+               //   vec_tmp_output[counter].push_back(temp_out);
+               //   counter++;
+               //   if (counter == 2) counter = 0;
+               //   }
+               //else
+               //   {
+               //   vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+               //   }
+               vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
                out_summation += temp_out;
                /*Inserting output values for normalisation - END*/
 
@@ -516,15 +571,15 @@ double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& 
    //else
    //   return gamma;
 
+   //computer = mychan.get_computer();
    
+   //double pi = mychan.get_pi();
+   //double pd = mychan.get_pd();
 
-   computer = mychan.get_computer();
+   //return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   //double test = computer.mT_max;
    
-   double pi = mychan.get_pi();
-   double pd = mychan.get_pd();
-
-   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
-   //return computer.receive(orig_seq, recv_seq);
+   return computer.receive(orig_seq, recv_seq);
 
    //std::string original = "";
    //std::string received = "";
