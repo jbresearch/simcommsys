@@ -183,33 +183,34 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
    //computer = mychan.get_computer();
 
-   int min, max;
    /*
    Channel conditions have changed
    Initialising lambda and rho accordingly
    */
-   vector <dynamic_symbshift> vec_symbshift(b_size);
-   if (old_pi != mychan.get_pi() || old_pd != mychan.get_pd())
-      {
-      /*Setting up inital values for lambda - begin*/
-      mychan.compute_limits(block_length_w_tail, 0.00000000001, min, max);
-      no_ins = max;
-      no_del = abs(min);
-      //computer.mT_min = min;
-      //computer.mT_max = max;
-      /*Setting up inital values for lambda - end*/
+   //vector <dynamic_symbshift> vec_symbshift(b_size);
+   //if (old_pi != mychan.get_pi() || old_pd != mychan.get_pd())
+   //   {
+   //   /*Setting up inital values for lambda - begin*/
+   //   mychan.compute_limits(n, 0.00000000001, min, max);
+   //   no_ins = max;
+   //   no_del = abs(min);
+   //   //computer.mT_min = min;
+   //   //computer.mT_max = max;
+   //   /*Setting up inital values for lambda - end*/
 
-      /*Setting up dynamic rho vector - begin*/
-      for (unsigned int i = 1; i < b_size; i++)
-         {
-         mychan.compute_limits(i*n, 0.00000000001, min, max);
-         vec_symbshift[i].setminmax(abs(min), max);
-         }
-      /*Setting up dynamic rho vector - end*/
-      no_insdels = no_del + no_ins + 1;
-      }
+   //   /*Setting up dynamic rho vector - begin*/
+   //   for (unsigned int i = 1; i < b_size; i++)
+   //      {
+   //      mychan.compute_limits(i*n, 0.00000000001, min, max);
+   //      vec_symbshift[i].setminmax(abs(min), max);
+   //      }
+   //   /*Setting up dynamic rho vector - end*/
+   //   no_insdels = no_del + no_ins + 1;
+   //   }
    /*Channel related initialisations - END*/
    
+   no_insdels = no_del + no_ins + 1;
+
    /*Setting up the first alpha value - BEGIN*/
    b_vector[0].setmin_bs(0);
    //b_vector[0].state_bs_vector.resize(1);
@@ -296,77 +297,71 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
             {
             cur_bs = b_vector[b].getmin_bs() + cnt_bs;
             
-            if (cur_bs < recv_size)
-               {
                for (unsigned int input = 0; input < inp_combinations; input++)
                   {
                   next_state = get_next_state(input, cur_state);
                   next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
                      
-                  if (next_bs <= (int) recv_size)
+                  get_output(input, cur_state, orig_codeword);
+
+                  for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
                      {
-                     get_output(input, cur_state, orig_codeword);
-
-                     for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
+                     if (next_bs >= (int) cur_bs)
                         {
-                        if (next_bs > (int) cur_bs)
+                        if (b_vector[b + 1].getmin_bs() < 0)
                            {
-                           if (b_vector[b + 1].getmin_bs() <= 0)
-                              {
-                              b_vector[b + 1].setmin_bs(next_bs);
-                              }
+                           b_vector[b + 1].setmin_bs(next_bs);
+                           }
                            
-                           /*Calculating the current drift - BEGIN*/
-                           drift = next_bs - (b + 1)*n;
-                           symb_shift = floor(double(abs(drift)) / double(n));
+                        /*Calculating the current drift - BEGIN*/
+                        drift = next_bs - (b + 1)*n;
+                        symb_shift = floor(double(abs(drift)) / double(n));
 
-                           if (drift < 0)
-                              rho = vec_symbshift[b + 1].getmin();
-                           else
-                              rho = vec_symbshift[b + 1].getmax();
-                           /*Calculating the current drift - END*/
+                        /*if (drift < 0)
+                           rho = vec_symbshift[b + 1].getmin();
+                        else
+                           rho = vec_symbshift[b + 1].getmax();*/
+                        /*Calculating the current drift - END*/
 
-                           if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
-                              {
-                              get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                              //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                              gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                        if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
+                           {
+                           get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+                           //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
+                           gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
-                              //Work alpha
-                              unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
-                              unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
-                              //For release
-                              alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
-                              alpha_total += alpha;
+                           //Work alpha
+                           unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
+                           unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
+                           //For release
+                           alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                           alpha_total += alpha;
 
-                              //storing gamma
-                              /*Check whether bit shift location is already available - Begin*/
-                              if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
-                                 b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
-                              /*Check whether bit shift location is already available - End*/
+                           //storing gamma
+                           /*Check whether bit shift location is already available - Begin*/
+                           if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
+                              b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
+                           /*Check whether bit shift location is already available - End*/
 
-                              b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
-                              //storing alpha
-                              b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
+                           //storing alpha
+                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
 
-                              next_bs++;//Incrementing next_bs
-                              }
-                           else
-                              {
-                              if (b_vector[b + 1].getmin_bs() == next_bs)
-                                 b_vector[b + 1].setmin_bs(++next_bs);
-                              else
-                                 next_bs++;
-                              }
+                           next_bs++;//Incrementing next_bs
                            }
                         else
                            {
-                           next_bs++;
+                           if (b_vector[b + 1].getmin_bs() == next_bs)
+                              b_vector[b + 1].setmin_bs(++next_bs);
+                           else
+                              next_bs++;
                            }
+                        }
+                     else
+                        {
+                        next_bs++;
                         }
                      }
                   }
-               }
             }
          }
 
