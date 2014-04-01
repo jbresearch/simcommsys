@@ -215,7 +215,7 @@ public:
 public:
    typedef vector<vector<vector<Gamma_Storage> > > vector_3d;
    typedef vector<b_storage> vec_b_storage;
-   typedef double dbl;
+   typedef long double dbl;
 
    /*Constructor*/
    conv_modem()
@@ -264,8 +264,8 @@ private:
       
       void encode_data(const array1i_t& encoded, array1s_t& tx);
 
-      double get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq);
-      double work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
+      dbl get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq);
+      dbl work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
       
       int sleven(std::string string1, std::string string2, int sub, int ins, int del);
       double uleven_low_soft(array1s_t& orig_seq, array1s_t& recv_seq, double sub, double ins, double del, double tx);

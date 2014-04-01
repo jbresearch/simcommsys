@@ -52,6 +52,8 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+typedef long double dbl;
+
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::advance() const
    {
@@ -223,11 +225,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    array1s_t orig_codeword;
    array1s_t recv_codeword;               
 
-   double gamma = 0.0;
-   double alpha = 0.0;
-   double beta = 0.0;
-   double alpha_total = 0.0;
-   double beta_total = 0.0;
+   dbl gamma = 0.0;
+   dbl alpha = 0.0;
+   dbl beta = 0.0;
+   dbl alpha_total = 0.0;
+   dbl beta_total = 0.0;
    unsigned int num_bs = 0;
 
    unsigned int cur_bs = 0;
@@ -315,7 +317,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                            
                         /*Calculating the current drift - BEGIN*/
                         drift = next_bs - (b + 1)*n;
-                        symb_shift = floor(double(abs(drift)) / double(n));
+                        symb_shift = floor(dbl(abs(drift)) / dbl(n));
 
                         /*if (drift < 0)
                            rho = vec_symbshift[b + 1].getmin();
@@ -389,11 +391,11 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    unsigned int prev_bs = 0;
    unsigned int prev_state = 0;
    
-   std::vector< std::vector<double> > vec_tmp_output;
+   std::vector< std::vector<dbl> > vec_tmp_output;
    vec_tmp_output.resize(pow(2,k));
 
-   double out_summation = 0.0;
-   double temp_out = 0.0;
+   dbl out_summation = 0.0;
+   dbl temp_out = 0.0;
 
    //int counter = 0;//1 state change
 
@@ -452,8 +454,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          }
 
 
-      transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<double>(), out_summation));
-      transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<double>(), out_summation));
+      transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<dbl>(), out_summation));
+      transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<dbl>(), out_summation));
       
       outtable(b-1)(0) = std::accumulate(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), 0.0);
       outtable(b-1)(1) = std::accumulate(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), 0.0);
@@ -477,7 +479,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    ptable = outtable.extract(0,block_length);
 
    vec_tmp_output.clear();
-   vector< vector<double> >().swap(vec_tmp_output);
+   vector< vector<dbl> >().swap(vec_tmp_output);
    
    b_vector.clear();
    vector<b_storage>().swap(b_vector);
@@ -511,7 +513,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 
 /*Current state, current bitshift, next state, next bs*/
 template <class sig, class real, class real2>
-double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq)
+dbl conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq)
    {
   
    if(gamma_storage[cur_state].size() < (cur_bs + 1)) //checking if current bit-shift location exists, if not create one
@@ -531,14 +533,14 @@ double conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned 
       }
 
    //The value of gamma is not found need to be worked out
-   double gamma = work_gamma(orig_seq, recv_seq);
+   dbl gamma = work_gamma(orig_seq, recv_seq);
    gamma_storage[cur_state][cur_bs].push_back(Gamma_Storage(next_state, next_bs, gamma));
 
    return gamma;
    }
 
 template <class sig, class real, class real2>
-double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
+dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
    {
    
    //double P_err = mychan.get_ps();
@@ -568,13 +570,13 @@ double conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& 
 
    //computer = mychan.get_computer();
    
-   double pi = mychan.get_pi();
-   double pd = mychan.get_pd();
+   //double pi = mychan.get_pi();
+   //double pd = mychan.get_pd();
 
-   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   //return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
    //double test = computer.mT_max;
    
-   //return computer.receive(orig_seq, recv_seq);
+   return computer.receive(orig_seq, recv_seq);
 
    //std::string original = "";
    //std::string received = "";
