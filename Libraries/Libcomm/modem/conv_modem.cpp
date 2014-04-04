@@ -137,8 +137,8 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
          }
       }
 
-   //if (no_states > 0)//1 state change
-      //{
+   if (no_states > 0)//1 state change
+      {
       //Tailing off
       for (int tailoff_cnt = 0; tailoff_cnt < m; tailoff_cnt++)
          {
@@ -161,7 +161,7 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
             curr_state[cnt] = toChar(statetable(row, ns_loc + cnt));
             }
          }
-      //}
+      }
    }
 
 template <class sig, class real, class real2>
@@ -262,32 +262,32 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       beta_total = 0.0;
 
       
-      //if (no_states > 0)//1 state change
-      //   {
-      //   if (b >= (unsigned int)block_length) //this is tailing so input is always 0
-      //      inp_combinations = 1;
-      //   }
+      if (no_states > 0)//1 state change
+         {
+         if (b >= (unsigned int)block_length) //this is tailing so input is always 0
+            inp_combinations = 1;
+         }
 
-      if (b >= (unsigned int)block_length) //this is tailing so input is always 0
-         inp_combinations = 1;
+      //if (b >= (unsigned int)block_length) //this is tailing so input is always 0
+      //   inp_combinations = 1;
 
       /*Taking care of tailing for last decoded bit*/
-      if ((b + 1) == b_size)
-         b_vector[b + 1].setmin_bs(recv_size);
-      else
-         b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
-                  
-      //if (no_states > 0)
-      //   {
-      //   if ((b + 1) == b_size)
-      //      b_vector[b + 1].setmin_bs(recv_size);
-      //   else
-      //      b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
-      //   }
+      //if ((b + 1) == b_size)
+      //   b_vector[b + 1].setmin_bs(recv_size);
       //else
-      //   {
-      //      b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
-      //   }
+      //   b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+                  
+      if (no_states > 0)
+         {
+         if ((b + 1) == b_size)
+            b_vector[b + 1].setmin_bs(recv_size);
+         else
+            b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+         }
+      else
+         {
+            b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
+         }
       
       //For all the number of states
       for(unsigned int cur_state = 0; cur_state < num_states; cur_state++)
@@ -328,8 +328,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                         if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                           //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                           gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                           gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
+                           //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
                            //Work alpha
                            unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
@@ -397,7 +397,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    dbl out_summation = 0.0;
    dbl temp_out = 0.0;
 
-   //int counter = 0;//1 state change
+   int counter = 0;//1 state change
 
    for(unsigned int b = b_size; b > 0; b--)
       {
@@ -431,17 +431,17 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                //Working out the output
                /*Inserting output values for normalisation - BEGIN*/
                temp_out = alpha * gamma * beta;
-               //if (no_states == 0)//1 state change
-               //   {
-               //   vec_tmp_output[counter].push_back(temp_out);
-               //   counter++;
-               //   if (counter == 2) counter = 0;
-               //   }
-               //else
-               //   {
-               //   vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
-               //   }
-               vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+               if (no_states == 0)//1 state change
+                  {
+                  vec_tmp_output[counter].push_back(temp_out);
+                  counter++;
+                  if (counter == 2) counter = 0;
+                  }
+               else
+                  {
+                  vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+                  }
+               //vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
                out_summation += temp_out;
                /*Inserting output values for normalisation - END*/
 
@@ -570,13 +570,13 @@ dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& rec
 
    //computer = mychan.get_computer();
    
-   //double pi = mychan.get_pi();
-   //double pd = mychan.get_pd();
+   double pi = mychan.get_pi();
+   double pd = mychan.get_pd();
 
-   //return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
    //double test = computer.mT_max;
    
-   return computer.receive(orig_seq, recv_seq);
+   //return computer.receive(orig_seq, recv_seq);
 
    //std::string original = "";
    //std::string received = "";
