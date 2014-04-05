@@ -33,6 +33,8 @@
 #include <numeric>
 #include <algorithm>
 #include <functional>
+
+#include <math.h>
 /*For overflow*/
 //#include <cfenv>
 #include <iostream>
@@ -570,10 +572,12 @@ dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& rec
 
    //computer = mychan.get_computer();
    
-   double pi = mychan.get_pi();
-   double pd = mychan.get_pd();
+   return WLD(orig_seq, recv_seq);
 
-   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   //double pi = mychan.get_pi();
+   //double pd = mychan.get_pd();
+
+   //return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
    //double test = computer.mT_max;
    
    //return computer.receive(orig_seq, recv_seq);
@@ -750,6 +754,111 @@ double conv_modem<sig, real, real2>::uleven_low_soft(array1s_t& orig_seq, array1
    return logic2[length];
    }
 
+template <class sig, class real, class real2>
+dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
+   {
+
+   //orig_seq.init(3);
+   //recv_seq.init(4);
+
+   //orig_seq(0) = 1;
+   //orig_seq(1) = 0;
+   //orig_seq(2) = 1;
+
+   //recv_seq(0) = 0;
+   //recv_seq(1) = 1;
+   //recv_seq(2) = 0;
+   //recv_seq(3) = 1;
+
+   double Pi = mychan.get_pi();
+   double Pd = mychan.get_pd();
+   double Ps = mychan.get_ps();
+   double Pt = 1 - Pi - Pd;
+
+   double Wi = log10(Pi)*-1;
+   double Wd = log10(Pd/(Pt*(1-Ps)))*-1;
+   double Ws = log10(Ps / (1 - Ps))*-1;
+
+   int N_i,N_d,N_s;
+
+   int col, row;
+
+   N_i = N_d = N_s = 0;
+
+   //Wi = Wd = Ws = 1.0;
+
+   double cost_sub, cost_del, cost_ins;
+
+   for (col = 1; col < orig_seq.size()+1; col++)
+      {
+      for (row = 1; row < recv_seq.size()+1; row++)
+         {
+         if (orig_seq(col-1) == recv_seq(row-1))//If no error get the diagonal value
+            {
+            WLD_vector[row][col] = WLD_vector[row - 1][col - 1];
+            }
+         else
+            {
+            cost_sub = WLD_vector[row - 1][col - 1] + Ws;
+            cost_del = WLD_vector[row][col - 1] + Wd;
+            cost_ins = WLD_vector[row - 1][col] + Wi;
+
+            double test = std::min({ cost_sub, cost_del, cost_ins });
+
+            WLD_vector[row][col] = std::min({ cost_sub, cost_del, cost_ins });
+            }
+         }
+      }
+
+   col = orig_seq.size();
+   row = recv_seq.size();
+
+   double top, left, diagonal,current;
+   int row_1, col_1;
+
+   while (!(col == 0 && row == 0))
+      {
+      current = WLD_vector[row][col];
+
+      row_1 = row - 1;
+      col_1 = col - 1;
+
+      if (row_1 < 0)
+         top = 10000;
+      else
+         top = WLD_vector[row_1][col];
+      
+      if (col_1 < 0)
+         left = 10000;
+      else
+         left = WLD_vector[row][col_1];
+
+      if (row_1 < 0 || col_1 < 0)
+         diagonal = 10000;
+      else
+         diagonal = WLD_vector[row_1][col_1];
+
+      if (top < left && top < diagonal)//Insertion
+         {
+         if (current != WLD_vector[--row][col])
+            N_i++;
+         }
+      else if (left < top && left < diagonal)//Deletion
+         {
+         if (current != WLD_vector[row][--col])
+            N_d++;
+         }
+      else//Substitution
+         {
+         if (current != WLD_vector[--row][--col])
+            N_s++;
+         }
+      }
+
+   //double gamma = pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1-Ps)), (n-N_d-N_s));
+
+   return pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1 - Ps)), (n - N_d - N_s));;
+   }
 
 template <class sig, class real, class real2>
 int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)

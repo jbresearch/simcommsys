@@ -218,9 +218,23 @@ public:
    typedef long double dbl;
 
    /*Constructor*/
-   conv_modem()
+   conv_modem() :WLD_vector(100, std::vector<dbl>(100))
       {
       old_pd = old_pi = 0.0;
+
+      //WLD_vector.size() is the number of rows
+      //WLD_vector[0].size() is the number of columns
+
+      for (int col = 0; col < WLD_vector.size(); col++)
+         {
+         WLD_vector[0][col] = col;
+         }
+
+      for (int row = 0; row < WLD_vector[0].size(); row++)
+         {
+         WLD_vector[row][0] = row;
+         }
+
       }
 private:
       /*Conv Codes parameters - BEGIN*/
@@ -257,6 +271,8 @@ private:
       double dist1[100];
       double dist2[100];
 
+      std::vector<std::vector<dbl> > WLD_vector;// matrix2d(100, std::vector<dbl>(100));
+
       /*Conv Codes parameters - END*/
       
        /*Conv Codes Functions - BEGIN*/
@@ -269,7 +285,7 @@ private:
       
       int sleven(std::string string1, std::string string2, int sub, int ins, int del);
       double uleven_low_soft(array1s_t& orig_seq, array1s_t& recv_seq, double sub, double ins, double del, double tx);
-
+      dbl WLD(array1s_t& orig_seq, array1s_t& recv_seq);
 
       int get_next_state(int input, int curr_state);
       
