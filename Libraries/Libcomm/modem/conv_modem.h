@@ -225,12 +225,12 @@ public:
       //WLD_vector.size() is the number of rows
       //WLD_vector[0].size() is the number of columns
 
-      for (int col = 0; col < WLD_vector.size(); col++)
+      for (unsigned int col = 0; col < WLD_vector.size(); col++)
          {
          WLD_vector[0][col] = col;
          }
 
-      for (int row = 0; row < WLD_vector[0].size(); row++)
+      for (unsigned int row = 0; row < WLD_vector[0].size(); row++)
          {
          WLD_vector[row][0] = row;
          }

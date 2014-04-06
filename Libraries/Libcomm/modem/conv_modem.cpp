@@ -570,7 +570,7 @@ dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& rec
    //else
    //   return gamma;
 
-   //computer = mychan.get_computer();
+//   computer = mychan.get_computer();
    
    return WLD(orig_seq, recv_seq);
 
@@ -802,10 +802,9 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
             cost_sub = WLD_vector[row - 1][col - 1] + Ws;
             cost_del = WLD_vector[row][col - 1] + Wd;
             cost_ins = WLD_vector[row - 1][col] + Wi;
-
-            double test = std::min({ cost_sub, cost_del, cost_ins });
-
-            WLD_vector[row][col] = std::min({ cost_sub, cost_del, cost_ins });
+	    
+            WLD_vector[row][col] = std::min(std::min(cost_sub,cost_del),cost_ins);
+            //WLD_vector[row][col] = std::min({ cost_sub, cost_del, cost_ins });
             }
          }
       }
