@@ -273,6 +273,9 @@ private:
 
       std::vector<std::vector<dbl> > WLD_vector;// matrix2d(100, std::vector<dbl>(100));
 
+      dbl dynamic_limit;
+      bool add_rand_seq;
+
       /*Conv Codes parameters - END*/
       
        /*Conv Codes Functions - BEGIN*/

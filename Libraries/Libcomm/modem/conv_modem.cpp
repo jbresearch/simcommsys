@@ -169,6 +169,15 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
+   
+   //std::cout << std::endl;
+   //std::cout << "Rx: " << std::endl;
+
+   //for (int i = 0; i < rx.size(); i++)
+   //   {
+   //   std::cout << rx(i) << " ";
+   //   }
+   
    gamma_storage.clear();
    vector_3d().swap(gamma_storage);
    gamma_storage.resize(pow(2,no_states));
@@ -185,32 +194,37 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
    mychan = dynamic_cast<const qids<sig, real2>&> (chan);
    mychan.set_blocksize(2);
 
-   //computer = mychan.get_computer();
+   vector <dynamic_symbshift> vec_symbshift;// (b_size);
+   
+   if (dynamic_limit > 0)
+      {
+      vec_symbshift.resize(b_size);
+      int min, max;
+      
+      mychan.set_pr(dynamic_limit);
+      computer = mychan.get_computer();
 
-   /*
-   Channel conditions have changed
-   Initialising lambda and rho accordingly
-   */
-   //vector <dynamic_symbshift> vec_symbshift(b_size);
-   //if (old_pi != mychan.get_pi() || old_pd != mychan.get_pd())
-   //   {
-   //   /*Setting up inital values for lambda - begin*/
-   //   mychan.compute_limits(n, 0.00000000001, min, max);
-   //   no_ins = max;
-   //   no_del = abs(min);
-   //   //computer.mT_min = min;
-   //   //computer.mT_max = max;
-   //   /*Setting up inital values for lambda - end*/
+      if (old_pi != mychan.get_pi() || old_pd != mychan.get_pd())
+         {
+         /*Setting up inital values for lambda - begin*/
+         mychan.compute_limits(n, dynamic_limit, min, max);
+         no_ins = max;
+         no_del = abs(min);
+         /*Setting up inital values for lambda - end*/
 
-   //   /*Setting up dynamic rho vector - begin*/
-   //   for (unsigned int i = 1; i < b_size; i++)
-   //      {
-   //      mychan.compute_limits(i*n, 0.00000000001, min, max);
-   //      vec_symbshift[i].setminmax(abs(min), max);
-   //      }
-   //   /*Setting up dynamic rho vector - end*/
-   //   no_insdels = no_del + no_ins + 1;
-   //   }
+         /*Setting up dynamic rho vector - begin*/
+         for (unsigned int i = 1; i < b_size; i++)
+            {
+            mychan.compute_limits(i*n, dynamic_limit, min, max);
+            //TODO: need to divide it by n and use ceil to get the actual symbshift
+            min = ceil((double) abs(min) / (double)n);
+            max = ceil((double) max / (double) n);
+            vec_symbshift[i].setminmax(min, max);
+            }
+         /*Setting up dynamic rho vector - end*/
+         }
+      }
+
    /*Channel related initialisations - END*/
    
    no_insdels = no_del + no_ins + 1;
@@ -269,16 +283,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          if (b >= (unsigned int)block_length) //this is tailing so input is always 0
             inp_combinations = 1;
          }
-
-      //if (b >= (unsigned int)block_length) //this is tailing so input is always 0
-      //   inp_combinations = 1;
-
-      /*Taking care of tailing for last decoded bit*/
-      //if ((b + 1) == b_size)
-      //   b_vector[b + 1].setmin_bs(recv_size);
-      //else
-      //   b_vector[b + 1].setmin_bs(b_vector[b].getmin_bs() + n - no_del);
-                  
+               
       if (no_states > 0)
          {
          if ((b + 1) == b_size)
@@ -319,19 +324,22 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                            
                         /*Calculating the current drift - BEGIN*/
                         drift = next_bs - (b + 1)*n;
-                        symb_shift = floor(dbl(abs(drift)) / dbl(n));
+                        symb_shift = ceil(dbl(abs(drift)) / dbl(n));
 
-                        /*if (drift < 0)
-                           rho = vec_symbshift[b + 1].getmin();
-                        else
-                           rho = vec_symbshift[b + 1].getmax();*/
+                        if (dynamic_limit > 0)
+                           {
+                           if (drift < 0)
+                              rho = vec_symbshift[b + 1].getmin();
+                           else
+                              rho = vec_symbshift[b + 1].getmax();
+                           }
                         /*Calculating the current drift - END*/
 
                         if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                           gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                           //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                           //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
+                           gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
                            //Work alpha
                            unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
@@ -442,6 +450,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                else
                   {
                   vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
+                  //outtable(b - 1)(get_input(prev_state, cur_state)) += (alpha * gamma * beta);
                   }
                //vec_tmp_output[get_input(prev_state, cur_state)].push_back(temp_out);
                out_summation += temp_out;
@@ -454,7 +463,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                }
             }
          }
-
+      assert(out_summation > 0);
 
       transform(vec_tmp_output[0].begin(), vec_tmp_output[0].end(), vec_tmp_output[0].begin(), bind2nd( divides<dbl>(), out_summation));
       transform(vec_tmp_output[1].begin(), vec_tmp_output[1].end(), vec_tmp_output[1].begin(), bind2nd( divides<dbl>(), out_summation));
@@ -479,6 +488,25 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          }
       }
    ptable = outtable.extract(0,block_length);
+
+   //std::cout << std::endl;
+   //std::cout << "Decoded" << std::endl;   
+   //for(int k = 0; k < ptable.size(); k++)
+   //   {
+   //   if(ptable(k)(0) > ptable(k)(1))
+   //      std::cout << "0 ";
+   //   else
+   //      std::cout << "1 ";
+   //   }
+
+   //std::cout << std::endl;
+   //std::cout << std::endl;
+
+   //for(int k = 0; k < ptable.size(); k++)
+   //   std::cout << ptable(k) << std::endl;
+
+   //std::cin.get();
+   //system("cls");
 
    vec_tmp_output.clear();
    vector< vector<dbl> >().swap(vec_tmp_output);
@@ -570,7 +598,8 @@ dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& rec
    //else
    //   return gamma;
 
-//   computer = mychan.get_computer();
+   /*computer = mychan.get_computer();
+   mychan.set_pr(dynamic_limit);*/
    
    return WLD(orig_seq, recv_seq);
 
@@ -987,13 +1016,17 @@ std::ostream& conv_modem<sig, real, real2>::serialize(std::ostream& sout) const
    sout << "# Block length" << std::endl;
    sout << block_length << std::endl;
    
+   sout << "#Dynamic Deletions/Insertions (0 = no takes fixed values, any other value is the probability of channel event outside chosen limits)" << std::endl;
+   sout << dynamic_limit << std::endl;
    sout << "# Maximum Allowable Deletions" << std::endl;
    sout << no_del << std::endl;
    sout << "# Maximum Allowable Insertions" << std::endl;
    sout << no_ins << std::endl;
    sout << "# Maximum Allowable Symbol Shifts" << std::endl;
    sout << rho << std::endl;
-
+   
+   sout << "#Addition of random sequence(0 = no, 1 = yes)" << std::endl;
+   sout << add_rand_seq << std::endl;
    return sout;
    }
 
@@ -1014,10 +1047,13 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
 
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
+   sin >> libbase::eatcomments >> dynamic_limit >> libbase::verify;
    sin >> libbase::eatcomments >> no_del >> libbase::verify;
    sin >> libbase::eatcomments >> no_ins >> libbase::verify;
    sin >> libbase::eatcomments >> rho >> libbase::verify;
    
+   sin >> libbase::eatcomments >> add_rand_seq >> libbase::verify;
+
    /*Filling int_statetable*/
    fill_intstatetable();
    return sin;
