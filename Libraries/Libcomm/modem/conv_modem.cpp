@@ -216,7 +216,6 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
          for (unsigned int i = 1; i < b_size; i++)
             {
             mychan.compute_limits(i*n, dynamic_limit, min, max);
-            //TODO: need to divide it by n and use ceil to get the actual symbshift
             min = ceil((double) abs(min) / (double)n);
             max = ceil((double) max / (double) n);
             vec_symbshift[i].setminmax(min, max);
@@ -601,12 +600,12 @@ dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& rec
    /*computer = mychan.get_computer();
    mychan.set_pr(dynamic_limit);*/
    
-   return WLD(orig_seq, recv_seq);
+   //return WLD(orig_seq, recv_seq);
 
-   //double pi = mychan.get_pi();
-   //double pd = mychan.get_pd();
+   double pi = mychan.get_pi();
+   double pd = mychan.get_pd();
 
-   //return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
    //double test = computer.mT_max;
    
    //return computer.receive(orig_seq, recv_seq);
