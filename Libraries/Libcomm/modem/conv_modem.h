@@ -273,8 +273,10 @@ private:
 
       std::vector<std::vector<dbl> > WLD_vector;// matrix2d(100, std::vector<dbl>(100));
 
+      //Selection parameters
       dbl dynamic_limit;
       bool add_rand_seq;
+      int gamma_calc;
 
       /*Conv Codes parameters - END*/
       
@@ -286,9 +288,11 @@ private:
       dbl get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq);
       dbl work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
       
+      /*Gamma Calculators*/
       int sleven(std::string string1, std::string string2, int sub, int ins, int del);
       double uleven_low_soft(array1s_t& orig_seq, array1s_t& recv_seq, double sub, double ins, double del, double tx);
       dbl WLD(array1s_t& orig_seq, array1s_t& recv_seq);
+      dbl Hamming(array1s_t& orig_seq, array1s_t& recv_seq);
 
       int get_next_state(int input, int curr_state);
       

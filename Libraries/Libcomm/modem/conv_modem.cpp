@@ -571,59 +571,27 @@ dbl conv_modem<sig, real, real2>::get_gamma(unsigned int cur_state, unsigned int
 template <class sig, class real, class real2>
 dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& recv_seq)
    {
+   double pi, pd;
    
-   //double P_err = mychan.get_ps();
-   //double P_no_err = 1 - P_err;
-
-   //int no_err = 0;
-
-   //double gamma = 0.0;
-
-   //if (orig_seq.size() == recv_seq.size())
-   //   {
-   //   //Calculating the Hamming distance
-   //   for (int cnt = 0; cnt < orig_seq.size(); cnt++)
-   //      {
-   //      if (orig_seq(cnt) != recv_seq(cnt))
-   //         no_err++;
-   //      }
-
-   //   gamma = pow(P_err, no_err);
-   //   gamma *= pow(P_no_err, orig_seq.size() - no_err);
-
-   //   return gamma;
-
-   //   }
-   //else
-   //   return gamma;
-
-   /*computer = mychan.get_computer();
-   mychan.set_pr(dynamic_limit);*/
-   
-   //return WLD(orig_seq, recv_seq);
-
-   double pi = mychan.get_pi();
-   double pd = mychan.get_pd();
-
-   return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
-   //double test = computer.mT_max;
-   
-   //return computer.receive(orig_seq, recv_seq);
-
-   //std::string original = "";
-   //std::string received = "";
-   //
-   //for (int i = 0; i < orig_seq.size(); i++)
-   //   {
-   //   original = original + toString(orig_seq(i));
-   //   }
-
-   //for (int i = 0; i < recv_seq.size(); i++)
-   //   {
-   //   received = received + toString(recv_seq(i));
-   //   }
-
-   //return sleven(original, received, 100000, 1, 1);
+   //(0 = WLD, 1 = Uleven, 2 = Receive Function, 3 = Hamming Distance)
+   switch (gamma_calc)
+      {
+      case 0:
+         return WLD(orig_seq, recv_seq);
+         break;
+      case 1:
+         pi = mychan.get_pi();
+         pd = mychan.get_pd();
+         return uleven_low_soft(orig_seq, recv_seq, mychan.get_ps(), pi, pd, (1 - pi - pd)) * 0.5;
+         break;
+      case 2:
+         return computer.receive(orig_seq, recv_seq);
+         break;
+      case 3:
+         return Hamming(orig_seq, recv_seq);
+         break;
+      }
+   return 0.0;
    }
 
 /*Levenshtein Distance*/
@@ -888,6 +856,35 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    }
 
 template <class sig, class real, class real2>
+dbl conv_modem<sig, real, real2>::Hamming(array1s_t& orig_seq, array1s_t& recv_seq)
+   {
+   double P_err = mychan.get_ps();
+   double P_no_err = 1 - P_err;
+
+   int no_err = 0;
+
+   double gamma = 0.0;
+
+   if (orig_seq.size() == recv_seq.size())
+      {
+      //Calculating the Hamming distance
+      for (int cnt = 0; cnt < orig_seq.size(); cnt++)
+         {
+         if (orig_seq(cnt) != recv_seq(cnt))
+            no_err++;
+         }
+
+      gamma = pow(P_err, no_err);
+      gamma *= pow(P_no_err, orig_seq.size() - no_err);
+
+      return gamma;
+      }
+   else
+      return gamma;
+   }
+
+
+template <class sig, class real, class real2>
 int conv_modem<sig, real, real2>::get_next_state(int input, int curr_state)
    {
    return int_statetable[input][curr_state].get_next_state();
@@ -1014,8 +1011,10 @@ std::ostream& conv_modem<sig, real, real2>::serialize(std::ostream& sout) const
    sout << alphabet_size << std::endl;
    sout << "# Block length" << std::endl;
    sout << block_length << std::endl;
-   
-   sout << "#Dynamic Deletions/Insertions (0 = no takes fixed values, any other value is the probability of channel event outside chosen limits)" << std::endl;
+   sout << "# Gamma Calculation(0 = WLD, 1 = Uleven, 2 = Receive Function)" << std::endl;
+   sout << gamma_calc << std::endl;
+
+   sout << "# Dynamic Deletions/Insertions (0 = no takes fixed values, any other value is the probability of channel event outside chosen limits)" << std::endl;
    sout << dynamic_limit << std::endl;
    sout << "# Maximum Allowable Deletions" << std::endl;
    sout << no_del << std::endl;
@@ -1024,7 +1023,7 @@ std::ostream& conv_modem<sig, real, real2>::serialize(std::ostream& sout) const
    sout << "# Maximum Allowable Symbol Shifts" << std::endl;
    sout << rho << std::endl;
    
-   sout << "#Addition of random sequence(0 = no, 1 = yes)" << std::endl;
+   sout << "# Addition of random sequence(0 = no, 1 = yes)" << std::endl;
    sout << add_rand_seq << std::endl;
    return sout;
    }
@@ -1043,6 +1042,8 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
 
    sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
    sin >> libbase::eatcomments >> block_length >> libbase::verify;
+
+   sin >> libbase::eatcomments >> gamma_calc >> libbase::verify;
 
    block_length_w_tail = (ceil((double)(block_length/k)))*n + n*m;
 
