@@ -72,6 +72,25 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
+   //std::cout << std::endl;
+   //std::cout << "Tx before: " << std::endl;
+
+   //for (int i = 0; i < tx.size(); i++)
+   //   {
+   //   std::cout << tx(i) << " ";
+   //   }
+
+   //std::cout << std::endl;
+   //std::cout << "Random Sequence: " << std::endl;
+
+   //for (int i = 0; i < random_sequence.size();i++)
+   //   {
+   //   std::cout << random_sequence[i] << " ";
+   //   }
+
+   if (add_rand_seq == 1)
+      add_random(tx);
+
    //std::cout << "Encoded: " << std::endl;
 
    //for (int i = 0; i < encoded.size(); i++)
@@ -164,6 +183,38 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
             }
          }
       }
+   }
+
+template <class sig, class real, class real2>
+void conv_modem<sig, real, real2>::add_random(array1s_t& tx)
+   {
+   for (int i = 0; i < block_length_w_tail; i++)
+      {
+      tx(i) = (bool)tx(i) ^ random_sequence[i];
+      }
+   }
+
+template <class sig, class real, class real2>
+void conv_modem<sig, real, real2>::create_random()
+   {
+   random_sequence.resize(block_length_w_tail);
+   if (add_rand_seq == 0)
+      {
+      std::fill(random_sequence.begin(), random_sequence.end(), 0);
+      }
+   else
+      {
+      srand(time(NULL));
+      
+      for (int i = 0; i < block_length_w_tail; i++)
+         {
+         if (((double)rand() / (RAND_MAX)) > 0.5)
+            random_sequence[i] = 1;
+         else
+            random_sequence[i] = 0;
+         }
+      }
+   
    }
 
 template <class sig, class real, class real2>
@@ -958,7 +1009,7 @@ void conv_modem<sig, real, real2>::get_received(unsigned int b, unsigned int cur
       {
       if(i < (unsigned int) rx.size())
          {
-         recv_codeword(count) = rx(i);
+         recv_codeword(count) = (bool)rx(i) ^ random_sequence[i];
          count++;
          }
       else
@@ -1056,6 +1107,10 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
 
    /*Filling int_statetable*/
    fill_intstatetable();
+
+   /*Generating random sequence*/
+   create_random();
+
    return sin;
    }
 

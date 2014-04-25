@@ -37,6 +37,9 @@
 #include <cmath>
 #include <memory>
 
+#include <time.h>
+#include <stdlib.h>
+
 #include "boost/shared_ptr.hpp"
 
 //#ifdef USE_CUDA
@@ -278,12 +281,16 @@ private:
       bool add_rand_seq;
       int gamma_calc;
 
+      std::vector<bool> random_sequence;
       /*Conv Codes parameters - END*/
       
        /*Conv Codes Functions - BEGIN*/
       void feedforward(std::istream& sin);
       
       void encode_data(const array1i_t& encoded, array1s_t& tx);
+
+      void add_random(array1s_t& tx);
+      void create_random();
 
       dbl get_gamma(unsigned int cur_state, unsigned int cur_bs, unsigned int next_state, unsigned int next_bs, array1s_t& orig_seq, array1s_t& recv_seq);
       dbl work_gamma(array1s_t& orig_seq, array1s_t& recv_seq);
