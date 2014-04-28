@@ -34,6 +34,10 @@
 #include <algorithm>
 #include <functional>
 
+#include "randgen.h"
+#include "truerand.h"
+//#include "random.h"
+
 #include <math.h>
 /*For overflow*/
 //#include <cfenv>
@@ -72,6 +76,13 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
+   //std::cout << "Encoded: " << std::endl;
+
+   //for (int i = 0; i < encoded.size(); i++)
+   //   {
+   //   std::cout << encoded(i) << " ";
+   //   }
+
    //std::cout << std::endl;
    //std::cout << "Tx before: " << std::endl;
 
@@ -89,14 +100,12 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    //   }
 
    if (add_rand_seq == 1)
+      {
+      create_random();
       add_random(tx);
+      }
 
-   //std::cout << "Encoded: " << std::endl;
 
-   //for (int i = 0; i < encoded.size(); i++)
-   //   {
-   //   std::cout << encoded(i) << " ";
-   //   }
 
    //std::cout << std::endl;
    //std::cout << "Tx: " << std::endl;
@@ -188,7 +197,7 @@ void conv_modem<sig, real, real2>::encode_data(const array1i_t& encoded, array1s
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::add_random(array1s_t& tx)
    {
-   for (int i = 0; i < block_length_w_tail; i++)
+   for (int i = 0; i < tx.size(); i++)
       {
       tx(i) = (bool)tx(i) ^ random_sequence[i];
       }
@@ -204,23 +213,22 @@ void conv_modem<sig, real, real2>::create_random()
       }
    else
       {
-      srand(time(NULL));
-      
+      libbase::truerand trng;
+
       for (int i = 0; i < block_length_w_tail; i++)
          {
-         if (((double)rand() / (RAND_MAX)) > 0.5)
+         if (trng.fval_closed() > 0.5)
             random_sequence[i] = 1;
          else
             random_sequence[i] = 0;
          }
       }
-   
    }
 
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
-   
+
    //std::cout << std::endl;
    //std::cout << "Rx: " << std::endl;
 
@@ -361,7 +369,16 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   next_state = get_next_state(input, cur_state);
                   next_bs = cur_bs + n - no_del;//setting up the initial point of next_bs
                      
-                  get_output(input, cur_state, orig_codeword);
+                  get_output(input, cur_state, orig_codeword, b);
+
+                  //std::cout << std::endl;
+                  //std::cout << "Output at b = " << b << std::endl;
+
+                  //for (int i = 0; i < orig_codeword.size(); i++)
+                  //   {
+                  //   std::cout << orig_codeword(i) << " ";
+                  //   }
+                  //std::cout << std::endl;
 
                   for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
                      {
@@ -388,6 +405,16 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                         if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+                           
+                           //std::cout << std::endl;
+                           //std::cout << "received at b = " << b << std::endl;
+
+                           //for (int i = 0; i < recv_codeword.size(); i++)
+                           //   {
+                           //   std::cout << recv_codeword(i) << " ";
+                           //   }
+                           //std::cout << std::endl;
+                           
                            //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
                            gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
@@ -964,18 +991,38 @@ unsigned int conv_modem<sig, real, real2>::get_input(unsigned int cur_state, uns
    }
 
 template <class sig, class real, class real2>
-void conv_modem<sig, real, real2>::get_output(int input, int curr_state, array1s_t& output)
+void conv_modem<sig, real, real2>::get_output(int input, int curr_state, array1s_t& output, unsigned int b)
    {
    output.init(n);
 
    int _output = int_statetable[input][curr_state].get_output();
-   
+
+   /*std::cout << std::endl;
+   std::cout << "input = " << input << " current state = " << curr_state << " get_output b = " << b << std::endl;*/
+
    for (int cnt = n - 1; cnt >= 0; cnt--)
       {
       output(cnt) = _output & 1;
       _output = _output >> 1;
       }
 
+   //for (int i = 0; i < output.size(); i++)
+   //   std::cout << output(i) << " ";
+
+   //std::cout << std::endl;
+   //std::cout << "get_output with added random sequence" << std::endl;
+   if (add_rand_seq == 1)
+      {
+      int start_loc = b*n;
+      for (int i = 0; i < n; i++)
+         {
+         output(i) = (bool)output(i) ^ random_sequence[start_loc];
+         //std::cout << output(i) << " ";
+         start_loc++;
+         }
+      }
+
+   //std::cout << std::endl;
    /*int state_table_row = bin2int(int2bin(input, k) + int2bin(curr_state,no_states));
    int out_loc = k + (no_states * 2);
    
@@ -1009,7 +1056,7 @@ void conv_modem<sig, real, real2>::get_received(unsigned int b, unsigned int cur
       {
       if(i < (unsigned int) rx.size())
          {
-         recv_codeword(count) = (bool)rx(i) ^ random_sequence[i];
+         recv_codeword(count) = rx(i);
          count++;
          }
       else
@@ -1109,7 +1156,7 @@ std::istream& conv_modem<sig, real, real2>::serialize(std::istream& sin)
    fill_intstatetable();
 
    /*Generating random sequence*/
-   create_random();
+   //create_random();
 
    return sin;
    }
