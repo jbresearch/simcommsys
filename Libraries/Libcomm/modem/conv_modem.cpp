@@ -76,12 +76,12 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    tx.init(block_length_w_tail);
    encode_data(encoded, tx);
 
-   //std::cout << "Encoded: " << std::endl;
+   ////std::cout << "Encoded: " << std::endl;
 
-   //for (int i = 0; i < encoded.size(); i++)
-   //   {
-   //   std::cout << encoded(i) << " ";
-   //   }
+   ////for (int i = 0; i < encoded.size(); i++)
+   ////   {
+   ////   std::cout << encoded(i) << " ";
+   ////   }
 
    //std::cout << std::endl;
    //std::cout << "Tx before: " << std::endl;
@@ -91,21 +91,19 @@ void conv_modem<sig, real, real2>::domodulate(const int N, const array1i_t& enco
    //   std::cout << tx(i) << " ";
    //   }
 
-   //std::cout << std::endl;
-   //std::cout << "Random Sequence: " << std::endl;
-
-   //for (int i = 0; i < random_sequence.size();i++)
-   //   {
-   //   std::cout << random_sequence[i] << " ";
-   //   }
-
    if (add_rand_seq == 1)
       {
       create_random();
       add_random(tx);
       }
+   
+   //std::cout << std::endl;
+   //std::cout << "Random Sequence: " << std::endl;
 
-
+   //for (int i = 0; i < random_sequence.size(); i++)
+   //   {
+   //   std::cout << random_sequence[i] << " ";
+   //   }
 
    //std::cout << std::endl;
    //std::cout << "Tx: " << std::endl;
@@ -199,7 +197,9 @@ void conv_modem<sig, real, real2>::add_random(array1s_t& tx)
    {
    for (int i = 0; i < tx.size(); i++)
       {
-      tx(i) = (bool)tx(i) ^ random_sequence[i];
+      //std::cout << tx(i) << " + " << random_sequence[i] << " = ";
+      tx(i) = (bool) tx(i) ^ (bool) random_sequence[i];
+      //std::cout << tx(i) << std::endl;
       }
    }
 
@@ -213,6 +213,17 @@ void conv_modem<sig, real, real2>::create_random()
       }
    else
       {
+      
+      //random_sequence[0] = 1;
+      //random_sequence[1] = 0;
+      //random_sequence[2] = 0;
+      //random_sequence[3] = 1;
+      //random_sequence[4] = 0;
+      //random_sequence[5] = 0;
+      //random_sequence[6] = 1;
+      //random_sequence[7] = 1;
+      //random_sequence[8] = 0;
+      //random_sequence[9] = 0;
       libbase::truerand trng;
 
       for (int i = 0; i < block_length_w_tail; i++)
@@ -228,6 +239,14 @@ void conv_modem<sig, real, real2>::create_random()
 template <class sig, class real, class real2>
 void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const array1s_t& rx, array1vd_t& ptable)
    {
+
+   //std::cout << std::endl;
+   //std::cout << "(recv) Random Sequence: " << std::endl;
+
+   //for (int i = 0; i < random_sequence.size(); i++)
+   //   {
+   //   std::cout << random_sequence[i] << " ";
+   //   }
 
    //std::cout << std::endl;
    //std::cout << "Rx: " << std::endl;
@@ -372,8 +391,7 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                   get_output(input, cur_state, orig_codeword, b);
 
                   //std::cout << std::endl;
-                  //std::cout << "Output at b = " << b << std::endl;
-
+                  //std::cout << "Output at (" << input << "," << cur_state << ") b = " << b << std::endl;
                   //for (int i = 0; i < orig_codeword.size(); i++)
                   //   {
                   //   std::cout << orig_codeword(i) << " ";
@@ -406,17 +424,17 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                            {
                            get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
                            
-                           //std::cout << std::endl;
-                           //std::cout << "received at b = " << b << std::endl;
-
-                           //for (int i = 0; i < recv_codeword.size(); i++)
-                           //   {
-                           //   std::cout << recv_codeword(i) << " ";
-                           //   }
-                           //std::cout << std::endl;
+                           gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
                            
-                           //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                           gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                           /*std::cout << std::endl;
+                           std::cout << "Received at (" << cur_bs << "," << next_bs << ") b = " << b  << " gamma = " << gamma << std::endl;
+                           for (int i = 0; i < recv_codeword.size(); i++)
+                              {
+                              std::cout << recv_codeword(i) << " ";
+                              }
+                           std::cout << std::endl;*/
+
+                           //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
                            //Work alpha
                            unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
