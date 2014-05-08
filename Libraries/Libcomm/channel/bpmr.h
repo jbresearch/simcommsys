@@ -162,16 +162,28 @@ public:
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);
    using Base::receive;
-   void receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const
-      {
-      failwith("Method not defined.");
-      }
-   double receive(const array1b_t& tx, const array1b_t& rx) const
+   //! \note Used by bpmr::receive(tx, rx, ptable)
+   double receive(const bool& tx, const array1b_t& rx) const
       {
       failwith("Method not defined.");
       return 0;
       }
-   double receive(const bool& tx, const array1b_t& rx) const
+   /*! \note Used by: direct_blockembedder, ssis, direct_blockmodem,
+    * lut_modulator
+    */
+   void receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const
+      {
+      // Compute sizes
+      const int M = tx.size();
+      // Initialize results vector
+      ptable.init(1);
+      ptable(0).init(M);
+      // Compute results for each possible signal
+      for (int x = 0; x < M; x++)
+         ptable(0)(x) = bpmr::receive(tx(x), rx);
+      }
+   //! \note Used by dminner
+   double receive(const array1b_t& tx, const array1b_t& rx) const
       {
       failwith("Method not defined.");
       return 0;
