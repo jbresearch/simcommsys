@@ -139,12 +139,27 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
       {
       // determine the actual drift at the end of the frame to be decoder
       const int drift = actual_drift.front() - drift_error;
-      // make sure this is within the range that can be expressed
-      assertalways(drift + offset >= 0);
-      assertalways(drift + offset < eof_prior.size());
       // set eof prior to fix end of frame position
+      // if this is not within the range that can be expressed, use closest
       eof_prior = 0;
-      eof_prior(drift + offset) = 1;
+      if (drift + offset < 0) // drift < mtau_min
+         {
+#ifndef NDEBUG
+         std::cerr << "DEBUG (commsys_stream_simulator): EOF drift = " << drift << " < mtau_min" << std::endl;
+#endif
+         eof_prior(0) = 1;
+         }
+      else if (drift + offset >= eof_prior.size()) // drift > mtau_max
+         {
+#ifndef NDEBUG
+         std::cerr << "DEBUG (commsys_stream_simulator): EOF drift = " << drift << " > mtau_max" << std::endl;
+#endif
+         eof_prior(eof_prior.size()-1) = 1;
+         }
+      else // drift within range
+         {
+         eof_prior(drift + offset) = 1;
+         }
       }
    // Shorthand for curent segment in received sequences
    const array1s_t& received_segment = received.extract(0, length);
