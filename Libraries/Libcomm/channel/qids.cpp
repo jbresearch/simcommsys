@@ -689,7 +689,7 @@ template <class G, class real>
 std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 3 << std::endl;
+   sout << 4 << std::endl;
    sout << "# Vary Ps?" << std::endl;
    sout << varyPs << std::endl;
    sout << "# Vary Pd?" << std::endl;
@@ -698,6 +698,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    sout << varyPi << std::endl;
    sout << "# Cap on m1_max (0=uncapped) [trellis receiver only]" << std::endl;
    sout << Icap << std::endl;
+   sout << "# Cap on n/tau max/min (0=uncapped)" << std::endl;
+   sout << Scap << std::endl;
    sout << "# Fixed Ps value" << std::endl;
    sout << fixedPs << std::endl;
    sout << "# Fixed Pd value" << std::endl;
@@ -717,6 +719,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
  * \version 2 Added mode for receiver (trellis or lattice)
  *
  * \version 3 Added support for corridor-lattice receiver
+ *
+ * \version 4 Added support for cap on state space limits
  */
 template <class G, class real>
 std::istream& qids<G, real>::serialize(std::istream& sin)
@@ -731,6 +735,11 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> varyPi >> libbase::verify;
    // read cap on insertions
    sin >> libbase::eatcomments >> Icap >> libbase::verify;
+   // read cap on state space limits, if present
+   if (version >= 4)
+      sin >> libbase::eatcomments >> Scap >> libbase::verify;
+   else
+      Scap = 0;
    // read fixed Ps,Pd,Pi values
    sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;

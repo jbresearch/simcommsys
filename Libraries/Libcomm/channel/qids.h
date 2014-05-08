@@ -84,6 +84,7 @@ private:
    bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
    int Icap; //!< Maximum usable value of m1_max (0 indicates no cap is placed)
+   int Scap; //!< Maximum usable value of n/tau max/min (0 indicates no cap is placed)
    double fixedPs; //!< Value to use when \f$ P_s \f$ does not change with parameter
    double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
    double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter
@@ -550,8 +551,8 @@ public:
     */
    qids(const bool varyPs = true, const bool varyPd = true, const bool varyPi =
          true) :
-         varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(0), fixedPs(0), fixedPd(
-               0), fixedPi(0)
+         varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(0), Scap(0), fixedPs(
+               0), fixedPd(0), fixedPi(0)
       {
       // channel update flags
       assert(varyPs || varyPd || varyPi);
@@ -586,6 +587,8 @@ public:
       // cap minimum value
       const int I = compute_I(tau, Pr);
       xmax = std::max(xmax, I);
+      if (Scap > 0)
+         xmax = std::min(xmax, Scap);
       return xmax;
       }
    /*!
@@ -598,6 +601,11 @@ public:
          const int offset = 0) const
       {
       qids_utils::compute_limits(tau, Pi, Pd, Pr, lower, upper, sof_pdf, offset);
+      if (Scap > 0)
+         {
+         upper = std::min(upper, Scap);
+         lower = std::max(lower, -Scap);
+         }
       }
    // @}
 
