@@ -879,6 +879,24 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
 
    //Wi = Wd = Ws = 1.0;
 
+   /*Vector Initialisation - Begin*/
+   WLD_vector[0][0] = 0;
+
+   //col = orig_seq.size();
+   //row = recv_seq.size();
+
+   for (col = 1; col < orig_seq.size(); col++)
+      {
+      WLD_vector[0][col] = WLD_vector[0][col-1] + Wd;
+      }
+
+   for (row = 1; row < recv_seq.size(); row++)
+      {
+      WLD_vector[row][0] = WLD_vector[row-1][0] + Wi;
+      }
+
+   /*Vector Initialisation - Row*/
+
    double cost_sub, cost_del, cost_ins;
 
    for (col = 1; col < orig_seq.size()+1; col++)
@@ -887,17 +905,19 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
          {
          if (orig_seq(col-1) == recv_seq(row-1))//If no error get the diagonal value
             {
-            WLD_vector[row][col] = WLD_vector[row - 1][col - 1];
+            cost_sub = WLD_vector[row - 1][col - 1];
+            //WLD_vector[row][col] = WLD_vector[row - 1][col - 1];
             }
          else
             {
             cost_sub = WLD_vector[row - 1][col - 1] + Ws;
-            cost_del = WLD_vector[row][col - 1] + Wd;
-            cost_ins = WLD_vector[row - 1][col] + Wi;
-	    
-            WLD_vector[row][col] = std::min(std::min(cost_sub,cost_del),cost_ins);
-            //WLD_vector[row][col] = std::min({ cost_sub, cost_del, cost_ins });
             }
+         
+         cost_del = WLD_vector[row][col - 1] + Wd;
+         cost_ins = WLD_vector[row - 1][col] + Wi;
+	    
+         WLD_vector[row][col] = std::min(std::min(cost_sub,cost_del),cost_ins);
+         //WLD_vector[row][col] = std::min({ cost_sub, cost_del, cost_ins });   
          }
       }
 
