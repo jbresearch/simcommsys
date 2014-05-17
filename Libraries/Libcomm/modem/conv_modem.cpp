@@ -400,67 +400,70 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
 
                   for (unsigned int cnt_next_bs = 0; cnt_next_bs < no_insdels; cnt_next_bs++)
                      {
-                     if (next_bs >= (int) cur_bs)
+                     if (next_bs <= rx.size())
                         {
-                        if (b_vector[b + 1].getmin_bs() < 0)
+                        if (next_bs >= (int)cur_bs)
                            {
-                           b_vector[b + 1].setmin_bs(next_bs);
-                           }
-                           
-                        /*Calculating the current drift - BEGIN*/
-                        drift = next_bs - (b + 1)*n;
-                        symb_shift = ceil(dbl(abs(drift)) / dbl(n));
+                           if (b_vector[b + 1].getmin_bs() < 0)
+                              {
+                              b_vector[b + 1].setmin_bs(next_bs);
+                              }
 
-                        if (dynamic_limit > 0)
-                           {
-                           if (drift < 0)
-                              rho = vec_symbshift[b + 1].getmin();
-                           else
-                              rho = vec_symbshift[b + 1].getmax();
-                           }
-                        /*Calculating the current drift - END*/
+                           /*Calculating the current drift - BEGIN*/
+                           drift = next_bs - (b + 1)*n;
+                           symb_shift = ceil(dbl(abs(drift)) / dbl(n));
 
-                        if ((((b + 1) == b_size) && next_bs == (int) recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
-                           {
-                           get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
-                           
-                           gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                           
-                           /*std::cout << std::endl;
-                           std::cout << "Received at (" << cur_bs << "," << next_bs << ") b = " << b  << " gamma = " << gamma << std::endl;
-                           for (int i = 0; i < recv_codeword.size(); i++)
+                           if (dynamic_limit > 0)
+                              {
+                              if (drift < 0)
+                                 rho = vec_symbshift[b + 1].getmin();
+                              else
+                                 rho = vec_symbshift[b + 1].getmax();
+                              }
+                           /*Calculating the current drift - END*/
+
+                           if ((((b + 1) == b_size) && next_bs == (int)recv_size) || (((b + 1) < b_size) && (symb_shift <= rho)))
+                              {
+                              get_received(b, cur_bs, next_bs, no_del, rx, recv_codeword);
+
+                              //gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
+
+                              /*std::cout << std::endl;
+                              std::cout << "Received at (" << cur_bs << "," << next_bs << ") b = " << b  << " gamma = " << gamma << std::endl;
+                              for (int i = 0; i < recv_codeword.size(); i++)
                               {
                               std::cout << recv_codeword(i) << " ";
                               }
-                           std::cout << std::endl;*/
+                              std::cout << std::endl;*/
 
-                           //gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
+                              gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
-                           //Work alpha
-                           unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
-                           unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
-                           //For release
-                           alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
-                           alpha_total += alpha;
+                              //Work alpha
+                              unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
+                              unsigned int st_nxt_bs = (next_bs - b_vector[b + 1].getmin_bs());//the actual store location for next bs
+                              //For release
+                              alpha = gamma * b_vector[b].state_bs_vector[cur_state][st_cur_bs].getalpha();
+                              alpha_total += alpha;
 
-                           //storing gamma
-                           /*Check whether bit shift location is already available - Begin*/
-                           if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
-                              b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
-                           /*Check whether bit shift location is already available - End*/
+                              //storing gamma
+                              /*Check whether bit shift location is already available - Begin*/
+                              if (b_vector[b + 1].state_bs_vector[next_state].size() < (st_nxt_bs + 1))
+                                 b_vector[b + 1].state_bs_vector[next_state].resize(st_nxt_bs + 1);
+                              /*Check whether bit shift location is already available - End*/
 
-                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
-                           //storing alpha
-                           b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
+                              b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].gamma.push_back(Gamma_Storage(cur_state, st_cur_bs, gamma));
+                              //storing alpha
+                              b_vector[b + 1].state_bs_vector[next_state][st_nxt_bs].setalpha(alpha);
 
-                           next_bs++;//Incrementing next_bs
-                           }
-                        else
-                           {
-                           if (b_vector[b + 1].getmin_bs() == next_bs)
-                              b_vector[b + 1].setmin_bs(++next_bs);
+                              next_bs++;//Incrementing next_bs
+                              }
                            else
-                              next_bs++;
+                              {
+                              if (b_vector[b + 1].getmin_bs() == next_bs)
+                                 b_vector[b + 1].setmin_bs(++next_bs);
+                              else
+                                 next_bs++;
+                              }
                            }
                         }
                      else
