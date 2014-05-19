@@ -978,7 +978,7 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
          }
       }
 
-   double gamma = pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1-Ps)), (n-N_d-N_s));
+   //double gamma = pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1-Ps)), (n-N_d-N_s));
 
    return pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1 - Ps)), (n - N_d - N_s));;
    }
