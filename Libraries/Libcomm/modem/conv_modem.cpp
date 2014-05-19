@@ -491,7 +491,14 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
       }
 
    /*Setting up the first beta value - BEGIN*/
-   b_vector[b_size].state_bs_vector[0][0].setbeta(1);
+   if (b_vector[b_size].state_bs_vector[0].size() == 0)
+      {
+      std::cout << "OOps!";
+      }
+   else
+      {
+      b_vector[b_size].state_bs_vector[0][0].setbeta(1);
+      }
    /*Setting up the first beta value - END*/
 
    unsigned int size_gamma = 0;
@@ -854,11 +861,11 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    {
 
    //orig_seq.init(3);
-   //recv_seq.init(4);
+   //recv_seq.init(3);
 
-   //orig_seq(0) = 1;
-   //orig_seq(1) = 0;
-   //orig_seq(2) = 1;
+   //orig_seq(0) = 0;
+   //orig_seq(1) = 1;
+   //orig_seq(2) = 0;
 
    //recv_seq(0) = 0;
    //recv_seq(1) = 1;
@@ -874,6 +881,8 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    double Wd = log10(Pd/(Pt*(1-Ps)))*-1;
    double Ws = log10(Ps / (1 - Ps))*-1;
 
+   //Ws = 10000;
+
    int N_i,N_d,N_s;
 
    int col, row;
@@ -888,12 +897,12 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    //col = orig_seq.size();
    //row = recv_seq.size();
 
-   for (col = 1; col < orig_seq.size(); col++)
+   for (col = 1; col <= orig_seq.size(); col++)
       {
       WLD_vector[0][col] = WLD_vector[0][col-1] + Wd;
       }
 
-   for (row = 1; row < recv_seq.size(); row++)
+   for (row = 1; row <= recv_seq.size(); row++)
       {
       WLD_vector[row][0] = WLD_vector[row-1][0] + Wi;
       }
@@ -907,8 +916,8 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
       for (row = 1; row < recv_seq.size()+1; row++)
          {
          if (orig_seq(col-1) == recv_seq(row-1))//If no error get the diagonal value
-            {
-            cost_sub = WLD_vector[row - 1][col - 1];
+            {            
+            cost_sub = WLD_vector[row - 1][col - 1] + (1 - Ws);
             //WLD_vector[row][col] = WLD_vector[row - 1][col - 1];
             }
          else
@@ -964,12 +973,12 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
          }
       else//Substitution
          {
-         if (current != WLD_vector[--row][--col])
+         if (current != (WLD_vector[--row][--col] + (1-Ws)))
             N_s++;
          }
       }
 
-   //double gamma = pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1-Ps)), (n-N_d-N_s));
+   double gamma = pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1-Ps)), (n-N_d-N_s));
 
    return pow(Pi, N_i) * pow(Pd, N_d) * pow((Pt*Ps), N_s) * pow((Pt*(1 - Ps)), (n - N_d - N_s));;
    }
