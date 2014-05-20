@@ -679,7 +679,7 @@ dbl conv_modem<sig, real, real2>::work_gamma(array1s_t& orig_seq, array1s_t& rec
    {
    double pi, pd;
    
-   //(0 = WLD, 1 = Uleven, 2 = Receive Function, 3 = Hamming Distance)
+   //(0 = #WLD, 1 = Uleven, 2 = Receive Function, 3 = Hamming Distance)
    switch (gamma_calc)
       {
       case 0:
@@ -917,7 +917,7 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
          {
          if (orig_seq(col-1) == recv_seq(row-1))//If no error get the diagonal value
             {            
-            cost_sub = WLD_vector[row - 1][col - 1] + (1 - Ws);
+            cost_sub = WLD_vector[row - 1][col - 1]; // + (1 - Ws);
             //WLD_vector[row][col] = WLD_vector[row - 1][col - 1];
             }
          else
@@ -973,7 +973,7 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
          }
       else//Substitution
          {
-         if (current != (WLD_vector[--row][--col] + (1-Ws)))
+         if (current != (WLD_vector[--row][--col]))// + (1-Ws)))
             N_s++;
          }
       }
