@@ -954,6 +954,7 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    row = recv_seq.size();
 
    char transition = 0;
+   double cur_value, next_value;
 
    while (!(col == 0 && row == 0))
       {
@@ -961,10 +962,14 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
 
       if (transition == 's')
          {
-         if (WLD_vector[row][col].value != WLD_vector[--row][--col].value)
+         cur_value = WLD_vector[row][col].value;
+         next_value = WLD_vector[row-1][col-1].value;
+         if (cur_value != next_value)
             {
             N_s++;
             }
+         row--;
+         col--;
          }
       else if (transition == 'd')
          {
