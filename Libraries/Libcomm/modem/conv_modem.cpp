@@ -860,15 +860,15 @@ template <class sig, class real, class real2>
 dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    {
 
-   //orig_seq.init(3);
-   //recv_seq.init(3);
+   //orig_seq.init(2);
+   //recv_seq.init(1);
 
    //orig_seq(0) = 0;
-   //orig_seq(1) = 1;
+   //orig_seq(1) = 0;
    //orig_seq(2) = 0;
 
    //recv_seq(0) = 0;
-   //recv_seq(1) = 1;
+   //recv_seq(1) = 0;
    //recv_seq(2) = 0;
    //recv_seq(3) = 1;
 
@@ -892,22 +892,24 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    //Wi = Wd = Ws = 1.0;
 
    /*Vector Initialisation - Begin*/
-   WLD_vector[0][0] = 0;
-
-   //col = orig_seq.size();
-   //row = recv_seq.size();
+   WLD_vector[0][0].value = 0;
+   WLD_vector[0][0].location = 's';
 
    for (col = 1; col <= orig_seq.size(); col++)
       {
-      WLD_vector[0][col] = WLD_vector[0][col-1] + Wd;
+      WLD_vector[0][col].value = WLD_vector[0][col-1].value + Wd;
+      WLD_vector[0][col].location = 'd';
       }
 
    for (row = 1; row <= recv_seq.size(); row++)
       {
-      WLD_vector[row][0] = WLD_vector[row-1][0] + Wi;
+      WLD_vector[row][0].value = WLD_vector[row-1][0].value + Wi;
+      WLD_vector[row][0].location = 'i';
       }
 
    /*Vector Initialisation - Row*/
+
+   //0-insertion, 1-deletion, 2-transmision
 
    double cost_sub, cost_del, cost_ins;
 
@@ -917,18 +919,33 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
          {
          if (orig_seq(col-1) == recv_seq(row-1))//If no error get the diagonal value
             {            
-            cost_sub = WLD_vector[row - 1][col - 1]; // + (1 - Ws);
-            //WLD_vector[row][col] = WLD_vector[row - 1][col - 1];
+            cost_sub = WLD_vector[row - 1][col - 1].value; // + (1 - Ws);
             }
          else
             {
-            cost_sub = WLD_vector[row - 1][col - 1] + Ws;
+            cost_sub = WLD_vector[row - 1][col - 1].value + Ws;
             }
          
-         cost_del = WLD_vector[row][col - 1] + Wd;
-         cost_ins = WLD_vector[row - 1][col] + Wi;
-	    
-         WLD_vector[row][col] = std::min(std::min(cost_sub,cost_del),cost_ins);
+         cost_del = WLD_vector[row][col - 1].value + Wd;
+         cost_ins = WLD_vector[row - 1][col].value + Wi;
+	 
+         if (cost_sub <= cost_del && cost_sub <= cost_ins)//substitution
+            {
+            WLD_vector[row][col].value = cost_sub;
+            WLD_vector[row][col].location = 's';
+            }
+         else if (cost_del <= cost_sub && cost_del <= cost_ins)//deletion
+            {
+            WLD_vector[row][col].value = cost_del;
+            WLD_vector[row][col].location = 'd';
+            }
+         else if (cost_ins <= cost_del && cost_ins <= cost_sub)//insertions
+            {
+            WLD_vector[row][col].value = cost_ins;
+            WLD_vector[row][col].location = 'i';
+            }
+
+         //WLD_vector[row][col] = std::min(std::min(cost_sub,cost_del),cost_ins);
          //WLD_vector[row][col] = std::min({ cost_sub, cost_del, cost_ins });   
          }
       }
@@ -936,45 +953,28 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    col = orig_seq.size();
    row = recv_seq.size();
 
-   double top, left, diagonal,current;
-   int row_1, col_1;
+   char transition = 0;
 
    while (!(col == 0 && row == 0))
       {
-      current = WLD_vector[row][col];
+      transition = WLD_vector[row][col].location;
 
-      row_1 = row - 1;
-      col_1 = col - 1;
-
-      if (row_1 < 0)
-         top = 10000;
-      else
-         top = WLD_vector[row_1][col];
-      
-      if (col_1 < 0)
-         left = 10000;
-      else
-         left = WLD_vector[row][col_1];
-
-      if (row_1 < 0 || col_1 < 0)
-         diagonal = 10000;
-      else
-         diagonal = WLD_vector[row_1][col_1];
-
-      if (top < left && top < diagonal)//Insertion
+      if (transition == 's')
          {
-         if (current != WLD_vector[--row][col])
-            N_i++;
-         }
-      else if (left < top && left < diagonal)//Deletion
-         {
-         if (current != WLD_vector[row][--col])
-            N_d++;
-         }
-      else//Substitution
-         {
-         if (current != (WLD_vector[--row][--col]))// + (1-Ws)))
+         if (WLD_vector[row][col].value != WLD_vector[--row][--col].value)
+            {
             N_s++;
+            }
+         }
+      else if (transition == 'd')
+         {
+         N_d++;
+         col--;
+         }
+      else if (transition == 'i')
+         {
+         N_i++;
+         row--;
          }
       }
 

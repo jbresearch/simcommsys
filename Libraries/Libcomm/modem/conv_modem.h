@@ -221,7 +221,7 @@ public:
    typedef long double dbl;
 
    /*Constructor*/
-   conv_modem() :WLD_vector(100, std::vector<dbl>(100))
+   conv_modem() :WLD_vector(100, std::vector<levenshtein_storage>(100))
       {
       old_pd = old_pi = 0.0;
 
@@ -274,7 +274,7 @@ private:
       double dist1[100];
       double dist2[100];
 
-      std::vector<std::vector<dbl> > WLD_vector;// matrix2d(100, std::vector<dbl>(100));
+      std::vector<std::vector<levenshtein_storage> > WLD_vector;// matrix2d(100, std::vector<dbl>(100));
 
       //Selection parameters
       dbl dynamic_limit;

@@ -128,3 +128,16 @@ class dynamic_symbshift
       unsigned int getmin(){ return min; }
       unsigned int getmax(){ return max; }
    };
+
+class levenshtein_storage
+   {
+   public:
+      char location;
+      double value;
+
+      levenshtein_storage()
+         {
+         location = 0;
+         value = 0.0;
+         }
+   };
