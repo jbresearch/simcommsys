@@ -23,7 +23,7 @@ Documentation is available as follows:
       - An overview of the SimCommSys framework
       - An example extension of the framework (adding a new codec)
    - An introduction to SimCommSys can be found in our paper:
-      [SimCommSys: Taking the errors out of error-correcting code simulations]
+      [SimCommSys: Taking the errors out of error-correcting code simulations](http://jabriffa.wordpress.com/publications/#simcommsys)
    - Detailed documentation for the API can be built from the code:
       1. Build the doxygen documentation using `make doc`
       2. Start with the main page: `doc/html/index.html`
