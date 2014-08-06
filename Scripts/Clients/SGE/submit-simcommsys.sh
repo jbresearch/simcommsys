@@ -38,7 +38,15 @@ for (( port=$first; $port <= $last; port++ )); do
    # prepare job submission script
    jdlfile=./jobscript-$host-$port.sh
    program=`which simcommsys.$tag.$release`
-   echo -e "#!/bin/bash -l\nmodule add gcc\n$program -q -p 0 -e $host:$port\n" > $jdlfile
+   echo "#!/bin/bash -l" > $jdlfile
+   echo "module add gcc" >> $jdlfile
+   echo 'if [ -f /proc/meminfo -a -f /proc/cpuinfo -a -e "$(which gawk)" ]; then' >> $jdlfile
+   echo '   CPUS=$(gawk '"'"'/processor/ { n++ } END { print n }'"'"' /proc/cpuinfo)' >> $jdlfile
+   echo '   vlimit=$(gawk -v n="$CPUS" '"'"'/MemTotal/ { printf "%d",$2/n }'"'"' /proc/meminfo)' >> $jdlfile
+   echo '   echo "Setting memory limit to $vlimit KiB"' >> $jdlfile
+   echo '   ulimit -v $vlimit' >> $jdlfile
+   echo 'fi' >> $jdlfile
+   echo "$program -q -p 0 -e $host:$port" >> $jdlfile
    chmod 700 $jdlfile
    # submit the array job
    jobid=`qsub -e $PWD/logs/ -o $PWD/logs/ -t 1-$count $jdlfile`
