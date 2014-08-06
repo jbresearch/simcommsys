@@ -1,5 +1,4 @@
 #!/bin/bash -l
-#$Id: submit-local.sh 8815 2013-03-03 09:59:19Z jabriffa $
 
 if [[ $# < 1 ]]; then
    echo "Usage: $0 <executable> [<argument>..]"

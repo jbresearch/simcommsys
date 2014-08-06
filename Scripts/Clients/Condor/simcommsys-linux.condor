@@ -11,10 +11,6 @@
 #
 # Optional variables to be set:
 #   requirements - e.g. (OpSys == "LINUX" && Arch == "X86_64")
-#
-# $Revision$
-# $Date$
-# $Author$
 
 coresize        = 0
 universe        = vanilla

@@ -1,8 +1,4 @@
 #!/bin/bash
-#
-# $Revision$
-# $Date$
-# $Author$
 
 if [[ $# < 4 ]]; then
    echo "Usage: ${0##*/} <tag> <count> <host> <first port> [<last port>]"

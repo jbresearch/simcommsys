@@ -1,8 +1,4 @@
 #!/bin/bash
-#
-# $Revision$
-# $Date$
-# $Author$
 
 if [[ $# < 3 ]]; then
    echo "Usage: $0 <cluster> <start> <end>"

@@ -5,15 +5,11 @@
 #
 # Required variables to be set:
 #   count - the number of identical jobs to queue
-#   executable - the binary to be 
+#   executable - the binary to be
 #   arguments - any command-line arguments to go with the binary
 #
 # Optional variables to be set:
 #   requirements - e.g. (OpSys == "LINUX" && Arch == "X86_64")
-#
-# $Revision$
-# $Date$
-# $Author$
 
 coresize        = 0
 universe        = vanilla
@@ -23,7 +19,7 @@ transfer_files  = ALWAYS
 
 periodic_hold   = ImageSize > 1000000
 rank            = KFlops
-                
+
 #input          = /dev/null
 output          = logs/$(Cluster).$(Process).out
 error           = logs/$(Cluster).$(Process).err

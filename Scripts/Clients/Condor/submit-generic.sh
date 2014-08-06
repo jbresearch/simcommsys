@@ -1,8 +1,4 @@
 #!/bin/bash
-#
-# $Revision$
-# $Date$
-# $Author$
 
 if [[ $# < 3 ]]; then
    echo "Usage: $0 <count> <executable> \"<arguments>\""
@@ -16,4 +12,4 @@ arguments=$3
 echo Starting $count jobs
 condor_submit -a "count = $count" \
               -a "executable = $executable" \
-              -a "arguments = $arguments" generic.condor 
+              -a "arguments = $arguments" generic.condor
