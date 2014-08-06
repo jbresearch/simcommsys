@@ -159,6 +159,19 @@ public:
       }
    // @}
 
+   //! Clear list of timers
+   void reset_timers()
+      {
+      // clear list of timers we're keeping
+      instrumented::reset_timers();
+      // clear list of timers for all components
+      cdc->reset_timers();
+      map->reset_timers();
+      mdm->reset_timers();
+      txchan->reset_timers();
+      rxchan->reset_timers();
+      }
+
    // Description
    virtual std::string description() const;
    std::ostream& serialize(std::ostream& sout) const;

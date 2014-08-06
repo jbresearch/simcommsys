@@ -186,6 +186,13 @@ public:
       return base_count * getsys_stream().sys_iter();
       }
 
+   //! Clear list of timers
+   void reset_timers()
+      {
+      Base::reset_timers();
+      sys_enc->reset_timers();
+      }
+
    // Description
    std::string description() const;
 

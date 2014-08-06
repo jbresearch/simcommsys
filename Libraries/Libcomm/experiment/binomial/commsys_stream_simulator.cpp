@@ -57,6 +57,8 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 #ifndef NDEBUG
    std::cerr << "DEBUG (commsys_stream_simulator): sample() BEGIN" << std::endl;
 #endif
+   // Reset timers
+   this->reset_timers();
 
    // reset if we have reached the user-set limit for stream length
    switch (stream_mode)
