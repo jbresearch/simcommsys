@@ -54,6 +54,9 @@ template <class S, class R>
 void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    {
    assert(sys_enc);
+#ifndef NDEBUG
+   std::cerr << "DEBUG (commsys_stream_simulator): sample() BEGIN" << std::endl;
+#endif
 
    // reset if we have reached the user-set limit for stream length
    switch (stream_mode)
@@ -293,6 +296,10 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 #endif
    // update counters
    frames_decoded++;
+
+#ifndef NDEBUG
+   std::cerr << "DEBUG (commsys_stream_simulator): sample() END" << std::endl;
+#endif
    }
 
 // Description & Serialization

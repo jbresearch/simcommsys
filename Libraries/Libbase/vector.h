@@ -132,6 +132,7 @@ public:
 
 template <class T>
 class vector {
+   friend class indirect_vector<T> ;
 protected:
    typedef std::allocator<T> Allocator;
    Allocator allocator;
