@@ -34,7 +34,7 @@ else
    exit 1
 fi
 # determine full path to submitter script
-submit="$(which submit-local.sh)"
+submit="${0%/*}/submit-local.sh"
 
 # start the clients
 declare -i port
