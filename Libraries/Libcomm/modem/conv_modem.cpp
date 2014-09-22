@@ -435,14 +435,8 @@ void conv_modem<sig, real, real2>::dodemodulate(const channel<sig>& chan, const 
                               std::cout << recv_codeword(i) << " ";
                               }
                               std::cout << std::endl;*/
-                              if (no_states > 0)
-                                 {
-                                 gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
-                                 }
-                              else
-                                 {
-                                 gamma = work_gamma(orig_codeword, recv_codeword);//1 state change
-                                 }
+
+                              gamma = get_gamma(cur_state, cur_bs, next_state, next_bs, orig_codeword, recv_codeword);
 
                               //Work alpha
                               unsigned int st_cur_bs = (cur_bs - b_vector[b].getmin_bs());//the actual store location for current bs
@@ -867,15 +861,15 @@ dbl conv_modem<sig, real, real2>::WLD(array1s_t& orig_seq, array1s_t& recv_seq)
    {
 
    //orig_seq.init(2);
-   //recv_seq.init(3);
+   //recv_seq.init(1);
 
-   //orig_seq(0) = 1;
-   //orig_seq(1) = 1;
+   //orig_seq(0) = 0;
+   //orig_seq(1) = 0;
    //orig_seq(2) = 0;
 
    //recv_seq(0) = 0;
-   //recv_seq(1) = 1;
-   //recv_seq(2) = 1;
+   //recv_seq(1) = 0;
+   //recv_seq(2) = 0;
    //recv_seq(3) = 1;
 
    double Pi = mychan.get_pi();
