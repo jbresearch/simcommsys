@@ -679,7 +679,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_g
          std::min(Mtau, gamma_thread_count / gamma_thread_x));
    const dim3 gridDimG(N, (Mtau + gamma_thread_y - 1) / gamma_thread_y);
    const dim3 blockDimG(gamma_thread_x, gamma_thread_y);
-   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, mn_max) * count(blockDimG);
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem() * count(blockDimG);
    // store kernel parameters
    add_kernel_parameters(collector, "gamma", gridDimG, blockDimG, sharedMemG,
          fba2_global_gamma_kernel<receiver_t, sig, real, real2, thresholding, lazy, globalstore>);
@@ -884,7 +884,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
          gamma_thread_count / gamma_thread_x);
    const dim3 gridDimG(1, (Mtau + gamma_thread_y - 1) / gamma_thread_y);
    const dim3 blockDimG(gamma_thread_x, gamma_thread_y);
-   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, mn_max) * count(blockDimG);
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem() * count(blockDimG);
    // Alpha initialization:
    // block index is not used: grid size = 1
    // thread index is for x2 in [mtau_min, mtau_max]: block size = Mtau
@@ -1014,7 +1014,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          gamma_thread_count / gamma_thread_x);
    const dim3 gridDimG(1, (Mtau + gamma_thread_y - 1) / gamma_thread_y);
    const dim3 blockDimG(gamma_thread_x, gamma_thread_y);
-   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, mn_max) * count(blockDimG);
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem() * count(blockDimG);
    // Beta initialization:
    // block index is not used: grid size = 1
    // thread index is for x2 in [mtau_min, mtau_max]: block size = Mtau
@@ -1185,7 +1185,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(i
    computer.th_outer = th_outer;
    // determine thread count to use for gamma,alpha,beta,message kernels
    const int Mtau = mtau_max - mtau_min + 1;
-   const size_t gamma_smem = computer.receiver.receiver_sharedmem(n, mn_max);
+   const size_t gamma_smem = computer.receiver.receiver_sharedmem();
    if (globalstore)
       gamma_thread_count = determine_thread_count(q * Mtau, 0, gamma_smem, 1,
             fba2_global_gamma_kernel<receiver_t, sig, real, real2, thresholding, lazy, globalstore>);

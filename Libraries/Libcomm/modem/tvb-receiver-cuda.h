@@ -112,9 +112,9 @@ public:
    // @}
    /*! \name Information functions */
    //! Determine the amount of shared memory required per receiver thread
-   size_t receiver_sharedmem(const int n, const int mn_max) const
+   size_t receiver_sharedmem() const
       {
-      return computer.receiver_sharedmem(n, mn_max);
+      return computer.receiver_sharedmem();
       }
    // @}
 #ifdef __CUDACC__

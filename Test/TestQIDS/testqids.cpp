@@ -415,7 +415,7 @@ void compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
    // set up metric computer
    metric_computer computer;
    computer.init();
-   computer.precompute(Ps, Pd, Pi, mtau_min, mtau_max, m1_min, m1_max);
+   computer.precompute(Ps, Pd, Pi, tau, mtau_min, mtau_max, m1_min, m1_max);
    // define input sequences and output table
    vector<bool> tx(tau);
    vector<bool> rx(tau + mtau_max);

@@ -107,6 +107,7 @@ public:
       real Pval_i; //!< Lattice coefficient value for insertion event
       real Pval_tc; //!< Lattice coefficient value for correct transmission event
       real Pval_te; //!< Lattice coefficient value for error transmission event
+      int T; //!< block size in channel symbols
       int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ m_T^{-} \f$
       int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
       int m1_min; //!< Assumed largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
@@ -131,7 +132,8 @@ public:
          }
       // @}
       /*! \name Internal functions */
-      void precompute(double Ps, double Pd, double Pi, int mT_min, int mT_max, int m1_min, int m1_max);
+      void precompute(double Ps, double Pd, double Pi, int T, int mT_min,
+            int mT_max, int m1_min, int m1_max);
       void init();
       // @}
 #ifdef USE_CUDA
@@ -428,7 +430,7 @@ public:
 #endif
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread
-      size_t receiver_sharedmem(const int n, const int mn_max) const
+      size_t receiver_sharedmem() const
          {
          switch(receiver_type)
             {
@@ -437,7 +439,7 @@ public:
             case receiver_lattice:
                return 0;
             case receiver_lattice_corridor:
-               return (n + mn_max + 1) * sizeof(real);
+               return (T + mT_max + 1) * sizeof(real);
             default:
                failwith("Unknown receiver mode");
                return 0;
@@ -529,7 +531,7 @@ private:
          int m1_min, m1_max;
          compute_limits(1, qids_utils::divide_error_probability(Pr, T), m1_min,
                m1_max);
-         computer.precompute(Ps, Pd, Pi, mT_min, mT_max, m1_min, m1_max);
+         computer.precompute(Ps, Pd, Pi, T, mT_min, mT_max, m1_min, m1_max);
          }
       }
    static array1d_t resize_drift(const array1d_t& in, const int offset,

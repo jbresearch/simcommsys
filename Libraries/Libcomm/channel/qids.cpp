@@ -97,8 +97,10 @@ void qids<G, real>::metric_computer::compute_Rtable(array2r_t& Rtable, int m1_ma
  */
 template <class G, class real>
 void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
-      int mT_min, int mT_max, int m1_min, int m1_max)
+      int T, int mT_min, int mT_max, int m1_min, int m1_max)
    {
+   // block size
+   this->T = T;
    // fba decoder parameters
    this->mT_min = mT_min;
    this->mT_max = mT_max;
