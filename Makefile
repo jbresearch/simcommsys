@@ -44,7 +44,8 @@ ifndef USE_MPI
 endif
 # GMP Library (0 if absent)
 ifndef USE_GMP
-   export USE_GMP := $(if $(wildcard /usr/include/gmp.h),1,0)
+   TEST_GMP:=$(shell echo '\#include <gmp.h>' | cpp -H -o /dev/null 2>&1 | grep error )
+   export USE_GMP := $(if $(TEST_GMP),0,1)
 endif
 # CUDA compiler (0 if absent, architecture if present)
 ifndef USE_CUDA
