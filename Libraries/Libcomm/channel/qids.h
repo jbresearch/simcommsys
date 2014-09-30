@@ -58,10 +58,10 @@ namespace libcomm {
  */
 
 template <class G, class real>
-class qids : public channel_stream<G> {
+class qids : public channel_stream<G, real> {
 private:
    // Shorthand for class hierarchy
-   typedef channel_stream<G> Base;
+   typedef channel_stream<G, real> Base;
 public:
    /*! \name Type definitions */
    typedef libbase::matrix<real> array2r_t;
