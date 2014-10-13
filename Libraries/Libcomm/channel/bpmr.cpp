@@ -36,15 +36,14 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
-const libbase::serializer bpmr::shelper("channel", "bpmr", bpmr::create);
-
 /*!
  * \brief Initialization
  *
  * Sets the channel with fixed values for Pd, Pi. This way, if the user
  * never calls set_parameter(), the values are valid.
  */
-void bpmr::init()
+template <class real>
+void bpmr<real>::init()
    {
    // channel parameters
    Pd = fixedPd;
@@ -58,7 +57,8 @@ void bpmr::init()
  *
  * \sa init()
  */
-bpmr::bpmr(const bool varyPd, const bool varyPi) :
+template <class real>
+bpmr<real>::bpmr(const bool varyPd, const bool varyPi) :
    varyPd(varyPd), varyPi(varyPi), fixedPd(0), fixedPi(0)
    {
    // channel update flags
@@ -80,7 +80,8 @@ bpmr::bpmr(const bool varyPd, const bool varyPi) :
  * between successive uses of this class. (i.e. once this function is called,
  * the class will be in a known determined state).
  */
-void bpmr::set_parameter(const double p)
+template <class real>
+void bpmr<real>::set_parameter(const double p)
    {
    set_pd(varyPd ? p : fixedPd);
    set_pi(varyPi ? p : fixedPi);
@@ -95,7 +96,8 @@ void bpmr::set_parameter(const double p)
  * change. If none of these are flagged to change, this constitutes an error
  * condition.
  */
-double bpmr::get_parameter() const
+template <class real>
+double bpmr<real>::get_parameter() const
    {
    assert(varyPd || varyPi);
    if (varyPd)
@@ -143,7 +145,8 @@ double bpmr::get_parameter() const
  *
  * \sa corrupt()
  */
-void bpmr::transmit(const array1b_t& tx, array1b_t& rx)
+template <class real>
+void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
    {
    const int tau = tx.size();
    // Allocate and initialize Markov state sequence
@@ -153,7 +156,7 @@ void bpmr::transmit(const array1b_t& tx, array1b_t& rx)
    int Zprev = 0;
    for (int i = 0; i < tau; i++)
       {
-      const double p = r.fval_closed();
+      const double p = this->r.fval_closed();
       // upper limit
       if (Zprev == Zmax)
          {
@@ -198,7 +201,7 @@ void bpmr::transmit(const array1b_t& tx, array1b_t& rx)
          newrx(i) = tx(j);
       // invalid index -> equiprobable
       else
-         newrx(i) = (r.fval_closed() < 0.5);
+         newrx(i) = (this->r.fval_closed() < 0.5);
       }
    // copy results back
    rx = newrx;
@@ -206,7 +209,8 @@ void bpmr::transmit(const array1b_t& tx, array1b_t& rx)
 
 // description output
 
-std::string bpmr::description() const
+template <class real>
+std::string bpmr<real>::description() const
    {
    std::ostringstream sout;
    sout << "BPMR channel (";
@@ -232,7 +236,8 @@ std::string bpmr::description() const
 
 // object serialization - saving
 
-std::ostream& bpmr::serialize(std::ostream& sout) const
+template <class real>
+std::ostream& bpmr<real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
    sout << 1 << std::endl;
@@ -256,7 +261,8 @@ std::ostream& bpmr::serialize(std::ostream& sout) const
 /*!
  * \version 1 Initial version
  */
-std::istream& bpmr::serialize(std::istream& sin)
+template <class real>
+std::istream& bpmr<real>::serialize(std::istream& sin)
    {
    // get format version
    int version;
@@ -277,5 +283,42 @@ std::istream& bpmr::serialize(std::istream& sin)
    init();
    return sin;
    }
+
+} // end namespace
+
+#include "mpgnu.h"
+#include "logrealfast.h"
+
+namespace libcomm {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+using libbase::mpgnu;
+using libbase::logrealfast;
+
+#ifdef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(mpgnu)(logrealfast)
+#endif
+
+/* Serialization string: bpmr<real>
+ * where:
+ *      real = float | double | [mpgnu | logrealfast (CPU only)]
+ */
+#define INSTANTIATE(r, x, type) \
+      template class bpmr<type>; \
+      template <> \
+      const serializer bpmr<type>::shelper( \
+            "channel", \
+            "bpmr<" BOOST_PP_STRINGIZE(type) ">", \
+            bpmr<type>::create);
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // end namespace

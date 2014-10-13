@@ -54,17 +54,19 @@ namespace libcomm {
  * The extension allows the Markov state to take negative values as well as
  * zero and positive values, effectively allowing deletion-before-insertion.
  *
+ * \tparam real Floating-point type for internal computation
+ *
  * \note Unlike the BSID and QIDS channels, this model has no concept of stream
  * operation, as at the receiving end, a full sector will always be retrieved.
  */
 
-class bpmr : public channel_insdel<bool> {
+template <class real>
+class bpmr : public channel_insdel<bool, real> {
 private:
    // Shorthand for class hierarchy
    typedef channel<bool> Base;
 public:
    /*! \name Type definitions */
-   typedef float real;
    typedef libbase::matrix<real> array2r_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<int> array1i_t;

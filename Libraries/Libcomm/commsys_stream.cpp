@@ -47,8 +47,8 @@ namespace libcomm {
  * Otherwise, it will skip over all material from the last decoding that is
  * no longer needed (keeping the last segment as required by the new offset).
  */
-template <class S, template <class > class C>
-void commsys_stream<S, C>::stream_advance(C<S>& received,
+template <class S, template <class > class C, class real>
+void commsys_stream<S, C, real>::stream_advance(C<S>& received,
       const libbase::size_type<C>& oldoffset,
       const libbase::size_type<C>& drift,
       const libbase::size_type<C>& newoffset)
@@ -86,8 +86,8 @@ void commsys_stream<S, C>::stream_advance(C<S>& received,
  * If the EOF post is supplied, the corresponding offset must also be supplied.
  * This is updated with the offset for the posterior probabilities.
  */
-template <class S, template <class > class C>
-void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
+template <class S, template <class > class C, class real>
+void commsys_stream<S, C, real>::compute_priors(const C<double>& eof_post,
       const libbase::size_type<C> lookahead, C<double>& sof_prior,
       C<double>& eof_prior, libbase::size_type<C>& offset) const
    {
@@ -96,7 +96,7 @@ void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
    // Shorthand for probability of channel event outside chosen limits
    const double Pr = getmodem_stream().get_suggested_exclusion();
    // Get access to the channel object in stream-oriented mode
-   const channel_stream<S>& rxchan = getrxchan_stream();
+   const channel_stream<S, real>& rxchan = getrxchan_stream();
 
    if (eof_post.size() == 0) // this is the first frame
       {
@@ -119,8 +119,8 @@ void commsys_stream<S, C>::compute_priors(const C<double>& eof_post,
       }
    }
 
-template <class S, template <class > class C>
-void commsys_stream<S, C>::receive_path(const C<S>& received,
+template <class S, template <class > class C, class real>
+void commsys_stream<S, C, real>::receive_path(const C<S>& received,
       const libbase::size_type<C> lookahead, const C<double>& sof_prior,
       const C<double>& eof_prior, const libbase::size_type<C> offset)
    {
@@ -138,8 +138,8 @@ void commsys_stream<S, C>::receive_path(const C<S>& received,
 
 // Description & Serialization
 
-template <class S, template <class > class C>
-std::string commsys_stream<S, C>::description() const
+template <class S, template <class > class C, class real>
+std::string commsys_stream<S, C, real>::description() const
    {
    std::ostringstream sout;
    sout << "Stream-oriented ";
@@ -151,8 +151,8 @@ std::string commsys_stream<S, C>::description() const
 
 // object serialization - saving
 
-template <class S, template <class > class C>
-std::ostream& commsys_stream<S, C>::serialize(std::ostream& sout) const
+template <class S, template <class > class C, class real>
+std::ostream& commsys_stream<S, C, real>::serialize(std::ostream& sout) const
    {
    // first write underlying system
    Base::serialize(sout);
@@ -172,8 +172,8 @@ std::ostream& commsys_stream<S, C>::serialize(std::ostream& sout) const
  * \version 1 Added version numbering; added number of full-system iterations
  */
 
-template <class S, template <class > class C>
-std::istream& commsys_stream<S, C>::serialize(std::istream& sin)
+template <class S, template <class > class C, class real>
+std::istream& commsys_stream<S, C, real>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
    // first read underlying system
@@ -201,6 +201,8 @@ std::istream& commsys_stream<S, C>::serialize(std::istream& sin)
 
 #include "gf.h"
 #include "erasable.h"
+#include "mpgnu.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -214,6 +216,8 @@ using libbase::serializer;
 using libbase::erasable;
 using libbase::matrix;
 using libbase::vector;
+using libbase::mpgnu;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -238,11 +242,19 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define CONTAINER_TYPE_SEQ \
    (vector)
 //(vector)(matrix)
+#ifdef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(mpgnu)(logrealfast)
+#endif
 
 /* Serialization string: commsys_stream<type>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      container = vector | matrix
+ *      real = float | double | [mpgnu | logrealfast (CPU only)]
  */
 #define INSTANTIATE(r, args) \
       template class commsys_stream<BOOST_PP_SEQ_ENUM(args)>; \
@@ -253,6 +265,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             commsys_stream<BOOST_PP_SEQ_ENUM(args)>::create); \
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

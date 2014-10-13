@@ -48,11 +48,11 @@ namespace libcomm {
  * operations. Access methods are also provided.
  */
 
-template <class S, template <class > class C = libbase::vector>
+template <class S, template <class > class C, class real>
 class commsys_stream : public commsys<S, C> {
 private:
    // Shorthand for class hierarchy
-   typedef commsys_stream<S, C> This;
+   typedef commsys_stream<S, C, real> This;
    typedef commsys<S, C> Base;
 
 public:
@@ -105,14 +105,14 @@ public:
       return dynamic_cast<stream_modulator<S, C>&> (*this->mdm);
       }
    //! Get receiver channel model in stream mode
-   channel_stream<S>& getrxchan_stream() const
+   channel_stream<S, real>& getrxchan_stream() const
       {
-      return dynamic_cast<channel_stream<S>&> (*this->rxchan);
+      return dynamic_cast<channel_stream<S, real>&> (*this->rxchan);
       }
    //! Get transmit channel model in stream mode
-   channel_stream<S>& gettxchan_stream() const
+   channel_stream<S, real>& gettxchan_stream() const
       {
-      return dynamic_cast<channel_stream<S>&> (*this->txchan);
+      return dynamic_cast<channel_stream<S, real>&> (*this->txchan);
       }
    //! Get codec in soft-output mode
    codec_softout<C>& getcodec_softout() const
