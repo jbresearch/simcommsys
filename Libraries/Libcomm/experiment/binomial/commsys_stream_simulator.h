@@ -44,13 +44,17 @@ namespace libcomm {
  * position is set to the posterior information of the end-of-frame from the
  * previous frame simulation. The a-priori end-of-frame information is set
  * according to the distribution provided by the channel.
+ *
+ * \tparam S Channel symbol type
+ * \tparam R Results collector type
+ * \tparam real Floating-point type for metric computer interface
  */
-template <class S, class R>
+template <class S, class R, class real>
 class commsys_stream_simulator : public commsys_simulator<S, R> {
 private:
    // Shorthand for class hierarchy
    typedef experiment Interface;
-   typedef commsys_stream_simulator<S, R> This;
+   typedef commsys_stream_simulator<S, R, real> This;
    typedef commsys_simulator<S, R> Base;
 public:
    /*! \name Type definitions */
@@ -79,7 +83,7 @@ private:
    std::list<array1i_t> act_bdry_drift; //!< Actual channel drift at codeword boundaries of each received frame
    std::list<int> actual_drift; //!< Actual channel drift at end of each received frame
    int drift_error; //!< Cumulative error in channel drift estimation at end of last decoded frame
-   commsys_stream<S>* sys_enc; //!< Copy of the commsys object for encoder operations
+   commsys_stream<S, libbase::vector, real>* sys_enc; //!< Copy of the commsys object for encoder operations
    int frames_encoded; //!< Number of frames encoded since stream reset
    int frames_decoded; //!< Number of frames decoded since stream reset
    hard_decision<libbase::vector, double, int> hd_functor; //!< Hard-decision box
@@ -88,9 +92,9 @@ private:
 protected:
    /*! \name Stream Extensions */
    //! Get communication system in stream mode
-   commsys_stream<S>& getsys_stream() const
+   commsys_stream<S, libbase::vector, real>& getsys_stream() const
       {
-      return dynamic_cast<commsys_stream<S>&>(*this->sys);
+      return dynamic_cast<commsys_stream<S, libbase::vector, real>&>(*this->sys);
       }
    // @}
 
@@ -115,7 +119,7 @@ protected:
       // Make a copy of the commsys object for transmitter operations
       delete sys_enc;
       if (this->sys)
-         sys_enc = dynamic_cast<commsys_stream<S>*>(this->sys->clone());
+         sys_enc = dynamic_cast<commsys_stream<S, libbase::vector, real>*>(this->sys->clone());
       else
          sys_enc = NULL;
       // reset counters
@@ -136,14 +140,14 @@ protected:
 
 public:
    /*! \name Constructors / Destructors */
-   commsys_stream_simulator(const commsys_stream_simulator<S, R>& c) :
+   commsys_stream_simulator(const commsys_stream_simulator<S, R, real>& c) :
          commsys_simulator<S, R>(c), stream_mode(c.stream_mode), N(c.N), source(c.source), received(
                c.received), eof_post(c.eof_post), offset(c.offset), estimated_drift(
                c.estimated_drift), act_bdry_drift(c.act_bdry_drift), actual_drift(
                c.actual_drift), drift_error(c.drift_error), frames_encoded(
                c.frames_encoded), frames_decoded(c.frames_decoded)
       {
-      sys_enc = dynamic_cast<commsys_stream<S>*>(c.sys_enc->clone());
+      sys_enc = dynamic_cast<commsys_stream<S, libbase::vector, real>*>(c.sys_enc->clone());
       }
    commsys_stream_simulator() :
          stream_mode(stream_mode_open), N(0), sys_enc(NULL)

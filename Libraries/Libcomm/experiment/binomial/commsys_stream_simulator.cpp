@@ -50,8 +50,8 @@ namespace libcomm {
  * so that every call adds to the existing result. This explains the need to
  * initialize the result vector to zero.
  */
-template <class S, class R>
-void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
+template <class S, class R, class real>
+void commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
    {
    assert(sys_enc);
 #ifndef NDEBUG
@@ -75,7 +75,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    // Get access to the results collector in codeword boundary analysis mode
    fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
    // Get access to the decoder-side commsys object in stream-oriented mode
-   commsys_stream<S>& sys_dec = getsys_stream();
+   commsys_stream<S, libbase::vector, real>& sys_dec = getsys_stream();
 
    // Shorthand for transmitted frame size
    const int tau = sys_dec.output_block_size();
@@ -208,7 +208,7 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
          // get most probable estimated drift positions
          array1i_t est_drift(post_pdftable.size());
          for (int i = 0; i < post_pdftable.size(); i++)
-            est_drift(i) = commsys_stream<S>::estimate_drift(post_pdftable(i),
+            est_drift(i) = commsys_stream<S, libbase::vector, real>::estimate_drift(post_pdftable(i),
                   offset);
          // get actual drift at codeword boundary positions to compare against
          assert(!act_bdry_drift.empty());
@@ -276,9 +276,9 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
    // Store posterior end-of-frame drift probabilities
    //eof_post = sys_dec.get_eof_post();
    // Determine estimated drift
-   estimated_drift = commsys_stream<S>::estimate_drift(eof_post, offset);
+   estimated_drift = commsys_stream<S, libbase::vector, real>::estimate_drift(eof_post, offset);
    // Centralize posterior probabilities
-   eof_post = commsys_stream<S>::centralize_pdf(eof_post, estimated_drift);
+   eof_post = commsys_stream<S, libbase::vector, real>::centralize_pdf(eof_post, estimated_drift);
    // Tell user what we're doing
 #if DEBUG>=3
    std::cerr << "DEBUG (commsys_stream_simulator): eof prior = " << eof_prior << std::endl;
@@ -306,8 +306,8 @@ void commsys_stream_simulator<S, R>::sample(libbase::vector<double>& result)
 
 // Description & Serialization
 
-template <class S, class R>
-std::string commsys_stream_simulator<S, R>::description() const
+template <class S, class R, class real>
+std::string commsys_stream_simulator<S, R, real>::description() const
    {
    std::ostringstream sout;
    sout << "Stream-oriented ";
@@ -331,8 +331,8 @@ std::string commsys_stream_simulator<S, R>::description() const
 
 // object serialization - saving
 
-template <class S, class R>
-std::ostream& commsys_stream_simulator<S, R>::serialize(
+template <class S, class R, class real>
+std::ostream& commsys_stream_simulator<S, R, real>::serialize(
       std::ostream& sout) const
    {
    // format version
@@ -368,8 +368,8 @@ std::ostream& commsys_stream_simulator<S, R>::serialize(
  * \version 2 Changed format to include stream mode, and terminating streams
  */
 
-template <class S, class R>
-std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
+template <class S, class R, class real>
+std::istream& commsys_stream_simulator<S, R, real>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
    // get format version
@@ -428,6 +428,8 @@ std::istream& commsys_stream_simulator<S, R>::serialize(std::istream& sin)
 #include "result_collector/commsys/prof_pos.h"
 #include "result_collector/commsys/prof_sym.h"
 #include "result_collector/commsys/hist_symerr.h"
+#include "mpgnu.h"
+#include "logrealfast.h"
 
 namespace libcomm {
 
@@ -438,6 +440,8 @@ namespace libcomm {
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
+using libbase::mpgnu;
+using libbase::logrealfast;
 
 #define USING_GF(r, x, type) \
       using libbase::type;
@@ -457,11 +461,19 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (prof_sym) \
    (hist_symerr) \
    (fidelity_pos)
+#ifdef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (float)(double)
+#else
+#define REAL_TYPE_SEQ \
+   (float)(double)(mpgnu)(logrealfast)
+#endif
 
 /* Serialization string: commsys_stream_simulator<type,collector>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      collector = errors_hamming | errors_levenshtein | ...
+ *      real = float | double | [mpgnu | logrealfast (CPU only)]
  */
 #define INSTANTIATE(r, args) \
       template class commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>; \
@@ -469,10 +481,11 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
       const serializer commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
             "experiment", \
             "commsys_stream_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create); \
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-      (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+      (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // end namespace

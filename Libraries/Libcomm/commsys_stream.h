@@ -46,6 +46,10 @@ namespace libcomm {
  *
  * This class requires the underlying modem and channel to support stream
  * operations. Access methods are also provided.
+ *
+ * \tparam S Channel symbol type
+ * \tparam C Channel/modem block type
+ * \tparam real Floating-point type for metric computer interface
  */
 
 template <class S, template <class > class C, class real>

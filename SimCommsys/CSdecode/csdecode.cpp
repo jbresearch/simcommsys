@@ -146,7 +146,7 @@ void receiver_multi(std::istream& sin, libcomm::commsys<S, C>* system,
 
 template <class S>
 void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
-      libbase::vector>* system,
+      libbase::vector, float>* system,
       const libbase::size_type<libbase::vector>& blocksize)
    {
    // Keep posterior probabilities at end-of-frame and computed drift
@@ -211,16 +211,16 @@ void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
    eof_post = system->get_eof_post();
 
    // Determine estimated drift
-   estimated_drift = libcomm::commsys_stream<S>::estimate_drift(eof_post,
+   estimated_drift = libcomm::commsys_stream<S, libbase::vector, float>::estimate_drift(eof_post,
          offset);
    // Centralize posterior probabilities
-   eof_post = libcomm::commsys_stream<S>::centralize_pdf(eof_post,
+   eof_post = libcomm::commsys_stream<S, libbase::vector, float>::centralize_pdf(eof_post,
          estimated_drift);
    }
 
 template <class S>
 void receiver_multi_stream(std::istream& sin, libcomm::commsys_stream<S,
-      libbase::matrix>* system,
+      libbase::matrix, float>* system,
       const libbase::size_type<libbase::matrix>& blocksize)
    {
    failwith("Not implemented.");
@@ -263,7 +263,7 @@ void process(const std::string& fname, double p, bool softin, bool softout,
    {
    // define types
    typedef libcomm::commsys<S, C> commsys;
-   typedef libcomm::commsys_stream<S, C> commsys_stream;
+   typedef libcomm::commsys_stream<S, C, float> commsys_stream;
 
    // Communication system
    commsys *system = libcomm::loadfromfile<commsys>(fname);
