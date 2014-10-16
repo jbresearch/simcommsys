@@ -503,6 +503,7 @@ public:
       void receive_lattice_corridor(const array1g_t& tx, const array1g_t& rx,
             array1r_t& ptable) const;
       // @}
+      DECLARE_CLONABLE(metric_computer)
    };
    // @}
 private:

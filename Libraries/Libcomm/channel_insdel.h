@@ -23,6 +23,7 @@
 #define __channel_insdel_h
 
 #include "channel.h"
+#include "clonable.h"
 #include "cuda-all.h"
 
 namespace libcomm {
@@ -47,7 +48,7 @@ public:
    // @}
 public:
    /*! \name Metric computation */
-   class metric_computer {
+   class metric_computer : public libbase::clonable {
    public:
 #ifdef USE_CUDA
       /*! \name Device methods */

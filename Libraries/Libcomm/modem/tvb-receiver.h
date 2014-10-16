@@ -23,7 +23,8 @@
 #define __tvb_receiver_h
 
 #include "config.h"
-#include "channel/qids.h"
+#include "channel_insdel.h"
+#include <memory>
 
 namespace libcomm {
 
@@ -61,7 +62,7 @@ public:
 private:
    /*! \name User-defined parameters */
    mutable array2vs_t encoding_table; //!< Local copy of per-frame encoding table
-   typename qids<sig, real2>::metric_computer computer; //!< Channel object for computing receiver metric
+   std::auto_ptr<typename channel_insdel<sig, real2>::metric_computer> computer; //!< Channel object for computing receiver metric
    // @}
 public:
    /*! \name User initialization (can be adapted for needs of user class) */
@@ -71,7 +72,8 @@ public:
    void init(const int n, const int q,
          const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
       {
-      this->computer = dynamic_cast<const typename libcomm::qids<sig, real2>::metric_computer&> (computer);
+      this->computer.reset(
+            dynamic_cast<typename channel_insdel<sig, real2>::metric_computer*>(computer.clone()));
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
       std::cerr << "T = " << computer.T << std::endl;
@@ -107,7 +109,7 @@ public:
       static array1r2_t ptable_r;
       ptable_r.init(ptable.size());
       // call batch receiver method
-      computer.receive(tx, r, ptable_r);
+      computer->receive(tx, r, ptable_r);
       // apply priors at codeword level if applicable
       if (app.size() > 0)
          ptable_r *= real2(app(i)(d));

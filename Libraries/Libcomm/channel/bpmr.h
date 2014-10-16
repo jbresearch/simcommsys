@@ -293,6 +293,7 @@ public:
       //! Batch receiver interface
       void receive(const array1b_t& tx, const array1b_t& rx, array1r_t& ptable) const;
       // @}
+      DECLARE_CLONABLE(metric_computer)
    };
    // @}
 private:
