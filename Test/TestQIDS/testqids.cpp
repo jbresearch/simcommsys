@@ -290,7 +290,8 @@ template <class real>
 void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
    {
    // define channel according to specifications
-   libcomm::qids<bool, real> channel(sub, del, ins);
+   typedef libcomm::qids<bool, real> channel_t;
+   channel_t channel(sub, del, ins);
    randgen prng;
    prng.seed(0);
    channel.seedfrom(prng);
@@ -319,9 +320,11 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
       rx = 0;
       rx.segment(0, temp.size()) = temp;
       // determine results with all receivers
-      channel.get_computer().receive_trellis(tx, rx, ptable_trellis);
-      channel.get_computer().receive_lattice(tx, rx, ptable_lattice);
-      channel.get_computer().receive_lattice_corridor(tx, rx, ptable_corridor);
+      const typename channel_t::metric_computer& computer =
+            dynamic_cast<const typename channel_t::metric_computer&>(channel.get_computer());
+      computer.receive_trellis(tx, rx, ptable_trellis);
+      computer.receive_lattice(tx, rx, ptable_lattice);
+      computer.receive_lattice_corridor(tx, rx, ptable_corridor);
       // compare results
       mse_trellis.insert(
             (ptable_trellis - ptable_lattice).sumsq() / (mtau_max - mtau_min + 1));
@@ -338,8 +341,10 @@ template <class real, class reference>
 void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
    {
    // define two identical channels according to specifications
-   libcomm::qids<bool, real> channel_real(sub, del, ins);
-   libcomm::qids<bool, reference> channel_reference(sub, del, ins);
+   typedef libcomm::qids<bool, real> channel_real_t;
+   typedef libcomm::qids<bool, reference> channel_reference_t;
+   channel_real_t channel_real(sub, del, ins);
+   channel_reference_t channel_reference(sub, del, ins);
    randgen prng;
    prng.seed(0);
    channel_real.seedfrom(prng);
@@ -373,13 +378,15 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
       rx = 0;
       rx.segment(0, temp.size()) = temp;
       // determine results with two receivers - test system
-      channel_real.get_computer().receive_trellis(tx, rx, ptable_trellis_real);
-      channel_real.get_computer().receive_lattice_corridor(tx, rx,
-            ptable_corridor_real);
+      const typename channel_real_t::metric_computer& computer_real =
+            dynamic_cast<const typename channel_real_t::metric_computer&>(channel_real.get_computer());
+      computer_real.receive_trellis(tx, rx, ptable_trellis_real);
+      computer_real.receive_lattice_corridor(tx, rx, ptable_corridor_real);
       // determine results with two receivers - reference system
-      channel_reference.get_computer().receive_trellis(tx, rx,
-            ptable_trellis_reference);
-      channel_reference.get_computer().receive_lattice_corridor(tx, rx,
+      const typename channel_reference_t::metric_computer& computer_reference =
+            dynamic_cast<const typename channel_reference_t::metric_computer&>(channel_reference.get_computer());
+      computer_reference.receive_trellis(tx, rx, ptable_trellis_reference);
+      computer_reference.receive_lattice_corridor(tx, rx,
             ptable_corridor_reference);
       // compare results
       mse_trellis.insert(

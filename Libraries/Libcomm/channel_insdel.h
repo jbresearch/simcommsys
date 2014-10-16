@@ -89,6 +89,10 @@ public:
        return result;
        }
    // @}
+
+   /*! \name Interface for CUDA */
+   virtual const metric_computer& get_computer() const = 0;
+   // @}
 };
 
 } // end namespace

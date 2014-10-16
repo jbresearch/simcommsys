@@ -59,9 +59,6 @@ namespace libcomm {
 
 template <class G, class real>
 class qids : public channel_stream<G, real> {
-private:
-   // Shorthand for class hierarchy
-   typedef channel_stream<G, real> Base;
 public:
    /*! \name Type definitions */
    typedef libbase::matrix<real> array2r_t;
@@ -91,7 +88,7 @@ private:
    // @}
 public:
    /*! \name Metric computation */
-   class metric_computer {
+   class metric_computer : public channel_insdel<G, real>::metric_computer {
    public:
       /*! \name User-defined parameters */
       receiver_t receiver_type; //!< enum indicating receiver implementation to use
@@ -753,7 +750,7 @@ public:
       }
 
    // Interface for CUDA
-   const metric_computer& get_computer() const
+   const typename channel_insdel<G, real>::metric_computer& get_computer() const
       {
       return computer;
       }

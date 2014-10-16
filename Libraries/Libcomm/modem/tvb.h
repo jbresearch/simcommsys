@@ -117,7 +117,7 @@ private:
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
-   qids<sig,real2> mychan; //!< bound channel object
+   std::auto_ptr<qids<sig,real2> > mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
@@ -228,7 +228,8 @@ public:
                x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
                x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
                x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
-               x.lookahead), mychan(x.mychan), r(x.r), encoding_table(
+               x.lookahead), mychan(
+               dynamic_cast<qids<sig, real2>*>(x.mychan->clone())), r(x.r), encoding_table(
                x.encoding_table), changed_encoding_table(
                x.changed_encoding_table)
       {

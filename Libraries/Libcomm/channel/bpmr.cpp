@@ -36,6 +36,117 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+// Channel receiver for host
+
+#ifndef USE_CUDA
+
+// Batch receiver interface
+template <class real>
+void bpmr<real>::metric_computer::receive(const array1b_t& tx,
+      const array1b_t& rx, array1r_t& ptable) const
+   {
+   using std::swap;
+   using std::min;
+   using std::max;
+   // Compute sizes
+   const int n = tx.size();
+   const int rho = rx.size();
+   // Set up single slice of lattice on the stack as a fixed size;
+   // this avoids dynamic allocation (which would otherwise be necessary
+   // as the size is non-const)
+   assertalways(rho + 1 <= arraysize);
+   real F[arraysize];
+   // set up variable to keep track of Fprev[j-1]
+   real Fprev;
+   // initialize for i=0 (first row of lattice)
+   // Fthis[0] = 1;
+   F[0] = 1;
+   const int jmax = min(mT_max, rho);
+   for (int j = 1; j <= jmax; j++)
+      {
+      // Fthis[j] = Fthis[j - 1] * Pval_i;
+      F[j] = F[j - 1] * Pval_i;
+      }
+   // compute remaining rows, except last
+   for (int i = 1; i < n; i++)
+      {
+      // keep Fprev[0]
+      Fprev = F[0];
+      // handle first column as a special case, if necessary
+      if (i + mT_min <= 0)
+         {
+         // Fthis[0] = Fprev[0] * Pval_d;
+         F[0] = Fprev * Pval_d;
+         }
+      // determine limits for remaining columns (after first)
+      const int jmin = max(i + mT_min, 1);
+      const int jmax = min(i + mT_max, rho);
+      // keep Fprev[jmin - 1], if necessary
+      if (jmin > 1)
+         Fprev = F[jmin - 1];
+      // remaining columns
+      for (int j = jmin; j <= jmax; j++)
+         {
+         // transmission/substitution path
+         const bool cmp = tx(i - 1) == rx(j - 1);
+         // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+         real temp = Fprev * (cmp ? Pval_tc : Pval_te);
+         // keep Fprev[j] for next time (to use as Fprev[j-1])
+         Fprev = F[j];
+         // deletion path (if previous row was within corridor)
+         if (j < i + mT_max)
+            // temp += Fprev[j] * Pval_d;
+            temp += Fprev * Pval_d;
+         // insertion path
+         // temp += Fthis[j - 1] * Pval_i;
+         temp += F[j - 1] * Pval_i;
+         // store result
+         // Fthis[j] = temp;
+         F[j] = temp;
+         }
+      }
+   // compute last row as a special case (no insertions)
+   const int i = n;
+   // keep Fprev[0]
+   Fprev = F[0];
+   // handle first column as a special case, if necessary
+   if (i + mT_min <= 0)
+      {
+      // Fthis[0] = Fprev[0] * Pval_d;
+      F[0] = Fprev * Pval_d;
+      }
+   // remaining columns
+   for (int j = 1; j <= rho; j++)
+      {
+      // transmission/substitution path
+      const bool cmp = tx(i - 1) == rx(j - 1);
+      // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
+      real temp = Fprev * (cmp ? Pval_tc : Pval_te);
+      // keep Fprev[j] for next time (to use as Fprev[j-1])
+      Fprev = F[j];
+      // deletion path (if previous row was within corridor)
+      if (j < i + mT_max)
+         // temp += Fprev[j] * Pval_d;
+         temp += Fprev * Pval_d;
+      // store result
+      // Fthis[j] = temp;
+      F[j] = temp;
+      }
+   // copy results and return
+   assertalways(ptable.size() == mT_max - mT_min + 1);
+   for (int x = mT_min; x <= mT_max; x++)
+      {
+      // convert index
+      const int j = x + n;
+      if (j >= 0 && j <= rho)
+         ptable(x - mT_min) = F[j];
+      else
+         ptable(x - mT_min) = 0;
+      }
+   }
+
+#endif
+
 /*!
  * \brief Initialization
  *

@@ -399,22 +399,22 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    const int tau = N * n;
    assert(N > 0);
    // Copy channel for access within R()
-   mychan = dynamic_cast<const qids<sig, real2>&> (chan);
+   mychan.reset(dynamic_cast<qids<sig, real2>*> (chan.clone()));
    // Set channel block size to q-ary symbol size
-   mychan.set_blocksize(n);
+   mychan->set_blocksize(n);
    // Set the probability of channel event outside chosen limits
-   mychan.set_pr(qids_utils::divide_error_probability(Pr, N));
+   mychan->set_pr(qids_utils::divide_error_probability(Pr, N));
    // Determine required FBA parameter values
    // No need to recompute mtau_min/max if we are given a prior PDF
    mtau_min = -offset;
    mtau_max = sof_pdf.size() - offset - 1;
    if (sof_pdf.size() == 0)
-      mychan.compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
+      mychan->compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
    int mn_min, mn_max;
-   mychan.compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
+   mychan->compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
          mn_max);
    int m1_min, m1_max;
-   mychan.compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
+   mychan->compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
          m1_min, m1_max);
    checkforchanges(m1_min, m1_max, mn_min, mn_max, mtau_min, mtau_max);
    //! Determine whether to use global storage
@@ -452,7 +452,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
       }
    // Initialize our embedded metric computer with unchanging elements
    // (needs to happen before fba initialization)
-   fba_ptr->get_receiver().init(n, q, mychan);
+   fba_ptr->get_receiver().init(n, q, mychan->get_computer());
    // Initialize forward-backward algorithm
    fba_ptr->init(N, n, q, mtau_min, mtau_max, mn_min, mn_max, m1_min, m1_max,
          th_inner, th_outer);
