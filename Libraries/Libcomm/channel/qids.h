@@ -591,22 +591,6 @@ public:
          xmax = std::min(xmax, Scap);
       return xmax;
       }
-   /*!
-    * \copydoc qids_utils::compute_limits()
-    *
-    * \note Provided for use by clients; depends on object parameters
-    */
-   void compute_limits(int tau, double Pr, int& lower, int& upper,
-         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
-         const int offset = 0) const
-      {
-      qids_utils::compute_limits(tau, Pi, Pd, Pr, lower, upper, sof_pdf, offset);
-      if (Scap > 0)
-         {
-         upper = std::min(upper, Scap);
-         lower = std::max(lower, -Scap);
-         }
-      }
    // @}
 
    /*! \name Channel parameter handling */
@@ -636,23 +620,6 @@ public:
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
       precompute();
-      }
-   //! Set the probability of channel event outside chosen limits
-   void set_pr(const double Pr)
-      {
-      assert(Pr > 0 && Pr < 1);
-      this->Pr = Pr;
-      precompute();
-      }
-   //! Set the block size
-   void set_blocksize(int T)
-      {
-      if (this->T != T)
-         {
-         assert(T > 0);
-         this->T = T;
-         precompute();
-         }
       }
    // @}
 
@@ -702,6 +669,39 @@ public:
             drift--;
          }
       return drift;
+      }
+   //! Set the probability of channel event outside chosen limits
+   void set_pr(const double Pr)
+      {
+      assert(Pr > 0 && Pr < 1);
+      this->Pr = Pr;
+      precompute();
+      }
+   //! Set the block size
+   void set_blocksize(int T)
+      {
+      if (this->T != T)
+         {
+         assert(T > 0);
+         this->T = T;
+         precompute();
+         }
+      }
+   /*!
+    * \copydoc qids_utils::compute_limits()
+    *
+    * \note Provided for use by clients; depends on object parameters
+    */
+   void compute_limits(int tau, double Pr, int& lower, int& upper,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const
+      {
+      qids_utils::compute_limits(tau, Pi, Pd, Pr, lower, upper, sof_pdf, offset);
+      if (Scap > 0)
+         {
+         upper = std::min(upper, Scap);
+         lower = std::max(lower, -Scap);
+         }
       }
 
    // Channel functions

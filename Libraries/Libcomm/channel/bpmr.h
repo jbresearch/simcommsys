@@ -373,6 +373,37 @@ public:
          drift = Z(t - 1);
       return drift;
       }
+   /*!
+    * \copydoc channel_insdel::set_pr()
+    *
+    * \note No need to keep this value as nothing depends on it
+    */
+   void set_pr(const double Pr)
+      {
+      assert(Pr > 0 && Pr < 1);
+      }
+   /*!
+    * \copydoc channel_insdel::set_blocksize()
+    *
+    * \note No need to keep this value as nothing depends on it
+    */
+   void set_blocksize(int T)
+      {
+      assert(T > 0);
+      }
+   /*!
+    * \copydoc channel_insdel::compute_limits()
+    *
+    * \note For this channel model, the limits are fixed
+    * \note Drift at start/end of frame is also fixed at zero
+    */
+   void compute_limits(int tau, double Pr, int& lower, int& upper,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const
+      {
+      upper = Zmax;
+      lower = Zmin;
+      }
 
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);

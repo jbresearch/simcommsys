@@ -89,9 +89,20 @@ public:
           result(i) = get_drift(t(i));
        return result;
        }
+   //! Set the probability of channel event outside chosen limits
+   virtual void set_pr(const double Pr) = 0;
+   //! Set the block size
+   virtual void set_blocksize(int T) = 0;
+   /*!
+    * \brief Determine upper and lower drift limits at the end of a frame of
+    * 'T' symbols, given the supplied drift pdf at start of transmission.
+    */
+   virtual void compute_limits(int tau, double Pr, int& lower, int& upper,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const = 0;
    // @}
 
-   /*! \name Interface for CUDA */
+   /*! \name Access to receiver metric computation object */
    virtual const metric_computer& get_computer() const = 0;
    // @}
 };

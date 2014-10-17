@@ -405,10 +405,13 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    // Set the probability of channel event outside chosen limits
    mychan->set_pr(qids_utils::divide_error_probability(Pr, N));
    // Determine required FBA parameter values
-   // No need to recompute mtau_min/max if we are given a prior PDF
-   mtau_min = -offset;
-   mtau_max = sof_pdf.size() - offset - 1;
-   if (sof_pdf.size() == 0)
+   if (sof_pdf.size())
+      {
+      // No need to recompute mtau_min/max if we are given a prior PDF
+      mtau_min = -offset;
+      mtau_max = sof_pdf.size() - offset - 1;
+      }
+   else
       mychan->compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
    int mn_min, mn_max;
    mychan->compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
