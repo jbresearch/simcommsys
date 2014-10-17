@@ -25,12 +25,14 @@
 #include "config.h"
 
 #include "stream_modulator.h"
-#include "channel/qids.h"
+#include "channel_insdel.h"
 #include "algorithm/fba2-interface.h"
 
 #include "randgen.h"
 #include "itfunc.h"
 #include "vector_itfunc.h"
+#include "field_utils.h"
+#include "channel/qids-utils.h"
 #include "serializer.h"
 #include <cstdlib>
 #include <cmath>
@@ -117,7 +119,7 @@ private:
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
-   std::auto_ptr<qids<sig,real2> > mychan; //!< bound channel object
+   std::auto_ptr<channel_insdel<sig,real2> > mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
@@ -229,7 +231,7 @@ public:
                x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
                x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
                x.lookahead), mychan(
-               dynamic_cast<qids<sig, real2>*>(x.mychan->clone())), r(x.r), encoding_table(
+               dynamic_cast<channel_insdel<sig, real2>*>(x.mychan->clone())), r(x.r), encoding_table(
                x.encoding_table), changed_encoding_table(
                x.changed_encoding_table)
       {

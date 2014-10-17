@@ -399,7 +399,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    const int tau = N * n;
    assert(N > 0);
    // Copy channel for access within R()
-   mychan.reset(dynamic_cast<qids<sig, real2>*> (chan.clone()));
+   mychan.reset(dynamic_cast<channel_insdel<sig, real2>*> (chan.clone()));
    // Set channel block size to q-ary symbol size
    mychan->set_blocksize(n);
    // Set the probability of channel event outside chosen limits
