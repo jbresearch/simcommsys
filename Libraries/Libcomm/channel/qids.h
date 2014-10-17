@@ -131,7 +131,13 @@ public:
       /*! \name Internal functions */
       void precompute(double Ps, double Pd, double Pi, int T, int mT_min,
             int mT_max, int m1_min, int m1_max);
-      void init();
+      void init()
+         {
+#ifdef USE_CUDA
+         // Initialize CUDA
+         cuda::cudaInitialize(std::cerr);
+#endif
+         }
       // @}
 #ifdef USE_CUDA
       /*! \name Device methods */

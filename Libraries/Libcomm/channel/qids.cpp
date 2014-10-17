@@ -123,20 +123,6 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
    Pval_te = real((1 - Pi - Pd) * Ps);
    }
 
-/*!
- * \brief Initialization
- *
- * Sets the block size to an unusable value.
- */
-template <class G, class real>
-void qids<G, real>::metric_computer::init()
-   {
-#ifdef USE_CUDA
-   // Initialize CUDA
-   cuda::cudaInitialize(std::cerr);
-#endif
-   }
-
 // Channel receiver for host
 
 #ifndef USE_CUDA
