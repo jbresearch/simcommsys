@@ -86,12 +86,6 @@ public:
    class metric_computer : public channel_insdel<bool, real>::metric_computer {
    public:
       /*! \name Channel-state and pre-computed parameters */
-#ifdef USE_CUDA
-      cuda::matrix_auto<real> Rtable; //!< Receiver coefficient set for mu >= 0
-#else
-      array2r_t Rtable; //!< Receiver coefficient set for mu >= 0
-#endif
-      real Rval; //!< Receiver coefficient value for mu = -1
       real Pval_d; //!< Lattice coefficient value for deletion event
       real Pval_i; //!< Lattice coefficient value for insertion event
       real Pval_tc; //!< Lattice coefficient value for correct transmission event
@@ -99,25 +93,21 @@ public:
       int T; //!< block size in channel symbols
       int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ m_T^{-} \f$
       int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
-      int m1_min; //!< Assumed largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
-      int m1_max; //!< Assumed largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
       // @}
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
       // @}
    public:
-      /*! \name FBA decoder parameter computation */
-      // receiver metric pre-computation
-      static real compute_Rtable_entry(bool err, int mu, double Ps, double Pd,
-            double Pi);
-      static void compute_Rtable(array2r_t& Rtable, int m1_max, double Ps, double Pd,
-            double Pi);
-      // @}
-   public:
       /*! \name Internal functions */
       void precompute(double Ps, double Pd, double Pi, int T, int mT_min,
-            int mT_max, int m1_min, int m1_max);
-      void init();
+            int mT_max);
+      void init()
+         {
+#ifdef USE_CUDA
+         // Initialize CUDA
+         cuda::cudaInitialize(std::cerr);
+#endif
+         }
       // @}
 #ifdef USE_CUDA
       /*! \name Device methods */
@@ -260,22 +250,8 @@ public:
       //! Receiver interface
       real receive(const bool& tx, const array1b_t& rx) const
          {
-         // Compute sizes
-         const int mu = rx.size() - 1;
-         // If this was not a deletion, return result from table
-         if (mu >= 0)
-            {
-#ifdef USE_CUDA
-            // create local table and copy from device
-            array2r_t Rtable_temp;
-            Rtable_temp = Rtable;
-            return Rtable_temp(tx != rx(mu), mu);
-#else
-            return Rtable(tx != rx(mu), mu);
-#endif
-            }
-         // If this was a deletion, it's a fixed value
-         return Rval;
+         failwith("Method not defined.");
+         return 0;
          }
       //! Receiver interface
       real receive(const array1b_t& tx, const array1b_t& rx) const
@@ -301,11 +277,17 @@ private:
    metric_computer computer;
    double Pd; //!< Bit-deletion probability \f$ P_d \f$
    double Pi; //!< Bit-insertion probability \f$ P_i \f$
+   int T; //!< Block size in channel symbols over which we want to synchronize
    array1i_t Z; //!< Markov state sequence; Z(i) = drift after 'i' channel uses
    // @}
 private:
    /*! \name Internal functions */
    void init();
+   void precompute()
+      {
+      if (T > 0)
+         computer.precompute(0, Pd, Pi, T, Zmin, Zmax);
+      }
    // @}
 protected:
    // Channel function overrides
@@ -336,6 +318,7 @@ public:
       assert(Pd >= 0 && Pd <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pd = Pd;
+      precompute();
       }
    //! Set the bit-insertion probability
    void set_pi(const double Pi)
@@ -343,6 +326,7 @@ public:
       assert(Pi >= 0 && Pi <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
+      precompute();
       }
    // @}
 
@@ -385,11 +369,17 @@ public:
    /*!
     * \copydoc channel_insdel::set_blocksize()
     *
-    * \note No need to keep this value as nothing depends on it
+    * \note We keep this value only because the sharedmem requirements depend
+    * on it
     */
    void set_blocksize(int T)
       {
-      assert(T > 0);
+      if (this->T != T)
+         {
+         assert(T > 0);
+         this->T = T;
+         precompute();
+         }
       }
    /*!
     * \copydoc channel_insdel::compute_limits()
@@ -419,14 +409,7 @@ public:
     */
    void receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const
       {
-      // Compute sizes
-      const int M = tx.size();
-      // Initialize results vector
-      ptable.init(1);
-      ptable(0).init(M);
-      // Compute results for each possible signal
-      for (int x = 0; x < M; x++)
-         ptable(0)(x) = bpmr::receive(tx(x), rx);
+      failwith("Method not defined.");
       }
    //! \note Used by dminner
    double receive(const array1b_t& tx, const array1b_t& rx) const

@@ -36,6 +36,31 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+// Internal functions
+
+/*!
+ * \brief Sets up pre-computed values
+ *
+ * This function computes all cached quantities used within actual channel
+ * operations. Since these values depend on the channel conditions, this
+ * function should be called any time a channel parameter is changed.
+ */
+template <class real>
+void bpmr<real>::metric_computer::precompute(double Ps, double Pd, double Pi,
+      int T, int mT_min, int mT_max)
+   {
+   // block size
+   this->T = T;
+   // fba decoder parameters
+   this->mT_min = mT_min;
+   this->mT_max = mT_max;
+   // lattice coefficients
+   Pval_d = real(Pd);
+   Pval_i = real(0.5 * Pi);
+   Pval_tc = real((1 - Pi - Pd) * (1 - Ps));
+   Pval_te = real((1 - Pi - Pd) * Ps);
+   }
+
 // Channel receiver for host
 
 #ifndef USE_CUDA
@@ -159,6 +184,8 @@ void bpmr<real>::init()
    // channel parameters
    Pd = fixedPd;
    Pi = fixedPi;
+   // initialize metric computer
+   computer.init();
    }
 
 // Constructors / Destructors
