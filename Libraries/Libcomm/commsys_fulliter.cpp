@@ -131,7 +131,8 @@ std::string commsys_fulliter<S, C>::description() const
 template <class S, template <class > class C>
 std::ostream& commsys_fulliter<S, C>::serialize(std::ostream& sout) const
    {
-   sout << iter;
+   sout << "# Number of full-system iterations" << std::endl;
+   sout << iter << std::endl;
    Base::serialize(sout);
    return sout;
    }
@@ -139,7 +140,9 @@ std::ostream& commsys_fulliter<S, C>::serialize(std::ostream& sout) const
 template <class S, template <class > class C>
 std::istream& commsys_fulliter<S, C>::serialize(std::istream& sin)
    {
+   // read number of full-system iterations
    sin >> libbase::eatcomments >> iter >> libbase::verify;
+   // next read underlying system
    Base::serialize(sin);
    return sin;
    }
