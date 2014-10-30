@@ -54,11 +54,10 @@ void bpmr<real>::metric_computer::precompute(double Ps, double Pd, double Pi,
    // fba decoder parameters
    this->mT_min = mT_min;
    this->mT_max = mT_max;
-   // lattice coefficients
-   Pval_d = real(Pd);
-   Pval_i = real(0.5 * Pi);
-   Pval_tc = real((1 - Pi - Pd) * (1 - Ps));
-   Pval_te = real((1 - Pi - Pd) * Ps);
+   // channel parameters
+   this->Pd = real(Pd);
+   this->Pi = real(Pi);
+   this->Ps = real(Ps);
    }
 
 // Channel receiver for host
@@ -83,81 +82,49 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    real F[arraysize];
    // set up variable to keep track of Fprev[j-1]
    real Fprev;
-   // initialize for i=0 (first row of lattice)
-   // Fthis[0] = 1;
+   // *** initialize first row of lattice (i = 0)
    F[0] = 1;
    const int jmax = min(mT_max, rho);
    for (int j = 1; j <= jmax; j++)
-      {
-      // Fthis[j] = Fthis[j - 1] * Pval_i;
-      F[j] = F[j - 1] * Pval_i;
-      }
-   // compute remaining rows, except last
-   for (int i = 1; i < n; i++)
+      F[j] = F[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
+   // *** compute remaining rows (0 < i <= n)
+   for (int i = 1; i <= n; i++)
       {
       // keep Fprev[0]
       Fprev = F[0];
-      // handle first column as a special case, if necessary
+      // handle first column, if necessary (only deletion path possible)
       if (i + mT_min <= 0)
-         {
-         // Fthis[0] = Fprev[0] * Pval_d;
-         F[0] = Fprev * Pval_d;
-         }
+         F[0] = Fprev * Pd;
       // determine limits for remaining columns (after first)
       const int jmin = max(i + mT_min, 1);
       const int jmax = min(i + mT_max, rho);
-      // keep Fprev[jmin - 1], if necessary
+      // keep Fprev[jmin - 1], if necessary (otherwise keep Fprev[0])
       if (jmin > 1)
          Fprev = F[jmin - 1];
       // remaining columns
       for (int j = jmin; j <= jmax; j++)
          {
-         // transmission/substitution path
+         real temp;
+         // compare corresponding tx/rx bits for transmission/duplication
          const bool cmp = tx(i - 1) == rx(j - 1);
-         // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
-         real temp = Fprev * (cmp ? Pval_tc : Pval_te);
-         // keep Fprev[j] for next time (to use as Fprev[j-1])
+         // transmission/substitution path
+         if (cmp) // correct transmission
+            temp = Fprev * get_transmission_coefficient(j - i) * (real(1) - Ps);
+         else // substitution
+            temp = Fprev * get_transmission_coefficient(j - i) * Ps;
+         // deletion path (if previous node was within corridor)
+         if (j - i < mT_max) // j-(i-1) <= mT_max
+            temp += F[j] * Pd;
+         // insertion path (if correct value and previous node was within corridor)
+         if (j - i > mT_min && cmp) // (j-1)-i >= mT_min
+            temp += F[j - 1] * Pi;
+         // keep for next time (to use as Fprev[j-1])
          Fprev = F[j];
-         // deletion path (if previous row was within corridor)
-         if (j < i + mT_max)
-            // temp += Fprev[j] * Pval_d;
-            temp += Fprev * Pval_d;
-         // insertion path
-         // temp += Fthis[j - 1] * Pval_i;
-         temp += F[j - 1] * Pval_i;
          // store result
-         // Fthis[j] = temp;
          F[j] = temp;
          }
       }
-   // compute last row as a special case (no insertions)
-   const int i = n;
-   // keep Fprev[0]
-   Fprev = F[0];
-   // handle first column as a special case, if necessary
-   if (i + mT_min <= 0)
-      {
-      // Fthis[0] = Fprev[0] * Pval_d;
-      F[0] = Fprev * Pval_d;
-      }
-   // remaining columns
-   for (int j = 1; j <= rho; j++)
-      {
-      // transmission/substitution path
-      const bool cmp = tx(i - 1) == rx(j - 1);
-      // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
-      real temp = Fprev * (cmp ? Pval_tc : Pval_te);
-      // keep Fprev[j] for next time (to use as Fprev[j-1])
-      Fprev = F[j];
-      // deletion path (if previous row was within corridor)
-      if (j < i + mT_max)
-         // temp += Fprev[j] * Pval_d;
-         temp += Fprev * Pval_d;
-      // store result
-      // Fthis[j] = temp;
-      F[j] = temp;
-      }
-   // copy results and return
+   // *** copy results and return
    assertalways(ptable.size() == mT_max - mT_min + 1);
    for (int x = mT_min; x <= mT_max; x++)
       {

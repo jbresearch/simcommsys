@@ -86,10 +86,9 @@ public:
    class metric_computer : public channel_insdel<bool, real>::metric_computer {
    public:
       /*! \name Channel-state and pre-computed parameters */
-      real Pval_d; //!< Lattice coefficient value for deletion event
-      real Pval_i; //!< Lattice coefficient value for insertion event
-      real Pval_tc; //!< Lattice coefficient value for correct transmission event
-      real Pval_te; //!< Lattice coefficient value for error transmission event
+      real Pd; //!< Probability of deletion event
+      real Pi; //!< Probability of insertion event
+      real Ps; //!< Probability of substitution event
       int T; //!< block size in channel symbols
       int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ m_T^{-} \f$
       int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
@@ -97,6 +96,20 @@ public:
       /*! \name Hardwired parameters */
       static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
       // @}
+   private:
+      real get_transmission_coefficient(int Z) const
+         {
+         assert(Z >= mT_min);
+         assert(Z <= mT_max);
+         if (mT_min == mT_max) // degenerate case with one state
+            return 1;
+         else if (Z == mT_min) // Z == mT_min
+            return real(1) - Pi; // only insertion or transmission were possible
+         else if (Z == mT_max) // Z == mT_max
+            return real(1) - Pd; // only deletion or transmission were possible
+         else // mT_min < Z < mT_max
+            return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
+         }
    public:
       /*! \name Internal functions */
       void precompute(double Ps, double Pd, double Pi, int T, int mT_min,
