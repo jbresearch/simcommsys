@@ -75,32 +75,33 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
-   // Set up single slice of lattice on the stack as a fixed size;
+   // Set up three slices of lattice on the stack as a fixed size;
    // this avoids dynamic allocation (which would otherwise be necessary
    // as the size is non-const)
    assertalways(rho + 1 <= arraysize);
-   real F[arraysize];
-   // set up variable to keep track of Fprev[j-1]
-   real Fprev;
-   // *** initialize first row of lattice (i = 0)
-   F[0] = 1;
+   real F[3][arraysize];
+   real *F0 = &F[0][0];
+   real *F1 = &F[1][0];
+   real *F2 = &F[2][0];
+   // *** initialize first row of lattice (i = 0) [insertion only]
+   F0[0] = 1;
    const int jmax = min(mT_max, rho);
    for (int j = 1; j <= jmax; j++)
-      F[j] = F[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
-   // *** compute remaining rows (0 < i <= n)
+      F0[j] = F0[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
+   // *** compute remaining rows (1 <= i <= n)
    for (int i = 1; i <= n; i++)
       {
-      // keep Fprev[0]
-      Fprev = F[0];
-      // handle first column, if necessary (only deletion path possible)
+      // advance slices
+      real *Ft = F2;
+      F2 = F1;
+      F1 = F0;
+      F0 = Ft;
+      // handle first column, if necessary (no path possible)
       if (i + mT_min <= 0)
-         F[0] = Fprev * Pd;
+         F0[0] = 0;
       // determine limits for remaining columns (after first)
       const int jmin = max(i + mT_min, 1);
       const int jmax = min(i + mT_max, rho);
-      // keep Fprev[jmin - 1], if necessary (otherwise keep Fprev[0])
-      if (jmin > 1)
-         Fprev = F[jmin - 1];
       // remaining columns
       for (int j = jmin; j <= jmax; j++)
          {
@@ -108,20 +109,18 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          // compare corresponding tx/rx bits for transmission/duplication
          const bool cmp = tx(i - 1) == rx(j - 1);
          // transmission/substitution path
-         if (cmp) // correct transmission
-            temp = Fprev * get_transmission_coefficient(j - i) * (real(1) - Ps);
-         else // substitution
-            temp = Fprev * get_transmission_coefficient(j - i) * Ps;
+         if (cmp)
+            temp = F1[j-1] * get_transmission_coefficient(j - i) * (real(1) - Ps);
+         else
+            temp = F1[j-1] * get_transmission_coefficient(j - i) * Ps;
          // deletion path (if previous node was within corridor)
-         if (j - i < mT_max) // j-(i-1) <= mT_max
-            temp += F[j] * Pd;
+         if (j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
+            temp += F2[j-1] * Pd;
          // insertion path (if correct value and previous node was within corridor)
          if (j - i > mT_min && cmp) // (j-1)-i >= mT_min
-            temp += F[j - 1] * Pi;
-         // keep for next time (to use as Fprev[j-1])
-         Fprev = F[j];
+            temp += F0[j - 1] * Pi;
          // store result
-         F[j] = temp;
+         F0[j] = temp;
          }
       }
    // *** copy results and return
@@ -131,7 +130,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       // convert index
       const int j = x + n;
       if (j >= 0 && j <= rho)
-         ptable(x - mT_min) = F[j];
+         ptable(x - mT_min) = F0[j];
       else
          ptable(x - mT_min) = 0;
       }

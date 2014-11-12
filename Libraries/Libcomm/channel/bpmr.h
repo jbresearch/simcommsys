@@ -94,7 +94,7 @@ public:
       int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
       // @}
       /*! \name Hardwired parameters */
-      static const int arraysize = 2 * 63 + 1; //!< Size of stack-allocated arrays
+      static const int arraysize = 128; //!< Size of stack-allocated arrays
       // @}
    private:
       real get_transmission_coefficient(int Z) const
