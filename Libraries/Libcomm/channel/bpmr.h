@@ -111,8 +111,7 @@ public:
          }
    public:
       /*! \name Internal functions */
-      void precompute(double Ps, double Pd, double Pi, int T, int mT_min,
-            int mT_max);
+      void precompute(double Pd, double Pi, int T, int mT_min, int mT_max);
       void init()
          {
 #ifdef USE_CUDA

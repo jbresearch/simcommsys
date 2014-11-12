@@ -46,8 +46,8 @@ namespace libcomm {
  * function should be called any time a channel parameter is changed.
  */
 template <class real>
-void bpmr<real>::metric_computer::precompute(double Pd, double Pi,
-      int T, int mT_min, int mT_max)
+void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
+      int mT_min, int mT_max)
    {
    // block size
    this->T = T;
