@@ -46,7 +46,7 @@ namespace libcomm {
  * function should be called any time a channel parameter is changed.
  */
 template <class real>
-void bpmr<real>::metric_computer::precompute(double Ps, double Pd, double Pi,
+void bpmr<real>::metric_computer::precompute(double Pd, double Pi,
       int T, int mT_min, int mT_max)
    {
    // block size
@@ -57,7 +57,6 @@ void bpmr<real>::metric_computer::precompute(double Ps, double Pd, double Pi,
    // channel parameters
    this->Pd = real(Pd);
    this->Pi = real(Pi);
-   this->Ps = real(Ps);
    }
 
 // Channel receiver for host
@@ -108,11 +107,9 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          real temp;
          // compare corresponding tx/rx bits for transmission/duplication
          const bool cmp = tx(i - 1) == rx(j - 1);
-         // transmission/substitution path
+         // transmission path
          if (cmp)
-            temp = F1[j - 1] * get_transmission_coefficient(j - i) * (real(1) - Ps);
-         else
-            temp = F1[j - 1] * get_transmission_coefficient(j - i) * Ps;
+            temp = F1[j - 1] * get_transmission_coefficient(j - i);
          // deletion path (if correct value and previous node was within corridor)
          if (cmp && j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
             temp += F2[j - 1] * Pd;

@@ -88,7 +88,6 @@ public:
       /*! \name Channel-state and pre-computed parameters */
       real Pd; //!< Probability of deletion event
       real Pi; //!< Probability of insertion event
-      real Ps; //!< Probability of substitution event
       int T; //!< block size in channel symbols
       int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ m_T^{-} \f$
       int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
@@ -299,7 +298,7 @@ private:
    void precompute()
       {
       if (T > 0)
-         computer.precompute(0, Pd, Pi, T, Zmin, Zmax);
+         computer.precompute(Pd, Pi, T, Zmin, Zmax);
       }
    // @}
 protected:
