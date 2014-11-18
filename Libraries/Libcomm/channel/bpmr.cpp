@@ -105,17 +105,18 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       for (int j = jmin; j <= jmax; j++)
          {
          real temp = 0;
-         // compare corresponding tx/rx bits for transmission/duplication
-         const bool cmp = tx(i - 1) == rx(j - 1);
-         // transmission path
-         if (cmp)
+         // in all cases, corresponding tx/rx bits must be equal
+         if (tx(i - 1) == rx(j - 1))
+            {
+            // transmission path
             temp += F1[j - 1] * get_transmission_coefficient(j - i);
-         // deletion path (if correct value and previous node was within corridor)
-         if (cmp && j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
-            temp += F2[j - 1] * Pd;
-         // insertion path (if correct value and previous node was within corridor)
-         if (cmp && j - i > mT_min && i < n) // (j-1)-i >= mT_min
-            temp += F0[j - 1] * Pi;
+            // deletion path (if previous node was within corridor)
+            if (j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
+               temp += F2[j - 1] * Pd;
+            // insertion path (if previous node was within corridor)
+            if (j - i > mT_min && i < n) // (j-1)-i >= mT_min
+               temp += F0[j - 1] * Pi;
+            }
          // store result
          F0[j] = temp;
          }
