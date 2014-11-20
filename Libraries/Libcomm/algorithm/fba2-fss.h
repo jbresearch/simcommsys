@@ -91,8 +91,6 @@ private:
    int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
    int mn_min; //!< The largest negative drift within a q-ary symbol is \f$ m_n^{-} \f$
    int mn_max; //!< The largest positive drift within a q-ary symbol is \f$ m_n^{+} \f$
-   int m1_min; //!< The largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
-   int m1_max; //!< The largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
    // @}
 private:
    /*! \name Internal functions - computer */

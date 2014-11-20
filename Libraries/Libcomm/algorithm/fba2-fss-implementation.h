@@ -496,10 +496,6 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(int N, int n,
    assert(mn_max >= 0);
    This::mn_min = mn_min;
    This::mn_max = mn_max;
-   assert(m1_min <= 0);
-   assert(m1_max >= 0);
-   This::m1_min = m1_min;
-   This::m1_max = m1_max;
    // path truncation parameters
    assert(th_inner == 0 && th_outer == 0);
    }
@@ -547,8 +543,6 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
    std::cerr << "mtau_max = " << mtau_max << std::endl;
    std::cerr << "mn_min = " << mn_min << std::endl;
    std::cerr << "mn_max = " << mn_max << std::endl;
-   std::cerr << "m1_min = " << m1_min << std::endl;
-   std::cerr << "m1_max = " << m1_max << std::endl;
    std::cerr << "th_inner = " << th_inner << std::endl;
    std::cerr << "th_outer = " << th_outer << std::endl;
    std::cerr << "real = " << typeid(real).name() << std::endl;
@@ -605,8 +599,6 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
    collector.add_timer(mtau_max, "c_mtau_max");
    collector.add_timer(mn_min, "c_mn_min");
    collector.add_timer(mn_max, "c_mn_max");
-   collector.add_timer(m1_min, "c_m1_min");
-   collector.add_timer(m1_max, "c_m1_max");
    // Add memory usage
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
