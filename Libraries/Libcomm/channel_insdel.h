@@ -93,6 +93,8 @@ public:
    virtual void set_pr(const double Pr) = 0;
    //! Set the block size
    virtual void set_blocksize(int T) = 0;
+   //! Determine whether the channel model has a fixed state space
+   virtual bool is_statespace_fixed() const = 0;
    /*!
     * \brief Determine upper and lower drift limits at the end of a frame of
     * 'T' symbols, given the supplied drift pdf at start of transmission.

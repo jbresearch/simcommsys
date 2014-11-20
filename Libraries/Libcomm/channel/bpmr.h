@@ -405,6 +405,11 @@ public:
       upper = Zmax;
       lower = Zmin;
       }
+   //! Determine whether the channel model has a fixed state space
+   bool is_statespace_fixed() const
+      {
+      return true;
+      }
 
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);

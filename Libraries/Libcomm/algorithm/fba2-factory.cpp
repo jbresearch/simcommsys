@@ -28,6 +28,7 @@
 #  include "fba2.h"
 #  define FBA_TYPE fba2
 #endif
+#include "fba2-fss.h"
 
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/elem.hpp>
@@ -37,8 +38,8 @@ namespace libcomm {
 
 template <class receiver_t, class sig, class real, class real2>
 boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba2_factory<
-      receiver_t, sig, real, real2>::get_instance(bool thresholding, bool lazy,
-      bool globalstore)
+      receiver_t, sig, real, real2>::get_instance(bool fss, bool thresholding,
+      bool lazy, bool globalstore)
    {
    boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba_ptr;
 
@@ -51,8 +52,18 @@ boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba2_factory<
          BOOST_PP_SEQ_ELEM(2,args) == globalstore) \
          fba_ptr.reset(new FBA_TYPE<receiver_t, sig, real, real2, BOOST_PP_SEQ_ENUM(args)>);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(CONDITIONAL,
-   (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
+   if (!fss)
+      {
+      BOOST_PP_SEQ_FOR_EACH_PRODUCT(CONDITIONAL,
+            (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
+      }
+   else
+      {
+      if (globalstore)
+         fba_ptr.reset(new fba2_fss<receiver_t, sig, real, real2, true>);
+      else
+         fba_ptr.reset(new fba2_fss<receiver_t, sig, real, real2, false>);
+      }
 
 #undef CONDITIONAL
 

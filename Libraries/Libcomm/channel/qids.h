@@ -709,6 +709,11 @@ public:
          lower = std::max(lower, -Scap);
          }
       }
+   //! Determine whether the channel model has a fixed state space
+   bool is_statespace_fixed() const
+      {
+      return false;
+      }
 
    // Channel functions
    void transmit(const array1g_t& tx, array1g_t& rx);

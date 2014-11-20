@@ -48,7 +48,7 @@ class fba2_factory {
 public:
    //! Return an instance of the FBA2 algorithm
    static boost::shared_ptr<fba2_interface<receiver_t, sig, real> > get_instance(
-         bool thresholding, bool lazy, bool globalstore);
+         bool fss, bool thresholding, bool lazy, bool globalstore);
 };
 
 } // end namespace

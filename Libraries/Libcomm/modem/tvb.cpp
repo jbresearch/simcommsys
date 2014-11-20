@@ -447,9 +447,10 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    // Create an embedded algorithm object of the correct type, as needed
    if (!fba_ptr || globalstore != last_globalstore)
       {
+      const bool fss = mychan->is_statespace_fixed();
       const bool thresholding = th_inner > real(0) || th_outer > real(0);
       fba_ptr = fba2_factory<recv_type, sig, real, real2>::get_instance(
-            thresholding, flags.lazy, globalstore);
+            fss, thresholding, flags.lazy, globalstore);
       // Mark the encoding table as changed, to force receiver init
       changed_encoding_table = true;
       }
