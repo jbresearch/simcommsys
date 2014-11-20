@@ -34,11 +34,11 @@
 
 namespace libcomm {
 
-#include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/first_n.hpp>
 #include <boost/preprocessor/seq/elem.hpp>
+#include <boost/preprocessor/seq/subseq.hpp>
 
 using libbase::mpgnu;
 using libbase::logrealfast;
@@ -62,18 +62,17 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 // *** Instantiations for tvb ***
 
-#define INSTANTIATE3(args) \
+#define INSTANTIATE2(args) \
       template class fba2_fss<tvb_receiver< \
          BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FIRST_N(3,args))> , \
          BOOST_PP_SEQ_ENUM(args)> ;
 
-#define INSTANTIATE2(r, flags, reals) \
-      INSTANTIATE3( (BOOST_PP_SEQ_ELEM(0,SYMBOL_TYPE_SEQ)) reals flags )
-
-#define INSTANTIATE1(r, flags) \
-      BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, flags, REAL_PAIRS_SEQ)
+#define INSTANTIATE1(r, args) \
+      INSTANTIATE2( (BOOST_PP_SEQ_ELEM(0,args)) \
+            BOOST_PP_SEQ_ELEM(1,args) \
+            BOOST_PP_SEQ_SUBSEQ(args, 2, 3) )
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1,
-      (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
+      (SYMBOL_TYPE_SEQ)(REAL_PAIRS_SEQ)(FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
 
 } // end namespace
