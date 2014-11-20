@@ -34,6 +34,7 @@
 
 namespace libcomm {
 
+#include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/first_n.hpp>
