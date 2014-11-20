@@ -49,17 +49,14 @@ namespace libcomm {
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for internal computation
  * \tparam real2 Floating-point type for receiver metric computation
- * \tparam thresholding Flag to indicate if we're doing path thresholding
- * \tparam lazy Flag indicating lazy computation of gamma metric
  * \tparam globalstore Flag indicating global pre-computation or caching of gamma values
  */
 
-template <class receiver_t, class sig, class real, class real2,
-      bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2, bool globalstore>
 class fba2_fss : public fba2_interface<receiver_t, sig, real> {
 private:
    // Shorthand for class hierarchy
-   typedef fba2_fss<receiver_t, sig, real, real2, thresholding, lazy, globalstore> This;
+   typedef fba2_fss<receiver_t, sig, real, real2, globalstore> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
@@ -82,21 +79,11 @@ private:
       array4r_t global; // indices (i,x,d,deltax)
       array3r_t local; // indices (x,d,deltax)
    } gamma; //!< Receiver metric
-   mutable struct {
-      array2b_t global; // indices (i,x)
-      array1b_t local; // indices (x)
-   } cached; //!< Flag for caching of receiver metric
-   array1s_t r; //!< Copy of received sequence, for lazy or local computation of gamma
-   array1vd_t app; //!< Copy of a-priori statistics, for lazy or local computation of gamma
+   array1s_t r; //!< Copy of received sequence, for local computation of gamma
+   array1vd_t app; //!< Copy of a-priori statistics, for local computation of gamma
    bool initialised; //!< Flag to indicate when memory is allocated
-#ifndef NDEBUG
-   mutable int gamma_calls; //!< Number of calls requesting gamma values
-   mutable int gamma_misses; //!< Number of cache misses in such calls
-#endif
    // @}
    /*! \name User-defined parameters */
-   real th_inner; //!< Threshold factor for inner cycle
-   real th_outer; //!< Threshold factor for outer cycle
    int N; //!< The transmitted block size in symbols
    int n; //!< The number of bits encoding each q-ary symbol
    int q; //!< The number of symbols in the q-ary alphabet
@@ -143,43 +130,6 @@ private:
             gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);
          }
       }
-   /*! \brief Fill indicated cache entries for gamma metric as needed
-    *
-    * This method is called on every get_gamma call when doing lazy computation.
-    * It will update the cache as needed, for both local/global storage.
-    */
-   void fill_gamma_cache_conditional(int i, int x) const
-      {
-#ifndef NDEBUG
-      gamma_calls++;
-#endif
-      bool miss = false;
-      if (globalstore)
-         {
-         // if we not have this already, mark to fill in this part of cache
-         if (!cached.global[i][x])
-            {
-            miss = true;
-            cached.global[i][x] = true;
-            }
-         }
-      else
-         {
-         // if we not have this already, mark to fill in this part of cache
-         if (!cached.local[x])
-            {
-            miss = true;
-            cached.local[x] = true;
-            }
-         }
-      if (miss)
-         {
-#ifndef NDEBUG
-         gamma_misses++;
-#endif
-         fill_gamma_storage_batch(r, app, i, x);
-         }
-      }
    /*! \brief Wrapper for retrieving gamma metric value
     * This method is called from nested loops as follows:
     * - from work_alpha:
@@ -194,14 +144,9 @@ private:
     */
    real get_gamma(int d, int i, int x, int deltax) const
       {
-      // update cache values if necessary
-      if (lazy)
-         fill_gamma_cache_conditional(i, x);
       return gamma_storage_entry(d, i, x, deltax);
       }
    // common small tasks
-   static real get_threshold(const array2r_t& metric, int row, int col_min,
-         int col_max, real factor);
    static real get_scale(const array2r_t& metric, int row, int col_min,
          int col_max);
    static void normalize(array2r_t& metric, int row, int col_min, int col_max);
@@ -231,7 +176,6 @@ private:
    void allocate();
    void free();
    // helper methods
-   void reset_cache() const;
    void print_gamma(std::ostream& sout) const;
    // decode functions - global path
    void work_gamma(const array1s_t& r, const array1vd_t& app);
@@ -277,7 +221,7 @@ public:
    //! Description
    std::string description() const
       {
-      return "Symbol-level Forward-Backward Algorithm";
+      return "Symbol-level Forward-Backward Algorithm [Fixed State Space]";
       }
    // @}
 };
