@@ -402,8 +402,9 @@ public:
          const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
          const int offset = 0) const
       {
-      upper = Zmax;
-      lower = Zmin;
+      // we can have at most tau insertions/deletions
+      upper = std::min(tau, Zmax);
+      lower = std::max(-tau, Zmin);
       }
    //! Determine whether the channel model has a fixed state space
    bool is_statespace_fixed() const
