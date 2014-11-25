@@ -96,10 +96,13 @@ public:
       static const int arraysize = 128; //!< Size of stack-allocated arrays
       // @}
    private:
+#ifdef __CUDACC__
+      __device__
+#endif
       real get_transmission_coefficient(int Z) const
          {
-         assert(Z >= mT_min);
-         assert(Z <= mT_max);
+         cuda_assert(Z >= mT_min);
+         cuda_assert(Z <= mT_max);
          if (mT_min == mT_max) // degenerate case with one state
             return 1;
          else if (Z == mT_min) // Z == mT_min
@@ -143,99 +146,64 @@ public:
       void receive(const cuda::vector_reference<bool>& tx, const cuda::vector_reference<bool>& rx,
             cuda::vector_reference<real>& ptable) const
          {
+         using cuda::swap;
          using cuda::min;
          using cuda::max;
-         using cuda::swap;
          // Compute sizes
          const int n = tx.size();
          const int rho = rx.size();
-         // Set up single slice of lattice on the stack as a fixed size;
+         // Set up three slices of lattice on the stack as a fixed size;
          // this avoids dynamic allocation (which would otherwise be necessary
          // as the size is non-const)
          /*
          cuda_assertalways(rho + 1 <= arraysize);
-         real F[arraysize];
+         real F[3][arraysize];
          */
-         // set up variable to keep track of Fprev[j-1]
-         real Fprev;
-         // get access to slice of lattice in shared memory
+         // get access to three slices of lattice in shared memory
          cuda::SharedMemory<real> smem;
          const int pitch = n + mT_max + 1;
          cuda_assertalways(rho + 1 <= pitch);
-         __restrict__ real* F = smem.getPointer() + (threadIdx.x + threadIdx.y * blockDim.x) * pitch;
-         // initialize for i=0 (first row of lattice)
-         // Fthis[0] = 1;
-         F[0] = 1;
+         __restrict__ real* F0 = smem.getPointer() + (threadIdx.x + threadIdx.y * blockDim.x) * 3 * pitch;
+         __restrict__ real* F1 = F0 + pitch;
+         __restrict__ real* F2 = F1 + pitch;
+         // *** initialize first row of lattice (i = 0) [insertion only]
+         F0[0] = 1;
          const int jmax = min(mT_max, rho);
          for (int j = 1; j <= jmax; j++)
+            F0[j] = F0[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
+         // *** compute remaining rows (1 <= i <= n)
+         for (int i = 1; i <= n; i++)
             {
-            // Fthis[j] = Fthis[j - 1] * Pval_i;
-            F[j] = F[j - 1] * Pval_i;
-            }
-         // compute remaining rows, except last
-         for (int i = 1; i < n; i++)
-            {
-            // keep Fprev[0]
-            Fprev = F[0];
-            // handle first column as a special case, if necessary
+            // advance slices
+            real *Ft = F2;
+            F2 = F1;
+            F1 = F0;
+            F0 = Ft;
+            // handle first column, if necessary (no path possible)
             if (i + mT_min <= 0)
-               {
-               // Fthis[0] = Fprev[0] * Pval_d;
-               F[0] = Fprev * Pval_d;
-               }
+               F0[0] = 0;
             // determine limits for remaining columns (after first)
             const int jmin = max(i + mT_min, 1);
             const int jmax = min(i + mT_max, rho);
-            // keep Fprev[jmin - 1], if necessary
-            if (jmin > 1)
-               Fprev = F[jmin - 1];
             // remaining columns
             for (int j = jmin; j <= jmax; j++)
                {
-               // transmission/substitution path
-               const bool cmp = tx(i - 1) == rx(j - 1);
-               // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
-               real temp = Fprev * (cmp ? Pval_tc : Pval_te);
-               // keep Fprev[j] for next time (to use as Fprev[j-1])
-               Fprev = F[j];
-               // deletion path (if previous row was within corridor)
-               if (j < i + mT_max)
-                  // temp += Fprev[j] * Pval_d;
-                  temp += Fprev * Pval_d;
-               // insertion path
-               // temp += Fthis[j - 1] * Pval_i;
-               temp += F[j - 1] * Pval_i;
+               real temp = 0;
+               // in all cases, corresponding tx/rx bits must be equal
+               if (tx(i - 1) == rx(j - 1))
+                  {
+                  // transmission path
+                  temp += F1[j - 1] * get_transmission_coefficient(j - i);
+                  // deletion path (if previous node was within corridor)
+                  if (j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
+                     temp += F2[j - 1] * Pd;
+                  // insertion path (if previous node was within corridor)
+                  if (j - i > mT_min && i < n) // (j-1)-i >= mT_min
+                     temp += F0[j - 1] * Pi;
+                  }
                // store result
-               // Fthis[j] = temp;
-               F[j] = temp;
+               F0[j] = temp;
                }
-            }
-         // compute last row as a special case (no insertions)
-         const int i = n;
-         // keep Fprev[0]
-         Fprev = F[0];
-         // handle first column as a special case, if necessary
-         if (i + mT_min <= 0)
-            {
-            // Fthis[0] = Fprev[0] * Pval_d;
-            F[0] = Fprev * Pval_d;
-            }
-         // remaining columns
-         for (int j = 1; j <= rho; j++)
-            {
-            // transmission/substitution path
-            const bool cmp = tx(i - 1) == rx(j - 1);
-            // temp = Fprev[j - 1] * (cmp ? Pval_tc : Pval_te);
-            real temp = Fprev * (cmp ? Pval_tc : Pval_te);
-            // keep Fprev[j] for next time (to use as Fprev[j-1])
-            Fprev = F[j];
-            // deletion path (if previous row was within corridor)
-            if (j < i + mT_max)
-               // temp += Fprev[j] * Pval_d;
-               temp += Fprev * Pval_d;
-            // store result
-            // Fthis[j] = temp;
-            F[j] = temp;
             }
          // copy results and return
          cuda_assertalways(ptable.size() == mT_max - mT_min + 1);
@@ -244,7 +212,7 @@ public:
             // convert index
             const int j = x + n;
             if (j >= 0 && j <= rho)
-               ptable(x - mT_min) = F[j];
+               ptable(x - mT_min) = F0[j];
             else
                ptable(x - mT_min) = 0;
             }
@@ -256,7 +224,7 @@ public:
       //! Determine the amount of shared memory required per thread
       size_t receiver_sharedmem() const
          {
-         return (T + mT_max + 1) * sizeof(real);
+         return 3 * (T + mT_max + 1) * sizeof(real);
          }
       //! Receiver interface
       real receive(const bool& tx, const array1b_t& rx) const
