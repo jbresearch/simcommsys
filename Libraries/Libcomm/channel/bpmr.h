@@ -265,7 +265,11 @@ private:
    void precompute()
       {
       if (T > 0)
-         computer.precompute(Pd, Pi, T, Zmin, Zmax);
+         {
+         const int mT_max = std::min(T, Zmax);
+         const int mT_min = std::max(-T, Zmin);
+         computer.precompute(Pd, Pi, T, mT_min, mT_max);
+         }
       }
    // @}
 protected:
