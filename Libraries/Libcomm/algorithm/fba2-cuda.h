@@ -166,21 +166,6 @@ public:
 #endif
          return ndx;
          }
-      //! Compute gamma metric using batch receiver interface
-      __device__
-      void compute_gamma_batch(int d, int i, int x, vector_reference<real2>& ptable,
-            const dev_array1s_ref_t& r, const dev_array2r_ref_t& app) const
-         {
-         // determine received segment to extract
-         const int start = n * i + x - mtau_min;
-         const int length = min(n + mn_max, r.size() - start);
-         // call batch receiver method
-         receiver.R(d, i, r.extract(start, length), ptable);
-         // apply priors if applicable
-         if (app.size() > 0)
-            for (int deltax = mn_min; deltax <= mn_max; deltax++)
-               ptable(deltax - mn_min) *= real(app(i,d));
-         }
       //! Get a reference to the corresponding gamma storage entry
       __device__
       real& gamma_storage_entry(int d, int i, int x, int deltax) const
@@ -198,11 +183,18 @@ public:
          real2 ptable_data[arraysize];
          cuda_assertalways(arraysize >= mn_max - mn_min + 1);
          cuda::vector_reference<real2> ptable(ptable_data, mn_max - mn_min + 1);
+         // determine received segment to extract
+         const int start = n * i + x - mtau_min;
+         const int length = min(n + mn_max, r.size() - start);
          // get symbol value from thread index
          for(int d = threadIdx.x; d < q; d += blockDim.x)
             {
-            // compute metric with batch interface
-            compute_gamma_batch(d, i, x, ptable, r, app);
+            // call batch receiver method
+            receiver.R(d, i, r.extract(start, length), ptable);
+            // apply priors if applicable
+            if (app.size() > 0)
+               for (int deltax = mn_min; deltax <= mn_max; deltax++)
+                  ptable(deltax - mn_min) *= real(app(i,d));
             // store in corresponding place in cache
             for (int deltax = mn_min; deltax <= mn_max; deltax++)
                gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);

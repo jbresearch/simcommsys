@@ -106,16 +106,6 @@ private:
    // @}
 private:
    /*! \name Internal functions - computer */
-   //! Compute gamma metric using batch receiver interface
-   void compute_gamma_batch(int d, int i, int x, array1r_t& ptable,
-         const array1s_t& r, const array1vd_t& app) const
-      {
-      // determine received segment to extract
-      const int start = n * i + x - mtau_min;
-      const int length = std::min(n + mn_max, r.size() - start);
-      // call batch receiver method
-      receiver.R(d, i, r.extract(start, length), app, ptable);
-      }
    //! Get a reference to the corresponding gamma storage entry
    real& gamma_storage_entry(int d, int i, int x, int deltax) const
       {
@@ -130,11 +120,14 @@ private:
       // allocate space for results
       static array1r_t ptable;
       ptable.init(mn_max - mn_min + 1);
+      // determine received segment to extract
+      const int start = n * i + x - mtau_min;
+      const int length = std::min(n + mn_max, r.size() - start);
       // for each symbol value
       for (int d = 0; d < q; d++)
          {
-         // compute metric with batch interface
-         compute_gamma_batch(d, i, x, ptable, r, app);
+         // call batch receiver method
+         receiver.R(d, i, r.extract(start, length), app, ptable);
          // store in corresponding place in storage
          for (int deltax = mn_min; deltax <= mn_max; deltax++)
             gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);
