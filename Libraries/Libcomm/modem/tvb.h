@@ -54,8 +54,9 @@ namespace libcomm {
  *
  * Implements a MAP decoding algorithm for a generalized class of
  * synchronization-correcting codes. The algorithm is described in
- * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
- * Correcting Codes", Submitted to Trans. IT, 2011.
+ * Johann A. Briffa, Victor Buttigieg, and Stephan Wesemeyer, "Time-varying
+ * block codes for synchronisation errors: maximum a posteriori decoder and
+ * practical issues. IET Journal of Engineering, 30 Jun 2014.
  *
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for internal computation
