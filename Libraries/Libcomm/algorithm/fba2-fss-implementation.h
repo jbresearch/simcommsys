@@ -477,7 +477,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(int N, int n,
    {
    // Initialize our embedded metric computer with unchanging elements
    // (needs to happen before fba initialization)
-   this->receiver.init(n, q, computer);
+   this->receiver.init(computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
          && (N != This::N || n != This::n || q != This::q

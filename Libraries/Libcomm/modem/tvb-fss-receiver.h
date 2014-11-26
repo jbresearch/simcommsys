@@ -57,10 +57,10 @@ private:
    // @}
 public:
    /*! \name User initialization (can be adapted for needs of user class) */
-   /*! \brief Set up code size and channel receiver
+   /*! \brief Set up channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const int q,
+   void init(
          const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
       {
       this->computer.reset(
