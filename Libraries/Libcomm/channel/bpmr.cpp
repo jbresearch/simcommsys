@@ -66,7 +66,8 @@ void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
 // Batch receiver interface
 template <class real>
 void bpmr<real>::metric_computer::receive(const array1b_t& tx,
-      const array1b_t& rx, array1r_t& ptable) const
+      const array1b_t& rx, const array1b_t& rx_prev, const int S0,
+      array1r_t& ptable) const
    {
    using std::swap;
    using std::min;

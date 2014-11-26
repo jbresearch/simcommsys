@@ -145,11 +145,15 @@ private:
          // determine received segment to extract
          const int start = n * i + x - mtau_min;
          const int length = std::min(n + mn_max, r.size() - start);
+         // determine previous received symbol to extract
+         const int start_p = std::max(start - 1, 0);
+         const int length_p = start - start_p;
          // for each symbol value
          for (int d = 0; d < q; d++)
             {
             // call batch receiver method
-            receiver.R(d, i, r.extract(start, length), app, ptable);
+            receiver.R(d, i, r.extract(start, length),
+                  r.extract(start_p, length_p), x, app, ptable);
             // store in corresponding place in storage
             for (int deltax = mn_min; deltax <= mn_max; deltax++)
                gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);
