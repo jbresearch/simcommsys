@@ -87,7 +87,14 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    F0[0] = 1;
    const int jmax = min(mT_max, rho);
    for (int j = 1; j <= jmax; j++)
-      F0[j] = F0[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
+      {
+      if(rx_prev.size() == 0)
+         F0[j] = F0[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
+      else if (rx_prev(0) == rx(j - 1))
+         F0[j] = F0[j - 1] * Pi;
+      else
+         F0[j] = 0;
+      }
    // *** compute remaining rows (1 <= i <= n)
    for (int i = 1; i <= n; i++)
       {
