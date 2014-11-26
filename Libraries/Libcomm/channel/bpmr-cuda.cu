@@ -46,7 +46,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    {
    // allocate space on device for result, and initialize
    cuda::vector<real> dev_ptable;
-   dev_ptable.init(mT_max - mT_min + 1);
+   dev_ptable.init(Zmax - Zmin + 1);
    // allocate space on device for tx and rx vectors, and copy over
    cuda::vector<bool> dev_tx;
    cuda::vector<bool> dev_rx;

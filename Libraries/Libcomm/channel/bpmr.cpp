@@ -47,13 +47,13 @@ namespace libcomm {
  */
 template <class real>
 void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
-      int mT_min, int mT_max)
+      int Zmin, int Zmax)
    {
    // block size
    this->T = T;
    // fba decoder parameters
-   this->mT_min = mT_min;
-   this->mT_max = mT_max;
+   this->Zmin = Zmin;
+   this->Zmax = Zmax;
    // channel parameters
    this->Pd = real(Pd);
    this->Pi = real(Pi);
@@ -72,6 +72,9 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    using std::swap;
    using std::min;
    using std::max;
+   // Determine limits over this sequence
+   const int mT_max = std::min(T, Zmax);
+   const int mT_min = std::max(-T, Zmin);
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
