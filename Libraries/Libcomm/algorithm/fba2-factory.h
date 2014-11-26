@@ -37,13 +37,12 @@ namespace libcomm {
  * depending on compiler flags, and takes as parameters the flag values
  * (which are determined at runtime).
  *
- * \tparam receiver_t Type for receiver metric computer
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for internal computation
  * \tparam real2 Floating-point type for receiver metric computation
  */
 
-template <class receiver_t, class sig, class real, class real2>
+template <class sig, class real, class real2>
 class fba2_factory {
 public:
    //! Return an instance of the FBA2 algorithm

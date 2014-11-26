@@ -449,8 +449,8 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
       {
       const bool fss = mychan->is_statespace_fixed();
       const bool thresholding = th_inner > real(0) || th_outer > real(0);
-      fba_ptr = fba2_factory<recv_type, sig, real, real2>::get_instance(
-            fss, thresholding, flags.lazy, globalstore);
+      fba_ptr = fba2_factory<sig, real, real2>::get_instance(fss, thresholding,
+            flags.lazy, globalstore);
       // Mark the encoding table as changed, to force receiver init
       changed_encoding_table = true;
       }
