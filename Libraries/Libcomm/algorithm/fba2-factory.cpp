@@ -29,6 +29,7 @@
 #  include "modem/tvb-receiver.h"
 #endif
 #include "fba2-fss.h"
+#include "modem/tvb-fss-receiver.h"
 
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/elem.hpp>
@@ -68,9 +69,13 @@ boost::shared_ptr<fba2_interface<sig, real, real2> > fba2_factory<sig, real,
    else
       {
       if (globalstore)
-         fba_ptr.reset(new fba2_fss<RECV_TYPE, sig, real, real2, true>);
+         fba_ptr.reset(
+               new fba2_fss<tvb_fss_receiver<sig, real, real2>, sig, real,
+                     real2, true>);
       else
-         fba_ptr.reset(new fba2_fss<RECV_TYPE, sig, real, real2, false>);
+         fba_ptr.reset(
+               new fba2_fss<tvb_fss_receiver<sig, real, real2>, sig, real,
+                     real2, false>);
       }
 
 #undef CONDITIONAL

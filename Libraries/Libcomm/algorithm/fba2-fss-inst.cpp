@@ -27,7 +27,7 @@
 #include "fba2-fss-implementation.h"
 
 // Explicit Realizations
-#include "modem/tvb-receiver.h"
+#include "modem/tvb-fss-receiver.h"
 #include "gf.h"
 #include "mpgnu.h"
 #include "logrealfast.h"
@@ -64,7 +64,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 // *** Instantiations for tvb ***
 
 #define INSTANTIATE2(args) \
-      template class fba2_fss<tvb_receiver< \
+      template class fba2_fss<tvb_fss_receiver< \
          BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FIRST_N(3,args))> , \
          BOOST_PP_SEQ_ENUM(args)> ;
 
