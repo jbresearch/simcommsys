@@ -1146,9 +1146,14 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
 // Initialization
 
 template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(int N, int n, int q,
-      int mtau_min, int mtau_max, int mn_min, int mn_max, int m1_min, int m1_max, double th_inner, double th_outer)
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
+      int N, int n, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
+      int m1_min, int m1_max, double th_inner, double th_outer,
+      const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
    {
+   // Initialize our embedded metric computer with unchanging elements
+   // (needs to happen before fba initialization)
+   this->computer.receiver.init(n, q, computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
          && (N != computer.N || n != computer.n || q != computer.q

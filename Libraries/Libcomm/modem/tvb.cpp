@@ -454,12 +454,9 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
       // Mark the encoding table as changed, to force receiver init
       changed_encoding_table = true;
       }
-   // Initialize our embedded metric computer with unchanging elements
-   // (needs to happen before fba initialization)
-   fba_ptr->init(n, q, mychan->get_computer());
    // Initialize forward-backward algorithm
    fba_ptr->init(N, n, q, mtau_min, mtau_max, mn_min, mn_max, m1_min, m1_max,
-         th_inner, th_outer);
+         th_inner, th_outer, mychan->get_computer());
 #ifndef NDEBUG
    this->add_timer(t);
 #endif

@@ -75,14 +75,12 @@ public:
       }
 
    /*! \name Interface with derived classes */
-   //! Main initialization routine
-   virtual void init(int N, int n, int q, int mtau_min, int mtau_max,
-         int mn_min, int mn_max, int m1_min, int m1_max, double th_inner,
-         double th_outer) = 0;
-   /*! \brief Set up code size and channel receiver
+   /*! \brief Set up code size, decoding parameters, and channel receiver
     * Only needs to be done before the first frame.
     */
-   virtual void init(const int n, const int q,
+   virtual void init(int N, int n, int q, int mtau_min, int mtau_max,
+         int mn_min, int mn_max, int m1_min, int m1_max, double th_inner,
+         double th_outer,
          const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer) = 0;
    /*! \brief Set up encoding table
     * Needs to be done before every frame.
