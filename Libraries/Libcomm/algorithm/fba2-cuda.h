@@ -67,7 +67,7 @@ namespace cuda {
 
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
-class fba2 : public libcomm::fba2_interface<receiver_t, sig, real> {
+class fba2 : public libcomm::fba2_interface<sig, real, real2> {
 public:
    // forward definition
    class metric_computer;
@@ -91,6 +91,7 @@ public:
          dev_object_ref_t;
    // Host-based types
    typedef libbase::vector<sig> array1s_t;
+   typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::matrix<real> array2r_t;
@@ -509,10 +510,20 @@ public:
    //! Main initialization routine
    void init(int N, int n, int q, int mtau_min, int mtau_max, int mn_min,
          int mn_max, int m1_min, int m1_max, double th_inner, double th_outer);
-   //! Access metric computation
-   receiver_t& get_receiver() const
+   /*! \brief Set up code size and channel receiver
+    * Only needs to be done before the first frame.
+    */
+   void init(const int n, const int q,
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
       {
-      return computer.receiver;
+      this->computer.receiver.init(n, q, computer);
+      }
+   /*! \brief Set up encoding table
+    * Needs to be done before every frame.
+    */
+   void init(const array2vs_t& encoding_table) const
+      {
+      this->computer.receiver.init(encoding_table);
       }
 
    // decode functions

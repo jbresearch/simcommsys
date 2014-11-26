@@ -130,7 +130,7 @@ private:
 #else
    typedef tvb_receiver<sig, real, real2> recv_type;
 #endif
-   typedef fba2_interface<recv_type, sig, real> fba_type;
+   typedef fba2_interface<sig, real, real2> fba_type;
    boost::shared_ptr<fba_type> fba_ptr; //!< pointer to algorithm object
    // @}
 private:

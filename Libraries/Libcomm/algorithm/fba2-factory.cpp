@@ -37,11 +37,11 @@
 namespace libcomm {
 
 template <class receiver_t, class sig, class real, class real2>
-boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba2_factory<
+boost::shared_ptr<fba2_interface<sig, real, real2> > fba2_factory<
       receiver_t, sig, real, real2>::get_instance(bool fss, bool thresholding,
       bool lazy, bool globalstore)
    {
-   boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba_ptr;
+   boost::shared_ptr<fba2_interface<sig, real, real2> > fba_ptr;
 
 #define FLAG_SEQ \
 (true)(false)

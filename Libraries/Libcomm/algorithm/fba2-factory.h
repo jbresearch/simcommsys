@@ -47,7 +47,7 @@ template <class receiver_t, class sig, class real, class real2>
 class fba2_factory {
 public:
    //! Return an instance of the FBA2 algorithm
-   static boost::shared_ptr<fba2_interface<receiver_t, sig, real> > get_instance(
+   static boost::shared_ptr<fba2_interface<sig, real, real2> > get_instance(
          bool fss, bool thresholding, bool lazy, bool globalstore);
 };
 

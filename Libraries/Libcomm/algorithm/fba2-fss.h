@@ -53,13 +53,14 @@ namespace libcomm {
  */
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
-class fba2_fss : public fba2_interface<receiver_t, sig, real> {
+class fba2_fss : public fba2_interface<sig, real, real2> {
 private:
    // Shorthand for class hierarchy
    typedef fba2_fss<receiver_t, sig, real, real2, globalstore> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
+   typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -190,10 +191,20 @@ public:
    //! Main initialization routine
    void init(int N, int n, int q, int mtau_min, int mtau_max, int mn_min,
          int mn_max, int m1_min, int m1_max, double th_inner, double th_outer);
-   //! Access metric computation
-   receiver_t& get_receiver() const
+   /*! \brief Set up code size and channel receiver
+    * Only needs to be done before the first frame.
+    */
+   void init(const int n, const int q,
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
       {
-      return receiver;
+      this->receiver.init(n, q, computer);
+      }
+   /*! \brief Set up encoding table
+    * Needs to be done before every frame.
+    */
+   void init(const array2vs_t& encoding_table) const
+      {
+      this->receiver.init(encoding_table);
       }
 
    // decode functions

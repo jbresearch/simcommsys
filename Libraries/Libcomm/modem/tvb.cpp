@@ -346,7 +346,7 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    if (changed_encoding_table)
       {
       libbase::cputimer te("t_enctable");
-      fba_ptr->get_receiver().init(encoding_table);
+      fba_ptr->init(encoding_table);
       changed_encoding_table = false;
       this->add_timer(te);
       }
@@ -456,7 +456,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
       }
    // Initialize our embedded metric computer with unchanging elements
    // (needs to happen before fba initialization)
-   fba_ptr->get_receiver().init(n, q, mychan->get_computer());
+   fba_ptr->init(n, q, mychan->get_computer());
    // Initialize forward-backward algorithm
    fba_ptr->init(N, n, q, mtau_min, mtau_max, mn_min, mn_max, m1_min, m1_max,
          th_inner, th_outer);
