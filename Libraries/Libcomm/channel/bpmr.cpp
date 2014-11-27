@@ -125,7 +125,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             if (j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
                temp += F2[j - 1] * Pd;
             // insertion path (if previous node was within corridor)
-            if (j - i > mT_min && i < n) // (j-1)-i >= mT_min
+            if (j - i > mT_min) // (j-1)-i >= mT_min
                temp += F0[j - 1] * Pi;
             }
          // store result
