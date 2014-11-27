@@ -73,8 +73,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    using std::min;
    using std::max;
    // Determine limits over this sequence
-   const int mT_max = std::min(T, Zmax);
-   const int mT_min = std::max(-T, Zmin);
+   const int mT_max = std::min(S0 + T, Zmax);
+   const int mT_min = std::max(S0 - T, Zmin);
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
