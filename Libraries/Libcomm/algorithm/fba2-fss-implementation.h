@@ -225,17 +225,6 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::allocate()
    std::cerr.flags(old_flags);
 #endif
 
-#ifndef NDEBUG
-   // determine required space for inner metric table (Jiao-Armand method)
-   size_t entries = 0;
-   const size_t one = 1;
-   for (int delta = mn_min; delta <= mn_max; delta++)
-      entries += (one << (delta + n));
-   entries *= q;
-   std::cerr << "Jiao-Armand Table Size: "
-         << sizeof(float) * entries / double(1 << 20) << "MiB" << std::endl;
-#endif
-
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "mn_max = " << mn_max << std::endl;
