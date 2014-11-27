@@ -30,7 +30,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show Markov state vector during transmission process
+// 2 - Show Markov state and tx/rx vectors during transmission process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -318,6 +318,10 @@ void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
       }
    // copy results back
    rx = newrx;
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bpmr): tx = " << tx << std::endl;
+   libbase::trace << "DEBUG (bpmr): rx = " << rx << std::endl;
+#endif
    }
 
 // description output
