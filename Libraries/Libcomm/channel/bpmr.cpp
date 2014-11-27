@@ -128,6 +128,9 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             if (j - i > mT_min) // (j-1)-i >= mT_min
                temp += F0[j - 1] * Pi;
             }
+         // implicit free delete with no transmission at the end
+         if (j - i < mT_max && j == rho) // (j)-(i-1) <= mT_max
+            temp += F1[j];
          // store result
          F0[j] = temp;
          }
