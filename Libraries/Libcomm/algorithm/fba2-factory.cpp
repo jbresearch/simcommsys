@@ -68,6 +68,10 @@ boost::shared_ptr<fba2_interface<sig, real, real2> > fba2_factory<sig, real,
       }
    else
       {
+      // check unused flags
+      assertalways(thresholding == false);
+      assertalways(lazy == false);
+      // instantiate required object
       if (globalstore)
          fba_ptr.reset(
                new fba2_fss<tvb_fss_receiver<sig, real, real2>, sig, real,
