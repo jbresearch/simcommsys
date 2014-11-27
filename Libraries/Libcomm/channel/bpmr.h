@@ -272,6 +272,7 @@ private:
       if (T > 0)
          computer.precompute(Pd, Pi, T, Zmin, Zmax);
       }
+   void generate_state_sequence(const int tau);
    // @}
 protected:
    // Channel function overrides

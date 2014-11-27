@@ -163,6 +163,74 @@ void bpmr<real>::init()
    computer.init();
    }
 
+/*!
+ * \brief Generate Markov state sequence
+ *
+ * The channel model implemented is described by the following general case
+ * state transition probabilities:
+ *
+ * Pr{Z_i = z+1 | Z_{i-1} = z} = P_i
+ * Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
+ * Pr{Z_i = z   | Z_{i-1} = z} = 1-P_i-P_d
+ *
+ * with all other transitions having zero probability. Exceptions to the above
+ * occur where z-1 or z+1 are not valid states:
+ *
+ * For z = Zmax:
+ *   Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
+ *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_d
+ * For z = Zmin:
+ *   Pr{Z_i = z+1 | Z_{i-1} = z} = P_i
+ *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_i
+ *
+ * It is assumed here (though not explicitly stated in Iyengar et al) that the
+ * initial condition for the channel is Z_0 = 0 (where Z_1 refers to the first
+ * input bit X_1 and output bit Y_1).
+ */
+template <class real>
+void bpmr<real>::generate_state_sequence(const int tau)
+   {
+   // Allocate and initialize Markov state sequence
+   Z.init(tau);
+   Z = 0;
+   // determine state sequence
+   int Zprev = 0;
+   for (int i = 0; i < tau; i++)
+      {
+      const double p = this->r.fval_closed();
+      // upper limit
+      if (Zprev == Zmax)
+         {
+         if (p < Pd)
+            Z(i) = Zprev - 1;
+         else
+            Z(i) = Zprev;
+         }
+      else
+      // lower limit
+      if (Zprev == Zmin)
+         {
+         if (p < Pi)
+            Z(i) = Zprev + 1;
+         else
+            Z(i) = Zprev;
+         }
+      else // general case
+         {
+         if (p < Pi)
+            Z(i) = Zprev + 1;
+         else if (p < (Pi + Pd))
+            Z(i) = Zprev - 1;
+         else
+            Z(i) = Zprev;
+         }
+      Zprev = Z(i);
+      }
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bpmr): Z = " << Z << std::endl;
+#endif
+   }
+
 // Constructors / Destructors
 
 /*!
@@ -224,32 +292,14 @@ double bpmr<real>::get_parameter() const
 /*!
  * \copydoc channel::transmit()
  *
- * The channel model implemented is described by the following general case
- * state transition probabilities:
- *
- * Pr{Z_i = z+1 | Z_{i-1} = z} = P_i
- * Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
- * Pr{Z_i = z   | Z_{i-1} = z} = 1-P_i-P_d
- *
- * with all other transitions having zero probability. Exceptions to the above
- * occur where z-1 or z+1 are not valid states:
- *
- * For z = Zmax:
- *   Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
- *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_d
- * For z = Zmin:
- *   Pr{Z_i = z+1 | Z_{i-1} = z} = P_i
- *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_i
- *
- * It is assumed here (though not explicitly stated in Iyengar et al) that the
- * initial condition for the channel is Z_0 = 0 (where Z_1 refers to the first
- * input bit X_1 and output bit Y_1).
  * The channel output has the following correspondence with the input:
  *
  * Y_i = X_{i - Z_i}
  *
- * where it is further assumed that any X_i for an index 'i' outside the defined
- * range is equiprobable.
+ * where any input X_i for an index 'i' before the defined range is
+ * equiprobable (represeting the unknown prior magnetic state of the first
+ * island, while input X_i for index 'i' after the defined range is the same
+ * as the last valid input X_i.
  *
  * \note We have to make sure that we don't corrupt the vector we're reading
  * from (in the case where tx and rx are the same vector); therefore,
@@ -262,46 +312,8 @@ template <class real>
 void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
    {
    const int tau = tx.size();
-   // Allocate and initialize Markov state sequence
-   Z.init(tau);
-   Z = 0;
-   // determine state sequence
-   int Zprev = 0;
-   for (int i = 0; i < tau; i++)
-      {
-      const double p = this->r.fval_closed();
-      // upper limit
-      if (Zprev == Zmax)
-         {
-         if (p < Pd)
-            Z(i) = Zprev - 1;
-         else
-            Z(i) = Zprev;
-         }
-      // lower limit
-      else if (Zprev == Zmin)
-         {
-         if (p < Pi)
-            Z(i) = Zprev + 1;
-         else
-            Z(i) = Zprev;
-         }
-      // general case
-      else
-         {
-         if (p < Pi)
-            Z(i) = Zprev + 1;
-         else if (p < (Pi + Pd))
-            Z(i) = Zprev - 1;
-         else
-            Z(i) = Zprev;
-         }
-      // copy back for next time
-      Zprev = Z(i);
-      }
-#if DEBUG>=2
-   libbase::trace << "DEBUG (bpmr): Z = " << Z << std::endl;
-#endif
+   // Generate Markov state sequence
+   generate_state_sequence(tau);
    // Initialize results vector
    array1b_t newrx(tau);
    // Compute the output vector (simulate the channel)
@@ -312,9 +324,12 @@ void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
       // valid index
       if (j >= 0 && j < tau)
          newrx(i) = tx(j);
-      // invalid index -> equiprobable
-      else
+      // early index -> equiprobable
+      else if (j < 0)
          newrx(i) = (this->r.fval_closed() < 0.5);
+      // late index -> repeat last valid input
+      else
+         newrx(i) = tx(tau-1);
       }
    // copy results back
    rx = newrx;
