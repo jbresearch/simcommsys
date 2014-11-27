@@ -89,36 +89,29 @@ private:
    int N; //!< The transmitted block size in symbols
    int n; //!< The number of bits encoding each q-ary symbol
    int q; //!< The number of symbols in the q-ary alphabet
-   int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
-   int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
-   int mn_min; //!< The largest negative drift within a q-ary symbol is \f$ m_n^{-} \f$
-   int mn_max; //!< The largest positive drift within a q-ary symbol is \f$ m_n^{+} \f$
+   int Zmin; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
+   int Zmax; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
    // @}
 private:
    /*! \name Internal functions - computer */
-   //! Get a reference to the corresponding gamma storage entry
-   real& gamma_storage_entry(int d, int i, int x, int deltax) const
-      {
-      if (globalstore)
-         return gamma.global[i][x][d][deltax];
-      else
-         return gamma.local[x][d][deltax];
-      }
-   /*! \brief Wrapper for retrieving gamma metric value
+   /*! \brief Get a reference to the corresponding gamma storage entry
     * This method is called from nested loops as follows:
     * - from work_alpha:
-    *        i,x,d=outer loops
-    *        deltax=inner loop
+    *        i,x1,d=outer loops
+    *        x2=inner loop
     * - from work_beta:
-    *        i,x,d=outer loops
-    *        deltax=inner loop
+    *        i,x1,d=outer loops
+    *        x2=inner loop
     * - from work_message_app:
-    *        i,d,x=outer loops
-    *        deltax=inner loop
+    *        i,d,x1=outer loops
+    *        x2=inner loop
     */
-   real get_gamma(int d, int i, int x, int deltax) const
+   real& gamma_storage_entry(int d, int i, int x1, int x2) const
       {
-      return gamma_storage_entry(d, i, x, deltax);
+      if (globalstore)
+         return gamma.global[i][x1][d][x2];
+      else
+         return gamma.local[x1][d][x2];
       }
    // common small tasks
    static real get_scale(const array2r_t& metric, int row, int col_min,
@@ -126,11 +119,11 @@ private:
    static void normalize(array2r_t& metric, int row, int col_min, int col_max);
    void normalize_alpha(int i)
       {
-      normalize(alpha, i, mtau_min, mtau_max);
+      normalize(alpha, i, Zmin, Zmax);
       }
    void normalize_beta(int i)
       {
-      normalize(beta, i, mtau_min, mtau_max);
+      normalize(beta, i, Zmin, Zmax);
       }
    // decode functions - partial computations
    void work_gamma(const array1s_t& r, const array1vd_t& app,
@@ -138,13 +131,14 @@ private:
       {
       // allocate space for results
       static array1r_t ptable;
-      ptable.init(mn_max - mn_min + 1);
+      ptable.init(Zmax - Zmin + 1);
       // for each start drift
-      for (int x = mtau_min; x <= mtau_max; x++)
+      for (int x1 = Zmin; x1 <= Zmax; x1++)
          {
          // determine received segment to extract
-         const int start = n * i + x - mtau_min;
-         const int length = std::min(n + mn_max, r.size() - start);
+         const int start = n * i + x1 - Zmin;
+         const int length = std::min(n + std::min(Zmax - x1, n),
+               r.size() - start);
          // determine previous received symbol to extract
          const int start_p = std::max(start - 1, 0);
          const int length_p = start - start_p;
@@ -153,10 +147,10 @@ private:
             {
             // call batch receiver method
             receiver.R(d, i, r.extract(start, length),
-                  r.extract(start_p, length_p), x, app, ptable);
+                  r.extract(start_p, length_p), x1, app, ptable);
             // store in corresponding place in storage
-            for (int deltax = mn_min; deltax <= mn_max; deltax++)
-               gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);
+            for (int x2 = Zmin; x2 <= Zmax; x2++)
+               gamma_storage_entry(d, i, x1, x2) = ptable(x2 - Zmin);
             }
          }
       }

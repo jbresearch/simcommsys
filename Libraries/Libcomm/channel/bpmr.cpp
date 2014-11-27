@@ -133,15 +133,15 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          }
       }
    // *** copy results and return
-   assertalways(ptable.size() == mT_max - mT_min + 1);
-   for (int x = mT_min; x <= mT_max; x++)
+   assertalways(ptable.size() == Zmax - Zmin + 1);
+   for (int x = Zmin; x <= Zmax; x++)
       {
       // convert index
-      const int j = x + n;
+      const int j = x - S0 + n;
       if (j >= 0 && j <= rho)
-         ptable(x - mT_min) = F0[j];
+         ptable(x - Zmin) = F0[j];
       else
-         ptable(x - mT_min) = 0;
+         ptable(x - Zmin) = 0;
       }
    }
 
