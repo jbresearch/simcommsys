@@ -140,8 +140,8 @@ private:
          const int length = std::min(n + std::min(Zmax - x1, n),
                r.size() - start);
          // determine previous received symbol to extract
-         const int start_p = std::max(start - 1, 0);
-         const int length_p = start - start_p;
+         const int start_p = std::max(start - 1, 0 - Zmin);
+         const int length_p = std::max(start - start_p, 0);
          // for each symbol value
          for (int d = 0; d < q; d++)
             {
