@@ -69,6 +69,13 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       const array1b_t& rx, const array1b_t& rx_prev, const int S0,
       array1r_t& ptable) const
    {
+#if DEBUG>=3
+   libbase::trace << "DEBUG (bpmr): starting receive..." << std::endl;
+   libbase::trace << "DEBUG (bpmr): tx = " << tx << std::endl;
+   libbase::trace << "DEBUG (bpmr): rx = " << rx << std::endl;
+   libbase::trace << "DEBUG (bpmr): rx_prev = " << rx_prev << std::endl;
+   libbase::trace << "DEBUG (bpmr): S0 = " << S0 << std::endl;
+#endif
    using std::swap;
    using std::min;
    using std::max;
@@ -149,13 +156,16 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    assertalways(ptable.size() == Zmax - Zmin + 1);
    for (int x = Zmin; x <= Zmax; x++)
       {
-      // convert index (x = j - n + S0 + Zmin)
-      const int j = x + n - S0 - Zmin;
+      // convert index (x = j - n + S0)
+      const int j = x + n - S0;
       if (j >= 0 && j <= rho)
          ptable(x - Zmin) = F0[j];
       else
          ptable(x - Zmin) = 0;
       }
+#if DEBUG>=3
+   libbase::trace << "DEBUG (bpmr): ptable = " << ptable << std::endl;
+#endif
    }
 
 #endif
