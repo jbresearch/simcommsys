@@ -107,7 +107,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          }
       }
    // *** compute remaining rows (1 <= i <= n)
-   for (int i = 1; i <= n; i++)
+   // and -Zmin virtual rows
+   for (int i = 1; i <= n - Zmin; i++)
       {
       // advance slices
       real *Ft = F2;
@@ -125,7 +126,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          {
          real temp = 0;
          // in all cases, corresponding tx/rx bits must be equal
-         if (tx(i - 1) == rx(j - 1))
+         // [repeat last tx bit for virtual rows]
+         if (tx(std::min(i, n) - 1) == rx(j - 1))
             {
             // transmission path
             temp += F1[j - 1] * get_transmission_coefficient(j - i);
@@ -147,8 +149,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    assertalways(ptable.size() == Zmax - Zmin + 1);
    for (int x = Zmin; x <= Zmax; x++)
       {
-      // convert index
-      const int j = x - S0 + n;
+      // convert index (x = j - n + S0 + Zmin)
+      const int j = x + n - S0 - Zmin;
       if (j >= 0 && j <= rho)
          ptable(x - Zmin) = F0[j];
       else
