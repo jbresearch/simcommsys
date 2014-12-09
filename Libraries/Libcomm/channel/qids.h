@@ -509,7 +509,9 @@ public:
       void receive_lattice_corridor(const array1g_t& tx, const array1g_t& rx,
             array1r_t& ptable) const;
       //! Batch receiver interface - fixed state space
-      void receive(const array1g_t& tx, const array1g_t& rx, const array1g_t& rx_prev, const int S0, array1r_t& ptable) const
+      void receive(const array1g_t& tx, const array1g_t& rx,
+            const array1g_t& rx_prev, const int S0, const bool last,
+            array1r_t& ptable) const
          {
          failwith("Method not supported.");
          }

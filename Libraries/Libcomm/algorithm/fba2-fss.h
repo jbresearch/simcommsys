@@ -132,6 +132,8 @@ private:
       // allocate space for results
       static array1r_t ptable;
       ptable.init(Zmax - Zmin + 1);
+      // determine if this is the last codeword
+      const bool last = (i == N - 1);
       // for each start drift
       for (int x1 = Zmin; x1 <= Zmax; x1++)
          {
@@ -147,7 +149,7 @@ private:
             {
             // call batch receiver method
             receiver.R(d, i, r.extract(start, length),
-                  r.extract(start_p, length_p), x1, app, ptable);
+                  r.extract(start_p, length_p), x1, last, app, ptable);
             // store in corresponding place in storage
             for (int x2 = Zmin; x2 <= Zmax; x2++)
                gamma_storage_entry(d, i, x1, x2) = ptable(x2 - Zmin);

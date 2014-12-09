@@ -77,7 +77,8 @@ public:
    /*! \name Interface with fba2 algorithm (cannot be changed) */
    //! Batch receiver interface
    void R(int d, int i, const array1s_t& rx, const array1s_t& rx_prev,
-         const int S0, const array1vd_t& app, array1r_t& ptable) const
+         const int S0, const bool last, const array1vd_t& app,
+         array1r_t& ptable) const
       {
       // 'tx' is the vector of transmitted symbols that we're considering
       const array1s_t& tx = encoding_table(i, d);
@@ -85,7 +86,7 @@ public:
       static array1r2_t ptable_r;
       ptable_r.init(ptable.size());
       // call batch receiver method
-      computer->receive(tx, rx, rx_prev, S0, ptable_r);
+      computer->receive(tx, rx, rx_prev, S0, last, ptable_r);
       // apply priors at codeword level if applicable
       if (app.size() > 0)
          ptable_r *= real2(app(i)(d));

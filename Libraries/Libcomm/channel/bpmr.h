@@ -246,12 +246,15 @@ public:
          return ptable(mu - Zmin);
          }
       //! Batch receiver interface - indefinite state space
-      void receive(const array1b_t& tx, const array1b_t& rx, array1r_t& ptable) const
+      void receive(const array1b_t& tx, const array1b_t& rx,
+            array1r_t& ptable) const
          {
          failwith("Method not supported.");
          }
       //! Batch receiver interface - fixed state space
-      void receive(const array1b_t& tx, const array1b_t& rx, const array1b_t& rx_prev, const int S0, array1r_t& ptable) const;
+      void receive(const array1b_t& tx, const array1b_t& rx,
+            const array1b_t& rx_prev, const int S0, const bool last,
+            array1r_t& ptable) const;
       // @}
       DECLARE_CLONABLE(metric_computer)
    };

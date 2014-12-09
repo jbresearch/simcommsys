@@ -67,9 +67,12 @@ public:
       //! Determine the amount of shared memory required per thread
       virtual size_t receiver_sharedmem() const = 0;
       //! Batch receiver interface - indefinite state space
-      virtual void receive(const array1s_t& tx, const array1s_t& rx, array1r_t& ptable) const = 0;
+      virtual void receive(const array1s_t& tx, const array1s_t& rx,
+            array1r_t& ptable) const = 0;
       //! Batch receiver interface - fixed state space
-      virtual void receive(const array1s_t& tx, const array1s_t& rx, const array1s_t& rx_prev, const int S0, array1r_t& ptable) const = 0;
+      virtual void receive(const array1s_t& tx, const array1s_t& rx,
+            const array1s_t& rx_prev, const int S0, const bool last,
+            array1r_t& ptable) const = 0;
       // @}
    };
    // @}

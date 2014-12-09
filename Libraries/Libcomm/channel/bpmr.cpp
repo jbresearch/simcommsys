@@ -67,7 +67,7 @@ void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
 template <class real>
 void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       const array1b_t& rx, const array1b_t& rx_prev, const int S0,
-      array1r_t& ptable) const
+      const bool last, array1r_t& ptable) const
    {
 #if DEBUG>=3
    libbase::trace << "DEBUG (bpmr): starting receive..." << std::endl;
