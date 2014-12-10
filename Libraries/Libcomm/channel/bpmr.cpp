@@ -149,6 +149,10 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          // implicit free delete with no transmission at end of last codeword
          if (last && j - i < mT_max && j - S0 == n) // (j)-(i-1) <= mT_max
             temp += F1[j];
+         // implicit free delete with no transmission on last row of
+         // intermediate codewords
+         if (!last && j - i < mT_max && i == imax) // (j)-(i-1) <= mT_max
+            temp += F1[j];
          // store result
          F0[j] = temp;
          }
