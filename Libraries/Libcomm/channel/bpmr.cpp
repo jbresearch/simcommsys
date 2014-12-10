@@ -31,6 +31,7 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show Markov state and tx/rx vectors during transmission process
+// 3 - Show tx/rx vectors and posterior probabilities from receive process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -75,6 +76,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    libbase::trace << "DEBUG (bpmr): rx = " << rx << std::endl;
    libbase::trace << "DEBUG (bpmr): rx_prev = " << rx_prev << std::endl;
    libbase::trace << "DEBUG (bpmr): S0 = " << S0 << std::endl;
+   libbase::trace << "DEBUG (bpmr): last = " << last << std::endl;
 #endif
    using std::swap;
    using std::min;
@@ -82,6 +84,10 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    // Determine limits over this sequence
    const int mT_max = std::min(S0 + T, Zmax);
    const int mT_min = std::max(S0 - T, Zmin);
+#if DEBUG>=3
+   libbase::trace << "DEBUG (bpmr): mT_max = " << mT_max << std::endl;
+   libbase::trace << "DEBUG (bpmr): mT_min = " << mT_min << std::endl;
+#endif
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
