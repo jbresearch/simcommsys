@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
          "modulation symbol type");
    desc.add_options()("container,c", po::value<std::string>()->default_value(
          "vector"), "input/output container type");
-   desc.add_options()("parameter,p", po::value<double>(), "channel parameter");
+   desc.add_options()("parameter,r", po::value<double>(), "channel parameter");
    desc.add_options()("soft-in,s", po::bool_switch(), "enable soft input");
    desc.add_options()("soft-out,o", po::bool_switch(), "enable soft output");
    desc.add_options()("known-end,k", po::bool_switch(),

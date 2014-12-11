@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
    desc.add_options()("help", "print this help message");
    desc.add_options()("system-file,i", po::value<std::string>(),
          "input file containing system description");
-   desc.add_options()("parameter,p", po::value<double>(),
+   desc.add_options()("parameter,r", po::value<double>(),
          "simulation parameter");
    desc.add_options()("seed,s", po::value<libbase::int32u>(),
          "system initialization seed (random if not stated)");
