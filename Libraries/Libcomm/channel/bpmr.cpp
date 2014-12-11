@@ -99,6 +99,11 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    real *F0 = &F[0][0];
    real *F1 = &F[1][0];
    real *F2 = &F[2][0];
+#if DEBUG>=3
+   // mark first row entries as uninitialized
+   for (int j = 0; j <= rho; j++)
+      F0[j] = -1;
+#endif
    // *** initialize first row of lattice (i = 0) [insertion only]
    F0[0] = 1;
    const int jmax = min(mT_max, rho);
@@ -130,6 +135,11 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       F2 = F1;
       F1 = F0;
       F0 = Ft;
+#if DEBUG>=3
+      // mark current row entries as uninitialized
+      for (int j = 0; j <= rho; j++)
+         F0[j] = -1;
+#endif
       // handle first column, if necessary (no path possible)
       if (i + mT_min <= 0)
          F0[0] = 0;
