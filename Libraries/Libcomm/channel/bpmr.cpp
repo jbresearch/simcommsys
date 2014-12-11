@@ -101,9 +101,10 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    real *F1 = &F[1][0];
    real *F2 = &F[2][0];
 #if DEBUG>=4
-   // mark first row entries as uninitialized
-   for (int j = 0; j <= rho; j++)
-      F0[j] = -1;
+   // mark all lattice entries as uninitialized
+   for (int i = 0; i < 3; i++)
+      for (int j = 0; j <= rho; j++)
+         F[i][j] = -1;
 #endif
    // *** initialize first row of lattice (i = 0) [insertion only]
    F0[0] = 1;
@@ -142,17 +143,13 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       F2 = F1;
       F1 = F0;
       F0 = Ft;
-#if DEBUG>=4
-      // mark current row entries as uninitialized
-      for (int j = 0; j <= rho; j++)
-         F0[j] = -1;
-#endif
-      // handle first column, if necessary (no path possible)
-      if (i + mT_min <= 0)
-         F0[0] = 0;
       // determine limits for remaining columns (after first)
       const int jmin = max(i + mT_min, 1);
       const int jmax = min(i + mT_max, rho);
+      // overwrite up to three columns before corridor, as needed
+      // [first is actually within corridor if (i + mT_min <= 0)]
+      for (int j = jmin - 1; j >= 0 && j >= jmin - 3; j--)
+         F0[j] = 0;
       // remaining columns
       for (int j = jmin; j <= jmax; j++)
          {
