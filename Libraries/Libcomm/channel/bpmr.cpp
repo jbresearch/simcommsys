@@ -82,8 +82,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    using std::min;
    using std::max;
    // Determine limits over this sequence
-   const int mT_max = std::min(S0 + T, Zmax);
-   const int mT_min = std::max(S0 - T, Zmin);
+   const int mT_max = std::min(T, Zmax - S0);
+   const int mT_min = std::max(-T, Zmin - S0);
 #if DEBUG>=3
    libbase::trace << "DEBUG (bpmr): mT_max = " << mT_max << std::endl;
    libbase::trace << "DEBUG (bpmr): mT_min = " << mT_min << std::endl;
@@ -144,7 +144,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          if (tx(std::min(i, n) - 1) == rx(j - 1))
             {
             // transmission path
-            temp += F1[j - 1] * get_transmission_coefficient(j - i);
+            temp += F1[j - 1] * get_transmission_coefficient(j - i + S0);
             // deletion path (if previous node was within corridor)
             if (j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
                temp += F2[j - 1] * Pd;
