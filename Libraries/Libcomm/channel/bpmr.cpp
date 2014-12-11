@@ -176,6 +176,10 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          ptable(x - Zmin) = 0;
       }
 #if DEBUG>=3
+   libbase::trace << "DEBUG (bpmr): F0 = " << std::endl;
+   for (int j = 0; j <= rho; j++)
+      libbase::trace << F0[j] << '\t';
+   libbase::trace << std::endl;
    libbase::trace << "DEBUG (bpmr): ptable = " << ptable << std::endl;
 #endif
    }
