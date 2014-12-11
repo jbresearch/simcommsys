@@ -110,6 +110,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       }
    else
       {
+      assert(rx_prev.size() == 1);
       // given prior value
       for (int j = 1; j <= jmax; j++)
          {
