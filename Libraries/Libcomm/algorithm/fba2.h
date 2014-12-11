@@ -123,6 +123,8 @@ private:
       static array1r_t ptable;
       ptable.init(mn_max - mn_min + 1);
       // determine received segment to extract
+      // n * i = offset to start of current codeword
+      // -mtau_min = offset to zero drift in 'r'
       const int start = n * i + x - mtau_min;
       const int length = std::min(n + mn_max, r.size() - start);
       // for each symbol value

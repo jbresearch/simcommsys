@@ -138,6 +138,8 @@ private:
       for (int x1 = Zmin; x1 <= Zmax; x1++)
          {
          // determine received segment to extract
+         // n * i = offset to start of current codeword
+         // -Zmin = offset to zero drift in 'r'
          const int start = n * i + x1 - Zmin;
          const int length = std::min(n + std::min(Zmax - x1, n),
                r.size() - start);
