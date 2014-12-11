@@ -140,6 +140,8 @@ private:
          // determine received segment to extract
          // n * i = offset to start of current codeword
          // -Zmin = offset to zero drift in 'r'
+         // Zmax-x1 = maximum positive drift for a start drift of 'x1'
+         // n = maximum positive drift over 'n' bits
          const int start = n * i + x1 - Zmin;
          const int length = std::min(n + std::min(Zmax - x1, n),
                r.size() - start);
