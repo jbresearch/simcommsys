@@ -53,17 +53,27 @@ libcomm::experiment *createsystem(const std::string& fname)
    return system;
    }
 
-void seed_experiment(libcomm::experiment *system, libbase::int32u seed)
+/*! \brief Seed the random generators in the experiment
+ *
+ * Use the given seed to initialize a PRNG for seeding the embedded system.
+ */
+void seed_experiment(libcomm::experiment *system, const libbase::int32u seed)
    {
-   if (seed < 0)
-      {
-      libbase::truerand trng;
-      seed = trng.ival();
-      }
    libbase::randgen prng;
    prng.seed(seed);
    system->seedfrom(prng);
    cerr << "Seed: " << seed << std::endl;
+   }
+
+/*! \brief Randomly seed the random generators in the experiment
+ *
+ * Use a true RNG to determine the initial seed value, and seed the experiment.
+ */
+void seed_experiment(libcomm::experiment *system)
+   {
+   libbase::truerand trng;
+   libbase::int32u seed = trng.ival();
+   seed_experiment(system, seed);
    }
 
 void display_event(libcomm::experiment *system)
@@ -95,8 +105,8 @@ int main(int argc, char *argv[])
          "input file containing system description");
    desc.add_options()("parameter,p", po::value<double>(),
          "simulation parameter");
-   desc.add_options()("seed,s", po::value<int>()->default_value(-1),
-         "system initialization seed (random if -1)");
+   desc.add_options()("seed,s", po::value<libbase::int32u>(),
+         "system initialization seed (random if not stated)");
    desc.add_options()("show-all,a", po::bool_switch(),
          "show all simulated frames (not just first error event)");
    po::variables_map vm;
@@ -119,7 +129,10 @@ int main(int argc, char *argv[])
    system->set_parameter(vm["parameter"].as<double> ());
    // Initialise running values
    system->reset();
-   seed_experiment(system, vm["seed"].as<int> ());
+   if (vm.count("seed"))
+      seed_experiment(system, vm["seed"].as<libbase::int32u>());
+   else
+      seed_experiment(system);
    cerr << "Simulating system at parameter = " << system->get_parameter()
          << std::endl;
    // Simulate, waiting for an error event

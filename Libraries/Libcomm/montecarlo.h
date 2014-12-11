@@ -29,6 +29,7 @@
 #include "experiment.h"
 #include "masterslave.h"
 #include "resultsfile.h"
+#include "truerand.h"
 #include <sstream>
 
 namespace libcomm {
@@ -47,7 +48,8 @@ private:
    bool bound; //!< Flag to indicate that a system has been bound (only in master)
    experiment *system; //!< System being sampled
    // @}
-   /*! \name Internal variables */
+   /*! \name Internal variables / settings */
+   libbase::int32u seed; //! system initialization seed
    int min_samples; //!< minimum number of samples
    double confidence; //!< confidence level for computing margin of error
    double threshold; //!< threshold for convergence (interpretation depends on mode)
@@ -73,7 +75,7 @@ private:
 private:
    /*! \name Helper functions */
    std::string get_systemstring();
-   void seed_experiment(libbase::int32u seed);
+   void seed_experiment();
    void createfunctors(void);
    void destroyfunctors(void);
    // @}
@@ -129,6 +131,9 @@ public:
                "montecarlo_update")
       {
       createfunctors();
+      // Use a true RNG to determine the initial seed value
+      libbase::truerand trng;
+      seed = trng.ival();
       }
    virtual ~montecarlo()
       {
@@ -156,6 +161,13 @@ public:
       }
    // @}
    /*! \name Simulation parameters */
+   //! Set system initialization seed
+   void set_seed(libbase::int32u seed)
+      {
+      if(isinitialized())
+         std::cerr << "WARNING (montecarlo): seed value unused in master-slave system" << std::endl;
+      montecarlo::seed = seed;
+      }
    //! Set minimum number of samples
    void set_min_samples(int min_samples)
       {
@@ -251,7 +263,7 @@ public:
       }
    // @}
    /*! \name Main process */
-   void estimate(libbase::int32u seed, libbase::vector<double>& result,
+   void estimate(libbase::vector<double>& result,
          libbase::vector<double>& errormargin);
    // @}
 };
