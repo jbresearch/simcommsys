@@ -121,8 +121,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          }
       }
    // *** compute remaining rows (1 <= i <= n)
-   // and -Zmin virtual rows if this is the last codeword
-   const int imax = n + (last ? -Zmin : 0);
+   // and -mT_min virtual rows if this is the last codeword
+   const int imax = n + (last ? -mT_min : 0);
    for (int i = 1; i <= imax; i++)
       {
       // advance slices
