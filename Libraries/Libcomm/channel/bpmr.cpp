@@ -168,7 +168,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
                temp += F0[j - 1] * Pi;
             }
          // implicit free delete with no transmission at end of last codeword
-         if (last && j - i < mT_max && j - S0 == n) // (j)-(i-1) <= mT_max
+         if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
             temp += F1[j];
          // implicit free delete with no transmission on last row of
          // intermediate codewords
