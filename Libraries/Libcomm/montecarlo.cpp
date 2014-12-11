@@ -59,7 +59,7 @@ void montecarlo::slave_getparameter(void)
    {
    cerr << "Date: " << libbase::timer::date() << std::endl;
 
-   seed_experiment();
+   seed_experiment(-1);
    double x;
    if (!receive(x))
       exit(1);
@@ -105,11 +105,20 @@ std::string montecarlo::get_systemstring()
    return systemstring;
    }
 
-void montecarlo::seed_experiment()
+/*! \brief Seed the random generators in the experiment
+ *
+ * Use the given seed to initialize a PRNG for seeding the embedded system.
+ * If the given seed is -1, this indicates that a true RNG should be used
+ * to determine the initial seed value.
+ */
+void montecarlo::seed_experiment(libbase::int32u seed)
    {
-   libbase::truerand trng;
+   if (seed < 0)
+      {
+      libbase::truerand trng;
+      seed = trng.ival();
+      }
    libbase::randgen prng;
-   const libbase::int32u seed = trng.ival();
    prng.seed(seed);
    system->seedfrom(prng);
    cerr << "Seed: " << seed << std::endl;
@@ -406,10 +415,11 @@ bool montecarlo::readpendingslaves()
 /*!
  * \brief Simulate the system until convergence to given accuracy & confidence,
  * and return estimated results
+ * \param[in]  seed        System initialization seed (random if -1)
  * \param[out] result      Vector of results
  * \param[out] errormargin Vector of corresponding margin of error (radius of confidence interval)
  */
-void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
+void montecarlo::estimate(libbase::int32u seed, vector<double>& result, vector<double>& errormargin)
    {
    t.start();
 
@@ -429,11 +439,13 @@ void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
    // and seed the experiment
    if (isenabled())
       {
+      if(seed < 0)
+         std::cerr << "WARNING (montecarlo): seed value unused in master-slave system" << std::endl;
       resetslaves();
       resetcputime();
       }
    else
-      seed_experiment();
+      seed_experiment(seed);
 
    // Repeat the experiment until all the following are true:
    // 1) We have the accuracy we need

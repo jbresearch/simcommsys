@@ -76,6 +76,8 @@ int main(int argc, char *argv[])
          "channel parameter (e.g. SNR)");
    desc.add_options()("system-file,i", po::value<std::string>(),
          "file containing system description");
+   desc.add_options()("seed,s", po::value<int>()->default_value(-1),
+         "system initialization seed (random if -1)");
    desc.add_options()("confidence", po::value<double>()->default_value(0.999),
          "confidence level for computing margin of error (e.g. 0.90 for 90%)");
    desc.add_options()("relative-error", po::value<double>()->default_value(0.001),
@@ -139,7 +141,7 @@ int main(int argc, char *argv[])
 
          // Perform the simulation
          libbase::vector<double> estimate, errormargin;
-         estimator.estimate(estimate, errormargin);
+         estimator.estimate(vm["seed"].as<int> (), estimate, errormargin);
          const libbase::int64u samples = estimator.get_samplecount();
 
          if (!vm["quiet"].as<bool> ())

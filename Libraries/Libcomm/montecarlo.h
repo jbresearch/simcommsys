@@ -73,7 +73,7 @@ private:
 private:
    /*! \name Helper functions */
    std::string get_systemstring();
-   void seed_experiment();
+   void seed_experiment(libbase::int32u seed);
    void createfunctors(void);
    void destroyfunctors(void);
    // @}
@@ -251,7 +251,7 @@ public:
       }
    // @}
    /*! \name Main process */
-   void estimate(libbase::vector<double>& result,
+   void estimate(libbase::int32u seed, libbase::vector<double>& result,
          libbase::vector<double>& errormargin);
    // @}
 };

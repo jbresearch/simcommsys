@@ -182,6 +182,8 @@ int main(int argc, char *argv[])
                "overrides absolute and relative error if specified");
    desc.add_options()("min-samples", po::value<int>(),
          "minimum number of samples");
+   desc.add_options()("seed,s", po::value<int>()->default_value(-1),
+         "system initialization seed (random if -1)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -245,7 +247,7 @@ int main(int argc, char *argv[])
                cerr << "Simulating system at parameter = " << pset(i)
                      << std::endl;
                libbase::vector<double> result, errormargin;
-               estimator.estimate(result, errormargin);
+               estimator.estimate(vm["seed"].as<int> (), result, errormargin);
 
                cerr << "Statistics: " << setprecision(4)
                      << estimator.get_samplecount() << " samples in "
