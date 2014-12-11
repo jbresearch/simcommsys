@@ -31,6 +31,7 @@ namespace libcomm {
 // 1 - Normal debug output only
 // 2 - Show allocated memory sizes
 // 3 - Show input and intermediate vectors when decoding
+// 4 - Show alpha/beta matrices before normalization
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -332,6 +333,10 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha_and_beta(
       // compute partial result
       work_alpha(i);
       work_beta(N - i);
+#if DEBUG>=4
+      std::cerr << "alpha (pre-norm) = " << alpha << std::endl;
+      std::cerr << "beta (pre-norm) = " << beta << std::endl;
+#endif
       // normalize
       normalize_alpha(i);
       normalize_beta(N - i);
