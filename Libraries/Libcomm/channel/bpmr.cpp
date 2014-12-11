@@ -102,7 +102,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    // *** initialize first row of lattice (i = 0) [insertion only]
    F0[0] = 1;
    const int jmax = min(mT_max, rho);
-   if(rx_prev.size() == 0) // this is the first codeword
+   if (rx_prev.size() == 0) // this is the first codeword
       {
       // assume equiprobable prior value
       for (int j = 1; j <= jmax; j++)
@@ -279,7 +279,7 @@ void bpmr<real>::generate_state_sequence(const int tau)
  */
 template <class real>
 bpmr<real>::bpmr(const bool varyPd, const bool varyPi) :
-   varyPd(varyPd), varyPi(varyPi), fixedPd(0), fixedPi(0)
+      varyPd(varyPd), varyPi(varyPi), fixedPd(0), fixedPi(0)
    {
    // channel update flags
    assert(varyPd || varyPi);
@@ -368,7 +368,7 @@ void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
          newrx(i) = (this->r.fval_closed() < 0.5);
       // late index -> repeat last valid input
       else
-         newrx(i) = tx(tau-1);
+         newrx(i) = tx(tau - 1);
       }
    // copy results back
    rx = newrx;
