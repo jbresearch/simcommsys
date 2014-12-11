@@ -32,6 +32,7 @@ namespace libcomm {
 // 1 - Normal debug output only
 // 2 - Show Markov state and tx/rx vectors during transmission process
 // 3 - Show tx/rx vectors and posterior probabilities from receive process
+// 4 - Show lattice rows as they are computed in receive process
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -99,7 +100,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    real *F0 = &F[0][0];
    real *F1 = &F[1][0];
    real *F2 = &F[2][0];
-#if DEBUG>=3
+#if DEBUG>=4
    // mark first row entries as uninitialized
    for (int j = 0; j <= rho; j++)
       F0[j] = -1;
@@ -125,6 +126,12 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             F0[j] = 0;
          }
       }
+#if DEBUG>=4
+   libbase::trace << "DEBUG (bpmr): F = " << std::endl;
+   for (int j = 0; j <= rho; j++)
+      libbase::trace << F0[j] << '\t';
+   libbase::trace << std::endl;
+#endif
    // *** compute remaining rows (1 <= i <= n)
    // and -Zmin virtual rows if this is the last codeword
    const int imax = n + (last ? -Zmin : 0);
@@ -135,7 +142,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       F2 = F1;
       F1 = F0;
       F0 = Ft;
-#if DEBUG>=3
+#if DEBUG>=4
       // mark current row entries as uninitialized
       for (int j = 0; j <= rho; j++)
          F0[j] = -1;
@@ -173,6 +180,11 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          // store result
          F0[j] = temp;
          }
+#if DEBUG>=4
+      for (int j = 0; j <= rho; j++)
+         libbase::trace << F0[j] << '\t';
+      libbase::trace << std::endl;
+#endif
       }
    // *** copy results and return
    assertalways(ptable.size() == Zmax - Zmin + 1);
@@ -186,10 +198,6 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          ptable(x - Zmin) = 0;
       }
 #if DEBUG>=3
-   libbase::trace << "DEBUG (bpmr): F0 = " << std::endl;
-   for (int j = 0; j <= rho; j++)
-      libbase::trace << F0[j] << '\t';
-   libbase::trace << std::endl;
    libbase::trace << "DEBUG (bpmr): ptable = " << ptable << std::endl;
 #endif
    }
