@@ -132,7 +132,8 @@ private:
       // allocate space for results
       static array1r_t ptable;
       ptable.init(Zmax - Zmin + 1);
-      // determine if this is the last codeword
+      // determine if this is the first or last codeword
+      const bool first = (i == 0);
       const bool last = (i == N - 1);
       // for each start drift
       for (int x1 = Zmin; x1 <= Zmax; x1++)
@@ -145,15 +146,12 @@ private:
          const int start = n * i + x1 - Zmin;
          const int length = std::min(n + std::min(Zmax - x1, n),
                r.size() - start);
-         // determine previous received symbol to extract
-         const int start_p = std::max(start - 1, 0 - Zmin);
-         const int length_p = std::max(start - start_p, 0);
          // for each symbol value
          for (int d = 0; d < q; d++)
             {
             // call batch receiver method
-            receiver.R(d, i, r.extract(start, length),
-                  r.extract(start_p, length_p), x1, last, app, ptable);
+            receiver.R(d, i, r.extract(start, length), x1, first, last, app,
+                  ptable);
             // store in corresponding place in storage
             for (int x2 = Zmin; x2 <= Zmax; x2++)
                gamma_storage_entry(d, i, x1, x2) = ptable(x2 - Zmin);

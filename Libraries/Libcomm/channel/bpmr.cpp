@@ -68,8 +68,8 @@ void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
 // Batch receiver interface
 template <class real>
 void bpmr<real>::metric_computer::receive(const array1b_t& tx,
-      const array1b_t& rx, const array1b_t& rx_prev, const int S0,
-      const bool last, array1r_t& ptable) const
+      const array1b_t& rx, const int S0, const bool first, const bool last,
+      array1r_t& ptable) const
    {
 #if DEBUG>=3
    libbase::trace << "DEBUG (bpmr): starting receive..." << std::endl;
@@ -109,7 +109,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    // *** initialize first row of lattice (i = 0) [insertion only]
    F0[0] = 1;
    const int jmax = min(mT_max, rho);
-   if (rx_prev.size() == 0) // this is the first codeword
+   if (first)
       {
       // assume equiprobable prior value
       for (int j = 1; j <= jmax; j++)
@@ -117,15 +117,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       }
    else
       {
-      assert(rx_prev.size() == 1);
-      // given prior value
       for (int j = 1; j <= jmax; j++)
-         {
-         if (rx_prev(0) == rx(j - 1))
-            F0[j] = F0[j - 1] * Pi;
-         else
-            F0[j] = 0;
-         }
+         F0[j] = 0;
       }
 #if DEBUG>=4
    libbase::trace << "DEBUG (bpmr): F = " << std::endl;
@@ -170,10 +163,6 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          // implicit free delete with no transmission at end of last codeword
          if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
             temp += F1[j];
-         // implicit free delete with no transmission on last row of
-         // intermediate codewords
-         if (!last && j - i < mT_max && i == imax) // (j)-(i-1) <= mT_max
-            temp += F1[j];
          // store result
          F0[j] = temp;
          }
@@ -190,7 +179,12 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       // convert index (x = j - n + S0)
       const int j = x + n - S0;
       if (j >= 0 && j <= rho)
+         {
+         // factor in delete with no transmission for intermediate codewords
+         if (!last && j - n < mT_max) // (j)-(n-1) <= mT_max
+            F0[j] += F1[j] * Pd / get_transmission_coefficient(x);;
          ptable(x - Zmin) = F0[j];
+         }
       else
          ptable(x - Zmin) = 0;
       }

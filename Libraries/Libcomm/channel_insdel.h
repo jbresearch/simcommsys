@@ -71,7 +71,7 @@ public:
             array1r_t& ptable) const = 0;
       //! Batch receiver interface - fixed state space
       virtual void receive(const array1s_t& tx, const array1s_t& rx,
-            const array1s_t& rx_prev, const int S0, const bool last,
+            const int S0, const bool first, const bool last,
             array1r_t& ptable) const = 0;
       // @}
    };
