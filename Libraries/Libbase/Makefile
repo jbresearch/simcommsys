@@ -61,8 +61,10 @@ FORCE:
 
 version.h:	FORCE
 	@echo "Creating $@ [$(BUILDID): $(RELEASE)]"
-	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
-	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@
+	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@.new
+	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@.new
+	@cmp -s $@.new $@ || ( cp $@.new $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
+	@rm -f $@.new
 
 $(LIBRARY):	$(OBJECTS)
 	@echo "Building library $* [$(BUILDID): $(RELEASE)]"
