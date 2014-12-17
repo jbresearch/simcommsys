@@ -359,7 +359,7 @@ def get_styles2(N1=None, N2=None, N3=None):
 # Plotting functions
 
 def plotresults(filename, type=2, xscale='linear', showiter=False,
-   showtol=True, style=None, limit=False, correct=[], label=None):
+   showtol=True, style=None, limit=False, correct=[], latest=True, label=None):
    '''Returns:
    if plot requested: handle
    otherwise: (par,results,tolret,passes,cputime)
@@ -379,7 +379,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
    xscale:    'linear' (default) or 'log'
    showiter:  plot all iterations / results in set? (default: false = show last)
               if true, show all iterations
-              is a list, interpret as iteration indices to show
+              if a list, interpret as iteration indices to show
    showtol:   (T1-4,6) plot tolerance limits? (default: true)
    style:     if absent, do not plot results
               if a string, use this as the line format string
@@ -389,6 +389,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
               if a number 'n', one marker is printed for every 'n' points
    correct:   data set for BSID parameter correction (default: no correction)
               contains: [Ps, Pd, Pi, Reff]
+   latest:    plot only the latest simulation in file?
    label:     legend label
 
    Note: types 1 & 2 use the same data set (symbol-error), but just
@@ -397,7 +398,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
 
    # Load data from file, and reorganize as necessary
    legendlist = []
-   (par,results,tolerance,passes,cputime,header,comments) = loadresults(filename)
+   (par,results,tolerance,passes,cputime,header,comments) = loadresults(filename,latest)
    # extract last system and date from comments
    system = getafter('Communication System:',comments)
    date = getafter('Date:',comments)
