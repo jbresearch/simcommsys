@@ -80,7 +80,7 @@ endif
 
 ## Build version from git
 
-SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
+export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 
 ## Build and installations details
 
@@ -137,9 +137,9 @@ ifeq ($(MAKELEVEL),0)
 endif
 
 
-## List of users libraries (in linking order)
+## List of users libraries (in compilation order)
 
-LIBNAMES := comm image base
+LIBNAMES := base image comm
 
 
 ## Commands
@@ -162,7 +162,7 @@ export DOXYGEN := doxygen
 
 # Common options
 LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
-LDopts := $(LDopts) $(LIBNAMES:%=-l%)
+LDopts := $(LDopts) -Wl,--start-group $(LIBNAMES:%=-l%) -Wl,--end-group
 LDopts := $(LDopts) -lboost_program_options
 # OMP options
 ifneq ($(USE_OMP),0)
@@ -203,7 +203,6 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) -Wall -Werror
 #CCopts := $(CCopts) -std=c++0x
-CCopts := $(CCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\" -DSIMCOMMSYS_BUILD=\"$(BUILDID)\"
 # note: below disabled to avoid problems with parallel builds
 # note: below should be replaced with the following when we move to gcc > 4.4
 #CCopts := $(CCopts) -save-temps
@@ -255,7 +254,6 @@ NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 #NVCCopts := $(NVCCopts) -Xopencc "-woffall"
 #NVCCopts := $(NVCCopts) -Xptxas "-v"
 NVCCopts := $(NVCCopts) -w
-NVCCopts := $(NVCCopts) -DSIMCOMMSYS_VERSION=\"$(SIMCOMMSYS_VERSION)\" -DSIMCOMMSYS_BUILD=\"$(BUILDID)\"
 NVCCopts := $(NVCCopts) -DUSE_CUDA
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
 ifeq ($(OSARCH),i686)

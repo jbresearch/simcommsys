@@ -98,15 +98,6 @@
 
 // *** Global namespace ***
 
-// Dummy entries for version-control macros, currently useful only in Windows
-// builds; UNIX builds get the values automatically determined on build.
-// TODO: update VS build to set these properly from working copy
-
-#ifndef SIMCOMMSYS_VERSION
-#  define SIMCOMMSYS_VERSION "undefined"
-#  define SIMCOMMSYS_BUILD "undefined"
-#endif
-
 // Implemented log2, round, and sgn if these are not already available
 
 #ifdef _WIN32

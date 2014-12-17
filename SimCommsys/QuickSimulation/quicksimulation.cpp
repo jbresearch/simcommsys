@@ -19,6 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "version.h"
 #include "serializer_libcomm.h"
 #include "montecarlo.h"
 #include "timer.h"

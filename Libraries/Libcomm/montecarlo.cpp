@@ -21,6 +21,7 @@
 
 #include "montecarlo.h"
 
+#include "version.h"
 #include "fsm.h"
 #include "itfunc.h"
 #include "randgen.h"
