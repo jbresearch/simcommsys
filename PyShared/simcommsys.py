@@ -177,7 +177,9 @@ def loaddata(filename,latest=True):
 
    Where:
       filename = file to be loaded
-      latest = only load the latest simulation (=True)
+      latest = if true (default) load only the latest simulation in file
+               if false, concatenate all simulations in file
+               if a list, concatenate the specified simulations in file
       data = matrix of data values
       comments = string comments in file, in order of appearance
    '''
@@ -190,29 +192,52 @@ def loaddata(filename,latest=True):
    data = []
    comments = []
    # read all lines in the file
-   i = 0
+   i = 0 # line counter
+   j = 0 # block counter
+   this_data = []
+   this_comments = []
    for line in fid:
       if len(line)>0 and line[0] == '#':
-         # if this is not the first complete block of comments, remove
-         # old comments and data
-         if latest and len(line)>1 and line[1] == '%' and data != []:
-            print 'WARNING: discarding at line %d of %s.' % (i,filename)
-            data = []
-            comments = []
+         # if this set of comments is a block divider
+         if len(line)>1 and line[1] == '%' and this_data != []:
+            # store existing block
+            data.append(this_data)
+            comments.append(this_comments)
+            # reset for next block
+            this_data = []
+            this_comments = []
+            # increment block counter
+            j += 1
          if len(line)>1:
-            comments.append(line.lstrip('#% ').rstrip())
+            this_comments.append(line.lstrip('#% ').rstrip())
       else:
-         data.append([float(s) for s in line.split()])
-      i = i + 1
+         this_data.append([float(s) for s in line.split()])
+      i += 1
+   # store last block if necessary
+   if this_data != []:
+      data.append(this_data)
+      comments.append(this_comments)
+   # figure out what we need to return
+   if isinstance(latest, list):
+      this_data = sum([x for i,x in enumerate(data) if i in latest], [])
+      this_comments = sum([x for i,x in enumerate(comments) if i in latest], [])
+   elif latest:
+      this_data = data.pop()
+      this_comments = comments.pop()
+   else:
+      this_data = sum(data, [])
+      this_comments = sum(comments, [])
 
-   return (np.array(data),comments)
+   return (np.array(this_data),this_comments)
 
 def loadresults(filename,latest=True):
    '''Returns: (par,results,tolerance,passes,cputime,header,comments)
 
    Where:
       filename = file to be loaded
-      latest = only load the latest simulation (=True)
+      latest = if true (default) load only the latest simulation in file
+               if false, concatenate all simulations in file
+               if a list, concatenate the specified simulations in file
 
       par = column vector with parameter values simulated
       results = matrix of results *, **
@@ -389,7 +414,9 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
               if a number 'n', one marker is printed for every 'n' points
    correct:   data set for BSID parameter correction (default: no correction)
               contains: [Ps, Pd, Pi, Reff]
-   latest:    plot only the latest simulation in file?
+   latest:    if true (default) load only the latest simulation in file
+              if false, concatenate all simulations in file
+              if a list, concatenate the specified simulations in file
    label:     legend label
 
    Note: types 1 & 2 use the same data set (symbol-error), but just
