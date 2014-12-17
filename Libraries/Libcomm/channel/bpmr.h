@@ -64,7 +64,6 @@ template <class real>
 class bpmr : public channel_insdel<bool, real> {
 public:
    /*! \name Type definitions */
-   typedef libbase::matrix<real> array2r_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<bool> array1b_t;
