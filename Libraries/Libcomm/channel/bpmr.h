@@ -111,7 +111,7 @@ public:
          else // mT_min < Z < mT_max
             return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
          }
-      static void cycle_pointers(real *F0, real *F1, real *F2)
+      static void cycle_pointers(real* &F0, real* &F1, real* &F2)
          {
          real *Ft = F2;
          F2 = F1;
