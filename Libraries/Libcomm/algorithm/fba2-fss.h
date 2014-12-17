@@ -66,20 +66,18 @@ public:
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::vector<array1r_t> array1vr_t;
-   typedef boost::assignable_multi_array<real, 2> array2r_t;
    typedef boost::assignable_multi_array<real, 3> array3r_t;
-   typedef boost::assignable_multi_array<real, 4> array4r_t;
-   typedef boost::assignable_multi_array<bool, 1> array1b_t;
-   typedef boost::assignable_multi_array<bool, 2> array2b_t;
+   typedef boost::assignable_multi_array<real, 5> array5r_t;
+   typedef boost::assignable_multi_array<real, 6> array6r_t;
    // @}
 private:
    /*! \name Internally-used objects */
    mutable receiver_t receiver; //!< Inner code receiver metric computation
-   array2r_t alpha; //!< Forward recursion metric
-   array2r_t beta; //!< Backward recursion metric
+   array3r_t alpha; //!< Forward recursion metric, indices (i,m,delta)
+   array3r_t beta; //!< Backward recursion metric, indices (i,m,delta)
    mutable struct {
-      array4r_t global; // indices (i,x,d,deltax)
-      array3r_t local; // indices (x,d,deltax)
+      array6r_t global; // indices (i,m1,delta1,d,m2,delta2)
+      array5r_t local; // indices (m1,delta1,d,m2,delta2)
    } gamma; //!< Receiver metric
    array1s_t r; //!< Copy of received sequence, for local computation of gamma
    array1vd_t app; //!< Copy of a-priori statistics, for local computation of gamma
@@ -97,26 +95,25 @@ private:
    /*! \brief Get a reference to the corresponding gamma storage entry
     * This method is called from nested loops as follows:
     * - from work_alpha:
-    *        i,x1,d=outer loops
-    *        x2=inner loop
+    *        i,m1,d=outer loops
+    *        m2=inner loop
     * - from work_beta:
-    *        i,x1,d=outer loops
-    *        x2=inner loop
+    *        i,m1,d=outer loops
+    *        m2=inner loop
     * - from work_message_app:
-    *        i,d,x1=outer loops
-    *        x2=inner loop
+    *        i,d,m1=outer loops
+    *        m2=inner loop
     */
-   real& gamma_storage_entry(int d, int i, int x1, int x2) const
+   real& gamma_storage_entry(int d, int i, int m1, int delta1, int m2, int delta2) const
       {
       if (globalstore)
-         return gamma.global[i][x1][d][x2];
+         return gamma.global[i][m1][delta1][d][m2][delta2];
       else
-         return gamma.local[x1][d][x2];
+         return gamma.local[m1][delta1][d][m2][delta2];
       }
    // common small tasks
-   static real get_scale(const array2r_t& metric, int row, int col_min,
-         int col_max);
-   static void normalize(array2r_t& metric, int row, int col_min, int col_max);
+   static real get_scale(const array3r_t& metric, int i, int m_min, int m_max);
+   static void normalize(array3r_t& metric, int i, int m_min, int m_max);
    void normalize_alpha(int i)
       {
       normalize(alpha, i, Zmin, Zmax);
@@ -126,35 +123,42 @@ private:
       normalize(beta, i, Zmin, Zmax);
       }
    // decode functions - partial computations
-   void work_gamma(const array1s_t& r, const array1vd_t& app,
-         const int i) const
+   void work_gamma(const array1s_t& r, const array1vd_t& app, const int i) const
       {
       // allocate space for results
-      static array1r_t ptable;
-      ptable.init(Zmax - Zmin + 1);
+      static array1r_t ptable0, ptable1;
+      ptable0.init(Zmax - Zmin + 1);
+      ptable1.init(Zmax - Zmin + 1);
       // determine if this is the first or last codeword
       const bool first = (i == 0);
       const bool last = (i == N - 1);
       // for each start drift
-      for (int x1 = Zmin; x1 <= Zmax; x1++)
+      for (int m1 = Zmin; m1 <= Zmax; m1++)
          {
          // determine received segment to extract
          // n * i = offset to start of current codeword
          // -Zmin = offset to zero drift in 'r'
-         // Zmax-x1 = maximum positive drift for a start drift of 'x1'
+         // Zmax-m1 = maximum positive drift for a start drift of 'm1'
          // n = maximum positive drift over 'n' bits
-         const int start = n * i + x1 - Zmin;
-         const int length = std::min(n + std::min(Zmax - x1, n),
+         const int start = n * i + m1 - Zmin;
+         const int length = std::min(n + std::min(Zmax - m1, n),
                r.size() - start);
-         // for each symbol value
-         for (int d = 0; d < q; d++)
-            {
-            // call batch receiver method
-            receiver.R(d, i, r.extract(start, length), x1, first, last, app,
-                  ptable);
-            // store in corresponding place in storage
-            for (int x2 = Zmin; x2 <= Zmax; x2++)
-               gamma_storage_entry(d, i, x1, x2) = ptable(x2 - Zmin);
+         // for each initial deletion option
+         for (int delta1 = 0; delta1 <= 1; delta1++)
+            // for each symbol value
+            for (int d = 0; d < q; d++)
+               {
+               // call batch receiver method
+               receiver.R(d, i, r.extract(start, length), m1, delta1, first,
+                     last, app, ptable0, ptable1);
+               // store in corresponding place in storage
+               for (int m2 = Zmin; m2 <= Zmax; m2++)
+                  {
+                  gamma_storage_entry(d, i, m1, delta1, m2, 0) = ptable0(
+                        m2 - Zmin);
+                  gamma_storage_entry(d, i, m1, delta1, m2, 1) = ptable1(
+                        m2 - Zmin);
+                  }
             }
          }
       }

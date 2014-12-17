@@ -35,7 +35,7 @@ namespace libcomm {
 // 4 - Show lattice rows as they are computed in receive process
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 4
 #endif
 
 // Internal functions
@@ -68,15 +68,16 @@ void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
 // Batch receiver interface
 template <class real>
 void bpmr<real>::metric_computer::receive(const array1b_t& tx,
-      const array1b_t& rx, const int S0, const bool first, const bool last,
-      array1r_t& ptable) const
+      const array1b_t& rx, const int S0, const int delta0, const bool first,
+      const bool last, array1r_t& ptable0, array1r_t& ptable1) const
    {
 #if DEBUG>=3
    libbase::trace << "DEBUG (bpmr): starting receive..." << std::endl;
    libbase::trace << "DEBUG (bpmr): tx = " << tx << std::endl;
    libbase::trace << "DEBUG (bpmr): rx = " << rx << std::endl;
-   libbase::trace << "DEBUG (bpmr): rx_prev = " << rx_prev << std::endl;
    libbase::trace << "DEBUG (bpmr): S0 = " << S0 << std::endl;
+   libbase::trace << "DEBUG (bpmr): delta0 = " << delta0 << std::endl;
+   libbase::trace << "DEBUG (bpmr): first = " << first << std::endl;
    libbase::trace << "DEBUG (bpmr): last = " << last << std::endl;
 #endif
    using std::swap;
@@ -107,35 +108,91 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          F[i][j] = -1;
 #endif
    // *** initialize first row of lattice (i = 0) [insertion only]
-   F0[0] = 1;
+   {
    const int jmax = min(mT_max, rho);
-   if (first)
+   for (int j = 0; j <= jmax; j++)
+      F0[j] = 0;
+   if (delta0 == 0) // last bit of previous codeword not deleted
       {
-      // assume equiprobable prior value
-      for (int j = 1; j <= jmax; j++)
-         F0[j] = F0[j - 1] * real(0.5) * Pi;
-      }
-   else
-      {
-      for (int j = 1; j <= jmax; j++)
-         F0[j] = 0;
+      F0[0] = 1;
+      if (first) // assume equiprobable prior value
+         for (int j = 1; j <= jmax; j++)
+            F0[j] = F0[j - 1] * real(0.5) * Pi;
       }
 #if DEBUG>=4
    libbase::trace << "DEBUG (bpmr): F = " << std::endl;
-   for (int j = 0; j <= rho; j++)
-      libbase::trace << F0[j] << '\t';
-   libbase::trace << std::endl;
+   print_lattice_row(F0, rho);
 #endif
-   // *** compute remaining rows (1 <= i <= n)
+   }
+   // *** compute second row (i = 1)
+   {
+   int i = 1;
+   assert(i <= n);
+   // advance slices
+   cycle_pointers(F0, F1, F2);
+   // determine limits for remaining columns (after first)
+   const int jmin = max(i + mT_min, 1);
+   const int jmax = min(i + mT_max, rho);
+   // overwrite up to three columns before corridor, as needed
+   // [first is actually within corridor if (i + mT_min <= 0)]
+   for (int j = jmin - 1; j >= 0 && j >= jmin - 3; j--)
+      F0[j] = 0;
+   // remaining columns
+   if (delta0 == 0) // last bit of previous codeword not deleted
+      {
+      for (int j = jmin; j <= jmax; j++)
+         {
+         real temp = 0;
+         // in all cases, corresponding tx/rx bits must be equal
+         // [repeat last tx bit for virtual rows]
+         if (tx(i - 1) == rx(j - 1))
+            {
+            // transmission path
+            temp += F1[j - 1] * get_transmission_coefficient(j - i + S0);
+            // insertion path (if previous node was within corridor)
+            if (j - i > mT_min) // (j-1)-i >= mT_min
+               temp += F0[j - 1] * Pi;
+            }
+         // implicit free delete with no transmission at end of last codeword
+         if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
+            temp += F1[j];
+         // store result
+         F0[j] = temp;
+         }
+      }
+   else
+      {
+      assert(delta0 == 1);
+      assert(jmin == 1);
+      for (int j = jmin; j <= jmax; j++)
+         {
+         real temp = 0;
+         // in all cases, corresponding tx/rx bits must be equal
+         // [repeat last tx bit for virtual rows]
+         if (tx(i - 1) == rx(j - 1))
+            {
+            // deletion path across codeword boundary
+            if (j == 1)
+               temp += Pd;
+            // insertion path (if previous node was within corridor)
+            if (j - i > mT_min) // (j-1)-i >= mT_min
+               temp += F0[j - 1] * Pi;
+            }
+         // store result
+         F0[j] = temp;
+         }
+      }
+#if DEBUG>=4
+   print_lattice_row(F0, rho);
+#endif
+   }
+   // *** compute remaining rows (2 <= i <= n)
    // and -Zmin virtual rows if this is the last codeword
    const int imax = n + (last ? -Zmin : 0);
-   for (int i = 1; i <= imax; i++)
+   for (int i = 2; i <= imax; i++)
       {
       // advance slices
-      real *Ft = F2;
-      F2 = F1;
-      F1 = F0;
-      F0 = Ft;
+      cycle_pointers(F0, F1, F2);
       // determine limits for remaining columns (after first)
       const int jmin = max(i + mT_min, 1);
       const int jmax = min(i + mT_max, rho);
@@ -154,7 +211,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             // transmission path
             temp += F1[j - 1] * get_transmission_coefficient(j - i + S0);
             // deletion path (if previous node was within corridor)
-            if (j - i < mT_max && i >= 2) // (j-1)-(i-2) <= mT_max
+            if (j - i < mT_max) // (j-1)-(i-2) <= mT_max
                temp += F2[j - 1] * Pd;
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
@@ -167,29 +224,30 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
          F0[j] = temp;
          }
 #if DEBUG>=4
-      for (int j = 0; j <= rho; j++)
-         libbase::trace << F0[j] << '\t';
-      libbase::trace << std::endl;
+      print_lattice_row(F0, rho);
 #endif
       }
    // *** copy results and return
-   assertalways(ptable.size() == Zmax - Zmin + 1);
+   assertalways(ptable0.size() == Zmax - Zmin + 1);
+   assertalways(ptable1.size() == Zmax - Zmin + 1);
    for (int x = Zmin; x <= Zmax; x++)
       {
       // convert index (x = j - n + S0)
       const int j = x + n - S0;
+      // last tx bit not deleted
       if (j >= 0 && j <= rho)
-         {
-         // factor in delete with no transmission for intermediate codewords
-         if (!last && j - n < mT_max) // (j)-(n-1) <= mT_max
-            F0[j] += F1[j] * Pd / get_transmission_coefficient(x);;
-         ptable(x - Zmin) = F0[j];
-         }
+         ptable0(x - Zmin) = F0[j];
       else
-         ptable(x - Zmin) = 0;
+         ptable0(x - Zmin) = 0;
+      // last tx bit deleted
+      if (j >= 0 && j <= rho && j - n < mT_max) // (j)-(n-1) <= mT_max
+         ptable1(x - Zmin) = F1[j];
+      else
+         ptable1(x - Zmin) = 0;
       }
 #if DEBUG>=3
-   libbase::trace << "DEBUG (bpmr): ptable = " << ptable << std::endl;
+   libbase::trace << "DEBUG (bpmr): ptable0 = " << ptable0 << std::endl;
+   libbase::trace << "DEBUG (bpmr): ptable1 = " << ptable1 << std::endl;
 #endif
    }
 

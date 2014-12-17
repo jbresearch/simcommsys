@@ -510,7 +510,8 @@ public:
             array1r_t& ptable) const;
       //! Batch receiver interface - fixed state space
       void receive(const array1g_t& tx, const array1g_t& rx, const int S0,
-            const bool first, const bool last, array1r_t& ptable) const
+            const int delta0, const bool first, const bool last,
+            array1r_t& ptable0, array1r_t& ptable1) const
          {
          failwith("Method not supported.");
          }

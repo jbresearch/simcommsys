@@ -111,6 +111,19 @@ public:
          else // mT_min < Z < mT_max
             return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
          }
+      static void cycle_pointers(real *F0, real *F1, real *F2)
+         {
+         real *Ft = F2;
+         F2 = F1;
+         F1 = F0;
+         F0 = Ft;
+         }
+      static void print_lattice_row(const real *F0, const int rho)
+         {
+         for (int j = 0; j <= rho; j++)
+            libbase::trace << F0[j] << '\t';
+         libbase::trace << std::endl;
+         }
    public:
       /*! \name Internal functions */
       void precompute(double Pd, double Pi, int T, int Zmin, int Zmax);
@@ -252,7 +265,8 @@ public:
          }
       //! Batch receiver interface - fixed state space
       void receive(const array1b_t& tx, const array1b_t& rx, const int S0,
-            const bool first, const bool last, array1r_t& ptable) const;
+            const int delta0, const bool first, const bool last,
+            array1r_t& ptable0, array1r_t& ptable1) const;
       // @}
       DECLARE_CLONABLE(metric_computer)
    };

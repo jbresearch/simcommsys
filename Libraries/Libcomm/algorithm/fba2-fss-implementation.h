@@ -42,108 +42,117 @@ namespace libcomm {
 // common small tasks
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
-real fba2_fss<receiver_t, sig, real, real2, globalstore>::get_scale(const array2r_t& metric,
-      int row, int col_min, int col_max)
+real fba2_fss<receiver_t, sig, real, real2, globalstore>::get_scale(
+      const array3r_t& metric, int i, int m_min, int m_max)
    {
    real scale = 0;
-   for (int col = col_min; col <= col_max; col++)
-      scale += metric[row][col];
+   for (int m = m_min; m <= m_max; m++)
+      for (int delta = 0; delta <= 1; delta++)
+         scale += metric[i][m][delta];
    assertalways(scale > real(0));
    scale = real(1) / scale;
    return scale;
    }
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::normalize(array2r_t& metric, int row,
-      int col_min, int col_max)
+void fba2_fss<receiver_t, sig, real, real2, globalstore>::normalize(
+      array3r_t& metric, int i, int m_min, int m_max)
    {
    // determine the scale factor to use (each block has to do this)
-   const real scale = get_scale(metric, row, col_min, col_max);
+   const real scale = get_scale(metric, i, m_min, m_max);
    // scale all results
-   for (int col = col_min; col <= col_max; col++)
-      metric[row][col] *= scale;
+   for (int m = m_min; m <= m_max; m++)
+      for (int delta = 0; delta <= 1; delta++)
+         metric[i][m][delta] *= scale;
    }
 
 // decode functions - partial computations
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(const int i)
+void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(
+      const int i)
    {
-   for (int x1 = Zmin; x1 <= Zmax; x1++)
-      {
-      // cache previous alpha value in a register
-      const real prev_alpha = alpha[i - 1][x1];
-      // limits on deltax can be combined as (c.f. allocate() for details):
-      //   x2-x1 <= n
-      //   x2-x1 >= -n
-      const int x2min = std::max(Zmin, x1 - n);
-      const int x2max = std::min(Zmax, x1 + n);
-      for (int x2 = x2min; x2 <= x2max; x2++)
+   for (int m1 = Zmin; m1 <= Zmax; m1++)
+      for (int delta1 = 0; delta1 <= 1; delta1++)
          {
-         // NOTE: we're repeating the loop on x2, so we need to increment this
-         real this_alpha = alpha[i][x2];
-         for (int d = 0; d < q; d++)
-            {
-            real temp = prev_alpha;
-            temp *= gamma_storage_entry(d, i - 1, x1, x2);
-            this_alpha += temp;
-            }
-         alpha[i][x2] = this_alpha;
+         // cache previous alpha value in a register
+         const real prev_alpha = alpha[i - 1][m1][delta1];
+         // limits on drift can be combined as (c.f. allocate() for details):
+         //   m2-m1 <= n
+         //   m2-m1 >= -n
+         const int m2min = std::max(Zmin, m1 - n);
+         const int m2max = std::min(Zmax, m1 + n);
+         for (int m2 = m2min; m2 <= m2max; m2++)
+            for (int delta2 = 0; delta2 <= 1; delta2++)
+               {
+               // NOTE: we're repeating the loop on m2,delta2 so we need to increment this
+               real this_alpha = alpha[i][m2][delta2];
+               for (int d = 0; d < q; d++)
+                  {
+                  real temp = prev_alpha;
+                  temp *= gamma_storage_entry(d, i - 1, m1, delta1, m2, delta2);
+                  this_alpha += temp;
+                  }
+               alpha[i][m2][delta2] = this_alpha;
+               }
          }
-      }
    }
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
 void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta(const int i)
    {
-   for (int x1 = Zmin; x1 <= Zmax; x1++)
-      {
-      real this_beta = 0;
-      // limits on deltax can be combined as (c.f. allocate() for details):
-      //   x2-x1 <= n
-      //   x2-x1 >= -n
-      const int x2min = std::max(Zmin, x1 - n);
-      const int x2max = std::min(Zmax, x1 + n);
-      for (int x2 = x2min; x2 <= x2max; x2++)
+   for (int m1 = Zmin; m1 <= Zmax; m1++)
+      for (int delta1 = 0; delta1 <= 1; delta1++)
          {
-         // cache next beta value in a register
-         const real next_beta = beta[i + 1][x2];
-         for (int d = 0; d < q; d++)
-            {
-            real temp = next_beta;
-            temp *= gamma_storage_entry(d, i, x1, x2);
-            this_beta += temp;
-            }
+         real this_beta = 0;
+         // limits on drift can be combined as (c.f. allocate() for details):
+         //   m2-m1 <= n
+         //   m2-m1 >= -n
+         const int m2min = std::max(Zmin, m1 - n);
+         const int m2max = std::min(Zmax, m1 + n);
+         for (int m2 = m2min; m2 <= m2max; m2++)
+            for (int delta2 = 0; delta2 <= 1; delta2++)
+               {
+               // cache next beta value in a register
+               const real next_beta = beta[i + 1][m2][delta2];
+               for (int d = 0; d < q; d++)
+                  {
+                  real temp = next_beta;
+                  temp *= gamma_storage_entry(d, i, m1, delta1, m2, delta2);
+                  this_beta += temp;
+                  }
+               }
+         beta[i][m1][delta1] = this_beta;
          }
-      beta[i][x1] = this_beta;
-      }
    }
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_message_app(array1vr_t& ptable,
-      const int i) const
+void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_message_app(
+      array1vr_t& ptable, const int i) const
    {
    for (int d = 0; d < q; d++)
       {
       // initialize result holder
       real p = 0;
-      for (int x1 = Zmin; x1 <= Zmax; x1++)
-         {
-         // cache this alpha value in a register
-         const real this_alpha = alpha[i][x1];
-         // limits on deltax can be combined as (c.f. allocate() for details):
-         //   x2-x1 <= n
-         //   x2-x1 >= -n
-         const int x2min = std::max(Zmin, x1 - n);
-         const int x2max = std::min(Zmax, x1 + n);
-         for (int x2 = x2min; x2 <= x2max; x2++)
+      for (int m1 = Zmin; m1 <= Zmax; m1++)
+         for (int delta1 = 0; delta1 <= 1; delta1++)
             {
-            real temp = this_alpha;
-            temp *= beta[i + 1][x2];
-            temp *= gamma_storage_entry(d, i, x1, x2);
-            p += temp;
+            // cache this alpha value in a register
+            const real this_alpha = alpha[i][m1][delta1];
+            // limits on drift can be combined as (c.f. allocate() for details):
+            //   m2-m1 <= n
+            //   m2-m1 >= -n
+            const int m2min = std::max(Zmin, m1 - n);
+            const int m2max = std::min(Zmax, m1 + n);
+            for (int m2 = m2min; m2 <= m2max; m2++)
+               for (int delta2 = 0; delta2 <= 1; delta2++)
+                  {
+                  real temp = this_alpha;
+                  temp *= beta[i + 1][m2][delta2];
+                  temp *= gamma_storage_entry(d, i, m1, delta1, m2, delta2);
+                  p += temp;
+                  }
             }
-         }
       // store result
       ptable(i)(d) = p;
       }
@@ -157,7 +166,8 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_state_app(array1r
    // compute posterior probabilities for given index
    ptable.init(Zmax - Zmin + 1);
    for (int x = Zmin; x <= Zmax; x++)
-      ptable(x - Zmin) = alpha[i][x] * beta[i][x];
+      for (int delta = 0; delta <= 1; delta++)
+         ptable(x - Zmin) = alpha[i][x][delta] * beta[i][x][delta];
    }
 
 // *** Internal functions - main
@@ -172,34 +182,37 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::allocate()
    // flag the state of the arrays
    initialised = true;
 
-   // alpha needs indices (i,x) where i in [0, N] and x in [Zmin, Zmax]
-   // beta needs indices (i,x) where i in [0, N] and x in [Zmin, Zmax]
+   /* alpha and beta need indices (i,m,delta) where
+    * i in [0, N]
+    * m in [Zmin, Zmax]
+    * delta in [0, 1]
+    */
    typedef boost::multi_array_types::extent_range range;
-   alpha.resize(boost::extents[N + 1][range(Zmin, Zmax + 1)]);
-   beta.resize(boost::extents[N + 1][range(Zmin, Zmax + 1)]);
+   alpha.resize(boost::extents[N + 1][range(Zmin, Zmax + 1)][2]);
+   beta.resize(boost::extents[N + 1][range(Zmin, Zmax + 1)][2]);
 
    if (globalstore)
       {
-      /* gamma needs indices (i,x1,d,x2) where
+      /* gamma needs indices (i,m1,delta1,d,m2,delta2) where
        * i in [0, N-1]
-       * x1 in [Zmin, Zmax]
+       * m1,m2 in [Zmin, Zmax]
+       * delta1,delta2 in [0, 1]
        * d in [0, q-1]
-       * x2 in [Zmin, Zmax]
        */
       gamma.global.resize(
-            boost::extents[N][range(Zmin, Zmax + 1)][q][range(Zmin, Zmax + 1)]);
-      gamma.local.resize(boost::extents[0][0][0]);
+            boost::extents[N][range(Zmin, Zmax + 1)][2][q][range(Zmin, Zmax + 1)][2]);
+      gamma.local.resize(boost::extents[0][0][0][0][0]);
       }
    else
       {
-      /* gamma needs indices (x,d,deltax) where
-       * x1 in [Zmin, Zmax]
+      /* gamma needs indices (m1,delta1,d,m2,delta2) where
+       * m1,m2 in [Zmin, Zmax]
+       * delta1,delta2 in [0, 1]
        * d in [0, q-1]
-       * x2 in [Zmin, Zmax]
        */
       gamma.local.resize(
-            boost::extents[range(Zmin, Zmax + 1)][q][range(Zmin, Zmax + 1)]);
-      gamma.global.resize(boost::extents[0][0][0][0]);
+            boost::extents[range(Zmin, Zmax + 1)][2][q][range(Zmin, Zmax + 1)][2]);
+      gamma.global.resize(boost::extents[0][0][0][0][0][0]);
       }
 
    // if this is not the first time, skip the rest
@@ -228,20 +241,20 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::allocate()
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
-   std::cerr << "alpha = " << N + 1 << "x" << Zmax - Zmin + 1 << " = "
+   std::cerr << "alpha = " << N + 1 << "×" << Zmax - Zmin + 1 << "×2 = "
    << alpha.num_elements() << std::endl;
-   std::cerr << "beta = " << N + 1 << "x" << Zmax - Zmin + 1 << " = "
+   std::cerr << "beta = " << N + 1 << "×" << Zmax - Zmin + 1 << "×2 = "
    << beta.num_elements() << std::endl;
    if (globalstore)
       {
-      std::cerr << "gamma = " << q << "x" << N << "x" << Zmax - Zmin + 1 << "x"
-      << Zmax - Zmin + 1 << " = " << gamma.global.num_elements()
+      std::cerr << "gamma = " << q << "×" << N << "×" << Zmax - Zmin + 1 << "×2×"
+      << Zmax - Zmin + 1 << "×2 = " << gamma.global.num_elements()
       << std::endl;
       }
    else
       {
-      std::cerr << "gamma = " << q << "x" << Zmax - Zmin + 1 << "x" << Zmax - Zmin
-      + 1 << " = " << gamma.local.num_elements() << std::endl;
+      std::cerr << "gamma = " << q << "×" << Zmax - Zmin + 1 << "×2×" << Zmax - Zmin
+      + 1 << "×2 = " << gamma.local.num_elements() << std::endl;
       }
 #endif
    }
@@ -251,10 +264,10 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::allocate()
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
 void fba2_fss<receiver_t, sig, real, real2, globalstore>::free()
    {
-   alpha.resize(boost::extents[0][0]);
-   beta.resize(boost::extents[0][0]);
-   gamma.global.resize(boost::extents[0][0][0][0]);
-   gamma.local.resize(boost::extents[0][0][0]);
+   alpha.resize(boost::extents[0][0][0]);
+   beta.resize(boost::extents[0][0][0]);
+   gamma.global.resize(boost::extents[0][0][0][0][0][0]);
+   gamma.local.resize(boost::extents[0][0][0][0][0]);
    // flag the state of the arrays
    initialised = false;
    }
@@ -271,12 +284,18 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::print_gamma(std::ostre
       for (int d = 0; d < q; d++)
          {
          sout << "d = " << d << ":" << std::endl;
-         for (int x1 = Zmin; x1 <= Zmax; x1++)
-            {
-            for (int x2 = Zmin; x2 <= Zmax; x2++)
-               sout << '\t' << gamma.global[i][x1][d][x2];
-            sout << std::endl;
-            }
+         for (int m1 = Zmin; m1 <= Zmax; m1++)
+            for (int delta1 = 0; delta1 <= 1; delta1++)
+               {
+               sout << "m1 = " << m1 << ", delta1 = " << delta1 << ":"
+                     << std::endl;
+               for (int delta2 = 0; delta2 <= 1; delta2++)
+                  {
+                  for (int m2 = Zmin; m2 <= Zmax; m2++)
+                     sout << '\t' << gamma.global[i][m1][delta1][d][m2][delta2];
+                  sout << std::endl;
+                  }
+               }
          }
       }
    }
@@ -314,14 +333,14 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha_and_beta(
    assert(initialised);
    libbase::pacifier progress("FBA Alpha + Beta");
    // initialise arrays:
-   // NOTE: technically unnecessary, as we initialize this_beta for every value
+   // NOTE: technically unnecessary for beta, as we initialize this_beta for every value
    alpha = real(0);
    beta = real(0);
    // set initial and final drift distribution
    for (int x = Zmin; x <= Zmax; x++)
       {
-      alpha[0][x] = real(sof_prior(x - Zmin));
-      beta[N][x] = real(eof_prior(x - Zmin));
+      alpha[0][x][0] = real(sof_prior(x - Zmin));
+      beta[N][x][0] = real(eof_prior(x - Zmin));
       }
    // normalize
    normalize_alpha(0);
@@ -386,7 +405,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(const array
    alpha = real(0);
    // set initial drift distribution
    for (int x = Zmin; x <= Zmax; x++)
-      alpha[0][x] = real(sof_prior(x - Zmin));
+      alpha[0][x][0] = real(sof_prior(x - Zmin));
    // normalize
    normalize_alpha(0);
    // compute remaining matrix values
@@ -421,11 +440,11 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta_and_results(
    // ptable(i,d) = posterior prob. of having transmitted symbol 'd' at time 'i'
    libbase::allocate(ptable, N, q);
    // initialise array:
-   // NOTE: technically unnecessary, as we initialize this_beta for every value
+   // NOTE: technically unnecessary for beta, as we initialize this_beta for every value
    beta = real(0);
    // set final drift distribution
    for (int x = Zmin; x <= Zmax; x++)
-      beta[N][x] = real(eof_prior(x - Zmin));
+      beta[N][x][0] = real(eof_prior(x - Zmin));
    // normalize
    normalize_beta(N);
    // compute remaining matrix values
