@@ -261,7 +261,7 @@ void montecarlo::display(const libbase::vector<double>& result,
          clog << getnumslaves() << " clients, ";
       else
          clog << "local, ";
-      clog << getcputime() / t.elapsed() << "x usage, ";
+      clog << getcputime() / t.elapsed() << "× usage, ";
       clog << "pass " << system->get_samplecount() << "." << std::endl;
       clog << "System parameter: " << system->get_parameter() << std::endl;
       clog << "Results:" << std::endl;

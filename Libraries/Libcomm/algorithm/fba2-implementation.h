@@ -298,24 +298,24 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "mn_max = " << mn_max << std::endl;
    std::cerr << "mn_min = " << mn_min << std::endl;
-   std::cerr << "alpha = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = "
+   std::cerr << "alpha = " << N + 1 << "×" << mtau_max - mtau_min + 1 << " = "
    << alpha.num_elements() << std::endl;
-   std::cerr << "beta = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = "
+   std::cerr << "beta = " << N + 1 << "×" << mtau_max - mtau_min + 1 << " = "
    << beta.num_elements() << std::endl;
    if (globalstore)
       {
-      std::cerr << "gamma = " << q << "x" << N << "x" << mtau_max - mtau_min + 1 << "x"
+      std::cerr << "gamma = " << q << "×" << N << "×" << mtau_max - mtau_min + 1 << "×"
       << mn_max - mn_min + 1 << " = " << gamma.global.num_elements()
       << std::endl;
       if (lazy)
          {
-         std::cerr << "cached = " << N << "x" << mtau_max - mtau_min + 1 << " = "
+         std::cerr << "cached = " << N << "×" << mtau_max - mtau_min + 1 << " = "
          << cached.global.num_elements() << std::endl;
          }
       }
    else
       {
-      std::cerr << "gamma = " << q << "x" << mtau_max - mtau_min + 1 << "x" << mn_max - mn_min
+      std::cerr << "gamma = " << q << "×" << mtau_max - mtau_min + 1 << "×" << mn_max - mn_min
       + 1 << " = " << gamma.local.num_elements() << std::endl;
       if (lazy)
          {
@@ -747,7 +747,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
       const double reuse = gamma_calls
             / double(gamma_misses * q * (mn_max - mn_min + 1));
       std::cerr << "FBA Cache Usage: " << 100 * usage << "%" << std::endl;
-      std::cerr << "FBA Cache Reuse: " << reuse << "x" << std::endl;
+      std::cerr << "FBA Cache Reuse: " << reuse << "×" << std::endl;
       }
 #endif
    }

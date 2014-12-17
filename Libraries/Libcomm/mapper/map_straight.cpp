@@ -70,7 +70,7 @@ std::string map_straight<libbase::matrix, dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Straight Mapper (Matrix) ";
-   sout << " [" << this->input_block_size().rows() << "x"
+   sout << " [" << this->input_block_size().rows() << "×"
          << this->input_block_size().cols() << "]";
    return sout.str();
    }

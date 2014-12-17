@@ -39,7 +39,7 @@ std::ostream& image<T>::serialize(std::ostream& sout) const
    assert(chan > 0);
    const int rows = m_data(0).size().rows();
    const int cols = m_data(0).size().cols();
-   libbase::trace << " (" << cols << "x" << rows << "x" << chan << ")..."
+   libbase::trace << " (" << cols << "×" << rows << "×" << chan << ")..."
          << std::flush;
    // write file descriptor
    if (chan == 1 && m_maxval == 1)
@@ -123,7 +123,7 @@ std::istream& image<T>::serialize(std::istream& sin)
       std::getline(sin, line);
       std::istringstream(line) >> m_maxval;
       }
-   libbase::trace << " (" << cols << "x" << rows << "x" << chan << ")...";
+   libbase::trace << " (" << cols << "×" << rows << "×" << chan << ")...";
    // set interal representation limits
    set_limits();
    // set up space to hold image

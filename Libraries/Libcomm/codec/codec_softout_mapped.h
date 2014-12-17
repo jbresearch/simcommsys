@@ -114,8 +114,8 @@ void codec_softout_mapped<base_codec_softout, dbl>::init(mapper<
    map.set_blocksize(Base::output_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG: mapper setup from "
-   << map.input_block_size() << "x" << N << " to "
-   << map.output_block_size() << "x" << M << " symbols" << std::endl;
+   << map.input_block_size() << "×" << N << " to "
+   << map.output_block_size() << "×" << M << " symbols" << std::endl;
 #endif
    }
 

@@ -456,19 +456,19 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "mn_max = " << mn_max << std::endl;
    std::cerr << "mn_min = " << mn_min << std::endl;
-   std::cerr << "alpha = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = " << alpha.size() << std::endl;
-   std::cerr << "beta = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = " << beta.size() << std::endl;
+   std::cerr << "alpha = " << N + 1 << "×" << mtau_max - mtau_min + 1 << " = " << alpha.size() << std::endl;
+   std::cerr << "beta = " << N + 1 << "×" << mtau_max - mtau_min + 1 << " = " << beta.size() << std::endl;
    if (globalstore)
       {
-      std::cerr << "gamma = " << q << "x" << N << "x" << mtau_max - mtau_min + 1 << "x" << mn_max - mn_min + 1 << " = " << gamma.global.size() << std::endl;
+      std::cerr << "gamma = " << q << "×" << N << "×" << mtau_max - mtau_min + 1 << "×" << mn_max - mn_min + 1 << " = " << gamma.global.size() << std::endl;
       if (lazy)
-         std::cerr << "cached = " << N << "x" << mtau_max - mtau_min + 1 << " = " << cached.global.size() << std::endl;
+         std::cerr << "cached = " << N << "×" << mtau_max - mtau_min + 1 << " = " << cached.global.size() << std::endl;
       }
    else
       {
-      std::cerr << "gamma = " << q << "x" << mtau_max - mtau_min + 1 << "x" << mn_max - mn_min + 1 << " = " << gamma.local.size() << std::endl;
+      std::cerr << "gamma = " << q << "×" << mtau_max - mtau_min + 1 << "×" << mn_max - mn_min + 1 << " = " << gamma.local.size() << std::endl;
       if (lazy)
-         std::cerr << "cached = " << computer.depth << "x" << mtau_max - mtau_min + 1 << " = " << cached.local.size() << std::endl;
+         std::cerr << "cached = " << computer.depth << "×" << mtau_max - mtau_min + 1 << " = " << cached.local.size() << std::endl;
       }
 #endif
    }

@@ -44,8 +44,8 @@ void map_reshape<dbl>::dotransform(const array2i_t& in,
    out.init(This::output_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_reshape): Transform ";
-   libbase::trace << in.size().rows() << "x" << in.size().cols() << " to ";
-   libbase::trace << out.size().rows() << "x" << out.size().cols() << std::endl;
+   libbase::trace << in.size().rows() << "×" << in.size().cols() << " to ";
+   libbase::trace << out.size().rows() << "×" << out.size().cols() << std::endl;
 #endif
    // Map encoded stream (row-major order)
    int ii = 0, jj = 0;
@@ -75,8 +75,8 @@ void map_reshape<dbl>::dotransform(const array2vd_t& pin,
    pout.init(This::output_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_reshape): Transform ";
-   libbase::trace << pin.size().rows() << "x" << pin.size().cols() << " to ";
-   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << std::endl;
+   libbase::trace << pin.size().rows() << "×" << pin.size().cols() << " to ";
+   libbase::trace << pout.size().rows() << "×" << pout.size().cols() << std::endl;
 #endif
    // Transform encoder output posteriors to blockmodem priors (row-major order)
    int ii = 0, jj = 0;
@@ -106,8 +106,8 @@ void map_reshape<dbl>::doinverse(const array2vd_t& pin,
    pout.init(This::input_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_reshape): Inverse ";
-   libbase::trace << pin.size().rows() << "x" << pin.size().cols() << " to ";
-   libbase::trace << pout.size().rows() << "x" << pout.size().cols() << std::endl;
+   libbase::trace << pin.size().rows() << "×" << pin.size().cols() << " to ";
+   libbase::trace << pout.size().rows() << "×" << pout.size().cols() << std::endl;
 #endif
    // Map channel receiver information (row-major order)
    int ii = 0, jj = 0;
@@ -131,9 +131,9 @@ std::string map_reshape<dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Reshaping Mapper (Matrix) ";
-   sout << " [" << this->input_block_size().rows() << "x"
+   sout << " [" << this->input_block_size().rows() << "×"
          << this->input_block_size().cols() << " <-> "
-         << this->output_block_size().rows() << "x"
+         << this->output_block_size().rows() << "×"
          << this->output_block_size().cols() << "]";
    return sout.str();
    }

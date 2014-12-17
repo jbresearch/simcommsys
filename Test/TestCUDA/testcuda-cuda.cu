@@ -60,7 +60,7 @@ empty_kernel      <<<gridsize, blocksize>>> (i == 0);
    t.stop();
    // compute and show
    const double time = t.elapsed() / N;
-   std::cout << "Kernel overhead (" << gridsize << "x" << blocksize << "): "
+   std::cout << "Kernel overhead (" << gridsize << "×" << blocksize << "): "
    << libbase::timer::format(time) << std::endl;
    }
 

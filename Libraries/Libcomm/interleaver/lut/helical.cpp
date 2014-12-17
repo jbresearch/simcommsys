@@ -59,7 +59,7 @@ template <class real>
 std::string helical<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Helical " << rows << "x" << cols << " Interleaver";
+   sout << "Helical " << rows << "×" << cols << " Interleaver";
    return sout.str();
    }
 
