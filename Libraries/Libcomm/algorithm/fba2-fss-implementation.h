@@ -304,7 +304,7 @@ template <class receiver_t, class sig, class real, class real2, bool globalstore
 void fba2_fss<receiver_t, sig, real, real2, globalstore>::print_metric(
       std::ostream& sout, const array3r_t& metric) const
    {
-   for (int i = 0; i < N; i++)
+   for (int i = 0; i <= N; i++)
       {
       sout << "i = " << i << ":" << std::endl;
       for (int delta = 0; delta <= 1; delta++)
