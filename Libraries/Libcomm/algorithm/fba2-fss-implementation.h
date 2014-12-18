@@ -166,8 +166,12 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_state_app(array1r
    // compute posterior probabilities for given index
    ptable.init(Zmax - Zmin + 1);
    for (int x = Zmin; x <= Zmax; x++)
+      {
+      real r = 0;
       for (int delta = 0; delta <= 1; delta++)
-         ptable(x - Zmin) = alpha[i][x][delta] * beta[i][x][delta];
+         r += alpha[i][x][delta] * beta[i][x][delta];
+      ptable(x - Zmin) = r;
+      }
    }
 
 // *** Internal functions - main
