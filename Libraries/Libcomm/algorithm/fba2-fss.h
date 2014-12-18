@@ -174,6 +174,17 @@ private:
    void free();
    // helper methods
    void print_gamma(std::ostream& sout) const;
+   void print_metric(std::ostream& sout, const array3r_t& metric) const;
+   void print_alpha(std::ostream& sout) const
+      {
+      sout << "alpha = " << std::endl;
+      print_metric(sout, alpha);
+      }
+   void print_beta(std::ostream& sout) const
+      {
+      sout << "beta = " << std::endl;
+      print_metric(sout, beta);
+      }
    // decode functions - global path
    void work_gamma(const array1s_t& r, const array1vd_t& app);
    void work_alpha_and_beta(const array1d_t& sof_prior,

@@ -34,7 +34,7 @@ namespace libcomm {
 // 4 - Show alpha/beta matrices before normalization
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 4
 #endif
 
 // *** Internal functions - computer
@@ -300,6 +300,22 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::print_gamma(std::ostre
       }
    }
 
+template <class receiver_t, class sig, class real, class real2, bool globalstore>
+void fba2_fss<receiver_t, sig, real, real2, globalstore>::print_metric(
+      std::ostream& sout, const array3r_t& metric) const
+   {
+   for (int i = 0; i < N; i++)
+      {
+      sout << "i = " << i << ":" << std::endl;
+      for (int delta = 0; delta <= 1; delta++)
+         {
+         for (int m = Zmin; m <= Zmax; m++)
+            sout << '\t' << metric[i][m][delta];
+         sout << std::endl;
+         }
+      }
+   }
+
 // decode functions - global path
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
@@ -353,8 +369,9 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha_and_beta(
       work_alpha(i);
       work_beta(N - i);
 #if DEBUG>=4
-      std::cerr << "alpha (pre-norm) = " << alpha << std::endl;
-      std::cerr << "beta (pre-norm) = " << beta << std::endl;
+      std::cerr << "pre-norm metrics:" << std::endl;
+      print_alpha(std::cerr);
+      print_beta(std::cerr);
 #endif
       // normalize
       normalize_alpha(i);
@@ -362,8 +379,8 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha_and_beta(
       }
    std::cerr << progress.update(N, N);
 #if DEBUG>=3
-   std::cerr << "alpha = " << alpha << std::endl;
-   std::cerr << "beta = " << beta << std::endl;
+   print_alpha(std::cerr);
+   print_beta(std::cerr);
 #endif
    }
 
@@ -425,7 +442,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(const array
       }
    std::cerr << progress.update(N, N);
 #if DEBUG>=3
-   std::cerr << "alpha = " << alpha << std::endl;
+   print_alpha(std::cerr);
 #endif
    }
 
@@ -469,7 +486,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta_and_results(
    work_state_app(sof_post, 0);
    work_state_app(eof_post, N);
 #if DEBUG>=3
-   std::cerr << "beta = " << beta << std::endl;
+   print_beta(std::cerr);
    std::cerr << "ptable = " << ptable << std::endl;
    std::cerr << "sof_post = " << sof_post << std::endl;
    std::cerr << "eof_post = " << eof_post << std::endl;
