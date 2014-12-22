@@ -77,11 +77,11 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(
          {
          // cache previous alpha value in a register
          const real prev_alpha = alpha[i - 1][m1][delta1];
-         // limits on drift can be combined as (c.f. allocate() for details):
-         //   m2-m1 <= n
-         //   m2-m1 >= -n
-         const int m2min = std::max(Zmin, m1 - n);
-         const int m2max = std::min(Zmax, m1 + n);
+         // Determine limits over this sequence
+         // a) upper limit is the same as global limit
+         // b) lower limit is bounded by ⌈n/2⌉ (one deletion per output bit)
+         const int m2max = Zmax;
+         const int m2min = std::max(Zmin, m1 - int(std::ceil(n / 2.0)));
          for (int m2 = m2min; m2 <= m2max; m2++)
             for (int delta2 = 0; delta2 <= 1; delta2++)
                {
@@ -105,11 +105,11 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta(const int i)
       for (int delta1 = 0; delta1 <= 1; delta1++)
          {
          real this_beta = 0;
-         // limits on drift can be combined as (c.f. allocate() for details):
-         //   m2-m1 <= n
-         //   m2-m1 >= -n
-         const int m2min = std::max(Zmin, m1 - n);
-         const int m2max = std::min(Zmax, m1 + n);
+         // Determine limits over this sequence
+         // a) upper limit is the same as global limit
+         // b) lower limit is bounded by ⌈n/2⌉ (one deletion per output bit)
+         const int m2max = Zmax;
+         const int m2min = std::max(Zmin, m1 - int(std::ceil(n / 2.0)));
          for (int m2 = m2min; m2 <= m2max; m2++)
             for (int delta2 = 0; delta2 <= 1; delta2++)
                {
@@ -139,11 +139,11 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_message_app(
             {
             // cache this alpha value in a register
             const real this_alpha = alpha[i][m1][delta1];
-            // limits on drift can be combined as (c.f. allocate() for details):
-            //   m2-m1 <= n
-            //   m2-m1 >= -n
-            const int m2min = std::max(Zmin, m1 - n);
-            const int m2max = std::min(Zmax, m1 + n);
+            // Determine limits over this sequence
+            // a) upper limit is the same as global limit
+            // b) lower limit is bounded by ⌈n/2⌉ (one deletion per output bit)
+            const int m2max = Zmax;
+            const int m2min = std::max(Zmin, m1 - int(std::ceil(n / 2.0)));
             for (int m2 = m2min; m2 <= m2max; m2++)
                for (int delta2 = 0; delta2 <= 1; delta2++)
                   {
