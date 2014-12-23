@@ -88,7 +88,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
     * b) lower limit is bounded by ⌈T/2⌉ (one deletion per output bit)
     */
    const int mT_max = Zmax - S0;
-   const int mT_min = std::max(-int(std::ceil(T/2.0)), Zmin - S0);
+   const int mT_min = last ? (Zmin - S0) : std::max(-int(std::ceil(T/2.0)), Zmin - S0);
 #if DEBUG>=3
    libbase::trace << "DEBUG (bpmr): mT_max = " << mT_max << std::endl;
    libbase::trace << "DEBUG (bpmr): mT_min = " << mT_min << std::endl;
