@@ -201,6 +201,7 @@ export LDflags = $(LDflag_$(RELEASE))
 
 # Common options
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
+CCopts := $(CCopts) $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 CCopts := $(CCopts) -Wall -Werror
 #CCopts := $(CCopts) -std=c++0x
 # note: below disabled to avoid problems with parallel builds

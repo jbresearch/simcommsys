@@ -39,7 +39,7 @@ LIBRARY := $(LIBRARY:Lib%=$(BUILDDIR)/lib%.a)
 default:
 	@echo No default target.
 
-build:	version.h $(LIBRARY)
+build:	$(LIBRARY) | $(BUILDDIR)/version.h
 
 install:	build
 
@@ -59,11 +59,14 @@ FORCE:
 
 # Manual targets
 
-version.h:	FORCE
+$(BUILDDIR)/version.h.tmp:	FORCE
 	@echo "Creating $@ [$(BUILDID): $(RELEASE)]"
-	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $(BUILDDIR)/$@
-	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $(BUILDDIR)/$@
-	@cmp -s $(BUILDDIR)/$@ $@ || ( cp $(BUILDDIR)/$@ $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
+	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
+	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@
+
+$(BUILDDIR)/version.h:	$(BUILDDIR)/version.h.tmp
+	@echo "Checking $@ [$(BUILDID): $(RELEASE)]"
+	@cmp -s $< $@ || ( cp $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
 
 $(LIBRARY):	$(OBJECTS)
 	@echo "Building library $* [$(BUILDID): $(RELEASE)]"
