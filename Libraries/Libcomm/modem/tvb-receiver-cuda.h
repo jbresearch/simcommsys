@@ -68,11 +68,12 @@ public:
    /*! \brief Set up code size and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const int q, const libcomm::qids<sig,real2>& chan)
+   void init(const int n, const int q,
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
       {
       this->n = n;
       this->q = q;
-      computer = chan.get_computer();
+      this->computer = dynamic_cast<const typename libcomm::qids<sig, real2>::metric_computer&> (computer);
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
       std::cerr << "n = " << this->n << std::endl;
@@ -112,9 +113,9 @@ public:
    // @}
    /*! \name Information functions */
    //! Determine the amount of shared memory required per receiver thread
-   size_t receiver_sharedmem(const int n, const int mn_max) const
+   size_t receiver_sharedmem() const
       {
-      return computer.receiver_sharedmem(n, mn_max);
+      return computer.receiver_sharedmem();
       }
    // @}
 #ifdef __CUDACC__

@@ -150,7 +150,7 @@ public:
       // decoding mode parameters
       This::norm = norm;
       // channel receiver
-      computer = chan.get_computer();
+      computer = dynamic_cast<const typename qids<sig, real2>::metric_computer&> (chan.get_computer());
       }
 
    /*! \name Parameter getters */

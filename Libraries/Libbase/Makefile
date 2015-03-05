@@ -39,7 +39,7 @@ LIBRARY := $(LIBRARY:Lib%=$(BUILDDIR)/lib%.a)
 default:
 	@echo No default target.
 
-build:	$(LIBRARY)
+build:	version.h $(LIBRARY)
 
 install:	build
 
@@ -49,6 +49,8 @@ clean:
 
 ## Setting targets
 
+FORCE:
+
 .PHONY:	default build install clean
 
 .SUFFIXES: # Delete the default suffixes
@@ -56,6 +58,12 @@ clean:
 .DELETE_ON_ERROR:
 
 # Manual targets
+
+version.h:	FORCE
+	@echo "Creating $@ [$(BUILDID): $(RELEASE)]"
+	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $(BUILDDIR)/$@
+	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $(BUILDDIR)/$@
+	@cmp -s $(BUILDDIR)/$@ $@ || ( cp $(BUILDDIR)/$@ $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
 
 $(LIBRARY):	$(OBJECTS)
 	@echo "Building library $* [$(BUILDID): $(RELEASE)]"

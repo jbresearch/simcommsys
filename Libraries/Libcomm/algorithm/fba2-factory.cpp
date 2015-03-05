@@ -23,11 +23,13 @@
 
 #ifdef USE_CUDA
 #  include "fba2-cuda.h"
-#  define FBA_TYPE cuda::fba2
+#  include "modem/tvb-receiver-cuda.h"
 #else
 #  include "fba2.h"
-#  define FBA_TYPE fba2
+#  include "modem/tvb-receiver.h"
 #endif
+#include "fba2-fss.h"
+#include "modem/tvb-fss-receiver.h"
 
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/elem.hpp>
@@ -35,12 +37,20 @@
 
 namespace libcomm {
 
-template <class receiver_t, class sig, class real, class real2>
-boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba2_factory<
-      receiver_t, sig, real, real2>::get_instance(bool thresholding, bool lazy,
+template <class sig, class real, class real2>
+boost::shared_ptr<fba2_interface<sig, real, real2> > fba2_factory<sig, real,
+      real2>::get_instance(bool fss, bool thresholding, bool lazy,
       bool globalstore)
    {
-   boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba_ptr;
+   boost::shared_ptr<fba2_interface<sig, real, real2> > fba_ptr;
+
+#ifdef USE_CUDA
+#  define FBA_TYPE cuda::fba2
+#  define RECV_TYPE cuda::tvb_receiver<sig, real, real2>
+#else
+#  define FBA_TYPE fba2
+#  define RECV_TYPE tvb_receiver<sig, real, real2>
+#endif
 
 #define FLAG_SEQ \
 (true)(false)
@@ -49,10 +59,28 @@ boost::shared_ptr<fba2_interface<receiver_t, sig, real> > fba2_factory<
    if (BOOST_PP_SEQ_ELEM(0,args) == thresholding && \
          BOOST_PP_SEQ_ELEM(1,args) == lazy && \
          BOOST_PP_SEQ_ELEM(2,args) == globalstore) \
-         fba_ptr.reset(new FBA_TYPE<receiver_t, sig, real, real2, BOOST_PP_SEQ_ENUM(args)>);
+         fba_ptr.reset(new FBA_TYPE<RECV_TYPE, sig, real, real2, BOOST_PP_SEQ_ENUM(args)>);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(CONDITIONAL,
-   (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
+   if (!fss)
+      {
+      BOOST_PP_SEQ_FOR_EACH_PRODUCT(CONDITIONAL,
+            (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
+      }
+   else
+      {
+      // check unused flags
+      assertalways(thresholding == false);
+      assertalways(lazy == false);
+      // instantiate required object
+      if (globalstore)
+         fba_ptr.reset(
+               new fba2_fss<tvb_fss_receiver<sig, real, real2>, sig, real,
+                     real2, true>);
+      else
+         fba_ptr.reset(
+               new fba2_fss<tvb_fss_receiver<sig, real, real2>, sig, real,
+                     real2, false>);
+      }
 
 #undef CONDITIONAL
 
@@ -64,13 +92,6 @@ BOOST_PP_SEQ_FOR_EACH_PRODUCT(CONDITIONAL,
 
 
 // Explicit Realizations
-#ifdef USE_CUDA
-#  include "modem/tvb-receiver-cuda.h"
-#  define RECV_TYPE cuda::tvb_receiver
-#else
-#  include "modem/tvb-receiver.h"
-#  define RECV_TYPE tvb_receiver
-#endif
 #include "gf.h"
 #include "mpgnu.h"
 #include "logrealfast.h"
@@ -108,9 +129,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 // *** Instantiations for tvb ***
 
 #define INSTANTIATE3(args) \
-      template class fba2_factory< \
-         RECV_TYPE<BOOST_PP_SEQ_ENUM(args)> , \
-         BOOST_PP_SEQ_ENUM(args)> ;
+      template class fba2_factory<BOOST_PP_SEQ_ENUM(args)> ;
 
 #define INSTANTIATE2(r, symbol, reals) \
       INSTANTIATE3( symbol reals )

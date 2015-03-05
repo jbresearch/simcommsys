@@ -19,6 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "version.h"
 #include "serializer_libcomm.h"
 #include "montecarlo.h"
 #include "timer.h"
@@ -76,6 +77,8 @@ int main(int argc, char *argv[])
          "channel parameter (e.g. SNR)");
    desc.add_options()("system-file,i", po::value<std::string>(),
          "file containing system description");
+   desc.add_options()("seed,s", po::value<libbase::int32u>(),
+         "system initialization seed (random if not stated)");
    desc.add_options()("confidence", po::value<double>()->default_value(0.999),
          "confidence level for computing margin of error (e.g. 0.90 for 90%)");
    desc.add_options()("relative-error", po::value<double>()->default_value(0.001),
@@ -130,6 +133,8 @@ int main(int argc, char *argv[])
             estimator.set_relative_error(vm["relative-error"].as<double>());
          if (vm.count("min-samples"))
             estimator.set_min_samples(vm["min-samples"].as<int>());
+         if (vm.count("seed"))
+            estimator.set_seed(vm["seed"].as<libbase::int32u> ());
          estimator.timeout = vm["time"].as<double> ();
          // Work out at the SNR value required
          system->set_parameter(vm["parameter"].as<double> ());

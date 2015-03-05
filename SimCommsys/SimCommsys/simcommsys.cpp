@@ -182,6 +182,8 @@ int main(int argc, char *argv[])
                "overrides absolute and relative error if specified");
    desc.add_options()("min-samples", po::value<int>(),
          "minimum number of samples");
+   desc.add_options()("seed,s", po::value<libbase::int32u>(),
+         "system initialization seed (random if not stated)");
    po::variables_map vm;
    po::store(po::parse_command_line(argc, argv, desc), vm);
    po::notify(vm);
@@ -236,6 +238,8 @@ int main(int argc, char *argv[])
                estimator.set_relative_error(vm["relative-error"].as<double>());
             if (vm.count("min-samples"))
                estimator.set_min_samples(vm["min-samples"].as<int>());
+            if (vm.count("seed"))
+               estimator.set_seed(vm["seed"].as<libbase::int32u> ());
 
             // Work out the following for every SNR value required
             for (int i = 0; i < pset.size(); i++)
@@ -244,8 +248,8 @@ int main(int argc, char *argv[])
 
                cerr << "Simulating system at parameter = " << pset(i)
                      << std::endl;
-               libbase::vector<double> result, errormargin;
-               estimator.estimate(result, errormargin);
+               libbase::vector<double> estimate, errormargin;
+               estimator.estimate(estimate, errormargin);
 
                cerr << "Statistics: " << setprecision(4)
                      << estimator.get_samplecount() << " samples in "
@@ -258,10 +262,10 @@ int main(int argc, char *argv[])
                if (estimator.interrupt() && !estimator.interrupt_was_soft())
                   break;
                if (vm.count("floor-min")
-                     && result.min() < vm["floor-min"].as<double>())
+                     && estimate.min() < vm["floor-min"].as<double>())
                   break;
                if (vm.count("floor-max")
-                     && result.max() < vm["floor-max"].as<double>())
+                     && estimate.max() < vm["floor-max"].as<double>())
                   break;
                }
 

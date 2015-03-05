@@ -288,7 +288,7 @@ void cudaInitialize(std::ostream& sout)
    // report to user
    sout << "CUDA device: " << device << " (" << cudaGetDeviceName() << ", "
          << (cudaGetGlobalMem() >> 20) << " MiB, "
-         << cudaGetMultiprocessorSize() << "x" << cudaGetMultiprocessorCount()
+         << cudaGetMultiprocessorSize() << "×" << cudaGetMultiprocessorCount()
          << " @ " << cudaGetClockRate() << " GHz" << ", capability "
          << cudaPrettyVersion(cudaGetComputeCapability()) << ")" << std::endl;
    sout << "CUDA initialized: compute model " << cudaPrettyVersion(

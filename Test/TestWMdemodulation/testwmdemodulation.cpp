@@ -19,6 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "version.h"
 #include "cputimer.h"
 #include "randgen.h"
 #include "modem/dminner.h"

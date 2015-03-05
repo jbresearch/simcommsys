@@ -54,18 +54,16 @@ namespace libcomm {
  * The extension allows the Markov state to take negative values as well as
  * zero and positive values, effectively allowing deletion-before-insertion.
  *
+ * \tparam real Floating-point type for internal computation
+ *
  * \note Unlike the BSID and QIDS channels, this model has no concept of stream
  * operation, as at the receiving end, a full sector will always be retrieved.
  */
 
-class bpmr : public channel_insdel<bool> {
-private:
-   // Shorthand for class hierarchy
-   typedef channel<bool> Base;
+template <class real>
+class bpmr : public channel_insdel<bool, real> {
 public:
    /*! \name Type definitions */
-   typedef float real;
-   typedef libbase::matrix<real> array2r_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<bool> array1b_t;
@@ -82,15 +80,110 @@ private:
    double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
    double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter
    // @}
+public:
+   /*! \name Metric computation */
+   class metric_computer : public channel_insdel<bool, real>::metric_computer {
+   public:
+      /*! \name Channel-state and pre-computed parameters */
+      real Pd; //!< Probability of deletion event
+      real Pi; //!< Probability of insertion event
+      int T; //!< block size in channel symbols
+      int Zmin; //!< Largest negative drift possible
+      int Zmax; //!< Largest positive drift possible
+      // @}
+      /*! \name Hardwired parameters */
+      static const int arraysize = 128; //!< Size of stack-allocated arrays
+      // @}
+   private:
+      real get_transmission_coefficient(int Z) const
+         {
+         cuda_assert(Z >= Zmin);
+         cuda_assert(Z <= Zmax);
+         if (Zmin == Zmax) // degenerate case with one state
+            return 1;
+         else if (Z == Zmin) // Z == mT_min
+            return real(1) - Pi; // only insertion or transmission were possible
+         else if (Z == Zmax) // Z == mT_max
+            return real(1) - Pd; // only deletion or transmission were possible
+         else // mT_min < Z < mT_max
+            return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
+         }
+      static void cycle_pointers(real* &F0, real* &F1, real* &F2)
+         {
+         real *Ft = F2;
+         F2 = F1;
+         F1 = F0;
+         F0 = Ft;
+         }
+      static void print_lattice_row(const real *F0, const int rho)
+         {
+         for (int j = 0; j <= rho; j++)
+            libbase::trace << F0[j] << '\t';
+         libbase::trace << std::endl;
+         }
+   public:
+      /*! \name Internal functions */
+      void precompute(double Pd, double Pi, int T, int Zmin, int Zmax);
+      void init()
+         {
+         }
+      // @}
+      /*! \name Host methods */
+      //! Determine the amount of shared memory required per thread
+      size_t receiver_sharedmem() const
+         {
+         return 3 * (T + Zmax + 1) * sizeof(real);
+         }
+      //! Receiver interface
+      real receive(const bool& tx, const array1b_t& rx) const
+         {
+         failwith("Method not defined.");
+         return 0;
+         }
+      //! Receiver interface
+      real receive(const array1b_t& tx, const array1b_t& rx) const
+         {
+         // Compute sizes
+         const int n = tx.size();
+         const int mu = rx.size() - n;
+         // Allocate space for results and call main receiver
+         static array1r_t ptable;
+         ptable.init(Zmax - Zmin + 1);
+         receive(tx, rx, ptable);
+         // return result
+         return ptable(mu - Zmin);
+         }
+      //! Batch receiver interface - indefinite state space
+      void receive(const array1b_t& tx, const array1b_t& rx,
+            array1r_t& ptable) const
+         {
+         failwith("Method not supported.");
+         }
+      //! Batch receiver interface - fixed state space
+      void receive(const array1b_t& tx, const array1b_t& rx, const int S0,
+            const int delta0, const bool first, const bool last,
+            array1r_t& ptable0, array1r_t& ptable1) const;
+      // @}
+      DECLARE_CLONABLE(metric_computer)
+   };
+   // @}
 private:
    /*! \name Internal representation */
+   metric_computer computer;
    double Pd; //!< Bit-deletion probability \f$ P_d \f$
    double Pi; //!< Bit-insertion probability \f$ P_i \f$
+   int T; //!< Block size in channel symbols over which we want to synchronize
    array1i_t Z; //!< Markov state sequence; Z(i) = drift after 'i' channel uses
    // @}
 private:
    /*! \name Internal functions */
    void init();
+   void precompute()
+      {
+      if (T > 0)
+         computer.precompute(Pd, Pi, T, Zmin, Zmax);
+      }
+   void generate_state_sequence(const int tau);
    // @}
 protected:
    // Channel function overrides
@@ -121,6 +214,7 @@ public:
       assert(Pd >= 0 && Pd <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pd = Pd;
+      precompute();
       }
    //! Set the bit-insertion probability
    void set_pi(const double Pi)
@@ -128,6 +222,7 @@ public:
       assert(Pi >= 0 && Pi <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
+      precompute();
       }
    // @}
 
@@ -158,10 +253,53 @@ public:
          drift = Z(t - 1);
       return drift;
       }
+   /*!
+    * \copydoc channel_insdel::set_pr()
+    *
+    * \note No need to keep this value as nothing depends on it
+    */
+   void set_pr(const double Pr)
+      {
+      assert(Pr > 0 && Pr < 1);
+      }
+   /*!
+    * \copydoc channel_insdel::set_blocksize()
+    *
+    * \note We keep this value only because the sharedmem requirements depend
+    * on it
+    */
+   void set_blocksize(int T)
+      {
+      if (this->T != T)
+         {
+         assert(T > 0);
+         this->T = T;
+         precompute();
+         }
+      }
+   /*!
+    * \copydoc channel_insdel::compute_limits()
+    *
+    * \note For this channel model, the limits are fixed
+    * \note Drift at start/end of frame is also fixed at zero
+    */
+   void compute_limits(int tau, double Pr, int& lower, int& upper,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const
+      {
+      // state space is always fixed
+      upper = Zmax;
+      lower = Zmin;
+      }
+   //! Determine whether the channel model has a fixed state space
+   bool is_statespace_fixed() const
+      {
+      return true;
+      }
 
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);
-   using Base::receive;
+   using channel<bool>::receive;
    //! \note Used by bpmr::receive(tx, rx, ptable)
    double receive(const bool& tx, const array1b_t& rx) const
       {
@@ -173,20 +311,19 @@ public:
     */
    void receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const
       {
-      // Compute sizes
-      const int M = tx.size();
-      // Initialize results vector
-      ptable.init(1);
-      ptable(0).init(M);
-      // Compute results for each possible signal
-      for (int x = 0; x < M; x++)
-         ptable(0)(x) = bpmr::receive(tx(x), rx);
+      failwith("Method not defined.");
       }
    //! \note Used by dminner
    double receive(const array1b_t& tx, const array1b_t& rx) const
       {
       failwith("Method not defined.");
       return 0;
+      }
+
+   // Access to receiver metric computation object
+   const typename channel_insdel<bool, real>::metric_computer& get_computer() const
+      {
+      return computer;
       }
 
    // Description

@@ -83,7 +83,7 @@ template <class dbl>
 std::string uncoded<dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Uncoded Representation (" << N << "x" << q << ")";
+   sout << "Uncoded Representation (" << N << "×" << q << ")";
    return sout.str();
    }
 

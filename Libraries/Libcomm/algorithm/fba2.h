@@ -39,8 +39,9 @@ namespace libcomm {
  * Implements the forward-backward algorithm for a HMM, as required for the
  * MAP decoding algorithm for a generalized class of synchronization-correcting
  * codes described in
- * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
- * Correcting Codes", Submitted to Trans. IT, 2011.
+ * Johann A. Briffa, Victor Buttigieg, and Stephan Wesemeyer, "Time-varying
+ * block codes for synchronisation errors: maximum a posteriori decoder and
+ * practical issues. IET Journal of Engineering, 30 Jun 2014.
  *
  * \tparam receiver_t Type for receiver metric computer
  * \tparam sig Channel symbol type
@@ -53,13 +54,14 @@ namespace libcomm {
 
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
-class fba2 : public fba2_interface<receiver_t, sig, real> {
+class fba2 : public fba2_interface<sig, real, real2> {
 private:
    // Shorthand for class hierarchy
    typedef fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
+   typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -106,16 +108,6 @@ private:
    // @}
 private:
    /*! \name Internal functions - computer */
-   //! Compute gamma metric using batch receiver interface
-   void compute_gamma_batch(int d, int i, int x, array1r_t& ptable,
-         const array1s_t& r, const array1vd_t& app) const
-      {
-      // determine received segment to extract
-      const int start = n * i + x - mtau_min;
-      const int length = std::min(n + mn_max, r.size() - start);
-      // call batch receiver method
-      receiver.R(d, i, r.extract(start, length), app, ptable);
-      }
    //! Get a reference to the corresponding gamma storage entry
    real& gamma_storage_entry(int d, int i, int x, int deltax) const
       {
@@ -130,11 +122,16 @@ private:
       // allocate space for results
       static array1r_t ptable;
       ptable.init(mn_max - mn_min + 1);
+      // determine received segment to extract
+      // n * i = offset to start of current codeword
+      // -mtau_min = offset to zero drift in 'r'
+      const int start = n * i + x - mtau_min;
+      const int length = std::min(n + mn_max, r.size() - start);
       // for each symbol value
       for (int d = 0; d < q; d++)
          {
-         // compute metric with batch interface
-         compute_gamma_batch(d, i, x, ptable, r, app);
+         // call batch receiver method
+         receiver.R(d, i, r.extract(start, length), app, ptable);
          // store in corresponding place in storage
          for (int deltax = mn_min; deltax <= mn_max; deltax++)
             gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);
@@ -251,13 +248,18 @@ public:
    // @}
 
    /*! \name FBA2 Interface Implementation */
-   //! Main initialization routine
+   /*! \brief Set up code size, decoding parameters, and channel receiver
+    * Only needs to be done before the first frame.
+    */
    void init(int N, int n, int q, int mtau_min, int mtau_max, int mn_min,
-         int mn_max, int m1_min, int m1_max, double th_inner, double th_outer);
-   //! Access metric computation
-   receiver_t& get_receiver() const
+         int mn_max, int m1_min, int m1_max, double th_inner, double th_outer,
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer);
+   /*! \brief Set up encoding table
+    * Needs to be done before every frame.
+    */
+   void init(const array2vs_t& encoding_table) const
       {
-      return receiver;
+      this->receiver.init(encoding_table);
       }
 
    // decode functions

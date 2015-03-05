@@ -58,10 +58,7 @@ namespace libcomm {
  */
 
 template <class G, class real>
-class qids : public channel_stream<G> {
-private:
-   // Shorthand for class hierarchy
-   typedef channel_stream<G> Base;
+class qids : public channel_stream<G, real> {
 public:
    /*! \name Type definitions */
    typedef libbase::matrix<real> array2r_t;
@@ -91,7 +88,7 @@ private:
    // @}
 public:
    /*! \name Metric computation */
-   class metric_computer {
+   class metric_computer : public channel_insdel<G, real>::metric_computer {
    public:
       /*! \name User-defined parameters */
       receiver_t receiver_type; //!< enum indicating receiver implementation to use
@@ -107,6 +104,7 @@ public:
       real Pval_i; //!< Lattice coefficient value for insertion event
       real Pval_tc; //!< Lattice coefficient value for correct transmission event
       real Pval_te; //!< Lattice coefficient value for error transmission event
+      int T; //!< block size in channel symbols
       int mT_min; //!< Assumed largest negative drift over a whole \c T channel-symbol block is \f$ m_T^{-} \f$
       int mT_max; //!< Assumed largest positive drift over a whole \c T channel-symbol block is \f$ m_T^{+} \f$
       int m1_min; //!< Assumed largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
@@ -131,8 +129,15 @@ public:
          }
       // @}
       /*! \name Internal functions */
-      void precompute(double Ps, double Pd, double Pi, int mT_min, int mT_max, int m1_min, int m1_max);
-      void init();
+      void precompute(double Ps, double Pd, double Pi, int T, int mT_min,
+            int mT_max, int m1_min, int m1_max);
+      void init()
+         {
+#ifdef USE_CUDA
+         // Initialize CUDA
+         cuda::cudaInitialize(std::cerr);
+#endif
+         }
       // @}
 #ifdef USE_CUDA
       /*! \name Device methods */
@@ -428,7 +433,7 @@ public:
 #endif
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread
-      size_t receiver_sharedmem(const int n, const int mn_max) const
+      size_t receiver_sharedmem() const
          {
          switch(receiver_type)
             {
@@ -437,7 +442,7 @@ public:
             case receiver_lattice:
                return 0;
             case receiver_lattice_corridor:
-               return (n + mn_max + 1) * sizeof(real);
+               return (T + mT_max + 1) * sizeof(real);
             default:
                failwith("Unknown receiver mode");
                return 0;
@@ -476,7 +481,7 @@ public:
          // return result
          return ptable(mu - mT_min);
          }
-      //! Batch receiver interface
+      //! Batch receiver interface - indefinite state space
       void receive(const array1g_t& tx, const array1g_t& rx, array1r_t& ptable) const
          {
          switch(receiver_type)
@@ -503,7 +508,15 @@ public:
       //! Batch receiver interface - lattice computation, restricted to corridor
       void receive_lattice_corridor(const array1g_t& tx, const array1g_t& rx,
             array1r_t& ptable) const;
+      //! Batch receiver interface - fixed state space
+      void receive(const array1g_t& tx, const array1g_t& rx, const int S0,
+            const int delta0, const bool first, const bool last,
+            array1r_t& ptable0, array1r_t& ptable1) const
+         {
+         failwith("Method not supported.");
+         }
       // @}
+      DECLARE_CLONABLE(metric_computer)
    };
    // @}
 private:
@@ -529,7 +542,7 @@ private:
          int m1_min, m1_max;
          compute_limits(1, qids_utils::divide_error_probability(Pr, T), m1_min,
                m1_max);
-         computer.precompute(Ps, Pd, Pi, mT_min, mT_max, m1_min, m1_max);
+         computer.precompute(Ps, Pd, Pi, T, mT_min, mT_max, m1_min, m1_max);
          }
       }
    static array1d_t resize_drift(const array1d_t& in, const int offset,
@@ -591,22 +604,6 @@ public:
          xmax = std::min(xmax, Scap);
       return xmax;
       }
-   /*!
-    * \copydoc qids_utils::compute_limits()
-    *
-    * \note Provided for use by clients; depends on object parameters
-    */
-   void compute_limits(int tau, double Pr, int& lower, int& upper,
-         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
-         const int offset = 0) const
-      {
-      qids_utils::compute_limits(tau, Pi, Pd, Pr, lower, upper, sof_pdf, offset);
-      if (Scap > 0)
-         {
-         upper = std::min(upper, Scap);
-         lower = std::max(lower, -Scap);
-         }
-      }
    // @}
 
    /*! \name Channel parameter handling */
@@ -636,23 +633,6 @@ public:
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
       precompute();
-      }
-   //! Set the probability of channel event outside chosen limits
-   void set_pr(const double Pr)
-      {
-      assert(Pr > 0 && Pr < 1);
-      this->Pr = Pr;
-      precompute();
-      }
-   //! Set the block size
-   void set_blocksize(int T)
-      {
-      if (this->T != T)
-         {
-         assert(T > 0);
-         this->T = T;
-         precompute();
-         }
       }
    // @}
 
@@ -703,6 +683,44 @@ public:
          }
       return drift;
       }
+   //! Set the probability of channel event outside chosen limits
+   void set_pr(const double Pr)
+      {
+      assert(Pr > 0 && Pr < 1);
+      this->Pr = Pr;
+      precompute();
+      }
+   //! Set the block size
+   void set_blocksize(int T)
+      {
+      if (this->T != T)
+         {
+         assert(T > 0);
+         this->T = T;
+         precompute();
+         }
+      }
+   /*!
+    * \copydoc qids_utils::compute_limits()
+    *
+    * \note Provided for use by clients; depends on object parameters
+    */
+   void compute_limits(int tau, double Pr, int& lower, int& upper,
+         const libbase::vector<double>& sof_pdf = libbase::vector<double>(),
+         const int offset = 0) const
+      {
+      qids_utils::compute_limits(tau, Pi, Pd, Pr, lower, upper, sof_pdf, offset);
+      if (Scap > 0)
+         {
+         upper = std::min(upper, Scap);
+         lower = std::max(lower, -Scap);
+         }
+      }
+   //! Determine whether the channel model has a fixed state space
+   bool is_statespace_fixed() const
+      {
+      return false;
+      }
 
    // Channel functions
    void transmit(const array1g_t& tx, array1g_t& rx);
@@ -751,7 +769,7 @@ public:
       }
 
    // Interface for CUDA
-   const metric_computer& get_computer() const
+   const typename channel_insdel<G, real>::metric_computer& get_computer() const
       {
       return computer;
       }

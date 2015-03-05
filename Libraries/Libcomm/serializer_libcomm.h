@@ -165,7 +165,7 @@ private:
    qsc<libbase::gf2> _qsc;
    qec<libbase::erasable<libbase::gf2> > _qec;
    qids<libbase::gf2, float> _qids;
-   bpmr _bpmr;
+   bpmr<float> _bpmr;
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
    //padded<double>	_padded_double;
@@ -224,7 +224,7 @@ private:
    commsys_fulliter<bool> _commsys_fulliter;
    // Experiments
    commsys_simulator<bool, errors_hamming> _commsys_simulator;
-   commsys_stream_simulator<bool, errors_hamming> _commsys_stream_simulator;
+   commsys_stream_simulator<bool, errors_hamming, float> _commsys_stream_simulator;
    commsys_threshold<bool, errors_hamming> _commsys_threshold;
    commsys_timer<bool> _commsys_timer;
    exit_computer<bool> _exit_computer;

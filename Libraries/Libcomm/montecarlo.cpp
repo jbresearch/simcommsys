@@ -21,9 +21,9 @@
 
 #include "montecarlo.h"
 
+#include "version.h"
 #include "fsm.h"
 #include "itfunc.h"
-#include "truerand.h"
 #include "randgen.h"
 #include <sstream>
 #include <limits>
@@ -105,11 +105,13 @@ std::string montecarlo::get_systemstring()
    return systemstring;
    }
 
+/*! \brief Seed the random generators in the experiment
+ *
+ * Use the stored seed to initialize a PRNG for seeding the embedded system.
+ */
 void montecarlo::seed_experiment()
    {
-   libbase::truerand trng;
    libbase::randgen prng;
-   const libbase::int32u seed = trng.ival();
    prng.seed(seed);
    system->seedfrom(prng);
    cerr << "Seed: " << seed << std::endl;
@@ -259,7 +261,7 @@ void montecarlo::display(const libbase::vector<double>& result,
          clog << getnumslaves() << " clients, ";
       else
          clog << "local, ";
-      clog << getcputime() / t.elapsed() << "x usage, ";
+      clog << getcputime() / t.elapsed() << "× usage, ";
       clog << "pass " << system->get_samplecount() << "." << std::endl;
       clog << "System parameter: " << system->get_parameter() << std::endl;
       clog << "Results:" << std::endl;

@@ -50,8 +50,9 @@ namespace cuda {
  * Implements the forward-backward algorithm for a HMM, as required for the
  * MAP decoding algorithm for a generalized class of synchronization-correcting
  * codes described in
- * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
- * Correcting Codes", Submitted to Trans. IT, 2011.
+ * Johann A. Briffa, Victor Buttigieg, and Stephan Wesemeyer, "Time-varying
+ * block codes for synchronisation errors: maximum a posteriori decoder and
+ * practical issues. IET Journal of Engineering, 30 Jun 2014.
  *
  * \warning Do not use shorthand for class hierarchy, as these are not
  * interpreted properly by NVCC.
@@ -67,7 +68,7 @@ namespace cuda {
 
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
-class fba2 : public libcomm::fba2_interface<receiver_t, sig, real> {
+class fba2 : public libcomm::fba2_interface<sig, real, real2> {
 public:
    // forward definition
    class metric_computer;
@@ -91,6 +92,7 @@ public:
          dev_object_ref_t;
    // Host-based types
    typedef libbase::vector<sig> array1s_t;
+   typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::matrix<real> array2r_t;
@@ -166,21 +168,6 @@ public:
 #endif
          return ndx;
          }
-      //! Compute gamma metric using batch receiver interface
-      __device__
-      void compute_gamma_batch(int d, int i, int x, vector_reference<real2>& ptable,
-            const dev_array1s_ref_t& r, const dev_array2r_ref_t& app) const
-         {
-         // determine received segment to extract
-         const int start = n * i + x - mtau_min;
-         const int length = min(n + mn_max, r.size() - start);
-         // call batch receiver method
-         receiver.R(d, i, r.extract(start, length), ptable);
-         // apply priors if applicable
-         if (app.size() > 0)
-            for (int deltax = mn_min; deltax <= mn_max; deltax++)
-               ptable(deltax - mn_min) *= real(app(i,d));
-         }
       //! Get a reference to the corresponding gamma storage entry
       __device__
       real& gamma_storage_entry(int d, int i, int x, int deltax) const
@@ -198,11 +185,18 @@ public:
          real2 ptable_data[arraysize];
          cuda_assertalways(arraysize >= mn_max - mn_min + 1);
          cuda::vector_reference<real2> ptable(ptable_data, mn_max - mn_min + 1);
+         // determine received segment to extract
+         const int start = n * i + x - mtau_min;
+         const int length = min(n + mn_max, r.size() - start);
          // get symbol value from thread index
          for(int d = threadIdx.x; d < q; d += blockDim.x)
             {
-            // compute metric with batch interface
-            compute_gamma_batch(d, i, x, ptable, r, app);
+            // call batch receiver method
+            receiver.R(d, i, r.extract(start, length), ptable);
+            // apply priors if applicable
+            if (app.size() > 0)
+               for (int deltax = mn_min; deltax <= mn_max; deltax++)
+                  ptable(deltax - mn_min) *= real(app(i,d));
             // store in corresponding place in cache
             for (int deltax = mn_min; deltax <= mn_max; deltax++)
                gamma_storage_entry(d, i, x, deltax) = ptable(deltax - mn_min);
@@ -514,13 +508,18 @@ public:
    // @}
 
    /*! \name FBA2 Interface Implementation */
-   //! Main initialization routine
+   /*! \brief Set up code size, decoding parameters, and channel receiver
+    * Only needs to be done before the first frame.
+    */
    void init(int N, int n, int q, int mtau_min, int mtau_max, int mn_min,
-         int mn_max, int m1_min, int m1_max, double th_inner, double th_outer);
-   //! Access metric computation
-   receiver_t& get_receiver() const
+         int mn_max, int m1_min, int m1_max, double th_inner, double th_outer,
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer);
+   /*! \brief Set up encoding table
+    * Needs to be done before every frame.
+    */
+   void init(const array2vs_t& encoding_table) const
       {
-      return computer.receiver;
+      this->computer.receiver.init(encoding_table);
       }
 
    // decode functions

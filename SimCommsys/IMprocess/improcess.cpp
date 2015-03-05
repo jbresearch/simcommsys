@@ -154,7 +154,7 @@ libbase::matrix<S> resample(const libbase::matrix<S>& x, const real xoff,
    const int xcols = x.size().cols();
    const int yrows = round(xrows * R);
    const int ycols = round(xcols * R);
-   std::cerr << "Channel: " << xcols << "x" << xrows << " -> " << ycols << "x"
+   std::cerr << "Channel: " << xcols << "×" << xrows << " -> " << ycols << "×"
          << yrows << std::endl;
    // create destination image
    libbase::matrix<S> y(yrows, ycols);

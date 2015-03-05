@@ -44,6 +44,8 @@ for (( port=$first; $port <= $last; port++ )); do
    echo 'fi' >> $jdlfile
    echo "$program -q -p 0 -e $host:$port" >> $jdlfile
    chmod 700 $jdlfile
+   # make sure the log folders exist
+   mkdir -p $PWD/logs/
    # submit the array job
    jobid=`qsub -e $PWD/logs/ -o $PWD/logs/ -t 1-$count $jdlfile`
    if [[ $? -ne 0 ]]; then

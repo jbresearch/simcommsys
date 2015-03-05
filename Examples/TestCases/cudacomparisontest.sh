@@ -9,8 +9,8 @@ seed="0"
 make all
 
 # Determine default and plain builds
-plainbuild=`make --no-print-directory -C .. plain-buildid`
-defaultbuild=`make --no-print-directory -C .. buildid`
+plainbuild=`make --no-print-directory -C ../.. plain-buildid`
+defaultbuild=`make --no-print-directory -C ../.. buildid`
 
 for build in "$plainbuild" "$defaultbuild"; do
    echo "Running test for build $build"

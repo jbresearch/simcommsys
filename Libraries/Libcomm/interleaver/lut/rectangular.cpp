@@ -59,7 +59,7 @@ template <class real>
 std::string rectangular<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Rectangular " << rows << "x" << cols << " Interleaver";
+   sout << "Rectangular " << rows << "×" << cols << " Interleaver";
    return sout.str();
    }
 

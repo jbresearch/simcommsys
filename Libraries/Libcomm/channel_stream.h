@@ -31,10 +31,13 @@ namespace libcomm {
  * \author  Johann Briffa
  *
  * Defines the additional interface methods for stream-oriented channels.
+ *
+ * \tparam S Channel symbol type
+ * \tparam real Floating-point type for metric computer interface
  */
 
-template <class S>
-class channel_stream : public channel_insdel<S> {
+template <class S, class real>
+class channel_stream : public channel_insdel<S, real> {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<double> array1d_t;

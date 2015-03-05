@@ -171,7 +171,7 @@ template <class T>
 inline void cudaSafeMemcpy2D(T* dst, size_t dpitch, const T* src, size_t spitch, size_t cols, size_t rows, enum cudaMemcpyKind kind)
    {
 #if DEBUG>=2
-   std::cerr << "DEBUG (util): " << cudaGetDescription(kind) << " copy for " << rows << "x" << cols << " elements (" << getTypeInfo<T>() << ") from " << src << " (pitch " << spitch << ") to " << dst << " (pitch " << dpitch << ")" << std::endl;
+   std::cerr << "DEBUG (util): " << cudaGetDescription(kind) << " copy for " << rows << "×" << cols << " elements (" << getTypeInfo<T>() << ") from " << src << " (pitch " << spitch << ") to " << dst << " (pitch " << dpitch << ")" << std::endl;
 #endif
    assert((cols > 0 && rows > 0) || (cols == 0 && rows == 0));
    if(cols > 0 && rows > 0)
@@ -199,7 +199,7 @@ template <class T>
 inline void cudaSafeMemset2D(T *data, size_t pitch, int value, size_t cols, size_t rows)
    {
 #if DEBUG>=2
-   std::cerr << "DEBUG (util): memory set to " << value << " for " << rows << "x" << cols << " elements (" << getTypeInfo<T>() << ") at " << data << " (pitch " << pitch << ")" << std::endl;
+   std::cerr << "DEBUG (util): memory set to " << value << " for " << rows << "×" << cols << " elements (" << getTypeInfo<T>() << ") at " << data << " (pitch " << pitch << ")" << std::endl;
 #endif
    assert(data != NULL);
    assert(rows > 0 && cols > 0);
@@ -224,7 +224,7 @@ inline T* cudaSafeMalloc2D(size_t *pitch_ptr, size_t cols, size_t rows)
    void *p;
    cudaSafeCall(cudaMallocPitch(&p, pitch_ptr, cols * sizeof(T), rows));
 #if DEBUG>=2
-   std::cerr << "DEBUG (util): allocated " << rows << "x" << cols << " elements (" << getTypeInfo<T>() << ") at " << p << " (pitch " << *pitch_ptr << ")" << std::endl;
+   std::cerr << "DEBUG (util): allocated " << rows << "×" << cols << " elements (" << getTypeInfo<T>() << ") at " << p << " (pitch " << *pitch_ptr << ")" << std::endl;
 #endif
    return (T*) p;
    }
@@ -264,9 +264,9 @@ inline std::ostream& operator<<(std::ostream& sout, const dim3& size)
    {
    sout << "[" << size.x;
    if (size.y > 1 || size.z > 1)
-      sout << "x" << size.y;
+      sout << "×" << size.y;
    if (size.z > 1)
-      sout << "x" << size.z;
+      sout << "×" << size.z;
    sout << "]";
    return sout;
    }

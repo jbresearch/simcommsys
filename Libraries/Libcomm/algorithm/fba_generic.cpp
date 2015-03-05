@@ -73,9 +73,9 @@ void fba_generic<sig, real, real2>::allocate()
 
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
-   std::cerr << "alpha = " << tau + 1 << "x" << mtau_max - mtau_min + 1 << " = "
+   std::cerr << "alpha = " << tau + 1 << "×" << mtau_max - mtau_min + 1 << " = "
    << alpha.num_elements() << std::endl;
-   std::cerr << "beta = " << tau + 1 << "x" << mtau_max - mtau_min + 1 << " = "
+   std::cerr << "beta = " << tau + 1 << "×" << mtau_max - mtau_min + 1 << " = "
    << beta.num_elements() << std::endl;
 #endif
    }

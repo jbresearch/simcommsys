@@ -25,24 +25,20 @@
 #include "config.h"
 
 #include "stream_modulator.h"
-#include "channel/qids.h"
+#include "channel_insdel.h"
 #include "algorithm/fba2-interface.h"
 
 #include "randgen.h"
 #include "itfunc.h"
 #include "vector_itfunc.h"
+#include "field_utils.h"
+#include "channel/qids-utils.h"
 #include "serializer.h"
 #include <cstdlib>
 #include <cmath>
 #include <memory>
 
 #include "boost/shared_ptr.hpp"
-
-#ifdef USE_CUDA
-#  include "tvb-receiver-cuda.h"
-#else
-#  include "tvb-receiver.h"
-#endif
 
 namespace libcomm {
 
@@ -52,8 +48,9 @@ namespace libcomm {
  *
  * Implements a MAP decoding algorithm for a generalized class of
  * synchronization-correcting codes. The algorithm is described in
- * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
- * Correcting Codes", Submitted to Trans. IT, 2011.
+ * Johann A. Briffa, Victor Buttigieg, and Stephan Wesemeyer, "Time-varying
+ * block codes for synchronisation errors: maximum a posteriori decoder and
+ * practical issues. IET Journal of Engineering, 30 Jun 2014.
  *
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for internal computation
@@ -117,18 +114,13 @@ private:
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
-   qids<sig,real2> mychan; //!< bound channel object
+   std::auto_ptr<channel_insdel<sig,real2> > mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
    int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
    int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
-#ifdef USE_CUDA
-   typedef cuda::tvb_receiver<sig, real, real2> recv_type;
-#else
-   typedef tvb_receiver<sig, real, real2> recv_type;
-#endif
-   typedef fba2_interface<recv_type, sig, real> fba_type;
+   typedef fba2_interface<sig, real, real2> fba_type;
    boost::shared_ptr<fba_type> fba_ptr; //!< pointer to algorithm object
    // @}
 private:
@@ -228,7 +220,8 @@ public:
                x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
                x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
                x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
-               x.lookahead), mychan(x.mychan), r(x.r), encoding_table(
+               x.lookahead), mychan(
+               dynamic_cast<channel_insdel<sig, real2>*>(x.mychan->clone())), r(x.r), encoding_table(
                x.encoding_table), changed_encoding_table(
                x.changed_encoding_table)
       {

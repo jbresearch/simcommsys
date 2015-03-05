@@ -456,19 +456,19 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "mn_max = " << mn_max << std::endl;
    std::cerr << "mn_min = " << mn_min << std::endl;
-   std::cerr << "alpha = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = " << alpha.size() << std::endl;
-   std::cerr << "beta = " << N + 1 << "x" << mtau_max - mtau_min + 1 << " = " << beta.size() << std::endl;
+   std::cerr << "alpha = " << N + 1 << "×" << mtau_max - mtau_min + 1 << " = " << alpha.size() << std::endl;
+   std::cerr << "beta = " << N + 1 << "×" << mtau_max - mtau_min + 1 << " = " << beta.size() << std::endl;
    if (globalstore)
       {
-      std::cerr << "gamma = " << q << "x" << N << "x" << mtau_max - mtau_min + 1 << "x" << mn_max - mn_min + 1 << " = " << gamma.global.size() << std::endl;
+      std::cerr << "gamma = " << q << "×" << N << "×" << mtau_max - mtau_min + 1 << "×" << mn_max - mn_min + 1 << " = " << gamma.global.size() << std::endl;
       if (lazy)
-         std::cerr << "cached = " << N << "x" << mtau_max - mtau_min + 1 << " = " << cached.global.size() << std::endl;
+         std::cerr << "cached = " << N << "×" << mtau_max - mtau_min + 1 << " = " << cached.global.size() << std::endl;
       }
    else
       {
-      std::cerr << "gamma = " << q << "x" << mtau_max - mtau_min + 1 << "x" << mn_max - mn_min + 1 << " = " << gamma.local.size() << std::endl;
+      std::cerr << "gamma = " << q << "×" << mtau_max - mtau_min + 1 << "×" << mn_max - mn_min + 1 << " = " << gamma.local.size() << std::endl;
       if (lazy)
-         std::cerr << "cached = " << computer.depth << "x" << mtau_max - mtau_min + 1 << " = " << cached.local.size() << std::endl;
+         std::cerr << "cached = " << computer.depth << "×" << mtau_max - mtau_min + 1 << " = " << cached.local.size() << std::endl;
       }
 #endif
    }
@@ -679,7 +679,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_g
          std::min(Mtau, gamma_thread_count / gamma_thread_x));
    const dim3 gridDimG(N, (Mtau + gamma_thread_y - 1) / gamma_thread_y);
    const dim3 blockDimG(gamma_thread_x, gamma_thread_y);
-   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, mn_max) * count(blockDimG);
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem() * count(blockDimG);
    // store kernel parameters
    add_kernel_parameters(collector, "gamma", gridDimG, blockDimG, sharedMemG,
          fba2_global_gamma_kernel<receiver_t, sig, real, real2, thresholding, lazy, globalstore>);
@@ -884,7 +884,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
          gamma_thread_count / gamma_thread_x);
    const dim3 gridDimG(1, (Mtau + gamma_thread_y - 1) / gamma_thread_y);
    const dim3 blockDimG(gamma_thread_x, gamma_thread_y);
-   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, mn_max) * count(blockDimG);
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem() * count(blockDimG);
    // Alpha initialization:
    // block index is not used: grid size = 1
    // thread index is for x2 in [mtau_min, mtau_max]: block size = Mtau
@@ -1014,7 +1014,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          gamma_thread_count / gamma_thread_x);
    const dim3 gridDimG(1, (Mtau + gamma_thread_y - 1) / gamma_thread_y);
    const dim3 blockDimG(gamma_thread_x, gamma_thread_y);
-   const size_t sharedMemG = computer.receiver.receiver_sharedmem(n, mn_max) * count(blockDimG);
+   const size_t sharedMemG = computer.receiver.receiver_sharedmem() * count(blockDimG);
    // Beta initialization:
    // block index is not used: grid size = 1
    // thread index is for x2 in [mtau_min, mtau_max]: block size = Mtau
@@ -1146,46 +1146,51 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
 // Initialization
 
 template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(int N, int n, int q,
-      int mtau_min, int mtau_max, int mn_min, int mn_max, int m1_min, int m1_max, double th_inner, double th_outer)
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
+      int N, int n, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
+      int m1_min, int m1_max, double th_inner, double th_outer,
+      const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
    {
+   // Initialize our embedded metric computer with unchanging elements
+   // (needs to happen before fba initialization)
+   this->computer.receiver.init(n, q, computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != computer.N || n != computer.n || q != computer.q
-               || mtau_min != computer.mtau_min || mtau_max != computer.mtau_max
-               || mn_min != computer.mn_min || mn_max != computer.mn_max))
+         && (N != this->computer.N || n != this->computer.n || q != this->computer.q
+               || mtau_min != this->computer.mtau_min || mtau_max != this->computer.mtau_max
+               || mn_min != this->computer.mn_min || mn_max != this->computer.mn_max))
       {
       free();
       }
    // code parameters
    assert(N > 0);
    assert(n > 0);
-   computer.N = N;
-   computer.n = n;
+   this->computer.N = N;
+   this->computer.n = n;
    assert(q > 1);
-   computer.q = q;
+   this->computer.q = q;
    // decoder parameters
    assert(mtau_min <= 0);
    assert(mtau_max >= 0);
-   computer.mtau_min = mtau_min;
-   computer.mtau_max = mtau_max;
+   this->computer.mtau_min = mtau_min;
+   this->computer.mtau_max = mtau_max;
    assert(mn_min <= 0);
    assert(mn_max >= 0);
-   computer.mn_min = mn_min;
-   computer.mn_max = mn_max;
+   this->computer.mn_min = mn_min;
+   this->computer.mn_max = mn_max;
    assert(m1_min <= 0);
    assert(m1_max >= 0);
-   computer.m1_min = m1_min;
-   computer.m1_max = m1_max;
+   this->computer.m1_min = m1_min;
+   this->computer.m1_max = m1_max;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);
    assert(thresholding || (th_inner == 0 && th_outer == 0));
-   computer.th_inner = th_inner;
-   computer.th_outer = th_outer;
+   this->computer.th_inner = th_inner;
+   this->computer.th_outer = th_outer;
    // determine thread count to use for gamma,alpha,beta,message kernels
    const int Mtau = mtau_max - mtau_min + 1;
-   const size_t gamma_smem = computer.receiver.receiver_sharedmem(n, mn_max);
+   const size_t gamma_smem = this->computer.receiver.receiver_sharedmem();
    if (globalstore)
       gamma_thread_count = determine_thread_count(q * Mtau, 0, gamma_smem, 1,
             fba2_global_gamma_kernel<receiver_t, sig, real, real2, thresholding, lazy, globalstore>);

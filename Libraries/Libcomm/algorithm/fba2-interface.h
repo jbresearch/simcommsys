@@ -25,6 +25,7 @@
 #include "config.h"
 #include "vector.h"
 #include "instrumented.h"
+#include "channel_insdel.h"
 
 #include <string>
 
@@ -37,21 +38,21 @@ namespace libcomm {
  * Defines the interface for the forward-backward algorithm for a HMM, as
  * required for the MAP decoding algorithm for a generalized class of
  * synchronization-correcting codes described in
- * Briffa et al, "A MAP Decoder for a General Class of Synchronization-
- * Correcting Codes", Submitted to Trans. IT, 2011.
+ * Johann A. Briffa, Victor Buttigieg, and Stephan Wesemeyer, "Time-varying
+ * block codes for synchronisation errors: maximum a posteriori decoder and
+ * practical issues. IET Journal of Engineering, 30 Jun 2014.
  *
- * \tparam receiver_t Type for receiver metric computer
  * \tparam sig Channel symbol type
  * \tparam real Floating-point type for internal computation
- *
- * \todo Extract interface for receiver type
+ * \tparam real2 Floating-point type for receiver metric computation
  */
 
-template <class receiver_t, class sig, class real>
+template <class sig, class real, class real2>
 class fba2_interface {
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
+   typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<real> array1r_t;
    typedef libbase::vector<array1d_t> array1vd_t;
@@ -74,12 +75,17 @@ public:
       }
 
    /*! \name Interface with derived classes */
-   //! Main initialization routine
+   /*! \brief Set up code size, decoding parameters, and channel receiver
+    * Only needs to be done before the first frame.
+    */
    virtual void init(int N, int n, int q, int mtau_min, int mtau_max,
          int mn_min, int mn_max, int m1_min, int m1_max, double th_inner,
-         double th_outer) = 0;
-   //! Access metric computation
-   virtual receiver_t& get_receiver() const = 0;
+         double th_outer,
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer) = 0;
+   /*! \brief Set up encoding table
+    * Needs to be done before every frame.
+    */
+   virtual void init(const array2vs_t& encoding_table) const = 0;
 
    // decode functions
    virtual void decode(libcomm::instrumented& collector, const array1s_t& r,

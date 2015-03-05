@@ -56,7 +56,7 @@ template <class real>
 std::string berrou<real>::description() const
    {
    std::ostringstream sout;
-   sout << "Berrou Interleaver (" << M << "x" << M << ")";
+   sout << "Berrou Interleaver (" << M << "×" << M << ")";
    return sout.str();
    }
 

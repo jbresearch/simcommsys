@@ -109,7 +109,7 @@ protected:
       if (data == NULL)
          sout << "empty matrix" << std::endl;
       else
-         sout << rows << "x" << cols << " elements (size " << sizeof(T)
+         sout << rows << "×" << cols << " elements (size " << sizeof(T)
                << ") at " << data << " (pitch " << pitch << ")" << std::endl;
       return sout;
       }
@@ -805,7 +805,7 @@ public:
       {
 #if DEBUG>=2
       debug_header(std::cerr);
-      std::cerr << " set size to " << m << "x" << n << " for ";
+      std::cerr << " set size to " << m << "×" << n << " for ";
       debug_trailer(std::cerr);
 #endif
       if (m == Base::rows && n == Base::cols)
