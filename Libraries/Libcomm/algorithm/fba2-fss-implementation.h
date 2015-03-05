@@ -34,7 +34,7 @@ namespace libcomm {
 // 4 - Show alpha/beta matrices before normalization
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 4
+#  define DEBUG 1
 #endif
 
 // *** Internal functions - computer

@@ -35,7 +35,7 @@ namespace libcomm {
 // 4 - Show lattice rows as they are computed in receive process
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 4
+#  define DEBUG 1
 #endif
 
 // Internal functions
