@@ -61,10 +61,6 @@ void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
    this->Pi = real(Pi);
    }
 
-// Channel receiver for host
-
-#ifndef USE_CUDA
-
 // Batch receiver interface
 template <class real>
 void bpmr<real>::metric_computer::receive(const array1b_t& tx,
@@ -253,8 +249,6 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    libbase::trace << "DEBUG (bpmr): ptable1 = " << ptable1 << std::endl;
 #endif
    }
-
-#endif
 
 /*!
  * \brief Initialization
@@ -469,9 +463,6 @@ std::string bpmr<real>::description() const
    if (!varyPi)
       sout << ", Pi=" << fixedPi;
    sout << ")";
-#ifdef USE_CUDA
-   sout << " [CUDA]";
-#endif
    return sout.str();
    }
 
@@ -540,13 +531,8 @@ using libbase::serializer;
 using libbase::mpgnu;
 using libbase::logrealfast;
 
-#ifdef USE_CUDA
-#define REAL_TYPE_SEQ \
-   (float)(double)
-#else
 #define REAL_TYPE_SEQ \
    (float)(double)(mpgnu)(logrealfast)
-#endif
 
 /* Serialization string: bpmr<real>
  * where:

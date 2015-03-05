@@ -95,9 +95,6 @@ public:
       static const int arraysize = 128; //!< Size of stack-allocated arrays
       // @}
    private:
-#ifdef __CUDACC__
-      __device__
-#endif
       real get_transmission_coefficient(int Z) const
          {
          cuda_assert(Z >= Zmin);
@@ -129,109 +126,8 @@ public:
       void precompute(double Pd, double Pi, int T, int Zmin, int Zmax);
       void init()
          {
-#ifdef USE_CUDA
-         // Initialize CUDA
-         cuda::cudaInitialize(std::cerr);
-#endif
          }
       // @}
-#ifdef USE_CUDA
-      /*! \name Device methods */
-#ifdef __CUDACC__
-      //! Receiver interface
-      __device__
-      real receive(const cuda::vector_reference<bool>& tx, const cuda::vector_reference<bool>& rx) const
-         {
-         // Compute sizes
-         const int n = tx.size();
-         const int mu = rx.size() - n;
-         // Allocate space for results and call main receiver
-         real ptable_data[arraysize];
-         cuda_assertalways(arraysize >= Zmax - Zmin + 1);
-         cuda::vector_reference<real> ptable(ptable_data, Zmax - Zmin + 1);
-         receive(tx, rx, ptable);
-         // return result
-         return ptable(mu - Zmin);
-         }
-      //! Batch receiver interface
-      __device__
-      void receive(const cuda::vector_reference<bool>& tx, const cuda::vector_reference<bool>& rx,
-            cuda::vector_reference<real>& ptable) const
-         {
-         using cuda::swap;
-         using cuda::min;
-         using cuda::max;
-         // Compute sizes
-         const int n = tx.size();
-         const int rho = rx.size();
-         // Set up three slices of lattice on the stack as a fixed size;
-         // this avoids dynamic allocation (which would otherwise be necessary
-         // as the size is non-const)
-         /*
-         cuda_assertalways(rho + 1 <= arraysize);
-         real F[3][arraysize];
-         */
-         // get access to three slices of lattice in shared memory
-         cuda::SharedMemory<real> smem;
-         const int pitch = n + Zmax + 1;
-         cuda_assertalways(rho + 1 <= pitch);
-         __restrict__ real* F0 = smem.getPointer() + (threadIdx.x + threadIdx.y * blockDim.x) * 3 * pitch;
-         __restrict__ real* F1 = F0 + pitch;
-         __restrict__ real* F2 = F1 + pitch;
-         // *** initialize first row of lattice (i = 0) [insertion only]
-         F0[0] = 1;
-         const int jmax = min(Zmax, rho);
-         for (int j = 1; j <= jmax; j++)
-            F0[j] = F0[j - 1] * real(0.5) * Pi; // assume equiprobable prior value
-         // *** compute remaining rows (1 <= i <= n)
-         for (int i = 1; i <= n; i++)
-            {
-            // advance slices
-            real *Ft = F2;
-            F2 = F1;
-            F1 = F0;
-            F0 = Ft;
-            // handle first column, if necessary (no path possible)
-            if (i + Zmin <= 0)
-               F0[0] = 0;
-            // determine limits for remaining columns (after first)
-            const int jmin = max(i + Zmin, 1);
-            const int jmax = min(i + Zmax, rho);
-            // remaining columns
-            for (int j = jmin; j <= jmax; j++)
-               {
-               real temp = 0;
-               // in all cases, corresponding tx/rx bits must be equal
-               if (tx(i - 1) == rx(j - 1))
-                  {
-                  // transmission path
-                  temp += F1[j - 1] * get_transmission_coefficient(j - i);
-                  // deletion path (if previous node was within corridor)
-                  if (j - i < Zmax && i >= 2) // (j-1)-(i-2) <= mT_max
-                     temp += F2[j - 1] * Pd;
-                  // insertion path (if previous node was within corridor)
-                  if (j - i > Zmin && i < n) // (j-1)-i >= mT_min
-                     temp += F0[j - 1] * Pi;
-                  }
-               // store result
-               F0[j] = temp;
-               }
-            }
-         // copy results and return
-         cuda_assertalways(ptable.size() == Zmax - Zmin + 1);
-         for (int x = Zmin; x <= Zmax; x++)
-            {
-            // convert index
-            const int j = x + n;
-            if (j >= 0 && j <= rho)
-               ptable(x - Zmin) = F0[j];
-            else
-               ptable(x - Zmin) = 0;
-            }
-         }
-#endif
-      // @}
-#endif
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread
       size_t receiver_sharedmem() const
@@ -424,7 +320,7 @@ public:
       return 0;
       }
 
-   // Interface for CUDA
+   // Access to receiver metric computation object
    const typename channel_insdel<bool, real>::metric_computer& get_computer() const
       {
       return computer;
