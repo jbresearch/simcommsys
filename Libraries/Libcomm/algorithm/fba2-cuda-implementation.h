@@ -1156,41 +1156,41 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
    this->computer.receiver.init(n, q, computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != computer.N || n != computer.n || q != computer.q
-               || mtau_min != computer.mtau_min || mtau_max != computer.mtau_max
-               || mn_min != computer.mn_min || mn_max != computer.mn_max))
+         && (N != this->computer.N || n != this->computer.n || q != this->computer.q
+               || mtau_min != this->computer.mtau_min || mtau_max != this->computer.mtau_max
+               || mn_min != this->computer.mn_min || mn_max != this->computer.mn_max))
       {
       free();
       }
    // code parameters
    assert(N > 0);
    assert(n > 0);
-   computer.N = N;
-   computer.n = n;
+   this->computer.N = N;
+   this->computer.n = n;
    assert(q > 1);
-   computer.q = q;
+   this->computer.q = q;
    // decoder parameters
    assert(mtau_min <= 0);
    assert(mtau_max >= 0);
-   computer.mtau_min = mtau_min;
-   computer.mtau_max = mtau_max;
+   this->computer.mtau_min = mtau_min;
+   this->computer.mtau_max = mtau_max;
    assert(mn_min <= 0);
    assert(mn_max >= 0);
-   computer.mn_min = mn_min;
-   computer.mn_max = mn_max;
+   this->computer.mn_min = mn_min;
+   this->computer.mn_max = mn_max;
    assert(m1_min <= 0);
    assert(m1_max >= 0);
-   computer.m1_min = m1_min;
-   computer.m1_max = m1_max;
+   this->computer.m1_min = m1_min;
+   this->computer.m1_max = m1_max;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);
    assert(thresholding || (th_inner == 0 && th_outer == 0));
-   computer.th_inner = th_inner;
-   computer.th_outer = th_outer;
+   this->computer.th_inner = th_inner;
+   this->computer.th_outer = th_outer;
    // determine thread count to use for gamma,alpha,beta,message kernels
    const int Mtau = mtau_max - mtau_min + 1;
-   const size_t gamma_smem = computer.receiver.receiver_sharedmem();
+   const size_t gamma_smem = this->computer.receiver.receiver_sharedmem();
    if (globalstore)
       gamma_thread_count = determine_thread_count(q * Mtau, 0, gamma_smem, 1,
             fba2_global_gamma_kernel<receiver_t, sig, real, real2, thresholding, lazy, globalstore>);
