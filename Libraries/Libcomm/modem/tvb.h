@@ -40,12 +40,6 @@
 
 #include "boost/shared_ptr.hpp"
 
-#ifdef USE_CUDA
-#  include "tvb-receiver-cuda.h"
-#else
-#  include "tvb-receiver.h"
-#endif
-
 namespace libcomm {
 
 /*!
@@ -126,11 +120,6 @@ private:
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
    int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
    int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
-#ifdef USE_CUDA
-   typedef cuda::tvb_receiver<sig, real, real2> recv_type;
-#else
-   typedef tvb_receiver<sig, real, real2> recv_type;
-#endif
    typedef fba2_interface<sig, real, real2> fba_type;
    boost::shared_ptr<fba_type> fba_ptr; //!< pointer to algorithm object
    // @}
