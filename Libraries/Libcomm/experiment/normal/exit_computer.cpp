@@ -64,8 +64,8 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
       const array1i_t& tx)
    {
    // determine sizes
-   const int N = sys->getmodem()->input_block_size();
-   const int q = sys->getmodem()->num_symbols();
+   const int N = sys->getcodec()->input_block_size();
+   const int q = sys->getcodec()->num_inputs();
    const int k = int(log2(q));
    assert(tx.size() == N);
    assert(q == (1<<k));
@@ -166,35 +166,31 @@ void exit_computer<S>::sample(array1d_t& result)
          transmitted);
    // Transmit
    const array1s_t received = sys->transmit(transmitted);
-   // Create random priors
-   array1vd_t priors = createpriors(mapped);
+
    // Demodulate
    array1vd_t ptable_mapped;
-   informed_modulator<S>& m =
-         dynamic_cast<informed_modulator<S>&>(*sys->getmodem());
-   m.demodulate(*sys->getrxchan(), received, priors, ptable_mapped);
-   // Compute extrinsic information
-   libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors);
+   sys->getmodem()->demodulate(*sys->getrxchan(), received, ptable_mapped);
    // Inverse Map
    array1vd_t ptable_encoded;
    sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
-   // Translate
-   sys->getcodec()->init_decoder(ptable_encoded);
-   // Perform soft-output decoding for as many iterations as required
+
+   // Create random priors
+   array1vd_t priors = createpriors(source);
+   // Translate (using given priors)
    codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
          libbase::vector>&>(*sys->getcodec());
+   c.init_decoder(ptable_encoded, priors);
+   // Perform soft-output decoding for as many iterations as required
    array1vd_t ri;
    array1vd_t ro;
    for (int i = 0; i < sys->num_iter(); i++)
       c.softdecode(ri, ro);
    // Compute extrinsic information
-   libbase::compute_extrinsic(ro, ro, ptable_encoded);
+   libbase::compute_extrinsic(ri, ri, priors);
 
    // compute results
-   result(0) = compute_mutual_information(mapped, priors);
-   result(1) = compute_mutual_information(mapped, ptable_mapped);
-   result(2) = compute_mutual_information(encoded, ptable_encoded);
-   result(3) = compute_mutual_information(encoded, ro);
+   result(0) = compute_mutual_information(source, priors);
+   result(1) = compute_mutual_information(source, ri);
    }
 
 // Description & Serialization

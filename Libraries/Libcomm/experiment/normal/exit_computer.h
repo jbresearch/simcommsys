@@ -131,7 +131,7 @@ public:
    void sample(array1d_t& result);
    int count() const
       {
-      return 4;
+      return 2;
       }
    int get_multiplicity(int i) const
       {
@@ -143,13 +143,9 @@ public:
       switch (i)
          {
          case 0:
-            return "H(priors)";
+            return "I(input)";
          case 1:
-            return "H(mapped)";
-         case 2:
-            return "H(encoded)";
-         case 3:
-            return "H(ro)";
+            return "I(output)";
          }
       return ""; // This should never happen
       }
