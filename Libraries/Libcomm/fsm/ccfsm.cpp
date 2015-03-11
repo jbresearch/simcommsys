@@ -63,7 +63,7 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
    nu = 0;
    for (int i = 0; i < k; i++)
       {
-      // assume with of register of input 'i' from its generator sequence for
+      // assume width of register of input 'i' from its generator sequence for
       // first output
       int m = gen(i, 0).size() - 1;
       reg(i).init(m);
