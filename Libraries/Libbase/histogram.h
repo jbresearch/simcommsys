@@ -43,7 +43,7 @@ class histogram {
    int bins; //!< The number of bins
    vector<int> count; //!< The occurrence count for each bin
 private:
-   const double get_step()
+   double get_step() const
       {
       return (max_val - min_val) / double(bins);
       }
