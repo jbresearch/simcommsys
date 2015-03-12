@@ -32,8 +32,8 @@ namespace libbase {
  * \brief   Histogram.
  * \author  Johann Briffa
  *
- * Computes the histogram of the values in a vector or matrix with the
- * user-supplied number of bins.
+ * Computes the histogram of the values in a vector with the user-supplied
+ * number of bins.
  */
 
 class histogram {
@@ -65,57 +65,6 @@ public:
    double min() const
       {
       return x(0);
-      }
-};
-
-class phistogram {
-   double step;
-   vector<double> x, y;
-private:
-   static double findmax(const matrix<double>& a);
-   void initbins(const double max, const int n);
-   void accumulate();
-public:
-   phistogram(const matrix<double>& a, const int n);
-
-   int bins() const
-      {
-      return x.size();
-      }
-   double freq(const int i) const
-      {
-      return y(i);
-      }
-   double val(const int i) const
-      {
-      return x(i);
-      }
-};
-
-class chistogram {
-   double step;
-   vector<double> x, y;
-private:
-   static double findmax(const matrix<double>& a);
-   static double findmax(const matrix<double>& a, const matrix<bool>& mask);
-   static int count(const matrix<bool>& mask);
-   void initbins(const double max, const int n);
-   void accumulate();
-public:
-   chistogram(const matrix<double>& a, const int n);
-   chistogram(const matrix<double>& a, const matrix<bool>& mask, const int n);
-
-   int bins() const
-      {
-      return x.size();
-      }
-   double freq(const int i) const
-      {
-      return y(i);
-      }
-   double val(const int i) const
-      {
-      return x(i);
       }
 };
 
