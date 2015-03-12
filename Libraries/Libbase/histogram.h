@@ -37,26 +37,27 @@ namespace libbase {
  * user.
  */
 
+template <class number>
 class histogram {
-   double min_val; //!< The left edge of the first bin
-   double max_val; //!< The right edge of the last bin
+   number min_val; //!< The left edge of the first bin
+   number max_val; //!< The right edge of the last bin
    int bins; //!< The number of bins
    vector<int> count; //!< The occurrence count for each bin
 private:
-   double get_step() const
+   number get_step() const
       {
-      return (max_val - min_val) / double(bins);
+      return (max_val - min_val) / number(bins);
       }
 public:
    //! Principal constructor
-   histogram(const vector<double>& a, const double min_val,
-         const double max_val, const int bins);
+   histogram(const vector<number>& a, const number min_val,
+         const number max_val, const int bins);
    const vector<int>& get_count()
       {
       return count;
       }
-   const vector<double> get_bin_edges();
-   const vector<double> get_bin_centres();
+   const vector<number> get_bin_edges();
+   const vector<number> get_bin_centres();
 };
 
 } // end namespace

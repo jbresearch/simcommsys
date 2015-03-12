@@ -24,8 +24,9 @@
 
 namespace libbase {
 
-histogram::histogram(const vector<double>& a, const double min_val,
-      const double max_val, const int bins)
+template <class number>
+histogram<number>::histogram(const vector<number>& a, const number min_val,
+      const number max_val, const int bins)
    {
    // sanity checks
    assert(max_val > min_val);
@@ -36,7 +37,7 @@ histogram::histogram(const vector<double>& a, const double min_val,
    this->bins = bins;
    count.init(bins);
    // compute the histogram
-   const double step = get_step();
+   const number step = get_step();
    for (int i = 0; i < a.size(); i++)
       {
       const int j = int(floor((a(i) - min_val) / step));
@@ -44,22 +45,39 @@ histogram::histogram(const vector<double>& a, const double min_val,
       }
    }
 
-const vector<double> histogram::get_bin_edges()
+template <class number>
+const vector<number> histogram<number>::get_bin_edges()
    {
-   const double step = get_step();
-   vector<double> edges(bins + 1);
+   const number step = get_step();
+   vector<number> edges(bins + 1);
    for (int i = 0; i <= bins; i++)
       edges(i) = min_val + i * step;
    return edges;
    }
 
-const vector<double> histogram::get_bin_centres()
+template <class number>
+const vector<number> histogram<number>::get_bin_centres()
    {
-   const double step = get_step();
-   vector<double> centres(bins);
+   const number step = get_step();
+   vector<number> centres(bins);
    for (int i = 0; i < bins; i++)
       centres(i) = min_val + i * step + step / 2;
    return centres;
    }
+
+} // end namespace
+
+namespace libbase {
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+
+#define NUMBER_TYPE_SEQ \
+   (int)(float)(double)
+
+#define INSTANTIATE(r, x, type) \
+      template class histogram<type>;
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, NUMBER_TYPE_SEQ)
 
 } // end namespace
