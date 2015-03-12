@@ -44,7 +44,6 @@ private:
    void initbins(const double min, const double max, const int n);
 public:
    histogram(const vector<double>& a, const int n);
-   histogram(const matrix<double>& a, const int n);
 
    int bins() const
       {
