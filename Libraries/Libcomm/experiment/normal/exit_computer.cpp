@@ -28,6 +28,8 @@
 #include "itfunc.h"
 #include "secant.h"
 #include "timer.h"
+#include "histogram.h"
+#include "histogram2d.h"
 #include <iostream>
 #include <sstream>
 
@@ -113,31 +115,55 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
 /*!
  * \brief Determine the mutual information between x and p
  * \param x The known transmitted sequence
- * \param p The probability table at the receiving end p(y)
+ * \param p The probability table at the receiving end p(y|x)
  *
- * I(X;Y) = H(Y) - H(Y|X)
- * where
- * H(Y) = ∑ -p(y) . log₂ p(y)
- * H(Y|X) = ∑ p(x) ∑ -p(y|x) . log₂ p(y|x)
- * for known X, p(x)=1 only at given x, so that
- * H(Y|X) = ∑ -p(y|x) . log₂ p(y|x) (for given x)
+ * For a transmitted sequence X = {x_i} where x_i ∈ 𝔽_q and prior or posterior
+ * probabilities Y = {y_i} where y_i = [y_i1, y_i2, ... y_iq] and
+ * y_ij = Pr{x_i = j} or Pr{R | x_i = j} where R is the received sequence
+ *
+ * I(X;Y) = ∑_x p(x) ∫_y f(y|x) . log₂ f(y|x)/f(y) dy
  */
 template <class S>
 double exit_computer<S>::compute_mutual_information(const array1i_t& x, const array1vd_t& p)
    {
+   // fixed parameters
+   const int bins = 20;
    // determine sizes
    const int N = p.size();
    assert(N > 0);
+   const int q = p(0).size();
+   assert(q > 1);
    assert(x.size() == N);
-   // compute conditional entropy
-   double H = 0;
-   for (int i = 0; i < N; i++)
+   // estimate probability density of input
+   libbase::histogram<int> hx(x, 0, q, q);
+   const libbase::vector<double> fx = libbase::vector<double>(hx.get_count())
+         / double(N);
+   // estimate probability density of unconditional prior/posterior probabilities
+   libbase::histogram2d hy(p, 0, 1, bins, 0, 1, bins);
+   const libbase::matrix<double> fy = libbase::matrix<double>(hy.get_count())
+         / double(N);
+   // compute mutual information
+   double I = 0;
+   for (int d = 0; d < q; d++)
       {
-      const int d = x(i);
-      H += -p(i)(d) * log2(p(i)(d));
+      // extract elements where input was equal to 'd'
+      const libbase::vector<bool> mask = (x == d);
+      const array1vd_t pd = p.mask(mask);
+      // determine number of elements
+      const int Nd = pd.size();
+      assert(Nd > 0);
+      // estimate probability density of conditional prior/posterior probabilities
+      libbase::histogram2d hyd(pd, 0, 1, bins, 0, 1, bins);
+      const libbase::matrix<double> fyd = libbase::matrix<double>(hyd.get_count())
+            / double(Nd);
+      // accumulate mutual information
+      for (int i = 0; i < bins; i++)
+         for (int j = 0; j < bins; j++)
+            {
+            I += fx(d) * fyd(i,j) * log2(fyd(i,j) / fy(i,j));
+            }
       }
-   H /= N;
-   return libbase::compute_entropy(p) - H;
+   return I;
    }
 
 // Experiment handling

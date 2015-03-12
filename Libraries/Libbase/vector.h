@@ -133,6 +133,7 @@ public:
 template <class T>
 class vector {
    friend class indirect_vector<T> ;
+   friend class masked_vector<T> ;
 protected:
    typedef std::allocator<T> Allocator;
    Allocator allocator;
@@ -284,6 +285,12 @@ public:
    masked_vector<T> mask(const vector<bool>& x)
       {
       return masked_vector<T> (this, x);
+      }
+   /*! \brief Bind a mask to a vector (read only)
+    */
+   const masked_vector<T> mask(const vector<bool>& x) const
+      {
+      return masked_vector<T> (const_cast<vector<T>*>(this), x);
       }
    /*! \brief Index operator (write-access)
     * \note Performs boundary checking.
@@ -1503,10 +1510,9 @@ public:
 template <class T>
 inline masked_vector<T>::masked_vector(vector<T>* data,
       const vector<bool>& mask)
+      : m_data(data), m_mask(mask)
    {
    assert(data->m_size == mask.size());
-   m_data = data;
-   m_mask = mask;
    }
 
 // vector copy and value initialisation

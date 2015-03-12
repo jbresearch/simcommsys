@@ -163,6 +163,11 @@ public:
       {
       alloc(size.rows(), size.cols());
       }
+   /*! \brief On-the-fly conversion of matrix
+    * \note Naturally this requires a deep copy.
+    */
+   template <class A>
+   explicit matrix(const matrix<A>& x);
    /*! \brief Copy constructor
     */
    matrix(const matrix<T>& x);
@@ -398,6 +403,20 @@ inline void matrix<T>::alloc(const int x, const int y)
    }
 
 // constructor / destructor functions
+
+template <class T>
+template <class A>
+inline matrix<T>::matrix(const matrix<A>& x) :
+   m_size(0), m_data(NULL)
+   {
+   alloc(x.size().rows(), x.size().cols());
+   // Do not convert type of element from A to T, so that if either is a
+   // vector or matrix, the process can continue through the assignment
+   // operator
+   for (int i = 0; i < m_size.rows(); i++)
+      for (int j = 0; j < m_size.cols(); j++)
+         m_data[i][j] = x(i,j);
+   }
 
 template <class T>
 inline matrix<T>::matrix(const matrix<T>& x)
