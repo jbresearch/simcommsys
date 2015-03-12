@@ -120,6 +120,7 @@ public:
       }
    void set_parameter(const double x)
       {
+      assertalways(x >= 0);
       sigma = x;
       }
    double get_parameter() const

@@ -74,6 +74,8 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
    libbase::allocate(priors, N, q);
    // allocate space for temporary binary LLRs
    array1d_t llr(k);
+   // constants
+   const double mu = sigma * sigma / 2;
    // determine random priors
    for (int i = 0; i < N; i++)
       {
@@ -86,9 +88,9 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
          {
          llr(j) = src.gval(sigma);
          if ((cw & (1 << j)) == 0)
-            llr(j) += sigma / 2;
+            llr(j) += mu;
          else
-            llr(j) -= sigma / 2;
+            llr(j) -= mu;
          }
       // determine non-binary priors from binary ones
       for (int d = 0; d < q; d++)
