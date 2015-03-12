@@ -203,6 +203,10 @@ std::string exit_computer<S>::description() const
    std::ostringstream sout;
    sout << "EXIT Chart Computer for ";
    sout << sys->description();
+   // system parameter
+   const double p = sys->gettxchan()->get_parameter();
+   assert(p == sys->getrxchan()->get_parameter());
+   sout << ", system parameter = " << p;
    return sout.str();
    }
 
