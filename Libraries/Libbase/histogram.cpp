@@ -51,24 +51,6 @@ histogram::histogram(const vector<double>& a, const int n)
       }
    }
 
-histogram::histogram(const matrix<double>& a, const int n)
-   {
-   initbins(a.min(), a.max(), n);
-
-   y.init(n);
-   y = 0;
-   for (int i = 0; i < a.size().rows(); i++)
-      for (int j = 0; j < a.size().cols(); j++)
-         {
-         for (int k = n - 1; k >= 0; k--)
-            if (a(i, j) >= x(k))
-               {
-               y(k)++;
-               break;
-               }
-         }
-   }
-
 // *** phistogram ***
 
 double phistogram::findmax(const matrix<double>& a)
