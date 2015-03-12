@@ -160,7 +160,8 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
       for (int i = 0; i < bins; i++)
          for (int j = 0; j < bins; j++)
             {
-            I += fx(d) * fyd(i,j) * log2(fyd(i,j) / fy(i,j));
+            if (fyd(i, j) > 0 && fy(i, j) > 0)
+               I += fx(d) * fyd(i, j) * log2(fyd(i, j) / fy(i, j));
             }
       }
    return I;
