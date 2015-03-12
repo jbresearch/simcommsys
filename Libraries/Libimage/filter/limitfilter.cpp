@@ -20,7 +20,6 @@
  */
 
 #include "limitfilter.h"
-#include "histogram.h"
 
 namespace libimage {
 

@@ -25,8 +25,6 @@
 #include "config.h"
 #include "vector.h"
 #include "matrix.h"
-#include <cmath>
-#include <iostream>
 
 namespace libbase {
 
@@ -34,35 +32,12 @@ namespace libbase {
  * \brief   Histogram.
  * \author  Johann Briffa
  *
- * \version 1.00 (8 Jun 2000)
- * Initial version - computes the histogram of the values in a vector or
- * matrix with the user-supplied number of bins.
- *
- * \version 1.10 (31 Oct 2001)
- * modified the internal code to make use of the new enhanced matrix and vector classes.
- *
- * \version 1.20 (11 Nov 2001)
- * modified the internal code to conform with the min/max renaming in matrix & vector.
- * Also added a new creation routine for chistogram that makes use of a mask matrix -
- * this allows the user to mask out parts of a matrix from the histogram.
- *
- * \version 1.21 (1 Mar 2002)
- * edited the classes to be compileable with Microsoft extensions enabled - in practice,
- * the major change is in for() loops, where MS defines scope differently from ANSI.
- * Rather than taking the loop variables into function scope, we chose to avoid having
- * more than one loop per function, by defining private helper functions.
- *
- * \version 1.22 (6 Mar 2002)
- * changed vcs version variable from a global to a static class variable.
- * also changed use of iostream from global to std namespace.
- *
- * \version 1.30 (26 Oct 2006)
- * - defined class and associated data within "libbase" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * Computes the histogram of the values in a vector or matrix with the
+ * user-supplied number of bins.
  */
 
 class histogram {
-   double step, mean, var;
+   double step;
    vector<double> x;
    vector<int> y;
 private:
@@ -82,15 +57,6 @@ public:
    double val(const int i) const
       {
       return x(i) + step / 2;
-      }
-
-   double mu() const
-      {
-      return mean;
-      }
-   double sigma() const
-      {
-      return sqrt(var);
       }
 
    double max() const

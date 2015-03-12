@@ -24,6 +24,8 @@
 
 namespace libbase {
 
+// *** histogram ***
+
 void histogram::initbins(const double min, const double max, const int n)
    {
    step = (max - min) / double(n);
@@ -38,11 +40,8 @@ histogram::histogram(const vector<double>& a, const int n)
 
    y.init(n);
    y = 0;
-   double sum = 0, sumsq = 0;
    for (int i = 0; i < a.size(); i++)
       {
-      sum += a(i);
-      sumsq += a(i) * a(i);
       for (int k = n - 1; k >= 0; k--)
          if (a(i) >= x(k))
             {
@@ -50,9 +49,6 @@ histogram::histogram(const vector<double>& a, const int n)
             break;
             }
       }
-   int N = a.size();
-   mean = sum / N;
-   var = sumsq / N - mean * mean;
    }
 
 histogram::histogram(const matrix<double>& a, const int n)
@@ -61,12 +57,9 @@ histogram::histogram(const matrix<double>& a, const int n)
 
    y.init(n);
    y = 0;
-   double sum = 0, sumsq = 0;
    for (int i = 0; i < a.size().rows(); i++)
       for (int j = 0; j < a.size().cols(); j++)
          {
-         sum += a(i, j);
-         sumsq += a(i, j) * a(i, j);
          for (int k = n - 1; k >= 0; k--)
             if (a(i, j) >= x(k))
                {
@@ -74,10 +67,9 @@ histogram::histogram(const matrix<double>& a, const int n)
                break;
                }
          }
-   int N = a.size();
-   mean = sum / N;
-   var = sumsq / N - mean * mean;
    }
+
+// *** phistogram ***
 
 double phistogram::findmax(const matrix<double>& a)
    {
@@ -123,6 +115,8 @@ phistogram::phistogram(const matrix<double>& a, const int n)
    y /= a.sumsq();
    accumulate();
    }
+
+// *** chistogram ***
 
 double chistogram::findmax(const matrix<double>& a)
    {

@@ -276,6 +276,7 @@ double stegosystem::ComputeChiSquare(const vector<sigspace>& rx, const vector<
          e(i) = rx(i).i() - tx(i).i();
       }
    // compute histogram of error with given number of bins
+   // TODO: refactor to make use of histogram class
    vector<int> h(nBins);
    double dMin = e.min();
    double dMax = e.max();
