@@ -32,40 +32,31 @@ namespace libbase {
  * \brief   Histogram.
  * \author  Johann Briffa
  *
- * Computes the histogram of the values in a vector with the user-supplied
- * number of bins.
+ * Computes the histogram of the values in a vector with a fixed bin width.
+ * The range of values and number of bins need to be explicitly stated by the
+ * user.
  */
 
 class histogram {
-   double step;
-   vector<double> x;
-   vector<int> y;
+   double min_val; //!< The left edge of the first bin
+   double max_val; //!< The right edge of the last bin
+   int bins; //!< The number of bins
+   vector<int> count; //!< The occurrence count for each bin
 private:
-   void initbins(const double min, const double max, const int n);
+   const double get_step()
+      {
+      return (max_val - min_val) / double(bins);
+      }
 public:
-   histogram(const vector<double>& a, const int n);
-
-   int bins() const
+   //! Principal constructor
+   histogram(const vector<double>& a, const double min_val,
+         const double max_val, const int bins);
+   const vector<int>& get_count()
       {
-      return x.size();
+      return count;
       }
-   int freq(const int i) const
-      {
-      return y(i);
-      }
-   double val(const int i) const
-      {
-      return x(i) + step / 2;
-      }
-
-   double max() const
-      {
-      return x(x.size() - 1) + step;
-      }
-   double min() const
-      {
-      return x(0);
-      }
+   const vector<double> get_bin_edges();
+   const vector<double> get_bin_centres();
 };
 
 } // end namespace

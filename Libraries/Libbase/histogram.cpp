@@ -20,33 +20,46 @@
  */
 
 #include "histogram.h"
-#include <cfloat>
+#include "itfunc.h"
 
 namespace libbase {
 
-void histogram::initbins(const double min, const double max, const int n)
+histogram::histogram(const vector<double>& a, const double min_val,
+      const double max_val, const int bins)
    {
-   step = (max - min) / double(n);
-   x.init(n);
-   for (int i = 0; i < n; i++)
-      x(i) = min + i * step;
-   }
-
-histogram::histogram(const vector<double>& a, const int n)
-   {
-   initbins(a.min(), a.max(), n);
-
-   y.init(n);
-   y = 0;
+   // sanity checks
+   assert(max_val > min_val);
+   assert(bins > 0);
+   // initialize representation
+   this->min_val = min_val;
+   this->max_val = max_val;
+   this->bins = bins;
+   count.init(bins);
+   // compute the histogram
+   const double step = get_step();
    for (int i = 0; i < a.size(); i++)
       {
-      for (int k = n - 1; k >= 0; k--)
-         if (a(i) >= x(k))
-            {
-            y(k)++;
-            break;
-            }
+      const int j = int(floor((a(i) - min_val) / step));
+      count(limit<int>(j, 0, bins - 1))++;
       }
+   }
+
+const vector<double> histogram::get_bin_edges()
+   {
+   const double step = get_step();
+   vector<double> edges(bins + 1);
+   for (int i = 0; i <= bins; i++)
+      edges(i) = min_val + i * step;
+   return edges;
+   }
+
+const vector<double> histogram::get_bin_centres()
+   {
+   const double step = get_step();
+   vector<double> centres(bins);
+   for (int i = 0; i < bins; i++)
+      centres(i) = min_val + i * step + step / 2;
+   return centres;
    }
 
 } // end namespace
