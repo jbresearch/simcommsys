@@ -127,7 +127,7 @@ template <class S>
 double exit_computer<S>::compute_mutual_information(const array1i_t& x, const array1vd_t& p)
    {
    // fixed parameters
-   const int bins = 20;
+   const int bins = 10;
    // determine sizes
    const int N = p.size();
    assert(N > 0);
@@ -142,6 +142,7 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
    libbase::histogram2d hy(p, 0, 1, bins, 0, 1, bins);
    const libbase::matrix<double> fy = libbase::matrix<double>(hy.get_count())
          / double(N);
+   std::cerr << "DEBUG (exit): fy = " << fy;
    // compute mutual information
    double I = 0;
    for (int d = 0; d < q; d++)
@@ -156,6 +157,7 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
       libbase::histogram2d hyd(pd, 0, 1, bins, 0, 1, bins);
       const libbase::matrix<double> fyd = libbase::matrix<double>(hyd.get_count())
             / double(Nd);
+      std::cerr << "DEBUG (exit): fy(" << d << ") = " << fyd;
       // accumulate mutual information
       for (int i = 0; i < bins; i++)
          for (int j = 0; j < bins; j++)
