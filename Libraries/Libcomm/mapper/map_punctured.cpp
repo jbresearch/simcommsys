@@ -101,15 +101,17 @@ template <class dbl>
 std::string map_punctured<libbase::vector, dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Punctured Mapper (matrix=";
+   sout << "Punctured Mapper (";
+   sout << this->output_block_size() << "," << this->input_block_size();
+   sout << "), matrix=[";
    for (int i = 0; i < punc_matrix.size().rows(); i++)
       {
       if (i > 0)
-         sout << "; ";
+         sout << ", ";
       for (int j = 0; j < punc_matrix.size().cols(); j++)
          sout << punc_matrix(i, j);
       }
-   sout << ")";
+   sout << "]";
    return sout.str();
    }
 
