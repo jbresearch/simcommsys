@@ -36,6 +36,7 @@ histogram<number>::histogram(const vector<number>& a, const number min_val,
    this->max_val = max_val;
    this->bins = bins;
    count.init(bins);
+   count = 0;
    // compute the histogram
    const number step = get_step();
    for (int i = 0; i < a.size(); i++)
