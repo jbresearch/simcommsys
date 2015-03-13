@@ -35,6 +35,14 @@
 
 namespace libcomm {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show histograms of probability tables
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
+
 // *** Templated Common Base ***
 
 // Internal functions
@@ -142,7 +150,11 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
    libbase::histogram2d hy(p, 0, 1, bins, 0, 1, bins);
    const libbase::matrix<double> fy = libbase::matrix<double>(hy.get_count())
          / double(N);
+#if DEBUG>=2
+   std::cerr << "DEBUG (exit): hy = " << hy.get_count();
+   std::cerr << "DEBUG (exit): N = " << N << std::endl;
    std::cerr << "DEBUG (exit): fy = " << fy;
+#endif
    // compute mutual information
    double I = 0;
    for (int d = 0; d < q; d++)
@@ -157,7 +169,9 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
       libbase::histogram2d hyd(pd, 0, 1, bins, 0, 1, bins);
       const libbase::matrix<double> fyd = libbase::matrix<double>(hyd.get_count())
             / double(Nd);
+#if DEBUG>=2
       std::cerr << "DEBUG (exit): fy(" << d << ") = " << fyd;
+#endif
       // accumulate mutual information
       for (int i = 0; i < bins; i++)
          for (int j = 0; j < bins; j++)
