@@ -109,6 +109,7 @@
 #include "mapper/map_straight.h"
 #include "mapper/map_interleaved.h"
 #include "mapper/map_permuted.h"
+#include "mapper/map_punctured.h"
 #include "mapper/map_stipple.h"
 #include "mapper/map_aggregating.h"
 #include "mapper/map_dividing.h"
@@ -215,6 +216,7 @@ private:
    map_straight<libbase::vector> _map_straight;
    map_interleaved<libbase::vector> _map_interleaved;
    map_permuted<libbase::vector> _map_permuted;
+   map_punctured<libbase::vector> _map_punctured;
    map_stipple<libbase::vector> _map_stipple;
    map_aggregating<libbase::vector> _map_aggregating;
    map_dividing<libbase::vector> _map_dividing;

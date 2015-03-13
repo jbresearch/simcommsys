@@ -19,45 +19,42 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __map_stipple_h
-#define __map_stipple_h
+#ifndef __map_punctured_h
+#define __map_punctured_h
 
 #include "mapper.h"
 
 namespace libcomm {
 
 /*!
- * \brief   Stipple Mapper - Template base.
+ * \brief   Punctured Mapper - Template base.
  * \author  Johann Briffa
  *
- * This class is a template definition for stipple mappers; this needs to
+ * This class is a template definition for punctured mappers; this needs to
  * be specialized for actual use. Template parameter defaults are provided
  * here.
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
-class map_stipple : public mapper<C, dbl> {
+class map_punctured : public mapper<C, dbl> {
 };
 
 /*!
- * \brief   Stipple Mapper - Vector containers.
+ * \brief   Punctured Mapper - Vector containers.
  * \author  Johann Briffa
  *
- * This class defines a punctured mapper suitable for turbo codes, where:
- * - all information symbols are transmitted
- * - parity symbols are taken from successive sets
- * This results in an overall rate of 1/2
- * For a two-set turbo code, this corresponds to odd/even puncturing.
- *
- * \todo Derive stipple mapper from punctured mapper, or remove completely
+ * This class defines a general punctured mapper where the puncturing matrix
+ * is directly specified by the user. This puncturing matrix is repeatedly
+ * applied to the encoded output, the length of which must be an exact
+ * multiple of the puncturing matrix size.
  */
 
 template <class dbl>
-class map_stipple<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+class map_punctured<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef mapper<libbase::vector, dbl> Base;
-   typedef map_stipple<libbase::vector, dbl> This;
+   typedef map_punctured<libbase::vector, dbl> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -67,7 +64,7 @@ public:
 
 private:
    /*! \name User-defined parameters */
-   int sets; //!< Number of turbo code parallel sets
+   libbase::matrix<bool> punc_matrix; //!< User-defined puncturing matrix
    // @}
    /*! \name Internal object representation */
    mutable libbase::vector<bool> pattern; //!< Pre-computed puncturing pattern
@@ -90,20 +87,29 @@ public:
    // Informative functions
    double rate() const
       {
-      return (sets + 1) / 2.0;
+      // shorthand for puncturing matrix rate (p of P)
+      const int p = libbase::matrix<int>(punc_matrix).sum();
+      const int P = punc_matrix.size();
+      // compute rate
+      return p / double(P);
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      const int tau = size.length() / (sets + 1);
-      assert(size.length() == tau * (sets + 1));
-      return libbase::size_type<libbase::vector>(tau * 2);
+      // shorthand for puncturing matrix rate (p of P)
+      const int p = libbase::matrix<int>(punc_matrix).sum();
+      const int P = punc_matrix.size();
+      // find out how many times the puncturing matrix fits
+      const int n = size.length() / P;
+      assert(size.length() == n * P);
+      // compute output block size
+      return libbase::size_type<libbase::vector>(n * p);
       }
 
    // Description
    std::string description() const;
 
    // Serialization Support
-DECLARE_SERIALIZER(map_stipple)
+DECLARE_SERIALIZER(map_punctured)
 };
 
 } // end namespace
