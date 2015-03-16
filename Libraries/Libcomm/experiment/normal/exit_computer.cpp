@@ -228,7 +228,7 @@ void exit_computer<S>::sample(array1d_t& result)
    // Perform soft-output decoding for as many iterations as required
    array1vd_t ri;
    array1vd_t ro;
-   for (int i = 0; i < sys->num_iter(); i++)
+   for (int i = 0; i < c.num_iter(); i++)
       c.softdecode(ri, ro);
    // Compute extrinsic information
    libbase::compute_extrinsic(ri, ri, priors);
