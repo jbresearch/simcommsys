@@ -232,6 +232,7 @@ void exit_computer<S>::sample(array1d_t& result)
       c.softdecode(ri, ro);
    // Compute extrinsic information
    libbase::compute_extrinsic(ri, ri, priors);
+   libbase::normalize_results(ri, ri);
 
    // compute results
    result(0) = compute_mutual_information(source, priors);
