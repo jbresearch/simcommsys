@@ -69,6 +69,10 @@ namespace libcomm {
  * \todo Standardize encoding/decoding of multiple symbols within a larger
  * symbol space; this parallels what was done in ccfsm.
  *
+ * \todo Refactor to use external normalization function
+ *
+ * \todo Refactor: extract work_extrinsic
+ *
  * \todo Remove redundant result vector initializations (these should happen
  * on the first call to a function where that vector is used as an
  * output).
