@@ -72,11 +72,9 @@ libbase::vector<int> exit_computer<S>::createsource()
  */
 template <class S>
 libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
-      const array1i_t& tx)
+      const array1i_t& tx, const int N, const int q)
    {
    // determine sizes
-   const int N = sys->getcodec()->input_block_size();
-   const int q = sys->getcodec()->num_inputs();
    const int k = int(log2(q));
    assert(tx.size() == N);
    assert(q == (1<<k));
@@ -286,8 +284,10 @@ void exit_computer<S>::sample(array1d_t& result)
          array1vd_t ptable_encoded;
          sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
 
-         // Create random priors
-         array1vd_t priors = createpriors(source);
+         // Create random priors for message sequence
+         const int N = sys->getcodec()->input_block_size();
+         const int q = sys->getcodec()->num_inputs();
+         array1vd_t priors = createpriors(source, N, q);
          // Translate (using given priors)
          codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
                libbase::vector>&>(*sys->getcodec());
@@ -303,6 +303,31 @@ void exit_computer<S>::sample(array1d_t& result)
 
          // compute results
          compute_results(source, priors, ri, result);
+         }
+         break;
+
+      case exit_serial_codec:
+         {
+         // Create random priors for encoded sequence
+         // (no need to do actual demodulation and inverse mapping)
+         const int N = sys->getcodec()->output_block_size();
+         const int q = sys->getcodec()->num_outputs();
+         array1vd_t priors = createpriors(encoded, N, q);
+         // Translate (using given priors)
+         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
+               libbase::vector>&>(*sys->getcodec());
+         c.init_decoder(priors);
+         // Perform soft-output decoding for as many iterations as required
+         array1vd_t ri;
+         array1vd_t ro;
+         for (int i = 0; i < c.num_iter(); i++)
+            c.softdecode(ri, ro);
+         // Compute extrinsic information
+         libbase::compute_extrinsic(ro, ro, priors);
+         libbase::normalize_results(ro, ro);
+
+         // compute results
+         compute_results(encoded, priors, ro, result);
          }
          break;
 

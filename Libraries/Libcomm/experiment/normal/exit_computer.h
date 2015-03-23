@@ -95,7 +95,7 @@ protected:
    // @}
    /*! \name Internal functions */
    array1i_t createsource();
-   array1vd_t createpriors(const array1i_t& tx);
+   array1vd_t createpriors(const array1i_t& tx, const int N, const int q);
    static double compute_mutual_information(const array1i_t& x,
          const array1vd_t& p);
    static void compute_statistics(const array1i_t& x, const array1vd_t& p,
