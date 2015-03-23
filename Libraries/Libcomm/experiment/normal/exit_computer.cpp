@@ -331,6 +331,40 @@ void exit_computer<S>::sample(array1d_t& result)
          }
          break;
 
+      case exit_serial_modem:
+         {
+         // Create random priors for mapped (demodulated) sequence
+         const int N = sys->getmodem()->input_block_size();
+         const int q = sys->getmodem()->num_symbols();
+         array1vd_t priors = createpriors(mapped, N, q);
+         // Demodulate
+         array1vd_t ptable_mapped;
+         informed_modulator<S>& m =
+               dynamic_cast<informed_modulator<S>&> (*sys->getmodem());
+         m.demodulate(*sys->getrxchan(), received, priors, ptable_mapped);
+         // Compute extrinsic information for passing to codec
+         libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors);
+         libbase::normalize_results(ptable_mapped, ptable_mapped);
+
+         // [technically we don't need to do any of the remaining steps]
+         // Inverse Map
+         array1vd_t ptable_encoded;
+         sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
+         // Translate (using given priors)
+         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
+               libbase::vector>&>(*sys->getcodec());
+         c.init_decoder(ptable_encoded);
+         // Perform soft-output decoding for as many iterations as required
+         array1vd_t ri;
+         array1vd_t ro;
+         for (int i = 0; i < c.num_iter(); i++)
+            c.softdecode(ri, ro);
+
+         // compute results
+         compute_results(mapped, priors, ptable_mapped, result);
+         }
+         break;
+
       default:
          failwith("Unknown EXIT chart type");
          break;
