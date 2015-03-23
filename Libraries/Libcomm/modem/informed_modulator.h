@@ -37,6 +37,8 @@ namespace libcomm {
  *
  * This interface is a superset of the regular blockmodem, defining two new
  * demodulation methods (atomic and vector) that make use of prior information.
+ *
+ * \todo Figure out whether atomic modem operations are really used anywhere
  */
 
 template <class S, template <class > class C = libbase::vector>
