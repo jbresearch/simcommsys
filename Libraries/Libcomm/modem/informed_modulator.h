@@ -43,6 +43,7 @@ template <class S, template <class > class C = libbase::vector>
 class informed_modulator : public blockmodem<S, C> {
 public:
    /*! \name Type definitions */
+   typedef blockmodem<S, C> Base;
    typedef libbase::vector<double> array1d_t;
    // @}
 protected:
@@ -92,6 +93,11 @@ public:
       this->mark_as_dirty();
       }
    // @}
+
+   // Block modem operations
+   // (necessary because overloaded methods hide those in templated base)
+   using Base::modulate;
+   using Base::demodulate;
 };
 
 } // end namespace

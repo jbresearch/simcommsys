@@ -42,6 +42,12 @@ const int lut_modulator::demodulate(const sigspace& signal) const
    return best_i;
    }
 
+const int lut_modulator::demodulate(const sigspace& signal, const array1d_t& app) const
+   {
+   failwith("Method not implemented");
+   return 0;
+   }
+
 // modulation/demodulation - vector operations
 
 void lut_modulator::domodulate(const int N,
@@ -72,6 +78,16 @@ void lut_modulator::dodemodulate(const channel<sigspace>& chan,
       tx(x) = this->modulate(x);
    // Work out the probabilities of each possible signal
    chan.receive(tx, rx, ptable);
+   }
+
+void lut_modulator::dodemodulate(const channel<sigspace>& chan,
+      const libbase::vector<sigspace>& rx,
+      const libbase::vector<array1d_t>& app, libbase::vector<array1d_t>& ptable)
+   {
+   // Do the demodulation step
+   dodemodulate(chan, rx, ptable);
+   // Factor in prior probabilities
+   ptable *= app;
    }
 
 // information functions

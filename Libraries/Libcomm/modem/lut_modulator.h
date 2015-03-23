@@ -22,7 +22,7 @@
 #ifndef __lut_modulator_h
 #define __lut_modulator_h
 
-#include "blockmodem.h"
+#include "informed_modulator.h"
 
 namespace libcomm {
 
@@ -31,10 +31,10 @@ namespace libcomm {
  * \author  Johann Briffa
  */
 
-class lut_modulator : public blockmodem<sigspace> {
+class lut_modulator : public informed_modulator<sigspace> {
 public:
    /*! \name Type definitions */
-   typedef blockmodem<sigspace> Base;
+   typedef informed_modulator<sigspace> Base;
    typedef libbase::vector<double> array1d_t;
    // @}
 
@@ -45,8 +45,13 @@ protected:
    // Interface with derived classes
    void domodulate(const int N, const libbase::vector<int>& encoded,
          libbase::vector<sigspace>& tx);
-   void dodemodulate(const channel<sigspace>& chan, const libbase::vector<
-         sigspace>& rx, libbase::vector<array1d_t>& ptable);
+   void dodemodulate(const channel<sigspace>& chan,
+         const libbase::vector<sigspace>& rx,
+         libbase::vector<array1d_t>& ptable);
+   void dodemodulate(const channel<sigspace>& chan,
+         const libbase::vector<sigspace>& rx,
+         const libbase::vector<array1d_t>& app,
+         libbase::vector<array1d_t>& ptable);
 
 public:
    /*! \name Constructors / Destructors */
@@ -62,8 +67,9 @@ public:
       return lut(index);
       }
    const int demodulate(const sigspace& signal) const;
+   const int demodulate(const sigspace& signal, const array1d_t& app) const;
 
-   // Block modem operations
+   // Informed modulator operations
    // (necessary because overloaded methods hide those in templated base)
    using Base::modulate;
    using Base::demodulate;
