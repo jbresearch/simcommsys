@@ -90,6 +90,7 @@ protected:
    array1i_t createsource();
    array1vd_t createpriors(const array1i_t& tx);
    static double compute_mutual_information(const array1i_t& x, const array1vd_t& p);
+   static void compute_statistics(const array1i_t& x, const array1vd_t& p, const int value, double& sigma, double& mu);
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -132,7 +133,7 @@ public:
    void sample(array1d_t& result);
    int count() const
       {
-      return 2;
+      return 10;
       }
    int get_multiplicity(int i) const
       {
@@ -147,6 +148,22 @@ public:
             return "I(input)";
          case 1:
             return "I(output)";
+         case 2:
+            return "𝜎(0,input)";
+         case 3:
+            return "𝜇(0,input)";
+         case 4:
+            return "𝜎(1,input)";
+         case 5:
+            return "𝜇(1,input)";
+         case 6:
+            return "𝜎(0,output)";
+         case 7:
+            return "𝜇(0,output)";
+         case 8:
+            return "𝜎(1,output)";
+         case 9:
+            return "𝜇(1,output)";
          }
       return ""; // This should never happen
       }

@@ -30,6 +30,7 @@
 #include "timer.h"
 #include "histogram.h"
 #include "histogram2d.h"
+#include "rvstatistics.h"
 #include <iostream>
 #include <sstream>
 
@@ -132,7 +133,8 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
  * I(X;Y) = ∑_x p(x) ∫_y f(y|x) . log₂ f(y|x)/f(y) dy
  */
 template <class S>
-double exit_computer<S>::compute_mutual_information(const array1i_t& x, const array1vd_t& p)
+double exit_computer<S>::compute_mutual_information(const array1i_t& x,
+      const array1vd_t& p)
    {
    // fixed parameters
    const int bins = 10;
@@ -181,6 +183,46 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x, const ar
             }
       }
    return I;
+   }
+
+/*!
+ * \brief Determine the distribution statistics for 'p' where the binary
+ *        decomposition of 'x' is equal to 'value'
+ * \param x The known transmitted sequence
+ * \param p The probability table at the receiving end p(y|x)
+ * \param value The conditional value for the transmitted sequence
+ * \param sigma The standard deviation of the distribution
+ * \param mu The mean of the distribution
+ *
+ * \todo adapt this to work with non-binary alphabets
+ */
+template <class S>
+void exit_computer<S>::compute_statistics(const array1i_t& x,
+      const array1vd_t& p, const int value, double& sigma, double& mu)
+   {
+   // determine sizes
+   const int N = p.size();
+   assert(N > 0);
+   const int q = p(0).size();
+   assert(q > 1);
+   assert(x.size() == N);
+   const int k = int(log2(q));
+   assert(q == (1<<k));
+   // iterate through each symbol in the table
+   assertalways(k == 1);
+   libbase::rvstatistics rv;
+   for (int i = 0; i < N; i++)
+      {
+      if(x(i) == value)
+         {
+         // compute LLR from probabilities
+         const double llr = log(p(i)(0)/p(i)(1));
+         rv.insert(llr);
+         }
+      }
+   // store results
+   sigma = rv.sigma();
+   mu = rv.mean();
    }
 
 // Experiment handling
@@ -237,6 +279,10 @@ void exit_computer<S>::sample(array1d_t& result)
    // compute results
    result(0) = compute_mutual_information(source, priors);
    result(1) = compute_mutual_information(source, ri);
+   compute_statistics(source, priors, 0, result(2), result(3));
+   compute_statistics(source, priors, 1, result(4), result(5));
+   compute_statistics(source, ri, 0, result(6), result(7));
+   compute_statistics(source, ri, 1, result(8), result(9));
    }
 
 // Description & Serialization
