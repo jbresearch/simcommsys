@@ -34,7 +34,7 @@ void experiment::prettyprint_results(std::ostream& sout, const libbase::vector<
       sout << result_description(i) << '\t';
       sout << result(i) << '\t';
       sout << "[±" << errormargin(i) << " = ";
-      sout << 100 * errormargin(i) / result(i) << "%]" << std::endl;
+      sout << fabs(100 * errormargin(i) / result(i)) << "%]" << std::endl;
       }
    }
 

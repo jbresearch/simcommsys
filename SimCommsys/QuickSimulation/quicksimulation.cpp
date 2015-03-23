@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
                {
                cout << system->result_description(j) << '\t';
                cout << setprecision(6) << estimate(j);
-               cout << "\t[±" << setprecision(3) << 100 * errormargin(j)
-                     / estimate(j) << "%]";
+               cout << "\t[±" << setprecision(3)
+                     << fabs(100 * errormargin(j) / estimate(j)) << "%]";
                cout << std::endl;
                }
 
