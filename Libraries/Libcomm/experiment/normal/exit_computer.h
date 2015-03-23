@@ -56,11 +56,18 @@ public:
    typedef libbase::vector<S> array1s_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
+   enum exit_t {
+      exit_parallel_codec = 0, //!< parallel concatenated code, codec object
+      exit_serial_codec, //!< serial concatenated code, codec object
+      exit_serial_modem, //!< serial concatenated code, modem object
+      exit_undefined
+   };
    // @}
 
 protected:
 /*! \name User-defined parameters */
    commsys<S> *sys; //!< Communication systems
+   exit_t exit_type; //!< enum indicating storage mode for gamma metric
    double sigma; //!< Sigma value to use when generating binary priors
    // @}
    /*! \name Internally-used objects */

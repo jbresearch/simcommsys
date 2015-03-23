@@ -239,6 +239,7 @@ void exit_computer<S>::sample(array1d_t& result)
    // Initialise result vector
    result.init(count());
    result = 0;
+
    // Create source stream
    const array1i_t source = createsource();
    // Encode
@@ -291,8 +292,26 @@ template <class S>
 std::string exit_computer<S>::description() const
    {
    std::ostringstream sout;
-   sout << "EXIT Chart Computer for ";
-   sout << sys->description();
+   sout << "EXIT Chart Computer for " << sys->description() << ", ";
+   // EXIT chart type
+   switch(exit_type)
+      {
+      case exit_parallel_codec:
+         sout << "parallel concatenated codec";
+         break;
+
+      case exit_serial_codec:
+         sout << "serial concatenated codec";
+         break;
+
+      case exit_serial_modem:
+         sout << "serial concatenated modem";
+         break;
+
+      default:
+         failwith("Unknown EXIT chart type");
+         break;
+      }
    // system parameter
    const double p = sys->gettxchan()->get_parameter();
    assert(p == sys->getrxchan()->get_parameter());
@@ -308,6 +327,8 @@ std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
    // format version
    sout << "# Version" << std::endl;
    sout << 1 << std::endl;
+   sout << "# EXIT chart type (0=parallel/codec, 1=serial/codec, 2=serial/modem)" << std::endl;
+   sout << exit_type << std::endl;
    // system parameter
    const double p = sys->gettxchan()->get_parameter();
    assert(p == sys->getrxchan()->get_parameter());
@@ -332,6 +353,10 @@ std::istream& exit_computer<S>::serialize(std::istream& sin)
    // get format version
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;
+   // read type of EXIT chart to compute
+   int temp;
+   sin >> libbase::eatcomments >> temp >> libbase::verify;
+   exit_type = (exit_t) temp;
    // get system parameter
    double p;
    sin >> libbase::eatcomments >> p >> libbase::verify;
