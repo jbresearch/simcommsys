@@ -96,8 +96,12 @@ protected:
    /*! \name Internal functions */
    array1i_t createsource();
    array1vd_t createpriors(const array1i_t& tx);
-   static double compute_mutual_information(const array1i_t& x, const array1vd_t& p);
-   static void compute_statistics(const array1i_t& x, const array1vd_t& p, const int value, double& sigma, double& mu);
+   static double compute_mutual_information(const array1i_t& x,
+         const array1vd_t& p);
+   static void compute_statistics(const array1i_t& x, const array1vd_t& p,
+         const int value, double& sigma, double& mu);
+   static void compute_results(const array1i_t& x, const array1vd_t& pin,
+         const array1vd_t& pout, array1d_t& result);
    // @}
 public:
    /*! \name Constructors / Destructors */

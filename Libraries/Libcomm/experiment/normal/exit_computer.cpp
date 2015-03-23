@@ -225,6 +225,27 @@ void exit_computer<S>::compute_statistics(const array1i_t& x,
    mu = rv.mean();
    }
 
+/*!
+ * \brief Calculate results
+ * \param x The known transmitted sequence
+ * \param pin The prior probability table
+ * \param pout The posterior probability table
+ * \param result The vector of results
+ */
+template <class S>
+void exit_computer<S>::compute_results(const array1i_t& x,
+      const array1vd_t& pin, const array1vd_t& pout, array1d_t& result)
+   {
+   assert(result.size() == 10);
+   // Compute results
+   result(0) = compute_mutual_information(x, pin);
+   result(1) = compute_mutual_information(x, pout);
+   compute_statistics(x, pin, 0, result(2), result(3));
+   compute_statistics(x, pin, 1, result(4), result(5));
+   compute_statistics(x, pout, 0, result(6), result(7));
+   compute_statistics(x, pout, 1, result(8), result(9));
+   }
+
 // Experiment handling
 
 /*!
@@ -238,7 +259,6 @@ void exit_computer<S>::sample(array1d_t& result)
    {
    // Initialise result vector
    result.init(count());
-   result = 0;
 
    // Create source stream
    const array1i_t source = createsource();
@@ -255,35 +275,41 @@ void exit_computer<S>::sample(array1d_t& result)
    // Transmit
    const array1s_t received = sys->transmit(transmitted);
 
-   // Demodulate
-   array1vd_t ptable_mapped;
-   sys->getmodem()->demodulate(*sys->getrxchan(), received, ptable_mapped);
-   // Inverse Map
-   array1vd_t ptable_encoded;
-   sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
+   switch(exit_type)
+      {
+      case exit_parallel_codec:
+         {
+         // Demodulate
+         array1vd_t ptable_mapped;
+         sys->getmodem()->demodulate(*sys->getrxchan(), received, ptable_mapped);
+         // Inverse Map
+         array1vd_t ptable_encoded;
+         sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
 
-   // Create random priors
-   array1vd_t priors = createpriors(source);
-   // Translate (using given priors)
-   codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
-         libbase::vector>&>(*sys->getcodec());
-   c.init_decoder(ptable_encoded, priors);
-   // Perform soft-output decoding for as many iterations as required
-   array1vd_t ri;
-   array1vd_t ro;
-   for (int i = 0; i < c.num_iter(); i++)
-      c.softdecode(ri, ro);
-   // Compute extrinsic information
-   libbase::compute_extrinsic(ri, ri, priors);
-   libbase::normalize_results(ri, ri);
+         // Create random priors
+         array1vd_t priors = createpriors(source);
+         // Translate (using given priors)
+         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
+               libbase::vector>&>(*sys->getcodec());
+         c.init_decoder(ptable_encoded, priors);
+         // Perform soft-output decoding for as many iterations as required
+         array1vd_t ri;
+         array1vd_t ro;
+         for (int i = 0; i < c.num_iter(); i++)
+            c.softdecode(ri, ro);
+         // Compute extrinsic information
+         libbase::compute_extrinsic(ri, ri, priors);
+         libbase::normalize_results(ri, ri);
 
-   // compute results
-   result(0) = compute_mutual_information(source, priors);
-   result(1) = compute_mutual_information(source, ri);
-   compute_statistics(source, priors, 0, result(2), result(3));
-   compute_statistics(source, priors, 1, result(4), result(5));
-   compute_statistics(source, ri, 0, result(6), result(7));
-   compute_statistics(source, ri, 1, result(8), result(9));
+         // compute results
+         compute_results(source, priors, ri, result);
+         }
+         break;
+
+      default:
+         failwith("Unknown EXIT chart type");
+         break;
+      }
    }
 
 // Description & Serialization
