@@ -179,8 +179,6 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
  * \param value The conditional value for the transmitted sequence
  * \param sigma The standard deviation of the distribution
  * \param mu The mean of the distribution
- *
- * \todo adapt this to work with non-binary alphabets
  */
 template <class S>
 void exit_computer<S>::compute_statistics(const array1i_t& x,
