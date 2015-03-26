@@ -108,11 +108,11 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
    }
 
 /*!
- * \brief Determine the mutual information between x and p
- * \param x The known transmitted sequence
- * \param p The probability table at the receiving end p(y|x)
+ * \brief Determine the mutual information between x and y
+ * \param x A sequence of symbols {x_i} where x_i ∈ 𝔽_q and 0 ≤ i < N
+ * \param y A table of probabilities {y_i} where y_i = [y_i1, y_i2, ... y_iq]
  *
- * For a transmitted sequence X = {x_i} where x_i ∈ 𝔽_q and prior or posterior
+ * For a sequence of symbols X = {x_i} where x_i ∈ 𝔽_q and prior or posterior
  * probabilities Y = {y_i} where y_i = [y_i1, y_i2, ... y_iq] and
  * y_ij = Pr{x_i = j} or Pr{R | x_i = j} where R is the received sequence
  *
@@ -120,14 +120,14 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
  */
 template <class S>
 double exit_computer<S>::compute_mutual_information(const array1i_t& x,
-      const array1vd_t& p)
+      const array1vd_t& y)
    {
    // fixed parameters
    const int bins = 10;
    // determine sizes
-   const int N = p.size();
+   const int N = y.size();
    assert(N > 0);
-   const int q = p(0).size();
+   const int q = y(0).size();
    assert(q > 1);
    assert(x.size() == N);
    // estimate probability density of input
@@ -135,7 +135,7 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
    const libbase::vector<double> fx = libbase::vector<double>(hx.get_count())
          / double(N);
    // estimate probability density of unconditional prior/posterior probabilities
-   libbase::histogram2d hy(p, 0, 1, bins, 0, 1, bins);
+   libbase::histogram2d hy(y, 0, 1, bins, 0, 1, bins);
    const libbase::matrix<double> fy = libbase::matrix<double>(hy.get_count())
          / double(N);
 #if DEBUG>=2
@@ -149,7 +149,7 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
       {
       // extract elements where input was equal to 'd'
       const libbase::vector<bool> mask = (x == d);
-      const array1vd_t pd = p.mask(mask);
+      const array1vd_t pd = y.mask(mask);
       // determine number of elements
       const int Nd = pd.size();
       assert(Nd > 0);

@@ -97,7 +97,7 @@ protected:
    array1i_t createsource();
    array1vd_t createpriors(const array1i_t& tx, const int N, const int q);
    static double compute_mutual_information(const array1i_t& x,
-         const array1vd_t& p);
+         const array1vd_t& y);
    static void compute_statistics(const array1i_t& x, const array1vd_t& p,
          const int value, double& sigma, double& mu);
    static void compute_results(const array1i_t& x, const array1vd_t& pin,
