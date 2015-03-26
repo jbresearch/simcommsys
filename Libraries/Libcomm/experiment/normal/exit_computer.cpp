@@ -30,7 +30,7 @@
 #include "secant.h"
 #include "timer.h"
 #include "histogram.h"
-#include "histogram2d.h"
+#include "histogram_nd_flat.h"
 #include "rvstatistics.h"
 #include <iostream>
 #include <sstream>
@@ -135,8 +135,8 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
    const libbase::vector<double> fx = libbase::vector<double>(hx.get_count())
          / double(N);
    // estimate probability density of unconditional prior/posterior probabilities
-   libbase::histogram2d hy(y, 0, 1, bins, 0, 1, bins);
-   const libbase::matrix<double> fy = libbase::matrix<double>(hy.get_count())
+   libbase::histogram_nd_flat hy(y, q, 0, 1, bins);
+   const libbase::vector<double> fy = libbase::vector<double>(hy.get_count())
          / double(N);
 #if DEBUG>=2
    std::cerr << "DEBUG (exit): hy = " << hy.get_count();
@@ -154,19 +154,18 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
       const int Nd = pd.size();
       assert(Nd > 0);
       // estimate probability density of conditional prior/posterior probabilities
-      libbase::histogram2d hyd(pd, 0, 1, bins, 0, 1, bins);
-      const libbase::matrix<double> fyd = libbase::matrix<double>(hyd.get_count())
-            / double(Nd);
+      libbase::histogram_nd_flat hyd(pd, q, 0, 1, bins);
+      const libbase::vector<double> fyd = libbase::vector<double>(
+            hyd.get_count()) / double(Nd);
 #if DEBUG>=2
       std::cerr << "DEBUG (exit): fy(" << d << ") = " << fyd;
 #endif
       // accumulate mutual information
-      for (int i = 0; i < bins; i++)
-         for (int j = 0; j < bins; j++)
-            {
-            if (fyd(i, j) > 0 && fy(i, j) > 0)
-               I += fx(d) * fyd(i, j) * log2(fyd(i, j) / fy(i, j));
-            }
+      for (int i = 0; i < fy.size(); i++)
+         {
+         if (fyd(i) > 0 && fy(i) > 0)
+            I += fx(d) * fyd(i) * log2(fyd(i) / fy(i));
+         }
       }
    return I;
    }
