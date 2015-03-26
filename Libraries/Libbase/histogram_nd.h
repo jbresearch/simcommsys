@@ -41,16 +41,27 @@ namespace libbase {
 
 template <int dims>
 class histogram_nd {
+public:
+   /*! \name Type definitions */
    typedef boost::assignable_multi_array<int, dims> array_ni;
+   // @}
+
+private:
+   /*! \name User-defined parameters */
    double min; //!< The left edge of the first bin in each dimension
    double max; //!< The right edge of the last bin in each dimension
    int bins; //!< The number of bins in each dimension
+   // @}
+   /*! \name Internal state */
    array_ni count; //!< The occurrence count for each bin
+   // @}
+
 private:
    double get_step() const
       {
       return (max - min) / double(bins);
       }
+
 public:
    //! Principal constructor
    histogram_nd(const vector<vector<double> >& a, const double min,
