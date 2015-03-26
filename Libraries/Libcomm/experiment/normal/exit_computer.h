@@ -65,7 +65,7 @@ public:
    // @}
 
 protected:
-/*! \name User-defined parameters */
+   /*! \name User-defined parameters */
    commsys<S> *sys; //!< Communication systems
    exit_t exit_type; //!< enum indicating storage mode for gamma metric
    double sigma; //!< Sigma value to use when generating binary priors
