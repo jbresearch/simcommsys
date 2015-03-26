@@ -24,6 +24,7 @@
 #include "modem/informed_modulator.h"
 #include "codec/codec_softout.h"
 #include "vector_itfunc.h"
+#include "symbol_converter.h"
 #include "fsm.h"
 #include "itfunc.h"
 #include "secant.h"
@@ -206,15 +207,20 @@ void exit_computer<S>::compute_statistics(const array1i_t& x,
    assert(x.size() == N);
    const int k = int(log2(q));
    assert(q == (1<<k));
-   // iterate through each symbol in the table
-   assertalways(k == 1);
+   // obtain binary decomposition of symbols and probabilities
+   array1i_t xb;
+   array1vd_t pb;
+   libbase::symbol_converter<double, double> converter(2, q);
+   converter.divide_symbols(x, xb);
+   converter.divide_probabilities(p, pb);
+   // iterate through each bit in the table
    libbase::rvstatistics rv;
-   for (int i = 0; i < N; i++)
+   for (int i = 0; i < k * N; i++)
       {
-      if(x(i) == value)
+      if(xb(i) == value)
          {
          // compute LLR from probabilities
-         const double llr = log(p(i)(0)/p(i)(1));
+         const double llr = log(pb(i)(0)/pb(i)(1));
          rv.insert(llr);
          }
       }
