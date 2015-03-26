@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "mapper/map_straight.h"
+#include "symbol_converter.h"
 #include "vectorutils.h"
 #include "hard_decision.h"
 
@@ -188,7 +189,7 @@ void codec_softout_mapped<base_codec_softout, dbl>::softdecode(
    // Convert
    const int N = Base::num_outputs(); // # enc outputs
    const int M = This::num_outputs(); // # mod symbols
-   const int s1 = mapper<>::get_rate(M, N);
+   const int s1 = libbase::symbol_converter<>::get_rate(M, N);
    for (int t = 0; t < ro_wide.size(); t++)
       for (int x = 0; x < ro_wide(t).size(); x++)
          for (int i = 0, thisx = x; i < s1; i++, thisx /= M)

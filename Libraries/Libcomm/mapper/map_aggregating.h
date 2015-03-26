@@ -23,6 +23,7 @@
 #define __map_aggregating_h
 
 #include "mapper.h"
+#include "symbol_converter.h"
 
 namespace libcomm {
 
@@ -48,6 +49,10 @@ class map_aggregating : public mapper<C, dbl> {
  * This class defines an aggregating symbol mapper; this is a rate-1 mapper
  * for cases where each modulation symbol encodes more than one encoder symbol.
  * For example, it will allow the use of binary codecs on q-ary modulators.
+ *
+ * \note Each modulation symbol must be representable by an integral number
+ * of encoder outputs; additionally, the encoder output sequence must be
+ * representable by an integral number of modulation symbols.
  */
 
 template <class dbl, class dbl2>
@@ -63,24 +68,8 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
-private:
-   /*! \name Internal object representation */
-   int k; //!< Number of encoder output symbols per blockmodem symbol
-   // @}
-
 protected:
    // Interface with mapper
-   /*! \copydoc mapper::setup()
-    *
-    * \note Each modulation symbol must be representable by an integral number
-    * of encoder outputs; additionally, the encoder output sequence must be
-    * representable by an integral number of modulation symbols.
-    */
-   void setup()
-      {
-      k = this->get_rate(Base::q, Base::M);
-      assertalways(this->input_block_size() == output_block_size() * k);
-      }
    void dotransform(const array1i_t& in, array1i_t& out) const;
    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
    void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
@@ -89,6 +78,9 @@ public:
    // Informative functions
    libbase::size_type<libbase::vector> output_block_size() const
       {
+      const int k = libbase::symbol_converter<dbl, dbl2>::get_rate(Base::q,
+            Base::M);
+      assertalways(this->size % k == 0);
       return libbase::size_type<libbase::vector>(this->size / k);
       }
 

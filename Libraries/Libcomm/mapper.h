@@ -103,20 +103,6 @@ public:
       }
    // @}
 
-   /*! \name Helper functions */
-   /*!
-    * \brief Determines the number of input symbols per output symbol
-    * \param[in]  input    Alphabet size for input
-    * \param[in]  output   Alphabet size for output
-    */
-   static int get_rate(const int input, const int output)
-      {
-      const int s = int(round(log(double(output)) / log(double(input))));
-      assertalways(output == pow(input,s));
-      return s;
-      }
-   // @}
-
    /*! \name Vector mapper operations */
    /*!
     * \brief Transform a encoder output sequence to blockmodem input (N->M)

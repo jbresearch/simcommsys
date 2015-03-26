@@ -23,6 +23,7 @@
 #define __map_dividing_h
 
 #include "mapper.h"
+#include "symbol_converter.h"
 
 namespace libcomm {
 
@@ -49,6 +50,9 @@ class map_dividing : public mapper<C, dbl> {
  * cases where each encoder symbol is represented by more than one modulation
  * symbol. For example, it will allow the use of q-ary codecs on binary
  * modulators.
+ *
+ * \note Each encoder output symbol must be representable by an integral
+ * number of modulation symbols
  */
 
 template <class dbl, class dbl2>
@@ -64,22 +68,8 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    // @}
 
-private:
-   /*! \name Internal object representation */
-   int k; //!< Number of blockmodem symbols per encoder output symbol
-   // @}
-
 protected:
    // Interface with mapper
-   /*! \copydoc mapper::setup()
-    *
-    * \note Each encoder output symbol must be representable by an integral
-    * number of modulation symbols
-    */
-   void setup()
-      {
-      k = this->get_rate(Base::M, Base::q);
-      }
    void dotransform(const array1i_t& in, array1i_t& out) const;
    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
    void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
@@ -88,6 +78,8 @@ public:
    // Informative functions
    libbase::size_type<libbase::vector> output_block_size() const
       {
+      const int k = libbase::symbol_converter<dbl, dbl2>::get_rate(Base::M,
+            Base::q);
       return libbase::size_type<libbase::vector>(this->size * k);
       }
 
