@@ -68,8 +68,10 @@ libbase::vector<int> exit_computer<S>::createsource()
 
 /*!
  * \brief Create table of Gaussian-distributed priors
- * \param[out] priors Table of Gaussian-distributed priors for given input
- * \param[in] tx Vector of transmitted symbols
+ * \param[out] priors   Table of Gaussian-distributed priors for given input
+ * \param[in] tx        Vector of transmitted symbols
+ * \param[in] N         Required length of sequence of priors
+ * \param[in] q         Alphabet size
  */
 template <class S>
 libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
@@ -77,46 +79,31 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
    {
    // determine sizes
    const int k = int(log2(q));
-   assert(tx.size() == N);
    assert(q == (1<<k));
-   // allocate space for results
-   array1vd_t priors;
-   libbase::allocate(priors, N, q);
-   // allocate space for temporary binary LLRs
-   array1d_t llr(k);
+   assert(tx.size() == N);
    // constants
    const double mu = sigma * sigma / 2;
-   // determine random priors
-   for (int i = 0; i < N; i++)
+   // convert transmitted sequence to binary
+   array1i_t tx_b;
+   libbase::symbol_converter<double, double> converter(2, q);
+   converter.divide_symbols(tx, tx_b);
+   // allocate space for binary results
+   array1vd_t priors_b;
+   libbase::allocate(priors_b, N * k, 2);
+   // determine random binary priors
+   for (int i = 0; i < N * k; i++)
       {
-      const int cw = tx(i);
-      assert(cw >= 0 && cw < q);
-      // generate random LLRs (for given codeword)
-      // Note: i. LLR is interpreted as ln(Pr(0)/Pr(1))
-      //       ii. vector is given lsb first
-      for (int j = 0; j < k; j++)
-         {
-         llr(j) = src.gval(sigma);
-         if ((cw & (1 << j)) == 0)
-            llr(j) += mu;
-         else
-            llr(j) -= mu;
-         }
-      // determine non-binary priors from binary ones
-      for (int d = 0; d < q; d++)
-         {
-         double p = 1;
-         for (int j = 0; j < k; j++)
-            {
-            const double lr = exp(llr(j)); // = p0/p1 = p0/(1-p0) = (1-p1)/p1
-            if ((d & (1 << j)) == 0)
-               p *= lr / (1 + lr); // = p0
-            else
-               p *= 1 / (1 + lr); // = p1
-            }
-         priors(i)(d) = p;
-         }
+      // generate random LLR for given bit
+      // Note: LLR is interpreted as ln(Pr(0)/Pr(1))
+      const double llr = src.gval(sigma) + (tx_b(i) == 0 ? mu : -mu);
+      // determine binary priors from LLR
+      const double lr = exp(llr); // = p0/p1 = p0/(1-p0) = (1-p1)/p1
+      priors_b(i)(0) = lr / (1 + lr); // = p0
+      priors_b(i)(1) = 1 / (1 + lr); // = p1
       }
+   // convert priors to non-binary
+   array1vd_t priors;
+   converter.aggregate_probabilities(priors_b, priors);
    return priors;
    }
 
