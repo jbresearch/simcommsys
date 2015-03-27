@@ -39,22 +39,37 @@ namespace libbase {
 
 template <class number>
 class histogram {
+   /*! \name User-defined parameters */
    number min_val; //!< The left edge of the first bin
    number max_val; //!< The right edge of the last bin
    int bins; //!< The number of bins
+   // @}
+   /*! \name Internal state */
    vector<int> count; //!< The occurrence count for each bin
+   int N; //! The total number of occurrences over all bins
+   // @}
+
 private:
    number get_step() const
       {
       return (max_val - min_val) / number(bins);
       }
+
 public:
    //! Principal constructor
    histogram(const vector<number>& a, const number min_val,
          const number max_val, const int bins);
-   const vector<int>& get_count()
+   //! Returns the absolute frequency count for each bin
+   const vector<int>& get_frequency()
       {
       return count;
+      }
+   //! Returns the relative frequency (empirical probability) for each bin
+   const vector<double> get_probability()
+      {
+      vector<double> result(count);
+      result /= double(N);
+      return result;
       }
    const vector<number> get_bin_edges();
    const vector<number> get_bin_centres();

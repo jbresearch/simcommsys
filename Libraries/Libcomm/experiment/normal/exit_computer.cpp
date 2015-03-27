@@ -125,22 +125,17 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
    // fixed parameters
    const int bins = 10;
    // determine sizes
-   const int N = y.size();
-   assert(N > 0);
+   assert(y.size() > 0);
    const int q = y(0).size();
    assert(q > 1);
-   assert(x.size() == N);
+   assert(x.size() == y.size());
    // estimate probability density of input
    libbase::histogram<int> hx(x, 0, q, q);
-   const libbase::vector<double> fx = libbase::vector<double>(hx.get_count())
-         / double(N);
+   const libbase::vector<double> fx = hx.get_probability();
    // estimate probability density of unconditional prior/posterior probabilities
    libbase::histogram_nd_flat hy(y, q, 0, 1, bins);
-   const libbase::vector<double> fy = libbase::vector<double>(hy.get_count())
-         / double(N);
+   const libbase::vector<double> fy = hy.get_probability();
 #if DEBUG>=2
-   std::cerr << "DEBUG (exit): hy = " << hy.get_count();
-   std::cerr << "DEBUG (exit): N = " << N << std::endl;
    std::cerr << "DEBUG (exit): fy = " << fy;
 #endif
    // compute mutual information
@@ -150,13 +145,9 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
       // extract elements where input was equal to 'd'
       const libbase::vector<bool> mask = (x == d);
       const array1vd_t pd = y.mask(mask);
-      // determine number of elements
-      const int Nd = pd.size();
-      assert(Nd > 0);
       // estimate probability density of conditional prior/posterior probabilities
       libbase::histogram_nd_flat hyd(pd, q, 0, 1, bins);
-      const libbase::vector<double> fyd = libbase::vector<double>(
-            hyd.get_count()) / double(Nd);
+      const libbase::vector<double> fyd = hyd.get_probability();
 #if DEBUG>=2
       std::cerr << "DEBUG (exit): fy(" << d << ") = " << fyd;
 #endif

@@ -40,6 +40,7 @@ histogram_nd_flat::histogram_nd_flat(const vector<vector<double> >& a,
       size *= bins;
    count.init(size);
    count = 0;
+   N = 0;
    // compute the histogram_nd_flat
    const double step = get_step();
    for (int i = 0; i < a.size(); i++)
@@ -48,11 +49,11 @@ histogram_nd_flat::histogram_nd_flat(const vector<vector<double> >& a,
       int idx = 0;
       for (int j = 0; j < dims; j++)
          {
-         const int idx_j = limit<int>(floor((a(i)(j) - min) / step), 0,
-               bins - 1);
-         idx = idx * bins + idx_j;
+         const int idx_j = int(floor((a(i)(j) - min) / step));
+         idx = idx * bins + limit<int>(idx_j, 0, bins - 1);
          }
       count(idx)++;
+      N++;
       }
    }
 

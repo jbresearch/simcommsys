@@ -47,6 +47,7 @@ private:
    // @}
    /*! \name Internal state */
    vector<int> count; //!< The occurrence count for each bin as a flat array
+   int N; //! The total number of occurrences over all bins
    // @}
 
 private:
@@ -59,9 +60,17 @@ public:
    //! Principal constructor
    histogram_nd_flat(const vector<vector<double> >& a, const int dims,
          const double min, const double max, const int bins);
-   const vector<int>& get_count()
+   //! Returns the absolute frequency count for each bin
+   const vector<int>& get_frequency()
       {
       return count;
+      }
+   //! Returns the relative frequency (empirical probability) for each bin
+   const vector<double> get_probability()
+      {
+      vector<double> result(count);
+      result /= double(N);
+      return result;
       }
    const vector<double> get_bin_edges();
    const vector<double> get_bin_centres();

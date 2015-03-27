@@ -42,6 +42,7 @@ histogram2d::histogram2d(const vector<vector<double> >& a, const double min_x,
    this->bins_y = bins_y;
    count.init(bins_x, bins_y);
    count = 0;
+   N = 0;
    // compute the histogram2d
    const double step_x = get_step_x();
    const double step_y = get_step_y();
@@ -51,6 +52,7 @@ histogram2d::histogram2d(const vector<vector<double> >& a, const double min_x,
       const int x = int(floor((a(i)(0) - min_x) / step_x));
       const int y = int(floor((a(i)(1) - min_y) / step_y));
       count(limit<int>(x, 0, bins_x - 1), limit<int>(y, 0, bins_y - 1))++;
+      N++;
       }
    }
 

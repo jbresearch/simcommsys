@@ -66,7 +66,8 @@ public:
    //! Principal constructor
    histogram_nd(const vector<vector<double> >& a, const double min,
          const double max, const int bins);
-   const array_ni& get_count()
+   //! Returns the absolute frequency count for each bin
+   const array_ni& get_frequency()
       {
       return count;
       }
