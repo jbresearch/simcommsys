@@ -29,8 +29,6 @@
 #include "itfunc.h"
 #include "secant.h"
 #include "timer.h"
-#include "histogram.h"
-#include "histogram_nd_flat.h"
 #include "rvstatistics.h"
 #include <iostream>
 #include <sstream>
@@ -39,7 +37,6 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show histograms of probability tables
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -122,43 +119,21 @@ template <class S>
 double exit_computer<S>::compute_mutual_information(const array1i_t& x,
       const array1vd_t& y)
    {
-   // fixed parameters
-   const int bins = 10;
    // determine sizes
-   assert(y.size() > 0);
+   const int N = y.size();
+   assert(N > 0);
    const int q = y(0).size();
    assert(q > 1);
    assert(x.size() == y.size());
-   // estimate probability density of input
-   libbase::histogram<int> hx(x, 0, q, q);
-   const libbase::vector<double> fx = hx.get_probability();
-   // estimate probability density of unconditional prior/posterior probabilities
-   libbase::histogram_nd_flat hy(y, q, 0, 1, bins);
-   const libbase::vector<double> fy = hy.get_probability();
-#if DEBUG>=2
-   std::cerr << "DEBUG (exit): fy = " << fy;
-#endif
    // compute mutual information
    double I = 0;
-   for (int d = 0; d < q; d++)
+   for (int i = 0; i < N; i++)
       {
-      // extract elements where input was equal to 'd'
-      const libbase::vector<bool> mask = (x == d);
-      const array1vd_t pd = y.mask(mask);
-      // estimate probability density of conditional prior/posterior probabilities
-      libbase::histogram_nd_flat hyd(pd, q, 0, 1, bins);
-      const libbase::vector<double> fyd = hyd.get_probability();
-#if DEBUG>=2
-      std::cerr << "DEBUG (exit): fy(" << d << ") = " << fyd;
-#endif
-      // accumulate mutual information
-      for (int i = 0; i < fy.size(); i++)
-         {
-         if (fyd(i) > 0 && fy(i) > 0)
-            I += fx(d) * fyd(i) * log2(fyd(i) / fy(i));
-         }
+      const int d = x(i);
+      if (y(i)(d) > 0)
+         I += log2(y(i).sum() / y(i)(d));
       }
-   return I;
+   return log2(q) - I / double(N);
    }
 
 /*!
