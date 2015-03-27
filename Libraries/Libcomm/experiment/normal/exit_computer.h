@@ -46,6 +46,9 @@ namespace libcomm {
  * decoder. The mutual information at the input and output of the second stage
  * decoder are computed and returned as results. The process is repeated with
  * the decoders swapped.
+ *
+ * \todo Add serialization setting to indicate what type of results to compute
+ * (e.g. straight mutual information, sigma/mu of binary representation, etc)
  */
 
 template <class S>
