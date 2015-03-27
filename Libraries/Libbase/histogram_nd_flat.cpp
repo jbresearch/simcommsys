@@ -24,6 +24,14 @@
 
 namespace libbase {
 
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Show memory allocation requirements
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 2
+#endif
+
 histogram_nd_flat::histogram_nd_flat(const vector<vector<double> >& a,
       const int dims, const double min, const double max, const int bins)
    {
@@ -38,6 +46,10 @@ histogram_nd_flat::histogram_nd_flat(const vector<vector<double> >& a,
    int size = 1;
    for (int j = 0; j < dims; j++)
       size *= bins;
+#if DEBUG>=2
+   std::cerr << "DEBUG (histogram_nd_flat): memory required = "
+         << (size * sizeof(int) >> 20) << "MiB" << std::endl;
+#endif
    count.init(size);
    count = 0;
    N = 0;
