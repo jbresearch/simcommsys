@@ -188,16 +188,19 @@ void exit_computer<S>::compute_statistics(const array1i_t& x,
  */
 template <class S>
 void exit_computer<S>::compute_results(const array1i_t& x,
-      const array1vd_t& pin, const array1vd_t& pout, array1d_t& result)
+      const array1vd_t& pin, const array1vd_t& pout, array1d_t& result) const
    {
-   assert(result.size() == 10);
+   assert(result.size() == count());
    // Compute results
    result(0) = compute_mutual_information(x, pin);
    result(1) = compute_mutual_information(x, pout);
-   compute_statistics(x, pin, 0, result(2), result(3));
-   compute_statistics(x, pin, 1, result(4), result(5));
-   compute_statistics(x, pout, 0, result(6), result(7));
-   compute_statistics(x, pout, 1, result(8), result(9));
+   if (compute_llr_statistics)
+      {
+      compute_statistics(x, pin, 0, result(2), result(3));
+      compute_statistics(x, pin, 1, result(4), result(5));
+      compute_statistics(x, pout, 0, result(6), result(7));
+      compute_statistics(x, pout, 1, result(8), result(9));
+      }
    }
 
 // Experiment handling
@@ -367,9 +370,11 @@ std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
    {
    // format version
    sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
+   sout << 2 << std::endl;
    sout << "# EXIT chart type (0=parallel/codec, 1=serial/codec, 2=serial/modem)" << std::endl;
    sout << exit_type << std::endl;
+   sout << "# Compute binary LLR statistics?" << std::endl;
+   sout << compute_llr_statistics << std::endl;
    // system parameter
    const double p = sys->gettxchan()->get_parameter();
    assert(p == sys->getrxchan()->get_parameter());
@@ -384,6 +389,8 @@ std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
 
 /*!
  * \version 1 Initial version
+ *
+ * \version 2 Added flag for computing binary LLR statistics
  */
 
 template <class S>
@@ -398,6 +405,11 @@ std::istream& exit_computer<S>::serialize(std::istream& sin)
    int temp;
    sin >> libbase::eatcomments >> temp >> libbase::verify;
    exit_type = (exit_t) temp;
+   // get switch for computing binary LLR statistics
+   if (version >= 2)
+      sin >> libbase::eatcomments >> compute_llr_statistics >> libbase::verify;
+   else
+      compute_llr_statistics = true;
    // get system parameter
    double p;
    sin >> libbase::eatcomments >> p >> libbase::verify;

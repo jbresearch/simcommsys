@@ -71,6 +71,7 @@ protected:
    /*! \name User-defined parameters */
    commsys<S> *sys; //!< Communication systems
    exit_t exit_type; //!< enum indicating storage mode for gamma metric
+   bool compute_llr_statistics; //!< switch for computing binary LLR statistics
    double sigma; //!< Sigma value to use when generating binary priors
    // @}
    /*! \name Internally-used objects */
@@ -103,8 +104,8 @@ protected:
          const array1vd_t& y);
    static void compute_statistics(const array1i_t& x, const array1vd_t& p,
          const int value, double& sigma, double& mu);
-   static void compute_results(const array1i_t& x, const array1vd_t& pin,
-         const array1vd_t& pout, array1d_t& result);
+   void compute_results(const array1i_t& x, const array1vd_t& pin,
+         const array1vd_t& pout, array1d_t& result) const;
    // @}
 public:
    /*! \name Constructors / Destructors */
@@ -147,7 +148,10 @@ public:
    void sample(array1d_t& result);
    int count() const
       {
-      return 10;
+      int result = 2; // default: mutual information at input+output
+      if (compute_llr_statistics)
+         result += 8; // sigma+mu for each of 0+1 at input+output
+      return result;
       }
    int get_multiplicity(int i) const
       {
