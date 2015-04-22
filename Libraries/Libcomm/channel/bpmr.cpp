@@ -48,8 +48,8 @@ namespace libcomm {
  * function should be called any time a channel parameter is changed.
  */
 template <class real>
-void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
-      int Zmin, int Zmax)
+void bpmr<real>::metric_computer::precompute(double Pd, double Pi, double Ps,
+      double Psi, int T, int Zmin, int Zmax)
    {
    // block size
    this->T = T;
@@ -59,6 +59,8 @@ void bpmr<real>::metric_computer::precompute(double Pd, double Pi, int T,
    // channel parameters
    this->Pd = real(Pd);
    this->Pi = real(Pi);
+   this->Ps = real(Ps);
+   this->Psi = real(Psi);
    }
 
 // Batch receiver interface
@@ -253,8 +255,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
 /*!
  * \brief Initialization
  *
- * Sets the channel with fixed values for Pd, Pi. This way, if the user
- * never calls set_parameter(), the values are valid.
+ * Sets the channel with fixed values for Pd, Pi, Ps, Psi. This way, if the
+ * user never calls set_parameter(), the values are valid.
  */
 template <class real>
 void bpmr<real>::init()
@@ -262,6 +264,8 @@ void bpmr<real>::init()
    // channel parameters
    Pd = fixedPd;
    Pi = fixedPi;
+   Ps = fixedPs;
+   Psi = fixedPsi;
    // initialize metric computer
    computer.init();
    }
@@ -381,11 +385,12 @@ libbase::vector<bool> bpmr<real>::generate_error_sequence()
  * \sa init()
  */
 template <class real>
-bpmr<real>::bpmr(const bool varyPd, const bool varyPi) :
-      varyPd(varyPd), varyPi(varyPi), fixedPd(0), fixedPi(0)
+bpmr<real>::bpmr(const bool varyPd, const bool varyPi, const bool varyPs, const bool varyPsi) :
+      varyPd(varyPd), varyPi(varyPi), varyPs(varyPs), varyPsi(varyPsi), fixedPd(
+            0), fixedPi(0), fixedPs(0), fixedPsi(0)
    {
    // channel update flags
-   assert(varyPd || varyPi);
+   assert(varyPd || varyPi || varyPs || varyPsi);
    // other initialization
    init();
    }
@@ -408,8 +413,10 @@ void bpmr<real>::set_parameter(const double p)
    {
    set_pd(varyPd ? p : fixedPd);
    set_pi(varyPi ? p : fixedPi);
-   libbase::trace << "DEBUG (bpmr): Pd = " << Pd << ", Pi = " << Pi
-         << std::endl;
+   set_ps(varyPs ? p : fixedPs);
+   set_psi(varyPsi ? p : fixedPsi);
+   libbase::trace << "DEBUG (bpmr): Pd = " << Pd << ", Pi = " << Pi << ", Ps = "
+         << Ps << ", Psi = " << Psi << std::endl;
    }
 
 /*!
@@ -422,11 +429,15 @@ void bpmr<real>::set_parameter(const double p)
 template <class real>
 double bpmr<real>::get_parameter() const
    {
-   assert(varyPd || varyPi);
+   assert(varyPd || varyPi || varyPs || varyPsi);
    if (varyPd)
       return Pd;
-   // must be varyPi
-   return Pi;
+   if (varyPi)
+      return Pi;
+   if (varyPs)
+      return Ps;
+   // must be varyPsi
+   return Psi;
    }
 
 // Channel functions
@@ -503,12 +514,20 @@ std::string bpmr<real>::description() const
       sout << "Pi=";
    if (varyPd)
       sout << "Pd=";
+   if (varyPs)
+      sout << "Ps=";
+   if (varyPsi)
+      sout << "Psi=";
    sout << "p";
    // List non-varying components, with their value
    if (!varyPd)
       sout << ", Pd=" << fixedPd;
    if (!varyPi)
       sout << ", Pi=" << fixedPi;
+   if (!varyPs)
+      sout << ", Ps=" << fixedPs;
+   if (!varyPsi)
+      sout << ", Psi=" << fixedPsi;
    sout << ")";
    return sout.str();
    }

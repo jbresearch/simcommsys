@@ -129,7 +129,8 @@ public:
          }
    public:
       /*! \name Internal functions */
-      void precompute(double Pd, double Pi, int T, int Zmin, int Zmax);
+      void precompute(double Pd, double Pi, double Ps, double Psi, int T,
+            int Zmin, int Zmax);
       void init()
          {
          }
@@ -189,7 +190,7 @@ private:
    void precompute()
       {
       if (T > 0)
-         computer.precompute(Pd, Pi, T, Zmin, Zmax);
+         computer.precompute(Pd, Pi, Ps, Psi, T, Zmin, Zmax);
       }
    void generate_state_sequence(const int tau);
    array1b_t generate_error_sequence();
@@ -208,7 +209,8 @@ protected:
       }
 public:
    /*! \name Constructors / Destructors */
-   bpmr(const bool varyPd = true, const bool varyPi = true);
+   bpmr(const bool varyPd = true, const bool varyPi = true, const bool varyPs =
+         false, const bool varyPsi = false);
    // @}
 
    /*! \name Channel parameter handling */
@@ -233,6 +235,20 @@ public:
       this->Pi = Pi;
       precompute();
       }
+   //! Set the substitution probability on non-inserted bits
+   void set_ps(const double Ps)
+      {
+      assert(Ps >= 0 && Ps <= 0.5);
+      this->Ps = Ps;
+      precompute();
+      }
+   //! Set the substitution probability on inserted bits
+   void set_psi(const double Psi)
+      {
+      assert(Psi >= 0 && Psi <= 0.5);
+      this->Psi = Psi;
+      precompute();
+      }
    // @}
 
    /*! \name Channel parameter getters */
@@ -243,6 +259,16 @@ public:
       }
    //! Get the current bit-insertion probability
    double get_pi() const
+      {
+      return Pi;
+      }
+   //! Get the current substitution probability on non-inserted bits
+   double get_ps() const
+      {
+      return Pi;
+      }
+   //! Get the current substitution probability on inserted bits
+   double get_psi() const
       {
       return Pi;
       }
