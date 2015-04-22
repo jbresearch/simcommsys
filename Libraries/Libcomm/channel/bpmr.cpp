@@ -30,7 +30,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show Markov state and tx/rx vectors during transmission process
+// 2 - Show Markov state, error sequence, and tx/rx vectors during transmission process
 // 3 - Show tx/rx vectors and posterior probabilities from receive process
 // 4 - Show lattice rows as they are computed in receive process
 #ifndef NDEBUG
@@ -334,6 +334,45 @@ void bpmr<real>::generate_state_sequence(const int tau)
 #endif
    }
 
+/*!
+ * \brief Generate substitution error sequence
+ *
+ * The channel model implemented is described by the following substitution
+ * error probabilities:
+ *
+ * Pr{error | Z_i - Z_{i-1} < 1 } = P_s
+ * Pr{error | Z_i - Z_{i-1} = 1 } = P_si
+ */
+template <class real>
+libbase::vector<bool> bpmr<real>::generate_error_sequence()
+   {
+   // determine required length
+   const int tau = Z.size();
+   assert(tau > 0);
+   // allocate error sequence
+   array1b_t E(tau);
+   // determine error sequence
+   int Zprev = 0;
+   for (int i = 0; i < tau; i++)
+      {
+      const double p = this->r.fval_closed();
+      // inserted bits
+      if (Z(i) - Zprev == 1)
+         E(i) = (p < Psi);
+      else
+         {
+         assert(Z(i) - Zprev < 1);
+         E(i) = (p < Ps);
+         }
+      // update for next round
+      Zprev = Z(i);
+      }
+#if DEBUG>=2
+   libbase::trace << "DEBUG (bpmr): E = " << E << std::endl;
+#endif
+   return E;
+   }
+
 // Constructors / Destructors
 
 /*!
@@ -417,6 +456,8 @@ void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
    const int tau = tx.size();
    // Generate Markov state sequence
    generate_state_sequence(tau);
+   // Generate substitution error sequence
+   const array1b_t E = generate_error_sequence();
    // Initialize results vector
    array1b_t newrx(tau);
    // Compute the output vector (simulate the channel)
@@ -433,6 +474,12 @@ void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
       // late index -> repeat last valid input
       else
          newrx(i) = tx(tau - 1);
+      }
+   // Apply substitution errors, as applicable
+   for (int i = 0; i < tau; i++)
+      {
+      if (E(i))
+         newrx(i) = !newrx(i);
       }
    // copy results back
    rx = newrx;

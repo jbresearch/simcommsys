@@ -91,6 +91,8 @@ public:
       /*! \name Channel-state and pre-computed parameters */
       real Pd; //!< Probability of deletion event
       real Pi; //!< Probability of insertion event
+      real Ps; //!< Probability of substitution error on non-inserted bits
+      real Psi; //!< Probability of substitution error on inserted bits
       int T; //!< block size in channel symbols
       int Zmin; //!< Largest negative drift possible
       int Zmax; //!< Largest positive drift possible
@@ -176,6 +178,8 @@ private:
    metric_computer computer;
    double Pd; //!< Bit-deletion probability \f$ P_d \f$
    double Pi; //!< Bit-insertion probability \f$ P_i \f$
+   double Ps; //!< Probability of substitution error on non-inserted bits
+   double Psi; //!< Probability of substitution error on inserted bits
    int T; //!< Block size in channel symbols over which we want to synchronize
    array1i_t Z; //!< Markov state sequence; Z(i) = drift after 'i' channel uses
    // @}
@@ -188,6 +192,7 @@ private:
          computer.precompute(Pd, Pi, T, Zmin, Zmax);
       }
    void generate_state_sequence(const int tau);
+   array1b_t generate_error_sequence();
    // @}
 protected:
    // Channel function overrides
