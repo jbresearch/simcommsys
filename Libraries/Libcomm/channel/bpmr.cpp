@@ -105,88 +105,85 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
 #if DEBUG>=4
    // mark all lattice entries as uninitialized
    for (int i = 0; i < 3; i++)
-      for (int j = 0; j <= rho; j++)
-         F[i][j] = -1;
+   for (int j = 0; j <= rho; j++)
+   F[i][j] = -1;
 #endif
    // *** initialize first row of lattice (i = 0) [insertion only]
-   {
-   const int jmax = min(mT_max, rho);
-   for (int j = 0; j <= jmax; j++)
-      F0[j] = 0;
-   if (delta0 == 0) // last bit of previous codeword not deleted
       {
-      F0[0] = 1;
-      if (first) // assume equiprobable prior value
-         for (int j = 1; j <= jmax; j++)
-            F0[j] = F0[j - 1] * real(0.5) * Pi;
-      }
-#if DEBUG>=4
-   libbase::trace << "DEBUG (bpmr): F = " << std::endl;
-   print_lattice_row(F0, rho);
-#endif
-   }
-   // *** compute second row (i = 1)
-   {
-   int i = 1;
-   assert(i <= n);
-   // advance slices
-   cycle_pointers(F0, F1, F2);
-   // determine limits for remaining columns (after first)
-   const int jmin = max(i + mT_min, 1);
-   const int jmax = min(i + mT_max, rho);
-   // overwrite up to three columns before corridor, as needed
-   // [first is actually within corridor if (i + mT_min <= 0)]
-   for (int j = jmin - 1; j >= 0 && j >= jmin - 3; j--)
-      F0[j] = 0;
-   // remaining columns
-   if (delta0 == 0) // last bit of previous codeword not deleted
-      {
-      for (int j = jmin; j <= jmax; j++)
+      const int jmax = min(mT_max, rho);
+      for (int j = 0; j <= jmax; j++)
+         F0[j] = 0;
+      if (delta0 == 0) // last bit of previous codeword not deleted
          {
-         real temp = 0;
-         // in all cases, corresponding tx/rx bits must be equal
-         // [repeat last tx bit for virtual rows]
-         if (tx(i - 1) == rx(j - 1))
+         F0[0] = 1;
+         if (first) // assume equiprobable prior value
+            for (int j = 1; j <= jmax; j++)
+               F0[j] = F0[j - 1] * real(0.5) * Pi;
+         }
+#if DEBUG>=4
+      libbase::trace << "DEBUG (bpmr): F = " << std::endl;
+      print_lattice_row(F0, rho);
+#endif
+      }
+   // *** compute second row (i = 1)
+      {
+      int i = 1;
+      assert(i <= n);
+      // advance slices
+      cycle_pointers(F0, F1, F2);
+      // determine limits for remaining columns (after first)
+      const int jmin = max(i + mT_min, 1);
+      const int jmax = min(i + mT_max, rho);
+      // overwrite up to three columns before corridor, as needed
+      // [first is actually within corridor if (i + mT_min <= 0)]
+      for (int j = jmin - 1; j >= 0 && j >= jmin - 3; j--)
+         F0[j] = 0;
+      // remaining columns
+      if (delta0 == 0) // last bit of previous codeword not deleted
+         {
+         for (int j = jmin; j <= jmax; j++)
             {
+            real temp = 0;
+            // determine whether corresponding tx/rx bits are equal
+            // [repeat last tx bit for virtual rows]
+            const bool cmp = (tx(i - 1) == rx(j - 1));
             // transmission path
-            temp += F1[j - 1] * get_transmission_coefficient(j - i + S0);
+            temp += F1[j - 1] * (cmp ? real(1) - Ps : Ps)
+                  * get_transmission_coefficient(j - i + S0);
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
-               temp += F0[j - 1] * Pi;
+               temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
+            // implicit free delete with no transmission at end of last codeword
+            if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
+               temp += F1[j];
+            // store result
+            F0[j] = temp;
             }
-         // implicit free delete with no transmission at end of last codeword
-         if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
-            temp += F1[j];
-         // store result
-         F0[j] = temp;
          }
-      }
-   else
-      {
-      assert(delta0 == 1);
-      assert(jmin == 1);
-      for (int j = jmin; j <= jmax; j++)
+      else
          {
-         real temp = 0;
-         // in all cases, corresponding tx/rx bits must be equal
-         // [repeat last tx bit for virtual rows]
-         if (tx(i - 1) == rx(j - 1))
+         assert(delta0 == 1);
+         assert(jmin == 1);
+         for (int j = jmin; j <= jmax; j++)
             {
+            real temp = 0;
+            // determine whether corresponding tx/rx bits are equal
+            // [repeat last tx bit for virtual rows]
+            const bool cmp = (tx(i - 1) == rx(j - 1));
             // deletion path across codeword boundary
             if (j == 1)
-               temp += Pd;
+               temp += (cmp ? real(1) - Ps : Ps) * Pd;
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
-               temp += F0[j - 1] * Pi;
+               temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
+            // store result
+            F0[j] = temp;
             }
-         // store result
-         F0[j] = temp;
          }
-      }
 #if DEBUG>=4
-   print_lattice_row(F0, rho);
+      print_lattice_row(F0, rho);
 #endif
-   }
+      }
    // *** compute remaining rows (2 <= i <= n)
    // and -Zmin virtual rows if this is the last codeword
    const int imax = n + (last ? -Zmin : 0);
@@ -205,19 +202,18 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       for (int j = jmin; j <= jmax; j++)
          {
          real temp = 0;
-         // in all cases, corresponding tx/rx bits must be equal
+         // determine whether corresponding tx/rx bits are equal
          // [repeat last tx bit for virtual rows]
-         if (tx(std::min(i, n) - 1) == rx(j - 1))
-            {
-            // transmission path
-            temp += F1[j - 1] * get_transmission_coefficient(j - i + S0);
-            // deletion path (if previous node was within corridor)
-            if (j - i < mT_max) // (j-1)-(i-2) <= mT_max
-               temp += F2[j - 1] * Pd;
-            // insertion path (if previous node was within corridor)
-            if (j - i > mT_min) // (j-1)-i >= mT_min
-               temp += F0[j - 1] * Pi;
-            }
+         const bool cmp = (tx(std::min(i, n) - 1) == rx(j - 1));
+         // transmission path
+         temp += F1[j - 1] * (cmp ? real(1) - Ps : Ps)
+               * get_transmission_coefficient(j - i + S0);
+         // deletion path (if previous node was within corridor)
+         if (j - i < mT_max) // (j-1)-(i-2) <= mT_max
+            temp += F2[j - 1] * (cmp ? real(1) - Ps : Ps) * Pd;
+         // insertion path (if previous node was within corridor)
+         if (j - i > mT_min) // (j-1)-i >= mT_min
+            temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
          // implicit free delete with no transmission at end of last codeword
          if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
             temp += F1[j];
