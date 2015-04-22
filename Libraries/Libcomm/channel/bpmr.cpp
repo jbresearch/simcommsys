@@ -472,7 +472,7 @@ template <class real>
 std::ostream& bpmr<real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
+   sout << 2 << std::endl;
    sout << "# Zmin" << std::endl;
    sout << Zmin << std::endl;
    sout << "# Zmax" << std::endl;
@@ -481,10 +481,18 @@ std::ostream& bpmr<real>::serialize(std::ostream& sout) const
    sout << varyPd << std::endl;
    sout << "# Vary Pi?" << std::endl;
    sout << varyPi << std::endl;
+   sout << "# Vary Ps?" << std::endl;
+   sout << varyPs << std::endl;
+   sout << "# Vary Psi?" << std::endl;
+   sout << varyPsi << std::endl;
    sout << "# Fixed Pd value" << std::endl;
    sout << fixedPd << std::endl;
    sout << "# Fixed Pi value" << std::endl;
    sout << fixedPi << std::endl;
+   sout << "# Fixed Ps value" << std::endl;
+   sout << fixedPs << std::endl;
+   sout << "# Fixed Psi value" << std::endl;
+   sout << fixedPsi << std::endl;
    return sout;
    }
 
@@ -492,6 +500,8 @@ std::ostream& bpmr<real>::serialize(std::ostream& sout) const
 
 /*!
  * \version 1 Initial version
+ *
+ * \version 2 Added substitution errors
  */
 template <class real>
 std::istream& bpmr<real>::serialize(std::istream& sin)
@@ -505,9 +515,29 @@ std::istream& bpmr<real>::serialize(std::istream& sin)
    // read flags
    sin >> libbase::eatcomments >> varyPd >> libbase::verify;
    sin >> libbase::eatcomments >> varyPi >> libbase::verify;
-   // read fixed Pd,Pi
+   if (version >= 2)
+      {
+      sin >> libbase::eatcomments >> varyPs >> libbase::verify;
+      sin >> libbase::eatcomments >> varyPsi >> libbase::verify;
+      }
+   else
+      {
+      varyPs = false;
+      varyPsi = false;
+      }
+   // read fixed error rates
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
+   if (version >= 2)
+      {
+      sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
+      sin >> libbase::eatcomments >> fixedPsi >> libbase::verify;
+      }
+   else
+      {
+      fixedPs = 0;
+      fixedPsi = 0;
+      }
    // sanity checks
    assertalways(Zmin <= 0);
    assertalways(Zmax > Zmin);

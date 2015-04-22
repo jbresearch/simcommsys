@@ -75,10 +75,14 @@ private:
    /*! \name User-defined parameters */
    bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
+   bool varyPs; //!< Flag to indicate that \f$ P_s \f$ should change with parameter
+   bool varyPsi; //!< Flag to indicate that \f$ P_{si} \f$ should change with parameter
    int Zmax; //!< Maximum value of Markov state (equal to K-1 in Iyengar paper)
    int Zmin; //!< Minimum value of Markov state (0 for Iyengar model, otherwise negative)
    double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
    double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter
+   double fixedPs; //!< Value to use when \f$ P_s \f$ does not change with parameter
+   double fixedPsi; //!< Value to use when \f$ P_{si} \f$ does not change with parameter
    // @}
 public:
    /*! \name Metric computation */
