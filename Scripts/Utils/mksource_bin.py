@@ -6,14 +6,10 @@ import random
 # random source creation (binary format)
 
 def dec2bin(x,n):
-   """converts value 'x' to a binary string of length 'n',
-   raising an error if this is not possible.
+   """converts value 'x' to a binary string of length 'n'.
    """
-   s = bin(x)[2:]
-   if len(s) > n:
-      raise ValueError
-   s = "0" * (n-len(s)) + s
-   return s
+   f = "{:0%db}" % n
+   return f.format(x)
 
 def mksource_bin(q, length, blocks, fd=sys.stdout):
    bits = int(math.log(q,2))
