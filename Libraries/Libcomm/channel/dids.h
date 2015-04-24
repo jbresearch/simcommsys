@@ -260,12 +260,12 @@ public:
       {
       return Pi;
       }
-   //! Get the current substitution probability on non-inserted bits
+   //! Get the current random substitution probability
    double get_ps() const
       {
       return Pr;
       }
-   //! Get the current substitution probability on inserted bits
+   //! Get the current burst substitution probability
    double get_pb() const
       {
       return Pb;
