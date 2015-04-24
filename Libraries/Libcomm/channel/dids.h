@@ -88,77 +88,11 @@ public:
    /*! \name Metric computation */
    class metric_computer : public channel_insdel<bool, real>::metric_computer {
    public:
-      /*! \name Channel-state and pre-computed parameters */
-      real Pd; //!< Probability of deletion event
-      real Pi; //!< Probability of insertion event
-      real Pr; //!< Probability of random substitution error
-      real Pb; //!< Probability of burst substitution
-      int T; //!< block size in channel symbols
-      int Zmin; //!< Largest negative drift possible
-      int Zmax; //!< Largest positive drift possible
-      // @}
-      /*! \name Hardwired parameters */
-      static const int arraysize = 128; //!< Size of stack-allocated arrays
-      // @}
-   private:
-      real get_transmission_coefficient(int Z) const
-         {
-         cuda_assert(Z >= Zmin);
-         cuda_assert(Z <= Zmax);
-         if (Zmin == Zmax) // degenerate case with one state
-            return 1;
-         else if (Z == Zmin) // Z == mT_min
-            return real(1) - Pi; // only insertion or transmission were possible
-         else if (Z == Zmax) // Z == mT_max
-            return real(1) - Pd; // only deletion or transmission were possible
-         else // mT_min < Z < mT_max
-            return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
-         }
-      static void cycle_pointers(real* &F0, real* &F1, real* &F2)
-         {
-         real *Ft = F2;
-         F2 = F1;
-         F1 = F0;
-         F0 = Ft;
-         }
-      static void print_lattice_row(const real *F0, const int rho)
-         {
-         for (int j = 0; j <= rho; j++)
-            libbase::trace << F0[j] << '\t';
-         libbase::trace << std::endl;
-         }
-   public:
-      /*! \name Internal functions */
-      void precompute(double Pd, double Pi, double Pr, double Pb, int T,
-            int Zmin, int Zmax);
-      void init()
-         {
-         }
-      // @}
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread
       size_t receiver_sharedmem() const
          {
-         return 3 * (T + Zmax + 1) * sizeof(real);
-         }
-      //! Receiver interface
-      real receive(const bool& tx, const array1b_t& rx) const
-         {
-         failwith("Method not defined.");
          return 0;
-         }
-      //! Receiver interface
-      real receive(const array1b_t& tx, const array1b_t& rx) const
-         {
-         // Compute sizes
-         const int n = tx.size();
-         const int mu = rx.size() - n;
-         // Allocate space for results and call main receiver
-         static array1r_t ptable;
-         ptable.init(Zmax - Zmin + 1);
-         receive(tx, rx, ptable);
-         // return result
-         return ptable(mu - Zmin);
          }
       //! Batch receiver interface - indefinite state space
       void receive(const array1b_t& tx, const array1b_t& rx,
@@ -169,7 +103,10 @@ public:
       //! Batch receiver interface - fixed state space
       void receive(const array1b_t& tx, const array1b_t& rx, const int S0,
             const int delta0, const bool first, const bool last,
-            array1r_t& ptable0, array1r_t& ptable1) const;
+            array1r_t& ptable0, array1r_t& ptable1) const
+         {
+         failwith("Method not supported.");
+         }
       // @}
       DECLARE_CLONABLE(metric_computer)
    };
@@ -187,11 +124,6 @@ private:
 private:
    /*! \name Internal functions */
    void init();
-   void precompute()
-      {
-      if (T > 0)
-         computer.precompute(Pd, Pi, Pr, Pb, T, Zmin, Zmax);
-      }
    void generate_state_sequence(const int tau);
    array1b_t generate_error_sequence();
    // @}
@@ -225,7 +157,6 @@ public:
       assert(Pd >= 0 && Pd <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pd = Pd;
-      precompute();
       }
    //! Set the bit-insertion probability
    void set_pi(const double Pi)
@@ -233,21 +164,18 @@ public:
       assert(Pi >= 0 && Pi <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
-      precompute();
       }
    //! Set the random substitution probability
    void set_ps(const double Pr)
       {
       assert(Pr >= 0 && Pr <= 0.5);
       this->Pr = Pr;
-      precompute();
       }
    //! Set the burst substitution probability
    void set_pb(const double Pb)
       {
       assert(Pb >= 0 && Pb <= 0.5);
       this->Pb = Pb;
-      precompute();
       }
    // @}
 
@@ -309,7 +237,6 @@ public:
          {
          assert(T > 0);
          this->T = T;
-         precompute();
          }
       }
    /*!
