@@ -409,12 +409,13 @@ libbase::vector<bool> dids<real>::generate_error_sequence()
  * \sa init()
  */
 template <class real>
-dids<real>::dids(const bool varyPd, const bool varyPi, const bool varyPs, const bool varyPsi) :
-      varyPd(varyPd), varyPi(varyPi), varyPr(varyPs), varyPb(varyPsi), fixedPd(
-            0), fixedPi(0), fixedPr(0), fixedPb(0)
+dids<real>::dids(const bool varyPd, const bool varyPi, const bool varyPr,
+      const bool varyPb) :
+      varyPd(varyPd), varyPi(varyPi), varyPr(varyPr), varyPb(varyPb), Zmax(1), Zmin(
+            0), L(0), fixedPd(0), fixedPi(0), fixedPr(0), fixedPb(0)
    {
    // channel update flags
-   assert(varyPd || varyPi || varyPs || varyPsi);
+   assert(varyPd || varyPi || varyPr || varyPb);
    // other initialization
    init();
    }

@@ -207,8 +207,8 @@ protected:
       }
 public:
    /*! \name Constructors / Destructors */
-   dids(const bool varyPd = true, const bool varyPi = true, const bool varyPs =
-         false, const bool varyPsi = false);
+   dids(const bool varyPd = true, const bool varyPi = true, const bool varyPr =
+         false, const bool varyPb = false);
    // @}
 
    /*! \name Channel parameter handling */

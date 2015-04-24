@@ -381,9 +381,10 @@ libbase::vector<bool> bpmr<real>::generate_error_sequence()
  * \sa init()
  */
 template <class real>
-bpmr<real>::bpmr(const bool varyPd, const bool varyPi, const bool varyPs, const bool varyPsi) :
-      varyPd(varyPd), varyPi(varyPi), varyPs(varyPs), varyPsi(varyPsi), fixedPd(
-            0), fixedPi(0), fixedPs(0), fixedPsi(0)
+bpmr<real>::bpmr(const bool varyPd, const bool varyPi, const bool varyPs,
+      const bool varyPsi) :
+      varyPd(varyPd), varyPi(varyPi), varyPs(varyPs), varyPsi(varyPsi), Zmax(1), Zmin(
+            0), fixedPd(0), fixedPi(0), fixedPs(0), fixedPsi(0)
    {
    // channel update flags
    assert(varyPd || varyPi || varyPs || varyPsi);
