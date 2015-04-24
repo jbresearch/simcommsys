@@ -141,25 +141,6 @@ public:
          {
          return 3 * (T + Zmax + 1) * sizeof(real);
          }
-      //! Receiver interface
-      real receive(const bool& tx, const array1b_t& rx) const
-         {
-         failwith("Method not defined.");
-         return 0;
-         }
-      //! Receiver interface
-      real receive(const array1b_t& tx, const array1b_t& rx) const
-         {
-         // Compute sizes
-         const int n = tx.size();
-         const int mu = rx.size() - n;
-         // Allocate space for results and call main receiver
-         static array1r_t ptable;
-         ptable.init(Zmax - Zmin + 1);
-         receive(tx, rx, ptable);
-         // return result
-         return ptable(mu - Zmin);
-         }
       //! Batch receiver interface - indefinite state space
       void receive(const array1b_t& tx, const array1b_t& rx,
             array1r_t& ptable) const
