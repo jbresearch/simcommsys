@@ -567,7 +567,7 @@ std::istream& dids<real>::serialize(std::istream& sin)
    // get format version
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;
-   // read state range
+   // read burst length
    sin >> libbase::eatcomments >> L >> libbase::verify;
    // read flags
    sin >> libbase::eatcomments >> varyPd >> libbase::verify;
