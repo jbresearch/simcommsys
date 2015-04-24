@@ -265,12 +265,12 @@ public:
    //! Get the current substitution probability on non-inserted bits
    double get_ps() const
       {
-      return Pi;
+      return Ps;
       }
    //! Get the current substitution probability on inserted bits
    double get_psi() const
       {
-      return Pi;
+      return Psi;
       }
    // @}
 
