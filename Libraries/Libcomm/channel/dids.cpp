@@ -438,7 +438,7 @@ void dids<real>::set_parameter(const double p)
    {
    set_pd(varyPd ? p : fixedPd);
    set_pi(varyPi ? p : fixedPi);
-   set_pr(varyPr ? p : fixedPr);
+   set_ps(varyPr ? p : fixedPr);
    set_pb(varyPb ? p : fixedPb);
    libbase::trace << "DEBUG (dids): Pd = " << Pd << ", Pi = " << Pi << ", Pr = "
          << Pr << ", Pb = " << Pb << std::endl;

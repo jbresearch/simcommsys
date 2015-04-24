@@ -233,14 +233,14 @@ public:
       this->Pi = Pi;
       precompute();
       }
-   //! Set the substitution probability on non-inserted bits
-   void set_pr(const double Pr)
+   //! Set the random substitution probability
+   void set_ps(const double Pr)
       {
       assert(Pr >= 0 && Pr <= 0.5);
       this->Pr = Pr;
       precompute();
       }
-   //! Set the substitution probability on inserted bits
+   //! Set the burst substitution probability
    void set_pb(const double Pb)
       {
       assert(Pb >= 0 && Pb <= 0.5);
@@ -263,12 +263,12 @@ public:
    //! Get the current substitution probability on non-inserted bits
    double get_ps() const
       {
-      return Pi;
+      return Pr;
       }
    //! Get the current substitution probability on inserted bits
-   double get_psi() const
+   double get_pb() const
       {
-      return Pi;
+      return Pb;
       }
    // @}
 
