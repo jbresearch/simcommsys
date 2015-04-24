@@ -59,8 +59,8 @@ void dids<real>::metric_computer::precompute(double Pd, double Pi, double Ps,
    // channel parameters
    this->Pd = real(Pd);
    this->Pi = real(Pi);
-   this->Ps = real(Ps);
-   this->Psi = real(Psi);
+   this->Pr = real(Ps);
+   this->Pb = real(Psi);
    }
 
 // Batch receiver interface
@@ -148,11 +148,11 @@ void dids<real>::metric_computer::receive(const array1b_t& tx,
             // [repeat last tx bit for virtual rows]
             const bool cmp = (tx(i - 1) == rx(j - 1));
             // transmission path
-            temp += F1[j - 1] * (cmp ? real(1) - Ps : Ps)
+            temp += F1[j - 1] * (cmp ? real(1) - Pr : Pr)
                   * get_transmission_coefficient(j - i + S0);
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
-               temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
+               temp += F0[j - 1] * (cmp ? real(1) - Pb : Pb) * Pi;
             // implicit free delete with no transmission at end of last codeword
             if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
                temp += F1[j];
@@ -172,10 +172,10 @@ void dids<real>::metric_computer::receive(const array1b_t& tx,
             const bool cmp = (tx(i - 1) == rx(j - 1));
             // deletion path across codeword boundary
             if (j == 1)
-               temp += (cmp ? real(1) - Ps : Ps) * Pd;
+               temp += (cmp ? real(1) - Pr : Pr) * Pd;
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
-               temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
+               temp += F0[j - 1] * (cmp ? real(1) - Pb : Pb) * Pi;
             // store result
             F0[j] = temp;
             }
@@ -206,14 +206,14 @@ void dids<real>::metric_computer::receive(const array1b_t& tx,
          // [repeat last tx bit for virtual rows]
          const bool cmp = (tx(std::min(i, n) - 1) == rx(j - 1));
          // transmission path
-         temp += F1[j - 1] * (cmp ? real(1) - Ps : Ps)
+         temp += F1[j - 1] * (cmp ? real(1) - Pr : Pr)
                * get_transmission_coefficient(j - i + S0);
          // deletion path (if previous node was within corridor)
          if (j - i < mT_max) // (j-1)-(i-2) <= mT_max
-            temp += F2[j - 1] * (cmp ? real(1) - Ps : Ps) * Pd;
+            temp += F2[j - 1] * (cmp ? real(1) - Pr : Pr) * Pd;
          // insertion path (if previous node was within corridor)
          if (j - i > mT_min) // (j-1)-i >= mT_min
-            temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
+            temp += F0[j - 1] * (cmp ? real(1) - Pb : Pb) * Pi;
          // implicit free delete with no transmission at end of last codeword
          if (last && j - i < mT_max && j + S0 == n) // (j)-(i-1) <= mT_max
             temp += F1[j];
@@ -260,8 +260,8 @@ void dids<real>::init()
    // channel parameters
    Pd = fixedPd;
    Pi = fixedPi;
-   Ps = fixedPs;
-   Psi = fixedPsi;
+   Pr = fixedPr;
+   Pb = fixedPb;
    // initialize metric computer
    computer.init();
    }
@@ -272,19 +272,19 @@ void dids<real>::init()
  * The channel model implemented is described by the following general case
  * state transition probabilities:
  *
- * Pr{Z_i = z+1 | Z_{i-1} = z} = P_i
- * Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
- * Pr{Z_i = z   | Z_{i-1} = z} = 1-P_i-P_d
+ * Pr{Z_i = z+1 | Z_{i-1} = z} = P_I
+ * Pr{Z_i = z-1 | Z_{i-1} = z} = P_D
+ * Pr{Z_i = z   | Z_{i-1} = z} = 1-P_I-P_D
  *
  * with all other transitions having zero probability. Exceptions to the above
  * occur where z-1 or z+1 are not valid states:
  *
  * For z = Zmax:
- *   Pr{Z_i = z-1 | Z_{i-1} = z} = P_d
- *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_d
+ *   Pr{Z_i = z-1 | Z_{i-1} = z} = P_D
+ *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_D
  * For z = Zmin:
- *   Pr{Z_i = z+1 | Z_{i-1} = z} = P_i
- *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_i
+ *   Pr{Z_i = z+1 | Z_{i-1} = z} = P_I
+ *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_I
  *
  * It is assumed here (though not explicitly stated in Iyengar et al) that the
  * initial condition for the channel is Z_0 = 0 (where Z_1 refers to the first
@@ -340,8 +340,8 @@ void dids<real>::generate_state_sequence(const int tau)
  * The channel model implemented is described by the following substitution
  * error probabilities:
  *
- * Pr{error | Z_i - Z_{i-1} < 1 } = P_s
- * Pr{error | Z_i - Z_{i-1} = 1 } = P_si
+ * Pr{error | Z_i - Z_{i-1} < 1 } = P_R
+ * Pr{error | Z_i - Z_{i-1} = 1 } = P_B
  */
 template <class real>
 libbase::vector<bool> dids<real>::generate_error_sequence()
@@ -358,11 +358,11 @@ libbase::vector<bool> dids<real>::generate_error_sequence()
       const double p = this->r.fval_closed();
       // inserted bits
       if (Z(i) - Zprev == 1)
-         E(i) = (p < Psi);
+         E(i) = (p < Pb);
       else
          {
          assert(Z(i) - Zprev < 1);
-         E(i) = (p < Ps);
+         E(i) = (p < Pr);
          }
       // update for next round
       Zprev = Z(i);
@@ -382,8 +382,8 @@ libbase::vector<bool> dids<real>::generate_error_sequence()
  */
 template <class real>
 dids<real>::dids(const bool varyPd, const bool varyPi, const bool varyPs, const bool varyPsi) :
-      varyPd(varyPd), varyPi(varyPi), varyPs(varyPs), varyPsi(varyPsi), fixedPd(
-            0), fixedPi(0), fixedPs(0), fixedPsi(0)
+      varyPd(varyPd), varyPi(varyPi), varyPr(varyPs), varyPb(varyPsi), fixedPd(
+            0), fixedPi(0), fixedPr(0), fixedPb(0)
    {
    // channel update flags
    assert(varyPd || varyPi || varyPs || varyPsi);
@@ -409,10 +409,10 @@ void dids<real>::set_parameter(const double p)
    {
    set_pd(varyPd ? p : fixedPd);
    set_pi(varyPi ? p : fixedPi);
-   set_ps(varyPs ? p : fixedPs);
-   set_psi(varyPsi ? p : fixedPsi);
+   set_ps(varyPr ? p : fixedPr);
+   set_psi(varyPb ? p : fixedPb);
    libbase::trace << "DEBUG (dids): Pd = " << Pd << ", Pi = " << Pi << ", Ps = "
-         << Ps << ", Psi = " << Psi << std::endl;
+         << Pr << ", Psi = " << Pb << std::endl;
    }
 
 /*!
@@ -425,15 +425,15 @@ void dids<real>::set_parameter(const double p)
 template <class real>
 double dids<real>::get_parameter() const
    {
-   assert(varyPd || varyPi || varyPs || varyPsi);
+   assert(varyPd || varyPi || varyPr || varyPb);
    if (varyPd)
       return Pd;
    if (varyPi)
       return Pi;
-   if (varyPs)
-      return Ps;
+   if (varyPr)
+      return Pr;
    // must be varyPsi
-   return Psi;
+   return Pb;
    }
 
 // Channel functions
@@ -510,9 +510,9 @@ std::string dids<real>::description() const
       sout << "Pi=";
    if (varyPd)
       sout << "Pd=";
-   if (varyPs)
+   if (varyPr)
       sout << "Ps=";
-   if (varyPsi)
+   if (varyPb)
       sout << "Psi=";
    sout << "p";
    // List non-varying components, with their value
@@ -520,10 +520,10 @@ std::string dids<real>::description() const
       sout << ", Pd=" << fixedPd;
    if (!varyPi)
       sout << ", Pi=" << fixedPi;
-   if (!varyPs)
-      sout << ", Ps=" << fixedPs;
-   if (!varyPsi)
-      sout << ", Psi=" << fixedPsi;
+   if (!varyPr)
+      sout << ", Ps=" << fixedPr;
+   if (!varyPb)
+      sout << ", Psi=" << fixedPb;
    sout << ")";
    return sout.str();
    }
@@ -544,17 +544,17 @@ std::ostream& dids<real>::serialize(std::ostream& sout) const
    sout << "# Vary Pi?" << std::endl;
    sout << varyPi << std::endl;
    sout << "# Vary Ps?" << std::endl;
-   sout << varyPs << std::endl;
+   sout << varyPr << std::endl;
    sout << "# Vary Psi?" << std::endl;
-   sout << varyPsi << std::endl;
+   sout << varyPb << std::endl;
    sout << "# Fixed Pd value" << std::endl;
    sout << fixedPd << std::endl;
    sout << "# Fixed Pi value" << std::endl;
    sout << fixedPi << std::endl;
    sout << "# Fixed Ps value" << std::endl;
-   sout << fixedPs << std::endl;
+   sout << fixedPr << std::endl;
    sout << "# Fixed Psi value" << std::endl;
-   sout << fixedPsi << std::endl;
+   sout << fixedPb << std::endl;
    return sout;
    }
 
@@ -579,26 +579,26 @@ std::istream& dids<real>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> varyPi >> libbase::verify;
    if (version >= 2)
       {
-      sin >> libbase::eatcomments >> varyPs >> libbase::verify;
-      sin >> libbase::eatcomments >> varyPsi >> libbase::verify;
+      sin >> libbase::eatcomments >> varyPr >> libbase::verify;
+      sin >> libbase::eatcomments >> varyPb >> libbase::verify;
       }
    else
       {
-      varyPs = false;
-      varyPsi = false;
+      varyPr = false;
+      varyPb = false;
       }
    // read fixed error rates
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
    if (version >= 2)
       {
-      sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
-      sin >> libbase::eatcomments >> fixedPsi >> libbase::verify;
+      sin >> libbase::eatcomments >> fixedPr >> libbase::verify;
+      sin >> libbase::eatcomments >> fixedPb >> libbase::verify;
       }
    else
       {
-      fixedPs = 0;
-      fixedPsi = 0;
+      fixedPr = 0;
+      fixedPb = 0;
       }
    // sanity checks
    assertalways(Zmin <= 0);

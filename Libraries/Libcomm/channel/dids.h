@@ -41,23 +41,20 @@ namespace libcomm {
 #endif
 
 /*!
- * \brief   Bit-Patterned Media Recording channel.
+ * \brief   Data-dependent Insertion, Deletion and Substitution (DIDS) channel.
  * \author  Johann Briffa
  *
- * This class implements the BPM recording channel using an extension of the
- * K-ary Markov state channel described in:
- * Iyengar, A.R., Siegel, P.H. and Wolf, J.K., "Write Channel Model for
- * Bit-Patterned Media Recording," IEEE Transactions on Magnetics, vol.47, no.1,
- * pp.35-45, Jan. 2011
- * URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5676449&isnumber=5676431
- *
- * The extension allows the Markov state to take negative values as well as
- * zero and positive values, effectively allowing deletion-before-insertion.
+ * This class implements the recording channel for bit-patterned media
+ * described in:
+ * Tong Wu and Marc A. Armand, "The Davey-MacKay Coding Scheme for Channels
+ * With Dependent Insertion, Deletion, and Substitution Errors,"
+ * IEEE Transactions on Magnetics, vol.49, no.1, pp.489-495, Jan. 2013
+ * URL: http://dx.doi.org/10.1109/TMAG.2012.2208120
  *
  * \tparam real Floating-point type for internal computation
  *
- * \note Unlike the BSID and QIDS channels, this model has no concept of stream
- * operation, as at the receiving end, a full sector will always be retrieved.
+ * \note Like the BPMR channel, this model has no concept of stream operation,
+ * as at the receiving end, a full sector will always be retrieved.
  */
 
 template <class real>
@@ -73,16 +70,16 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   bool varyPd; //!< Flag to indicate that \f$ P_d \f$ should change with parameter
-   bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
-   bool varyPs; //!< Flag to indicate that \f$ P_s \f$ should change with parameter
-   bool varyPsi; //!< Flag to indicate that \f$ P_{si} \f$ should change with parameter
+   bool varyPd; //!< Flag to indicate that \f$ P_D \f$ should change with parameter
+   bool varyPi; //!< Flag to indicate that \f$ P_I \f$ should change with parameter
+   bool varyPr; //!< Flag to indicate that \f$ P_R \f$ should change with parameter
+   bool varyPb; //!< Flag to indicate that \f$ P_B \f$ should change with parameter
    int Zmax; //!< Maximum value of Markov state (equal to K-1 in Iyengar paper)
    int Zmin; //!< Minimum value of Markov state (0 for Iyengar model, otherwise negative)
-   double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
-   double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter
-   double fixedPs; //!< Value to use when \f$ P_s \f$ does not change with parameter
-   double fixedPsi; //!< Value to use when \f$ P_{si} \f$ does not change with parameter
+   double fixedPd; //!< Value to use when \f$ P_D \f$ does not change with parameter
+   double fixedPi; //!< Value to use when \f$ P_I \f$ does not change with parameter
+   double fixedPr; //!< Value to use when \f$ P_R \f$ does not change with parameter
+   double fixedPb; //!< Value to use when \f$ P_B \f$ does not change with parameter
    // @}
 public:
    /*! \name Metric computation */
@@ -91,8 +88,8 @@ public:
       /*! \name Channel-state and pre-computed parameters */
       real Pd; //!< Probability of deletion event
       real Pi; //!< Probability of insertion event
-      real Ps; //!< Probability of substitution error on non-inserted bits
-      real Psi; //!< Probability of substitution error on inserted bits
+      real Pr; //!< Probability of random substitution error
+      real Pb; //!< Probability of burst substitution
       int T; //!< block size in channel symbols
       int Zmin; //!< Largest negative drift possible
       int Zmax; //!< Largest positive drift possible
@@ -177,10 +174,10 @@ public:
 private:
    /*! \name Internal representation */
    metric_computer computer;
-   double Pd; //!< Bit-deletion probability \f$ P_d \f$
-   double Pi; //!< Bit-insertion probability \f$ P_i \f$
-   double Ps; //!< Probability of substitution error on non-inserted bits
-   double Psi; //!< Probability of substitution error on inserted bits
+   double Pd; //!< Bit-deletion probability \f$ P_D \f$
+   double Pi; //!< Bit-insertion probability \f$ P_I \f$
+   double Pr; //!< Probability of random substitution error
+   double Pb; //!< Probability of burst substitution error
    int T; //!< Block size in channel symbols over which we want to synchronize
    array1i_t Z; //!< Markov state sequence; Z(i) = drift after 'i' channel uses
    // @}
@@ -190,7 +187,7 @@ private:
    void precompute()
       {
       if (T > 0)
-         computer.precompute(Pd, Pi, Ps, Psi, T, Zmin, Zmax);
+         computer.precompute(Pd, Pi, Pr, Pb, T, Zmin, Zmax);
       }
    void generate_state_sequence(const int tau);
    array1b_t generate_error_sequence();
@@ -239,14 +236,14 @@ public:
    void set_ps(const double Ps)
       {
       assert(Ps >= 0 && Ps <= 0.5);
-      this->Ps = Ps;
+      this->Pr = Ps;
       precompute();
       }
    //! Set the substitution probability on inserted bits
    void set_psi(const double Psi)
       {
       assert(Psi >= 0 && Psi <= 0.5);
-      this->Psi = Psi;
+      this->Pb = Psi;
       precompute();
       }
    // @}
