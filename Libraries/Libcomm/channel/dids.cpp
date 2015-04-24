@@ -286,9 +286,14 @@ void dids<real>::init()
  *   Pr{Z_i = z+1 | Z_{i-1} = z} = P_I
  *   Pr{Z_i = z   | Z_{i-1} = z} = 1-P_I
  *
- * It is assumed here (though not explicitly stated in Iyengar et al) that the
- * initial condition for the channel is Z_0 = 0 (where Z_1 refers to the first
- * input bit X_1 and output bit Y_1).
+ * So far, this is the same as the BPMR channel. However, the DIDS channel
+ * also has another exception, so that the same bit cannot be inserted more
+ * than once. This is defined by:
+ *
+ * Pr{Z_i = z+1 | Z_{i-1} = z, Z_{i-2} = z-1} = 0
+ *
+ * It is assumed here that the initial condition for the channel is Z_0 = 0
+ * (where Z_1 refers to the first input bit X_1 and output bit Y_1).
  */
 template <class real>
 void dids<real>::generate_state_sequence(const int tau)
@@ -297,37 +302,40 @@ void dids<real>::generate_state_sequence(const int tau)
    Z.init(tau);
    Z = 0;
    // determine state sequence
-   int Zprev = 0;
+   int Z1 = 0;
+   int Z2 = 0;
    for (int i = 0; i < tau; i++)
       {
       const double p = this->r.fval_closed();
       // upper limit
-      if (Zprev == Zmax)
+      if (Z1 == Zmax)
          {
          if (p < Pd)
-            Z(i) = Zprev - 1;
+            Z(i) = Z1 - 1;
          else
-            Z(i) = Zprev;
+            Z(i) = Z1;
          }
       else
       // lower limit
-      if (Zprev == Zmin)
+      if (Z1 == Zmin)
          {
-         if (p < Pi)
-            Z(i) = Zprev + 1;
+         if (Z1 - Z2 < 1 && p < Pi)
+            Z(i) = Z1 + 1;
          else
-            Z(i) = Zprev;
+            Z(i) = Z1;
          }
       else // general case
          {
-         if (p < Pi)
-            Z(i) = Zprev + 1;
-         else if (p < (Pi + Pd))
-            Z(i) = Zprev - 1;
+         if (p < Pd)
+            Z(i) = Z1 - 1;
+         else if (Z1 - Z2 < 1 && p < (Pi + Pd))
+            Z(i) = Z1 + 1;
          else
-            Z(i) = Zprev;
+            Z(i) = Z1;
          }
-      Zprev = Z(i);
+      // update for next round
+      Z2 = Z1;
+      Z1 = Z(i);
       }
 #if DEBUG>=2
    libbase::trace << "DEBUG (dids): Z = " << Z << std::endl;
