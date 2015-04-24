@@ -348,8 +348,9 @@ void dids<real>::generate_state_sequence(const int tau)
  * The channel model implemented is described by the following substitution
  * error probabilities:
  *
- * Pr{error | Z_i - Z_{i-1} < 1 } = P_R
- * Pr{error | Z_i - Z_{i-1} = 1 } = P_B
+ * P_B for i' ∈ {i-L, ..., i+L} where Z_i - Z_{i-1} = 1 (insertion)
+ *      or i' ∈ {i-L, ..., i+L-1} where Z_i - Z_{i-1} = -1 (deletion)
+ * P_R otherwise
  */
 template <class real>
 libbase::vector<bool> dids<real>::generate_error_sequence()
@@ -357,25 +358,44 @@ libbase::vector<bool> dids<real>::generate_error_sequence()
    // determine required length
    const int tau = Z.size();
    assert(tau > 0);
-   // allocate error sequence
-   array1b_t E(tau);
-   // determine error sequence
+   // allocate and initialize burst sequence
+   array1b_t B(tau);
+   B = false;
+   // determine burst sequence
    int Zprev = 0;
    for (int i = 0; i < tau; i++)
       {
-      const double p = this->r.fval_closed();
-      // inserted bits
-      if (Z(i) - Zprev == 1)
-         E(i) = (p < Pb);
-      else
+      const int deltaZ = Z(i) - Zprev;
+      if (deltaZ == 1) // inserted bits
          {
-         assert(Z(i) - Zprev < 1);
-         E(i) = (p < Pr);
+         const int imin = std::max(0, i - L);
+         const int imax = std::min(tau - 1, i + L);
+         B.segment(imin, imax - imin + 1) = true;
          }
+      else if (deltaZ == -1) // deleted bits
+         {
+         const int imin = std::max(0, i - L);
+         const int imax = std::min(tau - 1, i + L - 1);
+         B.segment(imin, imax - imin + 1) = true;
+         }
+      else
+         assert(deltaZ == 0);
       // update for next round
       Zprev = Z(i);
       }
+   // allocate error sequence
+   array1b_t E(tau);
+   // determine error sequence
+   for (int i = 0; i < tau; i++)
+      {
+      const double p = this->r.fval_closed();
+      if (B(i))
+         E(i) = (p < Pb); // burst-error bits
+      else
+         E(i) = (p < Pr); // random-error bits
+      }
 #if DEBUG>=2
+   libbase::trace << "DEBUG (dids): B = " << B << std::endl;
    libbase::trace << "DEBUG (dids): E = " << E << std::endl;
 #endif
    return E;
