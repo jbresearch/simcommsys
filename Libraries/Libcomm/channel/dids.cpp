@@ -502,18 +502,18 @@ template <class real>
 std::string dids<real>::description() const
    {
    std::ostringstream sout;
-   sout << "BPMR channel (";
-   // List set of valid states
-   sout << "Z in [" << Zmin << ".." << Zmax << "], ";
+   sout << "DIDS channel (";
+   // Specify burst length
+   sout << "L=" << L << ", ";
    // List varying components
    if (varyPi)
       sout << "Pi=";
    if (varyPd)
       sout << "Pd=";
    if (varyPr)
-      sout << "Ps=";
+      sout << "Pr=";
    if (varyPb)
-      sout << "Psi=";
+      sout << "Pb=";
    sout << "p";
    // List non-varying components, with their value
    if (!varyPd)
@@ -521,9 +521,9 @@ std::string dids<real>::description() const
    if (!varyPi)
       sout << ", Pi=" << fixedPi;
    if (!varyPr)
-      sout << ", Ps=" << fixedPr;
+      sout << ", Pr=" << fixedPr;
    if (!varyPb)
-      sout << ", Psi=" << fixedPb;
+      sout << ", Pb=" << fixedPb;
    sout << ")";
    return sout.str();
    }
@@ -580,6 +580,8 @@ std::istream& dids<real>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> fixedPr >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPb >> libbase::verify;
    // sanity checks
+   assertalways(L >= 0);
+   // fixed values
    Zmin = -1;
    Zmax = 1;
    // initialise the object and return
