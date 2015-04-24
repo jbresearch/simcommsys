@@ -446,7 +446,7 @@ double dids<real>::get_parameter() const
  * Y_i = X_{i - Z_i}
  *
  * where any input X_i for an index 'i' before the defined range is
- * equiprobable (represeting the unknown prior magnetic state of the first
+ * equiprobable (representing the unknown prior magnetic state of the first
  * island, while input X_i for index 'i' after the defined range is the same
  * as the last valid input X_i.
  *
