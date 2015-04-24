@@ -19,8 +19,8 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __bpmr_h
-#define __bpmr_h
+#ifndef __dids_h
+#define __dids_h
 
 #include "config.h"
 #include "bitfield.h"

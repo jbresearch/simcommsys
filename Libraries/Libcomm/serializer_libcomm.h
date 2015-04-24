@@ -168,6 +168,7 @@ private:
    qec<libbase::erasable<libbase::gf2> > _qec;
    qids<libbase::gf2, float> _qids;
    bpmr<float> _bpmr;
+   dids<float> _dids;
    // Interleavers
    //onetimepad<double>	_onetimepad_double;
    //padded<double>	_padded_double;
