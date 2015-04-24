@@ -30,7 +30,7 @@ namespace libcomm {
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show Markov state, error sequence, and tx/rx vectors during transmission process
+// 2 - Show Markov state, burst+error sequences, and tx/rx vectors during transmission process
 // 3 - Show tx/rx vectors and posterior probabilities from receive process
 // 4 - Show lattice rows as they are computed in receive process
 #ifndef NDEBUG

@@ -55,6 +55,8 @@ namespace libcomm {
  *
  * \note Like the BPMR channel, this model has no concept of stream operation,
  * as at the receiving end, a full sector will always be retrieved.
+ *
+ * \todo implement receiver
  */
 
 template <class real>
