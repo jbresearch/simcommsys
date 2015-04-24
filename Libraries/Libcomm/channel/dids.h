@@ -76,6 +76,7 @@ private:
    bool varyPb; //!< Flag to indicate that \f$ P_B \f$ should change with parameter
    int Zmax; //!< Maximum value of Markov state (equal to K-1 in Iyengar paper)
    int Zmin; //!< Minimum value of Markov state (0 for Iyengar model, otherwise negative)
+   int L; //!< Length of error burst from location of synchronization error
    double fixedPd; //!< Value to use when \f$ P_D \f$ does not change with parameter
    double fixedPi; //!< Value to use when \f$ P_I \f$ does not change with parameter
    double fixedPr; //!< Value to use when \f$ P_R \f$ does not change with parameter

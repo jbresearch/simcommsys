@@ -534,11 +534,9 @@ template <class real>
 std::ostream& dids<real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 2 << std::endl;
-   sout << "# Zmin" << std::endl;
-   sout << Zmin << std::endl;
-   sout << "# Zmax" << std::endl;
-   sout << Zmax << std::endl;
+   sout << 1 << std::endl;
+   sout << "# L" << std::endl;
+   sout << L << std::endl;
    sout << "# Vary Pd?" << std::endl;
    sout << varyPd << std::endl;
    sout << "# Vary Pi?" << std::endl;
@@ -562,8 +560,6 @@ std::ostream& dids<real>::serialize(std::ostream& sout) const
 
 /*!
  * \version 1 Initial version
- *
- * \version 2 Added substitution errors
  */
 template <class real>
 std::istream& dids<real>::serialize(std::istream& sin)
@@ -572,37 +568,20 @@ std::istream& dids<real>::serialize(std::istream& sin)
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;
    // read state range
-   sin >> libbase::eatcomments >> Zmin >> libbase::verify;
-   sin >> libbase::eatcomments >> Zmax >> libbase::verify;
+   sin >> libbase::eatcomments >> L >> libbase::verify;
    // read flags
    sin >> libbase::eatcomments >> varyPd >> libbase::verify;
    sin >> libbase::eatcomments >> varyPi >> libbase::verify;
-   if (version >= 2)
-      {
-      sin >> libbase::eatcomments >> varyPr >> libbase::verify;
-      sin >> libbase::eatcomments >> varyPb >> libbase::verify;
-      }
-   else
-      {
-      varyPr = false;
-      varyPb = false;
-      }
+   sin >> libbase::eatcomments >> varyPr >> libbase::verify;
+   sin >> libbase::eatcomments >> varyPb >> libbase::verify;
    // read fixed error rates
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
-   if (version >= 2)
-      {
-      sin >> libbase::eatcomments >> fixedPr >> libbase::verify;
-      sin >> libbase::eatcomments >> fixedPb >> libbase::verify;
-      }
-   else
-      {
-      fixedPr = 0;
-      fixedPb = 0;
-      }
+   sin >> libbase::eatcomments >> fixedPr >> libbase::verify;
+   sin >> libbase::eatcomments >> fixedPb >> libbase::verify;
    // sanity checks
-   assertalways(Zmin <= 0);
-   assertalways(Zmax > Zmin);
+   Zmin = -1;
+   Zmax = 1;
    // initialise the object and return
    init();
    return sin;
