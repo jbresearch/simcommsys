@@ -48,8 +48,8 @@ namespace libcomm {
  * function should be called any time a channel parameter is changed.
  */
 template <class real>
-void dids<real>::metric_computer::precompute(double Pd, double Pi, double Ps,
-      double Psi, int T, int Zmin, int Zmax)
+void dids<real>::metric_computer::precompute(double Pd, double Pi, double Pr,
+      double Pb, int T, int Zmin, int Zmax)
    {
    // block size
    this->T = T;
@@ -59,8 +59,8 @@ void dids<real>::metric_computer::precompute(double Pd, double Pi, double Ps,
    // channel parameters
    this->Pd = real(Pd);
    this->Pi = real(Pi);
-   this->Pr = real(Ps);
-   this->Pb = real(Psi);
+   this->Pr = real(Pr);
+   this->Pb = real(Pb);
    }
 
 // Batch receiver interface
@@ -251,7 +251,7 @@ void dids<real>::metric_computer::receive(const array1b_t& tx,
 /*!
  * \brief Initialization
  *
- * Sets the channel with fixed values for Pd, Pi, Ps, Psi. This way, if the
+ * Sets the channel with fixed values for Pd, Pi, Pr, Pb. This way, if the
  * user never calls set_parameter(), the values are valid.
  */
 template <class real>
@@ -438,10 +438,10 @@ void dids<real>::set_parameter(const double p)
    {
    set_pd(varyPd ? p : fixedPd);
    set_pi(varyPi ? p : fixedPi);
-   set_ps(varyPr ? p : fixedPr);
-   set_psi(varyPb ? p : fixedPb);
-   libbase::trace << "DEBUG (dids): Pd = " << Pd << ", Pi = " << Pi << ", Ps = "
-         << Pr << ", Psi = " << Pb << std::endl;
+   set_pr(varyPr ? p : fixedPr);
+   set_pb(varyPb ? p : fixedPb);
+   libbase::trace << "DEBUG (dids): Pd = " << Pd << ", Pi = " << Pi << ", Pr = "
+         << Pr << ", Pb = " << Pb << std::endl;
    }
 
 /*!

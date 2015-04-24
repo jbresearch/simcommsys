@@ -127,7 +127,7 @@ public:
          }
    public:
       /*! \name Internal functions */
-      void precompute(double Pd, double Pi, double Ps, double Psi, int T,
+      void precompute(double Pd, double Pi, double Pr, double Pb, int T,
             int Zmin, int Zmax);
       void init()
          {
@@ -234,17 +234,17 @@ public:
       precompute();
       }
    //! Set the substitution probability on non-inserted bits
-   void set_ps(const double Ps)
+   void set_pr(const double Pr)
       {
-      assert(Ps >= 0 && Ps <= 0.5);
-      this->Pr = Ps;
+      assert(Pr >= 0 && Pr <= 0.5);
+      this->Pr = Pr;
       precompute();
       }
    //! Set the substitution probability on inserted bits
-   void set_psi(const double Psi)
+   void set_pb(const double Pb)
       {
-      assert(Psi >= 0 && Psi <= 0.5);
-      this->Pb = Psi;
+      assert(Pb >= 0 && Pb <= 0.5);
+      this->Pb = Pb;
       precompute();
       }
    // @}
