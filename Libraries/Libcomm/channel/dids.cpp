@@ -541,17 +541,17 @@ std::ostream& dids<real>::serialize(std::ostream& sout) const
    sout << varyPd << std::endl;
    sout << "# Vary Pi?" << std::endl;
    sout << varyPi << std::endl;
-   sout << "# Vary Ps?" << std::endl;
+   sout << "# Vary Pr?" << std::endl;
    sout << varyPr << std::endl;
-   sout << "# Vary Psi?" << std::endl;
+   sout << "# Vary Pb?" << std::endl;
    sout << varyPb << std::endl;
    sout << "# Fixed Pd value" << std::endl;
    sout << fixedPd << std::endl;
    sout << "# Fixed Pi value" << std::endl;
    sout << fixedPi << std::endl;
-   sout << "# Fixed Ps value" << std::endl;
+   sout << "# Fixed Pr value" << std::endl;
    sout << fixedPr << std::endl;
-   sout << "# Fixed Psi value" << std::endl;
+   sout << "# Fixed Pb value" << std::endl;
    sout << fixedPb << std::endl;
    return sout;
    }
