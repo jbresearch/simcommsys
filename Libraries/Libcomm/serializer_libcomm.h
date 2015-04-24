@@ -39,6 +39,7 @@
 #include "channel/lapgauss.h"
 #include "channel/qids.h"
 #include "channel/bpmr.h"
+#include "channel/dids.h"
 #include "channel/qsc.h"
 #include "channel/qec.h"
 
