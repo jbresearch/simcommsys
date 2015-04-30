@@ -35,7 +35,7 @@ for (( port=$first; $port <= $last; port++ )); do
    jdlfile=./jobscript-$host-$port.sh
    program=`which simcommsys.$tag.$release`
    echo "#!/bin/bash -l" > $jdlfile
-   echo "module add gcc" >> $jdlfile
+   echo "module add gcc/4.8.4" >> $jdlfile
    echo 'if [ -f /proc/meminfo -a -f /proc/cpuinfo -a -e "$(which gawk)" ]; then' >> $jdlfile
    echo '   CPUS=$(gawk '"'"'/processor/ { n++ } END { print n }'"'"' /proc/cpuinfo)' >> $jdlfile
    echo '   vlimit=$(gawk -v n="$CPUS" '"'"'/MemTotal/ { printf "%d",$2/n }'"'"' /proc/meminfo)' >> $jdlfile
