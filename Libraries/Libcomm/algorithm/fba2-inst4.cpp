@@ -1,6 +1,5 @@
 /*!
  * \file
- * $Id: fba2-cuda-inst1.cu 9463 2013-07-24 14:20:03Z jabriffa $
  *
  * Copyright (c) 2010 Johann A. Briffa
  *
