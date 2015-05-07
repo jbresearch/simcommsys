@@ -6,6 +6,7 @@ import matplotlib.ticker as tck
 import xlrd
 import math
 import os
+from scipy.integrate import quad
 
 # Math / combinatorics functions
 
@@ -68,6 +69,15 @@ def average_weight(k):
       w += hamming_weight(i)
    w /= float(1<<k)
    return w
+
+# Determine mutual information from std dev of binary LLR
+
+def compute_information(sigma):
+   def integrand(x, sigma):
+      ssq = sigma**2
+      return np.exp(-(x-ssq/2)**2/(2*ssq))/np.sqrt(2*np.pi*ssq)*np.log2(1+np.exp(-x))
+   I = [1-quad(integrand, -100, 100, args=sigma)[0] for sigma in sigma]
+   return np.array(I)
 
 # Functions to determine drift range
 
