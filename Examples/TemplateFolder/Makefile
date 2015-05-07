@@ -24,6 +24,10 @@ STREAM_TERM_N := 1
 COLLECTOR_TYPES := errors_levenshtein
 # List of input stream modes
 INPUT_TYPES := random
+# List of EXIT chart types
+EXIT_TYPES := 1 2
+# List of system parameter values for EXIT chart analysis
+EXIT_PARAMETERS := -0.5 0 0.5
 
 # List of systems to work with
 SYSTEMS := $(wildcard Systems/*.txt)
@@ -33,19 +37,25 @@ SIMULATORS := $(foreach C,$(INPUT_TYPES), \
 	$(foreach A,$(STREAM_RESET_N),$(SYSTEMS:Systems/stream-%.txt=Simulators/$(B)-$(C)-stream-reset-$(A)-%.txt)) \
 	$(foreach A,$(STREAM_TERM_N),$(SYSTEMS:Systems/stream-%.txt=Simulators/$(B)-$(C)-stream-term-$(A)-%.txt)) \
 	))
+EXITCHARTS := $(foreach A,$(EXIT_TYPES),\
+	$(foreach B,$(EXIT_PARAMETERS),\
+		$(SYSTEMS:Systems/%.txt=Simulators/exit_computer_$(A)_$(B)-%.txt) \
+	))
 TIMERS := $(SYSTEMS:Systems/%.txt=Timers/%.txt)
 
 # main targets
 
 default:
 	@echo "No default target. Choose from:"
-	@echo "   all : equivalent to simulators and timers"
+	@echo "   all : equivalent to exitcharts, simulators and timers"
 	@echo "   simulators : create a simulator for each system"
+	@echo "   exitcharts : create an EXIT chart sim for each system"
 	@echo "   timers : create a timer sim for each system"
 	@echo "   clean : removes all generated files"
 
-all: simulators timers
+all: exitcharts simulators timers
 simulators: $(SIMULATORS)
+exitcharts: $(EXITCHARTS)
 timers: $(TIMERS)
 
 clean:
@@ -227,6 +237,37 @@ $(foreach B,$(INPUT_TYPES),\
 	$(foreach A,$(COLLECTOR_TYPES),\
 		$(eval $(call GAWK_SIMULATOR_CREATOR,$(A),$(B))) ))
 
+# EXIT Chart Simulators
+
+define GAWK_EXITCHARTS_CREATOR
+define GAWK_EXITCHARTS_$(1)_$(3)
+# all matched systems
+/^commsys/ {
+	x=$$$$0
+	# use exit chart computer simulator
+	sub(/commsys[^<]*/,"exit_computer",x)
+	# remove container type
+	x = gensub(/<(.+),vector>/,"<\\1>","g",x)
+	print x;
+	# add simulator version, and system parameter
+	print "# Version"
+	print 2
+	print "# EXIT chart type (0=parallel/codec, 1=serial/codec, 2=serial/modem)"
+	print $(1)
+	print "# Compute binary LLR statistics?"
+	print "0"
+	print "# System parameter"
+	print $(2)
+	print "# Communication system"
+	}
+{ print; }
+endef
+export GAWK_EXITCHARTS_$(1)_$(3)
+endef
+
+$(foreach A,$(EXIT_TYPES),\
+	$(foreach B,$(EXIT_PARAMETERS),\
+		$(eval $(call GAWK_EXITCHARTS_CREATOR,$(A),$(B),$(subst .,_,$(subst -,_,$(B))) )) ))
 # Timer simulations
 
 define GAWK_TIMER
@@ -255,7 +296,7 @@ export GAWK_TIMER
 define GenerateSimulators
 Simulators/$(1)-$(2)-%.txt: Systems/%.txt
 	@echo Making $$@
-	@gawk "$$$$GAWK_SIMULATOR_$(1)_$(2)" < $$< > $$@
+	@gawk -- "$$$$GAWK_SIMULATOR_$(1)_$(2)" < $$< > $$@
 endef
 
 $(foreach B,$(INPUT_TYPES),\
@@ -266,7 +307,7 @@ $(foreach B,$(INPUT_TYPES),\
 define GenerateSimulatorsStreamReset
 Simulators/$(2)-$(3)-stream-reset-$(1)-%.txt: Systems/stream-%.txt
 	@echo Making $$@
-	@gawk "$$$$GAWK_SIMULATOR_STREAM_RESET_$(1)_$(2)_$(3)" < $$< > $$@
+	@gawk -- "$$$$GAWK_SIMULATOR_STREAM_RESET_$(1)_$(2)_$(3)" < $$< > $$@
 endef
 
 $(foreach C,$(INPUT_TYPES),\
@@ -278,14 +319,24 @@ $(foreach C,$(INPUT_TYPES),\
 define GenerateSimulatorsStreamTerm
 Simulators/$(2)-$(3)-stream-term-$(1)-%.txt: Systems/stream-%.txt
 	@echo Making $$@
-	@gawk "$$$$GAWK_SIMULATOR_STREAM_TERM_$(1)_$(2)_$(3)" < $$< > $$@
+	@gawk -- "$$$$GAWK_SIMULATOR_STREAM_TERM_$(1)_$(2)_$(3)" < $$< > $$@
 endef
 
 $(foreach C,$(INPUT_TYPES),\
 	$(foreach B,$(COLLECTOR_TYPES),\
 		$(foreach A,$(STREAM_TERM_N),\
 			$(eval $(call GenerateSimulatorsStreamTerm,$(A),$(B),$(C))) )))
+# EXIT charts
+define GenerateEXITcharts
+Simulators/exit_computer_$(1)_$(2)-%.txt: Systems/%.txt
+	@echo Making $$@
+	@gawk -- "$$$$GAWK_EXITCHARTS_$(1)_$(3)" < $$< > $$@
+endef
+
+$(foreach A,$(EXIT_TYPES),\
+	$(foreach B,$(EXIT_PARAMETERS),\
+		$(eval $(call GenerateEXITcharts,$(A),$(B),$(subst .,_,$(subst -,_,$(B))) )) ))
 
 Timers/%.txt: Systems/%.txt
 	@echo Making $@
-	@gawk "$$GAWK_TIMER" < $< > $@
+	@gawk -- "$$GAWK_TIMER" < $< > $@
