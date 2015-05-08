@@ -404,7 +404,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
           2 = SER (as Hamming distance, default)
           3 = FER
           4 = GSER (as Levenshtein distance)
-          5 = 3D profile
+          5 = 3D profile (not supported)
           6 = 2D profile (as multiple graphs)
           7 = Burst-error profile
           8 = passes
@@ -412,9 +412,10 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
           10 = cputime/pass
           or a string to match with header
    xscale:    'linear' (default) or 'log'
-   showiter:  plot all iterations / results in set? (default: false = show last)
-              if true, show all iterations
-              if a list, interpret as iteration indices to show
+   showiter:  plot all iterations / indices in set? (default: false = show last)
+              if true, show all indices
+              if a list, interpret as indices to show
+              NOTE: for profile, indices select positions to show results for
    showtol:   (T1-4,6) plot tolerance limits? (default: true)
    style:     if absent, do not plot results
               if a string, use this as the line format string
@@ -460,7 +461,11 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
    ns=1
    # determine decimation factor to limit number of markers
    if limit == True: # limit to 20-40/line
-      ns = max(1, np.size(par,0)/20)
+      if type==6:
+         pts = np.size(results,1)
+      else:
+         ptr = np.size(par,0)
+      ns = max(1, pts/20)
    elif limit != False: # limit as requested by user
       ns = limit
       limit = True
@@ -498,7 +503,10 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
       plt.zlabel('Symbol Error Rate')
    elif type==6:
       cols = np.size(results,1)
-      h = plotitem(range(cols),results.transpose(),tolerance.transpose(),style,'linear','log',ns,label)
+      # convert to numpy arrays and transpose
+      results = np.array(results).transpose()
+      tolerance = np.array(tolerance).transpose()
+      h = plotitem(range(cols),results,tolerance,style,'linear','log',ns,label)
       plt.xlabel('Value/Position')
       plt.ylabel('Symbol Error Rate')
       legendlist = [ '%g' % n for n in par ]
