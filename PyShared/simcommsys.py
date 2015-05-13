@@ -435,7 +435,6 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
    '''
 
    # Load data from file, and reorganize as necessary
-   legendlist = []
    (par,results,tolerance,passes,cputime,header,comments) = loadresults(filename,latest)
    # extract last system and date from comments
    system = getafter('Communication System:',comments)
@@ -506,10 +505,10 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
       # convert to numpy arrays and transpose
       results = np.array(results).transpose()
       tolerance = np.array(tolerance).transpose()
+      label = '%s, p=%s' % (label, ','.join([ '%g' % n for n in par ]))
       h = plotitem(range(cols),results,tolerance,style,'linear','log',ns,label)
       plt.xlabel('Value/Position')
       plt.ylabel('Symbol Error Rate')
-      legendlist = [ '%g' % n for n in par ]
    elif type==7:
       h = plotitem(par,results,[],style,xscale,'log',ns,label)
       plt.xlabel('Channel Parameter')
