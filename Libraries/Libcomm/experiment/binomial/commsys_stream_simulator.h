@@ -119,7 +119,10 @@ protected:
       // Make a copy of the commsys object for transmitter operations
       delete sys_enc;
       if (this->sys)
+         {
          sys_enc = dynamic_cast<commsys_stream<S, libbase::vector, real>*>(this->sys->clone());
+         assertalways(sys_enc);
+         }
       else
          sys_enc = NULL;
       // reset counters

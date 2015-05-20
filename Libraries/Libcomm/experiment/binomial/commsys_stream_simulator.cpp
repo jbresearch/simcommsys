@@ -414,7 +414,11 @@ std::istream& commsys_stream_simulator<S, R, real>::serialize(std::istream& sin)
       }
    // continue reading underlying system
    Base::serialize(sin);
+   // check that components are stream-oriented
+   getsys_stream();
+   // initialize
    reset();
+   // we're done
    assertalways(sin.good());
    return sin;
    }

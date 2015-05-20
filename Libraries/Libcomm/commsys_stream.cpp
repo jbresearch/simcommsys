@@ -192,6 +192,11 @@ std::istream& commsys_stream<S, C, real>::serialize(std::istream& sin)
    // read number of full-system iterations
    if (version >= 1)
       sin >> libbase::eatcomments >> iter >> libbase::verify;
+   // check that components are stream-oriented
+   getmodem_stream();
+   getrxchan_stream();
+   gettxchan_stream();
+   getcodec_softout();
    // we're done
    assertalways(sin.good());
    return sin;

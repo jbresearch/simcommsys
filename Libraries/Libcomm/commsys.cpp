@@ -365,12 +365,15 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
       singlechannel = true;
    // get channel model(s)
    sin >> libbase::eatcomments >> txchan >> libbase::verify;
+   assertalways(txchan);
    if (singlechannel)
       rxchan = dynamic_cast<channel<S, C>*> (txchan->clone());
    else
       sin >> libbase::eatcomments >> rxchan >> libbase::verify;
+   assertalways(rxchan);
    // get modem
    sin >> libbase::eatcomments >> mdm >> libbase::verify;
+   assertalways(mdm);
    // get mapper (if present)
    sin >> libbase::eatcomments >> map;
    if (version == 0 && sin.fail())
@@ -380,8 +383,10 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
       sin.clear();
       }
    sin >> libbase::verify;
+   assertalways(map);
    // get codec
    sin >> libbase::eatcomments >> cdc >> libbase::verify;
+   assertalways(cdc);
    // initialize and return
    init();
    assertalways(sin.good());

@@ -244,6 +244,7 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
       }
    // communication system object
    sin >> libbase::eatcomments >> sys >> libbase::verify;
+   assertalways(sys);
    assertalways(sin.good());
    return sin;
    }
