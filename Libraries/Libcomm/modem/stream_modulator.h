@@ -121,15 +121,17 @@ public:
    /*!
     * \brief Get the posterior channel drift pdf at codeword boundaries
     * \param[out] pdftable Posterior Probabilities for codeword boundaries
+    * \param[out] offset   Index offset for drift
     *
     * Codeword boundaries are taken to include frame boundaries, such that
     * pdftable(i) corresponds to the boundary between codewords 'i-1' and 'i',
     * where codewords are zero-indexed.
     *
     * This method must be called after a call to demodulate(), so that it can
-    * return posteriors for the last transmitted frame.
+    * return posteriors (and the offset used) for the last transmitted frame.
     */
-   virtual void get_post_drift_pdf(C<array1d_t>& pdftable) const = 0;
+   virtual void get_post_drift_pdf(C<array1d_t>& pdftable,
+         libbase::size_type<C>& offset) const = 0;
    /*!
     * \brief Get the positions of codeword boundaries
     * \return Positions of codeword boundaries

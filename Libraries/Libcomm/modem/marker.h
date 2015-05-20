@@ -190,7 +190,8 @@ public:
       }
 
    // Block modem operations - streaming extensions
-   void get_post_drift_pdf(array1vd_t& pdftable) const
+   void get_post_drift_pdf(array1vd_t& pdftable,
+         libbase::size_type<libbase::vector>& offset) const
       {
       // Inherit sizes
       const int N = this->input_block_size() / d;
@@ -202,6 +203,8 @@ public:
          fba.get_drift_pdf(pdf_r, i * (d + m));
          libbase::normalize(pdf_r, pdftable(i));
          }
+      // set the offset used
+      offset = libbase::size_type<libbase::vector>(-fba.get_mtau_min());
       }
    array1i_t get_boundaries(void) const
       {

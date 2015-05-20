@@ -245,7 +245,8 @@ public:
       }
 
    // Block modem operations - streaming extensions
-   void get_post_drift_pdf(array1vd_t& pdftable) const
+   void get_post_drift_pdf(array1vd_t& pdftable,
+         libbase::size_type<libbase::vector>& offset) const
       {
       failwith("Function not implemented.");
       }

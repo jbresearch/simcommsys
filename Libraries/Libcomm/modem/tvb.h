@@ -286,7 +286,8 @@ public:
       }
 
    // Block modem operations - streaming extensions
-   void get_post_drift_pdf(array1vd_t& pdftable) const
+   void get_post_drift_pdf(array1vd_t& pdftable,
+         libbase::size_type<libbase::vector>& offset) const
       {
       // Inherit sizes
       const int N = this->input_block_size();
@@ -294,6 +295,8 @@ public:
       array1vr_t pdftable_r;
       fba_ptr->get_drift_pdf(pdftable_r);
       libbase::normalize_results(pdftable_r.extract(0, N + 1), pdftable);
+      // set the offset used
+      offset = libbase::size_type<libbase::vector>(-mtau_min);
       }
    array1i_t get_boundaries(void) const
       {

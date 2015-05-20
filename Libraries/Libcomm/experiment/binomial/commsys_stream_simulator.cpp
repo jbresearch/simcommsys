@@ -204,7 +204,7 @@ void commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& resul
          {
          // get estimated drift pdfs
          array1vd_t post_pdftable;
-         sys_dec.getmodem_stream().get_post_drift_pdf(post_pdftable);
+         sys_dec.getmodem_stream().get_post_drift_pdf(post_pdftable, offset);
          // get most probable estimated drift positions
          array1i_t est_drift(post_pdftable.size());
          for (int i = 0; i < post_pdftable.size(); i++)
