@@ -96,7 +96,7 @@ define GAWK_SIMULATOR_STREAM_RESET_$(1)_$(2)_$(3)
 	# use stream simulator
 	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
 	# remove container type and add results collector
-	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
+	x = gensub(/<(.+),vector,(.+)>/,"<\\1,$(2),\\2>","g",x)
 	print x;
 	# add stream-simulator version, streaming mode, and corresponding length
 	print "# Version"
@@ -140,7 +140,7 @@ define GAWK_SIMULATOR_STREAM_TERM_$(1)_$(2)_$(3)
 	# use stream simulator
 	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
 	# remove container type and add results collector
-	x = gensub(/<(.+),vector>/,"<\\1,$(2)>","g",x)
+	x = gensub(/<(.+),vector,(.+)>/,"<\\1,$(2),\\2>","g",x)
 	print x;
 	# add stream-simulator version, streaming mode, and corresponding length
 	print "# Version"
@@ -184,7 +184,7 @@ define GAWK_SIMULATOR_$(1)_$(2)
 	# use stream simulator
 	sub(/commsys[^<]*/,"commsys_stream_simulator",x)
 	# remove container type and add results collector
-	x = gensub(/<(.+),vector>/,"<\\1,$(1)>","g",x)
+	x = gensub(/<(.+),vector,(.+)>/,"<\\1,$(2),\\2>","g",x)
 	print x;
 	# add stream-simulator version and open-ended streaming mode
 	print "# Version"
