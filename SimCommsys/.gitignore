@@ -1,7 +1,7 @@
-[Dd]ebug
-[Rr]elease
-[Pp]rofile
-*.suo
-*.ncb
-*cache.dat
-*.aps
+/[Dd]ebug
+/[Rr]elease
+/[Pp]rofile
+/*.suo
+/*.ncb
+/*cache.dat
+/*.aps
