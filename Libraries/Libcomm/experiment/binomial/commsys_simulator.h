@@ -42,8 +42,10 @@ template <class S, class R>
 class commsys_simulator : public experiment_binomial, public R {
 public:
    /*! \name Type definitions */
+   typedef float real;
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<double> array1d_t;
+   typedef libbase::vector<array1d_t> array1vd_t;
    enum input_mode_t {
       input_mode_zero = 0, //!< All-zero input
       input_mode_random, //!< Random input

@@ -21,6 +21,11 @@
 
 #include "commsys_simulator.h"
 
+#include "result_collector/commsys/fidelity_pos.h"
+#include "modem/stream_modulator.h"
+#include "channel_insdel.h"
+#include "commsys_stream.h"
+
 #include "fsm.h"
 #include "itfunc.h"
 #include "secant.h"
@@ -29,6 +34,14 @@
 #include <sstream>
 
 namespace libcomm {
+
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - For fidelity collector, observe actual/estimated boundary drifts
+#ifndef NDEBUG
+#  undef DEBUG
+#  define DEBUG 1
+#endif
 
 // *** Templated Common Base ***
 
@@ -96,6 +109,9 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    // Initialise result vector
    result.init(count());
    result = 0;
+   // Get access to the results collector in codeword boundary analysis mode
+   fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
+
    // Create source stream
    libbase::vector<int> source = createsource();
    // Encode -> Map -> Modulate
@@ -108,12 +124,50 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    libbase::vector<int> decoded;
    for (int i = 0; i < sys->num_iter(); i++)
       {
-      // Decode & update results
+      // Decode
       sys->decode(decoded);
-      libbase::indirect_vector<double> result_segment = result.segment(
-            R::count() * i, R::count());
-      R::updateresults(result_segment, source, decoded);
+      // Update results if necessary
+      if (!rc)
+         {
+         libbase::indirect_vector<double> result_segment = result.segment(
+               R::count() * i, R::count());
+         R::updateresults(result_segment, source, decoded);
+         }
       }
+   // perform codeword boundary analysis if this is indicated
+   if (rc)
+      {
+      // Get access to the modem in stream mode
+      stream_modulator<S, libbase::vector>& modem_stream =
+            dynamic_cast<stream_modulator<S, libbase::vector>&>(*sys->getmodem());
+      // Get access to the TX channel in insdel mode
+      channel_insdel<S, real>& txchan_insdel = dynamic_cast<channel_insdel<S,
+            real>&>(*sys->gettxchan());
+
+      // get codeword boundary positions from modem (encoder-side)
+      const array1i_t boundary_pos = modem_stream.get_boundaries();
+      // get actual drift at codeword boundary positions from channel (decoder-side)
+      const array1i_t act_drift = txchan_insdel.get_drift(boundary_pos);
+
+      // get estimated drift pdfs
+      array1vd_t post_pdftable;
+      libbase::size_type<libbase::vector> offset;
+      modem_stream.get_post_drift_pdf(post_pdftable, offset);
+      // get most probable estimated drift positions
+      array1i_t est_drift(post_pdftable.size());
+      for (int i = 0; i < post_pdftable.size(); i++)
+         est_drift(i) =
+               commsys_stream<S, libbase::vector, real>::estimate_drift(
+                     post_pdftable(i), offset);
+      // Tell user what we're doing
+#if DEBUG>=4
+      std::cerr << "DEBUG (commsys_simulator): act bdry drift = " << act_drift << std::endl;
+      std::cerr << "DEBUG (commsys_simulator): est bdry drift = " << est_drift << std::endl;
+#endif
+      // accumulate results
+      rc->updateresults(result, act_drift, est_drift);
+      }
+
    // Keep record of what we last simulated
    const int tau = sys->input_block_size();
    assert(source.size() == tau);
