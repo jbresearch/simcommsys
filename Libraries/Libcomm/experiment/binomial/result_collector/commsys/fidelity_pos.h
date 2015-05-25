@@ -39,8 +39,8 @@ namespace libcomm {
 class fidelity_pos {
 protected:
    /*! \name System Interface */
-   //! The number of information symbols per block
-   virtual int get_symbolsperblock() const = 0;
+   //! The number of information symbols per frame (ie modem input)
+   virtual int get_symbolsperframe() const = 0;
    // @}
 public:
    virtual ~fidelity_pos()
@@ -55,7 +55,7 @@ public:
     */
    int count() const
       {
-      return get_symbolsperblock() + 1;
+      return get_symbolsperframe() + 1;
       }
    /*! \copydoc experiment::get_multiplicity()
     * Only one result can be incremented for every position.

@@ -94,6 +94,10 @@ protected:
    array1i_t createsource();
    // @}
    // System Interface for Results
+   int get_symbolsperframe() const
+      {
+      return sys->getmodem()->input_block_size();
+      }
    int get_symbolsperblock() const
       {
       return sys->input_block_size();

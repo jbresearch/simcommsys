@@ -132,12 +132,12 @@ protected:
    // @}
 
    // System Interface for Results
+   int get_symbolsperframe() const
+      {
+      return sys_enc->getmodem()->input_block_size();
+      }
    int get_symbolsperblock() const
       {
-      // Get access to the results collector in codeword boundary analysis mode
-      const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
-      if (rc)
-         return sys_enc->getmodem()->input_block_size();
       return Base::get_symbolsperblock();
       }
 
