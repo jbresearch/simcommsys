@@ -114,6 +114,19 @@ public:
          else // mT_min < Z < mT_max
             return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
          }
+      real get_transmission_coefficient_extended(int Z) const
+         {
+         cuda_assert(Z >= Zmin);
+         cuda_assert(Z <= Zmax);
+         if (Zmin == Zmax) // degenerate case with one state
+            return 1;
+         else if (Z == Zmin) // Z == mT_min
+            return 1; // only insertion or transmission were possible
+         else if (Z == Zmax) // Z == mT_max
+            return real(1) - Pd; // only deletion or transmission were possible
+         else // mT_min < Z < mT_max
+            return (real(1) - Pi - Pd) / (real(1) - Pi); // general case: insertion, deletion, or transmission
+         }
       static void cycle_pointers(real* &F0, real* &F1, real* &F2)
          {
          real *Ft = F2;

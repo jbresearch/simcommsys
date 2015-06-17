@@ -113,12 +113,12 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       const int jmax = min(mT_max, rho);
       for (int j = 0; j <= jmax; j++)
          F0[j] = 0;
-      if (delta0 == 0) // last bit of previous codeword not deleted
+      F0[0] = 1;
+      if (first && delta0 == 0) // first codeword, non-deletion path
          {
-         F0[0] = 1;
-         if (first) // assume equiprobable prior value
-            for (int j = 1; j <= jmax; j++)
-               F0[j] = F0[j - 1] * real(0.5) * Pi;
+         // assume equiprobable prior value
+         for (int j = 1; j <= jmax; j++)
+            F0[j] = F0[j - 1] * real(0.5) * Pi;
          }
 #if DEBUG>=4
       libbase::trace << "DEBUG (bpmr): F = " << std::endl;
@@ -149,7 +149,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             const bool cmp = (tx(i - 1) == rx(j - 1));
             // transmission path
             temp += F1[j - 1] * (cmp ? real(1) - Ps : Ps)
-                  * get_transmission_coefficient(j - i + S0);
+                  * get_transmission_coefficient_extended(j - i + S0);
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
                temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
@@ -172,7 +172,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             const bool cmp = (tx(i - 1) == rx(j - 1));
             // deletion path across codeword boundary
             if (j == 1)
-               temp += (cmp ? real(1) - Ps : Ps) * Pd;
+               temp += (cmp ? real(1) - Ps : Ps);
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
                temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
@@ -227,7 +227,22 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    // *** copy results and return
    assertalways(ptable0.size() == Zmax - Zmin + 1);
    assertalways(ptable1.size() == Zmax - Zmin + 1);
-   for (int x = Zmin; x <= Zmax; x++)
+   for (int x = Zmin; x < Zmax; x++)
+      {
+      // convert index (x = j - n + S0)
+      const int j = x + n - S0;
+      // last tx bit not deleted
+      if (j >= 0 && j <= rho)
+         ptable0(x - Zmin) = F0[j] * (real(1) - Pi);
+      else
+         ptable0(x - Zmin) = 0;
+      // last tx bit deleted
+      if (j >= 0 && j <= rho) // (j)-(n-1) <= mT_max must be true (x < Zmax)
+         ptable1(x - Zmin) = F1[j] * Pd;
+      else
+         ptable1(x - Zmin) = 0;
+      }
+   for (int x = Zmax; x <= Zmax; x++)
       {
       // convert index (x = j - n + S0)
       const int j = x + n - S0;
@@ -237,10 +252,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       else
          ptable0(x - Zmin) = 0;
       // last tx bit deleted
-      if (j >= 0 && j <= rho && j - n < mT_max) // (j)-(n-1) <= mT_max
-         ptable1(x - Zmin) = F1[j];
-      else
-         ptable1(x - Zmin) = 0;
+      ptable1(x - Zmin) = 0;
       }
 #if DEBUG>=3
    libbase::trace << "DEBUG (bpmr): ptable0 = " << ptable0 << std::endl;
