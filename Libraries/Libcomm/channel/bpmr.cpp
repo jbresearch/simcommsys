@@ -227,21 +227,35 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    // *** copy results and return
    assertalways(ptable0.size() == Zmax - Zmin + 1);
    assertalways(ptable1.size() == Zmax - Zmin + 1);
-   for (int x = Zmin; x < Zmax; x++)
-      {
-      // convert index (x = j - n + S0)
-      const int j = x + n - S0;
-      // last tx bit not deleted
-      if (j >= 0 && j <= rho)
-         ptable0(x - Zmin) = F0[j] * (real(1) - Pi);
-      else
-         ptable0(x - Zmin) = 0;
-      // last tx bit deleted
-      if (j >= 0 && j <= rho) // (j)-(n-1) <= mT_max must be true (x < Zmax)
-         ptable1(x - Zmin) = F1[j] * Pd;
-      else
+   if (last) // no correction factors on last codeword
+      for (int x = Zmin; x < Zmax; x++)
+         {
+         // convert index (x = j - n + S0)
+         const int j = x + n - S0;
+         // last tx bit not deleted
+         if (j >= 0 && j <= rho)
+            ptable0(x - Zmin) = F0[j];
+         else
+            ptable0(x - Zmin) = 0;
+         // last tx bit deleted
          ptable1(x - Zmin) = 0;
-      }
+         }
+   else
+      for (int x = Zmin; x < Zmax; x++)
+         {
+         // convert index (x = j - n + S0)
+         const int j = x + n - S0;
+         // last tx bit not deleted
+         if (j >= 0 && j <= rho)
+            ptable0(x - Zmin) = F0[j] * (real(1) - Pi);
+         else
+            ptable0(x - Zmin) = 0;
+         // last tx bit deleted
+         if (j >= 0 && j <= rho) // (j)-(n-1) <= mT_max must be true (x < Zmax)
+            ptable1(x - Zmin) = F1[j] * Pd;
+         else
+            ptable1(x - Zmin) = 0;
+         }
    for (int x = Zmax; x <= Zmax; x++)
       {
       // convert index (x = j - n + S0)
