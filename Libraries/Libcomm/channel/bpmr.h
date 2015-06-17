@@ -108,9 +108,9 @@ public:
          if (Zmin == Zmax) // degenerate case with one state
             return 1;
          else if (Z == Zmin) // Z == mT_min
-            return real(1) - Pd; // only deletion or transmission were possible
-         else if (Z == Zmax) // Z == mT_max
             return real(1) - Pi; // only insertion or transmission were possible
+         else if (Z == Zmax) // Z == mT_max
+            return real(1) - Pd; // only deletion or transmission were possible
          else // mT_min < Z < mT_max
             return real(1) - Pi - Pd; // general case: insertion, deletion, or transmission
          }
