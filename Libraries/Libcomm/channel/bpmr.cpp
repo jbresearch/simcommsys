@@ -113,12 +113,18 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       const int jmax = min(mT_max, rho);
       for (int j = 0; j <= jmax; j++)
          F0[j] = 0;
-      F0[0] = 1;
-      if (first && delta0 == 0) // first codeword, non-deletion path
+      if (delta0 == 0) // last bit of previous codeword not deleted
          {
-         // assume equiprobable prior value
-         for (int j = 1; j <= jmax; j++)
-            F0[j] = F0[j - 1] * real(0.5) * Pi;
+         if (S0 < Zmax)
+            F0[0] = real(1) / (real(1) - Pi);
+         else
+            F0[0] = 1;
+         if (first) // first codeword only
+            {
+            // assume equiprobable prior value
+            for (int j = 1; j <= jmax; j++)
+               F0[j] = F0[j - 1] * real(0.5) * Pi;
+            }
          }
 #if DEBUG>=4
       libbase::trace << "DEBUG (bpmr): F = " << std::endl;
@@ -149,7 +155,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
             const bool cmp = (tx(i - 1) == rx(j - 1));
             // transmission path
             temp += F1[j - 1] * (cmp ? real(1) - Ps : Ps)
-                  * get_transmission_coefficient_extended(j - i + S0);
+                  * get_transmission_coefficient(j - i + S0);
             // insertion path (if previous node was within corridor)
             if (j - i > mT_min) // (j-1)-i >= mT_min
                temp += F0[j - 1] * (cmp ? real(1) - Psi : Psi) * Pi;
