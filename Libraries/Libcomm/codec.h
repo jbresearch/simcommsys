@@ -29,6 +29,7 @@
 #include "random.h"
 #include "instrumented.h"
 #include "blockprocess.h"
+#include "cputimer.h"
 #include <string>
 
 namespace libcomm {
@@ -80,10 +81,10 @@ public:
     */
    void encode(const C<int>& source, C<int>& encoded)
       {
-      //libbase::cputimer t("t_encode");
+      libbase::cputimer t("t_encode");
       advance_always();
       do_encode(source, encoded);
-      //add_timer(t);
+      add_timer(t);
       }
    /*!
     * \brief Receiver translation process
@@ -96,11 +97,11 @@ public:
     */
    void init_decoder(const C<array1d_t>& ptable)
       {
-      //libbase::cputimer t("t_init_decoder");
+      libbase::cputimer t("t_init_decoder");
       advance_if_dirty();
       do_init_decoder(ptable);
       mark_as_dirty();
-      //add_timer(t);
+      add_timer(t);
       }
    /*!
     * \brief Decoding process

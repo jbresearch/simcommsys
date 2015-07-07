@@ -66,9 +66,11 @@ public:
       }
    void decode(C<int>& decoded)
       {
+      libbase::cputimer t("t_decode");
       C<array1d_t> ri;
       this->softdecode(ri);
       hd_functor(ri, decoded);
+      this->add_timer(t);
       }
    // Inherit receiver translation process from base class
    using Base::init_decoder;
@@ -84,11 +86,11 @@ public:
     */
    void init_decoder(const C<array1d_t>& ptable, const C<array1d_t>& app)
       {
-      //libbase::cputimer t("t_init_decoder");
+      libbase::cputimer t("t_init_decoder");
       this->advance_if_dirty();
       do_init_decoder(ptable, app);
       this->mark_as_dirty();
-      //add_timer(t);
+      this->add_timer(t);
       }
    /*!
     * \brief Decoding process
