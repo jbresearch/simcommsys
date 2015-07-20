@@ -131,9 +131,6 @@ public:
       /*! \name Internal functions */
       void precompute(double Pd, double Pi, double Ps, double Psi, int T,
             int Zmin, int Zmax);
-      void init()
-         {
-         }
       // @}
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread

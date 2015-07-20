@@ -294,8 +294,6 @@ void bpmr<real>::init()
    Pi = fixedPi;
    Ps = fixedPs;
    Psi = fixedPsi;
-   // initialize metric computer
-   computer.init();
    }
 
 /*!
