@@ -142,6 +142,7 @@ public:
       assert(Pd >= 0 && Pd <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pd = Pd;
+      precompute();
       }
    //! Set the bit-insertion probability
    void set_pi(const double Pi)
@@ -149,18 +150,21 @@ public:
       assert(Pi >= 0 && Pi <= 1);
       assert(Pi + Pd >= 0 && Pi + Pd <= 1);
       this->Pi = Pi;
+      precompute();
       }
    //! Set the random substitution probability
    void set_ps(const double Pr)
       {
       assert(Pr >= 0 && Pr <= 0.5);
       this->Pr = Pr;
+      precompute();
       }
    //! Set the burst substitution probability
    void set_pb(const double Pb)
       {
       assert(Pb >= 0 && Pb <= 0.5);
       this->Pb = Pb;
+      precompute();
       }
    // @}
 
@@ -222,6 +226,7 @@ public:
          {
          assert(T > 0);
          this->T = T;
+         precompute();
          }
       }
    /*!
