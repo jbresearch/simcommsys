@@ -321,7 +321,7 @@ template <class real>
 std::string dids<real>::description() const
    {
    std::ostringstream sout;
-   sout << "DIDS channel (";
+   sout << "DIDS channel with BPMR-based receiver (";
    // Specify burst length
    sout << "L=" << L << ", ";
    // List varying components

@@ -29,6 +29,8 @@
 #include "matrix.h"
 #include <cmath>
 
+#include "bpmr.h"
+
 namespace libcomm {
 
 // Determine debug level:
@@ -84,36 +86,9 @@ private:
    double fixedPr; //!< Value to use when \f$ P_R \f$ does not change with parameter
    double fixedPb; //!< Value to use when \f$ P_B \f$ does not change with parameter
    // @}
-public:
-   /*! \name Metric computation */
-   class metric_computer : public channel_insdel<bool, real>::metric_computer {
-   public:
-      /*! \name Host methods */
-      //! Determine the amount of shared memory required per thread
-      size_t receiver_sharedmem() const
-         {
-         return 0;
-         }
-      //! Batch receiver interface - indefinite state space
-      void receive(const array1b_t& tx, const array1b_t& rx,
-            array1r_t& ptable) const
-         {
-         failwith("Method not supported.");
-         }
-      //! Batch receiver interface - fixed state space
-      void receive(const array1b_t& tx, const array1b_t& rx, const int S0,
-            const int delta0, const bool first, const bool last,
-            array1r_t& ptable0, array1r_t& ptable1) const
-         {
-         failwith("Method not supported.");
-         }
-      // @}
-      DECLARE_CLONABLE(metric_computer)
-   };
-   // @}
 private:
    /*! \name Internal representation */
-   metric_computer computer;
+   typename bpmr<real>::metric_computer computer;
    double Pd; //!< Bit-deletion probability \f$ P_D \f$
    double Pi; //!< Bit-insertion probability \f$ P_I \f$
    double Pr; //!< Probability of random substitution error
@@ -124,6 +99,16 @@ private:
 private:
    /*! \name Internal functions */
    void init();
+   void precompute()
+      {
+      if (T > 0)
+         {
+         // estimate average substitution error rate
+         const double Pid = 2 * L * (Pi + Pd);
+         const double Ps = Pr * (1 - Pid) + Pb * Pid;
+         computer.precompute(Pd, Pi, Ps, Pb, T, Zmin, Zmax);
+         }
+      }
    void generate_state_sequence(const int tau);
    array1b_t generate_error_sequence();
    // @}
