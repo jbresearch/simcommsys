@@ -62,9 +62,6 @@ namespace libcomm {
 
 template <class sig, class real>
 class fba {
-private:
-   // Shorthand for class hierarchy
-   typedef fba<sig, real> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;

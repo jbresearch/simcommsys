@@ -55,9 +55,6 @@ namespace libcomm {
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
 class fba2_fss : public fba2_interface<sig, real, real2> {
-private:
-   // Shorthand for class hierarchy
-   typedef fba2_fss<receiver_t, sig, real, real2, globalstore> This;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<sig> array1s_t;
