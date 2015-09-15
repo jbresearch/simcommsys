@@ -578,15 +578,13 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
    this->receiver.init(computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != this->N || n != this->n || q != this->q
-               || mtau_min != this->mtau_min || mtau_max != this->mtau_max
-               || mn_min != this->mn_min || mn_max != this->mn_max))
+         && (N != this->N || q != this->q || mtau_min != this->mtau_min
+               || mtau_max != this->mtau_max || mn_min != this->mn_min
+               || mn_max != this->mn_max))
       free();
    // code parameters
    assert(N > 0);
-   assert(n > 0);
    this->N = N;
-   this->n = n;
    assert(q > 1);
    this->q = q;
    // decoder parameters
@@ -647,7 +645,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << N << std::endl;
-   std::cerr << "n = " << n << std::endl;
    std::cerr << "q = " << q << std::endl;
    std::cerr << "mtau_min = " << mtau_min << std::endl;
    std::cerr << "mtau_max = " << mtau_max << std::endl;
@@ -668,7 +665,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
    if (!initialised)
       allocate();
    // Validate sizes and offset
-   const int tau = N * n;
    assertalways(offset == -mtau_min);
    assertalways(r.size() == tau + mtau_max - mtau_min);
    assertalways(sof_prior.size() == mtau_max - mtau_min + 1);

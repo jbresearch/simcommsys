@@ -57,6 +57,7 @@ template <class receiver_t, class sig, class real, class real2,
 class fba2 : public fba2_interface<sig, real, real2> {
 public:
    /*! \name Type definitions */
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<sig> array1s_t;
    typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
@@ -82,6 +83,9 @@ private:
       array2b_t global; // indices (i,x)
       array1b_t local; // indices (x)
    } cached; //!< Flag for caching of receiver metric
+   mutable array1i_t cw_length; //!< Codeword 'i' length
+   mutable array1i_t cw_start; //!< Codeword 'i' start
+   mutable int tau; //!< Frame length (all codewords in sequence)
    array1s_t r; //!< Copy of received sequence, for lazy or local computation of gamma
    array1vd_t app; //!< Copy of a-priori statistics, for lazy or local computation of gamma
    bool initialised; //!< Flag to indicate when memory is allocated
@@ -94,7 +98,6 @@ private:
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
    int N; //!< The transmitted block size in symbols
-   int n; //!< The number of bits encoding each q-ary symbol
    int q; //!< The number of symbols in the q-ary alphabet
    int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
    int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
@@ -122,8 +125,8 @@ private:
       // determine received segment to extract
       // n * i = offset to start of current codeword
       // -mtau_min = offset to zero drift in 'r'
-      const int start = n * i + x - mtau_min;
-      const int length = std::min(n + mn_max, r.size() - start);
+      const int start = cw_start(i) + x - mtau_min;
+      const int length = std::min(cw_length(i) + mn_max, r.size() - start);
       // for each symbol value
       for (int d = 0; d < q; d++)
          {
@@ -257,6 +260,18 @@ public:
    void init(const array2vs_t& encoding_table) const
       {
       this->receiver.init(encoding_table);
+      // Initialize arrays with start and length of each codeword
+      cw_length.init(N);
+      cw_start.init(N);
+      int start = 0;
+      for (int i = 0; i < N; i++)
+         {
+         const int n = encoding_table(i, 0).size();
+         cw_start(i) = start;
+         cw_length(i) = n;
+         start += n;
+         }
+      tau = start;
       }
 
    // decode functions
