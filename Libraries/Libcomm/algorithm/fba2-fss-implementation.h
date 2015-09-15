@@ -512,21 +512,21 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(int N, int n,
    this->receiver.init(computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != This::N || n != This::n || q != This::q
-               || mtau_min != This::Zmin || mtau_max != This::Zmax))
+         && (N != this->N || n != this->n || q != this->q
+               || mtau_min != this->Zmin || mtau_max != this->Zmax))
       free();
    // code parameters
    assert(N > 0);
    assert(n > 0);
-   This::N = N;
-   This::n = n;
+   this->N = N;
+   this->n = n;
    assert(q > 1);
-   This::q = q;
+   this->q = q;
    // decoder parameters
    assert(mtau_min <= 0);
    assert(mtau_max >= 0);
-   This::Zmin = mtau_min;
-   This::Zmax = mtau_max;
+   this->Zmin = mtau_min;
+   this->Zmax = mtau_max;
    // path truncation parameters
    assert(th_inner == 0 && th_outer == 0);
    }
@@ -609,8 +609,8 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
       {
       // keep a copy of received vector and a-priori statistics
       // (we need them later when computing gamma locally)
-      This::r = r;
-      This::app = app;
+      this->r = r;
+      this->app = app;
       // Alpha
       libbase::cputimer ta("t_alpha");
       work_alpha(sof_prior);

@@ -619,8 +619,8 @@ template <class sig, class real, class real2>
 void tvb<sig, real, real2>::set_thresholds(const real th_inner,
       const real th_outer)
    {
-   This::th_inner = th_inner;
-   This::th_outer = th_outer;
+   this->th_inner = th_inner;
+   this->th_outer = th_outer;
    test_invariant();
    }
 

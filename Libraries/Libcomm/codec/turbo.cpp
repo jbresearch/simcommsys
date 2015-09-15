@@ -98,12 +98,12 @@ turbo<real, dbl>::turbo(const fsm& encoder, const libbase::vector<interleaver<
       dbl> *>& inter, const int iter, const bool endatzero,
       const bool parallel, const bool circular)
    {
-   This::encoder = dynamic_cast<fsm*> (encoder.clone());
-   This::inter = inter;
-   This::endatzero = endatzero;
-   This::parallel = parallel;
-   This::circular = circular;
-   This::iter = iter;
+   this->encoder = dynamic_cast<fsm*> (encoder.clone());
+   this->inter = inter;
+   this->endatzero = endatzero;
+   this->parallel = parallel;
+   this->circular = circular;
+   this->iter = iter;
    init();
    }
 

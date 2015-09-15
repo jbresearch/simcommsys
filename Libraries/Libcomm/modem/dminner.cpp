@@ -328,8 +328,8 @@ template <class real>
 void dminner<real>::set_thresholds(const real th_inner, const real th_outer)
    {
    user_threshold = true;
-   This::th_inner = th_inner;
-   This::th_outer = th_outer;
+   this->th_inner = th_inner;
+   this->th_outer = th_outer;
    test_invariant();
    }
 

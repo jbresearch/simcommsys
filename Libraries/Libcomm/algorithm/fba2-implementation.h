@@ -589,36 +589,36 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
    this->receiver.init(n, q, computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != This::N || n != This::n || q != This::q
-               || mtau_min != This::mtau_min || mtau_max != This::mtau_max
-               || mn_min != This::mn_min || mn_max != This::mn_max))
+         && (N != this->N || n != this->n || q != this->q
+               || mtau_min != this->mtau_min || mtau_max != this->mtau_max
+               || mn_min != this->mn_min || mn_max != this->mn_max))
       free();
    // code parameters
    assert(N > 0);
    assert(n > 0);
-   This::N = N;
-   This::n = n;
+   this->N = N;
+   this->n = n;
    assert(q > 1);
-   This::q = q;
+   this->q = q;
    // decoder parameters
    assert(mtau_min <= 0);
    assert(mtau_max >= 0);
-   This::mtau_min = mtau_min;
-   This::mtau_max = mtau_max;
+   this->mtau_min = mtau_min;
+   this->mtau_max = mtau_max;
    assert(mn_min <= 0);
    assert(mn_max >= 0);
-   This::mn_min = mn_min;
-   This::mn_max = mn_max;
+   this->mn_min = mn_min;
+   this->mn_max = mn_max;
    assert(m1_min <= 0);
    assert(m1_max >= 0);
-   This::m1_min = m1_min;
-   This::m1_max = m1_max;
+   this->m1_min = m1_min;
+   this->m1_max = m1_max;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
    assert(th_outer >= 0 && th_outer <= 1);
    assert(thresholding || (th_inner == 0 && th_outer == 0));
-   This::th_inner = real(th_inner);
-   This::th_outer = real(th_outer);
+   this->th_inner = real(th_inner);
+   this->th_outer = real(th_outer);
    }
 
 /*!
@@ -697,8 +697,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
       {
       // keep a copy of received vector and a-priori statistics
       // (we need them later when computing gamma lazily or locally)
-      This::r = r;
-      This::app = app;
+      this->r = r;
+      this->app = app;
       // reset cache values if necessary
       if (lazy)
          reset_cache();

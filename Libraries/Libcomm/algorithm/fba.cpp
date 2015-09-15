@@ -78,26 +78,26 @@ void fba<sig, real>::init(int tau, int mtau_min, int mtau_max, int m1_min, int m
    {
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (tau != This::tau || mtau_min != This::mtau_min
-               || mtau_max != This::mtau_max))
+         && (tau != this->tau || mtau_min != this->mtau_min
+               || mtau_max != this->mtau_max))
       free();
    // code parameters
    assert(tau > 0);
-   This::tau = tau;
+   this->tau = tau;
    // decoder parameters
    assert(mtau_min <= 0);
    assert(mtau_max >= 0);
-   This::mtau_min = mtau_min;
-   This::mtau_max = mtau_max;
+   this->mtau_min = mtau_min;
+   this->mtau_max = mtau_max;
    assert(m1_min <= 0);
    assert(m1_max >= 0);
-   This::m1_min = m1_min;
-   This::m1_max = m1_max;
+   this->m1_min = m1_min;
+   this->m1_max = m1_max;
    // path truncation parameters
    assert(th_inner >= 0 && th_inner <= 1);
-   This::th_inner = real(th_inner);
+   this->th_inner = real(th_inner);
    // decoding mode parameters
-   This::norm = norm;
+   this->norm = norm;
    }
 
 // Internal procedures
