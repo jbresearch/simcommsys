@@ -59,9 +59,6 @@ namespace libcomm {
 
 template <class sig, class real, class real2>
 class tvb : public stream_modulator<sig> , public parametric {
-private:
-   // Shorthand for class hierarchy
-   typedef stream_modulator<sig> Interface;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;

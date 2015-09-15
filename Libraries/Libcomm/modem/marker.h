@@ -60,7 +60,6 @@ template <class sig, class real, class real2>
 class marker : public stream_modulator<sig> {
 private:
    // Shorthand for class hierarchy
-   typedef stream_modulator<sig> Interface;
    typedef marker<sig, real, real2> This;
 public:
    /*! \name Type definitions */

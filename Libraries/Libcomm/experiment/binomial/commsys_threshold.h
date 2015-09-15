@@ -40,7 +40,6 @@ template <class S, class R>
 class commsys_threshold : public commsys_simulator<S, R> {
 private:
    // Shorthand for class hierarchy
-   typedef experiment Interface;
    typedef commsys_threshold<S, R> This;
    typedef commsys_simulator<S, R> Base;
 
