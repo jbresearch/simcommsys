@@ -81,7 +81,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(
          // a) upper limit is the same as global limit
          // b) lower limit is bounded by ⌈n/2⌉ (one deletion per output bit)
          const int m2max = Zmax;
-         const int m2min = std::max(Zmin, m1 - int(std::ceil(n / 2.0)));
+         const int m2min = std::max(Zmin, m1 - int(std::ceil(cw_length(i-1) / 2.0)));
          for (int m2 = m2min; m2 <= m2max; m2++)
             for (int delta2 = 0; delta2 <= 1; delta2++)
                {
@@ -109,7 +109,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta(const int i)
          // a) upper limit is the same as global limit
          // b) lower limit is bounded by ⌈n/2⌉ (one deletion per output bit)
          const int m2max = Zmax;
-         const int m2min = std::max(Zmin, m1 - int(std::ceil(n / 2.0)));
+         const int m2min = std::max(Zmin, m1 - int(std::ceil(cw_length(i) / 2.0)));
          for (int m2 = m2min; m2 <= m2max; m2++)
             for (int delta2 = 0; delta2 <= 1; delta2++)
                {
@@ -143,7 +143,7 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_message_app(
             // a) upper limit is the same as global limit
             // b) lower limit is bounded by ⌈n/2⌉ (one deletion per output bit)
             const int m2max = Zmax;
-            const int m2min = std::max(Zmin, m1 - int(std::ceil(n / 2.0)));
+            const int m2min = std::max(Zmin, m1 - int(std::ceil(cw_length(i) / 2.0)));
             for (int m2 = m2min; m2 <= m2max; m2++)
                for (int delta2 = 0; delta2 <= 1; delta2++)
                   {
@@ -512,14 +512,12 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(int N, int n,
    this->receiver.init(computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != this->N || n != this->n || q != this->q
+         && (N != this->N || q != this->q
                || mtau_min != this->Zmin || mtau_max != this->Zmax))
       free();
    // code parameters
    assert(N > 0);
-   assert(n > 0);
    this->N = N;
-   this->n = n;
    assert(q > 1);
    this->q = q;
    // decoder parameters
@@ -568,7 +566,6 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << N << std::endl;
-   std::cerr << "n = " << n << std::endl;
    std::cerr << "q = " << q << std::endl;
    std::cerr << "Zmin = " << Zmin << std::endl;
    std::cerr << "Zmax = " << Zmax << std::endl;
@@ -583,7 +580,6 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
    if (!initialised)
       allocate();
    // Validate sizes and offset
-   const int tau = N * n;
    assertalways(offset == -Zmin);
    assertalways(r.size() == tau + Zmax - Zmin);
    assertalways(sof_prior.size() == Zmax - Zmin + 1);
