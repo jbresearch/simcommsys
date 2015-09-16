@@ -569,7 +569,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
-      int N, int n, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
+      int N, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
       int m1_min, int m1_max, double th_inner, double th_outer,
       const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
    {

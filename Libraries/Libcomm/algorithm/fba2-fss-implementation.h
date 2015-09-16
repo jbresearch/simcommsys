@@ -502,8 +502,8 @@ void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta_and_results(
 // Initialization
 
 template <class receiver_t, class sig, class real, class real2, bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(int N, int n,
-      int q, int mtau_min, int mtau_max, int mn_min, int mn_max, int m1_min,
+void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(int N, int q,
+      int mtau_min, int mtau_max, int mn_min, int mn_max, int m1_min,
       int m1_max, double th_inner, double th_outer,
       const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
    {
