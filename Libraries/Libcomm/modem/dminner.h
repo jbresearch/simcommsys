@@ -201,7 +201,7 @@ public:
    // @}
 
    /*! \name Watermark-specific informative functions */
-   int get_symbolsize() const
+   int get_symbolsize(int i) const
       {
       return n;
       }
