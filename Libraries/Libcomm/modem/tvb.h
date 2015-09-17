@@ -70,8 +70,8 @@ public:
    typedef libbase::vector<array1d_t> array1vd_t;
    typedef libbase::vector<array1r_t> array1vr_t;
    enum codebook_t {
-      codebook_sparse = 0, //!< as in DM construction
-      codebook_random, //!< randomly-constructed codebooks, update every frame
+      codebook_sparse = 0, //!< sparse codes of length 'n', as in DM construction
+      codebook_random, //!< randomly-constructed codebooks of length 'n', update every frame
       codebook_user_sequential, //!< sequentially-applied user codebooks
       codebook_user_random, //!< randomly-applied user codebooks
       codebook_undefined
@@ -79,8 +79,8 @@ public:
    enum marker_t {
       marker_zero = 0, //!< no marker sequence
       marker_random, //!< random marker sequence, update every frame
-      marker_user_sequential, //!< sequentially-applied user sequence
-      marker_user_random, //!< randomly-applied user sequence
+      marker_user_sequential, //!< sequentially-applied user sequence (deprecated)
+      marker_user_random, //!< randomly-applied user sequence (deprecated)
       marker_undefined
    };
    enum storage_t {
@@ -92,10 +92,8 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int n; //!< codeword length in symbols
    int q; //!< number of codewords (input alphabet size)
    marker_t marker_type; //!< enum indicating marker sequence type
-   array1vs_t marker_vectors; //!< user set of marker vectors
    codebook_t codebook_type; //!< enum indicating codebook type
    std::string codebook_name; //!< name to describe codebook
    array2vs_t codebook_tables; //!< user set of codebooks
@@ -151,7 +149,7 @@ protected:
          array1d_t& eof_post, const libbase::size_type<libbase::vector> offset);
    // Internal methods
    int select_codebook(const int i) const;
-   int select_marker(const int i) const;
+   array1s_t select_marker(const int i, const int n) const;
    void fill_encoding_table(array2vs_t& encoding_table, const int offset,
          const int length) const;
    void demodulate_wrapper(const channel<sig>& chan, const array1s_t& rx,
@@ -173,19 +171,42 @@ private:
    //! Invariance test
    void test_invariant() const
       {
-      // check code parameters
-      assert(n >= 1);
-      assert(q >= 2 && q <= int(pow(field_utils<sig>::elements(), n)));
+#ifndef NDEBUG
+      // check alphabet size
+      assert(q >= 2);
+      // check codebooks
+      assert(num_codebooks() >= 1);
+      for (int i = 0; i < num_codebooks(); i++)
+         {
+         assert(codebook_tables.size().cols() == q);
+         const int n = codebook_tables(i, 0).size();
+         // check codebook parameters
+         assert(n >= 1);
+         assert(q <= int(pow(field_utils<sig>::elements(), n)));
+         }
+      // only allow random sequencing with equal-sized codebooks
+      if(codebook_type == codebook_user_random)
+         {
+         const int n = codebook_tables(0, 0).size();
+         for (int i = 1; i < num_codebooks(); i++)
+            assert(codebook_tables(i, 0).size() == n);
+         }
       // check cutoff thresholds
       assert(th_inner >= real(0) && th_inner <= real(1));
       assert(th_outer >= real(0) && th_outer <= real(1));
+#endif
       }
    // codebook wrapper operations
-   void validate_sequence_length(const array1vs_t& table) const;
+   void validate_sequence_length(const array1vs_t& table, const int n) const;
    void copycodebook(const int i, const array1vs_t& codebook_s);
    void showcodebook(std::ostream& sout, const array1vs_t& codebook) const;
    void showcodebooks(std::ostream& sout) const;
    void validatecodebook() const;
+   // codeword length operations
+   double get_avg_codeword_length() const;
+   int get_max_codeword_length() const;
+   int get_codeword_length() const;
+   int get_sequence_length(const int N) const;
    // Other utilities
    void checkforchanges(int m1_min, int m1_max, int mn_min,
          int mn_max, int mtau_min, int mtau_max) const;
@@ -195,8 +216,8 @@ public:
    /*! \name Constructors / Destructors */
    explicit tvb(const int n = 2, const int q = 2, const double th_inner = 0,
          const double th_outer = 0) :
-      n(n), q(q), marker_type(marker_random), codebook_type(codebook_random),
-            th_inner(real(th_inner)), th_outer(real(th_outer))
+         q(q), marker_type(marker_random), codebook_type(codebook_random), th_inner(
+               real(th_inner)), th_outer(real(th_outer))
       {
       init();
       }
@@ -211,14 +232,13 @@ public:
     *       won't need to clone the RX commsys object in stream simulations.
     */
    tvb(const tvb& x) :
-         n(x.n), q(x.q), marker_type(x.marker_type), marker_vectors(
-               x.marker_vectors), codebook_type(x.codebook_type), codebook_name(
+         q(x.q), marker_type(x.marker_type), codebook_type(x.codebook_type), codebook_name(
                x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
                x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
                x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
                x.lookahead), mychan(
-               dynamic_cast<channel_insdel<sig, real2>*>(x.mychan->clone())), r(x.r), encoding_table(
-               x.encoding_table), changed_encoding_table(
+               dynamic_cast<channel_insdel<sig, real2>*>(x.mychan->clone())), r(
+               x.r), encoding_table(x.encoding_table), changed_encoding_table(
                x.changed_encoding_table)
       {
       }
@@ -240,7 +260,8 @@ public:
    /*! \name TVB-specific informative functions */
    int get_symbolsize(int i) const
       {
-      return n;
+      assert(i >= 0 && i < num_codebooks());
+      return codebook_tables(i, 0).size();
       }
    int num_codebooks() const
       {
@@ -274,11 +295,12 @@ public:
       }
    libbase::size_type<libbase::vector> output_block_size() const
       {
-      return libbase::size_type<libbase::vector>(this->input_block_size() * n);
+      return libbase::size_type<libbase::vector>(
+            get_sequence_length(this->input_block_size()));
       }
    double energy() const
       {
-      return n;
+      return get_avg_codeword_length();
       }
 
    // Block modem operations - streaming extensions
@@ -298,15 +320,20 @@ public:
       {
       // Inherit sizes
       const int N = this->input_block_size();
+      assertalways(encoding_table.size().rows() == N);
       // construct list of codeword boundary positions
       array1i_t postable(N + 1);
-      for (int i = 0; i <= N; i++)
-         postable(i) = i * n;
+      for (int i = 0, j = 0; i <= N; i++)
+         {
+         postable(i) = j;
+         j += encoding_table(i, 0).size();
+         }
       return postable;
       }
    libbase::size_type<libbase::vector> get_suggested_lookahead(void) const
       {
-      return libbase::size_type<libbase::vector>(n * lookahead);
+      return libbase::size_type<libbase::vector>(
+            get_avg_codeword_length() * lookahead);
       }
    double get_suggested_exclusion(void) const
       {

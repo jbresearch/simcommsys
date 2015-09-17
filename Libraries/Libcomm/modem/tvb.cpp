@@ -67,6 +67,8 @@ int tvb<sig, real, real2>::select_codebook(const int i) const
          //       codebook_tables; this won't matter because this is not saved
          //       if we have a random codebook.
          // Generate codebook
+         {
+         const int n = codebook_tables(0, 0).size();
          for (int d = 0; d < q; d++)
             for (bool ready = false; !ready;)
                {
@@ -82,6 +84,7 @@ int tvb<sig, real, real2>::select_codebook(const int i) const
                      break;
                      }
                }
+         }
          break;
 
       case codebook_user_sequential:
@@ -111,10 +114,10 @@ int tvb<sig, real, real2>::select_codebook(const int i) const
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-int tvb<sig, real, real2>::select_marker(const int i) const
+libbase::vector<sig> tvb<sig, real, real2>::select_marker(const int i, const int n) const
    {
-   // Select marker vector
-   int mv_index = 0;
+   array1s_t marker_vector;
+   // Apply marker vector
    switch (marker_type)
       {
       case marker_zero:
@@ -123,26 +126,14 @@ int tvb<sig, real, real2>::select_marker(const int i) const
 
       case marker_random:
          for (int s = 0; s < n; s++)
-            const_cast<sig&>(marker_vectors(0)(s)) = sig(
-                  this->r.ival(field_utils<sig>::elements()));
-         break;
-
-      case marker_user_sequential:
-         assert(marker_vectors.size() >= 1);
-         mv_index = i % marker_vectors.size();
-         break;
-
-      case marker_user_random:
-         assert(marker_vectors.size() >= 1);
-         mv_index = r.ival(marker_vectors.size());
+            marker_vector(s) = sig(this->r.ival(field_utils<sig>::elements()));
          break;
 
       default:
          failwith("Unknown marker sequence type");
          break;
       }
-   // Return index to chosen marker vector
-   return mv_index;
+   return marker_vector;
    }
 
 /*! \brief Fills the entries of the encoding table, as requested
@@ -175,21 +166,23 @@ void tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
       {
       // Select codebook and marker vector
       const int cb_index = select_codebook(i);
-      const int mv_index = select_marker(i);
+      const int n = codebook_tables(cb_index, 0).size();
+      const array1s_t marker_vector = select_marker(i, n);
 #if DEBUG>=2
       std::cerr << "Codebook for i = " << i << std::endl;
       showcodebook(std::cerr, codebook_tables.row(cb_index));
       std::cerr << "Marker for i = " << i << std::endl;
       std::cerr << "\t";
-      marker.serialize(std::cerr, ' ');
+      marker_vector.serialize(std::cerr, ' ');
 #endif
       // Encode each possible input symbol
       for (int d = 0; d < q; d++)
          {
          encoding_table(offset + i, d) = codebook_tables(cb_index, d);
-         if (marker_type != marker_zero)
+         // apply marker vector if necessary
+         if (marker_vector.size() > 0)
             field_utils<sig>::add_to(encoding_table(offset + i, d),
-                  marker_vectors(mv_index));
+                  marker_vector);
          }
       }
    }
@@ -204,7 +197,7 @@ void tvb<sig, real, real2>::advance() const
       {
       libbase::cputimer t("t_advance");
       // Initialize space for encoding table
-      libbase::allocate(encoding_table, N + lookahead, q, n);
+      encoding_table.init(N + lookahead, q);
       // Advance this system and set up the corresponding encoding table
       fill_encoding_table(encoding_table, 0, N);
       // if we have lookahead, make a copy and advance as necessary
@@ -229,23 +222,30 @@ void tvb<sig, real, real2>::advance() const
 // encoding and decoding functions
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::domodulate(const int N, const array1i_t& encoded,
+void tvb<sig, real, real2>::domodulate(const int q, const array1i_t& encoded,
       array1s_t& tx)
    {
-   // TODO: when N is removed from the interface, rename 'tau' to 'N'
    // Inherit sizes
-   const int tau = this->input_block_size();
+   const int N = this->input_block_size();
    // Check validity
-   assertalways(tau == encoded.size());
+   assertalways(N == encoded.size());
    // Each 'encoded' symbol must be representable by a single codeword
-   assertalways(N == q);
+   assertalways(this->q == q);
+   // Determine length of frame
+   int tau = 0;
+   for (int i = 0; i < N; i++)
+      tau += encoding_table(i, 0).size();
    // Initialise result vector
-   tx.init(n * tau);
-   assertalways(encoding_table.size().rows() == tau + lookahead);
+   tx.init(tau);
+   assertalways(encoding_table.size().rows() == N + lookahead);
    assertalways(encoding_table.size().cols() == q);
    // Encode source stream
-   for (int i = 0; i < tau; i++)
-      tx.segment(i * n, n) = encoding_table(i, encoded(i));
+   for (int i = 0, j = 0; i < N; i++)
+      {
+      const int n = encoding_table(i, 0).size();
+      tx.segment(j, n) = encoding_table(i, encoded(i));
+      j += n;
+      }
 #if DEBUG>=3
    std::cerr << "encoded = " << encoded << std::endl;
    std::cerr << "tx = " << tx << std::endl;
@@ -332,6 +332,7 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
    if (lookahead > 0 && app.size() > 0)
       {
       // Initialise extended app table (one symbol per timestep)
+      const int n = get_avg_codeword_length();
       assert(lookahead % n == 0);
       libbase::allocate(app_x, N + lookahead / n, q);
       app_x = 1.0; // equiprobable
@@ -396,12 +397,16 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
 #endif
    // Inherit block size from last modulation step (and include lookahead)
    const int N = this->input_block_size() + lookahead;
-   const int tau = N * n;
    assert(N > 0);
+   // Determine average frame length (including lookahead section)
+   const int tau = get_sequence_length(this->input_block_size())
+         + get_sequence_length(lookahead);
+   // Determine longest codeword we need to work with
+   const int nmax = get_max_codeword_length();
    // Copy channel for access within R()
    mychan.reset(dynamic_cast<channel_insdel<sig, real2>*> (chan.clone()));
-   // Set channel block size to q-ary symbol size
-   mychan->set_blocksize(n);
+   // Set channel block size to longest codeword
+   mychan->set_blocksize(nmax);
    // Set the probability of channel event outside chosen limits
    mychan->set_pr(qids_utils::divide_error_probability(Pr, N));
    // Determine required FBA parameter values
@@ -414,8 +419,8 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    else
       mychan->compute_limits(tau, Pr, mtau_min, mtau_max, sof_pdf, offset);
    int mn_min, mn_max;
-   mychan->compute_limits(n, qids_utils::divide_error_probability(Pr, N), mn_min,
-         mn_max);
+   mychan->compute_limits(nmax, qids_utils::divide_error_probability(Pr, N),
+         mn_min, mn_max);
    int m1_min, m1_max;
    mychan->compute_limits(1, qids_utils::divide_error_probability(Pr, tau),
          m1_min, m1_max);
@@ -467,7 +472,7 @@ void tvb<sig, real, real2>::init()
    {
 #ifndef NDEBUG
    // If applicable, display codebook
-   if (n > 2 && codebook_type != codebook_random)
+   if (codebook_type != codebook_random)
       showcodebooks(libbase::trace);
 #endif
    // If necessary, validate codebook
@@ -481,10 +486,10 @@ void tvb<sig, real, real2>::init()
    }
 
 /*!
- * \brief Check that all entries in table have correct length
+ * \brief Check that all entries in table have the given length
  */
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::validate_sequence_length(const array1vs_t& table) const
+void tvb<sig, real, real2>::validate_sequence_length(const array1vs_t& table, const int n) const
    {
    assertalways(table.size() > 0);
    for (int i = 0; i < table.size(); i++)
@@ -499,7 +504,8 @@ void tvb<sig, real, real2>::copycodebook(const int i,
       const array1vs_t& codebook_s)
    {
    assertalways(codebook_s.size() == q);
-   validate_sequence_length(codebook_s);
+   const int n = codebook_s(0).size();
+   validate_sequence_length(codebook_s, n);
    // insert into matrix
    assertalways(i >= 0 && i < num_codebooks());
    assertalways(codebook_tables.size().cols() == q);
@@ -557,6 +563,95 @@ void tvb<sig, real, real2>::validatecodebook() const
             assertalways(codebook_tables(i, dd).isnotequalto(codebook_tables(i, d)));
          //assertalways(codebook(i, dd) != codebook(i, d));
          }
+   }
+
+/*!
+ * \brief Determine the average codeword length for given codebooks
+ */
+
+template <class sig, class real, class real2>
+double tvb<sig, real, real2>::get_avg_codeword_length() const
+   {
+   double n = 0;
+   switch (codebook_type)
+      {
+      case codebook_sparse:
+      case codebook_random:
+         assert(num_codebooks() == 1);
+         n = codebook_tables(0, 0).size();
+         break;
+
+      case codebook_user_sequential:
+      case codebook_user_random:
+         assert(num_codebooks() >= 1);
+         for (int i = 0; i < num_codebooks(); i++)
+            n += codebook_tables(i, 0).size();
+         n /= num_codebooks();
+         break;
+
+      default:
+         failwith("Unknown codebook type");
+         break;
+      }
+   return n;
+   }
+
+/*!
+ * \brief Determine the longest codeword for given codebooks
+ */
+
+template <class sig, class real, class real2>
+int tvb<sig, real, real2>::get_max_codeword_length() const
+   {
+   int n = 0;
+   assert(num_codebooks() >= 1);
+   for (int i = 0; i < num_codebooks(); i++)
+      n = std::max(n, int(codebook_tables(i, 0).size()));
+   return n;
+   }
+
+/*!
+ * \brief Determine the codeword length (single codebook only)
+ */
+
+template <class sig, class real, class real2>
+int tvb<sig, real, real2>::get_codeword_length() const
+   {
+   assert(num_codebooks() == 1);
+   return codebook_tables(0, 0).size();
+   }
+
+/*!
+ * \brief Determine the frame length for the given number of symbols
+ */
+
+template <class sig, class real, class real2>
+int tvb<sig, real, real2>::get_sequence_length(const int N) const
+   {
+   int tau = 0;
+   switch (codebook_type)
+      {
+      case codebook_sparse:
+      case codebook_random:
+      case codebook_user_random:
+         tau = int(N * get_avg_codeword_length());
+         break;
+
+      case codebook_user_sequential:
+         {
+         const int blk = N / num_codebooks();
+         tau = int(blk * num_codebooks() * get_avg_codeword_length());
+         const int k = N % num_codebooks();
+         for (int i = 0; i < k; i++)
+            tau += codebook_tables(i, 0).size();
+         }
+         break;
+
+      default:
+         failwith("Unknown codebook type");
+         break;
+      }
+   return tau;
    }
 
 //! Inform user if state space limits have changed (debug build only)
@@ -630,15 +725,15 @@ template <class sig, class real, class real2>
 std::string tvb<sig, real, real2>::description() const
    {
    std::ostringstream sout;
-   sout << "Time-Varying Block Code (" << n << "," << q << ", ";
+   sout << "Time-Varying Block Code (q=" << q << ", ";
    switch (codebook_type)
       {
       case codebook_sparse:
-         sout << "sparse codebook";
+         sout << "sparse codebook n=" << get_codeword_length();
          break;
 
       case codebook_random:
-         sout << "random codebooks";
+         sout << "random codebooks n=" << get_codeword_length();
          break;
 
       case codebook_user_sequential:
@@ -663,14 +758,6 @@ std::string tvb<sig, real, real2>::description() const
 
       case marker_random:
          sout << ", random marker";
-         break;
-
-      case marker_user_sequential:
-         sout << ", user [" << marker_vectors.size() << ", sequential]";
-         break;
-
-      case marker_user_random:
-         sout << ", user [" << marker_vectors.size() << ", random]";
          break;
 
       default:
@@ -721,7 +808,7 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 10 << std::endl;
+   sout << 11 << std::endl;
    sout << "# Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "# Outer threshold" << std::endl;
@@ -740,8 +827,6 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    sout << "# Number of codewords to look ahead when stream decoding"
          << std::endl;
    sout << lookahead << std::endl;
-   sout << "# n" << std::endl;
-   sout << n << std::endl;
    sout << "# q" << std::endl;
    sout << q << std::endl;
    sout << "# codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])"
@@ -751,6 +836,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
       {
       case codebook_sparse:
       case codebook_random:
+         sout << "# codeword length (n)" << std::endl;
+         sout << get_codeword_length() << std::endl;
          break;
 
       case codebook_user_sequential:
@@ -763,6 +850,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
          assert(codebook_tables.size().cols() == q);
          for (int i = 0; i < num_codebooks(); i++)
             {
+            sout << "#: codeword length (table " << i << ")" << std::endl;
+            sout << codebook_tables(i, 0).size() << std::endl;
             sout << "#: codebook entries (table " << i << ")" << std::endl;
             for (int d = 0; d < q; d++)
                {
@@ -773,11 +862,10 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
          break;
 
       default:
-         failwith("Unknown codebook type");
+         failwith("Unsupported codebook type");
          break;
       }
-   sout << "# marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])"
-         << std::endl;
+   sout << "# marker type (0=zero, 1=random)" << std::endl;
    sout << marker_type << std::endl;
    switch (marker_type)
       {
@@ -785,19 +873,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
       case marker_random:
          break;
 
-      case marker_user_sequential:
-      case marker_user_random:
-         sout << "#: marker vectors" << std::endl;
-         sout << marker_vectors.size() << std::endl;
-         for (int i = 0; i < marker_vectors.size(); i++)
-            {
-            marker_vectors(i).serialize(sout, ' ');
-            //sout << std::endl;
-            }
-         break;
-
       default:
-         failwith("Unknown marker sequence type");
+         failwith("Unsupported marker sequence type");
          break;
       }
    return sout;
@@ -830,6 +907,10 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 9 Added probability of channel event outside chosen limits
  *
  * \version 10 Removed normalization and batch flags (both always enabled)
+ *
+ * \version 11 Added support for codebooks with different codeword length;
+ *      removed internal representation of user-defined marker sequences
+ *      (use separate codebooks instead)
  */
 
 template <class sig, class real, class real2>
@@ -890,7 +971,9 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
    else
       lookahead = 0;
    // read code size
-   sin >> libbase::eatcomments >> n >> libbase::verify;
+   int n = 0;
+   if (version < 11)
+      sin >> libbase::eatcomments >> n >> libbase::verify;
    if (version >= 6)
       sin >> libbase::eatcomments >> q >> libbase::verify;
    else
@@ -908,6 +991,10 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
          {
          // sparse codebooks defined only for GF(2)
          assertalways(field_utils<sig>::elements() == 2);
+         // get codeword length
+         if (version >= 11)
+            sin >> libbase::eatcomments >> n >> libbase::verify;
+         // create sparse codebook and copy over
          libbase::sparse mycodebook(q, n);
          codebook_tables.init(1, q);
          for (int i = 0; i < q; i++)
@@ -919,6 +1006,9 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
          break;
 
       case codebook_random:
+         // get codeword length
+         if (version >= 11)
+            sin >> libbase::eatcomments >> n >> libbase::verify;
          // Initialize space for single codebook
          libbase::allocate(codebook_tables, 1, q, n);
          // Codebook gets re-generated for each symbol index on advance()
@@ -933,6 +1023,8 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
          codebook_tables.init(temp, q);
          for (int i = 0; i < num_codebooks(); i++)
             {
+            // read codeword length
+            sin >> libbase::eatcomments >> n >> libbase::verify;
             // read codebook from stream
             array1vs_t codebook_s;
             libbase::allocate(codebook_s, q, n);
@@ -958,27 +1050,50 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
       {
       case marker_zero:
       case marker_random:
-         // Initialize space for a single marker vector
-         libbase::allocate(marker_vectors, 1, n);
-         // Reset to zero (really only necessary for marker_zero)
-         marker_vectors(0) = 0;
-         // Marker gets re-generated for each symbol index on advance()
+         // Nothing to do here. Marker gets re-generated and applied as needed
+         // for each symbol index on advance()
          break;
 
       case marker_user_sequential:
       case marker_user_random:
+         {
+         // only valid if we had a single user-supplied codebook
+         assertalways(
+               codebook_type == codebook_user_sequential
+                     || codebook_type == codebook_user_random);
+         assertalways(codebook_tables.size().rows() == 1);
          // read count of marker vectors
          sin >> libbase::eatcomments >> temp >> libbase::verify;
-         // read marker vectors from stream
-         libbase::allocate(marker_vectors, temp, n);
+         // make a local copy of existing codebook
+         array1vs_t codebook_s;
+         libbase::allocate(codebook_s, q, n);
+         for (int d = 0; d < q; d++)
+            codebook_s(d) = codebook_tables(0,d);
+         // duplicate to be able to apply each marker
+         codebook_tables.init(temp, q);
+         for (int i = 0; i < num_codebooks(); i++)
+            copycodebook(i, codebook_s);
+         // read marker vectors from stream and apply to corresponding codebook
+         array1s_t marker_vector;
+         marker_vector.init(n);
          sin >> libbase::eatcomments;
          for (int i = 0; i < temp; i++)
             {
-            marker_vectors(i).serialize(sin);
+            // read marker vector i
+            marker_vector.serialize(sin);
             libbase::verify(sin);
+            // apply to codebook i
+            for (int d = 0; d < q; d++)
+               field_utils<sig>::add_to(codebook_tables(i, d), marker_vector);
             }
-         // validate list of marker vectors
-         validate_sequence_length(marker_vectors);
+         // determine order of codebooks based on order of markers
+         if (marker_type == marker_user_sequential)
+            codebook_type = codebook_user_sequential;
+         else if (marker_type == marker_user_random)
+            codebook_type = codebook_user_random;
+         // reset marker type to none
+         marker_type = marker_zero;
+         }
          break;
 
       default:
