@@ -60,8 +60,8 @@ public:
    // @}
 public:
    //! Determine memory required for global storage mode (in MiB)
-   static int get_memory_required(int N, int n, int q, int mtau_min,
-         int mtau_max, int mn_min, int mn_max)
+   static int get_memory_required(int N, int q, int mtau_min, int mtau_max,
+         int mn_min, int mn_max)
       {
       // determine memory required
       // NOTE: do all computations at 64-bit, or we get intermediate overflow!

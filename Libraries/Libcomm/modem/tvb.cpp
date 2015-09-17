@@ -423,8 +423,8 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    //! Determine whether to use global storage
    static bool globalstore = false; // set to avoid compiler warning
    bool last_globalstore = globalstore; // keep track of last setting
-   const int required = fba_type::get_memory_required(N, n, q, mtau_min,
-         mtau_max, mn_min, mn_max);
+   const int required = fba_type::get_memory_required(N, q, mtau_min, mtau_max,
+         mn_min, mn_max);
    switch (storage_type)
       {
       case storage_local:
