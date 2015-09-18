@@ -216,9 +216,11 @@ public:
    /*! \name Constructors / Destructors */
    explicit tvb(const int n = 2, const int q = 2, const double th_inner = 0,
          const double th_outer = 0) :
-         q(q), marker_type(marker_random), codebook_type(codebook_random), th_inner(
+         q(q), marker_type(marker_zero), codebook_type(codebook_random), th_inner(
                real(th_inner)), th_outer(real(th_outer))
       {
+      // Initialize space for random codebook
+      libbase::allocate(codebook_tables, 1, q, n);
       init();
       }
    // @}
