@@ -561,7 +561,6 @@ void tvb<sig, real, real2>::validatecodebook() const
          // all entries should be distinct for each codebook index
          for (int dd = 0; dd < d; dd++)
             assertalways(codebook_tables(i, dd).isnotequalto(codebook_tables(i, d)));
-         //assertalways(codebook(i, dd) != codebook(i, d));
          }
    }
 
