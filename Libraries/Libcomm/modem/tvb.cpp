@@ -1023,7 +1023,8 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
          for (int i = 0; i < num_codebooks(); i++)
             {
             // read codeword length
-            sin >> libbase::eatcomments >> n >> libbase::verify;
+            if (version >= 11)
+               sin >> libbase::eatcomments >> n >> libbase::verify;
             // read codebook from stream
             array1vs_t codebook_s;
             libbase::allocate(codebook_s, q, n);
@@ -1061,6 +1062,7 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
                codebook_type == codebook_user_sequential
                      || codebook_type == codebook_user_random);
          assertalways(codebook_tables.size().rows() == 1);
+         assertalways(version <= 10);
          // read count of marker vectors
          sin >> libbase::eatcomments >> temp >> libbase::verify;
          // make a local copy of existing codebook
