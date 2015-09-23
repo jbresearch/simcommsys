@@ -255,7 +255,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (float)(double)(mpgnu)(logrealfast)
 #endif
 
-/* Serialization string: commsys_stream<type>
+/* Serialization string: commsys_stream<type,container,real>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      container = vector | matrix

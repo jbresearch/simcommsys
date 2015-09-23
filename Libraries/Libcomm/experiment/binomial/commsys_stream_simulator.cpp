@@ -473,7 +473,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (float)(double)(mpgnu)(logrealfast)
 #endif
 
-/* Serialization string: commsys_stream_simulator<type,collector>
+/* Serialization string: commsys_stream_simulator<type,collector,real>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      collector = errors_hamming | errors_levenshtein | ...
