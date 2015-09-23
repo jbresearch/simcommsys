@@ -238,11 +238,12 @@ public:
                x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
                x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
                x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
-               x.lookahead), mychan(
-               dynamic_cast<channel_insdel<sig, real2>*>(x.mychan->clone())), r(
-               x.r), encoding_table(x.encoding_table), changed_encoding_table(
-               x.changed_encoding_table)
+               x.lookahead), r(x.r), encoding_table(x.encoding_table), changed_encoding_table(
+               x.changed_encoding_table), mtau_min(x.mtau_min), mtau_max(
+               x.mtau_max)
       {
+      if (x.mychan.get())
+         mychan.reset();
       }
    // @}
 
