@@ -353,7 +353,7 @@ def update_map_aggregating(data):
 # upgrade serialization string for uncoded (replace with memoryless or update
 # format to new uncoded, as needed)
 def update_uncoded(data):
-   component = 'uncoded'
+   component = 'uncoded<'
    # find the lines with the required component
    matches = [line for line in data if line.startswith(component)]
    # confirm there is the required component
