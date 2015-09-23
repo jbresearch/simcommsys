@@ -427,6 +427,47 @@ def update_uncoded(data):
    # return result
    return result
 
+# upgrade serialization string for commsys_stream (add real param)
+def update_commsys_stream(data):
+   component = 'commsys_stream'
+   # find the lines with the required component
+   matches = [line for line in data if line.startswith(component)]
+   # confirm there is the required component
+   if not matches:
+      print "No %s in file" % component
+      return data
+   # copy input before component, and remove
+   component = matches[0]
+   i = data.index(component)
+   result = data[0:i]
+   data = data[i:]
+   assert data.pop(0) == component
+   # determine component template parameters (match 2 only)
+   regex = re.compile(r'\w+<(\w+),(\w+)>')
+   tparam = regex.findall(component)
+   # add parameter if necessary and rewrite
+   if tparam:
+      assert len(tparam) == 1
+      stype = tparam[0][0]
+      container = tparam[0][1]
+      # determine real type from channel
+      matches = [line for line in data if line.startswith('qids')]
+      assert matches
+      channel = matches[0]
+      regex = re.compile(r'\w+<(\w+),(\w+)>')
+      tparam = regex.findall(channel)
+      assert tparam
+      assert tparam[0][0] == stype
+      real = tparam[0][1]
+      # write updated system line
+      result.append("commsys_stream<%s,%s,%s>" % (stype, container, real))
+   else:
+      result.append(component)
+   # copy input after component
+   result += data
+   # return result
+   return result
+
 ## file processing
 
 def process(file):
@@ -442,6 +483,7 @@ def process(file):
    lines = update_map_dividing(lines)
    lines = update_map_aggregating(lines)
    lines = update_uncoded(lines)
+   lines = update_commsys_stream(lines)
    # output
    savedata(open(file, 'w'), lines)
    return
