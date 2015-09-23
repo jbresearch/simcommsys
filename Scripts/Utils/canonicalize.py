@@ -53,7 +53,10 @@ def process(executable,file):
       if output is not None:
          shutil.move(tmpfile,file)
          print output
-   return
+         return True
+      else:
+         return False
+   return None
 
 def main():
    if len(sys.argv) < 2:
@@ -69,8 +72,15 @@ def main():
       sys.exit(1)
    # main process
    print "Starting canonicalization process for %d files..." % len(files)
+   table = []
    for file in files:
-      process(executable,file)
+      if process(executable,file) == False:
+         table.append(file)
+   # show list of problem files
+   if table:
+      print "Problems encountered with %d files:" % len(table)
+      for file in table:
+         print file
    return
 
 # Run main, if called from the command line
