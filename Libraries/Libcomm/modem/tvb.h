@@ -243,7 +243,7 @@ public:
                x.mtau_max)
       {
       if (x.mychan.get())
-         mychan.reset();
+         mychan.reset(dynamic_cast<channel_insdel<sig, real2>*> (x.mychan->clone()));
       }
    // @}
 
