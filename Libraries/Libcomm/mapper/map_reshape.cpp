@@ -39,7 +39,7 @@ template <class dbl>
 void map_reshape<dbl>::dotransform(const array2i_t& in,
       array2i_t& out) const
    {
-   assertalways(in.size() == This::input_block_size());
+   assertalways(in.size() == this->input_block_size());
    // Initialize results matrix
    out.init(This::output_block_size());
 #if DEBUG>=2
@@ -70,7 +70,7 @@ void map_reshape<dbl>::dotransform(const array2vd_t& pin,
    assertalways(pin.size() > 0);
    assertalways(pin(0, 0).size() == Base::q);
    // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == This::input_block_size());
+   assertalways(pin.size() == this->input_block_size());
    // Initialize results vector
    pout.init(This::output_block_size());
 #if DEBUG>=2
@@ -103,7 +103,7 @@ void map_reshape<dbl>::doinverse(const array2vd_t& pin,
    // Confirm input sequence to be of the correct length
    assertalways(pin.size() == This::output_block_size());
    // Initialize results vector
-   pout.init(This::input_block_size());
+   pout.init(this->input_block_size());
 #if DEBUG>=2
    libbase::trace << "DEBUG (map_reshape): Inverse ";
    libbase::trace << pin.size().rows() << "×" << pin.size().cols() << " to ";

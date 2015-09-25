@@ -39,7 +39,7 @@ void map_dividing<libbase::vector, dbl, dbl2>::dotransform(const array1i_t& in,
       array1i_t& out) const
    {
    // Confirm input sequence to be of the correct length
-   assertalways(in.size() == This::input_block_size());
+   assertalways(in.size() == this->input_block_size());
    // Create converter object and perform necessary transform
    libbase::symbol_converter<dbl,dbl2> converter(Base::M, Base::q);
    converter.divide_symbols(in, out);
@@ -50,7 +50,7 @@ void map_dividing<libbase::vector, dbl, dbl2>::dotransform(
       const array1vd_t& pin, array1vd_t& pout) const
    {
    // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == This::input_block_size());
+   assertalways(pin.size() == this->input_block_size());
    // Create converter object and perform necessary transform
    libbase::symbol_converter<dbl,dbl2> converter(Base::M, Base::q);
    converter.divide_probabilities(pin, pout);

@@ -40,7 +40,7 @@ void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(const array1i_t& i
       array1i_t& out) const
    {
    // Confirm input sequence to be of the correct length
-   assertalways(in.size() == This::input_block_size());
+   assertalways(in.size() == this->input_block_size());
    // Create converter object and perform necessary transform
    libbase::symbol_converter<dbl,dbl2> converter(Base::q, Base::M);
    converter.aggregate_symbols(in, out);
@@ -51,7 +51,7 @@ void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(const array1vd_t& 
       array1vd_t& pout) const
    {
    // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == This::input_block_size());
+   assertalways(pin.size() == this->input_block_size());
    // Create converter object and perform necessary transform
    libbase::symbol_converter<dbl,dbl2> converter(Base::q, Base::M);
    converter.aggregate_probabilities(pin, pout);
