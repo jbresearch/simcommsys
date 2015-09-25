@@ -54,6 +54,8 @@ void map_concatenated<C, dbl>::setup()
    // set up mapper with required parameters
    (*mapper_it)->set_parameters(q, M);
    (*mapper_it)->set_blocksize(size);
+   // inherit output size from last mapper:
+   osize = (*mapper_it)->output_block_size();
    test_invariant();
    }
 

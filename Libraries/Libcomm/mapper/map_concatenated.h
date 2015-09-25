@@ -51,6 +51,7 @@ private:
    /*! \name Internal object representation */
    mapper_list_t mapper_list;
    interface_list_t interface_list;
+   libbase::size_type<C> osize; //!< Output block size in symbols
    // @}
 
 protected:
@@ -86,6 +87,12 @@ public:
       // Seed mappers
       for(typename mapper_list_t::iterator it = mapper_list.begin(); it != mapper_list.end(); it++)
          (*it)->seedfrom(r);
+      }
+
+   // Informative functions
+   libbase::size_type<libbase::vector> output_block_size() const
+      {
+      return osize;
       }
 
    // Description
