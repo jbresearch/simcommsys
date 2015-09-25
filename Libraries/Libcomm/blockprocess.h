@@ -61,9 +61,20 @@ public:
 
    /*! \name Block-processing operations */
    //! Always advance to the next block
-   void advance_always() const;
+   void advance_always() const
+      {
+      advance();
+      dirty = false;
+      }
    //! Advance to the next block only if this block is 'dirty'
-   void advance_if_dirty() const;
+   void advance_if_dirty() const
+      {
+      if (dirty)
+         {
+         advance();
+         dirty = false;
+         }
+      }
    //! Mark this block as 'dirty'
    void mark_as_dirty() const
       {
