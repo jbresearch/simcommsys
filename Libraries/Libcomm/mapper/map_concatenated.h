@@ -75,6 +75,25 @@ protected:
    // @}
    // Interface with mapper
    void setup();
+   void advance() const
+      {
+      test_invariant();
+      // Advance mappers
+      for(typename mapper_list_t::const_iterator it = mapper_list.begin(); it != mapper_list.end(); it++)
+         (*it)->advance_always();
+      }
+   void status_changed() const
+      {
+      test_invariant();
+      // Advance mappers
+      for(typename mapper_list_t::const_iterator it = mapper_list.begin(); it != mapper_list.end(); it++)
+         {
+         if (this->dirty)
+            (*it)->mark_as_dirty();
+         else
+            (*it)->mark_as_clean();
+         }
+      }
    void dotransform(const C<int>& in, C<int>& out) const;
    void dotransform(const C<array1d_t>& pin, C<array1d_t>& pout) const;
    void doinverse(const C<array1d_t>& pin, C<array1d_t>& pout) const;
