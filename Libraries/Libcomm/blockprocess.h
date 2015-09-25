@@ -46,6 +46,10 @@ protected:
    virtual void advance() const
       {
       }
+   //! Hook for processes when status changes
+   virtual void status_changed() const
+      {
+      }
    // @}
 
 public:
@@ -78,11 +82,13 @@ public:
    void mark_as_dirty() const
       {
       dirty = true;
+      status_changed();
       }
    //! Mark this block as not 'dirty'
    void mark_as_clean() const
       {
       dirty = false;
+      status_changed();
       }
    // @}
 };
