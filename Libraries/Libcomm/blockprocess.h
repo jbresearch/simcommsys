@@ -50,9 +50,8 @@ protected:
 
 public:
    /*! \name Constructors / Destructors */
-   blockprocess()
+   blockprocess() : dirty(true)
       {
-      dirty = true;
       }
    virtual ~blockprocess()
       {
@@ -64,7 +63,7 @@ public:
    void advance_always() const
       {
       advance();
-      dirty = false;
+      mark_as_clean();
       }
    //! Advance to the next block only if this block is 'dirty'
    void advance_if_dirty() const
@@ -72,7 +71,7 @@ public:
       if (dirty)
          {
          advance();
-         dirty = false;
+         mark_as_clean();
          }
       }
    //! Mark this block as 'dirty'
