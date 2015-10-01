@@ -63,7 +63,8 @@ private:
    int cur_cdc_iter; //!< Current decoder iteration
    int cur_mdm_iter; //!< Current modem iteration
    C<S> last_received; //!< Last received block
-   C<array1d_t> ptable_mapped; //!< Prior information to use in demodulation
+   C<array1d_t> ptable_ext_modem; //!< Extrinsic information vector (modem alphabet)
+   C<array1d_t> ptable_ext_codec; //!< Extrinsic information vector (codec alphabet)
    hard_decision<C, double, int> hd_functor; //!< Hard-decision box
    // @}
 public:

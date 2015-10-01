@@ -34,7 +34,6 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Log calls to receive_path and decode
-// 3 - Show part of soft information being passed around
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -51,7 +50,8 @@ void commsys_fulliter<S, C>::receive_path(const C<S>& received)
    // Store received vector
    last_received = received;
    // Reset modem
-   ptable_mapped.init(0);
+   ptable_ext_modem.init(0);
+   ptable_ext_codec.init(0);
    cur_mdm_iter = 0;
    // Reset decoder
    cur_cdc_iter = 0;
@@ -67,42 +67,51 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
    // If this is the first decode cycle, we need to do the receive-path first
    if (cur_cdc_iter == 0)
       {
+      // ** Inner code (modem class) **
       // Demodulate
-      C<array1d_t> ptable_full;
+      C<array1d_t> ptable_post_modem;
       informed_modulator<S>& m =
             dynamic_cast<informed_modulator<S>&> (*this->mdm);
-      m.demodulate(*this->rxchan, last_received, ptable_mapped, ptable_full);
-#if DEBUG>=3
-      libbase::trace << "DEBUG (fulliter): modem soft-output = " << std::endl;
-      libbase::trace << ptable_mapped.extract(0,5);
-#endif
-      // Compute extrinsic information for passing to codec
-      libbase::compute_extrinsic(ptable_mapped, ptable_full, ptable_mapped);
-      // After-demodulation receive path
-      this->softreceive_path(ptable_mapped);
+      m.demodulate(*this->rxchan, last_received, ptable_ext_modem, ptable_post_modem);
+      // Normalize posterior information
+      libbase::normalize_results(ptable_post_modem, ptable_post_modem);
+      // Inverse Map posterior information
+      C<array1d_t> ptable_post_codec;
+      this->map->inverse(ptable_post_modem, ptable_post_codec);
+      // Compute extrinsic information from uncoded posteriors and priors
+      // (codec alphabet)
+      libbase::compute_extrinsic(ptable_ext_codec, ptable_post_codec,
+            ptable_ext_codec);
+      // Pass extrinsic information through mapper
+      this->map->transform(ptable_ext_codec, ptable_ext_modem);
+      // Mark mapper as clean (we will need to use again this cycle)
+      this->map->mark_as_clean();
+
+      // ** Outer code (codec class) **
+      // Translate
+      this->cdc->init_decoder(ptable_ext_codec);
       }
-   // Just do a plain decoder iteration if this is not the last one in the cycle
-   if (++cur_cdc_iter < this->cdc->num_iter())
-      this->cdc->decode(decoded);
-   // Otherwise, do a soft-output iteration
-   else
+   // Perform soft-output decoding
+   codec_softout<C>& c = dynamic_cast<codec_softout<C>&> (*this->cdc);
+   C<array1d_t> ri_codec;
+   C<array1d_t> ro_codec;
+   c.softdecode(ri_codec, ro_codec);
+   // Compute hard-decision for results gatherer
+   hd_functor(ri_codec, decoded);
+   // Compute feedback path if this is the last codec iteration
+   if (++cur_cdc_iter == this->cdc->num_iter())
       {
-      // Perform soft-output decoding
-      codec_softout<C>& c = dynamic_cast<codec_softout<C>&> (*this->cdc);
-      C<array1d_t> ri;
-      C<array1d_t> ro;
-      c.softdecode(ri, ro);
-      // Compute hard-decision for results gatherer
-      hd_functor(ri, decoded);
+      // Normalize posterior information
+      libbase::normalize_results(ro_codec, ro_codec);
       // Pass posterior information through mapper
-      C<array1d_t> ro_mapped;
-      this->map->transform(ro, ro_mapped);
-      // Compute extrinsic information for next demodulation cycle
-      libbase::compute_extrinsic(ptable_mapped, ro_mapped, ptable_mapped);
-#if DEBUG>=3
-      libbase::trace << "DEBUG (fulliter): codec soft-output = " << std::endl;
-      libbase::trace << ptable_mapped.extract(0,5);
-#endif
+      C<array1d_t> ro_modem;
+      this->map->transform(ro_codec, ro_modem);
+      // Compute extrinsic information from encoded posteriors and priors
+      // (modem alphabet)
+      libbase::compute_extrinsic(ptable_ext_modem, ro_modem, ptable_ext_modem);
+      // Inverse Map extrinsic information
+      this->map->inverse(ptable_ext_modem, ptable_ext_codec);
+
       // Reset decoder iteration count
       cur_cdc_iter = 0;
       // Update modem iteration count
