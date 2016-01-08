@@ -259,7 +259,6 @@ public:
     */
    void init(const array2vs_t& encoding_table) const
       {
-      this->receiver.init(encoding_table);
       // Initialize arrays with start and length of each codeword
       cw_length.init(N);
       cw_start.init(N);
@@ -272,6 +271,8 @@ public:
          start += n;
          }
       tau = start;
+      // Set up receiver with new encoding table
+      this->receiver.init(encoding_table);
       }
 
    // decode functions
