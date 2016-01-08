@@ -51,6 +51,7 @@ template <class sig, class real, class real2>
 class tvb_receiver {
 public:
    /*! \name Type definitions */
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<sig> array1s_t;
    typedef libbase::vector<array1s_t> array1vs_t;
    typedef libbase::matrix<array1s_t> array2vs_t;
@@ -58,26 +59,21 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   int n; //!< codeword length in symbols
-   int q; //!< number of codewords (input alphabet size)
    mutable cuda::vector_auto<sig> encoding_table; //!< Local copy of per-frame encoding table, flattened
+   mutable cuda::vector_auto<int> cw_start; //!< Start of segment in encoding table for codeword 'i'
+   mutable cuda::vector_auto<int> cw_length; //!< Length of codeword 'i'
    typename libcomm::qids<sig,real2>::metric_computer computer; //!< Channel object for computing receiver metric
    // @}
 public:
    /*! \name User initialization (can be adapted for needs of user class) */
-   /*! \brief Set up code size and channel receiver
+   /*! \brief Set up channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(const int n, const int q,
-         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
+   void init(const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
       {
-      this->n = n;
-      this->q = q;
       this->computer = dynamic_cast<const typename libcomm::qids<sig, real2>::metric_computer&> (computer);
 #if DEBUG>=2
       std::cerr << "Initialize tvb computer..." << std::endl;
-      std::cerr << "n = " << this->n << std::endl;
-      std::cerr << "q = " << this->q << std::endl;
       std::cerr << "T = " << computer.T << std::endl;
       std::cerr << "mT_min = " << computer.mT_min << std::endl;
       std::cerr << "mT_max = " << computer.mT_max << std::endl;
@@ -95,13 +91,32 @@ public:
       {
       // shorthand
       const int N = encoding_table.size().rows();
-      assert(q == encoding_table.size().cols());
+      const int q = encoding_table.size().cols();
+      // initialize arrays with start of segment and length of each codeword
+      array1i_t cw_length; //!< Codeword 'i' length
+      array1i_t cw_start; //!< Codeword 'i' segment index in flattened table
+      cw_length.init(N);
+      cw_start.init(N);
+      int start = 0;
+      for (int i = 0; i < N; i++)
+         {
+         const int n = encoding_table(i, 0).size();
+         cw_start(i) = start;
+         cw_length(i) = n;
+         start += n * q;
+         }
+      // transfer to device
+      this->cw_start = cw_start;
+      this->cw_length = cw_length;
+      // size of flattened table
+      const int tauq = start;
       // flatten on host first
       static array1s_t temp;
-      temp.init(N * q * n);
+      temp.init(tauq);
       for (int i = 0; i < N; i++)
          for (int d = 0; d < q; d++)
-            temp.segment((i * q + d) * n, n) = encoding_table(i, d);
+            temp.segment(cw_start(i) + d * cw_length(i), cw_length(i)) =
+                  encoding_table(i, d);
       // copy to device
       this->encoding_table = temp;
 #if DEBUG>=2
@@ -125,7 +140,8 @@ public:
    void R(int d, int i, const cuda::vector_reference<sig>& r,
          cuda::vector_reference<real2>& ptable) const
       {
-      const cuda::vector<sig>& tx = encoding_table.extract((i * q + d) * n, n);
+      const cuda::vector<sig>& tx = encoding_table.extract(cw_start(i) + d *
+            cw_length(i), cw_length(i));
       // call batch receiver method
       computer.receive(tx, r, ptable);
       }

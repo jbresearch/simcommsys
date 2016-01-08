@@ -75,6 +75,7 @@ public:
 public:
    /*! \name Type definitions */
    // Device-based types - data containers
+   typedef cuda::vector<int> dev_array1i_t;
    typedef cuda::vector<sig> dev_array1s_t;
    typedef cuda::vector<real> dev_array1r_t;
    typedef cuda::matrix<real> dev_array2r_t;
@@ -91,6 +92,7 @@ public:
    typedef cuda::value_reference<fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::metric_computer>
          dev_object_ref_t;
    // Host-based types
+   typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<sig> array1s_t;
    typedef libbase::matrix<array1s_t> array2vs_t;
    typedef libbase::vector<double> array1d_t;
@@ -119,6 +121,9 @@ public:
          dev_array2b_ref_t global; //!< global storage: indices (i,x)
          dev_array2b_ref_t local; //!< local storage: indices (i%depth,x)
       } cached; //!< Flag for caching of receiver metric
+      mutable dev_array1i_t cw_length; //!< Codeword 'i' length
+      mutable dev_array1i_t cw_start; //!< Codeword 'i' start
+      mutable int tau; //!< Frame length (all codewords in sequence)
       dev_array1s_ref_t r; //!< Copy of received sequence, for lazy or local computation of gamma
       dev_array2r_ref_t app; //!< Copy of a-priori statistics, for lazy or local computation of gamma
       // @}
@@ -126,7 +131,6 @@ public:
       real th_inner; //!< Threshold factor for computing alpha/beta
       real th_outer; //!< Threshold factor for computing message APPs
       int N; //!< The transmitted block size in symbols
-      int n; //!< The number of bits encoding each q-ary symbol
       int q; //!< The number of symbols in the q-ary alphabet
       int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
       int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
@@ -186,8 +190,8 @@ public:
          cuda_assertalways(arraysize >= mn_max - mn_min + 1);
          cuda::vector_reference<real2> ptable(ptable_data, mn_max - mn_min + 1);
          // determine received segment to extract
-         const int start = n * i + x - mtau_min;
-         const int length = min(n + mn_max, r.size() - start);
+         const int start = cw_start(i) + x - mtau_min;
+         const int length = min(cw_length(i) + mn_max, r.size() - start);
          // get symbol value from thread index
          for(int d = threadIdx.x; d < q; d += blockDim.x)
             {
@@ -511,14 +515,32 @@ public:
    /*! \brief Set up code size, decoding parameters, and channel receiver
     * Only needs to be done before the first frame.
     */
-   void init(int N, int n, int q, int mtau_min, int mtau_max, int mn_min,
-         int mn_max, int m1_min, int m1_max, double th_inner, double th_outer,
+   void init(int N, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
+         int m1_min, int m1_max, double th_inner, double th_outer,
          const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer);
    /*! \brief Set up encoding table
     * Needs to be done before every frame.
     */
    void init(const array2vs_t& encoding_table) const
       {
+      // Initialize arrays with start and length of each codeword
+      array1i_t cw_length; //!< Codeword 'i' length
+      array1i_t cw_start; //!< Codeword 'i' start
+      cw_length.init(computer.N);
+      cw_start.init(computer.N);
+      int start = 0;
+      for (int i = 0; i < computer.N; i++)
+         {
+         const int n = encoding_table(i, 0).size();
+         cw_start(i) = start;
+         cw_length(i) = n;
+         start += n;
+         }
+      // Transfer to device
+      this->computer.cw_start = cw_start;
+      this->computer.cw_length = cw_length;
+      this->computer.tau = start;
+      // Set up receiver with new encoding table
       this->computer.receiver.init(encoding_table);
       }
 

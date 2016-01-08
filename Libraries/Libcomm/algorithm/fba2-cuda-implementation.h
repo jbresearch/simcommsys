@@ -442,16 +442,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
    std::cerr.flags(flags);
 #endif
 
-#ifndef NDEBUG
-   // determine required space for inner metric table (Jiao-Armand method)
-   size_t entries = 0;
-   for (int delta = mn_min; delta <= mn_max; delta++)
-      entries += (1 << (delta + computer.n));
-   entries *= q;
-   std::cerr << "Jiao-Armand Table Size: "
-         << sizeof(float) * entries / double(1 << 20) << "MiB" << std::endl;
-#endif
-
 #if DEBUG>=2
    std::cerr << "Allocated FBA memory..." << std::endl;
    std::cerr << "mn_max = " << mn_max << std::endl;
@@ -584,9 +574,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::setup(
    // start timer
    libbase::cputimer ts("t_setup");
    // Validate sizes and offset
-   const int tau = computer.N * computer.n;
    assertalways(offset == -computer.mtau_min);
-   assertalways(r.size() == tau + computer.mtau_max - computer.mtau_min);
+   assertalways(r.size() == computer.tau + computer.mtau_max - computer.mtau_min);
    assertalways(sof_prior.size() == computer.mtau_max - computer.mtau_min + 1);
    assertalways(eof_prior.size() == computer.mtau_max - computer.mtau_min + 1);
    // copy input data to device, allocating space as needed
@@ -658,7 +647,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_g
    libbase::cputimer tg("t_gamma");
    // Shorthand
    const int N = computer.N;
-   const int n = computer.n;
    const int q = computer.q;
    const int Mtau = computer.mtau_max - computer.mtau_min + 1;
    const int mn_max = computer.mn_max;
@@ -862,7 +850,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
    libbase::cputimer ta("t_alpha");
    // Shorthand
    const int N = computer.N;
-   const int n = computer.n;
    const int q = computer.q;
    const int Mtau = computer.mtau_max - computer.mtau_min + 1;
    const int mn_max = computer.mn_max;
@@ -992,7 +979,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
    libbase::cputimer tbr("t_beta+results");
    // Shorthand
    const int N = computer.N;
-   const int n = computer.n;
    const int q = computer.q;
    const int Mtau = computer.mtau_max - computer.mtau_min + 1;
    const int mn_max = computer.mn_max;
@@ -1147,26 +1133,26 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
 
 template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
-      int N, int n, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
+      int N, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
       int m1_min, int m1_max, double th_inner, double th_outer,
       const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
    {
    // Initialize our embedded metric computer with unchanging elements
    // (needs to happen before fba initialization)
-   this->computer.receiver.init(n, q, computer);
+   this->computer.receiver.init(computer);
    // if any parameters that effect memory have changed, release memory
    if (initialised
-         && (N != this->computer.N || n != this->computer.n || q != this->computer.q
-               || mtau_min != this->computer.mtau_min || mtau_max != this->computer.mtau_max
-               || mn_min != this->computer.mn_min || mn_max != this->computer.mn_max))
+         && (N != this->computer.N || q != this->computer.q
+               || mtau_min != this->computer.mtau_min
+               || mtau_max != this->computer.mtau_max
+               || mn_min != this->computer.mn_min
+               || mn_max != this->computer.mn_max))
       {
       free();
       }
    // code parameters
    assert(N > 0);
-   assert(n > 0);
    this->computer.N = N;
-   this->computer.n = n;
    assert(q > 1);
    this->computer.q = q;
    // decoder parameters
@@ -1245,7 +1231,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
 #if DEBUG>=3
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << computer.N << std::endl;
-   std::cerr << "n = " << computer.n << std::endl;
    std::cerr << "q = " << computer.q << std::endl;
    std::cerr << "m1_min = " << computer.m1_min << std::endl;
    std::cerr << "m1_max = " << computer.m1_max << std::endl;
