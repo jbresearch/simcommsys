@@ -609,9 +609,10 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
       {
       double p;
       // insertion events
-      while ((!tx_Icap || state_ins(i) < Icap)
-            && (!tx_Scap || get_drift(i) < Scap)
-            && (p = this->r.fval_closed()) < Pi)
+      for (p = this->r.fval_closed();
+            (!tx_Icap || state_ins(i) < Icap)
+                  && (!tx_Scap || get_drift(i) < Scap) && p < Pi;
+            p = this->r.fval_closed())
          state_ins(i)++;
       // deletion events
       if ((!tx_Scap || get_drift(i) > -Scap) && p < (Pi + Pd))
