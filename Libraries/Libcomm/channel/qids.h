@@ -82,6 +82,8 @@ private:
    bool varyPi; //!< Flag to indicate that \f$ P_i \f$ should change with parameter
    int Icap; //!< Maximum usable value of m1_max (0 indicates no cap is placed)
    int Scap; //!< Maximum usable value of n/tau max/min (0 indicates no cap is placed)
+   bool tx_Icap; //!< Flag to indicate that Icap applies to transmit channel
+   bool tx_Scap; //!< Flag to indicate that Scap applies to transmit channel
    double fixedPs; //!< Value to use when \f$ P_s \f$ does not change with parameter
    double fixedPd; //!< Value to use when \f$ P_d \f$ does not change with parameter
    double fixedPi; //!< Value to use when \f$ P_i \f$ does not change with parameter

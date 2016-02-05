@@ -667,9 +667,21 @@ std::string qids<G, real>::description() const
          break;
       }
    if (Icap > 0)
+      {
       sout << ", insertion cap=" << Icap;
+      if (tx_Icap)
+         sout << " [tx+rx]";
+      else
+         sout << " [rx only]";
+      }
    if (Scap > 0)
+      {
       sout << ", drift cap=" << Scap;
+      if (tx_Scap)
+         sout << " [tx+rx]";
+      else
+         sout << " [rx only]";
+      }
    sout << ")";
 #ifdef USE_CUDA
    sout << " [CUDA]";
@@ -683,7 +695,7 @@ template <class G, class real>
 std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 4 << std::endl;
+   sout << 5 << std::endl;
    sout << "# Vary Ps?" << std::endl;
    sout << varyPs << std::endl;
    sout << "# Vary Pd?" << std::endl;
@@ -694,6 +706,10 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
    sout << Icap << std::endl;
    sout << "# Cap on n/tau max/min (0=uncapped)" << std::endl;
    sout << Scap << std::endl;
+   sout << "# Apply cap on m1_max to transmit channel?" << std::endl;
+   sout << tx_Icap << std::endl;
+   sout << "# Apply cap on n/tau max/min to transmit channel?" << std::endl;
+   sout << tx_Scap << std::endl;
    sout << "# Fixed Ps value" << std::endl;
    sout << fixedPs << std::endl;
    sout << "# Fixed Pd value" << std::endl;
@@ -715,6 +731,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
  * \version 3 Added support for corridor-lattice receiver
  *
  * \version 4 Added support for cap on state space limits
+ *
+ * \version 5 Added support for caps at transmit side
  */
 template <class G, class real>
 std::istream& qids<G, real>::serialize(std::istream& sin)
@@ -734,6 +752,14 @@ std::istream& qids<G, real>::serialize(std::istream& sin)
       sin >> libbase::eatcomments >> Scap >> libbase::verify;
    else
       Scap = 0;
+   // read flags for caps at transmit side, if present
+   if (version >= 5)
+      {
+      sin >> libbase::eatcomments >> tx_Icap >> libbase::verify;
+      sin >> libbase::eatcomments >> tx_Scap >> libbase::verify;
+      }
+   else
+      tx_Icap = tx_Scap = false;
    // read fixed Ps,Pd,Pi values
    sin >> libbase::eatcomments >> fixedPs >> libbase::verify;
    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
