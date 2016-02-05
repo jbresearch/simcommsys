@@ -391,7 +391,7 @@ template <class G, class real>
 void qids<G, real>::init()
    {
    // cap on insertions only makes sense with trellis receiver
-   assertalways(Icap==0 || computer.receiver_type==receiver_trellis)
+   assertalways(Icap == 0 || computer.receiver_type == receiver_trellis);
    // channel parameters
    Ps = fixedPs;
    Pd = fixedPd;
