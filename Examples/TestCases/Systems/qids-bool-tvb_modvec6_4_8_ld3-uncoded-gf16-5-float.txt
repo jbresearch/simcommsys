@@ -6,7 +6,7 @@ commsys<bool,vector>
 ## Channel
 qids<bool,float>
 # Version
-3
+5
 # Vary Ps?
 0
 # Vary Pd?
@@ -15,6 +15,12 @@ qids<bool,float>
 1
 # Cap on m1_max (0=uncapped) [trellis receiver only]
 2
+# Cap on n/tau max/min (0=uncapped)
+0
+# Apply cap on m1_max to transmit channel?
+0
+# Apply cap on n/tau max/min to transmit channel?
+0
 # Fixed Ps value
 0
 # Fixed Pd value
@@ -26,7 +32,7 @@ qids<bool,float>
 ## Modem
 tvb<bool,float,float>
 # Version
-10
+11
 # Inner threshold
 0
 # Outer threshold
@@ -39,8 +45,6 @@ tvb<bool,float,float>
 1
 # Number of codewords to look ahead when stream decoding
 0
-# n
-8
 # q
 16
 # codebook type (0=sparse, 1=random, 2=user[seq], 3=user[ran])
@@ -48,7 +52,9 @@ tvb<bool,float,float>
 #: codebook name
 (8,16)-ld3-modvec6
 #: codebook count
-1
+6
+#: codeword length (table 0)
+8
 #: codebook entries (table 0)
 1 1 0 0 1 1 1 0
 1 1 1 1 1 0 0 0
@@ -66,16 +72,103 @@ tvb<bool,float,float>
 1 1 1 0 0 0 1 1
 0 1 1 1 1 1 1 1
 0 0 1 1 0 1 1 0
-# marker type (0=zero, 1=random, 2=user[seq], 3=user[ran])
-2
-#: marker vectors
-6
+#: codeword length (table 1)
+8
+#: codebook entries (table 1)
+0 1 0 1 1 1 0 0
+0 1 1 0 1 0 1 0
+0 1 1 0 0 1 1 1
+0 0 0 0 1 1 0 1
+1 0 0 0 1 1 1 0
 0 0 0 0 0 0 0 0
-1 0 0 1 0 0 1 0
-1 1 1 1 1 1 1 1
-0 1 0 0 1 1 0 1
+0 0 0 1 0 0 1 1
+1 0 0 1 0 1 0 1
+1 1 0 0 0 0 0 1
+1 0 0 1 1 0 0 0
+0 0 1 1 1 1 1 0
+1 1 1 1 0 0 1 0
+1 0 1 0 0 0 1 1
+0 1 1 1 0 0 0 1
+1 1 1 0 1 1 0 1
+1 0 1 0 0 1 0 0
+#: codeword length (table 2)
+8
+#: codebook entries (table 2)
+0 0 1 1 0 0 0 1
+0 0 0 0 0 1 1 1
+0 0 0 0 1 0 1 0
+0 1 1 0 0 0 0 0
+1 1 1 0 0 0 1 1
 0 1 1 0 1 1 0 1
-1 0 1 1 0 0 1 0
+0 1 1 1 1 1 1 0
+1 1 1 1 1 0 0 0
+1 0 1 0 1 1 0 0
+1 1 1 1 0 1 0 1
+0 1 0 1 0 0 1 1
+1 0 0 1 1 1 1 1
+1 1 0 0 1 1 1 0
+0 0 0 1 1 1 0 0
+1 0 0 0 0 0 0 0
+1 1 0 0 1 0 0 1
+#: codeword length (table 3)
+8
+#: codebook entries (table 3)
+1 0 0 0 0 0 1 1
+1 0 1 1 0 1 0 1
+1 0 1 1 1 0 0 0
+1 1 0 1 0 0 1 0
+0 1 0 1 0 0 0 1
+1 1 0 1 1 1 1 1
+1 1 0 0 1 1 0 0
+0 1 0 0 1 0 1 0
+0 0 0 1 1 1 1 0
+0 1 0 0 0 1 1 1
+1 1 1 0 0 0 0 1
+0 0 1 0 1 1 0 1
+0 1 1 1 1 1 0 0
+1 0 1 0 1 1 1 0
+0 0 1 1 0 0 1 0
+0 1 1 1 1 0 1 1
+#: codeword length (table 4)
+8
+#: codebook entries (table 4)
+1 0 1 0 0 0 1 1
+1 0 0 1 0 1 0 1
+1 0 0 1 1 0 0 0
+1 1 1 1 0 0 1 0
+0 1 1 1 0 0 0 1
+1 1 1 1 1 1 1 1
+1 1 1 0 1 1 0 0
+0 1 1 0 1 0 1 0
+0 0 1 1 1 1 1 0
+0 1 1 0 0 1 1 1
+1 1 0 0 0 0 0 1
+0 0 0 0 1 1 0 1
+0 1 0 1 1 1 0 0
+1 0 0 0 1 1 1 0
+0 0 0 1 0 0 1 0
+0 1 0 1 1 0 1 1
+#: codeword length (table 5)
+8
+#: codebook entries (table 5)
+0 1 1 1 1 1 0 0
+0 1 0 0 1 0 1 0
+0 1 0 0 0 1 1 1
+0 0 1 0 1 1 0 1
+1 0 1 0 1 1 1 0
+0 0 1 0 0 0 0 0
+0 0 1 1 0 0 1 1
+1 0 1 1 0 1 0 1
+1 1 1 0 0 0 0 1
+1 0 1 1 1 0 0 0
+0 0 0 1 1 1 1 0
+1 1 0 1 0 0 1 0
+1 0 0 0 0 0 1 1
+0 1 0 1 0 0 0 1
+1 1 0 0 1 1 0 1
+1 0 0 0 0 1 0 0
+# marker type (0=zero, 1=random)
+0
 ## Mapper
 map_straight<vector,double>
 ## Codec
