@@ -605,7 +605,8 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
    for (int i = 0; i < tau; i++)
       {
       double p;
-      while ((p = this->r.fval_closed()) < Pi)
+      while ((!tx_Icap || state_ins(i) < Icap)
+            && (p = this->r.fval_closed()) < Pi)
          state_ins(i)++;
       if (p < (Pi + Pd))
          state_tx(i) = false;
