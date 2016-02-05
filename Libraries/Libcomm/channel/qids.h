@@ -566,8 +566,8 @@ public:
     */
    qids(const bool varyPs = true, const bool varyPd = true, const bool varyPi =
          true) :
-         varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(0), Scap(0), fixedPs(
-               0), fixedPd(0), fixedPi(0)
+         varyPs(varyPs), varyPd(varyPd), varyPi(varyPi), Icap(0), Scap(0), tx_Icap(
+               false), tx_Scap(false), fixedPs(0), fixedPd(0), fixedPi(0)
       {
       // channel update flags
       assert(varyPs || varyPd || varyPi);
