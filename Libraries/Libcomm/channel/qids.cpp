@@ -392,6 +392,9 @@ void qids<G, real>::init()
    {
    // cap on insertions only makes sense with trellis receiver
    assertalways(Icap == 0 || computer.receiver_type == receiver_trellis);
+   // transmit caps make sense only if there is a cap
+   assertalways(!tx_Icap || Icap > 0);
+   assertalways(!tx_Scap || Scap > 0);
    // channel parameters
    Ps = fixedPs;
    Pd = fixedPd;
