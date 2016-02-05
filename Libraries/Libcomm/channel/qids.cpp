@@ -664,6 +664,10 @@ std::string qids<G, real>::description() const
          failwith("Unknown receiver mode");
          break;
       }
+   if (Icap > 0)
+      sout << ", insertion cap=" << Icap;
+   if (Scap > 0)
+      sout << ", drift cap=" << Scap;
    sout << ")";
 #ifdef USE_CUDA
    sout << " [CUDA]";
