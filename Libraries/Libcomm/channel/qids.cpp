@@ -609,13 +609,30 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
       {
       double p;
       // insertion events
-      for (p = this->r.fval_closed();
-            (!tx_Icap || state_ins(i) < Icap)
-                  && (!tx_Scap || get_drift(i) < Scap) && p < Pi;
-            p = this->r.fval_closed())
-         state_ins(i)++;
-      // deletion events
-      if ((!tx_Scap || get_drift(i) > -Scap) && p < (Pi + Pd))
+      while (true)
+         {
+         // generate random event identifier
+         p = this->r.fval_closed();
+         // check if caps prohibit an insertion
+         if (tx_Icap && state_ins(i) == Icap)
+            break;
+         if (tx_Scap && get_drift(i) == Scap)
+            break;
+         // check if we have an insertion event
+         if (p < Pi)
+            {
+            state_ins(i)++;
+            continue;
+            }
+         // otherwise we stop to check for other options
+         p -= Pi;
+         break;
+         }
+      // check if caps prohibit a deletion
+      if (tx_Scap && get_drift(i) == -Scap)
+         continue;
+      // check if we have a deletion event
+      if (p < Pd)
          state_tx(i) = false;
       }
    // Initialize results vector
