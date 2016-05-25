@@ -143,8 +143,9 @@ std::string codec_concatenated<C, dbl>::description() const
    {
    test_invariant();
    std::ostringstream sout;
-   sout << "Concatenated codec (" << codec_list.size() << " codecs, "
-         << mapper_list.size() << " mappers) [";
+   sout << "Concatenated codec (" << this->output_block_size() << ","
+         << this->input_block_size() << ") - " << codec_list.size()
+         << " codecs, " << mapper_list.size() << " mappers [";
    size_t i;
    // codecs description
    i = 0;
