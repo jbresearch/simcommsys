@@ -45,6 +45,9 @@ namespace libcomm {
 
 template <template <class > class C = libbase::vector, class dbl = double>
 class codec_concatenated : public codec_softout<C, dbl> {
+private:
+   // Shorthand for class hierarchy
+   typedef codec_softout<C, dbl> Base;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
@@ -104,6 +107,8 @@ public:
    void seedfrom(libbase::random& r)
       {
       test_invariant();
+      // Call base method first
+      Base::seedfrom(r);
       // Seed codecs
       for(typename codec_list_t::iterator it = codec_list.begin(); it != codec_list.end(); it++)
          (*it)->seedfrom(r);
