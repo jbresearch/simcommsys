@@ -116,7 +116,7 @@ void codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
    C<array1d_t> ri_codec, ro_codec, ri_mapper;
    // pass through first codec
    for (int i = 0; i < (*codec_it)->num_iter(); i++)
-      (*codec_it)->softdecode(ri_codec);
+      (*codec_it)->softdecode(ri_codec, ro_codec);
    // pass through all mapper+codec combinations (everything after first codec)
    for(codec_it++; mapper_it != mapper_list.rend(); mapper_it++, codec_it++)
       {
@@ -128,7 +128,7 @@ void codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
       (*codec_it)->init_decoder(ri_mapper);
       // Perform soft-output decoding
       for (int i = 0; i < (*codec_it)->num_iter(); i++)
-         (*codec_it)->softdecode(ri_codec, ro_codec);
+         (*codec_it)->softdecode(ri_codec);
       }
    // copy result
    ri = ri_codec;
