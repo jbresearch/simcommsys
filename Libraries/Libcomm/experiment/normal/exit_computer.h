@@ -63,6 +63,7 @@ public:
       exit_parallel_codec = 0, //!< parallel concatenated code, codec object
       exit_serial_codec, //!< serial concatenated code, codec object
       exit_serial_modem, //!< serial concatenated code, modem object
+      exit_serial_mapped_codec, //!< serial concatenated code, codec and mapper object sequence
       exit_undefined
    };
    // @}

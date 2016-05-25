@@ -324,6 +324,34 @@ void exit_computer<S>::sample(array1d_t& result)
          }
          break;
 
+      case exit_serial_mapped_codec:
+         {
+         // Create random priors for encoded sequence
+         // (no need to do actual demodulation)
+         const int N = sys->getmapper()->output_block_size();
+         const int q = sys->getmodem()->num_symbols();
+         array1vd_t priors = createpriors(mapped, N, q);
+         // Inverse Map
+         array1vd_t ptable_encoded;
+         sys->getmapper()->inverse(priors, ptable_encoded);
+         // Translate (using given priors)
+         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
+               libbase::vector>&>(*sys->getcodec());
+         c.init_decoder(ptable_encoded);
+         // Perform soft-output decoding for as many iterations as required
+         array1vd_t ri;
+         array1vd_t ro;
+         for (int i = 0; i < c.num_iter(); i++)
+            c.softdecode(ri, ro);
+         // Compute extrinsic information
+         libbase::compute_extrinsic(ro, ro, ptable_encoded);
+         libbase::normalize_results(ro, ro);
+
+         // compute results
+         compute_results(encoded, ptable_encoded, ro, result);
+         }
+         break;
+
       default:
          failwith("Unknown EXIT chart type");
          break;
@@ -352,6 +380,10 @@ std::string exit_computer<S>::description() const
          sout << "serial concatenated modem";
          break;
 
+      case exit_serial_mapped_codec:
+         sout << "serial concatenated codec+mapper";
+         break;
+
       default:
          failwith("Unknown EXIT chart type");
          break;
@@ -371,7 +403,7 @@ std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
    // format version
    sout << "# Version" << std::endl;
    sout << 2 << std::endl;
-   sout << "# EXIT chart type (0=parallel/codec, 1=serial/codec, 2=serial/modem)" << std::endl;
+   sout << "# EXIT chart type (0=parallel/codec, 1=serial/codec, 2=serial/modem, 3=serial/codec+mapper)" << std::endl;
    sout << exit_type << std::endl;
    sout << "# Compute binary LLR statistics?" << std::endl;
    sout << compute_llr_statistics << std::endl;
