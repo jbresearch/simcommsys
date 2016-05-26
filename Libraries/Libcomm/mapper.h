@@ -41,7 +41,7 @@ namespace libcomm {
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #  undef DEBUG
-#  define DEBUG 1
+#  define DEBUG 2
 #endif
 
 /*!
@@ -114,6 +114,7 @@ public:
       advance_always();
       dotransform(in, out);
 #if DEBUG>=2
+      std::cerr << "DEBUG (mapper): " << this->description() << std::endl;
       std::cerr << "DEBUG (mapper): transform in = " << in;
       std::cerr << "DEBUG (mapper): transform out = " << out;
 #endif
@@ -137,6 +138,7 @@ public:
       else
          dotransform(pin, pout);
 #if DEBUG>=2
+      std::cerr << "DEBUG (mapper): " << this->description() << std::endl;
       std::cerr << "DEBUG (mapper): transform pin = " << pin;
       std::cerr << "DEBUG (mapper): transform pout = " << pout;
 #endif
@@ -160,6 +162,7 @@ public:
          doinverse(pin, pout);
       mark_as_dirty();
 #if DEBUG>=2
+      std::cerr << "DEBUG (mapper): " << this->description() << std::endl;
       std::cerr << "DEBUG (mapper): inverse pin = " << pin;
       std::cerr << "DEBUG (mapper): inverse pout = " << pout;
 #endif
