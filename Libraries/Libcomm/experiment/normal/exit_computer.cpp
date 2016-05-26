@@ -246,22 +246,21 @@ void exit_computer<S>::sample(array1d_t& result)
          // Create random priors for message sequence
          const int N = sys->getcodec()->input_block_size();
          const int q = sys->getcodec()->num_inputs();
-         array1vd_t priors = createpriors(source, N, q);
+         array1vd_t priors_source = createpriors(source, N, q);
          // Translate (using given priors)
          codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
                libbase::vector>&>(*sys->getcodec());
-         c.init_decoder(ptable_encoded, priors);
+         c.init_decoder(ptable_encoded, priors_source);
          // Perform soft-output decoding for as many iterations as required
          array1vd_t ri;
-         array1vd_t ro;
          for (int i = 0; i < c.num_iter(); i++)
-            c.softdecode(ri, ro);
+            c.softdecode(ri);
          // Compute extrinsic information
-         libbase::compute_extrinsic(ri, ri, priors);
+         libbase::compute_extrinsic(ri, ri, priors_source);
          libbase::normalize_results(ri, ri);
 
          // compute results
-         compute_results(source, priors, ri, result);
+         compute_results(source, priors_source, ri, result);
          }
          break;
 
@@ -271,22 +270,22 @@ void exit_computer<S>::sample(array1d_t& result)
          // (no need to do actual demodulation and inverse mapping)
          const int N = sys->getcodec()->output_block_size();
          const int q = sys->getcodec()->num_outputs();
-         array1vd_t priors = createpriors(encoded, N, q);
+         array1vd_t priors_encoded = createpriors(encoded, N, q);
          // Translate (using given priors)
          codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
                libbase::vector>&>(*sys->getcodec());
-         c.init_decoder(priors);
+         c.init_decoder(priors_encoded);
          // Perform soft-output decoding for as many iterations as required
          array1vd_t ri;
          array1vd_t ro;
          for (int i = 0; i < c.num_iter(); i++)
             c.softdecode(ri, ro);
          // Compute extrinsic information
-         libbase::compute_extrinsic(ro, ro, priors);
+         libbase::compute_extrinsic(ro, ro, priors_encoded);
          libbase::normalize_results(ro, ro);
 
          // compute results
-         compute_results(encoded, priors, ro, result);
+         compute_results(encoded, priors_encoded, ro, result);
          }
          break;
 
@@ -295,14 +294,14 @@ void exit_computer<S>::sample(array1d_t& result)
          // Create random priors for mapped (demodulated) sequence
          const int N = sys->getmodem()->input_block_size();
          const int q = sys->getmodem()->num_symbols();
-         array1vd_t priors = createpriors(mapped, N, q);
+         array1vd_t priors_mapped = createpriors(mapped, N, q);
          // Demodulate
          array1vd_t ptable_mapped;
          informed_modulator<S>& m =
                dynamic_cast<informed_modulator<S>&> (*sys->getmodem());
-         m.demodulate(*sys->getrxchan(), received, priors, ptable_mapped);
+         m.demodulate(*sys->getrxchan(), received, priors_mapped, ptable_mapped);
          // Compute extrinsic information for passing to codec
-         libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors);
+         libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors_mapped);
          libbase::normalize_results(ptable_mapped, ptable_mapped);
 
          // [technically we don't need to do any of the remaining steps]
@@ -320,7 +319,7 @@ void exit_computer<S>::sample(array1d_t& result)
             c.softdecode(ri, ro);
 
          // compute results
-         compute_results(mapped, priors, ptable_mapped, result);
+         compute_results(mapped, priors_mapped, ptable_mapped, result);
          }
          break;
 
@@ -330,28 +329,28 @@ void exit_computer<S>::sample(array1d_t& result)
          // (no need to do actual demodulation)
          const int N = sys->getmapper()->output_block_size();
          const int q = sys->getmodem()->num_symbols();
-         array1vd_t priors = createpriors(mapped, N, q);
+         array1vd_t priors_mapped = createpriors(mapped, N, q);
          // Inverse Map
          array1vd_t ptable_encoded;
-         sys->getmapper()->inverse(priors, ptable_encoded);
+         sys->getmapper()->inverse(priors_mapped, ptable_encoded);
          // Translate (using given priors)
          codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
                libbase::vector>&>(*sys->getcodec());
          c.init_decoder(ptable_encoded);
          // Perform soft-output decoding for as many iterations as required
-         array1vd_t ri;
-         array1vd_t ro;
+         array1vd_t ri_codec;
+         array1vd_t ro_codec;
          for (int i = 0; i < c.num_iter(); i++)
-            c.softdecode(ri, ro);
+            c.softdecode(ri_codec, ro_codec);
          // Map the soft-output
-         array1vd_t ptable_mapped;
-         sys->getmapper()->transform(ro, ptable_mapped);
+         array1vd_t ro_modem;
+         sys->getmapper()->transform(ro_codec, ro_modem);
          // Compute extrinsic information
-         libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors);
-         libbase::normalize_results(ptable_mapped, ptable_mapped);
+         libbase::compute_extrinsic(ro_modem, ro_modem, priors_mapped);
+         libbase::normalize_results(ro_modem, ro_modem);
 
          // compute results
-         compute_results(mapped, priors, ptable_mapped, result);
+         compute_results(mapped, priors_mapped, ro_modem, result);
          }
          break;
 
