@@ -343,12 +343,15 @@ void exit_computer<S>::sample(array1d_t& result)
          array1vd_t ro;
          for (int i = 0; i < c.num_iter(); i++)
             c.softdecode(ri, ro);
+         // Map the soft-output
+         array1vd_t ptable_mapped;
+         sys->getmapper()->transform(ro, ptable_mapped);
          // Compute extrinsic information
-         libbase::compute_extrinsic(ro, ro, ptable_encoded);
-         libbase::normalize_results(ro, ro);
+         libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors);
+         libbase::normalize_results(ptable_mapped, ptable_mapped);
 
          // compute results
-         compute_results(encoded, ptable_encoded, ro, result);
+         compute_results(mapped, priors, ptable_mapped, result);
          }
          break;
 
