@@ -259,8 +259,8 @@ std::string mapcc<real, dbl>::description() const
    std::ostringstream sout;
    sout << (endatzero ? "Terminated, " : "Unterminated, ");
    sout << (circular ? "Circular, " : "Non-circular, ");
-   sout << "MAP-decoded Convolutional Code (" << This::output_bits() << ","
-         << This::input_bits() << ") - ";
+   sout << "MAP-decoded Convolutional Code (" << This::output_block_size() << ","
+         << This::input_block_size() << ") - ";
    sout << encoder->description();
    return sout.str();
    }
