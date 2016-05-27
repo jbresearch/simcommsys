@@ -91,9 +91,8 @@ protected:
       }
    void do_init_decoder(const C<array1d_t>& ptable, const C<array1d_t>& app)
       {
-      test_invariant();
-      // Initialize the first codec in line (in reverse order)
-      codec_list.back()->init_decoder(ptable, app);
+      // NOTE: app applies only to *first* codec, but we need to decode last first
+      failwith("Method not supported");
       }
 public:
    /*! \name Constructors / Destructors */
