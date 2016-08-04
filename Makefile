@@ -294,7 +294,7 @@ export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(
 
 TARGETS_MAIN = $(wildcard SimCommsys/*)
 TARGETS_TEST = $(wildcard Test/*)
-TARGETS_LIBS = $(foreach name,$(LIBNAMES),/Libraries/Lib$(name))
+TARGETS_LIBS = $(foreach name,$(LIBNAMES),Libraries/Lib$(name))
 
 ## Master targets
 
@@ -312,8 +312,8 @@ default:
 	@echo "   clean-all : removes all binaries"
 	@echo "   clean-dep : removes all dependency files"
 	@echo "   showsettings : outputs compiler settings used"
-	@echo "   buildid : outputs the build identifier string for the given settings"
-	@echo "   version : outputs the version string"
+	@echo "   showbuildid : outputs the build identifier string for the given settings"
+	@echo "   showversion : outputs the version string"
 
 all:
 	@$(MAKE) install plain-install
@@ -333,16 +333,19 @@ clean-dep:
 showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
 
-buildid:
+showbuildid:
 	@echo $(BUILDID)
 
-version:
+showversion:
 	@echo $(SIMCOMMSYS_VERSION)
 
 ## Matched targets
 
 plain-%:
 	@$(MAKE) USE_OMP=0 USE_MPI=0 USE_GMP=0 USE_CUDA=0 $*
+
+version-%:
+	@$(MAKE) RELEASE=$* DOTARGET=version Libraries/Libbase
 
 build:	build-main build-test
 build-main:	build-main-debug build-main-release
@@ -354,7 +357,7 @@ build-main-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
 build-test-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
-build-libs-%:
+build-libs-%:	version-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
 
 install:	install-main install-test
@@ -367,7 +370,7 @@ install-main-%:	install-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
 install-test-%:	install-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
-install-libs-%:
+install-libs-%:	version-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
 clean:	clean-main clean-test clean-libs
@@ -386,7 +389,7 @@ clean-libs-%:
 
 FORCE:
 
-.PHONY:	all build install clean showsettings tag
+.PHONY:	all build install clean showsettings showbuildid showversion
 
 .SUFFIXES: # Delete the default suffixes
 
