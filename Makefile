@@ -256,6 +256,7 @@ NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 #NVCCopts := $(NVCCopts) -Xptxas "-v"
 NVCCopts := $(NVCCopts) -w
 NVCCopts := $(NVCCopts) -DUSE_CUDA
+NVCCopts := $(NVCCopts) -D_FORCE_INLINES
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
 ifeq ($(OSARCH),i686)
    NVCCopts := $(NVCCopts) -m32
