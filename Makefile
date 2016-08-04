@@ -389,9 +389,11 @@ clean-libs-%:
 
 FORCE:
 
-.PHONY:	all build install clean showsettings showbuildid showversion
+.PHONY:	all build install clean showsettings showbuildid showversion $(TARGETS_MAIN) $(TARGETS_TEST) $(TARGETS_LIBS)
 
 .SUFFIXES: # Delete the default suffixes
+
+.SECONDARY: # Keep all secondary targets
 
 .DELETE_ON_ERROR:
 
