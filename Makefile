@@ -280,7 +280,7 @@ export NVCCflags := $(NVCCflag_$(RELEASE))
 
 ## Library builder settings
 
-export LIBflags := ru
+export LIBflags := cr
 
 
 ## User library list
