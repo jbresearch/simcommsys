@@ -62,7 +62,7 @@ private:
       return bits == 32 ? 0xffffffff : ((1L << bits) - 1L);
       }
    // Initialize value from string
-   void set_fromstring(const char *s);
+   void set_fromstring(const std::string s);
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
@@ -82,7 +82,7 @@ public:
       {
       }
    //! Constructor to directly convert a string representation
-   explicit bitfield(const char *s)
+   explicit bitfield(std::string s)
       {
       set_fromstring(s);
       }
@@ -340,7 +340,7 @@ public:
       {
       std::string str;
       s >> str;
-      b.set_fromstring(str.c_str());
+      b.set_fromstring(str);
       return s;
       }
 };

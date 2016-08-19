@@ -30,19 +30,18 @@ using std::cerr;
 
 // Private functions
 
-void bitfield::set_fromstring(const char *s)
+void bitfield::set_fromstring(const std::string s)
    {
    bits = 0;
    field = 0;
-   const char *p;
-   for (p = s; *p == '1' || *p == '0'; p++)
+   for (std::string::const_iterator it = s.begin(); it != s.end(); ++it)
       {
+      // check for invalid characters
+      assertalways(*it == '0' || *it == '1');
       field <<= 1;
-      field |= (*p == '1');
+      field |= (*it == '1');
       bits++;
       }
-   // check there do not remain any invalid characters
-   assertalways(*p == '\0');
    }
 
 // Conversion operations
