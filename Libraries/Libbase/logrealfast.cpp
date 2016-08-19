@@ -36,8 +36,8 @@ namespace libbase {
 
 const int logrealfast::lutsize = 1 << 17;
 const double logrealfast::lutrange = 12.0;
-double *logrealfast::lut_add;
-double *logrealfast::lut_sub;
+std::vector<double> logrealfast::lut_add;
+std::vector<double> logrealfast::lut_sub;
 bool logrealfast::lutready = false;
 #if DEBUG>=3
 std::ofstream logrealfast::file;
@@ -48,11 +48,11 @@ std::ofstream logrealfast::file;
 void logrealfast::buildlut()
    {
    // set up LUT for addition operation
-   lut_add = new double[lutsize];
+   lut_add.resize(lutsize);
    for (int i = 0; i < lutsize; i++)
       lut_add[i] = log(1 + exp(-lutrange * i / (lutsize - 1)));
    // set up LUT for subtraction operation
-   lut_sub = new double[lutsize];
+   lut_sub.resize(lutsize);
    for (int i = 0; i < lutsize; i++)
       lut_sub[i] = log(1 - exp(-lutrange * i / (lutsize - 1)));
    // flag that we're done

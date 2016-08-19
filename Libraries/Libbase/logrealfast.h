@@ -30,6 +30,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <vector>
 
 namespace libbase {
 
@@ -68,8 +69,8 @@ class logrealfast {
 private:
    static const int lutsize;
    static const double lutrange;
-   static double *lut_add;
-   static double *lut_sub;
+   static std::vector<double> lut_add;
+   static std::vector<double> lut_sub;
    static bool lutready;
 #if DEBUG>=3
    static std::ofstream file;
