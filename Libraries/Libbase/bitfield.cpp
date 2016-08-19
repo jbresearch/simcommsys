@@ -22,7 +22,6 @@
 #include "bitfield.h"
 
 #include <cstdlib>
-#include <string>
 
 namespace libbase {
 
