@@ -98,7 +98,7 @@ private:
       assert(value >= 0 && value < (1 << m));
       gf::value = value;
       }
-   void init(const char *s);
+   void init(const std::string s);
    // @}
 
 public:
@@ -111,7 +111,7 @@ public:
       {
       init(value);
       }
-   gf(const char *s)
+   gf(const std::string s)
       {
       init(s);
       }
@@ -316,7 +316,7 @@ std::istream& operator>>(std::istream& is, gf<m, poly>& b)
       str += c;
       }
    // convert
-   b = str.c_str();
+   b = str;
    return is;
    }
 

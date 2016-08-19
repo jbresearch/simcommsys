@@ -37,18 +37,18 @@ using std::cerr;
  * The string must only contain 1's and 0's.
  */
 template <int m, int poly>
-void gf<m, poly>::init(const char *s)
+void gf<m, poly>::init(const std::string s)
    {
    int32u value = 0;
-   const char *p;
-   for (p = s; *p == '1' || *p == '0'; p++)
+   for (std::string::const_iterator it = s.begin(); it != s.end(); ++it)
       {
+      // check for invalid characters
+      assertalways(*it == '0' || *it == '1');
       value <<= 1;
-      if (*p == '1')
+      if (*it == '1')
          value |= 1;
       }
-   assert(*p == '\0');
-   init(value);
+   this->init(value);
    }
 
 // Conversion operations

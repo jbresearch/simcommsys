@@ -57,7 +57,7 @@ private:
 
    /*! \name Internal functions */
    void init(int value);
-   void init(const char *s);
+   void init(const std::string s);
    // @}
 
 public:
@@ -67,7 +67,7 @@ public:
       {
       this->init(val);
       }
-   gf_fast(const char *s)
+   gf_fast(const std::string s)
       {
       init(s);
       }
@@ -143,7 +143,7 @@ std::istream& operator>>(std::istream& s, gf_fast<m, poly>& b)
    {
    std::string str;
    s >> str;
-   b = str.c_str();
+   b = str;
    return s;
    }
 
