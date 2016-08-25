@@ -176,10 +176,10 @@ public:
    // disable process
    void disable();
    // slave-interface functions
-   slave *newslave();
-   slave *idleslave();
-   slave *pendingslave();
-   int workingslaves() const;
+   slave *find_new_slave();
+   slave *find_idle_slave();
+   slave *find_pending_slave();
+   int count_workingslaves() const;
    bool anyoneworking() const;
    void waitforevent(const bool acceptnew = true, const double timeout = 0);
    void resetslave(slave *s);

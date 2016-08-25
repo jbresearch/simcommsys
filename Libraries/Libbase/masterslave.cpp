@@ -361,7 +361,7 @@ void masterslave::disable()
 
    // kill all remaining slaves
    clog << "Killing idle slaves:" << flush;
-   while (slave *s = idleslave())
+   while (slave *s = find_idle_slave())
       {
       trace << "DEBUG (disable): Idle slave found (" << s << "), killing."
             << std::endl;
@@ -383,7 +383,7 @@ void masterslave::disable()
 
 // slave-interface functions
 
-masterslave::slave *masterslave::newslave()
+masterslave::slave *masterslave::find_new_slave()
    {
    for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
       if (i->second->state == slave::NEW)
@@ -394,7 +394,7 @@ masterslave::slave *masterslave::newslave()
    return NULL;
    }
 
-masterslave::slave *masterslave::idleslave()
+masterslave::slave *masterslave::find_idle_slave()
    {
    for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
       if (i->second->state == slave::IDLE)
@@ -405,7 +405,7 @@ masterslave::slave *masterslave::idleslave()
    return NULL;
    }
 
-masterslave::slave *masterslave::pendingslave()
+masterslave::slave *masterslave::find_pending_slave()
    {
    for (std::map<socket *, slave *>::iterator i = smap.begin(); i != smap.end(); ++i)
       if (i->second->state == slave::EVENT_PENDING)
@@ -418,7 +418,7 @@ masterslave::slave *masterslave::pendingslave()
 
 /*! \brief Number of slaves currently in 'working' state
  */
-int masterslave::workingslaves() const
+int masterslave::count_workingslaves() const
    {
    int count = 0;
    for (std::map<socket *, slave *>::const_iterator i = smap.begin(); i
@@ -505,7 +505,7 @@ void masterslave::resetslave(slave *s)
  */
 void masterslave::resetslaves()
    {
-   while (slave *s = idleslave())
+   while (slave *s = find_idle_slave())
       s->state = slave::NEW;
    }
 

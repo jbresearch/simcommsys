@@ -321,7 +321,7 @@ void montecarlo::initslave(slave *s, std::string systemstring)
  */
 void montecarlo::initnewslaves(std::string systemstring)
    {
-   while (slave *s = newslave())
+   while (slave *s = find_new_slave())
       {
       trace << "DEBUG (estimate): New slave found (" << s << "), initializing."
             << std::endl;
@@ -343,7 +343,7 @@ void montecarlo::initnewslaves(std::string systemstring)
  */
 void montecarlo::workidleslaves(bool converged)
    {
-   for (slave *s; (!converged) && (s = idleslave());)
+   for (slave *s; (!converged) && (s = find_idle_slave());)
       {
       trace << "DEBUG (estimate): Idle slave found (" << s
             << "), assigning work." << std::endl;
@@ -368,7 +368,7 @@ void montecarlo::workidleslaves(bool converged)
 bool montecarlo::readpendingslaves()
    {
    bool results_available = false;
-   while (slave *s = pendingslave())
+   while (slave *s = find_pending_slave())
       {
       trace << "DEBUG (estimate): Pending event from slave (" << s
             << "), trying to read." << std::endl;
