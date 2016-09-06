@@ -82,10 +82,9 @@ std::ostream& cached_fsm::serialize(std::ostream& sout) const
 
 std::istream& cached_fsm::serialize(std::istream& sin)
    {
-   fsm *encoder;
+   boost::shared_ptr<fsm> encoder;
    sin >> libbase::eatcomments >> encoder >> libbase::verify;
    init(*encoder);
-   delete encoder;
    assertalways(sin.good());
    return sin;
    }

@@ -57,7 +57,7 @@ public:
 private:
    /*! \name User-specified parameters */
    //! FSM specifying input-output mapping; must have no memory
-   fsm *encoder;
+   boost::shared_ptr<fsm> encoder;
    int tau; //!< Number of time-steps
    // @}
    /*! \name Computed parameters */
@@ -67,7 +67,6 @@ private:
 protected:
    /*! \name Internal functions */
    void init();
-   void free();
    // @}
    /*! \name Codec information functions - internal */
    //! Number of encoder input symbols / timestep
@@ -102,19 +101,18 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   memoryless() :
-      encoder(NULL)
+   memoryless()
       {
       }
    //! Copy constructor
    memoryless(const memoryless<dbl>& x) :
-      encoder(dynamic_cast<fsm*> (x.encoder->clone())), tau(x.tau), rp(x.rp), R(x.R)
+         encoder(boost::dynamic_pointer_cast<fsm>(x.encoder->clone())), tau(
+               x.tau), rp(x.rp), R(x.R)
       {
       }
    memoryless(const fsm& encoder, const int tau);
    ~memoryless()
       {
-      free();
       }
    // @}
 

@@ -70,11 +70,11 @@ void process(const std::string& systemfile, const std::string& channelfile,
    // Load stego-medium
    libimage::image<S> stegoimage = loadimage<S> (sin);
    // Stego-system embedder
-   libcomm::blockembedder<S, C> *system = libcomm::loadfromfile<
-         libcomm::blockembedder<S, C> >(systemfile);
+   boost::shared_ptr<libcomm::blockembedder<S, C> > system =
+         libcomm::loadfromfile<libcomm::blockembedder<S, C> >(systemfile);
    std::cerr << system->description() << std::endl;
    // Channel model
-   libcomm::channel<S, C> *chan =
+   boost::shared_ptr<libcomm::channel<S, C> > chan =
          libcomm::loadfromfile<libcomm::channel<S, C> >(channelfile);
    std::cerr << chan->description() << std::endl;
    // Set channel parameter
@@ -107,9 +107,6 @@ void process(const std::string& systemfile, const std::string& channelfile,
       }
    // Verify that there is no pending data
    sin >> libbase::verifycomplete;
-   // Destroy what was created on the heap
-   delete system;
-   delete chan;
    }
 
 /*!

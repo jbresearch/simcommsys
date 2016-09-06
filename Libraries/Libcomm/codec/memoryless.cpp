@@ -36,20 +36,13 @@ void memoryless<dbl>::init()
    assertalways(encoder->mem_order() == 0);
    }
 
-template <class dbl>
-void memoryless<dbl>::free()
-   {
-   if (encoder != NULL)
-      delete encoder;
-   }
-
 // constructor / destructor
 
 template <class dbl>
 memoryless<dbl>::memoryless(const fsm& encoder, const int tau) :
    tau(tau)
    {
-   memoryless<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(encoder));
+   this->encoder.reset(new cached_fsm(encoder));
    init();
    }
 
@@ -202,21 +195,19 @@ std::ostream& memoryless<dbl>::serialize(std::ostream& sout) const
 template <class dbl>
 std::istream& memoryless<dbl>::serialize(std::istream& sin)
    {
-   free();
    // load the encoder into a temporary space
-   fsm *encoder_original;
+   boost::shared_ptr<fsm> encoder_original;
    sin >> libbase::eatcomments >> encoder_original >> libbase::verify;
    // see if this is already a cached fsm;
-   cached_fsm *encoder_cached = dynamic_cast<cached_fsm*> (encoder_original);
+   boost::shared_ptr<cached_fsm> encoder_cached = boost::dynamic_pointer_cast<
+         cached_fsm>(encoder_original);
    if (encoder_cached)
       // if it is, just make a copy
-      memoryless<dbl>::encoder = dynamic_cast<fsm*> (encoder_original->clone());
+      this->encoder = boost::dynamic_pointer_cast<fsm>(
+            encoder_original->clone());
    else
       // otherwise, create a cached fsm copy on the fly
-      memoryless<dbl>::encoder = dynamic_cast<fsm*> (new cached_fsm(
-            *encoder_original));
-   // clean up
-   delete encoder_original;
+      this->encoder.reset(new cached_fsm(*encoder_original));
    // read the block length
    sin >> libbase::eatcomments >> tau >> libbase::verify;
    init();

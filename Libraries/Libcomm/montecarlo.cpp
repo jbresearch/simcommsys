@@ -38,7 +38,7 @@ using libbase::vector;
 
 void montecarlo::slave_getcode(void)
    {
-   delete system;
+   system.reset();
    // Receive system as a string
    std::string systemstring;
    if (!receive(systemstring))

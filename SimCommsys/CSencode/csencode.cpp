@@ -33,7 +33,7 @@ void process(const std::string& fname, std::istream& sin = std::cin,
       std::ostream& sout = std::cout)
    {
    // Communication system
-   libcomm::commsys<S, C> *system = libcomm::loadfromfile<
+   boost::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadfromfile<
          libcomm::commsys<S, C> >(fname);
    std::cerr << system->description() << std::endl;
    // Initialize system
@@ -60,8 +60,6 @@ void process(const std::string& fname, std::istream& sin = std::cin,
       // skip any trailing whitespace (before check for EOF)
       libbase::eatwhite(sin);
       }
-   // Destroy what was created on the heap
-   delete system;
    }
 
 /*!

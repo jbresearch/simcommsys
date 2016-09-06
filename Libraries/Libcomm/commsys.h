@@ -54,11 +54,11 @@ public:
 
 protected:
    /*! \name Bound objects */
-   codec<C> *cdc; //!< Error-control codec
-   mapper<C> *map; //!< Symbol-mapper (encoded output to transmitted symbols)
-   blockmodem<S, C> *mdm; //!< Modulation scheme
-   channel<S, C> *txchan; //!< Channel model - transmitter side
-   channel<S, C> *rxchan; //!< Channel model - receiver side
+   boost::shared_ptr<codec<C> > cdc; //!< Error-control codec
+   boost::shared_ptr<mapper<C> > map; //!< Symbol-mapper (encoded output to transmitted symbols)
+   boost::shared_ptr<blockmodem<S, C> > mdm; //!< Modulation scheme
+   boost::shared_ptr<channel<S, C> > txchan; //!< Channel model - transmitter side
+   boost::shared_ptr<channel<S, C> > rxchan; //!< Channel model - receiver side
    bool singlechannel; //!< Flag indicating RX = TX channel
    // @}
 #ifndef NDEBUG
@@ -68,7 +68,6 @@ protected:
 protected:
    /*! \name Setup functions */
    void init();
-   void clear();
    void free();
    // @}
 public:
@@ -76,7 +75,6 @@ public:
    basic_commsys(const basic_commsys<S, C>& c);
    basic_commsys()
       {
-      clear();
       }
    virtual ~basic_commsys()
       {
@@ -87,27 +85,27 @@ public:
    /*! \name Communication System Setup */
    virtual void seedfrom(libbase::random& r);
    //! Get error-control codec
-   codec<C> *getcodec() const
+   boost::shared_ptr<codec<C> > getcodec() const
       {
       return cdc;
       }
    //! Get symbol mapper
-   mapper<C> *getmapper() const
+   boost::shared_ptr<mapper<C> > getmapper() const
       {
       return map;
       }
    //! Get modulation scheme
-   blockmodem<S, C> *getmodem() const
+   boost::shared_ptr<blockmodem<S, C> > getmodem() const
       {
       return mdm;
       }
    //! Get channel model - transmitter side
-   channel<S, C> *gettxchan() const
+   boost::shared_ptr<channel<S, C> > gettxchan() const
       {
       return txchan;
       }
    //! Get channel model - receiver side
-   channel<S, C> *getrxchan() const
+   boost::shared_ptr<channel<S, C> > getrxchan() const
       {
       return rxchan;
       }

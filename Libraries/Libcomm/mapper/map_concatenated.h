@@ -43,7 +43,7 @@ private:
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
-   typedef std::list<mapper<C, dbl> *> mapper_list_t;
+   typedef std::list<boost::shared_ptr<mapper<C, dbl> > > mapper_list_t;
    typedef std::list<int> interface_list_t;
    // @}
 
@@ -66,8 +66,6 @@ protected:
    void free()
       {
       // Destroy mappers
-      for(typename mapper_list_t::iterator it = mapper_list.begin(); it != mapper_list.end(); it++)
-         delete *it;
       mapper_list.clear();
       // Delete list of interface alphabet sizes
       interface_list.clear();

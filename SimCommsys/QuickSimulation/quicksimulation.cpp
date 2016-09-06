@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
             return 0;
             }
          // Set up the estimator
-         libcomm::experiment *system;
+         boost::shared_ptr<libcomm::experiment> system;
          system = libcomm::loadfromfile<libcomm::experiment>(
                vm["system-file"].as<std::string> ());
          estimator.bind(system);
@@ -188,9 +188,6 @@ int main(int argc, char *argv[])
          // Output overall benchmark
          cout << "Simulation Speed: " << setprecision(4) << samples
                / estimator.get_timer().elapsed() << " samples/sec" << std::endl;
-
-         // Destroy what was created on the heap
-         delete system;
          }
          break;
       }

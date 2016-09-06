@@ -59,7 +59,7 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   fsm *encoder;
+   boost::shared_ptr<fsm> encoder;
    int tau; //!< Sequence length in timesteps (including tail, if any)
    bool endatzero; //!< True for terminated trellis
    bool circular; //!< True for circular trellis
@@ -72,7 +72,6 @@ private:
 protected:
    /*! \name Internal functions */
    void init();
-   void free();
    void reset();
    // @}
    // Internal codec operations
@@ -96,7 +95,6 @@ public:
    //! Destructor
    virtual ~mapcc()
       {
-      free();
       }
    //! Copy constructor
    mapcc(const mapcc<real, dbl>& x) :
@@ -104,11 +102,11 @@ public:
       {
       if (x.encoder)
          {
-         encoder = dynamic_cast<fsm*>(x.encoder->clone());
+         encoder = boost::dynamic_pointer_cast<fsm>(x.encoder->clone());
          init();
          }
       else
-         encoder = NULL;
+         encoder.reset();
       }
    //! Copy assignment operator
    mapcc<real, dbl>& operator=(const mapcc<real, dbl>& x)
@@ -118,24 +116,23 @@ public:
       circular = x.circular;
       if (x.encoder)
          {
-         encoder = dynamic_cast<fsm*>(x.encoder->clone());
+         encoder = boost::dynamic_pointer_cast<fsm>(x.encoder->clone());
          init();
          }
       else
-         encoder = NULL;
+         encoder.reset();
       return *this;
       }
    // @}
    /*! \name Constructors / Destructors */
    //! Default constructor
-   mapcc() :
-      encoder(NULL)
+   mapcc()
       {
       }
    //! Principal constructor
    mapcc(const fsm& encoder, const int tau, const bool endatzero,
          const bool circular) :
-         encoder(dynamic_cast<fsm*>(encoder.clone())), tau(tau), endatzero(
+         encoder(boost::dynamic_pointer_cast<fsm>(encoder.clone())), tau(tau), endatzero(
                endatzero), circular(circular)
       {
       init();

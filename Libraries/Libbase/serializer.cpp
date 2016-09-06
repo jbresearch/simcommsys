@@ -45,7 +45,7 @@ int serializer::count = 0;
 
 // static functions
 
-serializable* serializer::call(const std::string& base,
+boost::shared_ptr<serializable> serializer::call(const std::string& base,
       const std::string& derived)
    {
    fptr func = (*cmap)[base + ":" + derived];
@@ -53,7 +53,7 @@ serializable* serializer::call(const std::string& base,
    trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
 #endif
    if (func == NULL)
-      return NULL;
+      return boost::shared_ptr<serializable>();
    return (*func)();
    }
 

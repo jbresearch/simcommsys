@@ -254,7 +254,6 @@ std::ostream& commsys_simulator<S, R>::serialize(std::ostream& sout) const
 template <class S, class R>
 std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
    {
-   free();
    assertalways(sin.good());
    // get format version
    int version;

@@ -91,7 +91,7 @@ public:
       // Seed codec
       cdc->seedfrom(r);
       // Make a copy of codec object for encoder operations
-      cdc_enc.reset(dynamic_cast<codec_softout<C, dbl> *>(cdc->clone()));
+      cdc_enc = boost::dynamic_pointer_cast<codec_softout<C, dbl> >(cdc->clone());
       }
    void softdecode(C<array1d_t>& ri);
    void softdecode(C<array1d_t>& ri, C<array1d_t>& ro);

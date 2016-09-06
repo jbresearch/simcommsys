@@ -39,16 +39,20 @@ namespace libcomm {
 template <class real>
 class onetimepad : public interleaver<real> {
    bool terminated, renewable;
-   fsm *encoder;
+   boost::shared_ptr<fsm> encoder;
    libbase::vector<int> pad;
    libbase::randgen r;
 protected:
-   onetimepad();
+   onetimepad()
+      {
+      }
 public:
    onetimepad(const fsm& encoder, const int tau, const bool terminated,
          const bool renewable);
    onetimepad(const onetimepad& x);
-   ~onetimepad();
+   ~onetimepad()
+      {
+      }
 
    // Intra-frame Operations
    void seedfrom(libbase::random& r);

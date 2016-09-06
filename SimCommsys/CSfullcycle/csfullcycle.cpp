@@ -34,7 +34,7 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
       std::cin, std::ostream& sout = std::cout)
    {
    // Communication system
-   libcomm::commsys<S, C> *system = libcomm::loadfromfile<
+   boost::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadfromfile<
          libcomm::commsys<S, C> >(fname);
    std::cerr << system->description() << std::endl;
    // Set channel parameter
@@ -78,8 +78,6 @@ void process(const std::string& fname, double p, bool soft, std::istream& sin =
       libbase::eatwhite(sin);
       std::cerr << "done." << std::endl;
       }
-   // Destroy what was created on the heap
-   delete system;
    }
 
 /*!

@@ -63,33 +63,13 @@ private:
 protected:
    /*! \name Bound objects */
    libbase::randgen src; //!< Source data sequence generator
-   commsys<S> *sys; //!< Communication systems
+   boost::shared_ptr<commsys<S> > sys; //!< Communication systems
    // @}
    /*! \name Internal state */
    array1i_t last_event;
    // @}
 
 protected:
-   /*! \name Setup functions */
-   /*!
-    * \brief Removes association with bound objects
-    *
-    * This function performs two things:
-    * - Deletes any internally-allocated bound objects
-    * - Sets up the system with no bound objects
-    *
-    * \note This function is only responsible for deleting bound
-    * objects that are specific to this object/derivation.
-    * Anything else should get done automatically when the base
-    * serializer or constructor is called.
-    */
-   void free()
-      {
-      // note: delete can be safely called with null pointers
-      delete sys;
-      sys = NULL;
-      }
-   // @}
    /*! \name Internal functions */
    array1i_t createsource();
    // @}
@@ -115,16 +95,14 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    commsys_simulator(const commsys_simulator<S, R>& c) :
-      src(c.src), sys(dynamic_cast<commsys<S> *> (c.sys->clone()))
+      src(c.src), sys(boost::dynamic_pointer_cast<commsys<S> > (c.sys->clone()))
       {
       }
-   commsys_simulator() :
-      sys(NULL)
+   commsys_simulator()
       {
       }
    virtual ~commsys_simulator()
       {
-      free();
       }
    // @}
 
@@ -174,7 +152,7 @@ public:
 
    /*! \name Component object handles */
    //! Get communication system
-   const commsys<S> *getsystem() const
+   const boost::shared_ptr<commsys<S> > getsystem() const
       {
       return sys;
       }

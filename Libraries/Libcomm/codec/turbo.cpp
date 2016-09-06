@@ -55,15 +55,6 @@ void turbo<real, dbl>::init()
    }
 
 template <class real, class dbl>
-void turbo<real, dbl>::free()
-   {
-   if (encoder != NULL)
-      delete encoder;
-   for (int i = 0; i < inter.size(); i++)
-      delete inter(i);
-   }
-
-template <class real, class dbl>
 void turbo<real, dbl>::reset()
    {
    if (circular)
@@ -88,18 +79,17 @@ void turbo<real, dbl>::reset()
 // constructor / destructor
 
 template <class real, class dbl>
-turbo<real, dbl>::turbo()
+turbo<real, dbl>::turbo(const fsm& encoder,
+      const libbase::vector<boost::shared_ptr<interleaver<dbl> > >& inter,
+      const int iter, const bool endatzero, const bool parallel,
+      const bool circular)
    {
-   encoder = NULL;
-   }
-
-template <class real, class dbl>
-turbo<real, dbl>::turbo(const fsm& encoder, const libbase::vector<interleaver<
-      dbl> *>& inter, const int iter, const bool endatzero,
-      const bool parallel, const bool circular)
-   {
-   this->encoder = dynamic_cast<fsm*> (encoder.clone());
-   this->inter = inter;
+   this->encoder = boost::dynamic_pointer_cast<fsm> (encoder.clone());
+   // deep copy of interleaver list
+   this->inter.init(inter.size());
+   for (int i = 0; i < inter.size(); i++)
+      this->inter(i) = boost::dynamic_pointer_cast<interleaver<dbl> >(
+            inter(i)->clone());
    this->endatzero = endatzero;
    this->parallel = parallel;
    this->circular = circular;
@@ -532,7 +522,6 @@ template <class real, class dbl>
 std::istream& turbo<real, dbl>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
-   free();
    // get format version
    int version;
    sin >> libbase::eatcomments >> version;
@@ -551,7 +540,7 @@ std::istream& turbo<real, dbl>::serialize(std::istream& sin)
    inter.init(sets);
    if (version < 1)
       {
-      inter(0) = new flat<dbl> (tau);
+      inter(0).reset(new flat<dbl> (tau));
       for (int i = 1; i < inter.size(); i++)
          sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
       }

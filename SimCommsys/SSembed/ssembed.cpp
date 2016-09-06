@@ -68,8 +68,8 @@ void process(const std::string& systemfile, const std::string& hostfile,
    // Load host medium
    libimage::image<S> hostimage = loadimage<S> (hostfile);
    // Stego-system embedder
-   libcomm::blockembedder<S, C> *system = libcomm::loadfromfile<
-         libcomm::blockembedder<S, C> >(systemfile);
+   boost::shared_ptr<libcomm::blockembedder<S, C> > system =
+         libcomm::loadfromfile<libcomm::blockembedder<S, C> >(systemfile);
    std::cerr << system->description() << std::endl;
    // Initialize system
    libbase::randgen r;
@@ -99,8 +99,6 @@ void process(const std::string& systemfile, const std::string& hostfile,
    stegoimage.serialize(sout);
    // Verify that there is no pending data
    sin >> libbase::verifycomplete;
-   // Destroy what was created on the heap
-   delete system;
    }
 
 /*!

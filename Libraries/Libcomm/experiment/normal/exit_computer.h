@@ -70,7 +70,7 @@ public:
 
 protected:
    /*! \name User-defined parameters */
-   commsys<S> *sys; //!< Communication systems
+   boost::shared_ptr<commsys<S> > sys; //!< Communication systems
    exit_t exit_type; //!< enum indicating type of EXIT curve to plot
    bool compute_llr_statistics; //!< switch for computing binary LLR statistics
    double sigma; //!< Sigma value to use when generating binary priors
@@ -79,25 +79,6 @@ protected:
    libbase::randgen src; //!< Random generator for source data sequence and prior probabilities
    // @}
 protected:
-   /*! \name Setup functions */
-   /*!
-    * \brief Removes association with bound objects
-    *
-    * This function performs two things:
-    * - Deletes any internally-allocated bound objects
-    * - Sets up the system with no bound objects
-    *
-    * \note This function is only responsible for deleting bound
-    * objects that are specific to this object/derivation.
-    * Anything else should get done automatically when the base
-    * serializer or constructor is called.
-    */
-   void free()
-      {
-      delete sys;
-      sys = NULL;
-      }
-   // @}
    /*! \name Internal functions */
    array1i_t createsource();
    array1vd_t createpriors(const array1i_t& tx, const int N, const int q);
@@ -116,16 +97,15 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    exit_computer(const exit_computer<S>& c) :
-         sys(dynamic_cast<commsys<S> *>(c.sys->clone())), src(c.src)
+         sys(boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone())), src(
+               c.src)
       {
       }
-   exit_computer() :
-         sys(NULL)
+   exit_computer()
       {
       }
    virtual ~exit_computer()
       {
-      free();
       }
    // @}
 
@@ -193,7 +173,7 @@ public:
 
    /*! \name Component object handles */
    //! Get communication system
-   const commsys<S> *getsystem() const
+   const boost::shared_ptr<commsys<S> > getsystem() const
       {
       return sys;
       }

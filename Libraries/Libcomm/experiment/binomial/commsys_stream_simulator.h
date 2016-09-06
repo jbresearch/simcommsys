@@ -82,7 +82,7 @@ private:
    std::list<array1i_t> act_bdry_drift; //!< Actual channel drift at codeword boundaries of each received frame
    std::list<int> actual_drift; //!< Actual channel drift at end of each received frame
    int drift_error; //!< Cumulative error in channel drift estimation at end of last decoded frame
-   commsys_stream<S, libbase::vector, real>* sys_enc; //!< Copy of the commsys object for encoder operations
+   boost::shared_ptr<commsys_stream<S, libbase::vector, real> > sys_enc; //!< Copy of the commsys object for encoder operations
    int frames_encoded; //!< Number of frames encoded since stream reset
    int frames_decoded; //!< Number of frames decoded since stream reset
    hard_decision<libbase::vector, double, int> hd_functor; //!< Hard-decision box
@@ -116,14 +116,14 @@ protected:
       actual_drift.clear();
       drift_error = 0;
       // Make a copy of the commsys object for transmitter operations
-      delete sys_enc;
       if (this->sys)
          {
-         sys_enc = dynamic_cast<commsys_stream<S, libbase::vector, real>*>(this->sys->clone());
+         sys_enc = boost::dynamic_pointer_cast<
+               commsys_stream<S, libbase::vector, real> >(this->sys->clone());
          assertalways(sys_enc);
          }
       else
-         sys_enc = NULL;
+         sys_enc.reset();
       // reset counters
       frames_encoded = 0;
       frames_decoded = 0;
@@ -149,16 +149,16 @@ public:
                c.actual_drift), drift_error(c.drift_error), frames_encoded(
                c.frames_encoded), frames_decoded(c.frames_decoded)
       {
-      sys_enc = dynamic_cast<commsys_stream<S, libbase::vector, real>*>(c.sys_enc->clone());
+      sys_enc = boost::dynamic_pointer_cast<
+            commsys_stream<S, libbase::vector, real> >(c.sys_enc->clone());
       }
    commsys_stream_simulator() :
-         stream_mode(stream_mode_open), N(0), sys_enc(NULL)
+         stream_mode(stream_mode_open), N(0)
       {
       reset();
       }
    virtual ~commsys_stream_simulator()
       {
-      delete sys_enc;
       }
    // @}
 

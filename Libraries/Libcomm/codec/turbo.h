@@ -101,8 +101,8 @@ public:
 private:
    /*! \name User-defined parameters */
    //! Set of interleavers, one per parity sequence (including first set)
-   libbase::vector<interleaver<dbl> *> inter;
-   fsm *encoder; //!< Encoder object (same for all parity sequences)
+   libbase::vector<boost::shared_ptr<interleaver<dbl> > > inter;
+   boost::shared_ptr<fsm> encoder; //!< Encoder object (same for all parity sequences)
    int iter; //!< Number of iterations to perform
    bool endatzero; //!< Flag to indicate that trellises are terminated
    bool parallel; //!< Flag to enable parallel decoding (rather than serial)
@@ -130,7 +130,6 @@ private:
 protected:
    /*! \name Internal functions */
    void init();
-   void free();
    void reset();
    // @}
    /*! \name Codec information functions - internal */
@@ -213,13 +212,15 @@ protected:
 public:
    /*! \name Constructors / Destructors */
    //! Default constructor
-   turbo();
-   turbo(const fsm& encoder, const libbase::vector<interleaver<dbl> *>& inter,
+   turbo()
+      {
+      }
+   turbo(const fsm& encoder,
+         const libbase::vector<boost::shared_ptr<interleaver<dbl> > >& inter,
          const int iter, const bool endatzero, const bool parallel = false,
          const bool circular = false);
    ~turbo()
       {
-      free();
       }
    // @}
 

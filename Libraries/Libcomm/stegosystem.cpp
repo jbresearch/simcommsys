@@ -48,20 +48,6 @@ double stegosystem::plmod(const double u)
       return 0;
    }
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-stegosystem::stegosystem()
-   {
-   m_pCodec = NULL;
-   }
-
-stegosystem::~stegosystem()
-   {
-   FreeErrorControl();
-   }
-
 /////////////////////////////////////////////////////////////////////////////
 // informative functions
 
@@ -74,13 +60,13 @@ int stegosystem::GetRawSize(double dInterleaverDensity) const
 // returns the length of each encoded vector (in bits)
 int stegosystem::GetOutputSize() const
    {
-   return int(round((m_pCodec == NULL) ? 1 : m_pCodec->output_bits()));
+   return int(round((!m_pCodec) ? 1 : m_pCodec->output_bits()));
    }
 
 // returns the length of each uncoded vector (in bits)
 int stegosystem::GetInputSize() const
    {
-   return int(round((m_pCodec == NULL) ? 1 : m_pCodec->input_bits()));
+   return int(round((!m_pCodec) ? 1 : m_pCodec->input_bits()));
    }
 
 // returns the length of the data vector (in elements)
@@ -94,7 +80,7 @@ int stegosystem::GetDataSize(double dInterleaverDensity, int nEmbedRate) const
 // returns the width of each data element as passed to the encoder (in bits)
 int stegosystem::GetDataWidth() const
    {
-   return (m_pCodec == NULL) ? 1 : int(round(log2(m_pCodec->num_inputs())));
+   return (!m_pCodec) ? 1 : int(round(log2(m_pCodec->num_inputs())));
    }
 
 // returns the code rate
@@ -109,20 +95,10 @@ double stegosystem::GetCodeRate() const
 void stegosystem::LoadErrorControl(const char* sCodec)
    {
    // load encoder and puncturing pattern
-   FreeErrorControl();
    if (strlen(sCodec) != 0)
       {
       std::ifstream file(sCodec, std::ios_base::in | std::ios_base::binary);
       file >> m_pCodec;
-      }
-   }
-
-void stegosystem::FreeErrorControl()
-   {
-   if (m_pCodec != NULL)
-      {
-      delete m_pCodec;
-      m_pCodec = NULL;
       }
    }
 
@@ -141,7 +117,7 @@ void stegosystem::LoadDataFile(const char* sPathName, vector<int>& d, int n)
 
 void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
    {
-   assert(m_pCodec != NULL);
+   assert(m_pCodec);
    // get block size data
    const int tau = m_pCodec->output_block_size();
    const int m = m_pCodec->tail_length();
@@ -179,7 +155,7 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
 void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate,
       const double dSNR, const vector<sigspace>& s, vector<int>& d)
    {
-   assert(m_pCodec != NULL);
+   assert(m_pCodec);
    // initialize data vector
    d.init(GetDataSize(dInterleaverDensity, nEmbedRate));
    // get block size data
@@ -359,7 +335,7 @@ void stegosystem::ConvertToUniform(const vector<double>& g, vector<double>& v)
    for (int i = 0; i < g.size(); i++)
       {
       if ((i & 0xff) == 0)
-         DisplayProgress(i, g.size(), 2, (m_pCodec == NULL) ? 3 : 5);
+         DisplayProgress(i, g.size(), 2, (!m_pCodec) ? 3 : 5);
       v(i) = (boost::math::erf(g(i) / sqrt(double(2))) + 1.0) / 2.0;
       }
    }
@@ -405,7 +381,7 @@ void stegosystem::GenerateInterleaver(vector<int>& v, int in, int out, int seed)
    for (int i = 0; i < out; i++)
       {
       if ((i & 0xff) == 0)
-         DisplayProgress(i, out, 1, (m_pCodec == NULL) ? 3 : 5);
+         DisplayProgress(i, out, 1, (!m_pCodec) ? 3 : 5);
       int index;
       do
          {

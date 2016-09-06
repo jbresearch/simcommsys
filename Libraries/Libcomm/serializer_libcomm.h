@@ -242,16 +242,16 @@ public:
 // Public interface to load objects
 
 template <class T>
-T *loadandverify(std::istream& sin)
+boost::shared_ptr<T> loadandverify(std::istream& sin)
    {
    const serializer_libcomm my_serializer_libcomm;
-   T *system;
+   boost::shared_ptr<T> system;
    sin >> libbase::eatcomments >> system >> libbase::verifycomplete;
    return system;
    }
 
 template <class T>
-T *loadfromstring(const std::string& systemstring)
+boost::shared_ptr<T> loadfromstring(const std::string& systemstring)
    {
    // load system from string representation
    std::istringstream is(systemstring, std::ios_base::in
@@ -260,7 +260,7 @@ T *loadfromstring(const std::string& systemstring)
    }
 
 template <class T>
-T *loadfromfile(const std::string& fname)
+boost::shared_ptr<T> loadfromfile(const std::string& fname)
    {
    // load system from file
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);

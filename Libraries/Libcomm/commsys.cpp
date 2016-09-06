@@ -64,24 +64,6 @@ void basic_commsys<S, C>::init()
    }
 
 /*!
- * \brief Sets up system with no bound objects.
- *
- * \note This function is only responsible for clearing pointers to
- * objects that are specific to this object/derivation.
- * Anything else should get done automatically when the base
- * serializer or constructor is called.
- */
-template <class S, template <class > class C>
-void basic_commsys<S, C>::clear()
-   {
-   cdc = NULL;
-   map = NULL;
-   mdm = NULL;
-   txchan = NULL;
-   rxchan = NULL;
-   }
-
-/*!
  * \brief Removes association with bound objects
  *
  * This function performs two things:
@@ -96,13 +78,11 @@ void basic_commsys<S, C>::clear()
 template <class S, template <class > class C>
 void basic_commsys<S, C>::free()
    {
-   // note: delete can be safely called with null pointers
-   delete cdc;
-   delete map;
-   delete mdm;
-   delete txchan;
-   delete rxchan;
-   clear();
+   cdc.reset();
+   map.reset();
+   mdm.reset();
+   txchan.reset();
+   rxchan.reset();
    }
 
 // Internal functions
@@ -116,11 +96,11 @@ void basic_commsys<S, C>::free()
  */
 template <class S, template <class > class C>
 basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c) :
-   cdc(dynamic_cast<codec<C>*> (c.cdc->clone())), map(
-         dynamic_cast<mapper<C>*> (c.map->clone())), mdm(
-         dynamic_cast<blockmodem<S, C>*> (c.mdm->clone())), txchan(
-         dynamic_cast<channel<S, C>*> (c.txchan->clone())), rxchan(
-         dynamic_cast<channel<S, C>*> (c.rxchan->clone())), singlechannel(
+   cdc(boost::dynamic_pointer_cast<codec<C> > (c.cdc->clone())), map(
+         boost::dynamic_pointer_cast<mapper<C> > (c.map->clone())), mdm(
+         boost::dynamic_pointer_cast<blockmodem<S, C> > (c.mdm->clone())), txchan(
+         boost::dynamic_pointer_cast<channel<S, C> > (c.txchan->clone())), rxchan(
+         boost::dynamic_pointer_cast<channel<S, C> > (c.rxchan->clone())), singlechannel(
          c.singlechannel)
    {
    init();
@@ -367,7 +347,7 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> txchan >> libbase::verify;
    assertalways(txchan);
    if (singlechannel)
-      rxchan = dynamic_cast<channel<S, C>*> (txchan->clone());
+      rxchan = boost::dynamic_pointer_cast<channel<S, C> > (txchan->clone());
    else
       sin >> libbase::eatcomments >> rxchan >> libbase::verify;
    assertalways(rxchan);
@@ -379,7 +359,7 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    if (version == 0 && sin.fail())
       {
       assert(map == NULL);
-      map = new map_straight<C> ;
+      map.reset(new map_straight<C>);
       sin.clear();
       }
    sin >> libbase::verify;

@@ -59,15 +59,6 @@ void repacc<real, dbl>::init()
    }
 
 template <class real, class dbl>
-void repacc<real, dbl>::free()
-   {
-   if (acc != NULL)
-      delete acc;
-   if (inter != NULL)
-      delete inter;
-   }
-
-template <class real, class dbl>
 void repacc<real, dbl>::reset()
    {
    if (endatzero)
@@ -104,14 +95,6 @@ void repacc<real, dbl>::allocate()
    // revert cerr to original format
    std::cerr.precision(prec);
    std::cerr.flags(flags);
-   }
-
-// constructor / destructor
-
-template <class real, class dbl>
-repacc<real, dbl>::repacc() :
-   inter(NULL), acc(NULL)
-   {
    }
 
 // internal codec functions
@@ -366,7 +349,6 @@ template <class real, class dbl>
 std::istream& repacc<real, dbl>::serialize(std::istream& sin)
    {
    assertalways(sin.good());
-   free();
    // get format version
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;

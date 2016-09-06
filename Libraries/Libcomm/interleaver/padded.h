@@ -41,27 +41,28 @@ namespace libcomm {
 
 template <class real>
 class padded : public interleaver<real> {
-   interleaver<real> *otp;
-   interleaver<real> *inter;
+   boost::shared_ptr<interleaver<real> > otp;
+   boost::shared_ptr<interleaver<real> > inter;
 protected:
-   padded();
+   padded()
+      {
+      }
 public:
    padded(const interleaver<real>& inter, const fsm& encoder,
          const bool terminated, const bool renewable);
    padded(const padded& x);
-   ~padded();
+   ~padded()
+      {
+      }
 
    // Intra-frame Operations
    void seedfrom(libbase::random& r);
    void advance();
 
    // Transform functions
-   void
-         transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void
-         transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
-   void
-         inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
+   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
 
    // Information functions
    int size() const

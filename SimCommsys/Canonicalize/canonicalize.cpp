@@ -32,14 +32,12 @@ template <class S, template <class > class C>
 void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
    {
    // Read from input stream
-   libcomm::commsys<S, C> *system = libcomm::loadandverify<libcomm::commsys<S,
-         C> >(sin);
+   boost::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadandverify<
+         libcomm::commsys<S, C> >(sin);
    // Write details on error stream
    std::cerr << system->description() << std::endl;
    // Write system in canonical form on output stream
    std::cout << system;
-   // Destroy what was created on the heap
-   delete system;
    }
 
 /*!

@@ -87,7 +87,7 @@ namespace libcomm {
 class stegosystem {
 private:
    const serializer_libcomm m_serializer_libcomm;
-   codec<libbase::vector>* m_pCodec;
+   boost::shared_ptr<codec<libbase::vector> > m_pCodec;
 
 protected:
    // Piece-wise Linear Modulator
@@ -95,8 +95,12 @@ protected:
 
 public:
    // creation/destruction
-   stegosystem();
-   virtual ~stegosystem();
+   stegosystem()
+      {
+      }
+   virtual ~stegosystem()
+      {
+      }
 
    // required functions in derived class
    virtual int GetImagePixels() const = 0;
@@ -112,11 +116,10 @@ public:
    double GetCodeRate() const;
    bool CodecPresent() const
       {
-      return (m_pCodec != NULL);
+      return m_pCodec;
       }
 
    void LoadErrorControl(const char* sCodec);
-   void FreeErrorControl();
    void LoadDataFile(const char* sPathName, libbase::vector<int>& d, int n);
    void EncodeData(const libbase::vector<int>& d, libbase::vector<int>& e);
    void DecodeData(double dInterleaverDensity, int nEmbedRate,

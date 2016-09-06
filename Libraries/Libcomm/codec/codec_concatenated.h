@@ -51,8 +51,8 @@ private:
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
-   typedef std::list<codec_softout<C, dbl> *> codec_list_t;
-   typedef std::list<mapper<C, dbl> *> mapper_list_t;
+   typedef std::list<boost::shared_ptr<codec_softout<C, dbl> > > codec_list_t;
+   typedef std::list<boost::shared_ptr<mapper<C, dbl> > > mapper_list_t;
    // @}
 private:
    /*! \name Internal representation */
@@ -67,17 +67,6 @@ protected:
       // The tests below assume a properly set up and usable system
       assert(codec_list.size() >= 1);
       assert(mapper_list.size() == codec_list.size() - 1);
-      }
-   void free()
-      {
-      // Destroy codecs
-      for(typename codec_list_t::iterator it = codec_list.begin(); it != codec_list.end(); it++)
-         delete *it;
-      codec_list.clear();
-      // Destroy mappers
-      for(typename mapper_list_t::iterator it = mapper_list.begin(); it != mapper_list.end(); it++)
-         delete *it;
-      mapper_list.clear();
       }
    void init();
    // @}
@@ -98,7 +87,6 @@ public:
    /*! \name Constructors / Destructors */
    ~codec_concatenated()
       {
-      free();
       }
    // @}
 

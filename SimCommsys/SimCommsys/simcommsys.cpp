@@ -95,11 +95,11 @@ public:
       }
 };
 
-libcomm::experiment *createsystem(const std::string& fname)
+boost::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
    {
    const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
-   libcomm::experiment *system;
+   boost::shared_ptr<libcomm::experiment> system;
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
    file >> system >> libbase::verifycomplete;
    return system;
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
             {
             // Simulation system & parameters
             estimator.set_resultsfile(vm["results-file"].as<std::string>());
-            libcomm::experiment *system = createsystem(
+            boost::shared_ptr<libcomm::experiment> system = createsystem(
                   vm["system-file"].as<std::string>());
             estimator.bind(system);
             libbase::vector<double> pset;
@@ -268,9 +268,6 @@ int main(int argc, char *argv[])
                      && estimate.max() < vm["floor-max"].as<double>())
                   break;
                }
-
-            // Destroy what was created on the heap
-            delete system;
             }
          break;
       }

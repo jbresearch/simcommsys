@@ -404,7 +404,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    // Determine longest codeword we need to work with
    const int nmax = get_max_codeword_length();
    // Copy channel for access within R()
-   mychan.reset(dynamic_cast<channel_insdel<sig, real2>*> (chan.clone()));
+   mychan = boost::dynamic_pointer_cast<channel_insdel<sig, real2> > (chan.clone());
    // Set channel block size to longest codeword
    mychan->set_blocksize(nmax);
    // Set the probability of channel event outside chosen limits

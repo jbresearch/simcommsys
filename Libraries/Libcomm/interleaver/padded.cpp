@@ -30,33 +30,18 @@ using libbase::matrix;
 // construction and destruction
 
 template <class real>
-padded<real>::padded() :
-   otp(NULL), inter(NULL)
-   {
-   }
-
-template <class real>
 padded<real>::padded(const interleaver<real>& inter, const fsm& encoder,
       const bool terminated, const bool renewable)
    {
-   otp = new onetimepad<real> (encoder, inter.size(), terminated, renewable);
-   padded<real>::inter = dynamic_cast<interleaver<real> *> (inter.clone());
+   otp.reset(new onetimepad<real> (encoder, inter.size(), terminated, renewable));
+   this->inter = boost::dynamic_pointer_cast<interleaver<real> > (inter.clone());
    }
 
 template <class real>
 padded<real>::padded(const padded& x)
    {
-   inter = dynamic_cast<interleaver<real> *> (x.inter->clone());
-   otp = dynamic_cast<interleaver<real> *> (x.otp->clone());
-   }
-
-template <class real>
-padded<real>::~padded()
-   {
-   if (otp != NULL)
-      delete otp;
-   if (inter != NULL)
-      delete inter;
+   inter = boost::dynamic_pointer_cast<interleaver<real> > (x.inter->clone());
+   otp = boost::dynamic_pointer_cast<interleaver<real> > (x.otp->clone());
    }
 
 // inter-frame operations

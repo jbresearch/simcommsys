@@ -37,16 +37,6 @@ void mapcc<real, dbl>::init()
    }
 
 template <class real, class dbl>
-void mapcc<real, dbl>::free()
-   {
-   if (encoder != NULL)
-      {
-      delete encoder;
-      encoder = NULL;
-      }
-   }
-
-template <class real, class dbl>
 void mapcc<real, dbl>::reset()
    {
    if (circular)
@@ -286,7 +276,6 @@ std::ostream& mapcc<real, dbl>::serialize(std::ostream& sout) const
 template <class real, class dbl>
 std::istream& mapcc<real, dbl>::serialize(std::istream& sin)
    {
-   free();
    sin >> libbase::eatcomments >> encoder >> libbase::verify;
    sin >> libbase::eatcomments >> tau >> libbase::verify;
    sin >> libbase::eatcomments >> endatzero >> libbase::verify;

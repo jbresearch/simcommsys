@@ -46,7 +46,7 @@ private:
     * object at this address. This should be deleted when no longer necessary.
     */
    bool bound; //!< Flag to indicate that a system has been bound (only in master)
-   experiment *system; //!< System being sampled
+   boost::shared_ptr<experiment> system; //!< System being sampled
    // @}
    /*! \name Internal variables / settings */
    libbase::int32u seed; //! system initialization seed
@@ -126,7 +126,7 @@ protected:
 public:
    /*! \name Constructor/destructor */
    montecarlo() :
-         bound(false), system(NULL), min_samples(128), confidence(0.95), threshold(
+         bound(false), min_samples(128), confidence(0.95), threshold(
                0.10), mode(mode_relative_error), t("montecarlo"), tupdate(
                "montecarlo_update")
       {
@@ -138,16 +138,15 @@ public:
    virtual ~montecarlo()
       {
       release();
-      delete system;
       destroyfunctors();
       tupdate.stop();
       }
    // @}
    /*! \name Simulation binding/releasing */
-   void bind(experiment *system)
+   void bind(boost::shared_ptr<experiment> system)
       {
       release();
-      assert(montecarlo::system == NULL);
+      assert(!montecarlo::system);
       bound = true;
       montecarlo::system = system;
       }
@@ -155,9 +154,9 @@ public:
       {
       if (!bound)
          return;
-      assert(system != NULL);
+      assert(system);
       bound = false;
-      system = NULL;
+      system.reset();
       }
    // @}
    /*! \name Simulation parameters */

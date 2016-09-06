@@ -62,10 +62,10 @@ public:
 private:
    /*! \name User-defined parameters */
    //! Interleaver between repeater and accumulator
-   interleaver<dbl> *inter;
+   boost::shared_ptr<interleaver<dbl> > inter;
    //! Memoryless codec representation of repetition code
    memoryless<dbl> rep;
-   fsm *acc; //!< Encoder representation of accumulator
+   boost::shared_ptr<fsm> acc; //!< Encoder representation of accumulator
    int iter; //!< Number of iterations to perform
    bool endatzero; //!< Flag to indicate that trellises are terminated
    dbl limitlo; //!< Lower clipping threshold
@@ -80,7 +80,6 @@ protected:
 protected:
    /*! \name Internal functions */
    void init();
-   void free();
    void reset();
    //! Memory allocator (for internal use only)
    void allocate();
@@ -117,10 +116,11 @@ protected:
       }
 public:
    /*! \name Constructors / Destructors */
-   repacc();
+   repacc()
+      {
+      }
    ~repacc()
       {
-      free();
       }
    // @}
 
@@ -174,7 +174,7 @@ public:
       {
       return int(round(log(rep.num_outputs()) / log(rep.num_inputs())));
       }
-   const interleaver<dbl> *get_inter() const
+   const boost::shared_ptr<interleaver<dbl> > get_inter() const
       {
       return inter;
       }

@@ -32,16 +32,10 @@ using libbase::matrix;
 // construction and destruction
 
 template <class real>
-onetimepad<real>::onetimepad() :
-   encoder(NULL)
-   {
-   }
-
-template <class real>
 onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
       const bool terminated, const bool renewable) :
    terminated(terminated), renewable(renewable), encoder(
-         dynamic_cast<fsm*> (encoder.clone()))
+         boost::dynamic_pointer_cast<fsm> (encoder.clone()))
    {
    const int k = encoder.num_inputs();
    pad.init(tau * k);
@@ -50,15 +44,8 @@ onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
 template <class real>
 onetimepad<real>::onetimepad(const onetimepad& x) :
    terminated(x.terminated), renewable(x.renewable), encoder(
-         dynamic_cast<fsm*> (x.encoder->clone())), pad(x.pad), r(x.r)
+         boost::dynamic_pointer_cast<fsm> (x.encoder->clone())), pad(x.pad), r(x.r)
    {
-   }
-
-template <class real>
-onetimepad<real>::~onetimepad()
-   {
-   if (encoder != NULL)
-      delete encoder;
    }
 
 // inter-frame operations

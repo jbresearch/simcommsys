@@ -150,10 +150,10 @@ std::istream& codec_multiblock<C, dbl>::serialize(std::istream& sin)
    int version;
    sin >> libbase::eatcomments >> version >> libbase::verify;
    // serialize codec
-   codec<C, dbl> *this_codec;
+   boost::shared_ptr<codec<C, dbl> > this_codec;
    sin >> libbase::eatcomments >> this_codec >> libbase::verify;
    // get access to soft-out object (and confirm this is valid)
-   cdc.reset(dynamic_cast<codec_softout<C, dbl> *>(this_codec));
+   cdc = boost::dynamic_pointer_cast<codec_softout<C, dbl> >(this_codec);
    assertalways(cdc);
    // get number of blocks to aggregate
    sin >> libbase::eatcomments >> N >> libbase::verify;

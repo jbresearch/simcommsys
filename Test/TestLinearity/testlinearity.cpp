@@ -31,7 +31,7 @@ namespace testlinearity {
 namespace po = boost::program_options;
 
 template <template <class > class C>
-C<int> createsource(libbase::random& r, const libcomm::codec<C, double> *cdc)
+C<int> createsource(libbase::random& r, const boost::shared_ptr<libcomm::codec<C, double> > cdc)
    {
    const int tau = cdc->input_block_size();
    C<int> source(tau);
@@ -44,8 +44,8 @@ template <class S, template <class > class C>
 void process(const std::string& fname, int count)
    {
    // Communication system
-   libcomm::codec<C, double> *cdc = libcomm::loadfromfile<libcomm::codec<C,
-         double> >(fname);
+   boost::shared_ptr<libcomm::codec<C, double> > cdc = libcomm::loadfromfile<
+         libcomm::codec<C, double> >(fname);
    std::cerr << cdc->description() << std::endl;
    // Initialize system
    libbase::randgen r;
