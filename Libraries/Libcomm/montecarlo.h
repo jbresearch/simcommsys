@@ -45,7 +45,6 @@ private:
    /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
     * object at this address. This should be deleted when no longer necessary.
     */
-   bool bound; //!< Flag to indicate that a system has been bound (only in master)
    boost::shared_ptr<experiment> system; //!< System being sampled
    // @}
    /*! \name Internal variables / settings */
@@ -126,8 +125,8 @@ protected:
 public:
    /*! \name Constructor/destructor */
    montecarlo() :
-         bound(false), min_samples(128), confidence(0.95), threshold(
-               0.10), mode(mode_relative_error), t("montecarlo"), tupdate(
+         min_samples(128), confidence(0.95), threshold(0.10), mode(
+               mode_relative_error), t("montecarlo"), tupdate(
                "montecarlo_update")
       {
       createfunctors();
@@ -146,16 +145,14 @@ public:
    void bind(boost::shared_ptr<experiment> system)
       {
       release();
-      assert(!montecarlo::system);
-      bound = true;
-      montecarlo::system = system;
+      assert(!this->system);
+      this->system = system;
       }
    void release()
       {
-      if (!bound)
+      if (!system)
          return;
       assert(system);
-      bound = false;
       system.reset();
       }
    // @}
