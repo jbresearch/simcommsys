@@ -22,21 +22,20 @@
 #include "assertalways.h"
 
 #include <iostream>
-#include <string>
 #include <cstdlib>
 
 namespace libbase {
 
 // Debugging tools
 
-void reportassertionandfail(const char *expression, const char *file, int line)
+void reportassertionandfail(const std::string expression, const std::string file, int line)
    {
    std::string s;
-   s = "assertion " + std::string(expression) + " failed.";
-   reporterrorandfail(s.c_str(), file, line);
+   s = "assertion " + expression + " failed.";
+   reporterrorandfail(s, file, line);
    }
 
-void reporterrorandfail(const char *expression, const char *file, int line)
+void reporterrorandfail(const std::string expression, const std::string file, int line)
    {
    std::cerr << "ERROR (" << file << " line " << line << "): " << expression
          << std::endl;

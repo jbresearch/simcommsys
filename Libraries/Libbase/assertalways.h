@@ -31,6 +31,7 @@
 // system include files
 
 #include <cassert>
+#include <string>
 
 // *** Global namespace ***
 
@@ -52,8 +53,8 @@ namespace libbase {
 
 // Debugging tools
 
-void reportassertionandfail(const char *expression, const char *file, int line);
-void reporterrorandfail(const char *expression, const char *file, int line);
+void reportassertionandfail(const std::string expression, const std::string file, int line);
+void reporterrorandfail(const std::string expression, const std::string file, int line);
 
 } // end namespace
 
