@@ -25,11 +25,11 @@
 
 namespace libcomm {
 
-void annealer::attach_system(anneal_system& system)
+void annealer::attach_system(boost::shared_ptr<anneal_system> system)
    {
-   annealer::system = &system;
+   this->system = system;
    // Set default parameters
-   double E = pow(double(10), double(ceil(log10(system.energy()))));
+   double E = pow(double(10), double(ceil(log10(system->energy()))));
    set_temperature(E, E * 1E-7);
    set_schedule(0.90);
    set_iterations(int(1E5), int(1E3));
