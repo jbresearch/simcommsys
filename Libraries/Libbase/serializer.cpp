@@ -40,8 +40,7 @@ using std::dec;
 
 // static variables
 
-std::map<std::string, serializer::fptr>* serializer::cmap = NULL;
-int serializer::count = 0;
+boost::shared_ptr<std::map<std::string, serializer::fptr> > serializer::cmap;
 
 // static functions
 
@@ -99,22 +98,14 @@ std::list<std::string> serializer::get_derived_classes(const std::string& base)
 serializer::serializer(const std::string& base, const std::string& derived,
       fptr func)
    {
-   if (cmap == NULL)
-      cmap = new std::map<std::string, fptr>;
+   if (!cmap)
+      cmap.reset(new std::map<std::string, fptr>);
 #if DEBUG>=2
    trace << "DEBUG (serializer): map count = " << count << "." << std::endl;
    trace << "DEBUG (serializer): new map entry for (" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
 #endif
    (*cmap)[base + ":" + derived] = func;
    classname = derived;
-   count++;
-   }
-
-serializer::~serializer()
-   {
-   count--;
-   if (count == 0)
-      delete cmap;
    }
 
 } // end namespace
