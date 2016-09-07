@@ -47,7 +47,7 @@ using std::flush;
 
 // items for use by everyone
 
-void masterslave::fregister(const std::string& name, functor* f)
+void masterslave::fregister(const std::string& name, boost::shared_ptr<functor> f)
    {
    trace << "DEBUG: Register function \"" << name << "\" - ";
    fmap[name] = f;
@@ -57,7 +57,8 @@ void masterslave::fregister(const std::string& name, functor* f)
 void masterslave::fcall(const std::string& name)
    {
    trace << "DEBUG: Call function \"" << name << "\" - ";
-   typename std::map<std::string, functor*>::iterator search = fmap.find(name);
+   typename std::map<std::string, boost::shared_ptr<functor> >::iterator search =
+         fmap.find(name);
    if (search == fmap.end())
       {
       cerr << "Function \"" << name << "\" unknown, cannot continue."

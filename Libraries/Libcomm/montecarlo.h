@@ -63,13 +63,10 @@ private:
    sha sysdigest; //!< digest of the currently-simulated system
    // @}
 private:
-   /*! \name Slave process functions & their functors */
+   /*! \name Slave process functions */
    void slave_getcode(void);
    void slave_getparameter(void);
    void slave_work(void);
-   libbase::specificfunctor<montecarlo> fgetcode;
-   libbase::specificfunctor<montecarlo> fgetparameter;
-   libbase::specificfunctor<montecarlo> fwork;
    // @}
 private:
    /*! \name Helper functions */
@@ -125,15 +122,22 @@ public:
    montecarlo() :
          min_samples(128), confidence(0.95), threshold(0.10), mode(
                mode_relative_error), t("montecarlo"), tupdate(
-               "montecarlo_update"), fgetcode(this,
-               &libcomm::montecarlo::slave_getcode), fgetparameter(this,
-               &libcomm::montecarlo::slave_getparameter), fwork(this,
-               &libcomm::montecarlo::slave_work)
+               "montecarlo_update")
       {
+      // create functors
+      boost::shared_ptr<libbase::functor> fgetcode(
+            new libbase::specificfunctor<montecarlo>(this,
+                  &libcomm::montecarlo::slave_getcode));
+      boost::shared_ptr<libbase::functor> fgetparameter(
+            new libbase::specificfunctor<montecarlo>(this,
+                  &libcomm::montecarlo::slave_getparameter));
+      boost::shared_ptr<libbase::functor> fwork(
+            new libbase::specificfunctor<montecarlo>(this,
+                  &libcomm::montecarlo::slave_work));
       // register functions
-      fregister("slave_getcode", &fgetcode);
-      fregister("slave_getparameter", &fgetparameter);
-      fregister("slave_work", &fwork);
+      fregister("slave_getcode", fgetcode);
+      fregister("slave_getparameter", fgetparameter);
+      fregister("slave_work", fwork);
       // Use a true RNG to determine the initial seed value
       libbase::truerand trng;
       seed = trng.ival();
