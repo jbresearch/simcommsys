@@ -43,19 +43,19 @@ void annealer::seedfrom(libbase::random& r)
 
 void annealer::set_temperature(const double Tstart, const double Tstop)
    {
-   annealer::Tstart = Tstart;
-   annealer::Tstop = Tstop;
+   this->Tstart = Tstart;
+   this->Tstop = Tstop;
    }
 
 void annealer::set_schedule(const double rate)
    {
-   annealer::rate = rate;
+   this->rate = rate;
    }
 
 void annealer::set_iterations(const int min_iter, const int min_changes)
    {
-   annealer::min_iter = min_iter;
-   annealer::min_changes = min_changes;
+   this->min_iter = min_iter;
+   this->min_changes = min_changes;
    }
 
 void annealer::improve()
