@@ -47,7 +47,7 @@ using std::flush;
 
 // items for use by everyone
 
-void masterslave::fregister(const std::string& name, functor *f)
+void masterslave::fregister(const std::string& name, functor* f)
    {
    trace << "DEBUG: Register function \"" << name << "\" - ";
    fmap[name] = f;
@@ -57,14 +57,14 @@ void masterslave::fregister(const std::string& name, functor *f)
 void masterslave::fcall(const std::string& name)
    {
    trace << "DEBUG: Call function \"" << name << "\" - ";
-   functor *f = fmap[name];
-   if (f == NULL)
+   typename std::map<std::string, functor*>::iterator search = fmap.find(name);
+   if (search == fmap.end())
       {
       cerr << "Function \"" << name << "\" unknown, cannot continue."
             << std::endl;
       exit(1);
       }
-   f->call();
+   search->second->call();
    trace << "done." << std::endl;
    }
 

@@ -84,13 +84,13 @@ public:
 
    // items for use by everyone (?)
 private:
-   std::map<std::string, functor *> fmap;
+   std::map<std::string, functor*> fmap;
    bool initialized;
    double cputimeused;
    walltimer twall;
    cputimer tcpu;
 protected:
-   void fregister(const std::string& name, functor *f);
+   void fregister(const std::string& name, functor* f);
    void fcall(const std::string& name);
 public:
    // global enable of cluster system
