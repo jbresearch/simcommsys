@@ -20,7 +20,7 @@ else
    RELEASE=release
 fi
 
-BUILD=`make --no-print-directory -C .. buildid`
+BUILD=`make --no-print-directory -C .. showbuildid`
 
 # start slave processes (one/CPU)
 declare -i i
