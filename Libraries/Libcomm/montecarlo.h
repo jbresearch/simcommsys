@@ -162,7 +162,7 @@ public:
       {
       if(isinitialized())
          std::cerr << "WARNING (montecarlo): seed value unused in master-slave system" << std::endl;
-      montecarlo::seed = seed;
+      this->seed = seed;
       }
    //! Set minimum number of samples
    void set_min_samples(int min_samples)
@@ -171,7 +171,7 @@ public:
       libbase::trace
             << "DEBUG (montecarlo): setting minimum number of samples to "
             << min_samples << std::endl;
-      montecarlo::min_samples = min_samples;
+      this->min_samples = min_samples;
       }
    //! Set confidence limit, say, 0.95 => 95% probability
    void set_confidence(double confidence)
@@ -179,7 +179,7 @@ public:
       assertalways(confidence > 0.5 && confidence < 1.0);
       libbase::trace << "DEBUG (montecarlo): setting confidence level of "
             << confidence << std::endl;
-      montecarlo::confidence = confidence;
+      this->confidence = confidence;
       }
    //! Set target error margin as a fraction of result mean (eg 0.10 => 10% of mean)
    void set_relative_error(double threshold)
@@ -188,8 +188,8 @@ public:
       libbase::trace
             << "DEBUG (montecarlo): setting threshold for relative error to "
             << threshold << std::endl;
-      montecarlo::threshold = threshold;
-      montecarlo::mode = mode_relative_error;
+      this->threshold = threshold;
+      this->mode = mode_relative_error;
       }
    //! Set target error margin (as an absolute value)
    void set_absolute_error(double threshold)
@@ -198,8 +198,8 @@ public:
       libbase::trace
             << "DEBUG (montecarlo): setting threshold for absolute error to "
             << threshold << std::endl;
-      montecarlo::threshold = threshold;
-      montecarlo::mode = mode_absolute_error;
+      this->threshold = threshold;
+      this->mode = mode_absolute_error;
       }
    //! Set target accumulated result (ie result mean x sample count)
    void set_accumulated_result(double threshold)
@@ -208,8 +208,8 @@ public:
       libbase::trace
             << "DEBUG (montecarlo): setting threshold for accumulated result to "
             << threshold << std::endl;
-      montecarlo::threshold = threshold;
-      montecarlo::mode = mode_accumulated_result;
+      this->threshold = threshold;
+      this->mode = mode_accumulated_result;
       }
    //! Associates with given results file
    void set_resultsfile(const std::string& fname)
