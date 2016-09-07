@@ -117,27 +117,6 @@ void montecarlo::seed_experiment()
    cerr << "Seed: " << seed << std::endl;
    }
 
-void montecarlo::createfunctors(void)
-   {
-   fgetcode = new libbase::specificfunctor<montecarlo>(this,
-         &libcomm::montecarlo::slave_getcode);
-   fgetparameter = new libbase::specificfunctor<montecarlo>(this,
-         &libcomm::montecarlo::slave_getparameter);
-   fwork = new libbase::specificfunctor<montecarlo>(this,
-         &libcomm::montecarlo::slave_work);
-   // register functions
-   fregister("slave_getcode", fgetcode);
-   fregister("slave_getparameter", fgetparameter);
-   fregister("slave_work", fwork);
-   }
-
-void montecarlo::destroyfunctors(void)
-   {
-   delete fgetcode;
-   delete fgetparameter;
-   delete fwork;
-   }
-
 // System-specific file-handler functions
 
 void montecarlo::writeheader(std::ostream& sout) const

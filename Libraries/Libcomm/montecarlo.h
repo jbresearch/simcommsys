@@ -67,16 +67,14 @@ private:
    void slave_getcode(void);
    void slave_getparameter(void);
    void slave_work(void);
-   libbase::specificfunctor<montecarlo> *fgetcode;
-   libbase::specificfunctor<montecarlo> *fgetparameter;
-   libbase::specificfunctor<montecarlo> *fwork;
+   libbase::specificfunctor<montecarlo> fgetcode;
+   libbase::specificfunctor<montecarlo> fgetparameter;
+   libbase::specificfunctor<montecarlo> fwork;
    // @}
 private:
    /*! \name Helper functions */
    std::string get_systemstring();
    void seed_experiment();
-   void createfunctors(void);
-   void destroyfunctors(void);
    // @}
    /*! \name Main estimator helper functions */
    /*!
@@ -127,9 +125,15 @@ public:
    montecarlo() :
          min_samples(128), confidence(0.95), threshold(0.10), mode(
                mode_relative_error), t("montecarlo"), tupdate(
-               "montecarlo_update")
+               "montecarlo_update"), fgetcode(this,
+               &libcomm::montecarlo::slave_getcode), fgetparameter(this,
+               &libcomm::montecarlo::slave_getparameter), fwork(this,
+               &libcomm::montecarlo::slave_work)
       {
-      createfunctors();
+      // register functions
+      fregister("slave_getcode", &fgetcode);
+      fregister("slave_getparameter", &fgetparameter);
+      fregister("slave_work", &fwork);
       // Use a true RNG to determine the initial seed value
       libbase::truerand trng;
       seed = trng.ival();
@@ -137,7 +141,6 @@ public:
    virtual ~montecarlo()
       {
       release();
-      destroyfunctors();
       tupdate.stop();
       }
    // @}
