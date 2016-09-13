@@ -30,8 +30,6 @@
 
 namespace libcomm {
 
-using std::cerr;
-using libbase::trace;
 using libbase::vector;
 
 // worker processes
@@ -50,14 +48,14 @@ void montecarlo::slave_getcode(void)
    is.seekg(0);
    sysdigest.process(is);
    // Tell the user what we've done
-   cerr << "Date: " << libbase::timer::date() << std::endl;
-   cerr << system->description() << std::endl;
-   cerr << "Digest: " << std::string(sysdigest) << std::endl;
+   std::cerr << "Date: " << libbase::timer::date() << std::endl;
+   std::cerr << system->description() << std::endl;
+   std::cerr << "Digest: " << std::string(sysdigest) << std::endl;
    }
 
 void montecarlo::slave_getparameter(void)
    {
-   cerr << "Date: " << libbase::timer::date() << std::endl;
+   std::cerr << "Date: " << libbase::timer::date() << std::endl;
 
    seed_experiment();
    double x;
@@ -65,7 +63,7 @@ void montecarlo::slave_getparameter(void)
       exit(1);
    system->set_parameter(x);
 
-   cerr << "Simulating system at parameter = " << system->get_parameter()
+   std::cerr << "Simulating system at parameter = " << system->get_parameter()
          << std::endl;
    }
 
@@ -114,7 +112,7 @@ void montecarlo::seed_experiment()
    libbase::randgen prng;
    prng.seed(seed);
    system->seedfrom(prng);
-   cerr << "Seed: " << seed << std::endl;
+   std::cerr << "Seed: " << seed << std::endl;
    }
 
 // System-specific file-handler functions
@@ -123,9 +121,9 @@ void montecarlo::writeheader(std::ostream& sout) const
    {
    assert(sout.good());
    assert(system != NULL);
-   trace << "DEBUG (montecarlo): writing results header." << std::endl;
+   libbase::trace << "DEBUG (montecarlo): writing results header." << std::endl;
    // Print information on the simulation being performed
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp()
+   libbase::trace << "DEBUG (montecarlo): position before = " << sout.tellp()
          << std::endl;
    sout << "#% " << system->description() << std::endl;
    sout << "#% Confidence Level: " << get_confidence_level() << std::endl;
@@ -139,7 +137,7 @@ void montecarlo::writeheader(std::ostream& sout) const
    for (int i = 0; i < system->count(); i++)
       sout << "\t" << system->result_description(i) << "\tTol";
    sout << "\tSamples\tCPUtime" << std::endl;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp()
+   libbase::trace << "DEBUG (montecarlo): position after = " << sout.tellp()
          << std::endl;
    }
 
@@ -149,16 +147,16 @@ void montecarlo::writeresults(std::ostream& sout,
    assert(sout.good());
    if (get_samplecount() == 0)
       return;
-   trace << "DEBUG (montecarlo): writing results." << std::endl;
+   libbase::trace << "DEBUG (montecarlo): writing results." << std::endl;
    // Write current estimates to file
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp()
+   libbase::trace << "DEBUG (montecarlo): position before = " << sout.tellp()
          << std::endl;
    sout << system->get_parameter();
    for (int i = 0; i < system->count(); i++)
       sout << '\t' << result(i) << '\t' << errormargin(i);
    sout << '\t' << get_samplecount();
    sout << '\t' << cluster.getcputime() << std::endl;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp()
+   libbase::trace << "DEBUG (montecarlo): position after = " << sout.tellp()
          << std::endl;
    }
 
@@ -167,9 +165,9 @@ void montecarlo::writestate(std::ostream& sout) const
    assert(sout.good());
    if (get_samplecount() == 0)
       return;
-   trace << "DEBUG (montecarlo): writing state." << std::endl;
+   libbase::trace << "DEBUG (montecarlo): writing state." << std::endl;
    // Write accumulated values to file
-   trace << "DEBUG (montecarlo): position before = " << sout.tellp()
+   libbase::trace << "DEBUG (montecarlo): position before = " << sout.tellp()
          << std::endl;
    libbase::vector<double> state;
    system->get_state(state);
@@ -179,7 +177,7 @@ void montecarlo::writestate(std::ostream& sout) const
    sout << "## State: " << state.size() << '\t';
    state.serialize(sout, '\t');
    sout << std::flush;
-   trace << "DEBUG (montecarlo): position after = " << sout.tellp()
+   libbase::trace << "DEBUG (montecarlo): position after = " << sout.tellp()
          << std::endl;
    }
 
@@ -192,7 +190,7 @@ void montecarlo::lookforstate(std::istream& sin)
    libbase::int64u samplecount = 0;
    vector<double> state;
    // read through entire file
-   trace << "DEBUG (montecarlo): looking for state." << std::endl;
+   libbase::trace << "DEBUG (montecarlo): looking for state." << std::endl;
    sin.seekg(0);
    while (!sin.eof())
       {
@@ -215,7 +213,7 @@ void montecarlo::lookforstate(std::istream& sin)
    // check that results correspond to system under simulation
    if (digest == std::string(sysdigest) && parameter == system->get_parameter())
       {
-      cerr << "NOTICE: Reloading state with " << samplecount << " samples."
+      std::cerr << "NOTICE: Reloading state with " << samplecount << " samples."
             << std::endl;
       system->accumulate_state(samplecount, state);
       }
@@ -233,20 +231,19 @@ void montecarlo::display(const libbase::vector<double>& result,
    {
    if (tupdate.elapsed() > 0.5)
       {
-      using std::clog;
-      const std::streamsize prec = clog.precision(3);
-      clog << "Timer: " << t << ", ";
+      const std::streamsize prec = std::clog.precision(3);
+      std::clog << "Timer: " << t << ", ";
       if (cluster.isenabled())
-         clog << cluster.getnumslaves() << " clients, ";
+         std::clog << cluster.getnumslaves() << " clients, ";
       else
-         clog << "local, ";
-      clog << cluster.getcputime() / t.elapsed() << "× usage, ";
-      clog << "pass " << system->get_samplecount() << "." << std::endl;
-      clog << "System parameter: " << system->get_parameter() << std::endl;
-      clog << "Results:" << std::endl;
-      system->prettyprint_results(clog, result, errormargin);
-      clog << "Press 'q' to interrupt." << std::endl;
-      clog.precision(prec);
+         std::clog << "local, ";
+      std::clog << cluster.getcputime() / t.elapsed() << "× usage, ";
+      std::clog << "pass " << system->get_samplecount() << "." << std::endl;
+      std::clog << "System parameter: " << system->get_parameter() << std::endl;
+      std::clog << "Results:" << std::endl;
+      system->prettyprint_results(std::clog, result, errormargin);
+      std::clog << "Press 'q' to interrupt." << std::endl;
+      std::clog.precision(prec);
       tupdate.start();
       }
    }
@@ -287,7 +284,7 @@ void montecarlo::initslave(slave *s, std::string systemstring)
       return;
    if (!cluster.send(s, system->get_parameter()))
       return;
-   trace << "DEBUG (estimate): Slave (" << s << ") initialized ok."
+   libbase::trace << "DEBUG (estimate): Slave (" << s << ") initialized ok."
          << std::endl;
    }
 
@@ -302,7 +299,7 @@ void montecarlo::initnewslaves(std::string systemstring)
    {
    while (slave *s = cluster.find_new_slave())
       {
-      trace << "DEBUG (estimate): New slave found (" << s << "), initializing."
+      libbase::trace << "DEBUG (estimate): New slave found (" << s << "), initializing."
             << std::endl;
       initslave(s, systemstring);
       }
@@ -324,11 +321,11 @@ void montecarlo::workidleslaves(bool converged)
    {
    for (slave *s; (!converged) && (s = cluster.find_idle_slave());)
       {
-      trace << "DEBUG (estimate): Idle slave found (" << s
+      libbase::trace << "DEBUG (estimate): Idle slave found (" << s
             << "), assigning work." << std::endl;
       if (!cluster.call(s, "slave_work"))
          continue;
-      trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok."
+      libbase::trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok."
             << std::endl;
       }
    }
@@ -349,7 +346,7 @@ bool montecarlo::readpendingslaves()
    bool results_available = false;
    while (slave *s = cluster.find_pending_slave())
       {
-      trace << "DEBUG (estimate): Pending event from slave (" << s
+      libbase::trace << "DEBUG (estimate): Pending event from slave (" << s
             << "), trying to read." << std::endl;
       // get digest and parameter for simulated system
       std::string simdigest;
@@ -366,7 +363,7 @@ bool montecarlo::readpendingslaves()
       if (std::string(sysdigest) != simdigest || simparameter
             != system->get_parameter())
          {
-         trace << "DEBUG (estimate): Slave returned invalid results (" << s
+         libbase::trace << "DEBUG (estimate): Slave returned invalid results (" << s
                << "), re-initializing." << std::endl;
          cluster.resetslave(s);
          continue;
@@ -376,7 +373,7 @@ bool montecarlo::readpendingslaves()
       // update usage information and return flag
       cluster.updatecputime(s);
       results_available = true;
-      trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded."
+      libbase::trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded."
             << std::endl;
       }
    return results_available;

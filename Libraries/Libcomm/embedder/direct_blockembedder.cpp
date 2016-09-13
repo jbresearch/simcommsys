@@ -26,7 +26,6 @@
 
 namespace libcomm {
 
-using libbase::serializer;
 using libbase::vector;
 using libbase::matrix;
 

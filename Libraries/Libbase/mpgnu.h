@@ -231,10 +231,8 @@ inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
 inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
    {
 #ifdef USE_GMP
-   using std::ios;
-
    const ios::fmtflags flags = s.flags();
-   s.setf(ios::fixed, ios::floatfield);
+   s.setf(std::ios::fixed, std::ios::floatfield);
 
    const int digits = 6;
    mp_exp_t exponent;

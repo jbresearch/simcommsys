@@ -132,9 +132,6 @@ template <class G, class real>
 void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
       const array1g_t& rx, array1r_t& ptable) const
    {
-   using std::min;
-   using std::max;
-   using std::swap;
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
@@ -159,7 +156,7 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
    for (int j = 1; j <= n; ++j)
       {
       // swap 'this' and 'prior' lists
-      swap(Fthis, Fprev);
+      std::swap(Fthis, Fprev);
       // for this list, reset all elements to zero
       for (int x = mT_min; x <= mT_max; x++)
          Fthis[x] = 0;
@@ -169,13 +166,13 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
       // limits on insertions and deletions must be respected:
       // 3. y-a <= m1_max
       // 4. y-a >= m1_min
-      const int ymin = max(mT_min, -j);
-      const int ymax = min(mT_max, rho - j);
+      const int ymin = std::max(mT_min, -j);
+      const int ymax = std::min(mT_max, rho - j);
       for (int y = ymin; y <= ymax; ++y)
          {
          real result = 0;
-         const int amin = max(max(mT_min, 1 - j), y - m1_max);
-         const int amax = min(mT_max, y - m1_min);
+         const int amin = std::max(std::max(mT_min, 1 - j), y - m1_max);
+         const int amax = std::min(mT_max, y - m1_min);
          // check if the last element is a pure deletion
          int amax_act = amax;
          if (y - amax < 0)
@@ -207,7 +204,6 @@ template <class G, class real>
 void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       const array1g_t& rx, array1r_t& ptable) const
    {
-   using std::swap;
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
@@ -227,7 +223,7 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
    for (int i = 1; i < n; i++)
       {
       // swap 'this' and 'prior' rows
-      swap(Fthis, Fprev);
+      std::swap(Fthis, Fprev);
       // handle first column as a special case
       real temp = Fprev[0];
       temp *= Pval_d;
@@ -246,7 +242,7 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
       }
    // compute last row as a special case (no insertions)
    // swap 'this' and 'prior' rows
-   swap(Fthis, Fprev);
+   std::swap(Fthis, Fprev);
    // handle first column as a special case
    real temp = Fprev[0];
    temp *= Pval_d;
@@ -279,9 +275,6 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
       const array1g_t& tx, const array1g_t& rx,
       array1r_t& ptable) const
    {
-   using std::swap;
-   using std::min;
-   using std::max;
    // Compute sizes
    const int n = tx.size();
    const int rho = rx.size();
@@ -295,7 +288,7 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
    // initialize for i=0 (first row of lattice)
    // Fthis[0] = 1;
    F[0] = 1;
-   const int jmax = min(mT_max, rho);
+   const int jmax = std::min(mT_max, rho);
    for (int j = 1; j <= jmax; j++)
       {
       // Fthis[j] = Fthis[j - 1] * Pval_i;
@@ -313,8 +306,8 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
          F[0] = Fprev * Pval_d;
          }
       // determine limits for remaining columns (after first)
-      const int jmin = max(i + mT_min, 1);
-      const int jmax = min(i + mT_max, rho);
+      const int jmin = std::max(i + mT_min, 1);
+      const int jmax = std::min(i + mT_max, rho);
       // keep Fprev[jmin - 1], if necessary
       if (jmin > 1)
          Fprev = F[jmin - 1];

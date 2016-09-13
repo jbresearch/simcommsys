@@ -25,8 +25,6 @@
 
 namespace libcomm {
 
-using libbase::bitfield;
-
 // initialization
 
 void ccbfsm::init()
@@ -57,7 +55,7 @@ void ccbfsm::init()
 
 // constructors / destructors
 
-ccbfsm::ccbfsm(const libbase::matrix<bitfield>& generator)
+ccbfsm::ccbfsm(const libbase::matrix<libbase::bitfield>& generator)
    {
    gen = generator;
    init();
@@ -92,7 +90,7 @@ void ccbfsm::reset(const libbase::vector<int>& state)
    for (int t = 0; t < nu; t++)
       for (int i = 0; i < k; i++)
          if (reg(i).size() > t)
-            reg(i) |= bitfield(state(j++) << t, reg(i).size());
+            reg(i) |= libbase::bitfield(state(j++) << t, reg(i).size());
    assert(j == nu);
    }
 
@@ -102,7 +100,7 @@ void ccbfsm::advance(libbase::vector<int>& input)
    {
    fsm::advance(input);
    input = determineinput(input);
-   bitfield sin = determinefeedin(input);
+   libbase::bitfield sin = determinefeedin(input);
    // Compute next state
    for (int i = 0; i < k; i++)
       reg(i) = reg(i) << sin.extract(i);
@@ -111,12 +109,12 @@ void ccbfsm::advance(libbase::vector<int>& input)
 libbase::vector<int> ccbfsm::output(const libbase::vector<int>& input) const
    {
    libbase::vector<int> ip = determineinput(input);
-   bitfield sin = determinefeedin(ip);
+   libbase::bitfield sin = determinefeedin(ip);
    // Compute output
    libbase::vector<int> op(n);
    for (int j = 0; j < n; j++)
       {
-      bitfield thisop(0, 1);
+      libbase::bitfield thisop(0, 1);
       for (int i = 0; i < k; i++)
          thisop ^= (reg(i) + sin.extract(i)) * gen(i, j);
       op(j) = thisop;

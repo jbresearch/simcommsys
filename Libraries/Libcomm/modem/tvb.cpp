@@ -353,11 +353,10 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
       }
    // Call FBA and normalize results
 #if DEBUG>=4
-   using libbase::index_of_max;
    std::cerr << "sof_prior = " << sof_prior << std::endl;
-   std::cerr << "max at " << index_of_max(sof_prior) - offset << std::endl;
+   std::cerr << "max at " << libbase::index_of_max(sof_prior) - offset << std::endl;
    std::cerr << "eof_prior = " << eof_prior << std::endl;
-   std::cerr << "max at " << index_of_max(eof_prior) - offset << std::endl;
+   std::cerr << "max at " << libbase::index_of_max(eof_prior) - offset << std::endl;
 #endif
 #if DEBUG>=5
    std::cerr << "app = " << app << std::endl;

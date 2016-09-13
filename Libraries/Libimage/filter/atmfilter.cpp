@@ -45,8 +45,7 @@ void atmfilter<T>::process(const libbase::matrix<T>& in,
    const int N = in.size().cols();
 
    out.init(M, N);
-   using std::list;
-   list<T> lst;
+   std::list<T> lst;
 
    for (int i = 0; i < M; i++)
       {
@@ -61,8 +60,8 @@ void atmfilter<T>::process(const libbase::matrix<T>& in,
          // sort the list
          lst.sort();
          // erase the first and last alpha elements
-         typename list<T>::iterator p1 = lst.begin();
-         typename list<T>::iterator p2 = lst.end();
+         typename std::list<T>::iterator p1 = lst.begin();
+         typename std::list<T>::iterator p2 = lst.end();
          for (int k = 0; k < m_alpha; k++)
             {
             p1++;

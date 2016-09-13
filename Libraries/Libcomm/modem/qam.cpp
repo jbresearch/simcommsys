@@ -46,7 +46,6 @@ const libbase::serializer qam::shelper("blockmodem", "qam", qam::create);
  */
 void qam::init(const int m)
    {
-   using libbase::gray;
    const int k = int(log2(m)); // number of bits per symbol
    if (m != 1 << k)
       failwith("Non-binary constellations not supported");
@@ -59,7 +58,7 @@ void qam::init(const int m)
    for (int i = 0; i < s; i++)
       for (int q = 0; q < s; q++)
          {
-         const int c = (gray(i) << k / 2) + gray(q);
+         const int c = (libbase::gray(i) << k / 2) + libbase::gray(q);
          lut(c) = sigspace(i, q) * 2.0;
          }
    // translate, so that constellation is symmetric about the origin

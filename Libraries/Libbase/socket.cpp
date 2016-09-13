@@ -44,8 +44,6 @@ typedef int socklen_t;
 
 namespace libbase {
 
-using std::cerr;
-
 // constant values
 
 const int socket::connect_tries = 4;
@@ -62,7 +60,7 @@ int socket::objectcount = 0;
 template <class T>
 ssize_t socket::io(T buf, size_t len)
    {
-   cerr << "Cannot instantiate template function with this type" << std::endl;
+   std::cerr << "Cannot instantiate template function with this type" << std::endl;
    exit(1);
    return 0;
    }
@@ -121,12 +119,12 @@ socket::socket()
       WSADATA wsaData;
       if( WSAStartup(wVersionRequested, &wsaData) )
          {
-         cerr << "ERROR (socket): Failed to startup WinSock DLL." << std::endl;
+         std::cerr << "ERROR (socket): Failed to startup WinSock DLL." << std::endl;
          exit(1);
          }
       if( LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0 )
          {
-         cerr << "ERROR (socket): Cannot find a usable WinSock DLL." << std::endl;
+         std::cerr << "ERROR (socket): Cannot find a usable WinSock DLL." << std::endl;
          WSACleanup();
          exit(1);
          }
@@ -152,7 +150,7 @@ socket::~socket()
       {
       if(WSACleanup())
          {
-         cerr << "ERROR (socket): Failed to cleanup WinSock DLL." << std::endl;
+         std::cerr << "ERROR (socket): Failed to cleanup WinSock DLL." << std::endl;
          exit(1);
          }
       }
@@ -165,7 +163,7 @@ bool socket::bind(int16u port)
    {
    if ((sd = (int) ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
       {
-      cerr << "ERROR (bind): Failed to create socket descriptor" << std::endl;
+      std::cerr << "ERROR (bind): Failed to create socket descriptor" << std::endl;
       return false;
       }
 
@@ -181,17 +179,17 @@ bool socket::bind(int16u port)
    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
 #endif
       {
-      cerr << "ERROR (bind): Failed to set socket options" << std::endl;
+      std::cerr << "ERROR (bind): Failed to set socket options" << std::endl;
       return false;
       }
    if (::bind(sd, (struct sockaddr *) &sin, sizeof(struct sockaddr_in)))
       {
-      cerr << "ERROR (bind): Failed to bind socket options" << std::endl;
+      std::cerr << "ERROR (bind): Failed to bind socket options" << std::endl;
       return false;
       }
    if (listen(sd, 5))
       {
-      cerr << "ERROR (bind): Failure on listening for connections" << std::endl;
+      std::cerr << "ERROR (bind): Failure on listening for connections" << std::endl;
       return false;
       }
 
@@ -238,7 +236,7 @@ socket *socket::accept()
    s->sd = (int) ::accept(sd, (struct sockaddr *) &clnt, &len);
    if (s->sd < 0)
       {
-      cerr << "ERROR (accept): Failure on listening for connections" << std::endl;
+      std::cerr << "ERROR (accept): Failure on listening for connections" << std::endl;
       exit(1);
       }
    s->ip = inet_ntoa(clnt.sin_addr);
@@ -255,7 +253,7 @@ bool socket::connect(std::string hostname, int16u port)
    {
    if ((sd = (int) ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
       {
-      cerr << "ERROR (connect): Failed to create socket descriptor" << std::endl;
+      std::cerr << "ERROR (connect): Failed to create socket descriptor" << std::endl;
       return false;
       }
 
@@ -267,7 +265,7 @@ bool socket::connect(std::string hostname, int16u port)
    struct hostent *hp;
    if (!(hp = gethostbyname(hostname.c_str())))
       {
-      cerr << "ERROR (connect): Failed to resolve host address" << std::endl;
+      std::cerr << "ERROR (connect): Failed to resolve host address" << std::endl;
       return false;
       }
    memcpy(&sin.sin_addr, hp->h_addr_list[0], sizeof(struct in_addr));
@@ -277,11 +275,11 @@ bool socket::connect(std::string hostname, int16u port)
       if (::connect(sd, (struct sockaddr *) &sin, sizeof(struct sockaddr_in))
             == 0)
          break;
-      cerr << "WARNING (connect): Connect failed, try " << i << " of "
+      std::cerr << "WARNING (connect): Connect failed, try " << i << " of "
             << connect_tries << std::endl;
       if (i == connect_tries)
          {
-         cerr << "ERROR (connect): Too many connection failures" << std::endl;
+         std::cerr << "ERROR (connect): Too many connection failures" << std::endl;
          return false;
          }
       else

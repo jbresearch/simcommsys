@@ -25,7 +25,6 @@
 
 namespace libcomm {
 
-using libbase::bitfield;
 using libbase::vector;
 
 const libbase::serializer nrcc::shelper("fsm", "nrcc", nrcc::create);
@@ -49,14 +48,14 @@ vector<int> nrcc::determineinput(const vector<int>& input) const
    return ip;
    }
 
-bitfield nrcc::determinefeedin(const vector<int>& input) const
+libbase::bitfield nrcc::determinefeedin(const vector<int>& input) const
    {
    assert(input.size() == k);
    // check we have no 'tail' inputs
    for (int i = 0; i < k; i++)
       assert(input(i) != fsm::tail);
    // convert to required type
-   return bitfield(vector<bool>(input));
+   return libbase::bitfield(vector<bool>(input));
    }
 
 // Description

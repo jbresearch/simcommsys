@@ -50,9 +50,8 @@ sigspace lapgauss::corrupt(const sigspace& s)
 
 double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
    {
-   using libbase::gauss;
    sigspace n = rx - tx;
-   return gauss(n.i() / sigma) * gauss(n.q() / sigma);
+   return libbase::gauss(n.i() / sigma) * libbase::gauss(n.q() / sigma);
    }
 
 // description output

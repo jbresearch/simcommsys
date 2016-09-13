@@ -27,11 +27,10 @@ namespace libcomm {
 
 std::ostream& operator<<(std::ostream& s, const sigspace& x)
    {
-   using std::ios;
-   s.setf(ios::fixed, ios::floatfield);
+   s.setf(std::ios::fixed, std::ios::floatfield);
    s.precision(6);
    s << '[' << x.inphase << ',';
-   s.setf(ios::fixed, ios::floatfield);
+   s.setf(std::ios::fixed, std::ios::floatfield);
    s.precision(6);
    s << x.quad << ']';
    return s;

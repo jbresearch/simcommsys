@@ -27,9 +27,6 @@
 
 namespace libbase {
 
-using std::hex;
-using std::dec;
-
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Trace calls

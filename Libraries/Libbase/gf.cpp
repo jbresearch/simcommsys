@@ -25,8 +25,6 @@
 
 namespace libbase {
 
-using std::cerr;
-
 // Internal functions
 
 /*!

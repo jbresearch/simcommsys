@@ -25,7 +25,6 @@
 
 namespace libcomm {
 
-using libbase::bitfield;
 using libbase::vector;
 
 const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
@@ -45,18 +44,18 @@ vector<int> rscc::determineinput(const vector<int>& input) const
    vector<int> ip = input;
    for (int i = 0; i < ip.size(); i++)
       if (ip(i) == fsm::tail)
-         ip(i) = (reg(i) + bitfield(0, 1)) * gen(i, i);
+         ip(i) = (reg(i) + libbase::bitfield(0, 1)) * gen(i, i);
    return ip;
    }
 
-bitfield rscc::determinefeedin(const vector<int>& input) const
+libbase::bitfield rscc::determinefeedin(const vector<int>& input) const
    {
    assert(input.size() == k);
    // check we have no 'tail' inputs
    for (int i = 0; i < k; i++)
       assert(input(i) != fsm::tail);
    // compute input junction
-   bitfield sin, ip = bitfield(vector<bool>(input));
+   libbase::bitfield sin, ip = libbase::bitfield(vector<bool>(input));
    for (int i = 0; i < k; i++)
       sin = ((reg(i) + ip.extract(i)) * gen(i, i)) + sin;
    return sin;

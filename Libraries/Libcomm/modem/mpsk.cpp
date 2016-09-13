@@ -34,12 +34,11 @@ void mpsk::init(const int m)
    {
    lut.init(m);
    // allocate symbols using a Gray code sequence
-   using libbase::gray;
    for (int i = 0; i < m; i++)
       {
       const double r = 1;
       const double theta = i * (2 * libbase::PI / m);
-      lut(gray(i)) = sigspace(r * cos(theta), r * sin(theta));
+      lut(libbase::gray(i)) = sigspace(r * cos(theta), r * sin(theta));
       }
    }
 

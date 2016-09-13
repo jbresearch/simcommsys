@@ -26,8 +26,6 @@
 
 namespace libcomm {
 
-using libbase::serializer;
-
 // description output
 
 template <class S>

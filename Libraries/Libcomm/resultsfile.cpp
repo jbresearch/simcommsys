@@ -34,8 +34,6 @@
 
 namespace libcomm {
 
-using std::cerr;
-using libbase::trace;
 using libbase::vector;
 
 // Results file helper functions
@@ -86,7 +84,7 @@ void resultsfile::truncate(std::streampos length)
 void resultsfile::checkformodifications(std::fstream& file)
    {
    assert(file.good());
-   trace << "DEBUG (resultsfile): checking file for modifications." << std::endl;
+   libbase::trace << "DEBUG (resultsfile): checking file for modifications." << std::endl;
    // check for user modifications
    sha curdigest;
    file.seekg(0);
@@ -97,7 +95,7 @@ void resultsfile::checkformodifications(std::fstream& file)
       file.seekp(fileptr);
    else
       {
-      cerr << "NOTICE: file modifications found - appending." << std::endl;
+      std::cerr << "NOTICE: file modifications found - appending." << std::endl;
       // set current write position to end-of-file
       file.seekp(0, std::ios_base::end);
       fileptr = file.tellp();
@@ -132,7 +130,7 @@ void resultsfile::setupfile()
    std::fstream file(fname.c_str());
    if (!file)
       {
-      trace << "DEBUG (resultsfile): results file not found - creating." << std::endl;
+      libbase::trace << "DEBUG (resultsfile): results file not found - creating." << std::endl;
       // create the file first if necessary
       file.open(fname.c_str(), std::ios::out);
       assertalways(file.good());

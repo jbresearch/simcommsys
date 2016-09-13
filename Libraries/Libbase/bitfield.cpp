@@ -25,8 +25,6 @@
 
 namespace libbase {
 
-using std::cerr;
-
 // Private functions
 
 void bitfield::set_fromstring(const std::string s)

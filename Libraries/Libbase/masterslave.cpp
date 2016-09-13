@@ -41,10 +41,6 @@
 
 namespace libbase {
 
-using std::cerr;
-using std::clog;
-using std::flush;
-
 // items for use by everyone
 
 void masterslave::fregister(const std::string& name, boost::shared_ptr<functor> f)
@@ -61,7 +57,7 @@ void masterslave::fcall(const std::string& name)
          fmap.find(name);
    if (search == fmap.end())
       {
-      cerr << "Function \"" << name << "\" unknown, cannot continue."
+      std::cerr << "Function \"" << name << "\" unknown, cannot continue."
             << std::endl;
       exit(1);
       }
@@ -135,7 +131,7 @@ masterslave::mode_t masterslave::enable(const std::string& endpoint,
 
 void masterslave::close(libbase::socket *s)
    {
-   cerr << "Losing connection with master [" << s->getip() << ":"
+   std::cerr << "Losing connection with master [" << s->getip() << ":"
          << s->getport() << "]" << std::endl;
    delete s;
    s = NULL;
@@ -152,11 +148,11 @@ void masterslave::setpriority(const int priority)
 
 void masterslave::connect(const std::string& hostname, const int16u port)
    {
-   cerr << "Connecting to " << hostname << ":" << port << std::endl;
+   std::cerr << "Connecting to " << hostname << ":" << port << std::endl;
    master = new socket;
    if (!master->connect(hostname, port))
       {
-      cerr << "Connection failed, giving up." << std::endl;
+      std::cerr << "Connection failed, giving up." << std::endl;
       exit(1);
       }
    }
@@ -175,7 +171,7 @@ int masterslave::gettag()
    int tag;
    if (!receive(tag))
       {
-      cerr << "Connection failed waiting for tag, dying here..." << std::endl;
+      std::cerr << "Connection failed waiting for tag, dying here..." << std::endl;
       exit(1);
       }
    tslave.stop();
@@ -188,7 +184,7 @@ void masterslave::sendname()
    std::string hostname = gethostname();
    if (!send(hostname))
       {
-      cerr << "Connection failed sending hostname, dying here..." << std::endl;
+      std::cerr << "Connection failed sending hostname, dying here..." << std::endl;
       exit(1);
       }
    trace << "send hostname [" << hostname << "]" << std::endl;
@@ -200,7 +196,7 @@ void masterslave::sendcputime()
    tcpu.start();
    if (!send(cputime))
       {
-      cerr << "Connection failed sending CPU time, dying here..." << std::endl;
+      std::cerr << "Connection failed sending CPU time, dying here..." << std::endl;
       exit(1);
       }
    cputimeused += cputime;
@@ -212,7 +208,7 @@ void masterslave::dowork()
    std::string key;
    if (!receive(key))
       {
-      cerr << "Connection failed waiting for function reference, dying here..."
+      std::cerr << "Connection failed waiting for function reference, dying here..."
             << std::endl;
       exit(1);
       }
@@ -226,7 +222,7 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
    setpriority(priority);
    connect(hostname, port);
    // Status information for user
-   cerr << "Slave system starting at priority " << priority << "." << std::endl;
+   std::cerr << "Slave system starting at priority " << priority << "." << std::endl;
    // infinite loop, until we are explicitly told to die
    twall.start();
    tcpu.start();
@@ -247,13 +243,13 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
          case DIE:
             twall.stop();
             tcpu.stop();
-            cerr << "Received die request, stopping after " << timer::format(
+            std::cerr << "Received die request, stopping after " << timer::format(
                   getcputime()) << " CPU runtime (" << int(100 * getusage())
                   << "% usage)." << std::endl;
             close(master);
             return;
          default:
-            cerr << "received bad tag [" << tag << "]" << std::endl;
+            std::cerr << "received bad tag [" << tag << "]" << std::endl;
             exit(1);
          }
       }
@@ -325,12 +321,12 @@ bool masterslave::receive(std::string& x)
 
 void masterslave::close(slave *s)
    {
-   cerr << "Slave [" << s->sock->getip() << ":" << s->sock->getport()
+   std::cerr << "Slave [" << s->sock->getip() << ":" << s->sock->getport()
          << "] gone";
    smap.erase(s->sock);
    delete s->sock;
    delete s;
-   cerr << ", currently have " << smap.size() << " clients" << std::endl;
+   std::cerr << ", currently have " << smap.size() << " clients" << std::endl;
    }
 
 // creation and destruction
@@ -361,23 +357,23 @@ void masterslave::disable()
       return;
 
    // kill all remaining slaves
-   clog << "Killing idle slaves:" << flush;
+   std::clog << "Killing idle slaves:" << std::flush;
    while (slave *s = find_idle_slave())
       {
       trace << "DEBUG (disable): Idle slave found (" << s << "), killing."
             << std::endl;
-      clog << "." << flush;
+      std::clog << "." << std::flush;
       send(s, int(DIE));
       }
-   clog << " done" << std::endl;
+   std::clog << " done" << std::endl;
    // print timer information
    twall.stop();
    tcpu.stop();
-   clog << "Time elapsed: " << twall << "" << std::endl;
-   clog << "CPU usage on master: " << int(100 * tcpu.elapsed()
+   std::clog << "Time elapsed: " << twall << "" << std::endl;
+   std::clog << "CPU usage on master: " << int(100 * tcpu.elapsed()
          / twall.elapsed()) << "%" << std::endl;
-   clog.precision(2);
-   clog << "Average speedup factor: " << getusage() << "" << std::endl;
+   std::clog.precision(2);
+   std::clog << "Average speedup factor: " << getusage() << "" << std::endl;
    // update flag
    initialized = false;
    }
@@ -449,7 +445,7 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
    static bool firsttime = true;
    if (firsttime)
       {
-      cerr << "Master system ready; waiting for clients." << std::endl;
+      std::cerr << "Master system ready; waiting for clients." << std::endl;
       firsttime = false;
       }
 
@@ -478,7 +474,7 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
          newslave->sock = (*i)->accept();
          newslave->state = slave::NEW;
          smap[newslave->sock] = newslave;
-         cerr << "New slave [" << newslave->sock->getip() << ":"
+         std::cerr << "New slave [" << newslave->sock->getip() << ":"
                << newslave->sock->getport() << "], currently have "
                << smap.size() << " clients" << std::endl;
          }

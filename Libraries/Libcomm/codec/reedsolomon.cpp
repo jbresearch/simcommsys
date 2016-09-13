@@ -33,7 +33,6 @@
 #include <iostream>
 
 namespace libcomm {
-using libbase::matrix;
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -137,9 +136,9 @@ void reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
       int t = (this->length_n - this->dim_k) / 2;
 
       //the syndrome matrix
-      matrix<GF_q> syndrome_matrix;
+      libbase::matrix<GF_q> syndrome_matrix;
       //its REF form
-      matrix<GF_q> syndrome_ref_matrix;
+      libbase::matrix<GF_q> syndrome_ref_matrix;
       //the determinant of the syndrome matrix
       GF_q det = GF_q(1);
 
@@ -269,8 +268,8 @@ void reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
             {
             //we have found some roots and hence the error locations
             //We can now work out the error values
-            matrix<GF_q> error_mat;
-            matrix<GF_q> error_ref_mat;
+            libbase::matrix<GF_q> error_mat;
+            libbase::matrix<GF_q> error_ref_mat;
             error_mat.init(this->dim_pchk, rootsfound + 1);
             for (int rows = 0; rows < this->dim_pchk; rows++)
                {
@@ -488,7 +487,7 @@ void reedsolomon<GF_q>::init()
    this->pchk_ref_matrix = this->pchk_matrix.reduce_to_ref();
 
    //extract the -P^t part of H'=(I|-P^t)
-   matrix<GF_q> tmp_p_transpose;
+   libbase::matrix<GF_q> tmp_p_transpose;
    tmp_p_transpose.init(this->dim_pchk, (this->length_n - this->dim_pchk));
 
    for (int loop = this->dim_pchk; loop < this->length_n; loop++)
@@ -498,11 +497,11 @@ void reedsolomon<GF_q>::init()
       }
 
    //this will hold P
-   matrix<GF_q> tmp_p_transposed;
+   libbase::matrix<GF_q> tmp_p_transposed;
    tmp_p_transposed.init(this->dim_k, this->length_n - this->dim_k);
    //now transpose yourself
    tmp_p_transposed = tmp_p_transpose.transpose();
-   matrix<GF_q> id_k = libbase::matrix<GF_q>::eye(this->dim_k);
+   libbase::matrix<GF_q> id_k = libbase::matrix<GF_q>::eye(this->dim_k);
 
    //Construct the generator matrix
    this->gen_ref_matrix.init(this->dim_k, this->length_n);

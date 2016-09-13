@@ -115,14 +115,12 @@ mpreal& mpreal::operator/=(const mpreal& a)
 
 std::ostream& operator<<(std::ostream& s, const mpreal& x)
    {
-   using std::ios;
-
-   const ios::fmtflags flags = s.flags();
-   s.setf(ios::fixed, ios::floatfield);
+   const std::ios::fmtflags flags = s.flags();
+   s.setf(std::ios::fixed, std::ios::floatfield);
    s << x.mantissa;
    if (!(isinf(x.mantissa) || isnan(x.mantissa)))
       {
-      s.setf(ios::showpos);
+      s.setf(std::ios::showpos);
       s << "e" << x.exponent;
       }
    s.flags(flags);

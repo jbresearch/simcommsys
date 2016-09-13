@@ -135,12 +135,11 @@ void cmpi::disable()
    {
    assert(initialized);
 #ifdef USE_MPI
-   using std::clog;
    // print CPU usage information on the cluster and kill the children
    if(mpi_size > 1)
       {
       MPI_Status status;
-      clog << "Processor Usage Summary:" << std::endl;
+      std::clog << "Processor Usage Summary:" << std::endl;
       cpu_usage = 0;
       for(int i=1; i<mpi_size; i++)
          {
@@ -155,9 +154,9 @@ void cmpi::disable()
          MPI_Send(NULL, 0, MPI_LONG, i, tag_die, MPI_COMM_WORLD);
          cpu_usage += usage;
          // inform the user what is happening
-         clog << "\tCPU " << i << "\t(" << hostname << "):\t" << timer::format(usage) << std::endl;
+         std::clog << "\tCPU " << i << "\t(" << hostname << "):\t" << timer::format(usage) << std::endl;
          }
-      clog << "\tTotal:\t" << timer::format(cpu_usage) << std::endl;
+      std::clog << "\tTotal:\t" << timer::format(cpu_usage) << std::endl;
       }
    // cease MPI operations
    MPI_Finalize();

@@ -25,9 +25,6 @@
 
 namespace libbase {
 
-using std::cerr;
-using std::string;
-
 /*! \brief Binary Hamming weight
  */
 int weight(int cw)
@@ -68,7 +65,7 @@ int gcd(int a, int b)
 
 /*! \brief Converts a string to its hex representation
  */
-string hexify(const string input)
+std::string hexify(const std::string input)
    {
    std::ostringstream sout;
    sout << std::hex;
@@ -78,19 +75,19 @@ string hexify(const string input)
       sout.fill('0');
       sout << int(int8u(input.at(i)));
       }
-   string output = sout.str();
+   std::string output = sout.str();
    //trace << "(itfunc) hexify: (" << input << ") = " << output << ", length = " << output.length() << std::endl;
    return output;
    }
 
 /*! \brief Reconstructs a string from its hex representation
  */
-string dehexify(const string input)
+std::string dehexify(const std::string input)
    {
-   string output;
+   std::string output;
    for (size_t i = 0; i < input.length(); i += 2)
       {
-      string s = input.substr(i, 2);
+      std::string s = input.substr(i, 2);
       if (s.length() == 1)
          s += '0';
       output += char(strtoul(s.c_str(), NULL, 16));

@@ -24,8 +24,6 @@
 
 namespace libcomm {
 
-using std::cerr;
-
 using libbase::vector;
 using libbase::matrix;
 

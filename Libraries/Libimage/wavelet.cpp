@@ -24,10 +24,6 @@
 
 namespace libimage {
 
-using std::cerr;
-using libbase::trace;
-
-using libbase::weight;
 using libbase::vector;
 using libbase::matrix;
 
@@ -235,7 +231,7 @@ void wavelet::init(const int type, const int par)
                break;
                // Undefined
             default:
-               cerr << "Undefined parameter (" << par << ") for wavelet type ("
+               std::cerr << "Undefined parameter (" << par << ") for wavelet type ("
                      << type << ")." << std::endl;
                return;
             }
@@ -332,7 +328,7 @@ void wavelet::init(const int type, const int par)
                break;
                // Undefined
             default:
-               cerr << "Undefined parameter (" << par << ") for wavelet type ("
+               std::cerr << "Undefined parameter (" << par << ") for wavelet type ("
                      << type << ")." << std::endl;
                return;
             }
@@ -417,7 +413,7 @@ void wavelet::init(const int type, const int par)
                break;
                // Undefined
             default:
-               cerr << "Undefined parameter (" << par << ") for wavelet type ("
+               std::cerr << "Undefined parameter (" << par << ") for wavelet type ("
                      << type << ")." << std::endl;
                return;
             }
@@ -474,7 +470,7 @@ void wavelet::init(const int type, const int par)
                break;
                // Undefined
             default:
-               cerr << "Undefined parameter (" << par << ") for wavelet type ("
+               std::cerr << "Undefined parameter (" << par << ") for wavelet type ("
                      << type << ")." << std::endl;
                return;
             }
@@ -487,17 +483,17 @@ void wavelet::init(const int type, const int par)
          break;
          // Undefined
       default:
-         cerr << "Undefined wavelet type (" << type << ")." << std::endl;
+         std::cerr << "Undefined wavelet type (" << type << ")." << std::endl;
          return;
       }
    // normalise g and create quadrature filter
    g /= sqrt(g.sumsq());
    h = quadrature(g);
    // debug information
-   trace << "wavelet initialised - type (" << type << ") par (" << par
+   libbase::trace << "wavelet initialised - type (" << type << ") par (" << par
          << ")." << std::endl;
-   trace << "g = " << g << std::endl;
-   trace << "h = " << h << std::endl;
+   libbase::trace << "g = " << g << std::endl;
+   libbase::trace << "h = " << h << std::endl;
    }
 
 // informative / helper functions
@@ -514,7 +510,7 @@ int wavelet::getlimit(const int size, const int level) const
 void wavelet::transform(const vector<double>& in, vector<double>& out,
       const int level) const
    {
-   assert(weight(in.size()) == 1);
+   assert(libbase::weight(in.size()) == 1);
    // resize the output vector if necessary
    out.init(in.size());
    // start at the largest heirarchy and work towards the smallest
@@ -526,7 +522,7 @@ void wavelet::transform(const vector<double>& in, vector<double>& out,
 void wavelet::inverse(const vector<double>& in, vector<double>& out,
       const int level) const
    {
-   assert(weight(in.size()) == 1);
+   assert(libbase::weight(in.size()) == 1);
    // resize the output vector if necessary
    out.init(in.size());
    // start at the smallest heirarchy and work towards the largest
@@ -540,7 +536,7 @@ void wavelet::inverse(const vector<double>& in, vector<double>& out,
 void wavelet::transform(const matrix<double>& in, matrix<double>& out,
       const int level) const
    {
-   assert(weight(in.size().rows()) == 1 && weight(in.size().cols()) == 1);
+   assert(libbase::weight(in.size().rows()) == 1 && libbase::weight(in.size().cols()) == 1);
    // resize the output matrix if necessary
    out.init(in.size());
    // loop variables
@@ -564,7 +560,7 @@ void wavelet::transform(const matrix<double>& in, matrix<double>& out,
 void wavelet::inverse(const matrix<double>& in, matrix<double>& out,
       const int level) const
    {
-   assert(weight(in.size().rows()) == 1 && weight(in.size().cols()) == 1);
+   assert(libbase::weight(in.size().rows()) == 1 && libbase::weight(in.size().cols()) == 1);
    // resize the output matrix if necessary
    out.init(in.size());
    // loop variables

@@ -32,10 +32,8 @@
 
 namespace libcomm {
 
-using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
-using libbase::randgen;
 
 // Piece-wise Linear Modulator
 double stegosystem::plmod(const double u)
@@ -163,7 +161,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate,
    const int m = m_pCodec->tail_length();
    // set up signal, decoded vectors and probability matrix
    vector<sigspace> signal(GetOutputSize());
-   trace << "Signal space block size = " << signal.size() << std::endl;
+   libbase::trace << "Signal space block size = " << signal.size() << std::endl;
    vector<int> decoded;
    vector<vector<double> > ptable;
    // BPSK blockmodem
@@ -229,10 +227,10 @@ double stegosystem::EstimateSNR(const double dRate, const vector<sigspace>& rx,
          * log10(dLambda1 * sqrt(double(2)) * sqrt(dRate));
    const double dSNRest2 = -20
          * log10(dLambda2 * sqrt(double(2)) * sqrt(dRate));
-   trace << "Channel estimate 1: mean = " << r1.mean() << ", sigma = "
+   libbase::trace << "Channel estimate 1: mean = " << r1.mean() << ", sigma = "
          << r1.sigma() << ", lambda = " << dLambda1 << ", SNR = " << dSNRest1
          << "dB" << std::endl;
-   trace << "Channel estimate 2: mean = " << r2.mean() << ", sigma = "
+   libbase::trace << "Channel estimate 2: mean = " << r2.mean() << ", sigma = "
          << r2.sigma() << ", lambda = " << dLambda2 << ", SNR = " << dSNRest2
          << "dB" << std::endl;
    if (pdSNRreal != NULL)
@@ -257,7 +255,7 @@ double stegosystem::ComputeChiSquare(const vector<sigspace>& rx, const vector<
    double dMin = e.min();
    double dMax = e.max();
    double dStep = (dMax - dMin) / double(nBins);
-   trace << "Computing histogram with " << nBins << " bins in [" << dMin
+   libbase::trace << "Computing histogram with " << nBins << " bins in [" << dMin
          << ", " << dMax << "]" << std::endl;
    dMin += dStep / 2;
    dMax -= dStep / 2;
@@ -274,13 +272,13 @@ double stegosystem::ComputeChiSquare(const vector<sigspace>& rx, const vector<
       const double ni = N * dStep * 1 / (2 * lambda) * exp(-fabs(dMin + i
             * dStep) / lambda);
       const double d = h(i) - ni;
-      trace << "Bin " << i << ": Ni=" << h(i) << ", ni=" << ni << std::endl;
+      libbase::trace << "Bin " << i << ": Ni=" << h(i) << ", ni=" << ni << std::endl;
       chisq += d * d / ni;
       }
    // compute probability of null hypothesis for that chi-square metric
 #ifndef NDEBUG
    const double p = 1.0 - boost::math::gamma_p(0.5 * (nBins - 1), 0.5 * chisq);
-   trace << "Probability of null hypothesis = " << p << ", given ChiSq = "
+   libbase::trace << "Probability of null hypothesis = " << p << ", given ChiSq = "
          << chisq << std::endl;
 #endif
    return chisq;
@@ -289,7 +287,7 @@ double stegosystem::ComputeChiSquare(const vector<sigspace>& rx, const vector<
 void stegosystem::GenerateSourceSequence(vector<int>& d, int n, int seed)
    {
    assert(d.size() > 0);
-   randgen r;
+   libbase::randgen r;
    r.seed(seed);
    for (int i = 0; i < d.size(); i++)
       d(i) = r.ival(1 << n);
@@ -298,7 +296,7 @@ void stegosystem::GenerateSourceSequence(vector<int>& d, int n, int seed)
 void stegosystem::GenerateEmbedSequence(vector<double>& u, int seed)
    {
    assert(u.size() > 0);
-   randgen r;
+   libbase::randgen r;
    r.seed(seed);
    for (int i = 0; i < u.size(); i++)
       u(i) = r.fval_closed();
@@ -357,7 +355,7 @@ void stegosystem::NormalizeGaussian(vector<double>& g, bool bPresetStrength,
    {
    const double dMeanEst = g.mean();
    const double dSigmaEst = g.sigma();
-   trace << "Embedding estimate: mean = " << dMeanEst << ", strength = " << 20
+   libbase::trace << "Embedding estimate: mean = " << dMeanEst << ", strength = " << 20
          * log10(dSigmaEst) << "dB" << std::endl;
    if (bPresetStrength)
       {
@@ -376,7 +374,7 @@ void stegosystem::GenerateInterleaver(vector<int>& v, int in, int out, int seed)
    {
    v.init(in);
    v = -1;
-   randgen r;
+   libbase::randgen r;
    r.seed(seed);
    for (int i = 0; i < out; i++)
       {

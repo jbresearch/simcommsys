@@ -76,15 +76,14 @@ inline double anneal_interleaver::energy_function(const int i, const int j)
    {
    if (sets < 2 && type < 15)
       {
-      using libbase::PI;
-
       // compute standard metrics
       const int d_in = abs(j - i);
       const int d_out = abs(lut(0, j) - lut(0, i));
       const double r = sqrt(double(d_in * d_in + d_out * d_out));
       // compute correction metrics
-      const double c1 = (r <= tau) ? (r * PI / 2) : (r * (PI / 2 - 2 * acos(tau
-            / r)));
+      const double c1 =
+            (r <= tau) ? (r * libbase::PI / 2) :
+                  (r * (libbase::PI / 2 - 2 * acos(tau / r)));
       const double c2 = (tau - d_in) * (tau - d_out) / f2;
 
       // compute change in energy depending on function type
@@ -117,14 +116,15 @@ inline double anneal_interleaver::energy_function(const int i, const int j)
             return (5 * m / r) / c2;
          case 14:
             {
-            using std::min;
             // "count the zeros" approach
             // compute impulse response period
             const int p = (1 << m) - 1;
             // compute length of zeros
-            const int l_in = (d_in % p == 0) ? (tau - d_in) : (tau - min(i, j));
-            const int l_out = (d_out % p == 0) ? (tau - d_out) : (tau - min(
-                  lut(0, i), lut(0, j)));
+            const int l_in =
+                  (d_in % p == 0) ? (tau - d_in) : (tau - std::min(i, j));
+            const int l_out =
+                  (d_out % p == 0) ? (tau - d_out) :
+                        (tau - std::min(lut(0, i), lut(0, j)));
             // finally compute delta value
             return log(double(l_in + l_out));
             }

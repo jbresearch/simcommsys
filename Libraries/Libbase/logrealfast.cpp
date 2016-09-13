@@ -138,14 +138,13 @@ std::istream& operator>>(std::istream& sin, logrealfast& x)
    {
    assertalways(sin.good());
    // get the number representation as a string
-   using std::string;
-   string sval;
+   std::string sval;
    sin >> sval;
    // split into mantissa and exponent
    size_t pos = sval.find('e');
    double mantissa;
    int exponent;
-   if (pos != string::npos)
+   if (pos != std::string::npos)
       {
       mantissa = atof(sval.substr(0, pos).c_str());
       exponent = atoi(sval.substr(pos + 1).c_str());

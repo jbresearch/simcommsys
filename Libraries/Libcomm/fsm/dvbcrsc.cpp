@@ -25,7 +25,6 @@
 
 namespace libcomm {
 
-using libbase::bitfield;
 using libbase::vector;
 
 const libbase::serializer dvbcrsc::shelper("fsm", "dvbcrsc", dvbcrsc::create);
@@ -78,13 +77,13 @@ void dvbcrsc::advance(vector<int>& input)
    // ip[0] = A, ip[1] = B
    assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip = bitfield(vector<bool> (input));
+   libbase::bitfield ip = libbase::bitfield(vector<bool>(input));
    // compute the shift-register left input
-   bitfield lsi = ((ip.extract(0) ^ ip.extract(1)) + reg) * bitfield("1101");
+   libbase::bitfield lsi = ((ip.extract(0) ^ ip.extract(1)) + reg) * libbase::bitfield("1101");
    // do the shift
    reg = lsi >> reg;
    // apply the second input
-   reg ^= (bitfield("0") + ip.extract(1) + ip.extract(1));
+   reg ^= (libbase::bitfield("0") + ip.extract(1) + ip.extract(1));
    }
 
 vector<int> dvbcrsc::output(const vector<int>& input) const
@@ -93,16 +92,16 @@ vector<int> dvbcrsc::output(const vector<int>& input) const
    // ip[0] = A, ip[1] = B
    assert(input(0) != fsm::tail && input(1) != fsm::tail);
    // process input
-   bitfield ip = bitfield(vector<bool> (input));
+   libbase::bitfield ip = libbase::bitfield(vector<bool>(input));
    // compute the shift-register left input
-   bitfield lsi = ((ip.extract(0) ^ ip.extract(1)) + reg) * bitfield("1101");
+   libbase::bitfield lsi = ((ip.extract(0) ^ ip.extract(1)) + reg) * libbase::bitfield("1101");
    // determine output
    // since the code is systematic, the first (low-order) op is the input
-   bitfield op = ip;
+   libbase::bitfield op = ip;
    // low-order parity is Y
-   op = (lsi + reg) * bitfield("1011") + op;
+   op = (lsi + reg) * libbase::bitfield("1011") + op;
    // next is W
-   op = (lsi + reg) * bitfield("1001") + op;
+   op = (lsi + reg) * libbase::bitfield("1001") + op;
    return vector<int> (op.asvector());
    }
 

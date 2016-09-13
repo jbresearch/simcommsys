@@ -25,9 +25,6 @@
 
 namespace libimage {
 
-using std::cerr;
-using libbase::trace;
-
 using libbase::vector;
 using libbase::matrix;
 
@@ -112,7 +109,7 @@ void waveletfilter::update(const matrix<double>& in)
          // unsupported type
       default:
          {
-         cerr << "Unknown threshold selector (" << m_nThreshSelector << ")." << std::endl;
+         std::cerr << "Unknown threshold selector (" << m_nThreshSelector << ")." << std::endl;
          }
          break;
       }
@@ -135,7 +132,7 @@ void waveletfilter::estimate()
          {
          const double dSigma = m_vdCoefficient[m_vdCoefficient.size() / 2]
                / 0.6745;
-         trace << "Estimated noise std = " << dSigma << " (" << 20 * log10(
+         libbase::trace << "Estimated noise std = " << dSigma << " (" << 20 * log10(
                dSigma) << "dB)" << std::endl;
          m_dThreshValue = dSigma * sqrt(2 * log(double(m_nSize)));
          }
@@ -158,11 +155,11 @@ void waveletfilter::estimate()
          // unsupported type
       default:
          {
-         cerr << "Unknown threshold selector (" << m_nThreshSelector << ")." << std::endl;
+         std::cerr << "Unknown threshold selector (" << m_nThreshSelector << ")." << std::endl;
          }
          break;
       }
-   trace << "Threshold = " << m_dThreshValue << std::endl;
+   libbase::trace << "Threshold = " << m_dThreshValue << std::endl;
    }
 
 // filter process loop (only updates output matrix)
@@ -203,12 +200,12 @@ void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
          out.mask(selection) = 0;
          break;
       default: // unknown
-         cerr << "Unknown thresholding type (" << m_nThreshType << ")." << std::endl;
+         std::cerr << "Unknown thresholding type (" << m_nThreshType << ")." << std::endl;
          break;
       }
    const int count = out.mask(selection).size();
    const int n = in.size();
-   trace << "Retained " << n - count << " coefficients (" << 100.0
+   libbase::trace << "Retained " << n - count << " coefficients (" << 100.0
          * (n - count) / n << "%)" << std::endl;
    display_progress(2, 3);
 

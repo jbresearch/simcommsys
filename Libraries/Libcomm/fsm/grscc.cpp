@@ -50,7 +50,6 @@
 
 namespace libcomm {
 
-using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 
@@ -88,7 +87,7 @@ matrix<G> grscc<G>::getstategen() const
       for (int j = 1, col = 0; j < this->reg(i).size(); j++, col++)
          stategen(j - 1, ++row) = 1;
       }
-   trace << "DEBUG (grscc): state-generator matrix = " << stategen;
+   libbase::trace << "DEBUG (grscc): state-generator matrix = " << stategen;
    return stategen;
    }
 
@@ -110,7 +109,7 @@ void grscc<G>::initcsct()
    Gi = stategen;
    for (L = 1; (eye + Gi).max() > 0; L++)
       Gi *= stategen;
-   trace << "DEBUG (grscc): period = " << L << std::endl;
+   libbase::trace << "DEBUG (grscc): period = " << L << std::endl;
    // correspondence table has first index for N%L, second index for S_N^0
    csct.init(L, this->num_states());
    // go through all combinations (except N%L=0, which is illegal) and fill in

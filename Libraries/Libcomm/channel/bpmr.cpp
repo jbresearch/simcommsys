@@ -78,9 +78,6 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
    libbase::trace << "DEBUG (bpmr): first = " << first << std::endl;
    libbase::trace << "DEBUG (bpmr): last = " << last << std::endl;
 #endif
-   using std::swap;
-   using std::min;
-   using std::max;
    /* Determine limits over this sequence
     * a) upper limit is the same as global limit
     * b) lower limit is bounded by ⌈T/2⌉ (one deletion per output bit)
@@ -110,7 +107,7 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
 #endif
    // *** initialize first row of lattice (i = 0) [insertion only]
       {
-      const int jmax = min(mT_max, rho);
+      const int jmax = std::min(mT_max, rho);
       for (int j = 0; j <= jmax; j++)
          F0[j] = 0;
       if (delta0 == 0) // last bit of previous codeword not deleted
@@ -138,8 +135,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       // advance slices
       cycle_pointers(F0, F1, F2);
       // determine limits for remaining columns (after first)
-      const int jmin = max(i + mT_min, 1);
-      const int jmax = min(i + mT_max, rho);
+      const int jmin = std::max(i + mT_min, 1);
+      const int jmax = std::min(i + mT_max, rho);
       // overwrite up to three columns before corridor, as needed
       // [first is actually within corridor if (i + mT_min <= 0)]
       for (int j = jmin - 1; j >= 0 && j >= jmin - 3; j--)
@@ -198,8 +195,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
       // advance slices
       cycle_pointers(F0, F1, F2);
       // determine limits for remaining columns (after first)
-      const int jmin = max(i + mT_min, 1);
-      const int jmax = min(i + mT_max, rho);
+      const int jmin = std::max(i + mT_min, 1);
+      const int jmax = std::min(i + mT_max, rho);
       // overwrite up to three columns before corridor, as needed
       // [first is actually within corridor if (i + mT_min <= 0)]
       for (int j = jmin - 1; j >= 0 && j >= jmin - 3; j--)

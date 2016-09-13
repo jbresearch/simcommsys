@@ -33,7 +33,6 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
-using libbase::trace;
 using libbase::vector;
 using libbase::matrix;
 
@@ -137,26 +136,26 @@ void ccfsm<G>::advance(vector<int>& input)
    {
    fsm::advance(input);
 #if DEBUG>=2
-   trace << "Advance:" << std::endl;
-   trace << "  Original Input:\t";
-   input.serialize(trace);
+   libbase::trace << "Advance:" << std::endl;
+   libbase::trace << "  Original Input:\t";
+   input.serialize(libbase::trace);
 #endif
    input = determineinput(input);
 #if DEBUG>=2
-   trace << "  Actual Input: \t";
-   input.serialize(trace);
+   libbase::trace << "  Actual Input: \t";
+   input.serialize(libbase::trace);
 #endif
    vector<G> sin = determinefeedin(input);
 #if DEBUG>=2
-   trace << "  Register Feed-in:\t";
-   sin.serialize(trace);
+   libbase::trace << "  Register Feed-in:\t";
+   sin.serialize(libbase::trace);
 #endif
    // Compute next state for each input register
    for (int i = 0; i < k; i++)
       {
 #if DEBUG>=2
-      trace << "  Register " << i << " In:\t";
-      reg(i).serialize(trace);
+      libbase::trace << "  Register " << i << " In:\t";
+      reg(i).serialize(libbase::trace);
 #endif
       const int m = reg(i).size();
       if (m == 0)
@@ -167,8 +166,8 @@ void ccfsm<G>::advance(vector<int>& input)
       // Left-most entry gets the shift-in value
       reg(i)(0) = sin(i);
 #if DEBUG>=2
-      trace << "  Register " << i << " Out:\t";
-      reg(i).serialize(trace);
+      libbase::trace << "  Register " << i << " Out:\t";
+      reg(i).serialize(libbase::trace);
 #endif
       }
    }
@@ -177,19 +176,19 @@ template <class G>
 vector<int> ccfsm<G>::output(const vector<int>& input) const
    {
 #if DEBUG>=2
-   trace << "Output:" << std::endl;
-   trace << "  Original Input:\t";
-   input.serialize(trace);
+   libbase::trace << "Output:" << std::endl;
+   libbase::trace << "  Original Input:\t";
+   input.serialize(libbase::trace);
 #endif
    vector<int> ip = determineinput(input);
 #if DEBUG>=2
-   trace << "  Actual Input: \t";
-   input.serialize(trace);
+   libbase::trace << "  Actual Input: \t";
+   input.serialize(libbase::trace);
 #endif
    vector<G> sin = determinefeedin(ip);
 #if DEBUG>=2
-   trace << "  Register Feed-in:\t";
-   sin.serialize(trace);
+   libbase::trace << "  Register Feed-in:\t";
+   sin.serialize(libbase::trace);
 #endif
    // Compute output
    vector<G> op(n);
@@ -200,19 +199,19 @@ vector<int> ccfsm<G>::output(const vector<int>& input) const
          {
          thisop += convolve(sin(i), reg(i), gen(i, j));
 #if DEBUG>=2
-         trace << "  Input + Register " << i << ":\t";
-         trace << sin(i) << "\t";
-         reg(i).serialize(trace);
-         trace << "  Generator " << i << "," << j << ":\t";
-         gen(i, j).serialize(trace);
-         trace << "  Accumulated Result:\t" << thisop << std::endl;
+         libbase::trace << "  Input + Register " << i << ":\t";
+         libbase::trace << sin(i) << "\t";
+         reg(i).serialize(libbase::trace);
+         libbase::trace << "  Generator " << i << "," << j << ":\t";
+         gen(i, j).serialize(libbase::trace);
+         libbase::trace << "  Accumulated Result:\t" << thisop << std::endl;
 #endif
          }
       op(j) = thisop;
       }
 #if DEBUG>=2
-   trace << "  Output:\t";
-   op.serialize(trace);
+   libbase::trace << "  Output:\t";
+   op.serialize(libbase::trace);
 #endif
    return vector<int> (op);
    }
