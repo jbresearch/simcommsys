@@ -20,9 +20,9 @@
  */
 
 #include "timer.h"
+#include <sstream>
+#include <iomanip>
 #include <cmath>
-#include <cstdio>
-#include <cstring>
 #include <ctime>
 
 namespace libbase {
@@ -31,29 +31,27 @@ namespace libbase {
 
 std::string timer::format(const double time)
    {
-   // TODO: refactor using std::string
-   const int max = 256;
-   static char tempstring[max];
+   std::ostringstream sout;
 
    if (time < 60)
       {
       int order = int(ceil(-log10(time) / 3.0));
       if (order > 3)
          order = 3;
-      sprintf(tempstring, "%0.2f", time * pow(10.0, order * 3));
+      sout << std::setprecision(2) << time * pow(10.0, order * 3);
       switch (order)
          {
          case 0:
-            strcat(tempstring, "s");
+            sout << "s";
             break;
          case 1:
-            strcat(tempstring, "ms");
+            sout << "ms";
             break;
          case 2:
-            strcat(tempstring, "us");
+            sout << "us";
             break;
          case 3:
-            strcat(tempstring, "ns");
+            sout << "ns";
             break;
          }
       }
@@ -69,13 +67,15 @@ std::string timer::format(const double time)
       days = hrs / 24;
       hrs = hrs % 24;
       if (days > 0)
-         sprintf(tempstring, "%d %s, %02d:%02d:%02d", days, (days == 1 ? "day"
-               : "days"), hrs, min, sec);
-      else
-         sprintf(tempstring, "%02d:%02d:%02d", hrs, min, sec);
+         {
+         sout << days;
+         sout << (days == 1 ? " day, " : " days, ");
+         }
+      sout << std::setfill('0') << std::setw(2);
+      sout << hrs << ':' << min << ':' << sec;
       }
 
-   return tempstring;
+   return sout.str();
    }
 
 std::string timer::date()
