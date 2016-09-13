@@ -107,11 +107,11 @@ int main(int argc, char *argv[])
    switch (estimator.enable(vm["endpoint"].as<std::string> (), vm["quiet"].as<
          bool> (), vm["priority"].as<int> ()))
       {
-      case mymontecarlo::mode_slave:
+      case libbase::masterslave::mode_slave:
          break;
 
-      case mymontecarlo::mode_local:
-      case mymontecarlo::mode_master:
+      case libbase::masterslave::mode_local:
+      case libbase::masterslave::mode_master:
          {
          // If this is a server instance, check the remaining parameters
          if (vm.count("system-file") == 0 || vm.count("parameter") == 0)

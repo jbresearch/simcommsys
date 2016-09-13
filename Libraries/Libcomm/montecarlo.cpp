@@ -41,7 +41,7 @@ void montecarlo::slave_getcode(void)
    system.reset();
    // Receive system as a string
    std::string systemstring;
-   if (!receive(systemstring))
+   if (!cluster.receive(systemstring))
       exit(1);
    // Create system object from serialization
    std::istringstream is(systemstring);
@@ -61,7 +61,7 @@ void montecarlo::slave_getparameter(void)
 
    seed_experiment();
    double x;
-   if (!receive(x))
+   if (!cluster.receive(x))
       exit(1);
    system->set_parameter(x);
 
@@ -81,13 +81,13 @@ void montecarlo::slave_work(void)
    tslave.stop(); // to avoid expiry
 
    // Send system digest and current parameter back to master
-   assertalways(send(sysdigest));
-   assertalways(send(system->get_parameter()));
+   assertalways(cluster.send(sysdigest));
+   assertalways(cluster.send(system->get_parameter()));
    // Send accumulated results back to master
    libbase::vector<double> state;
    system->get_state(state);
-   assertalways(send(system->get_samplecount()));
-   assertalways(send(state));
+   assertalways(cluster.send(system->get_samplecount()));
+   assertalways(cluster.send(state));
 
    // print something to inform the user of our progress
    vector<double> result, errormargin;
@@ -157,7 +157,7 @@ void montecarlo::writeresults(std::ostream& sout,
    for (int i = 0; i < system->count(); i++)
       sout << '\t' << result(i) << '\t' << errormargin(i);
    sout << '\t' << get_samplecount();
-   sout << '\t' << getcputime() << std::endl;
+   sout << '\t' << cluster.getcputime() << std::endl;
    trace << "DEBUG (montecarlo): position after = " << sout.tellp()
          << std::endl;
    }
@@ -236,11 +236,11 @@ void montecarlo::display(const libbase::vector<double>& result,
       using std::clog;
       const std::streamsize prec = clog.precision(3);
       clog << "Timer: " << t << ", ";
-      if (isenabled())
-         clog << getnumslaves() << " clients, ";
+      if (cluster.isenabled())
+         clog << cluster.getnumslaves() << " clients, ";
       else
          clog << "local, ";
-      clog << getcputime() / t.elapsed() << "× usage, ";
+      clog << cluster.getcputime() / t.elapsed() << "× usage, ";
       clog << "pass " << system->get_samplecount() << "." << std::endl;
       clog << "System parameter: " << system->get_parameter() << std::endl;
       clog << "Results:" << std::endl;
@@ -279,13 +279,13 @@ void montecarlo::updateresults(vector<double>& result,
  */
 void montecarlo::initslave(slave *s, std::string systemstring)
    {
-   if (!call(s, "slave_getcode"))
+   if (!cluster.call(s, "slave_getcode"))
       return;
-   if (!send(s, systemstring))
+   if (!cluster.send(s, systemstring))
       return;
-   if (!call(s, "slave_getparameter"))
+   if (!cluster.call(s, "slave_getparameter"))
       return;
-   if (!send(s, system->get_parameter()))
+   if (!cluster.send(s, system->get_parameter()))
       return;
    trace << "DEBUG (estimate): Slave (" << s << ") initialized ok."
          << std::endl;
@@ -300,7 +300,7 @@ void montecarlo::initslave(slave *s, std::string systemstring)
  */
 void montecarlo::initnewslaves(std::string systemstring)
    {
-   while (slave *s = find_new_slave())
+   while (slave *s = cluster.find_new_slave())
       {
       trace << "DEBUG (estimate): New slave found (" << s << "), initializing."
             << std::endl;
@@ -322,11 +322,11 @@ void montecarlo::initnewslaves(std::string systemstring)
  */
 void montecarlo::workidleslaves(bool converged)
    {
-   for (slave *s; (!converged) && (s = find_idle_slave());)
+   for (slave *s; (!converged) && (s = cluster.find_idle_slave());)
       {
       trace << "DEBUG (estimate): Idle slave found (" << s
             << "), assigning work." << std::endl;
-      if (!call(s, "slave_work"))
+      if (!cluster.call(s, "slave_work"))
          continue;
       trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok."
             << std::endl;
@@ -347,20 +347,20 @@ void montecarlo::workidleslaves(bool converged)
 bool montecarlo::readpendingslaves()
    {
    bool results_available = false;
-   while (slave *s = find_pending_slave())
+   while (slave *s = cluster.find_pending_slave())
       {
       trace << "DEBUG (estimate): Pending event from slave (" << s
             << "), trying to read." << std::endl;
       // get digest and parameter for simulated system
       std::string simdigest;
       double simparameter;
-      if (!receive(s, simdigest) || !receive(s, simparameter))
+      if (!cluster.receive(s, simdigest) || !cluster.receive(s, simparameter))
          continue;
       // set up space for results that need to be returned
       libbase::int64u estsamplecount = 0;
       vector<double> eststate;
       // get results
-      if (!receive(s, estsamplecount) || !receive(s, eststate))
+      if (!cluster.receive(s, estsamplecount) || !cluster.receive(s, eststate))
          continue;
       // check that results correspond to system under simulation
       if (std::string(sysdigest) != simdigest || simparameter
@@ -368,13 +368,13 @@ bool montecarlo::readpendingslaves()
          {
          trace << "DEBUG (estimate): Slave returned invalid results (" << s
                << "), re-initializing." << std::endl;
-         resetslave(s);
+         cluster.resetslave(s);
          continue;
          }
       // accumulate
       system->accumulate_state(estsamplecount, eststate);
       // update usage information and return flag
-      updatecputime(s);
+      cluster.updatecputime(s);
       results_available = true;
       trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded."
             << std::endl;
@@ -408,10 +408,10 @@ void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
 
    // Set up for master-slave system (if necessary)
    // and seed the experiment
-   if (isenabled())
+   if (cluster.isenabled())
       {
-      resetslaves();
-      resetcputime();
+      cluster.resetslaves();
+      cluster.resetcputime();
       }
    else
       seed_experiment();
@@ -425,14 +425,14 @@ void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
       {
       bool results_available = false;
       // repeat the experiment
-      if (isenabled())
+      if (cluster.isenabled())
          {
          // first initialize any new slaves
          initnewslaves(systemstring);
          // get idle slaves to work if we're not yet done
          workidleslaves(converged);
          // wait for results, but not indefinitely - this allows user to break
-         waitforevent(true, 0.5);
+         cluster.waitforevent(true, 0.5);
          // accumulate results from any pending slaves
          results_available = readpendingslaves();
          }

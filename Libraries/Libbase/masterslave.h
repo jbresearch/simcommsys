@@ -41,10 +41,6 @@ namespace libbase {
  * Class supporting socket-based master-slave relationship.
  * - supports dynamic slave list
  *
- * \note The current usage model for this class is that users now declare
- * themselves as derived classes, rather than instantiating an object;
- * this is tied with the requirements for RPC functions.
- *
  * \note RPC calls are now done by passing a string reference, which is used
  * as a key in a map list. Two new functions support this:
  * - fregister() allows registering of functions by derived classes, and
@@ -91,10 +87,11 @@ private:
    double cputimeused;
    walltimer twall;
    cputimer tcpu;
-protected:
-   void fregister(const std::string& name, boost::shared_ptr<functor> f);
-   void fcall(const std::string& name);
 public:
+   //! Register a RPC function
+   void fregister(const std::string& name, boost::shared_ptr<functor> f);
+   //! Call a RPC function
+   void fcall(const std::string& name);
    // global enable of cluster system
    mode_t enable(const std::string& endpoint, bool quiet = false, int priority =
          10);

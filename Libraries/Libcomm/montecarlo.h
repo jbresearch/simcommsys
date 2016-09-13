@@ -39,20 +39,22 @@ namespace libcomm {
  * \author  Johann Briffa
  */
 
-class montecarlo : public libbase::masterslave, private resultsfile {
+class montecarlo : private resultsfile {
+private:
+   // shorthand for masterslave data types
+   typedef libbase::masterslave::mode_t mode_t;
+   typedef libbase::masterslave::slave slave;
 private:
    /*! \name Bound objects */
-   /*! \note If 'init' is false, and 'system' is not NULL, then there is a dynamically allocated
-    * object at this address. This should be deleted when no longer necessary.
-    */
    boost::shared_ptr<experiment> system; //!< System being sampled
+   libbase::masterslave cluster; //!< Master/slave interface
    // @}
    /*! \name Internal variables / settings */
    libbase::int32u seed; //! system initialization seed
    int min_samples; //!< minimum number of samples
    double confidence; //!< confidence level for computing margin of error
    double threshold; //!< threshold for convergence (interpretation depends on mode)
-   enum mode_t {
+   enum {
       mode_relative_error = 0, //!< converge when error margin as a fraction of result mean is less than threshold
       mode_absolute_error, //!< converge when error margin (ie its absolute value) is less than threshold
       mode_accumulated_result, //!< converge when absolute accumulated result (ie result mean x sample count) is more than threshold
@@ -135,32 +137,28 @@ public:
             new libbase::specificfunctor<montecarlo>(this,
                   &libcomm::montecarlo::slave_work));
       // register functions
-      fregister("slave_getcode", fgetcode);
-      fregister("slave_getparameter", fgetparameter);
-      fregister("slave_work", fwork);
+      cluster.fregister("slave_getcode", fgetcode);
+      cluster.fregister("slave_getparameter", fgetparameter);
+      cluster.fregister("slave_work", fwork);
       // Use a true RNG to determine the initial seed value
       libbase::truerand trng;
       seed = trng.ival();
       }
    virtual ~montecarlo()
       {
-      release();
       tupdate.stop();
+      }
+   // @}
+   /*! \name Enable master/slave subsystem */
+   mode_t enable(const std::string& endpoint, bool quiet, int priority)
+      {
+      return cluster.enable(endpoint, quiet, priority);
       }
    // @}
    /*! \name Simulation binding/releasing */
    void bind(boost::shared_ptr<experiment> system)
       {
-      release();
-      assert(!this->system);
       this->system = system;
-      }
-   void release()
-      {
-      if (!system)
-         return;
-      assert(system);
-      system.reset();
       }
    // @}
    /*! \name Simulation parameters */
