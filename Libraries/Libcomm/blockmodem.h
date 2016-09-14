@@ -42,7 +42,7 @@ namespace libcomm {
 template <class S, template <class > class C = libbase::vector,
       class dbl = double>
 class basic_blockmodem : public instrumented,
-      public modem<S> ,
+      public virtual modem<S> ,
       public blockprocess {
 public:
    /*! \name Type definitions */

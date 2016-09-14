@@ -27,7 +27,7 @@
 namespace libcomm {
 
 /*!
- * \brief   Q-ary Modulator Implementation.
+ * \brief   Q-ary Modulator.
  * \author  Johann Briffa
  *
  * Specific implementation of q-ary channel modulation.
@@ -41,7 +41,7 @@ namespace libcomm {
  */
 
 template <class G>
-class direct_modem_implementation {
+class direct_modem : public virtual modem<G> {
 public:
    // Atomic modem operations
    const G modulate(const int index) const
@@ -65,14 +65,14 @@ public:
 };
 
 /*!
- * \brief   Binary Modulator Implementation Specialization.
+ * \brief   Binary Modulator Specialization.
  * \author  Johann Briffa
  *
  * Specific implementation of binary channel modulation.
  */
 
 template <>
-class direct_modem_implementation<bool> {
+class direct_modem<bool> : public virtual modem<bool> {
 public:
    // Atomic modem operations
    const bool modulate(const int index) const
@@ -93,44 +93,6 @@ public:
 
    // Description
    std::string description() const;
-};
-
-/*!
- * \brief   Direct Modulator Implementation.
- * \author  Johann Briffa
- */
-
-template <class G>
-class direct_modem : public modem<G> , protected direct_modem_implementation<G> {
-public:
-   /*! \name Type definitions */
-   typedef direct_modem_implementation<G> Implementation;
-   // @}
-public:
-   // Use implementation from base
-   // Atomic modem operations
-   const G modulate(const int index) const
-      {
-      return Implementation::modulate(index);
-      }
-   const int demodulate(const G& signal) const
-      {
-      return Implementation::demodulate(signal);
-      }
-   // Informative functions
-   int num_symbols() const
-      {
-      return Implementation::num_symbols();
-      }
-   // Description
-   std::string description() const
-      {
-      return Implementation::description();
-      }
-   //using direct_modem_implementation<G>::modulate;
-   //using direct_modem_implementation<G>::demodulate;
-   //using direct_modem_implementation<G>::num_symbols;
-   //using direct_modem_implementation<G>::description;
 };
 
 } // end namespace

@@ -30,7 +30,7 @@ namespace libcomm {
 // Description
 
 template <class G>
-std::string direct_modem_implementation<G>::description() const
+std::string direct_modem<G>::description() const
    {
    std::ostringstream sout;
    sout << "GF(" << num_symbols() << ") Modulation";
@@ -41,7 +41,7 @@ std::string direct_modem_implementation<G>::description() const
 
 // Description
 
-std::string direct_modem_implementation<bool>::description() const
+std::string direct_modem<bool>::description() const
    {
    return "Binary Modulation";
    }
@@ -73,19 +73,12 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define ALL_GF_TYPE_SEQ \
    BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, GF_TYPE_SEQ)
 
-#define ALL_SYMBOL_TYPE_SEQ \
-   BOOST_PP_SEQ_FOR_EACH(ADD_ERASABLE, x, SYMBOL_TYPE_SEQ)
-
-#define INSTANTIATE1(r, x, type) \
-      template class direct_modem_implementation<type>;
-
-#define INSTANTIATE2(r, x, type) \
+#define INSTANTIATE(r, x, type) \
       template class direct_modem<type>;
 
-// NOTE: we need to avoid instantiating direct_modem_implementation<bool>
+// NOTE: we need to avoid instantiating direct_modem<bool>
 // because this is an explicit specialization
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE1, x, (erasable<bool>) ALL_GF_TYPE_SEQ)
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, x, ALL_SYMBOL_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (erasable<bool>) ALL_GF_TYPE_SEQ)
 
 } // end namespace

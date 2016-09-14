@@ -33,9 +33,12 @@ using libbase::matrix;
 // Block modem operations
 
 template <class G, class dbl>
-void direct_blockmodem_implementation<G, vector, dbl>::domodulate(const int N,
+void direct_blockmodem<G, vector, dbl>::domodulate(const int N,
       const vector<int>& encoded, vector<G>& tx)
    {
+   // Check validity
+   assertalways(encoded.size() == this->input_block_size());
+   assertalways(N == this->num_symbols());
    // Inherit sizes
    const int tau = encoded.size();
    // Initialize results vector
@@ -46,10 +49,12 @@ void direct_blockmodem_implementation<G, vector, dbl>::domodulate(const int N,
    }
 
 template <class G, class dbl>
-void direct_blockmodem_implementation<G, vector, dbl>::dodemodulate(
+void direct_blockmodem<G, vector, dbl>::dodemodulate(
       const channel<G, vector>& chan, const vector<G>& rx,
       vector<array1d_t>& ptable)
    {
+   // Check validity
+   assertalways(rx.size() == this->input_block_size());
    // Inherit sizes
    const int M = this->num_symbols();
    // Allocate space for temporary results
@@ -66,12 +71,10 @@ void direct_blockmodem_implementation<G, vector, dbl>::dodemodulate(
    ptable = ptable_double;
    }
 
-// *** Templated GF(q) blockmodem ***
-
 // Description
 
-template <class G, template <class > class C, class dbl>
-std::string direct_blockmodem<G, C, dbl>::description() const
+template <class G, class dbl>
+std::string direct_blockmodem<G, vector, dbl>::description() const
    {
    std::ostringstream sout;
    sout << "Blockwise " << Implementation::description();
@@ -80,14 +83,14 @@ std::string direct_blockmodem<G, C, dbl>::description() const
 
 // Serialization Support
 
-template <class G, template <class > class C, class dbl>
-std::ostream& direct_blockmodem<G, C, dbl>::serialize(std::ostream& sout) const
+template <class G, class dbl>
+std::ostream& direct_blockmodem<G, vector, dbl>::serialize(std::ostream& sout) const
    {
    return sout;
    }
 
-template <class G, template <class > class C, class dbl>
-std::istream& direct_blockmodem<G, C, dbl>::serialize(std::istream& sin)
+template <class G, class dbl>
+std::istream& direct_blockmodem<G, vector, dbl>::serialize(std::istream& sin)
    {
    return sin;
    }
@@ -139,7 +142,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
  *      real = float | double | logrealfast
  */
 #define INSTANTIATE(r, args) \
-      template class direct_blockmodem_implementation<BOOST_PP_SEQ_ENUM(args)>; \
       template class direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>; \
       template <> \
       const serializer direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>::shelper( \
