@@ -38,7 +38,7 @@ std::string timer::format(const double time)
       int order = int(ceil(-log10(time) / 3.0));
       if (order > 3)
          order = 3;
-      sout << std::setprecision(2) << time * pow(10.0, order * 3);
+      sout << std::fixed << std::setprecision(2) << time * pow(10.0, order * 3);
       switch (order)
          {
          case 0:
@@ -71,8 +71,9 @@ std::string timer::format(const double time)
          sout << days;
          sout << (days == 1 ? " day, " : " days, ");
          }
-      sout << std::setfill('0') << std::setw(2);
-      sout << hrs << ':' << min << ':' << sec;
+      sout << std::setfill('0') << std::setw(2) << hrs << ':';
+      sout << std::setfill('0') << std::setw(2) << min << ':';
+      sout << std::setfill('0') << std::setw(2) << sec;
       }
 
    return sout.str();
