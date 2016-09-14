@@ -231,7 +231,7 @@ inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
 inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
    {
 #ifdef USE_GMP
-   const ios::fmtflags flags = s.flags();
+   const std::ios::fmtflags flags = s.flags();
    s.setf(std::ios::fixed, std::ios::floatfield);
 
    const int digits = 6;
@@ -239,7 +239,7 @@ inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
    char mantissa[digits+2];
    mpf_get_str(mantissa, &exponent, 10, digits, x.value);
    s << "0." << mantissa;
-   s.setf(ios::showpos);
+   s.setf(std::ios::showpos);
    s << "e" << exponent;
 
    s.flags(flags);
