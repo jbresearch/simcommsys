@@ -67,14 +67,10 @@ private:
 
    // communication objects
 public:
-   class slave {
-      friend class masterslave;
-   protected:
-      boost::shared_ptr<socket> sock;
-      enum {
-         NEW, EVENT_PENDING, IDLE, WORKING
-      } state;
-   };
+   // slave state
+   typedef enum {
+      NEW = 0, EVENT_PENDING, IDLE, WORKING
+   } state_t;
    // operating mode - returned by enable()
    typedef enum {
       mode_local = 0, mode_master, mode_slave
@@ -82,16 +78,11 @@ public:
 
    // items for use by everyone (?)
 private:
-   std::map<std::string, boost::shared_ptr<functor> > fmap;
    bool initialized;
    double cputimeused;
    walltimer twall;
    cputimer tcpu;
 public:
-   //! Register a RPC function
-   void fregister(const std::string& name, boost::shared_ptr<functor> f);
-   //! Call a RPC function
-   void fcall(const std::string& name);
    // global enable of cluster system
    mode_t enable(const std::string& endpoint, bool quiet = false, int priority =
          10);
@@ -112,14 +103,11 @@ public:
       {
       return getcputime() / getwalltime();
       }
-   size_t getnumslaves() const
-      {
-      return smap.size();
-      }
 
    // items for use by slaves
 private:
-   boost::shared_ptr<libbase::socket> master;
+   std::map<std::string, boost::shared_ptr<functor> > fmap;
+   boost::shared_ptr<socket> master;
    // helper functions
    void close();
    void setpriority(const int priority);
@@ -132,6 +120,11 @@ private:
    void slaveprocess(const std::string& hostname, const int16u port,
          const int priority);
 public:
+   // RPC function calls
+   //! Register a RPC function
+   void fregister(const std::string& name, boost::shared_ptr<functor> f);
+   //! Call a RPC function
+   void fcall(const std::string& name);
    // slave -> master communication
    bool send(const void *buf, const size_t len);
    bool send(const int x)
@@ -165,9 +158,9 @@ public:
 
    // items for use by master
 private:
-   std::map<boost::shared_ptr<socket>, slave *> smap;
+   std::map<boost::shared_ptr<socket>, state_t> smap;
    // helper functions
-   void close(slave *s);
+   void close(boost::shared_ptr<socket> s);
 public:
    // creation and destruction
    masterslave();
@@ -175,26 +168,31 @@ public:
    // disable process
    void disable();
    // slave-interface functions
-   slave *find_new_slave();
-   slave *find_idle_slave();
-   slave *find_pending_slave();
+   boost::shared_ptr<socket> find_new_slave();
+   boost::shared_ptr<socket> find_idle_slave();
+   boost::shared_ptr<socket> find_pending_slave();
    int count_workingslaves() const;
    bool anyoneworking() const;
    void waitforevent(const bool acceptnew = true, const double timeout = 0);
-   void resetslave(slave *s);
+   void resetslave(boost::shared_ptr<socket> s);
    void resetslaves();
+   // informative functions
+   size_t getnumslaves() const
+      {
+      return smap.size();
+      }
    // master -> slave communication
-   bool send(slave *s, const void *buf, const size_t len);
-   bool send(slave *s, const int x)
+   bool send(boost::shared_ptr<socket> s, const void *buf, const size_t len);
+   bool send(boost::shared_ptr<socket> s, const int x)
       {
       return send(s, &x, sizeof(x));
       }
-   bool send(slave *s, const double x)
+   bool send(boost::shared_ptr<socket> s, const double x)
       {
       return send(s, &x, sizeof(x));
       }
-   bool send(slave *s, const std::string& x);
-   bool call(slave *s, const std::string& x)
+   bool send(boost::shared_ptr<socket> s, const std::string& x);
+   bool call(boost::shared_ptr<socket> s, const std::string& x)
       {
       return send(s, int(WORK)) && send(s, x);
       }
@@ -203,22 +201,22 @@ public:
       {
       cputimeused = 0;
       }
-   bool updatecputime(slave *s);
-   bool receive(slave *s, void *buf, const size_t len);
-   bool receive(slave *s, int& x)
+   bool updatecputime(boost::shared_ptr<socket> s);
+   bool receive(boost::shared_ptr<socket> s, void *buf, const size_t len);
+   bool receive(boost::shared_ptr<socket> s, int& x)
       {
       return receive(s, &x, sizeof(x));
       }
-   bool receive(slave *s, libbase::int64u& x)
+   bool receive(boost::shared_ptr<socket> s, libbase::int64u& x)
       {
       return receive(s, &x, sizeof(x));
       }
-   bool receive(slave *s, double& x)
+   bool receive(boost::shared_ptr<socket> s, double& x)
       {
       return receive(s, &x, sizeof(x));
       }
-   bool receive(slave *s, vector<double>& x);
-   bool receive(slave *s, std::string& x);
+   bool receive(boost::shared_ptr<socket> s, vector<double>& x);
+   bool receive(boost::shared_ptr<socket> s, std::string& x);
 };
 
 } // end namespace

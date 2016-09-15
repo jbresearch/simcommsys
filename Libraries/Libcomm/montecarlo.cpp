@@ -274,7 +274,7 @@ void montecarlo::updateresults(vector<double>& result,
  * Initialize given slave by sending the system being simulated and the
  * current simulation parameter.
  */
-void montecarlo::initslave(slave *s, std::string systemstring)
+void montecarlo::initslave(boost::shared_ptr<libbase::socket> s, std::string systemstring)
    {
    if (!cluster.call(s, "slave_getcode"))
       return;
@@ -297,7 +297,7 @@ void montecarlo::initslave(slave *s, std::string systemstring)
  */
 void montecarlo::initnewslaves(std::string systemstring)
    {
-   while (slave *s = cluster.find_new_slave())
+   while (boost::shared_ptr<libbase::socket> s = cluster.find_new_slave())
       {
       libbase::trace << "DEBUG (estimate): New slave found (" << s << "), initializing."
             << std::endl;
@@ -319,7 +319,7 @@ void montecarlo::initnewslaves(std::string systemstring)
  */
 void montecarlo::workidleslaves(bool converged)
    {
-   for (slave *s; (!converged) && (s = cluster.find_idle_slave());)
+   for (boost::shared_ptr<libbase::socket> s; (!converged) && (s = cluster.find_idle_slave());)
       {
       libbase::trace << "DEBUG (estimate): Idle slave found (" << s
             << "), assigning work." << std::endl;
@@ -344,7 +344,7 @@ void montecarlo::workidleslaves(bool converged)
 bool montecarlo::readpendingslaves()
    {
    bool results_available = false;
-   while (slave *s = cluster.find_pending_slave())
+   while (boost::shared_ptr<libbase::socket> s = cluster.find_pending_slave())
       {
       libbase::trace << "DEBUG (estimate): Pending event from slave (" << s
             << "), trying to read." << std::endl;

@@ -43,7 +43,6 @@ class montecarlo : private resultsfile {
 private:
    // shorthand for masterslave data types
    typedef libbase::masterslave::mode_t mode_t;
-   typedef libbase::masterslave::slave slave;
 private:
    /*! \name Bound objects */
    boost::shared_ptr<experiment> system; //!< System being sampled
@@ -87,7 +86,7 @@ private:
       }
    void updateresults(libbase::vector<double>& result,
          libbase::vector<double>& errormargin) const;
-   void initslave(slave *s, std::string systemstring);
+   void initslave(boost::shared_ptr<libbase::socket> s, std::string systemstring);
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool converged);
    bool readpendingslaves();
