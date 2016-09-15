@@ -25,6 +25,7 @@
 #include "pacifier.h"
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -276,13 +277,10 @@ bool masterslave::send(const vector<double>& x)
    const int count = x.size();
    if (!send(count))
       return false;
-   // copy vector elements to an array and send at once
-   double *a = new double[count];
-   for (int i = 0; i < count; i++)
-      a[i] = x(i);
-   const bool success = send(a, sizeof(double) * count);
-   delete[] a;
-   return success;
+   // send vector elements at once as an array
+   if(!send(&x(0), sizeof(double) * count))
+      return false;
+   return true;
    }
 
 bool masterslave::send(const std::string& x)
@@ -290,7 +288,9 @@ bool masterslave::send(const std::string& x)
    int len = int(x.length());
    if (!send(len))
       return false;
-   return send(x.c_str(), len);
+   if (!send(x.c_str(), len))
+      return false;
+   return true;
    }
 
 bool masterslave::receive(void *buf, const size_t len)
@@ -308,12 +308,11 @@ bool masterslave::receive(std::string& x)
    int len;
    if (!receive(len))
       return false;
-   char *buf = new char[len];
-   const bool success = receive(buf, len);
-   if (success)
-      x.assign(buf, len);
-   delete[] buf;
-   return success;
+   std::vector<char> buf(len);
+   if(!receive(&buf[0], len))
+      return false;
+   x.assign(&buf[0], len);
+   return true;
    }
 
 // non-static items (for use by master)
@@ -519,7 +518,9 @@ bool masterslave::send(slave *s, const std::string& x)
    int len = int(x.length());
    if (!send(s, len))
       return false;
-   return send(s, x.c_str(), len);
+   if (!send(s, x.c_str(), len))
+      return false;
+   return true;
    }
 
 /*! \brief Accumulate CPU time for given slave
@@ -554,13 +555,10 @@ bool masterslave::receive(slave *s, vector<double>& x)
    int count;
    if (!receive(s, count))
       return false;
-   // get vector elements
-   double *a = new double[count];
-   if (!receive(s, a, sizeof(double) * count))
+   // initialize vector and get vector elements
+   x.init(count);
+   if (!receive(s, &x(0), sizeof(double) * count))
       return false;
-   // initialize vector and copy elements over
-   x.assign(a, count);
-   delete[] a;
    return true;
    }
 
@@ -569,12 +567,11 @@ bool masterslave::receive(slave *s, std::string& x)
    int len;
    if (!receive(s, len))
       return false;
-   char *buf = new char[len];
-   const bool success = receive(s, buf, len);
-   if (success)
-      x.assign(buf, len);
-   delete[] buf;
-   return success;
+   std::vector<char> buf(len);
+   if(!receive(s, &buf[0], len))
+      return false;
+   x.assign(&buf[0], len);
+   return true;
    }
 
 }
