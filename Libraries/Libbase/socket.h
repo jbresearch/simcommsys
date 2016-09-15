@@ -27,6 +27,8 @@
 #include <string>
 #include <list>
 
+#include <boost/shared_ptr.hpp>
+
 namespace libbase {
 
 /*!
@@ -95,9 +97,9 @@ public:
       }
    // wait for client connects
    bool bind(int16u port);
-   static std::list<socket *> select(std::list<socket *> sl,
-         const double timeout = 0);
-   socket *accept();
+   static std::list<boost::shared_ptr<socket> > select(
+         std::list<boost::shared_ptr<socket> > sl, const double timeout = 0);
+   boost::shared_ptr<socket> accept();
    // open connection to server
    bool connect(std::string hostname, int16u port);
    // read/write data

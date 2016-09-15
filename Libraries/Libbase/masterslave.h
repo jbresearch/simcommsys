@@ -70,7 +70,7 @@ public:
    class slave {
       friend class masterslave;
    protected:
-      socket *sock;
+      boost::shared_ptr<socket> sock;
       enum {
          NEW, EVENT_PENDING, IDLE, WORKING
       } state;
@@ -119,9 +119,9 @@ public:
 
    // items for use by slaves
 private:
-   libbase::socket *master;
+   boost::shared_ptr<libbase::socket> master;
    // helper functions
-   void close(libbase::socket *s);
+   void close();
    void setpriority(const int priority);
    void connect(const std::string& hostname, const int16u port);
    std::string gethostname();
@@ -165,7 +165,7 @@ public:
 
    // items for use by master
 private:
-   std::map<socket *, slave *> smap;
+   std::map<boost::shared_ptr<socket>, slave *> smap;
    // helper functions
    void close(slave *s);
 public:
