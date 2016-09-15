@@ -39,8 +39,7 @@ void montecarlo::slave_getcode(void)
    system.reset();
    // Receive system as a string
    std::string systemstring;
-   if (!cluster.receive(systemstring))
-      exit(1);
+   cluster.receive(systemstring);
    // Create system object from serialization
    std::istringstream is(systemstring);
    is >> system;
@@ -59,8 +58,7 @@ void montecarlo::slave_getparameter(void)
 
    seed_experiment();
    double x;
-   if (!cluster.receive(x))
-      exit(1);
+   cluster.receive(x);
    system->set_parameter(x);
 
    std::cerr << "Simulating system at parameter = " << system->get_parameter()
@@ -79,13 +77,13 @@ void montecarlo::slave_work(void)
    tslave.stop(); // to avoid expiry
 
    // Send system digest and current parameter back to master
-   assertalways(cluster.send(sysdigest));
-   assertalways(cluster.send(system->get_parameter()));
+   cluster.send(sysdigest);
+   cluster.send(system->get_parameter());
    // Send accumulated results back to master
    libbase::vector<double> state;
    system->get_state(state);
-   assertalways(cluster.send(system->get_samplecount()));
-   assertalways(cluster.send(state));
+   cluster.send(system->get_samplecount());
+   cluster.send(state);
 
    // print something to inform the user of our progress
    vector<double> result, errormargin;
@@ -276,16 +274,19 @@ void montecarlo::updateresults(vector<double>& result,
  */
 void montecarlo::initslave(boost::shared_ptr<libbase::socket> s, std::string systemstring)
    {
-   if (!cluster.call(s, "slave_getcode"))
-      return;
-   if (!cluster.send(s, systemstring))
-      return;
-   if (!cluster.call(s, "slave_getparameter"))
-      return;
-   if (!cluster.send(s, system->get_parameter()))
-      return;
-   libbase::trace << "DEBUG (estimate): Slave (" << s << ") initialized ok."
-         << std::endl;
+   try
+      {
+      cluster.call(s, "slave_getcode");
+      cluster.send(s, systemstring);
+      cluster.call(s, "slave_getparameter");
+      cluster.send(s, system->get_parameter());
+      libbase::trace << "DEBUG (estimate): Slave (" << s << ") initialized ok."
+            << std::endl;
+      }
+   catch (std::runtime_error& e)
+      {
+      std::cerr << "Runtime exception: " << e.what() << std::endl;
+      }
    }
 
 /*!
@@ -321,12 +322,18 @@ void montecarlo::workidleslaves(bool converged)
    {
    for (boost::shared_ptr<libbase::socket> s; (!converged) && (s = cluster.find_idle_slave());)
       {
-      libbase::trace << "DEBUG (estimate): Idle slave found (" << s
-            << "), assigning work." << std::endl;
-      if (!cluster.call(s, "slave_work"))
-         continue;
-      libbase::trace << "DEBUG (estimate): Slave (" << s << ") work assigned ok."
-            << std::endl;
+      try
+         {
+         libbase::trace << "DEBUG (estimate): Idle slave found (" << s
+               << "), assigning work." << std::endl;
+         cluster.call(s, "slave_work");
+         libbase::trace << "DEBUG (estimate): Slave (" << s
+               << ") work assigned ok." << std::endl;
+         }
+      catch (std::runtime_error& e)
+         {
+         std::cerr << "Runtime exception: " << e.what() << std::endl;
+         }
       }
    }
 
@@ -346,35 +353,43 @@ bool montecarlo::readpendingslaves()
    bool results_available = false;
    while (boost::shared_ptr<libbase::socket> s = cluster.find_pending_slave())
       {
-      libbase::trace << "DEBUG (estimate): Pending event from slave (" << s
-            << "), trying to read." << std::endl;
-      // get digest and parameter for simulated system
-      std::string simdigest;
-      double simparameter;
-      if (!cluster.receive(s, simdigest) || !cluster.receive(s, simparameter))
-         continue;
-      // set up space for results that need to be returned
-      libbase::int64u estsamplecount = 0;
-      vector<double> eststate;
-      // get results
-      if (!cluster.receive(s, estsamplecount) || !cluster.receive(s, eststate))
-         continue;
-      // check that results correspond to system under simulation
-      if (std::string(sysdigest) != simdigest || simparameter
-            != system->get_parameter())
+      try
          {
-         libbase::trace << "DEBUG (estimate): Slave returned invalid results (" << s
-               << "), re-initializing." << std::endl;
-         cluster.resetslave(s);
-         continue;
+         libbase::trace << "DEBUG (estimate): Pending event from slave (" << s
+               << "), trying to read." << std::endl;
+         // get digest and parameter for simulated system
+         std::string simdigest;
+         double simparameter;
+         cluster.receive(s, simdigest);
+         cluster.receive(s, simparameter);
+         // set up space for results that need to be returned
+         libbase::int64u estsamplecount = 0;
+         vector<double> eststate;
+         // get results
+         cluster.receive(s, estsamplecount);
+         cluster.receive(s, eststate);
+         // check that results correspond to system under simulation
+         if (std::string(sysdigest) != simdigest
+               || simparameter != system->get_parameter())
+            {
+            libbase::trace
+                  << "DEBUG (estimate): Slave returned invalid results (" << s
+                  << "), re-initializing." << std::endl;
+            cluster.resetslave(s);
+            continue;
+            }
+         // accumulate
+         system->accumulate_state(estsamplecount, eststate);
+         // update usage information and return flag
+         cluster.updatecputime(s);
+         results_available = true;
+         libbase::trace << "DEBUG (estimate): Read from slave (" << s
+               << ") succeeded." << std::endl;
          }
-      // accumulate
-      system->accumulate_state(estsamplecount, eststate);
-      // update usage information and return flag
-      cluster.updatecputime(s);
-      results_available = true;
-      libbase::trace << "DEBUG (estimate): Read from slave (" << s << ") succeeded."
-            << std::endl;
+      catch (std::runtime_error& e)
+         {
+         std::cerr << "Runtime exception: " << e.what() << std::endl;
+         }
       }
    return results_available;
    }

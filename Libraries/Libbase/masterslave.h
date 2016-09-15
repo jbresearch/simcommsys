@@ -131,35 +131,35 @@ public:
    //! Call a RPC function
    void fcall(const std::string& name);
    // slave -> master communication
-   bool send(const void *buf, const size_t len);
-   bool send(const int x)
+   void send(const void *buf, const size_t len);
+   void send(const int x)
       {
-      return send(&x, sizeof(x));
+      send(&x, sizeof(x));
       }
-   bool send(const int64u x)
+   void send(const int64u x)
       {
-      return send(&x, sizeof(x));
+      send(&x, sizeof(x));
       }
-   bool send(const double x)
+   void send(const double x)
       {
-      return send(&x, sizeof(x));
+      send(&x, sizeof(x));
       }
-   bool send(const vector<double>& x);
-   bool send(const std::string& x);
-   bool receive(void *buf, const size_t len);
-   bool receive(int& x)
+   void send(const vector<double>& x);
+   void send(const std::string& x);
+   void receive(void *buf, const size_t len);
+   void receive(int& x)
       {
-      return receive(&x, sizeof(x));
+      receive(&x, sizeof(x));
       }
-   bool receive(int64u& x)
+   void receive(int64u& x)
       {
-      return receive(&x, sizeof(x));
+      receive(&x, sizeof(x));
       }
-   bool receive(double& x)
+   void receive(double& x)
       {
-      return receive(&x, sizeof(x));
+      receive(&x, sizeof(x));
       }
-   bool receive(std::string& x);
+   void receive(std::string& x);
 
    // items for use by master
 private:
@@ -168,8 +168,15 @@ private:
    void close(boost::shared_ptr<socket> s);
 public:
    // creation and destruction
-   masterslave();
-   ~masterslave();
+   masterslave() :
+         initialized(false), cputimeused(0), twall("masterslave-wall", false), tcpu(
+               "masterslave-cpu", false)
+      {
+      }
+   ~masterslave()
+      {
+      disable();
+      }
    // disable process
    void disable();
    // slave-interface functions
@@ -187,40 +194,42 @@ public:
       return smap.size();
       }
    // master -> slave communication
-   bool send(boost::shared_ptr<socket> s, const void *buf, const size_t len);
-   bool send(boost::shared_ptr<socket> s, const int x)
+   void send(boost::shared_ptr<socket> s, const void *buf, const size_t len);
+   void send(boost::shared_ptr<socket> s, const int x)
       {
-      return send(s, &x, sizeof(x));
+      send(s, &x, sizeof(x));
       }
-   bool send(boost::shared_ptr<socket> s, const double x)
+   void send(boost::shared_ptr<socket> s, const double x)
       {
-      return send(s, &x, sizeof(x));
+      send(s, &x, sizeof(x));
       }
-   bool send(boost::shared_ptr<socket> s, const std::string& x)
+   void send(boost::shared_ptr<socket> s, const std::string& x)
       {
       int len = int(x.length());
-      return send(s, len) && send(s, x.c_str(), len);
+      send(s, len);
+      send(s, x.c_str(), len);
       }
-   bool call(boost::shared_ptr<socket> s, const std::string& x)
+   void call(boost::shared_ptr<socket> s, const std::string& x)
       {
-      return send(s, int(tag_work)) && send(s, x);
+      send(s, int(tag_work));
+      send(s, x);
       }
-   bool updatecputime(boost::shared_ptr<socket> s);
-   bool receive(boost::shared_ptr<socket> s, void *buf, const size_t len);
-   bool receive(boost::shared_ptr<socket> s, int& x)
+   void updatecputime(boost::shared_ptr<socket> s);
+   void receive(boost::shared_ptr<socket> s, void *buf, const size_t len);
+   void receive(boost::shared_ptr<socket> s, int& x)
       {
-      return receive(s, &x, sizeof(x));
+      receive(s, &x, sizeof(x));
       }
-   bool receive(boost::shared_ptr<socket> s, libbase::int64u& x)
+   void receive(boost::shared_ptr<socket> s, libbase::int64u& x)
       {
-      return receive(s, &x, sizeof(x));
+      receive(s, &x, sizeof(x));
       }
-   bool receive(boost::shared_ptr<socket> s, double& x)
+   void receive(boost::shared_ptr<socket> s, double& x)
       {
-      return receive(s, &x, sizeof(x));
+      receive(s, &x, sizeof(x));
       }
-   bool receive(boost::shared_ptr<socket> s, vector<double>& x);
-   bool receive(boost::shared_ptr<socket> s, std::string& x);
+   void receive(boost::shared_ptr<socket> s, vector<double>& x);
+   void receive(boost::shared_ptr<socket> s, std::string& x);
 };
 
 } // end namespace

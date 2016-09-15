@@ -26,6 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <exception>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -62,7 +63,15 @@ void masterslave::fcall(const std::string& name)
             << std::endl;
       exit(1);
       }
-   search->second->call();
+   try
+      {
+      search->second->call();
+      }
+   catch (std::runtime_error& e)
+      {
+      std::cerr << "Runtime exception: " << e.what() << std::endl;
+      exit(1);
+      }
    trace << "done." << std::endl;
    }
 
@@ -169,11 +178,7 @@ int masterslave::gettag()
    {
    walltimer tslave("masterslave_slave");
    int tag;
-   if (!receive(tag))
-      {
-      std::cerr << "Connection failed waiting for tag, dying here..." << std::endl;
-      exit(1);
-      }
+   receive(tag);
    tslave.stop();
    trace << "Slave latency = " << tslave << ": ";
    return tag;
@@ -182,11 +187,7 @@ int masterslave::gettag()
 void masterslave::sendname()
    {
    std::string hostname = gethostname();
-   if (!send(hostname))
-      {
-      std::cerr << "Connection failed sending hostname, dying here..." << std::endl;
-      exit(1);
-      }
+   send(hostname);
    trace << "send hostname [" << hostname << "]" << std::endl;
    }
 
@@ -194,11 +195,7 @@ void masterslave::sendcputime()
    {
    const double cputime = tcpu.elapsed();
    tcpu.start();
-   if (!send(cputime))
-      {
-      std::cerr << "Connection failed sending CPU time, dying here..." << std::endl;
-      exit(1);
-      }
+   send(cputime);
    cputimeused += cputime;
    trace << "send usage [" << cputime << "]" << std::endl;
    }
@@ -206,12 +203,7 @@ void masterslave::sendcputime()
 void masterslave::dowork()
    {
    std::string key;
-   if (!receive(key))
-      {
-      std::cerr << "Connection failed waiting for function reference, dying here..."
-            << std::endl;
-      exit(1);
-      }
+   receive(key);
    trace << "system working" << std::endl;
    fcall(key);
    }
@@ -226,93 +218,92 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
    // infinite loop, until we are explicitly told to die
    twall.start();
    tcpu.start();
-   while (true)
+   try
       {
-      const int tag = gettag();
-      switch (tag)
+      while (true)
          {
-         case tag_getname:
-            sendname();
-            break;
-         case tag_getcputime:
-            sendcputime();
-            break;
-         case tag_work:
-            dowork();
-            break;
-         case tag_die:
-            twall.stop();
-            tcpu.stop();
-            std::cerr << "Received die request, stopping after " << timer::format(
-                  getcputime()) << " CPU runtime (" << int(100 * getusage())
-                  << "% usage)." << std::endl;
-            close();
-            return;
-         default:
-            std::cerr << "received bad tag [" << tag << "]" << std::endl;
-            exit(1);
+         const int tag = gettag();
+         switch (tag)
+            {
+            case tag_getname:
+               sendname();
+               break;
+            case tag_getcputime:
+               sendcputime();
+               break;
+            case tag_work:
+               dowork();
+               break;
+            case tag_die:
+               twall.stop();
+               tcpu.stop();
+               std::cerr << "Received die request, stopping after "
+                     << timer::format(getcputime()) << " CPU runtime ("
+                     << int(100 * getusage()) << "% usage)." << std::endl;
+               close();
+               return;
+            default:
+               std::cerr << "received bad tag [" << tag << "]" << std::endl;
+               exit(1);
+            }
          }
+      }
+   catch (std::runtime_error& e)
+      {
+      std::cerr << "Runtime exception: " << e.what() << std::endl;
+      exit(1);
       }
    }
 
 // slave -> master communication
 
-bool masterslave::send(const void *buf, const size_t len)
+void masterslave::send(const void *buf, const size_t len)
    {
    if (!master->insistwrite(buf, len))
       {
+      std::ostringstream sstr;
+      sstr << "Write failed to [" << master->getip() << ":" << master->getport() << "]";
       close();
-      return false;
+      throw std::runtime_error(sstr.str());
       }
-   return true;
    }
 
 /*! \brief Send a vector<double> to the master
  * \note Vector size is sent first; this makes foreknowledge of size and
  * pre-initialization unnecessary.
  */
-bool masterslave::send(const vector<double>& x)
+void masterslave::send(const vector<double>& x)
    {
-   // determine and send vector size first
    const int count = x.size();
-   if (!send(count))
-      return false;
-   // send vector elements at once as an array
-   if(!send(&x(0), sizeof(double) * count))
-      return false;
-   return true;
+   send(count);
+   send(&x(0), sizeof(double) * count);
    }
 
-bool masterslave::send(const std::string& x)
+void masterslave::send(const std::string& x)
    {
    int len = int(x.length());
-   if (!send(len))
-      return false;
-   if (!send(x.c_str(), len))
-      return false;
-   return true;
+   send(len);
+   send(x.c_str(), len);
    }
 
-bool masterslave::receive(void *buf, const size_t len)
+void masterslave::receive(void *buf, const size_t len)
    {
    if (!master->insistread(buf, len))
       {
+      std::ostringstream sstr;
+      sstr << "Read failed from [" << master->getip() << ":" << master->getport() << "]";
       close();
-      return false;
+      throw std::runtime_error(sstr.str());
       }
-   return true;
    }
 
-bool masterslave::receive(std::string& x)
+void masterslave::receive(std::string& x)
    {
    int len;
-   if (!receive(len))
-      return false;
+   receive(len);
    std::vector<char> buf(len);
-   if(!receive(&buf[0], len))
-      return false;
+   receive(&buf[0], len);
    x.assign(&buf[0], len);
-   return true;
    }
 
 // non-static items (for use by master)
@@ -322,19 +313,6 @@ void masterslave::close(boost::shared_ptr<socket> s)
    std::cerr << "Slave [" << s->getip() << ":" << s->getport() << "] gone";
    smap.erase(s);
    std::cerr << ", currently have " << smap.size() << " clients" << std::endl;
-   }
-
-// creation and destruction
-
-masterslave::masterslave() :
-      initialized(false), cputimeused(0), twall("masterslave-wall", false), tcpu(
-            "masterslave-cpu", false)
-   {
-   }
-
-masterslave::~masterslave()
-   {
-   disable();
    }
 
 // disable function
@@ -358,6 +336,7 @@ void masterslave::disable()
       std::clog << "." << std::flush;
       send(s, int(tag_die));
       }
+   // TODO: wait for slaves to end gracefully or timeout
    std::clog << " done" << std::endl;
    // print timer information
    twall.stop();
@@ -501,66 +480,61 @@ void masterslave::resetslaves()
 
 // master -> slave communication
 
-bool masterslave::send(boost::shared_ptr<socket> s, const void *buf,
+void masterslave::send(boost::shared_ptr<socket> s, const void *buf,
       const size_t len)
    {
    if (!s->insistwrite(buf, len))
       {
+      std::ostringstream sstr;
+      sstr << "Write failed to [" << s->getip() << ":" << s->getport() << "]";
       close(s);
-      return false;
+      throw std::runtime_error(sstr.str());
       }
-   return true;
    }
 
 /*! \brief Accumulate CPU time for given slave
  * \param s Slave from which to get CPU time
  */
-bool masterslave::updatecputime(boost::shared_ptr<socket> s)
+void masterslave::updatecputime(boost::shared_ptr<socket> s)
    {
    double cputime;
-   if (!send(s, int(tag_getcputime)) || !receive(s, cputime))
-      return false;
+   send(s, int(tag_getcputime));
+   receive(s, cputime);
    cputimeused += cputime;
-   return true;
    }
 
-bool masterslave::receive(boost::shared_ptr<socket> s, void *buf, const size_t len)
+void masterslave::receive(boost::shared_ptr<socket> s, void *buf, const size_t len)
    {
    if (!s->insistread(buf, len))
       {
+      std::ostringstream sstr;
+      sstr << "Read failed from [" << s->getip() << ":" << s->getport() << "]";
       close(s);
-      return false;
+      throw std::runtime_error(sstr.str());
       }
-   return true;
    }
 
 /*! \brief Receive a vector<double> from given slave
  * \note Vector size is obtained first; this makes foreknowledge of size and
  * pre-initialization unnecessary.
  */
-bool masterslave::receive(boost::shared_ptr<socket> s, vector<double>& x)
+void masterslave::receive(boost::shared_ptr<socket> s, vector<double>& x)
    {
    // get vector size first
    int count;
-   if (!receive(s, count))
-      return false;
+   receive(s, count);
    // initialize vector and get vector elements
    x.init(count);
-   if (!receive(s, &x(0), sizeof(double) * count))
-      return false;
-   return true;
+   receive(s, &x(0), sizeof(double) * count);
    }
 
-bool masterslave::receive(boost::shared_ptr<socket> s, std::string& x)
+void masterslave::receive(boost::shared_ptr<socket> s, std::string& x)
    {
    int len;
-   if (!receive(s, len))
-      return false;
+   receive(s, len);
    std::vector<char> buf(len);
-   if(!receive(s, &buf[0], len))
-      return false;
+   receive(s, &buf[0], len);
    x.assign(&buf[0], len);
-   return true;
    }
 
 }
