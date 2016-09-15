@@ -62,14 +62,14 @@ class masterslave {
 private:
    // Internally-used constants (tags)
    typedef enum {
-      GETNAME = 0xFA, GETCPUTIME, WORK = 0xFE, DIE
+      tag_getname = 0xFA, tag_getcputime, tag_work = 0xFE, tag_die
    } tag_t;
 
    // communication objects
 public:
    // slave state
    typedef enum {
-      NEW = 0, EVENT_PENDING, IDLE, WORKING
+      state_new = 0, state_eventpending, state_idle, state_working
    } state_t;
    // operating mode - returned by enable()
    typedef enum {
@@ -194,7 +194,7 @@ public:
    bool send(boost::shared_ptr<socket> s, const std::string& x);
    bool call(boost::shared_ptr<socket> s, const std::string& x)
       {
-      return send(s, int(WORK)) && send(s, x);
+      return send(s, int(tag_work)) && send(s, x);
       }
    //! Reset CPU usage accumulation
    void resetcputime()

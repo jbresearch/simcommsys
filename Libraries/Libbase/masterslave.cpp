@@ -231,16 +231,16 @@ void masterslave::slaveprocess(const std::string& hostname, const int16u port,
       const int tag = gettag();
       switch (tag)
          {
-         case GETNAME:
+         case tag_getname:
             sendname();
             break;
-         case GETCPUTIME:
+         case tag_getcputime:
             sendcputime();
             break;
-         case WORK:
+         case tag_work:
             dowork();
             break;
-         case DIE:
+         case tag_die:
             twall.stop();
             tcpu.stop();
             std::cerr << "Received die request, stopping after " << timer::format(
@@ -356,7 +356,7 @@ void masterslave::disable()
       trace << "DEBUG (disable): Idle slave found (" << s << "), killing."
             << std::endl;
       std::clog << "." << std::flush;
-      send(s, int(DIE));
+      send(s, int(tag_die));
       }
    std::clog << " done" << std::endl;
    // print timer information
@@ -377,9 +377,9 @@ boost::shared_ptr<socket> masterslave::find_new_slave()
    {
    for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end(); ++i)
-      if (i->second == NEW)
+      if (i->second == state_new)
          {
-         i->second = IDLE;
+         i->second = state_idle;
          return i->first;
          }
    return boost::shared_ptr<socket>();
@@ -389,9 +389,9 @@ boost::shared_ptr<socket> masterslave::find_idle_slave()
    {
    for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end(); ++i)
-      if (i->second == IDLE)
+      if (i->second == state_idle)
          {
-         i->second = WORKING;
+         i->second = state_working;
          return i->first;
          }
    return boost::shared_ptr<socket>();
@@ -401,9 +401,9 @@ boost::shared_ptr<socket> masterslave::find_pending_slave()
    {
    for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end(); ++i)
-      if (i->second == EVENT_PENDING)
+      if (i->second == state_eventpending)
          {
-         i->second = IDLE;
+         i->second = state_idle;
          return i->first;
          }
    return boost::shared_ptr<socket>();
@@ -416,7 +416,7 @@ int masterslave::count_workingslaves() const
    int count = 0;
    for (std::map<boost::shared_ptr<socket>, state_t>::const_iterator i = smap.begin(); i
          != smap.end(); ++i)
-      if (i->second == WORKING)
+      if (i->second == state_working)
          count++;
    return count;
    }
@@ -425,7 +425,7 @@ bool masterslave::anyoneworking() const
    {
    for (std::map<boost::shared_ptr<socket>, state_t>::const_iterator i =
          smap.begin(); i != smap.end(); ++i)
-      if (i->second == WORKING)
+      if (i->second == state_working)
          return true;
    return false;
    }
@@ -467,14 +467,14 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
       if ((*i)->islistener() && acceptnew)
          {
          boost::shared_ptr<socket> newslave = (*i)->accept();
-         smap[newslave] = NEW;
+         smap[newslave] = state_new;
          std::cerr << "New slave [" << newslave->getip() << ":"
                << newslave->getport() << "], currently have " << smap.size()
                << " clients" << std::endl;
          }
       else
          {
-         smap[*i] = EVENT_PENDING;
+         smap[*i] = state_eventpending;
          }
       }
    }
@@ -486,8 +486,8 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
  */
 void masterslave::resetslave(boost::shared_ptr<socket> s)
    {
-   assertalways(smap[s] == IDLE);
-   smap[s] = NEW;
+   assertalways(smap[s] == state_idle);
+   smap[s] = state_new;
    }
 
 /*!
@@ -496,7 +496,7 @@ void masterslave::resetslave(boost::shared_ptr<socket> s)
 void masterslave::resetslaves()
    {
    while (boost::shared_ptr<socket> s = find_idle_slave())
-      smap[s] = NEW;
+      smap[s] = state_new;
    }
 
 // master -> slave communication
@@ -528,7 +528,7 @@ bool masterslave::send(boost::shared_ptr<socket> s, const std::string& x)
 bool masterslave::updatecputime(boost::shared_ptr<socket> s)
    {
    double cputime;
-   if (!send(s, int(GETCPUTIME)) || !receive(s, cputime))
+   if (!send(s, int(tag_getcputime)) || !receive(s, cputime))
       return false;
    cputimeused += cputime;
    return true;
