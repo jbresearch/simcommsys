@@ -299,6 +299,8 @@ bool socket::connect(std::string hostname, int16u port)
    }
 
 // read/write data
+// NOTE: these cannot be moved to the header or they will use the templated
+// methods before the specialized versions are defined.
 
 ssize_t socket::write(const void *buf, size_t len)
    {
