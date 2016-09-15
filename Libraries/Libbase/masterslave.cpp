@@ -512,16 +512,6 @@ bool masterslave::send(boost::shared_ptr<socket> s, const void *buf,
    return true;
    }
 
-bool masterslave::send(boost::shared_ptr<socket> s, const std::string& x)
-   {
-   int len = int(x.length());
-   if (!send(s, len))
-      return false;
-   if (!send(s, x.c_str(), len))
-      return false;
-   return true;
-   }
-
 /*! \brief Accumulate CPU time for given slave
  * \param s Slave from which to get CPU time
  */

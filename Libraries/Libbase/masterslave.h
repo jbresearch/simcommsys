@@ -103,6 +103,11 @@ public:
       {
       return getcputime() / getwalltime();
       }
+   //! Reset CPU usage accumulation
+   void resetcputime()
+      {
+      cputimeused = 0;
+      }
 
    // items for use by slaves
 private:
@@ -191,15 +196,14 @@ public:
       {
       return send(s, &x, sizeof(x));
       }
-   bool send(boost::shared_ptr<socket> s, const std::string& x);
+   bool send(boost::shared_ptr<socket> s, const std::string& x)
+      {
+      int len = int(x.length());
+      return send(s, len) && send(s, x.c_str(), len);
+      }
    bool call(boost::shared_ptr<socket> s, const std::string& x)
       {
       return send(s, int(tag_work)) && send(s, x);
-      }
-   //! Reset CPU usage accumulation
-   void resetcputime()
-      {
-      cputimeused = 0;
       }
    bool updatecputime(boost::shared_ptr<socket> s);
    bool receive(boost::shared_ptr<socket> s, void *buf, const size_t len);
