@@ -2,6 +2,7 @@
 
 import sys
 import random
+import math
 
 # random source creation (binary format)
 
