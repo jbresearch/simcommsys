@@ -117,8 +117,7 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
    {
    assert(m_pCodec);
    // get block size data
-   const int tau = m_pCodec->output_block_size();
-   const int m = m_pCodec->tail_length();
+   const int tau = m_pCodec->input_block_size();
    // set up source / encoded vectors
    vector<int> source(tau), encoded;
    // BPSK blockmodem & modulated signal
@@ -126,17 +125,15 @@ void stegosystem::EncodeData(const vector<int>& d, vector<int>& e)
    vector<sigspace> signal;
    // loop for all blocks
    int k = 0;
-   for (int j = 0; j < d.size(); j += (tau - m))
+   for (int j = 0; j < d.size(); j += tau)
       {
       // keep user happy
       DisplayProgress(j, d.size(), 3, 5);
       // temporary variable
       int i;
       // build source block
-      for (i = 0; i < tau - m; i++)
+      for (i = 0; i < tau; i++)
          source(i) = d(j + i);
-      for (i = tau - m; i < tau; i++)
-         source(i) = fsm::tail;
       // encode
       m_pCodec->encode(source, encoded);
       // modulate
@@ -157,8 +154,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate,
    // initialize data vector
    d.init(GetDataSize(dInterleaverDensity, nEmbedRate));
    // get block size data
-   const int tau = m_pCodec->output_block_size();
-   const int m = m_pCodec->tail_length();
+   const int tau = m_pCodec->input_block_size();
    // set up signal, decoded vectors and probability matrix
    vector<sigspace> signal(GetOutputSize());
    libbase::trace << "Signal space block size = " << signal.size() << std::endl;
@@ -172,7 +168,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate,
    chan.set_parameter(dSNR);
    // loop for all blocks
    int k = 0;
-   for (int j = 0; j < d.size(); j += (tau - m))
+   for (int j = 0; j < d.size(); j += tau)
       {
       // keep user happy
       DisplayProgress(j, d.size(), 4, 5);
@@ -188,7 +184,7 @@ void stegosystem::DecodeData(double dInterleaverDensity, int nEmbedRate,
       for (i = 0; i < m_pCodec->num_iter(); i++)
          m_pCodec->decode(decoded);
       // write into output stream
-      for (i = 0; i < tau - m; i++)
+      for (i = 0; i < tau; i++)
          d(j + i) = decoded(i);
       }
    }

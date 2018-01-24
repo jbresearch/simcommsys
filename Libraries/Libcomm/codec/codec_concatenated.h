@@ -131,12 +131,6 @@ public:
       // Output size is same as that for last codec
       return codec_list.back()->num_outputs();
       }
-   int tail_length() const
-      {
-      test_invariant();
-      // Tail length is same as that for first codec
-      return codec_list.front()->tail_length();
-      }
    int num_iter() const
       {
       return 1; // TODO: implement iterative decoding for sequence

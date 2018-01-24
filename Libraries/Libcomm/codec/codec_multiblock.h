@@ -123,12 +123,6 @@ public:
       // Output size is same as that for codec
       return cdc->num_outputs();
       }
-   int tail_length() const
-      {
-      test_invariant();
-      // Tail length is a multple of that for codec
-      return cdc->tail_length() * N;
-      }
    int num_iter() const
       {
       return 1;

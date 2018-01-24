@@ -40,8 +40,6 @@ namespace libcomm {
  *
  * \todo Original model assumed one symbol per timestep; this is no longer the
  * case. Confirm there are no lingering assumptions of this.
- *
- * \todo Remove tail_length() as tailing should be handled internally
  */
 
 template <template <class > class C = libbase::vector, class dbl = double>
@@ -124,8 +122,6 @@ public:
    virtual int num_inputs() const = 0;
    //! Output alphabet size (number of valid symbols)
    virtual int num_outputs() const = 0;
-   //! Length of tail in timesteps
-   virtual int tail_length() const = 0;
    //! Number of iterations per decoding cycle
    virtual int num_iter() const = 0;
    // @}
