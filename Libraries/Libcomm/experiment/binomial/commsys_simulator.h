@@ -71,7 +71,7 @@ protected:
 
 protected:
    /*! \name Internal functions */
-   array1i_t createsource();
+   array1i_t createsource(int tau);
    // @}
    // System Interface for Results
    int get_symbolsperframe() const

@@ -55,10 +55,9 @@ namespace libcomm {
  * tail sequence if required by the given codec.
  */
 template <class S, class R>
-libbase::vector<int> commsys_simulator<S, R>::createsource()
+libbase::vector<int> commsys_simulator<S, R>::createsource(int tau)
    {
-   // determine size and allocate space
-   const int tau = sys->input_block_size();
+   // allocate space
    libbase::vector<int> source(tau);
    // fill as required
    switch (input_mode)
@@ -113,7 +112,7 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
 
    // Create source stream
-   libbase::vector<int> source = createsource();
+   libbase::vector<int> source = createsource(sys->input_block_size());
    // Encode -> Map -> Modulate
    libbase::vector<S> transmitted = sys->encode_path(source);
    // Transmit
