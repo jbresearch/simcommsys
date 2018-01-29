@@ -78,6 +78,11 @@ protected:
    void resetpriors();
    void setpriors(const array1vd_t& ptable);
    void setreceiver(const array1vd_t& ptable);
+   int tail_length() const
+      {
+      assertalways(encoder);
+      return endatzero ? encoder->mem_order() : 0;
+      }
    // Interface with derived classes
    void do_encode(const array1i_t& source, array1i_t& encoded);
    void do_init_decoder(const array1vd_t& ptable)
@@ -147,7 +152,7 @@ public:
    libbase::size_type<libbase::vector> input_block_size() const
       {
       assertalways(encoder);
-      const int nu = This::tail_length();
+      const int nu = tail_length();
       const int k = encoder->num_inputs();
       const int result = (tau - nu) * k;
       return libbase::size_type<libbase::vector>(result);
@@ -168,11 +173,6 @@ public:
       {
       assertalways(encoder);
       return encoder->num_symbols();
-      }
-   int tail_length() const
-      {
-      assertalways(encoder);
-      return endatzero ? encoder->mem_order() : 0;
       }
    int num_iter() const
       {

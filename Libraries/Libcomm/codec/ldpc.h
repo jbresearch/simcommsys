@@ -181,12 +181,6 @@ public:
       return GF_q::elements();
       }
 
-   //! Length of tail in timesteps
-   int tail_length() const
-      {
-      //we don't have a tail.
-      return 0;
-      }
    //! Number of iterations per decoding cycle
    int num_iter() const
       {

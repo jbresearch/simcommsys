@@ -89,7 +89,7 @@ protected:
       // Inherit sizes
       const int Nr = rep.output_block_size();
       const int k = acc->num_inputs();
-      const int nu = tail_length();
+      const int nu = endatzero ? acc->mem_order() : 0;
       return Nr / k + nu;
       }
    // @}
@@ -159,10 +159,6 @@ public:
    int num_outputs() const
       {
       return acc->num_symbols();
-      }
-   int tail_length() const
-      {
-      return endatzero ? acc->mem_order() : 0;
       }
    int num_iter() const
       {

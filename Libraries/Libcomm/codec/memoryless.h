@@ -139,10 +139,6 @@ public:
       {
       return encoder->num_symbols();
       }
-   int tail_length() const
-      {
-      return 0;
-      }
    int num_iter() const
       {
       return 1;

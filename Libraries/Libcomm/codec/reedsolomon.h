@@ -147,12 +147,6 @@ public:
       return GF_q::elements();
       }
 
-   //! Length of tail in timesteps, not required for linear block codes
-   int tail_length() const
-      {
-      //no tail
-      return 0;
-      }
    //! Number of iterations per decoding cycle, will need to be at least 1.
    int num_iter() const
       {

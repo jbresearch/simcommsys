@@ -235,7 +235,8 @@ public:
    libbase::size_type<libbase::vector> input_block_size() const
       {
       const int tau = num_timesteps();
-      const int nu = This::tail_length();
+      assert(encoder);
+      const int nu = endatzero ? encoder->mem_order() : 0;
       const int k = enc_inputs();
       return libbase::size_type<libbase::vector>(k * (tau - nu));
       }
@@ -254,11 +255,6 @@ public:
    int num_outputs() const
       {
       return enc_symbols();
-      }
-   int tail_length() const
-      {
-      assert(encoder);
-      return endatzero ? encoder->mem_order() : 0;
       }
    int num_iter() const
       {

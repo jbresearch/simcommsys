@@ -115,10 +115,6 @@ public:
       {
       return base.num_outputs();
       }
-   int tail_length() const
-      {
-      return base.tail_length();
-      }
    int num_iter() const
       {
       return base.num_iter();

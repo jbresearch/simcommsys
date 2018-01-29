@@ -176,7 +176,7 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri)
    BCJR::fdecode(R, app, rif_bcjr);
    // Convert the message statistics from the BCJR Algorithm
       {
-      const int nu = This::tail_length();
+      const int nu = tail_length();
       const int q = encoder->num_input_combinations(); // codec output alphabet
       const int M = encoder->num_symbols(); // blockmodem input alphabet
       // Copy to a temporary space, excluding any tail bits
@@ -204,7 +204,7 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    BCJR::decode(R, app, rif_bcjr, rof_bcjr);
    // Convert the message statistics from the BCJR Algorithm
       {
-      const int nu = This::tail_length();
+      const int nu = tail_length();
       const int q = encoder->num_input_combinations(); // codec output alphabet
       const int M = encoder->num_symbols(); // blockmodem input alphabet
       // Copy to a temporary space, excluding any tail bits
