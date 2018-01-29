@@ -117,20 +117,17 @@ public:
     * modulation symbols
     * \param[in]  tx       Set of possible transmitted symbols
     * \param[in]  rx       Received sequence of modulation symbols
-    * \param[out] ptable   Likelihoods corresponding to each possible
-    * transmitted symbol
+    * \param[out] ptable   Sequence of probability tables, one for each
+    * received symbol, giving prob of each possible transmitted symbol
     *
     * Default implementation is suitable for substitution channels, and
     * performs channel-specific operation through the pdf() override.
     *
-    * \note For substitution channels, this method is only suitable when the
-    * modulation scheme is time-invariant
+    * \note Only suitable when the modulation scheme is time-invariant
     *
-    * \note Suitable for non-substitution channels, only when it is assumed
-    * that 'rx' corresponds to a single transmitted symbol
+    * \note Not suitable for non-substitution channels
     *
-    * \warning Note that 'rx' assumes different meanings for substitution and
-    * non-substitution channels
+    * \note Used by direct_blockmodem, lut_modulator
     */
    virtual void receive(const array1s_t& tx, const C<S>& rx,
          C<array1d_t>& ptable) const = 0;
@@ -145,10 +142,11 @@ public:
     * Default implementation is suitable for substitution channels, and
     * performs channel-specific operation through the pdf() override.
     *
-    * \note For substitution channels, this method is suitable for time-variant
-    * modulation schemes
+    * \note Suitable for time-variant modulation schemes
     *
     * \note Not suitable for non-substitution channels
+    *
+    * \note Used by direct_blockembedder, ssis
     */
    virtual void receive(const C<array1s_t>& tx, const C<S>& rx,
          C<array1d_t>& ptable) const = 0;
@@ -161,6 +159,8 @@ public:
     *
     * \note Suitable for non-substitution channels, where length of 'tx' and
     * 'rx' are not necessarily the same
+    *
+    * \note Used by dminner
     */
    virtual double receive(const C<S>& tx, const C<S>& rx) const = 0;
    /*!
