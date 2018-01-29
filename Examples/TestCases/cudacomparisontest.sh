@@ -14,5 +14,5 @@ defaultbuild=`make --no-print-directory -C ../.. showbuildid`
 
 for build in "$plainbuild" "$defaultbuild"; do
    echo "Running test for build $build"
-   showerrorevent.$build.debug -p $par -s $seed -i $file >$build.log 2>&1
+   showerrorevent.$build.debug -r $par -s $seed -i $file >$build.log 2>&1
 done
