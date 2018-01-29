@@ -2,7 +2,7 @@
 
 # build id
 if [[ $# < 1 ]]; then
-   build=`make --no-print-directory -C ../.. plain-buildid`
+   build=`make --no-print-directory -C ../.. plain-showbuildid`
 else
    build="$1"
 fi
