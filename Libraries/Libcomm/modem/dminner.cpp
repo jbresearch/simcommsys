@@ -249,8 +249,9 @@ void dminner<real>::work_results(const array1b_t& r, array1vr_t& ptable,
             for (int x2 = x2min; x2 <= x2max; x2++)
                {
                // compute the conditional probability
-               const real R = real(mychan.receive(t, r.extract(n * i + x1, x2
-                     - x1 + n)));
+               const real R = real(
+                     mychan.get_computer().receive(t,
+                           r.extract(n * i + x1, x2 - x1 + n)));
                const real B = FBA::getB(n * (i + 1), x2);
                // include the probability for this particular sequence
                p += F * R * B;
@@ -344,7 +345,7 @@ real dminner<real>::R(const int i, const array1b_t& r)
    const int bit = i % n;
    bool t = ((marker(word) >> bit) & 1);
    // compute the conditional probability
-   return real(mychan.receive(t, r));
+   return real(mychan.get_computer().receive(t, r));
    }
 
 // block advance operation - update marker sequence

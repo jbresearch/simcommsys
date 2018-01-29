@@ -66,6 +66,10 @@ public:
       /*! \name Host methods */
       //! Determine the amount of shared memory required per thread
       virtual size_t receiver_sharedmem() const = 0;
+      //! Receiver interface - given transmitted symbol
+      virtual real receive(const S& tx, const array1s_t& rx) const = 0;
+      //! Receiver interface - given transmitted sequence
+      virtual real receive(const array1s_t& tx, const array1s_t& rx) const = 0;
       //! Batch receiver interface - indefinite state space
       virtual void receive(const array1s_t& tx, const array1s_t& rx,
             array1r_t& ptable) const = 0;

@@ -443,7 +443,7 @@ public:
                return 0;
             }
          }
-      //! Receiver interface
+      //! Receiver interface - given transmitted symbol
       real receive(const G& tx, const array1g_t& rx) const
          {
          // Compute sizes
@@ -463,7 +463,7 @@ public:
          // If this was a deletion, it's a fixed value
          return Rval;
          }
-      //! Receiver interface
+      //! Receiver interface - given transmitted sequence
       real receive(const array1g_t& tx, const array1g_t& rx) const
          {
          // Compute sizes
@@ -719,48 +719,13 @@ public:
 
    // Channel functions
    void transmit(const array1g_t& tx, array1g_t& rx);
-   //! \note Used by qids::receive(tx, rx, ptable)
-   double receive(const G& tx, const array1g_t& rx) const
-      {
-#if DEBUG>=2
-      libbase::trace << "DEBUG (qids): Computing RecvPr for" << std::endl;
-      libbase::trace << "tx = " << tx;
-      libbase::trace << "rx = " << rx;
-#endif
-      const real result = computer.receive(tx, rx);
-#if DEBUG>=2
-      libbase::trace << "RecvPr = " << result << std::endl;
-#endif
-      return result;
-      }
    /*! \note Used by: direct_blockembedder, ssis, direct_blockmodem,
     * lut_modulator
     */
    void receive(const array1g_t& tx, const array1g_t& rx,
          array1vd_t& ptable) const
       {
-      // Compute sizes
-      const int M = tx.size();
-      // Initialize results vector
-      ptable.init(1);
-      ptable(0).init(M);
-      // Compute results for each possible signal
-      for (int x = 0; x < M; x++)
-         ptable(0)(x) = qids<G, real>::receive(tx(x), rx);
-      }
-   //! \note Used by dminner
-   double receive(const array1g_t& tx, const array1g_t& rx) const
-      {
-#if DEBUG>=2
-      libbase::trace << "DEBUG (qids): Computing RecvPr for" << std::endl;
-      libbase::trace << "tx = " << tx;
-      libbase::trace << "rx = " << rx;
-#endif
-      const real result = computer.receive(tx, rx);
-#if DEBUG>=2
-      libbase::trace << "RecvPr = " << result << std::endl;
-#endif
-      return result;
+      failwith("Method not defined.");
       }
 
    // Interface for CUDA

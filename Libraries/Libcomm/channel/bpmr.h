@@ -138,6 +138,18 @@ public:
          {
          return 3 * (T + Zmax + 1) * sizeof(real);
          }
+      //! Receiver interface - given transmitted symbol
+      real receive(const bool& tx, const array1b_t& rx) const
+         {
+         failwith("Method not supported.");
+         return 0;
+         }
+      //! Receiver interface - given transmitted sequence
+      real receive(const array1b_t& tx, const array1b_t& rx) const
+         {
+         failwith("Method not supported.");
+         return 0;
+         }
       //! Batch receiver interface - indefinite state space
       void receive(const array1b_t& tx, const array1b_t& rx,
             array1r_t& ptable) const
@@ -313,24 +325,12 @@ public:
    // Channel functions
    void transmit(const array1b_t& tx, array1b_t& rx);
    using channel<bool>::receive;
-   //! \note Used by bpmr::receive(tx, rx, ptable)
-   double receive(const bool& tx, const array1b_t& rx) const
-      {
-      failwith("Method not defined.");
-      return 0;
-      }
    /*! \note Used by: direct_blockembedder, ssis, direct_blockmodem,
     * lut_modulator
     */
    void receive(const array1b_t& tx, const array1b_t& rx, array1vd_t& ptable) const
       {
       failwith("Method not defined.");
-      }
-   //! \note Used by dminner
-   double receive(const array1b_t& tx, const array1b_t& rx) const
-      {
-      failwith("Method not defined.");
-      return 0;
       }
 
    // Access to receiver metric computation object

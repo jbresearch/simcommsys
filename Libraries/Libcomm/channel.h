@@ -150,30 +150,6 @@ public:
     */
    virtual void receive(const C<array1s_t>& tx, const C<S>& rx,
          C<array1d_t>& ptable) const = 0;
-   /*!
-    * \brief Determine the likelihood of a sequence of received modulation
-    * symbols, given a particular transmitted sequence
-    * \param[in]  tx       Transmitted sequence being considered
-    * \param[in]  rx       Received sequence of modulation symbols
-    * \return              Likelihood \f$ P(rx|tx) \f$
-    *
-    * \note Suitable for non-substitution channels, where length of 'tx' and
-    * 'rx' are not necessarily the same
-    *
-    * \note Used by dminner
-    */
-   virtual double receive(const C<S>& tx, const C<S>& rx) const = 0;
-   /*!
-    * \brief Determine the likelihood of a sequence of received modulation
-    * symbols, given a particular transmitted symbol
-    * \param[in]  tx       Transmitted symbol being considered
-    * \param[in]  rx       Received sequence of modulation symbols
-    * \return              Likelihood \f$ P(rx|tx) \f$
-    *
-    * \note Suitable for non-substitution channels, where length of 'rx' is
-    * not necessarily equal to 1
-    */
-   virtual double receive(const S& tx, const C<S>& rx) const = 0;
    // @}
 
    /*! \name Description */
@@ -217,8 +193,6 @@ public:
    receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
    void
    receive(const array1vs_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
-   double receive(const array1s_t& tx, const array1s_t& rx) const;
-   double receive(const S& tx, const array1s_t& rx) const;
 };
 
 // channel functions
@@ -267,31 +241,6 @@ void basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
       for (int x = 0; x < M; x++)
          ptable(t)(x) = this->pdf(tx(t)(x), rx(t));
       }
-   }
-
-template <class S>
-double basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
-      const array1s_t& rx) const
-   {
-   // Compute sizes
-   const int tau = rx.size();
-   // This implementation only works for substitution channels
-   assert(tx.size() == tau);
-   // Work out the combined probability of the sequence
-   double p = 1;
-   for (int t = 0; t < tau; t++)
-      p *= this->pdf(tx(t), rx(t));
-   return p;
-   }
-
-template <class S>
-double basic_channel<S, libbase::vector>::receive(const S& tx,
-      const array1s_t& rx) const
-   {
-   // This implementation only works for substitution channels
-   assert(rx.size() == 1);
-   // Work out the probability of receiving the particular symbol
-   return this->pdf(tx, rx(0));
    }
 
 /*!
@@ -350,25 +299,6 @@ public:
             for (int x = 0; x < M; x++)
                ptable(i, j)(x) = this->pdf(tx(i, j)(x), rx(i, j));
             }
-      }
-   double receive(const array2s_t& tx, const array2s_t& rx) const
-      {
-      // This implementation only works for substitution channels
-      assert(tx.size().rows() == rx.size().rows());
-      assert(tx.size().cols() == rx.size().cols());
-      // Work out the combined probability of the sequence
-      double p = 1;
-      for (int i = 0; i < rx.size().rows(); i++)
-         for (int j = 0; j < rx.size().cols(); j++)
-            p *= this->pdf(tx(i, j), rx(i, j));
-      return p;
-      }
-   double receive(const S& tx, const array2s_t& rx) const
-      {
-      // This implementation only works for substitution channels
-      assert(rx.size() == 1);
-      // Work out the probability of receiving the particular symbol
-      return this->pdf(tx, rx(0, 0));
       }
 };
 
