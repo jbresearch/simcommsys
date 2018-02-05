@@ -113,34 +113,43 @@ private:
    void work_results(array2d_t& ri, array2d_t& ro);
    void work_results(array2d_t& ri);
    // @}
-protected:
-   // normalization function for derived classes
-   static void normalize(array2d_t& r);
-   // main initialization routine - constructor essentially just calls this
-   void init(fsm& encoder, const int tau);
-   // get start- and end-state probabilities
-   array1d_t getstart() const;
-   array1d_t getend() const;
-   // set start- and end-state probabilities - equiprobable
-   void setstart();
-   void setend();
-   // set start- and end-state probabilities - known state
-   void setstart(int state);
-   void setend(int state);
-   // set start- and end-state probabilities - direct
-   void setstart(const array1d_t& p);
-   void setend(const array1d_t& p);
-   // default constructor
-   bcjr()
-      {
-      initialised = false;
-      }
 public:
    /*! \name Constructor & destructor */
+   // default constructor
+   bcjr() :
+         initialised(false)
+      {
+      }
+   // main constructor
    bcjr(fsm& encoder, const int tau)
       {
       init(encoder, tau);
       }
+
+   /*! \name Utilities */
+   //! Normalization function
+   static void normalize(array2d_t& r);
+   //! Main initialization routine - constructor essentially just calls this
+   void init(fsm& encoder, const int tau);
+   // @}
+
+   /*! \name Start and end state probabilities */
+   //! Get start-state probabilities
+   array1d_t getstart() const;
+   //! Get end-state probabilities
+   array1d_t getend() const;
+   //! Set start-state probabilities - equiprobable
+   void setstart();
+   //! Set end-state probabilities - equiprobable
+   void setend();
+   //! Set start-state probabilities - known state
+   void setstart(int state);
+   //! Set end-state probabilities - known state
+   void setend(int state);
+   //! Set start-state probabilities - direct
+   void setstart(const array1d_t& p);
+   //! Set end-state probabilities - direct
+   void setend(const array1d_t& p);
    // @}
 
    /*! \name Decode functions */

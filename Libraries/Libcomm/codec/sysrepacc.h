@@ -41,7 +41,6 @@ private:
    // Shorthand for class hierarchy
    typedef sysrepacc<real, dbl> This;
    typedef repacc<real, dbl> Base;
-   typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;

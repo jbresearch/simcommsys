@@ -32,7 +32,7 @@ template <class real, class dbl>
 void mapcc<real, dbl>::init()
    {
    assertalways(encoder);
-   BCJR::init(*encoder, tau);
+   BCJR.init(*encoder, tau);
    assertalways(!circular || !endatzero);
    }
 
@@ -41,18 +41,18 @@ void mapcc<real, dbl>::reset()
    {
    if (circular)
       {
-      BCJR::setstart();
-      BCJR::setend();
+      BCJR.setstart();
+      BCJR.setend();
       }
    else if (endatzero)
       {
-      BCJR::setstart(0);
-      BCJR::setend(0);
+      BCJR.setstart(0);
+      BCJR.setend(0);
       }
    else
       {
-      BCJR::setstart(0);
-      BCJR::setend();
+      BCJR.setstart(0);
+      BCJR.setend();
       }
    }
 
@@ -62,7 +62,7 @@ template <class real, class dbl>
 void mapcc<real, dbl>::resetpriors()
    {
    // Initialize input probability vector
-   app.init(BCJR::block_size(), BCJR::num_input_symbols());
+   app.init(BCJR.block_size(), BCJR.num_input_symbols());
    app = 1.0;
    }
 
@@ -86,8 +86,8 @@ void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
    array1vd_t ptable_bcjr;
    map.inverse(ptable, ptable_bcjr);
    // Initialize input probability vector
-   assertalways(BCJR::block_size() == tau);
-   assertalways(BCJR::num_input_symbols() == q);
+   assertalways(BCJR.block_size() == tau);
+   assertalways(BCJR.num_input_symbols() == q);
    app.init(tau, q);
    // Copy the input statistics for the BCJR Algorithm
    for (int t = 0; t < app.size().rows(); t++)
@@ -115,8 +115,8 @@ void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
    array1vd_t ptable_bcjr;
    map.inverse(ptable, ptable_bcjr);
    // Initialize input probability vector
-   assertalways(BCJR::block_size() == tau);
-   assertalways(BCJR::num_output_symbols() == q);
+   assertalways(BCJR.block_size() == tau);
+   assertalways(BCJR.num_output_symbols() == q);
    R.init(tau, q);
    // Copy the input statistics for the BCJR Algorithm
    for (int t = 0; t < R.size().rows(); t++)
@@ -173,7 +173,7 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri)
    // temporary space to hold complete results (ie. with tail)
    array2d_t rif_bcjr;
    // perform decoding
-   BCJR::fdecode(R, app, rif_bcjr);
+   BCJR.fdecode(R, app, rif_bcjr);
    // Convert the message statistics from the BCJR Algorithm
       {
       const int nu = tail_length();
@@ -201,7 +201,7 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
    // temporary space to hold complete results (ie. with tail)
    array2d_t rif_bcjr, rof_bcjr;
    // perform decoding
-   BCJR::decode(R, app, rif_bcjr, rof_bcjr);
+   BCJR.decode(R, app, rif_bcjr, rof_bcjr);
    // Convert the message statistics from the BCJR Algorithm
       {
       const int nu = tail_length();

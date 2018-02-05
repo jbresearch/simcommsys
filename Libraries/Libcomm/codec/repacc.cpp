@@ -48,7 +48,7 @@ void repacc<real, dbl>::init()
    assertalways(This::input_block_size() > 0);
    assertalways(rep.num_inputs() == This::num_inputs());
    // initialize BCJR subsystem for accumulator
-   BCJR::init(*acc, This::acc_timesteps());
+   BCJR.init(*acc, This::acc_timesteps());
    // check interleaver size
    assertalways(inter->size() == This::acc_timesteps());
    assertalways(iter > 0);
@@ -63,13 +63,13 @@ void repacc<real, dbl>::reset()
    {
    if (endatzero)
       {
-      BCJR::setstart(0);
-      BCJR::setend(0);
+      BCJR.setstart(0);
+      BCJR.setend(0);
       }
    else
       {
-      BCJR::setstart(0);
-      BCJR::setend();
+      BCJR.setstart(0);
+      BCJR.setend();
       }
    }
 
@@ -159,7 +159,7 @@ void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
       for (int x = 0; x < N; x++)
          for (int i = 0, thisx = x / K; i < p; i++, thisx /= S)
             R(t, x) *= dbl(ptable(t * p + i)(thisx % S));
-   BCJR::normalize(R);
+   BCJR.normalize(R);
 
    // Reset start- and end-state probabilities
    reset();
@@ -237,13 +237,13 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
    // interleaved versions of ra/ri
    array2d_t rif, rai, rii;
    inter->transform(ra, rai);
-   BCJR::fdecode(R, rai, rii);
+   BCJR.fdecode(R, rai, rii);
    inter->inverse(rii, rif);
    // compute extrinsic information
    rif.mask(ra > 0).divideby(ra);
    ra = rif;
    // normalize and clip extrinsic information
-   BCJR::normalize(ra);
+   BCJR.normalize(ra);
    ra.mask(ra < limitlo) = limitlo;
 
    // allocate space for interim results
@@ -290,7 +290,7 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
             ra(i, x) = ro(i)(x);
 
    // normalize and clip extrinsic information
-   BCJR::normalize(ra);
+   BCJR.normalize(ra);
    ra.mask(ra < limitlo) = limitlo;
    }
 

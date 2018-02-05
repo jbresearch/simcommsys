@@ -46,12 +46,10 @@ namespace libcomm {
  */
 
 template <class real, class dbl = double>
-class repacc : public codec_softout<libbase::vector, dbl> ,
-      protected safe_bcjr<real, dbl> {
+class repacc : public codec_softout<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef repacc<real, dbl> This;
-   typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -72,6 +70,7 @@ private:
    // @}
 protected:
    /*! \name Internal object representation */
+   safe_bcjr<real, dbl> BCJR; //!< BCJR algorithm implementation
    bool initialised; //!< Flag to indicate when memory is initialised
    array1vd_t rp; //!< Intrinsic source statistics (natural)
    array2d_t ra; //!< Extrinsic accumulator-input statistics (natural)

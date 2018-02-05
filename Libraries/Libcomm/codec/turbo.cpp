@@ -46,7 +46,7 @@ void turbo<real, dbl>::init()
    assertalways(encoder);
    const int tau = num_timesteps();
    assertalways(tau > 0);
-   BCJR::init(*encoder, tau);
+   BCJR.init(*encoder, tau);
 
    assertalways(!endatzero || !circular);
    assertalways(iter > 0);
@@ -66,13 +66,13 @@ void turbo<real, dbl>::reset()
       }
    else if (endatzero)
       {
-      BCJR::setstart(0);
-      BCJR::setend(0);
+      BCJR.setstart(0);
+      BCJR.setend(0);
       }
    else
       {
-      BCJR::setstart(0);
-      BCJR::setend();
+      BCJR.setstart(0);
+      BCJR.setend();
       }
    }
 
@@ -185,16 +185,16 @@ void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
    array2d_t rai, rii;
    if (circular)
       {
-      BCJR::setstart(ss(set));
-      BCJR::setend(se(set));
+      BCJR.setstart(ss(set));
+      BCJR.setend(se(set));
       }
    inter(set)->transform(ra, rai);
-   BCJR::fdecode(R(set), rai, rii);
+   BCJR.fdecode(R(set), rai, rii);
    inter(set)->inverse(rii, ri);
    if (circular)
       {
-      ss(set) = BCJR::getstart();
-      se(set) = BCJR::getend();
+      ss(set) = BCJR.getstart();
+      se(set) = BCJR.getend();
       }
    work_extrinsic(ra, ri, rp, re);
    }
@@ -212,9 +212,9 @@ void turbo<real, dbl>::decode_serial(array2d_t& ri)
    for (int set = 0; set < num_sets(); set++)
       {
       bcjr_wrap(set, ra(0), ri, ra(0));
-      BCJR::normalize(ra(0));
+      BCJR.normalize(ra(0));
       }
-   BCJR::normalize(ri);
+   BCJR.normalize(ri);
    }
 
 /*! \brief Perform a complete parallel-decoding cycle
@@ -249,8 +249,8 @@ void turbo<real, dbl>::decode_parallel(array2d_t& ri)
    ri.multiplyby(rp);
    // normalize results
    for (int set = 0; set < num_sets(); set++)
-      BCJR::normalize(ra(set));
-   BCJR::normalize(ri);
+      BCJR.normalize(ra(set));
+   BCJR.normalize(ri);
    }
 
 /*! \copydoc codec_softout::setreceiver()
@@ -312,7 +312,7 @@ void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
       ra(set) = 1.0;
 
    // Normalize a priori probabilities (intrinsic - source)
-   BCJR::normalize(rp);
+   BCJR.normalize(rp);
 
    // Compute and normalize a priori probabilities (intrinsic - encoded)
    array2d_t rpi;
@@ -322,7 +322,7 @@ void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
       for (int t = 0; t < tau; t++)
          for (int x = 0; x < N; x++)
             R(set)(t, x) = rpi(t, x % K) * ptemp(set, t, x / K);
-      BCJR::normalize(R(set));
+      BCJR.normalize(R(set));
       }
 
    // Reset start- and end-state probabilities

@@ -42,13 +42,11 @@ namespace libcomm {
  */
 
 template <class real, class dbl = double>
-class mapcc : public codec_softout<libbase::vector, dbl> , private safe_bcjr<
-      real, dbl> {
+class mapcc : public codec_softout<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef mapcc<real, dbl> This;
    typedef codec_softout<libbase::vector, dbl> Base;
-   typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -65,6 +63,7 @@ private:
    bool circular; //!< True for circular trellis
    // @}
    /*! \name Internal object representation */
+   safe_bcjr<real, dbl> BCJR; //!< BCJR algorithm implementation
    double rate;
    array2d_t R; //!< BCJR a-priori receiver statistics
    array2d_t app; //!< BCJR a-priori input statistics

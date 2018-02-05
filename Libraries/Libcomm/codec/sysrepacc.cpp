@@ -75,7 +75,6 @@ void sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable)
    for (int i = 0; i < Ns; i++)
       for (int x = 0; x < q; x++) // 'x' is the input symbol
          rp(i)(x) *= dbl(iptable(i)(x));
-   //    BCJR::normalize(rp);
    }
 
 template <class real, class dbl>
@@ -103,7 +102,6 @@ void sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable,
    for (int i = 0; i < Ns; i++)
       for (int x = 0; x < q; x++) // 'x' is the input symbol
          rp(i)(x) *= iptable(i)(x);
-   //    BCJR::normalize(rp);
    }
 
 // description output

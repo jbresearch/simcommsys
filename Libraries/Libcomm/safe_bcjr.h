@@ -34,13 +34,12 @@ namespace libcomm {
 
 template <class real, class dbl = double>
 class safe_bcjr : public bcjr<real, dbl> {
-protected:
+public:
    // default constructor
    safe_bcjr() :
       bcjr<real, dbl> ()
       {
       }
-public:
    // constructor & destructor
    safe_bcjr(fsm& encoder, const int tau) :
       bcjr<real, dbl> (encoder, tau)
@@ -56,13 +55,12 @@ public:
 
 template <>
 class safe_bcjr<double, double> : public bcjr<double, double, true> {
-protected:
+public:
    // default constructor
    safe_bcjr() :
       bcjr<double, double, true> ()
       {
       }
-public:
    // constructor & destructor
    safe_bcjr(fsm& encoder, const int tau) :
       bcjr<double, double, true> (encoder, tau)
@@ -78,13 +76,12 @@ public:
 
 template <>
 class safe_bcjr<float, float> : public bcjr<float, float, true> {
-protected:
+public:
    // default constructor
    safe_bcjr() :
       bcjr<float, float, true> ()
       {
       }
-public:
    // constructor & destructor
    safe_bcjr(fsm& encoder, const int tau) :
       bcjr<float, float, true> (encoder, tau)
@@ -101,13 +98,12 @@ public:
 
 template <>
 class safe_bcjr<float, double> : public bcjr<float, double, true> {
-protected:
+public:
    // default constructor
    safe_bcjr() :
       bcjr<float, double, true> ()
       {
       }
-public:
    // constructor & destructor
    safe_bcjr(fsm& encoder, const int tau) :
       bcjr<float, double, true> (encoder, tau)

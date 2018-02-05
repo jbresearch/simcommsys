@@ -83,13 +83,11 @@ namespace libcomm {
  */
 
 template <class real, class dbl>
-class turbo : public codec_softout<libbase::vector, dbl> , private safe_bcjr<
-      real, dbl> {
+class turbo : public codec_softout<libbase::vector, dbl> {
 private:
    // Shorthand for class hierarchy
    typedef turbo<real, dbl> This;
    typedef codec_softout<libbase::vector, dbl> Base;
-   typedef safe_bcjr<real, dbl> BCJR;
 public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
@@ -109,6 +107,7 @@ private:
    bool circular; //!< Flag to indicate trellis tailbiting
    // @}
    /*! \name Internal object representation */
+   safe_bcjr<real, dbl> BCJR; //!< BCJR algorithm implementation
    bool initialised; //!< Flag to indicate when memory is initialised
    array2d_t rp; //!< A priori intrinsic source statistics (natural)
    libbase::vector<array2d_t> R; //!< A priori intrinsic encoder-output statistics (interleaved)
