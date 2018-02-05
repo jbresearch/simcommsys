@@ -142,7 +142,7 @@ void commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& resul
    // If it's the last frame in a terminated stream, set eof prior accordingly.
    if (stream_mode == stream_mode_terminated && frames_decoded == N - 1)
       {
-      // determine the actual drift at the end of the frame to be decoder
+      // determine the actual drift at the end of the frame to be decoded
       const int drift = actual_drift.front() - drift_error;
       // set eof prior to fix end of frame position
       // if this is not within the range that can be expressed, use closest
@@ -166,7 +166,7 @@ void commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& resul
          eof_prior(drift + offset) = 1;
          }
       }
-   // Shorthand for curent segment in received sequences
+   // Shorthand for current segment in received sequences
    const array1s_t& received_segment = received.extract(0, length);
 
    // Initialise result vector

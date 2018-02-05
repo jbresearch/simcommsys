@@ -40,7 +40,7 @@ void errors_hamming::updateresults(libbase::vector<double>& result,
    {
    // Count errors
    int symerrors = libbase::hamming(source, decoded);
-   // Estimate the BER, SER, FER
+   // Estimate the SER, FER
    result(0) += symerrors;
    result(1) += symerrors ? 1 : 0;
    }
