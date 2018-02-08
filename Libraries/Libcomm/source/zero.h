@@ -19,8 +19,8 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __all_zero_h
-#define __all_zero_h
+#ifndef __source_zero_h
+#define __source_zero_h
 
 #include "config.h"
 #include "source.h"
@@ -36,7 +36,7 @@ namespace libcomm {
  */
 
 template <class S, template <class > class C = libbase::vector>
-class all_zero : public source<S, C> {
+class zero : public source<S, C> {
 public:
    //! Generate a single source element
    S generate_single()
@@ -51,7 +51,7 @@ public:
       }
 
    // Serialization Support
-DECLARE_SERIALIZER(all_zero)
+DECLARE_SERIALIZER(zero)
 };
 
 } // end namespace

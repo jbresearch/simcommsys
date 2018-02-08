@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "all_zero.h"
+#include "zero.h"
 #include <sstream>
 
 namespace libcomm {
@@ -27,7 +27,7 @@ namespace libcomm {
 // object serialization - saving
 
 template <class S, template <class > class C>
-std::ostream& all_zero<S, C>::serialize(std::ostream& sout) const
+std::ostream& zero<S, C>::serialize(std::ostream& sout) const
    {
    return sout;
    }
@@ -35,7 +35,7 @@ std::ostream& all_zero<S, C>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class S, template <class > class C>
-std::istream& all_zero<S, C>::serialize(std::istream& sin)
+std::istream& zero<S, C>::serialize(std::istream& sin)
    {
    return sin;
    }
@@ -68,19 +68,19 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (vector)
    //(vector)(matrix)
 
-/* Serialization string: all_zero<type,container>
+/* Serialization string: zero<type,container>
  * where:
  *      type = int | gf2 | gf4 ...
  *      container = vector | matrix
  */
 #define INSTANTIATE(r, args) \
-      template class all_zero<BOOST_PP_SEQ_ENUM(args)>; \
+      template class zero<BOOST_PP_SEQ_ENUM(args)>; \
       template <> \
-      const serializer all_zero<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+      const serializer zero<BOOST_PP_SEQ_ENUM(args)>::shelper( \
             "source", \
-            "all_zero<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+            "zero<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            all_zero<BOOST_PP_SEQ_ENUM(args)>::create);
+            zero<BOOST_PP_SEQ_ENUM(args)>::create);
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
