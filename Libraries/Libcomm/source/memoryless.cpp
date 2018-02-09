@@ -24,12 +24,13 @@
 
 namespace libcomm {
 
-// initialization
+// internal functions
 
 template <class S, template <class > class C>
-void memoryless<S, C>::init(libbase::vector<float> symbol_probabilities)
+libbase::vector<float> memoryless<S, C>::to_cumulative(libbase::vector<float> symbol_probabilities) const
    {
    const int n = symbol_probabilities.size();
+   libbase::vector<float> cpt(n);
    float sum = 0;
    for (int i = 0; i < n; i++)
       {
@@ -37,6 +38,21 @@ void memoryless<S, C>::init(libbase::vector<float> symbol_probabilities)
       cpt(i) = sum;
       }
    assertalways(sum == 1.0);
+   return cpt;
+   }
+
+template <class S, template <class > class C>
+libbase::vector<float> memoryless<S, C>::to_probabilities(libbase::vector<float> cpt) const
+   {
+   const int n = cpt.size();
+   libbase::vector<float> symbol_probabilities(n);
+   float sum = 0;
+   for (int i = 0; i < n; i++)
+      {
+      symbol_probabilities(i) = cpt(i) - sum;
+      sum = cpt(i);
+      }
+   return symbol_probabilities;
    }
 
 // object serialization - saving
@@ -49,12 +65,8 @@ std::ostream& memoryless<S, C>::serialize(std::ostream& sout) const
    sout << "#: symbol count" << std::endl;
    sout << cpt.size() << std::endl;
    sout << "#: symbol probabilities" << std::endl;
-   float sum = 0;
-   for (int i = 0; i < cpt.size(); i++)
-      {
-      sout << cpt(i) - sum << std::endl;
-      sum = cpt(i);
-      }
+   libbase::vector<float> symbol_probabilities = to_probabilities(cpt);
+   symbol_probabilities.serialize(sout, '\n');
    return sout;
    }
 
@@ -75,9 +87,8 @@ std::istream& memoryless<S, C>::serialize(std::istream& sin)
    symbol_probabilities.init(temp);
    sin >> libbase::eatcomments;
    symbol_probabilities.serialize(sin);
+   cpt = to_cumulative(symbol_probabilities);
    libbase::verify(sin);
-   // initialize
-   init(symbol_probabilities);
    return sin;
    }
 

@@ -45,9 +45,11 @@ private:
    libbase::vector<float> cpt; //!< Cumulative symbol probability table
    // @}
 private:
-   /*! \name Internal representation */
-   //! Initialize, given a table of symbol probabilities
-   void init(libbase::vector<float> symbol_probabilities);
+   /*! \name Internal functions */
+   //! Obtain cumulative probabilities from symbol probabilities
+   libbase::vector<float> to_cumulative(libbase::vector<float> symbol_probabilities) const;
+   //! Obtain symbol probabilities from cumulative probabilities
+   libbase::vector<float> to_probabilities(libbase::vector<float> cpt) const;
    // @}
 public:
    //! Default constructor
@@ -57,7 +59,7 @@ public:
    //! Main constructor
    memoryless(libbase::vector<float> symbol_probabilities)
       {
-      init(symbol_probabilities);
+      cpt = to_cumulative(symbol_probabilities);
       }
 
    //! Generate a single source element
@@ -81,12 +83,8 @@ public:
       {
       std::ostringstream sout;
       sout << "Memoryless source [p=";
-      float sum = 0;
-      for (int i = 0; i < cpt.size(); i++)
-         {
-         sout << cpt(i) - sum << ",";
-         sum = cpt(i);
-         }
+      libbase::vector<float> symbol_probabilities = to_probabilities(cpt);
+      symbol_probabilities.serialize(sout, ',');
       sout << "]";
       return sout.str();
       }
