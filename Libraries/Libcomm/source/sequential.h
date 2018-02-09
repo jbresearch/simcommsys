@@ -33,7 +33,8 @@ namespace libcomm {
  * \brief   All-sequential source.
  * \author  Johann Briffa
  *
- * Implements a trivial source that always returns the sequential symbol.
+ * Implements a trivial source that always returns the next symbol from a
+ * given repeating sequence.
  */
 
 template <class S, template <class > class C = libbase::vector>
