@@ -26,6 +26,7 @@
 #include "source.h"
 #include "serializer.h"
 #include "field_utils.h"
+#include <sstream>
 
 namespace libcomm {
 
@@ -59,7 +60,9 @@ public:
    //! Description
    std::string description() const
       {
-      return "Uniform random source";
+      std::ostringstream sout;
+      sout << field_utils<S>::elements() << "-ary uniform random source";
+      return sout.str();
       }
 
    // Serialization Support
@@ -104,7 +107,9 @@ public:
    //! Description
    std::string description() const
       {
-      return "Uniform random source";
+      std::ostringstream sout;
+      sout << alphabet_size << "-ary uniform random source";
+      return sout.str();
       }
 
    // Serialization Support
