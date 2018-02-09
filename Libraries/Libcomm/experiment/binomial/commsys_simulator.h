@@ -26,6 +26,7 @@
 #include "experiment/experiment_binomial.h"
 #include "randgen.h"
 #include "commsys.h"
+#include "source.h"
 #include "serializer.h"
 #include <sstream>
 
@@ -36,6 +37,8 @@ namespace libcomm {
  * \author  Johann Briffa
  *
  * \todo Clean up interface with commsys object, particularly in cycleonce()
+ *
+ * \todo Update interface to allow use of source<S> rather than source<int>
  */
 
 template <class S, class R>
@@ -46,23 +49,11 @@ public:
    typedef libbase::vector<int> array1i_t;
    typedef libbase::vector<double> array1d_t;
    typedef libbase::vector<array1d_t> array1vd_t;
-   enum input_mode_t {
-      input_mode_zero = 0, //!< All-zero input
-      input_mode_random, //!< Random input
-      input_mode_user_sequential, //!< Sequentially-applied user sequence
-      input_mode_undefined
-   };
-   // @}
-
-private:
-   /*! \name User-defined parameters */
-   input_mode_t input_mode; //!< enum indicating input mode
-   array1i_t input_vectors; //!< user sequence of input symbols
    // @}
 
 protected:
    /*! \name Bound objects */
-   libbase::randgen src; //!< Source data sequence generator
+   boost::shared_ptr<source<int> > src; //!< Source data sequence generator
    boost::shared_ptr<commsys<S> > sys; //!< Communication systems
    // @}
    /*! \name Internal state */
@@ -70,9 +61,6 @@ protected:
    // @}
 
 protected:
-   /*! \name Internal functions */
-   array1i_t createsource(int tau);
-   // @}
    // System Interface for Results
    int get_symbolsperframe() const
       {
@@ -95,7 +83,8 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    commsys_simulator(const commsys_simulator<S, R>& c) :
-      src(c.src), sys(boost::dynamic_pointer_cast<commsys<S> > (c.sys->clone()))
+         src(boost::dynamic_pointer_cast<source<int> >(c.src->clone())), sys(
+               boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone()))
       {
       }
    commsys_simulator()
@@ -109,7 +98,7 @@ public:
    // Experiment parameter handling
    void seedfrom(libbase::random& r)
       {
-      src.seed(r.ival());
+      src->seedfrom(r);
       sys->seedfrom(r);
       }
    void set_parameter(const double x)

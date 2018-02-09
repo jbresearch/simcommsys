@@ -106,7 +106,7 @@ void commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& resul
    for (int left = length - received.size(); left > 0 || source.empty();)
       {
       // Create next source frame
-      const array1i_t source_next = Base::createsource(sys_dec.input_block_size());
+      const array1i_t source_next = this->src->generate_sequence(sys_dec.input_block_size());
       // Encode -> Map -> Modulate next frame
       const array1s_t transmitted = sys_enc->encode_path(source_next);
       // Transmit next frame

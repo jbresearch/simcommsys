@@ -25,6 +25,9 @@
 #include "modem/stream_modulator.h"
 #include "channel_insdel.h"
 #include "commsys_stream.h"
+#include "source/zero.h"
+#include "source/uniform.h"
+#include "source/sequential.h"
 
 #include "fsm.h"
 #include "itfunc.h"
@@ -44,48 +47,6 @@ namespace libcomm {
 #endif
 
 // *** Templated Common Base ***
-
-// Internal functions
-
-/*!
- * \brief Create source sequence to be encoded
- * \return Source sequence of the required length
- *
- * The source sequence consists of uniformly random symbols followed by a
- * tail sequence if required by the given codec.
- */
-template <class S, class R>
-libbase::vector<int> commsys_simulator<S, R>::createsource(int tau)
-   {
-   // allocate space
-   libbase::vector<int> source(tau);
-   // fill as required
-   switch (input_mode)
-      {
-      case input_mode_zero:
-         source = 0;
-         break;
-
-      case input_mode_random:
-         for (int t = 0; t < tau; t++)
-            source(t) = src.ival(sys->num_inputs());
-         break;
-
-      case input_mode_user_sequential:
-         assert(input_vectors.size() >= 1);
-         for (int t = 0; t < tau; t++)
-            {
-            source(t) = input_vectors(t % input_vectors.size());
-            assertalways(source(t) >= 0 && source(t) < sys->num_inputs());
-            }
-         break;
-
-      default:
-         failwith("Unknown input mode");
-         break;
-      }
-   return source;
-   }
 
 // Experiment handling
 
@@ -112,7 +73,7 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
    fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
 
    // Create source stream
-   libbase::vector<int> source = createsource(sys->input_block_size());
+   libbase::vector<int> source = src->generate_sequence(sys->input_block_size());
    // Encode -> Map -> Modulate
    libbase::vector<S> transmitted = sys->encode_path(source);
    // Transmit
@@ -187,24 +148,8 @@ std::string commsys_simulator<S, R>::description() const
    std::ostringstream sout;
    sout << "Simulator for ";
    sout << sys->description();
-   switch (input_mode)
-      {
-      case input_mode_zero:
-         sout << ", all-zero input";
-         break;
-
-      case input_mode_random:
-         sout << ", random input";
-         break;
-
-      case input_mode_user_sequential:
-         sout << ", user input [" << input_vectors.size() << ", sequential]";
-         break;
-
-      default:
-         failwith("Unknown input mode");
-         break;
-      }
+   sout << ", ";
+   sout << src->description();
    return sout.str();
    }
 
@@ -215,26 +160,9 @@ std::ostream& commsys_simulator<S, R>::serialize(std::ostream& sout) const
    {
    // format version
    sout << "# Version" << std::endl;
-   sout << 2 << std::endl;
-   sout << "# Input mode (0=zero, 1=random, 2=user[seq])" << std::endl;
-   sout << input_mode << std::endl;
-   switch (input_mode)
-      {
-      case input_mode_zero:
-      case input_mode_random:
-         break;
-
-      case input_mode_user_sequential:
-         sout << "#: input symbols - count" << std::endl;
-         sout << input_vectors.size() << std::endl;
-         sout << "#: input symbols - values" << std::endl;
-         input_vectors.serialize(sout, '\n');
-         break;
-
-      default:
-         failwith("Unknown input mode");
-         break;
-      }
+   sout << 3 << std::endl;
+   sout << "# Source generator" << std::endl;
+   sout << src;
    sout << "# Communication system" << std::endl;
    sout << sys;
    return sout;
@@ -248,6 +176,8 @@ std::ostream& commsys_simulator<S, R>::serialize(std::ostream& sout) const
  * \version 1 Added input mode parameter and support for all-zero input
  *
  * \version 2 Added support for user-supplied sequence of input symbols
+ *
+ * \version 3 Using source-generator object
  */
 
 template <class S, class R>
@@ -263,30 +193,51 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
       version = 0;
       sin.clear();
       }
-   // input mode
-   input_mode = input_mode_random;
-   if (version >= 1)
+   // source-generator section depending on version
+   if (version >= 3)
+      {
+      // source generator
+      sin >> libbase::eatcomments >> src >> libbase::verify;
+      assertalways(src);
+      }
+   else if (version >= 1)
       {
       int temp;
       // read input mode
       sin >> libbase::eatcomments >> temp >> libbase::verify;
+      // interpret mode
+      enum input_mode_t {
+         input_mode_zero = 0, //!< All-zero input
+         input_mode_random, //!< Random input
+         input_mode_user_sequential, //!< Sequentially-applied user sequence
+         input_mode_undefined
+      };
       assertalways(temp >= 0 && temp < input_mode_undefined);
-      input_mode = static_cast<input_mode_t>(temp);
+      input_mode_t input_mode = static_cast<input_mode_t>(temp);
       switch (input_mode)
          {
          case input_mode_zero:
+            // create source generator
+            src.reset(new zero<int>);
+            break;
+
          case input_mode_random:
-            // gets generated automatically
+            // do this later (needs alphabet size from system)
+            src.reset();
             break;
 
          case input_mode_user_sequential:
+            {
             // read count of input symbols
             sin >> libbase::eatcomments >> temp >> libbase::verify;
             // read input symbols from stream
-            input_vectors.init(temp);
+            array1i_t input_vectors(temp);
             sin >> libbase::eatcomments;
             input_vectors.serialize(sin);
             libbase::verify(sin);
+            // create source generator
+            src.reset(new sequential<int>(input_vectors));
+            }
             break;
 
          default:
@@ -294,9 +245,18 @@ std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
             break;
          }
       }
+   else
+      {
+      // do this later (needs alphabet size from system)
+      src.reset();
+      }
    // communication system object
    sin >> libbase::eatcomments >> sys >> libbase::verify;
    assertalways(sys);
+   // create source generator if not done yet
+   if (!src)
+      src.reset(new uniform<int>(sys->num_inputs()));
+   // finish
    assertalways(sin.good());
    return sin;
    }
