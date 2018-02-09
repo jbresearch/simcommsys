@@ -83,6 +83,12 @@ private:
    int alphabet_size; //!< Number of elements in alphabet
    // @}
 public:
+   //! Constructor
+   uniform(int alphabet_size=0) : alphabet_size(alphabet_size)
+      {
+      assert(alphabet_size >= 0);
+      }
+
    //! Generate a single source element
    int generate_single()
       {

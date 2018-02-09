@@ -44,6 +44,16 @@ private:
    int index; //!< index of next element to output
    // @}
 public:
+   //! Default constructor
+   sequential() : index(0)
+      {
+      }
+   //! Main constructor
+   sequential(libbase::vector<S> input_vectors) :
+         input_vectors(input_vectors), index(0)
+      {
+      }
+
    //! Generate a single source element
    S generate_single()
       {
