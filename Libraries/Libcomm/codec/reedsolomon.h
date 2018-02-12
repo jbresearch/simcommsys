@@ -154,13 +154,9 @@ public:
       }
    // @}
 
-   /* \name Codec information functions - use default implementation*/
-   // Equivalent length of information sequence in bits
-   //double input_bits() const { return log2(num_inputs())*input_block_size(); };
-   // Equivalent length of output sequence in bits
-   //double output_bits() const { return log2(num_outputs())*output_block_size(); };
+   // \name Codec information functions - derived */
    // Overall code rate
-   //double rate() const { return input_bits()/output_bits(); };
+   //double rate() const; - use default implementation
    //
 
    /*! \name Description */

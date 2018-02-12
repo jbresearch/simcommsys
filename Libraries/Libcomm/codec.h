@@ -127,20 +127,11 @@ public:
    // @}
 
    /*! \name Codec information functions - derived */
-   //! Equivalent length of information sequence in bits
-   double input_bits() const
-      {
-      return log2(num_inputs()) * input_block_size();
-      }
-   //! Equivalent length of output sequence in bits
-   double output_bits() const
-      {
-      return log2(num_outputs()) * output_block_size();
-      }
    //! Overall code rate
    double rate() const
       {
-      return input_bits() / output_bits();
+      return input_block_size() / output_block_size() * log(num_inputs())
+            / log(num_outputs());
       }
    // @}
 

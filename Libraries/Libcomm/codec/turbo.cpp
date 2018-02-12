@@ -469,8 +469,8 @@ template <class real, class dbl>
 std::string turbo<real, dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Turbo Code (" << This::output_bits() << "," << This::input_bits()
-         << ") - ";
+   sout << "Turbo Code (" << This::output_block_size() << ","
+         << This::input_block_size() << ") - ";
    sout << encoder->description() << ", ";
    for (int i = 0; i < inter.size(); i++)
       sout << inter(i)->description() << ", ";

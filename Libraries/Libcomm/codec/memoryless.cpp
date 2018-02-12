@@ -172,8 +172,8 @@ template <class dbl>
 std::string memoryless<dbl>::description() const
    {
    std::ostringstream sout;
-   sout << "Memoryless Code (" << This::output_bits() << ","
-         << This::input_bits() << ") - ";
+   sout << "Memoryless Code (" << This::output_block_size() << ","
+         << This::input_block_size() << ") - ";
    sout << encoder->description();
    return sout.str();
    }

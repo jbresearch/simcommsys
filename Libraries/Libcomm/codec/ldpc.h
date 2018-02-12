@@ -192,12 +192,6 @@ public:
    // @}
 
    // \name Codec information functions - derived */
-   // Equivalent length of information sequence in bits
-   // double input_bits() const; use default implementation
-
-   // Equivalent length of output sequence in bits
-   //double output_bits() const; use default implementation
-
    // Overall code rate
    //double rate() const; - use default implementation
    //
