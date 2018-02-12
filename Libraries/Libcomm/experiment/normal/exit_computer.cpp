@@ -56,11 +56,8 @@ namespace libcomm {
 template <class S>
 libbase::vector<int> exit_computer<S>::createsource()
    {
-   const int tau = sys->input_block_size();
-   array1i_t source(tau);
-   for (int t = 0; t < tau; t++)
-      source(t) = src.ival(sys->num_inputs());
-   return source;
+   src.set_alphabet_size(sys->num_inputs());
+   return src.generate_sequence(sys->input_block_size());
    }
 
 /*!
@@ -92,7 +89,7 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
       {
       // generate random LLR for given bit
       // Note: LLR is interpreted as ln(Pr(0)/Pr(1))
-      const double llr = src.gval(sigma) + (tx_b(i) == 0 ? mu : -mu);
+      const double llr = r.gval(sigma) + (tx_b(i) == 0 ? mu : -mu);
       // determine binary priors from LLR
       const double lr = exp(llr); // = p0/p1 = p0/(1-p0) = (1-p1)/p1
       priors_b(i)(0) = lr / (1 + lr); // = p0

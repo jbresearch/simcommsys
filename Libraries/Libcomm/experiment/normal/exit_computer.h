@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "experiment/experiment_normal.h"
+#include "source/uniform.h"
 #include "commsys.h"
 #include "randgen.h"
 #include "serializer.h"
@@ -76,7 +77,8 @@ protected:
    double sigma; //!< Sigma value to use when generating binary priors
    // @}
    /*! \name Internally-used objects */
-   libbase::randgen src; //!< Random generator for source data sequence and prior probabilities
+   libbase::randgen r; //!< Random generator for prior probabilities
+   uniform<int> src; //!< Generator for source sequence
    // @}
 protected:
    /*! \name Internal functions */
@@ -97,8 +99,8 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    exit_computer(const exit_computer<S>& c) :
-         sys(boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone())), src(
-               c.src)
+         sys(boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone())), r(
+               c.r), src(c.src)
       {
       }
    exit_computer()
@@ -112,7 +114,8 @@ public:
    // Experiment parameter handling
    void seedfrom(libbase::random& r)
       {
-      src.seed(r.ival());
+      this->r.seed(r.ival());
+      src.seedfrom(r);
       sys->seedfrom(r);
       }
    void set_parameter(const double x)
