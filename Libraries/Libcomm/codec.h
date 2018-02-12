@@ -130,8 +130,8 @@ public:
    //! Overall code rate
    double rate() const
       {
-      return input_block_size() / output_block_size() * log(num_inputs())
-            / log(num_outputs());
+      return log(num_inputs()) * input_block_size()
+            / (log(num_outputs()) * output_block_size());
       }
    // @}
 
