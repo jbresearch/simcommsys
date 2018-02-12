@@ -47,20 +47,6 @@ namespace libcomm {
 // Internal functions
 
 /*!
- * \brief Create source sequence to be encoded
- * \return Source sequence of the required length
- *
- * The source sequence consists of uniformly random symbols followed by a
- * tail sequence if required by the given codec.
- */
-template <class S>
-libbase::vector<int> exit_computer<S>::createsource()
-   {
-   src.set_alphabet_size(sys->num_inputs());
-   return src.generate_sequence(sys->input_block_size());
-   }
-
-/*!
  * \brief Create table of Gaussian-distributed priors
  * \param[out] priors   Table of Gaussian-distributed priors for given input
  * \param[in] tx        Vector of transmitted symbols
@@ -215,7 +201,8 @@ void exit_computer<S>::sample(array1d_t& result)
    result.init(count());
 
    // Create source stream
-   const array1i_t source = createsource();
+   src.set_alphabet_size(sys->num_inputs());
+   const array1i_t source = src.generate_sequence(sys->input_block_size());
    // Encode
    array1i_t encoded;
    sys->getcodec()->encode(source, encoded);
