@@ -128,7 +128,7 @@ public:
 
    /*! \name Codec information functions - derived */
    //! Overall code rate
-   double rate() const
+   virtual double rate() const
       {
       return log(num_inputs()) * input_block_size()
             / (log(num_outputs()) * output_block_size());
