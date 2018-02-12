@@ -92,6 +92,13 @@ public:
       assert(alphabet_size >= 0);
       }
 
+   //! Set alphabet size
+   void set_alphabet_size(int n)
+      {
+      alphabet_size = n;
+      assert(alphabet_size >= 0);
+      }
+
    //! Generate a single source element
    int generate_single()
       {
