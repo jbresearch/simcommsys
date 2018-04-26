@@ -40,24 +40,26 @@ namespace libcomm {
 
 // common small tasks
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_threshold(const array2r_t& metric,
-      int row, int col_min, int col_max, real factor)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_threshold(
+      const array2r_t& metric, int row, int col_min, int col_max, real factor)
    {
    // early short-cut for no-thresholding
    if (!thresholding || factor == real(0))
       return 0;
    // actual computation
    real threshold = 0;
-      for (int col = col_max; col <= col_max; col++)
-         if (metric[row][col] > threshold)
-            threshold = metric[row][col];
+   for (int col = col_min; col <= col_max; col++)
+      if (metric[row][col] > threshold)
+         threshold = metric[row][col];
    return threshold * factor;
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_scale(const array2r_t& metric,
-      int row, int col_min, int col_max)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_scale(
+      const array2r_t& metric, int row, int col_min, int col_max)
    {
    real scale = 0;
    for (int col = col_min; col <= col_max; col++)
@@ -67,9 +69,10 @@ real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_sc
    return scale;
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::normalize(array2r_t& metric, int row,
-      int col_min, int col_max)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::normalize(
+      array2r_t& metric, int row, int col_min, int col_max)
    {
    // determine the scale factor to use (each block has to do this)
    const real scale = get_scale(metric, row, col_min, col_max);
@@ -80,11 +83,14 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::normal
 
 // decode functions - partial computations
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(const int i)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(
+      const int i)
    {
    // determine the strongest path at this point
-   const real threshold = get_threshold(alpha, i - 1, mtau_min, mtau_max, th_inner);
+   const real threshold = get_threshold(alpha, i - 1, mtau_min, mtau_max,
+         th_inner);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       // cache previous alpha value in a register
@@ -112,11 +118,14 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       }
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta(const int i)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta(
+      const int i)
    {
    // determine the strongest path at this point
-   const real threshold = get_threshold(beta, i + 1, mtau_min, mtau_max, th_inner);
+   const real threshold = get_threshold(beta, i + 1, mtau_min, mtau_max,
+         th_inner);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
@@ -143,9 +152,10 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
       }
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_message_app(array1vr_t& ptable,
-      const int i) const
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_message_app(
+      array1vr_t& ptable, const int i) const
    {
    // determine the strongest path at this point
    const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_outer);
@@ -178,9 +188,10 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
       }
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_state_app(array1r_t& ptable,
-      const int i) const
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_state_app(
+      array1r_t& ptable, const int i) const
    {
    assert(i >= 0 && i <= N);
    // compute posterior probabilities for given index
@@ -195,7 +206,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_s
 
 /*! \brief Memory allocator for working matrices
  */
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::allocate()
    {
    // flag the state of the arrays
@@ -216,7 +228,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
        * deltax in [mn_min, mn_max]
        */
       gamma.global.resize(
-            boost::extents[N][range(mtau_min, mtau_max + 1)][q][range(mn_min, mn_max + 1)]);
+            boost::extents[N][range(mtau_min, mtau_max + 1)][q][range(mn_min,
+                  mn_max + 1)]);
       gamma.local.resize(boost::extents[0][0][0]);
       }
    else
@@ -227,7 +240,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
        * deltax in [mn_min, mn_max]
        */
       gamma.local.resize(
-            boost::extents[range(mtau_min, mtau_max + 1)][q][range(mn_min, mn_max + 1)]);
+            boost::extents[range(mtau_min, mtau_max + 1)][q][range(mn_min,
+                  mn_max + 1)]);
       gamma.global.resize(boost::extents[0][0][0][0]);
       }
    // need to keep track only if we're caching lazy computations
@@ -317,7 +331,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::alloca
 
 /*! \brief Release memory for working matrices
  */
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::free()
    {
    alpha.resize(boost::extents[0][0]);
@@ -332,7 +347,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::free()
 
 // helper methods
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::reset_cache() const
    {
    // initialise array and cache flags
@@ -353,8 +369,10 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::reset_
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::print_gamma(std::ostream& sout) const
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::print_gamma(
+      std::ostream& sout) const
    {
    sout << "gamma = " << std::endl;
    for (int i = 0; i < N; i++)
@@ -375,9 +393,10 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::print_
 
 // decode functions - global path
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_gamma(const array1s_t& r,
-      const array1vd_t& app)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_gamma(
+      const array1s_t& r, const array1vd_t& app)
    {
    assert(initialised);
 #ifndef NDEBUG
@@ -399,7 +418,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_g
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha_and_beta(
       const array1d_t& sof_prior, const array1d_t& eof_prior)
    {
@@ -435,13 +455,14 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
    std::cerr << "beta = " << beta << std::endl;
    // show gamma as well if computing lazily
    if (lazy)
-      print_gamma(std::cerr);
+   print_gamma(std::cerr);
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_results(array1vr_t& ptable,
-      array1r_t& sof_post, array1r_t& eof_post) const
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_results(
+      array1vr_t& ptable, array1r_t& sof_post, array1r_t& eof_post) const
    {
    assert(initialised);
    libbase::pacifier progress("FBA Results");
@@ -468,8 +489,10 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_r
 
 // decode functions - local path
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(const array1d_t& sof_prior)
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(
+      const array1d_t& sof_prior)
    {
    assert(initialised);
    libbase::pacifier progress("FBA Alpha");
@@ -508,7 +531,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
 #endif
    }
 
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta_and_results(
       const array1d_t& eof_prior, array1vr_t& ptable, array1r_t& sof_post,
       array1r_t& eof_post)
@@ -635,7 +659,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
  *
  * \note Offset is the same as for stream_modulator.
  */
-template <class receiver_t, class sig, class real, class real2, bool thresholding, bool lazy, bool globalstore>
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode(
       libcomm::instrumented& collector, const array1s_t& r,
       const array1d_t& sof_prior, const array1d_t& eof_prior,
@@ -722,7 +747,10 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
    // Add memory usage
    collector.add_timer(sizeof(real) * alpha.num_elements(), "m_alpha");
    collector.add_timer(sizeof(real) * beta.num_elements(), "m_beta");
-   collector.add_timer(sizeof(real) * (gamma.global.num_elements() + gamma.local.num_elements()), "m_gamma");
+   collector.add_timer(
+         sizeof(real)
+               * (gamma.global.num_elements() + gamma.local.num_elements()),
+         "m_gamma");
 
 #ifndef NDEBUG
    // show cache statistics if applicable
@@ -748,8 +776,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
  */
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy,
-      globalstore>::get_drift_pdf(array1vr_t& pdftable) const
+void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_drift_pdf(
+      array1vr_t& pdftable) const
    {
    assert(initialised);
    // allocate space for results
