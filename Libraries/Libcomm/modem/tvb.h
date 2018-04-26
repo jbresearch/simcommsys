@@ -326,10 +326,11 @@ public:
       assertalways(encoding_table.size().rows() == N);
       // construct list of codeword boundary positions
       array1i_t postable(N + 1);
-      for (int i = 0, j = 0; i <= N; i++)
+      postable(0) = 0;
+      for (int i = 0, j = 0; i < N; i++)
          {
-         postable(i) = j;
          j += encoding_table(i, 0).size();
+         postable(i) = j;
          }
       return postable;
       }
