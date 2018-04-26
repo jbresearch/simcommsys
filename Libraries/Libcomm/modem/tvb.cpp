@@ -125,6 +125,7 @@ libbase::vector<sig> tvb<sig, real, real2>::select_marker(const int i, const int
          break;
 
       case marker_random:
+         marker_vector.init(n);
          for (int s = 0; s < n; s++)
             marker_vector(s) = sig(this->r.ival(field_utils<sig>::elements()));
          break;
