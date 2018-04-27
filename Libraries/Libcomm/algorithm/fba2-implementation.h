@@ -117,6 +117,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       {
       // cache previous alpha value in a register
       const real prev_alpha = alpha[i - 1][x1];
+      // ignore paths with zero metric
+      if (prev_alpha == real(0))
+         continue;
       // ignore paths below a certain threshold
       if (thresholding && prev_alpha < threshold)
          continue;
@@ -160,6 +163,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          {
          // cache next beta value in a register
          const real next_beta = beta[i + 1][x2];
+         // ignore paths with zero metric
+         if (next_beta == real(0))
+            continue;
          // ignore paths below a certain threshold
          if (thresholding && next_beta < threshold)
             continue;
@@ -190,6 +196,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          {
          // cache this alpha value in a register
          const real this_alpha = alpha[i][x1];
+         // ignore paths with zero metric
+         if (this_alpha == real(0))
+            continue;
          // ignore paths below a certain threshold
          if (thresholding && this_alpha < threshold)
             continue;
