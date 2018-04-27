@@ -62,8 +62,13 @@ real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_th
    if (tp_states > 0)
       {
       assert(factor == real(0));
+      // shortcut if there are less states than the given maximum
+      if (col_max - col_min + 1 <= tp_states)
+         return 0;
       // copy metrics to list
-      std::vector<real> v(&metric[row][col_min], &metric[row][col_max + 1]);
+      std::vector<real> v(col_max - col_min + 1);
+      for (int i = 0, col = col_min; col <= col_max; col++, i++)
+         v[i] = metric[row][col];
       // determine nth largest element as needed
       std::nth_element(v.begin(), v.begin() + tp_states, v.end(),
             std::greater<real>());
