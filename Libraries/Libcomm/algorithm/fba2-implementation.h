@@ -43,17 +43,34 @@ namespace libcomm {
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
 real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_threshold(
-      const array2r_t& metric, int row, int col_min, int col_max, real factor)
+      const array2r_t& metric, int row, int col_min, int col_max, real factor, int tp_states)
    {
    // early short-cut for no-thresholding
-   if (!thresholding || factor == real(0))
+   if (!thresholding)
       return 0;
-   // actual computation
-   real threshold = 0;
-   for (int col = col_min; col <= col_max; col++)
-      if (metric[row][col] > threshold)
-         threshold = metric[row][col];
-   return threshold * factor;
+   // Davey: keep states with metric above a fraction of max
+   if (factor > real(0))
+      {
+      assert(tp_states == 0);
+      real threshold = 0;
+      for (int col = col_min; col <= col_max; col++)
+         if (metric[row][col] > threshold)
+            threshold = metric[row][col];
+      return threshold * factor;
+      }
+   // Liu: keep only top 'delta' states
+   if (tp_states > 0)
+      {
+      assert(factor == real(0));
+      // copy metrics to list
+      std::vector<real> v(&metric[row][col_min], &metric[row][col_max + 1]);
+      // determine nth largest element as needed
+      std::nth_element(v.begin(), v.begin() + tp_states, v.end(),
+            std::greater<real>());
+      return v[tp_states - 1];
+      }
+   // nothing to do
+   return 0;
    }
 
 template <class receiver_t, class sig, class real, class real2,
@@ -90,7 +107,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
    {
    // determine the strongest path at this point
    const real threshold = get_threshold(alpha, i - 1, mtau_min, mtau_max,
-         th_inner);
+         th_inner, tp_states);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       // cache previous alpha value in a register
@@ -125,7 +142,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
    {
    // determine the strongest path at this point
    const real threshold = get_threshold(beta, i + 1, mtau_min, mtau_max,
-         th_inner);
+         th_inner, tp_states);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
@@ -158,7 +175,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
       array1vr_t& ptable, const int i) const
    {
    // determine the strongest path at this point
-   const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_outer);
+   const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_outer,
+         tp_states);
    for (int d = 0; d < q; d++)
       {
       // initialize result holder

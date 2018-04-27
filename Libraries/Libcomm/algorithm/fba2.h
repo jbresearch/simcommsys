@@ -196,7 +196,7 @@ private:
       }
    // common small tasks
    static real get_threshold(const array2r_t& metric, int row, int col_min,
-         int col_max, real factor);
+         int col_max, real factor, int tp_states);
    static real get_scale(const array2r_t& metric, int row, int col_min,
          int col_max);
    static void normalize(array2r_t& metric, int row, int col_min, int col_max);
