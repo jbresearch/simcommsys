@@ -70,7 +70,7 @@ real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_th
       for (int i = 0, col = col_min; col <= col_max; col++, i++)
          v[i] = metric[row][col];
       // determine nth largest element as needed
-      std::nth_element(v.begin(), v.begin() + tp_states, v.end(),
+      std::nth_element(v.begin(), v.begin() + tp_states - 1, v.end(),
             std::greater<real>());
       return v[tp_states - 1];
       }
