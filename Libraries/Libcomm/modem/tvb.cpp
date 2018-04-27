@@ -764,6 +764,8 @@ std::string tvb<sig, real, real2>::description() const
          break;
       }
    sout << ", thresholds " << th_inner << "/" << th_outer;
+   if (tp_states)
+      sout << ", pruning 𝛿=" << tp_states;
    sout << ", Pr=" << Pr;
    sout << ", normalized";
    sout << ", batch interface";
@@ -812,6 +814,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    sout << th_inner << std::endl;
    sout << "# Outer threshold" << std::endl;
    sout << th_outer << std::endl;
+   sout << "# Number of states to keep when trellis pruning" << std::endl;
+   sout << tp_states << std::endl;
    sout << "# Probability of channel event outside chosen limits" << std::endl;
    sout << Pr << std::endl;
    sout << "# Lazy computation of gamma?" << std::endl;
@@ -910,6 +914,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  * \version 11 Added support for codebooks with different codeword length;
  *      removed internal representation of user-defined marker sequences
  *      (use separate codebooks instead)
+ *
+ * \version 12 Added trellis pruning parameter
  */
 
 template <class sig, class real, class real2>
@@ -922,6 +928,11 @@ std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
    // read thresholds
    sin >> libbase::eatcomments >> th_inner >> libbase::verify;
    sin >> libbase::eatcomments >> th_outer >> libbase::verify;
+   // read number of states to keep when trellis pruning
+   if (version >= 12)
+      sin >> libbase::eatcomments >> tp_states >> libbase::verify;
+   else
+      tp_states = 0;
    // read probability of channel event outside chosen limits
    if (version >= 9)
       sin >> libbase::eatcomments >> Pr >> libbase::verify;

@@ -99,6 +99,7 @@ private:
    array2vs_t codebook_tables; //!< user set of codebooks
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   int tp_states; //!< Number of states to keep when trellis pruning
    double Pr; //!< Probability of channel event outside chosen limits
    struct {
       bool lazy; //!< Flag indicating lazy computation of gamma metric
@@ -215,9 +216,9 @@ private:
 public:
    /*! \name Constructors / Destructors */
    explicit tvb(const int n = 2, const int q = 2, const double th_inner = 0,
-         const double th_outer = 0) :
+         const double th_outer = 0, const int tp_states = 0) :
          q(q), marker_type(marker_zero), codebook_type(codebook_random), th_inner(
-               real(th_inner)), th_outer(real(th_outer))
+               real(th_inner)), th_outer(real(th_outer)), tp_states(tp_states)
       {
       // Initialize space for random codebook
       libbase::allocate(codebook_tables, 1, q, n);
@@ -236,9 +237,10 @@ public:
    tvb(const tvb& x) :
          q(x.q), marker_type(x.marker_type), codebook_type(x.codebook_type), codebook_name(
                x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
-               x.th_inner), th_outer(x.th_outer), Pr(x.Pr), flags(x.flags), storage_type(
-               x.storage_type), globalstore_limit(x.globalstore_limit), lookahead(
-               x.lookahead), r(x.r), encoding_table(x.encoding_table), changed_encoding_table(
+               x.th_inner), th_outer(x.th_outer), tp_states(x.tp_states), Pr(
+               x.Pr), flags(x.flags), storage_type(x.storage_type), globalstore_limit(
+               x.globalstore_limit), lookahead(x.lookahead), r(x.r), encoding_table(
+               x.encoding_table), changed_encoding_table(
                x.changed_encoding_table), mtau_min(x.mtau_min), mtau_max(
                x.mtau_max)
       {
