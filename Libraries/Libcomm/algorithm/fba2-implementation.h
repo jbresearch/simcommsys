@@ -150,7 +150,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
    {
    // determine the strongest path at this point
    const real threshold = get_threshold(beta, i + 1, mtau_min, mtau_max,
-         th_inner, 0);
+         th_inner, tp_states);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
@@ -187,7 +187,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
    {
    // determine the strongest path at this point
    const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_outer,
-         0);
+         tp_states);
    for (int d = 0; d < q; d++)
       {
       // initialize result holder
