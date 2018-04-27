@@ -594,7 +594,7 @@ template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
       int N, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
-      int m1_min, int m1_max, double th_inner, double th_outer,
+      int m1_min, int m1_max, double th_inner, double th_outer, int tp_states,
       const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer)
    {
    // Initialize our embedded metric computer with unchanging elements
@@ -630,6 +630,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
    assert(thresholding || (th_inner == 0 && th_outer == 0));
    this->th_inner = real(th_inner);
    this->th_outer = real(th_outer);
+   // trellis pruning parameter
+   assert(tp_states >= 0);
+   this->tp_states = tp_states;
    }
 
 /*!

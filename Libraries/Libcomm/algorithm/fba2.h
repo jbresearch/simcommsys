@@ -97,6 +97,7 @@ private:
    /*! \name User-defined parameters */
    real th_inner; //!< Threshold factor for inner cycle
    real th_outer; //!< Threshold factor for outer cycle
+   int tp_states; //!< Number of states to keep when trellis pruning
    int N; //!< The transmitted block size in symbols
    int q; //!< The number of symbols in the q-ary alphabet
    int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
@@ -252,7 +253,7 @@ public:
     * Only needs to be done before the first frame.
     */
    void init(int N, int q, int mtau_min, int mtau_max, int mn_min, int mn_max,
-         int m1_min, int m1_max, double th_inner, double th_outer,
+         int m1_min, int m1_max, double th_inner, double th_outer, int tp_states,
          const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer);
    /*! \brief Set up encoding table
     * Needs to be done before every frame.

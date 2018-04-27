@@ -453,7 +453,8 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
    if (!fba_ptr || globalstore != last_globalstore)
       {
       const bool fss = mychan->is_statespace_fixed();
-      const bool thresholding = th_inner > real(0) || th_outer > real(0);
+      const bool thresholding = th_inner > real(0) || th_outer > real(0)
+            || tp_states > 0;
       fba_ptr = fba2_factory<sig, real, real2>::get_instance(fss, thresholding,
             flags.lazy, globalstore);
       // Mark the encoding table as changed, to force receiver init
@@ -461,7 +462,7 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
       }
    // Initialize forward-backward algorithm
    fba_ptr->init(N, q, mtau_min, mtau_max, mn_min, mn_max, m1_min, m1_max,
-         th_inner, th_outer, mychan->get_computer());
+         th_inner, th_outer, tp_states, mychan->get_computer());
 #ifndef NDEBUG
    this->add_timer(t);
 #endif
