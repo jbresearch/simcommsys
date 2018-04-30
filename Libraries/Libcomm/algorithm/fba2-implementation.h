@@ -149,14 +149,33 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
       const int i)
    {
    // determine the strongest forward path at this point
-   const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_inner,
-         tp_states);
+   const real threshold =
+         (i == 0) ? real(0) :
+               get_threshold(alpha, i - 1, mtau_min, mtau_max, th_inner,
+                     tp_states);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
       // ignore paths below a certain threshold
-      if (thresholding && alpha[i][x1] < threshold)
-         continue;
+      if (thresholding && i > 0)
+         {
+         bool skip = true;
+         // limits on deltax can be combined as (c.f. allocate() for details):
+         //   x1-x0 <= mn_max
+         //   x1-x0 >= mn_min
+         const int x0min = std::max(mtau_min, x1 - mn_max);
+         const int x0max = std::min(mtau_max, x1 - mn_min);
+         for (int x0 = x0min; x0 <= x0max; x0++)
+            {
+            if (alpha[i - 1][x0] >= threshold)
+               {
+               skip = false;
+               break;
+               }
+            }
+         if (skip)
+            continue;
+         }
       // limits on deltax can be combined as (c.f. allocate() for details):
       //   x2-x1 <= mn_max
       //   x2-x1 >= mn_min
