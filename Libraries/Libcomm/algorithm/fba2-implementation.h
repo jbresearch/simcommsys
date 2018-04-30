@@ -228,8 +228,13 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          const int x2max = std::min(mtau_max, mn_max + x1);
          for (int x2 = x2min; x2 <= x2max; x2++)
             {
+            // cache this beta value in a register
+            const real next_beta = beta[i + 1][x2];
+            // ignore paths with zero metric
+            if (next_beta == real(0))
+               continue;
             real temp = this_alpha;
-            temp *= beta[i + 1][x2];
+            temp *= next_beta;
             temp *= get_gamma(d, i, x1, x2 - x1);
             p += temp;
             }
