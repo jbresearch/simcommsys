@@ -148,12 +148,15 @@ template <class receiver_t, class sig, class real, class real2,
 void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta(
       const int i)
    {
-   // determine the strongest path at this point
-   const real threshold = get_threshold(beta, i + 1, mtau_min, mtau_max,
-         th_inner, tp_states);
+   // determine the strongest forward path at this point
+   const real threshold = get_threshold(alpha, i, mtau_min, mtau_max, th_inner,
+         tp_states);
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
+      // ignore paths below a certain threshold
+      if (thresholding && alpha[i][x1] < threshold)
+         continue;
       // limits on deltax can be combined as (c.f. allocate() for details):
       //   x2-x1 <= mn_max
       //   x2-x1 >= mn_min
@@ -165,9 +168,6 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          const real next_beta = beta[i + 1][x2];
          // ignore paths with zero metric
          if (next_beta == real(0))
-            continue;
-         // ignore paths below a certain threshold
-         if (thresholding && next_beta < threshold)
             continue;
          for (int d = 0; d < q; d++)
             {
@@ -749,7 +749,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
          reset_cache();
       }
    // Alpha + Beta + Results
-   if (globalstore)
+   if (globalstore && !thresholding)
       {
       // Alpha + Beta
       libbase::cputimer tab("t_alpha+beta");
