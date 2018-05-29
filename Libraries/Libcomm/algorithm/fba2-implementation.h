@@ -113,6 +113,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
    // determine the strongest path at this point
    const real threshold = get_threshold(alpha, i - 1, mtau_min, mtau_max,
          th_inner, tp_states);
+#ifndef NDEBUG
+   int count = 0;
+#endif
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       // cache previous alpha value in a register
@@ -123,6 +126,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       // ignore paths below a certain threshold
       if (thresholding && prev_alpha < threshold)
          continue;
+#ifndef NDEBUG
+      count++;
+#endif
       // limits on deltax can be combined as (c.f. allocate() for details):
       //   x2-x1 <= mn_max
       //   x2-x1 >= mn_min
@@ -141,6 +147,11 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
          alpha[i][x2] += this_alpha_change;
          }
       }
+#ifndef NDEBUG
+   if (tp_states > 0 && count != tp_states)
+      std::cerr << "DEBUG (work_alpha): i=" << i << ", path count=" << count
+            << std::endl;
+#endif
    }
 
 template <class receiver_t, class sig, class real, class real2,
@@ -153,6 +164,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          (i == 0) ? real(0) :
                get_threshold(alpha, i - 1, mtau_min, mtau_max, th_inner,
                      tp_states);
+#ifndef NDEBUG
+   int count = 0;
+#endif
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
@@ -176,6 +190,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          if (skip)
             continue;
          }
+#ifndef NDEBUG
+      count++;
+#endif
       // limits on deltax can be combined as (c.f. allocate() for details):
       //   x2-x1 <= mn_max
       //   x2-x1 >= mn_min
@@ -197,6 +214,11 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          }
       beta[i][x1] = this_beta;
       }
+#ifndef NDEBUG
+   if (tp_states > 0 && count != tp_states)
+      std::cerr << "DEBUG (work_beta): i=" << i << ", path count=" << count
+            << std::endl;
+#endif
    }
 
 template <class receiver_t, class sig, class real, class real2,
@@ -209,6 +231,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          tp_states);
    for (int d = 0; d < q; d++)
       {
+#ifndef NDEBUG
+      int count = 0;
+#endif
       // initialize result holder
       real p = 0;
       for (int x1 = mtau_min; x1 <= mtau_max; x1++)
@@ -221,6 +246,9 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          // ignore paths below a certain threshold
          if (thresholding && this_alpha < threshold)
             continue;
+#ifndef NDEBUG
+         count++;
+#endif
          // limits on deltax can be combined as (c.f. allocate() for details):
          //   x2-x1 <= mn_max
          //   x2-x1 >= mn_min
@@ -241,6 +269,11 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          }
       // store result
       ptable(i)(d) = p;
+#ifndef NDEBUG
+      if (tp_states > 0 && count != tp_states)
+         std::cerr << "DEBUG (work_message_app): i=" << i << ", d=" << d
+               << ", path count=" << count << std::endl;
+#endif
       }
    }
 
