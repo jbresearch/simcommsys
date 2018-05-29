@@ -131,14 +131,14 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       for (int x2 = x2min; x2 <= x2max; x2++)
          {
          // NOTE: we're repeating the loop on x2, so we need to increment this
-         real this_alpha = alpha[i][x2];
+         real this_alpha_change = 0;
          for (int d = 0; d < q; d++)
             {
             real temp = prev_alpha;
             temp *= get_gamma(d, i - 1, x1, x2 - x1);
-            this_alpha += temp;
+            this_alpha_change += temp;
             }
-         alpha[i][x2] = this_alpha;
+         alpha[i][x2] += this_alpha_change;
          }
       }
    }
