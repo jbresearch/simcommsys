@@ -160,39 +160,14 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
       const int i)
    {
    // determine the strongest forward path at this point
-   const real threshold =
-         (i == 0) ? real(0) :
-               get_threshold(alpha, i - 1, mtau_min, mtau_max, th_inner,
-                     tp_states);
+   const real threshold = get_threshold(alpha, i + 1, mtau_min, mtau_max,
+         th_inner, tp_states);
 #ifndef NDEBUG
    int count = 0;
 #endif
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
       {
       real this_beta = 0;
-      // ignore paths below a certain threshold
-      if (thresholding && i > 0)
-         {
-         bool skip = true;
-         // limits on deltax can be combined as (c.f. allocate() for details):
-         //   x1-x0 <= mn_max
-         //   x1-x0 >= mn_min
-         const int x0min = std::max(mtau_min, x1 - mn_max);
-         const int x0max = std::min(mtau_max, x1 - mn_min);
-         for (int x0 = x0min; x0 <= x0max; x0++)
-            {
-            if (alpha[i - 1][x0] >= threshold)
-               {
-               skip = false;
-               break;
-               }
-            }
-         if (skip)
-            continue;
-         }
-#ifndef NDEBUG
-      count++;
-#endif
       // limits on deltax can be combined as (c.f. allocate() for details):
       //   x2-x1 <= mn_max
       //   x2-x1 >= mn_min
@@ -200,6 +175,12 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
       const int x2max = std::min(mtau_max, mn_max + x1);
       for (int x2 = x2min; x2 <= x2max; x2++)
          {
+         // ignore paths below a certain threshold
+         if (thresholding && alpha[i + 1][x2] < threshold)
+            continue;
+#ifndef NDEBUG
+         count++;
+#endif
          // cache next beta value in a register
          const real next_beta = beta[i + 1][x2];
          // ignore paths with zero metric
@@ -216,8 +197,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
       }
 #ifndef NDEBUG
    if (tp_states > 0 && count != tp_states)
-      std::cerr << "DEBUG (work_beta): i=" << i << ", path count=" << count
-            << std::endl;
+      std::cerr << "DEBUG (work_beta): i=" << i << ", path count="
+            << count << std::endl;
 #endif
    }
 
