@@ -235,7 +235,8 @@ public:
     *       won't need to clone the RX commsys object in stream simulations.
     */
    tvb(const tvb& x) :
-         q(x.q), marker_type(x.marker_type), codebook_type(x.codebook_type), codebook_name(
+         stream_modulator<sig>(x), parametric(x), q(x.q), marker_type(
+               x.marker_type), codebook_type(x.codebook_type), codebook_name(
                x.codebook_name), codebook_tables(x.codebook_tables), th_inner(
                x.th_inner), th_outer(x.th_outer), tp_states(x.tp_states), Pr(
                x.Pr), flags(x.flags), storage_type(x.storage_type), globalstore_limit(
