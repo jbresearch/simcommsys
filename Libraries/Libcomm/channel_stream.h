@@ -43,6 +43,12 @@ public:
    typedef libbase::vector<double> array1d_t;
    // @}
 public:
+   /*! \name Constructors / Destructors */
+   virtual ~channel_stream()
+      {
+      }
+   // @}
+
    /*! \name Stream-oriented channel characteristics */
    /*!
     * \brief Get the expected drift distribution after transmitting 'tau'

@@ -59,6 +59,12 @@ public:
    typedef libbase::vector<array1r_t> array1vr_t;
    // @}
 public:
+   /*! \name Constructors / Destructors */
+   virtual ~fba2_interface()
+      {
+      }
+   // @}
+
    //! Determine memory required for global storage mode (in MiB)
    static int get_memory_required(int N, int q, int mtau_min, int mtau_max,
          int mn_min, int mn_max)

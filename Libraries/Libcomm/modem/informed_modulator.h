@@ -56,6 +56,12 @@ protected:
    // @}
 
 public:
+   /*! \name Constructors / Destructors */
+   virtual ~informed_modulator()
+      {
+      }
+   // @}
+
    /*! \name Atomic modem operations - informed extensions */
    /*!
     * \brief Demodulate a single time-step

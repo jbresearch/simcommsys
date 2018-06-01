@@ -67,6 +67,12 @@ protected:
    // @}
 
 public:
+   /*! \name Constructors / Destructors */
+   virtual ~stream_modulator()
+      {
+      }
+   // @}
+
    /*! \name Block modem operations - streaming extensions */
    /*!
     * \brief Demodulate a sequence of time-steps

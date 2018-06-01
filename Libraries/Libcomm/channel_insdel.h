@@ -81,6 +81,12 @@ public:
    };
    // @}
 public:
+   /*! \name Constructors / Destructors */
+   virtual ~channel_insdel()
+      {
+      }
+   // @}
+
    /*! \name Insertion-deletion channel functions */
    /*!
      * \brief Get the actual channel drift at time 't' of last transmitted frame.

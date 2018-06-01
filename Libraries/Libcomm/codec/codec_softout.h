@@ -56,6 +56,12 @@ protected:
          const C<array1d_t>& app) = 0;
    // @}
 public:
+   /*! \name Constructors / Destructors */
+   virtual ~codec_softout()
+      {
+      }
+   // @}
+
    /*! \name Codec operations */
    void seedfrom(libbase::random& r)
       {
