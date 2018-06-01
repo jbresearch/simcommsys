@@ -33,6 +33,7 @@
 
 namespace testconfig {
 
+using libbase::size_type;
 using libbase::vector;
 using libbase::matrix;
 using std::cout;
@@ -219,6 +220,9 @@ void testvector()
    cout << "}" << std::endl;
    accessvectorbyreference(r);
    accessvectorbyvalue(r);
+   // test vector size copying
+   size_type<vector> s(x.size());
+   assert(s.length() == x.size().length());
    }
 
 void testmatrixmul()
