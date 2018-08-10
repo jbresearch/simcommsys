@@ -26,6 +26,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "randgen.h"
+#include "counter.h"
 
 #include <list>
 #include <iostream>
@@ -52,23 +53,16 @@ private:
    /*! \name Internal object representation */
    libbase::randgen r; //!< Random source for resolving tie-breaks
 #if DEBUG>=2
-   int calls; //!< Number of hard decisions taken
-   int ties; //!< Number of tie-breaks resolved
+   libbase::counter calls; //!< Number of hard decisions taken
+   libbase::counter ties; //!< Number of tie-breaks resolved
 #endif
    // @}
 public:
 #if DEBUG>=2
    //! Default constructor
    basic_hard_decision() :
-         calls(0), ties(0)
+         calls("hard decision calls"), ties("hard decision tie-breaks")
       {
-      }
-   //! Destructor
-   ~basic_hard_decision()
-      {
-      if (calls > 0)
-         std::cerr << "DEBUG (hard_decision): " << ties << " tie-breaks in "
-               << calls << " hard decisions." << std::endl;
       }
 #endif
    //! Seeds random generator from a pseudo-random sequence
@@ -87,7 +81,7 @@ public:
    S operator()(const array1d_t& ri)
       {
 #if DEBUG>=2
-      calls++;
+      calls.increment();
 #endif
       // Inherit size
       const int K = ri.size();
@@ -111,7 +105,7 @@ public:
          return S(indices.front());
       // pick randomly in case of ties
 #if DEBUG>=2
-      ties++;
+      ties.increment();
 #endif
       std::list<int>::const_iterator it = indices.begin();
       const int skip = r.ival(indices.size());
