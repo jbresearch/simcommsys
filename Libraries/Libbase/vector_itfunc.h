@@ -25,6 +25,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "vectorutils.h"
+#include "counter.h"
 
 /*!
  * \file
@@ -130,17 +131,34 @@ void compute_extrinsic(vector<vector<dbl> >& re, const vector<vector<dbl> >& ro,
 template <class real, class dbl>
 void normalize(const vector<real>& in, vector<dbl>& out)
    {
+#ifndef NDEBUG
+   static counter calls("vector_itfunc normalize calls");
+   static counter zeros("vector_itfunc normalize zero-scales");
+#endif
    const int N = in.size();
    assert(N > 0);
-   // check for numerical underflow
-   real scale = in.sum();
-   assertalways(scale > real(0));
-   scale = real(1) / scale;
    // allocate result space
    out.init(N);
-   // normalize and copy results
-   for (int i = 0; i < N; i++)
-      out(i) = dbl(in(i) * scale);
+   // check for numerical underflow
+   real scale = in.sum();
+   //assertalways(scale > real(0));
+   if (scale > real(0))
+      {
+      scale = real(1) / scale;
+      // normalize and copy results
+      for (int i = 0; i < N; i++)
+         out(i) = dbl(in(i) * scale);
+      }
+   else
+      {
+      out = dbl(1);
+#ifndef NDEBUG
+      zeros.increment();
+#endif
+      }
+#ifndef NDEBUG
+   calls.increment();
+#endif
    }
 
 /*!

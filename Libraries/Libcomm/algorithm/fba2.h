@@ -92,6 +92,8 @@ private:
 #ifndef NDEBUG
    mutable int gamma_calls; //!< Number of calls requesting gamma values
    mutable int gamma_misses; //!< Number of cache misses in such calls
+   static int scale_calls; //!< Number of calls requesting metric scale factor
+   static int scale_zeros; //!< Number of zero scale values in such calls
 #endif
    // @}
    /*! \name User-defined parameters */
@@ -246,6 +248,15 @@ public:
          initialised(false)
       {
       }
+   //! Virtual destructor
+#ifndef NDEBUG
+   virtual ~fba2()
+      {
+      if (scale_calls > 0)
+         std::cerr << "DEBUG (fba2): " << scale_zeros << " zeros in "
+               << scale_calls << " metric scalings." << std::endl;
+      }
+#endif
    // @}
 
    /*! \name FBA2 Interface Implementation */

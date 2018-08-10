@@ -37,6 +37,20 @@ namespace libcomm {
 #  define DEBUG 1
 #endif
 
+// static fields
+
+#ifndef NDEBUG
+
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_calls = 0;
+
+template <class receiver_t, class sig, class real, class real2,
+      bool thresholding, bool lazy, bool globalstore>
+int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_zeros = 0;
+
+#endif
+
 // *** Internal functions - computer
 
 // common small tasks
@@ -87,8 +101,14 @@ real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_sc
    real scale = 0;
    for (int col = col_min; col <= col_max; col++)
       scale += metric[row][col];
-   assertalways(scale > real(0));
-   scale = real(1) / scale;
+   //assertalways(scale > real(0));
+   if (scale > real(0))
+      scale = real(1) / scale;
+#ifndef NDEBUG
+   else
+      scale_zeros++;
+   scale_calls++;
+#endif
    return scale;
    }
 
@@ -100,8 +120,12 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::normal
    // determine the scale factor to use (each block has to do this)
    const real scale = get_scale(metric, row, col_min, col_max);
    // scale all results
-   for (int col = col_min; col <= col_max; col++)
-      metric[row][col] *= scale;
+   if (scale > real(0))
+      for (int col = col_min; col <= col_max; col++)
+         metric[row][col] *= scale;
+   else
+      for (int col = col_min; col <= col_max; col++)
+         metric[row][col] = real(1);
    }
 
 // decode functions - partial computations
