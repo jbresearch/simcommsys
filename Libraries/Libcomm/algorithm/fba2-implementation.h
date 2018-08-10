@@ -30,7 +30,8 @@ namespace libcomm {
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Show allocated memory sizes
-// 3 - Show input and intermediate vectors when decoding
+// 3 - Track path counts when trellis pruning
+// 4 - Show input and intermediate vectors when decoding
 #ifndef NDEBUG
 #  undef DEBUG
 #  define DEBUG 1
@@ -113,7 +114,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
    // determine the strongest path at this point
    const real threshold = get_threshold(alpha, i - 1, mtau_min, mtau_max,
          th_inner, tp_states);
-#ifndef NDEBUG
+#if DEBUG>=3
    int count = 0;
 #endif
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
@@ -126,7 +127,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       // ignore paths below a certain threshold
       if (thresholding && prev_alpha < threshold)
          continue;
-#ifndef NDEBUG
+#if DEBUG>=3
       count++;
 #endif
       // limits on deltax can be combined as (c.f. allocate() for details):
@@ -147,7 +148,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
          alpha[i][x2] += this_alpha_change;
          }
       }
-#ifndef NDEBUG
+#if DEBUG>=3
    if (tp_states > 0 && count != tp_states)
       std::cerr << "DEBUG (work_alpha): i=" << i << ", path count=" << count
             << std::endl;
@@ -162,7 +163,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
    // determine the strongest forward path at this point
    const real threshold = get_threshold(alpha, i + 1, mtau_min, mtau_max,
          th_inner, tp_states);
-#ifndef NDEBUG
+#if DEBUG>=3
    int count = 0;
 #endif
    for (int x1 = mtau_min; x1 <= mtau_max; x1++)
@@ -178,7 +179,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          // ignore paths below a certain threshold
          if (thresholding && alpha[i + 1][x2] < threshold)
             continue;
-#ifndef NDEBUG
+#if DEBUG>=3
          count++;
 #endif
          // cache next beta value in a register
@@ -195,7 +196,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
          }
       beta[i][x1] = this_beta;
       }
-#ifndef NDEBUG
+#if DEBUG>=3
    if (tp_states > 0 && count != tp_states)
       std::cerr << "DEBUG (work_beta): i=" << i << ", path count="
             << count << std::endl;
@@ -212,7 +213,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          tp_states);
    for (int d = 0; d < q; d++)
       {
-#ifndef NDEBUG
+#if DEBUG>=3
       int count = 0;
 #endif
       // initialize result holder
@@ -227,7 +228,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          // ignore paths below a certain threshold
          if (thresholding && this_alpha < threshold)
             continue;
-#ifndef NDEBUG
+#if DEBUG>=3
          count++;
 #endif
          // limits on deltax can be combined as (c.f. allocate() for details):
@@ -250,7 +251,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
          }
       // store result
       ptable(i)(d) = p;
-#ifndef NDEBUG
+#if DEBUG>=3
       if (tp_states > 0 && count != tp_states)
          std::cerr << "DEBUG (work_message_app): i=" << i << ", d=" << d
                << ", path count=" << count << std::endl;
@@ -483,7 +484,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_g
       work_gamma(r, app, i);
       }
    std::cerr << progress.update(N, N);
-#if DEBUG>=3
+#if DEBUG>=4
    print_gamma(std::cerr);
 #endif
    }
@@ -520,7 +521,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       normalize_beta(N - i);
       }
    std::cerr << progress.update(N, N);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "alpha = " << alpha << std::endl;
    std::cerr << "beta = " << beta << std::endl;
    // show gamma as well if computing lazily
@@ -550,7 +551,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_r
    // compute APPs of sof/eof state values
    work_state_app(sof_post, 0);
    work_state_app(eof_post, N);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "ptable = " << ptable << std::endl;
    std::cerr << "sof_post = " << sof_post << std::endl;
    std::cerr << "eof_post = " << eof_post << std::endl;
@@ -596,7 +597,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       normalize_alpha(i);
       }
    std::cerr << progress.update(N, N);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "alpha = " << alpha << std::endl;
 #endif
    }
@@ -648,7 +649,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
    // compute APPs of sof/eof state values
    work_state_app(sof_post, 0);
    work_state_app(eof_post, N);
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "beta = " << beta << std::endl;
    std::cerr << "ptable = " << ptable << std::endl;
    std::cerr << "sof_post = " << sof_post << std::endl;
@@ -740,7 +741,7 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode
       const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
       array1r_t& eof_post, const int offset)
    {
-#if DEBUG>=3
+#if DEBUG>=4
    std::cerr << "Starting decode..." << std::endl;
    std::cerr << "N = " << N << std::endl;
    std::cerr << "q = " << q << std::endl;
