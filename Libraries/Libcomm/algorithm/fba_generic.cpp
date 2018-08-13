@@ -94,29 +94,6 @@ void fba_generic<sig, real, real2>::free()
 // Internal procedures
 
 template <class sig, class real, class real2>
-real fba_generic<sig, real, real2>::get_scale(const array2r_t& metric, int row,
-      int col_min, int col_max)
-   {
-   real scale = 0;
-   for (int col = col_min; col <= col_max; col++)
-      scale += metric[row][col];
-   assertalways(scale > real(0));
-   scale = real(1) / scale;
-   return scale;
-   }
-
-template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::normalize(array2r_t& metric, int row,
-      int col_min, int col_max)
-   {
-   // determine the scale factor to use (each block has to do this)
-   const real scale = get_scale(metric, row, col_min, col_max);
-   // scale all results
-   for (int col = col_min; col <= col_max; col++)
-      metric[row][col] *= scale;
-   }
-
-template <class sig, class real, class real2>
 void fba_generic<sig, real, real2>::work_alpha(const array1s_t& r,
       const array1vd_t& app, const array1d_t& sof_prior)
    {

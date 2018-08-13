@@ -24,6 +24,7 @@
 
 #include "vector.h"
 #include "matrix.h"
+#include "multi_array.h"
 #include "vectorutils.h"
 #include "counter.h"
 
@@ -111,6 +112,86 @@ void compute_extrinsic(vector<vector<dbl> >& re, const vector<vector<dbl> >& ro,
 #endif
 #if DEBUG>=3
    std::cerr << "DEBUG (compute_extrinsic): re = " << re << std::endl;
+#endif
+   }
+
+/*!
+ * \brief Normalize row in probability table
+ *
+ * \param table Table of probabilities
+ *
+ * The given row in the probability table is normalized such that the sum of
+ * probabilities in that row is equal to 1, with the result stored in-place.
+ */
+template <class real>
+void normalize_row(boost::assignable_multi_array<real, 2>& table, const int row,
+      const int col_min, const int col_max)
+   {
+#ifndef NDEBUG
+   static matching_counter zeros("vector_itfunc normalize_row");
+#endif
+   // check for numerical underflow
+   real scale = 0;
+   for (int col = col_min; col <= col_max; col++)
+      scale += table[row][col];
+   //assertalways(scale > real(0));
+   if (scale > real(0))
+      {
+      scale = real(1) / scale;
+      // normalize probabilities
+      for (int col = col_min; col <= col_max; col++)
+         table[row][col] *= scale;
+      }
+   else
+      {
+      for (int col = col_min; col <= col_max; col++)
+         table[row][col] = real(1);
+#ifndef NDEBUG
+      zeros.increment_matches();
+#endif
+      }
+#ifndef NDEBUG
+   zeros.increment_events();
+#endif
+   }
+
+/*!
+ * \brief Normalize row in probability table
+ *
+ * \param table Table of probabilities
+ *
+ * The given row in the probability table is normalized such that the sum of
+ * probabilities in that row is equal to 1, with the result stored in-place.
+ */
+template <class real>
+void normalize_row(matrix<real>& table, const int row, const int col_min,
+      const int col_max)
+   {
+#ifndef NDEBUG
+   static matching_counter zeros("vector_itfunc normalize_row");
+#endif
+   // check for numerical underflow
+   real scale = 0;
+   for (int col = col_min; col <= col_max; col++)
+      scale += table(row, col);
+   //assertalways(scale > real(0));
+   if (scale > real(0))
+      {
+      scale = real(1) / scale;
+      // normalize probabilities
+      for (int col = col_min; col <= col_max; col++)
+         table(row, col) *= scale;
+      }
+   else
+      {
+      for (int col = col_min; col <= col_max; col++)
+         table(row, col) = real(1);
+#ifndef NDEBUG
+      zeros.increment_matches();
+#endif
+      }
+#ifndef NDEBUG
+   zeros.increment_events();
 #endif
    }
 

@@ -26,6 +26,7 @@
 #include "vector.h"
 #include "multi_array.h"
 #include "channel/qids.h"
+#include "vector_itfunc.h"
 
 #include <cmath>
 #include <iostream>
@@ -82,16 +83,13 @@ private:
    void allocate();
    void free();
    // common small tasks
-   static real get_scale(const array2r_t& metric, int row, int col_min,
-         int col_max);
-   static void normalize(array2r_t& metric, int row, int col_min, int col_max);
    void normalize_alpha(int i)
       {
-      normalize(alpha, i, mtau_min, mtau_max);
+      libbase::normalize_row(alpha, i, mtau_min, mtau_max);
       }
    void normalize_beta(int i)
       {
-      normalize(beta, i, mtau_min, mtau_max);
+      libbase::normalize_row(beta, i, mtau_min, mtau_max);
       }
    // decode functions
    void work_alpha(const array1s_t& r, const array1vd_t& app,

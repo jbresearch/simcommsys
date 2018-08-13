@@ -21,6 +21,7 @@
 
 #include "fba.h"
 #include "pacifier.h"
+#include "vector_itfunc.h"
 #include <iomanip>
 
 namespace libcomm {
@@ -151,15 +152,7 @@ void fba<sig, real>::work_forward(const array1s_t& r)
          }
       // normalize if requested
       if (norm)
-         {
-         real scale = 0;
-         for (index y = mtau_min; y <= mtau_max; ++y)
-            scale += F[j][y];
-         assertalways(scale > real(0));
-         scale = real(1) / scale;
-         for (index y = mtau_min; y <= mtau_max; ++y)
-            F[j][y] *= scale;
-         }
+         libbase::normalize_row(F, j, mtau_min, mtau_max);
       }
    std::cerr << progress.update(tau - 1, tau - 1);
    }
@@ -215,15 +208,7 @@ void fba<sig, real>::work_backward(const array1s_t& r)
          }
       // normalize if requested
       if (norm)
-         {
-         real scale = 0;
-         for (index y = mtau_min; y <= mtau_max; ++y)
-            scale += B[j][y];
-         assertalways(scale > real(0));
-         scale = real(1) / scale;
-         for (index y = mtau_min; y <= mtau_max; ++y)
-            B[j][y] *= scale;
-         }
+         libbase::normalize_row(B, j, mtau_min, mtau_max);
       }
    std::cerr << progress.update(tau - 1, tau - 1);
    }

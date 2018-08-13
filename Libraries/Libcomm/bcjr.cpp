@@ -20,6 +20,7 @@
  */
 
 #include "bcjr.h"
+#include "vector_itfunc.h"
 #include <iomanip>
 
 namespace libcomm {
@@ -276,15 +277,7 @@ void bcjr<real, dbl, norm>::work_alpha()
             }
       // normalize
       if (norm)
-         {
-         real scale = alpha(t, 0);
-         for (int m = 1; m < M; m++)
-            scale += alpha(t, m);
-         assertalways(scale > real(0));
-         scale = real(1) / scale;
-         for (int m = 0; m < M; m++)
-            alpha(t, m) *= scale;
-         }
+         libbase::normalize_row(alpha, t, 0, M);
       }
    }
 
@@ -314,15 +307,7 @@ void bcjr<real, dbl, norm>::work_beta()
          }
       // normalize
       if (norm)
-         {
-         real scale = beta(t, 0);
-         for (int m = 1; m < M; m++)
-            scale += beta(t, m);
-         assertalways(scale > real(0));
-         scale = real(1) / scale;
-         for (int m = 0; m < M; m++)
-            beta(t, m) *= scale;
-         }
+         libbase::normalize_row(beta, t, 0, M);
       }
    }
 

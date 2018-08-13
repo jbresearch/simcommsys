@@ -43,11 +43,13 @@ namespace libcomm {
 
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
-int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_calls = 0;
+int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_calls =
+      0;
 
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
-int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_zeros = 0;
+int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_zeros =
+      0;
 
 #endif
 
@@ -58,7 +60,8 @@ int fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::scale_z
 template <class receiver_t, class sig, class real, class real2,
       bool thresholding, bool lazy, bool globalstore>
 real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_threshold(
-      const array2r_t& metric, int row, int col_min, int col_max, real factor, int tp_states)
+      const array2r_t& metric, int row, int col_min, int col_max, real factor,
+      int tp_states)
    {
    // early short-cut for no-thresholding
    if (!thresholding)
@@ -91,41 +94,6 @@ real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_th
       }
    // nothing to do
    return 0;
-   }
-
-template <class receiver_t, class sig, class real, class real2,
-      bool thresholding, bool lazy, bool globalstore>
-real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::get_scale(
-      const array2r_t& metric, int row, int col_min, int col_max)
-   {
-   real scale = 0;
-   for (int col = col_min; col <= col_max; col++)
-      scale += metric[row][col];
-   //assertalways(scale > real(0));
-   if (scale > real(0))
-      scale = real(1) / scale;
-#ifndef NDEBUG
-   else
-      scale_zeros++;
-   scale_calls++;
-#endif
-   return scale;
-   }
-
-template <class receiver_t, class sig, class real, class real2,
-      bool thresholding, bool lazy, bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::normalize(
-      array2r_t& metric, int row, int col_min, int col_max)
-   {
-   // determine the scale factor to use (each block has to do this)
-   const real scale = get_scale(metric, row, col_min, col_max);
-   // scale all results
-   if (scale > real(0))
-      for (int col = col_min; col <= col_max; col++)
-         metric[row][col] *= scale;
-   else
-      for (int col = col_min; col <= col_max; col++)
-         metric[row][col] = real(1);
    }
 
 // decode functions - partial computations
@@ -174,8 +142,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_a
       }
 #if DEBUG>=3
    if (tp_states > 0 && count != tp_states)
-      std::cerr << "DEBUG (work_alpha): i=" << i << ", path count=" << count
-            << std::endl;
+   std::cerr << "DEBUG (work_alpha): i=" << i << ", path count=" << count
+   << std::endl;
 #endif
    }
 
@@ -222,8 +190,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_b
       }
 #if DEBUG>=3
    if (tp_states > 0 && count != tp_states)
-      std::cerr << "DEBUG (work_beta): i=" << i << ", path count="
-            << count << std::endl;
+   std::cerr << "DEBUG (work_beta): i=" << i << ", path count="
+   << count << std::endl;
 #endif
    }
 
@@ -277,8 +245,8 @@ void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_m
       ptable(i)(d) = p;
 #if DEBUG>=3
       if (tp_states > 0 && count != tp_states)
-         std::cerr << "DEBUG (work_message_app): i=" << i << ", d=" << d
-               << ", path count=" << count << std::endl;
+      std::cerr << "DEBUG (work_message_app): i=" << i << ", d=" << d
+      << ", path count=" << count << std::endl;
 #endif
       }
    }
