@@ -132,8 +132,7 @@ template <class real, class dbl>
 void normalize(const vector<real>& in, vector<dbl>& out)
    {
 #ifndef NDEBUG
-   static counter calls("vector_itfunc normalize calls");
-   static counter zeros("vector_itfunc normalize zero-scales");
+   static matching_counter zeros("vector_itfunc normalize");
 #endif
    const int N = in.size();
    assert(N > 0);
@@ -153,11 +152,11 @@ void normalize(const vector<real>& in, vector<dbl>& out)
       {
       out = dbl(1);
 #ifndef NDEBUG
-      zeros.increment();
+      zeros.increment_matches();
 #endif
       }
 #ifndef NDEBUG
-   calls.increment();
+   zeros.increment_events();
 #endif
    }
 

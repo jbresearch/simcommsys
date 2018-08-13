@@ -29,10 +29,10 @@
 namespace libbase {
 
 /*!
- * \brief   Counter class
+ * \brief   Simple counter class
  * \author  Johann Briffa
  *
- * A class for counters which can be used to count events, etc.
+ * A class for counters which can be used to count general events.
  */
 
 class counter {
@@ -55,7 +55,7 @@ public:
       std::clog << "Counter";
       if (name != "")
          std::clog << " (" << name << ")";
-      std::clog << ": " << count << " events" << std::endl;
+      std::clog << ": " << count << std::endl;
       }
    // @}
 
@@ -77,6 +77,82 @@ public:
    size_t get_count() const
       {
       return count;
+      }
+   //! Return counter name
+   std::string get_name() const
+      {
+      return name;
+      }
+   // @}
+};
+
+
+/*!
+ * \brief   Matching counter class
+ * \author  Johann Briffa
+ *
+ * A class for counters which can be used to count the number of matching
+ * cases in a series of events.
+ */
+
+class matching_counter {
+private:
+   /*! \name Internal representation */
+   std::string name; //!< Counter name
+   size_t matches; //!< Internal count of matches
+   size_t events; //!< Internal count of events
+   // @}
+
+public:
+   /*! \name Constructors / Destructors */
+   //! Default constructor
+   matching_counter(const std::string& name = "") :
+      name(name), matches(0), events(0)
+      {
+      }
+   //! Virtual destructor
+   virtual ~matching_counter()
+      {
+      // only show count if there was at least an event
+      if (events > 0)
+         {
+         std::clog << "Counter";
+         if (name != "")
+            std::clog << " (" << name << ")";
+         std::clog << ": " << matches << " of " << events << std::endl;
+         }
+      }
+   // @}
+
+   /*! \name Counter operation */
+   //! Resets the counter
+   void reset()
+      {
+      matches = 0;
+      events = 0;
+      }
+   //! Increments the match counter
+   void increment_matches()
+      {
+      matches++;
+      }
+   //! Increments the event counter
+   void increment_events()
+      {
+      events++;
+      }
+   // @}
+
+   /*! \name Timer information */
+   //! Return current count of events
+   size_t get_matches() const
+      {
+      return matches;
+      }
+   //! Return current count of events
+   size_t get_events() const
+      {
+      return events;
       }
    //! Return counter name
    std::string get_name() const
