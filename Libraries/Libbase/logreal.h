@@ -77,16 +77,16 @@ inline logreal& logreal::operator+=(const logreal& a)
 inline logreal& logreal::operator*=(const logreal& a)
    {
    logval += a.logval;
-   if (isinf(logval))
-      logval = isinf(logval) * DBL_MAX;
+   if (std::isinf(logval))
+      logval = std::isinf(logval) * DBL_MAX;
    return *this;
    }
 
 inline logreal& logreal::operator/=(const logreal& a)
    {
    logval -= a.logval;
-   if (isinf(logval))
-      logval = isinf(logval) * DBL_MAX;
+   if (std::isinf(logval))
+      logval = std::isinf(logval) * DBL_MAX;
    return *this;
    }
 
