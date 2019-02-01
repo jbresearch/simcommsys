@@ -203,11 +203,7 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 CCopts := $(CCopts) -Wall -Werror
-#CCopts := $(CCopts) -std=c++0x
-# note: below disabled to avoid problems with parallel builds
-# note: below should be replaced with the following when we move to gcc > 4.4
-#CCopts := $(CCopts) -save-temps
-#CCopts := $(CCopts) -save-temps=obj
+#CCopts := $(CCopts) -std=c++11
 # OMP options
 ifneq ($(USE_OMP),0)
    CCopts := $(CCopts) -DUSE_OMP -fopenmp
