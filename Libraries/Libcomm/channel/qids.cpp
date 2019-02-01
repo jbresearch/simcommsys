@@ -45,14 +45,14 @@ namespace libcomm {
  *
  * When the last symbol \f[ r_\mu = t \f]
  * \f[ Rtable(0,\mu) =
- * \left(\frac{P_i}{2}\right)^\mu
- * \left( (1-P_i-P_d) (1-P_s) + \frac{1}{2} P_i P_d \right)
+ * \left(\frac{P_i}{|G|}\right)^\mu
+ * \left( (1-P_i-P_d) (1-P_s) + \frac{P_i}{|G|} P_d \right)
  * , \mu \in (0, \ldots m1_max) \f]
  *
  * When the last symbol \f[ r_\mu \neq t \f]
  * \f[ Rtable(1,\mu) =
  * \left(\frac{P_i}{2}\right)^\mu
- * \left( (1-P_i-P_d) P_s + \frac{1}{2} P_i P_d \right)
+ * \left( (1-P_i-P_d) \frac{P_s}{|G|-1} + \frac{P-i}{|G|} P_d \right)
  * , \mu \in (0, \ldots m1_max) \f]
  */
 template <class G, class real>
@@ -60,9 +60,10 @@ real qids<G, real>::metric_computer::compute_Rtable_entry(bool err, int mu,
       double Ps, double Pd, double Pi)
    {
    const double a1 = (1 - Pi - Pd);
-   const double a2 = 0.5 * Pi * Pd;
-   const double a3 = pow(0.5 * Pi, mu);
-   const double a4 = err ? Ps : (1 - Ps);
+   const double a2 = 1.0 / field_utils<G>::elements() * Pi * Pd;
+   const double a3 = pow(1.0 / field_utils<G>::elements() * Pi, mu);
+   const double a4 =
+         err ? 1.0 / (field_utils<G>::elements() - 1) * Ps : (1 - Ps);
    return real(a3 * (a1 * a4 + a2));
    }
 
@@ -118,9 +119,9 @@ void qids<G, real>::metric_computer::precompute(double Ps, double Pd, double Pi,
 #endif
    // lattice coefficients
    Pval_d = real(Pd);
-   Pval_i = real(0.5 * Pi);
+   Pval_i = real(1.0 / field_utils<G>::elements() * Pi);
    Pval_tc = real((1 - Pi - Pd) * (1 - Ps));
-   Pval_te = real((1 - Pi - Pd) * Ps);
+   Pval_te = real((1 - Pi - Pd) * 1.0 / (field_utils<G>::elements() - 1) * Ps);
    }
 
 // Channel receiver for host
