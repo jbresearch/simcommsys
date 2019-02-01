@@ -171,7 +171,6 @@ public:
       }
    erasable& operator=(const bool value)
       {
-      assert(value >= 0 && value <= 1);
       this->value = value;
       this->erased = false;
       return *this;

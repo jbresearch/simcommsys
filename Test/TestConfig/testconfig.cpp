@@ -375,15 +375,6 @@ void testbool_ops()
          const bool c = a + b;
          std::cout << a << " + " << b << " = " << c << std::endl;
          }
-   std::cout << std::endl;
-   for (int i = 0; i < 2; i++)
-      for (int j = 0; j < 2; j++)
-         {
-         const bool a = bool(i);
-         const bool b = bool(j);
-         const bool c = a * b;
-         std::cout << a << " * " << b << " = " << c << std::endl;
-         }
    }
 
 void test128bit()

@@ -34,7 +34,7 @@ inline void mpreal::normalise()
       exponent = 0;
       return;
       }
-   if (isinf(mantissa) || isnan(mantissa))
+   if (std::isinf(mantissa) || std::isnan(mantissa))
       return;
    int shift = (int) floor(log(fabs(mantissa)) / log(double(base)));
    mantissa *= pow(base, -shift);
@@ -118,7 +118,7 @@ std::ostream& operator<<(std::ostream& s, const mpreal& x)
    const std::ios::fmtflags flags = s.flags();
    s.setf(std::ios::fixed, std::ios::floatfield);
    s << x.mantissa;
-   if (!(isinf(x.mantissa) || isnan(x.mantissa)))
+   if (!(std::isinf(x.mantissa) || std::isnan(x.mantissa)))
       {
       s.setf(std::ios::showpos);
       s << "e" << x.exponent;

@@ -42,8 +42,8 @@ using libcomm::blockmodem;
 using libcomm::channel;
 using libcomm::dminner;
 
-typedef std::auto_ptr<blockmodem<bool> > modem_ptr;
-typedef std::auto_ptr<channel<bool> > channel_ptr;
+typedef std::unique_ptr<blockmodem<bool> > modem_ptr;
+typedef std::unique_ptr<channel<bool> > channel_ptr;
 
 modem_ptr create_modem(bool decoder, bool math, bool deep, int tau, int n,
       int k, libbase::random& r)
