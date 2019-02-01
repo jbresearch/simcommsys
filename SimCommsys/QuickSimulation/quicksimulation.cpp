@@ -32,8 +32,6 @@
 #include <iostream>
 #include <iomanip>
 
-namespace QuickSimulation {
-
 namespace po = boost::program_options;
 
 class mymontecarlo : public libcomm::montecarlo {
@@ -192,11 +190,4 @@ int main(int argc, char *argv[])
          break;
       }
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return QuickSimulation::main(argc, argv);
    }

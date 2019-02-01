@@ -29,8 +29,6 @@
 #include <sstream>
 #include <typeinfo>
 
-namespace improcess {
-
 //! load an image from an input stream
 template <class S>
 libimage::image<S> loadimage(std::istream& sin)
@@ -360,11 +358,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return improcess::main(argc, argv);
    }

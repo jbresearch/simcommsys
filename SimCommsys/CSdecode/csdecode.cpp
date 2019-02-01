@@ -31,8 +31,6 @@
 #include <iostream>
 #include <list>
 
-namespace csdecode {
-
 // block reading
 
 template <class S>
@@ -503,11 +501,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return csdecode::main(argc, argv);
    }

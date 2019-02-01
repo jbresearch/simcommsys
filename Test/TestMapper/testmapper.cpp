@@ -28,8 +28,6 @@
 
 #include <iostream>
 
-namespace testmapper {
-
 using std::cout;
 using std::cerr;
 using libbase::vector;
@@ -130,11 +128,4 @@ int main(int argc, char *argv[])
    test_aggregating(N, q, M);
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testmapper::main(argc, argv);
    }

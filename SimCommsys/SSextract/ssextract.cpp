@@ -30,8 +30,6 @@
 #include <fstream>
 #include <typeinfo>
 
-namespace ssextract {
-
 template <class S>
 libimage::image<S> loadimage(std::istream& sin)
    {
@@ -194,11 +192,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return ssextract::main(argc, argv);
    }

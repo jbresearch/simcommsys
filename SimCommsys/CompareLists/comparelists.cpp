@@ -30,8 +30,6 @@
 #include <list>
 #include <algorithm>
 
-namespace comparelists {
-
 using std::cout;
 using std::cerr;
 namespace po = boost::program_options;
@@ -316,11 +314,4 @@ int main(int argc, char *argv[])
       process<value<double> > (fname1, fname2, t, ham, lev, rep, mse);
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return comparelists::main(argc, argv);
    }

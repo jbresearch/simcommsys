@@ -26,8 +26,6 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-namespace cstransmit {
-
 template <class S, template <class > class C>
 void process(const std::string& fname, double p, std::istream& sin = std::cin,
       std::ostream& sout = std::cout)
@@ -169,11 +167,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return cstransmit::main(argc, argv);
    }

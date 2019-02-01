@@ -26,8 +26,6 @@
 
 #include <iostream>
 
-namespace testlinearity {
-
 namespace po = boost::program_options;
 
 template <template <class > class C>
@@ -186,11 +184,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testlinearity::main(argc, argv);
    }

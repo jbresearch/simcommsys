@@ -44,8 +44,6 @@ using std::ifstream;
 using std::ofstream;
 using libcomm::sum_prod_alg_gdl;
 
-namespace testldpc {
-
 using libbase::matrix;
 using libbase::gf;
 using libbase::randgen;
@@ -476,11 +474,4 @@ int main(int argc, char *argv[])
       return 1;
       }
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testldpc::main(argc, argv);
    }

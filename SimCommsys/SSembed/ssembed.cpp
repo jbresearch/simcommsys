@@ -30,8 +30,6 @@
 #include <fstream>
 #include <typeinfo>
 
-namespace ssembed {
-
 template <class S>
 libimage::image<S> loadimage(const std::string& fname)
    {
@@ -179,11 +177,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return ssembed::main(argc, argv);
    }

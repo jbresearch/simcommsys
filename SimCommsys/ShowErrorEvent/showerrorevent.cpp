@@ -30,8 +30,6 @@
 
 #include <iostream>
 
-namespace showerrorevent {
-
 // Determine debug level:
 // 1 - Normal debug output only
 #ifndef NDEBUG
@@ -156,11 +154,4 @@ int main(int argc, char *argv[])
       display_event(system);
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return showerrorevent::main(argc, argv);
    }

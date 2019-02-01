@@ -30,8 +30,6 @@
 #include <sstream>
 #include <iostream>
 
-namespace testcipher {
-
 /*!
  * \brief   Test class for running ElGamal cipher
  * \author  Johann Briffa
@@ -287,11 +285,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testcipher::main(argc, argv);
    }

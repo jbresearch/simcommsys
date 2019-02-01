@@ -25,8 +25,6 @@
 #include "itfunc.h"
 #include <iostream>
 
-namespace testmodem {
-
 using libcomm::blockmodem;
 using libcomm::mpsk;
 using libcomm::qam;
@@ -76,11 +74,4 @@ int main(int argc, char *argv[])
    TestQAM(4);
    TestQAM(16);
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testmodem::main(argc, argv);
    }

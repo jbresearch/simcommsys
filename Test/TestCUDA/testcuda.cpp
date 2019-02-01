@@ -24,8 +24,6 @@
 
 #include <boost/program_options.hpp>
 
-namespace testcuda {
-
 void time_timer()
    {
    // definitions
@@ -91,11 +89,4 @@ int main(int argc, char *argv[])
    failwith("CUDA support not enabled on this system");
 #endif
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testcuda::main(argc, argv);
    }

@@ -25,8 +25,6 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-namespace inspectserializer {
-
 /*!
  * \brief   Serializer Class Support Inspector
  * \author  Johann Briffa
@@ -84,11 +82,4 @@ int main(int argc, char *argv[])
       std::cout << "\t" << *i << std::endl;
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return inspectserializer::main(argc, argv);
    }

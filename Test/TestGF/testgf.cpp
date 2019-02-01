@@ -26,8 +26,6 @@
 #include "cputimer.h"
 #include <iostream>
 
-namespace testgf {
-
 using libbase::gf;
 using libbase::gf_fast;
 using libbase::bitfield;
@@ -1364,11 +1362,4 @@ int main(int argc, char *argv[])
    TestFastGF256();
    //ProduceLookupTables();
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testgf::main(argc, argv);
    }

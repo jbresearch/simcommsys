@@ -31,8 +31,6 @@
 #include <iostream>
 #include <iomanip>
 
-namespace testconfig {
-
 using libbase::size_type;
 using libbase::vector;
 using libbase::matrix;
@@ -420,11 +418,4 @@ int main(int argc, char *argv[])
    testbool_ops();
    test128bit();
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testconfig::main(argc, argv);
    }

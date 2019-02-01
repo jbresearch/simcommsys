@@ -29,8 +29,6 @@
 #include <iostream>
 #include <string>
 
-namespace testwmdemodulation {
-
 using std::cout;
 using std::cerr;
 
@@ -278,11 +276,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testwmdemodulation::main(argc, argv);
    }

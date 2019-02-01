@@ -34,8 +34,6 @@
 #include <iostream>
 #include <exception>
 
-namespace testqids {
-
 using std::cout;
 using std::cerr;
 using libbase::vector;
@@ -653,11 +651,4 @@ int main(int argc, char *argv[])
       }
 
    return 0;
-   }
-
-} // end namespace
-
-int main(int argc, char *argv[])
-   {
-   return testqids::main(argc, argv);
    }
