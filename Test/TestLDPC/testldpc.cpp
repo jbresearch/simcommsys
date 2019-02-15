@@ -407,7 +407,7 @@ void process(bool serialized)
    if (serialized)
       {
       // write it in serialised format
-      std::cout << &codec;
+      codec.serialize(std::cout);
       }
    else
       {
