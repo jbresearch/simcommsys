@@ -810,7 +810,7 @@ template <class sig, class real, class real2>
 std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
    {
    sout << "# Version" << std::endl;
-   sout << 11 << std::endl;
+   sout << 12 << std::endl;
    sout << "# Inner threshold" << std::endl;
    sout << th_inner << std::endl;
    sout << "# Outer threshold" << std::endl;
