@@ -640,7 +640,7 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
    for (int i = 0, j = 0; i < tau; i++)
       {
       for (int ins = 0; ins < state_ins(i); ins++)
-         newrx(j++) = (this->r.fval_closed() < 0.5);
+         newrx(j++) = G(this->r.ival(field_utils<G>::elements()));
       if (state_tx(i))
          newrx(j++) = corrupt(tx(i));
       }
