@@ -557,8 +557,6 @@ def plotitem(x,y,ytol,style,xscale,yscale,ns=1,label=None):
    x = np.array(x).squeeze()
    y = np.array(y).squeeze()
    ytol = np.array(ytol).squeeze()
-   # work on existing plot
-   plt.hold(True)
    # debug output
    #print 'x = ', x
    #print 'y = ', y
