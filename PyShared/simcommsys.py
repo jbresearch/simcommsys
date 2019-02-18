@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # coding=utf8
 #
 # Copyright (c) 2010 Johann A. Briffa
@@ -57,7 +57,7 @@ def levenshtein_distance(first, second, wd=1, wi=1, ws=1):
       distance_matrix[i][0] = i
    for j in range(second_length):
       distance_matrix[0][j]=j
-   for i in xrange(1, first_length):
+   for i in range(1, first_length):
       for j in range(1, second_length):
          deletion = distance_matrix[i-1][j] + wd
          insertion = distance_matrix[i][j-1] + wi
@@ -85,7 +85,7 @@ def average_weight(k):
    '''
 
    w = 0
-   for i in xrange(1<<k):
+   for i in range(1<<k):
       w += hamming_weight(i)
    w /= float(1<<k)
    return w
@@ -216,7 +216,7 @@ def loaddata(filename,latest=True):
 
    fid = open(filename,'r')
    if not fid:
-      print 'Cannot open file "%s".\n' % filename
+      print('Cannot open file "%s".\n' % filename)
       return
 
    data = []
@@ -514,7 +514,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
       plt.xlabel('Channel Parameter')
       plt.ylabel(ylabel[type])
    elif type==5:
-      print "Not supported"
+      print("Not supported")
       sys.exit(1)
       #plotprofile(par,0:(size(results,2)-1),results,tolerance,xscale,'linear','log')
       plt.xlabel('Channel Parameter')
@@ -526,7 +526,7 @@ def plotresults(filename, type=2, xscale='linear', showiter=False,
       results = np.array(results).transpose()
       tolerance = np.array(tolerance).transpose()
       label = '%s, p=%s' % (label, ','.join([ '%g' % n for n in par ]))
-      h = plotitem(range(cols),results,tolerance,style,'linear','log',ns,label)
+      h = plotitem(list(range(cols)),results,tolerance,style,'linear','log',ns,label)
       plt.xlabel('Value/Position')
       plt.ylabel('Symbol Error Rate')
    elif type==7:
@@ -647,7 +647,7 @@ def plot_and_analyze(filename, type, style, rate, corrected):
       (par,results,tolret,passes,cputime) = \
          plotresults(filename,type,xscale,showiter,showtol,None,limit,correct)
       (b,a) = analyze(par,results)
-      print "%f\t%f\t%s" % (b,a,filename.split('.')[-2])
+      print("%f\t%f\t%s" % (b,a,filename.split('.')[-2]))
    # do the plot
    h = plotresults(filename,type,xscale,showiter,showtol,style,limit,correct)
    return h
