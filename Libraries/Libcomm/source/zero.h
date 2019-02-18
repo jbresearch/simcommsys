@@ -41,7 +41,7 @@ public:
    //! Generate a single source element
    S generate_single()
       {
-      return 0;
+      return S(0);
       }
 
    //! Description

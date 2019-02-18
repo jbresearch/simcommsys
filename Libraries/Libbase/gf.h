@@ -103,15 +103,21 @@ private:
 
 public:
    /*! \name Constructors / Destructors */
-   //! Principal constructor
+   //! Default constructor
 #ifdef __CUDACC__
    __device__ __host__
 #endif
-   gf(int value = 0)
+   gf() : value(0)
       {
-      init(value);
+      assert(m < 32);
       }
-   gf(const std::string s)
+   //! Converting from int constructor
+   gf(const int x)
+      {
+      init(x);
+      }
+   //! Converting from string constructor
+   explicit gf(const std::string s)
       {
       init(s);
       }
@@ -230,13 +236,14 @@ public:
 #endif
    gf inverse() const
       {
-      const gf<m, poly> one = 1;
-      gf<m, poly> result = 1;
+      const gf<m, poly> one(1);
+      const gf<m, poly> two(2);
+      gf<m, poly> result(1);
       for (int i = 1; i < elements(); i++)
          {
          if (result * *this == one)
             break;
-         result *= 2;
+         result *= two;
          }
       assert(result * *this == one);
       return result;
@@ -316,7 +323,8 @@ std::istream& operator>>(std::istream& is, gf<m, poly>& b)
       str += c;
       }
    // convert
-   b = str;
+   gf<m, poly> a(str);
+   b = a;
    return is;
    }
 

@@ -69,7 +69,7 @@ public:
       int value = cpt.size() - 1;
       while(value > 0 && p < cpt(value-1))
          value--;
-      return value;
+      return S(value);
       }
 
    //! Seeds any random generators from a pseudo-random sequence

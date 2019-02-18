@@ -113,7 +113,7 @@ public:
    void reset()
       {
       fsm::reset();
-      reg = 0;
+      reg = G(0);
       }
    void reset(const libbase::vector<int>& state);
    // FSM operations (advance/output/step)

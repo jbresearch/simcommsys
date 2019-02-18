@@ -48,7 +48,7 @@ public:
    //! Generate a single source element
    S generate_single()
       {
-      return r.ival(field_utils<S>::elements());
+      return S(r.ival(field_utils<S>::elements()));
       }
 
    //! Seeds any random generators from a pseudo-random sequence

@@ -57,7 +57,7 @@ void commsys_stream<S, C, real>::stream_advance(C<S>& received,
    if (received.size() == 0)
       {
       received_prev.init(newoffset);
-      received_prev = 0; // value is irrelevant as this is not used
+      received_prev = S(0); // value is irrelevant as this is not used
       }
    else
       {

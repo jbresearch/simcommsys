@@ -125,7 +125,7 @@ void ccfsm<G>::reset(const vector<int>& state)
    for (int t = 0; t < nu; t++)
       for (int i = 0; i < k; i++)
          if (reg(i).size() > t)
-            reg(i)(t) = state(j++);
+            reg(i)(t) = G(state(j++));
    assert(j == nu);
    }
 

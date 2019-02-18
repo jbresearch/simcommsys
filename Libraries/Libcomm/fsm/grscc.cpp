@@ -85,7 +85,7 @@ matrix<G> grscc<G>::getstategen() const
          stategen(col, row) = this->gen(i, i)(j);
       // Successive rows describe the simple right-shift taps
       for (int j = 1, col = 0; j < this->reg(i).size(); j++, col++)
-         stategen(j - 1, ++row) = 1;
+         stategen(j - 1, ++row) = G(1);
       }
    libbase::trace << "DEBUG (grscc): state-generator matrix = " << stategen;
    return stategen;
@@ -160,7 +160,7 @@ vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
    // Determine the shift-in values by convolution
    vector<G> sin(this->k);
    for (int i = 0; i < this->k; i++)
-      sin(i) = this->convolve(input(i), this->reg(i), this->gen(i, i));
+      sin(i) = this->convolve(G(input(i)), this->reg(i), this->gen(i, i));
    return sin;
    }
 

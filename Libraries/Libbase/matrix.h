@@ -992,7 +992,7 @@ inline vector<T> matrix<T>::operator*(const vector<T>& x) const
    vector<T> r(m_size.cols());
    for (int i = 0; i < r.size(); i++)
       {
-      r(i) = 0;
+      r(i) = T(0);
       for (int k = 0; k < m_size.rows(); k++)
          r(i) += m_data[k][i] * x(k);
       }
@@ -1414,9 +1414,9 @@ inline matrix<T> matrix<T>::eye(int n)
    {
    assert(n > 0);
    matrix<T> r(n, n);
-   r = 0;
+   r = T(0);
    for (int i = 0; i < n; i++)
-      r(i, i) = 1;
+      r(i, i) = T(1);
    return r;
    }
 
