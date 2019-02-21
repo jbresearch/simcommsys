@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if (( $# < 4 )); then
+if (( $# < 5 )); then
    echo "Usage: ${0##*/} <tag> <port> <vlimit> <other> [<systems>]"
    echo "<tag> is the build tag name (XX in simcommsys.XX.release)"
    echo "<port> is the first port to use, then decrement (or 'local')"
@@ -36,6 +36,7 @@ while (( $# > 0 )); do
    echo "  System: $system"
    echo "  Tag:    $tag"
    echo "  Port:   $port"
+   echo "  Vlimit: $vlimit"
    echo "  Args:   $other"
 
    screen -d -m -S "$port.$system" "$path/simcommsys-wrapper.sh" "$systempath" "$tag" "$port" "$vlimit" $other
