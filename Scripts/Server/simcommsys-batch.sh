@@ -25,7 +25,7 @@ tag=$1
 port=$2
 vlimit=$3
 other=$4
-shift 5
+shift 4
 # interpret port numbering
 if [[ $port != "local" ]]; then declare -i port; fi
 
