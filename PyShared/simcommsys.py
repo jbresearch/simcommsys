@@ -752,6 +752,9 @@ def typeset(hf=[],figsize=(6.00,4.50),fontname='serif'):
       ha.title.set(fontname=fontname, fontsize=11)
       ha.xaxis.label.set(fontname=fontname, fontsize=10)
       ha.yaxis.label.set(fontname=fontname, fontsize=10)
+      # format any tick labels
+      for ht in ha.get_xticklabels() + ha.get_yticklabels():
+         ht.set(fontname=fontname, fontsize=9)
       # format any text lines
       for ht in ha.texts:
          ht.set(fontname=fontname, fontsize=9)
