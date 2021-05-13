@@ -19,6 +19,9 @@
 
 # All compiling, linking, and library flags are imported
 
+# Disable deprecated warnings due to the use of auto_ptr
+CCflags := $(CCflags) -Wno-deprecated-declarations
+
 # Get list of source files
 SOURCES := $(shell find . -name '*.cpp' -printf '%P\n')
 CUDASRC := $(shell find . -name '*.cu' -printf '%P\n')

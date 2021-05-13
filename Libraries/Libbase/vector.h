@@ -553,7 +553,7 @@ inline void vector<T>::copy(T* dst, const T* src, int n)
    // NOTE: we can only use memory-copy if T is a primitive type
    if (typeid(T) == typeid(bool) || typeid(T) == typeid(int) || typeid(T)
          == typeid(double) || typeid(T) == typeid(float))
-      memcpy(dst, src, nbytes);
+      memcpy(static_cast<void*>(dst), src, nbytes);
    else
       for (int i = 0; i < n; i++)
          dst[i] = src[i];
