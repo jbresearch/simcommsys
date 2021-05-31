@@ -33,7 +33,7 @@ inline void __cudaSafeCall(const cudaError_t error, const char *file,
       return;
    std::cerr << "CUDA error in file <" << file << ">, line " << line << " : "
          << cudaGetErrorString(error) << ".\n";
-   cudaThreadExit();
+   cudaDeviceReset();
    exit(1);
    }
 
