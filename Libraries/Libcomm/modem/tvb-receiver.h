@@ -62,7 +62,7 @@ public:
 private:
    /*! \name User-defined parameters */
    mutable array2vs_t encoding_table; //!< Local copy of per-frame encoding table
-   std::auto_ptr<typename channel_insdel<sig, real2>::metric_computer> computer; //!< Channel object for computing receiver metric
+   std::unique_ptr<typename channel_insdel<sig, real2>::metric_computer> computer; //!< Channel object for computing receiver metric
    // @}
 public:
    /*! \name User initialization (can be adapted for needs of user class) */
