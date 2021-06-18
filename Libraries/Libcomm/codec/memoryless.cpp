@@ -195,19 +195,22 @@ std::ostream& memoryless<dbl>::serialize(std::ostream& sout) const
 template <class dbl>
 std::istream& memoryless<dbl>::serialize(std::istream& sin)
    {
+   using namespace boost;
+
    // load the encoder into a temporary space
-   boost::shared_ptr<fsm> encoder_original;
+   shared_ptr<fsm> encoder_original;
    sin >> libbase::eatcomments >> encoder_original >> libbase::verify;
+
    // see if this is already a cached fsm;
-   boost::shared_ptr<cached_fsm> encoder_cached = boost::dynamic_pointer_cast<
-         cached_fsm>(encoder_original);
-   if (encoder_cached)
-      // if it is, just make a copy
-      this->encoder = boost::dynamic_pointer_cast<fsm>(
-            encoder_original->clone());
-   else
-      // otherwise, create a cached fsm copy on the fly
+   auto encoder_cached = dynamic_pointer_cast<cached_fsm>(encoder_original);
+
+   if (encoder_cached) // if it is cached, just make a copy
+      this->encoder = dynamic_pointer_cast<fsm>(encoder_original->clone());
+   else if (encoder_original->can_be_cached())
       this->encoder.reset(new cached_fsm(*encoder_original));
+   else
+      this->encoder = encoder_original;
+
    // read the block length
    sin >> libbase::eatcomments >> tau >> libbase::verify;
    init();

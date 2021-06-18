@@ -242,6 +242,8 @@ public:
    // @}
 
    /*! \name FSM information functions - derived */
+   bool can_be_cached() const;
+
    //! Number of defined states
    int num_states() const;
 

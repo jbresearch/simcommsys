@@ -114,6 +114,23 @@ fsm::array1i_t fsm::step(array1i_t& input)
    return op;
    }
 
+bool fsm::can_be_cached() const
+   {
+   if (pow(num_symbols(), num_outputs()) > std::numeric_limits<int>::max())
+      return false;
+
+   if (num_states() > std::numeric_limits<int>::max())
+      return false;
+
+   if (num_input_combinations() > std::numeric_limits<int>::max())
+      return false;
+
+   if (num_output_combinations() > std::numeric_limits<int>::max())
+      return false;
+
+   return true;
+   }
+
 int fsm::num_states() const
    {
    return int(pow(num_symbols(), mem_elements()));
@@ -128,5 +145,6 @@ int fsm::num_output_combinations() const
    {
    return int(pow(num_symbols(), num_outputs()));
    }
+
 
 } // end namespace
