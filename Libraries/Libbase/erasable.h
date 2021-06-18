@@ -217,7 +217,10 @@ std::ostream& operator<<(std::ostream& s, const erasable<symbol>& x)
    if (x.is_erased())
       s << "?";
    else
-      s << symbol(x);
+      {
+      symbol symb = x;
+      s << symb;
+      }
    return s;
    }
 
