@@ -43,21 +43,14 @@ public:
    /*! \name Type definitions */
    typedef libbase::vector<int> array1i_t;
    // @}
+
    /*! \name Class constants */
    static const int tail; //!< A special input value to use when tailing out
    // @}
 
-protected:
-   /*! \name Object representation */
-   int N; //!< Sequence length since last reset;
-   // @}
-
-public:
    /*! \name Constructors / Destructors */
    //! Virtual destructor
-   virtual ~fsm()
-      {
-      }
+   virtual ~fsm();
    // @}
 
    /*! \name Helper functions */
@@ -70,22 +63,9 @@ public:
     * Left-most register positions (ie. those closest to the input junction) are
     * represented by lower index positions, and get lower-order positions within
     * the integer representation.
-    *
-    * \todo check we are within the acceptable range for int representation
     */
-   static int convert(const array1i_t& vec, int S)
-      {
-      const int nu = vec.size();
-      assert(pow(S, nu) - 1 <= std::numeric_limits<int>::max());
-      int val = 0;
-      for (int i = nu - 1; i >= 0; i--)
-         {
-         val *= S;
-         assert(vec(i) >= 0 && vec(i) < S);
-         val += vec(i);
-         }
-      return val;
-      }
+   static int convert(const array1i_t& vec, int S);
+
    /*!
     * \brief Conversion from integer to vector space
     * \param[in] x Input in integer representation
@@ -97,51 +77,25 @@ public:
     * represented by lower index positions, and get lower-order positions within
     * the integer representation.
     */
-   static array1i_t convert(int val, int nu, int S)
-      {
-      array1i_t vec(nu);
-      assert(val >= 0);
-      for (int i = 0; i < nu; i++)
-         {
-         vec(i) = val % S;
-         val /= S;
-         }
-      assert(val == 0);
-      return vec;
-      }
+   static array1i_t convert(int val, int nu, int S);
+
    //! Convert input from vector to integer
-   int convert_input(const array1i_t& vec) const
-      {
-      assert(vec.size() == num_inputs());
-      return fsm::convert(vec, num_symbols());
-      }
+   int convert_input(const array1i_t& vec) const;
+
    //! Convert input from integer to vector
-   array1i_t convert_input(int val) const
-      {
-      return fsm::convert(val, num_inputs(), num_symbols());
-      }
+   array1i_t convert_input(int val) const;
+
    //! Convert output from vector to integer
-   int convert_output(const array1i_t& vec) const
-      {
-      assert(vec.size() == num_outputs());
-      return fsm::convert(vec, num_symbols());
-      }
+   int convert_output(const array1i_t& vec) const;
+
    //! Convert output from integer to vector
-   array1i_t convert_output(int val) const
-      {
-      return fsm::convert(val, num_outputs(), num_symbols());
-      }
+   array1i_t convert_output(int val) const;
+
    //! Convert state from vector to integer
-   int convert_state(const array1i_t& vec) const
-      {
-      assert(vec.size() == mem_elements());
-      return fsm::convert(vec, num_symbols());
-      }
+   int convert_state(const array1i_t& vec) const;
+
    //! Convert state from integer to vector
-   array1i_t convert_state(int val) const
-      {
-      return fsm::convert(val, mem_elements(), num_symbols());
-      }
+   array1i_t convert_state(int val) const;
    // @}
 
    /*! \name FSM state operations (getting and resetting) */
@@ -174,16 +128,15 @@ public:
     * the total number of memory elements in the system, \f$ \nu \f$.
     */
    virtual array1i_t state() const = 0;
+
    /*!
     * \brief Reset to the 'zero' state
     *
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void reset()
-      {
-      N = 0;
-      }
+   virtual void reset();
+
    /*!
     * \brief Reset to a specified state
     * \param state A vector representation of the state we want to set to
@@ -193,10 +146,8 @@ public:
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void reset(const array1i_t& state)
-      {
-      N = 0;
-      }
+   virtual void reset(const array1i_t& state);
+
    /*!
     * \brief Reset to the circulation state
     *
@@ -211,6 +162,7 @@ public:
     * class uses to determine the zero-state solution.
     */
    virtual void resetcircular(const array1i_t& zerostate, int n) = 0;
+
    /*!
     * \brief Reset to the circulation state, assuming we have just run through
     * the input sequence, starting with the zero-state
@@ -224,10 +176,7 @@ public:
     * input sequence given since the last reset must be the same as the one
     * that will be used now.
     */
-   void resetcircular()
-      {
-      resetcircular(state(), N);
-      }
+   void resetcircular();
    // @}
 
    /*! \name FSM operations (advance/output/step) */
@@ -246,10 +195,8 @@ public:
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void advance(array1i_t& input)
-      {
-      N++;
-      }
+   virtual void advance(array1i_t& input);
+
    /*!
     * \brief Computes the output for the given input and the present state
     *
@@ -262,6 +209,7 @@ public:
     * \return Vector representation of the output
     */
    virtual array1i_t output(const array1i_t& input) const = 0;
+
    /*!
     * \brief Feeds the specified input and returns the corresponding output,
     * advancing the state in the process
@@ -273,43 +221,35 @@ public:
     *
     * \note Equivalent to output() followed by advance()
     */
-   array1i_t step(array1i_t& input)
-      {
-      array1i_t op = output(input);
-      advance(input);
-      return op;
-      }
+   array1i_t step(array1i_t& input);
    // @}
 
    /*! \name FSM information functions - fundamental */
    //! Memory order (length of tail)
    virtual int mem_order() const = 0;
+
    //! Number of memory elements
    virtual int mem_elements() const = 0;
+
    //! Number of input lines
    virtual int num_inputs() const = 0;
+
    //! Number of output lines
    virtual int num_outputs() const = 0;
+
    //! Alphabet size of input/output symbols
    virtual int num_symbols() const = 0;
    // @}
 
    /*! \name FSM information functions - derived */
    //! Number of defined states
-   int num_states() const
-      {
-      return int(pow(num_symbols(), mem_elements()));
-      }
+   int num_states() const;
+
    //! Number of input combinations
-   int num_input_combinations() const
-      {
-      return int(pow(num_symbols(), num_inputs()));
-      }
+   int num_input_combinations() const;
+
    //! Number of output combinations
-   int num_output_combinations() const
-      {
-      return int(pow(num_symbols(), num_outputs()));
-      }
+   int num_output_combinations() const;
    // @}
 
    /*! \name Description */
@@ -318,10 +258,14 @@ public:
    // @}
 
    // Serialization Support
-DECLARE_BASE_SERIALIZER(fsm)
+   DECLARE_BASE_SERIALIZER(fsm)
+
+protected:
+   /*! \name Object representation */
+   int N; //!< Sequence length since last reset;
+   // @}
 };
 
 } // end namespace
 
 #endif
-

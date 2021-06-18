@@ -25,4 +25,108 @@ namespace libcomm {
 
 const int fsm::tail = -1;
 
+fsm::~fsm() {}
+
+int fsm::convert(const array1i_t& vec, int S)
+   {
+   const int nu = vec.size();
+   assert(pow(S, nu) - 1 <= std::numeric_limits<int>::max());
+   int val = 0;
+   for (int i = nu - 1; i >= 0; i--)
+      {
+      val *= S;
+      assert(vec(i) >= 0 && vec(i) < S);
+      val += vec(i);
+      }
+   return val;
+   }
+
+fsm::array1i_t fsm::convert(int val, int nu, int S)
+   {
+   array1i_t vec(nu);
+   assert(val >= 0);
+   for (int i = 0; i < nu; i++)
+      {
+      vec(i) = val % S;
+      val /= S;
+      }
+   assert(val == 0);
+   return vec;
+   }
+
+int fsm::convert_input(const array1i_t& vec) const
+   {
+   assert(vec.size() == num_inputs());
+   return convert(vec, num_symbols());
+   }
+
+fsm::array1i_t fsm::convert_input(int val) const
+   {
+   return convert(val, num_inputs(), num_symbols());
+   }
+
+int fsm::convert_output(const array1i_t& vec) const
+   {
+   assert(vec.size() == num_outputs());
+   return convert(vec, num_symbols());
+   }
+
+fsm::array1i_t fsm::convert_output(int val) const
+   {
+   return convert(val, num_outputs(), num_symbols());
+   }
+
+int fsm::convert_state(const array1i_t& vec) const
+   {
+   assert(vec.size() == mem_elements());
+   return convert(vec, num_symbols());
+   }
+
+fsm::array1i_t fsm::convert_state(int val) const
+   {
+   return convert(val, mem_elements(), num_symbols());
+   }
+
+void fsm::reset()
+   {
+   N = 0;
+   }
+
+void fsm::reset(const array1i_t& state)
+   {
+   reset();
+   }
+
+void fsm::resetcircular()
+   {
+   resetcircular(state(), N);
+   }
+
+void fsm::advance(array1i_t& input)
+   {
+   ++N;
+   }
+
+fsm::array1i_t fsm::step(array1i_t& input)
+   {
+   array1i_t op = output(input);
+   advance(input);
+   return op;
+   }
+
+int fsm::num_states() const
+   {
+   return int(pow(num_symbols(), mem_elements()));
+   }
+
+int fsm::num_input_combinations() const
+   {
+   return int(pow(num_symbols(), num_inputs()));
+   }
+
+int fsm::num_output_combinations() const
+   {
+   return int(pow(num_symbols(), num_outputs()));
+   }
+
 } // end namespace
