@@ -50,7 +50,7 @@ public:
 
    /*! \name Constructors / Destructors */
    //! Virtual destructor
-   virtual ~fsm();
+   virtual ~fsm() {}
    // @}
 
    /*! \name Helper functions */
@@ -135,7 +135,10 @@ public:
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void reset();
+   virtual void reset()
+      {
+      N = 0;
+      }
 
    /*!
     * \brief Reset to a specified state
@@ -146,7 +149,10 @@ public:
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void reset(const array1i_t& state);
+   virtual void reset(const array1i_t& state)
+      {
+      reset();
+      }
 
    /*!
     * \brief Reset to the circulation state
@@ -176,7 +182,10 @@ public:
     * input sequence given since the last reset must be the same as the one
     * that will be used now.
     */
-   void resetcircular();
+   void resetcircular()
+      {
+      resetcircular(state(), N);
+      }
    // @}
 
    /*! \name FSM operations (advance/output/step) */
@@ -195,7 +204,10 @@ public:
     * \note This function has to be called once by each function re-implementing
     * it.
     */
-   virtual void advance(array1i_t& input);
+   virtual void advance(array1i_t& input)
+      {
+      ++N;
+      }
 
    /*!
     * \brief Computes the output for the given input and the present state
@@ -221,7 +233,12 @@ public:
     *
     * \note Equivalent to output() followed by advance()
     */
-   array1i_t step(array1i_t& input);
+   array1i_t step(array1i_t& input)
+      {
+      array1i_t op = output(input);
+      advance(input);
+      return op;
+      }
    // @}
 
    /*! \name FSM information functions - fundamental */
@@ -242,16 +259,25 @@ public:
    // @}
 
    /*! \name FSM information functions - derived */
-   bool can_be_cached() const;
+   virtual bool can_be_cached() const;
 
    //! Number of defined states
-   int num_states() const;
+   int num_states() const
+      {
+      return int(pow(num_symbols(), mem_elements()));
+      }
 
    //! Number of input combinations
-   int num_input_combinations() const;
+   int num_input_combinations() const
+      {
+      return int(pow(num_symbols(), num_inputs()));
+      }
 
    //! Number of output combinations
-   int num_output_combinations() const;
+   int num_output_combinations() const
+      {
+      return int(pow(num_symbols(), num_outputs()));
+      }
    // @}
 
    /*! \name Description */

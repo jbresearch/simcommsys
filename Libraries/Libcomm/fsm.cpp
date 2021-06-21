@@ -25,8 +25,6 @@ namespace libcomm {
 
 const int fsm::tail = -1;
 
-fsm::~fsm() {}
-
 int fsm::convert(const array1i_t& vec, int S)
    {
    const int nu = vec.size();
@@ -87,33 +85,6 @@ fsm::array1i_t fsm::convert_state(int val) const
    return convert(val, mem_elements(), num_symbols());
    }
 
-void fsm::reset()
-   {
-   N = 0;
-   }
-
-void fsm::reset(const array1i_t& state)
-   {
-   reset();
-   }
-
-void fsm::resetcircular()
-   {
-   resetcircular(state(), N);
-   }
-
-void fsm::advance(array1i_t& input)
-   {
-   ++N;
-   }
-
-fsm::array1i_t fsm::step(array1i_t& input)
-   {
-   array1i_t op = output(input);
-   advance(input);
-   return op;
-   }
-
 bool fsm::can_be_cached() const
    {
    if (pow(num_symbols(), num_outputs()) > std::numeric_limits<int>::max())
@@ -130,21 +101,5 @@ bool fsm::can_be_cached() const
 
    return true;
    }
-
-int fsm::num_states() const
-   {
-   return int(pow(num_symbols(), mem_elements()));
-   }
-
-int fsm::num_input_combinations() const
-   {
-   return int(pow(num_symbols(), num_inputs()));
-   }
-
-int fsm::num_output_combinations() const
-   {
-   return int(pow(num_symbols(), num_outputs()));
-   }
-
 
 } // end namespace
