@@ -53,6 +53,7 @@ void cached_fsm::init(fsm& encoder)
    lut_X.init(M, K);
    lut_Xv.init(M, K);
    for (int mdash = 0; mdash < M; mdash++)
+      {
       for (int i = 0; i < K; i++)
          {
          const array1i_t mdash_v = encoder.convert_state(mdash);
@@ -66,7 +67,7 @@ void cached_fsm::init(fsm& encoder)
          lut_m(mdash, i) = encoder.convert_state(encoder.state());
          assert(lut_m(mdash, i) >= 0 && lut_m(mdash, i) < M);
          }
-
+      }
    // initialize state
    reset();
    }

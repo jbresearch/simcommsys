@@ -277,7 +277,7 @@ void bcjr<real, dbl, norm>::work_alpha()
             }
       // normalize
       if (norm)
-         libbase::normalize_row(alpha, t, 0, M);
+         libbase::normalize_row(alpha, t, 0, M-1);
       }
    }
 
@@ -307,7 +307,7 @@ void bcjr<real, dbl, norm>::work_beta()
          }
       // normalize
       if (norm)
-         libbase::normalize_row(beta, t, 0, M);
+         libbase::normalize_row(beta, t, 0, M-1);
       }
    }
 
