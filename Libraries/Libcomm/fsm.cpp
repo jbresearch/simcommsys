@@ -87,7 +87,7 @@ fsm::array1i_t fsm::convert_state(int val) const
 
 bool fsm::can_be_cached() const
    {
-   if (pow(num_symbols(), num_outputs()) > std::numeric_limits<int>::max())
+   if (pow(num_symbols(), num_outputs()) - 1 > std::numeric_limits<int>::max())
       return false;
 
    if (num_states() > std::numeric_limits<int>::max())
