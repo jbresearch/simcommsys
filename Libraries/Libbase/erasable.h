@@ -75,8 +75,7 @@ public:
       }
    operator symbol() const
       {
-      assertalways(!erased);
-      return value;
+      return get();
       }
    erasable& operator=(const symbol& value)
       {
@@ -92,9 +91,16 @@ public:
       assertalways(!erased);
       erased = true;
       }
+
    bool is_erased() const
       {
       return erased;
+      }
+
+   symbol get() const
+      {
+      assertalways(!erased);
+      return value;
       }
    // @}
 
@@ -166,8 +172,7 @@ public:
       }
    operator bool() const
       {
-      assertalways(!erased);
-      return value;
+      return get();
       }
    erasable& operator=(const bool value)
       {
@@ -183,9 +188,16 @@ public:
       assertalways(!erased);
       erased = true;
       }
+
    bool is_erased() const
       {
       return erased;
+      }
+
+   bool get() const
+      {
+      assertalways(!erased);
+      return value;
       }
    // @}
 
@@ -217,10 +229,8 @@ std::ostream& operator<<(std::ostream& s, const erasable<symbol>& x)
    if (x.is_erased())
       s << "?";
    else
-      {
-      symbol symb = x;
-      s << symb;
-      }
+      s << x.get();
+
    return s;
    }
 
