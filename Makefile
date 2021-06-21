@@ -203,7 +203,8 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 CCopts := $(CCopts) -Wall -Werror
-#CCopts := $(CCopts) -std=c++11
+CCopts := $(CCopts) -std=c++11
+
 # OMP options
 ifneq ($(USE_OMP),0)
    CCopts := $(CCopts) -DUSE_OMP -fopenmp

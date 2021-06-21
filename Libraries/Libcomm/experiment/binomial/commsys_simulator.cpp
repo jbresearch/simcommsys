@@ -74,10 +74,22 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
 
    // Create source stream
    libbase::vector<int> source = src->generate_sequence(sys->input_block_size());
+#if DEBUG>=2
+   std::cout << "Source stream: " << source << std::endl;
+#endif
+
    // Encode -> Map -> Modulate
    libbase::vector<S> transmitted = sys->encode_path(source);
+#if DEBUG>=2
+   std::cout << "Transmitted: " << transmitted << std::endl;
+#endif
+
    // Transmit
    libbase::vector<S> received = sys->transmit(transmitted);
+#if DEBUG>=2
+   std::cout << "Received: " << received << std::endl;
+#endif
+
    // Demodulate -> Inverse Map -> Translate
    sys->receive_path(received);
    // For every iteration
@@ -94,6 +106,10 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
          R::updateresults(result_segment, source, decoded);
          }
       }
+#if DEBUG>=2
+   std::cout << "Decoded: " << decoded << std::endl;
+#endif
+
    // perform codeword boundary analysis if this is indicated
    if (rc)
       {
