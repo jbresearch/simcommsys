@@ -41,11 +41,11 @@ using std::cout;
 using std::cerr;
 namespace po = boost::program_options;
 
-boost::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
+std::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
    {
    const libcomm::serializer_libcomm my_serializer_libcomm;
    // load system from string representation
-   boost::shared_ptr<libcomm::experiment> system;
+   std::shared_ptr<libcomm::experiment> system;
    std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
    file >> system >> libbase::verifycomplete;
    return system;
@@ -55,7 +55,7 @@ boost::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
  *
  * Use the given seed to initialize a PRNG for seeding the embedded system.
  */
-void seed_experiment(boost::shared_ptr<libcomm::experiment> system, const libbase::int32u seed)
+void seed_experiment(std::shared_ptr<libcomm::experiment> system, const libbase::int32u seed)
    {
    libbase::randgen prng;
    prng.seed(seed);
@@ -67,14 +67,14 @@ void seed_experiment(boost::shared_ptr<libcomm::experiment> system, const libbas
  *
  * Use a true RNG to determine the initial seed value, and seed the experiment.
  */
-void seed_experiment(boost::shared_ptr<libcomm::experiment> system)
+void seed_experiment(std::shared_ptr<libcomm::experiment> system)
    {
    libbase::truerand trng;
    libbase::int32u seed = trng.ival();
    seed_experiment(system, seed);
    }
 
-void display_event(boost::shared_ptr<libcomm::experiment> system)
+void display_event(std::shared_ptr<libcomm::experiment> system)
    {
    libbase::vector<int> last_event = system->get_event();
    const int tau = last_event.size() / 2;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
    // Interpret user parameters
    const bool showall = vm["show-all"].as<bool> ();
    // Simulation system & parameters
-   boost::shared_ptr<libcomm::experiment> system = createsystem(
+   std::shared_ptr<libcomm::experiment> system = createsystem(
          vm["system-file"].as<std::string> ());
    system->set_parameter(vm["parameter"].as<double> ());
    // Initialise running values

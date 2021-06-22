@@ -96,11 +96,11 @@ void basic_commsys<S, C>::free()
  */
 template <class S, template <class > class C>
 basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c) :
-   cdc(boost::dynamic_pointer_cast<codec<C> > (c.cdc->clone())), map(
-         boost::dynamic_pointer_cast<mapper<C> > (c.map->clone())), mdm(
-         boost::dynamic_pointer_cast<blockmodem<S, C> > (c.mdm->clone())), txchan(
-         boost::dynamic_pointer_cast<channel<S, C> > (c.txchan->clone())), rxchan(
-         boost::dynamic_pointer_cast<channel<S, C> > (c.rxchan->clone())), singlechannel(
+   cdc(std::dynamic_pointer_cast<codec<C> > (c.cdc->clone())), map(
+         std::dynamic_pointer_cast<mapper<C> > (c.map->clone())), mdm(
+         std::dynamic_pointer_cast<blockmodem<S, C> > (c.mdm->clone())), txchan(
+         std::dynamic_pointer_cast<channel<S, C> > (c.txchan->clone())), rxchan(
+         std::dynamic_pointer_cast<channel<S, C> > (c.rxchan->clone())), singlechannel(
          c.singlechannel)
    {
    init();
@@ -347,7 +347,7 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
    sin >> libbase::eatcomments >> txchan >> libbase::verify;
    assertalways(txchan);
    if (singlechannel)
-      rxchan = boost::dynamic_pointer_cast<channel<S, C> > (txchan->clone());
+      rxchan = std::dynamic_pointer_cast<channel<S, C> > (txchan->clone());
    else
       sin >> libbase::eatcomments >> rxchan >> libbase::verify;
    assertalways(rxchan);

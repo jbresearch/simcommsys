@@ -80,15 +80,15 @@ void turbo<real, dbl>::reset()
 
 template <class real, class dbl>
 turbo<real, dbl>::turbo(const fsm& encoder,
-      const libbase::vector<boost::shared_ptr<interleaver<dbl> > >& inter,
+      const libbase::vector<std::shared_ptr<interleaver<dbl> > >& inter,
       const int iter, const bool endatzero, const bool parallel,
       const bool circular)
    {
-   this->encoder = boost::dynamic_pointer_cast<fsm> (encoder.clone());
+   this->encoder = std::dynamic_pointer_cast<fsm> (encoder.clone());
    // deep copy of interleaver list
    this->inter.init(inter.size());
    for (int i = 0; i < inter.size(); i++)
-      this->inter(i) = boost::dynamic_pointer_cast<interleaver<dbl> >(
+      this->inter(i) = std::dynamic_pointer_cast<interleaver<dbl> >(
             inter(i)->clone());
    this->endatzero = endatzero;
    this->parallel = parallel;

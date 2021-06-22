@@ -57,7 +57,7 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   boost::shared_ptr<fsm> encoder;
+   std::shared_ptr<fsm> encoder;
    int tau; //!< Sequence length in timesteps (including tail, if any)
    bool endatzero; //!< True for terminated trellis
    bool circular; //!< True for circular trellis
@@ -106,7 +106,7 @@ public:
       {
       if (x.encoder)
          {
-         encoder = boost::dynamic_pointer_cast<fsm>(x.encoder->clone());
+         encoder = std::dynamic_pointer_cast<fsm>(x.encoder->clone());
          init();
          }
       else
@@ -120,7 +120,7 @@ public:
       circular = x.circular;
       if (x.encoder)
          {
-         encoder = boost::dynamic_pointer_cast<fsm>(x.encoder->clone());
+         encoder = std::dynamic_pointer_cast<fsm>(x.encoder->clone());
          init();
          }
       else
@@ -136,7 +136,7 @@ public:
    //! Principal constructor
    mapcc(const fsm& encoder, const int tau, const bool endatzero,
          const bool circular) :
-         encoder(boost::dynamic_pointer_cast<fsm>(encoder.clone())), tau(tau), endatzero(
+         encoder(std::dynamic_pointer_cast<fsm>(encoder.clone())), tau(tau), endatzero(
                endatzero), circular(circular)
       {
       init();
@@ -188,4 +188,3 @@ DECLARE_SERIALIZER(mapcc)
 } // end namespace
 
 #endif
-

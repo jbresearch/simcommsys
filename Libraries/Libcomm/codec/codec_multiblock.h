@@ -51,11 +51,11 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   boost::shared_ptr<codec_softout<C, dbl> > cdc; //!< Underlying codec
+   std::shared_ptr<codec_softout<C, dbl> > cdc; //!< Underlying codec
    int N; //! Number of blocks to aggregate
    // @}
    /*! \name Internally-used objects */
-   boost::shared_ptr<codec_softout<C, dbl> > cdc_enc; //!< Copy of codec object for encoder operations
+   std::shared_ptr<codec_softout<C, dbl> > cdc_enc; //!< Copy of codec object for encoder operations
    C<array1d_t> ptable; //!< Copy of channel probabilities, to be segmented and used
    C<array1d_t> app; //!< Copy of prior probabilities, to be segmented and used
    // @}
@@ -91,7 +91,7 @@ public:
       // Seed codec
       cdc->seedfrom(r);
       // Make a copy of codec object for encoder operations
-      cdc_enc = boost::dynamic_pointer_cast<codec_softout<C, dbl> >(cdc->clone());
+      cdc_enc = std::dynamic_pointer_cast<codec_softout<C, dbl> >(cdc->clone());
       }
    void softdecode(C<array1d_t>& ri);
    void softdecode(C<array1d_t>& ri, C<array1d_t>& ro);

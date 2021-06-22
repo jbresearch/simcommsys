@@ -57,7 +57,7 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   boost::shared_ptr<embedder<S> > implementation; //! Implementation of embedding/extraction functions
+   std::shared_ptr<embedder<S> > implementation; //! Implementation of embedding/extraction functions
    // @}
 protected:
    // Interface with derived classes
@@ -95,7 +95,7 @@ public:
    // @}
 private:
    /*! \name User-defined parameters */
-   boost::shared_ptr<embedder<S> > implementation; //! Implementation of embedding/extraction functions
+   std::shared_ptr<embedder<S> > implementation; //! Implementation of embedding/extraction functions
    // @}
 protected:
    // Interface with derived classes

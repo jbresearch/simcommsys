@@ -45,7 +45,7 @@ namespace libbase {
 
 // items for use by everyone
 
-void masterslave::fregister(const std::string& name, boost::shared_ptr<functor> f)
+void masterslave::fregister(const std::string& name, std::shared_ptr<functor> f)
    {
    trace << "DEBUG: Register function \"" << name << "\" - ";
    fmap[name] = f;
@@ -55,7 +55,7 @@ void masterslave::fregister(const std::string& name, boost::shared_ptr<functor> 
 void masterslave::fcall(const std::string& name)
    {
    trace << "DEBUG: Call function \"" << name << "\" - ";
-   typename std::map<std::string, boost::shared_ptr<functor> >::iterator search =
+   typename std::map<std::string, std::shared_ptr<functor> >::iterator search =
          fmap.find(name);
    if (search == fmap.end())
       {
@@ -308,7 +308,7 @@ void masterslave::receive(std::string& x)
 
 // non-static items (for use by master)
 
-void masterslave::close(boost::shared_ptr<socket> s)
+void masterslave::close(std::shared_ptr<socket> s)
    {
    std::cerr << "Slave [" << s->getip() << ":" << s->getport() << "] gone";
    smap.erase(s);
@@ -329,7 +329,7 @@ void masterslave::disable()
 
    // kill all remaining slaves
    std::clog << "Killing idle slaves:" << std::flush;
-   while (boost::shared_ptr<socket> s = find_idle_slave())
+   while (std::shared_ptr<socket> s = find_idle_slave())
       {
       trace << "DEBUG (disable): Idle slave found (" << s << "), killing."
             << std::endl;
@@ -352,40 +352,40 @@ void masterslave::disable()
 
 // slave-interface functions
 
-boost::shared_ptr<socket> masterslave::find_new_slave()
+std::shared_ptr<socket> masterslave::find_new_slave()
    {
-   for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin();
+   for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end(); ++i)
       if (i->second == state_new)
          {
          i->second = state_idle;
          return i->first;
          }
-   return boost::shared_ptr<socket>();
+   return std::shared_ptr<socket>();
    }
 
-boost::shared_ptr<socket> masterslave::find_idle_slave()
+std::shared_ptr<socket> masterslave::find_idle_slave()
    {
-   for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin();
+   for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end(); ++i)
       if (i->second == state_idle)
          {
          i->second = state_working;
          return i->first;
          }
-   return boost::shared_ptr<socket>();
+   return std::shared_ptr<socket>();
    }
 
-boost::shared_ptr<socket> masterslave::find_pending_slave()
+std::shared_ptr<socket> masterslave::find_pending_slave()
    {
-   for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin();
+   for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end(); ++i)
       if (i->second == state_eventpending)
          {
          i->second = state_idle;
          return i->first;
          }
-   return boost::shared_ptr<socket>();
+   return std::shared_ptr<socket>();
    }
 
 /*! \brief Number of slaves currently in 'working' state
@@ -393,7 +393,7 @@ boost::shared_ptr<socket> masterslave::find_pending_slave()
 int masterslave::count_workingslaves() const
    {
    int count = 0;
-   for (std::map<boost::shared_ptr<socket>, state_t>::const_iterator i = smap.begin(); i
+   for (std::map<std::shared_ptr<socket>, state_t>::const_iterator i = smap.begin(); i
          != smap.end(); ++i)
       if (i->second == state_working)
          count++;
@@ -402,7 +402,7 @@ int masterslave::count_workingslaves() const
 
 bool masterslave::anyoneworking() const
    {
-   for (std::map<boost::shared_ptr<socket>, state_t>::const_iterator i =
+   for (std::map<std::shared_ptr<socket>, state_t>::const_iterator i =
          smap.begin(); i != smap.end(); ++i)
       if (i->second == state_working)
          return true;
@@ -432,20 +432,20 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
       }
 
    // create list of sockets and select
-   std::list<boost::shared_ptr<socket> > sl, al;
+   std::list<std::shared_ptr<socket> > sl, al;
 
    sl.push_back(master);
-   for (std::map<boost::shared_ptr<socket>, state_t>::iterator i = smap.begin(); i != smap.end(); ++i)
+   for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin(); i != smap.end(); ++i)
       sl.push_back(i->first);
 
    al = socket::select(sl, timeout);
    if (!al.empty())
       signalentry = true;
-   for (std::list<boost::shared_ptr<socket> >::iterator i = al.begin(); i != al.end(); ++i)
+   for (std::list<std::shared_ptr<socket> >::iterator i = al.begin(); i != al.end(); ++i)
       {
       if ((*i)->islistener() && acceptnew)
          {
-         boost::shared_ptr<socket> newslave = (*i)->accept();
+         std::shared_ptr<socket> newslave = (*i)->accept();
          smap[newslave] = state_new;
          std::cerr << "New slave [" << newslave->getip() << ":"
                << newslave->getport() << "], currently have " << smap.size()
@@ -463,7 +463,7 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
  *
  * \note Slave must be in the 'idle' state
  */
-void masterslave::resetslave(boost::shared_ptr<socket> s)
+void masterslave::resetslave(std::shared_ptr<socket> s)
    {
    assertalways(smap[s] == state_idle);
    smap[s] = state_new;
@@ -474,13 +474,13 @@ void masterslave::resetslave(boost::shared_ptr<socket> s)
  */
 void masterslave::resetslaves()
    {
-   while (boost::shared_ptr<socket> s = find_idle_slave())
+   while (std::shared_ptr<socket> s = find_idle_slave())
       smap[s] = state_new;
    }
 
 // master -> slave communication
 
-void masterslave::send(boost::shared_ptr<socket> s, const void *buf,
+void masterslave::send(std::shared_ptr<socket> s, const void *buf,
       const size_t len)
    {
    if (!s->insistwrite(buf, len))
@@ -495,7 +495,7 @@ void masterslave::send(boost::shared_ptr<socket> s, const void *buf,
 /*! \brief Accumulate CPU time for given slave
  * \param s Slave from which to get CPU time
  */
-void masterslave::updatecputime(boost::shared_ptr<socket> s)
+void masterslave::updatecputime(std::shared_ptr<socket> s)
    {
    double cputime;
    send(s, int(tag_getcputime));
@@ -503,7 +503,7 @@ void masterslave::updatecputime(boost::shared_ptr<socket> s)
    cputimeused += cputime;
    }
 
-void masterslave::receive(boost::shared_ptr<socket> s, void *buf, const size_t len)
+void masterslave::receive(std::shared_ptr<socket> s, void *buf, const size_t len)
    {
    if (!s->insistread(buf, len))
       {
@@ -518,7 +518,7 @@ void masterslave::receive(boost::shared_ptr<socket> s, void *buf, const size_t l
  * \note Vector size is obtained first; this makes foreknowledge of size and
  * pre-initialization unnecessary.
  */
-void masterslave::receive(boost::shared_ptr<socket> s, vector<double>& x)
+void masterslave::receive(std::shared_ptr<socket> s, vector<double>& x)
    {
    // get vector size first
    int count;
@@ -528,7 +528,7 @@ void masterslave::receive(boost::shared_ptr<socket> s, vector<double>& x)
    receive(s, &x(0), sizeof(double) * count);
    }
 
-void masterslave::receive(boost::shared_ptr<socket> s, std::string& x)
+void masterslave::receive(std::shared_ptr<socket> s, std::string& x)
    {
    int len;
    receive(s, len);

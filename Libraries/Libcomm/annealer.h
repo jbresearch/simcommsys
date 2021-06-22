@@ -58,7 +58,7 @@ namespace libcomm {
 
 class annealer {
 protected:
-   boost::shared_ptr<anneal_system> system;
+   std::shared_ptr<anneal_system> system;
    libbase::randgen r;
    double Tstart, Tstop, rate;
    int min_iter, min_changes;
@@ -73,7 +73,7 @@ protected:
    virtual void display(const double T, const double percent,
          const libbase::rvstatistics E);
 public:
-   void attach_system(boost::shared_ptr<anneal_system> system);
+   void attach_system(std::shared_ptr<anneal_system> system);
    void seedfrom(libbase::random& r);
    void set_temperature(const double Tstart, const double Tstop);
    void set_schedule(const double rate);

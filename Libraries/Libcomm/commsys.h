@@ -54,11 +54,11 @@ public:
 
 protected:
    /*! \name Bound objects */
-   boost::shared_ptr<codec<C> > cdc; //!< Error-control codec
-   boost::shared_ptr<mapper<C> > map; //!< Symbol-mapper (encoded output to transmitted symbols)
-   boost::shared_ptr<blockmodem<S, C> > mdm; //!< Modulation scheme
-   boost::shared_ptr<channel<S, C> > txchan; //!< Channel model - transmitter side
-   boost::shared_ptr<channel<S, C> > rxchan; //!< Channel model - receiver side
+   std::shared_ptr<codec<C> > cdc; //!< Error-control codec
+   std::shared_ptr<mapper<C> > map; //!< Symbol-mapper (encoded output to transmitted symbols)
+   std::shared_ptr<blockmodem<S, C> > mdm; //!< Modulation scheme
+   std::shared_ptr<channel<S, C> > txchan; //!< Channel model - transmitter side
+   std::shared_ptr<channel<S, C> > rxchan; //!< Channel model - receiver side
    bool singlechannel; //!< Flag indicating RX = TX channel
    // @}
 #ifndef NDEBUG
@@ -85,27 +85,27 @@ public:
    /*! \name Communication System Setup */
    virtual void seedfrom(libbase::random& r);
    //! Get error-control codec
-   boost::shared_ptr<codec<C> > getcodec() const
+   std::shared_ptr<codec<C> > getcodec() const
       {
       return cdc;
       }
    //! Get symbol mapper
-   boost::shared_ptr<mapper<C> > getmapper() const
+   std::shared_ptr<mapper<C> > getmapper() const
       {
       return map;
       }
    //! Get modulation scheme
-   boost::shared_ptr<blockmodem<S, C> > getmodem() const
+   std::shared_ptr<blockmodem<S, C> > getmodem() const
       {
       return mdm;
       }
    //! Get channel model - transmitter side
-   boost::shared_ptr<channel<S, C> > gettxchan() const
+   std::shared_ptr<channel<S, C> > gettxchan() const
       {
       return txchan;
       }
    //! Get channel model - receiver side
-   boost::shared_ptr<channel<S, C> > getrxchan() const
+   std::shared_ptr<channel<S, C> > getrxchan() const
       {
       return rxchan;
       }

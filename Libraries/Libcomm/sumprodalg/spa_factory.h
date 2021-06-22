@@ -52,22 +52,22 @@ public:
    /*!\brief return an instance of the SPA algorithm
     *
     */
-   static boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > get_spa(
+   static std::shared_ptr<sum_prod_alg_inf<GF_q, real> > get_spa(
          const std::string type, int n, int m,
          const array1vi_t& non_zero_col_pos,
          const array1vi_t& non_zero_row_pos,
          const libbase::matrix<GF_q> pchk_matrix)
       {
-      boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_ptr;
+      std::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_ptr;
       if ("trad" == type)
          {
-         spa_ptr = boost::shared_ptr<sum_prod_alg_inf<GF_q, real> >(
+         spa_ptr = std::shared_ptr<sum_prod_alg_inf<GF_q, real> >(
                new sum_prod_alg_trad<GF_q, real> (n, m, non_zero_col_pos,
                      non_zero_row_pos, pchk_matrix));
          }
       else if ("gdl" == type)
          {
-         spa_ptr = boost::shared_ptr<sum_prod_alg_inf<GF_q, real> >(
+         spa_ptr = std::shared_ptr<sum_prod_alg_inf<GF_q, real> >(
                new sum_prod_alg_gdl<GF_q, real> (n, m, non_zero_col_pos,
                      non_zero_row_pos, pchk_matrix));
          }

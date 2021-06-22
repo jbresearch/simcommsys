@@ -45,7 +45,7 @@ private:
    typedef libbase::masterslave::mode_t mode_t;
 private:
    /*! \name Bound objects */
-   boost::shared_ptr<experiment> system; //!< System being sampled
+   std::shared_ptr<experiment> system; //!< System being sampled
    libbase::masterslave cluster; //!< Master/slave interface
    // @}
    /*! \name Internal variables / settings */
@@ -86,7 +86,7 @@ private:
       }
    void updateresults(libbase::vector<double>& result,
          libbase::vector<double>& errormargin) const;
-   void initslave(boost::shared_ptr<libbase::socket> s, std::string systemstring);
+   void initslave(std::shared_ptr<libbase::socket> s, std::string systemstring);
    void initnewslaves(std::string systemstring);
    void workidleslaves(bool converged);
    bool readpendingslaves();
@@ -126,13 +126,13 @@ public:
                "montecarlo_update")
       {
       // create functors
-      boost::shared_ptr<libbase::functor> fgetcode(
+      std::shared_ptr<libbase::functor> fgetcode(
             new libbase::specificfunctor<montecarlo>(this,
                   &libcomm::montecarlo::slave_getcode));
-      boost::shared_ptr<libbase::functor> fgetparameter(
+      std::shared_ptr<libbase::functor> fgetparameter(
             new libbase::specificfunctor<montecarlo>(this,
                   &libcomm::montecarlo::slave_getparameter));
-      boost::shared_ptr<libbase::functor> fwork(
+      std::shared_ptr<libbase::functor> fwork(
             new libbase::specificfunctor<montecarlo>(this,
                   &libcomm::montecarlo::slave_work));
       // register functions
@@ -155,7 +155,7 @@ public:
       }
    // @}
    /*! \name Simulation binding/releasing */
-   void bind(boost::shared_ptr<experiment> system)
+   void bind(std::shared_ptr<experiment> system)
       {
       this->system = system;
       }

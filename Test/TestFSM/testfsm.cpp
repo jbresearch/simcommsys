@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
    // get a new fsm from stdin
    cerr << "Enter FSM details:" << std::endl;
-   boost::shared_ptr<libcomm::fsm> encoder;
+   std::shared_ptr<libcomm::fsm> encoder;
    cin >> encoder;
    cout << encoder->description() << std::endl;
 

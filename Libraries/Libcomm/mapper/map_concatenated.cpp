@@ -193,7 +193,7 @@ std::istream& map_concatenated<C, dbl>::serialize(std::istream& sin)
    // serialize mappers
    for(int i = 0; i < N; i++)
       {
-      boost::shared_ptr<mapper<C, dbl> > this_mapper;
+      std::shared_ptr<mapper<C, dbl> > this_mapper;
       sin >> libbase::eatcomments >> this_mapper >> libbase::verify;
       mapper_list.push_back(this_mapper);
       // serialize interface size if necessary

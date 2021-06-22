@@ -68,11 +68,11 @@ void process(const std::string& systemfile, const std::string& channelfile,
    // Load stego-medium
    libimage::image<S> stegoimage = loadimage<S> (sin);
    // Stego-system embedder
-   boost::shared_ptr<libcomm::blockembedder<S, C> > system =
+   std::shared_ptr<libcomm::blockembedder<S, C> > system =
          libcomm::loadfromfile<libcomm::blockembedder<S, C> >(systemfile);
    std::cerr << system->description() << std::endl;
    // Channel model
-   boost::shared_ptr<libcomm::channel<S, C> > chan =
+   std::shared_ptr<libcomm::channel<S, C> > chan =
          libcomm::loadfromfile<libcomm::channel<S, C> >(channelfile);
    std::cerr << chan->description() << std::endl;
    // Set channel parameter

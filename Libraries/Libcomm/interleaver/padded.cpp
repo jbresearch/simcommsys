@@ -34,14 +34,14 @@ padded<real>::padded(const interleaver<real>& inter, const fsm& encoder,
       const bool terminated, const bool renewable)
    {
    otp.reset(new onetimepad<real> (encoder, inter.size(), terminated, renewable));
-   this->inter = boost::dynamic_pointer_cast<interleaver<real> > (inter.clone());
+   this->inter = std::dynamic_pointer_cast<interleaver<real> > (inter.clone());
    }
 
 template <class real>
 padded<real>::padded(const padded& x)
    {
-   inter = boost::dynamic_pointer_cast<interleaver<real> > (x.inter->clone());
-   otp = boost::dynamic_pointer_cast<interleaver<real> > (x.otp->clone());
+   inter = std::dynamic_pointer_cast<interleaver<real> > (x.inter->clone());
+   otp = std::dynamic_pointer_cast<interleaver<real> > (x.otp->clone());
    }
 
 // inter-frame operations

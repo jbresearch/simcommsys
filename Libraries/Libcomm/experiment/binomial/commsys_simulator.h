@@ -53,8 +53,8 @@ public:
 
 protected:
    /*! \name Bound objects */
-   boost::shared_ptr<source<int> > src; //!< Source data sequence generator
-   boost::shared_ptr<commsys<S> > sys; //!< Communication systems
+   std::shared_ptr<source<int> > src; //!< Source data sequence generator
+   std::shared_ptr<commsys<S> > sys; //!< Communication systems
    // @}
    /*! \name Internal state */
    array1i_t last_event;
@@ -83,8 +83,8 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    commsys_simulator(const commsys_simulator<S, R>& c) :
-         src(boost::dynamic_pointer_cast<source<int> >(c.src->clone())), sys(
-               boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone()))
+         src(std::dynamic_pointer_cast<source<int> >(c.src->clone())), sys(
+               std::dynamic_pointer_cast<commsys<S> >(c.sys->clone()))
       {
       }
    commsys_simulator()
@@ -141,7 +141,7 @@ public:
 
    /*! \name Component object handles */
    //! Get communication system
-   const boost::shared_ptr<commsys<S> > getsystem() const
+   const std::shared_ptr<commsys<S> > getsystem() const
       {
       return sys;
       }

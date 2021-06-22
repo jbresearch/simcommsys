@@ -109,14 +109,14 @@ private:
    int lookahead; //!< Number of codewords to look ahead when stream decoding
    // @}
    /*! \name Internally-used objects */
-   boost::shared_ptr<channel_insdel<sig,real2> > mychan; //!< bound channel object
+   std::shared_ptr<channel_insdel<sig,real2> > mychan; //!< bound channel object
    mutable libbase::randgen r; //!< for construction and random application of codebooks and marker sequence
    mutable array2vs_t encoding_table; //!< per-frame encoding table
    mutable bool changed_encoding_table; //!< flag indicating encoding table has changed since last use
    int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
    int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
    typedef fba2_interface<sig, real, real2> fba_type;
-   boost::shared_ptr<fba_type> fba_ptr; //!< pointer to algorithm object
+   std::shared_ptr<fba_type> fba_ptr; //!< pointer to algorithm object
    // @}
 private:
    // Atomic modem operations (private as these should never be used)
@@ -246,7 +246,7 @@ public:
                x.mtau_max)
       {
       if (x.mychan)
-         mychan = boost::dynamic_pointer_cast<channel_insdel<sig, real2> > (x.mychan->clone());
+         mychan = std::dynamic_pointer_cast<channel_insdel<sig, real2> > (x.mychan->clone());
       }
    // @}
 

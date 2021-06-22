@@ -312,7 +312,7 @@ private:
    //that is going to be used
    //currently we have trad(=traditional and slow) and
    //gdl(=general distribution law and fast)
-   boost::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
+   std::shared_ptr<sum_prod_alg_inf<GF_q, real> > spa_alg;
 
    //! Hard-decision box
    hard_decision<libbase::vector, real, GF_q> hd_functor;

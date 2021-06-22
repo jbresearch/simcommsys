@@ -199,14 +199,14 @@ bool socket::bind(int16u port)
    return true;
    }
 
-std::list<boost::shared_ptr<socket> > socket::select(
-      std::list<boost::shared_ptr<socket> > sl, const double timeout)
+std::list<std::shared_ptr<socket> > socket::select(
+      std::list<std::shared_ptr<socket> > sl, const double timeout)
    {
    fd_set rfds;
    FD_ZERO(&rfds);
 
    int max = 0;
-   for (std::list<boost::shared_ptr<socket> >::iterator i = sl.begin();
+   for (std::list<std::shared_ptr<socket> >::iterator i = sl.begin();
          i != sl.end(); ++i)
       {
       FD_SET((*i)->sd, &rfds);
@@ -220,8 +220,8 @@ std::list<boost::shared_ptr<socket> > socket::select(
    s_timeout.tv_usec = int((timeout - floor(timeout)) * 1E6);
    ::select(max, &rfds, NULL, NULL, timeout == 0 ? NULL : &s_timeout);
 
-   std::list<boost::shared_ptr<socket> > al;
-   for (std::list<boost::shared_ptr<socket> >::iterator i = sl.begin(); i != sl.end(); ++i)
+   std::list<std::shared_ptr<socket> > al;
+   for (std::list<std::shared_ptr<socket> >::iterator i = sl.begin(); i != sl.end(); ++i)
       {
       if (FD_ISSET((*i)->sd, &rfds))
          al.push_back(*i);
@@ -230,9 +230,9 @@ std::list<boost::shared_ptr<socket> > socket::select(
    return al;
    }
 
-boost::shared_ptr<socket> socket::accept()
+std::shared_ptr<socket> socket::accept()
    {
-   boost::shared_ptr<socket> s(new socket);
+   std::shared_ptr<socket> s(new socket);
    socklen_t len = sizeof(struct sockaddr_in);
    struct sockaddr_in clnt;
    s->sd = (int) ::accept(sd, (struct sockaddr *) &clnt, &len);

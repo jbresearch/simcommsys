@@ -104,7 +104,7 @@ void readnextblock(std::istream& sin, C<S>& result,
 
 template <class S, template <class > class C>
 void receiver_soft_single(std::istream& sin,
-      boost::shared_ptr<libcomm::commsys<S, C> > system,
+      std::shared_ptr<libcomm::commsys<S, C> > system,
       const libbase::size_type<C>& blocksize)
    {
    failwith("Not supported.");
@@ -112,7 +112,7 @@ void receiver_soft_single(std::istream& sin,
 
 template <class S, template <class > class C>
 void receiver_soft_multi(std::istream& sin,
-      boost::shared_ptr<libcomm::commsys<S, C> > system,
+      std::shared_ptr<libcomm::commsys<S, C> > system,
       const libbase::size_type<C>& blocksize)
    {
    typedef libbase::vector<double> array1d_t;
@@ -123,7 +123,7 @@ void receiver_soft_multi(std::istream& sin,
 
 template <class S, template <class > class C>
 void receiver_single(std::istream& sin,
-      boost::shared_ptr<libcomm::commsys<S, C> > system,
+      std::shared_ptr<libcomm::commsys<S, C> > system,
       const libbase::size_type<C>& blocksize)
    {
    C<S> received;
@@ -133,7 +133,7 @@ void receiver_single(std::istream& sin,
 
 template <class S, template <class > class C>
 void receiver_multi(std::istream& sin,
-      boost::shared_ptr<libcomm::commsys<S, C> > system,
+      std::shared_ptr<libcomm::commsys<S, C> > system,
       const libbase::size_type<C>& blocksize)
    {
    C<S> received;
@@ -148,7 +148,7 @@ void receiver_multi(std::istream& sin,
 
 template <class S>
 void receiver_multi_stream(std::istream& sin,
-      boost::shared_ptr<libcomm::commsys_stream<S, libbase::vector, float> > system,
+      std::shared_ptr<libcomm::commsys_stream<S, libbase::vector, float> > system,
       const libbase::size_type<libbase::vector>& blocksize)
    {
    // Keep posterior probabilities at end-of-frame and computed drift
@@ -222,7 +222,7 @@ void receiver_multi_stream(std::istream& sin,
 
 template <class S>
 void receiver_multi_stream(std::istream& sin,
-      boost::shared_ptr<libcomm::commsys_stream<S, libbase::matrix, float> > system,
+      std::shared_ptr<libcomm::commsys_stream<S, libbase::matrix, float> > system,
       const libbase::size_type<libbase::matrix>& blocksize)
    {
    failwith("Not implemented.");
@@ -232,7 +232,7 @@ void receiver_multi_stream(std::istream& sin,
 
 template <class S, template <class > class C>
 void decode_soft(std::ostream& sout,
-      boost::shared_ptr<libcomm::commsys<S, C> > system)
+      std::shared_ptr<libcomm::commsys<S, C> > system)
    {
    typedef libbase::vector<double> array1d_t;
    typedef libcomm::codec_softout<C> codec_so;
@@ -245,7 +245,7 @@ void decode_soft(std::ostream& sout,
 
 template <class S, template <class > class C>
 void decode(std::ostream& sout,
-      boost::shared_ptr<libcomm::commsys<S, C> > system)
+      std::shared_ptr<libcomm::commsys<S, C> > system)
    {
    C<int> decoded;
    for (int i = 0; i < system->num_iter(); i++)
@@ -270,7 +270,7 @@ void process(const std::string& fname, double p, bool softin, bool softout,
    typedef libcomm::commsys_stream<S, C, float> commsys_stream;
 
    // Communication system
-   boost::shared_ptr<commsys> system = libcomm::loadfromfile<commsys>(fname);
+   std::shared_ptr<commsys> system = libcomm::loadfromfile<commsys>(fname);
    std::cerr << system->description() << std::endl;
    // Set channel parameter
    system->getrxchan()->set_parameter(p);
@@ -282,7 +282,7 @@ void process(const std::string& fname, double p, bool softin, bool softout,
    if (!knownend && blocksize == 0)
       blocksize = system->output_block_size();
    // Check if this is a stream-oriented system
-   boost::shared_ptr<commsys_stream> system_stream = boost::dynamic_pointer_cast<
+   std::shared_ptr<commsys_stream> system_stream = std::dynamic_pointer_cast<
          commsys_stream>(system);
 
    // Repeat until required number of blocks read or end of stream

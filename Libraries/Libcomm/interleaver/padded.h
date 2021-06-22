@@ -41,8 +41,8 @@ namespace libcomm {
 
 template <class real>
 class padded : public interleaver<real> {
-   boost::shared_ptr<interleaver<real> > otp;
-   boost::shared_ptr<interleaver<real> > inter;
+   std::shared_ptr<interleaver<real> > otp;
+   std::shared_ptr<interleaver<real> > inter;
 protected:
    padded()
       {

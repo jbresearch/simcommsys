@@ -43,7 +43,7 @@ private:
 public:
    /*! \name Type definitions */
    typedef libbase::vector<dbl> array1d_t;
-   typedef std::list<boost::shared_ptr<mapper<C, dbl> > > mapper_list_t;
+   typedef std::list<std::shared_ptr<mapper<C, dbl> > > mapper_list_t;
    typedef std::list<int> interface_list_t;
    // @}
 
