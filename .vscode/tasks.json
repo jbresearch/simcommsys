@@ -58,5 +58,22 @@
                 "clear": false
             }
         }
+        {
+            "label": "Clean Everything",
+            "type": "shell",
+            "problemMatcher": [],
+            "command": "make clean clean-all clean-dep clean-libs clean-main clean-test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        }
     ]
 }
