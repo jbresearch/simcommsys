@@ -215,18 +215,18 @@ std::istream& codec_concatenated<C, dbl>::serialize(std::istream& sin)
    // serialize codecs
    for(int i = 0; i < N; i++)
       {
-      boost::shared_ptr<codec<C, dbl> > this_codec;
+      std::shared_ptr<codec<C, dbl> > this_codec;
       sin >> libbase::eatcomments >> this_codec >> libbase::verify;
       // get access to soft-out object (and confirm this is valid)
-      boost::shared_ptr<codec_softout<C, dbl> > this_codec_softout =
-            boost::dynamic_pointer_cast<codec_softout<C, dbl> >(this_codec);
+      std::shared_ptr<codec_softout<C, dbl> > this_codec_softout =
+            std::dynamic_pointer_cast<codec_softout<C, dbl> >(this_codec);
       assertalways(this_codec_softout);
       codec_list.push_back(this_codec_softout);
       }
    // serialize mappers
    for(int i = 0; i < N-1; i++)
       {
-      boost::shared_ptr<mapper<C, dbl> > this_mapper;
+      std::shared_ptr<mapper<C, dbl> > this_mapper;
       sin >> libbase::eatcomments >> this_mapper >> libbase::verify;
       mapper_list.push_back(this_mapper);
       }

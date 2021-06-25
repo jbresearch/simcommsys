@@ -30,8 +30,6 @@
 #include "functor.h"
 #include <map>
 
-#include <boost/shared_ptr.hpp>
-
 namespace libbase {
 
 /*!
@@ -111,8 +109,8 @@ public:
 
    // items for use by slaves
 private:
-   std::map<std::string, boost::shared_ptr<functor> > fmap;
-   boost::shared_ptr<socket> master;
+   std::map<std::string, std::shared_ptr<functor> > fmap;
+   std::shared_ptr<socket> master;
    // helper functions
    void close();
    void setpriority(const int priority);
@@ -127,7 +125,7 @@ private:
 public:
    // RPC function calls
    //! Register a RPC function
-   void fregister(const std::string& name, boost::shared_ptr<functor> f);
+   void fregister(const std::string& name, std::shared_ptr<functor> f);
    //! Call a RPC function
    void fcall(const std::string& name);
    // slave -> master communication
@@ -163,9 +161,9 @@ public:
 
    // items for use by master
 private:
-   std::map<boost::shared_ptr<socket>, state_t> smap;
+   std::map<std::shared_ptr<socket>, state_t> smap;
    // helper functions
-   void close(boost::shared_ptr<socket> s);
+   void close(std::shared_ptr<socket> s);
 public:
    // creation and destruction
    masterslave() :
@@ -180,13 +178,13 @@ public:
    // disable process
    void disable();
    // slave-interface functions
-   boost::shared_ptr<socket> find_new_slave();
-   boost::shared_ptr<socket> find_idle_slave();
-   boost::shared_ptr<socket> find_pending_slave();
+   std::shared_ptr<socket> find_new_slave();
+   std::shared_ptr<socket> find_idle_slave();
+   std::shared_ptr<socket> find_pending_slave();
    int count_workingslaves() const;
    bool anyoneworking() const;
    void waitforevent(const bool acceptnew = true, const double timeout = 0);
-   void resetslave(boost::shared_ptr<socket> s);
+   void resetslave(std::shared_ptr<socket> s);
    void resetslaves();
    // informative functions
    size_t getnumslaves() const
@@ -194,42 +192,42 @@ public:
       return smap.size();
       }
    // master -> slave communication
-   void send(boost::shared_ptr<socket> s, const void *buf, const size_t len);
-   void send(boost::shared_ptr<socket> s, const int x)
+   void send(std::shared_ptr<socket> s, const void *buf, const size_t len);
+   void send(std::shared_ptr<socket> s, const int x)
       {
       send(s, &x, sizeof(x));
       }
-   void send(boost::shared_ptr<socket> s, const double x)
+   void send(std::shared_ptr<socket> s, const double x)
       {
       send(s, &x, sizeof(x));
       }
-   void send(boost::shared_ptr<socket> s, const std::string& x)
+   void send(std::shared_ptr<socket> s, const std::string& x)
       {
       int len = int(x.length());
       send(s, len);
       send(s, x.c_str(), len);
       }
-   void call(boost::shared_ptr<socket> s, const std::string& x)
+   void call(std::shared_ptr<socket> s, const std::string& x)
       {
       send(s, int(tag_work));
       send(s, x);
       }
-   void updatecputime(boost::shared_ptr<socket> s);
-   void receive(boost::shared_ptr<socket> s, void *buf, const size_t len);
-   void receive(boost::shared_ptr<socket> s, int& x)
+   void updatecputime(std::shared_ptr<socket> s);
+   void receive(std::shared_ptr<socket> s, void *buf, const size_t len);
+   void receive(std::shared_ptr<socket> s, int& x)
       {
       receive(s, &x, sizeof(x));
       }
-   void receive(boost::shared_ptr<socket> s, libbase::int64u& x)
+   void receive(std::shared_ptr<socket> s, libbase::int64u& x)
       {
       receive(s, &x, sizeof(x));
       }
-   void receive(boost::shared_ptr<socket> s, double& x)
+   void receive(std::shared_ptr<socket> s, double& x)
       {
       receive(s, &x, sizeof(x));
       }
-   void receive(boost::shared_ptr<socket> s, vector<double>& x);
-   void receive(boost::shared_ptr<socket> s, std::string& x);
+   void receive(std::shared_ptr<socket> s, vector<double>& x);
+   void receive(std::shared_ptr<socket> s, std::string& x);
 };
 
 } // end namespace

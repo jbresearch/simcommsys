@@ -33,7 +33,7 @@ template <class real>
 onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
       const bool terminated, const bool renewable) :
    terminated(terminated), renewable(renewable), encoder(
-         boost::dynamic_pointer_cast<fsm> (encoder.clone()))
+         std::dynamic_pointer_cast<fsm> (encoder.clone()))
    {
    const int k = encoder.num_inputs();
    pad.init(tau * k);
@@ -42,7 +42,7 @@ onetimepad<real>::onetimepad(const fsm& encoder, const int tau,
 template <class real>
 onetimepad<real>::onetimepad(const onetimepad& x) :
    terminated(x.terminated), renewable(x.renewable), encoder(
-         boost::dynamic_pointer_cast<fsm> (x.encoder->clone())), pad(x.pad), r(x.r)
+         std::dynamic_pointer_cast<fsm> (x.encoder->clone())), pad(x.pad), r(x.r)
    {
    }
 

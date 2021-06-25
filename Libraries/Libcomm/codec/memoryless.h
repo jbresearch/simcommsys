@@ -57,7 +57,7 @@ public:
 private:
    /*! \name User-specified parameters */
    //! FSM specifying input-output mapping; must have no memory
-   boost::shared_ptr<fsm> encoder;
+   std::shared_ptr<fsm> encoder;
    int tau; //!< Number of time-steps
    // @}
    /*! \name Computed parameters */
@@ -106,7 +106,7 @@ public:
       }
    //! Copy constructor
    memoryless(const memoryless<dbl>& x) :
-         encoder(boost::dynamic_pointer_cast<fsm>(x.encoder->clone())), tau(
+         encoder(std::dynamic_pointer_cast<fsm>(x.encoder->clone())), tau(
                x.tau), rp(x.rp), R(x.R)
       {
       }
@@ -154,4 +154,3 @@ DECLARE_SERIALIZER(memoryless)
 } // end namespace
 
 #endif
-

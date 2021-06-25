@@ -39,7 +39,7 @@ namespace libcomm {
 template <class real>
 class onetimepad : public interleaver<real> {
    bool terminated, renewable;
-   boost::shared_ptr<fsm> encoder;
+   std::shared_ptr<fsm> encoder;
    libbase::vector<int> pad;
    libbase::randgen r;
 protected:

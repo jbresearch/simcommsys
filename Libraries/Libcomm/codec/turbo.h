@@ -99,8 +99,8 @@ public:
 private:
    /*! \name User-defined parameters */
    //! Set of interleavers, one per parity sequence (including first set)
-   libbase::vector<boost::shared_ptr<interleaver<dbl> > > inter;
-   boost::shared_ptr<fsm> encoder; //!< Encoder object (same for all parity sequences)
+   libbase::vector<std::shared_ptr<interleaver<dbl> > > inter;
+   std::shared_ptr<fsm> encoder; //!< Encoder object (same for all parity sequences)
    int iter; //!< Number of iterations to perform
    bool endatzero; //!< Flag to indicate that trellises are terminated
    bool parallel; //!< Flag to enable parallel decoding (rather than serial)
@@ -215,7 +215,7 @@ public:
       {
       }
    turbo(const fsm& encoder,
-         const libbase::vector<boost::shared_ptr<interleaver<dbl> > >& inter,
+         const libbase::vector<std::shared_ptr<interleaver<dbl> > >& inter,
          const int iter, const bool endatzero, const bool parallel = false,
          const bool circular = false);
    ~turbo()

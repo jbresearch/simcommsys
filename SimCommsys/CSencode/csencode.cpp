@@ -31,7 +31,7 @@ void process(const std::string& fname, std::istream& sin = std::cin,
       std::ostream& sout = std::cout)
    {
    // Communication system
-   boost::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadfromfile<
+   std::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadfromfile<
          libcomm::commsys<S, C> >(fname);
    std::cerr << system->description() << std::endl;
    // Initialize system

@@ -38,11 +38,11 @@
 namespace libcomm {
 
 template <class sig, class real, class real2>
-boost::shared_ptr<fba2_interface<sig, real, real2> > fba2_factory<sig, real,
+std::shared_ptr<fba2_interface<sig, real, real2> > fba2_factory<sig, real,
       real2>::get_instance(bool fss, bool thresholding, bool lazy,
       bool globalstore)
    {
-   boost::shared_ptr<fba2_interface<sig, real, real2> > fba_ptr;
+   std::shared_ptr<fba2_interface<sig, real, real2> > fba_ptr;
 
 #ifdef USE_CUDA
 #  define FBA_TYPE cuda::fba2

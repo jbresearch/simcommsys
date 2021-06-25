@@ -71,7 +71,7 @@ public:
 
 protected:
    /*! \name User-defined parameters */
-   boost::shared_ptr<commsys<S> > sys; //!< Communication systems
+   std::shared_ptr<commsys<S> > sys; //!< Communication systems
    exit_t exit_type; //!< enum indicating type of EXIT curve to plot
    bool compute_llr_statistics; //!< switch for computing binary LLR statistics
    double sigma; //!< Sigma value to use when generating binary priors
@@ -98,7 +98,7 @@ public:
     * Initializes system with bound objects cloned from supplied system.
     */
    exit_computer(const exit_computer<S>& c) :
-         sys(boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone())), r(
+         sys(std::dynamic_pointer_cast<commsys<S> >(c.sys->clone())), r(
                c.r), src(c.src)
       {
       }
@@ -175,7 +175,7 @@ public:
 
    /*! \name Component object handles */
    //! Get communication system
-   const boost::shared_ptr<commsys<S> > getsystem() const
+   const std::shared_ptr<commsys<S> > getsystem() const
       {
       return sys;
       }

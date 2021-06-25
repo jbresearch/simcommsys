@@ -66,7 +66,7 @@ void process(const std::string& systemfile, const std::string& hostfile,
    // Load host medium
    libimage::image<S> hostimage = loadimage<S> (hostfile);
    // Stego-system embedder
-   boost::shared_ptr<libcomm::blockembedder<S, C> > system =
+   std::shared_ptr<libcomm::blockembedder<S, C> > system =
          libcomm::loadfromfile<libcomm::blockembedder<S, C> >(systemfile);
    std::cerr << system->description() << std::endl;
    // Initialize system

@@ -104,7 +104,7 @@ public:
 #if DEBUG>=2
       std::cerr << "DEBUG: cached_fsm(const fsm&) constructor" << std::endl;
 #endif
-      boost::shared_ptr<fsm> encoder_copy = boost::dynamic_pointer_cast<fsm> (encoder.clone());
+      std::shared_ptr<fsm> encoder_copy = std::dynamic_pointer_cast<fsm> (encoder.clone());
       init(*encoder_copy);
       reset(encoder.state());
       }

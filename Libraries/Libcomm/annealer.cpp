@@ -25,7 +25,7 @@
 
 namespace libcomm {
 
-void annealer::attach_system(boost::shared_ptr<anneal_system> system)
+void annealer::attach_system(std::shared_ptr<anneal_system> system)
    {
    this->system = system;
    // Set default parameters

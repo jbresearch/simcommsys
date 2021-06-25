@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
             return 0;
             }
          // Set up the estimator
-         boost::shared_ptr<libcomm::experiment> system;
+         std::shared_ptr<libcomm::experiment> system;
          system = libcomm::loadfromfile<libcomm::experiment>(
                vm["system-file"].as<std::string> ());
          estimator.bind(system);

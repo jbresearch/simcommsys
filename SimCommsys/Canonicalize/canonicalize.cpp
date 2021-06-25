@@ -30,7 +30,7 @@ template <class S, template <class > class C>
 void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
    {
    // Read from input stream
-   boost::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadandverify<
+   std::shared_ptr<libcomm::commsys<S, C> > system = libcomm::loadandverify<
          libcomm::commsys<S, C> >(sin);
    // Write details on error stream
    std::cerr << system->description() << std::endl;

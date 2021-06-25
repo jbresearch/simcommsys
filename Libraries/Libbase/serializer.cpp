@@ -37,11 +37,11 @@ namespace libbase {
 
 // static variables
 
-boost::shared_ptr<std::map<std::string, serializer::fptr> > serializer::cmap;
+std::shared_ptr<std::map<std::string, serializer::fptr> > serializer::cmap;
 
 // static functions
 
-boost::shared_ptr<serializable> serializer::call(const std::string& base,
+std::shared_ptr<serializable> serializer::call(const std::string& base,
       const std::string& derived)
    {
    fptr func = (*cmap)[base + ":" + derived];
@@ -49,7 +49,7 @@ boost::shared_ptr<serializable> serializer::call(const std::string& base,
    trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
 #endif
    if (func == NULL)
-      return boost::shared_ptr<serializable>();
+      return std::shared_ptr<serializable>();
    return (*func)();
    }
 
