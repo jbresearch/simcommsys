@@ -27,7 +27,7 @@
 #include "randgen.h"
 #include "rvstatistics.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace libcomm {
 

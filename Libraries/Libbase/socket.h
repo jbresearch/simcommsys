@@ -26,8 +26,7 @@
 
 #include <string>
 #include <list>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace libbase {
 

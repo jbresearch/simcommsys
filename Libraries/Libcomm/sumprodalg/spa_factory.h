@@ -27,9 +27,8 @@
 #include "gf.h"
 #include "matrix.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <string>
+#include <memory>
 #include "logrealfast.h"
 
 namespace libcomm {

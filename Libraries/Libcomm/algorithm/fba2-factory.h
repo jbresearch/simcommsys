@@ -22,9 +22,9 @@
 #ifndef __fba2_factory_h
 #define __fba2_factory_h
 
-#include "fba2-interface.h"
+#include <memory>
 
-#include "boost/shared_ptr.hpp"
+#include "fba2-interface.h"
 
 namespace libcomm {
 

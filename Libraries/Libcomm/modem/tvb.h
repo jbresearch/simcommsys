@@ -38,8 +38,6 @@
 #include <cmath>
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
-
 namespace libcomm {
 
 /*!

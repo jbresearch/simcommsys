@@ -25,7 +25,7 @@
 #include "config.h"
 #include "codec_softout.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace libcomm {
 

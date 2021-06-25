@@ -36,9 +36,8 @@
 #include "sumprodalg/sum_prod_alg_inf.h"
 #include "hard_decision.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <string>
+#include <memory>
 #include <iostream>
 
 namespace libcomm {
